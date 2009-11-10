@@ -10,23 +10,23 @@
 class NicmError(Exception):
     category = 'Error'
 
+class ProgrammingError(NicmError):
+    category = 'NICOS bug'
+
 class ConfigurationError(NicmError):
     category = 'Configuration error'
 
 class UsageError(NicmError):
     category = 'Usage error'
 
-class ProgrammingError(NicmError):
-    category = 'Programming error'
-
 class PositionError(NicmError):
+    category = 'Position error'
+
+class MoveError(NicmError):
     category = 'Positioning error'
+
+class LimitError(NicmError):
+    category = 'Out of bounds'
 
 class CommunicationError(NicmError):
     category = 'Communication error'
-
-class OutofBoundsError(NicmError):
-    category = 'Out of bounds'
-
-class DeviceUndefinedError(NicmError):
-    category = 'Device undefined'

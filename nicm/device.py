@@ -10,7 +10,7 @@ from nicm import nicos
 from nicm import status, loggers
 from nicm.utils import MergedAttrsMeta
 from nicm.errors import ConfigurationError, ProgrammingError, UsageError, \
-     OutofBoundsError
+     LimitError
 
 
 class Configurable(object):
@@ -244,8 +244,8 @@ class Moveable(Startable):
         """Start movement of the device to a new position."""
         ok, why = self.isAllowed(pos)
         if not ok:
-            raise OutofBoundsError('%s: moving to %r is not allowed: %s' %
-                                   (self, pos, why))
+            raise LimitError('%s: moving to %r is not allowed: %s' %
+                             (self, pos, why))
         self.doStart(pos)
 
     moveTo = start
@@ -302,8 +302,8 @@ class Switchable(Startable):
                              (self, pos))
         ok, why = self.isAllowed(realpos)
         if not ok:
-            raise OutofBoundsError('%s: switching to %r is not allowed: %s' %
-                                   (self, pos, why))
+            raise LimitError('%s: switching to %r is not allowed: %s' %
+                             (self, pos, why))
         self.doStart(realpos)
 
     def stop(self):
