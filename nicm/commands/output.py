@@ -8,6 +8,10 @@
 
 from nicm import nicos
 
+__commands__ = [
+    'printdebug', 'printinfo', 'printwarning', 'printerror', 'printexception',
+]
+
 
 def printdebug(*msgs, **kwds):
     nicos.log.debug(*msgs, **kwds)

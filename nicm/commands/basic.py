@@ -15,22 +15,18 @@ from nicm.utils import format_docstring, print_table
 
 from nicm.commands.output import printinfo
 
+__commands__ = [
+    'NicmSetup', 'NicmAddSetup', 'NicmFactory', 'NicmDestroy',
+    'NicmPrint', 'NicmExport', 'listcommands', 'help', #'dir',
+]
+
+
 # -- new versions of builtins --------------------------------------------------
 
 def help(obj=None):
     """Show help for a command or other object."""
     if obj is None:
-        printinfo('Available commands:')
-        items = []
-        for obj in nicos.get_exported_objects():
-            if hasattr(obj, 'is_usercommand'):
-                real_func = getattr(obj, 'real_func', obj)
-                argspec = inspect.formatargspec(*inspect.getargspec(real_func))
-                docstring = real_func.__doc__ or ' '
-                items.append((real_func.__name__ + argspec,
-                              docstring.splitlines()[0]))
-        items.sort()
-        print_table(('name', 'description'), items, printinfo)
+        listcommands()
     elif isinstance(obj, Device):
         printinfo('%s is a device of class %s.' % (obj.getPar('name'),
                                                    obj.__class__.__name__))
@@ -77,3 +73,16 @@ def NicmDestroy(*devnames):
 
 def NicmPrint(pm, text):
     printinfo(text)
+
+def listcommands():
+    printinfo('Available commands:')
+    items = []
+    for obj in nicos.get_exported_objects():
+        if hasattr(obj, 'is_usercommand'):
+            real_func = getattr(obj, 'real_func', obj)
+            argspec = inspect.formatargspec(*inspect.getargspec(real_func))
+            docstring = real_func.__doc__ or ' '
+            items.append((real_func.__name__ + argspec,
+                          docstring.splitlines()[0]))
+    items.sort()
+    print_table(('name', 'description'), items, printinfo)

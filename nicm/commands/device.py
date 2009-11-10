@@ -14,6 +14,11 @@ from nicm.utils import print_table
 
 from nicm.commands.output import printinfo, printexception
 
+__commands__ = [
+    'move', 'maw', 'switch', 'wait', 'read', 'status', 'stop',
+    'count', 'set', 'get', 'listparams', 'listdevices',
+]
+
 
 def _devposlist(dev_pos_list):
     devlist = []

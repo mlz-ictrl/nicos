@@ -11,20 +11,18 @@ from functools import wraps
 
 from nicm.errors import NicmError, UsageError
 
-from nicm.commands.basic import help, dir, NicmSetup, NicmAddSetup, \
-     NicmExport, NicmFactory, NicmDestroy, NicmPrint
-from nicm.commands.device import move, maw, switch, wait, read, status, \
-     stop, count, set, get, listparams, listdevices
-from nicm.commands.output import printdebug, printinfo, printwarning, \
-     printerror, printexception
 
-__commands__ = [
-    'printdebug', 'printinfo', 'printwarning', 'printerror', 'printexception',
-    'NicmSetup', 'NicmAddSetup', 'NicmFactory', 'NicmDestroy',
-    'NicmPrint', 'NicmExport', 'help', #'dir',
-    'move', 'maw', 'switch', 'wait', 'read', 'status', 'stop',
-    'count', 'set', 'get', 'listparams', 'listdevices',
-]
+__commands__ = []
+
+def import_all_commands(module):
+    mod = __import__(module, None, None, ['__commands__'])
+    for command in mod.__commands__:
+        __commands__.append(command)
+        globals()[command] = getattr(mod, command)
+
+import_all_commands('nicm.commands.basic')
+import_all_commands('nicm.commands.device')
+import_all_commands('nicm.commands.output')
 
 
 def user_command(func):
