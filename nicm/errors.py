@@ -30,3 +30,6 @@ class LimitError(NicmError):
 
 class CommunicationError(NicmError):
     category = 'Communication error'
+
+class TimeoutError(CommunicationError):
+    category = 'Timeout'
