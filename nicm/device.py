@@ -120,11 +120,23 @@ class Device(Configurable):
             if adev[aname] is None:
                 setattr(self, aname, None)
                 continue
-            dev = nicos.create_device(adev[aname])
-            if not isinstance(dev, cls):
-                raise ConfigurationError('%s: device adev %r has wrong type' %
-                                         (self, aname))
-            setattr(self, aname, dev)
+            if isinstance(cls, list):
+                cls = cls[0]
+                devlist = []
+                setattr(self, aname, devlist)
+                for i, devname in enumerate(adev[aname]):
+                    dev = nicos.create_device(devname)
+                    if not isinstance(dev, cls):
+                        raise ConfigurationError(
+                            '%s: device adev %r item %d has wrong type' %
+                            (self, aname, i))
+                    devlist.append(dev)
+            else:
+                dev = nicos.create_device(adev[aname])
+                if not isinstance(dev, cls):
+                    raise ConfigurationError(
+                        '%s: device adev %r has wrong type' % (self, aname))
+                setattr(self, aname, dev)
         self.init()
 
     def __str__(self):

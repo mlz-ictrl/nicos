@@ -28,14 +28,14 @@ devices = dict(
                  devname = '//mira4/mira/heinzinger/current'),
 
     a1 = device('nicm.axis.Axis',
-                adev = {'motor': 'm1', 'coder': 'c1'},
+                adev = {'motor': 'm1', 'coder': 'c1', 'obs': ['c1']},
                 absMin = 0,
                 absMax = 100,
                 userMin = 0,
                 userMax = 50),
 
     a2 = device('nicm.axis.Axis',
-                adev = {'motor': 'm2', 'coder': 'c1'},
+                adev = {'motor': 'm2', 'coder': 'c1', 'obs': []},
                 absMin = 0,
                 absMax = 100,
                 userMin = 0,

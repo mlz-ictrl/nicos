@@ -26,6 +26,7 @@ class Axis(Moveable):
     attached_devices = {
         'motor' : NicmMotor,
         'coder' : NicmCoder,
+        'obs'   : [NicmCoder],
     }
 
     parameters = {
