@@ -11,8 +11,8 @@ from functools import wraps
 
 from nicm.errors import NicmError, UsageError
 
-from nicm.commands.basic import help, NicmSetup, NicmAddSetup, NicmExport, \
-     NicmFactory, NicmDestroy, NicmPrint
+from nicm.commands.basic import help, dir, NicmSetup, NicmAddSetup, \
+     NicmExport, NicmFactory, NicmDestroy, NicmPrint
 from nicm.commands.device import move, maw, switch, wait, read, status, \
      stop, count, set, get, listparams, listdevices
 from nicm.commands.output import printdebug, printinfo, printwarning, \
@@ -21,8 +21,8 @@ from nicm.commands.output import printdebug, printinfo, printwarning, \
 __commands__ = [
     'printdebug', 'printinfo', 'printwarning', 'printerror', 'printexception',
     'NicmSetup', 'NicmAddSetup', 'NicmFactory', 'NicmDestroy',
-    'NicmPrint', 'NicmExport',
-    'help', 'move', 'maw', 'switch', 'wait', 'read', 'status', 'stop',
+    'NicmPrint', 'NicmExport', 'help', #'dir',
+    'move', 'maw', 'switch', 'wait', 'read', 'status', 'stop',
     'count', 'set', 'get', 'listparams', 'listdevices',
 ]
 

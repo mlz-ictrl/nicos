@@ -15,6 +15,7 @@ from nicm.utils import format_docstring, print_table
 
 from nicm.commands.output import printinfo
 
+# -- new versions of builtins --------------------------------------------------
 
 def help(obj=None):
     """Show help for a command or other object."""
@@ -42,6 +43,14 @@ def help(obj=None):
         argspec = inspect.formatargspec(*inspect.getargspec(real_func))
         printinfo('Usage: ' + real_func.__name__ + argspec)
         printinfo(format_docstring(real_func.__doc__ or '', '   '))
+
+def dir(obj=None):
+    if obj is None:
+        return __builtin__.dir()
+    return [name for name in __builtin__.dir(obj) if not name.startswith('_')]
+
+
+# -- other basic commands ------------------------------------------------------
 
 def NicmSetup(setupname, **variables):
     """Load the given setup instead of the current one."""
