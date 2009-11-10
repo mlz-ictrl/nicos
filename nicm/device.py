@@ -82,8 +82,8 @@ class Configurable(object):
                 if hasattr(self, methodname):
                     getattr(self, methodname)(value)
                 else:
-                    raise UsageError('%s: cannot set the %s parameter' %
-                                     (self, param))
+                    raise ConfigurationError(
+                        '%s: cannot set the %s parameter' % (self, param))
             setattr(self, 'get' + param.title(), getter)
             setattr(self, 'set' + param.title(), setter)
 
