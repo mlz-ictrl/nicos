@@ -68,7 +68,7 @@ def NicmExport(name, object):
 def NicmFactory(*devnames):
     """Create all given devices."""
     for devname in devnames:
-        nicos.create_device(devname, recreate=True, explicit=True)
+        nicos.create_device(devname, explicit=True)
 
 def NicmDestroy(*devnames):
     """Destroy all given devices."""

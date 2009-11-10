@@ -151,10 +151,10 @@ class NICOS(object):
 
     def unexport(self, name):
         if name not in self.__namespace:
-            self.warning('NICOS.unexport: name %r not in namespace' % name)
+            self.log.warning('unexport: name %r not in namespace' % name)
             return
         if name not in self.__exported_names:
-            self.warning('NICOS.unexport: name %r not exported by NICOS' % name)
+            self.log.warning('unexport: name %r not exported by NICOS' % name)
         del self.__namespace[name]
         self.__exported_names.remove(name)
 
@@ -212,7 +212,8 @@ class NICOS(object):
         self.devices[devname].shutdown()
         del self.devices[devname]
         self.explicit_devices.discard(devname)
-        self.unexport(devname)
+        if devname in self.__namespace:
+            self.unexport(devname)
 
     # -- Logging ---------------------------------------------------------------
 
