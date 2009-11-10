@@ -3,11 +3,4 @@
 name = 'NICOS startup setup'
 
 modules = []
-
 devices = {}
-
-startupcode = '''
-print 'startup code executed'
-'''
-
-#include('base')

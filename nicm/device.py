@@ -44,6 +44,8 @@ class Configurable(object):
         config = dict((name.lower(), value) for (name, value) in config.items())
         for param, paraminfo in self.parameters.iteritems():
             param = param.lower()
+
+            # check validity of parameter info
             if not isinstance(paraminfo, tuple) or len(paraminfo) != 3:
                 raise ProgrammingError('%r device %r configuration parameter '
                                        'info should be a 3-tuple' %
@@ -52,6 +54,8 @@ class Configurable(object):
             deftype = type(default)
             if deftype in (int, long, float):
                 deftype = (int, long, float)
+
+            # check the parameter type and set it in self._params
             if param in config:
                 if not isinstance(config[param], deftype):
                     raise ConfigurationError(
@@ -65,6 +69,25 @@ class Configurable(object):
             else:
                 raise ConfigurationError('%s: missing configuration '
                                          'parameter %r' % (name, param))
+
+            # create getter and setter methods for the parameter
+            def getter(param=param):
+                methodname = 'doGet' + param.title()
+                if hasattr(self, methodname):
+                    return getattr(self, methodname)()
+                else:
+                    return self._params[param.lower()]
+            def setter(value, param=param):
+                methodname = 'doSet' + param.title()
+                if hasattr(self, methodname):
+                    getattr(self, methodname)(value)
+                else:
+                    raise UsageError('%s: cannot set the %s parameter' %
+                                     (self, param))
+            setattr(self, 'get' + param.title(), getter)
+            setattr(self, 'set' + param.title(), setter)
+
+        # initialize some standard parameters
         self._params['name'] = name
         if not self._params['description']:
             self._params['description'] = name
@@ -75,21 +98,13 @@ class Configurable(object):
         """Get a parameter of the device."""
         if name.lower() not in self.parameters:
             raise UsageError('device %s has no parameter %s' % (self, name))
-        methodname = 'doGet' + name.title()
-        if hasattr(self, methodname):
-            return getattr(self, methodname)()
-        else:
-            return self._params[name.lower()]
+        return getattr(self, 'get' + name.title())()
 
     def setPar(self, name, value):
         """Set a parameter of the device to a new value."""
         if name.lower() not in self.parameters:
             raise UsageError('%s: device has no parameter %s' % (self, name))
-        methodname = 'doSet' + name.title()
-        if hasattr(self, methodname):
-            getattr(self, methodname)(value)
-        else:
-            raise UsageError('%s: cannot set the %s parameter' % (self, name))
+        getattr(self, 'set' + name.title())(value)
 
     def doSetLoglevel(self, value):
         if value not in loggers.loglevels:
@@ -255,12 +270,6 @@ class Moveable(Startable):
         if hasattr(self, 'doIsAllowed'):
             return self.doIsAllowed(pos)
         return True, ''
-
-    def doSetAbsmax(self, value):
-        raise UsageError('cannot set the "absMax" parameter')
-
-    def doSetAbsmin(self, value):
-        raise UsageError('cannot set the "absMax" parameter')
 
 
 class Switchable(Startable):

@@ -231,6 +231,8 @@ class NICOS(object):
             self.log.log(OUTPUT, repr(value))
 
     def __excepthook(self, etype, evalue, etb):
+        if etype is KeyboardInterrupt:
+            return
         self.log.error('unhandled exception occurred',
                        exc_info=(etype, evalue, etb))
 

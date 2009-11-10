@@ -28,4 +28,4 @@ nicos.load_setup('startup')
 nicos.log.info('--- done')
 
 # Fire up an interactive console (XXX this call needs to be done from outside).
-nicos.console()
+#nicos.console()

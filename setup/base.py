@@ -42,4 +42,6 @@ devices = dict(
                 userMax = 50),
 )
 
-#include('test1')
+startupcode = '''
+print 'startup code executed'
+'''
