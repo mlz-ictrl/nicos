@@ -1,0 +1,170 @@
+# -*- coding: utf-8 -*-
+"""
+    nicm.loggers
+    ~~~~~~~~~~~~
+
+    Logging utilities specific to NICOS.
+"""
+
+import sys
+import time
+import traceback
+from logging import setLoggerClass, addLevelName, Logger, \
+     Formatter, StreamHandler, DEBUG, INFO, WARNING, ERROR
+from logging.handlers import BaseRotatingHandler
+
+from nicm.errors import NicmError
+from nicm.utils import colorize
+
+
+LOGFMT = '%(name)-10s : %(asctime)s : %(levelname)-7s : %(message)s'
+DATEFMT = '%H:%M:%S'
+LONGDATEFMT = '%Y-%m-%d %H:%M:%S'
+DATESTAMP_FMT = '%Y-%m-%d'
+SECONDS_PER_DAY = 60 * 60 * 24
+
+OUTPUT = INFO + 5
+INPUT  = INFO + 6
+
+loglevels = {'debug': DEBUG, 'info': INFO, 'warning': WARNING, 'error': ERROR,
+             'input': INPUT, 'output': OUTPUT}
+
+
+class NicmLogger(Logger):
+    """
+    Nicos logger class with special method behavior.
+    """
+
+    def exception(self, *msgs, **kwds):
+        errtype, err, tb = sys.exc_info()
+        if isinstance(err, NicmError):
+            self.error('%s: %s' % (err.category, err), **kwds)
+        else:
+            Logger.exception(self, ' '.join(map(str, msgs)), **kwds)
+
+    def error(self, *msgs, **kwds):
+        Logger.error(self, ' '.join(map(str, msgs)), **kwds)
+
+    def warning(self, *msgs):
+        Logger.warning(self, ' '.join(map(str, msgs)))
+
+    def info(self, *msgs, **kwds):
+        msg = ' '.join(map(str, msgs))
+        Logger.info(self, msg, extra=kwds)
+
+    def debug(self, *msgs, **kwds):
+        msg = ' '.join(map(str, msgs))
+        Logger.debug(self, msg, extra=kwds)
+
+
+class ColoredConsoleFormatter(Formatter):
+    """
+    A lightweight formatter with colored output.
+    """
+
+    def formatException(self, exc_info):
+        return traceback.format_exception_only(*exc_info[0:2])[-1]
+
+    def format(self, record):
+        levelno = record.levelno
+        if record.name == 'nicos':
+            namefmt = ''
+        else:
+            namefmt = '%(name)s: '
+        if levelno <= DEBUG:
+            fmtstr = colorize('darkgray', '%s%%(message)s' % namefmt)
+        elif levelno <= OUTPUT:
+            fmtstr = '%s%%(message)s' % namefmt
+        elif levelno == INPUT:
+            # do not display input again
+            return ''
+        elif levelno <= WARNING:
+            fmtstr = colorize('bold', '%%(levelname)s: %s%%(message)s' %
+                              namefmt)
+        else:
+            fmtstr = colorize('red', '%%(levelname)s [%%(asctime)s] '
+                              '%s%%(message)s' % namefmt)
+        if not getattr(record, 'nonl', False):
+            fmtstr += '\n'
+        record.message = record.getMessage()
+        record.asctime = self.formatTime(record, None)
+        s = fmtstr % record.__dict__
+        if record.exc_info:
+            # *not* caching exception text on the record, since it's
+            # only a short version
+            exc_text = self.formatException(record.exc_info)
+            s += exc_text
+        return s
+
+
+class ColoredConsoleHandler(StreamHandler):
+    """
+    A handler class that writes colorized records to standard output.
+    """
+
+    def __init__(self):
+        StreamHandler.__init__(self, sys.stdout)
+        self.setFormatter(ColoredConsoleFormatter(datefmt=LONGDATEFMT))
+
+    def emit(self, record):
+        msg = self.format(record)
+        self.stream.write(msg)
+        self.stream.flush()
+
+
+class NicmLogfileFormatter(Formatter):
+    """
+    The standard Formatter does not support milliseconds with an explicit
+    datestamp format.  It also doesn't show the full traceback for exceptions.
+    """
+
+    def formatException(self, ei):
+        s = ''.join(traceback.format_exception(ei[0], ei[1], ei[2], sys.maxint))
+        if s.endswith('\n'):
+            s = s[:-1]
+        return s
+
+    def formatTime(self, record, datefmt=None):
+        res = time.strftime(DATEFMT, self.converter(record.created))
+        res += ',%03d' % record.msecs
+        return res
+
+
+class NicmLogfileHandler(BaseRotatingHandler):
+    """
+    Logs to log files with a date stamp appended, and rollover on midnight.
+    """
+
+    def __init__(self, filenameprefix='nicm.log', dayfmt=DATESTAMP_FMT):
+        self._filenameprefix = filenameprefix
+        self._dayfmt = dayfmt
+        # today's logfile name
+        basefilename = filenameprefix + '-' + time.strftime(dayfmt)
+        BaseRotatingHandler.__init__(self, basefilename, 'a')
+        # determine time of first midnight from now on
+        t = time.localtime()
+        self.rollover_at = time.mktime((t[0], t[1], t[2], 0, 0, 0,
+                                        t[6], t[7], t[8])) + SECONDS_PER_DAY
+        self.setFormatter(NicmLogfileFormatter(LOGFMT, DATEFMT))
+
+    def shouldRollover(self, record):
+        t = int(time.time())
+        if t >= self.rollover_at:
+            return True
+        return False
+
+    def doRollover(self):
+        self.stream.close()
+        self.baseFilename = self._filenameprefix + '-' + \
+                            time.strftime(self._dayfmt)
+        if hasattr(self, 'encoding') and self.encoding:
+            self.stream = codecs.open(self.baseFilename, 'w', self.encoding)
+        else:
+            self.stream = open(self.baseFilename, 'w')
+        self.rollover_at += SECONDS_PER_DAY
+
+
+def init_logging():
+    setLoggerClass(NicmLogger)
+    addLevelName(OUTPUT, 'OUTPUT')
+    addLevelName(INPUT, 'INPUT')
