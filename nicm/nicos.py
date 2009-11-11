@@ -42,6 +42,8 @@ class NICOS(object):
         self.__namespace = {}
         # contains all NICOS-exported names
         self.__exported_names = set()
+        # contains all loaded toplevel (not included) setups
+        self.__loaded_setups = []
 
         self.__init_logging()
 
@@ -57,6 +59,9 @@ class NICOS(object):
         should be a sibling to this package's directory.
         """
         log = self.get_logger('setup')
+        if modname in self.__loaded_setups:
+            log.warning('setup %s is already loaded' % modname)
+            return
 
         modpath = path.join(path.dirname(__file__), '..', 'setup')
         try:
@@ -96,7 +101,8 @@ class NICOS(object):
             # still in recursive setup call
             return
 
-        sys.ps1 = '(%s)>>> ' % modname
+        self.__loaded_setups.append(modname)
+        sys.ps1 = '(%s)>>> ' % '+'.join(self.__loaded_setups)
 
         from nicm.commands import user_command
         for modname in self.__setup_modules:
@@ -138,12 +144,16 @@ class NICOS(object):
         """Unload the current setup: destroy all devices and clear the
         NICOS namespace.
         """
+        # XXX order shutdown by device dependencies
         for devname, dev in self.devices.items():
             dev.shutdown()
             self.unexport(devname)
+            del self.devices[devname]
         self.configured_devices.clear()
+        self.explicit_devices.clear()
         for name in list(self.__exported_names):
             self.unexport(name)
+        self.__loaded_setups = []
 
     def export(self, name, object):
         self.__namespace[name] = object

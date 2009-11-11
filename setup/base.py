@@ -2,7 +2,7 @@
 
 # NICOS test setup
 
-name = 'Test base setup'
+name = 'test setup with a few devices'
 
 modules = ['nicm.commands']
 
@@ -22,10 +22,6 @@ devices = dict(
     c1 = device('nicm.testdev.VirtualCoder',
                 autocreate = False,
                 unit = 'deg'),
-
-    dc1 = device('taco.base.TacoAnalogIO',
-                 autocreate = False,
-                 devname = '//mira4/mira/heinzinger/current'),
 
     a1 = device('nicm.axis.Axis',
                 adev = {'motor': 'm1', 'coder': 'c1', 'obs': ['c1']},

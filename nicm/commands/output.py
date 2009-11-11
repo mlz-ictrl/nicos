@@ -19,7 +19,7 @@ def printdebug(*msgs, **kwds):
 def printinfo(*msgs, **kwds):
     nicos.log.info(*msgs, **kwds)
 
-def printwarning(*msgs):
+def printwarning(*msgs, **kwds):
     nicos.log.warning(*msgs, **kwds)
 
 def printerror(*msgs):

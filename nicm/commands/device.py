@@ -76,7 +76,8 @@ def wait(*devlist):
     out of "busy" status.
     """
     if not devlist:
-        raise UsageError('at least one device must be given')
+        devlist = [nicos.devices[devname] for devname in nicos.explicit_devices
+                   if isinstance(nicos.devices[devname], Startable)]
     for dev in devlist:
         dev = nicos.get_device(dev, Startable)
         printinfo('waiting for', dev)

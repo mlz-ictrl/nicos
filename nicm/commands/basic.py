@@ -13,7 +13,7 @@ from nicm import nicos
 from nicm.device import Device
 from nicm.utils import format_docstring, print_table
 
-from nicm.commands.output import printinfo
+from nicm.commands.output import printinfo, printexception
 
 __commands__ = [
     'NicmSetup', 'NicmAddSetup', 'NicmFactory', 'NicmDestroy',
@@ -51,7 +51,11 @@ def dir(obj=None):
 def NicmSetup(setupname, **variables):
     """Load the given setup instead of the current one."""
     nicos.unload_setup()
-    nicos.load_setup(setupname, **variables)
+    try:
+        nicos.load_setup(setupname, **variables)
+    except Exception:
+        printexception()
+        nicos.load_setup('startup')
 
 def NicmAddSetup(setupname, **variables):
     """Load the given setup additional to the current one."""
