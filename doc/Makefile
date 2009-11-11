@@ -3,11 +3,11 @@
 .SUFFIXES: .txt .html
 
 .txt.html:
-	rst2html --stylesheet-path=style.css --embed-stylesheet $< $@
+	rst2html --stylesheet-path=style.css --link-stylesheet $< $@
 
 TARGETS=$(patsubst %.txt,%.html,$(wildcard *.txt))
 
 all: $(TARGETS)
 
-$(TARGETS): style.css
-
+clean:
+	rm *.html

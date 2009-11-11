@@ -1,0 +1,16 @@
+.. -*- mode: rst -*-
+
+=====================
+NICM v2 Documentation
+=====================
+
+:Author:   $Author$
+:Date:     $Date$
+:Revision: $Revision$
+
+Contents
+========
+
+* `NICOS setups <setup.html>`_
+
+* `Writing devices <devices.html>`_
