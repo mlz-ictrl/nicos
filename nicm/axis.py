@@ -15,7 +15,7 @@ import time
 
 from nicm import status
 from nicm.device import Moveable
-from nicm.errors import ConfigurationError, NicmError
+from nicm.errors import ConfigurationError, NicmError, LimitError, PositionError
 from nicm.motor import Motor as NicmMotor
 from nicm.coder import Coder as NicmCoder
 
@@ -39,7 +39,7 @@ class Axis(Moveable):
     }
 
     def doInit(self):
-        if self.motor.getPar("unit") != self.coder.getPar("unit"):
+        if self.coder.getUnit() != self.motor.getUnit():
             raise ConfigurationError('%s: different units for motor '
                                      'and coder' % self)
 
@@ -50,20 +50,20 @@ class Axis(Moveable):
         self.__thread = None
         self.__target = self.read()
         self.__mutex = threading.RLock()
-        self.__stopRequest = False
+        self.__stopRequest = 0
         self.__error = 0
         self.__locked = False
 
-        self.setPar('unit', self.motor.getPar('unit'))
+        self.setPar('unit', self.motor.getUnit())
 
     def doStart(self, target, locked=False):
         """Starts the movement of the axis to target."""
         if self.__locked:
             raise NicmError('%s: this axis is locked' % self)
         if not self.isAllowed(target):
-            raise NicmError('%s: target %f is not allowed, limits [%f, %f]' %
+            raise LimitError('%s: target %f is not allowed, limits [%f, %f]' %
                             (self, target,
-                             self.getPar('userMin'), self.getPar('userMax')))
+                             self.getUsermin(), self.getUsermax()))
         if self.__thread:
             if self.__thread.isAlive():
                 raise NicmError('%s: axis is moving now, please issue a stop '
@@ -74,7 +74,7 @@ class Axis(Moveable):
                 self.__thread = None
         try:
             self.__target = target
-            self.__stopRequest = False
+            self.__stopRequest = 0
             self.__locked = locked   # lock the movement
             self.__error = 0
             if not self.__thread:
@@ -86,9 +86,9 @@ class Axis(Moveable):
             raise Exception('%s: anything went wrong' % self)
 
     def doIsAllowed(self, target):
-        if not self.getPar('userMin') <= target <= self.getPar('userMax'):
-            return False, 'limits are [%f, %f]' % (self.getPar('usermin'),
-                                                   self.getPar('usermax'))
+        if not self.getUsermin() <= target <= self.getUsermax() :
+            return False, 'limits are [%f, %f]' % (self.getUsermin(),
+                                                   self.getUsermax())
         return True, '' 
 
     def doRead(self):
@@ -109,19 +109,19 @@ class Axis(Moveable):
         # Avoid the use of the setPar method for the absolute limits
         # due to the limitations of the hardware
         if (diff < 0):
-                setattr(self, 'absMax', self.getPar('absMax') - diff)
-                setattr(self, 'absMin', self.getPar('absMin') - diff)
+                self._params['absMax'] = self.getAbsmax() - diff
+                self._params['absMin'] = self.getAbsmin() - diff
         else:
-                setattr(self, 'absMin', self.getPar('absMin') - diff)
-                setattr(self, 'absMax', self.getPar('absMax') - diff)
+                self._params['absMin'] = self.getAbsmin() - diff
+                self._params['absMax'] = self.getAbsmax() - diff
         self.__checkAbsLimits()
 
         if (diff < 0):
-                setattr(self, 'userMin', self.getPar('userMin') - diff)
-                setattr(self, 'userMax', self.getPar('userMax') - diff)
+                self._params['userMin'] = self.getUsermin() - diff
+                self._params['userMax'] = self.getUsermax() - diff
         else:
-                setattr(self, 'userMax', self.getPar('userMax') - diff)
-                setattr(self, 'userMin', self.getPar('userMin') - diff)
+                self._params['userMax'] = self.getUsermax() - diff
+                self._params['userMin'] = self.getUsermin() - diff
         self.__checkUserLimits()
 
     def doStatus(self):
@@ -142,7 +142,7 @@ class Axis(Moveable):
 
     def doStop(self):
         """Stops the movement of the motor."""
-        self.__stopRequest = True
+        self.__stopRequest = 1
 
     def doWait(self):
         """Waits until the movement of the motor has stopped and
@@ -150,7 +150,7 @@ class Axis(Moveable):
         """
         try:
             while (self.status() == status.BUSY):
-                 time.sleep(self.getPar('loopdelay'))
+                 time.sleep(self.getLoopdelay())
         except Exception:
             raise Exception('%s: ' % self)
 
@@ -183,65 +183,70 @@ class Axis(Moveable):
             raise e
 
     def __checkAbsLimits(self):
-        absMin = self.getPar('absMin')
-        absMax = self.getPar('absMax')
+        absMin = self.getAbsmin()
+        absMax = self.getAbsmax()
         if not absMin and not absMax:
-            raise NicmError('%s: no absolute limits defined (absMin, absMax)' %
+            raise ConfigurationError('%s: no absolute limits defined (absMin, absMax)' %
                             self)
         if absMin >= absMax:
-            raise NicmError('%s: lower limit is too large [%f, %f]' %
+            raise ConfigurationError('%s: lower limit is too large [%f, %f]' %
                             (self, absMin, absMax))
 
     def __checkUserLimits(self, setthem=False):
-        absMin = self.getPar('absMin')
-        absMax = self.getPar('absMax')
-        userMin = self.getPar('userMin')
-        userMax = self.getPar('userMax')
+        absMin = self.getAbsmin()
+        absMax = self.getAbsmax()
+        userMin = self.getUsermin()
+        userMax = self.getUsermax()
         if not userMin and not userMax and setthem:
             # if both not set (0) then use absolute min. and max.
             userMin = absMin
             userMax = absMax
-            self.setPar('userMin', userMin)
-            self.setPar('userMax', userMax)
+            self._params['usermin'] = userMin
+            self._params['usermax'] = userMax
         if (userMin >= userMax):
-            raise NicmError('%s: lower user limit is too large [%f, %f]' %
+            raise ConfigurationError('%s: lower user limit is too large [%f, %f]' %
                             (self, userMin, userMax))
         if userMin < absMin:
-            raise NicmError('%s: user minimum (%f) below the absolute minimum (%f)' %
+            raise ConfigurationError('%s: user minimum (%f) below the absolute minimum (%f)' %
                             (self, userMin, absMin))
         if userMin > absMax:
-            raise NicmError('%s: user minimum (%f) above the absolute maximum (%f)' %
+            raise ConfigurationError('%s: user minimum (%f) above the absolute maximum (%f)' %
                             (self, userMin, absMax))
         if userMax > absMax:
-            raise NicmError('%s: user maximum (%f) above the absolute maximum (%f)' %
+            raise ConfigurationError('%s: user maximum (%f) above the absolute maximum (%f)' %
                             (self, userMin, absMax))
         if userMax < absMin:
-            raise NicmError('%s: user minimum (%f) below the absolute minimum (%f)' %
+            raise ConfigurationError('%s: user minimum (%f) below the absolute minimum (%f)' %
                             (self, userMin, absMin))
 
     def __checkFollowError(self):
-         return abs(self.motor.read() - self.coder.read()) <= self.getPar('followerr')
+        tmp = abs(self.motor.read() - self.coder.read()) 
+        # print 'Diff %.3f' % tmp
+        return tmp <= self.getFollowerr()
 
     def __checkTargetPosition(self):
-         return abs(self.read() - self.__target) <= self.getPar('precision')
+         return abs(self.read() - self.__target) <= self.getPrecision()
 
     def __positioning(self):
-        self.motor.start(self.__target + self.__offset)
-        moving = True
-        maxtries = self.getPar('maxtries')
+        moving = False
+        maxtries = self.getMaxtries()
         self.__error = 0
+        if not self.__checkTargetPosition() : 
+            self.motor.start(self.__target + self.__offset)
+            moving = True
         while moving:
-            if self.__stopRequest:
+            if self.__stopRequest == 1:
                 self.motor.stop()
+                self.__stopRequest = 2
                 continue
-            time.sleep(self.getPar('loopdelay'))
+            time.sleep(self.getLoopdelay())
             if not self.__checkFollowError():
                 # following error (motor != coder)
                 self.motor.stop()
                 self.__error = 1
                 moving = False
             elif self.motor.status() != status.BUSY:             # motor stopped
-                if self.__stopRequest or self.__checkTargetPosition():
+                if self.__stopRequest == 2 or self.__checkTargetPosition():
                     # manual stop or target reached
                     moving = False
                     break;
@@ -258,13 +263,13 @@ class Axis(Moveable):
             pass
             try:
                 if self.__error == 1:
-                    raise NicmError('%s: following error ' % self)
+                    raise PositionError('%s: following error ' % self)
                 elif self.__error == 2:
-                    raise NicmError('%s: precision error ' % self)
+                    raise PositionError('%s: precision error ' % self)
                 else:
                     pass
             except NicmError, e:
-                #nicm.definition.logerror()
+                self.printerror()
                 raise e
         if self.__locked:
             # if the movement was locked, unlock it
