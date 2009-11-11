@@ -1,0 +1,319 @@
+.. -*- mode: rst -*-
+
+=====================
+NICM v2 Documentation
+=====================
+
+:Author:   $Author$
+:Date:     $Date$
+:Revision: $Revision$
+
+
+Writing devices
+---------------
+
+The base classes for all devices are contained in the module ``nicm.device``.
+There is a hierarchy of classes that correspond to varying levels of interaction
+that is possible with the device:
+
+``Configurable``
+   This class supports setting parameters from the configuration, and allows the
+   user to get and set parameter values.
+
+   Configurable objects must have a ``parameters`` class attribute that defines
+   the available additional parameters.  It must be a dictionary mapping
+   parameter name to a tuple of ``(default, mandatory, description)`` where
+   *default* is the default value, *mandatory* specifies whether the parameter
+   must be set in the configuration, and *description* describes the parameter
+   shortly.
+
+   The ``parameters`` attribute does *not* need to contain the parameters of
+   base classes again, they are automatically merged.  (But it *can* contain a
+   parameter defined by a base class, in order to override its properties.  For
+   example, while usually the ``unit`` parameter is mandatory, it can be omitted
+   for devices that can find out their unit automatically.)
+
+   Public methods:
+
+   ``getPar(name)``
+      *Interface:* Return the parameter given by *name*.
+
+      *Implementation:* A getter method is automatically created for each
+      parameter, e.g. ``getUnit()`` for the *unit* parameter.  Each of these
+      getters calls a ``doGetParamname()`` (e.g. ``doGetUnit()``) method if
+      present, otherwise simply returns the parameter value from an internal
+      dictionary, ``_params``.
+
+      Within a device class, methods *can* directly use parameter values from
+      ``self._params``, but are advised to use the ``getParamname()`` function when
+      possible.
+
+   ``setPar(name, value)``
+      *Interface:* Set the parameter given by *name* to *value*.  If the given
+      value is invalid for this parameter, raise ``ConfigurationError``.
+
+      *Implementation:* A setter method is automatically created for each
+      parameter, e.g. ``setUnit(value)`` for the *unit* parameter.  Each of
+      these setters calls a ``doSetParamname(value)`` method if present,
+      otherwise assumes that the parameter is not settable and raises
+      ``ConfigurationError``.  The ``doSetParamname`` method should raise
+      ``ConfigurationError`` for invalid values and otherwise set the new value
+      in the ``_params`` dictionary in addition to device-specific actions
+      (e.g. setting the new value in the hardware as well).
+
+      Within a device class, methods *can* directly set parameter values in
+      ``self._params``, but are advised to use the ``setParamname()`` function
+      when possible.
+
+   Parameters:
+
+   ``name`` : string, optional
+      The device name.  This parameter should not be set in the configuration,
+      it is set to the chosen device name automatically.
+
+   ``description`` : string, optional
+      A more verbose device description.  If not given, this parameter is set to
+      be the same as the ``name`` parameter.
+
+   ``autocreate`` : bool, optional
+      Indicates whether the device should be created automatically and be
+      available to the user.  Default is true.
+
+   ``loglevel`` : string, optional
+      The loglevel for output from the device.  This must be set to one of the
+      loglevel constants.  Default is ``info``.
+
+
+``Device``, inheriting from ``Configurable``
+   This class additionally supports initialization and shutdown, as well as
+   "attached devices".
+
+   Device classes can have an ``attached_devices`` attribute that defines the
+   class's "attached devices" it needs to operate, such as a low-level
+   communication device, or motor and encoders for an axis class.  It maps the
+   "internal name" (the device will be available as an attribute with that name)
+   to the type of the device (which usually is an abstract type).  For example::
+
+      attached_devices = {'motor': nicm.motor.Motor, 'coder': nicm.coder.Coder}
+
+   The actual attached devices for a specific instance (given in the instance's
+   ``adev`` parameter) are then type-checked against these types.  As a special
+   case, if the type is a list containing one type, such as ``[Readable]``, the
+   corresponding entry in the ``adev`` must be a list of zero to many instances
+   of that type.
+
+   The ``attached_devices`` attribute does *not* need to contain the entries of
+   base classes again, they are automatically merged.
+
+   Public methods:
+
+   ``init()``
+      *Interface:* Initialize the device.  This method is called by the NICOS
+      system when the device instance has been created, all parameters are set
+      and all attached devices have been created and initialized.
+
+      *Implementation:* Simply calls a ``doInit()`` method if present.
+
+   ``shutdown()``
+      *Interface:* Shut down the device.  This method is called by the NICOS
+      system when the device is destroyed, manually or because the current setup
+      is unloaded.
+
+      *Implementation:* Simply calls a ``doShutdown()`` method if present.
+
+   Parameters:
+
+   ``adev`` : dictionary, optional
+      For device classes that need attached devices, this dictionary maps the
+      internal name (given by the device's ``attached_devices`` attribute) to
+      the device name in the configuration.  For example, for an axis that
+      controls a motor and encoder, the dictionary could look like ``{'motor':
+      'mth_motor', 'coder': 'mth_coder'}``.
+
+
+``Readable``, inheriting from ``Device``
+   This class additionally supports this public interface:
+
+   Public methods:
+
+   ``read()``
+      *Interface:* Read and return the main value of the device.
+
+      *Implementation:* Simply calls the ``doRead()`` method.  This method must
+      be implemented somewhere in the inheritance chain of the concrete device
+      class.
+
+   ``status()``
+      *Interface:* Return the status of the device, as an integer constant as
+      defined by the ``nicm.status`` module.
+
+      *Implementation:* This calls a ``doStatus()`` method, if present, and
+      checks that its return value is a valid status constant.  Otherwise it
+      returns ``status.UNKNOWN``.
+
+   ``reset()``
+      *Interface:* Reset the device.
+
+      *Implementation:* Simply calls ``doReset()`` if present.
+
+   ``format(value)``
+      *Interface:* Format a value returned by ``read()`` into a human-readable
+      string.  This e.g. transforms a returned float into a string with a fixed
+      number of decimals.  It does not include the unit.
+
+      *Implementation:* This calls a ``doFormat(value)`` method, if present, and
+      otherwise formats *value* with the ``fmtstr`` parameter using Python
+      string formatting (the ``%`` operator).
+
+   Parameters:
+
+   ``fmtstr`` : string, optional
+      A string format template that determines how the default ``format()``
+      implementation formats the device value.
+
+   ``unit`` : string, mandatory
+      The unit of the device value.
+
+
+``Startable``, inheriting from ``Device``
+   This class is simply a common base class for several classes that support
+   starting, waiting and stopping.
+
+
+``Moveable``, inheriting from ``Startable``
+   This class is the base for all devices that can be moved continuously, like
+   axes or power supplies.
+
+   Public methods:
+
+   ``start(pos)``, ``moveTo(pos)``, ``move(pos)``
+      *Interface:* Start movement of the device to a new position.  This method
+      does not generally wait for completion of the movement.
+
+      *Implementation:* This first checks for a valid position with
+      ``isAllowed(pos)``, then calls the ``doStart(pos)`` method, which must
+      exist.
+
+   ``stop()``
+      *Interface:* Stop any movement of the device.
+
+      *Implementation:* Simply calls ``doStop()`` if present.  If it is not
+      present, it is assumed that the movement always completes before
+      ``doStart()`` returns.
+
+   ``wait()``
+      *Interface:* Wait for movement of the device to finish.
+
+      *Implementation:* Simply calls ``doWait()`` if present.  If it is not
+      present, it is assumed that the movement always completes before
+      ``doStart()`` returns.
+
+   ``isAllowed(pos)``
+      *Interface:* Check if the given position is allowed, considering the
+      current limits and other status of the device.  Return a tuple ``(valid,
+      why)`` where *valid* is a boolean, and *why* is a string describing the
+      reason when *valid* is false.  (The ``start()`` method takes the return
+      value of this method and turns it into an exception if needed.)
+
+      *Implementation:* This calls an ``doIsAllowed(pos)`` method if present.
+      If not, ``(True, '')`` is returned.
+
+   Parameters:
+
+   ``absmin`` : number, optional
+      Absolute minimum value for the device to move to.  This parameter cannot
+      be set after creation of the device.
+
+   ``absmax`` : number, optional
+      Absolute maximum value for the device to move to.  This parameter cannot
+      be set after creation of the device.
+
+   ``usermin`` : number, optional
+      Minimum value for the device to move to.  This parameter can be set after
+      creation, but not lower than the ``absmin`` parameter.
+
+   ``usermax`` : number, optional
+      Maximum value for the device to move to.  This parameter can be set after
+      creation, but not higher than the ``absmax`` parameter.
+
+
+``Switchable``, inheriting from ``Startable``
+   This class is the base for all devices that can be switched to discrete
+   values, like relays or digital outputs.
+
+   Switchable devices have an attribute ``switchlist`` that can be used to map
+   "human-readable" switch values, such as ``'in'`` and ``'out'``, to internal
+   values, such as ``1`` and ``0``.
+
+   Public methods:
+
+   ``start(pos)``, ``switchTo(pos)``, ``switch(pos)``
+      *Interface:* Start switching the device to a new position.  This method
+      does not generally wait for completion of the process.
+
+      *Implementation:* This first checks for a valid position with
+      ``isAllowed(pos)``, then calls the ``doStart(pos)`` method, which must
+      exist.  If the *pos* is neither a key nor a value in the ``switchlist``, a
+      ``UsageError`` is raised.
+
+   ``stop()``
+      *Interface:* Stop any movement of the device.
+
+      *Implementation:* Simply calls ``doStop()`` if present.  If it is not
+      present, it is assumed that the movement always completes before
+      ``doStart()`` returns.
+
+   ``wait()``
+      *Interface:* Wait for movement of the device to finish.
+
+      *Implementation:* Simply calls ``doWait()`` if present.  If it is not
+      present, it is assumed that the movement always completes before
+      ``doStart()`` returns.
+
+   ``isAllowed(pos)``
+      *Interface:* Check if the given switch position (given as an "internal"
+      value) is allowed, considering the current limits and other status of the
+      device.  Return a tuple ``(valid, why)`` where *valid* is a boolean, and
+      *why* is a string describing the reason when *valid* is false.  (The
+      ``start()`` method takes the return value of this method and turns it into
+      an exception if needed.)
+
+      *Implementation:* This calls an ``doIsAllowed(pos)`` method if present.
+      If not, ``(True, '')`` is returned.
+
+   ``format(pos)``
+      This ``Readable`` method is overwritten to automatically convert
+      "internal" values to human-readable values, as given by the
+      ``switchlist``.
+
+
+``Countable``, inheriting from ``Startable``
+   This class is the base for all counters.
+
+   Public methods:
+
+   ``start(preset=None)``
+      *Interface:* Start the counter, with either the given preset or the
+      standard preset.
+
+      *Implementation:* Calls ``doStart(preset)``.
+
+   ``stop()``
+      *Interface:* Stop the counter.
+
+      *Implementation:* Calls ``doStop()``.
+
+   ``wait()``
+      *Interface:* Wait until counting is complete.
+
+      *Implementation:* Calls ``doWait()``.
+
+   ``clear()``
+      *Interface:* Reset the counter value to zero (or equivalent).
+
+      *Implementation:* Calls ``doClear()``.
+
+   ``setPreset(value)``
+      *Interface:* Set a new standard preset.
+
+      *Implementation:* Calls ``doSetPreset(value)``.
