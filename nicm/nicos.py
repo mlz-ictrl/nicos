@@ -258,7 +258,8 @@ class NICOS(object):
     def __init_logging(self):
         init_logging()
         self.__loggers = {}
-        self.__handlers = [ColoredConsoleHandler(), NicmLogfileHandler()]
+        self.__log_manager = logging.Manager(None)
+        self.__log_handlers = [ColoredConsoleHandler(), NicmLogfileHandler()]
         self.log = self.get_logger('nicos')
         # XXX make this conditional
         sys.excepthook = self.__excepthook
@@ -277,10 +278,10 @@ class NICOS(object):
     def get_logger(self, name):
         if name in self.__loggers:
             return self.__loggers[name]
-        logger = logging.getLogger(name)
+        logger = self.__log_manager.getLogger(name)
         # XXX must be configurable
         logger.setLevel(logging.DEBUG)
-        for handler in self.__handlers:
+        for handler in self.__log_handlers:
             logger.addHandler(handler)
         self.__loggers[name] = logger
         return logger
