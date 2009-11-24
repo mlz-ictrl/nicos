@@ -43,7 +43,7 @@ import time
 
 from nicm import status
 from nicm.device import Moveable
-from nicm.errors import ConfigurationError, NicmError, LimitError, PositionError
+from nicm.errors import ConfigurationError, NicmError, LimitError, PositionError, MoveError
 from nicm.motor import Motor as NicmMotor
 from nicm.coder import Coder as NicmCoder
 
@@ -76,7 +76,7 @@ class Axis(Moveable):
 
         self.__offset = 0
         self.__thread = None
-        self.__target = self.read()
+        self.__target = self.__read()
         self.__mutex = threading.RLock()
         self.__stopRequest = 0
         self.__error = 0
@@ -88,18 +88,18 @@ class Axis(Moveable):
         """Starts the movement of the axis to target."""
         if self.__locked:
             raise NicmError('%s: this axis is locked' % self)
+        self.__checkErrorState()
+        if self.__status() == status.BUSY :
+            raise NicmError('%s: axis is moving now, please issue a stop '
+                                'command and try it again' % self)
         if not self.isAllowed(target):
             raise LimitError('%s: target %f is not allowed, limits [%f, %f]' %
-                            (self, target,
-                             self.getUsermin(), self.getUsermax()))
+                           (self, target, self.getUsermin(), self.getUsermax()))
         if self.__thread:
-            if self.__thread.isAlive():
-                raise NicmError('%s: axis is moving now, please issue a stop '
-                                'command and try it again' % self)
-            else:
-                self.__thread.join()
-                del self.__thread
-                self.__thread = None
+            self.__thread.join()
+            del self.__thread
+            self.__thread = None
+
         try:
             self.__target = target
             self.__stopRequest = 0
@@ -121,17 +121,25 @@ class Axis(Moveable):
 
     def doRead(self):
         """Returns the current position from coder controller."""
-        try:
-            return self.coder.read() - self.__offset
-        except Exception:
-            raise NicmError('%s: ' % self)
+        state = self.__status() 
+        self.__checkErrorState()
+        if state == status.BUSY :
+            if not self.__checkFollowError() :
+                raise PositionError('%s: following error ' % self)
+        elif not self.__checkTargetPosition() :
+            raise MoveError('%s: precision error ' % self)
+        return self.__read()
 
     def doAdjust(self, target):
         """Sets the current position of the motor/coder controller to
         the target.
         """
+        self.__checkErrorState()
+        if self.__status() == status.BUSY :
+            raise NicmError('%s: axis is moving now, please issue a stop '
+                                'command and try it again' % self)
+        diff = (self.read() - target)
         self.__target = target
-        diff = (self.read() - self.__target)
         self.__offset += diff
 
         # Avoid the use of the setPar method for the absolute limits
@@ -154,19 +162,12 @@ class Axis(Moveable):
 
     def doStatus(self):
         """Returns the status of the motor controller."""
-        try:
-            if self.__thread and self.__thread.isAlive():
-                return status.BUSY
-            elif self.__error > 0:
-                return status.ERROR
-            else:
-                return self.motor.status()
-        except Exception:
-            raise Exception('%s: ' % self)
+        return self.__status()
 
     def doReset(self):
         """Resets the motor/coder controller."""
-        pass
+        if self.__status() != status.BUSY :
+	    self.__error = 0
 
     def doStop(self):
         """Stops the movement of the motor."""
@@ -210,6 +211,29 @@ class Axis(Moveable):
             self._params['usermax'] = old
             raise e
 
+    def __checkErrorState(self):
+        if self.__status() == status.ERROR :
+            if self.__error == 1:
+                raise PositionError('%s: following error ' % self)
+            elif self.__error == 2:
+                raise MoveError('%s: precision error ' % self)
+            else:
+                raise ProgrammingError('%s: Axis::doStart()' % self)
+
+    def __status(self):
+        if self.__error > 0:
+            return status.ERROR
+        elif self.__thread and self.__thread.isAlive():
+            return status.BUSY
+        else:
+            return self.motor.status()
+
+    def __read(self):
+        try :
+            return self.coder.read() - self.__offset
+        except Exception:
+            raise NicmError('%s: ' % self)
+
     def __checkAbsLimits(self):
         absMin = self.getAbsmin()
         absMax = self.getAbsmax()
@@ -248,18 +272,33 @@ class Axis(Moveable):
                             (self, userMin, absMin))
 
     def __checkFollowError(self):
-        tmp = abs(self.motor.read() - self.coder.read()) 
+        tmp = abs(self.motor.read() - self.coder.read())
         # print 'Diff %.3f' % tmp
-        return tmp <= self.getFollowerr()
+	followOK = tmp <= self.getFollowerr()
+	if followOK :
+            for i in self.obs :
+                tmp = abs(self.motor.read() - i.read())
+                followOK = followOK and (tmp <= self.getFollowerr())
+        if not followOK :
+            self.__error = 1
+        return followOK
 
-    def __checkTargetPosition(self):
-         return abs(self.read() - self.__target) <= self.getPrecision()
+    def __checkTargetPosition(self, error = 2):
+	tmp = abs(self.__read() - self.__target)
+        posOK = tmp <= self.getPrecision() 
+        if posOK :
+            for i in self.obs :
+                tmp = abs(self.__target - i.read())
+                posOK = posOK and (tmp <= self.getFollowerr())
+        if not posOK :
+            self.__error = error
+        return posOK
 
     def __positioning(self):
         moving = False
         maxtries = self.getMaxtries()
         self.__error = 0
-        if not self.__checkTargetPosition() : 
+        if not self.__checkTargetPosition(0) : 
             self.motor.start(self.__target + self.__offset)
             moving = True
         while moving:
@@ -271,7 +310,6 @@ class Axis(Moveable):
             if not self.__checkFollowError():
                 # following error (motor != coder)
                 self.motor.stop()
-                self.__error = 1
                 moving = False
             elif self.motor.status() != status.BUSY:             # motor stopped
                 if self.__stopRequest == 2 or self.__checkTargetPosition():
@@ -281,19 +319,17 @@ class Axis(Moveable):
                 elif maxtries > 0:
                     # target not reached, get the current position,
                     # sets the motor to this position and restart it
-                    currentPos = self.read()
+                    currentPos = self.__read()
                     self.motor.setPosition(currentPos)
                     self.motor.start(self.__target + self.__offset)
                 else:
                     moving = False
-                    self.__error = 2
         else:
-            pass
             try:
                 if self.__error == 1:
                     raise PositionError('%s: following error ' % self)
                 elif self.__error == 2:
-                    raise PositionError('%s: precision error ' % self)
+                    raise MoveError('%s: precision error ' % self)
                 else:
                     pass
             except NicmError, e:
