@@ -36,6 +36,7 @@ Logging utilities specific to NICOS.
 
 import sys
 import time
+import codecs
 import traceback
 from logging import setLoggerClass, addLevelName, Logger, \
      Formatter, StreamHandler, DEBUG, INFO, WARNING, ERROR
@@ -192,7 +193,7 @@ class NicmLogfileHandler(BaseRotatingHandler):
         self.rollover_at += SECONDS_PER_DAY
 
 
-def init_logging():
+def init_loggers():
     setLoggerClass(NicmLogger)
     addLevelName(OUTPUT, 'OUTPUT')
     addLevelName(INPUT, 'INPUT')

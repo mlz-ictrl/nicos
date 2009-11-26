@@ -39,15 +39,11 @@ Only for internal usage by functions and methods.
 
 import imp
 import sys
-import code
 import logging
-import traceback
 from os import path
 
-from nicm import __version__
-from nicm.errors import NicmError, UsageError, ConfigurationError
-from nicm.loggers import ColoredConsoleHandler, NicmLogfileHandler, \
-     OUTPUT, INPUT, init_logging
+from nicm import loggers
+from nicm.errors import UsageError, ConfigurationError
 
 
 class NICOS(object):
@@ -72,8 +68,9 @@ class NICOS(object):
         self.__exported_names = set()
         # contains all loaded toplevel (not included) setups
         self.__loaded_setups = []
-
-        self.__init_logging()
+        # set up logging interface
+        self._init_logging()
+        self.log = self.get_logger('nicos')
 
     def set_namespace(self, ns):
         """Set the namespace to export commands and devices into."""
@@ -91,7 +88,7 @@ class NICOS(object):
             log.warning('setup %s is already loaded' % modname)
             return
 
-        modpath = path.join(path.dirname(__file__), '..', 'setup')
+        modpath = path.join(path.dirname(__file__), '..', '..', 'setup')
         try:
             modfile = imp.find_module(modname, [modpath])
             code = modfile[0].read()
@@ -255,75 +252,21 @@ class NICOS(object):
 
     # -- Logging ---------------------------------------------------------------
 
-    def __init_logging(self):
-        init_logging()
-        self.__loggers = {}
-        self.__log_manager = logging.Manager(None)
-        self.__log_handlers = [ColoredConsoleHandler(), NicmLogfileHandler()]
-        self.log = self.get_logger('nicos')
-        # XXX make this conditional
-        sys.excepthook = self.__excepthook
-        sys.displayhook = self.__displayhook
-
-    def __displayhook(self, value):
-        if value is not None:
-            self.log.log(OUTPUT, repr(value))
-
-    def __excepthook(self, etype, evalue, etb):
-        if etype is KeyboardInterrupt:
-            return
-        self.log.error('unhandled exception occurred',
-                       exc_info=(etype, evalue, etb))
+    def _init_logging(self):
+        loggers.init_loggers()
+        self._loggers = {}
+        self._log_manager = logging.Manager(None)
+        # all interfaces should log to a logfile; more handlers can be
+        # added by subclasses
+        self._log_handlers = [loggers.NicmLogfileHandler()]
 
     def get_logger(self, name):
-        if name in self.__loggers:
-            return self.__loggers[name]
-        logger = self.__log_manager.getLogger(name)
+        if name in self._loggers:
+            return self._loggers[name]
+        logger = self._log_manager.getLogger(name)
         # XXX must be configurable
         logger.setLevel(logging.DEBUG)
-        for handler in self.__log_handlers:
+        for handler in self._log_handlers:
             logger.addHandler(handler)
-        self.__loggers[name] = logger
+        self._loggers[name] = logger
         return logger
-
-    # -- interactive (logging) console -----------------------------------------
-
-    def console(self):
-        """Run an interactive console, and exit after it is finished."""
-        banner = ('NICOS console ready (version %s).\nTry help() for a '
-                  'list of commands, or help(command) for help.' % __version__)
-        console = NicmInteractiveConsole(self, self.__namespace)
-        console.interact(banner)
-        sys.exit()
-
-
-class NicmInteractiveConsole(code.InteractiveConsole):
-    def __init__(self, nicos, locals):
-        self.log = nicos.log
-        code.InteractiveConsole.__init__(self, locals)
-
-    def runsource(self, source, filename='<input>', symbol='single'):
-        """Mostly copied from code.InteractiveInterpreter, but added the
-        logging call before runcode().
-        """
-        try:
-            code = self.compile(source, filename, symbol)
-        except (OverflowError, SyntaxError, ValueError):
-            self.log.exception('invalid syntax')
-            return False
-
-        if code is None:
-            return True
-
-        self.log.log(INPUT, source)
-        self.runcode(code)
-        return False
-
-    def runcode(self, codeobj):
-        try:
-            exec codeobj in self.locals
-        except Exception:
-            self.log.exception('unhandled exception occurred')
-        else:
-            if code.softspace(sys.stdout, 0):
-                print

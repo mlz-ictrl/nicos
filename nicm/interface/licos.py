@@ -1,14 +1,14 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # Module:
-#   $Id$
+#   $Id $
 #
 # Description:
-#   Basic package for standard NICOS commands and devices
+#   NICOS interface classes for running under licos
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
-#   $Author$
+#   $Author $
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -31,13 +31,4 @@
 # *****************************************************************************
 
 """
-The nicm package contains all standard NICOS commands and devices.
 """
-
-__version__ = '2.0a1'
-
-import sys
-
-# Check for Python version 2.5+.
-if sys.version_info[:2] < (2, 5):
-    raise ImportError('NICOS requires Python 2.5 or higher')
