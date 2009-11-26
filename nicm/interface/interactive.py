@@ -31,6 +31,8 @@
 # *****************************************************************************
 
 """
+Contains the subclass of NICOS specific for running nicm in an interactive
+Python shell.
 """
 
 import sys
@@ -42,6 +44,12 @@ from nicm.loggers import ColoredConsoleHandler, OUTPUT, INPUT
 
 
 class NicmInteractiveConsole(code.InteractiveConsole):
+    """
+    This class provides a console similar to the standard Python interactive
+    console, with the difference that input and output are logged to the
+    NICOS logger and will therefore appear in the logfiles.
+    """
+
     def __init__(self, nicos, locals):
         self.log = nicos.log
         code.InteractiveConsole.__init__(self, locals)
@@ -64,6 +72,9 @@ class NicmInteractiveConsole(code.InteractiveConsole):
         return False
 
     def runcode(self, codeobj):
+        """Mostly copied from code.InteractiveInterpreter, but added the
+        logging call for exceptions.
+        """
         try:
             exec codeobj in self.locals
         except Exception:
@@ -74,6 +85,12 @@ class NicmInteractiveConsole(code.InteractiveConsole):
 
 
 class InteractiveNICOS(NICOS):
+    """
+    Subclass of NICOS that configures the logging system for interactive
+    interpreter usage: it adds a console handler with colored output, and
+    an exception hook that reports unhandled exceptions via the logging system.
+    """
+
     def _init_logging(self):
         NICOS._init_logging(self)
         self._log_handlers.append(ColoredConsoleHandler())
@@ -105,9 +122,8 @@ def start():
     # Create the NICOS class singleton.
     nicos = nicm.nicos = InteractiveNICOS()
 
-    # NICOS user commands and devices will be placed in the globals of the
-    # execution frame that first imports this module.
-    nicos.set_namespace(sys._getframe(1).f_globals)
+    # Should not be necessary for the separate console.
+    #nicos.set_namespace(sys._getframe(1).f_globals)
 
     # Create the initial instrument setup.
     nicos.log.info('--- loading startup setup')

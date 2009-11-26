@@ -31,4 +31,71 @@
 # *****************************************************************************
 
 """
+Contains the subclass of NICOS specific for running nicm in the Licos
+client/server system.
 """
+
+import sys
+
+try:
+    from nicd_ui import nicd_get_loghandler, nicd_set_logger
+except ImportError:
+    raise ImportError('Not running under Licos, cannot set up interface')
+
+import nicm
+from nicm.loggers import OUTPUT
+from nicm.interface import NICOS
+
+
+class LoggingStdout():
+    """
+    Standard output stream replacement that tees output to a logger.
+    """
+
+    def __init__(self, nicos, orig_stdout):
+        self.nicos = nicos
+        self.orig_stdout = orig_stdout
+
+    def write(self, text):
+        if text != '\n':
+            self.nicos.log.info(text)
+        self.orig_stdout.write(text)
+
+    def flush(self):
+        self.orig_stdout.flush()
+
+
+class LicosNICOS(NICOS):
+    """
+    Subclass of NICOS that configures the logging system for running under
+    Licos: it adds the Licos-provided handler and installs a standard output
+    stream that logs stray output.  It also notifies Licos of the logger to
+    use for printing scripts ("input") and exceptions.
+    """
+
+    def __init__(self):
+        NICOS.__init__(self)
+        nicd_set_logger(self.log)
+
+    def _init_logging(self):
+        NICOS._init_logging(self)
+        self._log_handlers.append(nicd_get_loghandler())
+        sys.displayhook = self.__displayhook
+        sys.stdout = LoggingStdout(self, sys.stdout)
+
+    def __displayhook(self, value):
+        if value is not None:
+            self.log.log(OUTPUT, repr(value))
+
+
+# Create the NICOS class singleton.
+nicos = nicm.nicos = LicosNICOS()
+
+# NICOS user commands and devices will be placed in the globals of the
+# execution frame that first imports this module.
+nicos.set_namespace(sys._getframe(1).f_globals)
+
+# Create the initial instrument setup.
+nicos.log.info('--- loading startup setup')
+nicos.load_setup('startup')
+nicos.log.info('--- done')
