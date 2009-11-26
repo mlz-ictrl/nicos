@@ -57,8 +57,7 @@ class LoggingStdout():
         self.orig_stdout = orig_stdout
 
     def write(self, text):
-        if text != '\n':
-            self.nicos.log.info(text)
+        self.nicos.log.info(text, nonl=1)
         self.orig_stdout.write(text)
 
     def flush(self):
