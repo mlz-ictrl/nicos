@@ -38,7 +38,7 @@ client/server system.
 import sys
 
 try:
-    from nicd_ui import nicd_get_loghandler, nicd_set_logger
+    interface = __import__('licos.interface').interface
 except ImportError:
     raise ImportError('Not running under Licos, cannot set up interface')
 
@@ -74,11 +74,11 @@ class LicosNICOS(NICOS):
 
     def __init__(self):
         NICOS.__init__(self)
-        nicd_set_logger(self.log)
+        interface.licos_set_logger(self.log)
 
     def _init_logging(self):
         NICOS._init_logging(self)
-        self._log_handlers.append(nicd_get_loghandler())
+        self._log_handlers.append(interface.licos_get_loghandler())
         sys.displayhook = self.__displayhook
         sys.stdout = LoggingStdout(self, sys.stdout)
 
