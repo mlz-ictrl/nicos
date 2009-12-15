@@ -58,7 +58,7 @@ class Axis(Moveable):
     }
 
     parameters = {
-        "followerr": (1, False, "so called following error"),
+        "dragerror": (1, False, "so called 'Schleppfehler'"),
         "precision": (0, False, "precision between requested target "
                                 "and reached position"),
         "maxtries":  (3, False, "number of tries to reach the target"),
@@ -124,8 +124,8 @@ class Axis(Moveable):
         state = self.__status() 
         self.__checkErrorState()
         if state == status.BUSY :
-            if not self.__checkFollowError() :
-                raise PositionError('%s: following error ' % self)
+            if not self.__checkDragError() :
+                raise PositionError('%s: drag error ' % self)
         elif not self.__checkTargetPosition() :
             raise MoveError('%s: precision error ' % self)
         return self.__read()
@@ -214,7 +214,7 @@ class Axis(Moveable):
     def __checkErrorState(self):
         if self.__status() == status.ERROR :
             if self.__error == 1:
-                raise PositionError('%s: following error ' % self)
+                raise PositionError('%s: drag error ' % self)
             elif self.__error == 2:
                 raise MoveError('%s: precision error ' % self)
             else:
@@ -271,17 +271,17 @@ class Axis(Moveable):
             raise ConfigurationError('%s: user minimum (%f) below the absolute minimum (%f)' %
                             (self, userMin, absMin))
 
-    def __checkFollowError(self):
+    def __checkDragError(self):
         tmp = abs(self.motor.read() - self.coder.read())
         # print 'Diff %.3f' % tmp
-	followOK = tmp <= self.getFollowerr()
-	if followOK :
+	dragOK = tmp <= self.getDragerror()
+	if dragOK :
             for i in self.obs :
                 tmp = abs(self.motor.read() - i.read())
-                followOK = followOK and (tmp <= self.getFollowerr())
-        if not followOK :
+                dragOK = dragOK and (tmp <= self.getDragerror())
+        if not dragOK :
             self.__error = 1
-        return followOK
+        return dragOK
 
     def __checkTargetPosition(self, error = 2):
 	tmp = abs(self.__read() - self.__target)
@@ -289,7 +289,7 @@ class Axis(Moveable):
         if posOK :
             for i in self.obs :
                 tmp = abs(self.__target - i.read())
-                posOK = posOK and (tmp <= self.getFollowerr())
+                posOK = posOK and (tmp <= self.getDragerror())
         if not posOK :
             self.__error = error
         return posOK
@@ -307,8 +307,8 @@ class Axis(Moveable):
                 self.__stopRequest = 2
                 continue
             time.sleep(self.getLoopdelay())
-            if not self.__checkFollowError():
-                # following error (motor != coder)
+            if not self.__checkDragerror():
+                # drag error (motor != coder)
                 self.motor.stop()
                 moving = False
             elif self.motor.status() != status.BUSY:             # motor stopped
@@ -327,7 +327,7 @@ class Axis(Moveable):
         else:
             try:
                 if self.__error == 1:
-                    raise PositionError('%s: following error ' % self)
+                    raise PositionError('%s: drag error ' % self)
                 elif self.__error == 2:
                     raise MoveError('%s: precision error ' % self)
                 else:
