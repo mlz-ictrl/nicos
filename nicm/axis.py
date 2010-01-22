@@ -124,7 +124,7 @@ class Axis(Moveable):
         state = self.__status() 
         self.__checkErrorState()
         if state == status.BUSY :
-            if not self.__checkDragError() :
+            if not self.__checkDragerror() :
                 raise PositionError('%s: drag error ' % self)
         elif not self.__checkTargetPosition() :
             raise MoveError('%s: precision error ' % self)
@@ -271,7 +271,7 @@ class Axis(Moveable):
             raise ConfigurationError('%s: user minimum (%f) below the absolute minimum (%f)' %
                             (self, userMin, absMin))
 
-    def __checkDragError(self):
+    def __checkDragerror(self):
         tmp = abs(self.motor.read() - self.coder.read())
         # print 'Diff %.3f' % tmp
 	dragOK = tmp <= self.getDragerror()
