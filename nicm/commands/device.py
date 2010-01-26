@@ -43,7 +43,7 @@ from nicm.utils import print_table
 from nicm.commands.output import printinfo, printexception
 
 __commands__ = [
-    'move', 'maw', 'switch', 'wait', 'read', 'status', 'stop',
+    'move', 'maw', 'switch', 'wait', 'read', 'status', 'stop', 'reset',
     'count', 'set', 'get', 'listparams', 'listdevices',
 ]
 
