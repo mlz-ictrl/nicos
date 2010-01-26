@@ -37,6 +37,8 @@ Python shell.
 
 import sys
 import code
+import readline
+import rlcompleter
 
 import nicm
 from nicm.interface import NICOS
@@ -53,6 +55,8 @@ class NicmInteractiveConsole(code.InteractiveConsole):
     def __init__(self, nicos, locals):
         self.log = nicos.log
         code.InteractiveConsole.__init__(self, locals)
+        readline.parse_and_bind('tab: complete')
+        readline.set_completer(rlcompleter.Completer(self.locals).complete)
 
     def runsource(self, source, filename='<input>', symbol='single'):
         """Mostly copied from code.InteractiveInterpreter, but added the
