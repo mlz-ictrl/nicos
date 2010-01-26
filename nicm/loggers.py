@@ -94,6 +94,9 @@ class ColoredConsoleFormatter(Formatter):
     def formatException(self, exc_info):
         return traceback.format_exception_only(*exc_info[0:2])[-1]
 
+    def formatTime(self, record, datefmt=None):
+        return time.strftime(LONGDATEFMT, self.converter(record.created))
+
     def format(self, record):
         levelno = record.levelno
         if record.name == 'nicos':
