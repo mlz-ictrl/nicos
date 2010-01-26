@@ -194,6 +194,8 @@ class Axis(Moveable):
         self.__locked = False
 
     def doSetUsermin(self, value):
+        """ sets the user minimum value to value after
+        checking the value against absolute limits and user maximum."""
         old = self._params['usermin']
         self._params['usermin'] = float(value)
         try:
@@ -203,6 +205,8 @@ class Axis(Moveable):
             raise e
 
     def doSetUsermax(self, value):
+        """ sets the user maximum value to value after
+        checking the value against absolute limits and user minimum."""
         old = self._params['usermax']
         self._params['usermax'] = float(value)
         try:
@@ -210,6 +214,25 @@ class Axis(Moveable):
         except NicmError, e:
             self._params['usermax'] = old
             raise e
+
+    def _preMoveAction(self):
+        """ This method will be called before the motor will be moved.
+        It should be overwritten in derived classes for special actions"""
+        return True
+
+    def _postMoveAction(self):
+        """ This method will be called after the axis reached the position or
+        will be stopped.
+        It should be overwritten in derived classes for special actions"""
+        return True
+
+    def _duringMoveAction(self, position)
+        """ This method will be called during every cycle in positioning thread
+        It should be used to do some special actions like open and close some
+        neutron guides or change some blocks, ....
+        It should be overwritte in derived classes
+        """
+        return True
 
     def __checkErrorState(self):
         if self.__status() == status.ERROR :
@@ -283,8 +306,8 @@ class Axis(Moveable):
             self.__error = 1
         return dragOK
 
-    def __checkTargetPosition(self, error = 2):
-	tmp = abs(self.__read() - self.__target)
+    def __checkTargetPosition(self, pos, error = 2):
+	tmp = abs(pos - self.__target)
         posOK = tmp <= self.getPrecision() 
         if posOK :
             for i in self.obs :
@@ -294,42 +317,67 @@ class Axis(Moveable):
             self.__error = error
         return posOK
 
+    def __checkMoveToTarget(self, pos, error = 3):
+        diffLast = abs(self.__lastPosition - self.__target)
+	diffCurr = abs(pos - self.__target)
+	self.__lastPosition = pos
+	posOK = diffLast >= diffCurr
+	if not posOK:
+             self.__error = error
+        return posOK
+
     def __positioning(self):
         moving = False
         maxtries = self.getMaxtries()
         self.__error = 0
-        if not self.__checkTargetPosition(0) : 
+        self.__lastPosition = self.__read()
+        if not self._preMoveAction() :
+            self.__error = 3
+        elif not self.__checkTargetPosition(self.__lastPosition, 0) : 
             self.motor.start(self.__target + self.__offset)
             moving = True
         while moving:
+            time.sleep(self.getLoopdelay())
             if self.__stopRequest == 1:
                 self.motor.stop()
                 self.__stopRequest = 2
                 continue
-            time.sleep(self.getLoopdelay())
-            if not self.__checkDragerror():
-                # drag error (motor != coder)
+            pos = self.__read()
+            if not self.__checkDragerror() or not self.__checkMoveToTarget(pos):
+                # drag error (motor != coder) 
+		# distance to target will be greater
                 self.motor.stop()
                 moving = False
             elif self.motor.status() != status.BUSY:             # motor stopped
-                if self.__stopRequest == 2 or self.__checkTargetPosition():
+                if self.__stopRequest == 2 or self.__checkTargetPosition(pos):
                     # manual stop or target reached
                     moving = False
                     break;
                 elif maxtries > 0:
                     # target not reached, get the current position,
                     # sets the motor to this position and restart it
-                    currentPos = self.__read()
-                    self.motor.setPosition(currentPos)
+                    self.motor.setPosition(pos)
                     self.motor.start(self.__target + self.__offset)
                 else:
                     moving = False
+            elif self.__stopRequest == 0:
+                if  not self._duringMoveAction(pos):
+                    self.__stopRequest = 1
+                    self.__error = 5
         else:
             try:
                 if self.__error == 1:
                     raise PositionError('%s: drag error ' % self)
                 elif self.__error == 2:
                     raise MoveError('%s: precision error ' % self)
+                elif self.__error == 3:
+                    raise MoveError('%s: pre move error ' % self) 
+                elif self.__error == 4:
+                    raise MoveError('%s: post move error ' % self) 
+                elif self.__error == 5:
+                    raise MoveError('%s: action during the move failed ' % self)
+                elif not self._postMoveAction():
+                    raise MoveError('%s: post move error ' % self) 
                 else:
                     pass
             except NicmError, e:
