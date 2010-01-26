@@ -36,7 +36,7 @@ NICOS axis definition.
 
 __author__ = "Jens Krüger <jens.krueger@frm2.tum.de>"
 __date__   = "2010/01/26"
-__version__= "0.0.3"
+__version__= "0.0.4"
 
 import threading
 import time
@@ -64,12 +64,19 @@ class Axis(Moveable):
         "maxtries":  (3, False, "number of tries to reach the target"),
         "loopdelay": (0.3, False, "sleep time to check the movement"),
         "unit":      ('', False, "unit of the axis value"),
+        "backlash":  (0.0, False, "value of the backlash"),
     }
 
     def doInit(self):
+        # Check that motor and unit have the same unit
         if self.coder.getUnit() != self.motor.getUnit():
             raise ConfigurationError('%s: different units for motor '
                                      'and coder' % self)
+	# Check that all observers have the same unit as the motor
+        for i in self.obs :
+            if self.motor.getUnit() != i.getUnit():
+                raise ConfigurationError('%s: different units for motor '
+                                     'and observer' % (self % i))
 
         self.__checkAbsLimits()
         self.__checkUserLimits(setthem=True)
@@ -81,6 +88,7 @@ class Axis(Moveable):
         self.__stopRequest = 0
         self.__error = 0
         self.__locked = False
+        self.__dragErrorCount = 0
 
         self.setPar('unit', self.motor.getUnit())
 
@@ -95,6 +103,7 @@ class Axis(Moveable):
         if not self.isAllowed(target):
             raise LimitError('%s: target %f is not allowed, limits [%f, %f]' %
                            (self, target, self.getUsermin(), self.getUsermax()))
+
         if self.__thread:
             self.__thread.join()
             del self.__thread
@@ -105,6 +114,7 @@ class Axis(Moveable):
             self.__stopRequest = 0
             self.__locked = locked   # lock the movement
             self.__error = 0
+	    self.__dragErrorCount = 0
             if not self.__thread:
                 self.__thread = threading.Thread(None, self.__positioning,
                                                  'Positioning thread')
@@ -297,11 +307,12 @@ class Axis(Moveable):
     def __checkDragerror(self):
         tmp = abs(self.motor.read() - self.coder.read())
         # print 'Diff %.3f' % tmp
-	dragOK = tmp <= self.getDragerror()
+	dragDiff = self.getDragerror()
+	dragOK = tmp <= dragDiff
 	if dragOK :
             for i in self.obs :
                 tmp = abs(self.motor.read() - i.read())
-                dragOK = dragOK and (tmp <= self.getDragerror())
+                dragOK = dragOK and (tmp <= dragDiff)
         if not dragOK :
             self.__error = 1
         return dragOK
@@ -336,6 +347,8 @@ class Axis(Moveable):
         elif not self.__checkTargetPosition(self.__lastPosition, 0) : 
             self.motor.start(self.__target + self.__offset)
             moving = True
+#	for pos in target + self.backlash, target:
+
         while moving:
             time.sleep(self.getLoopdelay())
             if self.__stopRequest == 1:
@@ -343,7 +356,7 @@ class Axis(Moveable):
                 self.__stopRequest = 2
                 continue
             pos = self.__read()
-            if not self.__checkDragerror() or not self.__checkMoveToTarget(pos):
+            if not self.__checkMoveToTarget(pos) or not self.__checkDragerror():
                 # drag error (motor != coder) 
 		# distance to target will be greater
                 self.motor.stop()
