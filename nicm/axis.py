@@ -35,8 +35,8 @@ NICOS axis definition.
 """
 
 __author__ = "Jens Krüger <jens.krueger@frm2.tum.de>"
-__date__   = "2009/10/27"
-__version__= "0.0.1"
+__date__   = "2010/01/26"
+__version__= "0.0.3"
 
 import threading
 import time
