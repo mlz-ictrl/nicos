@@ -223,6 +223,10 @@ class Readable(Device):
             for histname in self._params['histories']:
                 self.__histories.append(nicos.get_device(histname, Configurable))
 
+    def __call__(self):
+        """Allow dev() as shortcut for read."""
+        return self.read()
+
     def read(self):
         """Read the main value of the device and save it in the history."""
         value = self.doRead()
@@ -278,6 +282,12 @@ class Startable(Readable):
     This is used for typechecking, e.g. when any device with a stop()
     method is required.
     """
+
+    def __call__(self, pos=None):
+        """Allow dev() and dev(newpos) as shortcuts for read and start."""
+        if pos is None:
+            return self.read()
+        return self.start(pos)
 
 
 class Moveable(Startable):
