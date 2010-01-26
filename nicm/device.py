@@ -34,6 +34,8 @@
 Base device classes for usage in NICOS.
 """
 
+import time
+
 from nicm import nicos
 from nicm import status, loggers
 from nicm.utils import MergedAttrsMeta
@@ -122,6 +124,9 @@ class Configurable(object):
         # set loglevel (also checks validity explicitly)
         self.setPar('loglevel', self._params['loglevel'])
 
+    def __str__(self):
+        return self._params['name']
+
     def getPar(self, name):
         """Get a parameter of the device."""
         if name.lower() not in self.parameters:
@@ -140,6 +145,16 @@ class Configurable(object):
                              ', '.join(map(repr, loggers.loglevels.keys()))))
         self._log.setLevel(loggers.loglevels[value])
         self._params['loglevel'] = value
+
+    def init(self):
+        """Initialize the object; this is called when the object is created."""
+        if hasattr(self, 'doInit'):
+            self.doInit()
+
+    def shutdown(self):
+        """Shut down the object; called from destroy_device()."""
+        if hasattr(self, 'doShutdown'):
+            self.doShutdown()
 
 
 class Device(Configurable):
@@ -180,10 +195,6 @@ class Device(Configurable):
                     raise ConfigurationError(
                         '%s: device adev %r has wrong type' % (self, aname))
                 setattr(self, aname, dev)
-        self.init()
-
-    def __str__(self):
-        return self._params['name']
 
     def __repr__(self):
         if self.getPar('name') == self.getPar('description'):
@@ -192,16 +203,6 @@ class Device(Configurable):
         return '<device %s, %s (a %s)>' % (self.getPar('name'),
                                            self.getPar('description'),
                                            self.__class__.__name__)
-
-    def init(self):
-        """Initialize the device; this is called when a device is created."""
-        if hasattr(self, 'doInit'):
-            self.doInit()
-
-    def shutdown(self):
-        """Shut down the device; called from NicmDestroy()."""
-        if hasattr(self, 'doShutdown'):
-            self.doShutdown()
 
 
 class Readable(Device):
@@ -212,11 +213,27 @@ class Readable(Device):
     parameters = {
         'fmtstr': ('%s', False, 'Format string for the device value.'),
         'unit': ('', True, 'Unit of the device main value.'),
+        'histories': ([], False, 'List of history managers.'),
     }
 
+    def __init__(self, name, config):
+        Device.__init__(self, name, config)
+        self.__histories = []
+        if self._params['histories']:
+            for histname in self._params['histories']:
+                self.__histories.append(nicos.get_device(histname, Configurable))
+
     def read(self):
-        """Read the main value of the device."""
-        return self.doRead()
+        """Read the main value of the device and save it in the history."""
+        value = self.doRead()
+        timestamp = time.time()
+        for history in self.__histories:
+            try:
+                history.put(self, timestamp, value)
+            except Exception, err:
+                self.printwarning('exception while saving value to %s: %s' %
+                                  (history, err))
+        return value
 
     def status(self):
         """Return the status of the device as one of the integer constants
@@ -240,6 +257,12 @@ class Readable(Device):
         if hasattr(self, 'doFormat'):
             return self.Format(value)
         return self.getPar('fmtstr') % value
+
+    def history(self, fromtime=None, totime=None):
+        for history in self.__histories:
+            hist = history.get(self, fromtime, totime)
+            if hist is not None:
+                return hist
 
     def doSetUnit(self, value):
         self._params['unit'] = value
