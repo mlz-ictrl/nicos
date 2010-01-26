@@ -60,6 +60,7 @@ class ScratchPadConnection(object):
         try:
             self.socket.connect(self.address)
         except Exception, err:
+            self.socket = None
             raise ScratchPadError('unable to connect to ScratchPad: %s' % err)
 
     def _disconnect(self):
@@ -68,6 +69,7 @@ class ScratchPadConnection(object):
             self.socket.close()
         except Exception:
             pass
+        self.socket = None
 
     def _convert(self, value):
         try:
