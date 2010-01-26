@@ -236,7 +236,7 @@ class Axis(Moveable):
         It should be overwritten in derived classes for special actions"""
         return True
 
-    def _duringMoveAction(self, position)
+    def _duringMoveAction(self, position):
         """ This method will be called during every cycle in positioning thread
         It should be used to do some special actions like open and close some
         neutron guides or change some blocks, ....
