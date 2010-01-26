@@ -396,6 +396,7 @@ class Axis(Moveable):
             except NicmError, e:
                 self.printerror()
                 raise e
+        # TODO: add self.read() somewhere to update history managers
         if self.__locked:
             # if the movement was locked, unlock it
             self.__locked = False

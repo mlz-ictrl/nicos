@@ -55,7 +55,7 @@ class Configurable(object):
     parameters = {
         'name': ('', False, 'The name of the device.'),
         'description': ('', False, 'A description of the device.'),
-        'autocreate': (True, False, 'Whether the device is automatically '
+        'autocreate': (False, False, 'Whether the device is automatically '
                        'created when the setup is loaded.'),
         'loglevel': ('info', False, 'The logging level of the device.'),
     }
