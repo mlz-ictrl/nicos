@@ -211,7 +211,7 @@ class NICOS(object):
                 raise UsageError('device %r not found in configuration' % dev)
         from nicm.device import Device
         if not isinstance(dev, cls or Device):
-            raise UsageError('dev must be a %s' % cls.__name__)
+            raise UsageError('dev must be a %s' % (cls or Device).__name__)
         return dev
 
     def create_device(self, devname, recreate=False, explicit=False):
