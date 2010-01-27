@@ -29,6 +29,14 @@ A setup file consists of the following entries:
 ``name``
    A string describing the setup in more detail than the module name.
 
+``group``
+   A string giving the group of the setup (meaning to be decided later).
+
+``includes``
+   A list of names of setups that this one requires to be loaded.  Using this
+   function, setups can be constructed very modularly, usually without
+   duplicating the entry for any device.
+
 ``devices``
    A dictionary of devices, where the key is the device name and the value is a
    device definition, see below.
@@ -63,10 +71,6 @@ parameters are given as keyword arguments.  An example ``devices`` entry is::
                    userMin = 0,
                    userMax = 50),
    )
-
-A setup file can also call the ``include('modulename')`` function to recursively
-process another setup file.  Using this function, setups can be constructed very
-modularly, usually without duplicating the entry for any device.
 
 For example, an instrument with varying sample environment could have two setup
 files, ``cryostat`` and ``oven``, where both include a ``base`` file that could

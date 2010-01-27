@@ -112,7 +112,7 @@ class NICOS(object):
                 exec code in ns
             except Exception, err:
                 raise ConfigurationError('An error occurred while reading '
-                                         'setup %s: %s' % (name, err))
+                                         'setup %s: %s' % (modname, err))
             info = {
                 'name': ns.get('name', modname),
                 'group': ns.get('group', 'base'),
