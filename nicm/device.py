@@ -40,7 +40,7 @@ from nicm import nicos
 from nicm import status, loggers
 from nicm.utils import MergedAttrsMeta
 from nicm.errors import ConfigurationError, ProgrammingError, UsageError, \
-     LimitError
+     LimitError, FixedError
 
 
 class Configurable(object):
@@ -284,11 +284,59 @@ class Startable(Readable):
     method is required.
     """
 
+    def __init__(self, name, config):
+        Readable.__init__(self, name, config)
+        self.__is_fixed = False
+
     def __call__(self, pos=None):
         """Allow dev() and dev(newpos) as shortcuts for read and start."""
         if pos is None:
             return self.read()
         return self.start(pos)
+
+    def start(self, pos):
+        """Start main action of the device."""
+        if self.__is_fixed:
+            raise FixedError('%s is fixed' % self)
+        self.doStart(pos)
+
+    def stop(self):
+        """Stop main action of the device."""
+        if self.__is_fixed:
+            raise FixedError('%s is fixed' % self)
+        if hasattr(self, 'doStop'):
+            self.doStop()
+
+    def wait(self):
+        """Wait until main action of device is completed."""
+        if hasattr(self, 'doWait'):
+            self.doWait()
+
+    def isAllowed(self, pos):
+        """Return a tuple describing the validity of the given position.
+
+        The first item is a boolean indicating if the position is valid,
+        the second item is a string with the reason if it is invalid.
+        """
+        if hasattr(self, 'doIsAllowed'):
+            return self.doIsAllowed(pos)
+        return True, ''
+
+    def fix(self):
+        """Fix the device, i.e. don't allow movement anymore."""
+        if self.__is_fixed:
+            return
+        if hasattr(self, 'doFix'):
+            self.doFix()
+        self.__is_fixed = True
+
+    def release(self):
+        """Release the device, i.e. undo the effect of fix()."""
+        if not self.__is_fixed:
+            return
+        if hasattr(self, 'doRelease'):
+            self.doRelease()
+        self.__is_fixed = False
 
 
 class Moveable(Startable):
@@ -310,30 +358,10 @@ class Moveable(Startable):
         if not ok:
             raise LimitError('%s: moving to %r is not allowed: %s' %
                              (self, pos, why))
-        self.doStart(pos)
+        Startable.start(self, pos)
 
     moveTo = start
     move = start
-
-    def stop(self):
-        """Stop any movement of the device."""
-        if hasattr(self, 'doStop'):
-            self.doStop()
-
-    def wait(self):
-        """Wait until the device has stopped moving."""
-        if hasattr(self, 'doWait'):
-            self.doWait()
-
-    def isAllowed(self, pos):
-        """Return a tuple describing the validity of the given position.
-
-        The first item is a boolean indicating if the position is valid,
-        the second item is a string with the reason if it is invalid.
-        """
-        if hasattr(self, 'doIsAllowed'):
-            return self.doIsAllowed(pos)
-        return True, ''
 
 
 class Switchable(Startable):
@@ -368,30 +396,10 @@ class Switchable(Startable):
         if not ok:
             raise LimitError('%s: switching to %r is not allowed: %s' %
                              (self, pos, why))
-        self.doStart(realpos)
-
-    def stop(self):
-        """Stop any switching activity of the device."""
-        if hasattr(self, 'doStop'):
-            self.doStop()
-
-    def wait(self):
-        """Wait until the switching is completed."""
-        if hasattr(self, 'doWait'):
-            self.doWait()
+        Startable.start(self, realpos)
 
     switchTo = start
     switch = start
-
-    def isAllowed(self, pos):
-        """Return a tuple describing the validity of the given position.
-
-        The first item is a boolean indicating if the position is valid,
-        the second item is a string with the reason if it is invalid.
-        """
-        if hasattr(self, 'doIsAllowed'):
-            return self.doIsAllowed(pos)
-        return True, ''
 
     def format(self, pos):
         """Format a value from self.read() into the corresponding human-readable

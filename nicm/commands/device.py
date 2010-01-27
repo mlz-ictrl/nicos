@@ -44,7 +44,7 @@ from nicm.commands.output import printinfo, printexception
 
 __commands__ = [
     'move', 'maw', 'switch', 'wait', 'read', 'status', 'stop', 'reset',
-    'count', 'set', 'get', 'listparams', 'listdevices',
+    'count', 'set', 'get', 'fix', 'release', 'listparams', 'listdevices',
 ]
 
 
@@ -181,6 +181,24 @@ def get(dev, parameter):
     """Return the value of a parameter of the device."""
     value = nicos.get_device(dev).getPar(parameter)
     printinfo('parameter %s of device %s: %s' % (parameter, dev, value))
+
+def fix(*devlist):
+    """Fix one or more devices, i.e. prevent movement until release()."""
+    if not devlist:
+        raise UsageError('at least one device argument is required')
+    for dev in devlist:
+        dev = nicos.get_device(dev, Startable)
+        dev.fix()
+        printinfo('fixed', dev)
+
+def release(*devlist):
+    """Release one or more devices, i.e. undo the effect of fix()."""
+    if not devlist:
+        raise UsageError('at least one device argument is required')
+    for dev in devlist:
+        dev = nicos.get_device(dev, Startable)
+        dev.release()
+        printinfo('released', dev)
 
 def listparams(dev):
     """List all parameters of the device."""

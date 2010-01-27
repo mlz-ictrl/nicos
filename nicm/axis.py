@@ -349,7 +349,7 @@ class Axis(Moveable):
             self.__error = 3
         else : 
             self.__error = 0
-	    for pos in self.__target + self.backlash, self.__target:
+	    for pos in self.__target + self.getBacklash(), self.__target:
                 self.__positioning(pos)
                 if self.__stopRequest == 2 or self.__error != 0:
                    break
@@ -373,9 +373,9 @@ class Axis(Moveable):
                 self.__stopRequest = 2
                 continue
             time.sleep(self.getLoopdelay())
-            try :
+            try:
                 pos = self.read()
-            except :
+            except NicmError:
                 pass
             if not self.__checkMoveToTarget(__target, pos) or not self.__checkDragerror():
                 # drag error (motor != coder) 
