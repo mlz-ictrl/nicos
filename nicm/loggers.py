@@ -188,7 +188,7 @@ class NicmLogfileHandler(BaseRotatingHandler):
     def doRollover(self):
         self.stream.close()
         self.baseFilename = self._filenameprefix + '-' + \
-                            time.strftime(self._dayfmt)
+                            time.strftime(self._dayfmt) + '.log'
         if hasattr(self, 'encoding') and self.encoding:
             self.stream = codecs.open(self.baseFilename, 'w', self.encoding)
         else:
