@@ -148,7 +148,7 @@ class NICOS(object):
         failed_devs = []
         devlist = sorted(self.__setup_devices.iteritems())
         for devname, (_, devconfig) in devlist:
-            if not devconfig.get('autocreate', True):
+            if not devconfig.get('autocreate', False):
                 continue
             log.info('creating device %r... ' % devname, nonl=1)
             try:

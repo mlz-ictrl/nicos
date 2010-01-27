@@ -35,23 +35,29 @@ name = 'test setup with a few devices'
 modules = ['nicm.commands']
 
 devices = dict(
+
+    inst = device('nicm.instrument.Instrument',
+                  autocreate = True,
+                  histories = ['logger'],
+                  ),
+
+    logger = device('nicm.history.LogfileHistory'),
+    
     m1 = device('nicm.testdev.VirtualMotor',
-                autocreate = False,
                 loglevel = 'info',
                 initval = 1,
                 unit = 'deg'),
 
     m2 = device('nicm.testdev.VirtualMotor',
-                autocreate = False,
                 loglevel = 'debug',
                 initval = 0.5,
                 unit = 'deg'),
 
     c1 = device('nicm.testdev.VirtualCoder',
-                autocreate = False,
                 unit = 'deg'),
 
     a1 = device('nicm.axis.Axis',
+                autocreate = True,
                 adev = {'motor': 'm1', 'coder': 'c1', 'obs': ['c1']},
                 absMin = 0,
                 absMax = 100,
@@ -59,6 +65,7 @@ devices = dict(
                 userMax = 50),
 
     a2 = device('nicm.axis.Axis',
+                autocreate = True,
                 adev = {'motor': 'm2', 'coder': 'c1', 'obs': []},
                 absMin = 0,
                 absMax = 100,
