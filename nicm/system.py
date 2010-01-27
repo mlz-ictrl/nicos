@@ -4,7 +4,7 @@
 #   $Id$
 #
 # Description:
-#   NICOS test setup file
+#   NICOS System device
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
@@ -30,9 +30,22 @@
 #
 # *****************************************************************************
 
-devices = dict(
-    test2 = device('nicm.testdev.VirtualMotor',
-                   autocreate = True,
-                   initval = 0.05,
-                   unit = 'mm'),
-)
+"""
+NICOS system device.
+"""
+
+__date__   = "$Date$"
+__version__= "$Revision$"
+
+
+from nicm.device import Configurable
+
+
+class System(Configurable):
+    """A special device that serves for global configuration of
+    the whole NICM system.
+    """
+
+    parameters = {
+        'histories': ([], False, 'Global history managers for all devices.'),
+    }

@@ -32,17 +32,11 @@
 
 name = 'test setup with a few devices'
 
+includes = ['system']
+
 modules = ['nicm.commands']
 
 devices = dict(
-
-    inst = device('nicm.instrument.Instrument',
-                  autocreate = True,
-                  histories = ['logger'],
-                  ),
-
-    logger = device('nicm.history.LogfileHistory'),
-    
     m1 = device('nicm.testdev.VirtualMotor',
                 loglevel = 'info',
                 initval = 1,

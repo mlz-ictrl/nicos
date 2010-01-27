@@ -218,10 +218,11 @@ class Readable(Device):
 
     def __init__(self, name, config):
         Device.__init__(self, name, config)
+        from nicm.history import History
         self.__histories = []
-        if self._params['histories']:
-            for histname in self._params['histories']:
-                self.__histories.append(nicos.get_device(histname, Configurable))
+        histnames = self.getHistories() + nicos.get_system_device().getHistories()
+        for histname in histnames:
+            self.__histories.append(nicos.get_device(histname, History))
 
     def __call__(self):
         """Allow dev() as shortcut for read."""

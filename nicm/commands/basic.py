@@ -76,18 +76,18 @@ def dir(obj=None):
 
 # -- other basic commands ------------------------------------------------------
 
-def NicmSetup(setupname, **variables):
+def NicmSetup(setupname):
     """Load the given setup instead of the current one."""
     nicos.unload_setup()
     try:
-        nicos.load_setup(setupname, **variables)
+        nicos.load_setup(setupname)
     except Exception:
         printexception()
         nicos.load_setup('startup')
 
-def NicmAddSetup(setupname, **variables):
+def NicmAddSetup(setupname):
     """Load the given setup additional to the current one."""
-    nicos.load_setup(setupname, **variables)
+    nicos.load_setup(setupname)
 
 def NicmExport(name, object):
     """Export the given object into the NICOS namespace."""

@@ -130,9 +130,7 @@ def start():
     #nicos.set_namespace(sys._getframe(1).f_globals)
 
     # Create the initial instrument setup.
-    nicos.log.info('--- loading startup setup')
     nicos.load_setup('startup')
-    nicos.log.info('--- done')
 
     # Fire up an interactive console.
     nicos.console()

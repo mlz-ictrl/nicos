@@ -31,6 +31,11 @@
 # *****************************************************************************
 
 name = 'NICOS startup setup'
+group = 'startup'
+
+includes = []
 
 modules = []
-devices = {}
+devices = dict(
+    System = device('nicm.system.System'),
+)

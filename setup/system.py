@@ -4,7 +4,7 @@
 #   $Id$
 #
 # Description:
-#   NICOS test setup file
+#   NICOS setup file for system "devices"
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
@@ -30,9 +30,21 @@
 #
 # *****************************************************************************
 
+name = 'system setup'
+
 devices = dict(
-    test2 = device('nicm.testdev.VirtualMotor',
-                   autocreate = True,
-                   initval = 0.05,
-                   unit = 'mm'),
+    logger = device('nicm.history.LogfileHistory',
+                    basefilename = 'log/'),
+
+    localhistory = device('nicm.history.LocalHistory'),
+
+    sphistory = device('nicm.history.ScratchPadHistory',
+                       server = 'localhost:14869',
+                       prefix = 'nicos/test/',
+                       ),
+
+    System = device('nicm.system.System',
+                    autocreate = True,
+                    histories = ['localhistory', 'sphistory'],
+                    ),
 )

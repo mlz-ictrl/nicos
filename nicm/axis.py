@@ -43,8 +43,8 @@ import time
 
 from nicm import status
 from nicm.device import Moveable
-from nicm.errors import ConfigurationError, NicmError, LimitError, PositionError, MoveError
-from nicm.errors import ProgrammingError
+from nicm.errors import ConfigurationError, NicmError, LimitError, PositionError
+from nicm.errors import ProgrammingError, MoveError
 from nicm.motor import Motor as NicmMotor
 from nicm.coder import Coder as NicmCoder
 

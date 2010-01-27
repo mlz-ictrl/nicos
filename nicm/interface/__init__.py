@@ -37,6 +37,7 @@ of the NICOS runtime.
 Only for internal usage by functions and methods.
 """
 
+import os
 import imp
 import sys
 import logging
@@ -60,110 +61,148 @@ class NICOS(object):
         self.explicit_devices = set()
         # contains the configuration for all configured devices
         self.configured_devices = {}
-        # used during recursive setup
-        self.__setup_level = 0
+        # contains the name of all loaded modules with user commands
+        self.user_modules = set()
+        # contains all loaded setups
+        self.loaded_setups = set()
+        # contains all explicitly loaded setups
+        self.explicit_setups = []
+        # info about all loadable setups
+        self.__setup_info = {}
         # namespace to place user-accessible items in
         self.__namespace = {}
         # contains all NICOS-exported names
         self.__exported_names = set()
-        # contains all loaded toplevel (not included) setups
-        self.__loaded_setups = []
+        # the System device
+        self.__system_device = None
+
         # set up logging interface
         self._init_logging()
         self.log = self.get_logger('nicos')
+        # read all setups
+        self.__read_setups()
 
     def set_namespace(self, ns):
         """Set the namespace to export commands and devices into."""
         self.__namespace = ns
         self.__exported_names = set()
 
-    def load_setup(self, modname, **variables):
-        """Load a setup module and set up devices accordingly.
+    def __read_setups(self):
+        """Read information of all existing setups.
 
-        The setup module is looked for in the setup/ directory which
+        Setup modules are looked for in the setup/ directory which
         should be a sibling to this package's directory.
         """
-        log = self.get_logger('setup')
-        if modname in self.__loaded_setups:
-            log.warning('setup %s is already loaded' % modname)
-            return
-
+        self.__setup_info.clear()
         modpath = path.join(path.dirname(__file__), '..', '..', 'setup')
-        try:
-            modfile = imp.find_module(modname, [modpath])
-            code = modfile[0].read()
-            modfile[0].close()
-        except (ImportError, IOError), err:
-            raise ConfigurationError('Could not find or read setup '
-                                     'module %r: %s' % (modname, err))
+        for filename in os.listdir(modpath):
+            if not filename.endswith('.py'):
+                continue
+            modname = filename[:-3]
+            try:
+                modfile = imp.find_module(modname, [modpath])
+                code = modfile[0].read()
+                modfile[0].close()
+            except (ImportError, IOError), err:
+                raise ConfigurationError('Could not find or read setup '
+                                         'module %r: %s' % (modname, err))
+            # device() is a helper function to make configuration prettier
+            ns = {'device': lambda cls, **params: (cls, params)}
+            try:
+                exec code in ns
+            except Exception, err:
+                raise ConfigurationError('An error occurred while reading '
+                                         'setup %s: %s' % (name, err))
+            info = {
+                'name': ns.get('name', modname),
+                'group': ns.get('group', 'base'),
+                'includes': ns.get('includes', []),
+                'modules': ns.get('modules', []),
+                'devices': ns.get('devices', {}),
+                'startupcode': ns.get('startupcode', ''),
+            }
+            self.__setup_info[modname] = info
+        # check if all includes exist
+        for name, info in self.__setup_info.iteritems():
+            for include in info['includes']:
+                if include not in self.__setup_info:
+                    raise ConfigurationError('Setup %s includes setup %s which '
+                                             'does not exist' % (name, include))
 
-        # since the include() function in setup modules calls this method,
-        # we need to do different things when it is called recursively
-        if self.__setup_level == 0:
-            self.__setup_modules = set(['nicm.commands'])
-            self.__setup_devices = {}
-            self.__setup_startupcode = ''
-        self.__setup_level += 1
-
-        # put a few items into the namespace the setup module is executed in,
-        # first the variables given by the caller
-        ns = variables.copy()
-        # then the function to load setup modules recursively
-        ns['include'] = self.load_setup
-        # and a helper to make the configuration code prettier
-        ns['device'] = lambda cls, **params: (cls, params)
-
-        exec code in ns
-
-        log.info('loading %s' % ns.get('name', modname))
-
-        self.__setup_modules.update(ns.get('modules', []))
-        self.__setup_devices.update(ns.get('devices', {}))
-        self.__setup_startupcode += '\n' + ns.get('startupcode', '')
-        self.__setup_level -= 1
-
-        if self.__setup_level > 0:
-            # still in recursive setup call
+    def load_setup(self, setupname):
+        """Load a setup module and set up devices accordingly."""
+        log = self.get_logger('setup')
+        if setupname in self.loaded_setups:
+            log.warning('setup %s is already loaded' % setupname)
             return
+        if setupname not in self.__setup_info:
+            raise ConfigurationError('Setup %s does not exist' % setupname)
 
-        self.__loaded_setups.append(modname)
-        sys.ps1 = '(%s)>>> ' % '+'.join(self.__loaded_setups)
+        log.info('loading setup %s' % setupname)
 
         from nicm.commands import user_command
-        for modname in self.__setup_modules:
+        failed_devs = []
+
+        def load_module(modname):
+            if modname in self.user_modules:
+                return
+            self.user_modules.add(modname)
             log.info('importing module %s... ' % modname, nonl=1)
             try:
                 __import__(modname)
                 mod = sys.modules[modname]
             except Exception, err:
-                log.error('Exception importing %s' % modname)
-                continue
+                log.error('Exception importing %s: %s' % (modname, err))
+                return
             if hasattr(mod, '__commands__'):
-                for name in mod.__commands__:
-                    self.export(name, user_command(getattr(mod, name)))
+                for cmdname in mod.__commands__:
+                    self.export(cmdname, user_command(getattr(mod, cmdname)))
             log.info('done')
 
-        self.configured_devices.update(self.__setup_devices)
+        def inner_load(name):
+            if name in self.loaded_setups:
+                return
+            if name != setupname:
+                log.info('loading include setup %s' % name)
 
-        failed_devs = []
-        devlist = sorted(self.__setup_devices.iteritems())
-        for devname, (_, devconfig) in devlist:
-            if not devconfig.get('autocreate', False):
-                continue
-            log.info('creating device %r... ' % devname, nonl=1)
-            try:
-                self.create_device(devname, explicit=True)
-                log.info('done')
-            except Exception, err:
-                log.info('failed')
-                failed_devs.append((devname, err))
+            self.loaded_setups.add(name)
+            info = self.__setup_info[name]
+
+            for include in info['includes']:
+                inner_load(include)
+
+            for modname in info['modules']:
+                load_module(modname)
+
+            self.configured_devices.update(info['devices'])
+
+            devlist = sorted(info['devices'].iteritems())
+            for devname, (_, devconfig) in devlist:
+                if not devconfig.get('autocreate', False):
+                    continue
+                log.info('creating device %r... ' % devname, nonl=1)
+                try:
+                    self.create_device(devname, explicit=True)
+                    log.info('done')
+                except Exception, err:
+                    log.info('failed')
+                    failed_devs.append((devname, err))
+
+            exec info['startupcode'] in self.__namespace
+
+        # always load nicm.commands
+        load_module('nicm.commands')
+
+        inner_load(setupname)
+
         if failed_devs:
             log.warning('the following devices could not be created')
             for info in failed_devs:
                 log.info('  %-15s: %s' % info)
 
-        exec self.__setup_startupcode in ns
-        log.info('done')
+        self.explicit_setups.append(setupname)
+        sys.ps1 = '(%s)>>> ' % '+'.join(self.explicit_setups)
+        log.info('setup loaded')
 
     def unload_setup(self):
         """Unload the current setup: destroy all devices and clear the
@@ -178,7 +217,9 @@ class NICOS(object):
         self.explicit_devices.clear()
         for name in list(self.__exported_names):
             self.unexport(name)
-        self.__loaded_setups = []
+        self.loaded_setups = set()
+        self.explicit_setups = []
+        self.user_modules = set()
 
     def export(self, name, object):
         self.__namespace[name] = object
@@ -199,6 +240,12 @@ class NICOS(object):
                 yield self.__namespace[name]
 
     # -- Device control --------------------------------------------------------
+
+    def get_system_device(self):
+        if self.__system_device is None:
+            from nicm.system import System
+            self.__system_device = self.get_device('System', System)
+        return self.__system_device
 
     def get_device(self, dev, cls=None):
         """Convenience: get a device by name or instance."""
