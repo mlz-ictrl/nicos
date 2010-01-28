@@ -94,6 +94,7 @@ class Axis(Moveable):
         self.setPar('unit', self.motor.getUnit())
 
     def doVersion(self):
+        """ returns the version of the module (class)"""
         return __version__
 
     def doStart(self, target, locked=False):

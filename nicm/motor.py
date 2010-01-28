@@ -35,8 +35,8 @@ NICOS motor definition.
 """
 
 __author__ = "Jens Krüger <jens.krueger@frm2.tum.de>"
-__date__   = "2009/10/27"
-__version__= "0.0.1"
+__date__   = "$Date$"
+__version__= "$Revision$"
 
 from nicm import status
 from nicm.device import Moveable
@@ -44,6 +44,10 @@ from nicm.device import Moveable
 
 class Motor(Moveable):
     """Base class for all motors."""
+
+    def doVersion(self):
+        """ returns the version of the module (class)"""
+        return __version__
 
     def setPosition(self, pos):
         self.doSetPosition(pos)

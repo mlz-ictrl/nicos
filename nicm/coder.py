@@ -35,8 +35,8 @@ NICOS coder definition.
 """
 
 __author__ = "Jens Krüger <jens.krueger@frm2.tum.de>"
-__date__   = "2009/10/27"
-__version__= "0.0.1"
+__date__   = "$Date$"
+__version__= "$Revision$"
 
 from nicm import status
 from nicm.device import Readable
@@ -44,6 +44,10 @@ from nicm.device import Readable
 
 class Coder(Readable):
     """Base class for all coders."""
+
+    def doVersion(self):
+        """ returns the version of the module (class)"""
+        return __version__
 
     def doRead(self):
         """Returns the current position from encoder controller."""
