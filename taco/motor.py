@@ -33,8 +33,8 @@
 """ implementation of the class for TACO controlled motors """
 
 __author__ = "Jens Krüger <jens.krueger@frm2.tum.de>"
-__date__   = "2009/10/27"
-__version__= "0.0.1"
+__date__   = "$Date$"
+__version__= "$Revision$"
 
 from Motor import Motor as TACOMotor
 import TACOStates
@@ -49,6 +49,10 @@ class Motor(NicmMotor):
     parameters = {
         'tacodevice': ('', True, 'TACO device name.'),
     }
+
+    def doVersion(self):
+        """ returns the version of the module (class)"""
+        return __version__
 
     def doInit(self):
         try :
