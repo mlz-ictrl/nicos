@@ -39,17 +39,22 @@ __date__   = "$Date$"
 __version__= "$Revision$"
 
 from nicm import status
-from nicm.device import Moveable
+from nicm.coder import Coder
 
 
-class Motor(Moveable):
-    """Base class for all motors."""
+class Motor(Coder):
+    """Base class for all motors.
+
+    This class inherits from Coder since a Motor can be used instead of a true
+    encoder to supply the current position to an Axis.
+    """
 
     def doVersion(self):
-        """ returns the version of the module (class)"""
+        """Returns the version of the module (class)."""
         return __version__
 
     def setPosition(self, pos):
+        """Sets the current position of the motor controller to the target."""
         self.doSetPosition(pos)
 
     def doInit(self):

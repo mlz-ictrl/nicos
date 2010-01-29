@@ -46,7 +46,7 @@ class Coder(Readable):
     """Base class for all coders."""
 
     def doVersion(self):
-        """ returns the version of the module (class)"""
+        """Returns the version of the module (class)."""
         return __version__
 
     def doRead(self):
