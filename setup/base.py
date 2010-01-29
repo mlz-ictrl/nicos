@@ -60,7 +60,7 @@ devices = dict(
 
     a2 = device('nicm.axis.Axis',
                 autocreate = True,
-                adev = {'motor': 'm2', 'coder': 'c1', 'obs': []},
+                adev = {'motor': 'm2', 'coder': 'm2', 'obs': []},
                 absMin = 0,
                 absMax = 100,
                 userMin = 0,

@@ -58,11 +58,12 @@ class LocalHistory(History):
     def doInit(self):
         self.__db = {}
 
-    def put(self, dev, tstamp, value):
-        self.__db.setdefault(dev.getName(), []).append((tstamp, value))
+    def put(self, dev, name, tstamp, value):
+        self.__db.setdefault(dev.getName(), {}).\
+                  setdefault(name, []).append((tstamp, value))
 
-    def get(self, dev, fromtime, totime):
-        history = self.__db.get(dev.getName(), [])
+    def get(self, dev, name, fromtime, totime):
+        history = self.__db.get(dev.getName(), {}).get(name, [])
         if not history:
             return None
         i1, i2 = None, None
@@ -93,10 +94,10 @@ class ScratchPadHistory(History):
             host = self.getServer()
             self.__conn = ScratchPadConnection(self.getPrefix(), host)
 
-    def put(self, dev, tstamp, value):
-        self.__conn.tell(dev.getName() + '/value', value, tstamp)
+    def put(self, dev, name, tstamp, value):
+        self.__conn.tell(dev.getName() + '/' + name, value, tstamp)
 
-    def get(self, dev, fromtime, totime):
+    def get(self, dev, name, fromtime, totime):
         return None
 
 

@@ -234,9 +234,9 @@ class Readable(Device):
         timestamp = time.time()
         for history in self.__histories:
             try:
-                history.put(self, timestamp, value)
+                history.put(self, 'value', timestamp, value)
             except Exception, err:
-                self.printwarning('exception while saving value to %s: %s' %
+                self.printwarning('could not save value to %s: %s' %
                                   (history, err))
         return value
 
@@ -249,6 +249,13 @@ class Readable(Device):
             if value not in status.statuses:
                 raise ProgrammingError('%s: status return %r unknown' %
                                        (self, value))
+            timestamp = time.time()
+            for history in self.__histories:
+                try:
+                    history.put(self, 'status', timestamp, value)
+                except Exception, err:
+                    self.printwarning('could not save status to %s: %s' %
+                                      (history, err))
             return value
         return status.UNKNOWN
 
@@ -263,9 +270,10 @@ class Readable(Device):
             return self.Format(value)
         return self.getPar('fmtstr') % value
 
-    def history(self, fromtime=None, totime=None):
+    def history(self, name='value', fromtime=None, totime=None):
+        """Return a history of the parameter *name*."""
         for history in self.__histories:
-            hist = history.get(self, fromtime, totime)
+            hist = history.get(self, name, fromtime, totime)
             if hist is not None:
                 return hist
 
@@ -311,6 +319,8 @@ class Startable(Readable):
         """Wait until main action of device is completed."""
         if hasattr(self, 'doWait'):
             self.doWait()
+            # update device value in histories
+            self.read()
 
     def isAllowed(self, pos):
         """Return a tuple describing the validity of the given position.

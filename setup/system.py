@@ -45,6 +45,6 @@ devices = dict(
 
     System = device('nicm.system.System',
                     autocreate = True,
-                    histories = ['localhistory'],
+                    histories = ['localhistory', 'sphistory'],
                     ),
 )
