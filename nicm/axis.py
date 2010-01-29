@@ -73,7 +73,7 @@ class Axis(Moveable):
         if self.coder.getUnit() != self.motor.getUnit():
             raise ConfigurationError('%s: different units for motor '
                                      'and coder' % self)
-	# Check that all observers have the same unit as the motor
+        # Check that all observers have the same unit as the motor
         for i in self.obs :
             if self.motor.getUnit() != i.getUnit():
                 raise ConfigurationError('%s: different units for motor '
@@ -102,8 +102,9 @@ class Axis(Moveable):
         if self.__locked:
             raise NicmError('%s: this axis is locked' % self)
         if not self.__checkTargetPosition(self.read(), 0) :
-            return 
+            return
 
+        # TODO: stop the axis instead of raising an exception
         if self.status() == status.BUSY :
             raise NicmError('%s: axis is moving now, please issue a stop '
                                 'command and try it again' % self)
@@ -121,7 +122,7 @@ class Axis(Moveable):
             self.__stopRequest = 0
             self.__locked = locked   # lock the movement
             self.__error = 0
-	    self.__dragErrorCount = 0
+            self.__dragErrorCount = 0
             if not self.__thread:
                 self.__thread = threading.Thread(None, self.__positioningThread,
                                                  'Positioning thread')
@@ -134,7 +135,7 @@ class Axis(Moveable):
         if not self.getUsermin() <= target <= self.getUsermax() :
             return False, 'limits are [%f, %f]' % (self.getUsermin(),
                                                    self.getUsermax())
-        return True, '' 
+        return True, ''
 
     def doStatus(self):
         """Returns the status of the motor controller."""
@@ -157,7 +158,7 @@ class Axis(Moveable):
         self.__checkErrorState()
         if self.status() == status.BUSY :
             raise NicmError('%s: axis is moving now, please issue a stop '
-                                'command and try it again' % self)
+                            'command and try it again' % self)
         diff = (self.read() - target)
         self.__target = target
         self.__offset += diff
@@ -183,7 +184,7 @@ class Axis(Moveable):
     def doReset(self):
         """Resets the motor/coder controller."""
         if self.status() != status.BUSY :
-	    self.__error = 0
+            self.__error = 0
 
     def doStop(self):
         """Stops the movement of the motor."""
@@ -259,9 +260,9 @@ class Axis(Moveable):
             elif self.__error == 2:
                 raise MoveError('%s: precision error ' % self)
             elif self.__error == 3:
-                raise MoveError('%s: pre move error ' % self) 
+                raise MoveError('%s: pre move error ' % self)
             elif self.__error == 4:
-                raise MoveError('%s: post move error ' % self) 
+                raise MoveError('%s: post move error ' % self)
             elif self.__error == 5:
                 raise MoveError('%s: action during the move failed ' % self)
             elif self.__error == 6:
@@ -279,11 +280,11 @@ class Axis(Moveable):
         absMin = self.getAbsmin()
         absMax = self.getAbsmax()
         if not absMin and not absMax:
-            raise ConfigurationError('%s: no absolute limits defined (absMin, absMax)' %
-                            self)
+            raise ConfigurationError('%s: no absolute limits defined '
+                                     '(absMin, absMax)' % self)
         if absMin >= absMax:
             raise ConfigurationError('%s: lower limit is too large [%f, %f]' %
-                            (self, absMin, absMax))
+                                     (self, absMin, absMax))
 
     def __checkUserLimits(self, setthem=False):
         absMin = self.getAbsmin()
@@ -298,26 +299,26 @@ class Axis(Moveable):
             self._params['usermax'] = userMax
         if (userMin >= userMax):
             raise ConfigurationError('%s: lower user limit is too large [%f, %f]' %
-                            (self, userMin, userMax))
+                                     (self, userMin, userMax))
         if userMin < absMin:
-            raise ConfigurationError('%s: user minimum (%f) below the absolute minimum (%f)' %
-                            (self, userMin, absMin))
+            raise ConfigurationError('%s: user minimum (%f) below the absolute '
+                                     'minimum (%f)' % (self, userMin, absMin))
         if userMin > absMax:
-            raise ConfigurationError('%s: user minimum (%f) above the absolute maximum (%f)' %
-                            (self, userMin, absMax))
+            raise ConfigurationError('%s: user minimum (%f) above the absolute '
+                                     'maximum (%f)' % (self, userMin, absMax))
         if userMax > absMax:
-            raise ConfigurationError('%s: user maximum (%f) above the absolute maximum (%f)' %
-                            (self, userMin, absMax))
+            raise ConfigurationError('%s: user maximum (%f) above the absolute '
+                                     'maximum (%f)' % (self, userMin, absMax))
         if userMax < absMin:
-            raise ConfigurationError('%s: user minimum (%f) below the absolute minimum (%f)' %
-                            (self, userMin, absMin))
+            raise ConfigurationError('%s: user minimum (%f) below the absolute '
+                                     'minimum (%f)' % (self, userMin, absMin))
 
     def __checkDragerror(self):
         tmp = abs(self.motor.read() - self.coder.read())
         # print 'Diff %.3f' % tmp
-	dragDiff = self.getDragerror()
-	dragOK = tmp <= dragDiff
-	if dragOK :
+        dragDiff = self.getDragerror()
+        dragOK = tmp <= dragDiff
+        if dragOK :
             for i in self.obs :
                 tmp = abs(self.motor.read() - i.read())
                 dragOK = dragOK and (tmp <= dragDiff)
@@ -326,8 +327,8 @@ class Axis(Moveable):
         return dragOK
 
     def __checkTargetPosition(self, target, pos, error = 2):
-	tmp = abs(pos - target)
-        posOK = tmp <= self.getPrecision() 
+        tmp = abs(pos - target)
+        posOK = tmp <= self.getPrecision()
         if posOK :
             for i in self.obs :
                 tmp = abs(target - i.read())
@@ -338,19 +339,19 @@ class Axis(Moveable):
 
     def __checkMoveToTarget(self, target, pos, error = 3):
         diffLast = abs(self.__lastPosition - target)
-	diffCurr = abs(pos - target)
-	self.__lastPosition = pos
-	posOK = diffLast >= diffCurr
-	if not posOK:
+        diffCurr = abs(pos - target)
+        self.__lastPosition = pos
+        posOK = diffLast >= diffCurr
+        if not posOK:
              self.__error = error
         return posOK
 
     def __positioningThread(self):
         if not self._preMoveAction() :
             self.__error = 3
-        else : 
+        else :
             self.__error = 0
-	    for pos in self.__target + self.getBacklash(), self.__target:
+            for pos in self.__target + self.getBacklash(), self.__target:
                 self.__positioning(pos)
                 if self.__stopRequest == 2 or self.__error != 0:
                    break
@@ -378,12 +379,14 @@ class Axis(Moveable):
                 pos = self.read()
             except NicmError:
                 pass
-            if not self.__checkMoveToTarget(__target, pos) or not self.__checkDragerror():
-                # drag error (motor != coder) 
-		# distance to target will be greater
+            if not self.__checkMoveToTarget(__target, pos) or \
+                   not self.__checkDragerror():
+                # drag error (motor != coder)
+                # distance to target will be greater
                 self.__stopRequest = 1
             elif self.motor.status() != status.BUSY:             # motor stopped
-                if self.__stopRequest == 2 or self.__checkTargetPosition(__target, pos):
+                if self.__stopRequest == 2 or \
+                       self.__checkTargetPosition(__target, pos):
                     # manual stop or target reached
                     moving = False
                 elif maxtries > 0:
