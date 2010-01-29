@@ -92,20 +92,20 @@ class ScratchPadConnection(object):
             if not self.socket:
                 self._connect()
             self.socket.send(msg)
-            sel = select.select([self.socket], [], [self.socket], 3)
+            sel = select.select([self.socket], [], [self.socket], 1)
             if self.socket in sel[0]:
                 answer = self.socket.recv(8192)
                 if not answer:
                     raise ScratchPadError('connection to ScratchPad lost')
-            elif self.socket in self[2]:
+            elif self.socket in sel[2]:
                 self._disconnect()
                 raise ScratchPadError('connection to ScratchPad lost')
             else:
                 raise ScratchPadError('no answer from ScratchPad')
         match = answer_re.match(answer)
         if not match:
-            raise ScratchPadError('garbled answer from ScratchPad')
-        return self._convert(match.group(2))
+            raise ScratchPadError('garbled answer from ScratchPad: %r' % answer)
+        return self._convert(match.group(3))
 
     def history(self, key):
         pass
@@ -116,6 +116,6 @@ if __name__ == '__main__':
     sp = ScratchPadConnection(sys.argv[2], sys.argv[1])
     sp.tell('value', 1)
     while True:
-        time.sleep(1)
         print 'asking for value...'
         print sp.ask('value')
+        time.sleep(1)
