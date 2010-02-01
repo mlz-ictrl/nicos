@@ -69,11 +69,6 @@ devices = dict(
                 absmax = 100,
                 usermin = 0,
                 usermax = 50),
-
-    i1 = device('taco.analog.Input',
-                autocreate = True,
-                tacodevice = '//mirasrv.mira.frm2/mira/zup/in1',
-                ),
 )
 
 startupcode = '''
