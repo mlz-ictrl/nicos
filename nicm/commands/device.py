@@ -35,7 +35,8 @@ Module for simple device-related user commands.
 """
 
 from nicm import nicos
-from nicm.device import Device, Startable, Moveable, Readable, Countable
+from nicm.device import Configurable, Device, Startable, Moveable, \
+     Readable, Countable
 from nicm.errors import NicmError, UsageError
 from nicm.status import statuses
 from nicm.utils import print_table
@@ -202,7 +203,7 @@ def release(*devlist):
 
 def listparams(dev):
     """List all parameters of the device."""
-    dev = nicos.get_device(dev)
+    dev = nicos.get_device(dev, Configurable)
     printinfo('Parameters of device %s:' % dev)
     items = []
     for name, info in sorted(dev.parameters.iteritems()):
