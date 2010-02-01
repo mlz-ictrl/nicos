@@ -35,6 +35,7 @@ Contains the subclass of NICOS specific for running nicm in an interactive
 Python shell.
 """
 
+import os
 import sys
 import code
 import readline
@@ -57,6 +58,14 @@ class NicmInteractiveConsole(code.InteractiveConsole):
         code.InteractiveConsole.__init__(self, locals)
         readline.parse_and_bind('tab: complete')
         readline.set_completer(rlcompleter.Completer(self.locals).complete)
+        readline.set_history_length(10000)
+        self.histfile = os.path.expanduser('~/.nicmhistory')
+        if os.path.isfile(self.histfile):
+            readline.read_history_file(self.histfile)
+
+    def interact(self, banner=None):
+        code.InteractiveConsole.interact(self, banner)
+        readline.write_history_file(self.histfile)
 
     def runsource(self, source, filename='<input>', symbol='single'):
         """Mostly copied from code.InteractiveInterpreter, but added the
