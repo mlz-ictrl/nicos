@@ -1,18 +1,18 @@
-#  -*- coding: iso-8859-15 -*-
+#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # Module:
-#   $Id$
+#   $Id $
 #
 # Description:
-#   NICOS TACO coder definition
+#   NICOS TACO analog input/output definition
 #
 # Author:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
-#   $Author$
+#   Jens KrÃ¼ger <jens.krueger@frm2.tum.de>
+#   $Author $
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
-#   Copyright (C) 2009 Jens Krüger <jens.krueger@frm2.tum.de>
+#   Copyright (C) 2009 Jens KrÃ¼ger <jens.krueger@frm2.tum.de>
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -30,36 +30,40 @@
 #
 # *****************************************************************************
 
-"""Implementation of the class for TACO controlled coders."""
+"""
+Implementation of TACO AnalogInput and AnalogOutput devices.
+"""
 
-__author__ = "Jens Krüger <jens.krueger@frm2.tum.de>"
-__date__   = "$Date$"
-__version__= "$Revision$"
+__date__   = "$Date $"
+__version__= "$Revision $"
 
-from Encoder import Encoder as TACOCoder
-import TACOStates
-import TACOClient
+from time import sleep
 
-from nicm.coder import Coder as NicmCoder
+from IO import AnalogInput, AnalogOutput
+
+from nicm import status
+from nicm.device import Readable, Moveable
 from taco.base import TacoDevice
 
 
-class Coder(TacoDevice, NicmCoder):
-    """TACO coder implementation class."""
+class Input(TacoDevice, Readable):
+    """Base class for TACO AnalogInputs."""
 
-    taco_class = TACOCoder
+    taco_class = AnalogInput
 
-    def doVersion(self):
-        """Returns the version of the module (class)."""
-        return __version__
 
-    def doSetPosition(self, target):
-        self._dev.setpos(target)
+class Output(TacoDevice, Moveable):
+    """Base class for TACO AnalogOutputs."""
 
-    def doStatus(self):
-        stat = self._dev.deviceState()
-        if stat == TACOStates.DEVICE_NORMAL:
-            return status.OK
-        else:
-            return status.ERROR
-        return self._dev.deviceState()
+    parameters = {
+        'loopdelay': (0.3, False, 'sleep time in seconds when waiting'),
+    }
+
+    taco_class = AnalogOutput
+
+    def doStart(self, value):
+        self._dev.write(value)
+
+    def doWait(self):
+        while self.status() == status.BUSY:
+            sleep(self.getLoopdelay())

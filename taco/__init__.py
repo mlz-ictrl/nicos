@@ -1,7 +1,8 @@
-__version__="0.1"
-__doc__="TACO base module"
+__version__ = "0.1"
+__doc__ = "TACO base module"
 __all__ = [
-	"motor",
-	"coder",
+    "base",
+    "motor",
+    "coder",
 ]
 

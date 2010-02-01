@@ -67,7 +67,7 @@ class MergedAttrsMeta(type):
         newtype = type.__new__(mcs, name, bases, attrs)
         for entry in newtype.__mergedattrs__:
             newentry = {}
-            for base in bases:
+            for base in reversed(bases):
                 if hasattr(base, entry):
                     newentry.update(getattr(base, entry))
             newentry.update(attrs.get(entry, {}))

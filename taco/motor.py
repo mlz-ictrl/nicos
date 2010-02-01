@@ -1,12 +1,12 @@
 #  -*- coding: iso-8859-15 -*-
 # *****************************************************************************
 # Module:
-#   $Id$ 
-#              
+#   $Id$
+#
 # Description:
 #   NICOS TACO motor definition
 #
-# Author:       
+# Author:
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #   $Author$
 #
@@ -30,7 +30,7 @@
 #
 # *****************************************************************************
 
-""" implementation of the class for TACO controlled motors """
+"""Implementation of the class for TACO controlled motors."""
 
 __author__ = "Jens Krüger <jens.krueger@frm2.tum.de>"
 __date__   = "$Date$"
@@ -43,96 +43,38 @@ import TACOClient
 from nicm import status
 from nicm.errors import ConfigurationError, NicmError
 from nicm.motor import Motor as NicmMotor
+from taco.base import TacoDevice
 
-class Motor(NicmMotor):
 
-    parameters = {
-        'tacodevice': ('', True, 'TACO device name.'),
-    }
+class Motor(TacoDevice, NicmMotor):
+    """TACO motor implementation class."""
+
+    taco_class = TACOMotor
 
     def doVersion(self):
-        """ returns the version of the module (class)"""
+        """Returns the version of the module (class)."""
         return __version__
 
-    def doInit(self):
-        try :
-	    self._dev = TACOMotor(self.getTacodevice())
-        except TACOClient.TACOError, e:
-            self.printerror()
-            raise CommunicationError("TACO Motor device '%s' not available\nTACO error code: %d ; %s " % (self.getTacodevice(), e.errcode, e), 0)
-        except Exception, e:
-            self.printerror()
-            raise e
+    def doStart(self, target):
+        self._dev.start(target)
 
-        try:
-            self._dev.deviceOn()
-        except TACOClient.TACOError,e:
-            self.printerror()
-            try:
-                if self._dev.deviceState() == TACOStates.FAULT :
-                    self._dev.deviceReset()
-                self._dev.deviceOn()
-            except TACOClient.TACOError,e:
-                raise CommunicationError("TACOError: %d; Cannot switch on Motor device : '%s'\n%s " % (e.errcode, self._dev.deviceName(), e), 0)
-            except Exception, e:
-                self.printerror()
-                raise CommunicationError("Unexpected error occured: %s: " % (sys.exc_info()[0]), 0)
-        self.doSetUnit(self._dev.unit())
+    def doSetPosition(self, target):
+        self._dev.setpos(target)
 
-    def doStart(self, target) :
-        try :
-            self._dev.start(target)
-        except TACOClient.TACOError, e :
-            self.printerror()
-            raise e
+    def doStatus(self):
+        stat = self._dev.deviceState()
+        if stat == TACOStates.DEVICE_NORMAL:
+            return status.OK
+        elif stat == TACOStates.MOVING:
+            return status.BUSY
+        else:
+            return status.ERROR
 
-    def doRead(self) :
-        try :
-            return self._dev.read()
-        except TACOClient.TACOError, e :
-            self.printerror()
-            raise e
+    def doStop(self):
+        self._dev.stop()
 
-    def doSetPosition(self, target) :
-        try :
-            self._dev.setpos(target)
-        except TACOClient.TACOError, e :
-            self.printerror()
-            raise e
+    def doGetSpeed(self):
+        return self._dev.speed()
 
-    def doStatus(self) :
-        try :
-            stat = self._dev.deviceState()
-            if stat == TACOStates.DEVICE_NORMAL : 
-                return status.OK
-            elif stat == TACOStates.MOVING :
-                return status.BUSY
-            else :
-                return status.ERROR
-        except TACOClient.TACOError, e :
-            self.printerror()
-            raise e
-
-    def doReset(self) :
-        try :
-            self._dev.deviceReset()
-        except TACOClient.TACOError, e :
-            self.printerror()
-            raise e
-
-    def doStop(self) :
-        try :
-            self._dev.stop()
-        except TACOClient.TACOError, e :
-            self.printerror()
-            raise e
-
-    def doGetUnit(self) :
-        try :
-            return self._dev.unit()
-        except TACOClient.TACOError, e :
-            self.printerror()
-            raise e
-     
-#    def doGetTacodevice(self) :
-#        return self._params['tacodevice']
+    def doSetSpeed(self, value):
+        self._dev.setSpeed(value)
