@@ -40,9 +40,10 @@ __version__= "$Revision$"
 
 from nicm import status
 from nicm.coder import Coder
+from nicm.device import Moveable
 
 
-class Motor(Coder):
+class Motor(Coder, Moveable):
     """Base class for all motors.
 
     This class inherits from Coder since a Motor can be used instead of a true
