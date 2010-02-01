@@ -40,11 +40,15 @@ devices = dict(
     m1 = device('nicm.testdev.VirtualMotor',
                 loglevel = 'info',
                 initval = 1,
+                absmin = 0,
+                absmax = 100,
                 unit = 'deg'),
 
     m2 = device('nicm.testdev.VirtualMotor',
                 loglevel = 'debug',
                 initval = 0.5,
+                absmin = 0,
+                absmax = 100,
                 unit = 'deg'),
 
     c1 = device('nicm.testdev.VirtualCoder',
@@ -53,18 +57,18 @@ devices = dict(
     a1 = device('nicm.axis.Axis',
                 autocreate = True,
                 adev = {'motor': 'm1', 'coder': 'c1', 'obs': ['c1']},
-                absMin = 0,
-                absMax = 100,
-                userMin = 0,
-                userMax = 50),
+                absmin = 0,
+                absmax = 100,
+                usermin = 0,
+                usermax = 50),
 
     a2 = device('nicm.axis.Axis',
                 autocreate = True,
                 adev = {'motor': 'm2', 'coder': 'm2', 'obs': []},
-                absMin = 0,
-                absMax = 100,
-                userMin = 0,
-                userMax = 50),
+                absmin = 0,
+                absmax = 100,
+                usermin = 0,
+                usermax = 50),
 )
 
 startupcode = '''

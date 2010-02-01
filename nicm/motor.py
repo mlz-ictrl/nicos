@@ -43,12 +43,16 @@ from nicm.coder import Coder
 from nicm.device import Moveable
 
 
-class Motor(Coder, Moveable):
+class Motor(Moveable, Coder):
     """Base class for all motors.
 
     This class inherits from Coder since a Motor can be used instead of a true
     encoder to supply the current position to an Axis.
     """
+
+    parameters = {
+        'speed': (0, False, 'The motor speed in units/second.'),
+    }
 
     def doVersion(self):
         """Returns the version of the module (class)."""

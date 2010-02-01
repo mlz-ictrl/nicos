@@ -362,6 +362,11 @@ class Moveable(Startable):
         'absmax': (0, False, 'Absolute maximum of device value.'),
     }
 
+    def init(self):
+        Startable.init(self)
+        self.__checkAbsLimits()
+        self.__checkUserLimits(setthem=True)
+
     def start(self, pos):
         """Start movement of the device to a new position."""
         ok, why = self.isAllowed(pos)
@@ -372,6 +377,76 @@ class Moveable(Startable):
 
     moveTo = start
     move = start
+
+    def __checkAbsLimits(self):
+        absmin = self.getAbsmin()
+        absmax = self.getAbsmax()
+        if not absmin and not absmax:
+            raise ConfigurationError('%s: no absolute limits defined '
+                                     '(absmin, absmax)' % self)
+        if absmin >= absmax:
+            raise ConfigurationError('%s: absolute minimum (%s) above the '
+                                     'absolute maximum (%s)' %
+                                     (self, absmin, absmax))
+
+    def __checkUserLimits(self, setthem=False):
+        absmin = self._params['absmin']
+        absmax = self._params['absmax']
+        usermin = self._params['usermin']
+        usermax = self._params['usermax']
+        if not usermin and not usermax and setthem:
+            # if both not set (0) then use absolute min. and max.
+            usermin = absmin
+            usermax = absmax
+            self._params['usermin'] = usermin
+            self._params['usermax'] = usermax
+        if usermin >= usermax:
+            raise ConfigurationError('%s: user minimum (%s) above the user '
+                                     'maximum (%s)' % (self, usermin, usermax))
+        if usermin < absmin:
+            raise ConfigurationError('%s: user minimum (%s) below the absolute '
+                                     'minimum (%s)' % (self, usermin, absmin))
+        if usermin > absmax:
+            raise ConfigurationError('%s: user minimum (%s) above the absolute '
+                                     'maximum (%s)' % (self, usermin, absmax))
+        if usermax > absmax:
+            raise ConfigurationError('%s: user maximum (%s) above the absolute '
+                                     'maximum (%s)' % (self, usermin, absmax))
+        if usermax < absmin:
+            raise ConfigurationError('%s: user minimum (%s) below the absolute '
+                                     'minimum (%s)' % (self, usermin, absmin))
+
+    def isAllowed(self, target):
+        if not self._params['usermin'] <= target <= self._params['usermax']:
+            return False, 'limits are [%s, %s]' % (self._params['usermin'],
+                                                   self._params['usermax'])
+        if hasattr(self, 'doIsAllowed'):
+            return self.doIsAllowed(pos)
+        return True, ''
+
+    def doSetUsermin(self, value):
+        """Set the user minimum value to value after checking the value against
+        absolute limits and user maximum.
+        """
+        old = self._params['usermin']
+        self._params['usermin'] = float(value)
+        try:
+            self.__checkUserLimits()
+        except ConfigurationError, e:
+            self._params['usermin'] = old
+            raise
+
+    def doSetUsermax(self, value):
+        """Set the user maximum value to value after checking the value against
+        absolute limits and user minimum.
+        """
+        old = self._params['usermax']
+        self._params['usermax'] = float(value)
+        try:
+            self.__checkUserLimits()
+        except ConfigurationError, e:
+            self._params['usermax'] = old
+            raise
 
 
 class Switchable(Startable):
@@ -388,8 +463,8 @@ class Switchable(Startable):
         Readable.init(self)
         if not isinstance(self.switchlist, dict):
             raise ProgrammingError('%s: switchlist is not a dict' % self)
-        self.rev_switchlist = dict((v, k) for (k, v) in self.switchlist.items())
-        if len(self.rev_switchlist) != len(self.switchlist):
+        self.__rswitchlist = dict((v, k) for (k, v) in self.switchlist.items())
+        if len(self.__rswitchlist) != len(self.switchlist):
             raise ProgrammingError('%s: duplicate value in switchlist' % self)
 
     def start(self, pos):
@@ -399,7 +474,7 @@ class Switchable(Startable):
         switchlist, or the "internal" value.
         """
         realpos = self.switchlist.get(pos, pos)
-        if realpos not in self.rev_switchlist:
+        if realpos not in self.__rswitchlist:
             raise UsageError('%s: %r is not an acceptable switch value' %
                              (self, pos))
         ok, why = self.isAllowed(realpos)
@@ -415,7 +490,7 @@ class Switchable(Startable):
         """Format a value from self.read() into the corresponding human-readable
         value from the switchlist.
         """
-        return self.rev_switchlist.get(pos, pos)
+        return self.__rswitchlist.get(pos, pos)
 
 
 class Countable(Startable):

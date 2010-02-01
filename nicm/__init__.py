@@ -41,3 +41,7 @@ import sys
 # Check for Python version 2.5+.
 if sys.version_info[:2] < (2, 5):
     raise ImportError('NICOS requires Python 2.5 or higher')
+
+
+# Dummy object to allow the import of nicm submodules.
+nicos = object()

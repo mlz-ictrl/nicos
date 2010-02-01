@@ -79,9 +79,6 @@ class Axis(Moveable):
                 raise ConfigurationError('%s: different units for motor '
                                      'and observer' % (self % i))
 
-        self.__checkAbsLimits()
-        self.__checkUserLimits(setthem=True)
-
         self.__offset = 0
         self.__thread = None
         self.__target = self.__read()
@@ -131,12 +128,6 @@ class Axis(Moveable):
         except Exception:
             raise Exception('%s: anything went wrong' % self)
 
-    def doIsAllowed(self, target):
-        if not self.getUsermin() <= target <= self.getUsermax() :
-            return False, 'limits are [%f, %f]' % (self.getUsermin(),
-                                                   self.getUsermax())
-        return True, ''
-
     def doStatus(self):
         """Returns the status of the motor controller."""
         if self.__error > 0:
@@ -164,22 +155,21 @@ class Axis(Moveable):
         self.__offset += diff
 
         # Avoid the use of the setPar method for the absolute limits
-        # due to the limitations of the hardware
         if (diff < 0):
-                self._params['absMax'] = self.getAbsmax() - diff
-                self._params['absMin'] = self.getAbsmin() - diff
+                self._params['absmax'] = self.getAbsmax() - diff
+                self._params['absmin'] = self.getAbsmin() - diff
         else:
-                self._params['absMin'] = self.getAbsmin() - diff
-                self._params['absMax'] = self.getAbsmax() - diff
-        self.__checkAbsLimits()
+                self._params['absmin'] = self.getAbsmin() - diff
+                self._params['absmax'] = self.getAbsmax() - diff
+        self._Moveable__checkAbsLimits()
 
         if (diff < 0):
-                self._params['userMin'] = self.getUsermin() - diff
-                self._params['userMax'] = self.getUsermax() - diff
+                self._params['usermin'] = self.getUsermin() - diff
+                self._params['usermax'] = self.getUsermax() - diff
         else:
-                self._params['userMax'] = self.getUsermax() - diff
-                self._params['userMin'] = self.getUsermin() - diff
-        self.__checkUserLimits()
+                self._params['usermax'] = self.getUsermax() - diff
+                self._params['usermin'] = self.getUsermin() - diff
+        self._Moveable__checkUserLimits()
 
     def doReset(self):
         """Resets the motor/coder controller."""
@@ -211,28 +201,6 @@ class Axis(Moveable):
         """Unlocks the axis."""
         super(Axis, self).doUnlock()
         self.__locked = False
-
-    def doSetUsermin(self, value):
-        """ sets the user minimum value to value after
-        checking the value against absolute limits and user maximum."""
-        old = self._params['usermin']
-        self._params['usermin'] = float(value)
-        try:
-            self.__checkUserLimits()
-        except NicmError, e:
-            self._params['usermin'] = old
-            raise e
-
-    def doSetUsermax(self, value):
-        """ sets the user maximum value to value after
-        checking the value against absolute limits and user minimum."""
-        old = self._params['usermax']
-        self._params['usermax'] = float(value)
-        try:
-            self.__checkUserLimits()
-        except NicmError, e:
-            self._params['usermax'] = old
-            raise e
 
     def _preMoveAction(self):
         """ This method will be called before the motor will be moved.
@@ -275,43 +243,6 @@ class Axis(Moveable):
             return self.coder.read() - self.__offset
         except Exception:
             raise NicmError('%s: ' % self)
-
-    def __checkAbsLimits(self):
-        absMin = self.getAbsmin()
-        absMax = self.getAbsmax()
-        if not absMin and not absMax:
-            raise ConfigurationError('%s: no absolute limits defined '
-                                     '(absMin, absMax)' % self)
-        if absMin >= absMax:
-            raise ConfigurationError('%s: lower limit is too large [%f, %f]' %
-                                     (self, absMin, absMax))
-
-    def __checkUserLimits(self, setthem=False):
-        absMin = self.getAbsmin()
-        absMax = self.getAbsmax()
-        userMin = self.getUsermin()
-        userMax = self.getUsermax()
-        if not userMin and not userMax and setthem:
-            # if both not set (0) then use absolute min. and max.
-            userMin = absMin
-            userMax = absMax
-            self._params['usermin'] = userMin
-            self._params['usermax'] = userMax
-        if (userMin >= userMax):
-            raise ConfigurationError('%s: lower user limit is too large [%f, %f]' %
-                                     (self, userMin, userMax))
-        if userMin < absMin:
-            raise ConfigurationError('%s: user minimum (%f) below the absolute '
-                                     'minimum (%f)' % (self, userMin, absMin))
-        if userMin > absMax:
-            raise ConfigurationError('%s: user minimum (%f) above the absolute '
-                                     'maximum (%f)' % (self, userMin, absMax))
-        if userMax > absMax:
-            raise ConfigurationError('%s: user maximum (%f) above the absolute '
-                                     'maximum (%f)' % (self, userMin, absMax))
-        if userMax < absMin:
-            raise ConfigurationError('%s: user minimum (%f) below the absolute '
-                                     'minimum (%f)' % (self, userMin, absMin))
 
     def __checkDragerror(self):
         tmp = abs(self.motor.read() - self.coder.read())
