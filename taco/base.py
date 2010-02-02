@@ -39,7 +39,8 @@ import TACOStates
 from TACOClient import TACOError
 
 from nicm import status
-from nicm.errors import CommunicationError, ProgrammingError
+from nicm.errors import ProgrammingError
+from taco.errors import raise_taco, taco_guard
 
 
 class TacoDevice(object):
@@ -58,7 +59,7 @@ class TacoDevice(object):
     parameters = {
         'tacodevice': ('', True, 'TACO device name.'),
         'tacotimeout': (0, False, 'TACO client network timeout (in seconds).'),
-        # the unit isn't mandatory -- TACO knows it already
+        # the unit isn't mandatory -- TACO usually knows it already
         'unit': ('', False, 'Unit of the device main value.'),
     }
 
@@ -76,22 +77,20 @@ class TacoDevice(object):
         try:
             self._dev = self.taco_class(devname)
         except TACOError, err:
-            raise CommunicationError(
-                'Could not connect to TACO device %r, TACO error: %d; %s' %
-                (devname, err.errcode, err))
+            raise_taco(err, 'Could not connect to device %r' % devname)
 
         try:
             timeout = self.getTacotimeout()
             if timeout != 0:
                 self._dev.setClientNetworkTimeout(timeout)
         except TACOError, err:
-            self.printwarning('Setting TACO network timeout failed: %d; %s' %
+            self.printwarning('Setting TACO network timeout failed: [TACO %d] %s' %
                               (err.errcode, err))
 
         try:
             self._dev.deviceOn()
         except TACOError, err:
-            self.printwarning('Switching TACO device %r on failed: %d; %s' %
+            self.printwarning('Switching TACO device %r on failed: [TACO %d] %s' %
                               (devname, err.errcode, err))
             try:
                 if self._dev.deviceState() == TACOStates.FAULT:
@@ -99,19 +98,20 @@ class TacoDevice(object):
                         self._dev.deviceReset()
                 self._dev.deviceOn()
             except TACOError, err:
-                raise CommunicationError(
-                    'Switching TACO device %r on after reset failed: %d; %s' %
-                    (devname, err.errcode, err))
+                raise_taco(err, 'Switching device %r on after reset failed' %
+                           devname)
 
     def doRead(self):
-        return self._dev.read()
+        return taco_guard(self._dev.read)
 
     def doStatus(self):
         # this needs to be device-defined
         return status.UNKNOWN
 
     def doReset(self):
-        self._dev.deviceReset()
+        taco_guard(self._dev.deviceReset)
 
     def doGetUnit(self):
-        return self._dev.unit()
+        if self._params['unit']:
+            return self._params['unit']
+        return taco_guard(self._dev.unit)

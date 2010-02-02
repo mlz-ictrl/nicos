@@ -54,12 +54,11 @@ class Coder(TacoDevice, NicmCoder):
         return __version__
 
     def doSetPosition(self, target):
-        self._dev.setpos(target)
+        taco_guard(self._dev.setpos, target)
 
     def doStatus(self):
-        stat = self._dev.deviceState()
+        stat = taco_guard(self._dev.deviceState)
         if stat == TACOStates.DEVICE_NORMAL:
             return status.OK
         else:
             return status.ERROR
-        return self._dev.deviceState()

@@ -41,6 +41,7 @@ from IO import DigitalInput, DigitalOutput
 
 from nicm.device import Readable, Moveable
 from taco.base import TacoDevice
+from taco.errors import taco_guard
 
 
 class Input(TacoDevice, Readable):
@@ -55,4 +56,4 @@ class Output(TacoDevice, Moveable):
     taco_class = DigitalOutput
 
     def doStart(self, value):
-        self._dev.write(value)
+        taco_guard(self._dev.write, value)

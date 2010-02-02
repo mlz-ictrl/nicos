@@ -4,11 +4,11 @@
 #   $Id $
 #
 # Description:
-#   NICOS TACO analog input/output definition
+#   TACO <-> NICOS exception mapping
 #
 # Author:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
-#   $Author $
+#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   $Author$
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -31,40 +31,37 @@
 # *****************************************************************************
 
 """
-Implementation of TACO AnalogInput and AnalogOutput devices.
+Utilities to map TACO errors to NICM errors.
 """
 
 __date__   = "$Date $"
 __version__= "$Revision $"
 
-from time import sleep
+import sys
 
-from IO import AnalogInput, AnalogOutput
+from TACOClient import TACOError
 
-from nicm import status
-from nicm.device import Readable, Moveable
-from taco.base import TacoDevice
-from taco.errors import taco_guard
+from nicm.errors import NicmError, CommunicationError
 
 
-class Input(TacoDevice, Readable):
-    """Base class for TACO AnalogInputs."""
+def taco_guard(function, *args):
+    """Try running the TACO function, and raise a NicmError on exception."""
+    try:
+        return function(*args)
+    except TACOError, err:
+        raise_taco(err)
 
-    taco_class = AnalogInput
 
-
-class Output(TacoDevice, Moveable):
-    """Base class for TACO AnalogOutputs."""
-
-    parameters = {
-        'loopdelay': (0.3, False, 'Wait loop delay in seconds.'),
-    }
-
-    taco_class = AnalogOutput
-
-    def doStart(self, value):
-        taco_guard(self._dev.write, value)
-
-    def doWait(self):
-        while self.status() == status.BUSY:
-            sleep(self.getLoopdelay())
+def raise_taco(err, addmsg=None):
+    """Raise a suitable NicmError for a given TACOError instance."""
+    tb = sys.exc_info()[2]
+    code = err.errcode
+    cls = NicmError
+    if 401 <= code < 499:
+        # error number 401-499: database system error messages
+        cls = CommunicationError
+    # TODO: add more cases
+    msg = '[TACO %d] %s' % (err.errcode, err)
+    if addmsg is not None:
+        msg = addmsg + ': ' + msg
+    raise cls(msg), None, tb

@@ -44,6 +44,7 @@ from nicm import status
 from nicm.errors import ConfigurationError, NicmError
 from nicm.motor import Motor as NicmMotor
 from taco.base import TacoDevice
+from taco.errors import taco_guard
 
 
 class Motor(TacoDevice, NicmMotor):
@@ -56,13 +57,13 @@ class Motor(TacoDevice, NicmMotor):
         return __version__
 
     def doStart(self, target):
-        self._dev.start(target)
+        taco_guard(self._dev.start, target)
 
     def doSetPosition(self, target):
-        self._dev.setpos(target)
+        taco_guard(self._dev.setpos, target)
 
     def doStatus(self):
-        stat = self._dev.deviceState()
+        stat = taco_guard(self._dev.deviceState)
         if stat == TACOStates.DEVICE_NORMAL:
             return status.OK
         elif stat == TACOStates.MOVING:
@@ -71,10 +72,10 @@ class Motor(TacoDevice, NicmMotor):
             return status.ERROR
 
     def doStop(self):
-        self._dev.stop()
+        taco_guard(self._dev.stop)
 
     def doGetSpeed(self):
-        return self._dev.speed()
+        return taco_guard(self._dev.speed)
 
     def doSetSpeed(self, value):
-        self._dev.setSpeed(value)
+        taco_guard(self._dev.setSpeed, value)
