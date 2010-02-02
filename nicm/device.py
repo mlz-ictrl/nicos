@@ -198,11 +198,13 @@ class Device(Configurable):
 
     def __repr__(self):
         if self.getPar('name') == self.getPar('description'):
-            return '<device %s (a %s)>' % (self.getPar('name'),
-                                           self.__class__.__name__)
-        return '<device %s, %s (a %s)>' % (self.getPar('name'),
-                                           self.getPar('description'),
-                                           self.__class__.__name__)
+            return '<device %s (a %s.%s)>' % (self.getPar('name'),
+                                              self.__class__.__module__,
+                                              self.__class__.__name__)
+        return '<device %s "%s" (a %s.%s)>' % (self.getPar('name'),
+                                               self.getPar('description'),
+                                               self.__class__.__module__,
+                                               self.__class__.__name__)
 
 
 class Readable(Device):
@@ -224,8 +226,11 @@ class Readable(Device):
         for histname in histnames:
             self.__histories.append(nicos.get_device(histname, History))
 
-    def __call__(self):
+    def __call__(self, value=None):
         """Allow dev() as shortcut for read."""
+        if value is not None:
+            # give a nicer error message than "TypeError: takes 1 argument"
+            raise UsageError('%s is not a moveable device' % self)
         return self.read()
 
     def read(self):
