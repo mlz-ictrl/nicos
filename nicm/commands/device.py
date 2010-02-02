@@ -127,6 +127,7 @@ def read(*devlist):
         except NicmError, err:
             printexception('error reading', dev)
         else:
+            # TODO: nice column formatting
             printinfo('%-15s is at: %s %s' %
                       (dev, dev.format(value), dev.getPar('unit')))
 
@@ -162,8 +163,9 @@ def stop(*devlist):
 def reset(dev):
     """Reset the given device."""
     dev = nicos.get_device(dev, Readable)
-    dev.reset()
-    printinfo('reset', dev)
+    status = dev.reset()
+    status = statuses.get(status, str(status))
+    printinfo('%-15s reset, status is now: %s' % (dev, status))
 
 def count(preset=None):
     """Count for the given preset (can be seconds or monitor counts)."""

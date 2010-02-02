@@ -260,9 +260,10 @@ class Readable(Device):
         return status.UNKNOWN
 
     def reset(self):
-        """Reset the device hardware."""
+        """Reset the device hardware.  Return status afterwards."""
         if hasattr(self, 'doReset'):
             self.doReset()
+        return self.status()
 
     def format(self, value):
         """Format a value from self.read() into a human-readable string."""
