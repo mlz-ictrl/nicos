@@ -72,41 +72,16 @@ class TacoDevice(object):
         if self.taco_class is None:
             raise ProgrammingError('missing taco_class attribute in class '
                                    + self.__class__.__name__)
-        
-        devname = self.getTacodevice()
-        try:
-            self._dev = self.taco_class(devname)
-        except TACOError, err:
-            raise_taco(err, 'Could not connect to device %r' % devname)
-
-        try:
-            timeout = self.getTacotimeout()
-            if timeout != 0:
-                self._dev.setClientNetworkTimeout(timeout)
-        except TACOError, err:
-            self.printwarning('Setting TACO network timeout failed: [TACO %d] %s' %
-                              (err.errcode, err))
-
-        try:
-            self._dev.deviceOn()
-        except TACOError, err:
-            self.printwarning('Switching TACO device %r on failed: [TACO %d] %s' %
-                              (devname, err.errcode, err))
-            try:
-                if self._dev.deviceState() == TACOStates.FAULT:
-                    if self.taco_resetok:
-                        self._dev.deviceReset()
-                self._dev.deviceOn()
-            except TACOError, err:
-                raise_taco(err, 'Switching device %r on after reset failed' %
-                           devname)
+        self._dev = self._create_client()
 
     def doRead(self):
         return taco_guard(self._dev.read)
 
     def doStatus(self):
-        # this needs to be device-defined
-        return status.UNKNOWN
+        state = taco_guard(self._dev.deviceState)
+        if state in (TACOStates.ON, TACOStates.DEVICE_NORMAL):
+            return status.OK
+        return status.ERROR # or status.UNKNOWN?
 
     def doReset(self):
         taco_guard(self._dev.deviceReset)
@@ -115,3 +90,50 @@ class TacoDevice(object):
         if self._params['unit']:
             return self._params['unit']
         return taco_guard(self._dev.unit)
+
+
+    # internal utilities
+
+    def _create_client(self, devname=None, class_=None, resetok=None,
+                       timeout=None):
+        """
+        Create a new TACO client and initialize the device in a
+        consistent state, handling eventual errors.
+        """
+
+        if devname is None:
+            devname = self.getTacodevice()
+        if class_ is None:
+            class_ = self.taco_class
+        if resetok is None:
+            resetok = self.taco_resetok
+        if timeout is None:
+            timeout = self.getTacotimeout()
+
+        try:
+            dev = class_(devname)
+        except TACOError, err:
+            raise_taco(err, 'Could not connect to device %r' % devname)
+
+        try:
+            if timeout != 0:
+                dev.setClientNetworkTimeout(timeout)
+        except TACOError, err:
+            self.printwarning('Setting TACO network timeout failed: '
+                              '[TACO %d] %s' % (err.errcode, err))
+
+        try:
+            dev.deviceOn()
+        except TACOError, err:
+            self.printwarning('Switching TACO device %r on failed: '
+                              '[TACO %d] %s' % (devname, err.errcode, err))
+            try:
+                if dev.deviceState() == TACOStates.FAULT:
+                    if resetok:
+                        dev.deviceReset()
+                dev.deviceOn()
+            except TACOError, err:
+                raise_taco(err, 'Switching device %r on after '
+                           'reset failed' % devname)
+
+        return dev
