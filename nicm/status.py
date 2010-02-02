@@ -40,6 +40,7 @@ Status code definitions.
 OK = 100
 BUSY = 101
 ERROR = 102
+PAUSED = 103
 UNKNOWN = 999
 
 # dictionary mapping all status constants to their names

@@ -510,6 +510,10 @@ class Countable(Startable):
         """Stop the counter."""
         self.doStop()
 
+    def resume(self):
+        """Resume the counter."""
+        self.doResume()
+
     def clear(self):
         """Clear the counter value."""
         self.doClear()

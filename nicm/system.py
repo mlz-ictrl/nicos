@@ -49,3 +49,12 @@ class System(Configurable):
     parameters = {
         'histories': ([], False, 'Global history managers for all devices.'),
     }
+
+
+class User(Configurable):
+    """A special device that represents a user."""
+
+    parameters = {
+        'name': ('', True, 'User name.'),
+        'affiliation': ('FRM II', False, 'User affiliation.'),
+    }
