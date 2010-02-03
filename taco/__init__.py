@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # Module:
-#   $Id $
+#   $Id$
 #
 # Description:
 #   Basic package for standard NICOS commands and devices

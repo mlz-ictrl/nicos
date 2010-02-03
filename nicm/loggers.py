@@ -55,11 +55,12 @@ LONGDATEFMT = '%Y-%m-%d %H:%M:%S'
 DATESTAMP_FMT = '%Y-%m-%d'
 SECONDS_PER_DAY = 60 * 60 * 24
 
+NOTICE = INFO - 5
 OUTPUT = INFO + 5
 INPUT  = INFO + 6
 
-loglevels = {'debug': DEBUG, 'info': INFO, 'warning': WARNING, 'error': ERROR,
-             'input': INPUT, 'output': OUTPUT}
+loglevels = {'debug': DEBUG, 'notice': NOTICE, 'info': INFO, 'warning': WARNING,
+             'error': ERROR, 'input': INPUT, 'output': OUTPUT}
 
 
 class NicmLogger(Logger):
@@ -68,25 +69,48 @@ class NicmLogger(Logger):
     """
 
     def exception(self, *msgs, **kwds):
-        errtype, err, tb = sys.exc_info()
-        if isinstance(err, NicmError):
-            self.error('%s: %s' % (err.category, err), **kwds)
-        else:
-            Logger.exception(self, ' '.join(map(str, msgs)), **kwds)
+        kwds['exc'] = True
+        self.error(*msgs, **kwds)
+
+    def _process(self, msgs, kwds):
+        # standard logging keyword arg
+        exc_info = kwds.pop('exc_info', None)
+        # nicos easy keyword arg
+        exc = kwds.pop('exc', None)
+        if not exc_info:
+            if isinstance(exc, Exception):
+                exc_info = (type(exc), exc, None)
+            elif exc:
+                exc_info = sys.exc_info()
+        if exc_info:
+            if msgs:
+                msgs += ('-',)
+            if issubclass(exc_info[0], NicmError):
+                msgs += (exc_info[0].category + ':', exc_info[1],)
+            else:
+                msgs += (exc_info[0].__name__ + ':', exc_info[1],)
+        msg = ' '.join(map(str, msgs))
+        return msg, exc_info
 
     def error(self, *msgs, **kwds):
-        Logger.error(self, ' '.join(map(str, msgs)), **kwds)
+        msg, exc_info = self._process(msgs, kwds)
+        Logger.error(self, msg, exc_info=exc_info, extra=kwds)
 
-    def warning(self, *msgs):
-        Logger.warning(self, ' '.join(map(str, msgs)))
+    def warning(self, *msgs, **kwds):
+        msg, exc_info = self._process(msgs, kwds)
+        Logger.warning(self, msg, exc_info=exc_info, extra=kwds)
 
     def info(self, *msgs, **kwds):
-        msg = ' '.join(map(str, msgs))
-        Logger.info(self, msg, extra=kwds)
+        msg, exc_info = self._process(msgs, kwds)
+        Logger.info(self, msg, exc_info=exc_info, extra=kwds)
+
+    def notice(self, *msgs, **kwds):
+        msg, exc_info = self._process(msgs, kwds)
+        Logger.log(self, NOTICE, msg, exc_info=exc_info, extra=kwds)
 
     def debug(self, *msgs, **kwds):
-        msg = ' '.join(map(str, msgs))
-        Logger.debug(self, msg, extra=kwds)
+        msg, exc_info = self._process(msgs, kwds)
+        Logger.debug(self, msg, exc_info=exc_info, extra=kwds)
 
 
 class ColoredConsoleFormatter(Formatter):
@@ -114,7 +138,7 @@ class ColoredConsoleFormatter(Formatter):
             # do not display input again
             return ''
         elif levelno <= WARNING:
-            fmtstr = colorize('bold', '%%(levelname)s: %s%%(message)s' %
+            fmtstr = colorize('blue', '%%(levelname)s: %s%%(message)s' %
                               namefmt)
         else:
             fmtstr = colorize('red', '%%(levelname)s [%%(asctime)s] '
@@ -124,11 +148,12 @@ class ColoredConsoleFormatter(Formatter):
         record.message = record.getMessage()
         record.asctime = self.formatTime(record, None)
         s = fmtstr % record.__dict__
-        if record.exc_info:
-            # *not* caching exception text on the record, since it's
-            # only a short version
-            exc_text = self.formatException(record.exc_info)
-            s += exc_text
+        # never output more exception info -- the exception message is already
+        # part of the log message because of our special logger behavior
+        #if record.exc_info:
+        #    # *not* caching exception text on the record, since it's
+        #    # only a short version
+        #    s += self.formatException(record.exc_info)
         return s
 
 
@@ -201,5 +226,6 @@ class NicmLogfileHandler(BaseRotatingHandler):
 
 def init_loggers():
     setLoggerClass(NicmLogger)
+    addLevelName(NOTICE, 'NOTICE')
     addLevelName(OUTPUT, 'OUTPUT')
     addLevelName(INPUT, 'INPUT')

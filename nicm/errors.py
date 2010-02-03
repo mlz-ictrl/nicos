@@ -36,8 +36,20 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 
+
 class NicmError(Exception):
     category = 'Error'
+    device = None
+
+    def __init__(self, *args):
+        # store the originating device on the exception
+        from nicm.device import Configurable
+        args = list(args)
+        if args and isinstance(args[0], Configurable):
+            self.device = args[0]
+            args[0] = args[0].getName() + ': '
+        Exception.__init__(self, ''.join(args))
+
 
 class ProgrammingError(NicmError):
     category = 'NICOS bug'

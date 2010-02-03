@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # Module:
-#   $Id $
+#   $Id$
 #
 # Description:
 #   NICOS TACO analog input/output definition
@@ -42,7 +42,6 @@ from IO import AnalogInput, AnalogOutput
 from nicm import status
 from nicm.device import Readable, Moveable
 from taco.base import TacoDevice
-from taco.errors import taco_guard
 
 
 class Input(TacoDevice, Readable):
@@ -61,7 +60,7 @@ class Output(TacoDevice, Moveable):
     taco_class = AnalogOutput
 
     def doStart(self, value):
-        taco_guard(self._dev.write, value)
+        self._taco_guard(self._dev.write, value)
 
     def doWait(self):
         while self.status() == status.BUSY:

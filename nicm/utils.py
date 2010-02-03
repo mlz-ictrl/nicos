@@ -111,11 +111,32 @@ def print_table(headers, items, printfunc):
     for row in [headers] + items:
         for i, item in enumerate(row):
             rowlens[i] = max(rowlens[i], len(item))
-    fmtstr = ('%%-%ds ' * ncolumns) % tuple(rowlens)
+    fmtstr = ('%%-%ds  ' * ncolumns) % tuple(rowlens)
     printfunc(fmtstr % tuple(headers))
     printfunc(fmtstr % tuple('=' * l for l in rowlens))
     for row in items:
         printfunc(fmtstr % tuple(row))
+
+
+def get_versions(object):
+    """Return SVN Revision info for all modules where one of the object's
+    class and base classes are in.
+    """
+    versions = []
+    modules = set()
+    def _add(cls):
+        try:
+            if cls.__module__ not in modules:
+                ver = sys.modules[cls.__module__].__version__
+                ver = ver.strip('$ ').replace('Revision: ', 'Rev. ')
+                versions.append((cls.__module__, ver))
+            modules.add(cls.__module__)
+        except Exception:
+            pass
+        for base in cls.__bases__:
+            _add(base)
+    _add(object.__class__)
+    return versions
 
 
 # console color utils

@@ -1,7 +1,7 @@
 #  -*- coding: iso-8859-15 -*-
 # *****************************************************************************
 # Module:
-#   $Id $ 
+#   $Id$ 
 #              
 # Description:
 #   NICOS TACO base classes
@@ -35,12 +35,13 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import sys
+
 import TACOStates
 from TACOClient import TACOError
 
 from nicm import status
-from nicm.errors import ProgrammingError
-from taco.errors import raise_taco, taco_guard
+from nicm.errors import NicmError, ProgrammingError, CommunicationError
 
 
 class TacoDevice(object):
@@ -76,24 +77,24 @@ class TacoDevice(object):
 
     def doVersion(self):
         return [(self.getTacodevice(),
-                 taco_guard(self._dev.deviceVersion))]
+                 self._taco_guard(self._dev.deviceVersion))]
 
     def doRead(self):
-        return taco_guard(self._dev.read)
+        return self._taco_guard(self._dev.read)
 
     def doStatus(self):
-        state = taco_guard(self._dev.deviceState)
+        state = self._taco_guard(self._dev.deviceState)
         if state in (TACOStates.ON, TACOStates.DEVICE_NORMAL):
             return status.OK
         return status.ERROR # or status.UNKNOWN?
 
     def doReset(self):
-        taco_guard(self._dev.deviceReset)
+        self._taco_guard(self._dev.deviceReset)
 
     def doGetUnit(self):
         if self._params['unit']:
             return self._params['unit']
-        return taco_guard(self._dev.unit)
+        return self._taco_guard(self._dev.unit)
 
 
     # internal utilities
@@ -117,7 +118,7 @@ class TacoDevice(object):
         try:
             dev = class_(devname)
         except TACOError, err:
-            raise_taco(err, 'Could not connect to device %r' % devname)
+            self._raise_taco(err, 'Could not connect to device %r' % devname)
 
         try:
             if timeout != 0:
@@ -137,7 +138,28 @@ class TacoDevice(object):
                         dev.deviceReset()
                 dev.deviceOn()
             except TACOError, err:
-                raise_taco(err, 'Switching device %r on after '
-                           'reset failed' % devname)
+                self._raise_taco(err, 'Switching device %r on after '
+                                 'reset failed' % devname)
 
         return dev
+
+    def _taco_guard(self, function, *args):
+        """Try running the TACO function, and raise a NicmError on exception."""
+        try:
+            return function(*args)
+        except TACOError, err:
+            self._raise_taco(err)
+
+    def _raise_taco(self, err, addmsg=None):
+        """Raise a suitable NicmError for a given TACOError instance."""
+        tb = sys.exc_info()[2]
+        code = err.errcode
+        cls = NicmError
+        if 401 <= code < 499:
+            # error number 401-499: database system error messages
+            cls = CommunicationError
+        # TODO: add more cases
+        msg = '[TACO %d] %s' % (err.errcode, err)
+        if addmsg is not None:
+            msg = addmsg + ': ' + msg
+        raise cls(self, msg), None, tb

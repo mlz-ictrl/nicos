@@ -35,12 +35,11 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import sys
 import time
 
 from nicm import nicos
 from nicm import status, loggers
-from nicm.utils import MergedAttrsMeta
+from nicm.utils import MergedAttrsMeta, get_versions
 from nicm.errors import ConfigurationError, ProgrammingError, UsageError, \
      LimitError, FixedError
 
@@ -67,11 +66,11 @@ class Configurable(object):
     def __init__(self, name, config):
         # initialize a logger for the device
         self._log = nicos.get_logger(name)
-        for level in ('debug', 'info', 'warning', 'error', 'exception'):
-            setattr(self, 'print' + level, getattr(self._log, level))
+        for mn in ('debug', 'notice', 'info', 'warning', 'error', 'exception'):
+            setattr(self, 'print' + mn, getattr(self._log, mn))
 
-        # initialize parameters
-        self._params = {}
+        # initialize parameters (pre-set "name" for str(self) to work)
+        self._params = {'name': name}
         # make all parameter names lower-case
         config = dict((name.lower(), value) for (name, value) in config.items())
         for param, paraminfo in self.parameters.iteritems():
@@ -89,18 +88,18 @@ class Configurable(object):
 
             # check the parameter type and set it in self._params
             if param in config:
-                if not isinstance(config[param], deftype):
+                value = config[param]
+                if not isinstance(value, deftype):
                     raise ConfigurationError(
-                        '%s: %r configuration parameter has wrong type '
+                        self, '%r configuration parameter has wrong type '
                         '(expected %s, found %s)' %
-                        (name, param, type(default).__name__,
-                         type(config[param]).__name__))
-                self._params[param] = config[param]
+                        (param, type(default).__name__, type(value).__name__))
+                self._params[param] = value
             elif not mandatory:
                 self._params[param] = default
             else:
-                raise ConfigurationError('%s: missing configuration '
-                                         'parameter %r' % (name, param))
+                raise ConfigurationError(self, 'missing configuration '
+                                         'parameter %r' % param)
 
             # create getter and setter methods for the parameter
             def getter(param=param):
@@ -115,7 +114,7 @@ class Configurable(object):
                     getattr(self, methodname)(value)
                 else:
                     raise ConfigurationError(
-                        '%s: cannot set the %s parameter' % (self, param))
+                        self, 'cannot set the %s parameter' % param)
             setattr(self, 'get' + param.title(), getter)
             setattr(self, 'set' + param.title(), setter)
 
@@ -132,19 +131,19 @@ class Configurable(object):
     def getPar(self, name):
         """Get a parameter of the device."""
         if name.lower() not in self.parameters:
-            raise UsageError('device %s has no parameter %s' % (self, name))
+            raise UsageError(self, 'device has no parameter %s' % name)
         return getattr(self, 'get' + name.title())()
 
     def setPar(self, name, value):
         """Set a parameter of the device to a new value."""
         if name.lower() not in self.parameters:
-            raise UsageError('%s: device has no parameter %s' % (self, name))
+            raise UsageError(self, 'device has no parameter %s' % name)
         getattr(self, 'set' + name.title())(value)
 
     def doSetLoglevel(self, value):
         if value not in loggers.loglevels:
-            raise UsageError('%s: loglevel must be one of %s' % (self,
-                             ', '.join(map(repr, loggers.loglevels.keys()))))
+            raise UsageError(self, 'loglevel must be one of %s' %
+                             ', '.join(map(repr, loggers.loglevels.keys())))
         self._log.setLevel(loggers.loglevels[value])
         self._params['loglevel'] = value
 
@@ -160,19 +159,7 @@ class Configurable(object):
 
     def version(self):
         """Return a list of versions for this component."""
-        versions = []
-        modules = set()
-        def _add(cls):
-            try:
-                if cls.__module__ not in modules:
-                    versions.append((cls.__module__ + '.' + cls.__name__,
-                                     sys.modules[cls.__module__].__version__))
-                modules.add(cls.__module__)
-            except Exception:
-                pass
-            for base in cls.__bases__:
-                _add(base)
-        _add(self.__class__)
+        versions = get_versions(self)
         if hasattr(self, 'doVersion'):
             versions.extend(self.doVersion())
         return versions
@@ -195,7 +182,7 @@ class Device(Configurable):
         for aname, cls in self.attached_devices.iteritems():
             if aname not in adev:
                 raise ConfigurationError(
-                    '%s: device misses device %r in adev list' % (self, aname))
+                    self, 'device misses device %r in adev list' % aname)
             if adev[aname] is None:
                 setattr(self, aname, None)
                 continue
@@ -207,14 +194,14 @@ class Device(Configurable):
                     dev = nicos.create_device(devname)
                     if not isinstance(dev, cls):
                         raise ConfigurationError(
-                            '%s: device adev %r item %d has wrong type' %
-                            (self, aname, i))
+                            self, '%s: device adev %r item %d has wrong type' %
+                            (aname, i))
                     devlist.append(dev)
             else:
                 dev = nicos.create_device(adev[aname])
                 if not isinstance(dev, cls):
                     raise ConfigurationError(
-                        '%s: device adev %r has wrong type' % (self, aname))
+                        self, '%s: device adev %r has wrong type' % aname)
                 setattr(self, aname, dev)
 
     def __repr__(self):
@@ -251,7 +238,7 @@ class Readable(Device):
         """Allow dev() as shortcut for read."""
         if value is not None:
             # give a nicer error message than "TypeError: takes 1 argument"
-            raise UsageError('%s is not a moveable device' % self)
+            raise UsageError(self, 'not a moveable device')
         return self.read()
 
     def read(self):
@@ -261,9 +248,9 @@ class Readable(Device):
         for history in self.__histories:
             try:
                 history.put(self, 'value', timestamp, value)
-            except Exception, err:
-                self.printwarning('could not save value to %s: %s' %
-                                  (history, err))
+            except Exception:
+                self.printwarning('could not save value to %s' % history,
+                                  exc=True)
         return value
 
     def status(self):
@@ -273,15 +260,14 @@ class Readable(Device):
         if hasattr(self, 'doStatus'):
             value = self.doStatus()
             if value not in status.statuses:
-                raise ProgrammingError('%s: status return %r unknown' %
-                                       (self, value))
+                raise ProgrammingError(self, 'status return %r unknown' % value)
             timestamp = time.time()
             for history in self.__histories:
                 try:
                     history.put(self, 'status', timestamp, value)
-                except Exception, err:
-                    self.printwarning('could not save status to %s: %s' %
-                                      (history, err))
+                except Exception:
+                    self.printwarning('could not save status to %s' % history,
+                                      exc=True)
             return value
         return status.UNKNOWN
 
@@ -332,13 +318,13 @@ class Startable(Readable):
     def start(self, pos):
         """Start main action of the device."""
         if self.__is_fixed:
-            raise FixedError('%s is fixed' % self)
+            raise FixedError(self, 'is fixed')
         self.doStart(pos)
 
     def stop(self):
         """Stop main action of the device."""
         if self.__is_fixed:
-            raise FixedError('%s is fixed' % self)
+            raise FixedError(self, 'is fixed')
         if hasattr(self, 'doStop'):
             self.doStop()
 
@@ -398,8 +384,8 @@ class Moveable(Startable):
         """Start movement of the device to a new position."""
         ok, why = self.isAllowed(pos)
         if not ok:
-            raise LimitError('%s: moving to %r is not allowed: %s' %
-                             (self, pos, why))
+            raise LimitError(self,
+                             'moving to %r is not allowed: %s' % (pos, why))
         Startable.start(self, pos)
 
     moveTo = start
@@ -409,12 +395,11 @@ class Moveable(Startable):
         absmin = self.getAbsmin()
         absmax = self.getAbsmax()
         if not absmin and not absmax:
-            raise ConfigurationError('%s: no absolute limits defined '
-                                     '(absmin, absmax)' % self)
+            raise ConfigurationError(self, 'no absolute limits defined '
+                                     '(absmin, absmax)')
         if absmin >= absmax:
-            raise ConfigurationError('%s: absolute minimum (%s) above the '
-                                     'absolute maximum (%s)' %
-                                     (self, absmin, absmax))
+            raise ConfigurationError(self, 'absolute minimum (%s) above the '
+                                     'absolute maximum (%s)' % (absmin, absmax))
 
     def __checkUserLimits(self, setthem=False):
         absmin = self._params['absmin']
@@ -428,27 +413,27 @@ class Moveable(Startable):
             self._params['usermin'] = usermin
             self._params['usermax'] = usermax
         if usermin >= usermax:
-            raise ConfigurationError('%s: user minimum (%s) above the user '
-                                     'maximum (%s)' % (self, usermin, usermax))
+            raise ConfigurationError(self, 'user minimum (%s) above the user '
+                                     'maximum (%s)' % (usermin, usermax))
         if usermin < absmin:
-            raise ConfigurationError('%s: user minimum (%s) below the absolute '
-                                     'minimum (%s)' % (self, usermin, absmin))
+            raise ConfigurationError(self, 'user minimum (%s) below the absolute '
+                                     'minimum (%s)' % (usermin, absmin))
         if usermin > absmax:
-            raise ConfigurationError('%s: user minimum (%s) above the absolute '
-                                     'maximum (%s)' % (self, usermin, absmax))
+            raise ConfigurationError(self, 'user minimum (%s) above the absolute '
+                                     'maximum (%s)' % (usermin, absmax))
         if usermax > absmax:
-            raise ConfigurationError('%s: user maximum (%s) above the absolute '
-                                     'maximum (%s)' % (self, usermin, absmax))
+            raise ConfigurationError(self, 'user maximum (%s) above the absolute '
+                                     'maximum (%s)' % (usermin, absmax))
         if usermax < absmin:
-            raise ConfigurationError('%s: user minimum (%s) below the absolute '
-                                     'minimum (%s)' % (self, usermin, absmin))
+            raise ConfigurationError(self, 'user minimum (%s) below the absolute '
+                                     'minimum (%s)' % (usermin, absmin))
 
     def isAllowed(self, target):
         if not self._params['usermin'] <= target <= self._params['usermax']:
             return False, 'limits are [%s, %s]' % (self._params['usermin'],
                                                    self._params['usermax'])
         if hasattr(self, 'doIsAllowed'):
-            return self.doIsAllowed(pos)
+            return self.doIsAllowed(target)
         return True, ''
 
     def doSetUsermin(self, value):
@@ -459,7 +444,7 @@ class Moveable(Startable):
         self._params['usermin'] = float(value)
         try:
             self.__checkUserLimits()
-        except ConfigurationError, e:
+        except ConfigurationError:
             self._params['usermin'] = old
             raise
 
@@ -471,7 +456,7 @@ class Moveable(Startable):
         self._params['usermax'] = float(value)
         try:
             self.__checkUserLimits()
-        except ConfigurationError, e:
+        except ConfigurationError:
             self._params['usermax'] = old
             raise
 
@@ -489,10 +474,10 @@ class Switchable(Startable):
     def init(self):
         Readable.init(self)
         if not isinstance(self.switchlist, dict):
-            raise ProgrammingError('%s: switchlist is not a dict' % self)
+            raise ProgrammingError(self, 'switchlist is not a dict')
         self.__rswitchlist = dict((v, k) for (k, v) in self.switchlist.items())
         if len(self.__rswitchlist) != len(self.switchlist):
-            raise ProgrammingError('%s: duplicate value in switchlist' % self)
+            raise ProgrammingError(self, 'duplicate value in switchlist')
 
     def start(self, pos):
         """Switch the device to a new value.
@@ -502,12 +487,11 @@ class Switchable(Startable):
         """
         realpos = self.switchlist.get(pos, pos)
         if realpos not in self.__rswitchlist:
-            raise UsageError('%s: %r is not an acceptable switch value' %
-                             (self, pos))
+            raise UsageError(self, '%r is not an acceptable switch value' % pos)
         ok, why = self.isAllowed(realpos)
         if not ok:
-            raise LimitError('%s: switching to %r is not allowed: %s' %
-                             (self, pos, why))
+            raise LimitError(self, 'switching to %r is not allowed: %s' %
+                             (pos, why))
         Startable.start(self, realpos)
 
     switchTo = start

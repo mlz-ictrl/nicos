@@ -64,7 +64,7 @@ class ScratchPadConnection(object):
             self.socket.connect(self.address)
         except Exception, err:
             self.socket = None
-            raise ScratchPadError('unable to connect to ScratchPad: %s' % err)
+            raise ScratchPadError('unable to connect: %s' % err)
 
     def _disconnect(self):
         try:
@@ -99,15 +99,15 @@ class ScratchPadConnection(object):
             if self.socket in sel[0]:
                 answer = self.socket.recv(8192)
                 if not answer:
-                    raise ScratchPadError('connection to ScratchPad lost')
+                    raise ScratchPadError('connection lost')
             elif self.socket in sel[2]:
                 self._disconnect()
-                raise ScratchPadError('connection to ScratchPad lost')
+                raise ScratchPadError('connection lost')
             else:
-                raise ScratchPadError('no answer from ScratchPad')
+                raise ScratchPadError('no answer')
         match = answer_re.match(answer)
         if not match:
-            raise ScratchPadError('garbled answer from ScratchPad: %r' % answer)
+            raise ScratchPadError('garbled answer: %r' % answer)
         return self._convert(match.group(3))
 
     def history(self, key):

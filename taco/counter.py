@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # Module:
-#   $Id $
+#   $Id$
 #
 # Description:
 #   NICOS TACO counter/timer definition
@@ -47,7 +47,6 @@ from nicm import status
 from nicm.device import Countable
 from nicm.errors import ConfigurationError
 from taco.base import TacoDevice
-from taco.errors import taco_guard
 
 
 class TacoCountable(TacoDevice, Countable):
@@ -69,15 +68,15 @@ class TacoCountable(TacoDevice, Countable):
         self.__stopped = False
         if preset is not None:
             self.setPreselection(preset)
-        taco_guard(self._dev.start)
+        self._taco_guard(self._dev.start)
 
     def doStop(self):
         self.__stopped = True
-        taco_guard(self._dev.stop)
+        self._taco_guard(self._dev.stop)
 
     def doResume(self):
         self.__stopped = False
-        taco_guard(self._dev.resume)
+        self._taco_guard(self._dev.resume)
 
     def doWait(self):
         while self.status() == status.BUSY:
@@ -85,11 +84,11 @@ class TacoCountable(TacoDevice, Countable):
 
     def doClear(self):
         self.__stopped = False
-        taco_guard(self._dev.stop)
-        taco_guard(self._dev.clear)
+        self._taco_guard(self._dev.stop)
+        self._taco_guard(self._dev.clear)
 
     def doStatus(self):
-        state = taco_guard(self._dev.deviceState)
+        state = self._taco_guard(self._dev.deviceState)
         if state == TACOStates.PRESELECTION_REACHED:
             return status.OK
         elif state == TACOStates.STOPPED:
@@ -102,19 +101,19 @@ class TacoCountable(TacoDevice, Countable):
         return status.ERROR
 
     def doGetPreselection(self):
-        return taco_guard(self._dev.preselection)
+        return self._taco_guard(self._dev.preselection)
 
     def doSetPreselection(self, value):
-        taco_guard(self._dev.setPreselection, value)
+        self._taco_guard(self._dev.setPreselection, value)
 
     def doGetIsmaster(self):
-        return taco_guard(self._dev.isMaster)
+        return self._taco_guard(self._dev.isMaster)
 
     def doSetIsmaster(self, value):
-        taco_guard(self._dev.enableMaster, bool(value))
+        self._taco_guard(self._dev.enableMaster, bool(value))
 
     def doGetMode(self):
-        mode = taco_guard(self._dev.mode)
+        mode = self._taco_guard(self._dev.mode)
         return {
             IOCommon.MODE_NORMAL: 'normal',
             IOCommon.MODE_RATEMETER: 'ratemeter',
@@ -128,8 +127,8 @@ class TacoCountable(TacoDevice, Countable):
                        'preselection': IOCommon.MODE_PRESELECTION,
                        }[value]
         except KeyError:
-            raise ConfigurationError('%s: mode %r invalid' % (self, value))
-        taco_guard(self._dev.setMode, newmode)
+            raise ConfigurationError(self, 'mode %r invalid' % (value,))
+        self._taco_guard(self._dev.setMode, newmode)
             
 
 class Timer(TacoCountable):

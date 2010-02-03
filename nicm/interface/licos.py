@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # Module:
-#   $Id $
+#   $Id$
 #
 # Description:
 #   NICOS interface classes for running under licos
@@ -41,7 +41,7 @@ __version__ = "$Revision$"
 import sys
 
 try:
-    interface = __import__('licos.interface').interface
+    licos_interface = __import__('licos.interface').interface
 except ImportError:
     raise ImportError('Not running under Licos, cannot set up interface')
 
@@ -77,11 +77,13 @@ class LicosNICOS(NICOS):
 
     def __init__(self):
         NICOS.__init__(self)
-        interface.licos_set_logger(self.log)
+        licos_interface.licos_set_logger(self.log)
+        licos_interface.licos_set_unhandled_exception_callback(
+            self.log_unhandled_exception)
 
     def _init_logging(self):
         NICOS._init_logging(self)
-        self._log_handlers.append(interface.licos_get_loghandler())
+        self._log_handlers.append(licos_interface.licos_get_loghandler())
         sys.displayhook = self.__displayhook
         sys.stdout = LoggingStdout(self, sys.stdout)
 
@@ -99,6 +101,4 @@ def start():
     nicos.set_namespace(sys._getframe(1).f_globals)
 
     # Create the initial instrument setup.
-    nicos.log.info('--- loading startup setup')
     nicos.load_setup('startup')
-    nicos.log.info('--- done')

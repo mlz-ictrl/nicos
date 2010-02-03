@@ -36,8 +36,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from nicm import nicos
-from nicm.device import Configurable, Device, Startable, Moveable, \
-     Readable, Countable
+from nicm.device import Configurable, Startable, Moveable, Readable
 from nicm.errors import NicmError, UsageError
 from nicm.status import statuses
 from nicm.utils import print_table
@@ -126,7 +125,7 @@ def read(*devlist):
         dev = nicos.get_device(dev, Readable)
         try:
             value = dev.read()
-        except NicmError, err:
+        except NicmError:
             printexception('error reading', dev)
         else:
             # TODO: nice column formatting
@@ -144,7 +143,7 @@ def status(*devlist):
         dev = nicos.get_device(dev, Readable)
         try:
             status = dev.status()
-        except NicmError, err:
+        except NicmError:
             printexception('error reading status of', dev)
         else:
             status = statuses.get(status, str(status))
@@ -210,7 +209,7 @@ def version(dev):
     dev = nicos.get_device(dev, Configurable)
     versions = dev.version()
     printinfo('Relevant versions for this device:')
-    print_table(('component', 'version'), versions, printinfo)
+    print_table(('module/component', 'version'), versions, printinfo)
 
 def listparams(dev):
     """List all parameters of the device."""

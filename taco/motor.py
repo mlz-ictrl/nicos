@@ -37,13 +37,10 @@ __version__ = "$Revision$"
 
 from Motor import Motor as TACOMotor
 import TACOStates
-import TACOClient
 
 from nicm import status
-from nicm.errors import ConfigurationError, NicmError
 from nicm.motor import Motor as NicmMotor
 from taco.base import TacoDevice
-from taco.errors import taco_guard
 
 
 class Motor(TacoDevice, NicmMotor):
@@ -52,13 +49,13 @@ class Motor(TacoDevice, NicmMotor):
     taco_class = TACOMotor
 
     def doStart(self, target):
-        taco_guard(self._dev.start, target)
+        self._taco_guard(self._dev.start, target)
 
     def doSetPosition(self, target):
-        taco_guard(self._dev.setpos, target)
+        self._taco_guard(self._dev.setpos, target)
 
     def doStatus(self):
-        stat = taco_guard(self._dev.deviceState)
+        stat = self._taco_guard(self._dev.deviceState)
         if stat == TACOStates.DEVICE_NORMAL:
             return status.OK
         elif stat == TACOStates.MOVING:
@@ -67,10 +64,10 @@ class Motor(TacoDevice, NicmMotor):
             return status.ERROR
 
     def doStop(self):
-        taco_guard(self._dev.stop)
+        self._taco_guard(self._dev.stop)
 
     def doGetSpeed(self):
-        return taco_guard(self._dev.speed)
+        return self._taco_guard(self._dev.speed)
 
     def doSetSpeed(self, value):
-        taco_guard(self._dev.setSpeed, value)
+        self._taco_guard(self._dev.setSpeed, value)

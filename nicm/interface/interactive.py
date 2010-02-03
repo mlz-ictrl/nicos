@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # Module:
-#   $Id $
+#   $Id$
 #
 # Description:
 #   NICOS interactive interface classes
@@ -57,6 +57,7 @@ class NicmInteractiveConsole(code.InteractiveConsole):
     """
 
     def __init__(self, nicos, locals):
+        self.nicos = nicos
         self.log = nicos.log
         code.InteractiveConsole.__init__(self, locals)
         readline.parse_and_bind('tab: complete')
@@ -94,7 +95,7 @@ class NicmInteractiveConsole(code.InteractiveConsole):
         try:
             exec codeobj in self.locals
         except Exception:
-            self.log.exception('unhandled exception occurred')
+            self.nicos.log_unhandled_exception(sys.exc_info())
         else:
             if code.softspace(sys.stdout, 0):
                 print
@@ -110,19 +111,11 @@ class InteractiveNICOS(NICOS):
     def _init_logging(self):
         NICOS._init_logging(self)
         self._log_handlers.append(ColoredConsoleHandler())
-        # XXX make this conditional
-        sys.excepthook = self.__excepthook
         sys.displayhook = self.__displayhook
 
     def __displayhook(self, value):
         if value is not None:
             self.log.log(OUTPUT, repr(value))
-
-    def __excepthook(self, etype, evalue, etb):
-        if etype is KeyboardInterrupt:
-            return
-        self.log.error('unhandled exception occurred',
-                       exc_info=(etype, evalue, etb))
 
     def console(self):
         """Run an interactive console, and exit after it is finished."""
@@ -134,7 +127,7 @@ class InteractiveNICOS(NICOS):
         sys.exit()
 
 
-def start():
+def start(setup='startup'):
     # Create the NICOS class singleton.
     nicos = nicm.nicos = InteractiveNICOS()
 
@@ -142,7 +135,7 @@ def start():
     #nicos.set_namespace(sys._getframe(1).f_globals)
 
     # Create the initial instrument setup.
-    nicos.load_setup('base')
+    nicos.load_setup(setup)
 
     # Fire up an interactive console.
     nicos.console()

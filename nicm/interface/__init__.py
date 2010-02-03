@@ -47,7 +47,7 @@ import logging
 from os import path
 
 from nicm import loggers
-from nicm.errors import UsageError, ConfigurationError
+from nicm.errors import NicmError, UsageError, ConfigurationError
 
 
 class NICOS(object):
@@ -324,3 +324,14 @@ class NICOS(object):
             logger.addHandler(handler)
         self._loggers[name] = logger
         return logger
+
+    def log_unhandled_exception(self, exc_info):
+        """Log and unhandled exception.  Log using the originating device's
+        logger, if that information is available.
+        """
+        if isinstance(exc_info[1], NicmError):
+            if exc_info[1].device and exc_info[1].device._log:
+                exc_info[1].device._log.error('unhandled exception occurred',
+                                              exc_info=exc_info)
+                return
+        self.log.error('unhandled exception occurred', exc_info=exc_info)

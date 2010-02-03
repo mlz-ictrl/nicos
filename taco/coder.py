@@ -37,8 +37,8 @@ __version__ = "$Revision$"
 
 from Encoder import Encoder as TACOCoder
 import TACOStates
-import TACOClient
 
+from nicm import status
 from nicm.coder import Coder as NicmCoder
 from taco.base import TacoDevice
 
@@ -49,10 +49,10 @@ class Coder(TacoDevice, NicmCoder):
     taco_class = TACOCoder
 
     def doSetPosition(self, target):
-        taco_guard(self._dev.setpos, target)
+        self._taco_guard(self._dev.setpos, target)
 
     def doStatus(self):
-        stat = taco_guard(self._dev.deviceState)
+        stat = self._taco_guard(self._dev.deviceState)
         if stat == TACOStates.DEVICE_NORMAL:
             return status.OK
         else:

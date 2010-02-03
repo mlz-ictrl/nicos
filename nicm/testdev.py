@@ -35,11 +35,8 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from nicm import nicos
-from nicm.device import Device, Moveable
 from nicm.motor import Motor
 from nicm.coder import Coder
-from nicm.commands import printdebug
 
 
 class VirtualMotor(Motor):

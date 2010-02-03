@@ -40,7 +40,7 @@ import time
 
 from nicm import status
 from nicm.device import Moveable
-from nicm.errors import ConfigurationError, NicmError, LimitError, PositionError
+from nicm.errors import ConfigurationError, NicmError, PositionError
 from nicm.errors import ProgrammingError, MoveError
 from nicm.motor import Motor as NicmMotor
 from nicm.coder import Coder as NicmCoder
@@ -68,13 +68,14 @@ class Axis(Moveable):
     def doInit(self):
         # Check that motor and unit have the same unit
         if self.coder.getUnit() != self.motor.getUnit():
-            raise ConfigurationError('%s: different units for motor '
-                                     'and coder' % self)
+            raise ConfigurationError(self, 'different units for motor and coder'
+                                     ' (%s vs %s)' % (self.motor.getUnit(),
+                                                      self.coder.getUnit()))
         # Check that all observers have the same unit as the motor
-        for i in self.obs :
-            if self.motor.getUnit() != i.getUnit():
-                raise ConfigurationError('%s: different units for motor '
-                                     'and observer' % (self % i))
+        for ob in self.obs:
+            if self.motor.getUnit() != ob.getUnit():
+                raise ConfigurationError(self, 'different units for motor '
+                                         'and observer %s' % ob)
 
         self.__offset = 0
         self.__thread = None
@@ -90,36 +91,30 @@ class Axis(Moveable):
     def doStart(self, target, locked=False):
         """Starts the movement of the axis to target."""
         if self.__locked:
-            raise NicmError('%s: this axis is locked' % self)
-        if not self.__checkTargetPosition(self.read(), 0) :
+            raise NicmError(self, 'this axis is locked')
+        if not self.__checkTargetPosition(self.read(), 0):
             return
 
         # TODO: stop the axis instead of raising an exception
-        if self.status() == status.BUSY :
-            raise NicmError('%s: axis is moving now, please issue a stop '
-                                'command and try it again' % self)
-        if not self.isAllowed(target):
-            raise LimitError('%s: target %f is not allowed, limits [%f, %f]' %
-                           (self, target, self.getUsermin(), self.getUsermax()))
+        if self.status() == status.BUSY:
+            raise NicmError(self, 'axis is moving now, please issue a stop '
+                            'command and try it again')
 
         if self.__thread:
             self.__thread.join()
             del self.__thread
             self.__thread = None
 
-        try:
-            self.__target = target
-            self.__stopRequest = 0
-            self.__locked = locked   # lock the movement
-            self.__error = 0
-            self.__dragErrorCount = 0
-            if not self.__thread:
-                self.__thread = threading.Thread(None, self.__positioningThread,
-                                                 'Positioning thread')
-                self.printdebug("start thread")
-                self.__thread.start()
-        except Exception:
-            raise Exception('%s: anything went wrong' % self)
+        self.__target = target
+        self.__stopRequest = 0
+        self.__locked = locked   # lock the movement
+        self.__error = 0
+        self.__dragErrorCount = 0
+        if not self.__thread:
+            self.__thread = threading.Thread(None, self.__positioningThread,
+                                             'Positioning thread')
+            self.printdebug("start thread")
+            self.__thread.start()
 
     def doStatus(self):
         """Returns the status of the motor controller."""
@@ -140,9 +135,9 @@ class Axis(Moveable):
         the target.
         """
         self.__checkErrorState()
-        if self.status() == status.BUSY :
-            raise NicmError('%s: axis is moving now, please issue a stop '
-                            'command and try it again' % self)
+        if self.status() == status.BUSY:
+            raise NicmError(self, 'axis is moving now, please issue a stop '
+                            'command and try it again')
         diff = (self.read() - target)
         self.__target = target
         self.__offset += diff
@@ -166,7 +161,7 @@ class Axis(Moveable):
 
     def doReset(self):
         """Resets the motor/coder controller."""
-        if self.status() != status.BUSY :
+        if self.status() != status.BUSY:
             self.__error = 0
 
     def doStop(self):
@@ -215,27 +210,25 @@ class Axis(Moveable):
         return True
 
     def __checkErrorState(self):
-        if self.status() == status.ERROR :
+        if self.status() == status.ERROR:
             if self.__error == 1:
-                raise PositionError('%s: drag error ' % self)
+                raise PositionError(self, 'drag error')
             elif self.__error == 2:
-                raise MoveError('%s: precision error ' % self)
+                raise MoveError(self, 'precision error')
             elif self.__error == 3:
-                raise MoveError('%s: pre move error ' % self)
+                raise MoveError(self, 'pre move error')
             elif self.__error == 4:
-                raise MoveError('%s: post move error ' % self)
+                raise MoveError(self, 'post move error')
             elif self.__error == 5:
-                raise MoveError('%s: action during the move failed ' % self)
+                raise MoveError(self, 'action during the move failed')
             elif self.__error == 6:
-                raise MoveError('%s: move failed maxtries reached' % self)
+                raise MoveError(self, 'move failed maxtries reached')
             else:
-                raise ProgrammingError('%s: Axis::doStart()' % self)
+                raise ProgrammingError(self, 'unknown error constant %s' %
+                                       self.__error)
 
     def __read(self):
-        try :
-            return self.coder.read() - self.__offset
-        except Exception:
-            raise NicmError('%s: ' % self)
+        return self.coder.read() - self.__offset
 
     def __checkDragerror(self):
         tmp = abs(self.motor.read() - self.coder.read())

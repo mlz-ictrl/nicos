@@ -38,8 +38,8 @@ __version__ = "$Revision$"
 import sys
 from functools import wraps
 
-from nicm.errors import NicmError, UsageError
-
+from nicm.errors import UsageError
+from nicm.commands.output import printerror, printexception
 
 __commands__ = []
 
@@ -61,7 +61,7 @@ def user_command(func):
         try:
             # try executing the original function with the given arguments
             return func(*args, **kwds)
-        except TypeError, err:
+        except TypeError:
             # find out if the call itself caused this error, which means that
             # wrong arguments were given to the command
             traceback = sys.exc_info()[2]
