@@ -31,9 +31,9 @@
 
 """Exception classes for usage in NICOS."""
 
-__author__  = "$Author $"
-__date__    = "$Date $"
-__version__ = "$Revision $"
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 
 class NicmError(Exception):

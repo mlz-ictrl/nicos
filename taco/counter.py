@@ -33,9 +33,9 @@
 Implementation of TACO Timer and Counter devices.
 """
 
-__author__  = "$Author $"
-__date__    = "$Date $"
-__version__ = "$Revision $"
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 from time import sleep
 

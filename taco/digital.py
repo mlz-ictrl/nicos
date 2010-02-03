@@ -31,9 +31,9 @@
 
 """Implementation of TACO DigitalInput and DigitalOutput devices."""
 
-__author__  = "$Author $"
-__date__    = "$Date $"
-__version__ = "$Revision $"
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 from IO import DigitalInput, DigitalOutput
 

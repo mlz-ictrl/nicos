@@ -31,9 +31,9 @@
 
 """Module for output/logging user commands."""
 
-__author__  = "$Author $"
-__date__    = "$Date $"
-__version__ = "$Revision $"
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 from nicm import nicos
 

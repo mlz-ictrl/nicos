@@ -34,9 +34,9 @@ Contains the subclass of NICOS specific for running nicm in an interactive
 Python shell.
 """
 
-__author__  = "$Author $"
-__date__    = "$Date $"
-__version__ = "$Revision $"
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 import os
 import sys

@@ -31,9 +31,9 @@
 
 """Utilities to map TACO errors to NICM errors."""
 
-__author__  = "$Author $" 
-__date__    = "$Date $"
-__version__ = "$Revision $"
+__author__  = "$Author$" 
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 import sys
 

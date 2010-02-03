@@ -31,9 +31,9 @@
 
 """Base package for NICOS commands."""
 
-__author__  = "$Author $"
-__date__    = "$Date $"
-__version__ = "$Revision $"
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 import sys
 from functools import wraps

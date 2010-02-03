@@ -31,9 +31,9 @@
 
 """Module for basic user commands."""
 
-__author__  = "$Author $"
-__date__    = "$Date $"
-__version__ = "$Revision $"
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 import inspect
 import __builtin__

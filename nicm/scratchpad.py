@@ -31,9 +31,9 @@
 
 from __future__ import with_statement
 
-__author__  = "$Author $"
-__date__    = "$Date $"
-__version__ = "$Revision $"
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 import re
 import time

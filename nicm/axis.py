@@ -31,7 +31,7 @@
 
 """NICOS axis definition."""
 
-__author__  = "$Author $"
+__author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 

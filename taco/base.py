@@ -31,9 +31,9 @@
 
 """NICOS-TACO base classes."""
 
-__author__  = "$Author $"
-__date__    = "$Date $"
-__version__ = "$Revision $"
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 import TACOStates
 from TACOClient import TACOError

@@ -31,9 +31,9 @@
 
 """Module for simple device-related user commands."""
 
-__author__  = "$Author $"
-__date__    = "$Date $"
-__version__ = "$Revision $"
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 from nicm import nicos
 from nicm.device import Configurable, Device, Startable, Moveable, \

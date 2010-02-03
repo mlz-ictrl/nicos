@@ -31,9 +31,9 @@
 
 """Virtual devices for testing."""
 
-__author__  = "$Author $"
-__date__    = "$Date $"
-__version__ = "$Revision $"
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 from nicm import nicos
 from nicm.device import Device, Moveable

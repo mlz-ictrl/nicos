@@ -33,9 +33,9 @@
 The nicm package contains all standard NICOS commands and devices.
 """
 
-__author__  = "$Author $"
-__date__    = "$Date $"
-__version__ = "$Revision $"
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 nicm_version = "2.0a1"
 

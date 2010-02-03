@@ -34,9 +34,9 @@ Contains the subclass of NICOS specific for running nicm in the Licos
 client/server system.
 """
 
-__author__  = "$Author $"
-__date__    = "$Date $"
-__version__ = "$Revision $"
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 import sys
 

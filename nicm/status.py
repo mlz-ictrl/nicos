@@ -31,9 +31,9 @@
 
 """Status code definitions."""
 
-__author__  = "$Author $"
-__date__    = "$Date $"
-__version__ = "$Revision $"
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 # this doesn't use smaller values to avoid collision with old-style
 # statuslist values that may be defined differently; this way they will

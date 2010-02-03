@@ -31,7 +31,7 @@
 
 """Implementation of the class for TACO controlled coders."""
 
-__author__  = "$Author $"
+__author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
