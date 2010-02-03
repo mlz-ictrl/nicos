@@ -209,6 +209,7 @@ def version(dev):
     """List version info of the device."""
     dev = nicos.get_device(dev, Configurable)
     versions = dev.version()
+    printinfo('Relevant versions for this device:')
     print_table(('component', 'version'), versions, printinfo)
 
 def listparams(dev):

@@ -161,10 +161,13 @@ class Configurable(object):
     def version(self):
         """Return a list of versions for this component."""
         versions = []
+        modules = set()
         def _add(cls):
             try:
-                versions.append((cls.__module__ + '.' + cls.__name__,
-                                 sys.modules[cls.__module__].__version__))
+                if cls.__module__ not in modules:
+                    versions.append((cls.__module__ + '.' + cls.__name__,
+                                     sys.modules[cls.__module__].__version__))
+                modules.add(cls.__module__)
             except Exception:
                 pass
             for base in cls.__bases__:
