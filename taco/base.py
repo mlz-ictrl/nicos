@@ -74,6 +74,10 @@ class TacoDevice(object):
                                    + self.__class__.__name__)
         self._dev = self._create_client()
 
+    def doVersion(self):
+        return [(self.getTacodevice(),
+                 taco_guard(self._dev.deviceVersion))]
+
     def doRead(self):
         return taco_guard(self._dev.read)
 
