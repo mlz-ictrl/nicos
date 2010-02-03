@@ -7,8 +7,7 @@
 #   NICOS TACO digital input/output definition
 #
 # Author:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
-#   $Author $
+#   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -30,12 +29,11 @@
 #
 # *****************************************************************************
 
-"""
-Implementation of TACO DigitalInput and DigitalOutput devices.
-"""
+"""Implementation of TACO DigitalInput and DigitalOutput devices."""
 
-__date__   = "$Date $"
-__version__= "$Revision $"
+__author__  = "$Author $"
+__date__    = "$Date $"
+__version__ = "$Revision $"
 
 from IO import DigitalInput, DigitalOutput
 

@@ -8,7 +8,6 @@
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
-#   $Author$
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -30,9 +29,11 @@
 #
 # *****************************************************************************
 
-"""
-Status code definitions.
-"""
+"""Status code definitions."""
+
+__author__  = "$Author $"
+__date__    = "$Date $"
+__version__ = "$Revision $"
 
 # this doesn't use smaller values to avoid collision with old-style
 # statuslist values that may be defined differently; this way they will

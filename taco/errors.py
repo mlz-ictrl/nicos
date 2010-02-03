@@ -8,7 +8,6 @@
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
-#   $Author$
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -30,12 +29,11 @@
 #
 # *****************************************************************************
 
-"""
-Utilities to map TACO errors to NICM errors.
-"""
+"""Utilities to map TACO errors to NICM errors."""
 
-__date__   = "$Date $"
-__version__= "$Revision $"
+__author__  = "$Author $" 
+__date__    = "$Date $"
+__version__ = "$Revision $"
 
 import sys
 

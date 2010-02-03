@@ -8,7 +8,6 @@
 #
 # Author:
 #   Jens Krüger <jens.krueger@frm2.tum.de>
-#   $Author$
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -34,9 +33,9 @@
 NICOS motor definition.
 """
 
-__author__ = "Jens Krüger <jens.krueger@frm2.tum.de>"
-__date__   = "$Date$"
-__version__= "$Revision$"
+__author__  = "$Author $"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 from nicm import status
 from nicm.coder import Coder
@@ -53,10 +52,6 @@ class Motor(Moveable, Coder):
     parameters = {
         'speed': (0, False, 'The motor speed in units/second.'),
     }
-
-    def doVersion(self):
-        """Returns the version of the module (class)."""
-        return __version__
 
     def setPosition(self, pos):
         """Sets the current position of the motor controller to the target."""

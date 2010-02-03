@@ -8,7 +8,6 @@
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
-#   $Author$
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -34,8 +33,9 @@
 NICOS system device.
 """
 
-__date__   = "$Date$"
-__version__= "$Revision$"
+__author__  = "$Author $"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 
 from nicm.device import Configurable
@@ -50,11 +50,17 @@ class System(Configurable):
         'histories': ([], False, 'Global history managers for all devices.'),
     }
 
+    def __repr__(self):
+        return '<NICM System>'
+
 
 class User(Configurable):
     """A special device that represents a user."""
 
     parameters = {
-        'name': ('', True, 'User name.'),
+        'username': ('', True, 'User name.'),
         'affiliation': ('FRM II', False, 'User affiliation.'),
     }
+
+    def __repr__(self):
+        return '<User "%s">' % self.getUsername()

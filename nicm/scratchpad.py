@@ -8,7 +8,6 @@
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
-#   $Author$
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -31,6 +30,10 @@
 # *****************************************************************************
 
 from __future__ import with_statement
+
+__author__  = "$Author $"
+__date__    = "$Date $"
+__version__ = "$Revision $"
 
 import re
 import time

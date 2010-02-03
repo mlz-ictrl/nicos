@@ -8,7 +8,6 @@
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
-#   $Author $
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -34,6 +33,10 @@
 Contains the subclass of NICOS specific for running nicm in an interactive
 Python shell.
 """
+
+__author__  = "$Author $"
+__date__    = "$Date $"
+__version__ = "$Revision $"
 
 import os
 import sys
@@ -125,7 +128,7 @@ class InteractiveNICOS(NICOS):
         """Run an interactive console, and exit after it is finished."""
         banner = ('NICOS console ready (version %s).\nTry help() for a '
                   'list of commands, or help(command) for help.'
-                  % nicm.__version__)
+                  % nicm.nicm_version)
         console = NicmInteractiveConsole(self, self._NICOS__namespace)
         console.interact(banner)
         sys.exit()

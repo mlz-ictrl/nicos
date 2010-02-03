@@ -8,7 +8,6 @@
 #
 # Author:
 #   Jens Krüger <jens.krueger@frm2.tum.de>
-#   $Author$
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -32,9 +31,9 @@
 
 """Implementation of the class for TACO controlled motors."""
 
-__author__ = "Jens Krüger <jens.krueger@frm2.tum.de>"
-__date__   = "$Date$"
-__version__= "$Revision$"
+__author__  = "$Author $"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 from Motor import Motor as TACOMotor
 import TACOStates
@@ -51,10 +50,6 @@ class Motor(TacoDevice, NicmMotor):
     """TACO motor implementation class."""
 
     taco_class = TACOMotor
-
-    def doVersion(self):
-        """Returns the version of the module (class)."""
-        return __version__
 
     def doStart(self, target):
         taco_guard(self._dev.start, target)

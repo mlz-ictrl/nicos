@@ -8,7 +8,6 @@
 #
 # Author:
 #   Jens Krüger <jens.krueger@frm2.tum.de>
-#   $Author$
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -32,9 +31,9 @@
 
 """Implementation of the class for TACO controlled coders."""
 
-__author__ = "Jens Krüger <jens.krueger@frm2.tum.de>"
-__date__   = "$Date$"
-__version__= "$Revision$"
+__author__  = "$Author $"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 from Encoder import Encoder as TACOCoder
 import TACOStates
@@ -48,10 +47,6 @@ class Coder(TacoDevice, NicmCoder):
     """TACO coder implementation class."""
 
     taco_class = TACOCoder
-
-    def doVersion(self):
-        """Returns the version of the module (class)."""
-        return __version__
 
     def doSetPosition(self, target):
         taco_guard(self._dev.setpos, target)

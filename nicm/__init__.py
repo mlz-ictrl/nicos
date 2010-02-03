@@ -8,7 +8,6 @@
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
-#   $Author$
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -34,7 +33,11 @@
 The nicm package contains all standard NICOS commands and devices.
 """
 
-__version__ = '2.0a1'
+__author__  = "$Author $"
+__date__    = "$Date $"
+__version__ = "$Revision $"
+
+nicm_version = "2.0a1"
 
 import sys
 

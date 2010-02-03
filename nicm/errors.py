@@ -8,7 +8,6 @@
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
-#   $Author$
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -30,9 +29,11 @@
 #
 # *****************************************************************************
 
-"""
-Exception classes for usage in NICOS.
-"""
+"""Exception classes for usage in NICOS."""
+
+__author__  = "$Author $"
+__date__    = "$Date $"
+__version__ = "$Revision $"
 
 
 class NicmError(Exception):

@@ -8,7 +8,6 @@
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
-#   $Author$
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -47,4 +46,8 @@ devices = dict(
                     autocreate = True,
                     histories = ['localhistory', 'sphistory'],
                     ),
+
+    User = device('nicm.system.User',
+                  autocreate = True,
+                  username = 'Max User'),
 )

@@ -7,8 +7,7 @@
 #   NICOS TACO analog input/output definition
 #
 # Author:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
-#   $Author $
+#   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -30,12 +29,11 @@
 #
 # *****************************************************************************
 
-"""
-Implementation of TACO AnalogInput and AnalogOutput devices.
-"""
+"""Implementation of TACO AnalogInput and AnalogOutput devices."""
 
-__date__   = "$Date $"
-__version__= "$Revision $"
+__author__  = "$Author $"
+__date__    = "$Date $"
+__version__ = "$Revision $"
 
 from time import sleep
 

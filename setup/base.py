@@ -8,7 +8,6 @@
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
-#   $Author$
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -69,6 +68,13 @@ devices = dict(
                 absmax = 100,
                 usermin = 0,
                 usermax = 50),
+
+    Power = device('taco.analog.Input',
+                   description = 'FRM II reactor power',
+                   autocreate = True,
+                   tacodevice = '//tacodb/frm2/reactor/power',
+                   fmtstr = '%.1f',
+                   unit = 'MW'),
 )
 
 startupcode = '''

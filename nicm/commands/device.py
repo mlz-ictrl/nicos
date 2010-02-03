@@ -8,7 +8,6 @@
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
-#   $Author$
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -30,9 +29,11 @@
 #
 # *****************************************************************************
 
-"""
-Module for simple device-related user commands.
-"""
+"""Module for simple device-related user commands."""
+
+__author__  = "$Author $"
+__date__    = "$Date $"
+__version__ = "$Revision $"
 
 from nicm import nicos
 from nicm.device import Configurable, Device, Startable, Moveable, \
@@ -45,7 +46,8 @@ from nicm.commands.output import printinfo, printexception
 
 __commands__ = [
     'move', 'maw', 'switch', 'wait', 'read', 'status', 'stop', 'reset',
-    'count', 'set', 'get', 'fix', 'release', 'listparams', 'listdevices',
+    'count', 'set', 'get', 'fix', 'release', 'version',
+    'listparams', 'listdevices',
 ]
 
 
@@ -202,6 +204,12 @@ def release(*devlist):
         dev = nicos.get_device(dev, Startable)
         dev.release()
         printinfo('released', dev)
+
+def version(dev):
+    """List version info of the device."""
+    dev = nicos.get_device(dev, Configurable)
+    versions = dev.version()
+    print_table(('component', 'version'), versions, printinfo)
 
 def listparams(dev):
     """List all parameters of the device."""

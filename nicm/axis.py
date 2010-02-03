@@ -8,7 +8,6 @@
 #
 # Author:
 #   Jens Krüger <jens.krueger@frm2.tum.de>
-#   $Author$
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -30,13 +29,11 @@
 #
 # *****************************************************************************
 
-"""
-NICOS axis definition.
-"""
+"""NICOS axis definition."""
 
-__author__ = "Jens Krüger <jens.krueger@frm2.tum.de>"
-__date__   = "$Date$"
-__version__= "$Revision$"
+__author__  = "$Author $"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 import threading
 import time
@@ -89,10 +86,6 @@ class Axis(Moveable):
         self.__dragErrorCount = 0
 
         self.setPar('unit', self.motor.getUnit())
-
-    def doVersion(self):
-        """ returns the version of the module (class)"""
-        return __version__
 
     def doStart(self, target, locked=False):
         """Starts the movement of the axis to target."""

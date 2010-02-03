@@ -8,7 +8,6 @@
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
-#   $Author$
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -30,10 +29,13 @@
 #
 # *****************************************************************************
 
-"""
-Base device classes for usage in NICOS.
-"""
+"""Base device classes for usage in NICOS."""
 
+__author__  = "$Author $"
+__date__    = "$Date $"
+__version__ = "$Revision $"
+
+import sys
 import time
 
 from nicm import nicos
@@ -155,6 +157,22 @@ class Configurable(object):
         """Shut down the object; called from destroy_device()."""
         if hasattr(self, 'doShutdown'):
             self.doShutdown()
+
+    def version(self):
+        """Return a list of versions for this component."""
+        versions = []
+        def _add(cls):
+            try:
+                versions.append((cls.__module__ + '.' + cls.__name__,
+                                 sys.modules[cls.__module__].__version__))
+            except Exception:
+                pass
+            for base in cls.__bases__:
+                _add(base)
+        _add(self.__class__)
+        if hasattr(self, 'doVersion'):
+            versions.extend(self.doVersion())
+        return versions
 
 
 class Device(Configurable):

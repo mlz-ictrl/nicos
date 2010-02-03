@@ -7,8 +7,7 @@
 #   NICOS TACO base classes
 #
 # Author:       
-#   Jens Krüger <jens.krueger@frm2.tum.de>
-#   $Author $
+#   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -32,8 +31,9 @@
 
 """NICOS-TACO base classes."""
 
-__date__   = "$Date $"
-__version__= "$Revision $"
+__author__  = "$Author $"
+__date__    = "$Date $"
+__version__ = "$Revision $"
 
 import TACOStates
 from TACOClient import TACOError

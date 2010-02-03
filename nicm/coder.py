@@ -8,7 +8,6 @@
 #
 # Author:
 #   Jens Krüger <jens.krueger@frm2.tum.de>
-#   $Author$
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -30,13 +29,11 @@
 #
 # *****************************************************************************
 
-"""
-NICOS coder definition.
-"""
+"""NICOS coder definition."""
 
-__author__ = "Jens Krüger <jens.krueger@frm2.tum.de>"
-__date__   = "$Date$"
-__version__= "$Revision$"
+__author__  = "$Author $"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
 from nicm import status
 from nicm.device import Readable
@@ -44,10 +41,6 @@ from nicm.device import Readable
 
 class Coder(Readable):
     """Base class for all coders."""
-
-    def doVersion(self):
-        """Returns the version of the module (class)."""
-        return __version__
 
     def doRead(self):
         """Returns the current position from encoder controller."""
