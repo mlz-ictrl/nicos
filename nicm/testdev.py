@@ -35,6 +35,10 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import time
+import threading
+
+from nicm import nicos, status
 from nicm.motor import Motor
 from nicm.coder import Coder
 
@@ -42,20 +46,54 @@ from nicm.coder import Coder
 class VirtualMotor(Motor):
     parameters = {
         'initval': (0, True, 'Initial value for the virtual device.'),
+        'speed': (0, False, 'Virtual speed of the device.'),
     }
 
     def doInit(self):
-        self._val = self.getPar('initval')
+        self.__val = self.getPar('initval')
+        self.__busy = False
 
     def doStart(self, pos):
-        self.printdebug('moving to %s' % pos)
-        self._val = pos
+        self.__busy = True
+        if self.getSpeed() != 0:
+            thread = threading.Thread(target=self.__moving, args=(pos,))
+            thread.start()
+        else:
+            self.printdebug('moving to %s' % pos)
+            self.__val = pos
+            self.__busy = False
 
     def doRead(self):
-        return self._val
+        return self.__val
+
+    def doStatus(self):
+        if self.__busy:
+            return status.BUSY
+        return status.OK
+
+    def __moving(self, pos):
+        incr = self.getSpeed()
+        delta = pos - self.read()
+        steps = int(abs(delta) / incr)
+        incr = delta < 0 and -incr or incr
+        for i in range(steps):
+            time.sleep(0.5)
+            self.printdebug('thread moving to %s' % (self.__val + incr))
+            self.__val += incr
+        self.__val = pos
+        self.__busy = False
 
 
 class VirtualCoder(Coder):
+    parameters = {
+        'motor': ('', True, 'Device whose value to mirror.'),
+    }
+
+    def doInit(self):
+        self._motor = nicos.get_device(self.getMotor())
 
     def doRead(self):
-        return 0
+        return self._motor.read()
+
+    def doStatus(self):
+        return status.OK

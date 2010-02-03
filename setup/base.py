@@ -37,7 +37,7 @@ modules = ['nicm.commands']
 
 devices = dict(
     m1 = device('nicm.testdev.VirtualMotor',
-                loglevel = 'info',
+                loglevel = 'debug',
                 initval = 1,
                 absmin = 0,
                 absmax = 100,
@@ -48,9 +48,11 @@ devices = dict(
                 initval = 0.5,
                 absmin = 0,
                 absmax = 100,
+                speed = 1,
                 unit = 'deg'),
 
     c1 = device('nicm.testdev.VirtualCoder',
+                motor = 'm1',
                 unit = 'deg'),
 
     a1 = device('nicm.axis.Axis',

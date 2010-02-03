@@ -92,7 +92,7 @@ class Axis(Moveable):
         """Starts the movement of the axis to target."""
         if self.__locked:
             raise NicmError(self, 'this axis is locked')
-        if not self.__checkTargetPosition(self.read(), 0):
+        if self.__checkTargetPosition(self.read(), target, error=0):
             return
 
         # TODO: stop the axis instead of raising an exception
