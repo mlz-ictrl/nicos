@@ -90,10 +90,13 @@ class VirtualCoder(Coder):
     }
 
     def doInit(self):
-        self._motor = nicos.get_device(self.getMotor())
+        if self.getMotor():
+            self._motor = nicos.get_device(self.getMotor())
+        else:
+            self._motor = None
 
     def doRead(self):
-        return self._motor.read()
+        return self._motor and self._motor.read() or 0
 
     def doStatus(self):
         return status.OK
