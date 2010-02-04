@@ -70,6 +70,9 @@ class NICOS(object):
         self.loaded_setups = set()
         # contains all explicitly loaded setups
         self.explicit_setups = []
+        # path to setup files
+        self.__setup_path = path.join(path.dirname(__file__),
+                                      '..', '..', 'setup')
         # info about all loadable setups
         self.__setup_info = {}
         # namespace to place user-accessible items in
@@ -82,13 +85,16 @@ class NICOS(object):
         # set up logging interface
         self._init_logging()
         self.log = self.get_logger('nicos')
-        # read all setups
-        self.__read_setups()
 
     def set_namespace(self, ns):
         """Set the namespace to export commands and devices into."""
         self.__namespace = ns
         self.__exported_names = set()
+
+    def set_setup_path(self, path):
+        """Set the path to the setup files."""
+        self.__setup_path = path
+        self.__read_setups()
 
     def __read_setups(self):
         """Read information of all existing setups.
@@ -97,13 +103,12 @@ class NICOS(object):
         should be a sibling to this package's directory.
         """
         self.__setup_info.clear()
-        modpath = path.join(path.dirname(__file__), '..', '..', 'setup')
-        for filename in os.listdir(modpath):
+        for filename in os.listdir(self.__setup_path):
             if not filename.endswith('.py'):
                 continue
             modname = filename[:-3]
             try:
-                modfile = imp.find_module(modname, [modpath])
+                modfile = imp.find_module(modname, [self.__setup_path])
                 code = modfile[0].read()
                 modfile[0].close()
             except (ImportError, IOError), err:
@@ -134,6 +139,9 @@ class NICOS(object):
 
     def load_setup(self, setupname):
         """Load a setup module and set up devices accordingly."""
+        if not self.__setup_info:
+            self.__read_setups()
+        
         log = self.get_logger('setup')
         if setupname in self.loaded_setups:
             log.warning('setup %s is already loaded' % setupname)
