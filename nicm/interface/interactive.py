@@ -128,14 +128,15 @@ class InteractiveNICOS(NICOS):
 
 
 def start(setup='startup'):
-    # Create the NICOS class singleton.
-    nicos = nicm.nicos = InteractiveNICOS()
+    # Assign the correct class to the NICOS singleton.
+    nicm.nicos.__class__ = InteractiveNICOS
+    nicm.nicos.__init__()
 
     # Should not be necessary for the separate console.
     #nicos.set_namespace(sys._getframe(1).f_globals)
 
     # Create the initial instrument setup.
-    nicos.load_setup(setup)
+    nicm.nicos.load_setup(setup)
 
     # Fire up an interactive console.
-    nicos.console()
+    nicm.nicos.console()

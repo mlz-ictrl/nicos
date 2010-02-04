@@ -46,5 +46,9 @@ if sys.version_info[:2] < (2, 5):
     raise ImportError('NICOS requires Python 2.5 or higher')
 
 
-# Dummy object to allow the import of nicm submodules.
-nicos = object()
+# Create the nicos object to allow the import of nicm submodules.
+# The real class is set later.
+
+class Interface(object):
+    pass
+nicos = Interface()

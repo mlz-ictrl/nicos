@@ -93,12 +93,13 @@ class LicosNICOS(NICOS):
 
 
 def start():
-    # Create the NICOS class singleton.
-    nicos = nicm.nicos = LicosNICOS()
+    # Assign the correct class to the NICOS singleton.
+    nicm.nicos.__class__ = LicosNICOS
+    nicm.nicos.__init__()
 
     # NICOS user commands and devices will be placed in the globals of the
     # execution frame that first imports this module.
-    nicos.set_namespace(sys._getframe(1).f_globals)
+    nicm.nicos.set_namespace(sys._getframe(1).f_globals)
 
     # Create the initial instrument setup.
-    nicos.load_setup('startup')
+    nicm.nicos.load_setup('startup')
