@@ -63,6 +63,20 @@ that can find out their unit automatically.)
 Public methods
 --------------
 
+``init()``
+   *Interface:* Initialize the device.  This method is called by the NICM system
+   when the device instance has been created, all parameters are set and all
+   attached devices have been created and initialized.
+
+   *Implementation:* Simply calls a ``doInit()`` method if present.
+
+``shutdown()``
+   *Interface:* Shut down the device.  This method is called by the NICM system
+   when the device is destroyed, manually or because the current setup is
+   unloaded.
+
+   *Implementation:* Simply calls a ``doShutdown()`` method if present.
+
 ``getPar(name)``
    *Interface:* Return the parameter given by *name*.
 
@@ -92,6 +106,15 @@ Public methods
    Within a device class, methods *can* directly set parameter values in
    ``self._params``, but are advised to use the ``setParamname()`` function when
    possible.
+
+``version()``
+   *Interface:* Return a list of tuples ``(component, version)`` that describes
+   the versions of components involved in the device.  "Components" are not
+   further defined and can be modules, TACO servers etc.
+
+   *Implementation:* Retrieves versions of all Python modules that contribute to
+   the class inheritance chain of the device, then extends that list with the
+   result of ``doVersion()``, if present.
 
 Parameters
 ----------
@@ -136,23 +159,6 @@ that type.
 The ``attached_devices`` attribute does *not* need to contain the entries of
 base classes again, they are automatically merged.
 
-Public methods
---------------
-
-``init()``
-   *Interface:* Initialize the device.  This method is called by the NICM system
-   when the device instance has been created, all parameters are set and all
-   attached devices have been created and initialized.
-
-   *Implementation:* Simply calls a ``doInit()`` method if present.
-
-``shutdown()``
-   *Interface:* Shut down the device.  This method is called by the NICM system
-   when the device is destroyed, manually or because the current setup is
-   unloaded.
-
-   *Implementation:* Simply calls a ``doShutdown()`` method if present.
-
 Parameters
 ----------
 
@@ -176,8 +182,9 @@ Public methods
 ``read()``
    *Interface:* Read and return the main value of the device.
 
-   *Implementation:* Simply calls the ``doRead()`` method.  This method must be
+   *Implementation:* Calls the ``doRead()`` method.  This method must be
    implemented somewhere in the inheritance chain of the concrete device class.
+   The read value is then repoerted to all configured histories.
 
 ``status()``
    *Interface:* Return the status of the device, as an integer constant as
@@ -185,12 +192,14 @@ Public methods
 
    *Implementation:* This calls a ``doStatus()`` method, if present, and checks
    that its return value is a valid status constant.  Otherwise it returns
-   ``status.UNKNOWN``.
+   ``status.UNKNOWN``.  The determined status value is then reported to all
+   configured histories.
 
 ``reset()``
    *Interface:* Reset the device.
 
-   *Implementation:* Simply calls ``doReset()`` if present.
+   *Implementation:* Simply calls ``doReset()`` if present, and then returns the
+   new device status.
 
 ``format(value)``
    *Interface:* Format a value returned by ``read()`` into a human-readable
@@ -200,6 +209,12 @@ Public methods
    *Implementation:* This calls a ``doFormat(value)`` method, if present, and
    otherwise formats *value* with the ``fmtstr`` parameter using Python string
    formatting (the ``%`` operator).
+
+``history(name='value', fromtime=None, totime=None)``
+   Retrieves the history of a device attribute (*name*) from one of the
+   histories attached to the device.  *fromtime* and *totime* are UNIX
+   timestamps that specify a limiting time window.  If no history can supply the
+   requested values, ``None`` is returned.
 
 Parameters
 ----------
@@ -211,12 +226,61 @@ Parameters
 ``unit`` : string, mandatory
    The unit of the device value.
 
+``histories`` : list of strings, optional
+   A list of device names of "history" pseudo-devices.  These objects are
+   configured in the setup like devices, and serve to save and retrieve the
+   history of device values and other information like device status.
+
 
 ``Startable``
 =============
 
 This class inherits from ``Readable`` and is simply a common base class for
 several classes that support starting, waiting and stopping.
+
+``start(pos)``, ``moveTo(pos)``, ``move(pos)``
+   *Interface:* Start movement of the device to a new position.  This method
+   does not generally wait for completion of the movement.
+
+   *Implementation:* This first checks for fixed devices and then for a valid
+   position with ``isAllowed(pos)``, then calls the ``doStart(pos)`` method,
+   which must exist.
+
+``stop()``
+   *Interface:* Stop any movement of the device.
+
+   *Implementation:* This first checks for fixed devices and then simply calls
+   ``doStop()`` if present.  If it is not present, it is assumed that the
+   movement always completes before ``doStart()`` returns.
+
+``wait()``
+   *Interface:* Wait for movement of the device to finish.
+
+   *Implementation:* Simply calls ``doWait()`` if present, then reads the device
+   value.  If ``doWait()`` is not present, it is assumed that the movement
+   always completes before ``doStart()`` returns.
+
+``isAllowed(pos)``
+   *Interface:* Check if the given position is allowed, considering the current
+   limits and other status of the device.  Return a tuple ``(valid, why)`` where
+   *valid* is a boolean, and *why* is a string describing the reason when
+   *valid* is false.  (The ``start()`` method takes the return value of this
+   method and turns it into an exception if needed.)
+
+   *Implementation:* This calls an ``doIsAllowed(pos)`` method if present.  If
+   not, ``(True, '')`` is returned.
+
+``fix()``
+   *Interface:* Forbid device movement by e.g. ``start()``.
+
+   *Implementation:* This sets an internal "fixed" flag and additionally calls
+   ``doFix()``, if present.
+
+``release()``
+   *Interface:* Allow device movement again (cancels the effect of ``fix()``).
+
+   *Implementation:* This clears the internal "fixed" flag and additionally
+   calls ``doRelease()``, if present.
 
 
 ``Moveable``
@@ -228,36 +292,8 @@ be moved continuously, like axes or power supplies.
 Public methods
 --------------
 
-``start(pos)``, ``moveTo(pos)``, ``move(pos)``
-   *Interface:* Start movement of the device to a new position.  This method
-   does not generally wait for completion of the movement.
-
-   *Implementation:* This first checks for a valid position with
-   ``isAllowed(pos)``, then calls the ``doStart(pos)`` method, which must exist.
-
-``stop()``
-   *Interface:* Stop any movement of the device.
-
-   *Implementation:* Simply calls ``doStop()`` if present.  If it is not
-   present, it is assumed that the movement always completes before
-   ``doStart()`` returns.
-
-``wait()``
-   *Interface:* Wait for movement of the device to finish.
-
-   *Implementation:* Simply calls ``doWait()`` if present.  If it is not
-   present, it is assumed that the movement always completes before
-   ``doStart()`` returns.
-
-``isAllowed(pos)``
-   *Interface:* Check if the given position is allowed, considering the current
-   limits and other status of the device.  Return a tuple ``(valid, why)`` where
-   *valid* is a boolean, and *why* is a string describing the reason when
-   *valid* is false.  (The ``start()`` method takes the return value of this
-   method and turns it into an exception if needed.)
-
-   *Implementation:* This calls an ``doIsAllowed(pos)`` method if present.  If
-   not, ``(True, '')`` is returned.
+``moveTo(pos)``, ``move(pos)``
+   Aliases for ``start(pos)``.
 
 Parameters
 ----------
@@ -292,39 +328,9 @@ values, such as ``1`` and ``0``.
 Public methods
 --------------
 
-``start(pos)``, ``switchTo(pos)``, ``switch(pos)``
-   *Interface:* Start switching the device to a new position.  This method does
-   not generally wait for completion of the process.
-
-   *Implementation:* This first checks for a valid position with
-   ``isAllowed(pos)``, then calls the ``doStart(pos)`` method, which must exist.
-   If the *pos* is neither a key nor a value in the ``switchlist``, a
-   ``UsageError`` is raised.
-
-``stop()``
-   *Interface:* Stop any movement of the device.
-
-   *Implementation:* Simply calls ``doStop()`` if present.  If it is not
-   present, it is assumed that the movement always completes before
-   ``doStart()`` returns.
-
-``wait()``
-   *Interface:* Wait for movement of the device to finish.
-
-   *Implementation:* Simply calls ``doWait()`` if present.  If it is not
-   present, it is assumed that the movement always completes before
-   ``doStart()`` returns.
-
-``isAllowed(pos)``
-   *Interface:* Check if the given switch position (given as an "internal"
-   value) is allowed, considering the current limits and other status of the
-   device.  Return a tuple ``(valid, why)`` where *valid* is a boolean, and
-   *why* is a string describing the reason when *valid* is false.  (The
-   ``start()`` method takes the return value of this method and turns it into an
-   exception if needed.)
-
-   *Implementation:* This calls an ``doIsAllowed(pos)`` method if present.  If
-   not, ``(True, '')`` is returned.
+``switchTo(pos)``, ``switch(pos)``
+   Aliases for ``start(pos)``.  If the *pos* is neither a key nor a value in the
+   ``switchlist``, a ``UsageError`` is raised.
 
 ``format(pos)``
    This ``Readable`` method is overwritten to automatically convert "internal"
@@ -349,6 +355,11 @@ Public methods
    *Interface:* Stop the counter.
 
    *Implementation:* Calls ``doStop()``.
+
+``resume()``
+   *Interface:* Resume the counter.
+
+   *Implementation:* Calls ``doResume()``.
 
 ``wait()``
    *Interface:* Wait until counting is complete.
