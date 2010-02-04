@@ -87,6 +87,21 @@ class Axis(Moveable):
         self.__dragErrorCount = 0
 
         self.setPar('unit', self.motor.getUnit())
+        self.__checkMotorLimits()
+
+    def __checkMotorLimits(self):
+        # check axis limits against motor absolute limits (the motor should not
+        # have user limits defined)
+        absmin = self.getAbsmin()
+        absmax = self.getAbsmax()
+        if not absmin and not absmax:
+            self._params['absmin'] = self.motor.getAbsmin()
+            self._params['absmax'] = self.motor.getAbsmax()
+        else:
+            if absmin < self.motor.getAbsmin():
+                raise ConfigurationError(self, 'absmin below the motor absmin')
+            if absmax > self.motor.getAbsmax():
+                raise ConfigurationError(self, 'absmax below the motor absmax')
 
     def doStart(self, target, locked=False):
         """Starts the movement of the axis to target."""

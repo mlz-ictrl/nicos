@@ -128,6 +128,10 @@ class Configurable(object):
     def __str__(self):
         return self._params['name']
 
+    def getName(self):
+        """Return the device name."""
+        return self._params['name']
+
     def getPar(self, name):
         """Get a parameter of the device."""
         if name.lower() not in self.parameters:
