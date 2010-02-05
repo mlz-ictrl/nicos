@@ -205,6 +205,23 @@ class Axis(Moveable):
         super(Axis, self).doUnlock()
         self.__locked = False
 
+    # TODO: add validation for new parameter values where needed
+
+    def doSetDragerror(self, value):
+        self._params['dragerror'] = value
+
+    def doSetPrecision(self, value):
+        self._params['precision'] = value
+
+    def doSetMaxtries(self, value):
+        self._params['maxtries'] = value
+
+    def doSetLoopdelay(self, value):
+        self._params['loopdelay'] = value
+
+    def doSetBacklash(self, value):
+        self._params['backlash'] = value
+
     def _preMoveAction(self):
         """ This method will be called before the motor will be moved.
         It should be overwritten in derived classes for special actions"""
