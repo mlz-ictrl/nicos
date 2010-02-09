@@ -38,10 +38,10 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 
-from nicm.device import Configurable
+from nicm.device import Device
 
 
-class System(Configurable):
+class System(Device):
     """A special device that serves for global configuration of
     the whole NICM system.
     """
@@ -54,7 +54,7 @@ class System(Configurable):
         return '<NICM System>'
 
 
-class User(Configurable):
+class User(Device):
     """A special device that represents a user."""
 
     parameters = {

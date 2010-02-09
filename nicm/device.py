@@ -44,7 +44,7 @@ from nicm.errors import ConfigurationError, ProgrammingError, UsageError, \
      LimitError, FixedError
 
 
-class Configurable(object):
+class Device(object):
     """
     An object that has a list of parameters that are read from the configuration
     and have default values.
@@ -64,15 +64,46 @@ class Configurable(object):
     attached_devices = {}
 
     def __init__(self, name, config):
+        # _params: parameter values from config
+        self._params = {'name': name}  # pre-set "name" for str(self) to work
+        # _adevs: "attached" device instances
+        self._adevs = {}
+
         # initialize a logger for the device
         self._log = nicos.get_logger(name)
         for mn in ('debug', 'notice', 'info', 'warning', 'error', 'exception'):
             setattr(self, 'print' + mn, getattr(self._log, mn))
 
-        # initialize parameters (pre-set "name" for str(self) to work)
-        self._params = {'name': name}
+        # validate and create attached devices
+        for aname, cls in self.attached_devices.iteritems():
+            if aname not in config:
+                raise ConfigurationError(
+                    self, 'device misses device %r in configuration' % aname)
+            value = config.pop(aname)
+            if value is None:
+                self._adevs[aname] = None
+                continue
+            if isinstance(cls, list):
+                cls = cls[0]
+                devlist = []
+                self._adevs[aname] = devlist
+                for i, devname in enumerate(value):
+                    dev = nicos.create_device(devname)
+                    if not isinstance(dev, cls):
+                        raise ConfigurationError(
+                            self, '%s: device %r item %d has wrong type' %
+                            (aname, i))
+                    devlist.append(dev)
+            else:
+                dev = nicos.create_device(value)
+                if not isinstance(dev, cls):
+                    raise ConfigurationError(
+                        self, '%s: device %r has wrong type' % aname)
+                self._adevs[aname] = dev
+
         # make all parameter names lower-case
         config = dict((name.lower(), value) for (name, value) in config.items())
+        # validate and assign parameters
         for param, paraminfo in self.parameters.iteritems():
             param = param.lower()
 
@@ -119,7 +150,6 @@ class Configurable(object):
             setattr(self, 'set' + param.title(), setter)
 
         # initialize some standard parameters
-        self._params['name'] = name
         if not self._params['description']:
             self._params['description'] = name
         # set loglevel (also checks validity explicitly)
@@ -127,6 +157,16 @@ class Configurable(object):
 
     def __str__(self):
         return self._params['name']
+
+    def __repr__(self):
+        if self.getPar('name') == self.getPar('description'):
+            return '<device %s (a %s.%s)>' % (self.getPar('name'),
+                                              self.__class__.__module__,
+                                              self.__class__.__name__)
+        return '<device %s "%s" (a %s.%s)>' % (self.getPar('name'),
+                                               self.getPar('description'),
+                                               self.__class__.__module__,
+                                               self.__class__.__name__)
 
     def getName(self):
         """Return the device name."""
@@ -167,56 +207,6 @@ class Configurable(object):
         if hasattr(self, 'doVersion'):
             versions.extend(self.doVersion())
         return versions
-
-
-class Device(Configurable):
-    """
-    Base class for all NICOS devices.
-    """
-
-    parameters = {
-        'adev': ({}, False, 'A dictionary with attached devices.'),
-    }
-
-    def __init__(self, name, config):
-        Configurable.__init__(self, name, config)
-
-        # initialize attached devices
-        adev = self._params['adev']
-        for aname, cls in self.attached_devices.iteritems():
-            if aname not in adev:
-                raise ConfigurationError(
-                    self, 'device misses device %r in adev list' % aname)
-            if adev[aname] is None:
-                setattr(self, aname, None)
-                continue
-            if isinstance(cls, list):
-                cls = cls[0]
-                devlist = []
-                setattr(self, aname, devlist)
-                for i, devname in enumerate(adev[aname]):
-                    dev = nicos.create_device(devname)
-                    if not isinstance(dev, cls):
-                        raise ConfigurationError(
-                            self, '%s: device adev %r item %d has wrong type' %
-                            (aname, i))
-                    devlist.append(dev)
-            else:
-                dev = nicos.create_device(adev[aname])
-                if not isinstance(dev, cls):
-                    raise ConfigurationError(
-                        self, '%s: device adev %r has wrong type' % aname)
-                setattr(self, aname, dev)
-
-    def __repr__(self):
-        if self.getPar('name') == self.getPar('description'):
-            return '<device %s (a %s.%s)>' % (self.getPar('name'),
-                                              self.__class__.__module__,
-                                              self.__class__.__name__)
-        return '<device %s "%s" (a %s.%s)>' % (self.getPar('name'),
-                                               self.getPar('description'),
-                                               self.__class__.__module__,
-                                               self.__class__.__name__)
 
 
 class Readable(Device):

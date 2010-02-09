@@ -43,9 +43,9 @@ class NicmError(Exception):
 
     def __init__(self, *args):
         # store the originating device on the exception
-        from nicm.device import Configurable
+        from nicm.device import Device
         args = list(args)
-        if args and isinstance(args[0], Configurable):
+        if args and isinstance(args[0], Device):
             self.device = args[0]
             args[0] = args[0].getName() + ': '
         Exception.__init__(self, ''.join(args))

@@ -50,7 +50,9 @@ devices = dict(
 
     axis = device(
         'nicm.axis.Axis',
-        adev = {'motor': 'motor', 'coder': 'coder', 'obs': []},
+        motor = 'motor',
+        coder = 'coder',
+        obs = [],
         usermin = -50,
         usermax = 50,
         loopdelay = 0.005,  # delay not necessary for virtual motor

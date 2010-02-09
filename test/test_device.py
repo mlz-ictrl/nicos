@@ -110,7 +110,7 @@ class Dev2(Moveable):
 def test_params():
     dev2 = nicos.get_device('dev2_1')
     # make sure adev instances are created
-    assert isinstance(dev2.attached, Dev1)
+    assert isinstance(dev2._adevs['attached'], Dev1)
     # an inherited and writable parameter
     assert dev2.getUnit() == 'mm'
     dev2.setUnit('deg')

@@ -39,7 +39,7 @@ devices = dict(
     ),
     dev2_1 = device(
         'test.test_device.Dev2',
-        adev = {'attached': 'dev1'},
+        attached = 'dev1',
         param2 = 1,
         unit = 'mm',
         absmin = 0,
@@ -51,7 +51,7 @@ devices = dict(
     ),
     dev2_3 = device(
         'test.test_device.Dev2',
-        adev = {'attached': 'dev1'},
+        attached = 'dev1',
         param2 = 1,
         unit = 'mm',
         absmin = 0,

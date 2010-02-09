@@ -42,13 +42,13 @@ The base classes for all devices are contained in the module ``nicm.device``.
 There is a hierarchy of classes that correspond to varying levels of interaction
 that is possible with the device:
 
-``Configurable``
-================
+``Device``
+==========
 
 This class supports setting parameters from the configuration, and allows the
 user to get and set parameter values.
 
-Configurable objects must have a ``parameters`` class attribute that defines the
+Device objects must have a ``parameters`` class attribute that defines the
 available additional parameters.  It must be a dictionary mapping parameter name
 to a tuple of ``(default, mandatory, description)`` where *default* is the
 default value, *mandatory* specifies whether the parameter must be set in the
@@ -59,6 +59,23 @@ classes again, they are automatically merged.  (But it *can* contain a parameter
 defined by a base class, in order to override its properties.  For example,
 while usually the ``unit`` parameter is mandatory, it can be omitted for devices
 that can find out their unit automatically.)
+
+Device classes can also have an ``attached_devices`` attribute that defines the
+class's "attached devices" it needs to operate, such as a low-level
+communication device, or motor and encoders for an axis class.  It maps the
+"internal name" (the device will be available as an attribute with that name) to
+the type of the device (which usually is an abstract type).  For example::
+
+   attached_devices = {'motor': nicm.motor.Motor, 'coder': nicm.coder.Coder}
+
+The actual attached devices for a specific instance (given in the instance's
+configuration) are then type-checked against these types.  As a special case, if
+the type is a list containing one type, such as ``[Readable]``, the
+corresponding entry in the configuration must be a list of zero to many
+instances of that type.
+
+The ``attached_devices`` attribute does *not* need to contain the entries of
+base classes again, they are automatically merged.
 
 Public methods
 --------------
@@ -134,40 +151,6 @@ Parameters
 ``loglevel`` : string, optional
    The loglevel for output from the device.  This must be set to one of the
    loglevel constants.  Default is ``info``.
-
-
-``Device``
-==========
-
-This class inherits from ``Configurable`` and additionally supports
-initialization and shutdown, as well as "attached devices".
-
-Device classes can have an ``attached_devices`` attribute that defines the
-class's "attached devices" it needs to operate, such as a low-level
-communication device, or motor and encoders for an axis class.  It maps the
-"internal name" (the device will be available as an attribute with that name) to
-the type of the device (which usually is an abstract type).  For example::
-
-   attached_devices = {'motor': nicm.motor.Motor, 'coder': nicm.coder.Coder}
-
-The actual attached devices for a specific instance (given in the instance's
-``adev`` parameter) are then type-checked against these types.  As a special
-case, if the type is a list containing one type, such as ``[Readable]``, the
-corresponding entry in the ``adev`` must be a list of zero to many instances of
-that type.
-
-The ``attached_devices`` attribute does *not* need to contain the entries of
-base classes again, they are automatically merged.
-
-Parameters
-----------
-
-``adev`` : dictionary, optional
-   For device classes that need attached devices, this dictionary maps the
-   internal name (given by the device's ``attached_devices`` attribute) to the
-   device name in the configuration.  For example, for an axis that controls a
-   motor and encoder, the dictionary could look like ``{'motor': 'mth_motor',
-   'coder': 'mth_coder'}``.
 
 
 ``Readable``

@@ -57,7 +57,9 @@ devices = dict(
 
     a1 = device('nicm.axis.Axis',
                 autocreate = True,
-                adev = {'motor': 'm1', 'coder': 'c1', 'obs': ['c1']},
+                motor = 'm1',
+                coder = 'c1',
+                obs = ['c1'],
                 absmin = 0,
                 absmax = 100,
                 usermin = 0,
@@ -65,7 +67,9 @@ devices = dict(
 
     a2 = device('nicm.axis.Axis',
                 autocreate = True,
-                adev = {'motor': 'm2', 'coder': 'm2', 'obs': []},
+                motor = 'm2',
+                coder = 'm2',
+                obs = [],
                 absmin = 0,
                 absmax = 100,
                 usermin = 0,

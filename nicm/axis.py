@@ -67,13 +67,13 @@ class Axis(Moveable):
 
     def doInit(self):
         # Check that motor and unit have the same unit
-        if self.coder.getUnit() != self.motor.getUnit():
+        if self._adevs['coder'].getUnit() != self._adevs['motor'].getUnit():
             raise ConfigurationError(self, 'different units for motor and coder'
-                                     ' (%s vs %s)' % (self.motor.getUnit(),
-                                                      self.coder.getUnit()))
+                                     ' (%s vs %s)' % (self._adevs['motor'].getUnit(),
+                                                      self._adevs['coder'].getUnit()))
         # Check that all observers have the same unit as the motor
-        for ob in self.obs:
-            if self.motor.getUnit() != ob.getUnit():
+        for ob in self._adevs['obs']:
+            if self._adevs['motor'].getUnit() != ob.getUnit():
                 raise ConfigurationError(self, 'different units for motor '
                                          'and observer %s' % ob)
 
@@ -86,7 +86,7 @@ class Axis(Moveable):
         self.__locked = False
         self.__dragErrorCount = 0
 
-        self.setPar('unit', self.motor.getUnit())
+        self.setPar('unit', self._adevs['motor'].getUnit())
         self.__checkMotorLimits()
 
     def __checkMotorLimits(self):
@@ -95,12 +95,12 @@ class Axis(Moveable):
         absmin = self.getAbsmin()
         absmax = self.getAbsmax()
         if not absmin and not absmax:
-            self._params['absmin'] = self.motor.getAbsmin()
-            self._params['absmax'] = self.motor.getAbsmax()
+            self._params['absmin'] = self._adevs['motor'].getAbsmin()
+            self._params['absmax'] = self._adevs['motor'].getAbsmax()
         else:
-            if absmin < self.motor.getAbsmin():
+            if absmin < self._adevs['motor'].getAbsmin():
                 raise ConfigurationError(self, 'absmin below the motor absmin')
-            if absmax > self.motor.getAbsmax():
+            if absmax > self._adevs['motor'].getAbsmax():
                 raise ConfigurationError(self, 'absmax below the motor absmax')
 
     def doStart(self, target, locked=False):
@@ -138,7 +138,7 @@ class Axis(Moveable):
         elif self.__thread and self.__thread.isAlive():
             return status.BUSY
         else:
-            return self.motor.status()
+            return self._adevs['motor'].status()
 
     def doRead(self):
         """Returns the current position from coder controller."""
@@ -260,29 +260,29 @@ class Axis(Moveable):
                                        self.__error)
 
     def __read(self):
-        return self.coder.read() - self.__offset
+        return self._adevs['coder'].read() - self.__offset
 
     def __checkDragerror(self):
-        tmp = abs(self.motor.read() - self.coder.read())
+        tmp = abs(self._adevs['motor'].read() - self._adevs['coder'].read())
         # print 'Diff %.3f' % tmp
         dragDiff = self.getDragerror()
         dragOK = tmp <= dragDiff
-        if dragOK :
-            for i in self.obs :
-                tmp = abs(self.motor.read() - i.read())
+        if dragOK:
+            for i in self._adevs['obs']:
+                tmp = abs(self._adevs['motor'].read() - i.read())
                 dragOK = dragOK and (tmp <= dragDiff)
-        if not dragOK :
+        if not dragOK:
             self.__error = 1
         return dragOK
 
     def __checkTargetPosition(self, target, pos, error = 2):
         tmp = abs(pos - target)
         posOK = tmp <= self.getPrecision()
-        if posOK :
-            for i in self.obs :
+        if posOK:
+            for i in self._adevs['obs']:
                 tmp = abs(target - i.read())
                 posOK = posOK and (tmp <= self.getDragerror())
-        if not posOK :
+        if not posOK:
             self.__error = error
         return posOK
 
@@ -315,12 +315,12 @@ class Axis(Moveable):
         maxtries = self.getMaxtries()
         self.__lastPosition = self.read()
         __target = target + self.__offset
-        self.motor.start(__target)
+        self._adevs['motor'].start(__target)
         moving = True
 
         while moving:
             if self.__stopRequest == 1:
-                self.motor.stop()
+                self._adevs['motor'].stop()
                 self.__stopRequest = 2
                 continue
             time.sleep(self.getLoopdelay())
@@ -333,7 +333,8 @@ class Axis(Moveable):
                 # drag error (motor != coder)
                 # distance to target will be greater
                 self.__stopRequest = 1
-            elif self.motor.status() != status.BUSY:             # motor stopped
+            elif self._adevs['motor'].status() != status.BUSY:
+                # motor stopped
                 if self.__stopRequest == 2 or \
                        self.__checkTargetPosition(__target, pos):
                     # manual stop or target reached
@@ -341,8 +342,8 @@ class Axis(Moveable):
                 elif maxtries > 0:
                     # target not reached, get the current position,
                     # sets the motor to this position and restart it
-                    self.motor.setPosition(pos)
-                    self.motor.start(__target)
+                    self._adevs['motor'].setPosition(pos)
+                    self._adevs['motor'].start(__target)
                     maxtries -= 1
                 else:
                     moving = False

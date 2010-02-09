@@ -32,8 +32,8 @@
 name = 'system setup'
 
 devices = dict(
-    logger = device('nicm.history.LogfileHistory',
-                    basefilename = 'log/'),
+    histlogger = device('nicm.history.LogfileHistory',
+                        basefilename = 'log/'),
 
     localhistory = device('nicm.history.LocalHistory'),
 
@@ -42,8 +42,11 @@ devices = dict(
                        prefix = 'nicos/test/',
                        ),
 
+    Logging = device('nicm.system.Logging'),
+
     System = device('nicm.system.System',
                     autocreate = True,
+                    logging = 'Logging',
                     histories = ['localhistory', 'sphistory'],
                     ),
 

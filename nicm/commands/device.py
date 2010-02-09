@@ -36,7 +36,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from nicm import nicos
-from nicm.device import Configurable, Startable, Moveable, Readable
+from nicm.device import Device, Startable, Moveable, Readable
 from nicm.errors import NicmError, UsageError
 from nicm.status import statuses
 from nicm.utils import print_table
@@ -206,14 +206,14 @@ def release(*devlist):
 
 def version(dev):
     """List version info of the device."""
-    dev = nicos.get_device(dev, Configurable)
+    dev = nicos.get_device(dev, Device)
     versions = dev.version()
     printinfo('Relevant versions for this device:')
     print_table(('module/component', 'version'), versions, printinfo)
 
 def listparams(dev):
     """List all parameters of the device."""
-    dev = nicos.get_device(dev, Configurable)
+    dev = nicos.get_device(dev, Device)
     printinfo('Parameters of device %s:' % dev)
     items = []
     for name, info in sorted(dev.parameters.iteritems()):

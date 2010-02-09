@@ -37,11 +37,11 @@ __version__ = "$Revision$"
 
 import time
 
-from nicm.device import Configurable
+from nicm.device import Device
 from nicm.scratchpad import ScratchPadConnection
 
 
-class History(Configurable):
+class History(Device):
     """
     History manager base class.
     """
