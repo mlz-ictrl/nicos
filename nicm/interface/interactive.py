@@ -49,6 +49,18 @@ from nicm.interface import NICOS
 from nicm.loggers import ColoredConsoleHandler, OUTPUT, INPUT
 
 
+class NicmCompleter(rlcompleter.Completer):
+    """
+    This is a Completer subclass that doesn't show private attributes when
+    completing attribute access.
+    """
+
+    def attr_matches(self, text):
+        matches = rlcompleter.Completer.attr_matches(self, text)
+        textlen = len(text)
+        return [m for m in matches if not m[textlen:].startswith(('_', 'do'))]
+
+
 class NicmInteractiveConsole(code.InteractiveConsole):
     """
     This class provides a console similar to the standard Python interactive
@@ -61,7 +73,7 @@ class NicmInteractiveConsole(code.InteractiveConsole):
         self.log = nicos.log
         code.InteractiveConsole.__init__(self, locals)
         readline.parse_and_bind('tab: complete')
-        readline.set_completer(rlcompleter.Completer(self.locals).complete)
+        readline.set_completer(NicmCompleter(self.locals).complete)
         readline.set_history_length(10000)
         self.histfile = os.path.expanduser('~/.nicmhistory')
         if os.path.isfile(self.histfile):

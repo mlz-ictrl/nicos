@@ -46,7 +46,7 @@ from nicm.commands.output import printinfo, printexception
 
 __commands__ = [
     'NicmSetup', 'NicmAddSetup', 'NicmFactory', 'NicmDestroy',
-    'NicmPrint', 'NicmExport', 'listcommands', 'help', #'dir',
+    'NicmPrint', 'NicmExport', 'listcommands', 'help', 'dir',
 ]
 
 
@@ -71,8 +71,9 @@ def help(obj=None):
 
 def dir(obj=None):
     if obj is None:
-        return __builtin__.dir()
-    return [name for name in __builtin__.dir(obj) if not name.startswith('_')]
+        return __builtin__.__orig_dir()
+    return [name for name in __builtin__.__orig_dir(obj)
+            if not name.startswith(('_', 'do'))]
 
 
 # -- other basic commands ------------------------------------------------------
