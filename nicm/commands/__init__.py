@@ -52,6 +52,7 @@ def import_all_commands(module):
 import_all_commands('nicm.commands.basic')
 import_all_commands('nicm.commands.device')
 import_all_commands('nicm.commands.output')
+import_all_commands('nicm.commands.scan')
 
 
 def user_command(func):

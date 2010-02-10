@@ -32,14 +32,19 @@
 name = 'test system setup'
 
 devices = dict(
-    localhistory = device(
+    LocalHistory = device(
         'nicm.history.LocalHistory',
     ),
 
-    System = device(
-        'nicm.system.System',
-        autocreate = True,
-        histories = ['localhistory'],
+    Logging = device(
+        'nicm.system.Logging',
+        logpath = '.',
+    ),
+
+    Storage = device(
+        'nicm.data.Storage',
+        datapath = '.',
+        sinks = [],
     ),
 
     User = device(
@@ -47,4 +52,14 @@ devices = dict(
         autocreate = True,
         username = 'Max User',
     ),
+
+    System = device(
+        'nicm.system.System',
+        autocreate = True,
+        logging = 'Logging',
+        storage = 'Storage',
+        user = 'User',
+        histories = ['LocalHistory'],
+    ),
+
 )

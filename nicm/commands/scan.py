@@ -4,7 +4,7 @@
 #   $Id$
 #
 # Description:
-#   NICOS System device
+#   Scan commands for NICOS
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
@@ -29,56 +29,30 @@
 #
 # *****************************************************************************
 
-"""
-NICOS system device.
-"""
+"""Scan commands for NICOS."""
 
 __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+from nicm import nicos
+from nicm.scan import Scan
 
-from nicm.data import Storage
-from nicm.device import Device
-
-
-class Logging(Device):
-    """A special device to configure logging."""
-
-    parameters = {
-        'logpath': ('', True, 'Path for logfiles.'),
-    }
+__commands__ = ['sscan', 'cscan']
 
 
-class User(Device):
-    """A special device that represents a user."""
-
-    parameters = {
-        'username': ('', True, 'User name.'),
-        'affiliation': ('FRM II', False, 'User affiliation.'),
-    }
-
-    def __repr__(self):
-        return '<User "%s">' % self.getUsername()
+def sscan(dev, start, step, numsteps, preset=None, det=None):
+    if det is None:
+        det = nicos.get_device('det')
+    values = [[start + i*step] for i in range(numsteps)]
+    scan = Scan([dev], values, det, preset)
+    scan.run()
 
 
-class System(Device):
-    """A special device that serves for global configuration of
-    the whole NICM system.
-    """
-
-    parameters = {
-        'histories': ([], False, 'Global history managers for all devices.'),
-    }
-
-    attached_devices = {
-        'logging': Logging,
-        'user': User,
-        'storage': Storage,
-    }
-
-    def __repr__(self):
-        return '<NICM System>'
-
-    def getStorage(self):
-        return self._adevs['storage']
+def cscan(dev, center, step, numperside, preset=None, det=None):
+    if det is None:
+        det = nicos.get_device('det')
+    start = center - numperside * step
+    values = [[start + i*step] for i in range(numperside*2 + 1)]
+    scan = Scan([dev], values, det, preset)
+    scan.run()

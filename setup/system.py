@@ -42,15 +42,31 @@ devices = dict(
                        prefix = 'nicos/test/',
                        ),
 
-    Logging = device('nicm.system.Logging'),
-
-    System = device('nicm.system.System',
-                    autocreate = True,
-                    logging = 'Logging',
-                    histories = ['localhistory', 'sphistory'],
-                    ),
+    Logging = device('nicm.system.Logging',
+                     logpath = '.',
+                     ),
 
     User = device('nicm.system.User',
                   autocreate = True,
                   username = 'Max User'),
+
+    filesink = device('nicm.data.DatafileSink',
+                      prefix = 'data'),
+
+    consolesink = device('nicm.data.ConsoleSink',
+                         ),
+
+    Data = device('nicm.data.Storage',
+                  autocreate = True,
+                  datapath = 'data/',
+                  sinks = ['consolesink', 'filesink'],
+                  ),
+
+    System = device('nicm.system.System',
+                    autocreate = True,
+                    logging = 'Logging',
+                    user = 'User',
+                    storage = 'Data',
+                    histories = ['localhistory', 'sphistory'],
+                    ),
 )
