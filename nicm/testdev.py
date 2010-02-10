@@ -36,11 +36,13 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import time
+import random
 import threading
 
 from nicm import nicos, status
 from nicm.motor import Motor
 from nicm.coder import Coder
+from nicm.device import Countable
 
 
 class VirtualMotor(Motor):
@@ -100,3 +102,36 @@ class VirtualCoder(Coder):
 
     def doStatus(self):
         return status.OK
+
+
+class VirtualDetector(Countable):
+    parameters = {
+        'countrate': (1000, False, 'The average countrate.'),
+    }
+
+    def doInit(self):
+        self.__preset = 0
+
+    def doRead(self):
+        # return virtual counts with a gaussian probability distribution
+        counts = self.__preset * self._params['countrate']
+        return int(abs(random.normalvariate(counts, 0.5 * counts)))
+
+    def doStart(self, preset):
+        if preset is not None:
+            self.__preset = preset
+
+    def doStop(self):
+        pass
+
+    def doResume(self):
+        pass
+
+    def doClear(self):
+        pass
+
+    def doWait(self):
+        pass
+
+    def doSetPreset(self, value):
+        self.__preset = value

@@ -69,7 +69,7 @@ class MoveError(NicmError):
 class LimitError(NicmError):
     category = 'Out of bounds'
 
-class FixedError(LimitError):
+class FixedError(NicmError):
     category = 'Device fixed'
 
 class CommunicationError(NicmError):

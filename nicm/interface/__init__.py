@@ -141,7 +141,7 @@ class NICOS(object):
         """Load a setup module and set up devices accordingly."""
         if not self.__setup_info:
             self.__read_setups()
-        
+
         log = self.get_logger('setup')
         if setupname in self.loaded_setups:
             log.warning('setup %s is already loaded' % setupname)

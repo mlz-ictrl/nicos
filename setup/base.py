@@ -77,10 +77,13 @@ devices = dict(
 
     Power = device('taco.analog.Input',
                    description = 'FRM II reactor power',
-                   autocreate = True,
+                   #autocreate = True,
                    tacodevice = '//tacodb/frm2/reactor/power',
                    fmtstr = '%.1f',
                    unit = 'MW'),
+
+    det = device('nicm.testdev.VirtualDetector',
+                 autocreate=True),
 )
 
 startupcode = '''

@@ -79,7 +79,7 @@ class Device(object):
             if aname not in config:
                 raise ConfigurationError(
                     self, 'device misses device %r in configuration' % aname)
-            value = config.pop(aname)
+            value = config[aname]
             if value is None:
                 self._adevs[aname] = None
                 continue
@@ -150,6 +150,7 @@ class Device(object):
             setattr(self, 'set' + param.title(), setter)
 
         # initialize some standard parameters
+        self._params['name'] = name
         if not self._params['description']:
             self._params['description'] = name
         # set loglevel (also checks validity explicitly)
@@ -502,6 +503,10 @@ class Countable(Startable):
     """
     Base class for all counters.
     """
+
+    parameters = {
+        'unit': ('counts', False, 'Unit of the device main value.'),
+    }
 
     def start(self, preset=None):
         """Start the counter.  If *preset* is None, use the current
