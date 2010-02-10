@@ -44,11 +44,11 @@ axis = None
 
 def setup_module():
     global axis
-    nicos.load_setup('axis')
-    axis = nicos.get_device('axis')
+    nicos.loadSetup('axis')
+    axis = nicos.getDevice('axis')
 
 def teardown_module():
-    nicos.unload_setup()
+    nicos.unloadSetup()
 
 def test_params():
     # min/max parameters got from motor device

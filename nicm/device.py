@@ -39,7 +39,7 @@ import time
 
 from nicm import nicos
 from nicm import status, loggers
-from nicm.utils import MergedAttrsMeta, get_versions
+from nicm.utils import MergedAttrsMeta, getVersions
 from nicm.errors import ConfigurationError, ProgrammingError, UsageError, \
      LimitError, FixedError
 
@@ -70,7 +70,7 @@ class Device(object):
         self._adevs = {}
 
         # initialize a logger for the device
-        self._log = nicos.get_logger(name)
+        self._log = nicos.getLogger(name)
         for mn in ('debug', 'notice', 'info', 'warning', 'error', 'exception'):
             setattr(self, 'print' + mn, getattr(self._log, mn))
 
@@ -88,14 +88,14 @@ class Device(object):
                 devlist = []
                 self._adevs[aname] = devlist
                 for i, devname in enumerate(value):
-                    dev = nicos.create_device(devname)
+                    dev = nicos.createDevice(devname)
                     if not isinstance(dev, cls):
                         raise ConfigurationError(
                             self, '%s: device %r item %d has wrong type' %
                             (aname, i))
                     devlist.append(dev)
             else:
-                dev = nicos.create_device(value)
+                dev = nicos.createDevice(value)
                 if not isinstance(dev, cls):
                     raise ConfigurationError(
                         self, '%s: device %r has wrong type' % aname)
@@ -198,13 +198,13 @@ class Device(object):
             self.doInit()
 
     def shutdown(self):
-        """Shut down the object; called from destroy_device()."""
+        """Shut down the object; called from NICOS.destroyDevice()."""
         if hasattr(self, 'doShutdown'):
             self.doShutdown()
 
     def version(self):
         """Return a list of versions for this component."""
-        versions = get_versions(self)
+        versions = getVersions(self)
         if hasattr(self, 'doVersion'):
             versions.extend(self.doVersion())
         return versions
@@ -225,9 +225,9 @@ class Readable(Device):
         Device.__init__(self, name, config)
         from nicm.history import History
         self.__histories = []
-        histnames = self.getHistories() + nicos.get_system_device().getHistories()
+        histnames = self.getHistories() + nicos.getSystem().getHistories()
         for histname in histnames:
-            self.__histories.append(nicos.get_device(histname, History))
+            self.__histories.append(nicos.getDevice(histname, History))
 
     def __call__(self, value=None):
         """Allow dev() as shortcut for read."""

@@ -60,10 +60,10 @@ class TestLogHandler(Handler):
 class TestNICOS(NICOS):
     def __init__(self):
         NICOS.__init__(self)
-        self.set_setup_path(path.join(path.dirname(__file__), 'setup'))
+        self.setSetupPath(path.join(path.dirname(__file__), 'setup'))
 
-    def _init_logging(self):
-        loggers.init_loggers()
+    def _initLogging(self):
+        loggers.initLoggers()
         self._loggers = {}
         self._log_manager = Manager(None)
         # don't log to a logfile

@@ -76,7 +76,7 @@ class MergedAttrsMeta(type):
         return newtype
 
 
-def format_docstring(s, indentation=''):
+def formatDocstring(s, indentation=''):
     """Format a docstring for display on the console."""
     lines = s.expandtabs().splitlines()
     # Find minimum indentation of any non-blank lines after first line.
@@ -102,7 +102,7 @@ def format_docstring(s, indentation=''):
     return '\n'.join(lines)
 
 
-def print_table(headers, items, printfunc):
+def printTable(headers, items, printfunc):
     """Print tabular information nicely formatted."""
     if not headers and not items:
         return
@@ -118,7 +118,7 @@ def print_table(headers, items, printfunc):
         printfunc(fmtstr % tuple(row))
 
 
-def get_versions(object):
+def getVersions(object):
     """Return SVN Revision info for all modules where one of the object's
     class and base classes are in.
     """

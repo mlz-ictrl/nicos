@@ -43,19 +43,19 @@ from nicm.commands.output import printerror, printexception
 
 __commands__ = []
 
-def import_all_commands(module):
+def importAllCommands(module):
     mod = __import__(module, None, None, ['__commands__'])
     for command in mod.__commands__:
         __commands__.append(command)
         globals()[command] = getattr(mod, command)
 
-import_all_commands('nicm.commands.basic')
-import_all_commands('nicm.commands.device')
-import_all_commands('nicm.commands.output')
-import_all_commands('nicm.commands.scan')
+importAllCommands('nicm.commands.basic')
+importAllCommands('nicm.commands.device')
+importAllCommands('nicm.commands.output')
+importAllCommands('nicm.commands.scan')
 
 
-def user_command(func):
+def userCommand(func):
     """Decorator that registers a function as a user command."""
     @wraps(func)
     def wrapped(*args, **kwds):

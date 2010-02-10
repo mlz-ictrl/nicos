@@ -77,7 +77,7 @@ class DatafileSink(DataSink):
     }
 
     def doInit(self):
-        self._path = nicos.get_system_device().getStorage().getDatapath()
+        self._path = nicos.getSystem().getStorage().getDatapath()
         self._file = None
         self._counter = 0
         self.doSetPrefix(self._params['prefix'])

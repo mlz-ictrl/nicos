@@ -48,11 +48,11 @@ methods_called = set()
 
 def setup_module():
     global axis
-    nicos.load_setup('device')
+    nicos.loadSetup('device')
     methods_called.clear()
 
 def teardown_module():
-    nicos.unload_setup()
+    nicos.unloadSetup()
 
 
 class Dev1(Device):
@@ -108,7 +108,7 @@ class Dev2(Moveable):
 
 
 def test_params():
-    dev2 = nicos.get_device('dev2_1')
+    dev2 = nicos.getDevice('dev2_1')
     # make sure adev instances are created
     assert isinstance(dev2._adevs['attached'], Dev1)
     # an inherited and writable parameter
@@ -123,10 +123,10 @@ def test_params():
     dev2.setParam2(5)
     assert dev2.getParam2() == 7
     # Dev2 instance without adev
-    assert raises(ConfigurationError, nicos.get_device, 'dev2_2')
+    assert raises(ConfigurationError, nicos.getDevice, 'dev2_2')
 
 def test_methods():
-    dev2 = nicos.get_device('dev2_3')
+    dev2 = nicos.getDevice('dev2_3')
     assert 'doInit' in methods_called
     dev2.move(10)
     assert 'doStart' in methods_called

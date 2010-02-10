@@ -83,20 +83,20 @@ class NICOS(object):
         self.__system_device = None
 
         # set up logging interface
-        self._init_logging()
-        self.log = self.get_logger('nicos')
+        self._initLogging()
+        self.log = self.getLogger('nicos')
 
-    def set_namespace(self, ns):
+    def setNamespace(self, ns):
         """Set the namespace to export commands and devices into."""
         self.__namespace = ns
         self.__exported_names = set()
 
-    def set_setup_path(self, path):
+    def setSetupPath(self, path):
         """Set the path to the setup files."""
         self.__setup_path = path
-        self.__read_setups()
+        self.__readSetups()
 
-    def __read_setups(self):
+    def __readSetups(self):
         """Read information of all existing setups.
 
         Setup modules are looked for in the setup/ directory which
@@ -137,12 +137,12 @@ class NICOS(object):
                     raise ConfigurationError('Setup %s includes setup %s which '
                                              'does not exist' % (name, include))
 
-    def load_setup(self, setupname):
+    def loadSetup(self, setupname):
         """Load a setup module and set up devices accordingly."""
         if not self.__setup_info:
-            self.__read_setups()
+            self.__readSetups()
 
-        log = self.get_logger('setup')
+        log = self.getLogger('setup')
         if setupname in self.loaded_setups:
             log.warning('setup %s is already loaded' % setupname)
             return
@@ -151,7 +151,7 @@ class NICOS(object):
 
         log.info('loading setup %s' % setupname)
 
-        from nicm.commands import user_command
+        from nicm.commands import userCommand
         failed_devs = []
 
         def load_module(modname):
@@ -167,7 +167,7 @@ class NICOS(object):
                 return
             if hasattr(mod, '__commands__'):
                 for cmdname in mod.__commands__:
-                    self.export(cmdname, user_command(getattr(mod, cmdname)))
+                    self.export(cmdname, userCommand(getattr(mod, cmdname)))
             log.info('done')
 
         def inner_load(name):
@@ -193,7 +193,7 @@ class NICOS(object):
                     continue
                 log.info('creating device %r... ' % devname, nonl=1)
                 try:
-                    self.create_device(devname, explicit=True)
+                    self.createDevice(devname, explicit=True)
                     log.info('done')
                 except Exception, err:
                     log.info('failed')
@@ -215,7 +215,7 @@ class NICOS(object):
         sys.ps1 = '(%s)>>> ' % '+'.join(self.explicit_setups)
         log.info('setup loaded')
 
-    def unload_setup(self):
+    def unloadSetup(self):
         """Unload the current setup: destroy all devices and clear the
         NICOS namespace.
         """
@@ -245,26 +245,26 @@ class NICOS(object):
         del self.__namespace[name]
         self.__exported_names.remove(name)
 
-    def get_exported_objects(self):
+    def getExportedObjects(self):
         for name in self.__exported_names:
             if name in self.__namespace:
                 yield self.__namespace[name]
 
     # -- Device control --------------------------------------------------------
 
-    def get_system_device(self):
+    def getSystem(self):
         if self.__system_device is None:
             from nicm.system import System
-            self.__system_device = self.get_device('System', System)
+            self.__system_device = self.getDevice('System', System)
         return self.__system_device
 
-    def get_device(self, dev, cls=None):
+    def getDevice(self, dev, cls=None):
         """Convenience: get a device by name or instance."""
         if isinstance(dev, str):
             if dev in self.devices:
                 dev = self.devices[dev]
             elif dev in self.configured_devices:
-                dev = self.create_device(dev)
+                dev = self.createDevice(dev)
             else:
                 raise UsageError('device %r not found in configuration' % dev)
         from nicm.device import Device
@@ -272,7 +272,7 @@ class NICOS(object):
             raise UsageError('dev must be a %s' % (cls or Device).__name__)
         return dev
 
-    def create_device(self, devname, recreate=False, explicit=False):
+    def createDevice(self, devname, recreate=False, explicit=False):
         """Create device given by a device name.
 
         If device exists and *recreate* is true, destroy and create it again.
@@ -285,7 +285,7 @@ class NICOS(object):
         if devname in self.devices:
             if not recreate:
                 return self.devices[devname]
-            self.destroy_device(devname)
+            self.destroyDevice(devname)
         devclsname, devconfig = self.configured_devices[devname]
         modname, clsname = devclsname.rsplit('.', 1)
         devcls = getattr(__import__(modname, None, None, [clsname]),
@@ -302,7 +302,7 @@ class NICOS(object):
             dev.printexception('error executing init()')
         return dev
 
-    def destroy_device(self, devname):
+    def destroyDevice(self, devname):
         """Shutdown and destroy a device."""
         if devname not in self.devices:
             raise UsageError('device %r not created' % devname)
@@ -314,15 +314,15 @@ class NICOS(object):
 
     # -- Logging ---------------------------------------------------------------
 
-    def _init_logging(self):
-        loggers.init_loggers()
+    def _initLogging(self):
+        loggers.initLoggers()
         self._loggers = {}
         self._log_manager = logging.Manager(None)
         # all interfaces should log to a logfile; more handlers can be
         # added by subclasses
         self._log_handlers = [loggers.NicmLogfileHandler()]
 
-    def get_logger(self, name):
+    def getLogger(self, name):
         if name in self._loggers:
             return self._loggers[name]
         logger = self._log_manager.getLogger(name)
@@ -333,7 +333,7 @@ class NICOS(object):
         self._loggers[name] = logger
         return logger
 
-    def log_unhandled_exception(self, exc_info):
+    def logUnhandledException(self, exc_info):
         """Log and unhandled exception.  Log using the originating device's
         logger, if that information is available.
         """

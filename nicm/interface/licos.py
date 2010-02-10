@@ -79,10 +79,10 @@ class LicosNICOS(NICOS):
         NICOS.__init__(self)
         licos_interface.licos_set_logger(self.log)
         licos_interface.licos_set_unhandled_exception_callback(
-            self.log_unhandled_exception)
+            self.logUnhandledException)
 
-    def _init_logging(self):
-        NICOS._init_logging(self)
+    def _initLogging(self):
+        NICOS._initLogging(self)
         self._log_handlers.append(licos_interface.licos_get_loghandler())
         sys.displayhook = self.__displayhook
         sys.stdout = LoggingStdout(self, sys.stdout)
@@ -99,7 +99,7 @@ def start():
 
     # NICOS user commands and devices will be placed in the globals of the
     # execution frame that first imports this module.
-    nicm.nicos.set_namespace(sys._getframe(1).f_globals)
+    nicm.nicos.setNamespace(sys._getframe(1).f_globals)
 
     # Create the initial instrument setup.
-    nicm.nicos.load_setup('startup')
+    nicm.nicos.loadSetup('startup')

@@ -224,7 +224,7 @@ class NicmLogfileHandler(BaseRotatingHandler):
         self.rollover_at += SECONDS_PER_DAY
 
 
-def init_loggers():
+def initLoggers():
     setLoggerClass(NicmLogger)
     addLevelName(NOTICE, 'NOTICE')
     addLevelName(OUTPUT, 'OUTPUT')

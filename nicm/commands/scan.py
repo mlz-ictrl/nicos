@@ -43,7 +43,7 @@ __commands__ = ['sscan', 'cscan']
 
 def sscan(dev, start, step, numsteps, preset=None, det=None):
     if det is None:
-        det = nicos.get_device('det')
+        det = nicos.getDevice('det')
     values = [[start + i*step] for i in range(numsteps)]
     scan = Scan([dev], values, det, preset)
     scan.run()
@@ -51,7 +51,7 @@ def sscan(dev, start, step, numsteps, preset=None, det=None):
 
 def cscan(dev, center, step, numperside, preset=None, det=None):
     if det is None:
-        det = nicos.get_device('det')
+        det = nicos.getDevice('det')
     start = center - numperside * step
     values = [[start + i*step] for i in range(numperside*2 + 1)]
     scan = Scan([dev], values, det, preset)

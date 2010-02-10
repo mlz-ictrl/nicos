@@ -39,7 +39,7 @@ from nicm import nicos
 from nicm.device import Device, Startable, Moveable, Readable
 from nicm.errors import NicmError, UsageError
 from nicm.status import statuses
-from nicm.utils import print_table
+from nicm.utils import printTable
 
 from nicm.commands.output import printinfo, printexception
 
@@ -59,7 +59,7 @@ def _devposlist(dev_pos_list):
         raise UsageError('a position must be given for every device')
     for i in range(len(dev_pos_list)):
         if i % 2 == 0:
-            devlist.append(nicos.get_device(dev_pos_list[i], Moveable))
+            devlist.append(nicos.getDevice(dev_pos_list[i], Moveable))
             poslist.append(dev_pos_list[i+1])
     return zip(devlist, poslist)
 
@@ -109,7 +109,7 @@ def wait(*devlist):
         devlist = [nicos.devices[devname] for devname in nicos.explicit_devices
                    if isinstance(nicos.devices[devname], Startable)]
     for dev in devlist:
-        dev = nicos.get_device(dev, Startable)
+        dev = nicos.getDevice(dev, Startable)
         printinfo('waiting for', dev)
         dev.wait()
         read(dev)
@@ -122,7 +122,7 @@ def read(*devlist):
         devlist = [nicos.devices[devname] for devname in nicos.explicit_devices
                    if isinstance(nicos.devices[devname], Readable)]
     for dev in devlist:
-        dev = nicos.get_device(dev, Readable)
+        dev = nicos.getDevice(dev, Readable)
         try:
             value = dev.read()
         except NicmError:
@@ -140,7 +140,7 @@ def status(*devlist):
         devlist = [nicos.devices[devname] for devname in nicos.explicit_devices
                    if isinstance(nicos.devices[devname], Readable)]
     for dev in devlist:
-        dev = nicos.get_device(dev, Readable)
+        dev = nicos.getDevice(dev, Readable)
         try:
             status = dev.status()
         except NicmError:
@@ -157,20 +157,20 @@ def stop(*devlist):
         devlist = [nicos.devices[devname] for devname in nicos.explicit_devices
                    if isinstance(nicos.devices[devname], Startable)]
     for dev in devlist:
-        dev = nicos.get_device(dev, Startable)
+        dev = nicos.getDevice(dev, Startable)
         dev.stop()
         printinfo('stopped', dev)
 
 def reset(dev):
     """Reset the given device."""
-    dev = nicos.get_device(dev, Readable)
+    dev = nicos.getDevice(dev, Readable)
     status = dev.reset()
     status = statuses.get(status, str(status))
     printinfo('%-15s reset, status is now: %s' % (dev, status))
 
 def count(preset=None):
     """Count for the given preset (can be seconds or monitor counts)."""
-    det = nicos.get_device('det')
+    det = nicos.getDevice('det')
     if preset is not None:
         det._preset(preset)
     det.start()
@@ -179,11 +179,11 @@ def count(preset=None):
 
 def set(dev, parameter, value):
     """Set a the parameter of the device to a new value."""
-    nicos.get_device(dev).setPar(parameter, value)
+    nicos.getDevice(dev).setPar(parameter, value)
 
 def get(dev, parameter):
     """Return the value of a parameter of the device."""
-    value = nicos.get_device(dev).getPar(parameter)
+    value = nicos.getDevice(dev).getPar(parameter)
     printinfo('parameter %s of device %s: %s' % (parameter, dev, value))
 
 def fix(*devlist):
@@ -191,7 +191,7 @@ def fix(*devlist):
     if not devlist:
         raise UsageError('at least one device argument is required')
     for dev in devlist:
-        dev = nicos.get_device(dev, Startable)
+        dev = nicos.getDevice(dev, Startable)
         dev.fix()
         printinfo('fixed', dev)
 
@@ -200,20 +200,20 @@ def release(*devlist):
     if not devlist:
         raise UsageError('at least one device argument is required')
     for dev in devlist:
-        dev = nicos.get_device(dev, Startable)
+        dev = nicos.getDevice(dev, Startable)
         dev.release()
         printinfo('released', dev)
 
 def version(dev):
     """List version info of the device."""
-    dev = nicos.get_device(dev, Device)
+    dev = nicos.getDevice(dev, Device)
     versions = dev.version()
     printinfo('Relevant versions for this device:')
-    print_table(('module/component', 'version'), versions, printinfo)
+    printTable(('module/component', 'version'), versions, printinfo)
 
 def listparams(dev):
     """List all parameters of the device."""
-    dev = nicos.get_device(dev, Device)
+    dev = nicos.getDevice(dev, Device)
     printinfo('Parameters of device %s:' % dev)
     items = []
     for name, info in sorted(dev.parameters.iteritems()):
@@ -222,7 +222,7 @@ def listparams(dev):
         except Exception:
             value = '<could not get value>'
         items.append((name, str(value), info[2]))
-    print_table(('name', 'value', 'description'), items, printinfo)
+    printTable(('name', 'value', 'description'), items, printinfo)
 
 def listdevices():
     """List all currently created devices."""
@@ -232,4 +232,4 @@ def listdevices():
         dev = nicos.devices[devname]
         items.append((dev.getPar('name'), dev.__class__.__name__,
                       dev.getPar('description')))
-    print_table(('name', 'type', 'description'), items, printinfo)
+    printTable(('name', 'type', 'description'), items, printinfo)

@@ -40,7 +40,7 @@ import __builtin__
 
 from nicm import nicos
 from nicm.device import Device
-from nicm.utils import format_docstring, print_table
+from nicm.utils import formatDocstring, printTable
 
 from nicm.commands.output import printinfo, printexception
 
@@ -67,7 +67,7 @@ def help(obj=None):
         real_func = getattr(obj, 'real_func', obj)
         argspec = inspect.formatargspec(*inspect.getargspec(real_func))
         printinfo('Usage: ' + real_func.__name__ + argspec)
-        printinfo(format_docstring(real_func.__doc__ or '', '   '))
+        printinfo(formatDocstring(real_func.__doc__ or '', '   '))
 
 def dir(obj=None):
     if obj is None:
@@ -79,16 +79,16 @@ def dir(obj=None):
 
 def NicmSetup(setupname):
     """Load the given setup instead of the current one."""
-    nicos.unload_setup()
+    nicos.unloadSetup()
     try:
-        nicos.load_setup(setupname)
+        nicos.loadSetup(setupname)
     except Exception:
         printexception()
-        nicos.load_setup('startup')
+        nicos.loadSetup('startup')
 
 def NicmAddSetup(setupname):
     """Load the given setup additional to the current one."""
-    nicos.load_setup(setupname)
+    nicos.loadSetup(setupname)
 
 def NicmExport(name, object):
     """Export the given object into the NICOS namespace."""
@@ -97,12 +97,12 @@ def NicmExport(name, object):
 def NicmFactory(*devnames):
     """Create all given devices."""
     for devname in devnames:
-        nicos.create_device(devname, explicit=True)
+        nicos.createDevice(devname, explicit=True)
 
 def NicmDestroy(*devnames):
     """Destroy all given devices."""
     for devname in devnames:
-        nicos.destroy_device(devname)
+        nicos.destroyDevice(devname)
 
 def NicmPrint(pm, text):
     printinfo(text)
@@ -110,7 +110,7 @@ def NicmPrint(pm, text):
 def listcommands():
     printinfo('Available commands:')
     items = []
-    for obj in nicos.get_exported_objects():
+    for obj in nicos.getExportedObjects():
         if hasattr(obj, 'is_usercommand'):
             real_func = getattr(obj, 'real_func', obj)
             argspec = inspect.formatargspec(*inspect.getargspec(real_func))
@@ -118,4 +118,4 @@ def listcommands():
             items.append((real_func.__name__ + argspec,
                           docstring.splitlines()[0]))
     items.sort()
-    print_table(('name', 'description'), items, printinfo)
+    printTable(('name', 'description'), items, printinfo)

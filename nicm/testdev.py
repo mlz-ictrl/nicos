@@ -93,7 +93,7 @@ class VirtualCoder(Coder):
 
     def doInit(self):
         if self.getMotor():
-            self._motor = nicos.get_device(self.getMotor())
+            self._motor = nicos.getDevice(self.getMotor())
         else:
             self._motor = None
 

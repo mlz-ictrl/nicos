@@ -95,7 +95,7 @@ class NicmInteractiveConsole(code.InteractiveConsole):
         try:
             exec codeobj in self.locals
         except Exception:
-            self.nicos.log_unhandled_exception(sys.exc_info())
+            self.nicos.logUnhandledException(sys.exc_info())
         else:
             if code.softspace(sys.stdout, 0):
                 print
@@ -108,8 +108,8 @@ class InteractiveNICOS(NICOS):
     an exception hook that reports unhandled exceptions via the logging system.
     """
 
-    def _init_logging(self):
-        NICOS._init_logging(self)
+    def _initLogging(self):
+        NICOS._initLogging(self)
         self._log_handlers.append(ColoredConsoleHandler())
         sys.displayhook = self.__displayhook
 
@@ -133,10 +133,10 @@ def start(setup='startup'):
     nicm.nicos.__init__()
 
     # Should not be necessary for the separate console.
-    #nicos.set_namespace(sys._getframe(1).f_globals)
+    #nicos.setNamespace(sys._getframe(1).f_globals)
 
     # Create the initial instrument setup.
-    nicm.nicos.load_setup(setup)
+    nicm.nicos.loadSetup(setup)
 
     # Fire up an interactive console.
     nicm.nicos.console()

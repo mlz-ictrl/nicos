@@ -50,7 +50,7 @@ class Scan(object):
         self.positions = positions
         self.detector = detector
         self.preset = preset
-        self.sinks = nicos.get_system_device().getStorage().getSinks(scantype)
+        self.sinks = nicos.getSystem().getStorage().getSinks(scantype)
 
     def beginScan(self):
         for sink in self.sinks:
