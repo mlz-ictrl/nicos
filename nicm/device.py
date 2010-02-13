@@ -91,14 +91,14 @@ class Device(object):
                     dev = nicos.createDevice(devname)
                     if not isinstance(dev, cls):
                         raise ConfigurationError(
-                            self, '%s: device %r item %d has wrong type' %
+                            self, 'device %r item %d has wrong type' %
                             (aname, i))
                     devlist.append(dev)
             else:
                 dev = nicos.createDevice(value)
                 if not isinstance(dev, cls):
                     raise ConfigurationError(
-                        self, '%s: device %r has wrong type' % aname)
+                        self, 'device %r has wrong type' % aname)
                 self._adevs[aname] = dev
 
         # make all parameter names lower-case
