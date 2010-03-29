@@ -1,12 +1,12 @@
 #  -*- coding: iso-8859-15 -*-
 # *****************************************************************************
 # Module:
-#   $Id$ 
-#              
+#   $Id$
+#
 # Description:
 #   NICOS TACO base classes
 #
-# Author:       
+# Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
@@ -56,7 +56,7 @@ class TacoDevice(object):
 
     i.e., put TacoDevice first in the base class list.
     """
-    
+
     parameters = {
         'tacodevice': ('', True, 'TACO device name.'),
         'tacotimeout': (0, False, 'TACO client network timeout (in seconds).'),

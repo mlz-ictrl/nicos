@@ -174,7 +174,7 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: normal;
     border-bottom: 1px solid #ccc
 }
-  
+
 h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
 h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
     margin-top: 0.4em;
@@ -318,7 +318,7 @@ dt tt, a tt {
     background-color: transparent;
     border-bottom: 0;
 }
-  
+
 table.citation {
   border-left: solid 1px gray;
   margin-left: 1px }

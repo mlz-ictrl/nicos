@@ -82,8 +82,14 @@ devices = dict(
                    fmtstr = '%.1f',
                    unit = 'MW'),
 
-    det = device('nicm.testdev.VirtualDetector',
-                 autocreate=True),
+    ctr1 = device('nicm.testdev.VirtualCounter',
+                  countrate = 1000),
+    ctr2 = device('nicm.testdev.VirtualCounter',
+                  countrate = 2000),
+
+    det = device('nicm.data.Detector',
+                 components = ['ctr1', 'ctr2'],
+                 autocreate = True),
 )
 
 startupcode = '''

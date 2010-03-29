@@ -35,23 +35,20 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from nicm import nicos
 from nicm.scan import Scan
 
 __commands__ = ['sscan', 'cscan']
 
 
 def sscan(dev, start, step, numsteps, preset=None, det=None):
-    if det is None:
-        det = nicos.getDevice('det')
     values = [[start + i*step] for i in range(numsteps)]
-    scan = Scan([dev], values, det, preset)
+    infostr = 'sscan(%s, %s, %s, %s, %s, %s)' % (dev, start, step, numsteps,
+                                                 preset, det)
+    scan = Scan([dev], values, det, preset, infostr)
     scan.run()
 
 
 def cscan(dev, center, step, numperside, preset=None, det=None):
-    if det is None:
-        det = nicos.getDevice('det')
     start = center - numperside * step
     values = [[start + i*step] for i in range(numperside*2 + 1)]
     scan = Scan([dev], values, det, preset)

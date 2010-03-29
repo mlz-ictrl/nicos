@@ -129,7 +129,7 @@ class TacoCountable(TacoDevice, Countable):
         except KeyError:
             raise ConfigurationError(self, 'mode %r invalid' % (value,))
         self._taco_guard(self._dev.setMode, newmode)
-            
+
 
 class Timer(TacoCountable):
     taco_class = IOTimer

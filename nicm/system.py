@@ -38,12 +38,12 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 
-from nicm.data import Storage
+from nicm.data import Storage, Detector
 from nicm.device import Device
 
 
 class Logging(Device):
-    """A special device to configure logging."""
+    """A special singleton device to configure logging."""
 
     parameters = {
         'logpath': ('', True, 'Path for logfiles.'),
@@ -51,7 +51,7 @@ class Logging(Device):
 
 
 class User(Device):
-    """A special device that represents a user."""
+    """A special singleton device that represents the user."""
 
     parameters = {
         'username': ('', True, 'User name.'),
@@ -61,9 +61,15 @@ class User(Device):
     def __repr__(self):
         return '<User "%s">' % self.getUsername()
 
+    def doSetUsername(self, value):
+        self._params['username'] = value
+
+    def doSetAffiliation(self, value):
+        self._params['affiliation'] = value
+
 
 class System(Device):
-    """A special device that serves for global configuration of
+    """A special singleton device that serves for global configuration of
     the whole NICM system.
     """
 
@@ -82,3 +88,6 @@ class System(Device):
 
     def getStorage(self):
         return self._adevs['storage']
+
+    def getUser(self):
+        return self._adevs['user']

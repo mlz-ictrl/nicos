@@ -296,14 +296,17 @@ class Axis(Moveable):
         return posOK
 
     def __positioningThread(self):
-        if not self._preMoveAction() :
+        if not self._preMoveAction():
             self.__error = 3
-        else :
+        else:
             self.__error = 0
-            for pos in self.__target + self.getBacklash(), self.__target:
-                self.__positioning(pos)
-                if self.__stopRequest == 2 or self.__error != 0:
-                   break
+            if self.getBacklash():
+                for pos in self.__target + self.getBacklash(), self.__target:
+                    self.__positioning(pos)
+                    if self.__stopRequest == 2 or self.__error != 0:
+                        break
+            else:
+                self.__positioning(self.__target)
             if not self._postMoveAction():
                 self.__error = 4
         if self.__locked:

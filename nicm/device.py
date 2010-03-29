@@ -197,6 +197,12 @@ class Device(object):
         if hasattr(self, 'doInit'):
             self.doInit()
 
+    def info(self):
+        """Return device information as an iterable of tuples (name, value)."""
+        if hasattr(self, 'doInfo'):
+            for item in self.doInfo():
+                yield item
+
     def shutdown(self):
         """Shut down the object; called from NICOS.destroyDevice()."""
         if hasattr(self, 'doShutdown'):
@@ -285,6 +291,15 @@ class Readable(Device):
             if hist is not None:
                 return hist
 
+    def info(self):
+        """Automatically add device main value and status (if not OK)."""
+        yield ('value', self.read())
+        value = self.status()
+        if value != status.OK:
+            yield ('status', status.statuses[value])
+        for item in Device.info(self):
+            yield item
+
     def doSetUnit(self, value):
         self._params['unit'] = value
 
@@ -294,7 +309,7 @@ class Readable(Device):
 
 class Startable(Readable):
     """
-    Common base class for Moveable, Switchable and Countable.
+    Common base class for Moveable, Switchable and Measurable.
 
     This is used for typechecking, e.g. when any device with a stop()
     method is required.
@@ -499,14 +514,40 @@ class Switchable(Startable):
         return self.__rswitchlist.get(pos, pos)
 
 
-class Countable(Startable):
+class Measurable(Startable):
     """
-    Base class for all counters.
+    Base class for devices used for data acquisition.
     """
 
     parameters = {
-        'unit': ('counts', False, 'Unit of the device main value.'),
+        'unit': ('', False, 'Unit of the device main value.'),
     }
+
+    def start(self):
+        """Start measurement."""
+        self.doStart()
+
+    def stop(self):
+        """Stop measurement now."""
+        self.doStop()
+
+    def wait(self):
+        """Wait for completion of measurement."""
+        self.doWait()
+
+    def read(self):
+        """Return the result of the last measurement."""
+        return self.doRead()
+
+    def getValueHeaders(self):
+        """Return two lists: list of value names and list of value units."""
+        return [], []
+
+
+class Countable(Measurable):
+    """
+    Base class for all counters.
+    """
 
     def start(self, preset=None):
         """Start the counter.  If *preset* is None, use the current
@@ -516,10 +557,6 @@ class Countable(Startable):
 
     count = start
 
-    def stop(self):
-        """Stop the counter."""
-        self.doStop()
-
     def resume(self):
         """Resume the counter."""
         self.doResume()
@@ -527,10 +564,6 @@ class Countable(Startable):
     def clear(self):
         """Clear the counter value."""
         self.doClear()
-
-    def wait(self):
-        """Wait until the counting is complete."""
-        self.doWait()
 
     def setPreset(self, value):
         """Set a new standard preset."""

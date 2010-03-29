@@ -104,7 +104,7 @@ class VirtualCoder(Coder):
         return status.OK
 
 
-class VirtualDetector(Countable):
+class VirtualCounter(Countable):
     parameters = {
         'countrate': (1000, False, 'The average countrate.'),
     }
@@ -112,10 +112,13 @@ class VirtualDetector(Countable):
     def doInit(self):
         self.__preset = 0
 
+    def getValueHeaders(self):
+        return [self.getName()], ['counts']
+
     def doRead(self):
         # return virtual counts with a gaussian probability distribution
         counts = self.__preset * self._params['countrate']
-        return int(abs(random.normalvariate(counts, 0.5 * counts)))
+        return [int(abs(random.normalvariate(counts, 0.5 * counts)))]
 
     def doStart(self, preset):
         if preset is not None:

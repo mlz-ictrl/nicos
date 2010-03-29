@@ -36,29 +36,45 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from nicm import nicos
+from nicm.device import Measurable
 from nicm.errors import NicmError, LimitError, FixedError
 from nicm.commands.output import printwarning
 
 
 class Scan(object):
     """
-    Represents a scan over some devices.
+    Represents a general scan over some devices with a specified detector.
     """
-    def __init__(self, devices, positions, detector, preset=None,
-                 scantype=None):
+
+    def __init__(self, devices, positions, detector=None, preset=None,
+                 scaninfo=None, scantype=None):
+        if detector is None:
+            # XXX better default?
+            detector = nicos.getDevice('det', Measurable)
         self.devices = devices
         self.positions = positions
-        self.detector = detector
+        self.detector = nicos.getDevice(detector, Measurable)
         self.preset = preset
+        self.scaninfo = scaninfo
         self.sinks = nicos.getSystem().getStorage().getSinks(scantype)
 
     def beginScan(self):
+        sinkinfo = []
         for sink in self.sinks:
-            sink.beginDataset(self.devices, self.detector, self.preset)
+            sinkinfo.extend(sink.prepareDataset())
+        for sink in self.sinks:
+            sink.beginDataset(self.devices, self.positions, self.detector,
+                              self.preset, self.scaninfo, sinkinfo)
+        # XXX add category, sort by that
+        category = ''
+        for name, device in sorted(nicos.devices.iteritems()):
+            values = device.info()
+            for sink in self.sinks:
+                sink.addInfo(category, name, values)
 
-    def addPoint(self, position, counts):
+    def addPoint(self, xvalues, yvalues):
         for sink in self.sinks:
-            sink.addPoint(position, counts)
+            sink.addPoint(xvalues, yvalues)
 
     def endScan(self):
         for sink in self.sinks:
@@ -86,12 +102,17 @@ class Scan(object):
         return True
 
     def run(self):
+        # move to first position before starting scan
+        can_measure = self.moveTo(self.devices, self.positions[0])
         self.beginScan()
         try:
-            for position in self.positions:
-                if self.moveTo(self.devices, position):
-                    self.detector.start(self.preset)
-                    self.detector.wait()
-                    self.addPoint(position, self.detector.read())
+            for i, position in enumerate(self.positions):
+                if i > 0:
+                    can_measure = self.moveTo(self.devices, position)
+                if not can_measure:
+                    continue
+                self.detector.start(self.preset)
+                self.detector.wait()
+                self.addPoint(position, self.detector.read())
         finally:
             self.endScan()

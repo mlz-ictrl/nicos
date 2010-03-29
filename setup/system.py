@@ -50,7 +50,7 @@ devices = dict(
                   autocreate = True,
                   username = 'Max User'),
 
-    filesink = device('nicm.data.DatafileSink',
+    filesink = device('nicm.data.AsciiDatafileSink',
                       prefix = 'data'),
 
     consolesink = device('nicm.data.ConsoleSink',
@@ -67,6 +67,6 @@ devices = dict(
                     logging = 'Logging',
                     user = 'User',
                     storage = 'Data',
-                    histories = ['localhistory', 'sphistory'],
+                    histories = ['localhistory'],
                     ),
 )
