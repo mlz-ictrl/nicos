@@ -266,6 +266,8 @@ class Axis(Moveable):
         tmp = abs(self._adevs['motor'].read() - self._adevs['coder'].read())
         # print 'Diff %.3f' % tmp
         dragDiff = self.getDragerror()
+        if dragDiff <= 0:
+            return True
         dragOK = tmp <= dragDiff
         if dragOK:
             for i in self._adevs['obs']:
@@ -277,11 +279,13 @@ class Axis(Moveable):
 
     def __checkTargetPosition(self, target, pos, error = 2):
         tmp = abs(pos - target)
+        dragDiff = self.getDragerror()
         posOK = tmp <= self.getPrecision()
         if posOK:
             for i in self._adevs['obs']:
                 tmp = abs(target - i.read())
-                posOK = posOK and (tmp <= self.getDragerror())
+                if dragDiff > 0:
+                    posOK = posOK and (tmp <= dragDiff)
         if not posOK:
             self.__error = error
         return posOK
