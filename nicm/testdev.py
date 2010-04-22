@@ -42,7 +42,7 @@ import threading
 from nicm import nicos, status
 from nicm.motor import Motor
 from nicm.coder import Coder
-from nicm.device import Countable
+from nicm.detector import FRMTimerChannel, FRMCounterChannel
 
 
 class VirtualMotor(Motor):
@@ -104,37 +104,73 @@ class VirtualCoder(Coder):
         return status.OK
 
 
-class VirtualCounter(Countable):
+class VirtualTimer(FRMTimerChannel):
     parameters = {
-        'countrate': (1000, False, 'The average countrate.'),
+        'tacodevice': ('', False, ''),
     }
 
     def doInit(self):
-        self.__preset = 0
+        self.__finish = False
 
-    def getValueHeaders(self):
-        return [self.getName()], ['counts']
+    def nothing(self):
+        pass
+    doPause = doResume = doStop = doReset = nothing
+
+    def doStart(self):
+        if self.getIsmaster():
+            self.__finish = False
+            threading.Thread(target=self.__thread).start()
+
+    def doIsCompleted(self):
+        return self.__finish
+
+    def __thread(self):
+        time.sleep(self._params['preselection'])
+        self.__finish = True
+
+    def doStatus(self):
+        return status.OK
 
     def doRead(self):
-        # return virtual counts with a gaussian probability distribution
-        counts = self.__preset * self._params['countrate']
-        return [int(abs(random.normalvariate(counts, 0.5 * counts)))]
+        if self._params['ismaster']:
+            return self._params['preselection']
+        return random.randint(0, 1000)
 
-    def doStart(self, preset):
-        if preset is not None:
-            self.__preset = preset
+    def doSetPreselection(self, value):
+        self._params['preselection'] = value
 
-    def doStop(self):
+    def doSetIsmaster(self, value):
+        value = bool(value)
+        self._params['ismaster'] = value
+
+    def doSetMode(self, value):
         pass
 
-    def doResume(self):
-        pass
 
-    def doClear(self):
-        pass
+class VirtualCounter(FRMCounterChannel):
+    parameters = {
+        'countrate': (1000, False, 'The maximum countrate.'),
+        'tacodevice': ('', False, ''),
+    }
 
-    def doWait(self):
+    def nothing(self):
         pass
+    doInit = doStart = doPause = doResume = doStop = doWait = doReset = nothing
 
-    def doSetPreset(self, value):
-        self.__preset = value
+    def doStatus(self):
+        return status.OK
+
+    def doRead(self):
+        if self._params['ismaster']:
+            return self._params['preselection']
+        return random.randint(0, self._params['countrate'])
+
+    def doSetPreselection(self, value):
+        self._params['preselection'] = value
+
+    def doSetIsmaster(self, value):
+        value = bool(value)
+        self._params['ismaster'] = value
+
+    def doSetMode(self, value):
+        pass

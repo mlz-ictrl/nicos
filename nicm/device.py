@@ -378,7 +378,6 @@ class Moveable(Startable):
     """
 
     parameters = {
-        # XXX put limit checks directly in this class
         'usermin': (0, False, 'User defined minimum of device value.'),
         'usermax': (0, False, 'User defined maximum of device value.'),
         'absmin': (0, False, 'Absolute minimum of device value.'),
@@ -520,51 +519,46 @@ class Measurable(Startable):
     """
 
     parameters = {
-        'unit': ('', False, 'Unit of the device main value.'),
+        'unit': ('', False, '(not used)'),
     }
 
-    def start(self):
+    def start(self, **preset):
         """Start measurement."""
-        self.doStart()
+        self.doStart(**preset)
+
+    def pause(self):
+        """Pause the measurement, if possible.  Return True if paused
+        successfully.
+        """
+        if hasattr(self, 'doPause'):
+            return self.doPause()
+        return False
+
+    def resume(self):
+        """Resume paused measurement."""
+        if hasattr(self, 'doResume'):
+            return self.doResume()
 
     def stop(self):
         """Stop measurement now."""
         self.doStop()
 
+    def isCompleted(self):
+        """Return true if measurement is complete."""
+        return self.doIsCompleted()
+
     def wait(self):
         """Wait for completion of measurement."""
-        self.doWait()
+        while not self.isCompleted():
+            time.sleep(0.1)
 
     def read(self):
         """Return the result of the last measurement."""
-        return self.doRead()
+        result = self.doRead()
+        if not isinstance(result, list):
+            return [result]
+        return result
 
-    def getValueHeaders(self):
+    def valueInfo(self):
         """Return two lists: list of value names and list of value units."""
         return [], []
-
-
-class Countable(Measurable):
-    """
-    Base class for all counters.
-    """
-
-    def start(self, preset=None):
-        """Start the counter.  If *preset* is None, use the current
-        standard preset.
-        """
-        self.doStart(preset)
-
-    count = start
-
-    def resume(self):
-        """Resume the counter."""
-        self.doResume()
-
-    def clear(self):
-        """Clear the counter value."""
-        self.doClear()
-
-    def setPreset(self, value):
-        """Set a new standard preset."""
-        self.doSetPreset(value)

@@ -70,7 +70,7 @@ class NicosNamespace(dict):
 
     def __setitem__(self, name, value):
         if name in self.__forbidden:
-            raise UsageError('%s cannot be set' % name)
+            raise UsageError('%s cannot be assigned to' % name)
         dict.__setitem__(self, name, value)
 
     def __delitem__(self, name):

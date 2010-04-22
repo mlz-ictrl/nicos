@@ -1,10 +1,10 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # Module:
-#   $Id$
+#   $Id $
 #
 # Description:
-#   NICOS System device
+#   NICOS measuring user commands
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
@@ -29,43 +29,37 @@
 #
 # *****************************************************************************
 
-"""
-NICOS system device.
-"""
+"""Module for measuring user commands."""
 
-__author__  = "$Author$"
-__date__    = "$Date$"
-__version__ = "$Revision$"
+__author__  = "$Author $"
+__date__    = "$Date $"
+__version__ = "$Revision $"
 
+from time import sleep
 
-from nicm.data import Storage
-from nicm.device import Device
+from nicm import nicos
 
-
-class Logging(Device):
-    """A special singleton device to configure logging."""
-
-    parameters = {
-        'logpath': ('', True, 'Path for logfiles.'),
-    }
+__commands__ = [
+    'count',
+]
 
 
-class System(Device):
-    """A special singleton device that serves for global configuration of
-    the NICM system.
-    """
-
-    parameters = {
-        'histories': ([], False, 'Global history managers for all devices.'),
-    }
-
-    attached_devices = {
-        'logging': Logging,
-        'storage': Storage,
-    }
-
-    def __repr__(self):
-        return '<NICM System>'
-
-    def getStorage(self):
-        return self._adevs['storage']
+def count(*detlist, **preset):
+    """Perform a counting of the given detector(s) with the given preset(s)."""
+    if not detlist:
+        # XXX get default from Instrument
+        detlist = [nicos.getDevice('det')]
+    # put detectors in a set and discard them when completed
+    detset = set(detlist)
+    for det in detlist:
+        det.start(**preset)
+    while True:
+        # XXX implement pause logic
+        sleep(0.1)
+        for det in list(detset):
+            if det.isCompleted():
+                detset.discard(det)
+        if not detset:
+            # all detectors finished measuring
+            break
+    return sum((det.read() for det in detlist), [])

@@ -52,6 +52,7 @@ def importAllCommands(module):
 importAllCommands('nicm.commands.basic')
 importAllCommands('nicm.commands.device')
 importAllCommands('nicm.commands.output')
+importAllCommands('nicm.commands.measure')
 importAllCommands('nicm.commands.scan')
 
 

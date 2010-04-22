@@ -46,10 +46,6 @@ devices = dict(
                      logpath = '.',
                      ),
 
-    User = device('nicm.system.User',
-                  autocreate = True,
-                  username = 'Max User'),
-
     filesink = device('nicm.data.AsciiDatafileSink',
                       prefix = 'data'),
 
@@ -65,8 +61,11 @@ devices = dict(
     System = device('nicm.system.System',
                     autocreate = True,
                     logging = 'Logging',
-                    user = 'User',
                     storage = 'Data',
                     histories = ['localhistory'],
                     ),
+
+    Experiment = device('nicm.experiment.Experiment',
+                        autocreate = True,
+                        users = []),
 )

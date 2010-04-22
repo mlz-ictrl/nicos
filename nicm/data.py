@@ -39,7 +39,7 @@ import time
 from os import path
 
 from nicm import nicos
-from nicm.device import Device, Measurable, Countable
+from nicm.device import Device
 from nicm.commands.output import printinfo
 
 
@@ -243,47 +243,3 @@ class Storage(Device):
         self._params['datapath'] = value
         for sink in self.sinks:
             sink.setDatapath(value)
-
-
-class Detector(Measurable):
-    """
-    A Measurable that collects data from different Measurables.
-    """
-
-    attached_devices = {
-        'components': [Measurable],
-    }
-
-    def start(self, preset=None):
-        for component in self._adevs['components']:
-            if isinstance(component, Countable):
-                component.start(preset)
-            else:
-                component.start()
-
-    def stop(self):
-        for component in self._adevs['components']:
-            component.stop()
-
-    def wait(self):
-        for component in self._adevs['components']:
-            component.wait()
-
-    def read(self):
-        ret = []
-        for component in self._adevs['components']:
-            ret.extend(component.read())
-        return ret
-
-    def getValueHeaders(self):
-        names, units = [], []
-        for component in self._adevs['components']:
-            ret = component.getValueHeaders()
-            names.extend(ret[0])
-            units.extend(ret[1])
-        return names, units
-
-    def setPreset(self, value):
-        for component in self._adevs['components']:
-            if isinstance(component, Countable):
-                component.setPreset(value)

@@ -1,10 +1,10 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # Module:
-#   $Id$
+#   $Id $
 #
 # Description:
-#   NICOS System device
+#   NICOS Instrument device
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
@@ -30,42 +30,20 @@
 # *****************************************************************************
 
 """
-NICOS system device.
+NICOS Instrument device.
 """
 
-__author__  = "$Author$"
-__date__    = "$Date$"
-__version__ = "$Revision$"
+__author__  = "$Author $"
+__date__    = "$Date $"
+__version__ = "$Revision $"
 
 
-from nicm.data import Storage
-from nicm.device import Device
+from nicm.device import Device, Measurable
 
 
-class Logging(Device):
-    """A special singleton device to configure logging."""
-
-    parameters = {
-        'logpath': ('', True, 'Path for logfiles.'),
-    }
-
-
-class System(Device):
-    """A special singleton device that serves for global configuration of
-    the NICM system.
-    """
-
-    parameters = {
-        'histories': ([], False, 'Global history managers for all devices.'),
-    }
+class Instrument(Device):
+    """A special singleton device to represent the instrument."""
 
     attached_devices = {
-        'logging': Logging,
-        'storage': Storage,
+        'detectors': [Measurable],
     }
-
-    def __repr__(self):
-        return '<NICM System>'
-
-    def getStorage(self):
-        return self._adevs['storage']

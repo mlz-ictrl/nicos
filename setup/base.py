@@ -82,13 +82,22 @@ devices = dict(
                    fmtstr = '%.1f',
                    unit = 'MW'),
 
+    timer = device('nicm.testdev.VirtualTimer'),
     ctr1 = device('nicm.testdev.VirtualCounter',
                   countrate = 1000),
     ctr2 = device('nicm.testdev.VirtualCounter',
                   countrate = 2000),
 
-    det = device('nicm.data.Detector',
-                 components = ['ctr1', 'ctr2'],
+    det = device('nicm.detector.FRMDetector',
+                 t  = 'timer',
+                 z1 = 'ctr1',
+                 z2 = None,
+                 z3 = None,
+                 z4 = None,
+                 z5 = None,
+                 m1 = 'ctr2',
+                 m2 = None,
+                 m3 = None,
                  autocreate = True),
 )
 
