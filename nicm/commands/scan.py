@@ -41,6 +41,7 @@ __commands__ = ['sscan', 'cscan']
 
 
 def sscan(dev, start, step, numsteps, preset=None, det=None):
+    """Single-sided scan."""
     values = [[start + i*step] for i in range(numsteps)]
     infostr = 'sscan(%s, %s, %s, %s, %s, %s)' % (dev, start, step, numsteps,
                                                  preset, det)
@@ -49,6 +50,7 @@ def sscan(dev, start, step, numsteps, preset=None, det=None):
 
 
 def cscan(dev, center, step, numperside, preset=None, det=None):
+    """Scan around center."""
     start = center - numperside * step
     values = [[start + i*step] for i in range(numperside*2 + 1)]
     scan = Scan([dev], values, det, preset)

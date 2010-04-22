@@ -79,7 +79,7 @@ class VirtualMotor(Motor):
         steps = int(abs(delta) / incr)
         incr = delta < 0 and -incr or incr
         for i in range(steps):
-            time.sleep(0.5)
+            time.sleep(0.1)
             self.printdebug('thread moving to %s' % (self.__val + incr))
             self.__val += incr
         self.__val = pos

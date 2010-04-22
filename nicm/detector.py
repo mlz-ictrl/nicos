@@ -234,8 +234,8 @@ class FRMDetector(Measurable):
 
     def valueInfo(self):
         names, units = [], []
-        for component in self._adevs['components']:
-            ret = component.getValueHeaders()
+        for counter in self.__counters:
+            ret = counter.valueInfo()
             names.extend(ret[0])
             units.extend(ret[1])
         return names, units

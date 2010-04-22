@@ -39,6 +39,7 @@ from nicm import nicos
 from nicm.device import Measurable
 from nicm.errors import NicmError, LimitError, FixedError
 from nicm.commands.output import printwarning
+from nicm.commands.measure import count
 
 
 class Scan(object):
@@ -46,14 +47,18 @@ class Scan(object):
     Represents a general scan over some devices with a specified detector.
     """
 
-    def __init__(self, devices, positions, detector=None, preset=None,
+    def __init__(self, devices, positions, detlist=None, preset=None,
                  scaninfo=None, scantype=None):
-        if detector is None:
-            # XXX better default?
-            detector = nicos.getDevice('det', Measurable)
+        if detlist is None:
+            # XXX better default
+            detlist = [nicos.getDevice('det', Measurable)]
+        # normalize preset: a single integer is time
+        # XXX does that make sense here?
+        if isinstance(preset, (int, float)):
+            preset = {'t': preset}
         self.devices = devices
         self.positions = positions
-        self.detector = nicos.getDevice(detector, Measurable)
+        self.detlist = detlist
         self.preset = preset
         self.scaninfo = scaninfo
         self.sinks = nicos.getSystem().getStorage().getSinks(scantype)
@@ -63,7 +68,7 @@ class Scan(object):
         for sink in self.sinks:
             sinkinfo.extend(sink.prepareDataset())
         for sink in self.sinks:
-            sink.beginDataset(self.devices, self.positions, self.detector,
+            sink.beginDataset(self.devices, self.positions, self.detlist,
                               self.preset, self.scaninfo, sinkinfo)
         # XXX add category, sort by that
         category = ''
@@ -111,8 +116,7 @@ class Scan(object):
                     can_measure = self.moveTo(self.devices, position)
                 if not can_measure:
                     continue
-                self.detector.start(self.preset)
-                self.detector.wait()
-                self.addPoint(position, self.detector.read())
+                result = count(*self.detlist, **self.preset)
+                self.addPoint(position, result)
         finally:
             self.endScan()

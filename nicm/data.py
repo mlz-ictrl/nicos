@@ -68,7 +68,7 @@ class DataSink(Device):
         """
         return []
 
-    def beginDataset(self, devices, positions, detector, preset,
+    def beginDataset(self, devices, positions, detlist, preset,
                      userinfo, sinkinfo):
         """Begin a new dataset.
 
@@ -76,8 +76,8 @@ class DataSink(Device):
         objects), measured at *positions* (a list of lists, or None if the
         positions are not yet known).
 
-        The dataset will contain y-values defined by the *detector* using the
-        given *preset*.
+        The dataset will contain y-values measured by the *detlist* using the
+        given *preset* (a dictionary).
 
         *userinfo* is an arbitrary string.  *sinkinfo* is a list of ``(key,
         value)`` pairs as explained in `prepareDataset()`.
@@ -98,7 +98,7 @@ class DataSink(Device):
 
         *xvalues* is a list of values with the same length as the initial
         *devices* list given to `beginDataset()`, and *yvalues* is a list of
-        values with the same length as the detector's value list.
+        values with the same length as the all of detlist's value lists.
         """
         pass
 
@@ -110,7 +110,7 @@ class DataSink(Device):
 
 class ConsoleSink(DataSink):
 
-    def beginDataset(self, devices, positions, detector, preset,
+    def beginDataset(self, devices, positions, detlist, preset,
                      userinfo, sinkinfo):
         printinfo('=' * 80)
         printinfo('Starting scan:      ' + userinfo)
@@ -118,7 +118,12 @@ class ConsoleSink(DataSink):
             printinfo('%-20s%s' % (name+':', value))
         printinfo('Started at:         ' + time.strftime(TIMEFMT))
         printinfo('-' * 80)
-        detnames, detunits = detector.getValueHeaders()
+        detnames = []
+        detunits = []
+        for det in detlist:
+            names, units = det.valueInfo()
+            detnames.extend(names)
+            detunits.extend(units)
         printinfo('\t'.join(map(str, ['#'] + devices + detnames)))
         printinfo('\t'.join([''] + [dev.getUnit() for dev in devices] +
                             detunits))
@@ -175,7 +180,7 @@ class AsciiDatafileSink(DataSink):
                                 '%s.dat' % self._counter)
         return [('File name', self._fname)]
 
-    def beginDataset(self, devices, positions, detector, preset,
+    def beginDataset(self, devices, positions, detlist, preset,
                      userinfo, sinkinfo):
         self._file = open(self._fname, 'w')
         self._userinfo = userinfo
@@ -188,7 +193,12 @@ class AsciiDatafileSink(DataSink):
         # to be written later (after info)
         devnames = map(str, devices)
         devunits = [dev.getUnit() for dev in devices]
-        detnames, detunits = detector.getValueHeaders()
+        detnames = []
+        detunits = []
+        for det in detlist:
+            names, units = det.valueInfo()
+            detnames.extend(names)
+            detunits.extend(units)
         if self.getSemicolon():
             self._colnames = devnames + [';'] + detnames
             self._colunits = devunits + [';'] + detunits
