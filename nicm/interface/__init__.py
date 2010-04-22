@@ -76,7 +76,7 @@ class NicosNamespace(dict):
     def __delitem__(self, name):
         if name in self.__forbidden:
             raise UsageError('%s cannot be deleted' % name)
-        dict.__deltem__(self, name)
+        dict.__delitem__(self, name)
 
 
 class NICOS(object):
