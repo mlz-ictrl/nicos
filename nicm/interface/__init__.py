@@ -50,6 +50,35 @@ from nicm import loggers
 from nicm.errors import NicmError, UsageError, ConfigurationError
 
 
+class NicosNamespace(dict):
+    """
+    A dict subclass that has a list of identifiers that cannot be set, except
+    using the setForbidden() method.
+    """
+
+    def __init__(self):
+        self.__forbidden = set()
+
+    def addForbidden(self, name):
+        self.__forbidden.add(name)
+
+    def removeForbidden(self, name):
+        self.__forbidden.discard(name)
+
+    def setForbidden(self, name, value):
+        dict.__setitem__(self, name, value)
+
+    def __setitem__(self, name, value):
+        if name in self.__forbidden:
+            raise UsageError('%s cannot be set' % name)
+        dict.__setitem__(self, name, value)
+
+    def __delitem__(self, name):
+        if name in self.__forbidden:
+            raise UsageError('%s cannot be deleted' % name)
+        dict.__deltem__(self, name)
+
+
 class NICOS(object):
     """
     The NICOS class provides all low-level routines needed for NICOS
@@ -76,7 +105,7 @@ class NICOS(object):
         # info about all loadable setups
         self.__setup_info = {}
         # namespace to place user-accessible items in
-        self.__namespace = {}
+        self.__namespace = NicosNamespace()
         # contains all NICOS-exported names
         self.__exported_names = set()
         # the System device
@@ -233,7 +262,8 @@ class NICOS(object):
         self.user_modules = set()
 
     def export(self, name, object):
-        self.__namespace[name] = object
+        self.__namespace.setForbidden(name, object)
+        self.__namespace.addForbidden(name)
         self.__exported_names.add(name)
 
     def unexport(self, name):
@@ -242,6 +272,7 @@ class NICOS(object):
             return
         if name not in self.__exported_names:
             self.log.warning('unexport: name %r not exported by NICOS' % name)
+        self.__namespace.removeForbidden(name)
         del self.__namespace[name]
         self.__exported_names.remove(name)
 
