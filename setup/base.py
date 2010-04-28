@@ -79,6 +79,8 @@ devices = dict(
                    description = 'FRM II reactor power',
                    autocreate = True,
                    tacodevice = '//tacodb/frm2/reactor/power',
+                   tacolog = True,
+                   loglevel = 'debug',
                    fmtstr = '%.1f',
                    unit = 'MW'),
 

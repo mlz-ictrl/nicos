@@ -59,7 +59,8 @@ class TacoDevice(object):
 
     parameters = {
         'tacodevice': ('', True, 'TACO device name.'),
-        'tacotimeout': (0, False, 'TACO client network timeout (in seconds).'),
+        'tacotimeout': (0.5, False, 'TACO client network timeout (in seconds).'),
+        'tacolog': (False, False, 'If true, log all TACO calls.'),
         # the unit isn't mandatory -- TACO usually knows it already
         'unit': ('', False, 'Unit of the device main value.'),
     }
@@ -70,6 +71,8 @@ class TacoDevice(object):
     taco_resetok = True
 
     def doInit(self):
+        if self.getTacolog():
+            self._taco_guard = self._taco_guard_log
         if self.taco_class is None:
             raise ProgrammingError('missing taco_class attribute in class '
                                    + self.__class__.__name__)
@@ -96,6 +99,14 @@ class TacoDevice(object):
             return self._params['unit']
         return self._taco_guard(self._dev.unit)
 
+    def doSetTacotimeout(self, value):
+        self._params['tacotimeout'] = value
+        self._taco_guard(self._dev.setClientNetworkTimeout, value)
+
+    def doSetTacolog(self, value):
+        value = bool(value)
+        self._params['tacolog'] = value
+        self._taco_guard = value and self._taco_guard_log or self._taco_guard_nolog
 
     # internal utilities
 
@@ -114,6 +125,10 @@ class TacoDevice(object):
             resetok = self.taco_resetok
         if timeout is None:
             timeout = self.getTacotimeout()
+        log = self.getTacolog()
+
+        if log:
+            self.printdebug('creating %s TACO device' % class_.__name__)
 
         try:
             dev = class_(devname)
@@ -143,12 +158,25 @@ class TacoDevice(object):
 
         return dev
 
-    def _taco_guard(self, function, *args):
+    def _taco_guard_log(self, function, *args):
+        """Like _taco_guard(), but log the call."""
+        self.printdebug('TACO call: %s%s' % (function.__name__, args))
+        try:
+            ret = function(*args)
+        except TACOError, err:
+            self._raise_taco(err)
+        else:
+            self.printdebug('TACO return: %s' % ret)
+            return ret
+
+    def _taco_guard_nolog(self, function, *args):
         """Try running the TACO function, and raise a NicmError on exception."""
         try:
             return function(*args)
         except TACOError, err:
             self._raise_taco(err)
+
+    _taco_guard = _taco_guard_nolog
 
     def _raise_taco(self, err, addmsg=None):
         """Raise a suitable NicmError for a given TACOError instance."""
