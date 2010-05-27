@@ -48,6 +48,7 @@ from os import path
 
 from nicm import loggers
 from nicm.errors import NicmError, UsageError, ConfigurationError
+from nicm.utils import colorize
 
 
 class NicosNamespace(dict):
@@ -241,7 +242,9 @@ class NICOS(object):
                 log.info('  %-15s: %s' % info)
 
         self.explicit_setups.append(setupname)
-        sys.ps1 = '(%s)>>> ' % '+'.join(self.explicit_setups)
+        expsetups = '+'.join(self.explicit_setups)
+        sys.ps1 = '(%s) >>> ' % colorize('fuchsia', expsetups)
+        sys.ps2 = ' %s  ... ' % (' ' * len(expsetups))
         log.info('setup loaded')
 
     def unloadSetup(self):

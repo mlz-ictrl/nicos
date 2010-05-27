@@ -145,7 +145,7 @@ def status(*devlist):
             printexception('error reading status of', dev)
         else:
             status = statuses.get(status, str(status))
-            dev.printinfo('status is %s' % (dev, status))
+            dev.printinfo('status is %s' % status)
 
 def stop(*devlist):
     """Stop one or more devices, or if no device is given,
@@ -207,7 +207,7 @@ def version(dev):
     dev = nicos.getDevice(dev, Device)
     versions = dev.version()
     dev.printinfo('Relevant versions for this device:')
-    printTable(('module/component', 'version'), versions, info)
+    printTable(('module/component', 'version'), versions, printinfo)
 
 def listparams(dev):
     """List all parameters of the device."""
