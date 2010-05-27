@@ -37,6 +37,8 @@ __version__ = "$Revision$"
 
 import sys
 
+from nicm.errors import ConfigurationError
+
 
 class MergedAttrsMeta(type):
     """
@@ -73,6 +75,32 @@ class MergedAttrsMeta(type):
                     newentry.update(getattr(base, entry))
             newentry.update(attrs.get(entry, {}))
             setattr(newtype, entry, newentry)
+        return newtype
+
+
+class AutoPropsMeta(MergedAttrsMeta):
+    """
+    A metaclass that automatically adds properties for the class'
+    parameters.
+    """
+
+    def __new__(mcs, name, bases, attrs):
+        newtype = MergedAttrsMeta.__new__(mcs, name, bases, attrs)
+        for param, info in newtype.parameters.iteritems():
+            def getter(self, param=param):
+                methodname = 'doGet' + param.title()
+                if hasattr(self, methodname):
+                    return getattr(self, methodname)()
+                else:
+                    return self._params[param.lower()]
+            def setter(self, value, param=param):
+                methodname = 'doSet' + param.title()
+                if hasattr(self, methodname):
+                    getattr(self, methodname)(value)
+                else:
+                    raise ConfigurationError(
+                        self, 'cannot set the %s parameter' % param)
+            setattr(newtype, param, property(getter, setter, doc=info[2]))
         return newtype
 
 

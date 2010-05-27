@@ -51,7 +51,7 @@ class User(Device):
     }
 
     def __repr__(self):
-        return '<User "%s">' % self.getName()
+        return '<User "%s">' % self.name
 
     def doSetName(self, value):
         self._params['name'] = value
@@ -87,9 +87,9 @@ class Experiment(Device):
     def new(self, proposalnumber, title=None):
         if not isinstance(proposalnumber, int):
             proposalnumber = int(proposalnumber)
-        self.setProposalnumber(proposalnumber)
+        self.proposalnumber = proposalnumber
         if title is not None:
-            self.setTitle(title)
+            self.title = title
         self._adevs['users'] = []
 
     def addUser(self, name, email, affiliation=None):

@@ -60,11 +60,11 @@ class LocalHistory(History):
         self.__db = {}
 
     def put(self, dev, name, tstamp, value):
-        self.__db.setdefault(dev.getName(), {}).\
+        self.__db.setdefault(dev.name, {}).\
                   setdefault(name, []).append((tstamp, value))
 
     def get(self, dev, name, fromtime, totime):
-        history = self.__db.get(dev.getName(), {}).get(name, [])
+        history = self.__db.get(dev.name, {}).get(name, [])
         if not history:
             return None
         i1, i2 = None, None
@@ -89,14 +89,14 @@ class ScratchPadHistory(History):
 
     def doInit(self):
         try:
-            host, port = self.getServer().split(':')
-            self.__conn = ScratchPadConnection(self.getPrefix(), host, int(port))
+            host, port = self.server.split(':')
+            self.__conn = ScratchPadConnection(self.prefix, host, int(port))
         except ValueError:
-            host = self.getServer()
-            self.__conn = ScratchPadConnection(self.getPrefix(), host)
+            host = self.server
+            self.__conn = ScratchPadConnection(self.prefix, host)
 
     def put(self, dev, name, tstamp, value):
-        self.__conn.tell(dev.getName() + '/' + name, value, tstamp)
+        self.__conn.tell(dev.name + '/' + name, value, tstamp)
 
     def get(self, dev, name, fromtime, totime):
         return None
@@ -119,10 +119,10 @@ class LogfileHistory(History):
             fd.close()
 
     def put(self, dev, tstamp, value):
-        name = dev.getName()
+        name = dev.name
         if name not in self.__files:
             timestamp = time.strftime('%Y-%m-%d-%H-%M-%S')
-            newname = '%s%s_%s.log' % (self.getBasefilename(), name, timestamp)
+            newname = '%s%s_%s.log' % (self.basefilename, name, timestamp)
             self.__files[name] = open(newname, 'a')
         self.__files[name].write('%s\t%s\n' % (tstamp, value))
 

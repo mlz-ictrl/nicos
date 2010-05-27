@@ -39,7 +39,7 @@ import time
 
 from nicm import nicos
 from nicm import status, loggers
-from nicm.utils import MergedAttrsMeta, getVersions
+from nicm.utils import AutoPropsMeta, getVersions
 from nicm.errors import ConfigurationError, ProgrammingError, UsageError, \
      LimitError, FixedError
 
@@ -50,7 +50,7 @@ class Device(object):
     and have default values.
     """
 
-    __metaclass__ = MergedAttrsMeta
+    __metaclass__ = AutoPropsMeta
     __mergedattrs__ = ['parameters', 'attached_devices']
 
     parameters = {
@@ -63,7 +63,8 @@ class Device(object):
 
     attached_devices = {}
 
-    def __init__(self, name, config):
+    def __init__(self, name, config=None):
+        config = config or {}
         # _params: parameter values from config
         self._params = {'name': name}  # pre-set "name" for str(self) to work
         # _adevs: "attached" device instances
@@ -132,23 +133,6 @@ class Device(object):
                 raise ConfigurationError(self, 'missing configuration '
                                          'parameter %r' % param)
 
-            # create getter and setter methods for the parameter
-            def getter(param=param):
-                methodname = 'doGet' + param.title()
-                if hasattr(self, methodname):
-                    return getattr(self, methodname)()
-                else:
-                    return self._params[param.lower()]
-            def setter(value, param=param):
-                methodname = 'doSet' + param.title()
-                if hasattr(self, methodname):
-                    getattr(self, methodname)(value)
-                else:
-                    raise ConfigurationError(
-                        self, 'cannot set the %s parameter' % param)
-            setattr(self, 'get' + param.title(), getter)
-            setattr(self, 'set' + param.title(), setter)
-
         # initialize some standard parameters
         self._params['name'] = name
         if not self._params['description']:
@@ -160,30 +144,26 @@ class Device(object):
         return self._params['name']
 
     def __repr__(self):
-        if self.getPar('name') == self.getPar('description'):
-            return '<device %s (a %s.%s)>' % (self.getPar('name'),
+        if self.name == self.description:
+            return '<device %s (a %s.%s)>' % (self.name,
                                               self.__class__.__module__,
                                               self.__class__.__name__)
-        return '<device %s "%s" (a %s.%s)>' % (self.getPar('name'),
-                                               self.getPar('description'),
+        return '<device %s "%s" (a %s.%s)>' % (self.name,
+                                               self.description,
                                                self.__class__.__module__,
                                                self.__class__.__name__)
-
-    def getName(self):
-        """Return the device name."""
-        return self._params['name']
 
     def getPar(self, name):
         """Get a parameter of the device."""
         if name.lower() not in self.parameters:
             raise UsageError(self, 'device has no parameter %s' % name)
-        return getattr(self, 'get' + name.title())()
+        return getattr(self, name.lower())
 
     def setPar(self, name, value):
         """Set a parameter of the device to a new value."""
         if name.lower() not in self.parameters:
             raise UsageError(self, 'device has no parameter %s' % name)
-        getattr(self, 'set' + name.title())(value)
+        setattr(self, name.lower(), value)
 
     def doSetLoglevel(self, value):
         if value not in loggers.loglevels:
@@ -231,7 +211,7 @@ class Readable(Device):
         Device.__init__(self, name, config)
         from nicm.history import History
         self.__histories = []
-        histnames = self.getHistories() + nicos.getSystem().getHistories()
+        histnames = self.histories + nicos.getSystem().histories
         for histname in histnames:
             self.__histories.append(nicos.getDevice(histname, History))
 
@@ -282,7 +262,7 @@ class Readable(Device):
         """Format a value from self.read() into a human-readable string."""
         if hasattr(self, 'doFormat'):
             return self.Format(value)
-        return self.getPar('fmtstr') % value
+        return self.fmtstr % value
 
     def history(self, name='value', fromtime=None, totime=None):
         """Return a history of the parameter *name*."""
@@ -401,8 +381,8 @@ class Moveable(Startable):
     move = start
 
     def __checkAbsLimits(self):
-        absmin = self.getAbsmin()
-        absmax = self.getAbsmax()
+        absmin = self.absmin
+        absmax = self.absmax
         if not absmin and not absmax:
             raise ConfigurationError(self, 'no absolute limits defined '
                                      '(absmin, absmax)')

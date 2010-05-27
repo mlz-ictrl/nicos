@@ -52,12 +52,12 @@ class VirtualMotor(Motor):
     }
 
     def doInit(self):
-        self.__val = self.getPar('initval')
+        self.__val = self.initval
         self.__busy = False
 
     def doStart(self, pos):
         self.__busy = True
-        if self.getSpeed() != 0:
+        if self.speed != 0:
             thread = threading.Thread(target=self.__moving, args=(pos,))
             thread.start()
         else:
@@ -74,7 +74,7 @@ class VirtualMotor(Motor):
         return status.OK
 
     def __moving(self, pos):
-        incr = self.getSpeed()
+        incr = self.speed
         delta = pos - self.read()
         steps = int(abs(delta) / incr)
         incr = delta < 0 and -incr or incr
@@ -92,8 +92,8 @@ class VirtualCoder(Coder):
     }
 
     def doInit(self):
-        if self.getMotor():
-            self._motor = nicos.getDevice(self.getMotor())
+        if self.motor:
+            self._motor = nicos.getDevice(self.motor)
         else:
             self._motor = None
 
@@ -117,7 +117,7 @@ class VirtualTimer(FRMTimerChannel):
     doPause = doResume = doStop = doReset = nothing
 
     def doStart(self):
-        if self.getIsmaster():
+        if self.ismaster:
             self.__finish = False
             threading.Thread(target=self.__thread).start()
 

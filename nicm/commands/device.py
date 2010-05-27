@@ -70,7 +70,7 @@ def move(*dev_pos_list):
        move(dev1, pos1, dev2, pos2, ...)
     """
     for dev, pos in _devposlist(dev_pos_list):
-        dev.printinfo('moving to', dev.format(pos), dev.getPar('unit'))
+        dev.printinfo('moving to', dev.format(pos), dev.unit)
         dev.move(pos)
 
 def maw(*dev_pos_list):
@@ -82,7 +82,7 @@ def maw(*dev_pos_list):
     """
     devs = []
     for dev, pos in _devposlist(dev_pos_list):
-        dev.printinfo('moving to', dev.format(pos), dev.getPar('unit'))
+        dev.printinfo('moving to', dev.format(pos), dev.unit)
         dev.move(pos)
         devs.append(dev)
     for dev in devs:
@@ -96,7 +96,7 @@ def switch(*dev_pos_list):
        switch(dev1, pos1, dev2, pos2, ...)
     """
     for dev, pos in _devposlist(dev_pos_list):
-        dev.printinfo('switching to', dev.format(pos), dev.getPar('unit'))
+        dev.printinfo('switching to', dev.format(pos), dev.unit)
         dev.switchTo(pos)
         dev.wait()
         read(dev)
@@ -128,8 +128,7 @@ def read(*devlist):
         except NicmError:
             printexception('error reading', dev)
         else:
-            dev.printinfo('at %s %s' %
-                          (dev.format(value), dev.getPar('unit')))
+            dev.printinfo('at %s %s' % (dev.format(value), dev.unit))
 
 def status(*devlist):
     """Read the status of one or more devices, or if no device is given,
@@ -229,6 +228,5 @@ def listdevices():
     items = []
     for devname in sorted(nicos.explicit_devices):
         dev = nicos.devices[devname]
-        items.append((dev.getPar('name'), dev.__class__.__name__,
-                      dev.getPar('description')))
+        items.append((dev.name, dev.__class__.__name__, dev.description))
     printTable(('name', 'type', 'description'), items, printinfo)

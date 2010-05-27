@@ -319,8 +319,13 @@ class NICOS(object):
             self.destroyDevice(devname)
         devclsname, devconfig = self.configured_devices[devname]
         modname, clsname = devclsname.rsplit('.', 1)
-        devcls = getattr(__import__(modname, None, None, [clsname]),
-                         clsname, None)
+        try:
+            devcls = getattr(__import__(modname, None, None, [clsname]),
+                             clsname, None)
+        except ImportError:
+            # try with "nicm." prepended
+            mod = __import__('nicm.' + modname, None, None, [clsname])
+            devcls = getattr(mod, clsname, None)
         if devcls is None:
             raise ConfigurationError('type of device %r does not exist'
                                      % devclsname)

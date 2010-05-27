@@ -59,9 +59,9 @@ class FRMChannel(TacoDevice, Measurable):
     }
 
     def doInit(self):
-        self.setPreselection(self._taco_guard(self._dev.preselection))
-        self.setIsmaster(self._taco_guard(self._dev.isMaster))
-        self.setMode(self._taco_guard(self._dev.mode))
+        self.preselection = self._taco_guard(self._dev.preselection)
+        self.ismaster = self._taco_guard(self._dev.isMaster)
+        self.mode = self._taco_guard(self._dev.mode)
         self.__stopMode = status.OK
 
     def doStart(self):
@@ -130,14 +130,14 @@ class FRMTimerChannel(FRMChannel):
     taco_class = Timer
 
     def valueInfo(self):
-        return [self.getName()], ['s']
+        return [self.name], ['s']
 
 
 class FRMCounterChannel(FRMChannel):
     taco_class = Counter
 
     def valueInfo(self):
-        return [self.getName()], ['cts']
+        return [self.name], ['cts']
 
 
 class FRMDetector(Measurable):

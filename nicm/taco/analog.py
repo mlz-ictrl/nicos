@@ -64,4 +64,4 @@ class Output(TacoDevice, Moveable):
 
     def doWait(self):
         while self.status() == status.BUSY:
-            sleep(self.getLoopdelay())
+            sleep(self.loopdelay)

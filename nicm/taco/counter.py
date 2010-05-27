@@ -67,7 +67,7 @@ class TacoCountable(TacoDevice, Countable):
     def doStart(self, preset=None):
         self.__stopped = False
         if preset is not None:
-            self.setPreselection(preset)
+            self.preselection = preset
         self._taco_guard(self._dev.start)
 
     def doStop(self):
@@ -80,7 +80,7 @@ class TacoCountable(TacoDevice, Countable):
 
     def doWait(self):
         while self.status() == status.BUSY:
-            sleep(self.getLoopdelay())
+            sleep(self.loopdelay)
 
     def doClear(self):
         self.__stopped = False

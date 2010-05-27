@@ -71,7 +71,7 @@ class TacoDevice(object):
     taco_resetok = True
 
     def doInit(self):
-        if self.getTacolog():
+        if self.tacolog:
             self._taco_guard = self._taco_guard_log
         if self.taco_class is None:
             raise ProgrammingError('missing taco_class attribute in class '
@@ -79,7 +79,7 @@ class TacoDevice(object):
         self._dev = self._create_client()
 
     def doVersion(self):
-        return [(self.getTacodevice(),
+        return [(self.tacodevice,
                  self._taco_guard(self._dev.deviceVersion))]
 
     def doRead(self):
@@ -118,14 +118,14 @@ class TacoDevice(object):
         """
 
         if devname is None:
-            devname = self.getTacodevice()
+            devname = self.tacodevice
         if class_ is None:
             class_ = self.taco_class
         if resetok is None:
             resetok = self.taco_resetok
         if timeout is None:
-            timeout = self.getTacotimeout()
-        log = self.getTacolog()
+            timeout = self.tacotimeout
+        log = self.tacolog
 
         if log:
             self.printdebug('creating %s TACO device' % class_.__name__)

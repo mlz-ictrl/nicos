@@ -125,7 +125,7 @@ class ConsoleSink(DataSink):
             detnames.extend(names)
             detunits.extend(units)
         printinfo('\t'.join(map(str, ['#'] + devices + detnames)))
-        printinfo('\t'.join([''] + [dev.getUnit() for dev in devices] +
+        printinfo('\t'.join([''] + [dev.unit for dev in devices] +
                             detunits))
         printinfo('-' * 80)
         self._pointnum = 0
@@ -157,7 +157,8 @@ class AsciiDatafileSink(DataSink):
     }
 
     def doInit(self):
-        self.setDatapath(nicos.getSystem().getStorage().getDatapath())
+        # XXX where is datapath really defined?
+        self.setDatapath(nicos.getSystem().getStorage().datapath)
         self._file = None
         self._fname = ''
         self._counter = 0
@@ -192,14 +193,14 @@ class AsciiDatafileSink(DataSink):
         self._file.flush()
         # to be written later (after info)
         devnames = map(str, devices)
-        devunits = [dev.getUnit() for dev in devices]
+        devunits = [dev.unit for dev in devices]
         detnames = []
         detunits = []
         for det in detlist:
             names, units = det.valueInfo()
             detnames.extend(names)
             detunits.extend(units)
-        if self.getSemicolon():
+        if self.semicolon:
             self._colnames = devnames + [';'] + detnames
             self._colunits = devunits + [';'] + detunits
         else:
@@ -220,7 +221,7 @@ class AsciiDatafileSink(DataSink):
             self._file.write('# ' + '\t'.join(self._colnames) + '\n')
             self._file.write('# ' + '\t'.join(self._colunits) + '\n')
             self._wrote_columninfo = True
-        if self.getSemicolon():
+        if self.semicolon:
             values = xvalues + [';'] + yvalues
         else:
             values = xvalues + yvalues
@@ -246,10 +247,9 @@ class Storage(Device):
             return self._adevs['sinks']
         else:
             return [sink for sink in self._adevs['sinks']
-                    if not sink.getScantypes() or
-                       scantype in sink.getScantypes()]
+                    if not sink.scantypes or scantype in sink.scantypes]
 
-    def setDatapath(self, value):
+    def doSetDatapath(self, value):
         self._params['datapath'] = value
         for sink in self.sinks:
             sink.setDatapath(value)

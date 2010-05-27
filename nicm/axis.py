@@ -67,13 +67,13 @@ class Axis(Moveable):
 
     def doInit(self):
         # Check that motor and unit have the same unit
-        if self._adevs['coder'].getUnit() != self._adevs['motor'].getUnit():
+        if self._adevs['coder'].unit != self._adevs['motor'].unit:
             raise ConfigurationError(self, 'different units for motor and coder'
-                                     ' (%s vs %s)' % (self._adevs['motor'].getUnit(),
-                                                      self._adevs['coder'].getUnit()))
+                                     ' (%s vs %s)' % (self._adevs['motor'].unit,
+                                                      self._adevs['coder'].unit))
         # Check that all observers have the same unit as the motor
         for ob in self._adevs['obs']:
-            if self._adevs['motor'].getUnit() != ob.getUnit():
+            if self._adevs['motor'].unit != ob.unit:
                 raise ConfigurationError(self, 'different units for motor '
                                          'and observer %s' % ob)
 
@@ -86,21 +86,21 @@ class Axis(Moveable):
         self.__locked = False
         self.__dragErrorCount = 0
 
-        self.setPar('unit', self._adevs['motor'].getUnit())
+        self.setPar('unit', self._adevs['motor'].unit)
         self.__checkMotorLimits()
 
     def __checkMotorLimits(self):
         # check axis limits against motor absolute limits (the motor should not
         # have user limits defined)
-        absmin = self.getAbsmin()
-        absmax = self.getAbsmax()
+        absmin = self.absmin
+        absmax = self.absmax
         if not absmin and not absmax:
-            self._params['absmin'] = self._adevs['motor'].getAbsmin()
-            self._params['absmax'] = self._adevs['motor'].getAbsmax()
+            self._params['absmin'] = self._adevs['motor'].absmin
+            self._params['absmax'] = self._adevs['motor'].absmax
         else:
-            if absmin < self._adevs['motor'].getAbsmin():
+            if absmin < self._adevs['motor'].absmin:
                 raise ConfigurationError(self, 'absmin below the motor absmin')
-            if absmax > self._adevs['motor'].getAbsmax():
+            if absmax > self._adevs['motor'].absmax:
                 raise ConfigurationError(self, 'absmax below the motor absmax')
 
     def doStart(self, target, locked=False):
@@ -159,19 +159,19 @@ class Axis(Moveable):
 
         # Avoid the use of the setPar method for the absolute limits
         if (diff < 0):
-                self._params['absmax'] = self.getAbsmax() - diff
-                self._params['absmin'] = self.getAbsmin() - diff
+                self._params['absmax'] = self.absmax - diff
+                self._params['absmin'] = self.absmin - diff
         else:
-                self._params['absmin'] = self.getAbsmin() - diff
-                self._params['absmax'] = self.getAbsmax() - diff
+                self._params['absmin'] = self.absmin - diff
+                self._params['absmax'] = self.absmax - diff
         self._Moveable__checkAbsLimits()
 
         if (diff < 0):
-                self._params['usermin'] = self.getUsermin() - diff
-                self._params['usermax'] = self.getUsermax() - diff
+                self._params['usermin'] = self.usermin - diff
+                self._params['usermax'] = self.usermax - diff
         else:
-                self._params['usermax'] = self.getUsermax() - diff
-                self._params['usermin'] = self.getUsermin() - diff
+                self._params['usermax'] = self.usermax - diff
+                self._params['usermin'] = self.usermin - diff
         self._Moveable__checkUserLimits()
 
     def doReset(self):
@@ -191,7 +191,7 @@ class Axis(Moveable):
         the target position has been reached.
         """
         while (self.status() == status.BUSY):
-            time.sleep(self.getLoopdelay())
+            time.sleep(self.loopdelay)
         else:
             self.__checkErrorState()
 
@@ -265,7 +265,7 @@ class Axis(Moveable):
     def __checkDragerror(self):
         tmp = abs(self._adevs['motor'].read() - self._adevs['coder'].read())
         # print 'Diff %.3f' % tmp
-        dragDiff = self.getDragerror()
+        dragDiff = self.dragerror
         if dragDiff <= 0:
             return True
         dragOK = tmp <= dragDiff
@@ -279,8 +279,8 @@ class Axis(Moveable):
 
     def __checkTargetPosition(self, target, pos, error = 2):
         tmp = abs(pos - target)
-        dragDiff = self.getDragerror()
-        posOK = tmp <= self.getPrecision()
+        dragDiff = self.dragerror
+        posOK = tmp <= self.precision
         if posOK:
             for i in self._adevs['obs']:
                 tmp = abs(target - i.read())
@@ -304,8 +304,8 @@ class Axis(Moveable):
             self.__error = 3
         else:
             self.__error = 0
-            if self.getBacklash():
-                for pos in self.__target + self.getBacklash(), self.__target:
+            if self.backlash:
+                for pos in self.__target + self.backlash, self.__target:
                     self.__positioning(pos)
                     if self.__stopRequest == 2 or self.__error != 0:
                         break
@@ -319,7 +319,7 @@ class Axis(Moveable):
 
     def __positioning(self, target):
         moving = False
-        maxtries = self.getMaxtries()
+        maxtries = self.maxtries
         self.__lastPosition = self.read()
         __target = target + self.__offset
         self._adevs['motor'].start(__target)
@@ -330,7 +330,7 @@ class Axis(Moveable):
                 self._adevs['motor'].stop()
                 self.__stopRequest = 2
                 continue
-            time.sleep(self.getLoopdelay())
+            time.sleep(self.loopdelay)
             try:
                 pos = self.read()
             except NicmError:
