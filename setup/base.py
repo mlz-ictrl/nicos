@@ -75,7 +75,7 @@ devices = dict(
                 usermin = 0,
                 usermax = 50),
 
-    Power = device('taco.analog.Input',
+    Power = device('nicm.taco.analog.Input',
                    description = 'FRM II reactor power',
                    autocreate = True,
                    tacodevice = '//tacodb/frm2/reactor/power',

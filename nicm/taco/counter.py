@@ -46,7 +46,7 @@ from IO import Timer as IOTimer, Counter as IOCounter
 from nicm import status
 from nicm.device import Countable
 from nicm.errors import ConfigurationError
-from taco.base import TacoDevice
+from nicm.taco.base import TacoDevice
 
 
 class TacoCountable(TacoDevice, Countable):

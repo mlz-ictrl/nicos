@@ -41,7 +41,7 @@ from IO import AnalogInput, AnalogOutput
 
 from nicm import status
 from nicm.device import Readable, Moveable
-from taco.base import TacoDevice
+from nicm.taco.base import TacoDevice
 
 
 class Input(TacoDevice, Readable):

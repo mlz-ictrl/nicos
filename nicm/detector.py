@@ -44,7 +44,7 @@ from IO import Timer, Counter
 from nicm import status
 from nicm.device import Measurable
 from nicm.errors import ConfigurationError
-from taco.base import TacoDevice
+from nicm.taco.base import TacoDevice
 
 
 class FRMChannel(TacoDevice, Measurable):

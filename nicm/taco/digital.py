@@ -1,17 +1,17 @@
-#  -*- coding: iso-8859-15 -*-
+#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # Module:
 #   $Id$
 #
 # Description:
-#   NICOS TACO coder definition
+#   NICOS TACO digital input/output definition
 #
 # Author:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
+#   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
-#   Copyright (C) 2009 Jens Krüger <jens.krueger@frm2.tum.de>
+#   Copyright (C) 2009 Jens KrÃ¼ger <jens.krueger@frm2.tum.de>
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -29,31 +29,28 @@
 #
 # *****************************************************************************
 
-"""Implementation of the class for TACO controlled coders."""
+"""Implementation of TACO DigitalInput and DigitalOutput devices."""
 
 __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from Encoder import Encoder as TACOCoder
-import TACOStates
+from IO import DigitalInput, DigitalOutput
 
-from nicm import status
-from nicm.coder import Coder as NicmCoder
-from taco.base import TacoDevice
+from nicm.device import Readable, Moveable
+from nicm.taco.base import TacoDevice
 
 
-class Coder(TacoDevice, NicmCoder):
-    """TACO coder implementation class."""
+class Input(TacoDevice, Readable):
+    """Base class for TACO DigitalInputs."""
 
-    taco_class = TACOCoder
+    taco_class = DigitalInput
 
-    def doSetPosition(self, target):
-        self._taco_guard(self._dev.setpos, target)
 
-    def doStatus(self):
-        stat = self._taco_guard(self._dev.deviceState)
-        if stat == TACOStates.DEVICE_NORMAL:
-            return status.OK
-        else:
-            return status.ERROR
+class Output(TacoDevice, Moveable):
+    """Base class for TACO DigitalOutputs."""
+
+    taco_class = DigitalOutput
+
+    def doStart(self, value):
+        self._taco_guard(self._dev.write, value)

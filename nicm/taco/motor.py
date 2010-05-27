@@ -40,7 +40,7 @@ import TACOStates
 
 from nicm import status
 from nicm.motor import Motor as NicmMotor
-from taco.base import TacoDevice
+from nicm.taco.base import TacoDevice
 
 
 class Motor(TacoDevice, NicmMotor):
