@@ -41,7 +41,7 @@ from nicm.errors import NicmError, UsageError
 from nicm.status import statuses
 from nicm.utils import printTable
 
-from nicm.commands.output import printinfo, printexception
+from nicm.commands.output import info, exception
 
 __commands__ = [
     'move', 'maw', 'switch', 'wait', 'read', 'status', 'stop', 'reset',
@@ -70,7 +70,7 @@ def move(*dev_pos_list):
        move(dev1, pos1, dev2, pos2, ...)
     """
     for dev, pos in _devposlist(dev_pos_list):
-        printinfo('moving', dev, 'to', dev.format(pos), dev.getPar('unit'))
+        info('moving', dev, 'to', dev.format(pos), dev.getPar('unit'))
         dev.move(pos)
 
 def maw(*dev_pos_list):
@@ -82,7 +82,7 @@ def maw(*dev_pos_list):
     """
     devs = []
     for dev, pos in _devposlist(dev_pos_list):
-        printinfo('moving', dev, 'to', dev.format(pos), dev.getPar('unit'))
+        info('moving', dev, 'to', dev.format(pos), dev.getPar('unit'))
         dev.move(pos)
         devs.append(dev)
     for dev in devs:
@@ -96,7 +96,7 @@ def switch(*dev_pos_list):
        switch(dev1, pos1, dev2, pos2, ...)
     """
     for dev, pos in _devposlist(dev_pos_list):
-        printinfo('switching', dev, 'to', dev.format(pos), dev.getPar('unit'))
+        info('switching', dev, 'to', dev.format(pos), dev.getPar('unit'))
         dev.switchTo(pos)
         dev.wait()
         read(dev)
@@ -110,7 +110,7 @@ def wait(*devlist):
                    if isinstance(nicos.devices[devname], Startable)]
     for dev in devlist:
         dev = nicos.getDevice(dev, Startable)
-        printinfo('waiting for', dev)
+        info('waiting for', dev)
         dev.wait()
         read(dev)
 
@@ -126,11 +126,11 @@ def read(*devlist):
         try:
             value = dev.read()
         except NicmError:
-            printexception('error reading', dev)
+            exception('error reading', dev)
         else:
             # TODO: nice column formatting
-            printinfo('%-15s is at: %s %s' %
-                      (dev, dev.format(value), dev.getPar('unit')))
+            info('%-15s is at: %s %s' %
+                 (dev, dev.format(value), dev.getPar('unit')))
 
 def status(*devlist):
     """Read the status of one or more devices, or if no device is given,
@@ -144,10 +144,10 @@ def status(*devlist):
         try:
             status = dev.status()
         except NicmError:
-            printexception('error reading status of', dev)
+            exception('error reading status of', dev)
         else:
             status = statuses.get(status, str(status))
-            printinfo('%-15s status is: %s' % (dev, status))
+            info('%-15s status is: %s' % (dev, status))
 
 def stop(*devlist):
     """Stop one or more devices, or if no device is given,
@@ -159,14 +159,14 @@ def stop(*devlist):
     for dev in devlist:
         dev = nicos.getDevice(dev, Startable)
         dev.stop()
-        printinfo('stopped', dev)
+        info('stopped', dev)
 
 def reset(dev):
     """Reset the given device."""
     dev = nicos.getDevice(dev, Readable)
     status = dev.reset()
     status = statuses.get(status, str(status))
-    printinfo('%-15s reset, status is now: %s' % (dev, status))
+    info('%-15s reset, status is now: %s' % (dev, status))
 
 def count(preset=None):
     """Count for the given preset (can be seconds or monitor counts)."""
@@ -184,7 +184,7 @@ def set(dev, parameter, value):
 def get(dev, parameter):
     """Return the value of a parameter of the device."""
     value = nicos.getDevice(dev).getPar(parameter)
-    printinfo('parameter %s of device %s: %s' % (parameter, dev, value))
+    info('parameter %s of device %s: %s' % (parameter, dev, value))
 
 def fix(*devlist):
     """Fix one or more devices, i.e. prevent movement until release()."""
@@ -193,7 +193,7 @@ def fix(*devlist):
     for dev in devlist:
         dev = nicos.getDevice(dev, Startable)
         dev.fix()
-        printinfo('fixed', dev)
+        info('fixed', dev)
 
 def release(*devlist):
     """Release one or more devices, i.e. undo the effect of fix()."""
@@ -202,19 +202,19 @@ def release(*devlist):
     for dev in devlist:
         dev = nicos.getDevice(dev, Startable)
         dev.release()
-        printinfo('released', dev)
+        info('released', dev)
 
 def version(dev):
     """List version info of the device."""
     dev = nicos.getDevice(dev, Device)
     versions = dev.version()
-    printinfo('Relevant versions for this device:')
-    printTable(('module/component', 'version'), versions, printinfo)
+    info('Relevant versions for this device:')
+    printTable(('module/component', 'version'), versions, info)
 
 def listparams(dev):
     """List all parameters of the device."""
     dev = nicos.getDevice(dev, Device)
-    printinfo('Parameters of device %s:' % dev)
+    info('Parameters of device %s:' % dev)
     items = []
     for name, info in sorted(dev.parameters.iteritems()):
         try:
@@ -222,14 +222,14 @@ def listparams(dev):
         except Exception:
             value = '<could not get value>'
         items.append((name, str(value), info[2]))
-    printTable(('name', 'value', 'description'), items, printinfo)
+    printTable(('name', 'value', 'description'), items, info)
 
 def listdevices():
     """List all currently created devices."""
-    printinfo('All created devices:')
+    info('All created devices:')
     items = []
     for devname in sorted(nicos.explicit_devices):
         dev = nicos.devices[devname]
         items.append((dev.getPar('name'), dev.__class__.__name__,
                       dev.getPar('description')))
-    printTable(('name', 'type', 'description'), items, printinfo)
+    printTable(('name', 'type', 'description'), items, info)

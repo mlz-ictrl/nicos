@@ -71,8 +71,9 @@ class Device(object):
 
         # initialize a logger for the device
         self._log = nicos.getLogger(name)
+        # provide convenience logging methods on self
         for mn in ('debug', 'notice', 'info', 'warning', 'error', 'exception'):
-            setattr(self, 'print' + mn, getattr(self._log, mn))
+            setattr(self, mn, getattr(self._log, mn))
 
         # validate and create attached devices
         for aname, cls in self.attached_devices.iteritems():
@@ -250,7 +251,7 @@ class Readable(Device):
             try:
                 history.put(self, 'value', timestamp, value)
             except Exception:
-                self.printwarning('could not save value to %s' % history,
+                self.warning('could not save value to %s' % history,
                                   exc=True)
         return value
 
@@ -267,7 +268,7 @@ class Readable(Device):
                 try:
                     history.put(self, 'status', timestamp, value)
                 except Exception:
-                    self.printwarning('could not save status to %s' % history,
+                    self.warning('could not save status to %s' % history,
                                       exc=True)
             return value
         return status.UNKNOWN

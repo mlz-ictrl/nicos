@@ -38,7 +38,7 @@ __version__ = "$Revision$"
 from nicm import nicos
 from nicm.device import Measurable
 from nicm.errors import NicmError, LimitError, FixedError
-from nicm.commands.output import printwarning
+from nicm.commands.output import warning
 from nicm.commands.measure import count
 
 
@@ -87,7 +87,7 @@ class Scan(object):
 
     def handleError(self, dev, val, err):
         if isinstance(err, LimitError):
-            printwarning('Skipping data point', exc=1)
+            warning('Skipping data point', exc=1)
             return False
         elif isinstance(err, FixedError):
             raise

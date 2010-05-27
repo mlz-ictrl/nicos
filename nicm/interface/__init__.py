@@ -330,7 +330,7 @@ class NICOS(object):
         try:
             dev.init()
         except Exception:
-            dev.printexception('error executing init()')
+            dev.exception('error executing init()')
         return dev
 
     def destroyDevice(self, devname):

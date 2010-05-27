@@ -40,7 +40,7 @@ from os import path
 
 from nicm import nicos
 from nicm.device import Device
-from nicm.commands.output import printinfo
+from nicm.commands.output import info
 
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
@@ -112,22 +112,22 @@ class ConsoleSink(DataSink):
 
     def beginDataset(self, devices, positions, detlist, preset,
                      userinfo, sinkinfo):
-        printinfo('=' * 80)
-        printinfo('Starting scan:      ' + userinfo)
+        info('=' * 80)
+        info('Starting scan:      ' + userinfo)
         for name, value in sinkinfo:
-            printinfo('%-20s%s' % (name+':', value))
-        printinfo('Started at:         ' + time.strftime(TIMEFMT))
-        printinfo('-' * 80)
+            info('%-20s%s' % (name+':', value))
+        info('Started at:         ' + time.strftime(TIMEFMT))
+        info('-' * 80)
         detnames = []
         detunits = []
         for det in detlist:
             names, units = det.valueInfo()
             detnames.extend(names)
             detunits.extend(units)
-        printinfo('\t'.join(map(str, ['#'] + devices + detnames)))
-        printinfo('\t'.join([''] + [dev.getUnit() for dev in devices] +
+        info('\t'.join(map(str, ['#'] + devices + detnames)))
+        info('\t'.join([''] + [dev.getUnit() for dev in devices] +
                             detunits))
-        printinfo('-' * 80)
+        info('-' * 80)
         self._pointnum = 0
         if positions:
             self._npoints = len(positions)
@@ -140,12 +140,12 @@ class ConsoleSink(DataSink):
             point = '%s/%s' % (self._pointnum, self._npoints)
         else:
             point = self._pointnum
-        printinfo('\t'.join(map(str, [point] + xvalues + yvalues)))
+        info('\t'.join(map(str, [point] + xvalues + yvalues)))
 
     def endDataset(self):
-        printinfo('-' * 80)
-        printinfo('Finished at:        ' + time.strftime(TIMEFMT))
-        printinfo('=' * 80)
+        info('-' * 80)
+        info('Finished at:        ' + time.strftime(TIMEFMT))
+        info('=' * 80)
 
 
 class AsciiDatafileSink(DataSink):
