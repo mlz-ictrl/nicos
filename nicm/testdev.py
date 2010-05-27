@@ -61,7 +61,7 @@ class VirtualMotor(Motor):
             thread = threading.Thread(target=self.__moving, args=(pos,))
             thread.start()
         else:
-            self.debug('moving to %s' % pos)
+            self.printdebug('moving to %s' % pos)
             self.__val = pos
             self.__busy = False
 
@@ -80,7 +80,7 @@ class VirtualMotor(Motor):
         incr = delta < 0 and -incr or incr
         for i in range(steps):
             time.sleep(0.1)
-            self.debug('thread moving to %s' % (self.__val + incr))
+            self.printdebug('thread moving to %s' % (self.__val + incr))
             self.__val += incr
         self.__val = pos
         self.__busy = False

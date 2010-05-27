@@ -39,7 +39,7 @@ import sys
 from functools import wraps
 
 from nicm.errors import UsageError
-from nicm.commands.output import error, exception
+from nicm.commands.output import printerror, printexception
 
 __commands__ = []
 
@@ -71,18 +71,18 @@ def userCommand(func):
             while traceback.tb_next:
                 traceback = traceback.tb_next
             if traceback.tb_frame.f_code is wrapped.func_code:
-                error('Usage error: invalid arguments for %s()'
+                printerror('Usage error: invalid arguments for %s()'
                            % func.__name__)
                 help(func)
             else:
-                exception()
+                printexception()
         except UsageError:
             # for usage errors, print the error and the help for the command
-            exception()
+            printexception()
             help(func)
         except Exception:
             # for other errors, print them a friendly fashion
-            exception()
+            printexception()
     wrapped.is_usercommand = True
     # store a reference to the original function, so that help() can find
     # out the argument specification by looking at it

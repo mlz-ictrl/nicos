@@ -42,7 +42,7 @@ from nicm import nicos
 from nicm.device import Device
 from nicm.utils import formatDocstring, printTable
 
-from nicm.commands.output import info, exception
+from nicm.commands.output import printinfo, printexception
 
 __commands__ = [
     'NicmSetup', 'NicmAddSetup', 'NicmFactory', 'NicmDestroy',
@@ -57,17 +57,17 @@ def help(obj=None):
     if obj is None:
         listcommands()
     elif isinstance(obj, Device):
-        info('%s is a device of class %s.' % (obj.getPar('name'),
+        printinfo('%s is a device of class %s.' % (obj.getPar('name'),
                                                    obj.__class__.__name__))
-        info('Its description is: %s.' % obj.getPar('description'))
+        printinfo('Its description is: %s.' % obj.getPar('description'))
     elif not inspect.isfunction(obj):
         __builtin__.help(obj)
     else:
         # for functions, print arguments and docstring
         real_func = getattr(obj, 'real_func', obj)
         argspec = inspect.formatargspec(*inspect.getargspec(real_func))
-        info('Usage: ' + real_func.__name__ + argspec)
-        info(formatDocstring(real_func.__doc__ or '', '   '))
+        printinfo('Usage: ' + real_func.__name__ + argspec)
+        printinfo(formatDocstring(real_func.__doc__ or '', '   '))
 
 def dir(obj=None):
     if obj is None:
@@ -84,7 +84,7 @@ def NicmSetup(setupname):
     try:
         nicos.loadSetup(setupname)
     except Exception:
-        exception()
+        printexception()
         nicos.loadSetup('startup')
 
 def NicmAddSetup(setupname):
@@ -106,10 +106,10 @@ def NicmDestroy(*devnames):
         nicos.destroyDevice(devname)
 
 def NicmPrint(pm, text):
-    info(text)
+    printinfo(text)
 
 def listcommands():
-    info('Available commands:')
+    printinfo('Available commands:')
     items = []
     for obj in nicos.getExportedObjects():
         if hasattr(obj, 'is_usercommand'):
@@ -119,4 +119,4 @@ def listcommands():
             items.append((real_func.__name__ + argspec,
                           docstring.splitlines()[0]))
     items.sort()
-    printTable(('name', 'description'), items, info)
+    printTable(('name', 'description'), items, printinfo)

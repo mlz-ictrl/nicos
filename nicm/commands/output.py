@@ -38,21 +38,21 @@ __version__ = "$Revision$"
 from nicm import nicos
 
 __commands__ = [
-    'debug', 'info', 'warning', 'error', 'exception',
+    'printdebug', 'printinfo', 'printwarning', 'printerror', 'printexception',
 ]
 
 
-def debug(*msgs, **kwds):
+def printdebug(*msgs, **kwds):
     nicos.log.debug(*msgs, **kwds)
 
-def info(*msgs, **kwds):
+def printinfo(*msgs, **kwds):
     nicos.log.info(*msgs, **kwds)
 
-def warning(*msgs, **kwds):
+def printwarning(*msgs, **kwds):
     nicos.log.warning(*msgs, **kwds)
 
-def error(*msgs):
+def printerror(*msgs):
     nicos.log.error(*msgs)
 
-def exception(*msgs):
+def printexception(*msgs):
     nicos.log.exception(*msgs)

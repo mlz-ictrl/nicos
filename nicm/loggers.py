@@ -129,7 +129,7 @@ class ColoredConsoleFormatter(Formatter):
         if record.name == 'nicos':
             namefmt = ''
         else:
-            namefmt = '%(name)s: '
+            namefmt = '%(name)-10s: '
         if levelno <= DEBUG:
             fmtstr = colorize('darkgray', '%s%%(message)s' % namefmt)
         elif levelno <= OUTPUT:

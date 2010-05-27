@@ -128,7 +128,7 @@ class TacoDevice(object):
         log = self.getTacolog()
 
         if log:
-            self.debug('creating %s TACO device' % class_.__name__)
+            self.printdebug('creating %s TACO device' % class_.__name__)
 
         try:
             dev = class_(devname)
@@ -139,13 +139,13 @@ class TacoDevice(object):
             if timeout != 0:
                 dev.setClientNetworkTimeout(timeout)
         except TACOError, err:
-            self.warning('Setting TACO network timeout failed: '
+            self.printwarning('Setting TACO network timeout failed: '
                               '[TACO %d] %s' % (err.errcode, err))
 
         try:
             dev.deviceOn()
         except TACOError, err:
-            self.warning('Switching TACO device %r on failed: '
+            self.printwarning('Switching TACO device %r on failed: '
                               '[TACO %d] %s' % (devname, err.errcode, err))
             try:
                 if dev.deviceState() == TACOStates.FAULT:
@@ -160,13 +160,13 @@ class TacoDevice(object):
 
     def _taco_guard_log(self, function, *args):
         """Like _taco_guard(), but log the call."""
-        self.debug('TACO call: %s%s' % (function.__name__, args))
+        self.printdebug('TACO call: %s%s' % (function.__name__, args))
         try:
             ret = function(*args)
         except TACOError, err:
             self._raise_taco(err)
         else:
-            self.debug('TACO return: %s' % ret)
+            self.printdebug('TACO return: %s' % ret)
             return ret
 
     def _taco_guard_nolog(self, function, *args):
