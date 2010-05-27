@@ -45,7 +45,7 @@ from nicm.commands.output import printinfo
 
 __commands__ = [
     'move', 'maw', 'switch', 'wait', 'read', 'status', 'stop', 'reset',
-    'count', 'set', 'get', 'fix', 'release', 'version',
+    'set', 'get', 'fix', 'release', 'version',
     'listparams', 'listdevices',
 ]
 
@@ -169,15 +169,6 @@ def reset(dev):
     status = dev.reset()
     status = statuses.get(status, str(status))
     dev.printinfo('reset, status is now %s' % status)
-
-def count(preset=None):
-    """Count for the given preset (can be seconds or monitor counts)."""
-    det = nicos.getDevice('det')
-    if preset is not None:
-        det._preset(preset)
-    det.start()
-    det.wait()
-    return det.read()
 
 def set(dev, parameter, value):
     """Set a the parameter of the device to a new value."""

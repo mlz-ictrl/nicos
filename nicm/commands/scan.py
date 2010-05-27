@@ -48,20 +48,24 @@ def _handlePreset(single, keywords):
     return keywords
 
 
-def sscan(dev, start, step, numsteps, preset=None, det=None, **presets):
+def sscan(dev, start, step, numsteps, preset=None, infostr=None,
+          det=None, **presets):
     """Single-sided scan."""
     preset = _handlePreset(preset, presets)
     values = [[start + i*step] for i in range(numsteps)]
-    infostr = 'sscan(%s, %s, %s, %s, %s, %s)' % (dev, start, step, numsteps,
-                                                 preset, det)
+    infostr = infostr or 'sscan(%s, %s, %s, %s, %s)' % (dev, start, step,
+                                                        numsteps, preset)
     scan = Scan([dev], values, det, preset, infostr)
     scan.run()
 
 
-def cscan(dev, center, step, numperside, preset=None, det=None, **presets):
+def cscan(dev, center, step, numperside, preset=None, infostr=None,
+          det=None, **presets):
     """Scan around center."""
     preset = _handlePreset(preset, presets)
     start = center - numperside * step
     values = [[start + i*step] for i in range(numperside*2 + 1)]
-    scan = Scan([dev], values, det, preset)
+    infostr = infostr or 'sscan(%s, %s, %s, %s, %s)' % (dev, center, step,
+                                                        numperside, preset)
+    scan = Scan([dev], values, det, preset, infostr)
     scan.run()

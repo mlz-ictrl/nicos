@@ -44,11 +44,7 @@ __commands__ = [
 ]
 
 
-def count(*detlist, **preset):
-    """Perform a counting of the given detector(s) with the given preset(s)."""
-    if not detlist:
-        # XXX get default from Instrument
-        detlist = [nicos.getDevice('det')]
+def _count(detlist, preset):
     # put detectors in a set and discard them when completed
     detset = set(detlist)
     for det in detlist:
@@ -63,3 +59,15 @@ def count(*detlist, **preset):
             # all detectors finished measuring
             break
     return sum((det.read() for det in detlist), [])
+
+
+def count(*detlist, **preset):
+    """Perform a counting of the given detector(s) with the given preset(s)."""
+    detlist = list(detlist)
+    if detlist and isinstance(detlist[0], (int, long)):
+        preset['t'] = detlist[0]
+        del detlist[0]
+    if not detlist:
+        # XXX get default from Instrument
+        detlist = [nicos.getDevice('det')]
+    _count(detlist, preset)

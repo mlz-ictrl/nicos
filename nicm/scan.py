@@ -39,7 +39,7 @@ from nicm import nicos
 from nicm.device import Measurable
 from nicm.errors import NicmError, LimitError, FixedError
 from nicm.commands.output import printwarning
-from nicm.commands.measure import count
+from nicm.commands.measure import _count
 
 
 class Scan(object):
@@ -52,10 +52,6 @@ class Scan(object):
         if detlist is None:
             # XXX better default
             detlist = [nicos.getDevice('det', Measurable)]
-        # normalize preset: a single integer is time
-        # XXX does that make sense here?
-        if isinstance(preset, (int, float)):
-            preset = {'t': preset}
         self.devices = devices
         self.positions = positions
         self.detlist = detlist
@@ -116,7 +112,7 @@ class Scan(object):
                     can_measure = self.moveTo(self.devices, position)
                 if not can_measure:
                     continue
-                result = count(*self.detlist, **self.preset)
+                result = _count(self.detlist, self.preset)
                 self.addPoint(i+1, position, result)
         finally:
             self.endScan()
