@@ -86,9 +86,9 @@ class NicmLogger(Logger):
             if msgs:
                 msgs += ('-',)
             if issubclass(exc_info[0], NicmError):
-                msgs += (exc_info[0].category + ':', exc_info[1],)
+                msgs += (exc_info[0].category + ' -', exc_info[1],)
             else:
-                msgs += (exc_info[0].__name__ + ':', exc_info[1],)
+                msgs += (exc_info[0].__name__ + ' -', exc_info[1],)
         msg = ' '.join(map(str, msgs))
         return msg, exc_info
 
@@ -127,7 +127,7 @@ class ColoredConsoleFormatter(Formatter):
 
     def format(self, record):
         levelno = record.levelno
-        datefmt = colorize('darkgray', '[%(asctime)s] ')
+        datefmt = colorize('lightgray', '[%(asctime)s] ')
         if record.name == 'nicos':
             namefmt = ''
         else:
@@ -140,7 +140,7 @@ class ColoredConsoleFormatter(Formatter):
             # do not display input again
             return ''
         elif levelno <= WARNING:
-            fmtstr = colorize('blue', '%s%%(levelname)s: %%(message)s' %
+            fmtstr = colorize('fuchsia', '%s%%(levelname)s: %%(message)s' %
                               namefmt)
         else:
             fmtstr = colorize('red', '%s%%(levelname)s: %%(message)s' %

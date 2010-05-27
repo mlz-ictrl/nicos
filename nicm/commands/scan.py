@@ -40,8 +40,17 @@ from nicm.scan import Scan
 __commands__ = ['sscan', 'cscan']
 
 
-def sscan(dev, start, step, numsteps, preset=None, det=None):
+def _handlePreset(single, keywords):
+    if single is not None:
+        presets = {'t': single}
+        presets.update(keywords)
+        return presets
+    return keywords
+
+
+def sscan(dev, start, step, numsteps, preset=None, det=None, **presets):
     """Single-sided scan."""
+    preset = _handlePreset(preset, presets)
     values = [[start + i*step] for i in range(numsteps)]
     infostr = 'sscan(%s, %s, %s, %s, %s, %s)' % (dev, start, step, numsteps,
                                                  preset, det)
@@ -49,8 +58,9 @@ def sscan(dev, start, step, numsteps, preset=None, det=None):
     scan.run()
 
 
-def cscan(dev, center, step, numperside, preset=None, det=None):
+def cscan(dev, center, step, numperside, preset=None, det=None, **presets):
     """Scan around center."""
+    preset = _handlePreset(preset, presets)
     start = center - numperside * step
     values = [[start + i*step] for i in range(numperside*2 + 1)]
     scan = Scan([dev], values, det, preset)

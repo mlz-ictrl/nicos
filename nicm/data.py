@@ -93,9 +93,10 @@ class DataSink(Device):
         """
         pass
 
-    def addPoint(self, xvalues, yvalues):
+    def addPoint(self, num, xvalues, yvalues):
         """Add a point to the dataset.
 
+        *num* is the number of the point in the scan
         *xvalues* is a list of values with the same length as the initial
         *devices* list given to `beginDataset()`, and *yvalues* is a list of
         values with the same length as the all of detlist's value lists.
@@ -113,7 +114,7 @@ class ConsoleSink(DataSink):
     def beginDataset(self, devices, positions, detlist, preset,
                      userinfo, sinkinfo):
         printinfo('=' * 80)
-        printinfo('Starting scan:      ' + userinfo)
+        printinfo('Starting scan:      ' + (userinfo or ''))
         for name, value in sinkinfo:
             printinfo('%-20s%s' % (name+':', value))
         printinfo('Started at:         ' + time.strftime(TIMEFMT))
@@ -124,23 +125,23 @@ class ConsoleSink(DataSink):
             names, units = det.valueInfo()
             detnames.extend(names)
             detunits.extend(units)
-        printinfo('\t'.join(map(str, ['#'] + devices + detnames)))
+        printinfo('\t'.join(map(str, ['#'] + devices + detnames))
+                  .expandtabs())
         printinfo('\t'.join([''] + [dev.unit for dev in devices] +
-                            detunits))
+                            detunits).expandtabs())
         printinfo('-' * 80)
-        self._pointnum = 0
         if positions:
             self._npoints = len(positions)
         else:
             self._npoints = 0
 
-    def addPoint(self, xvalues, yvalues):
-        self._pointnum += 1
+    def addPoint(self, num, xvalues, yvalues):
         if self._npoints:
-            point = '%s/%s' % (self._pointnum, self._npoints)
+            point = '%s/%s' % (num, self._npoints)
         else:
-            point = self._pointnum
-        printinfo('\t'.join(map(str, [point] + xvalues + yvalues)))
+            point = num
+        printinfo('\t'.join(map(str, [point] + xvalues + yvalues))
+                  .expandtabs())
 
     def endDataset(self):
         printinfo('-' * 80)
@@ -215,7 +216,7 @@ class AsciiDatafileSink(DataSink):
             self._file.write('# %-25s%s\n' % (name + ' ' + key + ':', value))
         self._file.flush()
 
-    def addPoint(self, xvalues, yvalues):
+    def addPoint(self, num, xvalues, yvalues):
         if not self._wrote_columninfo:
             self._file.write('### Measurement data\n')
             self._file.write('# ' + '\t'.join(self._colnames) + '\n')

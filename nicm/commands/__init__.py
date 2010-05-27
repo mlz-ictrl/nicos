@@ -80,9 +80,9 @@ def userCommand(func):
             # for usage errors, print the error and the help for the command
             printexception()
             help(func)
-        except Exception:
-            # for other errors, print them a friendly fashion
-            printexception()
+        #except Exception:
+        #    # for other errors, print them a friendly fashion
+        #    printexception()
     wrapped.is_usercommand = True
     # store a reference to the original function, so that help() can find
     # out the argument specification by looking at it

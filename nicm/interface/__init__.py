@@ -48,7 +48,6 @@ from os import path
 
 from nicm import loggers
 from nicm.errors import NicmError, UsageError, ConfigurationError
-from nicm.utils import colorize
 
 
 class NicosNamespace(dict):
@@ -172,7 +171,7 @@ class NICOS(object):
         if not self.__setup_info:
             self.__readSetups()
 
-        log = self.getLogger('setup')
+        log = self.getLogger('nicos')
         if setupname in self.loaded_setups:
             log.warning('setup %s is already loaded' % setupname)
             return
@@ -243,7 +242,7 @@ class NICOS(object):
 
         self.explicit_setups.append(setupname)
         expsetups = '+'.join(self.explicit_setups)
-        sys.ps1 = '(%s) >>> ' % colorize('fuchsia', expsetups)
+        sys.ps1 = '(%s) >>> ' % expsetups
         sys.ps2 = ' %s  ... ' % (' ' * len(expsetups))
         log.info('setup loaded')
 

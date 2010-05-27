@@ -297,7 +297,7 @@ class Startable(Readable):
 
     def __init__(self, name, config):
         Readable.__init__(self, name, config)
-        self.__is_fixed = False
+        self.__isFixed = False
 
     def __call__(self, pos=None):
         """Allow dev() and dev(newpos) as shortcuts for read and start."""
@@ -307,14 +307,14 @@ class Startable(Readable):
 
     def start(self, pos):
         """Start main action of the device."""
-        if self.__is_fixed:
-            raise FixedError(self, 'is fixed')
+        if self.__isFixed:
+            raise FixedError(self, 'use release() first')
         self.doStart(pos)
 
     def stop(self):
         """Stop main action of the device."""
-        if self.__is_fixed:
-            raise FixedError(self, 'is fixed')
+        if self.__isFixed:
+            raise FixedError(self, 'use release() first')
         if hasattr(self, 'doStop'):
             self.doStop()
 
@@ -337,19 +337,19 @@ class Startable(Readable):
 
     def fix(self):
         """Fix the device, i.e. don't allow movement anymore."""
-        if self.__is_fixed:
+        if self.__isFixed:
             return
         if hasattr(self, 'doFix'):
             self.doFix()
-        self.__is_fixed = True
+        self.__isFixed = True
 
     def release(self):
         """Release the device, i.e. undo the effect of fix()."""
-        if not self.__is_fixed:
+        if not self.__isFixed:
             return
         if hasattr(self, 'doRelease'):
             self.doRelease()
-        self.__is_fixed = False
+        self.__isFixed = False
 
 
 class Moveable(Startable):

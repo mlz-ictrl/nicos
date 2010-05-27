@@ -47,6 +47,7 @@ import rlcompleter
 import nicm
 from nicm.interface import NICOS
 from nicm.loggers import ColoredConsoleHandler, OUTPUT, INPUT
+from nicm.utils import colorcode
 
 
 class NicmCompleter(rlcompleter.Completer):
@@ -90,7 +91,7 @@ class NicmInteractiveConsole(code.InteractiveConsole):
         try:
             code = self.compile(source, filename, symbol)
         except (OverflowError, SyntaxError, ValueError):
-            self.log.exception('invalid syntax')
+            self.log.exception()
             return False
 
         if code is None:
@@ -99,6 +100,12 @@ class NicmInteractiveConsole(code.InteractiveConsole):
         self.log.log(INPUT, source)
         self.runcode(code)
         return False
+
+    def raw_input(self, prompt):
+        sys.stdout.write(colorcode('blue'))
+        inp = raw_input(prompt)
+        sys.stdout.write(colorcode('reset'))
+        return inp
 
     def runcode(self, codeobj):
         """Mostly copied from code.InteractiveInterpreter, but added the

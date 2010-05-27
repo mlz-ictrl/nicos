@@ -200,3 +200,6 @@ for _i, (_dark, _light) in enumerate(_colors):
 
 def colorize(name, text):
     return _codes.get(name, '') + text + _codes.get('reset', '')
+
+def colorcode(name):
+    return _codes.get(name, '')

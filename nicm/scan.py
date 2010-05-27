@@ -77,9 +77,9 @@ class Scan(object):
             for sink in self.sinks:
                 sink.addInfo(category, name, values)
 
-    def addPoint(self, xvalues, yvalues):
+    def addPoint(self, num, xvalues, yvalues):
         for sink in self.sinks:
-            sink.addPoint(xvalues, yvalues)
+            sink.addPoint(num, xvalues, yvalues)
 
     def endScan(self):
         for sink in self.sinks:
@@ -117,6 +117,6 @@ class Scan(object):
                 if not can_measure:
                     continue
                 result = count(*self.detlist, **self.preset)
-                self.addPoint(position, result)
+                self.addPoint(i+1, position, result)
         finally:
             self.endScan()

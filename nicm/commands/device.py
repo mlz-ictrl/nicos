@@ -41,7 +41,7 @@ from nicm.errors import NicmError, UsageError
 from nicm.status import statuses
 from nicm.utils import printTable
 
-from nicm.commands.output import printinfo, printexception
+from nicm.commands.output import printinfo
 
 __commands__ = [
     'move', 'maw', 'switch', 'wait', 'read', 'status', 'stop', 'reset',
@@ -126,7 +126,7 @@ def read(*devlist):
         try:
             value = dev.read()
         except NicmError:
-            printexception('error reading', dev)
+            dev.printexception('error reading device')
         else:
             dev.printinfo('at %s %s' % (dev.format(value), dev.unit))
 
@@ -142,7 +142,7 @@ def status(*devlist):
         try:
             status = dev.status()
         except NicmError:
-            printexception('error reading status of', dev)
+            dev.printexception('error reading status')
         else:
             status = statuses.get(status, str(status))
             dev.printinfo('status is %s' % status)
@@ -156,8 +156,12 @@ def stop(*devlist):
                    if isinstance(nicos.devices[devname], Startable)]
     for dev in devlist:
         dev = nicos.getDevice(dev, Startable)
-        dev.stop()
-        dev.printinfo('stopped')
+        try:
+            dev.stop()
+        except NicmError:
+            dev.printexception('error stopping device')
+        else:
+            dev.printinfo('stopped')
 
 def reset(dev):
     """Reset the given device."""
