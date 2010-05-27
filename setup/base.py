@@ -37,7 +37,7 @@ modules = ['nicm.commands']
 
 devices = dict(
     m1 = device('nicm.testdev.VirtualMotor',
-                loglevel = 'debug',
+                #loglevel = 'debug',
                 initval = 1,
                 absmin = 0,
                 absmax = 100,

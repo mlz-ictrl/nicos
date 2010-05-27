@@ -47,7 +47,8 @@ class NicmError(Exception):
         args = list(args)
         if args and isinstance(args[0], Device):
             self.device = args[0]
-            args[0] = args[0].name + ': '
+            #args[0] = args[0].name + ': '
+            del args[0]
         Exception.__init__(self, ''.join(args))
 
 

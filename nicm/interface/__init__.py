@@ -375,7 +375,6 @@ class NICOS(object):
         """
         if isinstance(exc_info[1], NicmError):
             if exc_info[1].device and exc_info[1].device._log:
-                exc_info[1].device._log.error('unhandled exception occurred',
-                                              exc_info=exc_info)
+                exc_info[1].device._log.error(exc_info=exc_info)
                 return
-        self.log.error('unhandled exception occurred', exc_info=exc_info)
+        self.log.error(exc_info=exc_info)

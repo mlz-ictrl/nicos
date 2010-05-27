@@ -122,10 +122,12 @@ class ColoredConsoleFormatter(Formatter):
         return traceback.format_exception_only(*exc_info[0:2])[-1]
 
     def formatTime(self, record, datefmt=None):
-        return time.strftime(LONGDATEFMT, self.converter(record.created))
+        return time.strftime(datefmt or DATEFMT,
+                             self.converter(record.created))
 
     def format(self, record):
         levelno = record.levelno
+        datefmt = colorize('darkgray', '[%(asctime)s] ')
         if record.name == 'nicos':
             namefmt = ''
         else:
@@ -138,15 +140,16 @@ class ColoredConsoleFormatter(Formatter):
             # do not display input again
             return ''
         elif levelno <= WARNING:
-            fmtstr = colorize('blue', '%%(levelname)s: %s%%(message)s' %
+            fmtstr = colorize('blue', '%s%%(levelname)s: %%(message)s' %
                               namefmt)
         else:
-            fmtstr = colorize('red', '%%(levelname)s [%%(asctime)s] '
-                              '%s%%(message)s' % namefmt)
+            fmtstr = colorize('red', '%s%%(levelname)s: %%(message)s' %
+                               namefmt)
+        fmtstr = datefmt + fmtstr
         if not getattr(record, 'nonl', False):
             fmtstr += '\n'
         record.message = record.getMessage()
-        record.asctime = self.formatTime(record, None)
+        record.asctime = self.formatTime(record, self.datefmt)
         s = fmtstr % record.__dict__
         # never output more exception info -- the exception message is already
         # part of the log message because of our special logger behavior
@@ -164,7 +167,7 @@ class ColoredConsoleHandler(StreamHandler):
 
     def __init__(self):
         StreamHandler.__init__(self, sys.stdout)
-        self.setFormatter(ColoredConsoleFormatter(datefmt=LONGDATEFMT))
+        self.setFormatter(ColoredConsoleFormatter(datefmt=DATEFMT))
 
     def emit(self, record):
         msg = self.format(record)
