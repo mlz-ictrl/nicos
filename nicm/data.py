@@ -163,7 +163,7 @@ class AsciiDatafileSink(DataSink):
 
     def doInit(self):
         # XXX where is datapath really defined?
-        #self.setDatapath(nicos.getSystem().getStorage().datapath)
+        #self.setDatapath(nicos.getSystem().storage.datapath)
         self.setDatapath('')
         self._file = None
         self._fname = ''

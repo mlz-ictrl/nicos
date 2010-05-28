@@ -79,6 +79,15 @@ class Device(object):
         for mn in ('debug', 'notice', 'info', 'warning', 'error', 'exception'):
             setattr(self, 'print' + mn, getattr(self._log, mn))
 
+    def __setattr__(self, name, value):
+        # disallow modification of public attributes that are not parameters
+        if name not in self.__class__.__dict__ and name[0] != '_' and \
+               not name.startswith('print'):
+            raise UsageError(self, 'device has no parameter %s, use '
+                             'listparams() to show all' % name)
+        else:
+            object.__setattr__(self, name, value)
+
     def __str__(self):
         return self._params['name']
 
@@ -102,7 +111,8 @@ class Device(object):
     def setPar(self, name, value):
         """Set a parameter of the device to a new value."""
         if name.lower() not in self.parameters:
-            raise UsageError(self, 'device has no parameter %s' % name)
+            raise UsageError(self, 'device has no parameter %s, use '
+                             'listparams() to show all' % name)
         setattr(self, name.lower(), value)
 
     def doSetDescription(self, value):
