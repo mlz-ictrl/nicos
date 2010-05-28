@@ -67,5 +67,10 @@ class System(Device):
     def __repr__(self):
         return '<NICM System>'
 
-    def getStorage(self):
+    @property
+    def storage(self):
         return self._adevs['storage']
+
+    @property
+    def logging(self):
+        return self._adevs['logging']

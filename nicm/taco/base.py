@@ -69,6 +69,8 @@ class TacoDevice(object):
     taco_class = None
     # whether to call deviceReset() if the initial switch-on fails
     taco_resetok = True
+    # TACO device instance
+    _dev = None
 
     def doInit(self):
         if self.tacolog:
@@ -101,7 +103,8 @@ class TacoDevice(object):
 
     def doSetTacotimeout(self, value):
         self._params['tacotimeout'] = value
-        self._taco_guard(self._dev.setClientNetworkTimeout, value)
+        if self._dev:
+            self._taco_guard(self._dev.setClientNetworkTimeout, value)
 
     def doSetTacolog(self, value):
         value = bool(value)

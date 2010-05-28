@@ -54,7 +54,7 @@ class DataSink(Device):
     """
 
     parameters = {
-        'scantypes': ([], False, 'Scan types for which the sink is active.'),
+        'scantypes': (None, False, 'Scan types for which the sink is active.'),
     }
 
     def prepareDataset(self):
@@ -108,6 +108,10 @@ class DataSink(Device):
         """
         pass
 
+    def setDatapath(self, value):
+        # XXX needed?
+        pass
+
 
 class ConsoleSink(DataSink):
 
@@ -159,16 +163,19 @@ class AsciiDatafileSink(DataSink):
 
     def doInit(self):
         # XXX where is datapath really defined?
-        self.setDatapath(nicos.getSystem().getStorage().datapath)
+        #self.setDatapath(nicos.getSystem().getStorage().datapath)
+        self.setDatapath('')
         self._file = None
         self._fname = ''
         self._counter = 0
-        self.doSetPrefix(self._params['prefix'])
 
     def doSetPrefix(self, value):
-        self._prefix = self._params['prefix']
+        self._prefix = value
         if self._prefix:
             self._prefix += '_'
+
+    def doGetPrefix(self):
+        return self._prefix
 
     def setDatapath(self, value):
         self._path = value
@@ -252,5 +259,5 @@ class Storage(Device):
 
     def doSetDatapath(self, value):
         self._params['datapath'] = value
-        for sink in self.sinks:
+        for sink in self._adevs['sinks']:
             sink.setDatapath(value)

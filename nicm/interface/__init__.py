@@ -334,10 +334,7 @@ class NICOS(object):
         dev = devcls(devname, devconfig)
         self.devices[devname] = dev
         self.export(devname, dev)
-        try:
-            dev.init()
-        except Exception:
-            dev.printexception('error executing init()')
+        dev.init()
         return dev
 
     def destroyDevice(self, devname):

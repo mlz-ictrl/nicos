@@ -64,9 +64,13 @@ class Device(object):
     attached_devices = {}
 
     def __init__(self, name, config=None):
-        config = config or {}
+        # _config: device configuration (all parameter names lower-case)
+        self._config = dict((name.lower(), value)
+                            for (name, value) in (config or {}).items())
         # _params: parameter values from config
         self._params = {'name': name}  # pre-set "name" for str(self) to work
+        # _changedparams: set of all changed params for record()
+        self._changedparams = set()
         # _adevs: "attached" device instances
         self._adevs = {}
 
@@ -74,71 +78,6 @@ class Device(object):
         self._log = nicos.getLogger(name)
         for mn in ('debug', 'notice', 'info', 'warning', 'error', 'exception'):
             setattr(self, 'print' + mn, getattr(self._log, mn))
-
-        # validate and create attached devices
-        for aname, cls in self.attached_devices.iteritems():
-            if aname not in config:
-                raise ConfigurationError(
-                    self, 'device misses device %r in configuration' % aname)
-            value = config[aname]
-            if value is None:
-                self._adevs[aname] = None
-                continue
-            if isinstance(cls, list):
-                cls = cls[0]
-                devlist = []
-                self._adevs[aname] = devlist
-                for i, devname in enumerate(value):
-                    dev = nicos.createDevice(devname)
-                    if not isinstance(dev, cls):
-                        raise ConfigurationError(
-                            self, 'device %r item %d has wrong type' %
-                            (aname, i))
-                    devlist.append(dev)
-            else:
-                dev = nicos.createDevice(value)
-                if not isinstance(dev, cls):
-                    raise ConfigurationError(
-                        self, 'device %r has wrong type' % aname)
-                self._adevs[aname] = dev
-
-        # make all parameter names lower-case
-        config = dict((name.lower(), value) for (name, value) in config.items())
-        # validate and assign parameters
-        for param, paraminfo in self.parameters.iteritems():
-            param = param.lower()
-
-            # check validity of parameter info
-            if not isinstance(paraminfo, tuple) or len(paraminfo) != 3:
-                raise ProgrammingError('%r device %r configuration parameter '
-                                       'info should be a 3-tuple' %
-                                       (name, param))
-            default, mandatory, doc = paraminfo
-            deftype = type(default)
-            if deftype in (int, long, float):
-                deftype = (int, long, float)
-
-            # check the parameter type and set it in self._params
-            if param in config:
-                value = config[param]
-                if not isinstance(value, deftype):
-                    raise ConfigurationError(
-                        self, '%r configuration parameter has wrong type '
-                        '(expected %s, found %s)' %
-                        (param, type(default).__name__, type(value).__name__))
-                self._params[param] = value
-            elif not mandatory:
-                self._params[param] = default
-            else:
-                raise ConfigurationError(self, 'missing configuration '
-                                         'parameter %r' % param)
-
-        # initialize some standard parameters
-        self._params['name'] = name
-        if not self._params['description']:
-            self._params['description'] = name
-        # set loglevel (also checks validity explicitly)
-        self.setPar('loglevel', self._params['loglevel'])
 
     def __str__(self):
         return self._params['name']
@@ -165,6 +104,9 @@ class Device(object):
             raise UsageError(self, 'device has no parameter %s' % name)
         setattr(self, name.lower(), value)
 
+    def doSetDescription(self, value):
+        self._params['description'] = value
+
     def doSetLoglevel(self, value):
         if value not in loggers.loglevels:
             raise UsageError(self, 'loglevel must be one of %s' %
@@ -174,8 +116,65 @@ class Device(object):
 
     def init(self):
         """Initialize the object; this is called when the object is created."""
+        # validate and create attached devices
+        for aname, cls in self.attached_devices.iteritems():
+            if aname not in self._config:
+                raise ConfigurationError(
+                    self, 'device misses device %r in configuration' % aname)
+            value = self._config[aname]
+            if value is None:
+                self._adevs[aname] = None
+                continue
+            if isinstance(cls, list):
+                cls = cls[0]
+                devlist = []
+                self._adevs[aname] = devlist
+                for i, devname in enumerate(value):
+                    dev = nicos.createDevice(devname)
+                    if not isinstance(dev, cls):
+                        raise ConfigurationError(
+                            self, 'device %r item %d has wrong type' %
+                            (aname, i))
+                    devlist.append(dev)
+            else:
+                dev = nicos.createDevice(value)
+                if not isinstance(dev, cls):
+                    raise ConfigurationError(
+                        self, 'device %r has wrong type' % aname)
+                self._adevs[aname] = dev
+
+        # validate and assign parameters
+        for param, paraminfo in self.parameters.iteritems():
+            param = param.lower()
+            # do not try to set special parameters
+            if param in ('name', 'autocreate'):
+                continue
+            default, mandatory, doc = paraminfo
+            # determine parameter value to set
+            if param in self._config:
+                paramvalue = self._config[param]
+            elif not mandatory:
+                if default is None:
+                    continue
+                paramvalue = default
+            else:
+                raise ConfigurationError(self, 'missing configuration '
+                                         'parameter %r' % param)
+            # set parameter either via setter, or in _params
+            if hasattr(self, 'doSet' + param.title()):
+                setattr(self, param, paramvalue)
+            else:
+                self._params[param] = paramvalue
+
+        if not self.description:
+            self.description = self.name
+
+        # call custom initialization
         if hasattr(self, 'doInit'):
             self.doInit()
+
+        # record parameter changes from now on
+        self._changedparams.clear()
 
     def info(self):
         """Return device information as an iterable of tuples (name, value)."""
@@ -207,8 +206,8 @@ class Readable(Device):
         'histories': ([], False, 'List of history managers.'),
     }
 
-    def __init__(self, name, config):
-        Device.__init__(self, name, config)
+    def init(self):
+        Device.init(self)
         from nicm.history import History
         self.__histories = []
         histnames = self.histories + nicos.getSystem().histories
@@ -429,6 +428,10 @@ class Moveable(Startable):
         """Set the user minimum value to value after checking the value against
         absolute limits and user maximum.
         """
+        if 'usermin' not in self._params:
+            # first time from setup file
+            self._params['usermin'] = float(value)
+            return
         old = self._params['usermin']
         self._params['usermin'] = float(value)
         try:
@@ -441,6 +444,10 @@ class Moveable(Startable):
         """Set the user maximum value to value after checking the value against
         absolute limits and user minimum.
         """
+        if 'usermax' not in self._params:
+            # first time from setup file
+            self._params['usermax'] = float(value)
+            return
         old = self._params['usermax']
         self._params['usermax'] = float(value)
         try:

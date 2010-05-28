@@ -37,7 +37,7 @@ __version__ = "$Revision$"
 
 import sys
 
-from nicm.errors import ConfigurationError
+from nicm.errors import ConfigurationError, ProgrammingError
 
 
 class MergedAttrsMeta(type):
@@ -87,6 +87,12 @@ class AutoPropsMeta(MergedAttrsMeta):
     def __new__(mcs, name, bases, attrs):
         newtype = MergedAttrsMeta.__new__(mcs, name, bases, attrs)
         for param, info in newtype.parameters.iteritems():
+            param = param.lower()
+            # check validity of parameter info
+            if not isinstance(info, tuple) or len(info) != 3:
+                raise ProgrammingError('%r device %r configuration '
+                                       ' parameter info should be a '
+                                       '3-tuple' % (name, param))
             def getter(self, param=param):
                 methodname = 'doGet' + param.title()
                 if hasattr(self, methodname):
@@ -100,6 +106,7 @@ class AutoPropsMeta(MergedAttrsMeta):
                 else:
                     raise ConfigurationError(
                         self, 'cannot set the %s parameter' % param)
+                self._changedparams.add(param)
             setattr(newtype, param, property(getter, setter, doc=info[2]))
         return newtype
 
