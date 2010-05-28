@@ -47,6 +47,7 @@ from nicm.commands.output import printinfo, printexception
 __commands__ = [
     'NicmSetup', 'NicmAddSetup', 'NicmFactory', 'NicmDestroy',
     'NicmPrint', 'NicmExport', 'listcommands', 'help', 'dir',
+    'savestate',
 ]
 
 
@@ -106,9 +107,11 @@ def NicmDestroy(*devnames):
         nicos.destroyDevice(devname)
 
 def NicmPrint(pm, text):
+    """Compatibility print function."""
     printinfo(text)
 
 def listcommands():
+    """List all available commands."""
     printinfo('Available commands:')
     items = []
     for obj in nicos.getExportedObjects():
@@ -120,3 +123,11 @@ def listcommands():
                           docstring.splitlines()[0]))
     items.sort()
     printTable(('name', 'description'), items, printinfo)
+
+def savestate():
+    """Return statements that restore the current state."""
+    ret = ['NicmSetup(%r)\n' % nicos.explicit_setups[0]]
+    ret += ['NicmAddSetup(%r)\n' % setup
+            for setup in nicos.explicit_setups[1:]]
+    return ''.join(ret + [nicos.devices[dev].save()
+                          for dev in nicos.explicit_devices])

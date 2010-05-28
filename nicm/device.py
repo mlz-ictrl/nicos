@@ -69,7 +69,7 @@ class Device(object):
                             for (name, value) in (config or {}).items())
         # _params: parameter values from config
         self._params = {'name': name}  # pre-set "name" for str(self) to work
-        # _changedparams: set of all changed params for record()
+        # _changedparams: set of all changed params for save()
         self._changedparams = set()
         # _adevs: "attached" device instances
         self._adevs = {}
@@ -204,6 +204,15 @@ class Device(object):
         if hasattr(self, 'doVersion'):
             versions.extend(self.doVersion())
         return versions
+
+    def save(self):
+        code = []
+        if hasattr(self, 'doSave'):
+            code.append(self.doSave())
+        for param in self._changedparams:
+            code.append('set(%s, %r, %r)\n' %
+                        (self.name, param, self.getPar(param)))
+        return ''.join(code)
 
 
 class Readable(Device):
