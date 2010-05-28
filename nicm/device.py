@@ -95,7 +95,8 @@ class Device(object):
     def getPar(self, name):
         """Get a parameter of the device."""
         if name.lower() not in self.parameters:
-            raise UsageError(self, 'device has no parameter %s' % name)
+            raise UsageError(self, 'device has no parameter %s, use '
+                             'listparams() to show all' % name)
         return getattr(self, name.lower())
 
     def setPar(self, name, value):
