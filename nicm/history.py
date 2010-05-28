@@ -118,13 +118,14 @@ class LogfileHistory(History):
         for fd in self.__files.itervalues():
             fd.close()
 
-    def put(self, dev, tstamp, value):
-        name = dev.name
-        if name not in self.__files:
+    def put(self, dev, name, tstamp, value):
+        if (dev.name, name) not in self.__files:
             timestamp = time.strftime('%Y-%m-%d-%H-%M-%S')
-            newname = '%s%s_%s.log' % (self.basefilename, name, timestamp)
-            self.__files[name] = open(newname, 'a')
-        self.__files[name].write('%s\t%s\n' % (tstamp, value))
+            newname = '%s%s_%s_%s.log' % (self.basefilename, dev.name,
+                                          name, timestamp)
+            self.__files[dev.name, name] = open(newname, 'a')
+        self.__files[dev.name, name].write('%s\t%s\n' % (tstamp, value))
+        self.__files[dev.name, name].flush()
 
     def get(self, dev, fromtime, totime):
         return None
