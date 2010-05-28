@@ -130,4 +130,4 @@ def savestate():
     ret += ['NicmAddSetup(%r)\n' % setup
             for setup in nicos.explicit_setups[1:]]
     return ''.join(ret + [nicos.devices[dev].save()
-                          for dev in sorted(nicos.explicit_devices)])
+                          for dev in sorted(nicos.devices)])

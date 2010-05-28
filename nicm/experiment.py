@@ -41,42 +41,14 @@ __version__ = "$Revision $"
 from nicm.device import Device
 
 
-class User(Device):
-    """A special singleton device that represents the user."""
-
-    parameters = {
-        'name': ('', True, 'User name.'),
-        'email': ('', True, 'E-Mail address of user.'),
-        'affiliation': ('FRM II', False, 'User affiliation.'),
-    }
-
-    def __repr__(self):
-        return '<User "%s">' % self.name
-
-    def doSetName(self, value):
-        self._params['name'] = value
-
-    def doSetEmail(self, value):
-        self._params['email'] = value
-
-    def doSetAffiliation(self, value):
-        self._params['affiliation'] = value
-
-
 class Experiment(Device):
     """A special singleton device to represent the experiment."""
 
     parameters = {
         'title': ('', False, 'Experiment title.'),
         'proposalnumber': (0, False, 'Proposal number.'),
+        'users': ([], False, 'User names.'),
     }
-
-    attached_devices = {
-        'users': [User],
-    }
-
-    def getUsers(self):
-        return self._adevs['users']
 
     def doSetTitle(self, value):
         self._params['title'] = value
@@ -84,17 +56,19 @@ class Experiment(Device):
     def doSetProposalnumber(self, value):
         self._params['proposalnumber'] = value
 
+    def doSetUsers(self, value):
+        self._params['users'] = value
+
     def new(self, proposalnumber, title=None):
         if not isinstance(proposalnumber, int):
             proposalnumber = int(proposalnumber)
         self.proposalnumber = proposalnumber
         if title is not None:
             self.title = title
-        self._adevs['users'] = []
+        self.users = []
 
     def addUser(self, name, email, affiliation=None):
-        config = {'name': name, 'email': email}
+        user = '%s <%s>' % (name, email)
         if affiliation is not None:
-            config['affiliation'] = affiliation
-        user = User(name, config)
-        self._adevs['users'].append(user)
+            user += ' -- ' + affiliation
+        self._params['users'].append(user)

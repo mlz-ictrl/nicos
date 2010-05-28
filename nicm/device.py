@@ -209,7 +209,7 @@ class Device(object):
         code = []
         if hasattr(self, 'doSave'):
             code.append(self.doSave())
-        for param in self._changedparams:
+        for param in sorted(self._changedparams):
             code.append('set(%s, %r, %r)\n' %
                         (self.name, param, self.getPar(param)))
         return ''.join(code)
