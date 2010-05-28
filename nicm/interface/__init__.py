@@ -187,7 +187,7 @@ class NICOS(object):
             if modname in self.user_modules:
                 return
             self.user_modules.add(modname)
-            log.info('importing module %s... ' % modname, nonl=1)
+            log.info('importing module %s... ' % modname)
             try:
                 __import__(modname)
                 mod = sys.modules[modname]
@@ -197,7 +197,6 @@ class NICOS(object):
             if hasattr(mod, '__commands__'):
                 for cmdname in mod.__commands__:
                     self.export(cmdname, userCommand(getattr(mod, cmdname)))
-            log.info('done')
 
         def inner_load(name):
             if name in self.loaded_setups:
@@ -220,13 +219,12 @@ class NICOS(object):
             for devname, (_, devconfig) in devlist:
                 if not devconfig.get('autocreate', False):
                     continue
-                log.info('creating device %r... ' % devname, nonl=1)
+                log.info('creating device %r... ' % devname)
                 try:
                     self.createDevice(devname, explicit=True)
-                    log.info('done')
-                except Exception, err:
-                    log.info('failed')
-                    failed_devs.append((devname, err))
+                except Exception:
+                    log.exception('failed')
+                    failed_devs.append(devname)
 
             exec info['startupcode'] in self.__namespace
 
@@ -236,9 +234,8 @@ class NICOS(object):
         inner_load(setupname)
 
         if failed_devs:
-            log.warning('the following devices could not be created')
-            for info in failed_devs:
-                log.info('  %-15s: %s' % info)
+            log.warning('the following devices could not be created:')
+            log.warning(', '.join(failed_devs))
 
         self.explicit_setups.append(setupname)
         expsetups = '+'.join(self.explicit_setups)

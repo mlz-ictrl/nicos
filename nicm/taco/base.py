@@ -109,7 +109,8 @@ class TacoDevice(object):
     def doSetTacolog(self, value):
         value = bool(value)
         self._params['tacolog'] = value
-        self._taco_guard = value and self._taco_guard_log or self._taco_guard_nolog
+        self._taco_guard = value and self._taco_guard_log or \
+                           self._taco_guard_nolog
 
     # internal utilities
 
