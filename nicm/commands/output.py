@@ -36,23 +36,25 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from nicm import nicos
-
-__commands__ = [
-    'printdebug', 'printinfo', 'printwarning', 'printerror', 'printexception',
-]
+from nicm.commands import usercommand
 
 
+@usercommand
 def printdebug(*msgs, **kwds):
     nicos.log.debug(*msgs, **kwds)
 
+@usercommand
 def printinfo(*msgs, **kwds):
     nicos.log.info(*msgs, **kwds)
 
+@usercommand
 def printwarning(*msgs, **kwds):
     nicos.log.warning(*msgs, **kwds)
 
+@usercommand
 def printerror(*msgs):
     nicos.log.error(*msgs)
 
+@usercommand
 def printexception(*msgs):
     nicos.log.exception(*msgs)

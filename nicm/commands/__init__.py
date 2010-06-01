@@ -35,29 +35,25 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+
+def usercommand(func):
+    """Decorator that marks a function as a user command."""
+    func.is_usercommand = True
+    return func
+
+
 import sys
 from functools import wraps
 
 from nicm.errors import UsageError
 from nicm.commands.output import printerror, printexception
 
-__commands__ = []
+def usercommandWrapper(func):
+    """Wrap a function as a user command.
 
-def importAllCommands(module):
-    mod = __import__(module, None, None, ['__commands__'])
-    for command in mod.__commands__:
-        __commands__.append(command)
-        globals()[command] = getattr(mod, command)
-
-importAllCommands('nicm.commands.basic')
-importAllCommands('nicm.commands.device')
-importAllCommands('nicm.commands.output')
-importAllCommands('nicm.commands.measure')
-importAllCommands('nicm.commands.scan')
-
-
-def userCommand(func):
-    """Decorator that registers a function as a user command."""
+    This is not done in the "usercommand" decorator since the function
+    should stay usable as a regular function from nicm code.
+    """
     @wraps(func)
     def wrapped(*args, **kwds):
         try:
@@ -88,3 +84,16 @@ def userCommand(func):
     # out the argument specification by looking at it
     wrapped.real_func = getattr(func, 'real_func', func)
     return wrapped
+
+
+def importAllCommands(module):
+    mod = __import__(module, None, None, ['*'])
+    for name, command in mod.__dict__.iteritems():
+        if getattr(command, 'is_usercommand', False):
+            globals()[name] = command
+
+importAllCommands('nicm.commands.basic')
+importAllCommands('nicm.commands.device')
+importAllCommands('nicm.commands.output')
+importAllCommands('nicm.commands.measure')
+importAllCommands('nicm.commands.scan')

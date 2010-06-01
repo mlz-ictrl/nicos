@@ -38,10 +38,7 @@ __version__ = "$Revision $"
 from time import sleep
 
 from nicm import nicos
-
-__commands__ = [
-    'count',
-]
+from nicm.commands import usercommand
 
 
 def _count(detlist, preset):
@@ -61,6 +58,7 @@ def _count(detlist, preset):
     return sum((det.read() for det in detlist), [])
 
 
+@usercommand
 def count(*detlist, **preset):
     """Perform a counting of the given detector(s) with the given preset(s)."""
     detlist = list(detlist)

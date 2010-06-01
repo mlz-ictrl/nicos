@@ -36,18 +36,12 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from nicm import nicos
+from nicm.utils import printTable
 from nicm.device import Device, Startable, Moveable, Readable
 from nicm.errors import NicmError, UsageError
 from nicm.status import statuses
-from nicm.utils import printTable
-
+from nicm.commands import usercommand
 from nicm.commands.output import printinfo
-
-__commands__ = [
-    'move', 'maw', 'switch', 'wait', 'read', 'status', 'stop', 'reset',
-    'set', 'get', 'fix', 'release', 'version',
-    'listparams', 'listdevices',
-]
 
 
 def _devposlist(dev_pos_list):
@@ -63,6 +57,7 @@ def _devposlist(dev_pos_list):
             poslist.append(dev_pos_list[i+1])
     return zip(devlist, poslist)
 
+@usercommand
 def move(*dev_pos_list):
     """Move one or more devices to a new position.
 
@@ -73,6 +68,7 @@ def move(*dev_pos_list):
         dev.printinfo('moving to', dev.format(pos), dev.unit)
         dev.move(pos)
 
+@usercommand
 def maw(*dev_pos_list):
     """Move one or more devices to a new position and wait until motion
     of all devices is completed.
@@ -89,6 +85,7 @@ def maw(*dev_pos_list):
         dev.wait()
         read(dev)
 
+@usercommand
 def switch(*dev_pos_list):
     """Switch one or more devices to a new position.
 
@@ -101,6 +98,7 @@ def switch(*dev_pos_list):
         dev.wait()
         read(dev)
 
+@usercommand
 def wait(*devlist):
     """Wait until motion of one or more devices is complete, or device is
     out of "busy" status.
@@ -115,6 +113,7 @@ def wait(*devlist):
         if value:
             dev.printinfo('at %20s %s' % (dev.format(value), dev.unit))
 
+@usercommand
 def read(*devlist):
     """Read the position (or value) of one or more devices, or if no device
     is given, all existing devices.
@@ -131,6 +130,7 @@ def read(*devlist):
         else:
             dev.printinfo('at %20s %s' % (dev.format(value), dev.unit))
 
+@usercommand
 def status(*devlist):
     """Read the status of one or more devices, or if no device is given,
     all existing devices.
@@ -148,6 +148,7 @@ def status(*devlist):
             status = statuses.get(status, str(status))
             dev.printinfo('status is %s' % status)
 
+@usercommand
 def stop(*devlist):
     """Stop one or more devices, or if no device is given,
     all startable devices.
@@ -164,6 +165,7 @@ def stop(*devlist):
         else:
             dev.printinfo('stopped')
 
+@usercommand
 def reset(dev):
     """Reset the given device."""
     dev = nicos.getDevice(dev, Readable)
@@ -171,15 +173,18 @@ def reset(dev):
     status = statuses.get(status, str(status))
     dev.printinfo('reset, status is now %s' % status)
 
+@usercommand
 def set(dev, parameter, value):
     """Set a the parameter of the device to a new value."""
     nicos.getDevice(dev).setPar(parameter, value)
 
+@usercommand
 def get(dev, parameter):
     """Return the value of a parameter of the device."""
     value = nicos.getDevice(dev).getPar(parameter)
     dev.printinfo('parameter %s is %s' % (parameter, value))
 
+@usercommand
 def fix(*devlist):
     """Fix one or more devices, i.e. prevent movement until release()."""
     if not devlist:
@@ -189,6 +194,7 @@ def fix(*devlist):
         dev.fix()
         dev.printinfo('fixed')
 
+@usercommand
 def release(*devlist):
     """Release one or more devices, i.e. undo the effect of fix()."""
     if not devlist:
@@ -198,6 +204,7 @@ def release(*devlist):
         dev.release()
         dev.printinfo('released')
 
+@usercommand
 def version(dev):
     """List version info of the device."""
     dev = nicos.getDevice(dev, Device)
@@ -205,6 +212,7 @@ def version(dev):
     dev.printinfo('Relevant versions for this device:')
     printTable(('module/component', 'version'), versions, printinfo)
 
+@usercommand
 def listparams(dev):
     """List all parameters of the device."""
     dev = nicos.getDevice(dev, Device)
@@ -218,6 +226,7 @@ def listparams(dev):
         items.append((name, str(value), info[2]))
     printTable(('name', 'value', 'description'), items, printinfo)
 
+@usercommand
 def listdevices():
     """List all currently created devices."""
     printinfo('All created devices:')

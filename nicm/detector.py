@@ -37,13 +37,9 @@ __version__ = "$Revision $"
 
 from time import sleep
 
-try:
-    import IOCommon
-    import TACOStates
-    from IO import Timer, Counter
-except ImportError:
-    print 'Warning: TACO Timer/Counter import failed'
-    Timer = Counter = None
+import IOCommon
+import TACOStates
+from IO import Timer, Counter
 
 from nicm import status
 from nicm.device import Measurable

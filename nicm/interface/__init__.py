@@ -180,7 +180,7 @@ class NICOS(object):
 
         log.info('loading setup %s' % setupname)
 
-        from nicm.commands import userCommand
+        from nicm.commands import usercommandWrapper
         failed_devs = []
 
         def load_module(modname):
@@ -194,9 +194,9 @@ class NICOS(object):
             except Exception, err:
                 log.error('Exception importing %s: %s' % (modname, err))
                 return
-            if hasattr(mod, '__commands__'):
-                for cmdname in mod.__commands__:
-                    self.export(cmdname, userCommand(getattr(mod, cmdname)))
+            for name, command in mod.__dict__.iteritems():
+                if getattr(command, 'is_usercommand', False):
+                    self.export(name, usercommandWrapper(command))
 
         def inner_load(name):
             if name in self.loaded_setups:

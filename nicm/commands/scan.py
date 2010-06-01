@@ -36,8 +36,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from nicm.scan import Scan
-
-__commands__ = ['sscan', 'cscan']
+from nicm.commands import usercommand
 
 
 def _handlePreset(single, keywords):
@@ -48,6 +47,7 @@ def _handlePreset(single, keywords):
     return keywords
 
 
+@usercommand
 def sscan(dev, start, step, numsteps, preset=None, infostr=None,
           det=None, **presets):
     """Single-sided scan."""
@@ -59,6 +59,7 @@ def sscan(dev, start, step, numsteps, preset=None, infostr=None,
     scan.run()
 
 
+@usercommand
 def cscan(dev, center, step, numperside, preset=None, infostr=None,
           det=None, **presets):
     """Scan around center."""

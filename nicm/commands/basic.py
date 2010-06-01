@@ -41,18 +41,13 @@ import __builtin__
 from nicm import nicos
 from nicm.device import Device
 from nicm.utils import formatDocstring, printTable
-
+from nicm.commands import usercommand
 from nicm.commands.output import printinfo, printexception
-
-__commands__ = [
-    'NicmSetup', 'NicmAddSetup', 'NicmFactory', 'NicmDestroy',
-    'NicmPrint', 'NicmExport', 'listcommands', 'help', 'dir',
-    'savestate',
-]
 
 
 # -- new versions of builtins --------------------------------------------------
 
+@usercommand
 def help(obj=None):
     """Show help for a command or other object."""
     if obj is None:
@@ -70,6 +65,7 @@ def help(obj=None):
         printinfo('Usage: ' + real_func.__name__ + argspec)
         printinfo(formatDocstring(real_func.__doc__ or '', '   '))
 
+@usercommand
 def dir(obj=None):
     if obj is None:
         return __builtin__.__orig_dir()
@@ -79,6 +75,7 @@ def dir(obj=None):
 
 # -- other basic commands ------------------------------------------------------
 
+@usercommand
 def NicmSetup(setupname):
     """Load the given setup instead of the current one."""
     nicos.unloadSetup()
@@ -88,28 +85,34 @@ def NicmSetup(setupname):
         printexception()
         nicos.loadSetup('startup')
 
+@usercommand
 def NicmAddSetup(setupname):
     """Load the given setup additional to the current one."""
     nicos.loadSetup(setupname)
 
+@usercommand
 def NicmExport(name, object):
     """Export the given object into the NICOS namespace."""
     nicos.export(name, object)
 
+@usercommand
 def NicmFactory(*devnames):
     """Create all given devices."""
     for devname in devnames:
         nicos.createDevice(devname, explicit=True)
 
+@usercommand
 def NicmDestroy(*devnames):
     """Destroy all given devices."""
     for devname in devnames:
         nicos.destroyDevice(devname)
 
+@usercommand
 def NicmPrint(pm, text):
     """Compatibility print function."""
     printinfo(text)
 
+@usercommand
 def listcommands():
     """List all available commands."""
     printinfo('Available commands:')
@@ -124,6 +127,7 @@ def listcommands():
     items.sort()
     printTable(('name', 'description'), items, printinfo)
 
+@usercommand
 def savestate():
     """Return statements that restore the current state."""
     ret = ['NicmSetup(%r)\n' % nicos.explicit_setups[0]]
