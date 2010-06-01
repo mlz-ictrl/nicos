@@ -338,11 +338,12 @@ class Startable(Readable):
             self.doStop()
 
     def wait(self):
-        """Wait until main action of device is completed."""
+        """Wait until main action of device is completed.
+        Return current value after waiting."""
         if hasattr(self, 'doWait'):
             self.doWait()
-            # update device value in histories
-            self.read()
+        # update device value in histories
+        return self.read()
 
     def isAllowed(self, pos):
         """Return a tuple describing the validity of the given position.

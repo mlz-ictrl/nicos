@@ -111,8 +111,9 @@ def wait(*devlist):
     for dev in devlist:
         dev = nicos.getDevice(dev, Startable)
         dev.printinfo('waiting for device')
-        dev.wait()
-        read(dev)
+        value = dev.wait()
+        if value:
+            dev.printinfo('at %20s %s' % (dev.format(value), dev.unit))
 
 def read(*devlist):
     """Read the position (or value) of one or more devices, or if no device
