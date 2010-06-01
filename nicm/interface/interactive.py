@@ -69,12 +69,14 @@ class NicmInteractiveConsole(code.InteractiveConsole):
     NICOS logger and will therefore appear in the logfiles.
     """
 
-    def __init__(self, nicos, locals):
+    def __init__(self, nicos, globals, locals):
         self.nicos = nicos
         self.log = nicos.log
-        code.InteractiveConsole.__init__(self, locals)
+        code.InteractiveConsole.__init__(self, globals)
+        self.globals = globals
+        self.locals = locals
         readline.parse_and_bind('tab: complete')
-        readline.set_completer(NicmCompleter(self.locals).complete)
+        readline.set_completer(NicmCompleter(self.globals).complete)
         readline.set_history_length(10000)
         self.histfile = os.path.expanduser('~/.nicmhistory')
         if os.path.isfile(self.histfile):
@@ -112,7 +114,7 @@ class NicmInteractiveConsole(code.InteractiveConsole):
         logging call for exceptions.
         """
         try:
-            exec codeobj in self.locals
+            exec codeobj in self.globals, self.locals
         except Exception:
             self.nicos.logUnhandledException(sys.exc_info())
         else:
@@ -141,7 +143,8 @@ class InteractiveNICOS(NICOS):
         banner = ('NICOS console ready (version %s).\nTry help() for a '
                   'list of commands, or help(command) for help.'
                   % nicm.nicm_version)
-        console = NicmInteractiveConsole(self, self._NICOS__namespace)
+        console = NicmInteractiveConsole(self, self._NICOS__namespace,
+                                         self._NICOS__local_namespace)
         console.interact(banner)
         sys.exit()
 

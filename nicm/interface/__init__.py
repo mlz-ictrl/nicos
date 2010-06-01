@@ -106,6 +106,7 @@ class NICOS(object):
         self.__setup_info = {}
         # namespace to place user-accessible items in
         self.__namespace = NicosNamespace()
+        self.__local_namespace = NicosNamespace()
         # contains all NICOS-exported names
         self.__exported_names = set()
         # the System device
@@ -263,6 +264,7 @@ class NICOS(object):
     def export(self, name, object):
         self.__namespace.setForbidden(name, object)
         self.__namespace.addForbidden(name)
+        self.__local_namespace.addForbidden(name)
         self.__exported_names.add(name)
 
     def unexport(self, name):
@@ -272,6 +274,7 @@ class NICOS(object):
         if name not in self.__exported_names:
             self.log.warning('unexport: name %r not exported by NICOS' % name)
         self.__namespace.removeForbidden(name)
+        self.__local_namespace.removeForbidden(name)
         del self.__namespace[name]
         self.__exported_names.remove(name)
 
