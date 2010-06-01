@@ -37,9 +37,13 @@ __version__ = "$Revision $"
 
 from time import sleep
 
-import IOCommon
-import TACOStates
-from IO import Timer, Counter
+try:
+    import IOCommon
+    import TACOStates
+    from IO import Timer, Counter
+except ImportError:
+    print 'Warning: TACO Timer/Counter import failed'
+    Timer = Counter = None
 
 from nicm import status
 from nicm.device import Measurable
@@ -162,7 +166,7 @@ class FRMDetector(Measurable):
         self.__masters = []
         self.__slaves = []
         for counter in self.__counters:
-            if counter.getPar('ismaster'):
+            if counter.ismaster:
                 self.__masters.append(counter)
             else:
                 self.__slaves.append(counter)
@@ -180,13 +184,13 @@ class FRMDetector(Measurable):
         self.doStop()
         if preset:
             for master in self.__masters:
-                master.setPar('ismaster', False)
-                master.setPar('mode', 'normal')
+                master.ismaster = False
+                master.mode = 'normal'
             for name in preset:
                 if name in self.attached_devices and self._adevs[name]:
-                    self._adevs[name].setPar('ismaster', True)
-                    self._adevs[name].setPar('mode', 'preselection')
-                    self._adevs[name].setPar('preselection', preset[name])
+                    self._adevs[name].ismaster = True
+                    self._adevs[name].mode = 'preselection'
+                    self._adevs[name].preselection = preset[name]
             self.__getMasters()
         for slave in self.__slaves:
             slave.start()
