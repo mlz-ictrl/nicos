@@ -157,8 +157,8 @@ class Device(object):
         # validate and assign parameters
         for param, paraminfo in self.parameters.iteritems():
             param = param.lower()
-            # do not try to set special parameters
-            if param in ('name', 'autocreate'):
+            if param == 'name':
+                # already set
                 continue
             default, mandatory, doc = paraminfo
             # determine parameter value to set
@@ -431,10 +431,10 @@ class Moveable(Startable):
                                      'maximum (%s)' % (usermin, absmax))
         if usermax > absmax:
             raise ConfigurationError(self, 'user maximum (%s) above the absolute '
-                                     'maximum (%s)' % (usermin, absmax))
+                                     'maximum (%s)' % (usermax, absmax))
         if usermax < absmin:
-            raise ConfigurationError(self, 'user minimum (%s) below the absolute '
-                                     'minimum (%s)' % (usermin, absmin))
+            raise ConfigurationError(self, 'user maximum (%s) below the absolute '
+                                     'minimum (%s)' % (usermax, absmin))
 
     def isAllowed(self, target):
         if not self._params['usermin'] <= target <= self._params['usermax']:

@@ -128,7 +128,7 @@ def read(*devlist):
         except NicmError:
             dev.printexception('error reading device')
         else:
-            dev.printinfo('at %s %s' % (dev.format(value), dev.unit))
+            dev.printinfo('at %20s %s' % (dev.format(value), dev.unit))
 
 def status(*devlist):
     """Read the status of one or more devices, or if no device is given,
