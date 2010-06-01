@@ -86,7 +86,7 @@ class Axis(Moveable):
         self.__locked = False
         self.__dragErrorCount = 0
 
-        self.setPar('unit', self._adevs['motor'].unit)
+        self.unit = self._adevs['motor'].unit
         self.__checkMotorLimits()
 
     def __checkMotorLimits(self):
