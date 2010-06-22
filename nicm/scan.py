@@ -57,9 +57,10 @@ class Scan(object):
         self.detlist = detlist
         self.preset = preset
         self.scaninfo = scaninfo
-        self.sinks = nicos.getSystem().storage.getSinks(scantype)
+        self.sinks = nicos.system.storage.getSinks(scantype)
 
     def beginScan(self):
+        nicos.beginActionScope('Scan')
         sinkinfo = []
         for sink in self.sinks:
             sinkinfo.extend(sink.prepareDataset())
@@ -73,6 +74,9 @@ class Scan(object):
             for sink in self.sinks:
                 sink.addInfo(category, name, values)
 
+    def preparePoint(self, num, xvalues):
+        nicos.action('Point %d' % num)
+
     def addPoint(self, num, xvalues, yvalues):
         for sink in self.sinks:
             sink.addPoint(num, xvalues, yvalues)
@@ -80,6 +84,7 @@ class Scan(object):
     def endScan(self):
         for sink in self.sinks:
             sink.endDataset()
+        nicos.endActionScope()
 
     def handleError(self, dev, val, err):
         if isinstance(err, LimitError):
@@ -108,6 +113,7 @@ class Scan(object):
         self.beginScan()
         try:
             for i, position in enumerate(self.positions):
+                self.preparePoint(i+1, position)
                 if i > 0:
                     can_measure = self.moveTo(self.devices, position)
                 if not can_measure:

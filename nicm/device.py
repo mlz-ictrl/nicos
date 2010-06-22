@@ -76,7 +76,7 @@ class Device(object):
 
         # initialize a logger for the device
         self._log = nicos.getLogger(name)
-        for mn in ('debug', 'notice', 'info', 'warning', 'error', 'exception'):
+        for mn in ('debug', 'info', 'warning', 'error', 'exception'):
             setattr(self, 'print' + mn, getattr(self._log, mn))
 
     def __setattr__(self, name, value):
@@ -230,7 +230,7 @@ class Readable(Device):
         Device.init(self)
         from nicm.history import History
         self.__histories = []
-        histnames = self.histories + nicos.getSystem().histories
+        histnames = self.histories + nicos.system.histories
         for histname in histnames:
             self.__histories.append(nicos.getDevice(histname, History))
 

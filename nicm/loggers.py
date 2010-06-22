@@ -55,11 +55,11 @@ LONGDATEFMT = '%Y-%m-%d %H:%M:%S'
 DATESTAMP_FMT = '%Y-%m-%d'
 SECONDS_PER_DAY = 60 * 60 * 24
 
-NOTICE = INFO - 5
+ACTION = INFO + 1
 OUTPUT = INFO + 5
 INPUT  = INFO + 6
 
-loglevels = {'debug': DEBUG, 'notice': NOTICE, 'info': INFO, 'warning': WARNING,
+loglevels = {'debug': DEBUG, 'info': INFO, 'action': ACTION, 'warning': WARNING,
              'error': ERROR, 'input': INPUT, 'output': OUTPUT}
 
 
@@ -104,18 +104,17 @@ class NicmLogger(Logger):
         msg, exc_info = self._process(msgs, kwds)
         Logger.info(self, msg, exc_info=exc_info, extra=kwds)
 
-    def notice(self, *msgs, **kwds):
-        msg, exc_info = self._process(msgs, kwds)
-        Logger.log(self, NOTICE, msg, exc_info=exc_info, extra=kwds)
-
     def debug(self, *msgs, **kwds):
         msg, exc_info = self._process(msgs, kwds)
         Logger.debug(self, msg, exc_info=exc_info, extra=kwds)
 
+    def action(self, msg):
+        Logger.log(self, ACTION, msg)
+
 
 class ColoredConsoleFormatter(Formatter):
     """
-    A lightweight formatter with colored output.
+    A lightweight formatter for the interactive console with colored output.
     """
 
     def formatException(self, exc_info):
@@ -132,22 +131,26 @@ class ColoredConsoleFormatter(Formatter):
             namefmt = ''
         else:
             namefmt = '%(name)-10s: '
-        if levelno <= DEBUG:
-            fmtstr = colorize('darkgray', '%s%%(message)s' % namefmt)
-        elif levelno <= OUTPUT:
-            fmtstr = '%s%%(message)s' % namefmt
-        elif levelno == INPUT:
-            # do not display input again
-            return ''
-        elif levelno <= WARNING:
-            fmtstr = colorize('fuchsia', '%s%%(levelname)s: %%(message)s' %
-                              namefmt)
+        if levelno == ACTION:
+            # special behvaior for ACTION messages: use them as terminal title
+            fmtstr = '\033]0;%s%%(message)s\007' % namefmt
         else:
-            fmtstr = colorize('red', '%s%%(levelname)s: %%(message)s' %
-                               namefmt)
-        fmtstr = datefmt + fmtstr
-        if not getattr(record, 'nonl', False):
-            fmtstr += '\n'
+            if levelno <= DEBUG:
+                fmtstr = colorize('darkgray', '%s%%(message)s' % namefmt)
+            elif levelno <= OUTPUT:
+                fmtstr = '%s%%(message)s' % namefmt
+            elif levelno == INPUT:
+                # do not display input again
+                return ''
+            elif levelno <= WARNING:
+                fmtstr = colorize('fuchsia', '%s%%(levelname)s: %%(message)s' %
+                                  namefmt)
+            else:
+                fmtstr = colorize('red', '%s%%(levelname)s: %%(message)s' %
+                                   namefmt)
+            fmtstr = datefmt + fmtstr
+            if not getattr(record, 'nonl', False):
+                fmtstr += '\n'
         record.message = record.getMessage()
         record.asctime = self.formatTime(record, self.datefmt)
         s = fmtstr % record.__dict__
@@ -229,6 +232,6 @@ class NicmLogfileHandler(BaseRotatingHandler):
 
 def initLoggers():
     setLoggerClass(NicmLogger)
-    addLevelName(NOTICE, 'NOTICE')
+    addLevelName(ACTION, 'ACTION')
     addLevelName(OUTPUT, 'OUTPUT')
     addLevelName(INPUT, 'INPUT')

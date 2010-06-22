@@ -45,7 +45,7 @@ from nicm.commands import usercommand
 from nicm.commands.output import printinfo, printexception
 
 
-# -- new versions of builtins --------------------------------------------------
+# -- help and introspection ----------------------------------------------------
 
 @usercommand
 def help(obj=None):
@@ -72,46 +72,6 @@ def dir(obj=None):
     return [name for name in __builtin__.__orig_dir(obj)
             if not name.startswith(('_', 'do'))]
 
-
-# -- other basic commands ------------------------------------------------------
-
-@usercommand
-def NicmSetup(setupname):
-    """Load the given setup instead of the current one."""
-    nicos.unloadSetup()
-    try:
-        nicos.loadSetup(setupname)
-    except Exception:
-        printexception()
-        nicos.loadSetup('startup')
-
-@usercommand
-def NicmAddSetup(setupname):
-    """Load the given setup additional to the current one."""
-    nicos.loadSetup(setupname)
-
-@usercommand
-def NicmExport(name, object):
-    """Export the given object into the NICOS namespace."""
-    nicos.export(name, object)
-
-@usercommand
-def NicmFactory(*devnames):
-    """Create all given devices."""
-    for devname in devnames:
-        nicos.createDevice(devname, explicit=True)
-
-@usercommand
-def NicmDestroy(*devnames):
-    """Destroy all given devices."""
-    for devname in devnames:
-        nicos.destroyDevice(devname)
-
-@usercommand
-def NicmPrint(pm, text):
-    """Compatibility print function."""
-    printinfo(text)
-
 @usercommand
 def listcommands():
     """List all available commands."""
@@ -127,8 +87,48 @@ def listcommands():
     items.sort()
     printTable(('name', 'description'), items, printinfo)
 
+
+# -- other basic commands ------------------------------------------------------
+
 @usercommand
-def savestate():
+def NewSetup(setupname):
+    """Load the given setup instead of the current one."""
+    nicos.unloadSetup()
+    try:
+        nicos.loadSetup(setupname)
+    except Exception:
+        printexception()
+        nicos.loadSetup('startup')
+
+@usercommand
+def AddSetup(setupname):
+    """Load the given setup additional to the current one."""
+    nicos.loadSetup(setupname)
+
+@usercommand
+def Keep(name, object):
+    """Export the given object into the NICOS namespace."""
+    nicos.export(name, object)
+
+@usercommand
+def CreateDevice(*devnames):
+    """Create all given devices."""
+    for devname in devnames:
+        nicos.createDevice(devname, explicit=True)
+
+@usercommand
+def DestroyDevice(*devnames):
+    """Destroy all given devices."""
+    for devname in devnames:
+        nicos.destroyDevice(devname)
+
+@usercommand
+def NewExperiment(proposalnumber, title):
+    """Start a new experiment."""
+    nicos.experiment.new(proposalnumber, title)
+
+@usercommand
+def SaveState():
     """Return statements that restore the current state."""
     ret = ['NicmSetup(%r)\n' % nicos.explicit_setups[0]]
     ret += ['NicmAddSetup(%r)\n' % setup

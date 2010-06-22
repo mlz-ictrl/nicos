@@ -120,6 +120,7 @@ class NicmInteractiveConsole(code.InteractiveConsole):
         else:
             if code.softspace(sys.stdout, 0):
                 print
+        #self.locals.clear()
 
 
 class InteractiveNICOS(NICOS):

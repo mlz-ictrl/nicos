@@ -109,8 +109,11 @@ class NICOS(object):
         self.__local_namespace = NicosNamespace()
         # contains all NICOS-exported names
         self.__exported_names = set()
-        # the System device
+        # cache special devices
         self.__system_device = None
+        self.__exp_device = None
+        # action stack for status line
+        self._actionStack = []
 
         # set up logging interface
         self._initLogging()
@@ -260,6 +263,8 @@ class NICOS(object):
         self.loaded_setups = set()
         self.explicit_setups = []
         self.user_modules = set()
+        self.__system_device = None
+        self.__exp_device = None
 
     def export(self, name, object):
         self.__namespace.setForbidden(name, object)
@@ -284,12 +289,6 @@ class NICOS(object):
                 yield self.__namespace[name]
 
     # -- Device control --------------------------------------------------------
-
-    def getSystem(self):
-        if self.__system_device is None:
-            from nicm.system import System
-            self.__system_device = self.getDevice('System', System)
-        return self.__system_device
 
     def getDevice(self, dev, cls=None):
         """Convenience: get a device by name or instance."""
@@ -347,6 +346,20 @@ class NICOS(object):
         if devname in self.__namespace:
             self.unexport(devname)
 
+    @property
+    def system(self):
+        if self.__system_device is None:
+            from nicm.system import System
+            self.__system_device = self.getDevice('System', System)
+        return self.__system_device
+
+    @property
+    def experiment(self):
+        if self.__exp_device is None:
+            from nicm.experiment import Experiment
+            self.__exp_device = self.getDevice('Experiment', Experiment)
+        return self.__exp_device
+
     # -- Logging ---------------------------------------------------------------
 
     def _initLogging(self):
@@ -377,3 +390,16 @@ class NICOS(object):
                 exc_info[1].device._log.error(exc_info=exc_info)
                 return
         self.log.error(exc_info=exc_info)
+
+    # -- Action logging --------------------------------------------------------
+
+    def beginActionScope(self, what):
+        self._actionStack.append(what)
+        self.log.action(' :: '.join(self._actionStack))
+
+    def endActionScope(self):
+        self._actionStack.pop()
+        self.log.action(' :: '.join(self._actionStack))
+
+    def action(self, what):
+        self.log.action(' :: '.join(self._actionStack + [what]))
