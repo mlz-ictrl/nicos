@@ -36,6 +36,8 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import sys
+import linecache
+import traceback
 
 from nicm.errors import ConfigurationError, ProgrammingError
 
@@ -210,3 +212,34 @@ def colorize(name, text):
 
 def colorcode(name):
     return _codes.get(name, '')
+
+
+# traceback utilities
+
+def formatExtendedFrame(frame):
+    ret = []
+    for key, value in frame.f_locals.iteritems():
+        try:
+            valstr = repr(value)
+        except Exception:
+            valstr = '<cannot be displayed>'
+        ret.append('        %-20s = %s\n' % (key, valstr))
+    ret.append('\n')
+    return ret
+
+def formatExtendedTraceback(etype, value, tb):
+    ret = ['Traceback (most recent call last):\n']
+    while tb is not None:
+        frame = tb.tb_frame
+        filename = frame.f_code.co_filename
+        item = '  File "%s", line %d, in %s\n' % (filename, tb.tb_lineno,
+                                                  frame.f_code.co_name)
+        linecache.checkcache(filename)
+        line = linecache.getline(filename, tb.tb_lineno, frame.f_globals)
+        if line:
+            item = item + '    %s\n' % line.strip()
+        ret.append(item)
+        ret += formatExtendedFrame(tb.tb_frame)
+        tb = tb.tb_next
+    ret += traceback.format_exception_only(etype, value)
+    return ''.join(ret).rstrip('\n')

@@ -46,7 +46,7 @@ from logging import setLoggerClass, addLevelName, Logger, \
 from logging.handlers import BaseRotatingHandler
 
 from nicm.errors import NicmError
-from nicm.utils import colorize
+from nicm.utils import colorize, formatExtendedTraceback
 
 
 LOGFMT = '%(name)-10s : %(asctime)s : %(levelname)-7s : %(message)s'
@@ -184,10 +184,16 @@ class NicmLogfileFormatter(Formatter):
     datestamp format.  It also doesn't show the full traceback for exceptions.
     """
 
+    extended_traceback = True
+
     def formatException(self, ei):
-        s = ''.join(traceback.format_exception(ei[0], ei[1], ei[2], sys.maxint))
-        if s.endswith('\n'):
-            s = s[:-1]
+        if self.extended_traceback:
+            s = formatExtendedTraceback(*ei)
+        else:
+            s = ''.join(traceback.format_exception(ei[0], ei[1], ei[2],
+                                                   sys.maxint))
+            if s.endswith('\n'):
+                s = s[:-1]
         return s
 
     def formatTime(self, record, datefmt=None):
