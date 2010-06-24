@@ -118,6 +118,9 @@ class Controller(TacoDevice, Moveable):
             self._taco_guard(self._dev.stop)
         self._taco_guard(self._dev.write, target)
 
+    def doStop(self):
+        self._taco_guard(self._dev.stop)
+
     def doStatus(self):
         state = self._taco_guard(self._dev.deviceState)
         if state == TACOStates.MOVING:
