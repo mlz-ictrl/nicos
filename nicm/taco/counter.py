@@ -53,10 +53,12 @@ class TacoCountable(TacoDevice, Countable):
     """Base class for TACO countables."""
 
     parameters = {
-        'ismaster': (False, False, 'Whether the device is the master counter.'),
-        'preselection': (1, False, 'Default preselection register value.'),
-        'mode': (0, False, 'Run mode for the countable.'),
-        'loopdelay': (0.3, False, 'Wait loop delay in seconds.'),
+        'ismaster': (bool, False, False,
+                     'Whether the device is the master counter.'),
+        'preselection': (float, 1, False,
+                         'Default preselection register value.'),
+        'mode': (int, 0, False, 'Run mode for the countable.'),
+        'loopdelay': (float, 0.3, False, 'Wait loop delay in s.'),
     }
 
     def doInit(self):

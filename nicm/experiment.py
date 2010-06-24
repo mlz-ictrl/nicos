@@ -38,6 +38,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 
+from nicm.utils import listof
 from nicm.device import Device
 
 
@@ -45,9 +46,9 @@ class Experiment(Device):
     """A special singleton device to represent the experiment."""
 
     parameters = {
-        'title': ('', False, 'Experiment title.'),
-        'proposalnumber': (0, False, 'Proposal number.'),
-        'users': ([], False, 'User names.'),
+        'title': (str, '', False, 'Experiment title.'),
+        'proposalnumber': (int, 0, False, 'Proposal number.'),
+        'users': (listof(str), [], False, 'User names.'),
     }
 
     def doSetTitle(self, value):

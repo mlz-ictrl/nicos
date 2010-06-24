@@ -42,6 +42,7 @@ import TACOStates
 from TACOClient import TACOError
 
 from nicm import status
+from nicm.utils import tacodev
 from nicm.errors import NicmError, ProgrammingError, CommunicationError
 
 
@@ -59,11 +60,12 @@ class TacoDevice(object):
     """
 
     parameters = {
-        'tacodevice': ('', True, 'TACO device name.'),
-        'tacotimeout': (3, False, 'TACO client network timeout (in seconds).'),
-        'tacolog': (False, False, 'If true, log all TACO calls.'),
+        'tacodevice': (tacodev, '', True, 'TACO device name.'),
+        'tacotimeout': (float, 3, False,
+                        'TACO client network timeout (in seconds).'),
+        'tacolog': (bool, False, False, 'If true, log all TACO calls.'),
         # the unit isn't mandatory -- TACO usually knows it already
-        'unit': ('', False, 'Unit of the device main value.'),
+        'unit': (str, '', False, 'Unit of the device main value.'),
     }
 
     # the TACO client class to instantiate
@@ -117,6 +119,9 @@ class TacoDevice(object):
         self._params['tacolog'] = value
         self._taco_guard = value and self._taco_guard_log or \
                            self._taco_guard_nolog
+        # automatically set the loglevel to debug, otherwise taco log
+        # messages won't be emitted
+        self.loglevel = 'debug'
 
     # internal utilities
 

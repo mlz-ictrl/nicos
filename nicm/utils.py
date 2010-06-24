@@ -91,10 +91,10 @@ class AutoPropsMeta(MergedAttrsMeta):
         for param, info in newtype.parameters.iteritems():
             param = param.lower()
             # check validity of parameter info
-            if not isinstance(info, tuple) or len(info) != 3:
+            if not isinstance(info, tuple) or len(info) != 4:
                 raise ProgrammingError('%r device %r configuration '
                                        ' parameter info should be a '
-                                       '3-tuple' % (name, param))
+                                       '4-tuple' % (name, param))
             def getter(self, param=param):
                 methodname = 'doGet' + param.title()
                 if hasattr(self, methodname):
@@ -102,6 +102,13 @@ class AutoPropsMeta(MergedAttrsMeta):
                 else:
                     return self._params[param.lower()]
             def setter(self, value, param=param):
+                pconv = self.parameters[param][0]
+                try:
+                    value = pconv(value)
+                except ValueError, err:
+                    raise ConfigurationError(
+                        self, '%r is an invalid value for parameter %s: %s' %
+                        (value, param, err))
                 methodname = 'doSet' + param.title()
                 if hasattr(self, methodname):
                     getattr(self, methodname)(value)
@@ -243,3 +250,17 @@ def formatExtendedTraceback(etype, value, tb):
         tb = tb.tb_next
     ret += traceback.format_exception_only(etype, value)
     return ''.join(ret).rstrip('\n')
+
+
+# parameter conversion functions
+
+def listof(conv):
+    def converter(val):
+        if not isinstance(val, list):
+            raise ValueError('value needs to be a list')
+        return map(conv, val)
+    return converter
+
+def tacodev(val):
+    # XXX check for valid taco device name
+    return str(val)

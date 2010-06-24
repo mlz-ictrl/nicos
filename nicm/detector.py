@@ -51,9 +51,10 @@ class FRMChannel(TacoDevice, Measurable):
     """
 
     parameters = {
-        'mode': (0, False, 'Channel mode: normal, ratemeter, or preselection.'),
-        'ismaster': (False, False, 'If this channel is a master.'),
-        'preselection': (0, False, 'Preselection for this channel.'),
+        'mode': (int, 0, False,
+                 'Channel mode: normal, ratemeter, or preselection.'),
+        'ismaster': (bool, False, False, 'If this channel is a master.'),
+        'preselection': (float, 0, False, 'Preselection for this channel.'),
     }
 
     def doInit(self):

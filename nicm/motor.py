@@ -50,7 +50,7 @@ class Motor(Moveable, Coder):
     """
 
     parameters = {
-        'speed': (0, False, 'The motor speed in units/second.'),
+        'speed': (float, 0, False, 'The motor speed in units/second.'),
     }
 
     def setPosition(self, pos):

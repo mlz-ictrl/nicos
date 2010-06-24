@@ -39,6 +39,7 @@ __version__ = "$Revision$"
 
 
 from nicm.data import Storage
+from nicm.utils import listof
 from nicm.device import Device
 
 
@@ -46,7 +47,7 @@ class Logging(Device):
     """A special singleton device to configure logging."""
 
     parameters = {
-        'logpath': ('', True, 'Path for logfiles.'),
+        'logpath': (str, '', True, 'Path for logfiles.'),
     }
 
 
@@ -56,7 +57,8 @@ class System(Device):
     """
 
     parameters = {
-        'histories': ([], False, 'Global history managers for all devices.'),
+        'histories': (listof(str), [], False,
+                      'Global history managers for all devices.'),
     }
 
     attached_devices = {

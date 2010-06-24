@@ -39,7 +39,7 @@ import time
 
 from nicm import nicos
 from nicm import status, loggers
-from nicm.utils import AutoPropsMeta, getVersions
+from nicm.utils import AutoPropsMeta, getVersions, listof
 from nicm.errors import ConfigurationError, ProgrammingError, UsageError, \
      LimitError, FixedError
 
@@ -54,11 +54,11 @@ class Device(object):
     __mergedattrs__ = ['parameters', 'attached_devices']
 
     parameters = {
-        'name': ('', False, 'The name of the device.'),
-        'description': ('', False, 'A description of the device.'),
-        'autocreate': (False, False, 'Whether the device is automatically '
-                       'created when the setup is loaded.'),
-        'loglevel': ('info', False, 'The logging level of the device.'),
+        'name': (str, '', False, 'The name of the device.'),
+        'description': (str, '', False, 'A description of the device.'),
+        'autocreate': (bool, False, False, 'Whether the device is '
+                       'automatically created when the setup is loaded.'),
+        'loglevel': (str, 'info', False, 'The logging level of the device.'),
     }
 
     attached_devices = {}
@@ -164,10 +164,16 @@ class Device(object):
             if param == 'name':
                 # already set
                 continue
-            default, mandatory, doc = paraminfo
+            pconv, default, mandatory, doc = paraminfo
             # determine parameter value to set
             if param in self._config:
                 paramvalue = self._config[param]
+                try:
+                    paramvalue = pconv(paramvalue)
+                except ValueError, err:
+                    raise ConfigurationError(self, 'configuration parameter %s '
+                                             'value %r invalid: %s' %
+                                             (param, paramvalue, err))
             elif not mandatory:
                 if default is None:
                     continue
@@ -225,9 +231,9 @@ class Readable(Device):
     """
 
     parameters = {
-        'fmtstr': ('%s', False, 'Format string for the device value.'),
-        'unit': ('', True, 'Unit of the device main value.'),
-        'histories': ([], False, 'List of history managers.'),
+        'fmtstr': (str, '%s', False, 'Format string for the device value.'),
+        'unit': (str, '', True, 'Unit of the device main value.'),
+        'histories': (listof(str), [], False, 'List of history managers.'),
     }
 
     def init(self):
@@ -387,10 +393,10 @@ class Moveable(Startable):
     """
 
     parameters = {
-        'usermin': (0, False, 'User defined minimum of device value.'),
-        'usermax': (0, False, 'User defined maximum of device value.'),
-        'absmin': (0, False, 'Absolute minimum of device value.'),
-        'absmax': (0, False, 'Absolute maximum of device value.'),
+        'usermin': (float, 0, False, 'User defined minimum of device value.'),
+        'usermax': (float, 0, False, 'User defined maximum of device value.'),
+        'absmin': (float, 0, False, 'Absolute minimum of device value.'),
+        'absmax': (float, 0, False, 'Absolute maximum of device value.'),
     }
 
     def init(self):
@@ -536,7 +542,7 @@ class Measurable(Startable):
     """
 
     parameters = {
-        'unit': ('', False, '(not used)'),
+        'unit': (str, '', False, '(not used)'),
     }
 
     def start(self, **preset):

@@ -56,14 +56,15 @@ class Axis(Moveable):
     }
 
     parameters = {
-        'dragerror': (1, False, "The so called 'Schleppfehler' of the axis."),
-        'precision': (0, False, 'The maximum difference between requested '
-                                'target and reached position.'),
-        'maxtries':  (3, False, 'The number of tries to reach the target.'),
-        'loopdelay': (0.3, False, 'The sleep time in s when checking the '
-                                  'movement.'),
-        'unit':      ('', False, 'The unit of the axis value.'),
-        'backlash':  (0.0, False, 'The maximum allowed backlash.'),
+        'dragerror': (float, 1, False,
+                      'The so called \'Schleppfehler\' of the axis.'),
+        'precision': (float, 0, False, 'Maximum difference between requested '
+                      'target and reached position.'),
+        'maxtries':  (int, 3, False, 'Number of tries to reach the target.'),
+        'loopdelay': (float, 0.3, False,
+                      'The sleep time in s when checking the movement.'),
+        'unit':      (str, '', False, 'The unit of the axis value.'),
+        'backlash':  (float, 0.0, False, 'The maximum allowed backlash.'),
     }
 
     def doInit(self):

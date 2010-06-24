@@ -38,7 +38,7 @@ __version__ = "$Revision$"
 import time
 from os import path
 
-from nicm import nicos
+from nicm.utils import listof
 from nicm.device import Device
 from nicm.commands.output import printinfo
 
@@ -54,7 +54,8 @@ class DataSink(Device):
     """
 
     parameters = {
-        'scantypes': (None, False, 'Scan types for which the sink is active.'),
+        'scantypes': (listof(str), None, False,
+                      'Scan types for which the sink is active.'),
     }
 
     def prepareDataset(self):
@@ -156,8 +157,8 @@ class ConsoleSink(DataSink):
 class AsciiDatafileSink(DataSink):
     parameters = {
         # XXX prefix should come from proposal
-        'prefix': ('', False, 'Data file name prefix.'),
-        'semicolon': (True, False,
+        'prefix': (str, '', False, 'Data file name prefix.'),
+        'semicolon': (bool, True, False,
                       'Whether to add a semicolon between X and Y values.'),
     }
 
@@ -244,7 +245,7 @@ class AsciiDatafileSink(DataSink):
 
 class Storage(Device):
     parameters = {
-        'datapath': ('', True, 'Path for data files.'),
+        'datapath': (str, '', True, 'Path for data files.'),
     }
     attached_devices = {
         'sinks': [DataSink],

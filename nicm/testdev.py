@@ -42,13 +42,14 @@ import threading
 from nicm import nicos, status
 from nicm.motor import Motor
 from nicm.coder import Coder
+from nicm.utils import tacodev
 from nicm.detector import FRMTimerChannel, FRMCounterChannel
 
 
 class VirtualMotor(Motor):
     parameters = {
-        'initval': (0, True, 'Initial value for the virtual device.'),
-        'speed': (0, False, 'Virtual speed of the device.'),
+        'initval': (float, 0, True, 'Initial value for the virtual device.'),
+        'speed': (float, 0, False, 'Virtual speed of the device.'),
     }
 
     def doInit(self):
@@ -88,7 +89,7 @@ class VirtualMotor(Motor):
 
 class VirtualCoder(Coder):
     parameters = {
-        'motor': ('', True, 'Device whose value to mirror.'),
+        'motor': (str, '', True, 'Device whose value to mirror.'),
     }
 
     def doInit(self):
@@ -106,7 +107,7 @@ class VirtualCoder(Coder):
 
 class VirtualTimer(FRMTimerChannel):
     parameters = {
-        'tacodevice': ('', False, ''),
+        'tacodevice': (tacodev, '', False, ''),
     }
 
     def doInit(self):
@@ -149,8 +150,8 @@ class VirtualTimer(FRMTimerChannel):
 
 class VirtualCounter(FRMCounterChannel):
     parameters = {
-        'countrate': (1000, False, 'The maximum countrate.'),
-        'tacodevice': ('', False, ''),
+        'countrate': (float, 1000, False, 'The maximum countrate.'),
+        'tacodevice': (tacodev, '', False, ''),
     }
 
     def nothing(self):

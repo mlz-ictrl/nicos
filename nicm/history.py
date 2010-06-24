@@ -53,7 +53,8 @@ class LocalHistory(History):
     """
 
     parameters = {
-        'maxage': (12, False, 'The maximum age of history entries in hours.'),
+        'maxage': (float, 12, False,
+                   'The maximum age of history entries in hours.'),
     }
 
     def doInit(self):
@@ -82,9 +83,9 @@ class ScratchPadHistory(History):
     """
 
     parameters = {
-        'server': ('', True,
+        'server': (str, '', True,
                    '"host:port" of the ScratchPad instance to connect to.'),
-        'prefix': ('', True, 'ScratchPad key prefix.'),
+        'prefix': (str, '', True, 'ScratchPad key prefix.'),
     }
 
     def doInit(self):
@@ -108,7 +109,8 @@ class LogfileHistory(History):
     """
 
     parameters = {
-        'basefilename': ('', True, 'Directory and base name for logfile names.'),
+        'basefilename': (str, '', True,
+                         'Directory and base name for logfile names.'),
     }
 
     def doInit(self):

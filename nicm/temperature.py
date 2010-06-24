@@ -50,31 +50,31 @@ class Sensor(TacoDevice, Readable):
     taco_class = Temperature.Sensor
 
     parameters = {
-        'sensortype': (None, False, 'The sensor type.'),
-        'curvename':  (None, False, 'The sensor curve name.'),
-        'serno':      (None, False, 'The sensor serial number.'),
+        'sensortype': (str, None, False, 'Sensor type.'),
+        'curvename':  (str, None, False, 'Sensor calibration curve name.'),
+        'serno':      (str, None, False, 'Sensor serial number.'),
     }
 
     # from LakeShore 340 operating manual
     sensor_types = {
-        0: 'Special',
-        1: 'Silicon Diode',
-        2: 'GaAlAs Diode',
-        3: 'Platinum 100 (250 Ohm)',
-        4: 'Platinum 100 (500 Ohm)',
-        5: 'Platinum 1000',
-        6: 'Rhodium Iron',
-        7: 'Carbon-Glass',
-        8: 'Cernox',
-        9: 'RuOx',
-        10: 'Germanium',
-        11: 'Capacitor',
-        12: 'Thermocouple',
+        '0': 'Special',
+        '1': 'Silicon Diode',
+        '2': 'GaAlAs Diode',
+        '3': 'Platinum 100 (250 Ohm)',
+        '4': 'Platinum 100 (500 Ohm)',
+        '5': 'Platinum 1000',
+        '6': 'Rhodium Iron',
+        '7': 'Carbon-Glass',
+        '8': 'Cernox',
+        '9': 'RuOx',
+        '10': 'Germanium',
+        '11': 'Capacitor',
+        '12': 'Thermocouple',
     }
 
     def doGetSensortype(self):
         stype = self._taco_guard(self._dev.deviceQueryResource, 'sensortype')
-        return self.sensor_types.get(stype, str(stype))
+        return self.sensor_types.get(stype, stype)
 
     def doGetCurvename(self):
         return self._taco_guard(self._dev.deviceQueryResource, 'curvename')
@@ -91,18 +91,19 @@ class Controller(TacoDevice, Moveable):
     }
 
     parameters = {
-        'setpoint':  (None, False, 'The current temperature setpoint.'),
-        'p':         (None, False, 'The P control parameter.'),
-        'i':         (None, False, 'The I control parameter.'),
-        'd':         (None, False, 'The D control parameter.'),
-        'ramp':      (None, False, 'The temperature ramp in K/s.'),
-        'tolerance': (None, False, 'The window\'s temperature tolerance in K.'),
-        'window':    (None, False,
-                      'The time window for checking stable temperature in s.'),
-        'timeout':   (None, False,
-                      'The maximum time in s to wait for stable temperature.'),
-        'unit':      (None, False, 'The unit of temperature.'),
-        'loopdelay': (1, False, 'The sleep time in s when waiting.'),
+        'setpoint':  (float, None, False, 'Current temperature setpoint.'),
+        'p':         (float, None, False, 'The P control parameter.'),
+        'i':         (float, None, False, 'The I control parameter.'),
+        'd':         (float, None, False, 'The D control parameter.'),
+        'ramp':      (float, None, False, 'Temperature ramp in K/s.'),
+        'tolerance': (float, None, False,
+                      'The window\'s temperature tolerance in K.'),
+        'window':    (float, None, False,
+                      'Time window for checking stable temperature in s.'),
+        'timeout':   (float, None, False,
+                      'Maximum time in s to wait for stable temperature.'),
+        'unit':      (str, None, False, 'Unit of temperature.'),
+        'loopdelay': (float, 1, False, 'Sleep time in s when waiting.'),
     }
 
     def doInit(self):

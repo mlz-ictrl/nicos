@@ -54,7 +54,7 @@ class Output(TacoDevice, Moveable):
     """Base class for TACO AnalogOutputs."""
 
     parameters = {
-        'loopdelay': (0.3, False, 'Wait loop delay in seconds.'),
+        'loopdelay': (float, 0.3, False, 'Wait loop delay in seconds.'),
     }
 
     taco_class = AnalogOutput

@@ -45,5 +45,5 @@ class Sample(Device):
     """A special singleton device to represent a sample."""
 
     parameters = {
-        'name': ('', True, 'Sample name.'),
+        'name': (str, '', True, 'Sample name.'),
     }
