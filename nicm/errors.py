@@ -53,7 +53,7 @@ class NicmError(Exception):
 
 
 class ProgrammingError(NicmError):
-    category = 'NICOS bug'
+    category = 'Programming error'
 
 class ConfigurationError(NicmError):
     category = 'Configuration error'

@@ -127,6 +127,10 @@ class Device(object):
 
     def init(self):
         """Initialize the object; this is called when the object is created."""
+
+        if hasattr(self, 'doPreinit'):
+            self.doPreinit()
+
         # validate and create attached devices
         for aname, cls in self.attached_devices.iteritems():
             if aname not in self._config:
@@ -340,8 +344,13 @@ class Startable(Readable):
     def wait(self):
         """Wait until main action of device is completed.
         Return current value after waiting."""
+        lastval = None
         if hasattr(self, 'doWait'):
-            self.doWait()
+            lastval = self.doWait()
+        # if doWait() returns something, assume it's the latest value
+        # (saves reading twice for wait functions that read the value anyway)
+        if lastval is not None:
+            return lastval
         # update device value in histories
         return self.read()
 

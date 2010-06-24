@@ -65,6 +65,8 @@ def help(obj=None):
         printinfo('Usage: ' + real_func.__name__ + argspec)
         printinfo(formatDocstring(real_func.__doc__ or '', '   '))
 
+__builtin__.__orig_dir = dir
+
 @usercommand
 def dir(obj=None):
     if obj is None:

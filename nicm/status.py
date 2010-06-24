@@ -42,6 +42,7 @@ OK = 100
 BUSY = 101
 ERROR = 102
 PAUSED = 103
+NOTREACHED = 104
 UNKNOWN = 999
 
 # dictionary mapping all status constants to their names

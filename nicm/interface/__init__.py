@@ -332,8 +332,8 @@ class NICOS(object):
                                      % devclsname)
         dev = devcls(devname, devconfig)
         self.devices[devname] = dev
-        self.export(devname, dev)
         dev.init()
+        self.export(devname, dev)
         return dev
 
     def destroyDevice(self, devname):
