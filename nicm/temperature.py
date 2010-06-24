@@ -53,6 +53,8 @@ class Sensor(TacoDevice, Readable):
         'sensortype': (str, None, False, 'Sensor type.'),
         'curvename':  (str, None, False, 'Sensor calibration curve name.'),
         'serno':      (str, None, False, 'Sensor serial number.'),
+        'offset':     (float, 0, False, 'Offset for temperature.'),
+        'unit':       (str, None, False, 'Unit of temperature.'),
     }
 
     # from LakeShore 340 operating manual
@@ -71,6 +73,12 @@ class Sensor(TacoDevice, Readable):
         '11': 'Capacitor',
         '12': 'Thermocouple',
     }
+
+    def doRead(self):
+        return TacoDevice.doRead(self) - self.offset
+
+    def doSetOffset(self, value):
+        self._params['offset'] = value
 
     def doGetSensortype(self):
         stype = self._taco_guard(self._dev.deviceQueryResource, 'sensortype')
@@ -102,21 +110,22 @@ class Controller(TacoDevice, Moveable):
                       'Time window for checking stable temperature in s.'),
         'timeout':   (float, None, False,
                       'Maximum time in s to wait for stable temperature.'),
-        'unit':      (str, None, False, 'Unit of temperature.'),
         'loopdelay': (float, 1, False, 'Sleep time in s when waiting.'),
+        'unit':      (str, None, False, 'Unit of temperature.'),
+        'offset':    (float, 0, False, 'Offset for setpoint.'),
     }
 
     def doInit(self):
         TacoDevice.doInit(self)
 
     def doRead(self):
-        return self._adevs['primary_sensor'].read()
+        return self._adevs['primary_sensor'].read() - self.offset
 
     def doStart(self, target):
         if self.status() == status.BUSY:
             self.printdebug('stopping running temperature change')
             self._taco_guard(self._dev.stop)
-        self._taco_guard(self._dev.write, target)
+        self._taco_guard(self._dev.write, target + self.offset)
 
     def doStop(self):
         self._taco_guard(self._dev.stop)
@@ -152,7 +161,7 @@ class Controller(TacoDevice, Moveable):
         self._taco_guard(self._dev.deviceReset)
 
     def doGetSetpoint(self):
-        return self._taco_guard(self._dev.setpoint)
+        return self._taco_guard(self._dev.setpoint) - self.offset
 
     def doGetP(self):
         return self._taco_guard(self._dev.pParam)
@@ -201,3 +210,6 @@ class Controller(TacoDevice, Moveable):
 
     def doSetLoopdelay(self, value):
         self._params['loopdelay'] = value
+
+    def doSetOffset(self, value):
+        self._params['offset'] = value

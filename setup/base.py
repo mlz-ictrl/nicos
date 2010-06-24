@@ -75,6 +75,14 @@ devices = dict(
                 usermin = 0,
                 usermax = 50),
 
+    sw = device('nicm.switcher.Switcher',
+                autocreate = True,
+                moveable = 'a2',
+                states = ['in', 'out'],
+                values = [1, 0],
+                precision = 0,
+                ),
+
     Power = device('nicm.taco.analog.Input',
                    description = 'FRM II reactor power',
                    autocreate = True,

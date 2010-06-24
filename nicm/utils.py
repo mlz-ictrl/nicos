@@ -264,3 +264,6 @@ def listof(conv):
 def tacodev(val):
     # XXX check for valid taco device name
     return str(val)
+
+def any(val):
+    return val

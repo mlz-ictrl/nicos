@@ -132,8 +132,8 @@ def NewExperiment(proposalnumber, title):
 @usercommand
 def SaveState():
     """Return statements that restore the current state."""
-    ret = ['NicmSetup(%r)\n' % nicos.explicit_setups[0]]
-    ret += ['NicmAddSetup(%r)\n' % setup
+    ret = ['NewSetup(%r)\n' % nicos.explicit_setups[0]]
+    ret += ['AddSetup(%r)\n' % setup
             for setup in nicos.explicit_setups[1:]]
     return ''.join(ret + [nicos.devices[dev].save()
                           for dev in sorted(nicos.devices)])

@@ -37,14 +37,14 @@ __version__ = "$Revision$"
 
 from nicm import nicos
 from nicm.utils import printTable
-from nicm.device import Device, Startable, Moveable, Readable
+from nicm.device import Device, Startable, Moveable, Switchable, Readable
 from nicm.errors import NicmError, UsageError
 from nicm.status import statuses
 from nicm.commands import usercommand
 from nicm.commands.output import printinfo
 
 
-def _devposlist(dev_pos_list):
+def _devposlist(dev_pos_list, cls=Moveable):
     devlist = []
     poslist = []
     if len(dev_pos_list) == 0:
@@ -53,7 +53,7 @@ def _devposlist(dev_pos_list):
         raise UsageError('a position must be given for every device')
     for i in range(len(dev_pos_list)):
         if i % 2 == 0:
-            devlist.append(nicos.getDevice(dev_pos_list[i], Moveable))
+            devlist.append(nicos.getDevice(dev_pos_list[i], cls))
             poslist.append(dev_pos_list[i+1])
     return zip(devlist, poslist)
 
@@ -92,7 +92,7 @@ def switch(*dev_pos_list):
     This can be used with multiple devices like this:
        switch(dev1, pos1, dev2, pos2, ...)
     """
-    for dev, pos in _devposlist(dev_pos_list):
+    for dev, pos in _devposlist(dev_pos_list, Switchable):
         dev.printinfo('switching to', dev.format(pos), dev.unit)
         dev.switchTo(pos)
         dev.wait()

@@ -330,7 +330,7 @@ class NICOS(object):
         if devcls is None:
             raise ConfigurationError('type of device %r does not exist'
                                      % devclsname)
-        dev = devcls(devname, devconfig)
+        dev = devcls(devname, **devconfig)
         self.devices[devname] = dev
         dev.init()
         self.export(devname, dev)

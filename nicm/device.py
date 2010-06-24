@@ -63,10 +63,10 @@ class Device(object):
 
     attached_devices = {}
 
-    def __init__(self, name, config=None):
+    def __init__(self, name, **config):
         # _config: device configuration (all parameter names lower-case)
         self._config = dict((name.lower(), value)
-                            for (name, value) in (config or {}).items())
+                            for (name, value) in config.items())
         # _params: parameter values from config
         self._params = {'name': name}  # pre-set "name" for str(self) to work
         # _changedparams: set of all changed params for save()
@@ -324,8 +324,8 @@ class Startable(Readable):
     method is required.
     """
 
-    def __init__(self, name, config):
-        Readable.__init__(self, name, config)
+    def __init__(self, name, **config):
+        Readable.__init__(self, name, **config)
         self.__isFixed = False
 
     def __call__(self, pos=None):
