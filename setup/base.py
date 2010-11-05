@@ -36,14 +36,14 @@ includes = ['system']
 modules = ['nicm.commands']
 
 devices = dict(
-    m1 = device('nicm.testdev.VirtualMotor',
+    m1 = device('nicm.virtual.VirtualMotor',
                 #loglevel = 'debug',
                 initval = 1,
                 absmin = 0,
                 absmax = 100,
                 unit = 'deg'),
 
-    m2 = device('nicm.testdev.VirtualMotor',
+    m2 = device('nicm.virtual.VirtualMotor',
                 loglevel = 'debug',
                 initval = 0.5,
                 absmin = 0,
@@ -51,7 +51,7 @@ devices = dict(
                 speed = 1,
                 unit = 'deg'),
 
-    c1 = device('nicm.testdev.VirtualCoder',
+    c1 = device('nicm.virtual.VirtualCoder',
                 motor = 'm1',
                 unit = 'deg'),
 
@@ -92,10 +92,10 @@ devices = dict(
                    fmtstr = '%.1f',
                    unit = 'MW'),
 
-    timer = device('nicm.testdev.VirtualTimer'),
-    ctr1 = device('nicm.testdev.VirtualCounter',
+    timer = device('nicm.virtual.VirtualTimer'),
+    ctr1 = device('nicm.virtual.VirtualCounter',
                   countrate = 1000),
-    ctr2 = device('nicm.testdev.VirtualCounter',
+    ctr2 = device('nicm.virtual.VirtualCounter',
                   countrate = 2000),
 
     det = device('nicm.detector.FRMDetector',

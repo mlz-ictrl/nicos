@@ -30,7 +30,7 @@
 # *****************************************************************************
 
 devices = dict(
-    test2 = device('nicm.testdev.VirtualMotor',
+    test2 = device('nicm.virtual.VirtualMotor',
                    autocreate = True,
                    initval = 0.05,
                    unit = 'mm'),

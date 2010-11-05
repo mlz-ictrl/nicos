@@ -37,10 +37,10 @@ devices = dict(
 
     localhistory = device('nicm.history.LocalHistory'),
 
-    sphistory = device('nicm.history.ScratchPadHistory',
-                       server = 'localhost:14869',
-                       prefix = 'nicos/test/',
-                       ),
+    cachehistory = device('nicm.history.CacheHistory',
+                          server = 'localhost:14869',
+                          prefix = 'nicos/test/',
+                          ),
 
     Logging = device('nicm.system.Logging',
                      logpath = '.',
@@ -53,19 +53,16 @@ devices = dict(
                          ),
 
     Data = device('nicm.data.Storage',
-                  autocreate = True,
                   datapath = 'data/',
                   sinks = ['consolesink', 'filesink'],
                   ),
 
     System = device('nicm.system.System',
-                    autocreate = True,
                     logging = 'Logging',
                     storage = 'Data',
                     histories = ['localhistory'],
                     ),
 
     Experiment = device('nicm.experiment.Experiment',
-                        autocreate = True,
                         users = []),
 )
