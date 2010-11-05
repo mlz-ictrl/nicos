@@ -54,17 +54,17 @@ The class name is fully qualified (i.e., includes the package/module name).  The
 parameters are given as keyword arguments.  An example ``devices`` entry is::
 
    devices = dict(
-       m1 = device('nicm.testdev.VirtualMotor',
+       m1 = device('virtual.VirtualMotor',
                    autocreate = False,
                    initval = 1,
                    unit = 'deg'),
 
-       m2 = device('nicm.testdev.VirtualMotor',
+       m2 = device('virtual.VirtualMotor',
                    autocreate = False,
                    initval = 0.5,
                    unit = 'deg'),
 
-       a1 = device('nicm.axis.Axis',
+       a1 = device('axis.Axis',
                    adev = {'motor': 'm1', 'coder': 'c1', 'obs': []},
                    absMin = 0,
                    absMax = 100,

@@ -78,3 +78,6 @@ class CommunicationError(NicmError):
 
 class TimeoutError(CommunicationError):
     category = 'Timeout'
+
+class ComputationError(NicmError):
+    category = 'Computation error'

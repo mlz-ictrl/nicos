@@ -105,7 +105,7 @@ class AutoPropsMeta(MergedAttrsMeta):
                 pconv = self.parameters[param][0]
                 try:
                     value = pconv(value)
-                except ValueError, err:
+                except (ValueError, TypeError), err:
                     raise ConfigurationError(
                         self, '%r is an invalid value for parameter %s: %s' %
                         (value, param, err))
@@ -267,3 +267,9 @@ def tacodev(val):
 
 def any(val):
     return val
+
+def vec3(val):
+    ret = map(float, val)
+    if len(ret) != 3:
+        raise ValueError('value needs to be a 3-element vector')
+    return ret

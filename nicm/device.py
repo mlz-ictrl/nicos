@@ -56,8 +56,8 @@ class Device(object):
     parameters = {
         'name': (str, '', False, 'The name of the device.'),
         'description': (str, '', False, 'A description of the device.'),
-        'autocreate': (bool, False, False, 'Whether the device is '
-                       'automatically created when the setup is loaded.'),
+        #'autocreate': (bool, False, False, 'Whether the device is '
+        #               'automatically created when the setup is loaded.'),
         'loglevel': (str, 'info', False, 'The logging level of the device.'),
     }
 
@@ -220,7 +220,7 @@ class Device(object):
         if hasattr(self, 'doSave'):
             code.append(self.doSave())
         for param in sorted(self._changedparams):
-            code.append('set(%s, %r, %r)\n' %
+            code.append('%s.%s = %r\n' %
                         (self.name, param, self.getPar(param)))
         return ''.join(code)
 

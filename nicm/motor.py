@@ -65,22 +65,22 @@ class Motor(Moveable, Coder):
         """Starts the movement of the motor to target."""
         pass
 
-    def doRead(self) :
+    def doRead(self):
         """Returns the current position from motor controller."""
         return 0
 
-    def doSetPosition(self, target) :
+    def doSetPosition(self, target):
         """Sets the current position of the motor controller to the target."""
         pass
 
-    def doStatus(self) :
+    def doStatus(self):
         """Returns the status of the motor controller."""
         return status.OK
 
-    def doReset(self) :
+    def doReset(self):
         """Resets the motor controller."""
         pass
 
-    def doStop(self) :
+    def doStop(self):
         """Stops the movement of the motor."""
         pass

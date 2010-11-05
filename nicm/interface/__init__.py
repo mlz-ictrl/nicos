@@ -221,8 +221,8 @@ class NICOS(object):
 
             devlist = sorted(info['devices'].iteritems())
             for devname, (_, devconfig) in devlist:
-                if not devconfig.get('autocreate', False):
-                    continue
+                #if not devconfig.get('autocreate', False):
+                #    continue
                 log.info('creating device %r... ' % devname)
                 try:
                     self.createDevice(devname, explicit=True)
@@ -382,7 +382,7 @@ class NICOS(object):
         return logger
 
     def logUnhandledException(self, exc_info):
-        """Log and unhandled exception.  Log using the originating device's
+        """Log an unhandled exception.  Log using the originating device's
         logger, if that information is available.
         """
         if isinstance(exc_info[1], NicmError):

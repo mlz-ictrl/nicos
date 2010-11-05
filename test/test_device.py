@@ -61,8 +61,8 @@ class Dev1(Device):
 class Dev2(Moveable):
     attached_devices = {'attached': Dev1}
     parameters = {
-        'param1': (42, False, 'An optional parameter.'),
-        'param2': (0, True, 'A mandatory parameter.'),
+        'param1': (int, 42, False, 'An optional parameter.'),
+        'param2': (int, 0, True, 'A mandatory parameter.'),
     }
 
     def doInit(self):
@@ -112,16 +112,16 @@ def test_params():
     # make sure adev instances are created
     assert isinstance(dev2._adevs['attached'], Dev1)
     # an inherited and writable parameter
-    assert dev2.getUnit() == 'mm'
-    dev2.setUnit('deg')
-    assert dev2.getUnit() == 'deg'
+    assert dev2.unit == 'mm'
+    dev2.unit = 'deg'
+    assert dev2.unit == 'deg'
     # a readonly parameter
-    assert dev2.getParam1() == 42
-    assert raises(ConfigurationError, dev2.setParam1, 21)
+    assert dev2.param1 == 42
+    assert raises(ConfigurationError, setattr, dev2, 'param1', 21)
     # a parameter with custom getter and setter
-    assert dev2.getParam2() == 2
-    dev2.setParam2(5)
-    assert dev2.getParam2() == 7
+    assert dev2.param2 == 3
+    dev2.param2 = 5
+    assert dev2.param2 == 7
     # Dev2 instance without adev
     assert raises(ConfigurationError, nicos.getDevice, 'dev2_2')
 
