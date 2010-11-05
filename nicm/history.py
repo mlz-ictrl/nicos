@@ -38,7 +38,7 @@ __version__ = "$Revision$"
 import time
 
 from nicm.device import Device
-from nicm.scratchpad import ScratchPadConnection
+from nicm.cache.client import CacheConnection
 
 
 class History(Device):
@@ -77,24 +77,24 @@ class LocalHistory(History):
         return history[i1:i2]
 
 
-class ScratchPadHistory(History):
+class CacheHistory(History):
     """
-    A history manager that sends updates to ScratchPad.
+    A history manager that sends updates to the NICM cache.
     """
 
     parameters = {
         'server': (str, '', True,
-                   '"host:port" of the ScratchPad instance to connect to.'),
-        'prefix': (str, '', True, 'ScratchPad key prefix.'),
+                   '"host:port" of the cache instance to connect to.'),
+        'prefix': (str, '', True, 'Cache key prefix.'),
     }
 
     def doInit(self):
         try:
             host, port = self.server.split(':')
-            self.__conn = ScratchPadConnection(self.prefix, host, int(port))
+            self.__conn = CacheConnection(self.prefix, host, int(port))
         except ValueError:
             host = self.server
-            self.__conn = ScratchPadConnection(self.prefix, host)
+            self.__conn = CacheConnection(self.prefix, host)
 
     def put(self, dev, name, tstamp, value):
         self.__conn.tell(dev.name + '/' + name, value, tstamp)

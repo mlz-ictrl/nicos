@@ -4,10 +4,10 @@
 #   $Id$
 #
 # Description:
-#   Scratchpad connection for NICM.
+#   NICM cache client support
 #
 # Author:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -29,7 +29,7 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
+"""NICM cache clients."""
 
 __author__  = "$Author$"
 __date__    = "$Date$"
@@ -37,22 +37,21 @@ __version__ = "$Revision$"
 
 import re
 import time
-import socket
 import select
+import socket
 import threading
 
-
-SCRATCHPAD_PORT = 14869
+CACHE_PORT = 14869
 
 answer_re = re.compile('(?:([0-9.]+)@)?([^:=]+)[:=](.*?)$', re.MULTILINE)
 
 
-class ScratchPadError(RuntimeError):
+class CacheError(RuntimeError):
     pass
 
 
-class ScratchPadConnection(object):
-    def __init__(self, prefix, host, port=SCRATCHPAD_PORT):
+class CacheConnection(object):
+    def __init__(self, prefix, host, port=CACHE_PORT):
         self.prefix = prefix
         self.address = (host, port)
         self.socket = None
@@ -64,7 +63,7 @@ class ScratchPadConnection(object):
             self.socket.connect(self.address)
         except Exception, err:
             self.socket = None
-            raise ScratchPadError('unable to connect: %s' % err)
+            raise CacheError('unable to connect: %s' % err)
 
     def _disconnect(self):
         try:
@@ -90,7 +89,7 @@ class ScratchPadConnection(object):
             self.socket.send(msg)
 
     def ask(self, key):
-        msg = '%s=\n' % (self.prefix + key)
+        msg = '%s?\n' % (self.prefix + key)
         with self.lock:
             if not self.socket:
                 self._connect()
@@ -99,15 +98,15 @@ class ScratchPadConnection(object):
             if self.socket in sel[0]:
                 answer = self.socket.recv(8192)
                 if not answer:
-                    raise ScratchPadError('connection lost')
+                    raise CacheError('connection lost')
             elif self.socket in sel[2]:
                 self._disconnect()
-                raise ScratchPadError('connection lost')
+                raise CacheError('connection lost')
             else:
-                raise ScratchPadError('no answer')
+                raise CacheError('no answer')
         match = answer_re.match(answer)
         if not match:
-            raise ScratchPadError('garbled answer: %r' % answer)
+            raise CacheError('garbled answer: %r' % answer)
         return self._convert(match.group(3))
 
     def history(self, key):
@@ -116,7 +115,7 @@ class ScratchPadConnection(object):
 
 if __name__ == '__main__':
     import sys
-    sp = ScratchPadConnection(sys.argv[2], sys.argv[1])
+    sp = CacheConnection(sys.argv[2], sys.argv[1])
     sp.tell('value', 1)
     while True:
         print 'asking for value...'
