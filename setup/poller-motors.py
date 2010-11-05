@@ -4,7 +4,7 @@
 #   $Id$
 #
 # Description:
-#   NICOS setup file for system "devices"
+#   NICOS test setup file with a few devices
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
@@ -29,40 +29,15 @@
 #
 # *****************************************************************************
 
-name = 'system setup'
+name = 'setup for the poller'
+
+#includes = ['system']
+#modules = ['nicm.commands']
+
+includes = ['base']
 
 devices = dict(
-    histlogger = device('nicm.history.LogfileHistory',
-                        basefilename = 'log/'),
-
-    localhistory = device('nicm.history.LocalHistory'),
-
-    cachehistory = device('nicm.history.CacheHistory',
-                          server = 'localhost:14869',
-                          prefix = 'nicos/test/',
-                          ),
-
-    Logging = device('nicm.system.Logging',
-                     logpath = '.',
-                     ),
-
-    filesink = device('nicm.data.AsciiDatafileSink',
-                      prefix = 'data'),
-
-    consolesink = device('nicm.data.ConsoleSink',
-                         ),
-
-    Data = device('nicm.data.Storage',
-                  datapath = 'data/',
-                  sinks = ['consolesink', 'filesink'],
-                  ),
-
-    System = device('nicm.system.System',
-                    logging = 'Logging',
-                    storage = 'Data',
-                    histories = ['cachehistory'],
-                    ),
-
-    Experiment = device('nicm.experiment.Experiment',
-                        users = []),
+    Poller = device('nicm.poller.Poller',
+                    devices=['a1'],
+                    interval=3),
 )

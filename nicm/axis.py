@@ -35,8 +35,8 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import threading
 import time
+import threading
 
 from nicm import status
 from nicm.device import Moveable
@@ -79,12 +79,12 @@ class Axis(Moveable):
                 raise ConfigurationError(self, 'different units for motor '
                                          'and observer %s' % ob)
 
+        self.__error = 0
         self.__offset = 0
         self.__thread = None
         self.__target = self.__read()
         self.__mutex = threading.RLock()
         self.__stopRequest = 0
-        self.__error = 0
         self.__locked = False
         self.__dragErrorCount = 0
 

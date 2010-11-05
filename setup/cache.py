@@ -4,7 +4,7 @@
 #   $Id$
 #
 # Description:
-#   NICOS test setup file for test_axis
+#   NICOS test setup file with a few devices
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
@@ -29,32 +29,13 @@
 #
 # *****************************************************************************
 
-name = 'test_axis setup'
+name = 'setup for the cache server'
 
-includes = ['system']
+#includes = ['system']
+#modules = ['nicm.commands']
 
 devices = dict(
-    motor = device(
-        'nicm.virtual.VirtualMotor',
-        unit = 'mm',
-        initval = 0,
-        absmin = -100,
-        absmax = 100,
-    ),
-
-    coder = device(
-        'nicm.virtual.VirtualCoder',
-        motor = 'motor',
-        unit = 'mm',
-    ),
-
-    axis = device(
-        'nicm.axis.Axis',
-        motor = 'motor',
-        coder = 'coder',
-        obs = [],
-        usermin = -50,
-        usermax = 50,
-        loopdelay = 0.005,  # delay not necessary for virtual motor
-    ),
+    Cache = device('nicm.cache.server.CacheServer',
+                   defaultport=14869,
+                   clusterlist=['127.0.0.1']),
 )

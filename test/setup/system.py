@@ -33,22 +33,22 @@ name = 'test system setup'
 
 devices = dict(
     LocalHistory = device(
-        'history.LocalHistory',
+        'nicm.history.LocalHistory',
     ),
 
     Logging = device(
-        'system.Logging',
+        'nicm.system.Logging',
         logpath = '.',
     ),
 
     Storage = device(
-        'data.Storage',
+        'nicm.data.Storage',
         datapath = '.',
         sinks = [],
     ),
 
     System = device(
-        'system.System',
+        'nicm.system.System',
         autocreate = True,
         logging = 'Logging',
         storage = 'Storage',

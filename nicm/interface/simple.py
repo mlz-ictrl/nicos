@@ -4,7 +4,7 @@
 #   $Id$
 #
 # Description:
-#   NICOS setup file for system "devices"
+#   NICOS interactive interface classes
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
@@ -29,40 +29,39 @@
 #
 # *****************************************************************************
 
-name = 'system setup'
+"""
+Contains the subclass of NICOS specific for running nicm in noninteractive
+mode, such as a daemon process.
+"""
 
-devices = dict(
-    histlogger = device('nicm.history.LogfileHistory',
-                        basefilename = 'log/'),
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
-    localhistory = device('nicm.history.LocalHistory'),
+import nicm
+from nicm.interface import NICOS
+from nicm.loggers import ColoredConsoleHandler
 
-    cachehistory = device('nicm.history.CacheHistory',
-                          server = 'localhost:14869',
-                          prefix = 'nicos/test/',
-                          ),
 
-    Logging = device('nicm.system.Logging',
-                     logpath = '.',
-                     ),
+class SimpleNICOS(NICOS):
+    """
+    Subclass of NICOS that configures the logging system for simple
+    noninteractive usage.
+    """
 
-    filesink = device('nicm.data.AsciiDatafileSink',
-                      prefix = 'data'),
+    auto_modules = []
 
-    consolesink = device('nicm.data.ConsoleSink',
-                         ),
+    def _initLogging(self):
+        NICOS._initLogging(self)
+        self._log_handlers.append(ColoredConsoleHandler())
 
-    Data = device('nicm.data.Storage',
-                  datapath = 'data/',
-                  sinks = ['consolesink', 'filesink'],
-                  ),
 
-    System = device('nicm.system.System',
-                    logging = 'Logging',
-                    storage = 'Data',
-                    histories = ['cachehistory'],
-                    ),
+def start(setup):
+    # Assign the correct class to the NICOS singleton.
+    nicm.nicos.__class__ = SimpleNICOS
+    nicm.nicos.__init__()
 
-    Experiment = device('nicm.experiment.Experiment',
-                        users = []),
-)
+    # Create the initial nicm setup.
+    nicm.nicos.loadSetup(setup)
+
+    return nicm.nicos

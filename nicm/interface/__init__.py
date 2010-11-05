@@ -86,6 +86,8 @@ class NICOS(object):
     loggers.
     """
 
+    auto_modules = ['nicm.commands']
+
     def __init__(self):
         # contains all created device objects
         self.devices = {}
@@ -232,8 +234,9 @@ class NICOS(object):
 
             exec info['startupcode'] in self.__namespace
 
-        # always load nicm.commands
-        load_module('nicm.commands')
+        # always load nicm.commands in interactive mode
+        for modname in self.auto_modules:
+            load_module(modname)
 
         inner_load(setupname)
 
@@ -325,8 +328,9 @@ class NICOS(object):
                              clsname, None)
         except ImportError:
             # try with "nicm." prepended
-            mod = __import__('nicm.' + modname, None, None, [clsname])
-            devcls = getattr(mod, clsname, None)
+            #mod = __import__('nicm.' + modname, None, None, [clsname])
+            #devcls = getattr(mod, clsname, None)
+            raise
         if devcls is None:
             raise ConfigurationError('type of device %r does not exist'
                                      % devclsname)

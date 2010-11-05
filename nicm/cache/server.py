@@ -37,10 +37,13 @@ __version__ = "$Revision$"
 
 import re
 import select
-import signal
 import socket
 import threading
 from time import time as current_time, sleep
+
+from nicm import nicos
+from nicm.device import Device
+from nicm.utils import listof
 
 # regular expression matching a cache protocol message
 msg_pattern = re.compile(r'''
@@ -129,7 +132,7 @@ class CacheWorker(object):
         self.stoprequest = False
         self.worker = None
 
-        self.log = db.log
+        self.log = nicos.getLogger(name)
 
         if initstring:
             if not self.writeto(initstring):
@@ -152,10 +155,10 @@ class CacheWorker(object):
                 line = match.group(1)
                 data = data[match.end():]
                 if not line:
-                    self.log(self, 'got empty line, closing connection')
+                    self.log.info('got empty line, closing connection')
                     self.closedown()
                     return
-                self.log(self, 'got line: %r' % line)
+                self.log.debug('got line: %r' % line)
                 ret = self._handle_line(line)
                 if ret:
                     self.writeto('\r\n'.join(ret) + '\r\n')
@@ -176,7 +179,7 @@ class CacheWorker(object):
             if not newdata:
                 # no data received from blocking read, break connection
                 break
-            self.log(self, 'got new data: %r' % newdata)
+            self.log.debug('got new data: %r' % newdata)
             data += newdata
         self.closedown()
 
@@ -201,19 +204,19 @@ class CacheWorker(object):
 
         # dispatch operations
         if op == '=':
-            self.log(self, 'set key %r to %r' % (key, value))
+            self.log.debug('set key %r to %r' % (key, value))
             if value:
                 self.db.tell(key, value, time, ttl)
             else:
                 self.db.delete(key)
         elif op == '?':
-            self.log(self, 'ask key %r' % key)
+            self.log.debug('ask key %r' % key)
             if tsop:
                 return self.db.ask_ts(key, time, ttl)
             else:
                 return self.db.ask(key)
         elif op == '!':
-            self.log(self, 'subscribe key %r' % key)
+            self.log.debug('subscribe key %r' % key)
             if tsop:
                 self.ts_updates_on.add(key)
             else:
@@ -259,7 +262,7 @@ class CacheWorker(object):
             return True
         # Ok, if we can't write now, there is some serious problem.
         # forget writing and close all down
-        self.log(self, 'other end closed, shutting down')
+        self.log.warning(self, 'other end closed, shutting down')
         self.closedown()
         return False
 
@@ -273,7 +276,8 @@ class CacheWorker(object):
             if mykey in key:
                 if not time:
                     time = current_time()
-                self.log(self, 'sending update: %r %r %r' % (time, key, value))
+                self.log.debug(self, 'sending update: %r %r %r' %
+                               (time, key, value))
                 return self.writeto('%s@%s=%s\r\n' % (time, key, value))
         # same for requested updates without timestamp
         for mykey in self.updates_on:
@@ -299,25 +303,25 @@ class CacheDatabase(object):
 
     def __init__(self, server):
         self.server = server
-        self.log = server.log
+        self.log = nicos.getLogger('DB')
 
         self._db = {}
         self.lock = threading.Lock()
 
         # start self-cleaning timer
-        self.cleanser()
-
-    def cleanser(self):
-        self.log('db running cleanser')
-        # clean all expired values
-        self.ask('')
-        # and start again in 30 seconds
-        t = threading.Timer(30, self.cleanser)
+        t = threading.Thread(target=self.cleanser)
         t.setDaemon(True)
         t.start()
 
+    def cleanser(self):
+        while True:
+            sleep(30)
+            # asking for all values will clean all expired values
+            self.ask('')
+            self.log.debug('db running cleanser')
+
     def ask(self, key):
-        self.log('db ask: %s' % key)
+        self.log.debug('db ask: %s' % key)
         self.lock.acquire()
         try:
             returning = set()
@@ -345,7 +349,7 @@ class CacheDatabase(object):
         return returning
 
     def ask_ts(self, key, time, ttl):
-        self.log('db ask_ts: %s, %s, %s' % (key, time, ttl))
+        self.log.debug('db ask_ts: %s, %s, %s' % (key, time, ttl))
         self.lock.acquire()
         try:
             returning = set()
@@ -378,7 +382,7 @@ class CacheDatabase(object):
         return returning
 
     def tell(self, key, value, time, ttl):
-        self.log('db tell: %s, %s, %s, %s' % (key, value, time, ttl))
+        self.log.debug('db tell: %s, %s, %s, %s' % (key, value, time, ttl))
         send_update = True
         self.lock.acquire()
         try:
@@ -392,12 +396,12 @@ class CacheDatabase(object):
         finally:
             self.lock.release()
         if send_update:
-            for client in self.server.connected.values():
+            for client in self.server._connected.values():
                 if client.is_active():
                     client.update(key, value, time)
 
     def delete(self, key):
-        self.log('db delete: %s' % key)
+        self.log.debug('db delete: %s' % key)
         if key not in self._db:
             return
         self.lock.acquire()
@@ -407,29 +411,35 @@ class CacheDatabase(object):
             self.lock.release()
 
 
-class CacheServer(object):
+class CacheServer(Device):
     """
     The server class.
     """
 
-    def __init__(self, log):
-        self.log = log
-        self.defaultport = 14869
-        self.clusterlist = ['127.0.0.1', '192.168.2.220']
-        self.stoprequest = False
-        self.db = CacheDatabase(self)
-        self.boundto = None
-        self.serversocket = None
-        self.serversocket_udp = None
-        self.connected = {}  # worker connections
-        self.worker = threading.Thread(target=self._worker_thread)
-        self.worker.start()
+    parameters = {
+        'defaultport': (int, 14869, False, 'The default server port.'),
+        'clusterlist': (listof(str), [], False, 'List of cluster connections.'),
+    }
+
+    def doInit(self):
+        self._stoprequest = False
+        self._db = CacheDatabase(self)
+        self._boundto = None
+        self._serversocket = None
+        self._serversocket_udp = None
+        self._connected = {}  # worker connections
+
+    def start(self):
+        self._worker = threading.Thread(target=self._worker_thread)
+        self._worker.start()
 
     def _worker_thread(self):
+        self.printinfo('server starting')
+
         def bind_to(address, type='tcp'):
             if ':' not in address:
                 host = address
-                port = int(self.defaultport)
+                port = self.defaultport
             else:
                 host, port = address.split(':')
                 port = int(port)
@@ -451,7 +461,7 @@ class CacheServer(object):
         def connect_to(address):
             if ':' not in address:
                 host = address
-                port = int(self.defaultport)
+                port = self.defaultport
             else:
                 host, port = address.split(':')
                 port = int(port)
@@ -467,41 +477,42 @@ class CacheServer(object):
 
         # now try to bind to one, include 'MUST WORK' standalone names
         for server in self.clusterlist + [socket.getfqdn(), socket.gethostname()]:
-            self.log('server trying to bind to ' + server)
-            self.serversocket = bind_to(server)
-            if self.serversocket:
-                self.boundto = server
+            self.printdebug('server trying to bind to ' + server)
+            self._serversocket = bind_to(server)
+            if self._serversocket:
+                self._boundto = server
                 break             # we had success: exit this loop
-        self.log('server now bound to %s' % self.boundto)
 
         # bind UDP broadcast socket
-        self.serversocket_udp = bind_to('', 'udp')
-        if self.serversocket_udp:
-            self.log('server udp-bound to broadcast')
+        self._serversocket_udp = bind_to('', 'udp')
+        if self._serversocket_udp:
+            self.printinfo('server udp-bound to broadcast')
 
-        if not self.serversocket and not self.serversocket_udp:
-            self.stoprequest = True
-            # print "couldn't bind to any location, giving up!"
+        if not self._serversocket and not self._serversocket_udp:
+            self._stoprequest = True
+            self.printerror("couldn't bind to any location, giving up!")
             return
 
-        # print 'starting main-loop at %s'%self.boundto
+        self.printinfo('starting main-loop bound to %s' % self._boundto)
         # now enter main serving loop
-        while not self.stoprequest:
+        while not self._stoprequest:
             # loop through connections, first to remove dead ones,
             # secondly to try to reconnect
-            for addr, client in self.connected.items():
+            for addr, client in self._connected.items():
                 if client:
                     if not client.is_active(): # dead or stopped
                         if addr in self.clusterlist:
-                            self.log('cluster connection to %s died' % addr)
+                            self.printwarning('cluster connection to '
+                                              '%s died' % addr)
                         else:
-                            self.log('client connection from %s died' % addr)
+                            self.printinfo('client connection from '
+                                           '%s died' % addr)
                         client.closedown()
                         client.worker.join() # wait for thread to end
-                        del self.connected[addr]
+                        del self._connected[addr]
             # check connections to cluster members
             for addr in self.clusterlist:
-                if addr != self.boundto and addr not in self.connected:
+                if addr != self._boundto and addr not in self._connected:
                     # don't connect to self, only reconnect if not
                     # already connected
                     conn = connect_to(addr)
@@ -512,66 +523,59 @@ class CacheServer(object):
                     # input-buffer so we will update the cluster
                     # about local changes...
                     client = CacheWorker(
-                        db=self.db, connection=conn, name=addr,
+                        db=self._db, connection=conn, name=addr,
                         initstring='@?\r\n@!\r\n', initdata='@?\r\n@!\r\n')
-                    self.connected[addr] = client
-                    # print "(re-)connected to clusternode: ",addr, ' syncing'
+                    self._connected[addr] = client
+                    self.printinfo('(re-)connected to clusternode %s, '
+                                   'syncing' % addr)
 
             # now check for additional incoming connections
             # build list of things to ckeck
             selectlist = []
-            if self.serversocket:
-                selectlist.append(self.serversocket)
-            if self.serversocket_udp:
-                selectlist.append(self.serversocket_udp)
+            if self._serversocket:
+                selectlist.append(self._serversocket)
+            if self._serversocket_udp:
+                selectlist.append(self._serversocket_udp)
 
             res = select.select(selectlist, [], [], 1)  # timeout 1 second
             if not res[0]:
                 continue  # nothing to read -> continue loop
-            if self.serversocket in res[0]:
+            if self._serversocket in res[0]:
                 # TCP connection came in
-                conn, addr = self.serversocket.accept()
+                conn, addr = self._serversocket.accept()
                 addr = 'tcp://%s:%d' % addr
-                # print 'new connection from %s'%addr
+                self.printinfo('new connection from %s' % addr)
                 # TODO: check addr, currently all are allowed....
-                self.connected[addr] = CacheWorker(self.db, conn, name=addr)
-            elif self.serversocket_udp in res[0]:
+                self._connected[addr] = CacheWorker(self._db, conn, name=addr)
+            elif self._serversocket_udp in res[0]:
                 # UDP data came in
-                data, addr = self.serversocket_udp.recvfrom(3072)
+                data, addr = self._serversocket_udp.recvfrom(3072)
                 nice_addr = 'udp://%s:%d' % addr
-                # print 'new connection from %s' % nice_addr
+                self.printinfo('new connection from %s' % nice_addr)
                 # TODO: check addr, currently all are allowed....
-                conn = CacheUDPConnection(self.serversocket_udp, addr, self.log)
-                self.connected[nice_addr] = CacheWorker(
-                    self.db, conn, name=nice_addr, initdata=data)
-        self.serversocket.shutdown(socket.SHUT_RDWR)
-        self.serversocket.close()
-        self.serversocket = None
+                conn = CacheUDPConnection(self._serversocket_udp, addr,
+                                          log=self.printdebug)
+                self._connected[nice_addr] = CacheWorker(
+                    self._db, conn, name=nice_addr, initdata=data)
+        self._serversocket.shutdown(socket.SHUT_RDWR)
+        self._serversocket.close()
+        self._serversocket = None
+
+    def wait(self):
+        while not self._stoprequest:
+            sleep(1)
+        self._worker.join()
 
     def quit(self):
-        self.stoprequest = True
-        for client in self.connected.values():
-            self.log('server closing client %s' % client)
+        self.printinfo('server quitting...')
+        self._stoprequest = True
+        for client in self._connected.values():
+            self.printinfo('server closing client %s' % client)
             if client.is_active():
                 client.closedown()
-        for client in self.connected.values():
-            self.log('server waiting for %s' % client)
+        for client in self._connected.values():
+            self.printinfo('server waiting for %s' % client)
             client.worker.join()
-        print 'server waiting for server'
-        self.worker.join()
-
-if __name__ == '__main__':
-    def log(x, y=''):
-        print x, y
-    log('starting server')
-    server = CacheServer(log=log)
-    def handler(signum, frame):
-        log('shutting down...')
-        server.quit()
-    signal.signal(signal.SIGINT, handler)   # control-c
-    signal.signal(signal.SIGTERM, handler)  # terminate
-    while not server.stoprequest:
-        sleep(1)
-    log('server quitting')
-    server.worker.join()
-    log('server finished')
+        self.printinfo('server waiting for server')
+        self._worker.join()
+        self.printinfo('server finished')
