@@ -35,7 +35,6 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import re
 import select
 import socket
 import threading
@@ -44,22 +43,7 @@ from time import time as current_time, sleep
 from nicm import nicos
 from nicm.device import Device
 from nicm.utils import listof
-
-# regular expression matching a cache protocol message
-msg_pattern = re.compile(r'''
-    ^ (?:
-      \s* (?P<time>\d+\.?\d*)?    # timestamp
-      \s* [+]?                    # ttl operator
-      \s* (?P<ttl>\d+\.?\d*)?     # ttl
-      \s* (?P<tsop>@)             # timestamp mark
-    )?
-    \s* (?P<key>[^=!?]*?)         # key
-    \s* (?P<op>[=!?])             # operator
-    \s* (?P<value>[^\r\n]*?)      # value
-    \s* $
-    ''', re.X)
-
-line_pattern = re.compile(r'([^\r\n]*)(\r\n|\r|\n)')
+from nicm.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT
 
 
 class CacheUDPConnection(object):
@@ -162,6 +146,7 @@ class CacheWorker(object):
                 ret = self._handle_line(line)
                 if ret:
                     self.writeto('\r\n'.join(ret) + '\r\n')
+                # continue loop with next match
                 match = line_pattern.match(data)
             if self.connection and self.connection.fileno() > 0:
                 # wait for data with 1-second timeout
@@ -409,6 +394,9 @@ class CacheDatabase(object):
             self._db[key].append(Entry(current_time(), None, None))
         finally:
             self.lock.release()
+        for client in self.server._connected.values():
+            if client.is_active():
+                client.update(key, '', None)
 
 
 class CacheServer(Device):
@@ -417,7 +405,8 @@ class CacheServer(Device):
     """
 
     parameters = {
-        'defaultport': (int, 14869, False, 'The default server port.'),
+        'defaultport': (int, DEFAULT_CACHE_PORT, False,
+                        'The default server port.'),
         'clusterlist': (listof(str), [], False, 'List of cluster connections.'),
     }
 

@@ -4,10 +4,10 @@
 #   $Id$
 #
 # Description:
-#   NICOS monitor setup file with a few devices
+#   NICM cache client support
 #
 # Author:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -29,43 +29,29 @@
 #
 # *****************************************************************************
 
-name = 'setup for the status monitor'
+"""NICM cache utils."""
 
-_row_filter1 = [
-    {'name': 'Saph', 'key': 'saph/value'},
-    {'name': 'Power', 'key': 'power/value'},
-    {'name': 'Shutter', 'key': 'shutter/value'},
-    {'name': 'ms1', 'key': 'ms1/value'},
-]
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
 
-_row_filter2 = [
-    {'name': 'Be', 'key': 'be/value'}
-]
+import re
 
-_block1 = ('Filter', [_row_filter1, _row_filter2])
 
-_column1 = [
-    _block1,
-    #_block2,
-    #_block3,
-]
+DEFAULT_CACHE_PORT = 14869
 
-_column2 = [
-    #_block4,
-    #_block5,
-    #_block6,
-]
+# regular expression matching a cache protocol message
+msg_pattern = re.compile(r'''
+    ^ (?:
+      \s* (?P<time>\d+\.?\d*)?    # timestamp
+      \s* [+]?                    # ttl operator
+      \s* (?P<ttl>\d+\.?\d*)?     # ttl
+      \s* (?P<tsop>@)             # timestamp mark
+    )?
+    \s* (?P<key>[^=!?]*?)         # key
+    \s* (?P<op>[=!?])             # operator
+    \s* (?P<value>[^\r\n]*?)      # value
+    \s* $
+    ''', re.X)
 
-_layout = [
-    _column1,
-    #_column2,
-]
-
-devices = dict(
-    Monitor = device('nicm.monitor.Monitor',
-                     title='Status monitor',
-                     cache='localhost:14869',
-                     font='Luxi Sans',
-                     valuefont='Consolas',
-                     layout=_layout)
-)
+line_pattern = re.compile(r'([^\r\n]*)(\r\n|\r|\n)')

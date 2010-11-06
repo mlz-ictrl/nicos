@@ -41,7 +41,7 @@ import select
 import socket
 import threading
 
-CACHE_PORT = 14869
+from nicm.cache.utils import DEFAULT_CACHE_PORT
 
 answer_re = re.compile('(?:([0-9.]+)@)?([^:=]+)[:=](.*?)$', re.MULTILINE)
 
@@ -51,7 +51,7 @@ class CacheError(RuntimeError):
 
 
 class CacheConnection(object):
-    def __init__(self, prefix, host, port=CACHE_PORT):
+    def __init__(self, prefix, host, port=DEFAULT_CACHE_PORT):
         self.prefix = prefix
         self.address = (host, port)
         self.socket = None
