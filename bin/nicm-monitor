@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+
+import sys
+import signal
+
+from nicm.errors import ConfigurationError, UsageError
+from nicm.interface import simple
+
+try:
+    nicos = simple.start('monitor')
+    monitor = nicos.getDevice('Monitor')
+except (ConfigurationError, UsageError), err:
+    print >>sys.stderr, 'Fatal error:', err
+    sys.exit(1)
+monitor.start()
