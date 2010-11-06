@@ -52,13 +52,14 @@ class SimpleNICOS(NICOS):
     auto_modules = []
 
     def _initLogging(self):
-        NICOS._initLogging(self)
+        NICOS._initLogging(self, self.appname)
         self._log_handlers.append(ColoredConsoleHandler())
 
 
-def start(setup):
+def start(setup, appname=None):
     # Assign the correct class to the NICOS singleton.
     nicm.nicos.__class__ = SimpleNICOS
+    nicm.nicos.appname = appname or setup
     nicm.nicos.__init__()
 
     # Create the initial nicm setup.

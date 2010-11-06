@@ -366,13 +366,13 @@ class NICOS(object):
 
     # -- Logging ---------------------------------------------------------------
 
-    def _initLogging(self):
+    def _initLogging(self, prefix='nicm'):
         loggers.initLoggers()
         self._loggers = {}
         self._log_manager = logging.Manager(None)
         # all interfaces should log to a logfile; more handlers can be
         # added by subclasses
-        self._log_handlers = [loggers.NicmLogfileHandler()]
+        self._log_handlers = [loggers.NicmLogfileHandler(filenameprefix=prefix)]
 
     def getLogger(self, name):
         if name in self._loggers:

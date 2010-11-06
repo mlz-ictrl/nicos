@@ -37,6 +37,7 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import os
 import sys
 import time
 import codecs
@@ -207,12 +208,13 @@ class NicmLogfileHandler(BaseRotatingHandler):
     Logs to log files with a date stamp appended, and rollover on midnight.
     """
 
-    def __init__(self, filenameprefix='nicm', dayfmt=DATESTAMP_FMT):
-        self._filenameprefix = filenameprefix
+    def __init__(self, directory='log', filenameprefix='nicm',
+                 dayfmt=DATESTAMP_FMT):
+        self._filenameprefix = os.path.join(directory, filenameprefix)
         self._dayfmt = dayfmt
         # today's logfile name
-        basefilename = filenameprefix + '-' + time.strftime(dayfmt) + '.log'
-        BaseRotatingHandler.__init__(self, basefilename, 'a')
+        basefn = self._filenameprefix + '-' + time.strftime(dayfmt) + '.log'
+        BaseRotatingHandler.__init__(self, basefn, 'a')
         # determine time of first midnight from now on
         t = time.localtime()
         self.rollover_at = time.mktime((t[0], t[1], t[2], 0, 0, 0,
