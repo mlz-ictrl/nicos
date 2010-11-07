@@ -222,8 +222,8 @@ class TacoDevice(object):
         tb = sys.exc_info()[2]
         code = err.errcode
         cls = NicmError
-        if code == 2:
-            # client call timeout
+        if code in (2, 16):
+            # client call timeout or no network manager
             cls = CommunicationError
         elif 401 <= code < 499:
             # error number 401-499: database system error messages

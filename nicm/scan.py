@@ -57,7 +57,7 @@ class Scan(object):
         self.detlist = detlist
         self.preset = preset
         self.scaninfo = scaninfo
-        self.sinks = nicos.system.storage.getSinks(scantype)
+        self.sinks = nicos.system.getSinks(scantype)
 
     def beginScan(self):
         nicos.beginActionScope('Scan')

@@ -29,12 +29,13 @@
 #
 # *****************************************************************************
 
-name = 'NICOS startup setup'
+name = 'minimal NICOS startup setup'
 group = 'startup'
 
 includes = []
 
 modules = []
 devices = dict(
-    System = device('nicm.system.System'),
+    System = device('nicm.system.System',
+                    sinks=[], datapath='.', logpath='.'),
 )

@@ -164,7 +164,7 @@ class AsciiDatafileSink(DataSink):
 
     def doInit(self):
         # XXX where is datapath really defined?
-        #self.setDatapath(nicos.system.storage.datapath)
+        #self.setDatapath(nicos.system.datapath)
         self.setDatapath('')
         self._file = None
         self._fname = ''
@@ -241,24 +241,3 @@ class AsciiDatafileSink(DataSink):
         self._file.write('### End of NICOS data file %s\n' % self._fname)
         self._file.close()
         self._file = None
-
-
-class Storage(Device):
-    parameters = {
-        'datapath': (str, '', True, 'Path for data files.'),
-    }
-    attached_devices = {
-        'sinks': [DataSink],
-    }
-
-    def getSinks(self, scantype=None):
-        if scantype is None:
-            return self._adevs['sinks']
-        else:
-            return [sink for sink in self._adevs['sinks']
-                    if not sink.scantypes or scantype in sink.scantypes]
-
-    def doSetDatapath(self, value):
-        self._params['datapath'] = value
-        for sink in self._adevs['sinks']:
-            sink.setDatapath(value)

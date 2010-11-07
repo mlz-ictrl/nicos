@@ -302,6 +302,8 @@ class Readable(Device):
 
     def info(self):
         """Automatically add device main value and status (if not OK)."""
+        # XXX this can fail; catch exceptions around every item
+        return
         yield ('value', self.read())
         value = self.status()
         if value != status.OK:

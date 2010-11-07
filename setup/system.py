@@ -42,24 +42,16 @@ devices = dict(
                           prefix = 'nicos/test/',
                           ),
 
-    Logging = device('nicm.system.Logging',
-                     logpath = '.',
-                     ),
-
     filesink = device('nicm.data.AsciiDatafileSink',
                       prefix = 'data'),
 
     consolesink = device('nicm.data.ConsoleSink',
                          ),
 
-    Data = device('nicm.data.Storage',
-                  datapath = 'data/',
-                  sinks = ['consolesink', 'filesink'],
-                  ),
-
     System = device('nicm.system.System',
-                    logging = 'Logging',
-                    storage = 'Data',
+                    logpath = '.',
+                    datapath = 'data/',
+                    sinks = ['consolesink', 'filesink'],
                     histories = ['cachehistory'],
                     ),
 

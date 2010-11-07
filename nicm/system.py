@@ -38,17 +38,9 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 
-from nicm.data import Storage
+from nicm.data import DataSink
 from nicm.utils import listof
 from nicm.device import Device
-
-
-class Logging(Device):
-    """A special singleton device to configure logging."""
-
-    parameters = {
-        'logpath': (str, '', True, 'Path for logfiles.'),
-    }
 
 
 class System(Device):
@@ -59,20 +51,25 @@ class System(Device):
     parameters = {
         'histories': (listof(str), [], False,
                       'Global history managers for all devices.'),
+        'logpath': (str, '', True, 'Path for logfiles.'),
+        'datapath': (str, '', True, 'Path for data files.'),
     }
 
     attached_devices = {
-        'logging': Logging,
-        'storage': Storage,
+        'sinks': [DataSink],
     }
 
     def __repr__(self):
         return '<NICM System>'
 
-    @property
-    def storage(self):
-        return self._adevs['storage']
+    def getSinks(self, scantype=None):
+        if scantype is None:
+            return self._adevs['sinks']
+        else:
+            return [sink for sink in self._adevs['sinks']
+                    if not sink.scantypes or scantype in sink.scantypes]
 
-    @property
-    def logging(self):
-        return self._adevs['logging']
+    def doSetDatapath(self, value):
+        self._params['datapath'] = value
+        for sink in self._adevs['sinks']:
+            sink.setDatapath(value)

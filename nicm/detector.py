@@ -40,6 +40,7 @@ import TACOStates
 from IO import Timer, Counter
 
 from nicm import status
+from nicm.utils import any
 from nicm.device import Measurable
 from nicm.errors import ConfigurationError
 from nicm.taco.base import TacoDevice
@@ -51,7 +52,8 @@ class FRMChannel(TacoDevice, Measurable):
     """
 
     parameters = {
-        'mode': (int, 0, False,
+        # XXX type must be more permissive for "mode"
+        'mode': (any, 0, False,
                  'Channel mode: normal, ratemeter, or preselection.'),
         'ismaster': (bool, False, False, 'If this channel is a master.'),
         'preselection': (float, 0, False, 'Preselection for this channel.'),
