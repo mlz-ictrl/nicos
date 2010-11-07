@@ -213,32 +213,45 @@ class NICOS(object):
             self.loaded_setups.add(name)
             info = self.__setup_info[name]
 
+            devlist = {}
+            startupcode = []
+
             for include in info['includes']:
-                inner_load(include)
+                ret = inner_load(include)
+                devlist.update(ret[0])
+                startupcode.extend(ret[1])
 
             for modname in info['modules']:
                 load_module(modname)
 
             self.configured_devices.update(info['devices'])
 
-            devlist = sorted(info['devices'].iteritems())
-            for devname, (_, devconfig) in devlist:
-                #if not devconfig.get('autocreate', False):
-                #    continue
-                log.info('creating device %r... ' % devname)
-                try:
-                    self.createDevice(devname, explicit=True)
-                except Exception:
-                    log.exception('failed')
-                    failed_devs.append(devname)
+            devlist.update(info['devices'].iteritems())
+            startupcode.append(info['startupcode'])
 
-            exec info['startupcode'] in self.__namespace
+            return devlist, startupcode
 
         # always load nicm.commands in interactive mode
         for modname in self.auto_modules:
             load_module(modname)
 
-        inner_load(setupname)
+        devlist, startupcode = inner_load(setupname)
+
+        # create all devices
+        for devname, (_, devconfig) in sorted(devlist.iteritems()):
+            #if not devconfig.get('autocreate', False):
+            #    continue
+            log.info('creating device %r... ' % devname)
+            try:
+                self.createDevice(devname, explicit=True)
+            except Exception:
+                raise
+                log.exception('failed')
+                failed_devs.append(devname)
+
+        for code in startupcode:
+            if code:
+                exec code in self.__namespace
 
         if failed_devs:
             log.warning('the following devices could not be created:')
