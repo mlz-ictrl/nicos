@@ -40,46 +40,50 @@ __version__ = "$Revision$"
 import time
 import threading
 
-from nicm import nicos
 from nicm.device import Device, Readable
-from nicm.utils import listof
 
 
 class Poller(Device):
 
     parameters = {
-        'devices': (listof(str), [], True, 'List of devices to poll.'),
-        'interval': (int, 0, True, 'Interval for polling.'),
+    }
+
+    attached_devices = {
+        'devices': [Readable],
     }
 
     def doInit(self):
-        self.__devices = [nicos.getDevice(devname, Readable)
-                          for devname in self.devices]
         self._stoprequest = False
+        self._workers = []
 
     def start(self):
-        self._worker = threading.Thread(target=self._worker_thread)
-        self._worker.start()
-
-    def _worker_thread(self):
         self.printinfo('poller starting')
+        for dev in self._adevs['devices']:
+            worker = threading.Thread(target=self._worker_thread,
+                                            args=(dev,))
+            worker.setDaemon(True)
+            worker.start()
+            self._workers.append(worker)
+
+    def _worker_thread(self, dev):
         while not self._stoprequest:
-            time.sleep(self.interval)
-            self.printdebug('starting polling run')
-            for dev in self.__devices:
-                self.printinfo('polling %s' % dev)
-                try:
-                    dev.read()
-                except Exception, err:
-                    self.printwarning('error reading %s: %s' % (dev, err))
+            time.sleep(dev.pollinterval)
+            self.printinfo('polling %s' % dev)
+            try:
+                dev.read()
+                dev.status()
+            except Exception, err:
+                self.printwarning('error reading %s: %s' % (dev, err))
 
     def wait(self):
         while not self._stoprequest:
             time.sleep(1)
-        self._worker.join()
+        for worker in self._workers:
+            worker.join()
 
     def quit(self):
         self.printinfo('poller quitting...')
         self._stoprequest = True
-        self._worker.join()
+        for worker in self._workers:
+            worker.join()
         self.printinfo('poller finished')
