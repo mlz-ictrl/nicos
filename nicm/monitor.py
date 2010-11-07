@@ -41,12 +41,21 @@ import socket
 import threading
 
 from Tkinter import Tk, Frame, Label, LabelFrame, StringVar, \
-     SUNKEN, RAISED, X, BOTH, LEFT, TOP
+     SUNKEN, RAISED, X, W, BOTH, LEFT, TOP, BOTTOM
 import tkFont
 
-from nicm.device import Device
 from nicm.utils import listof
+from nicm.device import Device
+from nicm.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
 from nicm.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT
+
+def nicedelta(t):
+    if t < 60:
+        return '%d seconds' % int(t)
+    elif t < 3600:
+        return '%.1f minutes' % (t / 60.)
+    else:
+        return '%.1f hours' % (t / 3600.)
 
 
 class Monitor(Device):
@@ -103,6 +112,7 @@ class Monitor(Device):
         self._timefont  = (self.font, fontsizebig + fontsize)
         self._blockfont = (self.font, fontsizebig)
         self._labelfont = (self.font, fontsize)
+        self._stbarfont = (self.font, int(fontsize * 0.8))
         self._valuefont = (self.valuefont or self.font, fontsize)
 
         # convert configured layout to internal structure
@@ -117,7 +127,8 @@ class Monitor(Device):
                     for fielddesc in rowdesc:
                         field = {
                             # display properties
-                            'name': '', 'key': '', 'width': 10, 'format': '%s',
+                            'name': '', 'key': '', 'width': 10, 'unit': '',
+                            'format': '%s',
                             # current values
                             'timestamp': 0, 'status': '',
                         }
@@ -162,6 +173,9 @@ class Monitor(Device):
                 l = Label(fieldframe, text='', pady=2, font=self._valuefont,
                           width=field['width'], relief=SUNKEN, textvariable=s)
                 l.grid(row=1)
+                l.bind('<Enter>', self._label_entered)
+                l.bind('<Leave>', self._label_left)
+                l._field = field
 
                 # store references to Tk objects for later modification
                 field['valuevar'] = s
@@ -200,6 +214,34 @@ class Monitor(Device):
                     subframe.pack(side=TOP)
                     for field in row:
                         _create_field(subframe, field)
+
+        self._status = StringVar()
+        statusbar = Frame(master)
+        statusbar.pack(side=BOTTOM, fill=X, expand=1)
+        dist = Label(statusbar)
+        dist.pack(side=TOP)
+        label = Label(statusbar, relief=SUNKEN, anchor=W, font=self._stbarfont,
+                      textvariable=self._status)
+        label.pack(side=TOP, pady=0, fill=X)
+        self._statustimer = None
+
+    def _label_entered(self, event):
+        field = event.widget._field
+        statustext = '%s = %s' % (field['name'], field['valuevar'].get())
+        if field['unit']:
+            statustext += ' %s' % field['unit']
+        if field['timestamp']:
+            statustext += ', value updated %s ago' % (
+                nicedelta(time.time() - field['timestamp']))
+        self._status.set(statustext)
+        self._statustimer = threading.Timer(1, lambda: self._label_entered(event))
+        self._statustimer.start()
+
+    def _label_left(self, event):
+        self._status.set('')
+        if self._statustimer:
+            self._statustimer.cancel()
+            self._statustimer = None
 
     def _connect(self):
         # open new socket and connect
@@ -312,11 +354,11 @@ class Monitor(Device):
                 else:
                     vlabel.config(fg='green')
             # if we have a status
-            elif status == 'idle':
+            elif status == OK:
                 vlabel.config(fg='green')
-            elif status in ['busy', 'moving', 'switching', 'working']:
+            elif status in (BUSY, PAUSED):
                 vlabel.config(fg='yellow')
-            elif status in ['error', 'unknown']:
+            elif status in (ERROR, NOTREACHED):
                 vlabel.config(fg='red')
             else:
                 vlabel.config(fg='white')

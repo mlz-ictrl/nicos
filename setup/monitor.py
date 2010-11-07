@@ -33,13 +33,14 @@ name = 'setup for the status monitor'
 group = 'special'
 
 _row_filter1 = [
-    {'name': 'a1', 'key': 'a1/value'},
+    {'name': 'a1', 'key': 'a1/value', 'unit': 'deg'},
     {'name': 'm1', 'key': 'm1/value'},
     {'name': 'c1', 'key': 'c1/value'},
 ]
 
 _row_filter2 = [
-    {'name': 'ctr1', 'key': 'ctr1/value'},
+    {'name': 'timer', 'key': 'timer/value'},
+    {'name': 'ctr1', 'key': 'ctr1/value', 'unit': 'cts'},
     {'name': 'ctr2', 'key': 'ctr2/value'},
 ]
 
