@@ -39,7 +39,7 @@ import time
 
 from nicm import nicos
 from nicm import status, loggers
-from nicm.utils import AutoPropsMeta, getVersions, listof
+from nicm.utils import AutoPropsMeta, getVersions
 from nicm.errors import ConfigurationError, ProgrammingError, UsageError, \
      LimitError, FixedError
 
@@ -233,16 +233,14 @@ class Readable(Device):
     parameters = {
         'fmtstr': (str, '%s', False, 'Format string for the device value.'),
         'unit': (str, '', True, 'Unit of the device main value.'),
-        'histories': (listof(str), [], False, 'List of history managers.'),
+        'maxage': (float, 5, False, 'Maximum age of cached values.'),
+        'pollinterval': (float, 2, False,
+                         'Polling interval for value and status.'),
     }
 
     def init(self):
         Device.init(self)
-        from nicm.history import History
-        self.__histories = []
-        histnames = self.histories + nicos.system.histories
-        for histname in histnames:
-            self.__histories.append(nicos.getDevice(histname, History))
+        self.__cache = nicos.system.cache
 
     def __call__(self, value=None):
         """Allow dev() as shortcut for read."""
@@ -251,33 +249,30 @@ class Readable(Device):
             raise UsageError(self, 'not a moveable device')
         return self.read()
 
+    def _get_from_cache(self, name, func):
+        """Get *name* from the cache, or call *func* if outdated/not present."""
+        if not self.__cache:
+            return func()
+        cts = time.time()
+        val = self.__cache.get(self, name)
+        self.printinfo('%r from cache: %s' % (name, val))
+        if val is None:
+            val = func()
+            self.__cache.put(self, name, val, cts, self.maxage)
+        return val
+
     def read(self):
-        """Read the main value of the device and save it in the history."""
-        value = self.doRead()
-        timestamp = time.time()
-        for history in self.__histories:
-            try:
-                history.put(self, 'value', timestamp, value)
-            except Exception:
-                self.printwarning('could not save value to %s' % history,
-                                  exc=True)
-        return value
+        """Read the main value of the device and save it in the cache."""
+        return self._get_from_cache('value', self.doRead)
 
     def status(self):
         """Return the status of the device as one of the integer constants
         defined in the nicm.status module.
         """
         if hasattr(self, 'doStatus'):
-            value = self.doStatus()
+            value = self._get_from_cache('status', self.doStatus)
             if value not in status.statuses:
                 raise ProgrammingError(self, 'status return %r unknown' % value)
-            timestamp = time.time()
-            for history in self.__histories:
-                try:
-                    history.put(self, 'status', timestamp, value)
-                except Exception:
-                    self.printwarning('could not save status to %s' % history,
-                                      exc=True)
             return value
         return status.UNKNOWN
 
@@ -295,10 +290,10 @@ class Readable(Device):
 
     def history(self, name='value', fromtime=None, totime=None):
         """Return a history of the parameter *name*."""
-        for history in self.__histories:
-            hist = history.get(self, name, fromtime, totime)
-            if hist is not None:
-                return hist
+        if not self.__cache:
+            raise ConfigurationError('no cache is configured for this setup')
+        else:
+            return self.__cache.get(self, name, fromtime, totime)
 
     def info(self):
         """Automatically add device main value and status (if not OK)."""
@@ -359,7 +354,7 @@ class Startable(Readable):
         # (saves reading twice for wait functions that read the value anyway)
         if lastval is not None:
             return lastval
-        # update device value in histories
+        # update device value in cache
         return self.read()
 
     def isAllowed(self, pos):
@@ -579,7 +574,7 @@ class Measurable(Startable):
 
     def read(self):
         """Return the result of the last measurement."""
-        result = self.doRead()
+        result = self._get_from_cache('value', self.doRead)
         if not isinstance(result, list):
             return [result]
         return result

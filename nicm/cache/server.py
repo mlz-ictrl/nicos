@@ -138,7 +138,7 @@ class CacheWorker(object):
                     self.log.info('got empty line, closing connection')
                     self.closedown()
                     return
-                self.log.debug('got line: %r' % line)
+                #self.log.debug('got line: %r' % line)
                 ret = self._handle_line(line)
                 if ret:
                     self.writeto('\r\n'.join(ret) + '\r\n')
@@ -161,7 +161,7 @@ class CacheWorker(object):
             if not newdata:
                 # no data received from blocking read, break connection
                 break
-            self.log.debug('got new data: %r' % newdata)
+            #self.log.debug('got new data: %r' % newdata)
             data += newdata
         self.closedown()
 
@@ -192,13 +192,19 @@ class CacheWorker(object):
             else:
                 self.db.delete(key)
         elif op == '?':
-            self.log.debug('ask key %r' % key)
+            self.log.debug('ask for key %r' % key)
             if tsop:
                 return self.db.ask_ts(key, time, ttl)
             else:
                 return self.db.ask(key)
+        elif op == '*':
+            self.log.debug('ask for all keys %r' % key)
+            if tsop:
+                return self.db.ask_wc_ts(key, time, ttl)
+            else:
+                return self.db.ask_wc(key)
         elif op == '!':
-            self.log.debug('subscribe key %r' % key)
+            self.log.debug('subscribe to keys %r' % key)
             if tsop:
                 self.ts_updates_on.add(key)
             else:
@@ -258,8 +264,7 @@ class CacheWorker(object):
             if mykey in key:
                 if not time:
                     time = current_time()
-                self.log.debug(self, 'sending update: %r %r %r' %
-                               (time, key, value))
+                self.log.debug('sending update of %r to %r' % (key, value))
                 return self.writeto('%s@%s=%s\r\n' % (time, key, value))
         # same for requested updates without timestamp
         for mykey in self.updates_on:
@@ -297,10 +302,54 @@ class CacheDatabase(Device):
             sleep(30)
             self.printdebug('running cleanser')
             # asking for all values will clean all expired values
-            self.ask('')
+            self.ask_wc('')
+
+    # XXX refactor these four!
 
     def ask(self, key):
         self.printdebug('ask: %s' % key)
+        self._lock.acquire()
+        try:
+            if key not in self._db:
+                return ['%s=' % key]
+            else:
+                lastent = self._db[key][-1]
+                # check for removed keys
+                if lastent.value is None:
+                    return ['%s=' % key]
+                # check for expired keys
+                if lastent.ttl:
+                    remaining = lastent.time + lastent.ttl - current_time()
+                    if remaining <= 0:
+                        return ['%s=' % key]
+                return '%s=%s' % (key, lastent.value)
+        finally:
+            self._lock.release()
+
+    def ask_ts(self, key, time, ttl):
+        self.printdebug('ask_ts: %s' % key)
+        self._lock.acquire()
+        try:
+            if key not in self._db:
+                return ['%s=' % key]
+            else:
+                lastent = self._db[key][-1]
+                # check for removed keys
+                if lastent.value is None:
+                    return ['%s=' % key]
+                # check for expired keys
+                if lastent.ttl:
+                    remaining = lastent.time + lastent.ttl - current_time()
+                    if remaining <= 0:
+                        return ['%s=' % key]
+                    return ['%s+%s@%s=%s' % (lastent.time, lastent.ttl,
+                                             key, lastent.value)]
+                return ['%s@%s=%s' % (lastent.time, key, lastent.value)]
+        finally:
+            self._lock.release()
+
+    def ask_wc(self, key):
+        self.printdebug('ask_wc: %s' % key)
         self._lock.acquire()
         try:
             returning = set()
@@ -311,14 +360,14 @@ class CacheDatabase(Device):
                     lastent = entries[-1]
                     # check for removed keys
                     if lastent.value is None:
-                        returning.add('%s=' % dbkey)
+                        #returning.add('%s=' % dbkey)
                         continue
                     # check for expired keys
                     if lastent.ttl:
                         remaining = lastent.time + lastent.ttl - current_time()
                         if remaining <= 0:
                             expired.add(dbkey)
-                            returning.add('%s=' % dbkey)
+                            #returning.add('%s=' % dbkey)
                             continue
                     returning.add('%s=%s' % (dbkey, lastent.value))
         finally:
@@ -327,8 +376,8 @@ class CacheDatabase(Device):
             self.delete(key)
         return returning
 
-    def ask_ts(self, key, time, ttl):
-        self.printdebug('ask_ts: %s, %s, %s' % (key, time, ttl))
+    def ask_wc_ts(self, key, time, ttl):
+        self.printdebug('ask_wc_ts: %s, %s, %s' % (key, time, ttl))
         self._lock.acquire()
         try:
             returning = set()
@@ -339,14 +388,14 @@ class CacheDatabase(Device):
                     lastent = entries[-1]
                     # check for removed keys
                     if lastent.value is None:
-                        returning.add('%s=' % dbkey)
+                        #returning.add('%s=' % dbkey)
                         continue
                     # check for expired keys
                     if lastent.ttl:
                         remaining = lastent.time + lastent.ttl - current_time()
                         if remaining <= 0:
                             expired.add(dbkey)
-                            returning.add('%s=' % dbkey)
+                            #returning.add('%s=' % dbkey)
                             continue
                         returning.add('%s+%s@%s=%s' %
                                       (lastent.time, lastent.ttl,
@@ -511,7 +560,7 @@ class CacheServer(Device):
                     # about local changes...
                     client = CacheWorker(
                         db=self._adevs['db'], connection=conn, name=addr,
-                        initstring='@?\r\n@!\r\n', initdata='@?\r\n@!\r\n')
+                        initstring='@*\r\n@!\r\n', initdata='@*\r\n@!\r\n')
                     self._connected[addr] = client
                     self.printinfo('(re-)connected to clusternode %s, '
                                    'syncing' % addr)

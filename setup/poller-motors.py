@@ -30,14 +30,15 @@
 # *****************************************************************************
 
 name = 'setup for the poller'
-
-#includes = ['system']
-#modules = ['nicm.commands']
+group = 'special'
 
 includes = ['base']
 
 devices = dict(
+    Cache = device('nicm.cache.client.WriteonlyCacheClient',
+                   server='localhost:14869',
+                   prefix='nicos/test/'),
+
     Poller = device('nicm.poller.Poller',
-                    devices=['a1'],
-                    interval=3),
+                    devices=['a1', 'det']),
 )

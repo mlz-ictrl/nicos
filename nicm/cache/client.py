@@ -41,83 +41,125 @@ import select
 import socket
 import threading
 
-from nicm.cache.utils import DEFAULT_CACHE_PORT
-
-answer_re = re.compile('(?:([0-9.]+)@)?([^:=]+)[:=](.*?)$', re.MULTILINE)
-
-
-class CacheError(RuntimeError):
-    pass
+from nicm.device import Device
+from nicm.cache.utils import msg_pattern, DEFAULT_CACHE_PORT
 
 
-class CacheConnection(object):
-    def __init__(self, prefix, host, port=DEFAULT_CACHE_PORT):
-        self.prefix = prefix
-        self.address = (host, port)
-        self.socket = None
-        self.lock = threading.Lock()
+class CacheClient(Device):
+    """
+    A read/write client for the NICM cache.
+    """
+
+    parameters = {
+        'server': (str, '', True,
+                   '"host:port" of the cache instance to connect to.'),
+        'prefix': (str, '', True, 'Cache key prefix.'),
+    }
+
+    def doInit(self):
+        try:
+            host, port = self.server.split(':')
+            port = int(port)
+        except ValueError:
+            host, port = self.server, DEFAULT_CACHE_PORT
+        self._address = (host, port)
+        self._socket = None
+        self._lock = threading.Lock()
+        self._prefix = self.prefix.strip('/')
 
     def _connect(self):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            self.socket.connect(self.address)
+            self._socket.connect(self._address)
         except Exception, err:
-            self.socket = None
-            raise CacheError('unable to connect: %s' % err)
+            self._socket = None
+            self.printwarning('unable to connect: %s' % err)
 
     def _disconnect(self):
         try:
-            self.socket.shutdown(socket.SHUT_RDWR)
-            self.socket.close()
+            self._socket.shutdown(socket.SHUT_RDWR)
+            self._socket.close()
         except Exception:
             pass
-        self.socket = None
+        self._socket = None
 
-    def _convert(self, value):
+    def put(self, dev, key, value, timestamp=None, ttl=None):
+        if timestamp is None:
+            timestamp = time.time()
+        ttl = ttl and '+%s' % ttl or ''
+        msg = '%s%s@%s/%s/%s=%s\n' % (timestamp, ttl, self._prefix, dev.name,
+                                      key, value)
+        tries = 5
+        while tries > 0:
+            with self._lock:
+                if not self._socket:
+                    self._connect()
+                    if not self._socket:
+                        return None
+                try:
+                    self._socket.send(msg)
+                except socket.error:
+                    self._disconnect()
+                    tries -= 1
+                    continue
+            break
+
+    def get(self, dev, key):
+        msg = '@%s/%s/%s?\n' % (self._prefix, dev.name, key)
+        tries = 5
+        answer = None
+        while tries > 0:
+            with self._lock:
+                if not self._socket:
+                    self._connect()
+                    if not self._socket:
+                        return None
+                try:
+                    self._socket.send(msg)
+                except socket.error:
+                    self._disconnect()
+                    tries -= 1
+                    continue
+                sel = select.select([self._socket], [], [self._socket], 1)
+                if self._socket in sel[0]:
+                    answer = self._socket.recv(8192)
+                    if not answer:
+                        # no answer from blocking read, retry
+                        tries -= 1
+                        continue
+                elif self._socket in sel[2]:
+                    # socket in error state, reconnect and try again
+                    self._disconnect()
+                    tries -= 1
+                    continue
+                else:
+                    # no answer
+                    tries -= 1
+                    continue
+                break
+        if answer is None:
+            return None
+        match = msg_pattern.match(answer)
+        if not match:
+            # garbled answer
+            return None
+        value = match.group('value')
+        if not value:
+            return None
         try:
             return float(value)
         except ValueError:
             return value
 
-    def tell(self, key, value, timestamp=None):
-        if timestamp is None:
-            timestamp = time.time()
-        msg = '%s@%s=%s\n' % (timestamp, self.prefix + key, value)
-        with self.lock:
-            if not self.socket:
-                self._connect()
-            self.socket.send(msg)
-
-    def ask(self, key):
-        msg = '%s?\n' % (self.prefix + key)
-        with self.lock:
-            if not self.socket:
-                self._connect()
-            self.socket.send(msg)
-            sel = select.select([self.socket], [], [self.socket], 1)
-            if self.socket in sel[0]:
-                answer = self.socket.recv(8192)
-                if not answer:
-                    raise CacheError('connection lost')
-            elif self.socket in sel[2]:
-                self._disconnect()
-                raise CacheError('connection lost')
-            else:
-                raise CacheError('no answer')
-        match = answer_re.match(answer)
-        if not match:
-            raise CacheError('garbled answer: %r' % answer)
-        return self._convert(match.group(3))
-
-    def history(self, key):
+    def history(self, dev, key):
         pass
 
 
-if __name__ == '__main__':
-    import sys
-    sp = CacheConnection(sys.argv[2], sys.argv[1])
-    sp.tell('value', 1)
-    while True:
-        print 'asking for value...'
-        print sp.ask('value')
-        time.sleep(1)
+class WriteonlyCacheClient(CacheClient):
+    """
+    A write-only client for the NICM cache.  Used in the poller application,
+    so that each read() actually queries the device.
+    """
+
+    def get(self, *args):
+        return None

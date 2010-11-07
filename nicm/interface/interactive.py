@@ -116,7 +116,7 @@ class NicmInteractiveConsole(code.InteractiveConsole):
         try:
             exec codeobj in self.globals, self.locals
         except Exception:
-            raise
+            #raise
             self.nicos.logUnhandledException(sys.exc_info())
         else:
             if code.softspace(sys.stdout, 0):

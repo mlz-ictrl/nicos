@@ -172,7 +172,7 @@ class NICOS(object):
                     raise ConfigurationError('Setup %s includes setup %s which '
                                              'does not exist' % (name, include))
 
-    def loadSetup(self, setupname):
+    def loadSetup(self, setupname, allow_special=False):
         """Load a setup module and set up devices accordingly."""
         if not self.__setup_info:
             self.__readSetups()
@@ -210,8 +210,11 @@ class NICOS(object):
             if name != setupname:
                 log.info('loading include setup %s' % name)
 
-            self.loaded_setups.add(name)
             info = self.__setup_info[name]
+            if info['group'] == 'special' and not allow_special:
+                raise ConfigurationError('Cannot load special setup %r' % name)
+
+            self.loaded_setups.add(name)
 
             devlist = {}
             startupcode = []
@@ -245,7 +248,7 @@ class NICOS(object):
             try:
                 self.createDevice(devname, explicit=True)
             except Exception:
-                raise
+                #raise
                 log.exception('failed')
                 failed_devs.append(devname)
 

@@ -62,7 +62,7 @@ def start(setup, appname=None):
     nicm.nicos.appname = appname or setup
     nicm.nicos.__init__()
 
-    # Create the initial nicm setup.
-    nicm.nicos.loadSetup(setup)
+    # Create the initial nicm setup, and allow special setups.
+    nicm.nicos.loadSetup(setup, allow_special=True)
 
     return nicm.nicos

@@ -32,27 +32,22 @@
 name = 'system setup'
 
 devices = dict(
-    histlogger = device('nicm.history.LogfileHistory',
-                        basefilename = 'log/'),
-
-    localhistory = device('nicm.history.LocalHistory'),
-
-    cachehistory = device('nicm.history.CacheHistory',
-                          server = 'localhost:14869',
-                          prefix = 'nicos/test/',
-                          ),
-
     filesink = device('nicm.data.AsciiDatafileSink',
                       prefix = 'data'),
 
     consolesink = device('nicm.data.ConsoleSink',
                          ),
 
+    Cache = device('nicm.cache.client.CacheClient',
+                   server = 'localhost:14869',
+                   prefix = 'nicos/test/',
+                   ),
+
     System = device('nicm.system.System',
                     logpath = '.',
                     datapath = 'data/',
                     sinks = ['consolesink', 'filesink'],
-                    histories = ['cachehistory'],
+                    cache = 'Cache',
                     ),
 
     Experiment = device('nicm.experiment.Experiment',

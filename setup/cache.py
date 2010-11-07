@@ -30,9 +30,7 @@
 # *****************************************************************************
 
 name = 'setup for the cache server'
-
-#includes = ['system']
-#modules = ['nicm.commands']
+group = 'special'
 
 devices = dict(
     DB = device('nicm.cache.server.CacheDatabase',

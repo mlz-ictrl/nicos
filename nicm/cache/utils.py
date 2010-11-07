@@ -48,8 +48,8 @@ msg_pattern = re.compile(r'''
       \s* (?P<ttl>\d+\.?\d*)?     # ttl
       \s* (?P<tsop>@)             # timestamp mark
     )?
-    \s* (?P<key>[^=!?]*?)         # key
-    \s* (?P<op>[=!?])             # operator
+    \s* (?P<key>[^=!?*]*?)        # key
+    \s* (?P<op>[=!?*])            # operator
     \s* (?P<value>[^\r\n]*?)      # value
     \s* $
     ''', re.X)

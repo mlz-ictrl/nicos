@@ -55,6 +55,7 @@ class Monitor(Device):
         # XXX add more configurables: timeouts ...
         'title': (str, 'Status', False, 'Title of status window.'),
         'cache': (str, '', True, 'host:port address of cache server.'),
+        'prefix': (str, '', True, 'Cache key prefix.'),
         'layout': (listof(list), None, True, 'Status monitor layout.'),
         'font': (str, 'Luxi Sans', False, 'Font name for the window.'),
         'valuefont': (str, '', False, 'Font name for the value displays.'),
@@ -105,6 +106,7 @@ class Monitor(Device):
         self._valuefont = (self.valuefont or self.font, fontsize)
 
         # convert configured layout to internal structure
+        prefix = self.prefix.strip('/') + '/'
         self._layout = []
         for columndesc in self.layout:
             blocks = []
@@ -120,6 +122,7 @@ class Monitor(Device):
                             'timestamp': 0, 'status': '',
                         }
                         field.update(fielddesc)
+                        field['key'] = prefix + field['key']
                         fields.append(field)
                     rows.append(fields)
                 block = ({'name': blockdesc[0], 'visible': True,
@@ -212,7 +215,7 @@ class Monitor(Device):
         try:
             self._socket.connect((host, port))
             # send request for all keys and updates....
-            q = '@?\r\n@!\r\n'
+            q = '@*\r\n@!\r\n'
             while q:
                 sent = self._socket.send(q)
                 q = q[sent:]

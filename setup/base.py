@@ -83,18 +83,18 @@ devices = dict(
                 precision = 0,
                 ),
 
-    Power = device('nicm.taco.analog.Input',
-                   description = 'FRM II reactor power',
-                   autocreate = True,
-                   tacodevice = '//tacodb/frm2/reactor/power',
-                   tacolog = True,
-                   loglevel = 'debug',
-                   fmtstr = '%.1f',
-                   unit = 'MW'),
+    # Power = device('nicm.taco.analog.Input',
+    #                description = 'FRM II reactor power',
+    #                autocreate = True,
+    #                tacodevice = '//tacodb/frm2/reactor/power',
+    #                tacolog = True,
+    #                loglevel = 'debug',
+    #                fmtstr = '%.1f',
+    #                unit = 'MW'),
 
     timer = device('nicm.virtual.VirtualTimer'),
     ctr1 = device('nicm.virtual.VirtualCounter',
-                  countrate = 1000),
+                  countrate = 1000, pollinterval = 0.5),
     ctr2 = device('nicm.virtual.VirtualCounter',
                   countrate = 2000),
 
@@ -108,7 +108,7 @@ devices = dict(
                  m1 = 'ctr2',
                  m2 = None,
                  m3 = None,
-                 autocreate = True),
+                 pollinterval = 0.5),
 )
 
 startupcode = '''

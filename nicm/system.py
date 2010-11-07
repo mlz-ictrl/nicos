@@ -39,8 +39,8 @@ __version__ = "$Revision$"
 
 
 from nicm.data import DataSink
-from nicm.utils import listof
 from nicm.device import Device
+from nicm.cache.client import CacheClient
 
 
 class System(Device):
@@ -49,18 +49,21 @@ class System(Device):
     """
 
     parameters = {
-        'histories': (listof(str), [], False,
-                      'Global history managers for all devices.'),
         'logpath': (str, '', True, 'Path for logfiles.'),
         'datapath': (str, '', True, 'Path for data files.'),
     }
 
     attached_devices = {
+        'cache': CacheClient,
         'sinks': [DataSink],
     }
 
     def __repr__(self):
         return '<NICM System>'
+
+    @property
+    def cache(self):
+        return self._adevs['cache']
 
     def getSinks(self, scantype=None):
         if scantype is None:

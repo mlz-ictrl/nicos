@@ -30,19 +30,20 @@
 # *****************************************************************************
 
 name = 'setup for the status monitor'
+group = 'special'
 
 _row_filter1 = [
-    {'name': 'Saph', 'key': 'saph/value'},
-    {'name': 'Power', 'key': 'power/value'},
-    {'name': 'Shutter', 'key': 'shutter/value'},
-    {'name': 'ms1', 'key': 'ms1/value'},
+    {'name': 'a1', 'key': 'a1/value'},
+    {'name': 'm1', 'key': 'm1/value'},
+    {'name': 'c1', 'key': 'c1/value'},
 ]
 
 _row_filter2 = [
-    {'name': 'Be', 'key': 'be/value'}
+    {'name': 'ctr1', 'key': 'ctr1/value'},
+    {'name': 'ctr2', 'key': 'ctr2/value'},
 ]
 
-_block1 = ('Filter', [_row_filter1, _row_filter2])
+_block1 = ('Test devices', [_row_filter1, _row_filter2])
 
 _column1 = [
     _block1,
@@ -65,6 +66,7 @@ devices = dict(
     Monitor = device('nicm.monitor.Monitor',
                      title='Status monitor',
                      cache='localhost:14869',
+                     prefix='nicos/test/',
                      font='Luxi Sans',
                      valuefont='Consolas',
                      layout=_layout)
