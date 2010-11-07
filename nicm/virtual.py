@@ -76,7 +76,7 @@ class VirtualMotor(Motor):
 
     def __moving(self, pos):
         incr = self.speed
-        delta = pos - self.read()
+        delta = pos - self.doRead()
         steps = int(abs(delta) / incr)
         incr = delta < 0 and -incr or incr
         for i in range(steps):
@@ -99,7 +99,7 @@ class VirtualCoder(Coder):
             self._motor = None
 
     def doRead(self):
-        return self._motor and self._motor.read() or 0
+        return self._motor and self._motor.doRead() or 0
 
     def doStatus(self):
         return status.OK
@@ -147,6 +147,9 @@ class VirtualTimer(FRMTimerChannel):
     def doSetMode(self, value):
         pass
 
+    def doGetUnit(self):
+        return 'sec'
+
 
 class VirtualCounter(FRMCounterChannel):
     parameters = {
@@ -175,3 +178,6 @@ class VirtualCounter(FRMCounterChannel):
 
     def doSetMode(self, value):
         pass
+
+    def doGetUnit(self):
+        return 'counts'
