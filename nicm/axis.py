@@ -109,11 +109,11 @@ class Axis(Moveable):
         """Starts the movement of the axis to target."""
         if self.__locked:
             raise NicmError(self, 'this axis is locked')
-        if self.__checkTargetPosition(self.read(), target, error=0):
+        if self.__checkTargetPosition(self.doRead(), target, error=0):
             return
 
         # TODO: stop the axis instead of raising an exception
-        if self.status() == status.BUSY:
+        if self.doStatus() == status.BUSY:
             raise NicmError(self, 'axis is moving now, please issue a stop '
                             'command and try it again')
 
@@ -140,7 +140,7 @@ class Axis(Moveable):
         elif self.__thread and self.__thread.isAlive():
             return status.BUSY
         else:
-            return self._adevs['motor'].status()
+            return self._adevs['motor'].doStatus()
 
     def doRead(self):
         """Returns the current position from coder controller."""
@@ -152,10 +152,10 @@ class Axis(Moveable):
         the target.
         """
         self.__checkErrorState()
-        if self.status() == status.BUSY:
+        if self.doStatus() == status.BUSY:
             raise NicmError(self, 'axis is moving now, please issue a stop '
                             'command and try it again')
-        diff = (self.read() - target)
+        diff = (self.doRead() - target)
         self.__target = target
         self.__offset += diff
 
@@ -178,12 +178,12 @@ class Axis(Moveable):
 
     def doReset(self):
         """Resets the motor/coder controller."""
-        if self.status() != status.BUSY:
+        if self.doStatus() != status.BUSY:
             self.__error = 0
 
     def doStop(self):
         """Stops the movement of the motor."""
-        if self.status() == status.BUSY:
+        if self.doStatus() == status.BUSY:
             self.__stopRequest = 1
         else:
             self.__stopRequest = 0
@@ -192,7 +192,7 @@ class Axis(Moveable):
         """Waits until the movement of the motor has stopped and
         the target position has been reached.
         """
-        while (self.status() == status.BUSY):
+        while (self.doStatus() == status.BUSY):
             time.sleep(self.loopdelay)
         else:
             self.__checkErrorState()
@@ -244,7 +244,7 @@ class Axis(Moveable):
         return True
 
     def __checkErrorState(self):
-        if self.status() == status.ERROR:
+        if self.doStatus() == status.ERROR:
             if self.__error == 1:
                 raise PositionError(self, 'drag error')
             elif self.__error == 2:
@@ -262,10 +262,10 @@ class Axis(Moveable):
                                        self.__error)
 
     def __read(self):
-        return self._adevs['coder'].read() - self.__offset
+        return self._adevs['coder'].doRead() - self.__offset
 
     def __checkDragerror(self):
-        tmp = abs(self._adevs['motor'].read() - self._adevs['coder'].read())
+        tmp = abs(self._adevs['motor'].doRead() - self._adevs['coder'].doRead())
         # print 'Diff %.3f' % tmp
         dragDiff = self.dragerror
         if dragDiff <= 0:
@@ -273,19 +273,19 @@ class Axis(Moveable):
         dragOK = tmp <= dragDiff
         if dragOK:
             for i in self._adevs['obs']:
-                tmp = abs(self._adevs['motor'].read() - i.read())
+                tmp = abs(self._adevs['motor'].doRead() - i.doRead())
                 dragOK = dragOK and (tmp <= dragDiff)
         if not dragOK:
             self.__error = 1
         return dragOK
 
-    def __checkTargetPosition(self, target, pos, error = 2):
+    def __checkTargetPosition(self, target, pos, error=2):
         tmp = abs(pos - target)
         dragDiff = self.dragerror
         posOK = tmp <= self.precision
         if posOK:
             for i in self._adevs['obs']:
-                tmp = abs(target - i.read())
+                tmp = abs(target - i.doRead())
                 if dragDiff > 0:
                     posOK = posOK and (tmp <= dragDiff)
         if not posOK:
@@ -322,7 +322,7 @@ class Axis(Moveable):
     def __positioning(self, target):
         moving = False
         maxtries = self.maxtries
-        self.__lastPosition = self.read()
+        self.__lastPosition = self.doRead()
         __target = target + self.__offset
         self._adevs['motor'].start(__target)
         moving = True
@@ -334,7 +334,7 @@ class Axis(Moveable):
                 continue
             time.sleep(self.loopdelay)
             try:
-                pos = self.read()
+                pos = self.doRead()
             except NicmError:
                 pass
             if not self.__checkMoveToTarget(__target, pos) or \
@@ -342,7 +342,7 @@ class Axis(Moveable):
                 # drag error (motor != coder)
                 # distance to target will be greater
                 self.__stopRequest = 1
-            elif self._adevs['motor'].status() != status.BUSY:
+            elif self._adevs['motor'].doStatus() != status.BUSY:
                 # motor stopped
                 if self.__stopRequest == 2 or \
                        self.__checkTargetPosition(__target, pos):
