@@ -45,9 +45,6 @@ from nicm.device import Device, Readable
 
 class Poller(Device):
 
-    parameters = {
-    }
-
     attached_devices = {
         'devices': [Readable],
     }
@@ -59,21 +56,28 @@ class Poller(Device):
     def start(self):
         self.printinfo('poller starting')
         for dev in self._adevs['devices']:
-            worker = threading.Thread(target=self._worker_thread,
-                                            args=(dev,))
+            self.printinfo('starting thread for %s' % dev)
+            worker = threading.Thread(target=self._worker_thread, args=(dev,))
             worker.setDaemon(True)
             worker.start()
             self._workers.append(worker)
 
     def _worker_thread(self, dev):
+        errcount = 0
+        interval = dev.pollinterval
         while not self._stoprequest:
-            time.sleep(dev.pollinterval)
-            self.printinfo('polling %s' % dev)
+            time.sleep(interval)
+            self.printdebug('polling %s' % dev)
             try:
                 dev.read()
                 dev.status()
             except Exception, err:
-                self.printwarning('error reading %s: %s' % (dev, err))
+                if errcount < 5:
+                    # only print the warning the first five times
+                    self.printwarning('error reading %s: %s' % (dev, err))
+                errcount += 1
+            else:
+                errcount = 0
 
     def wait(self):
         while not self._stoprequest:
