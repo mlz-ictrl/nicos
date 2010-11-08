@@ -171,7 +171,8 @@ class Monitor(Device):
 
                 s = StringVar(value='----')
                 l = Label(fieldframe, text='', pady=2, font=self._valuefont,
-                          width=field['width'], relief=SUNKEN, textvariable=s)
+                          width=field['width'], relief=SUNKEN, textvariable=s,
+                          bg='#dddddd', fg='#000000')
                 l.grid(row=1)
                 l.bind('<Enter>', self._label_entered)
                 l.bind('<Leave>', self._label_left)

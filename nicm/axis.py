@@ -292,7 +292,7 @@ class Axis(Moveable):
             self.__error = error
         return posOK
 
-    def __checkMoveToTarget(self, target, pos, error = 3):
+    def __checkMoveToTarget(self, target, pos, error=1):
         diffLast = abs(self.__lastPosition - target)
         diffCurr = abs(pos - target)
         self.__lastPosition = pos

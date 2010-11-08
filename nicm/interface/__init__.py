@@ -87,6 +87,7 @@ class NICOS(object):
     """
 
     auto_modules = ['nicm.commands']
+    default_setup_path = path.join(path.dirname(__file__), '..', '..', 'setup')
 
     def __init__(self):
         # contains all created device objects
@@ -102,8 +103,7 @@ class NICOS(object):
         # contains all explicitly loaded setups
         self.explicit_setups = []
         # path to setup files
-        self.__setup_path = path.join(path.dirname(__file__),
-                                      '..', '..', 'setup')
+        self.__setup_path = self.default_setup_path
         # info about all loadable setups
         self.__setup_info = {}
         # namespace to place user-accessible items in
@@ -182,7 +182,8 @@ class NICOS(object):
             log.warning('setup %s is already loaded' % setupname)
             return
         if setupname not in self.__setup_info:
-            raise ConfigurationError('Setup %s does not exist' % setupname)
+            raise ConfigurationError('Setup %s does not exist (setup path is '
+                                     '%s)' % (setupname, self.__setup_path))
 
         log.info('loading setup %s' % setupname)
 

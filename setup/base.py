@@ -41,6 +41,7 @@ devices = dict(
                 initval = 1,
                 absmin = 0,
                 absmax = 100,
+                speed = 0.5,
                 unit = 'deg'),
 
     m2 = device('nicm.virtual.VirtualMotor',
@@ -56,17 +57,16 @@ devices = dict(
                 unit = 'deg'),
 
     a1 = device('nicm.axis.Axis',
-                autocreate = True,
                 motor = 'm1',
                 coder = 'c1',
                 obs = ['c1'],
                 absmin = 0,
                 absmax = 100,
                 usermin = 0,
-                usermax = 50),
+                usermax = 50,
+                pollinterval = 0.5),
 
     a2 = device('nicm.axis.Axis',
-                autocreate = True,
                 motor = 'm2',
                 coder = 'm2',
                 obs = [],
@@ -76,7 +76,6 @@ devices = dict(
                 usermax = 50),
 
     sw = device('nicm.switcher.Switcher',
-                autocreate = True,
                 moveable = 'a2',
                 states = ['in', 'out'],
                 values = [1, 0],
@@ -85,7 +84,6 @@ devices = dict(
 
     # Power = device('nicm.taco.analog.Input',
     #                description = 'FRM II reactor power',
-    #                autocreate = True,
     #                tacodevice = '//tacodb/frm2/reactor/power',
     #                tacolog = True,
     #                loglevel = 'debug',

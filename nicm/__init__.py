@@ -52,3 +52,9 @@ if sys.version_info[:2] < (2, 5):
 class Interface(object):
     pass
 nicos = Interface()
+
+
+# Read config file and set environment variables.
+
+from nicm.utils import readConfig
+readConfig('nicm.conf', '/etc/nicm.conf')

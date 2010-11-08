@@ -253,12 +253,12 @@ class Readable(Device):
         """Get *name* from the cache, or call *func* if outdated/not present."""
         if not self.__cache:
             return func()
-        cts = time.time()
         val = self.__cache.get(self, name)
         #self.printinfo('%r from cache: %s' % (name, val))
         if val is None:
             val = func()
-            self.__cache.put(self, name, val, cts, self.maxage)
+            self.__cache.put(self, name, val, time.time(), self.maxage)
+        #self.printinfo('%r from device: %s' % (name, val))
         return val
 
     def read(self):

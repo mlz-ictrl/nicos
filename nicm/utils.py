@@ -35,9 +35,11 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import os
 import sys
 import linecache
 import traceback
+import ConfigParser
 
 from nicm.errors import ConfigurationError, ProgrammingError
 
@@ -181,6 +183,28 @@ def getVersions(object):
             _add(base)
     _add(object.__class__)
     return versions
+
+
+# read nicm.conf files
+
+class NicmConfigParser(ConfigParser.SafeConfigParser):
+    def optionxform(self, key):
+        return key
+
+def readConfig(*filenames):
+    cfg = NicmConfigParser()
+    cfg.read(filenames)
+    if cfg.has_section('environment'):
+        for name in cfg.options('environment'):
+            value = cfg.get('environment', name)
+            if name == 'PYTHONPATH':
+                # needs to be special-cased
+                sys.path.extend(value.split(':'))
+            else:
+                os.environ[name] = value
+    if cfg.has_option('nicm', 'setup_path'):
+        from nicm.interface import NICOS
+        NICOS.default_setup_path = cfg.get('nicm', 'setup_path')
 
 
 # console color utils

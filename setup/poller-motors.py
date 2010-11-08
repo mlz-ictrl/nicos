@@ -40,5 +40,5 @@ devices = dict(
                    prefix='nicos/test/'),
 
     Poller = device('nicm.poller.Poller',
-                    devices=['a1', 'det']),
+                    devices=['a1']),
 )

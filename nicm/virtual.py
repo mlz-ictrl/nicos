@@ -57,6 +57,7 @@ class VirtualMotor(Motor):
         self.__busy = False
 
     def doStart(self, pos):
+        pos = float(pos)
         self.__busy = True
         if self.speed != 0:
             thread = threading.Thread(target=self.__moving, args=(pos,))
