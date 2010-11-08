@@ -308,8 +308,7 @@ class CacheDatabase(Device):
 
     def ask(self, key):
         self.printdebug('ask: %s' % key)
-        self._lock.acquire()
-        try:
+        with self._lock:
             if key not in self._db:
                 return ['%s=' % key]
             else:
@@ -323,13 +322,10 @@ class CacheDatabase(Device):
                     if remaining <= 0:
                         return ['%s=' % key]
                 return '%s=%s' % (key, lastent.value)
-        finally:
-            self._lock.release()
 
     def ask_ts(self, key, time, ttl):
         self.printdebug('ask_ts: %s' % key)
-        self._lock.acquire()
-        try:
+        with self._lock:
             if key not in self._db:
                 return ['%s=' % key]
             else:
@@ -345,13 +341,10 @@ class CacheDatabase(Device):
                     return ['%s+%s@%s=%s' % (lastent.time, lastent.ttl,
                                              key, lastent.value)]
                 return ['%s@%s=%s' % (lastent.time, key, lastent.value)]
-        finally:
-            self._lock.release()
 
     def ask_wc(self, key):
         self.printdebug('ask_wc: %s' % key)
-        self._lock.acquire()
-        try:
+        with self._lock:
             returning = set()
             expired = set()
             # look for matching keys
@@ -370,16 +363,13 @@ class CacheDatabase(Device):
                             #returning.add('%s=' % dbkey)
                             continue
                     returning.add('%s=%s' % (dbkey, lastent.value))
-        finally:
-            self._lock.release()
         for key in expired:
             self.delete(key)
         return returning
 
     def ask_wc_ts(self, key, time, ttl):
         self.printdebug('ask_wc_ts: %s, %s, %s' % (key, time, ttl))
-        self._lock.acquire()
-        try:
+        with self._lock:
             returning = set()
             expired = set()
             # look for matching keys
@@ -403,8 +393,6 @@ class CacheDatabase(Device):
                     else:
                         returning.add('%s@%s=%s' % (lastent.time, dbkey,
                                                     lastent.value))
-        finally:
-            self._lock.release()
         for key in expired:
             self.delete(key)
         return returning
@@ -412,8 +400,7 @@ class CacheDatabase(Device):
     def tell(self, key, value, time, ttl):
         self.printdebug('tell: %s, %s, %s, %s' % (key, value, time, ttl))
         send_update = True
-        self._lock.acquire()
-        try:
+        with self._lock:
             entries = self._db.setdefault(key, [])
             if entries:
                 lastent = entries[-1]
@@ -421,8 +408,6 @@ class CacheDatabase(Device):
                     # not a real update
                     send_update = False
             entries.append(Entry(time, ttl, value))
-        finally:
-            self._lock.release()
         if send_update:
             for client in self._server._connected.values():
                 if client.is_active():
@@ -432,11 +417,8 @@ class CacheDatabase(Device):
         self.printdebug('delete: %s' % key)
         if key not in self._db:
             return
-        self._lock.acquire()
-        try:
+        with self._lock:
             self._db[key].append(Entry(current_time(), None, None))
-        finally:
-            self._lock.release()
         for client in self._server._connected.values():
             if client.is_active():
                 client.update(key, '', None)
