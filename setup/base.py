@@ -106,7 +106,8 @@ devices = dict(
                  m1 = 'ctr2',
                  m2 = None,
                  m3 = None,
-                 pollinterval = 5),
+                 maxage = 300,
+                 pollinterval = 0.5),
 )
 
 startupcode = '''

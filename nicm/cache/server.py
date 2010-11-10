@@ -43,7 +43,8 @@ from time import time as current_time, sleep
 from nicm import nicos
 from nicm.device import Device
 from nicm.utils import listof
-from nicm.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT
+from nicm.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT, \
+     OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, OP_TELLOLD
 
 
 class CacheUDPConnection(object):
@@ -185,25 +186,25 @@ class CacheWorker(object):
             ttl = None
 
         # dispatch operations
-        if op == '=':
+        if op == OP_TELL:
             self.log.debug('set key %r to %r' % (key, value))
             if value:
                 self.db.tell(key, value, time, ttl)
             else:
                 self.db.delete(key)
-        elif op == '?':
+        elif op == OP_ASK:
             self.log.debug('ask for key %r' % key)
             if tsop:
                 return self.db.ask_ts(key, time, ttl)
             else:
                 return self.db.ask(key)
-        elif op == '*':
+        elif op == OP_WILDCARD:
             self.log.debug('ask for all keys %r' % key)
             if tsop:
                 return self.db.ask_wc_ts(key, time, ttl)
             else:
                 return self.db.ask_wc(key)
-        elif op == '!':
+        elif op == OP_SUBSCRIBE:
             self.log.debug('subscribe to keys %r' % key)
             if tsop:
                 self.ts_updates_on.add(key)
@@ -265,11 +266,11 @@ class CacheWorker(object):
                 if not time:
                     time = current_time()
                 self.log.debug('sending update of %r to %r' % (key, value))
-                return self.writeto('%s@%s=%s\r\n' % (time, key, value))
+                return self.writeto('%s@%s%s%s\r\n' % (time, key, OP_TELL, value))
         # same for requested updates without timestamp
         for mykey in self.updates_on:
             if mykey in key:
-                return self.writeto('%s=%s\r\n' % (key, value))
+                return self.writeto('%s%s%s\r\n' % (key, OP_TELL, value))
         # no update neccessary, signal success
         return True
 
@@ -304,43 +305,44 @@ class CacheDatabase(Device):
             # asking for all values will clean all expired values
             self.ask_wc('')
 
-    # XXX refactor these four!
+    # XXX refactor these four
 
     def ask(self, key):
         self.printdebug('ask: %s' % key)
         with self._lock:
             if key not in self._db:
-                return ['%s=' % key]
+                return [key + OP_TELL]
             else:
                 lastent = self._db[key][-1]
                 # check for removed keys
                 if lastent.value is None:
-                    return ['%s=' % key]
+                    return [key + OP_TELL]
                 # check for expired keys
                 if lastent.ttl:
                     remaining = lastent.time + lastent.ttl - current_time()
                     if remaining <= 0:
-                        return ['%s=' % key]
-                return '%s=%s' % (key, lastent.value)
+                        return [key + OP_TELL]
+                return '%s%s%s' % (key, OP_TELL, lastent.value)
 
     def ask_ts(self, key, time, ttl):
         self.printdebug('ask_ts: %s' % key)
         with self._lock:
             if key not in self._db:
-                return ['%s=' % key]
+                return [key + OP_TELL]
             else:
                 lastent = self._db[key][-1]
                 # check for removed keys
                 if lastent.value is None:
-                    return ['%s=' % key]
+                    return [key + OP_TELL]
                 # check for expired keys
                 if lastent.ttl:
                     remaining = lastent.time + lastent.ttl - current_time()
                     if remaining <= 0:
-                        return ['%s=' % key]
-                    return ['%s+%s@%s=%s' % (lastent.time, lastent.ttl,
-                                             key, lastent.value)]
-                return ['%s@%s=%s' % (lastent.time, key, lastent.value)]
+                        return [key + OP_TELL]
+                    return ['%s+%s@%s%s%s' % (lastent.time, lastent.ttl,
+                                              key, OP_TELL, lastent.value)]
+                return ['%s@%s%s%s' % (lastent.time, key,
+                                       OP_TELL, lastent.value)]
 
     def ask_wc(self, key):
         self.printdebug('ask_wc: %s' % key)
@@ -353,16 +355,14 @@ class CacheDatabase(Device):
                     lastent = entries[-1]
                     # check for removed keys
                     if lastent.value is None:
-                        #returning.add('%s=' % dbkey)
                         continue
                     # check for expired keys
                     if lastent.ttl:
                         remaining = lastent.time + lastent.ttl - current_time()
                         if remaining <= 0:
                             expired.add(dbkey)
-                            #returning.add('%s=' % dbkey)
                             continue
-                    returning.add('%s=%s' % (dbkey, lastent.value))
+                    returning.add('%s%s%s' % (dbkey, OP_TELL, lastent.value))
         for key in expired:
             self.delete(key)
         return returning
@@ -378,21 +378,19 @@ class CacheDatabase(Device):
                     lastent = entries[-1]
                     # check for removed keys
                     if lastent.value is None:
-                        #returning.add('%s=' % dbkey)
                         continue
                     # check for expired keys
                     if lastent.ttl:
                         remaining = lastent.time + lastent.ttl - current_time()
                         if remaining <= 0:
                             expired.add(dbkey)
-                            #returning.add('%s=' % dbkey)
                             continue
-                        returning.add('%s+%s@%s=%s' %
+                        returning.add('%s+%s@%s%s%s' %
                                       (lastent.time, lastent.ttl,
-                                       dbkey, lastent.value))
+                                       dbkey, OP_TELL, lastent.value))
                     else:
-                        returning.add('%s@%s=%s' % (lastent.time, dbkey,
-                                                    lastent.value))
+                        returning.add('%s@%s%s%s' % (lastent.time, dbkey,
+                                                     OP_TELL, lastent.value))
         for key in expired:
             self.delete(key)
         return returning
@@ -540,9 +538,10 @@ class CacheServer(Device):
                     # SUBSCRIBE-ALL, also put SUBSCRIBE-ALL into our
                     # input-buffer so we will update the cluster
                     # about local changes...
+                    initstr = '@%s\r\n@%s\r\n' % (OP_WILDCARD, OP_SUBSCRIBE)
                     client = CacheWorker(
                         db=self._adevs['db'], connection=conn, name=addr,
-                        initstring='@*\r\n@!\r\n', initdata='@*\r\n@!\r\n')
+                        initstring=initstr, initdata=initstr)
                     self._connected[addr] = client
                     self.printinfo('(re-)connected to clusternode %s, '
                                    'syncing' % addr)

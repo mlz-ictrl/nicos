@@ -47,7 +47,8 @@ import tkFont
 from nicm.utils import listof
 from nicm.device import Device
 from nicm.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
-from nicm.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT
+from nicm.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT, \
+     OP_TELL, OP_WILDCARD, OP_SUBSCRIBE
 
 def nicedelta(t):
     if t < 60:
@@ -258,7 +259,7 @@ class Monitor(Device):
         try:
             self._socket.connect((host, port))
             # send request for all keys and updates....
-            q = '@*\r\n@!\r\n'
+            q = '@%s\r\n@%s\r\n' % (OP_WILDCARD, OP_SUBSCRIBE)
             while q:
                 sent = self._socket.send(q)
                 q = q[sent:]
@@ -303,7 +304,7 @@ class Monitor(Device):
                 line = match.group(1)
                 data = data[match.end():]
                 msgmatch = msg_pattern.match(line)
-                if not msgmatch or msgmatch.group('op') != '=':
+                if not msgmatch or msgmatch.group('op') != OP_TELL:
                     # ignore invalid lines
                     continue
                 self._handle_msg(**msgmatch.groupdict())

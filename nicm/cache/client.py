@@ -36,12 +36,14 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import time
+import Queue
 import select
 import socket
 import threading
 
 from nicm.device import Device
-from nicm.cache.utils import msg_pattern, DEFAULT_CACHE_PORT
+from nicm.cache.utils import msg_pattern, line_pattern, cache_convert, \
+     DEFAULT_CACHE_PORT, OP_TELL, OP_WILDCARD, OP_SUBSCRIBE
 
 
 class CacheClient(Device):
@@ -66,15 +68,36 @@ class CacheClient(Device):
         self._lock = threading.Lock()
         self._prefix = self.prefix.strip('/')
 
+        self._stoprequest = False
+        self._queue = Queue.Queue()
+        self._worker = threading.Thread(target=self._worker_thread)
+        self._worker.setDaemon(True)
+        self._worker.start()
+
+        self._db = {}
+
+    def doShutdown(self):
+        self._stoprequest = True
+        self._worker.join()
+
     def _connect(self):
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self._socket.connect(self._address)
+            # send request for all keys and updates....
+            q = '@%s\r\n@%s\r\n' % (OP_WILDCARD, OP_SUBSCRIBE)
+            while q:
+                sent = self._socket.send(q)
+                q = q[sent:]
         except Exception, err:
-            self._socket = None
-            self.printwarning('unable to connect: %s' % err)
+            self._disconnect('unable to connect to %s:%s: %s' %
+                             (self._address + (err,)))
+        else:
+            self.printinfo('now connected to %s:%s' % self._address)
 
-    def _disconnect(self):
+    def _disconnect(self, why=''):
+        if why:
+            self.printwarning(why)
         try:
             self._socket.shutdown(socket.SHUT_RDWR)
             self._socket.close()
@@ -82,73 +105,88 @@ class CacheClient(Device):
             pass
         self._socket = None
 
+    def _worker_thread(self):
+        data = ''
+        while not self._stoprequest:
+            if not self._socket:
+                self._connect()
+                if not self._socket:
+                    time.sleep(5)
+                    continue
+
+            # process data so far
+            match = line_pattern.match(data)
+            while match:
+                line = match.group(1)
+                data = data[match.end():]
+                msgmatch = msg_pattern.match(line)
+                if not msgmatch or msgmatch.group('op') != OP_TELL:
+                    # ignore invalid lines
+                    continue
+                self._handle_msg(**msgmatch.groupdict())
+                # continue loop
+                match = line_pattern.match(data)
+
+            # wait for a whole line of data to arrive
+            while ('\r' not in data) and ('\n' not in data) and \
+                      not self._stoprequest:
+                try:
+                    tosend = self._queue.get(False)
+                    writelist = [self._socket]
+                except:
+                    tosend = None
+                    writelist = []
+                # try to read or write some data, use a timeout of 1 sec
+                res = select.select([self._socket], writelist, [self._socket], 1)
+                if res[2]:
+                    # handle error case: close socket and reopen
+                    self._disconnect('disconnect: socket in error state')
+                    break
+                elif res[1]:
+                    # write data
+                    try:
+                        while tosend:
+                            sent = self._socket.send(tosend)
+                            tosend = tosend[sent:]
+                    except:
+                        self._disconnect('disconnect: send failed')
+                        break
+                elif res[0]:
+                    # got some data
+                    try:
+                        newdata = self._socket.recv(8192)
+                    except:
+                        newdata = ''
+                    if not newdata:
+                        # no new data from blocking read -> abort
+                        self._disconnect('disconnect: recv failed')
+                        break
+                    data += newdata
+
+        # end of while loop
+        self._disconnect()
+
+    def _handle_msg(self, time, ttl, tsop, key, op, value):
+        if not key.startswith(self._prefix):
+            return
+        self.printdebug('got %s=%s' % (key, value))
+        self._db[key[len(self._prefix)+1:]] = cache_convert(value)
+
     def put(self, dev, key, value, timestamp=None, ttl=None):
         if timestamp is None:
             timestamp = time.time()
         ttl = ttl and '+%s' % ttl or ''
-        msg = '%s%s@%s/%s/%s=%s\n' % (timestamp, ttl, self._prefix, dev.name,
-                                      key, value)
-        tries = 5
-        while tries > 0:
-            with self._lock:
-                if not self._socket:
-                    self._connect()
-                    if not self._socket:
-                        return None
-                try:
-                    self._socket.send(msg)
-                except socket.error:
-                    self._disconnect()
-                    tries -= 1
-                    continue
-            break
+        msg = '%s%s@%s/%s/%s%s%s\n' % (timestamp, ttl, self._prefix, dev.name,
+                                       key, OP_TELL, value)
+        self.printdebug('putting %s/%s=%s' % (dev.name, key, value))
+        self._queue.put(msg)
 
     def get(self, dev, key):
-        msg = '@%s/%s/%s?\n' % (self._prefix, dev.name, key)
-        tries = 5
-        answer = None
-        while tries > 0:
-            with self._lock:
-                if not self._socket:
-                    self._connect()
-                    if not self._socket:
-                        return None
-                try:
-                    self._socket.send(msg)
-                except socket.error:
-                    self._disconnect()
-                    tries -= 1
-                    continue
-                sel = select.select([self._socket], [], [self._socket], 1)
-                if self._socket in sel[0]:
-                    answer = self._socket.recv(8192)
-                    if not answer:
-                        # no answer from blocking read, retry
-                        tries -= 1
-                        continue
-                elif self._socket in sel[2]:
-                    # socket in error state, reconnect and try again
-                    self._disconnect()
-                    tries -= 1
-                    continue
-                else:
-                    # no answer
-                    tries -= 1
-                    continue
-                break
-        if answer is None:
+        value = self._db.get('%s/%s' % (dev.name, key))
+        if value is None:
+            self.printdebug('%s/%s not in cache' % (dev.name, key))
             return None
-        match = msg_pattern.match(answer)
-        if not match:
-            # garbled answer
-            return None
-        value = match.group('value')
-        if not value:
-            return None
-        try:
-            return float(value)
-        except ValueError:
-            return value
+        return value
 
     def history(self, dev, key):
         pass

@@ -40,18 +40,34 @@ import re
 
 DEFAULT_CACHE_PORT = 14869
 
+OP_TELL = '='
+OP_ASK = '?'
+OP_WILDCARD = '*'
+OP_SUBSCRIBE = ':'
+OP_TELLOLD = '!'
+
 # regular expression matching a cache protocol message
 msg_pattern = re.compile(r'''
     ^ (?:
       \s* (?P<time>\d+\.?\d*)?    # timestamp
-      \s* [+]?                    # ttl operator
+      \s* [+-]?                   # ttl operator
       \s* (?P<ttl>\d+\.?\d*)?     # ttl
       \s* (?P<tsop>@)             # timestamp mark
     )?
-    \s* (?P<key>[^=!?*]*?)        # key
-    \s* (?P<op>[=!?*])            # operator
+    \s* (?P<key>[^=!?:*]*?)       # key
+    \s* (?P<op>[=!?:*])           # operator
     \s* (?P<value>[^\r\n]*?)      # value
     \s* $
     ''', re.X)
 
 line_pattern = re.compile(r'([^\r\n]*)(\r\n|\r|\n)')
+
+def cache_convert(value):
+    if value.startswith('['):
+        return map(float, value[1:-1].split(','))
+    elif value[:1].isdigit() or value.startswith('-'):
+        try:
+            return int(value)
+        except ValueError:
+            return float(value)
+    return value
