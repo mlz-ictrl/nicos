@@ -113,10 +113,18 @@ class NicmLogger(Logger):
         Logger.log(self, ACTION, msg)
 
 
-class ColoredConsoleFormatter(Formatter):
+class NicmConsoleFormatter(Formatter):
     """
-    A lightweight formatter for the interactive console with colored output.
+    A lightweight formatter for the interactive console, with optional
+    colored output.
     """
+
+    def __init__(self, fmt=None, datefmt=None, colorize=None):
+        Formatter.__init__(self, fmt, datefmt)
+        if colorize:
+            self.colorize = colorize
+        else:
+            self.colorize = lambda c, s: s
 
     def formatException(self, exc_info):
         return traceback.format_exception_only(*exc_info[0:2])[-1]
@@ -127,7 +135,7 @@ class ColoredConsoleFormatter(Formatter):
 
     def format(self, record):
         levelno = record.levelno
-        datefmt = colorize('lightgray', '[%(asctime)s] ')
+        datefmt = self.colorize('lightgray', '[%(asctime)s] ')
         if record.name == 'nicos':
             namefmt = ''
         else:
@@ -137,18 +145,18 @@ class ColoredConsoleFormatter(Formatter):
             fmtstr = '\033]0;%s%%(message)s\007' % namefmt
         else:
             if levelno <= DEBUG:
-                fmtstr = colorize('darkgray', '%s%%(message)s' % namefmt)
+                fmtstr = self.colorize('darkgray', '%s%%(message)s' % namefmt)
             elif levelno <= OUTPUT:
                 fmtstr = '%s%%(message)s' % namefmt
             elif levelno == INPUT:
                 # do not display input again
                 return ''
             elif levelno <= WARNING:
-                fmtstr = colorize('fuchsia', '%s%%(levelname)s: %%(message)s' %
-                                  namefmt)
+                fmtstr = self.colorize('fuchsia', '%s%%(levelname)s: %%(message)s'
+                                       % namefmt)
             else:
-                fmtstr = colorize('red', '%s%%(levelname)s: %%(message)s' %
-                                   namefmt)
+                fmtstr = self.colorize('red', '%s%%(levelname)s: %%(message)s'
+                                       % namefmt)
             fmtstr = datefmt + fmtstr
             if not getattr(record, 'nonl', False):
                 fmtstr += '\n'
@@ -171,7 +179,8 @@ class ColoredConsoleHandler(StreamHandler):
 
     def __init__(self):
         StreamHandler.__init__(self, sys.stdout)
-        self.setFormatter(ColoredConsoleFormatter(datefmt=DATEFMT))
+        self.setFormatter(NicmConsoleFormatter(
+            datefmt=DATEFMT, colorize=colorize))
 
     def emit(self, record):
         msg = self.format(record)

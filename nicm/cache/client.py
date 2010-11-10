@@ -35,7 +35,6 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import re
 import time
 import select
 import socket

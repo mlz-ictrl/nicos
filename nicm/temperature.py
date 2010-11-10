@@ -103,7 +103,7 @@ class Controller(TacoDevice, Moveable):
         'p':         (float, None, False, 'The P control parameter.'),
         'i':         (float, None, False, 'The I control parameter.'),
         'd':         (float, None, False, 'The D control parameter.'),
-        'ramp':      (float, None, False, 'Temperature ramp in K/s.'),
+        'ramp':      (float, None, False, 'Temperature ramp in K/min.'),
         'tolerance': (float, None, False,
                       'The window\'s temperature tolerance in K.'),
         'window':    (float, None, False,
