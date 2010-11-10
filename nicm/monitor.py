@@ -35,20 +35,17 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import time
-import select
-import socket
 import threading
+from time import time as currenttime, sleep, strftime
 
 from Tkinter import Tk, Frame, Label, LabelFrame, StringVar, \
      SUNKEN, RAISED, X, W, BOTH, LEFT, TOP, BOTTOM
 import tkFont
 
 from nicm.utils import listof
-from nicm.device import Device
 from nicm.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
-from nicm.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT, \
-     OP_TELL, OP_WILDCARD, OP_SUBSCRIBE
+from nicm.cache.client import BaseCacheClient
+from nicm.cache.utils import OP_TELL
 
 def nicedelta(t):
     if t < 60:
@@ -59,13 +56,12 @@ def nicedelta(t):
         return '%.1f hours' % (t / 3600.)
 
 
-class Monitor(Device):
+class Monitor(BaseCacheClient):
 
+    # server and prefix parameters come from BaseCacheClient
     parameters = {
         # XXX add more configurables: timeouts ...
         'title': (str, 'Status', False, 'Title of status window.'),
-        'cache': (str, '', True, 'host:port address of cache server.'),
-        'prefix': (str, '', True, 'Cache key prefix.'),
         'layout': (listof(list), None, True, 'Status monitor layout.'),
         'font': (str, 'Luxi Sans', False, 'Font name for the window.'),
         'valuefont': (str, '', False, 'Font name for the value displays.'),
@@ -76,19 +72,15 @@ class Monitor(Device):
     }
 
     def start(self):
-        self._stoprequest = False
-        self._socket = None
-
         self.printinfo('monitor starting up, creating main window')
         root = Tk()
         root.protocol("WM_DELETE_WINDOW", self.quit)
         self.tk_init(root)
 
+        self._selecttimeout = 0.1
         self._watch = []
-        # now start updatethread
-        self._updatethread = threading.Thread(target=self._update_thread)
-        self._updatethread.setDaemon(True)
-        self._updatethread.start()
+        # now start the worker thread
+        self._worker.start()
 
         self.printinfo('starting main loop')
         # start main loop and wait for termination
@@ -97,6 +89,15 @@ class Monitor(Device):
         except KeyboardInterrupt:
             pass
         self._stoprequest = True
+
+    def quit(self):
+        self.printinfo('monitor quitting')
+        self._stoprequest = True
+        self._master.quit()
+        self._master.destroy()
+        self.printinfo('wait for thread to finish')
+        self._worker.join()
+        self.printinfo('done')
 
     def tk_init(self, master):
         self._master = master
@@ -117,7 +118,7 @@ class Monitor(Device):
         self._valuefont = (self.valuefont or self.font, fontsize)
 
         # convert configured layout to internal structure
-        prefix = self.prefix.strip('/') + '/'
+        prefix = self._prefix + '/'
         self._layout = []
         for columndesc in self.layout:
             blocks = []
@@ -234,7 +235,7 @@ class Monitor(Device):
             statustext += ' %s' % field['unit']
         if field['timestamp']:
             statustext += ', value updated %s ago' % (
-                nicedelta(time.time() - field['timestamp']))
+                nicedelta(currenttime() - field['timestamp']))
         self._status.set(statustext)
         self._statustimer = threading.Timer(1, lambda: self._label_entered(event))
         self._statustimer.start()
@@ -245,109 +246,25 @@ class Monitor(Device):
             self._statustimer.cancel()
             self._statustimer = None
 
-    def _connect(self):
-        # open new socket and connect
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        # connect to server
-        try:
-            host, port = self.cache.split(':')
-            port = int(port)
-        except ValueError:
-            host = self.cache
-            port = DEFAULT_CACHE_PORT
-        try:
-            self._socket.connect((host, port))
-            # send request for all keys and updates....
-            q = '@%s\r\n@%s\r\n' % (OP_WILDCARD, OP_SUBSCRIBE)
-            while q:
-                sent = self._socket.send(q)
-                q = q[sent:]
-        except:
-            # something went wrong (connect or send)
-            self.printwarning('connection failed, retrying in 1 sec')
-            self._disconnect()
-        else:
-            self.printinfo('now connected to %s' % self.cache)
+    # called between connection attempts
+    def _wait_retry(self):
+        s = 'Disconnected (%s)' % strftime('%d.%m.%Y %H:%M:%S')
+        self._timestring.set(s)
+        self._master.title(s)
+        sleep(1)
 
-    def _disconnect(self):
-        if not self._socket:
-            return
-        try:
-            self._socket.shutdown(socket.SHUT_RDWR)
-        except Exception:
-            pass
-        try:
-            self._socket.close()
-        except Exception:
-            pass
-        self._socket = None
+    # called while waiting for data
+    def _wait_data(self):
+        # update window title and caption with current time
+        s = '%s (%s)' % (self.title, strftime('%d.%m.%Y %H:%M:%S'))
+        self._timestring.set(s)
+        self._master.title(s)
 
-    def _update_thread(self):
-        data = ''
-
-        while not self._stoprequest:
-            if not self._socket:
-                # not connected, try connection
-                self._connect()
-                if not self._socket:
-                    # still not connected: display and try again after wait
-                    s = 'Disconnected (%s)' % time.strftime('%d.%m.%Y %H:%M:%S')
-                    self._timestring.set(s)
-                    self._master.title(s)
-                    time.sleep(1)
-                    continue
-
-            # process data so far
-            match = line_pattern.match(data)
-            while match:
-                line = match.group(1)
-                data = data[match.end():]
-                msgmatch = msg_pattern.match(line)
-                if not msgmatch or msgmatch.group('op') != OP_TELL:
-                    # ignore invalid lines
-                    continue
-                self._handle_msg(**msgmatch.groupdict())
-                # continue loop
-                match = line_pattern.match(data)
-
-            # wait for a whole line of data to arrive, in the meantime update
-            # the time display and colors for the data fields
-            while ('\r' not in data) and ('\n' not in data) and \
-                      not self._stoprequest:
-                # update window title and caption with time
-                s = '%s (%s)' % (self.title, time.strftime('%d.%m.%Y %H:%M:%S'))
-                self._timestring.set(s)
-                self._master.title(s)
-
-                self._adjust_colors()
-
-                # try to read some data, use a timeout of 0.1 sec
-                res = select.select([self._socket], [], [self._socket], 0.1)
-                if self._socket in res[2]:
-                    # handle error case: close socket and reopen
-                    self._disconnect()
-                    break
-                if self._socket in res[0]:
-                    # got some data
-                    try:
-                        newdata = self._socket.recv(8192)
-                    except:
-                        newdata = ''
-                    if not newdata:
-                        # no new data from blocking read -> abort
-                        self._disconnect()
-                        break
-                    data += newdata
-
-        # end of while loop
-        self._disconnect()
-
-    def _adjust_colors(self):
+        # adjust the colors of status displays
         newwatch = []
         for field in self._watch:
             vlabel, status = field['valuelabel'], field['status']
-            age = time.time() - field['timestamp']
+            age = currenttime() - field['timestamp']
             if not status:
                 # no status yet, determine on time alone
                 if age < 3:
@@ -384,21 +301,24 @@ class Monitor(Device):
                     vlabel.config(bg='#dddddd', fg='black')
         self._watch = newwatch
 
+    # called to handle an incoming protocol message
     def _handle_msg(self, time, ttl, tsop, key, op, value):
+        if op != OP_TELL:
+            return
         try:
-            currenttime = float(time)
+            time = float(time)
         except (ValueError, TypeError):
-            currenttime = time.time()
+            time = currenttime()
         # now check if we need to update something
         fields = self._keymap.get(key, [])
         for field in fields:
             self._watch.append(field)
             if key[-6:] != 'status':      # value-update, not status-update
-                if value == '':
+                if not value:
                     field['timestamp'] = 0.0
                     field['valuevar'].set('----') # default value
                 else:
-                    field['timestamp'] = currenttime
+                    field['timestamp'] = time
                     try:
                         field['valuevar'].set(field['format'] % value)
                     except:
@@ -409,9 +329,9 @@ class Monitor(Device):
                             field['valuevar'].set(value)
 
             else:      # status-update
-                if 0 < field['timestamp'] < currenttime:
+                if 0 < field['timestamp'] < time:
                     # don't change if old value is negative or new value is less
-                    field['timestamp'] = currenttime
+                    field['timestamp'] = time
                 field['status'] = value
 
         # show/hide blocks, but only if something changed
@@ -442,12 +362,3 @@ class Monitor(Device):
                         block[0]['labelframe'].pack(
                             ipadx=self.padding, ipady=self.padding,
                             pady=self.padding, side=TOP)
-
-    def quit(self):
-        self.printinfo('monitor quitting')
-        self._stoprequest = True
-        self._master.quit()
-        self._master.destroy()
-        self.printinfo('wait for thread to finish')
-        self._updatethread.join()
-        self.printinfo('done')

@@ -35,20 +35,20 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import time
 import Queue
 import select
 import socket
 import threading
+from time import sleep, time as currenttime
 
 from nicm.device import Device
 from nicm.cache.utils import msg_pattern, line_pattern, cache_convert, \
      DEFAULT_CACHE_PORT, OP_TELL, OP_WILDCARD, OP_SUBSCRIBE
 
 
-class CacheClient(Device):
+class BaseCacheClient(Device):
     """
-    A read/write client for the NICM cache.
+    An extensible read/write client for the NICM cache.
     """
 
     parameters = {
@@ -65,16 +65,15 @@ class CacheClient(Device):
             host, port = self.server, DEFAULT_CACHE_PORT
         self._address = (host, port)
         self._socket = None
-        self._lock = threading.Lock()
         self._prefix = self.prefix.strip('/')
+        self._selecttimeout = 1.0  # seconds
 
         self._stoprequest = False
         self._queue = Queue.Queue()
+
+        # create worker thread, but do not start yet, leave that to subclasses
         self._worker = threading.Thread(target=self._worker_thread)
         self._worker.setDaemon(True)
-        self._worker.start()
-
-        self._db = {}
 
     def doShutdown(self):
         self._stoprequest = True
@@ -85,10 +84,10 @@ class CacheClient(Device):
         try:
             self._socket.connect(self._address)
             # send request for all keys and updates....
-            q = '@%s\r\n@%s\r\n' % (OP_WILDCARD, OP_SUBSCRIBE)
-            while q:
-                sent = self._socket.send(q)
-                q = q[sent:]
+            tosend = '@%s\r\n@%s\r\n' % (OP_WILDCARD, OP_SUBSCRIBE)
+            while tosend:
+                sent = self._socket.send(tosend)
+                tosend = tosend[sent:]
         except Exception, err:
             self._disconnect('unable to connect to %s:%s: %s' %
                              (self._address + (err,)))
@@ -96,6 +95,8 @@ class CacheClient(Device):
             self.printinfo('now connected to %s:%s' % self._address)
 
     def _disconnect(self, why=''):
+        if not self._socket:
+            return
         if why:
             self.printwarning(why)
         try:
@@ -105,13 +106,23 @@ class CacheClient(Device):
             pass
         self._socket = None
 
+    def _wait_retry(self):
+        sleep(5)
+
+    def _wait_data(self):
+        pass
+
+    def _handle_msg(self, time, ttl, tsop, key, op, value):
+        raise NotImplementedError
+
     def _worker_thread(self):
         data = ''
+
         while not self._stoprequest:
             if not self._socket:
                 self._connect()
                 if not self._socket:
-                    time.sleep(5)
+                    self._wait_retry()
                     continue
 
             # process data so far
@@ -120,7 +131,7 @@ class CacheClient(Device):
                 line = match.group(1)
                 data = data[match.end():]
                 msgmatch = msg_pattern.match(line)
-                if not msgmatch or msgmatch.group('op') != OP_TELL:
+                if not msgmatch:
                     # ignore invalid lines
                     continue
                 self._handle_msg(**msgmatch.groupdict())
@@ -130,14 +141,20 @@ class CacheClient(Device):
             # wait for a whole line of data to arrive
             while ('\r' not in data) and ('\n' not in data) and \
                       not self._stoprequest:
+
+                # optionally do some action while waiting
+                self._wait_data()
+
+                # determine if something needs to be sent
                 try:
                     tosend = self._queue.get(False)
                     writelist = [self._socket]
                 except:
                     tosend = None
                     writelist = []
-                # try to read or write some data, use a timeout of 1 sec
-                res = select.select([self._socket], writelist, [self._socket], 1)
+                # try to read or write some data
+                res = select.select([self._socket], writelist, [self._socket],
+                                    self._selecttimeout)
                 if res[2]:
                     # handle error case: close socket and reopen
                     self._disconnect('disconnect: socket in error state')
@@ -166,15 +183,27 @@ class CacheClient(Device):
         # end of while loop
         self._disconnect()
 
+
+class CacheClient(BaseCacheClient):
+    def doInit(self):
+        BaseCacheClient.doInit(self)
+        self._db = {}
+        self._worker.start()
+
     def _handle_msg(self, time, ttl, tsop, key, op, value):
-        if not key.startswith(self._prefix):
+        if op != OP_TELL or not key.startswith(self._prefix):
             return
+        key = key[len(self._prefix)+1:]
         self.printdebug('got %s=%s' % (key, value))
-        self._db[key[len(self._prefix)+1:]] = cache_convert(value)
+        if not value:
+            self._db.pop(key, None)
+        else:
+            self._db[key] = (cache_convert(value),
+                             time and float(time), ttl and float(ttl))
 
     def put(self, dev, key, value, timestamp=None, ttl=None):
         if timestamp is None:
-            timestamp = time.time()
+            timestamp = currenttime()
         ttl = ttl and '+%s' % ttl or ''
         msg = '%s%s@%s/%s/%s%s%s\n' % (timestamp, ttl, self._prefix, dev.name,
                                        key, OP_TELL, value)
@@ -182,9 +211,15 @@ class CacheClient(Device):
         self._queue.put(msg)
 
     def get(self, dev, key):
-        value = self._db.get('%s/%s' % (dev.name, key))
-        if value is None:
-            self.printdebug('%s/%s not in cache' % (dev.name, key))
+        dbkey = '%s/%s' % (dev.name, key)
+        entry = self._db.get(dbkey)
+        if entry is None:
+            self.printdebug('%s not in cache' % dbkey)
+            return None
+        value, time, ttl = entry
+        if ttl and time + ttl < currenttime():
+            self.printdebug('%s timed out' % dbkey)
+            del self._db[dbkey]
             return None
         return value
 

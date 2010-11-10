@@ -38,7 +38,7 @@ __version__ = "$Revision$"
 import select
 import socket
 import threading
-from time import time as current_time, sleep
+from time import time as currenttime, sleep
 
 from nicm import nicos
 from nicm.device import Device
@@ -139,7 +139,6 @@ class CacheWorker(object):
                     self.log.info('got empty line, closing connection')
                     self.closedown()
                     return
-                #self.log.debug('got line: %r' % line)
                 ret = self._handle_line(line)
                 if ret:
                     self.writeto('\r\n'.join(ret) + '\r\n')
@@ -162,54 +161,54 @@ class CacheWorker(object):
             if not newdata:
                 # no data received from blocking read, break connection
                 break
-            #self.log.debug('got new data: %r' % newdata)
             data += newdata
         self.closedown()
 
     def _handle_line(self, line):
+        self.log.debug('handling line: %s' % line)
         match = msg_pattern.match(line)
         if not match:
-            # ignore trash lines (for now)
-            #if line.upper().startswith(('GET', 'POST', 'HEAD')):
+            # disconnect on trash lines (for now)
             self.closedown()
             return
         # extract and clean up individual values
         time, ttl, tsop, key, op, value = match.groups()
         key = key.lower()
+        value = value or None
         try:
             time = float(time)
         except:
-            time = current_time()
+            time = currenttime()
         try:
             ttl = float(ttl)
         except:
             ttl = None
+        if tsop == '-' and ttl:
+            ttl = ttl - time
 
         # dispatch operations
         if op == OP_TELL:
-            self.log.debug('set key %r to %r' % (key, value))
-            if value:
-                self.db.tell(key, value, time, ttl)
-            else:
-                self.db.delete(key)
+            self.db.tell(key, value, time, ttl)
         elif op == OP_ASK:
-            self.log.debug('ask for key %r' % key)
-            if tsop:
-                return self.db.ask_ts(key, time, ttl)
+            if ttl:
+                return self.db.ask_hist(key, time, time+ttl)
             else:
-                return self.db.ask(key)
+                return self.db.ask(key, tsop, time, ttl)
         elif op == OP_WILDCARD:
-            self.log.debug('ask for all keys %r' % key)
-            if tsop:
-                return self.db.ask_wc_ts(key, time, ttl)
-            else:
-                return self.db.ask_wc(key)
+            # both time and ttl are ignored for subscription requests,
+            # but the return format changes when the @ is included
+            return self.db.ask_wc(key, tsop, time, ttl)
         elif op == OP_SUBSCRIBE:
-            self.log.debug('subscribe to keys %r' % key)
+            # both time and ttl are ignored for subscription requests,
+            # but the return format changes when the @ is included
             if tsop:
                 self.ts_updates_on.add(key)
             else:
                 self.updates_on.add(key)
+        elif op == OP_TELLOLD:
+            # the server gets a TELLOLD only for cluster subscriptions;
+            # these can be ignored since we can figure out timeouts ourselves
+            pass
 
     def is_active(self):
         return not self.stoprequest and self.worker.isAlive()
@@ -255,7 +254,7 @@ class CacheWorker(object):
         self.closedown()
         return False
 
-    def update(self, key, value, time):
+    def update(self, key, op, value, time, ttl):
         """Check if we need to send the update given in 'line'."""
         if not self.connection:
             return False
@@ -264,13 +263,18 @@ class CacheWorker(object):
             # do a substring match on key
             if mykey in key:
                 if not time:
-                    time = current_time()
+                    time = currenttime()
                 self.log.debug('sending update of %r to %r' % (key, value))
-                return self.writeto('%s@%s%s%s\r\n' % (time, key, OP_TELL, value))
+                if ttl is not None:
+                    msg = '%s+%s@%s%s%s\r\n' % (time, ttl, key, op, value)
+                else:
+                    msg = '%s@%s%s%s\r\n' % (time, key, op, value)
+                return self.writeto(msg)
         # same for requested updates without timestamp
         for mykey in self.updates_on:
             if mykey in key:
-                return self.writeto('%s%s%s\r\n' % (key, OP_TELL, value))
+                self.log.debug('sending update of %r to %r' % (key, value))
+                return self.writeto('%s%s%s\r\n' % (key, op, value))
         # no update neccessary, signal success
         return True
 
@@ -294,109 +298,88 @@ class CacheDatabase(Device):
         self._lock = threading.Lock()
 
         # start self-cleaning timer
-        t = threading.Thread(target=self._cleanser)
-        t.setDaemon(True)
-        t.start()
+        #t = threading.Thread(target=self._cleanser)
+        #t.setDaemon(True)
+        #t.start()
 
     def _cleanser(self):
         while True:
             sleep(30)
             self.printdebug('running cleanser')
             # asking for all values will clean all expired values
-            self.ask_wc('')
+            updates = set()
+            with self._lock:
+                for dbkey, entries in self._db.iteritems():
+                    lastent = entries[-1]
+                    if not lastent.ttl:
+                        continue
+                    remaining = lastent.time + lastent.ttl - currenttime()
+                    if remaining <= 0:
+                        updates.add((dbkey, lastent))
+            #if updates:
+            #    for client in self._server._connected.values():
+            #        if client.is_active():
+            #            for key, entry in updates:
+            #                client.update(key, OP_TELLOLD,
+            #                              entry.value, entry.time, entry.ttl)
 
-    # XXX refactor these four
-
-    def ask(self, key):
-        self.printdebug('ask: %s' % key)
+    def ask(self, key, ts, time, ttl):
         with self._lock:
             if key not in self._db:
-                return [key + OP_TELL]
-            else:
-                lastent = self._db[key][-1]
-                # check for removed keys
-                if lastent.value is None:
-                    return [key + OP_TELL]
-                # check for expired keys
-                if lastent.ttl:
-                    remaining = lastent.time + lastent.ttl - current_time()
-                    if remaining <= 0:
-                        return [key + OP_TELL]
-                return '%s%s%s' % (key, OP_TELL, lastent.value)
-
-    def ask_ts(self, key, time, ttl):
-        self.printdebug('ask_ts: %s' % key)
-        with self._lock:
-            if key not in self._db:
-                return [key + OP_TELL]
-            else:
-                lastent = self._db[key][-1]
-                # check for removed keys
-                if lastent.value is None:
-                    return [key + OP_TELL]
-                # check for expired keys
-                if lastent.ttl:
-                    remaining = lastent.time + lastent.ttl - current_time()
-                    if remaining <= 0:
-                        return [key + OP_TELL]
+                return [key + OP_TELLOLD]
+            lastent = self._db[key][-1]
+            # check for already removed keys
+            if lastent.value is None:
+                return [key + OP_TELLOLD]
+            # check for expired keys
+            if lastent.ttl:
+                remaining = lastent.time + lastent.ttl - currenttime()
+                op = remaining > 0 and OP_TELL or OP_TELLOLD
+                if ts:
                     return ['%s+%s@%s%s%s' % (lastent.time, lastent.ttl,
-                                              key, OP_TELL, lastent.value)]
+                                              key, op, lastent.value)]
+                else:
+                    return [key + op + lastent.value]
+            if ts:
                 return ['%s@%s%s%s' % (lastent.time, key,
                                        OP_TELL, lastent.value)]
+            else:
+                return [key + OP_TELL + lastent.value]
 
-    def ask_wc(self, key):
-        self.printdebug('ask_wc: %s' % key)
+    def ask_wc(self, key, ts, time, ttl):
+        ret = set()
         with self._lock:
-            returning = set()
-            expired = set()
             # look for matching keys
             for dbkey, entries in self._db.iteritems():
-                if key in dbkey:
-                    lastent = entries[-1]
-                    # check for removed keys
-                    if lastent.value is None:
-                        continue
-                    # check for expired keys
-                    if lastent.ttl:
-                        remaining = lastent.time + lastent.ttl - current_time()
-                        if remaining <= 0:
-                            expired.add(dbkey)
-                            continue
-                    returning.add('%s%s%s' % (dbkey, OP_TELL, lastent.value))
-        for key in expired:
-            self.delete(key)
-        return returning
-
-    def ask_wc_ts(self, key, time, ttl):
-        self.printdebug('ask_wc_ts: %s, %s, %s' % (key, time, ttl))
-        with self._lock:
-            returning = set()
-            expired = set()
-            # look for matching keys
-            for dbkey, entries in self._db.iteritems():
-                if key in dbkey:
-                    lastent = entries[-1]
-                    # check for removed keys
-                    if lastent.value is None:
-                        continue
-                    # check for expired keys
-                    if lastent.ttl:
-                        remaining = lastent.time + lastent.ttl - current_time()
-                        if remaining <= 0:
-                            expired.add(dbkey)
-                            continue
-                        returning.add('%s+%s@%s%s%s' %
-                                      (lastent.time, lastent.ttl,
-                                       dbkey, OP_TELL, lastent.value))
+                if key not in dbkey:
+                    continue
+                lastent = entries[-1]
+                # check for removed keys
+                if lastent.value is None:
+                    continue
+                # check for expired keys
+                if lastent.ttl:
+                    remaining = lastent.time + lastent.ttl - currenttime()
+                    op = remaining > 0 and OP_TELL or OP_TELLOLD
+                    if ts:
+                        ret.add('%s+%s@%s%s%s' % (lastent.time, lastent.ttl,
+                                                  dbkey, op, lastent.value))
                     else:
-                        returning.add('%s@%s%s%s' % (lastent.time, dbkey,
-                                                     OP_TELL, lastent.value))
-        for key in expired:
-            self.delete(key)
-        return returning
+                        ret.add(dbkey + op + lastent.value)
+                elif ts:
+                    ret.add('%s@%s%s%s' % (lastent.time, dbkey,
+                                           OP_TELL, lastent.value))
+                else:
+                    ret.add(dbkey + OP_TELL + lastent.value)
+        return ret
+
+    def ask_hist(self, key, t1, t2):
+        return []
 
     def tell(self, key, value, time, ttl):
-        self.printdebug('tell: %s, %s, %s, %s' % (key, value, time, ttl))
+        if value is None:
+            # deletes cannot have a TTL
+            ttl = None
         send_update = True
         with self._lock:
             entries = self._db.setdefault(key, [])
@@ -409,17 +392,7 @@ class CacheDatabase(Device):
         if send_update:
             for client in self._server._connected.values():
                 if client.is_active():
-                    client.update(key, value, time)
-
-    def delete(self, key):
-        self.printdebug('delete: %s' % key)
-        if key not in self._db:
-            return
-        with self._lock:
-            self._db[key].append(Entry(current_time(), None, None))
-        for client in self._server._connected.values():
-            if client.is_active():
-                client.update(key, '', None)
+                    client.update(key, OP_TELL, value, time, ttl)
 
 
 class CacheServer(Device):
