@@ -29,7 +29,7 @@
 #
 # *****************************************************************************
 
-name = 'test setup with a few devices'
+name = 'devices for the setup'
 
 includes = ['system']
 
