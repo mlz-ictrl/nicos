@@ -40,7 +40,7 @@ from time import sleep
 from IO import AnalogInput, AnalogOutput
 
 from nicm import status
-from nicm.device import Readable, Moveable
+from nicm.device import Readable, Moveable, Param
 from nicm.taco.base import TacoDevice
 
 
@@ -54,7 +54,7 @@ class Output(TacoDevice, Moveable):
     """Base class for TACO AnalogOutputs."""
 
     parameters = {
-        'loopdelay': (float, 0.3, False, 'Wait loop delay in seconds.'),
+        'loopdelay': Param('Wait loop delay', unit='s', default=0.3),
     }
 
     taco_class = AnalogOutput

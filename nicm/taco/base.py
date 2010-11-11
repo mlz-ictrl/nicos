@@ -43,6 +43,7 @@ from TACOClient import TACOError
 
 from nicm import status
 from nicm.utils import tacodev
+from nicm.device import Param
 from nicm.errors import NicmError, ProgrammingError, CommunicationError
 
 
@@ -60,12 +61,13 @@ class TacoDevice(object):
     """
 
     parameters = {
-        'tacodevice': (tacodev, '', True, 'TACO device name.'),
-        'tacotimeout': (float, 3, False,
-                        'TACO client network timeout (in seconds).'),
-        'tacolog': (bool, False, False, 'If true, log all TACO calls.'),
+        'tacodevice':  Param('TACO device name', type=tacodev, mandatory=True),
+        'tacotimeout': Param('TACO client network timeout', unit='s',
+                             default=3, settable=True),
+        'tacolog':     Param('If true, log all TACO calls', type=bool,
+                             settable=True),
         # the unit isn't mandatory -- TACO usually knows it already
-        'unit': (str, '', False, 'Unit of the device main value.'),
+        'unit':        Param('Unit of the device main value', type=str),
     }
 
     # the TACO client class to instantiate
@@ -102,26 +104,21 @@ class TacoDevice(object):
     def doReset(self):
         self._taco_guard(self._dev.deviceReset)
 
-    def doGetUnit(self):
-        if 'unit' in self._params and self._params['unit']:
-            return self._params['unit']
-        unit = self._taco_guard(self._dev.unit)
-        self._params['unit'] = unit
-        return unit
+    def doReadUnit(self):
+        # XXX cache?
+        return self._taco_guard(self._dev.unit)
 
-    def doSetTacotimeout(self, value):
-        self._params['tacotimeout'] = value
+    def doWriteTacotimeout(self, value):
         if self._dev:
             self._taco_guard(self._dev.setClientNetworkTimeout, value)
 
-    def doSetTacolog(self, value):
-        value = bool(value)
-        self._params['tacolog'] = value
+    def doWriteTacolog(self, value):
         self._taco_guard = value and self._taco_guard_log or \
                            self._taco_guard_nolog
         # automatically set the loglevel to debug, otherwise taco log
         # messages won't be emitted
-        self.loglevel = 'debug'
+        if value:
+            self.loglevel = 'debug'
 
     # internal utilities
 
@@ -204,13 +201,13 @@ class TacoDevice(object):
         """Update a TACO resource, switching the device off and on."""
         self.__lock.acquire()
         try:
-            if self._params['tacolog']:
+            if self.tacolog:
                 self.printdebug('TACO resource update: %s %s' %
                                 (resname, value))
             self._dev.deviceOff()
             self._dev.deviceUpdateResource(resname, value)
             self._dev.deviceOn()
-            if self._params['tacolog']:
+            if self.tacolog:
                 self.printdebug('TACO resource update successful')
         except TACOError, err:
             self._raise_taco(err)

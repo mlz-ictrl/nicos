@@ -37,6 +37,7 @@ modules = ['nicm.commands']
 
 devices = dict(
     m1 = device('nicm.virtual.VirtualMotor',
+                lowlevel = True,
                 #loglevel = 'debug',
                 initval = 1,
                 absmin = 0,
@@ -45,6 +46,7 @@ devices = dict(
                 unit = 'deg'),
 
     m2 = device('nicm.virtual.VirtualMotor',
+                lowlevel = True,
                 loglevel = 'debug',
                 initval = 0.5,
                 absmin = 0,
@@ -53,6 +55,7 @@ devices = dict(
                 unit = 'deg'),
 
     c1 = device('nicm.virtual.VirtualCoder',
+                lowlevel = True,
                 motor = 'm1',
                 unit = 'deg'),
 
@@ -90,10 +93,12 @@ devices = dict(
     #                fmtstr = '%.1f',
     #                unit = 'MW'),
 
-    timer = device('nicm.virtual.VirtualTimer'),
+    timer = device('nicm.virtual.VirtualTimer', lowlevel = True),
     ctr1 = device('nicm.virtual.VirtualCounter',
+                  lowlevel = True,
                   countrate = 1000),
     ctr2 = device('nicm.virtual.VirtualCounter',
+                  lowlevel = True,
                   countrate = 2000),
 
     det = device('nicm.detector.FRMDetector',

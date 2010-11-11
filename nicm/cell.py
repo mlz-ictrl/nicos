@@ -41,7 +41,7 @@ from numpy import arccos, arcsin, arctan2, cos, sin, pi, sqrt, \
      array, identity, zeros, cross, dot, sign
 from numpy.linalg import inv, norm
 
-from nicm.device import Device
+from nicm.device import Device, Param
 from nicm.errors import ComputationError, ConfigurationError
 from nicm.utils import vec3
 
@@ -59,31 +59,29 @@ class Cell(Device):
     """
 
     parameters = {
-        'lattice': (vec3, [2*pi, 2*pi, 2*pi], False, 'Lattice constants.'),
-        'angles': (vec3, [90, 90, 90], False, 'Lattice angles.'),
-        'orient1': (vec3, [1, 0, 0], False, 'First orientation reflex.'),
-        'orient2': (vec3, [0, 1, 0], False, 'Second orientation reflex.'),
-        'psi0': (float, 0.0, False, 'Zero position of psi axis.'),
-        'axiscoupling': (bool, True, False,
-            'Whether the sample theta/two theta axes are coupled.'),
-        'psi360': (bool, True, False, 'Whether the range of psi is 0-360 deg '
-            '(otherwise -180-180 deg is assumed).'),
+        'lattice': Param('Lattice constants', type=vec3,
+                         default=[2*pi, 2*pi, 2*pi], settable=True),
+        'angles':  Param('Lattice angles', type=vec3,
+                         default=[90, 90, 90], settable=True),
+        'orient1': Param('First orientation reflex', type=vec3,
+                         default=[1, 0, 0], settable=True),
+        'orient2': Param('Second orientation reflex', type=vec3,
+                         default=[0, 1, 0], settable=True),
+        'psi0':    Param('Zero position of psi axis', settable=True),
+        'axiscoupling': Param('Whether the sample th/tt axes are coupled',
+                              type=bool, default=True, settable=True),
+        'psi360':  Param('Whether the range of psi is 0-360 deg '
+                         '(otherwise -180-180 deg is assumed).',
+                         type=bool, default=True, settable=True),
         # XXX not used?
-        'coordinatesystem': (int, 1, False,
-            'Coordinate system for k_i: 1 parallel x, -1 parallel -x, '
-            '2 parallel y, -2 parallel -y.'),
+        'coordinatesystem': Param('Coordinate system for k_i: 1 parallel x, '
+                                  '-1 parallel -x, 2 parallel y, '
+                                  '-2 parallel -y.',
+                                  type=int, default=1, settable=True),
     }
 
-    def _reinit(self):
-        try:
-            self._lattice = array(self.lattice, float)
-            self._angles = array(self.angles, float)
-            self._orient1 = array(self.orient1, float)
-            self._orient2 = array(self.orient2, float)
-            self._psi0 = float(self.psi0)
-        except KeyError:
-            # not yet fully initialized...
-            return
+    def _reinit(self, lattice=None, angles=None,
+                orient1=None, orient2=None, psi0=None):
         # calculate reciprocal lattice
         self._lattice_rec, self._angles_rec = self.lattice_rec()
         # matrix for rotation about z lab system with psi
@@ -107,34 +105,37 @@ class Cell(Device):
 
 
     def doInit(self):
+        self._lattice = array(self.lattice, float)
+        self._angles = array(self.angles, float)
+        self._orient1 = array(self.orient1, float)
+        self._orient2 = array(self.orient2, float)
+        self._psi0 = self.psi0
         self._reinit()
 
-    def doSetLattice(self, val):
-        self._params['lattice'] = val
+    def doWriteLattice(self, val):
+        self._lattice = array(val, float)
         self._reinit()
 
-    def doSetAngles(self, val):
-        self._params['angles'] = val
+    def doWriteAngles(self, val):
+        self._angles = array(val, float)
         self._reinit()
 
-    def doSetOrient1(self, val):
-        self._params['orient1'] = val
+    def doWriteOrient1(self, val):
+        self._orient1 = array(val, float)
         self._reinit()
 
-    def doSetOrient2(self, val):
-        self._params['orient2'] = val
+    def doWriteOrient2(self, val):
+        self._orient2 = array(val, float)
         self._reinit()
 
-    def doSetPsi0(self, val):
-        self._params['psi0'] = val
+    def doWritePsi0(self, val):
+        self._psi0 = val
         self._reinit()
 
-    def doSetCoordinatesystem(self, val):
+    def doWriteCoordinatesystem(self, val):
         if val not in [1, -1, 2, -2]:
             raise ConfigurationError('valid values for coordinatesystem: '
                                      '+/-1 and +/-2')
-        self._params['coordinatesystem'] = val
-
 
     def lattice_real(self):
         return [self._lattice, self._angles]

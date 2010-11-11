@@ -37,7 +37,7 @@ __version__ = "$Revision$"
 
 from nicm.utils import listof, any
 from nicm.errors import ConfigurationError, PositionError
-from nicm.device import Moveable, Switchable
+from nicm.device import Moveable, Switchable, Param
 
 
 class Switcher(Switchable):
@@ -51,15 +51,17 @@ class Switcher(Switchable):
     }
 
     parameters = {
-        'states': (listof(str), [], True, 'List of state names.'),
-        'values': (listof(any), [], True, 'List of values to move to.'),
-        'precision': (float, 0, True, 'Precision for comparison.'),
-        'unit': (str, '', False, 'Unit of the device main value.'),
+        'states':    Param('List of state names.', type=listof(str),
+                           mandatory=True),
+        'values':    Param('List of values to move to', type=listof(any),
+                           mandatory=True),
+        'precision': Param('Precision for comparison', mandatory=True),
+        'unit':      Param('Unit of the device main value', type=str),
     }
 
     def doInit(self):
-        states = self._params['states']
-        values = self._params['values']
+        states = self.states
+        values = self.values
         if len(states) != len(values):
             raise ConfigurationError('Switcher states and values must be '
                                      'of equal length')

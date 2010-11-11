@@ -39,7 +39,7 @@ import time
 
 from nicm import nicos
 from nicm import status, loggers
-from nicm.utils import AutoPropsMeta, getVersions
+from nicm.utils import AutoPropsMeta, Param, getVersions
 from nicm.errors import ConfigurationError, ProgrammingError, UsageError, \
      LimitError, FixedError
 
@@ -54,21 +54,23 @@ class Device(object):
     __mergedattrs__ = ['parameters', 'attached_devices']
 
     parameters = {
-        'name': (str, '', False, 'The name of the device.'),
-        'description': (str, '', False, 'A description of the device.'),
-        #'autocreate': (bool, False, False, 'Whether the device is '
-        #               'automatically created when the setup is loaded.'),
-        'loglevel': (str, 'info', False, 'The logging level of the device.'),
+        'description': Param('A description of the device', type=str,
+                             settable=True),
+        'lowlevel':    Param('Whether the device is not interesting to users',
+                             type=bool, default=False),
+        'loglevel':    Param('The logging level of the device', type=str,
+                             default='info', settable=True),
     }
 
     attached_devices = {}
 
     def __init__(self, name, **config):
+        self.__dict__['name'] = name
         # _config: device configuration (all parameter names lower-case)
         self._config = dict((name.lower(), value)
                             for (name, value) in config.items())
         # _params: parameter values from config
-        self._params = {'name': name}  # pre-set "name" for str(self) to work
+        self._params = {}
         # _changedparams: set of all changed params for save()
         self._changedparams = set()
         # _adevs: "attached" device instances
@@ -115,15 +117,11 @@ class Device(object):
                              'listparams() to show all' % name)
         setattr(self, name.lower(), value)
 
-    def doSetDescription(self, value):
-        self._params['description'] = value
-
-    def doSetLoglevel(self, value):
+    def doWriteLoglevel(self, value):
         if value not in loggers.loglevels:
             raise UsageError(self, 'loglevel must be one of %s' %
                              ', '.join(map(repr, loggers.loglevels.keys())))
         self._log.setLevel(loggers.loglevels[value])
-        self._params['loglevel'] = value
 
     def init(self):
         """Initialize the object; this is called when the object is created."""
@@ -158,37 +156,23 @@ class Device(object):
                         self, 'device %r has wrong type' % aname)
                 self._adevs[aname] = dev
 
+        self._cache = nicos.system.cache
+
         # validate and assign parameters
+        notfromcache = []
         for param, paraminfo in self.parameters.iteritems():
             param = param.lower()
             if param == 'name':
                 # already set
                 continue
-            pconv, default, mandatory, doc = paraminfo
-            # determine parameter value to set
-            if param in self._config:
-                paramvalue = self._config[param]
-                try:
-                    paramvalue = pconv(paramvalue)
-                except ValueError, err:
-                    raise ConfigurationError(self, 'configuration parameter %s '
-                                             'value %r invalid: %s' %
-                                             (param, paramvalue, err))
-            elif not mandatory:
-                if default is None:
-                    continue
-                paramvalue = default
-            else:
-                raise ConfigurationError(self, 'missing configuration '
-                                         'parameter %r' % param)
-            # set parameter either via setter, or in _params
-            if hasattr(self, 'doSet' + param.title()):
-                setattr(self, param, paramvalue)
-            else:
-                self._params[param] = paramvalue
+            if not self._initParam(param, paraminfo):
+                notfromcache.append(param)
+        if notfromcache:
+            self.printwarning('these parameters were not present in cache: ' +
+                              ', '.join(notfromcache))
 
-        if not self.description:
-            self.description = self.name
+        if not self._params['description']:
+            self._params['description'] = self.name
 
         # call custom initialization
         if hasattr(self, 'doInit'):
@@ -196,6 +180,27 @@ class Device(object):
 
         # record parameter changes from now on
         self._changedparams.clear()
+
+    def _initParam(self, param, paraminfo=None):
+        paraminfo = paraminfo or self.parameters[param]
+        # mandatory parameters must be in config, regardless of cache
+        if paraminfo.mandatory and param not in self._config:
+            raise ConfigurationError(self, 'missing configuration '
+                                     'parameter %r' % param)
+        # try to get from cache
+        value = self._cache.get(self, param)
+        if value is not None:
+            self._params[param] = value
+            return True
+        else:
+            methodname = 'doRead' + param.title()
+            if hasattr(self, methodname):
+                value = getattr(self, methodname)()
+            else:
+                value = self._config.get(param, paraminfo.default)
+            self._cache.put(self, param, value)
+            self._params[param] = value
+            return False
 
     def info(self):
         """Return device information as an iterable of tuples (name, value)."""
@@ -231,16 +236,15 @@ class Readable(Device):
     """
 
     parameters = {
-        'fmtstr': (str, '%s', False, 'Format string for the device value.'),
-        'unit': (str, '', True, 'Unit of the device main value.'),
-        'maxage': (float, 5, False, 'Maximum age of cached values.'),
-        'pollinterval': (float, 2, False,
-                         'Polling interval for value and status.'),
+        'fmtstr':       Param('Format string for the device value', type=str,
+                              default='%s', settable=True),
+        'unit':         Param('Unit of the device main value', type=str,
+                              mandatory=True, settable=True),
+        'maxage':       Param('Maximum age of cached value and status',
+                              unit='s', default=5),
+        'pollinterval': Param('Polling interval for value and status',
+                              unit='s', default=2),
     }
-
-    def init(self):
-        Device.init(self)
-        self.__cache = nicos.system.cache
 
     def __call__(self, value=None):
         """Allow dev() as shortcut for read."""
@@ -251,13 +255,13 @@ class Readable(Device):
 
     def _get_from_cache(self, name, func):
         """Get *name* from the cache, or call *func* if outdated/not present."""
-        if not self.__cache:
+        if not self._cache:
             return func()
-        val = self.__cache.get(self, name)
+        val = self._cache.get(self, name)
         #self.printinfo('%r from cache: %s' % (name, val))
         if val is None:
             val = func()
-            self.__cache.put(self, name, val, time.time(), self.maxage)
+            self._cache.put(self, name, val, time.time(), self.maxage)
         #self.printinfo('%r from device: %s' % (name, val))
         return val
 
@@ -290,10 +294,10 @@ class Readable(Device):
 
     def history(self, name='value', fromtime=None, totime=None):
         """Return a history of the parameter *name*."""
-        if not self.__cache:
+        if not self._cache:
             raise ConfigurationError('no cache is configured for this setup')
         else:
-            return self.__cache.get(self, name, fromtime, totime)
+            return self._cache.history(self, name, fromtime, totime)
 
     def info(self):
         """Automatically add device main value and status (if not OK)."""
@@ -305,12 +309,6 @@ class Readable(Device):
             yield ('status', status.statuses[value])
         for item in Device.info(self):
             yield item
-
-    def doSetUnit(self, value):
-        self._params['unit'] = value
-
-    def doSetFmtstr(self, value):
-        self._params['fmtstr'] = value
 
 
 class Startable(Readable):
@@ -390,10 +388,12 @@ class Moveable(Startable):
     """
 
     parameters = {
-        'usermin': (float, 0, False, 'User defined minimum of device value.'),
-        'usermax': (float, 0, False, 'User defined maximum of device value.'),
-        'absmin': (float, 0, False, 'Absolute minimum of device value.'),
-        'absmax': (float, 0, False, 'Absolute maximum of device value.'),
+        'usermin': Param('User defined minimum of device value', unit='main',
+                         settable=True),
+        'usermax': Param('User defined maximum of device value', unit='main',
+                         settable=True),
+        'absmin':  Param('Absolute minimum of device value', unit='main'),
+        'absmax':  Param('Absolute maximum of device value', unit='main'),
     }
 
     def init(self):
@@ -423,10 +423,11 @@ class Moveable(Startable):
                                      'absolute maximum (%s)' % (absmin, absmax))
 
     def __checkUserLimits(self, setthem=False):
-        absmin = self._params['absmin']
-        absmax = self._params['absmax']
-        usermin = self._params['usermin']
-        usermax = self._params['usermax']
+        # XXX refactor this
+        absmin = self.absmin
+        absmax = self.absmax
+        usermin = self.usermin
+        usermax = self.usermax
         if not usermin and not usermax and setthem:
             # if both not set (0) then use absolute min. and max.
             usermin = absmin
@@ -450,20 +451,18 @@ class Moveable(Startable):
                                      'minimum (%s)' % (usermax, absmin))
 
     def isAllowed(self, target):
-        if not self._params['usermin'] <= target <= self._params['usermax']:
-            return False, 'limits are [%s, %s]' % (self._params['usermin'],
-                                                   self._params['usermax'])
+        if not self.usermin <= target <= self.usermax:
+            return False, 'limits are [%s, %s]' % (self.usermin, self.usermax)
         if hasattr(self, 'doIsAllowed'):
             return self.doIsAllowed(target)
         return True, ''
 
-    def doSetUsermin(self, value):
+    def doWriteUsermin(self, value):
         """Set the user minimum value to value after checking the value against
         absolute limits and user maximum.
         """
         if 'usermin' not in self._params:
             # first time from setup file
-            self._params['usermin'] = float(value)
             return
         old = self._params['usermin']
         self._params['usermin'] = float(value)
@@ -473,13 +472,12 @@ class Moveable(Startable):
             self._params['usermin'] = old
             raise
 
-    def doSetUsermax(self, value):
+    def doWriteUsermax(self, value):
         """Set the user maximum value to value after checking the value against
         absolute limits and user minimum.
         """
         if 'usermax' not in self._params:
             # first time from setup file
-            self._params['usermax'] = float(value)
             return
         old = self._params['usermax']
         self._params['usermax'] = float(value)
@@ -539,7 +537,7 @@ class Measurable(Startable):
     """
 
     parameters = {
-        'unit': (str, '', False, '(not used)'),
+        'unit': Param('(not used)', type=str),
     }
 
     def start(self, **preset):

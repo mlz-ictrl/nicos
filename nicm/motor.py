@@ -39,7 +39,7 @@ __version__ = "$Revision$"
 
 from nicm import status
 from nicm.coder import Coder
-from nicm.device import Moveable
+from nicm.device import Moveable, Param
 
 
 class Motor(Moveable, Coder):
@@ -50,7 +50,7 @@ class Motor(Moveable, Coder):
     """
 
     parameters = {
-        'speed': (float, 0, False, 'The motor speed in units/second.'),
+        'speed': Param('The motor speed in units/second', settable=True),
     }
 
     def setPosition(self, pos):

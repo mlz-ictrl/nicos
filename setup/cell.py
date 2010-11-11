@@ -36,7 +36,7 @@ includes = ['system']
 modules = ['nicm.commands']
 
 devices = dict(
- cell = device('cell.Cell'),
+ cell = device('nicm.cell.Cell'),
 )
 
 startupcode = '''

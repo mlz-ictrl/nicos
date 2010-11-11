@@ -41,9 +41,11 @@ import socket
 import threading
 from time import sleep, time as currenttime
 
-from nicm.device import Device
-from nicm.cache.utils import msg_pattern, line_pattern, cache_convert, \
-     DEFAULT_CACHE_PORT, OP_TELL, OP_WILDCARD, OP_SUBSCRIBE
+from nicm.device import Device, Param
+from nicm.cache.utils import msg_pattern, line_pattern, cache_load, \
+     DEFAULT_CACHE_PORT, OP_TELL, OP_WILDCARD, OP_SUBSCRIBE, cache_dump
+
+BUFSIZE = 8192
 
 
 class BaseCacheClient(Device):
@@ -52,9 +54,9 @@ class BaseCacheClient(Device):
     """
 
     parameters = {
-        'server': (str, '', True,
-                   '"host:port" of the cache instance to connect to.'),
-        'prefix': (str, '', True, 'Cache key prefix.'),
+        'server': Param('"host:port" of the cache instance to connect to',
+                        type=str, mandatory=True),
+        'prefix': Param('Cache key prefix', type=str, mandatory=True),
     }
 
     def doInit(self):
@@ -63,6 +65,12 @@ class BaseCacheClient(Device):
             port = int(port)
         except ValueError:
             host, port = self.server, DEFAULT_CACHE_PORT
+        # this event is set as soon as:
+        # * the connection is established and the connect_action is done, or
+        # * the initial connection failed
+        # this prevents devices from polling parameter values before all values
+        # from the cache have been received
+        self._startup_done = threading.Event()
         self._address = (host, port)
         self._socket = None
         self._prefix = self.prefix.strip('/')
@@ -80,19 +88,17 @@ class BaseCacheClient(Device):
         self._worker.join()
 
     def _connect(self):
+        self._startup_done.clear()
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self._socket.connect(self._address)
-            # send request for all keys and updates....
-            tosend = '@%s\r\n@%s\r\n' % (OP_WILDCARD, OP_SUBSCRIBE)
-            while tosend:
-                sent = self._socket.send(tosend)
-                tosend = tosend[sent:]
+            self._connect_action()
         except Exception, err:
             self._disconnect('unable to connect to %s:%s: %s' %
                              (self._address + (err,)))
         else:
             self.printinfo('now connected to %s:%s' % self._address)
+        self._startup_done.set()
 
     def _disconnect(self, why=''):
         if not self._socket:
@@ -111,6 +117,34 @@ class BaseCacheClient(Device):
 
     def _wait_data(self):
         pass
+
+    def _connect_action(self):
+        # send request for all keys and updates....
+        # HACK: send a single request for a nonexisting key afterwards to
+        # determine the end of data
+        tosend = '@%s\r\n###?\r\n@%s\r\n' % (OP_WILDCARD, OP_SUBSCRIBE)
+        while tosend:
+            sent = self._socket.send(tosend)
+            tosend = tosend[sent:]
+
+        # read response
+        data, n = '', 0
+        while not data.endswith('###!\r\n') and n < 100:
+            data += self._socket.recv(BUFSIZE)
+            n += 1
+
+        # process data (XXX)
+        match = line_pattern.match(data)
+        while match:
+            line = match.group(1)
+            data = data[match.end():]
+            msgmatch = msg_pattern.match(line)
+            if not msgmatch:
+                # ignore invalid lines
+                continue
+            self._handle_msg(**msgmatch.groupdict())
+            # continue loop
+            match = line_pattern.match(data)
 
     def _handle_msg(self, time, ttl, tsop, key, op, value):
         raise NotImplementedError
@@ -171,7 +205,7 @@ class BaseCacheClient(Device):
                 elif res[0]:
                     # got some data
                     try:
-                        newdata = self._socket.recv(8192)
+                        newdata = self._socket.recv(BUFSIZE)
                     except:
                         newdata = ''
                     if not newdata:
@@ -189,6 +223,9 @@ class CacheClient(BaseCacheClient):
         BaseCacheClient.doInit(self)
         self._db = {}
         self._worker.start()
+        # XXX circumvent bootstrap problems
+        self.get = self.real_get
+        self.put = self.real_put
 
     def _handle_msg(self, time, ttl, tsop, key, op, value):
         if op != OP_TELL or not key.startswith(self._prefix):
@@ -198,20 +235,28 @@ class CacheClient(BaseCacheClient):
         if not value:
             self._db.pop(key, None)
         else:
-            self._db[key] = (cache_convert(value),
+            self._db[key] = (cache_load(value),
                              time and float(time), ttl and float(ttl))
+            # XXX update param values in devices here?
+
+    def get(self, dev, key):
+        return None
 
     def put(self, dev, key, value, timestamp=None, ttl=None):
+        return
+
+    def real_put(self, dev, key, value, timestamp=None, ttl=None):
         if timestamp is None:
             timestamp = currenttime()
         ttl = ttl and '+%s' % ttl or ''
         msg = '%s%s@%s/%s/%s%s%s\n' % (timestamp, ttl, self._prefix, dev.name,
-                                       key, OP_TELL, value)
+                                       key, OP_TELL, cache_dump(value))
         self.printdebug('putting %s/%s=%s' % (dev.name, key, value))
         self._queue.put(msg)
 
-    def get(self, dev, key):
-        dbkey = '%s/%s' % (dev.name, key)
+    def real_get(self, dev, key):
+        self._startup_done.wait()
+        dbkey = '%s/%s' % (dev.name.lower(), key)
         entry = self._db.get(dbkey)
         if entry is None:
             self.printdebug('%s not in cache' % dbkey)
@@ -233,5 +278,20 @@ class WriteonlyCacheClient(CacheClient):
     so that each read() actually queries the device.
     """
 
-    def get(self, *args):
+    def real_get(self, *args):
+        return None
+
+
+class DummyCacheClient(Device):
+    """
+    A dummy cache client that does not do any caching.
+    """
+
+    def get(self, dev, key):
+        return None
+
+    def put(self, dev, key, value, timestamp=None, ttl=None):
+        pass
+
+    def history(self, dev, key):
         return None

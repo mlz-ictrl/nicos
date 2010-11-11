@@ -43,13 +43,14 @@ from nicm import nicos, status
 from nicm.motor import Motor
 from nicm.coder import Coder
 from nicm.utils import tacodev
+from nicm.device import Readable, Param
 from nicm.detector import FRMTimerChannel, FRMCounterChannel
 
 
 class VirtualMotor(Motor):
     parameters = {
-        'initval': (float, 0, True, 'Initial value for the virtual device.'),
-        'speed': (float, 0, False, 'Virtual speed of the device.'),
+        'initval': Param('Initial value for the virtual device', mandatory=True),
+        'speed':   Param('Virtual speed of the device'),
     }
 
     def doInit(self):
@@ -89,18 +90,12 @@ class VirtualMotor(Motor):
 
 
 class VirtualCoder(Coder):
-    parameters = {
-        'motor': (str, '', True, 'Device whose value to mirror.'),
+    attached_devices = {
+        'motor': Readable,
     }
 
-    def doInit(self):
-        if self.motor:
-            self._motor = nicos.getDevice(self.motor)
-        else:
-            self._motor = None
-
     def doRead(self):
-        return self._motor and self._motor.doRead() or 0
+        return self._adevs['motor'] and self._adevs['motor'].doRead() or 0
 
     def doStatus(self):
         return status.OK
@@ -108,7 +103,7 @@ class VirtualCoder(Coder):
 
 class VirtualTimer(FRMTimerChannel):
     parameters = {
-        'tacodevice': (tacodev, '', False, ''),
+        'tacodevice': Param('(not used)', type=tacodev),
     }
 
     def doInit(self):
@@ -127,35 +122,34 @@ class VirtualTimer(FRMTimerChannel):
         return self.__finish
 
     def __thread(self):
-        time.sleep(self._params['preselection'])
+        time.sleep(self.preselection)
         self.__finish = True
 
     def doStatus(self):
         return status.OK
 
     def doRead(self):
-        if self._params['ismaster']:
-            return self._params['preselection']
+        if self.ismaster:
+            return self.preselection
         return random.randint(0, 1000)
 
-    def doSetPreselection(self, value):
-        self._params['preselection'] = value
-
-    def doSetIsmaster(self, value):
-        value = bool(value)
-        self._params['ismaster'] = value
-
-    def doSetMode(self, value):
+    def doWritePreselection(self, value):
         pass
 
-    def doGetUnit(self):
+    def doWriteIsmaster(self, value):
+        pass
+
+    def doWriteMode(self, value):
+        pass
+
+    def doReadUnit(self):
         return 'sec'
 
 
 class VirtualCounter(FRMCounterChannel):
     parameters = {
-        'countrate': (float, 1000, False, 'The maximum countrate.'),
-        'tacodevice': (tacodev, '', False, ''),
+        'countrate':  Param('The maximum countrate', default=1000),
+        'tacodevice': Param('(not used)', type=tacodev),
     }
 
     def nothing(self):
@@ -166,19 +160,18 @@ class VirtualCounter(FRMCounterChannel):
         return status.OK
 
     def doRead(self):
-        if self._params['ismaster']:
-            return self._params['preselection']
-        return random.randint(0, self._params['countrate'])
+        if self.ismaster:
+            return self.preselection
+        return random.randint(0, self.countrate)
 
-    def doSetPreselection(self, value):
-        self._params['preselection'] = value
-
-    def doSetIsmaster(self, value):
-        value = bool(value)
-        self._params['ismaster'] = value
-
-    def doSetMode(self, value):
+    def doWritePreselection(self, value):
         pass
 
-    def doGetUnit(self):
+    def doWriteIsmaster(self, value):
+        pass
+
+    def doWriteMode(self, value):
+        pass
+
+    def doReadUnit(self):
         return 'counts'

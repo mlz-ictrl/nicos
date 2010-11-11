@@ -41,7 +41,7 @@ from IO import Timer, Counter
 
 from nicm import status
 from nicm.utils import any
-from nicm.device import Measurable
+from nicm.device import Measurable, Param
 from nicm.errors import ConfigurationError
 from nicm.taco.base import TacoDevice
 
@@ -52,11 +52,12 @@ class FRMChannel(TacoDevice, Measurable):
     """
 
     parameters = {
-        # XXX type must be more permissive for "mode"
-        'mode': (any, 0, False,
-                 'Channel mode: normal, ratemeter, or preselection.'),
-        'ismaster': (bool, False, False, 'If this channel is a master.'),
-        'preselection': (float, 0, False, 'Preselection for this channel.'),
+        # XXX check type interaction for "mode"
+        'mode':     Param('Channel mode: normal, ratemeter, or preselection',
+                          type=any, default=0, settable=True),
+        'ismaster': Param('If this channel is a master', type=bool,
+                          settable=True),
+        'preselection': Param('Preselection for this channel', settable=True),
     }
 
     def doInit(self):
@@ -104,16 +105,13 @@ class FRMChannel(TacoDevice, Measurable):
         if self._taco_guard(self._dev.isDeviceOff):
             self._taco_guard(self._dev.deviceOn)
 
-    def doSetPreselection(self, value):
+    def doWritePreselection(self, value):
         self._taco_guard(self._dev.setPreselection, value)
-        self._params['preselection'] = value
 
-    def doSetIsmaster(self, value):
-        value = bool(value)
+    def doWriteIsmaster(self, value):
         self._taco_guard(self._dev.enableMaster, value)
-        self._params['ismaster'] = value
 
-    def doSetMode(self, value):
+    def doWriteMode(self, value):
         for s, i in [('normal', IOCommon.MODE_NORMAL),
                      ('ratemeter', IOCommon.MODE_RATEMETER),
                      ('preselection', IOCommon.MODE_PRESELECTION)]:
@@ -124,7 +122,7 @@ class FRMChannel(TacoDevice, Measurable):
             raise ConfigurationError(self, 'invalid value for the '
                                      'mode parameter: %s' % value)
         self._taco_guard(self._dev.setMode, imode)
-        self._params['mode'] = smode
+        return smode
 
 
 class FRMTimerChannel(FRMChannel):

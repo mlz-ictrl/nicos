@@ -44,6 +44,7 @@ import tkFont
 
 from nicm.utils import listof
 from nicm.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
+from nicm.device import Param
 from nicm.cache.client import BaseCacheClient
 from nicm.cache.utils import OP_TELL
 
@@ -61,14 +62,19 @@ class Monitor(BaseCacheClient):
     # server and prefix parameters come from BaseCacheClient
     parameters = {
         # XXX add more configurables: timeouts ...
-        'title': (str, 'Status', False, 'Title of status window.'),
-        'layout': (listof(list), None, True, 'Status monitor layout.'),
-        'font': (str, 'Luxi Sans', False, 'Font name for the window.'),
-        'valuefont': (str, '', False, 'Font name for the value displays.'),
-        'fontsize': (int, 12, False, 'Basic font size.'),
-        'padding': (int, 2, False, 'Padding for the display fields.'),
-        'geometry': (str, '', False, 'Geometry for status window.'),
-        'resizable': (bool, True, False, 'Whether the window is resizable.'),
+        'title':     Param('Title of status window', type=str,
+                           default='Status'),
+        'layout':    Param('Status monitor layout', type=listof(list),
+                           mandatory=True),
+        'font':      Param('Font name for the window', type=str,
+                           default='Luxi Sans'),
+        'valuefont': Param('Font name for the value displays', type=str),
+        'fontsize':  Param('Basic font size', type=int, default=12),
+        'padding':   Param('Padding for the display fields', type=int,
+                           default=2),
+        'geometry':  Param('Geometry for status window', type=str),
+        'resizable': Param('Whether the window is resizable', type=bool,
+                           default=True),
     }
 
     def start(self):
@@ -128,11 +134,13 @@ class Monitor(BaseCacheClient):
                     fields = []
                     for fielddesc in rowdesc:
                         field = {
-                            # display properties
-                            'name': '', 'key': '', 'width': 10, 'unit': '',
-                            'format': '%s',
+                            # display/init properties
+                            'name': '', 'dev': '', 'width': 10,
+                            'unit': '', 'format': '%s',
                             # current values
-                            'timestamp': 0, 'status': '',
+                            'time': 0, 'status': '',
+                            # key names
+                            'key': '', 'statuskey': '',
                         }
                         field.update(fielddesc)
                         field['key'] = prefix + field['key']
@@ -185,11 +193,14 @@ class Monitor(BaseCacheClient):
                 field['valuelabel'] = l
 
                 # store reference from key to field for updates
-                key = field['key']
-                self._keymap.setdefault(key, []).append(field)
-                # replace rightmost non-slash-string with status XXX
-                statuskey = key[:key.rfind('/')+1] + 'status'
-                self._keymap.setdefault(statuskey, []).append(field)
+                if field['dev']:
+                    field['key'] = key = field['dev'] + '/value'
+                    self._keymap.setdefault(key, []).append(field)
+                    field['statuskey'] = statuskey = field['dev'] + '/status'
+                    self._keymap.setdefault(statuskey, []).append(field)
+                else:
+                    field['key'] = key = field['key']
+                    self._keymap.setdefault(key, []).append(field)
             else:
                 # disabled field
                 l = Label(fieldframe, text='', font=self._labelfont,
@@ -218,6 +229,7 @@ class Monitor(BaseCacheClient):
                     for field in row:
                         _create_field(subframe, field)
 
+        # initialize status bar
         self._status = StringVar()
         statusbar = Frame(master)
         statusbar.pack(side=BOTTOM, fill=X, expand=1)
@@ -233,9 +245,9 @@ class Monitor(BaseCacheClient):
         statustext = '%s = %s' % (field['name'], field['valuevar'].get())
         if field['unit']:
             statustext += ' %s' % field['unit']
-        if field['timestamp']:
+        if field['time']:
             statustext += ', value updated %s ago' % (
-                nicedelta(currenttime() - field['timestamp']))
+                nicedelta(currenttime() - field['time']))
         self._status.set(statustext)
         self._statustimer = threading.Timer(1, lambda: self._label_entered(event))
         self._statustimer.start()
@@ -264,7 +276,7 @@ class Monitor(BaseCacheClient):
         newwatch = []
         for field in self._watch:
             vlabel, status = field['valuelabel'], field['status']
-            age = currenttime() - field['timestamp']
+            age = currenttime() - field['time']
             if not status:
                 # no status yet, determine on time alone
                 if age < 3:
@@ -284,7 +296,7 @@ class Monitor(BaseCacheClient):
             if field['valuevar'].get() == '----':
                 # no value (yet)
                 vlabel.config(bg='#dddddd', fg='#000000')
-            elif field['timestamp'] < 0:
+            elif field['time'] < 0:
                 vlabel.config(bg='#000000')
             else:
                 if age < 3600:
@@ -313,12 +325,12 @@ class Monitor(BaseCacheClient):
         fields = self._keymap.get(key, [])
         for field in fields:
             self._watch.append(field)
-            if key[-6:] != 'status':      # value-update, not status-update
+            if key == field['key']:
                 if not value:
-                    field['timestamp'] = 0.0
+                    field['time'] = 0.0
                     field['valuevar'].set('----') # default value
                 else:
-                    field['timestamp'] = time
+                    field['time'] = time
                     try:
                         field['valuevar'].set(field['format'] % value)
                     except:
@@ -328,10 +340,10 @@ class Monitor(BaseCacheClient):
                         except:
                             field['valuevar'].set(value)
 
-            else:      # status-update
-                if 0 < field['timestamp'] < time:
+            elif key == field['statuskey']:
+                if 0 < field['time'] < time:
                     # don't change if old value is negative or new value is less
-                    field['timestamp'] = time
+                    field['time'] = time
                 field['status'] = value
 
         # show/hide blocks, but only if something changed

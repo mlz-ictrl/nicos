@@ -39,7 +39,7 @@ import time
 from os import path
 
 from nicm.utils import listof
-from nicm.device import Device
+from nicm.device import Device, Param
 from nicm.commands.output import printinfo
 
 
@@ -54,8 +54,8 @@ class DataSink(Device):
     """
 
     parameters = {
-        'scantypes': (listof(str), None, False,
-                      'Scan types for which the sink is active.'),
+        'scantypes': Param('Scan types for which the sink is active',
+                           type=listof(str), default=None),
     }
 
     def prepareDataset(self):
@@ -157,9 +157,9 @@ class ConsoleSink(DataSink):
 class AsciiDatafileSink(DataSink):
     parameters = {
         # XXX prefix should come from proposal
-        'prefix': (str, '', False, 'Data file name prefix.'),
-        'semicolon': (bool, True, False,
-                      'Whether to add a semicolon between X and Y values.'),
+        'prefix': Param('Data file name prefix', type=str),
+        'semicolon': Param('Whether to add a semicolon between X and Y values',
+                           type=bool, default=True),
     }
 
     def doInit(self):
@@ -170,13 +170,10 @@ class AsciiDatafileSink(DataSink):
         self._fname = ''
         self._counter = 0
 
-    def doSetPrefix(self, value):
-        self._prefix = value
-        if self._prefix:
-            self._prefix += '_'
-
-    def doGetPrefix(self):
-        return self._prefix
+    def doWritePrefix(self, value):
+        if value and not value.endswith('_'):
+            value += '_'
+        return value
 
     def setDatapath(self, value):
         self._path = value
@@ -186,7 +183,7 @@ class AsciiDatafileSink(DataSink):
         self._wrote_infoheader = False
         self._wrote_columninfo = False
         self._counter += 1
-        self._fname = path.join(self._path, self._prefix +
+        self._fname = path.join(self._path, self.prefix +
                                 '%s.dat' % self._counter)
         return [('File name', self._fname)]
 

@@ -43,7 +43,10 @@ class NicmError(Exception):
 
     def __init__(self, *args):
         # store the originating device on the exception
-        from nicm.device import Device
+        try:
+            from nicm.device import Device
+        except:
+            class Device: pass
         args = list(args)
         if args and isinstance(args[0], Device):
             self.device = args[0]

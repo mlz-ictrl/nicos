@@ -13,7 +13,7 @@ signal.signal(signal.SIGTERM, handler)  # terminate
 
 try:
     nicos = simple.start('cache')
-    server = nicos.getDevice('Cache')
+    server = nicos.getDevice('Server')
 except (ConfigurationError, UsageError), err:
     print >>sys.stderr, 'Fatal error:', err
     sys.exit(1)

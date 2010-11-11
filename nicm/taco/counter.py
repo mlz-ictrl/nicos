@@ -44,7 +44,7 @@ import TACOStates
 from IO import Timer as IOTimer, Counter as IOCounter
 
 from nicm import status
-from nicm.device import Countable
+from nicm.device import Countable, Param
 from nicm.errors import ConfigurationError
 from nicm.taco.base import TacoDevice
 
@@ -53,12 +53,11 @@ class TacoCountable(TacoDevice, Countable):
     """Base class for TACO countables."""
 
     parameters = {
-        'ismaster': (bool, False, False,
-                     'Whether the device is the master counter.'),
-        'preselection': (float, 1, False,
-                         'Default preselection register value.'),
-        'mode': (int, 0, False, 'Run mode for the countable.'),
-        'loopdelay': (float, 0.3, False, 'Wait loop delay in s.'),
+        'ismaster':     Param('Whether the device is the master counter',
+                              type=bool),
+        'preselection': Param('Default preselection register value', default=1),
+        'mode':         Param('Run mode for the countable', type=int),
+        'loopdelay':    Param('Wait loop delay', unit='s', default=0.3),
     }
 
     def doInit(self):
@@ -102,19 +101,19 @@ class TacoCountable(TacoDevice, Countable):
             return status.BUSY
         return status.ERROR
 
-    def doGetPreselection(self):
+    def doReadPreselection(self):
         return self._taco_guard(self._dev.preselection)
 
-    def doSetPreselection(self, value):
+    def doWritePreselection(self, value):
         self._taco_guard(self._dev.setPreselection, value)
 
-    def doGetIsmaster(self):
+    def doReadIsmaster(self):
         return self._taco_guard(self._dev.isMaster)
 
-    def doSetIsmaster(self, value):
+    def doWriteIsmaster(self, value):
         self._taco_guard(self._dev.enableMaster, bool(value))
 
-    def doGetMode(self):
+    def doReadMode(self):
         mode = self._taco_guard(self._dev.mode)
         return {
             IOCommon.MODE_NORMAL: 'normal',
@@ -122,7 +121,7 @@ class TacoCountable(TacoDevice, Countable):
             IOCommon.MODE_PRESELECTION: 'preselection',
         }[mode]
 
-    def doSetMode(self, value):
+    def doWriteMode(self, value):
         try:
             newmode = {'normal': IOCommon.MODE_NORMAL,
                        'ratemeter': IOCommon.MODE_RATEMETER,

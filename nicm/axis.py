@@ -39,7 +39,7 @@ import time
 import threading
 
 from nicm import status
-from nicm.device import Moveable
+from nicm.device import Moveable, Param
 from nicm.errors import ConfigurationError, NicmError, PositionError
 from nicm.errors import ProgrammingError, MoveError
 from nicm.motor import Motor as NicmMotor
@@ -56,15 +56,19 @@ class Axis(Moveable):
     }
 
     parameters = {
-        'dragerror': (float, 1, False,
-                      'The so called \'Schleppfehler\' of the axis.'),
-        'precision': (float, 0, False, 'Maximum difference between requested '
-                      'target and reached position.'),
-        'maxtries':  (int, 3, False, 'Number of tries to reach the target.'),
-        'loopdelay': (float, 0.3, False,
-                      'The sleep time in s when checking the movement.'),
-        'unit':      (str, '', False, 'The unit of the axis value.'),
-        'backlash':  (float, 0.0, False, 'The maximum allowed backlash.'),
+        # TODO: add validation for new parameter values where needed
+        'dragerror': Param('The so called \'Schleppfehler\' of the axis',
+                           unit='main', default=1, settable=True),
+        'precision': Param('Maximum difference between requested target and '
+                           'reached position', unit='main', settable=True),
+        'maxtries':  Param('Number of tries to reach the target', type=int,
+                           default=3, settable=True),
+        'loopdelay': Param('The sleep time when checking the movement',
+                           unit='s', default=0.3, settable=True),
+        'unit':      Param('The unit of the axis value', type=str,
+                           settable=True),
+        'backlash':  Param('The maximum allowed backlash', unit='main',
+                           settable=True),
     }
 
     def doInit(self):
@@ -206,23 +210,6 @@ class Axis(Moveable):
         """Unlocks the axis."""
         super(Axis, self).doUnlock()
         self.__locked = False
-
-    # TODO: add validation for new parameter values where needed
-
-    def doSetDragerror(self, value):
-        self._params['dragerror'] = value
-
-    def doSetPrecision(self, value):
-        self._params['precision'] = value
-
-    def doSetMaxtries(self, value):
-        self._params['maxtries'] = value
-
-    def doSetLoopdelay(self, value):
-        self._params['loopdelay'] = value
-
-    def doSetBacklash(self, value):
-        self._params['backlash'] = value
 
     def _preMoveAction(self):
         """ This method will be called before the motor will be moved.

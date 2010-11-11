@@ -38,12 +38,12 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 
-from nicm.device import Device
+from nicm.device import Device, Param
 
 
 class Sample(Device):
     """A special singleton device to represent a sample."""
 
     parameters = {
-        'name': (str, '', True, 'Sample name.'),
+        'name': Param('Sample name', type=str),
     }

@@ -39,8 +39,7 @@ __version__ = "$Revision$"
 
 
 from nicm.data import DataSink
-from nicm.device import Device
-from nicm.cache.client import CacheClient
+from nicm.device import Device, Param
 
 
 class System(Device):
@@ -49,12 +48,12 @@ class System(Device):
     """
 
     parameters = {
-        'logpath': (str, '', True, 'Path for logfiles.'),
-        'datapath': (str, '', True, 'Path for data files.'),
+        'logpath': Param('Path for logfiles', type=str, mandatory=True),
+        'datapath': Param('Path for data files', type=str, mandatory=True),
     }
 
     attached_devices = {
-        'cache': CacheClient,
+        'cache': Device,
         'sinks': [DataSink],
     }
 
@@ -72,7 +71,6 @@ class System(Device):
             return [sink for sink in self._adevs['sinks']
                     if not sink.scantypes or scantype in sink.scantypes]
 
-    def doSetDatapath(self, value):
-        self._params['datapath'] = value
+    def doWriteDatapath(self, value):
         for sink in self._adevs['sinks']:
             sink.setDatapath(value)

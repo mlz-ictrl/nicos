@@ -66,8 +66,8 @@ class Motor(TacoDevice, NicmMotor):
     def doStop(self):
         self._taco_guard(self._dev.stop)
 
-    def doGetSpeed(self):
+    def doReadSpeed(self):
         return self._taco_guard(self._dev.speed)
 
-    def doSetSpeed(self, value):
+    def doWriteSpeed(self, value):
         self._taco_guard(self._dev.setSpeed, value)

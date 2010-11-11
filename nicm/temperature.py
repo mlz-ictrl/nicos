@@ -41,7 +41,7 @@ import TACOStates
 import Temperature
 
 from nicm import status
-from nicm.device import Readable, Moveable
+from nicm.device import Param, Readable, Moveable
 from nicm.errors import CommunicationError, TimeoutError
 from nicm.taco.base import TacoDevice
 
@@ -50,11 +50,12 @@ class Sensor(TacoDevice, Readable):
     taco_class = Temperature.Sensor
 
     parameters = {
-        'sensortype': (str, None, False, 'Sensor type.'),
-        'curvename':  (str, None, False, 'Sensor calibration curve name.'),
-        'serno':      (str, None, False, 'Sensor serial number.'),
-        'offset':     (float, 0, False, 'Offset for temperature.'),
-        'unit':       (str, None, False, 'Unit of temperature.'),
+        'sensortype': Param('Sensor type', type=str, default=None),
+        'curvename':  Param('Sensor calibration curve name',
+                            type=str, default=None)
+        'serno':   Param('Sensor serial number', type=str, default=None),
+        'offset':  Param('Offset for temperature', settable=True),
+        'unit':    Param('Unit of temperature', type=str, default=None),
     }
 
     # from LakeShore 340 operating manual
@@ -77,17 +78,14 @@ class Sensor(TacoDevice, Readable):
     def doRead(self):
         return TacoDevice.doRead(self) - self.offset
 
-    def doSetOffset(self, value):
-        self._params['offset'] = value
-
-    def doGetSensortype(self):
+    def doReadSensortype(self):
         stype = self._taco_guard(self._dev.deviceQueryResource, 'sensortype')
         return self.sensor_types.get(stype, stype)
 
-    def doGetCurvename(self):
+    def doReadCurvename(self):
         return self._taco_guard(self._dev.deviceQueryResource, 'curvename')
 
-    def doGetSerno(self):
+    def doReadSerno(self):
         return self._taco_guard(self._dev.deviceQueryResource, 'serno')
 
 
@@ -99,20 +97,22 @@ class Controller(TacoDevice, Moveable):
     }
 
     parameters = {
-        'setpoint':  (float, None, False, 'Current temperature setpoint.'),
-        'p':         (float, None, False, 'The P control parameter.'),
-        'i':         (float, None, False, 'The I control parameter.'),
-        'd':         (float, None, False, 'The D control parameter.'),
-        'ramp':      (float, None, False, 'Temperature ramp in K/min.'),
-        'tolerance': (float, None, False,
-                      'The window\'s temperature tolerance in K.'),
-        'window':    (float, None, False,
-                      'Time window for checking stable temperature in s.'),
-        'timeout':   (float, None, False,
-                      'Maximum time in s to wait for stable temperature.'),
-        'loopdelay': (float, 1, False, 'Sleep time in s when waiting.'),
-        'unit':      (str, None, False, 'Unit of temperature.'),
-        'offset':    (float, 0, False, 'Offset for setpoint.'),
+        'setpoint':  Param('Current temperature setpint', unit='main'),
+        'p':         Param('The P control parameter', settable=True),
+        'i':         Param('The I control parameter', settable=True),
+        'd':         Param('The D control parameter', settable=True),
+        'ramp':      Param('Temperature ramp in K/min', unit='K/min',
+                           settable=True),
+        'tolerance': Param('The window\'s temperature tolerance', unit='K',
+                           settable=True),
+        'window':    Param('Time window for checking stable temperature',
+                           unit='s', settable=True),
+        'timeout':   Param('Maximum time to wait for stable temperature',
+                           unit='s', settable=True),
+        'loopdelay': Param('Sleep time when waiting', unit='s', default=1,
+                           settable=True),
+        'unit':      Param('Unit of temperature', type=str),
+        'offset':    Param('Offset for setpoint', unit='main', settable=True),
     }
 
     def doInit(self):
@@ -160,56 +160,50 @@ class Controller(TacoDevice, Moveable):
     def doReset(self):
         self._taco_guard(self._dev.deviceReset)
 
-    def doGetSetpoint(self):
+    def doReadSetpoint(self):
         return self._taco_guard(self._dev.setpoint) - self.offset
 
-    def doGetP(self):
+    def doReadP(self):
         return self._taco_guard(self._dev.pParam)
 
-    def doGetI(self):
+    def doReadI(self):
         return self._taco_guard(self._dev.iParam)
 
-    def doGetD(self):
+    def doReadD(self):
         return self._taco_guard(self._dev.dParam)
 
-    def doGetRamp(self):
+    def doReadRamp(self):
         return self._taco_guard(self._dev.ramp)
 
-    def doGetTolerance(self):
+    def doReadTolerance(self):
         return float(self._taco_guard(self._dev.deviceQueryResource,
                                       'tolerance'))
 
-    def doGetWindow(self):
+    def doReadWindow(self):
         return float(self._taco_guard(self._dev.deviceQueryResource,
                                       'window')[:-1])
 
-    def doGetTimeout(self):
+    def doReadTimeout(self):
         return float(self._taco_guard(self._dev.deviceQueryResource,
                                       'timeout')[:-1])
 
-    def doSetP(self, value):
+    def doWriteP(self, value):
         return self._taco_guard(self._dev.setPParam, value)
 
-    def doSetI(self, value):
+    def doWriteI(self, value):
         return self._taco_guard(self._dev.setIParam, value)
 
-    def doSetD(self, value):
+    def doWriteD(self, value):
         return self._taco_guard(self._dev.setDParam, value)
 
-    def doSetRamp(self, value):
+    def doWriteRamp(self, value):
         return self._taco_guard(self._dev.setRamp, value)
 
-    def doSetTolerance(self, value):
+    def doWriteTolerance(self, value):
         self._taco_update_resource('tolerance', str(value))
 
-    def doSetWindow(self, value):
+    def doWriteWindow(self, value):
         self._taco_update_resource('window', str(value))
 
-    def doSetTimeout(self, value):
+    def doWriteTimeout(self, value):
         self._taco_update_resource('timeout', str(value))
-
-    def doSetLoopdelay(self, value):
-        self._params['loopdelay'] = value
-
-    def doSetOffset(self, value):
-        self._params['offset'] = value

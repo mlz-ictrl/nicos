@@ -44,6 +44,25 @@ import ConfigParser
 from nicm.errors import ConfigurationError, ProgrammingError
 
 
+class Param(object):
+    """
+    Parameter description object.
+    """
+
+    _notset = object()
+
+    def __init__(self, description, type=float, default=_notset,
+                 mandatory=False, settable=False, unit=None):
+        self.type = type
+        if default is self._notset:
+            default = type()
+        self.default = default
+        self.mandatory = mandatory
+        self.settable = settable
+        self.unit = unit
+        self.description = description
+
+
 class MergedAttrsMeta(type):
     """
     A metaclass that allows defining dictionaries as class attributes that are
@@ -91,34 +110,50 @@ class AutoPropsMeta(MergedAttrsMeta):
     def __new__(mcs, name, bases, attrs):
         newtype = MergedAttrsMeta.__new__(mcs, name, bases, attrs)
         for param, info in newtype.parameters.iteritems():
+            # parameter names are always lowercased
             param = param.lower()
-            # check validity of parameter info
-            if not isinstance(info, tuple) or len(info) != 4:
-                raise ProgrammingError('%r device %r configuration '
-                                       ' parameter info should be a '
-                                       '4-tuple' % (name, param))
+            if not isinstance(info, Param):
+                raise ProgrammingError('%r device %r parameter info should be '
+                                       'a Param object' % (name, param))
+
+            # create the getter method
             def getter(self, param=param):
-                methodname = 'doGet' + param.title()
-                if hasattr(self, methodname):
-                    return getattr(self, methodname)()
-                else:
-                    return self._params[param.lower()]
-            def setter(self, value, param=param):
-                pconv = self.parameters[param][0]
-                try:
-                    value = pconv(value)
-                except (ValueError, TypeError), err:
-                    raise ConfigurationError(
-                        self, '%r is an invalid value for parameter %s: %s' %
-                        (value, param, err))
-                methodname = 'doSet' + param.title()
-                if hasattr(self, methodname):
-                    getattr(self, methodname)(value)
-                else:
+                value = self._cache.get(self, param)
+                if value is not None:
+                    self._params[param] = value
+                    return value
+                self._initParam(param)
+                return self._params[param]
+
+            # create the setter method
+            if not info.settable:
+                def setter(self, value, param=param):
                     raise ConfigurationError(
                         self, 'cannot set the %s parameter' % param)
-                self._changedparams.add(param)
-            setattr(newtype, param, property(getter, setter, doc=info[2]))
+            else:
+                wmethodname = 'doWrite' + param.title()
+                if wmethodname not in attrs:
+                    wmethodname = None
+                def setter(self, value, param=param, methodname=wmethodname):
+                    pconv = self.parameters[param].type
+                    try:
+                        value = pconv(value)
+                    except (ValueError, TypeError), err:
+                        raise ConfigurationError(
+                            self, '%r is an invalid value for parameter %s: %s' %
+                            (value, param, err))
+                    if methodname:
+                        # allow doWrite to override the value
+                        rv = getattr(self, methodname)(value)
+                        if rv is not None:
+                            value = rv
+                    self._params[param] = value
+                    self._cache.put(self, param, value)
+                    self._changedparams.add(param)
+
+            # create a property and attach to the new device class
+            setattr(newtype, param,
+                    property(getter, setter, doc=info.description))
         return newtype
 
 
@@ -278,21 +313,23 @@ def formatExtendedTraceback(etype, value, tb):
 
 # parameter conversion functions
 
+_notset = object()
+
 def listof(conv):
-    def converter(val):
+    def converter(val=[]):
         if not isinstance(val, list):
             raise ValueError('value needs to be a list')
         return map(conv, val)
     return converter
 
-def tacodev(val):
+def tacodev(val=None):
     # XXX check for valid taco device name
     return str(val)
 
-def any(val):
+def any(val=None):
     return val
 
-def vec3(val):
+def vec3(val=[0,0,0]):
     ret = map(float, val)
     if len(ret) != 3:
         raise ValueError('value needs to be a 3-element vector')

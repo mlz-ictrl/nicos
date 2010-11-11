@@ -243,13 +243,13 @@ class NICOS(object):
 
         # create all devices
         for devname, (_, devconfig) in sorted(devlist.iteritems()):
-            #if not devconfig.get('autocreate', False):
-            #    continue
+            if devconfig.get('lowlevel', False):
+                continue
             log.info('creating device %r... ' % devname)
             try:
                 self.createDevice(devname, explicit=True)
             except Exception:
-                #raise
+                raise
                 log.exception('failed')
                 failed_devs.append(devname)
 

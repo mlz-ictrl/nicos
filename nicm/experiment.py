@@ -39,26 +39,17 @@ __version__ = "$Revision$"
 
 
 from nicm.utils import listof
-from nicm.device import Device
+from nicm.device import Device, Param
 
 
 class Experiment(Device):
     """A special singleton device to represent the experiment."""
 
     parameters = {
-        'title': (str, '', False, 'Experiment title.'),
-        'proposalnumber': (int, 0, False, 'Proposal number.'),
-        'users': (listof(str), [], False, 'User names.'),
+        'title': Param('Experiment title', type=str, settable=True),
+        'proposalnumber': Param('Proposal number', type=int, settable=True),
+        'users': Param('User names', type=listof(str), settable=True),
     }
-
-    def doSetTitle(self, value):
-        self._params['title'] = value
-
-    def doSetProposalnumber(self, value):
-        self._params['proposalnumber'] = value
-
-    def doSetUsers(self, value):
-        self._params['users'] = value
 
     def new(self, proposalnumber, title=None):
         if not isinstance(proposalnumber, int):
@@ -72,4 +63,4 @@ class Experiment(Device):
         user = '%s <%s>' % (name, email)
         if affiliation is not None:
             user += ' -- ' + affiliation
-        self._params['users'].append(user)
+        self.users = self.users + [user]

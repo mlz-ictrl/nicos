@@ -41,7 +41,7 @@ import threading
 from time import time as currenttime, sleep
 
 from nicm import nicos
-from nicm.device import Device
+from nicm.device import Device, Param
 from nicm.utils import listof
 from nicm.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT, \
      OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, OP_TELLOLD
@@ -140,6 +140,7 @@ class CacheWorker(object):
                     self.closedown()
                     return
                 ret = self._handle_line(line)
+                #self.log.debug('return is %r' % ret)
                 if ret:
                     self.writeto('\r\n'.join(ret) + '\r\n')
                 # continue loop with next match
@@ -169,6 +170,8 @@ class CacheWorker(object):
         match = msg_pattern.match(line)
         if not match:
             # disconnect on trash lines (for now)
+            if line:
+                self.log.warning('garbled line: %r' % line)
             self.closedown()
             return
         # extract and clean up individual values
@@ -303,6 +306,7 @@ class CacheDatabase(Device):
         #t.start()
 
     def _cleanser(self):
+        # XXX this is not useful anymore right now...
         while True:
             sleep(30)
             self.printdebug('running cleanser')
@@ -316,12 +320,12 @@ class CacheDatabase(Device):
                     remaining = lastent.time + lastent.ttl - currenttime()
                     if remaining <= 0:
                         updates.add((dbkey, lastent))
-            #if updates:
-            #    for client in self._server._connected.values():
-            #        if client.is_active():
-            #            for key, entry in updates:
-            #                client.update(key, OP_TELLOLD,
-            #                              entry.value, entry.time, entry.ttl)
+            if updates:
+                for client in self._server._connected.values():
+                    if client.is_active():
+                        for key, entry in updates:
+                            client.update(key, OP_TELLOLD,
+                                          entry.value, entry.time, entry.ttl)
 
     def ask(self, key, ts, time, ttl):
         with self._lock:
@@ -401,9 +405,9 @@ class CacheServer(Device):
     """
 
     parameters = {
-        'defaultport': (int, DEFAULT_CACHE_PORT, False,
-                        'The default server port.'),
-        'clusterlist': (listof(str), [], False, 'List of cluster connections.'),
+        'defaultport': Param('The default server port',
+                             type=int, default=DEFAULT_CACHE_PORT),
+        'clusterlist': Param('List of cluster connections', type=listof(str)),
     }
 
     attached_devices = {

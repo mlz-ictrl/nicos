@@ -36,6 +36,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import re
+import json
 
 
 DEFAULT_CACHE_PORT = 14869
@@ -62,12 +63,5 @@ msg_pattern = re.compile(r'''
 
 line_pattern = re.compile(r'([^\r\n]*)(\r\n|\r|\n)')
 
-def cache_convert(value):
-    if value.startswith('['):
-        return map(float, value[1:-1].split(','))
-    elif value[:1].isdigit() or value.startswith('-'):
-        try:
-            return int(value)
-        except ValueError:
-            return float(value)
-    return value
+cache_load = json.loads
+cache_dump = json.dumps

@@ -33,15 +33,15 @@ name = 'setup for the status monitor'
 group = 'special'
 
 _row_filter1 = [
-    {'name': 'a1', 'key': 'a1/value', 'unit': 'deg'},
-    {'name': 'm1', 'key': 'm1/value'},
-    {'name': 'c1', 'key': 'c1/value'},
+    {'name': 'a1', 'dev': 'a1'},
+    {'name': 'm1', 'dev': 'm1'},
+    {'name': 'c1', 'dev': 'c1'},
 ]
 
 _row_filter2 = [
-    {'name': 'timer', 'key': 'timer/value'},
-    {'name': 'ctr1', 'key': 'ctr1/value', 'unit': 'cts'},
-    {'name': 'ctr2', 'key': 'ctr2/value'},
+    {'name': 'timer', 'dev': 'timer'},
+    {'name': 'ctr1', 'dev': 'ctr1'},
+    {'name': 'ctr2', 'dev': 'ctr2'},
 ]
 
 _block1 = ('Test devices', [_row_filter1, _row_filter2])
@@ -64,6 +64,11 @@ _layout = [
 ]
 
 devices = dict(
+    Cache = device('nicm.cache.client.DummyCacheClient'),
+
+    System = device('nicm.system.System', cache='Cache',
+                    sinks=[], logpath='', datapath=''),
+
     Monitor = device('nicm.monitor.Monitor',
                      title='Status monitor',
                      loglevel='debug',
