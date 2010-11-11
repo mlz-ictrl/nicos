@@ -91,7 +91,7 @@ class Device(object):
             object.__setattr__(self, name, value)
 
     def __str__(self):
-        return self._params['name']
+        return self.name
 
     def __repr__(self):
         if self.name == self.description:
@@ -162,17 +162,20 @@ class Device(object):
         notfromcache = []
         for param, paraminfo in self.parameters.iteritems():
             param = param.lower()
-            if param == 'name':
-                # already set
-                continue
-            if not self._initParam(param, paraminfo):
+            # mandatory parameters must be in config, regardless of cache
+            if paraminfo.mandatory and param not in self._config:
+                raise ConfigurationError(self, 'missing configuration '
+                                         'parameter %r' % param)
+            # try to get from cache
+            value = self._cache.get(self, param)
+            if value is not None:
+                self._params[param] = value
+            else:
+                self._initParam(param, paraminfo)
                 notfromcache.append(param)
         if notfromcache:
             self.printwarning('these parameters were not present in cache: ' +
                               ', '.join(notfromcache))
-
-        if not self._params['description']:
-            self._params['description'] = self.name
 
         # call custom initialization
         if hasattr(self, 'doInit'):
@@ -182,25 +185,25 @@ class Device(object):
         self._changedparams.clear()
 
     def _initParam(self, param, paraminfo=None):
+        """Get an initial value for the parameter, called when the cache
+        doesn't contain such a value.
+        """
         paraminfo = paraminfo or self.parameters[param]
-        # mandatory parameters must be in config, regardless of cache
-        if paraminfo.mandatory and param not in self._config:
-            raise ConfigurationError(self, 'missing configuration '
-                                     'parameter %r' % param)
-        # try to get from cache
-        value = self._cache.get(self, param)
-        if value is not None:
-            self._params[param] = value
-            return True
+        methodname = 'doRead' + param.title()
+        if hasattr(self, methodname):
+            value = getattr(self, methodname)()
+        elif param in self._params:
+            # happens when called from a param getter, not from init()
+            value = self._params[param]
         else:
-            methodname = 'doRead' + param.title()
-            if hasattr(self, methodname):
-                value = getattr(self, methodname)()
-            else:
-                value = self._config.get(param, paraminfo.default)
-            self._cache.put(self, param, value)
-            self._params[param] = value
-            return False
+            value = self._config.get(param, paraminfo.default)
+        self._cache.put(self, param, value)
+        self._params[param] = value
+
+    def _setROParam(self, param, value):
+        """Set an otherwise read-only parameter."""
+        self._params[param] = value
+        self._cache.put(self, param, value)
 
     def info(self):
         """Return device information as an iterable of tuples (name, value)."""
@@ -392,14 +395,19 @@ class Moveable(Startable):
                          settable=True),
         'usermax': Param('User defined maximum of device value', unit='main',
                          settable=True),
-        'absmin':  Param('Absolute minimum of device value', unit='main'),
-        'absmax':  Param('Absolute maximum of device value', unit='main'),
+        'absmin':  Param('Absolute minimum of device value', unit='main',
+                         mandatory=True),
+        'absmax':  Param('Absolute maximum of device value', unit='main',
+                         mandatory=True),
     }
 
     def init(self):
         Startable.init(self)
-        self.__checkAbsLimits()
-        self.__checkUserLimits(setthem=True)
+        if self.absmin >= self.absmax:
+            raise ConfigurationError(self, 'absolute minimum (%s) above the '
+                                     'absolute maximum (%s)' %
+                                     (self.absmin, self.absmax))
+        self.__checkUserLimits(self.usermin, self.usermax, setthem=True)
 
     def start(self, pos):
         """Start movement of the device to a new position."""
@@ -412,28 +420,15 @@ class Moveable(Startable):
     moveTo = start
     move = start
 
-    def __checkAbsLimits(self):
+    def __checkUserLimits(self, usermin, usermax, setthem=False):
         absmin = self.absmin
         absmax = self.absmax
-        if not absmin and not absmax:
-            raise ConfigurationError(self, 'no absolute limits defined '
-                                     '(absmin, absmax)')
-        if absmin >= absmax:
-            raise ConfigurationError(self, 'absolute minimum (%s) above the '
-                                     'absolute maximum (%s)' % (absmin, absmax))
-
-    def __checkUserLimits(self, setthem=False):
-        # XXX refactor this
-        absmin = self.absmin
-        absmax = self.absmax
-        usermin = self.usermin
-        usermax = self.usermax
         if not usermin and not usermax and setthem:
+            print 'setting:', absmin, absmax
             # if both not set (0) then use absolute min. and max.
-            usermin = absmin
-            usermax = absmax
-            self._params['usermin'] = usermin
-            self._params['usermax'] = usermax
+            self.usermin = absmin
+            self.usermax = absmax
+            return
         if usermin >= usermax:
             raise ConfigurationError(self, 'user minimum (%s) above the user '
                                      'maximum (%s)' % (usermin, usermax))
@@ -461,31 +456,13 @@ class Moveable(Startable):
         """Set the user minimum value to value after checking the value against
         absolute limits and user maximum.
         """
-        if 'usermin' not in self._params:
-            # first time from setup file
-            return
-        old = self._params['usermin']
-        self._params['usermin'] = float(value)
-        try:
-            self.__checkUserLimits()
-        except ConfigurationError:
-            self._params['usermin'] = old
-            raise
+        self.__checkUserLimits(value, self.usermax)
 
     def doWriteUsermax(self, value):
         """Set the user maximum value to value after checking the value against
         absolute limits and user minimum.
         """
-        if 'usermax' not in self._params:
-            # first time from setup file
-            return
-        old = self._params['usermax']
-        self._params['usermax'] = float(value)
-        try:
-            self.__checkUserLimits()
-        except ConfigurationError:
-            self._params['usermax'] = old
-            raise
+        self.__checkUserLimits(self.usermin, value)
 
 
 class Switchable(Startable):

@@ -74,9 +74,7 @@ devices = dict(
                 coder = 'm2',
                 obs = [],
                 absmin = 0,
-                absmax = 100,
-                usermin = 0,
-                usermax = 50),
+                absmax = 100),
 
     sw = device('nicm.switcher.Switcher',
                 moveable = 'a2',

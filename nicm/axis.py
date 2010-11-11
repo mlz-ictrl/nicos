@@ -69,6 +69,12 @@ class Axis(Moveable):
                            settable=True),
         'backlash':  Param('The maximum allowed backlash', unit='main',
                            settable=True),
+        'offset':    Param('Offset of axis zero point to motor zero point',
+                           unit='main'),
+        # these are not mandatory for the axis: the motor should have them
+        # defined anyway, and by default they are correct for the axis as well
+        'absmin':    Param('Absolute minimum of device value', unit='main'),
+        'absmax':    Param('Absolute maximum of device value', unit='main'),
     }
 
     def doInit(self):
@@ -101,8 +107,8 @@ class Axis(Moveable):
         absmin = self.absmin
         absmax = self.absmax
         if not absmin and not absmax:
-            self._params['absmin'] = self._adevs['motor'].absmin
-            self._params['absmax'] = self._adevs['motor'].absmax
+            self._setROParam('absmin', self._adevs['motor'].absmin)
+            self._setROParam('absmax', self._adevs['motor'].absmax)
         else:
             if absmin < self._adevs['motor'].absmin:
                 raise ConfigurationError(self, 'absmin below the motor absmin')
@@ -162,23 +168,22 @@ class Axis(Moveable):
         diff = (self.doRead() - target)
         self.__target = target
         self.__offset += diff
+        self._setROParam('offset', self.__offset)
 
         # Avoid the use of the setPar method for the absolute limits
-        if (diff < 0):
-                self._params['absmax'] = self.absmax - diff
-                self._params['absmin'] = self.absmin - diff
+        if diff < 0:
+            self._setROParam('absmax', self.absmax - diff)
+            self._setROParam('absmin', self.absmin - diff)
         else:
-                self._params['absmin'] = self.absmin - diff
-                self._params['absmax'] = self.absmax - diff
-        self._Moveable__checkAbsLimits()
+            self._setROParam('absmin', self.absmin - diff)
+            self._setROParam('absmax', self.absmax - diff)
 
-        if (diff < 0):
-                self._params['usermin'] = self.usermin - diff
-                self._params['usermax'] = self.usermax - diff
+        if diff < 0:
+            self.usermin = self.usermin - diff
+            self.usermax = self.usermax - diff
         else:
-                self._params['usermax'] = self.usermax - diff
-                self._params['usermin'] = self.usermin - diff
-        self._Moveable__checkUserLimits()
+            self.usermax = self.usermax - diff
+            self.usermin = self.usermin - diff
 
     def doReset(self):
         """Resets the motor/coder controller."""
