@@ -43,10 +43,10 @@ from Tkinter import Tk, Frame, Label, LabelFrame, StringVar, \
 import tkFont
 
 from nicm.utils import listof
-from nicm.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
+from nicm.status import OK, BUSY, ERROR, PAUSED, NOTREACHED, statuses
 from nicm.device import Param
 from nicm.cache.client import BaseCacheClient
-from nicm.cache.utils import OP_TELL
+from nicm.cache.utils import OP_TELL, cache_load
 
 def nicedelta(t):
     if t < 60:
@@ -138,12 +138,12 @@ class Monitor(BaseCacheClient):
                             'name': '', 'dev': '', 'width': 10,
                             'unit': '', 'format': '%s',
                             # current values
-                            'time': 0, 'status': '',
+                            'time': 0, 'ttl': 0, 'status': '',
                             # key names
-                            'key': '', 'statuskey': '',
+                            'key': '', 'statuskey': '', 'unitkey': '',
+                            'formatkey': '',
                         }
                         field.update(fielddesc)
-                        field['key'] = prefix + field['key']
                         fields.append(field)
                     rows.append(fields)
                 block = ({'name': blockdesc[0], 'visible': True,
@@ -193,16 +193,24 @@ class Monitor(BaseCacheClient):
                 field['valuelabel'] = l
 
                 # store reference from key to field for updates
+                def _ref(name, key):
+                    field[name] = key
+                    self._keymap.setdefault(key, []).append(field)
                 if field['dev']:
-                    field['key'] = key = field['dev'] + '/value'
-                    self._keymap.setdefault(key, []).append(field)
-                    field['statuskey'] = statuskey = field['dev'] + '/status'
-                    self._keymap.setdefault(statuskey, []).append(field)
+                    _ref('key', prefix + field['dev'] + '/value')
+                    _ref('statuskey', prefix + field['dev'] + '/status')
+                    _ref('unitkey', prefix + field['dev'] + '/unit')
+                    _ref('formatkey', prefix + field['dev'] + '/fmtstr')
                 else:
-                    field['key'] = key = field['key']
-                    self._keymap.setdefault(key, []).append(field)
+                    _ref('key', prefix + field['key'])
+                    if field['statuskey']:
+                        _ref('statuskey', prefix + field['statuskey'])
+                    if field['unitkey']:
+                        _ref('unitkey', prefix + field['unitkey'])
+                    if field['formatkey']:
+                        _ref('formatkey', prefix + field['formatkey'])
             else:
-                # disabled field
+                # invisible field
                 l = Label(fieldframe, text='', font=self._labelfont,
                           width=field['width'] + 2)
                 l.grid(row=0)
@@ -245,9 +253,18 @@ class Monitor(BaseCacheClient):
         statustext = '%s = %s' % (field['name'], field['valuevar'].get())
         if field['unit']:
             statustext += ' %s' % field['unit']
+        if field['status']:
+            statustext += ', status is %s' % statuses.get(field['status'], '?')
         if field['time']:
-            statustext += ', value updated %s ago' % (
+            statustext += ', updated %s ago' % (
                 nicedelta(currenttime() - field['time']))
+        if field['ttl']:
+            exp = field['time'] + field['ttl']
+            cur = currenttime()
+            if cur < exp:
+                statustext += ', valid for %s' % nicedelta(exp - cur)
+            else:
+                statustext += ', expired %s ago' % nicedelta(cur - exp)
         self._status.set(statustext)
         self._statustimer = threading.Timer(1, lambda: self._label_entered(event))
         self._statustimer.start()
@@ -284,6 +301,7 @@ class Monitor(BaseCacheClient):
                     newwatch.append(field)
                 else:
                     vlabel.config(fg='green')
+
             # if we have a status
             elif status == OK:
                 vlabel.config(fg='green')
@@ -293,24 +311,29 @@ class Monitor(BaseCacheClient):
                 vlabel.config(fg='red')
             else:
                 vlabel.config(fg='white')
+
             if field['valuevar'].get() == '----':
                 # no value (yet)
                 vlabel.config(bg='#dddddd', fg='#000000')
-            elif field['time'] < 0:
-                vlabel.config(bg='#000000')
-            else:
-                if age < 3600:
-                    vlabel.config(bg='#000000')
-                elif age < 3600*6:
-                    vlabel.config(bg='#111111')
-                elif age < 3600*24:
-                    vlabel.config(bg='#222222')
-                elif age < 3600*24*7:
-                    vlabel.config(bg='#444444')
-                elif age < 3600*24*30:
+
+            if field['ttl']:
+                if age > field['ttl']:
                     vlabel.config(bg='#666666')
                 else:
-                    vlabel.config(bg='#dddddd', fg='black')
+                    vlabel.config(bg='#000000')
+                    newwatch.append(field)
+            elif age < 3600:
+                vlabel.config(bg='#000000')
+            elif age < 3600*6:
+                vlabel.config(bg='#111111')
+            elif age < 3600*24:
+                vlabel.config(bg='#222222')
+            elif age < 3600*24*7:
+                vlabel.config(bg='#444444')
+            elif age < 3600*24*30:
+                vlabel.config(bg='#666666')
+            else:
+                vlabel.config(bg='#dddddd', fg='black')
         self._watch = newwatch
 
     # called to handle an incoming protocol message
@@ -321,30 +344,34 @@ class Monitor(BaseCacheClient):
             time = float(time)
         except (ValueError, TypeError):
             time = currenttime()
+        try:
+            ttl = float(ttl)
+        except (ValueError, TypeError):
+            ttl = None
+        try:
+            value = cache_load(value)
+        except ValueError:
+            pass
+        #print 'processing', key, value
         # now check if we need to update something
         fields = self._keymap.get(key, [])
         for field in fields:
             self._watch.append(field)
             if key == field['key']:
                 if not value:
-                    field['time'] = 0.0
-                    field['valuevar'].set('----') # default value
+                    field['time'] = 0
+                    field['ttl'] = 0
+                    field['valuevar'].set('----')
                 else:
                     field['time'] = time
-                    try:
-                        field['valuevar'].set(field['format'] % value)
-                    except:
-                        try:
-                            field['valuevar'].set(field['format'] %
-                                                  float(value))
-                        except:
-                            field['valuevar'].set(value)
-
+                    field['ttl'] = ttl
+                    field['valuevar'].set(field['format'] % value)
             elif key == field['statuskey']:
-                if 0 < field['time'] < time:
-                    # don't change if old value is negative or new value is less
-                    field['time'] = time
                 field['status'] = value
+            elif key == field['unitkey']:
+                field['unit'] = value
+            elif key == field['formatkey']:
+                field['format'] = value
 
         # show/hide blocks, but only if something changed
         if not self._watch:
