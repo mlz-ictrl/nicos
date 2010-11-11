@@ -64,9 +64,7 @@ _layout = [
 ]
 
 devices = dict(
-    Cache = device('nicm.cache.client.DummyCacheClient'),
-
-    System = device('nicm.system.System', cache='Cache',
+    System = device('nicm.system.System', cache=None,
                     sinks=[], logpath='', datapath=''),
 
     Monitor = device('nicm.monitor.Monitor',

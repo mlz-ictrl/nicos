@@ -39,6 +39,7 @@ devices = dict(
                          ),
 
     Cache = device('nicm.cache.client.CacheClient',
+                   lowlevel = True,
                    server = 'localhost',
                    prefix = 'nicm/',
                    loglevel = 'debug',

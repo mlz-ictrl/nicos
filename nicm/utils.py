@@ -118,10 +118,11 @@ class AutoPropsMeta(MergedAttrsMeta):
 
             # create the getter method
             def getter(self, param=param):
-                value = self._cache.get(self, param)
-                if value is not None:
-                    self._params[param] = value
-                    return value
+                if self._cache:
+                    value = self._cache.get(self, param)
+                    if value is not None:
+                        self._params[param] = value
+                        return value
                 self._initParam(param)
                 return self._params[param]
 
@@ -148,7 +149,8 @@ class AutoPropsMeta(MergedAttrsMeta):
                         if rv is not None:
                             value = rv
                     self._params[param] = value
-                    self._cache.put(self, param, value)
+                    if self._cache:
+                        self._cache.put(self, param, value)
                     self._changedparams.add(param)
 
             # create a property and attach to the new device class

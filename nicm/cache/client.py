@@ -83,6 +83,9 @@ class BaseCacheClient(Device):
         self._worker = threading.Thread(target=self._worker_thread)
         self._worker.setDaemon(True)
 
+    def _getCache(self):
+        return None
+
     def doShutdown(self):
         self._stoprequest = True
         self._worker.join()
@@ -279,19 +282,4 @@ class WriteonlyCacheClient(CacheClient):
     """
 
     def real_get(self, *args):
-        return None
-
-
-class DummyCacheClient(Device):
-    """
-    A dummy cache client that does not do any caching.
-    """
-
-    def get(self, dev, key):
-        return None
-
-    def put(self, dev, key, value, timestamp=None, ttl=None):
-        pass
-
-    def history(self, dev, key):
         return None

@@ -55,7 +55,7 @@ class DataSink(Device):
 
     parameters = {
         'scantypes': Param('Scan types for which the sink is active',
-                           type=listof(str), default=None),
+                           type=listof(str), default=[]),
     }
 
     def prepareDataset(self):

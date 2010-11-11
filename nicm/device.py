@@ -156,7 +156,7 @@ class Device(object):
                         self, 'device %r has wrong type' % aname)
                 self._adevs[aname] = dev
 
-        self._cache = nicos.system.cache
+        self._cache = self._getCache()
 
         # validate and assign parameters
         notfromcache = []
@@ -167,13 +167,15 @@ class Device(object):
                 raise ConfigurationError(self, 'missing configuration '
                                          'parameter %r' % param)
             # try to get from cache
-            value = self._cache.get(self, param)
+            value = None
+            if self._cache:
+                value = self._cache.get(self, param)
             if value is not None:
                 self._params[param] = value
             else:
                 self._initParam(param, paraminfo)
                 notfromcache.append(param)
-        if notfromcache:
+        if self._cache and notfromcache:
             self.printwarning('these parameters were not present in cache: ' +
                               ', '.join(notfromcache))
 
@@ -183,6 +185,9 @@ class Device(object):
 
         # record parameter changes from now on
         self._changedparams.clear()
+
+    def _getCache(self):
+        return nicos.system.cache
 
     def _initParam(self, param, paraminfo=None):
         """Get an initial value for the parameter, called when the cache
@@ -197,13 +202,15 @@ class Device(object):
             value = self._params[param]
         else:
             value = self._config.get(param, paraminfo.default)
-        self._cache.put(self, param, value)
+        if self._cache:
+            self._cache.put(self, param, value)
         self._params[param] = value
 
     def _setROParam(self, param, value):
         """Set an otherwise read-only parameter."""
         self._params[param] = value
-        self._cache.put(self, param, value)
+        if self._cache:
+            self._cache.put(self, param, value)
 
     def info(self):
         """Return device information as an iterable of tuples (name, value)."""
