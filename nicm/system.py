@@ -38,8 +38,10 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 
+from nicm import nicos
 from nicm.data import DataSink
 from nicm.device import Device, Param
+from nicm.errors import ModeError, UsageError
 
 
 class System(Device):
@@ -58,11 +60,66 @@ class System(Device):
     }
 
     def __repr__(self):
-        return '<NICM System>'
+        return '<NICM System (%s mode)>' % self._mode
+
+    def __init__(self, name, **config):
+        # need to pre-set this to avoid bootstrapping issue
+        self._mode = 'slave'
+        Device.__init__(self, name, **config)
+
+    def doInit(self):
+        try:
+            self.setMode('master')
+        except ModeError:
+            self.printinfo('could not enter master mode; remaining slave')
+        else:
+            self.printinfo('entered master mode')
 
     @property
     def cache(self):
         return self._adevs['cache']
+
+    @property
+    def mode(self):
+        return self._mode
+
+    def setMode(self, mode):
+        oldmode = self.mode
+        if mode == oldmode:
+            return
+        if mode not in ['master', 'slave', 'simulation', 'maintenance']:
+            raise UsageError('mode %r does not exist' % mode)
+        if oldmode in ('simulation', 'maintenance'):
+            # no way to switch back from special modes
+            raise ModeError('switching from %s mode is not supported' % oldmode)
+        '''
+        Possible transitions and what needs to be done:
+        
+        * slave -> master
+          - acquire "master lock"
+        * slave -> maintenance
+          - (nothing to do)
+        * master -> slave
+          - release "master lock"
+          - what about devices that are currently moving (have a thread running)
+        * master -> maintenance
+          - release "master lock"
+        * master/slave -> simulation
+          - "cut" connection to cache and virtualize t
+        '''
+        if mode == 'master':
+            # switching from master to slave
+            # XXX acquire master lock
+            pass
+        elif mode == 'slave':
+            # switching from slave to master
+            # XXX release master lock
+            pass
+        #else:
+        #    raise ModeError('mode %s not yet implemented' % mode)
+        for dev in nicos.devices.itervalues():
+            dev._setMode(mode)
+            
 
     def getSinks(self, scantype=None):
         if scantype is None:

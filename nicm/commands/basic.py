@@ -137,3 +137,8 @@ def SaveState():
             for setup in nicos.explicit_setups[1:]]
     return ''.join(ret + [nicos.devices[dev].save()
                           for dev in sorted(nicos.devices)])
+
+@usercommand
+def SetMode(mode):
+    """Set the execution mode."""
+    nicos.system.setMode(mode)

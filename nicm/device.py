@@ -41,7 +41,7 @@ from nicm import nicos
 from nicm import status, loggers
 from nicm.utils import AutoPropsMeta, Param, getVersions
 from nicm.errors import ConfigurationError, ProgrammingError, UsageError, \
-     LimitError, FixedError
+     LimitError, FixedError, ModeError
 
 
 class Device(object):
@@ -65,6 +65,14 @@ class Device(object):
     attached_devices = {}
 
     def __init__(self, name, **config):
+        # register self in device registry
+        if name in nicos.devices:
+            raise ProgrammingError('device with name %s already exists' % name)
+        nicos.devices[name] = self
+
+        if nicos.system.mode == 'simulation':
+            raise UsageError('no new devices can be created in simulation mode')
+
         self.__dict__['name'] = name
         # _config: device configuration (all parameter names lower-case)
         self._config = dict((name.lower(), value)
@@ -75,11 +83,16 @@ class Device(object):
         self._changedparams = set()
         # _adevs: "attached" device instances
         self._adevs = {}
+        # execution mode
+        self._mode = nicos.system.mode
 
         # initialize a logger for the device
         self._log = nicos.getLogger(name)
         for mn in ('debug', 'info', 'warning', 'error', 'exception'):
             setattr(self, 'print' + mn, getattr(self._log, mn))
+
+        # initialize device
+        self.init()
 
     def __setattr__(self, name, value):
         # disallow modification of public attributes that are not parameters
@@ -212,6 +225,14 @@ class Device(object):
         if self._cache:
             self._cache.put(self, param, value)
 
+    def _setMode(self, mode):
+        """Set a new execution mode."""
+        self._mode = mode
+        if mode == 'simulation':
+            # switching to simulation mode: remove cache entirely
+            # and rely on saved _params and values
+            self._cache = None
+
     def info(self):
         """Return device information as an iterable of tuples (name, value)."""
         if hasattr(self, 'doInfo'):
@@ -220,6 +241,9 @@ class Device(object):
 
     def shutdown(self):
         """Shut down the object; called from NICOS.destroyDevice()."""
+        if self._mode == 'simulation':
+            # do not execute shutdown actions when simulating
+            return
         if hasattr(self, 'doShutdown'):
             self.doShutdown()
 
@@ -256,6 +280,20 @@ class Readable(Device):
                               unit='s', default=2),
     }
 
+    def init(self):
+        Device.init(self)
+        # value in simulation mode
+        self._sim_value = None
+
+    def _setMode(self, mode):
+        if mode == 'simulation':
+            # save the last known value
+            try:
+                self._sim_value = self.read()
+            except Exception, err:
+                self.printwarning(exc=err)
+        Device._setMode(self, mode)
+
     def __call__(self, value=None):
         """Allow dev() as shortcut for read."""
         if value is not None:
@@ -277,12 +315,16 @@ class Readable(Device):
 
     def read(self):
         """Read the main value of the device and save it in the cache."""
+        if self._mode == 'simulation':
+            return self._sim_value
         return self._get_from_cache('value', self.doRead)
 
     def status(self):
         """Return the status of the device as one of the integer constants
         defined in the nicm.status module.
         """
+        if self._mode == 'simulation':
+            return status.OK
         if hasattr(self, 'doStatus'):
             value = self._get_from_cache('status', self.doStatus)
             if value not in status.statuses:
@@ -292,6 +334,10 @@ class Readable(Device):
 
     def reset(self):
         """Reset the device hardware.  Return status afterwards."""
+        if self._mode == 'slave':
+            raise ModeError('reset not possible in slave mode')
+        elif self._mode == 'simulation':
+            return
         if hasattr(self, 'doReset'):
             self.doReset()
         return self.status()
@@ -341,12 +387,21 @@ class Startable(Readable):
 
     def start(self, pos):
         """Start main action of the device."""
+        if self._mode == 'slave':
+            raise ModeError(self, 'start not possible in slave mode')
+        elif self._mode == 'simulation':
+            self._sim_value = pos
+            return
         if self.__isFixed:
             raise FixedError(self, 'use release() first')
         self.doStart(pos)
 
     def stop(self):
         """Stop main action of the device."""
+        if self._mode == 'slave':
+            raise ModeError(self, 'stop not possible in slave mode')
+        elif self._mode == 'simulation':
+            return
         if self.__isFixed:
             raise FixedError(self, 'use release() first')
         if hasattr(self, 'doStop'):
@@ -354,7 +409,10 @@ class Startable(Readable):
 
     def wait(self):
         """Wait until main action of device is completed.
-        Return current value after waiting."""
+        Return current value after waiting.
+        """
+        if self._mode == 'simulation':
+            return
         lastval = None
         if hasattr(self, 'doWait'):
             lastval = self.doWait()
@@ -362,7 +420,7 @@ class Startable(Readable):
         # (saves reading twice for wait functions that read the value anyway)
         if lastval is not None:
             return lastval
-        # update device value in cache
+        # update device value in cache (XXX still necessary?)
         return self.read()
 
     def isAllowed(self, pos):
@@ -420,8 +478,8 @@ class Moveable(Startable):
         """Start movement of the device to a new position."""
         ok, why = self.isAllowed(pos)
         if not ok:
-            raise LimitError(self,
-                             'moving to %r is not allowed: %s' % (pos, why))
+            raise LimitError(self, 'moving to %r is not allowed: %s' %
+                             (pos, why))
         Startable.start(self, pos)
 
     moveTo = start
@@ -526,36 +584,60 @@ class Measurable(Startable):
 
     def start(self, **preset):
         """Start measurement."""
+        if self._mode == 'slave':
+            raise ModeError(self, 'start not possible in slave mode')
+        elif self._mode == 'simulation':
+            return
         self.doStart(**preset)
 
     def pause(self):
         """Pause the measurement, if possible.  Return True if paused
         successfully.
         """
+        if self._mode == 'slave':
+            raise ModeError(self, 'pause not possible in slave mode')
+        elif self._mode == 'simulation':
+            return True
         if hasattr(self, 'doPause'):
             return self.doPause()
         return False
 
     def resume(self):
         """Resume paused measurement."""
+        if self._mode == 'slave':
+            raise ModeError(self, 'resume not possible in slave mode')
+        elif self._mode == 'simulation':
+            return True
         if hasattr(self, 'doResume'):
             return self.doResume()
+        return False
 
     def stop(self):
         """Stop measurement now."""
+        if self._mode == 'slave':
+            raise ModeError(self, 'stop not possible in slave mode')
+        elif self._mode == 'simulation':
+            return
         self.doStop()
 
     def isCompleted(self):
         """Return true if measurement is complete."""
+        if self._mode == 'simulation':
+            return True
         return self.doIsCompleted()
 
     def wait(self):
         """Wait for completion of measurement."""
+        if self._mode == 'simulation':
+            return
         while not self.isCompleted():
             time.sleep(0.1)
 
     def read(self):
         """Return the result of the last measurement."""
+        if self._mode == 'simulation':
+            # XXX simulate a return value
+            return []
         result = self._get_from_cache('value', self.doRead)
         if not isinstance(result, list):
             return [result]

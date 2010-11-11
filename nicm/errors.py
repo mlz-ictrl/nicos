@@ -64,6 +64,9 @@ class ConfigurationError(NicmError):
 class UsageError(NicmError):
     category = 'Usage error'
 
+class ModeError(NicmError):
+    category = 'Mode error'
+
 class PositionError(NicmError):
     category = 'Position error'
 

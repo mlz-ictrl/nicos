@@ -41,7 +41,7 @@ import linecache
 import traceback
 import ConfigParser
 
-from nicm.errors import ConfigurationError, ProgrammingError
+from nicm.errors import ConfigurationError, ProgrammingError, ModeError
 
 
 class Param(object):
@@ -118,6 +118,8 @@ class AutoPropsMeta(MergedAttrsMeta):
 
             # create the getter method
             def getter(self, param=param):
+                if self._mode == 'simulation':
+                    return self._params[param]
                 if self._cache:
                     value = self._cache.get(self, param)
                     if value is not None:
@@ -141,8 +143,14 @@ class AutoPropsMeta(MergedAttrsMeta):
                         value = pconv(value)
                     except (ValueError, TypeError), err:
                         raise ConfigurationError(
-                            self, '%r is an invalid value for parameter %s: %s' %
-                            (value, param, err))
+                            self, '%r is an invalid value for parameter '
+                            '%s: %s' % (value, param, err))
+                    if self._mode == 'slave':
+                        raise ModeError('setting parameter %s not possible in '
+                                        'slave mode' % param)
+                    elif self._mode == 'simulation':
+                        self._params[param] = value
+                        return
                     if methodname:
                         # allow doWrite to override the value
                         rv = getattr(self, methodname)(value)

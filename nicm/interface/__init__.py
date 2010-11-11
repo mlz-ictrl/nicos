@@ -336,6 +336,8 @@ class NICOS(object):
             self.explicit_devices.add(devname)
         if devname in self.devices:
             if not recreate:
+                if explicit:
+                    self.export(devname, self.devices[devname])
                 return self.devices[devname]
             self.destroyDevice(devname)
         devclsname, devconfig = self.configured_devices[devname]
@@ -344,17 +346,13 @@ class NICOS(object):
             devcls = getattr(__import__(modname, None, None, [clsname]),
                              clsname, None)
         except ImportError:
-            # try with "nicm." prepended
-            #mod = __import__('nicm.' + modname, None, None, [clsname])
-            #devcls = getattr(mod, clsname, None)
-            raise
+            devcls = None
         if devcls is None:
             raise ConfigurationError('type of device %r does not exist'
                                      % devclsname)
         dev = devcls(devname, **devconfig)
-        self.devices[devname] = dev
-        dev.init()
-        self.export(devname, dev)
+        if explicit:
+            self.export(devname, dev)
         return dev
 
     def destroyDevice(self, devname):

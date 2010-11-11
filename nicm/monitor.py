@@ -182,7 +182,7 @@ class Monitor(BaseCacheClient):
                 s = StringVar(value='----')
                 l = Label(fieldframe, text='', pady=2, font=self._valuefont,
                           width=field['width'], relief=SUNKEN, textvariable=s,
-                          bg='#dddddd', fg='#000000')
+                          bg='gray87', fg='black')
                 l.grid(row=1)
                 l.bind('<Enter>', self._label_entered)
                 l.bind('<Leave>', self._label_left)
@@ -314,26 +314,26 @@ class Monitor(BaseCacheClient):
 
             if field['valuevar'].get() == '----':
                 # no value (yet)
-                vlabel.config(bg='#dddddd', fg='#000000')
+                vlabel.config(bg='gray87', fg='black')
 
             if field['ttl']:
                 if age > field['ttl']:
-                    vlabel.config(bg='#666666')
+                    vlabel.config(bg='gray40')
                 else:
-                    vlabel.config(bg='#000000')
+                    vlabel.config(bg='black')
                     newwatch.append(field)
             elif age < 3600:
-                vlabel.config(bg='#000000')
+                vlabel.config(bg='black')
             elif age < 3600*6:
-                vlabel.config(bg='#111111')
+                vlabel.config(bg='gray7')
             elif age < 3600*24:
-                vlabel.config(bg='#222222')
+                vlabel.config(bg='gray13')
             elif age < 3600*24*7:
-                vlabel.config(bg='#444444')
+                vlabel.config(bg='gray27')
             elif age < 3600*24*30:
-                vlabel.config(bg='#666666')
+                vlabel.config(bg='gray40')
             else:
-                vlabel.config(bg='#dddddd', fg='black')
+                vlabel.config(bg='gray87', fg='black')
         self._watch = newwatch
 
     # called to handle an incoming protocol message
