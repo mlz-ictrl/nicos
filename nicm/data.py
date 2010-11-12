@@ -162,6 +162,8 @@ class AsciiDatafileSink(DataSink):
                            type=bool, default=True),
     }
 
+    # XXX this sink must be deactivated in slave/simulation mode
+
     def doInit(self):
         # XXX where is datapath really defined?
         #self.setDatapath(nicos.system.datapath)

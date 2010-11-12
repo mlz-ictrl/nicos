@@ -223,7 +223,10 @@ def listparams(dev):
             value = dev.getPar(name)
         except Exception:
             value = '<could not get value>'
-        items.append((name, str(value), info.unit, info.description))
+        unit = info.unit or ''
+        if unit == 'main':
+            unit = dev.unit
+        items.append((name, str(value), unit, info.description))
     printTable(('name', 'value', 'unit', 'description'), items, printinfo)
 
 @usercommand

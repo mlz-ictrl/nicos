@@ -187,6 +187,7 @@ class TacoDevice(object):
 
     def _taco_guard_nolog(self, function, *args):
         """Try running the TACO function, and raise a NicmError on exception."""
+        # XXX retry on "connection lost" error after server restart
         self.__lock.acquire()
         try:
             return function(*args)
