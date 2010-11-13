@@ -191,7 +191,7 @@ class CacheWorker(object):
 
         # dispatch operations
         if op == OP_TELL:
-            self.db.tell(key, value, time, ttl)
+            self.db.tell(key, value, time, ttl, self)
         elif op == OP_ASK:
             if ttl:
                 return self.db.ask_hist(key, time, time+ttl)
@@ -258,7 +258,7 @@ class CacheWorker(object):
         return False
 
     def update(self, key, op, value, time, ttl):
-        """Check if we need to send the update given in 'line'."""
+        """Check if we need to send the update given."""
         if not self.connection:
             return False
         # make sure line has at least a default timestamp
@@ -380,7 +380,7 @@ class CacheDatabase(Device):
     def ask_hist(self, key, t1, t2):
         return []
 
-    def tell(self, key, value, time, ttl):
+    def tell(self, key, value, time, ttl, from_client):
         if value is None:
             # deletes cannot have a TTL
             ttl = None
@@ -395,7 +395,7 @@ class CacheDatabase(Device):
             entries.append(Entry(time, ttl, value))
         if send_update:
             for client in self._server._connected.values():
-                if client.is_active():
+                if client is not from_client and client.is_active():
                     client.update(key, OP_TELL, value, time, ttl)
 
 
