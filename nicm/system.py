@@ -115,6 +115,7 @@ class System(Device):
         if mode == 'simulation':
             self.cache.doShutdown()
         self.printinfo('switched to %s mode' % mode)
+        nicos.resetPrompt()
 
     def getSinks(self, scantype=None):
         if scantype is None:

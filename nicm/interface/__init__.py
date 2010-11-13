@@ -265,9 +265,7 @@ class NICOS(object):
             log.warning(', '.join(failed_devs))
 
         self.explicit_setups.append(setupname)
-        expsetups = '+'.join(self.explicit_setups)
-        sys.ps1 = '(%s) >>> ' % expsetups
-        sys.ps2 = ' %s  ... ' % (' ' * len(expsetups))
+        self.resetPrompt()
         log.info('setup loaded')
 
     def unloadSetup(self):
@@ -288,6 +286,12 @@ class NICOS(object):
         self.user_modules = set()
         self.__system_device = None
         self.__exp_device = None
+
+    def resetPrompt(self):
+        base = self.system.mode != 'master' and self.system.mode + ' ' or ''
+        expsetups = '+'.join(self.explicit_setups)
+        sys.ps1 = base + '(%s) >>> ' % expsetups
+        sys.ps2 = base + ' %s  ... ' % (' ' * len(expsetups))
 
     def export(self, name, object):
         self.__namespace.setForbidden(name, object)
