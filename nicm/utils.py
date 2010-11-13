@@ -37,6 +37,8 @@ __version__ = "$Revision$"
 
 import os
 import sys
+import time
+import socket
 import linecache
 import traceback
 import ConfigParser
@@ -250,6 +252,26 @@ def readConfig(*filenames):
     if cfg.has_option('nicm', 'setup_path'):
         from nicm.interface import NICOS
         NICOS.default_setup_path = cfg.get('nicm', 'setup_path')
+
+
+# session id support
+
+def makeSessionId():
+    """Create a unique identifier for the current session."""
+    try:
+        hostname = socket.getfqdn()
+    except socket.error:
+        hostname = 'localhost'
+    pid = os.getpid()
+    timestamp = int(time.time())
+    return '%s@%s-%s' % (pid, hostname, timestamp)
+
+def sessionInfo(id):
+    """Return a string with information gathered from the session id."""
+    pid, rest = id.split('@')
+    host, timestamp = rest.split('-')
+    return 'PID %s on host %s, started on %s' % (
+        pid, host, time.asctime(time.localtime(int(timestamp))))
 
 
 # console color utils

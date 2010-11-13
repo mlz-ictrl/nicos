@@ -37,11 +37,14 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import time
 
 from nicm import nicos
 from nicm.data import DataSink
+from nicm.utils import sessionInfo
 from nicm.device import Device, Param
 from nicm.errors import ModeError, UsageError
+from nicm.cache.client import CacheClient
 
 
 class System(Device):
@@ -55,7 +58,7 @@ class System(Device):
     }
 
     attached_devices = {
-        'cache': Device,
+        'cache': CacheClient,
         'sinks': [DataSink],
     }
 
@@ -72,8 +75,6 @@ class System(Device):
             self.setMode('master')
         except ModeError:
             self.printinfo('could not enter master mode; remaining slave')
-        else:
-            self.printinfo('entered master mode')
 
     @property
     def cache(self):
@@ -89,36 +90,31 @@ class System(Device):
             return
         if mode not in ['master', 'slave', 'simulation', 'maintenance']:
             raise UsageError('mode %r does not exist' % mode)
-        if oldmode in ('simulation', 'maintenance'):
+        if oldmode in ['simulation', 'maintenance']:
             # no way to switch back from special modes
             raise ModeError('switching from %s mode is not supported' % oldmode)
-        '''
-        Possible transitions and what needs to be done:
-        
-        * slave -> master
-          - acquire "master lock"
-        * slave -> maintenance
-          - (nothing to do)
-        * master -> slave
-          - release "master lock"
-          - what about devices that are currently moving (have a thread running)
-        * master -> maintenance
-          - release "master lock"
-        * master/slave -> simulation
-          - "cut" connection to cache and virtualize t
-        '''
         if mode == 'master':
-            # switching from master to slave
-            # XXX acquire master lock
-            pass
-        elif mode == 'slave':
             # switching from slave to master
-            # XXX release master lock
-            pass
-        #else:
-        #    raise ModeError('mode %s not yet implemented' % mode)
+            if not self._cache:
+                raise ModeError('no cache present, cannot get master lock')
+            self.printinfo('checking master status...')
+            entry = self._cache.getMaster()
+            if entry:
+                if entry[0] != nicos.sessionid:
+                    if entry[1] + entry[2] >= time.time():
+                        raise ModeError('another master is already active: %s' %
+                                        sessionInfo(entry[0]))
+            self._cache.setMaster()
+        elif mode in ['slave', 'maintenance']:
+            # switching from master to slave or to maintenance
+            if not self._cache:
+                raise ModeError('no cache present, cannot get master lock')
+            self._cache._ismaster = False
         for dev in nicos.devices.itervalues():
             dev._setMode(mode)
+        if mode == 'simulation':
+            self.cache.doShutdown()
+        self.printinfo('switched to %s mode' % mode)
             
 
     def getSinks(self, scantype=None):

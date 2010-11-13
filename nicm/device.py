@@ -489,7 +489,6 @@ class Moveable(Startable):
         absmin = self.absmin
         absmax = self.absmax
         if not usermin and not usermax and setthem:
-            print 'setting:', absmin, absmax
             # if both not set (0) then use absolute min. and max.
             self.usermin = absmin
             self.usermax = absmax

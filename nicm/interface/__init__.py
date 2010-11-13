@@ -47,6 +47,7 @@ import logging
 from os import path
 
 from nicm import loggers
+from nicm.utils import makeSessionId
 from nicm.errors import NicmError, UsageError, ConfigurationError
 
 
@@ -90,6 +91,7 @@ class NICOS(object):
     default_setup_path = path.join(path.dirname(__file__), '..', '..', 'setup')
 
     def __init__(self):
+        self.sessionid = makeSessionId()
         # contains all created device objects
         self.devices = {}
         # contains the name of all explicitly created devices

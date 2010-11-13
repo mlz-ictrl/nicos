@@ -97,9 +97,10 @@ class Axis(Moveable):
         self.__stopRequest = 0
         self.__locked = False
         self.__dragErrorCount = 0
-
-        self.unit = self._adevs['motor'].unit
         self.__checkMotorLimits()
+
+    def doReadUnit(self):
+        return self._adevs['motor'].unit
 
     def __checkMotorLimits(self):
         # check axis limits against motor absolute limits (the motor should not

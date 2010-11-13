@@ -41,6 +41,7 @@ import socket
 import threading
 from time import sleep, time as currenttime
 
+from nicm import nicos
 from nicm.device import Device, Param
 from nicm.cache.utils import msg_pattern, line_pattern, cache_load, \
      DEFAULT_CACHE_PORT, OP_TELL, OP_WILDCARD, OP_SUBSCRIBE, cache_dump
@@ -136,7 +137,7 @@ class BaseCacheClient(Device):
             data += self._socket.recv(BUFSIZE)
             n += 1
 
-        # process data (XXX)
+        # process data
         match = line_pattern.match(data)
         while match:
             line = match.group(1)
@@ -226,21 +227,43 @@ class CacheClient(BaseCacheClient):
         BaseCacheClient.doInit(self)
         self._db = {}
         self._worker.start()
+        # the execution master lock
+        self._ismaster = False
+        self._mastermsg = '+%s@%s/master="%s"\r\n' % (
+            3*self._selecttimeout, self._prefix, nicos.sessionid)
+        self._master_exp = 0
+        
         # XXX circumvent bootstrap problems
         self.get = self.real_get
         self.put = self.real_put
+
+    def _wait_data(self):
+        if self._ismaster:
+            time = currenttime()
+            if time > self._master_exp:
+                self._master_exp = time + self._selecttimeout
+                self._queue.put(self._mastermsg)
+
+    def getMaster(self):
+        self._startup_done.wait()
+        return self._db.get('master')
+
+    def setMaster(self):
+        self._queue.put(self._mastermsg)
+        self._ismaster = True
 
     def _handle_msg(self, time, ttl, tsop, key, op, value):
         if op != OP_TELL or not key.startswith(self._prefix):
             return
         key = key[len(self._prefix)+1:]
+        if key == 'master':
+            self._ismaster = value == '"' + nicos.sessionid + '"'
         self.printdebug('got %s=%s' % (key, value))
-        if not value:
+        if value is None:
             self._db.pop(key, None)
         else:
             self._db[key] = (cache_load(value),
                              time and float(time), ttl and float(ttl))
-            # XXX update param values in devices here?
 
     def get(self, dev, key):
         return None
@@ -252,8 +275,8 @@ class CacheClient(BaseCacheClient):
         if timestamp is None:
             timestamp = currenttime()
         ttl = ttl and '+%s' % ttl or ''
-        msg = '%s%s@%s/%s/%s%s%s\n' % (timestamp, ttl, self._prefix, dev.name,
-                                       key, OP_TELL, cache_dump(value))
+        msg = '%s%s@%s/%s/%s%s%s\r\n' % (timestamp, ttl, self._prefix, dev.name,
+                                         key, OP_TELL, cache_dump(value))
         self.printdebug('putting %s/%s=%s' % (dev.name, key, value))
         self._queue.put(msg)
 
@@ -281,5 +304,5 @@ class WriteonlyCacheClient(CacheClient):
     so that each read() actually queries the device.
     """
 
-    def real_get(self, *args):
+    def real_get(self, dev, key):
         return None
