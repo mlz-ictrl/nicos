@@ -38,6 +38,7 @@ __version__ = "$Revision$"
 import time
 from os import path
 
+from nicm import nicos
 from nicm.utils import listof
 from nicm.device import Device, Param
 from nicm.commands.output import printinfo
@@ -58,6 +59,9 @@ class DataSink(Device):
                            type=listof(str), default=[]),
     }
 
+    # Set to false in subclasses that e.g. write to the filesystem.
+    activeInSimulation = True
+    
     def prepareDataset(self):
         """Prepare for a new dataset.
 
@@ -154,7 +158,13 @@ class ConsoleSink(DataSink):
         printinfo('=' * 80)
 
 
-class AsciiDatafileSink(DataSink):
+class DatafileSink(DataSink):
+
+    activeInSimulation = False
+        
+
+
+class AsciiDatafileSink(DatafileSink):
     parameters = {
         # XXX prefix should come from proposal
         'prefix': Param('Data file name prefix', type=str),
@@ -162,12 +172,8 @@ class AsciiDatafileSink(DataSink):
                            type=bool, default=True),
     }
 
-    # XXX this sink must be deactivated in slave/simulation mode
-
     def doInit(self):
-        # XXX where is datapath really defined?
-        #self.setDatapath(nicos.system.datapath)
-        self.setDatapath('')
+        self._path = None
         self._file = None
         self._fname = ''
         self._counter = 0
@@ -182,6 +188,8 @@ class AsciiDatafileSink(DataSink):
         self._counter = 0  # XXX determine current counter
 
     def prepareDataset(self):
+        if self._path is None:
+            self.setDatapath(nicos.system.datapath)
         self._wrote_infoheader = False
         self._wrote_columninfo = False
         self._counter += 1

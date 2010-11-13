@@ -115,14 +115,16 @@ class System(Device):
         if mode == 'simulation':
             self.cache.doShutdown()
         self.printinfo('switched to %s mode' % mode)
-            
 
     def getSinks(self, scantype=None):
         if scantype is None:
-            return self._adevs['sinks']
+            sinks = self._adevs['sinks']
         else:
-            return [sink for sink in self._adevs['sinks']
-                    if not sink.scantypes or scantype in sink.scantypes]
+            sinks = [sink for sink in self._adevs['sinks']
+                     if not sink.scantypes or scantype in sink.scantypes]
+        if self._mode == 'simulation':
+            sinks = [sink for sink in sinks if sink.activeInSimulation]
+        return sinks
 
     def doWriteDatapath(self, value):
         for sink in self._adevs['sinks']:

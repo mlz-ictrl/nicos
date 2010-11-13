@@ -116,6 +116,7 @@ class NICOS(object):
         # cache special devices
         self.__system_device = None
         self.__exp_device = None
+        self.__inst_device = None
         # action stack for status line
         self._actionStack = []
 
@@ -380,6 +381,13 @@ class NICOS(object):
             from nicm.experiment import Experiment
             self.__exp_device = self.getDevice('Experiment', Experiment)
         return self.__exp_device
+
+    @property
+    def instrument(self):
+        if self.__inst_device is None:
+            from nicm.instrument import Instrument
+            self.__inst_device = self.getDevice('Instrument', Instrument)
+        return self.__inst_device
 
     # -- Logging ---------------------------------------------------------------
 

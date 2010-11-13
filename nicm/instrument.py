@@ -38,6 +38,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 
+from nicm.cell import Cell
 from nicm.device import Device, Measurable
 
 
@@ -46,4 +47,11 @@ class Instrument(Device):
 
     attached_devices = {
         'detectors': [Measurable],
+    }
+
+
+class TAS(Instrument):
+
+    attached_devices = {
+        'cell': Cell,
     }

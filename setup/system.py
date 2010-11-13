@@ -52,6 +52,9 @@ devices = dict(
                     cache = 'Cache',
                     ),
 
-    Experiment = device('nicm.experiment.Experiment',
-                        users = []),
+    Cell = device('nicm.cell.Cell'),
+
+    Experiment = device('nicm.experiment.Experiment'),
+    Instrument = device('nicm.instrument.TAS',
+                        detectors = [], cell='Cell'),
 )
