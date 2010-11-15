@@ -274,10 +274,10 @@ class CacheClient(BaseCacheClient):
     def real_put(self, dev, key, value, time=None, ttl=None):
         if time is None:
             time = currenttime()
-        ttl = ttl and '+%s' % ttl or ''
+        ttlstr = ttl and '+%s' % ttl or ''
         dbkey = '%s/%s' % (dev.name.lower(), key)
-        msg = '%s%s@%s/%s%s%s\r\n' % (time, ttl, self._prefix, dbkey, OP_TELL,
-                                      cache_dump(value))
+        msg = '%s%s@%s/%s%s%s\r\n' % (time, ttlstr, self._prefix, dbkey,
+                                      OP_TELL, cache_dump(value))
         self.printdebug('putting %s=%s' % (dbkey, value))
         self._db[dbkey] = (value, time, ttl)
         self._queue.put(msg)

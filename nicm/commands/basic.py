@@ -39,8 +39,9 @@ import inspect
 import __builtin__
 
 from nicm import nicos
-from nicm.device import Device
 from nicm.utils import formatDocstring, printTable
+from nicm.device import Device
+from nicm.system import EXECUTIONMODES
 from nicm.commands import usercommand
 from nicm.commands.output import printinfo, printexception
 
@@ -127,7 +128,7 @@ def DestroyDevice(*devnames):
 @usercommand
 def NewExperiment(proposalnumber, title):
     """Start a new experiment."""
-    nicos.experiment.new(proposalnumber, title)
+    nicos.system.experiment.new(proposalnumber, title)
 
 @usercommand
 def SaveState():
@@ -140,5 +141,9 @@ def SaveState():
 
 @usercommand
 def SetMode(mode):
-    """Set the execution mode."""
+    """Set the execution mode.
+
+    Valid modes are: """
     nicos.system.setMode(mode)
+
+SetMode.__doc__ += ', '.join(EXECUTIONMODES)

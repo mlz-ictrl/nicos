@@ -44,7 +44,12 @@ from nicm.data import DataSink
 from nicm.utils import sessionInfo
 from nicm.device import Device, Param
 from nicm.errors import ModeError, UsageError
+from nicm.instrument import Instrument
+from nicm.experiment import Experiment
 from nicm.cache.client import CacheClient
+
+
+EXECUTIONMODES = ['master', 'slave', 'simulation', 'maintenance']
 
 
 class System(Device):
@@ -59,7 +64,9 @@ class System(Device):
 
     attached_devices = {
         'cache': CacheClient,
-        'sinks': [DataSink],
+        'datasinks': [DataSink],
+        'instrument': Instrument,
+        'experiment': Experiment,
     }
 
     def __repr__(self):
@@ -81,14 +88,23 @@ class System(Device):
         return self._adevs['cache']
 
     @property
+    def instrument(self):
+        return self._adevs['instrument']
+
+    @property
+    def experiment(self):
+        return self._adevs['experiment']
+
+    @property
     def mode(self):
         return self._mode
 
     def setMode(self, mode):
+        mode = mode.lower()
         oldmode = self.mode
         if mode == oldmode:
             return
-        if mode not in ['master', 'slave', 'simulation', 'maintenance']:
+        if mode not in EXECUTIONMODES:
             raise UsageError('mode %r does not exist' % mode)
         if oldmode in ['simulation', 'maintenance']:
             # no way to switch back from special modes
@@ -119,14 +135,14 @@ class System(Device):
 
     def getSinks(self, scantype=None):
         if scantype is None:
-            sinks = self._adevs['sinks']
+            sinks = self._adevs['datasinks']
         else:
-            sinks = [sink for sink in self._adevs['sinks']
+            sinks = [sink for sink in self._adevs['datasinks']
                      if not sink.scantypes or scantype in sink.scantypes]
         if self._mode == 'simulation':
             sinks = [sink for sink in sinks if sink.activeInSimulation]
         return sinks
 
     def doWriteDatapath(self, value):
-        for sink in self._adevs['sinks']:
+        for sink in self._adevs['datasinks']:
             sink.setDatapath(value)

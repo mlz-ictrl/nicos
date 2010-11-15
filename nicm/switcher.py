@@ -37,7 +37,7 @@ __version__ = "$Revision$"
 
 from nicm.utils import listof, any
 from nicm.errors import ConfigurationError, PositionError
-from nicm.device import Moveable, Switchable, Param
+from nicm.device import BaseMoveable, Switchable, Param
 
 
 class Switcher(Switchable):
@@ -47,7 +47,7 @@ class Switcher(Switchable):
     """
 
     attached_devices = {
-        'moveable': Moveable,
+        'moveable': BaseMoveable,
     }
 
     parameters = {

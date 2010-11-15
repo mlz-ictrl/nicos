@@ -113,10 +113,8 @@ class NICOS(object):
         self.__local_namespace = NicosNamespace()
         # contains all NICOS-exported names
         self.__exported_names = set()
-        # cache special devices
+        # cache special device
         self.__system_device = None
-        self.__exp_device = None
-        self.__inst_device = None
         # action stack for status line
         self._actionStack = []
 
@@ -352,11 +350,9 @@ class NICOS(object):
         try:
             devcls = getattr(__import__(modname, None, None, [clsname]),
                              clsname, None)
-        except ImportError:
-            devcls = None
-        if devcls is None:
-            raise ConfigurationError('type of device %r does not exist'
-                                     % devclsname)
+        except ImportError, err:
+            raise ConfigurationError('failed to import device class %r: %s'
+                                     % (devclsname, err))
         dev = devcls(devname, **devconfig)
         if explicit:
             self.export(devname, dev)
@@ -378,20 +374,6 @@ class NICOS(object):
             from nicm.system import System
             self.__system_device = self.getDevice('System', System)
         return self.__system_device
-
-    @property
-    def experiment(self):
-        if self.__exp_device is None:
-            from nicm.experiment import Experiment
-            self.__exp_device = self.getDevice('Experiment', Experiment)
-        return self.__exp_device
-
-    @property
-    def instrument(self):
-        if self.__inst_device is None:
-            from nicm.instrument import Instrument
-            self.__inst_device = self.getDevice('Instrument', Instrument)
-        return self.__inst_device
 
     # -- Logging ---------------------------------------------------------------
 

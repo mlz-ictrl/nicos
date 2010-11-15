@@ -105,7 +105,6 @@ class TacoDevice(object):
         self._taco_guard(self._dev.deviceReset)
 
     def doReadUnit(self):
-        # XXX cache?
         return self._taco_guard(self._dev.unit)
 
     def doWriteTacotimeout(self, value):

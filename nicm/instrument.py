@@ -38,7 +38,6 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 
-from nicm.cell import Cell
 from nicm.device import Device, Measurable
 
 
@@ -49,9 +48,6 @@ class Instrument(Device):
         'detectors': [Measurable],
     }
 
-
-class TAS(Instrument):
-
-    attached_devices = {
-        'cell': Cell,
-    }
+    @property
+    def detectors(self):
+        return self._adevs['detectors']

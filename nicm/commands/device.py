@@ -37,14 +37,14 @@ __version__ = "$Revision$"
 
 from nicm import nicos
 from nicm.utils import printTable
-from nicm.device import Device, Startable, Moveable, Switchable, Readable
+from nicm.device import Device, Startable, BaseMoveable, Switchable, Readable
 from nicm.errors import NicmError, UsageError
 from nicm.status import statuses
 from nicm.commands import usercommand
 from nicm.commands.output import printinfo
 
 
-def _devposlist(dev_pos_list, cls=Moveable):
+def _devposlist(dev_pos_list, cls):
     devlist = []
     poslist = []
     if len(dev_pos_list) == 0:
@@ -64,7 +64,7 @@ def move(*dev_pos_list):
     This can be used with multiple devices like this:
        move(dev1, pos1, dev2, pos2, ...)
     """
-    for dev, pos in _devposlist(dev_pos_list):
+    for dev, pos in _devposlist(dev_pos_list, BaseMoveable):
         dev.printinfo('moving to', dev.format(pos), dev.unit)
         dev.move(pos)
 
@@ -77,7 +77,7 @@ def maw(*dev_pos_list):
        maw(dev1, pos1, dev2, pos2, ...)
     """
     devs = []
-    for dev, pos in _devposlist(dev_pos_list):
+    for dev, pos in _devposlist(dev_pos_list, BaseMoveable):
         dev.printinfo('moving to', dev.format(pos), dev.unit)
         dev.move(pos)
         devs.append(dev)

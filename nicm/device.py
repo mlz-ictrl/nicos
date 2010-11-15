@@ -142,6 +142,13 @@ class Device(object):
         if hasattr(self, 'doPreinit'):
             self.doPreinit()
 
+        # HACK: bootstrap
+        if 'cache' in self.attached_devices:
+            if self._config['cache']:
+                self._adevs['cache'] = nicos.createDevice(self._config['cache'])
+            else:
+                self._adevs['cache'] = None
+
         # validate and create attached devices
         for aname, cls in self.attached_devices.iteritems():
             if aname not in self._config:
@@ -156,14 +163,14 @@ class Device(object):
                 devlist = []
                 self._adevs[aname] = devlist
                 for i, devname in enumerate(value):
-                    dev = nicos.createDevice(devname)
+                    dev = nicos.getDevice(devname)
                     if not isinstance(dev, cls):
                         raise ConfigurationError(
                             self, 'device %r item %d has wrong type' %
                             (aname, i))
                     devlist.append(dev)
             else:
-                dev = nicos.createDevice(value)
+                dev = nicos.getDevice(value)
                 if not isinstance(dev, cls):
                     raise ConfigurationError(
                         self, 'device %r has wrong type' % aname)
@@ -389,11 +396,15 @@ class Startable(Readable):
         """Start main action of the device."""
         if self._mode == 'slave':
             raise ModeError(self, 'start not possible in slave mode')
-        elif self._mode == 'simulation':
-            self._sim_value = pos
-            return
         if self.__isFixed:
             raise FixedError(self, 'use release() first')
+        ok, why = self.isAllowed(pos)
+        if not ok:
+            raise LimitError(self, 'moving to %r is not allowed: %s' %
+                             (pos, why))
+        if self._mode == 'simulation':
+            self._sim_value = pos
+            return
         self.doStart(pos)
 
     def stop(self):
@@ -412,16 +423,21 @@ class Startable(Readable):
         Return current value after waiting.
         """
         if self._mode == 'simulation':
-            return
+            return self._sim_value
         lastval = None
         if hasattr(self, 'doWait'):
             lastval = self.doWait()
-        # if doWait() returns something, assume it's the latest value
-        # (saves reading twice for wait functions that read the value anyway)
+        # update device value in cache and return it
         if lastval is not None:
-            return lastval
-        # update device value in cache (XXX still necessary?)
-        return self.read()
+            # if doWait() returns something, assume it's the latest value
+            val = lastval
+        else:
+            # else, assume the device did move and the cache needs to be
+            # updated in most cases
+            val = self.doRead()
+        if self._cache and self._mode != 'slave':
+            self._cache.put(self, 'value', val, time.time(), self.maxage)
+        return val
 
     def isAllowed(self, pos):
         """Return a tuple describing the validity of the given position.
@@ -450,9 +466,18 @@ class Startable(Readable):
         self.__isFixed = False
 
 
-class Moveable(Startable):
+class BaseMoveable(Startable):
     """
-    Base class for all continuously moveable devices.
+    Base class for "simple" and "complex" continuously moveable devices,
+    i.e. where the main device value is either a single float or a compound.
+    """
+
+    move = Startable.start
+
+
+class Moveable(BaseMoveable):
+    """
+    Base class for all "simple" continuously moveable devices.
     """
 
     parameters = {
@@ -468,22 +493,13 @@ class Moveable(Startable):
 
     def init(self):
         Startable.init(self)
-        if self.absmin >= self.absmax:
+        if self.absmin > self.absmax:
             raise ConfigurationError(self, 'absolute minimum (%s) above the '
                                      'absolute maximum (%s)' %
                                      (self.absmin, self.absmax))
         self.__checkUserLimits(self.usermin, self.usermax, setthem=True)
 
-    def start(self, pos):
-        """Start movement of the device to a new position."""
-        ok, why = self.isAllowed(pos)
-        if not ok:
-            raise LimitError(self, 'moving to %r is not allowed: %s' %
-                             (pos, why))
-        Startable.start(self, pos)
-
-    moveTo = start
-    move = start
+    move = Startable.start
 
     def __checkUserLimits(self, usermin, usermax, setthem=False):
         absmin = self.absmin
@@ -528,6 +544,10 @@ class Moveable(Startable):
         """
         self.__checkUserLimits(self.usermin, value)
 
+    def doWriteUnit(self, value):
+        if self.units and value not in self.units:
+            raise ConfigurationError('unsupported unit: %s' % value)
+
 
 class Switchable(Startable):
     """
@@ -562,7 +582,6 @@ class Switchable(Startable):
                              (pos, why))
         Startable.start(self, realpos)
 
-    switchTo = start
     switch = start
 
     def format(self, pos):

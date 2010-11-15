@@ -50,8 +50,7 @@ class Scan(object):
     def __init__(self, devices, positions, detlist=None, preset=None,
                  scaninfo=None, scantype=None):
         if detlist is None:
-            # XXX better default
-            detlist = [nicos.getDevice('det', Measurable)]
+            detlist = nicos.system.instrument.detectors
         self.devices = devices
         self.positions = positions
         self.detlist = detlist

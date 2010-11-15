@@ -579,9 +579,9 @@ class Cell(Device):
             'CPSI': constant PSI -> angle between ki and orientation
                     reflection r1; psi in 0 ... 180; -180 ... 0
             'CPHI': constant PHI -> scattering angle of sample
+            'DIFF': powder sample
 
             unimplemented:
-             5: powder sample
              6: constant Ki, absolut Q
              7: constant Kf, absolut Q
              8: without analyser
@@ -594,7 +594,7 @@ class Cell(Device):
             Qlab = self.hkl2Qlab(Qhkl[0], Qhkl[1], Qhkl[2])
             Y = self.cal_Y(self._orient1, self._orient2, Qhkl)
 
-            if SM == 'CKI':
+            if SM in ['CKI', 'DIFF']:
                 ki = SC
                 kf = self.cal_kf(ny, ki)
                 phi = self.cal_phi(Qlab, ki, kf, s)
@@ -641,7 +641,7 @@ class Cell(Device):
                 elif psi > 360:
                     psi -= 360
 
-            return [ki, kf, phi, psi]
+            return [ki, kf, phi, psi, alpha]
         except ComputationError, err:
             raise
         except Exception, err:

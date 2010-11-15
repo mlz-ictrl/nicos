@@ -70,3 +70,10 @@ def cscan(dev, center, step, numperside, preset=None, infostr=None,
                                                         numperside, preset)
     scan = Scan([dev], values, det, preset, infostr)
     scan.run()
+
+
+@usercommand
+def qcscan(Q, ny, dQ, dny, numsteps, sc, preset=None, infostr=None,
+           det=None, **presets):
+    """Q scan around center."""
+    # XXX write this
