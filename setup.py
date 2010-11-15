@@ -4,7 +4,7 @@ from distutils.util import convert_path
 
 def find_packages():
     """Return a list of all nicm subpackages."""
-    out = []
+    out = ['nicm']
     stack = [('nicm', 'nicm/')]
     while stack:
         where, prefix = stack.pop(0)
