@@ -137,7 +137,7 @@ class AutoPropsMeta(MergedAttrsMeta):
                         self, 'cannot set the %s parameter' % param)
             else:
                 wmethodname = 'doWrite' + param.title()
-                if wmethodname not in attrs:
+                if getattr(newtype, wmethodname, None) is None:
                     wmethodname = None
                 def setter(self, value, param=param, methodname=wmethodname):
                     pconv = self.parameters[param].type
@@ -352,6 +352,16 @@ def listof(conv):
         if not isinstance(val, list):
             raise ValueError('value needs to be a list')
         return map(conv, val)
+    return converter
+
+def dictof(keyconv, valconv):
+    def converter(val={}):
+        if not isinstance(val, dict):
+            raise ValueError('value needs to be a dict')
+        ret = {}
+        for k, v in val.iteritems():
+            ret[keyconv(k)] = valconv(v)
+        return ret
     return converter
 
 def tacodev(val=None):
