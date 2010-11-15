@@ -52,7 +52,7 @@ class Sensor(TacoDevice, Readable):
     parameters = {
         'sensortype': Param('Sensor type', type=str, default=None),
         'curvename':  Param('Sensor calibration curve name',
-                            type=str, default=None)
+                            type=str, default=None),
         'serno':   Param('Sensor serial number', type=str, default=None),
         'offset':  Param('Offset for temperature', settable=True),
         'unit':    Param('Unit of temperature', type=str, default=None),
