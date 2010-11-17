@@ -105,13 +105,17 @@ class Axis(Moveable, HasOffset):
         absmin = self.absmin
         absmax = self.absmax
         if not absmin and not absmax:
-            self._setROParam('absmin', self._adevs['motor'].absmin)
-            self._setROParam('absmax', self._adevs['motor'].absmax)
+            self._setROParam('absmin', self._adevs['motor'].absmin - self.offset)
+            self._setROParam('absmax', self._adevs['motor'].absmax - self.offset)
         else:
-            if absmin < self._adevs['motor'].absmin:
-                raise ConfigurationError(self, 'absmin below the motor absmin')
-            if absmax > self._adevs['motor'].absmax:
-                raise ConfigurationError(self, 'absmax below the motor absmax')
+            motorabsmin = self._adevs['motor'].absmin - self.offset
+            motorabsmax = self._adevs['motor'].absmax - self.offset
+            if absmin < motorabsmin:
+                raise ConfigurationError(self, 'absmin (%s) below the motor '
+                                         'absmin (%s)' % (absmin, motorabsmin))
+            if absmax > motorabsmax:
+                raise ConfigurationError(self, 'absmax (%s) below the motor '
+                                         'absmax (%s)' % (absmax, motorabsmax))
 
     def doStart(self, target, locked=False):
         """Starts the movement of the axis to target."""

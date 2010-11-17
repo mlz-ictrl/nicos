@@ -122,7 +122,7 @@ class System(Device):
         elif mode in ['slave', 'maintenance']:
             # switching from master to slave or to maintenance
             if not self._cache:
-                raise ModeError('no cache present, cannot get master lock')
+                raise ModeError('no cache present, cannot release master lock')
             self._cache._ismaster = False
         for dev in nicos.devices.itervalues():
             dev._setMode(mode)

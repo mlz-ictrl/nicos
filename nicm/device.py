@@ -105,6 +105,7 @@ class Device(object):
         except Exception:
             # if initialization fails
             del nicos.devices[name]
+            raise
 
     def __setattr__(self, name, value):
         # disallow modification of public attributes that are not parameters
@@ -525,7 +526,11 @@ class Moveable(BaseMoveable):
             raise ConfigurationError(self, 'absolute minimum (%s) above the '
                                      'absolute maximum (%s)' %
                                      (self.absmin, self.absmax))
-        self.__checkUserLimits(self.usermin, self.usermax, setthem=True)
+
+    def setMode(self, mode):
+        Moveable.setMode(self, mode)
+        if mode == 'master':
+            self.__checkUserLimits(self.usermin, self.usermax, setthem=True)
 
     move = Startable.start
 
@@ -541,17 +546,17 @@ class Moveable(BaseMoveable):
             raise ConfigurationError(self, 'user minimum (%s) above the user '
                                      'maximum (%s)' % (usermin, usermax))
         if usermin < absmin:
-            raise ConfigurationError(self, 'user minimum (%s) below the absolute '
-                                     'minimum (%s)' % (usermin, absmin))
+            raise ConfigurationError(self, 'user minimum (%s) below the '
+                                     'absolute minimum (%s)' % (usermin, absmin))
         if usermin > absmax:
-            raise ConfigurationError(self, 'user minimum (%s) above the absolute '
-                                     'maximum (%s)' % (usermin, absmax))
+            raise ConfigurationError(self, 'user minimum (%s) above the '
+                                     'absolute maximum (%s)' % (usermin, absmax))
         if usermax > absmax:
-            raise ConfigurationError(self, 'user maximum (%s) above the absolute '
-                                     'maximum (%s)' % (usermax, absmax))
+            raise ConfigurationError(self, 'user maximum (%s) above the '
+                                     'absolute maximum (%s)' % (usermax, absmax))
         if usermax < absmin:
-            raise ConfigurationError(self, 'user maximum (%s) below the absolute '
-                                     'minimum (%s)' % (usermax, absmin))
+            raise ConfigurationError(self, 'user maximum (%s) below the '
+                                     'absolute minimum (%s)' % (usermax, absmin))
 
     def isAllowed(self, target):
         if not self.usermin <= target <= self.usermax:
@@ -599,24 +604,28 @@ class HasOffset(object):
 
     def doWriteOffset(self, value):
         """Adapt the limits to the new offset."""
-        if not isinstance(self, Moveable):
+        if isinstance(self, Moveable):
             # this applies only to Moveables
-            return
-        diff = value - self.offset
-        # Avoid the use of the setPar method for the absolute limits
-        if diff < 0:
-            self._setROParam('absmax', self.absmax - diff)
-            self._setROParam('absmin', self.absmin - diff)
-        else:
-            self._setROParam('absmin', self.absmin - diff)
-            self._setROParam('absmax', self.absmax - diff)
+            diff = value - self.offset
+            # Avoid the use of the setPar method for the absolute limits
+            if diff < 0:
+                self._setROParam('absmax', self.absmax - diff)
+                self._setROParam('absmin', self.absmin - diff)
+            else:
+                self._setROParam('absmin', self.absmin - diff)
+                self._setROParam('absmax', self.absmax - diff)
 
-        if diff < 0:
-            self.usermin = self.usermin - diff
-            self.usermax = self.usermax - diff
-        else:
-            self.usermax = self.usermax - diff
-            self.usermin = self.usermin - diff
+            if diff < 0:
+                self.usermin = self.usermin - diff
+                self.usermax = self.usermax - diff
+            else:
+                self.usermax = self.usermax - diff
+                self.usermin = self.usermin - diff
+        # Since offset changes directly change the device value, refresh
+        # the cache instantly here
+        if self._cache:
+            self._cache.put(self, 'value', self.doRead() - diff,
+                            time.time(), self.maxage)
 
 
 class Switchable(Startable):
