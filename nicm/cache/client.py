@@ -89,7 +89,7 @@ class BaseCacheClient(Device):
 
     def doShutdown(self):
         self._stoprequest = True
-        self._worker.join()
+        #self._worker.join()
 
     def _connect(self):
         self._startup_done.clear()

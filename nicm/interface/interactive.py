@@ -148,7 +148,7 @@ class InteractiveNICOS(NICOS):
         console = NicmInteractiveConsole(self, self._NICOS__namespace,
                                          self._NICOS__local_namespace)
         console.interact(banner)
-        sys.exit()
+        sys.stdout.write(colorcode('reset'))
 
 
 def start(setup='startup'):
@@ -170,4 +170,5 @@ def start(setup='startup'):
     nicm.nicos.console()
 
     # After the console is finished, cleanup.
+    system.printinfo('shutting down...')
     nicm.nicos.unloadSetup()

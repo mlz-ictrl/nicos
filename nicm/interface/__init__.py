@@ -276,7 +276,7 @@ class NICOS(object):
         # XXX order shutdown by device dependencies
         for devname, dev in self.devices.items():
             dev.shutdown()
-            self.unexport(devname)
+            self.unexport(devname, warn=False)
             del self.devices[devname]
         self.configured_devices.clear()
         self.explicit_devices.clear()
@@ -300,9 +300,10 @@ class NICOS(object):
         self.__local_namespace.addForbidden(name)
         self.__exported_names.add(name)
 
-    def unexport(self, name):
+    def unexport(self, name, warn=True):
         if name not in self.__namespace:
-            self.log.warning('unexport: name %r not in namespace' % name)
+            if warn:
+                self.log.warning('unexport: name %r not in namespace' % name)
             return
         if name not in self.__exported_names:
             self.log.warning('unexport: name %r not exported by NICOS' % name)
