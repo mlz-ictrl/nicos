@@ -109,6 +109,18 @@ def AddSetup(setupname):
     nicos.loadSetup(setupname)
 
 @usercommand
+def ListSetups():
+    """Print a list of all known setups."""
+    printinfo('Available setups:')
+    items = []
+    for name, info in nicos.getSetupInfo().iteritems():
+        if info['group'] == 'special':
+            continue
+        items.append((name, info['name'], ', '.join(sorted(info['devices']))))
+    items.sort()
+    printTable(('name', 'description', 'devices'), items, printinfo)
+
+@usercommand
 def Keep(name, object):
     """Export the given object into the NICOS namespace."""
     nicos.export(name, object)

@@ -173,6 +173,9 @@ class NICOS(object):
                     raise ConfigurationError('Setup %s includes setup %s which '
                                              'does not exist' % (name, include))
 
+    def getSetupInfo(self):
+        return self.__setup_info.copy()
+
     def loadSetup(self, setupname, allow_special=False):
         """Load a setup module and set up devices accordingly."""
         if not self.__setup_info:
