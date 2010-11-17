@@ -231,8 +231,8 @@ class CacheClient(BaseCacheClient):
         self._ismaster = False
         self._mastermsg = '+%s@%s/master="%s"\r\n' % (
             3*self._selecttimeout, self._prefix, nicos.sessionid)
-        self._master_exp = 0
-        
+        self._master_expires = 0
+
         # XXX circumvent bootstrap problems
         self.get = self.real_get
         self.put = self.real_put
@@ -240,8 +240,8 @@ class CacheClient(BaseCacheClient):
     def _wait_data(self):
         if self._ismaster:
             time = currenttime()
-            if time > self._master_exp:
-                self._master_exp = time + self._selecttimeout
+            if time > self._master_expires:
+                self._master_expires = time + self._selecttimeout
                 self._queue.put(self._mastermsg)
 
     def getMaster(self):
@@ -251,6 +251,10 @@ class CacheClient(BaseCacheClient):
     def setMaster(self):
         self._queue.put(self._mastermsg)
         self._ismaster = True
+
+    def releaseMaster(self):
+        self._queue.put('%s/master=\r\n' % self._prefix)
+        self._ismaster = False
 
     def _handle_msg(self, time, ttl, tsop, key, op, value):
         if op != OP_TELL or not key.startswith(self._prefix):

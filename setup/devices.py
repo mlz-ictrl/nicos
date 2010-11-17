@@ -31,7 +31,7 @@
 
 name = 'devices for the setup'
 
-includes = ['system']
+#includes = []
 
 modules = ['nicm.commands']
 

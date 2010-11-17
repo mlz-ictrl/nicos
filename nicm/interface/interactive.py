@@ -164,3 +164,6 @@ def start(setup='startup'):
 
     # Fire up an interactive console.
     nicm.nicos.console()
+
+    # After the console is finished, cleanup.
+    nicm.nicos.unloadSetup()

@@ -83,6 +83,10 @@ class System(Device):
         except ModeError:
             self.printinfo('could not enter master mode; remaining slave')
 
+    def doShutdown(self):
+        if self.mode == 'master':
+            self._cache.releaseMaster()
+
     @property
     def cache(self):
         return self._adevs['cache']
