@@ -92,7 +92,6 @@ class Axis(Moveable, HasOffset):
         self.__target = self.__read()
         self.__mutex = threading.RLock()
         self.__stopRequest = 0
-        self.__locked = False
         self.__dragErrorCount = 0
         self.__checkMotorLimits()
 
@@ -119,8 +118,6 @@ class Axis(Moveable, HasOffset):
 
     def doStart(self, target, locked=False):
         """Starts the movement of the axis to target."""
-        if self.__locked:
-            raise NicmError(self, 'this axis is locked')
         if self.__checkTargetPosition(self.doRead(), target, error=0):
             return
 
@@ -136,7 +133,6 @@ class Axis(Moveable, HasOffset):
 
         self.__target = target
         self.__stopRequest = 0
-        self.__locked = locked   # lock the movement
         self.__error = 0
         self.__dragErrorCount = 0
         if not self.__thread:
@@ -187,16 +183,6 @@ class Axis(Moveable, HasOffset):
                             'command and try it again')
         self.__checkErrorState()
         HasOffset.doWriteOffset(self, value)
-
-    def doLock(self):
-        """Locks the axis against any movement."""
-        super(Axis, self).doLock()
-        self.__locked = True
-
-    def doUnlock(self):
-        """Unlocks the axis."""
-        super(Axis, self).doUnlock()
-        self.__locked = False
 
     def _preMoveAction(self):
         """ This method will be called before the motor will be moved.
@@ -291,9 +277,6 @@ class Axis(Moveable, HasOffset):
                 self.__positioning(self.__target)
             if not self._postMoveAction():
                 self.__error = 4
-        if self.__locked:
-            # if the movement was locked, unlock it
-            self.__locked = False
 
     def __positioning(self, target):
         moving = False
