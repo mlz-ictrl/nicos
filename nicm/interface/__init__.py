@@ -245,6 +245,10 @@ class NICOS(object):
 
         devlist, startupcode = inner_load(setupname)
 
+        # System must be created first
+        if 'System' not in self.devices:
+            self.createDevice('System')
+
         # create all devices
         for devname, (_, devconfig) in sorted(devlist.iteritems()):
             if devconfig.get('lowlevel', False):
@@ -273,11 +277,20 @@ class NICOS(object):
         """Unload the current setup: destroy all devices and clear the
         NICOS namespace.
         """
-        # XXX order shutdown by device dependencies
-        for devname, dev in self.devices.items():
-            dev.shutdown()
-            self.unexport(devname, warn=False)
-            del self.devices[devname]
+        # shutdown according to device dependencies
+        devs = self.devices.values()
+        already_shutdown = set()
+        while devs:
+            for dev in devs[:]:
+                # shutdown only those devices that don't have remaining
+                # dependencies
+                if dev._sdevs <= already_shutdown:
+                    already_shutdown.add(dev)
+                    self.unexport(dev.name, warn=False)
+                    dev.shutdown()
+                    devs.remove(dev)
+        already_shutdown.clear()
+        self.devices.clear()
         self.configured_devices.clear()
         self.explicit_devices.clear()
         for name in list(self.__exported_names):
@@ -366,7 +379,13 @@ class NICOS(object):
         """Shutdown and destroy a device."""
         if devname not in self.devices:
             raise UsageError('device %r not created' % devname)
-        self.devices[devname].shutdown()
+        dev = self.devices[devname]
+        dev.shutdown()
+        for adev in dev._adevs.values():
+            if isinstance(adev, list):
+                [real_adev._sdevs.discard(dev) for real_adev in adev]
+            else:
+                adev._sdevs.discard(dev)
         del self.devices[devname]
         self.explicit_devices.discard(devname)
         if devname in self.__namespace:

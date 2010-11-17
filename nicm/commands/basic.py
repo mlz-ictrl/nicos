@@ -135,6 +135,8 @@ def CreateDevice(*devnames):
 def DestroyDevice(*devnames):
     """Destroy all given devices."""
     for devname in devnames:
+        if isinstance(devname, Device):
+            devname = devname.name
         nicos.destroyDevice(devname)
 
 @usercommand

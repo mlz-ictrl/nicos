@@ -89,7 +89,7 @@ class BaseCacheClient(Device):
 
     def doShutdown(self):
         self._stoprequest = True
-        #self._worker.join()
+        self._worker.join()
 
     def _connect(self):
         self._startup_done.clear()
@@ -217,6 +217,16 @@ class BaseCacheClient(Device):
                         self._disconnect('disconnect: recv failed')
                         break
                     data += newdata
+        if self._socket:
+            # send rest of data
+            while True:
+                try:
+                    tosend = self._queue.get(False)
+                except:
+                    break
+                while tosend:
+                    sent = self._socket.send(tosend)
+                    tosend = tosend[sent:]
 
         # end of while loop
         self._disconnect()

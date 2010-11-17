@@ -91,6 +91,8 @@ class Device(object):
         self._changedparams = set()
         # _adevs: "attached" device instances
         self._adevs = {}
+        # superdevs: reverse adevs for dependency tracking
+        self._sdevs = set()
         # execution mode
         self._mode = nicos.system.mode
 
@@ -120,7 +122,7 @@ class Device(object):
         return self.name
 
     def __repr__(self):
-        if self.name == self.description:
+        if not self.description:
             return '<device %s (a %s.%s)>' % (self.name,
                                               self.__class__.__module__,
                                               self.__class__.__name__)
@@ -175,12 +177,14 @@ class Device(object):
                             self, 'device %r item %d has wrong type' %
                             (aname, i))
                     devlist.append(dev)
+                    dev._sdevs.add(self)
             else:
                 dev = nicos.getDevice(value)
                 if not isinstance(dev, cls):
                     raise ConfigurationError(
                         self, 'device %r has wrong type' % aname)
                 self._adevs[aname] = dev
+                dev._sdevs.add(self)
 
         self._cache = self._getCache()
 
