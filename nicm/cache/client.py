@@ -233,10 +233,6 @@ class CacheClient(BaseCacheClient):
             3*self._selecttimeout, self._prefix, nicos.sessionid)
         self._master_expires = 0
 
-        # XXX circumvent bootstrap problems
-        self.get = self.real_get
-        self.put = self.real_put
-
     def _wait_data(self):
         if self._ismaster:
             time = currenttime()
@@ -270,23 +266,6 @@ class CacheClient(BaseCacheClient):
                              time and float(time), ttl and float(ttl))
 
     def get(self, dev, key):
-        return None
-
-    def put(self, dev, key, value, timestamp=None, ttl=None):
-        return
-
-    def real_put(self, dev, key, value, time=None, ttl=None):
-        if time is None:
-            time = currenttime()
-        ttlstr = ttl and '+%s' % ttl or ''
-        dbkey = '%s/%s' % (dev.name.lower(), key)
-        msg = '%s%s@%s/%s%s%s\r\n' % (time, ttlstr, self._prefix, dbkey,
-                                      OP_TELL, cache_dump(value))
-        self.printdebug('putting %s=%s' % (dbkey, value))
-        self._db[dbkey] = (value, time, ttl)
-        self._queue.put(msg)
-
-    def real_get(self, dev, key):
         self._startup_done.wait()
         dbkey = '%s/%s' % (dev.name.lower(), key)
         entry = self._db.get(dbkey)
@@ -300,6 +279,17 @@ class CacheClient(BaseCacheClient):
             return None
         return value
 
+    def put(self, dev, key, value, time=None, ttl=None):
+        if time is None:
+            time = currenttime()
+        ttlstr = ttl and '+%s' % ttl or ''
+        dbkey = '%s/%s' % (dev.name.lower(), key)
+        msg = '%s%s@%s/%s%s%s\r\n' % (time, ttlstr, self._prefix, dbkey,
+                                      OP_TELL, cache_dump(value))
+        self.printdebug('putting %s=%s' % (dbkey, value))
+        self._db[dbkey] = (value, time, ttl)
+        self._queue.put(msg)
+
     def history(self, dev, key):
         pass
 
@@ -310,5 +300,5 @@ class WriteonlyCacheClient(CacheClient):
     so that each read() actually queries the device.
     """
 
-    def real_get(self, dev, key):
+    def get(self, dev, key):
         return None
