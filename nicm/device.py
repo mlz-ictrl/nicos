@@ -48,6 +48,14 @@ class Device(object):
     """
     An object that has a list of parameters that are read from the configuration
     and have default values.
+
+    Subclasses *can* implement:
+
+    * doPreinit()
+    * doInit()
+    * doShutdown()
+    * doVersion()
+    * doSave()
     """
 
     __metaclass__ = AutoPropsMeta
@@ -274,6 +282,16 @@ class Device(object):
 class Readable(Device):
     """
     Base class for all readable devices.
+
+    Subclasses *need* to implement:
+
+    * doRead()
+    * doStatus()
+
+    Subclasses *can* implement:
+
+    * doReset()
+    * doFormat(value)
     """
 
     parameters = {
@@ -380,6 +398,18 @@ class Startable(Readable):
 
     This is used for typechecking, e.g. when any device with a stop()
     method is required.
+
+    Subclasses *need* to implement:
+
+    * doStart(value)
+
+    Subclasses *can* implement:
+
+    * doStop()
+    * doWait()
+    * doIsAllowed()
+    * doFix()
+    * doRelease()
     """
 
     def __init__(self, name, **config):
@@ -594,6 +624,18 @@ class Switchable(Startable):
 class Measurable(Startable):
     """
     Base class for devices used for data acquisition.
+
+    Subclasses *need* to implement:
+
+    * doRead()
+    * doStart(**preset)
+    * doStop()
+    * doIsCompleted()
+
+    Subclasses *can* implement:
+
+    * doPause()
+    * doResume()
     """
 
     parameters = {
