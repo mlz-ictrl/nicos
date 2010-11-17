@@ -39,20 +39,20 @@ import time
 import threading
 
 from nicm import status
-from nicm.device import Moveable, Param
+from nicm.device import Moveable, HasOffset, Param
 from nicm.errors import ConfigurationError, NicmError, PositionError
 from nicm.errors import ProgrammingError, MoveError
-from nicm.motor import Motor as NicmMotor
-from nicm.coder import Coder as NicmCoder
+from nicm.motor import Motor
+from nicm.coder import Coder
 
 
-class Axis(Moveable):
+class Axis(Moveable, HasOffset):
     """Base class for all axes."""
 
     attached_devices = {
-        'motor' : NicmMotor,
-        'coder' : NicmCoder,
-        'obs'   : [NicmCoder],
+        'motor': Motor,
+        'coder': Coder,
+        'obs':   [Coder],
     }
 
     parameters = {
@@ -69,8 +69,6 @@ class Axis(Moveable):
                            settable=True),
         'backlash':  Param('The maximum allowed backlash', unit='main',
                            settable=True),
-        'offset':    Param('Offset of axis zero point to motor zero point',
-                           unit='main'),
         # these are not mandatory for the axis: the motor should have them
         # defined anyway, and by default they are correct for the axis as well
         'absmin':    Param('Absolute minimum of device value', unit='main'),
@@ -90,7 +88,6 @@ class Axis(Moveable):
                                          'and observer %s' % ob)
 
         self.__error = 0
-        self.__offset = 0
         self.__thread = None
         self.__target = self.__read()
         self.__mutex = threading.RLock()
@@ -158,34 +155,6 @@ class Axis(Moveable):
         self.__checkErrorState()
         return self.__read()
 
-    def doAdjust(self, target):
-        """Sets the current position of the motor/coder controller to
-        the target.
-        """
-        self.__checkErrorState()
-        if self.doStatus()[0] == status.BUSY:
-            raise NicmError(self, 'axis is moving now, please issue a stop '
-                            'command and try it again')
-        diff = (self.doRead() - target)
-        self.__target = target
-        self.__offset += diff
-        self._setROParam('offset', self.__offset)
-
-        # Avoid the use of the setPar method for the absolute limits
-        if diff < 0:
-            self._setROParam('absmax', self.absmax - diff)
-            self._setROParam('absmin', self.absmin - diff)
-        else:
-            self._setROParam('absmin', self.absmin - diff)
-            self._setROParam('absmax', self.absmax - diff)
-
-        if diff < 0:
-            self.usermin = self.usermin - diff
-            self.usermax = self.usermax - diff
-        else:
-            self.usermax = self.usermax - diff
-            self.usermin = self.usermin - diff
-
     def doReset(self):
         """Resets the motor/coder controller."""
         if self.doStatus()[0] != status.BUSY:
@@ -206,6 +175,14 @@ class Axis(Moveable):
             time.sleep(self.loopdelay)
         else:
             self.__checkErrorState()
+
+    def doWriteOffset(self, value):
+        """Called on adjust(), overridden to forbid adjusting while moving."""
+        if self.doStatus()[0] == status.BUSY:
+            raise NicmError(self, 'axis is moving now, please issue a stop '
+                            'command and try it again')
+        self.__checkErrorState()
+        HasOffset.doWriteOffset(self, value)
 
     def doLock(self):
         """Locks the axis against any movement."""
@@ -257,7 +234,7 @@ class Axis(Moveable):
                                        self.__error)
 
     def __read(self):
-        return self._adevs['coder'].doRead() - self.__offset
+        return self._adevs['coder'].doRead() - self.offset
 
     def __checkDragerror(self):
         tmp = abs(self._adevs['motor'].doRead() - self._adevs['coder'].doRead())
@@ -318,7 +295,7 @@ class Axis(Moveable):
         moving = False
         maxtries = self.maxtries
         self.__lastPosition = self.doRead()
-        __target = target + self.__offset
+        __target = target + self.offset
         self._adevs['motor'].start(__target)
         moving = True
 

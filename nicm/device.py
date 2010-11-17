@@ -577,6 +577,48 @@ class Moveable(BaseMoveable):
             raise ConfigurationError('unsupported unit: %s' % value)
 
 
+class HasOffset(object):
+    """
+    Mixin class for Readable or Moveable devices that want to provide an
+    'offset' parameter and that can be adjusted via adjust().
+
+    This is *not* directly a feature of Moveable, because providing this
+    transparently this would mean that doRead() returns the un-adjusted value
+    while read() returns the adjusted value.  It would also mean that the
+    un-adjusted value is stored in the cache, which is wrong for monitoring
+    purposes.
+
+    Instead, each class that provides an offset must inherit this mixin, and
+    subtract/add self.offset in doRead()/doStart().
+    """
+
+    parameters = {
+        'offset':  Param('Offset of device zero to hardware zero', unit='main',
+                         settable=True),
+    }
+
+    def doWriteOffset(self, value):
+        """Adapt the limits to the new offset."""
+        if not isinstance(self, Moveable):
+            # this applies only to Moveables
+            return
+        diff = value - self.offset
+        # Avoid the use of the setPar method for the absolute limits
+        if diff < 0:
+            self._setROParam('absmax', self.absmax - diff)
+            self._setROParam('absmin', self.absmin - diff)
+        else:
+            self._setROParam('absmin', self.absmin - diff)
+            self._setROParam('absmax', self.absmax - diff)
+
+        if diff < 0:
+            self.usermin = self.usermin - diff
+            self.usermax = self.usermax - diff
+        else:
+            self.usermax = self.usermax - diff
+            self.usermin = self.usermin - diff
+
+
 class Switchable(Startable):
     """
     Base class for all switchable devices.

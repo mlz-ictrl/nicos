@@ -41,12 +41,12 @@ import TACOStates
 import Temperature
 
 from nicm import status
-from nicm.device import Param, Readable, Moveable
+from nicm.device import Param, Readable, Moveable, HasOffset
 from nicm.errors import CommunicationError, TimeoutError
 from nicm.taco.base import TacoDevice
 
 
-class Sensor(TacoDevice, Readable):
+class Sensor(TacoDevice, Readable, HasOffset):
     taco_class = Temperature.Sensor
 
     parameters = {
@@ -54,7 +54,6 @@ class Sensor(TacoDevice, Readable):
         'curvename':  Param('Sensor calibration curve name',
                             type=str, default=None),
         'serno':   Param('Sensor serial number', type=str, default=None),
-        'offset':  Param('Offset for temperature', settable=True),
         'unit':    Param('Unit of temperature', type=str, default=None),
     }
 
@@ -89,7 +88,7 @@ class Sensor(TacoDevice, Readable):
         return self._taco_guard(self._dev.deviceQueryResource, 'serno')
 
 
-class Controller(TacoDevice, Moveable):
+class Controller(TacoDevice, Moveable, HasOffset):
     taco_class = Temperature.Controller
 
     attached_devices = {
@@ -112,7 +111,6 @@ class Controller(TacoDevice, Moveable):
         'loopdelay': Param('Sleep time when waiting', unit='s', default=1,
                            settable=True),
         'unit':      Param('Unit of temperature', type=str),
-        'offset':    Param('Offset for setpoint', unit='main', settable=True),
     }
 
     def doInit(self):

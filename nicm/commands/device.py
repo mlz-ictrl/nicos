@@ -37,7 +37,8 @@ __version__ = "$Revision$"
 
 from nicm import nicos
 from nicm.utils import printTable
-from nicm.device import Device, Startable, BaseMoveable, Switchable, Readable
+from nicm.device import Device, Startable, BaseMoveable, Switchable, Readable, \
+     HasOffset
 from nicm.errors import NicmError, UsageError
 from nicm.status import statuses
 from nicm.commands import usercommand
@@ -204,6 +205,14 @@ def release(*devlist):
         dev = nicos.getDevice(dev, Startable)
         dev.release()
         dev.printinfo('released')
+
+@usercommand
+def adjust(dev, value):
+    """Adjust the offset of the device so that read() returns the given value.
+    """
+    dev = nicos.getDevice(dev, HasOffset)
+    diff = dev.read() - value
+    dev.offset += diff
 
 @usercommand
 def version(dev):

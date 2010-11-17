@@ -39,15 +39,15 @@ import time
 import random
 import threading
 
-from nicm import nicos, status
+from nicm import status
 from nicm.motor import Motor
 from nicm.coder import Coder
 from nicm.utils import tacodev
-from nicm.device import Readable, Param
+from nicm.device import Readable, HasOffset, Param
 from nicm.detector import FRMTimerChannel, FRMCounterChannel
 
 
-class VirtualMotor(Motor):
+class VirtualMotor(Motor, HasOffset):
     parameters = {
         'initval': Param('Initial value for the virtual device', mandatory=True),
         'speed':   Param('Virtual speed of the device'),
@@ -58,7 +58,7 @@ class VirtualMotor(Motor):
         self.__busy = False
 
     def doStart(self, pos):
-        pos = float(pos)
+        pos = float(pos) + self.offset
         self.__busy = True
         if self.speed != 0:
             thread = threading.Thread(target=self.__moving, args=(pos,))
@@ -69,7 +69,7 @@ class VirtualMotor(Motor):
             self.__busy = False
 
     def doRead(self):
-        return self.__val
+        return self.__val - self.offset
 
     def doStatus(self):
         if self.__busy:
@@ -89,13 +89,14 @@ class VirtualMotor(Motor):
         self.__busy = False
 
 
-class VirtualCoder(Coder):
+class VirtualCoder(Coder, HasOffset):
     attached_devices = {
         'motor': Readable,
     }
 
     def doRead(self):
-        return self._adevs['motor'] and self._adevs['motor'].doRead() or 0
+        val = self._adevs['motor'] and self._adevs['motor'].doRead() or 0
+        return val - self.offset
 
     def doStatus(self):
         return (status.OK, 'idle')

@@ -47,9 +47,13 @@ from nicm.errors import CommunicationError, TimeoutError
 class CacheReader(Readable):
 
     def doRead(self):
-        # cache mechanism already worked its magic, if we end up here
-        # there is no valid value in the cache
-        raise CommunicationError(self, 'CacheReader value not in cache')
+        # although read() already looked in the cache, we need to do it again
+        # since some routines call doRead() directly in order to get a fresh
+        # value directly from the device
+        val = self._cache.get(self, 'value')
+        if val is None:
+            raise CommunicationError(self, 'CacheReader value not in cache')
+        return val
 
     def doStatus(self):
         # same here as for doRead, however if no status info is in the
