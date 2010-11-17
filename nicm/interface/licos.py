@@ -104,3 +104,10 @@ def start():
 
     # Create the initial instrument setup.
     nicm.nicos.loadSetup('startup')
+
+    # Try to become master.
+    system = nicm.nicos.system
+    try:
+        system.setMode('master')
+    except:
+        system.printinfo('could not enter master mode; remaining slave')

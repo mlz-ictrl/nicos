@@ -156,11 +156,15 @@ def start(setup='startup'):
     nicm.nicos.__class__ = InteractiveNICOS
     nicm.nicos.__init__()
 
-    # Should not be necessary for the separate console.
-    #nicos.setNamespace(sys._getframe(1).f_globals)
-
     # Create the initial instrument setup.
     nicm.nicos.loadSetup(setup)
+
+    # Try to become master.
+    system = nicm.nicos.system
+    try:
+        system.setMode('master')
+    except:
+        system.printinfo('could not enter master mode; remaining slave')
 
     # Fire up an interactive console.
     nicm.nicos.console()

@@ -99,8 +99,12 @@ class Device(object):
         for mn in ('debug', 'info', 'warning', 'error', 'exception'):
             setattr(self, 'print' + mn, getattr(self._log, mn))
 
-        # initialize device
-        self.init()
+        try:
+            # initialize device
+            self.init()
+        except Exception:
+            # if initialization fails
+            del nicos.devices[name]
 
     def __setattr__(self, name, value):
         # disallow modification of public attributes that are not parameters

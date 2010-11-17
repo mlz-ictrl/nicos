@@ -323,7 +323,7 @@ class NICOS(object):
             elif dev in self.configured_devices:
                 dev = self.createDevice(dev)
             else:
-                raise UsageError('device %r not found in configuration' % dev)
+                raise ConfigurationError('device %r not found in configuration' % dev)
         from nicm.device import Device
         if not isinstance(dev, cls or Device):
             raise UsageError('dev must be a %s' % (cls or Device).__name__)
@@ -372,6 +372,11 @@ class NICOS(object):
     def system(self):
         if self.__system_device is None:
             from nicm.system import System
+            if 'System' not in self.configured_devices:
+                # XXX logpath should be configured still
+                self.configured_devices['System'] = ('nicm.system.System', dict(
+                    datasinks=[], cache=None, instrument=None, experiment=None,
+                    logpath='', datapath=''))
             self.__system_device = self.getDevice('System', System)
         return self.__system_device
 

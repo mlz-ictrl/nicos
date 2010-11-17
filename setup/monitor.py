@@ -65,7 +65,7 @@ _layout = [
 
 devices = dict(
     System = device('nicm.system.System', cache=None,
-                    sinks=[], logpath='', datapath=''),
+                    datasinks=[], logpath='', datapath=''),
 
     Monitor = device('nicm.monitor.Monitor',
                      title='Status monitor',

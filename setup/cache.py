@@ -33,9 +33,6 @@ name = 'setup for the cache server'
 group = 'special'
 
 devices = dict(
-    System = device('nicm.system.System', cache=None,
-                    sinks=[], logpath='', datapath=''),
-
     DB = device('nicm.cache.server.CacheDatabase',
                 ),
 

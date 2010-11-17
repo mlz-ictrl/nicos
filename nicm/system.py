@@ -77,12 +77,6 @@ class System(Device):
         self._mode = 'slave'
         Device.__init__(self, name, **config)
 
-    def doInit(self):
-        try:
-            self.setMode('master')
-        except ModeError:
-            self.printinfo('could not enter master mode; remaining slave')
-
     def doShutdown(self):
         if self.mode == 'master':
             self._cache.releaseMaster()
