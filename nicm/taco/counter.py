@@ -80,7 +80,7 @@ class TacoCountable(TacoDevice, Countable):
         self._taco_guard(self._dev.resume)
 
     def doWait(self):
-        while self.status() == status.BUSY:
+        while self.status()[0] == status.BUSY:
             sleep(self.loopdelay)
 
     def doClear(self):
@@ -91,15 +91,15 @@ class TacoCountable(TacoDevice, Countable):
     def doStatus(self):
         state = self._taco_guard(self._dev.deviceState)
         if state == TACOStates.PRESELECTION_REACHED:
-            return status.OK
+            return (status.OK, 'preselection reached')
         elif state == TACOStates.STOPPED:
             if self.__stopped:
-                return status.OK
+                return (status.OK, 'idle')
             else:
-                return status.PAUSED
+                return (status.PAUSED, 'paused')
         elif state == TACOStates.COUNTING:
-            return status.BUSY
-        return status.ERROR
+            return (status.BUSY, 'counting')
+        return (status.ERROR, TACOStates.stateDescription(state))
 
     def doReadPreselection(self):
         return self._taco_guard(self._dev.preselection)

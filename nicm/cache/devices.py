@@ -54,7 +54,7 @@ class CacheReader(Readable):
     def doStatus(self):
         # same here as for doRead, however if no status info is in the
         # cache, we assume it's ok
-        return status.OK
+        return (status.OK, 'no status found in cache')
 
 
 class CacheWriter(Moveable):
@@ -77,7 +77,7 @@ class CacheWriter(Moveable):
         raise CommunicationError(self, 'CacheWriter value not in cache')
 
     def doStatus(self):
-        return status.OK
+        return (status.OK, 'no status found in cache')
 
     def doStart(self, pos):
         self._cache.put(self, self.setkey, pos)

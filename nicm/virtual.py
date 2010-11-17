@@ -73,8 +73,8 @@ class VirtualMotor(Motor):
 
     def doStatus(self):
         if self.__busy:
-            return status.BUSY
-        return status.OK
+            return (status.BUSY, 'moving')
+        return (status.OK, 'idle')
 
     def __moving(self, pos):
         incr = self.speed
@@ -98,7 +98,7 @@ class VirtualCoder(Coder):
         return self._adevs['motor'] and self._adevs['motor'].doRead() or 0
 
     def doStatus(self):
-        return status.OK
+        return (status.OK, 'idle')
 
 
 class VirtualTimer(FRMTimerChannel):
@@ -126,7 +126,7 @@ class VirtualTimer(FRMTimerChannel):
         self.__finish = True
 
     def doStatus(self):
-        return status.OK
+        return (status.OK, 'idle')
 
     def doRead(self):
         if self.ismaster:
@@ -157,7 +157,7 @@ class VirtualCounter(FRMCounterChannel):
     doInit = doStart = doPause = doResume = doStop = doWait = doReset = nothing
 
     def doStatus(self):
-        return status.OK
+        return (status.OK, 'idle')
 
     def doRead(self):
         if self.ismaster:

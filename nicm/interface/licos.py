@@ -98,10 +98,6 @@ def start():
     nicm.nicos.__class__ = LicosNICOS
     nicm.nicos.__init__()
 
-    # NICOS user commands and devices will be placed in the globals of the
-    # execution frame that first imports this module.
-    #nicm.nicos.setNamespace(sys._getframe(1).f_globals)
-
     # Create the initial instrument setup.
     nicm.nicos.loadSetup('startup')
 

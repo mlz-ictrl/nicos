@@ -138,7 +138,7 @@ class Monitor(BaseCacheClient):
                             'name': '', 'dev': '', 'width': 10,
                             'unit': '', 'format': '%s',
                             # current values
-                            'time': 0, 'ttl': 0, 'status': '',
+                            'time': 0, 'ttl': 0, 'status': None,
                             # key names
                             'key': '', 'statuskey': '', 'unitkey': '',
                             'formatkey': '',
@@ -254,7 +254,11 @@ class Monitor(BaseCacheClient):
         if field['unit']:
             statustext += ' %s' % field['unit']
         if field['status']:
-            statustext += ', status is %s' % statuses.get(field['status'], '?')
+            try:
+                const, msg = field['status']
+            except ValueError:
+                const, msg = field['status'], ''
+            statustext += ', status is %s: %s' % (statuses.get(const, '?'), msg)
         if field['time']:
             statustext += ', updated %s ago' % (
                 nicedelta(currenttime() - field['time']))
@@ -301,16 +305,20 @@ class Monitor(BaseCacheClient):
                     newwatch.append(field)
                 else:
                     vlabel.config(fg='green')
-
-            # if we have a status
-            elif status == OK:
-                vlabel.config(fg='green')
-            elif status in (BUSY, PAUSED):
-                vlabel.config(fg='yellow')
-            elif status in (ERROR, NOTREACHED):
-                vlabel.config(fg='red')
             else:
-                vlabel.config(fg='white')
+                # if we have a status
+                try:
+                    const = status[0]
+                except ValueError:
+                    const = status
+                if const == OK:
+                    vlabel.config(fg='green')
+                elif const in (BUSY, PAUSED):
+                    vlabel.config(fg='yellow')
+                elif const in (ERROR, NOTREACHED):
+                    vlabel.config(fg='red')
+                else:
+                    vlabel.config(fg='white')
 
             if field['valuevar'].get() == '----':
                 # no value (yet)

@@ -63,5 +63,5 @@ class Output(TacoDevice, Moveable):
         self._taco_guard(self._dev.write, value)
 
     def doWait(self):
-        while self.status() == status.BUSY:
+        while self.status()[0] == status.BUSY:
             sleep(self.loopdelay)

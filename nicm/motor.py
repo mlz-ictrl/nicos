@@ -37,7 +37,6 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from nicm import status
 from nicm.coder import Coder
 from nicm.device import Moveable, Param
 
@@ -72,10 +71,6 @@ class Motor(Moveable, Coder):
     def doSetPosition(self, target):
         """Sets the current position of the motor controller to the target."""
         pass
-
-    def doStatus(self):
-        """Returns the status of the motor controller."""
-        return status.OK
 
     def doReset(self):
         """Resets the motor controller."""

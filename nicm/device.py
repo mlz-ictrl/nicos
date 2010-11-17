@@ -154,15 +154,8 @@ class Device(object):
         if hasattr(self, 'doPreinit'):
             self.doPreinit()
 
-        # HACK: bootstrap
-        if 'cache' in self.attached_devices:
-            if self._config['cache']:
-                self._adevs['cache'] = nicos.createDevice(self._config['cache'])
-            else:
-                self._adevs['cache'] = None
-
         # validate and create attached devices
-        for aname, cls in self.attached_devices.iteritems():
+        for aname, cls in sorted(self.attached_devices.iteritems()):
             if aname not in self._config:
                 raise ConfigurationError(
                     self, 'device misses device %r in configuration' % aname)
@@ -356,10 +349,11 @@ class Readable(Device):
             return status.OK
         if hasattr(self, 'doStatus'):
             value = self._get_from_cache('status', self.doStatus)
-            if value not in status.statuses:
-                raise ProgrammingError(self, 'status return %r unknown' % value)
+            if value[0] not in status.statuses:
+                raise ProgrammingError(self, 'status constant %r is unknown' %
+                                       value[0])
             return value
-        return status.UNKNOWN
+        return (status.UNKNOWN, 'doStatus not implemented')
 
     def reset(self):
         """Reset the device hardware.  Return status afterwards."""
@@ -389,9 +383,9 @@ class Readable(Device):
         # XXX this can fail; catch exceptions around every item
         return
         yield ('value', self.read())
-        value = self.status()
-        if value != status.OK:
-            yield ('status', status.statuses[value])
+        st = self.status()
+        if st[0] != status.OK:
+            yield ('status', '%s: %s' % st)
         for item in Device.info(self):
             yield item
 

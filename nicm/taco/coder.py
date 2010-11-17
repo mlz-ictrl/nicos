@@ -36,9 +36,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from Encoder import Encoder as TACOCoder
-import TACOStates
 
-from nicm import status
 from nicm.coder import Coder as NicmCoder
 from nicm.taco.base import TacoDevice
 
@@ -50,10 +48,3 @@ class Coder(TacoDevice, NicmCoder):
 
     def doSetPosition(self, target):
         self._taco_guard(self._dev.setpos, target)
-
-    def doStatus(self):
-        stat = self._taco_guard(self._dev.deviceState)
-        if stat == TACOStates.DEVICE_NORMAL:
-            return status.OK
-        else:
-            return status.ERROR

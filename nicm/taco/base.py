@@ -98,8 +98,9 @@ class TacoDevice(object):
     def doStatus(self):
         state = self._taco_guard(self._dev.deviceState)
         if state in (TACOStates.ON, TACOStates.DEVICE_NORMAL):
-            return status.OK
-        return status.ERROR # or status.UNKNOWN?
+            return (status.OK, TACOStates.stateDescription(state))
+        # rather status.UNKNOWN?
+        return (status.ERROR, TACOStates.stateDescription(state))
 
     def doReset(self):
         self._taco_guard(self._dev.deviceReset)

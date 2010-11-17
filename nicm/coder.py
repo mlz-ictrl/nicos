@@ -35,7 +35,6 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from nicm import status
 from nicm.device import Readable
 
 
@@ -49,10 +48,6 @@ class Coder(Readable):
     def doSetPosition(self, target):
         """Sets the current position of the encoder controller to the target."""
         pass
-
-    def doStatus(self):
-        """Returns the status of the encoder controller."""
-        return status.OK
 
     def doReset(self):
         """Resets the encoder controller."""

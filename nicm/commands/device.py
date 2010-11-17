@@ -141,12 +141,13 @@ def status(*devlist):
     for dev in devlist:
         dev = nicos.getDevice(dev, Readable)
         try:
-            status = dev.status()
+            const, message = dev.status()
         except NicmError:
             dev.printexception('error reading status')
         else:
-            status = statuses.get(status, str(status))
-            dev.printinfo('status is %s' % status)
+            const = statuses.get(const, str(const))
+            dev.printinfo('status is %s%s' %
+                          (const, message and ': ' + message or ''))
 
 @usercommand
 def stop(*devlist):

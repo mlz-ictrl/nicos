@@ -122,7 +122,7 @@ class Controller(TacoDevice, Moveable):
         return self._adevs['primary_sensor'].read() - self.offset
 
     def doStart(self, target):
-        if self.status() == status.BUSY:
+        if self.status()[0] == status.BUSY:
             self.printdebug('stopping running temperature change')
             self._taco_guard(self._dev.stop)
         self._taco_guard(self._dev.write, target + self.offset)
@@ -133,21 +133,21 @@ class Controller(TacoDevice, Moveable):
     def doStatus(self):
         state = self._taco_guard(self._dev.deviceState)
         if state == TACOStates.MOVING:
-            return status.BUSY
+            return (status.BUSY, 'moving')
         elif state in [TACOStates.PRESELECTION_REACHED,
                        TACOStates.DEVICE_NORMAL]:
-            return status.OK
+            return (status.OK, TACOStates.stateDescription(state))
         elif state == TACOStates.UNDEFINED:
-            return status.NOTREACHED
+            return (status.NOTREACHED, 'temperature not reached')
         else:
-            return status.ERROR
+            return (status.ERROR, TACOStates.stateDescription(state))
 
     def doWait(self):
         delay = self.loopdelay
         while 1:
             v = self.read()
             self.printdebug('current temperature %7.3f %s' % (v, self.unit))
-            s = self.status()
+            s = self.status()[0]
             if s == status.OK:
                 return v
             elif s == status.ERROR:
