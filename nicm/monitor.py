@@ -57,6 +57,11 @@ def nicedelta(t):
         return '%.1f hours' % (t / 3600.)
 
 
+class Field(dict):
+    def __hash__(self):
+        return id(self)
+
+
 class Monitor(BaseCacheClient):
 
     # server and prefix parameters come from BaseCacheClient
@@ -83,8 +88,8 @@ class Monitor(BaseCacheClient):
         root.protocol("WM_DELETE_WINDOW", self.quit)
         self.tk_init(root)
 
-        self._selecttimeout = 0.1
-        self._watch = []
+        self._selecttimeout = 0.2
+        self._watch = set()
         # now start the worker thread
         self._worker.start()
 
@@ -114,6 +119,8 @@ class Monitor(BaseCacheClient):
         fontsize = self.fontsize
         fontsizebig = int(self.fontsize * 1.2)
 
+        self._bgcolor = master.config('bg')[-1]
+
         master.title(self.title)
         self._fonts = tkFont.families(master)
 
@@ -133,16 +140,16 @@ class Monitor(BaseCacheClient):
                 for rowdesc in blockdesc[1]:
                     fields = []
                     for fielddesc in rowdesc:
-                        field = {
+                        field = Field({
                             # display/init properties
                             'name': '', 'dev': '', 'width': 10, 'unit': '',
                             'format': '%s', 'min': None, 'max': None,
                             # current values
-                            'time': 0, 'ttl': 0, 'status': None,
+                            'value': None, 'time': 0, 'ttl': 0, 'status': None,
                             # key names
                             'key': '', 'statuskey': '', 'unitkey': '',
                             'formatkey': '',
-                        }
+                        })
                         field.update(fielddesc)
                         fields.append(field)
                     rows.append(fields)
@@ -179,10 +186,12 @@ class Monitor(BaseCacheClient):
                           width=field['width'] + 2)
                 l.grid(row=0)
 
+                field['namelabel'] = l
+
                 s = StringVar(value='----')
                 l = Label(fieldframe, text='', pady=2, font=self._valuefont,
                           width=field['width'], relief=SUNKEN, textvariable=s,
-                          bg='gray87', fg='black')
+                          bg=self._bgcolor, fg='black')
                 l.grid(row=1)
                 l.bind('<Enter>', self._label_entered)
                 l.bind('<Leave>', self._label_left)
@@ -294,15 +303,32 @@ class Monitor(BaseCacheClient):
         self._master.title(s)
 
         # adjust the colors of status displays
-        newwatch = []
+        newwatch = set()
         for field in self._watch:
             vlabel, status = field['valuelabel'], field['status']
+            value = field['value']
+            if value is None:
+                # no value assigned
+                vlabel.config(bg=self._bgcolor, fg='black')
+                continue
+
+            # set name label background color: determined by the value limits
+
+            if field['min'] is not None and value < field['min']:
+                field['namelabel'].config(bg='red')
+            elif field['max'] is not None and value > field['max']:
+                field['namelabel'].config(bg='red')
+            else:
+                field['namelabel'].config(bg=self._bgcolor)
+
+            # set the foreground color: determined by the status
+
             age = currenttime() - field['time']
             if not status:
                 # no status yet, determine on time alone
                 if age < 3:
                     vlabel.config(fg='yellow')
-                    newwatch.append(field)
+                    newwatch.add(field)
                 else:
                     vlabel.config(fg='green')
             else:
@@ -320,16 +346,14 @@ class Monitor(BaseCacheClient):
                 else:
                     vlabel.config(fg='white')
 
-            if field['valuevar'].get() == '----':
-                # no value (yet)
-                vlabel.config(bg='gray87', fg='black')
+            # set the background color: determined by the value's age
 
             if field['ttl']:
                 if age > field['ttl']:
                     vlabel.config(bg='gray40')
                 else:
                     vlabel.config(bg='black')
-                    newwatch.append(field)
+                    newwatch.add(field)
             elif age < 3600:
                 vlabel.config(bg='black')
             elif age < 3600*6:
@@ -360,17 +384,21 @@ class Monitor(BaseCacheClient):
             value = cache_load(value)
         except ValueError:
             pass
-        #print 'processing', key, value
+
+        #self.printdebug('processing %s=%s' % (key, value))
+
         # now check if we need to update something
         fields = self._keymap.get(key, [])
         for field in fields:
-            self._watch.append(field)
+            self._watch.add(field)
             if key == field['key']:
                 if not value:
+                    field['value'] = None
                     field['time'] = 0
                     field['ttl'] = 0
                     field['valuevar'].set('----')
                 else:
+                    field['value'] = value
                     field['time'] = time
                     field['ttl'] = ttl
                     field['valuevar'].set(field['format'] % value)

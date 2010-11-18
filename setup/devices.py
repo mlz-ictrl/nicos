@@ -176,7 +176,7 @@ devices = dict(
                       m1 = 'ctr2',
                       m2 = None,
                       m3 = None,
-                      maxage = 300,
+                      maxage = 3,
                       pollinterval = 0.5),
 )
 

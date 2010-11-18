@@ -247,6 +247,11 @@ class NICOS(object):
 
         # System must be created first
         if 'System' not in self.devices:
+            if 'System' not in self.configured_devices:
+                # XXX logpath should be configured still
+                self.configured_devices['System'] = ('nicm.system.System', dict(
+                    datasinks=[], cache=None, instrument=None, experiment=None,
+                    logpath='', datapath=''))
             self.createDevice('System')
 
         # create all devices
@@ -395,11 +400,6 @@ class NICOS(object):
     def system(self):
         if self.__system_device is None:
             from nicm.system import System
-            if 'System' not in self.configured_devices:
-                # XXX logpath should be configured still
-                self.configured_devices['System'] = ('nicm.system.System', dict(
-                    datasinks=[], cache=None, instrument=None, experiment=None,
-                    logpath='', datapath=''))
             self.__system_device = self.getDevice('System', System)
         return self.__system_device
 

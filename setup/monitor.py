@@ -40,7 +40,7 @@ _row_filter1 = [
 
 _row_filter2 = [
     {'name': 'timer', 'dev': 'timer'},
-    {'name': 'ctr1', 'dev': 'ctr1'},
+    {'name': 'ctr1', 'dev': 'ctr1', 'min': 100, 'max': 500},
     {'name': 'ctr2', 'dev': 'ctr2'},
 ]
 
@@ -64,9 +64,6 @@ _layout = [
 ]
 
 devices = dict(
-    System = device('nicm.system.System', cache=None,
-                    datasinks=[], logpath='', datapath=''),
-
     Monitor = device('nicm.monitor.Monitor',
                      title='Status monitor',
                      loglevel='debug',
