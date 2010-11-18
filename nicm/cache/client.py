@@ -44,7 +44,7 @@ from time import sleep, time as currenttime
 from nicm import nicos
 from nicm.device import Device, Param
 from nicm.cache.utils import msg_pattern, line_pattern, cache_load, \
-     DEFAULT_CACHE_PORT, OP_TELL, OP_WILDCARD, OP_SUBSCRIBE, cache_dump
+     DEFAULT_CACHE_PORT, OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, cache_dump
 
 BUFSIZE = 8192
 
@@ -137,24 +137,28 @@ class BaseCacheClient(Device):
             data += self._socket.recv(BUFSIZE)
             n += 1
 
-        # process data
-        match = line_pattern.match(data)
+        self._process_data(data)
+
+    def _handle_msg(self, time, ttl, tsop, key, op, value):
+        raise NotImplementedError
+
+    def _process_data(self, data,
+                      lmatch=line_pattern.match, mmatch=msg_pattern.match):
+        match = lmatch(data)
         while match:
             line = match.group(1)
             data = data[match.end():]
-            msgmatch = msg_pattern.match(line)
+            msgmatch = mmatch(line)
             if not msgmatch:
                 # ignore invalid lines
                 continue
             self._handle_msg(**msgmatch.groupdict())
             # continue loop
-            match = line_pattern.match(data)
-
-    def _handle_msg(self, time, ttl, tsop, key, op, value):
-        raise NotImplementedError
+            match = lmatch(data)
 
     def _worker_thread(self):
         data = ''
+        process = self._process_data
 
         while not self._stoprequest:
             if not self._socket:
@@ -164,17 +168,7 @@ class BaseCacheClient(Device):
                     continue
 
             # process data so far
-            match = line_pattern.match(data)
-            while match:
-                line = match.group(1)
-                data = data[match.end():]
-                msgmatch = msg_pattern.match(line)
-                if not msgmatch:
-                    # ignore invalid lines
-                    continue
-                self._handle_msg(**msgmatch.groupdict())
-                # continue loop
-                match = line_pattern.match(data)
+            process(data)
 
             # wait for a whole line of data to arrive
             while ('\r' not in data) and ('\n' not in data) and \
@@ -300,8 +294,58 @@ class CacheClient(BaseCacheClient):
         self._db[dbkey] = (value, time, ttl)
         self._queue.put(msg)
 
-    def history(self, dev, key):
-        pass
+    def history(self, dev, key, fromtime, totime):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            sock.connect(self._address)
+        except Exception, err:
+            self.printwarning('unable to connect to %s:%s: %s' %
+                              (self._address + (err,)))
+            return None
+
+        ret = []
+        try:
+            # write request
+            dbkey = '%s/%s' % (dev.name.lower(), key)
+            tosend = '%s-%s@%s/%s%s\r\n###?\r\n' % (fromtime, totime,
+                                                    self._prefix, dbkey, OP_ASK)
+            while tosend:
+                sent = sock.send(tosend)
+                tosend = tosend[sent:]
+
+            # read response
+            data, n = '', 0
+            while not data.endswith('###!\r\n') and n < 100:
+                data += sock.recv(BUFSIZE)
+                n += 1
+
+            # process data
+            match = line_pattern.match(data)
+            while match:
+                line = match.group(1)
+                data = data[match.end():]
+                msgmatch = msg_pattern.match(line)
+                if not msgmatch:
+                    # ignore invalid lines
+                    continue
+                time, ttl, value = msgmatch.group('time'), msgmatch.group('ttl'), \
+                                   msgmatch.group('value')
+                ret.append((float(time), ttl and float(ttl), cache_load(value)))
+                # continue loop
+                match = line_pattern.match(data)
+
+            del ret[-1]
+
+        except Exception:
+            raise
+            ret = None
+        finally:
+            try:
+                sock.shutdown(socket.SHUT_RDWR)
+                sock.close()
+            except Exception:
+                pass
+            return ret
 
 
 class WriteonlyCacheClient(CacheClient):

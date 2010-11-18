@@ -66,6 +66,5 @@ def count(*detlist, **preset):
         preset['t'] = detlist[0]
         del detlist[0]
     if not detlist:
-        # XXX get default from Instrument or Experiment
-        detlist = [nicos.getDevice('det')]
+        detlist = nicos.system.instrument.detectors
     _count(detlist, preset)

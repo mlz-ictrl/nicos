@@ -142,7 +142,7 @@ class CacheWorker(object):
                 ret = self._handle_line(line)
                 #self.log.debug('return is %r' % ret)
                 if ret:
-                    self.writeto('\r\n'.join(ret) + '\r\n')
+                    self.writeto(''.join(ret))
                 # continue loop with next match
                 match = line_pattern.match(data)
             # fileno is < 0 for UDP connections, where select isn't needed
@@ -330,25 +330,25 @@ class CacheDatabase(Device):
     def ask(self, key, ts, time, ttl):
         with self._lock:
             if key not in self._db:
-                return [key + OP_TELLOLD]
+                return [key + OP_TELLOLD + '\r\n']
             lastent = self._db[key][-1]
-            # check for already removed keys
-            if lastent.value is None:
-                return [key + OP_TELLOLD]
-            # check for expired keys
-            if lastent.ttl:
-                remaining = lastent.time + lastent.ttl - currenttime()
-                op = remaining > 0 and OP_TELL or OP_TELLOLD
-                if ts:
-                    return ['%s+%s@%s%s%s' % (lastent.time, lastent.ttl,
-                                              key, op, lastent.value)]
-                else:
-                    return [key + op + lastent.value]
+        # check for already removed keys
+        if lastent.value is None:
+            return [key + OP_TELLOLD + '\r\n']
+        # check for expired keys
+        if lastent.ttl:
+            remaining = lastent.time + lastent.ttl - currenttime()
+            op = remaining > 0 and OP_TELL or OP_TELLOLD
             if ts:
-                return ['%s@%s%s%s' % (lastent.time, key,
-                                       OP_TELL, lastent.value)]
+                return ['%s+%s@%s%s%s\r\n' % (lastent.time, lastent.ttl,
+                                              key, op, lastent.value)]
             else:
-                return [key + OP_TELL + lastent.value]
+                return [key + op + lastent.value]
+        if ts:
+            return ['%s@%s%s%s\r\n' % (lastent.time, key,
+                                       OP_TELL, lastent.value)]
+        else:
+            return [key + OP_TELL + lastent.value + '\r\n']
 
     def ask_wc(self, key, ts, time, ttl):
         ret = set()
@@ -366,19 +366,33 @@ class CacheDatabase(Device):
                     remaining = lastent.time + lastent.ttl - currenttime()
                     op = remaining > 0 and OP_TELL or OP_TELLOLD
                     if ts:
-                        ret.add('%s+%s@%s%s%s' % (lastent.time, lastent.ttl,
-                                                  dbkey, op, lastent.value))
+                        ret.add('%s+%s@%s%s%s\r\n' % (lastent.time, lastent.ttl,
+                                                      dbkey, op, lastent.value))
                     else:
-                        ret.add(dbkey + op + lastent.value)
+                        ret.add(dbkey + op + lastent.value + '\r\n')
                 elif ts:
-                    ret.add('%s@%s%s%s' % (lastent.time, dbkey,
-                                           OP_TELL, lastent.value))
+                    ret.add('%s@%s%s%s\r\n' % (lastent.time, dbkey,
+                                               OP_TELL, lastent.value))
                 else:
-                    ret.add(dbkey + OP_TELL + lastent.value)
+                    ret.add(dbkey + OP_TELL + lastent.value + '\r\n')
         return ret
 
     def ask_hist(self, key, t1, t2):
-        return []
+        ret = []
+        with self._lock:
+            if key not in self._db:
+                return []
+            entries = self._db[key]
+        for entry in entries:
+            if t1 <= entry.time < t2:
+                if entry.ttl:
+                    ret.append('%s+%s@%s%s%s\r\n' %
+                               (entry.time, entry.ttl, key,
+                                OP_TELLOLD, entry.value))
+                else:
+                    ret.append('%s@%s%s%s\r\n' % (entry.time, key,
+                                                  OP_TELLOLD, entry.value))
+        return ret
 
     def tell(self, key, value, time, ttl, from_client):
         if value is None:

@@ -36,6 +36,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from nicm.scan import Scan
+from nicm.errors import UsageError
 from nicm.commands import usercommand
 
 
@@ -47,15 +48,31 @@ def _handlePreset(single, keywords):
     return keywords
 
 
+def _fixType(dev, start, step):
+    if isinstance(dev, list):
+        l = len(dev)
+        if not isinstance(start, list) or not len(start) == l:
+            raise UsageError('start/center must be a list of length %d' % l)
+        if not isinstance(step, list):
+            step = [step] * l
+        elif not len(step) == l:
+            raise UsageError('step must be a single number or a list of '
+                             'length %d' % l)
+        return dev, start, step
+    return [dev], [start], [step]
+
+
 @usercommand
 def sscan(dev, start, step, numsteps, preset=None, infostr=None,
           det=None, **presets):
     """Single-sided scan."""
     preset = _handlePreset(preset, presets)
-    values = [[start + i*step] for i in range(numsteps)]
     infostr = infostr or 'sscan(%s, %s, %s, %s, %s)' % (dev, start, step,
                                                         numsteps, preset)
-    scan = Scan([dev], values, det, preset, infostr)
+    dev, start, step = _fixType(dev, start, step)
+    values = [[x + i*y for x, y in zip(start, step)]
+              for i in range(numsteps)]
+    scan = Scan(dev, values, det, preset, infostr)
     scan.run()
 
 
@@ -64,11 +81,13 @@ def cscan(dev, center, step, numperside, preset=None, infostr=None,
           det=None, **presets):
     """Scan around center."""
     preset = _handlePreset(preset, presets)
-    start = center - numperside * step
-    values = [[start + i*step] for i in range(numperside*2 + 1)]
-    infostr = infostr or 'sscan(%s, %s, %s, %s, %s)' % (dev, center, step,
+    infostr = infostr or 'cscan(%s, %s, %s, %s, %s)' % (dev, center, step,
                                                         numperside, preset)
-    scan = Scan([dev], values, det, preset, infostr)
+    dev, center, step = _fixType(dev, center, step)
+    start = [x - numperside*y for x, y in zip(center, step)]
+    values = [[x + i*y for x, y in zip(start, step)]
+              for i in range(numperside*2 + 1)]
+    scan = Scan(dev, values, det, preset, infostr)
     scan.run()
 
 

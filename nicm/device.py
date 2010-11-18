@@ -381,6 +381,10 @@ class Readable(Device):
         if not self._cache:
             raise ConfigurationError('no cache is configured for this setup')
         else:
+            if fromtime is None:
+                fromtime = 0
+            if totime is None:
+                totime = time.time()
             return self._cache.history(self, name, fromtime, totime)
 
     def info(self):
