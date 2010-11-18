@@ -135,8 +135,8 @@ class Monitor(BaseCacheClient):
                     for fielddesc in rowdesc:
                         field = {
                             # display/init properties
-                            'name': '', 'dev': '', 'width': 10,
-                            'unit': '', 'format': '%s',
+                            'name': '', 'dev': '', 'width': 10, 'unit': '',
+                            'format': '%s', 'min': None, 'max': None,
                             # current values
                             'time': 0, 'ttl': 0, 'status': None,
                             # key names

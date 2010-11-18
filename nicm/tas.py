@@ -42,6 +42,7 @@ from nicm.cell import Cell
 from nicm.utils import vec3
 from nicm.errors import ConfigurationError, ComputationError
 from nicm.device import BaseMoveable, Moveable, Param
+from nicm.experiment import Sample
 from nicm.instrument import Instrument
 
 
@@ -51,6 +52,10 @@ OPMODEUNIT = {'CKI': 'A-1', 'CKF': 'A-1',
 
 ENERGYTRANSFERUNITS = ['meV', 'THz']
 THZ2MEV = 4.136
+
+
+class TASSample(Sample, Cell):
+    pass
 
 
 class TAS(Instrument, BaseMoveable):

@@ -47,7 +47,8 @@ devices = dict(
                       instrument = 'tas',
                       experiment = 'Exp'),
 
-    Exp      = device('nicm.experiment.Experiment'),
+    Exp      = device('nicm.experiment.Experiment',
+                      sample = 'Sample'),
 
     filesink = device('nicm.data.AsciiDatafileSink',
                       prefix = 'data'),
@@ -62,11 +63,11 @@ devices = dict(
 
     # -- TAS devices and axes -------------------------------------------------
 
-    Cell     = device('nicm.cell.Cell'),
+    Sample   = device('nicm.tas.TASSample'),
 
     tas      = device('nicm.tas.TAS',
                       detectors=['det'],
-                      cell = 'Cell',
+                      cell = 'Sample',
                       phi = 'phi',
                       psi = 'psi',
                       mono = 'mono',

@@ -42,13 +42,25 @@ from nicm.utils import listof
 from nicm.device import Device, Param
 
 
+class Sample(Device):
+    """A special device to represent a sample."""
+
+    parameters = {
+        'samplename':  Param('Sample name', type=str, settable=True),
+    }
+
+
 class Experiment(Device):
     """A special singleton device to represent the experiment."""
 
     parameters = {
-        'title': Param('Experiment title', type=str, settable=True),
+        'title':          Param('Experiment title', type=str, settable=True),
         'proposalnumber': Param('Proposal number', type=int, settable=True),
-        'users': Param('User names', type=listof(str), settable=True),
+        'users':          Param('User names', type=listof(str), settable=True),
+    }
+
+    attached_devices = {
+        'sample': Sample,
     }
 
     def new(self, proposalnumber, title=None):

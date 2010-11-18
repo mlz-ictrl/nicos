@@ -67,6 +67,7 @@ class Cell(Device):
                          default=[1, 0, 0], settable=True),
         'orient2': Param('Second orientation reflex', type=vec3,
                          default=[0, 1, 0], settable=True),
+        # XXX seems to belong rather to TAS and not Cell
         'psi0':    Param('Zero position of psi axis', settable=True),
         'axiscoupling': Param('Whether the sample th/tt axes are coupled',
                               type=bool, default=True, settable=True),
