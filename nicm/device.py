@@ -373,7 +373,7 @@ class Readable(Device):
     def format(self, value):
         """Format a value from self.read() into a human-readable string."""
         if hasattr(self, 'doFormat'):
-            return self.Format(value)
+            return self.doFormat(value)
         return self.fmtstr % value
 
     def history(self, name='value', fromtime=None, totime=None):

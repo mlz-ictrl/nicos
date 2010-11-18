@@ -36,7 +36,6 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from nicm import nicos
-from nicm.device import Measurable
 from nicm.errors import NicmError, LimitError, FixedError
 from nicm.commands.output import printwarning
 from nicm.commands.measure import _count
