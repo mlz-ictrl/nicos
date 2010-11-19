@@ -48,13 +48,26 @@ from nicm.errors import ConfigurationError, ProgrammingError, ModeError
 
 class Param(object):
     """
-    Parameter description object.
+    This class defines the properties of a device parameter.
+
+    Attributes (and constructor arguments):
+
+    - *description*: a concise parameter description
+    - *type*: the parameter type; better a conversion function that either
+      returns a value of the correct type, or raises TypeError or ValueError.
+    - *default*: a default value, in case the parameter cannot be read from
+      the hardware or the cache
+    - *mandatory*: if the parameter must be given in the config file
+    - *settable*: if the parameter can be set after startup
+    - *unit*: unit of the parameter for informational purposes; 'main' is
+      replaced by the device unit when presented
+    - *info*: if the parameter is returned by device.info()
     """
 
     _notset = object()
 
     def __init__(self, description, type=float, default=_notset,
-                 mandatory=False, settable=False, unit=None):
+                 mandatory=False, settable=False, unit=None, info=False):
         self.type = type
         if default is self._notset:
             default = type()
@@ -62,6 +75,7 @@ class Param(object):
         self.mandatory = mandatory
         self.settable = settable
         self.unit = unit
+        self.info = info
         self.description = description
 
 

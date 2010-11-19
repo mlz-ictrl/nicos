@@ -60,15 +60,15 @@ class Cell(Device):
 
     parameters = {
         'lattice': Param('Lattice constants', type=vec3,
-                         default=[2*pi, 2*pi, 2*pi], settable=True),
+                         default=[2*pi, 2*pi, 2*pi], settable=True, info=True),
         'angles':  Param('Lattice angles', type=vec3,
-                         default=[90, 90, 90], settable=True),
+                         default=[90, 90, 90], settable=True, info=True),
         'orient1': Param('First orientation reflex', type=vec3,
-                         default=[1, 0, 0], settable=True),
+                         default=[1, 0, 0], settable=True, info=True),
         'orient2': Param('Second orientation reflex', type=vec3,
-                         default=[0, 1, 0], settable=True),
+                         default=[0, 1, 0], settable=True, info=True),
         # XXX seems to belong rather to TAS and not Cell
-        'psi0':    Param('Zero position of psi axis', settable=True),
+        'psi0':    Param('Zero position of psi axis', settable=True, info=True),
         'axiscoupling': Param('Whether the sample th/tt axes are coupled',
                               type=bool, default=True, settable=True),
         'psi360':  Param('Whether the range of psi is 0-360 deg '

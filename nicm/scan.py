@@ -68,9 +68,10 @@ class Scan(object):
         # XXX add category, sort by that
         category = ''
         for name, device in sorted(nicos.devices.iteritems()):
-            values = device.info()
-            for sink in self.sinks:
-                sink.addInfo(category, name, values)
+            if not device.lowlevel:
+                values = device.info()
+                for sink in self.sinks:
+                    sink.addInfo(category, name, values)
 
     def preparePoint(self, num, xvalues):
         nicos.action('Point %d' % num)

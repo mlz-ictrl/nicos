@@ -68,9 +68,9 @@ class CacheWriter(Moveable):
                            type=str, default='setpoint'),
         'window':    Param('Time window for checking stabilization (zero for '
                            'no stabilization check)',
-                           unit='s', default=0.0, settable=True),
+                           unit='s', default=0.0, settable=True, info=True),
         'tolerance': Param('Size of the stabilization window',
-                           unit='main', default=1.0, settable=True),
+                           unit='main', default=1.0, settable=True, info=True),
         'timeout':   Param('Timeout for checking stabilization',
                            unit='s', default=900.0, settable=True),
         'loopdelay': Param('Sleep time when waiting',

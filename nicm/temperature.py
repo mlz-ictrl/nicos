@@ -96,16 +96,16 @@ class Controller(TacoDevice, Moveable, HasOffset):
     }
 
     parameters = {
-        'setpoint':  Param('Current temperature setpint', unit='main'),
-        'p':         Param('The P control parameter', settable=True),
-        'i':         Param('The I control parameter', settable=True),
-        'd':         Param('The D control parameter', settable=True),
+        'setpoint':  Param('Current temperature setpint', unit='main', info=True),
+        'p':         Param('The P control parameter', settable=True, info=True),
+        'i':         Param('The I control parameter', settable=True, info=True),
+        'd':         Param('The D control parameter', settable=True, info=True),
         'ramp':      Param('Temperature ramp in K/min', unit='K/min',
                            settable=True),
         'tolerance': Param('The window\'s temperature tolerance', unit='K',
-                           settable=True),
+                           settable=True, info=True),
         'window':    Param('Time window for checking stable temperature',
-                           unit='s', settable=True),
+                           unit='s', settable=True, info=True),
         'timeout':   Param('Maximum time to wait for stable temperature',
                            unit='s', settable=True),
         'loopdelay': Param('Sleep time when waiting', unit='s', default=1,

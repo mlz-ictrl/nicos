@@ -54,9 +54,12 @@ class Experiment(Device):
     """A special singleton device to represent the experiment."""
 
     parameters = {
-        'title':          Param('Experiment title', type=str, settable=True),
-        'proposalnumber': Param('Proposal number', type=int, settable=True),
-        'users':          Param('User names', type=listof(str), settable=True),
+        'title':          Param('Experiment title', type=str, settable=True,
+                                info=True),
+        'proposalnumber': Param('Proposal number', type=int, settable=True,
+                                info=True),
+        'users':          Param('User names', type=listof(str), settable=True,
+                                info=True),
     }
 
     attached_devices = {

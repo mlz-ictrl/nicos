@@ -73,7 +73,7 @@ class TAS(Instrument, BaseMoveable):
                         default='%10.4f %10.4f %10.4f %10.4f %10.4f',
                         settable=True),
         'opmode': Param('Operation mode: one of ' + ', '.join(OPMODES),
-                        type=str, default='CKI', settable=True),
+                        type=str, default='CKI', settable=True, info=True),
         'scatsense': Param('Scattering sense', type=vec3, default=[1, -1, 1],
                            settable=True),
         'energytransferunit': Param('Energy transfer unit', type=str,
@@ -84,15 +84,15 @@ class TAS(Instrument, BaseMoveable):
 
     def doInit(self):
         self.__dict__['h'] = TASIndex(self.name+' h', unit='rlu',
-                                      index=0, tas=self)
+                                      index=0, lowlevel=True, tas=self)
         self.__dict__['k'] = TASIndex(self.name+' k', unit='rlu',
-                                      index=1, tas=self)
+                                      index=1, lowlevel=True, tas=self)
         self.__dict__['l'] = TASIndex(self.name+' l', unit='rlu',
-                                      index=2, tas=self)
+                                      index=2, lowlevel=True, tas=self)
         self.__dict__['ny'] = TASIndex(self.name+' ny', unit='THz',
-                                       index=3, tas=self)
+                                       index=3, lowlevel=True, tas=self)
         self.__dict__['sc'] = TASIndex(self.name+' sc', unit='A-1',
-                                       index=4, tas=self)
+                                       index=4, lowlevel=True, tas=self)
 
     def _thz(self, ny):
         if self.energytransferunit == 'meV':

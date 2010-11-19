@@ -89,6 +89,8 @@ class Device(object):
         self._params = {}
         # _changedparams: set of all changed params for save()
         self._changedparams = set()
+        # _infoparams: cached list of parameters to get on info()
+        self._infoparams = []
         # _adevs: "attached" device instances
         self._adevs = {}
         # superdevs: reverse adevs for dependency tracking
@@ -205,9 +207,12 @@ class Device(object):
             else:
                 self._initParam(param, paraminfo)
                 notfromcache.append(param)
+            if paraminfo.info:
+                self._infoparams.append(param)
         if self._cache and notfromcache:
             self.printwarning('these parameters were not present in cache: ' +
                               ', '.join(notfromcache))
+        self._infoparams.sort()
 
         # call custom initialization
         if hasattr(self, 'doInit'):
@@ -255,6 +260,8 @@ class Device(object):
         if hasattr(self, 'doInfo'):
             for item in self.doInfo():
                 yield item
+        for name in self._infoparams:
+            yield (name, getattr(self, name))
 
     def shutdown(self):
         """Shut down the object; called from NICOS.destroyDevice()."""
@@ -389,12 +396,18 @@ class Readable(Device):
 
     def info(self):
         """Automatically add device main value and status (if not OK)."""
-        # XXX this can fail; catch exceptions around every item
-        return
-        yield ('value', self.read())
-        st = self.status()
-        if st[0] != status.OK:
-            yield ('status', '%s: %s' % st)
+        try:
+            val = self.read()
+            yield ('value', self.format(val) + ' ' + self.unit)
+        except Exception, err:
+            self.printwarning('error reading device for info()', exc=err)
+        try:
+            st = self.status()
+        except Exception, err:
+            self.printwarning('error getting status for info()', exc=err)
+        else:
+            if st[0] not in (status.OK, status.UNKNOWN):
+                yield ('status', '%s: %s' % st)
         for item in Device.info(self):
             yield item
 
@@ -607,7 +620,7 @@ class HasOffset(object):
 
     parameters = {
         'offset':  Param('Offset of device zero to hardware zero', unit='main',
-                         settable=True),
+                         settable=True, info=True),
     }
 
     def doWriteOffset(self, value):
