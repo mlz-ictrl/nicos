@@ -207,8 +207,8 @@ class Device(object):
             else:
                 self._initParam(param, paraminfo)
                 notfromcache.append(param)
-            if paraminfo.info:
-                self._infoparams.append(param)
+            if paraminfo.category is not None:
+                self._infoparams.append((paraminfo.category, param))
         if self._cache and notfromcache:
             self.printwarning('these parameters were not present in cache: ' +
                               ', '.join(notfromcache))
@@ -260,8 +260,8 @@ class Device(object):
         if hasattr(self, 'doInfo'):
             for item in self.doInfo():
                 yield item
-        for name in self._infoparams:
-            yield (name, getattr(self, name))
+        for category, name in self._infoparams:
+            yield (category, name, getattr(self, name))
 
     def shutdown(self):
         """Shut down the object; called from NICOS.destroyDevice()."""
@@ -398,7 +398,7 @@ class Readable(Device):
         """Automatically add device main value and status (if not OK)."""
         try:
             val = self.read()
-            yield ('value', self.format(val) + ' ' + self.unit)
+            yield ('general', 'value', self.format(val) + ' ' + self.unit)
         except Exception, err:
             self.printwarning('error reading device for info()', exc=err)
         try:
@@ -407,7 +407,7 @@ class Readable(Device):
             self.printwarning('error getting status for info()', exc=err)
         else:
             if st[0] not in (status.OK, status.UNKNOWN):
-                yield ('status', '%s: %s' % st)
+                yield ('status', 'status', '%s: %s' % st)
         for item in Device.info(self):
             yield item
 
@@ -620,7 +620,7 @@ class HasOffset(object):
 
     parameters = {
         'offset':  Param('Offset of device zero to hardware zero', unit='main',
-                         settable=True, info=True),
+                         settable=True, category='offsets'),
     }
 
     def doWriteOffset(self, value):

@@ -59,26 +59,26 @@ class Cell(Device):
     """
 
     parameters = {
-        'lattice': Param('Lattice constants', type=vec3,
-                         default=[2*pi, 2*pi, 2*pi], settable=True, info=True),
-        'angles':  Param('Lattice angles', type=vec3,
-                         default=[90, 90, 90], settable=True, info=True),
+        'lattice': Param('Lattice constants', type=vec3, settable=True,
+                         default=[2*pi, 2*pi, 2*pi], category='sample'),
+        'angles':  Param('Lattice angles', type=vec3, settable=True,
+                         default=[90, 90, 90], category='sample'),
         'orient1': Param('First orientation reflex', type=vec3,
-                         default=[1, 0, 0], settable=True, info=True),
+                         default=[1, 0, 0], settable=True, category='sample'),
         'orient2': Param('Second orientation reflex', type=vec3,
-                         default=[0, 1, 0], settable=True, info=True),
+                         default=[0, 1, 0], settable=True, category='sample'),
+        'psi0':    Param('Zero position of psi axis', settable=True,
+                         category='sample'),
         # XXX seems to belong rather to TAS and not Cell
-        'psi0':    Param('Zero position of psi axis', settable=True, info=True),
         'axiscoupling': Param('Whether the sample th/tt axes are coupled',
                               type=bool, default=True, settable=True),
         'psi360':  Param('Whether the range of psi is 0-360 deg '
                          '(otherwise -180-180 deg is assumed).',
                          type=bool, default=True, settable=True),
-        # XXX not used?
-        'coordinatesystem': Param('Coordinate system for k_i: 1 parallel x, '
-                                  '-1 parallel -x, 2 parallel y, '
-                                  '-2 parallel -y.',
-                                  type=int, default=1, settable=True),
+        #'coordinatesystem': Param('Coordinate system for k_i: 1 parallel x, '
+        #                          '-1 parallel -x, 2 parallel y, '
+        #                          '-2 parallel -y.',
+        #                          type=int, default=1, settable=True),
     }
 
     def _reinit(self, lattice=None, angles=None,

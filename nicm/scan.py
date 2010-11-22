@@ -41,6 +41,17 @@ from nicm.commands.output import printwarning
 from nicm.commands.measure import _count
 
 
+INFO_CATEGORIES = [
+    ('experiment', 'Experiment information'),
+    ('sample', 'Sample information'),
+    ('instrument', 'Instrument setup'),
+    ('offsets', 'Offsets'),
+    ('limits', 'Limits'),
+    ('status', 'Device status'),
+    ('general', 'Devices'),
+]
+
+
 class Scan(object):
     """
     Represents a general scan over some devices with a specified detector.
@@ -65,13 +76,17 @@ class Scan(object):
         for sink in self.sinks:
             sink.beginDataset(self.devices, self.positions, self.detlist,
                               self.preset, self.scaninfo, sinkinfo)
-        # XXX add category, sort by that
-        category = ''
+        bycategory = {}
         for name, device in sorted(nicos.devices.iteritems()):
-            if not device.lowlevel:
-                values = device.info()
-                for sink in self.sinks:
-                    sink.addInfo(category, name, values)
+            if device.lowlevel:
+                continue
+            for category, key, value in device.info():
+                bycategory.setdefault(category, []).append((device, key, value))
+        for catname, catinfo in INFO_CATEGORIES:
+            if catname not in bycategory:
+                continue
+            for sink in self.sinks:
+                sink.addInfo(catinfo, bycategory[catname])
 
     def preparePoint(self, num, xvalues):
         nicos.action('Point %d' % num)

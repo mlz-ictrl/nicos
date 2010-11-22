@@ -55,11 +55,11 @@ class Experiment(Device):
 
     parameters = {
         'title':          Param('Experiment title', type=str, settable=True,
-                                info=True),
+                                category='experiment'),
         'proposalnumber': Param('Proposal number', type=int, settable=True,
-                                info=True),
+                                category='experiment'),
         'users':          Param('User names', type=listof(str), settable=True,
-                                info=True),
+                                category='experiment'),
     }
 
     attached_devices = {

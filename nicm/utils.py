@@ -61,13 +61,14 @@ class Param(object):
     - *settable*: if the parameter can be set after startup
     - *unit*: unit of the parameter for informational purposes; 'main' is
       replaced by the device unit when presented
-    - *info*: if the parameter is returned by device.info()
+    - *category*: category of the parameter when returned by device.info()
+      or None to ignore the parameter
     """
 
     _notset = object()
 
     def __init__(self, description, type=float, default=_notset,
-                 mandatory=False, settable=False, unit=None, info=False):
+                 mandatory=False, settable=False, unit=None, category=None):
         self.type = type
         if default is self._notset:
             default = type()
@@ -75,7 +76,7 @@ class Param(object):
         self.mandatory = mandatory
         self.settable = settable
         self.unit = unit
-        self.info = info
+        self.category = category
         self.description = description
 
 

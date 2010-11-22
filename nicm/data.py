@@ -61,7 +61,7 @@ class DataSink(Device):
 
     # Set to false in subclasses that e.g. write to the filesystem.
     activeInSimulation = True
-    
+
     def prepareDataset(self):
         """Prepare for a new dataset.
 
@@ -89,12 +89,11 @@ class DataSink(Device):
         """
         pass
 
-    def addInfo(self, category, name, valuelist):
+    def addInfo(self, category, valuelist):
         """Add additional information to the dataset.
 
-        This is meant to record e.g. device values at scan startup.  *category*
-        is the category for the info, *name* the device name it refers to, and
-        *valuelist* a list of ``(key, value)`` pairs.
+        This is meant to record e.g. device values at scan startup.  *valuelist*
+        is a sequence of tuples ``(device, key, value)``.
         """
         pass
 
@@ -109,8 +108,7 @@ class DataSink(Device):
         pass
 
     def endDataset(self):
-        """End the current dataset.
-        """
+        """End the current dataset."""
         pass
 
     def setDatapath(self, value):
@@ -161,7 +159,7 @@ class ConsoleSink(DataSink):
 class DatafileSink(DataSink):
 
     activeInSimulation = False
-        
+
 
 
 class AsciiDatafileSink(DatafileSink):
@@ -190,7 +188,6 @@ class AsciiDatafileSink(DatafileSink):
     def prepareDataset(self):
         if self._path is None:
             self.setDatapath(nicos.system.datapath)
-        self._wrote_infoheader = False
         self._wrote_columninfo = False
         self._counter += 1
         self._fname = path.join(self._path, self.prefix +
@@ -223,12 +220,10 @@ class AsciiDatafileSink(DatafileSink):
             self._colnames = devnames + detnames
             self._colunits = devunits + detunits
 
-    def addInfo(self, category, name, valuelist):
-        if not self._wrote_infoheader:
-            self._file.write('### Instrument info\n')
-            self._wrote_infoheader = True
-        for key, value in valuelist:
-            self._file.write('# %-25s%s\n' % (name + ' ' + key + ':', value))
+    def addInfo(self, category, valuelist):
+        self._file.write('### %s\n' % category)
+        for device, key, value in valuelist:
+            self._file.write('# %25s : %s\n' % (device.name + '_' + key, value))
         self._file.flush()
 
     def addPoint(self, num, xvalues, yvalues):

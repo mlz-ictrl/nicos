@@ -61,7 +61,7 @@ class Axis(Moveable, HasOffset):
                            unit='main', default=1, settable=True),
         'precision': Param('Maximum difference between requested target and '
                            'reached position', unit='main', settable=True,
-                           info=True),
+                           category='general'),
         'maxtries':  Param('Number of tries to reach the target', type=int,
                            default=3, settable=True),
         'loopdelay': Param('The sleep time when checking the movement',
