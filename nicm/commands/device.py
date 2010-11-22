@@ -70,6 +70,16 @@ def move(*dev_pos_list):
         dev.move(pos)
 
 @usercommand
+def drive(*dev_pos_list):
+    """Move one or more devices to a new position.
+
+    This can be used with multiple devices like this:
+       drive(dev1, pos1, dev2, pos2, ...)
+    """
+    return move(*dev_pos_list)
+
+@usercommand
+@usercommand
 def maw(*dev_pos_list):
     """Move one or more devices to a new position and wait until motion
     of all devices is completed.
