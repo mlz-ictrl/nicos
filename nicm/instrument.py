@@ -38,11 +38,17 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 
-from nicm.device import Device, Measurable
+from nicm.device import Device, Measurable, Param
 
 
 class Instrument(Device):
     """A special singleton device to represent the instrument."""
+
+    parameters = {
+        'instrument': Param('Instrument name', type=str, category='experiment'),
+        'responsible': Param('Instrument responsible name and email',
+                             type=str, category='experiment'),
+    }
 
     attached_devices = {
         'detectors': [Measurable],

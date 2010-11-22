@@ -43,12 +43,12 @@ from nicm.commands.measure import _count
 
 INFO_CATEGORIES = [
     ('experiment', 'Experiment information'),
-    ('sample', 'Sample information'),
+    ('sample', 'Sample and alignment'),
     ('instrument', 'Instrument setup'),
     ('offsets', 'Offsets'),
     ('limits', 'Limits'),
-    ('status', 'Device status'),
-    ('general', 'Devices'),
+    ('status', 'Instrument status'),
+    ('general', 'Instrument state at first scan point'),
 ]
 
 

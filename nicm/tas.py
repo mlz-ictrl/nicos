@@ -75,8 +75,8 @@ class TAS(Instrument, BaseMoveable):
         'opmode': Param('Operation mode: one of ' + ', '.join(OPMODES),
                         type=str, default='CKI', settable=True,
                         category='instrument'),
-        'scatsense': Param('Scattering sense', type=vec3, default=[1, -1, 1],
-                           settable=True),
+        'scatteringsense': Param('Scattering sense', type=vec3, default=[1, -1, 1],
+                                 settable=True, category='instrument'),
         'axiscoupling': Param('Whether the sample th/tt axes are coupled',
                               type=bool, default=True, settable=True),
         'psi360':  Param('Whether the range of psi is 0-360 deg '
@@ -110,7 +110,7 @@ class TAS(Instrument, BaseMoveable):
         ny = self._thz(ny)
         try:
             angles = self._adevs['cell'].cal_angles(
-                [qh, qk, ql], ny, self.opmode, sc, self.scatsense[1],
+                [qh, qk, ql], ny, self.opmode, sc, self.scatteringsense[1],
                 self.axiscoupling, self.psi360)
         except ComputationError, err:
             return False, str(err)
@@ -127,7 +127,7 @@ class TAS(Instrument, BaseMoveable):
         qh, qk, ql, ny, sc = pos
         ny = self._thz(ny)
         angles = self._adevs['cell'].cal_angles(
-            [qh, qk, ql], ny, self.opmode, sc, self.scatsense[1],
+            [qh, qk, ql], ny, self.opmode, sc, self.scatteringsense[1],
             self.axiscoupling, self.psi360)
         mono, ana, phi, psi = self._adevs['mono'], self._adevs['ana'], \
                               self._adevs['phi'], self._adevs['psi']
@@ -145,7 +145,7 @@ class TAS(Instrument, BaseMoveable):
         self.printinfo('position hkl: (%7.4f %7.4f %7.4f) ny: %7.4f %s' %
                        (h, k, l, ny, self.energytransferunit))
 
-    def doWriteScatsense(self, val):
+    def doWriteScatteringsense(self, val):
         for v in val:
             if v not in [-1, 1]:
                 raise ConfigurationError('invalid scattering sense %s' % v)

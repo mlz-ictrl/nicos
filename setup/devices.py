@@ -66,6 +66,8 @@ devices = dict(
     Sample   = device('nicm.tas.TASSample'),
 
     tas      = device('nicm.tas.TAS',
+                      instrument='VTAS',
+                      responsible='R. Esponsible <responsible@frm2.tum.de>',
                       detectors=['det'],
                       cell = 'Sample',
                       phi = 'phi',

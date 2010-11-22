@@ -204,7 +204,7 @@ class AsciiDatafileSink(DatafileSink):
         self._counter += 1
         self._fname = path.join(self._path, self.prefix +
                                 '%s.dat' % self._counter)
-        return [('File name', self._fname)]
+        return [('filename', self._fname)]
 
     def beginDataset(self, devices, positions, detlist, preset,
                      userinfo, sinkinfo):
@@ -212,9 +212,8 @@ class AsciiDatafileSink(DatafileSink):
         self._userinfo = userinfo
         self._file.write('%s NICOS data file, created at %s\n' %
                          (self._tcomment, time.strftime(TIMEFMT)))
-        for name, value in sinkinfo + [('Info', userinfo)]:
-            self._file.write('%s %25s : %s\n' %
-                             (self._scomment, name+':', value))
+        for name, value in sinkinfo + [('info', userinfo)]:
+            self._file.write('%s %25s : %s\n' % (self._scomment, name, value))
         self._file.flush()
         # to be written later (after info)
         devnames = map(str, devices)
