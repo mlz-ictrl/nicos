@@ -401,10 +401,12 @@ class Readable(Device):
             yield ('general', 'value', self.format(val) + ' ' + self.unit)
         except Exception, err:
             self.printwarning('error reading device for info()', exc=err)
+            yield ('general', 'value', 'Error: %s' % err)
         try:
             st = self.status()
         except Exception, err:
             self.printwarning('error getting status for info()', exc=err)
+            yield ('status', 'status', 'Error: %s' % err)
         else:
             if st[0] not in (status.OK, status.UNKNOWN):
                 yield ('status', 'status', '%s: %s' % st)
