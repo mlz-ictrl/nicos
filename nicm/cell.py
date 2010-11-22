@@ -69,12 +69,6 @@ class Cell(Device):
                          default=[0, 1, 0], settable=True, category='sample'),
         'psi0':    Param('Zero position of psi axis', settable=True,
                          category='sample'),
-        # XXX seems to belong rather to TAS and not Cell
-        'axiscoupling': Param('Whether the sample th/tt axes are coupled',
-                              type=bool, default=True, settable=True),
-        'psi360':  Param('Whether the range of psi is 0-360 deg '
-                         '(otherwise -180-180 deg is assumed).',
-                         type=bool, default=True, settable=True),
         #'coordinatesystem': Param('Coordinate system for k_i: 1 parallel x, '
         #                          '-1 parallel -x, 2 parallel y, '
         #                          '-2 parallel -y.',
@@ -300,14 +294,14 @@ class Cell(Device):
         except Exception, err:
             raise ComputationError('%s when transforming Qlab -> hkl' % err)
 
-    def angle2Qcart(self, angles):
+    def angle2Qcart(self, angles, coupled):
         """Calculate Q cartesian from instrument [ki, kf, phi, psi]."""
         try:
             ki, kf, phi, psi = angles
             psi *= D2R
             psi += self._psi0 * D2R
             phi *= D2R
-            if self.axiscoupling:
+            if coupled:
                 psi += phi
 
             Qcart = zeros(3)
@@ -321,14 +315,14 @@ class Cell(Device):
             raise ComputationError('%s when transforming angles -> Q cartesian'
                                    % err)
 
-    def angle2hkl(self, angles):
+    def angle2hkl(self, angles, coupled):
         """Calculate hkl Miller indices from instrument [ki, kf, phi, psi]."""
         mat_inv = inv(self._matrix)
-        return dot(mat_inv, self.angle2Qcart(angles))
+        return dot(mat_inv, self.angle2Qcart(angles, coupled))
 
-    def angle2Qlab(self, angles):
+    def angle2Qlab(self, angles, coupled):
         """Calculate Qlab from instrument [ki, kf, phi, psi]."""
-        result = dot(self.angle2Qcart(angles), self._matrix_cardan)
+        result = dot(self.angle2Qcart(angles, coupled), self._matrix_cardan)
         if abs(result[2]) > 0.001:
             raise ComputationError('out of plane vector; check your scattering plane')
         return result
@@ -568,7 +562,7 @@ class Cell(Device):
         else:
             raise ComputationError("arcsin > 1 when calculating theta")
 
-    def cal_angles(self, Qhkl, ny, SM, SC, s):
+    def cal_angles(self, Qhkl, ny, SM, SC, s, coupled, psi360=True):
         """
         Calculate instrument angles for given HKL and energy transfer, for
         a specific scan mode, scan constant and scattering sense.
@@ -629,13 +623,13 @@ class Cell(Device):
                 psi = self.cal_psi(Y, alpha)
 
             psi -= self._psi0
-            if self.axiscoupling:
+            if coupled:
                 psi -= phi
                 if psi < -180:
                     psi += 360
                 if psi > 180:
                     psi -= 360
-            if self.psi360:
+            if psi360:
                 if psi < 0:
                     psi += 360
                 # XXX can that happen?
@@ -658,8 +652,8 @@ class Cell(Device):
             for i in range(numsteps):
                 Qhkl += dQhkl
                 ny += dny
-                angles = self.cal_angles(Qhkl, ny, SM, SC, sense)
-                hklr = self.angle2hkl(angles)
+                angles = self.cal_angles(Qhkl, ny, SM, SC, sense, True)
+                hklr = self.angle2hkl(angles, True)
                 nyr = self.cal_ny(angles[0], angles[1])
                 dval = self.cal_dvalue_real(Qhkl)
                 print ('%7.3f  ' * 13) % (tuple(Qhkl) + (ny,) + tuple(angles) +

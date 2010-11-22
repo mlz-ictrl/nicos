@@ -77,6 +77,11 @@ class TAS(Instrument, BaseMoveable):
                         category='instrument'),
         'scatsense': Param('Scattering sense', type=vec3, default=[1, -1, 1],
                            settable=True),
+        'axiscoupling': Param('Whether the sample th/tt axes are coupled',
+                              type=bool, default=True, settable=True),
+        'psi360':  Param('Whether the range of psi is 0-360 deg '
+                         '(otherwise -180-180 deg is assumed).',
+                         type=bool, default=True, settable=True),
         'energytransferunit': Param('Energy transfer unit', type=str,
                                     default='THz', settable=True),
         'unit': Param('Unit', type=str, default='rlu/rlu/rlu/THz/A-1',
@@ -105,7 +110,8 @@ class TAS(Instrument, BaseMoveable):
         ny = self._thz(ny)
         try:
             angles = self._adevs['cell'].cal_angles(
-                [qh, qk, ql], ny, self.opmode, sc, self.scatsense[1])
+                [qh, qk, ql], ny, self.opmode, sc, self.scatsense[1],
+                self.axiscoupling, self.psi360)
         except ComputationError, err:
             return False, str(err)
         # check limits for the individual axes
@@ -121,7 +127,8 @@ class TAS(Instrument, BaseMoveable):
         qh, qk, ql, ny, sc = pos
         ny = self._thz(ny)
         angles = self._adevs['cell'].cal_angles(
-            [qh, qk, ql], ny, self.opmode, sc, self.scatsense[1])
+            [qh, qk, ql], ny, self.opmode, sc, self.scatsense[1],
+            self.axiscoupling, self.psi360)
         mono, ana, phi, psi = self._adevs['mono'], self._adevs['ana'], \
                               self._adevs['phi'], self._adevs['psi']
         phi.move(angles[2])
@@ -162,11 +169,13 @@ class TAS(Instrument, BaseMoveable):
         # read out position
         if self.opmode == 'DIFF':
             hkl = self._adevs['cell'].angle2hkl([mono.read(), mono.read(),
-                                                 phi.read(), psi.read()])
+                                                 phi.read(), psi.read()],
+                                                self.axiscoupling)
             ny = 0
         else:
             hkl = self._adevs['cell'].angle2hkl([mono.read(), ana.read(),
-                                                 phi.read(), psi.read()])
+                                                 phi.read(), psi.read()],
+                                                self.axiscoupling)
             ny = self._adevs['cell'].cal_ny(mono.read(), ana.read())
             if self.energytransferunit == 'meV':
                 ny *= THZ2MEV
