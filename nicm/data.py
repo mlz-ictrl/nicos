@@ -41,6 +41,7 @@ from os import path
 from nicm import nicos
 from nicm.utils import listof
 from nicm.device import Device, Param
+from nicm.errors import ConfigurationError
 from nicm.commands.output import printinfo
 
 
@@ -166,6 +167,8 @@ class AsciiDatafileSink(DatafileSink):
     parameters = {
         # XXX prefix should come from proposal
         'prefix': Param('Data file name prefix', type=str),
+        'commentchar': Param('Comment character', type=str, default='#',
+                             settable=True),
         'semicolon': Param('Whether to add a semicolon between X and Y values',
                            type=bool, default=True),
     }
@@ -175,11 +178,20 @@ class AsciiDatafileSink(DatafileSink):
         self._file = None
         self._fname = ''
         self._counter = 0
+        self._scomment = self.commentchar
+        self._tcomment = self.commentchar * 3
 
     def doWritePrefix(self, value):
         if value and not value.endswith('_'):
             value += '_'
         return value
+
+    def doWriteCommentchar(self, value):
+        if len(value) > 1:
+            raise ConfigurationError('comment character should only be '
+                                     'one character')
+        self._scomment = value
+        self._tcomment = value * 3
 
     def setDatapath(self, value):
         self._path = value
@@ -198,11 +210,11 @@ class AsciiDatafileSink(DatafileSink):
                      userinfo, sinkinfo):
         self._file = open(self._fname, 'w')
         self._userinfo = userinfo
-        self._file.write('### NICOS data file, created at %s\n' %
-                         time.strftime(TIMEFMT))
-        for name, value in sinkinfo:
-            self._file.write('# %-25s%s\n' % (name+':', value))
-        self._file.write('# Info:                    %s\n' % userinfo)
+        self._file.write('%s NICOS data file, created at %s\n' %
+                         (self._tcomment, time.strftime(TIMEFMT)))
+        for name, value in sinkinfo + [('Info', userinfo)]:
+            self._file.write('%s %25s : %s\n' %
+                             (self._scomment, name+':', value))
         self._file.flush()
         # to be written later (after info)
         devnames = map(str, devices)
@@ -221,16 +233,19 @@ class AsciiDatafileSink(DatafileSink):
             self._colunits = devunits + detunits
 
     def addInfo(self, category, valuelist):
-        self._file.write('### %s\n' % category)
+        self._file.write('%s %s\n' % (self._tcomment, category))
         for device, key, value in valuelist:
-            self._file.write('# %25s : %s\n' % (device.name + '_' + key, value))
+            self._file.write('%s %25s : %s\n' %
+                             (self._scomment, device.name + '_' + key, value))
         self._file.flush()
 
     def addPoint(self, num, xvalues, yvalues):
         if not self._wrote_columninfo:
-            self._file.write('### Measurement data\n')
-            self._file.write('# ' + '\t'.join(self._colnames) + '\n')
-            self._file.write('# ' + '\t'.join(self._colunits) + '\n')
+            self._file.write('%s Scan data\n' % self._tcomment)
+            self._file.write('%s %s\n' % (self._scomment,
+                                          '\t'.join(self._colnames)))
+            self._file.write('%s %s\n' % (self._scomment,
+                                          '\t'.join(self._colunits)))
             self._wrote_columninfo = True
         if self.semicolon:
             values = xvalues + [';'] + yvalues
@@ -240,6 +255,7 @@ class AsciiDatafileSink(DatafileSink):
         self._file.flush()
 
     def endDataset(self):
-        self._file.write('### End of NICOS data file %s\n' % self._fname)
+        self._file.write('%s End of NICOS data file %s\n' %
+                         (self._tcomment, self._fname))
         self._file.close()
         self._file = None
