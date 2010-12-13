@@ -604,10 +604,6 @@ class Moveable(BaseMoveable):
         """
         self.__checkUserLimits(self.usermin, value)
 
-    def doWriteUnit(self, value):
-        if self.units and value not in self.units:
-            raise ConfigurationError('unsupported unit: %s' % value)
-
 
 class HasOffset(object):
     """

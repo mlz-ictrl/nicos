@@ -99,6 +99,14 @@ devices = dict(
                       absmax = 10,
                       initval = 2.662),
 
+    ki       = device('nicm.tas.Wavevector',
+                      unit = 'A-1',
+                      base = 'mono'),
+
+    kf       = device('nicm.tas.Wavevector',
+                      unit = 'A-1',
+                      base = 'ana'),
+
     # -- miscellaneous axes ---------------------------------------------------
 
     m1       = device('nicm.virtual.VirtualMotor',

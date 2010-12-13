@@ -213,3 +213,25 @@ class TASIndex(BaseMoveable):
         current = list(self._adevs['tas'].read())
         current[self.index] = pos
         self._adevs['tas'].start(current)
+
+
+class Wavevector(BaseMoveable):
+    """
+    Device for adjusting initial/final wavevectors.
+    """
+
+    attached_devices = {
+        'base': BaseMoveable,
+    }
+
+    def doInit(self):
+        self._value = None
+
+    def doRead(self):
+        if self._value is None:
+            self._value = self._adevs['base'].read()
+        return self._value
+
+    def doStart(self, pos):
+        self._value = pos
+        self._adevs['base'].start(pos)
