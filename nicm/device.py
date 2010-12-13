@@ -156,9 +156,6 @@ class Device(object):
     def init(self):
         """Initialize the object; this is called when the object is created."""
 
-        if hasattr(self, 'doPreinit'):
-            self.doPreinit()
-
         # validate and create attached devices
         for aname, cls in sorted(self.attached_devices.iteritems()):
             if aname not in self._config:
@@ -189,6 +186,9 @@ class Device(object):
                 dev._sdevs.add(self)
 
         self._cache = self._getCache()
+
+        if hasattr(self, 'doPreinit'):
+            self.doPreinit()
 
         # validate and assign parameters
         notfromcache = []
