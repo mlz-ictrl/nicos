@@ -36,6 +36,5 @@ includes = []
 
 modules = []
 devices = dict(
-    System = device('nicm.system.System',
-                    cache=None, sinks=[], datapath='.', logpath='.'),
+    System = device('nicm.system.System', cache=None, sinks=[], datapath='.'),
 )

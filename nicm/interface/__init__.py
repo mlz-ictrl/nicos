@@ -89,6 +89,7 @@ class NICOS(object):
 
     auto_modules = ['nicm.commands']
     default_setup_path = path.join(path.dirname(__file__), '..', '..', 'setup')
+    default_log_path = path.join(path.dirname(__file__), '..', '..', 'log')
 
     def __init__(self):
         self.sessionid = makeSessionId()
@@ -248,10 +249,9 @@ class NICOS(object):
         # System must be created first
         if 'System' not in self.devices:
             if 'System' not in self.configured_devices:
-                # XXX logpath should be configured still
                 self.configured_devices['System'] = ('nicm.system.System', dict(
                     datasinks=[], cache=None, instrument=None, experiment=None,
-                    logpath='', datapath=''))
+                    datapath=''))
             self.createDevice('System')
 
         # create all devices
@@ -412,7 +412,8 @@ class NICOS(object):
         self._log_manager = logging.Manager(None)
         # all interfaces should log to a logfile; more handlers can be
         # added by subclasses
-        self._log_handlers = [loggers.NicmLogfileHandler(filenameprefix=prefix)]
+        self._log_handlers = [loggers.NicmLogfileHandler(
+            self.default_log_path, filenameprefix=prefix)]
 
     def getLogger(self, name):
         if name in self._loggers:

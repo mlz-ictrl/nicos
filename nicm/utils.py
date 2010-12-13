@@ -268,9 +268,11 @@ def readConfig(*filenames):
                 sys.path.extend(value.split(':'))
             else:
                 os.environ[name] = value
+    from nicm.interface import NICOS
     if cfg.has_option('nicm', 'setup_path'):
-        from nicm.interface import NICOS
         NICOS.default_setup_path = cfg.get('nicm', 'setup_path')
+    if cfg.has_option('nicm', 'log_path'):
+        NICOS.default_log_path = cfg.get('nicm', 'log_path')
 
 
 # simple file operations

@@ -40,7 +40,6 @@ devices = dict(
     # -- System devices -------------------------------------------------------
 
     System   = device('nicm.system.System',
-                      logpath = '.',
                       datapath = 'data/',
                       cache = 'Cache',
                       datasinks = ['conssink', 'filesink'],

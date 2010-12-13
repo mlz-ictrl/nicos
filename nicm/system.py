@@ -58,7 +58,6 @@ class System(Device):
     """
 
     parameters = {
-        'logpath': Param('Path for logfiles', type=str, mandatory=True),
         'datapath': Param('Path for data files', type=str, mandatory=True),
     }
 

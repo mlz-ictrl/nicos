@@ -217,8 +217,7 @@ class NicmLogfileHandler(BaseRotatingHandler):
     Logs to log files with a date stamp appended, and rollover on midnight.
     """
 
-    def __init__(self, directory='log', filenameprefix='nicm',
-                 dayfmt=DATESTAMP_FMT):
+    def __init__(self, directory, filenameprefix='nicm', dayfmt=DATESTAMP_FMT):
         self._filenameprefix = os.path.join(directory, filenameprefix)
         self._dayfmt = dayfmt
         # today's logfile name
