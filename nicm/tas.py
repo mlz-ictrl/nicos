@@ -220,8 +220,13 @@ class Wavevector(BaseMoveable):
     Device for adjusting initial/final wavevectors.
     """
 
+    parameters = {
+        'opmode': Param('Opmode to set', type=str, mandatory=True),
+    }
+
     attached_devices = {
         'base': BaseMoveable,
+        'tas': TAS,
     }
 
     def doInit(self):
@@ -234,4 +239,5 @@ class Wavevector(BaseMoveable):
 
     def doStart(self, pos):
         self._value = pos
+        self._adevs['tas'].opmode = self.opmode
         self._adevs['base'].start(pos)

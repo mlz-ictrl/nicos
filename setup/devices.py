@@ -101,11 +101,15 @@ devices = dict(
 
     ki       = device('nicm.tas.Wavevector',
                       unit = 'A-1',
-                      base = 'mono'),
+                      base = 'mono',
+                      tas = 'tas',
+                      opmode = 'CKI'),
 
     kf       = device('nicm.tas.Wavevector',
                       unit = 'A-1',
-                      base = 'ana'),
+                      base = 'ana',
+                      tas = 'tas',
+                      opmode = 'CKF'),
 
     # -- miscellaneous axes ---------------------------------------------------
 
