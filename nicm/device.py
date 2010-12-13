@@ -208,7 +208,8 @@ class Device(object):
                 self._initParam(param, paraminfo)
                 notfromcache.append(param)
             if paraminfo.category is not None:
-                self._infoparams.append((paraminfo.category, param))
+                self._infoparams.append((paraminfo.category, param,
+                                         paraminfo.unit))
         if self._cache and notfromcache:
             self.printwarning('these parameters were not present in cache: ' +
                               ', '.join(notfromcache))
@@ -260,8 +261,11 @@ class Device(object):
         if hasattr(self, 'doInfo'):
             for item in self.doInfo():
                 yield item
-        for category, name in self._infoparams:
-            yield (category, name, getattr(self, name))
+        selfunit = getattr(self, 'unit', '')
+        for category, name, unit in self._infoparams:
+            parvalue = getattr(self, name)
+            parunit = (unit or '').replace('main', selfunit)
+            yield (category, name, '%s %s' % (parvalue, parunit))
 
     def shutdown(self):
         """Shut down the object; called from NICOS.destroyDevice()."""

@@ -60,15 +60,16 @@ class Cell(Device):
 
     parameters = {
         'lattice': Param('Lattice constants', type=vec3, settable=True,
-                         default=[2*pi, 2*pi, 2*pi], category='sample'),
+                         default=[2*pi, 2*pi, 2*pi], unit='A',
+                         category='sample'),
         'angles':  Param('Lattice angles', type=vec3, settable=True,
-                         default=[90, 90, 90], category='sample'),
+                         default=[90, 90, 90], unit='deg', category='sample'),
         'orient1': Param('First orientation reflex', type=vec3,
                          default=[1, 0, 0], settable=True, category='sample'),
         'orient2': Param('Second orientation reflex', type=vec3,
                          default=[0, 1, 0], settable=True, category='sample'),
         'psi0':    Param('Zero position of psi axis', settable=True,
-                         category='sample'),
+                         unit='deg', category='sample'),
         #'coordinatesystem': Param('Coordinate system for k_i: 1 parallel x, '
         #                          '-1 parallel -x, 2 parallel y, '
         #                          '-2 parallel -y.',

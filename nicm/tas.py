@@ -75,7 +75,8 @@ class TAS(Instrument, BaseMoveable):
         'opmode': Param('Operation mode: one of ' + ', '.join(OPMODES),
                         type=str, default='CKI', settable=True,
                         category='instrument'),
-        'scatteringsense': Param('Scattering sense', type=vec3, default=[1, -1, 1],
+        'scatteringsense': Param('Scattering sense', type=vec3,
+                                 default=[1, -1, 1],
                                  settable=True, category='instrument'),
         'axiscoupling': Param('Whether the sample th/tt axes are coupled',
                               type=bool, default=True, settable=True),
@@ -89,15 +90,15 @@ class TAS(Instrument, BaseMoveable):
     }
 
     def doInit(self):
-        self.__dict__['h'] = TASIndex(self.name+' h', unit='rlu',
+        self.__dict__['h'] = TASIndex(self.name+'.h', unit='rlu',
                                       index=0, lowlevel=True, tas=self)
-        self.__dict__['k'] = TASIndex(self.name+' k', unit='rlu',
+        self.__dict__['k'] = TASIndex(self.name+'.k', unit='rlu',
                                       index=1, lowlevel=True, tas=self)
-        self.__dict__['l'] = TASIndex(self.name+' l', unit='rlu',
+        self.__dict__['l'] = TASIndex(self.name+'.l', unit='rlu',
                                       index=2, lowlevel=True, tas=self)
-        self.__dict__['ny'] = TASIndex(self.name+' ny', unit='THz',
+        self.__dict__['ny'] = TASIndex(self.name+'.ny', unit='THz',
                                        index=3, lowlevel=True, tas=self)
-        self.__dict__['sc'] = TASIndex(self.name+' sc', unit='A-1',
+        self.__dict__['sc'] = TASIndex(self.name+'.sc', unit='A-1',
                                        index=4, lowlevel=True, tas=self)
 
     def _thz(self, ny):
