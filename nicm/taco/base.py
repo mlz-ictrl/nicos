@@ -230,12 +230,13 @@ class TacoDevice(object):
             msg = addmsg + ': ' + msg
         raise cls(self, msg), None, tb
 
-    def _taco_multitry(self, tries, func, *args):
+    def _taco_multitry(self, what, tries, func, *args):
         while True:
             tries -= 1
             try:
                 return self._taco_guard(func, *args)
             except NicmError:
+                self.printwarning('%s failed; trying again' % what)
                 if tries <= 0:
                     raise
                 self.__lock.acquire()

@@ -274,8 +274,8 @@ class NICOS(object):
                 exec code in self.__namespace
 
         if failed_devs:
-            log.warning('the following devices could not be created:')
-            log.warning(', '.join(failed_devs))
+            log.error('the following devices could not be created:')
+            log.error(', '.join(failed_devs))
 
         self.explicit_setups.append(setupname)
         self.resetPrompt()

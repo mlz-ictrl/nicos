@@ -60,15 +60,15 @@ class ModBus(TacoDevice, Device):
     }
 
     def send(self, addr, cmd, param=0, len=0):
-        return self._taco_multitry(self.maxtries, self._dev.genSDA,
+        return self._taco_multitry('send', self.maxtries, self._dev.genSDA,
                                    addr, cmd-31, len, param)
 
     def get(self, addr, cmd, param=0, len=0):
-        return self._taco_multitry(self.maxtries, self._dev.genSRD,
+        return self._taco_multitry('get', self.maxtries, self._dev.genSRD,
                                    addr, cmd-98, len, param)
 
     def ping(self, addr):
-        return self._taco_multitry(self.maxtries, self._dev.Ping, addr)
+        return self._taco_multitry('ping', self.maxtries, self._dev.Ping, addr)
 
 
 class Coder(NicmCoder):
