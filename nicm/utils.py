@@ -431,6 +431,15 @@ def floatrange(fr, to):
         return val
     return converter
 
+def oneof(conv, *vals):
+    def converter(val=vals[0]):
+        val = conv(val)
+        if val not in vals:
+            raise ValueError('invalid value: %s, must be one of %s' %
+                             (val, ', '.join(vals)))
+        return val
+    return converter
+
 
 # fitting utilities
 
