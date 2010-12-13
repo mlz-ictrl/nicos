@@ -461,6 +461,7 @@ class Startable(Readable):
         if self._mode == 'simulation':
             self._sim_value = pos
             return
+        self._cache.invalidate(self, 'value')
         self.doStart(pos)
 
     def stop(self):

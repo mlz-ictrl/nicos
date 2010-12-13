@@ -294,6 +294,11 @@ class CacheClient(BaseCacheClient):
         self._db[dbkey] = (value, time, ttl)
         self._queue.put(msg)
 
+    def invalidate(self, dev, key):
+        dbkey = '%s/%s' % (dev.name.lower(), key)
+        self.printdebug('invalidating %s' % dbkey)
+        self._db.pop(dbkey, None)
+
     def history(self, dev, key, fromtime, totime):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
