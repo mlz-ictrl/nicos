@@ -79,8 +79,6 @@ class TacoDevice(object):
 
     def doPreinit(self):
         self.__lock = threading.Lock()
-
-    def doInit(self):
         if self.tacolog:
             self._taco_guard = self._taco_guard_log
         if self.taco_class is None:
@@ -128,7 +126,6 @@ class TacoDevice(object):
         Create a new TACO client and initialize the device in a
         consistent state, handling eventual errors.
         """
-
         if devname is None:
             devname = self.tacodevice
         if class_ is None:
@@ -142,6 +139,7 @@ class TacoDevice(object):
         if log:
             self.printdebug('creating %s TACO device' % class_.__name__)
 
+        devname = str(devname) # XXX
         try:
             dev = class_(devname)
         except TACOError, err:
