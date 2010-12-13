@@ -61,9 +61,6 @@ class FRMChannel(TacoDevice, Measurable):
     }
 
     def doInit(self):
-        self.preselection = self._taco_guard(self._dev.preselection)
-        self.ismaster = self._taco_guard(self._dev.isMaster)
-        self.mode = self._taco_guard(self._dev.mode)
         self.__stopMode = status.OK
 
     def doStart(self):
@@ -107,11 +104,20 @@ class FRMChannel(TacoDevice, Measurable):
         if self._taco_guard(self._dev.isDeviceOff):
             self._taco_guard(self._dev.deviceOn)
 
+    def doReadPreselection(self):
+        return self._taco_guard(self._dev.preselection)
+
     def doWritePreselection(self, value):
         self._taco_guard(self._dev.setPreselection, value)
 
+    def doReadIsmaster(self):
+        return self._taco_guard(self._dev.isMaster)
+
     def doWriteIsmaster(self, value):
         self._taco_guard(self._dev.enableMaster, value)
+
+    def doReadMode(self):
+        return self._taco_guard(self._dev.mode)
 
     def doWriteMode(self, value):
         for s, i in [('normal', IOCommon.MODE_NORMAL),
@@ -120,6 +126,7 @@ class FRMChannel(TacoDevice, Measurable):
             if value == s or value == i:
                 smode = s
                 imode = i
+                break
         else:
             raise ConfigurationError(self, 'invalid value for the '
                                      'mode parameter: %s' % value)
