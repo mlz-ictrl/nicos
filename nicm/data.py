@@ -166,13 +166,16 @@ class DatafileSink(DataSink):
 
 class AsciiDatafileSink(DatafileSink):
     parameters = {
-        # XXX prefix should come from proposal
-        'prefix': Param('Data file name prefix', type=str),
         'commentchar': Param('Comment character', type=str, default='#',
                              settable=True),
         'semicolon': Param('Whether to add a semicolon between X and Y values',
                            type=bool, default=True),
+        'lastfilenumber': Param('The number of the last written data file',
+                                type=int),
     }
+
+    def doPreinit(self):
+        self._counter = 0
 
     def doInit(self):
         self._path = None
@@ -180,12 +183,6 @@ class AsciiDatafileSink(DatafileSink):
         self._fname = ''
         self._scomment = self.commentchar
         self._tcomment = self.commentchar * 3
-        self._counter = 0
-
-    def doWritePrefix(self, value):
-        if value and not value.endswith('_'):
-            value += '_'
-        return value
 
     def doWriteCommentchar(self, value):
         if len(value) > 1:
@@ -194,9 +191,12 @@ class AsciiDatafileSink(DatafileSink):
         self._scomment = value
         self._tcomment = value * 3
 
+    def doReadLastfilenumber(self):
+        return self._counter
+
     def setDatapath(self, value):
         self._path = value
-        # determine current counter value
+        # determine current file counter value
         counterpath = path.join(self._path, 'filecounter')
         try:
             currentcounter = int(readFile(counterpath)[0])
@@ -208,16 +208,23 @@ class AsciiDatafileSink(DatafileSink):
             else:
                 raise
         self._counter = currentcounter
+        self._setROParam('lastfilenumber', self._counter)
+
+    def nextFileName(self):
+        """Return the file name for the next data file.  Can be overwritten in
+        instrument-specific subclasses.
+        """
+        pnr = nicos.system.experiment.proposalnumber
+        return path.join(self._path, '%04d_%08d.dat' % (pnr, self._counter))
 
     def prepareDataset(self):
         if self._path is None:
             self.setDatapath(nicos.system.datapath)
-        prefix = nicos.system.experiment.proposalnumber
         self._wrote_columninfo = False
         self._counter += 1
         writeFile(path.join(self._path, 'filecounter'), [str(self._counter)])
-        self._fname = path.join(self._path,
-                                '%s_%08d.dat' % (prefix, self._counter))
+        self._setROParam('lastfilenumber', self._counter)
+        self._fname = self.nextFileName()
         return [('filename', self._fname)]
 
     def beginDataset(self, devices, positions, detlist, preset,
