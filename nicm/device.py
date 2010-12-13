@@ -554,8 +554,8 @@ class Moveable(BaseMoveable):
                                      'absolute maximum (%s)' %
                                      (self.absmin, self.absmax))
 
-    def setMode(self, mode):
-        Moveable.setMode(self, mode)
+    def _setMode(self, mode):
+        BaseMoveable._setMode(self, mode)
         if mode == 'master':
             self.__checkUserLimits(self.usermin, self.usermax, setthem=True)
 
@@ -569,7 +569,7 @@ class Moveable(BaseMoveable):
             self.usermin = absmin
             self.usermax = absmax
             return
-        if usermin >= usermax:
+        if usermin > usermax:
             raise ConfigurationError(self, 'user minimum (%s) above the user '
                                      'maximum (%s)' % (usermin, usermax))
         if usermin < absmin:

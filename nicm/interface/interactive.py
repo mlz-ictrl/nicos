@@ -45,9 +45,10 @@ import readline
 import rlcompleter
 
 import nicm
-from nicm.interface import NICOS
-from nicm.loggers import ColoredConsoleHandler, OUTPUT, INPUT
 from nicm.utils import colorcode
+from nicm.errors import ModeError
+from nicm.loggers import ColoredConsoleHandler, OUTPUT, INPUT
+from nicm.interface import NICOS
 
 
 class NicmCompleter(rlcompleter.Completer):
@@ -163,8 +164,10 @@ def start(setup='startup'):
     system = nicm.nicos.system
     try:
         system.setMode('master')
-    except:
+    except ModeError:
         system.printinfo('could not enter master mode; remaining slave')
+    except:
+        system.printwarning('could not enter master mode', exc=True)
 
     # Fire up an interactive console.
     nicm.nicos.console()
