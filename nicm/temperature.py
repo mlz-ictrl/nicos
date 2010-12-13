@@ -117,9 +117,6 @@ class Controller(TacoDevice, Moveable, HasOffset):
         'unit':      Param('Unit of temperature', type=str),
     }
 
-    def doInit(self):
-        TacoDevice.doInit(self)
-
     def doRead(self):
         return self._adevs['primary_sensor'].read() - self.offset
 
