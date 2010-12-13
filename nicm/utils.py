@@ -269,6 +269,23 @@ def readConfig(*filenames):
         NICOS.default_setup_path = cfg.get('nicm', 'setup_path')
 
 
+# simple file operations
+
+def readFile(filename):
+    fp = open(filename, 'rb')
+    try:
+        return map(str.strip, fp)
+    finally:
+        fp.close()
+
+def writeFile(filename, lines):
+    fp = open(filename, 'wb')
+    try:
+        fp.writelines(lines)
+    finally:
+        fp.close()
+
+
 # session id support
 
 def makeSessionId():

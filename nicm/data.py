@@ -36,12 +36,13 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import time
+import errno
 from os import path
 
 from nicm import nicos
-from nicm.utils import listof
+from nicm.utils import listof, readFile, writeFile
 from nicm.device import Device, Param
-from nicm.errors import ConfigurationError
+from nicm.errors import ConfigurationError, ProgrammingError
 from nicm.commands.output import printinfo
 
 
@@ -177,9 +178,9 @@ class AsciiDatafileSink(DatafileSink):
         self._path = None
         self._file = None
         self._fname = ''
-        self._counter = 0
         self._scomment = self.commentchar
         self._tcomment = self.commentchar * 3
+        self._counter = 0
 
     def doWritePrefix(self, value):
         if value and not value.endswith('_'):
@@ -195,19 +196,36 @@ class AsciiDatafileSink(DatafileSink):
 
     def setDatapath(self, value):
         self._path = value
-        self._counter = 0  # XXX determine current counter
+        # determine current counter value
+        counterpath = path.join(self._path, 'filecounter')
+        try:
+            currentcounter = int(readFile(counterpath)[0])
+        except IOError, err:
+            # if the file doesn't exist yet, this is ok, but reraise all other
+            # exceptions
+            if err.errno == errno.ENOENT:
+                currentcounter = 0
+            else:
+                raise
+        self._counter = currentcounter
 
     def prepareDataset(self):
         if self._path is None:
             self.setDatapath(nicos.system.datapath)
+        prefix = nicos.system.experiment.proposalnumber
         self._wrote_columninfo = False
         self._counter += 1
-        self._fname = path.join(self._path, self.prefix +
-                                '%s.dat' % self._counter)
+        writeFile(path.join(self._path, 'filecounter'), [str(self._counter)])
+        self._fname = path.join(self._path,
+                                '%s_%08d.dat' % (prefix, self._counter))
         return [('filename', self._fname)]
 
     def beginDataset(self, devices, positions, detlist, preset,
                      userinfo, sinkinfo):
+        if path.isfile(self._fname):
+            # XXX for now, prevent from ever overwriting data files
+            raise ProgrammingError('Data file named %r already exists!' %
+                                   self._fname)
         self._file = open(self._fname, 'w')
         self._userinfo = userinfo
         self._file.write('%s NICOS data file, created at %s\n' %
