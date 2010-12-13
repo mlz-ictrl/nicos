@@ -96,6 +96,8 @@ def listcommands():
 @usercommand
 def NewSetup(setupname):
     """Load the given setup instead of the current one."""
+    # refresh setup files
+    nicos.readSetups()
     nicos.unloadSetup()
     try:
         nicos.loadSetup(setupname)

@@ -99,7 +99,7 @@ def start():
     nicm.nicos.__init__()
 
     # Create the initial instrument setup.
-    nicm.nicos.loadSetup('startup')
+    nicm.nicos.loadSetup('base')
 
     # Try to become master.
     system = nicm.nicos.system

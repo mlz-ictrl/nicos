@@ -130,9 +130,9 @@ class NICOS(object):
     def setSetupPath(self, path):
         """Set the path to the setup files."""
         self.__setup_path = path
-        self.__readSetups()
+        self.readSetups()
 
-    def __readSetups(self):
+    def readSetups(self):
         """Read information of all existing setups.
 
         Setup modules are looked for in the setup/ directory which
@@ -179,7 +179,7 @@ class NICOS(object):
     def loadSetup(self, setupname, allow_special=False):
         """Load a setup module and set up devices accordingly."""
         if not self.__setup_info:
-            self.__readSetups()
+            self.readSetups()
 
         log = self.getLogger('nicos')
         if setupname in self.loaded_setups:
@@ -303,6 +303,7 @@ class NICOS(object):
         self.loaded_setups = set()
         self.explicit_setups = []
         self.user_modules = set()
+        # XXX remember running mode
         self.__system_device = None
         self.__exp_device = None
 
