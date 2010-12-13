@@ -137,12 +137,18 @@ class FRMChannel(TacoDevice, Measurable):
 class FRMTimerChannel(FRMChannel):
     taco_class = Timer
 
+    def doReadUnit(self):
+        return 's'
+
     def valueInfo(self):
         return [self.name], ['s']
 
 
 class FRMCounterChannel(FRMChannel):
     taco_class = Counter
+
+    def doReadUnit(self):
+        return 'cts'
 
     def valueInfo(self):
         return [self.name], ['cts']
