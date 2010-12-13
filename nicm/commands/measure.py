@@ -38,6 +38,8 @@ __version__ = "$Revision$"
 from time import sleep
 
 from nicm import nicos
+from nicm.device import Measurable
+from nicm.errors import UsageError
 from nicm.commands import usercommand
 
 
@@ -65,6 +67,9 @@ def count(*detlist, **preset):
     if detlist and isinstance(detlist[0], (int, long)):
         preset['t'] = detlist[0]
         del detlist[0]
+    for det in detlist:
+        if not isinstance(det, Measurable):
+            raise UsageError('device %s is not a measurable device' % det)
     if not detlist:
         detlist = nicos.system.instrument.detectors
-    _count(detlist, preset)
+    return _count(detlist, preset)
