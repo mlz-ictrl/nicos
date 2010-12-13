@@ -41,7 +41,7 @@ import threading
 from nicm import status
 from nicm.device import Moveable, HasOffset, Param
 from nicm.errors import ConfigurationError, NicmError, PositionError
-from nicm.errors import ProgrammingError, MoveError
+from nicm.errors import ProgrammingError, MoveError, LimitError
 from nicm.motor import Motor
 from nicm.coder import Coder
 
@@ -126,6 +126,11 @@ class Axis(Moveable, HasOffset):
         if self.doStatus()[0] == status.BUSY:
             raise NicmError(self, 'axis is moving now, please issue a stop '
                             'command and try it again')
+
+        # do limit check here already instead of in the thread
+        ok, why = self._adevs['motor'].isAllowed(target + self.offset)
+        if not ok:
+            raise LimitError(self._adevs['motor'], why)
 
         if self.__thread:
             self.__thread.join()
