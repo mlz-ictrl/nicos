@@ -778,3 +778,18 @@ class Measurable(Startable):
     def valueInfo(self):
         """Return two lists: list of value names and list of value units."""
         return [], []
+
+    def info(self):
+        """Automatically add device status (if not OK).  Does not add the
+        device value since that is typically not useful for Measurables.
+        """
+        try:
+            st = self.status()
+        except Exception, err:
+            self.printwarning('error getting status for info()', exc=err)
+            yield ('status', 'status', 'Error: %s' % err)
+        else:
+            if st[0] not in (status.OK, status.UNKNOWN):
+                yield ('status', 'status', '%s: %s' % st)
+        for item in Device.info(self):
+            yield item

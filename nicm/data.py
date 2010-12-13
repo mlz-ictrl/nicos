@@ -215,7 +215,7 @@ class AsciiDatafileSink(DatafileSink):
         instrument-specific subclasses.
         """
         pnr = nicos.system.experiment.proposalnumber
-        return path.join(self._path, '%04d_%08d.dat' % (pnr, self._counter))
+        return '%04d_%08d.dat' % (pnr, self._counter)
 
     def prepareDataset(self):
         if self._path is None:
@@ -225,15 +225,16 @@ class AsciiDatafileSink(DatafileSink):
         writeFile(path.join(self._path, 'filecounter'), [str(self._counter)])
         self._setROParam('lastfilenumber', self._counter)
         self._fname = self.nextFileName()
+        self._fullfname = path.join(self._path, self._fname)
         return [('filename', self._fname)]
 
     def beginDataset(self, devices, positions, detlist, preset,
                      userinfo, sinkinfo):
-        if path.isfile(self._fname):
+        if path.isfile(self._fullfname):
             # XXX for now, prevent from ever overwriting data files
             raise ProgrammingError('Data file named %r already exists!' %
-                                   self._fname)
-        self._file = open(self._fname, 'w')
+                                   self._fullfname)
+        self._file = open(self._fullfname, 'w')
         self._userinfo = userinfo
         self._file.write('%s NICOS data file, created at %s\n' %
                          (self._tcomment, time.strftime(TIMEFMT)))

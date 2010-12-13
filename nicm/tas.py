@@ -70,7 +70,7 @@ class TAS(Instrument, BaseMoveable):
 
     parameters = {
         'fmtstr': Param('Format string for the device value', type=str,
-                        default='%10.4f %10.4f %10.4f %10.4f %10.4f',
+                        default='[%7.4f, %7.4f, %7.4f, %7.4f, %7.4f]',
                         settable=True),
         'opmode': Param('Operation mode: one of ' + ', '.join(OPMODES),
                         type=str, default='CKI', settable=True,
@@ -85,7 +85,7 @@ class TAS(Instrument, BaseMoveable):
                          type=bool, default=True, settable=True),
         'energytransferunit': Param('Energy transfer unit', type=str,
                                     default='THz', settable=True),
-        'unit': Param('Unit', type=str, default='rlu/rlu/rlu/THz/A-1',
+        'unit': Param('Unit', type=str, default='rlu rlu rlu THz A-1',
                       settable=True),
     }
 
@@ -154,14 +154,14 @@ class TAS(Instrument, BaseMoveable):
     def doWriteOpmode(self, val):
         if val not in OPMODES:
             raise ConfigurationError('invalid opmode: %r' % val)
-        self.unit = 'rlu/rlu/rlu/%s/%s' % (self.energytransferunit,
+        self.unit = 'rlu rlu rlu %s %s' % (self.energytransferunit,
                                            OPMODEUNIT[val])
         self.sc.unit = OPMODEUNIT[val]
 
     def doWriteEnergytransferunit(self, val):
         if val not in ENERGYTRANSFERUNITS:
             raise ConfigurationError('invalid energy transfer unit: %r' % val)
-        self.unit = 'rlu/rlu/rlu/%s/%s' % (val, OPMODEUNIT[self.opmode])
+        self.unit = 'rlu rlu rlu %s %s' % (val, OPMODEUNIT[self.opmode])
         self.ny.unit = val
 
     def doRead(self):
@@ -217,7 +217,8 @@ class TASIndex(BaseMoveable):
 
 class Wavevector(BaseMoveable):
     """
-    Device for adjusting initial/final wavevectors.
+    Device for adjusting initial/final wavevectors of the TAS and also setting
+    the opmode.
     """
 
     parameters = {
