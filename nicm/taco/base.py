@@ -229,3 +229,22 @@ class TacoDevice(object):
         if addmsg is not None:
             msg = addmsg + ': ' + msg
         raise cls(self, msg), None, tb
+
+    def _taco_multitry(self, tries, func, *args):
+        while True:
+            tries -= 1
+            try:
+                return self._taco_guard(func, *args)
+            except NicmError:
+                if tries <= 0:
+                    raise
+                self.__lock.acquire()
+                try:
+                    if self._dev.deviceState() == TACOStates.FAULT:
+                        self._dev.deviceReset()
+                    self._dev.deviceOn()
+                    sleep(0.5)
+                except TACOError:
+                    pass
+                finally:
+                    self.__lock.release()

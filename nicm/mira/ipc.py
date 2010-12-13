@@ -59,32 +59,16 @@ class ModBus(TacoDevice, Device):
                           type=int, default=5, settable=True),
     }
 
-    # XXX make this a general TACO function?
-    def _multitry(self, func, *args):
-        tries = self.maxtries
-        while True:
-            tries -= 1
-            try:
-                return self._taco_guard(func, *args)
-            except NicmError:
-                if tries <= 0:
-                    raise
-                try:
-                    if self._dev.deviceState() == 23:
-                        self._dev.deviceReset()
-                    self._dev.deviceOn()
-                    sleep(0.5)
-                except TACOError:
-                    pass
-
     def send(self, addr, cmd, param=0, len=0):
-        return self._multitry(self._dev.genSDA, addr, cmd-31, len, param)
+        return self._taco_multitry(self.maxtries, self._dev.genSDA,
+                                   addr, cmd-31, len, param)
 
     def get(self, addr, cmd, param=0, len=0):
-        return self._multitry(self._dev.genSRD, addr, cmd-98, len, param)
+        return self._taco_multitry(self.maxtries, self._dev.genSRD,
+                                   addr, cmd-98, len, param)
 
     def ping(self, addr):
-        return self._multitry(self._dev.Ping, addr)
+        return self._taco_multitry(self.maxtries, self._dev.Ping, addr)
 
 
 class Coder(NicmCoder):

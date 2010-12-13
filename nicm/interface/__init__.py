@@ -252,7 +252,10 @@ class NICOS(object):
                 self.configured_devices['System'] = ('nicm.system.System', dict(
                     datasinks=[], cache=None, instrument=None, experiment=None,
                     datapath=''))
-            self.createDevice('System')
+            try:
+                self.createDevice('System')
+            except Exception:
+                log.exception('error creating System device')
 
         # create all devices
         for devname, (_, devconfig) in sorted(devlist.iteritems()):
