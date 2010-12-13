@@ -415,6 +415,22 @@ def vec3(val=[0,0,0]):
         raise ValueError('value needs to be a 3-element vector')
     return ret
 
+def intrange(fr, to):
+    def converter(val=fr):
+        val = int(val)
+        if not fr <= val < to:
+            raise ValueError('value needs to fulfill %d <= x < %d' % (fr, to))
+        return val
+    return converter
+
+def floatrange(fr, to):
+    def converter(val=fr):
+        val = float(val)
+        if not fr <= val < to:
+            raise ValueError('value needs to fulfill %d <= x < %d' % (fr, to))
+        return val
+    return converter
+
 
 # fitting utilities
 
