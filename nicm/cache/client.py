@@ -262,7 +262,7 @@ class CacheClient(BaseCacheClient):
         key = key[len(self._prefix)+1:]
         if key == 'master':
             self._ismaster = value == '"' + nicos.sessionid + '"'
-        self.printdebug('got %s=%s' % (key, value))
+        #self.printdebug('got %s=%s' % (key, value))
         if value is None:
             self._db.pop(key, None)
         else:
