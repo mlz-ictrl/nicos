@@ -173,14 +173,14 @@ class TacoDevice(object):
 
     def _taco_guard_log(self, function, *args):
         """Like _taco_guard(), but log the call."""
-        self.printdebug('TACO call: %s%s' % (function.__name__, args))
+        self.printdebug('TACO call: %s%r' % (function.__name__, args))
         self.__lock.acquire()
         try:
             ret = function(*args)
         except TACOError, err:
             self._raise_taco(err)
         else:
-            self.printdebug('TACO return: %s' % ret)
+            self.printdebug('TACO return: %r' % ret)
             return ret
         finally:
             self.__lock.release()

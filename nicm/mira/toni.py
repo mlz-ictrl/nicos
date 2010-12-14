@@ -39,151 +39,78 @@ import serial
 import threading
 from time import sleep, time
 
-from nicm.utils import intrange
+from IO import StringIO
+
+from nicm import status
+from nicm.utils import intrange, listof
 from nicm.device import Device, Switchable, Param
-from nicm.errors import CommunicationError
+from nicm.errors import NicmError, CommunicationError
+from nicm.taco.base import TacoDevice
 
 
-class ModBus(Device):
-
-    # XXX this should be rewritten as a TACO device using the RS-232 server
+class ModBus(TacoDevice, Device):
+    taco_class = StringIO
 
     parameters = {
-        'port':     Param('Serial port device file', type=str, mandatory=True),
-        'baudrate': Param('Baud rate', type=int, default=19200),
-        'bytesize': Param('Byte size', type=int, default=8),
-        'parity':   Param('Parity', type=int, default=0),
-        'stopbits': Param('Stop bits', type=int, default=1),
-        'timeout':  Param('Timeout', type=int, default=1, unit='s'),
-        'xonxoff':  Param('XON/XOFF flow control', type=bool, default=False),
-        'rtscts':   Param('RTS/CTS flow control', type=bool, default=False),
         'maxtries': Param('Maximum tries before raising', type=int, default=5),
+        'source':   Param('Source address of host', type=int, default=0),
     }
 
+    def doReadUnit(self):
+        # XXX not necessary!
+        return ''
+
     def doInit(self):
-        self._dev = serial.Serial(self.port, self.baudrate, self.bytesize,
-                                  self.parity, self.stopbits, self.timeout,
-                                  self.xonxoff, self.rtscts)
-        self._dev.setRTS(0)
         self._lock = threading.RLock()
-        self._buffer = []
-        self._source = 0  # XXX should this be configurable?
 
     def _crc(self, str):
         crc = ord(str[0])
         for i in str[1:]:
             crc ^= ord(i)
-        return crc
+        return '%02x' % crc
 
     def read(self, dest):
         self._lock.acquire()
         try:
-            ret = self._r(dest)
+            tries = self.maxtries
+            while True:
+                try:
+                    ret = self._taco_guard(self._dev.readLine)
+                except NicmError:
+                    if tries == 0:
+                        raise
+                else:
+                    break
+                tries -= 1
         finally:
             self._lock.release()
-        return ret[5:-3]
+        return ret[6:-2]
 
     def write(self, msg, dest):
+        msg = '%02X%02X%s' % (dest, self.source, msg)
+        msg = '\x02' + msg + self._crc(msg)
         self._lock.acquire()
         try:
-            ret = self._w(msg, dest)
+            tries = self.maxtries
+            while True:
+                try:
+                    # the result of communicate is the echo
+                    ret = self._taco_guard(self._dev.communicate, msg)
+                    if ret != msg:
+                        continue
+                    sleep(0.05)
+                    ret = self._taco_guard(self._dev.readLine)
+                except NicmError:
+                    if tries == 0:
+                        raise
+                    sleep(0.1)
+                else:
+                    break
+                tries -= 1
         finally:
             self._lock.release()
-        return ret[5:-3]
-
-    def _r(self, dest, echo=0):
-        tries = self.maxtries
-        errnum = ''
-        if echo:
-            source = dest
-            dest = self._source
-        else:
-            source = self._source
-            for msg in self._buffer:
-                if int(msg[3:5], 16) == dest:
-                    # got a message for the correct destination
-                    del self._buffer[self._buffer.index(msg)]
-                    return msg
-        input = ''
-        inp = 'x'
-        while tries:
-            inp1 = ''
-            # wait for start of message (0x2)
-            while inp and inp != chr(2):
-                inp = self._dev.read()
-                inp1 = inp
-            if not inp:
-                tries -= 1
-                input = ''
-                errnum += '1'
-                continue
-            input += inp1
-            inp = 'x'
-            # read until end of message (0x3)
-            while inp and inp != chr(3) and inp != chr(2):
-                inp = self._dev.read()
-                input += inp
-            # did not receive end of message
-            if not inp:
-                tries -= 1
-                errnum += '2'
-                continue
-            # did receive start of new message before end of message
-            elif inp == chr(2):
-                tries -= 1
-                errnum += '3'
-                continue
-            # check for message length: should be at least 8 characters
-            if len(input) < 8:
-                tries -= 1
-                inp = 'x'
-                input = ''
-                errnum += '4'
-            # okay, we got something that looks like a valid message, check CRC
-            checksum = self._crc(input[:-3])
-            if checksum.upper() != input[-3:-1].upper():
-                tries -= 1
-                inp = 'x'
-                input = ''
-                errnum += '5'
-                continue
-            # check for valid source
-            if int(input[1:3], 16) != source:
-                inp = 'x'
-                input = ''
-                continue
-            # check if we are the destination
-            if int(input[3:5], 16) == dest:
-                return input
-            else:
-                self._buffer.append(input)
-                inp = 'x'
-                input = ''
-                continue
-        self._dev.setRTS(0)
-        # XXX error here?
-        return ''
-
-    def _w(self, msg, dest):
-        self._dev.setRTS(0)
-        tries = self.maxtries
-        msg = '\x02%02x%02x%s' % (dest, self._source, msg)
-        checksum = self._crc(msg)
-        msg += checksum + '\x03'
-        while True:
-            self._dev.setRTS(1)
-            sleep(0.001)
-            self._dev.write('\x03' + msg)
-            while True:
-                echo = self._r(dest, echo=True)
-                self._dev.setRTS(0)
-                if echo == msg:
-                    return self._r(dest)
-                elif self._dev.inWaiting() < 8:
-                    tries -= 1
-                    if tries == 0:
-                        raise CommunicationError(self, 'Modbus write error')
-                    break
+        # XXX check CRC
+        return ret[6:-2]
 
 
 class Valve(Switchable):
@@ -193,12 +120,15 @@ class Valve(Switchable):
     }
 
     parameters = {
-        'addr':    Param('Bus address of the valve control', type=int,
-                         mandatory=True),
-        'channel': Param('Channel of the valve', type=intrange(0, 8),
-                         mandatory=True),
-        'states':  Param('Names for the closed/open states', type=listof(str),
-                         default=['off', 'on']),
+        'addr':     Param('Bus address of the valve control', type=int,
+                          mandatory=True),
+        'channel':  Param('Channel of the valve', type=intrange(0, 8),
+                          mandatory=True),
+        'states':   Param('Names for the closed/open states', type=listof(str),
+                          default=['off', 'on']),
+        'waittime': Param('Time to wait after switching', type=float, unit='s',
+                          default=4),
+        'unit':     Param('Unit', type=str, default=''),
     }
 
     def doInit(self):
@@ -229,12 +159,14 @@ class Valve(Switchable):
         ret = self._adevs['bus'].write('I?', self.addr)
         if not ret:
             raise CommunicationError(self, 'ModBus read error: %r' % ret)
-        # XXX what return values?
-        return int(ret), ''
+        if int(ret) == 0:
+            return status.OK, 'idle'
+        else:
+            return status.BUSY, 'busy'
 
     def doWait(self):
         if self._timer:
-            # wait 5 seconds after last write action
-            while time() - self._timer < 5:
+            # wait given time after last write action
+            while time() - self._timer < self.waittime:
                 sleep(0.1)
             self._timer = 0

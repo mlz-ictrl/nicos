@@ -105,7 +105,7 @@ def switch(*dev_pos_list):
     """
     for dev, pos in _devposlist(dev_pos_list, Switchable):
         dev.printinfo('switching to', dev.format(pos), dev.unit)
-        dev.switchTo(pos)
+        dev.switch(pos)
         dev.wait()
         read(dev)
 
