@@ -66,9 +66,6 @@ class StandaloneIseg(TacoDevice, Device, IsegConnector):
 
     # no locking/unlocking needed
 
-    def doReadUnit(self):
-        return ''   # XXX
-
     def communicate(self, msg, rlen):
         # must send and read back each character individually
         # rlen is ignored since we really wait until everything is transmitted

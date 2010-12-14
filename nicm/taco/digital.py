@@ -46,9 +46,6 @@ class Input(TacoDevice, Readable):
 
     taco_class = DigitalInput
 
-    def doReadUnit(self):
-        return ''
-
 
 # XXX switchable?
 class Output(TacoDevice, BaseMoveable):
@@ -58,9 +55,6 @@ class Output(TacoDevice, BaseMoveable):
 
     def doStart(self, target):
         self._taco_guard(self._dev.write, target)
-
-    def doReadUnit(self):
-        return ''
 
 
 class PartialInput(Input):

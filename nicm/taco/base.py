@@ -107,7 +107,12 @@ class TacoDevice(object):
             self._taco_guard(self._dev.deviceOn)
 
     def doReadUnit(self):
-        return self._taco_guard(self._dev.unit)
+        # explicitly configured unit has precendence
+        if 'unit' in self._config:
+            return self._config['unit']
+        if hasattr(self._dev, 'unit'):
+            return self._taco_guard(self._dev.unit)
+        return ''
 
     def doWriteTacotimeout(self, value):
         if self._dev:

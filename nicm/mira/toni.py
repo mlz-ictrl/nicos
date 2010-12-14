@@ -57,10 +57,6 @@ class ModBus(TacoDevice, Device):
         'source':   Param('Source address of host', type=int, default=0),
     }
 
-    def doReadUnit(self):
-        # XXX not necessary, fix in base class?
-        return ''
-
     def doInit(self):
         self._lock = threading.RLock()
 
