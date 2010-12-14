@@ -187,16 +187,16 @@ class Controller(TacoDevice, Moveable, HasOffset):
                                       'timeout')[:-1])
 
     def doWriteP(self, value):
-        return self._taco_guard(self._dev.setPParam, value)
+        self._taco_guard(self._dev.setPParam, value)
 
     def doWriteI(self, value):
-        return self._taco_guard(self._dev.setIParam, value)
+        self._taco_guard(self._dev.setIParam, value)
 
     def doWriteD(self, value):
-        return self._taco_guard(self._dev.setDParam, value)
+        self._taco_guard(self._dev.setDParam, value)
 
     def doWriteRamp(self, value):
-        return self._taco_guard(self._dev.setRamp, value)
+        self._taco_guard(self._dev.setRamp, value)
 
     def doWriteTolerance(self, value):
         self._taco_update_resource('tolerance', str(value))

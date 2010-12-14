@@ -93,4 +93,4 @@ def cache_dump(obj):
         raise ValueError('unserializable object: %r' % obj)
     return ''.join(res)
 
-cache_load = eval
+cache_load = eval  # TODO: rewrite as a safer function

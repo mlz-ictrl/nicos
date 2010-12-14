@@ -61,7 +61,7 @@ class Supply(HasOffset, TacoDevice, Moveable):
         return self._taco_guard(self._dev.ramp)
 
     def doWriteRamp(self, value):
-        return self._taco_guard(self._dev.setRamp, value)
+        self._taco_guard(self._dev.setRamp, value)
 
     def doRead(self):
         return self._taco_multitry('read', 2, self._dev.read) - self.offset
