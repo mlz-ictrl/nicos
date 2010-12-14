@@ -139,9 +139,11 @@ class IsegHV(Moveable):
         try:
             crate.communicate('D%d=%04d' % (self.isegchannel, value), 0)
             resp = crate.communicate('G%d' % self.isegchannel, 6)
+            # return message is the status
             if resp[:3] != ('S%d=' % self.isegchannel):
                 raise NicmError('could not set voltage: %r' % resp)
-            if resp[3:] not in self.states or self.states[resp[3:]] not in (0,1):
+            if resp[3:] not in self.states or \
+                   self.states[resp[3:]] not in (status.OK, status.BUSY):
                 if resp[3:] == 'MAN':
                     raise NicmError('could not set voltage, voltage control '
                                     'switched to manual')

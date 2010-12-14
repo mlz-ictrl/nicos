@@ -80,6 +80,7 @@ class ModBus(TacoDevice, Device):
                 except NicmError:
                     if tries == 0:
                         raise
+                    sleep(0.1)
                 else:
                     break
                 tries -= 1
