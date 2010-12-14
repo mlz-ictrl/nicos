@@ -144,7 +144,7 @@ class InteractiveNICOS(NICOS):
     def console(self):
         """Run an interactive console, and exit after it is finished."""
         banner = ('NICOS console ready (version %s).\nTry help() for a '
-                  'list of commands, or help(command) for help.'
+                  'list of commands, or help(command) for help on a command.'
                   % nicm.nicm_version)
         console = NicmInteractiveConsole(self, self._NICOS__namespace,
                                          self._NICOS__local_namespace)
