@@ -112,7 +112,7 @@ class VirtualTimer(FRMTimerChannel):
 
     def nothing(self):
         pass
-    doPause = doResume = doStop = doReset = nothing
+    doPreinit = doPause = doResume = doStop = doReset = nothing
 
     def doStart(self):
         if self.ismaster:
@@ -133,6 +133,15 @@ class VirtualTimer(FRMTimerChannel):
         if self.ismaster:
             return self.preselection
         return random.randint(0, 1000)
+
+    def doReadPreselection(self):
+        return 0
+
+    def doReadIsmaster(self):
+        return False
+
+    def doReadMode(self):
+        return 0
 
     def doWritePreselection(self, value):
         pass
@@ -155,7 +164,8 @@ class VirtualCounter(FRMCounterChannel):
 
     def nothing(self):
         pass
-    doInit = doStart = doPause = doResume = doStop = doWait = doReset = nothing
+    doPreinit = doInit = doStart = doPause = doResume = doStop = doWait = \
+                doReset = nothing
 
     def doStatus(self):
         return (status.OK, 'idle')
@@ -164,6 +174,15 @@ class VirtualCounter(FRMCounterChannel):
         if self.ismaster:
             return self.preselection
         return random.randint(0, self.countrate)
+
+    def doReadPreselection(self):
+        return 0
+
+    def doReadIsmaster(self):
+        return False
+
+    def doReadMode(self):
+        return 0
 
     def doWritePreselection(self, value):
         pass

@@ -67,7 +67,7 @@ line_pattern = re.compile(r'([^\r\n]*)(\r\n|\r|\n)')
 
 def cache_dump(obj):
     res = []
-    if isinstance(obj, (int, long, float, str, unicode)):
+    if isinstance(obj, (int, long, bool, float, str, unicode)):
         res.append(repr(obj))
     elif isinstance(obj, list):
         res.append('[')
