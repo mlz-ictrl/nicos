@@ -401,7 +401,7 @@ class Monitor(BaseCacheClient):
         for field in fields:
             self._watch.add(field)
             if key == field['key']:
-                if not value:
+                if value is None:
                     field['value'] = None
                     field['time'] = 0
                     field['ttl'] = 0
