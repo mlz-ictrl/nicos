@@ -187,12 +187,7 @@ class Device(object):
 
         self._cache = self._getCache()
 
-        if hasattr(self, 'doPreinit'):
-            self.doPreinit()
-
-        # validate and assign parameters
-        notfromcache = []
-        for param, paraminfo in self.parameters.iteritems():
+        def _init_param(param, paraminfo):
             param = param.lower()
             # mandatory parameters must be in config, regardless of cache
             # XXX compare value in cache and config; config has precedence!
@@ -204,6 +199,14 @@ class Device(object):
             if self._cache:
                 value = self._cache.get(self, param)
             if value is not None:
+                if param in self._config:
+                    cfgvalue = self._config[param]
+                    if cfgvalue != value:
+                        self.printwarning('value of %s from cache (%r) differs '
+                                          'from configured value (%r), using '
+                                          'the latter' % (param, value, cfgvalue))
+                        value = cfgvalue
+                        self._cache.put(self, param, value)
                 self._params[param] = value
             else:
                 self._initParam(param, paraminfo)
@@ -211,9 +214,27 @@ class Device(object):
             if paraminfo.category is not None:
                 self._infoparams.append((paraminfo.category, param,
                                          paraminfo.unit))
+
+        notfromcache = []
+        later = []
+
+        for param, paraminfo in self.parameters.iteritems():
+            if paraminfo.preinit:
+                _init_param(param, paraminfo)
+            else:
+                later.append((param, paraminfo))
+
+        if hasattr(self, 'doPreinit'):
+            self.doPreinit()
+
+        for param, paraminfo in later:
+            _init_param(param, paraminfo)
+
+        # warn about parameters that weren't present in cache
         if self._cache and notfromcache:
             self.printwarning('these parameters were not present in cache: ' +
                               ', '.join(notfromcache))
+
         self._infoparams.sort()
 
         # call custom initialization

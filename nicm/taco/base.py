@@ -61,11 +61,12 @@ class TacoDevice(object):
     """
 
     parameters = {
-        'tacodevice':  Param('TACO device name', type=tacodev, mandatory=True),
+        'tacodevice':  Param('TACO device name', type=tacodev, mandatory=True,
+                             preinit=True),
         'tacotimeout': Param('TACO client network timeout', unit='s',
-                             default=3, settable=True),
+                             default=3, settable=True, preinit=True),
         'tacolog':     Param('If true, log all TACO calls', type=bool,
-                             settable=True),
+                             settable=True, preinit=True),
         # the unit isn't mandatory -- TACO usually knows it already
         'unit':        Param('Unit of the device main value', type=str),
     }

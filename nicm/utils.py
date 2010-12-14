@@ -67,12 +67,14 @@ class Param(object):
       replaced by the device unit when presented
     - *category*: category of the parameter when returned by device.info()
       or None to ignore the parameter
+    - *preinit*: whether the parameter must be initialized before preinit()
     """
 
     _notset = object()
 
     def __init__(self, description, type=float, default=_notset,
-                 mandatory=False, settable=False, unit=None, category=None):
+                 mandatory=False, settable=False, unit=None, category=None,
+                 preinit=False):
         self.type = type
         if default is self._notset:
             default = type()
@@ -82,6 +84,7 @@ class Param(object):
         self.unit = unit
         self.category = category
         self.description = description
+        self.preinit = preinit
 
 
 class MergedAttrsMeta(type):
