@@ -74,10 +74,12 @@ class Monitor(BaseCacheClient):
         'font':      Param('Font name for the window', type=str,
                            default='Luxi Sans'),
         'valuefont': Param('Font name for the value displays', type=str),
-        'fontsize':  Param('Basic font size', type=int, default=12),
+        'fontsize':  Param('Basic font size', type=int, default=12,
+                           settable=True),
         'padding':   Param('Padding for the display fields', type=int,
-                           default=2),
-        'geometry':  Param('Geometry for status window', type=str),
+                           default=2, settable=True),
+        'geometry':  Param('Geometry for status window', type=str,
+                           settable=True),
         'resizable': Param('Whether the window is resizable', type=bool,
                            default=True),
     }
@@ -85,7 +87,8 @@ class Monitor(BaseCacheClient):
     def start(self):
         self.printinfo('monitor starting up, creating main window')
         root = Tk()
-        root.protocol("WM_DELETE_WINDOW", self.quit)
+        root.protocol('WM_DELETE_WINDOW', self.quit)
+        root.bind('q', self.quit)
         self.tk_init(root)
 
         self._selecttimeout = 0.2
@@ -101,7 +104,7 @@ class Monitor(BaseCacheClient):
             pass
         self._stoprequest = True
 
-    def quit(self):
+    def quit(self, *ignored):
         self.printinfo('monitor quitting')
         self._stoprequest = True
         self._master.quit()
