@@ -36,23 +36,18 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 
-
 class NicmError(Exception):
     category = 'Error'
     device = None
     tacoerr = None
 
-    def __init__(self, *args):
+    def __init__(self, *args, **kwds):
         # store the originating device on the exception
-        try:
-            from nicm.device import Device
-        except:
-            class Device: pass
         args = list(args)
-        if args and isinstance(args[0], Device):
+        if args and not isinstance(args[0], basestring):
             self.device = args[0]
             args[0] = '[%s] ' % args[0].name
-            #del args[0]
+        self.__dict__.update(kwds)
         Exception.__init__(self, ''.join(args))
 
 

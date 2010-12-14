@@ -37,6 +37,7 @@ __version__ = "$Revision$"
 
 from time import sleep
 
+import DEVERRORS
 import TACOStates
 from PowerSupply import CurrentControl, VoltageControl
 
@@ -61,7 +62,7 @@ class Supply(HasOffset, TacoDevice, Moveable):
         try:
             return self._taco_guard(self._dev.ramp)
         except NicmError, err:
-            if err.tacoerr == 34:  # XXX constant?!
+            if err.tacoerr == DEVERRORS.DevErr_CommandNotImplemented:
                 return 0
             raise
 
