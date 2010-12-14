@@ -42,7 +42,7 @@ from PowerSupply import CurrentControl, VoltageControl
 
 from nicm import status
 from nicm.device import Moveable, HasOffset, Param
-from nicm.errors import MoveError
+from nicm.errors import MoveError, NicmError
 from nicm.taco.base import TacoDevice
 
 
@@ -58,7 +58,12 @@ class Supply(HasOffset, TacoDevice, Moveable):
     }
 
     def doReadRamp(self):
-        return self._taco_guard(self._dev.ramp)
+        try:
+            return self._taco_guard(self._dev.ramp)
+        except NicmError, err:
+            if err.tacoerr == 34:  # XXX constant?!
+                return 0
+            raise
 
     def doWriteRamp(self, value):
         self._taco_guard(self._dev.setRamp, value)

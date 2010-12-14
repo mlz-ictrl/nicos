@@ -230,7 +230,9 @@ class TacoDevice(object):
         msg = '[TACO %d] %s' % (err.errcode, err)
         if addmsg is not None:
             msg = addmsg + ': ' + msg
-        raise cls(self, msg), None, tb
+        exc = cls(self, msg)
+        exc.tacoerr = err.errcode
+        raise exc, None, tb
 
     def _taco_multitry(self, what, tries, func, *args):
         while True:

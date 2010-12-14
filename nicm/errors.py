@@ -40,6 +40,7 @@ __version__ = "$Revision$"
 class NicmError(Exception):
     category = 'Error'
     device = None
+    tacoerr = None
 
     def __init__(self, *args):
         # store the originating device on the exception
