@@ -155,6 +155,7 @@ class BaseCacheClient(Device):
             self._handle_msg(**msgmatch.groupdict())
             # continue loop
             match = lmatch(data)
+        return data
 
     def _worker_thread(self):
         data = ''
@@ -168,7 +169,7 @@ class BaseCacheClient(Device):
                     continue
 
             # process data so far
-            process(data)
+            data = process(data)
 
             # wait for a whole line of data to arrive
             while ('\r' not in data) and ('\n' not in data) and \
