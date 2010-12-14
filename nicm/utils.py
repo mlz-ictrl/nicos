@@ -36,6 +36,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import os
+import re
 import sys
 import time
 import socket
@@ -401,9 +402,15 @@ def dictof(keyconv, valconv):
         return ret
     return converter
 
+tacodev_re = re.compile(r'^(//[\w.]+/)?\w+/\w+/\w+$', re.I)
+
 def tacodev(val=None):
-    # XXX check for valid taco device name
-    return str(val)
+    if val is None:
+        return ''
+    val = str(val)
+    if not tacodev_re.match(val):
+        raise ValueError('%s is not a valid Taco device name' % val)
+    return val
 
 def any(val=None):
     return val
