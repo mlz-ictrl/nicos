@@ -37,7 +37,7 @@ __version__ = "$Revision$"
 
 from IO import DigitalInput, DigitalOutput
 
-from nicm.device import Readable, Moveable, Param
+from nicm.device import Readable, BaseMoveable, Param
 from nicm.taco.base import TacoDevice
 
 
@@ -46,15 +46,21 @@ class Input(TacoDevice, Readable):
 
     taco_class = DigitalInput
 
+    def doReadUnit(self):
+        return ''
+
 
 # XXX switchable?
-class Output(TacoDevice, Moveable):
+class Output(TacoDevice, BaseMoveable):
     """Base class for TACO DigitalOutputs."""
 
     taco_class = DigitalOutput
 
-    def doStart(self, value):
-        self._taco_guard(self._dev.write, value)
+    def doStart(self, target):
+        self._taco_guard(self._dev.write, target)
+
+    def doReadUnit(self):
+        return ''
 
 
 class PartialInput(Input):
@@ -88,16 +94,17 @@ class PartialOutput(Output):
         self._max = (1 << self.bitwidth) - 1
 
     def doRead(self):
-        return (self._taco_guard(self._dev.read) >> self.startbit) & self._max
+        value = int(self._taco_guard(self._dev.read))
+        return (value >> self.startbit) & self._max
 
-    def doStart(self, value):
+    def doStart(self, target):
         curvalue = self._taco_guard(self._dev.read)
-        newvalue = (curvalue & ~self._max) & (value << self.startbit)
+        newvalue = (curvalue & ~self._max) | (target << self.startbit)
         self._taco_guard(self._dev.write, newvalue)
 
-    def doIsAllowed(self, value):
+    def doIsAllowed(self, target):
         if target < 0 or target > self._max:
-            return False, '%d outside range [0, %d]' % (value, self._max)
+            return False, '%d outside range [0, %d]' % (target, self._max)
         return True, ''
 
 
@@ -120,21 +127,22 @@ class ListOutput(Output):
         # convert to a list of single bits (big-endian: the first bit is the 1)
         bits = []
         while value:
-            bits.append(value & 1)
+            bits.append(int(value & 1))
             value >>= 1
+        bits += [0] * (self.bitwidth - len(bits))
         return bits
 
-    def doStart(self, value):
+    def doStart(self, target):
         # convert list of bits to an integer
-        value = sum(bool(bit) << pos for (pos, bit) in enumerate(value))
+        value = sum(bool(bit) << pos for (pos, bit) in enumerate(target))
         # get current value and put new integer at the appropriate position
         curvalue = self._taco_guard(self._dev.read)
-        newvalue = (curvalue & ~self._max) & (value << self.startbit)
+        newvalue = (curvalue & ~self._max) | (value << self.startbit)
         self._taco_guard(self._dev.write, newvalue)
 
-    def doIsAllowed(self, value):
+    def doIsAllowed(self, target):
         # XXX this will raise TypeError for e.g. ints -- something better?
         if len(target) != self.bitwidth:
             return False, ('value needs to be a list of length %d, not %r' %
-                           (self.bitwidth, value))
+                           (self.bitwidth, target))
         return True, ''

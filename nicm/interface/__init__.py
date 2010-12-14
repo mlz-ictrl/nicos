@@ -265,7 +265,7 @@ class NICOS(object):
             try:
                 self.createDevice(devname, explicit=True)
             except Exception:
-                raise
+                #raise
                 log.exception('failed')
                 failed_devs.append(devname)
 

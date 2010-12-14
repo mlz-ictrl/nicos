@@ -35,7 +35,6 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-
 from nicm.utils import oneof
 from nicm.device import Param
 from nicm.taco.analog import Output
