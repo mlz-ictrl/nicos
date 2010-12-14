@@ -80,7 +80,7 @@ class FRMChannel(TacoDevice, Measurable):
         self.__stopMode = status.OK
 
     def doRead(self):
-        return self._taco_guard(self._dev.read)
+        return int(self._taco_guard(self._dev.read))
 
     def doStatus(self):
         state = self._taco_guard(self._dev.deviceState)
