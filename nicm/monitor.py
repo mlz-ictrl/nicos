@@ -35,6 +35,7 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import sys
 import threading
 from time import time as currenttime, sleep, strftime
 
@@ -110,6 +111,7 @@ class Monitor(BaseCacheClient):
         self._master.quit()
         self._master.destroy()
         self.printinfo('wait for thread to finish')
+        sys.exit()  # XXX workaround
         self._worker.join()
         self.printinfo('done')
 
@@ -153,7 +155,11 @@ class Monitor(BaseCacheClient):
                             'key': '', 'statuskey': '', 'unitkey': '',
                             'formatkey': '',
                         })
+                        if isinstance(fielddesc, str):
+                            fielddesc = {'dev': fielddesc}
                         field.update(fielddesc)
+                        if not field['name']:
+                            field['name'] = field['dev']
                         fields.append(field)
                     rows.append(fields)
                 block = ({'name': blockdesc[0], 'visible': True,
