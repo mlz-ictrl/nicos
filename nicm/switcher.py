@@ -63,7 +63,7 @@ class Switcher(Switchable):
         states = self.states
         values = self.values
         if len(states) != len(values):
-            raise ConfigurationError('Switcher states and values must be '
+            raise ConfigurationError(self, 'Switcher states and values must be '
                                      'of equal length')
         self.__dict__['switchlist'] = dict(zip(states, values))
 

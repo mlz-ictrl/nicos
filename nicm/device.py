@@ -195,6 +195,7 @@ class Device(object):
         for param, paraminfo in self.parameters.iteritems():
             param = param.lower()
             # mandatory parameters must be in config, regardless of cache
+            # XXX compare value in cache and config; config has precedence!
             if paraminfo.mandatory and param not in self._config:
                 raise ConfigurationError(self, 'missing configuration '
                                          'parameter %r' % param)
