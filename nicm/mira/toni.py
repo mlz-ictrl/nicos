@@ -43,7 +43,7 @@ from IO import StringIO
 
 from nicm import status
 from nicm.utils import intrange, listof
-from nicm.device import Device, Switchable, Param
+from nicm.device import Device, Readable, Switchable, Param
 from nicm.errors import NicmError, CommunicationError
 from nicm.taco.base import TacoDevice
 
@@ -57,7 +57,7 @@ class ModBus(TacoDevice, Device):
     }
 
     def doReadUnit(self):
-        # XXX not necessary!
+        # XXX not necessary, fix in base class?
         return ''
 
     def doInit(self):
@@ -84,9 +84,14 @@ class ModBus(TacoDevice, Device):
                 tries -= 1
         finally:
             self._lock.release()
+        crc = self._crc(ret[1:-2])
+        # check reply for validity
+        if (len(ret) < 8 or ret[0] != '\x02' or ret[5] != '>' or ret[-2:] != crc
+              or ret[1:3] != '%02X' % self.source or ret[3:5] != '%02X' % dest):
+            raise CommunicationError(self, 'ModBus reply garbled: %r' % ret)
         return ret[6:-2]
 
-    def write(self, msg, dest):
+    def communicate(self, msg, dest):
         msg = '%02X%02X%s' % (dest, self.source, msg)
         msg = '\x02' + msg + self._crc(msg)
         self._lock.acquire()
@@ -97,9 +102,7 @@ class ModBus(TacoDevice, Device):
                     # the result of communicate is the echo
                     ret = self._taco_guard(self._dev.communicate, msg)
                     if ret != msg:
-                        continue
-                    sleep(0.05)
-                    ret = self._taco_guard(self._dev.readLine)
+                        raise CommunicationError('ModBus echo garbled: %r' % ret)
                 except NicmError:
                     if tries == 0:
                         raise
@@ -107,10 +110,11 @@ class ModBus(TacoDevice, Device):
                 else:
                     break
                 tries -= 1
+            # wait before reading reply
+            sleep(0.05)
+            return self.read(dest)
         finally:
             self._lock.release()
-        # XXX check CRC
-        return ret[6:-2]
 
 
 class Valve(Switchable):
@@ -143,20 +147,20 @@ class Valve(Switchable):
         self.doWait()
         self._timer = time()
         msg = '%s=%02x' % (value and 'O' or 'C', 1 << self.channel)
-        ret = self._adevs['bus'].write(msg, self.addr)
+        ret = self._adevs['bus'].communicate(msg, self.addr)
         if ret != 'OK':
             raise CommunicationError(self, 'ModBus read error: %r' % ret)
 
     def doRead(self):
         self.doWait()
-        ret = self._adevs['bus'].write('R?', self.addr)
+        ret = self._adevs['bus'].communicate('R?', self.addr)
         if not ret:
             raise CommunicationError(self, 'ModBus read error: %r' % ret)
         return bool(int(ret, 16) & (1 << self.channel))
 
     def doStatus(self):
         self.doWait()
-        ret = self._adevs['bus'].write('I?', self.addr)
+        ret = self._adevs['bus'].communicate('I?', self.addr)
         if not ret:
             raise CommunicationError(self, 'ModBus read error: %r' % ret)
         if int(ret) == 0:
@@ -170,3 +174,16 @@ class Valve(Switchable):
             while time() - self._timer < self.waittime:
                 sleep(0.1)
             self._timer = 0
+
+
+class Leckmon(Readable):
+    attached_devices = {
+        'bus': ModBus,
+    }
+
+    parameters = {
+        'addr':  Param('Bus address of monitor', type=int, mandatory=True),
+    }
+
+    def doRead(self):
+        return self._adevs['bus'].communicate('S?', self.addr)
