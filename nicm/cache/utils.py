@@ -36,7 +36,6 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import re
-import json
 
 
 DEFAULT_CACHE_PORT = 14869
@@ -63,5 +62,35 @@ msg_pattern = re.compile(r'''
 
 line_pattern = re.compile(r'([^\r\n]*)(\r\n|\r|\n)')
 
-cache_load = json.loads
-cache_dump = json.dumps
+
+# PyON -- "Python object notation"
+
+def cache_dump(obj):
+    res = []
+    if isinstance(obj, (int, long, float, str, unicode)):
+        res.append(repr(obj))
+    elif isinstance(obj, list):
+        res.append('[')
+        for item in obj:
+            res.append(cache_dump(item))
+            res.append(',')
+        res.append(']')
+    elif isinstance(obj, tuple):
+        res.append('(')
+        for item in obj:
+            res.append(cache_dump(item))
+            res.append(',')
+        res.append(')')
+    elif isinstance(obj, dict):
+        res.append('{')
+        for key, value in obj.iteritems():
+            res.append(cache_dump(key))
+            res.append(':')
+            res.append(cache_dump(value))
+            res.append(',')
+        res.append('}')
+    else:
+        raise ValueError('unserializable object: %r' % obj)
+    return ''.join(res)
+
+cache_load = eval

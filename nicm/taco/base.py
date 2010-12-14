@@ -139,7 +139,6 @@ class TacoDevice(object):
         if log:
             self.printdebug('creating %s TACO device' % class_.__name__)
 
-        devname = str(devname) # XXX
         try:
             dev = class_(devname)
         except TACOError, err:
