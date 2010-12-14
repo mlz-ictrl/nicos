@@ -102,6 +102,8 @@ class TacoDevice(object):
 
     def doReset(self):
         self._taco_guard(self._dev.deviceReset)
+        if self._taco_guard(self._dev.isDeviceOff):
+            self._taco_guard(self._dev.deviceOn)
 
     def doReadUnit(self):
         return self._taco_guard(self._dev.unit)
