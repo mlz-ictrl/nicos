@@ -52,7 +52,7 @@ class ESSController(AnalogOutput):
     }
 
     parameters = {
-        'ramprate':  Param('Rate of ramping', type=float, default=5,
+        'ramprate':  Param('Rate of ramping', type=float, default=60,
                            unit='main/min', settable=True),
         'rampdelay': Param('Time per ramping step', type=float, default=5,
                            unit='s', settable=True),
@@ -75,9 +75,10 @@ class ESSController(AnalogOutput):
         currentval = self._taco_guard(self._dev.read)
         diff = value - currentval
         direction = diff > 0 and 1 or -1
-	steps, fraction = divmod(abs(diff), self.stepwidth)
+        stepwidth = self.ramprate / 60. * delay
+	steps, fraction = divmod(abs(diff), stepwidth)
         for i in xrange(int(steps)):
-            currentval += direction * self.stepwidth
+            currentval += direction * stepwidth
             self._taco_guard(self._dev.write, currentval)
             sleep(delay)
         self._taco_guard(self._dev.write, value)
