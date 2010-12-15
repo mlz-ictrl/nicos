@@ -151,6 +151,7 @@ class Monitor(BaseCacheClient):
                             'format': '%s', 'min': None, 'max': None,
                             # current values
                             'value': None, 'time': 0, 'ttl': 0, 'status': None,
+                            'changetime': 0,
                             # key names
                             'key': '', 'statuskey': '', 'unitkey': '',
                             'formatkey': '',
@@ -215,10 +216,10 @@ class Monitor(BaseCacheClient):
                     field[name] = key
                     self._keymap.setdefault(key, []).append(field)
                 if field['dev']:
-                    _ref('key', prefix + field['dev'] + '/value')
-                    _ref('statuskey', prefix + field['dev'] + '/status')
-                    _ref('unitkey', prefix + field['dev'] + '/unit')
-                    _ref('formatkey', prefix + field['dev'] + '/fmtstr')
+                    _ref('key', prefix + field['dev'].lower() + '/value')
+                    _ref('statuskey', prefix + field['dev'].lower() + '/status')
+                    _ref('unitkey', prefix + field['dev'].lower() + '/unit')
+                    _ref('formatkey', prefix + field['dev'].lower() + '/fmtstr')
                 else:
                     _ref('key', prefix + field['key'])
                     if field['statuskey']:
@@ -332,10 +333,10 @@ class Monitor(BaseCacheClient):
 
             # set the foreground color: determined by the status
 
-            age = currenttime() - field['time']
+            valueage = currenttime() - field['changetime']
             if not status:
                 # no status yet, determine on time alone
-                if age < 3:
+                if valueage < 3:
                     vlabel.config(fg='yellow')
                     newwatch.add(field)
                 else:
@@ -357,6 +358,7 @@ class Monitor(BaseCacheClient):
 
             # set the background color: determined by the value's age
 
+            age = currenttime() - field['time']
             if field['ttl']:
                 if age > field['ttl']:
                     vlabel.config(bg='gray40')
@@ -407,6 +409,9 @@ class Monitor(BaseCacheClient):
                     field['ttl'] = 0
                     field['valuevar'].set('----')
                 else:
+                    oldvalue = field['value']
+                    if oldvalue != value:
+                        field['changetime'] = time
                     field['value'] = value
                     field['time'] = time
                     field['ttl'] = ttl
