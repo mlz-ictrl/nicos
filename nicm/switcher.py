@@ -37,7 +37,7 @@ __version__ = "$Revision$"
 
 from nicm.utils import listof, any
 from nicm.errors import ConfigurationError, PositionError
-from nicm.device import BaseMoveable, Switchable, Param
+from nicm.device import BaseMoveable, Readable, Switchable, Param
 
 
 class Switcher(Switchable):
@@ -73,6 +73,43 @@ class Switcher(Switchable):
 
     def doRead(self):
         pos = self._adevs['moveable'].read()
+        prec = self.precision
+        for name, value in self.switchlist.iteritems():
+            if prec:
+                if abs(pos - value) <= prec:
+                    return name
+            else:
+                if pos == value:
+                    return name
+        raise PositionError(self, 'unknown position of %s' %
+                            self._adevs['moveable'])
+
+
+class ReadonlySwitcher(Readable):
+
+    attached_devices = {
+        'readable': Readable,
+    }
+
+    parameters = {
+        'states':    Param('List of state names.', type=listof(str),
+                           mandatory=True),
+        'values':    Param('List of values to move to', type=listof(any),
+                           mandatory=True),
+        'precision': Param('Precision for comparison', type=float, default=0),
+        'unit':      Param('Unit of the device main value', type=str),
+    }
+
+    def doInit(self):
+        states = self.states
+        values = self.values
+        if len(states) != len(values):
+            raise ConfigurationError(self, 'Switcher states and values must be '
+                                     'of equal length')
+        self.__dict__['switchlist'] = dict(zip(states, values))
+
+    def doRead(self):
+        pos = self._adevs['readable'].read()
         prec = self.precision
         for name, value in self.switchlist.iteritems():
             if prec:
