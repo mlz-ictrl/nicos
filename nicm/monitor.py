@@ -143,6 +143,9 @@ class Monitor(BaseCacheClient):
             for blockdesc in columndesc:
                 rows = []
                 for rowdesc in blockdesc[1]:
+                    if rowdesc == '---':
+                        rows.append(None)
+                        continue
                     fields = []
                     for fielddesc in rowdesc:
                         field = Field({
@@ -251,10 +254,12 @@ class Monitor(BaseCacheClient):
                 block[0]['labelframe'] = labelframe
                 for row in block[1]:
                     subframe = Frame(labelframe)
-                    # blow previous row or on topmost position
-                    subframe.pack(side=TOP)
-                    for field in row:
-                        _create_field(subframe, field)
+                    if row is None:
+                        subframe.pack(side=TOP, ipady=self.padding*2)
+                    else:
+                        subframe.pack(side=TOP)
+                        for field in row:
+                            _create_field(subframe, field)
 
         # initialize status bar
         self._status = StringVar()
@@ -431,10 +436,11 @@ class Monitor(BaseCacheClient):
             for block in column:
                 valid_data = False
                 for row in block[1]:
-                    for field in row:
-                        if field['valuevar'] and \
-                               field['valuevar'].get() != '----':
-                            valid_data = True
+                    if row:
+                        for field in row:
+                            if field['valuevar'] and \
+                                   field['valuevar'].get() != '----':
+                                valid_data = True
                 if valid_data and not block[0]['visible']:
                     # we have data, but don't show it -> switch on
                     refresh = True
