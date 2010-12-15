@@ -23,77 +23,6 @@ from Encoder import Encoder
 from IO import AnalogInput, AnalogOutput, DigitalInput, DigitalOutput, \
      Timer, Counter
 
-registry = {}
-
-aliasmap = {
-    ('IOAnalogOutput', 'MotorMotor'): 1,
-    ('EncoderEncoder', 'IOAnalogInput'): 0,
-    ('IOAnalogOutput', 'TemperatureController'): 1,
-    ('IOAnalogInput', 'TemperatureSensor'): 1,
-}
-
-typemap = {
-    'EncoderEncoder': Encoder,
-    'IOAnalogInput': AnalogInput,
-    'IOAnalogOutput': AnalogOutput,
-    'IOCounter': Counter,
-    'IOTimer': Timer,
-    'IODigitalInput': DigitalInput,
-    'IODigitalOutput': DigitalOutput,
-    'PowerSupplyCurrentControl': CurrentControl,
-    'PowerSupplyVoltageControl': VoltageControl,
-    'MotorMotor': Motor,
-    'TemperatureController': Controller,
-    'TemperatureSensor': Sensor,
-}
-
-class PollerMeta(type):
-    def __init__(cls, name, bases, dict):
-        if cls.tacotype:
-            registry[cls.tacotype] = cls
-
-class Poller(object):
-    __metaclass__ = PollerMeta
-    tacotype = None
-
-    def __init__(self, tacodev, connection):
-        self.client = self.tacotype(tacodev)
-        self.connection = connection
-
-    def poll(self):
-        self.connection.put('value', self.client.read())
-        self.extra_poll()
-
-    def extra_poll(self):
-        pass
-
-class TempCtrlPoller(Poller):
-    tacotype = Controller
-
-class TempSensPoller(Poller):
-    tacotype = Sensor
-
-class TimerPoller(Poller):
-    tacotype = Timer
-
-class CounterPoller(Poller):
-    tacotype = Counter
-
-class DigInputPoller(Poller):
-    tacotype = DigitalInput
-
-class DigOutputPoller(Poller):
-    tacotype = DigitalOutput
-
-class AnalogInputPoller(Poller):
-    tacotype = AnalogInput
-
-class AnalogOutputPoller(Poller):
-    tacotype = AnalogOutput
-
-class CurrentControlPoller(Poller):
-    tacotype = CurrentControl
-
 
 # -- cache client --------------------------------------------------------------
 
@@ -212,18 +141,95 @@ class CacheClient(object):
                                       cache_dump(value))
         self._queue.put(msg)
 
-def log(x):
-    print x
+
+# -- poller objects ------------------------------------------------------------
+
+registry = {}
+
+aliasmap = {
+    ('IOAnalogOutput', 'MotorMotor'): 1,
+    ('EncoderEncoder', 'IOAnalogInput'): 0,
+    ('IOAnalogOutput', 'TemperatureController'): 1,
+    ('IOAnalogInput', 'TemperatureSensor'): 1,
+}
+
+typemap = {
+    'EncoderEncoder': Encoder,
+    'IOAnalogInput': AnalogInput,
+    'IOAnalogOutput': AnalogOutput,
+    'IOCounter': Counter,
+    'IOTimer': Timer,
+    'IODigitalInput': DigitalInput,
+    'IODigitalOutput': DigitalOutput,
+    'PowerSupplyCurrentControl': CurrentControl,
+    'PowerSupplyVoltageControl': VoltageControl,
+    'MotorMotor': Motor,
+    'TemperatureController': Controller,
+    'TemperatureSensor': Sensor,
+}
+
+class PollerMeta(type):
+    def __init__(cls, name, bases, dict):
+        if cls.tacotype:
+            registry[cls.tacotype] = cls
+
+class Poller(object):
+    __metaclass__ = PollerMeta
+    tacotype = None
+
+    def __init__(self, tacodev, connection):
+        self.client = self.tacotype(tacodev)
+        self.connection = connection
+
+    def poll(self, cycle):
+        self.connection.put('value', self.client.read())
+        self.extra_poll(cycle)
+
+    def extra_poll(self, cylce):
+        pass
+
+class TempCtrlPoller(Poller):
+    tacotype = Controller
+
+    def extra_poll(self, cycle):
+        if cycle % 20 == 0:
+            self.connection.put('p', self.client.pParam())
+            self.connection.put('i', self.client.iParam())
+            self.connection.put('d', self.client.dParam())
+
+class TempSensPoller(Poller):
+    tacotype = Sensor
+
+class TimerPoller(Poller):
+    tacotype = Timer
+
+class CounterPoller(Poller):
+    tacotype = Counter
+
+class DigInputPoller(Poller):
+    tacotype = DigitalInput
+
+class DigOutputPoller(Poller):
+    tacotype = DigitalOutput
+
+class AnalogInputPoller(Poller):
+    tacotype = AnalogInput
+
+class AnalogOutputPoller(Poller):
+    tacotype = AnalogOutput
+
+class CurrentControlPoller(Poller):
+    tacotype = CurrentControl
 
 def poll(devname, taconame):
     prefix = cacheprefix.strip('/') + '/' + devname
     if ',' in taconame:
-        taconame, ttl = taconame.split(',')
+        taconame, delay = taconame.split(',')
         taconame = taconame.strip()
-        ttl = int(ttl.strip())
+        delay = int(delay.strip())
     else:
-        ttl = 1
-    delay = ttl * 0.8
+        delay = 1
+    ttl = delay * 2
     connection = CacheClient(cacheserver, prefix, log, ttl)
     client = TACOClient.Client(taconame)
     types = client.deviceTypes()
@@ -236,12 +242,17 @@ def poll(devname, taconame):
         return
     cls = registry[typemap[type]]
     poller = cls(taconame, connection)
+    i = 0
     while True:
+        i += 1
         try:
-            poller.poll()
-        except TACOClient.TACOError:
-            pass # XXX log?
+            poller.poll(i)
+        except TACOClient.TACOError, err:
+            log('Could not poll %s: %s' % (taconame, err))
         sleep(delay)
+
+def log(x):
+    print x
 
 if len(sys.argv) != 2:
     print >>sys.stderr, 'Usage: taco-poller configfile'
@@ -280,5 +291,6 @@ def kill_all(*ignored):
 signal.signal(signal.SIGINT, kill_all)
 signal.signal(signal.SIGTERM, kill_all)
 
+# wait for anything interesting to happen
 while True:
     sleep(1)

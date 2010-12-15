@@ -102,12 +102,15 @@ class Device(object):
         self._log = nicos.getLogger(name)
         for mn in ('debug', 'info', 'warning', 'error', 'exception'):
             setattr(self, 'print' + mn, getattr(self._log, mn))
+        # XXX is this correct?
+        if 'loglevel' in self._config:
+            self.doWriteLoglevel(self._config['loglevel'])
 
         try:
             # initialize device
             self.init()
         except Exception:
-            # if initialization fails
+            # if initialization fails, remove from device registry
             del nicos.devices[name]
             raise
 
