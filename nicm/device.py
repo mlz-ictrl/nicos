@@ -485,7 +485,8 @@ class Startable(Readable):
         if self._mode == 'simulation':
             self._sim_value = pos
             return
-        self._cache.invalidate(self, 'value')
+        if self._cache:
+            self._cache.invalidate(self, 'value')
         self.doStart(pos)
 
     def stop(self):
@@ -795,6 +796,9 @@ class Measurable(Startable):
         if self._mode == 'simulation':
             # XXX simulate a return value
             return []
+        # always get fresh result from cache
+        if self._cache:
+            self._cache.invalidate(self, 'value')
         result = self._get_from_cache('value', self.doRead)
         if not isinstance(result, list):
             return [result]

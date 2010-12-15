@@ -354,11 +354,12 @@ class CacheClient(BaseCacheClient):
             return ret
 
 
-class WriteonlyCacheClient(CacheClient):
+class PollerCacheClient(CacheClient):
     """
-    A write-only client for the NICM cache.  Used in the poller application,
-    so that each read() actually queries the device.
+    A special cache client for pollers that never caches value and status.
     """
 
     def get(self, dev, key):
-        return None
+        if key in ('value', 'status'):
+            return None
+        return CacheClient.get(self, dev, key)
