@@ -365,7 +365,9 @@ class Monitor(BaseCacheClient):
 
             age = currenttime() - field['time']
             if field['ttl']:
-                if age > field['ttl']:
+                # allow for a bit of overlap between expiration of ttl and
+                # actual value age
+                if age > field['ttl'] * 1.5:
                     vlabel.config(bg='gray40')
                 else:
                     vlabel.config(bg='black')
@@ -383,6 +385,7 @@ class Monitor(BaseCacheClient):
             else:
                 vlabel.config(bg='gray87', fg='black')
         self._watch = newwatch
+        self.printdebug('newwatch has %s items' % len(newwatch))
 
     # called to handle an incoming protocol message
     def _handle_msg(self, time, ttl, tsop, key, op, value):
@@ -401,7 +404,7 @@ class Monitor(BaseCacheClient):
         except ValueError:
             pass
 
-        #self.printdebug('processing %s=%s' % (key, value))
+        self.printdebug('processing %s=%s' % (key, value))
 
         # now check if we need to update something
         fields = self._keymap.get(key, [])

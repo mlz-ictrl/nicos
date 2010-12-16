@@ -1,21 +1,47 @@
 #!/usr/bin/env python
 
+import os
 import sys
+import time
 import signal
+import subprocess
 
 from nicm.errors import ConfigurationError, UsageError
 from nicm.interface import simple
 
-def handler(signum, frame):
-    poller.quit()
-signal.signal(signal.SIGINT, handler)   # control-c
-signal.signal(signal.SIGTERM, handler)  # terminate
 
 try:
-    nicos = simple.start('poller-' + sys.argv[1])
+    nicos = simple.start('poller')
     poller = nicos.getDevice('Poller')
 except (ConfigurationError, UsageError), err:
     print >>sys.stderr, 'Fatal error:', err
     sys.exit(1)
-poller.start()
-poller.wait()
+
+if len(sys.argv) == 1:
+    # master process
+
+    def quit_handler(signum, frame):
+        for child in processes:
+            os.kill(child, signum)
+        sys.exit()
+    signal.signal(signal.SIGINT, quit_handler)   # control-c
+    signal.signal(signal.SIGTERM, quit_handler)  # terminate
+
+    processes = []
+    for processname in poller.processes:
+        proc = subprocess.Popen([sys.executable, sys.argv[0], processname])
+        processes.append(proc.pid)
+
+    # wait for anything interesting to happen
+    while True:
+        time.sleep(1)
+else:
+    # poller child process
+
+    def quit_handler(signum, frame):
+        poller.quit()
+    signal.signal(signal.SIGINT, quit_handler)   # control-c
+    signal.signal(signal.SIGTERM, quit_handler)  # terminate
+
+    poller.start(sys.argv[1])
+    poller.wait()

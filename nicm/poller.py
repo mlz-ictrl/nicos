@@ -40,22 +40,27 @@ __version__ = "$Revision$"
 import time
 import threading
 
-from nicm.device import Device, Readable
+from nicm import nicos
+from nicm.utils import dictof, listof
+from nicm.device import Device, Readable, Param
 
 
 class Poller(Device):
 
-    attached_devices = {
-        'devices': [Readable],
+    parameters = {
+        'processes': Param('Poller processes', type=dictof(str, listof(str)),
+                           mandatory=True),
     }
 
     def doInit(self):
         self._stoprequest = False
         self._workers = []
 
-    def start(self):
+    def start(self, process):
         self.printinfo('poller starting')
-        for dev in self._adevs['devices']:
+        devices = self.processes[process]
+        for devname in devices:
+            dev = nicos.getDevice(devname)
             self.printinfo('starting thread for %s' % dev)
             worker = threading.Thread(target=self._worker_thread, args=(dev,))
             worker.setDaemon(True)

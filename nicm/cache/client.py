@@ -356,10 +356,20 @@ class CacheClient(BaseCacheClient):
 
 class PollerCacheClient(CacheClient):
     """
-    A special cache client for pollers that never caches value and status.
+    A special cache client for pollers that does not receive key updates.
     """
 
-    def get(self, dev, key):
-        if key in ('value', 'status'):
-            return None
-        return CacheClient.get(self, dev, key)
+    def _connect_action(self):
+        # request all keys and updates once, but don't subscribe
+        tosend = '@%s\r\n###?\r\n' % OP_WILDCARD
+        while tosend:
+            sent = self._socket.send(tosend)
+            tosend = tosend[sent:]
+
+        # read response
+        data, n = '', 0
+        while not data.endswith('###!\r\n') and n < 100:
+            data += self._socket.recv(BUFSIZE)
+            n += 1
+
+        self._process_data(data)
