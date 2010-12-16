@@ -49,6 +49,7 @@ class SimpleNICOS(NICOS):
     noninteractive usage.
     """
 
+    autocreate_devices = False
     auto_modules = []
 
     def _initLogging(self):

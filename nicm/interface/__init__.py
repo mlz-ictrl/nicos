@@ -88,6 +88,8 @@ class NICOS(object):
     """
 
     auto_modules = ['nicm.commands']
+    autocreate_devices = True
+
     default_setup_path = path.join(path.dirname(__file__), '..', '..', 'setup')
     default_log_path = path.join(path.dirname(__file__), '..', '..', 'log')
 
@@ -182,15 +184,14 @@ class NICOS(object):
         if not self.__setup_info:
             self.readSetups()
 
-        log = self.getLogger('nicos')
         if setupname in self.loaded_setups:
-            log.warning('setup %s is already loaded' % setupname)
+            self.log.warning('setup %s is already loaded' % setupname)
             return
         if setupname not in self.__setup_info:
             raise ConfigurationError('Setup %s does not exist (setup path is '
                                      '%s)' % (setupname, self.__setup_path))
 
-        log.info('loading setup %s' % setupname)
+        self.log.info('loading setup %s' % setupname)
 
         from nicm.commands import usercommandWrapper
         failed_devs = []
@@ -199,12 +200,12 @@ class NICOS(object):
             if modname in self.user_modules:
                 return
             self.user_modules.add(modname)
-            log.info('importing module %s... ' % modname)
+            self.log.info('importing module %s... ' % modname)
             try:
                 __import__(modname)
                 mod = sys.modules[modname]
             except Exception, err:
-                log.error('Exception importing %s: %s' % (modname, err))
+                self.log.error('Exception importing %s: %s' % (modname, err))
                 return
             for name, command in mod.__dict__.iteritems():
                 if getattr(command, 'is_usercommand', False):
@@ -214,7 +215,7 @@ class NICOS(object):
             if name in self.loaded_setups:
                 return
             if name != setupname:
-                log.info('loading include setup %s' % name)
+                self.log.info('loading include setup %s' % name)
 
             info = self.__setup_info[name]
             if info['group'] == 'special' and not allow_special:
@@ -255,31 +256,31 @@ class NICOS(object):
             try:
                 self.createDevice('System')
             except Exception:
-                log.exception('error creating System device')
+                self.log.exception('error creating System device')
 
         # create all devices
-        for devname, (_, devconfig) in sorted(devlist.iteritems()):
-            if devconfig.get('lowlevel', False):
-                continue
-            log.info('creating device %r... ' % devname)
-            try:
-                self.createDevice(devname, explicit=True)
-            except Exception:
-                #raise
-                log.exception('failed')
-                failed_devs.append(devname)
+        if self.autocreate_devices:
+            for devname, (_, devconfig) in sorted(devlist.iteritems()):
+                if devconfig.get('lowlevel', False):
+                    continue
+                try:
+                    self.createDevice(devname, explicit=True)
+                except Exception:
+                    #raise
+                    self.log.exception('failed')
+                    failed_devs.append(devname)
 
         for code in startupcode:
             if code:
                 exec code in self.__namespace
 
         if failed_devs:
-            log.error('the following devices could not be created:')
-            log.error(', '.join(failed_devs))
+            self.log.error('the following devices could not be created:')
+            self.log.error(', '.join(failed_devs))
 
         self.explicit_setups.append(setupname)
         self.resetPrompt()
-        log.info('setup loaded')
+        self.log.info('setup loaded')
 
     def unloadSetup(self):
         """Unload the current setup: destroy all devices and clear the
@@ -371,6 +372,7 @@ class NICOS(object):
                     self.export(devname, self.devices[devname])
                 return self.devices[devname]
             self.destroyDevice(devname)
+        self.log.info('creating device %r... ' % devname)
         devclsname, devconfig = self.configured_devices[devname]
         modname, clsname = devclsname.rsplit('.', 1)
         try:
@@ -388,6 +390,7 @@ class NICOS(object):
         """Shutdown and destroy a device."""
         if devname not in self.devices:
             raise UsageError('device %r not created' % devname)
+        self.log.info('shutting down device %r...' % devname)
         dev = self.devices[devname]
         dev.shutdown()
         for adev in dev._adevs.values():
