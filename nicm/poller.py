@@ -74,8 +74,8 @@ class Poller(Device):
             time.sleep(interval)
             self.printdebug('polling %s' % dev)
             try:
-                dev.read()
                 dev.status()
+                dev.read()
             except Exception, err:
                 if errcount < 5:
                     # only print the warning the first five times
