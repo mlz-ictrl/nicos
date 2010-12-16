@@ -195,10 +195,12 @@ class Monitor(BaseCacheClient):
             fieldframe.pack(side=LEFT)
             # now put describing label and view label into subframe
             if field['name']:
-                l = Label(fieldframe, text=field['name'], font=self._labelfont,
-                          width=field['width'] + 2)
+                s = StringVar(value=field['name'])
+                l = Label(fieldframe, text='', font=self._labelfont,
+                          width=field['width'] + 2, textvariable=s)
                 l.grid(row=0)
 
+                field['namevar'] = s
                 field['namelabel'] = l
 
                 s = StringVar(value='----')
@@ -404,7 +406,7 @@ class Monitor(BaseCacheClient):
         except ValueError:
             pass
 
-        self.printdebug('processing %s=%s' % (key, value))
+        #self.printdebug('processing %s=%s' % (key, value))
 
         # now check if we need to update something
         fields = self._keymap.get(key, [])
@@ -428,8 +430,12 @@ class Monitor(BaseCacheClient):
                 field['status'] = value
             elif key == field['unitkey']:
                 field['unit'] = value
+                if value:
+                    field['namevar'].set(field['name'] + ' (%s)' % value)
             elif key == field['formatkey']:
                 field['format'] = value
+
+        return   # for now; hiding/showing blocks is too slow!
 
         # show/hide blocks, but only if something changed
         if not self._watch:
