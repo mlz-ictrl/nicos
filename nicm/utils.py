@@ -375,7 +375,8 @@ def formatExtendedTraceback(etype, value, tb):
         if line:
             item = item + '    %s\n' % line.strip()
         ret.append(item)
-        ret += formatExtendedFrame(tb.tb_frame)
+        if filename != '<script>':
+            ret += formatExtendedFrame(tb.tb_frame)
         tb = tb.tb_next
     ret += traceback.format_exception_only(etype, value)
     return ''.join(ret).rstrip('\n')
