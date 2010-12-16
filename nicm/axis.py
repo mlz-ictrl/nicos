@@ -163,6 +163,7 @@ class Axis(Moveable, HasOffset):
         """Resets the motor/coder controller."""
         if self.doStatus()[0] != status.BUSY:
             self.__error = 0
+        self._adevs['motor'].setPosition(self._adevs['coder'].doRead())
 
     def doStop(self):
         """Stops the movement of the motor."""
