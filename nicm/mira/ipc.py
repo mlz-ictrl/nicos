@@ -183,6 +183,8 @@ class Motor(NicmMotor):
     }
 
     def doInit(self):
+        # XXX: parameter values from cache may not be correct after a
+        # reset of the motor card
         pass
 
     def _setMode(self, mode):
