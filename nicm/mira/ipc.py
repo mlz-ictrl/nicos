@@ -41,12 +41,12 @@ from TACOClient import TACOError
 from RS485Client import RS485Client
 
 from nicm import status
-from nicm.taco import TacoDevice
 from nicm.coder import Coder as NicmCoder
 from nicm.motor import Motor as NicmMotor
 from nicm.utils import intrange, floatrange
 from nicm.device import Device, Param
 from nicm.errors import NicmError, CommunicationError
+from nicm.taco.base import TacoDevice
 
 
 class ModBus(TacoDevice, Device):
@@ -76,6 +76,8 @@ class Coder(NicmCoder):
     parameters = {
         'addr': Param('Bus address of the coder', type=int, mandatory=True),
         'confbyte': Param('Configuration byte of the coder', type=int),
+        'offset': Param('Coder offset', type=float, settable=True),
+        'slope': Param('Coder slope', type=float, settable=True),
     }
 
     attached_devices = {
@@ -112,16 +114,21 @@ class Coder(NicmCoder):
         self._adevs['bus'].send(self.addr, 153)
         sleep(0.5)
 
+    def _fromsteps(self, value):
+        return float((value - self.offset) / self.slope)
+
     def doRead(self):
         bus = self._adevs['bus']
         try:
-            return bus.get(self.addr, 150)
+            value = bus.get(self.addr, 150)
         except Exception:
             if self._type == 'binary-endat':
                 self._endatclearalarm()
             sleep(1)
         # try again
-        return bus.get(self.addr, 150)
+        value = bus.get(self.addr, 150)
+        self.printdebug('value is %d' % value)
+        return self._fromsteps(value)
 
     def doSetPosition(self, target):
         raise NicmError('setPosition not implemented for IPC coders')
@@ -148,17 +155,27 @@ class Motor(NicmMotor):
         'addr': Param('Bus address of the motor', type=int, mandatory=True),
         'timeout': Param('Waiting timeout', type=int, unit='s', default=360),
         'unit': Param('Motor unit', type=str, default='steps'),
+        'offset': Param('Motor offset', type=float, settable=True),
+        'slope': Param('Motor slope', type=float, settable=True),
         # XXX those come from the card, make them settable
-        'speed': Param('Motor speed (0..255)', type=intrange(0, 256)),
-        'accel': Param('Motor acceleration (0..255)', type=intrange(0, 256)),
-        'confbyte': Param('Configuration byte', type=int),
-        'ramptype': Param('Ramp type', type=intrange(1, 5)),
-        'halfstep': Param('Halfstep mode', type=bool),
-        'min': Param('Lower motorlimit', type=intrange(0, 1000000), unit='main'),
-        'max': Param('Upper motorlimit', type=intrange(0, 1000000), unit='main'),
+        'speed': Param('Motor speed (0..255)', type=intrange(0, 256),
+                       settable=True),
+        'accel': Param('Motor acceleration (0..255)', type=intrange(0, 256),
+                       settable=True),
+        'confbyte': Param('Configuration byte', type=intrange(0, 256),
+                          settable=True),
+        'ramptype': Param('Ramp type', type=intrange(1, 5),
+                          settable=True),
+        'halfstep': Param('Halfstep mode', type=bool, settable=True),
+        'min': Param('Lower motorlimit', type=intrange(0, 1000000),
+                     unit='steps', settable=True),
+        'max': Param('Upper motorlimit', type=intrange(0, 1000000),
+                     unit='steps', settable=True),
+        'startdelay': Param('Start delay', type=floatrange(0, 25), unit='s',
+                            settable=True),
+        'stopdelay': Param('Stop delay', type=floatrange(0, 25), unit='s',
+                           settable=True),
         'firmware': Param('Firmware version', type=int),
-        'startdelay': Param('Start delay', type=floatrange(0, 25), unit='s'),
-        'stopdelay': Param('Stop delay', type=floatrange(0, 25), unit='s'),
     }
 
     attached_devices = {
@@ -171,14 +188,41 @@ class Motor(NicmMotor):
     def _setMode(self, mode):
         NicmMotor._setMode(self, mode)
         if mode == 'master':
-            self.usermin = self.min
-            self.usermax = self.max
+            self.usermin = self._fromsteps(self.min)
+            self.usermax = self._fromsteps(self.max)
+
+    def _tosteps(self, value):
+        return int(float(value) * self.slope + self.offset)
+
+    def _fromsteps(self, value):
+        return float((value - self.offset) / self.slope)
 
     def doReadSpeed(self):
         return self._adevs['bus'].get(self.addr, 128)
 
+    def doWriteSpeed(self, value):
+        self._adevs['bus'].send(self.addr, 41, value, 3)
+
     def doReadAccel(self):
         return self._adevs['bus'].get(self.addr, 129)
+
+    def doWriteAccel(self, value):
+        self._adevs['bus'].send(self.addr, 42, value, 3)
+
+    def doReadRamptype(self):
+        return self._adevs['bus'].get(self.addr, 136)
+
+    def doWriteRamptype(self, value):
+        self._adevs['bus'].send(self.addr, 50, value, 3)
+
+    def doReadHalfstep(self):
+        return bool(self._adevs['bus'].get(self.addr, 134) & 4)
+
+    def doWriteHalfstep(self, value):
+        if value:  # halfstep
+            self._adevs['bus'].send(self.addr, 37)
+        else:  # fullstep
+            self._adevs['bus'].send(self.addr, 36)
 
     def doReadMax(self):
         return self._adevs['bus'].get(self.addr, 131)
@@ -192,11 +236,8 @@ class Motor(NicmMotor):
     def doReadConfbyte(self):
         return self._adevs['bus'].get(self.addr, 135)
 
-    def doReadRamptype(self):
-        return self._adevs['bus'].get(self.addr, 136)
-
-    def doReadFirmware(self):
-        return self._adevs['bus'].get(self.addr, 137)
+    def doWriteConfbyte(self, value):
+        self._adevs['bus'].send(self.addr, 49, value, 3)
 
     def doReadStartdelay(self):
         if self.firmware > 40:
@@ -204,16 +245,28 @@ class Motor(NicmMotor):
         else:
             return 0
 
+    def doWriteStartdelay(self, value):
+        self._adevs['bus'].send(self.addr, 55, int(value * 10), 3)
+
     def doReadStopdelay(self):
         if self.firmware > 44:
             return self._adevs['bus'].get(self.addr, 143) / 10.0
         else:
             return 0
 
+    def doWriteStopdelay(self, value):
+        self._adevs['bus'].send(self.addr, 58, int(value * 10), 3)
+
+    def doReadFirmware(self):
+        return self._adevs['bus'].get(self.addr, 137)
+
     def doStart(self, target):
+        target = self._tosteps(target)
+        self.printdebug('target is %d' % target)
         bus = self._adevs['bus']
         self.doWait()
-        pos = self.doRead()
+        pos = self._tosteps(self.doRead())
+        self.printdebug('pos is %d' % pos)
         diff = target - pos
         if diff == 0:
             return
@@ -244,7 +297,7 @@ class Motor(NicmMotor):
     def doWait(self):
         timeleft = self.timeout
         sleep(0.5)
-        while self.doStatus() in [1, 3]:
+        while self.doStatus()[0] == status.BUSY:
             sleep(0.5)
             timeleft -= 0.5
             if timeleft <= 0:
@@ -255,7 +308,9 @@ class Motor(NicmMotor):
         sleep(0.5)
 
     def doRead(self):
-        return self._adevs['bus'].get(self.addr, 130)
+        value = self._adevs['bus'].get(self.addr, 130)
+        self.printdebug('value is %d' % value)
+        return self._fromsteps(value)
 
     def doStatus(self):
         bus = self._adevs['bus']
@@ -281,6 +336,14 @@ class Motor(NicmMotor):
         if state & 32768:
             return status.NOTREACHED, 'waiting for start/stopdelay'
 
+        if state & 32:
+            return status.OK, 'limit switch 1 active'
+        if state & 64:
+            return status.OK, 'limit switch 2 active'
+
         return status.OK, 'idle'
 
-    def do
+    def doSetPosition(self, target):
+        self.printdebug('setPosition: %s' % target)
+        steps = self._adevs['bus'].get(self.addr, 130)
+        self.offset = steps - target * self.slope
