@@ -79,7 +79,7 @@ class Poller(Device):
             except Exception, err:
                 if errcount < 5:
                     # only print the warning the first five times
-                    self.printwarning('error reading %s: %s' % (dev, err))
+                    self.printwarning('error reading %s' % dev, exc=err)
                 errcount += 1
             else:
                 errcount = 0

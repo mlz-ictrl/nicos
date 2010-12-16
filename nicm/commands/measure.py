@@ -64,7 +64,7 @@ def _count(detlist, preset):
 def count(*detlist, **preset):
     """Perform a counting of the given detector(s) with the given preset(s)."""
     detlist = list(detlist)
-    if detlist and isinstance(detlist[0], (int, long)):
+    if detlist and isinstance(detlist[0], (int, long, float)):
         preset['t'] = detlist[0]
         del detlist[0]
     for det in detlist:
