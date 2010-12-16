@@ -168,7 +168,7 @@ class IsegHV(Moveable):
             resp = crate.communicate('S%d' % self.isegchannel, 6)
             if resp[:3] != ('S%d=' % self.isegchannel):
                 raise NicmError('invalid status readout %r' % resp)
-            return self.states[resp[3:]]
+            return self.states[resp[3:]], resp[3:]
         finally:
             crate.unlockChannel()
 
