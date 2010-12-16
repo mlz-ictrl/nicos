@@ -11,7 +11,11 @@ from nicm.interface import simple
 
 
 try:
-    nicos = simple.start('poller')
+    if len(sys.argv) > 1:
+        appname = 'poller-' + sys.argv[1]
+    else:
+        appname = 'poller'
+    nicos = simple.start('poller', appname)
     poller = nicos.getDevice('Poller')
 except (ConfigurationError, UsageError), err:
     print >>sys.stderr, 'Fatal error:', err
