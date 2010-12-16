@@ -37,6 +37,7 @@ __version__ = "$Revision$"
 
 import sys
 import threading
+from time import sleep
 
 import TACOStates
 from TACOClient import TACOError
