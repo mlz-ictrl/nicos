@@ -144,17 +144,19 @@ class BaseCacheClient(Device):
 
     def _process_data(self, data,
                       lmatch=line_pattern.match, mmatch=msg_pattern.match):
+        #n = 0
         match = lmatch(data)
         while match:
             line = match.group(1)
             data = data[match.end():]
             msgmatch = mmatch(line)
-            if not msgmatch:
-                # ignore invalid lines
-                continue
-            self._handle_msg(**msgmatch.groupdict())
+            # ignore invalid lines
+            if msgmatch:
+                #n += 1
+                self._handle_msg(**msgmatch.groupdict())
             # continue loop
             match = lmatch(data)
+        #self.printdebug('processed %d items' % n)
         return data
 
     def _worker_thread(self):
@@ -191,6 +193,7 @@ class BaseCacheClient(Device):
                 if res[2]:
                     # handle error case: close socket and reopen
                     self._disconnect('disconnect: socket in error state')
+                    data = ''
                     break
                 elif res[1]:
                     # write data
@@ -200,6 +203,7 @@ class BaseCacheClient(Device):
                             tosend = tosend[sent:]
                     except:
                         self._disconnect('disconnect: send failed')
+                        data = ''
                         break
                 elif res[0]:
                     # got some data
@@ -210,6 +214,7 @@ class BaseCacheClient(Device):
                     if not newdata:
                         # no new data from blocking read -> abort
                         self._disconnect('disconnect: recv failed')
+                        data = ''
                         break
                     data += newdata
         if self._socket:
