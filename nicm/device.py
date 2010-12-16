@@ -102,9 +102,6 @@ class Device(object):
         self._log = nicos.getLogger(name)
         for mn in ('debug', 'info', 'warning', 'error', 'exception'):
             setattr(self, 'print' + mn, getattr(self._log, mn))
-        # XXX is this correct?
-        if 'loglevel' in self._config:
-            self.doWriteLoglevel(self._config['loglevel'])
 
         try:
             # initialize device
@@ -151,6 +148,7 @@ class Device(object):
         setattr(self, name.lower(), value)
 
     def doWriteLoglevel(self, value):
+        # XXX this is not called on initialization from the cache (should it?)
         if value not in loggers.loglevels:
             raise UsageError(self, 'loglevel must be one of %s' %
                              ', '.join(map(repr, loggers.loglevels.keys())))
@@ -328,7 +326,6 @@ class Readable(Device):
     Subclasses *can* implement:
 
     * doReset()
-    * doFormat(value)
     """
 
     parameters = {
@@ -407,8 +404,6 @@ class Readable(Device):
 
     def format(self, value):
         """Format a value from self.read() into a human-readable string."""
-        if hasattr(self, 'doFormat'):
-            return self.doFormat(value)
         return self.fmtstr % value
 
     def history(self, name='value', fromtime=None, totime=None):
@@ -712,11 +707,9 @@ class Switchable(Startable):
 
     switch = start
 
-    def format(self, pos):
-        """Format a value from self.read() into the corresponding human-readable
-        value from the switchlist.
-        """
-        return self.__rswitchlist.get(pos, pos)
+    def read(self):
+        value = Startable.read(self)
+        return self.__rswitchlist.get(value, value)
 
 
 class Measurable(Startable):

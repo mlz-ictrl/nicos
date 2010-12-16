@@ -43,7 +43,7 @@ from IO import StringIO
 
 from nicm import status
 from nicm.utils import intrange, listof
-from nicm.device import Device, Readable, Moveable, Switchable, Param
+from nicm.device import Device, Readable, Moveable, Param
 from nicm.errors import NicmError, CommunicationError
 from nicm.taco.base import TacoDevice
 
