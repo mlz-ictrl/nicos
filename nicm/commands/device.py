@@ -141,6 +141,11 @@ def read(*devlist):
         else:
             dev.printinfo('at %20s %s' % (dev.format(value), dev.unit))
 
+def _formatStatus(status):
+    const, message = status
+    const = statuses.get(const, str(const))
+    return const + (message and ': ' + message or '')
+
 @usercommand
 def status(*devlist):
     """Read the status of one or more devices, or if no device is given,
@@ -152,13 +157,11 @@ def status(*devlist):
     for dev in devlist:
         dev = nicos.getDevice(dev, Readable)
         try:
-            const, message = dev.status()
+            status = dev.status()
         except NicmError:
             dev.printexception('error reading status')
         else:
-            const = statuses.get(const, str(const))
-            dev.printinfo('status is %s%s' %
-                          (const, message and ': ' + message or ''))
+            dev.printinfo('status is %s' % _formatStatus(status))
 
 @usercommand
 def stop(*devlist):
@@ -182,8 +185,7 @@ def reset(dev):
     """Reset the given device."""
     dev = nicos.getDevice(dev, Readable)
     status = dev.reset()
-    status = statuses.get(status, str(status))
-    dev.printinfo('reset, status is now %s' % status)
+    dev.printinfo('reset, status is now %s' % _formatStatus(status))
 
 @usercommand
 def set(dev, parameter, value):
