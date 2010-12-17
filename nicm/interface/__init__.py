@@ -294,11 +294,10 @@ class NICOS(object):
                 # shutdown only those devices that don't have remaining
                 # dependencies
                 if dev._sdevs <= already_shutdown:
-                    already_shutdown.add(dev)
+                    already_shutdown.add(dev.name)
                     self.unexport(dev.name, warn=False)
                     dev.shutdown()
                     devs.remove(dev)
-        already_shutdown.clear()
         self.devices.clear()
         self.configured_devices.clear()
         self.explicit_devices.clear()
@@ -395,9 +394,9 @@ class NICOS(object):
         dev.shutdown()
         for adev in dev._adevs.values():
             if isinstance(adev, list):
-                [real_adev._sdevs.discard(dev) for real_adev in adev]
+                [real_adev._sdevs.discard(dev.name) for real_adev in adev]
             else:
-                adev._sdevs.discard(dev)
+                adev._sdevs.discard(dev.name)
         del self.devices[devname]
         self.explicit_devices.discard(devname)
         if devname in self.__namespace:

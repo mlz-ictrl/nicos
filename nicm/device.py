@@ -109,6 +109,12 @@ class Device(object):
         except Exception:
             # if initialization fails, remove from device registry
             del nicos.devices[name]
+            # and remove from adevs' sdevs
+            for adev in self._adevs.values():
+                if isinstance(adev, list):
+                    [real_adev._sdevs.discard(self.name) for real_adev in adev]
+                else:
+                    adev._sdevs.discard(self.name)
             raise
 
     def __setattr__(self, name, value):
@@ -177,14 +183,14 @@ class Device(object):
                             self, 'device %r item %d has wrong type' %
                             (aname, i))
                     devlist.append(dev)
-                    dev._sdevs.add(self)
+                    dev._sdevs.add(self.name)
             else:
                 dev = nicos.getDevice(value)
                 if not isinstance(dev, cls):
                     raise ConfigurationError(
                         self, 'device %r has wrong type' % aname)
                 self._adevs[aname] = dev
-                dev._sdevs.add(self)
+                dev._sdevs.add(self.name)
 
         self._cache = self._getCache()
 

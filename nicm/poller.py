@@ -71,7 +71,6 @@ class Poller(Device):
         errcount = 0
         interval = dev.pollinterval
         while not self._stoprequest:
-            time.sleep(interval)
             self.printdebug('polling %s' % dev)
             try:
                 dev.status()
@@ -83,6 +82,7 @@ class Poller(Device):
                 errcount += 1
             else:
                 errcount = 0
+            time.sleep(interval)
 
     def wait(self):
         while not self._stoprequest:
