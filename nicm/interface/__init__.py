@@ -365,8 +365,6 @@ class NICOS(object):
         if devname not in self.configured_devices:
             raise ConfigurationError('device %r not found in configuration'
                                      % devname)
-        if explicit:
-            self.explicit_devices.add(devname)
         if devname in self.devices:
             if not recreate:
                 if explicit:
@@ -384,6 +382,7 @@ class NICOS(object):
                                      % (devclsname, err))
         dev = devcls(devname, **devconfig)
         if explicit:
+            self.explicit_devices.add(devname)
             self.export(devname, dev)
         return dev
 
