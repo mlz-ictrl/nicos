@@ -273,6 +273,8 @@ def readConfig(*filenames):
         NICOS.default_setup_path = cfg.get('nicm', 'setup_path')
     if cfg.has_option('nicm', 'log_path'):
         NICOS.default_log_path = cfg.get('nicm', 'log_path')
+    if cfg.has_option('nicm', 'pid_path'):
+        NICOS.default_pid_path = cfg.get('nicm', 'pid_path')
 
 
 # simple file operations
@@ -291,6 +293,10 @@ def writeFile(filename, lines):
     finally:
         fp.close()
 
+def writePidfile(appname):
+    from nicm.interface import NICOS
+    filename = os.path.join(NICOS.default_pid_path, appname + '.pid')
+    writeFile(filename, [str(os.getpid())])
 
 # session id support
 

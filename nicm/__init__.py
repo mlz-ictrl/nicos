@@ -57,4 +57,4 @@ nicos = Interface()
 # Read config file and set environment variables.
 
 from nicm.utils import readConfig
-readConfig('nicm.conf', '/etc/nicm.conf')
+readConfig('/etc/nicm.conf')

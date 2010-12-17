@@ -92,6 +92,7 @@ class NICOS(object):
 
     default_setup_path = path.join(path.dirname(__file__), '..', '..', 'setup')
     default_log_path = path.join(path.dirname(__file__), '..', '..', 'log')
+    default_pid_path = path.join(path.dirname(__file__), '..', '..', 'run')
 
     def __init__(self):
         self.sessionid = makeSessionId()
@@ -228,8 +229,9 @@ class NICOS(object):
 
             for include in info['includes']:
                 ret = inner_load(include)
-                devlist.update(ret[0])
-                startupcode.extend(ret[1])
+                if ret:
+                    devlist.update(ret[0])
+                    startupcode.extend(ret[1])
 
             for modname in info['modules']:
                 load_module(modname)

@@ -1,0 +1,70 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import time
+import ConfigParser
+from os import path
+
+try:
+    action = sys.argv[1]
+except IndexError:
+    print >>sys.stderr, 'Usage: %s start|stop|restart' % sys.argv[0]
+    sys.exit(1)
+
+class NicmConfigParser(ConfigParser.SafeConfigParser):
+    def optionxform(self, key):
+        return key
+
+def read_config():
+    cfg = NicmConfigParser()
+    cfg.read('/etc/nicm.conf')
+    if cfg.has_section('environment'):
+        for name in cfg.options('environment'):
+            value = cfg.get('environment', name)
+            os.environ[name] = value
+    user = 'root'
+    python = 'python'
+    bin_path = '/usr/bin'
+    pid_path = '/var/run'
+    if cfg.has_option('nicm', 'user'):
+        user = cfg.get('nicm', 'user')
+    if cfg.has_option('nicm', 'python'):
+        python = cfg.get('nicm', 'python')
+    if cfg.has_option('nicm', 'bin_path'):
+        bin_path = cfg.get('nicm', 'bin_path')
+    if cfg.has_option('nicm', 'pid_path'):
+        pid_path = cfg.get('nicm', 'pid_path')
+    return user, python, bin_path, pid_path
+
+if action == 'start':
+    user, python, bin_path, pid_path = read_config()
+    print 'Starting cache...'
+    os.system('sudo -u %s %s %s >/dev/null 2>&1 &' %
+              (user, python, path.join(bin_path, 'nicm-cache')))
+    time.sleep(1)
+    print 'Starting poller...'
+    os.system('sudo -u %s %s %s >/dev/null 2>&1 &' %
+              (user, python, path.join(bin_path, 'nicm-poller')))
+
+elif action == 'stop':
+    user, python, bin_path, pid_path = read_config()
+    print 'Killing poller...',
+    try:
+        pid = file(path.join(pid_path, 'poller.pid'), 'rb').read()
+    except:
+        print 'no pidfile?'
+    else:
+        print 'pid = %s' % pid
+        os.system('kill -TERM %s' % pid)
+    print 'Killing cache...',
+    try:
+        pid = file(path.join(pid_path, 'cache.pid'), 'rb').read()
+    except:
+        print 'no pidfile?'
+    else:
+        print 'pid = %s' % pid
+        os.system('kill -TERM %s' % pid)
+
+elif action == 'restart':
+    os.system('%s stop && %s start' % (sys.argv[0], sys.argv[0]))

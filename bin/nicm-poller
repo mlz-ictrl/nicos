@@ -6,6 +6,7 @@ import time
 import signal
 import subprocess
 
+from nicm.utils import writePidfile
 from nicm.errors import ConfigurationError, UsageError
 from nicm.interface import simple
 
@@ -35,6 +36,9 @@ if len(sys.argv) == 1:
     for processname in poller.processes:
         proc = subprocess.Popen([sys.executable, sys.argv[0], processname])
         processes.append(proc.pid)
+
+    # write the master process pidfile
+    writePidfile('poller')
 
     # wait for anything interesting to happen
     while True:

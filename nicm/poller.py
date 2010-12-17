@@ -62,14 +62,26 @@ class Poller(Device):
         for devname in devices:
             dev = nicos.getDevice(devname)
             self.printinfo('starting thread for %s' % dev)
-            worker = threading.Thread(target=self._worker_thread, args=(dev,))
+            interval = dev.pollinterval
+            if interval > 5:
+                sleeper = self._long_sleep
+            else:
+                sleeper = time.sleep
+            worker = threading.Thread(target=self._worker_thread,
+                                      args=(dev, interval, sleeper))
             worker.setDaemon(True)
             worker.start()
             self._workers.append(worker)
 
-    def _worker_thread(self, dev):
+    def _long_sleep(self, interval):
+        te = time.time() + interval
+        while time.time() < te:
+            if self._stoprequest:
+                return
+            time.sleep(5)
+
+    def _worker_thread(self, dev, interval, sleep):
         errcount = 0
-        interval = dev.pollinterval
         while not self._stoprequest:
             self.printdebug('polling %s' % dev)
             try:
@@ -82,7 +94,7 @@ class Poller(Device):
                 errcount += 1
             else:
                 errcount = 0
-            time.sleep(interval)
+            sleep(interval)
 
     def wait(self):
         while not self._stoprequest:
