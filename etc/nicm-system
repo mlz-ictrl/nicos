@@ -39,13 +39,25 @@ def read_config():
 
 if action == 'start':
     user, python, bin_path, pid_path = read_config()
-    print 'Starting cache...'
+    print 'Starting cache...',
     os.system('sudo -u %s %s %s >/dev/null 2>&1 &' %
               (user, python, path.join(bin_path, 'nicm-cache')))
+    try:
+        pid = file(path.join(pid_path, 'cache.pid'), 'rb').read()
+    except:
+        print 'no pidfile?'
+    else:
+        print 'pid = %s' % pid
     time.sleep(1)
-    print 'Starting poller...'
+    print 'Starting poller...',
     os.system('sudo -u %s %s %s >/dev/null 2>&1 &' %
               (user, python, path.join(bin_path, 'nicm-poller')))
+    try:
+        pid = file(path.join(pid_path, 'poller.pid'), 'rb').read()
+    except:
+        print 'no pidfile?'
+    else:
+        print 'pid = %s' % pid
 
 elif action == 'stop':
     user, python, bin_path, pid_path = read_config()
@@ -67,4 +79,4 @@ elif action == 'stop':
         os.system('kill -TERM %s' % pid)
 
 elif action == 'restart':
-    os.system('%s stop && %s start' % (sys.argv[0], sys.argv[0]))
+    os.system('%s stop && sleep 1 && %s start' % (sys.argv[0], sys.argv[0]))

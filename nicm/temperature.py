@@ -41,7 +41,7 @@ import TACOStates
 import Temperature
 
 from nicm import status
-from nicm.device import Param, Readable, Moveable, HasOffset
+from nicm.device import Param, Readable, Moveable, HasOffset, HasLimits
 from nicm.errors import CommunicationError, TimeoutError
 from nicm.taco.base import TacoDevice
 
@@ -88,7 +88,7 @@ class Sensor(TacoDevice, Readable, HasOffset):
         return self._taco_guard(self._dev.deviceQueryResource, 'serno')
 
 
-class Controller(TacoDevice, Moveable, HasOffset):
+class Controller(TacoDevice, Moveable, HasOffset, HasLimits):
     taco_class = Temperature.Controller
 
     attached_devices = {

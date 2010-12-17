@@ -43,7 +43,7 @@ from IO import StringIO
 
 from nicm import status
 from nicm.utils import intrange, listof
-from nicm.device import Device, Readable, Moveable, Param
+from nicm.device import Device, Readable, Moveable, HasLimits, Param
 from nicm.errors import NicmError, CommunicationError
 from nicm.taco.base import TacoDevice
 
@@ -87,7 +87,7 @@ class StandaloneIseg(TacoDevice, Device, IsegConnector):
         return s.strip('\r\n') # discard newlines
 
 
-class IsegHV(Moveable):
+class IsegHV(Moveable, HasLimits):
     """
     iseg HVPS (standalone or inside a Toni crate).
     The cratechannel parameter is irrelevant for a standalone HVS.

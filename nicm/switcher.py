@@ -36,18 +36,18 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from nicm.utils import listof, any
-from nicm.errors import ConfigurationError, PositionError
-from nicm.device import BaseMoveable, Readable, Switchable, Param
+from nicm.errors import ConfigurationError, PositionError, UsageError
+from nicm.device import Moveable, Readable, Param
 
 
-class Switcher(Switchable):
+class Switcher(Moveable):
     """
-    Switchable device that maps switch states onto discrete values of a
-    continuously moveable device.
+    Device that maps switch states onto discrete values of a continuously
+    moveable device.
     """
 
     attached_devices = {
-        'moveable': BaseMoveable,
+        'moveable': Moveable,
     }
 
     parameters = {
@@ -65,16 +65,20 @@ class Switcher(Switchable):
         if len(states) != len(values):
             raise ConfigurationError(self, 'Switcher states and values must be '
                                      'of equal length')
-        self.__dict__['switchlist'] = dict(zip(states, values))
+        self._switchlist = dict(zip(states, values))
 
     def doStart(self, target):
+        if target not in self._switchlist:
+            raise UsageError(self, '%r is an invalid position for this device'
+                             % target)
+        target = self._switchlist[target]
         self._adevs['moveable'].start(target)
         self._adevs['moveable'].wait()
 
     def doRead(self):
         pos = self._adevs['moveable'].read()
         prec = self.precision
-        for name, value in self.switchlist.iteritems():
+        for name, value in self._switchlist.iteritems():
             if prec:
                 if abs(pos - value) <= prec:
                     return name
@@ -106,12 +110,12 @@ class ReadonlySwitcher(Readable):
         if len(states) != len(values):
             raise ConfigurationError(self, 'Switcher states and values must be '
                                      'of equal length')
-        self.__dict__['switchlist'] = dict(zip(states, values))
+        self._switchlist = dict(zip(states, values))
 
     def doRead(self):
         pos = self._adevs['readable'].read()
         prec = self.precision
-        for name, value in self.switchlist.iteritems():
+        for name, value in self._switchlist.iteritems():
             if prec:
                 if abs(pos - value) <= prec:
                     return name

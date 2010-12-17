@@ -38,10 +38,10 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from nicm.coder import Coder
-from nicm.device import Moveable, Param
+from nicm.device import Moveable, HasLimits,Param
 
 
-class Motor(Moveable, Coder):
+class Motor(Moveable, Coder, HasLimits):
     """Base class for all motors.
 
     This class inherits from Coder since a Motor can be used instead of a true

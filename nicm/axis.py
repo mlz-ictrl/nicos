@@ -39,14 +39,14 @@ import time
 import threading
 
 from nicm import status
-from nicm.device import Moveable, HasOffset, Param
+from nicm.device import Moveable, HasOffset, HasLimits, Param
 from nicm.errors import ConfigurationError, NicmError, PositionError
 from nicm.errors import ProgrammingError, MoveError, LimitError
 from nicm.motor import Motor
 from nicm.coder import Coder
 
 
-class Axis(Moveable, HasOffset):
+class Axis(Moveable, HasOffset, HasLimits):
     """Base class for all axes."""
 
     attached_devices = {

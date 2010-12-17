@@ -41,7 +41,7 @@ __version__ = "$Revision$"
 from nicm.cell import Cell
 from nicm.utils import vec3
 from nicm.errors import ConfigurationError, ComputationError
-from nicm.device import BaseMoveable, Moveable, Param
+from nicm.device import Moveable, HasLimits, Param
 from nicm.experiment import Sample
 from nicm.instrument import Instrument
 
@@ -58,7 +58,7 @@ class TASSample(Sample, Cell):
     pass
 
 
-class TAS(Instrument, BaseMoveable):
+class TAS(Instrument, Moveable):
 
     attached_devices = {
         'cell': Cell,
@@ -191,7 +191,7 @@ class TAS(Instrument, BaseMoveable):
         return (hkl[0], hkl[1], hkl[2], ny, sc)
 
 
-class TASIndex(BaseMoveable):
+class TASIndex(Moveable):
     """
     "Partial" devices for the H, K, L, E indices of the TAS instrument.
 
@@ -215,7 +215,7 @@ class TASIndex(BaseMoveable):
         self._adevs['tas'].start(current)
 
 
-class Wavevector(BaseMoveable):
+class Wavevector(Moveable, HasLimits):
     """
     Device for adjusting initial/final wavevectors of the TAS and also setting
     the opmode.
@@ -226,7 +226,7 @@ class Wavevector(BaseMoveable):
     }
 
     attached_devices = {
-        'base': BaseMoveable,
+        'base': Moveable,
         'tas': TAS,
     }
 

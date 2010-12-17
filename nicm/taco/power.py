@@ -42,12 +42,12 @@ import TACOStates
 from PowerSupply import CurrentControl, VoltageControl
 
 from nicm import status
-from nicm.device import Moveable, HasOffset, Param
+from nicm.device import Moveable, HasOffset, HasLimits, Param
 from nicm.errors import MoveError, NicmError
 from nicm.taco.base import TacoDevice
 
 
-class Supply(HasOffset, TacoDevice, Moveable):
+class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
     """Base class for TACO power supplies."""
 
     parameters = {

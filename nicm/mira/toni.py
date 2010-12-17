@@ -43,8 +43,8 @@ from IO import StringIO
 
 from nicm import status
 from nicm.utils import intrange, listof
-from nicm.device import Device, Readable, Moveable, Switchable, Param
-from nicm.errors import NicmError, CommunicationError
+from nicm.device import Device, Readable, Moveable, HasLimits, Param
+from nicm.errors import NicmError, CommunicationError, UsageError
 from nicm.taco.base import TacoDevice
 from nicm.mira.iseg import IsegConnector
 
@@ -115,7 +115,7 @@ class ModBus(TacoDevice, Device):
             self._lock.release()
 
 
-class Valve(Switchable):
+class Valve(Moveable):
 
     attached_devices = {
         'bus': ModBus,
@@ -137,11 +137,13 @@ class Valve(Switchable):
         if len(self.states) != 2:
             raise ConfigurationError(self, 'Valve states must be a list of '
                                      'two strings for closed/open state')
-        off, on = self.states
-        self.__dict__['switchlist'] = {off: 0, on: 1}
         self._timer = 0
 
     def doStart(self, value):
+        if value not in self.states:
+            raise UsageError(self, 'value must be one of %s' %
+                             ', '.join(repr(s) for s in self.states))
+        value = self.states.index(value)
         self.doWait()
         self._timer = time()
         msg = '%s=%02x' % (value and 'O' or 'C', 1 << self.channel)
@@ -154,7 +156,7 @@ class Valve(Switchable):
         ret = self._adevs['bus'].communicate('R?', self.addr)
         if not ret:
             raise CommunicationError(self, 'ModBus read error: %r' % ret)
-        return bool(int(ret, 16) & (1 << self.channel))
+        return self.states[bool(int(ret, 16) & (1 << self.channel))]
 
     def doStatus(self):
         self.doWait()

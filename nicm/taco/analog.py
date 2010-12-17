@@ -40,7 +40,7 @@ from time import sleep
 from IO import AnalogInput, AnalogOutput
 
 from nicm import status
-from nicm.device import Readable, Moveable, Param
+from nicm.device import Readable, Moveable, HasLimits, Param
 from nicm.taco.base import TacoDevice
 
 
@@ -50,7 +50,7 @@ class Input(TacoDevice, Readable):
     taco_class = AnalogInput
 
 
-class Output(TacoDevice, Moveable):
+class Output(TacoDevice, Moveable, HasLimits):
     """Base class for TACO AnalogOutputs."""
 
     parameters = {

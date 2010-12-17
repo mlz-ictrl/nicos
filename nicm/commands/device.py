@@ -37,8 +37,7 @@ __version__ = "$Revision$"
 
 from nicm import nicos
 from nicm.utils import printTable
-from nicm.device import Device, Startable, BaseMoveable, Switchable, Readable, \
-     HasOffset
+from nicm.device import Device, Startable, Moveable, Readable, HasOffset
 from nicm.errors import NicmError, UsageError
 from nicm.status import statuses
 from nicm.commands import usercommand
@@ -65,20 +64,19 @@ def move(*dev_pos_list):
     This can be used with multiple devices like this:
        move(dev1, pos1, dev2, pos2, ...)
     """
-    for dev, pos in _devposlist(dev_pos_list, BaseMoveable):
+    for dev, pos in _devposlist(dev_pos_list, Moveable):
         dev.printinfo('moving to', dev.format(pos), dev.unit)
         dev.move(pos)
 
 @usercommand
 def drive(*dev_pos_list):
-    """Move one or more devices to a new position.
+    """Move one or more devices to a new position.  Same as "move".
 
     This can be used with multiple devices like this:
        drive(dev1, pos1, dev2, pos2, ...)
     """
     return move(*dev_pos_list)
 
-@usercommand
 @usercommand
 def maw(*dev_pos_list):
     """Move one or more devices to a new position and wait until motion
@@ -88,7 +86,7 @@ def maw(*dev_pos_list):
        maw(dev1, pos1, dev2, pos2, ...)
     """
     devs = []
-    for dev, pos in _devposlist(dev_pos_list, BaseMoveable):
+    for dev, pos in _devposlist(dev_pos_list, Moveable):
         dev.printinfo('moving to', dev.format(pos), dev.unit)
         dev.move(pos)
         devs.append(dev)
@@ -98,16 +96,13 @@ def maw(*dev_pos_list):
 
 @usercommand
 def switch(*dev_pos_list):
-    """Switch one or more devices to a new position.
+    """Move one or more devices to a new position and wait until motion
+    of all devices is completed.  Same as "maw".
 
     This can be used with multiple devices like this:
        switch(dev1, pos1, dev2, pos2, ...)
     """
-    for dev, pos in _devposlist(dev_pos_list, Switchable):
-        dev.printinfo('switching to', dev.format(pos), dev.unit)
-        dev.switch(pos)
-        dev.wait()
-        read(dev)
+    maw(*dev_pos_list)
 
 @usercommand
 def wait(*devlist):

@@ -445,7 +445,7 @@ class Readable(Device):
 
 class Startable(Readable):
     """
-    Common base class for Moveable, Switchable and Measurable.
+    Common base class for Moveable and Measurable.
 
     This is used for typechecking, e.g. when any device with a stop()
     method is required.
@@ -549,18 +549,17 @@ class Startable(Readable):
         self.__isFixed = False
 
 
-class BaseMoveable(Startable):
+class Moveable(Startable):
     """
-    Base class for "simple" and "complex" continuously moveable devices,
-    i.e. where the main device value is either a single float or a compound.
+    Base class for moveable devices.
     """
 
     move = Startable.start
 
 
-class Moveable(BaseMoveable):
+class HasLimits(object):
     """
-    Base class for all "simple" continuously moveable devices.
+    Mixin for "simple" continuously moveable devices that have limits.
     """
 
     parameters = {
@@ -575,14 +574,14 @@ class Moveable(BaseMoveable):
     }
 
     def init(self):
-        Startable.init(self)
+        Moveable.init(self)
         if self.absmin > self.absmax:
             raise ConfigurationError(self, 'absolute minimum (%s) above the '
                                      'absolute maximum (%s)' %
                                      (self.absmin, self.absmax))
 
     def _setMode(self, mode):
-        BaseMoveable._setMode(self, mode)
+        Moveable._setMode(self, mode)
         if mode == 'master':
             self.__checkUserLimits(self.usermin, self.usermax, setthem=True)
 
@@ -676,46 +675,6 @@ class HasOffset(object):
         if self._cache:
             self._cache.put(self, 'value', self.doRead() - diff,
                             time.time(), self.maxage)
-
-
-class Switchable(Startable):
-    """
-    Base class for all switchable devices.
-
-    The *switchlist* attribute must be a dictionary that maps human-readable
-    values to "internal" values.
-    """
-
-    switchlist = {}
-
-    def init(self):
-        Readable.init(self)
-        if not isinstance(self.switchlist, dict):
-            raise ProgrammingError(self, 'switchlist is not a dict')
-        self.__rswitchlist = dict((v, k) for (k, v) in self.switchlist.items())
-        if len(self.__rswitchlist) != len(self.switchlist):
-            raise ProgrammingError(self, 'duplicate value in switchlist')
-
-    def start(self, pos):
-        """Switch the device to a new value.
-
-        The given position can be either a human-readable value from the
-        switchlist, or the "internal" value.
-        """
-        realpos = self.switchlist.get(pos, pos)
-        if realpos not in self.__rswitchlist:
-            raise UsageError(self, '%r is not an acceptable switch value' % pos)
-        ok, why = self.isAllowed(realpos)
-        if not ok:
-            raise LimitError(self, 'switching to %r is not allowed: %s' %
-                             (pos, why))
-        Startable.start(self, realpos)
-
-    switch = start
-
-    def read(self):
-        value = Startable.read(self)
-        return self.__rswitchlist.get(value, value)
 
 
 class Measurable(Startable):

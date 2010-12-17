@@ -37,7 +37,7 @@ __version__ = "$Revision$"
 
 from IO import DigitalInput, DigitalOutput
 
-from nicm.device import Readable, BaseMoveable, Param
+from nicm.device import Readable, Moveable, Param
 from nicm.taco.base import TacoDevice
 
 
@@ -47,8 +47,7 @@ class Input(TacoDevice, Readable):
     taco_class = DigitalInput
 
 
-# XXX switchable?
-class Output(TacoDevice, BaseMoveable):
+class Output(TacoDevice, Moveable):
     """Base class for TACO DigitalOutputs."""
 
     taco_class = DigitalOutput

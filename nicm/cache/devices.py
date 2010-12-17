@@ -40,7 +40,7 @@ __version__ = "$Revision$"
 import time
 
 from nicm import status
-from nicm.device import Readable, Moveable, Param
+from nicm.device import Readable, Moveable, HasLimits, Param
 from nicm.errors import CommunicationError, TimeoutError
 
 
@@ -61,7 +61,7 @@ class CacheReader(Readable):
         return (status.OK, 'no status found in cache')
 
 
-class CacheWriter(Moveable):
+class CacheWriter(Moveable, HasLimits):
 
     parameters = {
         'setkey':    Param('Subkey to use to set the device value',
