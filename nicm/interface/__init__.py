@@ -312,6 +312,9 @@ class NICOS(object):
         self.__system_device = None
         self.__exp_device = None
 
+    def shutdown(self):
+        self.unloadSetup()
+
     def resetPrompt(self):
         base = self.system.mode != 'master' and self.system.mode + ' ' or ''
         expsetups = '+'.join(self.explicit_setups)
