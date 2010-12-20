@@ -452,3 +452,9 @@ def oneof(conv, *vals):
                              (val, ', '.join(vals)))
         return val
     return converter
+
+def existingdir(val='.'):
+    val = str(val)
+    if not os.path.isdir(val):
+        raise ValueError('value %s is not an existing directory' % val)
+    return val
