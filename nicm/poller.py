@@ -43,6 +43,7 @@ import threading
 from nicm import nicos
 from nicm.utils import dictof, listof
 from nicm.device import Device, Readable, Param
+from nicm.errors import NicmError
 
 
 class Poller(Device):
@@ -60,7 +61,11 @@ class Poller(Device):
         self.printinfo('poller starting')
         devices = self.processes[process]
         for devname in devices:
-            dev = nicos.getDevice(devname)
+            try:
+                dev = nicos.getDevice(devname)
+            except NicmError, err:
+                self.printwarning('error creating %s' % devname, exc=err)
+                continue
             self.printinfo('starting thread for %s' % dev)
             interval = dev.pollinterval
             if interval > 5:
