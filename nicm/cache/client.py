@@ -306,6 +306,9 @@ class CacheClient(BaseCacheClient):
         self._db.pop(dbkey, None)
 
     def history(self, dev, key, fromtime, totime):
+        """History query: opens a separate connection since it is otherwise not
+        possible to determine which response lines belong to it.
+        """
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             sock.connect(self._address)

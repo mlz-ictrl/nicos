@@ -40,6 +40,7 @@ import bsddb
 import select
 import socket
 import threading
+from itertools import chain
 from time import time as currenttime, sleep, localtime, strftime, mktime
 
 from nicm import nicos, loggers
@@ -393,9 +394,11 @@ class DbCacheDatabase(MemoryCacheDatabase):
 
     def doInit(self):
         self._db = {}
-        self._stores = {}
-        self._arctime = {}
         self._lock = threading.Lock()
+        # stores timestamp of the last archived entry for all keys
+        self._arctime = {}
+        # maps (y, m, d) tuples to bsddb stores
+        self._stores = {}
         self._max = self.maxcached
         # the granularity determines how many elements of the time tuple make up
         # the key for a single database file; usually it is 3, meaning that
@@ -508,12 +511,17 @@ class DbCacheDatabase(MemoryCacheDatabase):
             if key not in self._db:
                 return []
             entries = self._db[key]
+        # need to check in database files?
+        store_entries = []
         if t1 < entries[0].time:
-            # need to check in database files
-            #with self._store_lock:
-            #    self.
-            pass
-        for entry in entries:
+            # XXX currently this does open additional stores to fulfill the
+            # whole given time range
+            with self._store_lock:
+                store_entries = load_entries(self._prevstore.get(key, '')) + \
+                                load_entries(self._currstore.get(key, ''))
+                self.printdebug('history query loaded %d entries from store' %
+                                len(store_entries))
+        for entry in chain(store_entries, entries):
             if t1 <= entry.time < t2:
                 if entry.ttl:
                     ret.append('%s+%s@%s%s%s\r\n' %
