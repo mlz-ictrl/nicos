@@ -180,7 +180,7 @@ def reset(dev):
     """Reset the given device."""
     dev = nicos.getDevice(dev, Readable)
     status = dev.reset()
-    dev.printinfo('reset, status is now %s' % _formatStatus(status))
+    dev.printinfo('reset done, status is now %s' % _formatStatus(status))
 
 @usercommand
 def set(dev, parameter, value):
