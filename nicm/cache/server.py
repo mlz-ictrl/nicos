@@ -548,7 +548,7 @@ class CacheServer(Device):
             res = select.select(selectlist, [], [], 1)  # timeout 1 second
             if not res[0]:
                 continue  # nothing to read -> continue loop
-            if self._serversocket in res[0]:
+            if self._serversocket in res[0] and not self._stoprequest:
                 # TCP connection came in
                 conn, addr = self._serversocket.accept()
                 addr = 'tcp://%s:%d' % addr
@@ -556,7 +556,7 @@ class CacheServer(Device):
                 # TODO: check addr, currently all are allowed....
                 self._connected[addr] = CacheWorker(self._adevs['db'], conn,
                                                     name=addr)
-            elif self._serversocket_udp in res[0]:
+            elif self._serversocket_udp in res[0] and not self._stoprequest:
                 # UDP data came in
                 data, addr = self._serversocket_udp.recvfrom(3072)
                 nice_addr = 'udp://%s:%d' % addr
