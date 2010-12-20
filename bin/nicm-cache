@@ -21,3 +21,4 @@ except (ConfigurationError, UsageError), err:
 writePidfile('cache')
 server.start()
 server.wait()
+nicos.shutdown()

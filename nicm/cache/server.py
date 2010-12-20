@@ -35,16 +35,19 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import os
+import bsddb
 import select
 import socket
 import threading
-from time import time as currenttime, sleep
+from time import time as currenttime, sleep, localtime, strftime, mktime
 
-from nicm import nicos
+from nicm import nicos, loggers
 from nicm.device import Device, Param
-from nicm.utils import listof
+from nicm.utils import listof, existingdir
 from nicm.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT, \
-     OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, OP_TELLOLD
+     OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, OP_TELLOLD, Entry, \
+     dump_entries, load_entries
 
 
 class CacheUDPConnection(object):
@@ -98,7 +101,8 @@ class CacheWorker(object):
     Worker thread class for the cache server.
     """
 
-    def __init__(self, db, connection, name='', initstring='', initdata=''):
+    def __init__(self, db, connection, name='', initstring='', initdata='',
+                 loglevel=None):
         self.db = db
         self.connection = connection
         self.name = name
@@ -114,6 +118,7 @@ class CacheWorker(object):
         self.worker = None
 
         self.log = nicos.getLogger(name)
+        self.log.setLevel(loggers.loglevels[loglevel])
 
         if initstring:
             if not self.writeto(initstring):
@@ -282,16 +287,13 @@ class CacheWorker(object):
         return True
 
 
-class Entry(object):
-    __slots__ = ('time', 'ttl', 'value')
-
-    def __init__(self, time, ttl, value):
-        self.time = time
-        self.ttl = ttl
-        self.value = value
-
-
 class CacheDatabase(Device):
+
+    def doInit(self):
+        raise NotImplementedError('CacheDatabase is an abstract class')
+
+
+class MemoryCacheDatabase(CacheDatabase):
     """
     Central database of cache values, keeps everything in memory.
     """
@@ -299,33 +301,6 @@ class CacheDatabase(Device):
     def doInit(self):
         self._db = {}
         self._lock = threading.Lock()
-
-        # start self-cleaning timer
-        #t = threading.Thread(target=self._cleanser)
-        #t.setDaemon(True)
-        #t.start()
-
-    def _cleanser(self):
-        # XXX this is not useful anymore right now...
-        while True:
-            sleep(30)
-            self.printdebug('running cleanser')
-            # asking for all values will clean all expired values
-            updates = set()
-            with self._lock:
-                for dbkey, entries in self._db.iteritems():
-                    lastent = entries[-1]
-                    if not lastent.ttl:
-                        continue
-                    remaining = lastent.time + lastent.ttl - currenttime()
-                    if remaining <= 0:
-                        updates.add((dbkey, lastent))
-            if updates:
-                for client in self._server._connected.values():
-                    if client.is_active():
-                        for key, entry in updates:
-                            client.update(key, OP_TELLOLD,
-                                          entry.value, entry.time, entry.ttl)
 
     def ask(self, key, ts, time, ttl):
         with self._lock:
@@ -377,12 +352,143 @@ class CacheDatabase(Device):
                     ret.add(dbkey + OP_TELL + lastent.value + '\r\n')
         return ret
 
+    def tell(self, key, value, time, ttl, from_client):
+        if value is None:
+            # deletes cannot have a TTL
+            ttl = None
+        send_update = True
+        with self._lock:
+            entries = self._db.setdefault(key, [])
+            if entries:
+                lastent = entries[-1]
+                if lastent.value == value and not lastent.ttl:
+                    # not a real update
+                    send_update = False
+            # never cache more than a single entry, memory fills up too fast
+            entries[:] = [Entry(time, ttl, value)]
+        if send_update:
+            for client in self._server._connected.values():
+                if client is not from_client and client.is_active():
+                    client.update(key, OP_TELL, value, time, ttl)
+
+
+class DbCacheDatabase(MemoryCacheDatabase):
+    """Cache database that keeps history in bsddb stores."""
+
+    parameters = {
+        'storepath': Param('Directory where history stores should be saved',
+                           type=str, mandatory=True),
+        'maxcached': Param('Maximum number of entries cached in memory',
+                           type=int, default=200),
+    }
+
+    def doInit(self):
+        self._db = {}
+        self._stores = {}
+        self._arctime = {}
+        self._lock = threading.Lock()
+        self._max = self.maxcached
+        # keep open two stores: this day's, and the previous day's
+        time = currenttime()
+        self._currday = localtime(time)[:3]          # current day
+        self._prevday = localtime(time - 86400)[:3]  # previous day
+        self._midnight = mktime(self._currday + (0, 0, 0, 0, 0, 0))
+        self._currstore = self._open_store(self._currday)
+        self._prevstore = self._open_store(self._prevday)
+        self._store_lock = threading.Lock()
+        # read current day's entries from disk
+        nentries = 0
+        nkeys = 0
+        toload = int(self._max / 2)
+        with self._lock:
+            with self._store_lock:
+                for key in self._currstore:
+                    entries = load_entries(self._currstore[key])[-toload:]
+                    self._db[key] = entries
+                    self._arctime[key] = entries[-1].time
+                    nentries += len(entries)
+                    nkeys += 1
+        self.printinfo('loaded %d entries for %d keys from store' %
+                       (nentries, nkeys))
+
+    def doShutdown(self):
+        # write remaining unarchived entries to disk
+        nentries = 0
+        with self._lock:
+            with self._store_lock:
+                for key, entries in self._db.iteritems():
+                    self._archive(key, entries)
+                    nentries += len(entries)
+        self.printinfo('archived %d entries on shutdown' % nentries)
+        self._close_store(self._currday)
+        self._close_store(self._prevday)
+
+    def _open_store(self, ymd):
+        if ymd in self._stores:
+            self._stores[ymd][1] += 1
+            return self._stores[ymd][0]
+        path = os.path.join(self.storepath, '%04d-%02d-%02d' % ymd)
+        db = bsddb.hashopen(path, 'c')
+        self._stores[ymd] = [db, 1]
+        return db
+
+    def _close_store(self, ymd):
+        info = self._stores[ymd]
+        info[1] -= 1
+        if info[1] == 0:
+            db = self._stores.pop(ymd)[0]
+            db.sync()
+            db.close()
+
+    def _archive(self, key, entries):
+        """Archive entries to the store(s).  Must be called with the store
+        lock held.
+        """
+        newday = localtime()[:3]
+        # midnight is past: change stores
+        if newday != self._currday:
+            # close previous day's store
+            self._close_store(self._prevday)
+            # this day's store is now previous day's
+            self._prevstore = self._currstore
+            self._currstore = self._open_store(newday)
+            # set the days and midnight time correctly
+            self._prevday = self._currday
+            self._currday = newday
+            self._midnight = mktime(self._currday + (0, 0, 0, 0, 0, 0))
+        # divide the entries in two lists: those belonging to the previous
+        # day, and those for the current day
+        prev, curr = [], []
+        midnight = self._midnight
+        arctime = self._arctime.get(key, 0)
+        for entry in entries:
+            if entry.time <= arctime:
+                continue
+            elif entry.time < midnight:
+                prev.append(entry)
+            else:
+                curr.append(entry)
+        # dump them into their respective stores
+        if prev:
+            self._prevstore[key] = \
+                self._prevstore.get(key, '') + dump_entries(prev)
+            self._prevstore.sync()
+        self._currstore[key] = \
+            self._currstore.get(key, '') + dump_entries(curr)
+        self._currstore.sync()
+        self._arctime[key] = entries[-1].time
+        self.printdebug('archived %d+%d entries for key %s' %
+                        (len(prev), len(curr), key))
+
+    # ask and ask_wc inherited from MemoryCacheDatabase
+
     def ask_hist(self, key, t1, t2):
         ret = []
         with self._lock:
             if key not in self._db:
                 return []
             entries = self._db[key]
+        # XXX check stores too
         for entry in entries:
             if t1 <= entry.time < t2:
                 if entry.ttl:
@@ -407,6 +513,11 @@ class CacheDatabase(Device):
                     # not a real update
                     send_update = False
             entries.append(Entry(time, ttl, value))
+            if len(entries) > self._max or ttl is None:
+                # if ttl is None, the value should be stored immediately
+                with self._store_lock:
+                    self._archive(key, entries)
+                    del entries[:-1]
         if send_update:
             for client in self._server._connected.values():
                 if client is not from_client and client.is_active():
@@ -532,7 +643,8 @@ class CacheServer(Device):
                     initstr = '@%s\r\n@%s\r\n' % (OP_WILDCARD, OP_SUBSCRIBE)
                     client = CacheWorker(
                         db=self._adevs['db'], connection=conn, name=addr,
-                        initstring=initstr, initdata=initstr)
+                        initstring=initstr, initdata=initstr,
+                        loglevel=self.loglevel)
                     self._connected[addr] = client
                     self.printinfo('(re-)connected to clusternode %s, '
                                    'syncing' % addr)
@@ -554,8 +666,8 @@ class CacheServer(Device):
                 addr = 'tcp://%s:%d' % addr
                 self.printinfo('new connection from %s' % addr)
                 # TODO: check addr, currently all are allowed....
-                self._connected[addr] = CacheWorker(self._adevs['db'], conn,
-                                                    name=addr)
+                self._connected[addr] = CacheWorker(
+                    self._adevs['db'], conn, name=addr, loglevel=self.loglevel)
             elif self._serversocket_udp in res[0] and not self._stoprequest:
                 # UDP data came in
                 data, addr = self._serversocket_udp.recvfrom(3072)
@@ -565,7 +677,8 @@ class CacheServer(Device):
                 conn = CacheUDPConnection(self._serversocket_udp, addr,
                                           log=self.printdebug)
                 self._connected[nice_addr] = CacheWorker(
-                    self._adevs['db'], conn, name=nice_addr, initdata=data)
+                    self._adevs['db'], conn, name=nice_addr, initdata=data,
+                    loglevel=self.loglevel)
         self._serversocket.shutdown(socket.SHUT_RDWR)
         self._serversocket.close()
         self._serversocket = None

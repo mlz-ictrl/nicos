@@ -36,6 +36,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import re
+import struct
 
 
 DEFAULT_CACHE_PORT = 14869
@@ -94,3 +95,33 @@ def cache_dump(obj):
     return ''.join(res)
 
 cache_load = eval  # TODO: rewrite as a safer function
+
+
+# cache entry support
+
+class Entry(object):
+    __slots__ = ('time', 'ttl', 'value')
+
+    def __init__(self, time, ttl, value):
+        self.time = time
+        self.ttl = ttl
+        self.value = value
+
+headstr = struct.Struct('ddH')
+
+def dump_entries(entries):
+    """Dump a list of entries as a bytestring."""
+    return ''.join(headstr.pack(e.time, (e.ttl or 0.), len(e.value or ''))
+                   + (e.value or '') for e in entries)
+
+def load_entries(bytes):
+    """Load a list of entries from a bytestring."""
+    i = 0
+    n = len(bytes)
+    headsize = headstr.size
+    entries = []
+    while i < n:
+        time, ttl, valuelen = headstr.unpack_from(bytes, i)
+        i += valuelen + headsize
+        entries.append(Entry(time, ttl or None, bytes[i-valuelen:i] or None))
+    return entries
