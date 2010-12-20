@@ -434,6 +434,8 @@ class Monitor(BaseCacheClient):
                     field['namevar'].set(field['name'] + ' (%s)' % value)
             elif key == field['formatkey']:
                 field['format'] = value
+                if field['value'] is not None:
+                    field['valuevar'].set(field['format'] % field['value'])
 
         return   # for now; hiding/showing blocks is too slow!
 
