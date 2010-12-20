@@ -87,6 +87,7 @@ class Poller(Device):
 
     def _worker_thread(self, dev, interval, sleep):
         errcount = 0
+        orig_interval = interval
         while not self._stoprequest:
             self.printdebug('polling %s' % dev)
             try:
@@ -96,8 +97,13 @@ class Poller(Device):
                 if errcount < 5:
                     # only print the warning the first five times
                     self.printwarning('error reading %s' % dev, exc=err)
+                elif errcount == 5:
+                    # make the interval a bit larger
+                    interval *= 5
                 errcount += 1
             else:
+                if errcount > 0:
+                    interval = orig_interval
                 errcount = 0
             sleep(interval)
 
