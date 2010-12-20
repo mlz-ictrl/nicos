@@ -40,8 +40,9 @@ cachefile = args[0]
 cache = bsddb.hashopen(cachefile, 'r')
 
 if key is not None:
-    dump(key, cache[key], human)
+    if key in cache:
+        dump(key, cache[key], human)
 else:
-    for key in cache:
+    for key in sorted(cache):
         dump(key, cache[key], human)
         print
