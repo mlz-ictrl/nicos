@@ -116,6 +116,9 @@ class Device(object):
                 else:
                     adev._sdevs.discard(self.name)
             raise
+        else:
+            # set correct log level now that the parameter is initialized
+            self._log.setLevel(loggers.loglevels[self.loglevel])
 
     def __setattr__(self, name, value):
         # disallow modification of public attributes that are not parameters
@@ -154,7 +157,6 @@ class Device(object):
         setattr(self, name.lower(), value)
 
     def doWriteLoglevel(self, value):
-        # XXX this is not called on initialization from the cache (should it?)
         if value not in loggers.loglevels:
             raise UsageError(self, 'loglevel must be one of %s' %
                              ', '.join(map(repr, loggers.loglevels.keys())))
