@@ -190,8 +190,8 @@ class Motor(NicmMotor):
     def _setMode(self, mode):
         NicmMotor._setMode(self, mode)
         if mode == 'master':
-            self.usermin = self._fromsteps(self.min)
             self.usermax = self._fromsteps(self.max)
+            self.usermin = self._fromsteps(self.min)
 
     def _tosteps(self, value):
         return int(float(value) * self.slope + self.offset)
