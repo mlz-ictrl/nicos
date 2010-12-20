@@ -232,41 +232,44 @@ class Axis(Moveable, HasOffset, HasLimits):
         return self._adevs['coder'].doRead() - self.offset
 
     def __checkDragerror(self):
-        tmp = abs(self._adevs['motor'].doRead() - self._adevs['coder'].doRead())
-        self.printdebug('motor/coder diff: %s' % tmp)
-        dragDiff = self.dragerror
-        if dragDiff <= 0:
+        diff = abs(self._adevs['motor'].doRead() -
+                   self._adevs['coder'].doRead())
+        self.printdebug('motor/coder diff: %s' % diff)
+        maxdiff = self.dragerror
+        if maxdiff <= 0:
             return True
-        dragOK = tmp <= dragDiff
-        if dragOK:
+        ok = diff <= maxdiff
+        if ok:
             for i in self._adevs['obs']:
-                tmp = abs(self._adevs['motor'].doRead() - i.doRead())
-                dragOK = dragOK and (tmp <= dragDiff)
-        if not dragOK:
+                diff = abs(self._adevs['motor'].doRead() - i.doRead())
+                ok = ok and (diff <= maxdiff)
+        if not ok:
             self.__error = 1
-        return dragOK
+        return ok
 
     def __checkTargetPosition(self, target, pos, error=2):
-        tmp = abs(pos - target)
-        dragDiff = self.dragerror
-        posOK = tmp <= self.precision
-        if posOK:
+        diff = abs(pos - target)
+        maxdiff = self.dragerror
+        ok = diff <= self.precision
+        if ok:
             for i in self._adevs['obs']:
-                tmp = abs(target - i.doRead())
-                if dragDiff > 0:
-                    posOK = posOK and (tmp <= dragDiff)
-        if not posOK:
+                diff = abs(target - i.doRead())
+                if maxdiff > 0:
+                    ok = ok and (diff <= maxdiff)
+        if not ok:
             self.__error = error
-        return posOK
+        return ok
 
     def __checkMoveToTarget(self, target, pos, error=1):
-        diffLast = abs(self.__lastPosition - target)
-        diffCurr = abs(pos - target)
+        delta_last = abs(self.__lastPosition - target)
+        delta_curr = abs(pos - target)
+        self.printdebug('position delta: %s, was %s' % (delta_curr, delta_last))
         self.__lastPosition = pos
-        posOK = diffLast >= diffCurr
-        if not posOK:
+        # at the end of the move, the motor can slightly overshoot
+        ok = delta_last >= delta_curr or delta_curr < self.precision
+        if not ok:
              self.__error = error
-        return posOK
+        return ok
 
     def __positioningThread(self):
         if not self._preMoveAction():
@@ -285,48 +288,46 @@ class Axis(Moveable, HasOffset, HasLimits):
 
     def __positioning(self, target):
         moving = False
+        offset = self.offset
         maxtries = self.maxtries
         self.__lastPosition = self.doRead()
-        __target = target + self.offset
-        self._adevs['motor'].start(__target)
+        self._adevs['motor'].start(target + offset)
         moving = True
 
         while moving:
             if self.__stopRequest == 1:
-                self.printdebug('stop request received')
+                self.printdebug('stopping motor')
                 self._adevs['motor'].stop()
                 self.__stopRequest = 2
                 continue
             time.sleep(self.loopdelay)
-            try:
-                pos = self.doRead()
-            except NicmError:
-                pass
+            pos = self.__read()
             if self._adevs['motor'].doStatus()[0] != status.BUSY:
-                # motor stopped
+                # motor stopped; check why
                 if self.__stopRequest == 2:
-                    self.printdebug('manual stop, leaving')
+                    self.printdebug('stop requested, leaving positioning')
                     # manual stop
                     moving = False
-                elif self.__checkTargetPosition(__target, pos):
-                    self.printdebug('target reached')
+                elif self.__checkTargetPosition(target, pos):
+                    self.printdebug('target reached, leaving positioning')
                     # target reached
                     moving = False
                 elif maxtries > 0:
-                    self.printdebug('target not reached')
+                    self.printdebug('target not reached, retrying')
                     # target not reached, get the current position,
                     # sets the motor to this position and restart it
-                    self._adevs['motor'].setPosition(pos)
-                    self._adevs['motor'].start(__target)
+                    self._adevs['motor'].setPosition(pos + self.offset)
+                    self._adevs['motor'].start(target + self.offset)
                     maxtries -= 1
                 else:
+                    self.printdebug('target not reached after max tries')
                     moving = False
                     self.__error = 6
-            elif not self.__checkMoveToTarget(__target, pos) or \
-                   not self.__checkDragerror():
-                # drag error (motor != coder)
-                # distance to target will be greater
-                self.printdebug('drag error')
+            elif not self.__checkMoveToTarget(target, pos):
+                self.printdebug('not moving to target')
+                self.__stopRequest = 1
+            elif not self.__checkDragerror():
+                self.printdebug('drag error detected')
                 self.__stopRequest = 1
             elif self.__stopRequest == 0:
                 if not self._duringMoveAction(pos):
