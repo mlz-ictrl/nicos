@@ -4,10 +4,10 @@
 #   $Id$
 #
 # Description:
-#   NICOS instrument monitor
+#   Qt version of instrument monitor
 #
 # Author:
-#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
@@ -29,19 +29,19 @@
 #
 # *****************************************************************************
 
-"""NICOS instrument monitor."""
+"""Qt version of instrument monitor."""
 
 __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import re
 import sys
 import threading
 from time import time as currenttime, sleep, strftime
 
-from Tkinter import Tk, Frame, Label, LabelFrame, StringVar, \
-     SUNKEN, RAISED, X, W, BOTH, LEFT, TOP, BOTTOM
-import tkFont
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 
 from nicm.utils import listof
 from nicm.status import OK, BUSY, ERROR, PAUSED, NOTREACHED, statuses
@@ -61,6 +61,60 @@ def nicedelta(t):
 class Field(dict):
     def __hash__(self):
         return id(self)
+
+class SensitiveLabel(QLabel):
+    """A label that calls back when entered/left by the mouse."""
+    def __init__(self, text, parent, enter, leave):
+        QLabel.__init__(self, text, parent)
+        self._enter = enter
+        self._leave = leave
+    def enterEvent(self, event):
+        self._enter(self, event)
+    def leaveEvent(self, event):
+        self._leave(self, event)
+
+class BlockBox(QFrame):
+    """Provide the equivalent of a Tk LabelFrame: a group box that has a
+    definite frame around it.
+    """
+    def __init__(self, parent, text, font):
+        QFrame.__init__(self, parent)
+        self._label = QLabel(' ' + text + ' ', parent)
+        self._label.setAutoFillBackground(True)
+        self._label.setFont(font)
+        self._label.resize(self._label.sizeHint())
+        self._label.show()
+        self.setFrameShape(QFrame.Panel)
+        self.setFrameShadow(QFrame.Raised)
+        self.setLineWidth(2)
+    def moveEvent(self, event):
+        self._repos()
+        return QFrame.moveEvent(self, event)
+    def resizeEvent(self, event):
+        self._repos()
+        return QFrame.resizeEvent(self, event)
+    def _repos(self):
+        mps = self.pos()
+        msz = self.size()
+        lsz = self._label.size()
+        self._label.move(mps.x() + 0.5*(msz.width() - lsz.width()),
+                         mps.y() - 0.5*lsz.height())
+
+def set_forecolor(label, fore):
+    pal = label.palette()
+    pal.setColor(QPalette.WindowText, fore)
+    label.setPalette(pal)
+
+def set_backcolor(label, back):
+    pal = label.palette()
+    pal.setColor(QPalette.Window, back)
+    label.setPalette(pal)
+
+def set_fore_backcolor(label, fore, back):
+    pal = label.palette()
+    pal.setColor(QPalette.WindowText, fore)
+    pal.setColor(QPalette.Window, back)
+    label.setPalette(pal)
 
 
 class Monitor(BaseCacheClient):
@@ -87,10 +141,11 @@ class Monitor(BaseCacheClient):
 
     def start(self):
         self.printinfo('monitor starting up, creating main window')
-        root = Tk()
-        root.protocol('WM_DELETE_WINDOW', self.quit)
-        root.bind('q', self.quit)
-        self.tk_init(root)
+        qapp = QApplication(['qapp', '-style', 'windows'])
+        window = QMainWindow()
+        window.show()
+        ##root.bind('q', self.quit)
+        self.qt_init(window)
 
         self._selecttimeout = 0.2
         self._watch = set()
@@ -100,7 +155,7 @@ class Monitor(BaseCacheClient):
         self.printinfo('starting main loop')
         # start main loop and wait for termination
         try:
-            root.mainloop()
+            qapp.exec_()
         except KeyboardInterrupt:
             pass
         self._stoprequest = True
@@ -115,24 +170,41 @@ class Monitor(BaseCacheClient):
         self._worker.join()
         self.printinfo('done')
 
-    def tk_init(self, master):
+    def qt_init(self, master):
         self._master = master
         if self.geometry:
-            master.geometry(self.geometry)
-        if not self.resizable:
-            master.resizable(False, False)
+            if self.geometry == 'fullscreen':
+                master.showMaximized()
+            else:
+                try:
+                    w, h, x, y = map(int, re.match('(\d+)x(\d+)+(\d+)+(\d+)',
+                                                   self.geometry).groups())
+                except Exception:
+                    self.printwarning('invalid geometry %s' % self.geometry)
+                else:
+                    master.setGeometry(x, y, w, h)
         fontsize = self.fontsize
         fontsizebig = int(self.fontsize * 1.2)
 
-        self._bgcolor = master.config('bg')[-1]
+        self._bgcolor = master.palette().color(QPalette.Window)
+        self._black = QColor('black')
+        self._yellow = QColor('yellow')
+        self._green = QColor('#00ff00')
+        self._red = QColor('red')
+        self._gray = QColor('gray')
+        self._white = QColor('white')
 
-        master.title(self.title)
+        master.setWindowTitle(self.title)
 
-        self._timefont  = (self.font, fontsizebig + fontsize)
-        self._blockfont = (self.font, fontsizebig)
-        self._labelfont = (self.font, fontsize)
-        self._stbarfont = (self.font, int(fontsize * 0.8))
-        self._valuefont = (self.valuefont or self.font, fontsize)
+        self._timefont  = QFont(self.font, fontsizebig + fontsize)
+        self._blockfont = QFont(self.font, fontsizebig)
+        self._labelfont = QFont(self.font, fontsize)
+        self._stbarfont = QFont(self.font, int(fontsize * 0.8))
+        self._valuefont = QFont(self.valuefont or self.font, fontsize)
+
+        self._onechar = QFontMetrics(self._valuefont).width('0')
+        self._blheight = QFontMetrics(self._blockfont).height()
+        self._tiheight = QFontMetrics(self._timefont).height()
 
         # convert configured layout to internal structure
         prefix = self._prefix + '/'
@@ -149,7 +221,7 @@ class Monitor(BaseCacheClient):
                     for fielddesc in rowdesc:
                         field = Field({
                             # display/init properties
-                            'name': '', 'dev': '', 'width': 10, 'unit': '',
+                            'name': '', 'dev': '', 'width': 9, 'unit': '',
                             'format': '%s', 'min': None, 'max': None,
                             # current values
                             'value': None, 'time': 0, 'ttl': 0, 'status': None,
@@ -176,44 +248,44 @@ class Monitor(BaseCacheClient):
         # split window into to panels/frames below each other:
         # one displays time, the other is divided further to dsiplay blocks.
         # first the timeframe:
-        timeframe = Frame(master)
-        timeframe.pack(side=TOP, pady=0, ipady=0)
-        self._timestring = StringVar()
-        l = Label(timeframe, text='', font=self._timefont, fg='darkgrey',
-                  textvariable=self._timestring)
-        l.grid(row=1)
-        self._timelabel = l
+        masterframe = QFrame(master)
+        masterlayout = QVBoxLayout()
+        self._timelabel = QLabel('', master)
+        self._timelabel.setFont(self._timefont)
+        set_forecolor(self._timelabel, self._gray) 
+        self._timelabel.setAlignment(Qt.AlignHCenter)
+        self._timelabel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        masterlayout.addWidget(self._timelabel)
+        masterlayout.addSpacing(0.5*self._tiheight)
 
-        # create the masterframe
-        masterframe = Frame(master)
-        masterframe.pack(side=TOP, pady=0, fill=X, expand=1)
-
-        def _create_field(subframe, field):
-            fieldframe = Frame(subframe)
-            # right of previous field or on the leftmost position
-            fieldframe.pack(side=LEFT)
+        def _create_field(groupframe, field):
+            fieldlayout = QVBoxLayout()
             # now put describing label and view label into subframe
             if field['name']:
-                s = StringVar(value=field['name'])
-                l = Label(fieldframe, text='', font=self._labelfont,
-                          width=field['width'] + 2, textvariable=s)
-                l.grid(row=0)
-
-                field['namevar'] = s
+                l = QLabel(' ' + field['name'] + ' ', groupframe)
+                l.setFont(self._labelfont)
+                l.setAlignment(Qt.AlignHCenter)
+                l.setAutoFillBackground(True)
                 field['namelabel'] = l
+                fieldlayout.addWidget(l)
 
-                s = StringVar(value='----')
-                l = Label(fieldframe, text='', pady=2, font=self._valuefont,
-                          width=field['width'], relief=SUNKEN, textvariable=s,
-                          bg=self._bgcolor, fg='black')
-                l.grid(row=1)
-                l.bind('<Enter>', self._label_entered)
-                l.bind('<Leave>', self._label_left)
-                l._field = field
-
-                # store references to Tk objects for later modification
-                field['valuevar'] = s
+                l = SensitiveLabel('----', groupframe,
+                                   self._label_entered, self._label_left)
+                l.setFont(self._valuefont)
+                l.setAlignment(Qt.AlignHCenter)
+                l.setFrameShape(QFrame.Panel)
+                l.setFrameShadow(QFrame.Sunken)
+                l.setAutoFillBackground(True)
+                l.setLineWidth(2)
+                l.setMinimumSize(QSize(self._onechar * (field['width'] + .5), 0))
+                l.setProperty('assignedField', field)
                 field['valuelabel'] = l
+
+                tmplayout = QHBoxLayout()
+                tmplayout.addStretch()
+                tmplayout.addWidget(l)
+                tmplayout.addStretch()
+                fieldlayout.addLayout(tmplayout)
 
                 # store reference from key to field for updates
                 def _ref(name, key):
@@ -242,41 +314,57 @@ class Monitor(BaseCacheClient):
                           width=field['width'])
                 l.grid(row=1)
                 field['valuelabel'] = l
+            return fieldlayout
 
         # now iterate through the layout and create the widgets to display it
+        boxlayout = QHBoxLayout()
+        boxlayout.setSpacing(20)
+        boxlayout.setContentsMargins(10, 10, 10, 10)
         for column in self._layout:
-            columnframe = Frame(masterframe)
-            columnframe.pack(side=LEFT, padx=self.padding, fill=BOTH, expand=1)
+            columnlayout = QVBoxLayout()
+            columnlayout.setSpacing(self._blheight)
             for block in column:
-                labelframe = LabelFrame(columnframe, labelanchor='n',
-                                        relief=RAISED, text=block[0]['name'],
-                                        font=self._blockfont)
-                labelframe.pack(ipadx=self.padding, ipady=self.padding,
-                                pady=self.padding, side=TOP)
-                block[0]['labelframe'] = labelframe
+                blocklayout_outer = QHBoxLayout()
+                blocklayout_outer.addStretch()
+                blocklayout = QVBoxLayout()
+                blocklayout.addSpacing(0.5*self._blheight)
+                blockbox = BlockBox(master, block[0]['name'], self._blockfont)
+                block[0]['labelframe'] = blockbox
                 for row in block[1]:
-                    subframe = Frame(labelframe)
                     if row is None:
-                        subframe.pack(side=TOP, ipady=self.padding*2)
+                        blocklayout.addSpacing(12)
                     else:
-                        subframe.pack(side=TOP)
+                        rowlayout = QHBoxLayout()
+                        rowlayout.addStretch()
+                        rowlayout.addSpacing(self.padding)
                         for field in row:
-                            _create_field(subframe, field)
+                            fieldframe = _create_field(blockbox, field)
+                            rowlayout.addLayout(fieldframe)
+                            rowlayout.addSpacing(self.padding)
+                        rowlayout.addStretch()
+                        blocklayout.addLayout(rowlayout)
+                blocklayout.addSpacing(0.3*self._blheight)
+                blockbox.setLayout(blocklayout)
+                blocklayout_outer.addWidget(blockbox)
+                blocklayout_outer.addStretch()
+                columnlayout.addLayout(blocklayout_outer)
+                columnlayout.addStretch()
+            columnlayout.addStretch()
+            boxlayout.addLayout(columnlayout)
+
+        masterlayout.addLayout(boxlayout)
+        masterframe.setLayout(masterlayout)
+        master.setCentralWidget(masterframe)
 
         # initialize status bar
-        self._status = StringVar()
-        statusbar = Frame(master)
-        statusbar.pack(side=BOTTOM, fill=X, expand=1)
-        dist = Label(statusbar)
-        dist.pack(side=TOP)
-        label = Label(statusbar, relief=SUNKEN, anchor=W, font=self._stbarfont,
-                      textvariable=self._status)
-        label.pack(side=TOP, pady=0, fill=X)
+        self._statuslabel = QLabel()
+        self._statuslabel.setFont(self._stbarfont)
+        master.statusBar().addWidget(self._statuslabel)
         self._statustimer = None
 
-    def _label_entered(self, event):
-        field = event.widget._field
-        statustext = '%s = %s' % (field['name'], field['valuevar'].get())
+    def _label_entered(self, widget, event):
+        field = widget.property('assignedField').toPyObject()
+        statustext = '%s = %s' % (field['name'], field['valuelabel'].text())
         if field['unit']:
             statustext += ' %s' % field['unit']
         if field['status']:
@@ -295,12 +383,13 @@ class Monitor(BaseCacheClient):
                 statustext += ', valid for %s' % nicedelta(exp - cur)
             else:
                 statustext += ', expired %s ago' % nicedelta(cur - exp)
-        self._status.set(statustext)
-        self._statustimer = threading.Timer(1, lambda: self._label_entered(event))
+        self._statuslabel.setText(statustext)
+        self._statustimer = threading.Timer(1, lambda:
+                                            self._label_entered(widget, event))
         self._statustimer.start()
 
-    def _label_left(self, event):
-        self._status.set('')
+    def _label_left(self, widget, event):
+        self._statuslabel.setText('')
         if self._statustimer:
             self._statustimer.cancel()
             self._statustimer = None
@@ -308,16 +397,16 @@ class Monitor(BaseCacheClient):
     # called between connection attempts
     def _wait_retry(self):
         s = 'Disconnected (%s)' % strftime('%d.%m.%Y %H:%M:%S')
-        self._timestring.set(s)
-        self._master.title(s)
+        self._timelabel.setText(s)
+        #self._master.setWindowTitle(s)
         sleep(1)
 
     # called while waiting for data
     def _wait_data(self):
         # update window title and caption with current time
         s = '%s (%s)' % (self.title, strftime('%d.%m.%Y %H:%M:%S'))
-        self._timestring.set(s)
-        self._master.title(s)
+        self._timelabel.setText(s)
+        #self._master.setWindowTitle(s)
 
         # adjust the colors of status displays
         newwatch = set()
@@ -326,17 +415,17 @@ class Monitor(BaseCacheClient):
             value = field['value']
             if value is None:
                 # no value assigned
-                vlabel.config(bg=self._bgcolor, fg='black')
+                set_fore_backcolor(vlabel, QColor('black'), self._bgcolor)
                 continue
 
             # set name label background color: determined by the value limits
 
             if field['min'] is not None and value < field['min']:
-                field['namelabel'].config(bg='red')
+                set_backcolor(field['namelabel'], self._red)
             elif field['max'] is not None and value > field['max']:
-                field['namelabel'].config(bg='red')
+                set_backcolor(field['namelabel'], self._red)
             else:
-                field['namelabel'].config(bg=self._bgcolor)
+                set_backcolor(field['namelabel'], self._bgcolor)
 
             # set the foreground color: determined by the status
 
@@ -344,10 +433,10 @@ class Monitor(BaseCacheClient):
             if not status:
                 # no status yet, determine on time alone
                 if valueage < 3:
-                    vlabel.config(fg='yellow')
+                    set_forecolor(vlabel, self._yellow)
                     newwatch.add(field)
                 else:
-                    vlabel.config(fg='green')
+                    set_forecolor(vlabel, self._green)
             else:
                 # if we have a status
                 try:
@@ -355,13 +444,13 @@ class Monitor(BaseCacheClient):
                 except ValueError:
                     const = status
                 if const == OK:
-                    vlabel.config(fg='green')
+                    set_forecolor(vlabel, self._green)
                 elif const in (BUSY, PAUSED):
-                    vlabel.config(fg='yellow')
+                    set_forecolor(vlabel, self._yellow)
                 elif const in (ERROR, NOTREACHED):
-                    vlabel.config(fg='red')
+                    set_forecolor(vlabel, self._red)
                 else:
-                    vlabel.config(fg='white')
+                    set_forecolor(vlabel, self._white)
 
             # set the background color: determined by the value's age
 
@@ -370,22 +459,12 @@ class Monitor(BaseCacheClient):
                 # allow for a bit of overlap between expiration of ttl and
                 # actual value age
                 if age > field['ttl'] * 1.5:
-                    vlabel.config(bg='gray40')
+                    set_backcolor(vlabel, self._gray)
                 else:
-                    vlabel.config(bg='black')
+                    set_backcolor(vlabel, self._black)
                     newwatch.add(field)
-            elif age < 3600:
-                vlabel.config(bg='black')
-            elif age < 3600*6:
-                vlabel.config(bg='gray7')
-            elif age < 3600*24:
-                vlabel.config(bg='gray13')
-            elif age < 3600*24*7:
-                vlabel.config(bg='gray27')
-            elif age < 3600*24*30:
-                vlabel.config(bg='gray40')
             else:
-                vlabel.config(bg='gray87', fg='black')
+                set_backcolor(vlabel, self._black)
         self._watch = newwatch
         self.printdebug('newwatch has %s items' % len(newwatch))
 
@@ -417,7 +496,7 @@ class Monitor(BaseCacheClient):
                     field['value'] = None
                     field['time'] = 0
                     field['ttl'] = 0
-                    field['valuevar'].set('----')
+                    field['valuelabel'].setText('----')
                 else:
                     oldvalue = field['value']
                     if oldvalue != value:
@@ -426,51 +505,19 @@ class Monitor(BaseCacheClient):
                     field['time'] = time
                     field['ttl'] = ttl
                     try:
-                        field['valuevar'].set(field['format'] % value)
+                        field['valuelabel'].setText(field['format'] % value)
                     except Exception:
-                        field['valuevar'].set(str(value))
+                        field['valuelabel'].setText(str(value))
             elif key == field['statuskey']:
                 field['status'] = value
             elif key == field['unitkey']:
                 field['unit'] = value
                 if value:
-                    field['namevar'].set(field['name'] + ' (%s)' % value)
+                    field['namelabel'].setText(' ' + field['name'] + ' (%s) ' % value)
             elif key == field['formatkey']:
                 field['format'] = value
                 if field['value'] is not None:
                     try:
-                        field['valuevar'].set(field['format'] % field['value'])
+                        field['valuelabel'].setText(field['format'] % field['value'])
                     except Exception:
-                        field['valuevar'].set(str(field['value']))
-
-        return   # for now; hiding/showing blocks is too slow!
-
-        # show/hide blocks, but only if something changed
-        if not self._watch:
-            return
-        for column in self._layout:
-            refresh = False
-            for block in column:
-                valid_data = False
-                for row in block[1]:
-                    if row:
-                        for field in row:
-                            if field['valuevar'] and \
-                                   field['valuevar'].get() != '----':
-                                valid_data = True
-                if valid_data and not block[0]['visible']:
-                    # we have data, but don't show it -> switch on
-                    refresh = True
-                    block[0]['visible'] = True
-                elif not valid_data and block[0]['visible']:
-                    # we have no data, but show it -> switch off
-                    refresh = True
-                    block[0]['visible'] = False
-            if refresh:     # if we need to refresh this column
-                for block in column:        # hide all
-                    block[0]['labelframe'].pack_forget()
-                for block in column:        # display needed
-                    if block[0]['visible']:
-                        block[0]['labelframe'].pack(
-                            ipadx=self.padding, ipady=self.padding,
-                            pady=self.padding, side=TOP)
+                        field['valuelabel'].setText(str(field['value']))
