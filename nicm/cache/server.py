@@ -44,7 +44,7 @@ from time import time as currenttime, sleep, localtime, strftime, mktime
 
 from nicm import nicos, loggers
 from nicm.device import Device, Param
-from nicm.utils import listof, existingdir
+from nicm.utils import listof, existingdir, intrange
 from nicm.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT, \
      OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, OP_TELLOLD, Entry, \
      dump_entries, load_entries
@@ -380,6 +380,15 @@ class DbCacheDatabase(MemoryCacheDatabase):
                            type=str, mandatory=True),
         'maxcached': Param('Maximum number of entries cached in memory',
                            type=int, default=200),
+        'granularity': Param('For debugging purposes', type=intrange(3, 7),
+                             default=3),
+    }
+
+    intervals = {
+        3: 86400,
+        4: 3600,
+        5: 60,
+        6: 1,
     }
 
     def doInit(self):
@@ -388,28 +397,33 @@ class DbCacheDatabase(MemoryCacheDatabase):
         self._arctime = {}
         self._lock = threading.Lock()
         self._max = self.maxcached
+        # the granularity determines how many elements of the time tuple make up
+        # the key for a single database file; usually it is 3, meaning that
+        # there is one database file per day (values > 3 are only supported for
+        # debugging the database class)
+        self._gran = self.granularity
+        self._storefmt = '%04d' + '-%02d' * (self._gran - 1)
         # keep open two stores: this day's, and the previous day's
         time = currenttime()
-        self._currday = localtime(time)[:3]          # current day
-        self._prevday = localtime(time - 86400)[:3]  # previous day
-        self._midnight = mktime(self._currday + (0, 0, 0, 0, 0, 0))
-        self._currstore = self._open_store(self._currday)
-        self._prevstore = self._open_store(self._prevday)
+        self._currday = localtime(time)[:self._gran]
+        self._prevday = localtime(time - self.intervals[self._gran])[:self._gran]
+        self._midnight = mktime(self._currday + (0,) * (9 - self._gran))
+        self._nextmidnight = self._midnight + self.intervals[self._gran]
         self._store_lock = threading.Lock()
-        # read current day's entries from disk
-        nentries = 0
+        with self._store_lock:
+            self._currstore = self._open_store(self._currday)
+            self._prevstore = self._open_store(self._prevday)
+        # read the last entry for each key from disk
         nkeys = 0
-        toload = int(self._max / 2)
         with self._lock:
             with self._store_lock:
                 for key in self._currstore:
-                    entries = load_entries(self._currstore[key])[-toload:]
-                    self._db[key] = entries
-                    self._arctime[key] = entries[-1].time
-                    nentries += len(entries)
-                    nkeys += 1
-        self.printinfo('loaded %d entries for %d keys from store' %
-                       (nentries, nkeys))
+                    entries = load_entries(self._currstore[key])[-1:]
+                    if entries:
+                        self._db[key] = entries
+                        self._arctime[key] = entries[-1].time
+                        nkeys += 1
+        self.printinfo('loaded %d keys from store' % nkeys)
 
     def doShutdown(self):
         # write remaining unarchived entries to disk
@@ -420,33 +434,38 @@ class DbCacheDatabase(MemoryCacheDatabase):
                     self._archive(key, entries)
                     nentries += len(entries)
         self.printinfo('archived %d entries on shutdown' % nentries)
-        self._close_store(self._currday)
-        self._close_store(self._prevday)
+        with self._store_lock:
+            self._close_store(self._currday)
+            self._close_store(self._prevday)
 
     def _open_store(self, ymd):
         if ymd in self._stores:
             self._stores[ymd][1] += 1
+            self.printdebug('incremented use count for store %s' % (ymd,))
             return self._stores[ymd][0]
-        path = os.path.join(self.storepath, '%04d-%02d-%02d' % ymd)
+        path = os.path.join(self.storepath, self._storefmt % ymd)
         db = bsddb.hashopen(path, 'c')
+        self.printdebug('opened new store for %s' % (ymd,))
         self._stores[ymd] = [db, 1]
         return db
 
     def _close_store(self, ymd):
         info = self._stores[ymd]
         info[1] -= 1
+        self.printdebug('decremented use count for store %s' % (ymd,))
         if info[1] == 0:
             db = self._stores.pop(ymd)[0]
             db.sync()
             db.close()
+            self.printdebug('closed store for %s' % (ymd,))
 
     def _archive(self, key, entries):
         """Archive entries to the store(s).  Must be called with the store
         lock held.
         """
-        newday = localtime()[:3]
         # midnight is past: change stores
-        if newday != self._currday:
+        if currenttime() > self._nextmidnight:
+            newday = localtime()[:self._gran]
             # close previous day's store
             self._close_store(self._prevday)
             # this day's store is now previous day's
@@ -455,7 +474,8 @@ class DbCacheDatabase(MemoryCacheDatabase):
             # set the days and midnight time correctly
             self._prevday = self._currday
             self._currday = newday
-            self._midnight = mktime(self._currday + (0, 0, 0, 0, 0, 0))
+            self._midnight = mktime(self._currday + (0,) * (9 - self._gran))
+            self._nextmidnight = self._midnight + self.intervals[self._gran]
         # divide the entries in two lists: those belonging to the previous
         # day, and those for the current day
         prev, curr = [], []
@@ -488,7 +508,11 @@ class DbCacheDatabase(MemoryCacheDatabase):
             if key not in self._db:
                 return []
             entries = self._db[key]
-        # XXX check stores too
+        if t1 < entries[0].time:
+            # need to check in database files
+            #with self._store_lock:
+            #    self.
+            pass
         for entry in entries:
             if t1 <= entry.time < t2:
                 if entry.ttl:
