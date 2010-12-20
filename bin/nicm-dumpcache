@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+
+import sys
+import bsddb
+import getopt
+from time import localtime, strftime
+
+from nicm.cache.utils import load_entries
+
+def dump(key, bytes, human):
+    entries = load_entries(bytes)
+    for entry in entries:
+        if human:
+            micro = int((entry.time % 1) * 1000)
+            time = strftime('%H:%M:%S', localtime(entry.time)) + ',%03d' % micro
+        else:
+            time = '%.3f' % entry.time
+        print '%-30s %13s  %5s   %s' % (key, time, entry.ttl, entry.value)
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:], 'h')
+except getopt.error:
+    print >>sys.stderr, 'Usage: nicm-dumpcache [-h] storefile [key]'
+    sys.exit(1)
+
+if len(args) == 0:
+    print >>sys.stderr, 'Usage: nicm-dumpcache [-h] storefile [key]'
+    sys.exit(1)
+elif len(args) > 1:
+    key = args[1]
+else:
+    key = None
+
+human = False
+for opt, arg in opts:
+    if opt == '-h':
+        human = True
+
+cachefile = args[0]
+cache = bsddb.hashopen(cachefile, 'r')
+
+if key is not None:
+    dump(key, cache[key], human)
+else:
+    for key in cache:
+        dump(key, cache[key], human)
+        print

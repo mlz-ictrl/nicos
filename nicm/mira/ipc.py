@@ -276,6 +276,7 @@ class Motor(NicmMotor):
             bus.send(self.addr, 35)
         else:
             bus.send(self.addr, 34)
+        # XXX handle limit switch touch
         bus.send(self.addr, 46, abs(diff), 6)
 
     def doReset(self):
