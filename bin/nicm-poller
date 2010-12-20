@@ -3,6 +3,7 @@
 import os
 import sys
 import time
+import errno
 import signal
 import subprocess
 
@@ -26,23 +27,32 @@ if len(sys.argv) == 1:
     # master process
 
     def quit_handler(signum, frame):
-        for child in processes:
-            os.kill(child, signum)
-        sys.exit()
+        for pid in processes:
+            os.kill(pid, signum)
     signal.signal(signal.SIGINT, quit_handler)   # control-c
     signal.signal(signal.SIGTERM, quit_handler)  # terminate
 
-    processes = []
+    processes = {}
     for processname in poller.processes:
-        proc = subprocess.Popen([sys.executable, sys.argv[0], processname])
-        processes.append(proc.pid)
+        nicos.log.info('starting %s poller' % processname)
+        process = subprocess.Popen([sys.executable, sys.argv[0], processname])
+        processes[process.pid] = (process, processname)
 
     # write the master process pidfile
     writePidfile('poller')
 
-    # wait for anything interesting to happen
-    while True:
-        time.sleep(1)
+    # wait for all children to terminate
+    for process, processname in processes.values():
+        while True:
+            try:
+                process.wait()
+            except OSError, err:
+                if err.errno == errno.EINTR:
+                    continue
+                raise
+            break
+        nicos.log.info('%s poller terminated' % processname)
+    nicos.log.info('all pollers terminated')
 else:
     # poller child process
 
