@@ -33,11 +33,13 @@ name = 'setup for the cache server'
 group = 'special'
 
 devices = dict(
-    DB = device('nicm.cache.server.CacheDatabase',
+    DB = device('nicm.cache.server.DbCacheDatabase',
+                datadir = '/tmp/cache',
+                maxentries = 5,
                 ),
 
     Server = device('nicm.cache.server.CacheServer',
-                   db='DB',
-                   defaultport=14869,
-                   clusterlist=['127.0.0.1']),
+                   db = 'DB',
+                   defaultport = 14869,
+                   clusterlist = ['127.0.0.1']),
 )

@@ -102,13 +102,17 @@ devices = dict(
                       unit = 'A-1',
                       base = 'mono',
                       tas = 'tas',
-                      opmode = 'CKI'),
+                      opmode = 'CKI',
+                      absmin = 0,
+                      absmax = 10),
 
     kf       = device('nicm.tas.Wavevector',
                       unit = 'A-1',
                       base = 'ana',
                       tas = 'tas',
-                      opmode = 'CKF'),
+                      opmode = 'CKF',
+                      absmin = 0,
+                      absmax = 10),
 
     # -- miscellaneous axes ---------------------------------------------------
 
@@ -143,12 +147,14 @@ devices = dict(
                       absmax = 100,
                       usermin = 0,
                       usermax = 50,
+                      precision = 0,
                       pollinterval = 0.5),
 
     a2       = device('nicm.axis.Axis',
                       motor = 'm2',
                       coder = 'm2',
                       obs = [],
+                      precision = 0,
                       absmin = 0,
                       absmax = 100),
 
