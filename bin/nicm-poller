@@ -26,32 +26,69 @@ except (ConfigurationError, UsageError), err:
 if len(sys.argv) == 1:
     # master process
 
+    stoprequest = False
+    processes = {}
+
+    def why(status):
+        if os.WIFSIGNALED(status):
+            signum = os.WTERMSIG(status)
+            try:
+                signame = [name for name in dir(signal) if name.startswith('SIG')
+                           and getattr(signal, name) == signum][0]
+            except IndexError:
+                signame = 'signal %d' % signum
+            return signame
+        else:
+            return 'exit code %d' % os.WEXITSTATUS(status)
+
     def quit_handler(signum, frame):
+        global stoprequest
+        stoprequest = True
         for pid in processes:
-            os.kill(pid, signum)
+            try:
+                os.kill(pid, signum)
+            except OSError, err:
+                if err.errno == errno.ESRCH:
+                    # process was already terminated
+                    continue
+                raise
     signal.signal(signal.SIGINT, quit_handler)   # control-c
     signal.signal(signal.SIGTERM, quit_handler)  # terminate
 
-    processes = {}
-    for processname in poller.processes:
-        nicos.log.info('starting %s poller' % processname)
+    def start_process(processname):
         process = subprocess.Popen([sys.executable, sys.argv[0], processname])
-        processes[process.pid] = (process, processname)
+        processes[process.pid] = processname
+        nicos.log.info('started %s poller, PID %s' % (processname, process.pid))
+
+    for processname in poller.processes:
+        start_process(processname)
 
     # write the master process pidfile
     writePidfile('poller')
 
-    # wait for all children to terminate
-    for process, processname in processes.values():
-        while True:
-            try:
-                process.wait()
-            except OSError, err:
-                if err.errno == errno.EINTR:
-                    continue
-                raise
-            break
-        nicos.log.info('%s poller terminated' % processname)
+    # wait for children to terminate; restart them if necessary
+    while True:
+        try:
+            pid, ret = os.wait()
+        except OSError, err:
+            if err.errno == errno.EINTR:
+                # raised when the signal handler is fired
+                continue
+            elif err.errno == errno.ECHILD:
+                # no further child processes found
+                break
+            raise
+        else:
+            # a process exited; restart if necessary
+            processname = processes[pid]
+            if not stoprequest:
+                nicos.log.warning('%s poller terminated with %s, restarting' %
+                                  (processname, why(ret)))
+                del processes[pid]
+                start_process(processname)
+            else:
+                nicos.log.info('%s poller terminated with %s' %
+                               (processname, why(ret)))
     nicos.log.info('all pollers terminated')
 else:
     # poller child process
