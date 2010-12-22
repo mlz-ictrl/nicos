@@ -46,7 +46,7 @@ from nicm.device import Device, Param
 from nicm.errors import ModeError, UsageError
 from nicm.instrument import Instrument
 from nicm.experiment import Experiment
-from nicm.cache.client import CacheClient
+from nicm.cache.client import CacheClient, CacheLockError
 
 
 EXECUTIONMODES = ['master', 'slave', 'simulation', 'maintenance']
@@ -78,7 +78,8 @@ class System(Device):
 
     def doShutdown(self):
         if self.mode == 'master':
-            self._cache.releaseMaster()
+            self._cache._ismaster = False
+            self._cache.unlock('master')
 
     @property
     def cache(self):
@@ -111,18 +112,19 @@ class System(Device):
             if not self._cache:
                 raise ModeError('no cache present, cannot get master lock')
             self.printinfo('checking master status...')
-            entry = self._cache.getMaster()
-            if entry:
-                if entry[0] != nicos.sessionid:
-                    if entry[1] + entry[2] >= time.time():
-                        raise ModeError('another master is already active: %s' %
-                                        sessionInfo(entry[0]))
-            self._cache.setMaster()
+            try:
+                self._cache.lock('master')
+            except CacheLockError, err:
+                raise ModeError('another master is already active: %s' %
+                                sessionInfo(err.locked_by))
+            else:
+                self._cache._ismaster = True
         elif mode in ['slave', 'maintenance']:
             # switching from master to slave or to maintenance
             if not self._cache:
                 raise ModeError('no cache present, cannot release master lock')
             self._cache._ismaster = False
+            self._cache.unlock('master')
         for dev in nicos.devices.itervalues():
             dev._setMode(mode)
         if mode == 'simulation':

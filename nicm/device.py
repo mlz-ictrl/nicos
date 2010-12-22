@@ -41,7 +41,7 @@ from nicm import nicos
 from nicm import status, loggers
 from nicm.utils import AutoPropsMeta, Param, getVersions
 from nicm.errors import ConfigurationError, ProgrammingError, UsageError, \
-     LimitError, FixedError, ModeError
+     LimitError, FixedError, ModeError, CommunicationError, CacheLockError
 
 
 class Device(object):
@@ -320,6 +320,28 @@ class Device(object):
             code.append('%s.%s = %r\n' %
                         (self.name, param, self.getPar(param)))
         return ''.join(code)
+
+    def _cachelock_acquire(self, timeout=3):
+        if not self._cache:
+            return
+        start = currenttime()
+        while True:
+            try:
+                self._cache.lock(self.name)
+            except CacheLockError:
+                if currenttime() > start + timeout:
+                    raise CommunicationError(self, 'device locked in cache')
+                sleep(0.1)
+            else:
+                break
+
+    def _cachelock_release(self):
+        if not self._cache:
+            return
+        try:
+            self._cache.unlock(self.name)
+        except CacheLockError:
+            raise CommunicationError(self, 'device locked by other instance')
 
 
 class Readable(Device):

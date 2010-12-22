@@ -43,8 +43,9 @@ from time import sleep, time as currenttime
 
 from nicm import nicos
 from nicm.device import Device, Param
-from nicm.cache.utils import msg_pattern, line_pattern, cache_load, \
-     DEFAULT_CACHE_PORT, OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, cache_dump
+from nicm.errors import ProgrammingError, CacheLockError
+from nicm.cache.utils import msg_pattern, line_pattern, cache_load, cache_dump, \
+     DEFAULT_CACHE_PORT, OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, OP_LOCK
 
 BUFSIZE = 8192
 
@@ -237,37 +238,22 @@ class CacheClient(BaseCacheClient):
         BaseCacheClient.doInit(self)
         self._db = {}
         self._worker.start()
-        # the execution master lock
+        # the execution master lock needs to be refreshed every now and then
         self._ismaster = False
-        self._mastermsg = '+%s@%s/master="%s"\r\n' % (
-            3*self._selecttimeout, self._prefix, nicos.sessionid)
         self._master_expires = 0
+        self._mastertimeout = self._selecttimeout * 10
 
     def _wait_data(self):
         if self._ismaster:
             time = currenttime()
             if time > self._master_expires:
-                self._master_expires = time + self._selecttimeout
-                self._queue.put(self._mastermsg)
-
-    def getMaster(self):
-        self._startup_done.wait()
-        return self._db.get('master')
-
-    def setMaster(self):
-        self._queue.put(self._mastermsg)
-        self._ismaster = True
-
-    def releaseMaster(self):
-        self._queue.put('%s/master=\r\n' % self._prefix)
-        self._ismaster = False
+                self._master_expires = time + self._mastertimeout - 1
+                self.lock('master', self._mastertimeout)
 
     def _handle_msg(self, time, ttl, tsop, key, op, value):
         if op != OP_TELL or not key.startswith(self._prefix):
             return
         key = key[len(self._prefix)+1:]
-        if key == 'master':
-            self._ismaster = value == '"' + nicos.sessionid + '"'
         #self.printdebug('got %s=%s' % (key, value))
         if value is None:
             self._db.pop(key, None)
@@ -305,35 +291,27 @@ class CacheClient(BaseCacheClient):
         self.printdebug('invalidating %s' % dbkey)
         self._db.pop(dbkey, None)
 
-    def history(self, dev, key, fromtime, totime):
-        """History query: opens a separate connection since it is otherwise not
-        possible to determine which response lines belong to it.
-        """
+    def _single_request(self, tosend, sentinel='\r\n'):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             sock.connect(self._address)
         except Exception, err:
             self.printwarning('unable to connect to %s:%s: %s' %
                               (self._address + (err,)))
-            return None
+            return
 
-        ret = []
         try:
             # write request
-            dbkey = '%s/%s' % (dev.name.lower(), key)
-            tosend = '%s-%s@%s/%s%s\r\n###?\r\n' % (fromtime, totime,
-                                                    self._prefix, dbkey, OP_ASK)
             while tosend:
                 sent = sock.send(tosend)
                 tosend = tosend[sent:]
 
             # read response
             data, n = '', 0
-            while not data.endswith('###!\r\n') and n < 100:
+            while not data.endswith(sentinel) and n < 100:
                 data += sock.recv(BUFSIZE)
                 n += 1
 
-            # process data
             match = line_pattern.match(data)
             while match:
                 line = match.group(1)
@@ -342,42 +320,46 @@ class CacheClient(BaseCacheClient):
                 if not msgmatch:
                     # ignore invalid lines
                     continue
-                time, ttl, value = msgmatch.group('time'), msgmatch.group('ttl'), \
-                                   msgmatch.group('value')
-                ret.append((float(time), ttl and float(ttl), cache_load(value)))
-                # continue loop
+                yield msgmatch
                 match = line_pattern.match(data)
-
-            del ret[-1]
-
-        except Exception:
-            raise
-            ret = None
         finally:
             try:
                 sock.shutdown(socket.SHUT_RDWR)
                 sock.close()
             except Exception:
                 pass
-            return ret
 
+    def history(self, dev, key, fromtime, totime):
+        """History query: opens a separate connection since it is otherwise not
+        possible to determine which response lines belong to it.
+        """
+        dbkey = '%s/%s' % (dev.name.lower(), key)
+        tosend = '%s-%s@%s/%s%s\r\n###?\r\n' % (fromtime, totime,
+                                                self._prefix, dbkey, OP_ASK)
+        ret = []
+        for msgmatch in self._single_request(tosend, '###!\r\n'):
+            # process data
+            time, ttl, value = msgmatch.group('time'), msgmatch.group('ttl'), \
+                               msgmatch.group('value')
+            ret.append((float(time), ttl and float(ttl), cache_load(value)))
+        del ret[-1]
+        return ret
 
-class PollerCacheClient(CacheClient):
-    """
-    A special cache client for pollers that does not receive key updates.
-    """
+    def lock(self, key, ttl=None, unlock=False, sessionid=None):
+        """Locking/unlocking: opens a separate connection."""
+        tosend = '%s/%s%s%s%s\r\n' % (
+            self._prefix, key.lower(), OP_LOCK,
+            unlock and '-' or '+', sessionid or nicos.sessionid)
+        if ttl is not None:
+            tosend = ('+%s@' % ttl) + tosend
+        for msgmatch in self._single_request(tosend):
+            if msgmatch.group('value'):
+                raise CacheLockError(msgmatch.group('value'))
+            return
+        else:
+            # no response received; let's assume standalone mode
+            self.printwarning('allowing lock/unlock operation without cache '
+                              'connection')
 
-    def _connect_action(self):
-        # request all keys and updates once, but don't subscribe
-        tosend = '@%s\r\n###?\r\n' % OP_WILDCARD
-        while tosend:
-            sent = self._socket.send(tosend)
-            tosend = tosend[sent:]
-
-        # read response
-        data, n = '', 0
-        while not data.endswith('###!\r\n') and n < 100:
-            data += self._socket.recv(BUFSIZE)
-            n += 1
-
-        self._process_data(data)
+    def unlock(self, key, sessionid=None):
+        return self.lock(key, ttl=None, unlock=True, sessionid=sessionid)

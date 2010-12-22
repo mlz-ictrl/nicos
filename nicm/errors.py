@@ -83,3 +83,8 @@ class TimeoutError(CommunicationError):
 
 class ComputationError(NicmError):
     category = 'Computation error'
+
+class CacheLockError(ProgrammingError):
+    def __init__(self, locked_by):
+        self.locked_by = locked_by
+        ProgrammingError.__init__(self, 'locked by ' + locked_by)

@@ -44,10 +44,11 @@ from itertools import chain
 from time import time as currenttime, sleep, localtime, strftime, mktime
 
 from nicm import nicos, loggers
-from nicm.device import Device, Param
 from nicm.utils import listof, existingdir, intrange
+from nicm.device import Device, Param
+from nicm.errors import ConfigurationError
 from nicm.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT, \
-     OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, OP_TELLOLD, Entry, \
+     OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, OP_TELLOLD, OP_LOCK, Entry, \
      dump_entries, load_entries
 
 
@@ -145,7 +146,10 @@ class CacheWorker(object):
                     self.log.info('got empty line, closing connection')
                     self.closedown()
                     return
-                ret = self._handle_line(line)
+                try:
+                    ret = self._handle_line(line)
+                except Exception, err:
+                    self.log.warning('error handling line %r' % line, exc=err)
                 #self.log.debug('return is %r' % ret)
                 if ret:
                     self.writeto(''.join(ret))
@@ -215,9 +219,10 @@ class CacheWorker(object):
             else:
                 self.updates_on.add(key)
         elif op == OP_TELLOLD:
-            # the server gets a TELLOLD only for cluster subscriptions;
-            # these can be ignored since we can figure out timeouts ourselves
+            # the server shouldn't get TELLOLD
             pass
+        elif op == OP_LOCK:
+            return self.db.lock(key, value, time, ttl)
 
     def is_active(self):
         return not self.stoprequest and self.worker.isAlive()
@@ -291,7 +296,9 @@ class CacheWorker(object):
 class CacheDatabase(Device):
 
     def doInit(self):
-        raise NotImplementedError('CacheDatabase is an abstract class')
+        raise ConfigurationError(
+            'CacheDatabase is an abstract class, use '
+            'either MemoryCacheDatabase or DbCacheDatabase')
 
 
 class MemoryCacheDatabase(CacheDatabase):
@@ -301,10 +308,12 @@ class MemoryCacheDatabase(CacheDatabase):
 
     def doInit(self):
         self._db = {}
-        self._lock = threading.Lock()
+        self._db_lock = threading.Lock()
+        self._locks = {}
+        self._lock_lock = threading.Lock()
 
     def ask(self, key, ts, time, ttl):
-        with self._lock:
+        with self._db_lock:
             if key not in self._db:
                 return [key + OP_TELLOLD + '\r\n']
             lastent = self._db[key][-1]
@@ -328,7 +337,7 @@ class MemoryCacheDatabase(CacheDatabase):
 
     def ask_wc(self, key, ts, time, ttl):
         ret = set()
-        with self._lock:
+        with self._db_lock:
             # look for matching keys
             for dbkey, entries in self._db.iteritems():
                 if key not in dbkey:
@@ -358,7 +367,7 @@ class MemoryCacheDatabase(CacheDatabase):
             # deletes cannot have a TTL
             ttl = None
         send_update = True
-        with self._lock:
+        with self._db_lock:
             entries = self._db.setdefault(key, [])
             if entries:
                 lastent = entries[-1]
@@ -371,6 +380,39 @@ class MemoryCacheDatabase(CacheDatabase):
             for client in self._server._connected.values():
                 if client is not from_client and client.is_active():
                     client.update(key, OP_TELL, value, time, ttl)
+
+    def lock(self, key, value, time, ttl):
+        with self._lock_lock:
+            entry = self._locks.get(key)
+            # want to lock?
+            req, client_id = value[0], value[1:]
+            if req == '+':
+                if entry and entry.value != client_id and \
+                     (not entry.ttl or entry.time + entry.ttl >= currenttime()):
+                    # still locked by different client, deny (tell the client
+                    # the current client_id though)
+                    self.printdebug('lock request %s=%s, but still locked by %s'
+                                    % (key, client_id, entry.value))
+                    return '%s%s%s\r\n' % (key, OP_LOCK, entry.value)
+                else:
+                    # not locked, expired or locked by same client, overwrite
+                    self.printdebug('lock request %s=%s ttl %s, accepted' %
+                                    (key, client_id, ttl))
+                    self._locks[key] = Entry(time, ttl, client_id)
+                    return '%s%s\r\n' % (key, OP_LOCK)
+            # want to unlock?
+            elif req == '-':
+                if entry and entry.value != client_id:
+                    # locked by different client, deny
+                    self.printdebug('unlock request %s=%s, but locked by %s'
+                                    % (key, client_id, entry.value))
+                    return '%s%s%s\r\n' % (key, OP_LOCK, entry.value)
+                else:
+                    # unlocked or locked by same client, allow
+                    self.printdebug('unlock request %s=%s, accepted'
+                                    % (key, client_id))
+                    self._locks.pop(key, None)
+                    return '%s%s\r\n' % (key, OP_LOCK)
 
 
 class DbCacheDatabase(MemoryCacheDatabase):
@@ -393,8 +435,7 @@ class DbCacheDatabase(MemoryCacheDatabase):
     }
 
     def doInit(self):
-        self._db = {}
-        self._lock = threading.Lock()
+        MemoryCacheDatabase.doInit(self)
         # stores timestamp of the last archived entry for all keys
         self._arctime = {}
         # maps (y, m, d) tuples to bsddb stores
@@ -418,7 +459,7 @@ class DbCacheDatabase(MemoryCacheDatabase):
             self._prevstore = self._open_store(self._prevday)
         # read the last entry for each key from disk
         nkeys = 0
-        with self._lock:
+        with self._db_lock:
             with self._store_lock:
                 for key in self._currstore:
                     entries = load_entries(self._currstore[key])[-1:]
@@ -431,7 +472,7 @@ class DbCacheDatabase(MemoryCacheDatabase):
     def doShutdown(self):
         # write remaining unarchived entries to disk
         nentries = 0
-        with self._lock:
+        with self._db_lock:
             with self._store_lock:
                 for key, entries in self._db.iteritems():
                     self._archive(key, entries)
@@ -507,7 +548,7 @@ class DbCacheDatabase(MemoryCacheDatabase):
 
     def ask_hist(self, key, t1, t2):
         ret = []
-        with self._lock:
+        with self._db_lock:
             if key not in self._db:
                 return []
             entries = self._db[key]
@@ -537,7 +578,7 @@ class DbCacheDatabase(MemoryCacheDatabase):
             # deletes cannot have a TTL
             ttl = None
         send_update = True
-        with self._lock:
+        with self._db_lock:
             entries = self._db.setdefault(key, [])
             if entries:
                 lastent = entries[-1]
@@ -562,9 +603,8 @@ class CacheServer(Device):
     """
 
     parameters = {
-        'defaultport': Param('The default server port',
-                             type=int, default=DEFAULT_CACHE_PORT),
-        'clusterlist': Param('List of cluster connections', type=listof(str)),
+        'server':      Param('Address to bind to (host or host:port)', type=str,
+                             mandatory=True),
     }
 
     attached_devices = {
@@ -589,7 +629,7 @@ class CacheServer(Device):
         def bind_to(address, type='tcp'):
             if ':' not in address:
                 host = address
-                port = self.defaultport
+                port = DEFAULT_CACHE_PORT
             else:
                 host, port = address.split(':')
                 port = int(port)
@@ -608,25 +648,8 @@ class CacheServer(Device):
                 serversocket.close()
                 return None             # failed, return None as indicator
 
-        def connect_to(address):
-            if ':' not in address:
-                host = address
-                port = self.defaultport
-            else:
-                host, port = address.split(':')
-                port = int(port)
-            # open TCP client socket
-            clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            clientsocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            try:
-                clientsocket.connect((socket.gethostbyname(host), port))
-                return clientsocket
-            except:
-                clientsocket.close()
-                return None
-
         # now try to bind to one, include 'MUST WORK' standalone names
-        for server in self.clusterlist + [socket.getfqdn(), socket.gethostname()]:
+        for server in [self.server, socket.getfqdn(), socket.gethostname()]:
             self.printdebug('trying to bind to ' + server)
             self._serversocket = bind_to(server)
             if self._serversocket:
@@ -651,35 +674,10 @@ class CacheServer(Device):
             for addr, client in self._connected.items():
                 if client:
                     if not client.is_active(): # dead or stopped
-                        if addr in self.clusterlist:
-                            self.printwarning('cluster connection to '
-                                              '%s died' % addr)
-                        else:
-                            self.printinfo('client connection from '
-                                           '%s died' % addr)
+                        self.printinfo('client connection %s closed' % addr)
                         client.closedown()
                         client.worker.join() # wait for thread to end
                         del self._connected[addr]
-            # check connections to cluster members
-            for addr in self.clusterlist:
-                if addr != self._boundto and addr not in self._connected:
-                    # don't connect to self, only reconnect if not
-                    # already connected
-                    conn = connect_to(addr)
-                    if not conn:
-                        continue
-                    # connect to cluster member, send QUERY-ALL and
-                    # SUBSCRIBE-ALL, also put SUBSCRIBE-ALL into our
-                    # input-buffer so we will update the cluster
-                    # about local changes...
-                    initstr = '@%s\r\n@%s\r\n' % (OP_WILDCARD, OP_SUBSCRIBE)
-                    client = CacheWorker(
-                        db=self._adevs['db'], connection=conn, name=addr,
-                        initstring=initstr, initdata=initstr,
-                        loglevel=self.loglevel)
-                    self._connected[addr] = client
-                    self.printinfo('(re-)connected to clusternode %s, '
-                                   'syncing' % addr)
 
             # now check for additional incoming connections
             # build list of things to ckeck
@@ -692,12 +690,12 @@ class CacheServer(Device):
             res = select.select(selectlist, [], [], 1)  # timeout 1 second
             if not res[0]:
                 continue  # nothing to read -> continue loop
+            # TODO: check address for tcp and udp, currently all are allowed....
             if self._serversocket in res[0] and not self._stoprequest:
                 # TCP connection came in
                 conn, addr = self._serversocket.accept()
                 addr = 'tcp://%s:%d' % addr
                 self.printinfo('new connection from %s' % addr)
-                # TODO: check addr, currently all are allowed....
                 self._connected[addr] = CacheWorker(
                     self._adevs['db'], conn, name=addr, loglevel=self.loglevel)
             elif self._serversocket_udp in res[0] and not self._stoprequest:
@@ -705,7 +703,6 @@ class CacheServer(Device):
                 data, addr = self._serversocket_udp.recvfrom(3072)
                 nice_addr = 'udp://%s:%d' % addr
                 self.printinfo('new connection from %s' % nice_addr)
-                # TODO: check addr, currently all are allowed....
                 conn = CacheUDPConnection(self._serversocket_udp, addr,
                                           log=self.printdebug)
                 self._connected[nice_addr] = CacheWorker(

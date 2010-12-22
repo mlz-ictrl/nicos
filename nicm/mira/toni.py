@@ -178,18 +178,18 @@ class Crate(Device, IsegConnector):
 
     def lockChannel(self, channel):
         assert 0 <= channel <= 2
-        self._lock.acquire()
+        self._cachelock_acquire()
         try:
             ret = self._adevs['bus'].communicate('C%d' % channel, self.addr)
             if ret != 'OK':
                 raise CommunicationError('could not select crate channel')
         except:
             # release lock only if this method raises an exception
-            self._lock.release()
+            self._cachelock_release()
             raise
 
     def unlockChannel(self):
-        self._lock.release()
+        self._cachelock_release()
 
     def communicate(self, msg, rlen):
         bus = self._adevs['bus']
