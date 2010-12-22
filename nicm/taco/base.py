@@ -150,8 +150,10 @@ class TacoDevice(object):
 
         try:
             dev = class_(devname)
+            dev.deviceVersion()
         except TACOError, err:
-            self._raise_taco(err, 'Could not connect to device %r' % devname)
+            self._raise_taco(err, 'Could not connect to device %r; make sure '
+                             'the device server is running' % devname)
 
         try:
             if timeout != 0:
@@ -226,7 +228,7 @@ class TacoDevice(object):
         tb = sys.exc_info()[2]
         code = err.errcode
         cls = NicmError
-        if code in (2, 16):
+        if code in (2, 16, 4019):
             # client call timeout or no network manager
             cls = CommunicationError
         elif 401 <= code < 499:
