@@ -89,10 +89,10 @@ class Poller(Device):
         errcount = 0
         orig_interval = interval
         while not self._stoprequest:
-            self.printdebug('polling %s' % dev)
             try:
-                dev.status()
-                dev.read()
+                stval, rdval = dev._poll()
+                self.printdebug('%-10s status = %-25s, value = %s' %
+                                (dev, stval, rdval))
             except Exception, err:
                 if errcount < 5:
                     # only print the warning the first five times

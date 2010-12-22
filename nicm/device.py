@@ -35,7 +35,7 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import time
+from time import time as currenttime, sleep
 
 from nicm import nicos
 from nicm import status, loggers
@@ -373,11 +373,9 @@ class Readable(Device):
         if not self._cache:
             return func()
         val = self._cache.get(self, name)
-        #self.printinfo('%r from cache: %s' % (name, val))
         if val is None:
             val = func()
-            self._cache.put(self, name, val, time.time(), self.maxage)
-        #self.printinfo('%r from device: %s' % (name, val))
+            self._cache.put(self, name, val, currenttime(), self.maxage)
         return val
 
     def read(self):
@@ -399,6 +397,17 @@ class Readable(Device):
                                        value[0])
             return value
         return (status.UNKNOWN, 'doStatus not implemented')
+
+    def _poll(self):
+        """Get status and value directly from the device and put both values
+        into the cache.
+        """
+        if hasattr(self, 'doStatus'):
+            stval = self.doStatus()
+            self._cache.put(self, 'status', stval, currenttime(), self.maxage)
+        rdval = self.doRead()
+        self._cache.put(self, 'value', rdval, currenttime(), self.maxage)
+        return stval, rdval
 
     def reset(self):
         """Reset the device hardware.  Return status afterwards."""
