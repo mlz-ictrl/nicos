@@ -34,8 +34,9 @@ group = 'special'
 
 devices = dict(
     DB = device('nicm.cache.server.DbCacheDatabase',
-                datadir = '/tmp/cache',
-                maxentries = 5,
+                storepath = '/tmp/cache',
+                granularity = 5,
+                maxcached = 5,
                 ),
 
     Server = device('nicm.cache.server.CacheServer',

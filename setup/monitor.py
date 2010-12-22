@@ -64,7 +64,7 @@ _layout = [
 ]
 
 devices = dict(
-    Monitor = device('nicm.monitor.Monitor',
+    Monitor = device('nicm.qmonitor.Monitor',
                      title='Status monitor',
                      loglevel='debug',
                      server='localhost:14869',
