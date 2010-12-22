@@ -50,22 +50,15 @@ from nicm.coder import Coder
 from nicm.taco.base import TacoDevice
 
 
-class Axis(Moveable, HasOffset, HasLimits):
+class BaseAxis(Moveable, HasOffset, HasLimits):
     """Base class for all axes."""
 
-    attached_devices = {
-        'motor': Motor,
-        'coder': Coder,
-        'obs':   [Coder],
-    }
-
     parameters = {
-        # TODO: add validation for new parameter values where needed
         'dragerror': Param('The so called \'Schleppfehler\' of the axis',
                            unit='main', default=1, settable=True),
         'precision': Param('Maximum difference between requested target and '
                            'reached position', unit='main', settable=True,
-                           category='general', mandatory=True),
+                           category='general'),
         'maxtries':  Param('Number of tries to reach the target', type=int,
                            default=3, settable=True),
         'loopdelay': Param('The sleep time when checking the movement',
@@ -74,6 +67,24 @@ class Axis(Moveable, HasOffset, HasLimits):
                            settable=True),
         'backlash':  Param('The maximum allowed backlash', unit='main',
                            settable=True),
+    }
+
+
+class Axis(BaseAxis):
+    """An axis implemented in Python, with NICM devices for motor and coders."""
+
+    attached_devices = {
+        'motor': Motor,
+        'coder': Coder,
+        'obs':   [Coder],
+    }
+
+    # TODO: add validation for new parameter values where needed
+
+    parameters = {
+        'precision': Param('Maximum difference between requested target and '
+                           'reached position', unit='main', settable=True,
+                           category='general', mandatory=True),
         # these are not mandatory for the axis: the motor should have them
         # defined anyway, and by default they are correct for the axis as well
         'absmin':    Param('Absolute minimum of device value', unit='main'),
@@ -160,7 +171,7 @@ class Axis(Moveable, HasOffset, HasLimits):
 
     def doRead(self):
         """Returns the current position from coder controller."""
-        self.__checkErrorState()
+        self.__checkErrorState()  # XXX really?
         return self.__read()
 
     def doReset(self):
@@ -339,34 +350,17 @@ class Axis(Moveable, HasOffset, HasLimits):
                     self.__error = 5
 
 
-
-class TacoAxis(TacoDevice, Moveable, HasOffset, HasLimits):
+class TacoAxis(TacoDevice, BaseAxis):
     """Interface for TACO Axis server devices."""
 
     taco_class = TACOMotor
 
-    # these are basically the same parameters as for nicm.axis.Axis, but they
-    # map to TACO resources and are therefore not mandatory
-    parameters = {
-        'speed':     Param('The axis speed', unit='main/s', settable=True),
-        'dragerror': Param('The so called \'Schleppfehler\' of the axis',
-                           unit='main', settable=True),
-        'precision': Param('Maximum difference between requested target and '
-                           'reached position', unit='main', settable=True,
-                           category='general'),
-        'maxtries':  Param('Number of tries to reach the target', type=int,
-                           settable=True),
-        'loopdelay': Param('The sleep time when checking the movement',
-                           unit='s', settable=True),
-        'backlash':  Param('The maximum allowed backlash', unit='main',
-                           settable=True),
-        # these are not mandatory for the axis: the motor should have them
-        # defined anyway, and by default they are correct for the axis as well
-        'absmin':    Param('Absolute minimum of device value', unit='main'),
-        'absmax':    Param('Absolute maximum of device value', unit='main'),
-    }
+    # XXX the usermin/usermax resources of the Taco device are currently not
+    # used or queried at all by this class
 
     def doStart(self, target):
+        # TODO: stop axis if already moving
+        
         self._taco_guard(self._dev.start, target + self.offset)
 
     def doWait(self):
