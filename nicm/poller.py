@@ -56,24 +56,14 @@ class Poller(Device):
     def doInit(self):
         self._stoprequest = False
         self._workers = []
+        self._creation_lock = threading.Lock()
 
     def start(self, process):
         self.printinfo('poller starting')
         devices = self.processes[process]
         for devname in devices:
-            try:
-                dev = nicos.getDevice(devname)
-            except NicmError, err:
-                self.printwarning('error creating %s' % devname, exc=err)
-                continue
-            self.printinfo('starting thread for %s' % dev)
-            interval = dev.pollinterval
-            if interval > 5:
-                sleeper = self._long_sleep
-            else:
-                sleeper = time.sleep
-            worker = threading.Thread(target=self._worker_thread,
-                                      args=(dev, interval, sleeper))
+            self.printinfo('starting thread for %s' % devname)
+            worker = threading.Thread(target=self._worker_thread, args=(devname,))
             worker.setDaemon(True)
             worker.start()
             self._workers.append(worker)
@@ -85,27 +75,42 @@ class Poller(Device):
                 return
             time.sleep(5)
 
-    def _worker_thread(self, dev, interval, sleep):
-        errcount = 0
-        orig_interval = interval
+    def _worker_thread(self, devname):
         while not self._stoprequest:
             try:
-                stval, rdval = dev._poll()
-                self.printdebug('%-10s status = %-25s, value = %s' %
-                                (dev, stval, rdval))
-            except Exception, err:
-                if errcount < 5:
-                    # only print the warning the first five times
-                    self.printwarning('error reading %s' % dev, exc=err)
-                elif errcount == 5:
-                    # make the interval a bit larger
-                    interval *= 5
-                errcount += 1
+                with self._creation_lock:
+                    dev = nicos.getDevice(devname)
+            except NicmError, err:
+                self.printwarning('error creating %s, trying again in %d sec' %
+                                  (devname, 30), exc=err)
+                self._long_sleep(30)
+                continue
             else:
-                if errcount > 0:
-                    interval = orig_interval
+                orig_interval = interval = dev.pollinterval
+                if interval > 5:
+                    sleeper = self._long_sleep
+                else:
+                    sleeper = time.sleep
                 errcount = 0
-            sleep(interval)
+                while not self._stoprequest:
+                    try:
+                        stval, rdval = dev._poll()
+                        self.printdebug('%-10s status = %-25s, value = %s' %
+                                        (dev, stval, rdval))
+                    except Exception, err:
+                        if errcount < 5:
+                            # only print the warning the first five times
+                            self.printwarning('error reading %s' % dev, exc=err)
+                        elif errcount == 5:
+                            # make the interval a bit larger
+                            interval *= 5
+                        errcount += 1
+                    else:
+                        if errcount > 0:
+                            interval = orig_interval
+                        errcount = 0
+                    sleeper(interval)
+                break
 
     def wait(self):
         while not self._stoprequest:
