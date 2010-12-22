@@ -57,62 +57,32 @@ class ModBus(TacoDevice, Device):
         'source':   Param('Source address of host', type=int, default=0),
     }
 
-    def doInit(self):
-        self._lock = threading.RLock()
-
     def _crc(self, str):
         crc = ord(str[0])
         for i in str[1:]:
             crc ^= ord(i)
         return '%02X' % crc
 
-    def read(self, dest):
-        self._lock.acquire()
-        try:
-            tries = self.maxtries
-            while True:
-                try:
-                    ret = self._taco_guard(self._dev.readLine)
-                except NicmError:
-                    if tries == 0:
-                        raise
-                    sleep(0.1)
-                else:
-                    break
-                tries -= 1
-        finally:
-            self._lock.release()
-        crc = self._crc(ret[1:-2])
+    def communicate(self, msg, dest):
+        msg = '%02X%02X%s' % (dest, self.source, msg)
+        msg = '\x02' + msg + self._crc(msg)
+        tries = self.maxtries
+        while True:
+            try:
+                ret = self._taco_guard(self._dev.communicate, msg)
+            except NicmError:
+                if tries == 0:
+                    raise
+                sleep(0.1)
+            else:
+                break
+            tries -= 1
         # check reply for validity
+        crc = self._crc(ret[1:-2])
         if (len(ret) < 8 or ret[0] != '\x02' or ret[5] != '>' or ret[-2:] != crc
               or ret[1:3] != '%02X' % self.source or ret[3:5] != '%02X' % dest):
             raise CommunicationError(self, 'ModBus reply garbled: %r' % ret)
         return ret[6:-2]
-
-    def communicate(self, msg, dest):
-        msg = '%02X%02X%s' % (dest, self.source, msg)
-        msg = '\x02' + msg + self._crc(msg)
-        self._lock.acquire()
-        try:
-            tries = self.maxtries
-            while True:
-                try:
-                    # the result of communicate is the echo
-                    ret = self._taco_guard(self._dev.communicate, msg)
-                    if ret != msg:
-                        raise CommunicationError('ModBus echo garbled: %r' % ret)
-                except NicmError:
-                    if tries == 0:
-                        raise
-                    sleep(0.1)
-                else:
-                    break
-                tries -= 1
-            # wait before reading reply
-            sleep(0.05)
-            return self.read(dest)
-        finally:
-            self._lock.release()
 
 
 class Valve(Moveable):
