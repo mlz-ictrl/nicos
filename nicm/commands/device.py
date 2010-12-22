@@ -37,7 +37,8 @@ __version__ = "$Revision$"
 
 from nicm import nicos
 from nicm.utils import printTable
-from nicm.device import Device, Startable, Moveable, Readable, HasOffset
+from nicm.device import Device, Startable, Moveable, Readable, \
+     HasOffset, HasLimits
 from nicm.errors import NicmError, UsageError
 from nicm.status import statuses
 from nicm.commands import usercommand
@@ -228,6 +229,16 @@ def version(dev):
     versions = dev.version()
     dev.printinfo('Relevant versions for this device:')
     printTable(('module/component', 'version'), versions, printinfo)
+
+@usercommand
+def limits(dev):
+    """Print the limits of the device."""
+    dev = nicos.getDevice(dev, HasLimits)
+    dev.printinfo('Limits for this device:')
+    printinfo('absolute minimum: %s %s' % (dev.format(dev.absmin), dev.unit))
+    printinfo('    user minimum: %s %s' % (dev.format(dev.usermin), dev.unit))
+    printinfo('    user maximum: %s %s' % (dev.format(dev.usermax), dev.unit))
+    printinfo('absolute maximum: %s %s' % (dev.format(dev.absmax), dev.unit))
 
 @usercommand
 def listparams(dev):
