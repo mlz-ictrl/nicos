@@ -38,12 +38,16 @@ __version__ = "$Revision$"
 import time
 import threading
 
+from Motor import Motor as TACOMotor
+import TACOStates
+
 from nicm import status
 from nicm.device import Moveable, HasOffset, HasLimits, Param
 from nicm.errors import ConfigurationError, NicmError, PositionError
 from nicm.errors import ProgrammingError, MoveError, LimitError
 from nicm.motor import Motor
 from nicm.coder import Coder
+from nicm.taco.base import TacoDevice
 
 
 class Axis(Moveable, HasOffset, HasLimits):
@@ -334,3 +338,100 @@ class Axis(Moveable, HasOffset, HasLimits):
                     self.__stopRequest = 1
                     self.__error = 5
 
+
+
+class TacoAxis(TacoDevice, Moveable, HasOffset, HasLimits):
+    """Interface for TACO Axis server devices."""
+
+    taco_class = TACOMotor
+
+    # these are basically the same parameters as for nicm.axis.Axis, but they
+    # map to TACO resources and are therefore not mandatory
+    parameters = {
+        'speed':     Param('The axis speed', unit='main/s', settable=True),
+        'dragerror': Param('The so called \'Schleppfehler\' of the axis',
+                           unit='main', settable=True),
+        'precision': Param('Maximum difference between requested target and '
+                           'reached position', unit='main', settable=True,
+                           category='general'),
+        'maxtries':  Param('Number of tries to reach the target', type=int,
+                           settable=True),
+        'loopdelay': Param('The sleep time when checking the movement',
+                           unit='s', settable=True),
+        'backlash':  Param('The maximum allowed backlash', unit='main',
+                           settable=True),
+        # these are not mandatory for the axis: the motor should have them
+        # defined anyway, and by default they are correct for the axis as well
+        'absmin':    Param('Absolute minimum of device value', unit='main'),
+        'absmax':    Param('Absolute maximum of device value', unit='main'),
+    }
+
+    def doStart(self, target):
+        self._taco_guard(self._dev.start, target + self.offset)
+
+    def doWait(self):
+        while self.doStatus()[0] == status.BUSY:
+            time.sleep(0.1)
+
+    def doRead(self):
+        return self._taco_guard(self._dev.read) - self.offset
+
+    def doReset(self):
+        # XXX is this correct? deviceReset does a reference drive...
+        self._taco_guard(self._dev.deviceInit)
+
+    def doSetPosition(self, target):
+        self._taco_guard(self._dev.setpos, target)
+
+    def doStatus(self):
+        state = self._taco_guard(self._dev.deviceState)
+        if state in (TACOStates.DEVICE_NORMAL, TACOStates.STOPPED):
+            return (status.OK, 'idle')
+        elif state in (TACOStates.MOVING, TACOStates.STOP_REQUESTED):
+            return (status.BUSY, 'moving')
+        else:
+            return (status.ERROR, TACOStates.stateDescription(state))
+
+    def doStop(self):
+        self._taco_guard(self._dev.stop)
+
+    def doReadSpeed(self):
+        return self._taco_guard(self._dev.speed)
+
+    def doWriteSpeed(self, value):
+        self._taco_guard(self._dev.setSpeed, value)
+
+    def doReadDragerror(self):
+        return float(self._taco_guard(
+            self._dev.deviceQueryResource, 'dragerror'))
+
+    def doWriteDragerror(self, value):
+        self._taco_update_resource('dragerror', str(value))
+
+    def doReadPrecision(self):
+        return float(self._taco_guard(
+            self._dev.deviceQueryResource, 'precision'))
+
+    def doWritePrecision(self, value):
+        self._taco_update_resource('precision', str(value))
+
+    def doReadMaxtries(self):
+        return int(self._taco_guard(
+            self._dev.deviceQueryResource, 'maxtries'))
+
+    def doWriteMaxtries(self, value):
+        self._taco_update_resource('maxtries', str(value))
+
+    def doReadLoopdelay(self):
+        return float(self._taco_guard(
+            self._dev.deviceQueryResource, 'loopdelay'))
+
+    def doWriteLoopdelay(self, value):
+        self._taco_update_resource('loopdelay', str(value))
+
+    def doReadBacklash(self):
+        return float(self._taco_guard(
+            self._dev.deviceQueryResource, 'backlash'))
+
+    def doWriteBacklash(self, value):
+        self._taco_update_resource('backlash', str(value))
