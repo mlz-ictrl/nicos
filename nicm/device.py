@@ -424,6 +424,7 @@ class Readable(Device):
         """Get status and value directly from the device and put both values
         into the cache.
         """
+        stval = None
         if hasattr(self, 'doStatus'):
             stval = self.doStatus()
             self._cache.put(self, 'status', stval, currenttime(), self.maxage)
