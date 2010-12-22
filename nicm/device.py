@@ -454,7 +454,7 @@ class Readable(Device):
             if fromtime is None:
                 fromtime = 0
             if totime is None:
-                totime = time.time()
+                totime = currenttime()
             return self._cache.history(self, name, fromtime, totime)
 
     def info(self):
@@ -553,7 +553,7 @@ class Startable(Readable):
             # updated in most cases
             val = self.doRead()
         if self._cache and self._mode != 'slave':
-            self._cache.put(self, 'value', val, time.time(), self.maxage)
+            self._cache.put(self, 'value', val, currenttime(), self.maxage)
         return val
 
     def isAllowed(self, pos):
@@ -708,7 +708,7 @@ class HasOffset(object):
         # the cache instantly here
         if self._cache:
             self._cache.put(self, 'value', self.doRead() - diff,
-                            time.time(), self.maxage)
+                            currenttime(), self.maxage)
 
 
 class Measurable(Startable):
@@ -781,7 +781,7 @@ class Measurable(Startable):
         if self._mode == 'simulation':
             return
         while not self.isCompleted():
-            time.sleep(0.1)
+            sleep(0.1)
 
     def read(self):
         """Return the result of the last measurement."""
