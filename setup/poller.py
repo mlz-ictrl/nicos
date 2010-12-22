@@ -35,10 +35,6 @@ group = 'special'
 includes = ['devices']
 
 devices = dict(
-    Cache = device('nicm.cache.client.PollerCacheClient',
-                   server='localhost:14869',
-                   prefix='nicm/'),
-
     Poller = device('nicm.poller.Poller',
                     processes={'motors': ['a1'], 'detectors': ['det']}),
 )
