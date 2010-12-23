@@ -35,6 +35,4 @@ group = 'startup'
 includes = []
 
 modules = []
-devices = dict(
-    System = device('nicm.system.System', cache=None, sinks=[], datapath='.'),
-)
+devices = dict()

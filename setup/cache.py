@@ -4,7 +4,7 @@
 #   $Id$
 #
 # Description:
-#   NICOS test setup file with a few devices
+#   NICOS test setup file for the cache server
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
@@ -33,14 +33,13 @@ name = 'setup for the cache server'
 group = 'special'
 
 devices = dict(
-    DB = device('nicm.cache.server.DbCacheDatabase',
-                storepath = '/tmp/cache',
-                granularity = 5,
-                maxcached = 5,
-                ),
+    DB     = device('nicm.cache.server.DbCacheDatabase',
+                    storepath = '/tmp/cache',
+                    granularity = 5,
+                    maxcached = 5),
 
     Server = device('nicm.cache.server.CacheServer',
-                   db = 'DB',
-                   defaultport = 14869,
-                   clusterlist = ['127.0.0.1']),
+                    db = 'DB',
+                    server = 'localhost',
+                    loglevel = 'debug'),
 )

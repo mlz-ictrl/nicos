@@ -4,7 +4,7 @@
 #   $Id$
 #
 # Description:
-#   NICOS test setup file with a few devices
+#   NICOS test setup file for the device poller
 #
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
