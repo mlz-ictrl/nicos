@@ -42,7 +42,7 @@ from Motor import Motor as TACOMotor
 import TACOStates
 
 from nicm import status
-from nicm.device import Moveable, HasOffset, HasLimits, Param
+from nicm.device import Moveable, HasOffset, HasLimits, Param, Override
 from nicm.errors import ConfigurationError, NicmError, PositionError
 from nicm.errors import ProgrammingError, MoveError, LimitError
 from nicm.motor import Motor
@@ -63,10 +63,12 @@ class BaseAxis(Moveable, HasOffset, HasLimits):
                            default=3, settable=True),
         'loopdelay': Param('The sleep time when checking the movement',
                            unit='s', default=0.3, settable=True),
-        'unit':      Param('The unit of the axis value', type=str,
-                           settable=True),
         'backlash':  Param('The maximum allowed backlash', unit='main',
                            settable=True),
+    }
+
+    parameter_overrides = {
+        'unit':      Override(mandatory=False, settable=True),
     }
 
 
@@ -81,14 +83,12 @@ class Axis(BaseAxis):
 
     # TODO: add validation for new parameter values where needed
 
-    parameters = {
-        'precision': Param('Maximum difference between requested target and '
-                           'reached position', unit='main', settable=True,
-                           category='general', mandatory=True),
+    parameter_overrides = {
+        'precision': Override(mandatory=True),
         # these are not mandatory for the axis: the motor should have them
         # defined anyway, and by default they are correct for the axis as well
-        'absmin':    Param('Absolute minimum of device value', unit='main'),
-        'absmax':    Param('Absolute maximum of device value', unit='main'),
+        'absmin':    Override(mandatory=False),
+        'absmax':    Override(mandatory=False),
     }
 
     def doInit(self):

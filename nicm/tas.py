@@ -41,7 +41,7 @@ __version__ = "$Revision$"
 from nicm.cell import Cell
 from nicm.utils import vec3
 from nicm.errors import ConfigurationError, ComputationError
-from nicm.device import Moveable, HasLimits, Param
+from nicm.device import Moveable, HasLimits, Param, Override
 from nicm.experiment import Sample
 from nicm.instrument import Instrument
 
@@ -85,8 +85,11 @@ class TAS(Instrument, Moveable):
                          type=bool, default=True, settable=True),
         'energytransferunit': Param('Energy transfer unit', type=str,
                                     default='THz', settable=True),
-        'unit': Param('Unit', type=str, default='rlu rlu rlu THz A-1',
-                      settable=True),
+    }
+
+    parameter_overrides = {
+        'unit':   Override(default='rlu rlu rlu THz A-1', mandatory=False,
+                           settable=True)
     }
 
     def doInit(self):

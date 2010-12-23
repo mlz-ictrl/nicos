@@ -37,7 +37,7 @@ __version__ = "$Revision$"
 
 from nicm.utils import listof, any
 from nicm.errors import ConfigurationError, PositionError, UsageError
-from nicm.device import Moveable, Readable, Param
+from nicm.device import Moveable, Readable, Param, Override
 
 
 class Switcher(Moveable):
@@ -56,7 +56,10 @@ class Switcher(Moveable):
         'values':    Param('List of values to move to', type=listof(any),
                            mandatory=True),
         'precision': Param('Precision for comparison', mandatory=True),
-        'unit':      Param('Unit of the device main value', type=str),
+    }
+
+    parameter_overrides = {
+        'unit':      Override(mandatory=False),
     }
 
     def doInit(self):
@@ -101,7 +104,10 @@ class ReadonlySwitcher(Readable):
         'values':    Param('List of values to move to', type=listof(any),
                            mandatory=True),
         'precision': Param('Precision for comparison', type=float, default=0),
-        'unit':      Param('Unit of the device main value', type=str),
+    }
+
+    parameter_overrides = {
+        'unit':      Override(mandatory=False),
     }
 
     def doInit(self):

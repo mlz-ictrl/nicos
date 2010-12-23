@@ -39,7 +39,7 @@ from time import time as currenttime, sleep
 
 from nicm import nicos
 from nicm import status, loggers
-from nicm.utils import AutoPropsMeta, Param, getVersions
+from nicm.utils import AutoPropsMeta, Param, Override, getVersions
 from nicm.errors import ConfigurationError, ProgrammingError, UsageError, \
      LimitError, FixedError, ModeError, CommunicationError, CacheLockError
 
@@ -59,7 +59,7 @@ class Device(object):
     """
 
     __metaclass__ = AutoPropsMeta
-    __mergedattrs__ = ['parameters', 'attached_devices']
+    __mergedattrs__ = ['parameters', 'parameter_overrides', 'attached_devices']
 
     parameters = {
         'description': Param('A description of the device', type=str,
@@ -69,7 +69,7 @@ class Device(object):
         'loglevel':    Param('The logging level of the device', type=str,
                              default='info', settable=True),
     }
-
+    parameter_overrides = {}
     attached_devices = {}
 
     def __init__(self, name, **config):
@@ -728,8 +728,8 @@ class Measurable(Startable):
     * doResume()
     """
 
-    parameters = {
-        'unit': Param('(not used)', type=str),
+    parameter_overrides = {
+        'unit':  Override(description='(not used)'),
     }
 
     def start(self, **preset):

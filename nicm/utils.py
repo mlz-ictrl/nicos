@@ -38,6 +38,7 @@ __version__ = "$Revision$"
 import os
 import re
 import sys
+import copy
 import time
 import socket
 import linecache
@@ -82,6 +83,18 @@ class Param(object):
         self.category = category
         self.description = description
         self.preinit = preinit
+
+
+class Override(object):
+
+    def __init__(self, **kw):
+        self._kw = kw
+
+    def apply(self, paraminfo):
+        newinfo = copy.copy(paraminfo)
+        for attr in self._kw:
+            setattr(newinfo, attr, self._kw[attr])
+        return newinfo
 
 
 class MergedAttrsMeta(type):
@@ -137,6 +150,11 @@ class AutoPropsMeta(MergedAttrsMeta):
                 raise ProgrammingError('%r device %r parameter info should be '
                                        'a Param object' % (name, param))
 
+            # process overrides
+            override = newtype.parameter_overrides.get(param)
+            if override:
+                info = newtype.parameters[param] = override.apply(info)
+
             # create the getter method
             def getter(self, param=param):
                 if self._mode == 'simulation':
@@ -185,6 +203,7 @@ class AutoPropsMeta(MergedAttrsMeta):
             # create a property and attach to the new device class
             setattr(newtype, param,
                     property(getter, setter, doc=info.description))
+        del newtype.parameter_overrides
         return newtype
 
 

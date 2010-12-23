@@ -44,7 +44,7 @@ from TACOClient import TACOError
 
 from nicm import status
 from nicm.utils import tacodev
-from nicm.device import Param
+from nicm.device import Param, Override
 from nicm.errors import NicmError, ProgrammingError, CommunicationError
 
 
@@ -68,8 +68,11 @@ class TacoDevice(object):
                              default=3, settable=True, preinit=True),
         'tacolog':     Param('If true, log all TACO calls', type=bool,
                              settable=True, preinit=True),
+    }
+
+    parameter_overrides = {
         # the unit isn't mandatory -- TACO usually knows it already
-        'unit':        Param('Unit of the device main value', type=str),
+        'unit':        Override(mandatory=False),
     }
 
     # the TACO client class to instantiate

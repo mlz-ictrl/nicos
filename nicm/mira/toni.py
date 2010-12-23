@@ -43,7 +43,7 @@ from IO import StringIO
 
 from nicm import status
 from nicm.utils import intrange, listof
-from nicm.device import Device, Readable, Moveable, HasLimits, Param
+from nicm.device import Device, Readable, Moveable, HasLimits, Param, Override
 from nicm.errors import NicmError, CommunicationError, UsageError
 from nicm.taco.base import TacoDevice
 from nicm.mira.iseg import IsegConnector
@@ -100,7 +100,10 @@ class Valve(Moveable):
                           default=['off', 'on']),
         'waittime': Param('Time to wait after switching', type=float, unit='s',
                           default=4),
-        'unit':     Param('Unit', type=str, default=''),
+    }
+
+    parameter_overrides = {
+        'unit':     Override(mandatory=False),
     }
 
     def doInit(self):

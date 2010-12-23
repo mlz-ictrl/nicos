@@ -41,7 +41,8 @@ import TACOStates
 import Temperature
 
 from nicm import status
-from nicm.device import Param, Readable, Moveable, HasOffset, HasLimits
+from nicm.device import Param, Override, Readable, Moveable, \
+     HasOffset, HasLimits
 from nicm.errors import CommunicationError, TimeoutError
 from nicm.taco.base import TacoDevice
 
@@ -53,8 +54,7 @@ class Sensor(TacoDevice, Readable, HasOffset):
         'sensortype': Param('Sensor type', type=str, default=None),
         'curvename':  Param('Sensor calibration curve name',
                             type=str, default=None),
-        'serno':   Param('Sensor serial number', type=str, default=None),
-        'unit':    Param('Unit of temperature', type=str, default=None),
+        'serno':      Param('Sensor serial number', type=str, default=None),
     }
 
     # from LakeShore 340 operating manual
@@ -114,7 +114,6 @@ class Controller(TacoDevice, Moveable, HasOffset, HasLimits):
                            unit='s', settable=True),
         'loopdelay': Param('Sleep time when waiting', unit='s', default=1,
                            settable=True),
-        'unit':      Param('Unit of temperature', type=str),
     }
 
     def doRead(self):
