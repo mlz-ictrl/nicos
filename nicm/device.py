@@ -331,7 +331,7 @@ class Device(object):
             except CacheLockError:
                 if currenttime() > start + timeout:
                     raise CommunicationError(self, 'device locked in cache')
-                sleep(0.1)
+                sleep(0.3)
             else:
                 break
 

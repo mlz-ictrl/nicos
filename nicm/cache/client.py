@@ -75,6 +75,8 @@ class BaseCacheClient(Device):
         self._startup_done = threading.Event()
         self._address = (host, port)
         self._socket = None
+        self._secsocket = None
+        self._sec_lock = threading.Lock()
         self._prefix = self.prefix.strip('/')
         self._selecttimeout = 1.0  # seconds
 
@@ -103,6 +105,13 @@ class BaseCacheClient(Device):
                              (self._address + (err,)))
         else:
             self.printinfo('now connected to %s:%s' % self._address)
+        with self._sec_lock:
+            try:
+                self._secsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self._secsocket.connect(self._address)
+            except Exception, err:
+                self.printwarning('unable to connect secondary socket', exc=err)
+                self._secsocket = None
         self._startup_done.set()
 
     def _disconnect(self, why=''):
@@ -116,6 +125,14 @@ class BaseCacheClient(Device):
         except Exception:
             pass
         self._socket = None
+        # close secondary socket
+        with self._sec_lock:
+            try:
+                self._secsocket.shutdown(socket.SHUT_RDWR)
+                self._secsocket.close()
+            except Exception:
+                pass
+            self._secsocket = None
 
     def _wait_retry(self):
         sleep(5)
@@ -232,6 +249,34 @@ class BaseCacheClient(Device):
         # end of while loop
         self._disconnect()
 
+    def _single_request(self, tosend, sentinel='\r\n'):
+        """Communicate over the secondary socket."""
+        if not self._secsocket:
+            return
+
+        with self._sec_lock:
+            # write request
+            while tosend:
+                sent = self._secsocket.send(tosend)
+                tosend = tosend[sent:]
+
+            # read response
+            data, n = '', 0
+            while not data.endswith(sentinel) and n < 100:
+                data += self._secsocket.recv(BUFSIZE)
+                n += 1
+
+        match = line_pattern.match(data)
+        while match:
+            line = match.group(1)
+            data = data[match.end():]
+            msgmatch = msg_pattern.match(line)
+            if not msgmatch:
+                # ignore invalid lines
+                continue
+            yield msgmatch
+            match = line_pattern.match(data)
+
 
 class CacheClient(BaseCacheClient):
     def doInit(self):
@@ -290,44 +335,6 @@ class CacheClient(BaseCacheClient):
         dbkey = '%s/%s' % (dev.name.lower(), key)
         self.printdebug('invalidating %s' % dbkey)
         self._db.pop(dbkey, None)
-
-    def _single_request(self, tosend, sentinel='\r\n'):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            sock.connect(self._address)
-        except Exception, err:
-            self.printwarning('unable to connect to %s:%s: %s' %
-                              (self._address + (err,)))
-            return
-
-        try:
-            # write request
-            while tosend:
-                sent = sock.send(tosend)
-                tosend = tosend[sent:]
-
-            # read response
-            data, n = '', 0
-            while not data.endswith(sentinel) and n < 100:
-                data += sock.recv(BUFSIZE)
-                n += 1
-
-            match = line_pattern.match(data)
-            while match:
-                line = match.group(1)
-                data = data[match.end():]
-                msgmatch = msg_pattern.match(line)
-                if not msgmatch:
-                    # ignore invalid lines
-                    continue
-                yield msgmatch
-                match = line_pattern.match(data)
-        finally:
-            try:
-                sock.shutdown(socket.SHUT_RDWR)
-                sock.close()
-            except Exception:
-                pass
 
     def history(self, dev, key, fromtime, totime):
         """History query: opens a separate connection since it is otherwise not
