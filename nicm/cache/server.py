@@ -475,12 +475,14 @@ class DbCacheDatabase(MemoryCacheDatabase):
         with self._db_lock:
             with self._store_lock:
                 for key, entries in self._db.iteritems():
-                    self._archive(key, entries)
+                    self._archive(key, entries, sync=False)
                     nentries += len(entries)
         self.printinfo('archived %d entries on shutdown' % nentries)
         with self._store_lock:
-            self._close_store(self._currday)
+            self._prevstore.sync()
             self._close_store(self._prevday)
+            self._currstore.sync()
+            self._close_store(self._currday)
 
     def _open_store(self, ymd):
         if ymd in self._stores:
@@ -503,7 +505,7 @@ class DbCacheDatabase(MemoryCacheDatabase):
             db.close()
             self.printdebug('closed store for %s' % (ymd,))
 
-    def _archive(self, key, entries):
+    def _archive(self, key, entries, sync=True):
         """Archive entries to the store(s).  Must be called with the store
         lock held.
         """
@@ -536,10 +538,12 @@ class DbCacheDatabase(MemoryCacheDatabase):
         if prev:
             self._prevstore[key] = \
                 self._prevstore.get(key, '') + dump_entries(prev)
-            self._prevstore.sync()
+            if sync:
+                self._prevstore.sync()
         self._currstore[key] = \
             self._currstore.get(key, '') + dump_entries(curr)
-        self._currstore.sync()
+        if sync:
+            self._currstore.sync()
         self._arctime[key] = entries[-1].time
         self.printdebug('archived %d+%d entries for key %s' %
                         (len(prev), len(curr), key))
