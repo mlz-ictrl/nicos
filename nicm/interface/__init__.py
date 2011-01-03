@@ -47,7 +47,7 @@ import logging
 from os import path
 
 from nicm import loggers
-from nicm.utils import makeSessionId
+from nicm.utils import makeSessionId, writePidfile, removePidfile
 from nicm.errors import NicmError, UsageError, ConfigurationError
 
 
@@ -99,7 +99,9 @@ class NICOS(object):
         log_path = path.join(path.dirname(__file__), '..', '..', 'log')
         pid_path = path.join(path.dirname(__file__), '..', '..', 'run')
 
-    def __init__(self):
+    def __init__(self, appname):
+        self.appname = appname
+        # create a unique session id
         self.sessionid = makeSessionId()
         # contains all created device objects
         self.devices = {}
@@ -429,8 +431,11 @@ class NICOS(object):
         self._log_manager = logging.Manager(None)
         # all interfaces should log to a logfile; more handlers can be
         # added by subclasses
-        self._log_handlers = [loggers.NicmLogfileHandler(
-            self.config.log_path, filenameprefix=prefix)]
+        self._log_handlers = [
+            loggers.NicmLogfileHandler(self.config.log_path,
+                                       filenameprefix=prefix),
+            loggers.ColoredConsoleHandler(),
+        ]
 
     def getLogger(self, name):
         if name in self._loggers:

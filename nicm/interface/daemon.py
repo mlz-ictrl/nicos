@@ -41,8 +41,8 @@ __version__ = "$Revision$"
 import sys
 
 from nicm import nicos
-from nicm.loggers import OUTPUT, ColoredConsoleHandler
-from nicm.interface import NICOS
+from nicm.loggers import OUTPUT
+from nicm.interface.simple import SimpleNICOS
 
 from nicm.daemon.util import DaemonLogHandler
 
@@ -64,17 +64,18 @@ class LoggingStdout():
         self.orig_stdout.flush()
 
 
-class DaemonNICOS(NICOS):
+class DaemonNICOS(SimpleNICOS):
     """
     Subclass of NICOS that configures the logging system for running under the
     execution daemon: it adds the special daemon handler and installs a standard
     output stream that logs stray output.
     """
 
+    autocreate_devices = True
+    auto_modules = ['nicm.commands']
+
     def _initLogging(self):
-        NICOS._initLogging(self)
-        # XXX not if daemonized, please
-        self._log_handlers.append(ColoredConsoleHandler())
+        SimpleNICOS._initLogging(self)
         sys.displayhook = self.__displayhook
         sys.stdout = LoggingStdout(sys.stdout)
 
@@ -82,31 +83,18 @@ class DaemonNICOS(NICOS):
         if value is not None:
             self.log.log(OUTPUT, repr(value))
 
-    def daemonSetup(self, daemon):
-        nicm_handler = DaemonLogHandler(daemon)
+    def _beforeStart(self, daemondev):
+        nicm_handler = DaemonLogHandler(daemondev)
         # add handler to general NICOS logger
         self.log.handlers.append(nicm_handler)
         # and to all loggers created from now on
         self._log_handlers.append(nicm_handler)
 
-
-def start():
-    # Assign the correct class to the NICOS singleton.
-    nicos.__class__ = DaemonNICOS
-    nicos.__init__()
-
-    # Create the daemon setup and the special device.
-    nicos.loadSetup('daemon', allow_special=True)
-    daemondev = nicos.getDevice('Daemon')
-    nicos.daemonSetup(daemondev)
-
-    # Pretend that the daemon setup doesn't exist, so that another
-    # setup can be loaded by the user.
-    nicos.devices.clear()
-    nicos.explicit_devices.clear()
-    nicos.configured_devices.clear()
-    nicos.user_modules.clear()
-    nicos.loaded_setups.clear()
-    del nicos.explicit_setups[:]
-
-    return daemondev
+        # Pretend that the daemon setup doesn't exist, so that another
+        # setup can be loaded by the user.
+        self.devices.clear()
+        self.explicit_devices.clear()
+        self.configured_devices.clear()
+        self.user_modules.clear()
+        self.loaded_setups.clear()
+        del self.explicit_setups[:]

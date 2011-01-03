@@ -38,9 +38,14 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import nicm
-from nicm.interface import NICOS
+import sys
+import signal
+
+from nicm import nicos
+from nicm.utils import writePidfile, removePidfile, daemonize
+from nicm.errors import NicmError
 from nicm.loggers import ColoredConsoleHandler
+from nicm.interface import NICOS
 
 
 class SimpleNICOS(NICOS):
@@ -52,18 +57,37 @@ class SimpleNICOS(NICOS):
     autocreate_devices = False
     auto_modules = []
 
-    def _initLogging(self):
-        NICOS._initLogging(self, self.appname)
-        self._log_handlers.append(ColoredConsoleHandler())
+    def _beforeStart(self, maindev):
+        pass
 
+    @classmethod
+    def run(cls, appname, maindevname=None, setupname=None, pidfile=True,
+            daemon=False, start_args=[]):
 
-def start(setup, appname=None):
-    # Assign the correct class to the NICOS singleton.
-    nicm.nicos.__class__ = SimpleNICOS
-    nicm.nicos.appname = appname or setup
-    nicm.nicos.__init__()
+        if daemon:
+            daemonize()
 
-    # Create the initial nicm setup, and allow special setups.
-    nicm.nicos.loadSetup(setup, allow_special=True)
+        nicos.__class__ = cls
+        try:
+            nicos.__init__(appname)
+            nicos.loadSetup(setupname or appname, allow_special=True)
+            maindev = nicos.getDevice(maindevname or appname.capitalize())
+        except NicmError, err:
+            print >>sys.stderr, 'Fatal error while initializing:', err
+            return 1
 
-    return nicm.nicos
+        def signalhandler(signum, frame):
+            removePidfile(appname)
+            maindev.quit()
+        signal.signal(signal.SIGINT, signalhandler)
+        signal.signal(signal.SIGTERM, signalhandler)
+
+        if pidfile:
+            writePidfile(appname)
+
+        nicos._beforeStart(maindev)
+
+        maindev.start(*start_args)
+        maindev.wait()
+
+        nicos.shutdown()

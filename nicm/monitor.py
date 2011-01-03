@@ -41,7 +41,6 @@ from time import time as currenttime, sleep, strftime
 
 from Tkinter import Tk, Frame, Label, LabelFrame, StringVar, \
      SUNKEN, RAISED, X, W, BOTH, LEFT, TOP, BOTTOM
-import tkFont
 
 from nicm.utils import listof
 from nicm.status import OK, BUSY, ERROR, PAUSED, NOTREACHED, statuses
@@ -85,8 +84,13 @@ class Monitor(BaseCacheClient):
                            default=True),
     }
 
-    def start(self):
+    def start(self, options):
         self.printinfo('monitor starting up, creating main window')
+
+        self._fontsize = options.fontsize or self.fontsize
+        self._padding  = options.padding or self.padding
+        self._geometry = options.geometry or self.geometry
+
         root = Tk()
         root.protocol('WM_DELETE_WINDOW', self.quit)
         root.bind('q', self.quit)
@@ -105,6 +109,9 @@ class Monitor(BaseCacheClient):
             pass
         self._stoprequest = True
 
+    def wait(self):
+        pass
+
     def quit(self, *ignored):
         self.printinfo('monitor quitting')
         self._stoprequest = True
@@ -117,12 +124,12 @@ class Monitor(BaseCacheClient):
 
     def tk_init(self, master):
         self._master = master
-        if self.geometry:
-            master.geometry(self.geometry)
+        if self._geometry:
+            master.geometry(self._geometry)
         if not self.resizable:
             master.resizable(False, False)
-        fontsize = self.fontsize
-        fontsizebig = int(self.fontsize * 1.2)
+        fontsize = self._fontsize
+        fontsizebig = int(self._fontsize * 1.2)
 
         self._bgcolor = master.config('bg')[-1]
 
@@ -246,18 +253,18 @@ class Monitor(BaseCacheClient):
         # now iterate through the layout and create the widgets to display it
         for column in self._layout:
             columnframe = Frame(masterframe)
-            columnframe.pack(side=LEFT, padx=self.padding, fill=BOTH, expand=1)
+            columnframe.pack(side=LEFT, padx=self._padding, fill=BOTH, expand=1)
             for block in column:
                 labelframe = LabelFrame(columnframe, labelanchor='n',
                                         relief=RAISED, text=block[0]['name'],
                                         font=self._blockfont)
-                labelframe.pack(ipadx=self.padding, ipady=self.padding,
-                                pady=self.padding, side=TOP)
+                labelframe.pack(ipadx=self._padding, ipady=self._padding,
+                                pady=self._padding, side=TOP)
                 block[0]['labelframe'] = labelframe
                 for row in block[1]:
                     subframe = Frame(labelframe)
                     if row is None:
-                        subframe.pack(side=TOP, ipady=self.padding*2)
+                        subframe.pack(side=TOP, ipady=self._padding*2)
                     else:
                         subframe.pack(side=TOP)
                         for field in row:
@@ -472,5 +479,5 @@ class Monitor(BaseCacheClient):
                 for block in column:        # display needed
                     if block[0]['visible']:
                         block[0]['labelframe'].pack(
-                            ipadx=self.padding, ipady=self.padding,
-                            pady=self.padding, side=TOP)
+                            ipadx=self._padding, ipady=self._padding,
+                            pady=self._padding, side=TOP)

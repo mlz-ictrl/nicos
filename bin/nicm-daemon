@@ -1,16 +1,11 @@
 #!/usr/bin/env python
 
-import signal
+import optparse
+from nicm.interface.daemon import DaemonNICOS
 
-from nicm import nicos
-from nicm.interface import daemon
+parser = optparse.OptionParser()
+parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
+                  help='daemonize the poller processes')
+opts, args = parser.parse_args()
 
-def handler(signum, frame):
-    daemondev.quit()
-signal.signal(signal.SIGINT, handler)
-signal.signal(signal.SIGTERM, handler)
-
-daemondev = daemon.start()
-daemondev.start()
-daemondev.wait()
-nicos.shutdown()
+DaemonNICOS.run('daemon', 'Daemon', daemon=opts.daemon)

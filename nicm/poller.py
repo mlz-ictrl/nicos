@@ -37,11 +37,16 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import os
+import sys
 import time
+import errno
+import signal
 import threading
+import subprocess
 
 from nicm import nicos
-from nicm.utils import dictof, listof
+from nicm.utils import dictof, listof, whyExited
 from nicm.device import Device, Readable, Param
 from nicm.errors import NicmError
 
@@ -57,16 +62,6 @@ class Poller(Device):
         self._stoprequest = False
         self._workers = []
         self._creation_lock = threading.Lock()
-
-    def start(self, process):
-        self.printinfo('poller starting')
-        devices = self.processes[process]
-        for devname in devices:
-            self.printinfo('starting thread for %s' % devname)
-            worker = threading.Thread(target=self._worker_thread, args=(devname,))
-            worker.setDaemon(True)
-            worker.start()
-            self._workers.append(worker)
 
     def _long_sleep(self, interval):
         te = time.time() + interval
@@ -112,15 +107,83 @@ class Poller(Device):
                     sleeper(interval)
                 break
 
+    def start(self, process=None):
+        self._process = process
+        if process is None:
+            return self._start_master()
+        self.printinfo('%s poller starting' % process)
+        devices = self.processes[process]
+        for devname in devices:
+            self.printinfo('starting thread for %s' % devname)
+            worker = threading.Thread(target=self._worker_thread, args=(devname,))
+            worker.setDaemon(True)
+            worker.start()
+            self._workers.append(worker)
+
     def wait(self):
+        if self._process is None:
+            return self._wait_master()
         while not self._stoprequest:
             time.sleep(1)
         for worker in self._workers:
             worker.join()
 
     def quit(self):
+        if self._process is None:
+            return self._quit_master()
+        if self._stoprequest:
+            return  # already quitting
         self.printinfo('poller quitting...')
         self._stoprequest = True
         for worker in self._workers:
             worker.join()
         self.printinfo('poller finished')
+
+    def _start_master(self):
+        self._children = {}
+
+        for processname in self.processes:
+            self._start_child(processname)
+
+    def _start_child(self, name):
+        poller_script = '/home/gbr/devel/nicmv2/bin/nicm-poller'   # XXX
+        process = subprocess.Popen([sys.executable, poller_script, name])
+        self._children[process.pid] = name
+        nicos.log.info('started %s poller, PID %s' % (name, process.pid))
+
+    def _wait_master(self):
+        # wait for children to terminate; restart them if necessary
+        while True:
+            try:
+                pid, ret = os.wait()
+            except OSError, err:
+                if err.errno == errno.EINTR:
+                    # raised when the signal handler is fired
+                    continue
+                elif err.errno == errno.ECHILD:
+                    # no further child processes found
+                    break
+                raise
+            else:
+                # a process exited; restart if necessary
+                name = self._children[pid]
+                if not self._stoprequest:
+                    nicos.log.warning('%s poller terminated with %s, '
+                                      'restarting' % (name, whyExited(ret)))
+                    del self._children[pid]
+                    self._start_child(name)
+                else:
+                    nicos.log.info('%s poller terminated with %s' %
+                                   (name, whyExited(ret)))
+        nicos.log.info('all pollers terminated')
+
+    def _quit_master(self):
+        self._stoprequest = True
+        for pid in self._children:
+            try:
+                os.kill(pid, signal.SIGTERM)
+            except OSError, err:
+                if err.errno == errno.ESRCH:
+                    # process was already terminated
+                    continue
+                raise

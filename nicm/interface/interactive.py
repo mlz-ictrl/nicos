@@ -44,7 +44,7 @@ import code
 import readline
 import rlcompleter
 
-import nicm
+from nicm import nicos, nicm_version
 from nicm.utils import colorcode
 from nicm.errors import ModeError
 from nicm.loggers import ColoredConsoleHandler, OUTPUT, INPUT
@@ -134,7 +134,6 @@ class InteractiveNICOS(NICOS):
 
     def _initLogging(self):
         NICOS._initLogging(self)
-        self._log_handlers.append(ColoredConsoleHandler())
         sys.displayhook = self.__displayhook
 
     def __displayhook(self, value):
@@ -145,33 +144,33 @@ class InteractiveNICOS(NICOS):
         """Run an interactive console, and exit after it is finished."""
         banner = ('NICOS console ready (version %s).\nTry help() for a '
                   'list of commands, or help(command) for help on a command.'
-                  % nicm.nicm_version)
+                  % nicm_version)
         console = NicmInteractiveConsole(self, self._NICOS__namespace,
                                          self._NICOS__local_namespace)
         console.interact(banner)
         sys.stdout.write(colorcode('reset'))
 
+    @classmethod
+    def run(cls, setup='startup'):
+        # Assign the correct class to the NICOS singleton.
+        nicos.__class__ = InteractiveNICOS
+        nicos.__init__()
 
-def start(setup='startup'):
-    # Assign the correct class to the NICOS singleton.
-    nicm.nicos.__class__ = InteractiveNICOS
-    nicm.nicos.__init__()
+        # Create the initial instrument setup.
+        nicos.loadSetup(setup)
 
-    # Create the initial instrument setup.
-    nicm.nicos.loadSetup(setup)
+        # Try to become master.
+        system = nicos.system
+        try:
+            system.setMode('master')
+        except ModeError:
+            system.printinfo('could not enter master mode; remaining slave')
+        except:
+            system.printwarning('could not enter master mode', exc=True)
 
-    # Try to become master.
-    system = nicm.nicos.system
-    try:
-        system.setMode('master')
-    except ModeError:
-        system.printinfo('could not enter master mode; remaining slave')
-    except:
-        system.printwarning('could not enter master mode', exc=True)
+        # Fire up an interactive console.
+        nicos.console()
 
-    # Fire up an interactive console.
-    nicm.nicos.console()
-
-    # After the console is finished, cleanup.
-    system.printinfo('shutting down...')
-    nicm.nicos.unloadSetup()
+        # After the console is finished, cleanup.
+        system.printinfo('shutting down...')
+        nicos.shutdown()

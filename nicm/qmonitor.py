@@ -40,8 +40,9 @@ import sys
 import threading
 from time import time as currenttime, sleep, strftime
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4.QtCore import QSize, Qt
+from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
+     QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication
 
 from nicm.utils import listof
 from nicm.status import OK, BUSY, ERROR, PAUSED, NOTREACHED, statuses
@@ -139,8 +140,13 @@ class Monitor(BaseCacheClient):
                            default=True),
     }
 
-    def start(self):
-        self.printinfo('monitor starting up, creating main window')
+    def start(self, options):
+        self.printinfo('Qt monitor starting up, creating main window')
+
+        self._fontsize = options.fontsize or self.fontsize
+        self._padding  = options.padding or self.padding
+        self._geometry = options.geometry or self.geometry
+
         qapp = QApplication(['qapp', '-style', 'windows'])
         window = QMainWindow()
         window.show()
@@ -160,6 +166,9 @@ class Monitor(BaseCacheClient):
             pass
         self._stoprequest = True
 
+    def wait(self):
+        pass
+
     def quit(self, *ignored):
         self.printinfo('monitor quitting')
         self._stoprequest = True
@@ -172,19 +181,19 @@ class Monitor(BaseCacheClient):
 
     def qt_init(self, master):
         self._master = master
-        if self.geometry:
-            if self.geometry == 'fullscreen':
+        if self._geometry:
+            if self._geometry == 'fullscreen':
                 master.showMaximized()
             else:
                 try:
                     w, h, x, y = map(int, re.match('(\d+)x(\d+)+(\d+)+(\d+)',
-                                                   self.geometry).groups())
+                                                   self._geometry).groups())
                 except Exception:
-                    self.printwarning('invalid geometry %s' % self.geometry)
+                    self.printwarning('invalid geometry %s' % self._geometry)
                 else:
                     master.setGeometry(x, y, w, h)
-        fontsize = self.fontsize
-        fontsizebig = int(self.fontsize * 1.2)
+        fontsize = self._fontsize
+        fontsizebig = int(self._fontsize * 1.2)
 
         self._bgcolor = master.palette().color(QPalette.Window)
         self._black = QColor('black')
@@ -261,59 +270,49 @@ class Monitor(BaseCacheClient):
         def _create_field(groupframe, field):
             fieldlayout = QVBoxLayout()
             # now put describing label and view label into subframe
-            if field['name']:
-                l = QLabel(' ' + field['name'] + ' ', groupframe)
-                l.setFont(self._labelfont)
-                l.setAlignment(Qt.AlignHCenter)
-                l.setAutoFillBackground(True)
-                field['namelabel'] = l
-                fieldlayout.addWidget(l)
+            l = QLabel(' ' + field['name'] + ' ', groupframe)
+            l.setFont(self._labelfont)
+            l.setAlignment(Qt.AlignHCenter)
+            l.setAutoFillBackground(True)
+            field['namelabel'] = l
+            fieldlayout.addWidget(l)
 
-                l = SensitiveLabel('----', groupframe,
-                                   self._label_entered, self._label_left)
-                l.setFont(self._valuefont)
-                l.setAlignment(Qt.AlignHCenter)
-                l.setFrameShape(QFrame.Panel)
-                l.setFrameShadow(QFrame.Sunken)
-                l.setAutoFillBackground(True)
-                l.setLineWidth(2)
-                l.setMinimumSize(QSize(self._onechar * (field['width'] + .5), 0))
-                l.setProperty('assignedField', field)
-                field['valuelabel'] = l
+            l = SensitiveLabel('----', groupframe,
+                               self._label_entered, self._label_left)
+            l.setFont(self._valuefont)
+            l.setAlignment(Qt.AlignHCenter)
+            l.setFrameShape(QFrame.Panel)
+            l.setFrameShadow(QFrame.Sunken)
+            l.setAutoFillBackground(True)
+            l.setLineWidth(2)
+            l.setMinimumSize(QSize(self._onechar * (field['width'] + .5), 0))
+            l.setProperty('assignedField', field)
+            field['valuelabel'] = l
 
-                tmplayout = QHBoxLayout()
-                tmplayout.addStretch()
-                tmplayout.addWidget(l)
-                tmplayout.addStretch()
-                fieldlayout.addLayout(tmplayout)
+            tmplayout = QHBoxLayout()
+            tmplayout.addStretch()
+            tmplayout.addWidget(l)
+            tmplayout.addStretch()
+            fieldlayout.addLayout(tmplayout)
 
-                # store reference from key to field for updates
-                def _ref(name, key):
-                    field[name] = key
-                    self._keymap.setdefault(key, []).append(field)
-                if field['dev']:
-                    _ref('key', prefix + field['dev'].lower() + '/value')
-                    _ref('statuskey', prefix + field['dev'].lower() + '/status')
-                    _ref('unitkey', prefix + field['dev'].lower() + '/unit')
-                    if field['format'] == '%s':  # explicit format has preference
-                        _ref('formatkey', prefix + field['dev'].lower() + '/fmtstr')
-                else:
-                    _ref('key', prefix + field['key'])
-                    if field['statuskey']:
-                        _ref('statuskey', prefix + field['statuskey'])
-                    if field['unitkey']:
-                        _ref('unitkey', prefix + field['unitkey'])
-                    if field['formatkey']:
-                        _ref('formatkey', prefix + field['formatkey'])
+            # store reference from key to field for updates
+            def _ref(name, key):
+                field[name] = key
+                self._keymap.setdefault(key, []).append(field)
+            if field['dev']:
+                _ref('key', prefix + field['dev'].lower() + '/value')
+                _ref('statuskey', prefix + field['dev'].lower() + '/status')
+                _ref('unitkey', prefix + field['dev'].lower() + '/unit')
+                if field['format'] == '%s':  # explicit format has preference
+                    _ref('formatkey', prefix + field['dev'].lower() + '/fmtstr')
             else:
-                # invisible field
-                l = Label(fieldframe, text='', font=self._labelfont,
-                          width=field['width'] + 2)
-                l.grid(row=0)
-                l = Label(fieldframe, text='', font=self._valuefont,
-                          width=field['width'])
-                l.grid(row=1)
-                field['valuelabel'] = l
+                _ref('key', prefix + field['key'])
+                if field['statuskey']:
+                    _ref('statuskey', prefix + field['statuskey'])
+                if field['unitkey']:
+                    _ref('unitkey', prefix + field['unitkey'])
+                if field['formatkey']:
+                    _ref('formatkey', prefix + field['formatkey'])
             return fieldlayout
 
         # now iterate through the layout and create the widgets to display it
@@ -336,11 +335,11 @@ class Monitor(BaseCacheClient):
                     else:
                         rowlayout = QHBoxLayout()
                         rowlayout.addStretch()
-                        rowlayout.addSpacing(self.padding)
+                        rowlayout.addSpacing(self._padding)
                         for field in row:
                             fieldframe = _create_field(blockbox, field)
                             rowlayout.addLayout(fieldframe)
-                            rowlayout.addSpacing(self.padding)
+                            rowlayout.addSpacing(self._padding)
                         rowlayout.addStretch()
                         blocklayout.addLayout(rowlayout)
                 blocklayout.addSpacing(0.3*self._blheight)

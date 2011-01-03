@@ -43,13 +43,13 @@ CONSOLE_PAGE = r"""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
     <script type="text/javascript">
 /** keycodes for the events */
 KEYCODES = {
-    8:  'backspace',   36: 'home',   
-    9:  'tab',         37: 'left',   
-    13: 'enter',       38: 'up',     
-    27: 'esc',         39: 'right',  
-    33: 'page up',     40: 'down',   
-    34: 'page down',   45: 'insert', 
-    35: 'end',         46: 'delete', 
+    8:  'backspace',   36: 'home',
+    9:  'tab',         37: 'left',
+    13: 'enter',       38: 'up',
+    27: 'esc',         39: 'right',
+    33: 'page up',     40: 'down',
+    34: 'page down',   45: 'insert',
+    35: 'end',         46: 'delete',
 };
 AJAX_ACTIVEX = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'];
 CONSOLE_WIDTH = 115;
@@ -598,7 +598,6 @@ class WebNICOS(NICOS):
     def _initLogging(self):
         self._output_buffer = []
         NICOS._initLogging(self)
-        self._log_handlers.append(ColoredConsoleHandler())
         self._log_handlers.append(WebHandler(self._output_buffer))
         sys.displayhook = self.__displayhook
 
@@ -637,11 +636,10 @@ class WebNICOS(NICOS):
             raise RuntimeError('bad request')
         try:
             if not request['method'] in self.json_exports:
-                raise MethodNotFound
+                raise RuntimeError('method not found')
             handler = getattr(self, self.json_exports[request['method']])
             response = handler(*request['params'])
-            return json.dumps({'id': request['id'],
-                               'result': handler(*request['params']),
+            return json.dumps({'id': request['id'], 'result': response,
                                'error': None})
         except Exception, e:
             try:
@@ -674,18 +672,18 @@ class WebNICOS(NICOS):
             del self._output_buffer[:]
         return {'error': error, 'text': output}
 
+    @classmethod
+    def run(cls, setup='startup'):
+        sys.stdin = FakeInput()
 
-def start(setup='startup'):
-    sys.stdin = FakeInput()
+        nicm.nicos.__class__ = cls
+        nicm.nicos.__init__('web')
 
-    nicm.nicos.__class__ = WebNICOS
-    nicm.nicos.__init__()
+        nicm.nicos.loadSetup(setup)
 
-    nicm.nicos.loadSetup(setup)
-
-    srv = make_server('', 4000, nicm.nicos)
-    nicm.nicos.log.info('web server running on port 4000')
-    try:
-        srv.serve_forever()
-    except KeyboardInterrupt:
-        nicm.nicos.log.info('web server shutting down')
+        srv = make_server('', 4000, nicm.nicos)
+        nicm.nicos.log.info('web server running on port 4000')
+        try:
+            srv.serve_forever()
+        except KeyboardInterrupt:
+            nicm.nicos.log.info('web server shutting down')

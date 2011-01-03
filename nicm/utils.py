@@ -42,6 +42,8 @@ import pwd
 import sys
 import copy
 import time
+import errno
+import signal
 import socket
 import linecache
 import traceback
@@ -315,6 +317,16 @@ def writePidfile(appname):
     filename = os.path.join(NICOS.config.pid_path, appname + '.pid')
     writeFile(filename, [str(os.getpid())])
 
+def removePidfile(appname):
+    from nicm.interface import NICOS
+    filename = os.path.join(NICOS.config.pid_path, appname + '.pid')
+    try:
+        os.unlink(filename)
+    except OSError, err:
+        if err.errno == errno.ENOENT:
+            return
+        raise
+
 # session id support
 
 def makeSessionId():
@@ -337,7 +349,7 @@ def sessionInfo(id):
 
 # daemonizing processes
 
-def daemonize(name):
+def daemonize():
     """Daemonize the current process."""
     # finish up with the current stdout/stderr
     sys.stdout.flush()
@@ -382,14 +394,9 @@ def daemonize(name):
         if 'HOME' in os.environ:
             os.environ['HOME'] = pwd.getpwuid(user).pw_dir
 
-    # don't log to stderr if running as daemon
-    ##del self.log.handlers[-1] XXX
-
-    # write pid file (will belong to the new user)
-    try:
-        writePidfile(name)
-    except Exception, err:
-        print >>sys.stderr, 'writing pidfile failed:', err
+    os.close(0)
+    os.close(1)
+    os.close(2)
 
     # redirect standard file descriptors
     sys.stdin = open('/dev/null', 'r')
@@ -432,6 +439,21 @@ def colorize(name, text):
 
 def colorcode(name):
     return _codes.get(name, '')
+
+
+# nice formatting for an exit status
+
+def whyExited(status):
+    if os.WIFSIGNALED(status):
+        signum = os.WTERMSIG(status)
+        try:
+            signame = [name for name in dir(signal) if name.startswith('SIG')
+                       and getattr(signal, name) == signum][0]
+        except IndexError:
+            signame = 'signal %d' % signum
+        return signame
+    else:
+        return 'exit code %d' % os.WEXITSTATUS(status)
 
 
 # traceback utilities

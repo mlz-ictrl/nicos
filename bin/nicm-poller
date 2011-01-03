@@ -1,115 +1,17 @@
 #!/usr/bin/env python
 
-import os
-import sys
-import time
-import errno
-import getopt
-import signal
-import subprocess
+import optparse
+from nicm.interface.simple import SimpleNICOS
 
-from nicm.utils import writePidfile, daemonize
-from nicm.errors import ConfigurationError, UsageError
-from nicm.interface import simple
-
-
-daemon = False
-opts, args = getopt.getopt(sys.argv[1:], 'd')
-for opt, arg in opts:
-    if opt == '-d':
-        daemon = True
+parser = optparse.OptionParser()
+parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
+                  help='daemonize the poller processes')
+opts, args = parser.parse_args()
 
 if len(args) > 0:
     appname = 'poller-' + args[0]
 else:
     appname = 'poller'
 
-poller_script = os.path.abspath(sys.argv[0])
-
-if daemon:
-    daemonize(appname)
-
-try:
-    nicos = simple.start('poller', appname)
-    poller = nicos.getDevice('Poller')
-except (ConfigurationError, UsageError), err:
-    print >>sys.stderr, 'Fatal error:', err
-    sys.exit(1)
-
-if not args:
-    # master process
-
-    stoprequest = False
-    processes = {}
-
-    def why(status):
-        if os.WIFSIGNALED(status):
-            signum = os.WTERMSIG(status)
-            try:
-                signame = [name for name in dir(signal) if name.startswith('SIG')
-                           and getattr(signal, name) == signum][0]
-            except IndexError:
-                signame = 'signal %d' % signum
-            return signame
-        else:
-            return 'exit code %d' % os.WEXITSTATUS(status)
-
-    def quit_handler(signum, frame):
-        global stoprequest
-        stoprequest = True
-        for pid in processes:
-            try:
-                os.kill(pid, signum)
-            except OSError, err:
-                if err.errno == errno.ESRCH:
-                    # process was already terminated
-                    continue
-                raise
-    signal.signal(signal.SIGINT, quit_handler)   # control-c
-    signal.signal(signal.SIGTERM, quit_handler)  # terminate
-
-    def start_process(processname):
-        process = subprocess.Popen([sys.executable, poller_script, processname])
-        processes[process.pid] = processname
-        nicos.log.info('started %s poller, PID %s' % (processname, process.pid))
-
-    for processname in poller.processes:
-        start_process(processname)
-
-    # write the master process pidfile
-    writePidfile('poller')
-
-    # wait for children to terminate; restart them if necessary
-    while True:
-        try:
-            pid, ret = os.wait()
-        except OSError, err:
-            if err.errno == errno.EINTR:
-                # raised when the signal handler is fired
-                continue
-            elif err.errno == errno.ECHILD:
-                # no further child processes found
-                break
-            raise
-        else:
-            # a process exited; restart if necessary
-            processname = processes[pid]
-            if not stoprequest:
-                nicos.log.warning('%s poller terminated with %s, restarting' %
-                                  (processname, why(ret)))
-                del processes[pid]
-                start_process(processname)
-            else:
-                nicos.log.info('%s poller terminated with %s' %
-                               (processname, why(ret)))
-    nicos.log.info('all pollers terminated')
-else:
-    # poller child process
-
-    def quit_handler(signum, frame):
-        poller.quit()
-    signal.signal(signal.SIGINT, quit_handler)   # control-c
-    signal.signal(signal.SIGTERM, quit_handler)  # terminate
-
-    poller.start(args[0])
-    poller.wait()
+SimpleNICOS.run(appname, setupname='poller', maindevname='Poller',
+                start_args=args, daemon=opts.daemon)
