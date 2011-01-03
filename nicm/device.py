@@ -113,7 +113,7 @@ class Device(object):
             for adev in self._adevs.values():
                 if isinstance(adev, list):
                     [real_adev._sdevs.discard(self.name) for real_adev in adev]
-                else:
+                elif adev is not None:
                     adev._sdevs.discard(self.name)
             raise
         else:
@@ -735,7 +735,7 @@ class Measurable(Startable):
     """
 
     parameter_overrides = {
-        'unit':  Override(description='(not used)'),
+        'unit':  Override(description='(not used)', mandatory=False),
     }
 
     def start(self, **preset):
