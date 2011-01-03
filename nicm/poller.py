@@ -79,14 +79,14 @@ class Poller(Device):
         while not self._stoprequest:
             try:
                 with self._creation_lock:
-                    dev = nicos.getDevice(devname)
+                    dev = nicos.getDevice(devname, Readable)
             except NicmError, err:
                 self.printwarning('error creating %s, trying again in %d sec' %
                                   (devname, 30), exc=err)
                 self._long_sleep(30)
                 continue
             else:
-                orig_interval = interval = dev.pollinterval
+                interval = dev.pollinterval
                 if interval > 5:
                     sleeper = self._long_sleep
                 else:
@@ -94,7 +94,7 @@ class Poller(Device):
                 errcount = 0
                 while not self._stoprequest:
                     try:
-                        stval, rdval = dev._poll()
+                        stval, rdval = dev.poll()
                         self.printdebug('%-10s status = %-25s, value = %s' %
                                         (dev, stval, rdval))
                     except Exception, err:
@@ -107,8 +107,8 @@ class Poller(Device):
                         errcount += 1
                     else:
                         if errcount > 0:
-                            interval = orig_interval
-                        errcount = 0
+                            interval = dev.pollinterval
+                            errcount = 0
                     sleeper(interval)
                 break
 

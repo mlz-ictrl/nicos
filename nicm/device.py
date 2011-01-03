@@ -356,6 +356,7 @@ class Readable(Device):
     Subclasses *can* implement:
 
     * doReset()
+    * doPoll()
     """
 
     parameters = {
@@ -420,7 +421,7 @@ class Readable(Device):
             return value
         return (status.UNKNOWN, 'doStatus not implemented')
 
-    def _poll(self):
+    def poll(self):
         """Get status and value directly from the device and put both values
         into the cache.
         """
@@ -430,7 +431,12 @@ class Readable(Device):
             self._cache.put(self, 'status', stval, currenttime(), self.maxage)
         rdval = self.doRead()
         self._cache.put(self, 'value', rdval, currenttime(), self.maxage)
+        if hasattr(self, 'doPoll'):
+            self.doPoll()
         return stval, rdval
+
+    def _pollParam(self, name):
+        self._cache.put(self, name, getattr(self, 'doRead' + name.title())())
 
     def reset(self):
         """Reset the device hardware.  Return status afterwards."""
