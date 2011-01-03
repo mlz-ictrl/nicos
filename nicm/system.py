@@ -37,13 +37,12 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import time
-
 from nicm import nicos
 from nicm.data import DataSink
 from nicm.utils import sessionInfo
 from nicm.device import Device, Param
 from nicm.errors import ModeError, UsageError
+from nicm.notify import Notifier
 from nicm.instrument import Instrument
 from nicm.experiment import Experiment
 from nicm.cache.client import CacheClient, CacheLockError
@@ -66,6 +65,7 @@ class System(Device):
         'datasinks': [DataSink],
         'instrument': Instrument,
         'experiment': Experiment,
+        'notifiers': [Notifier],
     }
 
     def __repr__(self):
@@ -145,3 +145,14 @@ class System(Device):
     def doWriteDatapath(self, value):
         for sink in self._adevs['datasinks']:
             sink.setDatapath(value)
+
+    def notifyConditionally(self, runtime, subject, body, what=None, short=None):
+        """Send a notification if the current runtime exceeds the configured
+        minimum runtimer for notifications."""
+        for notifier in self._adevs['notifiers']:
+            notifier.sendConditionally(runtime, subject, body, what, short)
+
+    def notify(self, subject, body, what=None, short=None):
+        """Send a notification unconditionally."""
+        for notifier in self._adevs['notifiers']:
+            notifier.send(subject, body, what, short)

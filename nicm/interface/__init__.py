@@ -254,7 +254,7 @@ class NICOS(object):
             if 'System' not in self.configured_devices:
                 self.configured_devices['System'] = ('nicm.system.System', dict(
                     datasinks=[], cache=None, instrument=None, experiment=None,
-                    datapath=''))
+                    notifiers=[], datapath=''))
             try:
                 self.createDevice('System')
             except Exception:
