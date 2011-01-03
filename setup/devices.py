@@ -44,7 +44,8 @@ devices = dict(
                       cache = 'Cache',
                       datasinks = ['conssink', 'filesink'],
                       instrument = 'tas',
-                      experiment = 'Exp'),
+                      experiment = 'Exp',
+                      notifiers = []),
 
     Exp      = device('nicm.experiment.Experiment',
                       sample = 'Sample'),

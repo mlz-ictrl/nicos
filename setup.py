@@ -1,5 +1,5 @@
 import os
-from distutils.core import setup
+from distutils.core import setup, Extension
 from distutils.util import convert_path
 
 def find_packages():
@@ -29,7 +29,7 @@ setup(
     author_email='jens.krueger@frm2.tum.de',
     description='Network Instrument Control Methods',
     packages=find_packages(),
-#    ext_modules=[],
+    ext_modules=[Extension('nicm.daemon._pyctl', ['nicm/daemon/_pyctl.c'])],
     scripts=scripts,
     data_files=[('/etc', ['etc/nicm.conf'])],
 )

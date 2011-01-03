@@ -42,6 +42,7 @@ if action == 'start':
     print 'Starting cache...',
     os.system('sudo -u %s %s %s >/dev/null 2>&1 &' %
               (user, python, path.join(bin_path, 'nicm-cache')))
+    # XXX wait some time for pidfile
     try:
         pid = file(path.join(pid_path, 'cache.pid'), 'rb').read()
     except:

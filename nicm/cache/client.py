@@ -106,12 +106,14 @@ class BaseCacheClient(Device):
         else:
             self.printinfo('now connected to %s:%s' % self._address)
         with self._sec_lock:
-            try:
-                self._secsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                self._secsocket.connect(self._address)
-            except Exception, err:
-                self.printwarning('unable to connect secondary socket', exc=err)
-                self._secsocket = None
+            if self._socket:
+                try:
+                    self._secsocket = socket.socket(socket.AF_INET,
+                                                    socket.SOCK_STREAM)
+                    self._secsocket.connect(self._address)
+                except Exception:
+                    self.printexception('unable to connect secondary socket')
+                    self._secsocket = None
         self._startup_done.set()
 
     def _disconnect(self, why=''):

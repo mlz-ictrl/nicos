@@ -36,7 +36,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from nicm.utils import listof, any
-from nicm.errors import ConfigurationError, PositionError, UsageError
+from nicm.errors import ConfigurationError, PositionError, NicmError
 from nicm.device import Moveable, Readable, Param, Override
 
 
@@ -72,8 +72,9 @@ class Switcher(Moveable):
 
     def doStart(self, target):
         if target not in self._switchlist:
-            raise UsageError(self, '%r is an invalid position for this device'
-                             % target)
+            positions = ', '.join(repr(pos) for pos in self.states)
+            raise NicmError(self, '%r is an invalid position for this device; '
+                            'valid positions are %s' % (target, positions))
         target = self._switchlist[target]
         self._adevs['moveable'].start(target)
         self._adevs['moveable'].wait()

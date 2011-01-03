@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+
+import signal
+
+from nicm import nicos
+from nicm.interface import daemon
+
+def handler(signum, frame):
+    daemondev.quit()
+signal.signal(signal.SIGINT, handler)
+signal.signal(signal.SIGTERM, handler)
+
+daemondev = daemon.start()
+daemondev.start()
+daemondev.wait()
+nicos.shutdown()

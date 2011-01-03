@@ -90,9 +90,14 @@ class NICOS(object):
     auto_modules = ['nicm.commands']
     autocreate_devices = True
 
-    default_setup_path = path.join(path.dirname(__file__), '..', '..', 'setup')
-    default_log_path = path.join(path.dirname(__file__), '..', '..', 'log')
-    default_pid_path = path.join(path.dirname(__file__), '..', '..', 'run')
+    class config(object):
+        """Singleton for settings potentially overwritten later."""
+        user = None
+        group = None
+        daemonized = False
+        setup_path = path.join(path.dirname(__file__), '..', '..', 'setup')
+        log_path = path.join(path.dirname(__file__), '..', '..', 'log')
+        pid_path = path.join(path.dirname(__file__), '..', '..', 'run')
 
     def __init__(self):
         self.sessionid = makeSessionId()
@@ -109,7 +114,7 @@ class NICOS(object):
         # contains all explicitly loaded setups
         self.explicit_setups = []
         # path to setup files
-        self.__setup_path = self.default_setup_path
+        self.__setup_path = self.config.setup_path
         # info about all loadable setups
         self.__setup_info = {}
         # namespace to place user-accessible items in
@@ -130,6 +135,9 @@ class NICOS(object):
         """Set the namespace to export commands and devices into."""
         self.__namespace = ns
         self.__exported_names = set()
+
+    def getNamespace(self):
+        return self.__namespace
 
     def setSetupPath(self, path):
         """Set the path to the setup files."""
@@ -379,8 +387,8 @@ class NICOS(object):
         modname, clsname = devclsname.rsplit('.', 1)
         try:
             devcls = getattr(__import__(modname, None, None, [clsname]),
-                             clsname, None)
-        except ImportError, err:
+                             clsname)
+        except (ImportError, AttributeError), err:
             raise ConfigurationError('failed to import device class %r: %s'
                                      % (devclsname, err))
         dev = devcls(devname, **devconfig)
@@ -422,7 +430,7 @@ class NICOS(object):
         # all interfaces should log to a logfile; more handlers can be
         # added by subclasses
         self._log_handlers = [loggers.NicmLogfileHandler(
-            self.default_log_path, filenameprefix=prefix)]
+            self.config.log_path, filenameprefix=prefix)]
 
     def getLogger(self, name):
         if name in self._loggers:
@@ -435,15 +443,23 @@ class NICOS(object):
         self._loggers[name] = logger
         return logger
 
-    def logUnhandledException(self, exc_info):
+    def logUnhandledException(self, exc_info=None, cut_frames=0, msg=''):
         """Log an unhandled exception.  Log using the originating device's
         logger, if that information is available.
         """
+        if exc_info is None:
+            exc_info = sys.exc_info()
         if isinstance(exc_info[1], NicmError):
             if exc_info[1].device and exc_info[1].device._log:
                 exc_info[1].device._log.error(exc_info=exc_info)
                 return
-        self.log.error(exc_info=exc_info)
+        if cut_frames:
+            type, value, tb = exc_info
+            while cut_frames:
+                tb = tb.tb_next
+                cut_frames -= 1
+            exc_info = (type, value, tb)
+        self.log.error(msg, exc_info=exc_info)
 
     # -- Action logging --------------------------------------------------------
 

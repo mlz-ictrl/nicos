@@ -37,6 +37,8 @@ __version__ = "$Revision$"
 
 import os
 import re
+import grp
+import pwd
 import sys
 import copy
 import time
@@ -288,12 +290,8 @@ def readConfig(*filenames):
             else:
                 os.environ[name] = value
     from nicm.interface import NICOS
-    if cfg.has_option('nicm', 'setup_path'):
-        NICOS.default_setup_path = cfg.get('nicm', 'setup_path')
-    if cfg.has_option('nicm', 'log_path'):
-        NICOS.default_log_path = cfg.get('nicm', 'log_path')
-    if cfg.has_option('nicm', 'pid_path'):
-        NICOS.default_pid_path = cfg.get('nicm', 'pid_path')
+    for option in cfg.options('nicm'):
+        setattr(NICOS.config, option, cfg.get('nicm', option))
 
 
 # simple file operations
@@ -314,7 +312,7 @@ def writeFile(filename, lines):
 
 def writePidfile(appname):
     from nicm.interface import NICOS
-    filename = os.path.join(NICOS.default_pid_path, appname + '.pid')
+    filename = os.path.join(NICOS.config.pid_path, appname + '.pid')
     writeFile(filename, [str(os.getpid())])
 
 # session id support
@@ -335,6 +333,67 @@ def sessionInfo(id):
     host, timestamp = rest.split('-')
     return 'PID %s on host %s, started on %s' % (
         pid, host, time.asctime(time.localtime(int(timestamp))))
+
+
+# daemonizing processes
+
+def daemonize(name):
+    """Daemonize the current process."""
+    # finish up with the current stdout/stderr
+    sys.stdout.flush()
+    sys.stderr.flush()
+
+    # do first fork
+    try:
+        pid = os.fork()
+        if pid > 0:
+            sys.stdout.close()
+            sys.exit(0)
+    except OSError, err:
+        print >>sys.stderr, 'fork #1 failed:', err
+        sys.exit(1)
+
+    # decouple from parent environment
+    os.chdir('/')
+    os.umask(0002)
+    os.setsid()
+
+    # do second fork
+    try:
+        pid = os.fork()
+        if pid > 0:
+            sys.stdout.close()
+            sys.exit(0)
+    except OSError, err:
+        print >>sys.stderr, 'fork #2 failed:', err
+
+    # now I am a daemon!
+    from nicm.interface import NICOS
+    NICOS.config.daemonized = True
+
+    # switch user
+    user, group = NICOS.config.user, NICOS.config.group
+    if group:
+        group = grp.getgrnam(group).gr_gid
+        os.setegid(group)
+    if NICOS.config.user:
+        user = pwd.getpwnam(user).pw_uid
+        os.seteuid(user)
+        if 'HOME' in os.environ:
+            os.environ['HOME'] = pwd.getpwuid(user).pw_dir
+
+    # don't log to stderr if running as daemon
+    ##del self.log.handlers[-1] XXX
+
+    # write pid file (will belong to the new user)
+    try:
+        writePidfile(name)
+    except Exception, err:
+        print >>sys.stderr, 'writing pidfile failed:', err
+
+    # redirect standard file descriptors
+    sys.stdin = open('/dev/null', 'r')
+    sys.stdout = sys.stderr = open('/dev/null', 'w')
 
 
 # console color utils

@@ -4,26 +4,39 @@ import os
 import sys
 import time
 import errno
+import getopt
 import signal
 import subprocess
 
-from nicm.utils import writePidfile
+from nicm.utils import writePidfile, daemonize
 from nicm.errors import ConfigurationError, UsageError
 from nicm.interface import simple
 
 
+daemon = False
+opts, args = getopt.getopt(sys.argv[1:], 'd')
+for opt, arg in opts:
+    if opt == '-d':
+        daemon = True
+
+if len(args) > 0:
+    appname = 'poller-' + args[0]
+else:
+    appname = 'poller'
+
+poller_script = os.path.abspath(sys.argv[0])
+
+if daemon:
+    daemonize(appname)
+
 try:
-    if len(sys.argv) > 1:
-        appname = 'poller-' + sys.argv[1]
-    else:
-        appname = 'poller'
     nicos = simple.start('poller', appname)
     poller = nicos.getDevice('Poller')
 except (ConfigurationError, UsageError), err:
     print >>sys.stderr, 'Fatal error:', err
     sys.exit(1)
 
-if len(sys.argv) == 1:
+if not args:
     # master process
 
     stoprequest = False
@@ -56,7 +69,7 @@ if len(sys.argv) == 1:
     signal.signal(signal.SIGTERM, quit_handler)  # terminate
 
     def start_process(processname):
-        process = subprocess.Popen([sys.executable, sys.argv[0], processname])
+        process = subprocess.Popen([sys.executable, poller_script, processname])
         processes[process.pid] = processname
         nicos.log.info('started %s poller, PID %s' % (processname, process.pid))
 
@@ -98,5 +111,5 @@ else:
     signal.signal(signal.SIGINT, quit_handler)   # control-c
     signal.signal(signal.SIGTERM, quit_handler)  # terminate
 
-    poller.start(sys.argv[1])
+    poller.start(args[0])
     poller.wait()

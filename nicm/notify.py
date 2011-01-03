@@ -60,13 +60,18 @@ class Notifier(Device):
     Interface for all notification systems.
     """
 
+    parameters = {
+        'minruntime': Param('Minimum runtime of a command before a failure '
+                            'is sent over the notifier', type=float, unit='s',
+                            default=300),
+    }
+
     def send(subject, body, what=None, short=None):
         raise NotImplementedError
 
     def sendConditionally(self, runtime, subject, body, what=None, short=None):
-        # XXX implement runtime checking
-        #if runtime > self.config.mail_minruntime:
-        self.send(subject, body, what, short)
+        if runtime > self.minruntime:
+            self.send(subject, body, what, short)
 
 
 class Jabberer(Notifier):

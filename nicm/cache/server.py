@@ -41,10 +41,10 @@ import select
 import socket
 import threading
 from itertools import chain
-from time import time as currenttime, sleep, localtime, strftime, mktime
+from time import time as currenttime, sleep, localtime, mktime
 
 from nicm import nicos, loggers
-from nicm.utils import listof, existingdir, intrange
+from nicm.utils import existingdir, intrange
 from nicm.device import Device, Param
 from nicm.errors import ConfigurationError
 from nicm.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT, \
@@ -420,7 +420,7 @@ class DbCacheDatabase(MemoryCacheDatabase):
 
     parameters = {
         'storepath': Param('Directory where history stores should be saved',
-                           type=str, mandatory=True),
+                           type=existingdir, mandatory=True),
         'maxcached': Param('Maximum number of entries cached in memory',
                            type=int, default=200),
         'granularity': Param('For debugging purposes', type=intrange(3, 7),
@@ -607,8 +607,8 @@ class CacheServer(Device):
     """
 
     parameters = {
-        'server':      Param('Address to bind to (host or host:port)', type=str,
-                             mandatory=True),
+        'server':   Param('Address to bind to (host or host:port)', type=str,
+                          mandatory=True),
     }
 
     attached_devices = {

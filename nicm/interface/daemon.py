@@ -40,14 +40,11 @@ __version__ = "$Revision$"
 
 import sys
 
-try:
-    licos_interface = __import__('licos.interface').interface
-except ImportError:
-    raise ImportError('Not running under Licos, cannot set up interface')
-
-import nicm
-from nicm.loggers import OUTPUT
+from nicm import nicos
+from nicm.loggers import OUTPUT, ColoredConsoleHandler
 from nicm.interface import NICOS
+
+from nicm.daemon.util import DaemonLogHandler
 
 
 class LoggingStdout():
@@ -55,55 +52,61 @@ class LoggingStdout():
     Standard output stream replacement that tees output to a logger.
     """
 
-    def __init__(self, nicos, orig_stdout):
-        self.nicos = nicos
+    def __init__(self, orig_stdout):
         self.orig_stdout = orig_stdout
 
     def write(self, text):
-        self.nicos.log.info(text, nonl=1)
+        if text.strip():
+            nicos.log.info(text)
         self.orig_stdout.write(text)
 
     def flush(self):
         self.orig_stdout.flush()
 
 
-class LicosNICOS(NICOS):
+class DaemonNICOS(NICOS):
     """
-    Subclass of NICOS that configures the logging system for running under
-    Licos: it adds the Licos-provided handler and installs a standard output
-    stream that logs stray output.  It also notifies Licos of the logger to
-    use for printing scripts ("input") and exceptions.
+    Subclass of NICOS that configures the logging system for running under the
+    execution daemon: it adds the special daemon handler and installs a standard
+    output stream that logs stray output.
     """
-
-    def __init__(self):
-        NICOS.__init__(self)
-        licos_interface.licos_set_logger(self.log)
-        licos_interface.licos_set_namespace(self._NICOS__namespace)
-        licos_interface.licos_set_unhandled_exception_callback(
-            self.logUnhandledException)
 
     def _initLogging(self):
         NICOS._initLogging(self)
-        self._log_handlers.append(licos_interface.licos_get_loghandler())
+        # XXX not if daemonized, please
+        self._log_handlers.append(ColoredConsoleHandler())
         sys.displayhook = self.__displayhook
-        sys.stdout = LoggingStdout(self, sys.stdout)
+        sys.stdout = LoggingStdout(sys.stdout)
 
     def __displayhook(self, value):
         if value is not None:
             self.log.log(OUTPUT, repr(value))
 
+    def daemonSetup(self, daemon):
+        nicm_handler = DaemonLogHandler(daemon)
+        # add handler to general NICOS logger
+        self.log.handlers.append(nicm_handler)
+        # and to all loggers created from now on
+        self._log_handlers.append(nicm_handler)
+
 
 def start():
     # Assign the correct class to the NICOS singleton.
-    nicm.nicos.__class__ = LicosNICOS
-    nicm.nicos.__init__()
+    nicos.__class__ = DaemonNICOS
+    nicos.__init__()
 
-    # Create the initial instrument setup.
-    nicm.nicos.loadSetup('base')
+    # Create the daemon setup and the special device.
+    nicos.loadSetup('daemon', allow_special=True)
+    daemondev = nicos.getDevice('Daemon')
+    nicos.daemonSetup(daemondev)
 
-    # Try to become master.
-    system = nicm.nicos.system
-    try:
-        system.setMode('master')
-    except:
-        system.printinfo('could not enter master mode; remaining slave')
+    # Pretend that the daemon setup doesn't exist, so that another
+    # setup can be loaded by the user.
+    nicos.devices.clear()
+    nicos.explicit_devices.clear()
+    nicos.configured_devices.clear()
+    nicos.user_modules.clear()
+    nicos.loaded_setups.clear()
+    del nicos.explicit_setups[:]
+
+    return daemondev
