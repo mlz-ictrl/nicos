@@ -146,8 +146,11 @@ class Poller(Device):
             self._start_child(processname)
 
     def _start_child(self, name):
-        poller_script = '/home/gbr/devel/nicmv2/bin/nicm-poller'   # XXX
-        process = subprocess.Popen([sys.executable, poller_script, name])
+        if nicos.config.bin_path:
+            poller_script = os.path.join(nicos.config.bin_path, 'nicm-poller')
+        else:
+            poller_script = 'nicm-poller'
+        process = subprocess.Popen([poller_script, name])
         self._children[process.pid] = name
         nicos.log.info('started %s poller, PID %s' % (name, process.pid))
 

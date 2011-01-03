@@ -314,12 +314,12 @@ def writeFile(filename, lines):
 
 def writePidfile(appname):
     from nicm.interface import NICOS
-    filename = os.path.join(NICOS.config.pid_path, appname + '.pid')
+    filename = os.path.join(NICOS.config.control_path, 'run', appname + '.pid')
     writeFile(filename, [str(os.getpid())])
 
 def removePidfile(appname):
     from nicm.interface import NICOS
-    filename = os.path.join(NICOS.config.pid_path, appname + '.pid')
+    filename = os.path.join(NICOS.config.control_path, 'run', appname + '.pid')
     try:
         os.unlink(filename)
     except OSError, err:
@@ -381,7 +381,6 @@ def daemonize():
 
     # now I am a daemon!
     from nicm.interface import NICOS
-    NICOS.config.daemonized = True
 
     # switch user
     user, group = NICOS.config.user, NICOS.config.group
@@ -394,6 +393,8 @@ def daemonize():
         if 'HOME' in os.environ:
             os.environ['HOME'] = pwd.getpwuid(user).pw_dir
 
+    # close standard fds, so that child processes don't inherit them even though
+    # we override Python-level stdio
     os.close(0)
     os.close(1)
     os.close(2)

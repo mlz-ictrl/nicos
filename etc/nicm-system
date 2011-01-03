@@ -3,13 +3,16 @@
 import os
 import sys
 import time
+import signal
 import ConfigParser
 from os import path
+
+DAEMONS = ['cache', 'poller', 'daemon']
 
 try:
     action = sys.argv[1]
 except IndexError:
-    print >>sys.stderr, 'Usage: %s start|stop|restart' % sys.argv[0]
+    print >>sys.stderr, 'Usage: %s start|stop|restart|status' % sys.argv[0]
     sys.exit(1)
 
 class NicmConfigParser(ConfigParser.SafeConfigParser):
@@ -23,61 +26,66 @@ def read_config():
         for name in cfg.options('environment'):
             value = cfg.get('environment', name)
             os.environ[name] = value
-    user = 'root'
-    python = 'python'
-    bin_path = '/usr/bin'
-    pid_path = '/var/run'
-    if cfg.has_option('nicm', 'user'):
-        user = cfg.get('nicm', 'user')
-    if cfg.has_option('nicm', 'python'):
-        python = cfg.get('nicm', 'python')
+    bin_path = ''
+    control_path = '/var'
     if cfg.has_option('nicm', 'bin_path'):
         bin_path = cfg.get('nicm', 'bin_path')
-    if cfg.has_option('nicm', 'pid_path'):
-        pid_path = cfg.get('nicm', 'pid_path')
-    return user, python, bin_path, pid_path
+    if cfg.has_option('nicm', 'control_path'):
+        control_path = cfg.get('nicm', 'control_path')
+    return bin_path, control_path
+
+bin_path, control_path = read_config()
+
+def read_pidfile(name, wait=0):
+    begin = time.time()
+    pidpath = path.join(control_path, 'run', '%s.pid' % name)
+    while True:
+        try:
+            pid = file(pidpath, 'rb').read()
+        except:
+            if time.time() > begin + wait:
+                return
+        else:
+            return int(pid)
+        time.sleep(0.1)
+
+def start_daemon(name):
+    print 'Starting %s...' % name,
+    os.system('%s -d' % path.join(bin_path, 'nicm-%s' % name))
+    pid = read_pidfile(name, wait=1)
+    if not pid:
+        print 'failed'
+        sys.exit(1)
+    print 'pid =', pid
+
+def kill_daemon(name):
+    print 'Killing %s...' % name,
+    pid = read_pidfile(name)
+    if not pid:
+        print 'not running?'
+    else:
+        print 'pid =', pid
+        os.kill(pid, signal.SIGTERM)
 
 if action == 'start':
-    user, python, bin_path, pid_path = read_config()
-    print 'Starting cache...',
-    os.system('sudo -u %s %s %s >/dev/null 2>&1 &' %
-              (user, python, path.join(bin_path, 'nicm-cache')))
-    # XXX wait some time for pidfile
-    try:
-        pid = file(path.join(pid_path, 'cache.pid'), 'rb').read()
-    except:
-        print 'no pidfile?'
-    else:
-        print 'pid = %s' % pid
-    time.sleep(1)
-    print 'Starting poller...',
-    os.system('sudo -u %s %s %s >/dev/null 2>&1 &' %
-              (user, python, path.join(bin_path, 'nicm-poller')))
-    try:
-        pid = file(path.join(pid_path, 'poller.pid'), 'rb').read()
-    except:
-        print 'no pidfile?'
-    else:
-        print 'pid = %s' % pid
+    for name in DAEMONS:
+        start_daemon(name)
 
 elif action == 'stop':
-    user, python, bin_path, pid_path = read_config()
-    print 'Killing poller...',
-    try:
-        pid = file(path.join(pid_path, 'poller.pid'), 'rb').read()
-    except:
-        print 'no pidfile?'
-    else:
-        print 'pid = %s' % pid
-        os.system('kill -TERM %s' % pid)
-    print 'Killing cache...',
-    try:
-        pid = file(path.join(pid_path, 'cache.pid'), 'rb').read()
-    except:
-        print 'no pidfile?'
-    else:
-        print 'pid = %s' % pid
-        os.system('kill -TERM %s' % pid)
+    for name in reversed(DAEMONS):
+        kill_daemon(name)
 
 elif action == 'restart':
     os.system('%s stop && sleep 1 && %s start' % (sys.argv[0], sys.argv[0]))
+
+elif action == 'status':
+    for name in DAEMONS:
+        pid = read_pidfile(name)
+        if pid:
+            print '%-10s: running (pid = %s)' % (name, pid)
+        else:
+            print '%-10s: dead' % name
+
+else:
+    print >>sys.stderr, 'Usage: %s start|stop|restart|status' % sys.argv[0]
+    sys.exit(1)

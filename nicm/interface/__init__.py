@@ -47,7 +47,7 @@ import logging
 from os import path
 
 from nicm import loggers
-from nicm.utils import makeSessionId, writePidfile, removePidfile
+from nicm.utils import makeSessionId
 from nicm.errors import NicmError, UsageError, ConfigurationError
 
 
@@ -94,10 +94,8 @@ class NICOS(object):
         """Singleton for settings potentially overwritten later."""
         user = None
         group = None
-        daemonized = False
-        setup_path = path.join(path.dirname(__file__), '..', '..', 'setup')
-        log_path = path.join(path.dirname(__file__), '..', '..', 'log')
-        pid_path = path.join(path.dirname(__file__), '..', '..', 'run')
+        bin_path = path.join(path.dirname(__file__), '..', '..', 'bin')
+        control_path = path.join(path.dirname(__file__), '..', '..')
 
     def __init__(self, appname):
         self.appname = appname
@@ -116,7 +114,7 @@ class NICOS(object):
         # contains all explicitly loaded setups
         self.explicit_setups = []
         # path to setup files
-        self.__setup_path = self.config.setup_path
+        self.__setup_path = path.join(self.config.control_path, 'setup')
         # info about all loadable setups
         self.__setup_info = {}
         # namespace to place user-accessible items in
@@ -431,9 +429,9 @@ class NICOS(object):
         self._log_manager = logging.Manager(None)
         # all interfaces should log to a logfile; more handlers can be
         # added by subclasses
+        log_path = path.join(self.config.control_path, 'log')
         self._log_handlers = [
-            loggers.NicmLogfileHandler(self.config.log_path,
-                                       filenameprefix=prefix),
+            loggers.NicmLogfileHandler(log_path, filenameprefix=prefix),
             loggers.ColoredConsoleHandler(),
         ]
 
