@@ -5,7 +5,7 @@ from nicm.interface.daemon import DaemonNICOS
 
 parser = optparse.OptionParser()
 parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
-                  help='daemonize the poller processes')
+                  help='daemonize the daemon process')
 opts, args = parser.parse_args()
 
 DaemonNICOS.run('daemon', 'Daemon', daemon=opts.daemon)
