@@ -31,7 +31,7 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from nicos import nicos
+from nicos import session
 from nicos.errors import NicosError, LimitError, FixedError
 from nicos.commands.output import printwarning
 from nicos.commands.measure import _count
@@ -56,16 +56,16 @@ class Scan(object):
     def __init__(self, devices, positions, detlist=None, preset=None,
                  scaninfo=None, scantype=None):
         if detlist is None:
-            detlist = nicos.system.instrument.detectors
+            detlist = session.system.instrument.detectors
         self.devices = devices
         self.positions = positions
         self.detlist = detlist
         self.preset = preset
         self.scaninfo = scaninfo
-        self.sinks = nicos.system.getSinks(scantype)
+        self.sinks = session.system.getSinks(scantype)
 
     def beginScan(self):
-        nicos.beginActionScope('Scan')
+        session.beginActionScope('Scan')
         sinkinfo = []
         for sink in self.sinks:
             sinkinfo.extend(sink.prepareDataset())
@@ -73,7 +73,7 @@ class Scan(object):
             sink.beginDataset(self.devices, self.positions, self.detlist,
                               self.preset, self.scaninfo, sinkinfo)
         bycategory = {}
-        for name, device in sorted(nicos.devices.iteritems()):
+        for name, device in sorted(session.devices.iteritems()):
             if device.lowlevel:
                 continue
             for category, key, value in device.info():
@@ -85,7 +85,7 @@ class Scan(object):
                 sink.addInfo(catinfo, bycategory[catname])
 
     def preparePoint(self, num, xvalues):
-        nicos.action('Point %d' % num)
+        session.action('Point %d' % num)
 
     def addPoint(self, num, xvalues, yvalues):
         for sink in self.sinks:
@@ -94,7 +94,7 @@ class Scan(object):
     def endScan(self):
         for sink in self.sinks:
             sink.endDataset()
-        nicos.endActionScope()
+        session.endActionScope()
 
     def handleError(self, dev, val, err):
         if isinstance(err, LimitError):

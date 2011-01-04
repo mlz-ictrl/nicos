@@ -38,7 +38,7 @@ import socket
 import threading
 from time import sleep, time as currenttime
 
-from nicos import nicos
+from nicos import session
 from nicos.device import Device, Param
 from nicos.errors import CacheLockError
 from nicos.cache.utils import msg_pattern, line_pattern, cache_load, cache_dump, \
@@ -355,7 +355,7 @@ class CacheClient(BaseCacheClient):
         """Locking/unlocking: opens a separate connection."""
         tosend = '%s/%s%s%s%s\r\n' % (
             self._prefix, key.lower(), OP_LOCK,
-            unlock and '-' or '+', sessionid or nicos.sessionid)
+            unlock and '-' or '+', sessionid or session.sessionid)
         if ttl is not None:
             tosend = ('+%s@' % ttl) + tosend
         for msgmatch in self._single_request(tosend):

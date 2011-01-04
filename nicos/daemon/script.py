@@ -44,7 +44,7 @@ try:
 except ImportError:
     ast = None
 
-from nicos import nicos
+from nicos import session
 from nicos.loggers import INPUT
 from nicos.daemon.util import format_exception_cut_frames, format_script, \
      format_timestamp, fixup_script, update_linecache
@@ -126,7 +126,7 @@ class ScriptRequest(Request):
         # notify client of new script
         controller.eventfunc('processing_request', self.serialize())
         # notify clients of "input"
-        nicos.log.log(INPUT, format_script(self))
+        session.log.log(INPUT, format_script(self))
         # this is to allow the traceback module to report the script's
         # source code correctly
         update_linecache('<script>', self.text)
@@ -168,7 +168,7 @@ class ScriptRequest(Request):
             self.code, self.blocks = newcode, newblocks
             # let the client know of the update
             controller.eventfunc('processing_request', self.serialize())
-            nicos.log.log(INPUT, format_script(self, 'UPDATE'))
+            session.log.log(INPUT, format_script(self, 'UPDATE'))
         finally:
             # let the script continue execution in any case
             self._run.set()
@@ -238,7 +238,7 @@ class ExecutionController(Controller):
         self.in_startup = True     # True while startup code is executed
         self.queue = Queue()       # user scripts get put here
         self.current_script = None # currently executed script
-        self.namespace = nicos.getNamespace()
+        self.namespace = session.getNamespace()
                                    # namespace in which scripts execute
         self.watchexprs = set()    # watch expressions to evaluate
         self.watchlock = Lock()    # lock for watch expression list modification
@@ -396,7 +396,7 @@ class ExecutionController(Controller):
         try:
             self.in_startup = True
             #self.namespace.clear()
-            setup_code = 'from nicos import nicos; nicos.loadSetup(%r)' % \
+            setup_code = 'from nicos import session; session.loadSetup(%r)' % \
                          self.setup
             # this is to allow the traceback module to report the script's
             # source code correctly
@@ -405,7 +405,7 @@ class ExecutionController(Controller):
                 code = compile(setup_code, '<setup>', 'exec')
                 exec code in {}
             except Exception:
-                nicos.logUnhandledException(msg='Error loading NICOS:')
+                session.logUnhandledException(msg='Error loading NICOS:')
                 self.log.warning('error in setup, terminating script_thread')
                 self.thread = None
                 return
@@ -435,7 +435,7 @@ class ExecutionController(Controller):
                     self.current_script = request
                     self.current_script.parse()
                 except Exception:
-                    nicos.logUnhandledException(cut_frames=1)
+                    session.logUnhandledException(cut_frames=1)
                     continue
                 # record starting time to decide whether to send notification
                 start_time = time.time()
@@ -449,10 +449,10 @@ class ExecutionController(Controller):
                 except Exception:
                     # the topmost two frames are still in the
                     # daemon, so don't display them to the user
-                    nicos.logUnhandledException(cut_frames=2)
+                    session.logUnhandledException(cut_frames=2)
                     # perhaps also send an error notification
                     exception = format_exception_cut_frames(2)
-                    nicos.system.notifyConditionally(
+                    session.system.notifyConditionally(
                         time.time() - start_time,
                         'Exception in script',
                         'An exception occurred in the executed script:\n\n' +
@@ -461,7 +461,7 @@ class ExecutionController(Controller):
                         short='Exception: ' + exception.splitlines()[-1])
                 # print end time if elapsed time is more than 5 minutes
                 if time.time() - start_time > 300:
-                    nicos.log.info(format_timestamp())
+                    session.log.info(format_timestamp())
         except Exception:
             self.log.exception('unhandled exception in script thread')
         finally:

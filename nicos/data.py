@@ -35,7 +35,7 @@ import time
 import errno
 from os import path
 
-from nicos import nicos
+from nicos import session
 from nicos.utils import listof, readFile, writeFile
 from nicos.device import Device, Param
 from nicos.errors import ConfigurationError, ProgrammingError
@@ -210,12 +210,12 @@ class AsciiDatafileSink(DatafileSink):
         """Return the file name for the next data file.  Can be overwritten in
         instrument-specific subclasses.
         """
-        pnr = nicos.system.experiment.proposalnumber
+        pnr = session.system.experiment.proposalnumber
         return '%04d_%08d.dat' % (pnr, self._counter)
 
     def prepareDataset(self):
         if self._path is None:
-            self.setDatapath(nicos.system.datapath)
+            self.setDatapath(session.system.datapath)
         self._wrote_columninfo = False
         self._counter += 1
         writeFile(path.join(self._path, 'filecounter'), [str(self._counter)])

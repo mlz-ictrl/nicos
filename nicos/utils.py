@@ -287,9 +287,9 @@ def readConfig(*filenames):
                 sys.path.extend(value.split(':'))
             else:
                 os.environ[name] = value
-    from nicos.interface import NICOS
+    from nicos.sessions import Session
     for option in cfg.options('nicos'):
-        setattr(NICOS.config, option, cfg.get('nicos', option))
+        setattr(Session.config, option, cfg.get('nicos', option))
 
 
 # simple file operations
@@ -309,13 +309,13 @@ def writeFile(filename, lines):
         fp.close()
 
 def writePidfile(appname):
-    from nicos.interface import NICOS
-    filename = os.path.join(NICOS.config.control_path, 'run', appname + '.pid')
+    from nicos.sessions import Session
+    filename = os.path.join(Session.config.control_path, 'run', appname + '.pid')
     writeFile(filename, [str(os.getpid())])
 
 def removePidfile(appname):
-    from nicos.interface import NICOS
-    filename = os.path.join(NICOS.config.control_path, 'run', appname + '.pid')
+    from nicos.sessions import Session
+    filename = os.path.join(Session.config.control_path, 'run', appname + '.pid')
     try:
         os.unlink(filename)
     except OSError, err:
@@ -376,14 +376,14 @@ def daemonize():
         print >>sys.stderr, 'fork #2 failed:', err
 
     # now I am a daemon!
-    from nicos.interface import NICOS
+    from nicos.sessions import Session
 
     # switch user
-    user, group = NICOS.config.user, NICOS.config.group
+    user, group = Session.config.user, Session.config.group
     if group:
         group = grp.getgrnam(group).gr_gid
         os.setegid(group)
-    if NICOS.config.user:
+    if Session.config.user:
         user = pwd.getpwnam(user).pw_uid
         os.seteuid(user)
         if 'HOME' in os.environ:

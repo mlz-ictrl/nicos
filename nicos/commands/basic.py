@@ -34,7 +34,7 @@ __version__ = "$Revision$"
 import inspect
 import __builtin__
 
-from nicos import nicos
+from nicos import session
 from nicos.utils import formatDocstring, printTable
 from nicos.device import Device
 from nicos.system import EXECUTIONMODES
@@ -76,7 +76,7 @@ def listcommands():
     """List all available commands."""
     printinfo('Available commands:')
     items = []
-    for obj in nicos.getExportedObjects():
+    for obj in session.getExportedObjects():
         if hasattr(obj, 'is_usercommand'):
             real_func = getattr(obj, 'real_func', obj)
             argspec = inspect.formatargspec(*inspect.getargspec(real_func))
@@ -93,25 +93,25 @@ def listcommands():
 def NewSetup(setupname):
     """Load the given setup instead of the current one."""
     # refresh setup files
-    nicos.readSetups()
-    nicos.unloadSetup()
+    session.readSetups()
+    session.unloadSetup()
     try:
-        nicos.loadSetup(setupname)
+        session.loadSetup(setupname)
     except Exception:
         printexception()
-        nicos.loadSetup('startup')
+        session.loadSetup('startup')
 
 @usercommand
 def AddSetup(setupname):
     """Load the given setup additional to the current one."""
-    nicos.loadSetup(setupname)
+    session.loadSetup(setupname)
 
 @usercommand
 def ListSetups():
     """Print a list of all known setups."""
     printinfo('Available setups:')
     items = []
-    for name, info in nicos.getSetupInfo().iteritems():
+    for name, info in session.getSetupInfo().iteritems():
         if info['group'] == 'special':
             continue
         items.append((name, info['name'], ', '.join(sorted(info['devices']))))
@@ -121,13 +121,13 @@ def ListSetups():
 @usercommand
 def Keep(name, object):
     """Export the given object into the NICOS namespace."""
-    nicos.export(name, object)
+    session.export(name, object)
 
 @usercommand
 def CreateDevice(*devnames):
     """Create all given devices."""
     for devname in devnames:
-        nicos.createDevice(devname, explicit=True)
+        session.createDevice(devname, explicit=True)
 
 @usercommand
 def DestroyDevice(*devnames):
@@ -135,27 +135,27 @@ def DestroyDevice(*devnames):
     for devname in devnames:
         if isinstance(devname, Device):
             devname = devname.name
-        nicos.destroyDevice(devname)
+        session.destroyDevice(devname)
 
 @usercommand
 def NewExperiment(proposalnumber, title):
     """Start a new experiment."""
-    nicos.system.experiment.new(proposalnumber, title)
+    session.system.experiment.new(proposalnumber, title)
 
 @usercommand
 def SaveState():
     """Return statements that restore the current state."""
-    ret = ['NewSetup(%r)\n' % nicos.explicit_setups[0]]
+    ret = ['NewSetup(%r)\n' % session.explicit_setups[0]]
     ret += ['AddSetup(%r)\n' % setup
-            for setup in nicos.explicit_setups[1:]]
-    return ''.join(ret + [nicos.devices[dev].save()
-                          for dev in sorted(nicos.devices)])
+            for setup in session.explicit_setups[1:]]
+    return ''.join(ret + [session.devices[dev].save()
+                          for dev in sorted(session.devices)])
 
 @usercommand
 def SetMode(mode):
     """Set the execution mode.
 
     Valid modes are: """
-    nicos.system.setMode(mode)
+    session.system.setMode(mode)
 
 SetMode.__doc__ += ', '.join(EXECUTIONMODES)

@@ -35,9 +35,9 @@ __version__ = "$Revision$"
 from os import path
 from logging import ERROR, Manager, Handler
 
-from nicos import nicos
+from nicos import session
 from nicos import loggers
-from nicos.interface import NICOS
+from nicos.sessions import Session
 
 
 class ErrorLogged(Exception):
@@ -53,9 +53,9 @@ class TestLogHandler(Handler):
                 raise ErrorLogged(record.message)
 
 
-class TestNICOS(NICOS):
+class TestSession(Session):
     def __init__(self):
-        NICOS.__init__(self)
+        Session.__init__(self)
         self.setSetupPath(path.join(path.dirname(__file__), 'setup'))
 
     def _initLogging(self):
@@ -66,5 +66,5 @@ class TestNICOS(NICOS):
         self._log_handlers = [TestLogHandler()]
 
 
-nicos.__class__ = TestNICOS
-nicos.__init__()
+session.__class__ = TestSession
+session.__init__()

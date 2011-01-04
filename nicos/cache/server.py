@@ -40,7 +40,7 @@ import threading
 from itertools import chain
 from time import time as currenttime, sleep, localtime, mktime
 
-from nicos import nicos, loggers
+from nicos import session, loggers
 from nicos.utils import existingdir, intrange
 from nicos.device import Device, Param
 from nicos.errors import ConfigurationError
@@ -116,7 +116,7 @@ class CacheWorker(object):
         self.stoprequest = False
         self.worker = None
 
-        self.log = nicos.getLogger(name)
+        self.log = session.getLogger(name)
         self.log.setLevel(loggers.loglevels[loglevel])
 
         if initstring:

@@ -550,11 +550,9 @@ import json
 import logging
 import traceback
 from cgi import escape
-from wsgiref.simple_server import make_server
 
-import nicos
-from nicos.interface import NICOS
-from nicos.loggers import NicosConsoleFormatter, OUTPUT, DATEFMT
+from nicos import session
+from nicos.loggers import NicosConsoleFormatter, DATEFMT
 
 QUIT_MESSAGE = 'Just close the browser window to quit the session.'
 
@@ -584,21 +582,13 @@ class WebHandler(logging.Handler):
         self.buffer.append(self.format(record) + '\n')
 
 
-class WebNICOS(NICOS):
+class NicosApp(object):
     """
-    Subclass of NICOS that configures the logging system for usage in a web
-    application environment and at the same time acts as a WSGI application.
+    The nicos-web WSGI application.
     """
 
-    def _initLogging(self):
+    def __init__(self):
         self._output_buffer = []
-        NICOS._initLogging(self)
-        self._log_handlers.append(WebHandler(self._output_buffer))
-        sys.displayhook = self.__displayhook
-
-    def __displayhook(self, value):
-        if value is not None:
-            self.log.log(OUTPUT, repr(value))
 
     def __call__(self, environ, start_response):
         status = '200 OK'
@@ -653,32 +643,17 @@ class WebNICOS(NICOS):
         try:
             try:
                 code = compile(code, '<stdin>', 'single', 0, 1)
-                exec code in self._NICOS__namespace, self._NICOS__local_namespace
+                exec code in session._Session__namespace, \
+                     session._Session__local_namespace
             except SystemExit:
                 print QUIT_MESSAGE
             except:
                 etype, value, tb = sys.exc_info()
                 tb = tb.tb_next
                 msg = ''.join(traceback.format_exception(etype, value, tb))
-                self.log.error(msg.rstrip())
+                session.log.error(msg.rstrip())
                 error = True
         finally:
             output = ''.join(self._output_buffer)
             del self._output_buffer[:]
         return {'error': error, 'text': output}
-
-    @classmethod
-    def run(cls, setup='startup'):
-        sys.stdin = FakeInput()
-
-        nicos.nicos.__class__ = cls
-        nicos.nicos.__init__('web')
-
-        nicos.nicos.loadSetup(setup)
-
-        srv = make_server('', 4000, nicos.nicos)
-        nicos.nicos.log.info('web server running on port 4000')
-        try:
-            srv.serve_forever()
-        except KeyboardInterrupt:
-            nicos.nicos.log.info('web server shutting down')

@@ -42,12 +42,12 @@ if sys.version_info[:2] < (2, 5):
     raise ImportError('NICOS requires Python 2.5 or higher')
 
 
-# Create the nicos object here to allow the import of submodules.
+# Create the nicos session object here to allow the import of submodules.
 # The real class is set later.
 
-class Interface(object):
+class Session(object):
     pass
-nicos = Interface()
+session = Session()
 
 
 # Read config file and set environment variables.

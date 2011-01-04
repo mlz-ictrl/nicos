@@ -33,7 +33,7 @@ __version__ = "$Revision$"
 
 from time import sleep
 
-from nicos import nicos
+from nicos import session
 from nicos.device import Measurable
 from nicos.errors import UsageError
 from nicos.commands import usercommand
@@ -67,5 +67,5 @@ def count(*detlist, **preset):
         if not isinstance(det, Measurable):
             raise UsageError('device %s is not a measurable device' % det)
     if not detlist:
-        detlist = nicos.system.instrument.detectors
+        detlist = session.system.instrument.detectors
     return _count(detlist, preset)

@@ -39,12 +39,22 @@ __version__ = "$Revision$"
 import os
 import imp
 import sys
+import code
+import signal
 import logging
+import readline
+import rlcompleter
 from os import path
+from wsgiref.simple_server import make_server
 
-from nicos import loggers
-from nicos.utils import makeSessionId
-from nicos.errors import NicosError, UsageError, ConfigurationError
+from nicos import session, nicos_version
+from nicos.web import WebHandler, FakeInput, NicosApp
+from nicos.utils import makeSessionId, colorcode, daemonize, writePidfile, \
+     removePidfile
+from nicos.errors import NicosError, UsageError, ConfigurationError, ModeError
+from nicos.loggers import NicosLogfileHandler, ColoredConsoleHandler, \
+     initLoggers, OUTPUT, INPUT
+from nicos.daemon.util import DaemonLogHandler
 
 
 class NicosNamespace(dict):
@@ -76,11 +86,10 @@ class NicosNamespace(dict):
         dict.__delitem__(self, name)
 
 
-class NICOS(object):
+class Session(object):
     """
-    The NICOS class provides all low-level routines needed for NICOS
-    operations and keeps the global state: devices, configuration,
-    loggers.
+    The Session class provides all low-level routines needed for NICOS
+    operations and keeps the global state: devices, configuration, loggers.
     """
 
     auto_modules = ['nicos.commands']
@@ -358,7 +367,8 @@ class NICOS(object):
             elif dev in self.configured_devices:
                 dev = self.createDevice(dev)
             else:
-                raise ConfigurationError('device %r not found in configuration' % dev)
+                raise ConfigurationError(
+                    'device %r not found in configuration' % dev)
         from nicos.device import Device
         if not isinstance(dev, cls or Device):
             raise UsageError('dev must be a %s' % (cls or Device).__name__)
@@ -420,15 +430,15 @@ class NICOS(object):
     # -- Logging ---------------------------------------------------------------
 
     def _initLogging(self, prefix='nicos'):
-        loggers.initLoggers()
+        initLoggers()
         self._loggers = {}
         self._log_manager = logging.Manager(None)
         # all interfaces should log to a logfile; more handlers can be
         # added by subclasses
         log_path = path.join(self.config.control_path, 'log')
         self._log_handlers = [
-            loggers.NicosLogfileHandler(log_path, filenameprefix=prefix),
-            loggers.ColoredConsoleHandler(),
+            NicosLogfileHandler(log_path, filenameprefix=prefix),
+            ColoredConsoleHandler(),
         ]
 
     def getLogger(self, name):
@@ -472,3 +482,260 @@ class NICOS(object):
 
     def action(self, what):
         self.log.action(' :: '.join(self._actionStack + [what]))
+
+
+class SimpleSession(Session):
+    """
+    Subclass of Session that configures the logging system for simple
+    noninteractive usage.
+    """
+
+    autocreate_devices = False
+    auto_modules = []
+
+    def _beforeStart(self, maindev):
+        pass
+
+    @classmethod
+    def run(cls, appname, maindevname=None, setupname=None, pidfile=True,
+            daemon=False, start_args=[]):
+
+        if daemon:
+            daemonize()
+
+        session.__class__ = cls
+        try:
+            session.__init__(appname)
+            session.loadSetup(setupname or appname, allow_special=True)
+            maindev = session.getDevice(maindevname or appname.capitalize())
+        except NicosError, err:
+            print >>sys.stderr, 'Fatal error while initializing:', err
+            return 1
+
+        def signalhandler(signum, frame):
+            removePidfile(appname)
+            maindev.quit()
+        signal.signal(signal.SIGINT, signalhandler)
+        signal.signal(signal.SIGTERM, signalhandler)
+
+        if pidfile:
+            writePidfile(appname)
+
+        session._beforeStart(maindev)
+
+        maindev.start(*start_args)
+        maindev.wait()
+
+        session.shutdown()
+
+
+class NicosCompleter(rlcompleter.Completer):
+    """
+    This is a Completer subclass that doesn't show private attributes when
+    completing attribute access.
+    """
+
+    def attr_matches(self, text):
+        matches = rlcompleter.Completer.attr_matches(self, text)
+        textlen = len(text)
+        return [m for m in matches if not m[textlen:].startswith(('_', 'do'))]
+
+
+class NicosInteractiveConsole(code.InteractiveConsole):
+    """
+    This class provides a console similar to the standard Python interactive
+    console, with the difference that input and output are logged to the
+    NICOS logger and will therefore appear in the logfiles.
+    """
+
+    def __init__(self, session, globals, locals):
+        self.session = session
+        self.log = session.log
+        code.InteractiveConsole.__init__(self, globals)
+        self.globals = globals
+        self.locals = locals
+        readline.parse_and_bind('tab: complete')
+        readline.set_completer(NicosCompleter(self.globals).complete)
+        readline.set_history_length(10000)
+        self.histfile = os.path.expanduser('~/.nicoshistory')
+        if os.path.isfile(self.histfile):
+            readline.read_history_file(self.histfile)
+
+    def interact(self, banner=None):
+        code.InteractiveConsole.interact(self, banner)
+        readline.write_history_file(self.histfile)
+
+    def runsource(self, source, filename='<input>', symbol='single'):
+        """Mostly copied from code.InteractiveInterpreter, but added the
+        logging call before runcode().
+        """
+        try:
+            code = self.compile(source, filename, symbol)
+        except (OverflowError, SyntaxError, ValueError):
+            self.log.exception()
+            return False
+
+        if code is None:
+            return True
+
+        self.log.log(INPUT, source)
+        self.runcode(code)
+        return False
+
+    def raw_input(self, prompt):
+        sys.stdout.write(colorcode('blue'))
+        inp = raw_input(prompt)
+        sys.stdout.write(colorcode('reset'))
+        return inp
+
+    def runcode(self, codeobj):
+        """Mostly copied from code.InteractiveInterpreter, but added the
+        logging call for exceptions.
+        """
+        try:
+            exec codeobj in self.globals, self.locals
+        except Exception:
+            #raise
+            self.session.logUnhandledException(sys.exc_info())
+        else:
+            if code.softspace(sys.stdout, 0):
+                print
+        #self.locals.clear()
+
+
+class InteractiveSession(Session):
+    """
+    Subclass of Session that configures the logging system for interactive
+    interpreter usage: it adds a console handler with colored output, and
+    an exception hook that reports unhandled exceptions via the logging system.
+    """
+
+    def _initLogging(self):
+        Session._initLogging(self)
+        sys.displayhook = self.__displayhook
+
+    def __displayhook(self, value):
+        if value is not None:
+            self.log.log(OUTPUT, repr(value))
+
+    def console(self):
+        """Run an interactive console, and exit after it is finished."""
+        banner = ('NICOS console ready (version %s).\nTry help() for a '
+                  'list of commands, or help(command) for help on a command.'
+                  % nicos_version)
+        console = NicosInteractiveConsole(self, self._Session__namespace,
+                                         self._Session__local_namespace)
+        console.interact(banner)
+        sys.stdout.write(colorcode('reset'))
+
+    @classmethod
+    def run(cls, setup='startup'):
+        # Assign the correct class to the session singleton.
+        session.__class__ = InteractiveSession
+        session.__init__('nicos')
+
+        # Create the initial instrument setup.
+        session.loadSetup(setup)
+
+        # Try to become master.
+        system = session.system
+        try:
+            system.setMode('master')
+        except ModeError:
+            system.printinfo('could not enter master mode; remaining slave')
+        except:
+            system.printwarning('could not enter master mode', exc=True)
+
+        # Fire up an interactive console.
+        session.console()
+
+        # After the console is finished, cleanup.
+        system.printinfo('shutting down...')
+        session.shutdown()
+
+
+class LoggingStdout(object):
+    """
+    Standard output stream replacement that tees output to a logger.
+    """
+
+    def __init__(self, orig_stdout):
+        self.orig_stdout = orig_stdout
+
+    def write(self, text):
+        if text.strip():
+            session.log.info(text)
+        self.orig_stdout.write(text)
+
+    def flush(self):
+        self.orig_stdout.flush()
+
+
+class DaemonSession(SimpleSession):
+    """
+    Subclass of Session that configures the logging system for running under the
+    execution daemon: it adds the special daemon handler and installs a standard
+    output stream that logs stray output.
+    """
+
+    autocreate_devices = True
+    auto_modules = ['nicos.commands']
+
+    def _initLogging(self):
+        SimpleSession._initLogging(self)
+        sys.displayhook = self.__displayhook
+        sys.stdout = LoggingStdout(sys.stdout)
+
+    def __displayhook(self, value):
+        if value is not None:
+            self.log.log(OUTPUT, repr(value))
+
+    def _beforeStart(self, daemondev):
+        daemon_handler = DaemonLogHandler(daemondev)
+        # add handler to general NICOS logger
+        self.log.handlers.append(daemon_handler)
+        # and to all loggers created from now on
+        self._log_handlers.append(daemon_handler)
+
+        # Pretend that the daemon setup doesn't exist, so that another
+        # setup can be loaded by the user.
+        self.devices.clear()
+        self.explicit_devices.clear()
+        self.configured_devices.clear()
+        self.user_modules.clear()
+        self.loaded_setups.clear()
+        del self.explicit_setups[:]
+
+
+class WebSession(Session):
+    """
+    Subclass of Session that configures the logging system for usage in a web
+    application environment.
+    """
+
+    def _initLogging(self):
+        Session._initLogging(self)
+        sys.displayhook = self.__displayhook
+
+    def __displayhook(self, value):
+        if value is not None:
+            self.log.log(OUTPUT, repr(value))
+
+    @classmethod
+    def run(cls, setup='startup'):
+        sys.stdin = FakeInput()
+
+        session.__class__ = cls
+        session.__init__('web')
+
+        app = NicosApp()
+        session._log_handlers.append(WebHandler(app._output_buffer))
+
+        session.loadSetup(setup)
+
+        srv = make_server('', 4000, app)
+        session.log.info('web server running on port 4000')
+        try:
+            srv.serve_forever()
+        except KeyboardInterrupt:
+            session.log.info('web server shutting down')

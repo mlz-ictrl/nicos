@@ -33,7 +33,7 @@ __version__ = "$Revision$"
 
 from time import time as currenttime, sleep
 
-from nicos import nicos
+from nicos import session
 from nicos import status, loggers
 from nicos.utils import AutoPropsMeta, Param, Override, getVersions
 from nicos.errors import ConfigurationError, ProgrammingError, UsageError, \
@@ -70,11 +70,11 @@ class Device(object):
 
     def __init__(self, name, **config):
         # register self in device registry
-        if name in nicos.devices:
+        if name in session.devices:
             raise ProgrammingError('device with name %s already exists' % name)
-        nicos.devices[name] = self
+        session.devices[name] = self
 
-        if nicos.system.mode == 'simulation':
+        if session.system.mode == 'simulation':
             raise UsageError('no new devices can be created in simulation mode')
 
         self.__dict__['name'] = name
@@ -92,10 +92,10 @@ class Device(object):
         # superdevs: reverse adevs for dependency tracking
         self._sdevs = set()
         # execution mode
-        self._mode = nicos.system.mode
+        self._mode = session.system.mode
 
         # initialize a logger for the device
-        self._log = nicos.getLogger(name)
+        self._log = session.getLogger(name)
         for mn in ('debug', 'info', 'warning', 'error', 'exception'):
             setattr(self, 'print' + mn, getattr(self._log, mn))
 
@@ -104,7 +104,7 @@ class Device(object):
             self.init()
         except Exception:
             # if initialization fails, remove from device registry
-            del nicos.devices[name]
+            del session.devices[name]
             # and remove from adevs' sdevs
             for adev in self._adevs.values():
                 if isinstance(adev, list):
@@ -175,7 +175,7 @@ class Device(object):
                 devlist = []
                 self._adevs[aname] = devlist
                 for i, devname in enumerate(value):
-                    dev = nicos.getDevice(devname)
+                    dev = session.getDevice(devname)
                     if not isinstance(dev, cls):
                         raise ConfigurationError(
                             self, 'device %r item %d has wrong type' %
@@ -183,7 +183,7 @@ class Device(object):
                     devlist.append(dev)
                     dev._sdevs.add(self.name)
             else:
-                dev = nicos.getDevice(value)
+                dev = session.getDevice(value)
                 if not isinstance(dev, cls):
                     raise ConfigurationError(
                         self, 'device %r has wrong type' % aname)
@@ -249,7 +249,7 @@ class Device(object):
         self._changedparams.clear()
 
     def _getCache(self):
-        return nicos.system.cache
+        return session.system.cache
 
     def _initParam(self, param, paraminfo=None):
         """Get an initial value for the parameter, called when the cache
@@ -294,7 +294,7 @@ class Device(object):
             yield (category, name, '%s %s' % (parvalue, parunit))
 
     def shutdown(self):
-        """Shut down the object; called from NICOS.destroyDevice()."""
+        """Shut down the object; called from Session.destroyDevice()."""
         if self._mode == 'simulation':
             # do not execute shutdown actions when simulating
             return

@@ -33,7 +33,7 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from nicos import nicos
+from nicos import session
 from nicos.data import DataSink
 from nicos.utils import sessionInfo
 from nicos.device import Device, Param
@@ -121,12 +121,12 @@ class System(Device):
                 raise ModeError('no cache present, cannot release master lock')
             self._cache._ismaster = False
             self._cache.unlock('master')
-        for dev in nicos.devices.itervalues():
+        for dev in session.devices.itervalues():
             dev._setMode(mode)
         if mode == 'simulation':
             self.cache.doShutdown()
         self.printinfo('switched to %s mode' % mode)
-        nicos.resetPrompt()
+        session.resetPrompt()
 
     def getSinks(self, scantype=None):
         if scantype is None:

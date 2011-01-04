@@ -31,26 +31,26 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from nicos import nicos
+from nicos import session
 from nicos.commands import usercommand
 
 
 @usercommand
 def printdebug(*msgs, **kwds):
-    nicos.log.debug(*msgs, **kwds)
+    session.log.debug(*msgs, **kwds)
 
 @usercommand
 def printinfo(*msgs, **kwds):
-    nicos.log.info(*msgs, **kwds)
+    session.log.info(*msgs, **kwds)
 
 @usercommand
 def printwarning(*msgs, **kwds):
-    nicos.log.warning(*msgs, **kwds)
+    session.log.warning(*msgs, **kwds)
 
 @usercommand
 def printerror(*msgs):
-    nicos.log.error(*msgs)
+    session.log.error(*msgs)
 
 @usercommand
 def printexception(*msgs):
-    nicos.log.exception(*msgs)
+    session.log.exception(*msgs)

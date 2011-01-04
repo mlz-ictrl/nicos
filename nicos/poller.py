@@ -40,7 +40,7 @@ import signal
 import threading
 import subprocess
 
-from nicos import nicos
+from nicos import session
 from nicos.utils import dictof, listof, whyExited
 from nicos.device import Device, Readable, Param
 from nicos.errors import NicosError
@@ -69,7 +69,7 @@ class Poller(Device):
         while not self._stoprequest:
             try:
                 with self._creation_lock:
-                    dev = nicos.getDevice(devname, Readable)
+                    dev = session.getDevice(devname, Readable)
             except NicosError, err:
                 self.printwarning('error creating %s, trying again in %d sec' %
                                   (devname, 30), exc=err)
@@ -141,13 +141,13 @@ class Poller(Device):
             self._start_child(processname)
 
     def _start_child(self, name):
-        if nicos.config.bin_path:
-            poller_script = os.path.join(nicos.config.bin_path, 'nicos-poller')
+        if session.config.bin_path:
+            poller_script = os.path.join(session.config.bin_path, 'nicos-poller')
         else:
             poller_script = 'nicos-poller'
         process = subprocess.Popen([poller_script, name])
         self._children[process.pid] = name
-        nicos.log.info('started %s poller, PID %s' % (name, process.pid))
+        session.log.info('started %s poller, PID %s' % (name, process.pid))
 
     def _wait_master(self):
         # wait for children to terminate; restart them if necessary
@@ -166,14 +166,14 @@ class Poller(Device):
                 # a process exited; restart if necessary
                 name = self._children[pid]
                 if not self._stoprequest:
-                    nicos.log.warning('%s poller terminated with %s, '
-                                      'restarting' % (name, whyExited(ret)))
+                    session.log.warning('%s poller terminated with %s, '
+                                        'restarting' % (name, whyExited(ret)))
                     del self._children[pid]
                     self._start_child(name)
                 else:
-                    nicos.log.info('%s poller terminated with %s' %
-                                   (name, whyExited(ret)))
-        nicos.log.info('all pollers terminated')
+                    session.log.info('%s poller terminated with %s' %
+                                     (name, whyExited(ret)))
+        session.log.info('all pollers terminated')
 
     def _quit_master(self):
         self._stoprequest = True

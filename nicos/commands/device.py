@@ -31,7 +31,7 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from nicos import nicos
+from nicos import session
 from nicos.utils import printTable
 from nicos.device import Device, Startable, Moveable, Readable, \
      HasOffset, HasLimits
@@ -50,7 +50,7 @@ def _devposlist(dev_pos_list, cls):
         raise UsageError('a position must be given for every device')
     for i in range(len(dev_pos_list)):
         if i % 2 == 0:
-            devlist.append(nicos.getDevice(dev_pos_list[i], cls))
+            devlist.append(session.getDevice(dev_pos_list[i], cls))
             poslist.append(dev_pos_list[i+1])
     return zip(devlist, poslist)
 
@@ -107,10 +107,10 @@ def wait(*devlist):
     out of "busy" status.
     """
     if not devlist:
-        devlist = [nicos.devices[devname] for devname in nicos.explicit_devices
-                   if isinstance(nicos.devices[devname], Startable)]
+        devlist = [session.devices[devname] for devname in session.explicit_devices
+                   if isinstance(session.devices[devname], Startable)]
     for dev in devlist:
-        dev = nicos.getDevice(dev, Startable)
+        dev = session.getDevice(dev, Startable)
         dev.printinfo('waiting for device')
         value = dev.wait()
         if value:
@@ -122,10 +122,10 @@ def read(*devlist):
     is given, all existing devices.
     """
     if not devlist:
-        devlist = [nicos.devices[devname] for devname in nicos.explicit_devices
-                   if isinstance(nicos.devices[devname], Readable)]
+        devlist = [session.devices[devname] for devname in session.explicit_devices
+                   if isinstance(session.devices[devname], Readable)]
     for dev in devlist:
-        dev = nicos.getDevice(dev, Readable)
+        dev = session.getDevice(dev, Readable)
         try:
             value = dev.read()
         except NicosError:
@@ -144,10 +144,10 @@ def status(*devlist):
     all existing devices.
     """
     if not devlist:
-        devlist = [nicos.devices[devname] for devname in nicos.explicit_devices
-                   if isinstance(nicos.devices[devname], Readable)]
+        devlist = [session.devices[devname] for devname in session.explicit_devices
+                   if isinstance(session.devices[devname], Readable)]
     for dev in devlist:
-        dev = nicos.getDevice(dev, Readable)
+        dev = session.getDevice(dev, Readable)
         try:
             status = dev.status()
         except NicosError:
@@ -161,10 +161,10 @@ def stop(*devlist):
     all startable devices.
     """
     if not devlist:
-        devlist = [nicos.devices[devname] for devname in nicos.explicit_devices
-                   if isinstance(nicos.devices[devname], Startable)]
+        devlist = [session.devices[devname] for devname in session.explicit_devices
+                   if isinstance(session.devices[devname], Startable)]
     for dev in devlist:
-        dev = nicos.getDevice(dev, Startable)
+        dev = session.getDevice(dev, Startable)
         try:
             dev.stop()
         except NicosError:
@@ -175,19 +175,19 @@ def stop(*devlist):
 @usercommand
 def reset(dev):
     """Reset the given device."""
-    dev = nicos.getDevice(dev, Readable)
+    dev = session.getDevice(dev, Readable)
     status = dev.reset()
     dev.printinfo('reset done, status is now %s' % _formatStatus(status))
 
 @usercommand
 def set(dev, parameter, value):
     """Set a the parameter of the device to a new value."""
-    nicos.getDevice(dev).setPar(parameter, value)
+    session.getDevice(dev).setPar(parameter, value)
 
 @usercommand
 def get(dev, parameter):
     """Return the value of a parameter of the device."""
-    value = nicos.getDevice(dev).getPar(parameter)
+    value = session.getDevice(dev).getPar(parameter)
     dev.printinfo('parameter %s is %s' % (parameter, value))
 
 @usercommand
@@ -196,7 +196,7 @@ def fix(*devlist):
     if not devlist:
         raise UsageError('at least one device argument is required')
     for dev in devlist:
-        dev = nicos.getDevice(dev, Startable)
+        dev = session.getDevice(dev, Startable)
         dev.fix()
         dev.printinfo('fixed')
 
@@ -206,7 +206,7 @@ def release(*devlist):
     if not devlist:
         raise UsageError('at least one device argument is required')
     for dev in devlist:
-        dev = nicos.getDevice(dev, Startable)
+        dev = session.getDevice(dev, Startable)
         dev.release()
         dev.printinfo('released')
 
@@ -214,14 +214,14 @@ def release(*devlist):
 def adjust(dev, value):
     """Adjust the offset of the device so that read() returns the given value.
     """
-    dev = nicos.getDevice(dev, HasOffset)
+    dev = session.getDevice(dev, HasOffset)
     diff = dev.read() - value
     dev.offset += diff
 
 @usercommand
 def version(dev):
     """List version info of the device."""
-    dev = nicos.getDevice(dev, Device)
+    dev = session.getDevice(dev, Device)
     versions = dev.version()
     dev.printinfo('Relevant versions for this device:')
     printTable(('module/component', 'version'), versions, printinfo)
@@ -229,7 +229,7 @@ def version(dev):
 @usercommand
 def limits(dev):
     """Print the limits of the device."""
-    dev = nicos.getDevice(dev, HasLimits)
+    dev = session.getDevice(dev, HasLimits)
     dev.printinfo('Limits for this device:')
     printinfo('absolute minimum: %s %s' % (dev.format(dev.absmin), dev.unit))
     printinfo('    user minimum: %s %s' % (dev.format(dev.usermin), dev.unit))
@@ -239,7 +239,7 @@ def limits(dev):
 @usercommand
 def listparams(dev):
     """List all parameters of the device."""
-    dev = nicos.getDevice(dev, Device)
+    dev = session.getDevice(dev, Device)
     dev.printinfo('Parameters of this device:')
     items = []
     for name, info in sorted(dev.parameters.iteritems()):
@@ -256,7 +256,7 @@ def listdevices():
     """List all currently created devices."""
     printinfo('All created devices:')
     items = []
-    for devname in sorted(nicos.explicit_devices):
-        dev = nicos.devices[devname]
+    for devname in sorted(session.explicit_devices):
+        dev = session.devices[devname]
         items.append((dev.name, dev.__class__.__name__, dev.description))
     printTable(('name', 'type', 'description'), items, printinfo)
