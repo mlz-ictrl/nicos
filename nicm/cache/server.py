@@ -559,7 +559,7 @@ class DbCacheDatabase(MemoryCacheDatabase):
         # need to check in database files?
         store_entries = []
         if t1 < entries[0].time:
-            # XXX currently this does open additional stores to fulfill the
+            # XXX currently this does not open additional stores to fulfill the
             # whole given time range
             with self._store_lock:
                 store_entries = load_entries(self._prevstore.get(key, '')) + \

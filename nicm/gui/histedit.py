@@ -1,0 +1,148 @@
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# Module:
+#   $Id$
+#
+# Description:
+#   A line editor control with history stepping
+#
+# Author:
+#   Georg Brandl <georg.brandl@frm2.tum.de>
+#
+#   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
+#
+#   Copyright (C) 2009 Jens Krüger <jens.krueger@frm2.tum.de>
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# *****************************************************************************
+
+"""A line editor control with history stepping."""
+
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
+
+from PyQt4.QtGui import *
+from PyQt4.QtCore import Qt, SIGNAL
+
+
+class HistoryLineEdit(QLineEdit):
+    """
+    A line editor with history stepping.
+    """
+    __pyqtSignals__ = ['escapePressed()']
+
+    scrollingKeys = [Qt.Key_Up, Qt.Key_Down, Qt.Key_PageUp, Qt.Key_PageDown]
+
+    def __init__(self, parent, history=None):
+        QLineEdit.__init__(self, parent)
+        self.history = history or []
+        self.scrollWidget = None
+        self._start_text = ''
+        self._current = -1
+
+    def keyPressEvent(self, kev):
+        key_code = kev.key()
+
+        # if it's a shifted scroll key...
+        if kev.modifiers() & Qt.ShiftModifier and \
+                self.scrollWidget and \
+                key_code in self.scrollingKeys:
+            # create a new, unshifted key event and send it to the
+            # scrolling widget
+            nev = QKeyEvent(kev.type(), kev.key(), Qt.NoModifier)
+            QApplication.sendEvent(self.scrollWidget, nev)
+            return
+
+        if key_code == Qt.Key_Escape:
+            # abort history search
+            self.setText(self._start_text)
+            self._current = -1
+            self.emit(SIGNAL('escapePressed()'))
+
+        elif key_code == Qt.Key_Up:
+            # go earlier
+            if self._current == -1:
+                self._start_text = self.text()
+                self._current = len(self.history)
+            self.stepHistory(-1)
+        elif key_code == Qt.Key_Down:
+            # go later
+            if self._current == -1:
+                return
+            self.stepHistory(1)
+
+        elif key_code == Qt.Key_PageUp:
+            # go earlier with prefix
+            if self._current == -1:
+                self._current = len(self.history)
+                self._start_text = self.text()
+            prefix = str(self.text())[:self.cursorPosition()]
+            self.stepHistoryUntil(prefix, 'up')
+
+        elif key_code == Qt.Key_PageDown:
+            # go later with prefix
+            if self._current == -1:
+                return
+            prefix = str(self.text())[:self.cursorPosition()]
+            self.stepHistoryUntil(prefix, 'down')
+
+        elif key_code == Qt.Key_Return:
+            # accept - add to history and do normal processing
+            self._current = -1
+            try:
+                text = str(self.text())
+            except UnicodeError:
+                pass
+            else:
+                if text and (not self.history or self.history[-1] != text):
+                    # append to history, but only if it isn't equal to the last
+                    self.history.append(text)
+            QLineEdit.keyPressEvent(self, kev)
+
+        else:
+            # process normally
+            QLineEdit.keyPressEvent(self, kev)
+
+    def stepHistory(self, num):
+        self._current += num
+        if self._current <= -1:
+            # no further
+            self._current = 0
+            return
+        if self._current >= len(self.history):
+            # back to start
+            self._current = -1
+            self.setText(self._start_text)
+            return
+        self.setText(self.history[self._current])
+
+    def stepHistoryUntil(self, prefix, direction):
+        if direction == 'up':
+            lookrange = xrange(self._current - 1, -1, -1)
+        else:
+            lookrange = xrange(self._current + 1, len(self.history))
+        for i in lookrange:
+            if self.history[i].startswith(prefix):
+                self._current = i
+                self.setText(self.history[i])
+                self.setCursorPosition(len(prefix))
+                return
+        if direction == 'down':
+            # nothing found: go back to start
+            self._current = -1
+            self.setText(self._start_text)
+            self.setCursorPosition(len(prefix))
