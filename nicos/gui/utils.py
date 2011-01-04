@@ -279,7 +279,7 @@ def fit_peak_common(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw),
         raise FitError(', '.join(out.stopreason))
     xfine = arange(xmin, xmax, (xmax-xmin)/200)
     return out.beta, xfine, modelfunc(out.beta, xfine)
-    
+
 
 fwhm_to_sigma = 2*sqrt(2*log(2))
 

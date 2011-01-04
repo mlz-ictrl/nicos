@@ -44,7 +44,7 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos import nicos_version
 from nicos.gui.data import DataHandler, DataError
-from nicos.gui.util import DlgUtils, SettingGroup, loadUi, dialogFromUi, chunks, \
+from nicos.gui.utils import DlgUtils, SettingGroup, loadUi, dialogFromUi, chunks, \
      get_display, parse_conndata, enumerateWithProgress, setForegroundColor, \
      setBackgroundColor
 from nicos.gui.client import NicosClient, STATUS_INBREAK, STATUS_IDLE

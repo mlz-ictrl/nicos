@@ -46,7 +46,7 @@ except ImportError:
 
 from nicos import session
 from nicos.loggers import INPUT
-from nicos.daemon.util import format_exception_cut_frames, format_script, \
+from nicos.daemon.utils import format_exception_cut_frames, format_script, \
      format_timestamp, fixup_script, update_linecache
 from nicos.daemon.pyctl import Controller, ControlStop
 

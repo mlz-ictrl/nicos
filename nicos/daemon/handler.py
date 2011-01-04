@@ -43,7 +43,7 @@ from Queue import Queue
 from SocketServer import BaseRequestHandler
 
 from nicos import nicos_version
-from nicos.daemon.util import LoggerWrapper
+from nicos.daemon.utils import LoggerWrapper
 from nicos.daemon.pyctl import STATUS_IDLE, STATUS_RUNNING, \
      STATUS_STOPPING, STATUS_INBREAK
 from nicos.daemon.script import EmergencyStopRequest, ScriptRequest, \

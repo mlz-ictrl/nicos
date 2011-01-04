@@ -54,7 +54,7 @@ from nicos.utils import makeSessionId, colorcode, daemonize, writePidfile, \
 from nicos.errors import NicosError, UsageError, ConfigurationError, ModeError
 from nicos.loggers import NicosLogfileHandler, ColoredConsoleHandler, \
      initLoggers, OUTPUT, INPUT
-from nicos.daemon.util import DaemonLogHandler
+from nicos.daemon.utils import DaemonLogHandler
 
 
 class NicosNamespace(dict):

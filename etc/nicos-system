@@ -68,6 +68,7 @@ def kill_daemon(name):
         os.kill(pid, signal.SIGTERM)
 
 if action == 'start':
+    # XXX check if they're running still
     for name in DAEMONS:
         start_daemon(name)
 

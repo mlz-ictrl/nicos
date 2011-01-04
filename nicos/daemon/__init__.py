@@ -44,7 +44,7 @@ from nicos.utils import listof
 from nicos.device import Device, Param
 
 from nicos.daemon.data import DataHandler
-from nicos.daemon.util import ModuleManager
+from nicos.daemon.utils import ModuleManager
 from nicos.daemon.script import ExecutionController
 from nicos.daemon.handler import ConnectionHandler
 

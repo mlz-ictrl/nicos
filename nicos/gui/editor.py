@@ -51,7 +51,7 @@ try:
 except:
     fmin = None
 
-from nicos.gui.util import SettingGroup, showToolText, loadUi, DlgUtils, \
+from nicos.gui.utils import SettingGroup, showToolText, loadUi, DlgUtils, \
      format_duration, format_endtime
 from nicos.gui.analyzer import AnalyzerError, AnalyzerResult, Analyzer, \
      analyze, compile_ast, get_global_names

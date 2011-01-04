@@ -40,7 +40,7 @@ from PyQt4.QtGui import QTextCharFormat, QBrush, QColor, QFont, QTextBrowser, \
      QTextCursor
 
 from nicos.loggers import INPUT, OUTPUT
-from nicos.gui.util import dialogFromUi
+from nicos.gui.utils import dialogFromUi
 
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
