@@ -1,4 +1,4 @@
-.PHONY: qrc so clean
+.PHONY: qrc so clean test
 
 PREFIX = 
 RCC = $(PREFIX)pyrcc4
@@ -13,3 +13,6 @@ so:
 
 clean:
 	find -name '*.pyc' -exec rm {} +
+
+test:
+	@python test/run.py

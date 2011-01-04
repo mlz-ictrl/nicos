@@ -54,8 +54,10 @@ class TestLogHandler(Handler):
 
 
 class TestSession(Session):
-    def __init__(self):
-        Session.__init__(self)
+    autocreate_devices = False
+
+    def __init__(self, appname):
+        Session.__init__(self, appname)
         self.setSetupPath(path.join(path.dirname(__file__), 'setup'))
 
     def _initLogging(self):
@@ -67,4 +69,4 @@ class TestSession(Session):
 
 
 session.__class__ = TestSession
-session.__init__()
+session.__init__('test')

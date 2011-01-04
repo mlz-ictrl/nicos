@@ -31,7 +31,7 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from nicos import nicos
+from nicos import session
 from nicos import status
 from nicos.errors import NicosError, LimitError
 from test.utils import raises
@@ -40,11 +40,12 @@ axis = None
 
 def setup_module():
     global axis
-    nicos.loadSetup('axis')
-    axis = nicos.getDevice('axis')
+    session.loadSetup('axis')
+    session.system.setMode('master')
+    axis = session.getDevice('axis')
 
 def teardown_module():
-    nicos.unloadSetup()
+    session.unloadSetup()
 
 def test_params():
     # min/max parameters got from motor device

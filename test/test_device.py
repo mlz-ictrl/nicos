@@ -32,10 +32,10 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import time
-
-from nicos import nicos
+ 
+from nicos import session
 from nicos import status
-from nicos.device import Device, Moveable
+from nicos.device import Device, Moveable, Param
 from nicos.errors import ConfigurationError, LimitError, FixedError
 from test.utils import raises
 
@@ -44,11 +44,11 @@ methods_called = set()
 
 def setup_module():
     global axis
-    nicos.loadSetup('device')
+    session.loadSetup('device')
     methods_called.clear()
 
 def teardown_module():
-    nicos.unloadSetup()
+    session.unloadSetup()
 
 
 class Dev1(Device):
@@ -57,8 +57,8 @@ class Dev1(Device):
 class Dev2(Moveable):
     attached_devices = {'attached': Dev1}
     parameters = {
-        'param1': (int, 42, False, 'An optional parameter.'),
-        'param2': (int, 0, True, 'A mandatory parameter.'),
+        'param1': Param('An optional parameter', type=int, default=42),
+        'param2': Param('A mandatory parameter', type=int, mandatory=True),
     }
 
     def doInit(self):
@@ -104,7 +104,7 @@ class Dev2(Moveable):
 
 
 def test_params():
-    dev2 = nicos.getDevice('dev2_1')
+    dev2 = session.getDevice('dev2_1')
     # make sure adev instances are created
     assert isinstance(dev2._adevs['attached'], Dev1)
     # an inherited and writable parameter
@@ -119,10 +119,10 @@ def test_params():
     dev2.param2 = 5
     assert dev2.param2 == 7
     # Dev2 instance without adev
-    assert raises(ConfigurationError, nicos.getDevice, 'dev2_2')
+    assert raises(ConfigurationError, session.getDevice, 'dev2_2')
 
 def test_methods():
-    dev2 = nicos.getDevice('dev2_3')
+    dev2 = session.getDevice('dev2_3')
     assert 'doInit' in methods_called
     dev2.move(10)
     assert 'doStart' in methods_called

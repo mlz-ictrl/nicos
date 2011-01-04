@@ -28,28 +28,15 @@
 name = 'test system setup'
 
 devices = dict(
-    LocalHistory = device(
-        'nicos.history.LocalHistory',
-    ),
-
-    Logging = device(
-        'nicos.system.Logging',
-        logpath = '.',
-    ),
-
-    Storage = device(
-        'nicos.data.Storage',
-        datapath = '.',
-        sinks = [],
-    ),
-
     System = device(
         'nicos.system.System',
         autocreate = True,
-        logging = 'Logging',
-        storage = 'Storage',
-        user = 'User',
-        histories = ['LocalHistory'],
+        cache = None,
+        datasinks = [],
+        experiment = None,
+        instrument = None,
+        notifiers = [],
+        datapath = '.',
     ),
 
 )

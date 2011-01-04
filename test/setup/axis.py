@@ -49,6 +49,7 @@ devices = dict(
         motor = 'motor',
         coder = 'coder',
         obs = [],
+        precision = 0,
         usermin = -50,
         usermax = 50,
         loopdelay = 0.005,  # delay not necessary for virtual motor
