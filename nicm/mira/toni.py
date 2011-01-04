@@ -3,29 +3,25 @@
 # Module:
 #   $Id$
 #
-# Description:
-#   Toni-protocol device classes
-#
 # Author:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
-#   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
+# NICOS-NG, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
 #
-#   Copyright (C) 2009 Jens Krüger <jens.krueger@frm2.tum.de>
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
 #
-#   This program is free software; you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation; either version 2 of the License, or
-#   (at your option) any later version.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
 #
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program; if not, write to the Free Software
-#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # *****************************************************************************
 
@@ -35,7 +31,6 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import serial
 import threading
 from time import sleep, time
 
@@ -43,7 +38,7 @@ from IO import StringIO
 
 from nicm import status
 from nicm.utils import intrange, listof
-from nicm.device import Device, Readable, Moveable, HasLimits, Param, Override
+from nicm.device import Device, Readable, Moveable, Param, Override
 from nicm.errors import NicmError, CommunicationError, UsageError
 from nicm.taco.base import TacoDevice
 from nicm.mira.iseg import IsegConnector
