@@ -60,11 +60,11 @@ _layout = [
 ]
 
 devices = dict(
-    Monitor = device('nicm.qmonitor.Monitor',
+    Monitor = device('nicos.qmonitor.Monitor',
                      title='Status monitor',
                      loglevel='debug',
                      server='localhost',
-                     prefix='nicm/',
+                     prefix='nicos/',
                      font='Luxi Sans',
                      valuefont='Consolas',
                      layout=_layout)

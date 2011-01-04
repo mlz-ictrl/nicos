@@ -35,13 +35,13 @@ __version__ = "$Revision$"
 from os import path
 from logging import ERROR, Manager, Handler
 
-from nicm import nicos
-from nicm import loggers
-from nicm.interface import NICOS
+from nicos import nicos
+from nicos import loggers
+from nicos.interface import NICOS
 
 
 class ErrorLogged(Exception):
-    """Raised when an error is logged by NICM."""
+    """Raised when an error is logged by NICOS."""
 
 class TestLogHandler(Handler):
     def emit(self, record):

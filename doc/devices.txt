@@ -16,7 +16,7 @@ Writing devices
 Device interface
 ----------------
 
-NICM models every device type as a Python class, and concrete devices as
+NICOS models every device type as a Python class, and concrete devices as
 instances of these classes.  There are also abstract classes that do not map to
 real devices, but serve to define the interface for derived classes.
 
@@ -38,7 +38,7 @@ when called by the public methods.
 Device classes
 --------------
 
-The base classes for all devices are contained in the module ``nicm.device``.
+The base classes for all devices are contained in the module ``nicos.device``.
 There is a hierarchy of classes that correspond to varying levels of interaction
 that is possible with the device:
 
@@ -66,7 +66,7 @@ communication device, or motor and encoders for an axis class.  It maps the
 "internal name" (the device will be available as an attribute with that name) to
 the type of the device (which usually is an abstract type).  For example::
 
-   attached_devices = {'motor': nicm.motor.Motor, 'coder': nicm.coder.Coder}
+   attached_devices = {'motor': nicos.motor.Motor, 'coder': nicos.coder.Coder}
 
 The actual attached devices for a specific instance (given in the instance's
 configuration) are then type-checked against these types.  As a special case, if
@@ -81,14 +81,14 @@ Public methods
 --------------
 
 ``init()``
-   *Interface:* Initialize the device.  This method is called by the NICM system
+   *Interface:* Initialize the device.  This method is called by the NICOS system
    when the device instance has been created, all parameters are set and all
    attached devices have been created and initialized.
 
    *Implementation:* Simply calls a ``doInit()`` method if present.
 
 ``shutdown()``
-   *Interface:* Shut down the device.  This method is called by the NICM system
+   *Interface:* Shut down the device.  This method is called by the NICOS system
    when the device is destroyed, manually or because the current setup is
    unloaded.
 
@@ -171,7 +171,7 @@ Public methods
 
 ``status()``
    *Interface:* Return the status of the device, as an integer constant as
-   defined by the ``nicm.status`` module.
+   defined by the ``nicos.status`` module.
 
    *Implementation:* This calls a ``doStatus()`` method, if present, and checks
    that its return value is a valid status constant.  Otherwise it returns

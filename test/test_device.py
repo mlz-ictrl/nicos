@@ -33,10 +33,10 @@ __version__ = "$Revision$"
 
 import time
 
-from nicm import nicos
-from nicm import status
-from nicm.device import Device, Moveable
-from nicm.errors import ConfigurationError, LimitError, FixedError
+from nicos import nicos
+from nicos import status
+from nicos.device import Device, Moveable
+from nicos.errors import ConfigurationError, LimitError, FixedError
 from test.utils import raises
 
 

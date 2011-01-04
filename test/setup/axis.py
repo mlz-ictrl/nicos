@@ -31,7 +31,7 @@ includes = ['system']
 
 devices = dict(
     motor = device(
-        'nicm.virtual.VirtualMotor',
+        'nicos.virtual.VirtualMotor',
         unit = 'mm',
         initval = 0,
         absmin = -100,
@@ -39,13 +39,13 @@ devices = dict(
     ),
 
     coder = device(
-        'nicm.virtual.VirtualCoder',
+        'nicos.virtual.VirtualCoder',
         motor = 'motor',
         unit = 'mm',
     ),
 
     axis = device(
-        'nicm.axis.Axis',
+        'nicos.axis.Axis',
         motor = 'motor',
         coder = 'coder',
         obs = [],

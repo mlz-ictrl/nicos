@@ -29,22 +29,22 @@ name = 'test system setup'
 
 devices = dict(
     LocalHistory = device(
-        'nicm.history.LocalHistory',
+        'nicos.history.LocalHistory',
     ),
 
     Logging = device(
-        'nicm.system.Logging',
+        'nicos.system.Logging',
         logpath = '.',
     ),
 
     Storage = device(
-        'nicm.data.Storage',
+        'nicos.data.Storage',
         datapath = '.',
         sinks = [],
     ),
 
     System = device(
-        'nicm.system.System',
+        'nicos.system.System',
         autocreate = True,
         logging = 'Logging',
         storage = 'Storage',

@@ -1,11 +1,10 @@
 import os
 from distutils.core import setup, Extension
-from distutils.util import convert_path
 
 def find_packages():
-    """Return a list of all nicm subpackages."""
-    out = ['nicm']
-    stack = [('nicm', 'nicm/')]
+    """Return a list of all nicos subpackages."""
+    out = ['nicos']
+    stack = [('nicos', 'nicos/')]
     while stack:
         where, prefix = stack.pop(0)
         for name in os.listdir(where):
@@ -16,20 +15,21 @@ def find_packages():
                 stack.append((fn, prefix + name + '.'))
     return out
 
-import nicm
+import nicos
 
 scripts = ['bin/' + name for name in os.listdir('bin')
-           if name.startswith('nicm-')]
+           if name.startswith('nicos-')]
 
 setup(
-    name='nicm',
-    version=nicm.__version__,
-    license='BSD',
+    name='nicos-ng',
+    version=nicos.__version__,
+    license='GPL',
     author='Jens Krueger',
     author_email='jens.krueger@frm2.tum.de',
-    description='Network Instrument Control Methods',
+    description='The Networked Instrument COntrol System of the FRM-II',
     packages=find_packages(),
-    ext_modules=[Extension('nicm.daemon._pyctl', ['nicm/daemon/_pyctl.c'])],
+    ext_modules=[Extension('nicos.daemon._pyctl', ['nicos/daemon/_pyctl.c'])],
     scripts=scripts,
-    data_files=[('/etc', ['etc/nicm.conf'])],
+    data_files=[('/etc', ['etc/nicos.conf']),
+                ('/etc/init.d', ['etc/nicos-system'])],
 )

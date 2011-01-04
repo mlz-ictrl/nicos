@@ -1,0 +1,17 @@
+#!/usr/bin/env python
+
+import optparse
+from nicos.interface.simple import SimpleNICOS
+
+parser = optparse.OptionParser()
+parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
+                  help='daemonize the poller processes')
+opts, args = parser.parse_args()
+
+if len(args) > 0:
+    appname = 'poller-' + args[0]
+else:
+    appname = 'poller'
+
+SimpleNICOS.run(appname, setupname='poller', maindevname='Poller',
+                start_args=args, daemon=opts.daemon)

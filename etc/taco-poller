@@ -58,7 +58,7 @@ def cache_dump(obj):
 
 class CacheClient(object):
     """
-    A minimal write client for the NICM cache.
+    A minimal write client for the NICOS cache.
     """
 
     def __init__(self, server, prefix, log, ttl):

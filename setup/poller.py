@@ -31,6 +31,6 @@ group = 'special'
 includes = ['devices']
 
 devices = dict(
-    Poller = device('nicm.poller.Poller',
+    Poller = device('nicos.poller.Poller',
                     processes={'motors': ['a1'], 'detectors': ['det']}),
 )

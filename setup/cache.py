@@ -29,12 +29,12 @@ name = 'setup for the cache server'
 group = 'special'
 
 devices = dict(
-    DB     = device('nicm.cache.server.DbCacheDatabase',
+    DB     = device('nicos.cache.server.DbCacheDatabase',
                     storepath = '/tmp/cache',
                     granularity = 5,
                     maxcached = 5),
 
-    Server = device('nicm.cache.server.CacheServer',
+    Server = device('nicos.cache.server.CacheServer',
                     db = 'DB',
                     server = 'localhost',
                     loglevel = 'debug'),

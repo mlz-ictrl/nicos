@@ -31,9 +31,9 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from nicm import nicos
-from nicm import status
-from nicm.errors import NicmError, LimitError
+from nicos import nicos
+from nicos import status
+from nicos.errors import NicosError, LimitError
 from test.utils import raises
 
 axis = None
@@ -74,7 +74,7 @@ def test_movement():
     # simulate a busy motor
     axis._adevs['motor']._VirtualMotor__busy = True
     # moving while busy?
-    assert raises(NicmError, axis.move, 10)
+    assert raises(NicosError, axis.move, 10)
     # forwarding of motor status by doStatus()
     assert axis.status() == status.BUSY
     axis._adevs['motor']._VirtualMotor__busy = False

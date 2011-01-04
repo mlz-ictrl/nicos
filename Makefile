@@ -4,12 +4,12 @@ PREFIX =
 RCC = $(PREFIX)pyrcc4
 
 qrc:
-	$(RCC) -o nicm/gui/gui_rc.py resources/nicm-gui.qrc
+	$(RCC) -o nicos/gui/gui_rc.py resources/nicos-gui.qrc
 
 so:
 	rm -rf build
 	python setup.py build_ext
-	cp build/lib*/nicm/daemon/*.so nicm/daemon
+	cp build/lib*/nicos/daemon/*.so nicos/daemon
 
 clean:
 	find -name '*.pyc' -exec rm {} +

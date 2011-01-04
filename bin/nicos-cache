@@ -1,0 +1,11 @@
+#!/usr/bin/env python
+
+import optparse
+from nicos.interface.simple import SimpleNICOS
+
+parser = optparse.OptionParser()
+parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
+                  help='daemonize the cache process')
+opts, args = parser.parse_args()
+
+SimpleNICOS.run('cache', 'Server', daemon=opts.daemon)

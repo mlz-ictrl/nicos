@@ -1,8 +1,8 @@
 .. -*- mode: rst -*-
 
-===========
-NICM setups
-===========
+============
+NICOS setups
+============
 
 :Author:   $Author$
 :Date:     $Date$
@@ -16,13 +16,13 @@ NICM setups
 Setup files
 -----------
 
-NICM supports the concept of different instrument setups.  Not all devices that
+NICOS supports the concept of different instrument setups.  Not all devices that
 can be used at an instrument will be present all the time, so they need not be
 loaded.
 
 A specific set of devices (and commands, which supports the notion of
 specialized commands) is collected in a "setup file", a Python module in the
-subdirectory ``setup`` of the NICM root directory.
+subdirectory ``setup`` of the NICOS root directory.
 
 A setup file consists of the following entries:
 
@@ -76,8 +76,8 @@ For example, an instrument with varying sample environment could have two setup
 files, ``cryostat`` and ``oven``, where both include a ``base`` file that could
 contain the monochromator, sample table and detector that always stay the same.
 
-On startup, an empty setup is initialized by NICM.  The user then loads a setup
-using the ``NicmSetup('modulename')`` command.  Each time the ``NicmSetup``
+On startup, an empty setup is initialized by NICOS.  The user then loads a setup
+using the ``NewSetup('modulename')`` command.  Each time the ``NewSetup``
 command is used, the previous setup is unloaded and the created devices are
 destroyed.  When two setups really need to be loaded at the same time, the
-``NicmAddSetup('modulename')`` command can be used.
+``AddSetup('modulename')`` command can be used.

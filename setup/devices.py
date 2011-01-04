@@ -29,13 +29,11 @@ name = 'devices for the setup'
 
 #includes = []
 
-modules = ['nicm.commands']
-
 devices = dict(
 
     # -- System devices -------------------------------------------------------
 
-    System   = device('nicm.system.System',
+    System   = device('nicos.system.System',
                       datapath = 'data/',
                       cache = 'Cache',
                       datasinks = ['conssink', 'filesink'],
@@ -43,25 +41,25 @@ devices = dict(
                       experiment = 'Exp',
                       notifiers = []),
 
-    Exp      = device('nicm.experiment.Experiment',
+    Exp      = device('nicos.experiment.Experiment',
                       sample = 'Sample'),
 
-    filesink = device('nicm.data.AsciiDatafileSink',
+    filesink = device('nicos.data.AsciiDatafileSink',
                       prefix = 'data'),
 
-    conssink = device('nicm.data.ConsoleSink'),
+    conssink = device('nicos.data.ConsoleSink'),
 
-    Cache    = device('nicm.cache.client.CacheClient',
+    Cache    = device('nicos.cache.client.CacheClient',
                       lowlevel = True,
                       server = 'localhost',
-                      prefix = 'nicm/',
+                      prefix = 'nicos/',
                       loglevel = 'debug'),
 
     # -- TAS devices and axes -------------------------------------------------
 
-    Sample   = device('nicm.tas.TASSample'),
+    Sample   = device('nicos.tas.TASSample'),
 
-    tas      = device('nicm.tas.TAS',
+    tas      = device('nicos.tas.TAS',
                       instrument='VTAS',
                       responsible='R. Esponsible <responsible@frm2.tum.de>',
                       detectors=['det'],
@@ -71,31 +69,31 @@ devices = dict(
                       mono = 'mono',
                       ana = 'ana'),
 
-    phi      = device('nicm.virtual.VirtualMotor',
+    phi      = device('nicos.virtual.VirtualMotor',
                       absmin = -180,
                       absmax = 180,
                       initval = 0,
                       unit = 'deg'),
 
-    psi      = device('nicm.virtual.VirtualMotor',
+    psi      = device('nicos.virtual.VirtualMotor',
                       absmin = 0,
                       absmax = 360,
                       initval = 0,
                       unit = 'deg'),
 
-    mono     = device('nicm.virtual.VirtualMotor',
+    mono     = device('nicos.virtual.VirtualMotor',
                       unit = 'A-1',
                       absmin = 0,
                       absmax = 10,
                       initval = 2.662),
 
-    ana      = device('nicm.virtual.VirtualMotor',
+    ana      = device('nicos.virtual.VirtualMotor',
                       unit = 'A-1',
                       absmin = 0,
                       absmax = 10,
                       initval = 2.662),
 
-    ki       = device('nicm.tas.Wavevector',
+    ki       = device('nicos.tas.Wavevector',
                       unit = 'A-1',
                       base = 'mono',
                       tas = 'tas',
@@ -103,7 +101,7 @@ devices = dict(
                       absmin = 0,
                       absmax = 10),
 
-    kf       = device('nicm.tas.Wavevector',
+    kf       = device('nicos.tas.Wavevector',
                       unit = 'A-1',
                       base = 'ana',
                       tas = 'tas',
@@ -113,7 +111,7 @@ devices = dict(
 
     # -- miscellaneous axes ---------------------------------------------------
 
-    m1       = device('nicm.virtual.VirtualMotor',
+    m1       = device('nicos.virtual.VirtualMotor',
                       lowlevel = True,
                       #loglevel = 'debug',
                       initval = 1,
@@ -122,7 +120,7 @@ devices = dict(
                       speed = 0.5,
                       unit = 'deg'),
 
-    m2       = device('nicm.virtual.VirtualMotor',
+    m2       = device('nicos.virtual.VirtualMotor',
                       lowlevel = True,
                       loglevel = 'debug',
                       initval = 0.5,
@@ -131,12 +129,12 @@ devices = dict(
                       speed = 1,
                       unit = 'deg'),
 
-    c1       = device('nicm.virtual.VirtualCoder',
+    c1       = device('nicos.virtual.VirtualCoder',
                       lowlevel = True,
                       motor = 'm1',
                       unit = 'deg'),
 
-    a1       = device('nicm.axis.Axis',
+    a1       = device('nicos.axis.Axis',
                       motor = 'm1',
                       coder = 'c1',
                       obs = ['c1'],
@@ -147,7 +145,7 @@ devices = dict(
                       precision = 0,
                       pollinterval = 0.5),
 
-    a2       = device('nicm.axis.Axis',
+    a2       = device('nicos.axis.Axis',
                       motor = 'm2',
                       coder = 'm2',
                       obs = [],
@@ -155,13 +153,13 @@ devices = dict(
                       absmin = 0,
                       absmax = 100),
 
-    sw       = device('nicm.switcher.Switcher',
+    sw       = device('nicos.switcher.Switcher',
                       moveable = 'a2',
                       states = ['in', 'out'],
                       values = [1, 0],
                       precision = 0),
 
-    # Power = device('nicm.taco.analog.Input',
+    # Power = device('nicos.taco.analog.Input',
     #                description = 'FRM II reactor power',
     #                tacodevice = '//tacodb/frm2/reactor/power',
     #                tacolog = True,
@@ -171,18 +169,18 @@ devices = dict(
 
     # -- detector -------------------------------------------------------------
 
-    timer    = device('nicm.virtual.VirtualTimer',
+    timer    = device('nicos.virtual.VirtualTimer',
                       lowlevel = True),
 
-    mon1     = device('nicm.virtual.VirtualCounter',
+    mon1     = device('nicos.virtual.VirtualCounter',
                       lowlevel = True,
                       countrate = 1000),
 
-    ctr1     = device('nicm.virtual.VirtualCounter',
+    ctr1     = device('nicos.virtual.VirtualCounter',
                       lowlevel = True,
                       countrate = 2000),
 
-    det      = device('nicm.detector.FRMDetector',
+    det      = device('nicos.detector.FRMDetector',
                       t  = 'timer',
                       m1 = 'ctr1',
                       m2 = None,

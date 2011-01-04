@@ -1,8 +1,8 @@
 .. -*- mode: rst -*-
 
-=====================
-NICM v2 Documentation
-=====================
+======================
+NICOS-NG Documentation
+======================
 
 :Author:   $Author$
 :Date:     $Date$
