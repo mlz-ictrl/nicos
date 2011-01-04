@@ -31,7 +31,7 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from PyQt4.QtGui import *
+from PyQt4.QtGui import QApplication, QKeyEvent, QLineEdit
 from PyQt4.QtCore import Qt, SIGNAL
 
 

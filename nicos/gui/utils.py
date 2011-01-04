@@ -37,7 +37,6 @@ import time
 import random
 import socket
 from os import path
-from cgi import escape
 from math import sqrt, log
 from itertools import islice, chain
 
@@ -190,57 +189,6 @@ def setForegroundColor(widget, color):
     palette.setColor(QtGui.QPalette.WindowText, color)
     widget.setForegroundRole(QtGui.QPalette.WindowText)
     widget.setPalette(palette)
-
-
-# -- Text tools ----------------------------------------------------------------
-
-# obsolete tools to process output into HTML text with links
-
-_out_re = re.compile(r'^(>>> .*)$', re.MULTILINE)
-_ll_re  = re.compile(r'^-{26}.*$', re.MULTILINE)
-
-def split_output(output):
-    out = _out_re.split(output)
-    outlen = len(out)
-    ret = []
-    i = 1
-    if out[0] != '':
-        ret.append(('', '', out[0]))
-    while i < outlen:
-        firstline, rest = out[i:i+2]
-        date = firstline[5:24]
-        if firstline.endswith('-'):
-            lastline = _ll_re.search(rest)
-            script, output = rest[1:lastline.start()], rest[lastline.end():]
-        else:
-            script = firstline[27:]
-            output = rest[1:]
-        ret.append((date, script, output))
-        i += 2
-    return ret
-
-
-_prompt_re = re.compile(r'^(&gt;&gt;&gt;&nbsp;)(\[.*?\])'
-                        r'(&nbsp;&nbsp;)(.*)$', re.MULTILINE)
-_prompt2_re = re.compile(r'^(&gt;&gt;&gt;&nbsp;)(\[.*?\])'
-                         r'(&nbsp;-{20}&nbsp;)(.*)$', re.MULTILINE)
-
-def format_output(output):
-    output = escape(output)
-    output = output.replace(' ', '&nbsp;')
-    def repl(targ):
-        def repl(m):
-            return (
-                m.group(1) + '<font color="#0000ff">' + m.group(2) +
-                '</font>' + m.group(3) +
-                '<b><a style="color: black" href="%s:%s">' % (
-                    targ, m.group(4).replace('&nbsp;', ' ').replace('"', '&quot;')) +
-                m.group(4) + '</a></b>')
-        return repl
-    output = _prompt_re.sub(repl('exec'), output)
-    output = _prompt2_re.sub(repl('edit'), output)
-    output = output.replace('\n', '<br>')
-    return output
 
 
 # -- Fitting tools -------------------------------------------------------------

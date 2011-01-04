@@ -194,6 +194,7 @@ class IsegHV(Moveable, HasLimits):
         crate.lockChannel(self.cratechannel)
         try:
             resp = crate.communicate('V%d=%03d' % (self.isegchannel, ramp), 0)
+            # XXX check resp
             self.printinfo('set ramp to %d V/s' % ramp)
         finally:
             crate.unlockChannel()

@@ -33,7 +33,7 @@ __version__ = "$Revision$"
 
 import copy
 
-from PyQt4.QtCore import *
+from PyQt4.QtCore import QObject, SIGNAL
 
 import numpy as np
 

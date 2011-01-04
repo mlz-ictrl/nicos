@@ -39,7 +39,8 @@ from IO import StringIO
 from nicos import status
 from nicos.utils import intrange, listof
 from nicos.device import Device, Readable, Moveable, Param, Override
-from nicos.errors import NicosError, CommunicationError, UsageError
+from nicos.errors import NicosError, CommunicationError, UsageError, \
+     ConfigurationError
 from nicos.taco.base import TacoDevice
 from nicos.mira.iseg import IsegConnector
 

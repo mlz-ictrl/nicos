@@ -38,9 +38,9 @@ import time
 import codecs
 from os import path
 
-from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtGui import *
 
 from nicos import nicos_version
 from nicos.gui.data import DataHandler, DataError

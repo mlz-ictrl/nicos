@@ -81,7 +81,7 @@ class Coder(NicosCoder):
 
     def doInit(self):
         bus = self._adevs['bus']
-        self._adevs['bus'].ping(self.addr)
+        bus.ping(self.addr)
         confbyte = self.confbyte
         self._type = self._getcodertype(confbyte)
         self._resolution = confbyte & 31

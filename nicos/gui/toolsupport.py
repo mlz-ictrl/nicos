@@ -33,8 +33,8 @@ __version__ = "$Revision$"
 
 from subprocess import Popen, PIPE
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4.QtCore import SIGNAL
+from PyQt4.QtGui import QAction, QMessageBox
 
 from nicos.gui.tools.proposal import proposal
 from nicos.gui.tools.scan import scaninput
@@ -87,4 +87,3 @@ class HasTools(object):
                     dlg.show()
             self.connect(action, SIGNAL('triggered()'), slot)
             menu.addAction(action)
-    
