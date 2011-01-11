@@ -57,7 +57,7 @@ red = QTextCharFormat()
 red.setForeground(QBrush(QColor('red')))
 
 magenta = QTextCharFormat()
-magenta.setForeground(QBrush(QColor('#CC55FF')))
+magenta.setForeground(QBrush(QColor('#C000C0')))
 
 bold = QTextCharFormat()
 bold.setFontWeight(QFont.Bold)
@@ -84,10 +84,11 @@ class OutputView(QTextBrowser):
         self._messages = []
         self._inview = False
         self._errview = None
-        self.openErrorWindow()
+        #self.openErrorWindow()
 
     def openErrorWindow(self):
         dlg = dialogFromUi(self.parent(), 'errwin.ui')
+        dlg.outView.setFont(self.font())
         self._errview = dlg.outView
         dlg.show()
 

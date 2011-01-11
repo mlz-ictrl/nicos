@@ -218,17 +218,8 @@
           <property name="tabChangesFocus">
            <bool>true</bool>
           </property>
-          <property name="undoRedoEnabled">
-           <bool>false</bool>
-          </property>
           <property name="lineWrapMode">
            <enum>QTextEdit::NoWrap</enum>
-          </property>
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-          <property name="textInteractionFlags">
-           <set>Qt::TextBrowserInteraction</set>
           </property>
           <property name="openLinks">
            <bool>false</bool>
@@ -373,7 +364,7 @@
      <x>0</x>
      <y>0</y>
      <width>698</width>
-     <height>23</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -485,6 +476,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionErrorWindow"/>
    <addaction name="actionUserEditor"/>
    <addaction name="actionAnalysis"/>
   </widget>
@@ -749,6 +741,18 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionErrorWindow">
+   <property name="icon">
+    <iconset resource="../../resources/nicos-gui.qrc">
+     <normaloff>:/errors</normaloff>:/errors</iconset>
+   </property>
+   <property name="text">
+    <string>Errors</string>
+   </property>
+   <property name="toolTip">
+    <string>Show window with all warnings and errors</string>
    </property>
   </action>
  </widget>

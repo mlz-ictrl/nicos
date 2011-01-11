@@ -445,6 +445,10 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         self.analysisWindow = None
 
     @qtsig('')
+    def on_actionErrorWindow_triggered(self):
+        self.outView.openErrorWindow()
+
+    @qtsig('')
     def on_actionBreak_triggered(self):
         self.client.send_command('break_prg', True)
         self.action_start_time = time.time()
@@ -817,7 +821,6 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
     def on_outView_anchorClicked(self, url):
         """Called when the user clicks a link in the out view."""
         url = str(url.toString())
-        #print url
         if url.startswith('exec:'):
             self.run_script('None', url[5:])
         elif url.startswith('edit:'):
@@ -847,6 +850,9 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
                 message += line
         # show traceback window
         dlg = dialogFromUi(self, 'traceback.ui')
+        button = QPushButton('To clipboard', dlg)
+        dlg.buttonBox.addButton(button, QDialogButtonBox.ActionRole)
+        # XXX make it work
         dlg.message.setText(message)
         dlg.tree.setFont(self.outView.font())
         boldfont = QFont(self.outView.font())
