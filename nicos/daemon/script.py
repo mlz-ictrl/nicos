@@ -35,6 +35,7 @@ __version__ = "$Revision$"
 
 import time
 import traceback
+import __builtin__
 from Queue import Queue
 from threading import Lock, Event, Thread
 
@@ -395,7 +396,8 @@ class ExecutionController(Controller):
         self.log.debug('script_thread (re)started')
         try:
             self.in_startup = True
-            #self.namespace.clear()
+            self.namespace.clear()
+            self.namespace['__builtins__'] = __builtin__.__dict__
             setup_code = 'from nicos import session; session.loadSetup(%r)' % \
                          self.setup
             # this is to allow the traceback module to report the script's
