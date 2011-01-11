@@ -469,7 +469,10 @@ class Session(object):
                 tb = tb.tb_next
                 cut_frames -= 1
             exc_info = (type, value, tb)
-        self.log.error(msg, exc_info=exc_info)
+        if msg:
+            self.log.error(msg, exc_info=exc_info)
+        else:
+            self.log.error(exc_info=exc_info)
 
     # -- Action logging --------------------------------------------------------
 

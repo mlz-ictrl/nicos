@@ -158,6 +158,7 @@ def SetMode(mode):
 
     Valid modes are: """
     session.system.setMode(mode)
+    printinfo('execution mode set to %s' % mode)
 
 SetMode.__doc__ += ', '.join(EXECUTIONMODES)
 
