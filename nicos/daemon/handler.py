@@ -205,7 +205,8 @@ class ConnectionHandler(BaseRequestHandler):
                 if allowed == possible:
                     return
         self.write(ERROR, 'permission denied')
-        self.log.error('login attempt from untrusted host: %s', self.clientnames)
+        self.log.error('login attempt from untrusted host: %s' %
+                       self.clientnames)
         raise CloseConnection
 
     def check_control(self):
@@ -227,7 +228,7 @@ class ConnectionHandler(BaseRequestHandler):
         """Handle a single connection."""
         host, aliases, addrlist = socket.gethostbyaddr(self.client_address[0])
         self.clientnames = [host] + aliases + addrlist
-        self.log.debug('connection from %s', self.clientnames)
+        self.log.debug('connection from %s' % self.clientnames)
 
         # check trusted hosts list, if nonempty
         if self.daemon.trustedhosts:
@@ -238,7 +239,7 @@ class ConnectionHandler(BaseRequestHandler):
             self.write('display')
             self.display = self.read()
         except:
-            self.log.error('invalid login: could not get DISPLAY var from %s',
+            self.log.error('invalid login: could not get DISPLAY var from %s' %
                            self.clientnames)
             self.write(ERROR, 'could not get DISPLAY var')
             raise
@@ -247,7 +248,7 @@ class ConnectionHandler(BaseRequestHandler):
 
         # now, check login data (if config.passwd is an empty list, no login
         # control is done and everybody may log in)
-        self.log.info('login attempt from %s', self.clientnames)
+        self.log.info('login attempt from %s' % self.clientnames)
         self.write('login: ')
         login = self.read()
         self.write('passwd: ')
@@ -258,24 +259,24 @@ class ConnectionHandler(BaseRequestHandler):
                     self.user = entry
                     break
             else:
-                self.log.warning('invalid login name: %s', login)
+                self.log.warning('invalid login name: %s' % login)
                 self.write(WARN, 'Invalid login')
                 raise CloseConnection
             if passw != self.user[1]:
-                self.log.warning('invalid password from user %s', login)
+                self.log.warning('invalid password from user %s' % login)
                 self.write(WARN, 'Invalid passwd')
                 raise CloseConnection
         else:
             self.user = [login, passw, True]
-        self.log.info('login succeeded: user %s, display %s',
-                      login, self.display)
+        self.log.info('login succeeded: user %s, display %s' %
+                      (login, self.display))
         self.write(OK)
 
         # start main command loop
         while 1:
             command = self.read()
             if command not in licos_commands:
-                self.log.warning('got unknown command: %s', command)
+                self.log.warning('got unknown command: %s' % command)
                 self.write(WARN, 'unknown command')
                 continue
             licos_commands[command](self)
@@ -309,7 +310,7 @@ class ConnectionHandler(BaseRequestHandler):
                     self.log.warning('broken pipe in event sender')
                     break
                 self.log.exception('exception in event sender; '
-                                   'event: %s, data: %r', event, data)
+                                   'event: %s, data: %r' % (event, data))
         self.log.debug('closing event connection')
         sock.close()
 
@@ -435,7 +436,7 @@ class ConnectionHandler(BaseRequestHandler):
         elif self.controller.status == STATUS_STOPPING:
             self.write(OK)
             return
-        self.log.warning('emergency stop request in %s',
+        self.log.warning('emergency stop request in %s' %
                          self.controller.current_location(True))
         if self.controller.status == STATUS_RUNNING:
             self.controller.set_stop('emergency stop')
@@ -480,7 +481,7 @@ class ConnectionHandler(BaseRequestHandler):
         self.write(OK)
         cmd = self.read()
         try:
-            self.log.info('executing command in script context\n%s', cmd)
+            self.log.info('executing command in script context\n%s' % cmd)
             self.controller.exec_script(cmd)
         except Exception, err:
             self.log.exception('exception in exec_cmd command')

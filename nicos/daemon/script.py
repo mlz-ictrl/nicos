@@ -258,7 +258,7 @@ class ExecutionController(Controller):
         self.eventfunc('new_status', (status, lineno))
 
     def _breakfunc(self, frame, arg):
-        self.log.info('script interrupted in %s', self.current_location())
+        self.log.info('script interrupted in %s' % self.current_location())
         brfunc, contfunc = self.breakfuncs
         if brfunc:
             self.log.info('calling break function %r...' %
@@ -272,7 +272,7 @@ class ExecutionController(Controller):
             self.set_continue(arg)
         flag = self.wait_for_continue()
         if flag:
-            self.log.info('interrupted script stopped: %s', flag)
+            self.log.info('interrupted script stopped: %s' % flag)
             self.set_stop(flag)
         else:
             self.log.info('interrupted script continued')
@@ -417,9 +417,10 @@ class ExecutionController(Controller):
                 request = self.queue.get()
                 self.reqno_work = request.reqno
                 if request.reqno in self.blocked_reqs:
-                    self.log.info('request %d blocked, continuing', request.reqno)
+                    self.log.info('request %d blocked, continuing' %
+                                  request.reqno)
                     continue
-                self.log.info('processing request %d', request.reqno)
+                self.log.info('processing request %d' % request.reqno)
                 if isinstance(request, TerminateRequest):
                     self.log.info('terminating script_thread')
                     break
