@@ -194,12 +194,11 @@ class TacoDevice(object):
 
     def _taco_guard_nolog(self, function, *args):
         """Try running the TACO function, and raise a NicosError on exception."""
-        # XXX retry on "connection lost" error after server restart
         self.__lock.acquire()
         try:
             return function(*args)
         except TACOError, err:
-            self._raise_taco(err)
+            self._raise_taco(err, '%s%r' % (function.__name__, args))
         finally:
             self.__lock.release()
 
@@ -218,7 +217,7 @@ class TacoDevice(object):
             if self.tacolog:
                 self.printdebug('TACO resource update successful')
         except TACOError, err:
-            self._raise_taco(err)
+            self._raise_taco(err, 'While updating %s resource' % resname)
         finally:
             self.__lock.release()
 
