@@ -297,6 +297,10 @@ class CacheDatabase(Device):
             'CacheDatabase is an abstract class, use '
             'either MemoryCacheDatabase or DbCacheDatabase')
 
+    def initDatabase(self):
+        """Initialize the database from persistent store, if present."""
+        pass
+
 
 class MemoryCacheDatabase(CacheDatabase):
     """
@@ -454,6 +458,8 @@ class DbCacheDatabase(MemoryCacheDatabase):
         with self._store_lock:
             self._currstore = self._open_store(self._currday)
             self._prevstore = self._open_store(self._prevday)
+
+    def initDatabase(self):
         # read the last entry for each key from disk
         nkeys = 0
         with self._db_lock:
@@ -621,6 +627,7 @@ class CacheServer(Device):
         self._adevs['db']._server = self
 
     def start(self):
+        self._adevs['db'].initDatabase()
         self._worker = threading.Thread(target=self._worker_thread)
         self._worker.start()
 
