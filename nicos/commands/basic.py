@@ -104,6 +104,7 @@ def NewSetup(setupname):
 @usercommand
 def AddSetup(setupname):
     """Load the given setup additional to the current one."""
+    session.readSetups()
     session.loadSetup(setupname)
 
 @usercommand
