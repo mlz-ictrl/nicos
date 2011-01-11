@@ -44,9 +44,9 @@ from PyQt4.QtGui import *
 
 from nicos import nicos_version
 from nicos.gui.data import DataHandler, DataError
-from nicos.gui.utils import DlgUtils, SettingGroup, loadUi, dialogFromUi, chunks, \
-     get_display, parse_conndata, enumerateWithProgress, setForegroundColor, \
-     setBackgroundColor
+from nicos.gui.utils import DlgUtils, SettingGroup, loadUi, dialogFromUi, \
+     chunks, get_display, parse_conndata, enumerateWithProgress, \
+     setForegroundColor, setBackgroundColor
 from nicos.gui.client import NicosClient, STATUS_INBREAK, STATUS_IDLE
 from nicos.gui.editor import EditorWindow
 from nicos.gui.toolsupport import main_tools, HasTools
@@ -825,10 +825,41 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             editor = self.on_actionUserEditor_triggered()
             editor.openFile(url[5:])
         elif url.startswith('trace:'):
-            # XXX show it better (or inline)
-            self.showInfo(url[6:])
+            self.showTraceback(url[6:])
         else:
             print 'Strange anchor in outView: ' + url
+
+    def showTraceback(self, tb):
+        assert tb.startswith('Traceback')
+        # split into frames and message
+        frames = []
+        message = ''
+        for line in tb.splitlines():
+            if line.startswith('        '):
+                name, v = line.split('=', 1)
+                curframe[2][name.strip()] = v.strip()
+            elif line.startswith('    '):
+                curframe[1] = line.strip()
+            elif line.startswith('  '):
+                curframe = [line.strip(), '', {}]
+                frames.append(curframe)
+            elif not line.startswith('Traceback'):
+                message += line
+        # show traceback window
+        dlg = dialogFromUi(self, 'traceback.ui')
+        dlg.message.setText(message)
+        dlg.tree.setFont(self.outView.font())
+        boldfont = QFont(self.outView.font())
+        boldfont.setBold(True)
+        for file, line, bindings in frames:
+            item = QTreeWidgetItem(dlg.tree, [file])
+            item.setFirstColumnSpanned(True)
+            item = QTreeWidgetItem(dlg.tree, [line])
+            item.setFirstColumnSpanned(True)
+            item.setFont(0, boldfont)
+            for var, value in bindings.iteritems():
+                bitem = QTreeWidgetItem(item, ['', var, value])
+        dlg.show()
 
     @qtsig('')
     def on_actionPrintPaper_triggered(self):

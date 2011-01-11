@@ -56,6 +56,9 @@ grey.setForeground(QBrush(QColor('grey')))
 red = QTextCharFormat()
 red.setForeground(QBrush(QColor('red')))
 
+magenta = QTextCharFormat()
+magenta.setForeground(QBrush(QColor('#CC55FF')))
+
 bold = QTextCharFormat()
 bold.setFontWeight(QFont.Bold)
 
@@ -128,7 +131,7 @@ class OutputView(QTextBrowser):
             return message[3], bold
         elif levelno <= WARNING:
             text = levels[levelno] + ': ' + name + message[3]
-            fmt = red
+            fmt = magenta
         else:
             text = '%s [%s] %s%s' % (levels[levelno], format_time(message[1]),
                                     name, message[3])

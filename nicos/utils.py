@@ -84,6 +84,9 @@ class Param(object):
         self.description = description
         self.preinit = preinit
 
+    def __repr__(self):
+        return '<Param info>'
+
 
 class Override(object):
 
