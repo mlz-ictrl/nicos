@@ -707,6 +707,9 @@ class DaemonSession(SimpleSession):
         self.loaded_setups.clear()
         del self.explicit_setups[:]
 
+        self._Session__system_device = None
+        self._Session__exported_names.clear()
+
 
 class WebSession(Session):
     """
