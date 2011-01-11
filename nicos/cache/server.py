@@ -667,7 +667,10 @@ class CacheServer(Device):
             self.printerror("couldn't bind to any location, giving up!")
             return
 
-        self.printinfo('starting main-loop bound to %s' % self._boundto)
+        if not self._boundto:
+            self.printwarning('starting main-loop only bound to UDP broadcast')
+        else:
+            self.printinfo('starting main-loop bound to %s' % self._boundto)
         # now enter main serving loop
         while not self._stoprequest:
             # loop through connections, first to remove dead ones,

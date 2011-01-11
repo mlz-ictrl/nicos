@@ -114,12 +114,16 @@ def dump_entries(entries):
 
 def load_entries(bytes):
     """Load a list of entries from a bytestring."""
+    entries = []
     i = 0
     n = len(bytes)
     headsize = headstr.size
-    entries = []
-    while i < n:
-        time, ttl, valuelen = headstr.unpack_from(bytes, i)
-        i += valuelen + headsize
-        entries.append(Entry(time, ttl or None, bytes[i-valuelen:i] or None))
-    return entries
+    try:
+        while i < n:
+            time, ttl, valuelen = headstr.unpack_from(bytes, i)
+            i += valuelen + headsize
+            entries.append(Entry(time, ttl or None, bytes[i-valuelen:i] or None))
+        return entries
+    except struct.error:
+        # return at least what we got
+        return entries
