@@ -673,7 +673,7 @@ class HasLimits(object):
         return cfglimits
 
     def doWriteUserlimits(self, value):
-        self._checkLimits(value[0], value[1])
+        self._checkLimits(value)
 
 
 class HasOffset(object):

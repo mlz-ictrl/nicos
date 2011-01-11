@@ -190,11 +190,9 @@ class Motor(NicosMotor):
 
     def doReadUserlimits(self):
         if self.slope < 0:
-            self.userlimits = (self._fromsteps(self.max),
-                               self._fromsteps(self.min))
+            return (self._fromsteps(self.max), self._fromsteps(self.min))
         else:
-            self.userlimits = (self._fromsteps(self.min),
-                               self._fromsteps(self.max))
+            return (self._fromsteps(self.min), self._fromsteps(self.max))
 
     def doReadSpeed(self):
         return self._adevs['bus'].get(self.addr, 128)
