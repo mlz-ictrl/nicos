@@ -428,7 +428,7 @@ class Readable(Device):
         rdval = self.doRead()
         self._cache.put(self, 'value', rdval, currenttime(), self.maxage)
         if hasattr(self, 'doPoll'):
-            self.doPoll(i)
+            self.doPoll(n)
         return stval, rdval
 
     def _pollParam(self, name, with_ttl=False):
