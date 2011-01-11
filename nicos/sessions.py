@@ -428,7 +428,8 @@ class Session(object):
 
     # -- Logging ---------------------------------------------------------------
 
-    def _initLogging(self, prefix='nicos'):
+    def _initLogging(self, prefix=None):
+        prefix = prefix or self.appname
         initLoggers()
         self._loggers = {}
         self._log_manager = logging.Manager(None)
