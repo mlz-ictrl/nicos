@@ -39,7 +39,7 @@ from PyQt4.QtCore import Qt, QRegExp, SIGNAL
 from PyQt4.QtGui import QTextCharFormat, QBrush, QColor, QFont, QTextBrowser, \
      QTextCursor, QDialogButtonBox
 
-from nicos.loggers import INPUT, OUTPUT
+from nicos.loggers import INPUT, OUTPUT, ACTION
 from nicos.gui.utils import dialogFromUi
 
 
@@ -84,7 +84,10 @@ class OutputView(QTextBrowser):
         self._messages = []
         self._inview = False
         self._errview = None
-        #self.openErrorWindow()
+        self._actionlabel = None
+
+    def setActionLabel(self, label):
+        self._actionlabel = label
 
     def openErrorWindow(self):
         if self._errview is not None:
@@ -115,7 +118,16 @@ class OutputView(QTextBrowser):
             name = ''
         else:
             name = '%-10s: ' % message[0]
-        if levelno <= DEBUG:
+        if levelno == ACTION:
+            if self._actionlabel:
+                action = message[3].strip()
+                if action:
+                    self._actionlabel.setText('Status: ' + action)
+                    self._actionlabel.show()
+                else:
+                    self._actionlabel.hide()
+                return '', None
+        elif levelno <= DEBUG:
             text = name + message[3]
             fmt = grey
         elif levelno <= OUTPUT:
@@ -149,6 +161,7 @@ class OutputView(QTextBrowser):
             fmt.setAnchorHref('trace:' + message[4])
 
         # XXX very crude error view window for demonstration
+        # XXX the error view should always have timestamps
         if levelno >= WARNING and self._errview:
             tc = self._errview.textCursor()
             tc.movePosition(QTextCursor.End)

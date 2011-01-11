@@ -114,6 +114,9 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
                                    self.commandInput]
         self.commandInput.scrollWidget = self.outView
 
+        self.actionLabel.hide()
+        self.outView.setActionLabel(self.actionLabel)
+
         # local command queue
         self.scriptQueue = ScriptQueue(self.queueFrame, self.queueView)
 
