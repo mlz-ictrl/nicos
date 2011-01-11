@@ -54,7 +54,6 @@ from nicos.utils import makeSessionId, colorcode, daemonize, writePidfile, \
 from nicos.errors import NicosError, UsageError, ConfigurationError, ModeError
 from nicos.loggers import NicosLogfileHandler, ColoredConsoleHandler, \
      initLoggers, OUTPUT, INPUT
-from nicos.daemon.utils import DaemonLogHandler
 
 
 class NicosNamespace(dict):
@@ -691,6 +690,7 @@ class DaemonSession(SimpleSession):
             self.log.log(OUTPUT, repr(value))
 
     def _beforeStart(self, daemondev):
+        from nicos.daemon.utils import DaemonLogHandler
         daemon_handler = DaemonLogHandler(daemondev)
         # add handler to general NICOS logger
         self.log.handlers.append(daemon_handler)
