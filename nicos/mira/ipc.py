@@ -182,17 +182,19 @@ class Motor(NicosMotor):
         # reset of the motor card
         pass
 
-    def _setMode(self, mode):
-        NicosMotor._setMode(self, mode)
-        if mode == 'master':
-            self.usermax = self._fromsteps(self.max)
-            self.usermin = self._fromsteps(self.min)
-
     def _tosteps(self, value):
         return int(float(value) * self.slope + self.offset)
 
     def _fromsteps(self, value):
         return float((value - self.offset) / self.slope)
+
+    def doReadUserlimits(self):
+        if self.slope < 0:
+            self.userlimits = (self._fromsteps(self.max),
+                               self._fromsteps(self.min))
+        else:
+            self.userlimits = (self._fromsteps(self.min),
+                               self._fromsteps(self.max))
 
     def doReadSpeed(self):
         return self._adevs['bus'].get(self.addr, 128)

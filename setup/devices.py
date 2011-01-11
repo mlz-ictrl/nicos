@@ -70,27 +70,23 @@ devices = dict(
                       ana = 'ana'),
 
     phi      = device('nicos.virtual.VirtualMotor',
-                      absmin = -180,
-                      absmax = 180,
+                      abslimits = (-180, 180), 
                       initval = 0,
                       unit = 'deg'),
 
     psi      = device('nicos.virtual.VirtualMotor',
-                      absmin = 0,
-                      absmax = 360,
+                      abslimits = (0, 360),
                       initval = 0,
                       unit = 'deg'),
 
     mono     = device('nicos.virtual.VirtualMotor',
                       unit = 'A-1',
-                      absmin = 0,
-                      absmax = 10,
+                      abslimits = (0, 10),
                       initval = 2.662),
 
     ana      = device('nicos.virtual.VirtualMotor',
                       unit = 'A-1',
-                      absmin = 0,
-                      absmax = 10,
+                      abslimits = (0, 10),
                       initval = 2.662),
 
     ki       = device('nicos.tas.Wavevector',
@@ -98,16 +94,14 @@ devices = dict(
                       base = 'mono',
                       tas = 'tas',
                       opmode = 'CKI',
-                      absmin = 0,
-                      absmax = 10),
+                      abslimits = (0, 10)),
 
     kf       = device('nicos.tas.Wavevector',
                       unit = 'A-1',
                       base = 'ana',
                       tas = 'tas',
                       opmode = 'CKF',
-                      absmin = 0,
-                      absmax = 10),
+                      abslimits = (0, 10)),
 
     # -- miscellaneous axes ---------------------------------------------------
 
@@ -115,8 +109,7 @@ devices = dict(
                       lowlevel = True,
                       #loglevel = 'debug',
                       initval = 1,
-                      absmin = 0,
-                      absmax = 100,
+                      abslimits = (0, 100),
                       speed = 0.5,
                       unit = 'deg'),
 
@@ -124,8 +117,7 @@ devices = dict(
                       lowlevel = True,
                       loglevel = 'debug',
                       initval = 0.5,
-                      absmin = 0,
-                      absmax = 100,
+                      abslimits = (0, 100),
                       speed = 1,
                       unit = 'deg'),
 
@@ -138,10 +130,8 @@ devices = dict(
                       motor = 'm1',
                       coder = 'c1',
                       obs = ['c1'],
-                      absmin = 0,
-                      absmax = 100,
-                      usermin = 0,
-                      usermax = 50,
+                      abslimits = (0, 100),
+                      userlimits = (0, 50),
                       precision = 0,
                       pollinterval = 0.5),
 
@@ -150,8 +140,7 @@ devices = dict(
                       coder = 'm2',
                       obs = [],
                       precision = 0,
-                      absmin = 0,
-                      absmax = 100),
+                      abslimits = (0, 100)),
 
     sw       = device('nicos.switcher.Switcher',
                       moveable = 'a2',

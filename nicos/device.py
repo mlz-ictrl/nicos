@@ -35,7 +35,7 @@ from time import time as currenttime, sleep
 
 from nicos import session
 from nicos import status, loggers
-from nicos.utils import AutoPropsMeta, Param, Override, getVersions
+from nicos.utils import AutoPropsMeta, Param, Override, getVersions, tupleof
 from nicos.errors import ConfigurationError, ProgrammingError, UsageError, \
      LimitError, FixedError, ModeError, CommunicationError, CacheLockError
 
@@ -118,7 +118,7 @@ class Device(object):
 
     def __setattr__(self, name, value):
         # disallow modification of public attributes that are not parameters
-        if name not in self.__class__.__dict__ and name[0] != '_' and \
+        if name not in dir(self.__class__) and name[0] != '_' and \
                not name.startswith('print'):
             raise UsageError(self, 'device has no parameter %s, use '
                              'listparams(%s) to show all' % (name, self))
@@ -603,72 +603,77 @@ class HasLimits(object):
     """
 
     parameters = {
-        'usermin': Param('User defined minimum of device value', unit='main',
-                         settable=True),
-        'usermax': Param('User defined maximum of device value', unit='main',
-                         settable=True),
-        'absmin':  Param('Absolute minimum of device value', unit='main',
-                         mandatory=True),
-        'absmax':  Param('Absolute maximum of device value', unit='main',
-                         mandatory=True),
+        'userlimits': Param('User defined limits of device value', unit='main',
+                            type=tupleof(float, float), settable=True),
+        'abslimits':  Param('Absolute limits of device value', unit='main',
+                            type=tupleof(float, float), mandatory=True),
     }
 
     def init(self):
         Moveable.init(self)
-        if self.absmin > self.absmax:
+        if self.abslimits[0] > self.abslimits[1]:
             raise ConfigurationError(self, 'absolute minimum (%s) above the '
-                                     'absolute maximum (%s)' %
-                                     (self.absmin, self.absmax))
+                                     'absolute maximum (%s)' % self.abslimits)
 
-    def _setMode(self, mode):
-        Moveable._setMode(self, mode)
-        if mode == 'master':
-            self.__checkUserLimits(self.usermin, self.usermax, setthem=True)
+    @property
+    def absmin(self):
+        return self.abslimits[0]
+    @property
+    def absmax(self):
+        return self.abslimits[1]
 
-    move = Startable.start
+    def __getusermin(self):
+        return self.userlimits[0]
+    def __setusermin(self, value):
+        self.userlimits = (value, self.userlimits[1])
+    usermin = property(__getusermin, __setusermin)
 
-    def __checkUserLimits(self, usermin, usermax, setthem=False):
-        absmin = self.absmin
-        absmax = self.absmax
-        if not usermin and not usermax and setthem:
-            # if both not set (0) then use absolute min. and max.
-            self.usermin = absmin
-            self.usermax = absmax
-            return
-        if usermin > usermax:
-            raise ConfigurationError(self, 'user minimum (%s) above the user '
-                                     'maximum (%s)' % (usermin, usermax))
-        if usermin < absmin:
-            raise ConfigurationError(self, 'user minimum (%s) below the '
-                                     'absolute minimum (%s)' % (usermin, absmin))
-        if usermin > absmax:
-            raise ConfigurationError(self, 'user minimum (%s) above the '
-                                     'absolute maximum (%s)' % (usermin, absmax))
-        if usermax > absmax:
-            raise ConfigurationError(self, 'user maximum (%s) above the '
-                                     'absolute maximum (%s)' % (usermax, absmax))
-        if usermax < absmin:
-            raise ConfigurationError(self, 'user maximum (%s) below the '
-                                     'absolute minimum (%s)' % (usermax, absmin))
+    def __getusermax(self):
+        return self.userlimits[1]
+    def __setusermax(self, value):
+        self.userlimits = (self.userlimits[0], value)
+    usermax = property(__getusermax, __setusermax)
+
+    del __getusermin, __setusermin, __getusermax, __setusermax
 
     def isAllowed(self, target):
-        if not self.usermin <= target <= self.usermax:
-            return False, 'limits are [%s, %s]' % (self.usermin, self.usermax)
+        limits = self.userlimits
+        if not limits[0] <= target <= limits[1]:
+            return False, 'limits are [%s, %s]' % limits
         if hasattr(self, 'doIsAllowed'):
             return self.doIsAllowed(target)
         return True, ''
 
-    def doWriteUsermin(self, value):
-        """Set the user minimum value to value after checking the value against
-        absolute limits and user maximum.
-        """
-        self.__checkUserLimits(value, self.usermax)
+    def _checkLimits(self, limits):
+        umin, umax = limits
+        amin, amax = self.abslimits
+        if umin > umax:
+            raise ConfigurationError(self, 'user minimum (%s) above the user '
+                                     'maximum (%s)' % (umin, umax))
+        if umin < amin:
+            raise ConfigurationError(self, 'user minimum (%s) below the '
+                                     'absolute minimum (%s)' % (umin, amin))
+        if umin > amax:
+            raise ConfigurationError(self, 'user minimum (%s) above the '
+                                     'absolute maximum (%s)' % (umin, amax))
+        if umax > amax:
+            raise ConfigurationError(self, 'user maximum (%s) above the '
+                                     'absolute maximum (%s)' % (umax, amax))
+        if umax < amin:
+            raise ConfigurationError(self, 'user maximum (%s) below the '
+                                     'absolute minimum (%s)' % (umax, amin))
 
-    def doWriteUsermax(self, value):
-        """Set the user maximum value to value after checking the value against
-        absolute limits and user minimum.
-        """
-        self.__checkUserLimits(self.usermin, value)
+    def doReadUserlimits(self):
+        if 'userlimits' not in self._config:
+            self.printinfo('setting userlimits from abslimits, which are %s'
+                            % (self.abslimits,))
+            return self.abslimits
+        cfglimits = self._config['userlimits']
+        self._checkLimits(cfglimits)
+        return cfglimits
+
+    def doWriteUserlimits(self, value):
+        self._checkLimits(value[0], value[1])
 
 
 class HasOffset(object):
@@ -696,20 +701,10 @@ class HasOffset(object):
         if isinstance(self, Moveable):
             # this applies only to Moveables
             diff = value - self.offset
-            # Avoid the use of the setPar method for the absolute limits
-            if diff < 0:
-                self._setROParam('absmax', self.absmax - diff)
-                self._setROParam('absmin', self.absmin - diff)
-            else:
-                self._setROParam('absmin', self.absmin - diff)
-                self._setROParam('absmax', self.absmax - diff)
-
-            if diff < 0:
-                self.usermin = self.usermin - diff
-                self.usermax = self.usermax - diff
-            else:
-                self.usermax = self.usermax - diff
-                self.usermin = self.usermin - diff
+            limits = self.abslimits
+            self._setROParam('abslimits', (limits[0] - diff, limits[1] - diff))
+            limits = self.userlimits
+            self.userlimits = (limits[0] - diff, limits[1] - diff)
         # Since offset changes directly change the device value, refresh
         # the cache instantly here
         if self._cache:

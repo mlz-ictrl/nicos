@@ -83,8 +83,7 @@ class Axis(BaseAxis):
         'precision': Override(mandatory=True),
         # these are not mandatory for the axis: the motor should have them
         # defined anyway, and by default they are correct for the axis as well
-        'absmin':    Override(mandatory=False),
-        'absmax':    Override(mandatory=False),
+        'abslimits': Override(mandatory=False),
     }
 
     def doInit(self):
@@ -104,28 +103,28 @@ class Axis(BaseAxis):
         self.__target = self.__read()
         self.__mutex = threading.RLock()
         self.__stopRequest = 0
-        self.__checkMotorLimits()
 
     def doReadUnit(self):
         return self._adevs['motor'].unit
 
-    def __checkMotorLimits(self):
+    def doReadAbslimits(self):
         # check axis limits against motor absolute limits (the motor should not
         # have user limits defined)
-        absmin = self.absmin
-        absmax = self.absmax
-        if not absmin and not absmax:
-            self._setROParam('absmin', self._adevs['motor'].absmin - self.offset)
-            self._setROParam('absmax', self._adevs['motor'].absmax - self.offset)
-        else:
-            motorabsmin = self._adevs['motor'].absmin - self.offset
-            motorabsmax = self._adevs['motor'].absmax - self.offset
-            if absmin < motorabsmin:
+        if 'abslimits' in self._config:
+            amin, amax = self._config['abslimits']
+            mmin, mmax = self._adevs['motor'].abslimits
+            mmin -= self.offset
+            mmax -= self.offset
+            if amin < mmin:
                 raise ConfigurationError(self, 'absmin (%s) below the motor '
-                                         'absmin (%s)' % (absmin, motorabsmin))
-            if absmax > motorabsmax:
+                                         'absmin (%s)' % (amin, mmin))
+            if amax > mmax:
                 raise ConfigurationError(self, 'absmax (%s) below the motor '
-                                         'absmax (%s)' % (absmax, motorabsmax))
+                                         'absmax (%s)' % (amax, mmax))
+        else:
+            mmin, mmax = self._adevs['motor'].abslimits
+            amin, amax = mmin - self.offset, mmax - self.offset
+        return amin, amax
 
     def doStart(self, target, locked=False):
         """Starts the movement of the axis to target."""

@@ -38,8 +38,7 @@ devices = dict(
         attached = 'dev1',
         param2 = 1,
         unit = 'mm',
-        absmin = 0,
-        absmax = 10,
+        abslimits = (0, 10),
     ),
     dev2_2 = device(
         'test.test_device.Dev2',
@@ -50,7 +49,6 @@ devices = dict(
         attached = 'dev1',
         param2 = 1,
         unit = 'mm',
-        absmin = 0,
-        absmax = 10,
+        abslimits = (0, 10),
     )
 )

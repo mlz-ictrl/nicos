@@ -34,8 +34,7 @@ devices = dict(
         'nicos.virtual.VirtualMotor',
         unit = 'mm',
         initval = 0,
-        absmin = -100,
-        absmax = 100,
+        abslimits = (-100, 100),
     ),
 
     coder = device(
@@ -50,8 +49,7 @@ devices = dict(
         coder = 'coder',
         obs = [],
         precision = 0,
-        usermin = -50,
-        usermax = 50,
+        userlimits = (-50, 50),
         loopdelay = 0.005,  # delay not necessary for virtual motor
     ),
 )

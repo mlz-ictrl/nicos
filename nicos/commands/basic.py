@@ -160,3 +160,11 @@ def SetMode(mode):
     session.system.setMode(mode)
 
 SetMode.__doc__ += ', '.join(EXECUTIONMODES)
+
+@usercommand
+def ClearCache(devname):
+    """Clear all cached information for a given device."""
+    if isinstance(devname, Device):
+        devname = devname.name
+    session.system.cache.clear(devname)
+    printinfo('cleared cached information for %s' % devname)
