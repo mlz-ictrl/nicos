@@ -52,7 +52,7 @@ def read_pidfile(name, wait=0):
 def start_daemon(name):
     print 'Starting %s...' % name,
     os.system('%s -d' % path.join(bin_path, 'nicos-%s' % name))
-    pid = read_pidfile(name, wait=1)
+    pid = read_pidfile(name, wait=20)
     if not pid:
         print 'failed'
         sys.exit(1)
