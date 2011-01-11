@@ -330,6 +330,14 @@ class CacheClient(BaseCacheClient):
         self._db[dbkey] = (value, time, ttl)
         self._queue.put(msg)
 
+    def clear(self, devname):
+        for dbkey in self._db.keys():
+            if dbkey.startswith(devname.lower() + '/'):
+                msg = '%s@%s/%s%s\r\n' % (currenttime(), self._prefix,
+                                          dbkey, OP_TELL)
+                self._db.pop(dbkey, None)
+                self._queue.put(msg)
+
     def invalidate(self, dev, key):
         dbkey = '%s/%s' % (dev.name.lower(), key)
         self.printdebug('invalidating %s' % dbkey)
@@ -347,8 +355,9 @@ class CacheClient(BaseCacheClient):
             # process data
             time, ttl, value = msgmatch.group('time'), msgmatch.group('ttl'), \
                                msgmatch.group('value')
+            if time is None:
+                break  # it's the '###' value
             ret.append((float(time), ttl and float(ttl), cache_load(value)))
-        del ret[-1]
         return ret
 
     def lock(self, key, ttl=None, unlock=False, sessionid=None):
