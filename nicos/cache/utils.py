@@ -109,15 +109,21 @@ headstr = struct.Struct('ddH')
 
 def dump_entries(entries):
     """Dump a list of entries as a bytestring."""
-    return ''.join(headstr.pack(e.time, (e.ttl or 0.), len(e.value or ''))
-                   + (e.value or '') for e in entries)
+    return 'CD\x42' + \
+           ''.join(headstr.pack(e.time, (e.ttl or 0.), len(e.value or ''))
+                   + (e.value or '') for e in entries) + '\x43'
+
 
 def load_entries(bytes):
     """Load a list of entries from a bytestring."""
     entries = []
-    i = 0
-    n = len(bytes)
     headsize = headstr.size
+    if bytes[:3] != 'CD\x42':
+        return []
+    if bytes[-1] != '\x43':
+        return []
+    i = 3
+    n = len(bytes) - 1
     try:
         while i < n:
             time, ttl, valuelen = headstr.unpack_from(bytes, i)
@@ -125,5 +131,4 @@ def load_entries(bytes):
             entries.append(Entry(time, ttl or None, bytes[i-valuelen:i] or None))
         return entries
     except struct.error:
-        # return at least what we got
-        return entries
+        return []
