@@ -46,11 +46,29 @@ def read_pidfile(name, wait=0):
             if time.time() > begin + wait:
                 return
         else:
-            return int(pid)
+            break
         time.sleep(0.1)
+    # check that pid really exists
+    pid = int(pid)
+    try:
+        params = open('/proc/%d/cmdline' % pid, 'r').read().split('\0')
+        if not params[1].endswith(name):   # not our process?
+            raise ValueError
+        return pid
+    except Exception:
+        try:
+            os.unlink(pidpath)
+        except Exception:
+            pass
+        return
 
 def start_daemon(name):
     print 'Starting %s...' % name,
+    sys.stdout.flush()
+    previous_pid = read_pidfile(name)
+    if previous_pid:
+        print 'already running? (pid = %d)' % previous_pid
+        return
     os.system('%s -d' % path.join(bin_path, 'nicos-%s' % name))
     pid = read_pidfile(name, wait=20)
     if not pid:
@@ -60,6 +78,7 @@ def start_daemon(name):
 
 def kill_daemon(name):
     print 'Killing %s...' % name,
+    sys.stdout.flush()
     pid = read_pidfile(name)
     if not pid:
         print 'not running?'
@@ -68,7 +87,6 @@ def kill_daemon(name):
         os.kill(pid, signal.SIGTERM)
 
 if action == 'start':
-    # XXX check if they're running still
     for name in DAEMONS:
         start_daemon(name)
 
