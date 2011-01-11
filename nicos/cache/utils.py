@@ -138,7 +138,8 @@ def load_entries(bytes):
 
 def load_last_entry(bytes):
     """Load the last entry from the bytestring."""
-    i = -head.size + 1
+    headsize = head.size
+    i = -headsize + 1
     # Since the RS can also occur in the binary format of time or ttl,
     # search backwards until a consistent entry is found.
     while 1:
