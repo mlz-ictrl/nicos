@@ -144,18 +144,13 @@ class ModuleManager(object):
     """
     Remembers which modules were imported at its creation time, and
     restores sys.modules to that on purge().
-
-    Also remembers the builtin namespace.
     """
     def __init__(self, protect=[]):
         self._modules = set(sys.modules.keys())
+        print [k for k in sys.modules if sys.modules[k]]
         self._protect = set(protect)
-        self._builtins = set(__builtin__.__dict__.keys())
 
     def purge(self):
         for key in sys.modules.keys():
             if key not in self._modules and key not in self._protect:
                 del sys.modules[key]
-        for key in __builtin__.__dict__.keys():
-            if key not in self._builtins:
-                del __builtin__.__dict__[key]

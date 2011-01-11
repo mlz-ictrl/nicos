@@ -389,7 +389,6 @@
     <addaction name="actionEmergencyStop"/>
     <addaction name="separator"/>
     <addaction name="actionRunCommand"/>
-    <addaction name="actionReload"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
