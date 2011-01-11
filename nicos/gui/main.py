@@ -852,7 +852,10 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         dlg = dialogFromUi(self, 'traceback.ui')
         button = QPushButton('To clipboard', dlg)
         dlg.buttonBox.addButton(button, QDialogButtonBox.ActionRole)
-        # XXX make it work
+        def copy():
+            QApplication.clipboard().setText(tb+'\n', QClipboard.Selection)
+            QApplication.clipboard().setText(tb+'\n', QClipboard.Clipboard)
+        self.connect(button, SIGNAL('clicked()'), copy)
         dlg.message.setText(message)
         dlg.tree.setFont(self.outView.font())
         boldfont = QFont(self.outView.font())
