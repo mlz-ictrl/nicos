@@ -27,9 +27,9 @@ if len(args) == 0:
     print >>sys.stderr, 'Usage: nicos-dumpcache [-h] storefile [key]'
     sys.exit(1)
 elif len(args) > 1:
-    key = args[1]
+    skey = args[1]
 else:
-    key = None
+    skey = None
 
 human = False
 for opt, arg in opts:
@@ -39,9 +39,10 @@ for opt, arg in opts:
 cachefile = args[0]
 cache = bsddb.hashopen(cachefile, 'r')
 
-if key is not None:
-    if key in cache:
-        dump(key, cache[key], human)
+if skey is not None:
+    for key in sorted(cache):
+        if skey in key:
+            dump(key, cache[key], human)
 else:
     for key in sorted(cache):
         dump(key, cache[key], human)

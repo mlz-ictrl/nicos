@@ -105,30 +105,51 @@ class Entry(object):
         self.ttl = ttl
         self.value = value
 
-headstr = struct.Struct('ddH')
+
+# Struct for saving entries:
+# 1 byte   marker (0x1E, "record separator")
+# 8 bytes  time
+# 8 bytes  ttl
+# 2 bytes  length of value string
+head = struct.Struct('bddH')
 
 def dump_entries(entries):
     """Dump a list of entries as a bytestring."""
-    return 'CD\x42' + \
-           ''.join(headstr.pack(e.time, (e.ttl or 0.), len(e.value or ''))
-                   + (e.value or '') for e in entries) + '\x43'
+    return ''.join(head.pack(0x1E, e.time, (e.ttl or 0.), len(e.value or ''))
+                   + (e.value or '') for e in entries)
 
 
 def load_entries(bytes):
     """Load a list of entries from a bytestring."""
     entries = []
-    headsize = headstr.size
-    if bytes[:3] != 'CD\x42':
-        return []
-    if bytes[-1] != '\x43':
-        return []
-    i = 3
-    n = len(bytes) - 1
+    headsize = head.size
+    i = 0
+    n = len(bytes)
     try:
         while i < n:
-            time, ttl, valuelen = headstr.unpack_from(bytes, i)
+            rs, time, ttl, valuelen = head.unpack_from(bytes, i)
+            assert rs == 0x1E
             i += valuelen + headsize
             entries.append(Entry(time, ttl or None, bytes[i-valuelen:i] or None))
         return entries
-    except struct.error:
+    except (AssertionError, struct.error):
         return []
+
+
+def load_last_entry(bytes):
+    """Load the last entry from the bytestring."""
+    i = -head.size + 1
+    # Since the RS can also occur in the binary format of time or ttl,
+    # search backwards until a consistent entry is found.
+    while 1:
+        i = bytes.rfind('\x1E', 0, i)
+        if i == -1:
+            return None
+        try:
+            rs, time, ttl, valuelen = head.unpack_from(bytes, i)
+        except struct.error:
+            continue
+        if i + headsize + valuelen != len(bytes):
+            continue
+        return Entry(time, ttl or None,
+                     bytes[i+headsize:i+headsize+valuelen] or None)

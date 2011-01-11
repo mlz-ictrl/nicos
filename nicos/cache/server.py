@@ -46,7 +46,7 @@ from nicos.device import Device, Param
 from nicos.errors import ConfigurationError
 from nicos.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT, \
      OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, OP_TELLOLD, OP_LOCK, Entry, \
-     dump_entries, load_entries
+     dump_entries, load_entries, load_last_entry
 
 
 class CacheUDPConnection(object):
@@ -465,10 +465,10 @@ class DbCacheDatabase(MemoryCacheDatabase):
         with self._db_lock:
             with self._store_lock:
                 for key in self._currstore:
-                    entries = load_entries(self._currstore[key])[-1:]
-                    if entries:
-                        self._db[key] = entries
-                        self._arctime[key] = entries[-1].time
+                    entry = load_last_entry(self._currstore[key])
+                    if entry:
+                        self._db[key] = [entry]
+                        self._arctime[key] = entry.time
                         nkeys += 1
         self.printinfo('loaded %d keys from store' % nkeys)
 
