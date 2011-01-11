@@ -679,7 +679,6 @@ class DaemonSession(SimpleSession):
     """
 
     autocreate_devices = True
-    auto_modules = ['nicos.commands']
 
     def _initLogging(self):
         SimpleSession._initLogging(self)
@@ -706,6 +705,8 @@ class DaemonSession(SimpleSession):
         self.user_modules.clear()
         self.loaded_setups.clear()
         del self.explicit_setups[:]
+
+        self.auto_modules = ['nicos.commands']
 
         self._Session__system_device = None
         self._Session__exported_names.clear()

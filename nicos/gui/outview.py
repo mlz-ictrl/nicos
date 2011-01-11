@@ -35,9 +35,9 @@ import re
 import time
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 
-from PyQt4.QtCore import Qt, QRegExp
+from PyQt4.QtCore import Qt, QRegExp, SIGNAL
 from PyQt4.QtGui import QTextCharFormat, QBrush, QColor, QFont, QTextBrowser, \
-     QTextCursor
+     QTextCursor, QDialogButtonBox
 
 from nicos.loggers import INPUT, OUTPUT
 from nicos.gui.utils import dialogFromUi
@@ -87,8 +87,14 @@ class OutputView(QTextBrowser):
         #self.openErrorWindow()
 
     def openErrorWindow(self):
+        if self._errview is not None:
+            return
         dlg = dialogFromUi(self.parent(), 'errwin.ui')
         dlg.outView.setFont(self.font())
+        def click(btn):
+            if dlg.buttonBox.standardButton(btn) == QDialogButtonBox.Reset:
+                dlg.outView.clear()
+        dlg.connect(dlg.buttonBox, SIGNAL('clicked(QAbstractButton*)'), click)
         self._errview = dlg.outView
         dlg.show()
 

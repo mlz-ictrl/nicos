@@ -147,7 +147,6 @@ class ModuleManager(object):
     """
     def __init__(self, protect=[]):
         self._modules = set(sys.modules.keys())
-        print [k for k in sys.modules if sys.modules[k]]
         self._protect = set(protect)
 
     def purge(self):
