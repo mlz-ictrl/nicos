@@ -153,11 +153,12 @@ class Controller(TacoDevice, Moveable, HasOffset, HasLimits):
     def doReset(self):
         self._taco_guard(self._dev.deviceReset)
 
-    def doPoll(self):
-        self._pollParam('p')
-        self._pollParam('i')
-        self._pollParam('d')
-        self._pollParam('setpoint')
+    def doPoll(self, i):
+        if i % 1000 == 0:
+            self._pollParam('p')
+            self._pollParam('i')
+            self._pollParam('d')
+        self._pollParam('setpoint', True)
 
     def doReadSetpoint(self):
         return self._taco_guard(self._dev.setpoint) - self.offset

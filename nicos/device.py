@@ -417,9 +417,9 @@ class Readable(Device):
             return value
         return (status.UNKNOWN, 'doStatus not implemented')
 
-    def poll(self):
+    def poll(self, n):
         """Get status and value directly from the device and put both values
-        into the cache.
+        into the cache.  *n* increases with every call to *poll*.
         """
         stval = None
         if hasattr(self, 'doStatus'):
@@ -428,11 +428,15 @@ class Readable(Device):
         rdval = self.doRead()
         self._cache.put(self, 'value', rdval, currenttime(), self.maxage)
         if hasattr(self, 'doPoll'):
-            self.doPoll()
+            self.doPoll(i)
         return stval, rdval
 
-    def _pollParam(self, name):
-        self._cache.put(self, name, getattr(self, 'doRead' + name.title())())
+    def _pollParam(self, name, with_ttl=False):
+        value = getattr(self, 'doRead' + name.title())()
+        if with_ttl:
+            self._cache.put(self, name, value, currenttime(), self.maxage)
+        else:
+            self._cache.put(self, name, value)
 
     def reset(self):
         """Reset the device hardware.  Return status afterwards."""

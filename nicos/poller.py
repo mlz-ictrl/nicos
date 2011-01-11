@@ -82,9 +82,10 @@ class Poller(Device):
                 else:
                     sleeper = time.sleep
                 errcount = 0
+                i = 0
                 while not self._stoprequest:
                     try:
-                        stval, rdval = dev.poll()
+                        stval, rdval = dev.poll(i)
                         self.printdebug('%-10s status = %-25s, value = %s' %
                                         (dev, stval, rdval))
                     except Exception, err:
@@ -100,6 +101,7 @@ class Poller(Device):
                             interval = dev.pollinterval
                             errcount = 0
                     sleeper(interval)
+                    i += 1
                 break
 
     def start(self, process=None):
