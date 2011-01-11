@@ -271,6 +271,7 @@ class Session(object):
                 self.createDevice('System')
             except Exception:
                 self.log.exception('error creating System device')
+                return
 
         # create all devices
         if self.autocreate_devices:
