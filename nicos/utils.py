@@ -500,6 +500,15 @@ def listof(conv):
         return map(conv, val)
     return converter
 
+def tupleof(*types):
+    def converter(val=None):
+        if val is None:
+            return tuple(type() for type in types)
+        if not isinstance(val, (list, tuple)) or not len(types) == len(val):
+            raise ValueError('value needs to be a %d-tuple' % len(types))
+        return tuple(t(v) for (t, v) in zip(types, val))
+    return converter
+
 def dictof(keyconv, valconv):
     def converter(val={}):
         if not isinstance(val, dict):
