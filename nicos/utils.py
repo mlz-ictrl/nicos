@@ -288,8 +288,9 @@ def readConfig(*filenames):
             else:
                 os.environ[name] = value
     from nicos.sessions import Session
-    for option in cfg.options('nicos'):
-        setattr(Session.config, option, cfg.get('nicos', option))
+    if cfg.has_section('nicos'):
+        for option in cfg.options('nicos'):
+            setattr(Session.config, option, cfg.get('nicos', option))
 
 
 # simple file operations
