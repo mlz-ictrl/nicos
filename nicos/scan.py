@@ -63,6 +63,7 @@ class Scan(object):
         self.preset = preset
         self.scaninfo = scaninfo
         self.sinks = session.system.getSinks(scantype)
+        self._npoints = len(self.positions)
 
     def beginScan(self):
         session.beginActionScope('Scan')
@@ -85,7 +86,7 @@ class Scan(object):
                 sink.addInfo(catinfo, bycategory[catname])
 
     def preparePoint(self, num, xvalues):
-        session.action('Point %d' % num)
+        session.action('Point %d/%d' % (num, self._npoints))
 
     def addPoint(self, num, xvalues, yvalues):
         for sink in self.sinks:

@@ -169,3 +169,20 @@ def ClearCache(devname):
         devname = devname.name
     session.system.cache.clear(devname)
     printinfo('cleared cached information for %s' % devname)
+
+class _Scope(object):
+    def __init__(self, name):
+        self.name = name
+    def __enter__(self):
+        session.beginActionScope(self.name)
+    def __exit__(self, *args):
+        session.endActionScope()
+
+@usercommand
+def UserInfo(name):
+    """Return an object that can be used like this:
+
+    with UserInfo('Qscan around (1,1,0)'):
+        qscan(...)
+    """
+    return _Scope(name)

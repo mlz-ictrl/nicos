@@ -478,14 +478,23 @@ class Session(object):
 
     def beginActionScope(self, what):
         self._actionStack.append(what)
-        self.log.action(' :: '.join(self._actionStack))
+        joined = ' :: '.join(self._actionStack)
+        self.log.action(joined)
+        if self.system.cache:
+            self.system.cache.put(self.system, 'action', joined)
 
     def endActionScope(self):
         self._actionStack.pop()
-        self.log.action(' :: '.join(self._actionStack))
+        joined = ' :: '.join(self._actionStack)
+        self.log.action(joined)
+        if self.system.cache:
+            self.system.cache.put(self.system, 'action', joined)
 
     def action(self, what):
-        self.log.action(' :: '.join(self._actionStack + [what]))
+        joined = ' :: '.join(self._actionStack + [what])
+        self.log.action(joined)
+        if self.system.cache:
+            self.system.cache.put(self.system, 'action', joined)
 
 
 class SimpleSession(Session):

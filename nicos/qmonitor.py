@@ -228,6 +228,7 @@ class Monitor(BaseCacheClient):
                             # display/init properties
                             'name': '', 'dev': '', 'width': 9, 'unit': '',
                             'format': '%s', 'min': None, 'max': None,
+                            'textfont': False,
                             # current values
                             'value': None, 'time': 0, 'ttl': 0, 'status': None,
                             'changetime': 0,
@@ -275,7 +276,10 @@ class Monitor(BaseCacheClient):
 
             l = SensitiveLabel('----', groupframe,
                                self._label_entered, self._label_left)
-            l.setFont(self._valuefont)
+            if field['textfont']:
+                l.setFont(self._labelfont)
+            else:
+                l.setFont(self._valuefont)
             l.setAlignment(Qt.AlignHCenter)
             l.setFrameShape(QFrame.Panel)
             l.setFrameShadow(QFrame.Sunken)
