@@ -108,7 +108,7 @@ class OutputView(QTextBrowser):
         if message[0] == 'nicos':
             name = ''
         else:
-            name = message[0] + ': '
+            name = '%-10s: ' % message[0]
         if levelno <= DEBUG:
             text = name + message[3]
             fmt = grey

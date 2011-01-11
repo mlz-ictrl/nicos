@@ -716,12 +716,12 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             print 'Data error:', err
 
     def on_commandInput_textChanged(self, text):
-        script = str(self.commandInput.text())
-        if not script:
-            return
         try:
+            script = str(self.commandInput.text())
+            if not script:
+                return
             compile(script+'\n', 'script', 'single')
-        except SyntaxError:
+        except Exception:
             setForegroundColor(self.commandInput, QColor("#ff0000"))
         else:
             setForegroundColor(self.commandInput, QColor("#000000"))
