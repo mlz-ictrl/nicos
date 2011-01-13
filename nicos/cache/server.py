@@ -397,6 +397,7 @@ class MemoryCacheDatabase(CacheDatabase):
                     return '%s%s%s\r\n' % (key, OP_LOCK, entry.value)
                 else:
                     # not locked, expired or locked by same client, overwrite
+                    ttl = ttl or 1800  # set a maximum time to live
                     self.printdebug('lock request %s=%s ttl %s, accepted' %
                                     (key, client_id, ttl))
                     self._locks[key] = Entry(time, ttl, client_id)
