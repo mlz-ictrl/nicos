@@ -34,11 +34,13 @@ __version__ = "$Revision$"
 import re
 import sys
 import threading
+from cgi import escape
 from time import time as currenttime, sleep, strftime
 
-from PyQt4.QtCore import QSize, Qt
+from PyQt4.QtCore import QSize, QPoint, Qt
 from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
-     QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication
+     QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, \
+     QCursor
 
 from nicos.utils import listof
 from nicos.status import OK, BUSY, ERROR, PAUSED, NOTREACHED, statuses
@@ -180,6 +182,9 @@ class Monitor(BaseCacheClient):
         if self._geometry:
             if self._geometry == 'fullscreen':
                 master.showMaximized()
+                QCursor.setPos(master.geometry().bottomRight())
+                #QCursor.setPos(
+                #    master.mapToGlobal(QPoint(sz.width(), sz.height())))
             else:
                 try:
                     w, h, x, y = map(int, re.match('(\d+)x(\d+)+(\d+)+(\d+)',
@@ -211,42 +216,44 @@ class Monitor(BaseCacheClient):
         self._blheight = QFontMetrics(self._blockfont).height()
         self._tiheight = QFontMetrics(self._timefont).height()
 
+        field_defaults = {
+            # display/init properties
+            'name': '', 'dev': '', 'width': 9, 'istext': False, 'maxlen': None,
+            'min': None, 'max': None, 'unit': '', 'format': '%s',
+            # current values
+            'value': None, 'time': 0, 'ttl': 0, 'status': None, 'changetime': 0,
+            # key names
+            'key': '', 'statuskey': '', 'unitkey': '', 'formatkey': '',
+        }
+
         # convert configured layout to internal structure
         prefix = self._prefix + '/'
         self._layout = []
-        for columndesc in self.layout:
-            blocks = []
-            for blockdesc in columndesc:
-                rows = []
-                for rowdesc in blockdesc[1]:
-                    if rowdesc == '---':
-                        rows.append(None)
-                        continue
-                    fields = []
-                    for fielddesc in rowdesc:
-                        field = Field({
-                            # display/init properties
-                            'name': '', 'dev': '', 'width': 9, 'unit': '',
-                            'format': '%s', 'min': None, 'max': None,
-                            'textfont': False,
-                            # current values
-                            'value': None, 'time': 0, 'ttl': 0, 'status': None,
-                            'changetime': 0,
-                            # key names
-                            'key': '', 'statuskey': '', 'unitkey': '',
-                            'formatkey': '',
-                        })
-                        if isinstance(fielddesc, str):
-                            fielddesc = {'dev': fielddesc}
-                        field.update(fielddesc)
-                        if not field['name']:
-                            field['name'] = field['dev']
-                        fields.append(field)
-                    rows.append(fields)
-                block = ({'name': blockdesc[0], 'visible': True,
-                          'labelframe': None}, rows)
-                blocks.append(block)
-            self._layout.append(blocks)
+        for superrowdesc in self.layout:
+            columns = []
+            for columndesc in superrowdesc:
+                blocks = []
+                for blockdesc in columndesc:
+                    rows = []
+                    for rowdesc in blockdesc[1]:
+                        if rowdesc == '---':
+                            rows.append(None)
+                            continue
+                        fields = []
+                        for fielddesc in rowdesc:
+                            field = Field(field_defaults)
+                            if isinstance(fielddesc, str):
+                                fielddesc = {'dev': fielddesc}
+                            field.update(fielddesc)
+                            if not field['name']:
+                                field['name'] = field['dev']
+                            fields.append(field)
+                        rows.append(fields)
+                    block = ({'name': blockdesc[0], 'visible': True,
+                              'labelframe': None}, rows)
+                    blocks.append(block)
+                columns.append(blocks)
+            self._layout.append(columns)
 
         # maps keys to field-dicts defined in self.layout (see above)
         self._keymap = {}
@@ -267,20 +274,21 @@ class Monitor(BaseCacheClient):
         def _create_field(groupframe, field):
             fieldlayout = QVBoxLayout()
             # now put describing label and view label into subframe
-            l = QLabel(' ' + field['name'] + ' ', groupframe)
+            l = QLabel(' ' + escape(field['name']) + ' ', groupframe)
             l.setFont(self._labelfont)
             l.setAlignment(Qt.AlignHCenter)
             l.setAutoFillBackground(True)
+            l.setTextFormat(Qt.RichText)
             field['namelabel'] = l
             fieldlayout.addWidget(l)
 
             l = SensitiveLabel('----', groupframe,
                                self._label_entered, self._label_left)
-            if field['textfont']:
+            if field['istext']:
                 l.setFont(self._labelfont)
             else:
                 l.setFont(self._valuefont)
-            l.setAlignment(Qt.AlignHCenter)
+                l.setAlignment(Qt.AlignHCenter)
             l.setFrameShape(QFrame.Panel)
             l.setFrameShadow(QFrame.Sunken)
             l.setAutoFillBackground(True)
@@ -316,42 +324,43 @@ class Monitor(BaseCacheClient):
             return fieldlayout
 
         # now iterate through the layout and create the widgets to display it
-        boxlayout = QHBoxLayout()
-        boxlayout.setSpacing(20)
-        boxlayout.setContentsMargins(10, 10, 10, 10)
-        for column in self._layout:
-            columnlayout = QVBoxLayout()
-            columnlayout.setSpacing(self._blheight)
-            for block in column:
-                blocklayout_outer = QHBoxLayout()
-                blocklayout_outer.addStretch()
-                blocklayout = QVBoxLayout()
-                blocklayout.addSpacing(0.5*self._blheight)
-                blockbox = BlockBox(master, block[0]['name'], self._blockfont)
-                block[0]['labelframe'] = blockbox
-                for row in block[1]:
-                    if row is None:
-                        blocklayout.addSpacing(12)
-                    else:
-                        rowlayout = QHBoxLayout()
-                        rowlayout.addStretch()
-                        rowlayout.addSpacing(self._padding)
-                        for field in row:
-                            fieldframe = _create_field(blockbox, field)
-                            rowlayout.addLayout(fieldframe)
+        for superrow in self._layout:
+            boxlayout = QHBoxLayout()
+            boxlayout.setSpacing(20)
+            boxlayout.setContentsMargins(10, 10, 10, 10)
+            for column in superrow:
+                columnlayout = QVBoxLayout()
+                columnlayout.setSpacing(self._blheight)
+                for block in column:
+                    blocklayout_outer = QHBoxLayout()
+                    blocklayout_outer.addStretch()
+                    blocklayout = QVBoxLayout()
+                    blocklayout.addSpacing(0.5*self._blheight)
+                    blockbox = BlockBox(master, block[0]['name'], self._blockfont)
+                    block[0]['labelframe'] = blockbox
+                    for row in block[1]:
+                        if row is None:
+                            blocklayout.addSpacing(12)
+                        else:
+                            rowlayout = QHBoxLayout()
+                            rowlayout.addStretch()
                             rowlayout.addSpacing(self._padding)
-                        rowlayout.addStretch()
-                        blocklayout.addLayout(rowlayout)
-                blocklayout.addSpacing(0.3*self._blheight)
-                blockbox.setLayout(blocklayout)
-                blocklayout_outer.addWidget(blockbox)
-                blocklayout_outer.addStretch()
-                columnlayout.addLayout(blocklayout_outer)
+                            for field in row:
+                                fieldframe = _create_field(blockbox, field)
+                                rowlayout.addLayout(fieldframe)
+                                rowlayout.addSpacing(self._padding)
+                            rowlayout.addStretch()
+                            blocklayout.addLayout(rowlayout)
+                    blocklayout.addSpacing(0.3*self._blheight)
+                    blockbox.setLayout(blocklayout)
+                    blocklayout_outer.addWidget(blockbox)
+                    blocklayout_outer.addStretch()
+                    columnlayout.addLayout(blocklayout_outer)
+                    columnlayout.addStretch()
                 columnlayout.addStretch()
-            columnlayout.addStretch()
-            boxlayout.addLayout(columnlayout)
+                boxlayout.addLayout(columnlayout)
+            masterlayout.addLayout(boxlayout)
 
-        masterlayout.addLayout(boxlayout)
         masterframe.setLayout(masterlayout)
         master.setCentralWidget(masterframe)
 
@@ -465,7 +474,7 @@ class Monitor(BaseCacheClient):
             else:
                 set_backcolor(vlabel, self._black)
         self._watch = newwatch
-        self.printdebug('newwatch has %s items' % len(newwatch))
+        #self.printdebug('newwatch has %s items' % len(newwatch))
 
     # called to handle an incoming protocol message
     def _handle_msg(self, time, ttl, tsop, key, op, value):
@@ -504,19 +513,23 @@ class Monitor(BaseCacheClient):
                     field['time'] = time
                     field['ttl'] = ttl
                     try:
-                        field['valuelabel'].setText(field['format'] % value)
+                        text = field['format'] % value
                     except Exception:
-                        field['valuelabel'].setText(str(value))
+                        text = str(value)
+                    field['valuelabel'].setText(text[:field['maxlen']])
             elif key == field['statuskey']:
                 field['status'] = value
             elif key == field['unitkey']:
                 field['unit'] = value
                 if value:
-                    field['namelabel'].setText(' ' + field['name'] + ' (%s) ' % value)
+                    field['namelabel'].setText(
+                        ' ' + escape(field['name']) +
+                        ' <font color="#888888">%s</font> ' % escape(value))
             elif key == field['formatkey']:
                 field['format'] = value
                 if field['value'] is not None:
                     try:
-                        field['valuelabel'].setText(field['format'] % field['value'])
+                        field['valuelabel'].setText(field['format'] %
+                                                    field['value'])
                     except Exception:
                         field['valuelabel'].setText(str(field['value']))
