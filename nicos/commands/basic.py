@@ -170,6 +170,7 @@ def ClearCache(devname):
     session.system.cache.clear(devname)
     printinfo('cleared cached information for %s' % devname)
 
+
 class _Scope(object):
     def __init__(self, name):
         self.name = name
@@ -186,3 +187,15 @@ def UserInfo(name):
         qscan(...)
     """
     return _Scope(name)
+
+
+@usercommand
+def run(filename):
+    """Run a script file."""
+    # XXX standard script dir
+    printinfo('running user script: ' + filename)
+    with open(filename, 'r') as fp:
+        code = unicode(fp.read(), 'utf-8')
+        with _Scope(filename):
+            exec code in session.getLocalNamespace(), session.getNamespace()
+    printinfo('finished user script: ' + filename)

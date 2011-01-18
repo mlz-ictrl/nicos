@@ -86,11 +86,14 @@ class Scan(object):
                 sink.addInfo(catinfo, bycategory[catname])
 
     def preparePoint(self, num, xvalues):
-        session.action('Point %d/%d' % (num, self._npoints))
+        session.beginActionScope('Point %d/%d' % (num, self._npoints))
 
     def addPoint(self, num, xvalues, yvalues):
         for sink in self.sinks:
             sink.addPoint(num, xvalues, yvalues)
+
+    def finishPoint(self):
+        session.endActionScope()
 
     def endScan(self):
         for sink in self.sinks:
@@ -125,11 +128,16 @@ class Scan(object):
         try:
             for i, position in enumerate(self.positions):
                 self.preparePoint(i+1, position)
-                if i > 0:
-                    can_measure = self.moveTo(self.devices, position)
-                if not can_measure:
-                    continue
-                result = _count(self.detlist, self.preset)
-                self.addPoint(i+1, position, result)
+                try:
+                    session.action('Positioning')
+                    if i > 0:
+                        can_measure = self.moveTo(self.devices, position)
+                    if not can_measure:
+                        continue
+                    session.action('Counting')
+                    result = _count(self.detlist, self.preset)
+                    self.addPoint(i+1, position, result)
+                finally:
+                    self.finishPoint()
         finally:
             self.endScan()

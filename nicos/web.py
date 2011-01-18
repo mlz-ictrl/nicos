@@ -643,8 +643,8 @@ class NicosApp(object):
         try:
             try:
                 code = compile(code, '<stdin>', 'single', 0, 1)
-                exec code in session._Session__namespace, \
-                     session._Session__local_namespace
+                exec code in session.getNamespace(), \
+                             session.getLocalNamespace()
             except SystemExit:
                 print QUIT_MESSAGE
             except:

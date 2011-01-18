@@ -143,6 +143,9 @@ class Session(object):
     def getNamespace(self):
         return self.__namespace
 
+    def getLocalNamespace(self):
+        return self.__local_namespace
+
     def setSetupPath(self, path):
         """Set the path to the setup files."""
         self.__setup_path = path
@@ -636,8 +639,8 @@ class InteractiveSession(Session):
         banner = ('NICOS console ready (version %s).\nTry help() for a '
                   'list of commands, or help(command) for help on a command.'
                   % nicos_version)
-        console = NicosInteractiveConsole(self, self._Session__namespace,
-                                         self._Session__local_namespace)
+        console = NicosInteractiveConsole(self, self.getNamespace(),
+                                          self.getLocalNamespace())
         console.interact(banner)
         sys.stdout.write(colorcode('reset'))
 
