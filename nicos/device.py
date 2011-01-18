@@ -408,7 +408,7 @@ class Readable(Device):
         defined in the nicos.status module.
         """
         if self._mode == 'simulation':
-            return status.OK
+            return (status.OK, 'simulated ok')
         if hasattr(self, 'doStatus'):
             value = self._get_from_cache('status', self.doStatus)
             if value[0] not in status.statuses:
@@ -597,7 +597,7 @@ class Moveable(Startable):
     move = Startable.start
 
 
-class HasLimits(object):
+class HasLimits(Startable):
     """
     Mixin for "simple" continuously moveable devices that have limits.
     """
