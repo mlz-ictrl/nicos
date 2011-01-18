@@ -97,7 +97,10 @@ class OutputView(QTextBrowser):
         def click(btn):
             if dlg.buttonBox.standardButton(btn) == QDialogButtonBox.Reset:
                 dlg.outView.clear()
+        def close(res):
+            self._errview = None
         dlg.connect(dlg.buttonBox, SIGNAL('clicked(QAbstractButton*)'), click)
+        dlg.connect(dlg, SIGNAL('finished(int)'), close)
         self._errview = dlg.outView
         dlg.show()
 
