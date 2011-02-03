@@ -25,26 +25,23 @@
 #
 # *****************************************************************************
 
-"""NICOS coder definition."""
+"""Taco coder class for NICOS."""
 
 __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+from Encoder import Encoder
+
+from nicos.taco import TacoDevice
 from nicos.device import Readable
+from nicos.abstract import Coder as BaseCoder
 
 
-class Coder(Readable):
-    """Base class for all coders."""
+class Coder(TacoDevice, BaseCoder):
+    """TACO coder implementation class."""
 
-    def doRead(self):
-        """Returns the current position from encoder controller."""
-        return 0
+    taco_class = Encoder
 
     def doSetPosition(self, target):
-        """Sets the current position of the encoder controller to the target."""
-        pass
-
-    def doReset(self):
-        """Resets the encoder controller."""
-        pass
+        self._taco_guard(self._dev.setpos, target)

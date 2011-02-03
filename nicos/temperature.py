@@ -37,9 +37,9 @@ import TACOStates
 import Temperature
 
 from nicos import status
+from nicos.taco import TacoDevice
 from nicos.device import Param, Readable, Moveable, HasOffset, HasLimits
 from nicos.errors import CommunicationError, TimeoutError
-from nicos.taco.base import TacoDevice
 
 
 class Sensor(TacoDevice, Readable, HasOffset):

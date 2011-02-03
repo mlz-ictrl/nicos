@@ -25,7 +25,7 @@
 #
 # *****************************************************************************
 
-"""NICOS axis definition."""
+"""NICOS axis classes."""
 
 __author__  = "$Author$"
 __date__    = "$Date$"
@@ -38,35 +38,12 @@ from Motor import Motor as TACOMotor
 import TACOStates
 
 from nicos import status
+from nicos.taco import TacoDevice
 from nicos.utils import tupleof, any
 from nicos.device import Moveable, HasOffset, HasLimits, Param, Override
 from nicos.errors import ConfigurationError, NicosError, PositionError
 from nicos.errors import ProgrammingError, MoveError, LimitError
-from nicos.motor import Motor
-from nicos.coder import Coder
-from nicos.taco.base import TacoDevice
-
-
-class BaseAxis(Moveable, HasOffset, HasLimits):
-    """Base class for all axes."""
-
-    parameters = {
-        'dragerror': Param('The so called \'Schleppfehler\' of the axis',
-                           unit='main', default=1, settable=True),
-        'precision': Param('Maximum difference between requested target and '
-                           'reached position', unit='main', settable=True,
-                           category='general'),
-        'maxtries':  Param('Number of tries to reach the target', type=int,
-                           default=3, settable=True),
-        'loopdelay': Param('The sleep time when checking the movement',
-                           unit='s', default=0.3, settable=True),
-        'backlash':  Param('The maximum allowed backlash', unit='main',
-                           settable=True),
-    }
-
-    parameter_overrides = {
-        'unit':      Override(mandatory=False, settable=True),
-    }
+from nicos.abstract import Axis as BaseAxis, Motor, Coder
 
 
 class Axis(BaseAxis):

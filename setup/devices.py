@@ -148,7 +148,7 @@ devices = dict(
                       values = [1, 0],
                       precision = 0),
 
-    # Power = device('nicos.taco.analog.Input',
+    # Power = device('nicos.io.AnalogInput',
     #                description = 'FRM II reactor power',
     #                tacodevice = '//tacodb/frm2/reactor/power',
     #                tacolog = True,

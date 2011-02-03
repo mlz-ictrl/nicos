@@ -36,10 +36,10 @@ import TACOStates
 from IO import Timer, Counter
 
 from nicos import status
+from nicos.taco import TacoDevice
 from nicos.utils import any
 from nicos.device import Measurable, Param
 from nicos.errors import ConfigurationError
-from nicos.taco.base import TacoDevice
 
 
 class FRMChannel(TacoDevice, Measurable):

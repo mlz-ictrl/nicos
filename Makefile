@@ -16,7 +16,7 @@ so:
 	cp build/lib*/nicos/daemon/*.so nicos/daemon
 
 clean:
-	find -name '*.pyc' -exec rm {} +
+	find -name '*.pyc' -exec rm -f {} +
 
 test:
 	@python test/run.py

@@ -25,53 +25,44 @@
 #
 # *****************************************************************************
 
-"""
-NICOS motor definition.
-"""
+"""Taco motor class for NICOS."""
 
 __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from nicos.coder import Coder
-from nicos.device import Moveable, HasLimits,Param
+from Motor import Motor as TACOMotor
+import TACOStates
 
+from nicos import status
+from nicos.taco import TacoDevice
+from nicos.abstract import Motor as BaseMotor
 
-class Motor(Moveable, Coder, HasLimits):
-    """Base class for all motors.
+class Motor(TacoDevice, BaseMotor):
+    """TACO motor implementation class."""
 
-    This class inherits from Coder since a Motor can be used instead of a true
-    encoder to supply the current position to an Axis.
-    """
-
-    parameters = {
-        'speed': Param('The motor speed in units/second', settable=True),
-    }
-
-    def setPosition(self, pos):
-        """Sets the current position of the motor controller to the target."""
-        self.doSetPosition(pos)
-
-    def doInit(self):
-        """Initializes the class."""
-        pass
+    taco_class = TACOMotor
 
     def doStart(self, target):
-        """Starts the movement of the motor to target."""
-        pass
-
-    def doRead(self):
-        """Returns the current position from motor controller."""
-        return 0
+        self._taco_guard(self._dev.start, target)
 
     def doSetPosition(self, target):
-        """Sets the current position of the motor controller to the target."""
-        pass
+        self._taco_guard(self._dev.setpos, target)
 
-    def doReset(self):
-        """Resets the motor controller."""
-        pass
+    def doStatus(self):
+        state = self._taco_guard(self._dev.deviceState)
+        if state == TACOStates.DEVICE_NORMAL:
+            return (status.OK, 'idle')
+        elif state == TACOStates.MOVING:
+            return (status.BUSY, 'moving')
+        else:
+            return (status.ERROR, TACOStates.stateDescription(state))
 
     def doStop(self):
-        """Stops the movement of the motor."""
-        pass
+        self._taco_guard(self._dev.stop)
+
+    def doReadSpeed(self):
+        return self._taco_guard(self._dev.speed)
+
+    def doWriteSpeed(self, value):
+        self._taco_guard(self._dev.setSpeed, value)

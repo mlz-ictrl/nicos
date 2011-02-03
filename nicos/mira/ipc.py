@@ -36,12 +36,11 @@ from time import sleep
 from RS485Client import RS485Client
 
 from nicos import status
-from nicos.coder import Coder as NicosCoder
-from nicos.motor import Motor as NicosMotor
+from nicos.taco import TacoDevice
 from nicos.utils import intrange, floatrange
 from nicos.device import Device, Param
 from nicos.errors import NicosError, CommunicationError
-from nicos.taco.base import TacoDevice
+from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
 
 
 class ModBus(TacoDevice, Device):

@@ -36,10 +36,10 @@ from time import sleep, time
 from IO import StringIO
 
 from nicos import status
+from nicos.taco import TacoDevice
 from nicos.utils import intrange
 from nicos.device import Device, Moveable, HasLimits, Param
 from nicos.errors import NicosError, CommunicationError
-from nicos.taco.base import TacoDevice
 
 
 class IsegConnector(object):

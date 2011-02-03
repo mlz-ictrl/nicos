@@ -35,9 +35,8 @@ __version__ = "$Revision$"
 
 from time import sleep
 
+from nicos.io import AnalogOutput, DigitalOutput
 from nicos.device import Param
-from nicos.taco.analog import Output as AnalogOutput
-from nicos.taco.digital import Output as DigitalOutput
 
 
 class ESSController(AnalogOutput):

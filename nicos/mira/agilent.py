@@ -31,12 +31,12 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+from nicos.io import AnalogOutput
 from nicos.utils import oneof
 from nicos.device import Param
-from nicos.taco.analog import Output
 
 
-class HFDevice(Output):
+class HFDevice(AnalogOutput):
 
     parameters = {
         'shape': Param('Wave shape', type=oneof(str, 'sinusoid', 'square'),

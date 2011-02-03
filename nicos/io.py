@@ -25,26 +25,52 @@
 #
 # *****************************************************************************
 
-"""Implementation of TACO DigitalInput and DigitalOutput devices."""
+"""Implementation of TACO I/O devices."""
 
 __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from IO import DigitalInput, DigitalOutput
+from time import sleep
 
-from nicos.device import Readable, Moveable, Param
+from IO import AnalogInput, AnalogOutput, DigitalInput, DigitalOutput
+
+from nicos import status
+from nicos.taco import TacoDevice
+from nicos.device import Readable, Moveable, HasLimits, Param
 from nicos.errors import NicosError
-from nicos.taco.base import TacoDevice
 
 
-class Input(TacoDevice, Readable):
+class AnalogInput(TacoDevice, Readable):
+    """Base class for TACO AnalogInputs."""
+
+    taco_class = AnalogInput
+
+
+class AnalogOutput(TacoDevice, Moveable, HasLimits):
+    """Base class for TACO AnalogOutputs."""
+
+    parameters = {
+        'loopdelay': Param('Wait loop delay', unit='s', default=0.3),
+    }
+
+    taco_class = AnalogOutput
+
+    def doStart(self, value):
+        self._taco_guard(self._dev.write, value)
+
+    def doWait(self):
+        while self.status()[0] == status.BUSY:
+            sleep(self.loopdelay)
+
+
+class DigitalInput(TacoDevice, Readable):
     """Base class for TACO DigitalInputs."""
 
     taco_class = DigitalInput
 
 
-class Output(TacoDevice, Moveable):
+class DigitalOutput(TacoDevice, Moveable):
     """Base class for TACO DigitalOutputs."""
 
     taco_class = DigitalOutput
@@ -53,7 +79,7 @@ class Output(TacoDevice, Moveable):
         self._taco_guard(self._dev.write, target)
 
 
-class PartialInput(Input):
+class PartialDigitalInput(Input):
     """Base class for a TACO DigitalOutput with only a part of the full
     bit width accessed.
     """
@@ -70,7 +96,7 @@ class PartialInput(Input):
         return self._taco_guard(self._dev.read) & self._mask
 
 
-class PartialOutput(Output):
+class PartialDigitalOutput(Output):
     """Base class for a TACO DigitalOutput with only a part of the full
     bit width accessed.
     """
@@ -98,7 +124,7 @@ class PartialOutput(Output):
         return True, ''
 
 
-class ListOutput(Output):
+class ListDigitalOutput(Output):
     """Base class for a TACO DigitalOutput that works with a list of individual
     bits instead of a single integer.
     """
@@ -138,7 +164,7 @@ class ListOutput(Output):
         return True, ''
 
 
-class MultiOutput(Moveable):
+class MultiDigitalOutput(Moveable):
     attached_devices = {
         'outputs': [Output],
     }

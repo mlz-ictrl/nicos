@@ -36,10 +36,9 @@ import random
 import threading
 
 from nicos import status
-from nicos.motor import Motor
-from nicos.coder import Coder
 from nicos.utils import tacodev
 from nicos.device import Readable, HasOffset, Param
+from nicos.abstract import Motor, Coder
 from nicos.detector import FRMTimerChannel, FRMCounterChannel
 
 
