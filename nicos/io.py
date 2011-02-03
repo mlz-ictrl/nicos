@@ -33,7 +33,7 @@ __version__ = "$Revision$"
 
 from time import sleep
 
-from IO import AnalogInput, AnalogOutput, DigitalInput, DigitalOutput
+import IO
 
 from nicos import status
 from nicos.taco import TacoDevice
@@ -44,7 +44,7 @@ from nicos.errors import NicosError
 class AnalogInput(TacoDevice, Readable):
     """Base class for TACO AnalogInputs."""
 
-    taco_class = AnalogInput
+    taco_class = IO.AnalogInput
 
 
 class AnalogOutput(TacoDevice, Moveable, HasLimits):
@@ -54,7 +54,7 @@ class AnalogOutput(TacoDevice, Moveable, HasLimits):
         'loopdelay': Param('Wait loop delay', unit='s', default=0.3),
     }
 
-    taco_class = AnalogOutput
+    taco_class = IO.AnalogOutput
 
     def doStart(self, value):
         self._taco_guard(self._dev.write, value)
@@ -67,19 +67,19 @@ class AnalogOutput(TacoDevice, Moveable, HasLimits):
 class DigitalInput(TacoDevice, Readable):
     """Base class for TACO DigitalInputs."""
 
-    taco_class = DigitalInput
+    taco_class = IO.DigitalInput
 
 
 class DigitalOutput(TacoDevice, Moveable):
     """Base class for TACO DigitalOutputs."""
 
-    taco_class = DigitalOutput
+    taco_class = IO.DigitalOutput
 
     def doStart(self, target):
         self._taco_guard(self._dev.write, target)
 
 
-class PartialDigitalInput(Input):
+class PartialDigitalInput(DigitalInput):
     """Base class for a TACO DigitalOutput with only a part of the full
     bit width accessed.
     """
@@ -96,7 +96,7 @@ class PartialDigitalInput(Input):
         return self._taco_guard(self._dev.read) & self._mask
 
 
-class PartialDigitalOutput(Output):
+class PartialDigitalOutput(DigitalOutput):
     """Base class for a TACO DigitalOutput with only a part of the full
     bit width accessed.
     """
@@ -124,7 +124,7 @@ class PartialDigitalOutput(Output):
         return True, ''
 
 
-class ListDigitalOutput(Output):
+class ListDigitalOutput(DigitalOutput):
     """Base class for a TACO DigitalOutput that works with a list of individual
     bits instead of a single integer.
     """
@@ -166,7 +166,7 @@ class ListDigitalOutput(Output):
 
 class MultiDigitalOutput(Moveable):
     attached_devices = {
-        'outputs': [Output],
+        'outputs': [DigitalOutput],
     }
 
     def doStart(self, target):

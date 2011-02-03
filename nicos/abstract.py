@@ -31,7 +31,8 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from nicos.device import Moveable, HasLimits, HasOffset, Param, Override
+from nicos.device import Readable, Moveable, HasLimits, HasOffset, \
+     Param, Override
 
 
 class Coder(Readable):
