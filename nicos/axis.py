@@ -31,13 +31,14 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import time
 import threading
+from time import sleep
 
 from Motor import Motor as TACOMotor
 import TACOStates
 
 from nicos import status
+from nicos.utils import tupleof, any
 from nicos.device import Moveable, HasOffset, HasLimits, Param, Override
 from nicos.errors import ConfigurationError, NicosError, PositionError
 from nicos.errors import ProgrammingError, MoveError, LimitError
@@ -187,7 +188,7 @@ class Axis(BaseAxis):
         the target position has been reached.
         """
         while self.doStatus()[0] == status.BUSY:
-            time.sleep(self.loopdelay)
+            sleep(self.loopdelay)
         else:
             self.__checkErrorState()
 
@@ -310,7 +311,7 @@ class Axis(BaseAxis):
                 self._adevs['motor'].stop()
                 self.__stopRequest = 2
                 continue
-            time.sleep(self.loopdelay)
+            sleep(self.loopdelay)
             pos = self.__read()
             if self._adevs['motor'].doStatus()[0] != status.BUSY:
                 # motor stopped; check why
@@ -360,7 +361,7 @@ class TacoAxis(TacoDevice, BaseAxis):
 
     def doWait(self):
         while self.doStatus()[0] == status.BUSY:
-            time.sleep(0.1)
+            sleep(0.1)
 
     def doRead(self):
         return self._taco_guard(self._dev.read) - self.offset
@@ -424,3 +425,46 @@ class TacoAxis(TacoDevice, BaseAxis):
 
     def doWriteBacklash(self, value):
         self._taco_update_resource('backlash', str(value))
+
+
+class HoveringAxis(TacoAxis):
+
+    attached_devices = {
+        'switch': Moveable,
+    }
+
+    parameters = {
+        'startdelay': Param('Delay after switching on air', type=float,
+                            mandatory=True, unit='s'),
+        'stopdelay':  Param('Delay before switching off air', type=float,
+                            mandatory=True, unit='s'),
+        'switchvalues': Param('[off, on] value to write to switch device',
+                              type=tupleof(any, any), default=(0, 1)),
+    }
+
+    def doInit(self):
+        self._poll_thread = None
+
+    def doStart(self, target):
+        if self._poll_thread:
+            raise NicosError(self, 'axis is already moving')
+        self._adevs['switch'].move(self.switchvalues[1])
+        sleep(self.startdelay)
+        TacoAxis.doStart(self, target)
+        self._poll_thread = threading.Thread(target=self.__thread)
+        self._poll_thread.setDaemon(True)
+        self._poll_thread.start()
+
+    def __thread(self):
+        sleep(0.1)
+        while self.doStatus()[0] == status.BUSY:
+            sleep(0.1)
+        sleep(self.stopdelay)
+        try:
+            self._adevs['switch'].move(self.switchvalues[0])
+        finally:
+            self._poll_thread = None
+
+    def doWait(self):
+        if self._poll_thread:
+            self._poll_thread.join()
