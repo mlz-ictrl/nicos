@@ -34,6 +34,7 @@ __version__ = "$Revision$"
 from IO import DigitalInput, DigitalOutput
 
 from nicos.device import Readable, Moveable, Param
+from nicos.errors import NicosError
 from nicos.taco.base import TacoDevice
 
 
@@ -135,3 +136,24 @@ class ListOutput(Output):
             return False, ('value needs to be a list of length %d, not %r' %
                            (self.bitwidth, target))
         return True, ''
+
+
+class MultiOutput(Moveable):
+    attached_devices = {
+        'outputs': [Output],
+    }
+
+    def doStart(self, target):
+        for dev in self._adevs['outputs']:
+            dev.start(target)
+
+    def doRead(self):
+        values = []
+        for dev in self._adevs['outputs']:
+            values.append(dev.read())
+        if len(set(values)) != 1:
+            devnames = [dev.name for dev in self._adevs['outputs']]
+            raise NicosError(self,
+                'outputs have different read values: '
+                + ', '.join('%s=%s' % x for x in zip(devnames, values)))
+        return values[0]
