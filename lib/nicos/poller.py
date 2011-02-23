@@ -143,8 +143,9 @@ class Poller(Device):
             self._start_child(processname)
 
     def _start_child(self, name):
-        if session.config.bin_path:
-            poller_script = os.path.join(session.config.bin_path, 'nicos-poller')
+        if session.config.control_path:
+            poller_script = os.path.join(session.config.control_path,
+                                         'bin', 'nicos-poller')
         else:
             poller_script = 'nicos-poller'
         process = subprocess.Popen([poller_script, name])

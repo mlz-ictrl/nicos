@@ -98,7 +98,6 @@ class Session(object):
         """Singleton for settings potentially overwritten later."""
         user = None
         group = None
-        bin_path = path.join(path.dirname(__file__), '..', '..', 'bin')
         control_path = path.join(path.dirname(__file__), '..', '..')
 
     def __init__(self, appname):
@@ -118,7 +117,7 @@ class Session(object):
         # contains all explicitly loaded setups
         self.explicit_setups = []
         # path to setup files
-        self.__setup_path = path.join(self.config.control_path, 'setup')
+        self.__setup_path = path.join(self.config.control_path, 'setups')
         # info about all loadable setups
         self.__setup_info = {}
         # namespace to place user-accessible items in

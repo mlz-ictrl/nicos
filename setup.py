@@ -1,10 +1,10 @@
-import os
+import os, sys
 from distutils.core import setup, Extension
 
 def find_packages():
     """Return a list of all nicos subpackages."""
     out = ['nicos']
-    stack = [('nicos', 'nicos/')]
+    stack = [('lib/nicos', 'nicos.')]
     while stack:
         where, prefix = stack.pop(0)
         for name in os.listdir(where):
@@ -15,6 +15,7 @@ def find_packages():
                 stack.append((fn, prefix + name + '.'))
     return out
 
+sys.path.append('lib')
 import nicos
 
 scripts = ['bin/' + name for name in os.listdir('bin')
@@ -27,7 +28,8 @@ setup(
     author='Jens Krueger',
     author_email='jens.krueger@frm2.tum.de',
     description='The Networked Instrument COntrol System of the FRM-II',
+    package_dir={'': 'lib'},
     packages=find_packages(),
-    ext_modules=[Extension('nicos.daemon._pyctl', ['nicos/daemon/_pyctl.c'])],
+    ext_modules=[Extension('nicos.daemon._pyctl', ['src/_pyctl.c'])],
     scripts=scripts,
 )

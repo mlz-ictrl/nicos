@@ -314,12 +314,12 @@ def writeFile(filename, lines):
 
 def writePidfile(appname):
     from nicos.sessions import Session
-    filename = os.path.join(Session.config.control_path, 'run', appname + '.pid')
+    filename = os.path.join(Session.config.control_path, 'pid', appname + '.pid')
     writeFile(filename, [str(os.getpid())])
 
 def removePidfile(appname):
     from nicos.sessions import Session
-    filename = os.path.join(Session.config.control_path, 'run', appname + '.pid')
+    filename = os.path.join(Session.config.control_path, 'pid', appname + '.pid')
     try:
         os.unlink(filename)
     except OSError, err:

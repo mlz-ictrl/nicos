@@ -7,6 +7,14 @@ import signal
 import ConfigParser
 from os import path
 
+import sys, os
+from os import path
+thisfile = path.abspath(__file__)
+while path.islink(thisfile):
+    thisfile = path.join(path.dirname(thisfile), os.readlink(thisfile))
+root_path = path.normpath(path.join(path.dirname(thisfile), '..'))
+
+# XXX put DAEMONS into nicos.conf
 DAEMONS = ['cache', 'poller', 'daemon']
 
 try:
@@ -21,24 +29,17 @@ class NicosConfigParser(ConfigParser.SafeConfigParser):
 
 def read_config():
     cfg = NicosConfigParser()
-    cfg.read('/etc/nicos.conf')
+    cfg.read(path.join(root_path, 'nicos.conf'))
     if cfg.has_section('environment'):
         for name in cfg.options('environment'):
             value = cfg.get('environment', name)
             os.environ[name] = value
-    bin_path = ''
-    control_path = '/var'
-    if cfg.has_option('nicos', 'bin_path'):
-        bin_path = cfg.get('nicos', 'bin_path')
-    if cfg.has_option('nicos', 'control_path'):
-        control_path = cfg.get('nicos', 'control_path')
-    return bin_path, control_path
 
-bin_path, control_path = read_config()
+read_config()
 
 def read_pidfile(name, wait=0):
     begin = time.time()
-    pidpath = path.join(control_path, 'run', '%s.pid' % name)
+    pidpath = path.join(root_path, 'pid', '%s.pid' % name)
     while True:
         try:
             pid = file(pidpath, 'rb').read()
@@ -69,7 +70,7 @@ def start_daemon(name):
     if previous_pid:
         print 'already running? (pid = %d)' % previous_pid
         return
-    os.system('%s -d' % path.join(bin_path, 'nicos-%s' % name))
+    os.system('%s -d' % path.join(root_path, 'bin', 'nicos-%s' % name))
     pid = read_pidfile(name, wait=20)
     if not pid:
         print 'failed'

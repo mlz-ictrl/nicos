@@ -2,11 +2,11 @@
 
 RCC = pyrcc4
 
-all: nicos/gui/gui_rc.py
+all: lib/nicos/gui/gui_rc.py
 	python setup.py build
 
-nicos/gui/gui_rc.py: resources/nicos-gui.qrc
-	$(RCC) -o nicos/gui/gui_rc.py resources/nicos-gui.qrc
+lib/nicos/gui/gui_rc.py: resources/nicos-gui.qrc
+	$(RCC) -o lib/nicos/gui/gui_rc.py resources/nicos-gui.qrc
 
 clean:
 	rm -rf build
@@ -15,7 +15,7 @@ clean:
 inplace:
 	rm -rf build
 	python setup.py build_ext
-	cp build/lib*/nicos/daemon/*.so nicos/daemon
+	cp build/lib*/nicos/daemon/*.so lib/nicos/daemon
 
 test:
 	@python test/run.py
@@ -38,21 +38,30 @@ else
   endif
 endif
 
+ifeq "$(V)" "1"
+  VOPT = -v
+endif
+
 install: all
-# display error and exit if one was found
 	$(INSTALL_ERR)
-# create all directories
-	install -d $(ROOTDIR)/pid $(ROOTDIR)/log $(ROOTDIR)/scripts \
-	    $(ROOTDIR)/lib $(ROOTDIR)/bin $(ROOTDIR)/doc $(ROOTDIR)/setups
-# copy Python packages, scripts, docs, setups
-	cp -prv build/lib*/* $(ROOTDIR)/lib
-	cp -prv build/scripts*/* $(ROOTDIR)/bin
-	cp -prv doc/build/html/* $(ROOTDIR)/doc
-	cp -prv $(INSTRDIR)/setups/* $(ROOTDIR)/setups
-	python etc/create_nicosconf.py $(ROOTDIR) \
-	       "$(SYSUSER)" "$(SYSGROUP)" "$(NETHOST)" > $(ROOTDIR)/nicos.conf
-# copy init script
-	-install -m a+x etc/nicos-system /etc/init.d
-# finished
-	@echo
-	@echo "All set."
+	@echo "============================================================="
+	@echo "Installing NICOS-ng to $(ROOTDIR)..."
+	@echo "============================================================="
+	install $(VOPT) -d $(ROOTDIR)/{bin,doc,etc,lib,log,pid,setups,scripts}
+	cp -pr $(VOPT) build/lib*/* $(ROOTDIR)/lib
+	cp -pr $(VOPT) pid/README $(ROOTDIR)/pid
+	cp -pr $(VOPT) log/README $(ROOTDIR)/log
+	cp -pr $(VOPT) etc/nicos-system $(ROOTDIR)/etc
+	cp -pr $(VOPT) build/scripts*/* $(ROOTDIR)/bin
+	cp -pr $(VOPT) doc/build/html/* $(ROOTDIR)/doc
+	cp -pr $(VOPT) $(INSTRDIR)/setups/* $(ROOTDIR)/setups
+	python etc/create_nicosconf.py "$(SYSUSER)" "$(SYSGROUP)" "$(NETHOST)" > $(ROOTDIR)/nicos.conf
+	@echo "============================================================="
+	@echo "Everything is now installed to $(ROOTDIR)."
+	@echo "Trying to create system-wide symbolic links..."
+	@echo "============================================================="
+	-ln -s $(VOPT) -t /etc/init.d $(ROOTDIR)/etc/nicos-system
+	-ln -s $(VOPT) -t /usr/bin $(ROOTDIR)/bin/*
+	@echo "============================================================="
+	@echo "Finished."
+	@echo "============================================================="
