@@ -30,6 +30,4 @@ setup(
     packages=find_packages(),
     ext_modules=[Extension('nicos.daemon._pyctl', ['nicos/daemon/_pyctl.c'])],
     scripts=scripts,
-    data_files=[('/etc', ['etc/nicos.conf']),
-                ('/etc/init.d', ['etc/nicos-system'])],
 )

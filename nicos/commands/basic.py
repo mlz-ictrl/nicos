@@ -202,7 +202,7 @@ def UserInfo(name):
 @usercommand
 def run(filename):
     """Run a script file."""
-    # XXX standard script dir
+    # XXX standard script dir?
     printinfo('running user script: ' + filename)
     with open(filename, 'r') as fp:
         code = unicode(fp.read(), 'utf-8')
