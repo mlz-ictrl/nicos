@@ -26,8 +26,8 @@ INSTRDIR = $(wildcard custom/$(INSTRUMENT))
 
 # check for install customizations
 ifeq "$(INSTRDIR)" ""
-  INSTALL_ERR = $(error No customization found for instrument $(INSTRUMENT), \
-                        use 'make install INSTRUMENT=instname')
+  INSTALL_ERR = $(error No customization found for instrument $(INSTRUMENT). \
+    If this is not the correct instrument, use 'make install INSTRUMENT=instname')
 else
   include $(INSTRDIR)/make.conf
   # check that the include provided all necessary variables
