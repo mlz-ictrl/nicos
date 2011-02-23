@@ -53,4 +53,4 @@ session = Session()
 # Read config file and set environment variables.
 
 from nicos.utils import readConfig
-readConfig('/etc/nicos.conf')
+readConfig()

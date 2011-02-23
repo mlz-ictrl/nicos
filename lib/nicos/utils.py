@@ -44,6 +44,7 @@ import socket
 import linecache
 import traceback
 import ConfigParser
+from os import path
 
 from nicos.errors import ConfigurationError, ProgrammingError, ModeError
 
@@ -279,9 +280,10 @@ class NicosConfigParser(ConfigParser.SafeConfigParser):
     def optionxform(self, key):
         return key
 
-def readConfig(*filenames):
+def readConfig():
+    fn = path.normpath(path.join(path.dirname(__file__), '../../nicos.conf'))
     cfg = NicosConfigParser()
-    cfg.read(filenames)
+    cfg.read(fn)
     if cfg.has_section('environment'):
         for name in cfg.options('environment'):
             value = cfg.get('environment', name)
