@@ -1,5 +1,6 @@
 import os, sys
 from distutils.core import setup, Extension
+from distutils.command.install import install
 
 def find_packages():
     """Return a list of all nicos subpackages."""
@@ -21,6 +22,11 @@ import nicos
 scripts = ['bin/' + name for name in os.listdir('bin')
            if name.startswith('nicos-')]
 
+class no_install(install):
+    def initialize_options(self):
+        print 'Please use "make install" to install nicos-ng.'
+        sys.exit(1)
+
 setup(
     name='nicos-ng',
     version=nicos.__version__,
@@ -32,4 +38,5 @@ setup(
     packages=find_packages(),
     ext_modules=[Extension('nicos.daemon._pyctl', ['src/_pyctl.c'])],
     scripts=scripts,
+    cmdclass={'install': no_install},
 )
