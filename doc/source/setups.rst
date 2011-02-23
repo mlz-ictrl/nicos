@@ -1,16 +1,6 @@
-.. -*- mode: rst -*-
-
 ============
 NICOS setups
 ============
-
-:Author:   $Author$
-:Date:     $Date$
-:Revision: $Revision$
-
-`Back to index <index.html>`_
-
-.. contents::
 
 -----------
 Setup files
