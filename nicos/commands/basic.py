@@ -139,6 +139,16 @@ def DestroyDevice(*devnames):
         session.destroyDevice(devname)
 
 @usercommand
+def CreateAllDevices():
+    """Create all devices in the current setup that are not marked as
+    lowlevel devices.
+    """
+    for devname, (_, devconfig) in session.configured_devices.iteritems():
+        if devconfig.get('lowlevel', False):
+            continue
+        session.createDevice(devname, explicit=True)
+
+@usercommand
 def NewExperiment(proposalnumber, title):
     """Start a new experiment."""
     session.system.experiment.new(proposalnumber, title)

@@ -159,7 +159,17 @@ class Device(object):
         self._log.setLevel(loggers.loglevels[value])
 
     def init(self):
-        """Initialize the object; this is called when the object is created."""
+        """
+        *Interface:* Initialize the object; this is called by the NICOS system
+        when the device instance has been created.
+
+        *Implementation:* First initializes all attached devices (creating them
+        if necessary), then initializes parameters.
+
+        A ``doPreinit()`` method, if present, is called before parameter
+        initialization, while a ``doInit()`` method, if present, is called after
+        all parameters have been initialized.
+        """
 
         # validate and create attached devices
         for aname, cls in sorted(self.attached_devices.iteritems()):
