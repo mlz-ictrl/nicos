@@ -53,7 +53,7 @@ devices = dict(
                       lowlevel = True,
                       server = 'localhost',
                       prefix = 'nicos/',
-                      loglevel = 'debug'),
+                      loglevel = 'info'),
 
     # -- TAS devices and axes -------------------------------------------------
 

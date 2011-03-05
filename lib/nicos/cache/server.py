@@ -494,7 +494,11 @@ class DbCacheDatabase(MemoryCacheDatabase):
             self.printdebug('incremented use count for store %s' % (ymd,))
             return self._stores[ymd][0]
         path = os.path.join(self.storepath, self._storefmt % ymd)
-        db = bsddb.hashopen(path, 'c')
+        try:
+            db = bsddb.hashopen(path, 'c')
+        except bsddb.db.DBError, err:
+            raise ConfigurationError(self, 'Error opening database store %r: %s'
+                                     % (path, err.args[1]))
         self.printdebug('opened new store for %s' % (ymd,))
         self._stores[ymd] = [db, 1]
         return db
