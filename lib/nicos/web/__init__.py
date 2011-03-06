@@ -154,7 +154,7 @@ class WebHandler(logging.Handler):
 
     def emit(self, record):
         with self.lock:
-            self.buffer.append(self.format(record) + '\n')
+            self.buffer.append(self.format(record))
 
 
 class MTWSGIServer(ThreadingMixIn, WSGIServer):

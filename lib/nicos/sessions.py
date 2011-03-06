@@ -736,6 +736,7 @@ class WebSession(Session):
     def _initLogging(self):
         Session._initLogging(self)
         sys.displayhook = self.__displayhook
+        sys.stdout = LoggingStdout(sys.stdout)
 
     def __displayhook(self, value):
         if value is not None:
