@@ -38,7 +38,7 @@ CONSOLE_PAGE = r"""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <script type="text/javascript">
 /** keycodes for the events */
-KEYCODES = {
+var KEYCODES = {
     8:  'backspace',   36: 'home',
     9:  'tab',         37: 'left',
     13: 'enter',       38: 'up',
@@ -47,8 +47,8 @@ KEYCODES = {
     34: 'page down',   45: 'insert',
     35: 'end',         46: 'delete',
 };
-AJAX_ACTIVEX = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'];
-CONSOLE_WIDTH = 115;
+var AJAX_ACTIVEX = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'];
+var CONSOLE_WIDTH = 115;
 
 var webconsole = null;
 
@@ -56,22 +56,6 @@ var webconsole = null;
 function init() {
     var handler = new Console();
     document.onkeydown = handler.keydown(handler);
-    document.onkeypress = handler.keypress(handler);
-}
-
-/** send some keys to the console; the first parameter can be either a string
-    or an array of keys, if noenter is true it won't send a final enter */
-function cmd(s, noenter) {
-    for (var i = 0; i < s.length; i++) {
-        var key = s[i];
-        if (key == '\n' || key == '\r')
-            webconsole.sendKey('enter');
-        else
-            webconsole.sendKey(key);
-    }
-    if (!noenter)
-        webconsole.sendKey('enter');
-    return false;
 }
 
 /** log an error; currently it just alerts it */
@@ -80,7 +64,7 @@ function log(obj) {
 }
 
 /** The AJAX Connection System */
-ajax = {
+var ajax = {
     UNINITIALIZED : 0,
     LOADING : 1,
     LOADED : 2,
@@ -144,7 +128,7 @@ ajax = {
     },
 }
 
-json = {
+var json = {
     /** eval a json string */
     fromJSON : function(s) {
         return eval('(' + s + ')');
@@ -207,7 +191,7 @@ json = {
             for (var i = 1; i < arguments.length; i++)
                 params.push(arguments[i]);
             var request = this.createRequest(method, params);
-            con = ajax.call(this.url, 'POST', request);
+            var con = ajax.call(this.url, 'POST', request);
             var response = json.fromJSON(con.responseText);
             if (response.error == null)
                 return response.result;
@@ -239,7 +223,7 @@ function Console() {
     webconsole = this;
     this.window = document.getElementById('console');
     this.cursor = document.getElementById('cursor');
-    this.lastkey = null;
+    this.input = document.getElementById('input');
     this.connection = new json.RPC('/json');
     this.sid = this.connection.call('start_session');
 
@@ -254,8 +238,6 @@ function Console() {
     this.prompt2 = document.createElement('SPAN');
     this.prompt2.appendChild(document.createTextNode('... '));
     this.prompt2.className = 'prompt2';
-
-    this._writePrompt();
 }
 
 Console.prototype.keydown = function(self) {
@@ -265,147 +247,71 @@ Console.prototype.keydown = function(self) {
         var mod = self._getMod(e);
         var key = null;
         key = KEYCODES[code];
-        if (key != undefined) {
-            self.lastkey = key;
-            self.sendKey(key, mod);
+        if (key == 'up' || key == 'down') {
+            if (key == 'up' && self._historyPosition < self.history.length - 1)
+                self._historyPosition++;
+            if (key == 'down' && self._historyPosition > -1)
+                self._historyPosition--;
+            if (self._historyPosition == -1)
+                var line = '';
+            else
+                var line = self.history[self._historyPosition];
+            self.input.value = line;
+            self._stopKeyEvent(e);
+            return false;
+        } else if (key == 'enter') {
+            self.sendLine(key, mod);
             self._stopKeyEvent(e);
             return false;
         }
     }
 }
 
-Console.prototype.keypress = function(self) {
-    return function(e) {
-        var e = (e) ? e : window.event;
-        var code = (e.keyCode) ? e.keyCode : e.which;
-        var mod = self._getMod(e);
-        var key = null;
-        if (e.charCode != null && e.charCode != 0)
-            key = String.fromCharCode(e.charCode);
-        else if (e.charCode == null)
-            key = String.fromCharCode(code);
-        else {
-            key = KEYCODES[code];
-            if (key == undefined || self.lastkey == key) {
-                self.lastkey = null;
-                self._stopKeyEvent(e);
-                return false;
-            }
-        }
-        self.sendKey(key, mod);
-        self._stopKeyEvent(e);
-        return false;
-    }
-}
-
-/** send a key to the handler */
-Console.prototype.sendKey = function(key, mod) {
-    var text;
+/** send a line to the handler */
+Console.prototype.sendLine = function(key, mod) {
+    var text = this.input.value + '\n';
     var result;
-    if (key == 'backspace') {
-        try {
-            var node = this.window.lastChild.previousSibling;
-            if (node != this.cursor && node.nodeType == 3)
-                this.window.removeChild(node);
-        }
-        catch (e) {}
+
+    this._pushHistory(text);
+
+    this._writePrompt();
+    this._writeInput(text);
+
+    text = this._buffer + text;
+
+    // Check for multiline statements
+    if (this._isMultiline(text)) {
+        this._buffer = text;
+        this.input.value = '';
     }
-    else if (key == 'enter') {
-        text = '';
-        for (var i = 0; i < this.window.childNodes.length;) {
-            var node = this.window.childNodes[i];
-            if (node.nodeType == 3) {
-                var c = node.nodeValue;
-                // looks like a tab
-                if (c == '    ')
-                    text += '\t';
-                else
-                    text += c;
-                this.window.removeChild(node);
-            }
-            else {
-                i++;
-            }
-        }
-        text += '\n';
-
-        this._pushHistory(text);
-
-        // freeze line
-        var line = document.createElement('SPAN');
-        var formatted = text.replace(/\t/g, '    ');
-        line.appendChild(document.createTextNode(formatted));
-        this.window.insertBefore(line, this.cursor);
-
-        // Check for Multiline statements
-        text = this._buffer + text;
-
-        if (this._isMultiline(text)) {
-            this._buffer = text;
-            this._continuePrompt();
-        }
+    else {
         // Send it!
-        else {
-            // Commit Data
-            if (text != '\n') {
-                result = this.connection.call('exec', this.sid, text);
-                if (result.text) {
-                    var lines = [];
-                    var tlines = result.text.split('\n');
-                    for (var i = 0; i < tlines.length; i++) {
-                        var src = tlines[i];
-                        while (src) {
-                            lines.push(src.substr(0, CONSOLE_WIDTH));
-                            src = src.substr(CONSOLE_WIDTH);
-                        }
-                    }
-                    for (var i = 0; i < lines.length; i++) {
-                        var line = document.createElement('DIV');
-                        line.className = (result.error) ? 'traceback' : 'output';
-                        var formatted = lines[i].replace(/\t/g, '    ');
-                        line.appendChild(document.createTextNode(formatted));
-                        this.window.insertBefore(line, this.cursor);
+        if (text != '\n') {
+            result = this.connection.call('exec', this.sid, text);
+            result.text = 'yay!';
+            if (result.text) {
+                var lines = [];
+                var tlines = result.text.split('\n');
+                for (var i = 0; i < tlines.length; i++) {
+                    var src = tlines[i];
+                    while (src) {
+                        lines.push(src.substr(0, CONSOLE_WIDTH));
+                        src = src.substr(CONSOLE_WIDTH);
                     }
                 }
+                for (var i = 0; i < lines.length; i++) {
+                    var line = document.createElement('DIV');
+                    line.className = (result.error) ? 'traceback' : 'output';
+                    line.appendChild(document.createTextNode(lines[i]));
+                    this.window.insertBefore(line, this.cursor);
+                }
             }
-            this._writePrompt();
-            this._historyPosition = -1;
-            this._buffer = '';
         }
+        this._historyPosition = -1;
+        this._buffer = '';
+        this.input.value = '';
     }
-    // History
-    else if (key == 'up' || key == 'down') {
-        if (key == 'up' && this._historyPosition < this.history.length - 1)
-            this._historyPosition++;
-        if (key == 'down' && this._historyPosition > -1)
-            this._historyPosition--;
-        if (this._historyPosition == -1)
-            var line = '';
-        else
-            var line = this.history[this._historyPosition];
-        for (var i = 0; i < this.window.childNodes.length;) {
-            var node = this.window.childNodes[i];
-            if (node.nodeType == 3)
-                this.window.removeChild(node);
-            else
-                i++;
-        }
-        for (var i = 0; i < line.length; i++) {
-            var c = (line[i] == '\t') ? '    ' : line[i];
-            var n = document.createTextNode(c);
-            this.window.insertBefore(n, this.cursor);
-        }
-    }
-    // Other keys
-    else {
-        if (key.length == 1 || key == 'tab') {
-            if (key == 'tab')
-                key = '    ';
-            var node = document.createTextNode(key);
-            this.window.insertBefore(node, this.cursor);
-        }
-    }
-    this.window.scrollTop = this.window.scrollHeight;
+    document.body.scrollTop = document.body.scrollHeight;
 }
 
 Console.prototype._getMod = function(e) {
@@ -427,12 +333,17 @@ Console.prototype._stopKeyEvent = function(e) {
         e.preventDefault();
 }
 
-Console.prototype._writePrompt = function() {
-    this.window.insertBefore(this.prompt1.cloneNode(true), this.cursor);
+Console.prototype._writeInput = function(text) {
+    var line = document.createElement('SPAN');
+    line.appendChild(document.createTextNode(text));
+    this.window.insertBefore(line, this.cursor);
 }
 
-Console.prototype._continuePrompt = function() {
-    this.window.insertBefore(this.prompt2.cloneNode(true), this.cursor);
+Console.prototype._writePrompt = function() {
+    if (this._buffer != '')
+        this.window.insertBefore(this.prompt2.cloneNode(true), this.cursor);
+    else
+        this.window.insertBefore(this.prompt1.cloneNode(true), this.cursor);
 }
 
 Console.prototype._pushHistory = function(line) {
@@ -493,27 +404,37 @@ Console.prototype._isMultiline = function(text) {
         body {
             height: 100%;
             margin: 0 auto;
-            width: 70em;
             border-left: 1px solid #ccc;
             border-right: 1px solid #ccc;
             font-family: 'Luxi Sans', sans-serif;
+            background: #eee;
         }
         #page {
             padding: 10px 20px;
-            height: 90%;
         }
         #console {
             width: 100%;
-            height: 95%;
             background: #fff;
             color: #111;
             border: 1px solid #888;
-            overflow: auto;
             font-family: 'Consolas', monospace;
         }
         #cursor {
-            background-color: #111;
             color: #111;
+        }
+        tt {
+            font-family: 'Consolas', monospace;
+        }
+        #input {
+            width: 100%;
+            font-size: 100%;
+            border: 1px solid #888;
+            font-family: 'Consolas', monospace;
+        }
+        #execute {
+            border: 1px solid #888;
+            background-color: #eee;
+            font-family: 'Consolas', monospace;
         }
         .prompt1 {
             color: olive;
@@ -528,17 +449,14 @@ Console.prototype._isMultiline = function(text) {
             color: #cc0000;
             font-style: italic;
         }
-        #heading {
-            font-size: 200%;
-            font-weight: bold;
-            color: #333;
-        }
     </style>
 </head>
 <body>
     <div id="page">
-        <div id="heading">NICOS web interface</div>
-        <pre id="console"><span id="cursor">&nbsp;</span></pre>
+        <pre id="console"><span style="color: #aaa">Welcome to the NICOS web console!
+Enter commands in the input field below and press Enter.</span>
+<span id="cursor">&nbsp;</span></pre>
+        <input type="text" id="input" />
     </div>
     <script type="text/javascript">init();</script>
 </body>
