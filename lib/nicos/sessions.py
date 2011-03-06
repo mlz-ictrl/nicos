@@ -48,7 +48,7 @@ from os import path
 from wsgiref.simple_server import make_server
 
 from nicos import session, nicos_version
-from nicos.web import WebHandler, FakeInput, NicosApp
+from nicos.web import FakeInput, MTWSGIServer, NicosApp
 from nicos.utils import makeSessionId, colorcode, daemonize, writePidfile, \
      removePidfile
 from nicos.errors import NicosError, UsageError, ConfigurationError, ModeError
@@ -749,11 +749,13 @@ class WebSession(Session):
         session.__init__('web')
 
         app = NicosApp()
-        session._log_handlers.append(WebHandler(app._output_buffer))
+        webhandler = app.create_handler()
+        session.log.handlers.append(webhandler)
+        session._log_handlers.append(webhandler)
 
         session.loadSetup(setup)
 
-        srv = make_server('', 4000, app)
+        srv = make_server('', 4000, app, MTWSGIServer)
         session.log.info('web server running on port 4000')
         try:
             srv.serve_forever()

@@ -1,0 +1,247 @@
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# Module:
+#   $Id$
+#
+# Author:
+#   Georg Brandl <georg.brandl@frm2.tum.de>
+#
+# NICOS-NG, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# *****************************************************************************
+
+"""Web interface for NICOS."""
+
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
+
+import os
+import sys
+import json
+import logging
+import threading
+import traceback
+from cgi import escape
+from time import sleep
+from SocketServer import ThreadingMixIn
+from wsgiref.simple_server import WSGIServer
+
+from nicos import session
+from nicos.loggers import NicosConsoleFormatter, DATEFMT
+
+QUIT_MESSAGE = 'Just close the browser window to quit the session.'
+
+CONSOLE_PAGE = r"""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script type="text/javascript">
+@@jquery@@
+    </script>
+    <script type="text/javascript">
+@@support@@
+    </script>
+    <style type="text/css">
+        html {
+            height: 100%;
+        }
+        body {
+            height: 100%;
+            margin: 0 auto;
+            border-left: 1px solid #ccc;
+            border-right: 1px solid #ccc;
+            font-family: 'Luxi Sans', sans-serif;
+            background: #eee;
+        }
+        #page {
+            padding: 10px 20px;
+        }
+        #console {
+            width: 100%;
+            background: #fff;
+            color: #111;
+            border: 1px solid #888;
+            font-family: 'Consolas', monospace;
+        }
+        #cursor {
+            color: #111;
+        }
+        tt {
+            font-family: 'Consolas', monospace;
+        }
+        #input {
+            width: 100%;
+            font-size: 100%;
+            border: 1px solid #888;
+            font-family: 'Consolas', monospace;
+        }
+        #execute {
+            border: 1px solid #888;
+            background-color: #eee;
+            font-family: 'Consolas', monospace;
+        }
+        .prompt1 {
+            color: olive;
+        }
+        .prompt2 {
+            color: #888;
+        }
+        .output {
+            color: navy;
+        }
+        .traceback {
+            color: #cc0000;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div id="page">
+        <pre id="console"><span style="color: #aaa">Welcome to the NICOS web console!
+Enter commands in the input field below.</span>
+<span id="cursor">&nbsp;</span></pre>
+        <input type="text" id="input" />
+    </div>
+    <script type="text/javascript">init();</script>
+</body>
+</html>
+"""
+
+CONSOLE_PAGE = CONSOLE_PAGE.replace('@@jquery@@',
+    open(os.path.join(os.path.dirname(__file__), 'jquery.js')).read())
+CONSOLE_PAGE = CONSOLE_PAGE.replace('@@support@@',
+    open(os.path.join(os.path.dirname(__file__), 'support.js')).read())
+
+
+class FakeInput(object):
+    def read(self):
+        return ''
+
+    def readline(self):
+        return '\n'
+
+    def readlines(self):
+        return []
+
+
+class WebHandler(logging.Handler):
+    """
+    Log handler for transmitting log messages to the client.
+    """
+
+    def __init__(self, buffer, lock):
+        logging.Handler.__init__(self)
+        self.setFormatter(NicosConsoleFormatter(datefmt=DATEFMT))
+        self.buffer = buffer
+        self.lock = lock
+
+    def emit(self, record):
+        with self.lock:
+            self.buffer.append(self.format(record) + '\n')
+
+
+class MTWSGIServer(ThreadingMixIn, WSGIServer):
+    pass
+
+
+class NicosApp(object):
+    """
+    The nicos-web WSGI application.
+    """
+
+    def __init__(self):
+        self._output_buffer = []
+        self._buffer_lock = threading.RLock()
+
+    def create_handler(self):
+        return WebHandler(self._output_buffer, self._buffer_lock)
+
+    def __call__(self, environ, start_response):
+        status = '200 OK'
+        try:
+            path = environ['PATH_INFO'].strip('/')
+            if not path:
+                ctype = 'text/html'
+                response = CONSOLE_PAGE
+            else:
+                ctype = 'text/javascript'
+                response = self.json(environ)
+        except Exception, err:
+            ctype = 'text/plain'
+            status = '500 Internal Server Error'
+            response = 'Error: ' + escape(str(err))
+        headers = [('Content-type', ctype)]
+        start_response(status, headers)
+        return [response]
+
+    json_exports = {
+        'start_session': '_start_session',
+        'exec': '_exec',
+        'output': '_output',
+    }
+
+    def json(self, env):
+        try:
+            length = int(env['CONTENT_LENGTH'])
+            request = json.loads(env['wsgi.input'].read(length))
+        except Exception:
+            raise RuntimeError('bad request')
+        try:
+            if not request['method'] in self.json_exports:
+                raise RuntimeError('method not found')
+            handler = getattr(self, self.json_exports[request['method']])
+            response = handler(*request['params'])
+            return json.dumps({'id': request['id'], 'result': response,
+                               'error': None})
+        except Exception, e:
+            try:
+                errmsg, errtype = str(e), e.__class__.__name__
+            except Exception:
+                errmsg, errtype = 'unknown error', ''
+            return json.dumps({'id': request['id'],
+                               'result' : None,
+                               'error': {'msg': errmsg, 'type': errtype}})
+
+    def _start_session(self):
+        return 'web'
+
+    def _output(self, sid):
+        while not self._output_buffer:
+            sleep(0.3)
+        with self._buffer_lock:
+            entries = self._output_buffer[:]
+            self._output_buffer[:] = []
+        return ''.join(entries)
+
+    def _exec(self, sid, code):
+        error = False
+        try:
+            code = compile(code, '<stdin>', 'single', 0, 1)
+            exec code in session.getNamespace(), \
+                         session.getLocalNamespace()
+        except SystemExit:
+            print QUIT_MESSAGE
+        except:
+            etype, value, tb = sys.exc_info()
+            tb = tb.tb_next
+            msg = ''.join(traceback.format_exception(etype, value, tb))
+            session.log.error(msg.rstrip())
+            error = True
+        return {'error': error}
