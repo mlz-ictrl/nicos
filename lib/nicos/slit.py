@@ -66,6 +66,14 @@ class Slit(Moveable):
                       self._adevs['bottom'], self._adevs['top']]
         self._axnames = ['right', 'left', 'bottom', 'top']
 
+        for name, cls in [
+            ('right', RightSlitAxis), ('left', LeftSlitAxis),
+            ('bottom', BottomSlitAxis), ('top', TopSlitAxis),
+            ('centerx', CenterXSlitAxis), ('centery', CenterYSlitAxis),
+            ('width', WidthSlitAxis), ('height', HeightSlitAxis)]:
+            self.__dict__[name] = cls(self.name+'.'+name, slit=self,
+                                      unit=self.unit, lowlevel=True)
+
     def _getPositions(self, target):
         if self.opmode == '4blades':
             if len(target) != 4:
@@ -87,7 +95,9 @@ class Slit(Moveable):
         return positions
 
     def doIsAllowed(self, target):
-        positions = self._getPositions(target)
+        return self._doIsAllowedPositions(self._getPositions(target))
+
+    def _doIsAllowedPositions(self, positions):
         for ax, axname, pos in zip(self._axes, self._axnames, positions):
             ok, why = ax.isAllowed(pos)
             if not ok:
@@ -99,9 +109,12 @@ class Slit(Moveable):
         return True, ''
 
     def doStart(self, target):
+        self._doStartPositions(self._getPositions(target))
+
+    def _doStartPositions(self, positions):
+        tr, tl, tb, tt = positions
         # determine which axes to move first, so that the blades can
         # not touch when one moves first
-        tr, tl, tb, tt  = self._getPositions(target)
         cr, cl, cb, ct = map(lambda d: d.doRead(), self._axes)
         ar, al, ab, at = self._axes
         if tr < cr and tl < cl:
@@ -171,3 +184,82 @@ class Slit(Moveable):
             self.fmtstr = '%.2f %.2f %.2f %.2f'
         else:
             self.fmtstr = '%.2f %.2f'
+
+
+class SlitAxis(Moveable):
+    """
+    "Partial" devices for slit axes, useful for e.g. scanning
+    over the device slit.centerx.
+    """
+
+    attached_devices = {
+        'slit': Slit,
+    }
+
+    def doRead(self):
+        positions = map(lambda d: d.read(), self._adevs['slit']._axes)
+        return self._convertRead(positions)
+
+    def doStart(self, target):
+        currentpos = map(lambda d: d.doRead(), self._adevs['slit']._axes)
+        positions = self._convertStart(target, currentpos)
+        self._adevs['slit']._moveto(positions)
+
+    def doIsAllowed(self, target):
+        currentpos = map(lambda d: d.doRead(), self._adevs['slit']._axes)
+        positions = self._convertStart(target, currentpos)
+        return self._adevs['slit'].doIsAllowed(positions)
+
+
+class RightSlitAxis(SlitAxis):
+    def _convertRead(self, positions):
+        return positions[0]
+    def _convertStart(self, target, current):
+        return (target, current[1], current[2], current[3])
+
+class LeftSlitAxis(SlitAxis):
+    def _convertRead(self, positions):
+        return positions[1]
+    def _convertStart(self, target, current):
+        return (current[0], target, current[2], current[3])
+
+class BottomSlitAxis(SlitAxis):
+    def _convertRead(self, positions):
+        return positions[2]
+    def _convertStart(self, target, current):
+        return (current[0], current[1], target, current[3])
+
+class TopSlitAxis(SlitAxis):
+    def _convertRead(self, positions):
+        return positions[3]
+    def _convertStart(self, target, current):
+        return (current[0], current[1], current[2], target)
+
+class CenterXSlitAxis(SlitAxis):
+    def _convertRead(self, positions):
+        return (positions[0] + positions[1]) / 2.
+    def _convertStart(self, target, current):
+        width = current[1] - current[0]
+        return (target-width/2., target+width/2., current[2], current[3])
+
+class CenterYSlitAxis(SlitAxis):
+    def _convertRead(self, positions):
+        return (positions[2] + positions[3]) / 2.
+    def _convertStart(self, target, current):
+        height = current[3] - current[2]
+        return (current[0], current[1], target-height/2., target+height/2.)
+
+class WidthSlitAxis(SlitAxis):
+    def _convertRead(self, positions):
+        return positions[1] - positions[0]
+    def _convertStart(self, target, current):
+        centerx = (current[0] + current[1]) / 2.
+        return (centerx-target/2., centerx+target/2., current[2], current[3])
+
+class HeightSlitAxis(SlitAxis):
+    def _convertRead(self, positions):
+        return positions[3] - positions[2]
+    def _convertStart(self, target, current):
+        centery = (current[2] + current[3]) / 2.
+        return (current[0], current[1], centery-target/2., centery+target/2)
+
