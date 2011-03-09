@@ -96,6 +96,7 @@ class Device(object):
 
         # initialize a logger for the device
         self._log = session.getLogger(name)
+        self._log.parent = None
         for mn in ('debug', 'info', 'warning', 'error', 'exception'):
             setattr(self, 'print' + mn, getattr(self._log, mn))
 

@@ -122,7 +122,8 @@ def read(*devlist):
     is given, all existing devices.
     """
     if not devlist:
-        devlist = [session.devices[devname] for devname in session.explicit_devices
+        devlist = [session.devices[devname]
+                   for devname in session.explicit_devices
                    if isinstance(session.devices[devname], Readable)]
     for dev in devlist:
         dev = session.getDevice(dev, Readable)
