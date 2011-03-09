@@ -36,9 +36,9 @@ import sys
 import json
 import logging
 import threading
-import traceback
 from cgi import escape
 from time import sleep
+from hashlib import md5
 from SocketServer import ThreadingMixIn
 from wsgiref.simple_server import WSGIServer
 
@@ -106,7 +106,7 @@ CONSOLE_PAGE = r"""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
         .output {
             color: navy;
         }
-        .traceback {
+        .error {
             color: #cc0000;
             font-style: italic;
         }
@@ -142,9 +142,7 @@ class FakeInput(object):
 
 
 class WebHandler(logging.Handler):
-    """
-    Log handler for transmitting log messages to the client.
-    """
+    """Log handler for transmitting log messages to the client."""
 
     def __init__(self, buffer, lock):
         logging.Handler.__init__(self)
@@ -158,19 +156,19 @@ class WebHandler(logging.Handler):
 
 
 class MTWSGIServer(ThreadingMixIn, WSGIServer):
-    pass
+    """A multi-threaded WSGI server."""
 
 
 class NicosApp(object):
-    """
-    The nicos-web WSGI application.
-    """
+    """The nicos-web WSGI application."""
 
     def __init__(self):
         self._output_buffer = []
         self._buffer_lock = threading.RLock()
+        self.session_number = 0
+        self.current_sid = None
 
-    def create_handler(self):
+    def create_loghandler(self):
         return WebHandler(self._output_buffer, self._buffer_lock)
 
     def __call__(self, environ, start_response):
@@ -182,7 +180,7 @@ class NicosApp(object):
                 response = CONSOLE_PAGE
             else:
                 ctype = 'text/javascript'
-                response = self.json(environ)
+                response = self.rpc(environ)
         except Exception, err:
             ctype = 'text/plain'
             status = '500 Internal Server Error'
@@ -197,41 +195,43 @@ class NicosApp(object):
         'output': '_output',
     }
 
-    def json(self, env):
+    def rpc(self, env):
         try:
             length = int(env['CONTENT_LENGTH'])
             request = json.loads(env['wsgi.input'].read(length))
         except Exception:
-            raise RuntimeError('bad request')
+            raise RuntimeError('bad request.')
         try:
-            if not request['method'] in self.json_exports:
-                raise RuntimeError('method not found')
+            if request['method'] not in self.json_exports:
+                raise RuntimeError('method not found.')
             handler = getattr(self, self.json_exports[request['method']])
             response = handler(*request['params'])
-            return json.dumps({'id': request['id'], 'result': response,
-                               'error': None})
-        except Exception, e:
+            return json.dumps({'result': response, 'error': None})
+        except Exception, err:
             try:
-                errmsg, errtype = str(e), e.__class__.__name__
+                errmsg = '%s: %s' % (err.__class__.__name__, err)
             except Exception:
-                errmsg, errtype = 'unknown error', ''
-            return json.dumps({'id': request['id'],
-                               'result' : None,
-                               'error': {'msg': errmsg, 'type': errtype}})
+                errmsg = 'unknown error'
+            return json.dumps({'result' : None, 'error': errmsg})
 
     def _start_session(self):
-        return 'web'
+        self.session_number += 1
+        self.current_sid = md5(str(self.session_number)).hexdigest()
+        return self.current_sid
 
     def _output(self, sid):
         while not self._output_buffer:
             sleep(0.3)
+        if sid != self.current_sid:
+            raise RuntimeError('session taken over by another client.')
         with self._buffer_lock:
             entries = self._output_buffer[:]
             self._output_buffer[:] = []
         return ''.join(entries)
 
     def _exec(self, sid, code):
-        error = False
+        if sid != self.current_sid:
+            raise RuntimeError('session taken over by another client.')
         try:
             code = compile(code, '<stdin>', 'single', 0, 1)
             exec code in session.getNamespace(), \
@@ -239,9 +239,5 @@ class NicosApp(object):
         except SystemExit:
             print QUIT_MESSAGE
         except:
-            etype, value, tb = sys.exc_info()
-            tb = tb.tb_next
-            msg = ''.join(traceback.format_exception(etype, value, tb))
-            session.log.error(msg.rstrip())
-            error = True
-        return {'error': error}
+            session.logUnhandledException(sys.exc_info())
+        return None

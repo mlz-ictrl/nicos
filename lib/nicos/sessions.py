@@ -750,7 +750,7 @@ class WebSession(Session):
         session.__init__('web')
 
         app = NicosApp()
-        webhandler = app.create_handler()
+        webhandler = app.create_loghandler()
         session.log.handlers.append(webhandler)
         session._log_handlers.append(webhandler)
 
