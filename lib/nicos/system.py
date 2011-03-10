@@ -129,14 +129,8 @@ class System(Device):
         session.resetPrompt()
 
     def getSinks(self, scantype=None):
-        if scantype is None:
-            sinks = self._adevs['datasinks']
-        else:
-            sinks = [sink for sink in self._adevs['datasinks']
-                     if not sink.scantypes or scantype in sink.scantypes]
-        if self._mode == 'simulation':
-            sinks = [sink for sink in sinks if sink.activeInSimulation]
-        return sinks
+        return [sink for sink in self._adevs['datasinks']
+                if sink.isActive(scantype)]
 
     def doWriteDatapath(self, value):
         for sink in self._adevs['datasinks']:

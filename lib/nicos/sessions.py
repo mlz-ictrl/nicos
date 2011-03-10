@@ -712,6 +712,9 @@ class DaemonSession(SimpleSession):
         # and to all loggers created from now on
         self._log_handlers.append(daemon_handler)
 
+        # add an object to be used by DaemonSink objects
+        self.datahandler = daemondev._data_handler
+
         # Pretend that the daemon setup doesn't exist, so that another
         # setup can be loaded by the user.
         self.devices.clear()

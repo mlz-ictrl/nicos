@@ -39,6 +39,7 @@ from nicos import session
 from nicos.utils import listof, readFile, writeFile
 from nicos.device import Device, Param
 from nicos.errors import ConfigurationError, ProgrammingError
+from nicos.sessions import DaemonSession
 from nicos.commands.output import printinfo
 
 
@@ -59,6 +60,13 @@ class DataSink(Device):
 
     # Set to false in subclasses that e.g. write to the filesystem.
     activeInSimulation = True
+
+    def isActive(self, scantype):
+        if session.system.mode == 'simulation' and not self.activeInSimulation:
+            return False
+        if scantype is not None and scantype not in self.scantypes:
+            return False
+        return True
 
     def prepareDataset(self):
         """Prepare for a new dataset.
@@ -154,10 +162,36 @@ class ConsoleSink(DataSink):
         printinfo('=' * 80)
 
 
+class DaemonSink(DataSink):
+    def isActive(self, scantype):
+        if not isinstance(session, DaemonSession):
+            return False
+        return DataSink.isActive(self, scantype)
+
+    def beginDataset(self, devices, positions, detlist, preset,
+                     userinfo, sinkinfo):
+        self._handler = session.datahandler
+        filename = [v for (k, v) in sinkinfo if k == 'filename']
+        # XXX create a new interface for this
+        self._handler.new_dataset(
+            'scan started %s' % time.strftime(TIMEFMT),
+            '', userinfo, v[0] if v else '', '',
+            xaxisname='%s (%s)' % (devices[0], devices[0].unit),
+            yaxisname=str(detlist[0]),
+            xscale=(positions[0][0], positions[-1][0]))
+        for det in detlist:
+            names, units = det.valueInfo()
+            for name in names:
+                self._handler.add_curve(name, ['x', 'y'], 'default')
+
+    def addPoint(self, num, xvalues, yvalues):
+        for i, v in enumerate(yvalues):
+            self._handler.add_point(i, [xvalues[0], v])
+
+
 class DatafileSink(DataSink):
 
     activeInSimulation = False
-
 
 
 class AsciiDatafileSink(DatafileSink):
