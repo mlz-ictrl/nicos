@@ -143,8 +143,8 @@ class DataHandler(object):
             index = self.active_dataset.last_curve
         if not 0 <= index <= self.active_dataset.last_curve:
             self._log.warning('[dataset] discarding add_point(), '
-                              'index %s neither -1 nor between 0 and %d',
-                              index, self.active_dataset.last_curve)
+                              'index %s neither -1 nor between 0 and %d' %
+                              (index, self.active_dataset.last_curve))
             return
         # add required dummy column at the end
         point = list(point) + [0]
@@ -156,8 +156,8 @@ class DataHandler(object):
             index = self.active_dataset.last_curve
         if not 0 <= index <= self.active_dataset.last_curve:
             self._log.warning('[dataset] discarding add_points(), '
-                              'index %s neither -1 nor between 0 and %d',
-                              index, self.active_dataset.last_curve)
+                              'index %s neither -1 nor between 0 and %d' %
+                              (index, self.active_dataset.last_curve))
             return
         # add required dummy column at the end
         points = [list(point) + [0] for point in points]
