@@ -46,6 +46,36 @@ from nicos.commands.output import printinfo
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
 
 
+class Dataset(object):
+    # scan type
+    scantype = None
+    # start time
+    started = 0
+    # data sinks active for this data set
+    sinks = []
+    # list of devices involved in scan
+    devices = []
+    # list of scan positions
+    positions = []
+    # list of detectors for this dataset
+    detlist = []
+    # preset dictionary of scan
+    preset = {}
+    # scan info
+    scaninfo = ''
+    # additional info from data sinks
+    sinkinfo = {}
+    # data points
+    points = []
+
+    # cached info for all sinks to use
+    valueinfo = []
+    detnames = []
+    detunits = []
+    devnames = []
+    devunits = []
+
+
 class DataSink(Device):
     """
     A DataSink is a configurable object that receives measurement data.  All
@@ -68,7 +98,7 @@ class DataSink(Device):
             return False
         return True
 
-    def prepareDataset(self):
+    def prepareDataset(self, dataset):
         """Prepare for a new dataset.
 
         Returns a list of info about the new dataset as ``(key, value)`` pairs.
@@ -77,15 +107,14 @@ class DataSink(Device):
         to communicate the file name to sinks that write the info to the console
         or display them otherwise.
         """
-        return []
+        pass
 
-    def beginDataset(self, devices, positions, detlist, preset,
-                     userinfo, sinkinfo):
+    def beginDataset(self, dataset):
         """Begin a new dataset.
 
-        The dataset will contain x-values for all *devices* (a list of `Device`
-        objects), measured at *positions* (a list of lists, or None if the
-        positions are not yet known).
+        The dataset will contain x-values for all its *devices* (a list of
+        `Device` objects), measured at *positions* (a list of lists, or None if
+        the positions are not yet known).
 
         The dataset will contain y-values measured by the *detlist* using the
         given *preset* (a dictionary).
@@ -95,7 +124,7 @@ class DataSink(Device):
         """
         pass
 
-    def addInfo(self, category, valuelist):
+    def addInfo(self, dataset, category, valuelist):
         """Add additional information to the dataset.
 
         This is meant to record e.g. device values at scan startup.  *valuelist*
@@ -103,7 +132,7 @@ class DataSink(Device):
         """
         pass
 
-    def addPoint(self, num, xvalues, yvalues):
+    def addPoint(self, dataset, xvalues, yvalues):
         """Add a point to the dataset.
 
         *num* is the number of the point in the scan
@@ -113,7 +142,7 @@ class DataSink(Device):
         """
         pass
 
-    def endDataset(self):
+    def endDataset(self, dataset):
         """End the current dataset."""
         pass
 
@@ -124,39 +153,33 @@ class DataSink(Device):
 
 class ConsoleSink(DataSink):
 
-    def beginDataset(self, devices, positions, detlist, preset,
-                     userinfo, sinkinfo):
+    def beginDataset(self, dataset):
         printinfo('=' * 80)
-        printinfo('Starting scan:      ' + (userinfo or ''))
-        for name, value in sinkinfo:
+        printinfo('Starting scan:      ' + (dataset.scaninfo or ''))
+        for name, value in dataset.sinkinfo.iteritems():
             printinfo('%-20s%s' % (name+':', value))
-        printinfo('Started at:         ' + time.strftime(TIMEFMT))
+        printinfo('Started at:         ' +
+                  time.strftime(TIMEFMT, dataset.started))
         printinfo('-' * 80)
-        detnames = []
-        detunits = []
-        for det in detlist:
-            names, units = det.valueInfo()
-            detnames.extend(names)
-            detunits.extend(units)
-        printinfo('\t'.join(map(str, ['#'] + devices + detnames))
-                  .expandtabs())
-        printinfo('\t'.join([''] + [dev.unit for dev in devices] +
-                            detunits).expandtabs())
+        printinfo('\t'.join(map(str, ['#'] + dataset.devnames +
+                                dataset.detnames)).expandtabs())
+        printinfo('\t'.join([''] + dataset.devunits + dataset.detunits).
+                  expandtabs())
         printinfo('-' * 80)
-        if positions:
-            self._npoints = len(positions)
+        if dataset.positions:
+            self._npoints = len(dataset.positions)
         else:
             self._npoints = 0
 
-    def addPoint(self, num, xvalues, yvalues):
+    def addPoint(self, dataset, xvalues, yvalues):
         if self._npoints:
-            point = '%s/%s' % (num, self._npoints)
+            point = '%s/%s' % (len(dataset.points)-1, self._npoints)
         else:
             point = num
         printinfo('\t'.join(map(str, [point] + xvalues + yvalues))
                   .expandtabs())
 
-    def endDataset(self):
+    def endDataset(self, dataset):
         printinfo('-' * 80)
         printinfo('Finished at:        ' + time.strftime(TIMEFMT))
         printinfo('=' * 80)
@@ -168,23 +191,20 @@ class DaemonSink(DataSink):
             return False
         return DataSink.isActive(self, scantype)
 
-    def beginDataset(self, devices, positions, detlist, preset,
-                     userinfo, sinkinfo):
+    def beginDataset(self, dataset):
         self._handler = session.datahandler
-        filename = [v for (k, v) in sinkinfo if k == 'filename']
+        filename = dataset.sinkinfo.get('filename', '')
         # XXX create a new interface for this
         self._handler.new_dataset(
-            'scan started %s' % time.strftime(TIMEFMT),
-            '', userinfo, v[0] if v else '', '',
-            xaxisname='%s (%s)' % (devices[0], devices[0].unit),
-            yaxisname=str(detlist[0]),
-            xscale=(positions[0][0], positions[-1][0]))
-        for det in detlist:
-            names, units = det.valueInfo()
-            for name in names:
-                self._handler.add_curve(name, ['x', 'y'], 'default')
+            'scan started %s' % time.strftime(TIMEFMT, dataset.started),
+            '', dataset.scaninfo, filename, '',
+            xaxisname='%s (%s)' % (dataset.devnames[0], dataset.devunits[0]),
+            yaxisname=str(dataset.detlist[0]),
+            xscale=(dataset.positions[0][0], dataset.positions[-1][0]))
+        for name in dataset.detnames:
+            self._handler.add_curve(name, ['x', 'y'], 'default')
 
-    def addPoint(self, num, xvalues, yvalues):
+    def addPoint(self, dataset, xvalues, yvalues):
         for i, v in enumerate(yvalues):
             self._handler.add_point(i, [xvalues[0], v])
 
@@ -247,7 +267,7 @@ class AsciiDatafileSink(DatafileSink):
         pnr = session.system.experiment.proposalnumber
         return '%04d_%08d.dat' % (pnr, self._counter)
 
-    def prepareDataset(self):
+    def prepareDataset(self, dataset):
         if self._path is None:
             self.setDatapath(session.system.datapath)
         self._wrote_columninfo = False
@@ -256,45 +276,37 @@ class AsciiDatafileSink(DatafileSink):
         self._setROParam('lastfilenumber', self._counter)
         self._fname = self.nextFileName()
         self._fullfname = path.join(self._path, self._fname)
-        return [('filename', self._fname)]
+        dataset.sinkinfo['filename'] = self._fname
 
-    def beginDataset(self, devices, positions, detlist, preset,
-                     userinfo, sinkinfo):
+    def beginDataset(self, dataset):
         if path.isfile(self._fullfname):
             # XXX for now, prevent from ever overwriting data files
             raise ProgrammingError('Data file named %r already exists!' %
                                    self._fullfname)
         self._file = open(self._fullfname, 'w')
-        self._userinfo = userinfo
+        self._userinfo = dataset.scaninfo
         self._file.write('%s NICOS data file, created at %s\n' %
                          (self._tcomment, time.strftime(TIMEFMT)))
-        for name, value in sinkinfo + [('info', userinfo)]:
+        for name, value in dataset.sinkinfo.items() + \
+                [('info', dataset.scaninfo)]:
             self._file.write('%s %25s : %s\n' % (self._scomment, name, value))
         self._file.flush()
         # to be written later (after info)
-        devnames = map(str, devices)
-        devunits = [dev.unit for dev in devices]
-        detnames = []
-        detunits = []
-        for det in detlist:
-            names, units = det.valueInfo()
-            detnames.extend(names)
-            detunits.extend(units)
         if self.semicolon:
-            self._colnames = devnames + [';'] + detnames
-            self._colunits = devunits + [';'] + detunits
+            self._colnames = dataset.devnames + [';'] + dataset.detnames
+            self._colunits = dataset.devunits + [';'] + dataset.detunits
         else:
-            self._colnames = devnames + detnames
-            self._colunits = devunits + detunits
+            self._colnames = dataset.devnames + dataset.detnames
+            self._colunits = dataset.devunits + dataset.detunits
 
-    def addInfo(self, category, valuelist):
+    def addInfo(self, dataset, category, valuelist):
         self._file.write('%s %s\n' % (self._tcomment, category))
         for device, key, value in valuelist:
             self._file.write('%s %25s : %s\n' %
                              (self._scomment, device.name + '_' + key, value))
         self._file.flush()
 
-    def addPoint(self, num, xvalues, yvalues):
+    def addPoint(self, dataset, xvalues, yvalues):
         if not self._wrote_columninfo:
             self._file.write('%s Scan data\n' % self._tcomment)
             self._file.write('%s %s\n' % (self._scomment,
@@ -309,7 +321,7 @@ class AsciiDatafileSink(DatafileSink):
         self._file.write('\t'.join(map(str, values)) + '\n')
         self._file.flush()
 
-    def endDataset(self):
+    def endDataset(self, dataset):
         self._file.write('%s End of NICOS data file %s\n' %
                          (self._tcomment, self._fname))
         self._file.close()

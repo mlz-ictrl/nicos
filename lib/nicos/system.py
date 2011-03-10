@@ -33,8 +33,10 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import time
+
 from nicos import session
-from nicos.data import DataSink
+from nicos.data import Dataset, DataSink
 from nicos.utils import sessionInfo
 from nicos.device import Device, Param
 from nicos.errors import ModeError, UsageError
@@ -128,9 +130,12 @@ class System(Device):
         self.printinfo('switched to %s mode' % mode)
         session.resetPrompt()
 
-    def getSinks(self, scantype=None):
-        return [sink for sink in self._adevs['datasinks']
-                if sink.isActive(scantype)]
+    def createDataset(self, scantype=None):
+        dataset = Dataset()
+        dataset.sinks = [sink for sink in self._adevs['datasinks']
+                         if sink.isActive(scantype)]
+        dataset.started = time.localtime()
+        return dataset
 
     def doWriteDatapath(self, value):
         for sink in self._adevs['datasinks']:

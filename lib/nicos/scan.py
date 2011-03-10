@@ -57,22 +57,32 @@ class Scan(object):
                  scaninfo=None, scantype=None):
         if detlist is None:
             detlist = session.system.instrument.detectors
-        self.devices = devices
-        self.positions = positions
-        self.detlist = detlist
-        self.preset = preset
-        self.scaninfo = scaninfo
-        self.sinks = session.system.getSinks(scantype)
-        self._npoints = len(self.positions)
+        self.dataset = session.system.createDataset(scantype)
+        self._devices = self.dataset.devices = devices
+        self._targets = self.dataset.positions = positions
+        self._detlist = self.dataset.detlist = detlist
+        self._preset = self.dataset.preset = preset
+        self.dataset.scaninfo = scaninfo
+        self._sinks = self.dataset.sinks
+        self._npoints = len(positions)
 
     def beginScan(self):
         session.beginActionScope('Scan')
-        sinkinfo = []
-        for sink in self.sinks:
-            sinkinfo.extend(sink.prepareDataset())
-        for sink in self.sinks:
-            sink.beginDataset(self.devices, self.positions, self.detlist,
-                              self.preset, self.scaninfo, sinkinfo)
+        dataset = self.dataset
+        dataset.sinkinfo = []
+        dataset.devunits = [dev.unit for dev in dataset.devices]
+        dataset.devnames = [dev.name for dev in dataset.devices]
+        dataset.valueinfo = [det.valueInfo() for det in self._detlist]
+        dataset.detnames = []
+        dataset.detunits = []
+        for names, units in dataset.valueinfo:
+            dataset.detnames.extend(names)
+            dataset.detunits.extend(units)
+        dataset.sinkinfo = {}
+        for sink in self._sinks:
+            sink.prepareDataset(dataset)
+        for sink in self._sinks:
+            sink.beginDataset(dataset)
         bycategory = {}
         for name, device in sorted(session.devices.iteritems()):
             if device.lowlevel:
@@ -82,22 +92,23 @@ class Scan(object):
         for catname, catinfo in INFO_CATEGORIES:
             if catname not in bycategory:
                 continue
-            for sink in self.sinks:
-                sink.addInfo(catinfo, bycategory[catname])
+            for sink in self._sinks:
+                sink.addInfo(dataset, catinfo, bycategory[catname])
 
     def preparePoint(self, num, xvalues):
         session.beginActionScope('Point %d/%d' % (num, self._npoints))
 
-    def addPoint(self, num, xvalues, yvalues):
-        for sink in self.sinks:
-            sink.addPoint(num, xvalues, yvalues)
+    def addPoint(self, xvalues, yvalues):
+        self.dataset.points.append(xvalues + yvalues)
+        for sink in self._sinks:
+            sink.addPoint(self.dataset, xvalues, yvalues)
 
     def finishPoint(self):
         session.endActionScope()
 
     def endScan(self):
-        for sink in self.sinks:
-            sink.endDataset()
+        for sink in self._sinks:
+            sink.endDataset(self.dataset)
         session.endActionScope()
 
     def handleError(self, dev, val, err):
@@ -123,20 +134,20 @@ class Scan(object):
 
     def run(self):
         # move to first position before starting scan
-        can_measure = self.moveTo(self.devices, self.positions[0])
+        can_measure = self.moveTo(self._devices, self._targets[0])
         self.beginScan()
         try:
-            for i, position in enumerate(self.positions):
+            for i, position in enumerate(self._targets):
                 self.preparePoint(i+1, position)
                 try:
                     session.action('Positioning')
                     if i > 0:
-                        can_measure = self.moveTo(self.devices, position)
+                        can_measure = self.moveTo(self._devices, position)
                     if not can_measure:
                         continue
                     session.action('Counting')
-                    result = _count(self.detlist, self.preset)
-                    self.addPoint(i+1, position, result)
+                    result = _count(self._detlist, self._preset)
+                    self.addPoint(position, result)
                 finally:
                     self.finishPoint()
         finally:
