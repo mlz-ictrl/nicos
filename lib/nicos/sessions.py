@@ -118,6 +118,10 @@ class Session(object):
         self.explicit_setups = []
         # path to setup files
         self.__setup_path = path.join(self.config.control_path, 'setups')
+        if not path.isdir(self.__setup_path) and path.isdir(
+            path.join(self.config.control_path, 'custom/test/setups')):
+            self.__setup_path = path.join(self.config.control_path,
+                                          'custom/test/setups')
         # info about all loadable setups
         self.__setup_info = {}
         # namespace to place user-accessible items in
