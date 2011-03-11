@@ -39,9 +39,10 @@ from time import sleep
 
 import cascadenicosobj
 
-from nicos import session
+from nicos import session, status
 from nicos.utils import existingdir, readFileCounter, updateFileCounter
 from nicos.device import Measurable, Param
+from nicos.errors import CommunicationError
 
 
 class CascadeDetector(Measurable):
@@ -53,14 +54,14 @@ class CascadeDetector(Measurable):
                           type=bool, settable=True, default=False),
         'nametemplate': Param('Template for the data file names',
                               type=str, default='cascade_%05d'),
+        # XXX add ROI, MIEZE ROI, etc.
     }
 
     def doInit(self):
-        host, port = self.server.split(':')
-        port = int(port)
         self._client = cascadenicosobj.NicosClient()
-        self._client.connecttohost(host, port)
+        self.doReset()
 
+        # XXX how is this updated?
         self._datapath = path.join(session.system.datapath, 'cascade')
         self._filenumber = readFileCounter(path.join(self._datapath, 'counter'))
         self._lastfilename = path.join(self._datapath,
@@ -75,13 +76,29 @@ class CascadeDetector(Measurable):
         self._thread.start()
 
     def valueInfo(self):
-        return ['time', 'filename'], ['s', '']
+        return ['time', 'cascade.filename'], ['s', '']
 
     def doWriteServerdebug(self, value):
         self._client.SetDebugLog(value)
 
     def doShutdown(self):
         self._client.disconnect()
+
+    def doReset(self):
+        self._client.disconnect()
+        host, port = self.server.split(':')
+        port = int(port)
+        if not self._client.connecttohost(host, port):
+            raise CommunicationError('could not connect to server')
+
+    def doStatus(self):
+        if not self._client.isconnected():
+            return status.ERROR, 'disconnected from server'
+        elif self._measure.isSet():
+            return status.BUSY, 'measuring'
+        elif not self._processed.isSet():
+            return status.BUSY, 'processing',
+        return status.OK, 'idle'
 
     def doStart(self, **preset):
         self._lastfilename = path.join(self._datapath,
@@ -115,23 +132,27 @@ class CascadeDetector(Measurable):
                 while True:
                     sleep(0.05)
                     status = str(self._client.communicate('CMD_status'))
+                    if status == '':
+                        raise CommunicationError('no response from server')
+                    #self.printdebug('got status %r' % status)
                     status = dict(v.split('=') for v in status[4:].split(' '))
-                    #self.printdebug('got status %s' % status)
                     if status.get('stop', '0') == '1':
                         break
                     data = self._client.communicate('CMD_readsram')
                     #self.printdebug('got live data len=%d' % len(data))
                     # XXX send live data somewhere
             except:
+                self._lastfilename = '<error>'
+                self.printexception('measuring failed')
                 self._measure.clear()
                 self._processed.set()
-                self.printexception('measuring failed')
                 continue
             self._measure.clear()
             try:
                 with open(self._lastfilename, 'w') as fp:
                     fp.write(self._client.communicate('CMD_readsram')[4:])
             except:
+                self._lastfilename = '<error>'
                 self.printexception('saving measurement failed')
             finally:
                 self._processed.set()
