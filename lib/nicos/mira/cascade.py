@@ -40,16 +40,19 @@ from time import sleep
 import cascadenicosobj
 
 from nicos import session
-from nicos.utils import existingdir
+from nicos.utils import existingdir, readFileCounter, updateFileCounter
 from nicos.device import Measurable, Param
 
 
 class CascadeDetector(Measurable):
 
     parameters = {
-        'server': Param('"host:port" of the cascade server to connect to',
-                        type=str, mandatory=True),
-        'serverdebug': Param('', type=bool, settable=True, default=False),
+        'server':   Param('"host:port" of the cascade server to connect to',
+                          type=str, mandatory=True),
+        'debugmsg': Param('Whether to print debug messages from the client',
+                          type=bool, settable=True, default=False),
+        'nametemplate': Param('Template for the data file names',
+                              type=str, default='cascade_%05d'),
     }
 
     def doInit(self):
@@ -57,8 +60,11 @@ class CascadeDetector(Measurable):
         port = int(port)
         self._client = cascadenicosobj.NicosClient()
         self._client.connecttohost(host, port)
-        self._filenumber = 0  # XXX
-        self._lastfilename = ''
+
+        self._datapath = path.join(session.system.datapath, 'cascade')
+        self._filenumber = readFileCounter(path.join(self._datapath, 'counter'))
+        self._lastfilename = path.join(self._datapath,
+                                       self.nametemplate % self._filenumber)
         self._last_preset = 0  # XXX read from server
         self._measure = threading.Event()
         self._processed = threading.Event()
@@ -78,9 +84,10 @@ class CascadeDetector(Measurable):
         self._client.disconnect()
 
     def doStart(self, **preset):
-        self._lastfilename = path.join(session.system.datapath, 'cascade',
-                                       'cascade_%s' % self._filenumber)
+        self._lastfilename = path.join(self._datapath,
+                                       self.nametemplate % self._filenumber)
         self._filenumber += 1
+        updateFileCounter(path.join(self._datapath, 'counter'), self._filenumber)
         self._processed.wait()
         self._processed.clear()
         if preset.get('t'):

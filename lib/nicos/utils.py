@@ -491,6 +491,23 @@ def formatExtendedTraceback(etype, value, tb):
     return ''.join(ret).rstrip('\n')
 
 
+# file counter utilities
+
+def readFileCounter(counterpath):
+    try:
+        currentcounter = int(readFile(counterpath)[0])
+    except IOError, err:
+        # if the file doesn't exist yet, this is ok, but reraise all other
+        # exceptions
+        if err.errno == errno.ENOENT:
+            currentcounter = 0
+        else:
+            raise
+    return currentcounter
+
+def updateFileCounter(counterpath, value):
+    writeFile(counterpath, [str(value)])
+
 # parameter conversion functions
 
 _notset = object()

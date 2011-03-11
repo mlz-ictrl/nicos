@@ -36,7 +36,7 @@ import errno
 from os import path
 
 from nicos import session
-from nicos.utils import listof, readFile, writeFile
+from nicos.utils import listof, readFileCounter, updateFileCounter
 from nicos.device import Device, Param
 from nicos.errors import ConfigurationError, ProgrammingError
 from nicos.sessions import DaemonSession
@@ -247,17 +247,7 @@ class AsciiDatafileSink(DatafileSink):
     def setDatapath(self, value):
         self._path = value
         # determine current file counter value
-        counterpath = path.join(self._path, 'filecounter')
-        try:
-            currentcounter = int(readFile(counterpath)[0])
-        except IOError, err:
-            # if the file doesn't exist yet, this is ok, but reraise all other
-            # exceptions
-            if err.errno == errno.ENOENT:
-                currentcounter = 0
-            else:
-                raise
-        self._counter = currentcounter
+        self._counter = readFileCounter(path.join(self._path, 'filecounter'))
         self._setROParam('lastfilenumber', self._counter)
 
     def nextFileName(self):
@@ -272,7 +262,7 @@ class AsciiDatafileSink(DatafileSink):
             self.setDatapath(session.system.datapath)
         self._wrote_columninfo = False
         self._counter += 1
-        writeFile(path.join(self._path, 'filecounter'), [str(self._counter)])
+        updateFileCounter(path.join(self._path, 'filecounter'), self._counter)
         self._setROParam('lastfilenumber', self._counter)
         self._fname = self.nextFileName()
         self._fullfname = path.join(self._path, self._fname)
