@@ -33,6 +33,7 @@ __version__ = "$Revision$"
 
 from nicos import session
 from nicos.errors import NicosError, LimitError, FixedError
+from nicos.device import Measurable
 from nicos.commands.output import printwarning
 from nicos.commands.measure import _count
 
@@ -55,6 +56,8 @@ class Scan(object):
 
     def __init__(self, devices, positions, detlist=None, preset=None,
                  scaninfo=None, scantype=None):
+        if isinstance(detlist, Measurable):
+            detlist = [detlist]
         if detlist is None:
             detlist = session.system.instrument.detectors
         self.dataset = session.system.createDataset(scantype)

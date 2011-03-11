@@ -173,7 +173,7 @@ class ConsoleSink(DataSink):
 
     def addPoint(self, dataset, xvalues, yvalues):
         if self._npoints:
-            point = '%s/%s' % (len(dataset.points)-1, self._npoints)
+            point = '%s/%s' % (len(dataset.points), self._npoints)
         else:
             point = num
         printinfo('\t'.join(map(str, [point] + xvalues + yvalues))

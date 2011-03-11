@@ -35,7 +35,10 @@ __version__ = "$Revision$"
 
 import os
 import sys
-import json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 import logging
 import threading
 from cgi import escape

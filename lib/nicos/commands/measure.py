@@ -59,13 +59,14 @@ def _count(detlist, preset):
 @usercommand
 def count(*detlist, **preset):
     """Perform a counting of the given detector(s) with the given preset(s)."""
-    detlist = list(detlist)
-    if detlist and isinstance(detlist[0], (int, long, float)):
-        preset['t'] = detlist[0]
-        del detlist[0]
+    detectors = []
     for det in detlist:
+        if isinstance(det, (int, long, float)):
+            preset['t'] = det
+            continue
         if not isinstance(det, Measurable):
             raise UsageError('device %s is not a measurable device' % det)
-    if not detlist:
-        detlist = session.system.instrument.detectors
-    return _count(detlist, preset)
+        detectors.append(det)
+    if not detectors:
+        detectors = session.system.instrument.detectors
+    return _count(detectors, preset)
