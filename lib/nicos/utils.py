@@ -465,7 +465,7 @@ def formatExtendedFrame(frame):
     ret = []
     for key, value in frame.f_locals.iteritems():
         try:
-            valstr = repr(value)
+            valstr = repr(value)[:256]
         except Exception:
             valstr = '<cannot be displayed>'
         ret.append('        %-20s = %s\n' % (key, valstr))

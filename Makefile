@@ -14,7 +14,7 @@ clean:
 
 inplace:
 	rm -rf build
-	python setup.py build_ext
+	/usr/bin/python setup.py build_ext
 	cp build/lib*/nicos/daemon/*.so lib/nicos/daemon
 
 test:

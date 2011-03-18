@@ -130,17 +130,18 @@ class CascadeDetector(Measurable):
                 self._client.communicate('CMD_start')
                 # wait for completion of measurement
                 while True:
-                    sleep(0.05)
-                    status = str(self._client.communicate('CMD_status'))
+                    sleep(0.2)
+                    status = self._client.communicate('CMD_status')
                     if status == '':
                         raise CommunicationError('no response from server')
                     #self.printdebug('got status %r' % status)
-                    status = dict(v.split('=') for v in status[4:].split(' '))
+                    status = dict(v.split('=')
+                                  for v in str(status[4:]).split(' '))
                     if status.get('stop', '0') == '1':
                         break
                     data = self._client.communicate('CMD_readsram')
-                    #self.printdebug('got live data len=%d' % len(data))
                     # XXX send live data somewhere
+                    session.emitfunc('new_livedata', data[4:])
             except:
                 self._lastfilename = '<error>'
                 self.printexception('measuring failed')

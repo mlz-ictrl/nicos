@@ -56,15 +56,18 @@ from nicos.gui.custom import has_customization, list_customizations
 try:
     # needs Qwt5, which may not be available, so make it optional
     from nicos.gui.analysis import AnalysisWindow
+    from nicos.gui.live import LiveWindow
 except (ImportError, RuntimeError):
-    AnalysisWindow = None
+    raise
+    AnalysisWindow = LiveWindow = None
 
 
 class NicosGuiClient(NicosClient, QObject):
     siglist = ['connected', 'disconnected', 'error', 'message',
                'new_request', 'processing_request', 'new_script',
                'new_status', 'new_values', 'new_output',
-               'new_dataset', 'new_curve', 'new_point', 'new_points']
+               'new_dataset', 'new_curve', 'new_point', 'new_points',
+               'new_livedata']
 
     def __init__(self, parent):
         QObject.__init__(self, parent)
@@ -84,6 +87,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         self.editorWindows = set()
         self.analysisWindow = None
         self.errorWindow = None
+        self.liveWindow = None
 
         # data handling setup
         self.data = DataHandler()
@@ -190,6 +194,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             # state of connection, editor and analysis windows
             editFns = settings.value('editedfiles').toStringList()
             openanalysis = settings.value('openanalysis').toBool()
+            openlive = settings.value('openlive').toBool()
             cmdhistory = settings.value('cmdhistory').toStringList()
             self.autoconnect = settings.value('autoconnect').toBool()
 
@@ -222,6 +227,8 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         self.update()
         if openanalysis:
             self.on_actionAnalysis_triggered()
+        if openlive:
+            self.on_actionLiveData_triggered()
         for filename in editFns:
             editor = self.on_actionUserEditor_triggered()
             editor.openFile(str(filename))
@@ -250,6 +257,8 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
                               QVariant(self.topSplitter.saveState()))
             settings.setValue('openanalysis',
                               QVariant(self.analysisWindow is not None))
+            settings.setValue('openlive',
+                              QVariant(self.liveWindow is not None))
             settings.setValue('editedfiles',
                               QVariant(QStringList(editFns)))
             # only save 100 entries of the history
@@ -448,6 +457,25 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         self.analysisWindow = None
 
     @qtsig('')
+    def on_actionLiveData_triggered(self):
+        if not LiveWindow:
+            QMessageBox.warning(self, self.tr('Live Data Error'),
+                self.tr('Qwt5 is not available, data window '
+                        'cannot be opened.'))
+            return
+        if self.liveWindow:
+            self.liveWindow.activateWindow()
+            self.liveWindow.raise_()
+        else:
+            self.liveWindow = LiveWindow(self)
+            self.liveWindow.show()
+            self.connect(self.liveWindow, SIGNAL('closed'),
+                         self.liveWindowClosed)
+
+    def liveWindowClosed(self, window):
+        self.liveWindow = None
+
+    @qtsig('')
     def on_actionErrorWindow_triggered(self):
         self.outView.openErrorWindow()
 
@@ -570,6 +598,10 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         self.set_script(request['script'])
         self.current_request = request
         self.set_current_line(new_current_line)
+
+    def on_client_new_livedata(self, data):
+        if self.liveWindow:
+            self.liveWindow.setData(data)
 
     def set_script(self, script):
         self.traceView.clear()

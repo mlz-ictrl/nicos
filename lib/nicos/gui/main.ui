@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../resources/nicos-gui.qrc">
+   <iconset resource="../../../resources/nicos-gui.qrc">
     <normaloff>:/sunny</normaloff>:/sunny</iconset>
   </property>
   <property name="toolButtonStyle">
@@ -398,7 +398,7 @@
      <x>0</x>
      <y>0</y>
      <width>698</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -439,6 +439,7 @@
      <string>&amp;View</string>
     </property>
     <addaction name="actionUserEditor"/>
+    <addaction name="actionLiveData"/>
     <addaction name="actionAnalysis"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -542,7 +543,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../resources/nicos-gui.qrc">
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/connect</normaloff>
      <normalon>:/disconnect</normalon>:/connect</iconset>
    </property>
@@ -561,7 +562,7 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset resource="../../resources/nicos-gui.qrc">
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/save</normaloff>:/save</iconset>
    </property>
    <property name="text">
@@ -576,7 +577,7 @@
   </action>
   <action name="actionPrint">
    <property name="icon">
-    <iconset resource="../../resources/nicos-gui.qrc">
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/print</normaloff>:/print</iconset>
    </property>
    <property name="text">
@@ -591,7 +592,7 @@
   </action>
   <action name="actionExit">
    <property name="icon">
-    <iconset resource="../../resources/nicos-gui.qrc">
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/quit</normaloff>:/quit</iconset>
    </property>
    <property name="text">
@@ -612,7 +613,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../resources/nicos-gui.qrc">
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/break</normaloff>:/break</iconset>
    </property>
    <property name="text">
@@ -624,7 +625,7 @@
   </action>
   <action name="actionStop">
    <property name="icon">
-    <iconset resource="../../resources/nicos-gui.qrc">
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/stop</normaloff>:/stop</iconset>
    </property>
    <property name="text">
@@ -636,7 +637,7 @@
   </action>
   <action name="actionEmergencyStop">
    <property name="icon">
-    <iconset resource="../../resources/nicos-gui.qrc">
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/emergency</normaloff>:/emergency</iconset>
    </property>
    <property name="text">
@@ -682,7 +683,7 @@
   </action>
   <action name="actionUserEditor">
    <property name="icon">
-    <iconset resource="../../resources/nicos-gui.qrc">
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/editor</normaloff>:/editor</iconset>
    </property>
    <property name="text">
@@ -728,7 +729,7 @@
   </action>
   <action name="actionContinue">
    <property name="icon">
-    <iconset resource="../../resources/nicos-gui.qrc">
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/continue</normaloff>:/continue</iconset>
    </property>
    <property name="text">
@@ -743,7 +744,7 @@
   </action>
   <action name="actionAnalysis">
    <property name="icon">
-    <iconset resource="../../resources/nicos-gui.qrc">
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/plotter</normaloff>:/plotter</iconset>
    </property>
    <property name="text">
@@ -758,7 +759,7 @@
   </action>
   <action name="actionPrintPaper">
    <property name="icon">
-    <iconset resource="../../resources/nicos-gui.qrc">
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/print</normaloff>:/print</iconset>
    </property>
    <property name="text">
@@ -778,7 +779,7 @@
   </action>
   <action name="actionErrorWindow">
    <property name="icon">
-    <iconset resource="../../resources/nicos-gui.qrc">
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/errors</normaloff>:/errors</iconset>
    </property>
    <property name="text">
@@ -786,6 +787,21 @@
    </property>
    <property name="toolTip">
     <string>Show window with all warnings and errors</string>
+   </property>
+  </action>
+  <action name="actionLiveData">
+   <property name="icon">
+    <iconset resource="../../../resources/nicos-gui.qrc">
+     <normaloff>:/live</normaloff>:/live</iconset>
+   </property>
+   <property name="text">
+    <string>Live data</string>
+   </property>
+   <property name="iconText">
+    <string>Live</string>
+   </property>
+   <property name="toolTip">
+    <string>Show live data window</string>
    </property>
   </action>
  </widget>
@@ -802,7 +818,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../resources/nicos-gui.qrc"/>
+  <include location="../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections>
   <connection>

@@ -25,6 +25,8 @@
 #
 # *****************************************************************************
 
+from __future__ import with_statement
+
 """
 NICOS daemon package.
 """
@@ -211,6 +213,7 @@ class NicosDaemon(Device):
     def quit(self):
         self.printinfo('quitting...')
         self._stoprequest = True
+        # XXX has no shutdown
         self._server.shutdown()
         self._worker.join()
         self._server.server_close()

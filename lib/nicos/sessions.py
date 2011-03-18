@@ -718,6 +718,7 @@ class DaemonSession(SimpleSession):
 
         # add an object to be used by DaemonSink objects
         self.datahandler = daemondev._data_handler
+        self.emitfunc = daemondev.emit_event
 
         # Pretend that the daemon setup doesn't exist, so that another
         # setup can be loaded by the user.

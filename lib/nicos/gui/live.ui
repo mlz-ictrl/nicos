@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TableWindow</class>
+ <widget class="QMainWindow" name="TableWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>805</width>
+    <height>554</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Live data</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../../resources/nicos-gui.qrc">
+    <normaloff>:/plotter</normaloff>:/plotter</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <property name="margin">
+     <number>0</number>
+    </property>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>805</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionPDF"/>
+    <addaction name="actionPrint"/>
+    <addaction name="separator"/>
+    <addaction name="actionClose"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="actionLogScale"/>
+    <addaction name="actionNormalized"/>
+    <addaction name="actionUnzoom"/>
+    <addaction name="actionLegend"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuView"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionPrint">
+   <property name="icon">
+    <iconset resource="../../../resources/nicos-gui.qrc">
+     <normaloff>:/print</normaloff>:/print</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Print...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="icon">
+    <iconset resource="../../../resources/nicos-gui.qrc">
+     <normaloff>:/quit</normaloff>:/quit</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Close window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionUnzoom">
+   <property name="icon">
+    <iconset resource="../../../resources/nicos-gui.qrc">
+     <normaloff>:/viewfull</normaloff>:/viewfull</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Unzoom</string>
+   </property>
+  </action>
+  <action name="actionPDF">
+   <property name="icon">
+    <iconset resource="../../../resources/nicos-gui.qrc">
+     <normaloff>:/save</normaloff>:/save</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Save as PDF...</string>
+   </property>
+  </action>
+  <action name="actionLogScale">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Logarithmic Y scale</string>
+   </property>
+   <property name="iconText">
+    <string>Log Scale</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionClosePlot">
+   <property name="text">
+    <string>Close plot</string>
+   </property>
+   <property name="iconText">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="actionNormalized">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Normalized</string>
+   </property>
+   <property name="iconText">
+    <string>Normalized</string>
+   </property>
+  </action>
+  <action name="actionLegend">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>L&amp;egend</string>
+   </property>
+  </action>
+  <action name="actionResetPlot">
+   <property name="text">
+    <string>Reset</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../../../resources/nicos-gui.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionClose</sender>
+   <signal>triggered()</signal>
+   <receiver>TableWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>321</x>
+     <y>230</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
