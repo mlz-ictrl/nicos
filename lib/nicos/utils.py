@@ -501,6 +501,7 @@ def readFileCounter(counterpath):
         # exceptions
         if err.errno == errno.ENOENT:
             currentcounter = 0
+            updateFileCounter(counterpath, 0)
         else:
             raise
     return currentcounter

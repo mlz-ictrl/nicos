@@ -76,6 +76,16 @@ class Dataset(object):
     devunits = []
 
 
+class NeedsDatapath(object):
+    """
+    A mixin interface that specifies that a device needs the current
+    datapath.
+    """
+
+    def _setDatapath(self, path):
+        pass
+
+
 class DataSink(Device):
     """
     A DataSink is a configurable object that receives measurement data.  All
@@ -146,10 +156,6 @@ class DataSink(Device):
         """End the current dataset."""
         pass
 
-    def setDatapath(self, value):
-        # XXX needed?
-        pass
-
 
 class ConsoleSink(DataSink):
 
@@ -209,7 +215,7 @@ class DaemonSink(DataSink):
             self._handler.add_point(i, [xvalues[0], v])
 
 
-class DatafileSink(DataSink):
+class DatafileSink(DataSink, NeedsDatapath):
 
     activeInSimulation = False
 
@@ -234,6 +240,12 @@ class AsciiDatafileSink(DatafileSink):
         self._scomment = self.commentchar
         self._tcomment = self.commentchar * 3
 
+    def _setDatapath(self, value):
+        self._path = value
+        # determine current file counter value
+        self._counter = readFileCounter(path.join(self._path, 'filecounter'))
+        self._setROParam('lastfilenumber', self._counter)
+
     def doWriteCommentchar(self, value):
         if len(value) > 1:
             raise ConfigurationError('comment character should only be '
@@ -244,12 +256,6 @@ class AsciiDatafileSink(DatafileSink):
     def doReadLastfilenumber(self):
         return self._counter
 
-    def setDatapath(self, value):
-        self._path = value
-        # determine current file counter value
-        self._counter = readFileCounter(path.join(self._path, 'filecounter'))
-        self._setROParam('lastfilenumber', self._counter)
-
     def nextFileName(self):
         """Return the file name for the next data file.  Can be overwritten in
         instrument-specific subclasses.
@@ -259,7 +265,7 @@ class AsciiDatafileSink(DatafileSink):
 
     def prepareDataset(self, dataset):
         if self._path is None:
-            self.setDatapath(session.system.datapath)
+            self._setDatapath(session.system.experiment.datapath)
         self._wrote_columninfo = False
         self._counter += 1
         updateFileCounter(path.join(self._path, 'filecounter'), self._counter)

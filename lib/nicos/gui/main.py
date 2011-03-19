@@ -56,10 +56,13 @@ from nicos.gui.custom import has_customization, list_customizations
 try:
     # needs Qwt5, which may not be available, so make it optional
     from nicos.gui.analysis import AnalysisWindow
+except (ImportError, RuntimeError):
+    AnalysisWindow = None
+
+try:
     from nicos.gui.live import LiveWindow
 except (ImportError, RuntimeError):
-    raise
-    AnalysisWindow = LiveWindow = None
+    LiveWindow = None
 
 
 class NicosGuiClient(NicosClient, QObject):
@@ -460,8 +463,8 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
     def on_actionLiveData_triggered(self):
         if not LiveWindow:
             QMessageBox.warning(self, self.tr('Live Data Error'),
-                self.tr('Qwt5 is not available, data window '
-                        'cannot be opened.'))
+                self.tr('Qwt5 or cascade widget are not available, '
+                        'live data window cannot be opened.'))
             return
         if self.liveWindow:
             self.liveWindow.activateWindow()

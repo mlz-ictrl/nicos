@@ -34,6 +34,8 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 
+from nicos import session
+from nicos.data import NeedsDatapath
 from nicos.utils import listof
 from nicos.device import Device, Param
 
@@ -56,6 +58,8 @@ class Experiment(Device):
                                 category='experiment'),
         'users':          Param('User names', type=listof(str), settable=True,
                                 category='experiment'),
+        'datapath':       Param('Path for data files', type=str,
+                                settable=True, category='experiment'),
     }
 
     attached_devices = {
@@ -75,3 +79,8 @@ class Experiment(Device):
         if affiliation is not None:
             user += ' -- ' + affiliation
         self.users = self.users + [user]
+
+    def doWriteDatapath(self, value):
+        for dev in session.devices.itervalues():
+            if isinstance(dev, NeedsDatapath):
+                dev._setDatapath(value)

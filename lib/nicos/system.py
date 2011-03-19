@@ -54,10 +54,6 @@ class System(Device):
     the NICOS system.
     """
 
-    parameters = {
-        'datapath': Param('Path for data files', type=str, mandatory=True),
-    }
-
     attached_devices = {
         'cache': CacheClient,
         'datasinks': [DataSink],
@@ -67,7 +63,7 @@ class System(Device):
     }
 
     def __repr__(self):
-        return '<NICOS System (%s mode)>' % self._mode
+        return '<NICOS System>'
 
     def __init__(self, name, **config):
         # need to pre-set this to avoid bootstrapping issue
@@ -136,10 +132,6 @@ class System(Device):
                          if sink.isActive(scantype)]
         dataset.started = time.localtime()
         return dataset
-
-    def doWriteDatapath(self, value):
-        for sink in self._adevs['datasinks']:
-            sink.setDatapath(value)
 
     def notifyConditionally(self, runtime, subject, body, what=None, short=None):
         """Send a notification if the current runtime exceeds the configured

@@ -40,12 +40,13 @@ from time import sleep
 import cascadenicosobj
 
 from nicos import session, status
+from nicos.data import NeedsDatapath
 from nicos.utils import existingdir, readFileCounter, updateFileCounter
 from nicos.device import Measurable, Param
 from nicos.errors import CommunicationError
 
 
-class CascadeDetector(Measurable):
+class CascadeDetector(Measurable, NeedsDatapath):
 
     parameters = {
         'server':   Param('"host:port" of the cascade server to connect to',
@@ -61,11 +62,7 @@ class CascadeDetector(Measurable):
         self._client = cascadenicosobj.NicosClient()
         self.doReset()
 
-        # XXX how is this updated?
-        self._datapath = path.join(session.system.datapath, 'cascade')
-        self._filenumber = readFileCounter(path.join(self._datapath, 'counter'))
-        self._lastfilename = path.join(self._datapath,
-                                       self.nametemplate % self._filenumber)
+        self._setDatapath(session.system.experiment.datapath)
         self._last_preset = 0  # XXX read from server
         self._measure = threading.Event()
         self._processed = threading.Event()
@@ -74,6 +71,12 @@ class CascadeDetector(Measurable):
         self._thread = threading.Thread(target=self._thread_entry)
         self._thread.setDaemon(True)
         self._thread.start()
+
+    def _setDatapath(self, value):
+        self._datapath = path.join(value, 'cascade')
+        self._filenumber = readFileCounter(path.join(self._datapath, 'counter'))
+        self._lastfilename = path.join(self._datapath,
+                                       self.nametemplate % self._filenumber)
 
     def valueInfo(self):
         return ['time', 'cascade.filename'], ['s', '']
