@@ -36,6 +36,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import time
+import select
 import socket
 import weakref
 import threading
@@ -59,6 +60,36 @@ class Server(TCPServer):
         self.handler_ident = 0
         self.pending_clients = {}
         TCPServer.__init__(self, address, handler)
+        self.__is_shut_down = threading.Event()
+        self.__serving = False
+
+    # serve_forever, shutdown and _handle_request_noblock are copied
+    # from 2.6 SocketServer, 2.5 doesn't support shutdown
+
+    def serve_forever(self):
+        self.__serving = True
+        self.__is_shut_down.clear()
+        while self.__serving:
+            r, w, e = select.select([self], [], [], 1.0)
+            if r:
+                self._handle_request_noblock()
+        self.__is_shut_down.set()
+
+    def _handle_request_noblock(self):
+        try:
+            request, client_address = self.get_request()
+        except socket.error:
+            return
+        if self.verify_request(request, client_address):
+            try:
+                self.process_request(request, client_address)
+            except:
+                self.handle_error(request, client_address)
+                self.close_request(request)
+
+    def shutdown(self):
+        self.__serving = False
+        self.__is_shut_down.wait()
 
     def process_request(self, request, client_address):
         """Process a "request", that is, a client connection."""
@@ -213,7 +244,6 @@ class NicosDaemon(Device):
     def quit(self):
         self.printinfo('quitting...')
         self._stoprequest = True
-        # XXX has no shutdown
         self._server.shutdown()
         self._worker.join()
         self._server.server_close()
