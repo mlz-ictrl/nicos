@@ -37,11 +37,12 @@ import threading
 from os import path
 from time import sleep, time
 
+import numpy
 import cascadenicosobj
 
 from nicos import session, status
 from nicos.data import NeedsDatapath
-from nicos.utils import existingdir, readFileCounter, updateFileCounter
+from nicos.utils import existingdir, tupleof, readFileCounter, updateFileCounter
 from nicos.device import Measurable, Param
 from nicos.errors import CommunicationError
 
@@ -55,7 +56,10 @@ class CascadeDetector(Measurable, NeedsDatapath):
                           type=bool, settable=True, default=False),
         'nametemplate': Param('Template for the data file names',
                               type=str, default='cascade_%05d'),
-        # XXX add ROI, MIEZE ROI, etc.
+        'roi':      Param('Region of interest, given as (x1, y1, x2, y2)',
+                          type=tupleof(int, int, int, int),
+                          default=(-1, -1, -1, -1), settable=True),
+        # XXX add MIEZE ROI etc.
     }
 
     def doInit(self):
@@ -64,6 +68,8 @@ class CascadeDetector(Measurable, NeedsDatapath):
 
         self._setDatapath(session.experiment.datapath)
         self._last_preset = 0  # XXX read from server
+        self._last_total = -1
+        self._last_roi = -1
         self._measure = threading.Event()
         self._processed = threading.Event()
         self._processed.set()
@@ -79,9 +85,10 @@ class CascadeDetector(Measurable, NeedsDatapath):
                                        self.nametemplate % self._filenumber)
 
     def valueInfo(self):
-        return [self.name + '.filename'], ['']
+        return [self.name + '.roi', self.name + '.total',
+                self.name + '.file'], ['cts', 'cts', '']
 
-    def doWriteServerdebug(self, value):
+    def doWriteDebugmsg(self, value):
         self._client.SetDebugLog(value)
 
     def doShutdown(self):
@@ -116,13 +123,13 @@ class CascadeDetector(Measurable, NeedsDatapath):
         self._measure.set()
 
     def doIsCompleted(self):
-        return (self._processed.isSet()) and (not self._measure.isSet())
+        return not self._measure.isSet() and self._processed.isSet()
 
     def doStop(self):
         self._client.communicate('CMD_stop')
 
     def doRead(self):
-        return [self._lastfilename]
+        return [self._last_roi, self._last_total, self._lastfilename]
 
     def _thread_entry(self):
         while True:
@@ -144,8 +151,10 @@ class CascadeDetector(Measurable, NeedsDatapath):
                     if status.get('stop', '0') == '1':
                         break
                     data = self._client.communicate('CMD_readsram')
+                    # XXX the parameters depend on the detector settings
                     session.updateLiveData('<i4', 128, 128, 1,
                                            time() - started, data[4:])
+                    # XXX should update counts
             except:
                 self._lastfilename = '<error>'
                 self.printexception('measuring failed')
@@ -154,8 +163,18 @@ class CascadeDetector(Measurable, NeedsDatapath):
                 continue
             self._measure.clear()
             try:
+                finaldata = self._client.communicate('CMD_readsram')[4:]
                 with open(self._lastfilename, 'w') as fp:
-                    fp.write(self._client.communicate('CMD_readsram')[4:])
+                    fp.write(finaldata)
+                # XXX temporary until self._client component can do this
+                ar = numpy.ndarray(
+                    buffer=finaldata, shape=(128, 128), dtype='<I4')
+                self._last_total = int(long(ar.sum()))
+                if self.roi != (-1, -1, -1, -1):
+                    x1, y1, x2, y2 = self.roi
+                    self._last_roi = int(long(ar[x1:x2, y1:y2].sum()))
+                else:
+                    self._last_roi = self._last_total
             except:
                 self._lastfilename = '<error>'
                 self.printexception('saving measurement failed')
