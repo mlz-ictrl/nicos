@@ -50,10 +50,15 @@ from wsgiref.simple_server import make_server
 from nicos import session, nicos_version
 from nicos.web import FakeInput, MTWSGIServer, NicosApp
 from nicos.utils import makeSessionId, colorcode, daemonize, writePidfile, \
-     removePidfile
+     removePidfile, sessionInfo
+from nicos.device import Device
 from nicos.errors import NicosError, UsageError, ConfigurationError, ModeError
 from nicos.loggers import NicosLogfileHandler, ColoredConsoleHandler, \
      initLoggers, OUTPUT, INPUT
+from nicos.cache.client import CacheLockError
+
+
+EXECUTIONMODES = ['master', 'slave', 'simulation', 'maintenance']
 
 
 class NicosNamespace(dict):
@@ -133,10 +138,12 @@ class Session(object):
         self.__system_device = None
         # action stack for status line
         self._actionStack = []
+        # execution mode
+        self._mode = 'slave'
 
         # set up logging interface
         self._initLogging()
-        self.log = self.getLogger('nicos')
+        self.log = self.getLogger('System')
 
     def setNamespace(self, ns):
         """Set the namespace to export commands and devices into."""
@@ -148,6 +155,47 @@ class Session(object):
 
     def getLocalNamespace(self):
         return self.__local_namespace
+
+    @property
+    def mode(self):
+        return self._mode
+
+    def setMode(self, mode):
+        mode = mode.lower()
+        oldmode = self._mode
+        cache = self.cache
+        if mode == oldmode:
+            return
+        if mode not in EXECUTIONMODES:
+            raise UsageError('mode %r does not exist' % mode)
+        if oldmode in ['simulation', 'maintenance']:
+            # no way to switch back from special modes
+            raise ModeError('switching from %s mode is not supported' % oldmode)
+        if mode == 'master':
+            # switching from slave to master
+            if not cache:
+                raise ModeError('no cache present, cannot get master lock')
+            self.log.info('checking master status...')
+            try:
+                cache.lock('master')
+            except CacheLockError, err:
+                raise ModeError('another master is already active: %s' %
+                                sessionInfo(err.locked_by))
+            else:
+                cache._ismaster = True
+        elif mode in ['slave', 'maintenance']:
+            # switching from master to slave or to maintenance
+            if not cache:
+                raise ModeError('no cache present, cannot release master lock')
+            cache._ismaster = False
+            cache.unlock('master')
+        self._mode = mode
+        for dev in self.devices.itervalues():
+            dev._setMode(mode)
+        if mode == 'simulation':
+            cache.doShutdown()
+        self.log.info('switched to %s mode' % mode)
+        self.resetPrompt()
 
     def setSetupPath(self, path):
         """Set the path to the setup files."""
@@ -267,12 +315,12 @@ class Session(object):
 
         devlist, startupcode = inner_load(setupname)
 
-        # System must be created first
+        # System pseudo-device must be created first
         if 'System' not in self.devices:
             if 'System' not in self.configured_devices:
                 self.configured_devices['System'] = ('nicos.system.System', dict(
                     datasinks=[], cache=None, instrument=None, experiment=None,
-                    notifiers=[], datapath=''))
+                    notifiers=[]))
             try:
                 self.createDevice('System')
             except Exception:
@@ -329,13 +377,15 @@ class Session(object):
         self.user_modules = set()
         # XXX remember running mode
         self.__system_device = None
-        self.__exp_device = None
 
     def shutdown(self):
+        if self._mode == 'master':
+            self.cache._ismaster = False
+            self.cache.unlock('master')
         self.unloadSetup()
 
     def resetPrompt(self):
-        base = self.system.mode != 'master' and self.system.mode + ' ' or ''
+        base = self._mode != 'master' and self._mode + ' ' or ''
         expsetups = '+'.join(self.explicit_setups)
         sys.ps1 = base + '(%s) >>> ' % expsetups
         sys.ps2 = base + ' %s  ... ' % (' ' * len(expsetups))
@@ -427,11 +477,44 @@ class Session(object):
             self.unexport(devname)
 
     @property
-    def system(self):
+    def cache(self):
+        # XXX are these guards necessary?
         if self.__system_device is None:
-            from nicos.system import System
             self.__system_device = self.getDevice('System', System)
-        return self.__system_device
+        return self.__system_device._adevs['cache']
+
+    @property
+    def instrument(self):
+        if self.__system_device is None:
+            self.__system_device = self.getDevice('System', System)
+        return self.__system_device._adevs['instrument']
+
+    @property
+    def experiment(self):
+        if self.__system_device is None:
+            self.__system_device = self.getDevice('System', System)
+        return self.__system_device._adevs['experiment']
+
+    @property
+    def datasinks(self):
+        if self.__system_device is None:
+            self.__system_device = self.getDevice('System', System)
+        return self.__system_device._adevs['datasinks']
+
+    def notifyConditionally(self, runtime, subject, body, what=None, short=None):
+        """Send a notification if the current runtime exceeds the configured
+        minimum runtimer for notifications."""
+        if self.__system_device is None:
+            self.__system_device = self.getDevice('System', System)
+        for notifier in self.__system_device._adevs['notifiers']:
+            notifier.sendConditionally(runtime, subject, body, what, short)
+
+    def notify(self, subject, body, what=None, short=None):
+        """Send a notification unconditionally."""
+        if self.__system_device is None:
+            self.__system_device = self.getDevice('System', System)
+        for notifier in self.__system_device._adevs['notifiers']:
+            notifier.send(subject, body, what, short)
 
     # -- Logging ---------------------------------------------------------------
 
@@ -486,21 +569,21 @@ class Session(object):
         self._actionStack.append(what)
         joined = ' :: '.join(self._actionStack)
         self.log.action(joined)
-        if self.system.cache:
-            self.system.cache.put(self.system, 'action', joined)
+        if self.cache:
+            self.cache.put(self.system, 'action', joined)
 
     def endActionScope(self):
         self._actionStack.pop()
         joined = ' :: '.join(self._actionStack)
         self.log.action(joined)
-        if self.system.cache:
-            self.system.cache.put(self.system, 'action', joined)
+        if self.cache:
+            self.cache.put(self.system, 'action', joined)
 
     def action(self, what):
         joined = ' :: '.join(self._actionStack + [what])
         self.log.action(joined)
-        if self.system.cache:
-            self.system.cache.put(self.system, 'action', joined)
+        if self.cache:
+            self.cache.put(self.system, 'action', joined)
 
 
 class SimpleSession(Session):
@@ -657,19 +740,18 @@ class InteractiveSession(Session):
         session.loadSetup(setup)
 
         # Try to become master.
-        system = session.system
         try:
-            system.setMode('master')
+            session.setMode('master')
         except ModeError:
-            system.printinfo('could not enter master mode; remaining slave')
+            session.log.info('could not enter master mode; remaining slave')
         except:
-            system.printwarning('could not enter master mode', exc=True)
+            session.log.warning('could not enter master mode', exc=True)
 
         # Fire up an interactive console.
         session.console()
 
         # After the console is finished, cleanup.
-        system.printinfo('shutting down...')
+        session.log.info('shutting down...')
         session.shutdown()
 
 
@@ -770,3 +852,7 @@ class WebSession(Session):
             srv.serve_forever()
         except KeyboardInterrupt:
             session.log.info('web server shutting down')
+
+
+# must be imported after class definitions due to module interdependencies
+from nicos.system import System

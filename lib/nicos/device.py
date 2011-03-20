@@ -74,7 +74,7 @@ class Device(object):
             raise ProgrammingError('device with name %s already exists' % name)
         session.devices[name] = self
 
-        if session.system.mode == 'simulation':
+        if session.mode == 'simulation':
             raise UsageError('no new devices can be created in simulation mode')
 
         self.__dict__['name'] = name
@@ -92,7 +92,7 @@ class Device(object):
         # superdevs: reverse adevs for dependency tracking
         self._sdevs = set()
         # execution mode
-        self._mode = session.system.mode
+        self._mode = session.mode
 
         # initialize a logger for the device
         self._log = session.getLogger(name)
@@ -260,7 +260,7 @@ class Device(object):
         self._changedparams.clear()
 
     def _getCache(self):
-        return session.system.cache
+        return session.cache
 
     def _initParam(self, param, paraminfo=None):
         """Get an initial value for the parameter, called when the cache

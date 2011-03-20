@@ -33,9 +33,10 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import time
 
 from nicos import session
-from nicos.data import NeedsDatapath
+from nicos.data import NeedsDatapath, Dataset
 from nicos.utils import listof
 from nicos.device import Device, Param
 
@@ -84,3 +85,10 @@ class Experiment(Device):
         for dev in session.devices.itervalues():
             if isinstance(dev, NeedsDatapath):
                 dev._setDatapath(value)
+
+    def createDataset(self, scantype=None):
+        dataset = Dataset()
+        dataset.sinks = [sink for sink in session.datasinks
+                         if sink.isActive(scantype)]
+        dataset.started = time.localtime()
+        return dataset

@@ -59,8 +59,8 @@ class Scan(object):
         if isinstance(detlist, Measurable):
             detlist = [detlist]
         if detlist is None:
-            detlist = session.system.instrument.detectors
-        self.dataset = session.system.createDataset(scantype)
+            detlist = session.instrument.detectors
+        self.dataset = session.experiment.createDataset(scantype)
         self._devices = self.dataset.devices = devices
         self._targets = self.dataset.positions = positions
         self._detlist = self.dataset.detlist = detlist

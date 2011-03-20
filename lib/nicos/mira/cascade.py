@@ -62,7 +62,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
         self._client = cascadenicosobj.NicosClient()
         self.doReset()
 
-        self._setDatapath(session.system.experiment.datapath)
+        self._setDatapath(session.experiment.datapath)
         self._last_preset = 0  # XXX read from server
         self._measure = threading.Event()
         self._processed = threading.Event()

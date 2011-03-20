@@ -39,7 +39,7 @@ import __builtin__
 from nicos import session
 from nicos.utils import formatDocstring, printTable
 from nicos.device import Device
-from nicos.system import EXECUTIONMODES
+from nicos.sessions import EXECUTIONMODES
 from nicos.commands import usercommand
 from nicos.commands.output import printinfo, printexception
 
@@ -153,7 +153,7 @@ def CreateAllDevices():
 @usercommand
 def NewExperiment(proposalnumber, title):
     """Start a new experiment."""
-    session.system.experiment.new(proposalnumber, title)
+    session.experiment.new(proposalnumber, title)
 
 @usercommand
 def SaveState():
@@ -169,8 +169,7 @@ def SetMode(mode):
     """Set the execution mode.
 
     Valid modes are: """
-    session.system.setMode(mode)
-    printinfo('execution mode set to %s' % mode)
+    session.setMode(mode)
 
 SetMode.__doc__ += ', '.join(EXECUTIONMODES)
 
@@ -179,7 +178,7 @@ def ClearCache(devname):
     """Clear all cached information for a given device."""
     if isinstance(devname, Device):
         devname = devname.name
-    session.system.cache.clear(devname)
+    session.cache.clear(devname)
     printinfo('cleared cached information for %s' % devname)
 
 

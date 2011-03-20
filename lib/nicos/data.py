@@ -102,7 +102,7 @@ class DataSink(Device):
     activeInSimulation = True
 
     def isActive(self, scantype):
-        if session.system.mode == 'simulation' and not self.activeInSimulation:
+        if session.mode == 'simulation' and not self.activeInSimulation:
             return False
         if scantype is not None and scantype not in self.scantypes:
             return False
@@ -260,12 +260,12 @@ class AsciiDatafileSink(DatafileSink):
         """Return the file name for the next data file.  Can be overwritten in
         instrument-specific subclasses.
         """
-        pnr = session.system.experiment.proposalnumber
+        pnr = session.experiment.proposalnumber
         return '%04d_%08d.dat' % (pnr, self._counter)
 
     def prepareDataset(self, dataset):
         if self._path is None:
-            self._setDatapath(session.system.experiment.datapath)
+            self._setDatapath(session.experiment.datapath)
         self._wrote_columninfo = False
         self._counter += 1
         updateFileCounter(path.join(self._path, 'filecounter'), self._counter)

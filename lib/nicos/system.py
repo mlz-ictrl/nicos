@@ -33,25 +33,19 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import time
-
 from nicos import session
-from nicos.data import Dataset, DataSink
-from nicos.utils import sessionInfo
-from nicos.device import Device, Param
-from nicos.errors import ModeError, UsageError
+from nicos.data import DataSink
+from nicos.device import Device
 from nicos.notify import Notifier
 from nicos.instrument import Instrument
 from nicos.experiment import Experiment
-from nicos.cache.client import CacheClient, CacheLockError
-
-
-EXECUTIONMODES = ['master', 'slave', 'simulation', 'maintenance']
+from nicos.cache.client import CacheClient
 
 
 class System(Device):
     """A special singleton device that serves for global configuration of
-    the NICOS system.
+    the NICOS system.  It is not intended to be used directly, but via the
+    session's properties and methods.
     """
 
     attached_devices = {
@@ -64,82 +58,3 @@ class System(Device):
 
     def __repr__(self):
         return '<NICOS System>'
-
-    def __init__(self, name, **config):
-        # need to pre-set this to avoid bootstrapping issue
-        self._mode = 'slave'
-        Device.__init__(self, name, **config)
-
-    def doShutdown(self):
-        if self.mode == 'master':
-            self._cache._ismaster = False
-            self._cache.unlock('master')
-
-    @property
-    def cache(self):
-        return self._adevs['cache']
-
-    @property
-    def instrument(self):
-        return self._adevs['instrument']
-
-    @property
-    def experiment(self):
-        return self._adevs['experiment']
-
-    @property
-    def mode(self):
-        return self._mode
-
-    def setMode(self, mode):
-        mode = mode.lower()
-        oldmode = self.mode
-        if mode == oldmode:
-            return
-        if mode not in EXECUTIONMODES:
-            raise UsageError('mode %r does not exist' % mode)
-        if oldmode in ['simulation', 'maintenance']:
-            # no way to switch back from special modes
-            raise ModeError('switching from %s mode is not supported' % oldmode)
-        if mode == 'master':
-            # switching from slave to master
-            if not self._cache:
-                raise ModeError('no cache present, cannot get master lock')
-            self.printinfo('checking master status...')
-            try:
-                self._cache.lock('master')
-            except CacheLockError, err:
-                raise ModeError('another master is already active: %s' %
-                                sessionInfo(err.locked_by))
-            else:
-                self._cache._ismaster = True
-        elif mode in ['slave', 'maintenance']:
-            # switching from master to slave or to maintenance
-            if not self._cache:
-                raise ModeError('no cache present, cannot release master lock')
-            self._cache._ismaster = False
-            self._cache.unlock('master')
-        for dev in session.devices.itervalues():
-            dev._setMode(mode)
-        if mode == 'simulation':
-            self.cache.doShutdown()
-        self.printinfo('switched to %s mode' % mode)
-        session.resetPrompt()
-
-    def createDataset(self, scantype=None):
-        dataset = Dataset()
-        dataset.sinks = [sink for sink in self._adevs['datasinks']
-                         if sink.isActive(scantype)]
-        dataset.started = time.localtime()
-        return dataset
-
-    def notifyConditionally(self, runtime, subject, body, what=None, short=None):
-        """Send a notification if the current runtime exceeds the configured
-        minimum runtimer for notifications."""
-        for notifier in self._adevs['notifiers']:
-            notifier.sendConditionally(runtime, subject, body, what, short)
-
-    def notify(self, subject, body, what=None, short=None):
-        """Send a notification unconditionally."""
-        for notifier in self._adevs['notifiers']:
-            notifier.send(subject, body, what, short)

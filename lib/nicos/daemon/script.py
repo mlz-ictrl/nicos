@@ -457,7 +457,7 @@ class ExecutionController(Controller):
                     session.logUnhandledException(cut_frames=2)
                     # perhaps also send an error notification
                     exception = format_exception_cut_frames(2)
-                    session.system.notifyConditionally(
+                    session.notifyConditionally(
                         time.time() - start_time,
                         'Exception in script',
                         'An exception occurred in the executed script:\n\n' +
