@@ -39,7 +39,7 @@ import time
 import codecs
 import traceback
 from logging import setLoggerClass, addLevelName, Logger, \
-     Formatter, StreamHandler, DEBUG, INFO, WARNING, ERROR
+     Formatter, FileHandler, StreamHandler, DEBUG, INFO, WARNING, ERROR
 from logging.handlers import BaseRotatingHandler
 
 from nicos.errors import NicosError
@@ -225,11 +225,17 @@ class NicosLogfileHandler(BaseRotatingHandler):
                                         t[6], t[7], t[8])) + SECONDS_PER_DAY
         self.setFormatter(NicosLogfileFormatter(LOGFMT, DATEFMT))
 
-    def shouldRollover(self, record):
-        t = int(time.time())
-        if t >= self.rollover_at:
-            return True
-        return False
+    def emit(self, record):
+        if record.levelno == ACTION:
+            # do not write ACTIONs to logfiles, they're only informative
+            return
+        try:
+            t = int(time.time())
+            if t >= self.rollover_at:
+                self.doRollover()
+            FileHandler.emit(self, record)
+        except Exception:
+            self.handleError(record)
 
     def doRollover(self):
         self.stream.close()
