@@ -375,7 +375,6 @@ class Session(object):
         self.loaded_setups = set()
         self.explicit_setups = []
         self.user_modules = set()
-        # XXX remember running mode
         self.__system_device = None
 
     def shutdown(self):

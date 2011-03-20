@@ -94,7 +94,8 @@ def listcommands():
 @usercommand
 def NewSetup(setupname):
     """Load the given setup instead of the current one."""
-    # refresh setup files
+    current_mode = session.mode
+    # refresh setup files first
     session.readSetups()
     session.unloadSetup()
     try:
@@ -102,6 +103,9 @@ def NewSetup(setupname):
     except Exception:
         printexception()
         session.loadSetup('startup')
+    if current_mode == 'master':
+        # need to refresh master status
+        SetMode('master')
 
 @usercommand
 def AddSetup(setupname):
