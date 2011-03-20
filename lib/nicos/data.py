@@ -57,6 +57,8 @@ class Dataset(object):
     devices = []
     # list of scan positions
     positions = []
+    # list of multi-steps for each scan point
+    multistep = []
     # list of detectors for this dataset
     detlist = []
     # preset dictionary of scan

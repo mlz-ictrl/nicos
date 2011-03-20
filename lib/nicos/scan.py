@@ -54,15 +54,15 @@ class Scan(object):
     Represents a general scan over some devices with a specified detector.
     """
 
-    def __init__(self, devices, positions, detlist=None, preset=None,
-                 scaninfo=None, scantype=None):
-        if isinstance(detlist, Measurable):
-            detlist = [detlist]
-        if detlist is None:
+    def __init__(self, devices, positions, firstmoves=None, multistep=None,
+                 detlist=None, preset=None, scaninfo=None, scantype=None):
+        if not detlist:
             detlist = session.instrument.detectors
         self.dataset = session.experiment.createDataset(scantype)
         self._devices = self.dataset.devices = devices
         self._targets = self.dataset.positions = positions
+        self._multistep = self.dataset.multistep = multistep
+        self._firstmoves = firstmoves
         self._detlist = self.dataset.detlist = detlist
         self._preset = self.dataset.preset = preset
         self.dataset.scaninfo = scaninfo
@@ -72,6 +72,7 @@ class Scan(object):
     def beginScan(self):
         session.beginActionScope('Scan')
         dataset = self.dataset
+        dataset.points = []
         dataset.sinkinfo = []
         dataset.devunits = [dev.unit for dev in dataset.devices]
         dataset.devnames = [dev.name for dev in dataset.devices]
@@ -124,8 +125,8 @@ class Scan(object):
             # consider all other errors to be fatal
             raise
 
-    def moveTo(self, devices, values):
-        for dev, val in zip(devices, values):
+    def moveTo(self, where):
+        for dev, val in where:
             try:
                 dev.start(val)
                 dev.wait()
@@ -137,7 +138,11 @@ class Scan(object):
 
     def run(self):
         # move to first position before starting scan
-        can_measure = self.moveTo(self._devices, self._targets[0])
+        session.action('Moving to start')
+        can_measure = True
+        if self._firstmoves:
+            can_measure = self.moveTo(self._firstmoves)
+        can_measure &= self.moveTo(zip(self._devices, self._targets[0]))
         self.beginScan()
         try:
             for i, position in enumerate(self._targets):
@@ -145,10 +150,11 @@ class Scan(object):
                 try:
                     session.action('Positioning')
                     if i > 0:
-                        can_measure = self.moveTo(self._devices, position)
+                        can_measure = self.moveTo(zip(self._devices, position))
                     if not can_measure:
                         continue
                     session.action('Counting')
+                    # XXX add multistep action
                     result = _count(self._detlist, self._preset)
                     self.addPoint(position, result)
                 finally:

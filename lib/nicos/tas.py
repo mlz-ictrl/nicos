@@ -65,9 +65,6 @@ class TAS(Instrument, Moveable):
     }
 
     parameters = {
-        'fmtstr': Param('Format string for the device value', type=str,
-                        default='[%7.4f, %7.4f, %7.4f, %7.4f, %7.4f]',
-                        settable=True),
         'opmode': Param('Operation mode: one of ' + ', '.join(OPMODES),
                         type=str, default='CKI', settable=True,
                         category='instrument'),
@@ -84,6 +81,7 @@ class TAS(Instrument, Moveable):
     }
 
     parameter_overrides = {
+        'fmtstr': Override(default='[%7.4f, %7.4f, %7.4f, %7.4f, %7.4f]'),
         'unit':   Override(default='rlu rlu rlu THz A-1', mandatory=False,
                            settable=True)
     }

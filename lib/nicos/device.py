@@ -461,7 +461,12 @@ class Readable(Device):
 
     def format(self, value):
         """Format a value from self.read() into a human-readable string."""
-        return self.fmtstr % value
+        if isinstance(value, list):
+            value = tuple(value)
+        try:
+            return self.fmtstr % value
+        except (TypeError, ValueError):
+            return str(value)
 
     def history(self, name='value', fromtime=None, totime=None):
         """Return a history of the parameter *name*."""
@@ -796,7 +801,7 @@ class Measurable(Startable):
             sleep(0.1)
 
     def read(self):
-        """Return the result of the last measurement."""
+        """Return a tuple with the result(s) of the last measurement."""
         if self._mode == 'simulation':
             # XXX simulate a return value
             return []
@@ -804,13 +809,13 @@ class Measurable(Startable):
         if self._cache:
             self._cache.invalidate(self, 'value')
         result = self._get_from_cache('value', self.doRead)
-        if not isinstance(result, list):
-            return [result]
+        if not isinstance(result, tuple):
+            return (result,)
         return result
 
     def valueInfo(self):
-        """Return two lists: list of value names and list of value units."""
-        return [], []
+        """Return two tuples: one of value names and one of value units."""
+        return (), ()
 
     def info(self):
         """Automatically add device status (if not OK).  Does not add the

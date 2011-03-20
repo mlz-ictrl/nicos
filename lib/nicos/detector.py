@@ -137,7 +137,7 @@ class FRMTimerChannel(FRMChannel):
         return 's'
 
     def valueInfo(self):
-        return [self.name], ['s']
+        return (self.name,), ('s',)
 
 
 class FRMCounterChannel(FRMChannel):
@@ -151,7 +151,7 @@ class FRMCounterChannel(FRMChannel):
         return 'cts'
 
     def valueInfo(self):
-        return [self.name], ['cts']
+        return (self.name,), ('cts',)
 
 
 class FRMDetector(Measurable):
@@ -181,7 +181,7 @@ class FRMDetector(Measurable):
             else:
                 self.__slaves.append(counter)
 
-    def doInit(self):
+    def doPreinit(self):
         self.__counters = []
 
         for name in ['t', 'm1', 'm2', 'm3', 'z1', 'z2', 'z3', 'z4', 'z5']:
@@ -189,6 +189,9 @@ class FRMDetector(Measurable):
                 self.__counters.append(self._adevs[name])
 
         self.__getMasters()
+
+    def doReadFmtstr(self):
+        return ', '.join('%s %%s' % ctr.name for ctr in self.__counters)
 
     def doStart(self, **preset):
         self.doStop()
@@ -221,10 +224,7 @@ class FRMDetector(Measurable):
             master.stop()
 
     def doRead(self):
-        ret = []
-        for counter in self.__counters:
-            ret.extend(counter.read())
-        return ret
+        return sum((ctr.read() for ctr in self.__counters), ())
 
     def doStatus(self):
         for master in self.__masters:
@@ -243,14 +243,10 @@ class FRMDetector(Measurable):
         for counter in self.__counters:
             counter.reset()
 
-    def format(self, value):
-        # XXX provisory
-        return str(value)
-
     def valueInfo(self):
         names, units = [], []
         for counter in self.__counters:
             ret = counter.valueInfo()
             names.extend(ret[0])
             units.extend(ret[1])
-        return names, units
+        return tuple(names), tuple(units)

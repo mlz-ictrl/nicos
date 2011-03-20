@@ -124,8 +124,8 @@ class PartialDigitalOutput(DigitalOutput):
         return True, ''
 
 
-class ListDigitalOutput(DigitalOutput):
-    """Base class for a TACO DigitalOutput that works with a list of individual
+class BitsDigitalOutput(DigitalOutput):
+    """Base class for a TACO DigitalOutput that works with a tuple of individual
     bits instead of a single integer.
     """
 
@@ -137,6 +137,9 @@ class ListDigitalOutput(DigitalOutput):
     def doInit(self):
         self._max = (1 << self.bitwidth) - 1
 
+    def doReadFmtstr(self):
+        return '{ ' + ' '.join(['%s'] * self.bitwidth)) + ' }'
+
     def doRead(self):
         # extract the relevant bit range from the device value
         value = (self._taco_guard(self._dev.read) >> self.startbit) & self._max
@@ -146,7 +149,7 @@ class ListDigitalOutput(DigitalOutput):
             bits.append(int(value & 1))
             value >>= 1
         bits += [0] * (self.bitwidth - len(bits))
-        return bits
+        return tuple(bits)
 
     def doStart(self, target):
         # convert list of bits to an integer
@@ -159,7 +162,7 @@ class ListDigitalOutput(DigitalOutput):
     def doIsAllowed(self, target):
         # XXX this will raise TypeError for e.g. ints -- something better?
         if len(target) != self.bitwidth:
-            return False, ('value needs to be a list of length %d, not %r' %
+            return False, ('value needs to be a sequence of length %d, not %r' %
                            (self.bitwidth, target))
         return True, ''
 

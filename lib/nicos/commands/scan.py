@@ -31,21 +31,43 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+from nicos import session
 from nicos.scan import Scan
+from nicos.device import Measurable, Moveable
 from nicos.errors import UsageError
 from nicos.commands import usercommand
 
 
-def _handlePreset(single, keywords):
-    if single is not None:
-        presets = {'t': single}
-        presets.update(keywords)
-        return presets
-    return keywords
+def _handleScanArgs(args, kwargs):
+    preset, infostr, detlist, move, multistep = {}, None, [], [], []
+    for arg in args:
+        if isinstance(arg, str):
+            infostr = arg
+        elif isinstance(arg, (int, long, float)):
+            preset['t'] = arg
+        elif isinstance(arg, Measurable):
+            detlist.append(arg)
+        elif isinstance(arg, list):
+            detlist.extend(arg)
+        else:
+            raise UsageError('unsupported scan argument: %r' % arg)
+    for key, value in kwargs.iteritems():
+        if key in session.devices and isinstance(session.devices[key], Moveable):
+            if isinstance(value, list):
+                if multistep and len(value) != len(multistep[-1][1]):
+                    raise UsageError('all multi-step arguments must have the '
+                                     'same length')
+                multistep.append((session.devices[key], value))
+            else:
+                move.append((session.devices[key], value))
+        else:
+            preset[key] = value
+    return preset, infostr, detlist, move, multistep
 
 
 def _fixType(dev, start, step):
     if isinstance(dev, list):
+        dev = [session.getDevice(d, Moveable) for d in dev]
         l = len(dev)
         if not isinstance(start, list) or not len(start) == l:
             raise UsageError('start/center must be a list of length %d' % l)
@@ -55,20 +77,28 @@ def _fixType(dev, start, step):
             raise UsageError('step must be a single number or a list of '
                              'length %d' % l)
         return dev, start, step
+    else:
+        dev = session.getDevice(dev, Moveable)
     return [dev], [start], [step]
+
+def _infostr(fn, args, kwargs):
+    if kwargs:
+        return '%s(%s, %s)' % (fn,
+                               ', '.join(map(repr, args)),
+                               ', '.join('%s=%r' % kv for kv in kwargs.items()))
+    return '%s%r' % (fn, args)
 
 
 @usercommand
-def sscan(dev, start, step, numsteps, preset=None, infostr=None,
-          det=None, **presets):
+def scan(dev, start, step, numsteps, *args, **kwargs):
     """Single-sided scan."""
-    preset = _handlePreset(preset, presets)
-    infostr = infostr or 'sscan(%s, %s, %s, %s, %s)' % (dev, start, step,
-                                                        numsteps, preset)
+    preset, infostr, detlist, move, multistep  = _handleScanArgs(args, kwargs)
+    infostr = infostr or \
+              _infostr('scan', (str(dev), start, step, numsteps) + args, kwargs)
     dev, start, step = _fixType(dev, start, step)
     values = [[x + i*y for x, y in zip(start, step)]
               for i in range(numsteps)]
-    scan = Scan(dev, values, det, preset, infostr)
+    scan = Scan(dev, values, move, multistep, detlist, preset, infostr)
     scan.run()
 
 
@@ -76,14 +106,14 @@ def sscan(dev, start, step, numsteps, preset=None, infostr=None,
 def cscan(dev, center, step, numperside, preset=None, infostr=None,
           det=None, **presets):
     """Scan around center."""
-    preset = _handlePreset(preset, presets)
-    infostr = infostr or 'cscan(%s, %s, %s, %s, %s)' % (dev, center, step,
-                                                        numperside, preset)
+    preset, infostr, detlist, move, multistep = _handleScanArgs(args, kwargs)
+    infostr = infostr or \
+              _infostr('cscan', (str(dev), center, step, numperside) + args, kwargs)
     dev, center, step = _fixType(dev, center, step)
     start = [x - numperside*y for x, y in zip(center, step)]
     values = [[x + i*y for x, y in zip(start, step)]
               for i in range(numperside*2 + 1)]
-    scan = Scan(dev, values, det, preset, infostr)
+    scan = Scan(dev, values, move, multistep, detlist, preset, infostr)
     scan.run()
 
 

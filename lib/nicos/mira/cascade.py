@@ -43,7 +43,7 @@ import cascadenicosobj
 from nicos import session, status
 from nicos.data import NeedsDatapath
 from nicos.utils import existingdir, tupleof, readFileCounter, updateFileCounter
-from nicos.device import Measurable, Param
+from nicos.device import Measurable, Param, Override
 from nicos.errors import CommunicationError
 
 
@@ -60,6 +60,10 @@ class CascadeDetector(Measurable, NeedsDatapath):
                           type=tupleof(int, int, int, int),
                           default=(-1, -1, -1, -1), settable=True),
         # XXX add MIEZE ROI etc.
+    }
+
+    parameter_overrides = {
+        'fmtstr':   Override(default='roi %s, total %s, file %s'),
     }
 
     def doInit(self):
@@ -85,8 +89,8 @@ class CascadeDetector(Measurable, NeedsDatapath):
                                        self.nametemplate % self._filenumber)
 
     def valueInfo(self):
-        return [self.name + '.roi', self.name + '.total',
-                self.name + '.file'], ['cts', 'cts', '']
+        return (self.name + '.roi', self.name + '.total',
+                self.name + '.file'), ('cts', 'cts', '')
 
     def doWriteDebugmsg(self, value):
         self._client.SetDebugLog(value)
@@ -129,7 +133,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
         self._client.communicate('CMD_stop')
 
     def doRead(self):
-        return [self._last_roi, self._last_total, self._lastfilename]
+        return (self._last_roi, self._last_total, self._lastfilename)
 
     def _thread_entry(self):
         while True:
