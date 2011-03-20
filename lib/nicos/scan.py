@@ -58,10 +58,14 @@ class Scan(object):
                  detlist=None, preset=None, scaninfo=None, scantype=None):
         if not detlist:
             detlist = session.instrument.detectors
+        if multistep:
+            nsteps = len(multistep[0][1])
+            devices.extend(ms[0] for ms in multistep)
+            positions = [dpos + [ms[1][i] for ms in multistep]
+                         for dpos in positions for i in range(nsteps)]
         self.dataset = session.experiment.createDataset(scantype)
         self._devices = self.dataset.devices = devices
         self._targets = self.dataset.positions = positions
-        self._multistep = self.dataset.multistep = multistep
         self._firstmoves = firstmoves
         self._detlist = self.dataset.detlist = detlist
         self._preset = self.dataset.preset = preset
@@ -69,8 +73,18 @@ class Scan(object):
         self._sinks = self.dataset.sinks
         self._npoints = len(positions)
 
-    def beginScan(self):
+    def prepareScan(self):
         session.beginActionScope('Scan')
+        session.action('Moving to start')
+        can_measure = True
+        # the move-before devices
+        if self._firstmoves:
+            can_measure = self.moveTo(self._firstmoves)
+        # the scanned-over devices
+        can_measure &= self.moveTo(zip(self._devices, self._targets[0]))
+        return can_measure
+
+    def beginScan(self):
         dataset = self.dataset
         dataset.points = []
         dataset.sinkinfo = []
@@ -137,12 +151,8 @@ class Scan(object):
         return True
 
     def run(self):
-        # move to first position before starting scan
-        session.action('Moving to start')
-        can_measure = True
-        if self._firstmoves:
-            can_measure = self.moveTo(self._firstmoves)
-        can_measure &= self.moveTo(zip(self._devices, self._targets[0]))
+        # move all devices to starting position before starting scan
+        can_measure = self.prepareScan()
         self.beginScan()
         try:
             for i, position in enumerate(self._targets):
@@ -154,8 +164,7 @@ class Scan(object):
                     if not can_measure:
                         continue
                     session.action('Counting')
-                    # XXX add multistep action
-                    result = _count(self._detlist, self._preset)
+                    result = list(_count(self._detlist, self._preset))
                     self.addPoint(position, result)
                 finally:
                     self.finishPoint()
