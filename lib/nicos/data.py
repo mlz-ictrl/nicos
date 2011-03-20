@@ -53,8 +53,10 @@ class Dataset(object):
     started = 0
     # data sinks active for this data set
     sinks = []
-    # list of devices involved in scan
-    devices = []
+    # devices to move
+    mdevices = []
+    # devices to read
+    rdevices = []
     # list of scan positions
     positions = []
     # list of multi-steps for each scan point
@@ -71,11 +73,10 @@ class Dataset(object):
     points = []
 
     # cached info for all sinks to use
-    valueinfo = []
-    detnames = []
-    detunits = []
-    devnames = []
-    devunits = []
+    xnames = []
+    xunits = []
+    ynames = []
+    yunits = []
 
 
 class NeedsDatapath(object):
@@ -169,9 +170,9 @@ class ConsoleSink(DataSink):
         printinfo('Started at:         ' +
                   time.strftime(TIMEFMT, dataset.started))
         printinfo('-' * 80)
-        printinfo('\t'.join(map(str, ['#'] + dataset.devnames +
-                                dataset.detnames)).expandtabs())
-        printinfo('\t'.join([''] + dataset.devunits + dataset.detunits).
+        printinfo('\t'.join(map(str, ['#'] + dataset.xnames +
+                                dataset.ynames)).expandtabs())
+        printinfo('\t'.join([''] + dataset.xunits + dataset.yunits).
                   expandtabs())
         printinfo('-' * 80)
         if dataset.positions:
@@ -186,7 +187,7 @@ class ConsoleSink(DataSink):
             point = num
         printinfo('\t'.join(
             [point] +
-            [dev.format(val) for (dev, val) in zip(dataset.devices, xvalues)] +
+            [dev.format(val) for (dev, val) in zip(dataset.rdevices, xvalues)] +
             [str(val) for val in yvalues]).expandtabs())
 
     def endDataset(self, dataset):
@@ -208,10 +209,10 @@ class DaemonSink(DataSink):
         self._handler.new_dataset(
             'scan started %s' % time.strftime(TIMEFMT, dataset.started),
             '', dataset.scaninfo, filename, '',
-            xaxisname='%s (%s)' % (dataset.devnames[0], dataset.devunits[0]),
+            xaxisname='%s (%s)' % (dataset.xnames[0], dataset.xunits[0]),
             yaxisname=str(dataset.detlist[0]),
             xscale=(dataset.positions[0][0], dataset.positions[-1][0]))
-        for name in dataset.detnames:
+        for name in dataset.ynames:
             self._handler.add_curve(name, ['x', 'y'], 'default')
 
     def addPoint(self, dataset, xvalues, yvalues):
@@ -293,11 +294,11 @@ class AsciiDatafileSink(DatafileSink):
         self._file.flush()
         # to be written later (after info)
         if self.semicolon:
-            self._colnames = dataset.devnames + [';'] + dataset.detnames
-            self._colunits = dataset.devunits + [';'] + dataset.detunits
+            self._colnames = dataset.xnames + [';'] + dataset.ynames
+            self._colunits = dataset.xunits + [';'] + dataset.yunits
         else:
-            self._colnames = dataset.devnames + dataset.detnames
-            self._colunits = dataset.devunits + dataset.detunits
+            self._colnames = dataset.xnames + dataset.ynames
+            self._colunits = dataset.xunits + dataset.yunits
 
     def addInfo(self, dataset, category, valuelist):
         self._file.write('%s %s\n' % (self._tcomment, category))
@@ -314,11 +315,13 @@ class AsciiDatafileSink(DatafileSink):
             self._file.write('%s %s\n' % (self._scomment,
                                           '\t'.join(self._colunits)))
             self._wrote_columninfo = True
+        xv = [dev.format(val) for (dev, val) in zip(dataset.rdevices, xvalues)]
+        yv = map(str, yvalues)
         if self.semicolon:
-            values = xvalues + [';'] + yvalues
+            values = xv + [';'] + yv
         else:
-            values = xvalues + yvalues
-        self._file.write('\t'.join(map(str, values)) + '\n')
+            values = xv + yv
+        self._file.write('\t'.join(values) + '\n')
         self._file.flush()
 
     def endDataset(self, dataset):

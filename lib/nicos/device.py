@@ -498,6 +498,12 @@ class Readable(Device):
         for item in Device.info(self):
             yield item
 
+    def scanDevices(self):
+        """Return a tuple of devices whose values should be recorded instead
+        of this device when scanning over this device.
+        """
+        return (self,)
+
 
 class Startable(Readable):
     """
@@ -813,10 +819,6 @@ class Measurable(Startable):
             return (result,)
         return result
 
-    def valueInfo(self):
-        """Return two tuples: one of value names and one of value units."""
-        return (), ()
-
     def info(self):
         """Automatically add device status (if not OK).  Does not add the
         device value since that is typically not useful for Measurables.
@@ -831,3 +833,7 @@ class Measurable(Startable):
                 yield ('status', 'status', '%s: %s' % st)
         for item in Device.info(self):
             yield item
+
+    def valueInfo(self):
+        """Return two tuples: one of value names and one of value units."""
+        return (self.name,), (self.unit,)

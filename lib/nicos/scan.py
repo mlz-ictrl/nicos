@@ -64,7 +64,10 @@ class Scan(object):
             positions = [dpos + [ms[1][i] for ms in multistep]
                          for dpos in positions for i in range(nsteps)]
         self.dataset = session.experiment.createDataset(scantype)
-        self._devices = self.dataset.devices = devices
+        self._movedevices = self.dataset.mdevices = devices
+        self._readdevices = self.dataset.rdevices = []
+        for dev in devices:
+            self._readdevices.extend(dev.scanDevices())
         self._targets = self.dataset.positions = positions
         self._firstmoves = firstmoves
         self._detlist = self.dataset.detlist = detlist
@@ -81,21 +84,22 @@ class Scan(object):
         if self._firstmoves:
             can_measure = self.moveTo(self._firstmoves)
         # the scanned-over devices
-        can_measure &= self.moveTo(zip(self._devices, self._targets[0]))
+        can_measure &= self.moveTo(zip(self._movedevices, self._targets[0]))
         return can_measure
 
     def beginScan(self):
         dataset = self.dataset
         dataset.points = []
         dataset.sinkinfo = []
-        dataset.devunits = [dev.unit for dev in dataset.devices]
-        dataset.devnames = [dev.name for dev in dataset.devices]
-        dataset.valueinfo = [det.valueInfo() for det in self._detlist]
-        dataset.detnames = []
-        dataset.detunits = []
-        for names, units in dataset.valueinfo:
-            dataset.detnames.extend(names)
-            dataset.detunits.extend(units)
+        dataset.xnames, dataset.xunits = [], []
+        for dev in self._readdevices:
+            dataset.xnames.append(dev.name)
+            dataset.xunits.append(dev.unit)
+        dataset.ynames, dataset.yunits = [], []
+        for det in dataset.detlist:
+            names, units = det.valueInfo()
+            dataset.ynames.extend(names)
+            dataset.yunits.extend(units)
         dataset.sinkinfo = {}
         for sink in self._sinks:
             sink.prepareDataset(dataset)
@@ -191,7 +195,7 @@ class Scan(object):
         # move all devices to starting position before starting scan
         can_measure = self.prepareScan()
         self.beginScan()
-        prevpos = [None] * len(self._devices)
+        prevpos = [None] * len(self._movedevices)
         try:
             for i, position in enumerate(self._targets):
                 self.preparePoint(i+1, position)
@@ -199,10 +203,10 @@ class Scan(object):
                     session.action('Positioning')
                     if i > 0:
                         can_measure = self.maybeMoveTo(
-                            zip(self._devices, position, prevpos))
+                            zip(self._movedevices, position, prevpos))
                     if not can_measure:
                         continue
-                    actualpos = [dev.read() for dev in self._devices]
+                    actualpos = [dev.read() for dev in self._readdevices]
                     session.action('Counting')
                     result = list(_count(self._detlist, self._preset))
                     self.addPoint(actualpos, result)

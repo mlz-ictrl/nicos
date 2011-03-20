@@ -88,15 +88,15 @@ class TAS(Instrument, Moveable):
 
     def doInit(self):
         Instrument.doInit(self)
-        self.__dict__['h'] = TASIndex(self.name+'.h', unit='rlu',
+        self.__dict__['h'] = TASIndex('h', unit='rlu', fmtstr='%.3f',
                                       index=0, lowlevel=True, tas=self)
-        self.__dict__['k'] = TASIndex(self.name+'.k', unit='rlu',
+        self.__dict__['k'] = TASIndex('k', unit='rlu', fmtstr='%.3f',
                                       index=1, lowlevel=True, tas=self)
-        self.__dict__['l'] = TASIndex(self.name+'.l', unit='rlu',
+        self.__dict__['l'] = TASIndex('l', unit='rlu', fmtstr='%.3f',
                                       index=2, lowlevel=True, tas=self)
-        self.__dict__['ny'] = TASIndex(self.name+'.ny', unit='THz',
+        self.__dict__['ny'] = TASIndex('ny', unit='THz', fmtstr='%.3f',
                                        index=3, lowlevel=True, tas=self)
-        self.__dict__['sc'] = TASIndex(self.name+'.sc', unit='A-1',
+        self.__dict__['sc'] = TASIndex('sc', unit='A-1', fmtstr='%.3f',
                                        index=4, lowlevel=True, tas=self)
 
     def _thz(self, ny):
@@ -188,12 +188,13 @@ class TAS(Instrument, Moveable):
             sc = psi.read()
         return (hkl[0], hkl[1], hkl[2], ny, sc)
 
+    def scanDevices(self):
+        return (self.h, self.k, self.l, self.ny, self.sc)
+
 
 class TASIndex(Moveable):
     """
     "Partial" devices for the H, K, L, E indices of the TAS instrument.
-
-    XXX are these really needed?
     """
 
     parameters = {
