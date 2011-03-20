@@ -130,6 +130,11 @@ class Scan(object):
         session.endActionScope()
 
     def handleError(self, dev, val, err):
+        """Handle an error occurring during positioning for a point.
+        If the return value is True, continue measuring this point even if
+        the device has not arrived.  If it is False, continue with the next
+        point.  If the scan should be aborted, the exception is reraised.
+        """
         if isinstance(err, LimitError):
             printwarning('Skipping data point', exc=1)
             return False
@@ -140,6 +145,9 @@ class Scan(object):
             raise
 
     def moveTo(self, where):
+        """Move to *where*, which is a list of (dev, position) tuples.
+        On errors, call handleError, which decides when the scan may continue.
+        """
         waitdevs = []
         for dev, val in where:
             try:
@@ -159,7 +167,8 @@ class Scan(object):
 
     def maybeMoveTo(self, where):
         """Like moveTo, but gets another tuple item that gives the last
-        value.  If it equals the current value, do not move."""
+        position.  If it equals the target position, do not move.
+        """
         waitdevs = []
         for dev, val, prevval in where:
             if val != prevval:

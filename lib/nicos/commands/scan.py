@@ -33,7 +33,7 @@ __version__ = "$Revision$"
 
 from nicos import session
 from nicos.scan import Scan
-from nicos.device import Measurable, Moveable
+from nicos.device import Device, Measurable, Moveable
 from nicos.errors import UsageError
 from nicos.commands import usercommand
 
@@ -61,6 +61,7 @@ def _handleScanArgs(args, kwargs):
             else:
                 move.append((session.devices[key], value))
         else:
+            # XXX this silently accepts wrong keys; restrict the possible keys?
             preset[key] = value
     return preset, infostr, detlist, move, multistep
 
@@ -82,11 +83,15 @@ def _fixType(dev, start, step):
     return [dev], [start], [step]
 
 def _infostr(fn, args, kwargs):
+    def devrepr(x):
+        if isinstance(x, Device):
+            return x.name
+        return repr(x)
     if kwargs:
         return '%s(%s, %s)' % (fn,
-                               ', '.join(map(repr, args)),
+                               ', '.join(map(devrepr, args)),
                                ', '.join('%s=%r' % kv for kv in kwargs.items()))
-    return '%s%r' % (fn, args)
+    return '%s(%s)' % (fn, ', '.join(map(devrepr, args)))
 
 
 @usercommand
@@ -94,7 +99,7 @@ def scan(dev, start, step, numsteps, *args, **kwargs):
     """Single-sided scan."""
     preset, infostr, detlist, move, multistep  = _handleScanArgs(args, kwargs)
     infostr = infostr or \
-              _infostr('scan', (str(dev), start, step, numsteps) + args, kwargs)
+              _infostr('scan', (dev, start, step, numsteps) + args, kwargs)
     dev, start, step = _fixType(dev, start, step)
     values = [[x + i*y for x, y in zip(start, step)]
               for i in range(numsteps)]
@@ -107,7 +112,7 @@ def cscan(dev, center, step, numperside, *args, **kwargs):
     """Scan around center."""
     preset, infostr, detlist, move, multistep = _handleScanArgs(args, kwargs)
     infostr = infostr or \
-              _infostr('cscan', (str(dev), center, step, numperside) + args, kwargs)
+              _infostr('cscan', (dev, center, step, numperside) + args, kwargs)
     dev, center, step = _fixType(dev, center, step)
     start = [x - numperside*y for x, y in zip(center, step)]
     values = [[x + i*y for x, y in zip(start, step)]
