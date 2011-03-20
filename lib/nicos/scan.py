@@ -140,13 +140,41 @@ class Scan(object):
             raise
 
     def moveTo(self, where):
+        waitdevs = []
         for dev, val in where:
             try:
                 dev.start(val)
+            except NicosError, err:
+                # handleError can reraise for fatal error, return False
+                # to skip this point and True to measure anyway
+                return self.handleError(dev, val, err)
+            else:
+                waitdevs.append((dev, val))
+        for dev, val in waitdevs:
+            try:
                 dev.wait()
             except NicosError, err:
-                # handleError can reraise for fatal error, return False to
-                # skip this point and True to measure anyway
+                return self.handleError(dev, val, err)
+        return True
+
+    def maybeMoveTo(self, where):
+        """Like moveTo, but gets another tuple item that gives the last
+        value.  If it equals the current value, do not move."""
+        waitdevs = []
+        for dev, val, prevval in where:
+            if val != prevval:
+                try:
+                    dev.start(val)
+                except NicosError, err:
+                    # handleError can reraise for fatal error, return False
+                    # to skip this point and True to measure anyway
+                    return self.handleError(dev, val, err)
+                else:
+                    waitdevs.append((dev, val))
+        for dev, val in waitdevs:
+            try:
+                dev.wait()
+            except NicosError, err:
                 return self.handleError(dev, val, err)
         return True
 
@@ -154,19 +182,22 @@ class Scan(object):
         # move all devices to starting position before starting scan
         can_measure = self.prepareScan()
         self.beginScan()
+        prevpos = [None] * len(self._devices)
         try:
             for i, position in enumerate(self._targets):
                 self.preparePoint(i+1, position)
                 try:
                     session.action('Positioning')
                     if i > 0:
-                        can_measure = self.moveTo(zip(self._devices, position))
+                        can_measure = self.maybeMoveTo(
+                            zip(self._devices, position, prevpos))
                     if not can_measure:
                         continue
                     actualpos = [dev.read() for dev in self._devices]
                     session.action('Counting')
                     result = list(_count(self._detlist, self._preset))
                     self.addPoint(actualpos, result)
+                    prevpos = position
                 finally:
                     self.finishPoint()
         finally:
