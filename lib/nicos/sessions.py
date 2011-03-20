@@ -143,7 +143,7 @@ class Session(object):
 
         # set up logging interface
         self._initLogging()
-        self.log = self.getLogger('System')
+        self.log = self.getLogger('nicos')
 
     def setNamespace(self, ns):
         """Set the namespace to export commands and devices into."""
@@ -569,20 +569,25 @@ class Session(object):
         joined = ' :: '.join(self._actionStack)
         self.log.action(joined)
         if self.cache:
-            self.cache.put(self.system, 'action', joined)
+            self.cache.put(self.experiment, 'action', joined)
 
     def endActionScope(self):
         self._actionStack.pop()
         joined = ' :: '.join(self._actionStack)
         self.log.action(joined)
         if self.cache:
-            self.cache.put(self.system, 'action', joined)
+            self.cache.put(self.experiment, 'action', joined)
 
     def action(self, what):
         joined = ' :: '.join(self._actionStack + [what])
         self.log.action(joined)
         if self.cache:
-            self.cache.put(self.system, 'action', joined)
+            self.cache.put(self.experiment, 'action', joined)
+
+    # -- Live data handling ----------------------------------------------------
+
+    def updateLiveData(self, dtype, nx, ny, nt, time, data):
+        pass
 
 
 class SimpleSession(Session):
@@ -814,6 +819,10 @@ class DaemonSession(SimpleSession):
 
         self._Session__system_device = None
         self._Session__exported_names.clear()
+
+    def updateLiveData(self, dtype, nx, ny, nt, time, data):
+        # XXX change protocol here
+        self.emitfunc('new_livedata', data)
 
 
 class WebSession(Session):

@@ -76,7 +76,7 @@ class FRMChannel(TacoDevice, Measurable):
         self.__stopMode = status.OK
 
     def doRead(self):
-        return int(self._taco_guard(self._dev.read))
+        return self._taco_guard(self._dev.read)
 
     def doStatus(self):
         state = self._taco_guard(self._dev.deviceState)
@@ -142,6 +142,10 @@ class FRMTimerChannel(FRMChannel):
 
 class FRMCounterChannel(FRMChannel):
     taco_class = Counter
+
+    def doRead(self):
+        # convert long to int if it fits
+        return int(self._taco_guard(self._dev.read))
 
     def doReadUnit(self):
         return 'cts'

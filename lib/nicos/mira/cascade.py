@@ -35,7 +35,7 @@ __version__ = "$Revision$"
 
 import threading
 from os import path
-from time import sleep
+from time import sleep, time
 
 import cascadenicosobj
 
@@ -79,7 +79,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
                                        self.nametemplate % self._filenumber)
 
     def valueInfo(self):
-        return ['time', 'cascade.filename'], ['s', '']
+        return [self.name + '.filename'], ['']
 
     def doWriteServerdebug(self, value):
         self._client.SetDebugLog(value)
@@ -122,7 +122,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
         self._client.communicate('CMD_stop')
 
     def doRead(self):
-        return [self._last_preset, self._lastfilename]
+        return [self._lastfilename]
 
     def _thread_entry(self):
         while True:
@@ -131,6 +131,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
                 self._measure.wait()
                 # start measurement
                 self._client.communicate('CMD_start')
+                started = time()
                 # wait for completion of measurement
                 while True:
                     sleep(0.2)
@@ -143,8 +144,8 @@ class CascadeDetector(Measurable, NeedsDatapath):
                     if status.get('stop', '0') == '1':
                         break
                     data = self._client.communicate('CMD_readsram')
-                    # XXX send live data somewhere
-                    session.emitfunc('new_livedata', data[4:])
+                    session.updateLiveData('<i4', 128, 128, 1,
+                                           time() - started, data[4:])
             except:
                 self._lastfilename = '<error>'
                 self.printexception('measuring failed')
