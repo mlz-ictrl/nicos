@@ -46,6 +46,7 @@ class VirtualMotor(Motor, HasOffset):
     parameters = {
         'initval': Param('Initial value for the virtual device', mandatory=True),
         'speed':   Param('Virtual speed of the device'),
+        'jitter':  Param('Jitter of the read value', default=0),
     }
 
     def doInit(self):
@@ -60,7 +61,7 @@ class VirtualMotor(Motor, HasOffset):
             thread.start()
         else:
             self.printdebug('moving to %s' % pos)
-            self.__val = pos
+            self.__val = pos + self.jitter * (0.5 - random.random())
             self.__busy = False
 
     def doRead(self):

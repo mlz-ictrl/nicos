@@ -184,8 +184,10 @@ class ConsoleSink(DataSink):
             point = '%s/%s' % (len(dataset.points), self._npoints)
         else:
             point = num
-        printinfo('\t'.join(map(str, [point] + xvalues + yvalues))
-                  .expandtabs())
+        printinfo('\t'.join(
+            [point] +
+            [dev.format(val) for (dev, val) in zip(dataset.devices, xvalues)] +
+            [str(val) for val in yvalues]).expandtabs())
 
     def endDataset(self, dataset):
         printinfo('-' * 80)

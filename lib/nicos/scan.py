@@ -163,9 +163,10 @@ class Scan(object):
                         can_measure = self.moveTo(zip(self._devices, position))
                     if not can_measure:
                         continue
+                    actualpos = [dev.read() for dev in self._devices]
                     session.action('Counting')
                     result = list(_count(self._detlist, self._preset))
-                    self.addPoint(position, result)
+                    self.addPoint(actualpos, result)
                 finally:
                     self.finishPoint()
         finally:

@@ -87,6 +87,7 @@ class TAS(Instrument, Moveable):
     }
 
     def doInit(self):
+        Instrument.doInit(self)
         self.__dict__['h'] = TASIndex(self.name+'.h', unit='rlu',
                                       index=0, lowlevel=True, tas=self)
         self.__dict__['k'] = TASIndex(self.name+'.k', unit='rlu',
@@ -140,8 +141,8 @@ class TAS(Instrument, Moveable):
         phi.wait()
         psi.wait()
         h, k, l, ny, sc = self.doRead()
-        self.printinfo('position hkl: (%7.4f %7.4f %7.4f) ny: %7.4f %s' %
-                       (h, k, l, ny, self.energytransferunit))
+        #self.printinfo('position hkl: (%7.4f %7.4f %7.4f) ny: %7.4f %s' %
+        #               (h, k, l, ny, self.energytransferunit))
 
     def doWriteScatteringsense(self, val):
         for v in val:

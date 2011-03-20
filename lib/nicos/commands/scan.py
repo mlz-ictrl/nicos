@@ -103,8 +103,7 @@ def scan(dev, start, step, numsteps, *args, **kwargs):
 
 
 @usercommand
-def cscan(dev, center, step, numperside, preset=None, infostr=None,
-          det=None, **presets):
+def cscan(dev, center, step, numperside, *args, **kwargs):
     """Scan around center."""
     preset, infostr, detlist, move, multistep = _handleScanArgs(args, kwargs)
     infostr = infostr or \
@@ -118,7 +117,32 @@ def cscan(dev, center, step, numperside, preset=None, infostr=None,
 
 
 @usercommand
-def qcscan(Q, ny, dQ, dny, numsteps, sc, preset=None, infostr=None,
-           det=None, **presets):
-    """Q scan around center."""
-    # XXX write this
+def qscan(Q, ny, dQ, dny, numsteps, SC, *args, **kwargs):
+    """Single-sided Q scan."""
+    preset, infostr, detlist, move, multistep = _handleScanArgs(args, kwargs)
+    infostr = infostr or \
+              _infostr('qscan', (Q, ny, dQ, dny, numsteps, SC) + args, kwargs)
+    for v in (Q, dQ):
+        if not isinstance(v, tuple) or len(v) != 3:
+            raise UsageError('Q and dQ arguments must be tuples of three indices')
+    values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], ny+i*dny, SC)]
+               for i in range(numsteps)]
+    scan = Scan([session.instrument], values, move, multistep, detlist,
+                preset, infostr)
+    scan.run()
+
+
+@usercommand
+def qcscan(Q, ny, dQ, dny, numperside, SC, *args, **kwargs):
+    """Centered Q scan."""
+    preset, infostr, detlist, move, multistep = _handleScanArgs(args, kwargs)
+    infostr = infostr or \
+              _infostr('qcscan', (Q, ny, dQ, dny, numperside, SC) + args, kwargs)
+    for v in (Q, dQ):
+        if not isinstance(v, tuple) or len(v) != 3:
+            raise UsageError('Q and dQ arguments must be tuples of three indices')
+    values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], ny+i*dny, SC)]
+               for i in range(-numperside, numperside+1)]
+    scan = Scan([session.instrument], values, move, multistep, detlist,
+                preset, infostr)
+    scan.run()
