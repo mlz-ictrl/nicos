@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+
+<!-- Konfigurationsdatei vom Cascade-Client -->
+
+<cascade_config>
+
+	<tof_file>
+		<image_count> 196 </image_count>
+		<foil_count> 4  </foil_count>
+		<images_per_foil> 16 </images_per_foil>
+		<image_height> 128 </image_height>
+		<image_width> 64 </image_width>
+
+		<foil_1_start> 0  </foil_1_start>
+		<foil_2_start> 32 </foil_2_start>
+		<foil_3_start> 128 </foil_3_start>
+		<foil_4_start> 160 </foil_4_start>
+	</tof_file>
+
+	<graphs>
+		<phase_block_size_x> 1 </phase_block_size_x>
+		<phase_block_size_y> 2 </phase_block_size_y>
+
+		<contrast_block_size_x> 1 </contrast_block_size_x>
+		<contrast_block_size_y> 2 </contrast_block_size_y>
+
+		<bin_count> 100  </bin_count>
+		<log_lower_range> -0.5 </log_lower_range>
+	</graphs>
+
+	<main_window>
+		<width> 900 </width>
+		<height> 700 </height>
+		<title> Cascade </title>
+	</main_window>
+
+	<server>
+		<address> cascade7.reseda.frm2 </address>
+		<port> 1234 </port>
+
+		<status_poll_time> 2000 </status_poll_time>
+
+		<use_message_timeout> 0 </use_message_timeout>
+		<message_timeout> 10000 </message_timeout>
+		
+		<debug_log> 1 </debug_log>
+	</server>
+
+</cascade_config>

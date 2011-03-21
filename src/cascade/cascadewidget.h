@@ -1,0 +1,147 @@
+#ifndef __CASCADE_WIDGET__
+#define __CASCADE_WIDGET__
+
+#include <QtGui/QWidget>
+
+#include <qwt/qwt_plot.h>
+#include <qwt/qwt_plot_grid.h>
+#include <qwt/qwt_plot_zoomer.h>
+#include <qwt/qwt_plot_panner.h>
+#include <qwt/qwt_plot_layout.h>
+#include <qwt/qwt_plot_marker.h>
+#include <qwt/qwt_plot_rescaler.h>
+#include <qwt/qwt_interval_data.h>
+#include <qwt/qwt_plot_curve.h>
+#include <qwt/qwt_plot_spectrogram.h>
+#include <qwt/qwt_scale_widget.h>
+#include <qwt/qwt_scale_draw.h>
+#include <qwt/qwt_color_map.h>
+#include <qwt/qwt_legend.h>
+#include <qwt/qwt_legend_item.h>
+#include <qwt/qwt_symbol.h>
+
+#include "tofdata.h"
+
+
+class MainZoomer : public QwtPlotZoomer
+{
+	protected:
+		const QwtPlotSpectrogram* m_pData;
+	
+	public:
+		MainZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram* pData);
+		
+		virtual QwtText trackerText(const QwtDoublePoint &pos) const;
+};
+
+
+class Plot : public QwtPlot
+{
+	Q_OBJECT
+    
+	protected:
+		QwtPlotSpectrogram *m_pSpectrogram;
+		QwtPlotZoomer* m_pZoomer;
+
+	public:
+		Plot(QWidget *parent);
+		virtual ~Plot();		
+		
+		void ChangeRange();
+		QwtPlotZoomer* GetZoomer();
+
+		void SetData(QwtRasterData* pData);
+		const QwtRasterData* GetData() const;
+
+		void SetColorMap(bool bCyclic);
+		
+		void InitPlot();
+		void DeinitPlot();
+
+	public slots:
+		void showContour(bool on);
+		void showSpectrogram(bool on);
+		void printPlot();
+};
+
+
+
+#define MODE_SLIDES		1
+#define MODE_PHASES		2
+#define MODE_CONTRASTS		3
+
+#define MODE_SUMS		4
+#define MODE_PHASESUMS		5
+#define MODE_CONTRASTSUMS	6
+
+
+class CascadeWidget : public QWidget
+{
+Q_OBJECT
+	private:
+		bool m_bForceReinit;
+
+	protected:
+		Plot *m_pPlot;
+		
+		// PAD
+		PadData *m_pPad;
+		
+		// TOF
+		TofImage *m_pTof;
+		Data2D *m_pdata2d;
+		
+		int m_iMode;
+		int m_iFolie, m_iZeitkanal;
+		bool m_bLog;
+		bool m_bSpectrogram, m_bContour;
+		
+	public:
+		CascadeWidget(QWidget *parent=NULL);
+		virtual ~CascadeWidget();
+		
+		void Unload();
+		bool IsTofLoaded() const;
+		bool IsPadLoaded() const;
+		void* NewPad();
+		void* NewTof();
+		bool LoadPadFile(const char* pcFile);				// PAD aus Datei laden
+		bool LoadTofFile(const char* pcFile);				// TOF aus Datei laden
+		bool LoadPadMem(const char* pcMem, unsigned int iLen);		// PAD aus Speicher laden
+		bool LoadTofMem(const char* pcMem, unsigned int iLen);		// TOF aus Speicher laden
+				
+		TofImage* GetTof();
+		Data2D* GetData2d();
+		PadData* GetPad();
+		Plot* GetPlot();
+		unsigned int* GetRawData();	// Pointer auf Rohdaten-Bereich erhalten
+		
+		bool GetLog10();
+		int GetFolie() const;
+		int GetZeitkanal() const;
+		
+		void SetMode(int iMode);
+		int GetMode();
+
+	public slots:
+		void viewOverview();		// alle Folien aller Zeitkanaele aufsummieren
+		void viewSlides();		// einzelne Folie anzeigen
+		void viewPhases();		// Phasen 
+		void viewContrasts();		// Kontraste
+		
+		void viewFoilSums(const bool* pbKanaele);
+		void viewPhaseSums(const bool* pbFolien);
+		void viewContrastSums(const bool* pbFolien);
+		
+		void SetLog10(bool bLog10);
+		void SetSpectrogram(bool bSpect);
+		void SetContour(bool bCont);
+		void SetFolie(int iFolie);
+		void SetZeitkanal(int iKanal);
+		
+		void UpdateGraph();
+		void UpdateLabels();		
+		void UpdateRange();		
+};
+
+#endif
