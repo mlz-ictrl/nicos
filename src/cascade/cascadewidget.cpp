@@ -130,8 +130,8 @@ void Plot::InitPlot()
 	rightAxis->setColorBarEnabled(true);
 	rightAxis->setColorMap(m_pSpectrogram->data().range(),m_pSpectrogram->colorMap());
 
-	setAxisScale(QwtPlot::yLeft,0,Config_TofLoader::BILDHOEHE);
-	setAxisScale(QwtPlot::xBottom,0,Config_TofLoader::BILDBREITE);
+	setAxisScale(QwtPlot::yLeft,0,Config_TofLoader::IMAGE_HEIGHT);
+	setAxisScale(QwtPlot::xBottom,0,Config_TofLoader::IMAGE_WIDTH);
 	setAxisScale(QwtPlot::yRight,m_pSpectrogram->data().range().minValue(),m_pSpectrogram->data().range().maxValue());
 	enableAxis(QwtPlot::yRight);
 
@@ -145,10 +145,10 @@ void Plot::InitPlot()
 	panner->setAxisEnabled(QwtPlot::yRight, false);
 	panner->setMouseButton(Qt::MidButton);
 
-	const QFontMetrics fm(axisWidget(QwtPlot::yLeft)->font());
+	QFontMetrics fm(axisWidget(QwtPlot::yLeft)->font());
 	axisScaleDraw(QwtPlot::yLeft)->setMinimumExtent(fm.width("100."));
 
-	const QColor c(Qt::darkBlue);
+	QColor c(Qt::darkBlue);
 	m_pZoomer->setRubberBandPen(c);
 	m_pZoomer->setTrackerPen(c);
 }
@@ -269,7 +269,6 @@ void* CascadeWidget::NewPad()
 	// Tof geladen?
 	if(!m_pPad || m_pTof || m_pdata2d || m_bForceReinit)
 	{
-		//std::cout << "neues PAD" << std::endl;
 		Unload();
 		m_pPad = new PadData();
 		m_pPad->SetLog10(m_bLog);
@@ -428,7 +427,6 @@ void CascadeWidget::UpdateLabels()
 
 void CascadeWidget::UpdateGraph()
 {
-	//std::cout << "in UpdateGraph" << std::endl;
 	if(m_pPad)				// PAD-Datei geladen
 	{
 		//m_pPad->UpdateRange();
@@ -439,7 +437,7 @@ void CascadeWidget::UpdateGraph()
 		if(m_iMode==MODE_SLIDES)
 		{
 			m_pdata2d->clearData();
-			m_pTof->GetROI(0,Config_TofLoader::BILDBREITE-1,0,Config_TofLoader::BILDHOEHE-1,m_iFolie,m_iZeitkanal,"",m_pdata2d);
+			m_pTof->GetROI(0,Config_TofLoader::IMAGE_WIDTH-1,0,Config_TofLoader::IMAGE_HEIGHT-1,m_iFolie,m_iZeitkanal,m_pdata2d);
 		}
 		else if(m_iMode==MODE_PHASES)
 		{
@@ -468,11 +466,11 @@ void CascadeWidget::UpdateGraph()
 int CascadeWidget::GetMode() { return m_iMode; }
 void CascadeWidget::SetMode(int iMode) { m_iMode = iMode; }
 
-int CascadeWidget::GetFolie() const { return m_iFolie; }
-void CascadeWidget::SetFolie(int iFolie) { m_iFolie = iFolie; }
+int CascadeWidget::GetFoil() const { return m_iFolie; }
+void CascadeWidget::SetFoil(int iFolie) { m_iFolie = iFolie; }
 
-int CascadeWidget::GetZeitkanal() const { return m_iZeitkanal; }
-void CascadeWidget::SetZeitkanal(int iKanal) { m_iZeitkanal = iKanal; }
+int CascadeWidget::GetTimechannel() const { return m_iZeitkanal; }
+void CascadeWidget::SetTimechannel(int iKanal) { m_iZeitkanal = iKanal; }
 
 bool CascadeWidget::GetLog10() { return m_bLog; }
 void CascadeWidget::SetLog10(bool bLog10)
@@ -560,7 +558,7 @@ void CascadeWidget::viewContrasts()
 void CascadeWidget::viewFoilSums(const bool* pbKanaele)
 {
 	SetMode(MODE_SUMS);
-	GetTof()->AddFolien(pbKanaele, "", GetData2d());
+	GetTof()->AddFoils(pbKanaele, GetData2d());
 	
 	UpdateRange();
 	//m_pPlot->SetData(m_pdata2d);
@@ -570,7 +568,7 @@ void CascadeWidget::viewFoilSums(const bool* pbKanaele)
 void CascadeWidget::viewPhaseSums(const bool* pbFolien)
 {
 	SetMode(MODE_PHASESUMS);
-	GetTof()->AddPhases(pbFolien, "", GetData2d());
+	GetTof()->AddPhases(pbFolien, GetData2d());
 	
 	UpdateRange();
 	UpdateGraph();
@@ -579,7 +577,7 @@ void CascadeWidget::viewPhaseSums(const bool* pbFolien)
 void CascadeWidget::viewContrastSums(const bool* pbFolien)
 {
 	SetMode(MODE_CONTRASTSUMS);
-	GetTof()->AddContrasts(pbFolien, "", GetData2d());
+	GetTof()->AddContrasts(pbFolien, GetData2d());
 	
 	UpdateRange();
 	UpdateGraph();	

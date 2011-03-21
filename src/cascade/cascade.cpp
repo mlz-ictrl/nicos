@@ -132,13 +132,13 @@ class MainWindow : public QMainWindow
 		{
 #ifndef DATA_COMPRESSED
 			// Abfrage nur für unkomprimierte Daten möglich
-			if(iLen-4 != sizeof(int)*Config_TofLoader::BILDHOEHE*Config_TofLoader::BILDBREITE)
+			if(iLen-4 != sizeof(int)*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH)
 			{
 				// Dimensionen stimmen nicht, neue raten
 				if(!Config_TofLoader::GuessConfigFromSize((iLen-4)/4, false))
 				{
 					char pcMsg[256];
-					sprintf(pcMsg, "Dimension mismatch in PAD data!\nClient expected: %d bytes\nServer sent: %d bytes", sizeof(int)*Config_TofLoader::BILDHOEHE*Config_TofLoader::BILDBREITE, iLen-4);
+					sprintf(pcMsg, "Dimension mismatch in PAD data!\nClient expected: %d bytes\nServer sent: %d bytes", sizeof(int)*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH, iLen-4);
 					QMessageBox::critical(0, "Cascade - Server", pcMsg, QMessageBox::Ok);
 					return;
 				}
@@ -148,7 +148,7 @@ class MainWindow : public QMainWindow
 			void* pvData = m_cascadewidget.NewPad(/*btnLog->isChecked()*/);
 #ifdef DATA_COMPRESSED
 			// Komprimierte Daten umkopieren
-			int iLenOut = sizeof(int)*Config_TofLoader::BILDHOEHE*Config_TofLoader::BILDBREITE;
+			int iLenOut = sizeof(int)*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH;
 			if(!decompress(pcBuf+4, iLen-4, pvData, iLenOut))
 			{
 				QMessageBox::critical(0, "Cascade - Server", "Error in PAD decompression.", QMessageBox::Ok);
@@ -156,7 +156,7 @@ class MainWindow : public QMainWindow
 			}
 #else
 			// Unkomprimierte Daten umkopieren
-			memcpy(pvData, pcBuf+4, sizeof(int)*Config_TofLoader::BILDHOEHE*Config_TofLoader::BILDBREITE);
+			memcpy(pvData, pcBuf+4, sizeof(int)*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH);
 #endif			
 
 			m_cascadewidget.UpdateRange();
@@ -171,13 +171,13 @@ class MainWindow : public QMainWindow
 		{
 #ifndef DATA_COMPRESSED
 			// Abfrage nur für unkomprimierte Daten möglich
-			if(iLen-4 != sizeof(int)*Config_TofLoader::BILDANZAHL*Config_TofLoader::BILDHOEHE*Config_TofLoader::BILDBREITE)
+			if(iLen-4 != sizeof(int)*Config_TofLoader::IMAGE_COUNT*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH)
 			{
 				// Dimensionen stimmen nicht, neue raten
 				if(!Config_TofLoader::GuessConfigFromSize((iLen-4)/4, true))
 				{
 					char pcMsg[256];
-					sprintf(pcMsg, "Dimension mismatch in TOF data!\nClient expected: %d bytes\nServer sent: %d bytes", sizeof(int)*Config_TofLoader::BILDANZAHL*Config_TofLoader::BILDHOEHE*Config_TofLoader::BILDBREITE, iLen-4);
+					sprintf(pcMsg, "Dimension mismatch in TOF data!\nClient expected: %d bytes\nServer sent: %d bytes", sizeof(int)*Config_TofLoader::IMAGE_COUNT*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH, iLen-4);
 					QMessageBox::critical(0, "Cascade - Server", pcMsg, QMessageBox::Ok);
 					return;
 				}
@@ -187,7 +187,7 @@ class MainWindow : public QMainWindow
 			
 #ifdef DATA_COMPRESSED
 			// Komprimierte Daten umkopieren
-			int iLenOut = sizeof(int)*Config_TofLoader::BILDANZAHL*Config_TofLoader::BILDHOEHE*Config_TofLoader::BILDBREITE;
+			int iLenOut = sizeof(int)*Config_TofLoader::IMAGE_COUNT*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH;
 			if(!decompress(pcBuf+4, iLen-4, pvData, iLenOut))
 			{
 				QMessageBox::critical(0, "Cascade - Server", "Error in TOF decompression.", QMessageBox::Ok);
@@ -195,7 +195,7 @@ class MainWindow : public QMainWindow
 			}
 #else
 			// Unkomprimierte Daten umkopieren
-			memcpy(pvData, pcBuf+4, sizeof(int)*Config_TofLoader::BILDANZAHL*Config_TofLoader::BILDHOEHE*Config_TofLoader::BILDBREITE);
+			memcpy(pvData, pcBuf+4, sizeof(int)*Config_TofLoader::IMAGE_COUNT*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH);
 #endif
 
 			//m_cascadewidget.ShowGraph();	// macht viewOverview schon
@@ -214,8 +214,6 @@ class MainWindow : public QMainWindow
 		// Status-Update erhalten
 		else if(!strncmp(pcBuf,"MSG_",4))
 		{
-			//std::cout << pcBuf+4 << std::endl;
-
 			ArgumentMap args(pcBuf+4);
 			bool bMessungFertig = (bool)args.QueryInt("stop");
 			ShowMessage(bMessungFertig?"Server: Measurement stopped.":"Server: Measurement running.");
@@ -224,7 +222,7 @@ class MainWindow : public QMainWindow
 		{}
 		else
 		{
-			std::cerr << "Unbekanntes Präfix in Server-Antwort: \"" <<pcBuf[0]<<pcBuf[1]<<pcBuf[2]<<pcBuf[3] << "\"" << std::endl;
+			std::cerr << "Error: Unknown prefix in server response: \"" <<pcBuf[0]<<pcBuf[1]<<pcBuf[2]<<pcBuf[3] << "\"." << std::endl;
 		}
 	}
 	
@@ -351,12 +349,12 @@ class MainWindow : public QMainWindow
 				break;
 		}
 		
-		m_cascadewidget.SetFolie(iVal);
+		m_cascadewidget.SetFoil(iVal);
 		m_cascadewidget.UpdateGraph();
 		UpdateLabels(false);
 
 		char pcFolie[128];
-		sprintf(pcFolie,"Foil (%0.2d):",m_cascadewidget.GetFolie()+1);
+		sprintf(pcFolie,"Foil (%0.2d):",m_cascadewidget.GetFoil()+1);
 		labelFolie->setText(pcFolie);
 	}
 	
@@ -381,12 +379,12 @@ class MainWindow : public QMainWindow
 				break;
 		}
 		
-		m_cascadewidget.SetZeitkanal(iVal);
+		m_cascadewidget.SetTimechannel(iVal);
 		m_cascadewidget.UpdateGraph();
 		UpdateLabels(false);
 
 		char pcKanal[128];
-		sprintf(pcKanal,"Time Channel (%0.2d):",m_cascadewidget.GetZeitkanal()+1);
+		sprintf(pcKanal,"Time Channel (%0.2d):",m_cascadewidget.GetTimechannel()+1);
 		labelZeitkanal->setText(pcKanal);
 	}
 	
@@ -419,13 +417,13 @@ class MainWindow : public QMainWindow
 		    iROIy2 = rect.bottom();
 		
 		TmpImage tmpimg[4];
-		for(int iFolie=0; iFolie<Config_TofLoader::FOLIENANZAHL; ++iFolie)
+		for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
 			m_cascadewidget.GetTof()->GetPhaseGraph(iFolie, &tmpimg[iFolie], iROIx1, iROIx2, iROIy1, iROIy2, true);
 		
 		int iW = iROIx2-iROIx1; if(iW<0) iW=-iW;
 		int iH = iROIy2-iROIy1; if(iH<0) iH=-iH;
 		
-		for(int iFolie=/*1*/0; iFolie<Config_TofLoader::FOLIENANZAHL; ++iFolie)
+		for(int iFolie=/*1*/0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
 			for(int iY=0; iY<iH; ++iY)
 				for(int iX=0; iX<iW; ++iX)
 				{
@@ -550,7 +548,6 @@ class MainWindow : public QMainWindow
 	
 	void ServerStatus()
 	{
-		//std::cout << "status" << std::endl;
 		if(!CheckConnected()) return;
 		m_client.sendmsg("CMD_status");
 	}
@@ -594,7 +591,7 @@ class MainWindow : public QMainWindow
 	{
 		m_cascadewidget.NewPad(/*btnLog->isChecked()*/);
 		QString strFile = QFileDialog::getOpenFileName(this, "Open PAD File","","PAD File (*.pad *.PAD);;All files (*)");
-		if(m_cascadewidget.LoadPadFile(strFile.toAscii().data()))
+		if(strFile!="" && m_cascadewidget.LoadPadFile(strFile.toAscii().data()))
 		{
 			//m_cascadewidget.UpdateGraph();
 			UpdateLabels(false);
@@ -606,7 +603,7 @@ class MainWindow : public QMainWindow
 	{
 		m_cascadewidget.NewTof(/*btnLog->isChecked()*/);
 		QString strFile = QFileDialog::getOpenFileName(this, "Open TOF File","","TOF File (*.tof *.TOF);;All files (*)");
-		if(m_cascadewidget.LoadTofFile(strFile.toAscii().data()))
+		if(strFile!="" && m_cascadewidget.LoadTofFile(strFile.toAscii().data()))
 		{
 			//m_cascadewidget.UpdateGraph();	// macht viewOverview schon
 			UpdateLabels(false);
@@ -668,7 +665,7 @@ class MainWindow : public QMainWindow
 		sliderFolien = new QSlider(groupbottomleft);
 		sliderFolien->setOrientation(Qt::Horizontal);
 		sliderFolien->setMinimum(0);
-		sliderFolien->setMaximum(Config_TofLoader::FOLIENANZAHL-1);
+		sliderFolien->setMaximum(Config_TofLoader::FOIL_COUNT-1);
 		sliderFolien->setValue(0);
 		labelFolie->setText("Foil:");
 		//ChangeFolie(0);
@@ -680,7 +677,7 @@ class MainWindow : public QMainWindow
 		sliderZeitkanaele = new QSlider(groupbottomleft);
 		sliderZeitkanaele->setOrientation(Qt::Horizontal);
 		sliderZeitkanaele->setMinimum(0);
-		sliderZeitkanaele->setMaximum(Config_TofLoader::BILDERPROFOLIE-1);
+		sliderZeitkanaele->setMaximum(Config_TofLoader::IMAGES_PER_FOIL-1);
 		sliderZeitkanaele->setValue(0);
 		labelZeitkanal->setText("Time Channel:");
 		//ChangeZeitkanal(0);

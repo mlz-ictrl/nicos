@@ -42,7 +42,7 @@ bool TcpClient::connecttohost(const char* pcAddr, int iPort)
 	QHostInfo info = QHostInfo::fromName(pcAddr);
 	if(info.addresses().isEmpty())
 	{
-		std::cerr << "Fehler: Konnte " << pcAddr << " nicht auflösen." << std::endl;
+		std::cerr << "Error: " << pcAddr << " could not be resolved." << std::endl;
 		return false;
 	}
 	QHostAddress address = info.addresses().first();
@@ -53,7 +53,7 @@ bool TcpClient::connecttohost(const char* pcAddr, int iPort)
 	bool bConnected = m_socket.waitForConnected(WAIT_DELAY);
 	
 	if(!bConnected)
-		std::cerr << "Fehler: Konnte nicht mit " << pcAddr << " an Port " << iPort << " verbinden." << std::endl;
+		std::cerr << "Error: Could not connect to " << pcAddr << " on port " << iPort << "." << std::endl;
 
 	return bConnected;
 }
@@ -99,7 +99,7 @@ bool TcpClient::write(const char* pcBuf, int iSize)
 	//m_socket.flush();
 	
 	if(m_bDebugLog && iSize>0 && isprint(pcBuf[0]))
-		std::cerr << "\033[0;31m" << "[an Server] Länge: " << iSize << ", Daten: " << pcBuf << "\033[0m" << std::endl;
+		std::cerr << "\033[0;31m" << "[to Server] length: " << iSize << ", data: " << pcBuf << "\033[0m" << std::endl;
 
 	return true;
 }
@@ -110,7 +110,7 @@ bool TcpClient::sendfile(const char* pcFileName)
 	FILE *pf = fopen(pcFileName,"rb");
 	if(!pf)
 	{ 
-		std::cerr << "Konnte Datei \"" << pcFileName << "\" nicht oeffnen." << std::endl;
+		std::cerr << "Error: Could not open file \"" << pcFileName << "\"." << std::endl;
 		return false;
 	}
 	
@@ -122,17 +122,17 @@ bool TcpClient::sendfile(const char* pcFileName)
 	char *pcDaten = new char[iSize];
 	if(!fread(pcDaten, 1, iSize, pf))
 	{
-		std::cerr << "Fehler beim Lesen der Datei \"" << pcFileName << "\"." << std::endl;
+		std::cerr << "Error: Could not read file \"" << pcFileName << "\"." << std::endl;
 		fclose(pf);
 		delete[] pcDaten;
 		return false;
 	}
 	fclose(pf);
 	if(!write((char*)pcDaten,iSize))
-		std::cerr << "Fehler beim Senden der Datei \"" << pcFileName << "\"." << std::endl;
+		std::cerr << "Error: Could not send file \"" << pcFileName << "\"." << std::endl;
 	delete[] pcDaten;
 	
-	std::cerr << iSize << " Bytes gesendet." << std::endl;
+	std::cerr << iSize << " bytes sent." << std::endl;
 	return true;
 }
 ////////////////////////////////////////////////////////////////
@@ -144,7 +144,7 @@ int TcpClient::read(char* pcData, int iLen)
 	int iLenRead = m_socket.read(pcData, iLen);
 	if(iLenRead<0)
 	{
-		std::cerr << "Fehler beim Lesen des Sockets." << std::endl;
+		std::cerr << "Error: Could not read socket." << std::endl;
 		iLenRead = 0;
 	}
 	return iLenRead;
@@ -160,7 +160,7 @@ const QByteArray& TcpClient::recvmsg(void)
 	m_timer.start();
 	if(!m_socket.waitForReadyRead(WAIT_DELAY)) 
 	{
-		std::cerr << "Fehler: Socket-Timeout beim Datenempfang." << std::endl;
+		std::cerr << "Error: Socket timed out while receiving." << std::endl;
 		return arrError;
 	}	
 	
@@ -169,7 +169,7 @@ const QByteArray& TcpClient::recvmsg(void)
 	
 	if(iExpectedMsgLength <= 0)
 	{
-		std::cerr << "Fehler: Ungültige Nachrichtenlänge: " << iExpectedMsgLength << std::endl;
+		std::cerr << "Error: Invalid message length: " << iExpectedMsgLength << std::endl;
 		return arrError;
 	}
 
@@ -180,7 +180,7 @@ const QByteArray& TcpClient::recvmsg(void)
 	{
 		if(!m_socket.waitForReadyRead(WAIT_DELAY)) 
 		{
-			std::cerr << "Fehler: Socket-Timeout beim Datenempfang." << std::endl;
+			std::cerr << "Error: Socket timed out while receiving." << std::endl;
 			return arrError;
 		}
 	}
@@ -188,13 +188,13 @@ const QByteArray& TcpClient::recvmsg(void)
 	int iRead = read(arrMsg.data(), iExpectedMsgLength);
 	if(iRead!=iExpectedMsgLength)
 	{
-		std::cerr << "Fehler: Falsche Anzahl an Bytes empfangen." << std::endl;
+		std::cerr << "Error: Wrong number of bytes received." << std::endl;
 		return arrError;
 	}
 	
 	int iTimeElapsed = m_timer.elapsed();
 	if(m_bDebugLog)
-		std::cerr << "\033[0;35m" << "[von Server] Länge: " << iExpectedMsgLength << ", Empfangszeit: " << iTimeElapsed << "ms, Daten: " << arrMsg.data() << "\033[0m" << std::endl;
+		std::cerr << "\033[0;35m" << "[from Server] length: " << iExpectedMsgLength << ", time: " << iTimeElapsed << "ms, data: " << arrMsg.data() << "\033[0m" << std::endl;
 	
 	return arrMsg;
 }
@@ -205,13 +205,13 @@ const QByteArray& TcpClient::recvmsg(void)
 void TcpClient::connected()
 {
 	if(m_bDebugLog)
-		std::cerr << "Verbunden mit Server." << std::endl;
+		std::cerr << "Connected to server." << std::endl;
 }
 
 void TcpClient::disconnected()
 {
 	if(m_bDebugLog)
-		std::cerr << "Verbindung von Server getrennt." << std::endl;
+		std::cerr << "Disconnected from server." << std::endl;
 }
 
 void TcpClient::readReady()
@@ -236,8 +236,6 @@ void TcpClient::readReady()
 	// Am Anfang einer Nachricht kommt ein Int, der deren Größe angibt
 	if(m_bBeginOfMessage)
 	{
-		//std::cerr << "Nachrichtenstart" << std::endl;
-		
 		if(iSize < 4) return;
 		iSize -= 4;
 		
@@ -265,7 +263,7 @@ void TcpClient::readReady()
 	if(m_iCurMsgLength>=m_iExpectedMsgLength)
 	{	
 		if(m_iCurMsgLength > m_iExpectedMsgLength)
-			std::cerr << "Zuviele Daten empfangen; erwartet: " << m_iExpectedMsgLength << ", bekommen: " << m_iCurMsgLength << std::endl;
+			std::cerr << "Warning: Got too much data; expected: " << m_iExpectedMsgLength << ", received: " << m_iCurMsgLength << std::endl;
 		
 		int iTimeElapsed = m_timer.elapsed();
 		
@@ -273,7 +271,7 @@ void TcpClient::readReady()
 		m_pReadCB(m_byCurMsg.data(), m_byCurMsg.size(), m_pvUser);
 
 		if(m_bDebugLog)
-			std::cerr << "\033[0;35m" << "[von Server] Länge: " << m_iCurMsgLength << ", Empfangszeit: " << iTimeElapsed << "ms, Gesamt: " << m_timer.elapsed() << "ms, Daten: " << m_byCurMsg.data() << "\033[0m" << std::endl;
+			std::cerr << "\033[0;35m" << "[from Server] length: " << m_iCurMsgLength << ", time: " << iTimeElapsed << "ms, total: " << m_timer.elapsed() << "ms, data: " << m_byCurMsg.data() << "\033[0m" << std::endl;
 		
 		// Ende der Nachricht, neue beginnt
 		m_bBeginOfMessage = true;		

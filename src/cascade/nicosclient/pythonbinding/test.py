@@ -1,6 +1,6 @@
-import cascadenicosobj
+import cascadeclient
 
-casc = cascadenicosobj.NicosClient()
+casc = cascadeclient.NicosClient()
 casc.connecttohost("cascade7.reseda.frm2",1234)
 print("Connected: "+repr(casc.isconnected()))
 

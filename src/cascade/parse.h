@@ -23,7 +23,6 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // *****************************************************************************
-
 // einfache Argumentstrings der Sorte "status=1 error=0" lesen und eine Hashmap daraus machen
 
 #ifndef __PRIMITIV_PARSER__

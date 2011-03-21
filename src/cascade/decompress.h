@@ -39,7 +39,7 @@ bool decompress(const char* pcIn, int iLenIn, char* pcOut, int& iLenOut)
 	
 	if(inflateInit(&zstr)!=Z_OK) 
 	{
-		std::cerr << "Konnte Zlib nicht initialisieren." << std::endl;
+		std::cerr << "Error: Could not initialize Zlib." << std::endl;
 		return false;
 	}
 	
@@ -48,7 +48,7 @@ bool decompress(const char* pcIn, int iLenIn, char* pcOut, int& iLenOut)
 	
 	if(inflate(&zstr, Z_FINISH)!=Z_STREAM_END)
 	{
-		std::cerr << "Dekompression fehlgeschlagen." << std::endl;
+		std::cerr << "Error in decompression." << std::endl;
 		return false;
 	}
 	

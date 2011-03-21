@@ -48,11 +48,11 @@ bool MainRasterData::GetLog10(void) const
 
 
 // *********************** PAD-Daten *********************** 
-PadData::PadData() : MainRasterData(QwtDoubleRect(0,Config_TofLoader::BILDBREITE,0,Config_TofLoader::BILDHOEHE))
+PadData::PadData() : MainRasterData(QwtDoubleRect(0,Config_TofLoader::IMAGE_WIDTH,0,Config_TofLoader::IMAGE_HEIGHT))
 {
 }
 
-PadData::PadData(const PadData& pad) : MainRasterData(QwtDoubleRect(0,Config_TofLoader::BILDBREITE,0,Config_TofLoader::BILDHOEHE)), PadImage(pad)
+PadData::PadData(const PadData& pad) : MainRasterData(QwtDoubleRect(0,Config_TofLoader::IMAGE_WIDTH,0,Config_TofLoader::IMAGE_HEIGHT)), PadImage(pad)
 {
 	m_bLog = pad.m_bLog;
 }
@@ -120,7 +120,7 @@ Data2D::Data2D(const QwtDoubleRect& rect) : MainRasterData(rect), m_bPhaseData(0
 {
 }
 
-Data2D::Data2D() : MainRasterData(QwtDoubleRect(0,Config_TofLoader::BILDBREITE,0,Config_TofLoader::BILDHOEHE))
+Data2D::Data2D() : MainRasterData(QwtDoubleRect(0,Config_TofLoader::IMAGE_WIDTH,0,Config_TofLoader::IMAGE_HEIGHT))
 {
 }
 

@@ -41,17 +41,17 @@
 
 struct Config_TofLoader
 {
-	static int FOLIENANZAHL;
+	static int FOIL_COUNT;
 
 	// wieviele Zeitkanaele pro Folie?
-	static int BILDERPROFOLIE;
+	static int IMAGES_PER_FOIL;
 
-	static int BILDBREITE;
-	static int BILDHOEHE;
-	static int BILDANZAHL;
+	static int IMAGE_WIDTH;
+	static int IMAGE_HEIGHT;
+	static int IMAGE_COUNT;
 
 	// Folienbeginn
-	static int *piFolieBegin;
+	static int *piFoilBegin;
 	
 	static int iPhaseBlockSize[2];
 	static int iContrastBlockSize[2];
@@ -177,13 +177,15 @@ class TofImage
 		// uiBufLen: Anzahl Ints (nicht Anzahl Bytes)
 		int LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen);
 	
-		void GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, int iZ, const char* pcBaseName="wave", TmpImage *pImg=NULL);
-		void GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, const char* pcBaseName="wave", TmpGraph* pGraph=NULL);
-		void GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, double dPhaseShift ,const char* pcBaseName="wave", TmpGraph* pGraph=NULL);
-		void AddFolien(int iBits, int iZeitKanaeleBits=0xffffffff, const char* pcBaseName="wave", TmpImage *pImg=NULL);
-		void AddFolien(const bool *pbKanaele, const char* pcBaseName="wave", TmpImage *pImg=NULL);
-		void AddPhases(const bool *pbFolien, const char* pcBaseName="wave", TmpImage *pImg=NULL);
-		void AddContrasts(const bool *pbFolien, const char* pcBaseName="wave", TmpImage *pImg=NULL);
+		void GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, int iZ, TmpImage *pImg=NULL);
+		void GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, TmpGraph* pGraph=NULL);
+		void GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, double dPhaseShift ,TmpGraph* pGraph=NULL);
+		
+		void AddFoils(int iBits, int iZeitKanaeleBits=0xffffffff, TmpImage *pImg=NULL);
+		void AddFoils(const bool *pbKanaele, TmpImage *pImg=NULL);
+		void AddPhases(const bool *pbFolien, TmpImage *pImg=NULL);
+		void AddContrasts(const bool *pbFolien, TmpImage *pImg=NULL);
+		
 		void GetOverview(TmpImage *pImg=NULL);
 		void GetPhaseGraph(int iFolie, TmpImage *pImg, int iStartX=-1, int iEndX=-1, int iStartY=-1, int iEndY=-1, bool bInDeg=true);
 		void GetContrastGraph(int iFolie, TmpImage *pImg);

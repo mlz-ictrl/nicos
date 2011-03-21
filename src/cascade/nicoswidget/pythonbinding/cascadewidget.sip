@@ -55,8 +55,8 @@ class CascadeWidget : QWidget
 //		unsigned int* GetRawData();	// Pointer auf Rohdaten-Bereich erhalten
 		
 		bool GetLog10();
-		int GetFolie() const;
-		int GetZeitkanal() const;
+		int GetFoil() const;
+		int GetTimechannel() const;
 		
 		void SetMode(int iMode);
 		int GetMode();
@@ -74,8 +74,8 @@ class CascadeWidget : QWidget
 		void SetLog10(bool bLog10);
 		void SetSpectrogram(bool bSpect);
 		void SetContour(bool bCont);
-		void SetFolie(int iFolie);
-		void SetZeitkanal(int iKanal);
+		void SetFoil(int iFolie);
+		void SetTimechannel(int iKanal);
 		
 		void UpdateGraph();
 		void UpdateLabels();		

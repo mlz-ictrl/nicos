@@ -74,7 +74,7 @@ bool Config::Load(const char* pcFile)
 	m_pxmldoc = xmlParseFile(pcFile);
 	if(!m_pxmldoc) 
 	{
-		std::cerr << "Fehler: Konnte \"" << pcFile << "\" nicht laden." << std::endl;
+		std::cerr << "Error: Could not load XML file \"" << pcFile << "\"." << std::endl;
 		return false;
 	}
 	m_ppathcontext = xmlXPathNewContext((xmlDoc*)m_pxmldoc);
@@ -86,33 +86,26 @@ int Config::QueryInt(const char* pcXpath, int iDefault)
 	if(!m_pxmldoc) return iDefault;
 	const xmlChar* pxmlPath = xmlCharStrdup(pcXpath);
 	
-	//xmlDoc* pDoc = (xmlDoc*)m_pxmldoc;
 	xmlXPathContextPtr xpathContext = (xmlXPathContextPtr)m_ppathcontext;
 	xmlXPathObjectPtr xpathObject = xmlXPathEvalExpression(pxmlPath, xpathContext);
 	
 	xmlNodeSetPtr pnodeset = xpathObject->nodesetval;
 	if(pnodeset->nodeNr==0)
 	{
-		std::cerr << "Fehler: XPath \"" << pcXpath << "\" nicht in XML-Datei gefunden." << std::endl;
+		std::cerr << "Error: XPath \"" << pcXpath << "\" not found." << std::endl;
 		xmlXPathFreeObject(xpathObject);
 		return iDefault;
 	}
 	else if(pnodeset->nodeNr>1)
 	{
-		std::cerr << "Warnung: Ergebnis für XPath \"" << pcXpath << "\" nicht eindeutig, nehme erstes." << std::endl;
+		std::cerr << "Warning: Result for XPath \"" << pcXpath << "\" not unique, using first." << std::endl;
 	}
-	
-	/*for(int i=0; i<pnodeset->nodeNr; ++i)
-	{
-		xmlNodePtr pNode = pnodeset->nodeTab[i];
-		std::cout << pNode->name << " = " << pNode->children->content  << std::endl;
-	}*/
 	
 	xmlNodePtr pNode = pnodeset->nodeTab[0];
 	
 	if(!pNode || !pNode->children)
 	{
-		std::cerr << "Fehler: Node für XPath \"" << pcXpath << "\" fehlerhaft." << std::endl;
+		std::cerr << "Error: Node for XPath \"" << pcXpath << "\" invalid." << std::endl;
 		xmlXPathFreeObject(xpathObject);
 		return iDefault;
 	}
@@ -127,27 +120,26 @@ double Config::QueryDouble(const char* pcXpath, double dDefault)
 	if(!m_pxmldoc) return dDefault;
 	const xmlChar* pxmlPath = xmlCharStrdup(pcXpath);
 	
-	//xmlDoc* pDoc = (xmlDoc*)m_pxmldoc;
 	xmlXPathContextPtr xpathContext = (xmlXPathContextPtr)m_ppathcontext;
 	xmlXPathObjectPtr xpathObject = xmlXPathEvalExpression(pxmlPath, xpathContext);
 	
 	xmlNodeSetPtr pnodeset = xpathObject->nodesetval;
 	if(pnodeset->nodeNr==0)
 	{
-		std::cerr << "Fehler: XPath \"" << pcXpath << "\" nicht in XML-Datei gefunden." << std::endl;
+		std::cerr << "Error: XPath \"" << pcXpath << "\" not found." << std::endl;
 		xmlXPathFreeObject(xpathObject);
 		return dDefault;
 	}
 	else if(pnodeset->nodeNr>1)
 	{
-		std::cerr << "Warnung: Ergebnis für XPath \"" << pcXpath << "\" nicht eindeutig, nehme erstes." << std::endl;
+		std::cerr << "Warning: Result for XPath \"" << pcXpath << "\" not unique, using first." << std::endl;
 	}
 	
 	xmlNodePtr pNode = pnodeset->nodeTab[0];
 	
 	if(!pNode || !pNode->children)
 	{
-		std::cerr << "Fehler: Node für XPath \"" << pcXpath << "\" fehlerhaft." << std::endl;
+		std::cerr << "Error: Node for XPath \"" << pcXpath << "\" invalid." << std::endl;
 		xmlXPathFreeObject(xpathObject);
 		return dDefault;
 	}
@@ -165,28 +157,27 @@ void Config::QueryString(const char* pcXpath, char* pcStr, const char* pcDefault
 		return;
 	const xmlChar* pxmlPath = xmlCharStrdup(pcXpath);
 	
-	//xmlDoc* pDoc = (xmlDoc*)m_pxmldoc;
 	xmlXPathContextPtr xpathContext = (xmlXPathContextPtr)m_ppathcontext;
 	xmlXPathObjectPtr xpathObject = xmlXPathEvalExpression(pxmlPath, xpathContext);
 	
 	xmlNodeSetPtr pnodeset = xpathObject->nodesetval;
 	if(pnodeset->nodeNr==0)
 	{
-		std::cerr << "Fehler: XPath \"" << pcXpath << "\" nicht in XML-Datei gefunden." << std::endl;
+		std::cerr << "Error: XPath \"" << pcXpath << "\" not found." << std::endl;
 		xmlXPathFreeObject(xpathObject);
 		
 		return;
 	}
 	else if(pnodeset->nodeNr>1)
 	{
-		std::cerr << "Warnung: Ergebnis für XPath \"" << pcXpath << "\" nicht eindeutig, nehme erstes." << std::endl;
+		std::cerr << "Warning: Result for XPath \"" << pcXpath << "\" not unique, using first." << std::endl;
 	}
 	
 	xmlNodePtr pNode = pnodeset->nodeTab[0];
 	
 	if(!pNode || !pNode->children)
 	{
-		std::cerr << "Fehler: Node für XPath \"" << pcXpath << "\" fehlerhaft." << std::endl;
+		std::cerr << "Error: Node for XPath \"" << pcXpath << "\" invalid." << std::endl;
 		xmlXPathFreeObject(xpathObject);
 		
 		return;
