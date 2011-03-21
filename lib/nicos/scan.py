@@ -206,6 +206,7 @@ class Scan(object):
                             zip(self._movedevices, position, prevpos))
                     if not can_measure:
                         continue
+                    # XXX cached values!
                     actualpos = [dev.read() for dev in self._readdevices]
                     session.action('Counting')
                     result = list(_count(self._detlist, self._preset))

@@ -74,6 +74,7 @@ class Experiment(Device):
         if title is not None:
             self.title = title
         self.users = []
+        # XXX change datapath according to instrument policy
 
     def addUser(self, name, email, affiliation=None):
         user = '%s <%s>' % (name, email)

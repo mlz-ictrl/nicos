@@ -242,13 +242,14 @@ def listparams(dev):
     """List all parameters of the device."""
     dev = session.getDevice(dev, Device)
     dev.printinfo('Parameters of this device:')
+    devunit = getattr(dev, 'unit', '')
     items = []
     for name, info in sorted(dev.parameters.iteritems()):
         try:
             value = dev.getPar(name)
         except Exception:
             value = '<could not get value>'
-        unit = (info.unit or '').replace('main', dev.unit)
+        unit = (info.unit or '').replace('main', devunit)
         items.append((name, str(value), unit, info.description))
     printTable(('name', 'value', 'unit', 'description'), items, printinfo)
 

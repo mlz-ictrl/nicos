@@ -39,6 +39,7 @@ import __builtin__
 from nicos import session
 from nicos.utils import formatDocstring, printTable
 from nicos.device import Device
+from nicos.errors import ModeError
 from nicos.sessions import EXECUTIONMODES
 from nicos.commands import usercommand
 from nicos.commands.output import printinfo, printexception
@@ -173,7 +174,10 @@ def SetMode(mode):
     """Set the execution mode.
 
     Valid modes are: """
-    session.setMode(mode)
+    try:
+        session.setMode(mode)
+    except ModeError:
+        printexception()
 
 SetMode.__doc__ += ', '.join(EXECUTIONMODES)
 
