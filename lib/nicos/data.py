@@ -287,9 +287,9 @@ class GraceSink(DataSink):
                 continue
             s = GracePlot.Symbol(symbol=GracePlot.symbols.circle,
                                  fillcolor=color, color=color, size=0.4)
-            d = GracePlot.Data(x=self._xdata[:len(ys)], y=ys, dy=self._dydata[i],
-                               symbol=s, line=l, legend=self._ynames[i],
-                               type='xydy')
+            d = GracePlot.DataXYDY(x=self._xdata[:len(ys)], y=ys,
+                                   dy=self._dydata[i], symbol=s, line=l,
+                                   legend=self._ynames[i])
             data.append(d)
             color += 1
         self._pl.plot(data)
