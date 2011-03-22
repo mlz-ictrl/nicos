@@ -67,7 +67,26 @@ client.moc:
 
 ###################### clean ######################
 clean:
-	rm *.moc
-	rm *.o
-	rm cascade
+	rm -f *.moc
+	rm -f *.o
+	rm -f cascade
+	rm -f nicosclient/*.a nicosclient/pythonbinding/*.so
+	rm -f nicoswidget/*.a nicoswidget/pythonbinding/*.so
 ###################################################
+
+
+#################### NICOS-Libraries #####################
+
+nicosmodules: nicosclient/pythonbinding/cascadeclient.so nicoswidget/pythonbinding/cascadewidget.so
+
+nicosclient/libcascadeclient.a:
+	cd nicosclient && qmake && make
+
+nicosclient/pythonbinding/cascadeclient.so: nicosclient/pythonbinding/cascadeclient.sip nicosclient/libcascadeclient.a
+	cd nicosclient/pythonbinding && python configure.py && make
+
+nicoswidget/libcascadewidget.a:
+	-cd nicoswidget && qmake && make
+
+nicoswidget/pythonbinding/cascadewidget.so: nicoswidget/pythonbinding/cascadewidget.sip nicoswidget/libcascadewidget.a
+	-cd nicoswidget/pythonbinding && python configure.py && make

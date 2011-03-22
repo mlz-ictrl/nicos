@@ -38,13 +38,13 @@ from os import path
 from time import sleep, time
 
 import numpy
-import cascadenicosobj
 
 from nicos import session, status
 from nicos.data import NeedsDatapath
 from nicos.utils import existingdir, tupleof, readFileCounter, updateFileCounter
 from nicos.device import Measurable, Param, Override, Value
 from nicos.errors import CommunicationError
+from nicos.mira import cascadeclient
 
 
 class CascadeDetector(Measurable, NeedsDatapath):
@@ -67,7 +67,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
     }
 
     def doInit(self):
-        self._client = cascadenicosobj.NicosClient()
+        self._client = cascadeclient.NicosClient()
         self.doReset()
 
         self._setDatapath(session.experiment.datapath)

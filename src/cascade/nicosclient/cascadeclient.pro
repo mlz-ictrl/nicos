@@ -1,4 +1,4 @@
-CONFIG += qt
+CONFIG += qt staticlib
 TEMPLATE = lib
 
 HEADERS += ../client.h ../tofloader.h

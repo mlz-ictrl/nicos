@@ -512,6 +512,7 @@
    </attribute>
    <addaction name="actionErrorWindow"/>
    <addaction name="actionUserEditor"/>
+   <addaction name="actionLiveData"/>
    <addaction name="actionAnalysis"/>
   </widget>
   <widget class="QToolBar" name="printPaperBar">

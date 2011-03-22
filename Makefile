@@ -2,7 +2,7 @@
 
 RCC = pyrcc4
 
-all: lib/nicos/gui/gui_rc.py
+all: lib/nicos/gui/gui_rc.py cascade
 	python setup.py build
 
 lib/nicos/gui/gui_rc.py: resources/nicos-gui.qrc
@@ -11,14 +11,24 @@ lib/nicos/gui/gui_rc.py: resources/nicos-gui.qrc
 clean:
 	rm -rf build
 	find -name '*.pyc' -exec rm -f {} +
+	cd src/cascade && make clean
 
-inplace:
+inplace: cascade
 	rm -rf build
 	/usr/bin/python setup.py build_ext
 	cp build/lib*/nicos/daemon/*.so lib/nicos/daemon
+	cp src/cascade/nicosclient/pythonbinding/cascadeclient.so lib/nicos/mira
+	-cp src/cascade/nicoswidget/pythonbinding/cascadewidget.so lib/nicos/gui
 
 test:
 	@python test/run.py
+
+ifeq "$(NEEDSCASCADE)" "1"
+cascade:
+else
+cascade:
+	cd src/cascade && make nicosmodules
+endif
 
 # get the instrument from the full hostname (mira1.mira.frm2 -> mira)
 INSTRUMENT = $(shell hostname -f | cut -d. -f2)
@@ -42,7 +52,7 @@ ifeq "$(V)" "1"
   VOPT = -v
 endif
 
-install: all
+install: all cascade-install
 	$(INSTALL_ERR)
 	@echo "============================================================="
 	@echo "Installing NICOS-ng to $(ROOTDIR)..."
@@ -65,3 +75,14 @@ install: all
 	@echo "============================================================="
 	@echo "Finished."
 	@echo "============================================================="
+
+ifeq "$(NEEDSCASCADE)" ""
+cascade:
+cascade-install:
+else
+cascade:
+	cd src/cascade && make nicosmodules
+cascade-install:
+	cp $(VOPT) src/cascade/nicosclient/pythonbinding/cascadeclient.so $(ROOTDIR)/lib/nicos/mira
+	-cp $(VOPT) src/cascade/nicoswidget/pythonbinding/cascadewidget.so $(ROOTDIR)/lib/nicos/gui
+endif

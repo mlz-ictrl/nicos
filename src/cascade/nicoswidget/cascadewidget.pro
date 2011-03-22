@@ -1,4 +1,4 @@
-CONFIG += qt
+CONFIG += qt staticlib
 TEMPLATE = lib
 
 HEADERS += ../tofloader.h   ../tofdata.h   ../config.h   ../cascadewidget.h   ../bins.h

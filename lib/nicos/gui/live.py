@@ -35,9 +35,8 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtCore import pyqtSignature as qtsig
 
-from nicos.gui.utils import loadUi
-
-import cascadenicoswidget
+from nicos.gui.utils import loadUi, DlgUtils
+from nicos.gui.cascadewidget import CascadeWidget
 
 
 class LiveWindow(QMainWindow, DlgUtils):
@@ -46,7 +45,7 @@ class LiveWindow(QMainWindow, DlgUtils):
         DlgUtils.__init__(self, 'Live data')
         loadUi(self, 'live.ui')
 
-        self.widget = cascadenicoswidget.CascadeWidget(self)
+        self.widget = CascadeWidget(self)
         self.setCentralWidget(self.widget)
 
         self.connect(self.actionLogScale, SIGNAL("toggled(bool)"),
