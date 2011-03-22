@@ -84,6 +84,7 @@ class Dataset(object):
     xunits = []
     ynames = []
     yunits = []
+    yplot = []
 
 
 class NeedsDatapath(object):
@@ -242,8 +243,9 @@ class GraceSink(DataSink):
         self._grpl = GracePlot.GracePlot()
         self._pl = self._grpl.curr_graph
         self._pl.clear()
-        self._pl.title('scan started %s' %
-                       time.strftime(TIMEFMT, dataset.started))
+        filename = dataset.sinkinfo.get('filename', '')
+        self._pl.title('scan %s started %s' % (filename,
+                       time.strftime(TIMEFMT, dataset.started)))
         self._pl.subtitle(dataset.scaninfo)
         self._pl.xaxis(label=GracePlot.Label(
             '%s (%s)' % (dataset.xnames[0], dataset.xunits[0])))
@@ -272,6 +274,8 @@ class GraceSink(DataSink):
         l = GracePlot.Line(type=GracePlot.lines.solid)
         for i, ys in enumerate(self._ydata):
             if not ys:
+                continue
+            if not dataset.yplot[i % self._nperstep]:
                 continue
             s = GracePlot.Symbol(symbol=GracePlot.symbols.circle,
                                  fillcolor=color, color=color, size=0.4)

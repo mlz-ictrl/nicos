@@ -90,7 +90,8 @@ class CascadeDetector(Measurable, NeedsDatapath):
 
     def valueInfo(self):
         return (self.name + '.roi', self.name + '.total',
-                self.name + '.file'), ('cts', 'cts', '')
+                self.name + '.file'), ('cts', 'cts', ''), \
+                (self.roi != (-1, -1, -1, -1), True, False)
 
     def doWriteDebugmsg(self, value):
         self._client.SetDebugLog(value)

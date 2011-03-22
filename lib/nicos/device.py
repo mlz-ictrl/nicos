@@ -835,5 +835,10 @@ class Measurable(Startable):
             yield item
 
     def valueInfo(self):
-        """Return two tuples: one of value names and one of value units."""
-        return (self.name,), (self.unit,)
+        """Return three tuples:
+
+        * value names
+        * value units
+        * should value be plotted
+        """
+        return (self.name,), (self.unit,), (True,)

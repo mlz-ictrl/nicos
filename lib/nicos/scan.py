@@ -97,11 +97,12 @@ class Scan(object):
         for dev in self._readdevices:
             dataset.xnames.append(dev.name)
             dataset.xunits.append(dev.unit)
-        dataset.ynames, dataset.yunits = [], []
+        dataset.ynames, dataset.yunits, dataset.yplot = [], [], []
         for det in dataset.detlist:
-            names, units = det.valueInfo()
+            names, units, plot = det.valueInfo()
             dataset.ynames.extend(names)
             dataset.yunits.extend(units)
+            dataset.yplot.extend(plot)
         dataset.sinkinfo = {}
         for sink in self._sinks:
             sink.prepareDataset(dataset)
