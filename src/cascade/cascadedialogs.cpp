@@ -25,7 +25,7 @@
 // *****************************************************************************
 // Cascade-Unterdialoge
 
-#include "cascadedialoge.h"
+#include "cascadedialogs.h"
 #include <stdio.h>
 
 
@@ -393,5 +393,5 @@ double ServerCfgDlg::s_dLastTime = 10.0;
 
 #ifdef __CASCADE_QT_CLIENT__
 	// Qt-Metaobjekte
-	#include "cascadedialoge.moc"
+	#include "cascadedialogs.moc"
 #endif

@@ -79,7 +79,7 @@ int SERVER_STATUS_POLL_TIME = 1000;
 
 #include "ErrorBarPlotCurve.h"
 #include "histogram_item.h"
-#include "cascadedialoge.h"
+#include "cascadedialogs.h"
 
 
 ////////////////////////////// Haupt-Fenster ///////////////////////////////////////

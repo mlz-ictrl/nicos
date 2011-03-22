@@ -12,7 +12,7 @@ Unterverzeichnis ./nicoswidget: Lib für graphische Darstellung
 
 oder (alte):
 	moc cascade.cpp -o cascade.moc
-	moc cascadedialoge.cpp -o cascadedialoge.moc
+	moc cascadedialogs.cpp -o cascadedialogs.moc
 	moc client.h -o client.moc
 
 	gcc -D __CASCADE_QT_CLIENT__ -O2 -I /usr/include/qwt/ -I /usr/include/Qt -I /usr/include/QtCore -I /usr/include/QtGui -o cascade cascade.cpp tofloader.cpp config.cpp histogram_item.cpp client.cpp -lQtCore -lQtGui -lQtNetwork -lqwt -lMinuit2 -lgomp -lxml++-2.6

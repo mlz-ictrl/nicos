@@ -12,19 +12,19 @@ all: cascade
 
 
 ###################### cascade ##########################
-cascade: cascade.o cascadedialoge.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o
-	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialoge.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o
+cascade: cascade.o cascadedialogs.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o
+	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o
 #########################################################
 
 
 
 
 ###################### CPP-Dateien ######################
-cascade.o: cascade.cpp cascade.moc cascadedialoge.cpp cascadedialoge.moc bins.h parse.h ErrorBarPlotCurve.h tofdata.h
+cascade.o: cascade.cpp cascade.moc cascadedialogs.cpp cascadedialogs.moc bins.h parse.h ErrorBarPlotCurve.h tofdata.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascade.o cascade.cpp
 
-cascadedialoge.o: cascadedialoge.cpp cascadedialoge.h cascadedialoge.moc
-	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascadedialoge.o cascadedialoge.cpp
+cascadedialogs.o: cascadedialogs.cpp cascadedialogs.h cascadedialogs.moc
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascadedialogs.o cascadedialogs.cpp
 
 cascadewidget.o: cascadewidget.cpp cascadewidget.h cascadewidget.moc
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascadewidget.o cascadewidget.cpp
@@ -55,8 +55,8 @@ cascade.moc:
 cascadewidget.moc:
 	moc cascadewidget.h -o cascadewidget.moc
 
-cascadedialoge.moc:
-	moc cascadedialoge.h -o cascadedialoge.moc
+cascadedialogs.moc:
+	moc cascadedialogs.h -o cascadedialogs.moc
 
 client.moc:
 	moc client.h -o client.moc
