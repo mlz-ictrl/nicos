@@ -94,6 +94,7 @@ class MainWindow : public QMainWindow
 	QToolButton *btnSpectrogram, *btnContour, *btnLog;
 	QSlider *sliderFolien, *sliderZeitkanaele;
 	QStatusBar *statusbar;
+	QLabel *pStatusMsg;
 	QAction *actionViewsOverview, *actionViewsSlides, *actionViewsPhases, *actionViewsContrasts;
 	
 	TcpClient m_client;
@@ -115,9 +116,14 @@ class MainWindow : public QMainWindow
 		return true;
 	}
 
-	void ShowMessage(const char* pcMsg)
+	void ShowMessage(const char* pcMsg, bool bTemp=false)
 	{
-		if(statusbar) statusbar->showMessage(pcMsg);
+		if(!statusbar) return;
+	
+		if(bTemp)
+			statusbar->showMessage(pcMsg);
+		else
+			pStatusMsg->setText(pcMsg);
 	}
 	
 	/////////// Callbacks für Tcp-Client /////////////////////////////
@@ -296,10 +302,13 @@ class MainWindow : public QMainWindow
 			ShowMessage("Showing PAD.");
 		}
 	}
-		
 	
-	// Callback vom Summen-Dialog
-	void FolienSummeCB(bool *pbKanaele, int iMode)
+
+	// Slots
+	protected slots:
+		
+	// Slot vom Summen-Dialog
+	void FolienSummeSlot(bool *pbKanaele, int iMode)
 	{
 		switch(iMode)
 		{
@@ -322,11 +331,7 @@ class MainWindow : public QMainWindow
 				break;
 		}
 		UpdateLabels(false);
-	}
-	
-
-	// Slots
-	protected slots:
+	}		
 
 	// Callback vom Folien-Slider
 	void ChangeFolie(int iVal)
@@ -463,7 +468,9 @@ class MainWindow : public QMainWindow
 		{
 			case MODE_SLIDES:
 			case MODE_SUMS:
-				if(!pSummenDlgSlides) pSummenDlgSlides = new FolienSummeDlg(this, &MainWindow::FolienSummeCB);
+				if(!pSummenDlgSlides) pSummenDlgSlides = new FolienSummeDlg(this);
+				connect(pSummenDlgSlides, SIGNAL(FolienSummeSignal(bool *, int)), this, SLOT(FolienSummeSlot(bool *, int)));
+				
 				pSummenDlgSlides->SetMode(m_cascadewidget.GetMode());
 				pSummenDlgSlides->show();
 				pSummenDlgSlides->raise();
@@ -471,7 +478,9 @@ class MainWindow : public QMainWindow
 				break;
 			case MODE_PHASES:
 			case MODE_PHASESUMS:
-				if(!pSummenDlgPhases) pSummenDlgPhases = new FolienSummeDlgOhneKanaele(this, &MainWindow::FolienSummeCB);
+				if(!pSummenDlgPhases) pSummenDlgPhases = new FolienSummeDlgOhneKanaele(this);
+				connect(pSummenDlgPhases, SIGNAL(FolienSummeSignal(bool *, int)), this, SLOT(FolienSummeSlot(bool *, int)));
+				
 				pSummenDlgPhases->SetMode(m_cascadewidget.GetMode());
 				pSummenDlgPhases->show();
 				pSummenDlgPhases->raise();
@@ -479,7 +488,9 @@ class MainWindow : public QMainWindow
 				break;
 			case MODE_CONTRASTS:
 			case MODE_CONTRASTSUMS:
-				if(!pSummenDlgContrasts) pSummenDlgContrasts = new FolienSummeDlgOhneKanaele(this, &MainWindow::FolienSummeCB);
+				if(!pSummenDlgContrasts) pSummenDlgContrasts = new FolienSummeDlgOhneKanaele(this);
+				connect(pSummenDlgContrasts, SIGNAL(FolienSummeSignal(bool *, int)), this, SLOT(FolienSummeSlot(bool *, int)));
+				
 				pSummenDlgContrasts->SetMode(m_cascadewidget.GetMode());
 				pSummenDlgContrasts->show();
 				pSummenDlgContrasts->raise();
@@ -822,8 +833,10 @@ class MainWindow : public QMainWindow
 		
 		// Statusleiste
 		statusbar = new QStatusBar(this);
+		pStatusMsg = new QLabel(this);
+		//pStatusMsg->setFrameStyle(QFrame::Panel|QFrame::Sunken);
+		statusbar->addWidget(pStatusMsg,1);
 		setStatusBar(statusbar);
-		
 		
 		// Verbindungen
 		// Toolbar

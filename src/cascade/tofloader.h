@@ -177,18 +177,30 @@ class TofImage
 		// uiBufLen: Anzahl Ints (nicht Anzahl Bytes)
 		int LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen);
 	
-		void GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, int iZ, TmpImage *pImg=NULL);
-		void GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, TmpGraph* pGraph=NULL);
-		void GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, double dPhaseShift ,TmpGraph* pGraph=NULL);
-		
-		void AddFoils(int iBits, int iZeitKanaeleBits=0xffffffff, TmpImage *pImg=NULL);
-		void AddFoils(const bool *pbKanaele, TmpImage *pImg=NULL);
-		void AddPhases(const bool *pbFolien, TmpImage *pImg=NULL);
-		void AddContrasts(const bool *pbFolien, TmpImage *pImg=NULL);
-		
-		void GetOverview(TmpImage *pImg=NULL);
+		void GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, int iZ, TmpImage *pImg);
+		void GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, TmpGraph* pGraph);
+		void GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, double dPhaseShift ,TmpGraph* pGraph);
+		void GetOverview(TmpImage *pImg);
 		void GetPhaseGraph(int iFolie, TmpImage *pImg, int iStartX=-1, int iEndX=-1, int iStartY=-1, int iEndY=-1, bool bInDeg=true);
-		void GetContrastGraph(int iFolie, TmpImage *pImg);
+		void GetContrastGraph(int iFolie, TmpImage *pImg);		
+		
+		void AddFoils(int iBits, int iZeitKanaeleBits/*=0xffffffff*/, TmpImage *pImg);
+		void AddFoils(const bool *pbKanaele, TmpImage *pImg);
+		void AddPhases(const bool *pbFolien, TmpImage *pImg);
+		void AddContrasts(const bool *pbFolien, TmpImage *pImg);
+		
+		/////////////////////////////////////////////////////////////////
+		// alternativer Funktionsaufruf mit Rückgabe des entsprechenden Ergebnisses (für Python-Binding)
+		TmpImage GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, int iZ);
+		TmpGraph GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie);
+		TmpGraph GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, double dPhaseShift);
+		TmpImage GetOverview();
+		TmpImage GetPhaseGraph(int iFolie, int iStartX=-1, int iEndX=-1, int iStartY=-1, int iEndY=-1, bool bInDeg=true);
+		TmpImage GetContrastGraph(int iFolie);
+		TmpImage AddFoils(const bool *pbKanaele);
+		TmpImage AddPhases(const bool *pbFolien);
+		TmpImage AddContrasts(const bool *pbFolien);
+		/////////////////////////////////////////////////////////////////
 };
 
 #endif

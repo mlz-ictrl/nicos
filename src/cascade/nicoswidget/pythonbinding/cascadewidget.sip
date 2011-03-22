@@ -4,6 +4,163 @@
 %Import QtCore/QtCoremod.sip
 %Import Qwt5/QwtModule.sip
 
+/////////////////////////////////////////////////////////////////////////////////////
+// PAD-Bilder
+class PadImage
+{
+%TypeHeaderCode
+#include "../../tofloader.h"
+%End
+	protected:
+
+	public:
+		PadImage(const char *pcFileName=NULL);
+		PadImage(const PadImage& pad);
+		virtual ~PadImage();
+		
+		int LoadFile(const char *pcFileName);
+		// uiBufLen: Anzahl Ints (nicht Anzahl Bytes)
+		int LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen);
+		
+		void UpdateRange();
+		
+		void Print(const char* pcOutFile=NULL);
+
+		unsigned int GetData(int iX, int iY) const;
+//		unsigned int* GetRawData(void);
+};
+
+// Klasse, um Zwischenbilder zu verwalten
+class TmpImage
+{
+%TypeHeaderCode
+#include "../../tofloader.h"
+%End
+	public:
+		TmpImage();
+		TmpImage(const TmpImage& tmp);
+		virtual ~TmpImage();
+		
+		void Clear();
+		double GetData(int iX, int iY) const;
+		
+		int GetWidth() const;
+		int GetHeight() const;
+		
+		void UpdateRange();
+		bool WriteXML(const char* pcFileName);
+		void ConvertPAD(PadImage* pPad);
+		
+		void Add(const TmpImage& tmp);
+};
+
+// Klasse für temporäre Graph-Daten
+class TmpGraph
+{
+%TypeHeaderCode
+#include "../../tofloader.h"
+%End
+	public:
+		TmpGraph();
+		virtual ~TmpGraph();
+		
+		bool FitSinus(double &dPhase, double &dScale, double &dAmp, double &dOffs);
+		
+		unsigned int GetData(int iX);
+		int GetWidth();
+		int GetMin();
+		int GetMax();
+};
+
+// TOF-Bilder
+class TofImage
+{
+%TypeHeaderCode
+#include "../../tofloader.h"
+%End
+	public:
+		TofImage(const char *pcFileName=NULL);
+		virtual ~TofImage();
+		
+		void Clear();
+//		unsigned int& GetData(int iBild, int iX, int iY);
+//		unsigned int* GetRawData(void) const;
+		
+		int LoadFile(const char *pcFileName);
+		// uiBufLen: Anzahl Ints (nicht Anzahl Bytes)
+		int LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen);
+	
+		TmpImage GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, int iZ);
+		TmpGraph GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie);
+		TmpGraph GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, double dPhaseShift);
+		TmpImage GetOverview();
+		TmpImage GetPhaseGraph(int iFolie, int iStartX=-1, int iEndX=-1, int iStartY=-1, int iEndY=-1, bool bInDeg=true);
+		TmpImage GetContrastGraph(int iFolie);
+		TmpImage AddFoils(const bool *pbKanaele);
+		TmpImage AddPhases(const bool *pbFolien);
+		TmpImage AddContrasts(const bool *pbFolien);
+};
+/////////////////////////////////////////////////////////////////////////////////////
+
+class MainRasterData :  QwtRasterData
+{
+%TypeHeaderCode
+#include "../../tofdata.h"
+%End
+	protected:
+	public:
+		MainRasterData(const QwtDoubleRect& rect);
+		
+		void SetLog10(bool bLog10);
+		bool GetLog10() const;
+		
+		// Wert ohne Berücksichtigung von m_bLog nichtlogarithmisch zurückgeben
+		virtual double GetValueRaw(int x, int y) const = 0;
+};
+
+
+// *********************** PAD-Daten *********************** 
+class PadData :  MainRasterData, PadImage
+{
+%TypeHeaderCode
+#include "../../tofdata.h"
+%End
+	protected:
+	
+	public:
+		PadData();
+		PadData(const PadData& pad);
+		virtual ~PadData();
+
+		virtual QwtRasterData *copy() const;
+		virtual QwtDoubleInterval range() const;
+		virtual double value(double x, double y) const;
+		virtual double GetValueRaw(int x, int y) const;
+};
+
+
+// *********************** TOF-Daten ***********************
+class Data2D :  MainRasterData, TmpImage
+{
+%TypeHeaderCode
+#include "../../tofdata.h"
+%End
+	protected:
+	public:
+		Data2D(const QwtDoubleRect& rect);
+		Data2D();
+		Data2D(const Data2D& data2d);
+		virtual ~Data2D();
+		
+		void SetPhaseData(bool bPhaseData);	// wegen Achsen-Range
+		void clearData();
+		
+		virtual QwtRasterData *copy() const;
+		virtual QwtDoubleInterval range() const;
+		virtual double value(double x, double y) const;
+		virtual double GetValueRaw(int x, int y) const;
+};
+/////////////////////////////////////////////////////////////////////////////////////
 
 class Plot : QwtPlot
 {
@@ -48,9 +205,9 @@ class CascadeWidget : QWidget
 		bool LoadPadMem(const char* pcMem, unsigned int iLen);	// PAD aus Speicher laden
 		bool LoadTofMem(const char* pcMem, unsigned int iLen);	// TOF aus Speicher laden
 
-//		TofImage* GetTof();
-//		Data2D* GetData2d();
-//		PadData* GetPad();
+		TofImage* GetTof();
+		Data2D* GetData2d();
+		PadData* GetPad();
 		Plot* GetPlot();
 //		unsigned int* GetRawData();	// Pointer auf Rohdaten-Bereich erhalten
 		

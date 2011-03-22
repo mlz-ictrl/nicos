@@ -845,6 +845,72 @@ void TofImage::GetContrastGraph(int iFolie, TmpImage *pImg)
 					pdWave[(iY+i)*Config_TofLoader::IMAGE_WIDTH+(iX+j)] = dContrast;
 		}
 }
+
+/////////////////////////////////////////
+
+TmpImage TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, int iZ)
+{
+	TmpImage img;
+	GetROI(iStartX, iEndX, iStartY, iEndY, iFolie, iZ, &img);
+	return img;
+}
+
+TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie)
+{
+	TmpGraph graph;
+	GetGraph(iStartX, iEndX, iStartY, iEndY, iFolie, &graph);
+	return graph;
+}
+
+TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, double dPhaseShift)
+{
+	TmpGraph graph;
+	GetTotalGraph(iStartX, iEndX, iStartY, iEndY, dPhaseShift, &graph);
+	return graph;
+}
+
+TmpImage TofImage::GetOverview()
+{
+	TmpImage img;
+	GetOverview(&img);
+	return img;
+}
+
+TmpImage TofImage::GetPhaseGraph(int iFolie, int iStartX, int iEndX, int iStartY, int iEndY, bool bInDeg)
+{
+	TmpImage img;
+	GetPhaseGraph(iFolie, &img, iStartX, iEndX, iStartY, iEndY, bInDeg);
+	return img;
+}
+
+TmpImage TofImage::GetContrastGraph(int iFolie)
+{
+	TmpImage img;
+	GetContrastGraph(iFolie, &img);
+	return img;
+}
+
+TmpImage TofImage::AddFoils(const bool *pbKanaele)
+{
+	TmpImage img;
+	AddFoils(pbKanaele, &img);
+	return img;
+}
+
+TmpImage TofImage::AddPhases(const bool *pbFolien)
+{
+	TmpImage img;
+	AddPhases(pbFolien, &img);
+	return img;
+}
+
+TmpImage TofImage::AddContrasts(const bool *pbFolien)
+{
+	TmpImage img;
+	AddContrasts(pbFolien, &img);
+	return img;
+}
+
 ////////////////// TOF //////////////////
 
 
@@ -925,7 +991,7 @@ int PadImage::LoadFile(const char *pcFileName)
 		return LOAD_FAIL;
 	}
 	
-	unsigned int uiBufLen=uiBufLen=fread(m_puiDaten, sizeof(unsigned int),Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH,pf);
+	unsigned int uiBufLen = fread(m_puiDaten, sizeof(unsigned int),Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH,pf);
 	if(!uiBufLen)
 	{
 		std::cerr << "Error: Could not read file \"" << pcFileName << "\"." << std::endl;

@@ -30,8 +30,8 @@
 #include "calibrationdlg.h"
 #include "serverdlg.h"
 #include "servercfgdlg.h"
+#include "cascadedialoge.h"
 
-class MainWindow;
 
 // ************************* Kalibrierungs-Dialog *********************
 class CalibrationDlg : public QDialog, public Ui::CalibrationDlg
@@ -92,9 +92,10 @@ class FolienSummeDlg : public QDialog, public Ui::FolienSummeDlg
 		QTreeWidgetItem** m_pTreeItemsFolien;
 		QTreeWidgetItem** m_pTreeItems;
 		TofImage *m_pTof;
-		MainWindow *m_pParent;
-		void (MainWindow::*m_pCallback)(bool*, int);
 		int m_iMode;
+		
+	signals:
+		void FolienSummeSignal(bool *pbKanaele, int iMode);
 		
 	protected slots:
 		void ShowIt()
@@ -108,7 +109,7 @@ class FolienSummeDlg : public QDialog, public Ui::FolienSummeDlg
 					pbChecked[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal] = bChecked;
 				}
 			}
-			(m_pParent->*m_pCallback)(pbChecked, m_iMode);
+			emit FolienSummeSignal(pbChecked, m_iMode);
 			delete[] pbChecked;
 		}
 		
@@ -144,9 +145,8 @@ class FolienSummeDlg : public QDialog, public Ui::FolienSummeDlg
 		}
 		
 	public:
-		FolienSummeDlg(QWidget *pParent, void (MainWindow::*pCallback)(bool*, int)) : QDialog(pParent), m_pCallback(pCallback)
+		FolienSummeDlg(QWidget *pParent) : QDialog(pParent)
 		{
-			m_pParent = (MainWindow*)pParent;
 			setupUi(this);
 			
 			m_pTreeItemsFolien = new QTreeWidgetItem*[Config_TofLoader::FOIL_COUNT];
@@ -190,13 +190,14 @@ class FolienSummeDlg : public QDialog, public Ui::FolienSummeDlg
 class FolienSummeDlgOhneKanaele : public QDialog, public Ui::FolienSummeDlg
 {
 	Q_OBJECT
-	
+		
 	protected:
 		QTreeWidgetItem** m_pTreeItemsFolien;
 		TofImage *m_pTof;
-		MainWindow *m_pParent;
-		void (MainWindow::*m_pCallback)(bool*, int);
 		int m_iMode;
+		
+	signals:
+		void FolienSummeSignal(bool *pbKanaele, int iMode);
 		
 	protected slots:
 		void ShowIt()
@@ -207,7 +208,7 @@ class FolienSummeDlgOhneKanaele : public QDialog, public Ui::FolienSummeDlg
 				bool bChecked = (m_pTreeItemsFolien[iFolie]->checkState(0)==Qt::Checked);
 				pbChecked[iFolie] = bChecked;
 			}
-			(m_pParent->*m_pCallback)(pbChecked, m_iMode);
+			emit FolienSummeSignal(pbChecked, m_iMode);
 			delete[] pbChecked;
 		}
 		
@@ -222,13 +223,11 @@ class FolienSummeDlgOhneKanaele : public QDialog, public Ui::FolienSummeDlg
 			for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
 				m_pTreeItemsFolien[iFolie]->setCheckState(0,Qt::Unchecked);
 		}
-				
+		
 	public:
-		FolienSummeDlgOhneKanaele(QWidget *pParent, void (MainWindow::*pCallback)(bool*, int)) : QDialog(pParent), m_pCallback(pCallback)
+		FolienSummeDlgOhneKanaele(QWidget *pParent) : QDialog(pParent)
 		{
-			m_pParent = (MainWindow*)pParent;
 			setupUi(this);
-			
 			m_pTreeItemsFolien = new QTreeWidgetItem*[Config_TofLoader::FOIL_COUNT];
 
 			for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
