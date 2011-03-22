@@ -64,8 +64,10 @@ class Dataset(object):
     rdevices = []
     # list of scan positions
     positions = []
-    # list of multi-steps for each scan point
-    multistep = []
+    # number of multi-steps for each scan point
+    multisteps = 1
+    # number of multi-step devices
+    multistepdevices = 0
     # list of detectors for this dataset
     detlist = []
     # preset dictionary of scan
@@ -150,13 +152,14 @@ class DataSink(Device):
         """
         pass
 
-    def addPoint(self, dataset, xvalues, yvalues):
+    def addPoint(self, dataset, xvalues, yvalues, multistep=0):
         """Add a point to the dataset.
 
-        *num* is the number of the point in the scan
         *xvalues* is a list of values with the same length as the initial
         *devices* list given to `beginDataset()`, and *yvalues* is a list of
         values with the same length as the all of detlist's value lists.
+        *multistep* is the number of the step (0 .. dataset.multisteps-1) for
+        multi-step scans.
         """
         pass
 
@@ -185,7 +188,7 @@ class ConsoleSink(DataSink):
         else:
             self._npoints = 0
 
-    def addPoint(self, dataset, xvalues, yvalues):
+    def addPoint(self, dataset, xvalues, yvalues, multistep=0):
         if self._npoints:
             point = '%s/%s' % (len(dataset.points), self._npoints)
         else:
@@ -220,7 +223,7 @@ class DaemonSink(DataSink):
         for name in dataset.ynames:
             self._handler.add_curve(name, ['x', 'y'], 'default')
 
-    def addPoint(self, dataset, xvalues, yvalues):
+    def addPoint(self, dataset, xvalues, yvalues, multistep=0):
         for i, v in enumerate(yvalues):
             self._handler.add_point(i, [xvalues[0], v])
 
@@ -232,7 +235,8 @@ class GraceSink(DataSink):
         return DataSink.isActive(self, scantype)
 
     def beginDataset(self, dataset):
-        self._pl = GracePlot.GracePlot(width=None, height=None)
+        self._grpl = GracePlot.GracePlot()
+        self._pl = self._grpl.curr_graph
         self._pl.clear()
         self._pl.title('scan started %s' %
                        time.strftime(TIMEFMT, dataset.started))
@@ -244,18 +248,18 @@ class GraceSink(DataSink):
         self._xdata = []
         self._ydata = [[] for yn in dataset.ynames]
 
-    def addPoint(self, dataset, xvalues, yvalues):
+    def addPoint(self, dataset, xvalues, yvalues, multistep=0):
         self._xdata.append(xvalues[0])
         for i in range(len(yvalues)):
             self._ydata[i].append(yvalues[i])
 
         self._pl.clear()
         data = []
-        color = GracePlot.black
-        l = GracePlot.Line(type=GracePlot.none)
+        color = GracePlot.colors.black
+        l = GracePlot.Line(type=GracePlot.lines.none)
         for i, ys in enumerate(self._ydata):
-            s = GracePlot.Symbol(symbol=GracePlot.circle, fillcolor=color,
-                                 color=color, size=0.4)
+            s = GracePlot.Symbol(symbol=GracePlot.symbols.circle,
+                                 fillcolor=color, color=color, size=0.4)
             d = GracePlot.Data(x=self._xdata, y=ys, symbol=s, line=l,
                                legend=dataset.ynames[i], type='xy')
             data.append(d)
@@ -350,7 +354,7 @@ class AsciiDatafileSink(DatafileSink):
                              (self._scomment, device.name + '_' + key, value))
         self._file.flush()
 
-    def addPoint(self, dataset, xvalues, yvalues):
+    def addPoint(self, dataset, xvalues, yvalues, multistep=0):
         if not self._wrote_columninfo:
             self._file.write('%s Scan data\n' % self._tcomment)
             self._file.write('%s %s\n' % (self._scomment,

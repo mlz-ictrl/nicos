@@ -56,6 +56,7 @@ class Scan(object):
 
     def __init__(self, devices, positions, firstmoves=None, multistep=None,
                  detlist=None, preset=None, scaninfo=None, scantype=None):
+        self.dataset = session.experiment.createDataset(scantype)
         if not detlist:
             detlist = session.instrument.detectors
         if multistep:
@@ -63,7 +64,8 @@ class Scan(object):
             devices.extend(ms[0] for ms in multistep)
             positions = [dpos + [ms[1][i] for ms in multistep]
                          for dpos in positions for i in range(nsteps)]
-        self.dataset = session.experiment.createDataset(scantype)
+            self.dataset.multisteps = nsteps
+            self.dataset.multistepdevices = len(multistep)
         self._movedevices = self.dataset.mdevices = devices
         self._readdevices = self.dataset.rdevices = []
         for dev in devices:
@@ -120,10 +122,10 @@ class Scan(object):
     def preparePoint(self, num, xvalues):
         session.beginActionScope('Point %d/%d' % (num, self._npoints))
 
-    def addPoint(self, xvalues, yvalues):
+    def addPoint(self, xvalues, yvalues, multistep=0):
         self.dataset.points.append(xvalues + yvalues)
         for sink in self._sinks:
-            sink.addPoint(self.dataset, xvalues, yvalues)
+            sink.addPoint(self.dataset, xvalues, yvalues, multistep)
 
     def finishPoint(self):
         session.endActionScope()
@@ -196,6 +198,7 @@ class Scan(object):
         can_measure = self.prepareScan()
         self.beginScan()
         prevpos = [None] * len(self._movedevices)
+        msteps = self.dataset.multisteps
         try:
             for i, position in enumerate(self._targets):
                 self.preparePoint(i+1, position)
@@ -210,7 +213,7 @@ class Scan(object):
                     actualpos = [dev.read() for dev in self._readdevices]
                     session.action('Counting')
                     result = list(_count(self._detlist, self._preset))
-                    self.addPoint(actualpos, result)
+                    self.addPoint(actualpos, result, i % msteps)
                     prevpos = position
                 finally:
                     self.finishPoint()
