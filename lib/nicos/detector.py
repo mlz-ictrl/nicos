@@ -239,10 +239,11 @@ class FRMDetector(Measurable):
         return (status.OK, 'idle')
 
     def doIsCompleted(self):
+        # XXX reversed logic -- correct?
         for master in self.__masters:
-            if not master.isCompleted():
-                return False
-        return True
+            if master.isCompleted():
+                return True
+        return False
 
     def doReset(self):
         for counter in self.__counters:
