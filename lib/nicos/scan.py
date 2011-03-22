@@ -86,7 +86,7 @@ class Scan(object):
 
     def beginScan(self):
         dataset = self.dataset
-        dataset.points = []
+        dataset.results = []
         dataset.sinkinfo = []
         dataset.xnames, dataset.xunits = [], []
         for dev in self._devices:
@@ -125,7 +125,7 @@ class Scan(object):
         session.beginActionScope('Point %d/%d' % (num, self._npoints))
 
     def addPoint(self, xvalues, yvalues):
-        self.dataset.points.append(xvalues + yvalues)
+        self.dataset.results.append(yvalues)
         for sink in self._sinks:
             sink.addPoint(self.dataset, xvalues, yvalues)
 

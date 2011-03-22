@@ -73,8 +73,8 @@ class Dataset(object):
     scaninfo = ''
     # additional info from data sinks
     sinkinfo = {}
-    # data points
-    points = []
+    # resulting y values at the positions
+    results = []
     # index of the x value to use for plotting
     xindex = 0
 
@@ -188,7 +188,7 @@ class ConsoleSink(DataSink):
 
     def addPoint(self, dataset, xvalues, yvalues):
         if self._npoints:
-            point = '%s/%s' % (len(dataset.points), self._npoints)
+            point = '%s/%s' % (len(dataset.results), self._npoints)
         else:
             point = num
         printinfo('\t'.join(
