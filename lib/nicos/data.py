@@ -221,7 +221,11 @@ class DaemonSink(DataSink):
             yaxisname=str(dataset.detlist[0]),
             xscale=(dataset.positions[0][0], dataset.positions[-1][0]))
         for name in dataset.ynames:
-            self._handler.add_curve(name, ['x', 'y'], 'default')
+            if dataset.multisteps > 1:
+                for i in range(dataset.multisteps):
+                    self._handler.add_curve(name, ['x', 'y'], 'default')
+            else:
+                self._handler.add_curve(name, ['x', 'y'], 'default')
 
     def addPoint(self, dataset, xvalues, yvalues, multistep=0):
         for i, v in enumerate(yvalues):
@@ -246,25 +250,37 @@ class GraceSink(DataSink):
         self._pl.yaxis(label=GracePlot.Label(str(dataset.detlist[0])))
 
         self._xdata = []
-        self._ydata = [[] for yn in dataset.ynames]
+        self._nperstep = len(dataset.ynames)
+        self._ydata = [[] for i in range(self._nperstep*dataset.multisteps)]
+        if dataset.multisteps > 1:
+            self._ynames = ['%s_%s' % (
+                yn, dataset.positions[i][-dataset.multistepdevices])
+                            for i in range(dataset.multisteps)
+                            for yn in dataset.ynames]
+        else:
+            self._ynames = dataset.ynames
 
     def addPoint(self, dataset, xvalues, yvalues, multistep=0):
-        self._xdata.append(xvalues[0])
+        if multistep == 0:
+            self._xdata.append(xvalues[0])
         for i in range(len(yvalues)):
-            self._ydata[i].append(yvalues[i])
+            self._ydata[multistep*self._nperstep + i].append(yvalues[i])
 
         self._pl.clear()
         data = []
         color = GracePlot.colors.black
-        l = GracePlot.Line(type=GracePlot.lines.none)
+        l = GracePlot.Line(type=GracePlot.lines.solid)
         for i, ys in enumerate(self._ydata):
+            if not ys:
+                continue
             s = GracePlot.Symbol(symbol=GracePlot.symbols.circle,
                                  fillcolor=color, color=color, size=0.4)
-            d = GracePlot.Data(x=self._xdata, y=ys, symbol=s, line=l,
-                               legend=dataset.ynames[i], type='xy')
+            d = GracePlot.Data(x=self._xdata[:len(ys)], y=ys, symbol=s, line=l,
+                               legend=self._ynames[i], type='xy')
             data.append(d)
             color += 1
         self._pl.plot(data)
+        self._pl.legend()
 
 
 class DatafileSink(DataSink, NeedsDatapath):

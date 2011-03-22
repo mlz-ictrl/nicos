@@ -744,8 +744,10 @@ class GraceGraph:
             self.grace().redraw()
     
     def update_data(self, set_index, new_x=[], new_y=[], new_dylist=[]):
-        """efficiently update the data for a given data set.  set length, etc. must not change!"""
-        outlist=self.datasets[set_index].output_differences(self, set_index, new_x=new_x, new_y=new_y, new_dylist=new_dylist)
+        """efficiently update the data for a given data set.  set length, etc.
+        must not change!"""
+        outlist=self.datasets[set_index].output_differences(
+            self, set_index, new_x=new_x, new_y=new_y, new_dylist=new_dylist)
         if outlist:
             self.grace()._send('\n'.join(outlist))
     
