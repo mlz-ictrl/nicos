@@ -499,12 +499,6 @@ class Readable(Device):
         for item in Device.info(self):
             yield item
 
-    def scanDevices(self):
-        """Return a tuple of devices whose values should be recorded instead
-        of this device when scanning over this device.
-        """
-        return (self,)
-
 
 class Startable(Readable):
     """
@@ -763,6 +757,12 @@ class Measurable(Startable):
         elif self._mode == 'simulation':
             return
         self.doStart(**preset)
+
+    def __call__(self, pos=None):
+        """Allow dev(), but not dev(pos)."""
+        if pos is None:
+            return self.read()
+        raise UsageError(self, 'device cannot be moved')
 
     def pause(self):
         """Pause the measurement, if possible.  Return True if paused

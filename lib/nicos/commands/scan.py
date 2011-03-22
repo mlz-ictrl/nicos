@@ -32,7 +32,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from nicos import session
-from nicos.scan import Scan
+from nicos.scan import Scan, QScan
 from nicos.device import Device, Measurable, Moveable
 from nicos.errors import UsageError
 from nicos.commands import usercommand
@@ -43,8 +43,8 @@ def _handleScanArgs(args, kwargs):
     for arg in args:
         if isinstance(arg, str):
             infostr = arg
-        elif isinstance(arg, (int, long, float)):
-            preset['t'] = arg
+        #elif isinstance(arg, (int, long, float)):
+        #    preset['t'] = arg
         elif isinstance(arg, Measurable):
             detlist.append(arg)
         elif isinstance(arg, list):
@@ -101,6 +101,8 @@ def scan(dev, start, step, numsteps, *args, **kwargs):
     infostr = infostr or \
               _infostr('scan', (dev, start, step, numsteps) + args, kwargs)
     dev, start, step = _fixType(dev, start, step)
+    if all(v == 0 for v in step) and numsteps > 1:
+        raise UsageError('scanning with zero step width')
     values = [[x + i*y for x, y in zip(start, step)]
               for i in range(numsteps)]
     scan = Scan(dev, values, move, multistep, detlist, preset, infostr)
@@ -114,6 +116,8 @@ def cscan(dev, center, step, numperside, *args, **kwargs):
     infostr = infostr or \
               _infostr('cscan', (dev, center, step, numperside) + args, kwargs)
     dev, center, step = _fixType(dev, center, step)
+    if all(v == 0 for v in step) and numperside > 0:
+        raise UsageError('scanning with zero step width')
     start = [x - numperside*y for x, y in zip(center, step)]
     values = [[x + i*y for x, y in zip(start, step)]
               for i in range(numperside*2 + 1)]
@@ -121,33 +125,88 @@ def cscan(dev, center, step, numperside, *args, **kwargs):
     scan.run()
 
 
+def _getQ(v, name):
+    try:
+        if len(v) == 4:
+            return list(v)
+        elif len(v) == 3:
+            return [v[0], v[1], v[2], 0]
+        else:
+            raise TypeError
+    except TypeError:
+        raise UsageError('%s must be a sequence of (h, k, l) or (h, k, l, E)'
+                         % name)
+
+def _handleQScanArgs(args, kwargs, Q, dQ):
+    preset, infostr, detlist, move, multistep = {}, None, [], [], []
+    for arg in args:
+        if isinstance(arg, str):
+            infostr = arg
+        #elif isinstance(arg, (int, long, float)):
+        #    preset['t'] = arg
+        elif isinstance(arg, Measurable):
+            detlist.append(arg)
+        elif isinstance(arg, list):
+            detlist.extend(arg)
+        else:
+            raise UsageError('unsupported qscan argument: %r' % arg)
+    for key, value in kwargs.iteritems():
+        if key == 'h':
+            Q[0] = value
+        elif key == 'k':
+            Q[1] = value
+        elif key == 'l':
+            Q[2] = value
+        elif key == 'E':
+            Q[3] = value
+        elif key == 'dh':
+            dQ[0] = value
+        elif key == 'dk':
+            dQ[1] = value
+        elif key == 'dl':
+            dQ[2] = value
+        elif key == 'dE':
+            dQ[3] = value
+        elif key in session.devices and \
+                 isinstance(session.devices[key], Moveable):
+            if isinstance(value, list):
+                if multistep and len(value) != len(multistep[-1][1]):
+                    raise UsageError('all multi-step arguments must have the '
+                                     'same length')
+                multistep.append((session.devices[key], value))
+            else:
+                move.append((session.devices[key], value))
+        else:
+            # XXX this silently accepts wrong keys; restrict the possible keys?
+            preset[key] = value
+    return preset, infostr, detlist, move, multistep, Q, dQ
+
+
 @usercommand
-def qscan(Q, ny, dQ, dny, numsteps, SC, *args, **kwargs):
+def qscan(Q, dQ, numsteps, *args, **kwargs):
     """Single-sided Q scan."""
-    preset, infostr, detlist, move, multistep = _handleScanArgs(args, kwargs)
-    infostr = infostr or \
-              _infostr('qscan', (Q, ny, dQ, dny, numsteps, SC) + args, kwargs)
-    for v in (Q, dQ):
-        if not isinstance(v, tuple) or len(v) != 3:
-            raise UsageError('Q and dQ arguments must be tuples of three indices')
-    values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], ny+i*dny, SC)]
+    Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
+    preset, infostr, detlist, move, multistep, Q, dQ = \
+            _handleQScanArgs(args, kwargs, Q, dQ)
+    if all(v == 0 for v in dQ) and numsteps > 1:
+        raise UsageError('scanning with zero step width')
+    infostr = infostr or _infostr('qscan', (Q, dQ, numsteps) + args, kwargs)
+    values = [[Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3]]
                for i in range(numsteps)]
-    scan = Scan([session.instrument], values, move, multistep, detlist,
-                preset, infostr)
+    scan = QScan(values, move, multistep, detlist, preset, infostr)
     scan.run()
 
 
 @usercommand
-def qcscan(Q, ny, dQ, dny, numperside, SC, *args, **kwargs):
+def qcscan(Q, dQ, numperside, *args, **kwargs):
     """Centered Q scan."""
-    preset, infostr, detlist, move, multistep = _handleScanArgs(args, kwargs)
-    infostr = infostr or \
-              _infostr('qcscan', (Q, ny, dQ, dny, numperside, SC) + args, kwargs)
-    for v in (Q, dQ):
-        if not isinstance(v, tuple) or len(v) != 3:
-            raise UsageError('Q and dQ arguments must be tuples of three indices')
-    values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], ny+i*dny, SC)]
+    Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
+    preset, infostr, detlist, move, multistep, Q, dQ = \
+            _handleQScanArgs(args, kwargs, Q, dQ)
+    if all(v == 0 for v in dQ) and numperside > 0:
+        raise UsageError('scanning with zero step width')
+    infostr = infostr or _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
+    values = [[Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3]]
                for i in range(-numperside, numperside+1)]
-    scan = Scan([session.instrument], values, move, multistep, detlist,
-                preset, infostr)
+    scan = QScan(values, move, multistep, detlist, preset, infostr)
     scan.run()

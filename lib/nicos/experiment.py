@@ -67,6 +67,9 @@ class Experiment(Device):
         'sample': Sample,
     }
 
+    def doInit(self):
+        self._last_dataset = None
+
     def new(self, proposalnumber, title=None):
         if not isinstance(proposalnumber, int):
             proposalnumber = int(proposalnumber)

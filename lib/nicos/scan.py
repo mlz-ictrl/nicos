@@ -34,7 +34,7 @@ __version__ = "$Revision$"
 from nicos import session
 from nicos.errors import NicosError, LimitError, FixedError
 from nicos.device import Measurable
-from nicos.commands.output import printwarning
+from nicos.commands.output import printwarning, printinfo
 from nicos.commands.measure import _count
 
 
@@ -59,19 +59,14 @@ class Scan(object):
         self.dataset = session.experiment.createDataset(scantype)
         if not detlist:
             detlist = session.instrument.detectors
-        if multistep:
-            nsteps = len(multistep[0][1])
-            devices.extend(ms[0] for ms in multistep)
-            positions = [dpos + [ms[1][i] for ms in multistep]
-                         for dpos in positions for i in range(nsteps)]
-            self.dataset.multisteps = nsteps
-            self.dataset.multistepdevices = len(multistep)
-        self._movedevices = self.dataset.mdevices = devices
-        self._readdevices = self.dataset.rdevices = []
-        for dev in devices:
-            self._readdevices.extend(dev.scanDevices())
-        self._targets = self.dataset.positions = positions
         self._firstmoves = firstmoves
+        self._multistep = self.dataset.multistep = multistep
+        if self._multistep:
+            self._mscount = len(multistep[0][1])
+            self._mswhere = [[(mse[0], mse[1][i]) for mse in multistep]
+                             for i in range(self._mscount)]
+        self._devices = self.dataset.devices = devices
+        self._targets = self.dataset.positions = positions
         self._detlist = self.dataset.detlist = detlist
         self._preset = self.dataset.preset = preset
         self.dataset.scaninfo = scaninfo
@@ -84,9 +79,9 @@ class Scan(object):
         can_measure = True
         # the move-before devices
         if self._firstmoves:
-            can_measure = self.moveTo(self._firstmoves)
+            can_measure = self.moveDevices(self._firstmoves)
         # the scanned-over devices
-        can_measure &= self.moveTo(zip(self._movedevices, self._targets[0]))
+        can_measure &= self.moveTo(self._targets[0])
         return can_measure
 
     def beginScan(self):
@@ -94,12 +89,21 @@ class Scan(object):
         dataset.points = []
         dataset.sinkinfo = []
         dataset.xnames, dataset.xunits = [], []
-        for dev in self._readdevices:
+        for dev in self._devices:
             dataset.xnames.append(dev.name)
             dataset.xunits.append(dev.unit)
         dataset.yvalues = sum((det.valueInfo() for det in dataset.detlist), ())
-        dataset.ynames = [val.name for val in dataset.yvalues]
         dataset.yunits = [val.unit for val in dataset.yvalues]
+        if self._multistep:
+            dataset.ynames = []
+            for i in range(self._mscount):
+                addname = '_' + '_'.join('%s_%s' % (mse[0], mse[1][i])
+                                         for mse in self._multistep)
+                dataset.ynames.extend(val.name + addname for val in dataset.yvalues)
+            dataset.yvalues = dataset.yvalues * self._mscount
+            dataset.yunits = dataset.yunits * self._mscount
+        else:
+            dataset.ynames = [val.name for val in dataset.yvalues]
         dataset.sinkinfo = {}
         for sink in self._sinks:
             sink.prepareDataset(dataset)
@@ -120,10 +124,10 @@ class Scan(object):
     def preparePoint(self, num, xvalues):
         session.beginActionScope('Point %d/%d' % (num, self._npoints))
 
-    def addPoint(self, xvalues, yvalues, multistep=0):
+    def addPoint(self, xvalues, yvalues):
         self.dataset.points.append(xvalues + yvalues)
         for sink in self._sinks:
-            sink.addPoint(self.dataset, xvalues, yvalues, multistep)
+            sink.addPoint(self.dataset, xvalues, yvalues)
 
     def finishPoint(self):
         session.endActionScope()
@@ -132,6 +136,7 @@ class Scan(object):
         for sink in self._sinks:
             sink.endDataset(self.dataset)
         session.endActionScope()
+        session.experiment._last_dataset = self.dataset
 
     def handleError(self, dev, val, err):
         """Handle an error occurring during positioning for a point.
@@ -148,7 +153,11 @@ class Scan(object):
             # consider all other errors to be fatal
             raise
 
-    def moveTo(self, where):
+    def moveTo(self, position):
+        """Move scan devices to *position*, a list of positions."""
+        return self.moveDevices(zip(self._devices, position))
+
+    def moveDevices(self, where):
         """Move to *where*, which is a list of (dev, position) tuples.
         On errors, call handleError, which decides when the scan may continue.
         """
@@ -169,51 +178,50 @@ class Scan(object):
                 return self.handleError(dev, val, err)
         return True
 
-    def maybeMoveTo(self, where):
-        """Like moveTo, but gets another tuple item that gives the last
-        position.  If it equals the target position, do not move.
-        """
-        waitdevs = []
-        for dev, val, prevval in where:
-            if val != prevval:
-                try:
-                    dev.start(val)
-                except NicosError, err:
-                    # handleError can reraise for fatal error, return False
-                    # to skip this point and True to measure anyway
-                    return self.handleError(dev, val, err)
-                else:
-                    waitdevs.append((dev, val))
-        for dev, val in waitdevs:
-            try:
-                dev.wait()
-            except NicosError, err:
-                return self.handleError(dev, val, err)
-        return True
+    def readPosition(self):
+        return [dev.read() for dev in self._devices]
 
     def run(self):
         # move all devices to starting position before starting scan
         can_measure = self.prepareScan()
         self.beginScan()
-        prevpos = [None] * len(self._movedevices)
-        msteps = self.dataset.multisteps
         try:
             for i, position in enumerate(self._targets):
                 self.preparePoint(i+1, position)
                 try:
                     session.action('Positioning')
                     if i > 0:
-                        can_measure = self.maybeMoveTo(
-                            zip(self._movedevices, position, prevpos))
+                        can_measure = self.moveTo(position)
                     if not can_measure:
                         continue
-                    # XXX cached values!
-                    actualpos = [dev.read() for dev in self._readdevices]
-                    session.action('Counting')
-                    result = list(_count(self._detlist, self._preset))
-                    self.addPoint(actualpos, result, i % msteps)
-                    prevpos = position
+                    actualpos = self.readPosition()
+                    if self._multistep:
+                        result = []
+                        for i in range(self._mscount):
+                            self.moveDevices(self._mswhere[i])
+                            session.action('Counting (step %s)' % (i+1))
+                            result.extend(_count(self._detlist, self._preset))
+                    else:
+                        session.action('Counting')
+                        result = list(_count(self._detlist, self._preset))
+                    self.addPoint(actualpos, result)
                 finally:
                     self.finishPoint()
         finally:
             self.endScan()
+
+
+class QScan(Scan):
+    """
+    Special scan class for scans with a triple axis instrument in Q/E space.
+    """
+
+    def __init__(self, positions, firstmoves=None, multistep=None,
+                 detlist=None, preset=None, scaninfo=None, scantype=None):
+        inst = session.instrument
+        Scan.__init__(self, [inst.h, inst.k, inst.l, inst.E], positions,
+                      firstmoves, multistep, detlist, preset, scaninfo, scantype)
+
+    def moveTo(self, position):
+        # move instrument en-bloc, not individual Q indices
+        return self.moveDevices([(session.instrument, position + [None])])

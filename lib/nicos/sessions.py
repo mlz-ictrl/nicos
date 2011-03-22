@@ -561,6 +561,7 @@ class Session(object):
             self.log.error(msg, exc_info=exc_info)
         else:
             self.log.error(exc_info=exc_info)
+        # XXX call self.notify?
 
     # -- Action logging --------------------------------------------------------
 

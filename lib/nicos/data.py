@@ -60,15 +60,11 @@ class Dataset(object):
     # data sinks active for this data set
     sinks = []
     # devices to move
-    mdevices = []
-    # devices to read
-    rdevices = []
+    devices = []
     # list of scan positions
     positions = []
-    # number of multi-steps for each scan point
-    multisteps = 1
-    # number of multi-step devices
-    multistepdevices = 0
+    # multi-steps for each scan point
+    multistep = []
     # list of detectors for this dataset
     detlist = []
     # preset dictionary of scan
@@ -154,14 +150,12 @@ class DataSink(Device):
         """
         pass
 
-    def addPoint(self, dataset, xvalues, yvalues, multistep=0):
+    def addPoint(self, dataset, xvalues, yvalues):
         """Add a point to the dataset.
 
         *xvalues* is a list of values with the same length as the initial
         *devices* list given to `beginDataset()`, and *yvalues* is a list of
         values with the same length as the all of detlist's value lists.
-        *multistep* is the number of the step (0 .. dataset.multisteps-1) for
-        multi-step scans.
         """
         pass
 
@@ -190,14 +184,14 @@ class ConsoleSink(DataSink):
         else:
             self._npoints = 0
 
-    def addPoint(self, dataset, xvalues, yvalues, multistep=0):
+    def addPoint(self, dataset, xvalues, yvalues):
         if self._npoints:
             point = '%s/%s' % (len(dataset.points), self._npoints)
         else:
             point = num
         printinfo('\t'.join(
             [point] +
-            [dev.format(val) for (dev, val) in zip(dataset.rdevices, xvalues)] +
+            [dev.format(val) for (dev, val) in zip(dataset.devices, xvalues)] +
             [str(val) for val in yvalues]).expandtabs())
 
     def endDataset(self, dataset):
@@ -222,14 +216,10 @@ class DaemonSink(DataSink):
             xaxisname='%s (%s)' % (dataset.xnames[0], dataset.xunits[0]),
             yaxisname=str(dataset.detlist[0]),
             xscale=(dataset.positions[0][0], dataset.positions[-1][0]))
-        for name in dataset.ynames: # XXX
-            if dataset.multisteps > 1:
-                for i in range(dataset.multisteps):
-                    self._handler.add_curve(name, ['x', 'y'], 'default')
-            else:
-                self._handler.add_curve(name, ['x', 'y'], 'default')
+        for name in dataset.ynames:
+            self._handler.add_curve(name, ['x', 'y'], 'default')
 
-    def addPoint(self, dataset, xvalues, yvalues, multistep=0):
+    def addPoint(self, dataset, xvalues, yvalues):
         for i, v in enumerate(yvalues):
             self._handler.add_point(i, [xvalues[0], v])
 
@@ -256,25 +246,18 @@ class GraceSink(DataSink):
 
         self._xdata = []
         self._nperstep = len(dataset.ynames)
-        self._ydata = [[] for i in range(self._nperstep*dataset.multisteps)]
-        self._dydata = [[] for i in range(self._nperstep*dataset.multisteps)]
-        if dataset.multisteps > 1:
-            self._ynames = ['%s_%s' % (
-                yn, dataset.positions[i][-dataset.multistepdevices])
-                            for i in range(dataset.multisteps)
-                            for yn in dataset.ynames]
-        else:
-            self._ynames = dataset.ynames
+        self._ydata = [[] for i in range(self._nperstep)]
+        self._dydata = [[] for i in range(self._nperstep)]
+        self._ynames = dataset.ynames
 
-    def addPoint(self, dataset, xvalues, yvalues, multistep=0):
-        if multistep == 0:
-            self._xdata.append(xvalues[0])
+    def addPoint(self, dataset, xvalues, yvalues):
+        self._xdata.append(xvalues[0])
         for i in range(len(yvalues)):
-            self._ydata[multistep*self._nperstep + i].append(yvalues[i])
+            self._ydata[i].append(yvalues[i])
             if dataset.yvalues[i].errors == 'sqrt':
-                self._dydata[multistep*self._nperstep + i].append(sqrt(yvalues[i]))
+                self._dydata[i].append(sqrt(yvalues[i]))
             else:
-                self._dydata[multistep*self._nperstep + i].append(0)
+                self._dydata[i].append(0)
 
         self._pl.clear()
         data = []
@@ -383,7 +366,7 @@ class AsciiDatafileSink(DatafileSink):
                              (self._scomment, device.name + '_' + key, value))
         self._file.flush()
 
-    def addPoint(self, dataset, xvalues, yvalues, multistep=0):
+    def addPoint(self, dataset, xvalues, yvalues):
         if not self._wrote_columninfo:
             self._file.write('%s Scan data\n' % self._tcomment)
             self._file.write('%s %s\n' % (self._scomment,
@@ -391,7 +374,7 @@ class AsciiDatafileSink(DatafileSink):
             self._file.write('%s %s\n' % (self._scomment,
                                           '\t'.join(self._colunits)))
             self._wrote_columninfo = True
-        xv = [dev.format(val) for (dev, val) in zip(dataset.rdevices, xvalues)]
+        xv = [dev.format(val) for (dev, val) in zip(dataset.devices, xvalues)]
         yv = map(str, yvalues)
         if self.semicolon:
             values = xv + [';'] + yv

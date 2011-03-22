@@ -25,9 +25,7 @@
 #
 # *****************************************************************************
 
-"""
-NICOS Instrument device.
-"""
+"""NICOS triple-axis instrument devices."""
 
 __author__  = "$Author$"
 __date__    = "$Date$"
@@ -94,8 +92,8 @@ class TAS(Instrument, Moveable):
                                       index=1, lowlevel=True, tas=self)
         self.__dict__['l'] = TASIndex('l', unit='rlu', fmtstr='%.3f',
                                       index=2, lowlevel=True, tas=self)
-        self.__dict__['ny'] = TASIndex('ny', unit='THz', fmtstr='%.3f',
-                                       index=3, lowlevel=True, tas=self)
+        self.__dict__['E'] = TASIndex('E', unit='THz', fmtstr='%.3f',
+                                      index=3, lowlevel=True, tas=self)
         self.__dict__['sc'] = TASIndex('sc', unit='A-1', fmtstr='%.3f',
                                        index=4, lowlevel=True, tas=self)
 
@@ -106,6 +104,8 @@ class TAS(Instrument, Moveable):
 
     def doIsAllowed(self, pos):
         qh, qk, ql, ny, sc = pos
+        if sc is None:
+            sc = self.doRead()[4]
         ny = self._thz(ny)
         try:
             angles = self._adevs['cell'].cal_angles(
@@ -124,6 +124,9 @@ class TAS(Instrument, Moveable):
 
     def doStart(self, pos):
         qh, qk, ql, ny, sc = pos
+        # XXX should the sc be part of the read value at all?
+        if sc is None:
+            sc = self.doRead()[4]
         ny = self._thz(ny)
         angles = self._adevs['cell'].cal_angles(
             [qh, qk, ql], ny, self.opmode, sc, self.scatteringsense[1],
@@ -140,8 +143,11 @@ class TAS(Instrument, Moveable):
             ana.wait()
         phi.wait()
         psi.wait()
-        h, k, l, ny, sc = self.doRead()
-        #self.printinfo('position hkl: (%7.4f %7.4f %7.4f) ny: %7.4f %s' %
+        #h, k, l, ny, sc = self.doRead()
+        # make sure index members read the latest value
+        for index in (self.h, self.k, self.l, self.E, self.sc):
+            index._cache.invalidate(index, 'value')
+        #self.printinfo('position hkl: (%7.4f %7.4f %7.4f) E: %7.4f %s' %
         #               (h, k, l, ny, self.energytransferunit))
 
     def doWriteScatteringsense(self, val):
@@ -160,7 +166,7 @@ class TAS(Instrument, Moveable):
         if val not in ENERGYTRANSFERUNITS:
             raise ConfigurationError('invalid energy transfer unit: %r' % val)
         self.unit = 'rlu rlu rlu %s %s' % (val, OPMODEUNIT[self.opmode])
-        self.ny.unit = val
+        self.E.unit = val
 
     def doRead(self):
         mono, ana, phi, psi = self._adevs['mono'], self._adevs['ana'], \
@@ -187,9 +193,6 @@ class TAS(Instrument, Moveable):
         elif self.opmode == 'CPSI':
             sc = psi.read()
         return (hkl[0], hkl[1], hkl[2], ny, sc)
-
-    def scanDevices(self):
-        return (self.h, self.k, self.l, self.ny, self.sc)
 
 
 class TASIndex(Moveable):

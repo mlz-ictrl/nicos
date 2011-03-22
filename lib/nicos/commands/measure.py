@@ -46,7 +46,7 @@ def _count(detlist, preset):
         det.start(**preset)
     while True:
         # XXX implement pause logic
-        sleep(0.1)
+        sleep(0.025)
         for det in list(detset):
             if det.isCompleted():
                 detset.discard(det)

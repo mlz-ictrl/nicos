@@ -113,6 +113,9 @@ class Value(object):
         self.unit = unit
         self.active = active
 
+    def __repr__(self):
+        return 'value %r' % self.name
+
 
 class MergedAttrsMeta(type):
     """
