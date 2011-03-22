@@ -75,6 +75,8 @@ class Dataset(object):
     sinkinfo = {}
     # data points
     points = []
+    # index of the x value to use for plotting
+    xindex = 0
 
     # cached info for all sinks to use
     xnames = []
@@ -213,15 +215,17 @@ class DaemonSink(DataSink):
         self._handler.new_dataset(
             'scan started %s' % time.strftime(TIMEFMT, dataset.started),
             '', dataset.scaninfo, filename, '',
-            xaxisname='%s (%s)' % (dataset.xnames[0], dataset.xunits[0]),
+            xaxisname='%s (%s)' % (dataset.xnames[dataset.xindex],
+                                   dataset.xunits[dataset.xindex]),
             yaxisname=str(dataset.detlist[0]),
-            xscale=(dataset.positions[0][0], dataset.positions[-1][0]))
+            xscale=(dataset.positions[0][dataset.xindex],
+                    dataset.positions[-1][dataset.xindex]))
         for name in dataset.ynames:
             self._handler.add_curve(name, ['x', 'y'], 'default')
 
     def addPoint(self, dataset, xvalues, yvalues):
         for i, v in enumerate(yvalues):
-            self._handler.add_point(i, [xvalues[0], v])
+            self._handler.add_point(i, [xvalues[dataset.xindex], v])
 
 
 class GraceSink(DataSink):
@@ -241,7 +245,8 @@ class GraceSink(DataSink):
                        time.strftime(TIMEFMT, dataset.started)))
         self._pl.subtitle(dataset.scaninfo)
         self._pl.xaxis(label=GracePlot.Label(
-            '%s (%s)' % (dataset.xnames[0], dataset.xunits[0])))
+            '%s (%s)' % (dataset.xnames[dataset.xindex],
+                         dataset.xunits[dataset.xindex])))
         self._pl.yaxis(label=GracePlot.Label(str(dataset.detlist[0]))) # XXX
 
         self._xdata = []
@@ -251,7 +256,7 @@ class GraceSink(DataSink):
         self._ynames = dataset.ynames
 
     def addPoint(self, dataset, xvalues, yvalues):
-        self._xdata.append(xvalues[0])
+        self._xdata.append(xvalues[dataset.xindex])
         for i in range(len(yvalues)):
             self._ydata[i].append(yvalues[i])
             if dataset.yvalues[i].errors == 'sqrt':

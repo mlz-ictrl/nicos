@@ -66,7 +66,7 @@ class Scan(object):
             self._mswhere = [[(mse[0], mse[1][i]) for mse in multistep]
                              for i in range(self._mscount)]
         self._devices = self.dataset.devices = devices
-        self._targets = self.dataset.positions = positions
+        self._positions = self.dataset.positions = positions
         self._detlist = self.dataset.detlist = detlist
         self._preset = self.dataset.preset = preset
         self.dataset.scaninfo = scaninfo
@@ -81,7 +81,7 @@ class Scan(object):
         if self._firstmoves:
             can_measure = self.moveDevices(self._firstmoves)
         # the scanned-over devices
-        can_measure &= self.moveTo(self._targets[0])
+        can_measure &= self.moveTo(self._positions[0])
         return can_measure
 
     def beginScan(self):
@@ -186,7 +186,7 @@ class Scan(object):
         can_measure = self.prepareScan()
         self.beginScan()
         try:
-            for i, position in enumerate(self._targets):
+            for i, position in enumerate(self._positions):
                 self.preparePoint(i+1, position)
                 try:
                     session.action('Positioning')
@@ -221,6 +221,15 @@ class QScan(Scan):
         inst = session.instrument
         Scan.__init__(self, [inst.h, inst.k, inst.l, inst.E], positions,
                       firstmoves, multistep, detlist, preset, scaninfo, scantype)
+
+    def beginScan(self):
+        if len(self._positions) > 1:
+            # determine first varying index as the plotting index
+            for i in range(4):
+                if self._positions[0][i] != self._positions[1][i]:
+                    self.dataset.xindex = i
+                    break
+        Scan.beginScan(self)
 
     def moveTo(self, position):
         # move instrument en-bloc, not individual Q indices
