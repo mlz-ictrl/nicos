@@ -35,11 +35,16 @@ import time
 import errno
 from os import path
 
+try:
+    import GracePlot
+except ImportError:
+    GracePlot = None
+
 from nicos import session
 from nicos.utils import listof, readFileCounter, updateFileCounter
 from nicos.device import Device, Param
 from nicos.errors import ConfigurationError, ProgrammingError
-from nicos.sessions import DaemonSession
+from nicos.sessions import DaemonSession, InteractiveSession
 from nicos.commands.output import printinfo
 
 
@@ -218,6 +223,44 @@ class DaemonSink(DataSink):
     def addPoint(self, dataset, xvalues, yvalues):
         for i, v in enumerate(yvalues):
             self._handler.add_point(i, [xvalues[0], v])
+
+
+class GraceSink(DataSink):
+    def isActive(self, scantype):
+        if not GracePlot or not isinstance(session, InteractiveSession):
+            return False
+        return DataSink.isActive(self, scantype)
+
+    def beginDataset(self, dataset):
+        self._pl = GracePlot.GracePlot(width=None, height=None)
+        self._pl.clear()
+        self._pl.title('scan started %s' %
+                       time.strftime(TIMEFMT, dataset.started))
+        self._pl.subtitle(dataset.scaninfo)
+        self._pl.xaxis(label=GracePlot.Label(
+            '%s (%s)' % (dataset.xnames[0], dataset.xunits[0])))
+        self._pl.yaxis(label=GracePlot.Label(str(dataset.detlist[0])))
+
+        self._xdata = []
+        self._ydata = [[] for yn in dataset.ynames]
+
+    def addPoint(self, dataset, xvalues, yvalues):
+        self._xdata.append(xvalues[0])
+        for i in range(len(yvalues)):
+            self._ydata[i].append(yvalues[i])
+
+        self._pl.clear()
+        data = []
+        color = GracePlot.black
+        l = GracePlot.Line(type=GracePlot.none)
+        for i, ys in enumerate(self._ydata):
+            s = GracePlot.Symbol(symbol=GracePlot.circle, fillcolor=color,
+                                 color=color, size=0.4)
+            d = GracePlot.Data(x=self._xdata, y=ys, symbol=s, line=l,
+                               legend=dataset.ynames[i], type='xy')
+            data.append(d)
+            color += 1
+        self._pl.plot(data)
 
 
 class DatafileSink(DataSink, NeedsDatapath):
