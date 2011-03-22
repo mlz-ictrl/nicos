@@ -28,5 +28,167 @@
 #ifndef __CASCADE_DIALOGE__
 #define __CASCADE_DIALOGE__
 
+#include <qwt/qwt_plot.h>
+#include <qwt/qwt_plot_grid.h>
+#include <qwt/qwt_plot_zoomer.h>
+#include <qwt/qwt_plot_panner.h>
+#include <qwt/qwt_plot_layout.h>
+#include <qwt/qwt_plot_marker.h>
+#include <qwt/qwt_plot_rescaler.h>
+#include <qwt/qwt_interval_data.h>
+#include <qwt/qwt_plot_curve.h>
+#include <qwt/qwt_plot_spectrogram.h>
+#include <qwt/qwt_scale_widget.h>
+#include <qwt/qwt_scale_draw.h>
+#include <qwt/qwt_color_map.h>
+#include <qwt/qwt_legend.h>
+#include <qwt/qwt_legend_item.h>
+#include <qwt/qwt_symbol.h>
+
+#include <QtGui/QPainter>
+#include <QDialog>
+
+#include "graphdlg.h"
+#include "sumdialog.h"
+#include "calibrationdlg.h"
+#include "serverdlg.h"
+#include "servercfgdlg.h"
+#include "histogram_item.h"
+#include "bins.h"
+#include "tofloader.h"
+#include "ErrorBarPlotCurve.h"
+
+class CalibrationDlg : public QDialog, public Ui::CalibrationDlg
+{
+	Q_OBJECT
+	
+	protected:
+		QwtPlotGrid *m_pgrid;
+		HistogramItem *m_phistogram;
+		
+	protected slots:
+		
+	public:
+		CalibrationDlg(QWidget *pParent, const Bins& bins);
+		virtual ~CalibrationDlg();
+};
+// ********************************************************************
+
+
+
+
+// ************************* Summierungs-Dialog mit Zeitkanälen ***********************
+class FolienSummeDlg : public QDialog, public Ui::FolienSummeDlg
+{
+	Q_OBJECT
+	
+	protected:
+		QTreeWidgetItem** m_pTreeItemsFolien;
+		QTreeWidgetItem** m_pTreeItems;
+		TofImage *m_pTof;
+		int m_iMode;
+		
+	signals:
+		void FolienSummeSignal(bool *pbKanaele, int iMode);
+		
+	protected slots:
+		void ShowIt();
+		void SelectAll();
+		void SelectNone();
+		void TreeWidgetClicked(QTreeWidgetItem *item, int column);
+		
+	public:
+		FolienSummeDlg(QWidget *pParent);
+		virtual ~FolienSummeDlg();
+		void SetMode(int iMode);
+};
+// ********************************************************************
+
+
+// ************************* Summierungs-Dialog ohne Zeitkanäle ***********************
+class FolienSummeDlgOhneKanaele : public QDialog, public Ui::FolienSummeDlg
+{
+	Q_OBJECT
+		
+	protected:
+		QTreeWidgetItem** m_pTreeItemsFolien;
+		TofImage *m_pTof;
+		int m_iMode;
+		
+	signals:
+		void FolienSummeSignal(bool *pbKanaele, int iMode);
+		
+	protected slots:
+		void ShowIt();
+		void SelectAll();
+		void SelectNone();
+		
+	public:
+		FolienSummeDlgOhneKanaele(QWidget *pParent);		
+		virtual ~FolienSummeDlgOhneKanaele();
+		void SetMode(int iMode);
+};
+// ********************************************************************
+
+
+// ************************* Zeug für Graph-Dialog ***********************
+class GraphDlg : public QDialog, public Ui::GraphDlg
+{
+	Q_OBJECT
+	
+	protected:
+		TofImage *m_pTofImg;
+		ErrorBarPlotCurve m_curve;
+		QwtPlotCurve m_curvefit, m_curvetotal;
+		QwtLegend *m_plegend;
+		QwtPlotGrid *m_pgrid;
+		
+		void UpdateGraph(void);
+		
+	protected slots:
+		void ROIy1changed(int iVal);
+		void ROIy2changed(int iVal);
+		void ROIx1changed(int iVal);
+		void ROIx2changed(int iVal);
+		void Foliechanged(int iVal);
+		void Phasechanged(double dVal);
+		
+	public:
+		GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie);
+		virtual ~GraphDlg();
+};
+// **************************************************************
+
+// ************************* Server-Dialog ********************************
+class ServerDlg : public QDialog, public Ui::dialogServer
+{
+	Q_OBJECT
+	
+	protected:
+		
+	protected slots:
+		
+	public:
+		ServerDlg(QWidget *pParent);
+		virtual ~ServerDlg();
+};
+// ********************************************************************
+
+// ************************* Server-Dialog ********************************
+class ServerCfgDlg : public QDialog, public Ui::ServerConfigDlg
+{
+	Q_OBJECT
+	
+	protected:
+		static double s_dLastTime;
+		
+	protected slots:
+		
+	public:
+		ServerCfgDlg(QWidget *pParent);
+		virtual ~ServerCfgDlg();
+		
+		double GetMeasTime();
+};
 
 #endif

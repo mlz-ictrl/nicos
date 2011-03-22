@@ -27,6 +27,9 @@
 // basiert auf folgendem Python-Programm:
 // http://pyqwt.sourceforge.net/examples/ErrorBarDemo.py.html
 
+#ifndef __ERROR_BARS__
+#define __ERROR_BARS__
+
 class ErrorBarPlotCurve : public QwtPlotCurve
 {
 	protected:
@@ -114,3 +117,5 @@ class ErrorBarPlotCurve : public QwtPlotCurve
 			painter->restore();
 		}
 };
+
+#endif

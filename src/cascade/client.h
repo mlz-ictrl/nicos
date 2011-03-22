@@ -43,12 +43,6 @@ Q_OBJECT
 		bool m_bBlocking;
 		QTcpSocket m_socket;
 		
-		////////////////////// Callback ////////////////////////////////////
-		////////////////////// (nichtblockierender Client) /////////////////
-		void (*m_pReadCB)(char* pcBuf, int iLen, void* pvUser); // Callback, an das neu verfügbare Daten gesendet werden
-		void *m_pvUser;						// this-Pointer auf Cascade-Objekt
-		////////////////////////////////////////////////////////////////////
-		
 		/////////////// gegenwärtige Nachricht //////////////////////
 		QByteArray m_byCurMsg;
 		bool m_bBeginOfMessage;
@@ -64,8 +58,7 @@ Q_OBJECT
 		bool write(const char* pcBuf, int iSize);
 
 	public:
-		// Callback-Funktion hier übergeben => wählt die nichtblockierende Version aus
-		TcpClient(QObject *pParent=0, void (*pReadCB)(char*, int, void*)=0, void* pvUser=0);
+		TcpClient(QObject *pParent=0, bool bBlocking=true);
 		virtual ~TcpClient();
 		
 		bool connecttohost(const char* pcAddr, int iPort);
@@ -78,6 +71,10 @@ Q_OBJECT
 		
 		void SetDebugLog(bool bLog);
 		void SetTimeout(int iTimeout);		// negative Werte schalten Timeout ab
+		
+	signals:
+		// Signal, das der nichtblockierende Client emittiert, wenn eine vollständige Nachricht da ist
+		void MessageSignal(const char* pcBuf, int iLen);
 
 	protected slots:
 		void connected();

@@ -25,450 +25,368 @@
 // *****************************************************************************
 // Cascade-Unterdialoge
 
-#include "graphdlg.h"
-#include "sumdialog.h"
-#include "calibrationdlg.h"
-#include "serverdlg.h"
-#include "servercfgdlg.h"
 #include "cascadedialoge.h"
+#include <stdio.h>
 
 
 // ************************* Kalibrierungs-Dialog *********************
-class CalibrationDlg : public QDialog, public Ui::CalibrationDlg
+CalibrationDlg::CalibrationDlg(QWidget *pParent, const Bins& bins) : QDialog(pParent), m_pgrid(0)
 {
-	Q_OBJECT
+	setupUi(this);
+	qwtPlot->setCanvasBackground(QColor(Qt::white));
 	
-	protected:
-		QwtPlotGrid *m_pgrid;
-		HistogramItem *m_phistogram;
-		
-	protected slots:
-		
-	public:
-		CalibrationDlg(QWidget *pParent, const Bins& bins) : QDialog(pParent), m_pgrid(0)
-		{
-			setupUi(this);
-			qwtPlot->setCanvasBackground(QColor(Qt::white));
-			
-			const QwtArray<QwtDoubleInterval>& intervals = bins.GetIntervals();
-			const QwtArray<double>& values = bins.GetValues();
-			
-			m_pgrid = new QwtPlotGrid;
-			m_pgrid->enableXMin(true);
-			m_pgrid->enableYMin(true);
-			m_pgrid->setMajPen(QPen(Qt::black, 0, Qt::DotLine));
-			m_pgrid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
-			m_pgrid->attach(qwtPlot);
-			
-			m_phistogram = new HistogramItem();
-			m_phistogram->setColor(Qt::black);
-			m_phistogram->attach(qwtPlot);
-			
-			qwtPlot->setAxisScale(QwtPlot::xBottom, 0., 360.);
-			qwtPlot->setAxisScale(QwtPlot::yLeft, 0.0, bins.GetMaxVal());
-			qwtPlot->axisWidget(QwtPlot::xBottom)->setTitle("Phase [DEG]");
-			qwtPlot->axisWidget(QwtPlot::yLeft)->setTitle("Number");
-			
-			m_phistogram->setData(QwtIntervalData(intervals, values));
-			qwtPlot->replot();
-		}
-		
-		virtual ~CalibrationDlg()
-		{
-			if(m_pgrid) delete m_pgrid;
-		}
-};
+	const QwtArray<QwtDoubleInterval>& intervals = bins.GetIntervals();
+	const QwtArray<double>& values = bins.GetValues();
+	
+	m_pgrid = new QwtPlotGrid;
+	m_pgrid->enableXMin(true);
+	m_pgrid->enableYMin(true);
+	m_pgrid->setMajPen(QPen(Qt::black, 0, Qt::DotLine));
+	m_pgrid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
+	m_pgrid->attach(qwtPlot);
+	
+	m_phistogram = new HistogramItem();
+	m_phistogram->setColor(Qt::black);
+	m_phistogram->attach(qwtPlot);
+	
+	qwtPlot->setAxisScale(QwtPlot::xBottom, 0., 360.);
+	qwtPlot->setAxisScale(QwtPlot::yLeft, 0.0, bins.GetMaxVal());
+	qwtPlot->axisWidget(QwtPlot::xBottom)->setTitle("Phase [DEG]");
+	qwtPlot->axisWidget(QwtPlot::yLeft)->setTitle("Number");
+	
+	m_phistogram->setData(QwtIntervalData(intervals, values));
+	qwtPlot->replot();
+}
+
+CalibrationDlg::~CalibrationDlg()
+{
+	if(m_pgrid) delete m_pgrid;
+}
 // ********************************************************************
 
 
 
 
 // ************************* Summierungs-Dialog mit Zeitkanälen ***********************
-class FolienSummeDlg : public QDialog, public Ui::FolienSummeDlg
+void FolienSummeDlg::ShowIt()
 {
-	Q_OBJECT
-	
-	protected:
-		QTreeWidgetItem** m_pTreeItemsFolien;
-		QTreeWidgetItem** m_pTreeItems;
-		TofImage *m_pTof;
-		int m_iMode;
-		
-	signals:
-		void FolienSummeSignal(bool *pbKanaele, int iMode);
-		
-	protected slots:
-		void ShowIt()
+	bool *pbChecked = new bool[Config_TofLoader::FOIL_COUNT*Config_TofLoader::IMAGES_PER_FOIL];
+	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+	{
+		for(int iKanal=0; iKanal<Config_TofLoader::IMAGES_PER_FOIL; ++iKanal)
 		{
-			bool *pbChecked = new bool[Config_TofLoader::FOIL_COUNT*Config_TofLoader::IMAGES_PER_FOIL];
-			for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
-			{
-				for(int iKanal=0; iKanal<Config_TofLoader::IMAGES_PER_FOIL; ++iKanal)
-				{
-					bool bChecked = (m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->checkState(0)==Qt::Checked);
-					pbChecked[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal] = bChecked;
-				}
-			}
-			emit FolienSummeSignal(pbChecked, m_iMode);
-			delete[] pbChecked;
+			bool bChecked = (m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->checkState(0)==Qt::Checked);
+			pbChecked[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal] = bChecked;
 		}
-		
-		void SelectAll()
-		{
-			for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
-			{
-				m_pTreeItemsFolien[iFolie]->setCheckState(0,Qt::Checked);
-				for(int iKanal=0; iKanal<Config_TofLoader::IMAGES_PER_FOIL; ++iKanal)
-					m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->setCheckState(0,Qt::Checked);
-			}
-		}
-		
-		void SelectNone()
-		{
-			for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
-			{
-				m_pTreeItemsFolien[iFolie]->setCheckState(0,Qt::Unchecked);
-				for(int iKanal=0; iKanal<Config_TofLoader::IMAGES_PER_FOIL; ++iKanal)
-					m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->setCheckState(0,Qt::Unchecked);
-			}
-		}
-		
-		void TreeWidgetClicked(QTreeWidgetItem *item, int column)
-		{
-			int iFolie;
-			for(iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
-				if(m_pTreeItemsFolien[iFolie]==item) break;
-			if(iFolie==Config_TofLoader::FOIL_COUNT) return;	// nicht auf Parent geklickt
-			
-			for(int iKanal=0; iKanal<Config_TofLoader::IMAGES_PER_FOIL; ++iKanal)
-				m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->setCheckState(0,m_pTreeItemsFolien[iFolie]->checkState(0));
-		}
-		
-	public:
-		FolienSummeDlg(QWidget *pParent) : QDialog(pParent)
-		{
-			setupUi(this);
-			
-			m_pTreeItemsFolien = new QTreeWidgetItem*[Config_TofLoader::FOIL_COUNT];
-			m_pTreeItems = new QTreeWidgetItem*[Config_TofLoader::FOIL_COUNT*Config_TofLoader::IMAGES_PER_FOIL];
+	}
+	emit FolienSummeSignal(pbChecked, m_iMode);
+	delete[] pbChecked;
+}
 
-			for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
-			{
-				m_pTreeItemsFolien[iFolie] = new QTreeWidgetItem(treeWidget);
-				char pcName[256];
-				sprintf(pcName, "Foil %d", iFolie+1);
-				m_pTreeItemsFolien[iFolie]->setText(0, pcName);
-				m_pTreeItemsFolien[iFolie]->setCheckState(0, Qt::Unchecked);
-				
-				for(int iKanal=0; iKanal<Config_TofLoader::IMAGES_PER_FOIL; ++iKanal)
-				{
-					m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal] = new QTreeWidgetItem(m_pTreeItemsFolien[iFolie]);
-					m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->setCheckState(0, Qt::Unchecked);
-					sprintf(pcName, "Time Channel %d", iKanal+1);
-					m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->setText(0, pcName);
-				}
-			}
-			
-			connect(treeWidget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(TreeWidgetClicked(QTreeWidgetItem *, int)));
-			connect(pushButtonShow, SIGNAL(clicked()), this, SLOT(ShowIt()));
-			connect(pushButtonSelectAll, SIGNAL(clicked()), this, SLOT(SelectAll()));
-			connect(pushButtonSelectNone, SIGNAL(clicked()), this, SLOT(SelectNone()));
-		}
+void FolienSummeDlg::SelectAll()
+{
+	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+	{
+		m_pTreeItemsFolien[iFolie]->setCheckState(0,Qt::Checked);
+		for(int iKanal=0; iKanal<Config_TofLoader::IMAGES_PER_FOIL; ++iKanal)
+			m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->setCheckState(0,Qt::Checked);
+	}
+}
+
+void FolienSummeDlg::SelectNone()
+{
+	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+	{
+		m_pTreeItemsFolien[iFolie]->setCheckState(0,Qt::Unchecked);
+		for(int iKanal=0; iKanal<Config_TofLoader::IMAGES_PER_FOIL; ++iKanal)
+			m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->setCheckState(0,Qt::Unchecked);
+	}
+}
+
+void FolienSummeDlg::TreeWidgetClicked(QTreeWidgetItem *item, int column)
+{
+	int iFolie;
+	for(iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+		if(m_pTreeItemsFolien[iFolie]==item) break;
+	if(iFolie==Config_TofLoader::FOIL_COUNT) return;	// nicht auf Parent geklickt
+	
+	for(int iKanal=0; iKanal<Config_TofLoader::IMAGES_PER_FOIL; ++iKanal)
+		m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->setCheckState(0,m_pTreeItemsFolien[iFolie]->checkState(0));
+}
+
+FolienSummeDlg::FolienSummeDlg(QWidget *pParent) : QDialog(pParent)
+{
+	setupUi(this);
+	
+	m_pTreeItemsFolien = new QTreeWidgetItem*[Config_TofLoader::FOIL_COUNT];
+	m_pTreeItems = new QTreeWidgetItem*[Config_TofLoader::FOIL_COUNT*Config_TofLoader::IMAGES_PER_FOIL];
+
+	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+	{
+		m_pTreeItemsFolien[iFolie] = new QTreeWidgetItem(treeWidget);
+		char pcName[256];
+		sprintf(pcName, "Foil %d", iFolie+1);
+		m_pTreeItemsFolien[iFolie]->setText(0, pcName);
+		m_pTreeItemsFolien[iFolie]->setCheckState(0, Qt::Unchecked);
 		
-		virtual ~FolienSummeDlg()
+		for(int iKanal=0; iKanal<Config_TofLoader::IMAGES_PER_FOIL; ++iKanal)
 		{
-			delete[] m_pTreeItemsFolien; m_pTreeItemsFolien = 0;
-			delete[] m_pTreeItems; m_pTreeItems = 0;
+			m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal] = new QTreeWidgetItem(m_pTreeItemsFolien[iFolie]);
+			m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->setCheckState(0, Qt::Unchecked);
+			sprintf(pcName, "Time Channel %d", iKanal+1);
+			m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->setText(0, pcName);
 		}
-		
-		void SetMode(int iMode) { m_iMode = iMode; }
-};
+	}
+	
+	connect(treeWidget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(TreeWidgetClicked(QTreeWidgetItem *, int)));
+	connect(pushButtonShow, SIGNAL(clicked()), this, SLOT(ShowIt()));
+	connect(pushButtonSelectAll, SIGNAL(clicked()), this, SLOT(SelectAll()));
+	connect(pushButtonSelectNone, SIGNAL(clicked()), this, SLOT(SelectNone()));
+}
+
+FolienSummeDlg::~FolienSummeDlg()
+{
+	delete[] m_pTreeItemsFolien; m_pTreeItemsFolien = 0;
+	delete[] m_pTreeItems; m_pTreeItems = 0;
+}
+
+void FolienSummeDlg::SetMode(int iMode) { m_iMode = iMode; }
 // ********************************************************************
 
 
 // ************************* Summierungs-Dialog ohne Zeitkanäle ***********************
-class FolienSummeDlgOhneKanaele : public QDialog, public Ui::FolienSummeDlg
+void FolienSummeDlgOhneKanaele::ShowIt()
 {
-	Q_OBJECT
-		
-	protected:
-		QTreeWidgetItem** m_pTreeItemsFolien;
-		TofImage *m_pTof;
-		int m_iMode;
-		
-	signals:
-		void FolienSummeSignal(bool *pbKanaele, int iMode);
-		
-	protected slots:
-		void ShowIt()
-		{
-			bool *pbChecked = new bool[Config_TofLoader::FOIL_COUNT];
-			for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
-			{
-				bool bChecked = (m_pTreeItemsFolien[iFolie]->checkState(0)==Qt::Checked);
-				pbChecked[iFolie] = bChecked;
-			}
-			emit FolienSummeSignal(pbChecked, m_iMode);
-			delete[] pbChecked;
-		}
-		
-		void SelectAll()
-		{
-			for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
-				m_pTreeItemsFolien[iFolie]->setCheckState(0,Qt::Checked);
-		}
-		
-		void SelectNone()
-		{
-			for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
-				m_pTreeItemsFolien[iFolie]->setCheckState(0,Qt::Unchecked);
-		}
-		
-	public:
-		FolienSummeDlgOhneKanaele(QWidget *pParent) : QDialog(pParent)
-		{
-			setupUi(this);
-			m_pTreeItemsFolien = new QTreeWidgetItem*[Config_TofLoader::FOIL_COUNT];
+	bool *pbChecked = new bool[Config_TofLoader::FOIL_COUNT];
+	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+	{
+		bool bChecked = (m_pTreeItemsFolien[iFolie]->checkState(0)==Qt::Checked);
+		pbChecked[iFolie] = bChecked;
+	}
+	emit FolienSummeSignal(pbChecked, m_iMode);
+	delete[] pbChecked;
+}
 
-			for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
-			{
-				m_pTreeItemsFolien[iFolie] = new QTreeWidgetItem(treeWidget);
-				char pcName[256];
-				sprintf(pcName, "Foil %d", iFolie+1);
-				m_pTreeItemsFolien[iFolie]->setText(0, pcName);
-				m_pTreeItemsFolien[iFolie]->setCheckState(0, Qt::Unchecked);
-			}
-			
-			connect(pushButtonShow, SIGNAL(clicked()), this, SLOT(ShowIt()));
-			connect(pushButtonSelectAll, SIGNAL(clicked()), this, SLOT(SelectAll()));
-			connect(pushButtonSelectNone, SIGNAL(clicked()), this, SLOT(SelectNone()));
-		}
-		
-		virtual ~FolienSummeDlgOhneKanaele()
-		{
-			delete[] m_pTreeItemsFolien; m_pTreeItemsFolien = 0;
-		}
-		
-		void SetMode(int iMode) { m_iMode = iMode; }
-};
+void FolienSummeDlgOhneKanaele::SelectAll()
+{
+	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+		m_pTreeItemsFolien[iFolie]->setCheckState(0,Qt::Checked);
+}
+
+void FolienSummeDlgOhneKanaele::SelectNone()
+{
+	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+		m_pTreeItemsFolien[iFolie]->setCheckState(0,Qt::Unchecked);
+}
+
+FolienSummeDlgOhneKanaele::FolienSummeDlgOhneKanaele(QWidget *pParent) : QDialog(pParent)
+{
+	setupUi(this);
+	m_pTreeItemsFolien = new QTreeWidgetItem*[Config_TofLoader::FOIL_COUNT];
+
+	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+	{
+		m_pTreeItemsFolien[iFolie] = new QTreeWidgetItem(treeWidget);
+		char pcName[256];
+		sprintf(pcName, "Foil %d", iFolie+1);
+		m_pTreeItemsFolien[iFolie]->setText(0, pcName);
+		m_pTreeItemsFolien[iFolie]->setCheckState(0, Qt::Unchecked);
+	}
+	
+	connect(pushButtonShow, SIGNAL(clicked()), this, SLOT(ShowIt()));
+	connect(pushButtonSelectAll, SIGNAL(clicked()), this, SLOT(SelectAll()));
+	connect(pushButtonSelectNone, SIGNAL(clicked()), this, SLOT(SelectNone()));
+}
+
+FolienSummeDlgOhneKanaele::~FolienSummeDlgOhneKanaele()
+{
+	delete[] m_pTreeItemsFolien; m_pTreeItemsFolien = 0;
+}
+
+void FolienSummeDlgOhneKanaele::SetMode(int iMode) { m_iMode = iMode; }
 // ********************************************************************
 
 
 
 // ************************* Zeug für Graph-Dialog ***********************
-class GraphDlg : public QDialog, public Ui::GraphDlg
+void GraphDlg::UpdateGraph(void)
 {
-	Q_OBJECT
+	// Messpunkte für eine Folie
+	TmpGraph tmpGraph;
+	m_pTofImg->GetGraph(spinBoxROIx1->value(),spinBoxROIx2->value(),spinBoxROIy1->value(),spinBoxROIy2->value(),spinBoxFolie->value()-1, &tmpGraph);
 	
-	protected:
-		TofImage *m_pTofImg;
-		ErrorBarPlotCurve m_curve;
-		QwtPlotCurve m_curvefit, m_curvetotal;
-		QwtLegend *m_plegend;
-		QwtPlotGrid *m_pgrid;
-		
-		void UpdateGraph(void)
-		{
-			// Messpunkte für eine Folie
-			TmpGraph tmpGraph;
-			m_pTofImg->GetGraph(spinBoxROIx1->value(),spinBoxROIx2->value(),spinBoxROIy1->value(),spinBoxROIy2->value(),spinBoxFolie->value()-1, &tmpGraph);
-			
-			double *pdx = new double[tmpGraph.GetWidth()];
-			double *pdy = new double[tmpGraph.GetWidth()];
-			for(int i=0; i<tmpGraph.GetWidth(); ++i)
-			{
-				pdx[i]=i;
-				pdy[i]=tmpGraph.GetData(i);
-			}
-			m_curve.setData(pdx,pdy,tmpGraph.GetWidth());
-			delete[] pdx;
-			delete[] pdy;
-			
-			
-			// Fit dieser Messpunkte
-			double dPhase, dFreq, dAmp, dOffs;
-			bool bFitValid = tmpGraph.FitSinus(dPhase, dFreq, dAmp, dOffs);
-			
-			char pcFit[256];
-			if(bFitValid)
-				sprintf(pcFit, "Fit: y = %.0f * sin(%.4f*x + %.4f) + %.0f", dAmp, dFreq, dPhase, dOffs);
-			else 
-				sprintf(pcFit, "Fit: invalid!");
-			labelFit->setText(pcFit);
+	double *pdx = new double[tmpGraph.GetWidth()];
+	double *pdy = new double[tmpGraph.GetWidth()];
+	for(int i=0; i<tmpGraph.GetWidth(); ++i)
+	{
+		pdx[i]=i;
+		pdy[i]=tmpGraph.GetData(i);
+	}
+	m_curve.setData(pdx,pdy,tmpGraph.GetWidth());
+	delete[] pdx;
+	delete[] pdy;
+	
+	
+	// Fit dieser Messpunkte
+	double dPhase, dFreq, dAmp, dOffs;
+	bool bFitValid = tmpGraph.FitSinus(dPhase, dFreq, dAmp, dOffs);
+	
+	char pcFit[256];
+	if(bFitValid)
+		sprintf(pcFit, "Fit: y = %.0f * sin(%.4f*x + %.4f) + %.0f", dAmp, dFreq, dPhase, dOffs);
+	else 
+		sprintf(pcFit, "Fit: invalid!");
+	labelFit->setText(pcFit);
 
-			const int FITPUNKTE=16;
-			pdx = new double[Config_TofLoader::IMAGES_PER_FOIL*FITPUNKTE];
-			pdy = new double[Config_TofLoader::IMAGES_PER_FOIL*FITPUNKTE];
-			for(int i=0; i<Config_TofLoader::IMAGES_PER_FOIL*FITPUNKTE; ++i)
-			{
-				double x = double(i)/double(FITPUNKTE);
-				pdx[i] = x;
-				pdy[i] = dAmp*sin(x*dFreq + dPhase) + dOffs;
-			}
-			m_curvefit.setData(pdx,pdy,Config_TofLoader::IMAGES_PER_FOIL*FITPUNKTE);
-			delete[] pdx;
-			delete[] pdy;
-			
-			
-			// Gesamtkurve
-			TmpGraph tmpGraphtotal;
-			m_pTofImg->GetTotalGraph(spinBoxROIx1->value(),spinBoxROIx2->value(),spinBoxROIy1->value(),spinBoxROIy2->value(),spinBoxPhase->value(), &tmpGraphtotal);
-			pdx = new double[tmpGraphtotal.GetWidth()];
-			pdy = new double[tmpGraphtotal.GetWidth()];
-			for(int i=0; i<tmpGraphtotal.GetWidth(); ++i)
-			{
-				pdx[i]=i;
-				pdy[i]=tmpGraphtotal.GetData(i);
-			}
-			m_curvetotal.setData(pdx,pdy,tmpGraphtotal.GetWidth());
-			delete[] pdx;
-			delete[] pdy;
+	const int FITPUNKTE=16;
+	pdx = new double[Config_TofLoader::IMAGES_PER_FOIL*FITPUNKTE];
+	pdy = new double[Config_TofLoader::IMAGES_PER_FOIL*FITPUNKTE];
+	for(int i=0; i<Config_TofLoader::IMAGES_PER_FOIL*FITPUNKTE; ++i)
+	{
+		double x = double(i)/double(FITPUNKTE);
+		pdx[i] = x;
+		pdy[i] = dAmp*sin(x*dFreq + dPhase) + dOffs;
+	}
+	m_curvefit.setData(pdx,pdy,Config_TofLoader::IMAGES_PER_FOIL*FITPUNKTE);
+	delete[] pdx;
+	delete[] pdy;
+	
+	
+	// Gesamtkurve
+	TmpGraph tmpGraphtotal;
+	m_pTofImg->GetTotalGraph(spinBoxROIx1->value(),spinBoxROIx2->value(),spinBoxROIy1->value(),spinBoxROIy2->value(),spinBoxPhase->value(), &tmpGraphtotal);
+	pdx = new double[tmpGraphtotal.GetWidth()];
+	pdy = new double[tmpGraphtotal.GetWidth()];
+	for(int i=0; i<tmpGraphtotal.GetWidth(); ++i)
+	{
+		pdx[i]=i;
+		pdy[i]=tmpGraphtotal.GetData(i);
+	}
+	m_curvetotal.setData(pdx,pdy,tmpGraphtotal.GetWidth());
+	delete[] pdx;
+	delete[] pdy;
 
-			
-			qwtPlot->replot();
-		}
-		
-	protected slots:
-		void ROIy1changed(int iVal) { UpdateGraph(); }
-		void ROIy2changed(int iVal) { UpdateGraph(); }
-		void ROIx1changed(int iVal) { UpdateGraph(); }
-		void ROIx2changed(int iVal) { UpdateGraph(); }
-		void Foliechanged(int iVal) { UpdateGraph(); }
-		void Phasechanged(double dVal) { UpdateGraph(); }
-		
-	public:
-		GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie) : QDialog(pParent), m_curve("Foil"), m_curvefit("Fit"), m_curvetotal("Total"), m_plegend(0), m_pgrid(0)
-		{
-			m_pTofImg = pTof;
-			setupUi(this);
-			
-			qwtPlot->setAutoReplot(false);
-			qwtPlot->setCanvasBackground(QColor(255,255,255));
-			qwtPlot->axisWidget(QwtPlot::xBottom)->setTitle("Time Channels");
-			qwtPlot->axisWidget(QwtPlot::yLeft)->setTitle("Counts");
-			
-			m_pgrid = new QwtPlotGrid;
-			m_pgrid->enableXMin(true);
-			m_pgrid->enableYMin(true);
-			m_pgrid->setMajPen(QPen(Qt::black, 0, Qt::DotLine));
-			m_pgrid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
-			m_pgrid->attach(qwtPlot);			
-			
-			spinBoxROIx1->setMinimum(0);
-			spinBoxROIx1->setMaximum(Config_TofLoader::IMAGE_WIDTH-1);
-			spinBoxROIx2->setMinimum(0);
-			spinBoxROIx2->setMaximum(Config_TofLoader::IMAGE_WIDTH-1);
-			spinBoxROIy1->setMinimum(0);
-			spinBoxROIy1->setMaximum(Config_TofLoader::IMAGE_HEIGHT-1);
-			spinBoxROIy2->setMinimum(0);
-			spinBoxROIy2->setMaximum(Config_TofLoader::IMAGE_HEIGHT-1);
-			spinBoxFolie->setMinimum(1);
-			spinBoxFolie->setMaximum(Config_TofLoader::FOIL_COUNT);
-			
-			spinBoxROIx1->setValue(iROIx1);
-			spinBoxROIx2->setValue(iROIx2);
-			spinBoxROIy1->setValue(iROIy1);
-			spinBoxROIy2->setValue(iROIy2);
-			spinBoxFolie->setValue(iFolie+1);
-			
-			QwtLegend *m_plegend = new QwtLegend;
-			//m_plegend->setItemMode(QwtLegend::CheckableItem);
-			qwtPlot->insertLegend(m_plegend, QwtPlot::RightLegend);
-			
-			QObject::connect(spinBoxROIy1, SIGNAL(valueChanged(int)), this, SLOT(ROIy1changed(int)));
-			QObject::connect(spinBoxROIy2, SIGNAL(valueChanged(int)), this, SLOT(ROIy2changed(int)));
-			QObject::connect(spinBoxROIx1, SIGNAL(valueChanged(int)), this, SLOT(ROIx1changed(int)));
-			QObject::connect(spinBoxROIx2, SIGNAL(valueChanged(int)), this, SLOT(ROIx2changed(int)));
-			QObject::connect(spinBoxFolie, SIGNAL(valueChanged(int)), this, SLOT(Foliechanged(int)));
-			QObject::connect(spinBoxPhase, SIGNAL(valueChanged(double)), this, SLOT(Phasechanged(double)));			
-			
-			
-			// Kurve für Messpunkte für eine Folie
-			QwtSymbol sym;
-			sym.setStyle(QwtSymbol::Ellipse);
-			sym.setPen(QColor(Qt::blue));
-			sym.setBrush(QColor(Qt::blue));
-			sym.setSize(5);
-			m_curve.setSymbol(sym);
-			m_curve.setStyle(QwtPlotCurve::NoCurve);
-			m_curve.setRenderHint(QwtPlotItem::RenderAntialiased);
-			m_curve.setPen(QPen(Qt::blue));
-			m_curve.attach(qwtPlot);
-			
-			// Kurve für Fits
-			m_curvefit.setRenderHint(QwtPlotItem::RenderAntialiased);
-			QPen penfit = QPen(Qt::red);
-			m_curvefit.setPen(penfit);
-			m_curvefit.attach(qwtPlot);
-			
-			// Gesamtkurve
-			m_curvetotal.setRenderHint(QwtPlotItem::RenderAntialiased);
-			QPen pentotal = QPen(Qt::black);
-			pentotal.setWidth(2);
-			m_curvetotal.setPen(pentotal);
-			m_curvetotal.attach(qwtPlot);
-			
-			
-			UpdateGraph();
-		}
-		
-		virtual ~GraphDlg()
-		{
-			if(m_pgrid) delete m_pgrid;
-			if(m_plegend) delete m_plegend;
-		}
-};
+	
+	qwtPlot->replot();
+}
+
+void GraphDlg::ROIy1changed(int iVal) { UpdateGraph(); }
+void GraphDlg::ROIy2changed(int iVal) { UpdateGraph(); }
+void GraphDlg::ROIx1changed(int iVal) { UpdateGraph(); }
+void GraphDlg::ROIx2changed(int iVal) { UpdateGraph(); }
+void GraphDlg::Foliechanged(int iVal) { UpdateGraph(); }
+void GraphDlg::Phasechanged(double dVal) { UpdateGraph(); }
+
+GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie) : QDialog(pParent), m_curve("Foil"), m_curvefit("Fit"), m_curvetotal("Total"), m_plegend(0), m_pgrid(0)
+{
+	m_pTofImg = pTof;
+	setupUi(this);
+	
+	qwtPlot->setAutoReplot(false);
+	qwtPlot->setCanvasBackground(QColor(255,255,255));
+	qwtPlot->axisWidget(QwtPlot::xBottom)->setTitle("Time Channels");
+	qwtPlot->axisWidget(QwtPlot::yLeft)->setTitle("Counts");
+	
+	m_pgrid = new QwtPlotGrid;
+	m_pgrid->enableXMin(true);
+	m_pgrid->enableYMin(true);
+	m_pgrid->setMajPen(QPen(Qt::black, 0, Qt::DotLine));
+	m_pgrid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
+	m_pgrid->attach(qwtPlot);			
+	
+	spinBoxROIx1->setMinimum(0);
+	spinBoxROIx1->setMaximum(Config_TofLoader::IMAGE_WIDTH-1);
+	spinBoxROIx2->setMinimum(0);
+	spinBoxROIx2->setMaximum(Config_TofLoader::IMAGE_WIDTH-1);
+	spinBoxROIy1->setMinimum(0);
+	spinBoxROIy1->setMaximum(Config_TofLoader::IMAGE_HEIGHT-1);
+	spinBoxROIy2->setMinimum(0);
+	spinBoxROIy2->setMaximum(Config_TofLoader::IMAGE_HEIGHT-1);
+	spinBoxFolie->setMinimum(1);
+	spinBoxFolie->setMaximum(Config_TofLoader::FOIL_COUNT);
+	
+	spinBoxROIx1->setValue(iROIx1);
+	spinBoxROIx2->setValue(iROIx2);
+	spinBoxROIy1->setValue(iROIy1);
+	spinBoxROIy2->setValue(iROIy2);
+	spinBoxFolie->setValue(iFolie+1);
+	
+	QwtLegend *m_plegend = new QwtLegend;
+	//m_plegend->setItemMode(QwtLegend::CheckableItem);
+	qwtPlot->insertLegend(m_plegend, QwtPlot::RightLegend);
+	
+	QObject::connect(spinBoxROIy1, SIGNAL(valueChanged(int)), this, SLOT(ROIy1changed(int)));
+	QObject::connect(spinBoxROIy2, SIGNAL(valueChanged(int)), this, SLOT(ROIy2changed(int)));
+	QObject::connect(spinBoxROIx1, SIGNAL(valueChanged(int)), this, SLOT(ROIx1changed(int)));
+	QObject::connect(spinBoxROIx2, SIGNAL(valueChanged(int)), this, SLOT(ROIx2changed(int)));
+	QObject::connect(spinBoxFolie, SIGNAL(valueChanged(int)), this, SLOT(Foliechanged(int)));
+	QObject::connect(spinBoxPhase, SIGNAL(valueChanged(double)), this, SLOT(Phasechanged(double)));			
+	
+	
+	// Kurve für Messpunkte für eine Folie
+	QwtSymbol sym;
+	sym.setStyle(QwtSymbol::Ellipse);
+	sym.setPen(QColor(Qt::blue));
+	sym.setBrush(QColor(Qt::blue));
+	sym.setSize(5);
+	m_curve.setSymbol(sym);
+	m_curve.setStyle(QwtPlotCurve::NoCurve);
+	m_curve.setRenderHint(QwtPlotItem::RenderAntialiased);
+	m_curve.setPen(QPen(Qt::blue));
+	m_curve.attach(qwtPlot);
+	
+	// Kurve für Fits
+	m_curvefit.setRenderHint(QwtPlotItem::RenderAntialiased);
+	QPen penfit = QPen(Qt::red);
+	m_curvefit.setPen(penfit);
+	m_curvefit.attach(qwtPlot);
+	
+	// Gesamtkurve
+	m_curvetotal.setRenderHint(QwtPlotItem::RenderAntialiased);
+	QPen pentotal = QPen(Qt::black);
+	pentotal.setWidth(2);
+	m_curvetotal.setPen(pentotal);
+	m_curvetotal.attach(qwtPlot);
+	
+	
+	UpdateGraph();
+}
+
+GraphDlg::~GraphDlg()
+{
+	if(m_pgrid) delete m_pgrid;
+	if(m_plegend) delete m_plegend;
+}
 // **************************************************************
 
 // ************************* Server-Dialog ********************************
-class ServerDlg : public QDialog, public Ui::dialogServer
+ServerDlg::ServerDlg(QWidget *pParent) : QDialog(pParent)
 {
-	Q_OBJECT
-	
-	protected:
-		
-	protected slots:
-		
-	public:
-		ServerDlg(QWidget *pParent) : QDialog(pParent)
-		{
-			setupUi(this);
-		}
-		
-		virtual ~ServerDlg()
-		{
-		}
-};
+	setupUi(this);
+}
+
+ServerDlg::~ServerDlg()
+{
+}
 // ********************************************************************
 
 // ************************* Server-Dialog ********************************
-class ServerCfgDlg : public QDialog, public Ui::ServerConfigDlg
+ServerCfgDlg::ServerCfgDlg(QWidget *pParent) : QDialog(pParent)
 {
-	Q_OBJECT
-	
-	protected:
-		static double s_dLastTime;
-		
-	protected slots:
-		
-	public:
-		ServerCfgDlg(QWidget *pParent) : QDialog(pParent)
-		{
-			setupUi(this);
-			QString str; 
-			str.setNum(s_dLastTime);
-			editMeasTime->setText(str);
-		}
-		
-		virtual ~ServerCfgDlg()
-		{}
-		
-		double GetMeasTime()
-		{
-			s_dLastTime = editMeasTime->text().toDouble();
-			return s_dLastTime;
-		}
-};
+	setupUi(this);
+	QString str; 
+	str.setNum(s_dLastTime);
+	editMeasTime->setText(str);
+}
+
+ServerCfgDlg::~ServerCfgDlg()
+{}
+
+double ServerCfgDlg::GetMeasTime()
+{
+	s_dLastTime = editMeasTime->text().toDouble();
+	return s_dLastTime;
+}
 
 double ServerCfgDlg::s_dLastTime = 10.0;
 // ********************************************************************

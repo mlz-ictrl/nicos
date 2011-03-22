@@ -25,6 +25,9 @@
 // *****************************************************************************
 // Werte in Bins einordnen
 
+#ifndef __BINS__
+#define __BINS__
+
 class Bins
 {
 	protected:
@@ -70,3 +73,5 @@ class Bins
 		const QwtArray<QwtDoubleInterval>& GetIntervals() const { return m_intervals; }
 		const QwtArray<double>& GetValues() const { return m_values; }
 };
+
+#endif

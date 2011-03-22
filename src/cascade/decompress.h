@@ -26,6 +26,9 @@
 
 // Im Speicher Daten per Zlib-Deflate dekomprimieren
 
+#ifndef __DECOMPRESS__
+#define __DECOMPRESS__
+
 #include <zlib.h>
 #include <iostream>
 
@@ -57,3 +60,5 @@ bool decompress(const char* pcIn, int iLenIn, char* pcOut, int& iLenOut)
 	
 	return true;
 }
+
+#endif

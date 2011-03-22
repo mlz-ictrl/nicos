@@ -99,7 +99,7 @@ bool TcpClient::write(const char* pcBuf, int iSize)
 	//m_socket.flush();
 	
 	if(m_bDebugLog && iSize>0 && isprint(pcBuf[0]))
-		std::cerr << "\033[0;31m" << "[to Server] length: " << iSize << ", data: " << pcBuf << "\033[0m" << std::endl;
+		std::cerr << "\033[0;31m" << "[to server] length: " << iSize << ", data: " << pcBuf << "\033[0m" << std::endl;
 
 	return true;
 }
@@ -194,7 +194,7 @@ const QByteArray& TcpClient::recvmsg(void)
 	
 	int iTimeElapsed = m_timer.elapsed();
 	if(m_bDebugLog)
-		std::cerr << "\033[0;35m" << "[from Server] length: " << iExpectedMsgLength << ", time: " << iTimeElapsed << "ms, data: " << arrMsg.data() << "\033[0m" << std::endl;
+		std::cerr << "\033[0;35m" << "[from server] length: " << iExpectedMsgLength << ", time: " << iTimeElapsed << "ms, data: " << arrMsg.data() << "\033[0m" << std::endl;
 	
 	return arrMsg;
 }
@@ -217,7 +217,7 @@ void TcpClient::disconnected()
 void TcpClient::readReady()
 {
 	// nur für nichtblockierenden Client erlauben
-	if(m_pReadCB==0 || m_bBlocking) return;
+	if(m_bBlocking) return;
 	
 	int iSize = m_socket.bytesAvailable();
 	if(iSize==0) return;
@@ -267,11 +267,11 @@ void TcpClient::readReady()
 		
 		int iTimeElapsed = m_timer.elapsed();
 		
-		// Fertige Nachricht an Hauptfenster senden
-		m_pReadCB(m_byCurMsg.data(), m_byCurMsg.size(), m_pvUser);
+		// Fertige Nachricht emittieren
+		emit MessageSignal(m_byCurMsg.data(), m_byCurMsg.size());
 
 		if(m_bDebugLog)
-			std::cerr << "\033[0;35m" << "[from Server] length: " << m_iCurMsgLength << ", time: " << iTimeElapsed << "ms, total: " << m_timer.elapsed() << "ms, data: " << m_byCurMsg.data() << "\033[0m" << std::endl;
+			std::cerr << "\033[0;35m" << "[from server] length: " << m_iCurMsgLength << ", time: " << iTimeElapsed << "ms, total: " << m_timer.elapsed() << "ms, data: " << m_byCurMsg.data() << "\033[0m" << std::endl;
 		
 		// Ende der Nachricht, neue beginnt
 		m_bBeginOfMessage = true;		
@@ -280,12 +280,8 @@ void TcpClient::readReady()
 }
 ////////////////////////////////////////////////////////////////
 
-TcpClient::TcpClient(QObject *pParent, void (*pReadCB)(char*, int, void*), void* pvUser) : QObject(pParent), m_socket(pParent), m_pReadCB(pReadCB), m_pvUser(pvUser), m_bBeginOfMessage(1), m_iCurMsgLength(0), m_bDebugLog(0)
+TcpClient::TcpClient(QObject *pParent, bool bBlocking) : QObject(pParent), m_bBlocking(bBlocking), m_socket(pParent), m_bBeginOfMessage(1), m_iCurMsgLength(0), m_bDebugLog(0)
 {
-	// Wenn kein Callback angegeben wurde, blockierenden Client verwenden
-	m_bBlocking=0;
-	if(pReadCB==0) m_bBlocking=1;
-	
 	m_iMessageTimeout = -1;	// "-1" bedeutet: Timeout nicht benutzen
 	
 // Cascade-Qt-Client?

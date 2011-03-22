@@ -79,7 +79,7 @@ int SERVER_STATUS_POLL_TIME = 1000;
 
 #include "ErrorBarPlotCurve.h"
 #include "histogram_item.h"
-#include "cascadedialoge.cpp"
+#include "cascadedialoge.h"
 
 
 ////////////////////////////// Haupt-Fenster ///////////////////////////////////////
@@ -126,8 +126,78 @@ class MainWindow : public QMainWindow
 			pStatusMsg->setText(pcMsg);
 	}
 	
-	/////////// Callbacks für Tcp-Client /////////////////////////////
-	void TcpReadCB(char* pcBuf, int iLen)
+	void UpdateLabels(bool bUpdateWidgetLabels=true)
+	{
+		if(bUpdateWidgetLabels)
+			m_cascadewidget.UpdateLabels();
+		
+		if(m_cascadewidget.IsTofLoaded())
+		{
+			sliderFolien->setEnabled(true);
+			labelFolie->setEnabled(true);
+			
+			switch(m_cascadewidget.GetMode())
+			{
+				case MODE_SLIDES:
+				case MODE_SUMS:
+					sliderZeitkanaele->setEnabled(true);
+					labelZeitkanal->setEnabled(true);
+					break;
+
+				case MODE_PHASES:
+				case MODE_PHASESUMS:
+					sliderZeitkanaele->setEnabled(false);
+					labelZeitkanal->setEnabled(false);
+					break;
+
+				case MODE_CONTRASTS:
+				case MODE_CONTRASTSUMS:
+					sliderZeitkanaele->setEnabled(false);
+					labelZeitkanal->setEnabled(false);
+					break;
+			}
+
+			// Statuszeile aktualisieren
+			switch(m_cascadewidget.GetMode())
+			{
+				case MODE_SLIDES:
+					ShowMessage("Showing Foils.");
+					break;
+				case MODE_SUMS:
+					ShowMessage("Showing Sums.");
+					break;
+
+				case MODE_PHASES:
+					ShowMessage("Showing Phases.");
+					break;
+				case MODE_PHASESUMS:
+					ShowMessage("Showing Phase Sums.");
+					break;
+
+				case MODE_CONTRASTS:
+					ShowMessage("Showing Contrasts.");
+					break;
+				case MODE_CONTRASTSUMS:
+					ShowMessage("Showing Contrast Sums.");
+					break;
+			}
+		}
+		else if(m_cascadewidget.IsPadLoaded())
+		{
+			sliderFolien->setEnabled(false);
+			labelFolie->setEnabled(false);
+			sliderZeitkanaele->setEnabled(false);
+			labelZeitkanal->setEnabled(false);
+			ShowMessage("Showing PAD.");
+		}
+	}
+	
+
+	// Slots
+	protected slots:
+		
+	/////////// Slot für Tcp-Client /////////////////////////////
+	void ServerMessageSlot(const char* pcBuf, int iLen)
 	{
 		// Antworten müssen mindestens 4 Zeichen lang sein (Kommandostring)
 		if(iLen<4) return;
@@ -230,82 +300,7 @@ class MainWindow : public QMainWindow
 		{
 			std::cerr << "Error: Unknown prefix in server response: \"" <<pcBuf[0]<<pcBuf[1]<<pcBuf[2]<<pcBuf[3] << "\"." << std::endl;
 		}
-	}
-	
-	static void s_TcpReadCB(char* pcBuf, int iLen, void* pvThis)
-	{ 
-		((MainWindow*)pvThis)->TcpReadCB(pcBuf, iLen); 
-	}
-	
-	void UpdateLabels(bool bUpdateWidgetLabels=true)
-	{
-		if(bUpdateWidgetLabels)
-			m_cascadewidget.UpdateLabels();
-		
-		if(m_cascadewidget.IsTofLoaded())
-		{
-			sliderFolien->setEnabled(true);
-			labelFolie->setEnabled(true);
-			
-			switch(m_cascadewidget.GetMode())
-			{
-				case MODE_SLIDES:
-				case MODE_SUMS:
-					sliderZeitkanaele->setEnabled(true);
-					labelZeitkanal->setEnabled(true);
-					break;
-
-				case MODE_PHASES:
-				case MODE_PHASESUMS:
-					sliderZeitkanaele->setEnabled(false);
-					labelZeitkanal->setEnabled(false);
-					break;
-
-				case MODE_CONTRASTS:
-				case MODE_CONTRASTSUMS:
-					sliderZeitkanaele->setEnabled(false);
-					labelZeitkanal->setEnabled(false);
-					break;
-			}
-
-			// Statuszeile aktualisieren
-			switch(m_cascadewidget.GetMode())
-			{
-				case MODE_SLIDES:
-					ShowMessage("Showing Foils.");
-					break;
-				case MODE_SUMS:
-					ShowMessage("Showing Sums.");
-					break;
-
-				case MODE_PHASES:
-					ShowMessage("Showing Phases.");
-					break;
-				case MODE_PHASESUMS:
-					ShowMessage("Showing Phase Sums.");
-					break;
-
-				case MODE_CONTRASTS:
-					ShowMessage("Showing Contrasts.");
-					break;
-				case MODE_CONTRASTSUMS:
-					ShowMessage("Showing Contrast Sums.");
-					break;
-			}
-		}
-		else if(m_cascadewidget.IsPadLoaded())
-		{
-			sliderFolien->setEnabled(false);
-			labelFolie->setEnabled(false);
-			sliderZeitkanaele->setEnabled(false);
-			labelZeitkanal->setEnabled(false);
-			ShowMessage("Showing PAD.");
-		}
-	}
-	
-
-	// Slots
-	protected slots:
+	}		
 		
 	// Slot vom Summen-Dialog
 	void FolienSummeSlot(bool *pbKanaele, int iMode)
@@ -646,7 +641,7 @@ class MainWindow : public QMainWindow
 		Unload();
 	}
 	
-	MainWindow(QWidget *parent=NULL) : QMainWindow(parent), m_cascadewidget(this), m_client(this, s_TcpReadCB, this), statusbar(NULL), m_statustimer(this)
+	MainWindow(QWidget *parent=NULL) : QMainWindow(parent), m_cascadewidget(this), m_client(this, false), statusbar(NULL), m_statustimer(this)
 	{
 		char pcBuf[256];
 		Config::GetSingleton()->QueryString("/cascade_config/main_window/title", pcBuf, "Cascade");
@@ -874,6 +869,8 @@ class MainWindow : public QMainWindow
 		connect(actionSummen, SIGNAL(triggered()), this, SLOT(showSummenDialog()));
 		
 		connect(&m_statustimer, SIGNAL(timeout()), this, SLOT(ServerStatus()));
+		
+		connect(&m_client, SIGNAL(MessageSignal(const char*, int)), this, SLOT(ServerMessageSlot(const char*, int)));
 	}
 };
 
