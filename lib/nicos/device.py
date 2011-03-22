@@ -35,7 +35,8 @@ from time import time as currenttime, sleep
 
 from nicos import session
 from nicos import status, loggers
-from nicos.utils import AutoPropsMeta, Param, Override, getVersions, tupleof
+from nicos.utils import AutoPropsMeta, Param, Override, Value, getVersions, \
+     tupleof
 from nicos.errors import ConfigurationError, ProgrammingError, UsageError, \
      LimitError, FixedError, ModeError, CommunicationError, CacheLockError
 
@@ -835,10 +836,7 @@ class Measurable(Startable):
             yield item
 
     def valueInfo(self):
-        """Return three tuples:
-
-        * value names
-        * value units
-        * should value be plotted
+        """Return a tuple of Value instances describing the values that read()
+        returns.
         """
-        return (self.name,), (self.unit,), (True,)
+        return Value(self.name, unit=self.unit)

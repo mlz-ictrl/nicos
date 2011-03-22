@@ -37,8 +37,8 @@ from IO import Timer, Counter
 
 from nicos import status
 from nicos.taco import TacoDevice
-from nicos.utils import any
-from nicos.device import Measurable, Param
+from nicos.utils import any, oneof
+from nicos.device import Measurable, Param, Value
 from nicos.errors import ConfigurationError
 
 
@@ -137,11 +137,16 @@ class FRMTimerChannel(FRMChannel):
         return 's'
 
     def valueInfo(self):
-        return (self.name,), ('s',), (False,)
+        return Value(self.name, unit='s', type='time'),
 
 
 class FRMCounterChannel(FRMChannel):
     taco_class = Counter
+
+    parameters = {
+        'type': Param('Type of channel: monitor or counter',
+                      type=oneof(str, 'monitor', 'counter'), mandatory=True),
+    }
 
     def doRead(self):
         # convert long to int if it fits
@@ -151,7 +156,7 @@ class FRMCounterChannel(FRMChannel):
         return 'cts'
 
     def valueInfo(self):
-        return (self.name,), ('cts',), (True,)
+        return Value(self.name, unit='cts', type=self.type, errors='sqrt'),
 
 
 class FRMDetector(Measurable):
@@ -183,12 +188,10 @@ class FRMDetector(Measurable):
 
     def doPreinit(self):
         self.__counters = []
-        self.__counternames = []
 
         for name in ['t', 'm1', 'm2', 'm3', 'z1', 'z2', 'z3', 'z4', 'z5']:
             if self._adevs[name] is not None:
                 self.__counters.append(self._adevs[name])
-                self.__counternames.append(name)
 
         self.__getMasters()
 
@@ -246,11 +249,4 @@ class FRMDetector(Measurable):
             counter.reset()
 
     def valueInfo(self):
-        names, units, plot = [], [], []
-        for name, counter in zip(self.__counternames, self.__counters):
-            ret = counter.valueInfo()
-            names.extend(ret[0])
-            units.extend(ret[1])
-            # XXX
-            plot.extend([name.startswith('z')] * len(ret[0]))
-        return tuple(names), tuple(units), tuple(plot)
+        return sum((ctr.valueInfo() for ctr in self.__counters), ())

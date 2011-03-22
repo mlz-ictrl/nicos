@@ -34,6 +34,7 @@ __version__ = "$Revision$"
 import time
 import errno
 from os import path
+from math import sqrt
 
 try:
     import GracePlot
@@ -84,7 +85,7 @@ class Dataset(object):
     xunits = []
     ynames = []
     yunits = []
-    yplot = []
+    yvalues = []
 
 
 class NeedsDatapath(object):
@@ -179,8 +180,8 @@ class ConsoleSink(DataSink):
         printinfo('Started at:         ' +
                   time.strftime(TIMEFMT, dataset.started))
         printinfo('-' * 80)
-        printinfo('\t'.join(map(str, ['#'] + dataset.xnames +
-                                dataset.ynames)).expandtabs())
+        printinfo('\t'.join(map(str, ['#'] + dataset.xnames + dataset.ynames)).
+                  expandtabs())
         printinfo('\t'.join([''] + dataset.xunits + dataset.yunits).
                   expandtabs())
         printinfo('-' * 80)
@@ -221,7 +222,7 @@ class DaemonSink(DataSink):
             xaxisname='%s (%s)' % (dataset.xnames[0], dataset.xunits[0]),
             yaxisname=str(dataset.detlist[0]),
             xscale=(dataset.positions[0][0], dataset.positions[-1][0]))
-        for name in dataset.ynames:
+        for name in dataset.ynames: # XXX
             if dataset.multisteps > 1:
                 for i in range(dataset.multisteps):
                     self._handler.add_curve(name, ['x', 'y'], 'default')
@@ -239,6 +240,8 @@ class GraceSink(DataSink):
             return False
         return DataSink.isActive(self, scantype)
 
+    # XXX add error handling
+
     def beginDataset(self, dataset):
         self._grpl = GracePlot.GracePlot()
         self._pl = self._grpl.curr_graph
@@ -249,11 +252,12 @@ class GraceSink(DataSink):
         self._pl.subtitle(dataset.scaninfo)
         self._pl.xaxis(label=GracePlot.Label(
             '%s (%s)' % (dataset.xnames[0], dataset.xunits[0])))
-        self._pl.yaxis(label=GracePlot.Label(str(dataset.detlist[0])))
+        self._pl.yaxis(label=GracePlot.Label(str(dataset.detlist[0]))) # XXX
 
         self._xdata = []
         self._nperstep = len(dataset.ynames)
         self._ydata = [[] for i in range(self._nperstep*dataset.multisteps)]
+        self._dydata = [[] for i in range(self._nperstep*dataset.multisteps)]
         if dataset.multisteps > 1:
             self._ynames = ['%s_%s' % (
                 yn, dataset.positions[i][-dataset.multistepdevices])
@@ -267,6 +271,10 @@ class GraceSink(DataSink):
             self._xdata.append(xvalues[0])
         for i in range(len(yvalues)):
             self._ydata[multistep*self._nperstep + i].append(yvalues[i])
+            if dataset.yvalues[i].errors == 'sqrt':
+                self._dydata[multistep*self._nperstep + i].append(sqrt(yvalues[i]))
+            else:
+                self._dydata[multistep*self._nperstep + i].append(0)
 
         self._pl.clear()
         data = []
@@ -275,12 +283,13 @@ class GraceSink(DataSink):
         for i, ys in enumerate(self._ydata):
             if not ys:
                 continue
-            if not dataset.yplot[i % self._nperstep]:
+            if dataset.yvalues[i % self._nperstep].type != 'counter':
                 continue
             s = GracePlot.Symbol(symbol=GracePlot.symbols.circle,
                                  fillcolor=color, color=color, size=0.4)
-            d = GracePlot.Data(x=self._xdata[:len(ys)], y=ys, symbol=s, line=l,
-                               legend=self._ynames[i], type='xy')
+            d = GracePlot.Data(x=self._xdata[:len(ys)], y=ys, dy=self._dydata[i],
+                               symbol=s, line=l, legend=self._ynames[i],
+                               type='xydy')
             data.append(d)
             color += 1
         self._pl.plot(data)

@@ -43,7 +43,7 @@ import cascadenicosobj
 from nicos import session, status
 from nicos.data import NeedsDatapath
 from nicos.utils import existingdir, tupleof, readFileCounter, updateFileCounter
-from nicos.device import Measurable, Param, Override
+from nicos.device import Measurable, Param, Override, Value
 from nicos.errors import CommunicationError
 
 
@@ -89,9 +89,11 @@ class CascadeDetector(Measurable, NeedsDatapath):
                                        self.nametemplate % self._filenumber)
 
     def valueInfo(self):
-        return (self.name + '.roi', self.name + '.total',
-                self.name + '.file'), ('cts', 'cts', ''), \
-                (self.roi != (-1, -1, -1, -1), True, False)
+        return Value(self.name + '.roi', unit='cts', type='counter',
+                     errors='sqrt', active=self.roi != (-1, -1, -1, -1)), \
+               Value(self.name + '.total', unit='cts', type='counter',
+                     errors='sqrt'), \
+               Value(self.name + '.file', type='info')
 
     def doWriteDebugmsg(self, value):
         self._client.SetDebugLog(value)
