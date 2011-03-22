@@ -234,54 +234,63 @@ class GraceSink(DataSink):
             return False
         return DataSink.isActive(self, scantype)
 
-    # XXX add error handling
-
     def beginDataset(self, dataset):
-        self._grpl = GracePlot.GracePlot()
-        self._pl = self._grpl.curr_graph
-        self._pl.clear()
-        filename = dataset.sinkinfo.get('filename', '')
-        self._pl.title('scan %s started %s' % (filename,
-                       time.strftime(TIMEFMT, dataset.started)))
-        self._pl.subtitle(dataset.scaninfo)
-        self._pl.xaxis(label=GracePlot.Label(
-            '%s (%s)' % (dataset.xnames[dataset.xindex],
-                         dataset.xunits[dataset.xindex])))
-        self._pl.yaxis(label=GracePlot.Label(str(dataset.detlist[0]))) # XXX
+        try:
+            self._grpl = GracePlot.GracePlot()
+            self._pl = self._grpl.curr_graph
+            self._pl.clear()
+            filename = dataset.sinkinfo.get('filename', '')
+            self._pl.title('scan %s started %s' % (filename,
+                           time.strftime(TIMEFMT, dataset.started)))
+            self._pl.subtitle(dataset.scaninfo)
+            self._pl.xaxis(label=GracePlot.Label(
+                '%s (%s)' % (dataset.xnames[dataset.xindex],
+                             dataset.xunits[dataset.xindex])))
+            self._pl.yaxis(label=GracePlot.Label(str(dataset.detlist[0]))) # XXX
 
-        self._xdata = []
-        self._nperstep = len(dataset.ynames)
-        self._ydata = [[] for i in range(self._nperstep)]
-        self._dydata = [[] for i in range(self._nperstep)]
-        self._ynames = dataset.ynames
+            self._xdata = []
+            self._nperstep = len(dataset.ynames)
+            self._ydata = [[] for i in range(self._nperstep)]
+            self._dydata = [[] for i in range(self._nperstep)]
+            self._ynames = dataset.ynames
+        except Exception:
+            self.printwarning('could not create Grace plot', exc=1)
+            self._grpl = None
 
     def addPoint(self, dataset, xvalues, yvalues):
-        self._xdata.append(xvalues[dataset.xindex])
-        for i in range(len(yvalues)):
-            self._ydata[i].append(yvalues[i])
-            if dataset.yvalues[i].errors == 'sqrt':
-                self._dydata[i].append(sqrt(yvalues[i]))
-            else:
-                self._dydata[i].append(0)
+        if self._grpl is None:
+            return
+        try:
+            self._xdata.append(xvalues[dataset.xindex])
+            for i in range(len(yvalues)):
+                self._ydata[i].append(yvalues[i])
+                if dataset.yvalues[i].errors == 'sqrt':
+                    self._dydata[i].append(sqrt(yvalues[i]))
+                else:
+                    self._dydata[i].append(0)
 
-        self._pl.clear()
-        data = []
-        color = GracePlot.colors.black
-        l = GracePlot.Line(type=GracePlot.lines.solid)
-        for i, ys in enumerate(self._ydata):
-            if not ys:
-                continue
-            if dataset.yvalues[i % self._nperstep].type != 'counter':
-                continue
-            s = GracePlot.Symbol(symbol=GracePlot.symbols.circle,
-                                 fillcolor=color, color=color, size=0.4)
-            d = GracePlot.DataXYDY(x=self._xdata[:len(ys)], y=ys,
-                                   dy=self._dydata[i], symbol=s, line=l,
-                                   legend=self._ynames[i])
-            data.append(d)
-            color += 1
-        self._pl.plot(data)
-        self._pl.legend()
+            self._pl.clear()
+            data = []
+            color = GracePlot.colors.black
+            l = GracePlot.Line(type=GracePlot.lines.solid)
+            for i, ys in enumerate(self._ydata):
+                if not ys:
+                    continue
+                if dataset.yvalues[i % self._nperstep].type != 'counter':
+                    continue
+                s = GracePlot.Symbol(symbol=GracePlot.symbols.circle,
+                                     fillcolor=color, color=color, size=0.4)
+                d = GracePlot.DataXYDY(x=self._xdata[:len(ys)], y=ys,
+                                       dy=self._dydata[i], symbol=s, line=l,
+                                       legend=self._ynames[i])
+                data.append(d)
+                color += 1
+            self._pl.plot(data)
+            self._pl.legend()
+        except Exception:
+            self.printwarning('could not add point to Grace', exc=1)
+            # give up for this set
+            self._grpl = None
 
 
 class DatafileSink(DataSink, NeedsDatapath):
