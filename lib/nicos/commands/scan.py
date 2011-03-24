@@ -43,8 +43,8 @@ def _handleScanArgs(args, kwargs):
     for arg in args:
         if isinstance(arg, str):
             infostr = arg
-        #elif isinstance(arg, (int, long, float)):
-        #    preset['t'] = arg
+        elif isinstance(arg, (int, long, float)):
+            preset['t'] = arg
         elif isinstance(arg, Measurable):
             detlist.append(arg)
         elif isinstance(arg, list):

@@ -36,7 +36,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.gui.utils import loadUi, DlgUtils
-from nicos.gui.cascadewidget import CascadeWidget
+from nicos.gui.cascadewidget import CascadeWidget, TmpImage
 
 
 class LiveWindow(QMainWindow, DlgUtils):
@@ -53,3 +53,30 @@ class LiveWindow(QMainWindow, DlgUtils):
 
     def setData(self, data):
         self.widget.LoadPadMem(data, 128*128*4)
+
+    @qtsig('')
+    def on_actionWriteXml_triggered(self):
+        filename = str(QFileDialog.getSaveFileName(
+            self, self.tr('Select file name'), '',
+            self.tr('XML files (*.xml)')))
+        if filename == '':
+            return
+        if not filename.endswith('.xml'):
+            filename += '.xml'
+        pad = self.widget.GetPad()
+        if pad is None:
+            return
+        tmpimg = TmpImage()
+        tmpimg.ConvertPAD(pad)
+        tmpimg.WriteXML(filename)
+
+    @qtsig('')
+    def on_actionSetAsROI_triggered(self):
+        zoom = self.widget.GetPlot().GetZoomer().zoomRect()
+        self.parent().run_script('None', 'psd.roi = (%s, %s, %s, %s)' %
+                                 (int(zoom.left()), int(zoom.top()),
+                                  int(zoom.right()), int(zoom.bottom())))
+
+    @qtsig('')
+    def on_actionUnzoom_triggered(self):
+        self.widget.GetPlot().GetZoomer().zoom(0)

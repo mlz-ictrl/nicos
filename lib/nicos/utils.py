@@ -517,6 +517,8 @@ def readFileCounter(counterpath):
         # exceptions
         if err.errno == errno.ENOENT:
             currentcounter = 0
+            if not path.isdir(path.dirname(counterpath)):
+                os.makedirs(path.dirname(counterpath))
             updateFileCounter(counterpath, 0)
         else:
             raise

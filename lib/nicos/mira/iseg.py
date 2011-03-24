@@ -65,13 +65,17 @@ class StandaloneIseg(TacoDevice, Device, IsegConnector):
         # rlen is ignored since we really wait until everything is transmitted
         for c in msg:
             self._taco_guard(self._dev.write, c)
+            n = 0
             while 1:
                 sleep(0.003)
                 cr = self._taco_guard(self._dev.read)
                 if cr:
                     if cr != c:
-                        raise NicosError('communication problem in echo')
+                        raise NicosError('wrong echo from iseg')
                     break
+                n += 1
+                if n == 50:
+                    raise CommunicationError('no echo from iseg')
         self._taco_guard(self._dev.write, '\r\n')
         sleep(0.01)
         s = ''

@@ -211,7 +211,7 @@ class DaemonSink(DataSink):
     def beginDataset(self, dataset):
         self._handler = session.datahandler
         filename = dataset.sinkinfo.get('filename', '')
-        # XXX create a new interface for this
+        # XXX create a new interface for this: directly transfer dataset
         self._handler.new_dataset(
             'scan started %s' % time.strftime(TIMEFMT, dataset.started),
             '', dataset.scaninfo, filename, '',
@@ -220,12 +220,22 @@ class DaemonSink(DataSink):
             yaxisname=str(dataset.detlist[0]),
             xscale=(dataset.positions[0][dataset.xindex],
                     dataset.positions[-1][dataset.xindex]))
-        for name in dataset.ynames:
-            self._handler.add_curve(name, ['x', 'y'], 'default')
+        for name, info in zip(dataset.ynames, dataset.yvalues):
+            if info.type == 'info':
+                continue
+            if info.errors == 'sqrt':
+                self._handler.add_curve(name, ['x', 'y', 'dy'], 'default')
+            else:
+                self._handler.add_curve(name, ['x', 'y'], 'default')
 
     def addPoint(self, dataset, xvalues, yvalues):
         for i, v in enumerate(yvalues):
-            self._handler.add_point(i, [xvalues[dataset.xindex], v])
+            if dataset.yvalues[i].type == 'info':
+                continue
+            elif dataset.yvalues[i].errors == 'sqrt':
+                self._handler.add_point(i, [xvalues[dataset.xindex], v, sqrt(v)])
+            else:
+                self._handler.add_point(i, [xvalues[dataset.xindex], v])
 
 
 class GraceSink(DataSink):

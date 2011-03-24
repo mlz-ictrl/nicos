@@ -33,7 +33,9 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import os
 import time
+from os import path
 
 from nicos import session
 from nicos.data import NeedsDatapath, Dataset
@@ -86,6 +88,8 @@ class Experiment(Device):
         self.users = self.users + [user]
 
     def doWriteDatapath(self, value):
+        if not path.isdir(value):
+            os.makedirs(value)
         for dev in session.devices.itervalues():
             if isinstance(dev, NeedsDatapath):
                 dev._setDatapath(value)

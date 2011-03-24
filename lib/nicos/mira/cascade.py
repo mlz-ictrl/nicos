@@ -55,7 +55,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
         'debugmsg': Param('Whether to print debug messages from the client',
                           type=bool, settable=True, default=False),
         'nametemplate': Param('Template for the data file names',
-                              type=str, default='cascade_%05d'),
+                              type=str, default='cascade_%05d.pad'),
         'roi':      Param('Region of interest, given as (x1, y1, x2, y2)',
                           type=tupleof(int, int, int, int),
                           default=(-1, -1, -1, -1), settable=True),
@@ -187,11 +187,13 @@ class CascadeDetector(Measurable, NeedsDatapath):
             try:
                 # XXX check return for errors
                 finaldata = self._client.communicate('CMD_readsram')[4:]
+                session.updateLiveData('<i4', 128, 128, 1,
+                                       self._last_preset, finaldata)
                 with open(self._lastfilename, 'w') as fp:
                     fp.write(finaldata)
                 # XXX temporary until self._client component can do this
                 ar = numpy.ndarray(
-                    buffer=finaldata, shape=(128, 128), dtype='<I4')
+                    buffer=finaldata, shape=(128, 128), order='F', dtype='<I4')
                 self._last_total = int(long(ar.sum()))
                 if self.roi != (-1, -1, -1, -1):
                     x1, y1, x2, y2 = self.roi
