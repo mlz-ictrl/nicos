@@ -54,7 +54,7 @@
 // Default-Werte
 int Config_TofLoader::FOIL_COUNT = 4;
 int Config_TofLoader::IMAGES_PER_FOIL = 16;
-int Config_TofLoader::IMAGE_WIDTH = 64;
+int Config_TofLoader::IMAGE_WIDTH = 128;
 int Config_TofLoader::IMAGE_HEIGHT = 128;
 int Config_TofLoader::IMAGE_COUNT = 196;
 static const int g_iDefaultFoilBegin[] = {0, 32, 128, 160};
@@ -1187,16 +1187,19 @@ bool TmpImage::WriteXML(const char* pcFileName)
 	ofstr << "<location>Forschungsreaktor Muenchen II - FRM2</location>\n";
 	
 	ofstr << "<measurement_data>\n";
-	ofstr << "<resolution> " << m_iW << "x" << m_iH << " </resolution>\n";
+	ofstr << "<resolution>1024</resolution>\n";
 	ofstr << "<detector_value>\n";
 	
 	for(int iY=0; iY<m_iH; ++iY)
 	{
-		for(int iX=0; iX<m_iW; ++iX)
-		{
-			ofstr << m_puiDaten[iY*m_iW + iX] << " ";
+		for (int t1=0; t1<8; ++t1) {
+			for(int iX=0; iX<m_iW; ++iX)
+			{
+				for (int t2=0; t2<8; ++t2)
+					ofstr << m_puiDaten[iX*m_iH + iY] << " ";
+			}
+			ofstr << "\n";
 		}
-		ofstr << "\n";
 	}
 	
 	ofstr << "</detector_value>\n";

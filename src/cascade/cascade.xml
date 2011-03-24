@@ -9,7 +9,7 @@
 		<foil_count> 4  </foil_count>
 		<images_per_foil> 16 </images_per_foil>
 		<image_height> 128 </image_height>
-		<image_width> 64 </image_width>
+		<image_width> 128 </image_width>
 
 		<foil_1_start> 0  </foil_1_start>
 		<foil_2_start> 32 </foil_2_start>
