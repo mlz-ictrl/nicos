@@ -53,6 +53,8 @@ TIMEFMT = '%Y-%m-%d %H:%M:%S'
 
 
 class Dataset(object):
+    # unique id
+    uid = ''
     # scan type
     scantype = None
     # start time
@@ -83,7 +85,7 @@ class Dataset(object):
     xunits = []
     ynames = []
     yunits = []
-    yvalues = []
+    yvalueinfo = []
 
 
 class NeedsDatapath(object):
@@ -209,33 +211,10 @@ class DaemonSink(DataSink):
         return DataSink.isActive(self, scantype)
 
     def beginDataset(self, dataset):
-        self._handler = session.datahandler
-        filename = dataset.sinkinfo.get('filename', '')
-        # XXX create a new interface for this: directly transfer dataset
-        self._handler.new_dataset(
-            'scan started %s' % time.strftime(TIMEFMT, dataset.started),
-            '', dataset.scaninfo, filename, '',
-            xaxisname='%s (%s)' % (dataset.xnames[dataset.xindex],
-                                   dataset.xunits[dataset.xindex]),
-            yaxisname=str(dataset.detlist[0]),
-            xscale=(dataset.positions[0][dataset.xindex],
-                    dataset.positions[-1][dataset.xindex]))
-        for name, info in zip(dataset.ynames, dataset.yvalues):
-            if info.type == 'info':
-                continue
-            if info.errors == 'sqrt':
-                self._handler.add_curve(name, ['x', 'y', 'dy'], 'default')
-            else:
-                self._handler.add_curve(name, ['x', 'y'], 'default')
+        session.emitfunc('new_dataset', dataset)
 
     def addPoint(self, dataset, xvalues, yvalues):
-        for i, v in enumerate(yvalues):
-            if dataset.yvalues[i].type == 'info':
-                continue
-            elif dataset.yvalues[i].errors == 'sqrt':
-                self._handler.add_point(i, [xvalues[dataset.xindex], v, sqrt(v)])
-            else:
-                self._handler.add_point(i, [xvalues[dataset.xindex], v])
+        session.emitfunc('new_point', (xvalues, yvalues))
 
 
 class GraceSink(DataSink):
@@ -274,7 +253,7 @@ class GraceSink(DataSink):
             self._xdata.append(xvalues[dataset.xindex])
             for i in range(len(yvalues)):
                 self._ydata[i].append(yvalues[i])
-                if dataset.yvalues[i].errors == 'sqrt':
+                if dataset.yvalueinfo[i].errors == 'sqrt':
                     self._dydata[i].append(sqrt(yvalues[i]))
                 else:
                     self._dydata[i].append(0)
@@ -286,7 +265,7 @@ class GraceSink(DataSink):
             for i, ys in enumerate(self._ydata):
                 if not ys:
                     continue
-                if dataset.yvalues[i % self._nperstep].type != 'counter':
+                if dataset.yvalueinfo[i % self._nperstep].type != 'counter':
                     continue
                 s = GracePlot.Symbol(symbol=GracePlot.symbols.circle,
                                      fillcolor=color, color=color, size=0.4)
@@ -361,6 +340,7 @@ class AsciiDatafileSink(DatafileSink):
         self._fname = self.nextFileName()
         self._fullfname = path.join(self._path, self._fname)
         dataset.sinkinfo['filename'] = self._fname
+        dataset.sinkinfo['number'] = self._counter
 
     def beginDataset(self, dataset):
         if path.isfile(self._fullfname):

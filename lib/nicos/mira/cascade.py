@@ -59,7 +59,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
         'roi':      Param('Region of interest, given as (x1, y1, x2, y2)',
                           type=tupleof(int, int, int, int),
                           default=(-1, -1, -1, -1), settable=True),
-        # XXX add MIEZE ROI etc.
+        # XXX add MIEZE mode etc.
     }
 
     parameter_overrides = {
@@ -70,7 +70,9 @@ class CascadeDetector(Measurable, NeedsDatapath):
         self._client = cascadeclient.NicosClient()
         self.doReset()
 
-        self._setDatapath(session.experiment.datapath)
+        self._datapath = None
+        self._filenumber = -1
+        self._lastfilename = '<none>'
         self._last_preset = 0  # XXX read from server
         self._last_total = -1
         self._last_roi = -1
@@ -118,6 +120,8 @@ class CascadeDetector(Measurable, NeedsDatapath):
         return status.OK, 'idle'
 
     def doStart(self, **preset):
+        if self._datapath is None:
+            self._setDatapath(session.experiment.datapath)
         self._lastfilename = path.join(self._datapath,
                                        self.nametemplate % self._filenumber)
         self._filenumber += 1

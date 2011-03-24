@@ -79,7 +79,6 @@ class NicosClient(object):
         self.connected = False
         self.disconnecting = False
         self.version = None
-        self.proto = 0
         self.gzip = False
 
     def signal(self, type, *args):
@@ -144,23 +143,7 @@ class NicosClient(object):
         self.connected = True
         self.host, self.port = conndata['host'], conndata['port']
 
-        self.proto = 0
-        # use version command to find out which protocols are supported
         self.version = self.send_command('get_version')
-#        protoindex = self.version.find('protocol')
-#        if protoindex != -1:
-#            protostr = self.version[protoindex+9:protoindex+11].strip()
-#            try:
-#                self.proto = int(protostr)
-#            except ValueError:
-#                pass
-#            else:
-#                self.send_commands('set_protocol', protostr)
-        self.proto = 1
-        #if 'licosd' in self.version and conndata['gzip']:
-        #if self.send_command('set_gzip', True):
-        #    self.gzip = True
-
         self.signal('connected')
 
     def event_handler(self):
@@ -207,15 +190,11 @@ class NicosClient(object):
 
     def serialize(self, data):
         """Serialize an object according to the selected protocol."""
-        if self.proto >= 1:
-            return pickle.dumps(data).replace('\n', '\xff')
-        return repr(data)
+        return pickle.dumps(data).replace('\n', '\xff')
 
     def unserialize(self, data):
         """Unserialize an object according to the selected protocol."""
-        if self.proto >= 1:
-            return pickle.loads(data.replace('\xff', '\n'))
-        return eval(data)
+        return pickle.loads(data.replace('\xff', '\n'))
 
     def handle_error(self, err):
         if isinstance(err, ProtocolError):

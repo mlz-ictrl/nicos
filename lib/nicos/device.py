@@ -140,6 +140,10 @@ class Device(object):
                                                self.__class__.__module__,
                                                self.__class__.__name__)
 
+    def __reduce__(self):
+        # Used for pickling the device e.g. when sending between daemon and GUI
+        return (str, (self.name,))
+
     def getPar(self, name):
         """Get a parameter of the device."""
         if name.lower() not in self.parameters:

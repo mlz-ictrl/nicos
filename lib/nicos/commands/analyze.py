@@ -42,9 +42,9 @@ from nicos.commands.output import printinfo
 
 
 def _getData(xcol=None, ycol=None):
-    dataset = session.experiment._last_dataset
-    if dataset is None:
+    if not session.experiment._last_datasets:
         raise UsageError('no latest dataset has been stored')
+    dataset = session.experiment._last_datasets[-1]
     xs = ys = None
     if xcol is not None:
         if isinstance(xcol, str):

@@ -804,7 +804,6 @@ class DaemonSession(SimpleSession):
         self._log_handlers.append(daemon_handler)
 
         # add an object to be used by DaemonSink objects
-        self.datahandler = daemondev._data_handler
         self.emitfunc = daemondev.emit_event
 
         # Pretend that the daemon setup doesn't exist, so that another

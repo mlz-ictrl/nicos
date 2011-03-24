@@ -45,22 +45,6 @@ except ImportError:
     GracePlotter = None
 
 
-class SpectrogramData(QwtRasterData):
-    def __init__(self, xscale, yscale, curve):
-        QwtRasterData.__init__(self, QRectF(xscale[0], yscale[0],
-                                            xscale[1], yscale[1]))
-        self.curve = curve
-
-    def copy(self):
-        return self
-
-    def range(self):
-        return QwtDoubleInterval(0.0, 10.0);
-
-    def value(self, x, y):
-        return 1
-
-
 class XPlotPicker(QwtPlotPicker):
     """QwtPlotPicker that emits mouse move events when activated."""
     def __init__(self, *args):

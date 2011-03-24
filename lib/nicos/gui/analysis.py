@@ -31,6 +31,8 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import time
+
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.Qwt5 import *
@@ -39,11 +41,11 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 import numpy as np
 
 from nicos.gui import data
-from nicos.gui.data import DataSet, Curve
 from nicos.gui.utils import SettingGroup, loadUi, has_odr, fit_gauss, \
      fwhm_to_sigma, FitError, fit_tc, DlgUtils, fit_pseudo_voigt, fit_pearson_vii
 from nicos.gui.plothelpers import ErrorBarPlotCurve, XPlotPicker, cloneToGrace
 
+TIMEFMT = '%Y-%m-%d %H:%M:%S'
 TOGETHER, COMBINE, ADD, SUBTRACT, DIVIDE = range(5)
 
 def combinestr(strings, **kwds):
@@ -59,6 +61,9 @@ def combinestr(strings, **kwds):
 def combineattr(it, attr, sep=' | '):
     return combinestr((getattr(x, attr) for x in it))
 
+def itemuid(item):
+    return str(item.data(32).toString())
+
 
 class AnalysisWindow(QMainWindow, DlgUtils):
     def __init__(self, parent):
@@ -72,14 +77,14 @@ class AnalysisWindow(QMainWindow, DlgUtils):
         self.client = parent.client
         self.data = parent.data
 
-        # maps set number -> plot
+        # maps set uid -> plot
         self.setplots = {}
-        # maps set number -> list item
+        # maps set uid -> list item
         self.setitems = {}
         # current plot object
         self.currentPlot = None
-        # stack of set numbers
-        self.setNumStack = []
+        # stack of set uids
+        self.setUidStack = []
 
         self.userFont = self.font()
         self.userColor = self.palette().color(QPalette.Base)
@@ -89,6 +94,8 @@ class AnalysisWindow(QMainWindow, DlgUtils):
 
         self.connect(self.data, SIGNAL('datasetAdded'),
                      self.on_data_datasetAdded)
+        self.connect(self.data, SIGNAL('pointsAdded'),
+                     self.on_data_pointsAdded)
 
         self.updateList()
 
@@ -137,8 +144,9 @@ class AnalysisWindow(QMainWindow, DlgUtils):
         for dataset in self.data.sets:
             if dataset.invisible:
                 continue
-            self.setitems[dataset.num] = \
-                QListWidgetItem(dataset.name, self.datasetList, dataset.num)
+            item = QListWidgetItem(dataset.name, self.datasetList)
+            item.setData(32, dataset.uid)
+            self.setitems[dataset.uid] = item
 
     @qtsig('')
     def on_actionFont_triggered(self):
@@ -163,21 +171,21 @@ class AnalysisWindow(QMainWindow, DlgUtils):
     def on_datasetList_currentItemChanged(self, item, previous):
         if self.no_openset or item is None:
             return
-        self.openDataset(item.type())
+        self.openDataset(itemuid(item))
 
     def on_datasetList_itemClicked(self, item):
         # this handler is needed in addition to currentItemChanged
         # since one can't change the current item if it's the only one
         if self.no_openset or item is None:
             return
-        self.openDataset(item.type())
+        self.openDataset(itemuid(item))
 
-    def openDataset(self, num):
-        set = self.data.num2set[num]
-        if set.num not in self.setplots:
-            self.setplots[set.num] = DataSetPlot(self.plotFrame, self, set)
-        self.datasetList.setCurrentItem(self.setitems[num])
-        plot = self.setplots[set.num]
+    def openDataset(self, uid):
+        set = self.data.uid2set[uid]
+        if set.uid not in self.setplots:
+            self.setplots[set.uid] = DataSetPlot(self.plotFrame, self, set)
+        self.datasetList.setCurrentItem(self.setitems[uid])
+        plot = self.setplots[set.uid]
         self.setCurrentDataset(plot)
 
     def setCurrentDataset(self, plot):
@@ -188,12 +196,12 @@ class AnalysisWindow(QMainWindow, DlgUtils):
         if plot is None:
             self.enablePlotActions(False)
         else:
-            try: self.setNumStack.remove(plot.dataset.num)
+            try: self.setUidStack.remove(plot.dataset.uid)
             except ValueError: pass
-            self.setNumStack.append(plot.dataset.num)
+            self.setUidStack.append(plot.dataset.uid)
 
             self.enablePlotActions(True)
-            self.datasetList.setCurrentItem(self.setitems[plot.dataset.num])
+            self.datasetList.setCurrentItem(self.setitems[plot.dataset.uid])
             self.actionLogScale.setChecked(
                 isinstance(plot.axisScaleEngine(QwtPlot.yLeft),
                            QwtLog10ScaleEngine))
@@ -203,44 +211,49 @@ class AnalysisWindow(QMainWindow, DlgUtils):
             plot.show()
 
     def on_data_datasetAdded(self, dataset):
-        if dataset.num in self.setitems:
-            self.setitems[dataset.num].setText(dataset.name)
-            if dataset.num in self.setplots:
-                self.setplots[dataset.num].updateDisplay()
+        if dataset.uid in self.setitems:
+            self.setitems[dataset.uid].setText(dataset.name)
+            if dataset.uid in self.setplots:
+                self.setplots[dataset.uid].updateDisplay()
         else:
             self.no_openset = True
-            self.setitems[dataset.num] = \
-                QListWidgetItem(dataset.name, self.datasetList, dataset.num)
+            item = QListWidgetItem(dataset.name, self.datasetList)
+            item.setData(32, dataset.uid)
+            self.setitems[dataset.uid] = item
             if not self.bulk_adding:
-                self.openDataset(dataset.num)
+                self.openDataset(dataset.uid)
             self.no_openset = False
+
+    def on_data_pointsAdded(self, dataset):
+        if dataset.uid in self.setplots:
+            self.setplots[dataset.uid].pointsAdded()
 
     @qtsig('')
     def on_actionClosePlot_triggered(self):
-        current_set = self.setNumStack.pop()
-        if self.setNumStack:
-            self.setCurrentDataset(self.setplots[self.setNumStack[-1]])
+        current_set = self.setUidStack.pop()
+        if self.setUidStack:
+            self.setCurrentDataset(self.setplots[self.setUidStack[-1]])
         else:
             self.setCurrentDataset(None)
         del self.setplots[current_set]
 
     @qtsig('')
     def on_actionResetPlot_triggered(self):
-        current_set = self.setNumStack.pop()
+        current_set = self.setUidStack.pop()
         del self.setplots[current_set]
         self.openDataset(current_set)
 
     @qtsig('')
     def on_actionDeletePlot_triggered(self):
-        current_set = self.setNumStack.pop()
-        self.data.num2set[current_set].invisible = True
-        if self.setNumStack:
-            self.setCurrentDataset(self.setplots[self.setNumStack[-1]])
+        current_set = self.setUidStack.pop()
+        self.data.uid2set[current_set].invisible = True
+        if self.setUidStack:
+            self.setCurrentDataset(self.setplots[self.setUidStack[-1]])
         else:
             self.setCurrentDataset(None)
         del self.setplots[current_set]
         for i in range(self.datasetList.count()):
-            if self.datasetList.item(i).type() == current_set:
+            if itemuid(self.datasetList.item(i)) == current_set:
                 self.datasetList.takeItem(i)
                 break
 
@@ -324,13 +337,17 @@ class AnalysisWindow(QMainWindow, DlgUtils):
 
     @qtsig('')
     def on_actionCombine_triggered(self):
-        current = self.currentPlot.dataset.num
+        # XXX currently not working
+        return
+
+        current = self.currentPlot.dataset.uid
         dlg = QDialog(self)
         loadUi(dlg, 'dataops.ui')
         for i in range(self.datasetList.count()):
             item = self.datasetList.item(i)
-            newitem = QListWidgetItem(item.text(), dlg.otherList, item.type())
-            if item.type() == current:
+            newitem = QListWidgetItem(item.text(), dlg.otherList)
+            newitem.setData(32, item.data(32))
+            if itemuid(item) == current:
                 dlg.otherList.setCurrentItem(newitem)
                 # paint the current set in grey to indicate it's not allowed
                 # to be selected
@@ -340,11 +357,11 @@ class AnalysisWindow(QMainWindow, DlgUtils):
             return
 
         items = dlg.otherList.selectedItems()
-        sets = [self.data.num2set[current]]
+        sets = [self.data.uid2set[current]]
         for item in items:
-            if item.type() == current:
+            if itemuid(item) == current:
                 return self.showError('Cannot combine set with itself.')
-            sets.append(self.data.num2set[item.type()])
+            sets.append(self.data.uid2set[itemuid(item)])
         for rop, rb in [(TOGETHER, dlg.opTogether),
                         (COMBINE, dlg.opCombine),
                         (ADD, dlg.opAdd),
@@ -476,10 +493,6 @@ class DataSetPlot(QwtPlot):
                      self.on_picker_moved)
 
         self.updateDisplay()
-        self.connect(self.dataset, SIGNAL('curveAdded'),
-                     self.on_dataset_curveAdded)
-        self.connect(self.dataset, SIGNAL('pointsAdded'),
-                     self.on_dataset_pointsAdded)
 
         self.setLegend(True)
         self.connect(self, SIGNAL('legendClicked(QwtPlotItem*)'),
@@ -509,18 +522,22 @@ class DataSetPlot(QwtPlot):
         grid.setPen(QPen(QBrush(Qt.lightGray), 1, Qt.DotLine))
         grid.attach(self)
 
-        title = '<h3>%s</h3><font size="-2">%s</font>' % \
-            (self.dataset.title, self.dataset.subtitle)
+        title = '<h3>%s</h3><font size="-2">started %s</font>' % \
+            (self.dataset.name, time.strftime(TIMEFMT, self.dataset.started))
         self.setTitle(title)
-        xaxistext = QwtText(self.dataset.xaxisname)
+        xaxisname = '%s (%s)' % (self.dataset.xnames[self.dataset.xindex],
+                                 self.dataset.xunits[self.dataset.xindex])
+        xaxistext = QwtText(xaxisname)
         xaxistext.setFont(self.labelfont)
         self.setAxisTitle(QwtPlot.xBottom, xaxistext)
+        yaxisname = ''  # XXX determine good axis names
+        y2axisname = ''
         if self.normalized:
-            yaxistext = QwtText(self.dataset.yaxisname + ' (norm)')
-            y2axistext = QwtText(self.dataset.y2axisname + ' (norm)')
+            yaxistext = QwtText(yaxisname + ' (norm)')
+            y2axistext = QwtText(y2axisname + ' (norm)')
         else:
-            yaxistext = QwtText(self.dataset.yaxisname)
-            y2axistext = QwtText(self.dataset.y2axisname)
+            yaxistext = QwtText(yaxisname)
+            y2axistext = QwtText(y2axisname)
         yaxistext.setFont(self.labelfont)
         y2axistext.setFont(self.labelfont)
         self.setAxisTitle(QwtPlot.yLeft, yaxistext)
@@ -531,11 +548,9 @@ class DataSetPlot(QwtPlot):
         if self.has_secondary:
             self.setAxisTitle(QwtPlot.yRight, y2axistext)
 
-        if self.dataset.xscale == (0,0):
-            self.setAxisAutoScale(QwtPlot.xBottom)
-        else:
-            xmin, xmax = self.dataset.xscale
-            self.setAxisScale(QwtPlot.xBottom, xmin, xmax)
+        xscale = (self.dataset.positions[0][self.dataset.xindex],
+                  self.dataset.positions[-1][self.dataset.xindex])
+        self.setAxisScale(QwtPlot.xBottom, xscale[0], xscale[1])
         # needed for zoomer base
         self.setAxisAutoScale(QwtPlot.yLeft)
         if self.has_secondary:
@@ -547,25 +562,19 @@ class DataSetPlot(QwtPlot):
     numcolors = len(curvecolor)
 
     def addCurve(self, i, curve, replot=False):
-        if 'map' in curve.modes:
-            plotcurve = QwtPlotSpectrogram()
-            # XXX
-        else:
-            pen = QPen(self.curvecolor[i % self.numcolors])
-            plotcurve = ErrorBarPlotCurve(title=curve.name, curvePen=pen,
-                                          errorPen=QPen(Qt.blue, 0),
-                                          errorCap=8, errorOnTop=False)
-            if 'lines' not in curve.modes:
-                plotcurve.setSymbol(self.symbol)
-            if 'points' in curve.modes:
-                plotcurve.setStyle(QwtPlotCurve.NoCurve)
-            if 'y2' in curve.modes:
-                plotcurve.setYAxis(QwtPlot.yRight)
-                self.has_secondary = True
-                self.enableAxis(QwtPlot.yRight)
-            if 'disabled' in curve.modes:
-                plotcurve.setVisible(False)
-            plotcurve.setRenderHint(QwtPlotItem.RenderAntialiased)
+        pen = QPen(self.curvecolor[i % self.numcolors])
+        plotcurve = ErrorBarPlotCurve(title=curve.description, curvePen=pen,
+                                      errorPen=QPen(Qt.blue, 0),
+                                      errorCap=8, errorOnTop=False)
+        if not curve.function:
+            plotcurve.setSymbol(self.symbol)
+        if curve.yaxis == 2:
+            plotcurve.setYAxis(QwtPlot.yRight)
+            self.has_secondary = True
+            self.enableAxis(QwtPlot.yRight)
+        if curve.disabled:
+            plotcurve.setVisible(False)
+        plotcurve.setRenderHint(QwtPlotItem.RenderAntialiased)
         self.setCurveData(curve, plotcurve)
         plotcurve.attach(self)
         if self.legend():
@@ -577,37 +586,26 @@ class DataSetPlot(QwtPlot):
         if replot:
             self.zoomer.setZoomBase(True)
 
-    def on_dataset_curveAdded(self, curve):
-        self.addCurve(len(self.dataset.curves)-1, curve, True)
-
     def setCurveData(self, curve, plotcurve):
-        if 'map' in curve.modes:
-            pass # XXX
-        else:
-            x = curve.data[:, data.X]
-            y = curve.data[:, data.Y]
-            dx = dy = None
-            if curve.has_dx:
-                dx = curve.data[:, data.DX]
-            if curve.has_dy:
-                dy = curve.data[:, data.DY]
-            if self.normalized and curve.n_norm:
-                y = y.copy()
-                if dy is not None: dy = dy.copy()
-                for i in range(data.FIRST_NORM, data.FIRST_NORM+curve.n_norm):
-                    normval = curve.data[:,i]
-                    y /= normval
-                    if dy is not None: dy /= normval
-            plotcurve.setData(x, y, dx, dy)
+        x = np.array(curve.datax)
+        y = np.array(curve.datay, float)
+        dy = None
+        if curve.dyindex > -1:
+            dy = np.array(curve.datady)
+        if self.normalized:
+            norm = None
+            if curve.monindex > -1:
+                norm = np.array(curve.datamon)
+            elif curve.timeindex > -1:
+                norm = np.array(curve.datatime)
+            if norm is not None:
+                y /= norm
+                if dy is not None: dy /= norm
+        plotcurve.setData(x, y, None, dy)
 
-    def on_dataset_pointsAdded(self, index):
-        try:
-            plotcurve = self.curves[index]
-            curve = self.dataset.curves[index]
-        except IndexError:
-            print 'Invalid curve index'
-            return
-        self.setCurveData(curve, plotcurve)
+    def pointsAdded(self):
+        for curve, plotcurve in zip(self.dataset.curves, self.curves):
+            self.setCurveData(curve, plotcurve)
         self.replot()
 
     def setLegend(self, on):
@@ -675,7 +673,7 @@ class DataSetPlot(QwtPlot):
             dlg.setWindowTitle(self.tr('Select curve to fit'))
             dlg.label.setText(self.tr('Select a curve:'))
             for curve in self.dataset.curves:
-                QListWidgetItem(curve.name, dlg.list)
+                QListWidgetItem(curve.description, dlg.list)
             dlg.list.setCurrentRow(0)
             if dlg.exec_() != QDialog.Accepted:
                 return

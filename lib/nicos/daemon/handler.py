@@ -42,7 +42,7 @@ import cPickle as pickle
 from Queue import Queue
 from SocketServer import BaseRequestHandler
 
-from nicos import nicos_version
+from nicos import session, nicos_version
 from nicos.daemon.utils import LoggerWrapper
 from nicos.daemon.pyctl import STATUS_IDLE, STATUS_RUNNING, \
      STATUS_STOPPING, STATUS_INBREAK
@@ -562,18 +562,17 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command()
     def get_dataset(self):
-        """Get the whole current dataset, including curves."""
-        data = self.daemon._data_handler
-        if data.active_dataset:
-            self.write(self.serialize(data.active_dataset.tolist()))
-        else:
+        """Get the current dataset."""
+        try:
+            dataset = session.experiment._last_datasets[-1]
+            self.write(self.serialize(dataset))
+        except IndexError:
             self.write(self.serialize(None))
 
     @command()
     def get_datasets(self):
         """Get all datasets, including curves."""
-        data = self.daemon._data_handler
-        self.write(self.serialize(data.tolist()))
+        self.write(self.serialize(session.experiment._last_datasets))
 
     # -- Miscellaneous commands ------------------------------------------------
 
@@ -593,8 +592,6 @@ class ConnectionHandler(BaseRequestHandler):
             pass
         # clear sys.modules
         self.daemon._module_manager.purge()
-        # purge data from data handler
-        self.daemon._data_handler.purge()
         # start a new script thread, this will reimport all modules
         self.controller.start_script_thread()
         self.write(OK)

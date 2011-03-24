@@ -46,7 +46,6 @@ from nicos import nicos_version
 from nicos.utils import listof
 from nicos.device import Device, Param
 
-from nicos.daemon.data import DataHandler
 from nicos.daemon.utils import ModuleManager
 from nicos.daemon.script import ExecutionController
 from nicos.daemon.handler import ConnectionHandler
@@ -184,8 +183,6 @@ class NicosDaemon(Device):
         # the controller represents the internal script execution machinery
         self._controller = ExecutionController(self._log, self.emit_event,
                                                self.startupsetup)
-        # the data handler stores datasets
-        self._data_handler = DataHandler(self)
         # log messages emitted so far
         self._messages = []
 

@@ -86,24 +86,26 @@ class Scan(object):
 
     def beginScan(self):
         dataset = self.dataset
+        session.experiment._last_datasets.append(dataset)
         dataset.results = []
         dataset.sinkinfo = []
         dataset.xnames, dataset.xunits = [], []
         for dev in self._devices:
             dataset.xnames.append(dev.name)
             dataset.xunits.append(dev.unit)
-        dataset.yvalues = sum((det.valueInfo() for det in dataset.detlist), ())
-        dataset.yunits = [val.unit for val in dataset.yvalues]
+        dataset.yvalueinfo = sum((det.valueInfo() for det in dataset.detlist), ())
+        dataset.yunits = [val.unit for val in dataset.yvalueinfo]
         if self._multistep:
             dataset.ynames = []
             for i in range(self._mscount):
                 addname = '_' + '_'.join('%s_%s' % (mse[0], mse[1][i])
                                          for mse in self._multistep)
-                dataset.ynames.extend(val.name + addname for val in dataset.yvalues)
-            dataset.yvalues = dataset.yvalues * self._mscount
+                dataset.ynames.extend(val.name + addname
+                                      for val in dataset.yvalueinfo)
+            dataset.yvalueinfo = dataset.yvalueinfo * self._mscount
             dataset.yunits = dataset.yunits * self._mscount
         else:
-            dataset.ynames = [val.name for val in dataset.yvalues]
+            dataset.ynames = [val.name for val in dataset.yvalueinfo]
         dataset.sinkinfo = {}
         for sink in self._sinks:
             sink.prepareDataset(dataset)
@@ -136,7 +138,6 @@ class Scan(object):
         for sink in self._sinks:
             sink.endDataset(self.dataset)
         session.endActionScope()
-        session.experiment._last_dataset = self.dataset
 
     def handleError(self, dev, val, err):
         """Handle an error occurring during positioning for a point.

@@ -69,8 +69,7 @@ class NicosGuiClient(NicosClient, QObject):
     siglist = ['connected', 'disconnected', 'error', 'message',
                'new_request', 'processing_request', 'new_script',
                'new_status', 'new_values', 'new_output',
-               'new_dataset', 'new_curve', 'new_point', 'new_points',
-               'new_livedata']
+               'new_dataset', 'new_point', 'new_livedata']
 
     def __init__(self, parent):
         QObject.__init__(self, parent)
@@ -541,7 +540,6 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         self.outView.scrollToBottom()
 
         # retrieve datasets and put them into the analysis window
-        return
         pd = QProgressDialog(self)
         pd.setLabelText('Transferring datasets, please wait...')
         pd.setRange(0, 1)
@@ -725,31 +723,13 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
 
     def on_client_new_dataset(self, dataset):
         try:
-            self.data.new_dataset(dataset[0])
-        except DataError, err:
-            print 'Data error:', err
-        else:
-            for curve in dataset[1:]:
-                try:
-                    self.data.add_curve(curve)
-                except DataError, err:
-                    print 'DataError:', err
-
-    def on_client_new_curve(self, curve):
-        try:
-            self.data.add_curve(curve)
+            self.data.new_dataset(dataset)
         except DataError, err:
             print 'Data error:', err
 
-    def on_client_new_point(self, (index, point)):
+    def on_client_new_point(self, (xvalues, yvalues)):
         try:
-            self.data.add_point(index, point)
-        except DataError, err:
-            print 'Data error:', err
-
-    def on_client_new_points(self, (index, points)):
-        try:
-            self.data.add_points(index, points)
+            self.data.add_point(xvalues, yvalues)
         except DataError, err:
             print 'Data error:', err
 

@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../../resources/nicos-gui.qrc">
-    <normaloff>:/plotter</normaloff>:/plotter</iconset>
+    <normaloff>:/live</normaloff>:/live</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -30,7 +30,7 @@
      <x>0</x>
      <y>0</y>
      <width>805</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

@@ -36,6 +36,7 @@ __version__ = "$Revision$"
 import os
 import time
 from os import path
+from uuid import uuid1
 
 from nicos import session
 from nicos.data import NeedsDatapath, Dataset
@@ -72,7 +73,7 @@ class Experiment(Device):
     }
 
     def doInit(self):
-        self._last_dataset = None
+        self._last_datasets = []
 
     def new(self, proposalnumber, title=None):
         # Individual instruments should override this to change datapath
@@ -99,6 +100,7 @@ class Experiment(Device):
 
     def createDataset(self, scantype=None):
         dataset = Dataset()
+        dataset.uid = str(uuid1())
         dataset.sinks = [sink for sink in session.datasinks
                          if sink.isActive(scantype)]
         dataset.started = time.localtime()
