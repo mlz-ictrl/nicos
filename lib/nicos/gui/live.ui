@@ -38,6 +38,7 @@
      <string>&amp;File</string>
     </property>
     <addaction name="actionWriteXml"/>
+    <addaction name="actionPrint"/>
     <addaction name="separator"/>
     <addaction name="actionClose"/>
     <addaction name="separator"/>
@@ -67,6 +68,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionWriteXml"/>
+   <addaction name="actionPrint"/>
    <addaction name="actionClose"/>
    <addaction name="separator"/>
    <addaction name="actionLogScale"/>

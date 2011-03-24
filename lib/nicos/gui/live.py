@@ -80,3 +80,14 @@ class LiveWindow(QMainWindow, DlgUtils):
     @qtsig('')
     def on_actionUnzoom_triggered(self):
         self.widget.GetPlot().GetZoomer().zoom(0)
+
+    @qtsig('')
+    def on_actionPrint_triggered(self):
+        printer = QPrinter(QPrinter.HighResolution)
+        printer.setColorMode(QPrinter.Color)
+        printer.setOrientation(QPrinter.Landscape)
+        printer.setOutputFileName('')
+        if QPrintDialog(printer, self).exec_() == QDialog.Accepted:
+            self.widget.GetPlot().print_(printer)
+        self.statusBar.showMessage('Plot successfully printed to %s.' %
+                                   str(printer.printerName()))
