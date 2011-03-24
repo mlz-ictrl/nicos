@@ -124,16 +124,28 @@ class CascadeDetector(Measurable, NeedsDatapath):
         updateFileCounter(path.join(self._datapath, 'counter'), self._filenumber)
         self._processed.wait()
         self._processed.clear()
-        if preset.get('t'):
-            self._client.communicate('CMD_config time=%s' % preset['t'])
-            self._last_preset = preset['t']
+        try:
+            if preset.get('t'):
+                # XXX strip \0 somewhere else
+                reply = str(self._client.communicate('CMD_config time=%s' %
+                                                 preset['t'])).rstrip('\0')
+                if reply != 'OKAY':
+                    raise CommunicationError(self, 'could not configure '
+                                             'measurement: %s' % reply[4:])
+                self._last_preset = preset['t']
+        except:
+            self._processed.set()
+            raise
         self._measure.set()
 
     def doIsCompleted(self):
         return not self._measure.isSet() and self._processed.isSet()
 
     def doStop(self):
-        self._client.communicate('CMD_stop')
+        reply = str(self._client.communicate('CMD_stop')).rstrip('\0')
+        if reply != 'OKAY':
+            raise CommunicationError(self, 'could not stop measurement: %s'
+                                     % reply[4:])
 
     def doRead(self):
         return (self._last_roi, self._last_total, self._lastfilename)
@@ -144,7 +156,10 @@ class CascadeDetector(Measurable, NeedsDatapath):
                 # wait for start signal
                 self._measure.wait()
                 # start measurement
-                self._client.communicate('CMD_start')
+                reply = str(self._client.communicate('CMD_start')).rstrip('\0')
+                if reply != 'OKAY':
+                    raise CommunicationError(self, 'could not start '
+                                             'measurement: %s' % reply[4:])
                 started = time()
                 # wait for completion of measurement
                 while True:
@@ -170,6 +185,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
                 continue
             self._measure.clear()
             try:
+                # XXX check return for errors
                 finaldata = self._client.communicate('CMD_readsram')[4:]
                 with open(self._lastfilename, 'w') as fp:
                     fp.write(finaldata)

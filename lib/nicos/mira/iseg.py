@@ -38,7 +38,7 @@ from IO import StringIO
 from nicos import status
 from nicos.taco import TacoDevice
 from nicos.utils import intrange
-from nicos.device import Device, Moveable, HasLimits, Param
+from nicos.device import Device, Moveable, HasLimits, Param, Override
 from nicos.errors import NicosError, CommunicationError
 
 
@@ -77,7 +77,7 @@ class StandaloneIseg(TacoDevice, Device, IsegConnector):
         s = ''
         while s.count('\n') != 2:
             s += self._taco_guard(self._dev.read)
-            time.sleep(0.003)
+            sleep(0.003)
         return s.strip('\r\n') # discard newlines
 
 
@@ -97,6 +97,10 @@ class IsegHV(Moveable, HasLimits):
         'isegchannel':  Param('Channel of the Iseg HV (1 = A, 2 = B)',
                               type=intrange(1, 3), mandatory=True),
         # XXX ramp as a parameter
+    }
+
+    parameter_overrides = {
+        'unit':  Override(mandatory=False, default='V'),
     }
 
     states = {'ON ': status.OK,
