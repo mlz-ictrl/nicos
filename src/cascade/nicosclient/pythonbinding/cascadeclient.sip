@@ -12,6 +12,7 @@ class TcpClient : QObject
 %End
 
 	public:
+		TcpClient(QObject* pParent, bool bBlocking);
 		bool connecttohost(const char* pcAddr, int iPort);
 		void disconnect();
 		bool isconnected() const;

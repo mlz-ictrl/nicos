@@ -4,7 +4,7 @@
 #include "tofloader.h"
 
 
-NicosClient::NicosClient()
+NicosClient::NicosClient() : TcpClient::TcpClient(0, true)
 {
 	Config_TofLoader::Init();
 }
