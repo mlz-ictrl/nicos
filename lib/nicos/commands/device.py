@@ -125,6 +125,7 @@ def read(*devlist):
         devlist = [session.devices[devname]
                    for devname in session.explicit_devices
                    if isinstance(session.devices[devname], Readable)]
+        devlist.sort(key=lambda dev: dev.name)
     for dev in devlist:
         dev = session.getDevice(dev, Readable)
         try:

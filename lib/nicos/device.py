@@ -218,15 +218,29 @@ class Device(object):
                 if param in self._config:
                     cfgvalue = self._config[param]
                     if cfgvalue != value:
-                        self.printwarning('value of %s from cache (%r) differs '
-                                          'from configured value (%r), using '
-                                          'the latter' % (param, value, cfgvalue))
-                        value = cfgvalue
-                        self._cache.put(self, param, value)
+                        prefercache = paraminfo.prefercache
+                        if prefercache is None:
+                            prefercache = paraminfo.settable
+                        if prefercache:
+                            self.printwarning(
+                                'value of %s from cache (%r) differs from '
+                                'configured value (%r), using cached' %
+                                (param, value, cfgvalue))
+                        else:
+                            self.printwarning(
+                                'value of %s from cache (%r) differs from '
+                                'configured value (%r), using the latter' %
+                                (param, value, cfgvalue))
+                            value = cfgvalue
+                            self._cache.put(self, param, value)
                 self._params[param] = value
             else:
                 self._initParam(param, paraminfo)
                 notfromcache.append(param)
+            if paraminfo.writeoninit:
+                writemethod = getattr(self, 'doWrite' + param.title(), None)
+                if writemethod:
+                    writemethod(self._params[param])
             if paraminfo.category is not None:
                 self._infoparams.append((paraminfo.category, param,
                                          paraminfo.unit))

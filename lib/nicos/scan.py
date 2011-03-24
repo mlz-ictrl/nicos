@@ -58,7 +58,7 @@ class Scan(object):
                  detlist=None, preset=None, scaninfo=None, scantype=None):
         self.dataset = session.experiment.createDataset(scantype)
         if not detlist:
-            detlist = session.instrument.detectors
+            detlist = session.experiment.detectors
         self._firstmoves = firstmoves
         self._multistep = self.dataset.multistep = multistep
         if self._multistep:

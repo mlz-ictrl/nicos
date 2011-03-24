@@ -67,13 +67,18 @@ class Param(object):
     - *category*: category of the parameter when returned by device.info()
       or None to ignore the parameter
     - *preinit*: whether the parameter must be initialized before preinit()
+    - *prefercache*: whether on initialization, a value from the cache is
+      preferred to a value from the config -- the default is true for
+      settable parameters and false for non-settable parameters
+    - *writeoninit*: call the doWrite method on initialization (also in slave
+      mode), use only for parameters not affecting hardware
     """
 
     _notset = object()
 
     def __init__(self, description, type=float, default=_notset,
                  mandatory=False, settable=False, unit=None, category=None,
-                 preinit=False):
+                 preinit=False, prefercache=None, writeoninit=False):
         self.type = type
         if default is self._notset:
             default = type()
@@ -84,6 +89,8 @@ class Param(object):
         self.category = category
         self.description = description
         self.preinit = preinit
+        self.prefercache = prefercache
+        self.writeoninit = writeoninit
 
     def __repr__(self):
         return '<Param info>'

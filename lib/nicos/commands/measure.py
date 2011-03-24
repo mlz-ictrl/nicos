@@ -68,10 +68,10 @@ def count(*detlist, **preset):
             raise UsageError('device %s is not a measurable device' % det)
         detectors.append(det)
     if not detectors:
-        detectors = session.instrument.detectors
+        detectors = session.experiment.detectors
     return _count(detectors, preset)
 
 
 @usercommand
 def SetDetectors(*detlist):
-    session.instrument.setDetectors(detlist)
+    session.experiment.setDetectors(detlist)

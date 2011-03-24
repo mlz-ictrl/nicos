@@ -34,8 +34,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 
-from nicos.device import Device, Measurable, Param
-from nicos.errors import UsageError
+from nicos.device import Device, Param
 
 
 class Instrument(Device):
@@ -46,23 +45,3 @@ class Instrument(Device):
         'responsible': Param('Instrument responsible name and email',
                              type=str, category='experiment'),
     }
-
-    attached_devices = {
-        'detectors': [Measurable],
-    }
-
-    def doInit(self):
-        self._detlist = None
-
-    @property
-    def detectors(self):
-        if self._detlist is None:
-            return self._adevs['detectors']
-        return self._detlist
-
-    def setDetectors(self, detlist):
-        for det in detlist:
-            if not isinstance(det, Measurable):
-                raise UsageError(self, 'cannot use device %r as a detector: '
-                                 'it is not a Measurable' % det)
-        self._detlist = list(detlist)

@@ -40,7 +40,7 @@ from os import path
 from nicos import session
 from nicos.data import NeedsDatapath, Dataset
 from nicos.utils import listof
-from nicos.device import Device, Param
+from nicos.device import Device, Measurable, Param
 
 
 class Sample(Device):
@@ -63,6 +63,8 @@ class Experiment(Device):
                                 category='experiment'),
         'datapath':       Param('Path for data files', type=str,
                                 settable=True, category='experiment'),
+        'detectorlist':   Param('List of detectors', type=listof(str),
+                                settable=True, writeoninit=True),
     }
 
     attached_devices = {
@@ -73,13 +75,14 @@ class Experiment(Device):
         self._last_dataset = None
 
     def new(self, proposalnumber, title=None):
+        # Individual instruments should override this to change datapath
+        # according to instrument policy.
         if not isinstance(proposalnumber, int):
             proposalnumber = int(proposalnumber)
         self.proposalnumber = proposalnumber
         if title is not None:
             self.title = title
         self.users = []
-        # XXX change datapath according to instrument policy
 
     def addUser(self, name, email, affiliation=None):
         user = '%s <%s>' % (name, email)
@@ -100,3 +103,25 @@ class Experiment(Device):
                          if sink.isActive(scantype)]
         dataset.started = time.localtime()
         return dataset
+
+    @property
+    def detectors(self):
+        return self._detlist
+
+    def setDetectors(self, detectors):
+        dlist = []
+        for det in detectors:
+            if isinstance(det, Device):
+                det = det.name
+            dlist.append(det)
+        self.detectorlist = dlist
+
+    def doWriteDetectorlist(self, detectors):
+        detlist = []
+        for detname in detectors:
+            det = session.getDevice(detname)
+            if not isinstance(det, Measurable):
+                raise UsageError(self, 'cannot use device %r as a detector: '
+                                 'it is not a Measurable' % det)
+            detlist.append(det)
+        self._detlist = detlist

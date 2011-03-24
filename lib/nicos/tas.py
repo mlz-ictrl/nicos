@@ -85,7 +85,6 @@ class TAS(Instrument, Moveable):
     }
 
     def doInit(self):
-        Instrument.doInit(self)
         self.__dict__['h'] = TASIndex('h', unit='rlu', fmtstr='%.3f',
                                       index=0, lowlevel=True, tas=self)
         self.__dict__['k'] = TASIndex('k', unit='rlu', fmtstr='%.3f',
