@@ -35,7 +35,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtCore import pyqtSignature as qtsig
 
-from nicos.gui.utils import loadUi, DlgUtils
+from nicos.gui.utils import SettingGroup, loadUi, DlgUtils
 from nicos.gui.cascadewidget import CascadeWidget, TmpImage
 
 
@@ -48,8 +48,16 @@ class LiveWindow(QMainWindow, DlgUtils):
         self.widget = CascadeWidget(self)
         self.setCentralWidget(self.widget)
 
+        self.sgroup = SettingGroup('AnalysisWindow')
+        self.loadSettings()
+
         self.connect(self.actionLogScale, SIGNAL("toggled(bool)"),
                      self.widget, SLOT("SetLog10(bool)"))
+
+    def loadSettings(self):
+        with self.sgroup as settings:
+            geometry = settings.value('geometry').toByteArray()
+        self.restoreGeometry(geometry)
 
     def setData(self, data):
         self.widget.LoadPadMem(data, 128*128*4)
@@ -91,3 +99,9 @@ class LiveWindow(QMainWindow, DlgUtils):
             self.widget.GetPlot().print_(printer)
         self.statusBar.showMessage('Plot successfully printed to %s.' %
                                    str(printer.printerName()))
+
+    def closeEvent(self, event):
+        with self.sgroup as settings:
+            settings.setValue('geometry', QVariant(self.saveGeometry()))
+        event.accept()
+        self.emit(SIGNAL('closed'), self)
