@@ -328,6 +328,18 @@ class TacoAxis(TacoDevice, BaseAxis):
 
     taco_class = TACOMotor
 
+    parameters = {
+        'speed':     Param('Motor speed', unit='main/s', settable=True),
+        'accel':     Param('Motor acceleration', unit='main/s^2',
+                           settable=True),
+        'refspeed':  Param('Speed driving to reference switch', unit='main/s',
+                           settable=True),
+        'refswitch': Param('Switch to use as reference', type=str,
+                           settable=True),
+        'refpos':    Param('Position of the reference switch', unit='main',
+                           settable=True),
+    }
+
     # XXX the usermin/usermax resources of the Taco device are currently not
     # used or queried at all by this class
 
@@ -361,6 +373,15 @@ class TacoAxis(TacoDevice, BaseAxis):
 
     def doStop(self):
         self._taco_guard(self._dev.stop)
+
+    def _ref(self):
+        # reference the axis (do not use with encoded axes)
+        self.printinfo('referencing the axis, please wait...')
+        self._taco_guard(self._dev.deviceReset)
+        while self._taco_guard(self._dev.deviceState) == TACOStates.INIT:
+            sleep(0.1)
+        self.printinfo('reference drive complete, position is now ' +
+                       self.format(self.doRead()))
 
     def doReadSpeed(self):
         return self._taco_guard(self._dev.speed)
@@ -402,6 +423,46 @@ class TacoAxis(TacoDevice, BaseAxis):
 
     def doWriteBacklash(self, value):
         self._taco_update_resource('backlash', str(value))
+
+    # resources that need to be set on the motor, not the axis device
+
+    def _readMotorParam(self, resource, type=float):
+        motorname = self._taco_guard(self._dev.deviceQueryResource, 'motor')
+        client = TACOMotor(motorname)
+        return type(client.deviceQueryResource(resource))
+
+    def _writeMotorParam(self, resource, value):
+        motorname = self._taco_guard(self._dev.deviceQueryResource, 'motor')
+        client = TACOMotor(motorname)
+        client.deviceOff()
+        try:
+            client.deviceUpdateResource(resource, str(value))
+        finally:
+            client.deviceOn()
+
+    def doReadAccel(self):
+        return self._readMotorParam('accel')
+
+    def doWriteAccel(self, value):
+        self._writeMotorParam('accel', value)
+
+    def doReadRefspeed(self):
+        return self._readMotorParam('refspeed')
+
+    def doWriteRefspeed(self, value):
+        self._writeMotorParam('refspeed', value)
+
+    def doReadRefswitch(self):
+        return self._readMotorParam('refswitch', str)
+
+    def doWriteRefswitch(self, value):
+        self._writeMotorParam('refswitch', value)
+
+    def doReadRefpos(self):
+        return self._readMotorParam('refpos')
+
+    def doWriteRefpos(self, value):
+        self._writeMotorParam('refpos', value)
 
 
 class HoveringAxis(TacoAxis):

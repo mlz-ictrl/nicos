@@ -59,7 +59,7 @@ class Motor(Moveable, Coder, HasLimits):
     """
 
     parameters = {
-        'speed': Param('The motor speed in units/second', settable=True),
+        'speed': Param('The motor speed', unit='main/s', settable=True),
     }
 
     def setPosition(self, pos):
