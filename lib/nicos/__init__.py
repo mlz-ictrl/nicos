@@ -54,3 +54,11 @@ session = Session()
 
 from nicos.utils import readConfig
 readConfig()
+
+
+# Import TACO before any other C++ libraries.  This prevents segmentation
+# faults when occurring whenever TACO wants to raise a C++ exception.
+try:
+    import TACOClient
+except ImportError:
+    pass
