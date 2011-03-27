@@ -121,9 +121,14 @@ class Experiment(Device):
     def doWriteDetectorlist(self, detectors):
         detlist = []
         for detname in detectors:
-            det = session.getDevice(detname)
-            if not isinstance(det, Measurable):
-                raise UsageError(self, 'cannot use device %r as a detector: '
-                                 'it is not a Measurable' % det)
-            detlist.append(det)
+            try:
+                det = session.getDevice(detname)
+            except Exception:
+                self.printexception('could not create %r detector device' %
+                                    detname)
+            else:
+                if not isinstance(det, Measurable):
+                    raise UsageError(self, 'cannot use device %r as a detector:'
+                                     ' it is not a Measurable' % det)
+                detlist.append(det)
         self._detlist = detlist

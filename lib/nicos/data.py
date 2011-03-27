@@ -169,6 +169,9 @@ class DataSink(Device):
 
 
 class ConsoleSink(DataSink):
+    """
+    A DataSink that prints scan data onto the console.
+    """
 
     def beginDataset(self, dataset):
         printinfo('=' * 80)
@@ -205,6 +208,11 @@ class ConsoleSink(DataSink):
 
 
 class DaemonSink(DataSink):
+    """
+    A DataSink that sends datasets to connected GUI clients.  Only active for
+    daemon sessions.
+    """
+
     def isActive(self, scantype):
         if not isinstance(session, DaemonSession):
             return False
@@ -218,6 +226,11 @@ class DaemonSink(DataSink):
 
 
 class GraceSink(DataSink):
+    """
+    A DataSink that plots datasets in the Grace plotting program.  Needs the
+    GracePlot module.  Only active for console sessions.
+    """
+
     def isActive(self, scantype):
         if not GracePlot or not isinstance(session, InteractiveSession):
             return False

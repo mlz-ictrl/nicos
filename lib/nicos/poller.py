@@ -25,6 +25,8 @@
 #
 # *****************************************************************************
 
+from __future__ import with_statement
+
 """
 Contains a process that polls devices automatically.
 """
@@ -144,8 +146,8 @@ class Poller(Device):
 
     def _start_child(self, name):
         if session.config.control_path:
-            poller_script = os.path.join(session.config.control_path,
-                                         'bin', 'nicos-poller')
+            poller_script = os.path.normpath(
+                os.path.join(session.config.control_path, 'bin', 'nicos-poller'))
         else:
             poller_script = 'nicos-poller'
         process = subprocess.Popen([poller_script, name])
