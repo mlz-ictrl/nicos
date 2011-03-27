@@ -18,7 +18,11 @@ const QByteArray& NicosClient::communicate(const char* pcMsg)
 {
 	m_mutex.lock();
 	
-	sendmsg(pcMsg);
+	bool success = sendmsg(pcMsg);
+	if (!success) {
+		m_mutex.unlock();
+		return m_byEmpty;
+	}
 	const QByteArray& arr = recvmsg();
 	
 	m_mutex.unlock();

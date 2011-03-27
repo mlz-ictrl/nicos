@@ -51,9 +51,9 @@ bool TcpClient::connecttohost(const char* pcAddr, int iPort)
 	// Verbinden
 	m_socket.connectToHost(address, quint16(iPort));
 	bool bConnected = m_socket.waitForConnected(WAIT_DELAY);
-	
-	if(!bConnected)
-		std::cerr << "Error: Could not connect to " << pcAddr << " on port " << iPort << "." << std::endl;
+
+//	if(!bConnected)
+//		std::cerr << "Error: Could not connect to " << pcAddr << " on port " << iPort << "." << std::endl;
 
 	return bConnected;
 }
@@ -75,6 +75,9 @@ bool TcpClient::isconnected() const
 // Nachrichten mit Längen-Int vorne senden
 bool TcpClient::sendmsg(const char *pcMsg)
 {
+	if (!isconnected())
+		return false;
+
 	// Fehler im Server: Sollte eigentlich nicht 0-terminiert werden müssen
 	int iLen = strlen(pcMsg)+1;
 	
