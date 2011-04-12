@@ -310,8 +310,3 @@ TcpClient::~TcpClient()
 
 void TcpClient::SetDebugLog(bool bLog) { m_bDebugLog = bLog; }
 void TcpClient::SetTimeout(int iTimeout) { m_iMessageTimeout = iTimeout; }
-
-#ifdef __CASCADE_QT_CLIENT__
-	// Qt-Metaobjekte
-	#include "client.moc"
-#endif

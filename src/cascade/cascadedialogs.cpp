@@ -429,8 +429,3 @@ unsigned int ServerCfgDlg::s_iXRes = 128;
 unsigned int ServerCfgDlg::s_iYRes = 128;
 unsigned int ServerCfgDlg::s_iTRes = 128;
 // ********************************************************************
-
-#ifdef __CASCADE_QT_CLIENT__
-	// Qt-Metaobjekte
-	#include "cascadedialogs.moc"
-#endif

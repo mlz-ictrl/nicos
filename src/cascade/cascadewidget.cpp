@@ -698,7 +698,3 @@ void CascadeWidget::showSumDlg()
 			break;
 	}	
 }
-
-#ifdef __CASCADE_QT_CLIENT__
-	#include "cascadewidget.moc"
-#endif

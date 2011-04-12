@@ -21,17 +21,17 @@ cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o
 
 
 ###################### CPP-Dateien ######################
-cascade.o: cascade.cpp cascade.moc cascadedialogs.cpp cascadedialogs.moc bins.h parse.h ErrorBarPlotCurve.h tofdata.h
+cascade.o: cascade.cpp cascade.moc cascadedialogs_moc.cpp cascadedialogs.moc bins.h parse.h ErrorBarPlotCurve.h tofdata.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascade.o cascade.cpp
 
-cascadedialogs.o: cascadedialogs.cpp cascadedialogs.h cascadedialogs.moc
-	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascadedialogs.o cascadedialogs.cpp
+cascadedialogs.o: cascadedialogs_moc.cpp cascadedialogs.h cascadedialogs.moc
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascadedialogs.o cascadedialogs_moc.cpp
 
 bins.o: bins.cpp bins.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o bins.o bins.cpp
 
-cascadewidget.o: cascadewidget.cpp cascadewidget.h cascadewidget.moc
-	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascadewidget.o cascadewidget.cpp
+cascadewidget.o: cascadewidget_moc.cpp cascadewidget.h cascadewidget.moc
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascadewidget.o cascadewidget_moc.cpp
 
 tofloader.o: tofloader.cpp tofloader.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o tofloader.o tofloader.cpp
@@ -45,8 +45,8 @@ config.o: config.cpp config.h
 histogram_item.o: histogram_item.cpp histogram_item.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o histogram_item.o histogram_item.cpp
 
-client.o: client.cpp client.h client.moc
-	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o client.o client.cpp
+client.o: client_moc.cpp client.h client.moc
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o client.o client_moc.cpp
 #########################################################
 
 
@@ -56,11 +56,23 @@ client.o: client.cpp client.h client.moc
 cascade.moc:
 	moc cascade.cpp -o cascade.moc
 
+
+cascadewidget_moc.cpp: cascadewidget.cpp cascadewidget.moc
+	cat cascadewidget.cpp cascadewidget.moc > cascadewidget_moc.cpp
+
 cascadewidget.moc:
 	moc cascadewidget.h -o cascadewidget.moc
 
+
+cascadedialogs_moc.cpp: cascadedialogs.cpp cascadedialogs.moc
+	cat cascadedialogs.cpp cascadedialogs.moc > cascadedialogs_moc.cpp
+
 cascadedialogs.moc:
 	moc cascadedialogs.h -o cascadedialogs.moc
+
+
+client_moc.cpp: client.cpp client.moc
+	cat client.cpp client.moc > client_moc.cpp
 
 client.moc:
 	moc client.h -o client.moc
@@ -71,7 +83,7 @@ client.moc:
 
 ###################### clean ######################
 clean:
-	rm -f *.moc
+	rm -f *.moc *_moc.cpp
 	rm -f *.o
 	rm -f cascade
 	
