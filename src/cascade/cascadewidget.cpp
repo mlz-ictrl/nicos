@@ -130,7 +130,6 @@ void Plot::InitPlot()
 	SetColorMap(false);
 
 	QwtScaleWidget *rightAxis = axisWidget(QwtPlot::yRight);
-	rightAxis->setTitle("Counts 10^");
 	rightAxis->setColorBarEnabled(true);
 	rightAxis->setColorMap(m_pSpectrogram->data().range(),m_pSpectrogram->colorMap());
 
@@ -245,6 +244,8 @@ CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent), m_bForceReini
 	QGridLayout *gridLayout = new QGridLayout(this);
 	gridLayout->addWidget(m_pPlot,0,0,1,1);
 	this->setLayout(gridLayout);
+	
+	UpdateLabels();
 }
 
 CascadeWidget::~CascadeWidget()

@@ -82,22 +82,31 @@ client.moc:
 
 
 ###################### clean ######################
-clean:
+# Qt-Client
+clean_qt:
 	rm -f *.moc *_moc.cpp
 	rm -f *.o
 	rm -f cascade
-	
+
+# Nicos-Module
+clean_nicos:
+	rm -f nicosclient/Makefile
 	rm -f nicosclient/*.a nicosclient/pythonbinding/*.so
 	rm -f nicosclient/*.o nicosclient/pythonbinding/*.o
 	rm -f nicosclient/moc_*
+	rm -f nicosclient/pythonbinding/Makefile
 	rm -f nicosclient/pythonbinding/sip*.cpp nicosclient/pythonbinding/sip*.h
 	rm -f nicosclient/pythonbinding/*.exp nicosclient/pythonbinding/*.sbf
 	
+	rm -f nicoswidget/Makefile
 	rm -f nicoswidget/*.a nicoswidget/pythonbinding/*.so
 	rm -f nicoswidget/*.o nicoswidget/pythonbinding/*.o
 	rm -f nicoswidget/moc_*
+	rm -f nicoswidget/pythonbinding/Makefile
 	rm -f nicoswidget/pythonbinding/sip*.cpp nicoswidget/pythonbinding/sip*.h
 	rm -f nicoswidget/pythonbinding/*.exp nicoswidget/pythonbinding/*.sbf
+
+clean: clean_qt clean_nicos
 ###################################################
 
 
