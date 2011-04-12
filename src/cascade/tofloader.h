@@ -73,7 +73,7 @@ class Config_TofLoader
 		static void Init();
 		static void Deinit();
 		
-		static int GetLogLowerRange();
+		static double GetLogLowerRange();
 		static int GetFoilCount();
 		static int GetImagesPerFoil();
 		static int GetImageWidth();
@@ -207,7 +207,8 @@ class TofImage
 		void GetOverview(TmpImage *pImg);
 		void GetPhaseGraph(int iFoil, TmpImage *pImg, int iStartX, int iEndX, int iStartY, int iEndY, bool bInDeg=true);
 		void GetPhaseGraph(int iFoil, TmpImage *pImg, bool bInDeg=true);
-		void GetContrastGraph(int iFoil, TmpImage *pImg);		
+		void GetContrastGraph(int iFoil, TmpImage *pImg, int iStartX, int iEndX, int iStartY, int iEndY);
+		void GetContrastGraph(int iFoil, TmpImage *pImg);
 		
 		void AddFoils(int iBits, int iChannelBits/*=0xffffffff*/, TmpImage *pImg);
 		void AddFoils(const bool *pbChannels, TmpImage *pImg);
@@ -221,7 +222,7 @@ class TofImage
 		TmpGraph GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, double dPhaseShift);
 		TmpImage GetOverview();
 		TmpImage GetPhaseGraph(int iFoil, int iStartX, int iEndX, int iStartY, int iEndY, bool bInDeg=true);
-		TmpImage GetContrastGraph(int iFoil);
+		TmpImage GetContrastGraph(int iFoil, int iStartX, int iEndX, int iStartY, int iEndY);
 		TmpImage AddFoils(const bool *pbChannels);
 		TmpImage AddPhases(const bool *pbFoils);
 		TmpImage AddContrasts(const bool *pbFoils);

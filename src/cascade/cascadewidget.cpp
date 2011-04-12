@@ -48,6 +48,8 @@
 #include <QLine>
 #include <QMessageBox>
 
+#include <iostream>
+
 #include "tofloader.h"
 #include "tofdata.h"
 #include "cascadedialogs.h"

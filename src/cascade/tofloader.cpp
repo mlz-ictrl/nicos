@@ -118,7 +118,7 @@ void Config_TofLoader::Deinit()
 }
 
 ///////////////////////////////////////// Getter & Setter ////////////////////////////////
-int Config_TofLoader::GetLogLowerRange() { return LOG_LOWER_RANGE; }
+double Config_TofLoader::GetLogLowerRange() { return LOG_LOWER_RANGE; }
 int Config_TofLoader::GetFoilCount() { return FOIL_COUNT; }
 int Config_TofLoader::GetImagesPerFoil() { return IMAGES_PER_FOIL; }
 int Config_TofLoader::GetImageWidth() { return IMAGE_WIDTH; }
@@ -795,7 +795,6 @@ void TofImage::GetPhaseGraph(int iFolie, TmpImage *pImg, int iStartX, int iEndX,
 	if(pImg==NULL) return;
 	CheckArguments(&iStartX, &iEndX, &iStartY, &iEndY);
 
-	//std::cout << iStartX << " " << iEndX << " " << iStartY << " " << iEndY << std::endl;
 	pImg->Clear();
 	pImg->m_iW = iEndX-iStartX;
 	pImg->m_iH = iEndY-iStartY;
@@ -827,24 +826,32 @@ void TofImage::GetPhaseGraph(int iFolie, TmpImage *pImg, int iStartX, int iEndX,
 		}
 }
 
-void TofImage::GetContrastGraph(int iFolie, TmpImage *pImg)
+void TofImage::GetContrastGraph(int iFoil, TmpImage *pImg)
+{
+	GetContrastGraph(iFoil, pImg, 0, Config_TofLoader::IMAGE_WIDTH, 0, Config_TofLoader::IMAGE_HEIGHT);
+}
+
+void TofImage::GetContrastGraph(int iFoil, TmpImage *pImg, int iStartX, int iEndX, int iStartY, int iEndY)
 {
 	if(pImg==NULL) return;
-	double *pdWave = CreateDoubleWave(NULL,Config_TofLoader::IMAGE_WIDTH,Config_TofLoader::IMAGE_HEIGHT);
-	if(pdWave==NULL) return;
-	
+	CheckArguments(&iStartX, &iEndX, &iStartY, &iEndY);
+
 	pImg->Clear();
-	pImg->m_iW = Config_TofLoader::IMAGE_WIDTH;
-	pImg->m_iH = Config_TofLoader::IMAGE_HEIGHT;
-	pImg->m_pdDaten = pdWave;
-		
+	pImg->m_iW = iEndX-iStartX;
+	pImg->m_iH = iEndY-iStartY;
+	
 	const int XSIZE = Config_TofLoader::iContrastBlockSize[0],
-		  YSIZE = Config_TofLoader::iContrastBlockSize[1];
-	for(int iY=0; iY<Config_TofLoader::IMAGE_HEIGHT; iY+=YSIZE)
-		for(int iX=0; iX<Config_TofLoader::IMAGE_WIDTH; iX+=XSIZE)
+		  YSIZE = Config_TofLoader::iContrastBlockSize[1];	
+	
+	double *pdWave = CreateDoubleWave(NULL,pImg->m_iW+XSIZE,pImg->m_iH+YSIZE);
+	if(pdWave==NULL) return;
+	pImg->m_pdDaten = pdWave;
+	
+	for(int iY=iStartY; iY<iEndY; iY+=YSIZE)
+		for(int iX=iStartX; iX<iEndX; iX+=XSIZE)
 		{	
 			TmpGraph tmpGraph;
-			GetGraph(iX, iX+XSIZE, iY, iY+YSIZE, iFolie, &tmpGraph);
+			GetGraph(iX, iX+XSIZE, iY, iY+YSIZE, iFoil, &tmpGraph);
 			
 			double dPhase, dFreq, dAmp, dOffs;
 			bool bFitValid = tmpGraph.FitSinus(dPhase, dFreq, dAmp, dOffs);
@@ -855,7 +862,7 @@ void TofImage::GetContrastGraph(int iFolie, TmpImage *pImg)
 			
 			for(int i=0; i<YSIZE; ++i)
 				for(int j=0; j<XSIZE; ++j)
-					pdWave[(iY+i)*Config_TofLoader::IMAGE_WIDTH+(iX+j)] = dContrast;
+					pdWave[(iY-iStartY+i)*pImg->m_iW+(iX-iStartX+j)] = dContrast;
 		}
 }
 
@@ -896,10 +903,10 @@ TmpImage TofImage::GetPhaseGraph(int iFolie, int iStartX, int iEndX, int iStartY
 	return img;
 }
 
-TmpImage TofImage::GetContrastGraph(int iFolie)
+TmpImage TofImage::GetContrastGraph(int iFolie, int iStartX, int iEndX, int iStartY, int iEndY)
 {
 	TmpImage img;
-	GetContrastGraph(iFolie, &img);
+	GetContrastGraph(iFolie, &img, iStartX, iEndX, iStartY, iEndY);
 	return img;
 }
 
