@@ -408,7 +408,7 @@ class Readable(Device):
             try:
                 self._sim_value = self.read()
             except Exception, err:
-                self.printwarning(exc=err)
+                self.printwarning('error reading last value', exc=err)
         Device._setMode(self, mode)
 
     def __call__(self, value=None):
@@ -747,9 +747,9 @@ class HasOffset(object):
 
     def doWriteOffset(self, value):
         """Adapt the limits to the new offset."""
-        if isinstance(self, Moveable):
-            # this applies only to Moveables
-            diff = value - self.offset
+        diff = value - self.offset
+        if isinstance(self, HasLimits):
+            # this applies only to Moveables with limits
             limits = self.abslimits
             self._setROParam('abslimits', (limits[0] - diff, limits[1] - diff))
             limits = self.userlimits
@@ -843,7 +843,7 @@ class Measurable(Startable):
         """Return a tuple with the result(s) of the last measurement."""
         if self._mode == 'simulation':
             # XXX simulate a return value
-            return []
+            return (0,) * len(self.valueInfo())
         # always get fresh result from cache
         if self._cache:
             self._cache.invalidate(self, 'value')
@@ -871,4 +871,4 @@ class Measurable(Startable):
         """Return a tuple of Value instances describing the values that read()
         returns.
         """
-        return Value(self.name, unit=self.unit)
+        return Value(self.name, unit=self.unit),

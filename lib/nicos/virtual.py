@@ -37,7 +37,7 @@ import threading
 
 from nicos import status
 from nicos.utils import tacodev, tupleof
-from nicos.device import Readable, HasOffset, Param
+from nicos.device import Readable, Moveable, HasOffset, Param
 from nicos.abstract import Motor, Coder
 from nicos.detector import FRMTimerChannel, FRMCounterChannel
 
@@ -201,3 +201,25 @@ class VirtualCounter(FRMCounterChannel):
 
     def doReadUnit(self):
         return 'counts'
+
+
+class ArbitraryValues(Moveable, HasOffset):
+    attached_devices = {
+        'which': Moveable,
+    }
+    parameters = {
+        'steps': Param('', type=tupleof(float)),
+    }
+
+    def doInit(self):
+        self._value = 0
+
+    def doRead(self):
+        return self._value - self.offset
+
+    def doStatus(self):
+        return status.OK, ''
+
+    def doStart(self, pos):
+        self._adevs['which'].start(self.steps[int(pos + self.offset + 0.5)])
+        self._value = pos + self.offset

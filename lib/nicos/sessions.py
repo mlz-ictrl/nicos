@@ -444,6 +444,7 @@ class Session(object):
         if devname in self.devices:
             if not recreate:
                 if explicit:
+                    self.explicit_devices.add(devname)
                     self.export(devname, self.devices[devname])
                 return self.devices[devname]
             self.destroyDevice(devname)
@@ -807,7 +808,7 @@ class DaemonSession(SimpleSession):
         daemon_handler = DaemonLogHandler(daemondev)
         # create a new root logger that gets the daemon handler
         self.createRootLogger()
-        self.addLogHandler(daemon_handler)
+        self.log.addHandler(daemon_handler)
         sys.stdout = LoggingStdout(sys.stdout)
 
         # add an object to be used by DaemonSink objects
@@ -855,7 +856,7 @@ class WebSession(Session):
 
         app = NicosApp()
         session.createRootLogger()
-        session.addLogHandler(app.create_loghandler())
+        session.log.addHandler(app.create_loghandler())
         sys.stdout = LoggingStdout(sys.stdout)
 
         session.loadSetup(setup)

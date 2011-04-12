@@ -218,7 +218,7 @@ def _handleQScanArgs(args, kwargs, Q, dQ):
         else:
             # XXX this silently accepts wrong keys; restrict the possible keys?
             preset[key] = value
-    return preset, infostr, detlist, move, multistep, Q, dQ
+    return preset, infostr, detlist, envlist, move, multistep, Q, dQ
 
 
 @usercommand
@@ -249,6 +249,3 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
                for i in range(-numperside, numperside+1)]
     scan = QScan(values, move, multistep, detlist, envlist, preset, infostr)
     scan.run()
-
-
-# XXX Implement: centering/offset checking

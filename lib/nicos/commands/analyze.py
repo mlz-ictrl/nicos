@@ -38,7 +38,10 @@ import numpy as np
 from nicos import session
 from nicos.errors import UsageError
 from nicos.commands import usercommand
-from nicos.commands.output import printinfo
+from nicos.commands.scan import cscan
+from nicos.commands.device import maw
+from nicos.commands.output import printinfo, printwarning
+from nicos.fitutils import Fit
 
 
 def _getData(xcol=None, ycol=None):
@@ -86,3 +89,65 @@ def root_mean_square(ycol):
     """
     ys = _getData(None, ycol)
     return sqrt((ys**2).sum() / len(ys))
+
+
+@usercommand
+def gauss(xcol, ycol):
+    """
+    Fit a Gaussian through the data.
+    """
+    xs, ys = _getData(xcol, ycol)
+    c = 2 * np.sqrt(2 * np.log(2))
+    def model(v, x):
+        return v[1] * np.exp(-0.5 * (x - v[0])**2 / (v[2] / c)**2) + v[3]
+    fit = Fit(model, ['x0', 'A', 'sigma', 'B'],
+              [0.5*(xs[0]+xs[-1]), xs.max(), (xs[1]-xs[0])*5, 0],
+              allow_leastsq=False)
+    res = fit.run('gauss', xs, ys, np.sqrt(ys))
+    if res._failed:
+        return None, None
+    return tuple(res._pars[1]), tuple(res._pars[2])
+
+
+@usercommand
+def center(dev, center, step, numsteps, *args, **kwargs):
+    """
+    Move the given device to the maximum of a Gaussian fit through a
+    center scan with the given parameters.
+    """
+    cscan(dev, center, step, numsteps, *args, **kwargs)
+    params, errors = gauss(0, -1)  # XXX which column!
+    # do not allow moving outside of the scanned region
+    minvalue = center - step*numsteps
+    maxvalue = center + step*numsteps
+    if params is None:
+        printwarning('Gaussian fit failed, no centering done')
+    elif not minvalue <= params[0] <= maxvalue:
+        printwarning('Gaussian fit resulted in center outside scanning area, '
+                     'no centering done')
+    else:
+        printinfo('Centered peak for %s' % dev)
+        maw(dev, params[0])
+
+
+@usercommand
+def checkoffset(dev, center, step, numsteps, *args, **kwargs):
+    """
+    Readjust offset of the given device, so that the center of the given
+    scan coincides with the center of a Gaussian fit.
+    """
+    cscan(dev, center, step, numsteps, *args, **kwargs)
+    params, errors = gauss(0, -1)  # XXX which column!
+    # do not allow moving outside of the scanned region
+    minvalue = center - step*numsteps
+    maxvalue = center + step*numsteps
+    if params is None:
+        printwarning('Gaussian fit failed, offset unchanged')
+    elif not minvalue <= params[0] <= maxvalue:
+        printwarning('Gaussian fit resulted in center outside scanning area, '
+                     'offset unchanged')
+    else:
+        diff = params[0] - center
+        printinfo('Center of Gaussian fit at %.2f %s' % (params[0], dev.unit))
+        printinfo('Adjusting offset of %s by %.2f %s' % (dev, diff, dev.unit))
+        dev.offset += diff
