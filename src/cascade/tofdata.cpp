@@ -74,7 +74,7 @@ QwtDoubleInterval PadData::range() const
 	if(m_bLog)
 	{
 		double dTmpMax = m_iMax,
-			dTmpMin = m_iMin;
+		       dTmpMin = m_iMin;
 		
 		if(dTmpMax>0.) dTmpMax = log10(dTmpMax); else dTmpMax=Config_TofLoader::GetLogLowerRange();
 		if(dTmpMin>0.) dTmpMin = log10(dTmpMin); else dTmpMin=Config_TofLoader::GetLogLowerRange();

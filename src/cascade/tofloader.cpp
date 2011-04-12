@@ -851,9 +851,7 @@ void TofImage::GetContrastGraph(int iFolie, TmpImage *pImg)
 			
 			double dContrast = fabs(dAmp/dOffs);
 			if(!bFitValid || dContrast!=dContrast)
-			{
 				dContrast = 0.;
-			}
 			
 			for(int i=0; i<YSIZE; ++i)
 				for(int j=0; j<XSIZE; ++j)

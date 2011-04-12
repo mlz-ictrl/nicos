@@ -300,33 +300,30 @@ class MainWindow : public QMainWindow
 			{
 				std::cerr << "Error: Unknown prefix in server response: \"" <<pcBuf[0]<<pcBuf[1]<<pcBuf[2]<<pcBuf[3] << "\"." << std::endl;
 			}
-		}		
-			
+		}
+
 		// Slot vom Summen-Dialog
-		void FolienSummeSlot(bool *pbKanaele, int iMode)
+		void FolienSummeSlot(const bool *pbKanaele, int iMode)
 		{
 			switch(iMode)
 			{
 				case MODE_SLIDES:
 				case MODE_SUMS:
 					actionViewsSlides->setChecked(true);
-					m_cascadewidget.viewFoilSums(pbKanaele);
 					break;
 
 				case MODE_PHASES:
 				case MODE_PHASESUMS:
 					actionViewsPhases->setChecked(true);
-					m_cascadewidget.viewPhaseSums(pbKanaele);
 					break;
 
 				case MODE_CONTRASTS:
 				case MODE_CONTRASTSUMS:
 					actionViewsContrasts->setChecked(true);
-					m_cascadewidget.viewContrastSums(pbKanaele);
 					break;
 			}
 			UpdateLabels(false);
-		}		
+		}
 
 		// Callback vom Folien-Slider
 		void ChangeFolie(int iVal)
@@ -416,45 +413,7 @@ class MainWindow : public QMainWindow
 			
 		void showSummenDialog(void)
 		{
-			if(!m_cascadewidget.IsTofLoaded()) return;
-
-			static SumDlg *pSummenDlgSlides = NULL;
-			static SumDlgNoChannels *pSummenDlgPhases = NULL;
-			static SumDlgNoChannels *pSummenDlgContrasts = NULL;
-
-			switch(m_cascadewidget.GetMode())
-			{
-				case MODE_SLIDES:
-				case MODE_SUMS:
-					if(!pSummenDlgSlides) pSummenDlgSlides = new SumDlg(this);
-					connect(pSummenDlgSlides, SIGNAL(SumSignal(bool *, int)), this, SLOT(FolienSummeSlot(bool *, int)));
-					
-					pSummenDlgSlides->SetMode(m_cascadewidget.GetMode());
-					pSummenDlgSlides->show();
-					pSummenDlgSlides->raise();
-					pSummenDlgSlides->activateWindow();
-					break;
-				case MODE_PHASES:
-				case MODE_PHASESUMS:
-					if(!pSummenDlgPhases) pSummenDlgPhases = new SumDlgNoChannels(this);
-					connect(pSummenDlgPhases, SIGNAL(SumSignal(bool *, int)), this, SLOT(FolienSummeSlot(bool *, int)));
-					
-					pSummenDlgPhases->SetMode(m_cascadewidget.GetMode());
-					pSummenDlgPhases->show();
-					pSummenDlgPhases->raise();
-					pSummenDlgPhases->activateWindow();
-					break;
-				case MODE_CONTRASTS:
-				case MODE_CONTRASTSUMS:
-					if(!pSummenDlgContrasts) pSummenDlgContrasts = new SumDlgNoChannels(this);
-					connect(pSummenDlgContrasts, SIGNAL(SumSignal(bool *, int)), this, SLOT(FolienSummeSlot(bool *, int)));
-					
-					pSummenDlgContrasts->SetMode(m_cascadewidget.GetMode());
-					pSummenDlgContrasts->show();
-					pSummenDlgContrasts->raise();
-					pSummenDlgContrasts->activateWindow();
-					break;
-			}
+			m_cascadewidget.showSumDlg();
 		}
 		
 		void viewOverview()
@@ -837,6 +796,9 @@ class MainWindow : public QMainWindow
 			connect(&m_statustimer, SIGNAL(timeout()), this, SLOT(ServerStatus()));
 			
 			connect(&m_client, SIGNAL(MessageSignal(const char*, int)), this, SLOT(ServerMessageSlot(const char*, int)));
+
+			// Widget
+			connect(&m_cascadewidget, SIGNAL(SumDlgSignal(const bool *, int)), this, SLOT(FolienSummeSlot(const bool *, int)));
 		}
 };
 

@@ -244,7 +244,6 @@ class CascadeWidget : QWidget
 		Data2D* GetData2d();
 		PadData* GetPad();
 		Plot* GetPlot();
-//		unsigned int* GetRawData();	// Pointer auf Rohdaten-Bereich erhalten
 		
 		bool GetLog10();
 		int GetFoil() const;
@@ -263,8 +262,11 @@ class CascadeWidget : QWidget
 		void viewPhaseSums(const bool* pbFolien);
 		void viewContrastSums(const bool* pbFolien);
 
+		// sub dialogs //////////////////////////////
 		void showCalibrationDlg(int iNumBins);
 		void showGraphDlg();
+		void showSumDlg();
+		/////////////////////////////////////////////
 		
 		void SetLog10(bool bLog10);
 		void SetSpectrogram(bool bSpect);

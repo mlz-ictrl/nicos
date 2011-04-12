@@ -41,6 +41,7 @@ class TmpGraph;
 class TofImage;
 class PadImage;
 
+// Konfiguration
 class Config_TofLoader
 {
 	friend class TmpImage;

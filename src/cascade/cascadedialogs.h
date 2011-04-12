@@ -133,7 +133,7 @@ class SumDlg : public QDialog, public Ui::FolienSummeDlg
 		void SetMode(int iMode);
 		
 	signals:
-		void SumSignal(bool *pbKanaele, int iMode);
+		void SumSignal(const bool *pbKanaele, int iMode);
 };
 // ********************************************************************
 
@@ -159,7 +159,7 @@ class SumDlgNoChannels : public QDialog, public Ui::FolienSummeDlg
 		void SetMode(int iMode);
 		
 	signals:
-		void SumSignal(bool *pbKanaele, int iMode);
+		void SumSignal(const bool *pbKanaele, int iMode);
 };
 // ********************************************************************
 

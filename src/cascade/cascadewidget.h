@@ -159,8 +159,11 @@ Q_OBJECT
 		void viewPhaseSums(const bool* pbFolien);
 		void viewContrastSums(const bool* pbFolien);
 		
+		// Dialoge ////////////////////////////
 		void showCalibrationDlg(int iNumBins);
 		void showGraphDlg();
+		void showSumDlg();
+		///////////////////////////////////////
 		
 		void SetLog10(bool bLog10);
 		void SetSpectrogram(bool bSpect);
@@ -170,7 +173,12 @@ Q_OBJECT
 		
 		void UpdateGraph();
 		void UpdateLabels();		
-		void UpdateRange();		
+		void UpdateRange();
+		
+		void SumDlgSlot(const bool *pbKanaele, int iMode);
+		
+	signals:
+		void SumDlgSignal(const bool* pbKanaele, int iMode);
 };
 
 #endif

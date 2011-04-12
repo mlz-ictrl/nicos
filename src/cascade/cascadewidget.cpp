@@ -630,6 +630,72 @@ void CascadeWidget::showGraphDlg()
 	graphdlg.exec();
 }
 
+void CascadeWidget::SumDlgSlot(const bool *pbKanaele, int iMode)
+{
+	switch(iMode)
+	{
+		case MODE_SLIDES:
+		case MODE_SUMS:
+			viewFoilSums(pbKanaele);
+			break;
+
+		case MODE_PHASES:
+		case MODE_PHASESUMS:
+			viewPhaseSums(pbKanaele);
+			break;
+
+		case MODE_CONTRASTS:
+		case MODE_CONTRASTSUMS:
+			viewContrastSums(pbKanaele);
+			break;
+	}
+	UpdateLabels();
+	emit SumDlgSignal(pbKanaele, iMode);
+}
+
+void CascadeWidget::showSumDlg()
+{
+	if(!IsTofLoaded()) return;
+
+	static SumDlg *pSummenDlgSlides = NULL;
+	static SumDlgNoChannels *pSummenDlgPhases = NULL;
+	static SumDlgNoChannels *pSummenDlgContrasts = NULL;
+
+	switch(GetMode())
+	{
+		case MODE_SLIDES:
+		case MODE_SUMS:
+			if(!pSummenDlgSlides) pSummenDlgSlides = new SumDlg(this);
+			connect(pSummenDlgSlides, SIGNAL(SumSignal(const bool *, int)), this, SLOT(SumDlgSlot(const bool *, int)));
+			
+			pSummenDlgSlides->SetMode(GetMode());
+			pSummenDlgSlides->show();
+			pSummenDlgSlides->raise();
+			pSummenDlgSlides->activateWindow();
+			break;
+		case MODE_PHASES:
+		case MODE_PHASESUMS:
+			if(!pSummenDlgPhases) pSummenDlgPhases = new SumDlgNoChannels(this);
+			connect(pSummenDlgPhases, SIGNAL(SumSignal(const bool *, int)), this, SLOT(SumDlgSlot(const bool *, int)));
+			
+			pSummenDlgPhases->SetMode(GetMode());
+			pSummenDlgPhases->show();
+			pSummenDlgPhases->raise();
+			pSummenDlgPhases->activateWindow();
+			break;
+		case MODE_CONTRASTS:
+		case MODE_CONTRASTSUMS:
+			if(!pSummenDlgContrasts) pSummenDlgContrasts = new SumDlgNoChannels(this);
+			connect(pSummenDlgContrasts, SIGNAL(SumSignal(const bool *, int)), this, SLOT(SumDlgSlot(const bool *, int)));
+			
+			pSummenDlgContrasts->SetMode(GetMode());
+			pSummenDlgContrasts->show();
+			pSummenDlgContrasts->raise();
+			pSummenDlgContrasts->activateWindow();
+			break;
+	}	
+}
+
 #ifdef __CASCADE_QT_CLIENT__
 	#include "cascadewidget.moc"
 #endif
