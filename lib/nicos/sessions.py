@@ -594,9 +594,12 @@ class Session(object):
         if self.cache:
             self.cache.put(self.experiment, 'action', joined)
 
-    # -- Live data handling ----------------------------------------------------
+    # -- Session-specific behavior ---------------------------------------------
 
     def updateLiveData(self, dtype, nx, ny, nt, time, data):
+        pass
+
+    def breakpoint(self, level):
         pass
 
 
@@ -657,6 +660,12 @@ class NicosCompleter(rlcompleter.Completer):
         return [m for m in matches if not m[textlen:].startswith(('_', 'do'))]
 
 
+class NicosInteractiveStop(BaseException):
+    """
+    This exception is raised when the user requests a stop.
+    """
+
+
 class NicosInteractiveConsole(code.InteractiveConsole):
     """
     This class provides a console similar to the standard Python interactive
@@ -700,8 +709,14 @@ class NicosInteractiveConsole(code.InteractiveConsole):
 
     def raw_input(self, prompt):
         sys.stdout.write(colorcode('blue'))
-        inp = raw_input(prompt)
-        sys.stdout.write(colorcode('reset'))
+        try:
+            inp = raw_input(prompt)
+        except KeyboardInterrupt:
+            # Ctrl-C pressed from command line
+            session.immediateStop()
+            return ''
+        finally:
+            sys.stdout.write(colorcode('reset'))
         return inp
 
     def runcode(self, codeobj):
@@ -710,12 +725,17 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         """
         try:
             exec codeobj in self.globals, self.locals
+        except NicosInteractiveStop:
+            pass
+        except KeyboardInterrupt:
+            # "immediate stop" chosen
+            session.immediateStop()
         except Exception:
             #raise
             self.session.logUnhandledException(sys.exc_info())
-        else:
-            if code.softspace(sys.stdout, 0):
-                print
+            return
+        if code.softspace(sys.stdout, 0):
+            print
         #self.locals.clear()
 
 
@@ -744,11 +764,53 @@ class InteractiveSession(Session):
         console.interact(banner)
         sys.stdout.write(colorcode('reset'))
 
+    def breakpoint(self, level):
+        if session._stoplevel >= level:
+            old_stoplevel = session._stoplevel
+            session._stoplevel = 0
+            raise NicosInteractiveStop(old_stoplevel)
+
+    def immediateStop(self):
+        self.log.warning('stopping all devices for immediate stop')
+        from nicos.commands.device import stop
+        stop()
+
+    def signalHandler(self, signum, frame):
+        if self._in_sigint:  # ignore multiple Ctrl-C presses
+            return
+        self._in_sigint = True
+        try:
+            self.log.info('== Keyboard interrupt (Ctrl-C) ==')
+            self.log.info('Please enter how to proceed:')
+            self.log.info('<H> stop after current step')
+            self.log.info('<L> stop after current scan')
+            self.log.info('<S> immediate stop')
+            try:
+                reply = raw_input('---> ')
+            except RuntimeError, err:
+                # when already in readline(), this will be raised
+                reply = 'S'
+            self.log.log(INPUT, reply)
+            if reply.upper() == 'I':
+                # handle further Ctrl-C presses with KeyboardInterrupt
+                signal.signal(signal.SIGINT, signal.default_int_handler)
+            elif reply.upper() == 'H':
+                self._stoplevel = 2
+            elif reply.upper() == 'L':
+                self._stoplevel = 1
+            else:
+                # this will create a KeyboardInterrupt and run stop()
+                signal.default_int_handler(signum, frame)
+        finally:
+            self._in_sigint = False
+
     @classmethod
     def run(cls, setup='startup'):
         # Assign the correct class to the session singleton.
         session.__class__ = InteractiveSession
         session.__init__('nicos')
+        session._stoplevel = 0
+        session._in_sigint = False
 
         # Create the initial instrument setup.
         session.loadSetup(setup)
@@ -760,6 +822,9 @@ class InteractiveSession(Session):
             session.log.info('could not enter master mode; remaining slave')
         except:
             session.log.warning('could not enter master mode', exc=True)
+
+        # Enable Ctrl-C interrupt processing.
+        signal.signal(signal.SIGINT, session.signalHandler)
 
         # Fire up an interactive console.
         session.console()

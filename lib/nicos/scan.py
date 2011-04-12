@@ -139,11 +139,13 @@ class Scan(object):
 
     def finishPoint(self):
         session.endActionScope()
+        session.breakpoint(2)
 
     def endScan(self):
         for sink in self._sinks:
             sink.endDataset(self.dataset)
         session.endActionScope()
+        session.breakpoint(1)
 
     def handleError(self, dev, val, err):
         """Handle an error occurring during positioning for a point.
@@ -321,6 +323,7 @@ class ContinuousScan(Scan):
             last = sum((det.read() for det in detlist), ())
             while device.doStatus()[0] == status.BUSY:
                 time.sleep(1)
+                session.breakpoint(2)
                 devpos = device.doRead()
                 read = sum((det.read() for det in detlist), ())
                 diff = [read[i] - last[i]
