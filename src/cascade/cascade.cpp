@@ -406,49 +406,12 @@ class MainWindow : public QMainWindow
 		
 		void showCalibration(void)
 		{
-			if(!m_cascadewidget.IsTofLoaded()) return;
-
-			Bins bins(NUM_BINS, 0., 360.);
-			
-			QwtDoubleRect rect = m_cascadewidget.GetPlot()->GetZoomer()->zoomRect();
-			int iROIx1 = rect.left(),
-			iROIx2 = rect.right(),
-			iROIy1 = rect.top(),
-			iROIy2 = rect.bottom();
-			
-			TmpImage tmpimg[4];
-			for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
-				m_cascadewidget.GetTof()->GetPhaseGraph(iFolie, &tmpimg[iFolie], iROIx1, iROIx2, iROIy1, iROIy2, true);
-			
-			int iW = iROIx2-iROIx1; if(iW<0) iW=-iW;
-			int iH = iROIy2-iROIy1; if(iH<0) iH=-iH;
-			
-			for(int iFolie=/*1*/0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
-				for(int iY=0; iY<iH; ++iY)
-					for(int iX=0; iX<iW; ++iX)
-					{
-						double dVal = tmpimg[iFolie].GetData(iX,iY)/* - tmpimg[0].GetData(iX,iY)*/;
-						if(dVal==0.) continue;
-						bins.Inc(dVal);
-					}		
-			
-			CalibrationDlg CalDlg(this, bins);
-			CalDlg.exec();
+			m_cascadewidget.showCalibrationDlg(NUM_BINS);
 		}
 		
 		void showGraph(void)
 		{
-			if(!m_cascadewidget.IsTofLoaded()) return;
-			
-			QwtDoubleRect rect = m_cascadewidget.GetPlot()->GetZoomer()->zoomRect();
-			int iROIx1 = rect.left(),
-			iROIx2 = rect.right(),
-			iROIy1 = rect.top(),
-			iROIy2 = rect.bottom(),
-			iFolie = sliderFolien->value();
-			
-			GraphDlg dlg(this,m_cascadewidget.GetTof(),iROIx1,iROIx2,iROIy1,iROIy2,iFolie);
-			dlg.exec();
+			m_cascadewidget.showGraphDlg();
 		}
 			
 		void showSummenDialog(void)

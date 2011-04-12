@@ -159,6 +159,9 @@ Q_OBJECT
 		void viewPhaseSums(const bool* pbFolien);
 		void viewContrastSums(const bool* pbFolien);
 		
+		void showCalibrationDlg(int iNumBins);
+		void showGraphDlg();
+		
 		void SetLog10(bool bLog10);
 		void SetSpectrogram(bool bSpect);
 		void SetContour(bool bCont);

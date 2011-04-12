@@ -50,6 +50,8 @@
 
 #include "tofloader.h"
 #include "tofdata.h"
+#include "cascadedialogs.h"
+#include "bins.h"
 
 
 static inline long GetFileSize(const char* pcFileName)
@@ -580,7 +582,52 @@ void CascadeWidget::viewContrastSums(const bool* pbFolien)
 	GetTof()->AddContrasts(pbFolien, GetData2d());
 	
 	UpdateRange();
-	UpdateGraph();	
+	UpdateGraph();
+}
+
+void CascadeWidget::showCalibrationDlg(int iNumBins)
+{
+	if(!IsTofLoaded()) return;
+	Bins bins(iNumBins, 0., 360.);
+	
+	QwtDoubleRect rect = GetPlot()->GetZoomer()->zoomRect();
+	int iROIx1 = rect.left(),
+	iROIx2 = rect.right(),
+	iROIy1 = rect.top(),
+	iROIy2 = rect.bottom();
+	
+	TmpImage tmpimg[4];
+	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+		GetTof()->GetPhaseGraph(iFolie, &tmpimg[iFolie], iROIx1, iROIx2, iROIy1, iROIy2, true);
+	
+	int iW = iROIx2-iROIx1; if(iW<0) iW=-iW;
+	int iH = iROIy2-iROIy1; if(iH<0) iH=-iH;
+	
+	for(int iFolie=/*1*/0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+		for(int iY=0; iY<iH; ++iY)
+			for(int iX=0; iX<iW; ++iX)
+			{
+				double dVal = tmpimg[iFolie].GetData(iX,iY)/* - tmpimg[0].GetData(iX,iY)*/;
+				if(dVal==0.) continue;
+				bins.Inc(dVal);
+			}		
+	
+	CalibrationDlg CalDlg(this, bins);
+	CalDlg.exec();
+}
+
+void CascadeWidget::showGraphDlg()
+{
+	if(!IsTofLoaded()) return;
+	
+	QwtDoubleRect rect = GetPlot()->GetZoomer()->zoomRect();
+	int iROIx1 = rect.left(),
+	iROIx2 = rect.right(),
+	iROIy1 = rect.top(),
+	iROIy2 = rect.bottom();
+	
+	GraphDlg graphdlg(this, GetTof(), iROIx1, iROIx2, iROIy1, iROIy2, m_iFolie);
+	graphdlg.exec();
 }
 
 #ifdef __CASCADE_QT_CLIENT__

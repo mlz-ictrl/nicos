@@ -5,7 +5,8 @@
 %Import Qwt5/QwtModule.sip
 
 /////////////////////////////////////////////////////////////////////////////////////
-// sub dialogs
+// GraphDlg
+// eigentlich nicht nötig, ihn zu exportieren, da ebenfalls über CascadeWidget::showGraphDlg() aufrufbar
 class GraphDlg : QDialog
 {
 %TypeHeaderCode
@@ -16,34 +17,6 @@ class GraphDlg : QDialog
 		GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie);
 		virtual ~GraphDlg();
 };
-
-/*class SumDlg : QDialog, Ui::FolienSummeDlg
-{
-%TypeHeaderCode
-#include "../../cascadedialogs.h"
-%End
-	public:
-		SumDlg(QWidget *pParent);
-		virtual ~SumDlg();
-		void SetMode(int iMode);
-		
-	signals:
-		void SumSignal(bool *pbKanaele, int iMode);
-};
-
-class SumDlgNoChannels : QDialog, Ui::FolienSummeDlg
-{
-%TypeHeaderCode
-#include "../../cascadedialogs.h"
-%End
-	public:
-		SumDlgNoChannels(QWidget *pParent);
-		virtual ~SumDlgNoChannels();
-		void SetMode(int iMode);
-		
-	signals:
-		void SumSignal(bool *pbKanaele, int iMode);
-};*/
 /////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -265,6 +238,9 @@ class CascadeWidget : QWidget
 		void viewFoilSums(const bool* pbKanaele);
 		void viewPhaseSums(const bool* pbFolien);
 		void viewContrastSums(const bool* pbFolien);
+
+		void showCalibrationDlg(int iNumBins);
+		void showGraphDlg();
 		
 		void SetLog10(bool bLog10);
 		void SetSpectrogram(bool bSpect);
@@ -276,4 +252,3 @@ class CascadeWidget : QWidget
 		void UpdateLabels();		
 		void UpdateRange();
 };
-
