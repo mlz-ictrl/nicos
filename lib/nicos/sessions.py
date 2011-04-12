@@ -860,6 +860,11 @@ class DaemonSession(SimpleSession):
 
     autocreate_devices = True
 
+    # to set a point where the "break" command can break, it suffices to execute
+    # some piece of code in a frame with the filename "<script>"; this object is
+    # such a piece of code
+    _bpcode = compile("pass", "<script>", "exec")
+
     def _initLogging(self):
         SimpleSession._initLogging(self)
         sys.displayhook = self.__displayhook
@@ -879,6 +884,10 @@ class DaemonSession(SimpleSession):
         # add an object to be used by DaemonSink objects
         self.emitfunc = daemondev.emit_event
 
+        # call stop() upon emergency stop
+        from nicos.commands.device import stop
+        daemondev._controller.add_estop_function(stop, ())
+
         # Pretend that the daemon setup doesn't exist, so that another
         # setup can be loaded by the user.
         self.devices.clear()
@@ -896,6 +905,9 @@ class DaemonSession(SimpleSession):
     def updateLiveData(self, dtype, nx, ny, nt, time, data):
         # XXX change protocol here
         self.emitfunc('new_livedata', data)
+
+    def breakpoint(self, level):
+        exec self._bpcode
 
 
 class WebSession(Session):

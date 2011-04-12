@@ -407,7 +407,7 @@ class ConnectionHandler(BaseRequestHandler):
             self.write(WARN, 'script is not interrupted')
         else:
             self.log.info('script continue request')
-            self.controller.set_continue(stop=False)
+            self.controller.set_continue(False)
             self.write(OK)
 
     @command(needcontrol=True, needscript=True)
@@ -421,7 +421,7 @@ class ConnectionHandler(BaseRequestHandler):
             self.write(OK)
         else:
             self.log.info('script stop request while in break')
-            self.controller.set_continue(stop='stop')
+            self.controller.set_continue('stop')
             self.write(OK)
 
     @command(needcontrol=True)
@@ -442,7 +442,7 @@ class ConnectionHandler(BaseRequestHandler):
             self.controller.set_stop('emergency stop')
         else:
             # in break
-            self.controller.set_continue(stop='emergency stop')
+            self.controller.set_continue('emergency stop')
         self.write(OK)
 
     @command()
