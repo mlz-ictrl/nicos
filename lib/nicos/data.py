@@ -68,7 +68,7 @@ class Dataset(object):
     sinks = []
     # devices to move
     devices = []
-    # list of scan positions
+    # list of scan positions (can be empty if not known)
     positions = []
     # multi-steps for each scan point
     multistep = []
@@ -202,7 +202,7 @@ class ConsoleSink(DataSink):
         if self._npoints:
             point = '%s/%s' % (len(dataset.results), self._npoints)
         else:
-            point = num
+            point = str(len(dataset.results))
         printinfo('\t'.join(
             [point] +
             [dev.format(val) for (dev, val) in
