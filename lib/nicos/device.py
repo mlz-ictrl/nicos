@@ -391,9 +391,9 @@ class Readable(Device):
         'unit':         Param('Unit of the device main value', type=str,
                               mandatory=True, settable=True),
         'maxage':       Param('Maximum age of cached value and status',
-                              unit='s', default=5),
+                              unit='s', default=10, settable=True),
         'pollinterval': Param('Polling interval for value and status',
-                              unit='s', default=2),
+                              unit='s', default=5, settable=True),
     }
 
     def init(self):
@@ -440,16 +440,20 @@ class Readable(Device):
         if self._mode == 'simulation':
             return (status.OK, 'simulated ok')
         if hasattr(self, 'doStatus'):
-            value = self._get_from_cache('status', self.doStatus)
+            try:
+                value = self._get_from_cache('status', self.doStatus)
+            except NicosError, err:
+                value = (status.ERROR, str(err))
             if value[0] not in status.statuses:
                 raise ProgrammingError(self, 'status constant %r is unknown' %
                                        value[0])
             return value
         return (status.UNKNOWN, 'doStatus not implemented')
 
-    def poll(self, n):
+    def poll(self, n=0):
         """Get status and value directly from the device and put both values
-        into the cache.  *n* increases with every call to *poll*.
+        into the cache.  For continuous polling, *n* should increase with every
+        call to *poll*.
         """
         stval = None
         if hasattr(self, 'doStatus'):
@@ -476,6 +480,7 @@ class Readable(Device):
             return
         if hasattr(self, 'doReset'):
             self.doReset()
+        self._cache.invalidate(self, 'status')
         return self.status()
 
     def format(self, value):
@@ -538,32 +543,11 @@ class Startable(Readable):
     * doRelease()
     """
 
-    def __init__(self, name, **config):
-        Readable.__init__(self, name, **config)
-        self.__isFixed = False
-
     def __call__(self, pos=None):
         """Allow dev() and dev(newpos) as shortcuts for read and start."""
         if pos is None:
             return self.read()
         return self.start(pos)
-
-    def start(self, pos):
-        """Start main action of the device."""
-        if self._mode == 'slave':
-            raise ModeError(self, 'start not possible in slave mode')
-        if self.__isFixed:
-            raise FixedError(self, 'use release() first')
-        ok, why = self.isAllowed(pos)
-        if not ok:
-            raise LimitError(self, 'moving to %r is not allowed: %s' %
-                             (pos, why))
-        if self._mode == 'simulation':
-            self._sim_value = pos
-            return
-        if self._cache:
-            self._cache.invalidate(self, 'value')
-        self.doStart(pos)
 
     def stop(self):
         """Stop main action of the device."""
@@ -607,6 +591,41 @@ class Startable(Readable):
             return self.doIsAllowed(pos)
         return True, ''
 
+
+class Moveable(Startable):
+    """
+    Base class for moveable devices.
+    """
+
+    parameters = {
+        'target': Param('Last target position of a start() action',
+                        unit='main', type=any, default=None),
+    }
+
+    def __init__(self, name, **config):
+        Startable.__init__(self, name, **config)
+        self.__isFixed = False
+
+    def start(self, pos):
+        """Start main action of the device."""
+        if self._mode == 'slave':
+            raise ModeError(self, 'start not possible in slave mode')
+        if self.__isFixed:
+            raise FixedError(self, 'use release() first')
+        ok, why = self.isAllowed(pos)
+        if not ok:
+            raise LimitError(self, 'moving to %r is not allowed: %s' %
+                             (pos, why))
+        if self._mode == 'simulation':
+            self._sim_value = pos
+            return
+        if self._cache:
+            self._cache.invalidate(self, 'value')
+        self._setROParam('target', pos)
+        self.doStart(pos)
+
+    move = start
+
     def fix(self):
         """Fix the device, i.e. don't allow movement anymore."""
         if self.__isFixed:
@@ -622,14 +641,6 @@ class Startable(Readable):
         if hasattr(self, 'doRelease'):
             self.doRelease()
         self.__isFixed = False
-
-
-class Moveable(Startable):
-    """
-    Base class for moveable devices.
-    """
-
-    move = Startable.start
 
 
 class HasLimits(Startable):
