@@ -41,6 +41,11 @@ try:
 except ImportError:
     GracePlot = None
 
+try:
+    import Gnuplot
+except ImportError:
+    Gnuplot = None
+
 from nicos import session
 from nicos.utils import listof, readFileCounter, updateFileCounter
 from nicos.device import Device, Param
@@ -296,6 +301,70 @@ class GraceSink(DataSink):
             self.printwarning('could not add point to Grace', exc=1)
             # give up for this set
             self._grpl = None
+
+
+class GnuplotSink(DataSink):
+    """
+    A DataSink that plots datasets in the Gnuplot plotting program.  Needs the
+    Gnuplot module.  Only active for console sessions.
+    """
+
+    def isActive(self, scantype):
+        if not Gnuplot or not isinstance(session, InteractiveSession):
+            return False
+        return DataSink.isActive(self, scantype)
+
+    def beginDataset(self, dataset):
+        try:
+            self._gnpl = Gnuplot.Gnuplot()
+            self._gnpl('set terminal wx')
+            self._gnpl('set key outside below')
+            self._gnpl('set pointsize 1.5')
+            #self._gnpl('set style increment user')
+            self._gnpl.set_range('xrange', '[*:*]')
+            self._gnpl.set_range('yrange', '[0:*]')
+            filename = dataset.sinkinfo.get('filename', '')
+            self._gnpl.title('scan %s started %s' % (filename,
+                time.strftime(TIMEFMT, dataset.started)))
+            self._gnpl.xlabel('%s (%s)' % (dataset.xnames[dataset.xindex],
+                                           dataset.xunits[dataset.xindex]))
+            self._gnpl.ylabel(str(dataset.detlist[0])) # XXX
+
+            self._xdata = []
+            self._nperstep = len(dataset.ynames)
+            self._ydata = [[] for i in range(self._nperstep)]
+            self._dydata = [[] for i in range(self._nperstep)]
+            self._ynames = dataset.ynames
+        except Exception:
+            self.printwarning('could not create Gnuplot instance', exc=1)
+            self._gnpl = None
+
+    def addPoint(self, dataset, xvalues, yvalues):
+        if self._gnpl is None:
+            return
+        try:
+            self._xdata.append(xvalues[dataset.xindex])
+            for i in range(len(yvalues)):
+                self._ydata[i].append(yvalues[i])
+                if dataset.yvalueinfo[i].errors == 'sqrt':
+                    self._dydata[i].append(sqrt(yvalues[i]))
+                else:
+                    self._dydata[i].append(0)
+
+            data = []
+            for i, ys in enumerate(self._ydata):
+                if not ys:
+                    continue
+                if dataset.yvalueinfo[i % self._nperstep].type != 'counter':
+                    continue
+                d = Gnuplot.Data(self._xdata[:len(ys)], ys, self._dydata[i],
+                                 with_='errorlines', title=self._ynames[i])
+                data.append(d)
+            self._gnpl.plot(*data)
+        except Exception:
+            self.printwarning('could not add point to Gnuplot', exc=1)
+            # give up for this set
+            self._gnpl = None
 
 
 class DatafileSink(DataSink, NeedsDatapath):
