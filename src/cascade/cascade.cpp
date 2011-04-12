@@ -446,7 +446,7 @@ class MainWindow : public QMainWindow
 		    iROIy2 = rect.bottom(),
 		    iFolie = sliderFolien->value();
 		    
-		GraphDlg dlg(this, m_cascadewidget.GetTof(),iROIx1,iROIx2,iROIy1,iROIy2,iFolie);
+		GraphDlg dlg(this,m_cascadewidget.GetTof(),iROIx1,iROIx2,iROIy1,iROIy2,iFolie);
 		dlg.exec();
 	}
 		

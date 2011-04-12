@@ -58,6 +58,8 @@
 #include "tofloader.h"
 #include "ErrorBarPlotCurve.h"
 
+
+// *********************************************************************
 class CalibrationDlg : public QDialog, public Ui::CalibrationDlg
 {
 	Q_OBJECT
@@ -75,63 +77,7 @@ class CalibrationDlg : public QDialog, public Ui::CalibrationDlg
 // ********************************************************************
 
 
-
-
-// ************************* Summierungs-Dialog mit Zeitkanälen ***********************
-class FolienSummeDlg : public QDialog, public Ui::FolienSummeDlg
-{
-	Q_OBJECT
-	
-	protected:
-		QTreeWidgetItem** m_pTreeItemsFolien;
-		QTreeWidgetItem** m_pTreeItems;
-		TofImage *m_pTof;
-		int m_iMode;
-		
-	signals:
-		void FolienSummeSignal(bool *pbKanaele, int iMode);
-		
-	protected slots:
-		void ShowIt();
-		void SelectAll();
-		void SelectNone();
-		void TreeWidgetClicked(QTreeWidgetItem *item, int column);
-		
-	public:
-		FolienSummeDlg(QWidget *pParent);
-		virtual ~FolienSummeDlg();
-		void SetMode(int iMode);
-};
-// ********************************************************************
-
-
-// ************************* Summierungs-Dialog ohne Zeitkanäle ***********************
-class FolienSummeDlgOhneKanaele : public QDialog, public Ui::FolienSummeDlg
-{
-	Q_OBJECT
-		
-	protected:
-		QTreeWidgetItem** m_pTreeItemsFolien;
-		TofImage *m_pTof;
-		int m_iMode;
-		
-	signals:
-		void FolienSummeSignal(bool *pbKanaele, int iMode);
-		
-	protected slots:
-		void ShowIt();
-		void SelectAll();
-		void SelectNone();
-		
-	public:
-		FolienSummeDlgOhneKanaele(QWidget *pParent);		
-		virtual ~FolienSummeDlgOhneKanaele();
-		void SetMode(int iMode);
-};
-// ********************************************************************
-
-
-// ************************* Zeug für Graph-Dialog ***********************
+// ************************* Graph-Dialog *****************************
 class GraphDlg : public QDialog, public Ui::GraphDlg
 {
 	Q_OBJECT
@@ -150,14 +96,69 @@ class GraphDlg : public QDialog, public Ui::GraphDlg
 		void ROIy2changed(int iVal);
 		void ROIx1changed(int iVal);
 		void ROIx2changed(int iVal);
-		void Foliechanged(int iVal);
+		void Foilchanged(int iVal);
 		void Phasechanged(double dVal);
 		
 	public:
 		GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie);
 		virtual ~GraphDlg();
 };
-// **************************************************************
+// *********************************************************************
+
+
+// ************************* Summierungs-Dialog mit Zeitkanälen ***********************
+class FolienSummeDlg : public QDialog, public Ui::FolienSummeDlg
+{
+	Q_OBJECT
+	
+	protected:
+		QTreeWidgetItem** m_pTreeItemsFolien;
+		QTreeWidgetItem** m_pTreeItems;
+		TofImage *m_pTof;
+		int m_iMode;
+				
+	protected slots:
+		void ShowIt();
+		void SelectAll();
+		void SelectNone();
+		void TreeWidgetClicked(QTreeWidgetItem *item, int column);
+		
+	public:
+		FolienSummeDlg(QWidget *pParent);
+		virtual ~FolienSummeDlg();
+		void SetMode(int iMode);
+		
+	signals:
+		void FolienSummeSignal(bool *pbKanaele, int iMode);		
+};
+// ********************************************************************
+
+
+// ************************* Summierungs-Dialog ohne Zeitkanäle ***********************
+class FolienSummeDlgOhneKanaele : public QDialog, public Ui::FolienSummeDlg
+{
+	Q_OBJECT
+		
+	protected:
+		QTreeWidgetItem** m_pTreeItemsFolien;
+		TofImage *m_pTof;
+		int m_iMode;
+				
+	protected slots:
+		void ShowIt();
+		void SelectAll();
+		void SelectNone();
+		
+	public:
+		FolienSummeDlgOhneKanaele(QWidget *pParent);		
+		virtual ~FolienSummeDlgOhneKanaele();
+		void SetMode(int iMode);
+		
+	signals:
+		void FolienSummeSignal(bool *pbKanaele, int iMode);		
+};
+// ********************************************************************
+
 
 // ************************* Server-Dialog ********************************
 class ServerDlg : public QDialog, public Ui::dialogServer

@@ -12,8 +12,8 @@ all: cascade
 
 
 ###################### cascade ##########################
-cascade: cascade.o cascadedialogs.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o
-	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o
+cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o
+	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o
 #########################################################
 
 
@@ -25,6 +25,9 @@ cascade.o: cascade.cpp cascade.moc cascadedialogs.cpp cascadedialogs.moc bins.h 
 
 cascadedialogs.o: cascadedialogs.cpp cascadedialogs.h cascadedialogs.moc
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascadedialogs.o cascadedialogs.cpp
+
+bins.o: bins.cpp bins.h
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o bins.o bins.cpp
 
 cascadewidget.o: cascadewidget.cpp cascadewidget.h cascadewidget.moc
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascadewidget.o cascadewidget.cpp

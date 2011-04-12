@@ -274,7 +274,7 @@ void GraphDlg::ROIy1changed(int iVal) { UpdateGraph(); }
 void GraphDlg::ROIy2changed(int iVal) { UpdateGraph(); }
 void GraphDlg::ROIx1changed(int iVal) { UpdateGraph(); }
 void GraphDlg::ROIx2changed(int iVal) { UpdateGraph(); }
-void GraphDlg::Foliechanged(int iVal) { UpdateGraph(); }
+void GraphDlg::Foilchanged(int iVal) { UpdateGraph(); }
 void GraphDlg::Phasechanged(double dVal) { UpdateGraph(); }
 
 GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie) : QDialog(pParent), m_curve("Foil"), m_curvefit("Fit"), m_curvetotal("Total"), m_plegend(0), m_pgrid(0)
@@ -319,7 +319,7 @@ GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2, int
 	QObject::connect(spinBoxROIy2, SIGNAL(valueChanged(int)), this, SLOT(ROIy2changed(int)));
 	QObject::connect(spinBoxROIx1, SIGNAL(valueChanged(int)), this, SLOT(ROIx1changed(int)));
 	QObject::connect(spinBoxROIx2, SIGNAL(valueChanged(int)), this, SLOT(ROIx2changed(int)));
-	QObject::connect(spinBoxFolie, SIGNAL(valueChanged(int)), this, SLOT(Foliechanged(int)));
+	QObject::connect(spinBoxFolie, SIGNAL(valueChanged(int)), this, SLOT(Foilchanged(int)));
 	QObject::connect(spinBoxPhase, SIGNAL(valueChanged(double)), this, SLOT(Phasechanged(double)));			
 	
 	
