@@ -34,7 +34,8 @@ __version__ = "$Revision$"
 import sys
 from os import path
 
-from PyQt4.QtCore import SIGNAL, SLOT, QObject, QSize, QVariant, QSettings, Qt
+from PyQt4.QtCore import SIGNAL, SLOT, QObject, QSize, QVariant, QSettings, \
+     QDateTime, Qt
 from PyQt4.QtGui import QDialog, QFileDialog, QLabel, QPushButton, QTextEdit, \
      QFont, QVBoxLayout, QWidget, QApplication
 
@@ -166,6 +167,8 @@ class DlgPresets(object):
         ctl.setChecked(bool(val))
     def set_QCheckBox(self, ctl, val):
         ctl.setChecked(bool(val))
+    def set_QDateTimeEdit(self, ctl, val):
+        ctl.setDateTime(QDateTime.fromString(val))
 
     def get_QLineEdit(self, ctl):
         return ctl.text()
@@ -188,3 +191,5 @@ class DlgPresets(object):
         return int(ctl.isChecked())
     def get_QCheckBox(self, ctl):
         return int(ctl.isChecked())
+    def get_QDateTimeEdit(self, ctl):
+        return ctl.dateTime().toString()

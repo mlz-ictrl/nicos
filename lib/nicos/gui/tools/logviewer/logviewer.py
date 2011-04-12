@@ -25,7 +25,7 @@
 #
 # *****************************************************************************
 
-"""Logfile viewer tool."""
+"""Cache logfile viewer tool."""
 
 __author__  = "$Author$"
 __date__    = "$Date$"
@@ -33,21 +33,24 @@ __version__ = "$Revision$"
 
 # ----- user changeable parameters ---------------------------------------------
 
-STDLOGPATH = '/data'
+# XXX get from nicos system
+STDLOGPATH = '/data/cache'
 
 # ------------------------------------------------------------------------------
 
 import os
 import time
+import bsddb
 from os import path
 from subprocess import Popen, PIPE
 
 #import matplotlib
 
-from PyQt4.QtCore import SIGNAL
+from PyQt4.QtCore import SIGNAL, QDateTime
 from PyQt4.QtGui import QDialog
 from PyQt4.uic import loadUi
 
+from nicos.cache.utils import load_entries
 from nicos.gui.tools.uitools import DlgPresets, runDlgStandalone, selectDirectory
 
 
@@ -56,56 +59,18 @@ class LogViewer(QDialog):
         QDialog.__init__(self, parent)
         loadUi(path.join(path.dirname(__file__), 'logviewer.ui'), self)
         self.connect(self.viewBtn, SIGNAL('clicked()'), self.view)
-        self.connect(self.logfileList,
-                     SIGNAL('doubleClicked(const QModelIndex &)'), self.view)
         self.connect(self.closeBtn, SIGNAL('clicked()'), self.close)
-        self.connect(self.devnameList,
-                     SIGNAL('currentRowChanged(int)'), self.updateFiles)
         self.connect(self.selectDir, SIGNAL('clicked()'), self.selectLogDir)
-        self.connect(self.logfileDir,
-                     SIGNAL('textChanged(const QString &)'), self.updateList)
         self.presets = DlgPresets('logviewer', [
-                (self.logfileDir, STDLOGPATH),
-                (self.devnameList, '')])
+            (self.logfileDir, STDLOGPATH), (self.device, ''),
+            (self.interval, ''), (self.fromdate, QDateTime.currentDateTime()),
+            (self.todate, QDateTime.currentDateTime())])
         self.presets.load()
+
+        self.todate.setDateTime(QDateTime.currentDateTime())
 
     def selectLogDir(self):
         selectDirectory(self.logfileDir, self)
-
-    def updateList(self, newlogpath):
-        newlogpath = str(newlogpath)
-        if not path.isdir(newlogpath):
-            return
-        self.devnameList.clear()
-        self.logfileList.clear()
-        self.logpath = newlogpath
-        self.logfiles = {}
-        for fn in os.listdir(newlogpath):
-            if fn.startswith('cmd') or fn.startswith('error') \
-                    or not fn.endswith('.log'):
-                continue
-            devname, date = fn[:-18], fn[-18:-4]
-            date = time.strptime(date, '%Y%m%d%H%M%S')
-            self.logfiles.setdefault(devname, []).append(
-                (date, path.join(newlogpath, fn)))
-        for lst in self.logfiles.itervalues():
-            lst.sort()
-
-        for devname in sorted(self.logfiles):
-            self.devnameList.addItem(devname)
-
-        self.devname = ''
-        self.updateFiles()
-
-    def updateFiles(self, *args):
-        try:
-            self.devname = str(self.devnameList.currentItem().text())
-        except AttributeError:
-            return
-        self.logfileList.clear()
-        for date, fname in self.logfiles[self.devname]:
-            date = time.strftime('%d-%m-%Y, %H:%M:%S', date)
-            self.logfileList.addItem('%s, started %s' % (self.devname, date))
 
     def close(self, *args):
         """
@@ -116,19 +81,61 @@ class LogViewer(QDialog):
         return True
 
     def view(self, *args):
-        fname = self.logfiles[self.devname][self.logfileList.currentRow()][1]
+        datefrom = self.fromdate.dateTime()
+        dateto = self.todate.dateTime()
+        # XXX might not be correct for localtime
+        tstart = time.mktime(time.localtime(datefrom.toTime_t()))
+        tend = time.mktime(time.localtime(dateto.toTime_t()))
+        days = range(datefrom.daysTo(dateto)+1)
+        try:
+            interval = int(self.interval.text())
+        except ValueError:
+            interval = 30
+
+        key = 'nicos/%s/value' % str(self.device.text()).lower()
+
+        f = open('/tmp/logfile.tmp', 'w')
+        try:
+            for i in days:
+                day = datefrom.addDays(i).toString('yyyy-MM-dd')
+                cachefile = path.join(str(self.logfileDir.text()), str(day))
+                try:
+                    cache = bsddb.hashopen(cachefile, 'r')
+                except bsddb.db.DBNoSuchFileError:
+                    continue
+
+                if key not in cache:
+                    print 'Not found!'
+                    continue
+
+                entries = load_entries(cache[key])
+                ltime = 0
+                for entry in entries:
+                    if entry.time > ltime + interval:
+                        if tstart <= entry.time <= tend:
+                            f.write('%s %s\n' % (entry.time, entry.value))
+                            ltime = entry.time
+        finally:
+            if f.tell() == 0:
+                # XXX message box that no data were found
+                return
+        f.close()
+
+        fname = '/tmp/logfile.tmp'
         gp = Popen(['/usr/bin/gnuplot', '-persist'], stdin=PIPE)
         gp.communicate('''
 set term x11 title "%(wt)s"
 set term wx title "%(wt)s"
 set xdata time
-set timefmt "%%Y%%m%%d%%H%%M%%S"
+#set timefmt "%%Y%%m%%d%%H%%M%%S"
+set timefmt "%%s"
 set format x "%%d-%%m\\n%%H:%%M"
 set grid back lw 0.4
-plot "%(fn)s" u 3:2 every ::3 w l lc rgb "#ccccff" t "%(fn)s", \
-           "" u 3:2 every ::3 w p ps 0.5 lc rgb "#0000cc" pt 6 t ""
-''' % {'wt': 'Log: %s, %s' % (self.devname,
-                              self.logfileList.currentItem().text()),
+#plot "%(fn)s" u 3:2 every ::3 w l lc rgb "#ccccff" t "%(fn)s", \
+#           "" u 3:2 every ::3 w p ps 0.5 lc rgb "#0000cc" pt 6 t ""
+plot "%(fn)s" u 1:2 w l lc rgb "#ccccff" t "log", \
+           "" u 1:2 w p ps 0.5 lc rgb "#0000cc" pt 6 t ""
+''' % {'wt': 'Log: %s, %s' % (self.device.text(), ''),
        'fn': fname})
 
 
