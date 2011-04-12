@@ -392,7 +392,7 @@ class Readable(Device):
         'unit':         Param('Unit of the device main value', type=str,
                               mandatory=True, settable=True),
         'maxage':       Param('Maximum age of cached value and status',
-                              unit='s', default=10, settable=True),
+                              unit='s', default=6, settable=True),
         'pollinterval': Param('Polling interval for value and status',
                               unit='s', default=5, settable=True),
     }
