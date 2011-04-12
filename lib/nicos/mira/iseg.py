@@ -58,31 +58,30 @@ class IsegConnector(object):
 class StandaloneIseg(TacoDevice, Device, IsegConnector):
     taco_class = StringIO
 
-    # no locking/unlocking needed
-
     def communicate(self, msg, rlen):
-        # must send and read back each character individually
-        # rlen is ignored since we really wait until everything is transmitted
-        for c in msg:
-            self._taco_guard(self._dev.write, c)
-            n = 0
-            while 1:
-                sleep(0.003)
-                cr = self._taco_guard(self._dev.read)
-                if cr:
-                    if cr != c:
-                        raise NicosError('wrong echo from iseg')
-                    break
-                n += 1
-                if n == 50:
-                    raise CommunicationError('no echo from iseg')
-        self._taco_guard(self._dev.write, '\r\n')
-        sleep(0.01)
-        s = ''
-        while s.count('\n') != 2:
-            s += self._taco_guard(self._dev.read)
-            sleep(0.003)
-        return s.strip('\r\n') # discard newlines
+        return self._taco_guard(self._dev.communicate, msg)
+        # # must send and read back each character individually
+        # # rlen is ignored since we really wait until everything is transmitted
+        # for c in msg:
+        #     self._taco_guard(self._dev.write, c)
+        #     n = 0
+        #     while 1:
+        #         sleep(0.003)
+        #         cr = self._taco_guard(self._dev.read)
+        #         if cr:
+        #             if cr != c:
+        #                 raise NicosError('wrong echo from iseg')
+        #             break
+        #         n += 1
+        #         if n == 50:
+        #             raise CommunicationError('no echo from iseg')
+        # self._taco_guard(self._dev.write, '\r\n')
+        # sleep(0.01)
+        # s = ''
+        # while s.count('\n') != 2:
+        #     s += self._taco_guard(self._dev.read)
+        #     sleep(0.003)
+        # return s.strip('\r\n') # discard newlines
 
 
 class IsegHV(Moveable, HasLimits):
