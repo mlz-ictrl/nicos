@@ -61,6 +61,12 @@ class Field(dict):
     def __hash__(self):
         return id(self)
 
+class MonitorWindow(QMainWindow):
+    def keyPressEvent(self, event):
+        if event.text() == 'q':
+            self.close()
+        return QMainWindow.keyPressEvent(self, event)
+
 class SensitiveLabel(QLabel):
     """A label that calls back when entered/left by the mouse."""
     def __init__(self, text, parent, enter, leave):
@@ -146,9 +152,8 @@ class Monitor(BaseCacheClient):
         self._geometry = options.geometry or self.geometry
 
         qapp = QApplication(['qapp', '-style', 'windows'])
-        window = QMainWindow()
+        window = MonitorWindow()
         window.show()
-        ##root.bind('q', self.quit)
         self.qt_init(window)
 
         self._selecttimeout = 0.2
@@ -165,17 +170,13 @@ class Monitor(BaseCacheClient):
         self._stoprequest = True
 
     def wait(self):
-        pass
-
-    def quit(self, *ignored):
         self.printinfo('monitor quitting')
-        self._stoprequest = True
-        self._master.quit()
-        self._master.destroy()
-        self.printinfo('wait for thread to finish')
-        sys.exit()  # XXX workaround
         self._worker.join()
         self.printinfo('done')
+
+    def quit(self, *ignored):
+        self._master.close()
+        self._stoprequest = True
 
     def qt_init(self, master):
         self._master = master
