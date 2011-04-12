@@ -36,7 +36,7 @@ import random
 import threading
 
 from nicos import status
-from nicos.utils import tacodev
+from nicos.utils import tacodev, tupleof
 from nicos.device import Readable, HasOffset, Param
 from nicos.abstract import Motor, Coder
 from nicos.detector import FRMTimerChannel, FRMCounterChannel
@@ -44,33 +44,33 @@ from nicos.detector import FRMTimerChannel, FRMCounterChannel
 
 class VirtualMotor(Motor, HasOffset):
     parameters = {
-        'initval': Param('Initial value for the virtual device', mandatory=True),
-        'speed':   Param('Virtual speed of the device'),
-        'jitter':  Param('Jitter of the read value', default=0),
+        'speed':     Param('Virtual speed of the device'),
+        'jitter':    Param('Jitter of the read value', default=0),
+        'curvalue':  Param('Current value', settable=True),
+        'curstatus': Param('Current status', type=tupleof(int, str),
+                           settable=True, default=(status.OK, 'idle')),
     }
-
-    def doInit(self):
-        self.__val = self.initval
-        self.__busy = False
 
     def doStart(self, pos):
         pos = float(pos) + self.offset
-        self.__busy = True
+        self.curstatus = (status.BUSY, 'virtual moving')
         if self.speed != 0:
             thread = threading.Thread(target=self.__moving, args=(pos,))
             thread.start()
         else:
             self.printdebug('moving to %s' % pos)
-            self.__val = pos + self.jitter * (0.5 - random.random())
-            self.__busy = False
+            self.curvalue = pos + self.jitter * (0.5 - random.random())
+            self.curstatus = (status.OK, 'idle')
 
     def doRead(self):
-        return self.__val - self.offset
+        return self.curvalue - self.offset
 
     def doStatus(self):
-        if self.__busy:
-            return (status.BUSY, 'moving')
-        return (status.OK, 'idle')
+        return self.curstatus
+
+    def doWait(self):
+        while self.curstatus[0] == status.BUSY:
+            time.sleep(0.5)
 
     def __moving(self, pos):
         incr = self.speed
@@ -79,10 +79,10 @@ class VirtualMotor(Motor, HasOffset):
         incr = delta < 0 and -incr or incr
         for i in range(steps):
             time.sleep(0.1)
-            self.printdebug('thread moving to %s' % (self.__val + incr))
-            self.__val += incr
-        self.__val = pos
-        self.__busy = False
+            self.printdebug('thread moving to %s' % (self.curvalue + incr))
+            self.curvalue += incr
+        self.curvalue = pos
+        self.curstatus = (status.OK, 'idle')
 
 
 class VirtualCoder(Coder, HasOffset):
