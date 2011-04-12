@@ -62,7 +62,7 @@ class Scan(object):
         self.dataset = session.experiment.createDataset(scantype)
         if not detlist:
             detlist = session.experiment.detectors
-        if not envlist:
+        if envlist is None:
             envlist = session.experiment.sampleenv
         self._firstmoves = firstmoves
         self._multistep = self.dataset.multistep = multistep
@@ -77,9 +77,9 @@ class Scan(object):
         self._preset = self.dataset.preset = preset
         self.dataset.scaninfo = scaninfo
         self._sinks = self.dataset.sinks
-        self._npoints = len(positions)
+        self._npoints = len(positions)  # can be zero if not known
 
-    def prepareScan(self):
+    def prepareScan(self, positions):
         session.beginActionScope('Scan')
         session.action('Moving to start')
         can_measure = True
@@ -87,7 +87,7 @@ class Scan(object):
         if self._firstmoves:
             can_measure = self.moveDevices(self._firstmoves)
         # the scanned-over devices
-        can_measure &= self.moveTo(self._positions[0])
+        can_measure &= self.moveTo(positions)
         return can_measure
 
     def beginScan(self):
@@ -194,7 +194,7 @@ class Scan(object):
 
     def run(self):
         # move all devices to starting position before starting scan
-        can_measure = self.prepareScan()
+        can_measure = self.prepareScan(self._positions[0])
         self.beginScan()
         try:
             for i, position in enumerate(self._positions):
@@ -283,3 +283,54 @@ class QScan(Scan):
     def moveTo(self, position):
         # move instrument en-bloc, not individual Q indices
         return self.moveDevices([(session.instrument, position + [None])])
+
+
+class ContinuousScan(Scan):
+    """
+    Special scan class for scans with one axis moving continuously (used for
+    peak search).
+    """
+
+    def __init__(self, device, start, end, speed, firstmoves=None, detlist=None,
+                 scaninfo=None):
+        self._startpos = start
+        self._endpos = end
+        if speed is None:
+            self._speed = device.speed / 5.
+        else:
+            self._speed = speed
+
+        Scan.__init__(self, [device], [], firstmoves, None, detlist, [],
+                      None, scaninfo)
+
+    def run(self):
+        device = self._devices[0]
+        detlist = self._detlist
+        can_measure = self.prepareScan([self._startpos])
+        if not can_measure:
+            return
+        self.beginScan()
+        session.action('Scanning')
+        original_speed = device.speed
+        try:
+            device.speed = self._speed
+            device.move(self._endpos)
+            preset = abs(self._speed * (self._endpos - self._startpos)) * 5
+            for det in detlist:
+                det.start(t=preset)
+            last = sum((det.read() for det in detlist), ())
+            while device.doStatus()[0] == status.BUSY:
+                time.sleep(1)
+                devpos = device.doRead()
+                read = sum((det.read() for det in detlist), ())
+                diff = [read[i] - last[i]
+                        if isinstance(i, (int, long, float)) else read[i]
+                        for i in range(len(read))]
+                self.addPoint([devpos], diff)
+                last = read
+            for det in detlist:
+                det.stop()
+        finally:
+            device.stop()
+            device.speed = original_speed
+            self.endScan()

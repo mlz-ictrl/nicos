@@ -32,14 +32,15 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from nicos import session
-from nicos.scan import Scan, TimeScan, QScan
+from nicos.scan import Scan, TimeScan, QScan, ContinuousScan
 from nicos.device import Device, Measurable, Moveable, Readable
 from nicos.errors import UsageError
 from nicos.commands import usercommand
 
 
 def _handleScanArgs(args, kwargs):
-    preset, infostr, detlist, envlist, move, multistep = {}, None, [], [], [], []
+    preset, infostr, detlist, envlist, move, multistep = \
+            {}, None, [], None, [], []
     for arg in args:
         if isinstance(arg, str):
             infostr = arg
@@ -50,6 +51,8 @@ def _handleScanArgs(args, kwargs):
         elif isinstance(arg, list):
             detlist.extend(arg)
         elif isinstance(arg, Readable):
+            if envlist is None:
+                envlist = []
             envlist.append(arg)
         else:
             raise UsageError('unsupported scan argument: %r' % arg)
@@ -136,6 +139,26 @@ def timescan(numsteps, *args, **kwargs):
             _handleScanArgs(args, kwargs)
     infostr = infostr or _infostr('timescan', (numsteps,) + args, kwargs)
     scan = TimeScan(numsteps, move, multistep, detlist, envlist, preset, infostr)
+    scan.run()
+
+
+@usercommand
+def contscan(dev, start, end, speed=None, *args, **kwargs):
+    """Scan continuously with low speed."""
+    dev = session.getDevice(dev, Moveable)
+    if not hasattr(dev, 'speed'):
+        raise UsageError('continuous scan device must have a speed parameter')
+    preset, infostr, detlist, envlist, move, multistep = \
+            _handleScanArgs(args, kwargs)
+    if preset:
+        raise UsageError('preset not supported in continuous scan')
+    if envlist:
+        raise UsageError('environment devices not supported in continuous scan')
+    if multistep:
+        raise UsageError('multi-step not supported in continuous scan')
+    infostr = infostr or \
+              _infostr('contscan', (dev, start, end, speed) + args, kwargs)
+    scan = ContinuousScan(dev, start, end, speed, move, detlist, infostr)
     scan.run()
 
 
@@ -226,3 +249,6 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
                for i in range(-numperside, numperside+1)]
     scan = QScan(values, move, multistep, detlist, envlist, preset, infostr)
     scan.run()
+
+
+# XXX Implement: centering/offset checking
