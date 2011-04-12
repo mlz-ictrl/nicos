@@ -55,6 +55,8 @@ class Motor(TacoDevice, BaseMotor):
             return (status.OK, 'idle')
         elif state == TACOStates.MOVING:
             return (status.BUSY, 'moving')
+        elif state == TACOStates.INIT:
+            return (status.BUSY, 'referencing')
         else:
             return (status.ERROR, TACOStates.stateDescription(state))
 
