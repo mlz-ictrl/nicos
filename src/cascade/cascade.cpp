@@ -584,8 +584,11 @@ class MainWindow : public QMainWindow
 			if(srvcfgdlg.exec()==QDialog::Accepted)
 			{
 				double dTime = srvcfgdlg.GetMeasTime();
+				unsigned int iXRes = srvcfgdlg.GetXRes(); 
+				unsigned int iYRes = srvcfgdlg.GetYRes();
+				unsigned int iTRes = srvcfgdlg.GetTRes();
 				char pcMsg[256];
-				sprintf(pcMsg, "CMD_config time=%f", dTime);
+				sprintf(pcMsg, "CMD_config time=%f xres=%d yres=%d tres=%d", dTime, iXRes, iYRes, iTRes);
 				m_client.sendmsg(pcMsg);
 			}
 		}

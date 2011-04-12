@@ -154,7 +154,7 @@ bool Config_TofLoader::GuessConfigFromSize(int iLen, bool bIsTof, bool bFirstCal
 				int iImgCnt = 1<<i;
 				if(iLen % iImgCnt) continue;
 				
-				if(GuessConfigFromSize(iLen/iImgCnt, false,false))
+				if(GuessConfigFromSize(iLen/iImgCnt, false, false))
 				{
 					bFound = true;
 					IMAGE_COUNT = iImgCnt;

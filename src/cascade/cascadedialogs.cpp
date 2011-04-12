@@ -383,8 +383,18 @@ ServerCfgDlg::ServerCfgDlg(QWidget *pParent) : QDialog(pParent)
 {
 	setupUi(this);
 	QString str; 
+	
 	str.setNum(s_dLastTime);
 	editMeasTime->setText(str);
+	
+	str.setNum(s_iXRes);
+	editxres->setText(str);
+	
+	str.setNum(s_iYRes);
+	edityres->setText(str);
+
+	str.setNum(s_iTRes);
+	edittres->setText(str);
 }
 
 ServerCfgDlg::~ServerCfgDlg()
@@ -396,7 +406,28 @@ double ServerCfgDlg::GetMeasTime()
 	return s_dLastTime;
 }
 
+unsigned int ServerCfgDlg::GetXRes()
+{
+	s_iXRes = editxres->text().toInt();
+	return s_iXRes;
+}
+
+unsigned int ServerCfgDlg::GetYRes()
+{
+	s_iYRes = edityres->text().toInt();
+	return s_iYRes;
+}
+
+unsigned int ServerCfgDlg::GetTRes()
+{
+	s_iTRes = edittres->text().toInt();
+	return s_iTRes;
+}
+
 double ServerCfgDlg::s_dLastTime = 10.0;
+unsigned int ServerCfgDlg::s_iXRes = 128;
+unsigned int ServerCfgDlg::s_iYRes = 128;
+unsigned int ServerCfgDlg::s_iTRes = 128;
 // ********************************************************************
 
 #ifdef __CASCADE_QT_CLIENT__

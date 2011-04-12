@@ -186,6 +186,7 @@ class ServerCfgDlg : public QDialog, public Ui::ServerConfigDlg
 	
 	protected:
 		static double s_dLastTime;
+		static unsigned int s_iXRes, s_iYRes, s_iTRes;
 		
 	protected slots:
 		
@@ -194,6 +195,9 @@ class ServerCfgDlg : public QDialog, public Ui::ServerConfigDlg
 		virtual ~ServerCfgDlg();
 		
 		double GetMeasTime();
+		unsigned int GetXRes();
+		unsigned int GetYRes();
+		unsigned int GetTRes();
 };
 
 #endif
