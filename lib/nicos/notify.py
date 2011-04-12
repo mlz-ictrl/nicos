@@ -59,7 +59,7 @@ class Notifier(Device):
     parameters = {
         'minruntime': Param('Minimum runtime of a command before a failure '
                             'is sent over the notifier', type=float, unit='s',
-                            default=300),
+                            default=300, settable=True),
     }
 
     def send(subject, body, what=None, short=None):

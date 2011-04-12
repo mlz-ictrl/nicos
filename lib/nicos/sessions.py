@@ -40,9 +40,11 @@ import os
 import imp
 import sys
 import code
+import time
 import signal
 import logging
 import readline
+import traceback
 import rlcompleter
 from os import path
 from wsgiref.simple_server import make_server
@@ -729,6 +731,8 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         """Mostly copied from code.InteractiveInterpreter, but added the
         logging call for exceptions.
         """
+        # record starting time to decide whether to send notification
+        start_time = time.time()
         try:
             exec codeobj in self.globals, self.locals
         except NicosInteractiveStop:
@@ -738,7 +742,15 @@ class NicosInteractiveConsole(code.InteractiveConsole):
             session.immediateStop()
         except Exception:
             #raise
-            self.session.logUnhandledException(sys.exc_info())
+            exc_info = sys.exc_info()
+            self.session.logUnhandledException(exc_info)
+            # also send a notification if configured
+            exception = ''.join(traceback.format_exception(*exc_info))
+            self.session.notifyConditionally(time.time() - start_time,
+                'Exception in script',
+                'An exception occurred in the executed script:\n\n' +
+                exception, 'error notification',
+                short='Exception: ' + exception.splitlines()[-1])
             return
         if code.softspace(sys.stdout, 0):
             print

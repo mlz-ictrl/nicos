@@ -464,9 +464,6 @@ class ExecutionController(Controller):
                         exception + '\n\nThe script was:\n\n' +
                         repr(self.current_script), 'error notification',
                         short='Exception: ' + exception.splitlines()[-1])
-                # print end time if elapsed time is more than 5 minutes
-                if time.time() - start_time > 300:
-                    session.log.info(format_timestamp())
         except Exception:
             self.log.exception('unhandled exception in script thread')
         finally:
