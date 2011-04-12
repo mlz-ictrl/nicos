@@ -75,14 +75,15 @@ bool TcpClient::isconnected() const
 // Nachrichten mit Längen-Int vorne senden
 bool TcpClient::sendmsg(const char *pcMsg)
 {
-	if (!isconnected())
+	if(!isconnected())
 		return false;
 
 	// Fehler im Server: Sollte eigentlich nicht 0-terminiert werden müssen
 	int iLen = strlen(pcMsg)+1;
 	
 	// Länge der folgenden Nachricht übertragen
-	write((char*)&iLen, 4);
+	if(!write((char*)&iLen, 4)) 
+		return false;
 	
 	// Nachricht übertragen
 	return write(pcMsg, iLen);
@@ -275,7 +276,7 @@ void TcpClient::readReady()
 			std::cerr << "\033[0;35m" << "[from server] length: " << m_iCurMsgLength << ", time: " << iTimeElapsed << "ms, total: " << m_timer.elapsed() << "ms, data: " << m_byCurMsg.data() << "\033[0m" << std::endl;
 		
 		// Ende der Nachricht, neue beginnt
-		m_bBeginOfMessage = true;		
+		m_bBeginOfMessage = true;
 		m_iExpectedMsgLength = m_iCurMsgLength = 0;
 	}
 }

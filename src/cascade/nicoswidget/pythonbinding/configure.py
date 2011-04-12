@@ -16,6 +16,6 @@ print "Generating makefile..."
 makefile = pyqtconfig.QtGuiModuleMakefile(configuration=config, build_file=build_file)
 
 makefile.extra_include_dirs = ["/usr/include/qwt"]
-makefile.extra_libs = ["cascadewidget", "Minuit2", "gomp", "QtNetwork", "qwt", "xml++-2.6"]
+makefile.extra_libs = ["cascadewidget", "Minuit2", "gomp", "QtNetwork", "qwt"]
 makefile.extra_lib_dirs = [".."]
 makefile.generate()

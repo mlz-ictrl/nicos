@@ -431,12 +431,12 @@ void CascadeWidget::UpdateLabels()
 
 void CascadeWidget::UpdateGraph()
 {
-	if(m_pPad)				// PAD-Datei geladen
+	if(IsPadLoaded())
 	{
 		//m_pPad->UpdateRange();
 		m_pPlot->SetData(m_pPad);	// !!
 	}
-	else if(m_pTof && m_pdata2d)		// TOF-Datei geladen
+	else if(IsTofLoaded())
 	{
 		if(m_iMode==MODE_SLIDES)
 		{
@@ -458,7 +458,7 @@ void CascadeWidget::UpdateGraph()
 		m_pPlot->SetData(m_pdata2d);	// !!
 	}
 	
-	if(m_pPad || (m_pTof && m_pdata2d))	// PAD- oder TOF-Datei geladen
+	if(IsPadLoaded() || IsTofLoaded())
 	{
 		m_pPlot->showSpectrogram(m_bSpectrogram);
 		m_pPlot->showContour(m_bContour);
@@ -479,7 +479,7 @@ void CascadeWidget::SetTimechannel(int iKanal) { m_iZeitkanal = iKanal; }
 bool CascadeWidget::GetLog10() { return m_bLog; }
 void CascadeWidget::SetLog10(bool bLog10)
 { 
-	m_bLog = bLog10; 
+	m_bLog = bLog10;
 	if(m_pPad)
 	{
 		m_pPad->SetLog10(bLog10);
@@ -565,7 +565,6 @@ void CascadeWidget::viewFoilSums(const bool* pbKanaele)
 	GetTof()->AddFoils(pbKanaele, GetData2d());
 	
 	UpdateRange();
-	//m_pPlot->SetData(m_pdata2d);
 	UpdateGraph();
 }
 
@@ -640,12 +639,12 @@ void CascadeWidget::SumDlgSlot(const bool *pbKanaele, int iMode)
 		case MODE_SUMS:
 			viewFoilSums(pbKanaele);
 			break;
-
+			
 		case MODE_PHASES:
 		case MODE_PHASESUMS:
 			viewPhaseSums(pbKanaele);
 			break;
-
+			
 		case MODE_CONTRASTS:
 		case MODE_CONTRASTSUMS:
 			viewContrastSums(pbKanaele);
@@ -675,6 +674,7 @@ void CascadeWidget::showSumDlg()
 			pSummenDlgSlides->raise();
 			pSummenDlgSlides->activateWindow();
 			break;
+			
 		case MODE_PHASES:
 		case MODE_PHASESUMS:
 			if(!pSummenDlgPhases) pSummenDlgPhases = new SumDlgNoChannels(this);
@@ -685,6 +685,7 @@ void CascadeWidget::showSumDlg()
 			pSummenDlgPhases->raise();
 			pSummenDlgPhases->activateWindow();
 			break;
+			
 		case MODE_CONTRASTS:
 		case MODE_CONTRASTSUMS:
 			if(!pSummenDlgContrasts) pSummenDlgContrasts = new SumDlgNoChannels(this);

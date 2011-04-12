@@ -785,7 +785,7 @@ class MainWindow : public QMainWindow
 			connect(actionServerMeasurementStart, SIGNAL(triggered()), this, SLOT(ServerMeasurementStart()));
 			connect(actionServerMeasurementStop, SIGNAL(triggered()), this, SLOT(ServerMeasurementStop()));
 			connect(actionConfigServer, SIGNAL(triggered()), this, SLOT(ServerConfig()));
-				
+			
 			// Graph
 			connect(actionCalibration, SIGNAL(triggered()), this, SLOT(showCalibration()));
 			connect(actionGraph, SIGNAL(triggered()), this, SLOT(showGraph()));
