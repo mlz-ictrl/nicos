@@ -191,11 +191,9 @@ class MainWindow : public QMainWindow
 				ShowMessage("Showing PAD.");
 			}
 		}
-	
 
 	// Slots
 	protected slots:
-		
 		/////////// Slot für Tcp-Client /////////////////////////////
 		void ServerMessageSlot(const char* pcBuf, int iLen)
 		{
@@ -553,7 +551,7 @@ class MainWindow : public QMainWindow
 				TmpImage tmpimg;
 				if(m_cascadewidget.IsTofLoaded())	// TOF-Datei offen
 					m_cascadewidget.GetTof()->GetOverview(&tmpimg);
-				else		// PAD-Datei offen
+				else					// PAD-Datei offen
 					tmpimg.ConvertPAD(m_cascadewidget.GetPad());
 				tmpimg.WriteXML(strFile.toAscii().data());
 			}

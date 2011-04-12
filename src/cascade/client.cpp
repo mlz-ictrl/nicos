@@ -292,7 +292,7 @@ TcpClient::TcpClient(QObject *pParent, bool bBlocking) : QObject(pParent), m_bBl
 		m_iMessageTimeout = Config::GetSingleton()->QueryInt("/cascade_config/server/message_timeout", 10000); // Default: 10 Sekunden
 		
 	m_bDebugLog = (bool)Config::GetSingleton()->QueryInt("/cascade_config/server/debug_log", m_bDebugLog);
-#else	// Minuit-Client
+#else	// Nicos-Client
 	m_iMessageTimeout = 5000;
 	//m_bDebugLog = true;
 #endif

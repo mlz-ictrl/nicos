@@ -34,11 +34,11 @@
 class Bins
 {
 	protected:
-		QwtArray<QwtDoubleInterval> m_intervals;
-		QwtArray<double> m_values;
-		
 		int m_iNumBins;
 		double m_dMin, m_dMax, m_dInterval;
+		
+		QwtArray<QwtDoubleInterval> m_intervals;
+		QwtArray<double> m_values;
 		
 	public:
 		Bins(int iNumBins, double dMin, double dMax);
