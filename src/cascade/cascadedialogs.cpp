@@ -292,13 +292,13 @@ void GraphDlg::Init(int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie)
 	m_pgrid->attach(qwtPlot);			
 	
 	spinBoxROIx1->setMinimum(0);
-	spinBoxROIx1->setMaximum(Config_TofLoader::IMAGE_WIDTH-1);
+	spinBoxROIx1->setMaximum(Config_TofLoader::IMAGE_WIDTH);
 	spinBoxROIx2->setMinimum(0);
-	spinBoxROIx2->setMaximum(Config_TofLoader::IMAGE_WIDTH-1);
+	spinBoxROIx2->setMaximum(Config_TofLoader::IMAGE_WIDTH);
 	spinBoxROIy1->setMinimum(0);
-	spinBoxROIy1->setMaximum(Config_TofLoader::IMAGE_HEIGHT-1);
+	spinBoxROIy1->setMaximum(Config_TofLoader::IMAGE_HEIGHT);
 	spinBoxROIy2->setMinimum(0);
-	spinBoxROIy2->setMaximum(Config_TofLoader::IMAGE_HEIGHT-1);
+	spinBoxROIy2->setMaximum(Config_TofLoader::IMAGE_HEIGHT);
 	spinBoxFolie->setMinimum(1);
 	spinBoxFolie->setMaximum(Config_TofLoader::FOIL_COUNT);
 	

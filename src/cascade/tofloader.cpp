@@ -358,6 +358,24 @@ unsigned int& TofImage::GetData(int iBild, int iX, int iY)
 	return iDummy; // Referenz auf Dummy zurückgeben
 }
 
+unsigned int TofImage::GetData(int iFoil, int iTimechannel, int iX, int iY)
+{
+	int iZ=0;
+	switch(iFoil)
+	{
+		case 0: iZ=Config_TofLoader::piFoilBegin[0]; break;
+		case 1: iZ=Config_TofLoader::piFoilBegin[1]; break;
+		case 2: iZ=Config_TofLoader::piFoilBegin[2]; break;
+		case 3: iZ=Config_TofLoader::piFoilBegin[3]; break;
+	};
+	
+	iZ += iTimechannel;
+	if(iTimechannel!=0)
+		return GetData(iZ,iX,iY);
+	else
+		return GetData(iZ,iX,iY)+GetData(iZ+Config_TofLoader::IMAGES_PER_FOIL,iX,iY);
+}
+
 unsigned int* TofImage::GetRawData(void) const
 {
 	return m_puiDaten;
@@ -432,49 +450,55 @@ int TofImage::LoadFile(const char *pcFileName)
 }
 
 
-bool TofImage::CheckArguments(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, int iFolieInc)
-{
-	if(iStartX<0 || iStartX>=Config_TofLoader::IMAGE_WIDTH || iEndX<0 || iEndX>Config_TofLoader::IMAGE_WIDTH)
+void TofImage::CheckArguments(int* piStartX, int* piEndX, int* piStartY, int* piEndY, int* piFolie, int* piZ)
+{	
+	if(piStartX && piEndX && piStartY && piEndY)
 	{
-		std::cerr << "Error in argument: x=0.."<< Config_TofLoader::IMAGE_WIDTH-1 << std::endl;
-		return false;
+		if(*piStartX>*piEndX) { int iTmp = *piStartX; *piStartX = *piEndX; *piEndX = iTmp; }
+		if(*piStartY>*piEndY) { int iTmp = *piStartY; *piStartY = *piEndY; *piEndY = iTmp; }
+		
+		if(*piStartX<0) 
+			*piStartX = 0;
+		else if(*piStartX>Config_TofLoader::Config_TofLoader::IMAGE_WIDTH) 
+			*piStartX = Config_TofLoader::Config_TofLoader::IMAGE_WIDTH;
+		if(*piEndX<0) 
+			*piEndX = 0;
+		else if(*piEndX>Config_TofLoader::Config_TofLoader::IMAGE_WIDTH) 
+			*piEndX = Config_TofLoader::Config_TofLoader::IMAGE_WIDTH;
+		
+		if(*piStartY<0) 
+			*piStartY = 0;
+		else if(*piStartY>Config_TofLoader::Config_TofLoader::IMAGE_HEIGHT) 
+			*piStartY = Config_TofLoader::Config_TofLoader::IMAGE_HEIGHT;
+		if(*piEndY<0) 
+			*piEndY = 0;
+		else if(*piEndY>Config_TofLoader::Config_TofLoader::IMAGE_HEIGHT) 
+			*piEndY = Config_TofLoader::Config_TofLoader::IMAGE_HEIGHT;
 	}
-	if(iStartY<0 || iStartY>=Config_TofLoader::IMAGE_HEIGHT || iEndY<0 || iEndY>Config_TofLoader::IMAGE_HEIGHT)
+	
+	if(piFolie)
 	{
-		std::cerr << "Error in argument: y=0.."<< Config_TofLoader::IMAGE_HEIGHT-1 << std::endl;
-		return false;
+		if(*piFolie<0)
+			*piFolie=0;
+		if(*piFolie>=Config_TofLoader::FOIL_COUNT)
+			*piFolie = Config_TofLoader::FOIL_COUNT-1;
+	
 	}
-	if(iFolie<0 || iFolie>=Config_TofLoader::FOIL_COUNT)
+	if(piZ)
 	{
-		std::cerr << "Error in argument: foil=0.."<< Config_TofLoader::FOIL_COUNT-1 << std::endl;
-		return false;		
+		if(*piZ<0)
+			*piZ = 0;
+		if(*piZ>=Config_TofLoader::IMAGES_PER_FOIL)
+			*piZ=Config_TofLoader::IMAGES_PER_FOIL-1;
 	}
-	if(iFolieInc<0 || iFolieInc>=Config_TofLoader::IMAGES_PER_FOIL)
-	{
-		std::cerr << "Error in argument:  time channel=0.."<< Config_TofLoader::IMAGES_PER_FOIL-1 << std::endl;
-		return false;		
-	}
-	return true;
 }
 
 // GetROI
-// pix start x, pix ende x, pix start y, pix end y, folie (n=0..3; 0=0.., 1=32.., 2=128, 3=160), wievielste tof-image dieser folie (0..15), wenn 0, dann 16 auch dazuzählen
-void TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, int iFolieInc, TmpImage *pImg)
+// pix start x, pix ende x, pix start y, pix end y, folie (n=0..3; 0=0.., 1=32.., 2=128, 3=160), wievielte tof-image dieser folie (0..15), wenn 0, dann 16 auch dazuzählen
+void TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, int iTimechannel, TmpImage *pImg)
 {
-	if(iStartX>iEndX) { int iTmp = iStartX; iStartX = iEndX; iEndX = iTmp; }
-	if(iStartY>iEndY) { int iTmp = iStartY; iStartY = iEndY; iEndY = iTmp; }
+	CheckArguments(&iStartX, &iEndX, &iStartY, &iEndY, &iFolie, &iTimechannel);
 
-	if(!CheckArguments(iStartX, iEndX, iStartY, iEndY, iFolie, iFolieInc)) return;
-
-	int iZ=0;
-	switch(iFolie)
-	{
-		case 0: iZ=Config_TofLoader::piFoilBegin[0]; break;
-		case 1: iZ=Config_TofLoader::piFoilBegin[1]; break;
-		case 2: iZ=Config_TofLoader::piFoilBegin[2]; break;
-		case 3: iZ=Config_TofLoader::piFoilBegin[3]; break;
-	};
-	
 	const int iBildBreite = iEndX-iStartX;
 	const int iBildHoehe = iEndY-iStartY;
 	unsigned int *puiWave = CreateUIntWave("wave",iBildBreite,iBildHoehe);
@@ -488,17 +512,9 @@ void TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie
 		pImg->m_puiDaten = puiWave;
 	}
 
-	iZ += iFolieInc;		
 	for(int iY=iStartY; iY<iEndY; ++iY)
-	{
 		for(int iX=iStartX; iX<iEndX; ++iX)
-		{
-			if(iFolieInc!=0)
-				puiWave[(iX-iStartX) + (iY-iStartY)*iBildBreite] = GetData(iZ,iX,iY);
-			else
-				puiWave[(iX-iStartX) + (iY-iStartY)*iBildBreite] = GetData(iZ,iX,iY)+GetData(iZ+Config_TofLoader::IMAGES_PER_FOIL,iX,iY);
-		}
-	}
+			puiWave[(iX-iStartX) + (iY-iStartY)*iBildBreite] = GetData(iFolie,iTimechannel,iX,iY);
 }
 
 // TOF-Graph
@@ -506,18 +522,7 @@ void TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie
 // alle Pixel eines Kanals addieren
 void TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, TmpGraph* pGraph)
 {
-	if(iStartX>iEndX) { int iTmp = iStartX; iStartX = iEndX; iEndX = iTmp; }
-	if(iStartY>iEndY) { int iTmp = iStartY; iStartY = iEndY; iEndY = iTmp; }
-	if(!CheckArguments(iStartX, iEndX, iStartY, iEndY, iFolie)) return;
-	
-	int iZ=0;
-	switch(iFolie)
-	{
-		case 0: iZ=Config_TofLoader::piFoilBegin[0]; break;
-		case 1: iZ=Config_TofLoader::piFoilBegin[1]; break;
-		case 2: iZ=Config_TofLoader::piFoilBegin[2]; break;
-		case 3: iZ=Config_TofLoader::piFoilBegin[3]; break;
-	};
+	CheckArguments(&iStartX, &iEndX, &iStartY, &iEndY, &iFolie);
 	
 	unsigned int *puiWave = CreateUIntWave("wave",Config_TofLoader::IMAGES_PER_FOIL,0);
 	if(puiWave==NULL) return;
@@ -528,29 +533,20 @@ void TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFol
 		pGraph->m_puiDaten = puiWave;
 	}
 
-	int iCnt=0;
 	for(int iZ0=0; iZ0<Config_TofLoader::IMAGES_PER_FOIL; ++iZ0)
 	{
 		unsigned int uiSummedVal=0;
 		for(int iY=iStartY; iY<iEndY; ++iY)
-		{
 			for(int iX=iStartX; iX<iEndX; ++iX)
-			{
-				if(iZ0!=0)
-					uiSummedVal += GetData(iZ+iZ0,iX,iY);
-				else
-					uiSummedVal += GetData(iZ+iZ0,iX,iY)+GetData(iZ+Config_TofLoader::IMAGES_PER_FOIL,iX,iY);
-			}
-		}
-		puiWave[iCnt++]=uiSummedVal;
+				uiSummedVal += GetData(iFolie, iZ0, iX, iY);
+			
+		puiWave[iZ0]=uiSummedVal;
 	}
 }
 
 void TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, double dPhaseShift, TmpGraph* pGraph)
 {
-	if(iStartX>iEndX) { int iTmp = iStartX; iStartX = iEndX; iEndX = iTmp; }
-	if(iStartY>iEndY) { int iTmp = iStartY; iStartY = iEndY; iEndY = iTmp; }
-	if(!CheckArguments(iStartX, iEndX, iStartY, iEndY)) return;
+	CheckArguments(&iStartX, &iEndX, &iStartY, &iEndY);
 	
 	unsigned int *puiWave = CreateUIntWave("wave",Config_TofLoader::IMAGES_PER_FOIL,0);
 	if(puiWave==NULL) return;
@@ -561,7 +557,6 @@ void TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, dou
 		pGraph->m_puiDaten = puiWave;
 	}
 
-	int iCnt=0;
 	// Zeitkanäle
 	for(int iZ0=0; iZ0<Config_TofLoader::IMAGES_PER_FOIL; ++iZ0)
 	{
@@ -573,19 +568,15 @@ void TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, dou
 				// Folien
 				for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
 				{
-					int iZ=Config_TofLoader::piFoilBegin[iFolie];
 					int iShift = iZ0 + int(dPhaseShift*double(iFolie));
 					if(iShift>=Config_TofLoader::IMAGES_PER_FOIL)
 						iShift%=Config_TofLoader::IMAGES_PER_FOIL;
 						
-					if(iZ0!=0)
-						uiSummedVal += GetData(iZ+iShift,iX,iY);
-					else
-						uiSummedVal += GetData(iZ+iShift,iX,iY)+GetData(iZ+Config_TofLoader::IMAGES_PER_FOIL,iX,iY);
+					uiSummedVal += GetData(iFolie, iShift, iX, iY);
 				}
 			}
 		}
-		puiWave[iCnt++]=uiSummedVal;
+		puiWave[iZ0]=uiSummedVal;
 	}
 }
 
@@ -600,19 +591,10 @@ void TofImage::GetOverview(TmpImage *pImg)
 	memset(pImg->m_puiDaten,0,sizeof(int)*pImg->m_iW*pImg->m_iH);
 	
 	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
-	{
 		for(int iZ0=0; iZ0<Config_TofLoader::IMAGES_PER_FOIL; ++iZ0)
-		{
 			for(int iY=0; iY<Config_TofLoader::IMAGE_HEIGHT; ++iY)
 				for(int iX=0; iX<Config_TofLoader::IMAGE_WIDTH; ++iX)
-				{
-					if(iZ0!=0)
-						pImg->m_puiDaten[iY*Config_TofLoader::IMAGE_WIDTH+iX] += GetData(Config_TofLoader::piFoilBegin[iFolie]+iZ0,iX,iY);
-					else
-						pImg->m_puiDaten[iY*Config_TofLoader::IMAGE_WIDTH+iX] += GetData(Config_TofLoader::piFoilBegin[iFolie]+iZ0,iX,iY) + GetData(Config_TofLoader::piFoilBegin[iFolie]+Config_TofLoader::IMAGES_PER_FOIL,iX,iY);
-				}
-		}
-	}
+					pImg->m_puiDaten[iY*Config_TofLoader::IMAGE_WIDTH+iX] += GetData(iFolie,iZ0,iX,iY);
 }
 
 // Alle Folien, die in iBits als aktiv markiert sind, addieren;
@@ -651,18 +633,13 @@ void TofImage::AddFoils(int iBits, int iZeitKanaeleBits, TmpImage *pImg)
 	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
 	{
 		if(!bFolieAktiv[iFolie]) continue;
-		
+
 		for(int iZ0=0; iZ0<Config_TofLoader::IMAGES_PER_FOIL; ++iZ0)
 		{
 			if (!bKanaeleAktiv[iZ0]) continue;
 			for(int iY=0; iY<Config_TofLoader::IMAGE_HEIGHT; ++iY)
 				for(int iX=0; iX<Config_TofLoader::IMAGE_WIDTH; ++iX)
-				{
-					if(iZ0!=0)
-						uiAusgabe[iY][iX] += GetData(Config_TofLoader::piFoilBegin[iFolie]+iZ0,iX,iY);
-					else
-						uiAusgabe[iY][iX] += GetData(Config_TofLoader::piFoilBegin[iFolie]+iZ0,iX,iY) + GetData(Config_TofLoader::piFoilBegin[iFolie]+Config_TofLoader::IMAGES_PER_FOIL,iX,iY);
-				}
+					uiAusgabe[iY][iX] += GetData(iFolie,iZ0,iX,iY);
 		}
 	}
 	
@@ -696,12 +673,7 @@ void TofImage::AddFoils(const bool *pbKanaele, TmpImage *pImg)
 			
 			for(int iY=0; iY<Config_TofLoader::IMAGE_HEIGHT; ++iY)
 				for(int iX=0; iX<Config_TofLoader::IMAGE_WIDTH; ++iX)
-				{
-					if(iZ0!=0)
-						uiAusgabe[iY][iX] += GetData(Config_TofLoader::piFoilBegin[iFolie]+iZ0, iX, iY);
-					else
-						uiAusgabe[iY][iX] += GetData(Config_TofLoader::piFoilBegin[iFolie]+iZ0, iX, iY) + GetData(Config_TofLoader::piFoilBegin[iFolie]+Config_TofLoader::IMAGES_PER_FOIL, iX, iY);
-				}
+					uiAusgabe[iY][iX] += GetData(iFolie, iZ0, iX, iY);
 		}
 	}
 	
@@ -765,27 +737,22 @@ void TofImage::AddContrasts(const bool *pbFolien, TmpImage *pImg)
 }
 
 // Für Kalibrierungsdiagramm
+void TofImage::GetPhaseGraph(int iFoil, TmpImage *pImg, bool bInDeg)
+{
+	GetPhaseGraph(iFoil, pImg, 0, Config_TofLoader::IMAGE_WIDTH, 0, Config_TofLoader::IMAGE_HEIGHT, bInDeg);
+}
+
 void TofImage::GetPhaseGraph(int iFolie, TmpImage *pImg, int iStartX, int iEndX, int iStartY, int iEndY, bool bInDeg)
 {
-	if(iStartX<0 || iEndX<0 || iStartY<0 || iEndY<0)
-	{
-		iStartX = 0;
-		iEndX = Config_TofLoader::Config_TofLoader::IMAGE_WIDTH;
-		iStartY = 0;
-		iEndY = Config_TofLoader::Config_TofLoader::IMAGE_HEIGHT;
-	}
-	
-	if(iStartX>iEndX) { int iTmp = iStartX; iStartX = iEndX; iEndX = iTmp; }
-	if(iStartY>iEndY) { int iTmp = iStartY; iStartY = iEndY; iEndY = iTmp; }
-	if(!CheckArguments(iStartX, iEndX, iStartY, iEndY)) return;
-	
 	if(pImg==NULL) return;
-	double *pdWave = CreateDoubleWave(NULL,Config_TofLoader::IMAGE_WIDTH,Config_TofLoader::IMAGE_HEIGHT);
-	if(pdWave==NULL) return;
-	
+	CheckArguments(&iStartX, &iEndX, &iStartY, &iEndY);
+
 	pImg->Clear();
 	pImg->m_iW = iEndX-iStartX;
 	pImg->m_iH = iEndY-iStartY;
+	
+	double *pdWave = CreateDoubleWave(NULL,pImg->m_iW,pImg->m_iH);
+	if(pdWave==NULL) return;
 	pImg->m_pdDaten = pdWave;
 		
 	const int XSIZE = Config_TofLoader::iPhaseBlockSize[0],
@@ -800,9 +767,7 @@ void TofImage::GetPhaseGraph(int iFolie, TmpImage *pImg, int iStartX, int iEndX,
 			bool bFitValid = tmpGraph.FitSinus(dPhase, dFreq, dAmp, dOffs);
 			
 			if(!bFitValid || dPhase!=dPhase)
-			{
 				dPhase = 0.;
-			}
 			
 			if(bInDeg) dPhase = dPhase*180./M_PI;
 			

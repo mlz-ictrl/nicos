@@ -124,6 +124,7 @@ class TofImage
 		virtual ~TofImage();
 		
 		void Clear();
+		unsigned int GetData(int iFoil, int iTimechannel, int iX, int iY);
 //		unsigned int& GetData(int iBild, int iX, int iY);
 //		unsigned int* GetRawData(void) const;
 		
@@ -131,15 +132,15 @@ class TofImage
 		// uiBufLen: Anzahl Ints (nicht Anzahl Bytes)
 		int LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen);
 	
-		TmpImage GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, int iZ);
-		TmpGraph GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie);
+		TmpImage GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil, int iTimechannel);
+		TmpGraph GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil);
 		TmpGraph GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, double dPhaseShift);
 		TmpImage GetOverview();
-		TmpImage GetPhaseGraph(int iFolie, int iStartX=-1, int iEndX=-1, int iStartY=-1, int iEndY=-1, bool bInDeg=true);
-		TmpImage GetContrastGraph(int iFolie);
-		TmpImage AddFoils(const bool *pbKanaele);
-		TmpImage AddPhases(const bool *pbFolien);
-		TmpImage AddContrasts(const bool *pbFolien);
+		TmpImage GetPhaseGraph(int iFoil, int iStartX, int iEndX, int iStartY, int iEndY, bool bInDeg=true);
+		TmpImage GetContrastGraph(int iFoil);
+		TmpImage AddFoils(const bool *pbChannels);
+		TmpImage AddPhases(const bool *pbFoils);
+		TmpImage AddContrasts(const bool *pbFoils);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 

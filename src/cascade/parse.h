@@ -70,7 +70,7 @@ class ArgumentMap
 				int iPos = str.find("=");
 				if(iPos == std::string::npos)
 				{
-					std::cerr << "Fehler beim Parsen des Strings: \"" << pcStr << "\"" << std::endl;
+					std::cerr << "Error parsing string: \"" << pcStr << "\"" << std::endl;
 					break;
 				}
 				

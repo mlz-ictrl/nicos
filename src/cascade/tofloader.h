@@ -157,7 +157,7 @@ class TmpGraph
 class TofImage
 {
 	private:
-		bool CheckArguments(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie=0, int iZ=0);
+		void CheckArguments(int* piStartX, int* piEndX, int* piStartY, int* piEndY, int* piFoil=0, int* piTimechannel=0);
 
 	protected:
 		unsigned int *m_puiDaten;
@@ -167,36 +167,39 @@ class TofImage
 		virtual ~TofImage();
 		
 		void Clear(void);
-		unsigned int& GetData(int iBild, int iX, int iY);
+		
+		unsigned int GetData(int iFoil, int iTimechannel, int iX, int iY);
+		unsigned int& GetData(int iImage, int iX, int iY);
 		unsigned int* GetRawData(void) const;
 		
 		int LoadFile(const char *pcFileName);
 		// uiBufLen: Anzahl Ints (nicht Anzahl Bytes)
 		int LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen);
 	
-		void GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, int iZ, TmpImage *pImg);
-		void GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, TmpGraph* pGraph);
+		void GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil, int iTimechannel, TmpImage *pImg);
+		void GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil, TmpGraph* pGraph);
 		void GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, double dPhaseShift ,TmpGraph* pGraph);
 		void GetOverview(TmpImage *pImg);
-		void GetPhaseGraph(int iFolie, TmpImage *pImg, int iStartX=-1, int iEndX=-1, int iStartY=-1, int iEndY=-1, bool bInDeg=true);
-		void GetContrastGraph(int iFolie, TmpImage *pImg);		
+		void GetPhaseGraph(int iFoil, TmpImage *pImg, int iStartX, int iEndX, int iStartY, int iEndY, bool bInDeg=true);
+		void GetPhaseGraph(int iFoil, TmpImage *pImg, bool bInDeg=true);
+		void GetContrastGraph(int iFoil, TmpImage *pImg);		
 		
-		void AddFoils(int iBits, int iZeitKanaeleBits/*=0xffffffff*/, TmpImage *pImg);
-		void AddFoils(const bool *pbKanaele, TmpImage *pImg);
-		void AddPhases(const bool *pbFolien, TmpImage *pImg);
-		void AddContrasts(const bool *pbFolien, TmpImage *pImg);
+		void AddFoils(int iBits, int iChannelBits/*=0xffffffff*/, TmpImage *pImg);
+		void AddFoils(const bool *pbChannels, TmpImage *pImg);
+		void AddPhases(const bool *pbFoils, TmpImage *pImg);
+		void AddContrasts(const bool *pbFoils, TmpImage *pImg);
 		
 		/////////////////////////////////////////////////////////////////
 		// alternativer Funktionsaufruf mit Rückgabe des entsprechenden Ergebnisses (für Python-Binding)
-		TmpImage GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie, int iZ);
-		TmpGraph GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFolie);
+		TmpImage GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil, int iTimechannel);
+		TmpGraph GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil);
 		TmpGraph GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, double dPhaseShift);
 		TmpImage GetOverview();
-		TmpImage GetPhaseGraph(int iFolie, int iStartX=-1, int iEndX=-1, int iStartY=-1, int iEndY=-1, bool bInDeg=true);
-		TmpImage GetContrastGraph(int iFolie);
-		TmpImage AddFoils(const bool *pbKanaele);
-		TmpImage AddPhases(const bool *pbFolien);
-		TmpImage AddContrasts(const bool *pbFolien);
+		TmpImage GetPhaseGraph(int iFoil, int iStartX, int iEndX, int iStartY, int iEndY, bool bInDeg=true);
+		TmpImage GetContrastGraph(int iFoil);
+		TmpImage AddFoils(const bool *pbChannels);
+		TmpImage AddPhases(const bool *pbFoils);
+		TmpImage AddContrasts(const bool *pbFoils);
 		/////////////////////////////////////////////////////////////////
 };
 
