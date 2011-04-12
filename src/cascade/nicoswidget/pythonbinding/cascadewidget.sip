@@ -11,6 +11,7 @@ class GraphDlg : QDialog
 #include "../../cascadedialogs.h"
 %End
 	public:
+		GraphDlg(QWidget *pParent, TofImage* pTof);
 		GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie);
 		virtual ~GraphDlg();
 };
@@ -24,8 +25,6 @@ class PadImage
 %TypeHeaderCode
 #include "../../tofloader.h"
 %End
-	protected:
-
 	public:
 		PadImage(const char *pcFileName=NULL);
 		PadImage(const PadImage& pad);
@@ -120,7 +119,6 @@ class MainRasterData :  QwtRasterData
 %TypeHeaderCode
 #include "../../tofdata.h"
 %End
-	protected:
 	public:
 		MainRasterData(const QwtDoubleRect& rect);
 		
@@ -138,8 +136,6 @@ class PadData :  MainRasterData, PadImage
 %TypeHeaderCode
 #include "../../tofdata.h"
 %End
-	protected:
-	
 	public:
 		PadData();
 		PadData(const PadData& pad);
@@ -158,7 +154,6 @@ class Data2D :  MainRasterData, TmpImage
 %TypeHeaderCode
 #include "../../tofdata.h"
 %End
-	protected:
 	public:
 		Data2D(const QwtDoubleRect& rect);
 		Data2D();

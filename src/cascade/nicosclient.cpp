@@ -30,7 +30,7 @@
 #include "tofloader.h"
 
 
-NicosClient::NicosClient() : TcpClient::TcpClient(0, true)
+NicosClient::NicosClient() : TcpClient(0, true)
 {
 	Config_TofLoader::Init();
 }

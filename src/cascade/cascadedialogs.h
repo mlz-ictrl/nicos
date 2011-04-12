@@ -82,6 +82,9 @@ class GraphDlg : public QDialog, public Ui::GraphDlg
 {
 	Q_OBJECT
 	
+	private:
+		void Init(int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie);
+	
 	protected:
 		TofImage *m_pTofImg;
 		ErrorBarPlotCurve m_curve;
@@ -100,6 +103,7 @@ class GraphDlg : public QDialog, public Ui::GraphDlg
 		void Phasechanged(double dVal);
 		
 	public:
+		GraphDlg(QWidget *pParent, TofImage* pTof);
 		GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie);
 		virtual ~GraphDlg();
 };

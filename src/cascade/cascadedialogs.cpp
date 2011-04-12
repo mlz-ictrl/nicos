@@ -277,11 +277,8 @@ void GraphDlg::ROIx2changed(int iVal) { UpdateGraph(); }
 void GraphDlg::Foilchanged(int iVal) { UpdateGraph(); }
 void GraphDlg::Phasechanged(double dVal) { UpdateGraph(); }
 
-GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie) : QDialog(pParent), m_curve("Foil"), m_curvefit("Fit"), m_curvetotal("Total"), m_plegend(0), m_pgrid(0)
+void GraphDlg::Init(int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie)
 {
-	m_pTofImg = pTof;
-	setupUi(this);
-	
 	qwtPlot->setAutoReplot(false);
 	qwtPlot->setCanvasBackground(QColor(255,255,255));
 	qwtPlot->axisWidget(QwtPlot::xBottom)->setTitle("Time Channels");
@@ -347,8 +344,19 @@ GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2, int
 	pentotal.setWidth(2);
 	m_curvetotal.setPen(pentotal);
 	m_curvetotal.attach(qwtPlot);
-	
-	
+}
+
+GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof) : QDialog(pParent), m_pTofImg(pTof), m_curve("Foil"), m_curvefit("Fit"), m_curvetotal("Total"), m_plegend(0), m_pgrid(0)
+{
+	setupUi(this);
+	Init(0, Config_TofLoader::IMAGE_WIDTH-1, 0, Config_TofLoader::IMAGE_HEIGHT-1, 0);
+	UpdateGraph();
+}
+
+GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie) : QDialog(pParent), m_pTofImg(pTof), m_curve("Foil"), m_curvefit("Fit"), m_curvetotal("Total"), m_plegend(0), m_pgrid(0)
+{
+	setupUi(this);
+	Init(iROIx1, iROIx2, iROIy1, iROIy2, iFolie);
 	UpdateGraph();
 }
 

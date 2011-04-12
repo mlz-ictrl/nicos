@@ -29,11 +29,8 @@
 #ifndef __TOFLOADER__
 #define __TOFLOADER__
 
-// Soll es ein IGOR-Plugin werden?
-//#define IGOR_PLUGIN
-
-// Minuit für Fits benutzen?
-#define USE_MINUIT
+//#define IGOR_PLUGIN		// Soll es ein IGOR-Plugin werden?
+#define USE_MINUIT		// Minuit für Fits benutzen?
 
 #ifndef NULL
 	#define NULL	0
