@@ -505,6 +505,12 @@ class Session(object):
             self.__system_device = self.getDevice('System', System)
         return self.__system_device._adevs['datasinks']
 
+    @property
+    def notifiers(self):
+        if self.__system_device is None:
+            self.__system_device = self.getDevice('System', System)
+        return self.__system_device._adevs['notifiers']
+
     def notifyConditionally(self, runtime, subject, body, what=None, short=None):
         """Send a notification if the current runtime exceeds the configured
         minimum runtimer for notifications."""

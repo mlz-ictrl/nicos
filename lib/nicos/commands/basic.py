@@ -40,6 +40,7 @@ from nicos import session
 from nicos.utils import formatDocstring, printTable
 from nicos.device import Device
 from nicos.errors import ModeError
+from nicos.notify import Mailer, SMSer
 from nicos.sessions import EXECUTIONMODES
 from nicos.commands import usercommand
 from nicos.commands.output import printinfo, printexception
@@ -226,3 +227,36 @@ def run(filename):
         with _Scope(filename):
             exec code in session.getLocalNamespace(), session.getNamespace()
     printinfo('finished user script: ' + filename)
+
+
+@usercommand
+def Notify(*args):
+    if len(args) == 1:
+        # use first line of text as subject
+        text, = args
+        session.notify(text.splitlines()[0], text)
+    elif len(args) == 2:
+        subject, text = args
+        session.notify(subject, text)
+    else:
+        raise TypeError("Usage: Notify('text') or Notify('subject', 'text')")
+
+
+@usercommand
+def SetMailReceivers(*emails):
+    for notifier in session.notifiers:
+        if isinstance(notifier, Mailer):
+            notifier.receivers = list(emails)
+            printinfo('mails will now be sent to ' + ', '.join(emails))
+            return
+    printwarning('email notification is not configured in this setup')
+
+
+@usercommand
+def SetSMSReceivers(*numbers):
+    for notifier in session.notifiers:
+        if isinstance(notifier, SMSer):
+            notifier.receivers = list(numbers)
+            printinfo('SMS will now be sent to ' + ', '.join(numbers))
+            return
+    printwarning('SMS notification is not configured in this setup')
