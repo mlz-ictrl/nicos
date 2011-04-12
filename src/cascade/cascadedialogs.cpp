@@ -70,13 +70,13 @@ CalibrationDlg::~CalibrationDlg()
 // ************************* Summierungs-Dialog mit Zeitkanälen ***********************
 void SumDlg::ShowIt()
 {
-	bool *pbChecked = new bool[Config_TofLoader::FOIL_COUNT*Config_TofLoader::IMAGES_PER_FOIL];
-	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+	bool *pbChecked = new bool[Config_TofLoader::GetFoilCount()*Config_TofLoader::GetImagesPerFoil()];
+	for(int iFolie=0; iFolie<Config_TofLoader::GetFoilCount(); ++iFolie)
 	{
-		for(int iKanal=0; iKanal<Config_TofLoader::IMAGES_PER_FOIL; ++iKanal)
+		for(int iKanal=0; iKanal<Config_TofLoader::GetImagesPerFoil(); ++iKanal)
 		{
-			bool bChecked = (m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->checkState(0)==Qt::Checked);
-			pbChecked[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal] = bChecked;
+			bool bChecked = (m_pTreeItems[iFolie*Config_TofLoader::GetImagesPerFoil() + iKanal]->checkState(0)==Qt::Checked);
+			pbChecked[iFolie*Config_TofLoader::GetImagesPerFoil() + iKanal] = bChecked;
 		}
 	}
 	emit SumSignal(pbChecked, m_iMode);
@@ -85,43 +85,43 @@ void SumDlg::ShowIt()
 
 void SumDlg::SelectAll()
 {
-	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+	for(int iFolie=0; iFolie<Config_TofLoader::GetFoilCount(); ++iFolie)
 	{
 		m_pTreeItemsFolien[iFolie]->setCheckState(0,Qt::Checked);
-		for(int iKanal=0; iKanal<Config_TofLoader::IMAGES_PER_FOIL; ++iKanal)
-			m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->setCheckState(0,Qt::Checked);
+		for(int iKanal=0; iKanal<Config_TofLoader::GetImagesPerFoil(); ++iKanal)
+			m_pTreeItems[iFolie*Config_TofLoader::GetImagesPerFoil() + iKanal]->setCheckState(0,Qt::Checked);
 	}
 }
 
 void SumDlg::SelectNone()
 {
-	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+	for(int iFolie=0; iFolie<Config_TofLoader::GetFoilCount(); ++iFolie)
 	{
 		m_pTreeItemsFolien[iFolie]->setCheckState(0,Qt::Unchecked);
-		for(int iKanal=0; iKanal<Config_TofLoader::IMAGES_PER_FOIL; ++iKanal)
-			m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->setCheckState(0,Qt::Unchecked);
+		for(int iKanal=0; iKanal<Config_TofLoader::GetImagesPerFoil(); ++iKanal)
+			m_pTreeItems[iFolie*Config_TofLoader::GetImagesPerFoil() + iKanal]->setCheckState(0,Qt::Unchecked);
 	}
 }
 
 void SumDlg::TreeWidgetClicked(QTreeWidgetItem *item, int column)
 {
 	int iFolie;
-	for(iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+	for(iFolie=0; iFolie<Config_TofLoader::GetFoilCount(); ++iFolie)
 		if(m_pTreeItemsFolien[iFolie]==item) break;
-	if(iFolie==Config_TofLoader::FOIL_COUNT) return;	// nicht auf Parent geklickt
+	if(iFolie==Config_TofLoader::GetFoilCount()) return;	// nicht auf Parent geklickt
 	
-	for(int iKanal=0; iKanal<Config_TofLoader::IMAGES_PER_FOIL; ++iKanal)
-		m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->setCheckState(0,m_pTreeItemsFolien[iFolie]->checkState(0));
+	for(int iKanal=0; iKanal<Config_TofLoader::GetImagesPerFoil(); ++iKanal)
+		m_pTreeItems[iFolie*Config_TofLoader::GetImagesPerFoil() + iKanal]->setCheckState(0,m_pTreeItemsFolien[iFolie]->checkState(0));
 }
 
 SumDlg::SumDlg(QWidget *pParent) : QDialog(pParent)
 {
 	setupUi(this);
 	
-	m_pTreeItemsFolien = new QTreeWidgetItem*[Config_TofLoader::FOIL_COUNT];
-	m_pTreeItems = new QTreeWidgetItem*[Config_TofLoader::FOIL_COUNT*Config_TofLoader::IMAGES_PER_FOIL];
+	m_pTreeItemsFolien = new QTreeWidgetItem*[Config_TofLoader::GetFoilCount()];
+	m_pTreeItems = new QTreeWidgetItem*[Config_TofLoader::GetFoilCount()*Config_TofLoader::GetImagesPerFoil()];
 
-	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+	for(int iFolie=0; iFolie<Config_TofLoader::GetFoilCount(); ++iFolie)
 	{
 		m_pTreeItemsFolien[iFolie] = new QTreeWidgetItem(treeWidget);
 		char pcName[256];
@@ -129,12 +129,12 @@ SumDlg::SumDlg(QWidget *pParent) : QDialog(pParent)
 		m_pTreeItemsFolien[iFolie]->setText(0, pcName);
 		m_pTreeItemsFolien[iFolie]->setCheckState(0, Qt::Unchecked);
 		
-		for(int iKanal=0; iKanal<Config_TofLoader::IMAGES_PER_FOIL; ++iKanal)
+		for(int iKanal=0; iKanal<Config_TofLoader::GetImagesPerFoil(); ++iKanal)
 		{
-			m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal] = new QTreeWidgetItem(m_pTreeItemsFolien[iFolie]);
-			m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->setCheckState(0, Qt::Unchecked);
+			m_pTreeItems[iFolie*Config_TofLoader::GetImagesPerFoil() + iKanal] = new QTreeWidgetItem(m_pTreeItemsFolien[iFolie]);
+			m_pTreeItems[iFolie*Config_TofLoader::GetImagesPerFoil() + iKanal]->setCheckState(0, Qt::Unchecked);
 			sprintf(pcName, "Time Channel %d", iKanal+1);
-			m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->setText(0, pcName);
+			m_pTreeItems[iFolie*Config_TofLoader::GetImagesPerFoil() + iKanal]->setText(0, pcName);
 		}
 	}
 	
@@ -157,8 +157,8 @@ void SumDlg::SetMode(int iMode) { m_iMode = iMode; }
 // ************************* Summierungs-Dialog ohne Zeitkanäle ***********************
 void SumDlgNoChannels::ShowIt()
 {
-	bool *pbChecked = new bool[Config_TofLoader::FOIL_COUNT];
-	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+	bool *pbChecked = new bool[Config_TofLoader::GetFoilCount()];
+	for(int iFolie=0; iFolie<Config_TofLoader::GetFoilCount(); ++iFolie)
 	{
 		bool bChecked = (m_pTreeItemsFolien[iFolie]->checkState(0)==Qt::Checked);
 		pbChecked[iFolie] = bChecked;
@@ -169,22 +169,22 @@ void SumDlgNoChannels::ShowIt()
 
 void SumDlgNoChannels::SelectAll()
 {
-	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+	for(int iFolie=0; iFolie<Config_TofLoader::GetFoilCount(); ++iFolie)
 		m_pTreeItemsFolien[iFolie]->setCheckState(0,Qt::Checked);
 }
 
 void SumDlgNoChannels::SelectNone()
 {
-	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+	for(int iFolie=0; iFolie<Config_TofLoader::GetFoilCount(); ++iFolie)
 		m_pTreeItemsFolien[iFolie]->setCheckState(0,Qt::Unchecked);
 }
 
 SumDlgNoChannels::SumDlgNoChannels(QWidget *pParent) : QDialog(pParent)
 {
 	setupUi(this);
-	m_pTreeItemsFolien = new QTreeWidgetItem*[Config_TofLoader::FOIL_COUNT];
+	m_pTreeItemsFolien = new QTreeWidgetItem*[Config_TofLoader::GetFoilCount()];
 
-	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+	for(int iFolie=0; iFolie<Config_TofLoader::GetFoilCount(); ++iFolie)
 	{
 		m_pTreeItemsFolien[iFolie] = new QTreeWidgetItem(treeWidget);
 		char pcName[256];
@@ -239,15 +239,15 @@ void GraphDlg::UpdateGraph(void)
 	labelFit->setText(pcFit);
 
 	const int FITPUNKTE=16;
-	pdx = new double[Config_TofLoader::IMAGES_PER_FOIL*FITPUNKTE];
-	pdy = new double[Config_TofLoader::IMAGES_PER_FOIL*FITPUNKTE];
-	for(int i=0; i<Config_TofLoader::IMAGES_PER_FOIL*FITPUNKTE; ++i)
+	pdx = new double[Config_TofLoader::GetImagesPerFoil()*FITPUNKTE];
+	pdy = new double[Config_TofLoader::GetImagesPerFoil()*FITPUNKTE];
+	for(int i=0; i<Config_TofLoader::GetImagesPerFoil()*FITPUNKTE; ++i)
 	{
 		double x = double(i)/double(FITPUNKTE);
 		pdx[i] = x;
 		pdy[i] = dAmp*sin(x*dFreq + dPhase) + dOffs;
 	}
-	m_curvefit.setData(pdx,pdy,Config_TofLoader::IMAGES_PER_FOIL*FITPUNKTE);
+	m_curvefit.setData(pdx,pdy,Config_TofLoader::GetImagesPerFoil()*FITPUNKTE);
 	delete[] pdx;
 	delete[] pdy;
 	
@@ -292,15 +292,15 @@ void GraphDlg::Init(int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie)
 	m_pgrid->attach(qwtPlot);			
 	
 	spinBoxROIx1->setMinimum(0);
-	spinBoxROIx1->setMaximum(Config_TofLoader::IMAGE_WIDTH);
+	spinBoxROIx1->setMaximum(Config_TofLoader::GetImageWidth());
 	spinBoxROIx2->setMinimum(0);
-	spinBoxROIx2->setMaximum(Config_TofLoader::IMAGE_WIDTH);
+	spinBoxROIx2->setMaximum(Config_TofLoader::GetImageWidth());
 	spinBoxROIy1->setMinimum(0);
-	spinBoxROIy1->setMaximum(Config_TofLoader::IMAGE_HEIGHT);
+	spinBoxROIy1->setMaximum(Config_TofLoader::GetImageHeight());
 	spinBoxROIy2->setMinimum(0);
-	spinBoxROIy2->setMaximum(Config_TofLoader::IMAGE_HEIGHT);
+	spinBoxROIy2->setMaximum(Config_TofLoader::GetImageHeight());
 	spinBoxFolie->setMinimum(1);
-	spinBoxFolie->setMaximum(Config_TofLoader::FOIL_COUNT);
+	spinBoxFolie->setMaximum(Config_TofLoader::GetFoilCount());
 	
 	spinBoxROIx1->setValue(iROIx1);
 	spinBoxROIx2->setValue(iROIx2);
@@ -349,7 +349,7 @@ void GraphDlg::Init(int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie)
 GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof) : QDialog(pParent), m_pTofImg(pTof), m_curve("Foil"), m_curvefit("Fit"), m_curvetotal("Total"), m_plegend(0), m_pgrid(0)
 {
 	setupUi(this);
-	Init(0, Config_TofLoader::IMAGE_WIDTH-1, 0, Config_TofLoader::IMAGE_HEIGHT-1, 0);
+	Init(0, Config_TofLoader::GetImageWidth()-1, 0, Config_TofLoader::GetImageHeight()-1, 0);
 	UpdateGraph();
 }
 

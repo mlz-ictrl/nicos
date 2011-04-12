@@ -208,13 +208,13 @@ class MainWindow : public QMainWindow
 			{
 	#ifndef DATA_COMPRESSED
 				// Abfrage nur für unkomprimierte Daten möglich
-				if(iLen-4 != sizeof(int)*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH)
+				if(iLen-4 != sizeof(int)*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth())
 				{
 					// Dimensionen stimmen nicht, neue raten
 					if(!Config_TofLoader::GuessConfigFromSize((iLen-4)/4, false))
 					{
 						char pcMsg[256];
-						sprintf(pcMsg, "Dimension mismatch in PAD data!\nClient expected: %d bytes\nServer sent: %d bytes", sizeof(int)*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH, iLen-4);
+						sprintf(pcMsg, "Dimension mismatch in PAD data!\nClient expected: %d bytes\nServer sent: %d bytes", sizeof(int)*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth(), iLen-4);
 						QMessageBox::critical(0, "Cascade - Server", pcMsg, QMessageBox::Ok);
 						return;
 					}
@@ -232,7 +232,7 @@ class MainWindow : public QMainWindow
 				}
 	#else
 				// Unkomprimierte Daten umkopieren
-				memcpy(pvData, pcBuf+4, sizeof(int)*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH);
+				memcpy(pvData, pcBuf+4, sizeof(int)*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth());
 	#endif			
 
 				m_cascadewidget.UpdateRange();
@@ -247,13 +247,13 @@ class MainWindow : public QMainWindow
 			{
 	#ifndef DATA_COMPRESSED
 				// Abfrage nur für unkomprimierte Daten möglich
-				if(iLen-4 != sizeof(int)*Config_TofLoader::IMAGE_COUNT*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH)
+				if(iLen-4 != sizeof(int)*Config_TofLoader::GetImageCount()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth())
 				{
 					// Dimensionen stimmen nicht, neue raten
 					if(!Config_TofLoader::GuessConfigFromSize((iLen-4)/4, true))
 					{
 						char pcMsg[256];
-						sprintf(pcMsg, "Dimension mismatch in TOF data!\nClient expected: %d bytes\nServer sent: %d bytes", sizeof(int)*Config_TofLoader::IMAGE_COUNT*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH, iLen-4);
+						sprintf(pcMsg, "Dimension mismatch in TOF data!\nClient expected: %d bytes\nServer sent: %d bytes", sizeof(int)*Config_TofLoader::GetImageCount()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth(), iLen-4);
 						QMessageBox::critical(0, "Cascade - Server", pcMsg, QMessageBox::Ok);
 						return;
 					}
@@ -271,7 +271,7 @@ class MainWindow : public QMainWindow
 				}
 	#else
 				// Unkomprimierte Daten umkopieren
-				memcpy(pvData, pcBuf+4, sizeof(int)*Config_TofLoader::IMAGE_COUNT*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH);
+				memcpy(pvData, pcBuf+4, sizeof(int)*Config_TofLoader::GetImageCount()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth());
 	#endif
 
 				//m_cascadewidget.ShowGraph();	// macht viewOverview schon
@@ -637,7 +637,7 @@ class MainWindow : public QMainWindow
 			sliderFolien = new QSlider(groupbottomleft);
 			sliderFolien->setOrientation(Qt::Horizontal);
 			sliderFolien->setMinimum(0);
-			sliderFolien->setMaximum(Config_TofLoader::FOIL_COUNT-1);
+			sliderFolien->setMaximum(Config_TofLoader::GetFoilCount()-1);
 			sliderFolien->setValue(0);
 			labelFolie->setText("Foil:");
 			//ChangeFolie(0);
@@ -649,7 +649,7 @@ class MainWindow : public QMainWindow
 			sliderZeitkanaele = new QSlider(groupbottomleft);
 			sliderZeitkanaele->setOrientation(Qt::Horizontal);
 			sliderZeitkanaele->setMinimum(0);
-			sliderZeitkanaele->setMaximum(Config_TofLoader::IMAGES_PER_FOIL-1);
+			sliderZeitkanaele->setMaximum(Config_TofLoader::GetImagesPerFoil()-1);
 			sliderZeitkanaele->setValue(0);
 			labelZeitkanal->setText("Time Channel:");
 			//ChangeZeitkanal(0);

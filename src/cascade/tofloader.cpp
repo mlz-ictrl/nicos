@@ -104,7 +104,7 @@ void Config_TofLoader::Init()
 	for(int i=0; i<FOIL_COUNT; ++i)
 		piFoilBegin[i] = g_iDefaultFoilBegin[i];
 	
-	// TODO: richtige Einstellungen holen
+	// TODO: richtige Einstellungen holen oder mit den Setter-Funktionen setzen
 #endif
 }
 
@@ -116,6 +116,54 @@ void Config_TofLoader::Deinit()
 		piFoilBegin = 0;
 	}
 }
+
+///////////////////////////////////////// Getter & Setter ////////////////////////////////
+int Config_TofLoader::GetLogLowerRange() { return LOG_LOWER_RANGE; }
+int Config_TofLoader::GetFoilCount() { return FOIL_COUNT; }
+int Config_TofLoader::GetImagesPerFoil() { return IMAGES_PER_FOIL; }
+int Config_TofLoader::GetImageWidth() { return IMAGE_WIDTH; }
+int Config_TofLoader::GetImageHeight() { return IMAGE_HEIGHT; }
+int Config_TofLoader::GetImageCount() { return IMAGE_COUNT; }
+
+int Config_TofLoader::GetFoilBegin(int iFoil)
+{
+	if(iFoil<0 || iFoil>=FOIL_COUNT) return -1;
+	return piFoilBegin[iFoil];
+}
+
+static inline int GetNextPowerOfTwo(int iNum)
+{
+	int i=0;
+	while(1)
+	{
+		if(iNum < (1<<i)) break;
+		++i;
+	}
+	return 1<<i;
+}
+
+void Config_TofLoader::SetFoilCount(int iNumFoils)
+{
+	Deinit();
+	FOIL_COUNT = iNumFoils;
+	piFoilBegin = new int[iNumFoils];
+	
+	for(int i=0; i<iNumFoils; ++i)					// halbvernünftige Default-Werte setzen
+		piFoilBegin[i] = GetNextPowerOfTwo(IMAGES_PER_FOIL)*i;	//
+}
+
+void Config_TofLoader::SetImagesPerFoil(int iNumImagesPerFoil) { IMAGES_PER_FOIL = iNumImagesPerFoil; }
+void Config_TofLoader::SetImageWidth(int iImgWidth) { IMAGE_WIDTH = iImgWidth; }
+void Config_TofLoader::SetImageHeight(int iImgHeight) { IMAGE_HEIGHT = iImgHeight; }
+void Config_TofLoader::SetImageCount(int iImgCount) { IMAGE_COUNT = iImgCount; }
+
+void Config_TofLoader::SetFoilBegin(int iFoil, int iOffs)
+{
+	if(iFoil<0 || iFoil>=FOIL_COUNT) return;
+	
+	piFoilBegin[iFoil] = iOffs;
+}
+//////////////////////////////////////////////////////////////////////////////////////////
 
 bool Config_TofLoader::GuessConfigFromSize(int iLen, bool bIsTof, bool bFirstCall)
 {
@@ -1270,7 +1318,7 @@ class Sinus : public ROOT::Minuit2::FCNBase
 			double dphase = params[0];
 			double damp = params[1];
 			double doffs = params[2];
-			double dscale = /*params[3]*/ 2.*M_PI/double(Config_TofLoader::IMAGES_PER_FOIL);	// fest
+			double dscale = /*params[3]*/ 2.*M_PI/double(Config_TofLoader::GetImagesPerFoil());	// fest
 			
 			// erzwingt, dass Amplituden-Fitparameter nicht negativ gewählt wird
 			if(damp<0.) return std::numeric_limits<double>::max();

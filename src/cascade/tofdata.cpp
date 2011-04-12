@@ -48,11 +48,11 @@ bool MainRasterData::GetLog10(void) const
 
 
 // *********************** PAD-Daten *********************** 
-PadData::PadData() : MainRasterData(QwtDoubleRect(0,Config_TofLoader::IMAGE_WIDTH,0,Config_TofLoader::IMAGE_HEIGHT))
+PadData::PadData() : MainRasterData(QwtDoubleRect(0,Config_TofLoader::GetImageWidth(),0,Config_TofLoader::GetImageHeight()))
 {
 }
 
-PadData::PadData(const PadData& pad) : MainRasterData(QwtDoubleRect(0,Config_TofLoader::IMAGE_WIDTH,0,Config_TofLoader::IMAGE_HEIGHT)), PadImage(pad)
+PadData::PadData(const PadData& pad) : MainRasterData(QwtDoubleRect(0,Config_TofLoader::GetImageWidth(),0,Config_TofLoader::GetImageHeight())), PadImage(pad)
 {
 	m_bLog = pad.m_bLog;
 }
@@ -76,8 +76,8 @@ QwtDoubleInterval PadData::range() const
 		double dTmpMax = m_iMax,
 			dTmpMin = m_iMin;
 		
-		if(dTmpMax>0.) dTmpMax = log10(dTmpMax); else dTmpMax=Config_TofLoader::LOG_LOWER_RANGE;
-		if(dTmpMin>0.) dTmpMin = log10(dTmpMin); else dTmpMin=Config_TofLoader::LOG_LOWER_RANGE;
+		if(dTmpMax>0.) dTmpMax = log10(dTmpMax); else dTmpMax=Config_TofLoader::GetLogLowerRange();
+		if(dTmpMin>0.) dTmpMin = log10(dTmpMin); else dTmpMin=Config_TofLoader::GetLogLowerRange();
 		
 		if(dTmpMax!=dTmpMax) dTmpMax=0.;
 		if(dTmpMin!=dTmpMin) dTmpMin=0.;
@@ -120,7 +120,7 @@ Data2D::Data2D(const QwtDoubleRect& rect) : MainRasterData(rect), m_bPhaseData(0
 {
 }
 
-Data2D::Data2D() : MainRasterData(QwtDoubleRect(0,Config_TofLoader::IMAGE_WIDTH,0,Config_TofLoader::IMAGE_HEIGHT))
+Data2D::Data2D() : MainRasterData(QwtDoubleRect(0,Config_TofLoader::GetImageWidth(),0,Config_TofLoader::GetImageHeight()))
 {
 }
 
@@ -169,8 +169,8 @@ QwtDoubleInterval Data2D::range() const
 	
 	if(m_bLog)
 	{
-		if(dTmpMax>0.) dTmpMax = log10(dTmpMax); else dTmpMax=Config_TofLoader::LOG_LOWER_RANGE;
-		if(dTmpMin>0.) dTmpMin = log10(dTmpMin); else dTmpMin=Config_TofLoader::LOG_LOWER_RANGE;
+		if(dTmpMax>0.) dTmpMax = log10(dTmpMax); else dTmpMax=Config_TofLoader::GetLogLowerRange();
+		if(dTmpMin>0.) dTmpMin = log10(dTmpMin); else dTmpMin=Config_TofLoader::GetLogLowerRange();
 		
 		if(dTmpMax!=dTmpMax) dTmpMax=0.;
 		if(dTmpMin!=dTmpMin) dTmpMin=0.;

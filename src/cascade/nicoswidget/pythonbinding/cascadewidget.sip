@@ -4,6 +4,30 @@
 %Import QtCore/QtCoremod.sip
 %Import Qwt5/QwtModule.sip
 
+
+// globale Konfigurationsklasse
+class Config_TofLoader
+{
+%TypeHeaderCode
+#include "../../tofloader.h"
+%End
+	public:
+		static int GetFoilCount();
+		static int GetImagesPerFoil();
+		static int GetImageWidth();
+		static int GetImageHeight();
+		static int GetImageCount();
+		static int GetFoilBegin(int iFoil);
+		
+		static void SetFoilCount(int iNumFoils);
+		static void SetImagesPerFoil(int iNumImagesPerFoil);
+		static void SetImageWidth(int iImgWidth);
+		static void SetImageHeight(int iImgHeight);
+		static void SetImageCount(int iImgCount);
+		static void SetFoilBegin(int iFoil, int iOffs);
+};
+
+
 /////////////////////////////////////////////////////////////////////////////////////
 // GraphDlg
 // eigentlich nicht nötig, ihn zu exportieren, da ebenfalls über CascadeWidget::showGraphDlg() aufrufbar

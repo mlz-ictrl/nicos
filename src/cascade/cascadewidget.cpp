@@ -132,8 +132,8 @@ void Plot::InitPlot()
 	rightAxis->setColorBarEnabled(true);
 	rightAxis->setColorMap(m_pSpectrogram->data().range(),m_pSpectrogram->colorMap());
 
-	setAxisScale(QwtPlot::yLeft,0,Config_TofLoader::IMAGE_HEIGHT);
-	setAxisScale(QwtPlot::xBottom,0,Config_TofLoader::IMAGE_WIDTH);
+	setAxisScale(QwtPlot::yLeft,0,Config_TofLoader::GetImageHeight());
+	setAxisScale(QwtPlot::xBottom,0,Config_TofLoader::GetImageWidth());
 	setAxisScale(QwtPlot::yRight,m_pSpectrogram->data().range().minValue(),m_pSpectrogram->data().range().maxValue());
 	enableAxis(QwtPlot::yRight);
 
@@ -439,7 +439,7 @@ void CascadeWidget::UpdateGraph()
 		if(m_iMode==MODE_SLIDES)
 		{
 			m_pdata2d->clearData();
-			m_pTof->GetROI(0,Config_TofLoader::IMAGE_WIDTH-1,0,Config_TofLoader::IMAGE_HEIGHT-1,m_iFolie,m_iZeitkanal,m_pdata2d);
+			m_pTof->GetROI(0,Config_TofLoader::GetImageWidth()-1,0,Config_TofLoader::GetImageHeight()-1,m_iFolie,m_iZeitkanal,m_pdata2d);
 		}
 		else if(m_iMode==MODE_PHASES)
 		{
@@ -597,13 +597,13 @@ void CascadeWidget::showCalibrationDlg(int iNumBins)
 	iROIy2 = rect.bottom();
 	
 	TmpImage tmpimg[4];
-	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+	for(int iFolie=0; iFolie<Config_TofLoader::GetFoilCount(); ++iFolie)
 		GetTof()->GetPhaseGraph(iFolie, &tmpimg[iFolie], iROIx1, iROIx2, iROIy1, iROIy2, true);
 	
 	int iW = iROIx2-iROIx1; if(iW<0) iW=-iW;
 	int iH = iROIy2-iROIy1; if(iH<0) iH=-iH;
 	
-	for(int iFolie=/*1*/0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
+	for(int iFolie=/*1*/0; iFolie<Config_TofLoader::GetFoilCount(); ++iFolie)
 		for(int iY=0; iY<iH; ++iY)
 			for(int iX=0; iX<iW; ++iX)
 			{

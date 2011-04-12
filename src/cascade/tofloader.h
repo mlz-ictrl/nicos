@@ -36,34 +36,58 @@
 	#define NULL	0
 #endif
 
-struct Config_TofLoader
+class TmpImage;
+class TmpGraph;
+class TofImage;
+class PadImage;
+
+class Config_TofLoader
 {
-	static int FOIL_COUNT;
+	friend class TmpImage;
+	friend class TmpGraph;
+	friend class TofImage;
+	friend class PadImage;
+	
+	protected:
+		static int FOIL_COUNT;
 
-	// wieviele Zeitkanaele pro Folie?
-	static int IMAGES_PER_FOIL;
+		// wieviele Zeitkanaele pro Folie?
+		static int IMAGES_PER_FOIL;
 
-	static int IMAGE_WIDTH;
-	static int IMAGE_HEIGHT;
-	static int IMAGE_COUNT;
+		static int IMAGE_WIDTH;
+		static int IMAGE_HEIGHT;
+		static int IMAGE_COUNT;
 
-	// Folienbeginn
-	static int *piFoilBegin;
-	
-	static int iPhaseBlockSize[2];
-	static int iContrastBlockSize[2];
-	
-	static double LOG_LOWER_RANGE;
-	
-	static void Init();
-	static void Deinit();
-	
-	// iLen in Ints, nicht Bytes
-	static bool GuessConfigFromSize(int iLen, bool bIsTof, bool bFirstCall=true);
+		// Folienbeginn
+		static int *piFoilBegin;
+		
+		static int iPhaseBlockSize[2];
+		static int iContrastBlockSize[2];
+		
+		static double LOG_LOWER_RANGE;
+
+	public:
+		// iLen in Ints, nicht Bytes
+		static bool GuessConfigFromSize(int iLen, bool bIsTof, bool bFirstCall=true);		
+		static void Init();
+		static void Deinit();
+		
+		static int GetLogLowerRange();
+		static int GetFoilCount();
+		static int GetImagesPerFoil();
+		static int GetImageWidth();
+		static int GetImageHeight();
+		static int GetImageCount();
+		static int GetFoilBegin(int iFoil);
+		
+		static void SetFoilCount(int iNumFoils);
+		static void SetImagesPerFoil(int iNumImagesPerFoil);
+		static void SetImageWidth(int iImgWidth);
+		static void SetImageHeight(int iImgHeight);
+		static void SetImageCount(int iImgCount);
+		static void SetFoilBegin(int iFoil, int iOffs);
 };
 
-class TmpImage;
-class TofImage;
 
 #define LOAD_SUCCESS		 1
 #define LOAD_FAIL		 0
