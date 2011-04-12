@@ -747,16 +747,18 @@ void TofImage::GetPhaseGraph(int iFolie, TmpImage *pImg, int iStartX, int iEndX,
 	if(pImg==NULL) return;
 	CheckArguments(&iStartX, &iEndX, &iStartY, &iEndY);
 
+	//std::cout << iStartX << " " << iEndX << " " << iStartY << " " << iEndY << std::endl;
 	pImg->Clear();
 	pImg->m_iW = iEndX-iStartX;
 	pImg->m_iH = iEndY-iStartY;
 	
-	double *pdWave = CreateDoubleWave(NULL,pImg->m_iW,pImg->m_iH);
+	const int XSIZE = Config_TofLoader::iPhaseBlockSize[0],
+		  YSIZE = Config_TofLoader::iPhaseBlockSize[1];	
+	
+	double *pdWave = CreateDoubleWave(NULL,pImg->m_iW+XSIZE,pImg->m_iH+YSIZE);
 	if(pdWave==NULL) return;
 	pImg->m_pdDaten = pdWave;
 		
-	const int XSIZE = Config_TofLoader::iPhaseBlockSize[0],
-		  YSIZE = Config_TofLoader::iPhaseBlockSize[1];
 	for(int iY=iStartY; iY<iEndY; iY+=YSIZE)
 		for(int iX=iStartX; iX<iEndX; iX+=XSIZE)
 		{	
