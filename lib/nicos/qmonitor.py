@@ -218,7 +218,7 @@ class Monitor(BaseCacheClient):
 
         field_defaults = {
             # display/init properties
-            'name': '', 'dev': '', 'width': 9, 'istext': False, 'maxlen': None,
+            'name': '', 'dev': '', 'width': 8, 'istext': False, 'maxlen': None,
             'min': None, 'max': None, 'unit': '', 'format': '%s',
             # current values
             'value': None, 'time': 0, 'ttl': 0, 'status': None, 'changetime': 0,
