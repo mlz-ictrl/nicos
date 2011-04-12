@@ -44,7 +44,7 @@ from nicos.detector import FRMTimerChannel, FRMCounterChannel
 
 class VirtualMotor(Motor, HasOffset):
     parameters = {
-        'speed':     Param('Virtual speed of the device'),
+        'speed':     Param('Virtual speed of the device', settable=True),
         'jitter':    Param('Jitter of the read value', default=0),
         'curvalue':  Param('Current value', settable=True),
         'curstatus': Param('Current status', type=tupleof(int, str),
@@ -56,6 +56,7 @@ class VirtualMotor(Motor, HasOffset):
         self.curstatus = (status.BUSY, 'virtual moving')
         if self.speed != 0:
             thread = threading.Thread(target=self.__moving, args=(pos,))
+            thread.setDaemon(True)
             thread.start()
         else:
             self.printdebug('moving to %s' % pos)
@@ -73,12 +74,12 @@ class VirtualMotor(Motor, HasOffset):
             time.sleep(0.5)
 
     def __moving(self, pos):
-        incr = self.speed
+        incr = 0.2 * self.speed
         delta = pos - self.doRead()
         steps = int(abs(delta) / incr)
         incr = delta < 0 and -incr or incr
         for i in range(steps):
-            time.sleep(0.1)
+            time.sleep(0.2)
             self.printdebug('thread moving to %s' % (self.curvalue + incr))
             self.curvalue += incr
         self.curvalue = pos
