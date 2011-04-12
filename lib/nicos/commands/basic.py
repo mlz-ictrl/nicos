@@ -161,6 +161,14 @@ def NewExperiment(proposalnumber, title):
     session.experiment.new(proposalnumber, title)
 
 @usercommand
+def NewUser(name, email, affiliation=None):
+    session.experiment.addUser(name, email, affiliation)
+
+@usercommand
+def NewSample(name):
+    session.experiment.sample.samplename = name
+
+@usercommand
 def SaveState():
     """Return statements that restore the current state."""
     ret = ['NewSetup(%r)\n' % session.explicit_setups[0]]

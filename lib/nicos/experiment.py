@@ -107,6 +107,10 @@ class Experiment(Device):
         return dataset
 
     @property
+    def sample(self):
+        return self._adevs['sample']
+
+    @property
     def detectors(self):
         return self._detlist
 
