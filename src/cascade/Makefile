@@ -1,5 +1,5 @@
 #
-# Makefile für den Cascade-Qt-Client
+# Makefile für den Cascade-Qt-Client und die Nicos-Module
 #
 
 COMPILER	= gcc
@@ -7,11 +7,12 @@ FLAGS		= -O2 -D __CASCADE_QT_CLIENT__
 LIBS		= -lQtCore -lQtGui -lQtNetwork -lqwt -lMinuit2 -lgomp -lxml++-2.6
 INCLUDES	= -I /usr/include/Qt -I /usr/include/QtCore -I /usr/include/QtGui
 
+
 all: cascade
 
 
 
-###################### cascade ##########################
+###################### cascade-qt-client ################
 cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o
 	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o
 #########################################################
@@ -73,13 +74,24 @@ clean:
 	rm -f *.moc
 	rm -f *.o
 	rm -f cascade
+	
 	rm -f nicosclient/*.a nicosclient/pythonbinding/*.so
+	rm -f nicosclient/*.o nicosclient/pythonbinding/*.o
+	rm -f nicosclient/moc_*
+	rm -f nicosclient/pythonbinding/sip*.cpp nicosclient/pythonbinding/sip*.h
+	rm -f nicosclient/pythonbinding/*.exp nicosclient/pythonbinding/*.sbf
+	
 	rm -f nicoswidget/*.a nicoswidget/pythonbinding/*.so
+	rm -f nicoswidget/*.o nicoswidget/pythonbinding/*.o
+	rm -f nicoswidget/moc_*
+	rm -f nicoswidget/pythonbinding/sip*.cpp nicoswidget/pythonbinding/sip*.h
+	rm -f nicoswidget/pythonbinding/*.exp nicoswidget/pythonbinding/*.sbf
 ###################################################
 
 
-#################### NICOS-Libraries #####################
 
+
+#################### NICOS-Libraries #####################
 nicosmodules: nicosclient/pythonbinding/cascadeclient.so nicoswidget/pythonbinding/cascadewidget.so
 
 nicosclient/libcascadeclient.a:
@@ -93,3 +105,4 @@ nicoswidget/libcascadewidget.a:
 
 nicoswidget/pythonbinding/cascadewidget.so: nicoswidget/pythonbinding/cascadewidget.sip nicoswidget/libcascadewidget.a
 	-cd nicoswidget/pythonbinding && python configure.py && make
+##########################################################

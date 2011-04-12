@@ -152,7 +152,7 @@ Q_OBJECT
 	public slots:
 		void viewOverview();		// alle Folien aller Zeitkanaele aufsummieren
 		void viewSlides();		// einzelne Folie anzeigen
-		void viewPhases();		// Phasen 
+		void viewPhases();		// Phasen
 		void viewContrasts();		// Kontraste
 		
 		void viewFoilSums(const bool* pbKanaele);
