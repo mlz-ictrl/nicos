@@ -288,6 +288,7 @@ class CacheClient(BaseCacheClient):
         self._ismaster = False
         self._master_expires = 0
         self._mastertimeout = self._selecttimeout * 10
+        self._callbacks = {}
 
     def _wait_data(self):
         if self._ismaster:
@@ -304,8 +305,16 @@ class CacheClient(BaseCacheClient):
         if value is None:
             self._db.pop(key, None)
         else:
-            self._db[key] = (cache_load(value),
-                             time and float(time), ttl and float(ttl))
+            value = cache_load(value)
+            self._db[key] = (value, time and float(time), ttl and float(ttl))
+        if key in self._callbacks:
+            self._callbacks[key](key, value)
+
+    def addCallback(self, dev, key, function):
+        self._callbacks['%s/%s' % (dev.name.lower(), key)] = function
+
+    def removeCallback(self, dev, key):
+        self._callbacks.pop('%s/%s' % (dev.name.lower(), key), None)
 
     def get(self, dev, key):
         self._startup_done.wait()

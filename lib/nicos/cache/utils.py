@@ -88,6 +88,8 @@ def cache_dump(obj):
             res.append(cache_dump(value))
             res.append(',')
         res.append('}')
+    elif obj is None:
+        return 'None'
     else:
         raise ValueError('unserializable object: %r' % obj)
     return ''.join(res)
