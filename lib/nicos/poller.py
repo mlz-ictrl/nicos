@@ -42,7 +42,7 @@ import signal
 import threading
 import subprocess
 
-from nicos import session
+from nicos import status, session
 from nicos.utils import dictof, listof, whyExited
 from nicos.device import Device, Readable, Param
 from nicos.errors import NicosError
@@ -67,44 +67,66 @@ class Poller(Device):
                 return
             time.sleep(5)
 
-    def _worker_thread(self, devname):
-        while not self._stoprequest:
-            try:
-                with self._creation_lock:
-                    dev = session.getDevice(devname, Readable)
-            except NicosError, err:
-                self.printwarning('error creating %s, trying again in %d sec' %
-                                  (devname, 30), exc=err)
-                self._long_sleep(30)
-                continue
-            else:
-                interval = dev.pollinterval
-                if interval > 5:
-                    sleeper = self._long_sleep
+    def _worker_thread(self, devname, event):
+        state = ['unused']
+
+        def reconfigure(key, value):
+            if key.endswith('target'):
+                state[0] = 'moving'
+            elif key.endswith('pollinterval'):
+                state[0] = 'newinterval'
+            event.set()
+
+        def poll_loop(dev):
+            wait_event = event.wait
+            clear_event = event.clear
+            interval = dev.pollinterval
+            errcount = 0
+            i = 0
+            while not self._stoprequest:
+                i += 1
+                try:
+                    stval, rdval = dev.poll(i)
+                    self.printdebug('%-10s status = %-25s, value = %s' %
+                                    (dev, stval, rdval))
+                except Exception, err:
+                    if errcount < 5:
+                        # only print the warning the first five times
+                        self.printwarning('error reading %s' % dev, exc=err)
+                    elif errcount == 5:
+                        # make the interval a bit larger
+                        interval *= 5
+                    errcount += 1
                 else:
-                    sleeper = time.sleep
-                errcount = 0
-                i = 0
-                while not self._stoprequest:
-                    try:
-                        stval, rdval = dev.poll(i)
-                        self.printdebug('%-10s status = %-25s, value = %s' %
-                                        (dev, stval, rdval))
-                    except Exception, err:
-                        if errcount < 5:
-                            # only print the warning the first five times
-                            self.printwarning('error reading %s' % dev, exc=err)
-                        elif errcount == 5:
-                            # make the interval a bit larger
-                            interval *= 5
-                        errcount += 1
-                    else:
-                        if errcount > 0:
+                    if errcount > 0:
+                        interval = dev.pollinterval
+                        errcount = 0
+                    if state[0] == 'moving':
+                        interval = 0.5
+                        if stval[0] != status.BUSY:
+                            state[0] = 'normal'
                             interval = dev.pollinterval
-                            errcount = 0
-                    sleeper(interval)
-                    i += 1
-                break
+                    elif state[0] == 'newinterval':
+                        interval = dev.pollinterval
+                        state[0] = 'normal'
+                wait_event(interval)
+                clear_event()
+
+        dev  = None
+        while not self._stoprequest:
+            if dev is None:
+                try:
+                    with self._creation_lock:
+                        dev = session.getDevice(devname, Readable)
+                    session.cache.addCallback(dev, 'target', reconfigure)
+                    session.cache.addCallback(dev, 'pollinterval', reconfigure)
+                    state = ['normal']
+                except NicosError, err:
+                    self.printwarning('error creating %s, trying again in '
+                                      '%d sec' % (devname, 30), exc=err)
+                    self._long_sleep(30)
+                    continue
+            poll_loop(dev)
 
     def start(self, process=None):
         self._process = process
@@ -114,7 +136,10 @@ class Poller(Device):
         devices = self.processes[process]
         for devname in devices:
             self.printinfo('starting thread for %s' % devname)
-            worker = threading.Thread(target=self._worker_thread, args=(devname,))
+            event = threading.Event()
+            worker = threading.Thread(target=self._worker_thread,
+                                      args=(devname, event))
+            worker.event = event
             worker.setDaemon(True)
             worker.start()
             self._workers.append(worker)
@@ -134,6 +159,8 @@ class Poller(Device):
             return  # already quitting
         self.printinfo('poller quitting...')
         self._stoprequest = True
+        for worker in self._workers:
+            worker.event.set()
         for worker in self._workers:
             worker.join()
         self.printinfo('poller finished')
