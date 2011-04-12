@@ -111,7 +111,7 @@ class GraphDlg : public QDialog, public Ui::GraphDlg
 
 
 // ************************* Summierungs-Dialog mit Zeitkanälen ***********************
-class FolienSummeDlg : public QDialog, public Ui::FolienSummeDlg
+class SumDlg : public QDialog, public Ui::FolienSummeDlg
 {
 	Q_OBJECT
 	
@@ -128,18 +128,18 @@ class FolienSummeDlg : public QDialog, public Ui::FolienSummeDlg
 		void TreeWidgetClicked(QTreeWidgetItem *item, int column);
 		
 	public:
-		FolienSummeDlg(QWidget *pParent);
-		virtual ~FolienSummeDlg();
+		SumDlg(QWidget *pParent);
+		virtual ~SumDlg();
 		void SetMode(int iMode);
 		
 	signals:
-		void FolienSummeSignal(bool *pbKanaele, int iMode);		
+		void SumSignal(bool *pbKanaele, int iMode);
 };
 // ********************************************************************
 
 
 // ************************* Summierungs-Dialog ohne Zeitkanäle ***********************
-class FolienSummeDlgOhneKanaele : public QDialog, public Ui::FolienSummeDlg
+class SumDlgNoChannels : public QDialog, public Ui::FolienSummeDlg
 {
 	Q_OBJECT
 		
@@ -154,12 +154,12 @@ class FolienSummeDlgOhneKanaele : public QDialog, public Ui::FolienSummeDlg
 		void SelectNone();
 		
 	public:
-		FolienSummeDlgOhneKanaele(QWidget *pParent);		
-		virtual ~FolienSummeDlgOhneKanaele();
+		SumDlgNoChannels(QWidget *pParent);
+		virtual ~SumDlgNoChannels();
 		void SetMode(int iMode);
 		
 	signals:
-		void FolienSummeSignal(bool *pbKanaele, int iMode);		
+		void SumSignal(bool *pbKanaele, int iMode);
 };
 // ********************************************************************
 

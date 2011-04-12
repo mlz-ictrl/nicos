@@ -5,6 +5,7 @@
 %Import Qwt5/QwtModule.sip
 
 /////////////////////////////////////////////////////////////////////////////////////
+// sub dialogs
 class GraphDlg : QDialog
 {
 %TypeHeaderCode
@@ -15,6 +16,34 @@ class GraphDlg : QDialog
 		GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie);
 		virtual ~GraphDlg();
 };
+
+/*class SumDlg : QDialog, Ui::FolienSummeDlg
+{
+%TypeHeaderCode
+#include "../../cascadedialogs.h"
+%End
+	public:
+		SumDlg(QWidget *pParent);
+		virtual ~SumDlg();
+		void SetMode(int iMode);
+		
+	signals:
+		void SumSignal(bool *pbKanaele, int iMode);
+};
+
+class SumDlgNoChannels : QDialog, Ui::FolienSummeDlg
+{
+%TypeHeaderCode
+#include "../../cascadedialogs.h"
+%End
+	public:
+		SumDlgNoChannels(QWidget *pParent);
+		virtual ~SumDlgNoChannels();
+		void SetMode(int iMode);
+		
+	signals:
+		void SumSignal(bool *pbKanaele, int iMode);
+};*/
 /////////////////////////////////////////////////////////////////////////////////////
 
 

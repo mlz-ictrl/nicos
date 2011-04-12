@@ -68,7 +68,7 @@ CalibrationDlg::~CalibrationDlg()
 
 
 // ************************* Summierungs-Dialog mit Zeitkanälen ***********************
-void FolienSummeDlg::ShowIt()
+void SumDlg::ShowIt()
 {
 	bool *pbChecked = new bool[Config_TofLoader::FOIL_COUNT*Config_TofLoader::IMAGES_PER_FOIL];
 	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
@@ -79,11 +79,11 @@ void FolienSummeDlg::ShowIt()
 			pbChecked[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal] = bChecked;
 		}
 	}
-	emit FolienSummeSignal(pbChecked, m_iMode);
+	emit SumSignal(pbChecked, m_iMode);
 	delete[] pbChecked;
 }
 
-void FolienSummeDlg::SelectAll()
+void SumDlg::SelectAll()
 {
 	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
 	{
@@ -93,7 +93,7 @@ void FolienSummeDlg::SelectAll()
 	}
 }
 
-void FolienSummeDlg::SelectNone()
+void SumDlg::SelectNone()
 {
 	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
 	{
@@ -103,7 +103,7 @@ void FolienSummeDlg::SelectNone()
 	}
 }
 
-void FolienSummeDlg::TreeWidgetClicked(QTreeWidgetItem *item, int column)
+void SumDlg::TreeWidgetClicked(QTreeWidgetItem *item, int column)
 {
 	int iFolie;
 	for(iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
@@ -114,7 +114,7 @@ void FolienSummeDlg::TreeWidgetClicked(QTreeWidgetItem *item, int column)
 		m_pTreeItems[iFolie*Config_TofLoader::IMAGES_PER_FOIL + iKanal]->setCheckState(0,m_pTreeItemsFolien[iFolie]->checkState(0));
 }
 
-FolienSummeDlg::FolienSummeDlg(QWidget *pParent) : QDialog(pParent)
+SumDlg::SumDlg(QWidget *pParent) : QDialog(pParent)
 {
 	setupUi(this);
 	
@@ -144,18 +144,18 @@ FolienSummeDlg::FolienSummeDlg(QWidget *pParent) : QDialog(pParent)
 	connect(pushButtonSelectNone, SIGNAL(clicked()), this, SLOT(SelectNone()));
 }
 
-FolienSummeDlg::~FolienSummeDlg()
+SumDlg::~SumDlg()
 {
 	delete[] m_pTreeItemsFolien; m_pTreeItemsFolien = 0;
 	delete[] m_pTreeItems; m_pTreeItems = 0;
 }
 
-void FolienSummeDlg::SetMode(int iMode) { m_iMode = iMode; }
+void SumDlg::SetMode(int iMode) { m_iMode = iMode; }
 // ********************************************************************
 
 
 // ************************* Summierungs-Dialog ohne Zeitkanäle ***********************
-void FolienSummeDlgOhneKanaele::ShowIt()
+void SumDlgNoChannels::ShowIt()
 {
 	bool *pbChecked = new bool[Config_TofLoader::FOIL_COUNT];
 	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
@@ -163,23 +163,23 @@ void FolienSummeDlgOhneKanaele::ShowIt()
 		bool bChecked = (m_pTreeItemsFolien[iFolie]->checkState(0)==Qt::Checked);
 		pbChecked[iFolie] = bChecked;
 	}
-	emit FolienSummeSignal(pbChecked, m_iMode);
+	emit SumSignal(pbChecked, m_iMode);
 	delete[] pbChecked;
 }
 
-void FolienSummeDlgOhneKanaele::SelectAll()
+void SumDlgNoChannels::SelectAll()
 {
 	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
 		m_pTreeItemsFolien[iFolie]->setCheckState(0,Qt::Checked);
 }
 
-void FolienSummeDlgOhneKanaele::SelectNone()
+void SumDlgNoChannels::SelectNone()
 {
 	for(int iFolie=0; iFolie<Config_TofLoader::FOIL_COUNT; ++iFolie)
 		m_pTreeItemsFolien[iFolie]->setCheckState(0,Qt::Unchecked);
 }
 
-FolienSummeDlgOhneKanaele::FolienSummeDlgOhneKanaele(QWidget *pParent) : QDialog(pParent)
+SumDlgNoChannels::SumDlgNoChannels(QWidget *pParent) : QDialog(pParent)
 {
 	setupUi(this);
 	m_pTreeItemsFolien = new QTreeWidgetItem*[Config_TofLoader::FOIL_COUNT];
@@ -198,12 +198,12 @@ FolienSummeDlgOhneKanaele::FolienSummeDlgOhneKanaele(QWidget *pParent) : QDialog
 	connect(pushButtonSelectNone, SIGNAL(clicked()), this, SLOT(SelectNone()));
 }
 
-FolienSummeDlgOhneKanaele::~FolienSummeDlgOhneKanaele()
+SumDlgNoChannels::~SumDlgNoChannels()
 {
 	delete[] m_pTreeItemsFolien; m_pTreeItemsFolien = 0;
 }
 
-void FolienSummeDlgOhneKanaele::SetMode(int iMode) { m_iMode = iMode; }
+void SumDlgNoChannels::SetMode(int iMode) { m_iMode = iMode; }
 // ********************************************************************
 
 
