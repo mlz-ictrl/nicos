@@ -356,8 +356,8 @@ class TacoAxis(TacoDevice, BaseAxis):
         return self._taco_guard(self._dev.read) - self.offset
 
     def doReset(self):
-        # XXX is this correct? deviceReset does a reference drive...
-        self._taco_guard(self._dev.deviceInit)
+        self._taco_guard(self._dev.deviceReset)
+        self._taco_guard(self._dev.deviceOn)
 
     def doSetPosition(self, target):
         self._taco_guard(self._dev.setpos, target)
@@ -368,6 +368,8 @@ class TacoAxis(TacoDevice, BaseAxis):
             return (status.OK, 'idle')
         elif state in (TACOStates.MOVING, TACOStates.STOP_REQUESTED):
             return (status.BUSY, 'moving')
+        elif state == TACOStates.INIT:
+            return (status.BUSY, 'referencing')
         else:
             return (status.ERROR, TACOStates.stateDescription(state))
 
@@ -376,9 +378,11 @@ class TacoAxis(TacoDevice, BaseAxis):
 
     def _ref(self):
         # reference the axis (do not use with encoded axes)
+        motorname = self._taco_guard(self._dev.deviceQueryResource, 'motor')
+        client = TACOMotor(motorname)
         self.printinfo('referencing the axis, please wait...')
-        self._taco_guard(self._dev.deviceReset)
-        while self._taco_guard(self._dev.deviceState) == TACOStates.INIT:
+        self._taco_guard(client.deviceReset)
+        while self._taco_guard(client.deviceState) == TACOStates.INIT:
             sleep(0.1)
         self.printinfo('reference drive complete, position is now ' +
                        self.format(self.doRead()))
@@ -506,3 +510,14 @@ class HoveringAxis(TacoAxis):
     def doWait(self):
         if self._poll_thread:
             self._poll_thread.join()
+
+    def doStatus(self):
+        state = self._taco_guard(self._dev.deviceState)
+        if state in (TACOStates.DEVICE_NORMAL, TACOStates.STOPPED,
+                     TACOStates.LOCAL):
+            # LOCAL means: both limit switches active
+            return (status.OK, 'idle')
+        elif state in (TACOStates.MOVING, TACOStates.STOP_REQUESTED):
+            return (status.BUSY, 'moving')
+        else:
+            return (status.ERROR, TACOStates.stateDescription(state))
