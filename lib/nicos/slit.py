@@ -146,6 +146,8 @@ class Slit(Moveable):
     def doReset(self):
         for ax in self._axes:
             ax.reset()
+        for ax in self._axes:
+            ax.wait()
 
     def doWait(self):
         for ax in self._axes:
@@ -173,17 +175,19 @@ class Slit(Moveable):
     def doStatus(self):
         svalues = map(lambda d: d.status(), self._axes)
         return max(s[0] for s in svalues), 'axis status: ' + \
-               ', '.join('%s=%s' % (s[1], n)
+               ', '.join('%s=%s' % (n, s[1])
                          for (s, n) in zip(svalues, self._axnames))
 
     def doReadUnit(self):
         return self._adevs['left'].unit
     
     def doWriteOpmode(self, value):
-        if value in ('4blades', 'offcentered'):
+        if value == '4blades':
             self.fmtstr = '%.2f %.2f %.2f %.2f'
+        elif value == 'offcentered':
+            self.fmtstr = '(%.2f, %.2f) %.2f x %.2f'
         else:
-            self.fmtstr = '%.2f %.2f'
+            self.fmtstr = '%.2f x %.2f'
 
 
 class SlitAxis(Moveable):
