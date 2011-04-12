@@ -550,17 +550,6 @@ class Startable(Readable):
             return self.read()
         return self.start(pos)
 
-    def stop(self):
-        """Stop main action of the device."""
-        if self._mode == 'slave':
-            raise ModeError(self, 'stop not possible in slave mode')
-        elif self._mode == 'simulation':
-            return
-        if self.__isFixed:
-            raise FixedError(self, 'use release() first')
-        if hasattr(self, 'doStop'):
-            self.doStop()
-
     def wait(self):
         """Wait until main action of device is completed.
         Return current value after waiting.
@@ -605,13 +594,13 @@ class Moveable(Startable):
 
     def __init__(self, name, **config):
         Startable.__init__(self, name, **config)
-        self.__isFixed = False
+        self._isFixed = False
 
     def start(self, pos):
         """Start main action of the device."""
         if self._mode == 'slave':
             raise ModeError(self, 'start not possible in slave mode')
-        if self.__isFixed:
+        if self._isFixed:
             raise FixedError(self, 'use release() first')
         ok, why = self.isAllowed(pos)
         if not ok:
@@ -627,21 +616,34 @@ class Moveable(Startable):
 
     move = start
 
+    def stop(self):
+        """Stop main action of the device."""
+        if self._mode == 'slave':
+            raise ModeError(self, 'stop not possible in slave mode')
+        elif self._mode == 'simulation':
+            return
+        if self._isFixed:
+            raise FixedError(self, 'use release() first')
+        if hasattr(self, 'doStop'):
+            self.doStop()
+        if self._cache:
+            self._cache.invalidate(self, 'value')
+
     def fix(self):
         """Fix the device, i.e. don't allow movement anymore."""
-        if self.__isFixed:
+        if self._isFixed:
             return
         if hasattr(self, 'doFix'):
             self.doFix()
-        self.__isFixed = True
+        self._isFixed = True
 
     def release(self):
         """Release the device, i.e. undo the effect of fix()."""
-        if not self.__isFixed:
+        if not self._isFixed:
             return
         if hasattr(self, 'doRelease'):
             self.doRelease()
-        self.__isFixed = False
+        self._isFixed = False
 
 
 class HasLimits(Startable):

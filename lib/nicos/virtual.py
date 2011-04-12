@@ -73,12 +73,21 @@ class VirtualMotor(Motor, HasOffset):
         while self.curstatus[0] == status.BUSY:
             time.sleep(0.5)
 
+    def doStop(self):
+        self._stop = True
+
     def __moving(self, pos):
+        self._stop = False
         incr = 0.2 * self.speed
         delta = pos - self.doRead()
         steps = int(abs(delta) / incr)
         incr = delta < 0 and -incr or incr
         for i in range(steps):
+            if self._stop:
+                self.printdebug('thread stopped')
+                self.curstatus = (status.OK, 'idle')
+                self._stop = False
+                return
             time.sleep(0.2)
             self.printdebug('thread moving to %s' % (self.curvalue + incr))
             self.curvalue += incr
