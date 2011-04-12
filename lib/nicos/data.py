@@ -69,6 +69,8 @@ class Dataset(object):
     multistep = []
     # list of detectors for this dataset
     detlist = []
+    # list of environment devices for this dataset
+    envlist = []
     # preset dictionary of scan
     preset = {}
     # scan info
@@ -198,7 +200,8 @@ class ConsoleSink(DataSink):
             point = num
         printinfo('\t'.join(
             [point] +
-            [dev.format(val) for (dev, val) in zip(dataset.devices, xvalues)] +
+            [dev.format(val) for (dev, val) in
+             zip(dataset.devices + dataset.envlist, xvalues)] +
             [str(val) for val in yvalues]).expandtabs())
 
     def endDataset(self, dataset):
@@ -391,7 +394,8 @@ class AsciiDatafileSink(DatafileSink):
             self._file.write('%s %s\n' % (self._scomment,
                                           '\t'.join(self._colunits)))
             self._wrote_columninfo = True
-        xv = [dev.format(val) for (dev, val) in zip(dataset.devices, xvalues)]
+        xv = [dev.format(val) for (dev, val) in
+              zip(dataset.devices + dataset.envlist, xvalues)]
         yv = map(str, yvalues)
         if self.semicolon:
             values = xv + [';'] + yv

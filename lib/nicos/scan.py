@@ -31,9 +31,11 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from nicos import session
+import time
+
+from nicos import session, status
 from nicos.errors import NicosError, LimitError, FixedError
-from nicos.device import Measurable
+from nicos.device import Measurable, Readable
 from nicos.commands.output import printwarning, printinfo
 from nicos.commands.measure import _count
 
@@ -55,10 +57,13 @@ class Scan(object):
     """
 
     def __init__(self, devices, positions, firstmoves=None, multistep=None,
-                 detlist=None, preset=None, scaninfo=None, scantype=None):
+                 detlist=None, envlist=None, preset=None, scaninfo=None,
+                 scantype=None):
         self.dataset = session.experiment.createDataset(scantype)
         if not detlist:
             detlist = session.experiment.detectors
+        if not envlist:
+            envlist = session.experiment.sampleenv
         self._firstmoves = firstmoves
         self._multistep = self.dataset.multistep = multistep
         if self._multistep:
@@ -68,6 +73,7 @@ class Scan(object):
         self._devices = self.dataset.devices = devices
         self._positions = self.dataset.positions = positions
         self._detlist = self.dataset.detlist = detlist
+        self._envlist = self.dataset.envlist = envlist
         self._preset = self.dataset.preset = preset
         self.dataset.scaninfo = scaninfo
         self._sinks = self.dataset.sinks
@@ -90,7 +96,7 @@ class Scan(object):
         dataset.results = []
         dataset.sinkinfo = []
         dataset.xnames, dataset.xunits = [], []
-        for dev in self._devices:
+        for dev in self._devices + self._envlist:
             dataset.xnames.append(dev.name)
             dataset.xunits.append(dev.unit)
         dataset.yvalueinfo = sum((det.valueInfo() for det in dataset.detlist), ())
@@ -182,6 +188,10 @@ class Scan(object):
     def readPosition(self):
         return [dev.read() for dev in self._devices]
 
+    def readEnvironment(self, start, finished):
+        # XXX take history mean, warn if values deviate too much?
+        return [dev.read() for dev in self._envlist]
+
     def run(self):
         # move all devices to starting position before starting scan
         can_measure = self.prepareScan()
@@ -195,6 +205,7 @@ class Scan(object):
                         can_measure = self.moveTo(position)
                     if not can_measure:
                         continue
+                    started = time.time()
                     actualpos = self.readPosition()
                     if self._multistep:
                         result = []
@@ -205,11 +216,46 @@ class Scan(object):
                     else:
                         session.action('Counting')
                         result = list(_count(self._detlist, self._preset))
+                    finished = time.time()
+                    actualpos += self.readEnvironment(started, finished)
                     self.addPoint(actualpos, result)
                 finally:
                     self.finishPoint()
         finally:
             self.endScan()
+
+
+class ElapsedTime(Readable):
+    temporary = True
+    def doRead(self):
+        return 0
+    def doStatus(self):
+        return status.OK, ''
+
+class TimeScan(Scan):
+    """
+    Special scan class for time scans with elapsed time counter.
+    """
+
+    def __init__(self, numsteps, firstmoves=None, multistep=None,
+                 detlist=None, envlist=None, preset=None, scaninfo=None,
+                 scantype=None):
+        self._etime = ElapsedTime('etime', unit='s', fmtstr='%.1f')
+        self._started = time.time()
+        if envlist is None:
+            envlist = []
+        envlist.insert(0, self._etime)
+        Scan.__init__(self, [], [[]] * numsteps, firstmoves, multistep,
+                      detlist, envlist, preset, scaninfo, scantype)
+
+    def readEnvironment(self, started, finished):
+        ret = Scan.readEnvironment(self, started, finished)
+        ret[0] = finished - self._started
+        return ret
+
+    def endScan(self):
+        Scan.endScan(self)
+        self._etime.shutdown()
 
 
 class QScan(Scan):
@@ -218,10 +264,12 @@ class QScan(Scan):
     """
 
     def __init__(self, positions, firstmoves=None, multistep=None,
-                 detlist=None, preset=None, scaninfo=None, scantype=None):
+                 detlist=None, envlist=None, preset=None, scaninfo=None,
+                 scantype=None):
         inst = session.instrument
         Scan.__init__(self, [inst.h, inst.k, inst.l, inst.E], positions,
-                      firstmoves, multistep, detlist, preset, scaninfo, scantype)
+                      firstmoves, multistep, detlist, envlist, preset,
+                      scaninfo, scantype)
 
     def beginScan(self):
         if len(self._positions) > 1:

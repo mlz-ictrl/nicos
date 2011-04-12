@@ -75,3 +75,8 @@ def count(*detlist, **preset):
 @usercommand
 def SetDetectors(*detlist):
     session.experiment.setDetectors(detlist)
+
+
+@usercommand
+def SetEnvironment(*devlist):
+    session.experiment.setEnvironment(devlist)

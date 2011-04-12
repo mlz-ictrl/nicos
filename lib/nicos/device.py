@@ -68,12 +68,14 @@ class Device(object):
     }
     parameter_overrides = {}
     attached_devices = {}
+    temporary = False
 
     def __init__(self, name, **config):
         # register self in device registry
-        if name in session.devices:
-            raise ProgrammingError('device with name %s already exists' % name)
-        session.devices[name] = self
+        if not self.temporary:
+            if name in session.devices:
+                raise ProgrammingError('device with name %s already exists' % name)
+            session.devices[name] = self
 
         if session.mode == 'simulation':
             raise UsageError('no new devices can be created in simulation mode')
@@ -105,7 +107,7 @@ class Device(object):
             self.init()
         except Exception:
             # if initialization fails, remove from device registry
-            del session.devices[name]
+            session.devices.pop(name, None)
             # and remove from adevs' sdevs
             for adev in self._adevs.values():
                 if isinstance(adev, list):
@@ -598,7 +600,7 @@ class Moveable(Startable):
 
     parameters = {
         'target': Param('Last target position of a start() action',
-                        unit='main', type=any, default=None),
+                        unit='main', type=any, default=0.),
     }
 
     def __init__(self, name, **config):

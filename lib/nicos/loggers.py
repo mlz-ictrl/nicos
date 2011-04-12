@@ -47,7 +47,7 @@ from nicos.utils import colorize, formatExtendedTraceback
 
 
 LOGFMT = '%(name)-10s : %(asctime)s : %(levelname)-7s : %(message)s'
-USERLOGFMT = '%(asctime)s | %(name)-10s %(levelname)-7s: %(message)s'
+USERLOGFMT = '%(asctime)s | %(name)-10s %(levelname)-7s : %(message)s'
 DATEFMT = '%H:%M:%S'
 LONGDATEFMT = '%Y-%m-%d %H:%M:%S'
 DATESTAMP_FMT = '%Y-%m-%d'
@@ -215,6 +215,8 @@ class NicosLogfileHandler(BaseRotatingHandler):
     """
 
     def __init__(self, directory, filenameprefix='nicos', dayfmt=DATESTAMP_FMT):
+        if not os.path.isdir(directory):
+            os.makedirs(directory)
         self._filenameprefix = filenameprefix
         self._pathnameprefix = os.path.join(directory, filenameprefix)
         self._dayfmt = dayfmt
@@ -252,6 +254,9 @@ class NicosLogfileHandler(BaseRotatingHandler):
     def changeDirectory(self, directory):
         self._pathnameprefix = os.path.join(directory, self._filenameprefix)
         self.doRollover()
+        t = time.localtime()
+        self.rollover_at = time.mktime((t[0], t[1], t[2], 0, 0, 0,
+                                        t[6], t[7], t[8])) + SECONDS_PER_DAY
 
 
 class UserLogfileFormatter(Formatter):

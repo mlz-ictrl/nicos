@@ -32,14 +32,14 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from nicos import session
-from nicos.scan import Scan, QScan
-from nicos.device import Device, Measurable, Moveable
+from nicos.scan import Scan, TimeScan, QScan
+from nicos.device import Device, Measurable, Moveable, Readable
 from nicos.errors import UsageError
 from nicos.commands import usercommand
 
 
 def _handleScanArgs(args, kwargs):
-    preset, infostr, detlist, move, multistep = {}, None, [], [], []
+    preset, infostr, detlist, envlist, move, multistep = {}, None, [], [], [], []
     for arg in args:
         if isinstance(arg, str):
             infostr = arg
@@ -49,6 +49,8 @@ def _handleScanArgs(args, kwargs):
             detlist.append(arg)
         elif isinstance(arg, list):
             detlist.extend(arg)
+        elif isinstance(arg, Readable):
+            envlist.append(arg)
         else:
             raise UsageError('unsupported scan argument: %r' % arg)
     for key, value in kwargs.iteritems():
@@ -63,7 +65,7 @@ def _handleScanArgs(args, kwargs):
         else:
             # XXX this silently accepts wrong keys; restrict the possible keys?
             preset[key] = value
-    return preset, infostr, detlist, move, multistep
+    return preset, infostr, detlist, envlist, move, multistep
 
 
 def _fixType(dev, start, step):
@@ -97,7 +99,8 @@ def _infostr(fn, args, kwargs):
 @usercommand
 def scan(dev, start, step, numsteps, *args, **kwargs):
     """Single-sided scan."""
-    preset, infostr, detlist, move, multistep  = _handleScanArgs(args, kwargs)
+    preset, infostr, detlist, envlist, move, multistep  = \
+            _handleScanArgs(args, kwargs)
     infostr = infostr or \
               _infostr('scan', (dev, start, step, numsteps) + args, kwargs)
     dev, start, step = _fixType(dev, start, step)
@@ -105,14 +108,15 @@ def scan(dev, start, step, numsteps, *args, **kwargs):
         raise UsageError('scanning with zero step width')
     values = [[x + i*y for x, y in zip(start, step)]
               for i in range(numsteps)]
-    scan = Scan(dev, values, move, multistep, detlist, preset, infostr)
+    scan = Scan(dev, values, move, multistep, detlist, envlist, preset, infostr)
     scan.run()
 
 
 @usercommand
 def cscan(dev, center, step, numperside, *args, **kwargs):
     """Scan around center."""
-    preset, infostr, detlist, move, multistep = _handleScanArgs(args, kwargs)
+    preset, infostr, detlist, envlist, move, multistep = \
+            _handleScanArgs(args, kwargs)
     infostr = infostr or \
               _infostr('cscan', (dev, center, step, numperside) + args, kwargs)
     dev, center, step = _fixType(dev, center, step)
@@ -121,7 +125,17 @@ def cscan(dev, center, step, numperside, *args, **kwargs):
     start = [x - numperside*y for x, y in zip(center, step)]
     values = [[x + i*y for x, y in zip(start, step)]
               for i in range(numperside*2 + 1)]
-    scan = Scan(dev, values, move, multistep, detlist, preset, infostr)
+    scan = Scan(dev, values, move, multistep, detlist, envlist, preset, infostr)
+    scan.run()
+
+
+@usercommand
+def timescan(numsteps, *args, **kwargs):
+    """Count a number of times without moving devices."""
+    preset, infostr, detlist, envlist, move, multistep = \
+            _handleScanArgs(args, kwargs)
+    infostr = infostr or _infostr('timescan', (numsteps,) + args, kwargs)
+    scan = TimeScan(numsteps, move, multistep, detlist, envlist, preset, infostr)
     scan.run()
 
 
@@ -138,7 +152,7 @@ def _getQ(v, name):
                          % name)
 
 def _handleQScanArgs(args, kwargs, Q, dQ):
-    preset, infostr, detlist, move, multistep = {}, None, [], [], []
+    preset, infostr, detlist, envlist, move, multistep = {}, None, [], [], [], []
     for arg in args:
         if isinstance(arg, str):
             infostr = arg
@@ -148,6 +162,8 @@ def _handleQScanArgs(args, kwargs, Q, dQ):
             detlist.append(arg)
         elif isinstance(arg, list):
             detlist.extend(arg)
+        elif isinstance(arg, Readable):
+            envlist.append(arg)
         else:
             raise UsageError('unsupported qscan argument: %r' % arg)
     for key, value in kwargs.iteritems():
@@ -186,14 +202,14 @@ def _handleQScanArgs(args, kwargs, Q, dQ):
 def qscan(Q, dQ, numsteps, *args, **kwargs):
     """Single-sided Q scan."""
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
-    preset, infostr, detlist, move, multistep, Q, dQ = \
+    preset, infostr, detlist, envlist, move, multistep, Q, dQ = \
             _handleQScanArgs(args, kwargs, Q, dQ)
     if all(v == 0 for v in dQ) and numsteps > 1:
         raise UsageError('scanning with zero step width')
     infostr = infostr or _infostr('qscan', (Q, dQ, numsteps) + args, kwargs)
     values = [[Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3]]
                for i in range(numsteps)]
-    scan = QScan(values, move, multistep, detlist, preset, infostr)
+    scan = QScan(values, move, multistep, detlist, envlist, preset, infostr)
     scan.run()
 
 
@@ -201,12 +217,12 @@ def qscan(Q, dQ, numsteps, *args, **kwargs):
 def qcscan(Q, dQ, numperside, *args, **kwargs):
     """Centered Q scan."""
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
-    preset, infostr, detlist, move, multistep, Q, dQ = \
+    preset, infostr, detlist, envlist, move, multistep, Q, dQ = \
             _handleQScanArgs(args, kwargs, Q, dQ)
     if all(v == 0 for v in dQ) and numperside > 0:
         raise UsageError('scanning with zero step width')
     infostr = infostr or _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
     values = [[Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3]]
                for i in range(-numperside, numperside+1)]
-    scan = QScan(values, move, multistep, detlist, preset, infostr)
+    scan = QScan(values, move, multistep, detlist, envlist, preset, infostr)
     scan.run()

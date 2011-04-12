@@ -41,7 +41,7 @@ from uuid import uuid1
 from nicos import session
 from nicos.data import NeedsDatapath, Dataset
 from nicos.utils import listof
-from nicos.device import Device, Measurable, Param
+from nicos.device import Device, Measurable, Readable, Param
 
 
 class Sample(Device):
@@ -64,7 +64,10 @@ class Experiment(Device):
                                 category='experiment'),
         'datapath':       Param('Path for data files', type=str,
                                 settable=True, category='experiment'),
-        'detectorlist':   Param('List of detectors', type=listof(str),
+        'detlist':        Param('List of default detectors', type=listof(str),
+                                settable=True, writeoninit=True),
+        'envlist':        Param('List of default environment devices to read '
+                                'at every scan point', type=listof(str),
                                 settable=True, writeoninit=True),
     }
 
@@ -120,9 +123,9 @@ class Experiment(Device):
             if isinstance(det, Device):
                 det = det.name
             dlist.append(det)
-        self.detectorlist = dlist
+        self.detlist = dlist
 
-    def doWriteDetectorlist(self, detectors):
+    def doWriteDetlist(self, detectors):
         detlist = []
         for detname in detectors:
             try:
@@ -136,3 +139,30 @@ class Experiment(Device):
                                      ' it is not a Measurable' % det)
                 detlist.append(det)
         self._detlist = detlist
+
+    @property
+    def sampleenv(self):
+        return self._envlist
+
+    def setEnvironment(self, devices):
+        dlist = []
+        for dev in devices:
+            if isinstance(dev, Device):
+                dev = dev.name
+            dlist.append(dev)
+        self.envlist = dlist
+
+    def doWriteEnvlist(self, devices):
+        devlist = []
+        for devname in devices:
+            try:
+                dev = session.getDevice(devname)
+            except Exception:
+                self.printexception('could not create %r environment device' %
+                                    devname)
+            else:
+                if not isinstance(dev, Readable):
+                    raise UsageError(self, 'cannot use device %r as environment:'
+                                     ' it is not a Readable' % dev)
+                devlist.append(dev)
+        self._envlist = devlist
