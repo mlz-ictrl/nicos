@@ -53,6 +53,8 @@ class LiveWindow(QMainWindow, DlgUtils):
 
         self.connect(self.actionLogScale, SIGNAL("toggled(bool)"),
                      self.widget, SLOT("SetLog10(bool)"))
+        self.connect(self.actionSelectChannels, SIGNAL("triggered()"),
+                     self.widget, SLOT("showSumDlg()"))
 
     def loadSettings(self):
         with self.sgroup as settings:
