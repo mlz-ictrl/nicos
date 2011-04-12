@@ -23,8 +23,8 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // *****************************************************************************
-
 // Im Speicher Daten per Zlib-Deflate dekomprimieren
+
 
 #ifndef __DECOMPRESS__
 #define __DECOMPRESS__
@@ -32,33 +32,25 @@
 #include <zlib.h>
 #include <iostream>
 
-bool decompress(const char* pcIn, int iLenIn, char* pcOut, int& iLenOut)
+bool zlib_decompress(const char* pcIn, int iLenIn, char* pcOut, int& iLenOut)
 {
-	z_stream zstr;
-	memset(&zstr, 0, sizeof zstr);
+	uLong ulLenOut = iLenOut;
+	int iErr = ::uncompress((Bytef*)pcOut, &ulLenOut, (Bytef*)pcIn, (uLong)iLenIn);
+	iLenOut = ulLenOut;
 	
-	zstr.next_in = (Bytef*)pcIn;
-	zstr.avail_in = (uInt)iLenIn;
-	
-	if(inflateInit(&zstr)!=Z_OK) 
+	switch(iErr)
 	{
-		std::cerr << "Error: Could not initialize Zlib." << std::endl;
-		return false;
+		case Z_BUF_ERROR:
+			std::cerr << "Zlib error: out of memory." << std::endl;
+			break;
+		case Z_MEM_ERROR:
+			std::cerr << "Zlib error: output buffer too small." << std::endl;
+			break;
+		case Z_DATA_ERROR:
+			std::cerr << "Zlib error: invalid input data." << std::endl;
+			break;
 	}
-	
-	zstr.next_out = (Bytef*)pcOut;
-	zstr.avail_out = (uInt)iLenOut;
-	
-	if(inflate(&zstr, Z_FINISH)!=Z_STREAM_END)
-	{
-		std::cerr << "Error in decompression." << std::endl;
-		return false;
-	}
-	
-	iLenOut = (int)zstr.total_out;
-	inflateEnd(&zstr);
-	
-	return true;
+	return iErr==Z_OK;
 }
 
 #endif

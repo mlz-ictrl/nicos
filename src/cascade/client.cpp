@@ -155,16 +155,14 @@ int TcpClient::read(char* pcData, int iLen)
 
 const QByteArray& TcpClient::recvmsg(void)
 {
-	static const QByteArray arrError = QByteArray("");
-	
 	// nur für blockierenden Client erlauben
-	if(!m_bBlocking) return arrError;
+	if(!m_bBlocking) return m_byEmpty;
 
 	m_timer.start();
 	if(!m_socket.waitForReadyRead(WAIT_DELAY)) 
 	{
 		std::cerr << "Error: Socket timed out while receiving." << std::endl;
-		return arrError;
+		return m_byEmpty;
 	}	
 	
 	int iExpectedMsgLength=0;
@@ -173,7 +171,7 @@ const QByteArray& TcpClient::recvmsg(void)
 	if(iExpectedMsgLength <= 0)
 	{
 		std::cerr << "Error: Invalid message length: " << iExpectedMsgLength << std::endl;
-		return arrError;
+		return m_byEmpty;
 	}
 
 	QByteArray& arrMsg = m_byCurMsg;
@@ -184,7 +182,7 @@ const QByteArray& TcpClient::recvmsg(void)
 		if(!m_socket.waitForReadyRead(WAIT_DELAY)) 
 		{
 			std::cerr << "Error: Socket timed out while receiving." << std::endl;
-			return arrError;
+			return m_byEmpty;
 		}
 	}
 	
@@ -192,7 +190,7 @@ const QByteArray& TcpClient::recvmsg(void)
 	if(iRead!=iExpectedMsgLength)
 	{
 		std::cerr << "Error: Wrong number of bytes received." << std::endl;
-		return arrError;
+		return m_byEmpty;
 	}
 	
 	int iTimeElapsed = m_timer.elapsed();

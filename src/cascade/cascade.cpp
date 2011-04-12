@@ -73,14 +73,13 @@ int SERVER_STATUS_POLL_TIME = 1000;
 #include "parse.h"
 #include "cascadewidget.h"
 
-#ifdef DATA_COMPRESSED
-	#include "decompress.h"
-#endif
-
 #include "ErrorBarPlotCurve.h"
 #include "histogram_item.h"
 #include "cascadedialogs.h"
 
+#ifdef DATA_COMPRESSED
+	#include "decompress.h"
+#endif
 
 ////////////////////////////// Haupt-Fenster ///////////////////////////////////////
 class MainWindow : public QMainWindow
@@ -225,7 +224,7 @@ class MainWindow : public QMainWindow
 #ifdef DATA_COMPRESSED
 			// Komprimierte Daten umkopieren
 			int iLenOut = sizeof(int)*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH;
-			if(!decompress(pcBuf+4, iLen-4, pvData, iLenOut))
+			if(!zlib_decompress(pcBuf+4, iLen-4, pvData, iLenOut))
 			{
 				QMessageBox::critical(0, "Cascade - Server", "Error in PAD decompression.", QMessageBox::Ok);
 				return;
@@ -264,7 +263,7 @@ class MainWindow : public QMainWindow
 #ifdef DATA_COMPRESSED
 			// Komprimierte Daten umkopieren
 			int iLenOut = sizeof(int)*Config_TofLoader::IMAGE_COUNT*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH;
-			if(!decompress(pcBuf+4, iLen-4, pvData, iLenOut))
+			if(!zlib_decompress(pcBuf+4, iLen-4, pvData, iLenOut))
 			{
 				QMessageBox::critical(0, "Cascade - Server", "Error in TOF decompression.", QMessageBox::Ok);
 				return;

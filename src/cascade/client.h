@@ -43,7 +43,7 @@ Q_OBJECT
 		bool m_bBlocking;
 		QTcpSocket m_socket;
 		
-		QByteArray m_byEmpty;
+		const QByteArray m_byEmpty;
 		/////////////// gegenwärtige Nachricht //////////////////////
 		QByteArray m_byCurMsg;
 		bool m_bBeginOfMessage;
