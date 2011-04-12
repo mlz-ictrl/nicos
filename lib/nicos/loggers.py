@@ -47,6 +47,7 @@ from nicos.utils import colorize, formatExtendedTraceback
 
 
 LOGFMT = '%(name)-10s : %(asctime)s : %(levelname)-7s : %(message)s'
+USERLOGFMT = '%(asctime)s | %(name)-10s %(levelname)-7s: %(message)s'
 DATEFMT = '%H:%M:%S'
 LONGDATEFMT = '%Y-%m-%d %H:%M:%S'
 DATESTAMP_FMT = '%Y-%m-%d'
@@ -214,10 +215,11 @@ class NicosLogfileHandler(BaseRotatingHandler):
     """
 
     def __init__(self, directory, filenameprefix='nicos', dayfmt=DATESTAMP_FMT):
-        self._filenameprefix = os.path.join(directory, filenameprefix)
+        self._filenameprefix = filenameprefix
+        self._pathnameprefix = os.path.join(directory, filenameprefix)
         self._dayfmt = dayfmt
         # today's logfile name
-        basefn = self._filenameprefix + '-' + time.strftime(dayfmt) + '.log'
+        basefn = self._pathnameprefix + '-' + time.strftime(dayfmt) + '.log'
         BaseRotatingHandler.__init__(self, basefn, 'a')
         # determine time of first midnight from now on
         t = time.localtime()
@@ -239,7 +241,7 @@ class NicosLogfileHandler(BaseRotatingHandler):
 
     def doRollover(self):
         self.stream.close()
-        self.baseFilename = self._filenameprefix + '-' + \
+        self.baseFilename = self._pathnameprefix + '-' + \
                             time.strftime(self._dayfmt) + '.log'
         if hasattr(self, 'encoding') and self.encoding:
             self.stream = codecs.open(self.baseFilename, 'w', self.encoding)
@@ -247,9 +249,28 @@ class NicosLogfileHandler(BaseRotatingHandler):
             self.stream = open(self.baseFilename, 'w')
         self.rollover_at += SECONDS_PER_DAY
 
+    def changeDirectory(self, directory):
+        self._pathnameprefix = os.path.join(directory, self._filenameprefix)
+        self.doRollover()
+
+
+class UserLogfileFormatter(Formatter):
+
+    def format(self, record):
+        record.message = record.getMessage()
+        if '%(asctime)s' in self._fmt:
+            record.asctime = self.formatTime(record, self.datefmt)
+        return self._fmt % record.__dict__
+
+
+class UserLogfileHandler(NicosLogfileHandler):
+
+    def __init__(self, directory):
+        NicosLogfileHandler.__init__(self, directory)
+        self.setFormatter(UserLogfileFormatter(USERLOGFMT, DATEFMT))
+
 
 def initLoggers():
-    setLoggerClass(NicosLogger)
     addLevelName(ACTION, 'ACTION')
     addLevelName(OUTPUT, 'OUTPUT')
     addLevelName(INPUT, 'INPUT')

@@ -33,15 +33,26 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import os
 import time
 
+from nicos import session
 from nicos.experiment import Experiment
 from nicos.data import NeedsDatapath, Dataset
 from nicos.utils import listof
 from nicos.device import Device, Param
+from nicos.loggers import UserLogfileHandler
 
 
 class MiraExperiment(Experiment):
+    def doInit(self):
+        Experiment.doInit(self)
+        self._uhandler = UserLogfileHandler(os.path.join(self.datapath, 'log'))
+        session.addLogHandler(self._uhandler)
+
     def new(self, proposalnumber, title=None):
         Experiment.new(self, proposalnumber, title)
         self.datapath = '/data/%s/%s' % (time.strftime('%Y'), proposalnumber)
+        os.mkdir(os.path.join(self.datapath, 'scripts'))
+        os.mkdir(os.path.join(self.datapath, 'log'))
+        self._uhandler.changeDirectory(os.path.join(self.datapath, 'log'))

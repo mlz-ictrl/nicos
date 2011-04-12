@@ -53,8 +53,8 @@ from nicos.utils import makeSessionId, colorcode, daemonize, writePidfile, \
      removePidfile, sessionInfo
 from nicos.device import Device
 from nicos.errors import NicosError, UsageError, ConfigurationError, ModeError
-from nicos.loggers import NicosLogfileHandler, ColoredConsoleHandler, \
-     initLoggers, OUTPUT, INPUT
+from nicos.loggers import NicosLogger, NicosLogfileHandler, \
+     ColoredConsoleHandler, initLoggers, OUTPUT, INPUT
 from nicos.cache.client import CacheLockError
 
 
@@ -105,6 +105,8 @@ class Session(object):
         group = None
         control_path = path.join(path.dirname(__file__), '..', '..')
 
+    log = None
+
     def __init__(self, appname):
         self.appname = appname
         # create a unique session id
@@ -143,7 +145,6 @@ class Session(object):
 
         # set up logging interface
         self._initLogging()
-        self.log = self.getLogger('nicos')
 
     def setNamespace(self, ns):
         """Set the namespace to export commands and devices into."""
@@ -376,6 +377,9 @@ class Session(object):
         self.explicit_setups = []
         self.user_modules = set()
         self.__system_device = None
+        for handler in self._log_handlers:
+            self.log.removeHandler(handler)
+        self._log_handlers = []
 
     def shutdown(self):
         if self._mode == 'master':
@@ -521,25 +525,29 @@ class Session(object):
         prefix = prefix or self.appname
         initLoggers()
         self._loggers = {}
-        self._log_manager = logging.Manager(None)
-        # all interfaces should log to a logfile; more handlers can be
-        # added by subclasses
+        self._log_handlers = []
+        self.createRootLogger(prefix)
+
+    def createRootLogger(self, prefix='nicos'):
+        self.log = NicosLogger('nicos')
+        self.log.parent = None
         log_path = path.join(self.config.control_path, 'log')
-        self._log_handlers = [
-            NicosLogfileHandler(log_path, filenameprefix=prefix),
-            ColoredConsoleHandler(),
-        ]
+        self.log.addHandler(NicosLogfileHandler(log_path, filenameprefix=prefix))
+        self.log.addHandler(ColoredConsoleHandler())
 
     def getLogger(self, name):
         if name in self._loggers:
             return self._loggers[name]
-        logger = self._log_manager.getLogger(name)
-        # XXX must be configurable
+        logger = NicosLogger(name)
+        logger.parent = self.log
+        # XXX does this need to be configurable?
         logger.setLevel(logging.DEBUG)
-        for handler in self._log_handlers:
-            logger.addHandler(handler)
         self._loggers[name] = logger
         return logger
+
+    def addLogHandler(self, handler):
+        self._log_handlers.append(handler)
+        self.log.addHandler(handler)
 
     def logUnhandledException(self, exc_info=None, cut_frames=0, msg=''):
         """Log an unhandled exception.  Log using the originating device's
@@ -789,7 +797,6 @@ class DaemonSession(SimpleSession):
     def _initLogging(self):
         SimpleSession._initLogging(self)
         sys.displayhook = self.__displayhook
-        sys.stdout = LoggingStdout(sys.stdout)
 
     def __displayhook(self, value):
         if value is not None:
@@ -798,10 +805,10 @@ class DaemonSession(SimpleSession):
     def _beforeStart(self, daemondev):
         from nicos.daemon.utils import DaemonLogHandler
         daemon_handler = DaemonLogHandler(daemondev)
-        # add handler to general NICOS logger
-        self.log.handlers.append(daemon_handler)
-        # and to all loggers created from now on
-        self._log_handlers.append(daemon_handler)
+        # create a new root logger that gets the daemon handler
+        self.createRootLogger()
+        self.addLogHandler(daemon_handler)
+        sys.stdout = LoggingStdout(sys.stdout)
 
         # add an object to be used by DaemonSink objects
         self.emitfunc = daemondev.emit_event
@@ -834,7 +841,6 @@ class WebSession(Session):
     def _initLogging(self):
         Session._initLogging(self)
         sys.displayhook = self.__displayhook
-        sys.stdout = LoggingStdout(sys.stdout)
 
     def __displayhook(self, value):
         if value is not None:
@@ -848,9 +854,9 @@ class WebSession(Session):
         session.__init__('web')
 
         app = NicosApp()
-        webhandler = app.create_loghandler()
-        session.log.handlers.append(webhandler)
-        session._log_handlers.append(webhandler)
+        session.createRootLogger()
+        session.addLogHandler(app.create_loghandler())
+        sys.stdout = LoggingStdout(sys.stdout)
 
         session.loadSetup(setup)
 

@@ -352,6 +352,29 @@ def removePidfile(appname):
             return
         raise
 
+def disableDirectory(startdir):
+    """Traverse a directory tree and remove access rights."""
+    # handle files first, then subdirs and then work on the current dir
+    assert path.isdir(startdir)
+    for child in os.listdir(startdir):
+        full = path.join(startdir, child)
+        if path.isdir(full):
+            disableDirectory(full)
+        else:
+            os.chmod(full, 0)
+    os.chmod(startdir, 0)
+
+def enableDirectory(startdir):
+    """Traverse a directory tree and grant access rights."""
+    assert path.isdir(startdir)
+    os.chmod(startdir, 0755)  # drwxr-xr-x
+    for child in os.listdir(startdir):
+        full = path.join(startdir, child)
+        if path.isdir(full):
+            enableDirectory(full)
+        else:
+            os.chmod(full, 0644)  # drw-r--r--
+
 
 # session id support
 
@@ -534,6 +557,7 @@ def readFileCounter(counterpath):
 
 def updateFileCounter(counterpath, value):
     writeFile(counterpath, [str(value)])
+
 
 # parameter conversion functions
 
