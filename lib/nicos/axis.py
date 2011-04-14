@@ -514,8 +514,8 @@ class HoveringAxis(TacoAxis):
     def doStatus(self):
         state = self._taco_guard(self._dev.deviceState)
         if state in (TACOStates.DEVICE_NORMAL, TACOStates.STOPPED,
-                     TACOStates.LOCAL):
-            # LOCAL means: both limit switches active
+                     TACOStates.TRIPPED):
+            # TRIPPED means: both limit switches or inhibit active
             return (status.OK, 'idle')
         elif state in (TACOStates.MOVING, TACOStates.STOP_REQUESTED):
             return (status.BUSY, 'moving')
