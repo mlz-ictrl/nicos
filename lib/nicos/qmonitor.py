@@ -520,6 +520,7 @@ class Monitor(BaseCacheClient):
                     field['valuelabel'].setText(text[:field['maxlen']])
             elif key == field['statuskey']:
                 field['status'] = value
+                field['changetime'] = time
             elif key == field['unitkey']:
                 field['unit'] = value
                 if value:

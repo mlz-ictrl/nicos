@@ -124,8 +124,8 @@ class Mailer(Notifier):
         'sender':    Param('Mail sender address', type=str, mandatory=True),
         'receivers': Param('Mail receiver addresses', type=listof(str),
                            settable=True),
-        'copies':    Param('Mail copy addresses', type=listof(str)),
-        # XXX take from daemon?
+        'copies':    Param('Mail copy addresses', type=listof(str),
+                           settable=True),
         'subject':   Param('Subject prefix', type=str, default='NICOS'),
     }
 

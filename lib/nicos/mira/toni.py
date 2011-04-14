@@ -42,7 +42,6 @@ from nicos.utils import intrange, listof
 from nicos.device import Device, Readable, Moveable, Param, Override
 from nicos.errors import NicosError, CommunicationError, UsageError, \
      ConfigurationError
-from nicos.mira.iseg import IsegConnector
 
 
 class ModBus(TacoDevice, Device):
@@ -158,9 +157,9 @@ class Leckmon(Readable):
         return self._adevs['bus'].communicate('S?', self.addr)
 
 
-class Crate(Device, IsegConnector):
-    """Device for Monitor Crate muController (containing iseg HVPS, Ratemeter,
-    and PDMU).
+class Ratemeter(Readable):
+    """
+    Toni ratemeter inside a "crate".
     """
 
     attached_devices = {
@@ -172,52 +171,28 @@ class Crate(Device, IsegConnector):
                       mandatory=True),
     }
 
-    def doInit(self):
-        self._lock = threading.Lock()
-
-    def lockChannel(self, channel):
-        assert 0 <= channel <= 2
+    def doRead(self):
+        bus = self._adevs['bus']
         self._cachelock_acquire()
         try:
-            ret = self._adevs['bus'].communicate('C%d' % channel, self.addr)
+            # ratemeter is on channel 2
+            ret = bus.communicate('C2', self.addr)
             if ret != 'OK':
                 raise CommunicationError('could not select crate channel')
-        except:
-            # release lock only if this method raises an exception
-            self._cachelock_release()
-            raise
-
-    def unlockChannel(self):
-        self._cachelock_release()
-
-    def communicate(self, msg, rlen):
-        bus = self._adevs['bus']
-        # send command
-        ret = bus.communicate('T' + msg, self.addr)
-        if ret != 'OK':
-            raise CommunicationError('crate command %r failed' % msg)
-        # wait until response is ready
-        t = 0
-        while 1:
-            sleep(0.05)
-            ret = bus.communicate('R?', self.addr)
-            if rlen == -1 or len(ret) == rlen:
-                return ret
-            t += 1
-            if t == 10:
-                raise CommunicationError('timeout while waiting for response')
-
-
-class Ratemeter(Readable):
-    attached_devices = {
-        'crate': Crate,
-    }
-
-    def doRead(self):
-        crate = self._adevs['crate']
-        crate.lockChannel(2)
-        try:
-            # sending a string to the ratemeter updates input buffer
-            return crate.communicate('X', -1)
+            # send command (T = transmit, X = anything for input buffer update
+            ret = bus.communicate('TX', self.addr)
+            if ret != 'OK':
+                raise CommunicationError('update command failed')
+            # wait until response is ready
+            rlen = -1
+            t = 0
+            while 1:
+                sleep(0.05)
+                ret = bus.communicate('R?', self.addr)
+                if rlen == -1 or len(ret) == rlen:
+                    return ret
+                t += 1
+                if t == 10:
+                    raise CommunicationError('timeout while waiting for response')
         finally:
-            crate.unlockChannel()
+            self._cachelock_release()

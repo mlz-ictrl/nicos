@@ -42,64 +42,18 @@ from nicos.device import Device, Moveable, HasLimits, Param, Override
 from nicos.errors import NicosError, CommunicationError
 
 
-class IsegConnector(object):
-    """Abstract base class for devices that contain an iseg HVPS."""
-
-    def lockChannel(self, channel):
-        pass
-
-    def unlockChannel(self):
-        pass
-
-    def communicate(self, msg, rlen):
-        raise NotImplementedError
-
-
-class StandaloneIseg(TacoDevice, Device, IsegConnector):
+class IsegHV(TacoDevice, Moveable, HasLimits):
+    """
+    Device object for an iseg HVPS.
+    The channel parameter must be 1 for a HVS with only one output.
+    """
     taco_class = StringIO
 
-    def communicate(self, msg, rlen):
-        return self._taco_guard(self._dev.communicate, msg)
-        # # must send and read back each character individually
-        # # rlen is ignored since we really wait until everything is transmitted
-        # for c in msg:
-        #     self._taco_guard(self._dev.write, c)
-        #     n = 0
-        #     while 1:
-        #         sleep(0.003)
-        #         cr = self._taco_guard(self._dev.read)
-        #         if cr:
-        #             if cr != c:
-        #                 raise NicosError('wrong echo from iseg')
-        #             break
-        #         n += 1
-        #         if n == 50:
-        #             raise CommunicationError('no echo from iseg')
-        # self._taco_guard(self._dev.write, '\r\n')
-        # sleep(0.01)
-        # s = ''
-        # while s.count('\n') != 2:
-        #     s += self._taco_guard(self._dev.read)
-        #     sleep(0.003)
-        # return s.strip('\r\n') # discard newlines
-
-
-class IsegHV(Moveable, HasLimits):
-    """
-    iseg HVPS (standalone or inside a Toni crate).
-    The cratechannel parameter is irrelevant for a standalone HVS.
-    The isegchannel parameter must be 1 for a HVS with only one output.
-    """
-    attached_devices = {
-        'crate': IsegConnector,
-    }
-
     parameters = {
-        'cratechannel': Param('Channel of the HV if in Toni crate',
-                              type=intrange(0, 2), mandatory=True),
-        'isegchannel':  Param('Channel of the Iseg HV (1 = A, 2 = B)',
-                              type=intrange(1, 3), mandatory=True),
-        # XXX ramp as a parameter
+        'channel':  Param('Channel of the Iseg HV (1 = A, 2 = B)',
+                          type=intrange(1, 3), mandatory=True),
+        'ramp':     Param('Voltage ramp', unit='main/s',
+                          type=intrange(1, 256), settable=True),
     }
 
     parameter_overrides = {
@@ -118,99 +72,65 @@ class IsegHV(Moveable, HasLimits):
               'TRP': status.ERROR,}
 
     def doInit(self):
-        crate = self._adevs['crate']
-        crate.lockChannel(self.cratechannel)
-        try:
-            resp = crate.communicate('#', 15)
-            if resp.count(';') not in (2, 3):
-                # hash is "info" command; it returns a string in the form
-                # "deviceid;version;Umax;Imax" -- however, the Toni crate
-                # truncates the response so that there are only two ';' left
-                raise CommunicationError('communication problem with HV supply')
-            crate.communicate('W=001', 0)  # set write delay to minimum
-        finally:
-            crate.unlockChannel()
+        resp = self._taco_guard(self._dev.communicate, '#')
+        if resp.count(';') != 3:
+            # hash is "info" command; it returns a string in the form
+            # "deviceid;version;Umax;Imax"
+            raise CommunicationError('communication problem with HV supply')
+        # set write delay to minimum (1ms)
+        self._taco_guard(self._dev.communicate, 'W=001')
 
     def doStart(self, value):
-        crate = self._adevs['crate']
-        crate.lockChannel(self.cratechannel)
-        try:
-            crate.communicate('D%d=%04d' % (self.isegchannel, value), 0)
-            resp = crate.communicate('G%d' % self.isegchannel, 6)
-            # return message is the status
-            if resp[:3] != ('S%d=' % self.isegchannel):
-                raise NicosError('could not set voltage: %r' % resp)
-            if resp[3:] not in self.states or \
-                   self.states[resp[3:]] not in (status.OK, status.BUSY):
-                if resp[3:] == 'MAN':
-                    raise NicosError('could not set voltage, voltage control '
-                                    'switched to manual')
-                elif resp[3:] == 'OFF':
-                    raise NicosError('could not set voltage, device off')
-                raise NicosError('could not set voltage: error %r' % resp[3:])
-        finally:
-            crate.unlockChannel()
+        self._taco_guard(self._dev.communicate,
+                         'D%d=%04d' % (self.channel, value))
+        resp = self._taco_guard(self._dev.communicate, 'G%d' % self.channel)
+        # return message is the status
+        if resp[:3] != ('S%d=' % self.channel):
+            raise NicosError('could not set voltage: %r' % resp)
+        if resp[3:] not in self.states or \
+               self.states[resp[3:]] not in (status.OK, status.BUSY):
+            if resp[3:] == 'MAN':
+                raise NicosError('could not set voltage, voltage control '
+                                'switched to manual')
+            elif resp[3:] == 'OFF':
+                raise NicosError('could not set voltage, device off')
+            raise NicosError('could not set voltage: error %r' % resp[3:])
 
     def doRead(self):
-        crate = self._adevs['crate']
-        crate.lockChannel(self.cratechannel)
-        try:
-            resp = crate.communicate('U%d' % self.isegchannel, 5)
-            if not resp or resp[0] not in '+-':
-                raise NicosError('invalid voltage readout %r' % resp)
-            return int(resp)
-        finally:
-            crate.unlockChannel()
+        resp = self._taco_guard(self._dev.communicate, 'U%d' % self.channel)
+        if not resp or resp[0] not in '+-':
+            raise NicosError('invalid voltage readout %r' % resp)
+        return int(resp)
 
     def doStatus(self):
-        crate = self._adevs['crate']
-        crate.lockChannel(self.cratechannel)
-        try:
-            resp = crate.communicate('S%d' % self.isegchannel, 6)
-            if resp[:3] != ('S%d=' % self.isegchannel):
-                raise NicosError('invalid status readout %r' % resp)
-            return self.states[resp[3:]], resp[3:]
-        finally:
-            crate.unlockChannel()
+        resp = self._taco_guard(self._dev.communicate, 'S%d' % self.channel)
+        if resp[:3] != ('S%d=' % self.channel):
+            raise NicosError('invalid status readout %r' % resp)
+        return self.states[resp[3:]], resp[3:]
 
     def doWait(self):
-        crate = self._adevs['crate']
         while 1:
-            crate.lockChannel(self.cratechannel)
-            try:
-                resp = crate.communicate('S%d' % self.isegchannel, 6)
-                if resp[3:] == 'ON ':
-                    return
-                elif resp[3:] not in ('L2H', 'H2L'):
-                    raise NicosError('device in error status: %s' % resp[3:])
-            finally:
-                crate.unlockChannel()
+            resp = self._taco_guard(self._dev.communicate, 'S%d' % self.channel)
+            if resp[3:] == 'ON ':
+                return
+            elif resp[3:] not in ('L2H', 'H2L'):
+                raise NicosError('device in error status: %s' % resp[3:])
 
-    def _ramp(self):
-        crate = self._adevs['crate']
-        crate.lockChannel(self.cratechannel)
-        try:
-            resp = crate.communicate('V%d' % self.isegchannel, 3)
-            return int(resp)
-        finally:
-            crate.unlockChannel()
+    def _current(self):
+        # return the current in Amperes
+        resp = self._taco_guard(self._dev.communicate, 'I%d' % self.channel)
+        # format is MMMM-E (mantissa/exponent)
+        if len(resp) != 6:
+            raise CommunicationError('invalid current readout %r' % resp)
+        return float(resp[:4] + 'e' + resp[4:])
 
-    def _setramp(self, ramp):
-        assert 1 <= ramp <= 255
-        crate = self._adevs['crate']
-        crate.lockChannel(self.cratechannel)
-        try:
-            resp = crate.communicate('V%d=%03d' % (self.isegchannel, ramp), 0)
-            # XXX check resp
-            self.printinfo('set ramp to %d V/s' % ramp)
-        finally:
-            crate.unlockChannel()
+    def doReadRamp(self):
+        resp = self._taco_guard(self._dev.communicate, 'V%d' % self.channel)
+        return int(resp)
 
-    def _storeramp(self):
-        crate = self._adevs['crate']
-        crate.lockChannel(self.cratechannel)
-        try:
-            crate.communicate('A%d=01' % self.isegchannel, 0)
-            self.printinfo('ramp stored to EEPROM')
-        finally:
-            crate.unlockChannel()
+    def doWriteRamp(self, ramp):
+        resp = self._taco_guard(self._dev.communicate,
+                                'V%d=%03d' % (self.channel, ramp))
+        # XXX check resp
+        self._taco_guard(self._dev.communicate, 'A%d=01' % self.channel)
+        self.printinfo('ramp set to %d V/s and stored in EEPROM' % ramp)
