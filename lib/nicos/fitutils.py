@@ -33,8 +33,11 @@ __version__ = "$Revision$"
 
 from numpy import array, power, linspace
 
-from scipy.odr import RealData, Model, ODR
-from scipy.optimize import leastsq
+try:
+    from scipy.odr import RealData, Model, ODR
+    from scipy.optimize import leastsq
+except ImportError:
+    ODR = None
 
 from nicos.errors import ProgrammingError
 
@@ -78,6 +81,9 @@ class Fit(object):
         self.parstart.append(start)
 
     def run(self, name, x, y, dy):
+        if ODR is None:
+            # fitting not available
+            return self.result(name, None, x, y, dy, None, None)
         if len(x) < 2:
             # need at least two points to fit
             return self.result(name, None, x, y, dy, None, None)
