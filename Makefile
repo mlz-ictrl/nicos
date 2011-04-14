@@ -23,13 +23,6 @@ inplace: cascade
 test:
 	@python test/run.py
 
-ifeq "$(NEEDSCASCADE)" "1"
-cascade:
-else
-cascade:
-	cd src/cascade && make nicosmodules
-endif
-
 # get the instrument from the full hostname (mira1.mira.frm2 -> mira)
 INSTRUMENT = $(shell hostname -f | cut -d. -f2)
 INSTRDIR = $(wildcard custom/$(INSTRUMENT))
@@ -37,7 +30,8 @@ INSTRDIR = $(wildcard custom/$(INSTRUMENT))
 # check for install customizations
 ifeq "$(INSTRDIR)" ""
   INSTALL_ERR = $(error No customization found for instrument $(INSTRUMENT). \
-    If this is not the correct instrument, use 'make install INSTRUMENT=instname')
+    If this is not the correct instrument, use 'make install INSTRUMENT=instname', \
+    where instname can also be "test")
 else
   include $(INSTRDIR)/make.conf
   # check that the include provided all necessary variables
@@ -76,13 +70,13 @@ install: all cascade-install
 	@echo "Finished."
 	@echo "============================================================="
 
-ifeq "$(NEEDSCASCADE)" ""
-cascade:
-cascade-install:
-else
+ifeq "$(NEEDSCASCADE)" "1"
 cascade:
 	cd src/cascade && make nicosmodules
 cascade-install:
 	cp $(VOPT) src/cascade/nicosclient/pythonbinding/cascadeclient.so $(ROOTDIR)/lib/nicos/mira
 	-cp $(VOPT) src/cascade/nicoswidget/pythonbinding/cascadewidget.so $(ROOTDIR)/lib/nicos/gui
+else
+cascade:
+cascade-install:
 endif
