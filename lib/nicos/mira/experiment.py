@@ -53,6 +53,8 @@ class MiraExperiment(Experiment):
     def new(self, proposalnumber, title=None):
         Experiment.new(self, proposalnumber, title)
         self.datapath = '/data/%s/%s' % (time.strftime('%Y'), proposalnumber)
-        os.mkdir(os.path.join(self.datapath, 'scripts'))
-        os.mkdir(os.path.join(self.datapath, 'log'))
+        if not os.path.isdir(os.path.join(self.datapath, 'scripts')):
+            os.mkdir(os.path.join(self.datapath, 'scripts'))
+        if not os.path.isdir(os.path.join(self.datapath, 'log')):
+            os.mkdir(os.path.join(self.datapath, 'log'))
         self._uhandler.changeDirectory(os.path.join(self.datapath, 'log'))
