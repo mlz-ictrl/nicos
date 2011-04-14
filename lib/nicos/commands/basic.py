@@ -154,7 +154,10 @@ def CreateAllDevices():
     for devname, (_, devconfig) in session.configured_devices.iteritems():
         if devconfig.get('lowlevel', False):
             continue
-        session.createDevice(devname, explicit=True)
+        try:
+            session.createDevice(devname, explicit=True)
+        except NicosError, err:
+            printexception('error creating %s' % devname)
 
 @usercommand
 def NewExperiment(proposalnumber, title):
@@ -231,6 +234,9 @@ def run(filename):
 
 @usercommand
 def Notify(*args):
+    """Send a message via email and/or SMS to the receivers selected by
+    SetMailReceivers and SetSMSReceivers.
+    """
     if len(args) == 1:
         # use first line of text as subject
         text, = args
@@ -247,7 +253,10 @@ def SetMailReceivers(*emails):
     for notifier in session.notifiers:
         if isinstance(notifier, Mailer):
             notifier.receivers = list(emails)
-            printinfo('mails will now be sent to ' + ', '.join(emails))
+            if emails:
+                printinfo('mails will now be sent to ' + ', '.join(emails))
+            else:
+                printinfo('no email notifications will be sent')
             return
     printwarning('email notification is not configured in this setup')
 
@@ -257,6 +266,9 @@ def SetSMSReceivers(*numbers):
     for notifier in session.notifiers:
         if isinstance(notifier, SMSer):
             notifier.receivers = list(numbers)
-            printinfo('SMS will now be sent to ' + ', '.join(numbers))
+            if numbers:
+                printinfo('SMS will now be sent to ' + ', '.join(numbers))
+            else:
+                printinfo('no SMS notifications will be sent')
             return
     printwarning('SMS notification is not configured in this setup')
