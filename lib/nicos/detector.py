@@ -37,7 +37,7 @@ from IO import Timer, Counter
 
 from nicos import status
 from nicos.taco import TacoDevice
-from nicos.utils import any, oneof
+from nicos.utils import any, oneof, oneofdict
 from nicos.device import Measurable, Param, Value
 from nicos.errors import ConfigurationError
 
@@ -48,11 +48,14 @@ class FRMChannel(TacoDevice, Measurable):
     """
 
     parameters = {
-        # XXX check type interaction for "mode"
-        'mode':     Param('Channel mode: normal, ratemeter, or preselection',
-                          type=any, default=0, settable=True),
-        'ismaster': Param('If this channel is a master', type=bool,
-                          settable=True),
+        'mode': Param('Channel mode: normal, ratemeter, or preselection',
+                      type=oneofdict({
+                          IOCommon.MODE_NORMAL: 'normal',
+                          IOCommon.MODE_RATEMETER: 'ratemeter',
+                          IOCommon.MODE_PRESELECTION: 'preselection'}),
+                      default='preselection', settable=True),
+        'ismaster':     Param('If this channel is a master', type=bool,
+                              settable=True),
         'preselection': Param('Preselection for this channel', settable=True),
     }
 
@@ -113,21 +116,16 @@ class FRMChannel(TacoDevice, Measurable):
         self._taco_guard(self._dev.enableMaster, value)
 
     def doReadMode(self):
-        return self._taco_guard(self._dev.mode)
+        modes = {IOCommon.MODE_NORMAL: 'normal',
+                 IOCommon.MODE_RATEMETER: 'ratemeter',
+                 IOCommon.MODE_PRESELECTION: 'preselection'}
+        return modes[self._taco_guard(self._dev.mode)]
 
     def doWriteMode(self, value):
-        for s, i in [('normal', IOCommon.MODE_NORMAL),
-                     ('ratemeter', IOCommon.MODE_RATEMETER),
-                     ('preselection', IOCommon.MODE_PRESELECTION)]:
-            if value == s or value == i:
-                smode = s
-                imode = i
-                break
-        else:
-            raise ConfigurationError(self, 'invalid value for the '
-                                     'mode parameter: %s' % value)
-        self._taco_guard(self._dev.setMode, imode)
-        return smode
+        modes = {'normal': IOCommon.MODE_NORMAL,
+                 'ratemeter': IOCommon.MODE_RATEMETER,
+                 'preselection': IOCommon.MODE_PRESELECTION}
+        self._taco_guard(self._dev.setMode, modes[value])
 
 
 class FRMTimerChannel(FRMChannel):
@@ -239,7 +237,6 @@ class FRMDetector(Measurable):
         return (status.OK, 'idle')
 
     def doIsCompleted(self):
-        # XXX reversed logic -- correct?
         for master in self.__masters:
             if master.isCompleted():
                 return True

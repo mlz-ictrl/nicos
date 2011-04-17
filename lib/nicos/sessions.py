@@ -484,48 +484,44 @@ class Session(object):
 
     @property
     def cache(self):
-        # XXX are these guards necessary?
         if self.__system_device is None:
             self.__system_device = self.getDevice('System', System)
         return self.__system_device._adevs['cache']
 
     @property
     def instrument(self):
-        if self.__system_device is None:
-            self.__system_device = self.getDevice('System', System)
+        # XXX are these guards necessary?
+        #if self.__system_device is None:
+        #    self.__system_device = self.getDevice('System', System)
         return self.__system_device._adevs['instrument']
 
     @property
     def experiment(self):
-        if self.__system_device is None:
-            self.__system_device = self.getDevice('System', System)
+        #if self.__system_device is None:
+        #    self.__system_device = self.getDevice('System', System)
         return self.__system_device._adevs['experiment']
 
     @property
     def datasinks(self):
-        if self.__system_device is None:
-            self.__system_device = self.getDevice('System', System)
+        #if self.__system_device is None:
+        #    self.__system_device = self.getDevice('System', System)
         return self.__system_device._adevs['datasinks']
 
     @property
     def notifiers(self):
-        if self.__system_device is None:
-            self.__system_device = self.getDevice('System', System)
+        #if self.__system_device is None:
+        #    self.__system_device = self.getDevice('System', System)
         return self.__system_device._adevs['notifiers']
 
     def notifyConditionally(self, runtime, subject, body, what=None, short=None):
         """Send a notification if the current runtime exceeds the configured
         minimum runtimer for notifications."""
-        if self.__system_device is None:
-            self.__system_device = self.getDevice('System', System)
-        for notifier in self.__system_device._adevs['notifiers']:
+        for notifier in self.notifiers:
             notifier.sendConditionally(runtime, subject, body, what, short)
 
     def notify(self, subject, body, what=None, short=None):
         """Send a notification unconditionally."""
-        if self.__system_device is None:
-            self.__system_device = self.getDevice('System', System)
-        for notifier in self.__system_device._adevs['notifiers']:
+        for notifier in self.notifiers:
             notifier.send(subject, body, what, short)
 
     # -- Logging ---------------------------------------------------------------
@@ -578,7 +574,6 @@ class Session(object):
             self.log.error(msg, exc_info=exc_info)
         else:
             self.log.error(exc_info=exc_info)
-        # XXX call self.notify?
 
     # -- Action logging --------------------------------------------------------
 
@@ -636,7 +631,10 @@ class SimpleSession(Session):
             session.loadSetup(setupname or appname, allow_special=True)
             maindev = session.getDevice(maindevname or appname.capitalize())
         except NicosError, err:
-            print >>sys.stderr, 'Fatal error while initializing:', err
+            try:
+                session.log.exception('Fatal error while initializing')
+            except Exception:
+                print >>sys.stderr, 'Fatal error while initializing:', err
             return 1
 
         def signalhandler(signum, frame):

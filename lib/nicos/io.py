@@ -160,10 +160,12 @@ class BitsDigitalOutput(DigitalOutput):
         self._taco_guard(self._dev.write, newvalue)
 
     def doIsAllowed(self, target):
-        # XXX this will raise TypeError for e.g. ints -- something better?
-        if len(target) != self.bitwidth:
-            return False, ('value needs to be a sequence of length %d, not %r' %
-                           (self.bitwidth, target))
+        try:
+            if len(target) != self.bitwidth:
+                return False, ('value needs to be a sequence of length %d, '
+                               'not %r' % (self.bitwidth, target))
+        except TypeError:
+            return False, 'invalid value for device: %r' % target
         return True, ''
 
 

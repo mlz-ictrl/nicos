@@ -629,7 +629,17 @@ def oneof(conv, *vals):
         val = conv(val)
         if val not in vals:
             raise ValueError('invalid value: %s, must be one of %s' %
-                             (val, ', '.join(vals)))
+                             (val, ', '.join(map(repr, vals))))
+        return val
+    return converter
+
+def oneofdict(vals):
+    def converter(val=None):
+        if val in vals.keys():
+            val = vals[val]
+        elif val not in vals.values():
+            raise ValueError('invalid value: %s, must be one of %s' %
+                             (val, ', '.join(map(repr, vals))))
         return val
     return converter
 

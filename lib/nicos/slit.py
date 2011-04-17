@@ -161,11 +161,11 @@ class Slit(Moveable):
         positions = map(lambda d: d.read(), self._axes)
         r, l, b, t = positions
         if self.opmode == 'centered':
-            # XXX motor must have precision for this!
-            #if abs((l+r)/2) > self._adevs['left'].precision or \
-            #   abs((t+b)/2) > self._adevs['top'].precision:
-            #    self.printwarning('slit seems to be offcentered, but is set to '
-            #                      '"centered" mode')
+            if 'precision' in  self._adevs['left'].parameters:
+                if abs((l+r)/2.) > self._adevs['left'].precision or \
+                       abs((t+b)/2.) > self._adevs['top'].precision:
+                    self.printwarning('slit seems to be offcentered, but is '
+                                      'set to "centered" mode')
             return (l-r, t-b)
         elif self.opmode == 'offcentered':
             return ((l+r)/2, (t+b)/2, l-r, t-b)

@@ -146,7 +146,7 @@ def timescan(numsteps, *args, **kwargs):
 def contscan(dev, start, end, speed=None, *args, **kwargs):
     """Scan continuously with low speed."""
     dev = session.getDevice(dev, Moveable)
-    if not hasattr(dev, 'speed'):
+    if 'speed' not in dev.parameters:
         raise UsageError('continuous scan device must have a speed parameter')
     preset, infostr, detlist, envlist, move, multistep = \
             _handleScanArgs(args, kwargs)

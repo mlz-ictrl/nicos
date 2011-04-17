@@ -121,15 +121,15 @@ devices = dict(
                       speed = 1,
                       unit = 'deg'),
 
-    sxl      = device('nicos.motor.Motor', tacodevice = 'mira/aper1/m1', abslimits= (-35, 65)),
-    sxr      = device('nicos.motor.Motor', tacodevice = 'mira/aper1/m2', abslimits= (-65, 35)),
-    sxb      = device('nicos.motor.Motor', tacodevice = 'mira/aper1/m3', abslimits= (-65, 35)),
-    sxt      = device('nicos.motor.Motor', tacodevice = 'mira/aper1/m4', abslimits= (-35, 65)),
+#    sxl      = device('nicos.motor.Motor', tacodevice = 'mira/aper1/m1', abslimits= (-35, 65)),
+#    sxr      = device('nicos.motor.Motor', tacodevice = 'mira/aper1/m2', abslimits= (-65, 35)),
+#    sxb      = device('nicos.motor.Motor', tacodevice = 'mira/aper1/m3', abslimits= (-65, 35)),
+#    sxt      = device('nicos.motor.Motor', tacodevice = 'mira/aper1/m4', abslimits= (-35, 65)),
 
-#    sxl      = device('nicos.virtual.VirtualMotor', abslimits = (-20, 40), unit = 'mm', initval = 0),
-#    sxr      = device('nicos.virtual.VirtualMotor', abslimits = (-40, 20), unit = 'mm', initval = 0),
-#    sxb      = device('nicos.virtual.VirtualMotor', abslimits = (-50, 30), unit = 'mm', initval = 0),
-#    sxt      = device('nicos.virtual.VirtualMotor', abslimits = (-30, 50), unit = 'mm', initval = 0),
+    sxl      = device('nicos.virtual.VirtualMotor', abslimits = (-20, 40), unit = 'mm', initval = 0),
+    sxr      = device('nicos.virtual.VirtualMotor', abslimits = (-40, 20), unit = 'mm', initval = 0),
+    sxb      = device('nicos.virtual.VirtualMotor', abslimits = (-50, 30), unit = 'mm', initval = 0),
+    sxt      = device('nicos.virtual.VirtualMotor', abslimits = (-30, 50), unit = 'mm', initval = 0),
     slit     = device('nicos.slit.Slit', left = 'sxl', right = 'sxr', bottom = 'sxb', top = 'sxt'),
 
     c1       = device('nicos.virtual.VirtualCoder',
@@ -174,10 +174,12 @@ devices = dict(
 
     mon1     = device('nicos.virtual.VirtualCounter',
                       lowlevel = True,
+                      type = 'monitor',
                       countrate = 1000),
 
     ctr1     = device('nicos.virtual.VirtualCounter',
                       lowlevel = True,
+                      type = 'counter',
                       countrate = 2000),
 
     det      = device('nicos.detector.FRMDetector',
