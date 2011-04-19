@@ -79,8 +79,22 @@ class IsegHV(TacoDevice, Moveable, HasLimits):
             raise CommunicationError('communication problem with HV supply')
         # set write delay to minimum (1ms)
         self._taco_guard(self._dev.communicate, 'W=001')
+        # find out polarity
+        st = self._taco_guard(self._dev.communicate, 'T%d' % self.channel)
+        if int(st) & 4:
+            self._polarity = +1
+        else:
+            self._polarity = -1
+
+    def doIsAllowed(self, target):
+        if target > 0 and self._polarity == -1:
+            return False, 'wrong polarity'
+        elif target < 0 and self._polarity == +1:
+            return False, 'wrong polarity'
+        return True, ''
 
     def doStart(self, value):
+        value = abs(value)
         self._taco_guard(self._dev.communicate,
                          'D%d=%04d' % (self.channel, value))
         resp = self._taco_guard(self._dev.communicate, 'G%d' % self.channel)
