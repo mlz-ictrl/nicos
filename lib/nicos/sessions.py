@@ -249,7 +249,7 @@ class Session(object):
     def getSetupInfo(self):
         return self.__setup_info.copy()
 
-    def loadSetup(self, setupname, allow_special=False):
+    def loadSetup(self, setupname, allow_special=False, raise_failed=False):
         """Load a setup module and set up devices accordingly."""
         if not self.__setup_info:
             self.readSetups()
@@ -327,6 +327,8 @@ class Session(object):
             try:
                 self.createDevice('System')
             except Exception:
+                if raise_failed:
+                    raise
                 self.log.exception('error creating System device')
                 return
 
@@ -338,7 +340,8 @@ class Session(object):
                 try:
                     self.createDevice(devname, explicit=True)
                 except Exception:
-                    #raise
+                    if raise_failed:
+                        raise
                     self.log.exception('failed')
                     failed_devs.append(devname)
 
@@ -628,9 +631,10 @@ class SimpleSession(Session):
         session.__class__ = cls
         try:
             session.__init__(appname)
-            session.loadSetup(setupname or appname, allow_special=True)
+            session.loadSetup(setupname or appname, allow_special=True,
+                              raise_failed=True)
             maindev = session.getDevice(maindevname or appname.capitalize())
-        except NicosError, err:
+        except Exception, err:
             try:
                 session.log.exception('Fatal error while initializing')
             except Exception:
