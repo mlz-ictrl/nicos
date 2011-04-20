@@ -412,8 +412,8 @@ class AsciiDatafileSink(DatafileSink):
         """Return the file name for the next data file.  Can be overwritten in
         instrument-specific subclasses.
         """
-        pnr = session.experiment.proposalnumber
-        return '%04d_%08d.dat' % (pnr, self._counter)
+        pstr = session.experiment.proposal
+        return '%s_%08d.dat' % (pstr, self._counter)
 
     def prepareDataset(self, dataset):
         if self._path is None:

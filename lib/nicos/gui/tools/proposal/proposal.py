@@ -219,7 +219,7 @@ class ProposalInput(QDialog):
             f = open(proppath + '/init.tcs', 'w')
             f.write('''\
 # NICOS initialization file for proposal %s
-DataBox.newexperiment(user=%r, proposalnumber=%r)
+DataBox.newexperiment(user=%r, proposal=%r)
 DataBox.setSampleInfo(%r)
 DataBox.setSampleDetectorDistance(%r)
 %s

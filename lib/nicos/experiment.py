@@ -56,17 +56,17 @@ class Experiment(Device):
     """A special singleton device to represent the experiment."""
 
     parameters = {
-        'title':          Param('Experiment title', type=str, settable=True,
-                                category='experiment'),
-        'proposalnumber': Param('Proposal number', type=int, settable=True,
-                                category='experiment'),
-        'users':          Param('User names', type=listof(str), settable=True,
-                                category='experiment'),
-        'datapath':       Param('Path for data files', type=str,
-                                settable=True, category='experiment'),
-        'detlist':        Param('List of default detectors', type=listof(str),
-                                settable=True, writeoninit=True),
-        'envlist':        Param('List of default environment devices to read '
+        'title':     Param('Experiment title', type=str, settable=True,
+                           category='experiment'),
+        'proposal':  Param('Proposal number or proposal string',
+                           type=str, settable=True, category='experiment'),
+        'users':     Param('User names', type=listof(str), settable=True,
+                           category='experiment'),
+        'datapath':  Param('Path for data files', type=str,
+                           settable=True, category='experiment'),
+        'detlist':   Param('List of default detectors', type=listof(str),
+                           settable=True, writeoninit=True),
+        'envlist':   Param('List of default environment devices to read '
                                 'at every scan point', type=listof(str),
                                 settable=True, writeoninit=True),
     }
@@ -78,12 +78,12 @@ class Experiment(Device):
     def doInit(self):
         self._last_datasets = []
 
-    def new(self, proposalnumber, title=None):
+    def new(self, proposal, title=None):
         # Individual instruments should override this to change datapath
         # according to instrument policy.
-        if not isinstance(proposalnumber, int):
-            proposalnumber = int(proposalnumber)
-        self.proposalnumber = proposalnumber
+        if isinstance(proposal, int):
+            proposal = str(proposal)
+        self.proposal = proposal
         if title is not None:
             self.title = title
         self.users = []

@@ -50,9 +50,9 @@ class MiraExperiment(Experiment):
         self._uhandler = UserLogfileHandler(os.path.join(self.datapath, 'log'))
         session.addLogHandler(self._uhandler)
 
-    def new(self, proposalnumber, title=None):
-        Experiment.new(self, proposalnumber, title)
-        self.datapath = '/data/%s/%s' % (time.strftime('%Y'), proposalnumber)
+    def new(self, proposal, title=None):
+        Experiment.new(self, proposal, title)
+        self.datapath = '/data/%s/%s' % (time.strftime('%Y'), proposal)
         if not os.path.isdir(os.path.join(self.datapath, 'scripts')):
             os.mkdir(os.path.join(self.datapath, 'scripts'))
         if not os.path.isdir(os.path.join(self.datapath, 'log')):

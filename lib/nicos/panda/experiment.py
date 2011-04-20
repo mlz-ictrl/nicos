@@ -55,9 +55,11 @@ class PandaExperiment(Experiment):
         self._uhandler = UserLogfileHandler(os.path.join(self.datapath, 'log'))
         session.addLogHandler(self._uhandler)
 
-    def new(self, proposalnumber, title=None):
-        Experiment.new(self, proposalnumber, title)
-        self.datapath = '/data/exp/p%s' % proposalnumber
+    def new(self, proposal, title=None):
+        if isinstance(proposal, int):
+            proposal = 'p%s' % proposal
+        Experiment.new(self, proposal, title)
+        self.datapath = '/data/exp/%s' % proposal
         #(time.strftime('%Y'), self.cycle)
         if not os.path.isdir(os.path.join(self.datapath, 'scripts')):
             os.mkdir(os.path.join(self.datapath, 'scripts'))
