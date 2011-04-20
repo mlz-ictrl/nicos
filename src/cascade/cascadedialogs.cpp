@@ -395,6 +395,17 @@ ServerCfgDlg::ServerCfgDlg(QWidget *pParent) : QDialog(pParent)
 
 	str.setNum(s_iTRes);
 	edittres->setText(str);
+	
+	if(s_iMode==MODE_PAD)
+	{
+		radioButtonPad->setChecked(1);
+		radioButtonTof->setChecked(0);
+	}
+	else if(s_iMode==MODE_TOF)
+	{
+		radioButtonTof->setChecked(1);
+		radioButtonPad->setChecked(0);
+	}
 }
 
 ServerCfgDlg::~ServerCfgDlg()
@@ -424,8 +435,18 @@ unsigned int ServerCfgDlg::GetTRes()
 	return s_iTRes;
 }
 
+int ServerCfgDlg::GetMode()
+{
+	if(radioButtonPad->isChecked())
+		s_iMode = MODE_PAD;
+	else if(radioButtonTof->isChecked())
+		s_iMode = MODE_TOF;
+	return s_iMode;
+}
+
 double ServerCfgDlg::s_dLastTime = 10.0;
 unsigned int ServerCfgDlg::s_iXRes = 128;
 unsigned int ServerCfgDlg::s_iYRes = 128;
 unsigned int ServerCfgDlg::s_iTRes = 128;
+int ServerCfgDlg::s_iMode = 1;
 // ********************************************************************

@@ -507,8 +507,19 @@ class MainWindow : public QMainWindow
 				unsigned int iXRes = srvcfgdlg.GetXRes(); 
 				unsigned int iYRes = srvcfgdlg.GetYRes();
 				unsigned int iTRes = srvcfgdlg.GetTRes();
+				
+				const char* pcMode = "";
+				switch(srvcfgdlg.GetMode())
+				{
+					case MODE_PAD:
+						pcMode = "image";
+						break;
+					case MODE_TOF:
+						pcMode = "tof";
+						break;
+				}
 				char pcMsg[256];
-				sprintf(pcMsg, "CMD_config time=%f xres=%d yres=%d tres=%d", dTime, iXRes, iYRes, iTRes);
+				sprintf(pcMsg, "CMD_config time=%f xres=%d yres=%d tres=%d mode=%s", dTime, iXRes, iYRes, iTRes, pcMode);
 				m_client.sendmsg(pcMsg);
 			}
 		}
@@ -806,9 +817,9 @@ int MainWindow::SERVER_STATUS_POLL_TIME = 1000;
 
 int main(int argc, char **argv)
 {
-	setlocale(LC_NUMERIC, "en_US");
 	QApplication a(argc, argv);
-	
+	setlocale(LC_ALL, "C");
+	QLocale::setDefault(QLocale::English);
 	
 	// Konfigurationssingleton erzeugen
 	const char pcConfigFile[] = "./cascade.xml";

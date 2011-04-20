@@ -1,5 +1,5 @@
 /********************************************************************************
-** Form generated from reading UI file 'servercfgr25647.ui'
+** Form generated from reading UI file 'servercfgYN9222.ui'
 **
 ** Created
 **      by: Qt User Interface Compiler version 4.6.3
@@ -7,8 +7,8 @@
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef SERVERCFGR25647_H
-#define SERVERCFGR25647_H
+#ifndef SERVERCFGYN9222_H
+#define SERVERCFGYN9222_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -16,10 +16,12 @@
 #include <QtGui/QButtonGroup>
 #include <QtGui/QDialog>
 #include <QtGui/QDialogButtonBox>
+#include <QtGui/QGroupBox>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
+#include <QtGui/QRadioButton>
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -44,15 +46,18 @@ public:
     QHBoxLayout *horizontalLayout_4;
     QLabel *label_4;
     QLineEdit *edittres;
+    QGroupBox *groupBox;
+    QRadioButton *radioButtonTof;
+    QRadioButton *radioButtonPad;
 
     void setupUi(QDialog *ServerConfigDlg)
     {
         if (ServerConfigDlg->objectName().isEmpty())
             ServerConfigDlg->setObjectName(QString::fromUtf8("ServerConfigDlg"));
-        ServerConfigDlg->resize(290, 208);
+        ServerConfigDlg->resize(295, 232);
         buttonBox = new QDialogButtonBox(ServerConfigDlg);
         buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
-        buttonBox->setGeometry(QRect(80, 170, 201, 32));
+        buttonBox->setGeometry(QRect(80, 190, 201, 32));
         buttonBox->setOrientation(Qt::Horizontal);
         buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         layoutWidget = new QWidget(ServerConfigDlg);
@@ -119,6 +124,16 @@ public:
 
         horizontalLayout_4->addWidget(edittres);
 
+        groupBox = new QGroupBox(ServerConfigDlg);
+        groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        groupBox->setGeometry(QRect(10, 130, 271, 51));
+        radioButtonTof = new QRadioButton(groupBox);
+        radioButtonTof->setObjectName(QString::fromUtf8("radioButtonTof"));
+        radioButtonTof->setGeometry(QRect(130, 20, 91, 20));
+        radioButtonPad = new QRadioButton(groupBox);
+        radioButtonPad->setObjectName(QString::fromUtf8("radioButtonPad"));
+        radioButtonPad->setGeometry(QRect(20, 20, 91, 20));
+        radioButtonPad->setChecked(true);
 
         retranslateUi(ServerConfigDlg);
         QObject::connect(buttonBox, SIGNAL(accepted()), ServerConfigDlg, SLOT(accept()));
@@ -134,6 +149,9 @@ public:
         label_2->setText(QApplication::translate("ServerConfigDlg", "x Resolution:", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("ServerConfigDlg", "y Resolution:", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("ServerConfigDlg", "Time Resolution:", 0, QApplication::UnicodeUTF8));
+        groupBox->setTitle(QApplication::translate("ServerConfigDlg", "Mode", 0, QApplication::UnicodeUTF8));
+        radioButtonTof->setText(QApplication::translate("ServerConfigDlg", "TOF", 0, QApplication::UnicodeUTF8));
+        radioButtonPad->setText(QApplication::translate("ServerConfigDlg", "PAD", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
@@ -144,4 +162,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // SERVERCFGR25647_H
+#endif // SERVERCFGYN9222_H

@@ -180,6 +180,10 @@ class ServerDlg : public QDialog, public Ui::dialogServer
 // ********************************************************************
 
 // ************************* Server-Dialog ********************************
+
+
+#define MODE_PAD 1
+#define MODE_TOF 2
 class ServerCfgDlg : public QDialog, public Ui::ServerConfigDlg
 {
 	Q_OBJECT
@@ -187,6 +191,7 @@ class ServerCfgDlg : public QDialog, public Ui::ServerConfigDlg
 	protected:
 		static double s_dLastTime;
 		static unsigned int s_iXRes, s_iYRes, s_iTRes;
+		static int s_iMode;
 		
 	protected slots:
 		
@@ -198,6 +203,7 @@ class ServerCfgDlg : public QDialog, public Ui::ServerConfigDlg
 		unsigned int GetXRes();
 		unsigned int GetYRes();
 		unsigned int GetTRes();
+		int GetMode();
 };
 
 #endif
