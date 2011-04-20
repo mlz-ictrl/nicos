@@ -98,7 +98,10 @@ class Session(object):
     operations and keeps the global state: devices, configuration, loggers.
     """
 
-    auto_modules = ['nicos.commands']
+    auto_modules = ['nicos.commands', 'nicos.commands.basic',
+                    'nicos.commands.device', 'nicos.commands.output',
+                    'nicos.commands.measure', 'nicos.commands.scan',
+                    'nicos.commands.analyze']
     autocreate_devices = True
 
     class config(object):
@@ -922,7 +925,7 @@ class DaemonSession(SimpleSession):
         self.loaded_setups.clear()
         del self.explicit_setups[:]
 
-        self.auto_modules = ['nicos.commands']
+        self.auto_modules = Session.auto_modules
 
         self._Session__system_device = None
         self._Session__exported_names.clear()

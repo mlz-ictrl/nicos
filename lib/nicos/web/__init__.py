@@ -129,11 +129,13 @@ Enter commands in the input field below.</span>
 </html>
 """
 
-CONSOLE_PAGE = CONSOLE_PAGE.replace('@@jquery@@',
-    open(os.path.join(os.path.dirname(__file__), 'jquery.js')).read())
-CONSOLE_PAGE = CONSOLE_PAGE.replace('@@support@@',
-    open(os.path.join(os.path.dirname(__file__), 'support.js')).read())
-
+try:
+    CONSOLE_PAGE = CONSOLE_PAGE.replace('@@jquery@@',
+        open(os.path.join(os.path.dirname(__file__), 'jquery.js')).read())
+    CONSOLE_PAGE = CONSOLE_PAGE.replace('@@support@@',
+        open(os.path.join(os.path.dirname(__file__), 'support.js')).read())
+except:
+    CONSOLE_PAGE = ''
 
 class FakeInput(object):
     def read(self):

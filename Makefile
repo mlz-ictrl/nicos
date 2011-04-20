@@ -57,7 +57,7 @@ install: all cascade-install
 	cp -pr $(VOPT) log/README $(ROOTDIR)/log
 	cp -pr $(VOPT) etc/nicos-system $(ROOTDIR)/etc
 	cp -pr $(VOPT) build/scripts*/* $(ROOTDIR)/bin
-	cp -pr $(VOPT) doc/build/html/* $(ROOTDIR)/doc
+	-cp -pr $(VOPT) doc/build/html/* $(ROOTDIR)/doc
 	cp -pr $(VOPT) $(INSTRDIR)/setups/* $(ROOTDIR)/setups
 	python etc/create_nicosconf.py "$(SYSUSER)" "$(SYSGROUP)" "$(NETHOST)" > $(ROOTDIR)/nicos.conf
 	@echo "============================================================="
