@@ -596,15 +596,34 @@ class DbCacheDatabase(MemoryCacheDatabase):
             entries = self._db.setdefault(key, [])
             if entries:
                 lastent = entries[-1]
-                if lastent.value == value and not lastent.ttl:
-                    # not a real update
-                    send_update = False
-            entries.append(Entry(time, ttl, value))
+                if lastent.value == value:
+                    # special handling of constant values to avoid amassing
+                    # lots of duplicate entries
+                    if not lastent.ttl:
+                        if not ttl:
+                            # not a real update
+                            send_update = False
+                        else:
+                            # had no ttl, but has one now -> new entry
+                            entries.append(Entry(time, ttl, value))
+                    else:
+                        if not ttl:
+                            # had ttl, but has none now -> new entry
+                            entries.append(Entry(time, ttl, value))
+                        else:
+                            # just update the ttl
+                            lastent.ttl = (time - lastent.time) + ttl
+                else:
+                    entries.append(Entry(time, ttl, value))
+            else:
+                entries.append(Entry(time, ttl, value))
+            #self.printdebug('entries are now ' + str(entries))
             if len(entries) > self._max or ttl is None:
                 # if ttl is None, the value should be stored immediately
                 with self._store_lock:
                     self._archive(key, entries)
                     del entries[:-1]
+                #self.printdebug('after archiving: ' + str(entries))
         if send_update:
             for client in self._server._connected.values():
                 if client is not from_client and client.is_active():

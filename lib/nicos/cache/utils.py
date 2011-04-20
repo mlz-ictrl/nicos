@@ -107,6 +107,8 @@ class Entry(object):
         self.ttl = ttl
         self.value = value
 
+    def __repr__(self):
+        return '%s+%s@%s' % (self.time, self.ttl, self.value)
 
 # Struct for saving entries:
 # 1 byte   marker (0x1E, "record separator")
