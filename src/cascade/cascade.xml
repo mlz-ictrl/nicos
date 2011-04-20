@@ -35,7 +35,7 @@
 	</main_window>
 
 	<server>
-		<address> cascade7.reseda.frm2 </address>
+		<address> cascade.mira.frm2 </address>
 		<port> 1234 </port>
 
 		<status_poll_time> 2000 </status_poll_time>

@@ -806,6 +806,7 @@ int MainWindow::SERVER_STATUS_POLL_TIME = 1000;
 
 int main(int argc, char **argv)
 {
+	setlocale(LC_NUMERIC, "en_US");
 	QApplication a(argc, argv);
 	
 	
