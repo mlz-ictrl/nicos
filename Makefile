@@ -1,4 +1,4 @@
-.PHONY: all install clean inplace test
+.PHONY: all install clean inplace test main-install
 
 RCC = pyrcc4
 
@@ -46,7 +46,9 @@ ifeq "$(V)" "1"
   VOPT = -v
 endif
 
-install: all cascade-install
+install: all cascade-install main-install custom-install
+
+main-install:
 	$(INSTALL_ERR)
 	@echo "============================================================="
 	@echo "Installing NICOS-ng to $(ROOTDIR)..."
