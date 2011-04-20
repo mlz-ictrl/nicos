@@ -56,7 +56,9 @@ main-install:
 	install $(VOPT) -d $(ROOTDIR)/{bin,doc,etc,lib,log,pid,setups,scripts}
 	cp -pr $(VOPT) build/lib*/* $(ROOTDIR)/lib
 	cp -pr $(VOPT) pid/README $(ROOTDIR)/pid
+	chown $(SYSUSER):$(SYSGROUP) $(ROOTDIR)/pid
 	cp -pr $(VOPT) log/README $(ROOTDIR)/log
+	chown $(SYSUSER):$(SYSGROUP) $(ROOTDIR)/log
 	cp -pr $(VOPT) etc/nicos-system $(ROOTDIR)/etc
 	cp -pr $(VOPT) build/scripts*/* $(ROOTDIR)/bin
 	-cp -pr $(VOPT) doc/build/html/* $(ROOTDIR)/doc
