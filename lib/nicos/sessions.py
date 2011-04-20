@@ -186,6 +186,8 @@ class Session(object):
                                 sessionInfo(err.locked_by))
             else:
                 cache._ismaster = True
+            cache.put(self.__system_device, 'mastersetup',
+                      list(self.loaded_setups))
         elif mode in ['slave', 'maintenance']:
             # switching from master to slave or to maintenance
             if not cache:
@@ -353,6 +355,9 @@ class Session(object):
             self.log.error('the following devices could not be created:')
             self.log.error(', '.join(failed_devs))
 
+        if self.mode == 'master' and self.cache:
+            self.cache.put(self.__system_device, 'mastersetup',
+                           list(self.loaded_setups))
         self.explicit_setups.append(setupname)
         self.resetPrompt()
         self.log.info('setup loaded')

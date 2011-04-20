@@ -104,6 +104,9 @@ class BlockBox(QFrame):
         lsz = self._label.size()
         self._label.move(mps.x() + 0.5*(msz.width() - lsz.width()),
                          mps.y() - 0.5*lsz.height())
+    #def setVisible(self, isvis):
+    #    QFrame.setVisible(self, isvis)
+    #    self._label.setVisible(isvis)
 
 def set_forecolor(label, fore):
     pal = label.palette()
@@ -251,16 +254,20 @@ class Monitor(BaseCacheClient):
                             fields.append(field)
                         rows.append(fields)
                     block = ({'name': blockdesc[0], 'visible': True,
-                              'labelframe': None}, rows)
+                              'labelframe': None, 'only': None}, rows)
+                    if len(blockdesc) > 2:
+                        block[0]['only'] = blockdesc[2]
                     blocks.append(block)
                 columns.append(blocks)
             self._layout.append(columns)
 
         # maps keys to field-dicts defined in self.layout (see above)
         self._keymap = {}
+        # maps "only" entries to block boxes to hide
+        self._onlymap = {}
 
         # split window into to panels/frames below each other:
-        # one displays time, the other is divided further to dsiplay blocks.
+        # one displays time, the other is divided further to display blocks.
         # first the timeframe:
         masterframe = QFrame(master)
         masterlayout = QVBoxLayout()
@@ -352,6 +359,9 @@ class Monitor(BaseCacheClient):
                                 rowlayout.addSpacing(self._padding)
                             rowlayout.addStretch()
                             blocklayout.addLayout(rowlayout)
+                    if block[0]['only']:
+                        self._onlymap.setdefault(block[0]['only'], []).\
+                            append((blocklayout_outer, blockbox))
                     blocklayout.addSpacing(0.3*self._blheight)
                     blockbox.setLayout(blocklayout)
                     blocklayout_outer.addWidget(blockbox)
@@ -495,6 +505,19 @@ class Monitor(BaseCacheClient):
             pass
 
         #self.printdebug('processing %s=%s' % (key, value))
+
+        if key == self._prefix + '/system/mastersetup':
+            setups = set(value)
+            # reconfigure displayed blocks
+            for setup in self._onlymap:
+                for layout, blockbox in self._onlymap[setup]:
+                    if setup in setups:
+                        blockbox.setVisible(True)
+                        layout.insertWidget(1, blockbox)
+                    else:
+                        blockbox.setVisible(False)
+                        layout.removeWidget(blockbox)
+            self.printinfo('reconfigured display for setups %s' % setups)
 
         # now check if we need to update something
         fields = self._keymap.get(key, [])
