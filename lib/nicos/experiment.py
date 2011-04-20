@@ -62,7 +62,7 @@ class Experiment(Device):
                            type=str, settable=True, category='experiment'),
         'users':     Param('User names', type=listof(str), settable=True,
                            category='experiment'),
-        'datapath':  Param('Path for data files', type=str,
+        'datapath':  Param('Paths for data files', type=listof(str),
                            settable=True, category='experiment'),
         'detlist':   Param('List of default detectors', type=listof(str),
                            settable=True, writeoninit=True),
@@ -94,12 +94,15 @@ class Experiment(Device):
             user += ' -- ' + affiliation
         self.users = self.users + [user]
 
-    def doWriteDatapath(self, value):
-        if not path.isdir(value):
-            os.makedirs(value)
+    def doWriteDatapath(self, paths):
+        if not paths:
+            raise UsageError(self, 'at least one data pathname is required')
+        for datapath in paths:
+            if not path.isdir(datapath):
+                os.makedirs(datapath)
         for dev in session.devices.itervalues():
             if isinstance(dev, NeedsDatapath):
-                dev._setDatapath(value)
+                dev._setDatapath(paths)
 
     def createDataset(self, scantype=None):
         dataset = Dataset()

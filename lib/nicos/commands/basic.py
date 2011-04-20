@@ -39,7 +39,7 @@ import __builtin__
 from nicos import session
 from nicos.utils import formatDocstring, printTable
 from nicos.device import Device
-from nicos.errors import ModeError
+from nicos.errors import ModeError, NicosError
 from nicos.notify import Mailer, SMSer
 from nicos.sessions import EXECUTIONMODES
 from nicos.commands import usercommand
@@ -160,9 +160,9 @@ def CreateAllDevices():
             printexception('error creating %s' % devname)
 
 @usercommand
-def NewExperiment(proposalnumber, title):
+def NewExperiment(proposal, title):
     """Start a new experiment."""
-    session.experiment.new(proposalnumber, title)
+    session.experiment.new(proposal, title)
 
 @usercommand
 def NewUser(name, email, affiliation=None):

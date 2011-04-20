@@ -52,17 +52,21 @@ class PandaExperiment(Experiment):
 
     def doInit(self):
         Experiment.doInit(self)
-        self._uhandler = UserLogfileHandler(os.path.join(self.datapath, 'log'))
+        self._uhandler = UserLogfileHandler(
+            os.path.join(self.datapath[0], 'log'))
         session.addLogHandler(self._uhandler)
 
     def new(self, proposal, title=None):
         if isinstance(proposal, int):
             proposal = 'p%s' % proposal
         Experiment.new(self, proposal, title)
-        self.datapath = '/data/exp/%s' % proposal
-        #(time.strftime('%Y'), self.cycle)
-        if not os.path.isdir(os.path.join(self.datapath, 'scripts')):
-            os.mkdir(os.path.join(self.datapath, 'scripts'))
-        if not os.path.isdir(os.path.join(self.datapath, 'log')):
-            os.mkdir(os.path.join(self.datapath, 'log'))
-        self._uhandler.changeDirectory(os.path.join(self.datapath, 'log'))
+        exp_datapath = '/data/exp/%s' % proposal
+        self.datapath = [
+            exp_datapath,
+            '/data/%s/cycle_%s' % (time.strftime('%Y'), self.cycle),
+        ]
+        if not os.path.isdir(os.path.join(exp_datapath, 'scripts')):
+            os.mkdir(os.path.join(exp_datapath, 'scripts'))
+        if not os.path.isdir(os.path.join(exp_datapath, 'log')):
+            os.mkdir(os.path.join(exp_datapath, 'log'))
+        self._uhandler.changeDirectory(os.path.join(exp_datapath, 'log'))

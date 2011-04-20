@@ -85,6 +85,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
         self._thread.start()
 
     def _setDatapath(self, value):
+        value = value[0]  # always use only first data path
         self._datapath = path.join(value, 'cascade')
         self._filenumber = readFileCounter(path.join(self._datapath, 'counter'))
         self._lastfilename = path.join(self._datapath,

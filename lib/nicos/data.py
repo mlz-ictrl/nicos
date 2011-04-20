@@ -31,6 +31,7 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import os
 import time
 import errno
 from os import path
@@ -374,10 +375,12 @@ class DatafileSink(DataSink, NeedsDatapath):
 
 class AsciiDatafileSink(DatafileSink):
     parameters = {
-        'commentchar': Param('Comment character', type=str, default='#',
-                             settable=True),
-        'semicolon': Param('Whether to add a semicolon between X and Y values',
-                           type=bool, default=True),
+        'globalcounter':  Param('File name for a global file counter instead '
+                                'of one per datapath', type=str, default=''),
+        'commentchar':    Param('Comment character', type=str, default='#',
+                                settable=True),
+        'semicolon':      Param('Whether to add a semicolon between X and Y '
+                                'values', type=bool, default=True),
         'lastfilenumber': Param('The number of the last written data file',
                                 type=int),
     }
@@ -393,9 +396,14 @@ class AsciiDatafileSink(DatafileSink):
         self._tcomment = self.commentchar * 3
 
     def _setDatapath(self, value):
-        self._path = value
+        self._path = value[0]
+        self._addpaths = value[1:]
         # determine current file counter value
-        self._counter = readFileCounter(path.join(self._path, 'filecounter'))
+        if self.globalcounter:
+            self._counter = readFileCounter(self.globalcounter)
+        else:
+            self._counter = readFileCounter(
+                path.join(self._path, 'filecounter'))
         self._setROParam('lastfilenumber', self._counter)
 
     def doWriteCommentchar(self, value):
@@ -420,7 +428,11 @@ class AsciiDatafileSink(DatafileSink):
             self._setDatapath(session.experiment.datapath)
         self._wrote_columninfo = False
         self._counter += 1
-        updateFileCounter(path.join(self._path, 'filecounter'), self._counter)
+        if self.globalcounter:
+            updateFileCounter(self.globalcounter, self._counter)
+        else:
+            updateFileCounter(path.join(self._path, 'filecounter'),
+                              self._counter)
         self._setROParam('lastfilenumber', self._counter)
         self._fname = self.nextFileName()
         self._fullfname = path.join(self._path, self._fname)
@@ -433,6 +445,8 @@ class AsciiDatafileSink(DatafileSink):
             raise ProgrammingError('Data file named %r already exists!' %
                                    self._fullfname)
         self._file = open(self._fullfname, 'w')
+        for addpath in self._addpaths:
+            os.link(self._fullfname, path.join(addpath, self._fname))
         self._userinfo = dataset.scaninfo
         self._file.write('%s NICOS data file, created at %s\n' %
                          (self._tcomment, time.strftime(TIMEFMT)))

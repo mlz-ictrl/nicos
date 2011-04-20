@@ -18,7 +18,7 @@ devices = dict(
 
     Exp      = device('nicos.mira.experiment.MiraExperiment',
                       sample = 'Sample',
-                      datapath = '/data/testdata'),
+                      datapath = ['/data/testdata']),
 
     filesink = device('nicos.data.AsciiDatafileSink',
                       prefix = 'data'),
