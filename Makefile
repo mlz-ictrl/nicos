@@ -68,8 +68,8 @@ main-install:
 	@echo "Everything is now installed to $(ROOTDIR)."
 	@echo "Trying to create system-wide symbolic links..."
 	@echo "============================================================="
-	-ln -s $(VOPT) -t /etc/init.d $(ROOTDIR)/etc/nicos-system
-	-ln -s $(VOPT) -t /usr/bin $(ROOTDIR)/bin/*
+	-ln -sf $(VOPT) -t /etc/init.d $(ROOTDIR)/etc/nicos-system
+	-ln -sf $(VOPT) -t /usr/bin $(ROOTDIR)/bin/*
 	@echo "============================================================="
 	@echo "Finished."
 	@echo "============================================================="

@@ -24,7 +24,7 @@ devices = dict(
     panda = device('nicos.instrument.Instrument'),
 
     filesink = device('nicos.data.AsciiDatafileSink',
-                      prefix = 'data'),
+                      globalcounter = '/data/filecounter'),
 
     conssink = device('nicos.data.ConsoleSink'),
 
