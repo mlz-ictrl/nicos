@@ -186,20 +186,17 @@ class Monitor(BaseCacheClient):
 
     def ui_init(self, master):
         self._master = master
-        #~ if self._geometry:
-            #~ if self._geometry == 'fullscreen':
-                #~ master.showMaximized()
-                #~ QCursor.setPos(master.geometry().bottomRight())
-                #~ #QCursor.setPos(
-                #~ #    master.mapToGlobal(QPoint(sz.width(), sz.height())))
-            #~ else:
-                #~ try:
-                    #~ w, h, x, y = map(int, re.match('(\d+)x(\d+)+(\d+)+(\d+)',
-                                                   #~ self._geometry).groups())
-                #~ except Exception:
-                    #~ self.printwarning('invalid geometry %s' % self._geometry)
-                #~ else:
-                    #~ master.setGeometry(x, y, w, h)
+        if self._geometry:
+            if self._geometry == 'fullscreen':
+                master.fullscreen()
+            else:
+                try:
+                    w, h, x, y = map(int, re.match('(\d+)x(\d+)+(\d+)+(\d+)',
+                                                   self._geometry).groups())
+                except Exception:
+                    self.printwarning('invalid geometry %s' % self._geometry)
+                else:
+                    master.resize(x, y, w, h)
         fontsize = self._fontsize
         fontsizebig = int(self._fontsize * 1.2)
 
@@ -213,15 +210,9 @@ class Monitor(BaseCacheClient):
 
         master.label(self.title)
 
-        #self._timefont  = QFont(self.font, fontsizebig + fontsize)
-        #self._blockfont = QFont(self.font, fontsizebig)
-        #self._labelfont = QFont(self.font, fontsize)
-        #self._stbarfont = QFont(self.font, int(fontsize * 0.8))
-        #self._valuefont = QFont(self.valuefont or self.font, fontsize)
-
-        self._onechar = 5 ##QFontMetrics(self._valuefont).width('0')
+        self._onechar = self._fontsize ##QFontMetrics(self._valuefont).width('0')
         self._blheight = 20 ##QFontMetrics(self._blockfont).height()
-        self._tiheight = 20 ##QFontMetrics(self._timefont).height()
+        self._tiheight = fontsizebig+fontsize ##QFontMetrics(self._timefont).height()
 
         field_defaults = {
             # display/init properties
@@ -272,51 +263,36 @@ class Monitor(BaseCacheClient):
         # split window into to panels/frames below each other:
         # one displays time, the other is divided further to display blocks.
         # first the timeframe:
-        masterlayout = Fl_Pack(0, 0, 1024, 800)
-        self._timelabel = Fl_Box(0, 0, 0, 35, self.title)
-        self._timelabel.labelsize(28)
-        #masterlayout.add(self._timelabel)
-        
-        
-        #master.add(masterlayout)
-        #masterframe = QFrame(master)
-        #masterlayout = QVBoxLayout()
-        #self._timelabel = QLabel('', master)
-        #self._timelabel.setFont(self._timefont)
-        #set_forecolor(self._timelabel, self._gray) 
-        #self._timelabel.setAlignment(Qt.AlignHCenter)
-        #self._timelabel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        #masterlayout.addWidget(self._timelabel)
-        #masterlayout.addSpacing(0.5*self._tiheight)
+        masterlayout = Fl_Pack(0, 0, master.w(), master.h())
+        self._timelabel = Fl_Box(0, 0, 0, fontsizebig + fontsize + 20, self.title)
+        self._timelabel.labelsize(fontsizebig + fontsize)
 
         def _create_field(groupframe, field):
-            fieldlayout = Fl_Pack(0, 0, 100, 10)
+            fieldlayout = Fl_Pack(0, 0, field['width']*self._onechar, 1)
             fieldlayout.spacing(5)
             # now put describing label and view label into subframe
-            l = Fl_Box(0, 0, 0, 20, ' ' + field['name'] + ' ')
+            l = Fl_Box(0, 0, 0, fontsize+5, ' ' + field['name'] + ' ')
             #l.setFont(self._labelfont)
             l.align(FL_ALIGN_CENTER)
+            l.labelsize(fontsize)
+            l.box(FL_FLAT_BOX)
             field['namelabel'] = l
 
-            l = Fl_Box(0, 0, 0, 30,  '----')
+            l = Fl_Box(0, 0, 0, fontsize+10,  '----')
             l.labelcolor(self._white)
-            l.color2(self._black)
+            l.labelsize(fontsize)
+            l.box(FL_THIN_DOWN_BOX)
+            l.color(self._black)
             if field['istext']:
                 #l.setFont(self._labelfont)
                 l.align(FL_ALIGN_LEFT)
             else:
                 l.labelfont(FL_COURIER)
                 l.align(FL_ALIGN_CENTER)
-            l.box(FL_THIN_DOWN_FRAME)
             #l.setMinimumSize(QSize(self._onechar * (field['width'] + .5), 0))
             #l.setProperty('assignedField', field)
             field['valuelabel'] = l
-
-            #tmplayout = QHBoxLayout()
-            #tmplayout.addStretch()
-            #tmplayout.addWidget(l)
-            #tmplayout.addStretch()
-            #fieldlayout.addLayout(tmplayout)
+            fieldlayout.end()
 
             # store reference from key to field for updates
             def _ref(name, key):
@@ -336,7 +312,7 @@ class Monitor(BaseCacheClient):
                     _ref('unitkey', prefix + field['unitkey'])
                 if field['formatkey']:
                     _ref('formatkey', prefix + field['formatkey'])
-            fieldlayout.end()
+            return fieldlayout
 
         # now iterate through the layout and create the widgets to display it
         for superrow in self._layout:
@@ -352,24 +328,23 @@ class Monitor(BaseCacheClient):
                     blocklayout_outer.type(FL_HORIZONTAL)
                     Fl_Box(0, 0, 10, 0).box(FL_SHADOW_BOX)
                     #blocklayout_outer.addStretch()
-                    blockbox = Fl_Pack(0, 0, 5000, 1000)#, block[0]['name'])
+                    blockbox = Fl_Pack(0, 0, 1000, 1)#, block[0]['name'])
                     blockbox.align(FL_ALIGN_CENTER)
-                    #blockbox.labelsize(20)
+                    blockbox.labelsize(fontsizebig)
                     block[0]['labelframe'] = blockbox
                     for row in block[1]:
                         if row is None:
                             #blocklayout.addSpacing(12)
                             pass
                         else:
-                            rowlayout = Fl_Pack(0, 0, 500, 70)
+                            rowlayout = Fl_Pack(0, 0, 1, 2*fontsize+25)
                             rowlayout.type(FL_HORIZONTAL)
                             rowlayout.spacing(self._padding)
-                            #rowlayout.addStretch()
                             for field in row:
-                                _create_field(blockbox, field)
-                            #rowlayout.addStretch()
+                                fieldlayout = _create_field(blockbox, field)
                             rowlayout.box(FL_UP_FRAME)
                             rowlayout.end()
+                    print rowlayout.w()
                     ##if block[0]['only']:
                      ##   self._onlymap.setdefault(block[0]['only'], []).\
                      ##       append((blocklayout_outer, blockbox))
