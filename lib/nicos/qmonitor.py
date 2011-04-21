@@ -37,7 +37,7 @@ import threading
 from cgi import escape
 from time import time as currenttime, sleep, strftime
 
-from PyQt4.QtCore import QSize, QPoint, Qt
+from PyQt4.QtCore import QSize, QPoint, Qt, SIGNAL
 from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
      QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, \
      QCursor
@@ -92,6 +92,7 @@ class BlockBox(QFrame):
         self.setFrameShape(QFrame.Panel)
         self.setFrameShadow(QFrame.Raised)
         self.setLineWidth(2)
+        self.connect(self, SIGNAL('enableDisplay'), self.enableDisplay)
     def moveEvent(self, event):
         self._repos()
         return QFrame.moveEvent(self, event)
@@ -104,9 +105,13 @@ class BlockBox(QFrame):
         lsz = self._label.size()
         self._label.move(mps.x() + 0.5*(msz.width() - lsz.width()),
                          mps.y() - 0.5*lsz.height())
-    #def setVisible(self, isvis):
-    #    QFrame.setVisible(self, isvis)
-    #    self._label.setVisible(isvis)
+    def enableDisplay(self, layout, isvis):
+        QFrame.setVisible(self, isvis)
+        self._label.setVisible(isvis)
+        if not isvis:
+            layout.removeWidget(self)
+        else:
+            layout.insertWidget(1, self)
 
 def set_forecolor(label, fore):
     pal = label.palette()
@@ -505,18 +510,12 @@ class Monitor(BaseCacheClient):
             pass
 
         #self.printdebug('processing %s=%s' % (key, value))
-
         if key == self._prefix + '/system/mastersetup':
             setups = set(value)
             # reconfigure displayed blocks
             for setup in self._onlymap:
                 for layout, blockbox in self._onlymap[setup]:
-                    if setup in setups:
-                        blockbox.setVisible(True)
-                        layout.insertWidget(1, blockbox)
-                    else:
-                        blockbox.setVisible(False)
-                        layout.removeWidget(blockbox)
+                    blockbox.emit(SIGNAL('enableDisplay'), layout, setup in setups)
             self.printinfo('reconfigured display for setups %s' % setups)
 
         # now check if we need to update something

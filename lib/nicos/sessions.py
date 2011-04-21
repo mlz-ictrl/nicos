@@ -645,7 +645,7 @@ class SimpleSession(Session):
         except Exception, err:
             try:
                 session.log.exception('Fatal error while initializing')
-            except Exception:
+            finally:
                 print >>sys.stderr, 'Fatal error while initializing:', err
             return 1
 
