@@ -36,7 +36,7 @@ from time import time as currenttime, sleep
 from nicos import session
 from nicos import status, loggers
 from nicos.utils import AutoPropsMeta, Param, Override, Value, getVersions, \
-     tupleof
+     tupleof, floatrange
 from nicos.errors import ConfigurationError, ProgrammingError, UsageError, \
      LimitError, FixedError, ModeError, CommunicationError, CacheLockError
 
@@ -392,7 +392,7 @@ class Readable(Device):
         'unit':         Param('Unit of the device main value', type=str,
                               mandatory=True, settable=True),
         'maxage':       Param('Maximum age of cached value and status',
-                              unit='s', default=6, settable=True),
+                              unit='s', type=floatrange(0.01, 24*3600), default=6, settable=True),
         'pollinterval': Param('Polling interval for value and status',
                               unit='s', default=5, settable=True),
     }
