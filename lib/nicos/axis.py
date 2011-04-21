@@ -91,17 +91,15 @@ class Axis(BaseAxis):
         if 'abslimits' in self._config:
             amin, amax = self._config['abslimits']
             mmin, mmax = self._adevs['motor'].abslimits
-            mmin -= self.offset
-            mmax -= self.offset
             if amin < mmin:
                 raise ConfigurationError(self, 'absmin (%s) below the motor '
                                          'absmin (%s)' % (amin, mmin))
             if amax > mmax:
-                raise ConfigurationError(self, 'absmax (%s) below the motor '
+                raise ConfigurationError(self, 'absmax (%s) above the motor '
                                          'absmax (%s)' % (amax, mmax))
         else:
             mmin, mmax = self._adevs['motor'].abslimits
-            amin, amax = mmin - self.offset, mmax - self.offset
+            amin, amax = mmin, mmax
         return amin, amax
 
     def doStart(self, target, locked=False):

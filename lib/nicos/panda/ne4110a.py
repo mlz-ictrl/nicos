@@ -40,9 +40,9 @@ from threading import RLock
 
 import serial
 
+from nicos.ipc import IPCModBus, InvalidCommandError
 from nicos.device import Device, Param
 from nicos.errors import NicosError, CommunicationError, ProgrammingError
-from nicos.panda.ipc import ModBus, InvalidCommandError
 
 STX = chr(2)
 EOT = chr(4)
@@ -139,7 +139,7 @@ IPC_MAGIC = {
 }
 
 
-class ne4110_bus(ModBus):
+class ne4110_bus(IPCModBus):
     """IPC protocol communication bus over network to serial adapter using tcp-connection."""
 
     parameters = {

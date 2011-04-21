@@ -696,21 +696,27 @@ class HasLimits(Startable):
     def _checkLimits(self, limits):
         umin, umax = limits
         amin, amax = self.abslimits
+        if isinstance(self, HasOffset):
+            offset = self.offset
+            umin += offset
+            umax += offset
+        else:
+            offset = 0
         if umin > umax:
-            raise ConfigurationError(self, 'user minimum (%s) above the user '
-                                     'maximum (%s)' % (umin, umax))
+            raise ConfigurationError(self, 'user minimum (%s, offset %s) above the user '
+                                     'maximum (%s, offset %s)' % (umin, offset, umax, offset))
         if umin < amin:
-            raise ConfigurationError(self, 'user minimum (%s) below the '
-                                     'absolute minimum (%s)' % (umin, amin))
+            raise ConfigurationError(self, 'user minimum (%s, offset %s) below the '
+                                     'absolute minimum (%s)' % (umin, offset, amin))
         if umin > amax:
-            raise ConfigurationError(self, 'user minimum (%s) above the '
-                                     'absolute maximum (%s)' % (umin, amax))
+            raise ConfigurationError(self, 'user minimum (%s, offset %s) above the '
+                                     'absolute maximum (%s)' % (umin, offset, amax))
         if umax > amax:
-            raise ConfigurationError(self, 'user maximum (%s) above the '
-                                     'absolute maximum (%s)' % (umax, amax))
+            raise ConfigurationError(self, 'user maximum (%s, offset %s) above the '
+                                     'absolute maximum (%s)' % (umax, offset, amax))
         if umax < amin:
-            raise ConfigurationError(self, 'user maximum (%s) below the '
-                                     'absolute minimum (%s)' % (umax, amin))
+            raise ConfigurationError(self, 'user maximum (%s, offset %s) below the '
+                                     'absolute minimum (%s)' % (umax, offset, amin))
 
     def doReadUserlimits(self):
         if 'userlimits' not in self._config:
@@ -750,8 +756,6 @@ class HasOffset(object):
         diff = value - self.offset
         if isinstance(self, HasLimits):
             # this applies only to Moveables with limits
-            limits = self.abslimits
-            self._setROParam('abslimits', (limits[0] - diff, limits[1] - diff))
             limits = self.userlimits
             self.userlimits = (limits[0] - diff, limits[1] - diff)
         # Since offset changes directly change the device value, refresh
