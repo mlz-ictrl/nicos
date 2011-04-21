@@ -118,6 +118,10 @@ class Device(object):
         else:
             # set correct log level now that the parameter is initialized
             self._log.setLevel(loggers.loglevels[self.loglevel])
+            if self._cache:
+                def logreconf(key, value):
+                    self.loglevel = value
+                self._cache.addCallback(self, 'loglevel', logreconf)
 
     def __setattr__(self, name, value):
         # disallow modification of public attributes that are not parameters
@@ -331,6 +335,8 @@ class Device(object):
             return
         if hasattr(self, 'doShutdown'):
             self.doShutdown()
+        if self._cache:
+            self._cache.removeCallback(self, 'loglevel')
 
     def version(self):
         """Return a list of versions for this component."""

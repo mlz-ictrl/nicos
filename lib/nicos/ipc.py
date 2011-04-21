@@ -98,8 +98,7 @@ class Coder(NicosCoder):
         try:
             value = bus.get(self.addr, 150)
         except NicosError:
-            if self._type == 'binary-endat':
-                self._endatclearalarm()
+            self._endatclearalarm()
             sleep(1)
             # try again
             value = bus.get(self.addr, 150)
@@ -114,7 +113,7 @@ class Coder(NicosCoder):
 
     def _endatclearalarm(self):
         """Clear alarm for a binary-endat encoder."""
-        if self._type != 'binary-endat':
+        if not self._type.startswith('endat'):
             return
         bus = self._adevs['bus']
         try:
@@ -135,7 +134,8 @@ class Motor(NicosMotor):
         'unit': Param('Motor unit', type=str, default='steps'),
         'offset': Param('Motor offset', type=float, settable=True),
         'slope': Param('Motor slope', type=float, settable=True, default=1.0),
-        # those parameters come from the card, make them settable
+        # those parameters come from the card
+        'firmware': Param('Firmware version', type=int),
         'speed': Param('Motor speed (0..255)', type=intrange(0, 256),
                        settable=True),
         'accel': Param('Motor acceleration (0..255)', type=intrange(0, 256),
@@ -153,7 +153,9 @@ class Motor(NicosMotor):
                             settable=True),
         'stopdelay': Param('Stop delay', type=floatrange(0, 25), unit='s',
                            settable=True),
-        'firmware': Param('Firmware version', type=int),
+        'divider': Param('Frequency divider', type=intrange(1, 8),
+                         settable=True),
+        'microsteps': Param('Microsteps', type=intrange(0, 5), settable=True),
     }
 
     attached_devices = {
@@ -215,6 +217,34 @@ class Motor(NicosMotor):
             self._adevs['bus'].send(self.addr, 37)
         else:  # fullstep
             self._adevs['bus'].send(self.addr, 36)
+        self.printinfo('parameter change not permanent, use _store() '
+                       'method to write to EEPROM')
+
+    def doReadDivider(self):
+        try:
+            return self._adevs['bus'].get(self.addr, 144)
+        except InvalidCommandError:
+            return 0
+
+    def doWriteDivider(self, value):
+        try:
+            self._adevs['bus'].send(self.addr, 60, value, 3)
+        except InvalidCommandError:
+            raise UsageError(self, 'divider not supported by card')
+        self.printinfo('parameter change not permanent, use _store() '
+                       'method to write to EEPROM')
+
+    def doReadMicrosteps(self):
+        try:
+            return self._adevs['bus'].get(self.addr, 141)
+        except InvalidCommandError:
+            return 0
+
+    def doWriteMicrosteps(self, value):
+        try:
+            self._adevs['bus'].send(self.addr, 57, value, 3)
+        except InvalidCommandError:
+            raise UsageError(self, 'microsteps not supported by card')
         self.printinfo('parameter change not permanent, use _store() '
                        'method to write to EEPROM')
 
@@ -321,12 +351,13 @@ class Motor(NicosMotor):
 
     def doWait(self):
         timeleft = self.timeout
-        sleep(0.5)
-        while self.doStatus()[0] == status.BUSY:
-            sleep(0.5)
-            timeleft -= 0.5
-            if timeleft <= 0:
-                self.doStop()
+        while timeleft >= 0:
+            sleep(0.1)
+            timeleft -= 0.1
+            if self.doStatus()[0] != status.BUSY:
+                break
+        else:
+            self.doStop()
 
     def doStop(self):
         try:
@@ -343,32 +374,53 @@ class Motor(NicosMotor):
         bus = self._adevs['bus']
         state = bus.get(self.addr, 134)
 
-        if state & 15360:
-            msg = ''
-            if state & 4096:
-                msg += ', SMS devices overheated'
-            if state & 2048:
-                msg += ', motor power below 20V'
-            if state & 1024:
-                msg += ', motor not connected or leads broken'
-            if state & 8192:
-                msg += ', hardware failure or device not reset after power-on'
-            return status.ERROR, msg[2:]
+        statusvalue = status.OK
+        msg = ''
 
-        if state & 32 and state & 64:
-            return status.ERROR, 'both limit switches active, check connections'
-
-        if state & 1:
-            return status.BUSY, 'moving'
-        if state & 32768:
-            return status.NOTREACHED, 'waiting for start/stopdelay'
-
+        msg += (state & 2) and ', backward' or ', forward'
+        msg += (state & 4) and ', halfsteps' or ', fullsteps'
+        msg += (state & 8) and ', relais on' or ', relais off'
         if state & 32:
-            return status.OK, 'limit switch 1 active'
+            msg += ', limit switch - active'
         if state & 64:
-            return status.OK, 'limit switch 2 active'
+            msg += ', limit switch + active'
+        if state & 128:
+            msg += ', reference switch active'
+        if state & 256:
+            msg += ', software limit - reached'
+        if state & 512:
+            msg += ', software limit + reached'
+        if state & 16384 == 0:
+            msg += ', external booster stage active'
+        if state & 32768:
+            statusvalue = status.NOTREACHED
+            msg += 'waiting for start/stopdelay'
 
-        return status.OK, 'idle'
+        # check error states last
+        if state & 16:
+            statusvalue = status.ERROR
+            msg += ', inhibit active'
+        if state & 32 and state & 64:
+            statusvalue = status.ERROR
+        if state & 1024:
+            statusvalue = status.ERROR
+            msg += ', device overheated'
+        if state & 2048:
+            statusvalue = status.ERROR
+            msg += ', motor undervoltage'
+        if state & 4096:
+            statusvalue = status.ERROR
+            msg += ', motor not connected or leads broken'
+        if state & 8192:
+            statusvalue = status.ERROR
+            msg += ', hardware failure or device not reset after power-on'
+
+        # if it's moving, it's not in error state!
+        if state & 1:
+            statusvalue = status.BUSY
+            msg = ', moving' + msg
+
+        return statusvalue, msg[2:]
 
     def doSetPosition(self, target):
         self.printdebug('setPosition: %s' % target)
@@ -378,3 +430,49 @@ class Motor(NicosMotor):
     def _store(self):
         self._adevs['bus'].send(self.addr, 40)
         self.printinfo('parameters stored to EEPROM')
+
+    def _poweroff(self):
+        self._adevs['bus'].send(self.addr, 53)
+
+    def _poweron(self):
+        self._adevs['bus'].send(self.addr, 54)
+
+    def _relaison(self):
+        try:
+            self._adevs['bus'].send(self.addr, 38)
+        except InvalidCommandError:
+            raise UsageError(self, 'card does not support relais commands')
+
+    def _relaisoff(self):
+        try:
+            self._adevs['bus'].send(self.addr, 39)
+        except InvalidCommandError:
+            raise UsageError(self, 'card does not support relais commands')
+
+    def _setsteps(self, value):
+        if not 0 <= value <= 999999:
+            raise UsageError(self, 'invalid stepper position: %s' % value)
+        self._adevs['bus'].send(self.addr, 43, value, 6)
+
+    def _printconfig(self):
+        byte = self.confbyte
+        c = ''
+
+        if byte & 1: c += 'limit switch 1:  high = active\n'
+        else: c += 'limit switch 1:  low = active\n'
+        if byte & 2: c += 'limit switch 2:  high = active\n'
+        else: c += 'limit switch 2:  low = active\n'
+        if byte & 4: c += 'inhibit entry:  high = active\n'
+        else: c += 'inhibit entry:  low = active\n'
+        if byte & 8: c += 'reference switch:  high = active\n'
+        else: c += 'reference switch:  low = active\n'
+        if byte & 16: c += 'use external powerstage\n'
+        else: c += 'use internal powerstage\n'
+        if byte & 32: c += 'leads testing disabled\n'
+        else: c += 'leads testing enabled\n'
+        if byte & 64: c += 'reversed limit switches\n'
+        else: c += 'normal limit switch order\n'
+        if byte & 128: c += 'freq-range: 8-300Hz\n'
+        else: c += 'freq-range: 90-3000Hz\n'
+
+        self.printinfo(c)

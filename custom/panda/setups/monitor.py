@@ -43,12 +43,13 @@ _block1 = ('Motorrahmen Test', [_row1, _row2, _row3], 'testaxes')
 
 _column1 = [
     _block1,
+    _block1,
     #_block2,
     #_block3,
 ]
 
 devices = dict(
-    Monitor = device('nicos.qmonitor.Monitor',
+    Monitor = device('nicos.fltkmonitor.Monitor',
                      title = 'PANDA status monitor',
                      loglevel = 'info',
                      server = 'pandasrv',
@@ -56,5 +57,5 @@ devices = dict(
                      font = 'Luxi Sans',
                      fontsize = 10,
                      valuefont = 'Luxi Mono',
-                     layout = [[_column1]])
+                     layout = [[_column1, _column1]])
 )
