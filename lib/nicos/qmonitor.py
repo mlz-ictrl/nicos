@@ -40,7 +40,7 @@ from time import time as currenttime, sleep, strftime
 from PyQt4.QtCore import QSize, QPoint, Qt, SIGNAL
 from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
      QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, \
-     QCursor
+     QCursor, QStackedWidget
 
 from nicos.utils import listof
 from nicos.status import OK, BUSY, ERROR, PAUSED, NOTREACHED, statuses
@@ -139,6 +139,8 @@ class Monitor(BaseCacheClient):
                            default='Status'),
         'layout':    Param('Status monitor layout', type=listof(list),
                            mandatory=True),
+        'warnings':  Param('List of warning conditions', type=listof(list),
+                           mandatory=True),
         'font':      Param('Font name for the window', type=str,
                            default='Luxi Sans'),
         'valuefont': Param('Font name for the value displays', type=str),
@@ -192,8 +194,6 @@ class Monitor(BaseCacheClient):
             if self._geometry == 'fullscreen':
                 master.showMaximized()
                 QCursor.setPos(master.geometry().bottomRight())
-                #QCursor.setPos(
-                #    master.mapToGlobal(QPoint(sz.width(), sz.height())))
             else:
                 try:
                     w, h, x, y = map(int, re.match('(\d+)x(\d+)+(\d+)+(\d+)',
@@ -270,6 +270,8 @@ class Monitor(BaseCacheClient):
         self._keymap = {}
         # maps "only" entries to block boxes to hide
         self._onlymap = {}
+        # remembers loaded setups
+        self._setups = set()
 
         # split window into to panels/frames below each other:
         # one displays time, the other is divided further to display blocks.
@@ -278,11 +280,17 @@ class Monitor(BaseCacheClient):
         masterlayout = QVBoxLayout()
         self._timelabel = QLabel('', master)
         self._timelabel.setFont(self._timefont)
-        set_forecolor(self._timelabel, self._gray) 
+        set_forecolor(self._timelabel, self._gray)
+        self._timelabel.setAutoFillBackground(True)
         self._timelabel.setAlignment(Qt.AlignHCenter)
         self._timelabel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         masterlayout.addWidget(self._timelabel)
         masterlayout.addSpacing(0.5*self._tiheight)
+
+        self._stacker = QStackedWidget(masterframe)
+        masterlayout.addWidget(self._stacker)
+        displayframe = QFrame(self._stacker)
+        self._stacker.addWidget(displayframe)
 
         def _create_field(groupframe, field):
             fieldlayout = QVBoxLayout()
@@ -337,6 +345,7 @@ class Monitor(BaseCacheClient):
             return fieldlayout
 
         # now iterate through the layout and create the widgets to display it
+        displaylayout = QVBoxLayout()
         for superrow in self._layout:
             boxlayout = QHBoxLayout()
             boxlayout.setSpacing(20)
@@ -349,7 +358,8 @@ class Monitor(BaseCacheClient):
                     blocklayout_outer.addStretch()
                     blocklayout = QVBoxLayout()
                     blocklayout.addSpacing(0.5*self._blheight)
-                    blockbox = BlockBox(master, block[0]['name'], self._blockfont)
+                    blockbox = BlockBox(displayframe, block[0]['name'],
+                                        self._blockfont)
                     block[0]['labelframe'] = blockbox
                     for row in block[1]:
                         if row is None:
@@ -375,16 +385,52 @@ class Monitor(BaseCacheClient):
                     columnlayout.addStretch()
                 columnlayout.addStretch()
                 boxlayout.addLayout(columnlayout)
-            masterlayout.addLayout(boxlayout)
+            displaylayout.addLayout(boxlayout)
 
+        displayframe.setLayout(displaylayout)
         masterframe.setLayout(masterlayout)
-        master.setCentralWidget(masterframe)
 
         # initialize status bar
         self._statuslabel = QLabel()
         self._statuslabel.setFont(self._stbarfont)
         master.statusBar().addWidget(self._statuslabel)
         self._statustimer = None
+
+        # maps warning keys
+        self._warnmap = {}
+        # current warnings
+        self._currwarnings = []
+        self._haswarnings = {}
+        # time when warnings were last shown/hidden?
+        self._warningswitchtime = 0
+
+        for warning in self.warnings:
+            try:
+                key, cond, desc, setup = warning
+            except:
+                key, cond, desc = warning
+                setup = None
+            self._warnmap[prefix + key] = \
+                {'condition': cond, 'description': desc, 'setup': setup}
+
+        self._warnpanel = QFrame(self._stacker)
+        self._stacker.addWidget(self._warnpanel)
+        master.connect(self._warnpanel, SIGNAL('setindex'),
+                       self._stacker.setCurrentIndex)
+
+        warningslayout = QVBoxLayout()
+        lbl = QLabel('Warnings', self._warnpanel)
+        lbl.setAlignment(Qt.AlignHCenter)
+        lbl.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        lbl.setFont(self._timefont)
+        warningslayout.addWidget(lbl)
+        self._warntext = QLabel('', self._warnpanel)
+        self._warntext.setFont(self._blockfont)
+        warningslayout.addWidget(self._warntext)
+        warningslayout.addStretch()
+        self._warnpanel.setLayout(warningslayout)
+
+        master.setCentralWidget(masterframe)
 
     def _label_entered(self, widget, event):
         field = widget.property('assignedField').toPyObject()
@@ -492,6 +538,15 @@ class Monitor(BaseCacheClient):
         self._watch = newwatch
         #self.printdebug('newwatch has %s items' % len(newwatch))
 
+        # check if warnings need to be shown
+        if self._currwarnings:
+            if currenttime() > self._warningswitchtime + 10:
+                if self._stacker.currentIndex() == 0:
+                    self._warnpanel.emit(SIGNAL('setindex'), 1)
+                else:
+                    self._warnpanel.emit(SIGNAL('setindex'), 0)
+                self._warningswitchtime = currenttime()
+
     # called to handle an incoming protocol message
     def _handle_msg(self, time, ttl, tsop, key, op, value):
         if op != OP_TELL:
@@ -510,13 +565,27 @@ class Monitor(BaseCacheClient):
             pass
 
         #self.printdebug('processing %s=%s' % (key, value))
+
         if key == self._prefix + '/system/mastersetup':
-            setups = set(value)
+            self._setups = set(value)
             # reconfigure displayed blocks
             for setup in self._onlymap:
                 for layout, blockbox in self._onlymap[setup]:
-                    blockbox.emit(SIGNAL('enableDisplay'), layout, setup in setups)
-            self.printinfo('reconfigured display for setups %s' % setups)
+                    blockbox.emit(SIGNAL('enableDisplay'),
+                                  layout, setup in self._setups)
+            self.printinfo('reconfigured display for setups %s'
+                           % ', '.join(self._setups))
+
+        if key in self._warnmap:
+            info = self._warnmap[key]
+            try:
+                condvalue = eval('__v__ ' + info['condition'],
+                                 {'__v__': value})
+            except Exception:
+                self.printwarning('error evaluating %r warning condition'
+                                  % key, exc=1)
+            else:
+                self._process_warnings(key, info, condvalue)
 
         # now check if we need to update something
         fields = self._keymap.get(key, [])
@@ -557,3 +626,24 @@ class Monitor(BaseCacheClient):
                                                     field['value'])
                     except Exception:
                         field['valuelabel'].setText(str(field['value']))
+
+    def _process_warnings(self, key, info, value):
+        if info['setup']:
+            value &= info['setup'] in self._setups
+        if not value:
+            if key not in self._haswarnings:
+                return
+            self._currwarnings.remove(self._haswarnings.pop(key))
+        elif value:
+            if key in self._haswarnings:
+                return
+            warning_desc = strftime('%Y-%m-%d %H:%M') + ' -- ' + \
+                           info['description']
+            self._currwarnings.append((key, warning_desc))
+            self._haswarnings[key] = (key, warning_desc)
+        if self._currwarnings:
+            set_fore_backcolor(self._timelabel, self._black, self._red)
+            self._warntext.setText('\n'.join(w[1] for w in self._currwarnings))
+        else:
+            set_fore_backcolor(self._timelabel, self._gray, self._bgcolor)
+            self._warnpanel.emit(SIGNAL('setindex'), 0)
