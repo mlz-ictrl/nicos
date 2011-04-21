@@ -37,7 +37,7 @@ _reactor = [
 
 _expcolumn = [
     ('Experiment', [
-        [{'name': 'Proposal', 'key': 'exp/proposalnumber', 'width': 7},
+        [{'name': 'Proposal', 'key': 'exp/proposal', 'width': 7},
          {'name': 'Title', 'key': 'exp/title', 'width': 20,
           'istext': True, 'maxlen': 20},
          {'name': 'Current status', 'key': 'exp/action', 'width': 30,

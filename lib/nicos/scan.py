@@ -80,7 +80,6 @@ class Scan(object):
         self._npoints = len(positions)  # can be zero if not known
 
     def prepareScan(self, positions):
-        session.beginActionScope('Scan')
         session.action('Moving to start')
         can_measure = True
         # the move-before devices
@@ -144,7 +143,6 @@ class Scan(object):
     def endScan(self):
         for sink in self._sinks:
             sink.endDataset(self.dataset)
-        session.endActionScope()
         session.breakpoint(1)
 
     def handleError(self, dev, val, err):
@@ -195,6 +193,13 @@ class Scan(object):
         return [dev.read() for dev in self._envlist]
 
     def run(self):
+        session.beginActionScope('Scan')
+        try:
+            self._inner_run()
+        finally:
+            session.endActionScope()
+
+    def _inner_run(self):
         # move all devices to starting position before starting scan
         can_measure = self.prepareScan(self._positions[0])
         self.beginScan()
