@@ -59,8 +59,12 @@ _layout = [
     #_column2,
 ]
 
+_warnings = [
+    ('a1/value', '== 0', 'a1 value is zero'), 
+]
+
 devices = dict(
-    Monitor = device('nicos.qmonitor.Monitor',
+    Monitor = device('nicos.monitor.fl.Monitor',
                      title='Status monitor',
                      loglevel='debug',
                      server='localhost',
@@ -68,6 +72,6 @@ devices = dict(
                      font='Luxi Sans',
                      valuefont='Consolas',
                      layout=[_layout],
-                     warnings=[],
+                     warnings=_warnings,
                      notifiers=[])
 )
