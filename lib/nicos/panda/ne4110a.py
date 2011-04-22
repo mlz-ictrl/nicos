@@ -104,10 +104,8 @@ class IPCModBusTCP(IPCModBus):
 
     def _transmit(self, request, last_try=False):
         response = ''
-        remaining = request
         try:
-            while remaining:
-                remaining = remaining[self._connection.send(remaining):]
+            self._connection.sendall(request)
 
             for i in range(self.commtries):
                 p = select.select([self._connection], [], [self._connection],

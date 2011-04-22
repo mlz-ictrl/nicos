@@ -145,10 +145,8 @@ class BaseCacheClient(Device):
         # send request for all keys and updates....
         # HACK: send a single request for a nonexisting key afterwards to
         # determine the end of data
-        tosend = '@%s\r\n###?\r\n@%s\r\n' % (OP_WILDCARD, OP_SUBSCRIBE)
-        while tosend:
-            sent = self._socket.send(tosend)
-            tosend = tosend[sent:]
+        self._socket.sendall(
+            '@%s\r\n###?\r\n@%s\r\n' % (OP_WILDCARD, OP_SUBSCRIBE))
 
         # read response
         data, n = '', 0
@@ -217,9 +215,7 @@ class BaseCacheClient(Device):
                 elif res[1]:
                     # write data
                     try:
-                        while tosend:
-                            sent = self._socket.send(tosend)
-                            tosend = tosend[sent:]
+                        self._socket.sendall(tosend)
                     except:
                         self._disconnect('disconnect: send failed')
                         data = ''
@@ -243,9 +239,7 @@ class BaseCacheClient(Device):
                     tosend = self._queue.get(False)
                 except:
                     break
-                while tosend:
-                    sent = self._socket.send(tosend)
-                    tosend = tosend[sent:]
+                self._socket.sendall(tosend)
 
         # end of while loop
         self._disconnect()
@@ -257,9 +251,7 @@ class BaseCacheClient(Device):
 
         with self._sec_lock:
             # write request
-            while tosend:
-                sent = self._secsocket.send(tosend)
-                tosend = tosend[sent:]
+            self._secsocket.sendall(tosend)
 
             # read response
             data, n = '', 0

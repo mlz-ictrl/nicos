@@ -78,10 +78,9 @@ class CacheUDPConnection(object):
         self.log('UDP: recv')
         return ''
 
-    def send(self, data):
+    def sendall(self, data):
         datalen = len(data)
         # split data into chunks which are less than self.maxsize
-        # data ALWAYS contains the data not yet sent
         while data:
             # find rightmost \n within first self.maxsize bytes
             p = data[:self.maxsize].rfind('\n')
@@ -243,29 +242,15 @@ class CacheWorker(object):
     def writeto(self, data):
         if not self.connection:
             return False
-        tries = 0
-        remaining = len(data)
         try:
-            remaining -= self.connection.send(data)
-        except:
-            tries = 100
-        while remaining > 0 and tries < 100:
-            # some data still left, retry after some wait
-            sleep(0.1)
-            tries += 1
-            # try to send all, but check if we could only send less
-            try:
-                remaining -= self.connection.send(data[-remaining:])
-            except:
-                tries = 100
-        if not remaining:
-            # signal success
-            return True
-        # Ok, if we can't write now, there is some serious problem.
-        # forget writing and close all down
-        self.log.warning(self, 'other end closed, shutting down')
-        self.closedown()
-        return False
+            self.connection.sendall(data)
+        except Exception:
+            # if we can't write now, there is some serious problem.
+            # forget writing and close all down
+            self.log.warning(self, 'other end closed, shutting down')
+            self.closedown()
+            return False
+        return True
 
     def update(self, key, op, value, time, ttl):
         """Check if we need to send the update given."""

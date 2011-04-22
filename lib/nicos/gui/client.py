@@ -209,9 +209,7 @@ class NicosClient(object):
     def _write(self, strings):
         """Write a command to the server."""
         string = RS.join(strings)
-        string = STX + LENGTH.pack(len(string)) + string
-        while string:
-            string = string[self.socket.send(string):]
+        self.socket.sendall(STX + LENGTH.pack(len(string)) + string)
 
     def _read(self):
         """Receive a response from the server."""

@@ -168,13 +168,11 @@ class ConnectionHandler(BaseRequestHandler):
 
     def write(self, prefix, msg=None):
         """Write a message to the client."""
-        if msg is None:
-            towrite = prefix
-        else:
-            towrite = prefix + LENGTH.pack(len(msg)) + msg
         try:
-            while towrite:
-                towrite = towrite[self.sock.send(towrite):]
+            if msg is None:
+                self.sock.sendall(prefix)
+            else:
+                self.sock.sendall(prefix + LENGTH.pack(len(msg)) + msg)
         except socket.error, err:
             self.log.error('write: connection broken (%s)' % err)
             raise CloseConnection
@@ -293,21 +291,17 @@ class ConnectionHandler(BaseRequestHandler):
         """
         self.log.info('event sender started')
         queue_get = self.event_queue.get
+        send = sock.sendall
         while 1:
             item = queue_get()
             if item is stop_queue:
                 break
             event, data = item
             try:
-                dlen = len(data)
                 # first, send length header and event name
-                tosend = LENGTH.pack(len(event) + dlen + 1) + event + RS
-                while tosend:
-                    tosend = tosend[sock.send(tosend):]
-                # then, send data (don't slice unnecessarily, can be huge)
-                sent = 0
-                while sent < dlen:
-                    sent += sock.send(buffer(data, sent))
+                send(LENGTH.pack(len(event) + len(data) + 1) + event + RS)
+                # then, send data separately (doesn't create temporary strings)
+                send(data)
             except Exception, err:
                 if isinstance(err, socket.error) and err.args[0] == errno.EPIPE:
                     # close sender on broken pipe
