@@ -67,5 +67,7 @@ devices = dict(
                      prefix='nicos/',
                      font='Luxi Sans',
                      valuefont='Consolas',
-                     layout=_layout)
+                     layout=[_layout],
+                     warnings=[],
+                     notifiers=[])
 )

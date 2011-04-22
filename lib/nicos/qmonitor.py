@@ -32,12 +32,11 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import re
-import sys
 import threading
 from cgi import escape
 from time import time as currenttime, sleep, strftime
 
-from PyQt4.QtCore import QSize, QPoint, Qt, SIGNAL
+from PyQt4.QtCore import QSize, Qt, SIGNAL
 from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
      QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, \
      QCursor, QStackedWidget
@@ -45,6 +44,7 @@ from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
 from nicos.utils import listof
 from nicos.status import OK, BUSY, ERROR, PAUSED, NOTREACHED, statuses
 from nicos.device import Param
+from nicos.notify import Notifier
 from nicos.cache.client import BaseCacheClient
 from nicos.cache.utils import OP_TELL, cache_load
 
@@ -152,6 +152,10 @@ class Monitor(BaseCacheClient):
                            settable=True),
         'resizable': Param('Whether the window is resizable', type=bool,
                            default=True),
+    }
+
+    attached_devices = {
+        'notifiers': [Notifier],
     }
 
     def start(self, options):
@@ -641,6 +645,9 @@ class Monitor(BaseCacheClient):
                            info['description']
             self._currwarnings.append((key, warning_desc))
             self._haswarnings[key] = (key, warning_desc)
+            for notifier in self._adevs['notifiers']:
+                notifier.send('New warning from ' + self.title,
+                              warning_desc)
         if self._currwarnings:
             set_fore_backcolor(self._timelabel, self._black, self._red)
             self._warntext.setText('\n'.join(w[1] for w in self._currwarnings))
