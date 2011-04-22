@@ -119,8 +119,8 @@ class NicosCmdClient(NicosClient):
         self.ui.draw_screen(self.size, self.top.render(self.size, focus=True))
 
     def initial_update(self):
-        allstatus = self.send_command('get_all_status')
-        status, script, output, watch = self.unserialize(allstatus)
+        allstatus = self.ask('getstatus')
+        status, script, output, watch = allstatus
         self.signal('new_output', output)
         self.signal('processing_request', {'script': script})
         self.signal('new_status', status)
@@ -172,7 +172,7 @@ class NicosCmdClient(NicosClient):
                 self.outputbox.set_focus(len(self.outputitems)-1)
                 self.outputbox.make_cursor_visible(self.size)
 
-    def ask(self, question, yesno=False, default='', passwd=False):
+    def ask_question(self, question, yesno=False, default='', passwd=False):
         if yesno:
             question += ' [y/n] '
         elif default:
@@ -209,41 +209,41 @@ class NicosCmdClient(NicosClient):
 
     def command(self, cmd, arg):
         if cmd == 'cmd':
-            self.send_commands('start_prg', arg)
+            self.tell('start', '', arg)
         elif cmd in ('r', 'run'):
             try:
                 code = open(arg).read()
             except Exception, e:
                 self.err.set_text('Unable to open file: %s' % e)
                 return
-            self.send_commands('start_named_prg', arg, code)
+            self.tell('start', arg, code)
         elif cmd == 'update':
             try:
                 code = open(arg).read()
             except Exception, e:
                 self.err.set_text('Unable to open file: %s' % e)
                 return
-            self.send_commands('update_prg', code)
+            self.tell('update', code)
         elif cmd in ('e', 'edit'):
             ret = os.system('$EDITOR ' + arg)
             self.ui.clear()
             if ret == 0:
-                if self.ask('Run file?', yesno=True) == 'y':
+                if self.ask_question('Run file?', yesno=True) == 'y':
                     return self.command('run', arg)
             else:
                 self.refresh()
         elif cmd == 'break':
-            self.send_command('break_prg')
+            self.tell('break')
         elif cmd == 'cont':
-            self.send_command('cont_prg')
+            self.tell('continue')
         elif cmd == 'stop':
-            self.send_command('stop_prg')
+            self.tell('stop')
         elif cmd == 'stop!':
-            self.send_command('emergency_stop')
+            self.tell('emergency')
         elif cmd == 'reload':
-            self.send_command('reload_modules')
+            self.tell('reloadsetup')
         elif cmd == 'exec':
-            self.send_commands('exec_cmd', arg)
+            self.tell('exec', arg)
         elif cmd == 'disconnect':
             if self.connected:
                 self.disconnect()
@@ -253,7 +253,7 @@ class NicosCmdClient(NicosClient):
             else:
                 hostport = '%s:%s' % (self.conndata['host'],
                                       self.conndata['port'])
-                server = self.ask('Server host:port?', default=hostport)
+                server = self.ask_question('Server host:port?', default=hostport)
                 try:
                     host, port = server.split(':', 1)
                     port = int(port)
@@ -261,9 +261,9 @@ class NicosCmdClient(NicosClient):
                     pass
                 self.conndata['host'] = host
                 self.conndata['port'] = port
-                user = self.ask('User name?', default=self.conndata['login'])
+                user = self.ask_question('User name?', default=self.conndata['login'])
                 self.conndata['login'] = user
-                passwd = self.ask('Password?', passwd=True)
+                passwd = self.ask_question('Password?', passwd=True)
                 self.conndata['passwd'] = passwd
                 self.connect(self.conndata)
         elif cmd in ('q', 'quit'):

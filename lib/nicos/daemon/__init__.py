@@ -48,7 +48,7 @@ from nicos.device import Device, Param
 
 from nicos.daemon.utils import ModuleManager
 from nicos.daemon.script import ExecutionController
-from nicos.daemon.handler import ConnectionHandler
+from nicos.daemon.handler import ConnectionHandler, serialize
 
 
 class Server(TCPServer):
@@ -219,8 +219,10 @@ class NicosDaemon(Device):
                 emit('new_values', watch)
                 lastwatch = watch
 
-    def emit_event(self, event, data):
+    def emit_event(self, event, data, bare=False):
         """Emit an event to all handlers."""
+        if not bare:
+            data = serialize(data)
         for handler in self._server.handlers.values():
             handler.event_queue.put((event, data))
 

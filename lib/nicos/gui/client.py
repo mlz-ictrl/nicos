@@ -31,20 +31,11 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import zlib
 import socket
 import struct
 import hashlib
 import threading
 import cPickle as pickle
-
-
-# nicos/licos daemon protocol
-EOF = '\x04'
-OK = 'NICOSD OK\n'
-BYE = 'BYE...\n'
-WARN = 'NICOSD WARNING: '
-ERROR = 'NICOSD ERROR: '
 
 # Script status constants
 STATUS_IDLE     = -1
@@ -56,10 +47,22 @@ STATUS_STOPPING = 2
 BUFSIZE = 8192
 TIMEOUT = 30.0
 
-lengthheader = struct.Struct('>I')
+# one-byte responses without length
+ACK = '\x06'   # executed ok, no further information follows
+
+# responses with length, encoded as a 32-bit integer
+STX = '\x03'   # executed ok, reply follows
+NAK = '\x15'   # error occurred, message follows
+LENGTH = struct.Struct('>I')   # used to encode length
+
+# argument separator in client commands
+RS = '\x1e'
 
 
 class ProtocolError(Exception):
+    pass
+
+class ErrorResponse(Exception):
     pass
 
 
@@ -107,23 +110,11 @@ class NicosClient(object):
             return
 
         # log-in sequence
-        if not self.answer_prompt('display', conndata['display']):
-            return
-        if not self.answer_prompt('login: ', conndata['login']):
-            return
         if password is None:
             password = conndata['passwd']
-        if not self.answer_prompt('passwd: ', hashlib.sha1(password).hexdigest()):
+        pwhash = hashlib.sha1(password).hexdigest()
+        if not self.tell(conndata['login'], pwhash, conndata['display']):
             return
-        try:
-            ret = self._read()
-            if 'Invalid passwd' in ret:
-                raise ProtocolError(self.tr('Wrong password'))
-            elif ret != OK:
-                raise ProtocolError(
-                    self.tr('Server protocol mismatch: ') + str(ret))
-        except Exception, err:
-            return self.handle_error(err)
 
         # connect to event port
         self.event_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -143,36 +134,40 @@ class NicosClient(object):
         self.connected = True
         self.host, self.port = conndata['host'], conndata['port']
 
-        self.version = self.send_command('get_version')
+        self.version = self.ask('getversion')
         self.signal('connected')
 
     def event_handler(self):
-        rfile = self.event_socket.makefile('r')
+        recv = self.event_socket.recv
         while 1:
-            line = rfile.readline()
-            if not line:
-                if self.connected and not self.disconnecting:
-                    self.signal('error', self.tr('Connection to server lost.'))
-                    self._close()
-                try:
-                    self.event_socket.close()
-                except Exception:
-                    pass
-                return
             try:
-                event, data = line.split(None, 1)
-                data = self.unserialize(data)
-            except Exception:
-                print 'Garbled event: %r' % line
-            else:
-                self.signal(event, data)
+                # receive first byte + (possibly) length
+                length = recv(4)
+                if len(length) != 4:
+                    print 'Error in event handler: connection broken'
+                    return
+                length, = LENGTH.unpack(length)
+                buf = ''
+                while len(buf) < length:
+                    read = recv(length-len(buf))
+                    if not read:
+                        print 'Error in event handler: connection broken'
+                        return
+                    buf += read
+                try:
+                    event, data = buf.split(RS, 1)
+                    data = self.unserialize(data)
+                except Exception:
+                    print 'Garbled event: %r' % buf
+                else:
+                    self.signal(event, data)
+            except Exception, err:
+                print 'Error in event handler:', err
+                return
 
     def disconnect(self):
         self.disconnecting = True
-        ret = self.send_command('exit')
-        if ret != BYE:
-            self.signal('error',
-                        self.tr('Error in disconnect command:') + str(ret))
+        self.tell('quit')
         self._close()
 
     def _close(self):
@@ -190,17 +185,19 @@ class NicosClient(object):
 
     def serialize(self, data):
         """Serialize an object according to the selected protocol."""
-        return pickle.dumps(data).replace('\n', '\xff')
+        return pickle.dumps(data, 2)
 
     def unserialize(self, data):
         """Unserialize an object according to the selected protocol."""
-        return pickle.loads(data.replace('\xff', '\n'))
+        return pickle.loads(data)
 
     def handle_error(self, err):
-        if isinstance(err, ProtocolError):
-            self.signal('error', err.args[0] + '.')
+        if isinstance(err, ErrorResponse):
+            self.signal('error', 'Error from daemon: ' + err.args[0] + '.')
         else:
-            if isinstance(err, socket.timeout):
+            if isinstance(err, ProtocolError):
+                msg = self.tr('Communication error: %1.').arg(err.args[0])
+            elif isinstance(err, socket.timeout):
                 msg = self.tr('Connection to server timed out.')
             elif isinstance(err, socket.error):
                 msg = self.tr('Server connection broken: %1.').arg(err.args[1])
@@ -209,83 +206,57 @@ class NicosClient(object):
             self.signal('error', msg, err)
             self._close()
 
-    def _write(self, string):
-        sent = self.socket.send(string + EOF)
-        if sent != len(string) + 1:
-            raise socket.error(0, self.tr('Not enough bytes written'))
+    def _write(self, strings):
+        """Write a command to the server."""
+        string = RS.join(strings)
+        string = STX + LENGTH.pack(len(string)) + string
+        while string:
+            string = string[self.socket.send(string):]
 
-    def _read(self, lsize=lengthheader.size):
+    def _read(self):
+        """Receive a response from the server."""
+        # receive first byte + (possibly) length
+        start = self.socket.recv(5)
+        if start == ACK:
+            return start, ''
+        if len(start) != 5:
+            raise ProtocolError(self.tr('connection broken'))
+        if start[0] not in (NAK, STX):
+            raise ProtocolError(self.tr('invalid response %1').arg(repr(start)))
+        # it has a length...
+        length, = LENGTH.unpack(start[1:])
         buf = ''
-        if self.gzip:
-            while len(buf) < lsize:
-                read = self.socket.recv(BUFSIZE)
-                if not read:
-                    raise ProtocolError(self.tr('No data to read'))
-                buf += read
-            length = lengthheader.unpack(buf[:lsize])[0]
-            buf = buf[lsize:]
-            while len(buf) < length:
-                read = self.socket.recv(BUFSIZE)
-                if not read:
-                    raise ProtocolError(self.tr('No data to read'))
-                read += buf
-            if len(buf) != length:
-                raise socket.error(0, self.tr('Server response jumbled'))
-            return zlib.decompress(buf)
-        i = 0
-        while 1:
-            i += 1
+        while len(buf) < length:
             read = self.socket.recv(BUFSIZE)
             if not read:
-                raise ProtocolError(self.tr('No data to read'))
-            elif read.endswith(EOF):
-                return buf + read[:-1]
-            elif EOF in read:
-                raise socket.error(0, self.tr('Server response jumbled'))
-            else:
-                buf += read
+                raise ProtocolError(self.tr('connection broken'))
+            buf += read
+        return start[0], buf
 
-    def answer_prompt(self, prompt, answer):
-        try:
-            with self.lock:
-                ret = self._read()
-                if ret != prompt:
-                    raise ProtocolError(self.tr('Server protocol mismatch'))
-                self._write(answer)
-        except Exception, err:
-            self.handle_error(err)
-            return False
-        else:
-            return True
-
-    def send_command(self, command, expect_ok=False):
+    def tell(self, *command):
         if not self.socket:
             self.signal('error', self.tr('You are not connected to a server.'))
             return
         try:
             with self.lock:
                 self._write(command)
-                ret = self._read()
-                if expect_ok and ret != OK:
-                    raise ProtocolError(ret.strip())
+                ret, data = self._read()
+                if ret != ACK:
+                    raise ErrorResponse(data)
+                return True
         except Exception, err:
             return self.handle_error(err)
-        else:
-            return ret
 
-    def send_commands(self, *commands):
+    def ask(self, *command):
         if not self.socket:
             self.signal('error', self.tr('You are not connected to a server.'))
-            return False
+            return
         try:
             with self.lock:
-                for command in commands:
-                    self._write(command)
-                    ret = self._read()
-                    if ret != OK:
-                        raise ProtocolError(ret.strip())
+                self._write(command)
+                ret, data = self._read()
+                if ret != STX:
+                    raise ErrorResponse(data)
+                return self.unserialize(data)
         except Exception, err:
-            self.handle_error(err)
-            return False
-        else:
-            return True
+            return self.handle_error(err)

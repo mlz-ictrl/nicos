@@ -319,7 +319,7 @@ class EditorWindow(QMainWindow, HasTools, DlgUtils):
     def on_actionUpdate_triggered(self):
         script = self.validateScript()
         if script is not None:
-            self.client.send_commands('update_prg', script)
+            self.client.tell('update', script)
 
     @qtsig('')
     def on_actionGet_triggered(self):

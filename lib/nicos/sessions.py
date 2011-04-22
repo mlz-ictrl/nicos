@@ -903,10 +903,10 @@ class DaemonSession(SimpleSession):
 
     def _beforeStart(self, daemondev):
         from nicos.daemon.utils import DaemonLogHandler
-        daemon_handler = DaemonLogHandler(daemondev)
+        self.daemon_handler = DaemonLogHandler(daemondev)
         # create a new root logger that gets the daemon handler
         self.createRootLogger()
-        self.log.addHandler(daemon_handler)
+        self.log.addHandler(self.daemon_handler)
         sys.stdout = LoggingStdout(sys.stdout)
 
         # add an object to be used by DaemonSink objects
@@ -916,8 +916,8 @@ class DaemonSession(SimpleSession):
         from nicos.commands.device import stop
         daemondev._controller.add_estop_function(stop, ())
 
-        # Pretend that the daemon setup doesn't exist, so that another
-        # setup can be loaded by the user.
+        # pretend that the daemon setup doesn't exist, so that another
+        # setup can be loaded by the user
         self.devices.clear()
         self.explicit_devices.clear()
         self.configured_devices.clear()
@@ -925,6 +925,7 @@ class DaemonSession(SimpleSession):
         self.loaded_setups.clear()
         del self.explicit_setups[:]
 
+        # load all default modules from now on
         self.auto_modules = Session.auto_modules
 
         self._Session__system_device = None

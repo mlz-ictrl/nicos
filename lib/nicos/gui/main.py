@@ -483,29 +483,29 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
 
     @qtsig('')
     def on_actionBreak_triggered(self):
-        self.client.send_command('break_prg', True)
+        self.client.tell('break')
         self.action_start_time = time.time()
 
     @qtsig('')
     def on_actionContinue_triggered(self):
-        self.client.send_command('cont_prg', True)
+        self.client.tell('continue')
         self.action_start_time = time.time()
 
     @qtsig('')
     def on_actionStop_triggered(self):
-        self.client.send_command('stop_prg', True)
+        self.client.tell('stop')
         self.action_start_time = time.time()
 
     @qtsig('')
     def on_actionEmergencyStop_triggered(self):
-        self.client.send_command('emergency_stop', True)
+        self.client.tell('emergency')
         self.action_start_time = time.time()
 
     @qtsig('')
     def on_actionReload_triggered(self):
-        if self.client.send_command('reload_nicos', True):
+        if self.client.tell('reloadsetup'):
             QMessageBox.information(self, self.tr('Reload'),
-                                    self.tr('NICOS system reloaded on server.'))
+                                    self.tr('Setup reloaded on server.'))
 
     def on_trayIcon_activated(self, reason):
         if reason == QSystemTrayIcon.Trigger:
@@ -520,8 +520,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         self.set_status('idle')
 
         # get all server status info
-        allstatus = self.client.unserialize(
-            self.client.send_command('get_all_status'))
+        allstatus = self.client.ask('getstatus')
         status, script, messages, watch = allstatus
 
         # handle status, script and watch
@@ -546,8 +545,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         pd.setCancelButton(None)
         pd.show()
         QApplication.processEvents()
-        raw = self.client.send_command('get_datasets')
-        datasets = self.client.unserialize(raw)
+        datasets = self.client.ask('getdataset', '*')
         if self.analysisWindow:
             self.analysisWindow.bulk_adding = True
         for dataset in datasets:
@@ -769,7 +767,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
 
     def run_script(self, name, script):
         """Called from editor window and command box."""
-        if not self.client.send_commands('queue_named_prg', name, script):
+        if not self.client.tell('queue', name or '', script):
             return
         self.action_start_time = time.time()
 
@@ -803,7 +801,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
                     'Command to run in script namespace:'))
         if not ok:
             return
-        self.client.send_commands('exec_cmd', str(command))
+        self.client.tell('exec', str(command))
 
     @qtsig('')
     def on_addWatch_clicked(self):
@@ -813,7 +811,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         if not ok:
             return
         newexpr = self.client.serialize([str(expr) + ':default'])
-        self.client.send_commands('add_values', newexpr)
+        self.client.tell('watch', newexpr)
 
     @qtsig('')
     def on_deleteWatch_clicked(self):
@@ -822,7 +820,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             return
         expr = item.text(0)
         delexpr = self.client.serialize([str(expr) + ':default'])
-        self.client.send_commands('del_values', delexpr)
+        self.client.tell('unwatch', delexpr)
 
     @qtsig('')
     def on_oneShotEval_clicked(self):
@@ -831,9 +829,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             self.tr('Expression to evaluate:'))
         if not ok:
             return
-        self.client.send_command('get_value', True)
-        expr = str(expr) + ':default'
-        ret = self.client.unserialize(self.client.send_command(expr))
+        ret = self.client.ask('eval', str(expr))
         QMessageBox.information(self, self.tr('Result'), ret)
 
     def on_outView_anchorClicked(self, url):
@@ -991,7 +987,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
 
     @qtsig('')
     def on_clearQueue_clicked(self):
-        if self.client.send_commands('unqueue_all_prgs'):
+        if self.client.tell('unqueue', '*'):
             self.scriptQueue.clear()
 
     @qtsig('')
@@ -1000,7 +996,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         if not item:
             return
         reqno = item.data(Qt.UserRole).toInt()
-        if self.client.send_commands('unqueue_prg', str(reqno[0])):
+        if self.client.tell('unqueue', str(reqno[0])):
             self.scriptQueue.remove(reqno[0])
 
 

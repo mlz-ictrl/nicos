@@ -50,17 +50,18 @@ from nicos.daemon.script import EmergencyStopRequest, ScriptRequest, \
      ScriptError, RequestError
 
 
-# nicosd response constants (XXX remove NICOSD prefix)
-EOF = '\x04'
-OK = "NICOSD OK\n"
-BYE = "BYE...\n"
-WARN = "NICOSD WARNING: "
-ERROR = "NICOSD ERROR: "
-
-WRITE_CHUNKSIZE = 8192
 READ_BUFSIZE = 4096
 
-lengthheader = struct.Struct('>I')
+# one-byte responses without length
+ACK = '\x06'   # executed ok, no further information follows
+
+# responses with length, encoded as a 32-bit integer
+STX = '\x03'   # executed ok, reply follows
+NAK = '\x15'   # error occurred, message follows
+LENGTH = struct.Struct('>I')   # used to encode length
+
+# argument separator in client commands
+RS = '\x1e'
 
 _queue_freelist = [Queue() for i in range(5)]
 
@@ -70,40 +71,50 @@ class CloseConnection(Exception):
 
 licos_commands = {}
 
-def command(needcontrol=False, needscript=None, deprecated=False):
+def command(needcontrol=False, needscript=None, name=None):
     """
     Decorates a nicosd protocol command.  The `needcontrol` and `needscript`
     parameters can be set to avoid boilerplate in the handler functions.
     """
     def deco(func):
-        def wrapper(self):
+        nargs = func.func_code.co_argcount - 1
+        def wrapper(self, args):
+            if len(args) != nargs:
+                self.write(NAK, 'invalid number of arguments')
             if needcontrol:
                 if not self.check_control():
                     return
             if needscript is True:
                 if self.controller.status == STATUS_IDLE:
-                    self.write(WARN, 'no script is running')
+                    self.write(NAK, 'no script is running')
                     return
             elif needscript is False:
                 if self.controller.status != STATUS_IDLE:
-                    self.write(WARN, 'a script is running')
+                    self.write(NAK, 'a script is running')
                     return
             try:
-                return func(self)
+                return func(self, *args)
             except CloseConnection:
                 raise
             except Exception:
                 self.log.exception('exception executing command %s' %
-                                   func.__name__)
-                self.write(ERROR, 'exception occurred executing command')
+                                   (name or func.__name__))
+                self.write(NAK, 'exception occurred executing command')
         wrapper.__name__ = func.__name__
-        licos_commands[func.__name__] = wrapper
+        licos_commands[name or func.__name__] = wrapper
         return wrapper
     return deco
 
 stop_queue = object()
 
-# XXX redesign protocol
+def serialize(data):
+    """Serialize an object."""
+    return pickle.dumps(data, 2)
+
+def unserialize(data):
+    """Unserialize an object."""
+    return pickle.loads(data)
+
 
 class ConnectionHandler(BaseRequestHandler):
     """
@@ -145,10 +156,6 @@ class ConnectionHandler(BaseRequestHandler):
                                  '[handler #%d] ' % self.ident)
         # read buffer
         self._buffer = ''
-        # gzip responses?
-        self.gzip = False
-        # protocol level
-        self.proto = 0
         try:
             # this calls self.handle()
             BaseRequestHandler.__init__(self, request, client_address, server)
@@ -162,41 +169,40 @@ class ConnectionHandler(BaseRequestHandler):
     def write(self, prefix, msg=None):
         """Write a message to the client."""
         if msg is None:
-            towrite = prefix + EOF
+            towrite = prefix
         else:
-            towrite = prefix + msg + '\n' + EOF
-        if self.gzip:
-            towrite = zlib.compress(towrite[:-1])
-            towrite = lengthheader.pack(len(towrite)) + towrite
+            towrite = prefix + LENGTH.pack(len(msg)) + msg
         try:
-            pos = 0
-            max = len(towrite)
-            while pos < max:
-                str = towrite[pos:pos+WRITE_CHUNKSIZE]
-                pos += WRITE_CHUNKSIZE
-                if self.sock.send(str) != len(str):
-                    self.log.error('write: connection broken')
-                    raise CloseConnection
+            while towrite:
+                towrite = towrite[self.sock.send(towrite):]
         except socket.error, err:
-            self.log.error('write: connection broken %s' % err)
+            self.log.error('write: connection broken (%s)' % err)
             raise CloseConnection
 
     def read(self):
-        """Read a message from the client until "EOF"."""
-        msg = ''
-        while 1:
-            msgpart, eof, self._buffer = self._buffer.partition(EOF)
-            msg += msgpart
-            if eof == EOF:
-                return msg
-            try:
-                self._buffer = self.sock.recv(READ_BUFSIZE)
-                if not self._buffer:
+        """Read a command and arguments from the client."""
+        try:
+            # receive first byte (must be STX) + length
+            start = self.sock.recv(5)
+            if len(start) != 5:
+                self.log.error('read: connection broken')
+                raise CloseConnection
+            if start[0] != STX:
+                self.log.error('read: invalid command')
+                raise CloseConnection
+            # it has a length...
+            length, = LENGTH.unpack(start[1:])
+            buf = ''
+            while len(buf) < length:
+                read = self.sock.recv(READ_BUFSIZE)
+                if not read:
                     self.log.error('read: connection broken')
                     raise CloseConnection
-            except socket.error, err:
-                self.log.error('read: connection broken %s' % err)
-                raise CloseConnection
+                buf += read
+            return buf.split(RS)
+        except socket.error, err:
+            self.log.error('read: connection broken (%s)' % err)
+            raise CloseConnection
 
     def check_host(self):
         """Match the connecting host against the daemon's trusted hosts list."""
@@ -234,25 +240,17 @@ class ConnectionHandler(BaseRequestHandler):
         if self.daemon.trustedhosts:
             self.check_host()
 
-        # get and export the DISPLAY
-        try:
-            self.write('display')
-            self.display = self.read()
-        except:
-            self.log.error('invalid login: could not get DISPLAY var from %s' %
-                           self.clientnames)
-            self.write(ERROR, 'could not get DISPLAY var')
-            raise
-        # XXX only works for the client that logged in last
-        os.environ['DISPLAY'] = self.display
+        credentials = self.read()
+        if len(credentials) != 3:
+            self.log.error('invalid login: credentials=%s' % credentials)
+            self.write(NAK, 'invalid credentials')
+            raise CloseConnection
+        login, passw, display = credentials
 
-        # now, check login data (if config.passwd is an empty list, no login
+        self.log.info('auth request: login=%s display=%s' % (login, display))
+
+        # check login data (if config.passwd is an empty list, no login
         # control is done and everybody may log in)
-        self.log.info('login attempt from %s' % self.clientnames)
-        self.write('login: ')
-        login = self.read()
-        self.write('passwd: ')
-        passw = self.read()
         if self.daemon.passwd:
             for entry in self.daemon.passwd:
                 if entry[0] == login:
@@ -260,34 +258,32 @@ class ConnectionHandler(BaseRequestHandler):
                     break
             else:
                 self.log.warning('invalid login name: %s' % login)
-                self.write(WARN, 'Invalid login')
+                self.write(NAK, 'login not accepted')
                 raise CloseConnection
             if passw != self.user[1]:
                 self.log.warning('invalid password from user %s' % login)
-                self.write(WARN, 'Invalid passwd')
+                self.write(NAK, 'login not accepted')
                 raise CloseConnection
         else:
             self.user = [login, passw, True]
-        self.log.info('login succeeded: user %s, display %s' %
-                      (login, self.display))
-        self.write(OK)
+        self.log.info('login succeeded')
+
+        # XXX only works for the client that logged in last
+        self.display = credentials[2]
+        os.environ['DISPLAY'] = self.display
+
+        # acknowledge the login
+        self.write(ACK)
 
         # start main command loop
         while 1:
-            command = self.read()
+            request = self.read()
+            command, cmdargs = request[0], request[1:]
             if command not in licos_commands:
                 self.log.warning('got unknown command: %s' % command)
-                self.write(WARN, 'unknown command')
+                self.write(NAK, 'unknown command')
                 continue
-            licos_commands[command](self)
-
-    def serialize(self, data):
-        """Serialize an object according to the selected protocol."""
-        return pickle.dumps(data).replace('\n', '\xff')
-
-    def unserialize(self, data):
-        """Unserialize an object according to the selected protocol."""
-        return pickle.loads(data.replace('\xff', '\n'))
+            licos_commands[command](self, cmdargs)
 
     # -- Event thread entry point ----------------------------------------------
 
@@ -303,7 +299,15 @@ class ConnectionHandler(BaseRequestHandler):
                 break
             event, data = item
             try:
-                sock.send('%s %s\n' % (event, self.serialize(data)))
+                dlen = len(data)
+                # first, send length header and event name
+                tosend = LENGTH.pack(len(event) + dlen + 1) + event + RS
+                while tosend:
+                    tosend = tosend[sock.send(tosend):]
+                # then, send data (don't slice unnecessarily, can be huge)
+                sent = 0
+                while sent < dlen:
+                    sent += sock.send(buffer(data, sent))
             except Exception, err:
                 if isinstance(err, socket.error) and err.args[0] == errno.EPIPE:
                     # close sender on broken pipe
@@ -314,127 +318,112 @@ class ConnectionHandler(BaseRequestHandler):
         self.log.debug('closing event connection')
         sock.close()
 
-    # -- Daemon interface commands ---------------------------------------------
-
-    @command()
-    def set_gzip(self):
-        """Order the daemon to gzip all responses."""
-        self.write(OK)
-        self.gzip = True
-
     # -- Script control commands ------------------------------------------------
 
     @command(needcontrol=False, needscript=False)
-    def start_prg(self):
-        """Start a script within the script thread."""
-        self.write(OK)
-        script_text = self.read()
-        try:
-            self.controller.new_request(ScriptRequest(script_text))
-        except RequestError, err:
-            self.write(WARN, str(err))
-            return
-        # take control of the session
-        self.controller.controlling_user = self.user[0]
-        self.write(OK)
-
-    @command(needcontrol=False, needscript=False)
-    def start_named_prg(self):
+    def start(self, script_name, script_text):
         """Start a named script within the script thread."""
-        self.write(OK)
-        script_name = self.read()
-        if script_name == 'None':
+        if not script_name:
             script_name = None
-        self.write(OK)
-        script_text = self.read()
         try:
             self.controller.new_request(ScriptRequest(script_text, script_name))
         except RequestError, err:
-            self.write(WARN, str(err))
+            self.write(NAK, str(err))
             return
         # take control of the session
         self.controller.controlling_user = self.user[0]
-        self.write(OK)
+        self.write(ACK)
 
     @command(needcontrol=False)
-    def queue_named_prg(self):
+    def queue(self, script_name, script_text):
         """Start a named script, or queue it if the script thread is busy."""
-        self.write(OK)
-        script_name = self.read()
-        if script_name == 'None':
+        if not script_name:
             script_name = None
-        self.write(OK)
-        script_text = self.read()
         try:
             self.controller.new_request(ScriptRequest(script_text, script_name))
         except RequestError, err:
-            self.write(WARN, str(err))
+            self.write(NAK, str(err))
             return
-        self.write(OK)
+        self.write(ACK)
+
+    @command()
+    def unqueue(self, reqno):
+        """Mark the given request number (or all, if '*') so that it is not
+        executed.
+        """
+        # XXX: notify other clients
+        if reqno == '*':
+            self.controller.blocked_reqs.update(
+                range(self.controller.reqno_work + 1,
+                  self.controller.reqno_latest + 1))
+        else:
+            reqno = int(reqno)
+            if reqno <= self.controller.reqno_work:
+                self.write(NAK, 'script already executing')
+                return
+            self.controller.blocked_reqs.add(reqno)
+        self.write(ACK)
 
     @command(needcontrol=True, needscript=True)
-    def update_prg(self):
+    def update(self, script_text):
         """Update the currently running script."""
-        self.write(OK)
-        script_text = self.read()
         try:
-            self.controller.current_script.update(script_text,
-                                                  self.controller)
+            self.controller.current_script.update(script_text, self.controller)
         except ScriptError, err:
-            self.write(WARN, str(err))
+            self.write(NAK, str(err))
             return
-        self.write(OK)
+        self.write(ACK)
 
-    @command(needcontrol=True, needscript=True)
-    def break_prg(self):
+    @command(needcontrol=True, needscript=True, name='break')
+    def break_(self):
         """Interrupt the current script."""
         if self.controller.status == STATUS_STOPPING:
-            self.write(WARN, 'script is already stopping')
+            self.write(NAK, 'script is already stopping')
         elif self.controller.status == STATUS_INBREAK:
-            self.write(WARN, 'script is already interrupted')
+            self.write(NAK, 'script is already interrupted')
         else:
             self.controller.set_break(None)
             self.log.info('script interrupt request')
             #time.sleep(0.01)
-            self.write(OK)
+            self.write(ACK)
 
-    @command(needcontrol=True, needscript=True)
-    def cont_prg(self):
+    @command(needcontrol=True, needscript=True, name='continue')
+    def continue_(self):
         """Continue the interrupted script."""
         if self.controller.status == STATUS_STOPPING:
-            self.write(WARN, 'could not continue script')
+            self.write(NAK, 'could not continue script')
         elif self.controller.status == STATUS_RUNNING:
-            self.write(WARN, 'script is not interrupted')
+            self.write(NAK, 'script is not interrupted')
         else:
             self.log.info('script continue request')
             self.controller.set_continue(False)
-            self.write(OK)
+            self.write(ACK)
 
     @command(needcontrol=True, needscript=True)
-    def stop_prg(self):
+    def stop(self):
         """Abort the interrupted script."""
         if self.controller.status == STATUS_STOPPING:
-            self.write(OK)
+            self.write(ACK)
         elif self.controller.status == STATUS_RUNNING:
             self.log.info('script stop request while running')
             self.controller.set_break('stop')
-            self.write(OK)
+            self.write(ACK)
         else:
             self.log.info('script stop request while in break')
             self.controller.set_continue('stop')
-            self.write(OK)
+            self.write(ACK)
 
     @command(needcontrol=True)
-    def emergency_stop(self):
+    def emergency(self):
         """Stop the script unconditionally and run emergency stop functions."""
         if self.controller.status == STATUS_IDLE:
             # only execute emergency stop functions
             self.log.warning('emergency stop without script running')
             self.controller.new_request(EmergencyStopRequest())
-            self.write(OK)
+            self.write(ACK)
             return
         elif self.controller.status == STATUS_STOPPING:
-            self.write(OK)
+            self.write(ACK)
             return
         self.log.warning('emergency stop request in %s' %
                          self.controller.current_location(True))
@@ -443,64 +432,49 @@ class ConnectionHandler(BaseRequestHandler):
         else:
             # in break
             self.controller.set_continue('emergency stop')
-        self.write(OK)
-
-    @command()
-    def unqueue_prg(self):
-        """Mark the given request number so that it is not executed."""
-        self.write(OK)
-        reqno = self.read()
-        try:
-            reqno = int(reqno)
-            if reqno <= self.controller.reqno_work:
-                raise ValueError('script already executing')
-            # XXX: notify other clients
-            self.controller.blocked_reqs.add(reqno)
-        except Exception, err:
-            self.write(WARN, 'reading reqno failed: %s' % err)
-        else:
-            self.write(OK)
-
-    @command()
-    def unqueue_all_prgs(self):
-        """Mark all scripts not yet executed as blocked."""
-        # XXX: notify other clients
-        self.controller.blocked_reqs.update(
-            range(self.controller.reqno_work + 1,
-                  self.controller.reqno_latest + 1))
-        self.write(OK)
+        self.write(ACK)
 
     # -- Asynchronous script interaction ---------------------------------------
 
-    @command(needcontrol=True, needscript=True)
-    def exec_cmd(self):
+    @command(needcontrol=True, needscript=True, name='exec')
+    def exec_(self, cmd):
         """Execute a Python statement in the context of the running script."""
         if self.controller.status == STATUS_STOPPING:
-            self.write(WARN, 'script is stopping')
+            self.write(NAK, 'script is stopping')
             return
-        self.write(OK)
-        cmd = self.read()
         try:
             self.log.info('executing command in script context\n%s' % cmd)
             self.controller.exec_script(cmd)
         except Exception, err:
-            self.log.exception('exception in exec_cmd command')
-            self.write(WARN, 'exception raised while executing cmd: %s' % err)
+            self.log.exception('exception in exec command')
+            self.write(NAK, 'exception raised while executing cmd: %s' % err)
         else:
-            self.write(OK)
+            self.write(ACK)
+
+    @command()
+    def eval(self, expr):
+        """Evaluate and return an expression."""
+        try:
+            self.log.info('evaluating expresson in script context\n%s' % expr)
+            retval = self.controller.eval_expression(expr)
+        except Exception, err:
+            self.log.exception('exception in eval command')
+            self.write(NAK, 'exception raised while evaluating: %s' % err)
+        else:
+            self.write(STX, serialize(retval))
 
     # -- Runtime information commands ------------------------------------------
 
     @command()
-    def get_version(self):
+    def getversion(self):
         """Return the daemon's version."""
-        self.write('NICOS-NG daemon version %s' % nicos_version)
+        self.write(STX, serialize('NICOS-NG daemon version %s' % nicos_version))
 
     @command()
-    def get_all_status(self):
+    def getstatus(self):
         """Return all important status info."""
         current_script = self.controller.current_script
-        self.write(self.serialize(
+        self.write(STX, serialize(
                 ((self.controller.status, self.controller.lineno),
                  current_script and current_script.text or '',
                  self.daemon._messages,
@@ -509,44 +483,35 @@ class ConnectionHandler(BaseRequestHandler):
 
     # -- Watch expression commands ---------------------------------------------
 
-    @command()
-    def get_value(self):
-        """Evaluate and return a watch expression."""
-        self.write(OK)
-        expr = self.read().partition(':')[0]
-        self.write(self.serialize(self.controller.eval_expression(expr)))
-
     @command(needcontrol=True)
-    def add_values(self):
+    def watch(self, vallist):
         """Add watch expressions."""
-        self.write(OK)
-        vallist = self.unserialize(self.read())
+        vallist = unserialize(vallist)
         if not isinstance(vallist, list):
-            self.write(WARN, 'wrong argument type for add_values: %s' %
+            self.write(NAK, 'wrong argument type for add_values: %s' %
                        vallist.__class__.__name__)
             return
         for val in vallist:
             if not isinstance(val, str):
-                self.write(WARN, 'wrong type for add_values item: %s' %
+                self.write(NAK, 'wrong type for add_values item: %s' %
                            val.__class__.__name__)
                 return
             if ':' not in val:
                 val += ':default'
             self.controller.add_watch_expression(val)
-        self.write(OK)
+        self.write(ACK)
 
     @command(needcontrol=True)
-    def del_values(self):
+    def unwatch(self, vallist):
         """Delete watch expressions."""
-        self.write(OK)
-        vallist = self.unserialize(self.read())
+        vallist = unserialize(vallist)
         if not isinstance(vallist, list):
-            self.write(WARN, 'wrong argument type for del_values: %s' %
+            self.write(NAK, 'wrong argument type for del_values: %s' %
                        vallist.__class__.__name__)
             return
         for val in vallist:
             if not isinstance(val, str):
-                self.write(WARN, 'wrong type for del_values item: %s' %
+                self.write(NAK, 'wrong type for del_values item: %s' %
                            val.__class__.__name__)
                 return
             if ':' not in val:
@@ -556,34 +521,36 @@ class ConnectionHandler(BaseRequestHandler):
                 self.controller.remove_all_watch_expressions(group)
             else:
                 self.controller.remove_watch_expression(val)
-        self.write(OK)
+        self.write(ACK)
 
     # -- Data interface commands -----------------------------------------------
 
     @command()
-    def get_dataset(self):
+    def getdataset(self, index):
         """Get the current dataset."""
-        try:
-            dataset = session.experiment._last_datasets[-1]
-            self.write(self.serialize(dataset))
-        except IndexError:
-            self.write(self.serialize(None))
-
-    @command()
-    def get_datasets(self):
-        """Get all datasets, including curves."""
-        self.write(self.serialize(session.experiment._last_datasets))
+        if index == '*':
+            self.write(STX, serialize(session.experiment._last_datasets))
+        else:
+            index = int(index)
+            try:
+                dataset = session.experiment._last_datasets[index]
+                self.write(STX, serialize(dataset))
+            except IndexError:
+                self.write(STX, serialize(None))
 
     # -- Miscellaneous commands ------------------------------------------------
 
     @command(needcontrol=True)
-    def unlock_control(self):
+    def unlock(self):
         """Give up control of the session."""
         self.controller.controlling_user = None
+        self.write(ACK)
 
     @command(needcontrol=True, needscript=False)
-    def reload_nicos(self):
-        """Reload the NICOS modules, starting a new script thread."""
+    def reloadsetup(self):
+        """Reload the current setup (and possible NICOS modules), starting a new
+        script thread.
+        """
         try:
             # stop the script thread
             self.controller.stop_script_thread()
@@ -594,14 +561,14 @@ class ConnectionHandler(BaseRequestHandler):
         self.daemon._module_manager.purge()
         # start a new script thread, this will reimport all modules
         self.controller.start_script_thread()
-        self.write(OK)
+        self.write(ACK)
 
     @command()
-    def exit(self):
+    def quit(self):
         """Close the session."""
         me = self.user[0]
         if self.controller.controlling_user == me:
             self.controller.controlling_user = None
         self.log.info('disconnect')
-        self.write(BYE)
+        self.write(ACK)
         raise CloseConnection
