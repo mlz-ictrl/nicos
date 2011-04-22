@@ -64,7 +64,7 @@ _warnings = [
 ]
 
 devices = dict(
-    Monitor = device('nicos.monitor.fl.Monitor',
+    Monitor = device('nicos.monitor.tk.Monitor',
                      title='Status monitor',
                      loglevel='debug',
                      server='localhost',

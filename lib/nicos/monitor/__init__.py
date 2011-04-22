@@ -75,6 +75,8 @@ class Monitor(BaseCacheClient):
         'notifiers': [Notifier],
     }
 
+    # methods to be implemented in concrete implementations
+
     def initColors(self):
         raise NotImplementedError
 
@@ -85,6 +87,24 @@ class Monitor(BaseCacheClient):
         raise NotImplementedError
 
     def closeGui(self):
+        raise NotImplementedError
+
+    def switchWarnPanel(self, off=False):
+        raise NotImplementedError
+
+    def reconfigureBoxes(self):
+        raise NotImplementedError
+
+    def setLabelText(self, label, text):
+        raise NotImplementedError
+
+    def setForeColor(self, label, color):
+        raise NotImplementedError
+
+    def setBackColor(self, label, color):
+        raise NotImplementedError
+
+    def setBothColors(self, label, fore, back):
         raise NotImplementedError
 
     def start(self, options):
