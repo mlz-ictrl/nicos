@@ -32,7 +32,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from Tkinter import Tk, Frame, Label, LabelFrame, StringVar, \
-     SUNKEN, RAISED, X, W, BOTH, LEFT, TOP, BOTTOM
+     SUNKEN, RAISED, X, BOTH, LEFT, TOP
 
 from nicos.monitor import Monitor as BaseMonitor
 
