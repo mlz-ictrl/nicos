@@ -113,10 +113,9 @@ class Monitor(BaseMonitor):
             fieldlayout = gtk.VBox()
             # now put describing label and view label into subframe
             lb = gtk.EventBox()
-            l = gtk.Label(' ' + escape(field['name']) + ' ')
+            l = gtk.Label(' ' + field['name'] + ' ')
             l.modify_font(labelfont)
             l.set_justify(gtk.JUSTIFY_CENTER)
-            ##l.setTextFormat(Qt.RichText)
             l._box = lb
             lb.add(l)
             fieldlayout.add(lb)
@@ -153,7 +152,6 @@ class Monitor(BaseMonitor):
         # now iterate through the layout and create the widgets to display it
         for superrow in self._layout:
             boxlayout = gtk.HBox()
-            boxlayout.set_spacing(2*self._padding)
             for column in superrow:
                 columnlayout = gtk.VBox()
                 columnlayout.set_spacing(self._padding*2)
@@ -186,9 +184,7 @@ class Monitor(BaseMonitor):
                     blocklayout_outer.pack_start(blockbox, False)
                     blocklayout_outer.add(gtk.Label())
                     columnlayout.pack_start(blocklayout_outer, False)
-                    ##columnlayout.addStretch()
-                ##columnlayout.addStretch()
-                boxlayout.pack_start(columnlayout)
+                boxlayout.pack_start(columnlayout, padding=2*self._padding)
             displayframe.pack_start(boxlayout, padding=self._padding)
 
         self._warnpanel = gtk.VBox()
@@ -206,6 +202,10 @@ class Monitor(BaseMonitor):
         self._stacker.append_page(self._warnpanel)
 
         master.show_all()
+
+    def setLabelUnitText(self, label, text, unit):
+        label.set_markup(escape(text) + ' <span foreground="#888888">%s'
+                         '</span> ' % escape(unit))
 
     def setForeColor(self, label, fore):
         label.modify_fg(gtk.STATE_NORMAL, fore)
@@ -227,8 +227,6 @@ class Monitor(BaseMonitor):
         for setup, boxes in self._onlymap.iteritems():
             for layout, blockbox in boxes:
                 if setup in self._setups:
-                    #blockbox.set_size_request(-1, -1)
                     blockbox.show()
                 else:
-                    #blockbox.set_size_request(1, 1)
                     blockbox.hide()

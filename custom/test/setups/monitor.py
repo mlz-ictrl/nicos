@@ -112,7 +112,7 @@ _warnings = [
 ]
 
 devices = dict(
-    Monitor = device('nicos.monitor.gtk.Monitor',
+    Monitor = device('nicos.monitor.fl.Monitor',
                      title = 'MIRA Status monitor',
                      loglevel = 'debug',
                      server = 'localhost:14869',

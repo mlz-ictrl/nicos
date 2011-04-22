@@ -274,6 +274,10 @@ class Monitor(BaseMonitor):
 
     setLabelText = QLabel.setText
 
+    def setLabelUnitText(self, label, text, unit):
+        label.setText(escape(text) +
+                      ' <font color="#888888">%s</font> ' % escape(unit))
+
     def setForeColor(self, label, fore):
         pal = label.palette()
         pal.setColor(QPalette.WindowText, fore)

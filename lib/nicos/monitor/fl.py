@@ -34,7 +34,7 @@ __version__ = "$Revision$"
 from time import sleep
 
 from fltk import Fl, Fl_Window, Fl_Box, Fl_Pack, fl_rgb_color, \
-     FL_HORIZONTAL, FL_COURIER, FL_ALIGN_CENTER, FL_ALIGN_LEFT, \
+     FL_HORIZONTAL, FL_COURIER, FL_HELVETICA, FL_ALIGN_CENTER, FL_ALIGN_LEFT, \
      FL_FLAT_BOX, FL_THIN_DOWN_BOX, FL_UP_FRAME, FL_SHADOW_FRAME
 
 from nicos.monitor import Monitor as BaseMonitor
@@ -59,7 +59,6 @@ class Monitor(BaseMonitor):
         self._red = fl_rgb_color(255,0,0)
         self._gray = fl_rgb_color(128,128,128)
         self._white = fl_rgb_color(255,255,255)
-        ##master.palette().color(QPalette.Window)
         self._bgcolor = self._gray
 
     def initGui(self):
@@ -72,28 +71,35 @@ class Monitor(BaseMonitor):
 
         master.label(self.title)
 
+        self._bgcolor = master.color()
+
         ##QFontMetrics(self._valuefont).width('0')
-        self._onechar = self._fontsize
+        onechar = self._fontsize
         ##QFontMetrics(self._blockfont).height()
-        self._blheight = 20
         ##QFontMetrics(self._timefont).height()
         tiheight = self._fontsizebig + self._fontsize + 20
+
+        labelfont = FL_HELVETICA
+        valuefont = FL_COURIER
+        blockfont = FL_HELVETICA
+        timefont = FL_HELVETICA+1
 
         # split window into to panels/frames below each other:
         # one displays time, the other is divided further to display blocks.
         # first the timeframe:
         masterlayout = Fl_Pack(0, 0, master.w(), master.h())
         self._timelabel = Fl_Box(0, 0, 0, tiheight, self.title)
+        self._timelabel.labelfont(timefont)
         self._timelabel.labelsize(self._fontsizebig + self._fontsize)
         self._timelabel.box(FL_FLAT_BOX)
 
         def _create_field(groupframe, field):
-            fieldlayout = Fl_Pack(0, 0, field['width']*self._onechar, 1)
+            fieldlayout = Fl_Pack(0, 0, field['width']*onechar, 1)
             fieldlayout.spacing(5)
             # now put describing label and view label into subframe
             l = Fl_Box(0, 0, 0, self._fontsize+5, ' ' + field['name'] + ' ')
 
-            #l.setFont(self._labelfont)
+            l.labelfont(labelfont)
             l.align(FL_ALIGN_CENTER)
             l.labelsize(self._fontsize)
             l.box(FL_FLAT_BOX)
@@ -107,9 +113,8 @@ class Monitor(BaseMonitor):
             if field['istext']:
                 l.align(FL_ALIGN_LEFT)
             else:
-                l.labelfont(FL_COURIER)
+                l.labelfont(valuefont)
                 l.align(FL_ALIGN_CENTER)
-            #l.setMinimumSize(QSize(self._onechar * (field['width'] + .5), 0))
             field['valuelabel'] = l
             fieldlayout.end()
 
@@ -125,7 +130,7 @@ class Monitor(BaseMonitor):
             #boxlayout.setContentsMargins(10, 10, 10, 10)
             for column in superrow:
                 columnlayout = Fl_Pack(0, 0, 100, 100)
-                columnlayout.spacing(self._blheight)
+                columnlayout.spacing(20)
                 for block in column:
                     blocklayout_outer = Fl_Pack(0, 0, 500,500)
                     blocklayout_outer.type(FL_HORIZONTAL)
@@ -133,6 +138,7 @@ class Monitor(BaseMonitor):
                     #blocklayout_outer.addStretch()
                     blockbox = Fl_Pack(0, 0, 1000, 1)#, block[0]['name'])
                     blockbox.align(FL_ALIGN_CENTER)
+                    blockbox.labelfont(blockfont)
                     blockbox.labelsize(self._fontsizebig)
                     block[0]['labelframe'] = blockbox
                     for row in block[1]:
@@ -171,6 +177,9 @@ class Monitor(BaseMonitor):
 
     setLabelText = Fl_Box.label
 
+    def setLabelUnitText(self, label, text, unit):
+        label.label(text + ' (%s)' % unit)
+
     def setForeColor(self, label, fore):
         label.labelcolor(fore)
 
@@ -182,15 +191,7 @@ class Monitor(BaseMonitor):
         label.color(back)
 
     def switchWarnPanel(self, off=False):
-        #if self._stacker.currentIndex() == 1 or off:
-        #    self._warnpanel.emit(SIGNAL('setindex'), 0)
-        #else:
-        #    self._warnpanel.emit(SIGNAL('setindex'), 1)
         pass
 
     def reconfigureBoxes(self):
-        #for setup, boxes in self._onlymap.iteritems():
-        #    for layout, blockbox in boxes:
-        #        blockbox.emit(SIGNAL('enableDisplay'),
-        #                      layout, setup in self._setups)
         pass

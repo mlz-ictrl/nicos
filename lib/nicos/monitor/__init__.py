@@ -48,10 +48,16 @@ class Field(dict):
 
 
 class Monitor(BaseCacheClient):
+    """
+    A graphical window showing values of cache keys.
+
+    For cache keys that correspond to NICOS devices, not only the devicevalue,
+    but also the device status and unit are shown.
+    """
 
     # server and prefix parameters come from BaseCacheClient
     parameters = {
-        # XXX add more configurables: timeouts ...
+        # XXX add more configurables: timeouts ...?
         'title':     Param('Title of status window', type=str,
                            default='Status'),
         'layout':    Param('Status monitor layout', type=listof(list),
@@ -96,6 +102,9 @@ class Monitor(BaseCacheClient):
         raise NotImplementedError
 
     def setLabelText(self, label, text):
+        raise NotImplementedError
+
+    def setLabelUnitText(self, label, text, unit):
         raise NotImplementedError
 
     def setForeColor(self, label, color):
@@ -378,12 +387,8 @@ class Monitor(BaseCacheClient):
             elif key == field['unitkey']:
                 field['unit'] = value
                 if value:
-                    # XXX rich text
-                    #self.setLabelText(field['namelabel'],
-                    #    ' ' + escape(field['name']) +
-                    #    ' <font color="#888888">%s</font> ' % escape(value))
-                    self.setLabelText(field['namelabel'],
-                                      '%s %s' % (field['name'], value))
+                    self.setLabelUnitText(field['namelabel'],
+                                          field['name'], value)
             elif key == field['formatkey']:
                 field['format'] = value
                 if field['value'] is not None:
