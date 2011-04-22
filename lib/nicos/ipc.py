@@ -44,8 +44,97 @@ from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
 class IPCModBus(Device):
     """Abstract class for IPC protocol communication over RS-485."""
 
+
+IPC_MAGIC = {
+    # motor cards
+    31:  ['Reset motor card', None],
+    32:  ['Start motor', None],
+    33:  ['Stop motor immediately', None],
+    34:  ['Switch forward direction', None],
+    35:  ['Switch backward direction', None],
+    36:  ['Switch fullstep', None],
+    37:  ['Switch halfstep', None],
+    38:  ['Switch relay on', None],
+    39:  ['Switch relay off', None],
+    40:  ['Write values to EEPROM', None],
+    41:  ['Set speed', (3, 0, 255)],  # numdigits, minvalue, maxvalue
+    42:  ['Set acceleration', (3, 0, 255)],
+    43:  ['Set current position', (6, 0, 999999)],
+    44:  ['Set maximum position', (6, 0, 999999)],
+    45:  ['Set minimum position', (6, 0, 999999)],
+    46:  ['Set multisteps and start', (6, 0, 999999)],
+    # ... with given speed and switch back
+    47:  ['Find reference switch', (3, 0, 255)],
+    48:  ['Check motor connection', None],
+    49:  ['Save config byte to EEPROM', (3, 0, 63)],
+    50:  ['Select ramp shape', (3, 1, 4)],
+    51:  ['Save user value to EEPROM', (6, 0, 999999)],
+    52:  ['Stop motor using ramp', None],
+    53:  ['Switch driver off', None],
+    54:  ['Switch driver on', None],
+    55:  ['Set inhibit delay', (3, 0, 255)],
+    56:  ['Set target position', (6, 0, 999999)],
+    57:  ['Set microsteps', (3, 0, 4)],
+    58:  ['Set stop delay', (3, 0, 255)],
+    60:  ['Set clock divider', (3, 1, 7)],
+    128: ['Read speed', None],
+    129: ['Read accel', None],
+    130: ['Read position', None],
+    131: ['Read maximum', None],
+    132: ['Read minimum', None],
+    133: ['Read multisteps', None],
+    134: ['Read status', None],
+    135: ['Read config byte', None],
+    136: ['Read ramp shape', None],
+    137: ['Read version number', None],
+    138: ['Read user value', None],
+    139: ['Read inhibit delay', None],
+    140: ['Read target position', None],
+    141: ['Read microsteps', None],
+    142: ['Read load indicator', None],
+    143: ['Read stop delay', None],
+    144: ['Read clock divider', None],
+    # encoder/potentiometer
+    150: ['Read encoder value', None],
+    151: ['Read encoder version', None],
+    152: ['Read encoder configuration', None],
+    153: ['Reset encoder', None],
+    154: ['Set encoder configuration', (3, 0, 255)],
+    155: ['Select endat memory range', (3, 161, 185)],
+    156: ['Read endat parameter', (3, 0, 15)],
+    157: ['Write endat parameter', (3, 0, 15)],
+    # 4-wing slits
+    160: ['Set bottom target position', (4, 0, 4095)],
+    161: ['Set top target position', (4, 0, 4095)],
+    162: ['Set right target position', (4, 0, 4095)],
+    163: ['Set left target position', (4, 0, 4095)],
+    164: ['Read status', None],
+    165: ['Read version number', None],
+    166: ['Read bottom target position', None],
+    167: ['Read top target position', None],
+    168: ['Read right target position', None],
+    169: ['Read left target position', None],
+    170: ['Write user value to EEPROM', (4, 0, 9999)],
+    171: ['Read user value', None],
+    # digital input
+    180: ['Read digital bits 0-7', None],
+    181: ['Read digital bits 8-15', None],
+    182: ['Save user value to EEPROM', (6, 0, 999999)],
+    183: ['Read user value', None],
+    184: ['Read digital input version number', None],
+    185: ['Read digital bits 0-15', None],
+    # digital output
+    190: ['Set digital output bits', (3, 0, 255)],
+    191: ['Read digital output bits', None],
+    192: ['Save user value to EEPROM', (6, 0, 999999)],
+    193: ['Read user value', None],
+    194: ['Read digital output version number', None],
+    195: ['Read status', None],
+}
+
+
 class InvalidCommandError(ProgrammingError):
-    pass
+    """Error raised for "invalid command" response of IPC cards."""
 
 
 class Coder(NicosCoder):
@@ -250,13 +339,13 @@ class Motor(NicosMotor):
 
     def doReadMax(self):
         return self._adevs['bus'].get(self.addr, 131)
-    
+
     def doWriteMax(self, value):
         self._adevs['bus'].send(self.addr, 44, value, 6)
 
     def doReadMin(self):
         return self._adevs['bus'].get(self.addr, 132)
-        
+
     def doWriteMin(self, value):
         self._adevs['bus'].send(self.addr, 45, value, 6)
 
