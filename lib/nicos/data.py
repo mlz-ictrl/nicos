@@ -228,10 +228,10 @@ class DaemonSink(DataSink):
         return DataSink.isActive(self, scantype)
 
     def beginDataset(self, dataset):
-        session.emitfunc('new_dataset', dataset)
+        session.emitfunc('dataset', dataset)
 
     def addPoint(self, dataset, xvalues, yvalues):
-        session.emitfunc('new_point', (xvalues, yvalues))
+        session.emitfunc('datapoint', (xvalues, yvalues))
 
 
 class GraceSink(DataSink):
