@@ -45,8 +45,21 @@ class LiveWindow(QMainWindow, DlgUtils):
         DlgUtils.__init__(self, 'Live data')
         loadUi(self, 'live.ui')
 
+        self._format = None
+        self._runtime = 0
+
+        layout = QVBoxLayout(self)
+
         self.widget = CascadeWidget(self)
-        self.setCentralWidget(self.widget)
+        # XXX display countrate/estimation
+        self.label = QLabel('', self)
+
+        layout.addWidget(self.widget)
+        layout.addWidget(self.label)
+
+        frame = QFrame(self)
+        frame.setLayout(layout)
+        self.setCentralWidget(frame)
 
         self.sgroup = SettingGroup('AnalysisWindow')
         self.loadSettings()
@@ -61,8 +74,24 @@ class LiveWindow(QMainWindow, DlgUtils):
             geometry = settings.value('geometry').toByteArray()
         self.restoreGeometry(geometry)
 
+    def setParams(self, params):
+        dtype, nx, ny, nt, runtime = params
+        self._runtime = runtime
+        if dtype == '<I4' and nx == 128 and ny == 128:
+            if nt == 1:
+                self._format = 'pad'
+                return
+            elif nt == 128:
+                self._format = 'tof'
+                return
+        print 'Unsupported live data format:', params
+        self._format = None
+
     def setData(self, data):
-        self.widget.LoadPadMem(data, 128*128*4)
+        if self._format == 'pad':
+            self.widget.LoadPadMem(data, 128*128*4)
+        elif self._format == 'tof':
+            self.widget.LoadTofMem(data, 128*128*128*4)
 
     @qtsig('')
     def on_actionWriteXml_triggered(self):

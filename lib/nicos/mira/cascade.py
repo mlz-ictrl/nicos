@@ -211,7 +211,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
                     if status.get('stop', '0') == '1':
                         break
                     data = self._client.communicate('CMD_readsram')
-                    session.updateLiveData('<i4', self._xres, self._yres,
+                    session.updateLiveData('<I4', self._xres, self._yres,
                                            self._tres, time() - started,
                                            buffer(data, 4))
                     # XXX should update counts
@@ -230,7 +230,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
                                              'server: %s' % data[:4])
                 buf = buffer(data, 4)
                 # send final image to live plots
-                session.updateLiveData('<i4', self._xres, self._yres,
+                session.updateLiveData('<I4', self._xres, self._yres,
                                        self._tres, self._last_preset, buf)
                 # write to data file
                 with open(self._lastfilename, 'w') as fp:

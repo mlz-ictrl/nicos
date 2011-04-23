@@ -599,7 +599,8 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         self.set_current_line(new_current_line)
 
     def on_client_liveparams(self, params):
-        print 'XXX liveparams'
+        if self.liveWindow:
+            self.liveWindow.setParams(params)
 
     def on_client_livedata(self, data):
         if self.liveWindow:
