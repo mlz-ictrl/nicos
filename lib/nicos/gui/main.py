@@ -50,6 +50,8 @@ from nicos.gui.utils import DlgUtils, SettingGroup, loadUi, dialogFromUi, \
 from nicos.gui.client import NicosClient, STATUS_INBREAK, STATUS_IDLE
 from nicos.gui.editor import EditorWindow
 from nicos.gui.toolsupport import main_tools, HasTools
+from nicos.daemon import NicosDaemon
+from nicos.daemon.utils import serialize
 
 from nicos.gui.custom import has_customization, list_customizations
 
@@ -66,10 +68,8 @@ except (ImportError, RuntimeError):
 
 
 class NicosGuiClient(NicosClient, QObject):
-    siglist = ['connected', 'disconnected', 'error', 'message',
-               'new_request', 'processing_request', 'new_script',
-               'new_status', 'new_values', 'new_output',
-               'new_dataset', 'new_point', 'new_livedata']
+    siglist = ['connected', 'disconnected', 'error'] + \
+              NicosDaemon.daemon_events.keys()
 
     def __init__(self, parent):
         QObject.__init__(self, parent)
@@ -101,7 +101,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         self.client = NicosGuiClient(self)
         for sig in self.client.siglist:
             self.connect(self.client, SIGNAL(sig),
-                         getattr(self, 'on_client_'+sig))
+                         getattr(self, 'on_client_' + sig))
 
         # set-up the initial connection data
         self.connectionData = {
@@ -527,8 +527,8 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         self.set_script(script)
         self.current_request['script'] = script
         self.current_request['reqno'] = None
-        self.on_client_new_status(status)
-        self.on_client_new_values(watch)
+        self.on_client_status(status)
+        self.on_client_watch(watch)
 
         # handle output (i.e. messages)
         self.outView.clear()
@@ -549,7 +549,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         if self.analysisWindow:
             self.analysisWindow.bulk_adding = True
         for dataset in datasets:
-            self.on_client_new_dataset(dataset)
+            self.on_client_dataset(dataset)
         if self.analysisWindow:
             self.analysisWindow.bulk_adding = False
         pd.setValue(1)
@@ -579,12 +579,12 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         #print 'message:', message
         self.outView.addMessage(message)
 
-    def on_client_new_request(self, request):
+    def on_client_request(self, request):
         if 'script' not in request:
             return
         self.scriptQueue.append(request)
 
-    def on_client_processing_request(self, request):
+    def on_client_processing(self, request):
         if 'script' not in request:
             return
         new_current_line = -1
@@ -598,7 +598,10 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         self.current_request = request
         self.set_current_line(new_current_line)
 
-    def on_client_new_livedata(self, data):
+    def on_client_liveparams(self, params):
+        print 'XXX liveparams'
+
+    def on_client_livedata(self, data):
         if self.liveWindow:
             self.liveWindow.setData(data)
 
@@ -616,10 +619,6 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         if 0 < line <= self.traceView.count():
             self.traceView.item(line - 1).setIcon(self.curlineicon)
         self.current_line = line
-
-    def on_client_new_script(self, script):
-        # deprecated event...
-        pass
 
     def set_status(self, status):
         if status == self.current_status:
@@ -682,7 +681,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         self.deleteWatch.setEnabled(isconnected)
         self.oneShotEval.setEnabled(isconnected)
 
-    def on_client_new_status(self, data):
+    def on_client_status(self, data):
         status, line = data
         if status == STATUS_IDLE:
             self.set_status('idle')
@@ -693,12 +692,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         if line != self.current_line:
             self.set_current_line(line)
 
-    def on_client_new_output(self, data):
-        # fabricate a message out of the new output
-        message = ['nicos', time.time(), 20, ''.join(data), None]
-        self.outView.addMessage(message)
-
-    def on_client_new_values(self, data):
+    def on_client_watch(self, data):
         # XXX implement name:group scheme
         values = data
         names = set()
@@ -719,13 +713,13 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
                     self.watch_items[itemname]))
             del self.watch_items[itemname]
 
-    def on_client_new_dataset(self, dataset):
+    def on_client_dataset(self, dataset):
         try:
             self.data.new_dataset(dataset)
         except DataError, err:
             print 'Data error:', err
 
-    def on_client_new_point(self, (xvalues, yvalues)):
+    def on_client_datapoint(self, (xvalues, yvalues)):
         try:
             self.data.add_point(xvalues, yvalues)
         except DataError, err:
@@ -810,7 +804,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             self.tr('New expression to watch:'))
         if not ok:
             return
-        newexpr = self.client.serialize([str(expr) + ':default'])
+        newexpr = serialize([str(expr) + ':default'])
         self.client.tell('watch', newexpr)
 
     @qtsig('')
@@ -819,7 +813,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         if not item:
             return
         expr = item.text(0)
-        delexpr = self.client.serialize([str(expr) + ':default'])
+        delexpr = serialize([str(expr) + ':default'])
         self.client.tell('unwatch', delexpr)
 
     @qtsig('')

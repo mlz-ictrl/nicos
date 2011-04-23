@@ -38,12 +38,11 @@ import zlib
 import errno
 import socket
 import struct
-import cPickle as pickle
 from Queue import Queue
 from SocketServer import BaseRequestHandler
 
 from nicos import session, nicos_version
-from nicos.daemon.utils import LoggerWrapper
+from nicos.daemon.utils import LoggerWrapper, serialize, unserialize
 from nicos.daemon.pyctl import STATUS_IDLE, STATUS_RUNNING, \
      STATUS_STOPPING, STATUS_INBREAK
 from nicos.daemon.script import EmergencyStopRequest, ScriptRequest, \
@@ -106,14 +105,6 @@ def command(needcontrol=False, needscript=None, name=None):
     return deco
 
 stop_queue = object()
-
-def serialize(data):
-    """Serialize an object."""
-    return pickle.dumps(data, 2)
-
-def unserialize(data):
-    """Unserialize an object."""
-    return pickle.loads(data)
 
 
 class ConnectionHandler(BaseRequestHandler):

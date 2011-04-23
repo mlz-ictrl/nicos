@@ -125,7 +125,7 @@ class ScriptRequest(Request):
         """Execute the script in the given namespace, using "controller"
         to execute individual blocks."""
         # notify client of new script
-        controller.eventfunc('processing_request', self.serialize())
+        controller.eventfunc('processing', self.serialize())
         # notify clients of "input"
         session.log.log(INPUT, format_script(self))
         # this is to allow the traceback module to report the script's
@@ -168,7 +168,7 @@ class ScriptRequest(Request):
             update_linecache('<script>', text)
             self.code, self.blocks = newcode, newblocks
             # let the client know of the update
-            controller.eventfunc('processing_request', self.serialize())
+            controller.eventfunc('processing', self.serialize())
             session.log.log(INPUT, format_script(self, 'UPDATE'))
         finally:
             # let the script continue execution in any case
@@ -256,7 +256,7 @@ class ExecutionController(Controller):
         self.set_observer(self._observer)
 
     def _observer(self, status, lineno):
-        self.eventfunc('new_status', (status, lineno))
+        self.eventfunc('status', (status, lineno))
 
     def _breakfunc(self, frame, arg):
         self.log.info('script interrupted in %s' % self.current_location())
@@ -299,10 +299,10 @@ class ExecutionController(Controller):
             raise RequestError('NICOS setup not finished')
         request.reqno = self.reqno_latest + 1
         self.reqno_latest += 1
-        # first send the notification, otherwise the request could be
-        # processed (resulting in a processing_request event)
-        # before the new_request event is even sent
-        self.eventfunc('new_request', request.serialize())
+        # first send the notification, otherwise the request could be processed
+        # (resulting in a "processing" event) before the "request" event is
+        # even sent
+        self.eventfunc('request', request.serialize())
         # put the script on the queue (will not block)
         self.queue.put(request)
 

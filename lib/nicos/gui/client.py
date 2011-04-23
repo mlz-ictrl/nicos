@@ -31,11 +31,17 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import mmap
 import socket
 import struct
 import hashlib
 import threading
 import cPickle as pickle
+
+import numpy as np
+
+from nicos.daemon import NicosDaemon
+from nicos.daemon.utils import unserialize
 
 # Script status constants
 STATUS_IDLE     = -1
@@ -139,26 +145,51 @@ class NicosClient(object):
 
     def event_handler(self):
         recv = self.event_socket.recv
+        recvinto = self.event_socket.recv_into
         while 1:
             try:
-                # receive first byte + (possibly) length
+                # receive length
                 length = recv(4)
                 if len(length) != 4:
                     print 'Error in event handler: connection broken'
                     return
                 length, = LENGTH.unpack(length)
-                buf = ''
-                while len(buf) < length:
-                    read = recv(length-len(buf))
+                got = 0
+                # buf = ''
+                # while got < length:
+                #     read = recv(length - got)
+                #     if not read:
+                #         print 'Error in event handler: connection broken'
+                #         return
+                #     buf += read
+                #     got += len(read)
+                # try:
+                #     event, data = buf.split(RS, 1)
+                #     if NicosDaemon.daemon_events[event]:
+                #         data = unserialize(data)
+
+                # read into a pre-allocated buffer to avoid copying lots of data
+                # around several times
+                buf = np.zeros(length, 'c')
+                while got < length:
+                    read = recvinto(buf[got:], length - got)
                     if not read:
                         print 'Error in event handler: connection broken'
                         return
-                    buf += read
+                    got += read
                 try:
-                    event, data = buf.split(RS, 1)
-                    data = self.unserialize(data)
-                except Exception:
-                    print 'Garbled event: %r' % buf
+                    start = buf[:15].tostring()
+                    sep = start.find(RS)
+                    if sep == -1:
+                        raise ValueError
+                    event = start[:sep]
+                    if NicosDaemon.daemon_events[event]:
+                        data = unserialize(buf[sep+1:].tostring())
+                    else:
+                        data = buffer(buf, sep+1)
+                except Exception, err:
+                    print 'Garbled event (%s): %r' % \
+                          (err, str(buffer(buf))[:100])
                 else:
                     self.signal(event, data)
             except Exception, err:
@@ -182,14 +213,6 @@ class NicosClient(object):
         if self.connected:
             self.connected = False
             self.signal('disconnected')
-
-    def serialize(self, data):
-        """Serialize an object according to the selected protocol."""
-        return pickle.dumps(data, 2)
-
-    def unserialize(self, data):
-        """Unserialize an object according to the selected protocol."""
-        return pickle.loads(data)
 
     def handle_error(self, err):
         if isinstance(err, ErrorResponse):
@@ -255,6 +278,6 @@ class NicosClient(object):
                 ret, data = self._read()
                 if ret != STX:
                     raise ErrorResponse(data)
-                return self.unserialize(data)
+                return unserialize(data)
         except Exception, err:
             return self.handle_error(err)

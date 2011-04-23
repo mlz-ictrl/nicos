@@ -46,9 +46,9 @@ from nicos import nicos_version
 from nicos.utils import listof
 from nicos.device import Device, Param
 
-from nicos.daemon.utils import ModuleManager
+from nicos.daemon.utils import ModuleManager, serialize
 from nicos.daemon.script import ExecutionController
-from nicos.daemon.handler import ConnectionHandler, serialize
+from nicos.daemon.handler import ConnectionHandler
 
 
 class Server(TCPServer):
@@ -174,6 +174,20 @@ class NicosDaemon(Device):
         'startupsetup': Param('Startup setup name', type=str, default='startup'),
     }
 
+    # key: event name
+    # value: whether the event data is serialized
+    daemon_events = {
+        'message': True,
+        'request': True,
+        'processing': True,
+        'status': True,
+        'watch': True,
+        'dataset': True,
+        'datapoint': True,
+        'liveparams': True,
+        'livedata': False,
+    }
+
     def doInit(self):
         self._stoprequest = False
         # the module manager executes the daemon's "reload modules" function
@@ -216,12 +230,12 @@ class NicosDaemon(Device):
             # new watch values?
             watch = ctlr.eval_watch_expressions()
             if watch != lastwatch:
-                emit('new_values', watch)
+                emit('watch', watch)
                 lastwatch = watch
 
-    def emit_event(self, event, data, bare=False):
+    def emit_event(self, event, data):
         """Emit an event to all handlers."""
-        if not bare:
+        if self.daemon_events[event]:
             data = serialize(data)
         for handler in self._server.handlers.values():
             handler.event_queue.put((event, data))

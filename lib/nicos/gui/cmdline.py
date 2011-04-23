@@ -120,10 +120,10 @@ class NicosCmdClient(NicosClient):
 
     def initial_update(self):
         allstatus = self.ask('getstatus')
-        status, script, output, watch = allstatus
-        self.signal('new_output', output)
-        self.signal('processing_request', {'script': script})
-        self.signal('new_status', status)
+        status, script, messages, watch = allstatus
+        # XXX handle messages
+        self.signal('processing', {'script': script})
+        self.signal('status', status)
 
     def signal(self, type, *args):
         if type == 'error':
@@ -134,7 +134,7 @@ class NicosCmdClient(NicosClient):
         elif type == 'disconnected':
             self.title.set_text('NICOS - disconnected')
             self.status.set_text('')
-        elif type == 'processing_request':
+        elif type == 'processing':
             script = args[0].get('script')
             if script is None:
                 return
@@ -143,7 +143,7 @@ class NicosCmdClient(NicosClient):
                                        for line in script.splitlines()]
                 self.current_script = script
                 self.current_line = -1
-        elif type == 'new_status':
+        elif type == 'status':
             started, status, line = args[0]
             if started:
                 if status != STATUS_INBREAK:
@@ -164,7 +164,8 @@ class NicosCmdClient(NicosClient):
                 except IndexError:
                     pass
                 self.current_line = line
-        elif type == 'new_output':
+        elif type == 'output':
+            # XXX adapt for message
             newtext = args[0]
             if newtext:
                 for text in newtext:
