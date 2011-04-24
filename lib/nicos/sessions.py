@@ -731,7 +731,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
             inp = raw_input(prompt)
         except KeyboardInterrupt:
             # Ctrl-C pressed from command line
-            session.immediateStop()
+            #session.immediateStop()
             return ''
         finally:
             sys.stdout.write(colorcode('reset'))

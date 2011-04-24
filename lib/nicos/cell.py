@@ -73,55 +73,56 @@ class Cell(Device):
         #                          type=int, default=1, settable=True),
     }
 
-    def _reinit(self, lattice=None, angles=None,
-                orient1=None, orient2=None, psi0=None):
-        # calculate reciprocal lattice
-        self._lattice_rec, self._angles_rec = self.lattice_rec()
-        # matrix for rotation about z lab system with psi
-        self._matrix = self.matrix_crystal2lab()
-        # matrix for rotation about sgx, sgy for psi = 0; never changed so far
-        self._matrix_cardan = identity(3)
-        #self._matrix_psi = identity(3)
-        # matrix for rotation about echi, ephi, for psi = 0 (not used)
-        #self._matrix_euler  = identity(3)
+    def _reinit(self):
+        try:
+            self._angles, self._lattice, self._orient1, self._orient2, self._psi0
+        except AttributeError:
+            # cannot calculate until all parameters are initialized
+            pass
+        else:
+            # calculate reciprocal lattice
+            self._lattice_rec, self._angles_rec = self.lattice_rec()
+            # matrix for rotation about z lab system with psi
+            self._matrix = self.matrix_crystal2lab()
+            # matrix for rotation about sgx, sgy for psi = 0; not changed so far
+            self._matrix_cardan = identity(3)
+            #self._matrix_psi = identity(3)
+            # matrix for rotation about echi, ephi, for psi = 0; not used
+            #self._matrix_euler  = identity(3)
 
     def _info(self):
-        print 'direct lattice:   %4.7f   %4.7f   %4.7f' % tuple(self._lattice)
-        print 'direct angles:    %4.7f   %4.7f   %4.7f' % tuple(self._angles)
-        print 'recip. lattice:   %4.7f   %4.7f   %4.7f' % tuple(self._lattice_rec)
-        print 'recip. angles:    %4.7f   %4.7f   %4.7f' % tuple(x * R2D for x in self._angles_rec)
-        print 'plane vectors:    (%s %s %s), (%s %s %s)' % (tuple(self._orient1) + tuple(self._orient2))
-        print 'zone axis:        [%s %s %s]' % tuple(self.cal_zone())
-        print 'psi0:             %4.3f' % (self._psi0 * R2D)
-        print 'cardan matrix:    \n%s' % self._matrix_cardan
-        print 'hkl2Qcart matrix: \n%s' % self._matrix
+        self.printinfo('direct lattice:   %4.7f   %4.7f   %4.7f' %
+                       tuple(self._lattice))
+        self.printinfo('direct angles:    %4.7f   %4.7f   %4.7f' %
+                       tuple(self._angles))
+        self.printinfo('recip. lattice:   %4.7f   %4.7f   %4.7f' %
+                       tuple(self._lattice_rec))
+        self.printinfo('recip. angles:    %4.7f   %4.7f   %4.7f' %
+                       tuple(x * R2D for x in self._angles_rec))
+        self.printinfo('plane vectors:    (%s %s %s), (%s %s %s)' %
+                       (tuple(self._orient1) + tuple(self._orient2)))
+        self.printinfo('zone axis:        [%s %s %s]' % tuple(self.cal_zone()))
+        self.printinfo('psi0:             %4.3f' % (self._psi0 * R2D))
+        self.printinfo('cardan matrix:    \n%s' % self._matrix_cardan)
+        self.printinfo('hkl2Qcart matrix: \n%s' % self._matrix)
 
-
-    def doInit(self):
-        self._lattice = array(self.lattice, float)
-        self._angles = array(self.angles, float)
-        self._orient1 = array(self.orient1, float)
-        self._orient2 = array(self.orient2, float)
-        self._psi0 = self.psi0
-        self._reinit()
-
-    def doWriteLattice(self, val):
+    def doUpdateLattice(self, val):
         self._lattice = array(val, float)
         self._reinit()
 
-    def doWriteAngles(self, val):
+    def doUpdateAngles(self, val):
         self._angles = array(val, float)
         self._reinit()
 
-    def doWriteOrient1(self, val):
+    def doUpdateOrient1(self, val):
         self._orient1 = array(val, float)
         self._reinit()
 
-    def doWriteOrient2(self, val):
+    def doUpdateOrient2(self, val):
         self._orient2 = array(val, float)
         self._reinit()
 
-    def doWritePsi0(self, val):
+    def doUpdatePsi0(self, val):
         self._psi0 = val
         self._reinit()
 

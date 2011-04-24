@@ -95,6 +95,9 @@ class LiveWindow(QMainWindow, DlgUtils):
 
     @qtsig('')
     def on_actionWriteXml_triggered(self):
+        pad = self.widget.GetPad()
+        if pad is None:
+            return self.showError('No 2-d image is shown.')
         filename = str(QFileDialog.getSaveFileName(
             self, self.tr('Select file name'), '',
             self.tr('XML files (*.xml)')))
@@ -102,9 +105,6 @@ class LiveWindow(QMainWindow, DlgUtils):
             return
         if not filename.endswith('.xml'):
             filename += '.xml'
-        pad = self.widget.GetPad()
-        if pad is None:
-            return
         tmpimg = TmpImage()
         tmpimg.ConvertPAD(pad)
         tmpimg.WriteXML(filename)

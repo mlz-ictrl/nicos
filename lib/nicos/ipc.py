@@ -154,15 +154,14 @@ class Coder(NicosCoder):
     def doInit(self):
         bus = self._adevs['bus']
         bus.ping(self.addr)
-        confbyte = self.confbyte
-        self._type = self._getcodertype(confbyte)
-        self._resolution = confbyte & 31
 
     def doReadConfbyte(self):
         return self._adevs['bus'].get(self.addr, 152)
 
     def doWriteConfbyte(self, byte):
         self._adevs['bus'].send(self.addr, 154, byte, 3)
+
+    def doUpdateConfbyte(self, byte):
         self._type = self._getcodertype(byte)
         self._resolution = byte & 31
 

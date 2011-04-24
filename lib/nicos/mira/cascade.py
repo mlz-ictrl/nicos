@@ -78,19 +78,15 @@ class CascadeDetector(Measurable, NeedsDatapath):
         self.doReset()
 
     def doInit(self):
-        self._datapath = None
-        self._filenumber = -1
-        self._lastfilename = '<none>'
         self._last_preset = self.preselection
         self._last_total = -1
         self._last_roi = -1
-        self._dataprefix = (self.mode == 'image') and 'IMAG' or 'DATA'
-        self._datashape = (self.mode == 'image') and (128, 128) or (128, 128, 128)
-        self._xres, self._yres = (128, 128)
-        self._tres = (self.mode == 'image') and 1 or 128
         self._measure = threading.Event()
         self._processed = threading.Event()
         self._processed.set()
+
+        # self._tres is set by doUpdateMode
+        self._xres, self._yres = (128, 128)
 
         self._thread = threading.Thread(target=self._thread_entry)
         self._thread.setDaemon(True)
@@ -103,12 +99,17 @@ class CascadeDetector(Measurable, NeedsDatapath):
         if not self._client.connecttohost(host, port):
             raise CommunicationError(self, 'could not connect to server')
 
-    def _setDatapath(self, value):
-        value = value[0]  # always use only first data path
-        self._datapath = path.join(value, 'cascade')
-        self._filenumber = readFileCounter(path.join(self._datapath, 'counter'))
-        self._lastfilename = path.join(
-            self._datapath, self.nametemplate[self.mode] % self._filenumber)
+    def doUpdateDatapath(self, value):
+        if value:
+            value = value[0]  # always use only first data path
+            self._datapath = path.join(value, 'cascade')
+            self._filenumber = readFileCounter(path.join(self._datapath, 'counter'))
+            self._lastfilename = path.join(
+                self._datapath, self.nametemplate[self.mode] % self._filenumber)
+        else:
+            self._datapath = None
+            self._filenumber = -1
+            self._lastfilename = '<none>'
 
     def valueInfo(self):
         return Value(self.name + '.roi', unit='cts', type='counter',
@@ -117,7 +118,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
                      errors='sqrt'), \
                Value(self.name + '.file', type='info')
 
-    def doWriteDebugmsg(self, value):
+    def doUpdateDebugmsg(self, value):
         self._client.SetDebugLog(value)
 
     def doShutdown(self):
@@ -134,7 +135,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
 
     def doStart(self, **preset):
         if self._datapath is None:
-            self._setDatapath(session.experiment.datapath)
+            self.datapath = session.experiment.datapath
         self._lastfilename = path.join(
             self._datapath, self.nametemplate[self.mode] % self._filenumber)
         self._filenumber += 1
@@ -175,6 +176,8 @@ class CascadeDetector(Measurable, NeedsDatapath):
         reply = self._client.communicate('CMD_config mode=%s' % value)
         if reply != 'OKAY':
             raise CommunicationError(self, 'could not set mode: %s' % reply[4:])
+
+    def doUpdateMode(self, value):
         self._dataprefix = (value == 'image') and 'IMAG' or 'DATA'
         self._datashape = (value == 'image') and (128, 128) or (128, 128, 128)
         self._tres = (value == 'image') and 1 or 128

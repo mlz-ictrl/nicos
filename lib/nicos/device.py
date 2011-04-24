@@ -115,13 +115,6 @@ class Device(object):
                 elif adev is not None:
                     adev._sdevs.discard(self.name)
             raise
-        else:
-            # set correct log level now that the parameter is initialized
-            self._log.setLevel(loggers.loglevels[self.loglevel])
-            if self._cache:
-                def logreconf(key, value):
-                    self.loglevel = value
-                self._cache.addCallback(self, 'loglevel', logreconf)
 
     def __setattr__(self, name, value):
         # disallow modification of public attributes that are not parameters
@@ -167,6 +160,8 @@ class Device(object):
         if value not in loggers.loglevels:
             raise UsageError(self, 'loglevel must be one of %s' %
                              ', '.join(map(repr, loggers.loglevels.keys())))
+
+    def doUpdateLoglevel(self, value):
         self._log.setLevel(loggers.loglevels[value])
 
     def init(self):
@@ -242,14 +237,13 @@ class Device(object):
                                 (param, value, cfgvalue))
                             value = cfgvalue
                             self._cache.put(self, param, value)
+                umethod = getattr(self, 'doUpdate' + param.title(), None)
+                if umethod:
+                    umethod(value)
                 self._params[param] = value
             else:
                 self._initParam(param, paraminfo)
                 notfromcache.append(param)
-            if paraminfo.writeoninit:
-                writemethod = getattr(self, 'doWrite' + param.title(), None)
-                if writemethod:
-                    writemethod(self._params[param])
             if paraminfo.category is not None:
                 self._infoparams.append((paraminfo.category, param,
                                          paraminfo.unit))
@@ -276,6 +270,15 @@ class Device(object):
 
         self._infoparams.sort()
 
+        # subscribe to parameter value updates, if a doUpdate method exists
+        if self._cache:
+            for param in self.parameters:
+                umethod = getattr(self, 'doUpdate' + param.title(), None)
+                if umethod:
+                    def updateparam(key, value, param=param, umethod=umethod):
+                        umethod(value)
+                    self._cache.addCallback(self, param, updateparam)
+
         # call custom initialization
         if hasattr(self, 'doInit'):
             self.doInit()
@@ -291,9 +294,9 @@ class Device(object):
         doesn't contain such a value.
         """
         paraminfo = paraminfo or self.parameters[param]
-        methodname = 'doRead' + param.title()
-        if hasattr(self, methodname):
-            value = getattr(self, methodname)()
+        rmethod = getattr(self, 'doRead' + param.title(), None)
+        if rmethod:
+            value = rmethod()
         elif param in self._params:
             # happens when called from a param getter, not from init()
             value = self._params[param]
@@ -301,6 +304,9 @@ class Device(object):
             value = self._config.get(param, paraminfo.default)
         if self._cache:
             self._cache.put(self, param, value)
+        umethod = getattr(self, 'doUpdate' + param.title(), None)
+        if umethod:
+            umethod(value)
         self._params[param] = value
 
     def _setROParam(self, param, value):

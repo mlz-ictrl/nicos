@@ -65,10 +65,10 @@ class Experiment(Device):
         'datapath':  Param('Paths for data files', type=listof(str),
                            settable=True, category='experiment'),
         'detlist':   Param('List of default detectors', type=listof(str),
-                           settable=True, writeoninit=True),
+                           settable=True),
         'envlist':   Param('List of default environment devices to read '
-                                'at every scan point', type=listof(str),
-                                settable=True, writeoninit=True),
+                           'at every scan point', type=listof(str),
+                           settable=True),
     }
 
     attached_devices = {
@@ -102,7 +102,7 @@ class Experiment(Device):
                 os.makedirs(datapath)
         for dev in session.devices.itervalues():
             if isinstance(dev, NeedsDatapath):
-                dev._setDatapath(paths)
+                dev.datapath = paths
 
     def createDataset(self, scantype=None):
         dataset = Dataset()
@@ -128,7 +128,7 @@ class Experiment(Device):
             dlist.append(det)
         self.detlist = dlist
 
-    def doWriteDetlist(self, detectors):
+    def doUpdateDetlist(self, detectors):
         detlist = []
         for detname in detectors:
             try:
@@ -155,7 +155,7 @@ class Experiment(Device):
             dlist.append(dev)
         self.envlist = dlist
 
-    def doWriteEnvlist(self, devices):
+    def doUpdateEnvlist(self, devices):
         devlist = []
         for devname in devices:
             try:

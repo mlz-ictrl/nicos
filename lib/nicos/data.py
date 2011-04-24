@@ -102,8 +102,10 @@ class NeedsDatapath(object):
     datapath.
     """
 
-    def _setDatapath(self, path):
-        pass
+    parameters = {
+        'datapath': Param('Do not set this, set the datapath on the '
+                          'experiment device', type=listof(str), settable=True),
+    }
 
 
 class DataSink(Device):
@@ -388,28 +390,28 @@ class AsciiDatafileSink(DatafileSink):
     def doPreinit(self):
         self._counter = 0
 
-    def doInit(self):
-        self._path = None
-        self._file = None
-        self._fname = ''
-        self._scomment = self.commentchar
-        self._tcomment = self.commentchar * 3
-
-    def _setDatapath(self, value):
-        self._path = value[0]
-        self._addpaths = value[1:]
-        # determine current file counter value
-        if self.globalcounter:
-            self._counter = readFileCounter(self.globalcounter)
+    def doUpdateDatapath(self, value):
+        if value:
+            self._path = value[0]
+            self._addpaths = value[1:]
+            # determine current file counter value
+            if self.globalcounter:
+                self._counter = readFileCounter(self.globalcounter)
+            else:
+                self._counter = readFileCounter(
+                    path.join(self._path, 'filecounter'))
+            self._setROParam('lastfilenumber', self._counter)
         else:
-            self._counter = readFileCounter(
-                path.join(self._path, 'filecounter'))
-        self._setROParam('lastfilenumber', self._counter)
+            self._path = None
+            self._file = None
+            self._fname = ''
 
     def doWriteCommentchar(self, value):
         if len(value) > 1:
             raise ConfigurationError('comment character should only be '
                                      'one character')
+
+    def doUpdateCommentchar(self, value):
         self._scomment = value
         self._tcomment = value * 3
 

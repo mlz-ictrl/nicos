@@ -207,7 +207,7 @@ class IPCModBusSerial(IPCModBusTCP):
         self._connection = serial.Serial(self.host, baudrate=19200,
                                          timeout=self.roundtime)
 
-    def doWriteRoundtime(self, value):
+    def doUpdateRoundtime(self, value):
         if self._connection:
             self._connection.timeout = value
 

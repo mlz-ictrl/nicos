@@ -114,17 +114,19 @@ class TacoDevice(object):
             return self._taco_guard(self._dev.unit)
         return ''
 
-    def doWriteTacotimeout(self, value):
+    def doUpdateTacotimeout(self, value):
         if self._dev:
             self._taco_guard(self._dev.setClientNetworkTimeout, value)
 
     def doWriteTacolog(self, value):
-        self._taco_guard = value and self._taco_guard_log or \
-                           self._taco_guard_nolog
         # automatically set the loglevel to debug, otherwise taco log
         # messages won't be emitted
         if value:
             self.loglevel = 'debug'
+
+    def doUpdateTacolog(self, value):
+        self._taco_guard = value and self._taco_guard_log or \
+                           self._taco_guard_nolog
 
     # internal utilities
 

@@ -70,15 +70,13 @@ class Param(object):
     - *prefercache*: whether on initialization, a value from the cache is
       preferred to a value from the config -- the default is true for
       settable parameters and false for non-settable parameters
-    - *writeoninit*: call the doWrite method on initialization (also in slave
-      mode), use only for parameters not affecting hardware
     """
 
     _notset = object()
 
     def __init__(self, description, type=float, default=_notset,
                  mandatory=False, settable=False, unit=None, category=None,
-                 preinit=False, prefercache=None, writeoninit=False):
+                 preinit=False, prefercache=None):
         self.type = type
         if default is self._notset:
             default = type()
@@ -90,7 +88,6 @@ class Param(object):
         self.description = description
         self.preinit = preinit
         self.prefercache = prefercache
-        self.writeoninit = writeoninit
 
     def __repr__(self):
         return '<Param info>'
@@ -200,10 +197,10 @@ class AutoPropsMeta(MergedAttrsMeta):
                     raise ConfigurationError(
                         self, 'cannot set the %s parameter' % param)
             else:
-                wmethodname = 'doWrite' + param.title()
-                if getattr(newtype, wmethodname, None) is None:
-                    wmethodname = None
-                def setter(self, value, param=param, methodname=wmethodname):
+                wmethod = getattr(newtype, 'doWrite' + param.title(), None)
+                umethod = getattr(newtype, 'doUpdate' + param.title(), None)
+                def setter(self, value, param=param, wmethod=wmethod,
+                           umethod=umethod):
                     pconv = self.parameters[param].type
                     try:
                         value = pconv(value)
@@ -217,11 +214,13 @@ class AutoPropsMeta(MergedAttrsMeta):
                     elif self._mode == 'simulation':
                         self._params[param] = value
                         return
-                    if methodname:
+                    if wmethod:
                         # allow doWrite to override the value
-                        rv = getattr(self, methodname)(value)
+                        rv = wmethod(self, value)
                         if rv is not None:
                             value = rv
+                    if umethod:
+                        umethod(self, value)
                     self._params[param] = value
                     if self._cache:
                         self._cache.put(self, param, value)
