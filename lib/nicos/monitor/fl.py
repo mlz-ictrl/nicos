@@ -120,7 +120,7 @@ class Fll_Hbox(Fll_Layout):
                 cw += fill
             child.resize(xc, yc, cw, ch)
             xc += cw + sp
-        self.damage(FL_DAMAGE_ALL)
+        #self.damage(FL_DAMAGE_ALL)
         Fll_Layout.resize(self, x, y, w, h)
 
 
@@ -155,7 +155,7 @@ class Fll_Vbox(Fll_Layout):
                 ch += fill
             child.resize(xc, yc, cw, ch)
             yc += ch + sp
-        self.damage(FL_DAMAGE_ALL)
+        #self.damage(FL_DAMAGE_ALL)
         Fll_Layout.resize(self, x, y, w, h)
 
 
@@ -216,6 +216,10 @@ class Sm_Field(Fll_Vbox):
         self._valuelabel.labelcolor(FL_GREEN)
         self._valuelabel.labelsize(fontsize)
         self.pack(self._valuelabel)
+
+    #def resize(self, x, y, w, h):
+    #    print 'resizing', self._name, 'to', (x, y, w, h)
+    #    Fll_Vbox.resize(self, x, y, w, h)
 
 
 class Sm_Row(Fll_Hbox):
