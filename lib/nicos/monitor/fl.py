@@ -33,9 +33,9 @@ __version__ = "$Revision$"
 
 from time import sleep
 
-from fltk import Fl, Fl_Double_Window, Fl_Group, Fl_Box, fl_rgb_color, \
+from fltk import Fl, Fl_Double_Window, Fl_Group, Fl_Widget, Fl_Box, \
      FL_COURIER, FL_HELVETICA, FL_FLAT_BOX, FL_UP_FRAME, FL_BOLD, \
-     FL_DOWN_BOX, FL_BLACK, FL_GREEN, FL_DAMAGE_ALL, fl_font, fl_measure
+     FL_DOWN_BOX, FL_BLACK, FL_GREEN, fl_rgb_color, fl_font, fl_measure
 
 from nicos.monitor import Monitor as BaseMonitor
 
@@ -47,7 +47,7 @@ def measure(font, fontsize, text):
 
 class Fll_Layout(Fl_Group):
     stretch = 1
-    
+
     def __init__(self, spacing=0, padx=0, pady=0):
         Fl_Group.__init__(self, 0, 0, 0, 0)
         self._childinfo = []
@@ -70,9 +70,6 @@ class Fll_Layout(Fl_Group):
         self._stretchers[stretch] += 1
         self._childinfo.append((w, h, stretch))
         self.add(child)
-
-    #def end(self):
-    #    pass
 
     def preferredsize(self):
         return self._minwidth, self._minheight
@@ -100,7 +97,10 @@ class Fll_Hbox(Fll_Layout):
                          2 * self._padx
 
     def resize(self, x, y, w, h):
-        #print 'resizing hbox', x, y, w, h
+        if (self.x(), self.y(), self.w(), self.h()) == (x, y, w, h):
+            #print 'hbox same size', x, y, w, h
+            return
+        #print 'start resizing hbox to', (x, y, w, h)
         sp = self._spacing
         xc = x + self._padx
         yc = y + self._pady
@@ -120,14 +120,13 @@ class Fll_Hbox(Fll_Layout):
                 cw += fill
             child.resize(xc, yc, cw, ch)
             xc += cw + sp
-        #self.damage(FL_DAMAGE_ALL)
-        Fll_Layout.resize(self, x, y, w, h)
+        Fl_Widget.resize(self, x, y, w, h)
+        #print 'end resizing hbox'
 
 
 class Fll_Vbox(Fll_Layout):
     def pack(self, *args, **kwds):
         Fll_Layout.pack(self, *args, **kwds)
-        #print self._childinfo
         self._minwidth = max(info[0] for info in self._childinfo) + \
                          2 * self._padx
         self._minheight = sum(info[1] for info in self._childinfo) + \
@@ -135,7 +134,11 @@ class Fll_Vbox(Fll_Layout):
                           2 * self._pady
 
     def resize(self, x, y, w, h):
-        #print 'resizing vbox', x, y, w, h
+        if (self.x(), self.y(), self.w(), self.h()) == (x, y, w, h):
+            #print 'vbox same size', (x, y, w, h)
+            return
+        #if not isinstance(self, Sm_Field):
+        #    print 'start resizing vbox to', (x, y, w, h)
         sp = self._spacing
         xc = x + self._padx
         yc = y + self._pady
@@ -155,8 +158,9 @@ class Fll_Vbox(Fll_Layout):
                 ch += fill
             child.resize(xc, yc, cw, ch)
             yc += ch + sp
-        #self.damage(FL_DAMAGE_ALL)
-        Fll_Layout.resize(self, x, y, w, h)
+        Fl_Widget.resize(self, x, y, w, h)
+        #if not isinstance(self, Sm_Field):
+        #    print 'end resizing vbox'
 
 
 class Fll_Stretch(Fl_Box):
@@ -171,12 +175,7 @@ class Fll_LayoutWindow(Fl_Double_Window):
         Fl_Double_Window.end(self)
         if self.children() != 1:
             raise RuntimeError('LayoutWindow needs exactly one child')
-        child = self._onlychild = self.child(0)
-        if hasattr(child, 'preferredsize'):
-            mw, mh = child.preferredsize()
-        else:
-            mw, mh = child.w(), child.h()
-        self.size_range(mw, mh, 0, 0)
+        self._onlychild = self.child(0)
 
     def resize(self, x, y, w, h):
         if hasattr(self, '_onlychild'):
@@ -254,7 +253,7 @@ class Sm_Box(Fl_Group):
         tw = self._titlebox.w()
         self._titlebox.resize(x + w/2 - tw/2, y, tw, self._titlebox.h())
         self.child(0).resize(x, y + self._offset, w, h - self._offset)
-        Fl_Group.resize(self, x, y, w, h)
+        Fl_Widget.resize(self, x, y, w, h)
 
     def pack(self, row):
         self._rowbox.pack(row)
@@ -350,7 +349,9 @@ class Monitor(BaseMonitor):
 
         master.add(masterlayout)
         master.end()
-        master.size(*master.preferredsize())
+        pw, ph = master.preferredsize()
+        master.size(pw, ph)
+        master.size_range(pw, ph, 0, 0)
         master.show()
 
     setLabelText = Fl_Box.copy_label
