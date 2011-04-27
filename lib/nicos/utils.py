@@ -351,6 +351,11 @@ def removePidfile(appname):
             return
         raise
 
+def ensureDirectory(dirname):
+    """Make sure a directory exists."""
+    if not path.isdir(dirname):
+        os.makedirs(dirname)
+
 def disableDirectory(startdir):
     """Traverse a directory tree and remove access rights."""
     # handle files first, then subdirs and then work on the current dir
@@ -373,6 +378,25 @@ def enableDirectory(startdir):
             enableDirectory(full)
         else:
             os.chmod(full, 0644)  # drw-r--r--
+
+field_re = re.compile('{{(?P<key>[^:#}]+)(?::(?P<default>[^#}]*))?'
+                      '(?:#(?P<description>[^}]+)?}}')
+
+def expandTemplate(template, keywords, field_re=field_re):
+    """Simple template field replacement engine."""
+    result = []
+    current = 0
+    for field in field_re.finditer(template):
+        result.append(template[:current])
+        replacement = keywords.get(field.group('key'))
+        if replacement is None:
+            replacement = field.group('default')
+            if replacement is None:
+                raise UsageError('no value given for %r' % field.group('key'))
+        result.append(replacement)
+        current = field.end()
+    result.append(template[current:])
+    return ''.join(result)
 
 
 # session id support

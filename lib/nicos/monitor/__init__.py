@@ -146,6 +146,7 @@ class Monitor(BaseCacheClient):
         self._warnmap = {}
         # current warnings
         self._currwarnings = []
+        # keys that have warnings, with info about time it occurred first
         self._haswarnings = {}
         # time when warnings were last shown/hidden?
         self._warningswitchtime = 0

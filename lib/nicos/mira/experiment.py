@@ -38,8 +38,9 @@ import time
 from os import path
 
 from nicos import session
-from nicos.experiment import Experiment
+from nicos.utils import ensureDirectory
 from nicos.loggers import UserLogfileHandler
+from nicos.experiment import Experiment
 
 
 class MiraExperiment(Experiment):
@@ -48,12 +49,11 @@ class MiraExperiment(Experiment):
         self._uhandler = UserLogfileHandler(path.join(self.datapath[0], 'log'))
         session.addLogHandler(self._uhandler)
 
-    def new(self, proposal, title=None):
+    def new(self, proposal, title=None, **kwds):
         Experiment.new(self, proposal, title)
         new_datapath = '/data/%s/%s' % (time.strftime('%Y'), proposal)
         self.datapath = [new_datapath]
-        if not path.isdir(path.join(new_datapath, 'scripts')):
-            os.mkdir(path.join(new_datapath, 'scripts'))
-        if not path.isdir(path.join(new_datapath, 'log')):
-            os.mkdir(path.join(new_datapath, 'log'))
+        ensureDirectory(path.join(new_datapath, 'scripts'))
+        self.scriptdir = path.join(new_datapath, 'scripts')
+        ensureDirectory(path.join(new_datapath, 'log'))
         self._uhandler.changeDirectory(path.join(new_datapath, 'log'))

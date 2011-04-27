@@ -134,6 +134,8 @@ class Session(object):
             path.join(self.config.control_path, 'custom/test/setups')):
             self.__setup_path = path.join(self.config.control_path,
                                           'custom/test/setups')
+        # devices failed in the current setup process
+        self.__failed_devices = None
         # info about all loadable setups
         self.__setup_info = {}
         # namespace to place user-accessible items in
@@ -431,6 +433,15 @@ class Session(object):
 
     # -- Device control --------------------------------------------------------
 
+    def startMultiCreate(self):
+        """Store devices that fail to create so that they are not tried again
+        and again during one setup process.
+        """
+        self.__failed_devices = set()
+
+    def endMultiCreate(self):
+        self.__failed_devices = None
+
     def getDevice(self, dev, cls=None):
         """Convenience: get a device by name or instance."""
         if isinstance(dev, str):
@@ -451,6 +462,8 @@ class Session(object):
 
         If device exists and *recreate* is true, destroy and create it again.
         """
+        if self.__failed_devices and devname in self.__failed_devices:
+            raise NicosError('device already failed to create before')
         if devname not in self.configured_devices:
             raise ConfigurationError('device %r not found in configuration'
                                      % devname)
@@ -470,7 +483,12 @@ class Session(object):
         except (ImportError, AttributeError), err:
             raise ConfigurationError('failed to import device class %r: %s'
                                      % (devclsname, err))
-        dev = devcls(devname, **devconfig)
+        try:
+            dev = devcls(devname, **devconfig)
+        except Exception:
+            if self.__failed_devices is not None:
+                self.__failed_devices.add(devname)
+            raise
         if explicit:
             self.explicit_devices.add(devname)
             self.export(devname, dev)
@@ -810,6 +828,7 @@ class InteractiveSession(Session):
         try:
             self.log.info('== Keyboard interrupt (Ctrl-C) ==')
             self.log.info('Please enter how to proceed:')
+            self.log.info('<I> ignore this interrupt')
             self.log.info('<H> stop after current step')
             self.log.info('<L> stop after current scan')
             self.log.info('<S> immediate stop')
@@ -819,9 +838,11 @@ class InteractiveSession(Session):
                 # when already in readline(), this will be raised
                 reply = 'S'
             self.log.log(INPUT, reply)
-            if reply.upper() == 'I':
+            if reply.upper() == 'R':
                 # handle further Ctrl-C presses with KeyboardInterrupt
                 signal.signal(signal.SIGINT, signal.default_int_handler)
+            elif reply.upper() == 'I':
+                pass
             elif reply.upper() == 'H':
                 self._stoplevel = 2
             elif reply.upper() == 'L':

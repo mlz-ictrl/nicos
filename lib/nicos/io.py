@@ -199,7 +199,7 @@ class TacoModBus(TacoDevice, IPCModBus):
 
     parameters = {
         'maxtries': Param('Number of tries for sending and receiving',
-                          type=int, default=5, settable=True),
+                          type=int, default=3, settable=True),
     }
 
     def send(self, addr, cmd, param=0, len=0):

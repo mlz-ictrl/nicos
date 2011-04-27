@@ -35,11 +35,12 @@ __version__ = "$Revision$"
 
 import inspect
 import __builtin__
+from os import path
 
 from nicos import session
 from nicos.utils import formatDocstring, printTable
 from nicos.device import Device
-from nicos.errors import ModeError, NicosError
+from nicos.errors import ModeError, NicosError, UsageError
 from nicos.notify import Mailer, SMSer
 from nicos.sessions import EXECUTIONMODES
 from nicos.commands import usercommand
@@ -101,7 +102,11 @@ def NewSetup(setupname):
     session.readSetups()
     session.unloadSetup()
     try:
-        session.loadSetup(setupname)
+        session.startMultiCreate()
+        try:
+            session.loadSetup(setupname)
+        finally:
+            session.endMultiCreate()
     except Exception:
         printexception()
         session.loadSetup('startup')
@@ -113,7 +118,11 @@ def NewSetup(setupname):
 def AddSetup(setupname):
     """Load the given setup additional to the current one."""
     session.readSetups()
-    session.loadSetup(setupname)
+    session.startMultiCreate()
+    try:
+        session.loadSetup(setupname)
+    finally:
+        session.endMultiCreate()
 
 @usercommand
 def ListSetups():
@@ -151,29 +160,42 @@ def CreateAllDevices():
     """Create all devices in the current setup that are not marked as
     lowlevel devices.
     """
-    for devname, (_, devconfig) in session.configured_devices.iteritems():
-        if devconfig.get('lowlevel', False):
-            continue
-        try:
-            session.createDevice(devname, explicit=True)
-        except NicosError, err:
-            printexception('error creating %s' % devname)
+    session.startMultiCreate()
+    try:
+        for devname, (_, devconfig) in session.configured_devices.iteritems():
+            if devconfig.get('lowlevel', False):
+                continue
+            try:
+                session.createDevice(devname, explicit=True)
+            except NicosError, err:
+                printexception('error creating %s' % devname)
+    finally:
+        session.endMultiCreate()
 
 @usercommand
-def NewExperiment(proposal, title):
-    """Start a new experiment."""
-    session.experiment.new(proposal, title)
+def NewExperiment(proposal, title, **kwds):
+    """Start a new experiment with the given proposal number and title."""
+    session.experiment.new(proposal, title, **kwds)
 
 @usercommand
-def NewUser(name, email, affiliation=None):
+def AddUser(name, email, affiliation=None):
+    """Add a new user to the experiment."""
     session.experiment.addUser(name, email, affiliation)
 
 @usercommand
 def NewSample(name):
+    """Start a new sample with the given sample name."""
     session.experiment.sample.samplename = name
 
 @usercommand
-def SaveState():
+def Remark(remark):
+    """Change the remark about instrument configuration saved to the
+    data files.
+    """
+    session.experiment.remark = remark
+
+@usercommand
+def _SaveState():
     """Return statements that restore the current state."""
     ret = ['NewSetup(%r)\n' % session.explicit_setups[0]]
     ret += ['AddSetup(%r)\n' % setup
@@ -195,7 +217,7 @@ SetMode.__doc__ += ', '.join(EXECUTIONMODES)
 
 @usercommand
 def ClearCache(devname):
-    """Clear all cached information for a given device."""
+    """Clear all local cached information for a given device."""
     if isinstance(devname, Device):
         devname = devname.name
     session.cache.clear(devname)
@@ -222,14 +244,18 @@ def UserInfo(name):
 
 @usercommand
 def run(filename):
-    """Run a script file."""
-    # XXX standard script dir?
-    printinfo('running user script: ' + filename)
-    with open(filename, 'r') as fp:
+    """Run a script file given by file name.  If the file name is not absolute,
+    it is relative to the experiment script directory.
+    """
+    fn = path.normpath(path.join(session.experiment.scriptdir, filename))
+    if not path.isfile(fn) and os.access(fn, os.R_OK):
+        raise UsageError('The file %r does not exist or is not readable')
+    printinfo('running user script: ' + fn)
+    with open(fn, 'r') as fp:
         code = unicode(fp.read(), 'utf-8')
-        with _Scope(filename):
+        with _Scope(fn):
             exec code in session.getLocalNamespace(), session.getNamespace()
-    printinfo('finished user script: ' + filename)
+    printinfo('finished user script: ' + fn)
 
 
 @usercommand

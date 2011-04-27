@@ -62,6 +62,8 @@ class Experiment(Device):
                            type=str, settable=True, category='experiment'),
         'users':     Param('User names', type=listof(str), settable=True,
                            category='experiment'),
+        'remark':    Param('Current remark about experiment configuration',
+                           type=str, settable=True, category='experiment'),
         'datapath':  Param('Paths for data files', type=listof(str),
                            settable=True, category='experiment'),
         'detlist':   Param('List of default detectors', type=listof(str),
@@ -69,6 +71,8 @@ class Experiment(Device):
         'envlist':   Param('List of default environment devices to read '
                            'at every scan point', type=listof(str),
                            settable=True),
+        'scriptdir': Param('Standard script directory', type=str,
+                           default='.', settable=True),
     }
 
     attached_devices = {
@@ -78,7 +82,7 @@ class Experiment(Device):
     def doInit(self):
         self._last_datasets = []
 
-    def new(self, proposal, title=None):
+    def new(self, proposal, title=None, **kwds):
         # Individual instruments should override this to change datapath
         # according to instrument policy.
         if isinstance(proposal, int):
@@ -93,6 +97,9 @@ class Experiment(Device):
         if affiliation is not None:
             user += ' -- ' + affiliation
         self.users = self.users + [user]
+
+    def finish(self):
+        pass
 
     def doWriteDatapath(self, paths):
         if not paths:
