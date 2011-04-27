@@ -33,9 +33,9 @@ __version__ = "$Revision$"
 
 import threading
 from cgi import escape
-from time import time as currenttime
+from time import time as currenttime, sleep
 
-from PyQt4.QtCore import QSize, Qt, SIGNAL
+from PyQt4.QtCore import QSize, QEvent, Qt, SIGNAL
 from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
      QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, \
      QCursor, QStackedWidget
@@ -129,7 +129,7 @@ class Monitor(BaseMonitor):
         master.show()
 
         if self._geometry == 'fullscreen':
-            master.showMaximized()
+            master.showFullScreen()
             QCursor.setPos(master.geometry().bottomRight())
         elif isinstance(self._geometry, tuple):
             master.setGeometry(*self._geometry)
@@ -204,6 +204,7 @@ class Monitor(BaseMonitor):
 
         # now iterate through the layout and create the widgets to display it
         displaylayout = QVBoxLayout()
+        displaylayout.setSpacing(20)
         for superrow in self._layout:
             boxlayout = QHBoxLayout()
             boxlayout.setSpacing(20)
@@ -266,6 +267,12 @@ class Monitor(BaseMonitor):
         masterframe.setLayout(masterlayout)
         master.setCentralWidget(masterframe)
 
+        def resizeToMinimum():
+            master.resize(master.sizeHint())
+            if self._geometry == 'fullscreen':
+                master.showFullScreen()
+        master.connect(master, SIGNAL('resizeToMinimum'), resizeToMinimum)
+
         # initialize status bar
         self._statuslabel = QLabel()
         self._statuslabel.setFont(stbarfont)
@@ -305,6 +312,13 @@ class Monitor(BaseMonitor):
             for layout, blockbox in boxes:
                 blockbox.emit(SIGNAL('enableDisplay'),
                               layout, setup in self._setups)
+        # HACK: master.sizeHint() is only correct a certain time *after* the
+        # layout change (I've not found out what event to generate or intercept
+        # to do this in a more sane way).
+        def emitresize():
+            sleep(1)
+            self._master.emit(SIGNAL('resizeToMinimum'))
+        threading.Thread(target=emitresize).start()
 
     # special feature: mouse-over status bar text
 
