@@ -71,6 +71,7 @@ __builtin__.__orig_dir = dir
 
 @usercommand
 def dir(obj=None):
+    """Show all public attributes for the given object."""
     if obj is None:
         return __builtin__.__orig_dir()
     return [name for name in __builtin__.__orig_dir(obj)
@@ -194,6 +195,7 @@ def Remark(remark):
     """
     session.experiment.remark = remark
 
+
 @usercommand
 def _SaveState():
     """Return statements that restore the current state."""
@@ -202,6 +204,7 @@ def _SaveState():
             for setup in session.explicit_setups[1:]]
     return ''.join(ret + [session.devices[dev].save()
                           for dev in sorted(session.devices)])
+
 
 @usercommand
 def SetMode(mode):
@@ -214,6 +217,7 @@ def SetMode(mode):
         printexception()
 
 SetMode.__doc__ += ', '.join(EXECUTIONMODES)
+
 
 @usercommand
 def ClearCache(devname):
@@ -261,7 +265,10 @@ def run(filename):
 @usercommand
 def Notify(*args):
     """Send a message via email and/or SMS to the receivers selected by
-    SetMailReceivers and SetSMSReceivers.
+    SetMailReceivers and SetSMSReceivers.  Usage is one of these two:
+
+        Notify('some text')
+        Notify('subject', 'some text')
     """
     if len(args) == 1:
         # use first line of text as subject
@@ -276,6 +283,9 @@ def Notify(*args):
 
 @usercommand
 def SetMailReceivers(*emails):
+    """Set a list of email addresses that will be notified on unhandled errors,
+    and when the Notify() command is used.
+    """
     for notifier in session.notifiers:
         if isinstance(notifier, Mailer):
             notifier.receivers = list(emails)
@@ -289,6 +299,12 @@ def SetMailReceivers(*emails):
 
 @usercommand
 def SetSMSReceivers(*numbers):
+    """Set a list of mobile phone numbers that will be notified on unhandled
+    errors, and when the Notify() command is used.
+
+    Note that all those phone numbers have to be registered with the IT
+    department before they can be used.
+    """
     for notifier in session.notifiers:
         if isinstance(notifier, SMSer):
             notifier.receivers = list(numbers)

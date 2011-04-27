@@ -380,7 +380,7 @@ def enableDirectory(startdir):
             os.chmod(full, 0644)  # drw-r--r--
 
 field_re = re.compile('{{(?P<key>[^:#}]+)(?::(?P<default>[^#}]*))?'
-                      '(?:#(?P<description>[^}]+)?}}')
+                      '(?:#(?P<description>[^}]+))?}}')
 
 def expandTemplate(template, keywords, field_re=field_re):
     """Simple template field replacement engine."""
