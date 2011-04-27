@@ -35,12 +35,15 @@ __version__ = "$Revision$"
 
 import os
 import time
+from os import path
 
 from nicos import session
 from nicos.experiment import Experiment
 from nicos.data import NeedsDatapath, Dataset
-from nicos.utils import listof
+from nicos.utils import listof, disableDirectory, enableDirectory, \
+     ensureDirectory
 from nicos.device import Device, Param
+from nicos.errors import UsageError
 from nicos.loggers import UserLogfileHandler
 
 
@@ -53,20 +56,57 @@ class PandaExperiment(Experiment):
     def doInit(self):
         Experiment.doInit(self)
         self._uhandler = UserLogfileHandler(
-            os.path.join(self.datapath[0], 'log'))
+            path.join(self.datapath[0], 'log'))
         session.addLogHandler(self._uhandler)
 
-    def new(self, proposal, title=None):
+    def _expdir(self, suffix):
+        return '/data/exp/' + suffix
+
+    def new(self, proposal, title=None, **kwds):
+        # panda-specific handling of proposal number
         if isinstance(proposal, int):
             proposal = 'p%s' % proposal
+        if proposal in ('template', 'current'):
+            raise UsageError(self, 'The proposal names "template" and "current"'
+                             ' are reserved and cannot be used')
+
+        try:
+            old_proposal = os.readlink(self._expdir('current'))
+        except Exception:
+            if path.exists(self._expdir('current')):
+                self.printerror('"current" link to old experiment dir exists '
+                                'but cannot be read', exc=1)
+            else:
+                self.printwarning('no old experiment dir is currently set',
+                                  exc=1)
+        else:
+            if old_proposal.startswith('p'):
+                disableDirectory(self._expdir(old_proposal))
+            os.unlink(self._expdir('current'))
+
+        # checks are done, set the new experiment
         Experiment.new(self, proposal, title)
-        exp_datapath = '/data/exp/%s' % proposal
+
+        # create new data path and expand templates
+        exp_datapath = self._expdir(proposal)
+        ensureDirectory(exp_datapath)
+        enableDirectory(exp_datapath)
+        os.symlink(proposal, self._expdir('current'))
+
+        ensureDirectory(path.join(exp_datapath, 'scripts'))
+        self.scriptdir = path.join(new_datapath, 'scripts')
+        ensureDirectory(path.join(exp_datapath, 'log'))
+        self._uhandler.changeDirectory(path.join(exp_datapath, 'log'))
+
+        self._handleTemplates(proposal, kwds)
+
         self.datapath = [
             exp_datapath,
             '/data/%s/cycle_%s' % (time.strftime('%Y'), self.cycle),
         ]
-        if not os.path.isdir(os.path.join(exp_datapath, 'scripts')):
-            os.mkdir(os.path.join(exp_datapath, 'scripts'))
-        if not os.path.isdir(os.path.join(exp_datapath, 'log')):
-            os.mkdir(os.path.join(exp_datapath, 'log'))
-        self._uhandler.changeDirectory(os.path.join(exp_datapath, 'log'))
+
+    def _handleTemplates(self, proposal, kwds):
+        pass
+
+    def finish(self):
+        pass
