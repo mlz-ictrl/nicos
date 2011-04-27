@@ -475,7 +475,7 @@ class MainWindow : public QMainWindow
 		void ServerStatus()
 		{
 			if(!CheckConnected()) return;
-			m_client.sendmsg("CMD_status");
+			m_client.sendmsg("CMD_status_cdr");
 		}
 		
 		void ServerMeasurementStart()
@@ -519,7 +519,7 @@ class MainWindow : public QMainWindow
 						break;
 				}
 				char pcMsg[256];
-				sprintf(pcMsg, "CMD_config time=%f xres=%d yres=%d tres=%d mode=%s", dTime, iXRes, iYRes, iTRes, pcMode);
+				sprintf(pcMsg, "CMD_config_cdr time=%f xres=%d yres=%d tres=%d mode=%s", dTime, iXRes, iYRes, iTRes, pcMode);
 				m_client.sendmsg(pcMsg);
 			}
 		}
