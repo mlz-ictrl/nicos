@@ -33,10 +33,9 @@ __version__ = "$Revision$"
 
 from time import sleep
 
-from fltk import Fl, Fl_Double_Window, Fl_Group, Fl_Box, Fl_Pack, fl_rgb_color, \
-     FL_HORIZONTAL, FL_COURIER, FL_HELVETICA, FL_ALIGN_CENTER, FL_ALIGN_LEFT, \
-     FL_FLAT_BOX, FL_THIN_DOWN_BOX, FL_UP_FRAME, FL_SHADOW_BOX, FL_BOLD, \
-     FL_DOWN_BOX, FL_BLACK, FL_WHITE, FL_GREEN, FL_DAMAGE_ALL, fl_font, fl_measure
+from fltk import Fl, Fl_Double_Window, Fl_Group, Fl_Box, fl_rgb_color, \
+     FL_COURIER, FL_HELVETICA, FL_FLAT_BOX, FL_UP_FRAME, FL_BOLD, \
+     FL_DOWN_BOX, FL_BLACK, FL_GREEN, FL_DAMAGE_ALL, fl_font, fl_measure
 
 from nicos.monitor import Monitor as BaseMonitor
 
@@ -119,7 +118,7 @@ class Fll_Hbox(Fll_Layout):
             cw, _, cs = self._childinfo[i]
             if cs == st:
                 cw += fill
-            child.resize(xc, y + self._pady, cw, ch)
+            child.resize(xc, yc, cw, ch)
             xc += cw + sp
         self.damage(FL_DAMAGE_ALL)
         Fll_Layout.resize(self, x, y, w, h)
@@ -184,9 +183,15 @@ class Fll_LayoutWindow(Fl_Double_Window):
             self._onlychild.resize(0, 0, w, h)
         Fl_Double_Window.resize(self, x, y, w, h)
 
+    def preferredsize(self):
+        if hasattr(self._onlychild, 'preferredsize'):
+            return self._onlychild.preferredsize()
+        else:
+            return self._onlychild.w(), self._onlychild.h()
+
 
 class Sm_Field(Fll_Vbox):
-    def __init__(self, name, width, fontsize, padding=5):
+    def __init__(self, name, width, fontsize, istext, padding=5):
         Fll_Vbox.__init__(self, padding, padding, 0)
 
         w, h = measure(0, fontsize, name + 'XX')
@@ -206,7 +211,8 @@ class Sm_Field(Fll_Vbox):
         self._valuelabel = Fl_Box(0, 0, width, vheight, self._value)
         self._valuelabel.box(FL_DOWN_BOX)
         self._valuelabel.color(FL_BLACK)
-        self._valuelabel.labelfont(FL_COURIER)
+        if not istext:
+            self._valuelabel.labelfont(FL_COURIER)
         self._valuelabel.labelcolor(FL_GREEN)
         self._valuelabel.labelsize(fontsize)
         self.pack(self._valuelabel)
@@ -340,6 +346,7 @@ class Monitor(BaseMonitor):
 
         master.add(masterlayout)
         master.end()
+        master.size(*master.preferredsize())
         master.show()
 
     setLabelText = Fl_Box.copy_label
