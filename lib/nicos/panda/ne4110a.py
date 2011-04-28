@@ -51,7 +51,7 @@ DC1 = chr(0x11)
 DC2 = chr(0x12)
 DC3 = chr(0x13)
 
-def crc_ipc(self, string):
+def crc_ipc(string):
     crc = 255
     for byte in string:
         byte = ord(byte)
