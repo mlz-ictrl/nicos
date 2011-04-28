@@ -169,6 +169,7 @@ class Fll_Vbox(Fll_Layout):
                 continue
             if cs == st:
                 ch += fill
+	    #~ print '->resizing',child,'to',(xc, yc, cw, ch)
             child.resize(xc, yc, cw, ch)
             yc += ch + sp
         Fl_Widget.resize(self, x, y, w, h)
@@ -233,9 +234,10 @@ class Sm_Field(Fll_Vbox):
     def __init__(self, name, width, fontsize, istext, padding=5):
         Fll_Vbox.__init__(self, padding, padding, 0)
 
-        w, h = measure(0, fontsize, name + 'XX')
+        w, h = measure(0, fontsize, name + 'Mq')
         width = max(w, width)
-        nheight = h + 5
+        h, w = measure(0, fontsize, 'XX')	# h is not reliable!, use the width of two XX which should scale correctly with fontsize
+        nheight = h + h/4
 
         self._name = name
         self._namelabel = Fl_Box(0, 0, width, nheight, self._name)
@@ -243,8 +245,8 @@ class Sm_Field(Fll_Vbox):
         self._namelabel.labelsize(fontsize)
         self.pack(self._namelabel)
 
-        w, h = measure(FL_COURIER, fontsize, '0')
-        vheight = h + 10
+        #~ w, h = measure(FL_COURIER, fontsize, '0q')
+        vheight = h + h/2	# use the same fontheight trick as above
 
         self._value = '----'
         self._valuelabel = Fl_Box(0, 0, width, vheight, self._value)
@@ -255,9 +257,11 @@ class Sm_Field(Fll_Vbox):
         self._valuelabel.labelsize(fontsize)
         self.pack(self._valuelabel)
 
-    #def resize(self, x, y, w, h):
-    #    print 'resizing', self._name, 'to', (x, y, w, h)
-    #    Fll_Vbox.resize(self, x, y, w, h)
+    #~ def resize(self, x, y, w, h):
+        #~ print 'resizing', self._name, 'to', (x, y, w, h)
+        #~ Fll_Vbox.resize(self, x, y, w, h)
+	#~ print '  name-label now at', (self._namelabel.x(),self._namelabel.y(),self._namelabel.w(),self._namelabel.h())
+	#~ print '  valuelabel now at', (self._valuelabel.x(),self._valuelabel.y(),self._valuelabel.w(),self._valuelabel.h())
 
 
 class Sm_Row(Fll_Hbox):
