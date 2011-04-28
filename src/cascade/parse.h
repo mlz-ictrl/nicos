@@ -103,16 +103,21 @@ class ArgumentMap
 			
 			return atoi(pcStr);
 		}
+		
+		double QueryDouble(const char* pcKey, double dDefault=0.) const
+		{
+			const char* pcStr = QueryString(pcKey);
+			if(pcStr==NULL) return dDefault;
+			
+			return atof(pcStr);
+		}		
 		////////////////////////////////////////////////////////////////////////////
 		
-		ArgumentMap(const char* pcStr)
+		ArgumentMap(const char* pcStr=0)
 		{
-			add(pcStr);
+			if(pcStr) add(pcStr);
 		}
 		
-		ArgumentMap()
-		{}
-	
 		virtual ~ArgumentMap()
 		{}
 };

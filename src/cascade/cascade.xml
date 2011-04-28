@@ -29,7 +29,7 @@
 		<contrast_block_size_y> 2 </contrast_block_size_y>
 
 		<bin_count> 100  </bin_count>
-		<log_lower_range> -0.5 </log_lower_range>
+		<log_lower_range> -1.0 </log_lower_range>
 	</graphs>
 
 	<main_window>

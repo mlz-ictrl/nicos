@@ -56,8 +56,7 @@ int Config_TofLoader::FOIL_COUNT = 6;
 int Config_TofLoader::IMAGES_PER_FOIL = 8;		// Zeitkanäle
 int Config_TofLoader::IMAGE_WIDTH = 128;
 int Config_TofLoader::IMAGE_HEIGHT = 128;
-int Config_TofLoader::IMAGE_COUNT = 128;
-static const int g_iDefaultFoilBegin[] = {0, 32, 128, 160};
+int Config_TofLoader::IMAGE_COUNT = 192;
 int *Config_TofLoader::piFoilBegin = 0 /*{0, 32, 128, 160}*/;
 
 int Config_TofLoader::iPhaseBlockSize[2] = {1, 2};
@@ -89,7 +88,7 @@ void Config_TofLoader::Init()
 	{
 		char pcStr[256];
 		sprintf(pcStr, "/cascade_config/tof_file/foil_%d_start", i+1);
-		piFoilBegin[i] = Config::GetSingleton()->QueryInt(pcStr, g_iDefaultFoilBegin[i]);
+		piFoilBegin[i] = Config::GetSingleton()->QueryInt(pcStr, IMAGES_PER_FOIL*2*i /*default*/ );
 	}
 	
 	iPhaseBlockSize[0] = Config::GetSingleton()->QueryInt("/cascade_config/graphs/phase_block_size_x", iPhaseBlockSize[0]);
@@ -104,7 +103,7 @@ void Config_TofLoader::Init()
 	// Defaults setzen
 	piFoilBegin = new int[FOIL_COUNT];
 	for(int i=0; i<FOIL_COUNT; ++i)
-		piFoilBegin[i] = g_iDefaultFoilBegin[i];
+		piFoilBegin[i] = IMAGES_PER_FOIL*2*i /*default*/;
 	
 	// TODO: richtige Einstellungen holen oder mit den Setter-Funktionen setzen
 #endif

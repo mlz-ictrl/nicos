@@ -18,6 +18,7 @@ class Config_TofLoader
 		static int GetImageHeight();
 		static int GetImageCount();
 		static int GetFoilBegin(int iFoil);
+		static bool GetPseudoCompression();
 		
 		static void SetFoilCount(int iNumFoils);
 		static void SetImagesPerFoil(int iNumImagesPerFoil);
@@ -25,6 +26,7 @@ class Config_TofLoader
 		static void SetImageHeight(int iImgHeight);
 		static void SetImageCount(int iImgCount);
 		static void SetFoilBegin(int iFoil, int iOffs);
+		static void SetPseudoCompression(bool bSet);
 };
 
 

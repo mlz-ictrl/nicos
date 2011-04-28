@@ -145,7 +145,7 @@ double Config::QueryDouble(const char* pcXpath, double dDefault)
 	}
 	
 	double dRet = dDefault;
-	sscanf((const char*)pNode->children->content, "%g", &dRet); 	// Vorsicht mit diesem Cast!
+	sscanf((const char*)pNode->children->content, "%lf", &dRet); 	// Vorsicht mit diesem Cast!
 	xmlXPathFreeObject(xpathObject);
 	return dRet;
 }

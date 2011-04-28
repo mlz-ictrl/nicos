@@ -91,7 +91,7 @@ QwtText MainZoomer::trackerText(const QwtDoublePoint &pos) const
 	//if(dVal>-std::numeric_limits<double>::max())	// falls gültiger Wert
 	{
 		//if(rasterdata.GetLog10()) str+=QString("10^");
-		sprintf(pcStr, "%.4g", dVal);
+		sprintf(pcStr, "%.4lg", dVal);
 		str += QString(pcStr);
 	}
 	//else
@@ -597,10 +597,10 @@ void CascadeWidget::showCalibrationDlg(int iNumBins)
 	iROIx2 = rect.right(),
 	iROIy1 = rect.top(),
 	iROIy2 = rect.bottom();
-	
-	TmpImage tmpimg[4];
+		
+	TmpImage* ptmpimg = new TmpImage[Config_TofLoader::GetFoilCount()];
 	for(int iFolie=0; iFolie<Config_TofLoader::GetFoilCount(); ++iFolie)
-		GetTof()->GetPhaseGraph(iFolie, &tmpimg[iFolie], iROIx1, iROIx2, iROIy1, iROIy2, true);
+		GetTof()->GetPhaseGraph(iFolie, ptmpimg+iFolie, iROIx1, iROIx2, iROIy1, iROIy2, true);
 	
 	int iW = iROIx2-iROIx1; if(iW<0) iW=-iW;
 	int iH = iROIy2-iROIy1; if(iH<0) iH=-iH;
@@ -609,10 +609,11 @@ void CascadeWidget::showCalibrationDlg(int iNumBins)
 		for(int iY=0; iY<iH; ++iY)
 			for(int iX=0; iX<iW; ++iX)
 			{
-				double dVal = tmpimg[iFolie].GetData(iX,iY)/* - tmpimg[0].GetData(iX,iY)*/;
+				double dVal = ptmpimg[iFolie].GetData(iX,iY)/* - tmpimg[0].GetData(iX,iY)*/;
 				if(dVal==0.) continue;
 				bins.Inc(dVal);
-			}		
+			}
+	delete[] ptmpimg;
 	
 	CalibrationDlg CalDlg(this, bins);
 	CalDlg.exec();
