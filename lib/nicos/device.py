@@ -106,7 +106,7 @@ class Device(object):
         try:
             # initialize device
             self.init()
-        except Exception:
+        except:  # here, really *all* exceptions are intended
             # if initialization fails, remove from device registry
             session.devices.pop(name, None)
             # and remove from adevs' sdevs
