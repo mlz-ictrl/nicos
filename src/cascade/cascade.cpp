@@ -292,8 +292,42 @@ class MainWindow : public QMainWindow
 			else if(!strncmp(pcBuf,"MSG_",4))
 			{
 				ArgumentMap args(pcBuf+4);
-				bool bMessungFertig = (bool)args.QueryInt("stop");
-				ShowMessage(bMessungFertig?"Server: Measurement stopped.":"Server: Measurement running.");
+				
+				// stop?
+				bool bHasStop=0;
+				bool bMessungFertig = (bool)args.QueryInt("stop",1,&bHasStop);
+				if(bHasStop) 
+					ShowMessage(bMessungFertig?"Server: Measurement stopped.":"Server: Measurement running.");
+				
+				// xres?
+				int iXRes = args.QueryInt("xres", ServerCfgDlg::GetStatXRes());
+				ServerCfgDlg::SetStatXRes(iXRes);
+				Config_TofLoader::SetImageWidth(iXRes);
+				
+				// yres?
+				int iYRes = args.QueryInt("yres", ServerCfgDlg::GetStatYRes());
+				ServerCfgDlg::SetStatYRes(iYRes);
+				Config_TofLoader::SetImageWidth(iYRes);
+				
+				// tres?
+				int iTRes = args.QueryInt("tres", ServerCfgDlg::GetStatTRes());
+				ServerCfgDlg::SetStatTRes(iTRes);
+				Config_TofLoader::SetImageCount(iTRes);
+				
+				// measurement time?
+				double dTime = args.QueryDouble("time", ServerCfgDlg::GetStatTime());
+				ServerCfgDlg::SetStatTime(dTime);
+				
+				// mode?
+				const char* pcMode = args.QueryString("mode");
+				if(pcMode)
+				{
+					if(strcasecmp(pcMode, "tof")==0)
+						ServerCfgDlg::SetStatMode(MODE_TOF);
+					else if(strcasecmp(pcMode, "image")==0)
+						ServerCfgDlg::SetStatMode(MODE_PAD);
+				}
+				
 			}
 			else if(!strncmp(pcBuf,"OKAY",4))
 			{}
@@ -499,6 +533,12 @@ class MainWindow : public QMainWindow
 			m_client.sendmsg("CMD_readsram");
 		}
 		
+		void GetServerConfig()
+		{
+			if(!CheckConnected()) return;
+			m_client.sendmsg("CMD_getconfig_cdr");
+		}
+		
 		void ServerConfig()
 		{
 			if(!CheckConnected()) return;
@@ -655,7 +695,9 @@ class MainWindow : public QMainWindow
 			QAction *actionLoadTofServer = new QAction(this);
 			actionLoadTofServer->setText("Get Data");
 			QAction *actionConfigServer = new QAction(this);
-			actionConfigServer->setText("Configure...");		
+			actionConfigServer->setText("Configure...");
+			QAction *actionConfigFromServer = new QAction(this);
+			actionConfigFromServer->setText("Retrieve Configuration");
 					
 			// Graph-Menüpunkte
 			QAction *actionGraph = new QAction(this);
@@ -687,6 +729,7 @@ class MainWindow : public QMainWindow
 			menuServer->addAction(actionConnectServer);
 			menuServer->addAction(actionServerDisconnect);
 			menuServer->addSeparator();
+			menuServer->addAction(actionConfigFromServer);
 			menuServer->addAction(actionConfigServer);
 			menuServer->addSeparator();
 			menuServer->addAction(actionServerMeasurementStart);
@@ -803,6 +846,7 @@ class MainWindow : public QMainWindow
 			connect(actionServerMeasurementStart, SIGNAL(triggered()), this, SLOT(ServerMeasurementStart()));
 			connect(actionServerMeasurementStop, SIGNAL(triggered()), this, SLOT(ServerMeasurementStop()));
 			connect(actionConfigServer, SIGNAL(triggered()), this, SLOT(ServerConfig()));
+			connect(actionConfigFromServer, SIGNAL(triggered()), this, SLOT(GetServerConfig()));
 			
 			// Graph
 			connect(actionCalibration, SIGNAL(triggered()), this, SLOT(showCalibration()));

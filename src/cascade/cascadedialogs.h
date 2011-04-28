@@ -205,6 +205,19 @@ class ServerCfgDlg : public QDialog, public Ui::ServerConfigDlg
 		unsigned int GetYRes();
 		unsigned int GetTRes();
 		int GetMode();
+		
+		
+		static void SetStatXRes(int iXRes);
+		static void SetStatYRes(int iYRes);
+		static void SetStatTRes(int iTRes);
+		static void SetStatMode(int iMode);
+		static void SetStatTime(double dTime);
+		
+		static int GetStatXRes();
+		static int GetStatYRes();
+		static int GetStatTRes();
+		static int GetStatMode();
+		static double GetStatTime();
 };
 
 #endif

@@ -464,6 +464,20 @@ int ServerCfgDlg::GetMode()
 	return s_iMode;
 }
 
+
+void ServerCfgDlg::SetStatXRes(int iXRes) { s_iXRes = iXRes; }
+void ServerCfgDlg::SetStatYRes(int iYRes) { s_iYRes = iYRes; }
+void ServerCfgDlg::SetStatTRes(int iTRes) { s_iTRes = iTRes; }
+void ServerCfgDlg::SetStatMode(int iMode) { s_iMode = iMode; }
+void ServerCfgDlg::SetStatTime(double dTime) { s_dLastTime = dTime; }
+
+int ServerCfgDlg::GetStatXRes() { return s_iXRes; }
+int ServerCfgDlg::GetStatYRes() { return s_iYRes; }
+int ServerCfgDlg::GetStatTRes() { return s_iTRes; }
+int ServerCfgDlg::GetStatMode()  { return s_iMode; }
+double ServerCfgDlg::GetStatTime() { return s_dLastTime; }
+
+
 double ServerCfgDlg::s_dLastTime = 10.0;
 unsigned int ServerCfgDlg::s_iXRes = 128;
 unsigned int ServerCfgDlg::s_iYRes = 128;

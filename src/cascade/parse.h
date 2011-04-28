@@ -96,19 +96,27 @@ class ArgumentMap
 			return iter->second.c_str();
 		}
 		
-		int QueryInt(const char* pcKey, int iDefault=0) const
+		int QueryInt(const char* pcKey, int iDefault=0, bool *pbHasKey=0) const
 		{
 			const char* pcStr = QueryString(pcKey);
-			if(pcStr==NULL) return iDefault;
-			
+			if(pcStr==NULL)
+			{
+				if(pbHasKey) *pbHasKey = 0;
+				return iDefault;
+			}
+			if(pbHasKey) *pbHasKey = 1;
 			return atoi(pcStr);
 		}
 		
-		double QueryDouble(const char* pcKey, double dDefault=0.) const
+		double QueryDouble(const char* pcKey, double dDefault=0., bool *pbHasKey=0) const
 		{
 			const char* pcStr = QueryString(pcKey);
-			if(pcStr==NULL) return dDefault;
-			
+			if(pcStr==NULL) 
+			{
+				if(pbHasKey) *pbHasKey = 0;
+				return dDefault;
+			}
+			if(pbHasKey) *pbHasKey = 1;
 			return atof(pcStr);
 		}		
 		////////////////////////////////////////////////////////////////////////////
