@@ -54,7 +54,7 @@ public:
     {
         if (ServerConfigDlg->objectName().isEmpty())
             ServerConfigDlg->setObjectName(QString::fromUtf8("ServerConfigDlg"));
-        ServerConfigDlg->resize(295, 232);
+        ServerConfigDlg->resize(295, 232);	
         buttonBox = new QDialogButtonBox(ServerConfigDlg);
         buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
         buttonBox->setGeometry(QRect(80, 190, 201, 32));

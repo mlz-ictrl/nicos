@@ -400,17 +400,17 @@ ServerCfgDlg::ServerCfgDlg(QWidget *pParent) : QDialog(pParent)
 	{
 		radioButtonPad->setChecked(1);
 		radioButtonTof->setChecked(0);
+		toggledmode(0);
 	}
 	else if(s_iMode==MODE_TOF)
 	{
 		radioButtonTof->setChecked(1);
 		radioButtonPad->setChecked(0);
+		toggledmode(1);
 	}
 	
 	connect(radioButtonTof, SIGNAL(toggled(bool)), this, SLOT(toggledmode(bool)));
-	
-	radioButtonTof->setChecked(1);
-	toggledmode(1);
+	setFixedSize(width(),height());
 }
 
 ServerCfgDlg::~ServerCfgDlg()
