@@ -1,0 +1,30 @@
+Requirements
+============
+
+* At least Python 2.5
+
+* For the basic system:
+  - bsddb (stdlib, but sometimes separate package)
+  - numpy
+  - the TACO Python libraries
+  - scipy (optional, for fitting)
+  - simplejson (Python < 2.6, optional, for the web interface)
+  - gnuplot-py (optional, for liveplot display)
+  - MySQLdb (optional, for proposal DB query)
+  - python-xmpp (optional, for Jabber notifications)
+  - pyserial (optional, for TACO-less serial line communication)
+
+* For the GUI:
+  - PyQt4
+  - numpy
+  - PyQwt (optional, for liveplot display)
+  - scipy (optional, for fitting)
+
+* For the daemon text UI:
+  - urwid
+  
+* For the status monitor: one of
+  - PyQt4
+  - PyGTK
+  - PyFLTK
+  - Tkinter
