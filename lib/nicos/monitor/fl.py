@@ -34,8 +34,8 @@ __version__ = "$Revision$"
 from time import sleep
 
 from fltk import Fl, Fl_Double_Window, Fl_Group, Fl_Widget, Fl_Box, \
-     FL_COURIER, FL_HELVETICA, FL_FLAT_BOX, FL_UP_FRAME, FL_BOLD, \
-     FL_DOWN_BOX, FL_BLACK, FL_GREEN, fl_rgb_color, fl_font, fl_measure
+     FL_COURIER, FL_HELVETICA, FL_FLAT_BOX, FL_UP_FRAME, FL_BOLD, FL_GRAY, \
+     FL_ALIGN_TOP_LEFT, FL_DOWN_BOX, fl_rgb_color, fl_font, fl_measure
 
 from nicos.monitor import Monitor as BaseMonitor
 
@@ -176,6 +176,33 @@ class Fll_Vbox(Fll_Layout):
         #    print 'end resizing vbox'
 
 
+class Fll_Switcher(Fll_Layout):
+    _current = 0
+
+    def _calc_minsize(self):
+        self._minwidth = max(info[0] for info in self._childinfo if info[3]) \
+                         + 2 * self._padx
+        self._minheight = max(info[1] for info in self._childinfo if info[3]) \
+                          + 2 * self._pady
+
+    def resize(self, x, y, w, h):
+        if (self.x(), self.y(), self.w(), self.h()) == (x, y, w, h):
+            return
+        for child in self._children:
+            child.resize(x, y, w, h)
+        Fl_Widget.resize(self, x, y, w, h)
+
+    def switch(self, index=None):
+        if index is None:
+            return self._current
+        for i, child in enumerate(self._children):
+            if i == index:
+                child.show()
+            else:
+                child.hide()
+        self._current = index
+
+
 class Fll_Stretch(Fl_Box):
     stretch = 2
 
@@ -222,10 +249,9 @@ class Sm_Field(Fll_Vbox):
         self._value = '----'
         self._valuelabel = Fl_Box(0, 0, width, vheight, self._value)
         self._valuelabel.box(FL_DOWN_BOX)
-        self._valuelabel.color(FL_BLACK)
+        self._valuelabel.color(FL_GRAY)
         if not istext:
             self._valuelabel.labelfont(FL_COURIER)
-        self._valuelabel.labelcolor(FL_GREEN)
         self._valuelabel.labelsize(fontsize)
         self.pack(self._valuelabel)
 
@@ -332,6 +358,8 @@ class Monitor(BaseMonitor):
             self.updateKeymap(field)
             return fieldwidget
 
+        displaylayout = Fll_Vbox()
+
         # now iterate through the layout and create the widgets to display it
         for superrow in self._layout:
             boxlayout = Fll_Hbox(20, 10, 10)
@@ -359,9 +387,24 @@ class Monitor(BaseMonitor):
                     columnlayout.pack(blocklayout)
                 columnlayout.pack(Fll_Stretch())
                 boxlayout.pack(columnlayout)
-            masterlayout.pack(boxlayout)
+            displaylayout.pack(boxlayout)
 
-        #self._warnlabel = Fl_Box(0,0,0,0)
+        self._switcher = Fll_Switcher()
+        self._switcher.pack(displaylayout)
+
+        warnpanel = Fll_Vbox(20, 30)
+        w, h = measure(0, self._fontsizebig + self._fontsize, 'Warnings')
+        warnheading = Fl_Box(0, 0, 0, h + 20, 'Warnings')
+        warnheading.labelsize(self._fontsizebig + self._fontsize)
+        warnpanel.pack(warnheading)
+        self._warnlabel = Fl_Box(0, 0, 0, 0)
+        self._warnlabel.labelsize(self._fontsizebig)
+        self._warnlabel.align(FL_ALIGN_TOP_LEFT)
+        warnpanel.pack(self._warnlabel, stretch=True)
+
+        self._switcher.pack(warnpanel)
+        self._switcher.switch(0)
+        masterlayout.pack(self._switcher)
 
         master.add(masterlayout)
         master.end()
@@ -386,7 +429,10 @@ class Monitor(BaseMonitor):
         label.color(back)
 
     def switchWarnPanel(self, off=False):
-        pass
+        if self._switcher.switch() == 1 or off:
+            self._switcher.switch(0)
+        else:
+            self._switcher.switch(1)
 
     def reconfigureBoxes(self):
         for setup, boxes in self._onlymap.iteritems():
