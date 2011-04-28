@@ -194,6 +194,7 @@ class ServerCfgDlg : public QDialog, public Ui::ServerConfigDlg
 		static int s_iMode;
 		
 	protected slots:
+		void toggledmode(bool bChecked);
 		
 	public:
 		ServerCfgDlg(QWidget *pParent);

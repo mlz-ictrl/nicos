@@ -406,10 +406,27 @@ ServerCfgDlg::ServerCfgDlg(QWidget *pParent) : QDialog(pParent)
 		radioButtonTof->setChecked(1);
 		radioButtonPad->setChecked(0);
 	}
+	
+	connect(radioButtonTof, SIGNAL(toggled(bool)), this, SLOT(toggledmode(bool)));
+	
+	radioButtonTof->setChecked(1);
+	toggledmode(1);
 }
 
 ServerCfgDlg::~ServerCfgDlg()
 {}
+
+void ServerCfgDlg::toggledmode(bool bChecked)
+{
+	if(radioButtonTof->isChecked())
+	{
+		edittres->setEnabled(1);
+	}
+	else if(radioButtonPad->isChecked())
+	{
+		edittres->setEnabled(0);
+	}
+}
 
 double ServerCfgDlg::GetMeasTime()
 {
@@ -431,8 +448,11 @@ unsigned int ServerCfgDlg::GetYRes()
 
 unsigned int ServerCfgDlg::GetTRes()
 {
+	if(radioButtonPad->isChecked())
+		return 1;
+	
 	s_iTRes = edittres->text().toInt();
-	return s_iTRes;
+	return s_iTRes;	
 }
 
 int ServerCfgDlg::GetMode()
