@@ -174,7 +174,7 @@ def CreateAllDevices():
         session.endMultiCreate()
 
 @usercommand
-def NewExperiment(proposal, title, **kwds):
+def NewExperiment(proposal, title='', **kwds):
     """Start a new experiment with the given proposal number and title."""
     session.experiment.new(proposal, title, **kwds)
 

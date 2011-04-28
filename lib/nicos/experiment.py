@@ -25,9 +25,9 @@
 #
 # *****************************************************************************
 
-"""
-NICOS Experiment devices.
-"""
+from __future__ import with_statement
+
+"""NICOS Experiment devices."""
 
 __author__  = "$Author$"
 __date__    = "$Date$"
@@ -35,13 +35,100 @@ __version__ = "$Revision$"
 
 import os
 import time
+import datetime
 from os import path
 from uuid import uuid1
+
+try:
+    import MySQLdb
+except ImportError:
+    MySQLdb = None
 
 from nicos import session
 from nicos.data import NeedsDatapath, Dataset
 from nicos.utils import listof
 from nicos.device import Device, Measurable, Readable, Param
+from nicos.errors import ConfigurationError, UsageError
+
+
+class ProposalDB(object):
+    def __init__(self,credentials):
+        try:
+            self.user, hostdb = credentials.split('@')
+            self.host, self.db = hostdb.split(':')
+        except ValueError:
+            raise ConfigurationError('%r is an invalid credentials string '
+                                     '(user "user@host:dbname")' % credentials)
+        if MySQLdb is None:
+            raise ConfigurationError('MySQL adapter is not installed')
+
+    def __enter__(self):
+        self.conn = MySQLdb.connect(host=self.host, user=self.user, db=self.db)
+        self.cursor = self.conn.cursor()
+        return self.cursor
+
+    def __exit__(self, *exc):
+        self.cursor.close()
+        self.conn.close()
+
+
+def queryCycle(credentials):
+    """Query the FRM-II proposal database for the current cycle."""
+    today = datetime.date.today()
+    with ProposalDB(credentials) as cur:
+        cur.execute('''
+            SELECT value, xname FROM Cycles, Cycles_members, Cycles_values
+            WHERE mname = "_CM_START" AND value <= %s
+            AND Cycles_values._mid = Cycles_members.mid
+            AND Cycles_values._xid = Cycles.xid
+            ORDER BY xid DESC LIMIT 1''', (today,))
+        row = cur.fetchone()
+        startdate = datetime.datetime.strptime(row[0], '%Y-%m-%d').date()
+        cycle = row[1]
+    return cycle, startdate
+
+
+def queryProposal(credentials, pnumber):
+    """Query the FRM-II proposal database for information about the given
+    proposal number.
+    """
+    if not isinstance(pnumber, (int, long)):
+        raise UsageError('proposal number must be an integer')
+    with ProposalDB(credentials) as cur:
+        # get proposal title and properties
+        cur.execute('''
+            SELECT xname, mname, value
+            FROM Proposal, Proposal_members, Proposal_values
+            WHERE xid = %s AND xid = _xid AND mid = _mid
+            ORDER BY abs(mid-4.8) ASC''', (pnumber,))
+        rows = cur.fetchall()
+        # get user info
+        cur.execute('''
+            SELECT name, user_email, institute1 FROM nuke_users, Proposal
+            WHERE user_id = _uid AND xid = %s''', (pnumber,))
+        userrow = cur.fetchone()
+    if not rows or len(rows) < 3:
+        raise UsageError('proposal %s does not exist in database' % pnumber)
+    if not userrow:
+        raise UsageError('user does not exist in database')
+    # structure of returned data: (title, user, prop_name, prop_value)
+    info = {
+        'title': rows[0][0],
+        'user': userrow[0],
+        'user_email': userrow[1],
+        'affiliation': userrow[2],
+    }
+    for row in rows:
+        # extract the property name in a form usable as dictionary key
+        key = row[1][4:].lower().replace('-', '_')
+        value = row[2]
+        if key == 'instrument':
+            if value[4:].lower() != session.instrument.instrument.lower():
+                raise UsageError('proposal %s is not a proposal for this '
+                                 'instrument, but %s' % (pnumber, value[4:]))
+        if value:
+            info[key] = value
+    return info
 
 
 class Sample(Device):
@@ -73,6 +160,8 @@ class Experiment(Device):
                            settable=True),
         'scriptdir': Param('Standard script directory', type=str,
                            default='.', settable=True),
+        '_propdb':   Param('user@host:dbname credentials for proposal DB',
+                           type=str, default=''),
     }
 
     attached_devices = {
@@ -84,18 +173,53 @@ class Experiment(Device):
 
     def new(self, proposal, title=None, **kwds):
         # Individual instruments should override this to change datapath
-        # according to instrument policy.
-        if isinstance(proposal, int):
+        # according to instrument policy, and maybe call _fillProposal
+        # to get info from the proposal database
+        if isinstance(proposal, (int, long)):
             proposal = str(proposal)
         self.proposal = proposal
-        if title is not None:
-            self.title = title
+        self.title = title or ''
+        # reset everything else to defaults
+        self.remark = ''
         self.users = []
+        self.sample.samplename = ''
+        self.envlist = []
+        self.detlist = []
+
+    def _fillProposal(self, proposal):
+        """Fill proposal info from proposal database."""
+        if not self._propdb:
+            return
+        try:
+            info = queryProposal(self._propdb, proposal)
+        except Exception:
+            self.printwarning('unable to query proposal info', exc=1)
+            return
+        what = []
+        if info.get('title') and self.title == '':
+            self.title = info['title']
+            what.append('title')
+        if info.get('substance'):
+            self.sample.samplename = info['substance']
+            what.append('sample name')
+        if info.get('user'):
+            email = info.get('user_email', '')
+            self.addUser(info['user'], email, info.get('affiliation'))
+            what.append('user')
+        if info.get('co_proposer'):
+            for coproposer in info['co_proposer'].splitlines():
+                coproposer = coproposer.strip()
+                if coproposer:
+                    self.users = self.users + [coproposer]
+            what.append('co-proposers')
+        if what:
+            self.printinfo('Filled in %s from proposal database' %
+                           ', '.join(what))
 
     def addUser(self, name, email, affiliation=None):
         user = '%s <%s>' % (name, email)
         if affiliation is not None:
-            user += ' -- ' + affiliation
+            user += ', ' + affiliation
         self.users = self.users + [user]
 
     def finish(self):

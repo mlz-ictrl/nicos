@@ -62,6 +62,9 @@ class Scan(object):
         self.dataset = session.experiment.createDataset(scantype)
         if not detlist:
             detlist = session.experiment.detectors
+        if not detlist:
+            printwarning('Scanning without detector, use SetDetectors() '
+                         'to select which detector(s) you want to use')
         if envlist is None:
             envlist = session.experiment.sampleenv
         self._firstmoves = firstmoves

@@ -50,10 +50,17 @@ class MiraExperiment(Experiment):
         session.addLogHandler(self._uhandler)
 
     def new(self, proposal, title=None, **kwds):
+        if not isinstance(proposal, (int, long)):
+            proposal = int(proposal)
         Experiment.new(self, proposal, title)
+        self._fillProposal(proposal)
+
         new_datapath = '/data/%s/%s' % (time.strftime('%Y'), proposal)
         self.datapath = [new_datapath]
         ensureDirectory(path.join(new_datapath, 'scripts'))
         self.scriptdir = path.join(new_datapath, 'scripts')
         ensureDirectory(path.join(new_datapath, 'log'))
         self._uhandler.changeDirectory(path.join(new_datapath, 'log'))
+
+        self.printinfo('New experiment %s started' % proposal)
+        self.printinfo('Data directory set to %s' % new_datapath)

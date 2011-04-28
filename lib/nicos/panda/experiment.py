@@ -38,7 +38,7 @@ import time
 from os import path
 
 from nicos import session
-from nicos.experiment import Experiment
+from nicos.experiment import Experiment, queryCycle
 from nicos.data import NeedsDatapath, Dataset
 from nicos.utils import listof, disableDirectory, enableDirectory, \
      ensureDirectory
@@ -84,8 +84,27 @@ class PandaExperiment(Experiment):
                 disableDirectory(self._expdir(old_proposal))
             os.unlink(self._expdir('current'))
 
+        # query new cycle
+        if 'cycle' not in kwds:
+            if self._propdb:
+                cycle, started = queryCycle(self._propdb)
+                kwds['cycle'] = cycle
+            else:
+                self.printerror('cannot query reactor cycle, please give a '
+                                '"cycle" keyword to this function')
+        self.cycle = kwds['cycle']
+
         # checks are done, set the new experiment
         Experiment.new(self, proposal, title)
+
+        # fill proposal info from database
+        if proposal.startswith('p'):
+            try:
+                propnumber = int(proposal[1:])
+            except ValueError:
+                pass
+            else:
+                self._fillProposal(propnumber)
 
         # create new data path and expand templates
         exp_datapath = self._expdir(proposal)

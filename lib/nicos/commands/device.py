@@ -246,12 +246,17 @@ def listparams(dev):
     devunit = getattr(dev, 'unit', '')
     items = []
     for name, info in sorted(dev.parameters.iteritems()):
+        if name.startswith('_'):
+            continue
         try:
             value = dev.getPar(name)
         except Exception:
             value = '<could not get value>'
         unit = (info.unit or '').replace('main', devunit)
-        items.append((name, str(value), unit, info.description))
+        vstr = str(value)
+        if len(vstr) > 40:
+            vstr = vstr[:37] + '...'
+        items.append((name, vstr, unit, info.description))
     printTable(('name', 'value', 'unit', 'description'), items, printinfo)
 
 @usercommand
