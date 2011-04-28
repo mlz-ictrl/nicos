@@ -35,14 +35,15 @@ from time import sleep
 
 from fltk import Fl, Fl_Double_Window, Fl_Group, Fl_Widget, Fl_Box, \
      FL_COURIER, FL_HELVETICA, FL_FLAT_BOX, FL_UP_FRAME, FL_BOLD, FL_GRAY, \
-     FL_ALIGN_TOP_LEFT, FL_DOWN_BOX, fl_rgb_color, fl_font, fl_measure
+     FL_ALIGN_TOP_LEFT, FL_UP_BOX, FL_DOWN_BOX, fl_rgb_color, fl_font, fl_measure, fl_width, fl_height
 
 from nicos.monitor import Monitor as BaseMonitor
 
 
 def measure(font, fontsize, text):
     fl_font(font, fontsize)
-    return fl_measure(text)
+    #~ return fl_measure(text)	# returned h is not reliable!
+    return int(fl_width(text)+0.5),int(fl_height()+0.5)
 
 
 class Fll_Layout(Fl_Group):
@@ -234,10 +235,11 @@ class Sm_Field(Fll_Vbox):
     def __init__(self, name, width, fontsize, istext, padding=5):
         Fll_Vbox.__init__(self, padding, padding, 0)
 
-        w, h = measure(0, fontsize, name + 'Mq')
-        width = max(w, width)
-        h, w = measure(0, fontsize, 'XX')	# h is not reliable!, use the width of two XX which should scale correctly with fontsize
-        nheight = h + h/4
+        wv, hv = measure(FL_COURIER, fontsize, '----')
+        wn, hn = measure(0, fontsize, name + 'Mq')
+        width = max(wv, wn, width)
+
+	nheight = int(hn + hn/4 + 2)
 
         self._name = name
         self._namelabel = Fl_Box(0, 0, width, nheight, self._name)
@@ -245,8 +247,7 @@ class Sm_Field(Fll_Vbox):
         self._namelabel.labelsize(fontsize)
         self.pack(self._namelabel)
 
-        #~ w, h = measure(FL_COURIER, fontsize, '0q')
-        vheight = h + h/2	# use the same fontheight trick as above
+        vheight = int(hv + hv/2 + 4)
 
         self._value = '----'
         self._valuelabel = Fl_Box(0, 0, width, vheight, self._value)
