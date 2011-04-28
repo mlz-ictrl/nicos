@@ -52,11 +52,11 @@
 
 //////////////////////////// Konfiguration ///////////////////////////
 // Default-Werte
-int Config_TofLoader::FOIL_COUNT = 4;
-int Config_TofLoader::IMAGES_PER_FOIL = 16;
+int Config_TofLoader::FOIL_COUNT = 6;
+int Config_TofLoader::IMAGES_PER_FOIL = 8;		// Zeitkanäle
 int Config_TofLoader::IMAGE_WIDTH = 128;
 int Config_TofLoader::IMAGE_HEIGHT = 128;
-int Config_TofLoader::IMAGE_COUNT = 196;
+int Config_TofLoader::IMAGE_COUNT = 128;
 static const int g_iDefaultFoilBegin[] = {0, 32, 128, 160};
 int *Config_TofLoader::piFoilBegin = 0 /*{0, 32, 128, 160}*/;
 
@@ -64,6 +64,7 @@ int Config_TofLoader::iPhaseBlockSize[2] = {1, 2};
 int Config_TofLoader::iContrastBlockSize[2] = {1, 2};
 
 double Config_TofLoader::LOG_LOWER_RANGE = -0.5;
+bool Config_TofLoader::USE_PSEUDO_COMPRESSION = 1;
 
 
 void Config_TofLoader::Init()
@@ -81,6 +82,7 @@ void Config_TofLoader::Init()
 	IMAGES_PER_FOIL = Config::GetSingleton()->QueryInt("/cascade_config/tof_file/images_per_foil", IMAGES_PER_FOIL);
 	IMAGE_WIDTH = Config::GetSingleton()->QueryInt("/cascade_config/tof_file/image_width", IMAGE_WIDTH);
 	IMAGE_HEIGHT = Config::GetSingleton()->QueryInt("/cascade_config/tof_file/image_height", IMAGE_HEIGHT);
+	USE_PSEUDO_COMPRESSION = Config::GetSingleton()->QueryInt("/cascade_config/tof_file/pseudo_compression", USE_PSEUDO_COMPRESSION);
 	
 	piFoilBegin = new int[FOIL_COUNT];
 	for(int i=0; i<FOIL_COUNT; ++i)
@@ -124,6 +126,7 @@ int Config_TofLoader::GetImagesPerFoil() { return IMAGES_PER_FOIL; }
 int Config_TofLoader::GetImageWidth() { return IMAGE_WIDTH; }
 int Config_TofLoader::GetImageHeight() { return IMAGE_HEIGHT; }
 int Config_TofLoader::GetImageCount() { return IMAGE_COUNT; }
+bool Config_TofLoader::GetPseudoCompression() { return USE_PSEUDO_COMPRESSION; }
 
 int Config_TofLoader::GetFoilBegin(int iFoil)
 {
@@ -156,6 +159,7 @@ void Config_TofLoader::SetImagesPerFoil(int iNumImagesPerFoil) { IMAGES_PER_FOIL
 void Config_TofLoader::SetImageWidth(int iImgWidth) { IMAGE_WIDTH = iImgWidth; }
 void Config_TofLoader::SetImageHeight(int iImgHeight) { IMAGE_HEIGHT = iImgHeight; }
 void Config_TofLoader::SetImageCount(int iImgCount) { IMAGE_COUNT = iImgCount; }
+void Config_TofLoader::SetPseudoCompression(bool bSet) { USE_PSEUDO_COMPRESSION = bSet; }
 
 void Config_TofLoader::SetFoilBegin(int iFoil, int iOffs)
 {
@@ -167,7 +171,8 @@ void Config_TofLoader::SetFoilBegin(int iFoil, int iOffs)
 
 bool Config_TofLoader::GuessConfigFromSize(int iLen, bool bIsTof, bool bFirstCall)
 {
-	if(bFirstCall) std::cerr << "Warning: Guessing Configuration." << std::endl;
+	if(bFirstCall) 
+		std::cerr << "Warning: Guessing Configuration." << std::endl;
 
 	static const int MIN_SHIFT = 6;		// 64
  	static const int MAX_SHIFT = 10;	// 1024
@@ -177,8 +182,10 @@ bool Config_TofLoader::GuessConfigFromSize(int iLen, bool bIsTof, bool bFirstCal
 	const int iKnownX[] = 	{64,  128};
 	const int iKnownY[] = 	{128, 128};
 	const int iKnownCnt[] = {196, 128};
+	
+	bool bPacked = Config_TofLoader::GetPseudoCompression();
 
-	if(bIsTof)	// TOF
+	if(bIsTof && !bPacked)	// TOF
 	{
 		bool bFound=false;
 	
@@ -233,6 +240,11 @@ bool Config_TofLoader::GuessConfigFromSize(int iLen, bool bIsTof, bool bFirstCal
 			std::cerr << "guessing image count: " << IMAGE_COUNT << std::endl;
 		}
 		return bFound;
+	}
+	else if(bIsTof && bPacked)
+	{
+		// TODO
+		std::cerr << "Error: Pseudo-compressed size guess not yet implemented." << std::endl;
 	}
 	else	// PAD
 	{
@@ -408,20 +420,27 @@ unsigned int& TofImage::GetData(int iBild, int iX, int iY)
 
 unsigned int TofImage::GetData(int iFoil, int iTimechannel, int iX, int iY)
 {
-	int iZ=0;
-	switch(iFoil)
+	if(!Config_TofLoader::USE_PSEUDO_COMPRESSION)
 	{
-		case 0: iZ=Config_TofLoader::piFoilBegin[0]; break;
-		case 1: iZ=Config_TofLoader::piFoilBegin[1]; break;
-		case 2: iZ=Config_TofLoader::piFoilBegin[2]; break;
-		case 3: iZ=Config_TofLoader::piFoilBegin[3]; break;
-	};
-	
-	iZ += iTimechannel;
-	if(iTimechannel!=0)
-		return GetData(iZ,iX,iY);
+		int iZ=0;
+		switch(iFoil)
+		{
+			case 0: iZ=Config_TofLoader::piFoilBegin[0]; break;
+			case 1: iZ=Config_TofLoader::piFoilBegin[1]; break;
+			case 2: iZ=Config_TofLoader::piFoilBegin[2]; break;
+			case 3: iZ=Config_TofLoader::piFoilBegin[3]; break;
+		};
+		
+		iZ += iTimechannel;
+		if(iTimechannel!=0)
+			return GetData(iZ,iX,iY);
+		else
+			return GetData(iZ,iX,iY)+GetData(iZ+Config_TofLoader::IMAGES_PER_FOIL,iX,iY);
+	}
 	else
-		return GetData(iZ,iX,iY)+GetData(iZ+Config_TofLoader::IMAGES_PER_FOIL,iX,iY);
+	{
+		return GetData(iFoil*Config_TofLoader::IMAGES_PER_FOIL+iTimechannel, iX, iY);
+	}
 }
 
 unsigned int* TofImage::GetRawData(void) const
@@ -431,10 +450,16 @@ unsigned int* TofImage::GetRawData(void) const
 
 TofImage::TofImage(const char *pcFileName)
 {
-	m_puiDaten = new unsigned int[Config_TofLoader::IMAGE_COUNT*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH];
+	int iSize = Config_TofLoader::GetPseudoCompression() 
+				? Config_TofLoader::GetFoilCount()*Config_TofLoader::GetImagesPerFoil()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth()
+				: Config_TofLoader::GetImageCount()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth();
 	
-	if(pcFileName!=NULL) LoadFile(pcFileName);
-	else memset(m_puiDaten,0,Config_TofLoader::IMAGE_COUNT*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH*sizeof(int));
+	m_puiDaten = new unsigned int[iSize];
+	
+	if(pcFileName!=NULL) 
+		LoadFile(pcFileName);
+	else 
+		memset(m_puiDaten,0,iSize*sizeof(int));
 }
 
 TofImage::~TofImage()
@@ -444,26 +469,32 @@ TofImage::~TofImage()
 
 int TofImage::LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen)
 {
-	if(uiBufLen!=(unsigned int)Config_TofLoader::IMAGE_COUNT*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH)
+	int iSize = Config_TofLoader::GetPseudoCompression() 
+				? Config_TofLoader::GetFoilCount()*Config_TofLoader::GetImagesPerFoil()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth()
+				: Config_TofLoader::GetImageCount()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth();		
+	
+	if(uiBufLen!=(unsigned int)iSize)
 	{
-		std::cerr << "Error: Buffer size (" << uiBufLen << " ints) != TOF size (" << Config_TofLoader::IMAGE_COUNT*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH << " ints)." << std::endl;
+		std::cerr << "Error: Buffer size (" << uiBufLen << " ints) != TOF size (" << iSize << " ints)." << std::endl;
 		return LOAD_SIZE_MISMATCH;
 	}
 	
-	memcpy(m_puiDaten, puiBuf, sizeof(int)*Config_TofLoader::IMAGE_COUNT*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH);
+	memcpy(m_puiDaten, puiBuf, sizeof(int)*iSize);
 	
 // falls PowerPC, ints von little zu big endian konvertieren
 #ifdef __BIG_ENDIAN__
-	for(int iZ=0; iZ<Config_TofLoader::IMAGE_COUNT; ++iZ)
-		for(int iY=0; iY<Config_TofLoader::IMAGE_HEIGHT; ++iY)
-			for(int iX=0; iX<Config_TofLoader::IMAGE_WIDTH; ++iX)
-				GetData(iZ,iX,iY) = endian_swap(GetData(iZ,iX,iY));
-#endif	
+	for(int i=0; i<iExpectedSize; ++i)
+		m_puiDaten[i] = endian_swap(m_puiDaten[i]);
+#endif
 	return LOAD_SUCCESS;	
 }
 
 int TofImage::LoadFile(const char *pcFileName)
 {
+	int iSize = Config_TofLoader::GetPseudoCompression() 
+			? Config_TofLoader::GetFoilCount()*Config_TofLoader::GetImagesPerFoil()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth()
+			: Config_TofLoader::GetImageCount()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth();
+	
 	int iRet = LOAD_SUCCESS;
 	
 	FILE *pf = fopen(pcFileName,"rb");
@@ -473,14 +504,14 @@ int TofImage::LoadFile(const char *pcFileName)
 		return LOAD_FAIL;
 	}
 	
-	unsigned int uiBufLen=fread(m_puiDaten, sizeof(unsigned int),Config_TofLoader::IMAGE_COUNT*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH,pf);
+	unsigned int uiBufLen = fread(m_puiDaten, sizeof(unsigned int), iSize, pf);
 	if(!uiBufLen)
 	{
 		std::cerr << "Error: Could not read file \"" << pcFileName << "\"." << std::endl;
 	}
-	if(uiBufLen!=(unsigned int)Config_TofLoader::IMAGE_COUNT*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH)
+	if(uiBufLen!=(unsigned int)iSize)
 	{
-		std::cerr << "Error: Buffer size (" << uiBufLen << " ints) != TOF size (" << Config_TofLoader::IMAGE_COUNT*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH << " ints)." << std::endl;
+		std::cerr << "Error: Buffer size (" << uiBufLen << " ints) != TOF size (" << iSize << " ints)." << std::endl;
 		iRet = LOAD_SIZE_MISMATCH;
 	}	
 	
@@ -488,12 +519,9 @@ int TofImage::LoadFile(const char *pcFileName)
 	
 // falls PowerPC, ints von little zu big endian konvertieren
 #ifdef __BIG_ENDIAN__
-	for(int iZ=0; iZ<Config_TofLoader::IMAGE_COUNT; ++iZ)
-		for(int iY=0; iY<Config_TofLoader::IMAGE_HEIGHT; ++iY)
-			for(int iX=0; iX<Config_TofLoader::IMAGE_WIDTH; ++iX)
-				GetData(iZ,iX,iY) = endian_swap(GetData(iZ,iX,iY));
+	for(int i=0; i<iExpectedSize; ++i)
+		m_puiDaten[i] = endian_swap(m_puiDaten[i]);
 #endif
-
 	return iRet;
 }
 

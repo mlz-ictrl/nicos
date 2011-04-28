@@ -244,14 +244,17 @@ class MainWindow : public QMainWindow
 			else if(!strncmp(pcBuf,"DATA",4))
 			{
 	#ifndef DATA_COMPRESSED
-				// Abfrage nur für unkomprimierte Daten möglich
-				if(iLen-4 != sizeof(int)*Config_TofLoader::GetImageCount()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth())
+				int iExpectedSize = Config_TofLoader::GetPseudoCompression() 
+								? sizeof(int)*Config_TofLoader::GetFoilCount()*Config_TofLoader::GetImagesPerFoil()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth()
+								: sizeof(int)*Config_TofLoader::GetImageCount()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth();	
+	
+				if(iLen-4 != iExpectedSize)
 				{
 					// Dimensionen stimmen nicht, neue raten
 					if(!Config_TofLoader::GuessConfigFromSize((iLen-4)/4, true))
 					{
 						char pcMsg[256];
-						sprintf(pcMsg, "Dimension mismatch in TOF data!\nClient expected: %d bytes\nServer sent: %d bytes", sizeof(int)*Config_TofLoader::GetImageCount()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth(), iLen-4);
+						sprintf(pcMsg, "Dimension mismatch in TOF data!\nClient expected: %d bytes\nServer sent: %d bytes", iExpectedSize, iLen-4);
 						QMessageBox::critical(0, "Cascade - Server", pcMsg, QMessageBox::Ok);
 						return;
 					}
@@ -269,7 +272,7 @@ class MainWindow : public QMainWindow
 				}
 	#else
 				// Unkomprimierte Daten umkopieren
-				memcpy(pvData, pcBuf+4, sizeof(int)*Config_TofLoader::GetImageCount()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth());
+				memcpy(pvData, pcBuf+4, iExpectedSize);
 	#endif
 
 				//m_cascadewidget.ShowGraph();	// macht viewOverview schon
@@ -507,6 +510,10 @@ class MainWindow : public QMainWindow
 				unsigned int iXRes = srvcfgdlg.GetXRes(); 
 				unsigned int iYRes = srvcfgdlg.GetYRes();
 				unsigned int iTRes = srvcfgdlg.GetTRes();
+				
+				Config_TofLoader::SetImageWidth(iXRes);
+				Config_TofLoader::SetImageHeight(iYRes);
+				Config_TofLoader::SetImageCount(iTRes);
 				
 				const char* pcMode = "";
 				switch(srvcfgdlg.GetMode())
