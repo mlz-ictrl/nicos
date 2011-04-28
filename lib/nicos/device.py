@@ -37,8 +37,9 @@ from nicos import session
 from nicos import status, loggers
 from nicos.utils import AutoPropsMeta, Param, Override, Value, getVersions, \
      tupleof, floatrange
-from nicos.errors import ConfigurationError, ProgrammingError, UsageError, \
-     LimitError, FixedError, ModeError, CommunicationError, CacheLockError
+from nicos.errors import NicosError, ConfigurationError, ProgrammingError, \
+     UsageError, LimitError, FixedError, ModeError, CommunicationError, \
+     CacheLockError
 
 
 class Device(object):

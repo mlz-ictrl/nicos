@@ -160,7 +160,7 @@ class Monitor(BaseMonitor):
         self._timelabel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
 
         masterlayout.addWidget(self._timelabel)
-        masterlayout.addSpacing(0.5 * tiheight)
+        masterlayout.addSpacing(0.2 * tiheight)
 
         self._stacker = QStackedWidget(masterframe)
         masterlayout.addWidget(self._stacker)
@@ -211,7 +211,7 @@ class Monitor(BaseMonitor):
             boxlayout.setContentsMargins(10, 10, 10, 10)
             for column in superrow:
                 columnlayout = QVBoxLayout()
-                columnlayout.setSpacing(blheight)
+                columnlayout.setSpacing(blheight * 0.8)
                 for block in column:
                     blocklayout_outer = QHBoxLayout()
                     blocklayout_outer.addStretch()

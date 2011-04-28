@@ -49,6 +49,7 @@ except ImportError:
     calc = None
 
 main_tools = [
+    ('Monitor', 'command', '/data/software/nicos-ng/bin/nicos-monitor'),
     logviewer and ('Logfile viewer', 'dialog', logviewer.LogViewer),
     ('Proposal management', 'dialog', proposal.ProposalInput),
     ('Data conversion', 'command',
@@ -73,13 +74,13 @@ class HasTools(object):
             if type == 'command':
                 def slot(cmd=item):
                     p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
-                    out, err = p.communicate()
-                    if p.returncode != 0:
-                        QMessageBox.warning(
-                            self, self.tr('Tool command'),
-                            self.tr('Command failed: %1').arg(err))
-                    elif out:
-                        callback(out)
+#                    out, err = p.communicate()
+#                    if p.returncode != 0:
+#                        QMessageBox.warning(
+#                            self, self.tr('Tool command'),
+#                            self.tr('Command failed: %1').arg(err))
+#                    elif out:
+#                        callback(out)
             else:
                 def slot(cls=item):
                     dlg = cls(self)
