@@ -41,6 +41,7 @@ import threading
 from time import sleep, time as currenttime
 
 from nicos import session
+from nicos.utils import closeSocket
 from nicos.device import Device, Param
 from nicos.errors import CacheLockError
 from nicos.cache.utils import msg_pattern, line_pattern, cache_load, cache_dump, \
@@ -120,19 +121,11 @@ class BaseCacheClient(Device):
             return
         if why:
             self.printwarning(why)
-        try:
-            self._socket.shutdown(socket.SHUT_RDWR)
-            self._socket.close()
-        except Exception:
-            pass
+        closeSocket(self._socket)
         self._socket = None
         # close secondary socket
         with self._sec_lock:
-            try:
-                self._secsocket.shutdown(socket.SHUT_RDWR)
-                self._secsocket.close()
-            except Exception:
-                pass
+            closeSocket(self._secsocket)
             self._secsocket = None
 
     def _wait_retry(self):

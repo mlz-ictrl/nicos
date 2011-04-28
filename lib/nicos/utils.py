@@ -296,6 +296,18 @@ def getVersions(object):
     return versions
 
 
+def closeSocket(sock):
+    """Do our best to close a socket."""
+    try:
+        sock.shutdown(socket.SHUT_RDWR)
+    except socket.error:
+        pass
+    try:
+        sock.close()
+    except socket.error:
+        pass
+
+
 # read nicos.conf files
 
 class NicosConfigParser(ConfigParser.SafeConfigParser):

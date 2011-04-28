@@ -39,6 +39,7 @@ import select
 from threading import RLock
 
 from nicos.ipc import IPCModBus, IPC_MAGIC, InvalidCommandError
+from nicos.utils import closeSocket
 from nicos.device import Device, Param
 from nicos.errors import NicosError, CommunicationError, ProgrammingError
 
@@ -90,14 +91,7 @@ class IPCModBusTCP(IPCModBus):
     
     def doReset(self):
         if self._connection:
-            try:
-                self._connection.shutdown(socket.SHUT_RDWR)
-            except Exception:
-                pass
-            try:
-                self._connection.close()
-            except Exception:
-                pass
+            closeSocket(self._connection)
         self._connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._connection.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._connection.connect((self.host, self.port))

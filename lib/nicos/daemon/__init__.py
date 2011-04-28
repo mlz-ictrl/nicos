@@ -43,7 +43,7 @@ import threading
 from SocketServer import TCPServer
 
 from nicos import nicos_version
-from nicos.utils import listof
+from nicos.utils import listof, closeSocket
 from nicos.device import Device, Param
 
 from nicos.daemon.utils import ModuleManager, serialize
@@ -133,9 +133,7 @@ class Server(TCPServer):
 
     def server_close(self):
         """Close the server and its socket."""
-        # self.socket.close() doesn't really call close() on the socket object
-        self.socket.shutdown(socket.SHUT_RDWR)
-        self.socket.close()
+        closeSocket(self.socket)
 
     def register_handler(self, handler, host):
         """Give each handler a unique ID."""

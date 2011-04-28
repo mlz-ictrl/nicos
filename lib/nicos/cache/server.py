@@ -43,7 +43,7 @@ from itertools import chain
 from time import time as currenttime, sleep, localtime, mktime
 
 from nicos import session, loggers
-from nicos.utils import existingdir, intrange
+from nicos.utils import existingdir, intrange, closeSocket
 from nicos.device import Device, Param
 from nicos.errors import ConfigurationError
 from nicos.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT, \
@@ -229,14 +229,7 @@ class CacheWorker(object):
         if not self.connection:
             return
         self.stoprequest = True
-        try:
-            self.connection.shutdown(socket.SHUT_RDWR)
-        except Exception:
-            pass
-        try:
-            self.connection.close()
-        except Exception:
-            pass
+        closeSocket(self.connection)
         self.connection = None
 
     def writeto(self, data):
@@ -730,8 +723,7 @@ class CacheServer(Device):
                 self._connected[nice_addr] = CacheWorker(
                     self._adevs['db'], conn, name=nice_addr, initdata=data,
                     loglevel=self.loglevel)
-        self._serversocket.shutdown(socket.SHUT_RDWR)
-        self._serversocket.close()
+        closeSocket(self._serversocket)
         self._serversocket = None
 
     def wait(self):
