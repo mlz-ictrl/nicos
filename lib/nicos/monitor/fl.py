@@ -68,8 +68,19 @@ class Fll_Layout(Fl_Group):
         if stretch is None:
             stretch = getattr(child, 'stretch', 0)
         self._stretchers[stretch] += 1
-        self._childinfo.append((w, h, stretch))
+        self._childinfo.append([w, h, stretch, True])
         self.add(child)
+        self._calc_minsize()
+
+    def showchild(self, child, show):
+        self._childinfo[self._children.index(child)][3] = show
+
+    def updatelayout(self):
+        for i, child in enumerate(self._children):
+            if isinstance(child, Fll_Layout):
+                child.updatelayout()
+                self._childinfo[i][:2] = child.preferredsize()
+        self._calc_minsize()
 
     def preferredsize(self):
         return self._minwidth, self._minheight
@@ -88,13 +99,12 @@ class Fll_Layout(Fl_Group):
 
 
 class Fll_Hbox(Fll_Layout):
-    def pack(self, *args, **kwds):
-        Fll_Layout.pack(self, *args, **kwds)
-        self._minheight = max(info[1] for info in self._childinfo) + \
-                          2 * self._pady
-        self._minwidth = sum(info[0] for info in self._childinfo) + \
-                         self._spacing * (len(self._childinfo) - 1) + \
-                         2 * self._padx
+    def _calc_minsize(self):
+        self._minheight = max(info[1] for info in self._childinfo if info[3]) \
+                          + 2 * self._pady
+        self._minwidth = sum(info[0] for info in self._childinfo if info[3]) \
+                         + self._spacing * (len(self._childinfo) - 1) \
+                         + 2 * self._padx
 
     def resize(self, x, y, w, h):
         if (self.x(), self.y(), self.w(), self.h()) == (x, y, w, h):
@@ -115,7 +125,9 @@ class Fll_Hbox(Fll_Layout):
                 st = 1
         for i in range(self.children()):
             child = self.child(i)
-            cw, _, cs = self._childinfo[i]
+            cw, _, cs, vis = self._childinfo[i]
+            if not vis:
+                continue
             if cs == st:
                 cw += fill
             child.resize(xc, yc, cw, ch)
@@ -125,13 +137,12 @@ class Fll_Hbox(Fll_Layout):
 
 
 class Fll_Vbox(Fll_Layout):
-    def pack(self, *args, **kwds):
-        Fll_Layout.pack(self, *args, **kwds)
-        self._minwidth = max(info[0] for info in self._childinfo) + \
-                         2 * self._padx
-        self._minheight = sum(info[1] for info in self._childinfo) + \
-                          self._spacing * (len(self._childinfo) - 1) + \
-                          2 * self._pady
+    def _calc_minsize(self):
+        self._minwidth = max(info[0] for info in self._childinfo if info[3]) \
+                         + 2 * self._padx
+        self._minheight = sum(info[1] for info in self._childinfo if info[3]) \
+                          + self._spacing * (len(self._childinfo) - 1) \
+                          + 2 * self._pady
 
     def resize(self, x, y, w, h):
         if (self.x(), self.y(), self.w(), self.h()) == (x, y, w, h):
@@ -153,7 +164,9 @@ class Fll_Vbox(Fll_Layout):
                 st = 1
         for i in range(self.children()):
             child = self.child(i)
-            _, ch, cs = self._childinfo[i]
+            _, ch, cs, vis = self._childinfo[i]
+            if not vis:
+                continue
             if cs == st:
                 ch += fill
             child.resize(xc, yc, cw, ch)
@@ -338,6 +351,9 @@ class Monitor(BaseMonitor):
                                 rowbox.pack(_create_field(field))
                             rowbox.end()
                         blockbox.pack(rowbox)
+                    if block[0]['only']:
+                        self._onlymap.setdefault(block[0]['only'], []).\
+                            append((columnlayout, blocklayout, blockbox))
                     blocklayout.pack(blockbox)
                     blocklayout.pack(Fll_Stretch())
                     columnlayout.pack(blocklayout)
@@ -373,4 +389,16 @@ class Monitor(BaseMonitor):
         pass
 
     def reconfigureBoxes(self):
-        pass
+        for setup, boxes in self._onlymap.iteritems():
+            for collayout, layout, blockbox in boxes:
+                collayout.showchild(layout, setup in self._setups)
+                if setup in self._setups:
+                    blockbox.show()
+                else:
+                    blockbox.hide()
+        self._master._onlychild.updatelayout()
+        pw, ph = self._master.preferredsize()
+        self._master.size(pw, ph)
+        self._master.size_range(pw, ph, 0, 0)
+        if self._geometry == 'fullscreen':
+            self._master.fullscreen()
