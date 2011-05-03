@@ -1,12 +1,9 @@
 import cascadeclient
 
 casc = cascadeclient.NicosClient()
-casc.connecttohost("cascade7.reseda.frm2",1234)
+casc.connecttohost("cascade.mira.frm2",1234)
 print("Connected: "+repr(casc.isconnected()))
 
-casc.communicate("CMD_status")
-casc.communicate("CMD_start")
-casc.communicate("CMD_status")
-casc.communicate("CMD_readsram")
+print(casc.communicate("CMD_status"))
 
 casc.disconnect()

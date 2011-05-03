@@ -27,17 +27,17 @@
 #include <iostream>
 
 #include "nicosclient.h"
-#include "tofloader.h"
+//#include "tofloader.h"
 
 
 NicosClient::NicosClient() : TcpClient(0, true)
 {
-	Config_TofLoader::Init();
+	//Config_TofLoader::Init();
 }
 
 NicosClient::~NicosClient()
 {
-	Config_TofLoader::Deinit();
+	//Config_TofLoader::Deinit();
 }
 
 const QByteArray& NicosClient::communicate(const char* pcMsg)
