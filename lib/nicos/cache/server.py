@@ -723,7 +723,8 @@ class CacheServer(Device):
                 self._connected[nice_addr] = CacheWorker(
                     self._adevs['db'], conn, name=nice_addr, initdata=data,
                     loglevel=self.loglevel)
-        closeSocket(self._serversocket)
+        if self._serversocket:
+            closeSocket(self._serversocket)
         self._serversocket = None
 
     def wait(self):
