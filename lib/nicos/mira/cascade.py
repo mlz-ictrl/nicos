@@ -163,9 +163,9 @@ class CascadeDetector(Measurable, NeedsDatapath):
         return (self._last_roi, self._last_total, self._lastfilename)
 
     def _getconfig(self):
-        cfg = self._client.communicate('CMD_getconfig')
-        if cfg[:4] != 'CFG_':
-            raise CommunicationError(self, 'could not get configuration : %s'
+        cfg = self._client.communicate('CMD_getconfig_cdr')
+        if cfg[:4] != 'MSG_':
+            raise CommunicationError(self, 'could not get configuration: %s'
                                      % cfg[4:])
         return dict(v.split('=') for v in str(cfg[4:]).split(' '))
 
@@ -173,7 +173,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
         return self._getconfig()['mode']
 
     def doWriteMode(self, value):
-        reply = self._client.communicate('CMD_config mode=%s' % value)
+        reply = self._client.communicate('CMD_config_cdr mode=%s' % value)
         if reply != 'OKAY':
             raise CommunicationError(self, 'could not set mode: %s' % reply[4:])
 
@@ -183,10 +183,10 @@ class CascadeDetector(Measurable, NeedsDatapath):
         self._tres = (value == 'image') and 1 or 128
 
     def doReadPreselection(self):
-        return int(self._getconfig()['time'])
+        return float(self._getconfig()['time'])
 
     def doWritePreselection(self, value):
-        reply = self._client.communicate('CMD_config time=%s' % value)
+        reply = self._client.communicate('CMD_config_cdr time=%s' % value)
         if reply != 'OKAY':
             raise CommunicationError(self, 'could not set measurement time: %s'
                                      % reply[4:])
@@ -205,7 +205,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
                 # wait for completion of measurement
                 while True:
                     sleep(0.2)
-                    status = self._client.communicate('CMD_status')
+                    status = self._client.communicate('CMD_status_cdr')
                     if status == '':
                         raise CommunicationError(self, 'no response from server')
                     #self.printdebug('got status %r' % status)
