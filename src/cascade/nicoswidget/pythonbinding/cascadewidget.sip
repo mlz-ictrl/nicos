@@ -5,7 +5,9 @@
 %Import Qwt5/QwtModule.sip
 
 
-// globale Konfigurationsklasse
+//
+// global configuration of TOF file layout
+//
 class Config_TofLoader
 {
 %TypeHeaderCode
@@ -20,19 +22,23 @@ class Config_TofLoader
 		static int GetFoilBegin(int iFoil);
 		static bool GetPseudoCompression();
 		
-		static void SetFoilCount(int iNumFoils);
-		static void SetImagesPerFoil(int iNumImagesPerFoil);
-		static void SetImageWidth(int iImgWidth);
-		static void SetImageHeight(int iImgHeight);
-		static void SetImageCount(int iImgCount);
-		static void SetFoilBegin(int iFoil, int iOffs);
-		static void SetPseudoCompression(bool bSet);
+
+		static void SetFoilCount(int iNumFoils);		// number of foils in TOF (e.g. 4)
+		static void SetImagesPerFoil(int iNumImagesPerFoil);	// number of time channels per foil (e.g. 16)
+		static void SetImageWidth(int iImgWidth);		// x_res (e.g. 128)
+		static void SetImageHeight(int iImgHeight);		// y_res (e.g. 128)
+		static void SetImageCount(int iImgCount);		// total number of images in TOF == t_res (e.g. 128)
+		static void SetFoilBegin(int iFoil, int iOffs);		// index of first time channel for each foil (e.g. 0,0;  1, 16;  2, 32;  3, 48)
+
+									// false: all images specified in t_res are sent by server, including padding ones;
+		static void SetPseudoCompression(bool bSet);		//        counts in first time are split between first and last channels
+									// true: the opposite of both points
 };
 
 
 /////////////////////////////////////////////////////////////////////////////////////
 // GraphDlg
-// eigentlich nicht nötig, ihn zu exportieren, da ebenfalls über CascadeWidget::showGraphDlg() aufrufbar
+// use CascadeWidget::showGraphDlg() instead
 class GraphDlg : QDialog
 {
 %TypeHeaderCode
@@ -47,7 +53,9 @@ class GraphDlg : QDialog
 
 
 /////////////////////////////////////////////////////////////////////////////////////
-// PAD-Bilder
+//
+// PAD images
+//
 class PadImage
 {
 %TypeHeaderCode
@@ -59,18 +67,21 @@ class PadImage
 		virtual ~PadImage();
 		
 		int LoadFile(const char *pcFileName);
-		// uiBufLen: Anzahl Ints (nicht Anzahl Bytes)
+
+		// uiBufLen specifies number of ints (NOT # of bytes; unlike CascadeWidget::LoadPadMem)
 		int LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen);
 		
 		void UpdateRange();
-		
+
 		void Print(const char* pcOutFile=NULL);
 
 		unsigned int GetData(int iX, int iY) const;
 //		unsigned int* GetRawData(void);
 };
 
-// Klasse, um Zwischenbilder zu verwalten
+//
+// management of temporary images
+//
 class TmpImage
 {
 %TypeHeaderCode
@@ -94,7 +105,9 @@ class TmpImage
 		void Add(const TmpImage& tmp);
 };
 
-// Klasse für temporäre Graph-Daten
+//
+// management of temporary graphs
+//
 class TmpGraph
 {
 %TypeHeaderCode
@@ -112,7 +125,9 @@ class TmpGraph
 		int GetMax();
 };
 
-// TOF-Bilder
+//
+// TOF images
+//
 class TofImage
 {
 %TypeHeaderCode
@@ -128,7 +143,8 @@ class TofImage
 //		unsigned int* GetRawData(void) const;
 		
 		int LoadFile(const char *pcFileName);
-		// uiBufLen: Anzahl Ints (nicht Anzahl Bytes)
+
+		// uiBufLen specifies number of ints (NOT # of bytes; unlike CascadeWidget::LoadTofMem)
 		int LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen);
 	
 		TmpImage GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil, int iTimechannel);
@@ -143,6 +159,7 @@ class TofImage
 };
 /////////////////////////////////////////////////////////////////////////////////////
 
+
 class MainRasterData :  QwtRasterData
 {
 %TypeHeaderCode
@@ -154,7 +171,7 @@ class MainRasterData :  QwtRasterData
 		void SetLog10(bool bLog10);
 		bool GetLog10() const;
 		
-		// Wert ohne Berücksichtigung von m_bLog nichtlogarithmisch zurückgeben
+		// get raw (nonlog) value independent of m_bLog
 		virtual double GetValueRaw(int x, int y) const = 0;
 };
 
@@ -189,7 +206,7 @@ class Data2D :  MainRasterData, TmpImage
 		Data2D(const Data2D& data2d);
 		virtual ~Data2D();
 		
-		void SetPhaseData(bool bPhaseData);	// wegen Achsen-Range
+		void SetPhaseData(bool bPhaseData);	// due to axis range
 		void clearData();
 		
 		virtual QwtRasterData *copy() const;
@@ -237,10 +254,15 @@ class CascadeWidget : QWidget
 		void* NewPad();
 		void* NewTof();
 
-		bool LoadPadFile(const char* pcFile);			// PAD aus Datei laden
-		bool LoadTofFile(const char* pcFile);			// TOF aus Datei laden
-		bool LoadPadMem(const char* pcMem, unsigned int iLen);	// PAD aus Speicher laden
-		bool LoadTofMem(const char* pcMem, unsigned int iLen);	// TOF aus Speicher laden
+		//
+		// use the Config_TofLoader setter methods to configure
+		// layout of TOF file before calling LoadTofMem / LoadTofFile
+		// otherwise default or guessed layout will be assumed
+		//
+		bool LoadPadFile(const char* pcFile);			// load PAD from file
+		bool LoadTofFile(const char* pcFile);			// load TOF from file
+		bool LoadPadMem(const char* pcMem, unsigned int iLen);	// load PAD from mem
+		bool LoadTofMem(const char* pcMem, unsigned int iLen);	// load TOF from mem
 
 		TofImage* GetTof();
 		Data2D* GetData2d();
@@ -255,10 +277,10 @@ class CascadeWidget : QWidget
 		int GetMode();
 
 	public slots:
-		void viewOverview();		// alle Folien aller Zeitkanaele aufsummieren
-		void viewSlides();		// einzelne Folie anzeigen
-		void viewPhases();		// Phasen 
-		void viewContrasts();		// Kontraste
+		void viewOverview();		// add all time channels of all foils
+		void viewSlides();		// show single foils
+		void viewPhases();		// show phases
+		void viewContrasts();		// show contrasts
 		
 		void viewFoilSums(const bool* pbKanaele);
 		void viewPhaseSums(const bool* pbFolien);

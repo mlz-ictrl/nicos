@@ -12,16 +12,16 @@ class TcpClient : QObject
 %End
 
 	public:
-		TcpClient(QObject* pParent, bool bBlocking);
-		bool connecttohost(const char* pcAddr, int iPort);
-		void disconnect();
-		bool isconnected() const;
+		TcpClient(QObject* pParent, bool bBlocking);		// bBlocking: use blocking or non-blocking client
+		bool connecttohost(const char* pcAddr, int iPort);	// connect to TCP host pcAddr on port iPort
+		void disconnect();					// disconnect
+		bool isconnected() const;				// are we connected?
 		
-		bool sendmsg(const char* pcMsg);
-		const QByteArray& recvmsg();
+		bool sendmsg(const char* pcMsg);			// send message to server
+		const QByteArray& recvmsg();				// get message from server
 
-		void SetDebugLog(bool bLog);
-		void SetTimeout(int iTimeout);		// negative Werte schalten Timeout ab
+		void SetDebugLog(bool bLog);				// display (colourful) debug messages
+		void SetTimeout(int iTimeout);				// iTimeout < 0  => don't use timeout
 };
 
 
@@ -32,5 +32,5 @@ class NicosClient : TcpClient
 %End
 
 	public:
-		const QByteArray& communicate(const char* pcMsg);
+		const QByteArray& communicate(const char* pcMsg);	// calls sendmsg & recvmsg
 };
