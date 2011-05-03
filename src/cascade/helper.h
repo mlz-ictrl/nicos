@@ -24,31 +24,20 @@
 //
 // *****************************************************************************
 
-#include <iostream>
 
-#include "nicosclient.h"
-#include "helper.h"
-//#include "tofloader.h"
+#ifndef __CASCADE_HELPER__
+#define __CASCADE_HELPER__
 
-
-NicosClient::NicosClient() : TcpClient(0, true)
+// substitution for missing __try ... __finally support in gcc
+template<class T> class cleanup
 {
-	//Config_TofLoader::Init();
-}
-
-NicosClient::~NicosClient()
-{
-	//Config_TofLoader::Deinit();
-}
-
-const QByteArray& NicosClient::communicate(const char* pcMsg)
-{
-	cleanup<QMutex> _cleanup(m_mutex, &QMutex::unlock);	// unlock mutex at the end of the scope
+	protected:
+		T& m_t;
+		void (T::*m_pDeinit)();
 	
-	m_mutex.lock();
-	if(!sendmsg(pcMsg))
-		return m_byEmpty;
-	
-	const QByteArray& arr = recvmsg();
-	return arr;
-}
+	public:
+		cleanup(T& t, void (T::*pDeinit)()) : m_t(t), m_pDeinit(pDeinit) {}
+		virtual ~cleanup() { (m_t.*m_pDeinit)(); }
+};
+
+#endif
