@@ -244,6 +244,7 @@ bool Config_TofLoader::GuessConfigFromSize(int iLen, bool bIsTof, bool bFirstCal
 	{
 		// TODO
 		std::cerr << "Error: Pseudo-compressed size guess not yet implemented." << std::endl;
+		return 0;
 	}
 	else	// PAD
 	{
@@ -315,7 +316,8 @@ bool Config_TofLoader::GuessConfigFromSize(int iLen, bool bIsTof, bool bFirstCal
 		{
 			std::cerr << "guessing image width: " << IMAGE_WIDTH << std::endl;
 			std::cerr << "guessing image height: " << IMAGE_HEIGHT << std::endl;
-		}		
+		}
+		
 		return bFound;
 	}
 }
