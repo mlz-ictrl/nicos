@@ -94,6 +94,20 @@ class LiveWindow(QMainWindow, DlgUtils):
             self.widget.LoadTofMem(data, 128*128*128*4)
 
     @qtsig('')
+    def on_actionLoadTOF_triggered(self):
+        filename = QFileDialog.getOpenFileName(self,
+            'Open TOF File', '', 'TOF File (*.tof *.TOF);;All files (*)')
+        if filename:
+            self.widget.LoadTofFile(filename)
+
+    @qtsig('')
+    def on_actionLoadPAD_triggered(self):
+        filename = QFileDialog.getOpenFileName(self,
+            'Open PAD File', '', 'PAD File (*.pad *.PAD);;All files (*)')
+        if filename:
+            self.widget.LoadPadFile(filename)
+
+    @qtsig('')
     def on_actionWriteXml_triggered(self):
         pad = self.widget.GetPad()
         if pad is None:

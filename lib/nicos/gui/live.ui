@@ -30,13 +30,16 @@
      <x>0</x>
      <y>0</y>
      <width>805</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="actionLoadTOF"/>
+    <addaction name="actionLoadPAD"/>
+    <addaction name="separator"/>
     <addaction name="actionWriteXml"/>
     <addaction name="actionPrint"/>
     <addaction name="separator"/>
@@ -179,6 +182,16 @@
   <action name="actionSelectChannels">
    <property name="text">
     <string>Select channels...</string>
+   </property>
+  </action>
+  <action name="actionLoadTOF">
+   <property name="text">
+    <string>Load TOF...</string>
+   </property>
+  </action>
+  <action name="actionLoadPAD">
+   <property name="text">
+    <string>Load PAD...</string>
    </property>
   </action>
  </widget>
