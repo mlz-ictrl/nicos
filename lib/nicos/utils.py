@@ -224,7 +224,6 @@ class AutoPropsMeta(MergedAttrsMeta):
                     self._params[param] = value
                     if self._cache:
                         self._cache.put(self, param, value)
-                    self._changedparams.add(param)
 
             # create a property and attach to the new device class
             setattr(newtype, param,

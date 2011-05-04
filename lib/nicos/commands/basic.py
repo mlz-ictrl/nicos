@@ -195,17 +195,6 @@ def Remark(remark):
     """
     session.experiment.remark = remark
 
-
-@usercommand
-def _SaveState():
-    """Return statements that restore the current state."""
-    ret = ['NewSetup(%r)\n' % session.explicit_setups[0]]
-    ret += ['AddSetup(%r)\n' % setup
-            for setup in session.explicit_setups[1:]]
-    return ''.join(ret + [session.devices[dev].save()
-                          for dev in sorted(session.devices)])
-
-
 @usercommand
 def SetMode(mode):
     """Set the execution mode.

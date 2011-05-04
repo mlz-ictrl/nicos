@@ -33,7 +33,7 @@ __version__ = "$Revision$"
 
 from nicos import session
 from nicos.utils import printTable
-from nicos.device import Device, Startable, Moveable, Readable, \
+from nicos.device import Device, Moveable, Measurable, Readable, \
      HasOffset, HasLimits
 from nicos.errors import NicosError, UsageError
 from nicos.status import statuses
@@ -108,9 +108,9 @@ def wait(*devlist):
     """
     if not devlist:
         devlist = [session.devices[devname] for devname in session.explicit_devices
-                   if isinstance(session.devices[devname], Startable)]
+                   if isinstance(session.devices[devname], (Moveable, Measurable))]
     for dev in devlist:
-        dev = session.getDevice(dev, Startable)
+        dev = session.getDevice(dev, (Moveable, Measurable))
         dev.printinfo('waiting for device')
         value = dev.wait()
         if value:
@@ -164,9 +164,9 @@ def stop(*devlist):
     """
     if not devlist:
         devlist = [session.devices[devname] for devname in session.explicit_devices
-                   if isinstance(session.devices[devname], Startable)]
+                   if isinstance(session.devices[devname], (Moveable, Measurable))]
     for dev in devlist:
-        dev = session.getDevice(dev, Startable)
+        dev = session.getDevice(dev, (Moveable, Measurable))
         try:
             dev.stop()
         except NicosError:
@@ -198,7 +198,7 @@ def fix(*devlist):
     if not devlist:
         raise UsageError('at least one device argument is required')
     for dev in devlist:
-        dev = session.getDevice(dev, Startable)
+        dev = session.getDevice(dev, Moveable)
         dev.fix()
         dev.printinfo('fixed')
 
@@ -208,7 +208,7 @@ def release(*devlist):
     if not devlist:
         raise UsageError('at least one device argument is required')
     for dev in devlist:
-        dev = session.getDevice(dev, Startable)
+        dev = session.getDevice(dev, Moveable)
         dev.release()
         dev.printinfo('released')
 

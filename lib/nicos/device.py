@@ -78,6 +78,7 @@ class Device(object):
                 raise ProgrammingError('device with name %s already exists' % name)
             session.devices[name] = self
 
+        # XXX needs to be changed
         if session.mode == 'simulation':
             raise UsageError('no new devices can be created in simulation mode')
 
@@ -87,8 +88,6 @@ class Device(object):
                             for (name, value) in config.items())
         # _params: parameter values from config
         self._params = {}
-        # _changedparams: set of all changed params for save()
-        self._changedparams = set()
         # _infoparams: cached list of parameters to get on info()
         self._infoparams = []
         # _adevs: "attached" device instances
@@ -284,9 +283,6 @@ class Device(object):
         if hasattr(self, 'doInit'):
             self.doInit()
 
-        # record parameter changes from now on
-        self._changedparams.clear()
-
     def _getCache(self):
         return session.cache
 
@@ -352,15 +348,6 @@ class Device(object):
             versions.extend(self.doVersion())
         return versions
 
-    def save(self):
-        code = []
-        if hasattr(self, 'doSave'):
-            code.append(self.doSave())
-        for param in sorted(self._changedparams):
-            code.append('%s.%s = %r\n' %
-                        (self.name, param, self.getPar(param)))
-        return ''.join(code)
-
     def _cachelock_acquire(self, timeout=3):
         if not self._cache:
             return
@@ -405,7 +392,8 @@ class Readable(Device):
         'unit':         Param('Unit of the device main value', type=str,
                               mandatory=True, settable=True),
         'maxage':       Param('Maximum age of cached value and status',
-                              unit='s', type=floatrange(0.01, 24*3600), default=6, settable=True),
+                              unit='s', type=floatrange(0.01, 24*3600),
+                              default=6, settable=True),
         'pollinterval': Param('Polling interval for value and status',
                               unit='s', default=5, settable=True),
     }
@@ -537,12 +525,9 @@ class Readable(Device):
             yield item
 
 
-class Startable(Readable):
+class Moveable(Readable):
     """
-    Common base class for Moveable and Measurable.
-
-    This is used for typechecking, e.g. when any device with a stop()
-    method is required.
+    Base class for moveable devices.
 
     Subclasses *need* to implement:
 
@@ -557,17 +542,58 @@ class Startable(Readable):
     * doRelease()
     """
 
+    parameters = {
+        'target': Param('Last target position of a start() action',
+                        unit='main', type=any, default=0.),
+    }
+
+    def __init__(self, name, **config):
+        Readable.__init__(self, name, **config)
+        self._isFixed = False
+
     def __call__(self, pos=None):
         """Allow dev() and dev(newpos) as shortcuts for read and start."""
         if pos is None:
             return self.read()
         return self.start(pos)
 
+    def isAllowed(self, pos):
+        """Return a tuple describing the validity of the given position.
+
+        The first item is a boolean indicating if the position is valid,
+        the second item is a string with the reason if it is invalid.
+        """
+        if hasattr(self, 'doIsAllowed'):
+            return self.doIsAllowed(pos)
+        return True, ''
+
+    def start(self, pos):
+        """Start main action of the device."""
+        if self._mode == 'slave':
+            raise ModeError(self, 'start not possible in slave mode')
+        if self._isFixed:
+            raise FixedError(self, 'use release() first')
+        ok, why = self.isAllowed(pos)
+        if not ok:
+            raise LimitError(self, 'moving to %r is not allowed: %s' %
+                             (pos, why))
+        if self._mode == 'simulation':
+            # XXX record position action here
+            self._sim_value = pos
+            return
+        if self._cache:
+            self._cache.invalidate(self, 'value')
+        self._setROParam('target', pos)
+        self.doStart(pos)
+
+    move = start
+
     def wait(self):
         """Wait until main action of device is completed.
         Return current value after waiting.
         """
         if self._mode == 'simulation':
+            # XXX timing action here
             return self._sim_value
         lastval = None
         if hasattr(self, 'doWait'):
@@ -583,51 +609,6 @@ class Startable(Readable):
         if self._cache and self._mode != 'slave':
             self._cache.put(self, 'value', val, currenttime(), self.maxage)
         return val
-
-    def isAllowed(self, pos):
-        """Return a tuple describing the validity of the given position.
-
-        The first item is a boolean indicating if the position is valid,
-        the second item is a string with the reason if it is invalid.
-        """
-        if hasattr(self, 'doIsAllowed'):
-            return self.doIsAllowed(pos)
-        return True, ''
-
-
-class Moveable(Startable):
-    """
-    Base class for moveable devices.
-    """
-
-    parameters = {
-        'target': Param('Last target position of a start() action',
-                        unit='main', type=any, default=0.),
-    }
-
-    def __init__(self, name, **config):
-        Startable.__init__(self, name, **config)
-        self._isFixed = False
-
-    def start(self, pos):
-        """Start main action of the device."""
-        if self._mode == 'slave':
-            raise ModeError(self, 'start not possible in slave mode')
-        if self._isFixed:
-            raise FixedError(self, 'use release() first')
-        ok, why = self.isAllowed(pos)
-        if not ok:
-            raise LimitError(self, 'moving to %r is not allowed: %s' %
-                             (pos, why))
-        if self._mode == 'simulation':
-            self._sim_value = pos
-            return
-        if self._cache:
-            self._cache.invalidate(self, 'value')
-        self._setROParam('target', pos)
-        self.doStart(pos)
-
-    move = start
 
     def stop(self):
         """Stop main action of the device."""
@@ -659,7 +640,7 @@ class Moveable(Startable):
         self._isFixed = False
 
 
-class HasLimits(Startable):
+class HasLimits(Moveable):
     """
     Mixin for "simple" continuously moveable devices that have limits.
     """
@@ -716,20 +697,25 @@ class HasLimits(Startable):
         else:
             offset = 0
         if umin > umax:
-            raise ConfigurationError(self, 'user minimum (%s, offset %s) above the user '
-                                     'maximum (%s, offset %s)' % (umin, offset, umax, offset))
+            raise ConfigurationError(
+                self, 'user minimum (%s, offset %s) above the user '
+                'maximum (%s, offset %s)' % (umin, offset, umax, offset))
         if umin < amin:
-            raise ConfigurationError(self, 'user minimum (%s, offset %s) below the '
-                                     'absolute minimum (%s)' % (umin, offset, amin))
+            raise ConfigurationError(
+                self, 'user minimum (%s, offset %s) below the '
+                'absolute minimum (%s)' % (umin, offset, amin))
         if umin > amax:
-            raise ConfigurationError(self, 'user minimum (%s, offset %s) above the '
-                                     'absolute maximum (%s)' % (umin, offset, amax))
+            raise ConfigurationError(
+                self, 'user minimum (%s, offset %s) above the '
+                'absolute maximum (%s)' % (umin, offset, amax))
         if umax > amax:
-            raise ConfigurationError(self, 'user maximum (%s, offset %s) above the '
-                                     'absolute maximum (%s)' % (umax, offset, amax))
+            raise ConfigurationError(
+                self, 'user maximum (%s, offset %s) above the '
+                'absolute maximum (%s)' % (umax, offset, amax))
         if umax < amin:
-            raise ConfigurationError(self, 'user maximum (%s, offset %s) below the '
-                                     'absolute minimum (%s)' % (umax, offset, amin))
+            raise ConfigurationError(
+                self, 'user maximum (%s, offset %s) below the '
+                'absolute minimum (%s)' % (umax, offset, amin))
 
     def doReadUserlimits(self):
         if 'userlimits' not in self._config:
@@ -778,7 +764,7 @@ class HasOffset(object):
                             currenttime(), self.maxage)
 
 
-class Measurable(Startable):
+class Measurable(Readable):
     """
     Base class for devices used for data acquisition.
 
@@ -804,6 +790,7 @@ class Measurable(Startable):
         if self._mode == 'slave':
             raise ModeError(self, 'start not possible in slave mode')
         elif self._mode == 'simulation':
+            # XXX timing action here
             return
         self.doStart(**preset)
 
@@ -851,8 +838,6 @@ class Measurable(Startable):
 
     def wait(self):
         """Wait for completion of measurement."""
-        if self._mode == 'simulation':
-            return
         while not self.isCompleted():
             sleep(0.1)
 
