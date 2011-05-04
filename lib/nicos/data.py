@@ -224,6 +224,8 @@ class DaemonSink(DataSink):
     daemon sessions.
     """
 
+    activeInSimulation = False
+
     def isActive(self, scantype):
         if not isinstance(session, DaemonSession):
             return False
@@ -241,6 +243,8 @@ class GraceSink(DataSink):
     A DataSink that plots datasets in the Grace plotting program.  Needs the
     GracePlot module.  Only active for console sessions.
     """
+
+    activeInSimulation = False
 
     def isActive(self, scantype):
         if not GracePlot or not isinstance(session, InteractiveSession):
@@ -311,6 +315,8 @@ class GnuplotSink(DataSink):
     A DataSink that plots datasets in the Gnuplot plotting program.  Needs the
     Gnuplot module.  Only active for console sessions.
     """
+
+    activeInSimulation = False
 
     def isActive(self, scantype):
         if not Gnuplot or not isinstance(session, InteractiveSession):

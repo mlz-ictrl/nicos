@@ -52,7 +52,7 @@ from wsgiref.simple_server import make_server
 from nicos import session, nicos_version
 from nicos.web import FakeInput, MTWSGIServer, NicosApp
 from nicos.utils import makeSessionId, colorcode, daemonize, writePidfile, \
-     removePidfile, sessionInfo
+     removePidfile, sessionInfo, SimClock
 from nicos.device import Device
 from nicos.errors import NicosError, UsageError, ConfigurationError, ModeError
 from nicos.loggers import NicosLogger, NicosLogfileHandler, \
@@ -149,6 +149,8 @@ class Session(object):
         self._actionStack = []
         # execution mode
         self._mode = 'slave'
+        # simulation clock
+        self.clock = SimClock()
 
         # set up logging interface
         self._initLogging()
@@ -454,6 +456,7 @@ class Session(object):
                     'device %r not found in configuration' % dev)
         from nicos.device import Device
         if not isinstance(dev, cls or Device):
+            # XXX error message wrong for tuples
             raise UsageError('dev must be a %s' % (cls or Device).__name__)
         return dev
 
@@ -534,13 +537,13 @@ class Session(object):
     def datasinks(self):
         #if self.__system_device is None:
         #    self.__system_device = self.getDevice('System', System)
-        return self.__system_device._adevs['datasinks']
+        return self.__system_device._adevs.get('datasinks', [])
 
     @property
     def notifiers(self):
         #if self.__system_device is None:
         #    self.__system_device = self.getDevice('System', System)
-        return self.__system_device._adevs['notifiers']
+        return self.__system_device._adevs.get('notifiers', [])
 
     def notifyConditionally(self, runtime, subject, body, what=None, short=None):
         """Send a notification if the current runtime exceeds the configured

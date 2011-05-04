@@ -33,12 +33,13 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import os
 import inspect
 import __builtin__
 from os import path
 
 from nicos import session
-from nicos.utils import formatDocstring, printTable
+from nicos.utils import formatDocstring, formatDuration, printTable
 from nicos.device import Device
 from nicos.errors import ModeError, NicosError, UsageError
 from nicos.notify import Mailer, SMSer
@@ -236,19 +237,24 @@ def UserInfo(name):
 
 
 @usercommand
-def run(filename):
+def Run(filename):
     """Run a script file given by file name.  If the file name is not absolute,
     it is relative to the experiment script directory.
     """
     fn = path.normpath(path.join(session.experiment.scriptdir, filename))
     if not path.isfile(fn) and os.access(fn, os.R_OK):
-        raise UsageError('The file %r does not exist or is not readable')
+        raise UsageError('The file %r does not exist or is not readable' % fn)
+    starttime = session.clock.time
     printinfo('running user script: ' + fn)
     with open(fn, 'r') as fp:
         code = unicode(fp.read(), 'utf-8')
         with _Scope(fn):
             exec code in session.getLocalNamespace(), session.getNamespace()
     printinfo('finished user script: ' + fn)
+    if session.mode == 'simulation':
+        printinfo('simulated minimum runtime: ' +
+                  formatDuration(session.clock.time - starttime))
+    # XXX add device minimum/maximum values
 
 
 @usercommand

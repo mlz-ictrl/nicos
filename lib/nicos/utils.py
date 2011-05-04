@@ -232,6 +232,40 @@ class AutoPropsMeta(MergedAttrsMeta):
         return newtype
 
 
+class SimClock(object):
+    """Simulation clock."""
+
+    def __init__(self):
+        self.time = 0
+
+    def reset(self):
+        self.time = 0
+
+    def wait(self, time):
+        if self.time < time:
+            self.time = time
+
+    def tick(self, sec):
+        self.time += sec
+
+
+def _s(n):
+    return int(n), (n != 1 and 's' or '')
+
+def formatDuration(secs):
+    if 0 <= secs < 60:
+        est = '%s second%s' % _s(secs)
+    elif secs < 3600:
+        est = '%s minute%s' % _s(secs // 60 + 1)
+    elif secs < 86400:
+        est = '%s hour%s, %s minute%s' % (_s(secs // 3600) +
+                                          _s((secs % 3600) // 60))
+    else:
+        est = '%s day%s, %s hour%s' % (_s(secs // 86400) +
+                                       _s((secs % 86400) // 3600))
+    return est
+
+
 def formatDocstring(s, indentation=''):
     """Format a docstring for display on the console."""
     lines = s.expandtabs().splitlines()

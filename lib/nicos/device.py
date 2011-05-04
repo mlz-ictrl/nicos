@@ -401,7 +401,10 @@ class Readable(Device):
     def init(self):
         Device.init(self)
         # value in simulation mode
+        self._sim_old_value = None
         self._sim_value = None
+        self._sim_min = None
+        self._sim_max = None
 
     def _setMode(self, mode):
         if mode == 'simulation':
@@ -540,6 +543,7 @@ class Moveable(Readable):
     * doIsAllowed()
     * doFix()
     * doRelease()
+    * doTime()
     """
 
     parameters = {
@@ -578,8 +582,15 @@ class Moveable(Readable):
             raise LimitError(self, 'moving to %r is not allowed: %s' %
                              (pos, why))
         if self._mode == 'simulation':
-            # XXX record position action here
+            self._sim_old_value = self._sim_value
             self._sim_value = pos
+            if self._sim_min is None:
+                self._sim_min = pos
+            self._sim_min = min(pos, self._sim_min)
+            if self._sim_max is None:
+                self._sim_max = pos
+            self._sim_max = min(pos, self._sim_max)
+            self._sim_started = session.clock.time
             return
         if self._cache:
             self._cache.invalidate(self, 'value')
@@ -593,7 +604,16 @@ class Moveable(Readable):
         Return current value after waiting.
         """
         if self._mode == 'simulation':
-            # XXX timing action here
+            if not hasattr(self, 'doTime'):
+                if 'speed' in self.parameters:
+                    time = abs(self._sim_value - self._sim_old_value) * \
+                           self.speed
+                else:
+                    time = 0
+            else:
+                time = self.doTime(self._sim_old_value, self._sim_value)
+            session.clock.wait(self._sim_started + time)
+            self._sim_old_value = self._sim_value
             return self._sim_value
         lastval = None
         if hasattr(self, 'doWait'):
@@ -640,7 +660,7 @@ class Moveable(Readable):
         self._isFixed = False
 
 
-class HasLimits(Moveable):
+class HasLimits(Readable):
     """
     Mixin for "simple" continuously moveable devices that have limits.
     """
@@ -653,7 +673,7 @@ class HasLimits(Moveable):
     }
 
     def init(self):
-        Moveable.init(self)
+        Readable.init(self)
         if self.abslimits[0] > self.abslimits[1]:
             raise ConfigurationError(self, 'absolute minimum (%s) above the '
                                      'absolute maximum (%s)' % self.abslimits)
@@ -779,6 +799,7 @@ class Measurable(Readable):
 
     * doPause()
     * doResume()
+    * doTime()
     """
 
     parameter_overrides = {
@@ -790,7 +811,14 @@ class Measurable(Readable):
         if self._mode == 'slave':
             raise ModeError(self, 'start not possible in slave mode')
         elif self._mode == 'simulation':
-            # XXX timing action here
+            if hasattr(self, 'doTime'):
+                time = self.doTime(preset)
+            else:
+                if 't' in preset:
+                    time = preset['t']
+                else:
+                    time = 0
+            session.clock.tick(time)
             return
         self.doStart(**preset)
 
