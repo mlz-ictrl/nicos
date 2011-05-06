@@ -39,10 +39,12 @@ class PadImage
 #include "../../tofloader.h"
 %End
 	public:
-		PadImage(const char *pcFileName=NULL);
+		PadImage(const char *pcFileName=NULL, bool bExternalMem=false);
 		PadImage(const PadImage& pad);
 		virtual ~PadImage();
 		
+		void SetExternalMem(void* pvDaten);
+		int GetPadSize() const;
 		int LoadFile(const char *pcFileName);
 
 		// uiBufLen specifies number of ints (NOT # of bytes; unlike CascadeWidget::LoadPadMem)
@@ -114,12 +116,14 @@ class TofImage
 #include "../../tofloader.h"
 %End
 	public:
-		TofImage(const char *pcFileName=NULL, int iCompression=TOF_COMPRESSION_USEGLOBCONFIG);
+		TofImage(const char *pcFileName=NULL, int iCompression=TOF_COMPRESSION_USEGLOBCONFIG, bool bExternalMem=false);
 		virtual ~TofImage();
 		
+		void SetExternalMem(void* pvDaten);
 		int GetTofSize() const;
 		void Clear();
 		int GetCompressionMethod() const;
+		void SetCompressionMethod(int iComp);
 
 		unsigned int GetData(int iFoil, int iTimechannel, int iX, int iY) const;
 		unsigned int GetData(int iImage, int iX, int iY) const;

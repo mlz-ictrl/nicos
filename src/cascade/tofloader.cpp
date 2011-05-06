@@ -447,9 +447,59 @@ static double* CreateDoubleWave(const char* pcBaseName, int iDimX, int iDimY)
 
 ////////////////// TOF ////////////////// 
 
-TofImage::TofImage(const char *pcFileName, int iCompressed)
+TofImage::TofImage(const char *pcFileName, int iCompressed, bool bExternalMem) : m_bExternalMem(bExternalMem)
 {
-	switch(iCompressed)
+	SetCompressionMethod(iCompressed);
+	m_puiDaten = 0;
+	
+	if(!m_bExternalMem)
+	{
+		int iSize = GetTofSize();
+		m_puiDaten = new unsigned int[iSize];
+		
+		if(pcFileName!=NULL) 
+			LoadFile(pcFileName);
+		else 
+			memset(m_puiDaten,0,iSize*sizeof(int));
+	}
+}
+
+TofImage::~TofImage()
+{
+	Clear();
+}
+
+void TofImage::SetExternalMem(void* pvDaten) 
+{ 
+	if(!m_bExternalMem) return;
+	
+	m_puiDaten = (unsigned int*)pvDaten;
+	//UpdateRange();
+}
+
+int TofImage::GetTofSize() const
+{
+	int iSize = m_bPseudoCompressed 
+			? Config_TofLoader::GetFoilCount()*Config_TofLoader::GetImagesPerFoil()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth()
+			: Config_TofLoader::GetImageCount()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth();		
+	return iSize;
+}
+
+void TofImage::Clear(void)
+{
+	if(m_puiDaten && !m_bExternalMem) { delete[] m_puiDaten; m_puiDaten=NULL; }
+}
+
+int TofImage::GetCompressionMethod() const
+{
+	if(m_bPseudoCompressed) 
+		return TOF_COMPRESSION_PSEUDO;
+	return TOF_COMPRESSION_NONE;
+}
+
+void TofImage::SetCompressionMethod(int iComp)
+{
+	switch(iComp)
 	{
 		case TOF_COMPRESSION_NONE: 
 			m_bPseudoCompressed=0; 
@@ -464,39 +514,6 @@ TofImage::TofImage(const char *pcFileName, int iCompressed)
 			m_bPseudoCompressed=1; 
 			break;
 	}
-	
-	int iSize = GetTofSize();
-	m_puiDaten = new unsigned int[iSize];
-	
-	if(pcFileName!=NULL) 
-		LoadFile(pcFileName);
-	else 
-		memset(m_puiDaten,0,iSize*sizeof(int));
-}
-
-TofImage::~TofImage()
-{
-	Clear();
-}
-
-int TofImage::GetTofSize() const
-{
-	int iSize = m_bPseudoCompressed 
-			? Config_TofLoader::GetFoilCount()*Config_TofLoader::GetImagesPerFoil()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth()
-			: Config_TofLoader::GetImageCount()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth();		
-	return iSize;
-}
-
-void TofImage::Clear(void)
-{
-	if(m_puiDaten) { delete[] m_puiDaten; m_puiDaten=NULL; }
-}
-
-int TofImage::GetCompressionMethod() const
-{
-	if(m_bPseudoCompressed) 
-		return TOF_COMPRESSION_PSEUDO;
-	return TOF_COMPRESSION_NONE;
 }
 
 unsigned int TofImage::GetData(int iBild, int iX, int iY) const
@@ -997,33 +1014,52 @@ TmpImage TofImage::AddContrasts(const bool *pbFolien) const
 
 
 ////////////////// PAD //////////////////
-PadImage::PadImage(const char *pcFileName) : m_iMin(0),m_iMax(0)
+PadImage::PadImage(const char *pcFileName, bool bExternalMem) : m_iMin(0),m_iMax(0), m_bExternalMem(bExternalMem)
 {
-	m_puiDaten = new unsigned int[Config_TofLoader::GetImageWidth()*Config_TofLoader::GetImageHeight()];
+	m_puiDaten = 0;
 	
-	if(pcFileName!=NULL)
-		LoadFile(pcFileName);
-	else 
-		memset(m_puiDaten,0,Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth()*sizeof(int));
+	if(!m_bExternalMem)
+	{
+		m_puiDaten = new unsigned int[GetPadSize()];
+		
+		if(pcFileName!=NULL)
+			LoadFile(pcFileName);
+		else 
+			memset(m_puiDaten,0,GetPadSize()*sizeof(int));
+	}
 }
 
-PadImage::PadImage(const PadImage& pad)
+PadImage::PadImage(const PadImage& pad) : m_bExternalMem(false)
 {
 	m_iMin=pad.m_iMin; 
 	m_iMax=pad.m_iMax;
 	
-	m_puiDaten = new unsigned int[Config_TofLoader::GetImageWidth()*Config_TofLoader::GetImageHeight()];
-	memcpy(m_puiDaten, pad.m_puiDaten, sizeof(int)*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth());
-}
-
-void PadImage::Clear()
-{
-	if(m_puiDaten) { delete[] m_puiDaten; m_puiDaten=0; }
+	m_puiDaten = new unsigned int[GetPadSize()];
+	memcpy(m_puiDaten, pad.m_puiDaten, sizeof(int)*GetPadSize());
 }
 
 PadImage::~PadImage()
 {
 	Clear();
+}
+
+void PadImage::Clear()
+{
+	if(m_puiDaten && !m_bExternalMem) { delete[] m_puiDaten; m_puiDaten=0; }
+}
+
+int PadImage::GetPadSize() const
+{
+	int iSize = Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth();
+	return iSize;
+}
+
+void PadImage::SetExternalMem(void* pvDaten) 
+{ 
+	if(!m_bExternalMem) return;
+	
+	m_puiDaten = (unsigned int*)pvDaten; 
+	//UpdateRange();
 }
 
 void PadImage::UpdateRange()

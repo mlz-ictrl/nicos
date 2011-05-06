@@ -29,12 +29,17 @@
 
 #include <QMutex>
 #include "client.h" 
-
+#include "tofloader.h"
 
 class NicosClient : public TcpClient
 {
+	private:
+		bool IsSizeCorrect(const QByteArray& arr, bool bPad);
+	
 	protected:
 		QMutex m_mutex;
+		PadImage m_pad;
+		TofImage m_tof;
 	
 	public:
 		NicosClient();

@@ -104,12 +104,17 @@ class PadImage
 	protected:
 		unsigned int *m_puiDaten;
 		int m_iMin, m_iMax;
+		bool m_bExternalMem;
+		
 		void Clear(void);
 	
 	public:
-		PadImage(const char *pcFileName=NULL);
+		PadImage(const char *pcFileName=NULL, bool bExternalMem=false);
 		PadImage(const PadImage& pad);
 		virtual ~PadImage();
+		
+		void SetExternalMem(void* pvDaten);
+		int GetPadSize() const;
 		
 		int LoadFile(const char *pcFileName);
 		// uiBufLen: Anzahl Ints (nicht Anzahl Bytes)
@@ -194,14 +199,17 @@ class TofImage
 	protected:
 		unsigned int *m_puiDaten;
 		bool m_bPseudoCompressed;
+		bool m_bExternalMem;
 		
 	public:
-		TofImage(const char *pcFileName=NULL, int iCompression=TOF_COMPRESSION_USEGLOBCONFIG);
+		TofImage(const char *pcFileName=NULL, int iCompression=TOF_COMPRESSION_USEGLOBCONFIG, bool bExternalMem=false);
 		virtual ~TofImage();
 		
+		void SetExternalMem(void* pvDaten);
 		int GetTofSize() const;
 		void Clear();
 		int GetCompressionMethod() const;
+		void SetCompressionMethod(int iComp);
 		
 		unsigned int GetData(int iFoil, int iTimechannel, int iX, int iY) const;
 		unsigned int GetData(int iImage, int iX, int iY) const;

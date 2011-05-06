@@ -28,10 +28,9 @@
 
 #include "nicosclient.h"
 #include "helper.h"
-#include "tofloader.h"
 
 
-NicosClient::NicosClient() : TcpClient(0, true)
+NicosClient::NicosClient() : TcpClient(0, true), m_pad(0, true), m_tof(0, TOF_COMPRESSION_USEGLOBCONFIG, true)
 {
 	Config_TofLoader::Init();
 }
@@ -55,28 +54,67 @@ const QByteArray& NicosClient::communicate(const char* pcMsg)
 
 unsigned int NicosClient::counts(const QByteArray& arr, bool bPad)
 {
+	if(arr.size()<4) return 0;
+	
 	if(bPad)
 	{
-		const PadImage* pPad = (const PadImage*)arr.data();
-		return pPad->GetCounts();
+		m_pad.SetExternalMem((unsigned int*)(arr.data()+4));
+		return m_pad.GetCounts();
 	}
 	else
 	{
-		const TofImage* pTof = (const TofImage*)arr.data();
-		return pTof->GetCounts();
+		m_tof.SetCompressionMethod(TOF_COMPRESSION_USEGLOBCONFIG);
+
+		m_tof.SetExternalMem((unsigned int*)(arr.data()+4));
+		unsigned int uiCnts = m_tof.GetCounts();
+		m_tof.SetExternalMem(NULL);
+		
+		return uiCnts;
 	}
 }
 
 unsigned int NicosClient::counts(const QByteArray& arr, bool bPad, int iStartX, int iEndX, int iStartY, int iEndY)
 {
+	if(arr.size()<4) 
+		return 0;
+	if(!IsSizeCorrect(arr, bPad))
+		return 0;
+	
 	if(bPad)
 	{
-		const PadImage* pPad = (const PadImage*)arr.data();
-		return pPad->GetCounts(iStartX, iEndX, iStartY, iEndY);
+		m_pad.SetExternalMem((unsigned int*)(arr.data()+4));
+		return m_pad.GetCounts(iStartX, iEndX, iStartY, iEndY);
 	}
 	else
 	{
-		const TofImage* pTof = (const TofImage*)arr.data();
-		return pTof->GetCounts(iStartX, iEndX, iStartY, iEndY);
+		m_tof.SetCompressionMethod(TOF_COMPRESSION_USEGLOBCONFIG);
+		
+		m_tof.SetExternalMem((unsigned int*)(arr.data()+4));
+		unsigned int uiCnts = m_tof.GetCounts(iStartX, iEndX, iStartY, iEndY);
+		m_tof.SetExternalMem(NULL);
+		
+		return uiCnts;
 	}
+}
+
+bool NicosClient::IsSizeCorrect(const QByteArray& arr, bool bPad)
+{
+	bool bOk = true;
+	if(bPad)
+	{
+		if(m_pad.GetPadSize() != arr.size()-4)
+		{
+			std::cerr << "NicosClient.counts: buffer size (" << arr.size()-4 << ") != expected PAD size (" << m_pad.GetPadSize() << ")" << std::endl;
+			bOk = false;
+		}
+	}
+	else
+	{
+		if(m_tof.GetTofSize() != arr.size()-4)
+		{
+			std::cerr << "NicosClient.counts: buffer size (" << arr.size()-4 << ") != expected TOF size (" << m_tof.GetTofSize() << ")" << std::endl;
+			bOk = false;
+		}
+	}
+	return bOk;
 }
