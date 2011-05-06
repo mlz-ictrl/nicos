@@ -67,6 +67,12 @@ class CascadeDetector(Measurable, NeedsDatapath):
         # XXX what about monitor preselection?
         'preselection': Param('Current preselection', unit='s',
                               settable=True, type=float),
+        'lastcounts': Param('Counts of the last measurement',
+                            type=tupleof(int, int), settable=True),
+        'lastfilename': Param('File name of the last measurement',
+                              type=str, settable=True),
+        'lastfilenumber': Param('File number of the last measurement',
+                                type=int, settable=True),
     }
 
     parameter_overrides = {
@@ -74,13 +80,12 @@ class CascadeDetector(Measurable, NeedsDatapath):
     }
 
     def doPreinit(self):
-        self._client = cascadeclient.NicosClient()
-        self.doReset()
+        if self._mode != 'simulation':
+            self._client = cascadeclient.NicosClient()
+            self.doReset()
 
     def doInit(self):
         self._last_preset = self.preselection
-        self._last_total = -1
-        self._last_roi = -1
         self._measure = threading.Event()
         self._processed = threading.Event()
         self._processed.set()
@@ -88,9 +93,10 @@ class CascadeDetector(Measurable, NeedsDatapath):
         # self._tres is set by doUpdateMode
         self._xres, self._yres = (128, 128)
 
-        self._thread = threading.Thread(target=self._thread_entry)
-        self._thread.setDaemon(True)
-        self._thread.start()
+        if self._mode != 'simulation':
+            self._thread = threading.Thread(target=self._thread_entry)
+            self._thread.setDaemon(True)
+            self._thread.start()
 
     def doReset(self):
         self._client.disconnect()
@@ -104,12 +110,15 @@ class CascadeDetector(Measurable, NeedsDatapath):
             value = value[0]  # always use only first data path
             self._datapath = path.join(value, 'cascade')
             self._filenumber = readFileCounter(path.join(self._datapath, 'counter'))
-            self._lastfilename = path.join(
-                self._datapath, self.nametemplate[self.mode] % self._filenumber)
         else:
             self._datapath = None
             self._filenumber = -1
-            self._lastfilename = '<none>'
+
+    def doWriteDatapath(self, value):
+        _datapath = path.join(value, 'cascade')
+        self.lastfilenumber = self._filenumber
+        self.lastfilename = path.join(
+            _datapath, self.nametemplate[self.mode] % self._filenumber)
 
     def valueInfo(self):
         return Value(self.name + '.roi', unit='cts', type='counter',
@@ -136,8 +145,9 @@ class CascadeDetector(Measurable, NeedsDatapath):
     def doStart(self, **preset):
         if self._datapath is None:
             self.datapath = session.experiment.datapath
-        self._lastfilename = path.join(
+        self.lastfilename = path.join(
             self._datapath, self.nametemplate[self.mode] % self._filenumber)
+        self.lastfilenumber = self._filenumber
         self._filenumber += 1
         updateFileCounter(path.join(self._datapath, 'counter'), self._filenumber)
         self._processed.wait()
@@ -160,7 +170,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
                                      % reply[4:])
 
     def doRead(self):
-        return (self._last_roi, self._last_total, self._lastfilename)
+        return self.lastcounts + (self.lastfilename,)
 
     def _getconfig(self):
         cfg = self._client.communicate('CMD_getconfig_cdr')
@@ -214,12 +224,31 @@ class CascadeDetector(Measurable, NeedsDatapath):
                     if status.get('stop', '0') == '1':
                         break
                     data = self._client.communicate('CMD_readsram')
+                    buf = buffer(data, 4)
+
+                    cascadeclient.Config_TofLoader.SetImageWidth(self._xres)
+                    cascadeclient.Config_TofLoader.SetImageHeight(self._yres)
+                    cascadeclient.Config_TofLoader.SetImageCount(self._tres)
+                    cascadeclient.Config_TofLoader.SetPseudoCompression(False)
+                    # The other setters have to be called here!
+
                     session.updateLiveData('<I4', self._xres, self._yres,
-                                           self._tres, time() - started,
-                                           buffer(data, 4))
-                    # XXX should update counts
+                                           self._tres, time() - started, buf)
+
+                    #ar = np.ndarray(buffer=buf, shape=self._datashape,
+                    #                order='F', dtype='<I4')
+                    #total = int(long(ar.sum()))
+
+                    total = self._client.counts(data)
+                    if self.roi != (-1, -1, -1, -1):
+                        x1, y1, x2, y2 = self.roi
+                        #roi = int(long(ar[x1:x2, y1:y2].sum()))
+                        roi = self._client.counts(data, x1, x2, y1, y2)
+                    else:
+                        roi = total
+                    self.lastcounts = (roi, total)
             except:
-                self._lastfilename = '<error>'
+                self.lastfilename = '<error>'
                 self.printexception('measuring failed')
                 self._measure.clear()
                 self._processed.set()
@@ -236,20 +265,22 @@ class CascadeDetector(Measurable, NeedsDatapath):
                 session.updateLiveData('<I4', self._xres, self._yres,
                                        self._tres, self._last_preset, buf)
                 # write to data file
-                with open(self._lastfilename, 'w') as fp:
+                with open(self.lastfilename, 'w') as fp:
                     fp.write(buf)
                 # determine total and roi counts
-                # XXX temporary until self._client component can do this
-                ar = np.ndarray(buffer=data, offset=4,
-                                shape=self._datashape, order='F', dtype='<I4')
-                self._last_total = int(long(ar.sum()))
+                total = self._client.counts(data)
+                #ar = np.ndarray(buffer=buf, shape=self._datashape,
+                #                order='F', dtype='<I4')
+                #total = int(long(ar.sum()))
                 if self.roi != (-1, -1, -1, -1):
                     x1, y1, x2, y2 = self.roi
-                    self._last_roi = int(long(ar[x1:x2, y1:y2].sum()))
+                    #roi = int(long(ar[x1:x2, y1:y2].sum()))
+                    roi = self._client.counts(data, x1, x2, y1, y2)
                 else:
-                    self._last_roi = self._last_total
+                    roi = total
+                self.lastcounts = (roi, total)
             except:
-                self._lastfilename = '<error>'
+                self.lastfilename = '<error>'
                 self.printexception('saving measurement failed')
             finally:
                 self._processed.set()
