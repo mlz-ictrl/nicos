@@ -25,10 +25,15 @@
 // *****************************************************************************
 
 #include <iostream>
+#include <string.h>
 
 #include "nicosclient.h"
 #include "helper.h"
 
+
+#define IS_PAD	1
+#define IS_TOF	0
+#define IS_NONE	-1
 
 NicosClient::NicosClient() : TcpClient(0, true), m_pad(0, true), m_tof(0, TOF_COMPRESSION_USEGLOBCONFIG, true)
 {
@@ -52,9 +57,16 @@ const QByteArray& NicosClient::communicate(const char* pcMsg)
 	return arr;
 }
 
-unsigned int NicosClient::counts(const QByteArray& arr, bool bPad)
+unsigned int NicosClient::counts(const QByteArray& arr)
 {
 	if(arr.size()<4) return 0;
+	
+	int iPad = IsPad(arr.data());
+	if(iPad == IS_NONE) return 0;
+	bool bPad = (iPad == IS_PAD);
+	
+	if(!IsSizeCorrect(arr, bPad))
+		return 0;	
 	
 	if(bPad)
 	{
@@ -73,10 +85,15 @@ unsigned int NicosClient::counts(const QByteArray& arr, bool bPad)
 	}
 }
 
-unsigned int NicosClient::counts(const QByteArray& arr, bool bPad, int iStartX, int iEndX, int iStartY, int iEndY)
+unsigned int NicosClient::counts(const QByteArray& arr, int iStartX, int iEndX, int iStartY, int iEndY)
 {
 	if(arr.size()<4) 
 		return 0;
+	
+	int iPad = IsPad(arr.data());
+	if(iPad == IS_NONE) return 0;
+	bool bPad = (iPad == IS_PAD);
+	
 	if(!IsSizeCorrect(arr, bPad))
 		return 0;
 	
@@ -117,4 +134,14 @@ bool NicosClient::IsSizeCorrect(const QByteArray& arr, bool bPad)
 		}
 	}
 	return bOk;
+}
+
+int NicosClient::IsPad(const char* pcBuf)
+{
+	if(strncasecmp(pcBuf, "IMAG", 4) == 0)		// PAD
+		return IS_PAD;
+	else if(strncasecmp(pcBuf, "DATA", 4) == 0)	// TOF
+		return IS_TOF;
+	
+	return IS_NONE;
 }

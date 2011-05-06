@@ -35,6 +35,7 @@ class NicosClient : public TcpClient
 {
 	private:
 		bool IsSizeCorrect(const QByteArray& arr, bool bPad);
+		int IsPad(const char* pcBuf);
 	
 	protected:
 		QMutex m_mutex;
@@ -47,12 +48,11 @@ class NicosClient : public TcpClient
 		
 		const QByteArray& communicate(const char* pcMsg);
 		
-		
 		// total counts
-		unsigned int counts(const QByteArray& arr, bool bPad);
+		unsigned int counts(const QByteArray& arr);
 		
 		// counts inside ROI
-		unsigned int counts(const QByteArray& arr, bool bPad, int iStartX, int iEndX, int iStartY, int iEndY);
+		unsigned int counts(const QByteArray& arr, int iStartX, int iEndX, int iStartY, int iEndY);
 };
 
 #endif
