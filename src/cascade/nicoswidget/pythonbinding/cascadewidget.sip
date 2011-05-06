@@ -134,10 +134,13 @@ class TofImage
 #include "../../tofloader.h"
 %End
 	public:
-		TofImage(const char *pcFileName=NULL);
+		TofImage(const char *pcFileName=NULL, int iCompression=TOF_COMPRESSION_USEGLOBCONFIG);
 		virtual ~TofImage();
 		
+		int GetTofSize();
 		void Clear();
+		int GetCompressionMethod();
+
 		unsigned int GetData(int iFoil, int iTimechannel, int iX, int iY);
 //		unsigned int& GetData(int iBild, int iX, int iY);
 //		unsigned int* GetRawData(void) const;
@@ -252,7 +255,7 @@ class CascadeWidget : QWidget
 		bool IsTofLoaded() const;
 		bool IsPadLoaded() const;
 		void* NewPad();
-		void* NewTof();
+		void* NewTof(int iCompression = TOF_COMPRESSION_USEGLOBCONFIG);
 
 		//
 		// use the Config_TofLoader setter methods to configure

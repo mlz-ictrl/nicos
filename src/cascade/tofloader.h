@@ -200,7 +200,7 @@ class TofImage
 		virtual ~TofImage();
 		
 		int GetTofSize();
-		void Clear(void);
+		void Clear();
 		int GetCompressionMethod();
 		
 		unsigned int GetData(int iFoil, int iTimechannel, int iX, int iY);
