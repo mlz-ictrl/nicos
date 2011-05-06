@@ -191,6 +191,12 @@ class MainWindow : public QMainWindow
 				ShowMessage("Showing PAD.");
 			}
 		}
+		
+		void UpdateSliders()
+		{
+			sliderFolien->setMaximum(Config_TofLoader::GetFoilCount()-1);
+			sliderZeitkanaele->setMaximum(Config_TofLoader::GetImagesPerFoil()-1);
+		}
 
 	// Slots
 	protected slots:
@@ -278,6 +284,7 @@ class MainWindow : public QMainWindow
 				//m_cascadewidget.ShowGraph();	// macht viewOverview schon
 				//UpdateLabels(false);
 
+				UpdateSliders();
 				ShowMessage("TOF loaded from Server.");
 				viewOverview();
 				actionViewsOverview->setChecked(true);
@@ -294,29 +301,43 @@ class MainWindow : public QMainWindow
 				ArgumentMap args(pcBuf+4);
 				
 				// stop?
-				bool bHasStop=0;
+				bool bHasStop;
 				bool bMessungFertig = (bool)args.QueryInt("stop",1,&bHasStop);
 				if(bHasStop) 
 					ShowMessage(bMessungFertig?"Server: Measurement stopped.":"Server: Measurement running.");
 				
 				// xres?
-				int iXRes = args.QueryInt("xres", ServerCfgDlg::GetStatXRes());
-				ServerCfgDlg::SetStatXRes(iXRes);
-				Config_TofLoader::SetImageWidth(iXRes);
+				bool bHasX;
+				int iXRes = args.QueryInt("xres", ServerCfgDlg::GetStatXRes(), &bHasX);
+				if(bHasX)
+				{
+					ServerCfgDlg::SetStatXRes(iXRes);
+					Config_TofLoader::SetImageWidth(iXRes);
+				}
 				
 				// yres?
-				int iYRes = args.QueryInt("yres", ServerCfgDlg::GetStatYRes());
-				ServerCfgDlg::SetStatYRes(iYRes);
-				Config_TofLoader::SetImageWidth(iYRes);
+				bool bHasY;
+				int iYRes = args.QueryInt("yres", ServerCfgDlg::GetStatYRes(), &bHasY);
+				if(bHasY)
+				{
+					ServerCfgDlg::SetStatYRes(iYRes);
+					Config_TofLoader::SetImageWidth(iYRes);
+				}
 				
 				// tres?
-				int iTRes = args.QueryInt("tres", ServerCfgDlg::GetStatTRes());
-				ServerCfgDlg::SetStatTRes(iTRes);
-				Config_TofLoader::SetImageCount(iTRes);
+				bool bHasT;
+				int iTRes = args.QueryInt("tres", ServerCfgDlg::GetStatTRes(), &bHasT);
+				if(bHasT)
+				{
+					ServerCfgDlg::SetStatTRes(iTRes);
+					Config_TofLoader::SetImageCount(iTRes);
+				}
 				
 				// measurement time?
-				double dTime = args.QueryDouble("time", ServerCfgDlg::GetStatTime());
-				ServerCfgDlg::SetStatTime(dTime);
+				bool bHasTime;
+				double dTime = args.QueryDouble("time", ServerCfgDlg::GetStatTime(), &bHasTime);
+				if(bHasTime)
+					ServerCfgDlg::SetStatTime(dTime);
 				
 				// mode?
 				const char* pcMode = args.QueryString("mode");
@@ -602,6 +623,7 @@ class MainWindow : public QMainWindow
 			{
 				//m_cascadewidget.UpdateGraph();	// macht viewOverview schon
 				UpdateLabels(false);
+				UpdateSliders();
 				ShowMessage("TOF loaded.");
 
 				//viewOverview();
@@ -660,7 +682,6 @@ class MainWindow : public QMainWindow
 			sliderFolien = new QSlider(groupbottomleft);
 			sliderFolien->setOrientation(Qt::Horizontal);
 			sliderFolien->setMinimum(0);
-			sliderFolien->setMaximum(Config_TofLoader::GetFoilCount()-1);
 			sliderFolien->setValue(0);
 			labelFolie->setText("Foil:");
 			//ChangeFolie(0);
@@ -672,10 +693,12 @@ class MainWindow : public QMainWindow
 			sliderZeitkanaele = new QSlider(groupbottomleft);
 			sliderZeitkanaele->setOrientation(Qt::Horizontal);
 			sliderZeitkanaele->setMinimum(0);
-			sliderZeitkanaele->setMaximum(Config_TofLoader::GetImagesPerFoil()-1);
+			
 			sliderZeitkanaele->setValue(0);
 			labelZeitkanal->setText("Time Channel:");
 			//ChangeZeitkanal(0);
+			UpdateSliders();
+			
 			pLayoutBL->addWidget(sliderZeitkanaele, 1, 1, 1, 1);
 			
 			
