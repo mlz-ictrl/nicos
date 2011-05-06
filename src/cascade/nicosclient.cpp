@@ -65,6 +65,9 @@ unsigned int NicosClient::counts(const QByteArray& arr)
 	if(iPad == IS_NONE) return 0;
 	bool bPad = (iPad == IS_PAD);
 	
+	if(!bPad)
+		m_tof.SetCompressionMethod(TOF_COMPRESSION_USEGLOBCONFIG);
+	
 	if(!IsSizeCorrect(arr, bPad))
 		return 0;	
 	
@@ -75,8 +78,6 @@ unsigned int NicosClient::counts(const QByteArray& arr)
 	}
 	else
 	{
-		m_tof.SetCompressionMethod(TOF_COMPRESSION_USEGLOBCONFIG);
-
 		m_tof.SetExternalMem((unsigned int*)(arr.data()+4));
 		unsigned int uiCnts = m_tof.GetCounts();
 		m_tof.SetExternalMem(NULL);
@@ -94,6 +95,9 @@ unsigned int NicosClient::counts(const QByteArray& arr, int iStartX, int iEndX, 
 	if(iPad == IS_NONE) return 0;
 	bool bPad = (iPad == IS_PAD);
 	
+	if(!bPad)
+		m_tof.SetCompressionMethod(TOF_COMPRESSION_USEGLOBCONFIG);	
+	
 	if(!IsSizeCorrect(arr, bPad))
 		return 0;
 	
@@ -104,8 +108,6 @@ unsigned int NicosClient::counts(const QByteArray& arr, int iStartX, int iEndX, 
 	}
 	else
 	{
-		m_tof.SetCompressionMethod(TOF_COMPRESSION_USEGLOBCONFIG);
-		
 		m_tof.SetExternalMem((unsigned int*)(arr.data()+4));
 		unsigned int uiCnts = m_tof.GetCounts(iStartX, iEndX, iStartY, iEndY);
 		m_tof.SetExternalMem(NULL);
