@@ -28,6 +28,8 @@ neu: unter ./nicosobj		(analog für /nicoswidget):
 	python ./configure.py
 	make
 
+oder: make nicosmodules
+
 alt: 
 	gcc -O2 -I /usr/include/qwt/ -I /usr/include/Qt -I /usr/include/QtCore -I /usr/include/QtGui -o nicosclient nicosclient.cpp tofloader.cpp config.cpp client.cpp -lQtCore -lQtGui -lQtNetwork -lMinuit2 -lgomp
 
@@ -49,4 +51,3 @@ gcc -O2 -I /usr/include/Qt -I /usr/include/QtGui -I /usr/include/QtCore -o toflo
 * Fragen an:
 -----------
 tweber@frm2.tum.de
-

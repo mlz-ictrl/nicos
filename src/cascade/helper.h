@@ -35,8 +35,9 @@ template<class T> class cleanup
 		void (T::*m_pDeinit)();
 	
 	public:
-		cleanup(T& t, void (T::*pDeinit)());
-		virtual ~cleanup();
+		cleanup(T& t, void (T::*pDeinit)()) : m_t(t), m_pDeinit(pDeinit) {}
+		virtual ~cleanup(){ (m_t.*m_pDeinit)(); }
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////

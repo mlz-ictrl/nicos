@@ -41,6 +41,13 @@ class NicosClient : public TcpClient
 		virtual ~NicosClient();
 		
 		const QByteArray& communicate(const char* pcMsg);
+		
+		
+		// total counts
+		unsigned int counts(const QByteArray& arr, bool bPad);
+		
+		// counts inside ROI
+		unsigned int counts(const QByteArray& arr, bool bPad, int iStartX, int iEndX, int iStartY, int iEndY);
 };
 
 #endif

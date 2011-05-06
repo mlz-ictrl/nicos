@@ -28,17 +28,17 @@
 
 #include "nicosclient.h"
 #include "helper.h"
-//#include "tofloader.h"
+#include "tofloader.h"
 
 
 NicosClient::NicosClient() : TcpClient(0, true)
 {
-	//Config_TofLoader::Init();
+	Config_TofLoader::Init();
 }
 
 NicosClient::~NicosClient()
 {
-	//Config_TofLoader::Deinit();
+	Config_TofLoader::Deinit();
 }
 
 const QByteArray& NicosClient::communicate(const char* pcMsg)
@@ -51,4 +51,32 @@ const QByteArray& NicosClient::communicate(const char* pcMsg)
 	
 	const QByteArray& arr = recvmsg();
 	return arr;
+}
+
+unsigned int NicosClient::counts(const QByteArray& arr, bool bPad)
+{
+	if(bPad)
+	{
+		const PadImage* pPad = (const PadImage*)arr.data();
+		return pPad->GetCounts();
+	}
+	else
+	{
+		const TofImage* pTof = (const TofImage*)arr.data();
+		return pTof->GetCounts();
+	}
+}
+
+unsigned int NicosClient::counts(const QByteArray& arr, bool bPad, int iStartX, int iEndX, int iStartY, int iEndY)
+{
+	if(bPad)
+	{
+		const PadImage* pPad = (const PadImage*)arr.data();
+		return pPad->GetCounts(iStartX, iEndX, iStartY, iEndY);
+	}
+	else
+	{
+		const TofImage* pTof = (const TofImage*)arr.data();
+		return pTof->GetCounts(iStartX, iEndX, iStartY, iEndY);
+	}
 }

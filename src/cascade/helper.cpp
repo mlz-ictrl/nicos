@@ -27,18 +27,6 @@
 #include <stdio.h>
 #include "helper.h"
 
-template<class T> cleanup<T>::cleanup(T& t, void (T::*pDeinit)()) : m_t(t), m_pDeinit(pDeinit) 
-{
-}
-
-template<class T> cleanup<T>::~cleanup() 
-{ 
-	(m_t.*m_pDeinit)(); 
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
-
 // file size
 long GetFileSize(FILE* pf)
 {

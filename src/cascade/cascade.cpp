@@ -645,6 +645,12 @@ class MainWindow : public QMainWindow
 			}
 		}
 		///////////////////////////////////////////////////////////////////
+		
+		
+		///////////////////////// Hilfe ///////////////////////////////////
+		void About() { QMessageBox::about(this, "About", "Cascade Qt Client written by Tobias Weber."); }
+		void AboutQt() { QMessageBox::aboutQt(this); }
+		///////////////////////////////////////////////////////////////////
 
 	public:
 		virtual ~MainWindow()
@@ -739,6 +745,13 @@ class MainWindow : public QMainWindow
 			actionCalibration->setText("Calibration...");
 			
 			
+			// Hilfe-Menüpunkte
+			QAction *actionAbout = new QAction(this);
+			actionAbout->setText("About...");
+			QAction *actionAboutQt = new QAction(this);
+			actionAboutQt->setText("About Qt...");			
+			
+			
 			// Menüleiste
 			QMenuBar *menubar = new QMenuBar(this);;
 
@@ -775,7 +788,13 @@ class MainWindow : public QMainWindow
 			menuGraph->addSeparator();
 			menuGraph->addAction(actionGraph);
 			menuGraph->addAction(actionSummen);
-					
+			
+			QMenu *menuHelp = new QMenu(menubar);
+			menuHelp->setTitle("Help");
+			menubar->addAction(menuHelp->menuAction());
+			menuHelp->addAction(actionAbout);
+			menuHelp->addAction(actionAboutQt);
+
 			setMenuBar(menubar);
 
 			
@@ -878,6 +897,10 @@ class MainWindow : public QMainWindow
 			connect(actionServerMeasurementStop, SIGNAL(triggered()), this, SLOT(ServerMeasurementStop()));
 			connect(actionConfigServer, SIGNAL(triggered()), this, SLOT(ServerConfig()));
 			connect(actionConfigFromServer, SIGNAL(triggered()), this, SLOT(GetServerConfig()));
+			
+			// Hilfe
+			connect(actionAbout, SIGNAL(triggered()), this, SLOT(About()));
+			connect(actionAboutQt, SIGNAL(triggered()), this, SLOT(AboutQt()));
 			
 			// Graph
 			connect(actionCalibration, SIGNAL(triggered()), this, SLOT(showCalibration()));

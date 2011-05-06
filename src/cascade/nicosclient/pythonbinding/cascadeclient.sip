@@ -4,6 +4,7 @@
 %Import QtCore/QtCoremod.sip
 %Import QtNetwork/QtNetworkmod.sip
 
+%Include ../../nicoswidget/pythonbinding/tofloader.sip
 
 class TcpClient : QObject
 {
@@ -32,5 +33,22 @@ class NicosClient : TcpClient
 %End
 
 	public:
-		const QByteArray& communicate(const char* pcMsg);	// calls sendmsg & recvmsg
+		// calls sendmsg & recvmsg
+		const QByteArray& communicate(const char* pcMsg);
+
+
+		
+		/////////////////////////////////////////////////////////////
+		// !!
+		// call the setters in Config_TofLoader
+		// before using these count methods
+		//
+
+		// total counts
+		unsigned int counts(const QByteArray& arr, bool bPad);
+		
+		// counts inside ROI
+		unsigned int counts(const QByteArray& arr, bool bPad, int iStartX, int iEndX, int iStartY, int iEndY);
+		
+		/////////////////////////////////////////////////////////////
 };
