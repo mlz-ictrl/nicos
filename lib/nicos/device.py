@@ -902,3 +902,9 @@ class Measurable(Readable):
         returns.
         """
         return Value(self.name, unit=self.unit),
+
+
+class AutoDevice(object):
+    """Base class for devices that are created automatically as dependent
+    devices of other devices.
+    """

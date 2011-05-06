@@ -35,7 +35,7 @@ from time import sleep
 
 from nicos import status
 from nicos.utils import oneof
-from nicos.device import Moveable, Param, Override
+from nicos.device import Moveable, Param, Override, AutoDevice
 from nicos.errors import UsageError, LimitError
 from nicos.abstract import Axis
 
@@ -190,7 +190,7 @@ class Slit(Moveable):
             self.fmtstr = '%.2f x %.2f'
 
 
-class SlitAxis(Moveable):
+class SlitAxis(Moveable, AutoDevice):
     """
     "Partial" devices for slit axes, useful for e.g. scanning
     over the device slit.centerx.

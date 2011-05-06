@@ -40,7 +40,7 @@ from os import path
 
 from nicos import session
 from nicos.utils import formatDocstring, formatDuration, printTable
-from nicos.device import Device
+from nicos.device import Device, AutoDevice
 from nicos.errors import ModeError, NicosError, UsageError
 from nicos.notify import Mailer, SMSer
 from nicos.sessions import EXECUTIONMODES
@@ -309,3 +309,27 @@ def SetSMSReceivers(*numbers):
                 printinfo('no SMS notifications will be sent')
             return
     printwarning('SMS notification is not configured in this setup')
+
+
+@usercommand
+def SaveCurrentSetup(filename, name):
+    """Save the whole current setup as a file."""
+    with open(filename, 'w') as f:
+        f.write('name = %r\n\n' % name)
+        f.write('devices = dict(\n')
+        for devname, dev in session.devices.iteritems():
+            if isinstance(dev, AutoDevice):
+                continue
+            devcls = dev.__class__.__module__ + '.' + dev.__class__.__name__
+            f.write('    %s = device(%r,\n' % (devname, devcls))
+            for adevname in dev.attached_devices:
+                adev = dev._adevs[adevname]
+                if isinstance(adev, list):
+                    f.write('        %s = %r,\n' % (
+                        adevname, [sdev.name for sdev in adev]))
+                else:
+                    f.write('        %s = %r,\n' % (adevname, str(adev)))
+            for param in dev.parameters:
+                f.write('        %s = %r,\n' % (param, getattr(dev, param)))
+            f.write('    ),\n')
+        f.write(')\n')

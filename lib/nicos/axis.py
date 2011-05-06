@@ -40,7 +40,7 @@ import TACOStates
 from nicos import status
 from nicos.taco import TacoDevice
 from nicos.utils import tupleof, any
-from nicos.device import HasOffset, Param, Override
+from nicos.device import Moveable, HasOffset, Param, Override
 from nicos.errors import ConfigurationError, NicosError, PositionError
 from nicos.errors import ProgrammingError, MoveError, LimitError
 from nicos.abstract import Axis as BaseAxis, Motor, Coder

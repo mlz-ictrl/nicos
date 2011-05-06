@@ -35,7 +35,7 @@ __version__ = "$Revision$"
 from nicos.cell import Cell
 from nicos.utils import vec3
 from nicos.errors import ConfigurationError, ComputationError
-from nicos.device import Moveable, HasLimits, Param, Override
+from nicos.device import Moveable, HasLimits, Param, Override, AutoDevice
 from nicos.experiment import Sample
 from nicos.instrument import Instrument
 
@@ -194,7 +194,7 @@ class TAS(Instrument, Moveable):
         return (hkl[0], hkl[1], hkl[2], ny, sc)
 
 
-class TASIndex(Moveable):
+class TASIndex(Moveable, AutoDevice):
     """
     "Partial" devices for the H, K, L, E indices of the TAS instrument.
     """
