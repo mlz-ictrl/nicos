@@ -24,25 +24,40 @@
 //
 // *****************************************************************************
 
+#include <stdio.h>
+#include "helper.h"
 
-#ifndef __CASCADE_HELPER__
-#define __CASCADE_HELPER__
-
-template<class T> class cleanup
+template<class T> cleanup<T>::cleanup(T& t, void (T::*pDeinit)()) : m_t(t), m_pDeinit(pDeinit) 
 {
-	protected:
-		T& m_t;
-		void (T::*m_pDeinit)();
-	
-	public:
-		cleanup(T& t, void (T::*pDeinit)());
-		virtual ~cleanup();
-};
+}
 
-/////////////////////////////////////////////////////////////////////////////////
+template<class T> cleanup<T>::~cleanup() 
+{ 
+	(m_t.*m_pDeinit)(); 
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
 
 // file size
-long GetFileSize(FILE* pf);
-long GetFileSize(const char* pcFileName);
+long GetFileSize(FILE* pf)
+{
+	long lPos = ftell(pf);
+	
+	fseek(pf, 0, SEEK_END);
+	long lSize = ftell(pf);
+	
+	fseek(pf, lPos, SEEK_SET);
+	return lSize;
+}
 
-#endif
+long GetFileSize(const char* pcFileName)
+{
+	FILE* pf = fopen(pcFileName, "rb");
+	if(!pf) return 0;
+	
+	long lSize = GetFileSize(pf);
+	
+	fclose(pf);
+	return lSize;
+}

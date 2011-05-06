@@ -54,21 +54,7 @@
 #include "tofdata.h"
 #include "cascadedialogs.h"
 #include "bins.h"
-
-
-static inline long GetFileSize(const char* pcFileName)
-{
-	FILE* pf = fopen(pcFileName, "rb");
-	if(!pf) return 0;
-	
-	fseek(pf, 0, SEEK_END);
-	long lSize = ftell(pf);
-	fseek(pf, 0, SEEK_SET);
-	
-	fclose(pf);
-	return lSize;
-}
-
+#include "helper.h"
 
 MainZoomer::MainZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram* pData) : QwtPlotZoomer(canvas), m_pData(pData)
 {

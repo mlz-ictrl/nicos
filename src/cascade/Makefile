@@ -13,8 +13,8 @@ all: cascade
 
 
 ###################### cascade-qt-client ################
-cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o
-	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o
+cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o
+	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o
 #########################################################
 
 
@@ -47,6 +47,9 @@ histogram_item.o: histogram_item.cpp histogram_item.h
 
 client.o: client_moc.cpp client.h client.moc
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o client.o client_moc.cpp
+
+helper.o: helper.cpp helper.h
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o helper.o helper.cpp
 #########################################################
 
 

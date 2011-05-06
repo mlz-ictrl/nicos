@@ -30,6 +30,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include "config.h"
+#include "helper.h"
 
 #define WAIT_DELAY 5000
 
@@ -118,10 +119,7 @@ bool TcpClient::sendfile(const char* pcFileName)
 		return false;
 	}
 	
-	// Größe der Datei herausbekommen
-	fseek(pf, 0, SEEK_END);
-	long iSize = ftell(pf);
-	fseek(pf, 0, SEEK_SET);
+	long iSize = GetFileSize(pf);
 	
 	char *pcDaten = new char[iSize];
 	if(!fread(pcDaten, 1, iSize, pf))
