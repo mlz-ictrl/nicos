@@ -119,17 +119,17 @@ bool NicosClient::IsSizeCorrect(const QByteArray& arr, bool bPad)
 	bool bOk = true;
 	if(bPad)
 	{
-		if(m_pad.GetPadSize() != arr.size()-4)
+		if(m_pad.GetPadSize()*4 != arr.size()-4)
 		{
-			std::cerr << "Error in NicosClient.counts: buffer size (" << arr.size()-4 << " bytes) != expected PAD size (" << m_pad.GetPadSize() << " bytes)." << std::endl;
+			std::cerr << "Error in NicosClient.counts: buffer size (" << arr.size()-4 << " bytes) != expected PAD size (" << m_pad.GetPadSize()*4 << " bytes)." << std::endl;
 			bOk = false;
 		}
 	}
 	else
 	{
-		if(m_tof.GetTofSize() != arr.size()-4)
+		if(m_tof.GetTofSize()*4 != arr.size()-4)
 		{
-			std::cerr << "Error in NicosClient.counts: buffer size (" << arr.size()-4 << " bytes) != expected TOF size (" << m_tof.GetTofSize() << " bytes)." << std::endl;
+			std::cerr << "Error in NicosClient.counts: buffer size (" << arr.size()-4 << " bytes) != expected TOF size (" << m_tof.GetTofSize()*4 << " bytes)." << std::endl;
 			bOk = false;
 		}
 	}
