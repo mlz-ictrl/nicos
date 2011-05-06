@@ -70,7 +70,7 @@ class Config_TofLoader
 
 	public:
 		// iLen in Ints, nicht Bytes
-		static bool GuessConfigFromSize(int iLen, bool bIsTof, bool bFirstCall=true);		
+		static bool GuessConfigFromSize(bool bPseudoCompressed, int iLen, bool bIsTof, bool bFirstCall=true);		
 		static void Init();
 		static void Deinit();
 		
@@ -181,6 +181,10 @@ class TmpGraph
 	int GetMax();
 };
 
+#define TOF_COMPRESSION_NONE 		0
+#define TOF_COMPRESSION_PSEUDO 		1
+#define TOF_COMPRESSION_USEGLOBCONFIG 	2
+
 // TOF-Bilder
 class TofImage
 {
@@ -189,12 +193,15 @@ class TofImage
 
 	protected:
 		unsigned int *m_puiDaten;
+		bool m_bPseudoCompressed;
 		
 	public:
-		TofImage(const char *pcFileName=NULL);
+		TofImage(const char *pcFileName=NULL, int iCompression=TOF_COMPRESSION_USEGLOBCONFIG);
 		virtual ~TofImage();
 		
+		int GetTofSize();
 		void Clear(void);
+		int GetCompressionMethod();
 		
 		unsigned int GetData(int iFoil, int iTimechannel, int iX, int iY);
 		unsigned int& GetData(int iImage, int iX, int iY);

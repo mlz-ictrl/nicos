@@ -168,7 +168,7 @@ void Config_TofLoader::SetFoilBegin(int iFoil, int iOffs)
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
-bool Config_TofLoader::GuessConfigFromSize(int iLen, bool bIsTof, bool bFirstCall)
+bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen, bool bIsTof, bool bFirstCall)
 {
 	if(bFirstCall) 
 		std::cerr << "Warning: Guessing Configuration." << std::endl;
@@ -182,9 +182,7 @@ bool Config_TofLoader::GuessConfigFromSize(int iLen, bool bIsTof, bool bFirstCal
 	const int iKnownY[] = 	{128, 128};
 	const int iKnownCnt[] = {196, 128};
 	
-	bool bPacked = Config_TofLoader::GetPseudoCompression();
-
-	if(bIsTof && !bPacked)	// TOF
+	if(bIsTof && !bPseudoCompressed)	// TOF
 	{
 		bool bFound=false;
 	
@@ -192,7 +190,7 @@ bool Config_TofLoader::GuessConfigFromSize(int iLen, bool bIsTof, bool bFirstCal
 		for(int i=0; i<sizeof(iKnownCnt)/sizeof(int); ++i)
 		{
 			if(iKnownX[i]*iKnownY[i]*iKnownCnt[i] != iLen) continue;
-			GuessConfigFromSize(iKnownX[i]*iKnownY[i],false,false);		// eigentlich unnötig, nur wegen cerr-Ausgabe
+			GuessConfigFromSize(bPseudoCompressed,iKnownX[i]*iKnownY[i],false,false);		// eigentlich unnötig, nur wegen cerr-Ausgabe
 			
 			bFound = true;
 			IMAGE_WIDTH = iKnownX[i];
@@ -208,7 +206,7 @@ bool Config_TofLoader::GuessConfigFromSize(int iLen, bool bIsTof, bool bFirstCal
 				int iImgCnt = 1<<i;
 				if(iLen % iImgCnt) continue;
 				
-				if(GuessConfigFromSize(iLen/iImgCnt, false, false))
+				if(GuessConfigFromSize(bPseudoCompressed,iLen/iImgCnt, false, false))
 				{
 					bFound = true;
 					IMAGE_COUNT = iImgCnt;
@@ -225,7 +223,7 @@ bool Config_TofLoader::GuessConfigFromSize(int iLen, bool bIsTof, bool bFirstCal
 				int iImgCnt = i;
 				if(iLen % iImgCnt) continue;
 				
-				if(GuessConfigFromSize(iLen/iImgCnt, false, false))
+				if(GuessConfigFromSize(bPseudoCompressed,iLen/iImgCnt, false, false))
 				{
 					bFound = true;
 					IMAGE_COUNT = iImgCnt;
@@ -240,7 +238,7 @@ bool Config_TofLoader::GuessConfigFromSize(int iLen, bool bIsTof, bool bFirstCal
 		}
 		return bFound;
 	}
-	else if(bIsTof && bPacked)
+	else if(bIsTof && bPseudoCompressed)
 	{
 		// TODO
 		std::cerr << "Error: Pseudo-compressed size guess not yet implemented." << std::endl;
@@ -406,9 +404,56 @@ static double* CreateDoubleWave(const char* pcBaseName, int iDimX, int iDimY)
 
 ////////////////// TOF ////////////////// 
 
+TofImage::TofImage(const char *pcFileName, int iCompressed)
+{
+	switch(iCompressed)
+	{
+		case TOF_COMPRESSION_NONE: 
+			m_bPseudoCompressed=0; 
+			break;
+		case TOF_COMPRESSION_PSEUDO: 
+			m_bPseudoCompressed=1; 
+			break;
+		case TOF_COMPRESSION_USEGLOBCONFIG: 
+			m_bPseudoCompressed=Config_TofLoader::GetPseudoCompression(); 
+			break;
+		default: 
+			m_bPseudoCompressed=1; 
+			break;
+	}
+	
+	int iSize = GetTofSize();
+	m_puiDaten = new unsigned int[iSize];
+	
+	if(pcFileName!=NULL) 
+		LoadFile(pcFileName);
+	else 
+		memset(m_puiDaten,0,iSize*sizeof(int));
+}
+
+TofImage::~TofImage()
+{
+	Clear();
+}
+
+int TofImage::GetTofSize()
+{
+	int iSize = m_bPseudoCompressed 
+			? Config_TofLoader::GetFoilCount()*Config_TofLoader::GetImagesPerFoil()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth()
+			: Config_TofLoader::GetImageCount()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth();		
+	return iSize;
+}
+
 void TofImage::Clear(void)
 {
 	if(m_puiDaten) { delete[] m_puiDaten; m_puiDaten=NULL; }
+}
+
+int TofImage::GetCompressionMethod()
+{
+	if(m_bPseudoCompressed) 
+		return TOF_COMPRESSION_PSEUDO;
+	return TOF_COMPRESSION_NONE;
 }
 
 unsigned int& TofImage::GetData(int iBild, int iX, int iY)
@@ -421,18 +466,10 @@ unsigned int& TofImage::GetData(int iBild, int iX, int iY)
 
 unsigned int TofImage::GetData(int iFoil, int iTimechannel, int iX, int iY)
 {
-	if(!Config_TofLoader::USE_PSEUDO_COMPRESSION)
+	if(!m_bPseudoCompressed)
 	{
-		int iZ=0;
-		switch(iFoil)
-		{
-			case 0: iZ=Config_TofLoader::piFoilBegin[0]; break;
-			case 1: iZ=Config_TofLoader::piFoilBegin[1]; break;
-			case 2: iZ=Config_TofLoader::piFoilBegin[2]; break;
-			case 3: iZ=Config_TofLoader::piFoilBegin[3]; break;
-		};
+		int iZ = Config_TofLoader::piFoilBegin[iFoil] + iTimechannel;
 		
-		iZ += iTimechannel;
 		if(iTimechannel!=0)
 			return GetData(iZ,iX,iY);
 		else
@@ -449,30 +486,9 @@ unsigned int* TofImage::GetRawData(void) const
 	return m_puiDaten;
 }
 
-TofImage::TofImage(const char *pcFileName)
-{
-	int iSize = Config_TofLoader::GetPseudoCompression() 
-				? Config_TofLoader::GetFoilCount()*Config_TofLoader::GetImagesPerFoil()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth()
-				: Config_TofLoader::GetImageCount()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth();
-	
-	m_puiDaten = new unsigned int[iSize];
-	
-	if(pcFileName!=NULL) 
-		LoadFile(pcFileName);
-	else 
-		memset(m_puiDaten,0,iSize*sizeof(int));
-}
-
-TofImage::~TofImage()
-{
-	Clear();
-}
-
 int TofImage::LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen)
 {
-	int iSize = Config_TofLoader::GetPseudoCompression() 
-				? Config_TofLoader::GetFoilCount()*Config_TofLoader::GetImagesPerFoil()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth()
-				: Config_TofLoader::GetImageCount()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth();		
+	int iSize = GetTofSize();
 	
 	if(uiBufLen!=(unsigned int)iSize)
 	{
@@ -492,9 +508,7 @@ int TofImage::LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen)
 
 int TofImage::LoadFile(const char *pcFileName)
 {
-	int iSize = Config_TofLoader::GetPseudoCompression() 
-			? Config_TofLoader::GetFoilCount()*Config_TofLoader::GetImagesPerFoil()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth()
-			: Config_TofLoader::GetImageCount()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth();
+	int iSize = GetTofSize();
 	
 	int iRet = LOAD_SUCCESS;
 	

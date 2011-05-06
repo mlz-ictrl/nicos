@@ -209,7 +209,7 @@ class MainWindow : public QMainWindow
 				if(iLen-4 != sizeof(int)*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth())
 				{
 					// Dimensionen stimmen nicht, neue raten
-					if(!Config_TofLoader::GuessConfigFromSize((iLen-4)/4, false))
+					if(!Config_TofLoader::GuessConfigFromSize(0,(iLen-4)/4, false))
 					{
 						char pcMsg[256];
 						sprintf(pcMsg, "Dimension mismatch in PAD data!\nClient expected: %d bytes\nServer sent: %d bytes", sizeof(int)*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth(), iLen-4);
@@ -251,7 +251,7 @@ class MainWindow : public QMainWindow
 				if(iLen-4 != iExpectedSize)
 				{
 					// Dimensionen stimmen nicht, neue raten
-					if(!Config_TofLoader::GuessConfigFromSize((iLen-4)/4, true))
+					if(!Config_TofLoader::GuessConfigFromSize(m_cascadewidget.GetTof()->GetCompressionMethod()==TOF_COMPRESSION_PSEUDO, (iLen-4)/4, true))
 					{
 						char pcMsg[256];
 						sprintf(pcMsg, "Dimension mismatch in TOF data!\nClient expected: %d bytes\nServer sent: %d bytes", iExpectedSize, iLen-4);
@@ -328,6 +328,11 @@ class MainWindow : public QMainWindow
 						ServerCfgDlg::SetStatMode(MODE_PAD);
 				}
 				
+				// pseudo-compression?
+				bool bHasComp=0;
+				bool bComp = (bool)args.QueryInt("comp",1,&bHasComp);
+				if(bHasComp)
+					Config_TofLoader::SetPseudoCompression(bComp);
 			}
 			else if(!strncmp(pcBuf,"OKAY",4))
 			{}
@@ -499,6 +504,9 @@ class MainWindow : public QMainWindow
 				}
 				ShowMessage("Connected to server.");
 				m_statustimer.start(SERVER_STATUS_POLL_TIME);
+				
+				// get current config of hardware
+				GetServerConfig();
 			}
 		}
 		

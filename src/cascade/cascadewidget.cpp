@@ -271,8 +271,7 @@ void CascadeWidget::Unload()
 
 void* CascadeWidget::NewPad()
 {
-	// Tof geladen?
-	if(!m_pPad || m_pTof || m_pdata2d || m_bForceReinit)
+	if(!IsPadLoaded() || IsTofLoaded() || m_bForceReinit)
 	{
 		Unload();
 		m_pPad = new PadData();
@@ -288,13 +287,16 @@ void* CascadeWidget::NewPad()
 	return m_pPad->GetRawData();
 }
 
-void* CascadeWidget::NewTof()
+void* CascadeWidget::NewTof(int iCompression)
 {
-	// Pad geladen?
-	if(m_pPad || !m_pTof || !m_pdata2d || m_bForceReinit)
+	bool bCorrectCompression = 1;
+	if(IsTofLoaded())
+		bCorrectCompression = (m_pTof->GetCompressionMethod() == iCompression);
+	
+	if(IsPadLoaded() || !IsTofLoaded() || m_bForceReinit || !bCorrectCompression)
 	{
 		Unload();
-		m_pTof = new TofImage;
+		m_pTof = new TofImage(0,iCompression);
 		m_pdata2d = new Data2D;	
 		m_pdata2d->SetLog10(m_bLog);
 		//m_pPlot->SetData(m_pdata2d);
@@ -323,7 +325,7 @@ bool CascadeWidget::LoadPadFile(const char* pcFile)
 	if(iRet == LOAD_SIZE_MISMATCH)
 	{
 		long lSize = GetFileSize(pcFile);
-		if(Config_TofLoader::GuessConfigFromSize(int(lSize)/4, false))
+		if(Config_TofLoader::GuessConfigFromSize(0,int(lSize)/4, false))
 		{
 			m_bForceReinit = true;
 			NewPad();
@@ -336,13 +338,13 @@ bool CascadeWidget::LoadPadFile(const char* pcFile)
 
 bool CascadeWidget::LoadTofFile(const char* pcFile)
 {
-	NewTof();
+	NewTof(TOF_COMPRESSION_NONE);
 	int iRet = m_pTof->LoadFile(pcFile);
 	
 	if(iRet == LOAD_SIZE_MISMATCH)
 	{
 		long lSize = GetFileSize(pcFile);
-		if(Config_TofLoader::GuessConfigFromSize(int(lSize)/4, true))
+		if(Config_TofLoader::GuessConfigFromSize(m_pTof->GetCompressionMethod()==TOF_COMPRESSION_PSEUDO, int(lSize)/4, true))
 		{
 			m_bForceReinit = true;
 			NewTof();
@@ -361,7 +363,7 @@ bool CascadeWidget::LoadPadMem(const char* pcMem, unsigned int uiLen)
 	
 	if(iRet == LOAD_SIZE_MISMATCH)
 	{
-		if(Config_TofLoader::GuessConfigFromSize(uiLen/4, false))
+		if(Config_TofLoader::GuessConfigFromSize(0,uiLen/4, false))
 		{
 			m_bForceReinit = true;
 			NewPad();
@@ -380,7 +382,7 @@ bool CascadeWidget::LoadTofMem(const char* pcMem, unsigned int uiLen)
 	
 	if(iRet == LOAD_SIZE_MISMATCH)
 	{
-		if(Config_TofLoader::GuessConfigFromSize(uiLen/4, true))
+		if(Config_TofLoader::GuessConfigFromSize(m_pTof->GetCompressionMethod()==TOF_COMPRESSION_PSEUDO, uiLen/4, true))
 		{
 			m_bForceReinit = true;
 			NewTof();

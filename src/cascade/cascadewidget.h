@@ -130,7 +130,7 @@ Q_OBJECT
 		bool IsTofLoaded() const;
 		bool IsPadLoaded() const;
 		void* NewPad();
-		void* NewTof();
+		void* NewTof(int iCompression = TOF_COMPRESSION_USEGLOBCONFIG);
 		bool LoadPadFile(const char* pcFile);				// PAD aus Datei laden
 		bool LoadTofFile(const char* pcFile);				// TOF aus Datei laden
 		bool LoadPadMem(const char* pcMem, unsigned int iLen);		// PAD aus Speicher laden
