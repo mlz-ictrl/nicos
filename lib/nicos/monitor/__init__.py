@@ -187,7 +187,7 @@ class Monitor(BaseCacheClient):
         field_defaults = {
             # display/init properties
             'name': '', 'dev': '', 'width': 8, 'istext': False, 'maxlen': None,
-            'min': None, 'max': None, 'unit': '', 'format': '%s',
+            'min': None, 'max': None, 'unit': '', 'item': -1, 'format': '%s',
             # current values
             'value': None, 'time': 0, 'ttl': 0, 'status': None, 'changetime': 0,
             # key names
@@ -371,16 +371,20 @@ class Monitor(BaseCacheClient):
                     field['ttl'] = 0
                     self.setLabelText(field['valuelabel'], '----')
                 else:
+                    if field['item'] >= 0:
+                        fvalue = value[field['item']]
+                    else:
+                        fvalue = value
                     oldvalue = field['value']
-                    if oldvalue != value:
+                    if oldvalue != fvalue:
                         field['changetime'] = time
                     field['value'] = value
                     field['time'] = time
                     field['ttl'] = ttl
                     try:
-                        text = field['format'] % value
+                        text = field['format'] % fvalue
                     except Exception:
-                        text = str(value)
+                        text = str(fvalue)
                     self.setLabelText(field['valuelabel'], text[:field['maxlen']])
             elif key == field['statuskey']:
                 field['status'] = value

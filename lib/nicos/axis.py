@@ -78,9 +78,10 @@ class Axis(BaseAxis):
 
         self.__error = 0
         self.__thread = None
-        self.__target = self.__read()
         self.__mutex = threading.RLock()
         self.__stopRequest = 0
+        if self._mode != 'simulation':
+            self.__target = self.__read()
 
     def doReadUnit(self):
         return self._adevs['motor'].unit

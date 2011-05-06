@@ -72,6 +72,9 @@ class IsegHV(TacoDevice, Moveable, HasLimits):
               'TRP': status.ERROR,}
 
     def doInit(self):
+        if self._mode == 'simulation':
+            self._polarity = +1
+            return
         resp = self._taco_guard(self._dev.communicate, '#')
         if resp.count(';') != 3:
             # hash is "info" command; it returns a string in the form

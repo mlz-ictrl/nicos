@@ -53,7 +53,6 @@ class Device(object):
     * doInit()
     * doShutdown()
     * doVersion()
-    * doSave()
     """
 
     __metaclass__ = AutoPropsMeta
@@ -338,8 +337,6 @@ class Device(object):
             return
         if hasattr(self, 'doShutdown'):
             self.doShutdown()
-        if self._cache:
-            self._cache.removeCallback(self, 'loglevel')
 
     def version(self):
         """Return a list of versions for this component."""

@@ -48,7 +48,8 @@ class Channel(TacoDevice, Measurable):
     }
 
     def doInit(self):
-        self._admin = self._create_client(self.admin, TMCS.Admin)
+        if self._mode != 'simulation':
+            self._admin = self._create_client(self.admin, TMCS.Admin)
 
     def doStart(self, **preset):
         self._taco_guard(self._admin.start)

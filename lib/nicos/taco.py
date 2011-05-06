@@ -85,7 +85,8 @@ class TacoDevice(object):
         if self.taco_class is None:
             raise ProgrammingError('missing taco_class attribute in class '
                                    + self.__class__.__name__)
-        self._dev = self._create_client()
+        if self._mode != 'simulation':
+            self._dev = self._create_client()
 
     def doVersion(self):
         return [(self.tacodevice,

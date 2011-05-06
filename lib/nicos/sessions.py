@@ -957,7 +957,7 @@ class DaemonSession(SimpleSession):
 
     def updateLiveData(self, dtype, nx, ny, nt, time, data):
         self.emitfunc('liveparams', (dtype, nx, ny, nt, time))
-        self.emitfunc('livedata', data, bare=True)
+        self.emitfunc('livedata', data)
 
     def breakpoint(self, level):
         exec self._bpcode

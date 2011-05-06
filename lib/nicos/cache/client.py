@@ -268,6 +268,7 @@ class CacheClient(BaseCacheClient):
     def doInit(self):
         BaseCacheClient.doInit(self)
         self._db = {}
+        # XXX in simulation mode?
         self._worker.start()
         # the execution master lock needs to be refreshed every now and then
         self._ismaster = False

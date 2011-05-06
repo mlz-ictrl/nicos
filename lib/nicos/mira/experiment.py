@@ -43,6 +43,8 @@ from nicos.loggers import UserLogfileHandler
 from nicos.experiment import Experiment
 
 
+# XXX what to do with user log handler in simulation mode?
+
 class MiraExperiment(Experiment):
     def doInit(self):
         Experiment.doInit(self)
