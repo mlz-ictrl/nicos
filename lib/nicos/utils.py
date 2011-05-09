@@ -181,14 +181,13 @@ class AutoPropsMeta(MergedAttrsMeta):
 
             # create the getter method
             def getter(self, param=param):
-                if self._mode == 'simulation':
-                    return self._params[param]
                 if self._cache:
                     value = self._cache.get(self, param)
                     if value is not None:
                         self._params[param] = value
                         return value
-                self._initParam(param)
+                if param not in self._params:
+                    self._initParam(param)
                 return self._params[param]
 
             # create the setter method
@@ -616,14 +615,13 @@ def readFileCounter(counterpath):
         # exceptions
         if err.errno == errno.ENOENT:
             currentcounter = 0
-            if not path.isdir(path.dirname(counterpath)):
-                os.makedirs(path.dirname(counterpath))
-            updateFileCounter(counterpath, 0)
         else:
             raise
     return currentcounter
 
 def updateFileCounter(counterpath, value):
+    if not path.isdir(path.dirname(counterpath)):
+        os.makedirs(path.dirname(counterpath))
     writeFile(counterpath, [str(value)])
 
 

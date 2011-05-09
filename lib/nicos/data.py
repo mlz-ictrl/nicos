@@ -412,12 +412,10 @@ class AsciiDatafileSink(DatafileSink):
             self._file = None
             self._fname = ''
 
-    def doWriteCommentchar(self, value):
+    def doUpdateCommentchar(self, value):
         if len(value) > 1:
             raise ConfigurationError('comment character should only be '
                                      'one character')
-
-    def doUpdateCommentchar(self, value):
         self._scomment = value
         self._tcomment = value * 3
 

@@ -61,6 +61,8 @@ class Slit(Moveable):
         'unit': Override(mandatory=False),
     }
 
+    hardware_access = False
+
     def doInit(self):
         self._axes = [self._adevs['right'], self._adevs['left'],
                       self._adevs['bottom'], self._adevs['top']]
@@ -199,6 +201,8 @@ class SlitAxis(Moveable, AutoDevice):
     attached_devices = {
         'slit': Slit,
     }
+
+    hardware_access = False
 
     def doRead(self):
         positions = map(lambda d: d.read(), self._adevs['slit']._axes)

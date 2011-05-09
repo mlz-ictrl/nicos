@@ -58,6 +58,8 @@ class Switcher(Moveable):
         'unit':      Override(mandatory=False),
     }
 
+    hardware_access = False
+
     def doInit(self):
         states = self.states
         values = self.values
@@ -106,6 +108,8 @@ class ReadonlySwitcher(Readable):
     parameter_overrides = {
         'unit':      Override(mandatory=False),
     }
+
+    hardware_access = False
 
     def doInit(self):
         states = self.states

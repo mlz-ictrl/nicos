@@ -84,6 +84,8 @@ class TAS(Instrument, Moveable):
                            settable=True)
     }
 
+    hardware_access = False
+
     def doInit(self):
         self.__dict__['h'] = TASIndex('h', unit='rlu', fmtstr='%.3f',
                                       index=0, lowlevel=True, tas=self)
@@ -207,6 +209,8 @@ class TASIndex(Moveable, AutoDevice):
         'tas': TAS,
     }
 
+    hardware_access = False
+
     def doRead(self):
         return self._adevs['tas'].read()[self.index]
 
@@ -230,6 +234,8 @@ class Wavevector(Moveable, HasLimits):
         'base': Moveable,
         'tas': TAS,
     }
+
+    hardware_access = False
 
     def doInit(self):
         self._value = None

@@ -174,6 +174,8 @@ class FRMDetector(Measurable):
         'z5': FRMChannel,
     }
 
+    hardware_access = False
+
     def __getMasters(self):
         """Internal method to get the masters from the card."""
         self.__masters = []

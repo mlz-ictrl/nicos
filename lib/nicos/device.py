@@ -58,6 +58,12 @@ class Device(object):
     __metaclass__ = AutoPropsMeta
     __mergedattrs__ = ['parameters', 'parameter_overrides', 'attached_devices']
 
+    # A dictionary mapping device names to classes (or lists of classes) that
+    # describe this device's attached (subordinate) devices.
+    attached_devices = {}
+
+    # A dictionary mapping parameter names to parameter descriptions, given as
+    # Param objects.
     parameters = {
         'description': Param('A description of the device', type=str,
                              settable=True),
@@ -66,8 +72,13 @@ class Device(object):
         'loglevel':    Param('The logging level of the device', type=str,
                              default='info', settable=True),
     }
+
+    # A dictionary mapping parameter names to Override objects that override
+    # specific properties of parameters found in base classes.
     parameter_overrides = {}
-    attached_devices = {}
+
+    # Set this to True on devices that are only created for a time, and whose
+    # name can be reused.
     temporary = False
 
     def __init__(self, name, **config):
@@ -76,10 +87,6 @@ class Device(object):
             if name in session.devices:
                 raise ProgrammingError('device with name %s already exists' % name)
             session.devices[name] = self
-
-        # XXX needs to be changed
-        if session.mode == 'simulation':
-            raise UsageError('no new devices can be created in simulation mode')
 
         self.__dict__['name'] = name
         # _config: device configuration (all parameter names lower-case)
@@ -155,12 +162,10 @@ class Device(object):
                              'listparams(%s) to show all' % (name, self))
         setattr(self, name.lower(), value)
 
-    def doWriteLoglevel(self, value):
+    def doUpdateLoglevel(self, value):
         if value not in loggers.loglevels:
             raise UsageError(self, 'loglevel must be one of %s' %
                              ', '.join(map(repr, loggers.loglevels.keys())))
-
-    def doUpdateLoglevel(self, value):
         self._log.setLevel(loggers.loglevels[value])
 
     def init(self):
@@ -283,12 +288,24 @@ class Device(object):
             self.doInit()
 
     def _getCache(self):
-        return session.cache
+        if session.mode != 'simulation':
+            return session.cache
+        else:
+            return None
 
     def _initParam(self, param, paraminfo=None):
         """Get an initial value for the parameter, called when the cache
         doesn't contain such a value.
+
+        If present, a doReadParam method is called.  Otherwise, the value comes
+        from either the setup file or the device-specific default value.
         """
+        if self._mode == 'simulation':
+            # in simulation mode, we only have the config file and the defaults:
+            # cache isn't present, and we can't touch the hardware to ask
+            if param not in self._params:
+                self._params[param] = self._config.get(param, paraminfo.default)
+            return
         paraminfo = paraminfo or self.parameters[param]
         rmethod = getattr(self, 'doRead' + param.title(), None)
         if rmethod:
@@ -368,6 +385,12 @@ class Device(object):
             raise CommunicationError(self, 'device locked by other instance')
 
 
+class AutoDevice(object):
+    """Abstract mixin for devices that are created automatically as dependent
+    devices of other devices.
+    """
+
+
 class Readable(Device):
     """
     Base class for all readable devices.
@@ -382,6 +405,10 @@ class Readable(Device):
     * doReset()
     * doPoll()
     """
+
+    # Set this to False on devices that directly access hardware, and therefore
+    # should have their actions simulated.
+    hardware_access = True
 
     parameters = {
         'fmtstr':       Param('Format string for the device value', type=str,
@@ -398,13 +425,15 @@ class Readable(Device):
     def init(self):
         Device.init(self)
         # value in simulation mode
+        self._sim_active = self._mode == 'simulation' and self.hardware_access
         self._sim_old_value = None
-        self._sim_value = None
+        self._sim_value = 0   # XXX how to configure a useful default?
         self._sim_min = None
         self._sim_max = None
 
     def _setMode(self, mode):
-        if mode == 'simulation':
+        self._sim_active = mode == 'simulation' and self.hardware_access
+        if self._sim_active:
             # save the last known value
             try:
                 self._sim_value = self.read()
@@ -431,7 +460,7 @@ class Readable(Device):
 
     def read(self):
         """Read the main value of the device and save it in the cache."""
-        if self._mode == 'simulation':
+        if self._sim_active:
             return self._sim_value
         return self._get_from_cache('value', self.doRead)
 
@@ -439,7 +468,7 @@ class Readable(Device):
         """Return the status of the device as one of the integer constants
         defined in the nicos.status module.
         """
-        if self._mode == 'simulation':
+        if self._sim_active:
             return (status.OK, 'simulated ok')
         if hasattr(self, 'doStatus'):
             try:
@@ -478,7 +507,7 @@ class Readable(Device):
         """Reset the device hardware.  Return status afterwards."""
         if self._mode == 'slave':
             raise ModeError('reset not possible in slave mode')
-        elif self._mode == 'simulation':
+        elif self._sim_active:
             return
         if hasattr(self, 'doReset'):
             self.doReset()
@@ -578,7 +607,8 @@ class Moveable(Readable):
         if not ok:
             raise LimitError(self, 'moving to %r is not allowed: %s' %
                              (pos, why))
-        if self._mode == 'simulation':
+        self._setROParam('target', pos)
+        if self._sim_active:
             self._sim_old_value = self._sim_value
             self._sim_value = pos
             if self._sim_min is None:
@@ -591,7 +621,6 @@ class Moveable(Readable):
             return
         if self._cache:
             self._cache.invalidate(self, 'value')
-        self._setROParam('target', pos)
         self.doStart(pos)
 
     move = start
@@ -600,7 +629,7 @@ class Moveable(Readable):
         """Wait until main action of device is completed.
         Return current value after waiting.
         """
-        if self._mode == 'simulation':
+        if self._sim_active:
             if not hasattr(self, 'doTime'):
                 if 'speed' in self.parameters:
                     time = abs(self._sim_value - self._sim_old_value) * \
@@ -631,7 +660,7 @@ class Moveable(Readable):
         """Stop main action of the device."""
         if self._mode == 'slave':
             raise ModeError(self, 'stop not possible in slave mode')
-        elif self._mode == 'simulation':
+        elif self._sim_active:
             return
         if self._isFixed:
             raise FixedError(self, 'use release() first')
@@ -807,7 +836,7 @@ class Measurable(Readable):
         """Start measurement."""
         if self._mode == 'slave':
             raise ModeError(self, 'start not possible in slave mode')
-        elif self._mode == 'simulation':
+        elif self._sim_active:
             if hasattr(self, 'doTime'):
                 time = self.doTime(preset)
             else:
@@ -831,7 +860,7 @@ class Measurable(Readable):
         """
         if self._mode == 'slave':
             raise ModeError(self, 'pause not possible in slave mode')
-        elif self._mode == 'simulation':
+        elif self._sim_active:
             return True
         if hasattr(self, 'doPause'):
             return self.doPause()
@@ -841,7 +870,7 @@ class Measurable(Readable):
         """Resume paused measurement."""
         if self._mode == 'slave':
             raise ModeError(self, 'resume not possible in slave mode')
-        elif self._mode == 'simulation':
+        elif self._sim_active:
             return True
         if hasattr(self, 'doResume'):
             return self.doResume()
@@ -851,13 +880,13 @@ class Measurable(Readable):
         """Stop measurement now."""
         if self._mode == 'slave':
             raise ModeError(self, 'stop not possible in slave mode')
-        elif self._mode == 'simulation':
+        elif self._sim_active:
             return
         self.doStop()
 
     def isCompleted(self):
         """Return true if measurement is complete."""
-        if self._mode == 'simulation':
+        if self._sim_active:
             return True
         return self.doIsCompleted()
 
@@ -868,7 +897,7 @@ class Measurable(Readable):
 
     def read(self):
         """Return a tuple with the result(s) of the last measurement."""
-        if self._mode == 'simulation':
+        if self._sim_active:
             # XXX simulate a return value
             return (0,) * len(self.valueInfo())
         # always get fresh result from cache
@@ -899,9 +928,3 @@ class Measurable(Readable):
         returns.
         """
         return Value(self.name, unit=self.unit),
-
-
-class AutoDevice(object):
-    """Base class for devices that are created automatically as dependent
-    devices of other devices.
-    """

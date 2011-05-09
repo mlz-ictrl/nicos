@@ -147,8 +147,10 @@ class Session(object):
         self.__system_device = None
         # action stack for status line
         self._actionStack = []
-        # execution mode
+        # execution mode; initially always slave
         self._mode = 'slave'
+        # prompt color
+        self._pscolor = 'reset'
         # simulation clock
         self.clock = SimClock()
 
@@ -409,6 +411,12 @@ class Session(object):
         expsetups = '+'.join(self.explicit_setups)
         sys.ps1 = base + '(%s) >>> ' % expsetups
         sys.ps2 = base + ' %s  ... ' % (' ' * len(expsetups))
+        self._pscolor = dict(
+            slave  = 'fuchsia',
+            master = 'blue',
+            maintenance = 'red',
+            simulation = 'teal'
+        )[self._mode]
 
     def export(self, name, object):
         self.__namespace.setForbidden(name, object)
@@ -523,36 +531,41 @@ class Session(object):
     @property
     def instrument(self):
         # XXX are these guards necessary?
-        #if self.__system_device is None:
-        #    self.__system_device = self.getDevice('System', System)
+        if self.__system_device is None:
+            self.__system_device = self.getDevice('System', System)
         return self.__system_device._adevs['instrument']
 
     @property
     def experiment(self):
-        #if self.__system_device is None:
-        #    self.__system_device = self.getDevice('System', System)
+        if self.__system_device is None:
+            self.__system_device = self.getDevice('System', System)
         return self.__system_device._adevs['experiment']
 
     @property
     def datasinks(self):
-        #if self.__system_device is None:
-        #    self.__system_device = self.getDevice('System', System)
+        if self.__system_device is None:
+            self.__system_device = self.getDevice('System', System)
         return self.__system_device._adevs.get('datasinks', [])
 
     @property
     def notifiers(self):
-        #if self.__system_device is None:
-        #    self.__system_device = self.getDevice('System', System)
+        if self.__system_device is None:
+            self.__system_device = self.getDevice('System', System)
         return self.__system_device._adevs.get('notifiers', [])
 
     def notifyConditionally(self, runtime, subject, body, what=None, short=None):
         """Send a notification if the current runtime exceeds the configured
-        minimum runtimer for notifications."""
+        minimum runtimer for notifications.
+        """
+        if self._mode == 'simulation':
+            return
         for notifier in self.notifiers:
             notifier.sendConditionally(runtime, subject, body, what, short)
 
     def notify(self, subject, body, what=None, short=None):
         """Send a notification unconditionally."""
+        if self._mode == 'simulation':
+            return
         for notifier in self.notifiers:
             notifier.send(subject, body, what, short)
 
@@ -751,7 +764,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         return False
 
     def raw_input(self, prompt):
-        sys.stdout.write(colorcode('blue'))
+        sys.stdout.write(colorcode(self.session._pscolor))
         try:
             inp = raw_input(prompt)
         except KeyboardInterrupt:
@@ -861,23 +874,28 @@ class InteractiveSession(Session):
             self._in_sigint = False
 
     @classmethod
-    def run(cls, setup='startup'):
+    def run(cls, setup='startup', simulate=False):
         # Assign the correct class to the session singleton.
         session.__class__ = InteractiveSession
         session.__init__('nicos')
         session._stoplevel = 0
         session._in_sigint = False
+        if simulate:
+            session._mode = 'simulation'
 
         # Create the initial instrument setup.
         session.loadSetup(setup)
 
-        # Try to become master.
-        try:
-            session.setMode('master')
-        except ModeError:
-            session.log.info('could not enter master mode; remaining slave')
-        except:
-            session.log.warning('could not enter master mode', exc=True)
+        if simulate:
+            session.log.info('starting in simulation mode')
+        else:
+            # Try to become master.
+            try:
+                session.setMode('master')
+            except ModeError:
+                session.log.info('could not enter master mode; remaining slave')
+            except:
+                session.log.warning('could not enter master mode', exc=True)
 
         # Enable Ctrl-C interrupt processing.
         signal.signal(signal.SIGINT, session.signalHandler)

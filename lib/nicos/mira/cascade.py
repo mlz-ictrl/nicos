@@ -69,6 +69,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
                               settable=True, type=float),
         'lastcounts': Param('Counts of the last measurement',
                             type=tupleof(int, int), settable=True),
+        # XXX this is awkward with simulation mode
         'lastfilename': Param('File name of the last measurement',
                               type=str, settable=True),
         'lastfilenumber': Param('File number of the last measurement',
@@ -128,7 +129,8 @@ class CascadeDetector(Measurable, NeedsDatapath):
                Value(self.name + '.file', type='info')
 
     def doUpdateDebugmsg(self, value):
-        self._client.SetDebugLog(value)
+        if self._mode != 'simulation':
+            self._client.SetDebugLog(value)
 
     def doShutdown(self):
         self._client.disconnect()
