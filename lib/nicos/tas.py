@@ -147,7 +147,8 @@ class TAS(Instrument, Moveable):
         #h, k, l, ny, sc = self.doRead()
         # make sure index members read the latest value
         for index in (self.h, self.k, self.l, self.E, self.sc):
-            index._cache.invalidate(index, 'value')
+            if index._cache:
+                index._cache.invalidate(index, 'value')
         #self.printinfo('position hkl: (%7.4f %7.4f %7.4f) E: %7.4f %s' %
         #               (h, k, l, ny, self.energytransferunit))
 

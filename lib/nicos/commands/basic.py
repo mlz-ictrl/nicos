@@ -90,8 +90,9 @@ def listcommands():
             real_func = getattr(obj, 'real_func', obj)
             argspec = inspect.formatargspec(*inspect.getargspec(real_func))
             docstring = real_func.__doc__ or ' '
-            items.append((real_func.__name__ + argspec,
-                          docstring.splitlines()[0]))
+            if not real_func.__name__.startswith('_'):
+                items.append((real_func.__name__ + argspec,
+                              docstring.splitlines()[0]))
     items.sort()
     printTable(('name', 'description'), items, printinfo)
 
@@ -345,7 +346,8 @@ def SaveSimulationSetup(filename, name=None):
                     f.write('        %s = %r,\n' % (
                         adevname, [sdev.name for sdev in adev]))
                 else:
-                    f.write('        %s = %r,\n' % (adevname, str(adev)))
+                    f.write('        %s = %r,\n' % (
+                        adevname, adev and str(adev) or None))
             for param in dev.parameters:
                 f.write('        %s = %r,\n' % (param, getattr(dev, param)))
             f.write('    ),\n')
@@ -353,7 +355,16 @@ def SaveSimulationSetup(filename, name=None):
         f.write('startupcode = """\n')
         for dev in session.devices.itervalues():
             if isinstance(dev, Readable) and dev.hardware_access:
-                f.write('printinfo("Setting value of device %%s to %%r" %% '
-                        '(%r, %r))\n' % (dev.name, dev._sim_value))
-                f.write('%s._sim_value = %r\n' % (dev.name, dev._sim_value))
+                f.write('_SimulationRestore(%r, %r)\n' %
+                        (dev.name, dev._sim_value))
         f.write('"""\n')
+
+@usercommand
+def _SimulationRestore(devname, value):
+    """Restore value of a device in a simulation setup.
+
+    This needs to be a usercommand because it is executed in the user namespace,
+    but by prefixing the name with an underscore it is hidden from the user.
+    """
+    printinfo('Setting simulated value of device %s to %r' % (devname, value))
+    session.getDevice(devname)._sim_value = value
