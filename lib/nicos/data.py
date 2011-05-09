@@ -50,7 +50,7 @@ except ImportError:
 from nicos import session
 from nicos.utils import listof, readFileCounter, updateFileCounter
 from nicos.device import Device, Param
-from nicos.errors import ConfigurationError, ProgrammingError
+from nicos.errors import ConfigurationError, ProgrammingError, UsageError
 from nicos.sessions import DaemonSession, InteractiveSession
 from nicos.commands.output import printinfo
 
@@ -427,12 +427,17 @@ class AsciiDatafileSink(DatafileSink):
         instrument-specific subclasses.
         """
         pstr = session.experiment.proposal
-        return '%s_%08d.dat' % (pstr, self._counter)
+        if not pstr:
+            raise UsageError('Please initialize the experiment first using '
+                             'the NewExperiment() command')
+        return '%s_%08d.dat' % (pstr, self._counter + 1)
 
     def prepareDataset(self, dataset):
         if self._path is None:
-            self._setDatapath(session.experiment.datapath)
+            # XXX check this
+            self.doUpdateDatapath(session.experiment.datapath)
         self._wrote_columninfo = False
+        self._fname = self.nextFileName()
         self._counter += 1
         if self.globalcounter:
             updateFileCounter(self.globalcounter, self._counter)
@@ -440,7 +445,6 @@ class AsciiDatafileSink(DatafileSink):
             updateFileCounter(path.join(self._path, 'filecounter'),
                               self._counter)
         self._setROParam('lastfilenumber', self._counter)
-        self._fname = self.nextFileName()
         self._fullfname = path.join(self._path, self._fname)
         dataset.sinkinfo['filename'] = self._fname
         dataset.sinkinfo['number'] = self._counter
