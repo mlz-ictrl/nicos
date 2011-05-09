@@ -298,13 +298,17 @@ class Device(object):
         If present, a doReadParam method is called.  Otherwise, the value comes
         from either the setup file or the device-specific default value.
         """
+        paraminfo = paraminfo or self.parameters[param]
+        umethod = getattr(self, 'doUpdate' + param.title(), None)
         if self._mode == 'simulation':
             # in simulation mode, we only have the config file and the defaults:
             # cache isn't present, and we can't touch the hardware to ask
             if param not in self._params:
                 self._params[param] = self._config.get(param, paraminfo.default)
+            # do call update methods though, they should be harmless
+            if umethod:
+                umethod(self._params[param])
             return
-        paraminfo = paraminfo or self.parameters[param]
         rmethod = getattr(self, 'doRead' + param.title(), None)
         if rmethod:
             value = rmethod()
@@ -315,7 +319,6 @@ class Device(object):
             value = self._config.get(param, paraminfo.default)
         if self._cache:
             self._cache.put(self, param, value)
-        umethod = getattr(self, 'doUpdate' + param.title(), None)
         if umethod:
             umethod(value)
         self._params[param] = value

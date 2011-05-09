@@ -211,6 +211,8 @@ class AutoPropsMeta(MergedAttrsMeta):
                         raise ModeError('setting parameter %s not possible in '
                                         'slave mode' % param)
                     elif self._mode == 'simulation':
+                        if umethod:
+                            umethod(self, value)
                         self._params[param] = value
                         return
                     if wmethod:

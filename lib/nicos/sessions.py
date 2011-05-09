@@ -314,6 +314,8 @@ class Session(object):
             info = self.__setup_info[name]
             if info['group'] == 'special' and not allow_special:
                 raise ConfigurationError('Cannot load special setup %r' % name)
+            if info['group'] == 'simulated' and self._mode != 'simulation':
+                raise ConfigurationError('Cannot load simulation setup %r' % name)
 
             self.loaded_setups.add(name)
 
@@ -448,9 +450,9 @@ class Session(object):
         sys.ps2 = base + ' %s  ... ' % (' ' * len(expsetups))
         self._pscolor = dict(
             slave  = 'brown',
-            master = 'blue',
+            master = 'darkblue',
             maintenance = 'darkred',
-            simulation = 'teal'
+            simulation = 'turquoise'
         )[self._mode]
 
     def export(self, name, object):

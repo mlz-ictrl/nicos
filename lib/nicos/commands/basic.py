@@ -35,18 +35,19 @@ __version__ = "$Revision$"
 
 import os
 import time
+import shutil
 import inspect
 import __builtin__
 from os import path
 
 from nicos import session
 from nicos.utils import formatDocstring, formatDuration, printTable
-from nicos.device import Device, AutoDevice
+from nicos.device import Device, AutoDevice, Readable
 from nicos.errors import ModeError, NicosError, UsageError
 from nicos.notify import Mailer, SMSer
 from nicos.sessions import EXECUTIONMODES
 from nicos.commands import usercommand
-from nicos.commands.output import printinfo, printexception
+from nicos.commands.output import printinfo, printexception, printwarning
 
 
 # -- help and introspection ----------------------------------------------------
@@ -318,10 +319,20 @@ def SetSMSReceivers(*numbers):
 
 
 @usercommand
-def SaveCurrentSetup(filename, name):
-    """Save the whole current setup as a file."""
+def SaveSimulationSetup(filename, name=None):
+    """Save the whole current setup as a file usable in simulation mode."""
+    if path.isfile(filename):
+        printwarning('The file %r already exists, making a backup at %r' %
+                     (filename, filename + '.bak'))
+        shutil.copy(filename, filename + '.bak')
     with open(filename, 'w') as f:
-        f.write('name = %r\n\n' % name)
+        f.write('name = %r\n\n' % (name or '+'.join(session.explicit_setups)))
+        f.write('group = %r\n\n' % 'simulated')
+        f.write('sysconfig = dict(\n')
+        f.write('    instrument = %r,\n' % session.instrument.name)
+        f.write('    experiment = %r,\n' % session.experiment.name)
+        f.write('    datasinks = %r,\n' % [s.name for s in session.datasinks])
+        f.write(')\n\n')
         f.write('devices = dict(\n')
         for devname, dev in session.devices.iteritems():
             if isinstance(dev, AutoDevice):
@@ -338,4 +349,11 @@ def SaveCurrentSetup(filename, name):
             for param in dev.parameters:
                 f.write('        %s = %r,\n' % (param, getattr(dev, param)))
             f.write('    ),\n')
-        f.write(')\n')
+        f.write(')\n\n')
+        f.write('startupcode = """\n')
+        for dev in session.devices.itervalues():
+            if isinstance(dev, Readable) and dev.hardware_access:
+                f.write('printinfo("Setting value of device %%s to %%r" %% '
+                        '(%r, %r))\n' % (dev.name, dev._sim_value))
+                f.write('%s._sim_value = %r\n' % (dev.name, dev._sim_value))
+        f.write('"""\n')
