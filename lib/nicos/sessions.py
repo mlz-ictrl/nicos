@@ -201,8 +201,12 @@ class Session(object):
             # switching from master to slave or to maintenance
             if not cache:
                 raise ModeError('no cache present, cannot release master lock')
-            cache._ismaster = False
-            cache.unlock('master')
+            if cache._ismaster:
+                cache._ismaster = False
+                cache.unlock('master')
+            elif mode == 'maintenance':
+                self.log.warning('Switching from slave to maintenance mode: '
+                                 "I'll trust that you know what you're doing!")
         self._mode = mode
         for dev in self.devices.itervalues():
             dev._setMode(mode)
@@ -412,9 +416,9 @@ class Session(object):
         sys.ps1 = base + '(%s) >>> ' % expsetups
         sys.ps2 = base + ' %s  ... ' % (' ' * len(expsetups))
         self._pscolor = dict(
-            slave  = 'fuchsia',
+            slave  = 'brown',
             master = 'blue',
-            maintenance = 'red',
+            maintenance = 'darkred',
             simulation = 'teal'
         )[self._mode]
 
