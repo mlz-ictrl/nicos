@@ -165,6 +165,17 @@ class Poller(Device):
             worker.join()
         self.printinfo('poller finished')
 
+    def reload(self):
+        if self._process is not None:
+            # do nothing for single pollers
+            return
+        self.printinfo('got SIGUSR1, restarting all pollers')
+        for pid in self._children.keys():
+            try:
+                os.kill(pid, signal.SIGTERM)
+            except Exception, err:
+                self.printerror(str(err))
+
     def _start_master(self):
         self._children = {}
 
@@ -178,7 +189,9 @@ class Poller(Device):
         else:
             poller_script = 'nicos-poller'
         process = subprocess.Popen([poller_script, name])
-        self._children[process.pid] = name
+        # we need to keep a reference to the Popen object, since it calls
+        # os.wait() itself in __del__
+        self._children[process.pid] = (name, process)
         session.log.info('started %s poller, PID %s' % (name, process.pid))
 
     def _wait_master(self):
@@ -196,7 +209,7 @@ class Poller(Device):
                 raise
             else:
                 # a process exited; restart if necessary
-                name = self._children[pid]
+                name, process = self._children[pid]
                 if not self._stoprequest:
                     session.log.warning('%s poller terminated with %s, '
                                         'restarting' % (name, whyExited(ret)))

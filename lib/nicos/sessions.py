@@ -670,11 +670,15 @@ class SimpleSession(Session):
                 print >>sys.stderr, 'Fatal error while initializing:', err
             return 1
 
-        def signalhandler(signum, frame):
+        def quit_handler(signum, frame):
             removePidfile(appname)
             maindev.quit()
-        signal.signal(signal.SIGINT, signalhandler)
-        signal.signal(signal.SIGTERM, signalhandler)
+        def reload_handler(signum, frame):
+            if hasattr(maindev, 'reload'):
+                maindev.reload()
+        signal.signal(signal.SIGINT, quit_handler)
+        signal.signal(signal.SIGTERM, quit_handler)
+        signal.signal(signal.SIGUSR1, reload_handler)
 
         if pidfile:
             writePidfile(appname)
