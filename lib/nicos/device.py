@@ -431,6 +431,7 @@ class Readable(Device):
         self._sim_value = 0   # XXX how to configure a useful default?
         self._sim_min = None
         self._sim_max = None
+        self._sim_preset = {}
 
     def _setMode(self, mode):
         self._sim_active = mode == 'simulation' and self.hardware_access
@@ -827,6 +828,7 @@ class Measurable(Readable):
     * doPause()
     * doResume()
     * doTime()
+    * doSimulate()
     """
 
     parameter_overrides = {
@@ -846,6 +848,7 @@ class Measurable(Readable):
                 else:
                     time = 0
             session.clock.tick(time)
+            self._sim_preset = preset
             return
         self.doStart(**preset)
 
@@ -899,7 +902,8 @@ class Measurable(Readable):
     def read(self):
         """Return a tuple with the result(s) of the last measurement."""
         if self._sim_active:
-            # XXX simulate a return value
+            if hasattr(self, 'doSimulate'):
+                return self.doSimulate(self._sim_preset)
             return (0,) * len(self.valueInfo())
         # always get fresh result from cache
         if self._cache:

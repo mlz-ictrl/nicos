@@ -137,6 +137,15 @@ class FRMTimerChannel(FRMChannel):
     def valueInfo(self):
         return Value(self.name, unit='s', type='time'),
 
+    def doTime(self, preset):
+        if self.ismaster:
+            return self.preselection
+        else:
+            return 0
+
+    def doSimulate(self, preset):
+        return (self.preselection,)
+
 
 class FRMCounterChannel(FRMChannel):
     taco_class = Counter
