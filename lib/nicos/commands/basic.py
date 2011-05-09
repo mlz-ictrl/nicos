@@ -34,6 +34,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import os
+import time
 import inspect
 import __builtin__
 from os import path
@@ -92,6 +93,11 @@ def listcommands():
                           docstring.splitlines()[0]))
     items.sort()
     printTable(('name', 'description'), items, printinfo)
+
+@usercommand
+def sleep(secs):
+    """Sleep for a given number of seconds."""
+    time.sleep(secs)   # XXX make this an interruptible sleep?
 
 
 # -- other basic commands ------------------------------------------------------

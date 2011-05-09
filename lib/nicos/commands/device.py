@@ -253,7 +253,7 @@ def listparams(dev):
         except Exception:
             value = '<could not get value>'
         unit = (info.unit or '').replace('main', devunit)
-        vstr = str(value)
+        vstr = repr(value)
         if len(vstr) > 40:
             vstr = vstr[:37] + '...'
         items.append((name, vstr, unit, info.description))
