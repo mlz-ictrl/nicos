@@ -55,9 +55,11 @@ from nicos.utils import makeSessionId, colorcode, daemonize, writePidfile, \
      removePidfile, sessionInfo, SimClock
 from nicos.device import Device
 from nicos.errors import NicosError, UsageError, ConfigurationError, ModeError
+from nicos.notify import Notifier
 from nicos.loggers import NicosLogger, NicosLogfileHandler, \
      ColoredConsoleHandler, initLoggers, OUTPUT, INPUT
-from nicos.cache.client import CacheLockError
+from nicos.instrument import Instrument
+from nicos.cache.client import CacheClient, CacheLockError
 
 
 EXECUTIONMODES = ['master', 'slave', 'simulation', 'maintenance']
@@ -111,6 +113,7 @@ class Session(object):
         control_path = path.join(path.dirname(__file__), '..', '..')
 
     log = None
+    name = 'session'   # used for cache operations
 
     def __init__(self, appname):
         self.appname = appname
@@ -143,8 +146,6 @@ class Session(object):
         self.__local_namespace = NicosNamespace()
         # contains all NICOS-exported names
         self.__exported_names = set()
-        # cache special device
-        self.__system_device = None
         # action stack for status line
         self._actionStack = []
         # execution mode; initially always slave
@@ -153,6 +154,13 @@ class Session(object):
         self._pscolor = 'reset'
         # simulation clock
         self.clock = SimClock()
+
+        # sysconfig devices
+        self.cache = None
+        self.instrument = None
+        self.experiment = None
+        self.datasinks = []
+        self.notifiers = []
 
         # set up logging interface
         self._initLogging()
@@ -195,8 +203,7 @@ class Session(object):
                                 sessionInfo(err.locked_by))
             else:
                 cache._ismaster = True
-            cache.put(self.__system_device, 'mastersetup',
-                      list(self.loaded_setups))
+            cache.put(self, 'mastersetup', list(self.loaded_setups))
         elif mode in ['slave', 'maintenance']:
             # switching from master to slave or to maintenance
             if not cache:
@@ -212,6 +219,7 @@ class Session(object):
             dev._setMode(mode)
         if mode == 'simulation':
             cache.doShutdown()
+            self.cache = None
         self.log.info('switched to %s mode' % mode)
         self.resetPrompt()
 
@@ -248,6 +256,7 @@ class Session(object):
             info = {
                 'name': ns.get('name', modname),
                 'group': ns.get('group', 'base'),
+                'sysconfig': ns.get('sysconfig', {}),
                 'includes': ns.get('includes', []),
                 'modules': ns.get('modules', []),
                 'devices': ns.get('devices', {}),
@@ -308,44 +317,38 @@ class Session(object):
 
             self.loaded_setups.add(name)
 
+            sysconfig = {}
             devlist = {}
             startupcode = []
 
             for include in info['includes']:
                 ret = inner_load(include)
                 if ret:
-                    devlist.update(ret[0])
-                    startupcode.extend(ret[1])
+                    sysconfig.update(ret[0])
+                    devlist.update(ret[1])
+                    startupcode.extend(ret[2])
 
             for modname in info['modules']:
                 load_module(modname)
 
             self.configured_devices.update(info['devices'])
 
+            sysconfig.update(info['sysconfig'].iteritems())
             devlist.update(info['devices'].iteritems())
             startupcode.append(info['startupcode'])
 
-            return devlist, startupcode
+            return sysconfig, devlist, startupcode
 
         # always load nicos.commands in interactive mode
         for modname in self.auto_modules:
             load_module(modname)
 
-        devlist, startupcode = inner_load(setupname)
+        sysconfig, devlist, startupcode = inner_load(setupname)
 
-        # System pseudo-device must be created first
-        if 'System' not in self.devices:
-            if 'System' not in self.configured_devices:
-                self.configured_devices['System'] = ('nicos.system.System', dict(
-                    datasinks=[], cache=None, instrument=None, experiment=None,
-                    notifiers=[]))
-            try:
-                self.createDevice('System')
-            except Exception:
-                if raise_failed:
-                    raise
-                self.log.exception('error creating System device')
-                return
+        # initialize the cache connection
+        if sysconfig.get('cache') and self._mode != 'simulation':
+            self.cache = CacheClient('Cache', server=sysconfig['cache'],
+                                     prefix='nicos/', lowlevel=True)
 
         # create all devices
         if self.autocreate_devices:
@@ -360,6 +363,31 @@ class Session(object):
                     self.log.exception('failed')
                     failed_devs.append(devname)
 
+        # validate and attach sysconfig devices
+        sysconfig_items = dict(
+            instrument = Instrument,
+            experiment = Experiment,
+            datasinks =  [DataSink],
+            notifiers =  [Notifier],
+        )
+
+        for key, type in sysconfig_items.iteritems():
+            if key not in sysconfig:
+                continue
+            value = sysconfig[key]
+            if isinstance(type, list):
+                if not isinstance(sysconfig[key], list):
+                    raise ConfigurationError('sysconfig %s entry must be '
+                                             'a list' % key)
+                setattr(self, key, [self.getDevice(name, type[0])
+                                    for name in value])
+            else:
+                if not isinstance(sysconfig[key], str):
+                    raise ConfigurationError('sysconfig %s entry must be '
+                                             'a device name' % key)
+                setattr(self, key, self.getDevice(value, type))
+
+        # execute the startup code
         for code in startupcode:
             if code:
                 exec code in self.__namespace
@@ -369,8 +397,7 @@ class Session(object):
             self.log.error(', '.join(failed_devs))
 
         if self.mode == 'master' and self.cache:
-            self.cache.put(self.__system_device, 'mastersetup',
-                           list(self.loaded_setups))
+            self.cache.put(self, 'mastersetup', list(self.loaded_setups))
         self.explicit_setups.append(setupname)
         self.resetPrompt()
         self.log.info('setup loaded')
@@ -396,10 +423,14 @@ class Session(object):
         self.explicit_devices.clear()
         for name in list(self.__exported_names):
             self.unexport(name)
+        self.cache = None
+        self.instrument = None
+        self.experiment = None
+        self.datasinks = []
+        self.notifiers = []
         self.loaded_setups = set()
         self.explicit_setups = []
         self.user_modules = set()
-        self.__system_device = None
         for handler in self._log_handlers:
             self.log.removeHandler(handler)
         self._log_handlers = []
@@ -525,37 +556,6 @@ class Session(object):
         self.explicit_devices.discard(devname)
         if devname in self.__namespace:
             self.unexport(devname)
-
-    @property
-    def cache(self):
-        if self.__system_device is None:
-            self.__system_device = self.getDevice('System', System)
-        return self.__system_device._adevs['cache']
-
-    @property
-    def instrument(self):
-        # XXX are these guards necessary?
-        if self.__system_device is None:
-            self.__system_device = self.getDevice('System', System)
-        return self.__system_device._adevs['instrument']
-
-    @property
-    def experiment(self):
-        if self.__system_device is None:
-            self.__system_device = self.getDevice('System', System)
-        return self.__system_device._adevs['experiment']
-
-    @property
-    def datasinks(self):
-        if self.__system_device is None:
-            self.__system_device = self.getDevice('System', System)
-        return self.__system_device._adevs.get('datasinks', [])
-
-    @property
-    def notifiers(self):
-        if self.__system_device is None:
-            self.__system_device = self.getDevice('System', System)
-        return self.__system_device._adevs.get('notifiers', [])
 
     def notifyConditionally(self, runtime, subject, body, what=None, short=None):
         """Send a notification if the current runtime exceeds the configured
@@ -978,7 +978,6 @@ class DaemonSession(SimpleSession):
         # load all default modules from now on
         self.auto_modules = Session.auto_modules
 
-        self._Session__system_device = None
         self._Session__exported_names.clear()
 
     def updateLiveData(self, dtype, nx, ny, nt, time, data):
@@ -1026,4 +1025,5 @@ class WebSession(Session):
 
 
 # must be imported after class definitions due to module interdependencies
-from nicos.system import System
+from nicos.data import DataSink
+from nicos.experiment import Experiment

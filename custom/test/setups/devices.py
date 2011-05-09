@@ -29,17 +29,17 @@ name = 'devices for the setup'
 
 #includes = []
 
+sysconfig = dict(
+    cache = 'localhost',
+    instrument = 'tas',
+    experiment = 'Exp',
+    datasinks = ['conssink', 'filesink'],
+    notifiers = [],
+)
+
 devices = dict(
 
     # -- System devices -------------------------------------------------------
-
-    System   = device('nicos.system.System',
-                      datapath = 'data/',
-                      cache = 'Cache',
-                      datasinks = ['conssink', 'filesink'],
-                      instrument = 'tas',
-                      experiment = 'Exp',
-                      notifiers = []),
 
     Exp      = device('nicos.experiment.Experiment',
                       sample = 'Sample'),
@@ -48,12 +48,6 @@ devices = dict(
                       prefix = 'data'),
 
     conssink = device('nicos.data.ConsoleSink'),
-
-    Cache    = device('nicos.cache.client.CacheClient',
-                      lowlevel = True,
-                      server = 'localhost',
-                      prefix = 'nicos/',
-                      loglevel = 'info'),
 
     # -- TAS devices and axes -------------------------------------------------
 

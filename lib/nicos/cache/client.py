@@ -265,6 +265,9 @@ class BaseCacheClient(Device):
 
 
 class CacheClient(BaseCacheClient):
+
+    temporary = True
+
     def doInit(self):
         BaseCacheClient.doInit(self)
         self._db = {}

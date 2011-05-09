@@ -288,10 +288,8 @@ class Device(object):
             self.doInit()
 
     def _getCache(self):
-        if session.mode != 'simulation':
-            return session.cache
-        else:
-            return None
+        """Indirection needed by the Cache client itself."""
+        return session.cache
 
     def _initParam(self, param, paraminfo=None):
         """Get an initial value for the parameter, called when the cache
