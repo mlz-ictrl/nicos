@@ -108,15 +108,15 @@ class CascadeDetector(Measurable, NeedsDatapath):
 
     def doUpdateDatapath(self, value):
         if value:
-            value = value[0]  # always use only first data path
-            self._datapath = path.join(value, 'cascade')
+            # always use only first data path
+            self._datapath = path.join(value[0], 'cascade')
             self._filenumber = readFileCounter(path.join(self._datapath, 'counter'))
         else:
             self._datapath = None
             self._filenumber = -1
 
     def doWriteDatapath(self, value):
-        _datapath = path.join(value, 'cascade')
+        _datapath = path.join(value[0], 'cascade')
         self.lastfilenumber = self._filenumber
         self.lastfilename = path.join(
             _datapath, self.nametemplate[self.mode] % self._filenumber)
