@@ -268,13 +268,13 @@ class CacheClient(BaseCacheClient):
     def doInit(self):
         BaseCacheClient.doInit(self)
         self._db = {}
+        self._callbacks = {}
         # XXX in simulation mode?
         self._worker.start()
         # the execution master lock needs to be refreshed every now and then
         self._ismaster = False
         self._master_expires = 0
         self._mastertimeout = self._selecttimeout * 10
-        self._callbacks = {}
 
     def _wait_data(self):
         if self._ismaster:
