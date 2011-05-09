@@ -280,6 +280,8 @@ class QScan(Scan):
         Scan.__init__(self, [inst.h, inst.k, inst.l, inst.E], positions,
                       firstmoves, multistep, detlist, envlist, preset,
                       scaninfo, scantype)
+        self._envlist[0:0] = [inst._adevs['mono'], inst._adevs['ana'],
+                              inst._adevs['psi'], inst._adevs['phi']]
 
     def beginScan(self):
         if len(self._positions) > 1:
