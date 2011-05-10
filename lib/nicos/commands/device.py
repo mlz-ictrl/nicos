@@ -38,6 +38,7 @@ from nicos.device import Device, Moveable, Measurable, Readable, \
 from nicos.errors import NicosError, UsageError
 from nicos.status import statuses
 from nicos.commands import usercommand
+from nicos.commands.basic import sleep
 from nicos.commands.output import printinfo
 
 
@@ -104,12 +105,20 @@ def switch(*dev_pos_list):
 @usercommand
 def wait(*devlist):
     """Wait until motion of one or more devices is complete, or device is
-    out of "busy" status.
+    out of "busy" status.  A time in seconds can also be used to wait the
+    given number of seconds.
+
+    Example:
+        wait(T, 60)
+    waits for the T device, and then another 60 seconds.
     """
     if not devlist:
         devlist = [session.devices[devname] for devname in session.explicit_devices
                    if isinstance(session.devices[devname], (Moveable, Measurable))]
     for dev in devlist:
+        if isinstance(dev, (int, float, long)):
+            sleep(dev)
+            continue
         dev = session.getDevice(dev, (Moveable, Measurable))
         dev.printinfo('waiting for device')
         value = dev.wait()
