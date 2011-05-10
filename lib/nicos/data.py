@@ -263,7 +263,13 @@ class GraceSink(DataSink):
             self._pl.xaxis(label=GracePlot.Label(
                 '%s (%s)' % (dataset.xnames[dataset.xindex],
                              dataset.xunits[dataset.xindex])))
-            self._pl.yaxis(label=GracePlot.Label(str(dataset.detlist[0]))) # XXX
+            try:
+                # XXX
+                self._pl.yaxis(label=GracePlot.Label(str(dataset.detlist[0])))
+            except IndexError:
+                # no detectors in current scan, cannot plot
+                self._grpl = None
+                return
 
             self._xdata = []
             self._nperstep = len(dataset.ynames)
