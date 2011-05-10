@@ -621,7 +621,7 @@ class Moveable(Readable):
             self._sim_min = min(pos, self._sim_min)
             if self._sim_max is None:
                 self._sim_max = pos
-            self._sim_max = min(pos, self._sim_max)
+            self._sim_max = max(pos, self._sim_max)
             self._sim_started = session.clock.time
             return
         if self._cache:

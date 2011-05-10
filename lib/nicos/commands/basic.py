@@ -283,14 +283,17 @@ def Edit(filename):
 
 
 @usercommand
-def Run(filename):
-    """Run a script file given by file name.  If the file name is not absolute,
-    it is relative to the experiment script directory.
-    """
+def _RunScript(filename, statdevices):
     fn = _scriptfilename(filename)
     if not path.isfile(fn) and os.access(fn, os.R_OK):
         raise UsageError('The file %r does not exist or is not readable' % fn)
-    starttime = session.clock.time
+    if session.mode == 'simulation':
+        starttime = session.clock.time
+        for dev in statdevices:
+            if not isinstance(dev, Readable):
+                raise UsageError('unable to collect statistics on %r' % dev)
+            dev._sim_min = None
+            dev._sim_max = None
     printinfo('running user script: ' + fn)
     with open(fn, 'r') as fp:
         code = unicode(fp.read(), 'utf-8')
@@ -300,19 +303,36 @@ def Run(filename):
     if session.mode == 'simulation':
         printinfo('simulated minimum runtime: ' +
                   formatDuration(session.clock.time - starttime))
-    # XXX add device minimum/maximum values?
+        for dev in statdevices:
+            printinfo('%s: min %s, max %s, last %s' % (
+                dev.name, dev.format(dev._sim_min), dev.format(dev._sim_max),
+                dev.format(dev._sim_value)))
 
 
 @usercommand
-def Simulate(filename):
+def Run(filename):
+    """Run a script file given by file name.  If the file name is not absolute,
+    it is relative to the experiment script directory.
+    """
+    _run(filename)
+
+
+@usercommand
+def Simulate(filename, *devices):
     """Run a script file in simulation mode.  If the file name is not absolute,
     it is relative to the experiment script directory.
+
+    Position statistics will be collected for the given list of devices:
+        Simulate('test', T)
+    will simulate the 'test.py' user script and print out minimum/maximum/
+    last value of T during the run.
 
     If the session is already in simulation mode, this is the same as Run().
     """
     if session.mode == 'simulation':
-        return Run(filename)
-    session.forkSimulation('Run(%r)' % filename)
+        return _RunScript(filename, devices)
+    session.forkSimulation('_RunScript(%r, [%s])' %
+                           (filename, ', '.join(dev.name for dev in devices)))
 
 
 @usercommand
