@@ -48,21 +48,39 @@ levels of interaction that is possible with the device:
 
       Device objects must have a :attr:`parameters` class attribute that defines
       the available additional parameters.  It must be a dictionary mapping
-      parameter name to a :class:`.Param` object that describes the parameter's
-      properties (e.g. whether is it user-settable).
+      parameter name to a :class:`nicos.device.Param` object that describes the
+      parameter's properties (e.g. whether is it user-settable).
 
       The :attr:`parameters` attribute does *not* need to contain the parameters
       of base classes again, they are automatically merged.
 
+      As an example, here is the parameter specification of the ``Device`` class
+      itself::
+
+          parameters = {
+              'description': Param('A description of the device', type=str,
+                                   settable=True),
+              'lowlevel':    Param('Whether the device is not interesting to users',
+                                   type=bool, default=False),
+              'loglevel':    Param('The logging level of the device', type=str,
+                                   default='info', settable=True),
+          }
+
    .. attribute:: parameter_overrides
 
       While a subclass automatically inherits all parameters defined by base
-      classes, it can make changes to parameters' 
+      classes, it can make changes to parameters' properties using the override
+      mechanism.  This dictionary, if present, must be a mapping of existing
+      parameter names from base classes to :class:`nicos.device.Override`
+      objects that describe the desired changes to the parameter info.
 
-       But it *can* contain a parameter defined by a base class, in order to
-       override its properties.  For example, while usually the
-       :attr:`~Readable.unit` parameter is mandatory, it can be omitted for
-       devices that can find out their unit automatically.
+      For example, while usually the :attr:`~Readable.unit` parameter is
+      mandatory, it can be omitted for devices that can find out their unit
+      automatically.  This would be done like this::
+
+         parameter_overrides = {
+             'unit': Override(mandatory=False),
+         }
 
    .. attribute:: attached_devices
 
@@ -73,7 +91,10 @@ levels of interaction that is possible with the device:
       with that name) to the type of the device (which usually is an abstract
       type).  For example::
 
-         attached_devices = {'motor': nicos.motor.Motor, 'coder': nicos.coder.Coder}
+         attached_devices = {
+             'motor': nicos.motor.Motor,
+             'coder': nicos.coder.Coder
+         }
 
       The actual attached devices for a specific instance (given in the
       instance's configuration) are then type-checked against these types.  As a
@@ -86,57 +107,77 @@ levels of interaction that is possible with the device:
 
    .. rubric:: Public methods
 
-   .. automethod:: init()
+   These methods are present on every Device.  They do not need to be
+   reimplemented in custom devices.  Custom behavior is implemented in the
+   various ``do...()`` methods described below.
 
-   .. method:: shutdown()
+   .. automethod:: init
 
-      *Interface:* Shut down the device.  This method is called by the NICOS system
-      when the device is destroyed, manually or because the current setup is
-      unloaded.
+   .. automethod:: shutdown
 
-      *Implementation:* Simply calls a ``doShutdown()`` method if present.
+   .. automethod:: info
+
+   .. automethod:: version
 
    .. method:: getPar(name)
+               setPar(name, value)
 
-      *Interface:* Return the parameter given by *name*.
+      These are compatibility methods from the old NICOS system.  Parameter
+      access is now done via a property for every parameter.
 
-      *Implementation:* A getter method is automatically created for each
-      parameter, e.g. ``getUnit()`` for the *unit* parameter.  Each of these
-      getters calls a ``doGetParamname()`` (e.g. ``doGetUnit()``) method if
-      present, otherwise simply returns the parameter value from an internal
-      dictionary, ``_params``.
+   .. rubric:: Parameter access
 
-      Within a device class, methods *can* directly use parameter values from
-      ``self._params``, but are advised to use the ``getParamname()`` function when
-      possible.
+   For every parameter of a device class, a Python property is created on the
+   object.  This means that every parameter can be read as ``dev.param`` and
+   written as ``dev.param = value``.  Setting the parameter at runtime is
+   disallowed if the ``settable`` parameter property is false.
 
-   .. method:: setPar(name, value)
+   For every parameter, a read-related method can be defined (where "foo" is the
+   parameter name):
 
-      *Interface:* Set the parameter given by *name* to *value*.  If the given
-      value is invalid for this parameter, raise ``ConfigurationError``.
+   .. method:: doReadFoo()
 
-      *Implementation:* A setter method is automatically created for each
-      parameter, e.g. ``setUnit(value)`` for the *unit* parameter.  Each of these
-      setters calls a ``doSetParamname(value)`` method if present, otherwise
-      assumes that the parameter is not settable and raises ``ConfigurationError``.
-      The ``doSetParamname`` method should raise ``ConfigurationError`` for invalid
-      values and otherwise set the new value in the ``_params`` dictionary in
-      addition to device-specific actions (e.g. setting the new value in the
-      hardware as well).
+      For every parameter "foo", a ``doReadFoo()`` method can be implemented.
+      It will be called when the current parameter value is unknown, and cannot
+      be determined from the cache.  It should read the parameter value from an
+      independent source, such as the hardware or the filesystem.  If no such
+      method exists, the parameter value will be the default value from the
+      ``default`` parameter property, or if that is missing as well, a default
+      value based on the type of the parameter (for number-like parameters, this
+      is 0, for string-like parameters the empty string, etc).
 
-      Within a device class, methods *can* directly set parameter values in
-      ``self._params``, but are advised to use the ``setParamname()`` function when
-      possible.
+   For every parameter, two write-related methods can be defined (where "foo" is
+   the parameter name):
 
-   .. method:: version()
+   .. method:: doWriteFoo(value)
 
-      *Interface:* Return a list of tuples ``(component, version)`` that describes
-      the versions of components involved in the device.  "Components" are not
-      further defined and can be modules, TACO servers etc.
+      The ``doWriteFoo(value)`` method is called when the parameter is set by
+      the user (or the program) in the current session, using ``dev.foo =
+      value``.  This should write the new parameter value to the hardware, or
+      write new parameter values of any dependent devices.  It is only called
+      when the current session is in master mode.
 
-      *Implementation:* Retrieves versions of all Python modules that contribute to
-      the class inheritance chain of the device, then extends that list with the
-      result of ``doVersion()``, if present.
+      *value* is already type-checked against the parameter type.
+
+      This method can raise :exc:`.ConfigurationError` if the new parameter
+      value is invalid.
+
+      If this method returns something other than ``None``, it is used as the
+      new parameter value instead of the value given by the user.
+
+   .. method:: doUpdateFoo(value)
+
+      The ``doUpdateFoo(value)`` method, in contrast, is called *in every
+      session* when the parameter is changed by the master session, and the
+      parameter update is communicated to all other sessions via the cache.
+      This method should update *internal* state of the object that depends on
+      the values of certain parameters.
+
+      This method can raise :exc:`.ConfigurationError` if the new parameter
+      value is invalid.
+
+   NB: The method names need to contain the parameter name with the first letter
+   capitalized.
 
    .. rubric:: Parameters
 
@@ -150,15 +191,45 @@ levels of interaction that is possible with the device:
       A more verbose device description.  If not given, this parameter is set to be
       the same as the ``name`` parameter.
 
-   .. parameter:: autocreate : bool, optional
+   .. parameter:: lowlevel : bool, optional
 
-      Indicates whether the device should be created automatically and be available
-      to the user.  Default is true.
+      Indicates whether the device is "low-level" and should neither be
+      presented to users, nor created automatically.  Default is false.
 
    .. parameter:: loglevel : string, optional
 
       The loglevel for output from the device.  This must be set to one of the
       loglevel constants.  Default is ``info``.
+
+   .. rubric:: Protected members
+
+   These protected members are of interest when implementing device classes:
+
+   .. attribute:: _mode
+
+      The current :dfn:`execution mode`.  One of ``'master'``, ``'slave'``,
+      ``'maintenance'`` and ``'simulation'``.
+
+   .. attribute:: _cache
+
+      The cache client to use for the device (see :class:`.CacheClient`), or
+      ``None`` if no cache is available.
+
+   .. attribute:: _adevs
+
+      A dictionary mapping attached device names (as given by the
+      :attr:`attached_devices` dictionary) to the actual device instances.
+
+   .. attribute:: _params
+
+      Cached dictionary of parameter values.  Do not use this, rather access the
+      parameters via their properties (``self.parametername``).
+
+   .. automethod:: _setROParam
+
+   .. automethod:: _cachelock_acquire
+   .. automethod:: _cachelock_release
+
 
 
 ``Readable``
@@ -167,127 +238,45 @@ levels of interaction that is possible with the device:
 .. class:: Readable
 
    This class inherits from :class:`Device` and additionally supports this
-   public interface:
+   public interface and implementation methods:
 
-   .. method:: read()
+   .. automethod:: read
 
-      *Interface:* Read and return the main value of the device.
+   .. automethod:: status
 
-      *Implementation:* Calls the ``doRead()`` method.  This method must be
-      implemented somewhere in the inheritance chain of the concrete device class.
-      The read value is then repoerted to all configured histories.
+   .. automethod:: reset
 
-   .. method:: status()
+   .. automethod:: poll
 
-      *Interface:* Return the status of the device, as an integer constant as
-      defined by the ``nicos.status`` module.
+   .. automethod:: format
 
-      *Implementation:* This calls a ``doStatus()`` method, if present, and checks
-      that its return value is a valid status constant.  Otherwise it returns
-      ``status.UNKNOWN``.  The determined status value is then reported to all
-      configured histories.
+   .. method:: info()
 
-   .. method:: reset()
+      The default implementation of :meth:`Device.info` for Readables adds the
+      device main value and status.
 
-      *Interface:* Reset the device.
-
-      *Implementation:* Simply calls ``doReset()`` if present, and then returns the
-      new device status.
-
-   .. method:: format(value)
-
-      *Interface:* Format a value returned by ``read()`` into a human-readable
-      string.  This e.g. transforms a returned float into a string with a fixed
-      number of decimals.  It does not include the unit.
-
-      *Implementation:* This calls a ``doFormat(value)`` method, if present, and
-      otherwise formats *value* with the ``fmtstr`` parameter using Python string
-      formatting (the ``%`` operator).
-
-   .. method:: history(name='value', fromtime=None, totime=None)
-
-      Retrieves the history of a device attribute (*name*) from one of the
-      histories attached to the device.  *fromtime* and *totime* are UNIX
-      timestamps that specify a limiting time window.  If no history can supply the
-      requested values, ``None`` is returned.
+   .. automethod:: history
 
    .. rubric:: Parameters
 
    .. parameter:: fmtstr : string, optional
 
-      A string format template that determines how the default ``format()``
-      implementation formats the device value.
+      A string format template that determines how :meth:`format` formats the
+      device value.  The default is ``'%s'``.
 
    .. parameter:: unit : string, mandatory
 
       The unit of the device value.
 
-   .. parameter:: histories : list of strings, optional
+   .. parameter:: maxage : float, optional
 
-      A list of device names of "history" pseudo-devices.  These objects are
-      configured in the setup like devices, and serve to save and retrieve the
-      history of device values and other information like device status.
+      The maximum age of cached values from this device, in seconds.  Default is
+      5 seconds.
 
+   .. parameter:: pollinterval : float, optional
 
-``Startable``
-=============
-
-.. class:: Startable
-
-   This class inherits from ``Readable`` and is simply a common base class for
-   several classes that support starting, waiting and stopping.
-
-   .. method:: start(pos)
-               moveTo(pos)
-               move(pos)
-
-      *Interface:* Start movement of the device to a new position.  This method
-      does not generally wait for completion of the movement.
-
-      *Implementation:* This first checks for fixed devices and then for a valid
-      position with ``isAllowed(pos)``, then calls the ``doStart(pos)`` method,
-      which must exist.
-
-   .. method:: stop()
-
-      *Interface:* Stop any movement of the device.
-
-      *Implementation:* This first checks for fixed devices and then simply calls
-      ``doStop()`` if present.  If it is not present, it is assumed that the
-      movement always completes before ``doStart()`` returns.
-
-   .. method:: wait()
-
-      *Interface:* Wait for movement of the device to finish.
-
-      *Implementation:* Simply calls ``doWait()`` if present, then reads the device
-      value.  If ``doWait()`` is not present, it is assumed that the movement
-      always completes before ``doStart()`` returns.
-
-   .. method:: isAllowed(pos)
-
-      *Interface:* Check if the given position is allowed, considering the current
-      limits and other status of the device.  Return a tuple ``(valid, why)`` where
-      *valid* is a boolean, and *why* is a string describing the reason when
-      *valid* is false.  (The ``start()`` method takes the return value of this
-      method and turns it into an exception if needed.)
-
-      *Implementation:* This calls an ``doIsAllowed(pos)`` method if present.  If
-      not, ``(True, '')`` is returned.
-
-   .. method:: fix()
-
-      *Interface:* Forbid device movement by e.g. ``start()``.
-
-      *Implementation:* This sets an internal "fixed" flag and additionally calls
-      ``doFix()``, if present.
-
-   .. method:: release()
-
-      *Interface:* Allow device movement again (cancels the effect of ``fix()``).
-
-      *Implementation:* This clears the internal "fixed" flag and additionally
-      calls ``doRelease()``, if present.
+      The interval for polling this device from the :dfn:`NICOS poller`.
+      Default is 6 seconds.
 
 
 ``Moveable``
@@ -295,37 +284,27 @@ levels of interaction that is possible with the device:
 
 .. class:: Moveable
 
-   This class inherits from ``Startable`` and is the base for all devices that can
-   be moved continuously, like axes or power supplies.
+   This class inherits from :class:`Readable` and is the base class for all
+   devices that can be moved to different positions (continuously or
+   discretely).
 
-   .. rubric:: Public methods
+   .. automethod:: start
 
-   .. method:: moveTo(pos)
-               move(pos)
+   .. automethod:: isAllowed
 
-      Aliases for ``start(pos)``.
+   .. automethod:: stop
+
+   .. automethod:: wait
+
+   .. automethod:: fix
+
+   .. automethod:: release
 
    .. rubric:: Parameters
 
-   .. parameter:: absmin : number, optional
+   .. parameter:: target : any, read-only
 
-      Absolute minimum value for the device to move to.  This parameter cannot be
-      set after creation of the device.
-
-   .. parameter:: absmax : number, optional
-
-      Absolute maximum value for the device to move to.  This parameter cannot be
-      set after creation of the device.
-
-   .. parameter:: usermin : number, optional
-
-      Minimum value for the device to move to.  This parameter can be set after
-      creation, but not lower than the ``absmin`` parameter.
-
-   .. parameter:: usermax : number, optional
-
-      Maximum value for the device to move to.  This parameter can be set after
-      creation, but not higher than the ``absmax`` parameter.
+      The last target position of a :meth:`start` operation on the device.
 
 
 ``Measurable``
@@ -333,43 +312,76 @@ levels of interaction that is possible with the device:
 
 .. class:: Measurable
 
-   This class inherits from ``Startable`` and is the base for all counters.
+   This class inherits from :class:`Readable` and is the base for all devices
+   used for data acquisition (usually detectors).
 
    .. rubric:: Public methods
 
-   .. method:: start(preset=None)
+   .. automethod:: start
 
-      *Interface:* Start the counter, with either the given preset or the
-      standard preset.
+   .. automethod:: stop
 
-      *Implementation:* Calls ``doStart(preset)``.
+   .. automethod:: pause
 
-   .. method:: stop()
+   .. automethod:: resume
 
-      *Interface:* Stop the counter.
+   .. automethod:: isCompleted
 
-      *Implementation:* Calls ``doStop()``.
+   .. automethod:: wait
 
-   .. method:: resume()
+   .. automethod:: valueInfo
 
-      *Interface:* Resume the counter.
+   All :meth:`Measurable.doRead` implementations must return tuples with values
+   according to :meth:`valueInfo`.
 
-      *Implementation:* Calls ``doResume()``.
 
-   .. automethod:: wait()
+Mixin classes
+=============
 
-      *Interface:* Wait until counting is complete.
+``HasLimits``
+-------------
 
-      *Implementation:* Calls ``doWait()``.
+.. class:: HasLimits
 
-   .. method:: clear()
+   This mixin can be inherited from device classes that are continuously
+   moveable.  It automatically adds two parameters, absolute and user limits,
+   and overrides :meth:`.isAllowed` to check if the given position is within the
+   limits before moving.
 
-      *Interface:* Reset the counter value to zero (or equivalent).
+   .. note:: In a base class list, ``HasLimits`` must come before ``Moveable``,
+      e.g.::
 
-      *Implementation:* Calls ``doClear()``.
+         class MyDevice(HasLimits, Moveable): ...
 
-   .. method:: setPreset(value)
+   .. rubric:: Parameters
 
-      *Interface:* Set a new standard preset.
+   .. parameter:: abslimits : number tuple, mandatory
 
-      *Implementation:* Calls ``doSetPreset(value)``.
+      Absolute minimum and maximum values for the device to move to, as a tuple.
+      This parameter cannot be set after creation of the device and must be
+      given in the setup configuration.
+
+   .. parameter:: userlimits : number tuple, optional
+
+      Minimum and maximum value for the device to move to.  This parameter can
+      be set after creation, but not outside the ``abslimits``.
+
+
+``HasOffset``
+-------------
+
+.. class:: HasOffset
+
+   Mixin class for Readable or Moveable devices that want to provide an 'offset'
+   parameter and that can be adjusted via the :func:`adjust` user command.
+
+   A class that provides an offset must inherit this mixin, and subtract or add
+   ``self.offset`` in :meth:`doRead` or :meth:`doStart`, respectively.
+
+   .. rubric:: Parameters
+
+   .. parameter:: offset : number, optional
+
+      The current offset of the device zero to the hardware zero.
+
+      The device position is ``hardware_position - offset``.

@@ -169,18 +169,36 @@ class Device(object):
         self._log.setLevel(loggers.loglevels[value])
 
     def init(self):
+        """Initialize the object; this is called by the NICOS system when the
+        device instance has been created.
+
+        This method first initializes all attached devices (creating them if
+        necessary), then initializes parameters.
+
+        .. XXX expand parameter init procedure
+
+        .. method:: doPreinit()
+
+           This method, if present, is called before parameters are initialized
+           (except for parameters that have the ``preinit`` property set to
+           true).
+
+           This allows to initialize a hardware connection if it is necessary
+           for the various ``doRead...()`` methods of other parameters that read
+           the current parameter value from the hardware.
+
+        .. method:: doInit()
+
+           This method, if present, is called after all parameters have been
+           initialized.  It is the correct place to set up additional
+           attributes, or to perform initial (read-only!) communication with the
+           hardware.
+
+        .. note:: Currently, ``doPreinit()`` and ``doInit()`` are called
+           regardless of the current execution mode.  This means that if one of
+           these methods does hardware access, it needs to be done only if
+           ``self._mode != 'simulation'``.
         """
-        *Interface:* Initialize the object; this is called by the NICOS system
-        when the device instance has been created.
-
-        *Implementation:* First initializes all attached devices (creating them
-        if necessary), then initializes parameters.
-
-        A ``doPreinit()`` method, if present, is called before parameter
-        initialization, while a ``doInit()`` method, if present, is called after
-        all parameters have been initialized.
-        """
-
         # validate and create attached devices
         for aname, cls in sorted(self.attached_devices.iteritems()):
             if aname not in self._config:
@@ -324,7 +342,11 @@ class Device(object):
         self._params[param] = value
 
     def _setROParam(self, param, value):
-        """Set an otherwise read-only parameter."""
+        """Set an otherwise read-only parameter.
+
+        This is useful for parameters that change at runtime, but indirectly,
+        such as "last filenumber".
+        """
         self._params[param] = value
         if self._cache:
             self._cache.put(self, param, value)
@@ -338,7 +360,21 @@ class Device(object):
             self._cache = None
 
     def info(self):
-        """Return device information as an iterable of tuples (name, value)."""
+        """Return "device information" as an iterable of tuples ``(category,
+        name, value)``.
+
+        This "device information" is put into data files and should therefore
+        include any parameters that will be essential to record the current
+        status of the instrument.
+
+        The default implementation already collects all parameters whose
+        ``category`` property is set.
+
+        .. method:: doInfo()
+
+           This method can add more device information by returning it as a
+           sequence of tuples.
+        """
         if hasattr(self, 'doInfo'):
             for item in self.doInfo():
                 yield item
@@ -349,7 +385,15 @@ class Device(object):
             yield (category, name, '%s %s' % (parvalue, parunit))
 
     def shutdown(self):
-        """Shut down the object; called from Session.destroyDevice()."""
+        """Shut down the device.  This method is called by the NICOS system when
+        the device is destroyed, manually or because the current setup is
+        unloaded.
+
+        .. method:: doShutdown()
+
+           This method is called, if present, but not in simulation mode.  It
+           should perform cleanup, for example closing connections to hardware.
+        """
         if self._mode == 'simulation':
             # do not execute shutdown actions when simulating
             return
@@ -357,13 +401,30 @@ class Device(object):
             self.doShutdown()
 
     def version(self):
-        """Return a list of versions for this component."""
+        """Return a list of version tuples for this device.  These are tuples
+        (component, version) where a "component" can be the name of a
+        Python module, or an external dependency (like a TACO server).
+
+        The base implementation already collects VCS revision information
+        available from all Python modules involved in the class inheritance
+        chain of the device class.
+
+        .. method:: doVersion()
+
+           This method is called if present, and should return a list of
+           (component, version) tuples that are added to the version info.
+        """
         versions = getVersions(self)
         if hasattr(self, 'doVersion'):
             versions.extend(self.doVersion())
         return versions
 
     def _cachelock_acquire(self, timeout=3):
+        """Acquire an exclusive lock for using this device from the cache.  This
+        can be used if read access to the device needs to be locked (write
+        access is locked anyway, since only one NICOS session can be the master
+        session at a time).
+        """
         if not self._cache:
             return
         start = currenttime()
@@ -378,6 +439,16 @@ class Device(object):
                 break
 
     def _cachelock_release(self):
+        """Release the exclusive cache lock for this device.
+
+        Always use like this::
+
+           self._cachelock_acquire()
+           try:
+               ...  # do locked operations
+           finally:
+               self._cachelock_release()
+        """
         if not self._cache:
             return
         try:
@@ -464,14 +535,30 @@ class Readable(Device):
         return val
 
     def read(self):
-        """Read the main value of the device and save it in the cache."""
+        """Read the (possibly cached) main value of the device.
+
+        .. method:: doRead()
+
+           This method must be implemented to read the actual device value from
+           the device.  It is only called if the last cached value is out of
+           date, or no cache is available.
+        """
         if self._sim_active:
             return self._sim_value
         return self._get_from_cache('value', self.doRead)
 
     def status(self):
-        """Return the status of the device as one of the integer constants
-        defined in the nicos.status module.
+        """Return the (possibly cached) status of the device as one of the
+        integer constants defined in the :mod:`nicos.status` module.
+
+        .. method:: doStatus()
+
+           This method can be implemented to get actual device status from the
+           device.  It is only called if the last cached value is out of
+           date, or no cache is available.
+
+           If no ``doStatus()`` is implemented, ``status()`` returns
+           ``status.UNKNOWN``.
         """
         if self._sim_active:
             return (status.OK, 'simulated ok')
@@ -488,8 +575,17 @@ class Readable(Device):
 
     def poll(self, n=0):
         """Get status and value directly from the device and put both values
-        into the cache.  For continuous polling, *n* should increase with every
-        call to *poll*.
+        into the cache.  For continuous polling, *n* should increase by one with
+        every call to *poll*.
+
+        .. method:: doPoll(n)
+
+           If present, this method is called to perform additional polling,
+           e.g. on parameters that can be changed from outside the NICOS system.
+           The *n* parameter can be used to perform the polling less frequently
+           than the polling of value and status.
+
+        .. automethod:: _pollParam(name, with_ttl=False)
         """
         stval = None
         if hasattr(self, 'doStatus'):
@@ -502,6 +598,12 @@ class Readable(Device):
         return stval, rdval
 
     def _pollParam(self, name, with_ttl=False):
+        """Read a parameter value from the hardware and put its value into the
+        cache.  This is intendend to be used from :meth:`doPoll` methods, so
+        that they don't have to implement parameter polling themselves.  If
+        *with_ttl* is true, the cached value gets the same TTL as the device
+        value, determined by :attr:`maxage`.
+        """
         value = getattr(self, 'doRead' + name.title())()
         if with_ttl:
             self._cache.put(self, name, value, currenttime(), self.maxage)
@@ -509,7 +611,16 @@ class Readable(Device):
             self._cache.put(self, name, value)
 
     def reset(self):
-        """Reset the device hardware.  Return status afterwards."""
+        """Reset the device hardware.  Returns the new status afterwards.
+
+        This operation is forbidden in slave mode, and a no-op for hardware
+        devices in simulation mode.
+
+        .. method:: doReset()
+
+           This method is called if implemented.  Otherwise, ``reset()`` is a
+           no-op.
+        """
         if self._mode == 'slave':
             raise ModeError('reset not possible in slave mode')
         elif self._sim_active:
@@ -520,7 +631,12 @@ class Readable(Device):
         return self.status()
 
     def format(self, value):
-        """Format a value from self.read() into a human-readable string."""
+        """Format a value from :meth:`read` into a human-readable string,
+        without the unit.
+
+        This is done using Python string formatting (the ``%`` operator) with
+        the :attr:`fmtstr` parameter value as the format string.
+        """
         if isinstance(value, list):
             value = tuple(value)
         try:
@@ -529,7 +645,12 @@ class Readable(Device):
             return str(value)
 
     def history(self, name='value', fromtime=None, totime=None):
-        """Return a history of the parameter *name*."""
+        """Return a history of the parameter *name* (can also be ``'value'`` or
+        ``'status'``).
+
+        *fromtime* and *totime* can be UNIX timestamps to specify a limiting
+        time window.
+        """
         if not self._cache:
             raise ConfigurationError('no cache is configured for this setup')
         else:
@@ -572,8 +693,6 @@ class Moveable(Readable):
     * doStop()
     * doWait()
     * doIsAllowed()
-    * doFix()
-    * doRelease()
     * doTime()
     """
 
@@ -593,17 +712,41 @@ class Moveable(Readable):
         return self.start(pos)
 
     def isAllowed(self, pos):
-        """Return a tuple describing the validity of the given position.
+        """Return a tuple ``(valid, why)`` describing the validity of the given
+        position.  The first item is a boolean indicating if the position is
+        valid, the second item is a string with the reason if it is invalid.
 
-        The first item is a boolean indicating if the position is valid,
-        the second item is a string with the reason if it is invalid.
+        .. method:: doIsAllowed(pos)
+
+           This method must be implemented to check the validity.  If it does
+           not exist, all positions are valid.
+
+           Note: to implement ordinary (min, max) limits, do not use this method
+           but inherit your device from :class:`HasLimits`.  This takes care of
+           all limit processing.
         """
         if hasattr(self, 'doIsAllowed'):
             return self.doIsAllowed(pos)
         return True, ''
 
     def start(self, pos):
-        """Start main action of the device."""
+        """Start movement of the device to a new position.  This method does not
+        generally wait for completion of the movement, although individual
+        devices can implement it that way if it is convenient.  In that case,
+        no :meth:`doWait` should be implemented.
+
+        The validity of the given *pos* is checked by calling :meth:`isAllowed`
+        before :meth:`doStart` is called.
+
+        This operation is forbidden in slave mode.  In simulation mode, it sets
+        an internal variable to the given position for hardware devices instead
+        of calling :meth:`doStart`.
+
+        .. method:: doStart(pos)
+
+           This method must be implemented and actually move the device to the
+           new position.
+        """
         if self._mode == 'slave':
             raise ModeError(self, 'start not possible in slave mode')
         if self._isFixed:
@@ -631,8 +774,15 @@ class Moveable(Readable):
     move = start
 
     def wait(self):
-        """Wait until main action of device is completed.
-        Return current value after waiting.
+        """Wait until movement of device is completed.  Return current device
+        value after waiting.
+
+        This is a no-op for hardware devices in simulation mode.
+
+        .. method:: doWait()
+
+           If present, this method is called to actually do the waiting.
+           Otherwise, the device is assumed to change position instantly.
         """
         if self._sim_active:
             if not hasattr(self, 'doTime'):
@@ -662,7 +812,16 @@ class Moveable(Readable):
         return val
 
     def stop(self):
-        """Stop main action of the device."""
+        """Stop any movement of the device.
+
+        This operation is forbidden in slave mode, and a no-op for hardware
+        devices in simulation mode.
+
+        .. method:: doStop()
+
+           This is called to actually stop the device.  If not present,
+           :meth:`stop` will be a no-op.
+        """
         if self._mode == 'slave':
             raise ModeError(self, 'stop not possible in slave mode')
         elif self._sim_active:
@@ -675,19 +834,13 @@ class Moveable(Readable):
             self._cache.invalidate(self, 'value')
 
     def fix(self):
-        """Fix the device, i.e. don't allow movement anymore."""
-        if self._isFixed:
-            return
-        if hasattr(self, 'doFix'):
-            self.doFix()
+        """Fix the device, i.e. don't allow movement anymore by :meth:`start` or
+        :meth:`stop`.
+        """
         self._isFixed = True
 
     def release(self):
-        """Release the device, i.e. undo the effect of fix()."""
-        if not self._isFixed:
-            return
-        if hasattr(self, 'doRelease'):
-            self.doRelease()
+        """Release the device, i.e. undo the effect of :meth:`fix`."""
         self._isFixed = False
 
 
@@ -839,7 +992,15 @@ class Measurable(Readable):
     }
 
     def start(self, **preset):
-        """Start measurement."""
+        """Start measurement, with either the given preset or the standard
+        preset.
+
+        This operation is forbidden in slave mode.
+
+        .. method:: doStart(**preset)
+
+           This method must be present and is called to start the measurement.
+        """
         if self._mode == 'slave':
             raise ModeError(self, 'start not possible in slave mode')
         elif self._sim_active:
@@ -864,6 +1025,13 @@ class Measurable(Readable):
     def pause(self):
         """Pause the measurement, if possible.  Return True if paused
         successfully.
+
+        This operation is forbidden in slave mode.
+
+        .. method:: doPause()
+
+           If present, this is called to pause the measurement.  Otherwise,
+           ``False`` is returned to indicate that pausing is not possible.
         """
         if self._mode == 'slave':
             raise ModeError(self, 'pause not possible in slave mode')
@@ -874,7 +1042,15 @@ class Measurable(Readable):
         return False
 
     def resume(self):
-        """Resume paused measurement."""
+        """Resume paused measurement.  Return True if resumed successfully.
+
+        This operation is forbidden in slave mode.
+
+        .. method:: doResume()
+
+           If present, this is called to resume the measurement.  Otherwise,
+           ``False`` is returned to indicate that resuming is not possible.
+        """
         if self._mode == 'slave':
             raise ModeError(self, 'resume not possible in slave mode')
         elif self._sim_active:
@@ -884,7 +1060,15 @@ class Measurable(Readable):
         return False
 
     def stop(self):
-        """Stop measurement now."""
+        """Stop measurement now.
+
+        This operation is forbidden in slave mode.
+
+        .. method:: doStop()
+
+           This method must be present and is called to actually stop the
+           measurement.
+        """
         if self._mode == 'slave':
             raise ModeError(self, 'stop not possible in slave mode')
         elif self._sim_active:
@@ -892,13 +1076,21 @@ class Measurable(Readable):
         self.doStop()
 
     def isCompleted(self):
-        """Return true if measurement is complete."""
+        """Return true if measurement is complete.
+
+        .. method:: doIsCompleted()
+
+           This method must be present and is called to determine if the
+           measurement is completed.
+        """
         if self._sim_active:
             return True
         return self.doIsCompleted()
 
     def wait(self):
-        """Wait for completion of measurement."""
+        """Wait for completion of measurement.  This is implemented by calling
+        :meth:`isCompleted` in a loop.
+        """
         while not self.isCompleted():
             sleep(0.1)
 
@@ -932,7 +1124,11 @@ class Measurable(Readable):
             yield item
 
     def valueInfo(self):
-        """Return a tuple of Value instances describing the values that read()
-        returns.
+        """Return a tuple of :class:`nicos.device.Value` instances describing
+        the values that :meth:`read` returns.
+
+        This must be overridden by every Measurable that returns more than one
+        value.  The default indicates a single return value with no additional
+        info about the value type.
         """
         return Value(self.name, unit=self.unit),

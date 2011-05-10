@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys, os
-sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath('../../lib'))
 
 extensions = ['sphinx.ext.autodoc']
 templates_path = ['_templates']
