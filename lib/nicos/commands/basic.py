@@ -46,7 +46,7 @@ from nicos.utils import formatDocstring, formatDuration, printTable
 from nicos.device import Device, AutoDevice, Readable
 from nicos.errors import ModeError, NicosError, UsageError
 from nicos.notify import Mailer, SMSer
-from nicos.sessions import EXECUTIONMODES
+from nicos.sessions import DaemonSession, EXECUTIONMODES
 from nicos.commands import usercommand
 from nicos.commands.output import printinfo, printwarning, printerror, \
      printexception
@@ -255,6 +255,13 @@ def UserInfo(name):
     return _Scope(name)
 
 
+def _scriptfilename(filename):
+    fn = path.normpath(path.join(session.experiment.scriptdir, filename))
+    if not fn.endswith('.py'):
+        fn += '.py'
+    return fn
+
+
 @usercommand
 def Edit(filename):
     """Edit the script file given by file name.  If the file name is not
@@ -265,7 +272,7 @@ def Edit(filename):
     if 'EDITOR' not in os.environ:
         printerror('no EDITOR environment variable is set, cannot edit')
         return
-    fn = path.normpath(path.join(session.experiment.scriptdir, filename))
+    fn = _scriptfilename(filename)
     printinfo('starting editor...')
     os.system('$EDITOR "%s"' % fn)
     reply = raw_input('<R>un or <S>imulate the script? ')
@@ -280,7 +287,7 @@ def Run(filename):
     """Run a script file given by file name.  If the file name is not absolute,
     it is relative to the experiment script directory.
     """
-    fn = path.normpath(path.join(session.experiment.scriptdir, filename))
+    fn = _scriptfilename(filename)
     if not path.isfile(fn) and os.access(fn, os.R_OK):
         raise UsageError('The file %r does not exist or is not readable' % fn)
     starttime = session.clock.time
@@ -305,26 +312,7 @@ def Simulate(filename):
     """
     if session.mode == 'simulation':
         return Run(filename)
-    try:
-        pid = os.fork()
-    except OSError:
-        printexception('Cannot fork into simulation mode')
-        return
-    if pid == 0:
-        # child process
-        try:
-            session.log.globalprefix = '(sim) '
-            SetMode('simulation')
-            Run(filename)
-        except:  # really *all* exceptions
-            printexception()
-        finally:
-            sys.exit()
-    else:
-        try:
-            os.waitpid(pid, 0)
-        except OSError:
-            printexception('Error waiting for simulation process')
+    session.forkSimulation('Run(%r)' % filename)
 
 
 @usercommand

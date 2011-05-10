@@ -33,14 +33,17 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import os
 import re
 import sys
 import time
+import struct
 import logging
 import linecache
 import traceback
 import __builtin__
 import cPickle as pickle
+from threading import Thread
 
 
 TIMESTAMP_FMT = '%Y-%m-%d %H:%M:%S'
@@ -144,6 +147,45 @@ class DaemonLogHandler(logging.Handler):
             msg[3] += '\n'
         self.daemon._messages.append(msg)
         self.daemon.emit_event('message', msg)
+
+
+_lenstruct = struct.Struct('>I')
+
+class DaemonPipeSender(logging.Handler):
+    """
+    Log handler sending messages to daemon via a pipe.
+    """
+
+    def __init__(self, fileno):
+        logging.Handler.__init__(self)
+        self.fileno = fileno
+
+    def emit(self, record, entries=TRANSMIT_ENTRIES):
+        msg = [getattr(record, e) for e in entries]
+        if not hasattr(record, 'nonl'):
+            msg[3] += '\n'
+        msg = serialize(msg)
+        os.write(self.fileno, _lenstruct.pack(len(msg)) + msg)
+
+
+class DaemonPipeReceiver(Thread):
+    """
+    Thread for receiving messages from a pipe and sending them to the daemon.
+    """
+
+    def __init__(self, fileno, daemon):
+        Thread.__init__(self, target=self._thread, args=(fileno, daemon))
+
+    def _thread(self, fileno, daemon):
+        while True:
+            data = os.read(fileno, 4)
+            if len(data) < 4:
+                return
+            size, = _lenstruct.unpack(data)
+            data = os.read(fileno, size)
+            msg = unserialize(data)
+            daemon._messages.append(msg)
+            daemon.emit_event('message', msg)
 
 
 # -- Module reloading handling -------------------------------------------------

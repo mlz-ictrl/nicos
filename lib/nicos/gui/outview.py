@@ -114,13 +114,15 @@ class OutputView(QTextBrowser):
         bar.setValue(bar.maximum())
 
     def formatMessage(self, message):
-        # message is a sequence: (logger, time, levelno, message, exc_text)
+        # message is a sequence:
+        # (logger, time, levelno, message, exc_text, prefix)
         fmt = None
         levelno = message[2]
         if message[0] == 'nicos':
             name = ''
         else:
             name = '%-10s: ' % message[0]
+        #name = message[5] + name
         if levelno == ACTION:
             if self._actionlabel:
                 action = message[3].strip()

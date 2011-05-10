@@ -132,20 +132,20 @@ class Session(object):
         # contains all explicitly loaded setups
         self.explicit_setups = []
         # path to setup files
-        self.__setup_path = path.join(self.config.control_path, 'setups')
-        if not path.isdir(self.__setup_path) and path.isdir(
+        self._setup_path = path.join(self.config.control_path, 'setups')
+        if not path.isdir(self._setup_path) and path.isdir(
             path.join(self.config.control_path, 'custom/test/setups')):
-            self.__setup_path = path.join(self.config.control_path,
-                                          'custom/test/setups')
+            self._setup_path = path.join(self.config.control_path,
+                                         'custom/test/setups')
         # devices failed in the current setup process
-        self.__failed_devices = None
+        self._failed_devices = None
         # info about all loadable setups
-        self.__setup_info = {}
+        self._setup_info = {}
         # namespace to place user-accessible items in
-        self.__namespace = NicosNamespace()
-        self.__local_namespace = NicosNamespace()
+        self._namespace = NicosNamespace()
+        self._local_namespace = NicosNamespace()
         # contains all NICOS-exported names
-        self.__exported_names = set()
+        self._exported_names = set()
         # action stack for status line
         self._actionStack = []
         # execution mode; initially always slave
@@ -167,14 +167,14 @@ class Session(object):
 
     def setNamespace(self, ns):
         """Set the namespace to export commands and devices into."""
-        self.__namespace = ns
-        self.__exported_names = set()
+        self._namespace = ns
+        self._exported_names = set()
 
     def getNamespace(self):
-        return self.__namespace
+        return self._namespace
 
     def getLocalNamespace(self):
-        return self.__local_namespace
+        return self._local_namespace
 
     @property
     def mode(self):
@@ -225,7 +225,7 @@ class Session(object):
 
     def setSetupPath(self, path):
         """Set the path to the setup files."""
-        self.__setup_path = path
+        self._setup_path = path
         self.readSetups()
 
     def readSetups(self):
@@ -234,13 +234,13 @@ class Session(object):
         Setup modules are looked for in the setup/ directory which
         should be a sibling to this package's directory.
         """
-        self.__setup_info.clear()
-        for filename in os.listdir(self.__setup_path):
+        self._setup_info.clear()
+        for filename in os.listdir(self._setup_path):
             if not filename.endswith('.py'):
                 continue
             modname = filename[:-3]
             try:
-                modfile = imp.find_module(modname, [self.__setup_path])
+                modfile = imp.find_module(modname, [self._setup_path])
                 code = modfile[0].read()
                 modfile[0].close()
             except (ImportError, IOError), err:
@@ -262,28 +262,28 @@ class Session(object):
                 'devices': ns.get('devices', {}),
                 'startupcode': ns.get('startupcode', ''),
             }
-            self.__setup_info[modname] = info
+            self._setup_info[modname] = info
         # check if all includes exist
-        for name, info in self.__setup_info.iteritems():
+        for name, info in self._setup_info.iteritems():
             for include in info['includes']:
-                if include not in self.__setup_info:
+                if include not in self._setup_info:
                     raise ConfigurationError('Setup %s includes setup %s which '
                                              'does not exist' % (name, include))
 
     def getSetupInfo(self):
-        return self.__setup_info.copy()
+        return self._setup_info.copy()
 
     def loadSetup(self, setupname, allow_special=False, raise_failed=False):
         """Load a setup module and set up devices accordingly."""
-        if not self.__setup_info:
+        if not self._setup_info:
             self.readSetups()
 
         if setupname in self.loaded_setups:
             self.log.warning('setup %s is already loaded' % setupname)
             return
-        if setupname not in self.__setup_info:
+        if setupname not in self._setup_info:
             raise ConfigurationError('Setup %s does not exist (setup path is '
-                                     '%s)' % (setupname, self.__setup_path))
+                                     '%s)' % (setupname, self._setup_path))
 
         self.log.info('loading setup %s' % setupname)
 
@@ -311,7 +311,7 @@ class Session(object):
             if name != setupname:
                 self.log.info('loading include setup %s' % name)
 
-            info = self.__setup_info[name]
+            info = self._setup_info[name]
             if info['group'] == 'special' and not allow_special:
                 raise ConfigurationError('Cannot load special setup %r' % name)
             if info['group'] == 'simulated' and self._mode != 'simulation':
@@ -392,7 +392,7 @@ class Session(object):
         # execute the startup code
         for code in startupcode:
             if code:
-                exec code in self.__namespace
+                exec code in self._namespace
 
         if failed_devs:
             self.log.error('the following devices could not be created:')
@@ -423,7 +423,7 @@ class Session(object):
         self.devices.clear()
         self.configured_devices.clear()
         self.explicit_devices.clear()
-        for name in list(self.__exported_names):
+        for name in list(self._exported_names):
             self.unexport(name)
         self.cache = None
         self.instrument = None
@@ -456,27 +456,27 @@ class Session(object):
         )[self._mode]
 
     def export(self, name, object):
-        self.__namespace.setForbidden(name, object)
-        self.__namespace.addForbidden(name)
-        self.__local_namespace.addForbidden(name)
-        self.__exported_names.add(name)
+        self._namespace.setForbidden(name, object)
+        self._namespace.addForbidden(name)
+        self._local_namespace.addForbidden(name)
+        self._exported_names.add(name)
 
     def unexport(self, name, warn=True):
-        if name not in self.__namespace:
+        if name not in self._namespace:
             if warn:
                 self.log.warning('unexport: name %r not in namespace' % name)
             return
-        if name not in self.__exported_names:
+        if name not in self._exported_names:
             self.log.warning('unexport: name %r not exported by NICOS' % name)
-        self.__namespace.removeForbidden(name)
-        self.__local_namespace.removeForbidden(name)
-        del self.__namespace[name]
-        self.__exported_names.remove(name)
+        self._namespace.removeForbidden(name)
+        self._local_namespace.removeForbidden(name)
+        del self._namespace[name]
+        self._exported_names.remove(name)
 
     def getExportedObjects(self):
-        for name in self.__exported_names:
-            if name in self.__namespace:
-                yield self.__namespace[name]
+        for name in self._exported_names:
+            if name in self._namespace:
+                yield self._namespace[name]
 
     # -- Device control --------------------------------------------------------
 
@@ -484,10 +484,10 @@ class Session(object):
         """Store devices that fail to create so that they are not tried again
         and again during one setup process.
         """
-        self.__failed_devices = set()
+        self._failed_devices = set()
 
     def endMultiCreate(self):
-        self.__failed_devices = None
+        self._failed_devices = None
 
     def getDevice(self, dev, cls=None):
         """Convenience: get a device by name or instance."""
@@ -510,7 +510,7 @@ class Session(object):
 
         If device exists and *recreate* is true, destroy and create it again.
         """
-        if self.__failed_devices and devname in self.__failed_devices:
+        if self._failed_devices and devname in self._failed_devices:
             raise NicosError('device already failed to create before')
         if devname not in self.configured_devices:
             raise ConfigurationError('device %r not found in configuration'
@@ -534,8 +534,8 @@ class Session(object):
         try:
             dev = devcls(devname, **devconfig)
         except Exception:
-            if self.__failed_devices is not None:
-                self.__failed_devices.add(devname)
+            if self._failed_devices is not None:
+                self._failed_devices.add(devname)
             raise
         if explicit:
             self.explicit_devices.add(devname)
@@ -556,7 +556,7 @@ class Session(object):
                 adev._sdevs.discard(dev.name)
         del self.devices[devname]
         self.explicit_devices.discard(devname)
-        if devname in self.__namespace:
+        if devname in self._namespace:
             self.unexport(devname)
 
     def notifyConditionally(self, runtime, subject, body, what=None, short=None):
@@ -820,9 +820,9 @@ class InteractiveSession(Session):
 
     def _initLogging(self):
         Session._initLogging(self)
-        sys.displayhook = self.__displayhook
+        sys.displayhook = self._displayhook
 
-    def __displayhook(self, value):
+    def _displayhook(self, value):
         if value is not None:
             self.log.log(OUTPUT, repr(value))
 
@@ -878,6 +878,28 @@ class InteractiveSession(Session):
                 signal.default_int_handler(signum, frame)
         finally:
             self._in_sigint = False
+
+    def forkSimulation(self, code):
+        try:
+            pid = os.fork()
+        except OSError:
+            self.log.exception('Cannot fork into simulation mode')
+            return
+        if pid == 0:
+            # child process
+            try:
+                self.log.globalprefix = '(sim) '
+                self.setMode('simulation')
+                exec code in self._namespace
+            except:  # really *all* exceptions
+                self.log.exception()
+            finally:
+                sys.exit()
+        else:
+            try:
+                os.waitpid(pid, 0)
+            except OSError:
+                self.log.exception('Error waiting for simulation process')
 
     @classmethod
     def run(cls, setup='startup', simulate=False):
@@ -947,14 +969,15 @@ class DaemonSession(SimpleSession):
 
     def _initLogging(self):
         SimpleSession._initLogging(self)
-        sys.displayhook = self.__displayhook
+        sys.displayhook = self._displayhook
 
-    def __displayhook(self, value):
+    def _displayhook(self, value):
         if value is not None:
             self.log.log(OUTPUT, repr(value))
 
     def _beforeStart(self, daemondev):
         from nicos.daemon.utils import DaemonLogHandler
+        self.daemon_device = daemondev
         self.daemon_handler = DaemonLogHandler(daemondev)
         # create a new root logger that gets the daemon handler
         self.createRootLogger()
@@ -980,7 +1003,35 @@ class DaemonSession(SimpleSession):
         # load all default modules from now on
         self.auto_modules = Session.auto_modules
 
-        self._Session__exported_names.clear()
+        self._exported_names.clear()
+
+    def forkSimulation(self, code):
+        from nicos.daemon.utils import DaemonPipeSender, DaemonPipeReceiver
+        rp, wp = os.pipe()
+        receiver = DaemonPipeReceiver(rp, self.daemon_device)
+        receiver.start()
+        try:
+            pid = os.fork()
+        except OSError:
+            self.log.exception('Cannot fork into simulation mode')
+            return
+        if pid == 0:
+            # child process
+            try:
+                self.addLogHandler(DaemonPipeSender(wp))
+                self.log.globalprefix = '(sim) '
+                self.setMode('simulation')
+                exec code in self._namespace
+            except:  # really *all* exceptions
+                self.log.exception()
+            finally:
+                sys.exit()
+        else:
+            try:
+                os.waitpid(pid, 0)
+            except OSError:
+                self.log.exception('Error waiting for simulation process')
+            os.write(wp, 'x')   # single byte received:
 
     def updateLiveData(self, dtype, nx, ny, nt, time, data):
         self.emitfunc('liveparams', (dtype, nx, ny, nt, time))
@@ -998,9 +1049,9 @@ class WebSession(Session):
 
     def _initLogging(self):
         Session._initLogging(self)
-        sys.displayhook = self.__displayhook
+        sys.displayhook = self._displayhook
 
-    def __displayhook(self, value):
+    def _displayhook(self, value):
         if value is not None:
             self.log.log(OUTPUT, repr(value))
 
