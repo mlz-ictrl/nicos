@@ -405,8 +405,11 @@ def SaveSimulationSetup(filename, name=None):
         f.write('startupcode = """\n')
         for dev in session.devices.itervalues():
             if isinstance(dev, Readable) and dev.hardware_access:
-                f.write('_SimulationRestore(%r, %r)\n' %
-                        (dev.name, dev._sim_value))
+                if session.mode == 'simulation':
+                    value = dev._sim_value
+                else:
+                    value = dev.read()
+                f.write('_SimulationRestore(%r, %r)\n' % (dev.name, value))
         f.write('"""\n')
 
 @usercommand
