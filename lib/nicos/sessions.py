@@ -895,11 +895,12 @@ class InteractiveSession(Session):
                 self.log.exception()
             finally:
                 sys.exit()
-        else:
-            try:
-                os.waitpid(pid, 0)
-            except OSError:
-                self.log.exception('Error waiting for simulation process')
+            os._exit()
+        # parent process
+        try:
+            os.waitpid(pid, 0)
+        except OSError:
+            self.log.exception('Error waiting for simulation process')
 
     @classmethod
     def run(cls, setup='startup', simulate=False):
@@ -1018,8 +1019,8 @@ class DaemonSession(SimpleSession):
         if pid == 0:
             # child process
             try:
-                self.addLogHandler(DaemonPipeSender(wp))
                 self.log.globalprefix = '(sim) '
+                self.addLogHandler(DaemonPipeSender(wp))
                 self.setMode('simulation')
                 exec code in self._namespace
             except:  # really *all* exceptions
@@ -1031,7 +1032,6 @@ class DaemonSession(SimpleSession):
                 os.waitpid(pid, 0)
             except OSError:
                 self.log.exception('Error waiting for simulation process')
-            os.write(wp, 'x')   # single byte received:
 
     def updateLiveData(self, dtype, nx, ny, nt, time, data):
         self.emitfunc('liveparams', (dtype, nx, ny, nt, time))

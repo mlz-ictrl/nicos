@@ -127,7 +127,8 @@ class LoggerWrapper(object):
             setattr(self, name, getlogfunc())
 
 
-TRANSMIT_ENTRIES = ['name', 'created', 'levelno', 'message', 'exc_text']
+TRANSMIT_ENTRIES = ['name', 'created', 'levelno', 'message', 'exc_text',
+                    'filename']
 
 class DaemonLogHandler(logging.Handler):
     """

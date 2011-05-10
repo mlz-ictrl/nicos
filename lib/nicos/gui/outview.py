@@ -122,7 +122,7 @@ class OutputView(QTextBrowser):
             name = ''
         else:
             name = '%-10s: ' % message[0]
-        #name = message[5] + name
+        name = message[5] + name
         if levelno == ACTION:
             if self._actionlabel:
                 action = message[3].strip()
