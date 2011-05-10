@@ -129,7 +129,7 @@ class Axis(BaseAxis):
         if not self.__thread:
             self.__thread = threading.Thread(None, self.__positioningThread,
                                              'Positioning thread')
-            self.printdebug("start thread")
+            self.printdebug('start positioning thread')
             self.__thread.start()
 
     def doStatus(self):

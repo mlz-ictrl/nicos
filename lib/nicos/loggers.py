@@ -66,6 +66,10 @@ class NicosLogger(Logger):
     Nicos logger class with special method behavior.
     """
 
+    def __init__(self, name, *args):
+        Logger.__init__(self, name, *args)
+        self.globalprefix = ''
+
     def exception(self, *msgs, **kwds):
         kwds['exc'] = True
         self.error(*msgs, **kwds)
@@ -108,6 +112,12 @@ class NicosLogger(Logger):
 
     def action(self, msg):
         Logger.log(self, ACTION, msg)
+
+    def _log(self, level, msg, args, exc_info=None, extra=None):
+        record = self.makeRecord(self.name, level, self.globalprefix,
+                                 0, msg, args, exc_info, '', extra)
+        self.handle(record)
+
 
 
 class NicosConsoleFormatter(Formatter):
@@ -154,7 +164,7 @@ class NicosConsoleFormatter(Formatter):
             else:
                 fmtstr = self.colorize('red', '%s%%(levelname)s: %%(message)s'
                                        % namefmt)
-            fmtstr = datefmt + fmtstr
+            fmtstr = '%(filename)s' + datefmt + fmtstr
             if not getattr(record, 'nonl', False):
                 fmtstr += '\n'
         record.message = record.getMessage()

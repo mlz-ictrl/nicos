@@ -283,6 +283,7 @@ def Simulate(filename):
     if pid == 0:
         # child process
         try:
+            session.log.globalprefix = '(sim) '
             SetMode('simulation')
             Run(filename)
         except:  # really *all* exceptions
@@ -294,8 +295,6 @@ def Simulate(filename):
             os.waitpid(pid, 0)
         except OSError:
             printexception('Error waiting for simulation process')
-        else:
-            printinfo('Simulation mode run complete.')
 
 
 @usercommand
