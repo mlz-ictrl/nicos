@@ -294,7 +294,7 @@ class QScan(Scan):
 
     def moveTo(self, position):
         # move instrument en-bloc, not individual Q indices
-        return self.moveDevices([(session.instrument, position + [None])])
+        return self.moveDevices([(session.instrument, position)])
 
 
 class ContinuousScan(Scan):

@@ -41,8 +41,6 @@ from nicos.instrument import Instrument
 
 
 OPMODES = ['CKI', 'CKF', 'CPHI', 'CPSI', 'DIFF']
-OPMODEUNIT = {'CKI': 'A-1', 'CKF': 'A-1',
-              'CPHI': 'deg', 'CPSI': 'deg', 'DIFF': 'A-1'}
 
 ENERGYTRANSFERUNITS = ['meV', 'THz']
 THZ2MEV = 4.136
@@ -66,6 +64,9 @@ class TAS(Instrument, Moveable):
         'opmode': Param('Operation mode: one of ' + ', '.join(OPMODES),
                         type=str, default='CKI', settable=True,
                         category='instrument'),
+        # XXX find a good name for this one
+        'opconstant': Param('Operation mode constant', type=float,
+                            default=0, settable=True, category='instrument'),
         'scatteringsense': Param('Scattering sense', type=vec3,
                                  default=[1, -1, 1],
                                  settable=True, category='instrument'),
@@ -95,8 +96,6 @@ class TAS(Instrument, Moveable):
                                       index=2, lowlevel=True, tas=self)
         self.__dict__['E'] = TASIndex('E', unit='THz', fmtstr='%.3f',
                                       index=3, lowlevel=True, tas=self)
-        self.__dict__['sc'] = TASIndex('sc', unit='A-1', fmtstr='%.3f',
-                                       index=4, lowlevel=True, tas=self)
 
     def _thz(self, ny):
         if self.energytransferunit == 'meV':
@@ -104,14 +103,12 @@ class TAS(Instrument, Moveable):
         return ny
 
     def doIsAllowed(self, pos):
-        qh, qk, ql, ny, sc = pos
-        if sc is None:
-            sc = self.doRead()[4]
+        qh, qk, ql, ny = pos
         ny = self._thz(ny)
         try:
             angles = self._adevs['cell'].cal_angles(
-                [qh, qk, ql], ny, self.opmode, sc, self.scatteringsense[1],
-                self.axiscoupling, self.psi360)
+                [qh, qk, ql], ny, self.opmode, self.opconstant,
+                self.scatteringsense[1], self.axiscoupling, self.psi360)
         except ComputationError, err:
             return False, str(err)
         # check limits for the individual axes
@@ -124,29 +121,30 @@ class TAS(Instrument, Moveable):
         return True, ''
 
     def doStart(self, pos):
-        qh, qk, ql, ny, sc = pos
-        # XXX should the sc be part of the read value at all?
-        if sc is None:
-            sc = self.doRead()[4]
+        qh, qk, ql, ny = pos
         ny = self._thz(ny)
         angles = self._adevs['cell'].cal_angles(
-            [qh, qk, ql], ny, self.opmode, sc, self.scatteringsense[1],
-            self.axiscoupling, self.psi360)
+            [qh, qk, ql], ny, self.opmode, self.opconstant,
+            self.scatteringsense[1], self.axiscoupling, self.psi360)
         mono, ana, phi, psi = self._adevs['mono'], self._adevs['ana'], \
                               self._adevs['phi'], self._adevs['psi']
+        self.printdebug('moving phi to %s' % angles[2])
         phi.move(angles[2])
+        self.printdebug('moving psi to %s' % angles[3])
         psi.move(angles[3])
+        self.printdebug('moving mono to %s' % angles[0])
         mono.move(angles[0])
         if self.opmode != 'DIFF':
+            self.printdebug('moving ana to %s' % angles[1])
             ana.move(angles[1])
         mono.wait()
         if self.opmode != 'DIFF':
             ana.wait()
         phi.wait()
         psi.wait()
-        #h, k, l, ny, sc = self.doRead()
+        #h, k, l, ny = self.doRead()
         # make sure index members read the latest value
-        for index in (self.h, self.k, self.l, self.E, self.sc):
+        for index in (self.h, self.k, self.l, self.E):
             if index._cache:
                 index._cache.invalidate(index, 'value')
         #self.printinfo('position hkl: (%7.4f %7.4f %7.4f) E: %7.4f %s' %
@@ -157,19 +155,16 @@ class TAS(Instrument, Moveable):
             if v not in [-1, 1]:
                 raise ConfigurationError('invalid scattering sense %s' % v)
 
-    def doWriteOpmode(self, val):
+    def doUpdateOpmode(self, val):
         if val not in OPMODES:
             raise ConfigurationError('invalid opmode: %r' % val)
-        self.unit = 'rlu rlu rlu %s %s' % (self.energytransferunit,
-                                           OPMODEUNIT[val])
-        self.sc.unit = OPMODEUNIT[val]
 
     def doWriteEnergytransferunit(self, val):
         if val not in ENERGYTRANSFERUNITS:
             raise ConfigurationError('invalid energy transfer unit: %r' % val)
         if self._cache:
             self._cache.invalidate(self, 'value')
-        self.unit = 'rlu rlu rlu %s %s' % (val, OPMODEUNIT[self.opmode])
+        self.unit = 'rlu rlu rlu %s' % val
         self.E.unit = val
 
     def doRead(self):
@@ -188,15 +183,7 @@ class TAS(Instrument, Moveable):
             ny = self._adevs['cell'].cal_ny(mono.read(), ana.read())
             if self.energytransferunit == 'meV':
                 ny *= THZ2MEV
-        if self.opmode in ['CKI', 'DIFF']:
-            sc = mono.read()
-        elif self.opmode == 'CKF':
-            sc = ana.read()
-        elif self.opmode == 'CPHI':
-            sc = phi.read()
-        elif self.opmode == 'CPSI':
-            sc = psi.read()
-        return (hkl[0], hkl[1], hkl[2], ny, sc)
+        return (hkl[0], hkl[1], hkl[2], ny)
 
 
 class TASIndex(Moveable, AutoDevice):
@@ -249,6 +236,8 @@ class Wavevector(HasLimits, Moveable):
         return self._value
 
     def doStart(self, pos):
-        self._value = pos
-        self._adevs['tas'].opmode = self.opmode
+        # first drive there, to determine if it is within limits
         self._adevs['base'].start(pos)
+        self._adevs['tas'].opmode = self.opmode
+        self._adevs['tas'].opconstant = pos
+        self._value = pos
