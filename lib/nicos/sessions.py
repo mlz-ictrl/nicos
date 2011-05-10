@@ -888,7 +888,7 @@ class InteractiveSession(Session):
         if pid == 0:
             # child process
             try:
-                self.log.globalprefix = '(sim) '
+                self.log.manager.globalprefix = '(sim) '
                 self.setMode('simulation')
                 exec code in self._namespace
             except:  # really *all* exceptions
@@ -1019,7 +1019,7 @@ class DaemonSession(SimpleSession):
         if pid == 0:
             # child process
             try:
-                self.log.globalprefix = '(sim) '
+                self.log.manager.globalprefix = '(sim) '
                 self.addLogHandler(DaemonPipeSender(wp))
                 self.setMode('simulation')
                 exec code in self._namespace

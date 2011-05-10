@@ -38,7 +38,7 @@ import sys
 import time
 import codecs
 import traceback
-from logging import setLoggerClass, addLevelName, Logger, \
+from logging import setLoggerClass, addLevelName, Manager, Logger, \
      Formatter, FileHandler, StreamHandler, DEBUG, INFO, WARNING, ERROR
 from logging.handlers import BaseRotatingHandler
 
@@ -65,10 +65,6 @@ class NicosLogger(Logger):
     """
     Nicos logger class with special method behavior.
     """
-
-    def __init__(self, name, *args):
-        Logger.__init__(self, name, *args)
-        self.globalprefix = ''
 
     def exception(self, *msgs, **kwds):
         kwds['exc'] = True
@@ -114,7 +110,7 @@ class NicosLogger(Logger):
         Logger.log(self, ACTION, msg)
 
     def _log(self, level, msg, args, exc_info=None, extra=None):
-        record = self.makeRecord(self.name, level, self.globalprefix,
+        record = self.makeRecord(self.name, level, self.manager.globalprefix,
                                  0, msg, args, exc_info, '', extra)
         self.handle(record)
 
@@ -293,3 +289,4 @@ def initLoggers():
     addLevelName(ACTION, 'ACTION')
     addLevelName(OUTPUT, 'OUTPUT')
     addLevelName(INPUT, 'INPUT')
+    Manager.globalprefix = ''
