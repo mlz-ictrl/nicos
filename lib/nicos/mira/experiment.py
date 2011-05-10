@@ -53,7 +53,6 @@ class MiraExperiment(Experiment):
 
     def _setMode(self, mode):
         self._uhandler.disabled = mode != 'master'
-        print self._uhandler.disabled
         Experiment._setMode(self, mode)
 
     def new(self, proposal, title=None, **kwds):

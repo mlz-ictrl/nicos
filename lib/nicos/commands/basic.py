@@ -48,7 +48,8 @@ from nicos.errors import ModeError, NicosError, UsageError
 from nicos.notify import Mailer, SMSer
 from nicos.sessions import EXECUTIONMODES
 from nicos.commands import usercommand
-from nicos.commands.output import printinfo, printexception, printwarning
+from nicos.commands.output import printinfo, printwarning, printerror, \
+     printexception
 
 
 # -- help and introspection ----------------------------------------------------
@@ -100,7 +101,16 @@ def listcommands():
 @usercommand
 def sleep(secs):
     """Sleep for a given number of seconds."""
-    time.sleep(secs)   # XXX make this an interruptible sleep?
+    MAX_INTERVAL = 5
+    # partition the whole preset time in slices of MAX_INTERVAL
+    full, fraction = divmod(secs, MAX_INTERVAL)
+    intervals = [MAX_INTERVAL] * int(full)
+    printinfo('sleeping for %.1f seconds...' % secs)
+    if fraction:
+        intervals.append(fraction)
+    for interval in intervals:
+        session.breakpoint(2) # allow break and continue here
+        time.sleep(interval)
 
 
 # -- other basic commands ------------------------------------------------------
@@ -243,6 +253,26 @@ def UserInfo(name):
         qscan(...)
     """
     return _Scope(name)
+
+
+@usercommand
+def Edit(filename):
+    """Edit the script file given by file name.  If the file name is not
+    absolute, it is relative to the experiment script directory.
+
+    The editor is given by the EDITOR environment variable.
+    """
+    if 'EDITOR' not in os.environ:
+        printerror('no EDITOR environment variable is set, cannot edit')
+        return
+    fn = path.normpath(path.join(session.experiment.scriptdir, filename))
+    printinfo('starting editor...')
+    os.system('$EDITOR "%s"' % fn)
+    reply = raw_input('<R>un or <S>imulate the script? ')
+    if reply.upper() == 'R':
+        Run(filename)
+    elif reply.upper() == 'S':
+        Simulate(filename)
 
 
 @usercommand
