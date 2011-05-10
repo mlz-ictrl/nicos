@@ -205,10 +205,8 @@ class Session(object):
                 cache._ismaster = True
             cache.put(self, 'mastersetup', list(self.loaded_setups))
         elif mode in ['slave', 'maintenance']:
-            # switching from master to slave or to maintenance
-            if not cache:
-                raise ModeError('no cache present, cannot release master lock')
-            if cache._ismaster:
+            # switching from master (or slave) to slave or to maintenance
+            if cache and cache._ismaster:
                 cache._ismaster = False
                 cache.unlock('master')
             elif mode == 'maintenance':
@@ -499,7 +497,6 @@ class Session(object):
             else:
                 raise ConfigurationError(
                     'device %r not found in configuration' % dev)
-        from nicos.device import Device
         if not isinstance(dev, cls or Device):
             # XXX error message wrong for tuples
             raise UsageError('dev must be a %s' % (cls or Device).__name__)
@@ -860,7 +857,7 @@ class InteractiveSession(Session):
             self.log.info('<S> immediate stop')
             try:
                 reply = raw_input('---> ')
-            except RuntimeError, err:
+            except RuntimeError:
                 # when already in readline(), this will be raised
                 reply = 'S'
             self.log.log(INPUT, reply)
