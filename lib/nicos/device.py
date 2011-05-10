@@ -434,13 +434,16 @@ class Readable(Device):
         self._sim_preset = {}
 
     def _setMode(self, mode):
-        self._sim_active = mode == 'simulation' and self.hardware_access
-        if self._sim_active:
+        sim_active = mode == 'simulation' and self.hardware_access
+        if sim_active:
             # save the last known value
             try:
                 self._sim_value = self.read()
+                self.printdebug('last value before simulation mode is %r' %
+                                (self._sim_value,))
             except Exception, err:
                 self.printwarning('error reading last value', exc=err)
+        self._sim_active = sim_active
         Device._setMode(self, mode)
 
     def __call__(self, value=None):
