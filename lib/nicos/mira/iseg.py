@@ -42,7 +42,7 @@ from nicos.device import Device, Moveable, HasLimits, Param, Override
 from nicos.errors import NicosError, CommunicationError
 
 
-class IsegHV(TacoDevice, Moveable, HasLimits):
+class IsegHV(TacoDevice, HasLimits, Moveable):
     """
     Device object for an iseg HVPS.
     The channel parameter must be 1 for a HVS with only one output.

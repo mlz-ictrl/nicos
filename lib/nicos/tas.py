@@ -223,7 +223,7 @@ class TASIndex(Moveable, AutoDevice):
         self._adevs['tas'].start(current)
 
 
-class Wavevector(Moveable, HasLimits):
+class Wavevector(HasLimits, Moveable):
     """
     Device for adjusting initial/final wavevectors of the TAS and also setting
     the opmode.

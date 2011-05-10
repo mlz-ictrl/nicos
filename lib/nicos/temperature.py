@@ -83,7 +83,7 @@ class Sensor(TacoDevice, Readable, HasOffset):
         return self._taco_guard(self._dev.deviceQueryResource, 'serno')
 
 
-class Controller(TacoDevice, Moveable, HasOffset, HasLimits):
+class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
     taco_class = Temperature.Controller
 
     attached_devices = {

@@ -58,7 +58,7 @@ class CacheReader(Readable):
         return (status.OK, 'no status found in cache')
 
 
-class CacheWriter(Moveable, HasLimits):
+class CacheWriter(HasLimits, Moveable):
 
     parameters = {
         'setkey':    Param('Subkey to use to set the device value',

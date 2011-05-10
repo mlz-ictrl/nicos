@@ -51,7 +51,7 @@ class Coder(Readable):
         pass
 
 
-class Motor(Moveable, Coder, HasLimits):
+class Motor(HasLimits, Moveable, Coder):
     """Base class for all motors.
 
     This class inherits from Coder since a Motor can be used instead of a true
@@ -91,7 +91,7 @@ class Motor(Moveable, Coder, HasLimits):
         pass
 
 
-class Axis(Moveable, HasOffset, HasLimits):
+class Axis(HasLimits, HasOffset, Moveable):
     """Base class for all axes."""
 
     parameters = {

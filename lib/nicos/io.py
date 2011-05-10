@@ -49,7 +49,7 @@ class AnalogInput(TacoDevice, Readable):
     taco_class = IO.AnalogInput
 
 
-class AnalogOutput(TacoDevice, Moveable, HasLimits):
+class AnalogOutput(TacoDevice, HasLimits, Moveable):
     """Base class for TACO AnalogOutputs."""
 
     parameters = {

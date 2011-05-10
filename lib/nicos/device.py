@@ -691,7 +691,7 @@ class Moveable(Readable):
         self._isFixed = False
 
 
-class HasLimits(Readable):
+class HasLimits(Moveable):
     """
     Mixin for "simple" continuously moveable devices that have limits.
     """
@@ -704,7 +704,7 @@ class HasLimits(Readable):
     }
 
     def init(self):
-        Readable.init(self)
+        Moveable.init(self)
         if self.abslimits[0] > self.abslimits[1]:
             raise ConfigurationError(self, 'absolute minimum (%s) above the '
                                      'absolute maximum (%s)' % self.abslimits)
