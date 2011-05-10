@@ -43,13 +43,18 @@ from nicos.loggers import UserLogfileHandler
 from nicos.experiment import Experiment
 
 
-# XXX what to do with user log handler in simulation mode?
-
 class MiraExperiment(Experiment):
     def doInit(self):
         Experiment.doInit(self)
         self._uhandler = UserLogfileHandler(path.join(self.datapath[0], 'log'))
+        # only enable in master mode, see below
+        self._uhandler.disabled = True
         session.addLogHandler(self._uhandler)
+
+    def _setMode(self, mode):
+        self._uhandler.disabled = mode != 'master'
+        print self._uhandler.disabled
+        Experiment._setMode(self, mode)
 
     def new(self, proposal, title=None, **kwds):
         if not isinstance(proposal, (int, long)):

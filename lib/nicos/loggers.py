@@ -283,6 +283,10 @@ class UserLogfileHandler(NicosLogfileHandler):
     def __init__(self, directory):
         NicosLogfileHandler.__init__(self, directory)
         self.setFormatter(UserLogfileFormatter(USERLOGFMT, DATEFMT))
+        self.disabled = False
+
+    def filter(self, record):
+        return not self.disabled
 
 
 def initLoggers():
