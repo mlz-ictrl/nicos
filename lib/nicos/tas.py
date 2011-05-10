@@ -167,6 +167,8 @@ class TAS(Instrument, Moveable):
     def doWriteEnergytransferunit(self, val):
         if val not in ENERGYTRANSFERUNITS:
             raise ConfigurationError('invalid energy transfer unit: %r' % val)
+        if self._cache:
+            self._cache.invalidate(self, 'value')
         self.unit = 'rlu rlu rlu %s %s' % (val, OPMODEUNIT[self.opmode])
         self.E.unit = val
 
