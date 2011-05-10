@@ -34,6 +34,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import os
+import sys
 import time
 import shutil
 import inspect
@@ -262,7 +263,39 @@ def Run(filename):
     if session.mode == 'simulation':
         printinfo('simulated minimum runtime: ' +
                   formatDuration(session.clock.time - starttime))
-    # XXX add device minimum/maximum values
+    # XXX add device minimum/maximum values?
+
+
+@usercommand
+def Simulate(filename):
+    """Run a script file in simulation mode.  If the file name is not absolute,
+    it is relative to the experiment script directory.
+
+    If the session is already in simulation mode, this is the same as Run().
+    """
+    if session.mode == 'simulation':
+        return Run(filename)
+    try:
+        pid = os.fork()
+    except OSError:
+        printexception('Cannot fork into simulation mode')
+        return
+    if pid == 0:
+        # child process
+        try:
+            SetMode('simulation')
+            Run(filename)
+        except:  # really *all* exceptions
+            printexception()
+        finally:
+            sys.exit()
+    else:
+        try:
+            os.waitpid(pid, 0)
+        except OSError:
+            printexception('Error waiting for simulation process')
+        else:
+            printinfo('Simulation mode run complete.')
 
 
 @usercommand
