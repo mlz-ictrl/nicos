@@ -50,22 +50,22 @@ class NICOSTACOStub(object):
 
 STUBS = dict(
     TACOClient = ['exception TACOError'],
-    Motor = ['class Motor'],
-    Encoder = ['class Encoder'],
-    IOCommon = ['MODE_NORMAL=0', 'MODE_RATEMETER=1', 'MODE_PRESELECTION=2'],
     TACOStates = [],
+    DEVERRORS = [],
+    IOCommon = ['MODE_NORMAL=0', 'MODE_RATEMETER=1', 'MODE_PRESELECTION=2'],
     IO = ['class AnalogInput', 'class AnalogOutput', 'class DigitalInput',
           'class DigitalOutput', 'class StringIO', 'class Timer',
           'class Counter'],
-    TMCS = ['class Channel', 'class Admin'],
-    Temperature = ['class Sensor', 'class Controller'],
-    DEVERRORS = [],
+    Encoder = ['class Encoder'],
+    Motor = ['class Motor'],
     PowerSupply = ['class CurrentControl', 'class VoltageControl'],
     RS485Client = ['class RS485Client'],
+    Temperature = ['class Sensor', 'class Controller'],
+    TMCS = ['class Channel', 'class Admin'],
 )
 
 
-def generate_stubs():
+def generate():
     for modname, content in STUBS.iteritems():
         mod = new.module(modname, "NICOS stub module")
         for obj in content:
@@ -77,6 +77,3 @@ def generate_stubs():
                 name, value = obj.split('=')
                 setattr(mod, name, eval(value))
         sys.modules[modname] = mod
-
-
-generate_stubs()
