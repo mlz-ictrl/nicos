@@ -94,8 +94,9 @@ class TAS(Instrument, Moveable):
                                       index=1, lowlevel=True, tas=self)
         self.__dict__['l'] = TASIndex('l', unit='rlu', fmtstr='%.3f',
                                       index=2, lowlevel=True, tas=self)
-        self.__dict__['E'] = TASIndex('E', unit='THz', fmtstr='%.3f',
-                                      index=3, lowlevel=True, tas=self)
+        self.__dict__['E'] = TASIndex('E', unit=self.energytransferunit,
+                                      fmtstr='%.3f', index=3, lowlevel=True,
+                                      tas=self)
 
     def _thz(self, ny):
         if self.energytransferunit == 'meV':
