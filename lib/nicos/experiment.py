@@ -241,7 +241,7 @@ class Experiment(Device):
         for datapath in paths:
             if not path.isdir(datapath):
                 os.makedirs(datapath)
-        ensureDirectory(path.join(new_datapath, 'log'))
+        ensureDirectory(path.join(paths[0], 'log'))
         self._uhandler.changeDirectory(path.join(paths[0], 'log'))
         for dev in session.devices.itervalues():
             if isinstance(dev, NeedsDatapath):
