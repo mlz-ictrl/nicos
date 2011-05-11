@@ -297,7 +297,10 @@ class CacheClient(BaseCacheClient):
             value = cache_load(value)
             self._db[key] = (value, time and float(time), ttl and float(ttl))
         if key in self._callbacks:
-            self._callbacks[key](key, value)
+            try:
+                self._callbacks[key](key, value)
+            except:
+                self.printwarning('error in cache callback', exc=1)
 
     def addCallback(self, dev, key, function):
         self._callbacks['%s/%s' % (dev.name.lower(), key)] = function
