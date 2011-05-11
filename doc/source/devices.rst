@@ -39,8 +39,9 @@ levels of interaction that is possible with the device:
 
 .. class:: Device
 
-   This class supports setting parameters from the configuration, and allows the
-   user to get and set parameter values.
+   This class is the most basic class to use for NICOS devices.  It supports
+   setting parameters from the configuration, and allows the user to get and set
+   parameter values via automatically created properties.
 
    .. rubric:: Special attributes
 
@@ -335,11 +336,12 @@ levels of interaction that is possible with the device:
    according to :meth:`valueInfo`.
 
 
+-------------
 Mixin classes
-=============
+-------------
 
 ``HasLimits``
--------------
+=============
 
 .. class:: HasLimits
 
@@ -368,7 +370,7 @@ Mixin classes
 
 
 ``HasOffset``
--------------
+=============
 
 .. class:: HasOffset
 

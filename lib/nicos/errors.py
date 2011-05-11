@@ -33,6 +33,16 @@ __version__ = "$Revision$"
 
 
 class NicosError(Exception):
+    """
+    The basic exception class for exceptions raised by NICOS.
+
+    Every NicosError has a "category", a string that is shown to the user
+    instead of the exception class.
+
+    The constructor accepts a :class:`.Device` instance as its first argument,
+    which is then used to display the error to the user as coming from this
+    device.
+    """
     category = 'Error'
     device = None
     tacoerr = None
