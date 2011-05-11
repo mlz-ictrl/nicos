@@ -125,8 +125,9 @@ class BaseCacheClient(Device):
         self._socket = None
         # close secondary socket
         with self._sec_lock:
-            closeSocket(self._secsocket)
-            self._secsocket = None
+            if self._secsocket:
+                closeSocket(self._secsocket)
+                self._secsocket = None
 
     def _wait_retry(self):
         sleep(5)
