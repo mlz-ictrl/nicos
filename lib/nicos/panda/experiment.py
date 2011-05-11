@@ -38,13 +38,10 @@ import time
 from os import path
 
 from nicos import session
-from nicos.experiment import Experiment, queryCycle
-from nicos.data import NeedsDatapath, Dataset
-from nicos.utils import listof, disableDirectory, enableDirectory, \
-     ensureDirectory
+from nicos.utils import disableDirectory, enableDirectory, ensureDirectory
 from nicos.device import Device, Param
 from nicos.errors import UsageError
-from nicos.loggers import UserLogfileHandler
+from nicos.experiment import Experiment, queryCycle
 
 
 class PandaExperiment(Experiment):
@@ -52,18 +49,6 @@ class PandaExperiment(Experiment):
     parameters = {
         'cycle': Param('Current reactor cycle', type=str, settable=True),
     }
-
-    def doInit(self):
-        Experiment.doInit(self)
-        self._uhandler = UserLogfileHandler(
-            path.join(self.datapath[0], 'log'))
-        # only enable in master mode, see below
-        self._uhandler.disabled = True
-        session.addLogHandler(self._uhandler)
-
-    def _setMode(self, mode):
-        self._uhandler.disabled = mode != 'master'
-        Experiment._setMode(self, mode)
 
     def _expdir(self, suffix):
         return '/data/exp/' + suffix
@@ -120,8 +105,6 @@ class PandaExperiment(Experiment):
 
         ensureDirectory(path.join(exp_datapath, 'scripts'))
         self.scriptdir = path.join(new_datapath, 'scripts')
-        ensureDirectory(path.join(exp_datapath, 'log'))
-        self._uhandler.changeDirectory(path.join(exp_datapath, 'log'))
 
         self._handleTemplates(proposal, kwds)
 

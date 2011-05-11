@@ -39,21 +39,10 @@ from os import path
 
 from nicos import session
 from nicos.utils import ensureDirectory
-from nicos.loggers import UserLogfileHandler
 from nicos.experiment import Experiment
 
 
 class MiraExperiment(Experiment):
-    def doInit(self):
-        Experiment.doInit(self)
-        self._uhandler = UserLogfileHandler(path.join(self.datapath[0], 'log'))
-        # only enable in master mode, see below
-        self._uhandler.disabled = True
-        session.addLogHandler(self._uhandler)
-
-    def _setMode(self, mode):
-        self._uhandler.disabled = mode != 'master'
-        Experiment._setMode(self, mode)
 
     def new(self, proposal, title=None, **kwds):
         if not isinstance(proposal, (int, long)):
@@ -65,8 +54,6 @@ class MiraExperiment(Experiment):
         self.datapath = [new_datapath]
         ensureDirectory(path.join(new_datapath, 'scripts'))
         self.scriptdir = path.join(new_datapath, 'scripts')
-        ensureDirectory(path.join(new_datapath, 'log'))
-        self._uhandler.changeDirectory(path.join(new_datapath, 'log'))
 
         self.printinfo('New experiment %s started' % proposal)
         self.printinfo('Data directory set to %s' % new_datapath)

@@ -638,6 +638,17 @@ def listof(conv):
         return map(conv, val)
     return converter
 
+def nonemptylistof(conv):
+    def converter(val=None):
+        if val is None:
+            return [conv()]
+        if not isinstance(val, list):
+            raise ValueError('value needs to be a nonempty list')
+        if not val:
+            raise ValueError('value needs to be a nonempty list')
+        return map(conv, val)
+    return converter
+
 def tupleof(*types):
     def converter(val=None):
         if val is None:

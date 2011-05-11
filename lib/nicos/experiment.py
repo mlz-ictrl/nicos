@@ -46,9 +46,10 @@ except ImportError:
 
 from nicos import session
 from nicos.data import NeedsDatapath, Dataset
-from nicos.utils import listof
+from nicos.utils import listof, nonemptylistof, ensureDirectory
 from nicos.device import Device, Measurable, Readable, Param
 from nicos.errors import ConfigurationError, UsageError
+from nicos.loggers import UserLogfileHandler
 
 
 class ProposalDB(object):
@@ -151,8 +152,10 @@ class Experiment(Device):
                            category='experiment'),
         'remark':    Param('Current remark about experiment configuration',
                            type=str, settable=True, category='experiment'),
-        'datapath':  Param('Paths for data files', type=listof(str),
-                           settable=True, category='experiment'),
+        'datapath':  Param('List of paths where data files should be stored',
+                           type=nonemptylistof(str), default=['.'],
+                           mandatory=True, settable=True,
+                           category='experiment'),
         'detlist':   Param('List of default detectors', type=listof(str),
                            settable=True),
         'envlist':   Param('List of default environment devices to read '
@@ -170,6 +173,11 @@ class Experiment(Device):
 
     def doInit(self):
         self._last_datasets = []
+        ensureDirectory(path.join(self.datapath[0], 'log'))
+        self._uhandler = UserLogfileHandler(path.join(self.datapath[0], 'log'))
+        # only enable in master mode, see below
+        self._uhandler.disabled = True
+        session.addLogHandler(self._uhandler)
 
     def new(self, proposal, title=None, **kwds):
         # Individual instruments should override this to change datapath
@@ -185,6 +193,10 @@ class Experiment(Device):
         self.sample.samplename = ''
         self.envlist = []
         self.detlist = []
+
+    def _setMode(self, mode):
+        self._uhandler.disabled = mode != 'master'
+        Device._setMode(self, mode)
 
     def _fillProposal(self, proposal):
         """Fill proposal info from proposal database."""
@@ -226,11 +238,11 @@ class Experiment(Device):
         pass
 
     def doWriteDatapath(self, paths):
-        if not paths:
-            raise UsageError(self, 'at least one data pathname is required')
         for datapath in paths:
             if not path.isdir(datapath):
                 os.makedirs(datapath)
+        ensureDirectory(path.join(new_datapath, 'log'))
+        self._uhandler.changeDirectory(path.join(paths[0], 'log'))
         for dev in session.devices.itervalues():
             if isinstance(dev, NeedsDatapath):
                 dev.datapath = paths
