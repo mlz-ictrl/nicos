@@ -350,28 +350,15 @@ class Session(object):
             self.cache = CacheClient('Cache', server=sysconfig['cache'],
                                      prefix='nicos/', lowlevel=True)
 
-        # create all devices
-        if self.autocreate_devices:
-            for devname, (_, devconfig) in sorted(devlist.iteritems()):
-                if devconfig.get('lowlevel', False):
-                    continue
-                try:
-                    self.createDevice(devname, explicit=True)
-                except Exception:
-                    if raise_failed:
-                        raise
-                    self.log.exception('failed')
-                    failed_devs.append(devname)
-
         # validate and attach sysconfig devices
-        sysconfig_items = dict(
-            instrument = Instrument,
-            experiment = Experiment,
-            datasinks =  [DataSink],
-            notifiers =  [Notifier],
-        )
+        sysconfig_items = [
+            ('instrument', Instrument),
+            ('experiment', Experiment),
+            ('datasinks',  [DataSink]),
+            ('notifiers',  [Notifier]),
+        ]
 
-        for key, type in sysconfig_items.iteritems():
+        for key, type in sysconfig_items:
             if key not in sysconfig:
                 continue
             value = sysconfig[key]
@@ -386,6 +373,19 @@ class Session(object):
                     raise ConfigurationError('sysconfig %s entry must be '
                                              'a device name' % key)
                 setattr(self, key, self.getDevice(value, type))
+
+        # create all other devices
+        if self.autocreate_devices:
+            for devname, (_, devconfig) in sorted(devlist.iteritems()):
+                if devconfig.get('lowlevel', False):
+                    continue
+                try:
+                    self.createDevice(devname, explicit=True)
+                except Exception:
+                    if raise_failed:
+                        raise
+                    self.log.exception('failed')
+                    failed_devs.append(devname)
 
         # execute the startup code
         for code in startupcode:

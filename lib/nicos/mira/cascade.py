@@ -106,6 +106,9 @@ class CascadeDetector(Measurable, NeedsDatapath):
         if not self._client.connecttohost(host, port):
             raise CommunicationError(self, 'could not connect to server')
 
+    def doReadDatapath(self):
+        return session.experiment.datapath
+
     def doUpdateDatapath(self, value):
         if value:
             # always use only first data path

@@ -181,13 +181,13 @@ class AutoPropsMeta(MergedAttrsMeta):
 
             # create the getter method
             def getter(self, param=param):
+                if param not in self._params:
+                    self._initParam(param)
                 if self._cache:
                     value = self._cache.get(self, param)
                     if value is not None:
                         self._params[param] = value
                         return value
-                if param not in self._params:
-                    self._initParam(param)
                 return self._params[param]
 
             # create the setter method

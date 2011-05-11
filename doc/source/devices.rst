@@ -172,7 +172,11 @@ levels of interaction that is possible with the device:
       session* when the parameter is changed by the master session, and the
       parameter update is communicated to all other sessions via the cache.
       This method should update *internal* state of the object that depends on
-      the values of certain parameters.
+      the values of certain parameters.  It may not access the hardware, set
+      other parameters or do write operations on the filesystem.
+
+      ``doUpdateFoo`` is also called when an instance is created and its
+      parameters are initialized.
 
       This method can raise :exc:`.ConfigurationError` if the new parameter
       value is invalid.

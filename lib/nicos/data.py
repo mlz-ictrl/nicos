@@ -48,7 +48,8 @@ except ImportError:
     Gnuplot = None
 
 from nicos import session
-from nicos.utils import listof, readFileCounter, updateFileCounter
+from nicos.utils import listof, nonemptylistof, readFileCounter, \
+     updateFileCounter
 from nicos.device import Device, Param
 from nicos.errors import ConfigurationError, ProgrammingError, UsageError
 from nicos.sessions import DaemonSession, InteractiveSession
@@ -104,7 +105,8 @@ class NeedsDatapath(object):
 
     parameters = {
         'datapath': Param('Do not set this, set the datapath on the '
-                          'experiment device', type=listof(str), settable=True),
+                          'experiment device', type=nonemptylistof(str),
+                          default=['.'], settable=True),
     }
 
 
@@ -399,34 +401,25 @@ class AsciiDatafileSink(DatafileSink):
                                 type=int),
     }
 
-    def doPreinit(self):
-        self._counter = 0
+    def doReadDatapath(self):
+        return session.experiment.datapath
 
     def doUpdateDatapath(self, value):
-        if value:
-            self._path = value[0]
-            self._addpaths = value[1:]
-            # determine current file counter value
-            if self.globalcounter:
-                self._counter = readFileCounter(self.globalcounter)
-            else:
-                self._counter = readFileCounter(
-                    path.join(self._path, 'filecounter'))
-            self._setROParam('lastfilenumber', self._counter)
+        self._path = value[0]
+        self._addpaths = value[1:]
+        # determine current file counter value
+        if self.globalcounter:
+            self._counter = readFileCounter(self.globalcounter)
         else:
-            self._path = None
-            self._file = None
-            self._fname = ''
+            self._counter = readFileCounter(
+                path.join(self._path, 'filecounter'))
+        self._setROParam('lastfilenumber', self._counter)
 
     def doUpdateCommentchar(self, value):
         if len(value) > 1:
             raise ConfigurationError('comment character should only be '
                                      'one character')
-        self._scomment = value
-        self._tcomment = value * 3
-
-    def doReadLastfilenumber(self):
-        return self._counter
+        self._commentc = value
 
     def nextFileName(self):
         """Return the file name for the next data file.  Can be overwritten in
@@ -439,9 +432,6 @@ class AsciiDatafileSink(DatafileSink):
         return '%s_%08d.dat' % (pstr, self._counter + 1)
 
     def prepareDataset(self, dataset):
-        if self._path is None:
-            # XXX check this
-            self.doUpdateDatapath(session.experiment.datapath)
         self._wrote_columninfo = False
         self._fname = self.nextFileName()
         self._counter += 1
@@ -457,7 +447,6 @@ class AsciiDatafileSink(DatafileSink):
 
     def beginDataset(self, dataset):
         if path.isfile(self._fullfname):
-            # XXX for now, prevent from ever overwriting data files
             raise ProgrammingError('Data file named %r already exists!' %
                                    self._fullfname)
         self._file = open(self._fullfname, 'w')
@@ -465,10 +454,10 @@ class AsciiDatafileSink(DatafileSink):
             os.link(self._fullfname, path.join(addpath, self._fname))
         self._userinfo = dataset.scaninfo
         self._file.write('%s NICOS data file, created at %s\n' %
-                         (self._tcomment, time.strftime(TIMEFMT)))
+                         (self._commentc*3, time.strftime(TIMEFMT)))
         for name, value in dataset.sinkinfo.items() + \
                 [('info', dataset.scaninfo)]:
-            self._file.write('%s %25s : %s\n' % (self._scomment, name, value))
+            self._file.write('%s %25s : %s\n' % (self._commentc, name, value))
         self._file.flush()
         # to be written later (after info)
         if self.semicolon:
@@ -479,18 +468,18 @@ class AsciiDatafileSink(DatafileSink):
             self._colunits = dataset.xunits + dataset.yunits
 
     def addInfo(self, dataset, category, valuelist):
-        self._file.write('%s %s\n' % (self._tcomment, category))
+        self._file.write('%s %s\n' % (self._commentc*3, category))
         for device, key, value in valuelist:
             self._file.write('%s %25s : %s\n' %
-                             (self._scomment, device.name + '_' + key, value))
+                             (self._commentc, device.name + '_' + key, value))
         self._file.flush()
 
     def addPoint(self, dataset, xvalues, yvalues):
         if not self._wrote_columninfo:
-            self._file.write('%s Scan data\n' % self._tcomment)
-            self._file.write('%s %s\n' % (self._scomment,
+            self._file.write('%s Scan data\n' % self._commentc*3)
+            self._file.write('%s %s\n' % (self._commentc,
                                           '\t'.join(self._colnames)))
-            self._file.write('%s %s\n' % (self._scomment,
+            self._file.write('%s %s\n' % (self._commentc,
                                           '\t'.join(self._colunits)))
             self._wrote_columninfo = True
         xv = [dev.format(val) for (dev, val) in
@@ -505,6 +494,6 @@ class AsciiDatafileSink(DatafileSink):
 
     def endDataset(self, dataset):
         self._file.write('%s End of NICOS data file %s\n' %
-                         (self._tcomment, self._fname))
+                         (self._commentc*3, self._fname))
         self._file.close()
         self._file = None
