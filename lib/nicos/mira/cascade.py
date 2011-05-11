@@ -110,19 +110,12 @@ class CascadeDetector(Measurable, NeedsDatapath):
         return session.experiment.datapath
 
     def doUpdateDatapath(self, value):
-        if value:
-            # always use only first data path
-            self._datapath = path.join(value[0], 'cascade')
-            self._filenumber = readFileCounter(path.join(self._datapath, 'counter'))
-        else:
-            self._datapath = None
-            self._filenumber = -1
-
-    def doWriteDatapath(self, value):
-        _datapath = path.join(value[0], 'cascade')
-        self.lastfilenumber = self._filenumber
-        self.lastfilename = path.join(
-            _datapath, self.nametemplate[self.mode] % self._filenumber)
+        # always use only first data path
+        self._datapath = path.join(value[0], 'cascade')
+        self._counter = readFileCounter(path.join(self._datapath, 'counter'))
+        self._setROParam('lastfilenumber', self._counter)
+        self._setROParam('listfilename',
+                         self.nametemplate[self.mode] % self._counter)
 
     def valueInfo(self):
         return Value(self.name + '.roi', unit='cts', type='counter',
@@ -151,10 +144,10 @@ class CascadeDetector(Measurable, NeedsDatapath):
         if self._datapath is None:
             self.datapath = session.experiment.datapath
         self.lastfilename = path.join(
-            self._datapath, self.nametemplate[self.mode] % self._filenumber)
-        self.lastfilenumber = self._filenumber
-        self._filenumber += 1
-        updateFileCounter(path.join(self._datapath, 'counter'), self._filenumber)
+            self._datapath, self.nametemplate[self.mode] % self._counter)
+        self.lastfilenumber = self._counter
+        self._counter += 1
+        updateFileCounter(path.join(self._datapath, 'counter'), self._counter)
         self._processed.wait()
         self._processed.clear()
         try:
