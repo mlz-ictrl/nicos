@@ -56,9 +56,14 @@ from nicos.utils import readConfig
 readConfig()
 
 
-# Import TACO before any other C++ libraries.  This prevents segmentation
-# faults when occurring whenever TACO wants to raise a C++ exception.
+# Test if TACO is available.  If not, we can create stub modules that at least
+# allow the NICOS modules to be imported, and make simulation mode work.
 try:
+    # This import also serves to import TACO before any other C++ libraries.
+    # This prevents segmentation faults when occurring whenever TACO wants to
+    # raise a C++ exception.
     import TACOClient
 except ImportError:
-    pass
+    import nicos.taco_stubs
+    # Now we must be able to do this:
+    import TACOClient
