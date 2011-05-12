@@ -58,6 +58,7 @@ class Axis(BaseAxis):
     # TODO: add validation for new parameter values where needed
 
     parameter_overrides = {
+        # XXX determine this from motor precision if not given
         'precision': Override(mandatory=True),
         # these are not mandatory for the axis: the motor should have them
         # defined anyway, and by default they are correct for the axis as well

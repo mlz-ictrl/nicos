@@ -32,10 +32,10 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from nicos.device import Readable, Moveable, HasLimits, HasOffset, \
-     Param, Override
+     HasPrecision, Param, Override
 
 
-class Coder(Readable):
+class Coder(HasPrecision, Readable):
     """Base class for all coders."""
 
     def doRead(self):
@@ -51,7 +51,7 @@ class Coder(Readable):
         pass
 
 
-class Motor(HasLimits, Moveable, Coder):
+class Motor(HasLimits, Moveable, Coder, HasPrecision):
     """Base class for all motors.
 
     This class inherits from Coder since a Motor can be used instead of a true
@@ -91,15 +91,12 @@ class Motor(HasLimits, Moveable, Coder):
         pass
 
 
-class Axis(HasLimits, HasOffset, Moveable):
+class Axis(HasLimits, HasOffset, HasPrecision, Moveable):
     """Base class for all axes."""
 
     parameters = {
         'dragerror': Param('The so called \'Schleppfehler\' of the axis',
                            unit='main', default=1, settable=True),
-        'precision': Param('Maximum difference between requested target and '
-                           'reached position', unit='main', settable=True,
-                           category='general'),
         'maxtries':  Param('Number of tries to reach the target', type=int,
                            default=3, settable=True),
         'loopdelay': Param('The sleep time when checking the movement',

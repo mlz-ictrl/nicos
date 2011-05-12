@@ -46,6 +46,7 @@ INFO_CATEGORIES = [
     ('instrument', 'Instrument setup'),
     ('offsets', 'Offsets'),
     ('limits', 'Limits'),
+    ('precisions', 'Precisions'),
     ('status', 'Instrument status'),
     ('general', 'Instrument state at first scan point'),
 ]

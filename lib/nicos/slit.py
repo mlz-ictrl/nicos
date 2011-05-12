@@ -35,7 +35,7 @@ from time import sleep
 
 from nicos import status
 from nicos.utils import oneof
-from nicos.device import Moveable, Param, Override, AutoDevice
+from nicos.device import Moveable, HasPrecision, Param, Override, AutoDevice
 from nicos.errors import UsageError, LimitError
 from nicos.abstract import Axis
 
@@ -44,10 +44,10 @@ class Slit(Moveable):
     """A rectangular slit consisting of four blades."""
 
     attached_devices = {
-        'right': Moveable,
-        'left': Moveable,
-        'bottom': Moveable,
-        'top': Moveable,
+        'right':  HasPrecision,
+        'left':   HasPrecision,
+        'bottom': HasPrecision,
+        'top':    HasPrecision,
     }
 
     parameters = {
@@ -103,7 +103,7 @@ class Slit(Moveable):
         for ax, axname, pos in zip(self._axes, self._axnames, positions):
             ok, why = ax.isAllowed(pos)
             if not ok:
-                return ok, '%s blade: %s' % (axname, why)
+                return ok, '[%s blade] %s' % (axname, why)
         if positions[1] < positions[0]:
             return False, 'horizontal slit opening is negative'
         if positions[3] < positions[2]:
@@ -163,11 +163,10 @@ class Slit(Moveable):
         positions = map(lambda d: d.read(), self._axes)
         r, l, b, t = positions
         if self.opmode == 'centered':
-            if 'precision' in  self._adevs['left'].parameters:
-                if abs((l+r)/2.) > self._adevs['left'].precision or \
-                       abs((t+b)/2.) > self._adevs['top'].precision:
-                    self.printwarning('slit seems to be offcentered, but is '
-                                      'set to "centered" mode')
+            if abs((l+r)/2.) > self._adevs['left'].precision or \
+                   abs((t+b)/2.) > self._adevs['top'].precision:
+                self.printwarning('slit seems to be offcentered, but is '
+                                  'set to "centered" mode')
             return (l-r, t-b)
         elif self.opmode == 'offcentered':
             return ((l+r)/2, (t+b)/2, l-r, t-b)

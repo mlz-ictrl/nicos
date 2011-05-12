@@ -216,15 +216,16 @@ class Device(object):
                     dev = session.getDevice(devname)
                     if not isinstance(dev, cls):
                         raise ConfigurationError(
-                            self, 'device %r item %d has wrong type' %
-                            (aname, i))
+                            self, 'device %r item %d has wrong type (should be '
+                            '%s' % (aname, i, cls.__name__))
                     devlist.append(dev)
                     dev._sdevs.add(self.name)
             else:
                 dev = session.getDevice(value)
                 if not isinstance(dev, cls):
                     raise ConfigurationError(
-                        self, 'device %r has wrong type' % aname)
+                        self, 'device %r has wrong type (should be %s)' %
+                        (aname, cls.__name__))
                 self._adevs[aname] = dev
                 dev._sdevs.add(self.name)
 
@@ -753,8 +754,8 @@ class Moveable(Readable):
             raise FixedError(self, 'use release() first')
         ok, why = self.isAllowed(pos)
         if not ok:
-            raise LimitError(self, 'moving to %r is not allowed: %s' %
-                             (pos, why))
+            raise LimitError(self, 'moving to %s is not allowed: %s' %
+                             (self.format(pos), why))
         self._setROParam('target', pos)
         if self._sim_active:
             self._sim_old_value = self._sim_value
@@ -861,6 +862,14 @@ class HasLimits(Moveable):
         if self.abslimits[0] > self.abslimits[1]:
             raise ConfigurationError(self, 'absolute minimum (%s) above the '
                                      'absolute maximum (%s)' % self.abslimits)
+        if self.userlimits[0] < self.abslimits[0]:
+            self.printwarning('user minimum (%s) below absolute minimum (%s), '
+                              'please check and re-set limits' %
+                              (self.userlimits[0], self.abslimits[0]))
+        if self.userlimits[1] > self.abslimits[1]:
+            self.printwarning('user maximum (%s) above absolute maximum (%s), '
+                              'please check and re-set limits' %
+                              (self.userlimits[1], self.abslimits[1]))
 
     @property
     def absmin(self):
@@ -966,6 +975,21 @@ class HasOffset(object):
         if self._cache:
             self._cache.put(self, 'value', self.doRead() - diff,
                             currenttime(), self.maxage)
+
+
+class HasPrecision(object):
+    """
+    Mixin class for Readable and Moveable devices that want to provide a
+    'precision' parameter.
+
+    This is mainly useful for user info, and for high-level devices that have to
+    work with limited-precision subordinate devices.
+    """
+
+    parameters = {
+        'precision': Param('Precision of the device value', unit='main',
+                           settable=True, category='precisions'),
+    }
 
 
 class Measurable(Readable):
