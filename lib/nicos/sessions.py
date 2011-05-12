@@ -770,10 +770,6 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         sys.stdout.write(colorcode(self.session._pscolor))
         try:
             inp = raw_input(prompt)
-        except KeyboardInterrupt:
-            # Ctrl-C pressed from command line
-            #session.immediateStop()
-            return ''
         finally:
             sys.stdout.write(colorcode('reset'))
         return inp
@@ -784,6 +780,8 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         """
         # record starting time to decide whether to send notification
         start_time = time.time()
+        # enable session's Ctrl-C interrupt processing
+        signal.signal(signal.SIGINT, self.session.signalHandler)
         try:
             exec codeobj in self.globals, self.locals
         except NicosInteractiveStop:
@@ -803,6 +801,9 @@ class NicosInteractiveConsole(code.InteractiveConsole):
                 exception, 'error notification',
                 short='Exception: ' + exception.splitlines()[-1])
             return
+        finally:
+            # enable own sigint handler again
+            signal.signal(signal.SIGINT, signal.default_int_handler)
         if code.softspace(sys.stdout, 0):
             print
         #self.locals.clear()
@@ -922,9 +923,6 @@ class InteractiveSession(Session):
                 session.log.info('could not enter master mode; remaining slave')
             except:
                 session.log.warning('could not enter master mode', exc=True)
-
-        # Enable Ctrl-C interrupt processing.
-        signal.signal(signal.SIGINT, session.signalHandler)
 
         # Fire up an interactive console.
         session.console()
