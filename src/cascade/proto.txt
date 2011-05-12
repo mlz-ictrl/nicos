@@ -41,6 +41,9 @@ Kommandos
 	"CMD_stop"
 		Messung stoppen
 
+	"CMD_startsim"
+		Simulation starten
+
 	"CMD_config_cdr"
 		Hardware konfigurieren mit Parametern
 		"time=10": Messzeit in sec

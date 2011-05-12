@@ -8,7 +8,7 @@ LIBS		= -lQtCore -lQtGui -lQtNetwork -lqwt -lMinuit2 -lgomp -lxml++-2.6
 INCLUDES	= -I /usr/include/Qt -I /usr/include/QtCore -I /usr/include/QtGui -I /usr/include/qwt
 
 
-all: cascade
+all: cascade nicosmodules
 
 
 
