@@ -55,54 +55,6 @@ devices = dict(
                       prefix = 'nicos/',
                       loglevel = 'info'),
 
-    # -- TAS devices and axes -------------------------------------------------
-
-    Sample   = device('nicos.tas.TASSample'),
-
-    tas      = device('nicos.tas.TAS',
-                      instrument='VTAS',
-                      responsible='R. Esponsible <responsible@frm2.tum.de>',
-                      detectors=['det'],
-                      cell = 'Sample',
-                      phi = 'phi',
-                      psi = 'psi',
-                      mono = 'mono',
-                      ana = 'ana'),
-
-    phi      = device('nicos.virtual.VirtualMotor',
-                      abslimits = (-180, 180), 
-                      initval = 0,
-                      unit = 'deg'),
-
-    psi      = device('nicos.virtual.VirtualMotor',
-                      abslimits = (0, 360),
-                      initval = 0,
-                      unit = 'deg'),
-
-    mono     = device('nicos.virtual.VirtualMotor',
-                      unit = 'A-1',
-                      abslimits = (0, 10),
-                      initval = 2.662),
-
-    ana      = device('nicos.virtual.VirtualMotor',
-                      unit = 'A-1',
-                      abslimits = (0, 10),
-                      initval = 2.662),
-
-    ki       = device('nicos.tas.Wavevector',
-                      unit = 'A-1',
-                      base = 'mono',
-                      tas = 'tas',
-                      opmode = 'CKI',
-                      abslimits = (0, 10)),
-
-    kf       = device('nicos.tas.Wavevector',
-                      unit = 'A-1',
-                      base = 'ana',
-                      tas = 'tas',
-                      opmode = 'CKF',
-                      abslimits = (0, 10)),
-
     # -- miscellaneous axes ---------------------------------------------------
 
     m1       = device('nicos.virtual.VirtualMotor',

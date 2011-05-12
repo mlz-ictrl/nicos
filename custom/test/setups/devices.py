@@ -55,9 +55,8 @@ devices = dict(
     Sample   = device('nicos.tas.TASSample'),
 
     tas      = device('nicos.tas.TAS',
-                      instrument='VTAS',
-                      responsible='R. Esponsible <responsible@frm2.tum.de>',
-                      detectors=['det'],
+                      instrument = 'VTAS',
+                      responsible = 'R. Esponsible <responsible@frm2.tum.de>',
                       cell = 'Sample',
                       phi = 'phi',
                       psi = 'psi',
@@ -88,14 +87,14 @@ devices = dict(
                       unit = 'A-1',
                       base = 'mono',
                       tas = 'tas',
-                      opmode = 'CKI',
+                      scanmode = 'CKI',
                       abslimits = (0, 10)),
 
     kf       = device('nicos.tas.Wavevector',
                       unit = 'A-1',
                       base = 'ana',
                       tas = 'tas',
-                      opmode = 'CKF',
+                      scanmode = 'CKF',
                       abslimits = (0, 10)),
 
     # -- miscellaneous axes ---------------------------------------------------

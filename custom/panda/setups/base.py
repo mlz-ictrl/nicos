@@ -34,13 +34,13 @@ devices = dict(
                       unit = 'A-1',
                       base = 'mono',
                       tas = 'panda',
-                      opmode = 'CKI',
+                      scanmode = 'CKI',
                       abslimits = (0, 10)),
 
     kf       = device('nicos.tas.Wavevector',
                       unit = 'A-1',
                       base = 'ana',
                       tas = 'panda',
-                      opmode = 'CKF',
+                      scanmode = 'CKF',
                       abslimits = (0, 10)),
 )

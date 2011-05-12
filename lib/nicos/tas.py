@@ -40,7 +40,7 @@ from nicos.experiment import Sample
 from nicos.instrument import Instrument
 
 
-OPMODES = ['CKI', 'CKF', 'CPHI', 'CPSI', 'DIFF']
+SCANMODES = ['CKI', 'CKF', 'CPHI', 'CPSI', 'DIFF']
 
 ENERGYTRANSFERUNITS = ['meV', 'THz']
 THZ2MEV = 4.136
@@ -61,20 +61,19 @@ class TAS(Instrument, Moveable):
     }
 
     parameters = {
-        'opmode': Param('Operation mode: one of ' + ', '.join(OPMODES),
-                        type=str, default='CKI', settable=True,
-                        category='instrument'),
-        # XXX find a good name for this one
-        'opconstant': Param('Operation mode constant', type=float,
-                            default=0, settable=True, category='instrument'),
-        'scatteringsense': Param('Scattering sense', type=vec3,
-                                 default=[1, -1, 1],
-                                 settable=True, category='instrument'),
+        'scanmode':     Param('Operation mode: one of ' + ', '.join(SCANMODES),
+                              type=str, default='CKI', settable=True,
+                              category='instrument'),
+        'scanconstant': Param('Constant of the operation mode', type=float,
+                              default=0, settable=True, category='instrument'),
         'axiscoupling': Param('Whether the sample th/tt axes are coupled',
                               type=bool, default=True, settable=True),
-        'psi360':  Param('Whether the range of psi is 0-360 deg '
-                         '(otherwise -180-180 deg is assumed).',
-                         type=bool, default=True, settable=True),
+        'psi360':       Param('Whether the range of psi is 0-360 deg '
+                              '(otherwise -180-180 deg is assumed).',
+                              type=bool, default=True, settable=True),
+        'scatteringsense': Param('Scattering sense', type=vec3,
+                                 default=[1, -1, 1], settable=True,
+                                 category='instrument'),
         'energytransferunit': Param('Energy transfer unit', type=str,
                                     default='THz', settable=True),
     }
@@ -108,7 +107,7 @@ class TAS(Instrument, Moveable):
         ny = self._thz(ny)
         try:
             angles = self._adevs['cell'].cal_angles(
-                [qh, qk, ql], ny, self.opmode, self.opconstant,
+                [qh, qk, ql], ny, self.scanmode, self.scanconstant,
                 self.scatteringsense[1], self.axiscoupling, self.psi360)
         except ComputationError, err:
             return False, str(err)
@@ -125,7 +124,7 @@ class TAS(Instrument, Moveable):
         qh, qk, ql, ny = pos
         ny = self._thz(ny)
         angles = self._adevs['cell'].cal_angles(
-            [qh, qk, ql], ny, self.opmode, self.opconstant,
+            [qh, qk, ql], ny, self.scanmode, self.scanconstant,
             self.scatteringsense[1], self.axiscoupling, self.psi360)
         mono, ana, phi, psi = self._adevs['mono'], self._adevs['ana'], \
                               self._adevs['phi'], self._adevs['psi']
@@ -135,11 +134,11 @@ class TAS(Instrument, Moveable):
         psi.move(angles[3])
         self.printdebug('moving mono to %s' % angles[0])
         mono.move(angles[0])
-        if self.opmode != 'DIFF':
+        if self.scanmode != 'DIFF':
             self.printdebug('moving ana to %s' % angles[1])
             ana.move(angles[1])
         mono.wait()
-        if self.opmode != 'DIFF':
+        if self.scanmode != 'DIFF':
             ana.wait()
         phi.wait()
         psi.wait()
@@ -156,9 +155,9 @@ class TAS(Instrument, Moveable):
             if v not in [-1, 1]:
                 raise ConfigurationError('invalid scattering sense %s' % v)
 
-    def doUpdateOpmode(self, val):
-        if val not in OPMODES:
-            raise ConfigurationError('invalid opmode: %r' % val)
+    def doUpdateScanmode(self, val):
+        if val not in SCANMODES:
+            raise ConfigurationError('invalid scanmode: %r' % val)
 
     def doWriteEnergytransferunit(self, val):
         if val not in ENERGYTRANSFERUNITS:
@@ -172,7 +171,7 @@ class TAS(Instrument, Moveable):
         mono, ana, phi, psi = self._adevs['mono'], self._adevs['ana'], \
                               self._adevs['phi'], self._adevs['psi']
         # read out position
-        if self.opmode == 'DIFF':
+        if self.scanmode == 'DIFF':
             hkl = self._adevs['cell'].angle2hkl([mono.read(), mono.read(),
                                                  phi.read(), psi.read()],
                                                 self.axiscoupling)
@@ -214,11 +213,11 @@ class TASIndex(Moveable, AutoDevice):
 class Wavevector(Moveable):
     """
     Device for adjusting initial/final wavevectors of the TAS and also setting
-    the opmode.
+    the scanmode.
     """
 
     parameters = {
-        'opmode': Param('Opmode to set', type=str, mandatory=True),
+        'scanmode': Param('Scanmode to set', type=str, mandatory=True),
     }
 
     attached_devices = {
@@ -239,6 +238,6 @@ class Wavevector(Moveable):
     def doStart(self, pos):
         # first drive there, to determine if it is within limits
         self._adevs['base'].start(pos)
-        self._adevs['tas'].opmode = self.opmode
-        self._adevs['tas'].opconstant = pos
+        self._adevs['tas'].scanmode = self.scanmode
+        self._adevs['tas'].scanconstant = pos
         self._value = pos

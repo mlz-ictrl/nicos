@@ -42,14 +42,14 @@ devices = dict(
                       unit = 'A-1',
                       base = 't_mono',
                       tas = 'mira',
-                      opmode = 'CKI',
+                      scanmode = 'CKI',
                       abslimits = (0, 10)),
 
     t_kf     = device('nicos.tas.Wavevector',
                       unit = 'A-1',
                       base = 't_ana',
                       tas = 'mira',
-                      opmode = 'CKF',
+                      scanmode = 'CKF',
                       abslimits = (0, 10)),
 
     MonoToni = device('nicos.mira.toni.ModBus',
