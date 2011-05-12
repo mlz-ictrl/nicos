@@ -48,11 +48,11 @@
 #include <QtGui/QPainter>
 #include <QDialog>
 
-#include "graphdlg.h"
-#include "sumdialog.h"
-#include "calibrationdlg.h"
-#include "serverdlg.h"
-#include "servercfgdlg.h"
+#include "ui_graphdlg.h"
+#include "ui_sumdialog.h"
+#include "ui_calibrationdlg.h"
+#include "ui_serverdlg.h"
+#include "ui_servercfgdlg.h"
 #include "histogram_item.h"
 #include "bins.h"
 #include "tofloader.h"

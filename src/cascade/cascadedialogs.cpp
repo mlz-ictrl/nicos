@@ -367,6 +367,9 @@ GraphDlg::~GraphDlg()
 }
 // **************************************************************
 
+
+
+
 // ************************* Server-Dialog ********************************
 ServerDlg::ServerDlg(QWidget *pParent) : QDialog(pParent)
 {
@@ -376,9 +379,7 @@ ServerDlg::ServerDlg(QWidget *pParent) : QDialog(pParent)
 ServerDlg::~ServerDlg()
 {
 }
-// ********************************************************************
 
-// ************************* Server-Dialog ********************************
 ServerCfgDlg::ServerCfgDlg(QWidget *pParent) : QDialog(pParent)
 {
 	setupUi(this);

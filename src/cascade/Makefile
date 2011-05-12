@@ -5,7 +5,7 @@
 COMPILER	= gcc
 FLAGS		= -O2 -D __CASCADE_QT_CLIENT__
 LIBS		= -lQtCore -lQtGui -lQtNetwork -lqwt -lMinuit2 -lgomp -lxml++-2.6
-INCLUDES	= -I /usr/include/Qt -I /usr/include/QtCore -I /usr/include/QtGui
+INCLUDES	= -I /usr/include/Qt -I /usr/include/QtCore -I /usr/include/QtGui -I /usr/include/qwt
 
 
 all: cascade
@@ -21,7 +21,7 @@ cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o
 
 
 ###################### CPP-Dateien ######################
-cascade.o: cascade.cpp cascade.moc cascadedialogs_moc.cpp cascadedialogs.moc bins.h parse.h ErrorBarPlotCurve.h tofdata.h
+cascade.o: cascade.cpp cascade.moc cascadedialogs_moc.cpp cascadedialogs.moc bins.h parse.h ErrorBarPlotCurve.h tofdata.h calibrationdlg.h sumdialog.h serverdlg.h servercfgdlg.h graphdlg.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascade.o cascade.cpp
 
 cascadedialogs.o: cascadedialogs_moc.cpp cascadedialogs.h cascadedialogs.moc
@@ -52,6 +52,24 @@ helper.o: helper.cpp helper.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o helper.o helper.cpp
 #########################################################
 
+
+
+############################ Dialoge ############################
+calibrationdlg.h: calibrationdlg.ui
+	uic calibrationdlg.ui > ui_calibrationdlg.h
+
+sumdialog.h:
+	uic sumdialog.ui > ui_sumdialog.h
+
+serverdlg.h:
+	uic serverdlg.ui > ui_serverdlg.h
+
+servercfgdlg.h:
+	uic servercfgdlg.ui > ui_servercfgdlg.h
+
+graphdlg.h:
+	uic graphdlg.ui > ui_graphdlg.h
+#################################################################
 
 
 
@@ -88,6 +106,7 @@ client.moc:
 # Qt-Client
 clean_qt:
 	rm -f *.moc *_moc.cpp
+	rm -f ui_*.h
 	rm -f *~
 	rm -f *.o
 	rm -f cascade
@@ -106,6 +125,7 @@ clean_nicos:
 	rm -f nicoswidget/*.a nicoswidget/pythonbinding/*.so
 	rm -f nicoswidget/*.o nicoswidget/pythonbinding/*.o
 	rm -f nicoswidget/moc_*
+	rm -f nicoswidget/ui_*.h
 	rm -f nicoswidget/pythonbinding/Makefile
 	rm -f nicoswidget/pythonbinding/sip*.cpp nicoswidget/pythonbinding/sip*.h
 	rm -f nicoswidget/pythonbinding/*.exp nicoswidget/pythonbinding/*.sbf
