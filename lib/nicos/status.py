@@ -31,14 +31,14 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-# this doesn't use smaller values to avoid collision with old-style
-# statuslist values that may be defined differently; this way they will
-# raise a clear error instead when used
+# The status constants are ordered by ascending "severity": this way the status
+# constant for a combined device is very easily determined as the maximum of the
+# subordinate device values.
 OK = 100
 BUSY = 101
-ERROR = 102
-PAUSED = 103
-NOTREACHED = 104
+PAUSED = 102
+NOTREACHED = 103
+ERROR = 104
 UNKNOWN = 999
 
 # dictionary mapping all status constants to their names
