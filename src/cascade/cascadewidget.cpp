@@ -64,24 +64,15 @@ MainZoomer::MainZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram* pData) :
 
 QwtText MainZoomer::trackerText(const QwtDoublePoint &pos) const
 {
-	char pcStr[256];
-	sprintf(pcStr, "Pixel: %d, %d", int(pos.x()), int(pos.y()));
-	QString str = pcStr;
+	QString str = "Pixel: ";
+	str += QString::number(int(pos.x()));
+	str += ", ";
+	str += QString::number(int(pos.y()));
 	
 	const MainRasterData& rasterdata = (const MainRasterData&)m_pData->data();
 	
-	//double dVal = rasterdata.value(pos.x(),pos.y());
-	double dVal = rasterdata.GetValueRaw(pos.x(),pos.y());
-	
-	str += QString("\nValue: ");
-	//if(dVal>-std::numeric_limits<double>::max())	// falls gültiger Wert
-	{
-		//if(rasterdata.GetLog10()) str+=QString("10^");
-		sprintf(pcStr, "%.4lg", dVal);
-		str += QString(pcStr);
-	}
-	//else
-	//	str += QString("0");
+	str += "\nValue: ";
+	str += QString::number(rasterdata.GetValueRaw(pos.x(),pos.y()));
 
 	QwtText text = str;
 	QColor bg(Qt::white);
@@ -92,7 +83,7 @@ QwtText MainZoomer::trackerText(const QwtDoublePoint &pos) const
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Plot::Plot(QWidget *parent): QwtPlot(parent), m_pSpectrogram(0), m_pZoomer(0)
+Plot::Plot(QWidget *parent): QwtPlot(parent), m_pSpectrogram(0), m_pZoomer(0), m_pPanner(0)
 {
 	InitPlot();
 }
@@ -110,29 +101,27 @@ void Plot::InitPlot()
 	axisWidget(QwtPlot::yLeft)->setTitle("y Pixels");
 	
 	m_pSpectrogram = new QwtPlotSpectrogram();
-	m_pSpectrogram->setData(PadData());	// Dummy-Objekt
+	m_pSpectrogram->setData(PadData());		// Dummy-Objekt
+	m_pSpectrogram->setDisplayMode(QwtPlotSpectrogram::ImageMode, true);
 	m_pSpectrogram->attach(this);
+	
 	setCanvasBackground(QColor(255,255,255));
 	SetColorMap(false);
 
-	QwtScaleWidget *rightAxis = axisWidget(QwtPlot::yRight);
-	rightAxis->setColorBarEnabled(true);
-	rightAxis->setColorMap(m_pSpectrogram->data().range(),m_pSpectrogram->colorMap());
-
-	setAxisScale(QwtPlot::yLeft,0,Config_TofLoader::GetImageHeight());
-	setAxisScale(QwtPlot::xBottom,0,Config_TofLoader::GetImageWidth());
-	setAxisScale(QwtPlot::yRight,m_pSpectrogram->data().range().minValue(),m_pSpectrogram->data().range().maxValue());
 	enableAxis(QwtPlot::yRight);
+	axisWidget(QwtPlot::yRight)->setColorBarEnabled(true);
 
+	ChangeRange();
+	
 	plotLayout()->setAlignCanvasToScales(true);
 
 	m_pZoomer = new MainZoomer(canvas(), m_pSpectrogram);
 	m_pZoomer->setMousePattern(QwtEventPattern::MouseSelect2,Qt::RightButton, Qt::ControlModifier);
 	m_pZoomer->setMousePattern(QwtEventPattern::MouseSelect3,Qt::RightButton);
 
-	QwtPlotPanner *panner = new QwtPlotPanner(canvas());
-	panner->setAxisEnabled(QwtPlot::yRight, false);
-	panner->setMouseButton(Qt::MidButton);
+	m_pPanner = new QwtPlotPanner(canvas());
+	m_pPanner->setAxisEnabled(QwtPlot::yRight, false);
+	m_pPanner->setMouseButton(Qt::MidButton);
 
 	QFontMetrics fm(axisWidget(QwtPlot::yLeft)->font());
 	axisScaleDraw(QwtPlot::yLeft)->setMinimumExtent(fm.width("100."));
@@ -144,34 +133,30 @@ void Plot::InitPlot()
 
 void Plot::DeinitPlot()
 {
+	if(m_pSpectrogram) { delete m_pSpectrogram; m_pSpectrogram=0; }
+	if(m_pZoomer) { delete m_pZoomer; m_pZoomer=0; }
+	if(m_pPanner) { delete m_pPanner; m_pPanner=0; }
 }
 
 void Plot::ChangeRange()
 {
 	setAxisScale(QwtPlot::yRight, m_pSpectrogram->data().range().minValue(), m_pSpectrogram->data().range().maxValue());
 	axisWidget(QwtPlot::yRight)->setColorMap(m_pSpectrogram->data().range(), m_pSpectrogram->colorMap());
-
-	QwtValueList contourLevels;
-	for(double level=0.5; level<10.0; level+=1.0)
-		contourLevels += level;
-	m_pSpectrogram->setContourLevels(contourLevels);
+	
+	setAxisScale(QwtPlot::yLeft,0,Config_TofLoader::GetImageHeight());
+	setAxisScale(QwtPlot::xBottom,0,Config_TofLoader::GetImageWidth());
 }
 
-QwtPlotZoomer* Plot::GetZoomer()
-{ 
-	return m_pZoomer;
-}
+QwtPlotZoomer* Plot::GetZoomer() { return m_pZoomer; }
+QwtPlotPanner* Plot::GetPanner() { return m_pPanner; }
+
+const QwtRasterData* Plot::GetData() const { return &m_pSpectrogram->data(); }
 
 void Plot::SetData(QwtRasterData* pData)
 {
 	if(!pData) return;
 	m_pSpectrogram->setData(*pData);
 	ChangeRange();
-}
-
-const QwtRasterData* Plot::GetData() const
-{
-	return &m_pSpectrogram->data();
 }
 
 void Plot::SetColorMap(bool bCyclic)
@@ -199,19 +184,6 @@ void Plot::SetColorMap(bool bCyclic)
 	}
 }
 
-void Plot::showContour(bool on)
-{
-	m_pSpectrogram->setDisplayMode(QwtPlotSpectrogram::ContourMode, on);
-	replot();
-}
-
-void Plot::showSpectrogram(bool on)
-{
-	m_pSpectrogram->setDisplayMode(QwtPlotSpectrogram::ImageMode, on);
-	m_pSpectrogram->setDefaultContourPen(on ? QPen() : QPen(Qt::NoPen));
-	replot();
-}
-
 void Plot::printPlot()
 {
 	QPrinter printer;
@@ -223,7 +195,7 @@ void Plot::printPlot()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent), m_bForceReinit(0), m_pPad(0),m_pTof(0),m_pdata2d(0), m_iMode(MODE_SLIDES), m_iFolie(0), m_iZeitkanal(0), m_bLog(0), m_bSpectrogram(1), m_bContour(0)
+CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent), m_bForceReinit(0), m_pPad(0),m_pTof(0),m_pdata2d(0), m_iMode(MODE_SLIDES), m_iFolie(0), m_iZeitkanal(0), m_bLog(0)
 {
 	m_pPlot = new Plot(this);
 
@@ -449,9 +421,7 @@ void CascadeWidget::UpdateGraph()
 	
 	if(IsPadLoaded() || IsTofLoaded())
 	{
-		m_pPlot->showSpectrogram(m_bSpectrogram);
-		m_pPlot->showContour(m_bContour);
-		//m_pPlot->replot();		// !!
+		m_pPlot->replot();
 	}
 	UpdateLabels();
 }
@@ -480,18 +450,6 @@ void CascadeWidget::SetLog10(bool bLog10)
 		m_pPlot->ChangeRange();
 	}
 	UpdateGraph();
-}
-
-void CascadeWidget::SetSpectrogram(bool bSpect)
-{
-	m_bSpectrogram = bSpect;
-	GetPlot()->showSpectrogram(bSpect);
-}
-
-void CascadeWidget::SetContour(bool bCont)
-{
-	m_bContour = bCont;
-	GetPlot()->showContour(bCont);
 }
 
 void CascadeWidget::UpdateRange()

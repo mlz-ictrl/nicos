@@ -88,6 +88,7 @@ client.moc:
 # Qt-Client
 clean_qt:
 	rm -f *.moc *_moc.cpp
+	rm -f *~
 	rm -f *.o
 	rm -f cascade
 

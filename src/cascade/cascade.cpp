@@ -91,7 +91,7 @@ class MainWindow : public QMainWindow
 		CascadeWidget m_cascadewidget;
 		
 		QLabel *labelZeitkanal, *labelFolie;
-		QToolButton *btnSpectrogram, *btnContour, *btnLog;
+		QToolButton *btnLog;
 		QSlider *sliderFolien, *sliderZeitkanaele;
 		QStatusBar *statusbar;
 		QLabel *pStatusMsg;
@@ -446,16 +446,6 @@ class MainWindow : public QMainWindow
 			labelZeitkanal->setText(pcKanal);
 		}
 		
-		void showSpectrogram(bool bSpect)
-		{
-			m_cascadewidget.SetSpectrogram(bSpect);
-		}
-		
-		void showContour(bool bCont)
-		{
-			m_cascadewidget.SetContour(bCont);
-		}
-		
 		void SetLog10(bool bLog)
 		{	
 			m_cascadewidget.SetLog10(bLog);
@@ -800,27 +790,13 @@ class MainWindow : public QMainWindow
 			
 			// Toolbar
 			QToolBar *toolBar = new QToolBar(this);
-
-			btnSpectrogram = new QToolButton(toolBar);
-			btnSpectrogram->setText("Image Plot");
-			btnSpectrogram->setCheckable(true);
-			toolBar->addWidget(btnSpectrogram);
-			btnSpectrogram->setChecked(1);
-
-			btnContour = new QToolButton(toolBar);
-			btnContour->setText("Contour Plot");
-			btnContour->setCheckable(true);
-			toolBar->addWidget(btnContour);
-			btnContour->setChecked(0);
-			addToolBar(toolBar);
 			
 			btnLog = new QToolButton(toolBar);
 			btnLog->setText("Log10");
 			btnLog->setCheckable(true);
 			btnLog->setChecked(1);
-			toolBar->addWidget(btnLog);
 			m_cascadewidget.SetLog10(true);
-			
+			toolBar->addWidget(btnLog);
 			
 			QMenu *pMenuViews = new QMenu;
 			
@@ -859,6 +835,8 @@ class MainWindow : public QMainWindow
 			btnView->setMenu(pMenuViews);
 			toolBar->addWidget(btnView);
 			
+			addToolBar(toolBar);
+			
 			
 			// Statusleiste
 			statusbar = new QStatusBar(this);
@@ -869,8 +847,6 @@ class MainWindow : public QMainWindow
 			
 			// Verbindungen
 			// Toolbar
-			connect(btnSpectrogram, SIGNAL(toggled(bool)), this, SLOT(showSpectrogram(bool)));
-			connect(btnContour, SIGNAL(toggled(bool)), this, SLOT(showContour(bool)));
 			connect(btnLog, SIGNAL(toggled(bool)), this, SLOT(SetLog10(bool)));
 			connect(actionViewsOverview, SIGNAL(triggered()), this, SLOT(viewOverview()));
 			connect(actionViewsSlides, SIGNAL(triggered()), this, SLOT(viewSlides()));

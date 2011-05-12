@@ -68,6 +68,7 @@ class Plot : public QwtPlot
 	protected:
 		QwtPlotSpectrogram *m_pSpectrogram;
 		QwtPlotZoomer* m_pZoomer;
+		QwtPlotPanner* m_pPanner;
 
 	public:
 		Plot(QWidget *parent);
@@ -75,6 +76,7 @@ class Plot : public QwtPlot
 		
 		void ChangeRange();
 		QwtPlotZoomer* GetZoomer();
+		QwtPlotPanner* GetPanner();
 
 		void SetData(QwtRasterData* pData);
 		const QwtRasterData* GetData() const;
@@ -85,8 +87,6 @@ class Plot : public QwtPlot
 		void DeinitPlot();
 
 	public slots:
-		void showContour(bool on);
-		void showSpectrogram(bool on);
 		void printPlot();
 };
 
@@ -120,7 +120,6 @@ Q_OBJECT
 		int m_iMode;
 		int m_iFolie, m_iZeitkanal;
 		bool m_bLog;
-		bool m_bSpectrogram, m_bContour;
 		
 	public:
 		CascadeWidget(QWidget *parent=NULL);
@@ -166,8 +165,6 @@ Q_OBJECT
 		///////////////////////////////////////
 		
 		void SetLog10(bool bLog10);
-		void SetSpectrogram(bool bSpect);
-		void SetContour(bool bCont);
 		void SetFoil(int iFolie);
 		void SetTimechannel(int iKanal);
 		

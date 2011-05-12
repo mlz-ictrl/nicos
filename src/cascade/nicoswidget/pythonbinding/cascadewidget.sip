@@ -87,6 +87,7 @@ class Plot : QwtPlot
 	public:
 		void ChangeRange();
 		QwtPlotZoomer* GetZoomer();
+		QwtPlotPanner* GetPanner();
 
 		void SetData(QwtRasterData* pData);
 		const QwtRasterData* GetData() const;
@@ -95,8 +96,6 @@ class Plot : QwtPlot
 		Plot(QWidget *parent);
 
 	public slots:
-		void showContour(bool on);
-		void showSpectrogram(bool on);
 		void printPlot();
 };
 
@@ -156,8 +155,6 @@ class CascadeWidget : QWidget
 		/////////////////////////////////////////////
 		
 		void SetLog10(bool bLog10);
-		void SetSpectrogram(bool bSpect);
-		void SetContour(bool bCont);
 		void SetFoil(int iFolie);
 		void SetTimechannel(int iKanal);
 		

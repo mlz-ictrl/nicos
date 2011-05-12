@@ -28,6 +28,8 @@
 #ifndef __CASCADE_HELPER__
 #define __CASCADE_HELPER__
 
+/////////////////////////////////////////////////////////////////////////////////
+
 template<class T> class cleanup
 {
 	protected:
@@ -45,5 +47,9 @@ template<class T> class cleanup
 // file size
 long GetFileSize(FILE* pf);
 long GetFileSize(const char* pcFileName);
+
+/////////////////////////////////////////////////////////////////////////////////
+
+
 
 #endif
