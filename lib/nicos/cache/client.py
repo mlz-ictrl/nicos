@@ -79,6 +79,7 @@ class BaseCacheClient(Device):
         self._sec_lock = threading.Lock()
         self._prefix = self.prefix.strip('/')
         self._selecttimeout = 1.0  # seconds
+        self._do_callbacks = True
 
         self._stoprequest = False
         self._queue = Queue.Queue()
@@ -95,9 +96,11 @@ class BaseCacheClient(Device):
         self._worker.join()
 
     def _connect(self):
+        self._do_callbacks = False
         self._startup_done.clear()
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
+            self.printdebug('connecting to %s' % (self._address,))
             self._socket.connect(self._address)
             self._connect_action()
         except Exception, err:
@@ -115,6 +118,7 @@ class BaseCacheClient(Device):
                     self.printexception('unable to connect secondary socket')
                     self._secsocket = None
         self._startup_done.set()
+        self._do_callbacks = True
 
     def _disconnect(self, why=''):
         if not self._socket:
@@ -272,8 +276,9 @@ class CacheClient(BaseCacheClient):
     def doInit(self):
         BaseCacheClient.doInit(self)
         self._db = {}
+
         self._callbacks = {}
-        # XXX in simulation mode?
+
         self._worker.start()
         # the execution master lock needs to be refreshed every now and then
         self._ismaster = False
@@ -298,10 +303,11 @@ class CacheClient(BaseCacheClient):
             value = cache_load(value)
             self._db[key] = (value, time and float(time), ttl and float(ttl))
         if key in self._callbacks:
-            try:
-                self._callbacks[key](key, value)
-            except:
-                self.printwarning('error in cache callback', exc=1)
+            if self._do_callbacks:
+                try:
+                    self._callbacks[key](key, value)
+                except:
+                    self.printwarning('error in cache callback', exc=1)
 
     def addCallback(self, dev, key, function):
         self._callbacks['%s/%s' % (dev.name.lower(), key)] = function
