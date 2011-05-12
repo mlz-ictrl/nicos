@@ -588,9 +588,14 @@ class DbCacheDatabase(MemoryCacheDatabase):
                         if not ttl:
                             # had ttl, but has none now -> new entry
                             entries.append(Entry(time, ttl, value))
-                        else:
-                            # just update the ttl
+                        elif lastent.time + lastent.ttl > currenttime() and \
+                                 lastent.ttl < 120:
+                            # update of nonexpired value, just update the ttl
+                            # (but only for maximum 2 minutes)
                             lastent.ttl = (time - lastent.time) + ttl
+                        else:
+                            # old value already expired -> new entry
+                            entries.append(Entry(time, ttl, value))
                 else:
                     entries.append(Entry(time, ttl, value))
             else:
@@ -599,7 +604,12 @@ class DbCacheDatabase(MemoryCacheDatabase):
             if len(entries) > self._max or ttl is None:
                 # if ttl is None, the value should be stored immediately
                 with self._store_lock:
-                    self._archive(key, entries)
+                    if ttl is None:
+                        self._archive(key, entries)
+                    else:
+                        # if last value has TTL, it can be updated still,
+                        # so don't write it to the archive yet
+                        self._archive(key, entries[:-1])
                     del entries[:-1]
                 #self.printdebug('after archiving: ' + str(entries))
         if send_update:

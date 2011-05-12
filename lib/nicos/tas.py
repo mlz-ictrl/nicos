@@ -222,6 +222,9 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         return self._fromlambda(wavelength(self.dvalue, self.order, tt/2.0))
 
     def doReadPrecision(self):
+        if not hasattr(self, '_scatsense'):
+            # object not yet intialized
+            return 0
         # the precision depends on the angular precision of theta and twotheta
         lam = self._tolambda(self.read())
         dtheta = self._adevs['theta'].precision + \

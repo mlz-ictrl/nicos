@@ -496,6 +496,7 @@ class Readable(Device):
     }
 
     def init(self):
+        self._sim_active = False
         Device.init(self)
         # value in simulation mode
         self._sim_active = self._mode == 'simulation' and self.hardware_access
