@@ -66,8 +66,8 @@ Beispiel
 [from server] length: 61, data: MSG_time=10.000000 
               mode=image xres=128 yres=128 tres=1 comp=0 
 
-[to server] length: 66, data: CMD_config_cdr time=10.000000 xres=128 yres=128 
-            tres=128 mode=tof
+[to server] length: 66, data: CMD_config_cdr time=10.000000 
+            xres=128 yres=128 tres=128 mode=tof
 [from server] length: 4, data: OKAY
 
 [to server] length: 10, data: CMD_start
