@@ -638,7 +638,20 @@ class MainWindow : public QMainWindow
 		
 		
 		///////////////////////// Hilfe ///////////////////////////////////
-		void About() { QMessageBox::about(this, "About", "Cascade Qt Client written by Tobias Weber."); }
+		void About() 
+		{ 
+			QString strAbout = "Cascade Qt Client written by Tobias Weber.\n";
+			
+			#ifdef __TIMESTAMP__
+			strAbout += QString("\n") + QString("Build time: ") + QString(__TIMESTAMP__);
+			#endif
+			
+			#ifdef __VERSION__
+			strAbout += QString("\n") + QString("Built with CC version: ") + QString(__VERSION__);
+			#endif
+			
+			QMessageBox::about(this, "About", strAbout); 
+		}
 		void AboutQt() { QMessageBox::aboutQt(this); }
 		///////////////////////////////////////////////////////////////////
 
