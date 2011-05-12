@@ -353,7 +353,10 @@ class MainWindow : public QMainWindow
 				bool bHasComp=0;
 				bool bComp = (bool)args.QueryInt("comp",1,&bHasComp);
 				if(bHasComp)
+				{
 					Config_TofLoader::SetPseudoCompression(bComp);
+					ServerCfgDlg::SetStatComp(bComp);
+				}
 			}
 			else if(!strncmp(pcBuf,"OKAY",4))
 			{}
@@ -569,10 +572,12 @@ class MainWindow : public QMainWindow
 				unsigned int iXRes = srvcfgdlg.GetXRes(); 
 				unsigned int iYRes = srvcfgdlg.GetYRes();
 				unsigned int iTRes = srvcfgdlg.GetTRes();
+				bool bComp = srvcfgdlg.GetPseudoComp();
 				
 				Config_TofLoader::SetImageWidth(iXRes);
 				Config_TofLoader::SetImageHeight(iYRes);
 				Config_TofLoader::SetImageCount(iTRes);
+				Config_TofLoader::SetPseudoCompression(bComp);
 				
 				const char* pcMode = "";
 				switch(srvcfgdlg.GetMode())
@@ -585,7 +590,7 @@ class MainWindow : public QMainWindow
 						break;
 				}
 				char pcMsg[256];
-				sprintf(pcMsg, "CMD_config_cdr time=%f xres=%d yres=%d tres=%d mode=%s", dTime, iXRes, iYRes, iTRes, pcMode);
+				sprintf(pcMsg, "CMD_config_cdr time=%f xres=%d yres=%d tres=%d mode=%s comp=%d", dTime, iXRes, iYRes, iTRes, pcMode, bComp);
 				m_client.sendmsg(pcMsg);
 			}
 		}

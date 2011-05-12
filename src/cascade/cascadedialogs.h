@@ -192,6 +192,7 @@ class ServerCfgDlg : public QDialog, public Ui::ServerConfigDlg
 		static double s_dLastTime;
 		static unsigned int s_iXRes, s_iYRes, s_iTRes;
 		static int s_iMode;
+		static bool s_bUsePseudoComp;
 		
 	protected slots:
 		void toggledmode(bool bChecked);
@@ -205,6 +206,7 @@ class ServerCfgDlg : public QDialog, public Ui::ServerConfigDlg
 		unsigned int GetYRes();
 		unsigned int GetTRes();
 		int GetMode();
+		bool GetPseudoComp();
 		
 		
 		static void SetStatXRes(int iXRes);
@@ -212,12 +214,14 @@ class ServerCfgDlg : public QDialog, public Ui::ServerConfigDlg
 		static void SetStatTRes(int iTRes);
 		static void SetStatMode(int iMode);
 		static void SetStatTime(double dTime);
+		static void SetStatComp(bool bComp);
 		
 		static int GetStatXRes();
 		static int GetStatYRes();
 		static int GetStatTRes();
 		static int GetStatMode();
 		static double GetStatTime();
+		static bool GetStatComp();
 };
 
 #endif

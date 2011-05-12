@@ -1,19 +1,20 @@
 /********************************************************************************
-** Form generated from reading UI file 'servercfgYN9222.ui'
+** Form generated from reading UI file 'servercfgA10413.ui'
 **
 ** Created
-**      by: Qt User Interface Compiler version 4.6.3
+**      by: Qt User Interface Compiler version 4.7.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef SERVERCFGYN9222_H
-#define SERVERCFGYN9222_H
+#ifndef SERVERCFGA10413_H
+#define SERVERCFGA10413_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
+#include <QtGui/QCheckBox>
 #include <QtGui/QDialog>
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QGroupBox>
@@ -49,15 +50,16 @@ public:
     QGroupBox *groupBox;
     QRadioButton *radioButtonTof;
     QRadioButton *radioButtonPad;
+    QCheckBox *checkBoxPseudoComp;
 
     void setupUi(QDialog *ServerConfigDlg)
     {
         if (ServerConfigDlg->objectName().isEmpty())
             ServerConfigDlg->setObjectName(QString::fromUtf8("ServerConfigDlg"));
-        ServerConfigDlg->resize(295, 232);	
+        ServerConfigDlg->resize(295, 262);
         buttonBox = new QDialogButtonBox(ServerConfigDlg);
         buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
-        buttonBox->setGeometry(QRect(80, 190, 201, 32));
+        buttonBox->setGeometry(QRect(80, 220, 201, 32));
         buttonBox->setOrientation(Qt::Horizontal);
         buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         layoutWidget = new QWidget(ServerConfigDlg);
@@ -134,6 +136,9 @@ public:
         radioButtonPad->setObjectName(QString::fromUtf8("radioButtonPad"));
         radioButtonPad->setGeometry(QRect(20, 20, 91, 20));
         radioButtonPad->setChecked(true);
+        checkBoxPseudoComp = new QCheckBox(ServerConfigDlg);
+        checkBoxPseudoComp->setObjectName(QString::fromUtf8("checkBoxPseudoComp"));
+        checkBoxPseudoComp->setGeometry(QRect(10, 190, 271, 20));
 
         retranslateUi(ServerConfigDlg);
         QObject::connect(buttonBox, SIGNAL(accepted()), ServerConfigDlg, SLOT(accept()));
@@ -152,6 +157,7 @@ public:
         groupBox->setTitle(QApplication::translate("ServerConfigDlg", "Mode", 0, QApplication::UnicodeUTF8));
         radioButtonTof->setText(QApplication::translate("ServerConfigDlg", "TOF", 0, QApplication::UnicodeUTF8));
         radioButtonPad->setText(QApplication::translate("ServerConfigDlg", "PAD", 0, QApplication::UnicodeUTF8));
+        checkBoxPseudoComp->setText(QApplication::translate("ServerConfigDlg", "Use pseudo-compression", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
@@ -162,4 +168,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // SERVERCFGYN9222_H
+#endif // SERVERCFGA10413_H

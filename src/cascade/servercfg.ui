@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>295</width>
-    <height>232</height>
+    <height>262</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>80</x>
-     <y>190</y>
+     <y>220</y>
      <width>201</width>
      <height>32</height>
     </rect>
@@ -158,6 +158,19 @@
      <bool>true</bool>
     </property>
    </widget>
+  </widget>
+  <widget class="QCheckBox" name="checkBoxPseudoComp">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>190</y>
+     <width>271</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Use pseudo-compression</string>
+   </property>
   </widget>
  </widget>
  <resources/>

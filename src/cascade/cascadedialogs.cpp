@@ -396,6 +396,8 @@ ServerCfgDlg::ServerCfgDlg(QWidget *pParent) : QDialog(pParent)
 	str.setNum(s_iTRes);
 	edittres->setText(str);
 	
+	checkBoxPseudoComp->setChecked(s_bUsePseudoComp);
+	
 	if(s_iMode==MODE_PAD)
 	{
 		radioButtonPad->setChecked(1);
@@ -408,8 +410,8 @@ ServerCfgDlg::ServerCfgDlg(QWidget *pParent) : QDialog(pParent)
 		radioButtonPad->setChecked(0);
 		toggledmode(1);
 	}
-	
 	connect(radioButtonTof, SIGNAL(toggled(bool)), this, SLOT(toggledmode(bool)));
+	
 	setFixedSize(width(),height());
 }
 
@@ -464,18 +466,26 @@ int ServerCfgDlg::GetMode()
 	return s_iMode;
 }
 
+bool ServerCfgDlg::GetPseudoComp()
+{
+	s_bUsePseudoComp = checkBoxPseudoComp->isChecked();
+	return s_bUsePseudoComp;
+}
+
 
 void ServerCfgDlg::SetStatXRes(int iXRes) { s_iXRes = iXRes; }
 void ServerCfgDlg::SetStatYRes(int iYRes) { s_iYRes = iYRes; }
 void ServerCfgDlg::SetStatTRes(int iTRes) { s_iTRes = iTRes; }
 void ServerCfgDlg::SetStatMode(int iMode) { s_iMode = iMode; }
 void ServerCfgDlg::SetStatTime(double dTime) { s_dLastTime = dTime; }
+void ServerCfgDlg::SetStatComp(bool bComp) { s_bUsePseudoComp = bComp; }
 
 int ServerCfgDlg::GetStatXRes() { return s_iXRes; }
 int ServerCfgDlg::GetStatYRes() { return s_iYRes; }
 int ServerCfgDlg::GetStatTRes() { return s_iTRes; }
 int ServerCfgDlg::GetStatMode()  { return s_iMode; }
 double ServerCfgDlg::GetStatTime() { return s_dLastTime; }
+bool ServerCfgDlg::GetStatComp() { return s_bUsePseudoComp; }
 
 
 double ServerCfgDlg::s_dLastTime = 10.0;
@@ -483,4 +493,5 @@ unsigned int ServerCfgDlg::s_iXRes = 128;
 unsigned int ServerCfgDlg::s_iYRes = 128;
 unsigned int ServerCfgDlg::s_iTRes = 128;
 int ServerCfgDlg::s_iMode = 1;
+bool ServerCfgDlg::s_bUsePseudoComp = 0;
 // ********************************************************************
