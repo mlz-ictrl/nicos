@@ -47,6 +47,7 @@ import ConfigParser
 from os import path
 
 from nicos.errors import ConfigurationError, ProgrammingError, ModeError
+from nicos import status
 
 
 class Param(object):
@@ -200,7 +201,7 @@ class AutoPropsMeta(MergedAttrsMeta):
                                            'doRead%s method' %
                                            (name, param, param.title()))
                 def getter(self, param=param, rmethod=rmethod):
-                    value = rmethod()
+                    value = rmethod(self)
                     if self._cache:
                         self._cache.put(self, param, value)
                     self._params[param] = value
@@ -641,6 +642,19 @@ def updateFileCounter(counterpath, value):
     if not path.isdir(path.dirname(counterpath)):
         os.makedirs(path.dirname(counterpath))
     writeFile(counterpath, [str(value)])
+
+
+# device utility functions
+
+def multiStatus(devices):
+    rettext = []
+    retstate = status.OK
+    for devname, dev in devices:
+        state, text = dev.status()
+        rettext.append('%s=%s' % (devname, text))
+        if state > retstate:
+            retstate = state
+    return retstate, ', '.join(rettext)
 
 
 # parameter conversion functions
