@@ -2,8 +2,6 @@
 
 name = 'system setup for PANDA'
 
-#includes = []
-
 sysconfig = dict(
     cache = 'pandasrv',
     instrument = 'panda',
@@ -13,16 +11,12 @@ sysconfig = dict(
 )
 
 devices = dict(
-
+    panda    = device('nicos.instrument.Instrument'),
     Exp      = device('nicos.panda.experiment.PandaExperiment',
-                      sample = 'Sample'),
-    
-    Sample = device('nicos.tas.TASSample'),
-    
-    panda = device('nicos.instrument.Instrument'),
-
+                      sample = 'Sample',
+                      datapath = ['/data']),
+    Sample   = device('nicos.tas.TASSample'),
     filesink = device('nicos.data.AsciiDatafileSink',
                       globalcounter = '/data/filecounter'),
-
     conssink = device('nicos.data.ConsoleSink'),
 )
