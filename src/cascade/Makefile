@@ -21,10 +21,10 @@ cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o
 
 
 ###################### CPP-Dateien ######################
-cascade.o: cascade.cpp cascade.moc cascadedialogs_moc.cpp cascadedialogs.moc bins.h parse.h ErrorBarPlotCurve.h tofdata.h calibrationdlg.h sumdialog.h serverdlg.h servercfgdlg.h graphdlg.h
+cascade.o: cascade.cpp cascade.moc cascadedialogs_moc.cpp cascadedialogs.moc bins.h parse.h ErrorBarPlotCurve.h tofdata.h cascadedialogs.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascade.o cascade.cpp
 
-cascadedialogs.o: cascadedialogs_moc.cpp cascadedialogs.h cascadedialogs.moc
+cascadedialogs.o: cascadedialogs_moc.cpp cascadedialogs.h cascadedialogs.moc 
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascadedialogs.o cascadedialogs_moc.cpp
 
 bins.o: bins.cpp bins.h
@@ -55,19 +55,21 @@ helper.o: helper.cpp helper.h
 
 
 ############################ Dialoge ############################
-calibrationdlg.h: calibrationdlg.ui
+cascadedialogs.h: ui_calibrationdlg.h ui_sumdialog.h ui_serverdlg.h ui_servercfgdlg.h ui_graphdlg.h
+
+ui_calibrationdlg.h: calibrationdlg.ui
 	uic calibrationdlg.ui > ui_calibrationdlg.h
 
-sumdialog.h:
+ui_sumdialog.h: sumdialog.ui
 	uic sumdialog.ui > ui_sumdialog.h
 
-serverdlg.h:
+ui_serverdlg.h: serverdlg.ui
 	uic serverdlg.ui > ui_serverdlg.h
 
-servercfgdlg.h:
+ui_servercfgdlg.h: servercfgdlg.ui
 	uic servercfgdlg.ui > ui_servercfgdlg.h
 
-graphdlg.h:
+ui_graphdlg.h: graphdlg.ui
 	uic graphdlg.ui > ui_graphdlg.h
 #################################################################
 
