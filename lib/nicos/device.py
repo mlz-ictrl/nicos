@@ -870,6 +870,12 @@ class HasLimits(Moveable):
             self.printwarning('user maximum (%s) above absolute maximum (%s), '
                               'please check and re-set limits' %
                               (self.userlimits[1], self.abslimits[1]))
+        if session.mode == 'simulation':
+            # special case: in simulation mode, doReadUserlimits is not called,
+            # so the limits are not set from the absolute limits, and are always
+            # (0, 0) except when set in the setup file
+            if self.userlimits == (0.0, 0.0):
+                self.userlimits = self.abslimits
 
     @property
     def absmin(self):

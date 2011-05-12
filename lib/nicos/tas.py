@@ -414,7 +414,6 @@ class TAS(Instrument, Moveable):
         return (hkl[0], hkl[1], hkl[2], ny)
 
 
-
 class TASIndex(Moveable, AutoDevice):
     """
     "Partial" devices for the H, K, L, E indices of the TAS instrument.
