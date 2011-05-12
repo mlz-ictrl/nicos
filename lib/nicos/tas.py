@@ -31,11 +31,14 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+from math import pi, cos, sin, asin, sqrt
+from time import time
 
 from nicos.cell import Cell
-from nicos.utils import vec3
+from nicos.utils import tupleof, listof, oneof, multiStatus
 from nicos.errors import ConfigurationError, ComputationError
-from nicos.device import Moveable, HasLimits, Param, Override, AutoDevice
+from nicos.device import Moveable, HasLimits, HasPrecision, Param, Override, \
+     AutoDevice
 from nicos.experiment import Sample
 from nicos.instrument import Instrument
 
@@ -50,14 +53,231 @@ class TASSample(Sample, Cell):
     pass
 
 
+def wavelength(dvalue, order, theta):
+    return 2.0 * dvalue / order * sin(theta/180.0*pi)
+
+def thetaangle(dvalue, order, lam):
+    return asin(lam / (2.0 * dvalue/order))/pi*180.0
+
+
+class Monochromator(HasLimits, HasPrecision, Moveable):
+    """
+    General monochromator theta/two-theta device.
+    """
+
+    attached_devices = {
+        'theta':    HasPrecision,
+        'twotheta': HasPrecision,
+        'focush':   Moveable,
+        'focusv':   Moveable,
+    }
+
+    hardware_access = False
+
+    parameters = {
+        'dvalue':   Param('d-value of the reflection used', unit='A',
+                          mandatory=True),
+        'order':    Param('order of reflection to use', type=int, default=1,
+                          settable=True),
+        'reltheta': Param('true if theta position is relative to two-theta',
+                          type=bool, default=False),
+        # XXX explanation?
+        'sidechange': Param('true if side changes?', type=bool, default=False),
+        'focmode':  Param('focussing mode', default='manual', settable=True,
+                          type=oneof(str, 'manual', 'flat', 'horizontal',
+                                     'vertical', 'double')),
+        'hfocuspars': Param('horizontal focus polynomial coefficients',
+                            type=listof(float), default=[0.]),
+        'vfocuspars': Param('vertical focus polynomial coefficients',
+                            type=listof(float), default=[0.]),
+        'warninterval': Param('interval between warnings about theta/two-theta '
+                              'mismatch', unit='s', default=5),
+    }
+
+    parameter_overrides = {
+        'unit':  Override(default='A-1',
+                          type=oneof(str, 'A-1', 'A', 'meV', 'THz')),
+        'precision': Override(alwaysread=True, settable=False),
+    }
+
+    def doInit(self):
+        # warnings about manual focus
+        self._focwarnings = 3
+
+        # warnings about theta/twotheta
+        self._lastwarn = time() - self.warninterval # make sure for next warning
+
+        # needs to be set by TAS object, if it isn't this will give an exception
+        # when it's used in a calculation
+        self._scatsense = None
+
+        # need to consider rounding effects since a difference of 0.0104 is
+        # rounded to 0.010 so the combined axisprecision need to be larger than
+        # the calculated value the following correction seems to work just fine
+        self._axisprecision = self._adevs['twotheta'].precision + \
+                              2 * self._adevs['theta'].precision
+        self._axisprecision *= 1.25
+
+        self._movelist = []
+        for drive in ['theta', 'twotheta', 'focush', 'focusv']:
+            if self._adevs[drive]:
+                self._movelist.append(self._adevs[drive])
+
+    def doStatus(self):
+        return multiStatus((name, self._adevs['name']) for name in
+                           ['theta', 'twotheta', 'focush', 'focusv'])
+
+    def doStop(self):
+        for device in self._movelist:
+            device.stop()
+
+    def doWait(self):
+        for device in self._movelist:
+            device.wait()
+
+    def doReset(self):
+        for device in self._movelist:
+            device.reset()
+        self._focwarnings = 3
+
+    def doStart(self, position):
+        lam = self._tolambda(position)  # get position in basic unit
+        angle = thetaangle(self.dvalue, self.order, lam)
+        tt = 2.0 * angle * self._scatsense  # twotheta with correct sign
+        th = angle * self._scatsense      # absolute theta with correct sign
+        if self.reltheta:
+            # if theta is relative to twotheta, then theta = - twotheta / 2
+            th = -th
+        # analyser scattering side
+        th += 90 * self.sidechange * (1 - self._scatsense)
+
+        self._adevs['twotheta'].start(tt)
+        self._adevs['theta'].start(th)
+        self._movefoci()
+
+    def _movefoci(self):
+        lam = self._tolambda(self.target) # get goalposition in basic unit
+        focusv, focush = self._adevs['focusv'], self._adevs['focush']
+        if self.focmode == 'flat':
+            if focusv:
+                focusv.move(0)
+            if focush:
+                focush.move(0)
+        elif self.focmode == 'horizontal':
+            if focusv:
+                focusv.move(0)
+            if focush:
+                focush.move(self._calfocus(lam, self.hfocuspars))
+        elif self.focmode == 'vertical':
+           if focusv:
+               focusv.move(self._calfocus(lam, self.vfocuspars))
+           if focush:
+               focush.move(0)
+        elif self.focmode == 'double':
+           if focusv:
+               focusv.move(self._calfocus(lam, self.vfocuspars))
+           if focush:
+               focush.move(self._calfocus(lam, self.hfocuspars))
+        else:
+            if self._focwarnings:
+                self.printwarning('focus is in manual mode')
+                self._focwarnings -= 1
+
+    def _calfocus(self, lam, focuspars):
+        temp = lam * float(self.order)
+        focus = 0
+        for i, coeff in enumerate(focuspars):
+            focus += coeff * (temp**i)
+        return focus
+
+    def doIsAllowed(self, position):
+        theta = thetaangle(self.dvalue, self.order, self._tolambda(position))
+        ttvalue = 2.0 * self._scatsense * theta
+        ttdev = self._adevs['twotheta']
+        ok, why = ttdev.isAllowed(ttvalue)
+        if not ok:
+            return ok, '[%s] moving to %s, ' % (
+                ttdev, ttdev.format(ttvalue)) + why
+        return True, ''
+
+    def doRead(self):
+        tt = self._scatsense * self._adevs['twotheta'].read()
+        th = self._adevs['theta'].read()
+        # analyser scattering side
+        th -= 90 * self.sidechange * (1 - self._scatsense)
+        th *= self._scatsense  # make it positive
+        if self.reltheta:
+            # if theta is relative to twotheta then theta = - twotheta / 2
+            th = -th
+        if abs(tt - 2.0*th) > self._axisprecision:
+            if time() - self._lastwarn > self.warninterval:
+                self.printwarning('two theta and 2*theta axis mismatch: %s <-> '
+                                  '%s = 2 * %s' % (tt, 2.0*th, th))
+                self.printinfo('precisions: tt:%s, th:%s, combined: %s' % (
+                    self._adevs['twotheta'].precision,
+                    self._adevs['theta'].precision, self._axisprecision))
+                self._lastwarn = time()
+
+        # even on mismatch, the scattering angle is deciding
+        return self._fromlambda(wavelength(self.dvalue, self.order, tt/2.0))
+
+    def doReadPrecision(self):
+        # the precision depends on the angular precision of theta and twotheta
+        lam = self._tolambda(self.read())
+        dtheta = self._adevs['theta'].precision + \
+                 self._adevs['twotheta'].precision
+        dlambda = abs(2.0 * self.dvalue *
+                      cos(self._adevs['twotheta'].read() * pi/360) *
+                      dtheta / 180*pi)
+        if self.unit == 'A-1':
+           return 2*pi/lam**2 * dlambda
+        elif self.unit == 'meV':
+           return 2*81.8/lam**3 * dlambda
+        elif self.unit == 'THz':
+           return 2*338.3/lam**3 * dlambda
+        return dlambda
+
+    def doWriteFocmode(self, value):
+        self.printwarning('changed focmode %r active AFTER next positioning of '
+                          'device' % value)
+
+    def _fromlambda(self, value):
+        try:
+            if self.unit == 'A-1':
+                return 2.0 * pi / value
+            elif self.unit == 'A':
+                return value
+            elif self.unit == 'meV':
+                return 81.8 / value**2
+            elif self.unit == 'THz':
+                return 338.3 / value**2
+        except (ArithmeticError, ValueError), err:
+            raise ComputationError(self, 'cannot convert %s A to %s: %s' %
+                                   (value, self.unit, err))
+
+    def _tolambda(self, value):
+        try:
+            if self.unit == 'A-1':
+                return 2.0 * pi / value
+            elif self.unit == 'A':
+                return value
+            elif self.unit == 'meV':
+                return sqrt(81.8 / value)
+            elif self.unit == 'THz':
+                return sqrt(338.3 / value)
+        except (ArithmeticError, ValueError), err:
+            raise ComputationError(self, 'cannot convert %s A to %s: %s' %
+                                   (value, self.unit, err))
+
+
 class TAS(Instrument, Moveable):
 
     attached_devices = {
         'cell': Cell,
-        'mono': Moveable,
-        'ana': Moveable,
-        'phi': Moveable,
-        'psi': Moveable,
+        'mono': Monochromator,
+        'ana':  Monochromator,
+        'phi':  Moveable,
+        'psi':  Moveable,
     }
 
     parameters = {
@@ -71,16 +291,16 @@ class TAS(Instrument, Moveable):
         'psi360':       Param('Whether the range of psi is 0-360 deg '
                               '(otherwise -180-180 deg is assumed).',
                               type=bool, default=True, settable=True),
-        'scatteringsense': Param('Scattering sense', type=vec3,
-                                 default=[1, -1, 1], settable=True,
+        'scatteringsense': Param('Scattering sense', default=(1, -1, 1),
+                                 type=tupleof(int, int, int), settable=True,
                                  category='instrument'),
         'energytransferunit': Param('Energy transfer unit', type=str,
                                     default='THz', settable=True),
     }
 
     parameter_overrides = {
-        'fmtstr': Override(default='[%7.4f, %7.4f, %7.4f, %7.4f, %7.4f]'),
-        'unit':   Override(default='rlu rlu rlu THz A-1', mandatory=False,
+        'fmtstr': Override(default='[%6.4f, %6.4f, %6.4f, %6.4f]'),
+        'unit':   Override(default='rlu rlu rlu THz', mandatory=False,
                            settable=True)
     }
 
@@ -128,9 +348,9 @@ class TAS(Instrument, Moveable):
             self.scatteringsense[1], self.axiscoupling, self.psi360)
         mono, ana, phi, psi = self._adevs['mono'], self._adevs['ana'], \
                               self._adevs['phi'], self._adevs['psi']
-        self.printdebug('moving phi to %s' % angles[2])
+        self.printdebug('moving phi/stt to %s' % angles[2])
         phi.move(angles[2])
-        self.printdebug('moving psi to %s' % angles[3])
+        self.printdebug('moving psi/sth to %s' % angles[3])
         psi.move(angles[3])
         self.printdebug('moving mono to %s' % angles[0])
         mono.move(angles[0])
@@ -150,10 +370,18 @@ class TAS(Instrument, Moveable):
         #self.printinfo('position hkl: (%7.4f %7.4f %7.4f) E: %7.4f %s' %
         #               (h, k, l, ny, self.energytransferunit))
 
+    def doStatus(self):
+        return multiStatus((name, self._adevs[name]) for name in
+                           ['mono', 'ana', 'phi', 'psi'])
+
     def doWriteScatteringsense(self, val):
         for v in val:
             if v not in [-1, 1]:
                 raise ConfigurationError('invalid scattering sense %s' % v)
+
+    def doUpdateScatteringsense(self, val):
+        self._adevs['mono']._scatsense = val[0]
+        self._adevs['ana']._scatsense = val[2]
 
     def doUpdateScanmode(self, val):
         if val not in SCANMODES:
@@ -184,6 +412,7 @@ class TAS(Instrument, Moveable):
             if self.energytransferunit == 'meV':
                 ny *= THZ2MEV
         return (hkl[0], hkl[1], hkl[2], ny)
+
 
 
 class TASIndex(Moveable, AutoDevice):
