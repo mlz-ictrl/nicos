@@ -58,9 +58,20 @@
 
 MainZoomer::MainZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram* pData) : QwtPlotZoomer(canvas), m_pData(pData)
 {
-	setTrackerMode(AlwaysOn);
 	setSelectionFlags(QwtPicker::RectSelection | QwtPicker::DragSelection);
+	
+	setMousePattern(QwtEventPattern::MouseSelect2,Qt::RightButton, Qt::ControlModifier);
+	setMousePattern(QwtEventPattern::MouseSelect3,Qt::RightButton);
+	
+	QColor c(Qt::darkBlue);
+	setRubberBandPen(c);
+	setTrackerPen(c);
+	
+	setTrackerMode(AlwaysOn);
 }
+
+MainZoomer::~MainZoomer()
+{}
 
 QwtText MainZoomer::trackerText(const QwtDoublePoint &pos) const
 {
@@ -80,6 +91,17 @@ QwtText MainZoomer::trackerText(const QwtDoublePoint &pos) const
 	text.setBackgroundBrush(QBrush(bg));
 	return text;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+MainPanner::MainPanner(QwtPlotCanvas *canvas) : QwtPlotPanner(canvas)
+{
+	setAxisEnabled(QwtPlot::yRight, false);
+	setMouseButton(Qt::MidButton);
+}
+
+MainPanner::~MainPanner()
+{}
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -103,6 +125,7 @@ void Plot::InitPlot()
 	m_pSpectrogram = new QwtPlotSpectrogram();
 	m_pSpectrogram->setData(PadData());		// Dummy-Objekt
 	m_pSpectrogram->setDisplayMode(QwtPlotSpectrogram::ImageMode, true);
+	m_pSpectrogram->setDisplayMode(QwtPlotSpectrogram::ContourMode, false);
 	m_pSpectrogram->attach(this);
 	
 	setCanvasBackground(QColor(255,255,255));
@@ -116,26 +139,18 @@ void Plot::InitPlot()
 	plotLayout()->setAlignCanvasToScales(true);
 
 	m_pZoomer = new MainZoomer(canvas(), m_pSpectrogram);
-	m_pZoomer->setMousePattern(QwtEventPattern::MouseSelect2,Qt::RightButton, Qt::ControlModifier);
-	m_pZoomer->setMousePattern(QwtEventPattern::MouseSelect3,Qt::RightButton);
-
-	m_pPanner = new QwtPlotPanner(canvas());
-	m_pPanner->setAxisEnabled(QwtPlot::yRight, false);
-	m_pPanner->setMouseButton(Qt::MidButton);
+	m_pPanner = new MainPanner(canvas());
 
 	QFontMetrics fm(axisWidget(QwtPlot::yLeft)->font());
 	axisScaleDraw(QwtPlot::yLeft)->setMinimumExtent(fm.width("100."));
 
-	QColor c(Qt::darkBlue);
-	m_pZoomer->setRubberBandPen(c);
-	m_pZoomer->setTrackerPen(c);
 }
 
 void Plot::DeinitPlot()
 {
-	if(m_pSpectrogram) { delete m_pSpectrogram; m_pSpectrogram=0; }
 	if(m_pZoomer) { delete m_pZoomer; m_pZoomer=0; }
-	if(m_pPanner) { delete m_pPanner; m_pPanner=0; }
+	if(m_pPanner) { delete m_pPanner; m_pPanner=0; }	
+	if(m_pSpectrogram) { delete m_pSpectrogram; m_pSpectrogram=0; }
 }
 
 void Plot::ChangeRange()

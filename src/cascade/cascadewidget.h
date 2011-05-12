@@ -56,8 +56,19 @@ class MainZoomer : public QwtPlotZoomer
 	
 	public:
 		MainZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram* pData);
+		virtual ~MainZoomer();
 		
 		virtual QwtText trackerText(const QwtDoublePoint &pos) const;
+};
+
+
+class MainPanner : public QwtPlotPanner
+{
+	protected:
+		
+	public:
+		MainPanner(QwtPlotCanvas *canvas);
+		virtual ~MainPanner();
 };
 
 
@@ -67,8 +78,8 @@ class Plot : public QwtPlot
     
 	protected:
 		QwtPlotSpectrogram *m_pSpectrogram;
-		QwtPlotZoomer* m_pZoomer;
-		QwtPlotPanner* m_pPanner;
+		MainZoomer* m_pZoomer;
+		MainPanner* m_pPanner;
 
 	public:
 		Plot(QWidget *parent);
