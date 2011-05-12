@@ -56,7 +56,7 @@ Q_OBJECT
 		bool m_bDebugLog;
 		
 		int read(char* pcData, int iLen);
-		bool write(const char* pcBuf, int iSize);
+		bool write(const char* pcBuf, int iSize, bool bIsBinary=false);
 
 	public:
 		TcpClient(QObject *pParent=0, bool bBlocking=true);

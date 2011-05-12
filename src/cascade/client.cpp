@@ -83,11 +83,11 @@ bool TcpClient::sendmsg(const char *pcMsg)
 	int iLen = strlen(pcMsg)+1;
 	
 	// Länge der folgenden Nachricht übertragen
-	if(!write((char*)&iLen, 4)) 
+	if(!write((char*)&iLen, 4, true)) 
 		return false;
 	
 	// Nachricht übertragen
-	return write(pcMsg, iLen);
+	return write(pcMsg, iLen, false);
 	
 	/*
 	char pcBuf[256];
@@ -97,13 +97,13 @@ bool TcpClient::sendmsg(const char *pcMsg)
 	*/
 }
 
-bool TcpClient::write(const char* pcBuf, int iSize)
+bool TcpClient::write(const char* pcBuf, int iSize, bool bIsBinary)
 {
 	if(m_socket.write(pcBuf, iSize)==-1)
 		return false;
 	//m_socket.flush();
 	
-	if(m_bDebugLog && iSize>0 && isprint(pcBuf[0]))
+	if(m_bDebugLog && !bIsBinary)
 		std::cerr << "\033[0;31m" << "[to server] length: " << iSize << ", data: " << pcBuf << "\033[0m" << std::endl;
 
 	return true;

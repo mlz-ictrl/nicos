@@ -650,6 +650,8 @@ class MainWindow : public QMainWindow
 		
 		MainWindow(QWidget *parent=NULL) : QMainWindow(parent), m_cascadewidget(this), m_client(this, false), statusbar(NULL), m_statustimer(this)
 		{
+			m_cascadewidget.SetLog10(true);
+			
 			char pcBuf[256];
 			Config::GetSingleton()->QueryString("/cascade_config/main_window/title", pcBuf, "Cascade");
 			setWindowTitle(QString(pcBuf).simplified());
@@ -794,8 +796,7 @@ class MainWindow : public QMainWindow
 			btnLog = new QToolButton(toolBar);
 			btnLog->setText("Log10");
 			btnLog->setCheckable(true);
-			btnLog->setChecked(1);
-			m_cascadewidget.SetLog10(true);
+			btnLog->setChecked(m_cascadewidget.GetLog10());
 			toolBar->addWidget(btnLog);
 			
 			QMenu *pMenuViews = new QMenu;
