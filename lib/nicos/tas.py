@@ -31,7 +31,7 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from math import pi, cos, sin, asin, sqrt
+from math import pi, cos, sin, asin, radians, degrees, sqrt
 from time import time
 
 from nicos.cell import Cell
@@ -54,10 +54,10 @@ class TASSample(Sample, Cell):
 
 
 def wavelength(dvalue, order, theta):
-    return 2.0 * dvalue / order * sin(theta/180.0*pi)
+    return 2.0 * dvalue / order * sin(radians(theta))
 
 def thetaangle(dvalue, order, lam):
-    return asin(lam / (2.0 * dvalue/order))/pi*180.0
+    return degrees(asin(lam / (2.0 * dvalue/order)))
 
 
 class Monochromator(HasLimits, HasPrecision, Moveable):
@@ -82,14 +82,14 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         'reltheta': Param('true if theta position is relative to two-theta',
                           type=bool, default=False),
         # XXX explanation?
-        'sidechange': Param('true if side changes?', type=bool, default=False),
+        'sidechange': Param('', type=int, default=False),
         'focmode':  Param('focussing mode', default='manual', settable=True,
                           type=oneof(str, 'manual', 'flat', 'horizontal',
                                      'vertical', 'double')),
         'hfocuspars': Param('horizontal focus polynomial coefficients',
-                            type=listof(float), default=[0.]),
+                            type=listof(float), default=[0.], settable=True),
         'vfocuspars': Param('vertical focus polynomial coefficients',
-                            type=listof(float), default=[0.]),
+                            type=listof(float), default=[0.], settable=True),
         'warninterval': Param('interval between warnings about theta/two-theta '
                               'mismatch', unit='s', default=5),
     }
@@ -156,7 +156,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         self._movefoci()
 
     def _movefoci(self):
-        lam = self._tolambda(self.target) # get goalposition in basic unit
+        lam = self._tolambda(self.target)  # get goalposition in basic unit
         focusv, focush = self._adevs['focusv'], self._adevs['focush']
         if self.focmode == 'flat':
             if focusv:
@@ -239,14 +239,22 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         if self.unit == 'A-1':
            return 2*pi/lam**2 * dlambda
         elif self.unit == 'meV':
-           return 2*81.8/lam**3 * dlambda
+           return 2*81.804 / lam**3 * dlambda
         elif self.unit == 'THz':
-           return 2*338.3/lam**3 * dlambda
+           return 2*81.804 / THZ2MEV / lam**3 * dlambda
         return dlambda
 
     def doWriteFocmode(self, value):
-        self.printwarning('changed focmode %r active AFTER next positioning of '
-                          'device' % value)
+        self.printinfo('adjusting foci')
+        self._movefoci()
+
+    def doWriteHfocuspars(self, value):
+        self.printinfo('adjusting foci')
+        self._movefoci()
+
+    def doWriteVfocuspars(self, value):
+        self.printinfo('adjusting foci')
+        self._movefoci()
 
     def _fromlambda(self, value):
         try:
@@ -255,9 +263,9 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
             elif self.unit == 'A':
                 return value
             elif self.unit == 'meV':
-                return 81.8 / value**2
+                return 81.804 / value**2
             elif self.unit == 'THz':
-                return 338.3 / value**2
+                return 81.804 / THZ2MEV / value**2
         except (ArithmeticError, ValueError), err:
             raise ComputationError(self, 'cannot convert %s A to %s: %s' %
                                    (value, self.unit, err))
@@ -269,9 +277,9 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
             elif self.unit == 'A':
                 return value
             elif self.unit == 'meV':
-                return sqrt(81.8 / value)
+                return sqrt(81.804 / value)
             elif self.unit == 'THz':
-                return sqrt(338.3 / value)
+                return sqrt(81.804 / THZ2MEV / value)
         except (ArithmeticError, ValueError), err:
             raise ComputationError(self, 'cannot convert %s A to %s: %s' %
                                    (value, self.unit, err))
