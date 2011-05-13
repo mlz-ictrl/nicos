@@ -327,7 +327,7 @@ class Device(object):
             # do call update methods though, they should be harmless
             if umethod:
                 umethod(self._params[param])
-            return
+            return self._params[param]
         rmethod = getattr(self, 'doRead' + param.title(), None)
         if rmethod:
             value = rmethod()
@@ -341,6 +341,7 @@ class Device(object):
         if umethod:
             umethod(value)
         self._params[param] = value
+        return value
 
     def _setROParam(self, param, value):
         """Set an otherwise read-only parameter.

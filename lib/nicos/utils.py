@@ -63,7 +63,7 @@ class Param(object):
       the hardware or the cache
     - *mandatory*: if the parameter must be given in the config file
     - *settable*: if the parameter can be set after startup
-    - *alwaysread*: if the parameter should always be read from hardware
+    - *volatile*: if the parameter should always be read from hardware
     - *unit*: unit of the parameter for informational purposes; 'main' is
       replaced by the device unit when presented
     - *category*: category of the parameter when returned by device.info()
@@ -77,7 +77,7 @@ class Param(object):
     _notset = object()
 
     def __init__(self, description, type=float, default=_notset,
-                 mandatory=False, settable=False, alwaysread=False, unit=None,
+                 mandatory=False, settable=False, volatile=False, unit=None,
                  category=None, preinit=False, prefercache=None):
         self.type = type
         if default is self._notset:
@@ -85,7 +85,7 @@ class Param(object):
         self.default = default
         self.mandatory = mandatory
         self.settable = settable
-        self.alwaysread = alwaysread
+        self.volatile = volatile
         self.unit = unit
         self.category = category
         self.description = description
@@ -183,7 +183,7 @@ class AutoPropsMeta(MergedAttrsMeta):
                 info = newtype.parameters[param] = override.apply(info)
 
             # create the getter method
-            if not info.alwaysread:
+            if not info.volatile:
                 def getter(self, param=param):
                     if param not in self._params:
                         self._initParam(param)
@@ -197,10 +197,12 @@ class AutoPropsMeta(MergedAttrsMeta):
                 rmethod = getattr(newtype, 'doRead' + param.title(), None)
                 if rmethod is None:
                     raise ProgrammingError('%r device %r parameter is marked '
-                                           'as "alwaysread=True", but has no '
+                                           'as "volatile=True", but has no '
                                            'doRead%s method' %
                                            (name, param, param.title()))
                 def getter(self, param=param, rmethod=rmethod):
+                    if self._mode == 'simulation':
+                        return self._initParam(param)
                     value = rmethod(self)
                     if self._cache:
                         self._cache.put(self, param, value)
