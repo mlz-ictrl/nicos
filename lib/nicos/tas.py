@@ -190,8 +190,12 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
             focus += coeff * (temp**i)
         return focus
 
-    def doIsAllowed(self, position):
-        theta = thetaangle(self.dvalue, self.order, self._tolambda(position))
+    def doIsAllowed(self, pos):
+        try:
+            theta = thetaangle(self.dvalue, self.order, self._tolambda(pos))
+        except ValueError:
+            return False, 'cannot reach energy with d = %.3f A and n = %s' % (
+                self.dvalue, self.order)
         ttvalue = 2.0 * self._scatsense * theta
         ttdev = self._adevs['twotheta']
         ok, why = ttdev.isAllowed(ttvalue)
@@ -335,12 +339,13 @@ class TAS(Instrument, Moveable):
         except ComputationError, err:
             return False, str(err)
         # check limits for the individual axes
+        # XXX mono/ana always in A-1!
         for devname, value in zip(['mono', 'ana', 'phi', 'psi'], angles[:4]):
             dev = self._adevs[devname]
             ok, why = dev.isAllowed(value)
             if not ok:
-                return ok, 'target position %s outside limits for %s: %s' % \
-                       (value, dev, why)
+                return ok, 'target position %s %s outside limits for %s: %s' % \
+                       (dev.format(value), dev.unit, dev, why)
         return True, ''
 
     def doStart(self, pos):
