@@ -36,7 +36,7 @@ from time import time
 
 from nicos.cell import Cell
 from nicos.utils import tupleof, listof, oneof, multiStatus
-from nicos.errors import ConfigurationError, ComputationError
+from nicos.errors import ConfigurationError, ComputationError, LimitError
 from nicos.device import Moveable, HasLimits, HasPrecision, Param, Override, \
      AutoDevice
 from nicos.experiment import Sample
@@ -140,9 +140,13 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
             device.reset()
         self._focwarnings = 3
 
-    def doStart(self, position):
-        lam = self._tolambda(position)  # get position in basic unit
-        angle = thetaangle(self.dvalue, self.order, lam)
+    def doStart(self, pos):
+        lam = self._tolambda(pos)  # get position in basic unit
+        try:
+            angle = thetaangle(self.dvalue, self.order, lam)
+        except ValueError:
+            raise LimitError(self, 'wavelength not reachable with d=%.3f A '
+                             'and n=%s' % (self.dvalue, self.order))
         tt = 2.0 * angle * self._scatsense  # twotheta with correct sign
         th = angle * self._scatsense      # absolute theta with correct sign
         if self.reltheta:
@@ -194,8 +198,8 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         try:
             theta = thetaangle(self.dvalue, self.order, self._tolambda(pos))
         except ValueError:
-            return False, 'cannot reach energy with d = %.3f A and n = %s' % (
-                self.dvalue, self.order)
+            return False, 'wavelength not reachable with d=%.3f A and n=%s' % \
+                   (self.dvalue, self.order)
         ttvalue = 2.0 * self._scatsense * theta
         ttdev = self._adevs['twotheta']
         ok, why = ttdev.isAllowed(ttvalue)
@@ -224,6 +228,18 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
 
         # even on mismatch, the scattering angle is deciding
         return self._fromlambda(wavelength(self.dvalue, self.order, tt/2.0))
+
+    # methods used by the TAS class to ensure the correct unit is used: it
+    # calculates all ki/kf in A-1
+
+    def _allowedInvAng(self, pos):
+        return self.isAllowed(self._fromlambda(2*pi/pos))
+
+    def _startInvAng(self, pos):
+        return self.start(self._fromlambda(2*pi/pos))
+
+    def _readInvAng(self):
+        return 2*pi/self._tolambda(self.read())
 
     def doReadPrecision(self):
         if not hasattr(self, '_scatsense'):
@@ -347,10 +363,12 @@ class TAS(Instrument, Moveable):
         except ComputationError, err:
             return False, str(err)
         # check limits for the individual axes
-        # XXX mono/ana always in A-1!
         for devname, value in zip(['mono', 'ana', 'phi', 'psi'], angles[:4]):
             dev = self._adevs[devname]
-            ok, why = dev.isAllowed(value)
+            if isinstance(dev, Monochromator):
+                ok, why = dev._allowedInvAng(value)
+            else:
+                ok, why = dev.isAllowed(value)
             if not ok:
                 return ok, 'target position %s %s outside limits for %s: %s' % \
                        (dev.format(value), dev.unit, dev, why)
@@ -365,14 +383,14 @@ class TAS(Instrument, Moveable):
         mono, ana, phi, psi = self._adevs['mono'], self._adevs['ana'], \
                               self._adevs['phi'], self._adevs['psi']
         self.printdebug('moving phi/stt to %s' % angles[2])
-        phi.move(angles[2])
+        phi.start(angles[2])
         self.printdebug('moving psi/sth to %s' % angles[3])
-        psi.move(angles[3])
+        psi.start(angles[3])
         self.printdebug('moving mono to %s' % angles[0])
-        mono.move(angles[0])
+        mono._startInvAng(angles[0])
         if self.scanmode != 'DIFF':
             self.printdebug('moving ana to %s' % angles[1])
-            ana.move(angles[1])
+            ana._startInvAng(angles[1])
         mono.wait()
         if self.scanmode != 'DIFF':
             ana.wait()
@@ -416,15 +434,15 @@ class TAS(Instrument, Moveable):
                               self._adevs['phi'], self._adevs['psi']
         # read out position
         if self.scanmode == 'DIFF':
-            hkl = self._adevs['cell'].angle2hkl([mono.read(), mono.read(),
-                                                 phi.read(), psi.read()],
-                                                self.axiscoupling)
+            hkl = self._adevs['cell'].angle2hkl(
+                [mono._readInvAng(), mono._readInvAng(), phi.read(), psi.read()],
+                self.axiscoupling)
             ny = 0
         else:
-            hkl = self._adevs['cell'].angle2hkl([mono.read(), ana.read(),
-                                                 phi.read(), psi.read()],
-                                                self.axiscoupling)
-            ny = self._adevs['cell'].cal_ny(mono.read(), ana.read())
+            hkl = self._adevs['cell'].angle2hkl(
+                [mono._readInvAng(), ana._readInvAng(), phi.read(), psi.read()],
+                self.axiscoupling)
+            ny = self._adevs['cell'].cal_ny(mono._readInvAng(), ana._readInvAng())
             if self.energytransferunit == 'meV':
                 ny *= THZ2MEV
         return (hkl[0], hkl[1], hkl[2], ny)
