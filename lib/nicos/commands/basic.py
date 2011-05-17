@@ -51,6 +51,8 @@ from nicos.commands import usercommand
 from nicos.commands.output import printinfo, printwarning, printerror, \
      printexception
 
+CO_DIVISION = 0x2000
+
 
 # -- help and introspection ----------------------------------------------------
 
@@ -297,8 +299,9 @@ def _RunScript(filename, statdevices):
     printinfo('running user script: ' + fn)
     with open(fn, 'r') as fp:
         code = unicode(fp.read(), 'utf-8')
+        compiled = compile(code, fn, 'exec', CO_DIVISION)
         with _Scope(fn):
-            exec code in session.getLocalNamespace(), session.getNamespace()
+            exec compiled in session.getLocalNamespace(), session.getNamespace()
     printinfo('finished user script: ' + fn)
     if session.mode == 'simulation':
         printinfo('simulated minimum runtime: ' +
@@ -314,7 +317,7 @@ def Run(filename):
     """Run a script file given by file name.  If the file name is not absolute,
     it is relative to the experiment script directory.
     """
-    _run(filename)
+    _RunScript(filename, ())
 
 
 @usercommand
