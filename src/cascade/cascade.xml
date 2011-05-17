@@ -50,6 +50,8 @@
 	
 	<log>
 		<level> 3 </level>
+		<log_to_file> 0 </log_to_file>
+		<file> cascade.log </file>
 	</log>
 
 </cascade_config>

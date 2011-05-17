@@ -945,6 +945,14 @@ int main(int argc, char **argv)
 	// Konfigurationseinstellungen laden
 	Config_TofLoader::Init();
 	
+	int iLogToFile = Config::GetSingleton()->QueryInt("/cascade_config/log/log_to_file", 0);
+	if(iLogToFile)
+	{
+		char pcLogFile[256];
+		Config::GetSingleton()->QueryString("/cascade_config/log/file", pcLogFile, "cascade.log");
+		logger.Init(pcLogFile);
+	}
+	
 	int iLogLevel = Config::GetSingleton()->QueryInt("/cascade_config/log/level", LOGLEVEL_INFO);
 	Config_TofLoader::SetLogLevel(iLogLevel);
 	

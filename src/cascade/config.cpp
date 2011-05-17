@@ -37,6 +37,7 @@
 #include <libxml/xpathInternals.h>
 
 #include "logger.h"
+#include "helper.h"
 
 #if !defined(LIBXML_XPATH_ENABLED) || !defined(LIBXML_SAX1_ENABLED)
 	#error "Fehler: libxml mit XPath benötigt."
@@ -161,7 +162,8 @@ double Config::QueryDouble(const char* pcXpath, double dDefault)
 
 void Config::QueryString(const char* pcXpath, char* pcStr, const char* pcDefault)
 {
-	if(pcStr!=pcDefault && pcDefault) strcpy(pcStr,pcDefault);
+	if(pcStr!=pcDefault && pcDefault) 
+		strcpy(pcStr,pcDefault);
 	if(!m_pxmldoc)
 		return;
 	const xmlChar* pxmlPath = xmlCharStrdup(pcXpath);
@@ -196,6 +198,7 @@ void Config::QueryString(const char* pcXpath, char* pcStr, const char* pcDefault
 	}
 	
 	strcpy(pcStr, (const char*)pNode->children->content);
+	trim(pcStr);
 	xmlXPathFreeObject(xpathObject);
 }
 

@@ -56,7 +56,16 @@ void Logger::Init(const char* pcFile)
 	if(pcFile)
 	{
 		m_postrLog = new std::ofstream(pcFile);
-		m_bOwnsStream = 1;
+		if(((std::ofstream*)m_postrLog)->is_open())
+		{
+			m_bOwnsStream = 1;
+		}
+		else
+		{
+			delete m_postrLog;
+			m_postrLog = &std::cerr;
+			m_bOwnsStream = 0;
+		}
 	}
 	else
 	{

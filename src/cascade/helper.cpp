@@ -25,6 +25,7 @@
 // *****************************************************************************
 
 #include <stdio.h>
+#include <string.h>
 #include "helper.h"
 
 // file size
@@ -48,4 +49,36 @@ long GetFileSize(const char* pcFileName)
 	
 	fclose(pf);
 	return lSize;
+}
+
+
+
+void trim(char* pcStr)
+{
+	int iBegin = 0;
+	int iLenStr = strlen(pcStr);
+	
+	// remove whitespaces from front of string
+	for(int i=0; i<iLenStr; ++i)
+	{
+		if(pcStr[i]!=' ' && pcStr[i]!='\t')
+		{
+			iBegin = i;
+			break;
+		}
+	}
+	
+	iLenStr -= iBegin;
+	if(iBegin!=0)
+		memmove(pcStr, pcStr+iBegin, iLenStr);
+	
+	// remove whitespaces from back of string
+	for(int i=iLenStr-1; i>=0; --i)
+	{
+		if(pcStr[i]!=' ' && pcStr[i]!='\t')
+		{
+			pcStr[i+1] = 0;
+			break;
+		}
+	}
 }
