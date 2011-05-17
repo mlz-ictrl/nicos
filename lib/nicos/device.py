@@ -949,6 +949,11 @@ class HasLimits(Moveable):
 
     def doWriteUserlimits(self, value):
         self._checkLimits(value)
+        curval = self.read()
+        if not value[0] <= curval <= value[1]:
+            self.printwarning('current device value (%s) not within new '
+                              'userlimits (%s, %s)' %
+                              ((self.format(curval),) + value))
 
 
 class HasOffset(object):

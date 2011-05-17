@@ -98,6 +98,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         'unit':  Override(default='A-1',
                           type=oneof(str, 'A-1', 'A', 'meV', 'THz')),
         'precision': Override(volatile=True, settable=False),
+        'fmtstr': Override(default='%.3f'),
     }
 
     def doInit(self):
