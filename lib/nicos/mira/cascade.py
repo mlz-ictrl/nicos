@@ -126,10 +126,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
 
     def doUpdateDebugmsg(self, value):
         if self._mode != 'simulation':
-            loglevel = 0
-            if(value):
-                loglevel = 3
-            cascadeclient.Config_TofLoader.SetLogLevel(loglevel)
+            cascadeclient.Config_TofLoader.SetLogLevel(loglevel and 3 or 0)
 
     def doShutdown(self):
         self._client.disconnect()
