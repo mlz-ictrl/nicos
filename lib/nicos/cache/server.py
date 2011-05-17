@@ -705,7 +705,7 @@ class CacheServer(Device):
                         del self._connected[addr]
 
             # now check for additional incoming connections
-            # build list of things to ckeck
+            # build list of things to check
             selectlist = []
             if self._serversocket:
                 selectlist.append(self._serversocket)

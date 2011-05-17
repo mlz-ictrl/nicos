@@ -369,10 +369,14 @@ class Session(object):
                 setattr(self, key, [self.getDevice(name, type[0])
                                     for name in value])
             else:
-                if not isinstance(sysconfig[key], str):
+                if value is None:
+                    dev = None
+                elif not isinstance(value, str):
                     raise ConfigurationError('sysconfig %s entry must be '
                                              'a device name' % key)
-                setattr(self, key, self.getDevice(value, type))
+                else:
+                    dev = self.getDevice(value, type)
+                setattr(self, key, dev)
 
         # create all other devices
         if self.autocreate_devices:
