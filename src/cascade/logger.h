@@ -42,6 +42,7 @@ class Logger
 		int m_iCurLogLevel;
 		bool m_bOwnsStream;
 		std::string m_strCurLog;
+		std::string m_strColor;
 		
 		bool IsStdOut() const;
 		void Deinit();

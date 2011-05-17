@@ -106,20 +106,17 @@ bool Logger::IsStdOut() const
 
 void Logger::red()
 {
-	if(IsStdOut())
-		m_strCurLog += "\033[0;31m";
+	m_strColor = "\033[0;31m";
 }
 
 void Logger::purple()
 {
-	if(IsStdOut())
-		m_strCurLog += "\033[0;35m";
+	m_strColor = "\033[0;35m";
 }
 
 void Logger::normal()
 {
-	if(IsStdOut())
-		m_strCurLog += "\033[0m";
+	m_strColor = "";
 }
 
 void Logger::log(int iLevel, const char* pcStr)
@@ -151,9 +148,15 @@ void Logger::log(int iLevel, const char* pcStr)
 			break;*/
 	}
 
-	if(IsStdOut()) 
+	if(IsStdOut() && m_strColor!="")
+		(*m_postrLog) << m_strColor;
+	
+	(*m_postrLog) << strTime << strLevel << pcStr;
+	
+	if(IsStdOut() && m_strColor!="") 
 		(*m_postrLog) << "\033[0m";
-	(*m_postrLog) << strTime << strLevel << pcStr << std::endl;
+	
+	(*m_postrLog) << std::endl;
 }
 
 void Logger::info(const char* pcStr) 
