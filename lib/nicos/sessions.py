@@ -746,6 +746,9 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         readline.set_completer(NicosCompleter(self.globals).complete)
         readline.set_history_length(10000)
         self.histfile = os.path.expanduser('~/.nicoshistory')
+        # once compiled, the interactive console uses this flag for all
+        # subsequent statements it compiles
+        self.compile('from __future__ import division')
         if os.path.isfile(self.histfile):
             readline.read_history_file(self.histfile)
 

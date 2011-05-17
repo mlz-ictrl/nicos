@@ -51,6 +51,9 @@ from nicos.daemon.utils import format_exception_cut_frames, format_script, \
      format_timestamp, fixup_script, update_linecache
 from nicos.daemon.pyctl import Controller, ControlStop
 
+# compile flag to activate new division
+CO_DIVISION = 0x2000
+
 
 class RequestError(Exception):
     """Exception raised if a request cannot be queued."""
@@ -111,11 +114,13 @@ class ScriptRequest(Request):
             # if the script is a single line, compile it like a line
             # in the interactive interpreter, so that expression
             # results are shown
-            self.code = [compile(self.text + '\n', '<script>', 'single')]
+            self.code = [compile(self.text + '\n', '<script>',
+                                 'single', CO_DIVISION)]
             self.blocks = None
         elif ast is None:
             # Python < 2.6, no splitting possible
-            self.code = [compile(self.text + '\n', '<script>', 'exec')]
+            self.code = [compile(self.text + '\n', '<script>',
+                                 'exec', CO_DIVISION)]
             self.blocks = None
         else:
             # long script, and can compile AST: split into blocks
@@ -185,7 +190,7 @@ class ScriptRequest(Request):
             new_mod.body = [toplevel]
             # do not change the name (2nd parameter); the controller
             # depends on that
-            codelist.append(compile(new_mod, '<script>', 'exec'))
+            codelist.append(compile(new_mod, '<script>', 'exec', CO_DIVISION))
         return codelist, mod.body
 
     def _compare(self, a, b):
