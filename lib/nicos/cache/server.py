@@ -35,6 +35,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import os
+import errno
 import bsddb
 import select
 import socket
@@ -236,11 +237,17 @@ class CacheWorker(object):
         if not self.connection:
             return False
         try:
-            self.connection.sendall(data)
-        except Exception:
-            # if we can't write now, there is some serious problem.
-            # forget writing and close all down
-            self.log.warning(self, 'other end closed, shutting down')
+            # the MSG_DONTWAIT flag enables nonblocking send which otherwise
+            # causes the server to deadlock if the client doesn't read the
+            # response off the socket
+            self.connection.sendall(data, socket.MSG_DONTWAIT)
+        except Exception, err:
+            # if we can't write (or it would be blocking), there is some serious
+            # problem: forget writing and close down
+            if isinstance(err, socket.error) and err.errno == errno.EWOULDBLOCK:
+                self.log.warning(self, 'other end does not read, shutting down')
+            else:
+                self.log.warning(self, 'other end closed, shutting down')
             self.closedown()
             return False
         return True
