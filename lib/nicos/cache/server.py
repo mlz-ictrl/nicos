@@ -37,6 +37,7 @@ __version__ = "$Revision$"
 import os
 import errno
 import bsddb
+import Queue
 import select
 import socket
 import threading
@@ -107,31 +108,43 @@ class CacheWorker(object):
         self.db = db
         self.connection = connection
         self.name = name
-        try:
-            self.connection.setblocking(True)
-        except Exception:
-            pass
+        # timeout for send (recv is covered by select timeout)
+        self.connection.settimeout(5)
         # list of subscriptions
         self.updates_on = set()
         # list of subscriptions with timestamp requested
         self.ts_updates_on = set()
         self.stoprequest = False
-        self.worker = None
 
         self.log = session.getLogger(name)
         self.log.setLevel(loggers.loglevels[loglevel])
+
+        self.send_queue = Queue.Queue()
 
         if initstring:
             if not self.writeto(initstring):
                 self.stoprequest = True
                 return
-        self.worker = threading.Thread(None, self._worker_thread,
-                                       'worker %s' % name, args=(initdata,))
-        self.worker.setDaemon(True)
-        self.worker.start()
+        self.receiver = threading.Thread(None, self._worker_thread,
+                                         'receiver %s' % name, args=(initdata,))
+        self.receiver.setDaemon(True)
+        self.receiver.start()
+        self.sender = threading.Thread(None, self._sender_thread,
+                                       'sender %s' % name, args=())
+        self.sender.setDaemon(True)
+        self.sender.start()
 
     def __str__(self):
         return 'worker(%s)' % self.name
+
+    def join(self):
+        self.send_queue.put('end')   # to wake from blocking get()
+        self.sender.join()
+        self.receiver.join()
+
+    def _sender_thread(self):
+        while not self.stoprequest:
+            self.writeto(self.send_queue.get())
 
     def _worker_thread(self, initdata):
         data = initdata
@@ -151,7 +164,7 @@ class CacheWorker(object):
                     self.log.warning('error handling line %r' % line, exc=err)
                 #self.log.debug('return is %r' % ret)
                 if ret:
-                    self.writeto(''.join(ret))
+                    self.send_queue.put(''.join(ret))
                 # continue loop with next match
                 match = line_pattern.match(data)
             # fileno is < 0 for UDP connections, where select isn't needed
@@ -224,7 +237,7 @@ class CacheWorker(object):
             return self.db.lock(key, value, time, ttl)
 
     def is_active(self):
-        return not self.stoprequest and self.worker.isAlive()
+        return not self.stoprequest and self.receiver.isAlive()
 
     def closedown(self):
         if not self.connection:
@@ -237,17 +250,14 @@ class CacheWorker(object):
         if not self.connection:
             return False
         try:
-            # the MSG_DONTWAIT flag enables nonblocking send which otherwise
-            # causes the server to deadlock if the client doesn't read the
-            # response off the socket
-            self.connection.sendall(data, socket.MSG_DONTWAIT)
-        except Exception, err:
+            self.connection.sendall(data)
+        except socket.timeout:
+            self.log.warning(self, 'send timed out, shutting down')
+            self.closedown()
+        except Exception:
             # if we can't write (or it would be blocking), there is some serious
             # problem: forget writing and close down
-            if isinstance(err, socket.error) and err.errno == errno.EWOULDBLOCK:
-                self.log.warning(self, 'other end does not read, shutting down')
-            else:
-                self.log.warning(self, 'other end closed, shutting down')
+            self.log.warning(self, 'other end closed, shutting down')
             self.closedown()
             return False
         return True
@@ -267,12 +277,12 @@ class CacheWorker(object):
                     msg = '%s+%s@%s%s%s\r\n' % (time, ttl, key, op, value)
                 else:
                     msg = '%s@%s%s%s\r\n' % (time, key, op, value)
-                return self.writeto(msg)
+                self.send_queue.put(msg)
         # same for requested updates without timestamp
         for mykey in self.updates_on:
             if mykey in key:
                 self.log.debug('sending update of %r to %r' % (key, value))
-                return self.writeto('%s%s%s\r\n' % (key, op, value))
+                self.send_queue.put('%s%s%s\r\n' % (key, op, value))
         # no update neccessary, signal success
         return True
 
@@ -708,7 +718,7 @@ class CacheServer(Device):
                     if not client.is_active(): # dead or stopped
                         self.printinfo('client connection %s closed' % addr)
                         client.closedown()
-                        client.worker.join() # wait for thread to end
+                        client.join()  # wait for threads to end
                         del self._connected[addr]
 
             # now check for additional incoming connections
@@ -758,7 +768,7 @@ class CacheServer(Device):
                 client.closedown()
         for client in self._connected.values():
             self.printinfo('waiting for %s' % client)
-            client.worker.join()
+            client.join()
         self.printinfo('waiting for server')
         self._worker.join()
         self.printinfo('server finished')
