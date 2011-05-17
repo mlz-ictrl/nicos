@@ -94,7 +94,7 @@ bool TcpClient::write(const char* pcBuf, int iSize, bool bIsBinary)
 		return false;
 	//m_socket.flush();
 	
-	if(m_bDebugLog && !bIsBinary)
+	if(!bIsBinary)
 	{
 		logger.red();
 		logger.SetCurLogLevel(LOGLEVEL_INFO);
@@ -202,13 +202,11 @@ const QByteArray& TcpClient::recvmsg(void)
 	}
 	
 	int iTimeElapsed = m_timer.elapsed();
-	if(m_bDebugLog)
-	{
-		logger.purple();
-		logger.SetCurLogLevel(LOGLEVEL_INFO);
-		logger << "[from server] length: " << iExpectedMsgLength << ", time: " << iTimeElapsed << "ms, data: " << arrMsg.data() << "\n";
-		logger.normal();
-	}
+	
+	logger.purple();
+	logger.SetCurLogLevel(LOGLEVEL_INFO);
+	logger << "[from server] length: " << iExpectedMsgLength << ", time: " << iTimeElapsed << "ms, data: " << arrMsg.data() << "\n";
+	logger.normal();
 	
 	return arrMsg;
 }
@@ -218,20 +216,14 @@ const QByteArray& TcpClient::recvmsg(void)
 ///////////////////////////// Slots ////////////////////////////
 void TcpClient::connected()
 {
-	if(m_bDebugLog)
-	{
-		logger.SetCurLogLevel(LOGLEVEL_INFO);
-		logger << "Client: Connected to server.\n";
-	}
+	logger.SetCurLogLevel(LOGLEVEL_INFO);
+	logger << "Client: Connected to server.\n";
 }
 
 void TcpClient::disconnected()
 {
-	if(m_bDebugLog)
-	{
-		logger.SetCurLogLevel(LOGLEVEL_INFO);
-		logger << "Client: Disconnected from server.\n";
-	}
+	logger.SetCurLogLevel(LOGLEVEL_INFO);
+	logger << "Client: Disconnected from server.\n";
 }
 
 void TcpClient::readReady()
@@ -291,13 +283,10 @@ void TcpClient::readReady()
 		// Fertige Nachricht emittieren
 		emit MessageSignal(m_byCurMsg.data(), m_byCurMsg.size());
 
-		if(m_bDebugLog)
-		{
-			logger.purple();
-			logger.SetCurLogLevel(LOGLEVEL_INFO);
-			logger << "[from server] length: " << m_iCurMsgLength << ", time: " << iTimeElapsed << "ms, total: " << m_timer.elapsed() << "ms, data: " << m_byCurMsg.data() << "\n";
-			logger.normal();
-		}
+		logger.purple();
+		logger.SetCurLogLevel(LOGLEVEL_INFO);
+		logger << "[from server] length: " << m_iCurMsgLength << ", time: " << iTimeElapsed << "ms, total: " << m_timer.elapsed() << "ms, data: " << m_byCurMsg.data() << "\n";
+		logger.normal();
 		
 		// Ende der Nachricht, neue beginnt
 		m_bBeginOfMessage = true;
@@ -306,7 +295,7 @@ void TcpClient::readReady()
 }
 ////////////////////////////////////////////////////////////////
 
-TcpClient::TcpClient(QObject *pParent, bool bBlocking) : QObject(pParent), m_bBlocking(bBlocking), m_socket(pParent), m_bBeginOfMessage(1), m_iCurMsgLength(0), m_bDebugLog(0)
+TcpClient::TcpClient(QObject *pParent, bool bBlocking) : QObject(pParent), m_bBlocking(bBlocking), m_socket(pParent), m_bBeginOfMessage(1), m_iCurMsgLength(0)
 {
 	m_iMessageTimeout = -1;	// "-1" bedeutet: Timeout nicht benutzen
 	
@@ -315,11 +304,8 @@ TcpClient::TcpClient(QObject *pParent, bool bBlocking) : QObject(pParent), m_bBl
 	bool bUseMessageTimeout = (bool)Config::GetSingleton()->QueryInt("/cascade_config/server/use_message_timeout", 0);
 	if(bUseMessageTimeout)
 		m_iMessageTimeout = Config::GetSingleton()->QueryInt("/cascade_config/server/message_timeout", 10000); // Default: 10 Sekunden
-		
-	m_bDebugLog = (bool)Config::GetSingleton()->QueryInt("/cascade_config/server/debug_log", m_bDebugLog);
 #else	// Nicos-Client
 	m_iMessageTimeout = 5000;
-	//m_bDebugLog = true;
 #endif
 	
 	connect(&m_socket, SIGNAL(connected()), this, SLOT(connected()));
@@ -332,5 +318,4 @@ TcpClient::~TcpClient()
 	disconnect();
 }
 
-void TcpClient::SetDebugLog(bool bLog) { m_bDebugLog = bLog; }
 void TcpClient::SetTimeout(int iTimeout) { m_iMessageTimeout = iTimeout; }

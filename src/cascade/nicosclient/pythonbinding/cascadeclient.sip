@@ -21,7 +21,6 @@ class TcpClient : QObject
 		bool sendmsg(const char* pcMsg);			// send message to server
 		const QByteArray& recvmsg();				// get message from server
 
-		void SetDebugLog(bool bLog);				// display (colourful) debug messages
 		void SetTimeout(int iTimeout);				// iTimeout < 0  => don't use timeout
 };
 

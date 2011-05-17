@@ -89,6 +89,8 @@ class Config_TofLoader
 		static void SetPseudoCompression(bool bSet);
 		
 		static void CheckArguments(int* piStartX, int* piEndX, int* piStartY, int* piEndY, int* piFoil=0, int* piTimechannel=0);
+		
+		static void SetLogLevel(int iLevel);
 };
 
 

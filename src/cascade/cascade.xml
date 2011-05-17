@@ -46,8 +46,10 @@
 
 		<use_message_timeout> 0 </use_message_timeout>
 		<message_timeout> 10000 </message_timeout>
-		
-		<debug_log> 1 </debug_log>
 	</server>
+	
+	<log>
+		<level> 3 </level>
+	</log>
 
 </cascade_config>

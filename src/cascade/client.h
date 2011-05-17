@@ -53,8 +53,6 @@ Q_OBJECT
 		QTime m_timer;
 		/////////////////////////////////////////////////////////////
 		
-		bool m_bDebugLog;
-		
 		int read(char* pcData, int iLen);
 		bool write(const char* pcBuf, int iSize, bool bIsBinary=false);
 
@@ -70,7 +68,6 @@ Q_OBJECT
 		bool sendmsg(const char* pcMsg);
 		const QByteArray& recvmsg(void);	// nur für blockierenden Client
 		
-		void SetDebugLog(bool bLog);
 		void SetTimeout(int iTimeout);		// negative Werte schalten Timeout ab
 		
 	signals:

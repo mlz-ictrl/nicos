@@ -26,6 +26,11 @@ class Config_TofLoader
 									// false: all images specified in t_res are sent by server, including padding ones;
 		static void SetPseudoCompression(bool bSet);		//        counts in first time are split between first and last channels
 									// true: the opposite of both points
+		
+		static void SetLogLevel(int iLevel);			// Log Level: 0: log nothing, 
+									//            1: log errors,
+									//            2: log errors & warnings,
+									//            3: log errors & warnings & infos
 };
 
 

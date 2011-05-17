@@ -370,6 +370,11 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen, boo
 	}
 }
 
+void Config_TofLoader::SetLogLevel(int iLevel)
+{
+	logger.SetLogLevel(iLevel);
+}
+
 //////////////////////////////////////////////////////////////////////
 
 // wandle Big-Endian <-> Little-Endian um (für Mac)

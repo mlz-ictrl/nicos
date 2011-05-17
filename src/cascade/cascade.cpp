@@ -945,6 +945,9 @@ int main(int argc, char **argv)
 	// Konfigurationseinstellungen laden
 	Config_TofLoader::Init();
 	
+	int iLogLevel = Config::GetSingleton()->QueryInt("/cascade_config/log/level", LOGLEVEL_INFO);
+	Config_TofLoader::SetLogLevel(iLogLevel);
+	
 	int iWinW = Config::GetSingleton()->QueryInt("/cascade_config/main_window/width", WIN_W);
 	int iWinH = Config::GetSingleton()->QueryInt("/cascade_config/main_window/height", WIN_H);
 	
