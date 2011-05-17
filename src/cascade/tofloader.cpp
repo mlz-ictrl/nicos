@@ -29,7 +29,6 @@
 #include "tofloader.h"
 #include "config.h"
 
-#include <iostream>
 #include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,6 +36,7 @@
 #include <vector>
 #include <string.h>
 #include <limits>
+#include "logger.h"
 
 #ifdef USE_MINUIT
 	#include <Minuit2/FCNBase.h>
@@ -69,7 +69,8 @@ bool Config_TofLoader::USE_PSEUDO_COMPRESSION = 1;
 void Config_TofLoader::Init()
 {
 #ifdef __BIG_ENDIAN__
-	std::cerr << "This is a PowerPC (big endian)." << std::endl;
+	logger.SetCurLogLevel(LOGLEVEL_INFO);
+	logger << "Loader: This is a PowerPC (big endian).\n";
 #endif
 
 	Deinit();
@@ -213,8 +214,11 @@ void Config_TofLoader::CheckArguments(int* piStartX, int* piEndX, int* piStartY,
 
 bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen, bool bIsTof, bool bFirstCall)
 {
-	if(bFirstCall) 
-		std::cerr << "Warning: Guessing Configuration." << std::endl;
+	if(bFirstCall)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "Loader: Guessing Configuration.\n";
+	}
 
 	static const int MIN_SHIFT = 6;		// 64
  	static const int MAX_SHIFT = 10;	// 1024
@@ -233,7 +237,7 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen, boo
 		for(int i=0; i<sizeof(iKnownCnt)/sizeof(int); ++i)
 		{
 			if(iKnownX[i]*iKnownY[i]*iKnownCnt[i] != iLen) continue;
-			GuessConfigFromSize(bPseudoCompressed,iKnownX[i]*iKnownY[i],false,false);		// eigentlich unnötig, nur wegen cerr-Ausgabe
+			GuessConfigFromSize(bPseudoCompressed,iKnownX[i]*iKnownY[i],false,false);
 			
 			bFound = true;
 			IMAGE_WIDTH = iKnownX[i];
@@ -277,14 +281,16 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen, boo
 		
 		if(bFound)
 		{
-			std::cerr << "guessing image count: " << IMAGE_COUNT << std::endl;
+			logger.SetCurLogLevel(LOGLEVEL_WARN);
+			logger << "Loader: guessing image count: " << IMAGE_COUNT << "\n";
 		}
 		return bFound;
 	}
 	else if(bIsTof && bPseudoCompressed)
 	{
 		// TODO
-		std::cerr << "Error: Pseudo-compressed size guess not yet implemented." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Pseudo-compressed size guess not yet implemented.\n";
 		return 0;
 	}
 	else	// PAD
@@ -355,8 +361,9 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen, boo
 		
 		if(bFound)
 		{
-			std::cerr << "guessing image width: " << IMAGE_WIDTH << std::endl;
-			std::cerr << "guessing image height: " << IMAGE_HEIGHT << std::endl;
+			logger.SetCurLogLevel(LOGLEVEL_WARN);
+			logger << "Loader: guessing image width: " << IMAGE_WIDTH << "\n";
+			logger << "Loader: guessing image height: " << IMAGE_HEIGHT << "\n";
 		}
 		
 		return bFound;
@@ -551,7 +558,8 @@ int TofImage::LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen)
 	
 	if(uiBufLen!=(unsigned int)iSize)
 	{
-		std::cerr << "Error: Buffer size (" << uiBufLen << " ints) != TOF size (" << iSize << " ints)." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Buffer size (" << uiBufLen << " ints) != TOF size (" << iSize << " ints)." << "\n";
 		return LOAD_SIZE_MISMATCH;
 	}
 	
@@ -574,18 +582,21 @@ int TofImage::LoadFile(const char *pcFileName)
 	FILE *pf = fopen(pcFileName,"rb");
 	if(!pf)
 	{ 
-		std::cerr << "Error: Could not open file \"" << pcFileName << "\"." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Could not open file \"" << pcFileName << "\"." << "\n";
 		return LOAD_FAIL;
 	}
 	
 	unsigned int uiBufLen = fread(m_puiDaten, sizeof(unsigned int), iSize, pf);
 	if(!uiBufLen)
 	{
-		std::cerr << "Error: Could not read file \"" << pcFileName << "\"." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Could not read file \"" << pcFileName << "\"." << "\n";
 	}
 	if(uiBufLen!=(unsigned int)iSize)
 	{
-		std::cerr << "Error: Buffer size (" << uiBufLen << " ints) != TOF size (" << iSize << " ints)." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Buffer size (" << uiBufLen << " ints) != TOF size (" << iSize << " ints)." << "\n";
 		iRet = LOAD_SIZE_MISMATCH;
 	}	
 	
@@ -1080,7 +1091,8 @@ int PadImage::LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen)
 {
 	if(uiBufLen!=(unsigned int)Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth())
 	{
-		std::cerr << "Error: Buffer size (" << uiBufLen << " ints) != PAD size (" << Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth() << " ints)." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Buffer size (" << uiBufLen << " ints) != PAD size (" << Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth() << " ints)." << "\n";
 		return LOAD_SIZE_MISMATCH;
 	}
 	
@@ -1104,19 +1116,22 @@ int PadImage::LoadFile(const char *pcFileName)
 	FILE *pf = fopen(pcFileName,"rb");
 	if(!pf)
 	{ 
-		std::cerr << "Error: Could not open file \"" << pcFileName << "\"." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Could not open file \"" << pcFileName << "\"." << "\n";
 		return LOAD_FAIL;
 	}
 	
 	unsigned int uiBufLen = fread(m_puiDaten, sizeof(unsigned int),Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth(),pf);
 	if(!uiBufLen)
 	{
-		std::cerr << "Error: Could not read file \"" << pcFileName << "\"." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Could not read file \"" << pcFileName << "\"." << "\n";
 	}
 	
 	if(uiBufLen!=(unsigned int)Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth())
 	{
-		std::cerr << "Error: Buffer size (" << uiBufLen << " ints) != PAD size (" << Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth() << " ints)." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Buffer size (" << uiBufLen << " ints) != PAD size (" << Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth() << " ints)." << "\n";
 		iRet = LOAD_SIZE_MISMATCH;
 	}	
 	fclose(pf);
@@ -1527,7 +1542,8 @@ bool TmpGraph::FitSinus(double &dPhase, double &dScale, double &dAmp, double &dO
 
 	if(!mini.IsValid() /*|| dPhase!=dPhase || dAmp!=dAmp || dOffs!=dOffs*/)	// auf NaN prüfen
 	{
-		std::cerr << "Error: Invalid fit." << std::endl;	
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Invalid fit." << "\n";
 		return false;
 	}
 	return true;
@@ -1536,7 +1552,8 @@ bool TmpGraph::FitSinus(double &dPhase, double &dScale, double &dAmp, double &dO
 #else
 bool TmpGraph::FitSinus(double &dPhase, double &dScale, double &dAmp, double &dOffs) const
 {
-	std::cerr << "Error: Minuit not available." << std::endl;
+	logger.SetCurLogLevel(LOGLEVEL_ERR);
+	logger << "Loader: Minuit not available." << "\n";
 	return false;
 }
 #endif

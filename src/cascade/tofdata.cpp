@@ -63,7 +63,6 @@ PadData::~PadData()
 
 QwtRasterData *PadData::copy() const
 {
-	//std::cout << "copy" << std::endl;
 	return new PadData(*this);
 }
 

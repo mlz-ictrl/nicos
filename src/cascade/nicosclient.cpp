@@ -24,11 +24,11 @@
 //
 // *****************************************************************************
 
-#include <iostream>
 #include <string.h>
 
 #include "nicosclient.h"
 #include "helper.h"
+#include "logger.h"
 
 
 #define IS_PAD	1
@@ -123,7 +123,8 @@ bool NicosClient::IsSizeCorrect(const QByteArray& arr, bool bPad)
 	{
 		if(m_pad.GetPadSize()*4 != arr.size()-4)
 		{
-			std::cerr << "Error in NicosClient.counts: buffer size (" << arr.size()-4 << " bytes) != expected PAD size (" << m_pad.GetPadSize()*4 << " bytes)." << std::endl;
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "NicosClient.counts: buffer size (" << arr.size()-4 << " bytes) != expected PAD size (" << m_pad.GetPadSize()*4 << " bytes)." << "\n";
 			bOk = false;
 		}
 	}
@@ -131,7 +132,8 @@ bool NicosClient::IsSizeCorrect(const QByteArray& arr, bool bPad)
 	{
 		if(m_tof.GetTofSize()*4 != arr.size()-4)
 		{
-			std::cerr << "Error in NicosClient.counts: buffer size (" << arr.size()-4 << " bytes) != expected TOF size (" << m_tof.GetTofSize()*4 << " bytes)." << std::endl;
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "NicosClient.counts: buffer size (" << arr.size()-4 << " bytes) != expected TOF size (" << m_tof.GetTofSize()*4 << " bytes)." << "\n";
 			bOk = false;
 		}
 	}

@@ -13,8 +13,8 @@ all: cascade nicosmodules
 
 
 ###################### cascade-qt-client ################
-cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o
-	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o
+cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o
+	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o
 #########################################################
 
 
@@ -50,6 +50,9 @@ client.o: client_moc.cpp client.h client.moc
 
 helper.o: helper.cpp helper.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o helper.o helper.cpp
+
+logger.o: logger.cpp logger.h
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o logger.o logger.cpp
 #########################################################
 
 

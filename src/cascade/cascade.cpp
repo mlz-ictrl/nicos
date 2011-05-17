@@ -66,6 +66,7 @@
 #include "client.h"
 #include "parse.h"
 #include "cascadewidget.h"
+#include "logger.h"
 
 #include "ErrorBarPlotCurve.h"
 #include "histogram_item.h"
@@ -362,7 +363,8 @@ class MainWindow : public QMainWindow
 			{}
 			else
 			{
-				std::cerr << "Error: Unknown prefix in server response: \"" <<pcBuf[0]<<pcBuf[1]<<pcBuf[2]<<pcBuf[3] << "\"." << std::endl;
+				logger.SetCurLogLevel(LOGLEVEL_ERR);
+				logger << "Cascade: Unknown prefix in server response: \"" <<pcBuf[0]<<pcBuf[1]<<pcBuf[2]<<pcBuf[3] << "\".\n";
 			}
 		}
 
@@ -645,14 +647,24 @@ class MainWindow : public QMainWindow
 		///////////////////////// Hilfe ///////////////////////////////////
 		void About() 
 		{ 
-			QString strAbout = "Cascade Qt Client written by Tobias Weber.\n";
+			QString strAbout = "Cascade Qt Client written by Tobias Weber.";
+			strAbout += "\n";
 			
 			#ifdef __TIMESTAMP__
 			strAbout += QString("\n") + QString("Build time: ") + QString(__TIMESTAMP__);
 			#endif
 			
 			#ifdef __VERSION__
-			strAbout += QString("\n") + QString("Built with CC version: ") + QString(__VERSION__);
+			strAbout += QString("\n") + QString("Built with CC version ") + QString(__VERSION__);
+			#endif
+			strAbout += "\n";
+
+			#ifdef QT_VERSION_STR
+			strAbout += QString("\n") + QString("Linked to Qt version ") + QString(QT_VERSION_STR);
+			#endif
+			
+			#ifdef QWT_VERSION_STR
+			strAbout += QString("\n") + QString("Linked to Qwt version ") + QString(QWT_VERSION_STR);
 			#endif
 			
 			QMessageBox::about(this, "About", strAbout); 

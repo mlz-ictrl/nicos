@@ -36,6 +36,8 @@
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 
+#include "logger.h"
+
 #if !defined(LIBXML_XPATH_ENABLED) || !defined(LIBXML_SAX1_ENABLED)
 	#error "Fehler: libxml mit XPath benötigt."
 #endif
@@ -74,7 +76,8 @@ bool Config::Load(const char* pcFile)
 	m_pxmldoc = xmlParseFile(pcFile);
 	if(!m_pxmldoc) 
 	{
-		std::cerr << "Error: Could not load XML file \"" << pcFile << "\"." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Config: Could not load XML file \"" << pcFile << "\".\n";
 		return false;
 	}
 	m_ppathcontext = xmlXPathNewContext((xmlDoc*)m_pxmldoc);
@@ -92,20 +95,23 @@ int Config::QueryInt(const char* pcXpath, int iDefault)
 	xmlNodeSetPtr pnodeset = xpathObject->nodesetval;
 	if(pnodeset->nodeNr==0)
 	{
-		std::cerr << "Error: XPath \"" << pcXpath << "\" not found." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Config: XPath \"" << pcXpath << "\" not found.\n";
 		xmlXPathFreeObject(xpathObject);
 		return iDefault;
 	}
 	else if(pnodeset->nodeNr>1)
 	{
-		std::cerr << "Warning: Result for XPath \"" << pcXpath << "\" not unique, using first." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "Config: Result for XPath \"" << pcXpath << "\" not unique, using first.\n";
 	}
 	
 	xmlNodePtr pNode = pnodeset->nodeTab[0];
 	
 	if(!pNode || !pNode->children)
 	{
-		std::cerr << "Error: Node for XPath \"" << pcXpath << "\" invalid." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Config: Node for XPath \"" << pcXpath << "\" invalid.\n";
 		xmlXPathFreeObject(xpathObject);
 		return iDefault;
 	}
@@ -126,20 +132,23 @@ double Config::QueryDouble(const char* pcXpath, double dDefault)
 	xmlNodeSetPtr pnodeset = xpathObject->nodesetval;
 	if(pnodeset->nodeNr==0)
 	{
-		std::cerr << "Error: XPath \"" << pcXpath << "\" not found." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Config: XPath \"" << pcXpath << "\" not found.\n";
 		xmlXPathFreeObject(xpathObject);
 		return dDefault;
 	}
 	else if(pnodeset->nodeNr>1)
 	{
-		std::cerr << "Warning: Result for XPath \"" << pcXpath << "\" not unique, using first." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "Config: Result for XPath \"" << pcXpath << "\" not unique, using first.\n";
 	}
 	
 	xmlNodePtr pNode = pnodeset->nodeTab[0];
 	
 	if(!pNode || !pNode->children)
 	{
-		std::cerr << "Error: Node for XPath \"" << pcXpath << "\" invalid." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Config: Node for XPath \"" << pcXpath << "\" invalid.\n";
 		xmlXPathFreeObject(xpathObject);
 		return dDefault;
 	}
@@ -163,21 +172,24 @@ void Config::QueryString(const char* pcXpath, char* pcStr, const char* pcDefault
 	xmlNodeSetPtr pnodeset = xpathObject->nodesetval;
 	if(pnodeset->nodeNr==0)
 	{
-		std::cerr << "Error: XPath \"" << pcXpath << "\" not found." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Config: XPath \"" << pcXpath << "\" not found.\n";
 		xmlXPathFreeObject(xpathObject);
 		
 		return;
 	}
 	else if(pnodeset->nodeNr>1)
 	{
-		std::cerr << "Warning: Result for XPath \"" << pcXpath << "\" not unique, using first." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "Config: Result for XPath \"" << pcXpath << "\" not unique, using first.\n";
 	}
 	
 	xmlNodePtr pNode = pnodeset->nodeTab[0];
 	
 	if(!pNode || !pNode->children)
 	{
-		std::cerr << "Error: Node for XPath \"" << pcXpath << "\" invalid." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Config: Node for XPath \"" << pcXpath << "\" invalid.\n";
 		xmlXPathFreeObject(xpathObject);
 		
 		return;

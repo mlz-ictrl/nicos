@@ -27,10 +27,10 @@
 // "Protokoll": 4 Bytes (int) = Größe der Nachricht; Nachricht
 
 #include "client.h"
-#include <iostream>
 #include <stdlib.h>
 #include "config.h"
 #include "helper.h"
+#include "logger.h"
 
 #define WAIT_DELAY 5000
 
@@ -43,7 +43,8 @@ bool TcpClient::connecttohost(const char* pcAddr, int iPort)
 	QHostInfo info = QHostInfo::fromName(pcAddr);
 	if(info.addresses().isEmpty())
 	{
-		std::cerr << "Error: " << pcAddr << " could not be resolved." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Client: " << pcAddr << " could not be resolved.\n";
 		return false;
 	}
 	QHostAddress address = info.addresses().first();
@@ -52,9 +53,6 @@ bool TcpClient::connecttohost(const char* pcAddr, int iPort)
 	// Verbinden
 	m_socket.connectToHost(address, quint16(iPort));
 	bool bConnected = m_socket.waitForConnected(WAIT_DELAY);
-
-//	if(!bConnected)
-//		std::cerr << "Error: Could not connect to " << pcAddr << " on port " << iPort << "." << std::endl;
 
 	return bConnected;
 }
@@ -88,13 +86,6 @@ bool TcpClient::sendmsg(const char *pcMsg)
 	
 	// Nachricht übertragen
 	return write(pcMsg, iLen, false);
-	
-	/*
-	char pcBuf[256];
-	strcpy(pcBuf+4, pcMsg);
-	*((int*)pcBuf) = iLen;
-	write(pcBuf, iLen+4);
-	*/
 }
 
 bool TcpClient::write(const char* pcBuf, int iSize, bool bIsBinary)
@@ -104,18 +95,26 @@ bool TcpClient::write(const char* pcBuf, int iSize, bool bIsBinary)
 	//m_socket.flush();
 	
 	if(m_bDebugLog && !bIsBinary)
-		std::cerr << "\033[0;31m" << "[to server] length: " << iSize << ", data: " << pcBuf << "\033[0m" << std::endl;
+	{
+		logger.red();
+		logger.SetCurLogLevel(LOGLEVEL_INFO);
+		logger << "[to server] length: " << iSize << ", data: " << pcBuf << "\n";
+		logger.normal();
+	}
 
 	return true;
 }
 
 bool TcpClient::sendfile(const char* pcFileName)
 {
-	std::cerr << "Sende \"" << pcFileName << "\"" << std::endl;
+	logger.SetCurLogLevel(LOGLEVEL_INFO);
+	logger << "Client: Sending \"" << pcFileName << "\"\n";
+	
 	FILE *pf = fopen(pcFileName,"rb");
 	if(!pf)
 	{ 
-		std::cerr << "Error: Could not open file \"" << pcFileName << "\"." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Client: Could not open file \"" << pcFileName << "\".\n";
 		return false;
 	}
 	
@@ -124,17 +123,22 @@ bool TcpClient::sendfile(const char* pcFileName)
 	char *pcDaten = new char[iSize];
 	if(!fread(pcDaten, 1, iSize, pf))
 	{
-		std::cerr << "Error: Could not read file \"" << pcFileName << "\"." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Client: Could not read file \"" << pcFileName << "\".\n";
 		fclose(pf);
 		delete[] pcDaten;
 		return false;
 	}
 	fclose(pf);
 	if(!write((char*)pcDaten,iSize))
-		std::cerr << "Error: Could not send file \"" << pcFileName << "\"." << std::endl;
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Client: Could not send file \"" << pcFileName << "\".\n";
+	}
 	delete[] pcDaten;
 	
-	std::cerr << iSize << " bytes sent." << std::endl;
+	logger.SetCurLogLevel(LOGLEVEL_INFO);
+	logger << "Client: " << iSize << " bytes sent.\n";
 	return true;
 }
 ////////////////////////////////////////////////////////////////
@@ -146,7 +150,8 @@ int TcpClient::read(char* pcData, int iLen)
 	int iLenRead = m_socket.read(pcData, iLen);
 	if(iLenRead<0)
 	{
-		std::cerr << "Error: Could not read socket." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Client: Could not read socket.\n";
 		iLenRead = 0;
 	}
 	return iLenRead;
@@ -160,7 +165,8 @@ const QByteArray& TcpClient::recvmsg(void)
 	m_timer.start();
 	if(!m_socket.waitForReadyRead(WAIT_DELAY)) 
 	{
-		std::cerr << "Error: Socket timed out while receiving." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Client: Socket timed out while receiving.\n";
 		return m_byEmpty;
 	}	
 	
@@ -169,7 +175,8 @@ const QByteArray& TcpClient::recvmsg(void)
 	
 	if(iExpectedMsgLength <= 0)
 	{
-		std::cerr << "Error: Invalid message length: " << iExpectedMsgLength << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Client: Invalid message length: " << iExpectedMsgLength << "\n";
 		return m_byEmpty;
 	}
 
@@ -180,7 +187,8 @@ const QByteArray& TcpClient::recvmsg(void)
 	{
 		if(!m_socket.waitForReadyRead(WAIT_DELAY)) 
 		{
-			std::cerr << "Error: Socket timed out while receiving." << std::endl;
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Client: Socket timed out while receiving.\n";
 			return m_byEmpty;
 		}
 	}
@@ -188,13 +196,19 @@ const QByteArray& TcpClient::recvmsg(void)
 	int iRead = read(arrMsg.data(), iExpectedMsgLength);
 	if(iRead!=iExpectedMsgLength)
 	{
-		std::cerr << "Error: Wrong number of bytes received." << std::endl;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Client: Wrong number of bytes received.\n";
 		return m_byEmpty;
 	}
 	
 	int iTimeElapsed = m_timer.elapsed();
 	if(m_bDebugLog)
-		std::cerr << "\033[0;35m" << "[from server] length: " << iExpectedMsgLength << ", time: " << iTimeElapsed << "ms, data: " << arrMsg.data() << "\033[0m" << std::endl;
+	{
+		logger.purple();
+		logger.SetCurLogLevel(LOGLEVEL_INFO);
+		logger << "[from server] length: " << iExpectedMsgLength << ", time: " << iTimeElapsed << "ms, data: " << arrMsg.data() << "\n";
+		logger.normal();
+	}
 	
 	return arrMsg;
 }
@@ -205,13 +219,19 @@ const QByteArray& TcpClient::recvmsg(void)
 void TcpClient::connected()
 {
 	if(m_bDebugLog)
-		std::cerr << "Connected to server." << std::endl;
+	{
+		logger.SetCurLogLevel(LOGLEVEL_INFO);
+		logger << "Client: Connected to server.\n";
+	}
 }
 
 void TcpClient::disconnected()
 {
 	if(m_bDebugLog)
-		std::cerr << "Disconnected from server." << std::endl;
+	{
+		logger.SetCurLogLevel(LOGLEVEL_INFO);
+		logger << "Client: Disconnected from server.\n";
+	}
 }
 
 void TcpClient::readReady()
@@ -257,13 +277,14 @@ void TcpClient::readReady()
 	int iLenRead = read(pcBuf, iSize);
 	m_iCurMsgLength += iLenRead;
 	
-	//std::cout << "Länge: " << iLenRead << ", pcBuf: " << pcBuf << std::endl;
-	
 	// Ende der gegenwärtigen Nachricht erreicht?
 	if(m_iCurMsgLength>=m_iExpectedMsgLength)
 	{	
 		if(m_iCurMsgLength > m_iExpectedMsgLength)
-			std::cerr << "Warning: Got too much data; expected: " << m_iExpectedMsgLength << ", received: " << m_iCurMsgLength << std::endl;
+		{
+			logger.SetCurLogLevel(LOGLEVEL_WARN);
+			logger << "Client: Got too much data; expected: " << m_iExpectedMsgLength << ", received: " << m_iCurMsgLength << "\n";
+		}
 		
 		int iTimeElapsed = m_timer.elapsed();
 		
@@ -271,7 +292,12 @@ void TcpClient::readReady()
 		emit MessageSignal(m_byCurMsg.data(), m_byCurMsg.size());
 
 		if(m_bDebugLog)
-			std::cerr << "\033[0;35m" << "[from server] length: " << m_iCurMsgLength << ", time: " << iTimeElapsed << "ms, total: " << m_timer.elapsed() << "ms, data: " << m_byCurMsg.data() << "\033[0m" << std::endl;
+		{
+			logger.purple();
+			logger.SetCurLogLevel(LOGLEVEL_INFO);
+			logger << "[from server] length: " << m_iCurMsgLength << ", time: " << iTimeElapsed << "ms, total: " << m_timer.elapsed() << "ms, data: " << m_byCurMsg.data() << "\n";
+			logger.normal();
+		}
 		
 		// Ende der Nachricht, neue beginnt
 		m_bBeginOfMessage = true;
