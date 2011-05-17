@@ -108,15 +108,6 @@ class BaseCacheClient(Device):
                              (self._address + (err,)))
         else:
             self.printinfo('now connected to %s:%s' % self._address)
-        with self._sec_lock:
-            if self._socket:
-                try:
-                    self._secsocket = socket.socket(socket.AF_INET,
-                                                    socket.SOCK_STREAM)
-                    self._secsocket.connect(self._address)
-                except Exception:
-                    self.printexception('unable to connect secondary socket')
-                    self._secsocket = None
         self._startup_done.set()
         self._do_callbacks = True
 
@@ -244,8 +235,18 @@ class BaseCacheClient(Device):
 
     def _single_request(self, tosend, sentinel='\r\n'):
         """Communicate over the secondary socket."""
-        if not self._secsocket:
+        if not self._socket:
             return
+        with self._sec_lock:
+            if not self._secsocket:
+                try:
+                    self._secsocket = socket.socket(socket.AF_INET,
+                                                    socket.SOCK_STREAM)
+                    self._secsocket.connect(self._address)
+                except Exception:
+                    self.printexception('unable to connect secondary socket')
+                    self._secsocket = None
+                    return
 
         with self._sec_lock:
             # write request
