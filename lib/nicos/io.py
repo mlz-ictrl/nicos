@@ -117,7 +117,8 @@ class PartialDigitalOutput(DigitalOutput):
 
     def doStart(self, target):
         curvalue = self._taco_guard(self._dev.read)
-        newvalue = (curvalue & ~self._max) | (target << self.startbit)
+        newvalue = (curvalue & ~(self._max << self.startbit)) | \
+                   (target << self.startbit)
         self._taco_guard(self._dev.write, newvalue)
 
     def doIsAllowed(self, target):

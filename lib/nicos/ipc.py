@@ -35,7 +35,7 @@ from time import sleep
 
 from nicos import status
 from nicos.utils import intrange, floatrange
-from nicos.device import Device, Param
+from nicos.device import Device, Readable, Moveable, Param
 from nicos.errors import NicosError, CommunicationError, ProgrammingError, \
     UsageError
 from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
@@ -564,3 +564,59 @@ class Motor(NicosMotor):
         else: c += 'freq-range: 90-3000Hz\n'
 
         self.printinfo(c)
+
+
+class Input(Readable):
+    """IPC I/O card digital input class."""
+
+    parameters = {
+        'addr':  Param('Bus address of the card', type=int, mandatory=True),
+        'first': Param('First bit to read', type=intrange(0, 16),
+                       mandatory=True),
+        'last':  Param('Last bit to read', type=intrange(0, 16),
+                       mandatory=True),
+    }
+
+    attached_devices = {
+        'bus': IPCModBus,
+    }
+
+    def doInit(self):
+        self._mask = ((1 << (self.last - self.first + 1)) - 1) << self.first
+
+    def doRead(self):
+        high = self._adevs['bus'].get(self.addr, 181)
+        low  = self._adevs['bus'].get(self.addr, 180)
+        return ((high + low) & self._mask) >> self.first
+
+    def doStatus(self):
+        return status.OK, 'idle'
+
+
+class Output(Input, Moveable):
+    """
+    IPC I/O card digital output class.
+
+    Shares parameters and doInit with Input.
+    """
+
+    def doRead(self):
+        ioval = self._adevs['bus'].get(self.addr, 191)
+        return (ioval & self._mask) >> self.first
+
+    def doStatus(self):
+        st = self._adevs['bus'].get(self.addr, 195)
+        if st == 1:
+            return status.ERROR, 'power stage overheat'
+        return status.OK, 'idle'
+
+    def doIsAllowed(self, pos):
+        max = self._mask >> self.first
+        if not 0 <= pos <= max:
+            return False, 'outside range [0, %d] of digital output' % max
+        return True, ''
+
+    def doStart(self, pos):
+        curval = self._adevs['bus'].get(self.addr, 191)
+        newval = (pos << self.first) | (curval & ~self._mask)
+        self._adevs['bus'].send(self.addr, 190, newval, 3)
