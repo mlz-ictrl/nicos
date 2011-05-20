@@ -490,7 +490,8 @@ class DbCacheDatabase(MemoryCacheDatabase):
             self._stores[ymd][1] += 1
             self.printdebug('incremented use count for store %s' % (ymd,))
             return self._stores[ymd][0]
-        path = os.path.join(self.storepath, self._storefmt % ymd)
+        path = os.path.join(session.config.control_path,
+                            self.storepath, self._storefmt % ymd)
         try:
             db = bsddb.hashopen(path, 'c')
         except bsddb.db.DBError, err:

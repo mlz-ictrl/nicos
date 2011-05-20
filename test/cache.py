@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # Module:
@@ -26,51 +25,38 @@
 #
 # *****************************************************************************
 
+"""NICOS test suite cache."""
+
+__author__  = "$Author$"
+__date__    = "$Date$"
+__version__ = "$Revision$"
+
 import os
-import sys
-import shutil
-import signal
-import subprocess
+import logging
 from os import path
 
-def cleanup(rootdir):
-    if not path.exists(rootdir):
-        os.mkdir(rootdir)
-    elif os.listdir(rootdir):
-        print 'Cleaning old test output dir...'
-        print '-' * 70
-        shutil.rmtree(rootdir)
-        os.mkdir(rootdir)
-        os.mkdir(rootdir + '/cache')
-        os.mkdir(rootdir + '/pid')
+from nicos import loggers
+from nicos.sessions import SimpleSession
 
-try:
-    import nose
-except ImportError:
-    print 'The "nose" package is required to run this test suite.'
-    sys.exit(1)
 
-rootdir = path.join(os.path.dirname(__file__), 'root')
-cleanup(rootdir)
+class TestCacheSession(SimpleSession):
 
-print 'Starting test cache server...'
+    def __init__(self, appname):
+        SimpleSession.__init__(self, appname)
+        self.setSetupPath(path.join(path.dirname(__file__), 'setups'))
 
-# start the cache server
-os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..', 'lib')
-cache = subprocess.Popen([sys.executable, path.join(rootdir, '..', 'cache.py')])
+    def createRootLogger(self, prefix='nicos'):
+        self.log = loggers.NicosLogger('nicos')
+        self.log.parent = None
+        # show errors on the console
+        handler = logging.StreamHandler()
+        handler.setLevel(logging.WARNING)
+        handler.setFormatter(
+            logging.Formatter('[CACHE] %(name)s: %(message)s'))
+        self.log.addHandler(handler)
 
-print 'Cache PID = %s' % cache.pid
-print '-' * 70
+SimpleSession.config.user = None
+SimpleSession.config.group = None
+SimpleSession.config.control_path = path.join(path.dirname(__file__), 'root')
 
-print 'Running nicos-ng test suite...'
-print '-' * 70
-
-try:
-    nose.main()
-finally:
-    # kill the cache server
-    print '-' * 70
-    print 'Killing cache server...'
-    os.kill(cache.pid, signal.SIGTERM)
-    os.waitpid(cache.pid, 0)
-    print '-' * 70
+TestCacheSession.run('cache', 'Server')

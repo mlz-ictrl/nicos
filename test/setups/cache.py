@@ -25,8 +25,13 @@
 #
 # *****************************************************************************
 
-name = 'test system setup'
+name = 'cache setup'
 
-sysconfig = dict(
-    cache = 'localhost:14877',
+devices = dict(
+    Server = device('nicos.cache.server.CacheServer',
+                    server = 'localhost:14877',
+                    db = 'DB'),
+
+    DB = device('nicos.cache.server.DbCacheDatabase',
+                storepath = 'cache'),
 )

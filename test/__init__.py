@@ -31,14 +31,13 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-
+import os
 from os import path
 from logging import ERROR, Manager, Handler
 
 from nicos import session
 from nicos import loggers
 from nicos.sessions import Session
-
 
 class ErrorLogged(Exception):
     """Raised when an error is logged by NICOS."""
@@ -56,11 +55,6 @@ class TestLogHandler(Handler):
 class TestSession(Session):
     autocreate_devices = False
 
-    class config:
-        user = None
-        group = None
-        control_path = path.join(path.dirname(__file__), 'root')
-
     def __init__(self, appname):
         Session.__init__(self, appname)
         self._mode = 'master'
@@ -70,6 +64,10 @@ class TestSession(Session):
         self.log = loggers.NicosLogger('nicos')
         self.log.parent = None
         self.log.addHandler(TestLogHandler())
+
+TestSession.config.user = None
+TestSession.config.group = None
+TestSession.config.control_path = path.join(path.dirname(__file__), 'root')
 
 
 session.__class__ = TestSession

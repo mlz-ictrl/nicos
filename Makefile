@@ -23,6 +23,9 @@ inplace: cascade
 test:
 	@python test/run.py
 
+test-coverage:
+	@python test/run.py --with-coverage --cover-package=nicos --cover-html
+
 # get the instrument from the full hostname (mira1.mira.frm2 -> mira)
 INSTRUMENT = $(shell hostname -f | cut -d. -f2)
 INSTRDIR = $(wildcard custom/$(INSTRUMENT))
