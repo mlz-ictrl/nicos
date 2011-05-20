@@ -41,7 +41,7 @@ axis = None
 def setup_module():
     global axis
     session.loadSetup('axis')
-    session.system.setMode('master')
+    session.setMode('master')
     axis = session.getDevice('axis')
 
 def teardown_module():
@@ -49,13 +49,11 @@ def teardown_module():
 
 def test_params():
     # min/max parameters got from motor device
-    assert axis.getAbsmin() == -100
-    assert axis.getAbsmax() == +100
+    assert axis.abslimits == (-100, +100)
     # usermin/usermax parameters in the config
-    assert axis.getUsermin() == -50
-    assert axis.getUsermax() == +50
+    assert axis.userlimits == (-50, +50)
     # unit automatically from motor device
-    assert axis.getUnit() == 'mm'
+    assert axis.unit == 'mm'
 
 def test_movement():
     # initial position
@@ -64,18 +62,18 @@ def test_movement():
     axis.move(1)
     axis.wait()
     assert axis.read() == 1
-    assert axis.status() == status.OK
+    assert axis.status()[0] == status.OK
     # moving again
     axis.move(2)
     axis.wait()
     assert axis.read() == 2
-    assert axis.status() == status.OK
+    assert axis.status()[0] == status.OK
     # moving out of limits?
     assert raises(LimitError, axis.move, 150)
     # simulate a busy motor
-    axis._adevs['motor']._VirtualMotor__busy = True
+    axis._adevs['motor'].curstatus = (status.BUSY, 'busy')
     # moving while busy?
     assert raises(NicosError, axis.move, 10)
     # forwarding of motor status by doStatus()
-    assert axis.status() == status.BUSY
-    axis._adevs['motor']._VirtualMotor__busy = False
+    assert axis.status()[0] == status.BUSY
+    axis._adevs['motor'].curstatus = (status.OK, '')

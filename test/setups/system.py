@@ -27,16 +27,5 @@
 
 name = 'test system setup'
 
-devices = dict(
-    System = device(
-        'nicos.system.System',
-        autocreate = True,
-        cache = None,
-        datasinks = [],
-        experiment = None,
-        instrument = None,
-        notifiers = [],
-        datapath = '.',
-    ),
-
+sysconfig = dict(
 )

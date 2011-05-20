@@ -635,7 +635,8 @@ class Readable(Device):
             return
         if hasattr(self, 'doReset'):
             self.doReset()
-        self._cache.invalidate(self, 'status')
+        if self._cache:
+            self._cache.invalidate(self, 'status')
         return self.status()
 
     def format(self, value):

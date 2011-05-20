@@ -35,7 +35,7 @@ import time
  
 from nicos import session
 from nicos import status
-from nicos.device import Device, Moveable, Param
+from nicos.device import Device, Moveable, HasLimits, Param
 from nicos.errors import ConfigurationError, LimitError, FixedError
 from test.utils import raises
 
@@ -54,11 +54,12 @@ def teardown_module():
 class Dev1(Device):
     pass
 
-class Dev2(Moveable):
+class Dev2(HasLimits, Moveable):
     attached_devices = {'attached': Dev1}
     parameters = {
         'param1': Param('An optional parameter', type=int, default=42),
-        'param2': Param('A mandatory parameter', type=int, mandatory=True),
+        'param2': Param('A mandatory parameter', type=int, mandatory=True,
+                        settable=True),
     }
 
     def doInit(self):
@@ -85,22 +86,20 @@ class Dev2(Moveable):
         methods_called.add('doWait')
 
     def doStatus(self):
-        return status.BUSY
+        return status.BUSY, 'busy'
 
     def doReset(self):
         methods_called.add('doReset')
 
-    def doFix(self):
-        methods_called.add('doFix')
+    def doReadParam2(self):
+        return 21
 
-    def doRelease(self):
-        methods_called.add('doRelease')
+    def doWriteParam2(self, value):
+        methods_called.add('doWriteParam2')
+        return value + 1
 
-    def doGetParam2(self):
-        return self._params['param2'] + 1
-
-    def doSetParam2(self, value):
-        self._params['param2'] = value + 1
+    def doUpdateParam2(self, value):
+        methods_called.add('doUpdateParam2')
 
 
 def test_params():
@@ -115,9 +114,9 @@ def test_params():
     assert dev2.param1 == 42
     assert raises(ConfigurationError, setattr, dev2, 'param1', 21)
     # a parameter with custom getter and setter
-    assert dev2.param2 == 3
+    assert dev2.param2 == 21
     dev2.param2 = 5
-    assert dev2.param2 == 7
+    assert dev2.param2 == 6
     # Dev2 instance without adev
     assert raises(ConfigurationError, session.getDevice, 'dev2_2')
 
@@ -133,7 +132,7 @@ def test_methods():
     assert raises(LimitError, dev2.move, 5)
     # read() and status()
     assert dev2.read() == 10
-    assert dev2.status() == status.BUSY
+    assert dev2.status()[0] == status.BUSY
     # save time for history query
     t1 = time.time()
     # __call__ interface
@@ -143,15 +142,6 @@ def test_methods():
     t2 = time.time()
     dev2.move(4)
     dev2.read()
-    # history (provided by LocalHistory)
-    history = dev2.history()
-    assert [x[1] for x in history] == [10, 7, 4]
-    history = dev2.history(totime=t2)
-    assert [x[1] for x in history] == [10, 7]
-    history = dev2.history(fromtime=t1)
-    assert [x[1] for x in history] == [7, 4]
-    history = dev2.history(fromtime=t1, totime=t2)
-    assert [x[1] for x in history] == [7]
     # further methods
     dev2.reset()
     assert 'doReset' in methods_called
@@ -161,9 +151,7 @@ def test_methods():
     assert 'doWait' in methods_called
     # fixing and releasing
     dev2.fix()
-    assert 'doFix' in methods_called
     assert raises(FixedError, dev2.move, 7)
     assert raises(FixedError, dev2.stop)
     dev2.release()
-    assert 'doRelease' in methods_called
     dev2.move(7)

@@ -56,16 +56,20 @@ class TestLogHandler(Handler):
 class TestSession(Session):
     autocreate_devices = False
 
+    class config:
+        user = None
+        group = None
+        control_path = path.join(path.dirname(__file__), 'root')
+
     def __init__(self, appname):
         Session.__init__(self, appname)
-        self.setSetupPath(path.join(path.dirname(__file__), 'setup'))
+        self._mode = 'master'
+        self.setSetupPath(path.join(path.dirname(__file__), 'setups'))
 
-    def _initLogging(self):
-        loggers.initLoggers()
-        self._loggers = {}
-        self._log_manager = Manager(None)
-        # don't log to a logfile
-        self._log_handlers = [TestLogHandler()]
+    def createRootLogger(self, prefix='nicos'):
+        self.log = loggers.NicosLogger('nicos')
+        self.log.parent = None
+        self.log.addHandler(TestLogHandler())
 
 
 session.__class__ = TestSession
