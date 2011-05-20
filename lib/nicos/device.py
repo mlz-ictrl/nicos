@@ -382,7 +382,12 @@ class Device(object):
                 yield item
         selfunit = getattr(self, 'unit', '')
         for category, name, unit in self._infoparams:
-            parvalue = getattr(self, name)
+            try:
+                parvalue = getattr(self, name)
+            except Exception, err:
+                self.printwarning('error getting %s parameter for info()' %
+                                  name, exc=err)
+                continue
             parunit = (unit or '').replace('main', selfunit)
             yield (category, name, '%s %s' % (parvalue, parunit))
 

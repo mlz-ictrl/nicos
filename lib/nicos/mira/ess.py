@@ -71,7 +71,7 @@ class ESSController(AnalogOutput):
         diff = value - currentval
         direction = diff > 0 and 1 or -1
         stepwidth = self.ramprate / 60. * delay
-	steps, fraction = divmod(abs(diff), stepwidth)
+        steps, fraction = divmod(abs(diff), stepwidth)
         for i in xrange(int(steps)):
             currentval += direction * stepwidth
             self._taco_guard(self._dev.write, currentval)

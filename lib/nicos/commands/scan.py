@@ -87,6 +87,23 @@ def _fixType(dev, start, step):
         dev = session.getDevice(dev, Moveable)
     return [dev], [start], [step]
 
+def _fixType2(dev, positions):
+    if isinstance(dev, list):
+        dev = [session.getDevice(d, Moveable) for d in dev]
+        l = len(dev)
+        if not isinstance(positions, list) or not len(start) == l:
+            raise UsageError('positions must be a list of length %d' % l)
+        length = -1
+        for x in positions:
+            if not isinstance(x, list):
+                raise UsageError('all positions entries must be lists')
+            if length == -1:
+                length = len(x)
+            elif len(x) != length:
+                raise UsageError('all position lists must be of same length')
+        return dev, zip(*positions)
+    return [dev], zip(positions)
+
 def _infostr(fn, args, kwargs):
     def devrepr(x):
         if isinstance(x, Device):
@@ -100,17 +117,23 @@ def _infostr(fn, args, kwargs):
 
 
 @usercommand
-def scan(dev, start, step, numsteps, *args, **kwargs):
+def scan(dev, start, step=None, numsteps=None, *args, **kwargs):
     """Single-sided scan."""
     preset, infostr, detlist, envlist, move, multistep  = \
             _handleScanArgs(args, kwargs)
-    infostr = infostr or \
-              _infostr('scan', (dev, start, step, numsteps) + args, kwargs)
-    dev, start, step = _fixType(dev, start, step)
-    if all(v == 0 for v in step) and numsteps > 1:
-        raise UsageError('scanning with zero step width')
-    values = [[x + i*y for x, y in zip(start, step)]
-              for i in range(numsteps)]
+    if step is not None:
+        infostr = infostr or \
+                  _infostr('scan', (dev, start, step, numsteps) + args, kwargs)
+        dev, start, step = _fixType(dev, start, step)
+        if all(v == 0 for v in step) and numsteps > 1:
+            raise UsageError('scanning with zero step width')
+        values = [[x + i*y for x, y in zip(start, step)]
+                  for i in range(numsteps)]
+    else:
+        infostr = infostr or \
+                  _infostr('scan', (dev, start) + args, kwargs)
+        dev, values = _fixType2(dev, start)
+    print dev, values
     scan = Scan(dev, values, move, multistep, detlist, envlist, preset, infostr)
     scan.run()
 
