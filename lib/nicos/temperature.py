@@ -94,11 +94,11 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
         'setpoint':  Param('Current temperature setpint', unit='main',
                            category='general'),
         'p':         Param('The P control parameter', settable=True,
-                           category='general'),
+                           type=int, category='general'),
         'i':         Param('The I control parameter', settable=True,
-                           category='general'),
+                           type=int, category='general'),
         'd':         Param('The D control parameter', settable=True,
-                           category='general'),
+                           type=int, category='general'),
         'ramp':      Param('Temperature ramp in K/min', unit='K/min',
                            settable=True),
         'tolerance': Param('The window\'s temperature tolerance', unit='K',
@@ -155,7 +155,7 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
 
     def doPoll(self, n):
         if n % 100 == 0:
-            self._pollParam('setpoint', True)
+            self._pollParam('setpoint', 100)
             self._pollParam('p')
             self._pollParam('i')
             self._pollParam('d')

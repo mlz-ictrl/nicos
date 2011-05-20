@@ -593,7 +593,7 @@ class Readable(Device):
            The *n* parameter can be used to perform the polling less frequently
            than the polling of value and status.
 
-        .. automethod:: _pollParam(name, with_ttl=False)
+        .. automethod:: _pollParam
         """
         stval = None
         if hasattr(self, 'doStatus'):
@@ -605,16 +605,17 @@ class Readable(Device):
             self.doPoll(n)
         return stval, rdval
 
-    def _pollParam(self, name, with_ttl=False):
+    def _pollParam(self, name, with_ttl=0):
         """Read a parameter value from the hardware and put its value into the
         cache.  This is intendend to be used from :meth:`doPoll` methods, so
         that they don't have to implement parameter polling themselves.  If
-        *with_ttl* is true, the cached value gets the same TTL as the device
-        value, determined by :attr:`maxage`.
+        *with_ttl* is > 0, the cached value gets the TTL of the device value,
+        determined by :attr:`maxage`, multiplied by *with_ttl*.
         """
         value = getattr(self, 'doRead' + name.title())()
         if with_ttl:
-            self._cache.put(self, name, value, currenttime(), self.maxage)
+            self._cache.put(self, name, value, currenttime(),
+                            self.maxage * with_ttl)
         else:
             self._cache.put(self, name, value)
 

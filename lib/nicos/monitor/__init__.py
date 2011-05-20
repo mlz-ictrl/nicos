@@ -32,6 +32,8 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import re
+import threading
+from os import path
 from time import sleep, strftime, time as currenttime
 
 from nicos.utils import listof
@@ -163,6 +165,16 @@ class Monitor(BaseCacheClient):
         self.initLayout()
         self.initColors()
         self.initGui()
+
+        origmtime = path.getmtime('/miracontrol/setups/monitor.py')
+        def thr():
+            while 1:
+                sleep(1)
+                if path.getmtime('/miracontrol/setups/monitor.py') != origmtime:
+                    self.quit()
+        thrd = threading.Thread(target=thr)
+        thrd.setDaemon(True)
+        thrd.start()
 
         # now start the worker thread
         self._worker.start()
@@ -342,7 +354,7 @@ class Monitor(BaseCacheClient):
 
         #self.printdebug('processing %s=%s' % (key, value))
 
-        if key == self._prefix + '/system/mastersetup':
+        if key == self._prefix + '/session/mastersetup':
             self._setups = set(value)
             # reconfigure displayed blocks
             self.reconfigureBoxes()

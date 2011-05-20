@@ -33,7 +33,7 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from math import hypot, atan2
+from math import hypot, atan2, degrees
 
 from IO import StringIO
 
@@ -65,8 +65,12 @@ class Amplifier(Measurable, TacoDevice):
 
     def doRead(self):
         out = []
-        X = float(self._taco_guard(self._dev.communicate, 'OUTP? 1'))
-        Y = float(self._taco_guard(self._dev.communicate, 'OUTP? 2'))
+        xs, ys = [], []
+        for i in range(5):
+            xs.append(float(self._taco_guard(self._dev.communicate, 'OUTP? 1')))
+            ys.append(float(self._taco_guard(self._dev.communicate, 'OUTP? 2')))
+        X = sum(xs)/5.
+        Y = sum(ys)/5.
         R = hypot(X, Y)
-        Theta = atan2(Y, X)
+        Theta = degrees(atan2(Y, X))
         return (X, Y, R, Theta)
