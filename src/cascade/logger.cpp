@@ -104,14 +104,24 @@ bool Logger::IsStdOut() const
 	return (m_postrLog==&std::cerr) || (m_postrLog==&std::cout);
 }
 
-void Logger::red()
+void Logger::red(bool bBold)
 {
-	m_strColor = "\033[0;31m";
+	m_strColor = bBold ? "\033[1;31m" : "\033[0;31m";
 }
 
-void Logger::purple()
+void Logger::green(bool bBold)
 {
-	m_strColor = "\033[0;35m";
+	m_strColor = bBold ? "\033[1;32m" : "\033[0;32m";
+}
+
+void Logger::yellow(bool bBold)
+{
+	m_strColor = bBold ? "\033[1;33m" : "\033[0;33m";
+}
+
+void Logger::purple(bool bBold)
+{
+	m_strColor = bBold ? "\033[1;35m" : "\033[0;35m";
 }
 
 void Logger::normal()
@@ -138,14 +148,20 @@ void Logger::log(int iLevel, const char* pcStr)
 	switch(iLevel)
 	{
 		case LOGLEVEL_ERR:
+		{
 			strLevel = "ERROR: ";
 			break;
+		}
 		case LOGLEVEL_WARN:
+		{
 			strLevel = "WARNING: ";
 			break;
+		}
 		/*case LOGLEVEL_INFO:
+		{
 			strLevel = "INFO: ";
-			break;*/
+			break;
+		}*/
 	}
 
 	if(IsStdOut() && m_strColor!="")

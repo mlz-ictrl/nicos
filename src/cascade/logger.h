@@ -59,8 +59,10 @@ class Logger
 		void warning(const char* pcStr);
 		void error(const char* pcStr);
 		
-		void red();
-		void purple();
+		void red(bool bBold=false);
+		void green(bool bBold=false);
+		void yellow(bool bBold=false);
+		void purple(bool bBold=false);
 		void normal();
 		
 		// the loglevel which controls output
