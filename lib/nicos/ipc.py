@@ -155,6 +155,10 @@ class Coder(NicosCoder):
         bus = self._adevs['bus']
         bus.ping(self.addr)
 
+    def doVersion(self):
+        version = self._adevs['bus'].get(self.addr, 151)
+        return [('IPC encoder card', str(version))]
+
     def doReadConfbyte(self):
         return self._adevs['bus'].get(self.addr, 152)
 
@@ -253,6 +257,14 @@ class Motor(NicosMotor):
     def doInit(self):
         bus = self._adevs['bus']
         bus.ping(self.addr)
+
+    def doVersion(self):
+        try:
+            version = self._adevs['bus'].get(self.addr, 137)
+        except InvalidCommandError:
+            return []
+        else:
+            return [('IPC motor card', str(version))]
 
     def _tosteps(self, value):
         return int(float(value) * self.slope + self.offset)
@@ -599,6 +611,10 @@ class Output(Input, Moveable):
 
     Shares parameters and doInit with Input.
     """
+
+    def doVersion(self):
+        version = self._adevs['bus'].get(self.addr, 194)
+        return [('IPC digital output card', str(version))]
 
     def doRead(self):
         ioval = self._adevs['bus'].get(self.addr, 191)
