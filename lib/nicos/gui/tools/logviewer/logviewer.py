@@ -53,6 +53,9 @@ from PyQt4.uic import loadUi
 from nicos.cache.utils import load_entries
 from nicos.gui.tools.uitools import DlgPresets, runDlgStandalone, selectDirectory
 
+colors = [('#ccccff', '#0000cc'),
+          ('#ffcccc', '#cc0000'),
+          ('#ccffcc', '#00cc00')] 
 
 class LogViewer(QDialog):
     def __init__(self, parent=None):
@@ -92,9 +95,10 @@ class LogViewer(QDialog):
         except ValueError:
             interval = 30
 
-        key = 'nicos/%s/value' % str(self.device.text()).lower()
-
-        f = open('/tmp/logfile.tmp', 'w')
+        devs = str(self.device.text()).lower().split(',')
+        keys = ['nicos/%s/value' % d for d in devs]
+        fnames = ['/tmp/logfile_%s.tmp' % dev for dev in devs]
+        fs = [open(fname, 'w') for fname in fnames]
         try:
             for i in days:
                 day = datefrom.addDays(i).toString('yyyy-MM-dd')
@@ -104,26 +108,28 @@ class LogViewer(QDialog):
                 except bsddb.db.DBNoSuchFileError:
                     continue
 
-                if key not in cache:
-                    print 'Not found!'
-                    continue
+                for f, key in zip(fs, keys):
+                    if key not in cache:
+                        print 'Not found!'
+                        continue
 
-                entries = load_entries(cache[key])
-                ltime = 0
-                for entry in entries:
-                    if entry.time > ltime + interval:
-                        if tstart <= entry.time <= tend:
-                            f.write('%s %s\n' % (entry.time, entry.value))
-                            ltime = entry.time
+                    entries = load_entries(cache[key])
+                    ltime = 0
+                    for entry in entries:
+                        if entry.time > ltime + interval:
+                            if tstart <= entry.time <= tend:
+                                f.write('%s %s\n' % (entry.time, entry.value))
+                                ltime = entry.time
         finally:
-            if f.tell() == 0:
-                # XXX message box that no data were found
-                return
-        f.close()
+            #if f.tell() == 0:
+            #    # XXX message box that no data were found
+            #    return
+            pass
+        [f.close() for f in fs]
 
         fname = '/tmp/logfile.tmp'
         gp = Popen(['/usr/bin/gnuplot', '-persist'], stdin=PIPE)
-        gp.communicate('''
+        comm = '''
 set term x11 title "%(wt)s"
 set term wx title "%(wt)s"
 set xdata time
@@ -131,12 +137,16 @@ set xdata time
 set timefmt "%%s"
 set format x "%%d-%%m\\n%%H:%%M"
 set grid back lw 0.4
-#plot "%(fn)s" u 3:2 every ::3 w l lc rgb "#ccccff" t "%(fn)s", \
+#plot "fns" u 3:2 every ::3 w l lc rgb "#ccccff" t "fns", \
 #           "" u 3:2 every ::3 w p ps 0.5 lc rgb "#0000cc" pt 6 t ""
-plot "%(fn)s" u 1:2 w l lc rgb "#ccccff" t "log", \
-           "" u 1:2 w p ps 0.5 lc rgb "#0000cc" pt 6 t ""
-''' % {'wt': 'Log: %s, %s' % (self.device.text(), ''),
-       'fn': fname})
+plot ''' % {'wt': 'Log: %s, %s' % (self.device.text(), ''),
+            'fn': fname}
+        for dev, fname, (c1, c2) in zip(devs, fnames, colors):
+            comm += ''' "%(fn)s" u 1:2 w l lc rgb "%(c1)s" t "%(dev)s", \
+            "" u 1:2 w p ps 0.5 lc rgb "%(c2)s" pt 6 t "",''' % \
+            {'dev': dev, 'fn': fname, 'c1': c1, 'c2': c2}
+        comm = comm[:-1] + '\n'
+        gp.communicate(comm)
 
 
 if __name__ == "__main__":
