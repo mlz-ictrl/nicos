@@ -41,7 +41,6 @@ import struct
 import logging
 import linecache
 import traceback
-import __builtin__
 import cPickle as pickle
 from threading import Thread
 

@@ -34,7 +34,6 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import os
-import zlib
 import errno
 import socket
 import struct
@@ -199,7 +198,7 @@ class ConnectionHandler(BaseRequestHandler):
             for possible in self.clientnames:
                 if allowed == possible:
                     return
-        self.write(ERROR, 'permission denied')
+        self.write(NAK, 'permission denied')
         self.log.error('login attempt from untrusted host: %s' %
                        self.clientnames)
         raise CloseConnection
@@ -215,7 +214,7 @@ class ConnectionHandler(BaseRequestHandler):
             self.controller.controlling_user = me
             return True
         elif he != me:
-            self.write(WARN, 'you do not have control of the session')
+            self.write(NAK, 'you do not have control of the session')
             return False
         return True
 
