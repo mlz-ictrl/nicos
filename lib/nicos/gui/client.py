@@ -35,7 +35,6 @@ import socket
 import struct
 import hashlib
 import threading
-import cPickle as pickle
 
 import numpy as np
 

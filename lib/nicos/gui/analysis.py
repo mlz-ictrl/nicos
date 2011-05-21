@@ -40,7 +40,6 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np
 
-from nicos.gui import data
 from nicos.gui.utils import SettingGroup, loadUi, has_odr, fit_gauss, \
      fwhm_to_sigma, FitError, fit_tc, DlgUtils, fit_pseudo_voigt, fit_pearson_vii
 from nicos.gui.plothelpers import ErrorBarPlotCurve, XPlotPicker, cloneToGrace

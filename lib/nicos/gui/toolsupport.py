@@ -34,7 +34,7 @@ __version__ = "$Revision$"
 from subprocess import Popen, PIPE
 
 from PyQt4.QtCore import SIGNAL
-from PyQt4.QtGui import QAction, QMessageBox
+from PyQt4.QtGui import QAction
 
 from nicos.gui.tools.proposal import proposal
 from nicos.gui.tools.scan import scaninput

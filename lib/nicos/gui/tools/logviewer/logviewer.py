@@ -38,7 +38,6 @@ STDLOGPATH = '/data/cache'
 
 # ------------------------------------------------------------------------------
 
-import os
 import time
 import bsddb
 from os import path
