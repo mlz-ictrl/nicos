@@ -37,9 +37,8 @@ import os
 import time
 from os import path
 
-from nicos import session
 from nicos.utils import disableDirectory, enableDirectory, ensureDirectory
-from nicos.device import Device, Param
+from nicos.device import Param
 from nicos.errors import UsageError
 from nicos.experiment import Experiment, queryCycle
 
@@ -104,7 +103,7 @@ class PandaExperiment(Experiment):
         os.symlink(proposal, self._expdir('current'))
 
         ensureDirectory(path.join(exp_datapath, 'scripts'))
-        self.scriptdir = path.join(new_datapath, 'scripts')
+        self.scriptdir = path.join(exp_datapath, 'scripts')
 
         self._handleTemplates(proposal, kwds)
 

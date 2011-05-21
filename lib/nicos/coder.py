@@ -34,7 +34,6 @@ __version__ = "$Revision$"
 from Encoder import Encoder
 
 from nicos.taco import TacoDevice
-from nicos.device import Readable
 from nicos.abstract import Coder as BaseCoder
 
 

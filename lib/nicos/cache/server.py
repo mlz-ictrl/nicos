@@ -35,7 +35,6 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import os
-import errno
 import bsddb
 import Queue
 import select

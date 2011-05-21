@@ -31,14 +31,12 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from time import sleep, time
-
 from IO import StringIO
 
 from nicos import status
 from nicos.taco import TacoDevice
 from nicos.utils import intrange
-from nicos.device import Device, Moveable, HasLimits, Param, Override
+from nicos.device import Moveable, HasLimits, Param, Override
 from nicos.errors import NicosError, CommunicationError
 
 

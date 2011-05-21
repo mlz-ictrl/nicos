@@ -33,11 +33,9 @@ __version__ = "$Revision$"
 
 from time import sleep
 
-from nicos import status
 from nicos.utils import oneof
 from nicos.device import Moveable, HasPrecision, Param, Override, AutoDevice
-from nicos.errors import UsageError, LimitError
-from nicos.abstract import Axis
+from nicos.errors import UsageError
 
 
 class Slit(Moveable):

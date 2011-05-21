@@ -91,7 +91,7 @@ def _fixType2(dev, positions):
     if isinstance(dev, list):
         dev = [session.getDevice(d, Moveable) for d in dev]
         l = len(dev)
-        if not isinstance(positions, list) or not len(start) == l:
+        if not isinstance(positions, list) or not len(positions) == l:
             raise UsageError('positions must be a list of length %d' % l)
         length = -1
         for x in positions:

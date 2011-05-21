@@ -34,7 +34,6 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import os
-import sys
 import time
 import shutil
 import inspect
@@ -46,7 +45,7 @@ from nicos.utils import formatDocstring, formatDuration, printTable
 from nicos.device import Device, AutoDevice, Readable
 from nicos.errors import ModeError, NicosError, UsageError
 from nicos.notify import Mailer, SMSer
-from nicos.sessions import DaemonSession, EXECUTIONMODES
+from nicos.sessions import EXECUTIONMODES
 from nicos.commands import usercommand
 from nicos.commands.output import printinfo, printwarning, printerror, \
      printexception

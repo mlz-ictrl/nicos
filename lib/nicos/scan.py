@@ -35,8 +35,8 @@ import time
 
 from nicos import session, status
 from nicos.errors import NicosError, LimitError, FixedError
-from nicos.device import Measurable, Readable
-from nicos.commands.output import printwarning, printinfo
+from nicos.device import Readable
+from nicos.commands.output import printwarning
 from nicos.commands.measure import _count
 
 

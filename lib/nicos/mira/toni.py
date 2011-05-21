@@ -31,7 +31,6 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import threading
 from time import sleep, time
 
 from IO import StringIO

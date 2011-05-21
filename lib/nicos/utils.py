@@ -46,7 +46,8 @@ import traceback
 import ConfigParser
 from os import path
 
-from nicos.errors import ConfigurationError, ProgrammingError, ModeError
+from nicos.errors import ConfigurationError, ProgrammingError, ModeError, \
+     UsageError
 from nicos import status
 
 

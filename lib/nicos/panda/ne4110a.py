@@ -40,8 +40,8 @@ from threading import RLock
 
 from nicos.ipc import IPCModBus, IPC_MAGIC, InvalidCommandError
 from nicos.utils import closeSocket
-from nicos.device import Device, Param
-from nicos.errors import NicosError, CommunicationError, ProgrammingError
+from nicos.device import Param
+from nicos.errors import CommunicationError, ProgrammingError
 
 STX = chr(2)
 EOT = chr(4)

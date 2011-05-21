@@ -33,11 +33,9 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import os
 import time
 from os import path
 
-from nicos import session
 from nicos.utils import ensureDirectory
 from nicos.experiment import Experiment
 

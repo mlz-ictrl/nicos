@@ -33,7 +33,6 @@ __version__ = "$Revision$"
 
 import os
 import time
-import errno
 from os import path
 from math import sqrt
 

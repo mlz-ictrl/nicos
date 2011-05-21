@@ -37,12 +37,10 @@ import threading
 from os import path
 from time import sleep, time
 
-import numpy as np
-
 from nicos import session, status
 from nicos.data import NeedsDatapath
-from nicos.utils import existingdir, tupleof, oneof, dictof, \
-     readFileCounter, updateFileCounter
+from nicos.utils import tupleof, oneof, dictof, readFileCounter, \
+     updateFileCounter
 from nicos.device import Measurable, Param, Override, Value
 from nicos.errors import CommunicationError
 from nicos.mira import cascadeclient
@@ -126,7 +124,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
 
     def doUpdateDebugmsg(self, value):
         if self._mode != 'simulation':
-            cascadeclient.Config_TofLoader.SetLogLevel(loglevel and 3 or 0)
+            cascadeclient.Config_TofLoader.SetLogLevel(value and 3 or 0)
 
     def doShutdown(self):
         self._client.disconnect()

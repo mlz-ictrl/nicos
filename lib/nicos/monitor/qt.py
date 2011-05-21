@@ -35,7 +35,7 @@ import threading
 from cgi import escape
 from time import time as currenttime, sleep
 
-from PyQt4.QtCore import QSize, QEvent, Qt, SIGNAL
+from PyQt4.QtCore import QSize, Qt, SIGNAL
 from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
      QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, \
      QCursor, QStackedWidget

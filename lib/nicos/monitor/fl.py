@@ -35,14 +35,14 @@ from time import sleep
 
 from fltk import Fl, Fl_Double_Window, Fl_Group, Fl_Widget, Fl_Box, \
      FL_COURIER, FL_HELVETICA, FL_FLAT_BOX, FL_UP_FRAME, FL_BOLD, FL_GRAY, \
-     FL_ALIGN_TOP_LEFT, FL_UP_BOX, FL_DOWN_BOX, fl_rgb_color, fl_font, fl_measure, fl_width, fl_height
+     FL_ALIGN_TOP_LEFT, FL_DOWN_BOX, fl_rgb_color, fl_font, fl_width, fl_height
 
 from nicos.monitor import Monitor as BaseMonitor
 
 
 def measure(font, fontsize, text):
     fl_font(font, fontsize)
-    #~ return fl_measure(text)	# returned h is not reliable!
+    #~ return fl_measure(text)  # returned h is not reliable!
     return int(fl_width(text)+0.5),int(fl_height()+0.5)
 
 

@@ -39,7 +39,6 @@ __version__ = "$Revision$"
 import new
 import sys
 
-from nicos import session
 from nicos.errors import ProgrammingError
 
 

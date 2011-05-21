@@ -38,8 +38,8 @@ import sys
 import time
 import codecs
 import traceback
-from logging import setLoggerClass, addLevelName, Manager, Logger, \
-     Formatter, FileHandler, StreamHandler, DEBUG, INFO, WARNING, ERROR
+from logging import addLevelName, Manager, Logger, Formatter, FileHandler, \
+     StreamHandler, DEBUG, INFO, WARNING, ERROR
 from logging.handlers import BaseRotatingHandler
 
 from nicos.errors import NicosError

@@ -37,9 +37,8 @@ from IO import Timer, Counter
 
 from nicos import status
 from nicos.taco import TacoDevice
-from nicos.utils import any, oneof, oneofdict
+from nicos.utils import oneof, oneofdict
 from nicos.device import Measurable, Param, Value
-from nicos.errors import ConfigurationError
 
 
 class FRMChannel(TacoDevice, Measurable):
