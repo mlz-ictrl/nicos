@@ -28,7 +28,9 @@ test-coverage:
 
 # get the instrument from the full hostname (mira1.mira.frm2 -> mira)
 INSTRUMENT = $(shell hostname -f | cut -d. -f2)
-INSTRDIR = $(wildcard custom/$(INSTRUMENT))
+ifneq "$(INSTRUMENT)" ""
+  INSTRDIR = $(wildcard custom/$(INSTRUMENT))
+endif
 
 # check for install customizations
 ifeq "$(INSTRDIR)" ""

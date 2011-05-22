@@ -34,15 +34,13 @@ import subprocess
 from os import path
 
 def cleanup(rootdir):
-    if not path.exists(rootdir):
-        os.mkdir(rootdir)
-    elif os.listdir(rootdir):
+    if path.exists(rootdir):
         print 'Cleaning old test output dir...'
         print '-' * 70
         shutil.rmtree(rootdir)
-        os.mkdir(rootdir)
-        os.mkdir(rootdir + '/cache')
-        os.mkdir(rootdir + '/pid')
+    os.mkdir(rootdir)
+    os.mkdir(rootdir + '/cache')
+    os.mkdir(rootdir + '/pid')
 
 try:
     import nose
