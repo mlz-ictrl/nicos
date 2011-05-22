@@ -75,5 +75,6 @@ def test_movement():
     # moving while busy?
     assert raises(NicosError, axis.move, 10)
     # forwarding of motor status by doStatus()
+    axis._cache.clear(axis.name)
     assert axis.status()[0] == status.BUSY
     axis._adevs['motor'].curstatus = (status.OK, '')
