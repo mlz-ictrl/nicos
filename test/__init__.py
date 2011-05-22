@@ -31,9 +31,8 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import os
 from os import path
-from logging import ERROR, Manager, Handler
+from logging import ERROR, WARNING,Handler
 
 from nicos import session
 from nicos import loggers
@@ -42,7 +41,12 @@ from nicos.sessions import Session
 class ErrorLogged(Exception):
     """Raised when an error is logged by NICOS."""
 
+
 class TestLogHandler(Handler):
+    def __init__(self):
+        Handler.__init__(self)
+        self._warnings = []
+
     def emit(self, record):
         if record.levelno >= ERROR:
             if record.exc_info:
@@ -50,6 +54,13 @@ class TestLogHandler(Handler):
                 raise record.exc_info[1], None, record.exc_info[2]
             else:
                 raise ErrorLogged(record.message)
+        elif record.levelno >= WARNING:
+            self._warnings.append(record)
+
+    def warns(self, func, *args, **kwds):
+        plen = len(self._warnings)
+        func(*args, **kwds)
+        return len(self._warnings) == plen + 1
 
 
 class TestSession(Session):
@@ -63,7 +74,8 @@ class TestSession(Session):
     def createRootLogger(self, prefix='nicos'):
         self.log = loggers.NicosLogger('nicos')
         self.log.parent = None
-        self.log.addHandler(TestLogHandler())
+        self.testhandler = TestLogHandler()
+        self.log.addHandler(self.testhandler)
 
 TestSession.config.user = None
 TestSession.config.group = None

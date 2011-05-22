@@ -31,12 +31,11 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import time
- 
 from nicos import session
 from nicos import status
-from nicos.device import Device, Moveable, HasLimits, Param
-from nicos.errors import ConfigurationError, LimitError, FixedError
+from nicos.device import Device, Moveable, HasLimits, HasOffset, Param
+from nicos.errors import ConfigurationError, ProgrammingError, LimitError, \
+     FixedError, UsageError
 from test.utils import raises
 
 
@@ -54,15 +53,19 @@ def teardown_module():
 class Dev1(Device):
     pass
 
-class Dev2(HasLimits, Moveable):
+class Dev2(HasLimits, HasOffset, Moveable):
     attached_devices = {'attached': Dev1}
     parameters = {
         'param1': Param('An optional parameter', type=int, default=42),
         'param2': Param('A mandatory parameter', type=int, mandatory=True,
-                        settable=True),
+                        settable=True, category='instrument'),
+        'failinit': Param('If true, fail the doInit() call', type=bool,
+                          default=False),
     }
 
     def doInit(self):
+        if self.failinit:
+            1/0
         self._val = 0
         methods_called.add('doInit')
 
@@ -101,6 +104,29 @@ class Dev2(HasLimits, Moveable):
     def doUpdateParam2(self, value):
         methods_called.add('doUpdateParam2')
 
+    def doInfo(self):
+        return [('instrument', 'testkey', 'testval')]
+
+
+def test_initialization():
+    # make sure dev2_1 is created and then try to instantiate another device
+    # with this name...
+    session.getDevice('dev2_1')
+    assert raises(ProgrammingError, Dev2, 'dev2_1')
+    # Dev2 instance without 'attached' adev set
+    assert raises(ConfigurationError, session.getDevice, 'dev2_2')
+    # try to instantiate a device that fails init()
+    assert raises(ZeroDivisionError, session.getDevice, 'dev2_4')
+    # assert correct cleanup
+    assert 'dev2_4' not in session.devices
+
+def test_special_methods():
+    dev = session.getDevice('dev2_1')
+    # pickling a device should yield its name as a string
+    import pickle
+    assert pickle.loads(pickle.dumps(dev)) == 'dev2_1'
+    # test that the repr() works
+    assert dev.name in repr(dev)
 
 def test_params():
     dev2 = session.getDevice('dev2_1')
@@ -117,8 +143,13 @@ def test_params():
     assert dev2.param2 == 21
     dev2.param2 = 5
     assert dev2.param2 == 6
-    # Dev2 instance without adev
-    assert raises(ConfigurationError, session.getDevice, 'dev2_2')
+    assert 'doWriteParam2' in methods_called
+    assert 'doUpdateParam2' in methods_called
+    # nonexisting parameters
+    assert raises(UsageError, setattr, dev2, 'param3', 1)
+    # test legacy getPar/setPar API
+    dev2.setPar('param2', 7)
+    assert dev2.getPar('param2') == 8
 
 def test_methods():
     dev2 = session.getDevice('dev2_3')
@@ -133,15 +164,9 @@ def test_methods():
     # read() and status()
     assert dev2.read() == 10
     assert dev2.status()[0] == status.BUSY
-    # save time for history query
-    t1 = time.time()
     # __call__ interface
     dev2(7)
     assert dev2() == 7
-    # another timestamp
-    t2 = time.time()
-    dev2.move(4)
-    dev2.read()
     # further methods
     dev2.reset()
     assert 'doReset' in methods_called
@@ -155,3 +180,34 @@ def test_methods():
     assert raises(FixedError, dev2.stop)
     dev2.release()
     dev2.move(7)
+    # test info() method
+    keys = set(value[1] for value in dev2.info())
+    assert 'testkey' in keys
+    assert 'param2' in keys
+    assert 'value' in keys
+    assert 'status' in keys
+
+def test_limits():
+    dev2 = session.getDevice('dev2_3')
+    # abslimits are (0, 10) as set in configuration
+    dev2.userlimits = dev2.abslimits
+    assert dev2.userlimits == dev2.abslimits
+    # individual getters/setters
+    dev2.usermin, dev2.usermax = dev2.absmin + 1, dev2.absmax - 1
+    assert (dev2.usermin, dev2.usermax) == (1, 9)
+    # checking limit setting
+    assert raises(ConfigurationError, setattr, dev2, 'userlimits', (5, 4))
+    assert raises(ConfigurationError, setattr, dev2, 'userlimits', (-1, 1))
+    assert raises(ConfigurationError, setattr, dev2, 'userlimits', (9, 11))
+    assert raises(ConfigurationError, setattr, dev2, 'userlimits', (11, 12))
+    # offset behavior
+    dev2.userlimits = dev2.abslimits
+    assert dev2.offset == 0
+    dev2.offset = 1
+    # now physical 1 is logical 0 -> userlimits must be shifted downwards, while
+    # absolute limits stay in physical units
+    assert dev2.userlimits[0] == dev2.abslimits[0] - 1
+    dev2.offset = 0
+    # warn when setting limits that don't include current position
+    dev2.move(6)
+    assert session.testhandler.warns(setattr, dev2, 'userlimits', (0, 4))

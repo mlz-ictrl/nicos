@@ -50,5 +50,13 @@ devices = dict(
         param2 = 1,
         unit = 'mm',
         abslimits = (0, 10),
-    )
+    ),
+    dev2_4 = device(
+        'test.test_device.Dev2',
+        failinit = True,
+        attached = 'dev1',
+        param2 = 1,
+        unit = 'mm',
+        abslimits = (0, 10),
+    ),
 )

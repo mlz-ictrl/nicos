@@ -21,7 +21,7 @@ inplace: cascade
 	-cp src/cascade/nicoswidget/pythonbinding/cascadewidget.so lib/nicos/gui
 
 test:
-	@python test/run.py
+	@python test/run.py $(O)
 
 test-coverage:
 	@python test/run.py --with-coverage --cover-package=nicos --cover-html

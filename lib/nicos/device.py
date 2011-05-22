@@ -919,7 +919,7 @@ class HasLimits(Moveable):
         umin, umax = limits
         amin, amax = self.abslimits
         if isinstance(self, HasOffset):
-            offset = self.offset
+            offset = getattr(self, '_new_offset', self.offset)
             umin += offset
             umax += offset
         else:
@@ -932,18 +932,10 @@ class HasLimits(Moveable):
             raise ConfigurationError(
                 self, 'user minimum (%s, offset %s) below the '
                 'absolute minimum (%s)' % (umin, offset, amin))
-        if umin > amax:
-            raise ConfigurationError(
-                self, 'user minimum (%s, offset %s) above the '
-                'absolute maximum (%s)' % (umin, offset, amax))
         if umax > amax:
             raise ConfigurationError(
                 self, 'user maximum (%s, offset %s) above the '
                 'absolute maximum (%s)' % (umax, offset, amax))
-        if umax < amin:
-            raise ConfigurationError(
-                self, 'user maximum (%s, offset %s) below the '
-                'absolute minimum (%s)' % (umax, offset, amin))
 
     def doReadUserlimits(self):
         if 'userlimits' not in self._config:
@@ -989,7 +981,9 @@ class HasOffset(object):
         if isinstance(self, HasLimits):
             # this applies only to Moveables with limits
             limits = self.userlimits
+            self._new_offset = value
             self.userlimits = (limits[0] - diff, limits[1] - diff)
+            del self._new_offset
         # Since offset changes directly change the device value, refresh
         # the cache instantly here
         if self._cache:
