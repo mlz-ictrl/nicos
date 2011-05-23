@@ -1,6 +1,13 @@
 #  -*- coding: utf-8 -*-
 
-includes = ['system']
+name='base system'
+
+group='internal'
+
+includes = ['mono', 'ana', 'system']
+
+modules=[]
+
 
 devices = dict(
     panda    = device('nicos.tas.TAS',
@@ -12,6 +19,7 @@ devices = dict(
                       mono = 'mono',
                       ana = 'ana',
                       energytransferunit = 'meV',
+                      scatteringsense=(-1,1,-1),
                       ),
 
     stt      = device('nicos.virtual.VirtualMotor',
@@ -22,25 +30,6 @@ devices = dict(
                       abslimits = (0, 360),
                       unit = 'deg'),
 
-    mono     = device('nicos.virtual.VirtualMotor',
-                      unit = 'A-1',
-                      abslimits = (0, 10)),
-
-    ana      = device('nicos.virtual.VirtualMotor',
-                      unit = 'A-1',
-                      abslimits = (0, 10)),
-
-    ki       = device('nicos.tas.Wavevector',
-                      unit = 'A-1',
-                      base = 'mono',
-                      tas = 'panda',
-                      scanmode = 'CKI',
-                      abslimits = (0, 10)),
-
-    kf       = device('nicos.tas.Wavevector',
-                      unit = 'A-1',
-                      base = 'ana',
-                      tas = 'panda',
-                      scanmode = 'CKF',
-                      abslimits = (0, 10)),
 )
+
+startupcode=''

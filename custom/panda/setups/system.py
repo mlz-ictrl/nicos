@@ -2,6 +2,8 @@
 
 name = 'system setup for PANDA'
 
+includes=[]
+
 sysconfig = dict(
     cache = 'pandasrv',
     instrument = 'panda',
@@ -11,7 +13,6 @@ sysconfig = dict(
 )
 
 devices = dict(
-    panda    = device('nicos.instrument.Instrument'),
     Exp      = device('nicos.panda.experiment.PandaExperiment',
                       sample = 'Sample',
                       datapath = ['/data']),
@@ -20,3 +21,5 @@ devices = dict(
                       globalcounter = '/data/filecounter'),
     conssink = device('nicos.data.ConsoleSink'),
 )
+
+startupcode=''

@@ -18,3 +18,5 @@ for i in range(1,9):
     devices['p%d' % i] = device('nicos.ipc.Coder', bus='bus', addr=0x60+i, slope=1, unit='steps')
 
 #devices['a2'] = device('nicos.axis.Axis', motor='s2', coder='c2', precision=
+
+startupcode=''

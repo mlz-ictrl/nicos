@@ -27,7 +27,9 @@
 
 name = 'devices for the setup'
 
-#includes = []
+includes = []
+
+modules=[]
 
 devices = dict(
 
