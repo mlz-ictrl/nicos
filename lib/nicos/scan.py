@@ -215,11 +215,12 @@ class Scan(object):
             for i, position in enumerate(self._positions):
                 self.preparePoint(i+1, position)
                 try:
-                    session.action('Positioning')
-                    if i > 0:
-                        can_measure = self.moveTo(position)
-                    if not can_measure:
-                        continue
+                    if position:
+                        session.action('Positioning')
+                        if i > 0:
+                            can_measure = self.moveTo(position)
+                        if not can_measure:
+                            continue
                     started = time.time()
                     actualpos = self.readPosition()
                     if self._multistep:
@@ -275,6 +276,47 @@ class TimeScan(Scan):
     def endScan(self):
         Scan.endScan(self)
         self._etime.shutdown()
+
+
+class ManualScan(Scan):
+    """
+    Special scan class for "manual" scans.
+    """
+
+    def __init__(self, firstmoves=None, multistep=None, detlist=None,
+                 envlist=None, preset=None, scaninfo=None, scantype=None):
+        Scan.__init__(self, [], Repeater([]), firstmoves, multistep,
+                      detlist, envlist, preset, scaninfo, scantype)
+        self._curpoint = 0
+
+    def manualBegin(self):
+        session.beginActionScope('Scan')
+        self.beginScan()
+
+    def manualEnd(self):
+        self.endScan()
+        session.endActionScope()
+
+    def step(self):
+        self._curpoint += 1
+        self.preparePoint(self._curpoint, [])
+        try:
+            started = time.time()
+            actualpos = self.readPosition()
+            if self._multistep:
+                result = []
+                for i in range(self._mscount):
+                    self.moveDevices(self._mswhere[i])
+                    session.action('Counting (step %s)' % (i+1))
+                    result.extend(_count(self._detlist, self._preset))
+            else:
+                session.action('Counting')
+                result = list(_count(self._detlist, self._preset))
+            finished = time.time()
+            actualpos += self.readEnvironment(started, finished)
+            self.addPoint(actualpos, result)
+        finally:
+            self.finishPoint()
 
 
 class QScan(Scan):

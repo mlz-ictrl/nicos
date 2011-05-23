@@ -34,6 +34,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from math import hypot, atan2, degrees
+from time import time
 
 from IO import StringIO
 
@@ -69,10 +70,11 @@ class Amplifier(Measurable, TacoDevice):
                Value('R', unit='V'), Value('Theta', unit='deg')
 
     def doStart(self, **preset):
-        pass
+        self._delay = preset.get('delay', 0)
+        self._started = time()
 
     def doIsCompleted(self):
-        return True
+        return (time() > self._started + self._delay)
 
     def doRead(self):
         out = []

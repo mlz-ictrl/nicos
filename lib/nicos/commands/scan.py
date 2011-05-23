@@ -32,7 +32,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from nicos import session
-from nicos.scan import Scan, TimeScan, QScan, ContinuousScan
+from nicos.scan import Scan, TimeScan, QScan, ContinuousScan, ManualScan
 from nicos.device import Device, Measurable, Moveable, Readable
 from nicos.errors import UsageError
 from nicos.commands import usercommand
@@ -133,7 +133,6 @@ def scan(dev, start, step=None, numsteps=None, *args, **kwargs):
         infostr = infostr or \
                   _infostr('scan', (dev, start) + args, kwargs)
         dev, values = _fixType2(dev, start)
-    print dev, values
     scan = Scan(dev, values, move, multistep, detlist, envlist, preset, infostr)
     scan.run()
 
@@ -272,3 +271,35 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
                for i in range(-numperside, numperside+1)]
     scan = QScan(values, move, multistep, detlist, envlist, preset, infostr)
     scan.run()
+
+
+class _ManualScan(object):
+    def __init__(self, args, kwargs):
+        if getattr(session, '_manualscan', None):
+            raise UsageError('cannot start manual scan within manual scan')
+        preset, infostr, detlist, envlist, move, multistep = \
+                _handleScanArgs(args, kwargs)
+        infostr = infostr or _infostr('manualscan', args, kwargs)
+        self.scan = ManualScan(move, multistep, detlist, envlist,
+                               preset, infostr)
+
+    def __enter__(self):
+        session._manualscan = self.scan
+        self.scan.manualBegin()
+
+    def __exit__(self, *exc):
+        self.scan.manualEnd()
+        session._manualscan = None
+
+@usercommand
+def manualscan(*args, **kwargs):
+    """Manual value scan."""
+    return _ManualScan(args, kwargs)
+
+@usercommand
+def point():
+    """Count a point during a manual scan."""
+    scan = getattr(session, '_manualscan')
+    if scan is None:
+        raise UsageError('you can only use point() inside a manual scan')
+    scan.step()
