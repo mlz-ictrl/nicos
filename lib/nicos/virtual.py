@@ -36,11 +36,11 @@ import random
 import threading
 
 from nicos import status
-from nicos.utils import tacodev, tupleof
+from nicos.utils import tacodev, tupleof,nonemptylistof,any,Override
 from nicos.device import Readable, Moveable, HasOffset, Param
 from nicos.abstract import Motor, Coder
 from nicos.detector import FRMTimerChannel, FRMCounterChannel
-
+from nicos.errors import PositionError, NicosError
 
 class VirtualMotor(Motor, HasOffset):
     parameters = {
@@ -223,3 +223,40 @@ class ArbitraryValues(Moveable, HasOffset):
     def doStart(self, pos):
         self._adevs['which'].start(self.steps[int(pos + self.offset + 0.5)])
         self._value = pos + self.offset
+
+
+class VirtualSwitch(Moveable):
+    """
+    Virtual Device allowing to be positioned into a set of states.
+    """
+
+    attached_devices = {}
+
+    parameters = {
+        'states':    Param('List of allowed states', type=nonemptylistof(any),
+                           mandatory=True),
+        'defaultstate':    Param('Default state upon initialisation', type=any,
+                           mandatory=False),
+    }
+
+    parameter_overrides = {
+        'unit':      Override(mandatory=False),
+    }
+
+    hardware_access = False
+
+    def doInit(self):
+        if self.defaultstate in self.states:
+            self.start(self.defaultstate)
+
+
+    def doStart(self, target):
+        if target not in self.states:
+            positions = ', '.join(repr(pos) for pos in self.states)
+            raise NicosError(self, '%r is an invalid position for this device; '
+                            'valid positions are %s' % (target, positions))
+
+    def doRead(self):
+        if self.target in self.states:
+                return self.target
+        raise PositionError(self, 'is in an unknown state')

@@ -29,6 +29,10 @@ devices = dict(
     sth      = device('nicos.virtual.VirtualMotor',
                       abslimits = (0, 360),
                       unit = 'deg'),
+                      
+    sw=device('nicos.virtual.VirtualSwitch',
+                      states=['on','off',2,1],
+                      ),
 
 )
 
