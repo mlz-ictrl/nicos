@@ -547,9 +547,13 @@ class DataSetPlot(QwtPlot):
         if self.has_secondary:
             self.setAxisTitle(QwtPlot.yRight, y2axistext)
 
-        xscale = (self.dataset.positions[0][self.dataset.xindex],
-                  self.dataset.positions[-1][self.dataset.xindex])
-        self.setAxisScale(QwtPlot.xBottom, xscale[0], xscale[1])
+        try:
+            xscale = (self.dataset.positions[0][self.dataset.xindex],
+                      self.dataset.positions[-1][self.dataset.xindex])
+        except IndexError:
+            self.setAxisAutoScale(QwtPlot.xBottom)
+        else:
+            self.setAxisScale(QwtPlot.xBottom, xscale[0], xscale[1])
         # needed for zoomer base
         self.setAxisAutoScale(QwtPlot.yLeft)
         if self.has_secondary:

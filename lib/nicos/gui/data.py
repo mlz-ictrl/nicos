@@ -112,7 +112,10 @@ class DataHandler(QObject):
 
     def _update_curves(self, xvalues, yvalues):
         for curve in self.currentset.curves:
-            curve.datax.append(xvalues[self.currentset.xindex])
+            try:
+                curve.datax.append(xvalues[self.currentset.xindex])
+            except IndexError:
+                curve.datax.append(len(curve.datax))
             curve.datay.append(yvalues[curve.yindex])
             if curve.dyindex != -1:
                 curve.datady.append(yvalues[curve.dyindex])
