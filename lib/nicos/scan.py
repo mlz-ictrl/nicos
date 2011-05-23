@@ -34,6 +34,7 @@ __version__ = "$Revision$"
 import time
 
 from nicos import session, status
+from nicos.utils import Repeater
 from nicos.errors import NicosError, LimitError, FixedError
 from nicos.device import Readable
 from nicos.commands.output import printwarning
@@ -81,7 +82,10 @@ class Scan(object):
         self._preset = self.dataset.preset = preset
         self.dataset.scaninfo = scaninfo
         self._sinks = self.dataset.sinks
-        self._npoints = len(positions)  # can be zero if not known
+        try:
+            self._npoints = len(positions)  # can be zero if not known
+        except TypeError:
+            self._npoints = 0
 
     def prepareScan(self, positions):
         session.action('Moving to start')
@@ -256,7 +260,11 @@ class TimeScan(Scan):
         if envlist is None:
             envlist = []
         envlist.insert(0, self._etime)
-        Scan.__init__(self, [], [[]] * numsteps, firstmoves, multistep,
+        if numsteps < 0:
+            steps = Repeater([])
+        else:
+            steps = [[]] * numsteps
+        Scan.__init__(self, [], steps, firstmoves, multistep,
                       detlist, envlist, preset, scaninfo, scantype)
 
     def readEnvironment(self, started, finished):

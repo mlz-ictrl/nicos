@@ -253,6 +253,23 @@ class AutoPropsMeta(MergedAttrsMeta):
         return newtype
 
 
+class Repeater(object):
+    def __init__(self, object):
+        self.object = object
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        return self.object
+
+    def __len__(self):
+        return 0
+
+    def __getitem__(self, item):
+        return self.object
+
+
 class SimClock(object):
     """Simulation clock."""
 

@@ -38,9 +38,10 @@ import threading
 from nicos import status
 from nicos.utils import tacodev, tupleof,nonemptylistof,any,Override
 from nicos.device import Readable, Moveable, HasOffset, Param
+from nicos.errors import PositionError, NicosError
 from nicos.abstract import Motor, Coder
 from nicos.detector import FRMTimerChannel, FRMCounterChannel
-from nicos.errors import PositionError, NicosError
+
 
 class VirtualMotor(Motor, HasOffset):
     parameters = {
@@ -233,10 +234,10 @@ class VirtualSwitch(Moveable):
     attached_devices = {}
 
     parameters = {
-        'states':    Param('List of allowed states', type=nonemptylistof(any),
-                           mandatory=True),
-        'defaultstate':    Param('Default state upon initialisation', type=any,
-                           mandatory=False),
+        'states': Param('List of allowed states', type=nonemptylistof(any),
+                        mandatory=True),
+        'defaultstate': Param('Default state upon initialisation', type=any,
+                              mandatory=False),
     }
 
     parameter_overrides = {
@@ -249,7 +250,6 @@ class VirtualSwitch(Moveable):
         if self.defaultstate in self.states:
             self.start(self.defaultstate)
 
-
     def doStart(self, target):
         if target not in self.states:
             positions = ', '.join(repr(pos) for pos in self.states)
@@ -258,5 +258,5 @@ class VirtualSwitch(Moveable):
 
     def doRead(self):
         if self.target in self.states:
-                return self.target
+            return self.target
         raise PositionError(self, 'is in an unknown state')
