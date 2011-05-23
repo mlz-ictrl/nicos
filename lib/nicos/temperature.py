@@ -39,7 +39,7 @@ import Temperature
 from nicos import status
 from nicos.taco import TacoDevice
 from nicos.device import Param, Readable, Moveable, HasOffset, HasLimits
-from nicos.errors import CommunicationError, TimeoutError
+from nicos.errors import CommunicationError, TimeoutError, ConfigurationError
 
 
 class Sensor(TacoDevice, Readable, HasOffset):
@@ -93,6 +93,7 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
     parameters = {
         'setpoint':  Param('Current temperature setpint', unit='main',
                            category='general'),
+        'channel':   Param('Control channel', type=str, category='general'),
         'p':         Param('The P control parameter', settable=True,
                            type=int, category='general'),
         'i':         Param('The I control parameter', settable=True,
@@ -187,6 +188,9 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
         return float(self._taco_guard(self._dev.deviceQueryResource,
                                       'timeout')[:-1])
 
+    def doReadChannel(self):
+        return self._taco_guard(self._dev.deviceQueryResource, 'channel')
+
     def doWriteP(self, value):
         self._taco_guard(self._dev.setPParam, value)
 
@@ -207,3 +211,9 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
 
     def doWriteTimeout(self, value):
         self._taco_update_resource('timeout', str(value))
+
+    def doWriteChannel(self, value):
+        value = value.upper()
+        if value not in ('A', 'B', 'C', 'D'):
+            raise ConfigurationError('invalid control channel')
+        self._taco_update_resource('channel', value)
