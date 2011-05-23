@@ -138,17 +138,35 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
 
     def doWait(self):
         delay = self.loopdelay
+        # while 1:
+        #     v = self.read()
+        #     self.printdebug('current temperature %7.3f %s' % (v, self.unit))
+        #     s = self.status()[0]
+        #     if s == status.OK:
+        #         return v
+        #     elif s == status.ERROR:
+        #         raise CommunicationError(self, 'device in error state')
+        #     elif s == status.NOTREACHED:
+        #         raise TimeoutError(self, 'temperature not reached in %s seconds'
+        #                            % self.timeout)
+        #     time.sleep(delay)
+        values = []
+        window = self.window
+        tolerance = self.tolerance
+        setpoint = self.setpoint
+        timeout = self.timeout
+        firststart = started = time.time()
         while 1:
-            v = self.read()
-            self.printdebug('current temperature %7.3f %s' % (v, self.unit))
-            s = self.status()[0]
-            if s == status.OK:
-                return v
-            elif s == status.ERROR:
-                raise CommunicationError(self, 'device in error state')
-            elif s == status.NOTREACHED:
+            value = self.doRead()
+            now = time.time()
+            if abs(value - setpoint) > tolerance:
+                # start again
+                started = now
+            elif now > started + window:
+                return value
+            if now - firststart > timeout:
                 raise TimeoutError(self, 'temperature not reached in %s seconds'
-                                   % self.timeout)
+                                   % timeout)
             time.sleep(delay)
 
     def doReset(self):
