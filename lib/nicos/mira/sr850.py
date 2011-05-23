@@ -44,6 +44,17 @@ from nicos.errors import CommunicationError
 
 class Amplifier(Measurable, TacoDevice):
 
+    parameters = {
+        'frequency': Param('Reference freqency', unit='Hz', settable=True,
+                           category='general'),
+        'amplitude': Param('Reference sine amplitude', unit='Vrms',
+                           settable=True, category='general'),
+        'phase':     Param('Phase shift', unit='deg',
+                           settable=True, category='general'),
+        'harmonic':  Param('Number of harmonic to detect', type=int,
+                           settable=True, category='general'),
+    }
+
     taco_class = StringIO
 
     def doInit(self):
@@ -74,3 +85,27 @@ class Amplifier(Measurable, TacoDevice):
         R = hypot(X, Y)
         Theta = degrees(atan2(Y, X))
         return (X, Y, R, Theta)
+
+    def doReadFrequency(self):
+        return float(self._taco_guard(self._dev.communicate, 'FREQ?'))
+
+    def doWriteFrequency(self, value):
+        return self._taco_guard(self._dev.communicate, 'FREQ %f' % value)
+
+    def doReadAmplitude(self):
+        return float(self._taco_guard(self._dev.communicate, 'SLVL?'))
+
+    def doWriteAmplitude(self, value):
+        return self._taco_guard(self._dev.communicate, 'SLVL %f' % value)
+
+    def doReadPhase(self):
+        return float(self._taco_guard(self._dev.communicate, 'PHAS?'))
+
+    def doWritePhase(self, value):
+        return self._taco_guard(self._dev.communicate, 'PHAS %f' % value)
+
+    def doReadHarmonic(self):
+        return int(self._taco_guard(self._dev.communicate, 'HARM?'))
+
+    def doWriteHarmonic(self, value):
+        return self._taco_guard(self._dev.communicate, 'HARM %d' % value)
