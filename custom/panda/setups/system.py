@@ -13,6 +13,10 @@ sysconfig = dict(
 )
 
 devices = dict(
+    panda = device('nicos.instrument.Instrument',
+                    instrument='Panda',
+                    responsible='R.esponsible R@espons.ible',
+                    ),
     Exp      = device('nicos.panda.experiment.PandaExperiment',
                       sample = 'Sample',
                       datapath = ['/data']),
