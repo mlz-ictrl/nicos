@@ -650,8 +650,8 @@ class MainWindow : public QMainWindow
 			QString strAbout = "Cascade Qt Client written by Tobias Weber.";
 			strAbout += "\n";
 			
-			#ifdef __TIMESTAMP__
-			strAbout += QString("\n") + QString("Build time: ") + QString(__TIMESTAMP__);
+			#if defined(__DATE__) && defined(__TIME__)
+			strAbout += QString("\n") + QString("Build time: ") + QString(__DATE__) + QString(" ") + QString(__TIME__);
 			#endif
 			
 			#ifdef __VERSION__
