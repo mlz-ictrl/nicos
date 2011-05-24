@@ -153,7 +153,7 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
         values = []
         window = self.window
         tolerance = self.tolerance
-        setpoint = self.setpoint
+        setpoint = self.target
         timeout = self.timeout
         firststart = started = time.time()
         while 1:
