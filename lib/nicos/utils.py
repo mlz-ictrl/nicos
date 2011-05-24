@@ -670,6 +670,8 @@ def multiStatus(devices):
     rettext = []
     retstate = status.OK
     for devname, dev in devices:
+        if dev is None:
+            continue
         state, text = dev.status()
         rettext.append('%s=%s' % (devname, text))
         if state > retstate:
