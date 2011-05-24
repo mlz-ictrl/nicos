@@ -125,7 +125,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                 self._movelist.append(self._adevs[drive])
 
     def doStatus(self):
-        return multiStatus((name, self._adevs['name']) for name in
+        return multiStatus((name, self._adevs[name]) for name in
                            ['theta', 'twotheta', 'focush', 'focusv'])
 
     def doStop(self):

@@ -166,16 +166,6 @@ class Monitor(BaseCacheClient):
         self.initColors()
         self.initGui()
 
-        origmtime = path.getmtime('/miracontrol/setups/monitor.py')
-        def thr():
-            while 1:
-                sleep(1)
-                if path.getmtime('/miracontrol/setups/monitor.py') != origmtime:
-                    self.quit()
-        thrd = threading.Thread(target=thr)
-        thrd.setDaemon(True)
-        thrd.start()
-
         # now start the worker thread
         self._worker.start()
 

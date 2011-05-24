@@ -61,9 +61,12 @@ def help(obj=None):
     if obj is None:
         listcommands()
     elif isinstance(obj, Device):
-        printinfo('%s is a device of class %s.' % (obj.getPar('name'),
-                                                   obj.__class__.__name__))
-        printinfo('Its description is: %s.' % obj.getPar('description'))
+        printinfo('%s is a device of class %s.' %
+                  (obj.name, obj.__class__.__name__))
+        if obj.description:
+            printinfo('Its description is: %s' % obj.description)
+        from nicos.commands.device import listparams
+        listparams(obj)
     elif not inspect.isfunction(obj):
         __builtin__.help(obj)
     else:

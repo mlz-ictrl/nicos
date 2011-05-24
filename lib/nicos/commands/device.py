@@ -198,7 +198,7 @@ def set(dev, parameter, value):
 @usercommand
 def get(dev, parameter):
     """Return the value of a parameter of the device."""
-    value = session.getDevice(dev).getPar(parameter)
+    value = getattr(session.getDevice(dev), parameter)
     dev.printinfo('parameter %s is %s' % (parameter, value))
 
 @usercommand
@@ -258,7 +258,7 @@ def listparams(dev):
         if name.startswith('_'):
             continue
         try:
-            value = dev.getPar(name)
+            value = getattr(dev, name)
         except Exception:
             value = '<could not get value>'
         unit = (info.unit or '').replace('main', devunit)
