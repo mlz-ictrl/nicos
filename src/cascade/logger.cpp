@@ -149,11 +149,13 @@ void Logger::log(int iLevel, const char* pcStr)
 	{
 		case LOGLEVEL_ERR:
 		{
+			red(true);
 			strLevel = "ERROR: ";
 			break;
 		}
 		case LOGLEVEL_WARN:
 		{
+			purple(true);
 			strLevel = "WARNING: ";
 			break;
 		}
@@ -172,6 +174,7 @@ void Logger::log(int iLevel, const char* pcStr)
 	if(IsStdOut() && m_strColor!="") 
 		(*m_postrLog) << "\033[0m";
 	
+	normal();
 	(*m_postrLog) << std::endl;
 }
 

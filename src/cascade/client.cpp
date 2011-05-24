@@ -96,7 +96,7 @@ bool TcpClient::write(const char* pcBuf, int iSize, bool bIsBinary)
 	
 	if(!bIsBinary)
 	{
-		logger.red();
+		logger.green(false);
 		logger.SetCurLogLevel(LOGLEVEL_INFO);
 		logger << "[to server] length: " << iSize << ", data: " << pcBuf << "\n";
 		logger.normal();
@@ -203,7 +203,7 @@ const QByteArray& TcpClient::recvmsg(void)
 	
 	int iTimeElapsed = m_timer.elapsed();
 	
-	logger.purple();
+	logger.green(true);
 	logger.SetCurLogLevel(LOGLEVEL_INFO);
 	logger << "[from server] length: " << iExpectedMsgLength << ", time: " << iTimeElapsed << "ms, data: " << arrMsg.data() << "\n";
 	logger.normal();
@@ -283,7 +283,7 @@ void TcpClient::readReady()
 		// Fertige Nachricht emittieren
 		emit MessageSignal(m_byCurMsg.data(), m_byCurMsg.size());
 
-		logger.purple();
+		logger.green(true);
 		logger.SetCurLogLevel(LOGLEVEL_INFO);
 		logger << "[from server] length: " << m_iCurMsgLength << ", time: " << iTimeElapsed << "ms, total: " << m_timer.elapsed() << "ms, data: " << m_byCurMsg.data() << "\n";
 		logger.normal();
