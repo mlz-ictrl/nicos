@@ -5,10 +5,10 @@ name = 'test setup for 8 axes in 1 Motorrahmen'
 includes = ['system']
 
 devices = dict(
-    #bus = device('nicos.panda.ne4110a.IPCModBusTCP',
+    #bus = device('nicos.ipc.IPCModBusTCP',
     #             loglevel = 'debug',
     #             host = '172.25.15.51'),
-    bus = device('nicos.panda.ne4110a.IPCModBusSerial',
+    bus = device('nicos.ipc.IPCModBusSerial',
                host = '/dev/ttyS0'),
 )
 

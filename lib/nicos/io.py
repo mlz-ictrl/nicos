@@ -34,10 +34,8 @@ __version__ = "$Revision$"
 from time import sleep
 
 import IO
-from RS485Client import RS485Client
 
 from nicos import status
-from nicos.ipc import IPCModBus
 from nicos.taco import TacoDevice
 from nicos.device import Readable, Moveable, HasLimits, Param
 from nicos.errors import NicosError
@@ -191,25 +189,3 @@ class MultiDigitalOutput(Moveable):
                 'outputs have different read values: '
                 + ', '.join('%s=%s' % x for x in zip(devnames, values)))
         return values[0]
-
-
-class TacoModBus(TacoDevice, IPCModBus):
-    """IPC protocol communication over TACO RS-485 server."""
-
-    taco_class = RS485Client
-
-    parameters = {
-        'maxtries': Param('Number of tries for sending and receiving',
-                          type=int, default=3, settable=True),
-    }
-
-    def send(self, addr, cmd, param=0, len=0):
-        return self._taco_multitry('send', self.maxtries, self._dev.genSDA,
-                                   addr, cmd-31, len, param)
-
-    def get(self, addr, cmd, param=0, len=0):
-        return self._taco_multitry('get', self.maxtries, self._dev.genSRD,
-                                   addr, cmd-98, len, param)
-
-    def ping(self, addr):
-        return self._taco_multitry('ping', self.maxtries, self._dev.Ping, addr)
