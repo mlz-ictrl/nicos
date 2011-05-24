@@ -297,7 +297,8 @@ class ManualScan(Scan):
         self.endScan()
         session.endActionScope()
 
-    def step(self):
+    def step(self, **preset):
+        preset = preset or self._preset
         self._curpoint += 1
         self.preparePoint(self._curpoint, [])
         try:
@@ -308,10 +309,10 @@ class ManualScan(Scan):
                 for i in range(self._mscount):
                     self.moveDevices(self._mswhere[i])
                     session.action('Counting (step %s)' % (i+1))
-                    result.extend(_count(self._detlist, self._preset))
+                    result.extend(_count(self._detlist, preset))
             else:
                 session.action('Counting')
-                result = list(_count(self._detlist, self._preset))
+                result = list(_count(self._detlist, preset))
             finished = time.time()
             actualpos += self.readEnvironment(started, finished)
             self.addPoint(actualpos, result)

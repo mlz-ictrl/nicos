@@ -275,8 +275,6 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
 
 class _ManualScan(object):
     def __init__(self, args, kwargs):
-        if getattr(session, '_manualscan', None):
-            raise UsageError('cannot start manual scan within manual scan')
         preset, infostr, detlist, envlist, move, multistep = \
                 _handleScanArgs(args, kwargs)
         infostr = infostr or _infostr('manualscan', args, kwargs)
@@ -285,7 +283,11 @@ class _ManualScan(object):
 
     def __enter__(self):
         session._manualscan = self.scan
-        self.scan.manualBegin()
+        try:
+            self.scan.manualBegin()
+        except:  # yes, all exceptions
+            session._manualscan = None
+            raise
 
     def __exit__(self, *exc):
         self.scan.manualEnd()
@@ -294,12 +296,6 @@ class _ManualScan(object):
 @usercommand
 def manualscan(*args, **kwargs):
     """Manual value scan."""
+    if getattr(session, '_manualscan', None):
+        raise UsageError('cannot start manual scan within manual scan')
     return _ManualScan(args, kwargs)
-
-@usercommand
-def point():
-    """Count a point during a manual scan."""
-    scan = getattr(session, '_manualscan')
-    if scan is None:
-        raise UsageError('you can only use point() inside a manual scan')
-    scan.step()

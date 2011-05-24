@@ -58,7 +58,14 @@ def _count(detlist, preset):
 
 @usercommand
 def count(*detlist, **preset):
-    """Perform a counting of the given detector(s) with the given preset(s)."""
+    """Perform a counting of the given detector(s) with the given preset(s).
+
+    Within a manual scan, perform the count as one step of the manual scan.
+    """
+    scan = getattr(session, '_manualscan', None)
+    if scan is not None:
+        scan.step(**preset)
+        return
     detectors = []
     for det in detlist:
         if isinstance(det, (int, long, float)):
