@@ -35,7 +35,7 @@ import time
 
 from nicos import session, status
 from nicos.utils import Repeater
-from nicos.errors import NicosError, LimitError, FixedError
+from nicos.errors import NicosError, LimitError, FixedError, UsageError
 from nicos.device import Readable
 from nicos.commands.output import printwarning
 from nicos.commands.measure import _count
@@ -61,6 +61,8 @@ class Scan(object):
     def __init__(self, devices, positions, firstmoves=None, multistep=None,
                  detlist=None, envlist=None, preset=None, scaninfo=None,
                  scantype=None):
+        if session.mode == 'slave':
+            raise UsageError('cannot scan in slave mode')
         self.dataset = session.experiment.createDataset(scantype)
         if not detlist:
             detlist = session.experiment.detectors

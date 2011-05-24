@@ -64,6 +64,9 @@ def count(*detlist, **preset):
     """
     scan = getattr(session, '_manualscan', None)
     if scan is not None:
+        if detlist:
+            raise UsageError('cannot specify different detector list '
+                             'in manual scan')
         scan.step(**preset)
         return
     detectors = []
