@@ -118,7 +118,17 @@ def _infostr(fn, args, kwargs):
 
 @usercommand
 def scan(dev, start, step=None, numsteps=None, *args, **kwargs):
-    """Single-sided scan."""
+    """Scan over device(s) and count detector(s).
+
+    The general syntax is either to give start, step and number of steps:
+
+        scan(dev, 0, 1, 10)   scans from 0 to 10 in steps of 1.
+
+    or a list of positions to scan:
+
+        scan(dev, [0, 1, 2, 3, 7, 8, 9])   scans at the given positions.
+
+    """
     preset, infostr, detlist, envlist, move, multistep  = \
             _handleScanArgs(args, kwargs)
     if step is not None:
@@ -136,10 +146,39 @@ def scan(dev, start, step=None, numsteps=None, *args, **kwargs):
     scan = Scan(dev, values, move, multistep, detlist, envlist, preset, infostr)
     scan.run()
 
+ADDSCANHELP = """
+    Presets can be given using keyword arguments:
+
+        scan(dev, ..., t=5)
+        scan(dev, ..., m1=1000)
+
+    By default, the detectors are those selected by SetDetectors().  They can be
+    replaced by a custom set of detectors by giving them as arguments:
+
+        scan(dev, ..., det1, det2)
+
+    Other devices that should be recorded at every point (so-called environment
+    devices) are by default those selected by SetEnvironment().  They can also
+    be overridden by giving them as arguments:
+
+        scan(dev, ..., T1, T2)
+
+    Any devices can be moved to different positions *before* the scan starts.
+    This is done by giving them as keyword arguments:
+
+        scan(dev, ..., ki=1.55)
+"""
+
+scan.__doc__ += ADDSCANHELP
 
 @usercommand
 def cscan(dev, center, step, numperside, *args, **kwargs):
-    """Scan around center."""
+    """Scan around center.
+
+    The general syntax is to give center, step and number of steps per side:
+
+        cscan(dev, 0, 1, 5)    scans from -5 to 5 in steps of 1.
+    """
     preset, infostr, detlist, envlist, move, multistep = \
             _handleScanArgs(args, kwargs)
     infostr = infostr or \
@@ -153,10 +192,15 @@ def cscan(dev, center, step, numperside, *args, **kwargs):
     scan = Scan(dev, values, move, multistep, detlist, envlist, preset, infostr)
     scan.run()
 
+cscan.__doc__ += ADDSCANHELP.replace('scan(', 'cscan(')
+
 
 @usercommand
 def timescan(numsteps, *args, **kwargs):
-    """Count a number of times without moving devices."""
+    """Count a number of times without moving devices.
+
+    "numsteps" can be -1 to scan for unlimited steps (break to quit).
+    """
     preset, infostr, detlist, envlist, move, multistep = \
             _handleScanArgs(args, kwargs)
     infostr = infostr or _infostr('timescan', (numsteps,) + args, kwargs)
