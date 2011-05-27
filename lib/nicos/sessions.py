@@ -154,6 +154,8 @@ class Session(object):
         self._pscolor = 'reset'
         # simulation clock
         self.clock = SimClock()
+        # traceback of last unhandled exception
+        self._lastUnhandled = None
 
         # sysconfig devices
         self.cache = None
@@ -626,6 +628,7 @@ class Session(object):
             self.log.error(msg, exc_info=exc_info)
         else:
             self.log.error(exc_info=exc_info)
+        self._lastUnhandled = exc_info
 
     # -- Action logging --------------------------------------------------------
 

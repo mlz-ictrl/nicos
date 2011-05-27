@@ -37,6 +37,7 @@ import os
 import time
 import shutil
 import inspect
+import traceback
 import __builtin__
 from os import path
 
@@ -446,3 +447,11 @@ def _SimulationRestore(devname, value):
     """
     printinfo('Setting simulated value of device %s to %r' % (devname, value))
     session.getDevice(devname)._sim_value = value
+
+
+@usercommand
+def _trace():
+    if session._lastUnhandled:
+        printinfo(''.join(traceback.format_exception(*session._lastUnhandled)))
+    else:
+        printinfo('No previous traceback.')
