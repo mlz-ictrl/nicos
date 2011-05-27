@@ -1,9 +1,10 @@
 .PHONY: all install clean inplace test main-install
 
 RCC = pyrcc4
+PYTHON = /usr/bin/python
 
 all: lib/nicos/gui/gui_rc.py cascade
-	python setup.py build
+	$(PYTHON) setup.py build
 
 lib/nicos/gui/gui_rc.py: resources/nicos-gui.qrc
 	$(RCC) -o lib/nicos/gui/gui_rc.py resources/nicos-gui.qrc
@@ -15,16 +16,16 @@ clean:
 
 inplace: cascade
 	rm -rf build
-	/usr/bin/python setup.py build_ext
+	$(PYTHON) setup.py build_ext
 	cp build/lib*/nicos/daemon/*.so lib/nicos/daemon
 	cp src/cascade/nicosclient/pythonbinding/cascadeclient.so lib/nicos/mira
 	-cp src/cascade/nicoswidget/pythonbinding/cascadewidget.so lib/nicos/gui
 
 test:
-	@python test/run.py $(O)
+	@$(PYTHON) test/run.py $(O)
 
 test-coverage:
-	@python test/run.py --with-coverage --cover-package=nicos --cover-html
+	@$(PYTHON) test/run.py --with-coverage --cover-package=nicos --cover-html
 
 # get the instrument from the full hostname (mira1.mira.frm2 -> mira)
 INSTRUMENT = $(shell hostname -f | cut -d. -f2)
@@ -68,7 +69,7 @@ main-install:
 	cp -pr $(VOPT) build/scripts*/* $(ROOTDIR)/bin
 	-cp -pr $(VOPT) doc/build/html/* $(ROOTDIR)/doc
 	cp -pr $(VOPT) $(INSTRDIR)/setups/* $(ROOTDIR)/setups
-	python etc/create_nicosconf.py "$(SYSUSER)" "$(SYSGROUP)" "$(NETHOST)" > $(ROOTDIR)/nicos.conf
+	$(PYTHON) etc/create_nicosconf.py "$(SYSUSER)" "$(SYSGROUP)" "$(NETHOST)" > $(ROOTDIR)/nicos.conf
 	@echo "============================================================="
 	@echo "Everything is now installed to $(ROOTDIR)."
 	@echo "Trying to create system-wide symbolic links..."
