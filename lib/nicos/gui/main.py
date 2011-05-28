@@ -206,7 +206,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             self.connectionData['port'] = settings.value(
                 'port', QVariant(DEFAULT_PORT)).toInt()[0]
             self.connectionData['login'] = str(settings.value(
-                'login', QVariant('admin')).toString())
+                'login', QVariant('guest')).toString())
             self.servers = settings.value('servers').toStringList()
 
             # from preferences dialog

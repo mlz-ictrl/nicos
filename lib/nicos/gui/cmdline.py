@@ -419,8 +419,8 @@ Defaults can be given in ~/.nicos-gui-cmd, like this:
 
 [connect]
 server=localhost
-user=admin
-passwd=secret
+user=guest
+passwd=
 ''')
     parser.add_option('-s', '--server', dest='server', metavar='host:port',
                       help='server host/port to connect to')
