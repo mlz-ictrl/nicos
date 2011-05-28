@@ -67,7 +67,7 @@ class Amplifier(Measurable, TacoDevice):
 
     def valueInfo(self):
         return Value('X', unit='V'), Value('Y', unit='V'), \
-               Value('R', unit='V'), Value('Theta', unit='deg')
+               Value('R', unit='V'), Value('Theta', unit='deg', type='counter')
 
     def doStart(self, **preset):
         self._delay = preset.get('delay', 0)
@@ -77,7 +77,6 @@ class Amplifier(Measurable, TacoDevice):
         return (time() > self._started + self._delay)
 
     def doRead(self):
-        out = []
         xs, ys = [], []
         for i in range(5):
             xs.append(float(self._taco_guard(self._dev.communicate, 'OUTP? 1')))

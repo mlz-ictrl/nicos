@@ -162,7 +162,7 @@ class FRMCounterChannel(FRMChannel):
         return 'cts'
 
     def valueInfo(self):
-        return Value(self.name, unit='cts', type=self.type, errors='sqrt'),
+        return Value(self.name, unit='cts', errors='sqrt', type=self.type),
 
 
 class FRMDetector(Measurable):
