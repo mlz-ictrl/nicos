@@ -25,4 +25,26 @@
 #
 # *****************************************************************************
 
-includes = ['devices']
+name = 'system setup'
+
+sysconfig = dict(
+    cache = 'localhost',
+    instrument = None,
+    experiment = 'Exp',
+    datasinks = ['conssink', 'filesink'],
+    notifiers = [],
+)
+
+devices = dict(
+    Sample   = device('nicos.tas.TASSample'),
+
+    Exp      = device('nicos.experiment.Experiment',
+                      datapath = ['data'],
+                      sample = 'Sample'),
+
+    filesink = device('nicos.data.AsciiDatafileSink',
+                      prefix = 'data'),
+
+    conssink = device('nicos.data.ConsoleSink'),
+
+)

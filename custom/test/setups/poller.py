@@ -28,9 +28,12 @@
 name = 'setup for the poller'
 group = 'special'
 
-includes = ['devices']
+sysconfig = dict(
+    cache = 'localhost'
+)
 
 devices = dict(
     Poller = device('nicos.poller.Poller',
-                    processes={'motors': ['a1'], 'detectors': ['det']}),
+                    alwayspoll = [],
+                    blacklist = ['tas']),
 )

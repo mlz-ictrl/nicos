@@ -491,7 +491,7 @@ class Readable(Device):
 
     parameters = {
         'fmtstr':       Param('Format string for the device value', type=str,
-                              default='%s', settable=True),
+                              default='%.3f', settable=True),
         'unit':         Param('Unit of the device main value', type=str,
                               mandatory=True, settable=True),
         'maxage':       Param('Maximum age of cached value and status',

@@ -43,16 +43,18 @@ import threading
 import subprocess
 
 from nicos import status, session
-from nicos.utils import dictof, listof, whyExited
+from nicos.utils import listof, whyExited
 from nicos.device import Device, Readable, Param
-from nicos.errors import NicosError
+from nicos.errors import NicosError, ConfigurationError
 
 
 class Poller(Device):
 
     parameters = {
-        'processes': Param('Poller processes', type=dictof(str, listof(str)),
-                           mandatory=True),
+        'alwayspoll': Param('Setups which devices should always be polled',
+                            type=listof(str), mandatory=True),
+        'blacklist':  Param('Devices that should never be poller',
+                            type=listof(str)),
     }
 
     def doInit(self):
@@ -117,7 +119,10 @@ class Poller(Device):
             if dev is None:
                 try:
                     with self._creation_lock:
-                        dev = session.getDevice(devname, Readable)
+                        dev = session.getDevice(devname)
+                    if not isinstance(dev, Readable):
+                        self.printdebug('%s is not a readable' % dev)
+                        return
                     session.cache.addCallback(dev, 'target', reconfigure)
                     session.cache.addCallback(dev, 'pollinterval', reconfigure)
                     state = ['normal']
@@ -126,16 +131,27 @@ class Poller(Device):
                                       '%d sec' % (devname, 30), exc=err)
                     self._long_sleep(30)
                     continue
-            poll_loop(dev)
+            self.printinfo('starting polling loop for %s' % dev)
+            try:
+                poll_loop(dev)
+            except Exception:
+                self.printexception('error in polling loop')
 
-    def start(self, process=None):
-        self._process = process
-        if process is None:
+    def start(self, setup=None):
+        self._setup = setup
+        if setup is None:
             return self._start_master()
-        self.printinfo('%s poller starting' % process)
-        devices = self.processes[process]
-        for devname in devices:
-            self.printinfo('starting thread for %s' % devname)
+        self.printinfo('%s poller starting' % setup)
+
+        if setup == '<dummy>':
+            return
+
+        session.loadSetup(setup)
+        for devname in session.getSetupInfo()[setup]['devices']:
+            if devname in self.blacklist:
+                self.printdebug('not polling %s, it is blacklisted' % devname)
+                continue
+            self.printdebug('starting thread for %s' % devname)
             event = threading.Event()
             worker = threading.Thread(target=self._worker_thread,
                                       args=(devname, event))
@@ -145,7 +161,7 @@ class Poller(Device):
             self._workers.append(worker)
 
     def wait(self):
-        if self._process is None:
+        if self._setup is None:
             return self._wait_master()
         while not self._stoprequest:
             time.sleep(1)
@@ -153,7 +169,7 @@ class Poller(Device):
             worker.join()
 
     def quit(self):
-        if self._process is None:
+        if self._setup is None:
             return self._quit_master()
         if self._stoprequest:
             return  # already quitting
@@ -166,33 +182,62 @@ class Poller(Device):
         self.printinfo('poller finished')
 
     def reload(self):
-        if self._process is not None:
+        if self._setup is not None:
             # do nothing for single pollers
             return
         self.printinfo('got SIGUSR1, restarting all pollers')
-        for pid in self._children.keys():
+        for pid in self._childpids.keys():
             try:
                 os.kill(pid, signal.SIGTERM)
             except Exception, err:
                 self.printerror(str(err))
 
     def _start_master(self):
+        self._childpids = {}
         self._children = {}
 
-        for processname in self.processes:
-            self._start_child(processname)
+        if not self._cache:
+            raise ConfigurationError('the poller needs a cache configured')
 
-    def _start_child(self, name):
+        self._setups = set(self._cache.get(session, 'mastersetup') or [])
+        self._setups.update(self.alwayspoll)
+
+        if not self._setups:
+            # if no pollers are running, this would terminate the _wait_master
+            # loop instantly, so wait here until there are some setups
+            self._setups.add('<dummy>')
+
+        for setup in self._setups:
+            self._start_child(setup)
+
+        self._cache.addCallback(session, 'mastersetup', self._reconfigure)
+
+    def _reconfigure(self, key, value):
+        self.printinfo('reconfiguring for new master setups %s' % value)
+        session.readSetups()
+        old_setups = self._setups
+
+        new_setups = set(value)
+        new_setups.update(self.alwayspoll)
+        self._setups = new_setups
+
+        for setup in old_setups - new_setups:
+            os.kill(self._children[setup].pid, signal.SIGTERM)
+        for setup in new_setups - old_setups:
+            self._start_child(setup)
+
+    def _start_child(self, setup):
         if session.config.control_path:
             poller_script = os.path.normpath(
                 os.path.join(session.config.control_path, 'bin', 'nicos-poller'))
         else:
             poller_script = 'nicos-poller'
-        process = subprocess.Popen([poller_script, name])
+        process = subprocess.Popen([poller_script, setup])
         # we need to keep a reference to the Popen object, since it calls
         # os.wait() itself in __del__
-        self._children[process.pid] = (name, process)
-        session.log.info('started %s poller, PID %s' % (name, process.pid))
+        self._children[setup] = process
+        self._childpids[process.pid] = setup
+        session.log.info('started %s poller, PID %s' % (setup, process.pid))
 
     def _wait_master(self):
         # wait for children to terminate; restart them if necessary
@@ -209,20 +254,21 @@ class Poller(Device):
                 raise
             else:
                 # a process exited; restart if necessary
-                name, process = self._children[pid]
-                if not self._stoprequest:
+                setup = self._childpids[pid]
+                if setup in self._setups and not self._stoprequest:
                     session.log.warning('%s poller terminated with %s, '
-                                        'restarting' % (name, whyExited(ret)))
-                    del self._children[pid]
-                    self._start_child(name)
+                                        'restarting' % (setup, whyExited(ret)))
+                    del self._children[setup]
+                    del self._childpids[pid]
+                    self._start_child(setup)
                 else:
                     session.log.info('%s poller terminated with %s' %
-                                     (name, whyExited(ret)))
+                                     (setup, whyExited(ret)))
         session.log.info('all pollers terminated')
 
     def _quit_master(self):
         self._stoprequest = True
-        for pid in self._children:
+        for pid in self._childpids:
             try:
                 os.kill(pid, signal.SIGTERM)
             except OSError, err:

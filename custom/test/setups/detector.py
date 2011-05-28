@@ -25,16 +25,34 @@
 #
 # *****************************************************************************
 
-name = 'setup for the cache server'
-group = 'special'
+name = 'devices for the detector'
+
+includes = ['system']
 
 devices = dict(
-    DB     = device('nicos.cache.server.DbCacheDatabase',
-                    storepath = 'data/cache',
-                    granularity = 3,
-                    maxcached = 20),
+    timer    = device('nicos.virtual.VirtualTimer',
+                      lowlevel = True),
 
-    Server = device('nicos.cache.server.CacheServer',
-                    db = 'DB',
-                    server = 'localhost'),
+    mon1     = device('nicos.virtual.VirtualCounter',
+                      lowlevel = True,
+                      type = 'monitor',
+                      countrate = 1000),
+
+    ctr1     = device('nicos.virtual.VirtualCounter',
+                      lowlevel = True,
+                      type = 'counter',
+                      countrate = 2000),
+
+    det      = device('nicos.detector.FRMDetector',
+                      t  = 'timer',
+                      m1 = 'ctr1',
+                      m2 = None,
+                      m3 = None,
+                      z1 = 'mon1',
+                      z2 = None,
+                      z3 = None,
+                      z4 = None,
+                      z5 = None,
+                      maxage = 3,
+                      pollinterval = 0.5),
 )
