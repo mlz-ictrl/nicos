@@ -54,6 +54,8 @@ class Amplifier(Measurable, TacoDevice):
                            settable=True, category='general'),
         'harmonic':  Param('Number of harmonic to detect', type=int,
                            settable=True, category='general'),
+        'measurements': Param('Number of measurements to average over',
+                              type=int, default=100, settable=True),
     }
 
     taco_class = StringIO
@@ -78,11 +80,12 @@ class Amplifier(Measurable, TacoDevice):
 
     def doRead(self):
         xs, ys = [], []
-        for i in range(5):
+        N = self.measurements
+        for i in range(N):
             xs.append(float(self._taco_guard(self._dev.communicate, 'OUTP? 1')))
             ys.append(float(self._taco_guard(self._dev.communicate, 'OUTP? 2')))
-        X = sum(xs)/5.
-        Y = sum(ys)/5.
+        X = sum(xs) / float(N)
+        Y = sum(ys) / float(N)
         R = hypot(X, Y)
         Theta = degrees(atan2(Y, X))
         return (X, Y, R, Theta)
