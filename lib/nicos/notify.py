@@ -131,9 +131,9 @@ class Mailer(Notifier):
 
     def send(self, subject, body, what=None, short=None):
         def send():
-            receivers = self.receivers + self.copies
-            if not receivers:
+            if not self.receivers:
                 return
+            receivers = self.receivers + self.copies
             ok = self._sendmail(self.sender,
                                 self.receivers,
                                 self.copies,
