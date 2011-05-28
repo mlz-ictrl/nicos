@@ -50,6 +50,8 @@ except ImportError:
 else:
     has_odr = True
 
+from nicos.gui.client import DEFAULT_PORT
+
 
 # -- Misc tools ----------------------------------------------------------------
 
@@ -71,7 +73,8 @@ def parse_conndata(s):
     res = re.match(r"(?:(\w+)@)?([\w.]+)(?::(\d+))?", s)
     if res is None:
         return None
-    return res.group(1) or 'admin', res.group(2), int(res.group(3) or '1201')
+    return res.group(1) or 'admin', res.group(2), \
+           int(res.group(3) or DEFAULT_PORT)
 
 
 def _s(n):

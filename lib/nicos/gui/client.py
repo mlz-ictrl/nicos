@@ -41,6 +41,8 @@ import numpy as np
 from nicos.daemon import NicosDaemon
 from nicos.daemon.utils import unserialize
 
+DEFAULT_PORT    = 1301
+
 # Script status constants
 STATUS_IDLE     = -1
 STATUS_RUNNING  = 0

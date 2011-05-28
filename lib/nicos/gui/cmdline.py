@@ -42,7 +42,7 @@ import urwid.escape
 import urwid.raw_display
 import urwid.curses_display
 
-from nicos.gui.client import NicosClient, STATUS_INBREAK
+from nicos.gui.client import NicosClient, STATUS_INBREAK, DEFAULT_PORT
 
 
 def focus_item(text):
@@ -418,7 +418,7 @@ def main(argv):
 Defaults can be given in ~/.nicos-gui-cmd, like this:
 
 [connect]
-server=localhost:1201
+server=localhost
 user=admin
 passwd=secret
 ''')
@@ -454,7 +454,7 @@ passwd=secret
         host, port = options.server.split(':', 1)
     except ValueError:
         host = options.server
-        port = 1201
+        port = DEFAULT_PORT
     conndata = {
         'host': host,
         'port': int(port),

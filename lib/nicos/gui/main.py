@@ -46,7 +46,7 @@ from nicos import nicos_version
 from nicos.gui.data import DataHandler, DataError
 from nicos.gui.utils import DlgUtils, SettingGroup, loadUi, dialogFromUi, \
      chunks, get_display, parse_conndata, enumerateWithProgress, \
-     setForegroundColor, setBackgroundColor
+     setForegroundColor, setBackgroundColor, DEFAULT_PORT
 from nicos.gui.client import NicosClient, STATUS_INBREAK, STATUS_IDLE
 from nicos.gui.editor import EditorWindow
 from nicos.gui.toolsupport import main_tools, HasTools
@@ -204,7 +204,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             self.connectionData['host'] = str(settings.value(
                 'host', QVariant('localhost')).toString())
             self.connectionData['port'] = settings.value(
-                'port', QVariant(1201)).toInt()[0]
+                'port', QVariant(DEFAULT_PORT)).toInt()[0]
             self.connectionData['login'] = str(settings.value(
                 'login', QVariant('admin')).toString())
             self.servers = settings.value('servers').toStringList()
@@ -354,7 +354,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
                 port = int(port)
             except ValueError:
                 host = new_addr
-                port = 1201
+                port = DEFAULT_PORT
             self.connectionData['host'] = host
             self.connectionData['port'] = port
             self.servers.append('%s:%s' % (host, port))
