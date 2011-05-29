@@ -403,10 +403,8 @@ class ExecutionController(Controller):
             self.in_startup = True
             self.namespace.clear()
             self.namespace['__builtins__'] = __builtin__.__dict__
-            setup_code = (
-                'from nicos import session; session.loadSetup(%r); '
-                'from nicos.commands.basic import SetMode; SetMode("master")'
-                % self.setup)
+            setup_code = ('from nicos import session; '
+                          'session.handleInitialSetup(%r, False)' % self.setup)
             # this is to allow the traceback module to report the script's
             # source code correctly
             update_linecache('<setup>', setup_code)

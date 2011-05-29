@@ -157,6 +157,7 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
         firststart = started = time.time()
         while 1:
             value = self.doRead()
+            self.printdebug('current temperature %7.3f %s' % (value, self.unit))
             now = time.time()
             if abs(value - setpoint) > tolerance:
                 # start again

@@ -205,7 +205,9 @@ class Session(object):
                                 sessionInfo(err.locked_by))
             else:
                 cache._ismaster = True
-            cache.put(self, 'mastersetup', list(self.loaded_setups))
+            if self.loaded_setups != set(['startup']):
+                cache.put(self, 'mastersetup', list(self.loaded_setups))
+                cache.put(self, 'mastersetupexplicit', list(self.explicit_setups))
         elif mode in ['slave', 'maintenance']:
             # switching from master (or slave) to slave or to maintenance
             if cache and cache._ismaster:
@@ -294,7 +296,7 @@ class Session(object):
             if modname in self.user_modules:
                 return
             self.user_modules.add(modname)
-            self.log.info('importing module %s... ' % modname)
+            self.log.debug('importing module %s... ' % modname)
             try:
                 __import__(modname)
                 mod = sys.modules[modname]
@@ -309,7 +311,7 @@ class Session(object):
             if name in self.loaded_setups:
                 return
             if name != setupname:
-                self.log.info('loading include setup %s' % name)
+                self.log.debug('loading include setup %s' % name)
 
             info = self._setup_info[name]
             if info['group'] == 'special' and not allow_special:
@@ -402,9 +404,13 @@ class Session(object):
             self.log.error('the following devices could not be created:')
             self.log.error(', '.join(failed_devs))
 
+        self.explicit_setups.append(setupname)
+
         if self.mode == 'master' and self.cache:
             self.cache.put(self, 'mastersetup', list(self.loaded_setups))
-        self.explicit_setups.append(setupname)
+            self.cache.put(self, 'mastersetupexplicit',
+                           list(self.explicit_setups))
+
         self.resetPrompt()
         self.log.info('setup loaded')
 
@@ -429,6 +435,7 @@ class Session(object):
         self.explicit_devices.clear()
         for name in list(self._exported_names):
             self.unexport(name)
+        self.cache.shutdown()
         self.cache = None
         self.instrument = None
         self.experiment = None
@@ -481,6 +488,39 @@ class Session(object):
         for name in self._exported_names:
             if name in self._namespace:
                 yield self._namespace[name]
+
+    def handleInitialSetup(self, setup, simulate):
+        # If simulation mode is wanted, we need to set that before loading any
+        # initial setup.
+        if simulate:
+            self._mode = 'simulation'
+
+        # Create the initial instrument setup.
+        self.loadSetup(setup)
+
+        if simulate:
+            self.log.info('starting in simulation mode')
+        else:
+            # Try to become master.
+            try:
+                self.setMode('master')
+            except ModeError:
+                self.log.info('could not enter master mode; remaining slave')
+            except:
+                self.log.warning('could not enter master mode', exc=True)
+            else:
+                if setup != 'startup' or not self.cache:
+                    return
+                # If we became master, the user didn't select a specific startup
+                # setup and a previous master setup was configured, re-use that.
+                setups = self.cache.get(self, 'mastersetupexplicit')
+                if not setups:
+                    return
+                self.log.info('loading previously used master setups: ' +
+                              ', '.join(setups))
+                self.unloadSetup()
+                for setup in setups:
+                    self.loadSetup(setup)
 
     # -- Device control --------------------------------------------------------
 
@@ -589,6 +629,7 @@ class Session(object):
 
     def createRootLogger(self, prefix='nicos'):
         self.log = NicosLogger('nicos')
+        self.log.setLevel(logging.INFO)
         self.log.parent = None
         log_path = path.join(self.config.control_path, 'log')
         self.log.addHandler(NicosLogfileHandler(log_path, filenameprefix=prefix))
@@ -917,22 +958,9 @@ class InteractiveSession(Session):
         session.__init__('nicos')
         session._stoplevel = 0
         session._in_sigint = False
-        if simulate:
-            session._mode = 'simulation'
 
-        # Create the initial instrument setup.
-        session.loadSetup(setup)
-
-        if simulate:
-            session.log.info('starting in simulation mode')
-        else:
-            # Try to become master.
-            try:
-                session.setMode('master')
-            except ModeError:
-                session.log.info('could not enter master mode; remaining slave')
-            except:
-                session.log.warning('could not enter master mode', exc=True)
+        # Load the initial setup and handle becoming master.
+        session.handleInitialSetup(setup, simulate)
 
         # Fire up an interactive console.
         session.console()

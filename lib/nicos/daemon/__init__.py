@@ -169,7 +169,6 @@ class NicosDaemon(Device):
         'trustedhosts': Param('Trusted hosts allowed to log in',
                               type=listof(str)),
         'passwd':       Param('Password list', type=listof(str)),
-        'startupsetup': Param('Startup setup name', type=str, default='startup'),
     }
 
     # key: event name
@@ -194,7 +193,7 @@ class NicosDaemon(Device):
                                                       'swig_runtime_data4'])
         # the controller represents the internal script execution machinery
         self._controller = ExecutionController(self._log, self.emit_event,
-                                               self.startupsetup)
+                                               'startup')
         # log messages emitted so far
         self._messages = []
 

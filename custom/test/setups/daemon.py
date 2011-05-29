@@ -31,6 +31,5 @@ group = 'special'
 devices = dict(
     Daemon = device('nicos.daemon.NicosDaemon',
                     server = 'localhost',
-                    startupsetup = 'base',
                     loglevel = 'debug'),
 )
