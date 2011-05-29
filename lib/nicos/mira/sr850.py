@@ -90,6 +90,9 @@ class Amplifier(Measurable, TacoDevice):
         Theta = degrees(atan2(Y, X))
         return (X, Y, R, Theta)
 
+    def doStop(self):
+        pass
+
     def doReadFrequency(self):
         return float(self._taco_guard(self._dev.communicate, 'FREQ?'))
 
