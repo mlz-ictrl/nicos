@@ -295,6 +295,11 @@ levels of interaction that is possible with the device:
 
    .. automethod:: start
 
+   .. attribute:: valuetype
+
+      This attribute gives the type of the device value, as in the ``type``
+      parameter property.  It is used for checking values in :meth:`start`.
+
    .. automethod:: isAllowed
 
    .. automethod:: stop

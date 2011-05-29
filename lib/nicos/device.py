@@ -36,7 +36,7 @@ from time import time as currenttime, sleep
 from nicos import session
 from nicos import status, loggers
 from nicos.utils import AutoPropsMeta, Param, Override, Value, getVersions, \
-     tupleof, floatrange
+     tupleof, floatrange, any
 from nicos.errors import NicosError, ConfigurationError, ProgrammingError, \
      UsageError, LimitError, FixedError, ModeError, CommunicationError, \
      CacheLockError
@@ -711,6 +711,9 @@ class Moveable(Readable):
                         unit='main', type=any, default=0.),
     }
 
+    # The type of the device value, used for typechecking in doStart().
+    valuetype = any
+
     def __init__(self, name, **config):
         Readable.__init__(self, name, **config)
         self._isFixed = False
@@ -761,6 +764,11 @@ class Moveable(Readable):
             raise ModeError(self, 'start not possible in slave mode')
         if self._isFixed:
             raise FixedError(self, 'use release() first')
+        try:
+            pos = self.valuetype(pos)
+        except (ValueError, TypeError), err:
+            raise NicosError(self, '%r is an invalid value for this '
+                             'device: %s' % (pos, err))
         ok, why = self.isAllowed(pos)
         if not ok:
             raise LimitError(self, 'moving to %s is not allowed: %s' %

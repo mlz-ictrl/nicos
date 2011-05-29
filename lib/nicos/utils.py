@@ -250,6 +250,8 @@ class AutoPropsMeta(MergedAttrsMeta):
             setattr(newtype, param,
                     property(getter, setter, doc=info.description))
         del newtype.parameter_overrides
+        if 'valuetype' in attrs:
+            newtype.valuetype = staticmethod(attrs['valuetype'])
         return newtype
 
 
