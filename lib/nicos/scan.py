@@ -140,6 +140,7 @@ class Scan(object):
 
     def preparePoint(self, num, xvalues):
         session.beginActionScope('Point %d/%d' % (num, self._npoints))
+        self.dataset.curpoint = num
 
     def addPoint(self, xvalues, yvalues):
         self.dataset.results.append(yvalues)

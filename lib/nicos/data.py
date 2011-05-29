@@ -87,6 +87,8 @@ class Dataset(object):
     results = []
     # index of the x value to use for plotting
     xindex = 0
+    # current point number
+    curpoint = 0
 
     # cached info for all sinks to use
     xnames = []
@@ -204,9 +206,9 @@ class ConsoleSink(DataSink):
 
     def addPoint(self, dataset, xvalues, yvalues):
         if self._npoints:
-            point = '%s/%s' % (len(dataset.results), self._npoints)
+            point = '%s/%s' % (dataset.curpoint, self._npoints)
         else:
-            point = str(len(dataset.results))
+            point = str(dataset.curpoint)
         printinfo('\t'.join(
             [point] +
             [dev.format(val) for (dev, val) in
