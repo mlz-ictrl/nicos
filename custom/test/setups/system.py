@@ -47,4 +47,7 @@ devices = dict(
 
     conssink = device('nicos.data.ConsoleSink'),
 
+    Space    = device('nicos.data.FreeSpace',
+                      path = 'data',
+                      minfree = 5),
 )

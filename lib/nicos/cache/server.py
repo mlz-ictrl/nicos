@@ -676,7 +676,7 @@ class CacheServer(Device):
                 type == 'tcp' and socket.SOCK_STREAM or socket.SOCK_DGRAM)
             serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             if type == 'udp':
-                # we will be able to receive broadcasts
+                # we want to be able to receive UDP broadcasts
                 serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
             try:
                 serversocket.bind((socket.gethostbyname(host), port))
