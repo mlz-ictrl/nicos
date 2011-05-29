@@ -38,7 +38,7 @@ CUSTOMNAME = '(empty)'
 
 # -- values for proposal/sample/archival tool ----------------------------------
 
-# path for tcs files
+# path for script files
 TCSPATH = '/data/scripts'
 
 # paths for logfile archival

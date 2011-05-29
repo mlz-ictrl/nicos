@@ -38,7 +38,7 @@ CUSTOMNAME = 'PUMA'
 
 # -- values for proposal/sample/archival tool ----------------------------------
 
-# path for tcs files
+# path for script files
 TCSPATH = '/pumacontrol/scripts'
 
 # paths for logfile archival

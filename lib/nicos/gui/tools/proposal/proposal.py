@@ -170,7 +170,7 @@ class ProposalInput(QDialog):
         self.presets.save()
         propnr = str(self.proposal.text())
         try:
-            int_propnr = int(propnr)
+            int(propnr)
         except:
             QMessageBox.warning(self, 'Error', 'Proposal number must be integer.')
             return
@@ -216,7 +216,7 @@ class ProposalInput(QDialog):
         expdevs = [dev for dev in self.devlist if custom.DEVICES[dev][3]]
 
         try:
-            f = open(proppath + '/init.tcs', 'w')
+            f = open(proppath + '/init.py', 'w')
             f.write('''\
 # NICOS initialization file for proposal %s
 DataBox.newexperiment(user=%r, proposal=%r)
@@ -239,11 +239,11 @@ DataBox.loadAdjusts()''' or '',
        ))
             f.close()
         except Exception, err:
-            QMessageBox.warning(self, 'Error', 'Could not create init.tcs: %s.' % err)
+            QMessageBox.warning(self, 'Error', 'Could not create init.py: %s.' % err)
             return
 
         QMessageBox.information(self, 'Created startup file',
-                                'You can now load %s in the ' % (proppath+'/init.tcs') +
+                                'You can now load %s in the ' % (proppath+'/init.py') +
                                 'user editor to setup Nicos to your experiment.')
         self.close()
 
@@ -251,7 +251,7 @@ DataBox.loadAdjusts()''' or '',
         self.presets.save()
         propnr = str(self.proposal.text())
         try:
-            int_propnr = int(propnr)
+            int(propnr)
         except:
             QMessageBox.warning(self, 'Error', 'Proposal number must be integer.')
             return
@@ -259,7 +259,7 @@ DataBox.loadAdjusts()''' or '',
         samplename = str(self.samplename.text())
         samplefn = re.sub('[^a-zA-Z0-9_-]', '', samplename.replace(' ', '_'))
         proppath = path.join(custom.TCSPATH, str(propnr))
-        samplepath = proppath + '/sample-%s.tcs' % samplefn
+        samplepath = proppath + '/sample-%s.py' % samplefn
         opmode = str(self.opmode.currentText())
         opmode = opmode[:opmode.find(' ')]
 
@@ -302,7 +302,7 @@ SetOpMode(%r)
         self.presets.save()
         propnr = str(self.proposal.text())
         try:
-            int_propnr = int(propnr)
+            int(propnr)
         except:
             QMessageBox.warning(self, 'Error', 'Proposal number must be integer.')
             return

@@ -352,6 +352,9 @@ class EditorWindow(QMainWindow, HasTools, DlgUtils):
 
     @qtsig('')
     def on_actionEstimate_triggered(self):
+        # disable for now
+        return
+
         self.analysisAutoCheck.setChecked(True)
         try:
             result = analyze(str(self.editor.text()))
@@ -402,6 +405,9 @@ class EditorWindow(QMainWindow, HasTools, DlgUtils):
 
     @qtsig('')
     def on_actionGoalTime_triggered(self):
+        # disable for now
+        return
+
         # goal time estimation only works when scipy is installed
         if fmin is None:
             return self.showError('scipy is not available.')
@@ -572,10 +578,10 @@ class EditorWindow(QMainWindow, HasTools, DlgUtils):
         if not self.checkDirty():
             return
         initialdir = self.filename and path.dirname(self.filename) or \
-                     self.parent().tcspath
+                     self.parent().scriptpath
         fn = QFileDialog.getOpenFileName(self, self.tr('Open script'),
                                          initialdir,
-                                         self.tr('Script files (*.tcs)'))
+                                         self.tr('Script files (*.py)'))
         if fn.isEmpty():
             return
         self.openFile(str(fn))
@@ -642,13 +648,13 @@ class EditorWindow(QMainWindow, HasTools, DlgUtils):
         if self.filename:
             initialdir = path.dirname(self.filename)
         else:
-            initialdir = self.parent().tcspath
+            initialdir = self.parent().scriptpath
         fn = str(QFileDialog.getSaveFileName(self, self.tr('Save script'),
-            initialdir, self.tr('Script files (*.tcs)')))
+            initialdir, self.tr('Script files (*.py)')))
         if fn == '':
             return False
         if '.' not in fn:
-            fn += '.tcs'
+            fn += '.py'
         self.setFilename(fn)
         self.addToRecentf(fn)
         return self.on_actionSave_triggered()

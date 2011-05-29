@@ -211,7 +211,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
 
             # from preferences dialog
             self.instrument = settings.value('instrument').toString()
-            self.tcspath = settings.value('tcspath').toString()
+            self.scriptpath = settings.value('scriptpath').toString()
             self.customname = settings.value('customname').toString()
             self.confirmexit = settings.value('confirmexit',
                                               QVariant(True)).toBool()
@@ -390,7 +390,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
     def on_actionPreferences_triggered(self):
         dlg = dialogFromUi(self, 'prefs.ui')
         dlg.instrument.setText(self.instrument)
-        dlg.tcspath.setText(self.tcspath)
+        dlg.scriptpath.setText(self.scriptpath)
         dlg.customname.addItems(sorted(list_customizations()))
         dlg.customname.setEditText(self.customname)
         dlg.confirmExit.setChecked(self.confirmexit)
@@ -401,7 +401,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         if ret != QDialog.Accepted:
             return
         self.instrument = dlg.instrument.text()
-        self.tcspath = dlg.tcspath.text()
+        self.scriptpath = dlg.scriptpath.text()
         new_customname = dlg.customname.currentText()
         if self.customname != new_customname:
             if not has_customization(str(new_customname)):
@@ -423,7 +423,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             self.trayIcon.hide()
         with self.sgroup as settings:
             settings.setValue('instrument', QVariant(self.instrument))
-            settings.setValue('tcspath', QVariant(self.tcspath))
+            settings.setValue('scriptpath', QVariant(self.scriptpath))
             settings.setValue('customname', QVariant(self.customname))
             settings.setValue('confirmexit', QVariant(self.confirmexit))
             settings.setValue('showtrayicon', QVariant(self.showtrayicon))

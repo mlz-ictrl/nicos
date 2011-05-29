@@ -38,7 +38,7 @@ CUSTOMNAME = 'MIRA'
 
 # -- values for proposal/sample/archival tool ----------------------------------
 
-# path for tcs files
+# path for script files
 TCSPATH = '/miracontrol'
 
 # paths for logfile archival
