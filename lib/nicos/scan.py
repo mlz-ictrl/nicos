@@ -261,7 +261,7 @@ class TimeScan(Scan):
         self._etime = ElapsedTime('etime', unit='s', fmtstr='%.1f')
         self._started = time.time()
         if envlist is None:
-            envlist = []
+            envlist = session.experiment.sampleenv
         envlist.insert(0, self._etime)
         if numsteps < 0:
             steps = Repeater([])
