@@ -39,7 +39,7 @@ import Temperature
 from nicos import status
 from nicos.taco import TacoDevice
 from nicos.device import Param, Readable, Moveable, HasOffset, HasLimits
-from nicos.errors import CommunicationError, TimeoutError, ConfigurationError
+from nicos.errors import TimeoutError, ConfigurationError
 
 
 class Sensor(TacoDevice, Readable, HasOffset):
@@ -150,7 +150,6 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
         #         raise TimeoutError(self, 'temperature not reached in %s seconds'
         #                            % self.timeout)
         #     time.sleep(delay)
-        values = []
         window = self.window
         tolerance = self.tolerance
         setpoint = self.target
@@ -222,12 +221,18 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
         self._taco_guard(self._dev.setRamp, value)
 
     def doWriteTolerance(self, value):
+        # writing the "tolerance" resource is only allowed when stopped
+        self._taco_guard(self._dev.stop)
         self._taco_update_resource('tolerance', str(value))
 
     def doWriteWindow(self, value):
+        # writing the "window" resource is only allowed when stopped
+        self._taco_guard(self._dev.stop)
         self._taco_update_resource('window', str(value))
 
     def doWriteTimeout(self, value):
+        # writing the "timeout" resource is only allowed when stopped
+        self._taco_guard(self._dev.stop)
         self._taco_update_resource('timeout', str(value))
 
     def doWriteChannel(self, value):
