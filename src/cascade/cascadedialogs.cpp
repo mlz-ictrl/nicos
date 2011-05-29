@@ -251,7 +251,7 @@ void GraphDlg::UpdateGraph(void)
 	delete[] pdx;
 	delete[] pdy;
 	
-	
+	/*
 	// Gesamtkurve
 	TmpGraph tmpGraphtotal;
 	m_pTofImg->GetTotalGraph(spinBoxROIx1->value(),spinBoxROIx2->value(),spinBoxROIy1->value(),spinBoxROIy2->value(),spinBoxPhase->value(), &tmpGraphtotal);
@@ -265,7 +265,7 @@ void GraphDlg::UpdateGraph(void)
 	m_curvetotal.setData(pdx,pdy,tmpGraphtotal.GetWidth());
 	delete[] pdx;
 	delete[] pdy;
-
+	*/
 	
 	qwtPlot->replot();
 }

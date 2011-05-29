@@ -558,7 +558,7 @@ void CascadeWidget::showCalibrationDlg(int iNumBins)
 	iROIx2 = rect.right(),
 	iROIy1 = rect.top(),
 	iROIy2 = rect.bottom();
-		
+	
 	TmpImage* ptmpimg = new TmpImage[Config_TofLoader::GetFoilCount()];
 	for(int iFolie=0; iFolie<Config_TofLoader::GetFoilCount(); ++iFolie)
 		GetTof()->GetPhaseGraph(iFolie, ptmpimg+iFolie, iROIx1, iROIx2, iROIy1, iROIy2, true);

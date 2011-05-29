@@ -760,7 +760,7 @@ class MainWindow : public QMainWindow
 					
 			// Graph-Menüpunkte
 			QAction *actionGraph = new QAction(this);
-			actionGraph->setText("Time Channels...");
+			actionGraph->setText("Counts vs. time channels...");
 			QAction *actionSummen = new QAction(this);
 			actionSummen->setText("Sum Images...");
 			QAction *actionCalibration = new QAction(this);
@@ -929,9 +929,9 @@ int MainWindow::SERVER_STATUS_POLL_TIME = 1000;
 
 int main(int argc, char **argv)
 {
-	QApplication a(argc, argv);
 	setlocale(LC_ALL, "C");
 	QLocale::setDefault(QLocale::English);
+	QApplication a(argc, argv);
 	
 	// Konfigurationssingleton erzeugen
 	const char pcConfigFile[] = "./cascade.xml";

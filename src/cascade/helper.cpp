@@ -51,7 +51,7 @@ long GetFileSize(const char* pcFileName)
 	return lSize;
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////
 
 void trim(char* pcStr)
 {
@@ -81,4 +81,11 @@ void trim(char* pcStr)
 			break;
 		}
 	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+
+unsigned int endian_swap(unsigned int ui)
+{
+	return (ui>>24) | ((ui<<8)&0x00ff0000) | ((ui>>8)&0x0000ff00) | (ui<<24);
 }

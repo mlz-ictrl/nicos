@@ -29,7 +29,6 @@
 #ifndef __TOFLOADER__
 #define __TOFLOADER__
 
-//#define IGOR_PLUGIN		// Soll es ein IGOR-Plugin werden?
 #define USE_MINUIT		// Minuit für Fits benutzen?
 
 #ifndef NULL
@@ -123,12 +122,7 @@ class PadImage
 		int LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen);
 		
 		void UpdateRange();
-		
-#ifdef IGOR_PLUGIN
-		void Print(const char* pcBaseName="wave");
-#else
 		void Print(const char* pcOutFile=NULL);
-#endif
 
 		unsigned int GetData(int iX, int iY) const;
 		unsigned int* GetRawData(void);
@@ -189,6 +183,8 @@ class TmpGraph
 	int GetWidth(void) const;
 	int GetMin() const;
 	int GetMax() const;
+	
+	bool IsLowerThan(int iTotal) const;
 };
 
 #define TOF_COMPRESSION_NONE 		0
