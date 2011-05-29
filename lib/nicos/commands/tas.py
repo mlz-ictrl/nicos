@@ -31,7 +31,7 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-from numpy import array
+from numpy import ndarray
 
 from nicos import session
 from nicos.scan import QScan
@@ -130,6 +130,12 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
     scan.run()
 
 
+class Q(ndarray):
+    def __repr__(self):
+        return str(self)
+
+_Q = Q
+
 @usercommand
 def Q(*args, **kwds):
     """Create a Q-E vector that can be used for calculations.  Use:
@@ -145,7 +151,8 @@ def Q(*args, **kwds):
         q2 = Q(q, h=2, k=1)
         q2 = Q(q, E=0)
     """
-    q = array((0., 0., 0., 0.))
+    q = _Q(4)
+    q[:] = 0.
     if not args:
         return q
     elif len(args) == 1:
