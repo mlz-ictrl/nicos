@@ -32,11 +32,49 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from nicos import session
-from nicos.scan import Scan, TimeScan, QScan, ContinuousScan, ManualScan
+from nicos.scan import Scan, TimeScan, ContinuousScan, ManualScan
 from nicos.device import Device, Measurable, Moveable, Readable
 from nicos.errors import UsageError
 from nicos.commands import usercommand
 
+
+def _fixType(dev, args, mkpos):
+    if not args:
+        raise UsageError('at least two arguments are required')
+    if isinstance(dev, list):
+        if not isinstance(args[0], list):
+            raise UsageError('positions must be a list if devices are a list')
+        devs = dev
+        if isinstance(args[0][0], list):
+            for l in args[0]:
+                if len(l) != len(args[0][0]):
+                    raise UsageError('all position lists must have the same '
+                                     'number of entries')
+            values = zip(*args[0])
+            restargs = args[1:]
+        else:
+            if len(args) < 3:
+                raise UsageError('at least four arguments are required in '
+                                 'start-step-numsteps scan command')
+            if not (isinstance(args[0], list) and isinstance(args[1], list)):
+                raise UsageError('start and step must be lists')
+            if not len(dev) == len(args[0]) == len(args[1]):
+                raise UsageError('start and step lists must be of equal length')
+            values = mkpos(args[0], args[1], args[2])
+            restargs = args[3:]
+    else:
+        devs = [dev]
+        if isinstance(args[0], list):
+            values = zip(args[0])
+            restargs = args[1:]
+        else:
+            if len(args) < 3:
+                raise UsageError('at least four arguments are required in '
+                                 'start-step-numsteps scan command')
+            values = mkpos([args[0]], [args[1]], args[2])
+            restargs = args[3:]
+    devs = [session.getDevice(d, Moveable) for d in devs]
+    return devs, values, restargs
 
 def _handleScanArgs(args, kwargs):
     preset, infostr, detlist, envlist, move, multistep = \
@@ -70,40 +108,6 @@ def _handleScanArgs(args, kwargs):
             preset[key] = value
     return preset, infostr, detlist, envlist, move, multistep
 
-
-def _fixType(dev, start, step):
-    if isinstance(dev, list):
-        dev = [session.getDevice(d, Moveable) for d in dev]
-        l = len(dev)
-        if not isinstance(start, list) or not len(start) == l:
-            raise UsageError('start/center must be a list of length %d' % l)
-        if not isinstance(step, list):
-            step = [step] * l
-        elif not len(step) == l:
-            raise UsageError('step must be a single number or a list of '
-                             'length %d' % l)
-        return dev, start, step
-    else:
-        dev = session.getDevice(dev, Moveable)
-    return [dev], [start], [step]
-
-def _fixType2(dev, positions):
-    if isinstance(dev, list):
-        dev = [session.getDevice(d, Moveable) for d in dev]
-        l = len(dev)
-        if not isinstance(positions, list) or not len(positions) == l:
-            raise UsageError('positions must be a list of length %d' % l)
-        length = -1
-        for x in positions:
-            if not isinstance(x, list):
-                raise UsageError('all positions entries must be lists')
-            if length == -1:
-                length = len(x)
-            elif len(x) != length:
-                raise UsageError('all position lists must be of same length')
-        return dev, zip(*positions)
-    return [dev], zip(positions)
-
 def _infostr(fn, args, kwargs):
     def devrepr(x):
         if isinstance(x, Device):
@@ -117,36 +121,56 @@ def _infostr(fn, args, kwargs):
 
 
 @usercommand
-def scan(dev, start, step=None, numsteps=None, *args, **kwargs):
+def scan(dev, *args, **kwargs):
     """Scan over device(s) and count detector(s).
 
     The general syntax is either to give start, step and number of steps:
 
-        scan(dev, 0, 1, 10)   scans from 0 to 10 in steps of 1.
+        scan(dev, 0, 1, 11)   scans from 0 to 10 in steps of 1.
 
     or a list of positions to scan:
 
         scan(dev, [0, 1, 2, 3, 7, 8, 9])   scans at the given positions.
 
     """
+    def mkpos(starts, steps, numsteps):
+        return [[start + i*step for (start, step) in zip(starts, steps)]
+                for i in range(numsteps)]
+    devs, values, restargs = _fixType(dev, args, mkpos)
     preset, infostr, detlist, envlist, move, multistep  = \
-            _handleScanArgs(args, kwargs)
-    if step is not None:
-        infostr = infostr or \
-                  _infostr('scan', (dev, start, step, numsteps) + args, kwargs)
-        dev, start, step = _fixType(dev, start, step)
-        if all(v == 0 for v in step) and numsteps > 1:
-            raise UsageError('scanning with zero step width')
-        values = [[x + i*y for x, y in zip(start, step)]
-                  for i in range(numsteps)]
-    else:
-        infostr = infostr or \
-                  _infostr('scan', (dev, start) + args, kwargs)
-        dev, values = _fixType2(dev, start)
-    scan = Scan(dev, values, move, multistep, detlist, envlist, preset, infostr)
-    scan.run()
+            _handleScanArgs(restargs, kwargs)
+    infostr = infostr or _infostr('scan', args, kwargs)
+    Scan(devs, values, move, multistep, detlist, envlist, preset, infostr).run()
+
+@usercommand
+def cscan(dev, *args, **kwargs):
+    """Scan around center.
+
+    The general syntax is to give center, step and number of steps per side:
+
+        cscan(dev, 0, 1, 5)    scans from -5 to 5 in steps of 1.
+
+    The total number of steps is (2 * numperside) + 1.
+    """
+    def mkpos(centers, steps, numperside):
+        return [[center + (i-numperside)*step for (center, step)
+                 in zip(centers, steps)] for i in range(2*numperside+1)]
+    devs, values, restargs = _fixType(dev, args, mkpos)
+    preset, infostr, detlist, envlist, move, multistep  = \
+            _handleScanArgs(restargs, kwargs)
+    infostr = infostr or _infostr('cscan', args, kwargs)
+    Scan(devs, values, move, multistep, detlist, envlist, preset, infostr).run()
 
 ADDSCANHELP = """
+    The device can also be a list of devices that should be moved for each step.
+    In this case, the start and stepwidth also have to be lists:
+
+        scan([dev1, dev2], [0, 0], [0.5, 1], 10)
+
+    This also works for the second basic syntax:
+
+        scan([dev1, dev2], [[0, 1, 2, 3], [0, 2, 4, 6]])
+
     Presets can be given using keyword arguments:
 
         scan(dev, ..., t=5)
@@ -169,29 +193,7 @@ ADDSCANHELP = """
         scan(dev, ..., ki=1.55)
 """
 
-scan.__doc__ += ADDSCANHELP
-
-@usercommand
-def cscan(dev, center, step, numperside, *args, **kwargs):
-    """Scan around center.
-
-    The general syntax is to give center, step and number of steps per side:
-
-        cscan(dev, 0, 1, 5)    scans from -5 to 5 in steps of 1.
-    """
-    preset, infostr, detlist, envlist, move, multistep = \
-            _handleScanArgs(args, kwargs)
-    infostr = infostr or \
-              _infostr('cscan', (dev, center, step, numperside) + args, kwargs)
-    dev, center, step = _fixType(dev, center, step)
-    if all(v == 0 for v in step) and numperside > 0:
-        raise UsageError('scanning with zero step width')
-    start = [x - numperside*y for x, y in zip(center, step)]
-    values = [[x + i*y for x, y in zip(start, step)]
-              for i in range(numperside*2 + 1)]
-    scan = Scan(dev, values, move, multistep, detlist, envlist, preset, infostr)
-    scan.run()
-
+scan.__doc__  += ADDSCANHELP
 cscan.__doc__ += ADDSCANHELP.replace('scan(', 'cscan(')
 
 
@@ -225,95 +227,6 @@ def contscan(dev, start, end, speed=None, *args, **kwargs):
     infostr = infostr or \
               _infostr('contscan', (dev, start, end, speed) + args, kwargs)
     scan = ContinuousScan(dev, start, end, speed, move, detlist, infostr)
-    scan.run()
-
-
-def _getQ(v, name):
-    try:
-        if len(v) == 4:
-            return list(v)
-        elif len(v) == 3:
-            return [v[0], v[1], v[2], 0]
-        else:
-            raise TypeError
-    except TypeError:
-        raise UsageError('%s must be a sequence of (h, k, l) or (h, k, l, E)'
-                         % name)
-
-def _handleQScanArgs(args, kwargs, Q, dQ):
-    preset, infostr, detlist, envlist, move, multistep = {}, None, [], [], [], []
-    for arg in args:
-        if isinstance(arg, str):
-            infostr = arg
-        #elif isinstance(arg, (int, long, float)):
-        #    preset['t'] = arg
-        elif isinstance(arg, Measurable):
-            detlist.append(arg)
-        elif isinstance(arg, list):
-            detlist.extend(arg)
-        elif isinstance(arg, Readable):
-            envlist.append(arg)
-        else:
-            raise UsageError('unsupported qscan argument: %r' % arg)
-    for key, value in kwargs.iteritems():
-        if key == 'h':
-            Q[0] = value
-        elif key == 'k':
-            Q[1] = value
-        elif key == 'l':
-            Q[2] = value
-        elif key == 'E':
-            Q[3] = value
-        elif key == 'dh':
-            dQ[0] = value
-        elif key == 'dk':
-            dQ[1] = value
-        elif key == 'dl':
-            dQ[2] = value
-        elif key == 'dE':
-            dQ[3] = value
-        elif key in session.devices and \
-                 isinstance(session.devices[key], Moveable):
-            if isinstance(value, list):
-                if multistep and len(value) != len(multistep[-1][1]):
-                    raise UsageError('all multi-step arguments must have the '
-                                     'same length')
-                multistep.append((session.devices[key], value))
-            else:
-                move.append((session.devices[key], value))
-        else:
-            # XXX this silently accepts wrong keys; restrict the possible keys?
-            preset[key] = value
-    return preset, infostr, detlist, envlist, move, multistep, Q, dQ
-
-
-@usercommand
-def qscan(Q, dQ, numsteps, *args, **kwargs):
-    """Single-sided Q scan."""
-    Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
-    preset, infostr, detlist, envlist, move, multistep, Q, dQ = \
-            _handleQScanArgs(args, kwargs, Q, dQ)
-    if all(v == 0 for v in dQ) and numsteps > 1:
-        raise UsageError('scanning with zero step width')
-    infostr = infostr or _infostr('qscan', (Q, dQ, numsteps) + args, kwargs)
-    values = [[Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3]]
-               for i in range(numsteps)]
-    scan = QScan(values, move, multistep, detlist, envlist, preset, infostr)
-    scan.run()
-
-
-@usercommand
-def qcscan(Q, dQ, numperside, *args, **kwargs):
-    """Centered Q scan."""
-    Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
-    preset, infostr, detlist, envlist, move, multistep, Q, dQ = \
-            _handleQScanArgs(args, kwargs, Q, dQ)
-    if all(v == 0 for v in dQ) and numperside > 0:
-        raise UsageError('scanning with zero step width')
-    infostr = infostr or _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
-    values = [[Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3]]
-               for i in range(-numperside, numperside+1)]
-    scan = QScan(values, move, multistep, detlist, envlist, preset, infostr)
     scan.run()
 
 

@@ -35,21 +35,10 @@ from numpy import array
 
 from nicos import session
 from nicos.scan import QScan
-from nicos.device import Device, Measurable, Moveable, Readable
+from nicos.device import Measurable, Moveable, Readable
 from nicos.errors import UsageError
 from nicos.commands import usercommand
-
-
-def _infostr(fn, args, kwargs):
-    def devrepr(x):
-        if isinstance(x, Device):
-            return x.name
-        return repr(x)
-    if kwargs:
-        return '%s(%s, %s)' % (fn,
-                               ', '.join(map(devrepr, args)),
-                               ', '.join('%s=%r' % kv for kv in kwargs.items()))
-    return '%s(%s)' % (fn, ', '.join(map(devrepr, args)))
+from nicos.commands.scan import _infostr
 
 
 def _getQ(v, name):
