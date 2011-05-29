@@ -114,7 +114,7 @@ bool TcpClient::sendfile(const char* pcFileName)
 	if(!pf)
 	{ 
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
-		logger << "Client: Could not open file \"" << pcFileName << "\".\n";
+		logger << "Client: Could not open file \"" << pcFileName << "\" for reading.\n";
 		return false;
 	}
 	

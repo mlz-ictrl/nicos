@@ -282,7 +282,7 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen, boo
 		if(bFound)
 		{
 			logger.SetCurLogLevel(LOGLEVEL_WARN);
-			logger << "Loader: guessing image count: " << IMAGE_COUNT << "\n";
+			logger << "Loader: Guessing image count: " << IMAGE_COUNT << "\n";
 		}
 		return bFound;
 	}
@@ -362,8 +362,8 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen, boo
 		if(bFound)
 		{
 			logger.SetCurLogLevel(LOGLEVEL_WARN);
-			logger << "Loader: guessing image width: " << IMAGE_WIDTH << "\n";
-			logger << "Loader: guessing image height: " << IMAGE_HEIGHT << "\n";
+			logger << "Loader: Guessing image width: " << IMAGE_WIDTH << "\n";
+			logger << "Loader: Guessing image height: " << IMAGE_HEIGHT << "\n";
 		}
 		
 		return bFound;
@@ -1342,23 +1342,37 @@ void TmpImage::UpdateRange()
 bool TmpImage::WriteXML(const char* pcFileName) const
 {
 	std::ofstream ofstr(pcFileName);
-	if(!ofstr.is_open()) return false;
+	if(!ofstr.is_open()) 
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Could not open file \"" << pcFileName << "\" for writing.\n";
+		return false;
+	}
 	
 	ofstr << "<measurement_file>\n";
 	ofstr << "<instrument_name>MIRA</instrument_name>\n";
 	ofstr << "<location>Forschungsreaktor Muenchen II - FRM2</location>\n";
 	
+	int iRes = 1024;
+	
 	ofstr << "<measurement_data>\n";
-	ofstr << "<resolution>1024</resolution>\n";
+	ofstr << "<resolution>" << iRes << "</resolution>\n";
 	ofstr << "<detector_value>\n";
 	
-	for(int iY=0; iY<m_iH; ++iY)
+	if(iRes % m_iW || iRes % m_iH)
 	{
-		for (int t1=0; t1<8; ++t1) {
-			for(int iX=0; iX<m_iW; ++iX)
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "Loader: Resolution does not match.\n";
+	}
+	
+	for(int iX=0; iX<m_iW; ++iX)
+	{
+		for (int t1=0; t1 < iRes/m_iW; ++t1)
+		{
+			for(int iY=0; iY<m_iH; ++iY)
 			{
-				for (int t2=0; t2<8; ++t2)
-					ofstr << m_puiDaten[iX*m_iH + iY] << " ";
+				for (int t2=0; t2 < iRes/m_iH; ++t2)
+					ofstr << GetIntData(iX,iY) << " ";
 			}
 			ofstr << "\n";
 		}
