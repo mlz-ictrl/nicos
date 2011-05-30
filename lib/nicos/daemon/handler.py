@@ -513,13 +513,16 @@ class ConnectionHandler(BaseRequestHandler):
     def getdataset(self, index):
         """Get the current dataset."""
         if index == '*':
-            self.write(STX, serialize(session.experiment._last_datasets))
+            try:
+                self.write(STX, serialize(session.experiment._last_datasets))
+            except AttributeError:  # session.experiment may be None
+                self.write(STX, serialize(None))
         else:
             index = int(index)
             try:
                 dataset = session.experiment._last_datasets[index]
                 self.write(STX, serialize(dataset))
-            except IndexError:
+            except (IndexError, AttributeError):
                 self.write(STX, serialize(None))
 
     # -- Miscellaneous commands ------------------------------------------------

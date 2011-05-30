@@ -548,11 +548,12 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         datasets = self.client.ask('getdataset', '*')
         if self.analysisWindow:
             self.analysisWindow.bulk_adding = True
-        for dataset in datasets:
-            try:
-                self.on_client_dataset(dataset)
-            except Exception, err:
-                print 'Error adding dataset:', err
+        if datasets:
+            for dataset in datasets:
+                try:
+                    self.on_client_dataset(dataset)
+                except Exception, err:
+                    print 'Error adding dataset:', err
         if self.analysisWindow:
             self.analysisWindow.bulk_adding = False
         pd.setValue(1)
