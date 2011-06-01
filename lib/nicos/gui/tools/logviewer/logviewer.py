@@ -61,6 +61,7 @@ class LogViewer(QDialog):
         QDialog.__init__(self, parent)
         loadUi(path.join(path.dirname(__file__), 'logviewer.ui'), self)
         self.connect(self.viewBtn, SIGNAL('clicked()'), self.view)
+        self.connect(self.updateBtn, SIGNAL('clicked()'), self.update)
         self.connect(self.closeBtn, SIGNAL('clicked()'), self.close)
         self.connect(self.selectDir, SIGNAL('clicked()'), self.selectLogDir)
         self.presets = DlgPresets('logviewer', [
@@ -81,6 +82,12 @@ class LogViewer(QDialog):
         self.presets.save()
         self.accept()
         return True
+
+    def update(self, *args):
+        self.view(0)
+
+    def update(self, *args):
+        self.view(1)
 
     def view(self, *args):
         datefrom = self.fromdate.dateTime()
@@ -126,8 +133,13 @@ class LogViewer(QDialog):
             pass
         [f.close() for f in fs]
 
+        if args and args[0] in [0, 1]:
+            if self.gp:
+                self.gp.stdin.write('replot\n')
+            return
+
         fname = '/tmp/logfile.tmp'
-        gp = Popen(['/usr/bin/gnuplot', '-persist'], stdin=PIPE)
+        self.gp = Popen(['/usr/bin/gnuplot', '-persist'], stdin=PIPE)
         comm = '''
 set term x11 title "%(wt)s"
 set term wx title "%(wt)s"
@@ -141,11 +153,11 @@ set grid back lw 0.4
 plot ''' % {'wt': 'Log: %s, %s' % (self.device.text(), ''),
             'fn': fname}
         for dev, fname, (c1, c2) in zip(devs, fnames, colors):
-            comm += ''' "%(fn)s" u 1:2 w l lc rgb "%(c1)s" t "%(dev)s", \
-            "" u 1:2 w p ps 0.5 lc rgb "%(c2)s" pt 6 t "",''' % \
+            comm += ''' "%(fn)s" u 1:2 w l lc rgb "%(c1)s" t "", \
+            "" u 1:2 w p ps 0.5 lc rgb "%(c2)s" pt 6 t "%(dev)s",''' % \
             {'dev': dev, 'fn': fname, 'c1': c1, 'c2': c2}
         comm = comm[:-1] + '\n'
-        gp.communicate(comm)
+        self.gp.stdin.write(comm)
 
 
 if __name__ == "__main__":
