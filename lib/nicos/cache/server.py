@@ -40,11 +40,12 @@ import Queue
 import select
 import socket
 import threading
+from os import path
 from itertools import chain
 from time import time as currenttime, sleep, localtime, mktime
 
 from nicos import session, loggers
-from nicos.utils import existingdir, intrange, closeSocket
+from nicos.utils import existingdir, intrange, closeSocket, ensureDirectory
 from nicos.device import Device, Param
 from nicos.errors import ConfigurationError
 from nicos.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT, \
@@ -420,16 +421,7 @@ class DbCacheDatabase(MemoryCacheDatabase):
         'storepath': Param('Directory where history stores should be saved',
                            type=existingdir, mandatory=True),
         'maxcached': Param('Maximum number of entries cached in memory',
-                           type=int, default=200),
-        'granularity': Param('For debugging purposes', type=intrange(3, 7),
-                             default=3),
-    }
-
-    intervals = {
-        3: 86400,
-        4: 3600,
-        5: 60,
-        6: 1,
+                           type=int, default=1000),
     }
 
     def doInit(self):
@@ -439,18 +431,13 @@ class DbCacheDatabase(MemoryCacheDatabase):
         # maps (y, m, d) tuples to bsddb stores
         self._stores = {}
         self._max = self.maxcached
-        # the granularity determines how many elements of the time tuple make up
-        # the key for a single database file; usually it is 3, meaning that
-        # there is one database file per day (values > 3 are only supported for
-        # debugging the database class)
-        self._gran = self.granularity
-        self._storefmt = '%04d' + '-%02d' * (self._gran - 1)
+        self._storefmt = '%04d-%02d-%02d'
         # keep open two stores: this day's, and the previous day's
         time = currenttime()
-        self._currday = localtime(time)[:self._gran]
-        self._prevday = localtime(time - self.intervals[self._gran])[:self._gran]
-        self._midnight = mktime(self._currday + (0,) * (9 - self._gran))
-        self._nextmidnight = self._midnight + self.intervals[self._gran]
+        self._currday = localtime(time)[:3]
+        self._prevday = localtime(time - 86400)[:3]
+        self._midnight = mktime(self._currday + (0,) * 6)
+        self._nextmidnight = self._midnight + 86400
         self._store_lock = threading.Lock()
         with self._store_lock:
             self._currstore = self._open_store(self._currday)
@@ -516,7 +503,7 @@ class DbCacheDatabase(MemoryCacheDatabase):
         """
         # midnight is past: change stores
         if currenttime() > self._nextmidnight:
-            newday = localtime()[:self._gran]
+            newday = localtime()[:3]
             # close previous day's store
             self._close_store(self._prevday)
             # this day's store is now previous day's
@@ -525,8 +512,8 @@ class DbCacheDatabase(MemoryCacheDatabase):
             # set the days and midnight time correctly
             self._prevday = self._currday
             self._currday = newday
-            self._midnight = mktime(self._currday + (0,) * (9 - self._gran))
-            self._nextmidnight = self._midnight + self.intervals[self._gran]
+            self._midnight = mktime(self._currday + (0,) * 6)
+            self._nextmidnight = self._midnight + 86400
         # divide the entries in two lists: those belonging to the previous
         # day, and those for the current day
         prev, curr = [], []
@@ -633,6 +620,203 @@ class DbCacheDatabase(MemoryCacheDatabase):
             for client in self._server._connected.values():
                 if client is not from_client and client.is_active():
                     client.update(key, OP_TELL, value, time, ttl)
+
+
+class NewDatabase(CacheDatabase):
+
+    parameters = {
+        'storepath': Param('Directory where history stores should be saved',
+                           type=existingdir, mandatory=True),
+        'maxcached': Param('Maximum number of entries cached in memory',
+                           type=int, default=1000),
+    }
+
+    def doInit(self):
+        self._cat_lock = {}
+        self._cat = {}
+        self._locks = {}
+        self._lock_lock = threading.Lock()
+
+        self._basepath = path.join(session.config.control_path, self.storepath)
+        ltime = localtime()
+        self._year = str(ltime[0])
+        self._currday = '%02d-%02d' % ltime[1:3]
+        self._midnight = mktime(ltime[:3] + (0,) * 6)
+        self._nextmidnight = self._midnight + 86400
+
+    def _rollover(self):
+        ltime = localtime()
+        # set the days and midnight time correctly
+        self._currday = '%02d-%02d' % ltime[1:3]
+        self._midnight = mktime(ltime[:3] + (0,) * 6)
+        self._nextmidnight = self._midnight + 86400
+        # close all file descriptors
+        for category in self._cat.keys():
+            self._cat[category][0].close()
+            del self._cat[category]
+
+    def _create_fd(self, category):
+        bydate = path.join(self._basepath, self._year, self._currday)
+        ensureDirectory(bydate)
+        fd = open(path.join(bydate, category), 'a')
+        bycat = path.join(self._basepath, category, self._year)
+        ensureDirectory(bycat)
+        os.link(path.join(bydate, category), path.join(bycat, self._currday))
+        return fd
+
+    def ask(self, key, ts, time, ttl):
+        with self._db_lock:
+            if key not in self._db:
+                return [key + OP_TELLOLD + '\r\n']
+            lastent = self._db[key][-1]
+        # check for already removed keys
+        if lastent.value is None:
+            return [key + OP_TELLOLD + '\r\n']
+        # check for expired keys
+        if lastent.ttl:
+            remaining = lastent.time + lastent.ttl - currenttime()
+            op = remaining > 0 and OP_TELL or OP_TELLOLD
+            if ts:
+                return ['%s+%s@%s%s%s\r\n' % (lastent.time, lastent.ttl,
+                                              key, op, lastent.value)]
+            else:
+                return [key + op + lastent.value]
+        if ts:
+            return ['%s@%s%s%s\r\n' % (lastent.time, key,
+                                       OP_TELL, lastent.value)]
+        else:
+            return [key + OP_TELL + lastent.value + '\r\n']
+
+    def ask_wc(self, key, ts, time, ttl):
+        ret = set()
+        with self._db_lock:
+            # look for matching keys
+            for dbkey, entries in self._db.iteritems():
+                if key not in dbkey:
+                    continue
+                lastent = entries[-1]
+                # check for removed keys
+                if lastent.value is None:
+                    continue
+                # check for expired keys
+                if lastent.ttl:
+                    remaining = lastent.time + lastent.ttl - currenttime()
+                    op = remaining > 0 and OP_TELL or OP_TELLOLD
+                    if ts:
+                        ret.add('%s+%s@%s%s%s\r\n' % (lastent.time, lastent.ttl,
+                                                      dbkey, op, lastent.value))
+                    else:
+                        ret.add(dbkey + op + lastent.value + '\r\n')
+                elif ts:
+                    ret.add('%s@%s%s%s\r\n' % (lastent.time, dbkey,
+                                               OP_TELL, lastent.value))
+                else:
+                    ret.add(dbkey + OP_TELL + lastent.value + '\r\n')
+        return ret
+
+    def lock(self, key, value, time, ttl):
+        with self._lock_lock:
+            entry = self._locks.get(key)
+            # want to lock?
+            req, client_id = value[0], value[1:]
+            if req == '+':
+                if entry and entry.value != client_id and \
+                     (not entry.ttl or entry.time + entry.ttl >= currenttime()):
+                    # still locked by different client, deny (tell the client
+                    # the current client_id though)
+                    self.printdebug('lock request %s=%s, but still locked by %s'
+                                    % (key, client_id, entry.value))
+                    return '%s%s%s\r\n' % (key, OP_LOCK, entry.value)
+                else:
+                    # not locked, expired or locked by same client, overwrite
+                    ttl = ttl or 1800  # set a maximum time to live
+                    self.printdebug('lock request %s=%s ttl %s, accepted' %
+                                    (key, client_id, ttl))
+                    self._locks[key] = Entry(time, ttl, client_id)
+                    return '%s%s\r\n' % (key, OP_LOCK)
+            # want to unlock?
+            elif req == '-':
+                if entry and entry.value != client_id:
+                    # locked by different client, deny
+                    self.printdebug('unlock request %s=%s, but locked by %s'
+                                    % (key, client_id, entry.value))
+                    return '%s%s%s\r\n' % (key, OP_LOCK, entry.value)
+                else:
+                    # unlocked or locked by same client, allow
+                    self.printdebug('unlock request %s=%s, accepted'
+                                    % (key, client_id))
+                    self._locks.pop(key, None)
+                    return '%s%s\r\n' % (key, OP_LOCK)
+
+    def tell(self, key, value, time, ttl, from_client):
+        if value is None:
+            # deletes cannot have a TTL
+            ttl = None
+        send_update = True
+        with self._db_lock:
+            if currenttime() > self._nextmidnight:
+                self._rollover()
+        category, subkey = key.split('/', 1)
+        with self._fd_lock:
+            if category not in self._cat:
+                self._cat[category] = [self._create_fd(category),
+                                       threading.Lock(),
+                                       {}]
+            fd, lock, db = self._cat[category]
+        with lock:
+            entries = db.setdefault(subkey, [])
+        #    if entries:
+                
+        with lock:
+            fd.write('%s %s %s\n' % (subkey, time, value))
+        with self._db_lock:
+            entries = self._db.setdefault(key, [])
+            if entries:
+                lastent = entries[-1]
+                if lastent.value == value:
+                    # special handling of constant values to avoid amassing
+                    # lots of duplicate entries
+                    if not lastent.ttl:
+                        if not ttl:
+                            # not a real update
+                            send_update = False
+                        else:
+                            # had no ttl, but has one now -> new entry
+                            entries.append(Entry(time, ttl, value))
+                            
+                    else:
+                        if not ttl:
+                            # had ttl, but has none now -> new entry
+                            entries.append(Entry(time, ttl, value))
+                        elif lastent.time + lastent.ttl > currenttime() and \
+                                 lastent.ttl < 120:
+                            # update of nonexpired value, just update the ttl
+                            # (but only for maximum 2 minutes)
+                            lastent.ttl = (time - lastent.time) + ttl
+                        else:
+                            # old value already expired -> new entry
+                            entries.append(Entry(time, ttl, value))
+                else:
+                    entries.append(Entry(time, ttl, value))
+            else:
+                entries.append(Entry(time, ttl, value))
+            #self.printdebug('entries are now ' + str(entries))
+            if len(entries) > self._max or ttl is None:
+                # if ttl is None, the value should be stored immediately
+                with self._store_lock:
+                    if ttl is None:
+                        self._archive(key, entries)
+                    else:
+                        # if last value has TTL, it can be updated still,
+                        # so don't write it to the archive yet
+                        self._archive(key, entries[:-1])
+                    del entries[:-1]
+                #self.printdebug('after archiving: ' + str(entries))
+        if send_update:
+            for client in self._server._connected.values():
+                if client is not from_client and client.is_active():
+                    client.update(key, OP_TELL, value, time, ttl)
+   
 
 
 class CacheServer(Device):

@@ -33,6 +33,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import re
+import ast
 import struct
 
 
@@ -94,7 +95,7 @@ def cache_dump(obj):
         raise ValueError('unserializable object: %r' % obj)
     return ''.join(res)
 
-cache_load = eval  # TODO: rewrite as a safer function
+cache_load = ast.literal_eval
 
 
 # cache entry support
