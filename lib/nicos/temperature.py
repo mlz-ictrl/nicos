@@ -38,6 +38,7 @@ import Temperature
 
 from nicos import status
 from nicos.taco import TacoDevice
+from nicos.utils import oneof
 from nicos.device import Param, Readable, Moveable, HasOffset, HasLimits
 from nicos.errors import TimeoutError, ConfigurationError
 
@@ -95,6 +96,9 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
                            category='general'),
         'channel':   Param('Control channel', type=str, category='general',
                            settable=True),
+        'mode':      Param('Control mode (manual, zone or openloop)',
+                           type=oneof(str, 'manual', 'zone', 'openloop'),
+                           settable=True),
         'p':         Param('The P control parameter', settable=True,
                            type=float, category='general'),
         'i':         Param('The I control parameter', settable=True,
@@ -121,6 +125,7 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
             self.printdebug('stopping running temperature change')
             self._taco_guard(self._dev.stop)
         self._taco_guard(self._dev.write, target + self.offset)
+        self._pollParam('setpoint', 100)
 
     def doStop(self):
         self._taco_guard(self._dev.stop)
@@ -174,6 +179,8 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
         self._taco_guard(self._dev.deviceReset)
 
     def doPoll(self, n):
+        if self.ramp:
+            self._pollParam('setpoint', 1)
         if n % 100 == 0:
             self._pollParam('setpoint', 100)
             self._pollParam('p')
@@ -210,6 +217,11 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
     def doReadChannel(self):
         return self._taco_guard(self._dev.deviceQueryResource, 'channel')
 
+    def doReadMode(self):
+        modes = {1: 'manual', 2: 'zone', 3: 'openloop'}
+        return modes[int(self._taco_guard(
+            self._dev.deviceQueryResource, 'defaultmode')[:-1])]
+
     def doWriteP(self, value):
         self._taco_guard(self._dev.setPParam, value)
 
@@ -244,3 +256,9 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
         # writing the "channel" resource is only allowed when stopped
         self._taco_guard(self._dev.stop)
         self._taco_update_resource('channel', value)
+
+    def doWriteMode(self, value):
+        modes = {'manual': 1, 'zone': 2, 'openloop': 3}
+        # writing the "mode" resource is only allowed when stopped
+        self._taco_guard(self._dev.stop)
+        self._taco_update_resource('defaultmode', modes[value])
