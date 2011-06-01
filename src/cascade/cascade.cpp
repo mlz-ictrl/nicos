@@ -87,26 +87,26 @@ class MainWindow : public QMainWindow
 		friend int main(int, char **);
 		static int NUM_BINS;			// Anzahl der Bins für Kalibrationsdialog
 		static int SERVER_STATUS_POLL_TIME;
-		
+
 	protected:
 		CascadeWidget m_cascadewidget;
-		
+
+		TcpClient m_client;
+		QTimer m_statustimer;
+
 		QLabel *labelZeitkanal, *labelFolie;
 		QToolButton *btnLog;
 		QSlider *sliderFolien, *sliderZeitkanaele;
 		QStatusBar *statusbar;
 		QLabel *pStatusMsg;
 		QAction *actionViewsOverview, *actionViewsSlides, *actionViewsPhases, *actionViewsContrasts;
-		
-		TcpClient m_client;
-		QTimer m_statustimer;	
-		
+
 		void Unload()
 		{
 			m_cascadewidget.SetMode(MODE_SLIDES);
 			m_cascadewidget.Unload();
 		}
-			
+
 		bool CheckConnected()
 		{
 			if(!m_client.isconnected())
@@ -120,23 +120,23 @@ class MainWindow : public QMainWindow
 		void ShowMessage(const char* pcMsg, bool bTemp=false)
 		{
 			if(!statusbar) return;
-		
+
 			if(bTemp)
 				statusbar->showMessage(pcMsg);
 			else
 				pStatusMsg->setText(pcMsg);
 		}
-		
+
 		void UpdateLabels(bool bUpdateWidgetLabels=true)
 		{
 			if(bUpdateWidgetLabels)
 				m_cascadewidget.UpdateLabels();
-			
+
 			if(m_cascadewidget.IsTofLoaded())
 			{
 				sliderFolien->setEnabled(true);
 				labelFolie->setEnabled(true);
-				
+
 				switch(m_cascadewidget.GetMode())
 				{
 					case MODE_SLIDES:
@@ -192,7 +192,7 @@ class MainWindow : public QMainWindow
 				ShowMessage("Showing PAD.");
 			}
 		}
-		
+
 		void UpdateSliders()
 		{
 			sliderFolien->setMaximum(Config_TofLoader::GetFoilCount()-1);
@@ -206,25 +206,25 @@ class MainWindow : public QMainWindow
 		{
 			// Antworten müssen mindestens 4 Zeichen lang sein (Kommandostring)
 			if(iLen<4) return;
-			
+
 			//////////////////////////////////////////////////////////////////////////////////////////
 			// PAD-Daten vorhanden
 			if(!strncmp(pcBuf,"IMAG",4))
 			{
 	#ifndef DATA_COMPRESSED
 				// Abfrage nur für unkomprimierte Daten möglich
-				if(iLen-4 != sizeof(int)*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth())
+				if(iLen-4 != (int)sizeof(int)*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth())
 				{
 					// Dimensionen stimmen nicht, neue raten
 					if(!Config_TofLoader::GuessConfigFromSize(0,(iLen-4)/4, false))
 					{
 						char pcMsg[256];
-						sprintf(pcMsg, "Dimension mismatch in PAD data!\nClient expected: %d bytes\nServer sent: %d bytes", sizeof(int)*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth(), iLen-4);
+						sprintf(pcMsg, "Dimension mismatch in PAD data!\nClient expected: %d bytes\nServer sent: %d bytes", (int)sizeof(int)*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth(), iLen-4);
 						QMessageBox::critical(0, "Cascade - Server", pcMsg, QMessageBox::Ok);
 						return;
 					}
 				}
-	#endif			
+	#endif
 
 				void* pvData = m_cascadewidget.NewPad(/*btnLog->isChecked()*/);
 	#ifdef DATA_COMPRESSED
@@ -238,7 +238,7 @@ class MainWindow : public QMainWindow
 	#else
 				// Unkomprimierte Daten umkopieren
 				memcpy(pvData, pcBuf+4, sizeof(int)*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth());
-	#endif			
+	#endif
 
 				m_cascadewidget.UpdateRange();
 				m_cascadewidget.UpdateGraph();
@@ -251,10 +251,10 @@ class MainWindow : public QMainWindow
 			else if(!strncmp(pcBuf,"DATA",4))
 			{
 	#ifndef DATA_COMPRESSED
-				int iExpectedSize = Config_TofLoader::GetPseudoCompression() 
+				int iExpectedSize = Config_TofLoader::GetPseudoCompression()
 								? sizeof(int)*Config_TofLoader::GetFoilCount()*Config_TofLoader::GetImagesPerFoil()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth()
-								: sizeof(int)*Config_TofLoader::GetImageCount()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth();	
-	
+								: sizeof(int)*Config_TofLoader::GetImageCount()*Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth();
+
 				if(iLen-4 != iExpectedSize)
 				{
 					// Dimensionen stimmen nicht, neue raten
@@ -268,7 +268,7 @@ class MainWindow : public QMainWindow
 				}
 	#endif
 				void* pvData = m_cascadewidget.NewTof(/*btnLog->isChecked()*/);
-				
+
 	#ifdef DATA_COMPRESSED
 				// Komprimierte Daten umkopieren
 				int iLenOut = sizeof(int)*Config_TofLoader::IMAGE_COUNT*Config_TofLoader::IMAGE_HEIGHT*Config_TofLoader::IMAGE_WIDTH;
@@ -300,13 +300,13 @@ class MainWindow : public QMainWindow
 			else if(!strncmp(pcBuf,"MSG_",4))
 			{
 				ArgumentMap args(pcBuf+4);
-				
+
 				// stop?
 				bool bHasStop;
 				bool bMessungFertig = (bool)args.QueryInt("stop",1,&bHasStop);
-				if(bHasStop) 
+				if(bHasStop)
 					ShowMessage(bMessungFertig?"Server: Measurement stopped.":"Server: Measurement running.");
-				
+
 				// xres?
 				bool bHasX;
 				int iXRes = args.QueryInt("xres", ServerCfgDlg::GetStatXRes(), &bHasX);
@@ -315,7 +315,7 @@ class MainWindow : public QMainWindow
 					ServerCfgDlg::SetStatXRes(iXRes);
 					Config_TofLoader::SetImageWidth(iXRes);
 				}
-				
+
 				// yres?
 				bool bHasY;
 				int iYRes = args.QueryInt("yres", ServerCfgDlg::GetStatYRes(), &bHasY);
@@ -324,7 +324,7 @@ class MainWindow : public QMainWindow
 					ServerCfgDlg::SetStatYRes(iYRes);
 					Config_TofLoader::SetImageWidth(iYRes);
 				}
-				
+
 				// tres?
 				bool bHasT;
 				int iTRes = args.QueryInt("tres", ServerCfgDlg::GetStatTRes(), &bHasT);
@@ -333,13 +333,13 @@ class MainWindow : public QMainWindow
 					ServerCfgDlg::SetStatTRes(iTRes);
 					Config_TofLoader::SetImageCount(iTRes);
 				}
-				
+
 				// measurement time?
 				bool bHasTime;
 				double dTime = args.QueryDouble("time", ServerCfgDlg::GetStatTime(), &bHasTime);
 				if(bHasTime)
 					ServerCfgDlg::SetStatTime(dTime);
-				
+
 				// mode?
 				const char* pcMode = args.QueryString("mode");
 				if(pcMode)
@@ -349,7 +349,7 @@ class MainWindow : public QMainWindow
 					else if(strcasecmp(pcMode, "image")==0)
 						ServerCfgDlg::SetStatMode(MODE_PAD);
 				}
-				
+
 				// pseudo-compression?
 				bool bHasComp=0;
 				bool bComp = (bool)args.QueryInt("comp",1,&bHasComp);
@@ -395,37 +395,7 @@ class MainWindow : public QMainWindow
 		void ChangeFolie(int iVal)
 		{
 			if(!m_cascadewidget.IsTofLoaded()) return;
-			
-			switch(m_cascadewidget.GetMode()) 
-			{
-				case MODE_SUMS:
-					actionViewsSlides->setChecked(true);
-					m_cascadewidget.SetMode(MODE_SLIDES);
-					break;
-				case MODE_PHASESUMS:
-					actionViewsPhases->setChecked(true);
-					m_cascadewidget.SetMode(MODE_PHASES);
-					break;
-				case MODE_CONTRASTSUMS:
-					actionViewsContrasts->setChecked(true);
-					m_cascadewidget.SetMode(MODE_CONTRASTS);
-					break;
-			}
-			
-			m_cascadewidget.SetFoil(iVal);
-			m_cascadewidget.UpdateGraph();
-			UpdateLabels(false);
 
-			char pcFolie[128];
-			sprintf(pcFolie,"Foil (%0.2d):",m_cascadewidget.GetFoil()+1);
-			labelFolie->setText(pcFolie);
-		}
-		
-		// Callback vom Kanal-Slider
-		void ChangeZeitkanal(int iVal)
-		{
-			if(!m_cascadewidget.IsTofLoaded()) return;
-			
 			switch(m_cascadewidget.GetMode())
 			{
 				case MODE_SUMS:
@@ -441,7 +411,37 @@ class MainWindow : public QMainWindow
 					m_cascadewidget.SetMode(MODE_CONTRASTS);
 					break;
 			}
-			
+
+			m_cascadewidget.SetFoil(iVal);
+			m_cascadewidget.UpdateGraph();
+			UpdateLabels(false);
+
+			char pcFolie[128];
+			sprintf(pcFolie,"Foil (%0.2d):",m_cascadewidget.GetFoil()+1);
+			labelFolie->setText(pcFolie);
+		}
+
+		// Callback vom Kanal-Slider
+		void ChangeZeitkanal(int iVal)
+		{
+			if(!m_cascadewidget.IsTofLoaded()) return;
+
+			switch(m_cascadewidget.GetMode())
+			{
+				case MODE_SUMS:
+					actionViewsSlides->setChecked(true);
+					m_cascadewidget.SetMode(MODE_SLIDES);
+					break;
+				case MODE_PHASESUMS:
+					actionViewsPhases->setChecked(true);
+					m_cascadewidget.SetMode(MODE_PHASES);
+					break;
+				case MODE_CONTRASTSUMS:
+					actionViewsContrasts->setChecked(true);
+					m_cascadewidget.SetMode(MODE_CONTRASTS);
+					break;
+			}
+
 			m_cascadewidget.SetTimechannel(iVal);
 			m_cascadewidget.UpdateGraph();
 			UpdateLabels(false);
@@ -450,40 +450,40 @@ class MainWindow : public QMainWindow
 			sprintf(pcKanal,"Time Channel (%0.2d):",m_cascadewidget.GetTimechannel()+1);
 			labelZeitkanal->setText(pcKanal);
 		}
-		
+
 		void SetLog10(bool bLog)
-		{	
+		{
 			m_cascadewidget.SetLog10(bLog);
 			UpdateLabels(false);
 		}
-		
+
 		void showCalibration(void)
 		{
 			m_cascadewidget.showCalibrationDlg(NUM_BINS);
 		}
-		
+
 		void showGraph(void)
 		{
 			m_cascadewidget.showGraphDlg();
 		}
-			
+
 		void showSummenDialog(void)
 		{
 			m_cascadewidget.showSumDlg();
 		}
-		
+
 		void viewOverview()
 		{
 			m_cascadewidget.viewOverview();
 			UpdateLabels(false);
 		}
-		
+
 		void viewSlides()
 		{
 			m_cascadewidget.viewSlides();
 			UpdateLabels(false);
 		}
-		
+
 		void viewPhases()
 		{
 			m_cascadewidget.viewPhases();
@@ -495,21 +495,21 @@ class MainWindow : public QMainWindow
 			m_cascadewidget.viewContrasts();
 			UpdateLabels(false);
 		}
-		
+
 		////////////////////////// Server-Menüpunkte /////////////////////////////////////
 		void ConnectToServer()
 		{
 			m_statustimer.stop();
 			ServerDlg SrvDlg(this);
-			
+
 			char pcBuf[512];
 			Config::GetSingleton()->QueryString("/cascade_config/server/address", pcBuf, "127.0.0.1");
 			SrvDlg.editAddress->setText(QString(pcBuf).simplified());
-			
+
 			int iPort = Config::GetSingleton()->QueryInt("/cascade_config/server/port", 1234);
 			QString strPort; strPort.setNum(iPort);
 			SrvDlg.editPort->setText(strPort);
-			
+
 			if(SrvDlg.exec()==QDialog::Accepted)
 			{
 				if(!m_client.connecttohost(SrvDlg.editAddress->text().toAscii().data(), SrvDlg.editPort->text().toInt()))
@@ -520,67 +520,67 @@ class MainWindow : public QMainWindow
 				}
 				ShowMessage("Connected to server.");
 				m_statustimer.start(SERVER_STATUS_POLL_TIME);
-				
+
 				// get current config of hardware
 				GetServerConfig();
 			}
 		}
-		
+
 		void ServerDisconnect()
 		{
 			m_statustimer.stop();
 			m_client.disconnect();
 			ShowMessage("Disconnected from server.");
 		}
-		
+
 		void ServerStatus()
 		{
 			if(!CheckConnected()) return;
 			m_client.sendmsg("CMD_status_cdr");
 		}
-		
+
 		void ServerMeasurementStart()
 		{
 			if(!CheckConnected()) return;
 			m_client.sendmsg("CMD_start");
 		}
-		
+
 		void ServerMeasurementStop()
 		{
 			if(!CheckConnected()) return;
 			m_client.sendmsg("CMD_stop");
-		}	
+		}
 
 		void LoadTofServer()
 		{
 			if(!CheckConnected()) return;
 			m_client.sendmsg("CMD_readsram");
 		}
-		
+
 		void GetServerConfig()
 		{
 			if(!CheckConnected()) return;
 			m_client.sendmsg("CMD_getconfig_cdr");
 		}
-		
+
 		void ServerConfig()
 		{
 			if(!CheckConnected()) return;
 			ServerCfgDlg srvcfgdlg(this);
-			
+
 			if(srvcfgdlg.exec()==QDialog::Accepted)
 			{
 				double dTime = srvcfgdlg.GetMeasTime();
-				unsigned int iXRes = srvcfgdlg.GetXRes(); 
+				unsigned int iXRes = srvcfgdlg.GetXRes();
 				unsigned int iYRes = srvcfgdlg.GetYRes();
 				unsigned int iTRes = srvcfgdlg.GetTRes();
 				bool bComp = srvcfgdlg.GetPseudoComp();
-				
+
 				Config_TofLoader::SetImageWidth(iXRes);
 				Config_TofLoader::SetImageHeight(iYRes);
 				Config_TofLoader::SetImageCount(iTRes);
 				Config_TofLoader::SetPseudoCompression(bComp);
-				
+
 				const char* pcMode = "";
 				switch(srvcfgdlg.GetMode())
 				{
@@ -627,7 +627,7 @@ class MainWindow : public QMainWindow
 				actionViewsOverview->setChecked(true);
 			}
 		}
-		
+
 		void WriteXML(void)
 		{
 			if(m_cascadewidget.IsTofLoaded() || m_cascadewidget.IsPadLoaded())
@@ -642,18 +642,18 @@ class MainWindow : public QMainWindow
 			}
 		}
 		///////////////////////////////////////////////////////////////////
-		
-		
+
+
 		///////////////////////// Hilfe ///////////////////////////////////
-		void About() 
-		{ 
+		void About()
+		{
 			QString strAbout = "Cascade Qt Client written by Tobias Weber.";
 			strAbout += "\n";
-			
+
 			#if defined(__DATE__) && defined(__TIME__)
 			strAbout += QString("\n") + QString("Build time: ") + QString(__DATE__) + QString(" ") + QString(__TIME__);
 			#endif
-			
+
 			#ifdef __VERSION__
 			strAbout += QString("\n") + QString("Built with CC version ") + QString(__VERSION__);
 			#endif
@@ -662,12 +662,12 @@ class MainWindow : public QMainWindow
 			#ifdef QT_VERSION_STR
 			strAbout += QString("\n") + QString("Linked to Qt version ") + QString(QT_VERSION_STR);
 			#endif
-			
+
 			#ifdef QWT_VERSION_STR
 			strAbout += QString("\n") + QString("Linked to Qwt version ") + QString(QWT_VERSION_STR);
 			#endif
-			
-			QMessageBox::about(this, "About", strAbout); 
+
+			QMessageBox::about(this, "About", strAbout);
 		}
 		void AboutQt() { QMessageBox::aboutQt(this); }
 		///////////////////////////////////////////////////////////////////
@@ -677,36 +677,36 @@ class MainWindow : public QMainWindow
 		{
 			Unload();
 		}
-		
-		MainWindow(QWidget *parent=NULL) : QMainWindow(parent), m_cascadewidget(this), m_client(this, false), statusbar(NULL), m_statustimer(this)
+
+		MainWindow(QWidget *parent=NULL) : QMainWindow(parent), m_cascadewidget(this), m_client(this, false), m_statustimer(this), statusbar(NULL)
 		{
 			m_cascadewidget.SetLog10(true);
-			
+
 			char pcBuf[256];
 			Config::GetSingleton()->QueryString("/cascade_config/main_window/title", pcBuf, "Cascade");
 			setWindowTitle(QString(pcBuf).simplified());
 
 			QWidget *pCentralWidget = new QWidget(this);
 			setCentralWidget(pCentralWidget);
-			
+
 			// Gruppen
 			//QGroupBox *grouptopright = new QGroupBox(&m_cascadewidget);
 			//QGroupBox *groupbottomright = new QGroupBox(&m_cascadewidget);
 			QGroupBox *groupbottomleft = new QGroupBox(pCentralWidget);
-			
+
 			QGridLayout *centralgridlayout = new QGridLayout(pCentralWidget);
 			centralgridlayout->addWidget(&m_cascadewidget, 0, 0, 1, 1);
 			//centralgridlayout->addWidget(grouptopright, 0, 1, 1, 1);
 			//centralgridlayout->addWidget(groupbottomright, 1, 1, 1, 1);
 			centralgridlayout->addWidget(groupbottomleft, 1, 0, 1, 1);
-			
-			
+
+
 			// Gruppe links unten
 			QGridLayout *pLayoutBL = new QGridLayout(groupbottomleft);
-					
+
 			labelFolie = new QLabel(groupbottomleft);
 			pLayoutBL->addWidget(labelFolie, 0, 0, 1, 1);
-			
+
 			sliderFolien = new QSlider(groupbottomleft);
 			sliderFolien->setOrientation(Qt::Horizontal);
 			sliderFolien->setMinimum(0);
@@ -714,22 +714,22 @@ class MainWindow : public QMainWindow
 			labelFolie->setText("Foil:");
 			//ChangeFolie(0);
 			pLayoutBL->addWidget(sliderFolien, 0, 1, 1, 1);
-			
+
 			labelZeitkanal = new QLabel(groupbottomleft);
 			pLayoutBL->addWidget(labelZeitkanal, 1, 0, 1, 1);
-			
+
 			sliderZeitkanaele = new QSlider(groupbottomleft);
 			sliderZeitkanaele->setOrientation(Qt::Horizontal);
 			sliderZeitkanaele->setMinimum(0);
-			
+
 			sliderZeitkanaele->setValue(0);
 			labelZeitkanal->setText("Time Channel:");
 			//ChangeZeitkanal(0);
 			UpdateSliders();
-			
+
 			pLayoutBL->addWidget(sliderZeitkanaele, 1, 1, 1, 1);
-			
-			
+
+
 			// Datei-Menüpunkte
 			QAction *actionLoadPad = new QAction(this);
 			actionLoadPad->setText("Load PAD File...");
@@ -740,8 +740,8 @@ class MainWindow : public QMainWindow
 			QAction *actionPrint = new QAction(this);
 			actionPrint->setText("Print Plot...");
 			QAction *actionExit = new QAction(this);
-			actionExit->setText("Exit");		
-			
+			actionExit->setText("Exit");
+
 			// Server-Menüpunkte
 			QAction *actionConnectServer = new QAction(this);
 			actionConnectServer->setText("Connect to Server...");
@@ -757,7 +757,7 @@ class MainWindow : public QMainWindow
 			actionConfigServer->setText("Configure...");
 			QAction *actionConfigFromServer = new QAction(this);
 			actionConfigFromServer->setText("Retrieve Configuration");
-					
+
 			// Graph-Menüpunkte
 			QAction *actionGraph = new QAction(this);
 			actionGraph->setText("Counts vs. time channels...");
@@ -765,15 +765,15 @@ class MainWindow : public QMainWindow
 			actionSummen->setText("Sum Images...");
 			QAction *actionCalibration = new QAction(this);
 			actionCalibration->setText("Calibration...");
-			
-			
+
+
 			// Hilfe-Menüpunkte
 			QAction *actionAbout = new QAction(this);
 			actionAbout->setText("About...");
 			QAction *actionAboutQt = new QAction(this);
-			actionAboutQt->setText("About Qt...");			
-			
-			
+			actionAboutQt->setText("About Qt...");
+
+
 			// Menüleiste
 			QMenuBar *menubar = new QMenuBar(this);;
 
@@ -810,7 +810,7 @@ class MainWindow : public QMainWindow
 			menuGraph->addSeparator();
 			menuGraph->addAction(actionGraph);
 			menuGraph->addAction(actionSummen);
-			
+
 			QMenu *menuHelp = new QMenu(menubar);
 			menuHelp->setTitle("Help");
 			menubar->addAction(menuHelp->menuAction());
@@ -819,63 +819,63 @@ class MainWindow : public QMainWindow
 
 			setMenuBar(menubar);
 
-			
+
 			// Toolbar
 			QToolBar *toolBar = new QToolBar(this);
-			
+
 			btnLog = new QToolButton(toolBar);
 			btnLog->setText("Log10");
 			btnLog->setCheckable(true);
 			btnLog->setChecked(m_cascadewidget.GetLog10());
 			toolBar->addWidget(btnLog);
-			
+
 			QMenu *pMenuViews = new QMenu;
-			
+
 			actionViewsOverview = new QAction(this);
 			actionViewsOverview->setText("Overview");
 			actionViewsOverview->setCheckable(true);
 			pMenuViews->addAction(actionViewsOverview);
-			
+
 			actionViewsSlides = new QAction(this);;
 			actionViewsSlides->setText("Slides");
 			actionViewsSlides->setCheckable(true);
 			pMenuViews->addAction(actionViewsSlides);
 			pMenuViews->addSeparator();
-			
+
 			actionViewsPhases = new QAction(this);;
 			actionViewsPhases->setText("Phases");
 			actionViewsPhases->setCheckable(true);
 			pMenuViews->addAction(actionViewsPhases);
-			
+
 			actionViewsContrasts = new QAction(this);;
 			actionViewsContrasts->setText("Contrasts");
 			actionViewsContrasts->setCheckable(true);
 			pMenuViews->addAction(actionViewsContrasts);
-			
+
 			QActionGroup *pActionGroupViews = new QActionGroup(this);
 			pActionGroupViews->addAction(actionViewsOverview);
 			pActionGroupViews->addAction(actionViewsSlides);
 			pActionGroupViews->addAction(actionViewsPhases);
 			pActionGroupViews->addAction(actionViewsContrasts);
 			actionViewsOverview->setChecked(true);
-			
+
 			QToolButton *btnView = new QToolButton(toolBar);
 			btnView->setText("Views");
 			btnView->setCheckable(false);
 			btnView->setPopupMode(QToolButton::InstantPopup);
 			btnView->setMenu(pMenuViews);
 			toolBar->addWidget(btnView);
-			
+
 			addToolBar(toolBar);
-			
-			
+
+
 			// Statusleiste
 			statusbar = new QStatusBar(this);
 			pStatusMsg = new QLabel(this);
 			//pStatusMsg->setFrameStyle(QFrame::Panel|QFrame::Sunken);
 			statusbar->addWidget(pStatusMsg,1);
 			setStatusBar(statusbar);
-			
+
 			// Verbindungen
 			// Toolbar
 			connect(btnLog, SIGNAL(toggled(bool)), this, SLOT(SetLog10(bool)));
@@ -883,39 +883,39 @@ class MainWindow : public QMainWindow
 			connect(actionViewsSlides, SIGNAL(triggered()), this, SLOT(viewSlides()));
 			connect(actionViewsPhases, SIGNAL(triggered()), this, SLOT(viewPhases()));
 			connect(actionViewsContrasts, SIGNAL(triggered()), this, SLOT(viewContrasts()));
-			
+
 			// Slider
 			connect(sliderFolien, SIGNAL(valueChanged(int)), this, SLOT(ChangeFolie(int)));
-			connect(sliderZeitkanaele, SIGNAL(valueChanged(int)), this, SLOT(ChangeZeitkanal(int)));		
-			
+			connect(sliderZeitkanaele, SIGNAL(valueChanged(int)), this, SLOT(ChangeZeitkanal(int)));
+
 			// Datei
 			connect(actionExit, SIGNAL(triggered()), this, SLOT(close()));
 			connect(actionLoadPad, SIGNAL(triggered()), this, SLOT(LoadPad()));
 			connect(actionLoadTof, SIGNAL(triggered()), this, SLOT(LoadTof()));
 			connect(actionWriteXML, SIGNAL(triggered()), this, SLOT(WriteXML()));
-			connect(actionPrint, SIGNAL(triggered()), m_cascadewidget.GetPlot(), SLOT(printPlot()));		
-			
+			connect(actionPrint, SIGNAL(triggered()), m_cascadewidget.GetPlot(), SLOT(printPlot()));
+
 			// Server
 			connect(actionConnectServer, SIGNAL(triggered()), this, SLOT(ConnectToServer()));
 			connect(actionServerDisconnect, SIGNAL(triggered()), this, SLOT(ServerDisconnect()));
-			
+
 			connect(actionLoadTofServer, SIGNAL(triggered()), this, SLOT(LoadTofServer()));
 			connect(actionServerMeasurementStart, SIGNAL(triggered()), this, SLOT(ServerMeasurementStart()));
 			connect(actionServerMeasurementStop, SIGNAL(triggered()), this, SLOT(ServerMeasurementStop()));
 			connect(actionConfigServer, SIGNAL(triggered()), this, SLOT(ServerConfig()));
 			connect(actionConfigFromServer, SIGNAL(triggered()), this, SLOT(GetServerConfig()));
-			
+
 			// Hilfe
 			connect(actionAbout, SIGNAL(triggered()), this, SLOT(About()));
 			connect(actionAboutQt, SIGNAL(triggered()), this, SLOT(AboutQt()));
-			
+
 			// Graph
 			connect(actionCalibration, SIGNAL(triggered()), this, SLOT(showCalibration()));
 			connect(actionGraph, SIGNAL(triggered()), this, SLOT(showGraph()));
 			connect(actionSummen, SIGNAL(triggered()), this, SLOT(showSummenDialog()));
-			
+
 			connect(&m_statustimer, SIGNAL(timeout()), this, SLOT(ServerStatus()));
-			
+
 			connect(&m_client, SIGNAL(MessageSignal(const char*, int)), this, SLOT(ServerMessageSlot(const char*, int)));
 
 			// Widget
@@ -932,7 +932,7 @@ int main(int argc, char **argv)
 	setlocale(LC_ALL, "C");
 	QLocale::setDefault(QLocale::English);
 	QApplication a(argc, argv);
-	
+
 	// Konfigurationssingleton erzeugen
 	const char pcConfigFile[] = "./cascade.xml";
 	if(!Config::GetSingleton()->Load(pcConfigFile))
@@ -941,10 +941,10 @@ int main(int argc, char **argv)
 		sprintf(pcMsg, "Configuration file \"%s\" could not be found.\nUsing default configuration.",pcConfigFile);
 		QMessageBox::warning(0, "Warning", pcMsg, QMessageBox::Ok);
 	}
-	
+
 	// Konfigurationseinstellungen laden
 	Config_TofLoader::Init();
-	
+
 	int iLogToFile = Config::GetSingleton()->QueryInt("/cascade_config/log/log_to_file", 0);
 	if(iLogToFile)
 	{
@@ -952,23 +952,23 @@ int main(int argc, char **argv)
 		Config::GetSingleton()->QueryString("/cascade_config/log/file", pcLogFile, "cascade.log");
 		logger.Init(pcLogFile);
 	}
-	
+
 	int iLogLevel = Config::GetSingleton()->QueryInt("/cascade_config/log/level", LOGLEVEL_INFO);
 	Config_TofLoader::SetLogLevel(iLogLevel);
-	
+
 	int iWinW = Config::GetSingleton()->QueryInt("/cascade_config/main_window/width", WIN_W);
 	int iWinH = Config::GetSingleton()->QueryInt("/cascade_config/main_window/height", WIN_H);
-	
+
 	MainWindow::NUM_BINS = Config::GetSingleton()->QueryInt("/cascade_config/graphs/bin_count", MainWindow::NUM_BINS);
 	MainWindow::SERVER_STATUS_POLL_TIME = Config::GetSingleton()->QueryInt("/cascade_config/server/status_poll_time", MainWindow::SERVER_STATUS_POLL_TIME);
-	
-	
+
+
 	MainWindow mainWindow;
 	mainWindow.resize(iWinW, iWinH);
 	mainWindow.show();
 	int iRet = a.exec();
-	
-	
+
+
 	// aufräumen
 	Config_TofLoader::Deinit();
 	Config::ClearSingleton();

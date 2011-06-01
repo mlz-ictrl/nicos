@@ -52,7 +52,7 @@ void Logger::Deinit()
 void Logger::Init(const char* pcFile)
 {
 	Deinit();
-	
+
 	if(pcFile)
 	{
 		m_postrLog = new std::ofstream(pcFile);
@@ -76,15 +76,15 @@ void Logger::Init(const char* pcFile)
 
 void Logger::addlog(const std::string& str)
 {
-	int iPos = str.find('\n');
+	size_t iPos = str.find('\n');
 	if(iPos != std::string::npos)
 	{
 		std::string strA = str.substr(0,iPos);
 		std::string strB = str.substr(iPos+1);
-		
+
 		m_strCurLog += strA;
 		endlog();
-		
+
 		addlog(strB);
 	}
 	else
@@ -133,7 +133,7 @@ void Logger::log(int iLevel, const char* pcStr)
 {
 	if(!m_postrLog) return;
 	if(iLevel > m_iLogLevel) return;
-	
+
 	// only log time when not writing to stdout
 	std::string strTime = "";
 	if(!IsStdOut())
@@ -143,7 +143,7 @@ void Logger::log(int iLevel, const char* pcStr)
 		strTime = ctime (&tm);
 		std::replace(strTime.begin(), strTime.end(), '\n', ' ');
 	}
-	
+
 	std::string strLevel = "";
 	switch(iLevel)
 	{
@@ -168,28 +168,28 @@ void Logger::log(int iLevel, const char* pcStr)
 
 	if(IsStdOut() && m_strColor!="")
 		(*m_postrLog) << m_strColor;
-	
+
 	(*m_postrLog) << strTime << strLevel << pcStr;
-	
-	if(IsStdOut() && m_strColor!="") 
+
+	if(IsStdOut() && m_strColor!="")
 		(*m_postrLog) << "\033[0m";
-	
+
 	normal();
 	(*m_postrLog) << std::endl;
 }
 
-void Logger::info(const char* pcStr) 
-{ 
-	log(LOGLEVEL_INFO, pcStr); 
+void Logger::info(const char* pcStr)
+{
+	log(LOGLEVEL_INFO, pcStr);
 }
 
-void Logger::warning(const char* pcStr) 
-{ 
-	log(LOGLEVEL_WARN, pcStr); 
+void Logger::warning(const char* pcStr)
+{
+	log(LOGLEVEL_WARN, pcStr);
 }
 
-void Logger::error(const char* pcStr) 
-{ 
+void Logger::error(const char* pcStr)
+{
 	log(LOGLEVEL_ERR, pcStr);
 }
 

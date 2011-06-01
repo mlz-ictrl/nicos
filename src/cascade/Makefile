@@ -3,7 +3,7 @@
 #
 
 COMPILER	= gcc
-FLAGS		= -O2 -D __CASCADE_QT_CLIENT__
+FLAGS		= -O2 -Wall -Wextra -D __CASCADE_QT_CLIENT__
 LIBS		= -lQtCore -lQtGui -lQtNetwork -lqwt -lMinuit2 -lgomp -lxml++-2.6
 INCLUDES	= -I /usr/include/Qt -I /usr/include/QtCore -I /usr/include/QtGui -I /usr/include/qwt
 

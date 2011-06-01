@@ -44,14 +44,14 @@ class ArgumentMap
 {
 	protected:
 		std::map<std::string, std::string> m_mapArgs;
-		
+
 	public:
 		//////////////// Neue Wertepaare (z.B. "status=1 error=0") hinzufügen ///////////
 		void add(const char* pcStr)
 		{
 #ifdef USE_BOOST
 			std::string str(pcStr);
-			
+
 			// diese sregex-Ausdrücke basieren auf dem Beispiel zu
 			// "Semantic Actions and User-Defined Assertions"
 			// aus der xpressive-Dokumentation:
@@ -61,32 +61,32 @@ class ArgumentMap
 
 #else
 			std::istringstream istr(pcStr);
-			
+
 			while(!istr.eof())
 			{
 				std::string str;
 				istr >> str;
-		
-				int iPos = str.find("=");
+
+				size_t iPos = str.find("=");
 				if(iPos == std::string::npos)
 				{
 					std::cerr << "Error parsing string: \"" << pcStr << "\"" << std::endl;
 					break;
 				}
-				
+
 				// links des Gleichheitszeichens
 				std::string strLinks = str.substr(0,iPos);
-				
+
 				// rechts des Gleichheitszeichens
 				std::string strRechts = str.substr(iPos+1, str.length()-iPos-1);;
 				m_mapArgs.insert(std::pair<std::string,std::string>(strLinks, strRechts));
-				
+
 				//std::cout << "Links: \"" << strLinks << "\", Rechts: \"" << strRechts << "\"" << std::endl;
 			}
 #endif
 		}
 		/////////////////////////////////////////////////////////////////////////////////
-		
+
 		/////////////////////////////// Werte abfragen /////////////////////////////
 		const char* QueryString(const char* pcKey) const
 		{
@@ -95,7 +95,7 @@ class ArgumentMap
 				return 0;
 			return iter->second.c_str();
 		}
-		
+
 		int QueryInt(const char* pcKey, int iDefault=0, bool *pbHasKey=0) const
 		{
 			const char* pcStr = QueryString(pcKey);
@@ -107,25 +107,25 @@ class ArgumentMap
 			if(pbHasKey) *pbHasKey = 1;
 			return atoi(pcStr);
 		}
-		
+
 		double QueryDouble(const char* pcKey, double dDefault=0., bool *pbHasKey=0) const
 		{
 			const char* pcStr = QueryString(pcKey);
-			if(pcStr==NULL) 
+			if(pcStr==NULL)
 			{
 				if(pbHasKey) *pbHasKey = 0;
 				return dDefault;
 			}
 			if(pbHasKey) *pbHasKey = 1;
 			return atof(pcStr);
-		}		
+		}
 		////////////////////////////////////////////////////////////////////////////
-		
+
 		ArgumentMap(const char* pcStr=0)
 		{
 			if(pcStr) add(pcStr);
 		}
-		
+
 		virtual ~ArgumentMap()
 		{}
 };

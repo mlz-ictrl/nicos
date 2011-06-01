@@ -44,7 +44,7 @@ class PadImage;
 class Config_TofLoader
 {
 	friend class TofImage;
-	
+
 	protected:
 		static int FOIL_COUNT;
 
@@ -57,19 +57,19 @@ class Config_TofLoader
 
 		// Folienbeginn
 		static int *piFoilBegin;
-		
+
 		static int iPhaseBlockSize[2];
 		static int iContrastBlockSize[2];
-		
+
 		static double LOG_LOWER_RANGE;
 		static bool USE_PSEUDO_COMPRESSION;	// sind Null-Bilder schon von Server entfernt und Folienadditionen gemacht worden?
-		
+
 	public:
 		// iLen in Ints, nicht Bytes
-		static bool GuessConfigFromSize(bool bPseudoCompressed, int iLen, bool bIsTof, bool bFirstCall=true);		
+		static bool GuessConfigFromSize(bool bPseudoCompressed, int iLen, bool bIsTof, bool bFirstCall=true);
 		static void Init();
 		static void Deinit();
-		
+
 		static double GetLogLowerRange();
 		static int GetFoilCount();
 		static int GetImagesPerFoil();
@@ -78,7 +78,7 @@ class Config_TofLoader
 		static int GetImageCount();
 		static int GetFoilBegin(int iFoil);
 		static bool GetPseudoCompression();
-		
+
 		static void SetFoilCount(int iNumFoils);
 		static void SetImagesPerFoil(int iNumImagesPerFoil);
 		static void SetImageWidth(int iImgWidth);
@@ -86,9 +86,9 @@ class Config_TofLoader
 		static void SetImageCount(int iImgCount);
 		static void SetFoilBegin(int iFoil, int iOffs);
 		static void SetPseudoCompression(bool bSet);
-		
+
 		static void CheckArguments(int* piStartX, int* piEndX, int* piStartY, int* piEndY, int* piFoil=0, int* piTimechannel=0);
-		
+
 		static void SetLogLevel(int iLevel);
 };
 
@@ -101,32 +101,32 @@ class Config_TofLoader
 class PadImage
 {
 	friend class TmpImage;
-	
+
 	protected:
 		unsigned int *m_puiDaten;
 		int m_iMin, m_iMax;
 		bool m_bExternalMem;
-		
+
 		void Clear(void);
-	
+
 	public:
 		PadImage(const char *pcFileName=NULL, bool bExternalMem=false);
 		PadImage(const PadImage& pad);
 		virtual ~PadImage();
-		
+
 		void SetExternalMem(void* pvDaten);
 		int GetPadSize() const;
-		
+
 		int LoadFile(const char *pcFileName);
 		// uiBufLen: Anzahl Ints (nicht Anzahl Bytes)
 		int LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen);
-		
+
 		void UpdateRange();
 		void Print(const char* pcOutFile=NULL);
 
 		unsigned int GetData(int iX, int iY) const;
 		unsigned int* GetRawData(void);
-		
+
 		unsigned int GetCounts() const;
 		unsigned int GetCounts(int iStartX, int iEndX, int iStartY, int iEndY) const;
 };
@@ -136,30 +136,30 @@ class TmpImage
 {
 	friend class PadImage;
 	friend class TofImage;
-  
+
   protected:
 	int m_iW, m_iH;
 	unsigned int* m_puiDaten;	// für Counts-Diagramm
 	double* m_pdDaten;		// für Phasen- und Kontrastdiagramm
 	double m_dMin, m_dMax;
-	
+
   public:
 	TmpImage();
 	TmpImage(const TmpImage& tmp);
 	virtual ~TmpImage();
-	
+
 	void Clear(void);
-	
+
 	double GetData(int iX, int iY) const;
 	unsigned int GetIntData(int iX, int iY) const;
-	
+
 	int GetWidth() const;
 	int GetHeight() const;
-	
+
 	void UpdateRange();
 	bool WriteXML(const char* pcFileName) const;
 	void ConvertPAD(PadImage* pPad);
-	
+
 	void Add(const TmpImage& tmp);
 };
 
@@ -167,23 +167,23 @@ class TmpImage
 class TmpGraph
 {
   friend class TofImage;
-  
+
   protected:
 	int m_iW;
 	unsigned int* m_puiDaten;
-	
+
   public:
-	
+
 	TmpGraph();
 	virtual ~TmpGraph();
-	
+
 	bool FitSinus(double &dPhase, double &dScale, double &dAmp, double &dOffs) const;
-	
+
 	unsigned int GetData(int iX) const;
 	int GetWidth(void) const;
 	int GetMin() const;
 	int GetMax() const;
-	
+
 	bool IsLowerThan(int iTotal) const;
 };
 
@@ -198,25 +198,25 @@ class TofImage
 		unsigned int *m_puiDaten;
 		bool m_bPseudoCompressed;
 		bool m_bExternalMem;
-		
+
 	public:
 		TofImage(const char *pcFileName=NULL, int iCompression=TOF_COMPRESSION_USEGLOBCONFIG, bool bExternalMem=false);
 		virtual ~TofImage();
-		
+
 		void SetExternalMem(void* pvDaten);
 		int GetTofSize() const;
 		void Clear();
 		int GetCompressionMethod() const;
 		void SetCompressionMethod(int iComp);
-		
+
 		unsigned int GetData(int iFoil, int iTimechannel, int iX, int iY) const;
 		unsigned int GetData(int iImage, int iX, int iY) const;
 		unsigned int* GetRawData(void) const;
-		
+
 		int LoadFile(const char *pcFileName);
 		// uiBufLen: Anzahl Ints (nicht Anzahl Bytes)
 		int LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen);
-	
+
 		void GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil, int iTimechannel, TmpImage *pImg) const;
 		void GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil, TmpGraph* pGraph) const;
 		void GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, double dPhaseShift ,TmpGraph* pGraph) const;
@@ -225,15 +225,15 @@ class TofImage
 		void GetPhaseGraph(int iFoil, TmpImage *pImg, bool bInDeg=true) const;
 		void GetContrastGraph(int iFoil, TmpImage *pImg, int iStartX, int iEndX, int iStartY, int iEndY) const;
 		void GetContrastGraph(int iFoil, TmpImage *pImg) const;
-		
+
 		void AddFoils(int iBits, int iChannelBits/*=0xffffffff*/, TmpImage *pImg) const;
 		void AddFoils(const bool *pbChannels, TmpImage *pImg) const;
 		void AddPhases(const bool *pbFoils, TmpImage *pImg) const;
 		void AddContrasts(const bool *pbFoils, TmpImage *pImg) const;
-		
+
 		unsigned int GetCounts() const;
 		unsigned int GetCounts(int iStartX, int iEndX, int iStartY, int iEndY) const;
-		
+
 		/////////////////////////////////////////////////////////////////
 		// alternativer Funktionsaufruf mit Rückgabe des entsprechenden Ergebnisses (für Python-Binding)
 		TmpImage GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil, int iTimechannel) const;
