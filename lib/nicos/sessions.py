@@ -272,19 +272,22 @@ class Session(object):
     def getSetupInfo(self):
         return self._setup_info.copy()
 
-    def loadSetup(self, setupname, allow_special=False, raise_failed=False):
-        """Load a setup module and set up devices accordingly."""
+    def loadSetup(self, setupnames, allow_special=False, raise_failed=False):
+        """Load one or more setup modules and set up devices accordingly."""
         if not self._setup_info:
             self.readSetups()
 
-        if setupname in self.loaded_setups:
-            self.log.warning('setup %s is already loaded' % setupname)
-            return
-        if setupname not in self._setup_info:
-            raise ConfigurationError('Setup %s does not exist (setup path is '
-                                     '%s)' % (setupname, self._setup_path))
+        if isinstance(setupnames, basestring):
+            setupnames = [setupnames]
 
-        self.log.info('loading setup %s' % setupname)
+        for setupname in setupnames[:]:
+            if setupname in self.loaded_setups:
+                self.log.warning('setup %s is already loaded' % setupname)
+                setupnames.remove(setupname)
+            elif setupname not in self._setup_info:
+                raise ConfigurationError(
+                    'Setup %s does not exist (setup path is %s)' %
+                    (setupname, path.normpath(self._setup_path)))
 
         from nicos.commands import usercommandWrapper
         failed_devs = []
@@ -307,7 +310,7 @@ class Session(object):
         def inner_load(name):
             if name in self.loaded_setups:
                 return
-            if name != setupname:
+            if name not in setupnames:
                 self.log.debug('loading include setup %s' % name)
 
             info = self._setup_info[name]
@@ -344,7 +347,14 @@ class Session(object):
         for modname in self.auto_modules:
             load_module(modname)
 
-        sysconfig, devlist, startupcode = inner_load(setupname)
+        sysconfig, devlist, startupcode = {}, {}, []
+        for setupname in setupnames:
+            self.log.info('loading setup %s' % setupname)
+            ret = inner_load(setupname)
+            if ret:
+                sysconfig.update(ret[0])
+                devlist.update(ret[1])
+                startupcode.extend(ret[2])
 
         # initialize the cache connection
         if sysconfig.get('cache') and self._mode != 'simulation':
@@ -401,7 +411,7 @@ class Session(object):
             self.log.error('the following devices could not be created:')
             self.log.error(', '.join(failed_devs))
 
-        self.explicit_setups.append(setupname)
+        self.explicit_setups.extend(setupnames)
 
         if self.mode == 'master' and self.cache:
             self.cache.put(self, 'mastersetup', list(self.loaded_setups))
@@ -517,8 +527,7 @@ class Session(object):
                 self.log.info('loading previously used master setups: ' +
                               ', '.join(setups))
                 self.unloadSetup()
-                for setup in setups:
-                    self.loadSetup(setup)
+                self.loadSetup(setups)
 
     # -- Device control --------------------------------------------------------
 

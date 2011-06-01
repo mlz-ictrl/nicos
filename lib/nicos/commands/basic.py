@@ -121,7 +121,7 @@ def sleep(secs):
 # -- other basic commands ------------------------------------------------------
 
 @usercommand
-def NewSetup(setupname):
+def NewSetup(*setupnames):
     """Load the given setup instead of the current one."""
     current_mode = session.mode
     # refresh setup files first
@@ -130,7 +130,7 @@ def NewSetup(setupname):
     try:
         session.startMultiCreate()
         try:
-            session.loadSetup(setupname)
+            session.loadSetup(setupnames)
         finally:
             session.endMultiCreate()
     except Exception:
@@ -141,12 +141,12 @@ def NewSetup(setupname):
         SetMode('master')
 
 @usercommand
-def AddSetup(setupname):
+def AddSetup(*setupnames):
     """Load the given setup additional to the current one."""
     session.readSetups()
     session.startMultiCreate()
     try:
-        session.loadSetup(setupname)
+        session.loadSetup(setupnames)
     finally:
         session.endMultiCreate()
 
