@@ -432,7 +432,8 @@ class Session(object):
         self.explicit_devices.clear()
         for name in list(self._exported_names):
             self.unexport(name)
-        self.cache.shutdown()
+        if self.cache:
+            self.cache.shutdown()
         self.cache = None
         self.instrument = None
         self.experiment = None
