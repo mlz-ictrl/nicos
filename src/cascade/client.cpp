@@ -38,7 +38,7 @@
 bool TcpClient::connecttohost(const char* pcAddr, int iPort)
 {
 	disconnect();
-	
+
 	// Namen auflösen
 	QHostInfo info = QHostInfo::fromName(pcAddr);
 	if(info.addresses().isEmpty())
@@ -48,8 +48,8 @@ bool TcpClient::connecttohost(const char* pcAddr, int iPort)
 		return false;
 	}
 	QHostAddress address = info.addresses().first();
-	/*QHostAddress address = QHostAddress(QString(pcAddr))*/ 
-	
+	/*QHostAddress address = QHostAddress(QString(pcAddr))*/
+
 	// Verbinden
 	m_socket.connectToHost(address, quint16(iPort));
 	bool bConnected = m_socket.waitForConnected(WAIT_DELAY);
@@ -79,11 +79,11 @@ bool TcpClient::sendmsg(const char *pcMsg)
 
 	// Fehler im Server: Sollte eigentlich nicht 0-terminiert werden müssen
 	int iLen = strlen(pcMsg)+1;
-	
+
 	// Länge der folgenden Nachricht übertragen
-	if(!write((char*)&iLen, 4, true)) 
+	if(!write((char*)&iLen, 4, true))
 		return false;
-	
+
 	// Nachricht übertragen
 	return write(pcMsg, iLen, false);
 }
@@ -93,7 +93,7 @@ bool TcpClient::write(const char* pcBuf, int iSize, bool bIsBinary)
 	if(m_socket.write(pcBuf, iSize)==-1)
 		return false;
 	//m_socket.flush();
-	
+
 	if(!bIsBinary)
 	{
 		logger.green(false);
@@ -109,17 +109,17 @@ bool TcpClient::sendfile(const char* pcFileName)
 {
 	logger.SetCurLogLevel(LOGLEVEL_INFO);
 	logger << "Client: Sending \"" << pcFileName << "\"\n";
-	
+
 	FILE *pf = fopen(pcFileName,"rb");
 	if(!pf)
-	{ 
+	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
 		logger << "Client: Could not open file \"" << pcFileName << "\" for reading.\n";
 		return false;
 	}
-	
+
 	long iSize = GetFileSize(pf);
-	
+
 	char *pcDaten = new char[iSize];
 	if(!fread(pcDaten, 1, iSize, pf))
 	{
@@ -136,7 +136,7 @@ bool TcpClient::sendfile(const char* pcFileName)
 		logger << "Client: Could not send file \"" << pcFileName << "\".\n";
 	}
 	delete[] pcDaten;
-	
+
 	logger.SetCurLogLevel(LOGLEVEL_INFO);
 	logger << "Client: " << iSize << " bytes sent.\n";
 	return true;
@@ -163,16 +163,16 @@ const QByteArray& TcpClient::recvmsg(void)
 	if(!m_bBlocking) return m_byEmpty;
 
 	m_timer.start();
-	if(!m_socket.waitForReadyRead(WAIT_DELAY)) 
+	if(!m_socket.waitForReadyRead(WAIT_DELAY))
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
 		logger << "Client: Socket timed out while receiving.\n";
 		return m_byEmpty;
-	}	
-	
+	}
+
 	int iExpectedMsgLength=0;
 	read((char*)&iExpectedMsgLength, 4);
-	
+
 	if(iExpectedMsgLength <= 0)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -182,17 +182,17 @@ const QByteArray& TcpClient::recvmsg(void)
 
 	QByteArray& arrMsg = m_byCurMsg;
 	arrMsg.resize(iExpectedMsgLength);
-	
+
 	while(m_socket.bytesAvailable() < iExpectedMsgLength)
 	{
-		if(!m_socket.waitForReadyRead(WAIT_DELAY)) 
+		if(!m_socket.waitForReadyRead(WAIT_DELAY))
 		{
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
 			logger << "Client: Socket timed out while receiving.\n";
 			return m_byEmpty;
 		}
 	}
-	
+
 	int iRead = read(arrMsg.data(), iExpectedMsgLength);
 	if(iRead!=iExpectedMsgLength)
 	{
@@ -200,14 +200,14 @@ const QByteArray& TcpClient::recvmsg(void)
 		logger << "Client: Wrong number of bytes received.\n";
 		return m_byEmpty;
 	}
-	
+
 	int iTimeElapsed = m_timer.elapsed();
-	
+
 	logger.green(true);
 	logger.SetCurLogLevel(LOGLEVEL_INFO);
 	logger << "[from server] length: " << iExpectedMsgLength << ", time: " << iTimeElapsed << "ms, data: " << arrMsg.data() << "\n";
 	logger.normal();
-	
+
 	return arrMsg;
 }
 ////////////////////////////////////////////////////////////////
@@ -230,10 +230,10 @@ void TcpClient::readReady()
 {
 	// nur für nichtblockierenden Client erlauben
 	if(m_bBlocking) return;
-	
+
 	int iSize = m_socket.bytesAvailable();
 	if(iSize==0) return;
-	
+
 	// Falls Timeout-Wert gesetzt
 	if(m_iMessageTimeout>=0)
 	{
@@ -250,36 +250,36 @@ void TcpClient::readReady()
 	{
 		if(iSize < 4) return;
 		iSize -= 4;
-		
+
 		// Länge der zu erwartenden Nachricht lesen
 		m_iExpectedMsgLength = m_iCurMsgLength = 0;
 		read((char*)&m_iExpectedMsgLength, 4);
-		
+
 		// Nachricht läuft
 		m_bBeginOfMessage = false;
 		m_timer.start();
-		
+
 		m_byCurMsg.resize(m_iExpectedMsgLength);
 	}
-	
+
 	int iMsgLeft = m_iExpectedMsgLength - m_iCurMsgLength;
 	if(iSize>iMsgLeft) iSize = iMsgLeft;
-	
+
 	char* pcBuf = m_byCurMsg.data() + m_iCurMsgLength;
 	int iLenRead = read(pcBuf, iSize);
 	m_iCurMsgLength += iLenRead;
-	
+
 	// Ende der gegenwärtigen Nachricht erreicht?
 	if(m_iCurMsgLength>=m_iExpectedMsgLength)
-	{	
+	{
 		if(m_iCurMsgLength > m_iExpectedMsgLength)
 		{
 			logger.SetCurLogLevel(LOGLEVEL_WARN);
 			logger << "Client: Got too much data; expected: " << m_iExpectedMsgLength << ", received: " << m_iCurMsgLength << "\n";
 		}
-		
+
 		int iTimeElapsed = m_timer.elapsed();
-		
+
 		// Fertige Nachricht emittieren
 		emit MessageSignal(m_byCurMsg.data(), m_byCurMsg.size());
 
@@ -287,7 +287,7 @@ void TcpClient::readReady()
 		logger.SetCurLogLevel(LOGLEVEL_INFO);
 		logger << "[from server] length: " << m_iCurMsgLength << ", time: " << iTimeElapsed << "ms, total: " << m_timer.elapsed() << "ms, data: " << m_byCurMsg.data() << "\n";
 		logger.normal();
-		
+
 		// Ende der Nachricht, neue beginnt
 		m_bBeginOfMessage = true;
 		m_iExpectedMsgLength = m_iCurMsgLength = 0;
@@ -298,7 +298,7 @@ void TcpClient::readReady()
 TcpClient::TcpClient(QObject *pParent, bool bBlocking) : QObject(pParent), m_bBlocking(bBlocking), m_socket(pParent), m_bBeginOfMessage(1), m_iCurMsgLength(0)
 {
 	m_iMessageTimeout = -1;	// "-1" bedeutet: Timeout nicht benutzen
-	
+
 // Cascade-Qt-Client?
 #ifdef __CASCADE_QT_CLIENT__
 	bool bUseMessageTimeout = (bool)Config::GetSingleton()->QueryInt("/cascade_config/server/use_message_timeout", 0);
@@ -307,7 +307,7 @@ TcpClient::TcpClient(QObject *pParent, bool bBlocking) : QObject(pParent), m_bBl
 #else	// Nicos-Client
 	m_iMessageTimeout = 5000;
 #endif
-	
+
 	connect(&m_socket, SIGNAL(connected()), this, SLOT(connected()));
 	connect(&m_socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
 	if(!m_bBlocking) connect(&m_socket, SIGNAL(readyRead()), this, SLOT(readReady()));

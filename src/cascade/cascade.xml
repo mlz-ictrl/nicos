@@ -3,7 +3,6 @@
 <!-- Konfigurationsdatei vom Cascade-Client -->
 
 <cascade_config>
-<!--
 	<tof_file>
 		<image_count> 128 </image_count>
 		<foil_count> 6  </foil_count>
@@ -20,8 +19,8 @@
 		
 		<pseudo_compression> 1 </pseudo_compression>
 	</tof_file>
--->
 
+<!--
         <tof_file>
                 <image_count> 196 </image_count>
                 <foil_count> 4  </foil_count>
@@ -36,7 +35,7 @@
 		
 		<pseudo_compression> 0 </pseudo_compression>
         </tof_file>
-
+-->
 
 	<graphs>
 		<phase_block_size_x> 1 </phase_block_size_x>
