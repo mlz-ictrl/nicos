@@ -93,13 +93,14 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
     parameters = {
         'setpoint':  Param('Current temperature setpint', unit='main',
                            category='general'),
-        'channel':   Param('Control channel', type=str, category='general'),
+        'channel':   Param('Control channel', type=str, category='general',
+                           settable=True),
         'p':         Param('The P control parameter', settable=True,
-                           type=int, category='general'),
+                           type=float, category='general'),
         'i':         Param('The I control parameter', settable=True,
-                           type=int, category='general'),
+                           type=float, category='general'),
         'd':         Param('The D control parameter', settable=True,
-                           type=int, category='general'),
+                           type=float, category='general'),
         'ramp':      Param('Temperature ramp in K/min', unit='K/min',
                            settable=True),
         'tolerance': Param('The window\'s temperature tolerance', unit='K',
@@ -240,4 +241,6 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
         value = value.upper()
         if value not in ('A', 'B', 'C', 'D'):
             raise ConfigurationError('invalid control channel')
+        # writing the "channel" resource is only allowed when stopped
+        self._taco_guard(self._dev.stop)
         self._taco_update_resource('channel', value)
