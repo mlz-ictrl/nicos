@@ -40,7 +40,7 @@ from IO import StringIO
 
 from nicos.taco import TacoDevice
 from nicos.device import Measurable, Param, Value
-from nicos.errors import CommunicationError
+from nicos.errors import CommunicationError, NicosError
 
 
 class Amplifier(Measurable, TacoDevice):
@@ -82,8 +82,14 @@ class Amplifier(Measurable, TacoDevice):
         xs, ys = [], []
         N = self.measurements
         for i in range(N):
-            xs.append(float(self._taco_guard(self._dev.communicate, 'OUTP? 1')))
-            ys.append(float(self._taco_guard(self._dev.communicate, 'OUTP? 2')))
+            try:
+                newx = float(self._taco_guard(self._dev.communicate, 'OUTP? 1'))
+                newy = float(self._taco_guard(self._dev.communicate, 'OUTP? 2'))
+            except NicosError:
+                newx = float(self._taco_guard(self._dev.communicate, 'OUTP? 1'))
+                newy = float(self._taco_guard(self._dev.communicate, 'OUTP? 2'))
+            xs.append(newx)
+            ys.append(newy)
         X = sum(xs) / float(N)
         Y = sum(ys) / float(N)
         R = hypot(X, Y)
