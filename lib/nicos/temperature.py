@@ -88,14 +88,21 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
     taco_class = Temperature.Controller
 
     attached_devices = {
-        'primary_sensor': Sensor,
+        'sensor_a': Sensor,
+        'sensor_b': Sensor,
+        'sensor_c': Sensor,
+        'sensor_d': Sensor,
     }
 
     parameters = {
         'setpoint':  Param('Current temperature setpint', unit='main',
                            category='general'),
-        'channel':   Param('Control channel', type=str, category='general',
-                           settable=True),
+        'controlchannel': Param('Control channel (A-D)',
+                                type=oneof(str, 'A', 'B', 'C', 'D'),
+                                category='general', settable=True),
+        'samplechannel':  Param('Sample channel (A-D)',
+                                type=oneof(str, 'A', 'B', 'C', 'D'),
+                                category='general', settable=True),
         'mode':      Param('Control mode (manual, zone or openloop)',
                            type=oneof(str, 'manual', 'zone', 'openloop'),
                            settable=True),
@@ -118,7 +125,7 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
     }
 
     def doRead(self):
-        return self._adevs['primary_sensor'].read() - self.offset
+        return self._adevs['sensor_%s' % self.samplechannel.lower()].read() - self.offset
 
     def doStart(self, target):
         if self.status()[0] == status.BUSY:
@@ -161,8 +168,9 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
         setpoint = self.target
         timeout = self.timeout
         firststart = started = time.time()
+        channel = self._adevs['sensor_%s' % self.controlchannel.lower()]
         while 1:
-            value = self.doRead()
+            value = channel.read()
             self.printdebug('current temperature %7.3f %s' % (value, self.unit))
             now = time.time()
             if abs(value - setpoint) > tolerance:
@@ -214,7 +222,7 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
         return float(self._taco_guard(self._dev.deviceQueryResource,
                                       'timeout')[:-1])
 
-    def doReadChannel(self):
+    def doReadControlchannel(self):
         return self._taco_guard(self._dev.deviceQueryResource, 'channel')
 
     def doReadMode(self):
@@ -249,10 +257,7 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
         self._taco_guard(self._dev.stop)
         self._taco_update_resource('timeout', str(value))
 
-    def doWriteChannel(self, value):
-        value = value.upper()
-        if value not in ('A', 'B', 'C', 'D'):
-            raise ConfigurationError('invalid control channel')
+    def doWriteControlchannel(self, value):
         # writing the "channel" resource is only allowed when stopped
         self._taco_guard(self._dev.stop)
         self._taco_update_resource('channel', value)
