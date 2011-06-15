@@ -54,7 +54,13 @@ from nicos.gui.tools.uitools import DlgPresets, runDlgStandalone, selectDirector
 
 colors = [('#ccccff', '#0000cc'),
           ('#ffcccc', '#cc0000'),
-          ('#ccffcc', '#00cc00')] 
+          ('#ccffcc', '#00cc00'),
+          ('#ffffaa', '#aaaa00'),
+          ('#ffaaff', '#aa00aa'),
+          ('#aaffff', '#00aaaa'),
+          ('#ffaa00', '#cc6600'),
+          ('#00ffaa', '#00cc66'),
+          ('#aa00ff', '#6600cc')]
 
 class LogViewer(QDialog):
     def __init__(self, parent=None):
