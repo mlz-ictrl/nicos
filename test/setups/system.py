@@ -29,25 +29,19 @@ name = 'test system setup'
 
 sysconfig = dict(
     cache = 'localhost:14877',
-#    experiment = 'Exp',
+    experiment = 'Exp',
 )
 
 
 devices = dict(
 
-    Exp = device('###',
-        sample = 'Sample',
-        remark = '',
-        description = '',
-        title = '',
+	sample   = device('nicos.tas.TASSample'),
+
+    Exp = device('nicos.experiment.Experiment',
+        sample = 'sample',
         loglevel = 'info',
-        _propdb = '',
         datapath = ['/data/testdata'],
         scriptdir = '.',
-        detlist = ['det'],
         lowlevel = False,
-        envlist = [],
-        proposal = '',
-        users = [],
     ),
 )

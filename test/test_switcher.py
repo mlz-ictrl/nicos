@@ -1,15 +1,16 @@
 from nicos import session
 from test.utils import raises
-from nicos.errors import NicosError, LimitError
+from nicos.errors import NicosError, LimitError, ConfigurationError
 
 switcher = None
 motor = None
 
 def setup_module():
     global switcher, motor
+
     session.loadSetup('switcher')
     session.setMode('master')
-    switcher = session.getDevice('switch')
+    switcher = session.getDevice('switcher_1')
     motor = session.getDevice('motor_1')
 
 def teardown_module():
@@ -32,3 +33,6 @@ def test_switcher():
     assert raises(NicosError, switcher.doStart, '#####')
 
     assert raises(LimitError, switcher.doStart, '1000')
+    assert raises(LimitError, switcher.doStart, '-10')
+
+    assert raises(ConfigurationError, session.getDevice, 'broken_switcher')
