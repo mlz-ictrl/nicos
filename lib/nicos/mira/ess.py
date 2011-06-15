@@ -35,23 +35,32 @@ __version__ = "$Revision$"
 
 from time import sleep
 
+from PowerSupply import CurrentControl
+
 from nicos.io import AnalogOutput, DigitalOutput
 from nicos.device import Param
 
 
 class ESSController(AnalogOutput):
 
+    taco_class = CurrentControl
+
     attached_devices = {
         'plusswitch': DigitalOutput,
         'minusswitch': DigitalOutput,
     }
 
+    # XXX switch to single "ramp" parameter
     parameters = {
         'ramprate':  Param('Rate of ramping', type=float, default=60,
                            unit='main/min', settable=True),
         'rampdelay': Param('Time per ramping step', type=float, default=5,
                            unit='s', settable=True),
     }
+
+    def doInit(self):
+        if self._mode != 'simulation':
+            self._dev.setRamp(0)
 
     def doStart(self, value):
         delay = self.rampdelay
