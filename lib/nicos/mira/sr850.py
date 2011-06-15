@@ -85,7 +85,7 @@ class Amplifier(Measurable, TacoDevice):
             try:
                 newx = float(self._taco_guard(self._dev.communicate, 'OUTP? 1'))
                 newy = float(self._taco_guard(self._dev.communicate, 'OUTP? 2'))
-            except NicosError:
+            except (NicosError, ValueError):
                 newx = float(self._taco_guard(self._dev.communicate, 'OUTP? 1'))
                 newy = float(self._taco_guard(self._dev.communicate, 'OUTP? 2'))
             xs.append(newx)
@@ -103,22 +103,30 @@ class Amplifier(Measurable, TacoDevice):
         return float(self._taco_guard(self._dev.communicate, 'FREQ?'))
 
     def doWriteFrequency(self, value):
-        return self._taco_guard(self._dev.communicate, 'FREQ %f' % value)
+        self._taco_guard(self._dev.writeLine, 'FREQ %f' % value)
+        if self.doReadFrequency() != value:
+            raise NicosError(self, 'setting new frequency failed')
 
     def doReadAmplitude(self):
         return float(self._taco_guard(self._dev.communicate, 'SLVL?'))
 
     def doWriteAmplitude(self, value):
-        return self._taco_guard(self._dev.communicate, 'SLVL %f' % value)
+        self._taco_guard(self._dev.writeLine, 'SLVL %f' % value)
+        if self.doReadAmplitude() != value:
+            raise NicosError(self, 'setting new amplitude failed')
 
     def doReadPhase(self):
         return float(self._taco_guard(self._dev.communicate, 'PHAS?'))
 
     def doWritePhase(self, value):
-        return self._taco_guard(self._dev.communicate, 'PHAS %f' % value)
+        self._taco_guard(self._dev.writeLine, 'PHAS %f' % value)
+        if self.doReadPhase() != value:
+            raise NicosError(self, 'setting new phase failed')
 
     def doReadHarmonic(self):
         return int(self._taco_guard(self._dev.communicate, 'HARM?'))
 
     def doWriteHarmonic(self, value):
-        return self._taco_guard(self._dev.communicate, 'HARM %d' % value)
+        self._taco_guard(self._dev.writeLine, 'HARM %d' % value)
+        if self.doReadHarmonic() != value:
+            raise NicosError(self, 'setting new harmonic failed')
