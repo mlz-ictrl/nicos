@@ -168,7 +168,7 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
     """IPC protocol communication over TACO RS-485 server."""
 
     taco_class = RS485Client
-
+    
     parameters = {
         'maxtries': Param('Number of tries for sending and receiving',
                           type=int, default=3, settable=True),
@@ -277,7 +277,11 @@ class IPCModBusTCP(IPCModBus):
                 if response[-3:] != crc_ipc(response[:-3]):
                     raise CommunicationError(self, 'wrong CRC on response')
             # return response integer (excluding address and command number)
-            return int(response[2:-3])
+            try:
+                return int(response[2:-3])      # command might fail if no value was transmitted
+            except ValueError,err:
+                raise CommunicationError(
+                    self, 'invalid responce: missing value (%s)' % err)
 
     def ping(self, addr):
         if 32 <= addr <= 255:
@@ -312,6 +316,7 @@ class IPCModBusTCP(IPCModBus):
 
 class IPCModBusSerial(IPCModBusTCP):
     """IPC protocol communication directly over serial line."""
+    _connection=None
 
     def doReset(self):
         if self._connection:
