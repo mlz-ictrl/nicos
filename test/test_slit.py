@@ -30,12 +30,13 @@ def test_slit():
     assert motor_left.doRead()==2
     assert motor_bottom.doRead()==3
     assert motor_top.doRead()==4
+    assert slit.doRead() == (motor_right.doRead(),
+                             motor_left.doRead(),
+                             motor_bottom.doRead(),
+                             motor_top.doRead())
 
     slit.doStart([8,7,6,5])
     slit.doWait()
-    assert motor_right.doRead()==8
-    assert motor_left.doRead()==7
-    assert motor_bottom.doRead()==6
-    assert motor_top.doRead()==5
+    assert slit.doRead() == (8, 7, 6, 5)
 
     assert raises(LimitError, slit.doStart, [8000,7,6,5])

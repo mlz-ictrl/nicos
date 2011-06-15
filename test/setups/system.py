@@ -30,11 +30,11 @@ name = 'test system setup'
 sysconfig = dict(
     cache = 'localhost:14877',
     experiment = 'Exp',
+    instrument = 'Tas',
 )
 
 
 devices = dict(
-
 	sample   = device('nicos.tas.TASSample'),
 
     Exp = device('nicos.experiment.Experiment',
@@ -44,4 +44,68 @@ devices = dict(
         scriptdir = '.',
         lowlevel = False,
     ),
+
+
+    t_phi    = device('nicos.virtual.VirtualMotor',
+                      abslimits = (-180, 180),
+                      initval = 0,
+                      speed = 1,
+                      jitter = 0.01,
+                      unit = 'deg'),
+
+    t_psi    = device('nicos.virtual.VirtualMotor',
+                      abslimits = (0, 360),
+                      initval = 0,
+                      speed = 2,
+                      jitter = 0.05,
+                      unit = 'deg'),
+
+    t_mono   = device('nicos.tas.Monochromator',
+                      unit = 'A-1',
+                      theta = 't_mth',
+                      twotheta = 't_mtt',
+                      focush = None,
+                      focusv = None,
+                      abslimits = (0, 10),
+                      dvalue = 3.325),
+
+    t_mth    = device('nicos.virtual.VirtualMotor',
+                      unit = 'deg',
+                      abslimits = (-180, 180),
+                      jitter = 0.02),
+
+    t_mtt    = device('nicos.virtual.VirtualMotor',
+                      unit = 'deg',
+                      abslimits = (-180, 180)),
+
+
+    t_ana    = device('nicos.tas.Monochromator',
+                      unit = 'A-1',
+                      theta = 't_ath',
+                      twotheta = 't_att',
+                      focush = None,
+                      focusv = None,
+                      reltheta = True,
+                      abslimits = (0, 10),
+                      dvalue = 3.325),
+
+    t_ath    = device('nicos.virtual.VirtualMotor',
+                      unit = 'deg',
+                      abslimits = (-180, 180),
+                      jitter = 0.02),
+
+    t_att    = device('nicos.virtual.VirtualMotor',
+                      unit = 'deg',
+                      abslimits = (-180, 180)),
+
+
+	Tas = device('nicos.tas.TAS',
+				 cell = 'sample',
+				 mono = 't_mono',
+				 phi = 't_phi',
+				 psi = 't_psi',
+				 ana = 't_ana',
+				 instrument = 'Tas',
+	),
+
 )
