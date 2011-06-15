@@ -3,32 +3,24 @@ from nicos.commands import scan, count, move, maw, read
 from test.utils import raises
 from nicos.errors import UsageError, LimitError
 
-motor = None
-
 def setup_module():
-    global motor
     session.loadSetup('axis')
     session.setMode('master')
-    motor = session.getDevice('motor')
 
 def teardown_module():
     session.unloadSetup()
 
-
-
 def test_commands():
+    motor = session.getDevice('motor')
+
     session.setMode('slave')
     assert raises(UsageError, scan, motor, [0, 1, 2, 10])
 
     session.setMode('master')
     scan(motor, [0, 1, 2, 10])
 
-
-
     assert raises(UsageError, count, motor)
     count()
-
-
 
     assert raises(LimitError, move, motor, max(motor.abslimits)+1)
 
