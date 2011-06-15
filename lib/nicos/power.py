@@ -48,7 +48,7 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
 
     parameters = {
         'ramp': Param('Ramp for the supply; can be zero to deactivate ramping',
-                      type=float, unit='main/min', default=0),
+                      type=float, unit='main/min', default=0, settable=True),
         'variance': Param('Variance of the read value to the write value; can '
                           'be zero to deactivate variance check',
                           type=float, unit='%', default=0),
@@ -88,7 +88,7 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
         state = self._taco_guard(self._dev.deviceState)
         if state == TACOStates.DEVICE_NORMAL:
             return status.OK, 'device normal'
-        elif state == TACOStates.MOVING:
+        elif state in (TACOStates.MOVING, TACOStates.RAMP):
             return status.BUSY, 'ramping'
         else:
             return status.ERROR, TACOStates.stateDescription(state)
