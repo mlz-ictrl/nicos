@@ -29,4 +29,25 @@ name = 'test system setup'
 
 sysconfig = dict(
     cache = 'localhost:14877',
+#    experiment = 'Exp',
+)
+
+
+devices = dict(
+
+    Exp = device('###',
+        sample = 'Sample',
+        remark = '',
+        description = '',
+        title = '',
+        loglevel = 'info',
+        _propdb = '',
+        datapath = ['/data/testdata'],
+        scriptdir = '.',
+        detlist = ['det'],
+        lowlevel = False,
+        envlist = [],
+        proposal = '',
+        users = [],
+    ),
 )
