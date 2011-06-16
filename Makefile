@@ -18,7 +18,7 @@ inplace: cascade
 	rm -rf build
 	$(PYTHON) setup.py build_ext
 	cp build/lib*/nicos/daemon/*.so lib/nicos/daemon
-	cp src/cascade/nicosclient/pythonbinding/cascadeclient.so lib/nicos/mira
+	-cp src/cascade/nicosclient/pythonbinding/cascadeclient.so lib/nicos/mira
 	-cp src/cascade/nicoswidget/pythonbinding/cascadewidget.so lib/nicos/gui
 
 test:
