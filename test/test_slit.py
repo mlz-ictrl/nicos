@@ -11,12 +11,13 @@ def teardown_module():
 
 def test_slit():
     slit = session.getDevice('slit_1')
-    motor_left = session.getDevice('motor_left')
     motor_right = session.getDevice('motor_right')
+    motor_left = session.getDevice('motor_left')
     motor_bottom = session.getDevice('motor_bottom')
     motor_top = session.getDevice('motor_top')
 
-    slit.doStart([1, 2, 3, 4])
+    slit.opmode = '4blades'
+    slit.doStart((1, 2, 3, 4))
     slit.doWait()
     assert motor_right.doRead() == 1
     assert motor_left.doRead() == 2
@@ -27,10 +28,26 @@ def test_slit():
                              motor_bottom.doRead(),
                              motor_top.doRead())
 
-    slit.doStart([8, 7, 6, 5])
+    slit.doStart((8, 7, 6, 5))
     slit.doWait()
     assert slit.doRead() == (8, 7, 6, 5)
 
-    assert raises(LimitError, slit.doStart, [8000, 7, 6, 5])
+    assert raises(LimitError, slit.doStart, (8000, 7, 6, 5))
 
-    # XXX test opmodes
+
+    slit.doStart((8, 4, 3, 5))
+    slit.doWait()
+    assert slit.doRead() == (8, 4, 3, 5)
+
+    slit.opmode = 'centered'
+    assert slit.doRead() == (-4, 2)
+
+    slit.opmode = 'offcentered'
+    assert slit.doRead() == (6, 4, -4, 2)
+
+    slit.doStart((4, 2, 3, 5))
+    slit.doWait()
+    assert slit.doRead() == (4, 2, 3, 5)
+    slit.opmode = '4blades'
+    assert slit.doRead() == (2.5, 5.5, -0.5, 4.5)
+
