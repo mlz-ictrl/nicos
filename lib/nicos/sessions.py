@@ -100,7 +100,15 @@ class Session(object):
     operations and keeps the global state: devices, configuration, loggers.
     """
 
-    auto_modules = ['nicos.commands']
+    auto_modules = [
+        'nicos.commands.basic',
+        'nicos.commands.device',
+        'nicos.commands.output',
+        'nicos.commands.measure',
+        'nicos.commands.scan',
+        'nicos.commands.analyze',
+        'nicos.commands.tas',
+    ]
     autocreate_devices = True
 
     class config(object):
