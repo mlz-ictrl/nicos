@@ -53,7 +53,7 @@ class Poller(Device):
     parameters = {
         'alwayspoll': Param('Setups which devices should always be polled',
                             type=listof(str), mandatory=True),
-        'blacklist':  Param('Devices that should never be poller',
+        'blacklist':  Param('Devices that should never be polled',
                             type=listof(str)),
     }
 
