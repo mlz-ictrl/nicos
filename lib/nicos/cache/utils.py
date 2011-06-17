@@ -35,6 +35,8 @@ __version__ = "$Revision$"
 import re
 import ast
 import struct
+import cPickle as pickle
+from base64 import b64encode, b64decode
 
 
 DEFAULT_CACHE_PORT = 14869
@@ -92,10 +94,24 @@ def cache_dump(obj):
     elif obj is None:
         return 'None'
     else:
-        raise ValueError('unserializable object: %r' % obj)
+        try:
+            resstr = 'cache_unpickle("' + \
+                     b64encode(pickle.dumps(obj, protocol=0)) + '")'
+            res.append(resstr)
+        except Exception, err:
+            raise ValueError('unserializable object: %r (%s)' % (obj, err))
     return ''.join(res)
 
-cache_load = ast.literal_eval
+def cache_load(str):
+    try:
+        # parsing with 'eval' always gives an ast.Expression node
+        expr = ast.parse(str, mode='eval').body
+        if isinstance(expr, ast.Call) and expr.func.id == 'cache_unpickle':
+            return pickle.loads(b64decode(ast.literal_eval(expr.args[0])))
+        else:
+            return ast.literal_eval(expr)
+    except Exception, err:
+        raise ValueError('corrupt cache entry: %r (%s)' % (str, err))
 
 
 # cache entry support
