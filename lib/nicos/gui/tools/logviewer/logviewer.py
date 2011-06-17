@@ -105,8 +105,8 @@ class LogViewer(QDialog):
             interval = 30
 
         devs = str(self.device.text()).lower().split(',')
-        keys = ['nicos/%s/value' % d for d in devs]
-        fnames = ['/tmp/logfile_%s.tmp' % dev for dev in devs]
+        keys = ['nicos/%s' % (d if '/' in d else d+'/value') for d in devs]
+        fnames = ['/tmp/logfile_%s.tmp' % dev.replace('/', '_') for dev in devs]
         fs = [open(fname, 'w') for fname in fnames]
         try:
             for i in days:
@@ -127,7 +127,7 @@ class LogViewer(QDialog):
                     for entry in entries:
                         if entry.time > ltime + interval:
                             if tstart <= entry.time <= tend:
-                                f.write('%s %s\n' % (entry.time, entry.value))
+                                f.write('%s %s\n' % (time.localtime(entry.time)[:6], entry.value))
                                 ltime = entry.time
         finally:
             #if f.tell() == 0:
@@ -147,8 +147,8 @@ class LogViewer(QDialog):
 set term x11 title "%(wt)s"
 set term wx title "%(wt)s"
 set xdata time
-#set timefmt "%%Y%%m%%d%%H%%M%%S"
-set timefmt "%%s"
+set timefmt "(%%Y, %%m, %%d, %%H, %%M, %%S)"
+#set timefmt "%%s"
 set format x "%%d-%%m\\n%%H:%%M"
 set grid back lw 0.4
 #plot "fns" u 3:2 every ::3 w l lc rgb "#ccccff" t "fns", \
@@ -156,8 +156,8 @@ set grid back lw 0.4
 plot ''' % {'wt': 'Log: %s, %s' % (self.device.text(), ''),
             'fn': fname}
         for dev, fname, (c1, c2) in zip(devs, fnames, colors):
-            comm += ''' "%(fn)s" u 1:2 w l lc rgb "%(c1)s" t "", \
-            "" u 1:2 w p ps 0.5 lc rgb "%(c2)s" pt 6 t "%(dev)s",''' % \
+            comm += ''' "%(fn)s" u 1:7 w l lc rgb "%(c1)s" t "", \
+            "" u 1:7 w p ps 0.5 lc rgb "%(c2)s" pt 6 t "%(dev)s",''' % \
             {'dev': dev, 'fn': fname, 'c1': c1, 'c2': c2}
         comm = comm[:-1] + '\n'
         self.gp.stdin.write(comm)
