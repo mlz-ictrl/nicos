@@ -114,8 +114,12 @@ class ScriptRequest(Request):
             # if the script is a single line, compile it like a line
             # in the interactive interpreter, so that expression
             # results are shown
+            if self.text.strip().startswith('#'):
+                start = 'exec'
+            else:
+                start = 'single'
             self.code = [compile(self.text + '\n', '<script>',
-                                 'single', CO_DIVISION)]
+                                 start, CO_DIVISION)]
             self.blocks = None
         elif ast is None:
             # Python < 2.6, no splitting possible

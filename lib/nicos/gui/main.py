@@ -733,7 +733,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
     def on_commandInput_textChanged(self, text):
         try:
             script = str(self.commandInput.text())
-            if not script:
+            if not script or script.strip().startswith('#'):
                 return
             compile(script+'\n', 'script', 'single')
         except Exception:
@@ -745,14 +745,15 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         script = str(self.commandInput.text())
         if not script:
             return
-        try:
-            compile(script+'\n', 'script', 'single')
-        except SyntaxError, err:
-            QMessageBox.information(
-                self, self.tr('Command'),
-                self.tr('Syntax error in command: %1').arg(err.msg))
-            self.commandInput.setCursorPosition(err.offset)
-            return
+        if not script.strip().startswith('#'):
+            try:
+                compile(script+'\n', 'script', 'single')
+            except SyntaxError, err:
+                QMessageBox.information(
+                    self, self.tr('Command'),
+                    self.tr('Syntax error in command: %1').arg(err.msg))
+                self.commandInput.setCursorPosition(err.offset)
+                return
         if self.current_status != 'idle':
             if QMessageBox.question(
                 self, self.tr('Queue?'),
