@@ -477,7 +477,7 @@ class AsciiDatafileSink(DatafileSink):
 
     def addPoint(self, dataset, xvalues, yvalues):
         if not self._wrote_columninfo:
-            self._file.write('%s Scan data\n' % self._commentc*3)
+            self._file.write('%s Scan data\n' % (self._commentc*3))
             self._file.write('%s %s\n' % (self._commentc,
                                           '\t'.join(self._colnames)))
             self._file.write('%s %s\n' % (self._commentc,
