@@ -71,8 +71,8 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
     def doStart(self, value, fromvarcheck=False):
         self._taco_multitry('write', 2, self._dev.write, value + self.offset)
         sleep(0.5)  # wait until server goes into "moving" status
-        self.doWait()
         if self.variance > 0:
+            self.doWait()
             maxdelta = value * (self.variance/100.) + 0.1
             newvalue = self.doRead()
             if abs(newvalue - value) > maxdelta:
@@ -83,6 +83,9 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
                 else:
                     raise MoveError(self,
                                     'power supply failed to set correct value')
+
+    def doStop(self):
+        self._taco_guard(self._dev.stop)
 
     def doStatus(self):
         state = self._taco_guard(self._dev.deviceState)
