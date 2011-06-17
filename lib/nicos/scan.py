@@ -201,7 +201,7 @@ class Scan(object):
 
     def readEnvironment(self, start, finished):
         # XXX take history mean, warn if values deviate too much?
-        return [dev.read() for dev in self._envlist]
+        return [dev.doRead() for dev in self._envlist]
 
     def run(self):
         session.beginActionScope('Scan')
