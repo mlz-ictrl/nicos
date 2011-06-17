@@ -92,9 +92,6 @@ class LogViewer(QDialog):
     def update(self, *args):
         self.view(0)
 
-    def update(self, *args):
-        self.view(1)
-
     def view(self, *args):
         datefrom = self.fromdate.dateTime()
         dateto = self.todate.dateTime()
