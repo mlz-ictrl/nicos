@@ -29,9 +29,8 @@ name = 'setup for the cache server'
 group = 'special'
 
 devices = dict(
-    DB     = device('nicos.cache.server.DbCacheDatabase',
+    DB     = device('nicos.cache.server.NewDatabase',
                     storepath = 'data/cache',
-                    granularity = 3,
                     maxcached = 20),
 
     Server = device('nicos.cache.server.CacheServer',

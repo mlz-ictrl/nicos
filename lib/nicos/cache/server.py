@@ -161,10 +161,12 @@ class CacheWorker(object):
                 try:
                     ret = self._handle_line(line)
                 except Exception, err:
+                    raise
                     self.log.warning('error handling line %r' % line, exc=err)
-                #self.log.debug('return is %r' % ret)
-                if ret:
-                    self.send_queue.put(''.join(ret))
+                else:
+                    #self.log.debug('return is %r' % ret)
+                    if ret:
+                        self.send_queue.put(''.join(ret))
                 # continue loop with next match
                 match = line_pattern.match(data)
             # fileno is < 0 for UDP connections, where select isn't needed
@@ -632,10 +634,11 @@ class NewDatabase(CacheDatabase):
     }
 
     def doInit(self):
-        self._cat_lock = {}
         self._cat = {}
+        self._cat_lock = threading.Lock()
         self._locks = {}
         self._lock_lock = threading.Lock()
+        self._max = self.maxcached
 
         self._basepath = path.join(session.config.control_path, self.storepath)
         ltime = localtime()
@@ -643,6 +646,14 @@ class NewDatabase(CacheDatabase):
         self._currday = '%02d-%02d' % ltime[1:3]
         self._midnight = mktime(ltime[:3] + (0,) * 6)
         self._nextmidnight = self._midnight + 86400
+
+        self._stoprequest = False
+        self._cleaner = threading.Thread(target=self._clean)
+        self._cleaner.setDaemon(True)
+        self._cleaner.start()
+
+    def doShutdown(self):
+        self._stoprequest = True
 
     def _rollover(self):
         ltime = localtime()
@@ -656,19 +667,45 @@ class NewDatabase(CacheDatabase):
             del self._cat[category]
 
     def _create_fd(self, category):
+        category = category.replace('/', '_')
         bydate = path.join(self._basepath, self._year, self._currday)
         ensureDirectory(bydate)
-        fd = open(path.join(bydate, category), 'a')
+        filename = path.join(bydate, category)
+        fd = open(filename, 'a')
         bycat = path.join(self._basepath, category, self._year)
         ensureDirectory(bycat)
-        os.link(path.join(bydate, category), path.join(bycat, self._currday))
+        linkname = path.join(bycat, self._currday)
+        if not path.isfile(linkname):
+            os.link(filename, linkname)
         return fd
 
+    def _clean(self):
+        while not self._stoprequest:
+            sleep(0.5)
+            with self._cat_lock:
+                for cat, (fd, lock, db) in self._cat.iteritems():
+                    with lock:
+                        for subkey, entries in db.iteritems():
+                            if not entries:
+                                continue
+                            lastent = entries[-1]
+                            if lastent.value and lastent.ttl and \
+                                   lastent.time + lastent.ttl < currenttime():
+                                entries.append(Entry(None, currenttime(), None))
+                                for client in self._server._connected.values():
+                                    client.update(cat + '/' + subkey,
+                                                  OP_TELLOLD, '', None, None)
+
     def ask(self, key, ts, time, ttl):
-        with self._db_lock:
-            if key not in self._db:
+        category, subkey = key.rsplit('/', 1)
+        with self._cat_lock:
+            if category not in self._cat:
                 return [key + OP_TELLOLD + '\r\n']
-            lastent = self._db[key][-1]
+            fd, lock, db = self._cat[category]
+        with lock:
+            if subkey not in db:
+                return [key + OP_TELLOLD + '\r\n']
+            lastent = db[subkey][-1]
         # check for already removed keys
         if lastent.value is None:
             return [key + OP_TELLOLD + '\r\n']
@@ -680,7 +717,7 @@ class NewDatabase(CacheDatabase):
                 return ['%s+%s@%s%s%s\r\n' % (lastent.time, lastent.ttl,
                                               key, op, lastent.value)]
             else:
-                return [key + op + lastent.value]
+                return [key + op + lastent.value + '\r\n']
         if ts:
             return ['%s@%s%s%s\r\n' % (lastent.time, key,
                                        OP_TELL, lastent.value)]
@@ -689,29 +726,32 @@ class NewDatabase(CacheDatabase):
 
     def ask_wc(self, key, ts, time, ttl):
         ret = set()
-        with self._db_lock:
-            # look for matching keys
-            for dbkey, entries in self._db.iteritems():
-                if key not in dbkey:
-                    continue
-                lastent = entries[-1]
-                # check for removed keys
-                if lastent.value is None:
-                    continue
-                # check for expired keys
-                if lastent.ttl:
-                    remaining = lastent.time + lastent.ttl - currenttime()
-                    op = remaining > 0 and OP_TELL or OP_TELLOLD
-                    if ts:
-                        ret.add('%s+%s@%s%s%s\r\n' % (lastent.time, lastent.ttl,
-                                                      dbkey, op, lastent.value))
+        # look for matching keys
+        for cat, (fd, lock, db) in self._cat.items():
+            prefix = cat + '/'
+            with lock:
+                for subkey, entries in db.iteritems():
+                    if key not in prefix+subkey:
+                        continue
+                    lastent = entries[-1]
+                    # check for removed keys
+                    if lastent.value is None:
+                        continue
+                    # check for expired keys
+                    if lastent.ttl:
+                        remaining = lastent.time + lastent.ttl - currenttime()
+                        op = remaining > 0 and OP_TELL or OP_TELLOLD
+                        if ts:
+                            ret.add('%s+%s@%s%s%s\r\n' %
+                                    (lastent.time, lastent.ttl, prefix+subkey,
+                                     op, lastent.value))
+                        else:
+                            ret.add(prefix+subkey + op + lastent.value + '\r\n')
+                    elif ts:
+                        ret.add('%s@%s%s%s\r\n' % (lastent.time, prefix+subkey,
+                                                   OP_TELL, lastent.value))
                     else:
-                        ret.add(dbkey + op + lastent.value + '\r\n')
-                elif ts:
-                    ret.add('%s@%s%s%s\r\n' % (lastent.time, dbkey,
-                                               OP_TELL, lastent.value))
-                else:
-                    ret.add(dbkey + OP_TELL + lastent.value + '\r\n')
+                        ret.add(prefix+subkey + OP_TELL + lastent.value + '\r\n')
         return ret
 
     def lock(self, key, value, time, ttl):
@@ -752,71 +792,38 @@ class NewDatabase(CacheDatabase):
         if value is None:
             # deletes cannot have a TTL
             ttl = None
-        send_update = True
-        with self._db_lock:
+        if time is None:
+            time = currenttime()
+        with self._cat_lock:
             if currenttime() > self._nextmidnight:
                 self._rollover()
-        category, subkey = key.split('/', 1)
-        with self._fd_lock:
+        category, subkey = key.rsplit('/', 1)
+        with self._cat_lock:
             if category not in self._cat:
                 self._cat[category] = [self._create_fd(category),
                                        threading.Lock(),
                                        {}]
             fd, lock, db = self._cat[category]
+        update = True
         with lock:
             entries = db.setdefault(subkey, [])
-        #    if entries:
-                
-        with lock:
-            fd.write('%s %s %s\n' % (subkey, time, value))
-        with self._db_lock:
-            entries = self._db.setdefault(key, [])
             if entries:
                 lastent = entries[-1]
                 if lastent.value == value:
-                    # special handling of constant values to avoid amassing
-                    # lots of duplicate entries
-                    if not lastent.ttl:
-                        if not ttl:
-                            # not a real update
-                            send_update = False
-                        else:
-                            # had no ttl, but has one now -> new entry
-                            entries.append(Entry(time, ttl, value))
-                            
-                    else:
-                        if not ttl:
-                            # had ttl, but has none now -> new entry
-                            entries.append(Entry(time, ttl, value))
-                        elif lastent.time + lastent.ttl > currenttime() and \
-                                 lastent.ttl < 120:
-                            # update of nonexpired value, just update the ttl
-                            # (but only for maximum 2 minutes)
-                            lastent.ttl = (time - lastent.time) + ttl
-                        else:
-                            # old value already expired -> new entry
-                            entries.append(Entry(time, ttl, value))
-                else:
-                    entries.append(Entry(time, ttl, value))
-            else:
+                    # existing entry with the same value: update the TTL
+                    # but don't write an update to the history file
+                    lastent.time = time
+                    lastent.ttl = ttl
+                    update = False
+            if update:
                 entries.append(Entry(time, ttl, value))
-            #self.printdebug('entries are now ' + str(entries))
-            if len(entries) > self._max or ttl is None:
-                # if ttl is None, the value should be stored immediately
-                with self._store_lock:
-                    if ttl is None:
-                        self._archive(key, entries)
-                    else:
-                        # if last value has TTL, it can be updated still,
-                        # so don't write it to the archive yet
-                        self._archive(key, entries[:-1])
-                    del entries[:-1]
-                #self.printdebug('after archiving: ' + str(entries))
-        if send_update:
+                fd.write('%s %s %s\n' % (subkey, time, value))
+            if len(entries) > self._max:
+                del entries[:-self._max/2]
+        if update:
             for client in self._server._connected.values():
-                if client is not from_client and client.is_active():
-                    client.update(key, OP_TELL, value, time, ttl)
-   
+                if client is not from_client:
+                    client.update(key, OP_TELL, value, None, None)
 
 
 class CacheServer(Device):
