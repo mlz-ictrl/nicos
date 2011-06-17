@@ -116,6 +116,7 @@ class Session(object):
         user = None
         group = None
         control_path = path.join(path.dirname(__file__), '..', '..')
+        setups_path = 'setups'
 
     log = None
     name = 'session'   # used for cache operations
@@ -137,7 +138,8 @@ class Session(object):
         # contains all explicitly loaded setups
         self.explicit_setups = []
         # path to setup files
-        self._setup_path = path.join(self.config.control_path, 'setups')
+        self._setup_path = path.join(self.config.control_path,
+                                     self.config.setups_path)
         if not path.isdir(self._setup_path) and path.isdir(
             path.join(self.config.control_path, 'custom/test/setups')):
             self._setup_path = path.join(self.config.control_path,
