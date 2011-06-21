@@ -40,7 +40,10 @@ from IO import StringIO
 
 from nicos.taco import TacoDevice
 from nicos.device import Measurable, Param, Value
-from nicos.errors import CommunicationError, NicosError
+from nicos.errors import CommunicationError, ConfigurationError, NicosError
+
+
+TIMECONSTANTS = sum(([k, 3*k] for k in range(1, 11)), [])
 
 
 class Amplifier(Measurable, TacoDevice):
@@ -54,6 +57,8 @@ class Amplifier(Measurable, TacoDevice):
                            settable=True, category='general'),
         'harmonic':  Param('Number of harmonic to detect', type=int,
                            settable=True, category='general'),
+        'timeconstant': Param('Time constant of the low pass filter', type=int,
+                              settable=True, category='general', unit='us'),
         'measurements': Param('Number of measurements to average over',
                               type=int, default=100, settable=True),
     }
@@ -130,3 +135,16 @@ class Amplifier(Measurable, TacoDevice):
         self._taco_guard(self._dev.writeLine, 'HARM %d' % value)
         if self.doReadHarmonic() != value:
             raise NicosError(self, 'setting new harmonic failed')
+
+    def doReadTimeconstant(self):
+        value = int(self._taco_guard(self._dev.communicate, 'OFLT?'))
+        return timeconstants[value]
+
+    def doWriteTimeconstant(self, value):
+        if value not in TIMECONSTANTS:
+            raise ConfigurationError(self, 'invalid time constant, valid ones are ' +
+                                     ', '.join(map(str, TIMECONSTANTS)))
+        value = TIMECONSTANTS.index(value)
+        self._taco_guard(self._dev.writeLine, 'OFLT %d' % value)
+        if self.doReadTimeconstant() != value:
+            raise NicosError(self, 'setting new time constant failed')
