@@ -782,3 +782,10 @@ def existingdir(val='.'):
     if not os.path.isdir(val):
         raise ValueError('value %s is not an existing directory' % val)
     return val
+
+def none_or(conv):
+    def converter(val=None):
+        if val is None:
+            return None
+        return conv(val)
+    return converter

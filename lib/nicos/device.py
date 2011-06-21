@@ -36,7 +36,7 @@ from time import time as currenttime, sleep
 from nicos import session
 from nicos import status, loggers
 from nicos.utils import AutoPropsMeta, Param, Override, Value, getVersions, \
-     tupleof, floatrange, any
+     tupleof, floatrange, any, none_or
 from nicos.errors import NicosError, ConfigurationError, ProgrammingError, \
      UsageError, LimitError, FixedError, ModeError, CommunicationError, \
      CacheLockError
@@ -494,8 +494,9 @@ class Readable(Device):
                               default='%.3f', settable=True),
         'unit':         Param('Unit of the device main value', type=str,
                               mandatory=True, settable=True),
-        'maxage':       Param('Maximum age of cached value and status',
-                              unit='s', type=floatrange(0.01, 24*3600),
+        'maxage':       Param('Maximum age of cached value and status (or None '
+                              'to cache them indefinitely)', unit='s',
+                              type=none_or(floatrange(0.01, 24*3600)),
                               default=6, settable=True),
         'pollinterval': Param('Polling interval for value and status',
                               unit='s', default=5, settable=True),
@@ -615,7 +616,7 @@ class Readable(Device):
         value = getattr(self, 'doRead' + name.title())()
         if with_ttl:
             self._cache.put(self, name, value, currenttime(),
-                            self.maxage * with_ttl)
+                            (self.maxage or 0) * with_ttl)
         else:
             self._cache.put(self, name, value)
 
