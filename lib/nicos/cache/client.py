@@ -100,7 +100,7 @@ class BaseCacheClient(Device):
         self._startup_done.clear()
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            self.printdebug('connecting to %s' % (self._address,))
+            self.printdebug('connecting to %s:%s' % self._address)
             self._socket.connect(self._address)
             self._connect_action()
         except Exception, err:
@@ -243,9 +243,9 @@ class BaseCacheClient(Device):
                     self._secsocket = socket.socket(socket.AF_INET,
                                                     socket.SOCK_STREAM)
                     self._secsocket.connect(self._address)
-                except Exception:
-                    self.printwarning('unable to connect to %s' % self._address,
-                                      exc=1)
+                except Exception, err:
+                    self.printwarning('unable to connect to %s:%s: %s' %
+                                      (self._address + (err,)))
                     self._secsocket = None
                     return
 
@@ -269,6 +269,19 @@ class BaseCacheClient(Device):
                 continue
             yield msgmatch
             match = line_pattern.match(data)
+
+    # methods to make this client usable as the main device in a SimpleSession
+
+    def start(self, *args):
+        self._worker.start()
+
+    def wait(self):
+        while not self._stoprequest:
+            sleep(1)
+        self._worker.join()
+
+    def quit(self):
+        self._stoprequest = True
 
 
 class CacheClient(BaseCacheClient):

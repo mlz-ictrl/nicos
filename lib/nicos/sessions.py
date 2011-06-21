@@ -732,6 +732,12 @@ class SimpleSession(Session):
         pass
 
     @classmethod
+    def _get_maindev(cls, appname, maindevname, setupname):
+        session.loadSetup(setupname or appname, allow_special=True,
+                          raise_failed=True)
+        return session.getDevice(maindevname or appname.capitalize())
+
+    @classmethod
     def run(cls, appname, maindevname=None, setupname=None, pidfile=True,
             daemon=False, start_args=[]):
 
@@ -741,9 +747,7 @@ class SimpleSession(Session):
         session.__class__ = cls
         try:
             session.__init__(appname)
-            session.loadSetup(setupname or appname, allow_special=True,
-                              raise_failed=True)
-            maindev = session.getDevice(maindevname or appname.capitalize())
+            maindev = cls._get_maindev(appname, maindevname, setupname)
         except Exception, err:
             try:
                 session.log.exception('Fatal error while initializing')
@@ -770,6 +774,13 @@ class SimpleSession(Session):
         maindev.wait()
 
         session.shutdown()
+
+
+class SingleDeviceSession(SimpleSession):
+
+    @classmethod
+    def _get_maindev(self, appname, maindevcls, setup):
+        return maindevcls(appname, **setup)
 
 
 class NicosCompleter(rlcompleter.Completer):
