@@ -68,8 +68,10 @@ main-install:
 	cp -pr $(VOPT) etc/nicos-system $(ROOTDIR)/etc
 	cp -pr $(VOPT) build/scripts*/* $(ROOTDIR)/bin
 	-cp -pr $(VOPT) doc/build/html/* $(ROOTDIR)/doc
-	cp -pr $(VOPT) $(INSTRDIR)/setups/* $(ROOTDIR)/setups
 	$(PYTHON) etc/create_nicosconf.py "$(SYSUSER)" "$(SYSGROUP)" "$(NETHOST)" > $(ROOTDIR)/nicos.conf
+	@echo "============================================================="
+	@echo "Installing setups (not overwriting existing files)..."
+	cp -prn $(VOPT) $(INSTRDIR)/setups/* $(ROOTDIR)/setups
 	@echo "============================================================="
 	@echo "Everything is now installed to $(ROOTDIR)."
 	@echo "Trying to create system-wide symbolic links..."
