@@ -51,7 +51,9 @@ from nicos.errors import NicosError, ConfigurationError
 class Poller(Device):
 
     parameters = {
-        'alwayspoll': Param('Setups which devices should always be polled',
+        'autosetup':  Param('True if all master setups should always be polled',
+                            type=bool, default=True),
+        'alwayspoll': Param('Setups whose devices should always be polled',
                             type=listof(str), mandatory=True),
         'blacklist':  Param('Devices that should never be polled',
                             type=listof(str)),
@@ -199,7 +201,9 @@ class Poller(Device):
         if not self._cache:
             raise ConfigurationError('the poller needs a cache configured')
 
-        self._setups = set(self._cache.get(session, 'mastersetup') or [])
+        self._setups = set()
+        if self.autosetup:
+            self._setups.update(self._cache.get(session, 'mastersetup') or [])
         self._setups.update(self.alwayspoll)
 
         if not self._setups:
@@ -210,7 +214,8 @@ class Poller(Device):
         for setup in self._setups:
             self._start_child(setup)
 
-        self._cache.addCallback(session, 'mastersetup', self._reconfigure)
+        if self.autosetup:
+            self._cache.addCallback(session, 'mastersetup', self._reconfigure)
 
     def _reconfigure(self, key, value):
         self.printinfo('reconfiguring for new master setups %s' % value)
