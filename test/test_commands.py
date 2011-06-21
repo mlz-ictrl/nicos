@@ -1,7 +1,11 @@
 from nicos import session
-from nicos.commands import scan, count, move, maw, read
-from test.utils import raises
 from nicos.errors import UsageError, LimitError
+
+from nicos.commands.scan import scan
+from nicos.commands.measure import count
+from nicos.commands.device import move, maw, read
+
+from test.utils import raises
 
 def setup_module():
     session.loadSetup('axis')

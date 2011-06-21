@@ -244,7 +244,8 @@ class BaseCacheClient(Device):
                                                     socket.SOCK_STREAM)
                     self._secsocket.connect(self._address)
                 except Exception:
-                    self.printexception('unable to connect secondary socket')
+                    self.printwarning('unable to connect to %s' % self._address,
+                                      exc=1)
                     self._secsocket = None
                     return
 
