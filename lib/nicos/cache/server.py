@@ -739,7 +739,7 @@ class NewDatabase(CacheDatabase):
         bydate = path.join(self._basepath, self._year, self._currday)
         ensureDirectory(bydate)
         filename = path.join(bydate, category)
-        fd = open(filename, 'a+U')
+        fd = open(filename, 'a+')
         bycat = path.join(self._basepath, category, self._year)
         ensureDirectory(bycat)
         linkname = path.join(bycat, self._currday)
