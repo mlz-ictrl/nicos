@@ -41,6 +41,7 @@ from _pyctl import ControlStop, ControllerError
 from _pyctl import Controller as _Controller
 
 # defines from the C module
+STATUS_IDLEEXC  = -2  # nothing started, last script raised exception
 STATUS_IDLE     = -1  # nothing started
 STATUS_RUNNING  = 0   # execution running
 STATUS_INBREAK  = 1   # execution halted, in break function

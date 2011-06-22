@@ -40,14 +40,13 @@ import numpy as np
 
 from nicos.daemon import NicosDaemon
 from nicos.daemon.utils import unserialize
+from nicos.daemon.pyctl import STATUS_IDLEEXC, STATUS_IDLE, STATUS_RUNNING, \
+     STATUS_INBREAK, STATUS_STOPPING
+
 
 DEFAULT_PORT    = 1301
 
 # Script status constants
-STATUS_IDLE     = -1
-STATUS_RUNNING  = 0
-STATUS_INBREAK  = 1
-STATUS_STOPPING = 2
 
 # General constants
 BUFSIZE = 8192

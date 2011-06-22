@@ -42,7 +42,7 @@ from SocketServer import BaseRequestHandler
 
 from nicos import session, nicos_version
 from nicos.daemon.utils import LoggerWrapper, serialize, unserialize
-from nicos.daemon.pyctl import STATUS_IDLE, STATUS_RUNNING, \
+from nicos.daemon.pyctl import STATUS_IDLE, STATUS_IDLEEXC, STATUS_RUNNING, \
      STATUS_STOPPING, STATUS_INBREAK
 from nicos.daemon.script import EmergencyStopRequest, ScriptRequest, \
      ScriptError, RequestError
@@ -83,11 +83,11 @@ def command(needcontrol=False, needscript=None, name=None):
                 if not self.check_control():
                     return
             if needscript is True:
-                if self.controller.status == STATUS_IDLE:
+                if self.controller.status in (STATUS_IDLE, STATUS_IDLEEXC):
                     self.write(NAK, 'no script is running')
                     return
             elif needscript is False:
-                if self.controller.status != STATUS_IDLE:
+                if self.controller.status not in (STATUS_IDLE, STATUS_IDLEEXC):
                     self.write(NAK, 'a script is running')
                     return
             try:
@@ -400,7 +400,7 @@ class ConnectionHandler(BaseRequestHandler):
     @command(needcontrol=True)
     def emergency(self):
         """Stop the script unconditionally and run emergency stop functions."""
-        if self.controller.status == STATUS_IDLE:
+        if self.controller.status in (STATUS_IDLE, STATUS_IDLEEXC):
             # only execute emergency stop functions
             self.log.warning('emergency stop without script running')
             self.controller.new_request(EmergencyStopRequest())

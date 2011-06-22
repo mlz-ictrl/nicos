@@ -38,6 +38,7 @@ typedef struct {
 #define REQ_STOP     2      /* stop execution immediately */
 
 /* Status constants */
+#define STATUS_IDLEEXC  -2  /* nothing started, last script raised exception */
 #define STATUS_IDLE     -1  /* nothing started */
 #define STATUS_RUNNING  0   /* execution running */
 #define STATUS_INBREAK  1   /* execution halted, in break function */
@@ -178,14 +179,14 @@ trace_function(CtlrObject *self, PyFrameObject *frame, int what, PyObject *arg)
 /* Controller methods */
 
 static void
-reset(CtlrObject *self)
+reset(CtlrObject *self, int raised)
 {
     Py_CLEAR(self->currentframe);
     Py_CLEAR(self->toplevelframe);
     Py_CLEAR(self->startframe);
     self->started = 0;
     self->request = REQ_IDLE;
-    set_status(self, STATUS_IDLE);
+    set_status(self, raised ? STATUS_IDLEEXC : STATUS_IDLE);
     set_lineno(self, -1);
 }
 
@@ -232,7 +233,7 @@ ctlr_init(CtlrObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    reset(self);
+    reset(self, 0);
     Py_INCREF(func);
     self->breakfunc = func;
     self->break_only_in_toplevel = break_only_in_toplevel;
@@ -267,7 +268,7 @@ ctlr_start(CtlrObject *self, PyObject *callable)
     prepare(self);
     PyEval_SetTrace((Py_tracefunc)trace_function, (PyObject *)self);
     ret = PyObject_CallFunctionObjArgs(callable, NULL);
-    reset(self);
+    reset(self, 0);
     return ret;
 }
 
@@ -302,7 +303,7 @@ ctlr_start_exec(CtlrObject *self, PyObject *args)
     prepare(self);
     PyEval_SetTrace((Py_tracefunc)trace_function, (PyObject *)self);
     ret = PyEval_EvalCode((PyCodeObject *)code, globals, locals);
-    reset(self);
+    reset(self, ret == NULL);
     return ret;
 }
 

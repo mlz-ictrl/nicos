@@ -47,7 +47,8 @@ from nicos.gui.data import DataHandler, DataError
 from nicos.gui.utils import DlgUtils, SettingGroup, loadUi, dialogFromUi, \
      chunks, get_display, parse_conndata, enumerateWithProgress, \
      setForegroundColor, setBackgroundColor, DEFAULT_PORT
-from nicos.gui.client import NicosClient, STATUS_INBREAK, STATUS_IDLE
+from nicos.gui.client import NicosClient, STATUS_INBREAK, STATUS_IDLE, \
+     STATUS_IDLEEXC
 from nicos.gui.editor import EditorWindow
 from nicos.gui.toolsupport import main_tools, HasTools
 from nicos.daemon import NicosDaemon
@@ -652,15 +653,20 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             self.traceView.item(line - 1).setIcon(self.curlineicon)
         self.current_line = line
 
-    def set_status(self, status):
+    def set_status(self, status, exception=False):
         if status == self.current_status:
             return
         if self.action_start_time and self.current_status == 'running' and \
            status in ('idle', 'interrupted') and \
            time.time() - self.action_start_time > 20:
             # show a visual indication of what happened
-            ss = {'idle': 'finished', 'interrupted': 'interrupted'}[status]
-            self.trayIcon.showMessage(self.instrument, 'Script is now %s.' % ss)
+            if status == 'interrupted':
+                msg = 'Script is not interrupted.'
+            elif exception:
+                msg = 'Script has exited with an error.'
+            else:
+                msg = 'Script has finished.'
+            self.trayIcon.showMessage(self.instrument, msg)
             self.action_start_time = None
         self.current_status = status
         isconnected = status != 'disconnected'
@@ -671,7 +677,8 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             self.actionConnect.setText(self.tr('Connect to server...'))
         # new status icon
         newicon = QIcon()
-        newicon.addPixmap(QPixmap(':/' + status), QIcon.Disabled)
+        newicon.addPixmap(QPixmap(':/' + status + ('exc' if exception else '')),
+                          QIcon.Disabled)
         self.actionStatus.setIcon(newicon)
         self.actionStatus.setText(self.tr('Script status: %1').arg(status))
         self.trayIcon.setIcon(newicon)
@@ -717,6 +724,8 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         status, line = data
         if status == STATUS_IDLE:
             self.set_status('idle')
+        elif status == STATUS_IDLEEXC:
+            self.set_status('idle', exception=True)
         elif status != STATUS_INBREAK:
             self.set_status('running')
         else:
