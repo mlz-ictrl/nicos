@@ -561,6 +561,24 @@ def daemonize():
     sys.stdin = open('/dev/null', 'r')
     sys.stdout = sys.stderr = open('/dev/null', 'w')
 
+def setuser():
+    """Do not daemonize, but at least set the current user and group correctly
+    to the configured values if started as root.
+    """
+    if os.geteuid() != 0:
+        return
+    # switch user
+    from nicos.sessions import Session
+    user, group = Session.config.user, Session.config.group
+    if group:
+        group = grp.getgrnam(group).gr_gid
+        os.setegid(group)
+    if Session.config.user:
+        user = pwd.getpwnam(user).pw_uid
+        os.seteuid(user)
+        if 'HOME' in os.environ:
+            os.environ['HOME'] = pwd.getpwuid(user).pw_dir
+
 
 # console color utils
 

@@ -51,8 +51,8 @@ from wsgiref.simple_server import make_server
 
 from nicos import session, nicos_version
 from nicos.web import FakeInput, MTWSGIServer, NicosApp
-from nicos.utils import makeSessionId, colorcode, daemonize, writePidfile, \
-     removePidfile, sessionInfo, SimClock
+from nicos.utils import makeSessionId, colorcode, daemonize, setuser, \
+     writePidfile, removePidfile, sessionInfo, SimClock
 from nicos.device import Device
 from nicos.errors import NicosError, UsageError, ConfigurationError, ModeError
 from nicos.notify import Notifier
@@ -743,6 +743,8 @@ class SimpleSession(Session):
 
         if daemon:
             daemonize()
+        else:
+            setuser()
 
         session.__class__ = cls
         try:
