@@ -636,7 +636,7 @@ class NewDatabase(CacheDatabase):
     }
 
     def doInit(self):
-        self._nt = 4
+        self._nt = 3
         self._ntm = {3:86400, 4:3600, 5:60}
         self._cat = {}
         self._cat_lock = threading.Lock()
@@ -658,6 +658,25 @@ class NewDatabase(CacheDatabase):
 
     def doShutdown(self):
         self._stoprequest = True
+
+    def initDatabase(self):
+        # read the last entry for each key from disk
+        nkeys = 0
+        with self._cat_lock:
+            curdir = path.join(self._basepath, self._year, self._currday)
+            if not path.isdir(curdir):
+                return
+            for fn in os.listdir(curdir):
+                cat = fn.replace('-', '/')
+                fd = open(path.join(curdir, fn), 'r+U')
+                db = {}
+                for line in fd:
+                    subkey, time, value = line.rstrip().split(None, 2)
+                    db[subkey] = [Entry(float(time), None, value)]
+                lock = threading.Lock()
+                self._cat[cat] = (fd, lock, db)
+                nkeys += len(db)
+        self.printinfo('loaded %d keys from files' % nkeys)
 
     def lock(self, key, value, time, ttl):
         with self._lock_lock:
@@ -716,11 +735,11 @@ class NewDatabase(CacheDatabase):
         """Open the by-date output file for the current day for a given
         category, and create the by-category hard link if necessary.
         """
-        category = category.replace('/', '_')
+        category = category.replace('/', '-')
         bydate = path.join(self._basepath, self._year, self._currday)
         ensureDirectory(bydate)
         filename = path.join(bydate, category)
-        fd = open(filename, 'a')
+        fd = open(filename, 'a+U')
         bycat = path.join(self._basepath, category, self._year)
         ensureDirectory(bycat)
         linkname = path.join(bycat, self._currday)
