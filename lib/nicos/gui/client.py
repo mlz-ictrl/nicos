@@ -151,7 +151,9 @@ class NicosClient(object):
                 # receive length
                 length = recv(4)
                 if len(length) != 4:
-                    print 'Error in event handler: connection broken'
+                    if not self.disconnecting:
+                        self.signal('error', self.tr('Server connection broken.'))
+                        self._close()
                     return
                 length, = LENGTH.unpack(length)
                 got = 0
@@ -174,7 +176,9 @@ class NicosClient(object):
                 while got < length:
                     read = recvinto(buf[got:], length - got)
                     if not read:
-                        print 'Error in event handler: connection broken'
+                        if not self.disconnecting:
+                            self.signal('error', self.tr('Server connection broken.'))
+                            self._close()
                         return
                     got += read
                 try:
