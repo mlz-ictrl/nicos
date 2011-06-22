@@ -58,10 +58,12 @@ from nicos.gui.custom import has_customization, list_customizations
 try:
     # needs Qwt5, which may not be available, so make it optional
     from nicos.gui.analysis import AnalysisWindow
+    from nicos.gui.logger import LoggerWindow
 except (ImportError, RuntimeError):
-    AnalysisWindow = None
+    AnalysisWindow = LoggerWindow = None
 
 try:
+    # needs both Qwt5 and Cascade widget
     from nicos.gui.live import LiveWindow
 except (ImportError, RuntimeError):
     LiveWindow = None
@@ -90,6 +92,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         self.analysisWindow = None
         self.errorWindow = None
         self.liveWindow = None
+        self.loggerWindow = None
 
         # data handling setup
         self.data = DataHandler()
@@ -197,6 +200,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             editFns = settings.value('editedfiles').toStringList()
             openanalysis = settings.value('openanalysis').toBool()
             openlive = settings.value('openlive').toBool()
+            openlogger = settings.value('openlogger').toBool()
             cmdhistory = settings.value('cmdhistory').toStringList()
             self.autoconnect = settings.value('autoconnect').toBool()
 
@@ -231,6 +235,8 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             self.on_actionAnalysis_triggered()
         if openlive:
             self.on_actionLiveData_triggered()
+        if openlogger:
+            self.on_actionLogger_triggered()
         for filename in editFns:
             editor = self.on_actionUserEditor_triggered()
             editor.openFile(str(filename))
@@ -261,6 +267,8 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
                               QVariant(self.analysisWindow is not None))
             settings.setValue('openlive',
                               QVariant(self.liveWindow is not None))
+            settings.setValue('openlogger',
+                              QVariant(self.loggerWindow is not None))
             settings.setValue('editedfiles',
                               QVariant(QStringList(editFns)))
             # only save 100 entries of the history
@@ -476,6 +484,25 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
 
     def liveWindowClosed(self, window):
         self.liveWindow = None
+
+    @qtsig('')
+    def on_actionLogger_triggered(self):
+        if not LoggerWindow:
+            QMessageBox.warning(self, self.tr('History Error'),
+                self.tr('Qwt5 is not available, history window '
+                        'cannot be opened.'))
+            return
+        if self.loggerWindow:
+            self.loggerWindow.activateWindow()
+            self.loggerWindow.raise_()
+        else:
+            self.loggerWindow = LoggerWindow(self)
+            self.loggerWindow.show()
+            self.connect(self.loggerWindow, SIGNAL('closed'),
+                         self.loggerWindowClosed)
+
+    def loggerWindowClosed(self, window):
+        self.loggerWindow = None
 
     @qtsig('')
     def on_actionErrorWindow_triggered(self):

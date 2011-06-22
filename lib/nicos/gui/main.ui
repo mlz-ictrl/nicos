@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>698</width>
+    <width>902</width>
     <height>653</height>
    </rect>
   </property>
@@ -397,8 +397,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>698</width>
-     <height>23</height>
+     <width>902</width>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -438,9 +438,11 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
+    <addaction name="actionErrorWindow"/>
     <addaction name="actionUserEditor"/>
     <addaction name="actionLiveData"/>
     <addaction name="actionAnalysis"/>
+    <addaction name="actionLogger"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -514,6 +516,7 @@
    <addaction name="actionUserEditor"/>
    <addaction name="actionLiveData"/>
    <addaction name="actionAnalysis"/>
+   <addaction name="actionLogger"/>
   </widget>
   <widget class="QToolBar" name="printPaperBar">
    <property name="enabled">
@@ -784,6 +787,9 @@
      <normaloff>:/errors</normaloff>:/errors</iconset>
    </property>
    <property name="text">
+    <string>Errors and warnings</string>
+   </property>
+   <property name="iconText">
     <string>Errors</string>
    </property>
    <property name="toolTip">
@@ -803,6 +809,21 @@
    </property>
    <property name="toolTip">
     <string>Show live data window</string>
+   </property>
+  </action>
+  <action name="actionLogger">
+   <property name="icon">
+    <iconset resource="../../../resources/nicos-gui.qrc">
+     <normaloff>:/find</normaloff>:/find</iconset>
+   </property>
+   <property name="text">
+    <string>History viewer</string>
+   </property>
+   <property name="iconText">
+    <string>History</string>
+   </property>
+   <property name="toolTip">
+    <string>Show data logging and history window</string>
    </property>
   </action>
  </widget>
