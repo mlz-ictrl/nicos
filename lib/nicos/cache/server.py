@@ -274,7 +274,7 @@ class CacheWorker(object):
             if mykey in key:
                 if not time:
                     time = currenttime()
-                self.log.debug('sending update of %r to %r' % (key, value))
+                self.log.debug('sending update of %s to %s' % (key, value))
                 if ttl is not None:
                     msg = '%s+%s@%s%s%s\r\n' % (time, ttl, key, op, value)
                 else:
@@ -283,7 +283,7 @@ class CacheWorker(object):
         # same for requested updates without timestamp
         for mykey in self.updates_on:
             if mykey in key:
-                self.log.debug('sending update of %r to %r' % (key, value))
+                self.log.debug('sending update of %s to %s' % (key, value))
                 self.send_queue.put('%s%s%s\r\n' % (key, op, value))
         # no update neccessary, signal success
         return True
@@ -624,6 +624,8 @@ class DbCacheDatabase(MemoryCacheDatabase):
                     client.update(key, OP_TELL, value, time, ttl)
 
 
+################################################################################
+
 class NewDatabase(CacheDatabase):
 
     parameters = {
@@ -634,6 +636,8 @@ class NewDatabase(CacheDatabase):
     }
 
     def doInit(self):
+        self._nt = 4
+        self._ntm = {3:86400, 4:3600, 5:60}
         self._cat = {}
         self._cat_lock = threading.Lock()
         self._locks = {}
@@ -643,9 +647,9 @@ class NewDatabase(CacheDatabase):
         self._basepath = path.join(session.config.control_path, self.storepath)
         ltime = localtime()
         self._year = str(ltime[0])
-        self._currday = '%02d-%02d' % ltime[1:3]
-        self._midnight = mktime(ltime[:3] + (0,) * 6)
-        self._nextmidnight = self._midnight + 86400
+        self._currday = '-'.join(['%02d']*(self._nt-1)) % ltime[1:self._nt]
+        self._midnight = mktime(ltime[:self._nt] + (0,) * (8-self._nt) + (ltime[8],))
+        self._nextmidnight = self._midnight + self._ntm[self._nt]
 
         self._stoprequest = False
         self._cleaner = threading.Thread(target=self._clean)
@@ -654,105 +658,6 @@ class NewDatabase(CacheDatabase):
 
     def doShutdown(self):
         self._stoprequest = True
-
-    def _rollover(self):
-        ltime = localtime()
-        # set the days and midnight time correctly
-        self._currday = '%02d-%02d' % ltime[1:3]
-        self._midnight = mktime(ltime[:3] + (0,) * 6)
-        self._nextmidnight = self._midnight + 86400
-        # close all file descriptors
-        for category in self._cat.keys():
-            self._cat[category][0].close()
-            del self._cat[category]
-
-    def _create_fd(self, category):
-        category = category.replace('/', '_')
-        bydate = path.join(self._basepath, self._year, self._currday)
-        ensureDirectory(bydate)
-        filename = path.join(bydate, category)
-        fd = open(filename, 'a')
-        bycat = path.join(self._basepath, category, self._year)
-        ensureDirectory(bycat)
-        linkname = path.join(bycat, self._currday)
-        if not path.isfile(linkname):
-            os.link(filename, linkname)
-        return fd
-
-    def _clean(self):
-        while not self._stoprequest:
-            sleep(0.5)
-            with self._cat_lock:
-                for cat, (fd, lock, db) in self._cat.iteritems():
-                    with lock:
-                        for subkey, entries in db.iteritems():
-                            if not entries:
-                                continue
-                            lastent = entries[-1]
-                            if lastent.value and lastent.ttl and \
-                                   lastent.time + lastent.ttl < currenttime():
-                                entries.append(Entry(None, currenttime(), None))
-                                for client in self._server._connected.values():
-                                    client.update(cat + '/' + subkey,
-                                                  OP_TELLOLD, '', None, None)
-
-    def ask(self, key, ts, time, ttl):
-        category, subkey = key.rsplit('/', 1)
-        with self._cat_lock:
-            if category not in self._cat:
-                return [key + OP_TELLOLD + '\r\n']
-            fd, lock, db = self._cat[category]
-        with lock:
-            if subkey not in db:
-                return [key + OP_TELLOLD + '\r\n']
-            lastent = db[subkey][-1]
-        # check for already removed keys
-        if lastent.value is None:
-            return [key + OP_TELLOLD + '\r\n']
-        # check for expired keys
-        if lastent.ttl:
-            remaining = lastent.time + lastent.ttl - currenttime()
-            op = remaining > 0 and OP_TELL or OP_TELLOLD
-            if ts:
-                return ['%s+%s@%s%s%s\r\n' % (lastent.time, lastent.ttl,
-                                              key, op, lastent.value)]
-            else:
-                return [key + op + lastent.value + '\r\n']
-        if ts:
-            return ['%s@%s%s%s\r\n' % (lastent.time, key,
-                                       OP_TELL, lastent.value)]
-        else:
-            return [key + OP_TELL + lastent.value + '\r\n']
-
-    def ask_wc(self, key, ts, time, ttl):
-        ret = set()
-        # look for matching keys
-        for cat, (fd, lock, db) in self._cat.items():
-            prefix = cat + '/'
-            with lock:
-                for subkey, entries in db.iteritems():
-                    if key not in prefix+subkey:
-                        continue
-                    lastent = entries[-1]
-                    # check for removed keys
-                    if lastent.value is None:
-                        continue
-                    # check for expired keys
-                    if lastent.ttl:
-                        remaining = lastent.time + lastent.ttl - currenttime()
-                        op = remaining > 0 and OP_TELL or OP_TELLOLD
-                        if ts:
-                            ret.add('%s+%s@%s%s%s\r\n' %
-                                    (lastent.time, lastent.ttl, prefix+subkey,
-                                     op, lastent.value))
-                        else:
-                            ret.add(prefix+subkey + op + lastent.value + '\r\n')
-                    elif ts:
-                        ret.add('%s@%s%s%s\r\n' % (lastent.time, prefix+subkey,
-                                                   OP_TELL, lastent.value))
-                    else:
-                        ret.add(prefix+subkey + OP_TELL + lastent.value + '\r\n')
-        return ret
 
     def lock(self, key, value, time, ttl):
         with self._lock_lock:
@@ -788,7 +693,126 @@ class NewDatabase(CacheDatabase):
                     self._locks.pop(key, None)
                     return '%s%s\r\n' % (key, OP_LOCK)
 
-    def tell(self, key, value, time, ttl, from_client):
+    def _rollover(self):
+        self.printdebug('ROLLOVER started')
+        ltime = localtime()
+        # set the days and midnight time correctly
+        #prevday = self._currday
+        self._currday = '-'.join(['%02d']*(self._nt-1)) % ltime[1:self._nt]
+        self._midnight = mktime(ltime[:self._nt] + (0,) * (8-self._nt) + (ltime[8],))
+        self._nextmidnight = self._midnight + self._ntm[self._nt]
+        # roll over all file descriptors
+        for category, (fd, lock, db) in self._cat.iteritems():
+            fd.close()
+            fd = self._cat[category][0] = self._create_fd(category)
+            for subkey, entries in db.iteritems():
+                if entries and entries[-1].value:
+                    fd.write('%s\t%s\t%s\n' %
+                             (subkey, self._midnight, entries[-1].value))
+            fd.flush()
+        # XXX start compress action of old files here
+
+    def _create_fd(self, category):
+        """Open the by-date output file for the current day for a given
+        category, and create the by-category hard link if necessary.
+        """
+        category = category.replace('/', '_')
+        bydate = path.join(self._basepath, self._year, self._currday)
+        ensureDirectory(bydate)
+        filename = path.join(bydate, category)
+        fd = open(filename, 'a')
+        bycat = path.join(self._basepath, category, self._year)
+        ensureDirectory(bycat)
+        linkname = path.join(bycat, self._currday)
+        if not path.isfile(linkname):
+            os.link(filename, linkname)
+        return fd
+
+    def ask(self, key, ts, time, ttl):
+        try:
+            category, subkey = key.rsplit('/', 1)
+        except ValueError:
+            category = 'nocat'
+            subkey = key
+        with self._cat_lock:
+            if category not in self._cat:
+                return [key + OP_TELLOLD + '\r\n']
+            fd, lock, db = self._cat[category]
+        with lock:
+            if subkey not in db:
+                return [key + OP_TELLOLD + '\r\n']
+            lastent = db[subkey][-1]
+        # check for already removed keys
+        if lastent.value is None:
+            return [key + OP_TELLOLD + '\r\n']
+        # check for expired keys
+        if lastent.ttl:
+            remaining = lastent.time + lastent.ttl - currenttime()
+            op = remaining > 0 and OP_TELL or OP_TELLOLD
+            if ts:
+                return ['%s+%s@%s%s%s\r\n' % (lastent.time, lastent.ttl,
+                                              key, op, lastent.value)]
+            else:
+                return [key + op + lastent.value + '\r\n']
+        if ts:
+            return ['%s@%s%s%s\r\n' % (lastent.time, key,
+                                       OP_TELL, lastent.value)]
+        else:
+            return [key + OP_TELL + lastent.value + '\r\n']
+
+    def ask_wc(self, key, ts, time, ttl):
+        ret = set()
+        # look for matching keys
+        for cat, (fd, lock, db) in self._cat.items():
+            prefix = cat + '/'
+            with lock:
+                for subkey, entries in db.iteritems():
+                    if key not in prefix+subkey:
+                        continue
+                    if not entries:
+                        continue
+                    lastent = entries[-1]
+                    # check for removed keys
+                    if lastent.value is None:
+                        continue
+                    # check for expired keys
+                    if lastent.ttl:
+                        remaining = lastent.time + lastent.ttl - currenttime()
+                        op = remaining > 0 and OP_TELL or OP_TELLOLD
+                        if ts:
+                            ret.add('%s+%s@%s%s%s\r\n' %
+                                    (lastent.time, lastent.ttl, prefix+subkey,
+                                     op, lastent.value))
+                        else:
+                            ret.add(prefix+subkey + op + lastent.value + '\r\n')
+                    elif ts:
+                        ret.add('%s@%s%s%s\r\n' % (lastent.time, prefix+subkey,
+                                                   OP_TELL, lastent.value))
+                    else:
+                        ret.add(prefix+subkey + OP_TELL + lastent.value + '\r\n')
+        return ret
+
+    def _clean(self):
+        while not self._stoprequest:
+            sleep(0.5)
+            with self._cat_lock:
+                for cat, (fd, lock, db) in self._cat.iteritems():
+                    with lock:
+                        for subkey, entries in db.iteritems():
+                            if not entries:
+                                continue
+                            lastent = entries[-1]
+                            time = currenttime()
+                            if lastent.value and lastent.ttl and \
+                                   lastent.time + lastent.ttl < time:
+                                entries.append(Entry(None, currenttime(), None))
+                                for client in self._server._connected.values():
+                                    client.update(cat + '/' + subkey,
+                                                  OP_TELLOLD, '', time, None)
+                                fd.write('%s\t%s\t-\n' % (subkey, time))
+                                fd.flush()
+
+    def tell(self, key, value, time, ttl, from_client, fdupdate=True):
         if value is None:
             # deletes cannot have a TTL
             ttl = None
@@ -797,7 +821,11 @@ class NewDatabase(CacheDatabase):
         with self._cat_lock:
             if currenttime() > self._nextmidnight:
                 self._rollover()
-        category, subkey = key.rsplit('/', 1)
+        try:
+            category, subkey = key.rsplit('/', 1)
+        except ValueError:
+            category = 'nocat'
+            subkey = key
         with self._cat_lock:
             if category not in self._cat:
                 self._cat[category] = [self._create_fd(category),
@@ -817,13 +845,14 @@ class NewDatabase(CacheDatabase):
                     update = False
             if update:
                 entries.append(Entry(time, ttl, value))
-                fd.write('%s %s %s\n' % (subkey, time, value))
+                fd.write('%s\t%s\t%s\n' % (subkey, time, value or '-'))
+                fd.flush()
             if len(entries) > self._max:
                 del entries[:-self._max/2]
         if update:
             for client in self._server._connected.values():
                 if client is not from_client:
-                    client.update(key, OP_TELL, value, None, None)
+                    client.update(key, OP_TELL, value, time, None)
 
 
 class CacheServer(Device):

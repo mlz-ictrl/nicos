@@ -107,7 +107,7 @@ class Poller(Device):
                         errcount = 0
                     if state[0] == 'moving':
                         interval = 0.5
-                        if stval[0] != status.BUSY:
+                        if stval and stval[0] != status.BUSY:
                             state[0] = 'normal'
                             interval = dev.pollinterval
                     elif state[0] == 'newinterval':
