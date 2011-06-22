@@ -1027,9 +1027,9 @@ class DaemonSession(SimpleSession):
     autocreate_devices = True
 
     # to set a point where the "break" command can break, it suffices to execute
-    # some piece of code in a frame with the filename "<script>"; this object is
+    # some piece of code in a frame with the filename "<break>"; this object is
     # such a piece of code
-    _bpcode = compile("pass", "<script>", "exec")
+    _bpcode = compile("pass", "<break>", "exec")
 
     def _initLogging(self):
         SimpleSession._initLogging(self)
