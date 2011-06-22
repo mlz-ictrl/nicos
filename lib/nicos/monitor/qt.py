@@ -333,16 +333,9 @@ class Monitor(BaseMonitor):
             except ValueError:
                 const, msg = field['status'], ''
             statustext += ', status is %s: %s' % (statuses.get(const, '?'), msg)
-        if field['time']:
-            statustext += ', updated %s ago' % (
-                nicedelta(currenttime() - field['time']))
-        if field['ttl']:
-            exp = field['time'] + field['ttl']
-            cur = currenttime()
-            if cur < exp:
-                statustext += ', valid for %s' % nicedelta(exp - cur)
-            else:
-                statustext += ', expired %s ago' % nicedelta(cur - exp)
+        if field['changetime']:
+            statustext += ', changed %s ago' % (
+                nicedelta(currenttime() - field['changetime']))
         self._statuslabel.setText(statustext)
         self._statustimer = threading.Timer(1, lambda:
                                             self._label_entered(widget, event))

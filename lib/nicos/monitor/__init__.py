@@ -32,8 +32,6 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import re
-import threading
-from os import path
 from time import sleep, strftime, time as currenttime
 
 from nicos.utils import listof
@@ -191,7 +189,7 @@ class Monitor(BaseCacheClient):
             'name': '', 'dev': '', 'width': 8, 'istext': False, 'maxlen': None,
             'min': None, 'max': None, 'unit': '', 'item': -1, 'format': '%s',
             # current values
-            'value': None, 'time': 0, 'ttl': 0, 'status': None, 'changetime': 0,
+            'value': None, 'expired': 0, 'status': None, 'changetime': 0,
             # key names
             'key': '', 'statuskey': '', 'unitkey': '', 'formatkey': '',
         }
@@ -303,17 +301,10 @@ class Monitor(BaseCacheClient):
                 else:
                     self.setForeColor(vlabel, self._white)
 
-            # set the background color: determined by the value's age
+            # set the background color: determined by the value's up-to-dateness
 
-            age = currenttime() - field['time']
-            if field['ttl']:
-                # allow for a bit of overlap between expiration of ttl and
-                # actual value age
-                if age > field['ttl'] * 1.5:
-                    self.setBackColor(vlabel, self._gray)
-                else:
-                    self.setBackColor(vlabel, self._black)
-                    newwatch.add(field)
+            if field['expired']:
+                self.setBackColor(vlabel, self._gray)
             else:
                 self.setBackColor(vlabel, self._black)
         self._watch = newwatch
@@ -333,10 +324,6 @@ class Monitor(BaseCacheClient):
             time = float(time)
         except (ValueError, TypeError):
             time = currenttime()
-        try:
-            ttl = float(ttl)
-        except (ValueError, TypeError):
-            ttl = None
         try:
             value = cache_load(value)
         except ValueError:
@@ -368,10 +355,8 @@ class Monitor(BaseCacheClient):
             self._watch.add(field)
             if key == field['key']:
                 if value is None:
-                    field['value'] = None
-                    field['time'] = 0
-                    field['ttl'] = 0
-                    self.setLabelText(field['valuelabel'], '----')
+                    field['expired'] = 1
+                    field['changetime'] = time
                 else:
                     if field['item'] >= 0:
                         fvalue = value[field['item']]
@@ -381,23 +366,23 @@ class Monitor(BaseCacheClient):
                     if oldvalue != fvalue:
                         field['changetime'] = time
                     field['value'] = value
-                    field['time'] = time
-                    field['ttl'] = ttl
                     try:
                         text = field['format'] % fvalue
                     except Exception:
                         text = str(fvalue)
                     self.setLabelText(field['valuelabel'], text[:field['maxlen']])
             elif key == field['statuskey']:
-                field['status'] = value
+                if value is not None:
+                    field['status'] = value
                 field['changetime'] = time
             elif key == field['unitkey']:
-                field['unit'] = value
-                if value:
+                if value is not None:
+                    field['unit'] = value
                     self.setLabelUnitText(field['namelabel'],
                                           field['name'], value)
             elif key == field['formatkey']:
-                field['format'] = value
+                if value is not None:
+                    field['format'] = value
                 if field['value'] is not None:
                     try:
                         self.setLabelText(field['valuelabel'], field['format'] %

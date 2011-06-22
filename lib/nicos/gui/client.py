@@ -187,6 +187,7 @@ class NicosClient(object):
                     if sep == -1:
                         raise ValueError
                     event = start[:sep]
+                    # serialized or raw event data?
                     if NicosDaemon.daemon_events[event]:
                         data = unserialize(buf[sep+1:].tostring())
                     else:
