@@ -36,18 +36,15 @@ from nicos import status
 from nicos.errors import NicosError, LimitError
 from test.utils import raises
 
-axis = None
-
 def setup_module():
-    global axis
     session.loadSetup('axis')
     session.setMode('master')
-    axis = session.getDevice('axis')
 
 def teardown_module():
     session.unloadSetup()
 
 def test_params():
+    axis = session.getDevice('axis')
     # min/max parameters got from motor device
     assert axis.abslimits == (-100, +100)
     # usermin/usermax parameters in the config
@@ -56,6 +53,7 @@ def test_params():
     assert axis.unit == 'mm'
 
 def test_movement():
+    axis = session.getDevice('axis')
     # initial position
     assert axis.read() == 0
     # moving once
