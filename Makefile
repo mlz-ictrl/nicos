@@ -68,7 +68,7 @@ main-install:
 	cp -pr $(VOPT) etc/nicos-system $(ROOTDIR)/etc
 	cp -pr $(VOPT) build/scripts*/* $(ROOTDIR)/bin
 	-cp -pr $(VOPT) doc/build/html/* $(ROOTDIR)/doc
-	$(PYTHON) etc/create_nicosconf.py "$(SYSUSER)" "$(SYSGROUP)" "$(NETHOST)" > $(ROOTDIR)/nicos.conf
+	$(PYTHON) etc/create_nicosconf.py "$(SYSUSER)" "$(SYSGROUP)" "$(NETHOST)" "$(ROOTDIR)/setups" > $(ROOTDIR)/nicos.conf
 	@echo "============================================================="
 	@echo "Installing setups (not overwriting existing files)..."
 	cp -prn $(VOPT) $(INSTRDIR)/setups/* $(ROOTDIR)/setups
