@@ -39,6 +39,7 @@ from time import time
 from IO import StringIO
 
 from nicos.taco import TacoDevice
+from nicos.utils import intrange
 from nicos.device import Measurable, Param, Value
 from nicos.errors import CommunicationError, ConfigurationError, NicosError
 
@@ -47,6 +48,9 @@ TIMECONSTANTS = sum(([k, 3*k] for k in range(1, 11)), [])
 
 
 class Amplifier(Measurable, TacoDevice):
+    """
+    Stanford Research SR850 lock-in amplifier.
+    """
 
     parameters = {
         'frequency': Param('Reference freqency', unit='Hz', settable=True,
@@ -59,6 +63,8 @@ class Amplifier(Measurable, TacoDevice):
                            settable=True, category='general'),
         'timeconstant': Param('Time constant of the low pass filter', type=int,
                               settable=True, category='general', unit='us'),
+        'reserve':      Param('Dynamic reserve', type=intrange(0, 6),
+                              settable=True, category='general'),
         'measurements': Param('Number of measurements to average over',
                               type=int, default=100, settable=True),
     }
@@ -138,13 +144,21 @@ class Amplifier(Measurable, TacoDevice):
 
     def doReadTimeconstant(self):
         value = int(self._taco_guard(self._dev.communicate, 'OFLT?'))
-        return timeconstants[value]
+        return TIMECONSTANTS[value]
 
     def doWriteTimeconstant(self, value):
         if value not in TIMECONSTANTS:
-            raise ConfigurationError(self, 'invalid time constant, valid ones are ' +
-                                     ', '.join(map(str, TIMECONSTANTS)))
+            raise ConfigurationError(self, 'invalid time constant, valid ones '
+                                     'are ' + ', '.join(map(str, TIMECONSTANTS)))
         value = TIMECONSTANTS.index(value)
         self._taco_guard(self._dev.writeLine, 'OFLT %d' % value)
         if self.doReadTimeconstant() != value:
             raise NicosError(self, 'setting new time constant failed')
+
+    def doReadReserve(self):
+        return int(self._taco_guard(self._dev.communicate, 'RSRV?'))
+
+    def doWriteReserve(self, value):
+        self._taco_guard(self._dev.writeLine, 'RSRV %d' % value)
+        if self.doReadReserve() != value:
+            raise NicosError(self, 'setting new reserve failed')
