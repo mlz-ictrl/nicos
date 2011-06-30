@@ -35,9 +35,9 @@ group = 'special'
 devices = dict(
     DB     = device('nicos.cache.server.DbCacheDatabase',
                     storepath = '/data/cache',
-                    maxcached = 200,
+                    maxcached = 20,
                     granularity = 3,
-                    loglevel = 'info'),
+                    loglevel = 'debug'),
 
     Server = device('nicos.cache.server.CacheServer',
                     db = 'DB',

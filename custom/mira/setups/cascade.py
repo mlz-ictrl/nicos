@@ -2,8 +2,7 @@ name = 'cascade psd detector'
 
 devices = dict(
     psd   = device('nicos.mira.cascade.CascadeDetector',
-                   server = 'cascade.mira.frm2:1234',
-                   nametemplate = 'cascade_%05d.pad'),
+                   server = 'cascade.mira.frm2:1234'),
 
     PSDHV = device('nicos.mira.iseg.IsegHV',
                    tacodevice = 'mira/network/detectorrs_4',

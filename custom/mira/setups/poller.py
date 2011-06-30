@@ -34,30 +34,15 @@ group = 'special'
 
 includes = ['all_devices']
 
-_processes = {
-    'mieze':    ['amp1', 'amp2', 'amp3', 'amp4',
-                 'freq1', 'freq2', 'freq3', 'freq4'],
-    #'power':    ['rp1', 'fp1', 'rp2', 'fp2'],
-    #'reactor':  ['Power', 'NL6', 'Sixfold', 'Crane'],
-    'lakeshore':['T', 'TA', 'TB', 'TC', 'TD'],
-    'misc':     ['MonHV', 'DetHV', 'PSDHV'],
-    'detector': ['det'],
-    'valves':   ['atten1', 'atten2', 'lamfilter', 'FOLin', 'FlipperMira1in',
-                 'FlipperMira2in'],
-    #'mono1':    ['mth', 'mtt', 'mtx', 'mty', 'mgx', 'mchanger'],
-    'mono2':    ['m2th', 'm2tt', 'm2tx', 'm2ty', 'm2gx', 'm2fv'],
-    'sample':   ['phi', 'om', 'stx', 'sty', 'stz', 'sgx', 'sgy'],
-    'slits':    ['s3', 's4'],
-}
+sysconfig = dict(
+    experiment = None,
+    instrument = None,
+    datasinks = [],
+    notifiers = [],
+)
 
 devices = dict(
     Poller = device('nicos.poller.Poller',
-                    processes = _processes,
+                    alwayspoll = [],
                     loglevel = 'info'),
-    System = device('nicos.system.System',
-                    cache = 'Cache',
-                    datasinks = [],
-                    experiment = None,
-                    instrument = None,
-                    notifiers = []),
 )

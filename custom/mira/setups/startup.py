@@ -32,7 +32,6 @@
 name = 'minimal NICOS startup setup'
 group = 'startup'
 
-includes = []
-
-modules = []
-devices = dict()
+sysconfig = dict(
+    cache = 'mira1',
+)

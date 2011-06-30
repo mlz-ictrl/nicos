@@ -11,4 +11,5 @@ includes = [
     'mono2',
     'sample',
     'cascade',
+    'slits',
 ]

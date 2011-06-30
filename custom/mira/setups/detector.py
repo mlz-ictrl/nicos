@@ -2,18 +2,18 @@ name = 'standard detector and counter card'
 
 devices = dict(
     timer    = device('nicos.detector.FRMTimerChannel',
-                      tacodevice = 'mira/frmctr/at',
+                      tacodevice = '//mira4/mira/frmctr/at',
                       lowlevel = True),
     mon1     = device('nicos.detector.FRMCounterChannel',
-                      tacodevice = 'mira/frmctr/a1',
+                      tacodevice = '//mira4/mira/frmctr/a1',
                       type = 'monitor',
                       lowlevel = True),
     ctr1     = device('nicos.detector.FRMCounterChannel',
-                      tacodevice = 'mira/frmctr/a2',
+                      tacodevice = '//mira4/mira/frmctr/a2',
                       type = 'counter',
                       lowlevel = True),
 #    ctr2     = device('nicos.detector.FRMCounterChannel',
-#                      tacodevice = 'mira/frmctr/a3',
+#                      tacodevice = '//mira4/mira/frmctr/a3',
 #                      type = 'counter',
 #                      lowlevel = True),
 
