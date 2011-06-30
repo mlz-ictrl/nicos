@@ -219,11 +219,14 @@ class Experiment(Device):
             self.addUser(info['user'], email, info.get('affiliation'))
             what.append('user')
         if info.get('co_proposer'):
+            proplist = []
             for coproposer in info['co_proposer'].splitlines():
                 coproposer = coproposer.strip()
                 if coproposer:
-                    self.users = self.users + [coproposer]
-            what.append('co-proposers')
+                    proplist.append(coproposer)
+            if proplist:
+                self.users = self.users + proplist
+                what.append('co-proposers')
         if what:
             self.printinfo('Filled in %s from proposal database' %
                            ', '.join(what))
