@@ -28,6 +28,8 @@
 name = 'minimal NICOS startup setup'
 group = 'startup'
 
+includes = ['misc', 'detector']
+
 sysconfig = dict(
     cache = 'localhost',
 )

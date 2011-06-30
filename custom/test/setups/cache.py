@@ -32,10 +32,10 @@ devices = dict(
     DB     = device('nicos.cache.server.NewDatabase',
                     storepath = 'data/cache',
                     maxcached = 20,
-                    loglevel = 'debug'),
+                    loglevel = 'info'),
 
     Server = device('nicos.cache.server.CacheServer',
                     db = 'DB',
                     server = 'localhost',
-                    loglevel = 'debug'),
+                    loglevel = 'info'),
 )
