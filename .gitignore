@@ -4,6 +4,10 @@ dist/
 *.pyc
 *.egg-info
 *.log
+*.pid
+
+data/*.dat
+data/cache/*
 
 doc/build/
 
