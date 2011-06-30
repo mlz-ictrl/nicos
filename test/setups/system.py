@@ -40,7 +40,7 @@ devices = dict(
     Exp = device('nicos.experiment.Experiment',
         sample = 'sample',
         loglevel = 'info',
-        datapath = ['/data/testdata'],
+        datapath = ['./data/testdata'],
         scriptdir = '.',
         lowlevel = False,
     ),
