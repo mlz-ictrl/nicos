@@ -1,12 +1,11 @@
 Requirements
 ============
 
-* At least Python 2.5
+* At least Python 2.6
 
 * For the basic system:
-  - bsddb (stdlib, but sometimes separate package)
   - numpy
-  - the TACO Python libraries
+  - the TACO Python libraries (optional)
   - scipy (optional, for fitting)
   - simplejson (Python < 2.6, optional, for the web interface)
   - gnuplot-py (optional, for liveplot display)
