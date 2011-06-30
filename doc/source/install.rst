@@ -14,6 +14,10 @@ or
 
   git clone ssh://trac.frm2.tum.de:29418/frm2/nicos/nicos-core.git
 
+Alternativly you can get the current snapshot from::
+
+  http://trac.frm2.tum.de/cgit/cgit.cgi/nicos/nicos-core.git/snapshot/nicos-core-master.tar.bz2
+
 Configure and build the distribution
 ------------------------------------
 
