@@ -649,8 +649,12 @@ class Session(object):
         self.log.setLevel(logging.INFO)
         self.log.parent = None
         log_path = path.join(self.config.control_path, 'log')
-        self.log.addHandler(NicosLogfileHandler(log_path, filenameprefix=prefix))
         self.log.addHandler(ColoredConsoleHandler())
+        try:
+            self.log.addHandler(
+                NicosLogfileHandler(log_path, filenameprefix=prefix))
+        except IOError, err:
+            self.log.error('cannot open log file: %s' % err)
 
     def getLogger(self, name):
         if name in self._loggers:
