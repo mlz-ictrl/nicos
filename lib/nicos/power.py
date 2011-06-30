@@ -93,6 +93,8 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
             return status.OK, 'device normal'
         elif state in (TACOStates.MOVING, TACOStates.RAMP):
             return status.BUSY, 'ramping'
+        elif state == TACOStates.STOPPING:
+            return status.BUSY, 'stopping'
         else:
             return status.ERROR, TACOStates.stateDescription(state)
 
