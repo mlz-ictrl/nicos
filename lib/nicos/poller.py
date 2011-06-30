@@ -76,7 +76,7 @@ class Poller(Device):
 
         def reconfigure(key, value):
             if key.endswith('target'):
-                state[0] = 'moving'
+                state[0] = 'nowmoving'
             elif key.endswith('pollinterval'):
                 state[0] = 'newinterval'
             event.set()
@@ -105,8 +105,10 @@ class Poller(Device):
                     if errcount > 0:
                         interval = dev.pollinterval
                         errcount = 0
-                    if state[0] == 'moving':
+                    if state[0] == 'nowmoving':
                         interval = 0.5
+                        state[0] = 'moving'
+                    elif state[0] == 'moving':
                         if stval and stval[0] != status.BUSY:
                             state[0] = 'normal'
                             interval = dev.pollinterval
