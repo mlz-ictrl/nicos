@@ -174,15 +174,15 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
             if focush:
                 focush.move(self._calfocus(lam, self.hfocuspars))
         elif self.focmode == 'vertical':
-           if focusv:
-               focusv.move(self._calfocus(lam, self.vfocuspars))
-           if focush:
-               focush.move(0)
+            if focusv:
+                focusv.move(self._calfocus(lam, self.vfocuspars))
+            if focush:
+                focush.move(0)
         elif self.focmode == 'double':
-           if focusv:
-               focusv.move(self._calfocus(lam, self.vfocuspars))
-           if focush:
-               focush.move(self._calfocus(lam, self.hfocuspars))
+            if focusv:
+                focusv.move(self._calfocus(lam, self.vfocuspars))
+            if focush:
+                focush.move(self._calfocus(lam, self.hfocuspars))
         else:
             if self._focwarnings:
                 self.printwarning('focus is in manual mode')
@@ -254,11 +254,11 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                       cos(self._adevs['twotheta'].read() * pi/360) *
                       dtheta / 180*pi)
         if self.unit == 'A-1':
-           return 2*pi/lam**2 * dlambda
+            return 2*pi/lam**2 * dlambda
         elif self.unit == 'meV':
-           return 2*81.804 / lam**3 * dlambda
+            return 2*81.804 / lam**3 * dlambda
         elif self.unit == 'THz':
-           return 2*81.804 / THZ2MEV / lam**3 * dlambda
+            return 2*81.804 / THZ2MEV / lam**3 * dlambda
         return dlambda
 
     def doWriteFocmode(self, value):
