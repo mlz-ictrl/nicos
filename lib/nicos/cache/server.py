@@ -45,7 +45,7 @@ from itertools import chain
 from time import time as currenttime, sleep, localtime, mktime
 
 from nicos import session, loggers
-from nicos.utils import existingdir, intrange, closeSocket, ensureDirectory
+from nicos.utils import existingdir, closeSocket, ensureDirectory
 from nicos.device import Device, Param
 from nicos.errors import ConfigurationError
 from nicos.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT, \
@@ -672,7 +672,10 @@ class NewDatabase(CacheDatabase):
                 db = {}
                 for line in fd:
                     subkey, time, value = line.rstrip().split(None, 2)
-                    db[subkey] = [Entry(float(time), None, value)]
+                    if value != '-':
+                        db[subkey] = [Entry(float(time), None, value)]
+                    elif subkey in db:
+                        del db[subkey]
                 lock = threading.Lock()
                 self._cat[cat] = (fd, lock, db)
                 nkeys += len(db)
