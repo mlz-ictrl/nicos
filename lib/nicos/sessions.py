@@ -485,9 +485,12 @@ class Session(object):
         )[self._mode]
 
     def export(self, name, object):
-        self._namespace.setForbidden(name, object)
-        self._namespace.addForbidden(name)
-        self._local_namespace.addForbidden(name)
+        if isinstance(self._namespace, NicosNamespace):
+            self._namespace.setForbidden(name, object)
+            self._namespace.addForbidden(name)
+            self._local_namespace.addForbidden(name)
+        else:
+            self._namespace[name] = object
         self._exported_names.add(name)
 
     def unexport(self, name, warn=True):
@@ -497,8 +500,9 @@ class Session(object):
             return
         if name not in self._exported_names:
             self.log.warning('unexport: name %r not exported by NICOS' % name)
-        self._namespace.removeForbidden(name)
-        self._local_namespace.removeForbidden(name)
+        if isinstance(self._namespace, NicosNamespace):
+            self._namespace.removeForbidden(name)
+            self._local_namespace.removeForbidden(name)
         del self._namespace[name]
         self._exported_names.remove(name)
 
@@ -532,7 +536,7 @@ class Session(object):
                 # If we became master, the user didn't select a specific startup
                 # setup and a previous master setup was configured, re-use that.
                 setups = self.cache.get(self, 'mastersetupexplicit')
-                if not setups:
+                if not setups or setups == ['startup']:
                     return
                 self.log.info('loading previously used master setups: ' +
                               ', '.join(setups))
@@ -721,6 +725,32 @@ class Session(object):
 
     def breakpoint(self, level):
         pass
+
+
+class ScriptSession(Session):
+    """
+    Subclass of Session that allows for batch execution of scripts.
+    """
+
+    @classmethod
+    def run(cls, setup, code):
+        session.__class__ = cls
+
+        try:
+            session.__init__('script')
+        except Exception, err:
+            try:
+                session.log.exception('Fatal error while initializing')
+            finally:
+                print >>sys.stderr, 'Fatal error while initializing:', err
+            return 1
+
+        # Load the initial setup and handle becoming master.
+        session.handleInitialSetup(setup, False)
+
+        # Execute the script code and shut down.
+        exec code in session.getNamespace()
+        session.shutdown()
 
 
 class SimpleSession(Session):
@@ -988,7 +1018,7 @@ class InteractiveSession(Session):
     @classmethod
     def run(cls, setup='startup', simulate=False):
         # Assign the correct class to the session singleton.
-        session.__class__ = InteractiveSession
+        session.__class__ = cls
         session.__init__('nicos')
         session._stoplevel = 0
         session._in_sigint = False
