@@ -742,7 +742,7 @@ class ScriptSession(Session):
             try:
                 session.log.exception('Fatal error while initializing')
             finally:
-                print >>sys.stderr, 'Fatal error while initializing:', err
+                print >> sys.stderr, 'Fatal error while initializing:', err
             return 1
 
         # Load the initial setup and handle becoming master.
@@ -788,7 +788,7 @@ class SimpleSession(Session):
             try:
                 session.log.exception('Fatal error while initializing')
             finally:
-                print >>sys.stderr, 'Fatal error while initializing:', err
+                print >> sys.stderr, 'Fatal error while initializing:', err
             return 1
 
         def quit_handler(signum, frame):
