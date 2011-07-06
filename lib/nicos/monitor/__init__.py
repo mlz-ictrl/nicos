@@ -117,7 +117,7 @@ class Monitor(BaseCacheClient):
         raise NotImplementedError
 
     def start(self, options):
-        self.printinfo('monitor starting up, creating main window')
+        self.log.info('monitor starting up, creating main window')
 
         self._fontsize = options.fontsize or self.fontsize
         self._fontsizebig = int(self._fontsize * 1.2)
@@ -129,7 +129,7 @@ class Monitor(BaseCacheClient):
                 self._geometry = map(int, re.match('(\d+)x(\d+)+(\d+)+(\d+)',
                                                    self._geometry).groups())
             except Exception:
-                self.printwarning('invalid geometry %s' % self._geometry)
+                self.log.warning('invalid geometry %s' % self._geometry)
                 self._geometry = None
 
         # timeout for select() call
@@ -167,7 +167,7 @@ class Monitor(BaseCacheClient):
         # now start the worker thread
         self._worker.start()
 
-        self.printinfo('starting main loop')
+        self.log.info('starting main loop')
         try:
             self.mainLoop()
         except KeyboardInterrupt:
@@ -175,9 +175,9 @@ class Monitor(BaseCacheClient):
         self._stoprequest = True
 
     def wait(self):
-        self.printinfo('monitor quitting')
+        self.log.info('monitor quitting')
         self._worker.join()
-        self.printinfo('done')
+        self.log.info('done')
 
     def quit(self, *ignored):
         self.closeGui()
@@ -308,7 +308,7 @@ class Monitor(BaseCacheClient):
             else:
                 self.setBackColor(vlabel, self._black)
         self._watch = newwatch
-        #self.printdebug('newwatch has %s items' % len(newwatch))
+        #self.log.debug('newwatch has %s items' % len(newwatch))
 
         # check if warnings need to be shown
         if self._currwarnings:
@@ -329,13 +329,13 @@ class Monitor(BaseCacheClient):
         except ValueError:
             pass
 
-        #self.printdebug('processing %s=%s' % (key, value))
+        #self.log.debug('processing %s=%s' % (key, value))
 
         if key == self._prefix + '/session/mastersetup':
             self._setups = set(value)
             # reconfigure displayed blocks
             self.reconfigureBoxes()
-            self.printinfo('reconfigured display for setups %s'
+            self.log.info('reconfigured display for setups %s'
                            % ', '.join(self._setups))
 
         if key in self._warnmap:
@@ -344,7 +344,7 @@ class Monitor(BaseCacheClient):
                 condvalue = eval('__v__ ' + info['condition'],
                                  {'__v__': value})
             except Exception:
-                self.printwarning('error evaluating %r warning condition'
+                self.log.warning('error evaluating %r warning condition'
                                   % key, exc=1)
             else:
                 self._process_warnings(key, info, condvalue)

@@ -63,10 +63,10 @@ class ResiExperiment(Experiment):
             old_proposal = os.readlink(self._expdir('current'))
         except Exception:
             if path.exists(self._expdir('current')):
-                self.printerror('"current" link to old experiment dir exists '
+                self.log.error('"current" link to old experiment dir exists '
                                 'but cannot be read', exc=1)
             else:
-                self.printwarning('no old experiment dir is currently set',
+                self.log.warning('no old experiment dir is currently set',
                                   exc=1)
         else:
             if old_proposal.startswith('p'):
@@ -79,7 +79,7 @@ class ResiExperiment(Experiment):
                 cycle, _started = queryCycle(self._propdb)
                 kwds['cycle'] = cycle
             else:
-                self.printerror('cannot query reactor cycle, please give a '
+                self.log.error('cannot query reactor cycle, please give a '
                                 '"cycle" keyword to this function')
         self.cycle = kwds['cycle']
 

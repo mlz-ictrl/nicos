@@ -130,7 +130,7 @@ class Axis(BaseAxis):
         if not self.__thread:
             self.__thread = threading.Thread(None, self.__positioningThread,
                                              'Positioning thread')
-            self.printdebug('start positioning thread')
+            self.log.debug('start positioning thread')
             self.__thread.start()
 
     def doStatus(self):
@@ -222,7 +222,7 @@ class Axis(BaseAxis):
     def __checkDragerror(self):
         diff = abs(self._adevs['motor'].doRead() -
                    self._adevs['coder'].doRead())
-        self.printdebug('motor/coder diff: %s' % diff)
+        self.log.debug('motor/coder diff: %s' % diff)
         maxdiff = self.dragerror
         if maxdiff <= 0:
             return True
@@ -251,7 +251,7 @@ class Axis(BaseAxis):
     def __checkMoveToTarget(self, target, pos, error=1):
         delta_last = abs(self.__lastPosition - target)
         delta_curr = abs(pos - target)
-        self.printdebug('position delta: %s, was %s' % (delta_curr, delta_last))
+        self.log.debug('position delta: %s, was %s' % (delta_curr, delta_last))
         self.__lastPosition = pos
         # at the end of the move, the motor can slightly overshoot
         ok = delta_last >= delta_curr or delta_curr < self.precision
@@ -284,7 +284,7 @@ class Axis(BaseAxis):
 
         while moving:
             if self.__stopRequest == 1:
-                self.printdebug('stopping motor')
+                self.log.debug('stopping motor')
                 self._adevs['motor'].stop()
                 self.__stopRequest = 2
                 continue
@@ -293,29 +293,29 @@ class Axis(BaseAxis):
             if self._adevs['motor'].doStatus()[0] != status.BUSY:
                 # motor stopped; check why
                 if self.__stopRequest == 2:
-                    self.printdebug('stop requested, leaving positioning')
+                    self.log.debug('stop requested, leaving positioning')
                     # manual stop
                     moving = False
                 elif self.__checkTargetPosition(target, pos):
-                    self.printdebug('target reached, leaving positioning')
+                    self.log.debug('target reached, leaving positioning')
                     # target reached
                     moving = False
                 elif maxtries > 0:
-                    self.printdebug('target not reached, retrying')
+                    self.log.debug('target not reached, retrying')
                     # target not reached, get the current position,
                     # sets the motor to this position and restart it
                     self._adevs['motor'].setPosition(pos + self.offset)
                     self._adevs['motor'].start(target + self.offset)
                     maxtries -= 1
                 else:
-                    self.printdebug('target not reached after max tries')
+                    self.log.debug('target not reached after max tries')
                     moving = False
                     self.__error = 6
             elif not self.__checkMoveToTarget(target, pos):
-                self.printdebug('not moving to target')
+                self.log.debug('not moving to target')
                 self.__stopRequest = 1
             elif not self.__checkDragerror():
-                self.printdebug('drag error detected')
+                self.log.debug('drag error detected')
                 self.__stopRequest = 1
             elif self.__stopRequest == 0:
                 if not self._duringMoveAction(pos):
@@ -380,11 +380,11 @@ class TacoAxis(TacoDevice, BaseAxis):
         # reference the axis (do not use with encoded axes)
         motorname = self._taco_guard(self._dev.deviceQueryResource, 'motor')
         client = TACOMotor(motorname)
-        self.printinfo('referencing the axis, please wait...')
+        self.log.info('referencing the axis, please wait...')
         self._taco_guard(client.deviceReset)
         while self._taco_guard(client.deviceState) == TACOStates.INIT:
             sleep(0.1)
-        self.printinfo('reference drive complete, position is now ' +
+        self.log.info('reference drive complete, position is now ' +
                        self.format(self.doRead()))
 
     def doReadSpeed(self):

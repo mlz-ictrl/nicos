@@ -97,7 +97,7 @@ class CacheWriter(HasLimits, Moveable):
             time.sleep(self.loopdelay)
             waited += self.loopdelay
             values = [self.read()] + values[:histlen]
-            self.printdebug('waiting: %s s, values are %s' % (waited, values))
+            self.log.debug('waiting: %s s, values are %s' % (waited, values))
             if waited >= self.timeout:
                 raise TimeoutError(self, 'timeout waiting for stabilization')
         return values[0]

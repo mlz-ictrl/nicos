@@ -210,11 +210,11 @@ class IPCModBusTacoless(IPCModBus):
         if not ping:
             request += crc_ipc(request)
         request = STX + request + EOT
-        self.printdebug('sending %r' % request)
+        self.log.debug('sending %r' % request)
         with self._lock:
             response = self._transmit(request)
         # now check data
-        self.printdebug('received %r' % response)
+        self.log.debug('received %r' % response)
         if response == ACK:
             return 0
         elif response == NAK:
@@ -269,7 +269,7 @@ class IPCModBusTacoless(IPCModBus):
         s = chr(addr) + chr(cmd)
         if len > 0:
             s += '%0*d' % (len, param)
-        self.printdebug('sending %s to card %s' % (cmdname, addr))
+        self.log.debug('sending %s to card %s' % (cmdname, addr))
         return self._comm(s)
 
     def get(self, addr, cmd, param=0, len=0):
@@ -319,7 +319,7 @@ class IPCModBusTCP(IPCModBusTacoless):
                 raise CommunicationError(
                     self, 'tcp connection failed: %s' % err)
             # try reopening connection
-            self.printwarning('tcp connection failed, retrying', exc=1)
+            self.log.warning('tcp connection failed, retrying', exc=1)
             self.doReset()
             return self._transmit(request, last_try=True)
         else:
@@ -364,7 +364,7 @@ class IPCModBusSerial(IPCModBusTacoless):
             if last_try:
                 raise CommunicationError(self, 'serial line failed: %s' % err)
             # try reopening connection
-            self.printwarning('serial line failed, resetting', exc=1)
+            self.log.warning('serial line failed, resetting', exc=1)
             self.doReset()
             return self._transmit(request, last_try=True)
         else:
@@ -428,7 +428,7 @@ class Coder(NicosCoder):
             sleep(1)
             # try again
             value = bus.get(self.addr, 150)
-        self.printdebug('value is %d' % value)
+        self.log.debug('value is %d' % value)
         return self._fromsteps(value)
 
     def doStatus(self):
@@ -526,7 +526,7 @@ class Motor(NicosMotor):
 
     def doWriteAccel(self, value):
         self._adevs['bus'].send(self.addr, 42, value, 3)
-        self.printinfo('parameter change not permanent, use _store() '
+        self.log.info('parameter change not permanent, use _store() '
                        'method to write to EEPROM')
 
     def doReadRamptype(self):
@@ -540,7 +540,7 @@ class Motor(NicosMotor):
             self._adevs['bus'].send(self.addr, 50, value, 3)
         except InvalidCommandError:
             raise UsageError(self, 'ramp type not supported by card')
-        self.printinfo('parameter change not permanent, use _store() '
+        self.log.info('parameter change not permanent, use _store() '
                        'method to write to EEPROM')
 
     def doReadHalfstep(self):
@@ -551,7 +551,7 @@ class Motor(NicosMotor):
             self._adevs['bus'].send(self.addr, 37)
         else:  # fullstep
             self._adevs['bus'].send(self.addr, 36)
-        self.printinfo('parameter change not permanent, use _store() '
+        self.log.info('parameter change not permanent, use _store() '
                        'method to write to EEPROM')
 
     def doReadDivider(self):
@@ -565,7 +565,7 @@ class Motor(NicosMotor):
             self._adevs['bus'].send(self.addr, 60, value, 3)
         except InvalidCommandError:
             raise UsageError(self, 'divider not supported by card')
-        self.printinfo('parameter change not permanent, use _store() '
+        self.log.info('parameter change not permanent, use _store() '
                        'method to write to EEPROM')
 
     def doReadMicrosteps(self):
@@ -579,7 +579,7 @@ class Motor(NicosMotor):
             self._adevs['bus'].send(self.addr, 57, value, 3)
         except InvalidCommandError:
             raise UsageError(self, 'microsteps not supported by card')
-        self.printinfo('parameter change not permanent, use _store() '
+        self.log.info('parameter change not permanent, use _store() '
                        'method to write to EEPROM')
 
     def doReadMax(self):
@@ -608,7 +608,7 @@ class Motor(NicosMotor):
             self._adevs['bus'].send(self.addr, 49, value, 3)
         except InvalidCommandError:
             raise UsageError(self, 'confbyte not supported by card')
-        self.printinfo('parameter change not permanent, use _store() '
+        self.log.info('parameter change not permanent, use _store() '
                        'method to write to EEPROM')
 
     def doReadStartdelay(self):
@@ -625,7 +625,7 @@ class Motor(NicosMotor):
             self._adevs['bus'].send(self.addr, 55, int(value * 10), 3)
         except InvalidCommandError:
             raise UsageError(self, 'startdelay not supported by card')
-        self.printinfo('parameter change not permanent, use _store() '
+        self.log.info('parameter change not permanent, use _store() '
                        'method to write to EEPROM')
 
     def doReadStopdelay(self):
@@ -642,7 +642,7 @@ class Motor(NicosMotor):
             self._adevs['bus'].send(self.addr, 58, int(value * 10), 3)
         except InvalidCommandError:
             raise UsageError(self, 'stopdelay not supported by card')
-        self.printinfo('parameter change not permanent, use _store() '
+        self.log.info('parameter change not permanent, use _store() '
                        'method to write to EEPROM')
 
     def doReadFirmware(self):
@@ -650,11 +650,11 @@ class Motor(NicosMotor):
 
     def doStart(self, target):
         target = self._tosteps(target)
-        self.printdebug('target is %d' % target)
+        self.log.debug('target is %d' % target)
         bus = self._adevs['bus']
         self.doWait()
         pos = self._tosteps(self.doRead())
-        self.printdebug('pos is %d' % pos)
+        self.log.debug('pos is %d' % pos)
         diff = target - pos
         if diff == 0:
             return
@@ -701,7 +701,7 @@ class Motor(NicosMotor):
 
     def doRead(self):
         value = self._adevs['bus'].get(self.addr, 130)
-        self.printdebug('value is %d' % value)
+        self.log.debug('value is %d' % value)
         return self._fromsteps(value)
 
     def doStatus(self):
@@ -757,13 +757,13 @@ class Motor(NicosMotor):
         return statusvalue, msg[2:]
 
     def doSetPosition(self, target):
-        self.printdebug('setPosition: %s' % target)
+        self.log.debug('setPosition: %s' % target)
         steps = self._adevs['bus'].get(self.addr, 130)
         self.offset = steps - target * self.slope
 
     def _store(self):
         self._adevs['bus'].send(self.addr, 40)
-        self.printinfo('parameters stored to EEPROM')
+        self.log.info('parameters stored to EEPROM')
 
     def _poweroff(self):
         self._adevs['bus'].send(self.addr, 53)
@@ -809,7 +809,7 @@ class Motor(NicosMotor):
         if byte & 128: c += 'freq-range: 8-300Hz\n'
         else: c += 'freq-range: 90-3000Hz\n'
 
-        self.printinfo(c)
+        self.log.info(c)
 
 
 class Input(Readable):

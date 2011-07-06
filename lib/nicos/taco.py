@@ -148,7 +148,7 @@ class TacoDevice(object):
         log = self.tacolog
 
         if log:
-            self.printdebug('creating %s TACO device' % class_.__name__)
+            self.log.debug('creating %s TACO device' % class_.__name__)
 
         try:
             dev = class_(devname)
@@ -161,14 +161,14 @@ class TacoDevice(object):
             if timeout != 0:
                 dev.setClientNetworkTimeout(timeout)
         except TACOError, err:
-            self.printwarning('Setting TACO network timeout failed: '
+            self.log.warning('Setting TACO network timeout failed: '
                               '[TACO %d] %s' % (err.errcode, err))
 
         try:
             if dev.isDeviceOff():
                 dev.deviceOn()
         except TACOError, err:
-            self.printwarning('Switching TACO device %r on failed: '
+            self.log.warning('Switching TACO device %r on failed: '
                               '[TACO %d] %s' % (devname, err.errcode, err))
             try:
                 if dev.deviceState() == TACOStates.FAULT:
@@ -183,14 +183,14 @@ class TacoDevice(object):
 
     def _taco_guard_log(self, function, *args):
         """Like _taco_guard(), but log the call."""
-        self.printdebug('TACO call: %s%r' % (function.__name__, args))
+        self.log.debug('TACO call: %s%r' % (function.__name__, args))
         self.__lock.acquire()
         try:
             ret = function(*args)
         except TACOError, err:
             self._raise_taco(err)
         else:
-            self.printdebug('TACO return: %r' % ret)
+            self.log.debug('TACO return: %r' % ret)
             return ret
         finally:
             self.__lock.release()
@@ -212,13 +212,13 @@ class TacoDevice(object):
         self.__lock.acquire()
         try:
             if self.tacolog:
-                self.printdebug('TACO resource update: %s %s' %
+                self.log.debug('TACO resource update: %s %s' %
                                 (resname, value))
             self._dev.deviceOff()
             self._dev.deviceUpdateResource(resname, value)
             self._dev.deviceOn()
             if self.tacolog:
-                self.printdebug('TACO resource update successful')
+                self.log.debug('TACO resource update successful')
         except TACOError, err:
             self._raise_taco(err, 'While updating %s resource' % resname)
         finally:
@@ -248,7 +248,7 @@ class TacoDevice(object):
             try:
                 return self._taco_guard(func, *args)
             except NicosError:
-                self.printwarning('%s failed; trying again' % what)
+                self.log.warning('%s failed; trying again' % what)
                 if tries <= 0:
                     raise
                 self.__lock.acquire()

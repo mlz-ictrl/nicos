@@ -91,20 +91,20 @@ class Cell(Device):
             #self._matrix_euler  = identity(3)
 
     def _info(self):
-        self.printinfo('direct lattice:   %4.7f   %4.7f   %4.7f' %
+        self.log.info('direct lattice:   %4.7f   %4.7f   %4.7f' %
                        tuple(self._lattice))
-        self.printinfo('direct angles:    %4.7f   %4.7f   %4.7f' %
+        self.log.info('direct angles:    %4.7f   %4.7f   %4.7f' %
                        tuple(self._angles))
-        self.printinfo('recip. lattice:   %4.7f   %4.7f   %4.7f' %
+        self.log.info('recip. lattice:   %4.7f   %4.7f   %4.7f' %
                        tuple(self._lattice_rec))
-        self.printinfo('recip. angles:    %4.7f   %4.7f   %4.7f' %
+        self.log.info('recip. angles:    %4.7f   %4.7f   %4.7f' %
                        tuple(x * R2D for x in self._angles_rec))
-        self.printinfo('plane vectors:    (%s %s %s), (%s %s %s)' %
+        self.log.info('plane vectors:    (%s %s %s), (%s %s %s)' %
                        (tuple(self._orient1) + tuple(self._orient2)))
-        self.printinfo('zone axis:        [%s %s %s]' % tuple(self.cal_zone()))
-        self.printinfo('psi0:             %4.3f' % (self._psi0 * R2D))
-        self.printinfo('cardan matrix:    \n%s' % self._matrix_cardan)
-        self.printinfo('hkl2Qcart matrix: \n%s' % self._matrix)
+        self.log.info('zone axis:        [%s %s %s]' % tuple(self.cal_zone()))
+        self.log.info('psi0:             %4.3f' % (self._psi0 * R2D))
+        self.log.info('cardan matrix:    \n%s' % self._matrix_cardan)
+        self.log.info('hkl2Qcart matrix: \n%s' % self._matrix)
 
     def doUpdateLattice(self, val):
         self._lattice = array(val, float)

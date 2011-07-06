@@ -104,9 +104,7 @@ class Device(object):
         self._mode = session.mode
 
         # initialize a logger for the device
-        self._log = session.getLogger(name)
-        for mn in ('debug', 'info', 'warning', 'error', 'exception'):
-            setattr(self, 'print' + mn, getattr(self._log, mn))
+        self.__dict__['log'] = session.getLogger(name)
 
         try:
             # initialize device
@@ -166,7 +164,7 @@ class Device(object):
         if value not in loggers.loglevels:
             raise UsageError(self, 'loglevel must be one of %s' %
                              ', '.join(map(repr, loggers.loglevels.keys())))
-        self._log.setLevel(loggers.loglevels[value])
+        self.log.setLevel(loggers.loglevels[value])
 
     def init(self):
         """Initialize the object; this is called by the NICOS system when the
@@ -249,12 +247,12 @@ class Device(object):
                         if prefercache is None:
                             prefercache = paraminfo.settable
                         if prefercache:
-                            self.printwarning(
+                            self.log.warning(
                                 'value of %s from cache (%r) differs from '
                                 'configured value (%r), using cached' %
                                 (param, value, cfgvalue))
                         else:
-                            self.printwarning(
+                            self.log.warning(
                                 'value of %s from cache (%r) differs from '
                                 'configured value (%r), using the latter' %
                                 (param, value, cfgvalue))
@@ -288,8 +286,8 @@ class Device(object):
 
         # warn about parameters that weren't present in cache
         if self._cache and notfromcache:
-            self.printwarning('these parameters were not present in cache: ' +
-                              ', '.join(sorted(notfromcache)))
+            self.log.warning('these parameters were not present in cache: ' +
+                              ', '.join(notfromcache))
 
         self._infoparams.sort()
 
@@ -385,7 +383,7 @@ class Device(object):
             try:
                 parvalue = getattr(self, name)
             except Exception, err:
-                self.printwarning('error getting %s parameter for info()' %
+                self.log.warning('error getting %s parameter for info()' %
                                   name, exc=err)
                 continue
             parunit = (unit or '').replace('main', selfunit)
@@ -519,10 +517,10 @@ class Readable(Device):
             # save the last known value
             try:
                 self._sim_value = self.read()
-                self.printdebug('last value before simulation mode is %r' %
+                self.log.debug('last value before simulation mode is %r' %
                                 (self._sim_value,))
             except Exception, err:
-                self.printwarning('error reading last value', exc=err)
+                self.log.warning('error reading last value', exc=err)
         self._sim_active = sim_active
         Device._setMode(self, mode)
 
@@ -677,12 +675,12 @@ class Readable(Device):
             val = self.read()
             yield ('general', 'value', self.format(val) + ' ' + self.unit)
         except Exception, err:
-            self.printwarning('error reading device for info()', exc=err)
+            self.log.warning('error reading device for info()', exc=err)
             yield ('general', 'value', 'Error: %s' % err)
         try:
             st = self.status()
         except Exception, err:
-            self.printwarning('error getting status for info()', exc=err)
+            self.log.warning('error getting status for info()', exc=err)
             yield ('status', 'status', 'Error: %s' % err)
         else:
             if st[0] not in (status.OK, status.UNKNOWN):
@@ -881,11 +879,11 @@ class HasLimits(Moveable):
             raise ConfigurationError(self, 'absolute minimum (%s) above the '
                                      'absolute maximum (%s)' % self.abslimits)
         if self.userlimits[0] < self.abslimits[0]:
-            self.printwarning('user minimum (%s) below absolute minimum (%s), '
+            self.log.warning('user minimum (%s) below absolute minimum (%s), '
                               'please check and re-set limits' %
                               (self.userlimits[0], self.abslimits[0]))
         if self.userlimits[1] > self.abslimits[1]:
-            self.printwarning('user maximum (%s) above absolute maximum (%s), '
+            self.log.warning('user maximum (%s) above absolute maximum (%s), '
                               'please check and re-set limits' %
                               (self.userlimits[1], self.abslimits[1]))
         if session.mode == 'simulation':
@@ -948,7 +946,7 @@ class HasLimits(Moveable):
 
     def doReadUserlimits(self):
         if 'userlimits' not in self._config:
-            self.printinfo('setting userlimits from abslimits, which are %s'
+            self.log.info('setting userlimits from abslimits, which are %s'
                             % (self.abslimits,))
             return self.abslimits
         cfglimits = self._config['userlimits']
@@ -959,7 +957,7 @@ class HasLimits(Moveable):
         self._checkLimits(value)
         curval = self.read()
         if not value[0] <= curval <= value[1]:
-            self.printwarning('current device value (%s) not within new '
+            self.log.warning('current device value (%s) not within new '
                               'userlimits (%s, %s)' %
                               ((self.format(curval),) + value))
 
@@ -1162,7 +1160,7 @@ class Measurable(Readable):
         try:
             st = self.status()
         except Exception, err:
-            self.printwarning('error getting status for info()', exc=err)
+            self.log.warning('error getting status for info()', exc=err)
             yield ('status', 'status', 'Error: %s' % err)
         else:
             if st[0] not in (status.OK, status.UNKNOWN):

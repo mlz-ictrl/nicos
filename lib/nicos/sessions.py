@@ -682,8 +682,8 @@ class Session(object):
         if exc_info is None:
             exc_info = sys.exc_info()
         if isinstance(exc_info[1], NicosError):
-            if exc_info[1].device and exc_info[1].device._log:
-                exc_info[1].device._log.error(exc_info=exc_info)
+            if exc_info[1].device and exc_info[1].device.log:
+                exc_info[1].device.log.error(exc_info=exc_info)
                 return
         if cut_frames:
             type, value, tb = exc_info

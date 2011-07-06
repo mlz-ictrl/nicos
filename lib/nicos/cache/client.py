@@ -100,14 +100,14 @@ class BaseCacheClient(Device):
         self._startup_done.clear()
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            self.printdebug('connecting to %s:%s' % self._address)
+            self.log.debug('connecting to %s:%s' % self._address)
             self._socket.connect(self._address)
             self._connect_action()
         except Exception, err:
             self._disconnect('unable to connect to %s:%s: %s' %
                              (self._address + (err,)))
         else:
-            self.printinfo('now connected to %s:%s' % self._address)
+            self.log.info('now connected to %s:%s' % self._address)
         self._startup_done.set()
         self._do_callbacks = True
 
@@ -115,7 +115,7 @@ class BaseCacheClient(Device):
         if not self._socket:
             return
         if why:
-            self.printwarning(why)
+            self.log.warning(why)
         closeSocket(self._socket)
         self._socket = None
         # close secondary socket
@@ -162,7 +162,7 @@ class BaseCacheClient(Device):
                 self._handle_msg(**msgmatch.groupdict())
             # continue loop
             match = lmatch(data)
-        #self.printdebug('processed %d items' % n)
+        #self.log.debug('processed %d items' % n)
         return data
 
     def _worker_thread(self):
@@ -244,7 +244,7 @@ class BaseCacheClient(Device):
                                                     socket.SOCK_STREAM)
                     self._secsocket.connect(self._address)
                 except Exception, err:
-                    self.printwarning('unable to connect to %s:%s: %s' %
+                    self.log.warning('unable to connect to %s:%s: %s' %
                                       (self._address + (err,)))
                     self._secsocket = None
                     return
@@ -311,7 +311,7 @@ class CacheClient(BaseCacheClient):
         if op != OP_TELL or not key.startswith(self._prefix):
             return
         key = key[len(self._prefix)+1:]
-        #self.printdebug('got %s=%s' % (key, value))
+        #self.log.debug('got %s=%s' % (key, value))
         if value is None:
             self._db.pop(key, None)
         else:
@@ -322,7 +322,7 @@ class CacheClient(BaseCacheClient):
                 try:
                     self._callbacks[key](key, value)
                 except:
-                    self.printwarning('error in cache callback', exc=1)
+                    self.log.warning('error in cache callback', exc=1)
 
     def addCallback(self, dev, key, function):
         self._callbacks['%s/%s' % (dev.name.lower(), key)] = function
@@ -335,11 +335,11 @@ class CacheClient(BaseCacheClient):
         dbkey = '%s/%s' % (dev.name.lower(), key)
         entry = self._db.get(dbkey)
         if entry is None:
-            self.printdebug('%s not in cache' % dbkey)
+            self.log.debug('%s not in cache' % dbkey)
             return None
         value, time, ttl = entry
         if ttl and time + ttl < currenttime():
-            self.printdebug('%s timed out' % dbkey)
+            self.log.debug('%s timed out' % dbkey)
             del self._db[dbkey]
             return None
         return value
@@ -351,7 +351,7 @@ class CacheClient(BaseCacheClient):
         dbkey = '%s/%s' % (dev.name.lower(), key)
         msg = '%s%s@%s/%s%s%s\r\n' % (time, ttlstr, self._prefix, dbkey,
                                       OP_TELL, cache_dump(value))
-        self.printdebug('putting %s=%s' % (dbkey, value))
+        self.log.debug('putting %s=%s' % (dbkey, value))
         self._db[dbkey] = (value, time, ttl)
         self._queue.put(msg)
 
@@ -365,7 +365,7 @@ class CacheClient(BaseCacheClient):
 
     def invalidate(self, dev, key):
         dbkey = '%s/%s' % (dev.name.lower(), key)
-        self.printdebug('invalidating %s' % dbkey)
+        self.log.debug('invalidating %s' % dbkey)
         self._db.pop(dbkey, None)
 
     def history(self, dev, key, fromtime, totime):
@@ -398,7 +398,7 @@ class CacheClient(BaseCacheClient):
             return
         else:
             # no response received; let's assume standalone mode
-            self.printwarning('allowing lock/unlock operation without cache '
+            self.log.warning('allowing lock/unlock operation without cache '
                               'connection')
 
     def unlock(self, key, sessionid=None):

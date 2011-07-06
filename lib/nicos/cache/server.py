@@ -391,13 +391,13 @@ class MemoryCacheDatabase(CacheDatabase):
                      (not entry.ttl or entry.time + entry.ttl >= currenttime()):
                     # still locked by different client, deny (tell the client
                     # the current client_id though)
-                    self.printdebug('lock request %s=%s, but still locked by %s'
+                    self.log.debug('lock request %s=%s, but still locked by %s'
                                     % (key, client_id, entry.value))
                     return '%s%s%s\r\n' % (key, OP_LOCK, entry.value)
                 else:
                     # not locked, expired or locked by same client, overwrite
                     ttl = ttl or 1800  # set a maximum time to live
-                    self.printdebug('lock request %s=%s ttl %s, accepted' %
+                    self.log.debug('lock request %s=%s ttl %s, accepted' %
                                     (key, client_id, ttl))
                     self._locks[key] = Entry(time, ttl, client_id)
                     return '%s%s\r\n' % (key, OP_LOCK)
@@ -405,12 +405,12 @@ class MemoryCacheDatabase(CacheDatabase):
             elif req == '-':
                 if entry and entry.value != client_id:
                     # locked by different client, deny
-                    self.printdebug('unlock request %s=%s, but locked by %s'
+                    self.log.debug('unlock request %s=%s, but locked by %s'
                                     % (key, client_id, entry.value))
                     return '%s%s%s\r\n' % (key, OP_LOCK, entry.value)
                 else:
                     # unlocked or locked by same client, allow
-                    self.printdebug('unlock request %s=%s, accepted'
+                    self.log.debug('unlock request %s=%s, accepted'
                                     % (key, client_id))
                     self._locks.pop(key, None)
                     return '%s%s\r\n' % (key, OP_LOCK)
@@ -456,7 +456,7 @@ class DbCacheDatabase(MemoryCacheDatabase):
                         self._db[key] = [entry]
                         self._arctime[key] = entry.time
                         nkeys += 1
-        self.printinfo('loaded %d keys from store' % nkeys)
+        self.log.info('loaded %d keys from store' % nkeys)
 
     def doShutdown(self):
         # write remaining unarchived entries to disk
@@ -466,7 +466,7 @@ class DbCacheDatabase(MemoryCacheDatabase):
                 for key, entries in self._db.iteritems():
                     self._archive(key, entries, sync=False)
                     nentries += len(entries)
-        self.printinfo('archived %d entries on shutdown' % nentries)
+        self.log.info('archived %d entries on shutdown' % nentries)
         with self._store_lock:
             self._prevstore.sync()
             self._close_store(self._prevday)
@@ -476,7 +476,7 @@ class DbCacheDatabase(MemoryCacheDatabase):
     def _open_store(self, ymd):
         if ymd in self._stores:
             self._stores[ymd][1] += 1
-            self.printdebug('incremented use count for store %s' % (ymd,))
+            self.log.debug('incremented use count for store %s' % (ymd,))
             return self._stores[ymd][0]
         path = os.path.join(session.config.control_path,
                             self.storepath, self._storefmt % ymd)
@@ -485,19 +485,19 @@ class DbCacheDatabase(MemoryCacheDatabase):
         except bsddb.db.DBError, err:
             raise ConfigurationError(self, 'Error opening database store %r: %s'
                                      % (path, err.args[1]))
-        self.printdebug('opened new store for %s' % (ymd,))
+        self.log.debug('opened new store for %s' % (ymd,))
         self._stores[ymd] = [db, 1]
         return db
 
     def _close_store(self, ymd):
         info = self._stores[ymd]
         info[1] -= 1
-        self.printdebug('decremented use count for store %s' % (ymd,))
+        self.log.debug('decremented use count for store %s' % (ymd,))
         if info[1] == 0:
             db = self._stores.pop(ymd)[0]
             db.sync()
             db.close()
-            self.printdebug('closed store for %s' % (ymd,))
+            self.log.debug('closed store for %s' % (ymd,))
 
     def _archive(self, key, entries, sync=True):
         """Archive entries to the store(s).  Must be called with the store
@@ -539,7 +539,7 @@ class DbCacheDatabase(MemoryCacheDatabase):
         if sync:
             self._currstore.sync()
         self._arctime[key] = entries[-1].time
-        self.printdebug('archived %d+%d entries for key %s' %
+        self.log.debug('archived %d+%d entries for key %s' %
                         (len(prev), len(curr), key))
 
     # ask and ask_wc inherited from MemoryCacheDatabase
@@ -558,7 +558,7 @@ class DbCacheDatabase(MemoryCacheDatabase):
             with self._store_lock:
                 store_entries = load_entries(self._prevstore.get(key, '')) + \
                                 load_entries(self._currstore.get(key, ''))
-                self.printdebug('history query loaded %d entries from store' %
+                self.log.debug('history query loaded %d entries from store' %
                                 len(store_entries))
         for entry in chain(store_entries, entries):
             if t1 <= entry.time < t2:
@@ -606,7 +606,7 @@ class DbCacheDatabase(MemoryCacheDatabase):
                     entries.append(Entry(time, ttl, value))
             else:
                 entries.append(Entry(time, ttl, value))
-            #self.printdebug('entries are now ' + str(entries))
+            #self.log.debug('entries are now ' + str(entries))
             if len(entries) > self._max or ttl is None:
                 # if ttl is None, the value should be stored immediately
                 with self._store_lock:
@@ -617,7 +617,7 @@ class DbCacheDatabase(MemoryCacheDatabase):
                         # so don't write it to the archive yet
                         self._archive(key, entries[:-1])
                     del entries[:-1]
-                #self.printdebug('after archiving: ' + str(entries))
+                #self.log.debug('after archiving: ' + str(entries))
         if send_update:
             for client in self._server._connected.values():
                 if client is not from_client and client.is_active():
@@ -679,7 +679,7 @@ class NewDatabase(CacheDatabase):
                 lock = threading.Lock()
                 self._cat[cat] = (fd, lock, db)
                 nkeys += len(db)
-        self.printinfo('loaded %d keys from files' % nkeys)
+        self.log.info('loaded %d keys from files' % nkeys)
 
     def lock(self, key, value, time, ttl):
         with self._lock_lock:
@@ -691,13 +691,13 @@ class NewDatabase(CacheDatabase):
                      (not entry.ttl or entry.time + entry.ttl >= currenttime()):
                     # still locked by different client, deny (tell the client
                     # the current client_id though)
-                    self.printdebug('lock request %s=%s, but still locked by %s'
+                    self.log.debug('lock request %s=%s, but still locked by %s'
                                     % (key, client_id, entry.value))
                     return '%s%s%s\r\n' % (key, OP_LOCK, entry.value)
                 else:
                     # not locked, expired or locked by same client, overwrite
                     ttl = ttl or 1800  # set a maximum time to live
-                    self.printdebug('lock request %s=%s ttl %s, accepted' %
+                    self.log.debug('lock request %s=%s ttl %s, accepted' %
                                     (key, client_id, ttl))
                     self._locks[key] = Entry(time, ttl, client_id)
                     return '%s%s\r\n' % (key, OP_LOCK)
@@ -705,18 +705,18 @@ class NewDatabase(CacheDatabase):
             elif req == '-':
                 if entry and entry.value != client_id:
                     # locked by different client, deny
-                    self.printdebug('unlock request %s=%s, but locked by %s'
+                    self.log.debug('unlock request %s=%s, but locked by %s'
                                     % (key, client_id, entry.value))
                     return '%s%s%s\r\n' % (key, OP_LOCK, entry.value)
                 else:
                     # unlocked or locked by same client, allow
-                    self.printdebug('unlock request %s=%s, accepted'
+                    self.log.debug('unlock request %s=%s, accepted'
                                     % (key, client_id))
                     self._locks.pop(key, None)
                     return '%s%s\r\n' % (key, OP_LOCK)
 
     def _rollover(self):
-        self.printdebug('ROLLOVER started')
+        self.log.debug('ROLLOVER started')
         ltime = localtime()
         # set the days and midnight time correctly
         #prevday = self._currday
@@ -905,7 +905,7 @@ class CacheServer(Device):
         self._worker.start()
 
     def _worker_thread(self):
-        self.printinfo('server starting')
+        self.log.info('server starting')
 
         def bind_to(address, type='tcp'):
             if ':' not in address:
@@ -931,7 +931,7 @@ class CacheServer(Device):
 
         # now try to bind to one, include 'MUST WORK' standalone names
         for server in [self.server, socket.getfqdn(), socket.gethostname()]:
-            self.printdebug('trying to bind to ' + server)
+            self.log.debug('trying to bind to ' + server)
             self._serversocket = bind_to(server)
             if self._serversocket:
                 self._boundto = server
@@ -940,17 +940,17 @@ class CacheServer(Device):
         # bind UDP broadcast socket
         self._serversocket_udp = bind_to('', 'udp')
         if self._serversocket_udp:
-            self.printinfo('udp-bound to broadcast')
+            self.log.info('udp-bound to broadcast')
 
         if not self._serversocket and not self._serversocket_udp:
             self._stoprequest = True
-            self.printerror("couldn't bind to any location, giving up!")
+            self.log.error("couldn't bind to any location, giving up!")
             return
 
         if not self._boundto:
-            self.printwarning('starting main-loop only bound to UDP broadcast')
+            self.log.warning('starting main-loop only bound to UDP broadcast')
         else:
-            self.printinfo('starting main-loop bound to %s' % self._boundto)
+            self.log.info('starting main-loop bound to %s' % self._boundto)
         # now enter main serving loop
         while not self._stoprequest:
             # loop through connections, first to remove dead ones,
@@ -958,7 +958,7 @@ class CacheServer(Device):
             for addr, client in self._connected.items():
                 if client:
                     if not client.is_active(): # dead or stopped
-                        self.printinfo('client connection %s closed' % addr)
+                        self.log.info('client connection %s closed' % addr)
                         client.closedown()
                         client.join()  # wait for threads to end
                         del self._connected[addr]
@@ -979,16 +979,16 @@ class CacheServer(Device):
                 # TCP connection came in
                 conn, addr = self._serversocket.accept()
                 addr = 'tcp://%s:%d' % addr
-                self.printinfo('new connection from %s' % addr)
+                self.log.info('new connection from %s' % addr)
                 self._connected[addr] = CacheWorker(
                     self._adevs['db'], conn, name=addr, loglevel=self.loglevel)
             elif self._serversocket_udp in res[0] and not self._stoprequest:
                 # UDP data came in
                 data, addr = self._serversocket_udp.recvfrom(3072)
                 nice_addr = 'udp://%s:%d' % addr
-                self.printinfo('new connection from %s' % nice_addr)
+                self.log.info('new connection from %s' % nice_addr)
                 conn = CacheUDPConnection(self._serversocket_udp, addr,
-                                          log=self.printdebug)
+                                          log=self.log.debug)
                 self._connected[nice_addr] = CacheWorker(
                     self._adevs['db'], conn, name=nice_addr, initdata=data,
                     loglevel=self.loglevel)
@@ -1002,15 +1002,15 @@ class CacheServer(Device):
         self._worker.join()
 
     def quit(self):
-        self.printinfo('quitting...')
+        self.log.info('quitting...')
         self._stoprequest = True
         for client in self._connected.values():
-            self.printinfo('closing client %s' % client)
+            self.log.info('closing client %s' % client)
             if client.is_active():
                 client.closedown()
         for client in self._connected.values():
-            self.printinfo('waiting for %s' % client)
+            self.log.info('waiting for %s' % client)
             client.join()
-        self.printinfo('waiting for server')
+        self.log.info('waiting for server')
         self._worker.join()
-        self.printinfo('server finished')
+        self.log.info('server finished')
