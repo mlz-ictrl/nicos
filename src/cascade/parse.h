@@ -31,6 +31,7 @@
 #include <string>
 #include <map>
 #include "helper.h"
+#include "logger.h"
 
 #ifdef USE_BOOST
 	#include <boost/xpressive/xpressive.hpp>
@@ -79,7 +80,8 @@ class ArgumentMap
 				size_t iPos = str.find("=");
 				if(iPos == std::string::npos)
 				{
-					std::cerr << "Error parsing string: \"" << pcStr << "\"" << std::endl;
+					logger.SetCurLogLevel(LOGLEVEL_ERR);
+					logger << "Argument Parser: Error parsing string: \"" << str << "\"\n";
 					break;
 				}
 
