@@ -33,6 +33,11 @@ class Config_TofLoader
 														//            3: log errors & warnings & infos
 
 		static void SetRepeatLogs(bool bRepeat);		// Repeat duplicate logs?
+
+		static void SetMinuitMaxFnc(unsigned int uiMaxFcn);
+		static void SetMinuitTolerance(double dTolerance);
+		static void SetMinuitAlgo(int iAlgo);
+		static void SetMinuitStrategy(unsigned int iStrategy);
 };
 
 
