@@ -417,7 +417,7 @@ class MainWindow : public QMainWindow
 			UpdateLabels(false);
 
 			char pcFolie[128];
-			sprintf(pcFolie,"Foil (%2d):",m_cascadewidget.GetFoil()+1);
+			sprintf(pcFolie,"Foil (%0d):",m_cascadewidget.GetFoil()+1);
 			labelFolie->setText(pcFolie);
 		}
 
@@ -447,7 +447,7 @@ class MainWindow : public QMainWindow
 			UpdateLabels(false);
 
 			char pcKanal[128];
-			sprintf(pcKanal,"Time Channel (%2d):",m_cascadewidget.GetTimechannel()+1);
+			sprintf(pcKanal,"Time Channel (%0d):",m_cascadewidget.GetTimechannel()+1);
 			labelZeitkanal->setText(pcKanal);
 		}
 
