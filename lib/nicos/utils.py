@@ -96,6 +96,34 @@ class Param(object):
     def __repr__(self):
         return '<Param info>'
 
+    def formatDoc(self):
+        txt= 'Parameter: '
+        txt+=self.description or ''
+        txt+='\n'
+        txt+='\n    * Type: ' + str(self.type)
+        if self.unit is not None:
+            if self.unit=='main':
+                txt += '\n    * Unit: \'main\' -> get unit from Device '
+            else:
+                txt += '\n    * Unit: ' + self.unit
+
+        if self.default !=_notset:
+            txt += '\n    * Default: ' + str(self.default)
+        if self.category is not None:
+            txt += '\n    * Category: ' + self.category
+
+
+        if self.mandatory is not None:
+            txt += '\n    * Mandatory: yes'
+        if self.volatile is not None:
+            txt += '\n    * Volatile: yes'
+        if self.settable is not None:
+            txt += '\n    * Settable: yes'
+        if self.preinit is not None:
+            txt += '\n    * Initialize before preinit: yes'
+        if self.prefercache is not None:
+            txt += '\n    * Prefer cache: yes'
+        return txt
 
 class Override(object):
 
@@ -161,6 +189,7 @@ class MergedAttrsMeta(type):
             newentry.update(attrs.get(entry, {}))
             setattr(newtype, entry, newentry)
         return newtype
+
 
 
 class AutoPropsMeta(MergedAttrsMeta):
@@ -249,7 +278,7 @@ class AutoPropsMeta(MergedAttrsMeta):
 
             # create a property and attach to the new device class
             setattr(newtype, param,
-                    property(getter, setter, doc=info.description))
+                    property(getter, setter, doc=info.formatDoc()))
         del newtype.parameter_overrides
         if 'valuetype' in attrs:
             newtype.valuetype = staticmethod(attrs['valuetype'])
