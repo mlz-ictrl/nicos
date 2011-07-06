@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string>
 #include <map>
+#include <iostream>
 #include "helper.h"
 #include "logger.h"
 
@@ -51,7 +52,16 @@ class ArgumentMap
 		std::map<std::string, std::string> m_mapArgs;
 
 	public:
-		// parse pcStr and add "key=value" pairs to map
+		ArgumentMap(const char* pcStr=0)
+		{
+			if(pcStr)
+				add(pcStr);
+		}
+
+		virtual ~ArgumentMap()
+		{}
+
+		// parse pcStr and add all "key=value" pairs to map
 		void add(const char* pcStr)
 		{
 			std::string str = trim(std::string(pcStr));
@@ -81,7 +91,8 @@ class ArgumentMap
 				if(iPos == std::string::npos)
 				{
 					logger.SetCurLogLevel(LOGLEVEL_ERR);
-					logger << "Argument Parser: Error parsing string: \"" << str << "\"\n";
+					logger << "Argument Parser: Error parsing string: \"" << str
+						   << "\"\n";
 					break;
 				}
 
@@ -89,10 +100,13 @@ class ArgumentMap
 				std::string strLinks = str.substr(0,iPos);
 
 				// rechts des Gleichheitszeichens
-				std::string strRechts = str.substr(iPos+1, str.length()-iPos-1);;
-				m_mapArgs.insert(std::pair<std::string,std::string>(strLinks, strRechts));
+				std::string strRechts = str.substr(iPos+1, str.length()-iPos-1);
+				m_mapArgs.insert(std::pair<std::string,std::string>
+												(strLinks, strRechts));
 
-				//std::cout << "Links: \"" << strLinks << "\", Rechts: \"" << strRechts << "\"" << std::endl;
+				//std::cout << "Links: \"" << strLinks
+				//			<< "\", Rechts: \"" << strRechts << "\""
+				//			<< std::endl;
 			}
 
 #endif //USE_BOOST
@@ -100,15 +114,39 @@ class ArgumentMap
 		//----------------------------------------------------------------------
 
 		//----------------------------------------------------------------------
-		// query values
+		// get cstring value corresponding to key pcKey
+		// if pcKey isn't found, return NULL
 		const char* QueryString(const char* pcKey) const
 		{
-			std::map<std::string,std::string>::const_iterator iter = m_mapArgs.find(pcKey);
+			std::map<std::string,std::string>::const_iterator iter =
+														  m_mapArgs.find(pcKey);
 			if(iter == m_mapArgs.end())
 				return 0;
 			return iter->second.c_str();
 		}
 
+		// get string value corresponding to key pcKey
+		// if pcKey isn't found, return strDefault
+		// set pbHasKey to true if key was found
+		const std::string& QueryString(const char* pcKey,
+						 const std::string& strDefault, bool *pbHasKey=0) const
+		{
+			std::map<std::string,std::string>::const_iterator iter =
+														  m_mapArgs.find(pcKey);
+
+			if(iter == m_mapArgs.end())
+			{
+				if(pbHasKey) *pbHasKey = false;
+				return strDefault;
+			}
+
+			if(pbHasKey) *pbHasKey = true;
+			return (*iter).second;
+		}
+
+		// get int value corresponding to key pcKey
+		// if pcKey isn't found, return iDefault
+		// set pbHasKey to true if key was found
 		int QueryInt(const char* pcKey, int iDefault=0, bool *pbHasKey=0) const
 		{
 			const char* pcStr = QueryString(pcKey);
@@ -121,7 +159,11 @@ class ArgumentMap
 			return atoi(pcStr);
 		}
 
-		double QueryDouble(const char* pcKey, double dDefault=0., bool *pbHasKey=0) const
+		// get double value corresponding to key pcKey
+		// if pcKey isn't found, return dDefault
+		// set pbHasKey to true if key was found
+		double QueryDouble(const char* pcKey, double dDefault=0.,
+						   bool *pbHasKey=0) const
 		{
 			const char* pcStr = QueryString(pcKey);
 			if(pcStr==NULL)
@@ -134,7 +176,7 @@ class ArgumentMap
 		}
 		//----------------------------------------------------------------------
 
-		// dump map contents
+		// dump map contents for debugging
 		void dump() const
 		{
 			std::map<std::string,std::string>::const_iterator iter;
@@ -144,13 +186,5 @@ class ArgumentMap
 						  << "Value: \'" << (*iter).second << "\'\n";
 			}
 		}
-
-		ArgumentMap(const char* pcStr=0)
-		{
-			if(pcStr) add(pcStr);
-		}
-
-		virtual ~ArgumentMap()
-		{}
 };
 #endif

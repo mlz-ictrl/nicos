@@ -34,7 +34,8 @@
 #define IS_TOF	0
 #define IS_NONE	-1
 
-NicosClient::NicosClient() : TcpClient(0, true), m_pad(0, true), m_tof(0, TOF_COMPRESSION_USEGLOBCONFIG, true)
+NicosClient::NicosClient() : TcpClient(0, true), m_pad(0, true),
+							 m_tof(0, TOF_COMPRESSION_USEGLOBCONFIG, true)
 {
 	Config_TofLoader::Init();
 }
@@ -87,7 +88,8 @@ unsigned int NicosClient::counts(const QByteArray& arr)
 	}
 }
 
-unsigned int NicosClient::counts(const QByteArray& arr, int iStartX, int iEndX, int iStartY, int iEndY)
+unsigned int NicosClient::counts(const QByteArray& arr, int iStartX, int iEndX,
+													    int iStartY, int iEndY)
 {
 	if(arr.size()<4)
 		return 0;
@@ -125,7 +127,9 @@ bool NicosClient::IsSizeCorrect(const QByteArray& arr, bool bPad)
 		if(m_pad.GetPadSize()*4 != arr.size()-4)
 		{
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
-			logger << "NicosClient.counts: buffer size (" << arr.size()-4 << " bytes) != expected PAD size (" << m_pad.GetPadSize()*4 << " bytes)." << "\n";
+			logger << "NicosClient.counts: buffer size (" << arr.size()-4
+				   << " bytes) != expected PAD size (" << m_pad.GetPadSize()*4
+				   << " bytes)." << "\n";
 			bOk = false;
 		}
 	}
@@ -134,7 +138,9 @@ bool NicosClient::IsSizeCorrect(const QByteArray& arr, bool bPad)
 		if(m_tof.GetTofSize()*4 != arr.size()-4)
 		{
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
-			logger << "NicosClient.counts: buffer size (" << arr.size()-4 << " bytes) != expected TOF size (" << m_tof.GetTofSize()*4 << " bytes)." << "\n";
+			logger << "NicosClient.counts: buffer size (" << arr.size()-4
+				   << " bytes) != expected TOF size (" << m_tof.GetTofSize()*4
+				   << " bytes)." << "\n";
 			bOk = false;
 		}
 	}

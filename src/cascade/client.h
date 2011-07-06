@@ -23,8 +23,6 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // *****************************************************************************
-// blockierend und nichtblockierend nutzbarer TCP-Client
-// "Protokoll": 4 Bytes (int) = Größe der Nachricht; Nachricht
 
 #ifndef __TCP_CLIENT__
 #define __TCP_CLIENT__
@@ -36,13 +34,17 @@
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
 
+/*
+ * TCP client usable in blocking and non-blocking mode
+ * msg protocol: 4 Bytes (int): size of message followed by message
+ */
 class TcpClient : public QObject
 {
 Q_OBJECT
 	protected:
 		bool m_bBlocking;
 		QTcpSocket m_socket;
-		
+
 		const QByteArray m_byEmpty;
 		/////////////// gegenwärtige Nachricht //////////////////////
 		QByteArray m_byCurMsg;
@@ -52,32 +54,42 @@ Q_OBJECT
 		int m_iMessageTimeout;
 		QTime m_timer;
 		/////////////////////////////////////////////////////////////
-		
+
+		// internal methods which read and send raw data in disregard of the
+		// protocol
 		int read(char* pcData, int iLen);
 		bool write(const char* pcBuf, int iSize, bool bIsBinary=false);
+		bool sendfile(const char* pcFileName);
 
 	public:
 		TcpClient(QObject *pParent=0, bool bBlocking=true);
 		virtual ~TcpClient();
-		
+
+		// connect to server pcAddr at port iPort
 		bool connecttohost(const char* pcAddr, int iPort);
 		void disconnect();
 		bool isconnected() const;
-		
-		bool sendfile(const char* pcFileName);
+
+		// send a message to the server
 		bool sendmsg(const char* pcMsg);
-		const QByteArray& recvmsg(void);	// nur für blockierenden Client
-		
-		void SetTimeout(int iTimeout);		// negative Werte schalten Timeout ab
-		
+
+		// only for blocking client
+		const QByteArray& recvmsg(void);
+
+		// negative values disable timeout
+		void SetTimeout(int iTimeout);
+
 	signals:
-		// Signal, das der nichtblockierende Client emittiert, wenn eine vollständige Nachricht da ist
+		// this signal is emitted by the nonblocking client
+		// if a complete message is available
 		void MessageSignal(const char* pcBuf, int iLen);
 
 	protected slots:
 		void connected();
 		void disconnected();
-		void readReady();			// nur für NICHTblockierenden Client
+
+		// only for NONblocking client
+		void readReady();
 };
 
 #endif

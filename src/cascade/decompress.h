@@ -25,7 +25,6 @@
 // *****************************************************************************
 // Im Speicher Daten per Zlib-Deflate dekomprimieren
 
-
 #ifndef __DECOMPRESS__
 #define __DECOMPRESS__
 
@@ -36,25 +35,25 @@
 bool zlib_decompress(const char* pcIn, int iLenIn, char* pcOut, int& iLenOut)
 {
 	uLong ulLenOut = iLenOut;
-	int iErr = ::uncompress((Bytef*)pcOut, &ulLenOut, (Bytef*)pcIn, (uLong)iLenIn);
+	int iErr = ::uncompress((Bytef*)pcOut, &ulLenOut,
+							(Bytef*)pcIn, (uLong)iLenIn);
 	iLenOut = ulLenOut;
 
 	switch(iErr)
 	{
 		case Z_BUF_ERROR:
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
-			logger << "Zlib error: out of memory." << "\n";
+			logger << "Zlib: out of memory." << "\n";
 			break;
 		case Z_MEM_ERROR:
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
-			logger << "Zlib error: output buffer too small." << "\n";
+			logger << "Zlib: output buffer too small." << "\n";
 			break;
 		case Z_DATA_ERROR:
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
-			logger << "Zlib error: invalid input data." << "\n";
+			logger << "Zlib: invalid input data." << "\n";
 			break;
 	}
 	return iErr==Z_OK;
 }
-
 #endif

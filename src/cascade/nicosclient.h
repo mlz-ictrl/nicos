@@ -49,10 +49,10 @@ class NicosClient : public TcpClient
 		// send a message to server and receive corresponding answer
 		const QByteArray& communicate(const char* pcMsg);
 
-		// get total counts
+		// get total counts in TOF or PAD
 		unsigned int counts(const QByteArray& arr);
 
-		// get total counts inside ROI
+		// get total counts inside ROI in TOF or PAD
 		unsigned int counts(const QByteArray& arr, int iStartX, int iEndX,
 							int iStartY, int iEndY);
 };

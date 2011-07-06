@@ -31,35 +31,40 @@
 #include <iostream>
 #include "tofdata.h"
 
-MainRasterData::MainRasterData(const QwtDoubleRect& rect) : QwtRasterData(rect), m_bLog(1)
+MainRasterData::MainRasterData(const QwtDoubleRect& rect)
+				: QwtRasterData(rect), m_bLog(1)
 {
 }
 
 void MainRasterData::SetLog10(bool bLog10)
-{ 
+{
 	m_bLog = bLog10;
 }
 
 bool MainRasterData::GetLog10(void) const
-{ 
+{
 	return m_bLog;
 }
 
 
-
-// *********************** PAD-Daten *********************** 
-PadData::PadData() : MainRasterData(QwtDoubleRect(0,Config_TofLoader::GetImageWidth(),0,Config_TofLoader::GetImageHeight()))
+// *********************** PAD-Daten ***********************
+PadData::PadData() : MainRasterData(QwtDoubleRect(0,
+									Config_TofLoader::GetImageWidth(), 0,
+									Config_TofLoader::GetImageHeight()))
 {
 }
 
-PadData::PadData(const PadData& pad) : MainRasterData(QwtDoubleRect(0,Config_TofLoader::GetImageWidth(),0,Config_TofLoader::GetImageHeight())), PadImage(pad)
+PadData::PadData(const PadData& pad)
+		: MainRasterData(QwtDoubleRect(0,
+									Config_TofLoader::GetImageWidth(), 0,
+									Config_TofLoader::GetImageHeight())),
+		  PadImage(pad)
 {
 	m_bLog = pad.m_bLog;
 }
 
 PadData::~PadData()
-{
-}
+{}
 
 QwtRasterData *PadData::copy() const
 {
@@ -69,18 +74,27 @@ QwtRasterData *PadData::copy() const
 QwtDoubleInterval PadData::range() const
 {
 	if(m_puiDaten==NULL) return QwtDoubleInterval(0.,1.);
-	
+
 	if(m_bLog)
 	{
 		double dTmpMax = m_iMax,
 		       dTmpMin = m_iMin;
-		
-		if(dTmpMax>0.) dTmpMax = log10(dTmpMax); else dTmpMax=Config_TofLoader::GetLogLowerRange();
-		if(dTmpMin>0.) dTmpMin = log10(dTmpMin); else dTmpMin=Config_TofLoader::GetLogLowerRange();
-		
-		if(dTmpMax!=dTmpMax) dTmpMax=0.;
-		if(dTmpMin!=dTmpMin) dTmpMin=0.;
-		
+
+		if(dTmpMax>0.)
+			dTmpMax = log10(dTmpMax);
+		else
+			dTmpMax=Config_TofLoader::GetLogLowerRange();
+
+		if(dTmpMin>0.)
+			dTmpMin = log10(dTmpMin);
+		else
+			dTmpMin=Config_TofLoader::GetLogLowerRange();
+
+		if(dTmpMax!=dTmpMax)
+			dTmpMax=0.;
+		if(dTmpMin!=dTmpMin)
+			dTmpMin=0.;
+
 		return QwtDoubleInterval(dTmpMin,dTmpMax);
 	}
 	else
@@ -88,20 +102,21 @@ QwtDoubleInterval PadData::range() const
 		return QwtDoubleInterval(m_iMin,m_iMax);
 	}
 }
-    
+
 
 double PadData::value(double x, double y) const
 {
 	double dRet=(double)GetData((int)x,(int)y);
-	
+
 	if(m_bLog)
 	{
 		if(dRet>0.)
 			dRet = log10(dRet);
 		else
-			dRet = -std::numeric_limits<double>::max(); // ungültige Werte weit außerhalb der Range verlagern
+			// ungültige Werte weit außerhalb der Range verlagern
+			dRet = -std::numeric_limits<double>::max();
 	}
-	
+
 	if(dRet!=dRet) dRet=0.;
 	return dRet;
 }
@@ -114,16 +129,19 @@ double PadData::GetValueRaw(int x, int y) const
 // ***********************************************************
 
 
-// *********************** TOF-Daten *********************** 
-Data2D::Data2D(const QwtDoubleRect& rect) : MainRasterData(rect), m_bPhaseData(0)
-{
-}
+// *********************** TOF-Daten ***********************
+Data2D::Data2D(const QwtDoubleRect& rect)
+		: MainRasterData(rect), m_bPhaseData(0)
+{}
 
-Data2D::Data2D() : MainRasterData(QwtDoubleRect(0,Config_TofLoader::GetImageWidth(),0,Config_TofLoader::GetImageHeight()))
-{
-}
+Data2D::Data2D() : MainRasterData(QwtDoubleRect(0,
+								  Config_TofLoader::GetImageWidth(), 0,
+								  Config_TofLoader::GetImageHeight()))
+{}
 
-Data2D::Data2D(const Data2D& data2d) : MainRasterData(QwtDoubleRect(0,data2d.m_iW,0,data2d.m_iH)), TmpImage(data2d)
+Data2D::Data2D(const Data2D& data2d)
+		: MainRasterData(QwtDoubleRect(0,data2d.m_iW,0,data2d.m_iH)),
+		  TmpImage(data2d)
 {
 	this->m_bLog = data2d.m_bLog;
 	this->m_bPhaseData = data2d.m_bPhaseData;
@@ -133,27 +151,37 @@ Data2D::~Data2D()
 {
 	clearData();
 }
-		
-void Data2D::SetPhaseData(bool bPhaseData)	// wegen Achsen-Range
+
+// wegen Achsen-Range
+void Data2D::SetPhaseData(bool bPhaseData)
 {
 	m_bPhaseData = bPhaseData;
 }
 
 void Data2D::clearData()
 {
-	if(m_puiDaten!=NULL) { delete[] m_puiDaten; m_puiDaten = NULL; }
-	if(m_pdDaten!=NULL) { delete[] m_pdDaten; m_pdDaten = NULL; }
+	if(m_puiDaten!=NULL)
+	{
+		delete[] m_puiDaten;
+		m_puiDaten = NULL;
+	}
+	if(m_pdDaten!=NULL)
+	{
+		delete[] m_pdDaten;
+		m_pdDaten = NULL;
+	}
 }
 
 QwtRasterData *Data2D::copy() const
 {
 	return new Data2D(*this);
 }
-	
+
 QwtDoubleInterval Data2D::range() const
 {
-	if(m_puiDaten==NULL && m_pdDaten==NULL) return QwtDoubleInterval(0.,1.);
-	
+	if(m_puiDaten==NULL && m_pdDaten==NULL)
+		return QwtDoubleInterval(0.,1.);
+
 	double dTmpMax, dTmpMin;
 	if(m_bPhaseData)
 	{
@@ -165,15 +193,21 @@ QwtDoubleInterval Data2D::range() const
 		dTmpMax = m_dMax;
 		dTmpMin = m_dMin;
 	}
-	
+
 	if(m_bLog)
 	{
-		if(dTmpMax>0.) dTmpMax=log10(dTmpMax); else dTmpMax=Config_TofLoader::GetLogLowerRange();
-		if(dTmpMin>0.) dTmpMin=log10(dTmpMin); else dTmpMin=Config_TofLoader::GetLogLowerRange();
-		
+		if(dTmpMax>0.)
+			dTmpMax=log10(dTmpMax);
+		else
+			dTmpMax=Config_TofLoader::GetLogLowerRange();
+		if(dTmpMin>0.)
+			dTmpMin=log10(dTmpMin);
+		else
+			dTmpMin=Config_TofLoader::GetLogLowerRange();
+
 		if(dTmpMax!=dTmpMax) dTmpMax=0.;
 		if(dTmpMin!=dTmpMin) dTmpMin=0.;
-		
+
 		return QwtDoubleInterval(dTmpMin,dTmpMax);
 	}
 	else
@@ -183,15 +217,16 @@ QwtDoubleInterval Data2D::range() const
 double Data2D::value(double x, double y) const
 {
 	double dRet=(double)GetData((int)x,(int)y);
-	
+
 	if(m_bLog)
 	{
 		if(dRet>0.)
 			dRet = log10(dRet);
 		else
-			dRet = -std::numeric_limits<double>::max(); // ungültige Werte weit außerhalb der Range verlagern
+			// ungültige Werte weit außerhalb der Range verlagern
+			dRet = -std::numeric_limits<double>::max();
 	}
-	
+
 	if(dRet!=dRet) dRet=0.;
 	return dRet;
 }

@@ -49,15 +49,25 @@
 #include "tofdata.h"
 
 
+#define MODE_SLIDES		1
+#define MODE_PHASES		2
+#define MODE_CONTRASTS	3
+
+#define MODE_SUMS			4
+#define MODE_PHASESUMS		5
+#define MODE_CONTRASTSUMS	6
+
+
+
 class MainZoomer : public QwtPlotZoomer
 {
 	protected:
 		const QwtPlotSpectrogram* m_pData;
-	
+
 	public:
 		MainZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram* pData);
 		virtual ~MainZoomer();
-		
+
 		virtual QwtText trackerText(const QwtDoublePoint &pos) const;
 };
 
@@ -65,7 +75,7 @@ class MainZoomer : public QwtPlotZoomer
 class MainPanner : public QwtPlotPanner
 {
 	protected:
-		
+
 	public:
 		MainPanner(QwtPlotCanvas *canvas);
 		virtual ~MainPanner();
@@ -75,7 +85,7 @@ class MainPanner : public QwtPlotPanner
 class Plot : public QwtPlot
 {
 	Q_OBJECT
-    
+
 	protected:
 		QwtPlotSpectrogram *m_pSpectrogram;
 		MainZoomer* m_pZoomer;
@@ -83,8 +93,8 @@ class Plot : public QwtPlot
 
 	public:
 		Plot(QWidget *parent);
-		virtual ~Plot();		
-		
+		virtual ~Plot();
+
 		void ChangeRange();
 		QwtPlotZoomer* GetZoomer();
 		QwtPlotPanner* GetPanner();
@@ -93,7 +103,7 @@ class Plot : public QwtPlot
 		const QwtRasterData* GetData() const;
 
 		void SetColorMap(bool bCyclic);
-		
+
 		void InitPlot();
 		void DeinitPlot();
 
@@ -101,15 +111,6 @@ class Plot : public QwtPlot
 		void printPlot();
 };
 
-
-
-#define MODE_SLIDES		1
-#define MODE_PHASES		2
-#define MODE_CONTRASTS		3
-
-#define MODE_SUMS		4
-#define MODE_PHASESUMS		5
-#define MODE_CONTRASTSUMS	6
 
 
 class CascadeWidget : public QWidget
@@ -120,71 +121,81 @@ Q_OBJECT
 
 	protected:
 		Plot *m_pPlot;
-		
+
 		// PAD
 		PadData *m_pPad;
-		
+
 		// TOF
 		TofImage *m_pTof;
 		Data2D *m_pdata2d;
-		
+
 		int m_iMode;
 		int m_iFolie, m_iZeitkanal;
 		bool m_bLog;
-		
+
 	public:
 		CascadeWidget(QWidget *parent=NULL);
 		virtual ~CascadeWidget();
-		
+
 		void Unload();
 		bool IsTofLoaded() const;
 		bool IsPadLoaded() const;
 		void* NewPad();
 		void* NewTof(int iCompression = TOF_COMPRESSION_USEGLOBCONFIG);
-		bool LoadPadFile(const char* pcFile);				// PAD aus Datei laden
-		bool LoadTofFile(const char* pcFile);				// TOF aus Datei laden
-		bool LoadPadMem(const char* pcMem, unsigned int iLen);		// PAD aus Speicher laden
-		bool LoadTofMem(const char* pcMem, unsigned int iLen);		// TOF aus Speicher laden
-				
+
+		// load PAD from file
+		bool LoadPadFile(const char* pcFile);
+
+		// load TOF from file
+		bool LoadTofFile(const char* pcFile);
+
+		// load PAD from memory
+		bool LoadPadMem(const char* pcMem, unsigned int iLen);
+
+		// load TOF from memory
+		bool LoadTofMem(const char* pcMem, unsigned int iLen);
+
 		TofImage* GetTof();
 		Data2D* GetData2d();
 		PadData* GetPad();
 		Plot* GetPlot();
-		unsigned int* GetRawData();	// Pointer auf Rohdaten-Bereich erhalten
-		
+		unsigned int* GetRawData();
+
 		bool GetLog10();
 		int GetFoil() const;
 		int GetTimechannel() const;
-		
+
 		void SetMode(int iMode);
 		int GetMode();
 
 	public slots:
-		void viewOverview();		// alle Folien aller Zeitkanaele aufsummieren
-		void viewSlides();		// einzelne Folie anzeigen
-		void viewPhases();		// Phasen
-		void viewContrasts();		// Kontraste
-		
+		// sum all foils and all time channels
+		void viewOverview();
+		// show single foil
+		void viewSlides();
+		void viewPhases();
+		void viewContrasts();
+
 		void viewFoilSums(const bool* pbKanaele);
 		void viewPhaseSums(const bool* pbFolien);
 		void viewContrastSums(const bool* pbFolien);
-		
-		// Dialoge ////////////////////////////
+
+		// dialogs ////////////////////////////
 		void showCalibrationDlg(int iNumBins);
 		void showGraphDlg();
 		void showSumDlg();
 		///////////////////////////////////////
-		
+
 		void SetLog10(bool bLog10);
 		void SetFoil(int iFolie);
 		void SetTimechannel(int iKanal);
-		
+
 		void UpdateGraph();
-		void UpdateLabels();		
+		void UpdateLabels();
 		void UpdateRange();
-		
+
 		void SumDlgSlot(const bool *pbKanaele, int iMode);
-		
+
 	signals:
 		void SumDlgSignal(const bool* pbKanaele, int iMode);
 };
