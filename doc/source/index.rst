@@ -9,6 +9,7 @@ Contents:
    install
    setups
    devices
+   auto/modules
 
 Indices and tables
 ==================
