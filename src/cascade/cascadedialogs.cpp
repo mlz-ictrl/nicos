@@ -34,26 +34,26 @@ CalibrationDlg::CalibrationDlg(QWidget *pParent, const Bins& bins) : QDialog(pPa
 {
 	setupUi(this);
 	qwtPlot->setCanvasBackground(QColor(Qt::white));
-	
+
 	const QwtArray<QwtDoubleInterval>& intervals = bins.GetIntervals();
 	const QwtArray<double>& values = bins.GetValues();
-	
+
 	m_pgrid = new QwtPlotGrid;
 	m_pgrid->enableXMin(true);
 	m_pgrid->enableYMin(true);
 	m_pgrid->setMajPen(QPen(Qt::black, 0, Qt::DotLine));
 	m_pgrid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
 	m_pgrid->attach(qwtPlot);
-	
+
 	m_phistogram = new HistogramItem();
 	m_phistogram->setColor(Qt::black);
 	m_phistogram->attach(qwtPlot);
-	
+
 	qwtPlot->setAxisScale(QwtPlot::xBottom, 0., 360.);
 	qwtPlot->setAxisScale(QwtPlot::yLeft, 0.0, bins.GetMaxVal());
 	qwtPlot->axisWidget(QwtPlot::xBottom)->setTitle("Phase [DEG]");
 	qwtPlot->axisWidget(QwtPlot::yLeft)->setTitle("Number");
-	
+
 	m_phistogram->setData(QwtIntervalData(intervals, values));
 	qwtPlot->replot();
 }
@@ -109,7 +109,7 @@ void SumDlg::TreeWidgetClicked(QTreeWidgetItem *item, int column)
 	for(iFolie=0; iFolie<Config_TofLoader::GetFoilCount(); ++iFolie)
 		if(m_pTreeItemsFolien[iFolie]==item) break;
 	if(iFolie==Config_TofLoader::GetFoilCount()) return;	// nicht auf Parent geklickt
-	
+
 	for(int iKanal=0; iKanal<Config_TofLoader::GetImagesPerFoil(); ++iKanal)
 		m_pTreeItems[iFolie*Config_TofLoader::GetImagesPerFoil() + iKanal]->setCheckState(0,m_pTreeItemsFolien[iFolie]->checkState(0));
 }
@@ -117,7 +117,7 @@ void SumDlg::TreeWidgetClicked(QTreeWidgetItem *item, int column)
 SumDlg::SumDlg(QWidget *pParent) : QDialog(pParent)
 {
 	setupUi(this);
-	
+
 	m_pTreeItemsFolien = new QTreeWidgetItem*[Config_TofLoader::GetFoilCount()];
 	m_pTreeItems = new QTreeWidgetItem*[Config_TofLoader::GetFoilCount()*Config_TofLoader::GetImagesPerFoil()];
 
@@ -128,7 +128,7 @@ SumDlg::SumDlg(QWidget *pParent) : QDialog(pParent)
 		sprintf(pcName, "Foil %d", iFolie+1);
 		m_pTreeItemsFolien[iFolie]->setText(0, pcName);
 		m_pTreeItemsFolien[iFolie]->setCheckState(0, Qt::Unchecked);
-		
+
 		for(int iKanal=0; iKanal<Config_TofLoader::GetImagesPerFoil(); ++iKanal)
 		{
 			m_pTreeItems[iFolie*Config_TofLoader::GetImagesPerFoil() + iKanal] = new QTreeWidgetItem(m_pTreeItemsFolien[iFolie]);
@@ -137,7 +137,7 @@ SumDlg::SumDlg(QWidget *pParent) : QDialog(pParent)
 			m_pTreeItems[iFolie*Config_TofLoader::GetImagesPerFoil() + iKanal]->setText(0, pcName);
 		}
 	}
-	
+
 	connect(treeWidget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(TreeWidgetClicked(QTreeWidgetItem *, int)));
 	connect(pushButtonShow, SIGNAL(clicked()), this, SLOT(ShowIt()));
 	connect(pushButtonSelectAll, SIGNAL(clicked()), this, SLOT(SelectAll()));
@@ -192,7 +192,7 @@ SumDlgNoChannels::SumDlgNoChannels(QWidget *pParent) : QDialog(pParent)
 		m_pTreeItemsFolien[iFolie]->setText(0, pcName);
 		m_pTreeItemsFolien[iFolie]->setCheckState(0, Qt::Unchecked);
 	}
-	
+
 	connect(pushButtonShow, SIGNAL(clicked()), this, SLOT(ShowIt()));
 	connect(pushButtonSelectAll, SIGNAL(clicked()), this, SLOT(SelectAll()));
 	connect(pushButtonSelectNone, SIGNAL(clicked()), this, SLOT(SelectNone()));
@@ -214,7 +214,7 @@ void GraphDlg::UpdateGraph(void)
 	// Messpunkte für eine Folie
 	TmpGraph tmpGraph;
 	m_pTofImg->GetGraph(spinBoxROIx1->value(),spinBoxROIx2->value(),spinBoxROIy1->value(),spinBoxROIy2->value(),spinBoxFolie->value()-1, &tmpGraph);
-	
+
 	double *pdx = new double[tmpGraph.GetWidth()];
 	double *pdy = new double[tmpGraph.GetWidth()];
 	for(int i=0; i<tmpGraph.GetWidth(); ++i)
@@ -225,17 +225,23 @@ void GraphDlg::UpdateGraph(void)
 	m_curve.setData(pdx,pdy,tmpGraph.GetWidth());
 	delete[] pdx;
 	delete[] pdy;
-	
-	
+
+
 	// Fit dieser Messpunkte
 	double dPhase, dFreq, dAmp, dOffs;
 	bool bFitValid = tmpGraph.FitSinus(dPhase, dFreq, dAmp, dOffs);
-	
+
 	char pcFit[256];
 	if(bFitValid)
+	{
 		sprintf(pcFit, "Fit: y = %.0f * sin(%.4f*x + %.4f) + %.0f", dAmp, dFreq, dPhase, dOffs);
-	else 
+	}
+	else
+	{
 		sprintf(pcFit, "Fit: invalid!");
+		dAmp = dFreq = dPhase = dOffs = 0.;
+	}
+
 	labelFit->setText(pcFit);
 
 	const int FITPUNKTE=16;
@@ -250,7 +256,7 @@ void GraphDlg::UpdateGraph(void)
 	m_curvefit.setData(pdx,pdy,Config_TofLoader::GetImagesPerFoil()*FITPUNKTE);
 	delete[] pdx;
 	delete[] pdy;
-	
+
 	/*
 	// Gesamtkurve
 	TmpGraph tmpGraphtotal;
@@ -266,7 +272,7 @@ void GraphDlg::UpdateGraph(void)
 	delete[] pdx;
 	delete[] pdy;
 	*/
-	
+
 	qwtPlot->replot();
 }
 
@@ -283,14 +289,14 @@ void GraphDlg::Init(int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie)
 	qwtPlot->setCanvasBackground(QColor(255,255,255));
 	qwtPlot->axisWidget(QwtPlot::xBottom)->setTitle("Time Channels");
 	qwtPlot->axisWidget(QwtPlot::yLeft)->setTitle("Counts");
-	
+
 	m_pgrid = new QwtPlotGrid;
 	m_pgrid->enableXMin(true);
 	m_pgrid->enableYMin(true);
 	m_pgrid->setMajPen(QPen(Qt::black, 0, Qt::DotLine));
 	m_pgrid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
-	m_pgrid->attach(qwtPlot);			
-	
+	m_pgrid->attach(qwtPlot);
+
 	spinBoxROIx1->setMinimum(0);
 	spinBoxROIx1->setMaximum(Config_TofLoader::GetImageWidth());
 	spinBoxROIx2->setMinimum(0);
@@ -301,25 +307,25 @@ void GraphDlg::Init(int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie)
 	spinBoxROIy2->setMaximum(Config_TofLoader::GetImageHeight());
 	spinBoxFolie->setMinimum(1);
 	spinBoxFolie->setMaximum(Config_TofLoader::GetFoilCount());
-	
+
 	spinBoxROIx1->setValue(iROIx1);
 	spinBoxROIx2->setValue(iROIx2);
 	spinBoxROIy1->setValue(iROIy1);
 	spinBoxROIy2->setValue(iROIy2);
 	spinBoxFolie->setValue(iFolie+1);
-	
+
 	QwtLegend *m_plegend = new QwtLegend;
 	//m_plegend->setItemMode(QwtLegend::CheckableItem);
 	qwtPlot->insertLegend(m_plegend, QwtPlot::RightLegend);
-	
+
 	QObject::connect(spinBoxROIy1, SIGNAL(valueChanged(int)), this, SLOT(ROIy1changed(int)));
 	QObject::connect(spinBoxROIy2, SIGNAL(valueChanged(int)), this, SLOT(ROIy2changed(int)));
 	QObject::connect(spinBoxROIx1, SIGNAL(valueChanged(int)), this, SLOT(ROIx1changed(int)));
 	QObject::connect(spinBoxROIx2, SIGNAL(valueChanged(int)), this, SLOT(ROIx2changed(int)));
 	QObject::connect(spinBoxFolie, SIGNAL(valueChanged(int)), this, SLOT(Foilchanged(int)));
-	QObject::connect(spinBoxPhase, SIGNAL(valueChanged(double)), this, SLOT(Phasechanged(double)));			
-	
-	
+	QObject::connect(spinBoxPhase, SIGNAL(valueChanged(double)), this, SLOT(Phasechanged(double)));
+
+
 	// Kurve für Messpunkte für eine Folie
 	QwtSymbol sym;
 	sym.setStyle(QwtSymbol::Ellipse);
@@ -331,13 +337,13 @@ void GraphDlg::Init(int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie)
 	m_curve.setRenderHint(QwtPlotItem::RenderAntialiased);
 	m_curve.setPen(QPen(Qt::blue));
 	m_curve.attach(qwtPlot);
-	
+
 	// Kurve für Fits
 	m_curvefit.setRenderHint(QwtPlotItem::RenderAntialiased);
 	QPen penfit = QPen(Qt::red);
 	m_curvefit.setPen(penfit);
 	m_curvefit.attach(qwtPlot);
-	
+
 	// Gesamtkurve
 	m_curvetotal.setRenderHint(QwtPlotItem::RenderAntialiased);
 	QPen pentotal = QPen(Qt::black);
@@ -383,22 +389,22 @@ ServerDlg::~ServerDlg()
 ServerCfgDlg::ServerCfgDlg(QWidget *pParent) : QDialog(pParent)
 {
 	setupUi(this);
-	QString str; 
-	
+	QString str;
+
 	str.setNum(s_dLastTime);
 	editMeasTime->setText(str);
-	
+
 	str.setNum(s_iXRes);
 	editxres->setText(str);
-	
+
 	str.setNum(s_iYRes);
 	edityres->setText(str);
 
 	str.setNum(s_iTRes);
 	edittres->setText(str);
-	
+
 	checkBoxPseudoComp->setChecked(s_bUsePseudoComp);
-	
+
 	if(s_iMode==MODE_PAD)
 	{
 		radioButtonPad->setChecked(1);
@@ -412,7 +418,7 @@ ServerCfgDlg::ServerCfgDlg(QWidget *pParent) : QDialog(pParent)
 		toggledmode(1);
 	}
 	connect(radioButtonTof, SIGNAL(toggled(bool)), this, SLOT(toggledmode(bool)));
-	
+
 	setFixedSize(width(),height());
 }
 
@@ -453,9 +459,9 @@ unsigned int ServerCfgDlg::GetTRes()
 {
 	if(radioButtonPad->isChecked())
 		return 1;
-	
+
 	s_iTRes = edittres->text().toInt();
-	return s_iTRes;	
+	return s_iTRes;
 }
 
 int ServerCfgDlg::GetMode()

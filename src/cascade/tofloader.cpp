@@ -44,7 +44,9 @@
 	#include <Minuit2/FCNBase.h>
 	#include <Minuit2/FunctionMinimum.h>
 	#include <Minuit2/MnMigrad.h>
+	#include <Minuit2/MnSimplex.h>
 	#include <Minuit2/MnMinimize.h>
+	#include <Minuit2/MnFumiliMinimize.h>
 	#include <Minuit2/MnUserParameters.h>
 	#include <Minuit2/MnPrint.h>
 #endif
@@ -67,7 +69,8 @@ bool Config_TofLoader::USE_PSEUDO_COMPRESSION = 1;
 // Defaults used in ROOT::Minuit2::MnApplication::operator()
 double Config_TofLoader::dMinuitTolerance = 0.1;
 unsigned int Config_TofLoader::uiMinuitMaxFcn = 0;
-
+int Config_TofLoader::iMinuitAlgo = MINUIT_MIGRAD;
+unsigned int Config_TofLoader::uiMinuitStrategy = 1;
 
 void Config_TofLoader::Init()
 {
@@ -109,6 +112,16 @@ void Config_TofLoader::Init()
 
 	dMinuitTolerance = Config::GetSingleton()->QueryDouble("/cascade_config/minuit/tolerance", dMinuitTolerance);
 	uiMinuitMaxFcn = (unsigned int)Config::GetSingleton()->QueryInt("/cascade_config/minuit/maxfcn", uiMinuitMaxFcn);
+	uiMinuitStrategy = (unsigned int)Config::GetSingleton()->QueryInt("/cascade_config/minuit/strategy", uiMinuitStrategy);
+
+	char pcAlgo[256];
+	Config::GetSingleton()->QueryString("/cascade_config/minuit/algo", pcAlgo, "migrad");
+	if(strcasecmp(pcAlgo, "migrad")==0)
+		iMinuitAlgo = MINUIT_MIGRAD;
+	else if(strcasecmp(pcAlgo, "minimize")==0)
+		iMinuitAlgo = MINUIT_MINIMIZE;
+	else if(strcasecmp(pcAlgo, "simplex")==0)
+		iMinuitAlgo = MINUIT_SIMPLEX;
 
 #else	// Nicos-Client holt Einstellungen von Detektor
 
@@ -140,7 +153,8 @@ int Config_TofLoader::GetImageCount() { return IMAGE_COUNT; }
 bool Config_TofLoader::GetPseudoCompression() { return USE_PSEUDO_COMPRESSION; }
 unsigned int Config_TofLoader::GetMinuitMaxFcn() { return uiMinuitMaxFcn; }
 double Config_TofLoader::GetMinuitTolerance() { return dMinuitTolerance; }
-
+int Config_TofLoader::GetMinuitAlgo() { return iMinuitAlgo; }
+unsigned int Config_TofLoader::GetMinuitStrategy() { return uiMinuitStrategy; }
 
 int Config_TofLoader::GetFoilBegin(int iFoil)
 {
@@ -176,7 +190,8 @@ void Config_TofLoader::SetImageCount(int iImgCount) { IMAGE_COUNT = iImgCount; }
 void Config_TofLoader::SetPseudoCompression(bool bSet) { USE_PSEUDO_COMPRESSION = bSet; }
 void Config_TofLoader::SetMinuitMaxFnc(unsigned int uiMaxFcn) { uiMinuitMaxFcn = uiMaxFcn; }
 void Config_TofLoader::SetMinuitTolerance(double dTolerance) { dMinuitTolerance = dTolerance; }
-
+void Config_TofLoader::SetMinuitAlgo(int iAlgo) { iMinuitAlgo = iAlgo; }
+void Config_TofLoader::SetMinuitStrategy(unsigned int uiStrategy) { uiMinuitStrategy = uiStrategy; }
 
 void Config_TofLoader::SetFoilBegin(int iFoil, int iOffs)
 {
@@ -1473,13 +1488,15 @@ class Sinus : public ROOT::Minuit2::FCNBase
 			double doffs = params[2];
 			double dscale = /*params[3]*/ 2.*M_PI/double(Config_TofLoader::GetImagesPerFoil());	// fest
 
-			// erzwingt, dass Amplituden-Fitparameter nicht negativ gewählt wird
+			// force non-negative amplitude parameter
 			if(damp<0.) return std::numeric_limits<double>::max();
 
 			double dchi2 = 0.;
 			for(int i=0; i<m_iNum; ++i)
 			{
 				double dAbweichung = m_pddy[i];
+
+				// prevent division by zero
 				if(fabs(dAbweichung) < std::numeric_limits<double>::epsilon())
 					dAbweichung = std::numeric_limits<double>::epsilon();
 
@@ -1564,9 +1581,28 @@ bool TmpGraph::FitSinus(double &dPhase, double &dScale, double &dAmp, double &dO
 	upar.Add("offset", dOffs, sqrt(dOffs));
 	//upar.Add("scale", 2.*M_PI/16., 0.1);		// kein Fit-Parameter
 
-	//ROOT::Minuit2::MnMigrad migrad(fkt, upar);
-	ROOT::Minuit2::MnMinimize minimize(fkt, upar);
-	ROOT::Minuit2::FunctionMinimum mini = minimize(Config_TofLoader::GetMinuitMaxFcn(), Config_TofLoader::GetMinuitTolerance());
+	ROOT::Minuit2::MnApplication *pMinimize = 0;
+
+	unsigned int uiStrategy = Config_TofLoader::GetMinuitStrategy();
+	switch(Config_TofLoader::GetMinuitAlgo())
+	{
+		case MINUIT_SIMPLEX:
+			pMinimize = new ROOT::Minuit2::MnSimplex(fkt, upar, uiStrategy);
+			break;
+
+		case MINUIT_MINIMIZE:
+			pMinimize = new ROOT::Minuit2::MnMinimize(fkt, upar, uiStrategy);
+			break;
+
+		default:
+		case MINUIT_MIGRAD:
+			pMinimize = new ROOT::Minuit2::MnMigrad(fkt, upar, uiStrategy);
+			break;
+	}
+
+	ROOT::Minuit2::FunctionMinimum mini = (*pMinimize)(Config_TofLoader::GetMinuitMaxFcn(), Config_TofLoader::GetMinuitTolerance());
+	delete pMinimize;
+	pMinimize = 0;
 
 	dPhase = mini.Parameters().Vec()[0];
 	dAmp = mini.Parameters().Vec()[1];

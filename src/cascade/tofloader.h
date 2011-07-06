@@ -40,6 +40,11 @@ class TmpGraph;
 class TofImage;
 class PadImage;
 
+
+#define MINUIT_SIMPLEX 	1
+#define MINUIT_MINIMIZE	2
+#define MINUIT_MIGRAD 	3
+
 // Konfiguration
 class Config_TofLoader
 {
@@ -68,6 +73,8 @@ class Config_TofLoader
 
 		static double dMinuitTolerance;
 		static unsigned int uiMinuitMaxFcn;
+		static int iMinuitAlgo;
+		static unsigned int uiMinuitStrategy;
 
 	public:
 		// iLen in Ints, nicht Bytes
@@ -85,6 +92,8 @@ class Config_TofLoader
 		static bool GetPseudoCompression();
 		static unsigned int GetMinuitMaxFcn();
 		static double GetMinuitTolerance();
+		static int GetMinuitAlgo();
+		static unsigned int GetMinuitStrategy();
 
 		static void SetFoilCount(int iNumFoils);
 		static void SetImagesPerFoil(int iNumImagesPerFoil);
@@ -95,6 +104,8 @@ class Config_TofLoader
 		static void SetPseudoCompression(bool bSet);
 		static void SetMinuitMaxFnc(unsigned int uiMaxFcn);
 		static void SetMinuitTolerance(double dTolerance);
+		static void SetMinuitAlgo(int iAlgo);
+		static void SetMinuitStrategy(unsigned int iStrategy);
 
 		static void CheckArguments(int* piStartX, int* piEndX, int* piStartY, int* piEndY, int* piFoil=0, int* piTimechannel=0);
 
