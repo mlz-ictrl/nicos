@@ -23,14 +23,14 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // *****************************************************************************
-// einfache Argumentstrings der Sorte "status=1 error=0" lesen und eine Hashmap daraus machen
 
-#ifndef __PRIMITIV_PARSER__
-#define __PRIMITIV_PARSER__
+#ifndef __ARGUMENT_MAP_PARSER__
+#define __ARGUMENT_MAP_PARSER__
 
 #include <stdlib.h>
 #include <string>
 #include <map>
+#include "helper.h"
 
 #ifdef USE_BOOST
 	#include <boost/xpressive/xpressive.hpp>
@@ -40,27 +40,36 @@
 	#include <sstream>
 #endif
 
+/*
+ * ArgumentMap
+ * parse simple strings of the type "status=1 error=0" and sort them into a map
+ */
 class ArgumentMap
 {
 	protected:
 		std::map<std::string, std::string> m_mapArgs;
 
 	public:
-		//////////////// Neue Wertepaare (z.B. "status=1 error=0") hinzufügen ///////////
+		// parse pcStr and add "key=value" pairs to map
 		void add(const char* pcStr)
 		{
-#ifdef USE_BOOST
-			std::string str(pcStr);
+			std::string str = trim(std::string(pcStr));
+
+#ifdef USE_BOOST // use cooler boost version or plain old manual version?
 
 			// diese sregex-Ausdrücke basieren auf dem Beispiel zu
 			// "Semantic Actions and User-Defined Assertions"
 			// aus der xpressive-Dokumentation:
 			// http://www.boost.org/doc/libs/1_46_1/doc/html/xpressive/user_s_guide.html
-			sregex keyvalue = ((s1= +_w) >> *(+_s) >> "=" >> *(+_s) >> (s2= +_w)) [ref(m_mapArgs)[s1] = as<std::string>(s2)];
+			sregex keyvalue = ((s1 = +_w) >>
+							   *_s >> "=" >> *_s >>
+							   (s2 = +_w))
+							  [ref(m_mapArgs)[s1] = as<std::string>(s2)];
 			regex_match(str, sregex(keyvalue >> *(+_s >> keyvalue)));
 
 #else
-			std::istringstream istr(pcStr);
+
+			std::istringstream istr(str);
 
 			while(!istr.eof())
 			{
@@ -83,11 +92,13 @@ class ArgumentMap
 
 				//std::cout << "Links: \"" << strLinks << "\", Rechts: \"" << strRechts << "\"" << std::endl;
 			}
-#endif
-		}
-		/////////////////////////////////////////////////////////////////////////////////
 
-		/////////////////////////////// Werte abfragen /////////////////////////////
+#endif //USE_BOOST
+		}
+		//----------------------------------------------------------------------
+
+		//----------------------------------------------------------------------
+		// query values
 		const char* QueryString(const char* pcKey) const
 		{
 			std::map<std::string,std::string>::const_iterator iter = m_mapArgs.find(pcKey);
@@ -119,7 +130,18 @@ class ArgumentMap
 			if(pbHasKey) *pbHasKey = 1;
 			return atof(pcStr);
 		}
-		////////////////////////////////////////////////////////////////////////////
+		//----------------------------------------------------------------------
+
+		// dump map contents
+		void dump() const
+		{
+			std::map<std::string,std::string>::const_iterator iter;
+			for(iter = m_mapArgs.begin(); iter!=m_mapArgs.end(); ++iter)
+			{
+				std::cout << "Key: \'" << (*iter).first << "\', "
+						  << "Value: \'" << (*iter).second << "\'\n";
+			}
+		}
 
 		ArgumentMap(const char* pcStr=0)
 		{

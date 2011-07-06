@@ -32,10 +32,10 @@
 long GetFileSize(FILE* pf)
 {
 	long lPos = ftell(pf);
-	
+
 	fseek(pf, 0, SEEK_END);
 	long lSize = ftell(pf);
-	
+
 	fseek(pf, lPos, SEEK_SET);
 	return lSize;
 }
@@ -44,20 +44,31 @@ long GetFileSize(const char* pcFileName)
 {
 	FILE* pf = fopen(pcFileName, "rb");
 	if(!pf) return 0;
-	
+
 	long lSize = GetFileSize(pf);
-	
+
 	fclose(pf);
 	return lSize;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
 
+std::string trim(const std::string& str)
+{
+	char *pcStr = new char[str.length()+1];
+	strcpy(pcStr, str.c_str());
+	trim(pcStr);
+
+	std::string strRet = pcStr;
+	delete[] pcStr;
+	return strRet;
+}
+
 void trim(char* pcStr)
 {
 	int iBegin = 0;
 	int iLenStr = strlen(pcStr);
-	
+
 	// remove whitespaces from front of string
 	for(int i=0; i<iLenStr; ++i)
 	{
@@ -67,11 +78,11 @@ void trim(char* pcStr)
 			break;
 		}
 	}
-	
+
 	iLenStr -= iBegin;
 	if(iBegin!=0)
 		memmove(pcStr, pcStr+iBegin, iLenStr);
-	
+
 	// remove whitespaces from back of string
 	for(int i=iLenStr-1; i>=0; --i)
 	{

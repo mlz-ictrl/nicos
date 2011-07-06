@@ -30,7 +30,6 @@
 #include "helper.h"
 #include "logger.h"
 
-
 #define IS_PAD	1
 #define IS_TOF	0
 #define IS_NONE	-1
@@ -47,12 +46,14 @@ NicosClient::~NicosClient()
 
 const QByteArray& NicosClient::communicate(const char* pcMsg)
 {
-	cleanup<QMutex> _cleanup(m_mutex, &QMutex::unlock);	// unlock mutex at the end of the scope
-	
+	// to unlock mutex at the end of the scope
+	// (alternative: __try...__finally or evil goto)
+	cleanup<QMutex> _cleanup(m_mutex, &QMutex::unlock);
+
 	m_mutex.lock();
 	if(!sendmsg(pcMsg))
 		return m_byEmpty;
-	
+
 	const QByteArray& arr = recvmsg();
 	return arr;
 }
@@ -60,17 +61,17 @@ const QByteArray& NicosClient::communicate(const char* pcMsg)
 unsigned int NicosClient::counts(const QByteArray& arr)
 {
 	if(arr.size()<4) return 0;
-	
+
 	int iPad = IsPad(arr.data());
 	if(iPad == IS_NONE) return 0;
 	bool bPad = (iPad == IS_PAD);
-	
+
 	if(!bPad)
 		m_tof.SetCompressionMethod(TOF_COMPRESSION_USEGLOBCONFIG);
-	
+
 	if(!IsSizeCorrect(arr, bPad))
-		return 0;	
-	
+		return 0;
+
 	if(bPad)
 	{
 		m_pad.SetExternalMem((unsigned int*)(arr.data()+4));
@@ -81,26 +82,26 @@ unsigned int NicosClient::counts(const QByteArray& arr)
 		m_tof.SetExternalMem((unsigned int*)(arr.data()+4));
 		unsigned int uiCnts = m_tof.GetCounts();
 		m_tof.SetExternalMem(NULL);
-		
+
 		return uiCnts;
 	}
 }
 
 unsigned int NicosClient::counts(const QByteArray& arr, int iStartX, int iEndX, int iStartY, int iEndY)
 {
-	if(arr.size()<4) 
+	if(arr.size()<4)
 		return 0;
-	
+
 	int iPad = IsPad(arr.data());
 	if(iPad == IS_NONE) return 0;
 	bool bPad = (iPad == IS_PAD);
-	
+
 	if(!bPad)
-		m_tof.SetCompressionMethod(TOF_COMPRESSION_USEGLOBCONFIG);	
-	
+		m_tof.SetCompressionMethod(TOF_COMPRESSION_USEGLOBCONFIG);
+
 	if(!IsSizeCorrect(arr, bPad))
 		return 0;
-	
+
 	if(bPad)
 	{
 		m_pad.SetExternalMem((unsigned int*)(arr.data()+4));
@@ -111,7 +112,7 @@ unsigned int NicosClient::counts(const QByteArray& arr, int iStartX, int iEndX, 
 		m_tof.SetExternalMem((unsigned int*)(arr.data()+4));
 		unsigned int uiCnts = m_tof.GetCounts(iStartX, iEndX, iStartY, iEndY);
 		m_tof.SetExternalMem(NULL);
-		
+
 		return uiCnts;
 	}
 }
@@ -146,6 +147,6 @@ int NicosClient::IsPad(const char* pcBuf)
 		return IS_PAD;
 	else if(strncasecmp(pcBuf, "DATA", 4) == 0)	// TOF
 		return IS_TOF;
-	
+
 	return IS_NONE;
 }

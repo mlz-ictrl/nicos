@@ -438,7 +438,13 @@ TofImage::~TofImage()
 
 void TofImage::SetExternalMem(void* pvDaten)
 {
-	if(!m_bExternalMem) return;
+	if(!m_bExternalMem)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: This TOF does not use external memory"
+				  " (line " << __LINE__ << ")!\n";
+		return;
+	}
 
 	m_puiDaten = (unsigned int*)pvDaten;
 	//UpdateRange();
@@ -518,6 +524,13 @@ unsigned int* TofImage::GetRawData(void) const
 
 int TofImage::LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen)
 {
+	if(m_bExternalMem)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "Loader: This TOF uses external memory"
+				  " (line " << __LINE__ << ")!\n";
+	}
+
 	int iSize = GetTofSize();
 
 	if(uiBufLen!=(unsigned int)iSize)
@@ -539,8 +552,14 @@ int TofImage::LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen)
 
 int TofImage::LoadFile(const char *pcFileName)
 {
-	int iSize = GetTofSize();
+	if(m_bExternalMem)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "Loader: This TOF uses external memory"
+				  " (line " << __LINE__ << ")!\n";
+	}
 
+	int iSize = GetTofSize();
 	int iRet = LOAD_SUCCESS;
 
 	FILE *pf = fopen(pcFileName,"rb");
@@ -627,6 +646,7 @@ void TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFol
 	}
 }
 
+// TODO
 void TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, double dPhaseShift, TmpGraph* pGraph) const
 {
 	if(!pGraph) return;
@@ -855,7 +875,7 @@ void TofImage::GetPhaseGraph(int iFolie, TmpImage *pImg, int iStartX, int iEndX,
 	pImg->m_iH = abs(iEndY-iStartY);
 
 	const int XSIZE = Config_TofLoader::iPhaseBlockSize[0],
-		  YSIZE = Config_TofLoader::iPhaseBlockSize[1];
+			  YSIZE = Config_TofLoader::iPhaseBlockSize[1];
 
 	double *pdWave = new double[(pImg->m_iW+XSIZE) * (pImg->m_iH+YSIZE)];
 	if(pdWave==NULL)
@@ -1073,13 +1093,18 @@ void PadImage::Clear()
 
 int PadImage::GetPadSize() const
 {
-	int iSize = Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth();
-	return iSize;
+	return Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth();
 }
 
 void PadImage::SetExternalMem(void* pvDaten)
 {
-	if(!m_bExternalMem) return;
+	if(!m_bExternalMem)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: This PAD does not use external memory"
+				  " (line " << __LINE__ << ")!\n";
+		return;
+	}
 
 	m_puiDaten = (unsigned int*)pvDaten;
 	//UpdateRange();
@@ -1101,6 +1126,13 @@ void PadImage::UpdateRange()
 
 int PadImage::LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen)
 {
+	if(m_bExternalMem)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "Loader: This PAD uses external memory"
+				  " (line " << __LINE__ << ")!\n";
+	}
+
 	if(uiBufLen!=(unsigned int)Config_TofLoader::GetImageHeight()*Config_TofLoader::GetImageWidth())
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -1123,6 +1155,13 @@ int PadImage::LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen)
 
 int PadImage::LoadFile(const char *pcFileName)
 {
+	if(m_bExternalMem)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "Loader: This PAD uses external memory"
+				  " (line " << __LINE__ << ")!\n";
+	}
+
 	int iRet = LOAD_SUCCESS;
 
 	FILE *pf = fopen(pcFileName,"rb");
@@ -1218,8 +1257,7 @@ unsigned int PadImage::GetCounts(int iStartX, int iEndX, int iStartY, int iEndY)
 
 ////////////////// TmpImage /////////////
 TmpImage::TmpImage() : m_iW(0), m_iH(0), m_puiDaten(NULL), m_pdDaten(NULL), m_dMin(0), m_dMax(0)
-{
-}
+{}
 
 TmpImage::TmpImage(const TmpImage& tmp)
 {
@@ -1302,6 +1340,14 @@ int TmpImage::GetHeight() const { return m_iH; }
 
 void TmpImage::Add(const TmpImage& tmp)
 {
+	if(this->m_iH!=tmp.m_iH || this->m_iW!=tmp.m_iW)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Trying to sum incompatible images"
+				  " (line " << __LINE__ << ")!\n";
+		return;
+	}
+
 	for(int iY=0; iY<m_iH; ++iY)
 	{
 		for(int iX=0; iX<m_iW; ++iX)
@@ -1410,11 +1456,8 @@ void TmpImage::ConvertPAD(PadImage* pPad)
 
 //////////////////////// TmpGraph ////////////////////////////
 
-TmpGraph::TmpGraph()
-{
-	m_iW = 0;
-	m_puiDaten = NULL;
-}
+TmpGraph::TmpGraph() : m_iW(0), m_puiDaten(0)
+{}
 
 TmpGraph::~TmpGraph()
 {
@@ -1453,6 +1496,15 @@ int TmpGraph::GetMax() const
 	for(int i=0; i<m_iW; ++i)
 		if(m_puiDaten[i]>uiMax) uiMax = m_puiDaten[i];
 	return uiMax;
+}
+
+bool TmpGraph::IsLowerThan(int iTotal) const
+{
+	int iSum=0;
+	for(int i=0; i<m_iW; ++i)
+		iSum += GetData(i);
+
+	return iSum < iTotal;
 }
 
 #ifdef USE_MINUIT
@@ -1548,15 +1600,6 @@ class Sinus : public ROOT::Minuit2::FCNBase
 		}
 };
 
-bool TmpGraph::IsLowerThan(int iTotal) const
-{
-	int iSum=0;
-	for(int i=0; i<m_iW; ++i)
-		iSum += GetData(i);
-
-	return iSum < iTotal;
-}
-
 bool TmpGraph::FitSinus(double &dPhase, double &dScale, double &dAmp, double &dOffs) const
 {
 	if(m_iW<=0) return false;
@@ -1631,6 +1674,8 @@ bool TmpGraph::FitSinus(double &dPhase, double &dScale, double &dAmp, double &dO
 #else
 bool TmpGraph::FitSinus(double &dPhase, double &dScale, double &dAmp, double &dOffs) const
 {
+	logger.SetCurLogLevel(LOGLEVEL_ERR);
+	logger << "Loader: Not compiled with minuit." << "\n";
 	return false;
 }
-#endif
+#endif //USE_MINUIT
