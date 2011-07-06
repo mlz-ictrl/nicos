@@ -825,10 +825,14 @@ class NicosCompleter(rlcompleter.Completer):
     completing attribute access.
     """
 
+    stopwords = set(['attached_devices', 'parameters', 'hardware_access',
+                     'temporary', 'log'])
+
     def attr_matches(self, text):
         matches = rlcompleter.Completer.attr_matches(self, text)
         textlen = len(text)
-        return [m for m in matches if not m[textlen:].startswith(('_', 'do'))]
+        return [m for m in matches if not m[textlen:].startswith(('_', 'do')) or
+                m[textlen:] in self.stopwords]
 
 
 class NicosInteractiveStop(BaseException):
