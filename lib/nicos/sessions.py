@@ -826,7 +826,7 @@ class NicosCompleter(rlcompleter.Completer):
     """
 
     stopwords = set(['attached_devices', 'parameters', 'hardware_access',
-                     'temporary', 'log', 'valuetype'])
+                     'temporary', 'log', 'valuetype', 'mro'])
 
     def attr_matches(self, text):
         matches = rlcompleter.Completer.attr_matches(self, text)

@@ -97,33 +97,35 @@ class Param(object):
         return '<Param info>'
 
     def formatDoc(self):
-        txt= 'Parameter: '
-        txt+=self.description or ''
-        txt+='\n'
-        txt+='\n    * Type: ' + str(self.type)
+        txt = 'Parameter: '
+        txt += self.description or ''
+        txt += '\n'
+        if isinstance(self.type, type(listof)):
+            txt += '\n    * Type: ' + (self.type.__doc__ or '')
+        else:
+            txt += '\n    * Type: ' + self.type.__name__
+        txt += '\n    * Default value: ``' + repr(self.default) + '``'
         if self.unit is not None:
-            if self.unit=='main':
-                txt += '\n    * Unit: \'main\' -> get unit from Device '
+            if self.unit == 'main':
+                txt += '\n    * Unit: \'main\' -> get unit from Device'
             else:
                 txt += '\n    * Unit: ' + self.unit
-
-        if self.default !=_notset:
-            txt += '\n    * Default: ' + str(self.default)
-        if self.category is not None:
-            txt += '\n    * Category: ' + self.category
-
-
-        if self.mandatory is not None:
-            txt += '\n    * Mandatory: yes'
-        if self.volatile is not None:
-            txt += '\n    * Volatile: yes'
-        if self.settable is not None:
-            txt += '\n    * Settable: yes'
-        if self.preinit is not None:
-            txt += '\n    * Initialize before preinit: yes'
+        if self.settable:
+            txt += '\n    * Settable at runtime'
+        else:
+            txt += '\n    * Not settable at runtime'
+        if self.category:
+            txt += '\n    * Info category: ' + self.category
+        if self.mandatory:
+            txt += '\n    * Is mandatory (must be given in setup)'
+        if self.volatile:
+            txt += '\n    * Is volatile (will always be read from hardware)'
+        if self.preinit:
+            txt += '\n    * Is initialized before device preinit'
         if self.prefercache is not None:
-            txt += '\n    * Prefer cache: yes'
+            txt += '\n    * Prefer value from  cache: %s' % self.prefercache
         return txt
+
 
 class Override(object):
 
@@ -189,7 +191,6 @@ class MergedAttrsMeta(type):
             newentry.update(attrs.get(entry, {}))
             setattr(newtype, entry, newentry)
         return newtype
-
 
 
 class AutoPropsMeta(MergedAttrsMeta):
@@ -733,11 +734,17 @@ def multiStatus(devices):
 
 _notset = object()
 
+def convdoc(conv):
+    if isinstance(conv, type(convdoc)):
+        return conv.__doc__ or ''
+    return conv.__name__
+
 def listof(conv):
     def converter(val=[]):
         if not isinstance(val, list):
             raise ValueError('value needs to be a list')
         return map(conv, val)
+    converter.__doc__ = 'a list of %s' % convdoc(conv)
     return converter
 
 def nonemptylistof(conv):
@@ -749,6 +756,7 @@ def nonemptylistof(conv):
         if not val:
             raise ValueError('value needs to be a nonempty list')
         return map(conv, val)
+    converter.__doc__ = 'a non-empty list of %s' % convdoc(conv)
     return converter
 
 def tupleof(*types):
@@ -758,6 +766,7 @@ def tupleof(*types):
         if not isinstance(val, (list, tuple)) or not len(types) == len(val):
             raise ValueError('value needs to be a %d-tuple' % len(types))
         return tuple(t(v) for (t, v) in zip(types, val))
+    converter.__doc__ = 'a tuple of ' + ', '.join(map(convdoc, types))
     return converter
 
 def dictof(keyconv, valconv):
@@ -768,11 +777,14 @@ def dictof(keyconv, valconv):
         for k, v in val.iteritems():
             ret[keyconv(k)] = valconv(v)
         return ret
+    converter.__doc__ = 'a dict of %s keys and %s values' % \
+                        (convdoc(keyconv), convdoc(valconv))
     return converter
 
 tacodev_re = re.compile(r'^(//[\w.]+/)?\w+/\w+/\w+$', re.I)
 
 def tacodev(val=None):
+    """a valid taco device"""
     if val is None:
         return ''
     val = str(val)
@@ -781,9 +793,11 @@ def tacodev(val=None):
     return val
 
 def any(val=None):
+    """any value"""
     return val
 
 def vec3(val=[0,0,0]):
+    """a 3-vector"""
     ret = map(float, val)
     if len(ret) != 3:
         raise ValueError('value needs to be a 3-element vector')
@@ -795,14 +809,16 @@ def intrange(fr, to):
         if not fr <= val < to:
             raise ValueError('value needs to fulfill %d <= x < %d' % (fr, to))
         return val
+    converter.__doc__ = 'an integer in the range [%d, %d)' % (fr, to)
     return converter
 
 def floatrange(fr, to):
     def converter(val=fr):
         val = float(val)
-        if not fr <= val < to:
-            raise ValueError('value needs to fulfill %d <= x < %d' % (fr, to))
+        if not fr <= val <= to:
+            raise ValueError('value needs to fulfill %d <= x <= %d' % (fr, to))
         return val
+    converter.__doc__ = 'a float in the range [%f, %f]' % (fr, to)
     return converter
 
 def oneof(conv, *vals):
@@ -812,6 +828,7 @@ def oneof(conv, *vals):
             raise ValueError('invalid value: %s, must be one of %s' %
                              (val, ', '.join(map(repr, vals))))
         return val
+    converter.__doc__ = 'one of ' + ', '.join(map(repr, vals))
     return converter
 
 def oneofdict(vals):
@@ -822,9 +839,11 @@ def oneofdict(vals):
             raise ValueError('invalid value: %s, must be one of %s' %
                              (val, ', '.join(map(repr, vals))))
         return val
+    converter.__doc__ = 'one of ' + ', '.join(map(repr, vals))
     return converter
 
 def existingdir(val='.'):
+    """an existing directory name"""
     val = str(val)
     if not os.path.isdir(val):
         raise ValueError('value %s is not an existing directory' % val)
@@ -835,4 +854,5 @@ def none_or(conv):
         if val is None:
             return None
         return conv(val)
+    converter.__doc__ = 'None or %s' % convdoc(conv)
     return converter
