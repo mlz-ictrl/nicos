@@ -10,6 +10,8 @@ data/*.dat
 data/cache/*
 
 doc/build/
+doc/source/auto
+
 test/root/
 
 *.o
