@@ -186,9 +186,8 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
         return self._taco_multitry('ping', self.maxtries, self._dev.Ping, addr)
 
 
-class IPCModBusTCP(IPCModBus):
-    """IPC protocol communication bus over network to serial adapter
-    using TCP connection.
+class IPCModBusTacoless(IPCModBus):
+    """Base class for IPC connections not using the RS485 TACO server.
     """
 
     parameters = {
@@ -197,10 +196,6 @@ class IPCModBusTCP(IPCModBus):
         'roundtime': Param('Maximum time to wait for an answer, set '
                            'this high to slow down everything',
                            type=float, default=0.01, settable=True),
-        'host':      Param('Hostname (or IP) of network2serial converter',
-                           type=str, settable=True, mandatory=True),
-        'port':      Param('TCP Port on network2serial converter',
-                           type=int, default=4001),
     }
 
     def doInit(self):
@@ -210,39 +205,6 @@ class IPCModBusTCP(IPCModBus):
             self.doReset()
         except Exception:
             self.printexception()
-
-    def doReset(self):
-        if self._connection:
-            closeSocket(self._connection)
-        self._connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._connection.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self._connection.connect((self.host, self.port))
-
-    def _transmit(self, request, last_try=False):
-        response = ''
-        try:
-            self._connection.sendall(request)
-
-            for i in range(self.commtries):
-                p = select.select([self._connection], [], [self._connection],
-                                  self.roundtime)
-                if self._connection in p[0]:
-                    data = self._connection.recv(20)  # more than enough!
-                    if not data:
-                        raise CommunicationError(self, 'no reply from recv')
-                    response += data
-                    if response[-1] in (EOT, DC1, DC2, DC3, ACK, NAK):
-                        return response
-        except (socket.error, select.error), err:
-            if last_try:
-                raise CommunicationError(
-                    self, 'tcp connection failed: %s' % err)
-            # try reopening connection
-            self.printwarning('tcp connection failed, retrying', exc=1)
-            self.doReset()
-            return self._transmit(request, last_try=True)
-        else:
-            return response
 
     def _comm(self, request, ping=False):
         if not ping:
@@ -314,9 +276,63 @@ class IPCModBusTCP(IPCModBus):
         return self.send(addr, cmd, param, len)
 
 
-class IPCModBusSerial(IPCModBusTCP):
+class IPCModBusTCP(IPCModBusTacoless):
+    """IPC protocol communication bus over network to serial adapter
+    using TCP connection.
+    """
+
+    parameters = {
+        'server': Param('Hostname (or IP) and port of network2serial converter',
+                        type=str, settable=True, mandatory=True),
+    }
+
+    def doReset(self):
+        try:
+            self._host, self._port = self.server.split(':')
+            self._port = int(self._port)
+        except ValueError:
+            self._host = self.server
+            self._port = 4001
+        if self._connection:
+            closeSocket(self._connection)
+        self._connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._connection.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self._connection.connect((self._host, self._port))
+
+    def _transmit(self, request, last_try=False):
+        response = ''
+        try:
+            self._connection.sendall(request)
+
+            for i in range(self.commtries):
+                p = select.select([self._connection], [], [self._connection],
+                                  self.roundtime)
+                if self._connection in p[0]:
+                    data = self._connection.recv(20)  # more than enough!
+                    if not data:
+                        raise CommunicationError(self, 'no reply from recv')
+                    response += data
+                    if response[-1] in (EOT, DC1, DC2, DC3, ACK, NAK):
+                        return response
+        except (socket.error, select.error), err:
+            if last_try:
+                raise CommunicationError(
+                    self, 'tcp connection failed: %s' % err)
+            # try reopening connection
+            self.printwarning('tcp connection failed, retrying', exc=1)
+            self.doReset()
+            return self._transmit(request, last_try=True)
+        else:
+            return response
+
+
+class IPCModBusSerial(IPCModBusTacoless):
     """IPC protocol communication directly over serial line."""
-    _connection=None
+
+    parameters = {
+        'port': Param('Device file name of the serial port to use',
+                      type=str, settable=True, mandatory=True),
+    }
 
     def doReset(self):
         if self._connection:
@@ -325,7 +341,7 @@ class IPCModBusSerial(IPCModBusTCP):
             except Exception:
                 pass
         import serial
-        self._connection = serial.Serial(self.host, baudrate=19200,
+        self._connection = serial.Serial(self.port, baudrate=19200,
                                          timeout=self.roundtime)
 
     def doUpdateRoundtime(self, value):
