@@ -261,3 +261,50 @@ class TacoDevice(object):
                     pass
                 finally:
                     self.__lock.release()
+
+
+# XXX hack around segfaults, enable by renaming MTacoDevice to TacoDevice
+
+import os
+import sys
+from subprocess import *
+from nicos.cache.utils import cache_dump, cache_load
+
+class TacoStub(object):
+    def __init__(self, mod, cls, dev):
+        from nicos import session
+        self.mod = mod
+        self.cls = cls
+        self.dev = dev
+        self.script = os.path.join(session.config.control_path,
+                                   'bin', 'nicos-tacoexec')
+
+    def __getattr__(self, cmd):
+        def method(*args):
+            n = 0
+            while n < 5:
+                p = Popen([sys.executable, self.script,
+                           self.mod, self.cls, self.dev, cmd, cache_dump(args)],
+                          stdout=PIPE, stderr=PIPE)
+                out, err = p.communicate()
+                if err:
+                    raise NicosError(err)
+                if not out:
+                    continue
+                n += 1
+                return cache_load(out)
+            raise NicosError('command failed, no output')
+        return method
+
+
+class MTacoDevice(TacoDevice):
+
+    def _create_client(self, devname=None, class_=None, resetok=None,
+                       timeout=None):
+        if class_ is None:
+            class_ = self.taco_class
+        if devname is None:
+            devname = self.tacodevice
+        mod = class_.__module__
+        cls = class_.__name__
+        return TacoStub(mod, cls, devname)
