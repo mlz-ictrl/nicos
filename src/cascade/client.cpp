@@ -60,7 +60,7 @@ TcpClient::TcpClient(QObject *pParent, bool bBlocking)
 		connect(&m_socket, SIGNAL(readyRead()), this, SLOT(readReady()));
 
 	logger.SetCurLogLevel(LOGLEVEL_INFO);
-	logger << "Client: set to "
+	logger << "Client: Set to "
 		   << (m_bBlocking? "blocking" : "non-blocking")
 		   << " mode." << "\n";
 
@@ -118,8 +118,7 @@ bool TcpClient::sendmsg(const char *pcMsg)
 		return false;
 	}
 
-	// Fehler im Server: Sollte eigentlich nicht 0-terminiert werden müssen
-	int iLen = strlen(pcMsg)+1;
+	int iLen = strlen(pcMsg);
 
 	// Länge der folgenden Nachricht übertragen
 	if(!write((char*)&iLen, 4, true))

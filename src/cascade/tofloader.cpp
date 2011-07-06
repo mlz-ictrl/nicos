@@ -27,7 +27,6 @@
 // Klassen zum Laden und Verarbeiten von Tof- & Pad-Dateien
 
 #include "tofloader.h"
-#include "config.h"
 
 #include <fstream>
 #include <stdio.h>
@@ -36,9 +35,9 @@
 #include <vector>
 #include <string.h>
 #include <limits>
-#include <iostream>
 #include "logger.h"
 #include "helper.h"
+#include "config.h"
 
 #ifdef USE_MINUIT
 	#include <Minuit2/FCNBase.h>

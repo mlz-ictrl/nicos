@@ -27,6 +27,8 @@
 #ifndef __ARGUMENT_MAP_PARSER__
 #define __ARGUMENT_MAP_PARSER__
 
+// #define USE_BOOST
+
 #include <stdlib.h>
 #include <string>
 #include <map>
