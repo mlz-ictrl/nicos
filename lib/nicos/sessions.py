@@ -522,8 +522,8 @@ class Session(object):
 
         if simulate:
             self.log.info('starting in simulation mode')
-        else:
-            # Try to become master.
+        elif self.mode == 'slave':
+            # Try to become master if the setup didn't already switch modes.
             try:
                 self.setMode('master')
             except ModeError:
