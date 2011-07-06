@@ -417,7 +417,7 @@ class MainWindow : public QMainWindow
 			UpdateLabels(false);
 
 			char pcFolie[128];
-			sprintf(pcFolie,"Foil (%0.2d):",m_cascadewidget.GetFoil()+1);
+			sprintf(pcFolie,"Foil (%2d):",m_cascadewidget.GetFoil()+1);
 			labelFolie->setText(pcFolie);
 		}
 
@@ -447,7 +447,7 @@ class MainWindow : public QMainWindow
 			UpdateLabels(false);
 
 			char pcKanal[128];
-			sprintf(pcKanal,"Time Channel (%0.2d):",m_cascadewidget.GetTimechannel()+1);
+			sprintf(pcKanal,"Time Channel (%2d):",m_cascadewidget.GetTimechannel()+1);
 			labelZeitkanal->setText(pcKanal);
 		}
 
@@ -955,6 +955,9 @@ int main(int argc, char **argv)
 
 	int iLogLevel = Config::GetSingleton()->QueryInt("/cascade_config/log/level", LOGLEVEL_INFO);
 	Config_TofLoader::SetLogLevel(iLogLevel);
+
+	bool bRepeatLogs = Config::GetSingleton()->QueryInt("/cascade_config/log/repeat_duplicate_logs", 1);
+	Config_TofLoader::SetRepeatLogs(bRepeatLogs);
 
 	int iWinW = Config::GetSingleton()->QueryInt("/cascade_config/main_window/width", WIN_W);
 	int iWinH = Config::GetSingleton()->QueryInt("/cascade_config/main_window/height", WIN_H);

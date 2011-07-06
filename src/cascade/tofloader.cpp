@@ -44,6 +44,7 @@
 	#include <Minuit2/FCNBase.h>
 	#include <Minuit2/FunctionMinimum.h>
 	#include <Minuit2/MnMigrad.h>
+	#include <Minuit2/MnMinimize.h>
 	#include <Minuit2/MnUserParameters.h>
 	#include <Minuit2/MnPrint.h>
 #endif
@@ -62,6 +63,10 @@ int Config_TofLoader::iContrastBlockSize[2] = {1, 2};
 
 double Config_TofLoader::LOG_LOWER_RANGE = -0.5;
 bool Config_TofLoader::USE_PSEUDO_COMPRESSION = 1;
+
+// Defaults used in ROOT::Minuit2::MnApplication::operator()
+double Config_TofLoader::dMinuitTolerance = 0.1;
+unsigned int Config_TofLoader::uiMinuitMaxFcn = 0;
 
 
 void Config_TofLoader::Init()
@@ -102,6 +107,9 @@ void Config_TofLoader::Init()
 
 	LOG_LOWER_RANGE = Config::GetSingleton()->QueryDouble("/cascade_config/graphs/log_lower_range", LOG_LOWER_RANGE);
 
+	dMinuitTolerance = Config::GetSingleton()->QueryDouble("/cascade_config/minuit/tolerance", dMinuitTolerance);
+	uiMinuitMaxFcn = (unsigned int)Config::GetSingleton()->QueryInt("/cascade_config/minuit/maxfcn", uiMinuitMaxFcn);
+
 #else	// Nicos-Client holt Einstellungen von Detektor
 
 	// Defaults setzen
@@ -130,6 +138,9 @@ int Config_TofLoader::GetImageWidth() { return IMAGE_WIDTH; }
 int Config_TofLoader::GetImageHeight() { return IMAGE_HEIGHT; }
 int Config_TofLoader::GetImageCount() { return IMAGE_COUNT; }
 bool Config_TofLoader::GetPseudoCompression() { return USE_PSEUDO_COMPRESSION; }
+unsigned int Config_TofLoader::GetMinuitMaxFcn() { return uiMinuitMaxFcn; }
+double Config_TofLoader::GetMinuitTolerance() { return dMinuitTolerance; }
+
 
 int Config_TofLoader::GetFoilBegin(int iFoil)
 {
@@ -163,6 +174,9 @@ void Config_TofLoader::SetImageWidth(int iImgWidth) { IMAGE_WIDTH = iImgWidth; }
 void Config_TofLoader::SetImageHeight(int iImgHeight) { IMAGE_HEIGHT = iImgHeight; }
 void Config_TofLoader::SetImageCount(int iImgCount) { IMAGE_COUNT = iImgCount; }
 void Config_TofLoader::SetPseudoCompression(bool bSet) { USE_PSEUDO_COMPRESSION = bSet; }
+void Config_TofLoader::SetMinuitMaxFnc(unsigned int uiMaxFcn) { uiMinuitMaxFcn = uiMaxFcn; }
+void Config_TofLoader::SetMinuitTolerance(double dTolerance) { dMinuitTolerance = dTolerance; }
+
 
 void Config_TofLoader::SetFoilBegin(int iFoil, int iOffs)
 {
@@ -373,10 +387,8 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen, boo
 	}
 }
 
-void Config_TofLoader::SetLogLevel(int iLevel)
-{
-	logger.SetLogLevel(iLevel);
-}
+void Config_TofLoader::SetLogLevel(int iLevel) { logger.SetLogLevel(iLevel); }
+void Config_TofLoader::SetRepeatLogs(bool bRepeat) { logger.SetRepeatLogs(bRepeat); }
 //////////////////////////////////////////////////////////////////////
 
 
@@ -1436,7 +1448,7 @@ class Sinus : public ROOT::Minuit2::FCNBase
 	protected:
 		double *m_pdy;			// experimentelle Werte
  		double *m_pddy;			// Standardabweichungen
-		int m_iNum;			// Anzahl der Werte
+		int m_iNum;				// Anzahl der Werte
 
 	public:
 		Sinus() : m_pdy(NULL), m_pddy(NULL), m_iNum(0)
@@ -1454,8 +1466,7 @@ class Sinus : public ROOT::Minuit2::FCNBase
 			Clear();
 		}
 
-		// soll Chi^2 zurückgeben
-		double operator()(const std::vector<double>& params) const
+		double chi2(const std::vector<double>& params) const
 		{
 			double dphase = params[0];
 			double damp = params[1];
@@ -1469,13 +1480,18 @@ class Sinus : public ROOT::Minuit2::FCNBase
 			for(int i=0; i<m_iNum; ++i)
 			{
 				double dAbweichung = m_pddy[i];
-				//if(fabs(dAbweichung) < std::numeric_limits<double>::epsilon())
-				//	dAbweichung = std::numeric_limits<double>::epsilon();
+				if(fabs(dAbweichung) < std::numeric_limits<double>::epsilon())
+					dAbweichung = std::numeric_limits<double>::epsilon();
 
 				double d = (m_pdy[i] - (damp*sin(double(i)*dscale + dphase)+doffs)) / dAbweichung;
 				dchi2 += d*d;
 			}
 			return dchi2;
+		}
+
+		double operator()(const std::vector<double>& params) const
+		{
+			return chi2(params);
 		}
 
 		double Up() const
@@ -1495,7 +1511,7 @@ class Sinus : public ROOT::Minuit2::FCNBase
 
 			for(int i=0; i<iSize; ++i)
 			{
-				m_pdy[i] = pdy[i];		// Wert
+				m_pdy[i] = pdy[i];			// Wert
 				m_pddy[i] = sqrt(m_pdy[i]);	// Fehler
 			}
 		}
@@ -1548,8 +1564,9 @@ bool TmpGraph::FitSinus(double &dPhase, double &dScale, double &dAmp, double &dO
 	upar.Add("offset", dOffs, sqrt(dOffs));
 	//upar.Add("scale", 2.*M_PI/16., 0.1);		// kein Fit-Parameter
 
-	ROOT::Minuit2::MnMigrad migrad(fkt, upar);
-	ROOT::Minuit2::FunctionMinimum mini = migrad();
+	//ROOT::Minuit2::MnMigrad migrad(fkt, upar);
+	ROOT::Minuit2::MnMinimize minimize(fkt, upar);
+	ROOT::Minuit2::FunctionMinimum mini = minimize(Config_TofLoader::GetMinuitMaxFcn(), Config_TofLoader::GetMinuitTolerance());
 
 	dPhase = mini.Parameters().Vec()[0];
 	dAmp = mini.Parameters().Vec()[1];
@@ -1568,8 +1585,8 @@ bool TmpGraph::FitSinus(double &dPhase, double &dScale, double &dAmp, double &dO
 	}
 	if(dPhase!=dPhase || dAmp!=dAmp || dOffs!=dOffs)	// check for NaN
 	{
-		//logger.SetCurLogLevel(LOGLEVEL_WARN);
-		//logger << "Loader: Could not find correct fit." << "\n";
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "Loader: Incorrect fit." << "\n";
 		return false;
 	}
 	return true;

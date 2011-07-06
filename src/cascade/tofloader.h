@@ -62,7 +62,12 @@ class Config_TofLoader
 		static int iContrastBlockSize[2];
 
 		static double LOG_LOWER_RANGE;
-		static bool USE_PSEUDO_COMPRESSION;	// sind Null-Bilder schon von Server entfernt und Folienadditionen gemacht worden?
+
+		// sind Null-Bilder schon von Server entfernt und Folienadditionen gemacht worden?
+		static bool USE_PSEUDO_COMPRESSION;
+
+		static double dMinuitTolerance;
+		static unsigned int uiMinuitMaxFcn;
 
 	public:
 		// iLen in Ints, nicht Bytes
@@ -78,6 +83,8 @@ class Config_TofLoader
 		static int GetImageCount();
 		static int GetFoilBegin(int iFoil);
 		static bool GetPseudoCompression();
+		static unsigned int GetMinuitMaxFcn();
+		static double GetMinuitTolerance();
 
 		static void SetFoilCount(int iNumFoils);
 		static void SetImagesPerFoil(int iNumImagesPerFoil);
@@ -86,15 +93,18 @@ class Config_TofLoader
 		static void SetImageCount(int iImgCount);
 		static void SetFoilBegin(int iFoil, int iOffs);
 		static void SetPseudoCompression(bool bSet);
+		static void SetMinuitMaxFnc(unsigned int uiMaxFcn);
+		static void SetMinuitTolerance(double dTolerance);
 
 		static void CheckArguments(int* piStartX, int* piEndX, int* piStartY, int* piEndY, int* piFoil=0, int* piTimechannel=0);
 
 		static void SetLogLevel(int iLevel);
+		static void SetRepeatLogs(bool bRepeat);
 };
 
 
 #define LOAD_SUCCESS		 1
-#define LOAD_FAIL		 0
+#define LOAD_FAIL			 0
 #define LOAD_SIZE_MISMATCH	-1
 
 // PAD-Bilder
@@ -140,7 +150,7 @@ class TmpImage
   protected:
 	int m_iW, m_iH;
 	unsigned int* m_puiDaten;	// für Counts-Diagramm
-	double* m_pdDaten;		// für Phasen- und Kontrastdiagramm
+	double* m_pdDaten;			// für Phasen- und Kontrastdiagramm
 	double m_dMin, m_dMax;
 
   public:
@@ -187,8 +197,8 @@ class TmpGraph
 	bool IsLowerThan(int iTotal) const;
 };
 
-#define TOF_COMPRESSION_NONE 		0
-#define TOF_COMPRESSION_PSEUDO 		1
+#define TOF_COMPRESSION_NONE 			0
+#define TOF_COMPRESSION_PSEUDO 			1
 #define TOF_COMPRESSION_USEGLOBCONFIG 	2
 
 // TOF-Bilder

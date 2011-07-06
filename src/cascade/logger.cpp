@@ -32,7 +32,9 @@
 #include <iostream>
 #include "logger.h"
 
-Logger::Logger(const char* pcFile) : m_postrLog(0), m_iLogLevel(LOGLEVEL_INFO), m_iCurLogLevel(LOGLEVEL_INFO), m_bOwnsStream(0)
+Logger::Logger(const char* pcFile) : m_postrLog(0), m_iLogLevel(LOGLEVEL_INFO),
+									 m_iCurLogLevel(LOGLEVEL_INFO),
+									 m_bOwnsStream(0), m_bRepeatLogs(0)
 {
 	Init(pcFile);
 }
@@ -131,6 +133,10 @@ void Logger::normal()
 
 void Logger::log(int iLevel, const char* pcStr)
 {
+	// repeat duplicate message?
+	if(m_strLastLog == pcStr && !m_bRepeatLogs)
+		return;
+
 	if(!m_postrLog) return;
 	if(iLevel > m_iLogLevel) return;
 
@@ -176,6 +182,8 @@ void Logger::log(int iLevel, const char* pcStr)
 
 	normal();
 	(*m_postrLog) << std::endl;
+
+	m_strLastLog = pcStr;
 }
 
 void Logger::info(const char* pcStr)
@@ -198,6 +206,8 @@ int Logger::GetLogLevel() const { return m_iLogLevel; }
 
 void Logger::SetCurLogLevel(int iLevel) { m_iCurLogLevel = iLevel; }
 int Logger::GetCurLogLevel() const { return m_iCurLogLevel; }
+
+void Logger::SetRepeatLogs(bool bRepeat) { m_bRepeatLogs = bRepeat; }
 
 
 Logger logger;

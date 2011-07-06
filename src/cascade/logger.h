@@ -28,6 +28,7 @@
 #define __LOGGER__
 
 #include <sstream>
+#include <string>
 
 #define LOGLEVEL_NONE	0
 #define LOGLEVEL_ERR	1
@@ -43,39 +44,43 @@ class Logger
 		bool m_bOwnsStream;
 		std::string m_strCurLog;
 		std::string m_strColor;
-		
+		bool m_bRepeatLogs;
+		std::string m_strLastLog;
+
 		bool IsStdOut() const;
 		void Deinit();
-		
+
 		void addlog(const std::string& str);
-		void endlog();		
-		
+		void endlog();
+
 	public:
 		Logger(const char* pcFile=0);
 		virtual ~Logger();
-				
+
 		void log(int iLevel, const char* pcStr);
 		void info(const char* pcStr);
 		void warning(const char* pcStr);
 		void error(const char* pcStr);
-		
+
 		void red(bool bBold=false);
 		void green(bool bBold=false);
 		void yellow(bool bBold=false);
 		void purple(bool bBold=false);
 		void normal();
-		
+
 		// the loglevel which controls output
 		void SetLogLevel(int iLevel);
 		int GetLogLevel() const;
-		
+
 		// the loglevel for logs using operator <<
 		void SetCurLogLevel(int iLevel);
 		int GetCurLogLevel() const;
-		
+
+		void SetRepeatLogs(bool bRepeat);
+
 		// pcFile==0 => use stderr
 		void Init(const char* pcFile=0);
-		
+
 		template<class T> friend Logger& operator<< (Logger& log, const T& t);
 };
 
