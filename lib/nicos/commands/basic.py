@@ -64,8 +64,11 @@ def help(obj=None):
     elif isinstance(obj, Device):
         printinfo('%s is a device of class %s.' %
                   (obj.name, obj.__class__.__name__))
+        if obj.__class__.__doc__:
+            printinfo('Device class description: %s' %
+                      obj.__class__.__doc__.strip())
         if obj.description:
-            printinfo('Its description is: %s' % obj.description)
+            printinfo('Device description: %s' % obj.description)
         from nicos.commands.device import listparams
         listparams(obj)
     elif not inspect.isfunction(obj):
