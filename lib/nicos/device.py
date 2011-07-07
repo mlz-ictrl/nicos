@@ -289,7 +289,7 @@ class Device(object):
         # warn about parameters that weren't present in cache
         if self._cache and notfromcache:
             self.printwarning('these parameters were not present in cache: ' +
-                              ', '.join(notfromcache))
+                              ', '.join(sorted(notfromcache)))
 
         self._infoparams.sort()
 
