@@ -45,6 +45,7 @@ import signal
 import logging
 import readline
 import traceback
+import exceptions
 import rlcompleter
 from os import path
 from wsgiref.simple_server import make_server
@@ -825,14 +826,19 @@ class NicosCompleter(rlcompleter.Completer):
     completing attribute access.
     """
 
-    stopwords = set(['attached_devices', 'parameters', 'hardware_access',
-                     'temporary', 'log', 'valuetype', 'mro'])
+    attr_hidden = set(['attached_devices', 'parameters', 'hardware_access',
+                       'temporary', 'log', 'valuetype', 'mro'])
+    global_hidden = set(dir(exceptions))
 
     def attr_matches(self, text):
         matches = rlcompleter.Completer.attr_matches(self, text)
         textlen = len(text)
-        return [m for m in matches if not (m[textlen:].startswith(('_', 'do')) or
-                m[textlen:] in self.stopwords)]
+        return [m for m in matches if not (m[textlen:].startswith(('_', 'do'))
+                                           or m[textlen:] in self.attr_hidden)]
+
+    def global_matches(self, text):
+        matches = rlcompleter.Completer.global_matches(self, text)
+        return [m for m in matches if m[:-1] not in self.global_hidden]
 
 
 class NicosInteractiveStop(BaseException):
