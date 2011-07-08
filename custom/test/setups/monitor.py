@@ -46,44 +46,44 @@ _warnings = [
     ('a1/value', '> 20', 'a1 value > 20'),
 ]
 
-_block1 = (
+_axisblock = (
     'Axis devices',
     [['a1', 'm1', 'c1'],
      ['a2', 'm2']],
     'misc')
 
-_block2 = (
+_detectorblock = (
     'Detector devices',
     [[{'name': 'timer', 'dev': 'timer'},
       {'name': 'ctr1', 'dev': 'ctr1', 'min': 100, 'max': 500},
       {'name': 'ctr2', 'dev': 'ctr2'}]],
     'detector')
 
-_block3 = (
+_otherblock = (
     'Other devices',
     [[{'dev': 'slit', 'width': 20, 'name': 'Slit'}],
      [{'dev': 'sw', 'width': 4, 'name': 'Switcher'}]],
     'misc')
 
-_column1 = [
-    _block1,
-    _block2,
+_rightcolumn = [
+    _axisblock,
+    _detectorblock,
 ]
 
-_column2 = [
-    _block3,
+_leftcolumn = [
+    _otherblock,
 ]
 
 devices = dict(
     Monitor = device('nicos.monitor.qt.Monitor',
-                     title = 'MIRA Status monitor',
+                     title = 'NICOS status monitor',
                      loglevel = 'info',
                      server = 'localhost:14869',
                      prefix = 'nicos/',
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
                      padding = 5,
-                     layout = [[_expcolumn], [_column1, _column2]],
+                     layout = [[_expcolumn], [_rightcolumn, _leftcolumn]],
                      warnings = _warnings,
                      notifiers = [])
 )
