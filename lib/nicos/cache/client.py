@@ -45,8 +45,7 @@ from nicos.utils import closeSocket
 from nicos.device import Device, Param
 from nicos.errors import CacheLockError
 from nicos.cache.utils import msg_pattern, line_pattern, cache_load, cache_dump, \
-     DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, \
-     OP_LOCK
+     DEFAULT_CACHE_PORT, OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, OP_LOCK
 
 BUFSIZE = 8192
 
@@ -309,11 +308,11 @@ class CacheClient(BaseCacheClient):
                 self.lock('master', self._mastertimeout)
 
     def _handle_msg(self, time, ttl, tsop, key, op, value):
-        if op not in (OP_TELL, OP_TELLOLD) or not key.startswith(self._prefix):
+        if op != OP_TELL or not key.startswith(self._prefix):
             return
         key = key[len(self._prefix)+1:]
         #self.log.debug('got %s=%s' % (key, value))
-        if value is None or op == OP_TELLOLD:
+        if value is None:
             self._db.pop(key, None)
         else:
             value = cache_load(value)

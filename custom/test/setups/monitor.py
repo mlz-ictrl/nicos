@@ -43,7 +43,7 @@ _expcolumn = [
 ]
 
 _warnings = [
-    ('a1/value', ' > 20', 'a1 value > 20'),
+    ('a1/value', '> 20', 'a1 value > 20'),
 ]
 
 _block1 = (
@@ -76,8 +76,8 @@ _column2 = [
 
 devices = dict(
     Monitor = device('nicos.monitor.qt.Monitor',
-                     title = 'NICOS status monitor',
-                     loglevel = 'debug',
+                     title = 'MIRA Status monitor',
+                     loglevel = 'info',
                      server = 'localhost:14869',
                      prefix = 'nicos/',
                      font = 'Luxi Sans',

@@ -280,7 +280,6 @@ class CacheWorker(object):
                 else:
                     msg = '%s@%s%s%s\r\n' % (time, key, op, value)
                 self.send_queue.put(msg)
-                print msg
         # same for requested updates without timestamp
         for mykey in self.updates_on:
             if mykey in key:
@@ -637,6 +636,8 @@ class NewDatabase(CacheDatabase):
     }
 
     def doInit(self):
+        self._nt = 3
+        self._ntm = {3:86400, 4:3600, 5:60}
         self._cat = {}
         self._cat_lock = threading.Lock()
         self._locks = {}
@@ -646,9 +647,9 @@ class NewDatabase(CacheDatabase):
         self._basepath = path.join(session.config.control_path, self.storepath)
         ltime = localtime()
         self._year = str(ltime[0])
-        self._currday = '%02d-%02d' % ltime[1:3]
-        self._midnight = mktime(ltime[:3] + (0,) * (8-3) + (ltime[8],))
-        self._nextmidnight = self._midnight + 86400
+        self._currday = '-'.join(['%02d']*(self._nt-1)) % ltime[1:self._nt]
+        self._midnight = mktime(ltime[:self._nt] + (0,) * (8-self._nt) + (ltime[8],))
+        self._nextmidnight = self._midnight + self._ntm[self._nt]
 
         self._stoprequest = False
         self._cleaner = threading.Thread(target=self._clean)
@@ -672,9 +673,9 @@ class NewDatabase(CacheDatabase):
                 for line in fd:
                     subkey, time, value = line.rstrip().split(None, 2)
                     if value != '-':
-                        db[subkey] = Entry(float(time), None, value)
+                        db[subkey] = [Entry(float(time), None, value)]
                     elif subkey in db:
-                        db[subkey].expired = True
+                        del db[subkey]
                 lock = threading.Lock()
                 self._cat[cat] = (fd, lock, db)
                 nkeys += len(db)
@@ -719,17 +720,17 @@ class NewDatabase(CacheDatabase):
         ltime = localtime()
         # set the days and midnight time correctly
         #prevday = self._currday
-        self._currday = '%02d-%02d' % ltime[1:3]
-        self._midnight = mktime(ltime[:3] + (0,) * (8-3) + (ltime[8],))
-        self._nextmidnight = self._midnight + 86400
+        self._currday = '-'.join(['%02d']*(self._nt-1)) % ltime[1:self._nt]
+        self._midnight = mktime(ltime[:self._nt] + (0,) * (8-self._nt) + (ltime[8],))
+        self._nextmidnight = self._midnight + self._ntm[self._nt]
         # roll over all file descriptors
         for category, (fd, lock, db) in self._cat.iteritems():
             fd.close()
             fd = self._cat[category][0] = self._create_fd(category)
-            for subkey, entry in db.iteritems():
-                if entry.value:
+            for subkey, entries in db.iteritems():
+                if entries and entries[-1].value:
                     fd.write('%s\t%s\t%s\n' %
-                             (subkey, self._midnight, entry.value))
+                             (subkey, self._midnight, entries[-1].value))
             fd.flush()
         # XXX start compress action of old files here
 
@@ -762,23 +763,24 @@ class NewDatabase(CacheDatabase):
         with lock:
             if subkey not in db:
                 return [key + OP_TELLOLD + '\r\n']
-            entry = db[subkey]
-        # check for expired keys
-        if entry.value is None:
+            lastent = db[subkey][-1]
+        # check for already removed keys
+        if lastent.value is None:
             return [key + OP_TELLOLD + '\r\n']
         # check for expired keys
-        if entry.ttl:
-            op = entry.expired and OP_TELLOLD or OP_TELL
+        if lastent.ttl:
+            remaining = lastent.time + lastent.ttl - currenttime()
+            op = remaining > 0 and OP_TELL or OP_TELLOLD
             if ts:
-                return ['%s+%s@%s%s%s\r\n' % (entry.time, entry.ttl,
-                                              key, op, entry.value)]
+                return ['%s+%s@%s%s%s\r\n' % (lastent.time, lastent.ttl,
+                                              key, op, lastent.value)]
             else:
-                return [key + op + entry.value + '\r\n']
+                return [key + op + lastent.value + '\r\n']
         if ts:
-            return ['%s@%s%s%s\r\n' % (entry.time, key,
-                                       OP_TELL, entry.value)]
+            return ['%s@%s%s%s\r\n' % (lastent.time, key,
+                                       OP_TELL, lastent.value)]
         else:
-            return [key + OP_TELL + entry.value + '\r\n']
+            return [key + OP_TELL + lastent.value + '\r\n']
 
     def ask_wc(self, key, ts, time, ttl):
         ret = set()
@@ -786,29 +788,31 @@ class NewDatabase(CacheDatabase):
         for cat, (fd, lock, db) in self._cat.items():
             prefix = cat + '/'
             with lock:
-                for subkey, entry in db.iteritems():
+                for subkey, entries in db.iteritems():
                     if key not in prefix+subkey:
                         continue
+                    if not entries:
+                        continue
+                    lastent = entries[-1]
                     # check for removed keys
-                    if entry.value is None:
+                    if lastent.value is None:
                         continue
                     # check for expired keys
-                    if entry.ttl:
-                        op = entry.expired and OP_TELLOLD or OP_TELL
+                    if lastent.ttl:
+                        remaining = lastent.time + lastent.ttl - currenttime()
+                        op = remaining > 0 and OP_TELL or OP_TELLOLD
                         if ts:
                             ret.add('%s+%s@%s%s%s\r\n' %
-                                    (entry.time, entry.ttl, prefix+subkey,
-                                     op, entry.value))
+                                    (lastent.time, lastent.ttl, prefix+subkey,
+                                     op, lastent.value))
                         else:
-                            ret.add(prefix+subkey + op + entry.value + '\r\n')
+                            ret.add(prefix+subkey + op + lastent.value + '\r\n')
                     elif ts:
-                        ret.add('%s@%s%s%s\r\n' % (entry.time, prefix+subkey,
-                                                   OP_TELL, entry.value))
+                        ret.add('%s@%s%s%s\r\n' % (lastent.time, prefix+subkey,
+                                                   OP_TELL, lastent.value))
                     else:
-                        ret.add(prefix+subkey + OP_TELL + entry.value + '\r\n')
+                        ret.add(prefix+subkey + OP_TELL + lastent.value + '\r\n')
         return ret
-
-    # XXX implement ask_hist query
 
     def _clean(self):
         while not self._stoprequest:
@@ -816,16 +820,17 @@ class NewDatabase(CacheDatabase):
             with self._cat_lock:
                 for cat, (fd, lock, db) in self._cat.iteritems():
                     with lock:
-                        for subkey, entry in db.iteritems():
-                            if not entry.value or entry.expired:
+                        for subkey, entries in db.iteritems():
+                            if not entries:
                                 continue
+                            lastent = entries[-1]
                             time = currenttime()
-                            if entry.ttl and entry.time + entry.ttl < time:
-                                entry.expired = True
+                            if lastent.value and lastent.ttl and \
+                                   lastent.time + lastent.ttl < time:
+                                entries.append(Entry(None, currenttime(), None))
                                 for client in self._server._connected.values():
                                     client.update(cat + '/' + subkey,
-                                                  OP_TELLOLD, entry.value,
-                                                  time, None)
+                                                  OP_TELLOLD, '', time, None)
                                 fd.write('%s\t%s\t-\n' % (subkey, time))
                                 fd.flush()
 
@@ -851,19 +856,21 @@ class NewDatabase(CacheDatabase):
             fd, lock, db = self._cat[category]
         update = True
         with lock:
-            if subkey in db:
-                entry = db[subkey]
-                if entry.value == value and not entry.expired:
+            entries = db.setdefault(subkey, [])
+            if entries:
+                lastent = entries[-1]
+                if lastent.value == value:
                     # existing entry with the same value: update the TTL
                     # but don't write an update to the history file
-                    entry.time = time
-                    entry.ttl = ttl
+                    lastent.time = time
+                    lastent.ttl = ttl
                     update = False
             if update:
-                print 'XXX'
-                db[subkey] = Entry(time, ttl, value)
+                entries.append(Entry(time, ttl, value))
                 fd.write('%s\t%s\t%s\n' % (subkey, time, value or '-'))
                 fd.flush()
+            if len(entries) > self._max:
+                del entries[:-self._max/2]
         if update:
             for client in self._server._connected.values():
                 if client is not from_client:
