@@ -262,10 +262,6 @@ class Monitor(BaseCacheClient):
         for field in self._watch:
             vlabel, status = field['valuelabel'], field['status']
             value = field['value']
-            if value is None:
-                # no value assigned
-                self.setBothColors(vlabel, self._black, self._bgcolor)
-                continue
 
             # set name label background color: determined by the value limits
 
@@ -303,7 +299,7 @@ class Monitor(BaseCacheClient):
 
             # set the background color: determined by the value's up-to-dateness
 
-            if field['expired']:
+            if value is None or field['expired']:
                 self.setBackColor(vlabel, self._gray)
             else:
                 self.setBackColor(vlabel, self._black)
@@ -365,10 +361,13 @@ class Monitor(BaseCacheClient):
                 if oldvalue != fvalue:
                     field['changetime'] = time
                 field['value'] = value
-                try:
-                    text = field['format'] % fvalue
-                except Exception:
-                    text = str(fvalue)
+                if value is None:
+                    text = '----'
+                else:
+                    try:
+                        text = field['format'] % fvalue
+                    except Exception:
+                        text = str(fvalue)
                 self.setLabelText(field['valuelabel'], text[:field['maxlen']])
             elif key == field['statuskey']:
                 if value is not None:
