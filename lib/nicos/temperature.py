@@ -125,7 +125,8 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
     }
 
     def doRead(self):
-        return self._adevs['sensor_%s' % self.samplechannel.lower()].read() - self.offset
+        return self._adevs['sensor_%s' % self.samplechannel.lower()].read() - \
+               self.offset
 
     def doStart(self, target):
         if self.status()[0] == status.BUSY:
@@ -163,6 +164,7 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
         #         raise TimeoutError(self, 'temperature not reached in %s seconds'
         #                            % self.timeout)
         #     time.sleep(delay)
+        # XXX needs to take current ramp into account!
         window = self.window
         tolerance = self.tolerance
         setpoint = self.target
