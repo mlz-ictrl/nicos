@@ -183,9 +183,9 @@ class Mailer(Notifier):
         # Set Return-Path so that it isn't set (generally incorrectly) for us.
         msg['Return-Path'] = address
 
-        self.log.debug('trying to send mail to %s' % ', '.join(to))
+        self.log.debug('trying to send mail to %s' % ', '.join(to + cc))
         try:
-            sendmailp = os.popen('/usr/sbin/sendmail ' + ' '.join(to), 'w')
+            sendmailp = os.popen('/usr/sbin/sendmail ' + ' '.join(to + cc), 'w')
             # msg contains everything we need, so this is a simple write
             sendmailp.write(msg.as_string())
             sendmail_status = sendmailp.close()
