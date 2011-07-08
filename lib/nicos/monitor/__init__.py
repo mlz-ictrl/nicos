@@ -38,7 +38,7 @@ from nicos.utils import listof
 from nicos.device import Param
 from nicos.notify import Notifier
 from nicos.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
-from nicos.cache.utils import OP_TELL, cache_load
+from nicos.cache.utils import OP_TELL, OP_TELLOLD, cache_load
 from nicos.cache.client import BaseCacheClient
 
 
@@ -318,7 +318,7 @@ class Monitor(BaseCacheClient):
 
     # called to handle an incoming protocol message
     def _handle_msg(self, time, ttl, tsop, key, op, value):
-        if op != OP_TELL:
+        if op not in (OP_TELL, OP_TELLOLD):
             return
         try:
             time = float(time)
@@ -329,7 +329,7 @@ class Monitor(BaseCacheClient):
         except ValueError:
             pass
 
-        #self.log.debug('processing %s=%s' % (key, value))
+        #self.log.debug('processing %s' % [time, ttl, key, op, value])
 
         if key == self._prefix + '/session/mastersetup':
             self._setups = set(value)
@@ -338,7 +338,9 @@ class Monitor(BaseCacheClient):
             self.log.info('reconfigured display for setups %s'
                            % ', '.join(self._setups))
 
-        if key in self._warnmap:
+        expired = value is None or op == OP_TELLOLD
+
+        if key in self._warnmap and not expired:
             info = self._warnmap[key]
             try:
                 condvalue = eval('__v__ ' + info['condition'],
@@ -354,23 +356,20 @@ class Monitor(BaseCacheClient):
         for field in fields:
             self._watch.add(field)
             if key == field['key']:
-                if value is None:
-                    field['expired'] = 1
-                    field['changetime'] = time
+                field['expired'] = expired
+                if field['item'] >= 0:
+                    fvalue = value[field['item']]
                 else:
-                    if field['item'] >= 0:
-                        fvalue = value[field['item']]
-                    else:
-                        fvalue = value
-                    oldvalue = field['value']
-                    if oldvalue != fvalue:
-                        field['changetime'] = time
-                    field['value'] = value
-                    try:
-                        text = field['format'] % fvalue
-                    except Exception:
-                        text = str(fvalue)
-                    self.setLabelText(field['valuelabel'], text[:field['maxlen']])
+                    fvalue = value
+                oldvalue = field['value']
+                if oldvalue != fvalue:
+                    field['changetime'] = time
+                field['value'] = value
+                try:
+                    text = field['format'] % fvalue
+                except Exception:
+                    text = str(fvalue)
+                self.setLabelText(field['valuelabel'], text[:field['maxlen']])
             elif key == field['statuskey']:
                 if value is not None:
                     field['status'] = value
