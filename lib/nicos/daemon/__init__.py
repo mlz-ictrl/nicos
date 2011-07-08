@@ -150,7 +150,7 @@ class Server(TCPServer):
 
     def handle_error(self, request, client_address):
         """Last chance exception handling."""
-        self.daemon.printexception('exception while handling request')
+        self.daemon.log.exception('exception while handling request')
 
 
 class NicosDaemon(Device):

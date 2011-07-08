@@ -245,7 +245,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
                     self.lastcounts = (roi, total)
             except:
                 self.lastfilename = '<error>'
-                self.printexception('measuring failed')
+                self.log.exception('measuring failed')
                 self._measure.clear()
                 self._processed.set()
                 continue
@@ -277,6 +277,6 @@ class CascadeDetector(Measurable, NeedsDatapath):
                 self.lastcounts = (roi, total)
             except:
                 self.lastfilename = '<error>'
-                self.printexception('saving measurement failed')
+                self.log.exception('saving measurement failed')
             finally:
                 self._processed.set()

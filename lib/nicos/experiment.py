@@ -280,8 +280,8 @@ class Experiment(Device):
             try:
                 det = session.getDevice(detname)
             except Exception:
-                self.printexception('could not create %r detector device' %
-                                    detname)
+                self.log.exception('could not create %r detector device' %
+                                   detname)
             else:
                 if not isinstance(det, Measurable):
                     raise UsageError(self, 'cannot use device %r as a detector:'
@@ -307,8 +307,8 @@ class Experiment(Device):
             try:
                 dev = session.getDevice(devname)
             except Exception:
-                self.printexception('could not create %r environment device' %
-                                    devname)
+                self.log.exception('could not create %r environment device' %
+                                   devname)
             else:
                 if not isinstance(dev, Readable):
                     raise UsageError(self, 'cannot use device %r as environment:'

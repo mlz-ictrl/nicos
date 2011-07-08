@@ -98,7 +98,7 @@ class Jabberer(Notifier):
                 msg = self._message(receiver, subject, body)
                 self._client.send(msg)
             except Exception:
-                self.printexception('sending to %s failed' % receiver)
+                self.log.exception('sending to %s failed' % receiver)
         self.log.info('%sjabber message sent to %s' %
                        what and what + ' ' or '', ', '.join(receivers))
 
@@ -194,7 +194,7 @@ class Mailer(Notifier):
                                 sendmail_status)
                 return False
         except Exception:
-            self.printexception('sendmail failed with an exception')
+            self.log.exception('sendmail failed with an exception')
             return False
         return True
 
@@ -228,7 +228,7 @@ class SMSer(Notifier):
                 if 'message queued' not in out:
                     raise RuntimeError(out.strip())
         except Exception:
-            self.printexception('sendsms failed with exception')
+            self.log.exception('sendsms failed with exception')
             return False
         self.log.info('%sSMS message sent to %s' % (
             what and what + ' ' or '', ', '.join(receivers)))

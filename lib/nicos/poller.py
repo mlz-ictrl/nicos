@@ -139,7 +139,7 @@ class Poller(Device):
             try:
                 poll_loop(dev)
             except Exception:
-                self.printexception('error in polling loop')
+                self.log.exception('error in polling loop')
 
     def start(self, setup=None):
         self._setup = setup

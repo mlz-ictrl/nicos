@@ -140,7 +140,7 @@ def read(*devlist):
         try:
             value = dev.read()
         except NicosError:
-            dev.printexception('error reading device')
+            dev.log.exception('error reading device')
         else:
             dev.log.info('at %20s %s' % (dev.format(value), dev.unit))
 
@@ -162,7 +162,7 @@ def status(*devlist):
         try:
             status = dev.status()
         except NicosError:
-            dev.printexception('error reading status')
+            dev.log.exception('error reading status')
         else:
             dev.log.info('status is %s' % _formatStatus(status))
 
@@ -179,7 +179,7 @@ def stop(*devlist):
         try:
             dev.stop()
         except NicosError:
-            dev.printexception('error stopping device')
+            dev.log.exception('error stopping device')
         else:
             dev.log.info('stopped')
 
