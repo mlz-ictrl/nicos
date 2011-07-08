@@ -204,7 +204,7 @@ class IPCModBusTacoless(IPCModBus):
         try:
             self.doReset()
         except Exception:
-            self.printexception()
+            self.log.exception()
 
     def _comm(self, request, ping=False):
         if not ping:
@@ -215,7 +215,9 @@ class IPCModBusTacoless(IPCModBus):
             response = self._transmit(request)
         # now check data
         self.log.debug('received %r' % response)
-        if response == ACK:
+        if not response:
+            raise CommunicationError(self, 'no response')
+        elif response == ACK:
             return 0
         elif response == NAK:
             if ping:
@@ -240,10 +242,11 @@ class IPCModBusTacoless(IPCModBus):
                     raise CommunicationError(self, 'wrong CRC on response')
             # return response integer (excluding address and command number)
             try:
-                return int(response[2:-3])      # command might fail if no value was transmitted
-            except ValueError,err:
+                # command might fail if no value was transmitted
+                return int(response[2:-3])
+            except ValueError, err:
                 raise CommunicationError(
-                    self, 'invalid responce: missing value (%s)' % err)
+                    self, 'invalid response: missing value (%s)' % err)
 
     def ping(self, addr):
         if 32 <= addr <= 255:
@@ -334,6 +337,8 @@ class IPCModBusSerial(IPCModBusTacoless):
                       type=str, settable=True, mandatory=True),
     }
 
+    _connection = None
+
     def doReset(self):
         if self._connection:
             try:
@@ -355,11 +360,9 @@ class IPCModBusSerial(IPCModBusTacoless):
 
             for i in range(self.commtries):
                 data = self._connection.read(20)
-                #if not data:
-                #    raise CommunicationError(self, 'no reply from read')
                 response += data
-                if request[-1] in (EOT, DC1, DC2, DC3, ACK, NAK):
-                    return request
+                if response and response[-1] in (EOT, DC1, DC2, DC3, ACK, NAK):
+                    return response
         except IOError, err:
             if last_try:
                 raise CommunicationError(self, 'serial line failed: %s' % err)
@@ -388,6 +391,7 @@ class Coder(NicosCoder):
     def doInit(self):
         bus = self._adevs['bus']
         bus.ping(self.addr)
+        self._lasterror = None
 
     def doVersion(self):
         version = self._adevs['bus'].get(self.addr, 151)
@@ -422,17 +426,24 @@ class Coder(NicosCoder):
     def doRead(self):
         bus = self._adevs['bus']
         try:
-            value = bus.get(self.addr, 150)
-        except NicosError:
-            self._endatclearalarm()
-            sleep(1)
-            # try again
-            value = bus.get(self.addr, 150)
+            try:
+                value = bus.get(self.addr, 150)
+            except NicosError:
+                self._endatclearalarm()
+                sleep(1)
+                # try again
+                value = bus.get(self.addr, 150)
+        except NicosError, e:
+            # record last error to return it from doStatus()
+            self._lasterror = str(e)
+            raise
         self.log.debug('value is %d' % value)
         return self._fromsteps(value)
 
     def doStatus(self):
-        return status.OK, 'no status readout'
+        if self._lasterror:
+            return status.ERROR, self._lasterror
+        return status.OK, 'idle'
 
     def doSetPosition(self, target):
         raise NicosError('setPosition not implemented for IPC coders')
