@@ -117,15 +117,19 @@ def cache_load(str):
 # cache entry support
 
 class Entry(object):
-    __slots__ = ('time', 'ttl', 'value')
+    __slots__ = ('time', 'ttl', 'value', 'expired')
 
     def __init__(self, time, ttl, value):
         self.time = time
         self.ttl = ttl
         self.value = value
+        self.expired = False
 
     def __repr__(self):
+        if self.expired:
+            return '(%s+%s@%s)' % (self.time, self.ttl, self.value)
         return '%s+%s@%s' % (self.time, self.ttl, self.value)
+
 
 # Struct for saving entries:
 # 1 byte   marker (0x1E, "record separator")
