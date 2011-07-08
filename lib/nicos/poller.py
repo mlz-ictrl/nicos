@@ -91,12 +91,12 @@ class Poller(Device):
                 i += 1
                 try:
                     stval, rdval = dev.poll(i)
-                    self.printdebug('%-10s status = %-25s, value = %s' %
+                    self.log.debug('%-10s status = %-25s, value = %s' %
                                     (dev, stval, rdval))
                 except Exception, err:
                     if errcount < 5:
                         # only print the warning the first five times
-                        self.printwarning('error reading %s' % dev, exc=err)
+                        self.log.warning('error reading %s' % dev, exc=err)
                     elif errcount == 5:
                         # make the interval a bit larger
                         interval *= 5
@@ -125,17 +125,17 @@ class Poller(Device):
                     with self._creation_lock:
                         dev = session.getDevice(devname)
                     if not isinstance(dev, Readable):
-                        self.printdebug('%s is not a readable' % dev)
+                        self.log.debug('%s is not a readable' % dev)
                         return
                     session.cache.addCallback(dev, 'target', reconfigure)
                     session.cache.addCallback(dev, 'pollinterval', reconfigure)
                     state = ['normal']
                 except NicosError, err:
-                    self.printwarning('error creating %s, trying again in '
+                    self.log.warning('error creating %s, trying again in '
                                       '%d sec' % (devname, 30), exc=err)
                     self._long_sleep(30)
                     continue
-            self.printinfo('starting polling loop for %s' % dev)
+            self.log.info('starting polling loop for %s' % dev)
             try:
                 poll_loop(dev)
             except Exception:
@@ -145,7 +145,7 @@ class Poller(Device):
         self._setup = setup
         if setup is None:
             return self._start_master()
-        self.printinfo('%s poller starting' % setup)
+        self.log.info('%s poller starting' % setup)
 
         if setup == '<dummy>':
             return
@@ -153,9 +153,9 @@ class Poller(Device):
         session.loadSetup(setup)
         for devname in session.getSetupInfo()[setup]['devices']:
             if devname in self.blacklist:
-                self.printdebug('not polling %s, it is blacklisted' % devname)
+                self.log.debug('not polling %s, it is blacklisted' % devname)
                 continue
-            self.printdebug('starting thread for %s' % devname)
+            self.log.debug('starting thread for %s' % devname)
             event = threading.Event()
             worker = threading.Thread(target=self._worker_thread,
                                       args=(devname, event))
@@ -177,24 +177,24 @@ class Poller(Device):
             return self._quit_master()
         if self._stoprequest:
             return  # already quitting
-        self.printinfo('poller quitting...')
+        self.log.info('poller quitting...')
         self._stoprequest = True
         for worker in self._workers:
             worker.event.set()
         for worker in self._workers:
             worker.join()
-        self.printinfo('poller finished')
+        self.log.info('poller finished')
 
     def reload(self):
         if self._setup is not None:
             # do nothing for single pollers
             return
-        self.printinfo('got SIGUSR1, restarting all pollers')
+        self.log.info('got SIGUSR1, restarting all pollers')
         for pid in self._childpids.keys():
             try:
                 os.kill(pid, signal.SIGTERM)
             except Exception, err:
-                self.printerror(str(err))
+                self.log.error(str(err))
 
     def _start_master(self):
         self._childpids = {}
@@ -220,7 +220,7 @@ class Poller(Device):
             self._cache.addCallback(session, 'mastersetup', self._reconfigure)
 
     def _reconfigure(self, key, value):
-        self.printinfo('reconfiguring for new master setups %s' % value)
+        self.log.info('reconfiguring for new master setups %s' % value)
         session.readSetups()
         old_setups = self._setups
 

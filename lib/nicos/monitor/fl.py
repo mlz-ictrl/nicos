@@ -27,8 +27,8 @@
 
 """Fltk version of instrument monitor."""
 
-__author__  = "$Author$"
-__date__    = "$Date$"
+__author__ = "$Author$"
+__date__ = "$Date$"
 __version__ = "$Revision$"
 
 from time import sleep
@@ -43,7 +43,7 @@ from nicos.monitor import Monitor as BaseMonitor
 def measure(font, fontsize, text):
     fl_font(font, fontsize)
     #~ return fl_measure(text)  # returned h is not reliable!
-    return int(fl_width(text)+0.5),int(fl_height()+0.5)
+    return int(fl_width(text) + 0.5), int(fl_height() + 0.5)
 
 
 class Fll_Layout(Fl_Group):
@@ -170,7 +170,7 @@ class Fll_Vbox(Fll_Layout):
                 continue
             if cs == st:
                 ch += fill
-	    #~ print '->resizing',child,'to',(xc, yc, cw, ch)
+        #~ print '->resizing',child,'to',(xc, yc, cw, ch)
             child.resize(xc, yc, cw, ch)
             yc += ch + sp
         Fl_Widget.resize(self, x, y, w, h)
@@ -239,7 +239,7 @@ class Sm_Field(Fll_Vbox):
         wn, hn = measure(0, fontsize, name + 'Mq')
         width = max(wv, wn, width)
 
-	nheight = int(hn + hn/4 + 2)
+        nheight = int(hn + hn / 4 + 2)
 
         self._name = name
         self._namelabel = Fl_Box(0, 0, width, nheight, self._name)
@@ -247,7 +247,7 @@ class Sm_Field(Fll_Vbox):
         self._namelabel.labelsize(fontsize)
         self.pack(self._namelabel)
 
-        vheight = int(hv + hv/2 + 4)
+        vheight = int(hv + hv / 2 + 4)
 
         self._value = '----'
         self._valuelabel = Fl_Box(0, 0, width, vheight, self._value)
@@ -261,8 +261,8 @@ class Sm_Field(Fll_Vbox):
     #~ def resize(self, x, y, w, h):
         #~ print 'resizing', self._name, 'to', (x, y, w, h)
         #~ Fll_Vbox.resize(self, x, y, w, h)
-	#~ print '  name-label now at', (self._namelabel.x(),self._namelabel.y(),self._namelabel.w(),self._namelabel.h())
-	#~ print '  valuelabel now at', (self._valuelabel.x(),self._valuelabel.y(),self._valuelabel.w(),self._valuelabel.h())
+    #~ print '  name-label now at', (self._namelabel.x(),self._namelabel.y(),self._namelabel.w(),self._namelabel.h())
+    #~ print '  valuelabel now at', (self._valuelabel.x(),self._valuelabel.y(),self._valuelabel.w(),self._valuelabel.h())
 
 
 class Sm_Row(Fll_Hbox):
@@ -295,7 +295,7 @@ class Sm_Box(Fl_Group):
 
     def resize(self, x, y, w, h):
         tw = self._titlebox.w()
-        self._titlebox.resize(x + w/2 - tw/2, y, tw, self._titlebox.h())
+        self._titlebox.resize(x + w / 2 - tw / 2, y, tw, self._titlebox.h())
         self.child(0).resize(x, y + self._offset, w, h - self._offset)
         Fl_Widget.resize(self, x, y, w, h)
 
@@ -320,12 +320,12 @@ class Monitor(BaseMonitor):
         pass
 
     def initColors(self):
-        self._black = fl_rgb_color(0,0,0)
-        self._yellow = fl_rgb_color(255,255,0)
-        self._green = fl_rgb_color(0,255,0)
-        self._red = fl_rgb_color(255,0,0)
-        self._gray = fl_rgb_color(128,128,128)
-        self._white = fl_rgb_color(255,255,255)
+        self._black = fl_rgb_color(0, 0, 0)
+        self._yellow = fl_rgb_color(255, 255, 0)
+        self._green = fl_rgb_color(0, 255, 0)
+        self._red = fl_rgb_color(255, 0, 0)
+        self._gray = fl_rgb_color(128, 128, 128)
+        self._white = fl_rgb_color(255, 255, 255)
         self._bgcolor = self._gray
 
     def initGui(self):
@@ -346,7 +346,7 @@ class Monitor(BaseMonitor):
 
         masterlayout = Fll_Vbox()
         self._timelabel = Fl_Box(0, 0, 0, tiheight, self.title)
-        self._timelabel.labelfont(FL_HELVETICA+1)
+        self._timelabel.labelfont(FL_HELVETICA + 1)
         self._timelabel.labelsize(self._fontsizebig + self._fontsize)
         self._timelabel.box(FL_FLAT_BOX)
         masterlayout.pack(self._timelabel)
@@ -453,3 +453,4 @@ class Monitor(BaseMonitor):
         self._master.size_range(pw, ph, 0, 0)
         if self._geometry == 'fullscreen':
             self._master.fullscreen()
+

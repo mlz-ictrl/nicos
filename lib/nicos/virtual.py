@@ -60,7 +60,7 @@ class VirtualMotor(Motor, HasOffset):
             thread.setDaemon(True)
             thread.start()
         else:
-            self.printdebug('moving to %s' % pos)
+            self.log.debug('moving to %s' % pos)
             self.curvalue = pos + self.jitter * (0.5 - random.random())
             self.curstatus = (status.OK, 'idle')
 
@@ -85,12 +85,12 @@ class VirtualMotor(Motor, HasOffset):
         incr = delta < 0 and -incr or incr
         for i in range(steps):
             if self._stop:
-                self.printdebug('thread stopped')
+                self.log.debug('thread stopped')
                 self.curstatus = (status.OK, 'idle')
                 self._stop = False
                 return
             time.sleep(0.2)
-            self.printdebug('thread moving to %s' % (self.curvalue + incr))
+            self.log.debug('thread moving to %s' % (self.curvalue + incr))
             self.curvalue += incr
         self.curvalue = pos
         self.curstatus = (status.OK, 'idle')

@@ -121,7 +121,7 @@ class Server(TCPServer):
         while self.pending_clients[host] is None:
             time.sleep(0.2)
         handler = self.pending_clients[host]
-        self.daemon.printdebug('event connection from %s for handler #%d' %
+        self.daemon.log.debug('event connection from %s for handler #%d' %
                                (host, handler.ident))
         event_thread = threading.Thread(target=handler.event_sender,
                                         args=(request,))
@@ -192,7 +192,7 @@ class NicosDaemon(Device):
                                                       'swig_runtime_data3',
                                                       'swig_runtime_data4'])
         # the controller represents the internal script execution machinery
-        self._controller = ExecutionController(self._log, self.emit_event,
+        self._controller = ExecutionController(self.log, self.emit_event,
                                                'startup')
         # log messages emitted so far
         self._messages = []
@@ -239,7 +239,7 @@ class NicosDaemon(Device):
 
     def start(self):
         """Start the daemon's server."""
-        self.printinfo('NICOS daemon v%s started, starting server on %s' %
+        self.log.info('NICOS daemon v%s started, starting server on %s' %
                        (nicos_version, self.server))
         # startup the script thread
         self._controller.start_script_thread()
@@ -252,7 +252,7 @@ class NicosDaemon(Device):
         self._worker.join()
 
     def quit(self):
-        self.printinfo('quitting...')
+        self.log.info('quitting...')
         self._stoprequest = True
         self._server.shutdown()
         self._worker.join()

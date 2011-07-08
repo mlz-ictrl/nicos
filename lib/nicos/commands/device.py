@@ -63,7 +63,7 @@ def move(*dev_pos_list):
        move(dev1, pos1, dev2, pos2, ...)
     """
     for dev, pos in _devposlist(dev_pos_list, Moveable):
-        dev.printinfo('moving to', dev.format(pos), dev.unit)
+        dev.log.info('moving to', dev.format(pos), dev.unit)
         dev.move(pos)
 
 @usercommand
@@ -85,7 +85,7 @@ def maw(*dev_pos_list):
     """
     devs = []
     for dev, pos in _devposlist(dev_pos_list, Moveable):
-        dev.printinfo('moving to', dev.format(pos), dev.unit)
+        dev.log.info('moving to', dev.format(pos), dev.unit)
         dev.move(pos)
         devs.append(dev)
     for dev in devs:
@@ -120,10 +120,10 @@ def wait(*devlist):
             sleep(dev)
             continue
         dev = session.getDevice(dev, (Moveable, Measurable))
-        dev.printinfo('waiting for device')
+        dev.log.info('waiting for device')
         value = dev.wait()
         if value:
-            dev.printinfo('at %20s %s' % (dev.format(value), dev.unit))
+            dev.log.info('at %20s %s' % (dev.format(value), dev.unit))
 
 @usercommand
 def read(*devlist):
@@ -142,7 +142,7 @@ def read(*devlist):
         except NicosError:
             dev.printexception('error reading device')
         else:
-            dev.printinfo('at %20s %s' % (dev.format(value), dev.unit))
+            dev.log.info('at %20s %s' % (dev.format(value), dev.unit))
 
 def _formatStatus(status):
     const, message = status
@@ -164,7 +164,7 @@ def status(*devlist):
         except NicosError:
             dev.printexception('error reading status')
         else:
-            dev.printinfo('status is %s' % _formatStatus(status))
+            dev.log.info('status is %s' % _formatStatus(status))
 
 @usercommand
 def stop(*devlist):
@@ -181,14 +181,14 @@ def stop(*devlist):
         except NicosError:
             dev.printexception('error stopping device')
         else:
-            dev.printinfo('stopped')
+            dev.log.info('stopped')
 
 @usercommand
 def reset(dev):
     """Reset the given device."""
     dev = session.getDevice(dev, Readable)
     status = dev.reset()
-    dev.printinfo('reset done, status is now %s' % _formatStatus(status))
+    dev.log.info('reset done, status is now %s' % _formatStatus(status))
 
 @usercommand
 def set(dev, parameter, value):
@@ -199,7 +199,7 @@ def set(dev, parameter, value):
 def get(dev, parameter):
     """Return the value of a parameter of the device."""
     value = getattr(session.getDevice(dev), parameter)
-    dev.printinfo('parameter %s is %s' % (parameter, value))
+    dev.log.info('parameter %s is %s' % (parameter, value))
 
 @usercommand
 def fix(*devlist):
@@ -209,7 +209,7 @@ def fix(*devlist):
     for dev in devlist:
         dev = session.getDevice(dev, Moveable)
         dev.fix()
-        dev.printinfo('fixed')
+        dev.log.info('fixed')
 
 @usercommand
 def release(*devlist):
@@ -219,7 +219,7 @@ def release(*devlist):
     for dev in devlist:
         dev = session.getDevice(dev, Moveable)
         dev.release()
-        dev.printinfo('released')
+        dev.log.info('released')
 
 @usercommand
 def adjust(dev, value):
@@ -234,14 +234,14 @@ def version(dev):
     """List version info of the device."""
     dev = session.getDevice(dev, Device)
     versions = dev.version()
-    dev.printinfo('Relevant versions for this device:')
+    dev.log.info('Relevant versions for this device:')
     printTable(('module/component', 'version'), versions, printinfo)
 
 @usercommand
 def limits(dev):
     """Print the limits of the device."""
     dev = session.getDevice(dev, HasLimits)
-    dev.printinfo('Limits for this device:')
+    dev.log.info('Limits for this device:')
     printinfo('absolute minimum: %s %s' % (dev.format(dev.absmin), dev.unit))
     printinfo('    user minimum: %s %s' % (dev.format(dev.usermin), dev.unit))
     printinfo('    user maximum: %s %s' % (dev.format(dev.usermax), dev.unit))
@@ -251,7 +251,7 @@ def limits(dev):
 def listparams(dev):
     """List all parameters of the device."""
     dev = session.getDevice(dev, Device)
-    dev.printinfo('Parameters of this device:')
+    dev.log.info('Parameters of this device:')
     devunit = getattr(dev, 'unit', '')
     items = []
     for name, info in sorted(dev.parameters.iteritems()):

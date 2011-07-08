@@ -142,7 +142,7 @@ class ConnectionHandler(BaseRequestHandler):
         # register self as a new handler
         server.register_handler(self, client_address[0])
         self.sock = request
-        self.log = LoggerWrapper(self.daemon._log,
+        self.log = LoggerWrapper(self.daemon.log,
                                  '[handler #%d] ' % self.ident)
         # read buffer
         self._buffer = ''

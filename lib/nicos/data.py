@@ -280,7 +280,7 @@ class GraceSink(DataSink):
             self._dydata = [[] for i in range(self._nperstep)]
             self._ynames = dataset.ynames
         except Exception:
-            self.printwarning('could not create Grace plot', exc=1)
+            self.log.warning('could not create Grace plot', exc=1)
             self._grpl = None
 
     def addPoint(self, dataset, xvalues, yvalues):
@@ -314,7 +314,7 @@ class GraceSink(DataSink):
             self._pl.plot(data)
             self._pl.legend()
         except Exception:
-            self.printwarning('could not add point to Grace', exc=1)
+            self.log.warning('could not add point to Grace', exc=1)
             # give up for this set
             self._grpl = None
 
@@ -354,7 +354,7 @@ class GnuplotSink(DataSink):
             self._dydata = [[] for i in range(self._nperstep)]
             self._ynames = dataset.ynames
         except Exception:
-            self.printwarning('could not create Gnuplot instance', exc=1)
+            self.log.warning('could not create Gnuplot instance', exc=1)
             self._gnpl = None
 
     def addPoint(self, dataset, xvalues, yvalues):
@@ -380,7 +380,7 @@ class GnuplotSink(DataSink):
                 data.append(d)
             self._gnpl.plot(*data)
         except Exception:
-            self.printwarning('could not add point to Gnuplot', exc=1)
+            self.log.warning('could not add point to Gnuplot', exc=1)
             # give up for this set
             self._gnpl = None
 

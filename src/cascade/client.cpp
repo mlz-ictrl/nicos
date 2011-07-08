@@ -34,6 +34,43 @@
 
 #define WAIT_DELAY 5000
 
+TcpClient::TcpClient(QObject *pParent, bool bBlocking)
+								: QObject(pParent),
+								  m_bBlocking(bBlocking),
+								  m_socket(pParent),
+								  m_bBeginOfMessage(1),
+								  m_iCurMsgLength(0)
+{
+	m_iMessageTimeout = -1;	// "-1" bedeutet: Timeout nicht benutzen
+
+// Cascade-Qt-Client?
+#ifdef __CASCADE_QT_CLIENT__
+	bool bUseMessageTimeout = (bool)Config::GetSingleton()
+					->QueryInt("/cascade_config/server/use_message_timeout", 0);
+	if(bUseMessageTimeout)
+		m_iMessageTimeout = Config::GetSingleton()
+					->QueryInt("/cascade_config/server/message_timeout", 10000);
+#else	// Nicos-Client
+	m_iMessageTimeout = 5000;
+#endif
+
+	connect(&m_socket, SIGNAL(connected()), this, SLOT(connected()));
+	connect(&m_socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
+	if(!m_bBlocking)
+		connect(&m_socket, SIGNAL(readyRead()), this, SLOT(readReady()));
+
+	logger.SetCurLogLevel(LOGLEVEL_INFO);
+	logger << "Client: Set to "
+		   << (m_bBlocking? "blocking" : "non-blocking")
+		   << " mode." << "\n";
+
+}
+
+TcpClient::~TcpClient()
+{
+	disconnect();
+}
+
 /////////////////////// Verbindung /////////////////////////////
 bool TcpClient::connecttohost(const char* pcAddr, int iPort)
 {
@@ -75,10 +112,13 @@ bool TcpClient::isconnected() const
 bool TcpClient::sendmsg(const char *pcMsg)
 {
 	if(!isconnected())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Client: Client not connected, could not send message.\n";
 		return false;
+	}
 
-	// Fehler im Server: Sollte eigentlich nicht 0-terminiert werden müssen
-	int iLen = strlen(pcMsg)+1;
+	int iLen = strlen(pcMsg);
 
 	// Länge der folgenden Nachricht übertragen
 	if(!write((char*)&iLen, 4, true))
@@ -91,17 +131,21 @@ bool TcpClient::sendmsg(const char *pcMsg)
 bool TcpClient::write(const char* pcBuf, int iSize, bool bIsBinary)
 {
 	if(m_socket.write(pcBuf, iSize)==-1)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Client: Error writing to socket.\n";
 		return false;
+	}
 	//m_socket.flush();
 
 	if(!bIsBinary)
 	{
 		logger.green(false);
 		logger.SetCurLogLevel(LOGLEVEL_INFO);
-		logger << "[to server] length: " << iSize << ", data: " << pcBuf << "\n";
+		logger << "[to server] length: " << iSize << ", data: "
+			   << pcBuf << "\n";
 		logger.normal();
 	}
-
 	return true;
 }
 
@@ -114,7 +158,8 @@ bool TcpClient::sendfile(const char* pcFileName)
 	if(!pf)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
-		logger << "Client: Could not open file \"" << pcFileName << "\" for reading.\n";
+		logger << "Client: Could not open file \"" << pcFileName
+			   << "\" for reading.\n";
 		return false;
 	}
 
@@ -160,7 +205,12 @@ int TcpClient::read(char* pcData, int iLen)
 const QByteArray& TcpClient::recvmsg(void)
 {
 	// nur für blockierenden Client erlauben
-	if(!m_bBlocking) return m_byEmpty;
+	if(!m_bBlocking)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Client: recvmsg not allowed in nonblocking mode.\n";
+		return m_byEmpty;
+	}
 
 	m_timer.start();
 	if(!m_socket.waitForReadyRead(WAIT_DELAY))
@@ -176,7 +226,8 @@ const QByteArray& TcpClient::recvmsg(void)
 	if(iExpectedMsgLength <= 0)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
-		logger << "Client: Invalid message length: " << iExpectedMsgLength << "\n";
+		logger << "Client: Invalid message length: " << iExpectedMsgLength
+			   << "\n";
 		return m_byEmpty;
 	}
 
@@ -205,7 +256,9 @@ const QByteArray& TcpClient::recvmsg(void)
 
 	logger.green(true);
 	logger.SetCurLogLevel(LOGLEVEL_INFO);
-	logger << "[from server] length: " << iExpectedMsgLength << ", time: " << iTimeElapsed << "ms, data: " << arrMsg.data() << "\n";
+	logger << "[from server] length: " << iExpectedMsgLength
+		   << ", time: " << iTimeElapsed << "ms, data: " << arrMsg.data()
+		   << "\n";
 	logger.normal();
 
 	return arrMsg;
@@ -229,7 +282,12 @@ void TcpClient::disconnected()
 void TcpClient::readReady()
 {
 	// nur für nichtblockierenden Client erlauben
-	if(m_bBlocking) return;
+	if(m_bBlocking)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Client: readReady not allowed in blocking mode.\n";
+		return;
+	}
 
 	int iSize = m_socket.bytesAvailable();
 	if(iSize==0) return;
@@ -275,7 +333,10 @@ void TcpClient::readReady()
 		if(m_iCurMsgLength > m_iExpectedMsgLength)
 		{
 			logger.SetCurLogLevel(LOGLEVEL_WARN);
-			logger << "Client: Got too much data; expected: " << m_iExpectedMsgLength << ", received: " << m_iCurMsgLength << "\n";
+			logger << "Client: Got too much data; expected: "
+				   << m_iExpectedMsgLength
+				   << ", received: " << m_iCurMsgLength
+				   << "\n";
 		}
 
 		int iTimeElapsed = m_timer.elapsed();
@@ -285,7 +346,11 @@ void TcpClient::readReady()
 
 		logger.green(true);
 		logger.SetCurLogLevel(LOGLEVEL_INFO);
-		logger << "[from server] length: " << m_iCurMsgLength << ", time: " << iTimeElapsed << "ms, total: " << m_timer.elapsed() << "ms, data: " << m_byCurMsg.data() << "\n";
+		logger << "[from server] length: " << m_iCurMsgLength
+			   << ", time: " << iTimeElapsed << "ms, total: "
+			   << m_timer.elapsed() << "ms, data: "
+			   << m_byCurMsg.data()
+			   << "\n";
 		logger.normal();
 
 		// Ende der Nachricht, neue beginnt
@@ -294,28 +359,5 @@ void TcpClient::readReady()
 	}
 }
 ////////////////////////////////////////////////////////////////
-
-TcpClient::TcpClient(QObject *pParent, bool bBlocking) : QObject(pParent), m_bBlocking(bBlocking), m_socket(pParent), m_bBeginOfMessage(1), m_iCurMsgLength(0)
-{
-	m_iMessageTimeout = -1;	// "-1" bedeutet: Timeout nicht benutzen
-
-// Cascade-Qt-Client?
-#ifdef __CASCADE_QT_CLIENT__
-	bool bUseMessageTimeout = (bool)Config::GetSingleton()->QueryInt("/cascade_config/server/use_message_timeout", 0);
-	if(bUseMessageTimeout)
-		m_iMessageTimeout = Config::GetSingleton()->QueryInt("/cascade_config/server/message_timeout", 10000); // Default: 10 Sekunden
-#else	// Nicos-Client
-	m_iMessageTimeout = 5000;
-#endif
-
-	connect(&m_socket, SIGNAL(connected()), this, SLOT(connected()));
-	connect(&m_socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-	if(!m_bBlocking) connect(&m_socket, SIGNAL(readyRead()), this, SLOT(readReady()));
-}
-
-TcpClient::~TcpClient()
-{
-	disconnect();
-}
 
 void TcpClient::SetTimeout(int iTimeout) { m_iMessageTimeout = iTimeout; }

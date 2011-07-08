@@ -129,7 +129,7 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
 
     def doStart(self, target):
         if self.status()[0] == status.BUSY:
-            self.printdebug('stopping running temperature change')
+            self.log.debug('stopping running temperature change')
             self._taco_guard(self._dev.stop)
         self._taco_guard(self._dev.write, target + self.offset)
         self._pollParam('setpoint', 100)
@@ -153,7 +153,7 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
         delay = self.loopdelay
         # while 1:
         #     v = self.read()
-        #     self.printdebug('current temperature %7.3f %s' % (v, self.unit))
+        #     self.log.debug('current temperature %7.3f %s' % (v, self.unit))
         #     s = self.status()[0]
         #     if s == status.OK:
         #         return v
@@ -171,7 +171,7 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
         channel = self._adevs['sensor_%s' % self.controlchannel.lower()]
         while 1:
             value = channel.read()
-            self.printdebug('current temperature %7.3f %s' % (value, self.unit))
+            self.log.debug('current temperature %7.3f %s' % (value, self.unit))
             now = time.time()
             if abs(value - setpoint) > tolerance:
                 # start again

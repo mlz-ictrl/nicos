@@ -64,8 +64,11 @@ def help(obj=None):
     elif isinstance(obj, Device):
         printinfo('%s is a device of class %s.' %
                   (obj.name, obj.__class__.__name__))
+        if obj.__class__.__doc__:
+            printinfo('Device class description: %s' %
+                      obj.__class__.__doc__.strip())
         if obj.description:
-            printinfo('Its description is: %s' % obj.description)
+            printinfo('Device description: %s' % obj.description)
         from nicos.commands.device import listparams
         listparams(obj)
     elif not inspect.isfunction(obj):
@@ -234,12 +237,13 @@ SetMode.__doc__ += ', '.join(EXECUTIONMODES)
 
 
 @usercommand
-def ClearCache(devname):
+def ClearCache(*devnames):
     """Clear all local cached information for a given device."""
-    if isinstance(devname, Device):
-        devname = devname.name
-    session.cache.clear(devname)
-    printinfo('cleared cached information for %s' % devname)
+    for devname in devnames:
+        if isinstance(devname, Device):
+            devname = devname.name
+        session.cache.clear(devname)
+        printinfo('cleared cached information for %s' % devname)
 
 
 class _Scope(object):

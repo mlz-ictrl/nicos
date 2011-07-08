@@ -185,7 +185,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                 focush.move(self._calfocus(lam, self.hfocuspars))
         else:
             if self._focwarnings:
-                self.printwarning('focus is in manual mode')
+                self.log.warning('focus is in manual mode')
                 self._focwarnings -= 1
 
     def _calfocus(self, lam, focuspars):
@@ -220,9 +220,9 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
             th = -th
         if abs(tt - 2.0*th) > self._axisprecision:
             if time() - self._lastwarn > self.warninterval:
-                self.printwarning('two theta and 2*theta axis mismatch: %s <-> '
+                self.log.warning('two theta and 2*theta axis mismatch: %s <-> '
                                   '%s = 2 * %s' % (tt, 2.0*th, th))
-                self.printinfo('precisions: tt:%s, th:%s, combined: %s' % (
+                self.log.info('precisions: tt:%s, th:%s, combined: %s' % (
                     self._adevs['twotheta'].precision,
                     self._adevs['theta'].precision, self._axisprecision))
                 self._lastwarn = time()
@@ -262,15 +262,15 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         return dlambda
 
     def doWriteFocmode(self, value):
-        self.printinfo('adjusting foci')
+        self.log.info('adjusting foci')
         self._movefoci()
 
     def doWriteHfocuspars(self, value):
-        self.printinfo('adjusting foci')
+        self.log.info('adjusting foci')
         self._movefoci()
 
     def doWriteVfocuspars(self, value):
-        self.printinfo('adjusting foci')
+        self.log.info('adjusting foci')
         self._movefoci()
 
     def _fromlambda(self, value):
@@ -383,14 +383,14 @@ class TAS(Instrument, Moveable):
             self.scatteringsense[1], self.axiscoupling, self.psi360)
         mono, ana, phi, psi = self._adevs['mono'], self._adevs['ana'], \
                               self._adevs['phi'], self._adevs['psi']
-        self.printdebug('moving phi/stt to %s' % angles[2])
+        self.log.debug('moving phi/stt to %s' % angles[2])
         phi.start(angles[2])
-        self.printdebug('moving psi/sth to %s' % angles[3])
+        self.log.debug('moving psi/sth to %s' % angles[3])
         psi.start(angles[3])
-        self.printdebug('moving mono to %s' % angles[0])
+        self.log.debug('moving mono to %s' % angles[0])
         mono._startInvAng(angles[0])
         if self.scanmode != 'DIFF':
-            self.printdebug('moving ana to %s' % angles[1])
+            self.log.debug('moving ana to %s' % angles[1])
             ana._startInvAng(angles[1])
         mono.wait()
         if self.scanmode != 'DIFF':
@@ -402,7 +402,7 @@ class TAS(Instrument, Moveable):
         for index in (self.h, self.k, self.l, self.E):
             if index._cache:
                 index._cache.invalidate(index, 'value')
-        #self.printinfo('position hkl: (%7.4f %7.4f %7.4f) E: %7.4f %s' %
+        #self.log.info('position hkl: (%7.4f %7.4f %7.4f) E: %7.4f %s' %
         #               (h, k, l, ny, self.energytransferunit))
 
     def doStatus(self):

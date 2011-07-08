@@ -45,6 +45,7 @@ import signal
 import logging
 import readline
 import traceback
+import exceptions
 import rlcompleter
 from os import path
 from wsgiref.simple_server import make_server
@@ -522,8 +523,8 @@ class Session(object):
 
         if simulate:
             self.log.info('starting in simulation mode')
-        else:
-            # Try to become master.
+        elif self.mode == 'slave':
+            # Try to become master if the setup didn't already switch modes.
             try:
                 self.setMode('master')
             except ModeError:
@@ -681,8 +682,8 @@ class Session(object):
         if exc_info is None:
             exc_info = sys.exc_info()
         if isinstance(exc_info[1], NicosError):
-            if exc_info[1].device and exc_info[1].device._log:
-                exc_info[1].device._log.error(exc_info=exc_info)
+            if exc_info[1].device and exc_info[1].device.log:
+                exc_info[1].device.log.error(exc_info=exc_info)
                 return
         if cut_frames:
             type, value, tb = exc_info
@@ -742,7 +743,7 @@ class ScriptSession(Session):
             try:
                 session.log.exception('Fatal error while initializing')
             finally:
-                print >>sys.stderr, 'Fatal error while initializing:', err
+                print >> sys.stderr, 'Fatal error while initializing:', err
             return 1
 
         # Load the initial setup and handle becoming master.
@@ -788,7 +789,7 @@ class SimpleSession(Session):
             try:
                 session.log.exception('Fatal error while initializing')
             finally:
-                print >>sys.stderr, 'Fatal error while initializing:', err
+                print >> sys.stderr, 'Fatal error while initializing:', err
             return 1
 
         def quit_handler(signum, frame):
@@ -825,10 +826,19 @@ class NicosCompleter(rlcompleter.Completer):
     completing attribute access.
     """
 
+    attr_hidden = set(['attached_devices', 'parameters', 'hardware_access',
+                       'temporary', 'log', 'valuetype', 'mro'])
+    global_hidden = set(dir(exceptions))
+
     def attr_matches(self, text):
         matches = rlcompleter.Completer.attr_matches(self, text)
         textlen = len(text)
-        return [m for m in matches if not m[textlen:].startswith(('_', 'do'))]
+        return [m for m in matches if not (m[textlen:].startswith(('_', 'do'))
+                                           or m[textlen:] in self.attr_hidden)]
+
+    def global_matches(self, text):
+        matches = rlcompleter.Completer.global_matches(self, text)
+        return [m for m in matches if m[:-1] not in self.global_hidden]
 
 
 class NicosInteractiveStop(BaseException):

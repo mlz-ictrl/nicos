@@ -62,7 +62,7 @@ void Config::Clear()
 		xmlXPathFreeContext((xmlXPathContextPtr)m_ppathcontext);
 		m_ppathcontext = 0;
 	}
-	
+
 	if(m_pxmldoc)
 	{
 		xmlFreeDoc((xmlDoc*)m_pxmldoc);
@@ -73,9 +73,9 @@ void Config::Clear()
 bool Config::Load(const char* pcFile)
 {
 	Clear();
-	
+
 	m_pxmldoc = xmlParseFile(pcFile);
-	if(!m_pxmldoc) 
+	if(!m_pxmldoc)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
 		logger << "Config: Could not load XML file \"" << pcFile << "\".\n";
@@ -89,10 +89,11 @@ int Config::QueryInt(const char* pcXpath, int iDefault)
 {
 	if(!m_pxmldoc) return iDefault;
 	const xmlChar* pxmlPath = xmlCharStrdup(pcXpath);
-	
+
 	xmlXPathContextPtr xpathContext = (xmlXPathContextPtr)m_ppathcontext;
-	xmlXPathObjectPtr xpathObject = xmlXPathEvalExpression(pxmlPath, xpathContext);
-	
+	xmlXPathObjectPtr xpathObject = xmlXPathEvalExpression(pxmlPath,
+														   xpathContext);
+
 	xmlNodeSetPtr pnodeset = xpathObject->nodesetval;
 	if(pnodeset->nodeNr==0)
 	{
@@ -104,11 +105,12 @@ int Config::QueryInt(const char* pcXpath, int iDefault)
 	else if(pnodeset->nodeNr>1)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_WARN);
-		logger << "Config: Result for XPath \"" << pcXpath << "\" not unique, using first.\n";
+		logger << "Config: Result for XPath \"" << pcXpath
+			   << "\" not unique, using first.\n";
 	}
-	
+
 	xmlNodePtr pNode = pnodeset->nodeTab[0];
-	
+
 	if(!pNode || !pNode->children)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -116,8 +118,9 @@ int Config::QueryInt(const char* pcXpath, int iDefault)
 		xmlXPathFreeObject(xpathObject);
 		return iDefault;
 	}
-	
-	int iRet = atoi((const char*)pNode->children->content);		// Vorsicht mit diesem Cast!
+
+	// Vorsicht mit diesem Cast!
+	int iRet = atoi((const char*)pNode->children->content);
 	xmlXPathFreeObject(xpathObject);
 	return iRet;
 }
@@ -126,10 +129,11 @@ double Config::QueryDouble(const char* pcXpath, double dDefault)
 {
 	if(!m_pxmldoc) return dDefault;
 	const xmlChar* pxmlPath = xmlCharStrdup(pcXpath);
-	
+
 	xmlXPathContextPtr xpathContext = (xmlXPathContextPtr)m_ppathcontext;
-	xmlXPathObjectPtr xpathObject = xmlXPathEvalExpression(pxmlPath, xpathContext);
-	
+	xmlXPathObjectPtr xpathObject = xmlXPathEvalExpression(pxmlPath,
+																xpathContext);
+
 	xmlNodeSetPtr pnodeset = xpathObject->nodesetval;
 	if(pnodeset->nodeNr==0)
 	{
@@ -141,11 +145,12 @@ double Config::QueryDouble(const char* pcXpath, double dDefault)
 	else if(pnodeset->nodeNr>1)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_WARN);
-		logger << "Config: Result for XPath \"" << pcXpath << "\" not unique, using first.\n";
+		logger << "Config: Result for XPath \"" << pcXpath
+			   << "\" not unique, using first.\n";
 	}
-	
+
 	xmlNodePtr pNode = pnodeset->nodeTab[0];
-	
+
 	if(!pNode || !pNode->children)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -153,57 +158,60 @@ double Config::QueryDouble(const char* pcXpath, double dDefault)
 		xmlXPathFreeObject(xpathObject);
 		return dDefault;
 	}
-	
+
 	double dRet = dDefault;
-	sscanf((const char*)pNode->children->content, "%lf", &dRet); 	// Vorsicht mit diesem Cast!
+	// Vorsicht mit diesem Cast!
+	sscanf((const char*)pNode->children->content, "%lf", &dRet);
 	xmlXPathFreeObject(xpathObject);
 	return dRet;
 }
 
-void Config::QueryString(const char* pcXpath, char* pcStr, const char* pcDefault)
+void Config::QueryString(const char* pcXpath, char* pcStr,
+						 const char* pcDefault)
 {
-	if(pcStr!=pcDefault && pcDefault) 
+	if(pcStr!=pcDefault && pcDefault)
 		strcpy(pcStr,pcDefault);
 	if(!m_pxmldoc)
 		return;
 	const xmlChar* pxmlPath = xmlCharStrdup(pcXpath);
-	
+
 	xmlXPathContextPtr xpathContext = (xmlXPathContextPtr)m_ppathcontext;
-	xmlXPathObjectPtr xpathObject = xmlXPathEvalExpression(pxmlPath, xpathContext);
-	
+	xmlXPathObjectPtr xpathObject = xmlXPathEvalExpression(pxmlPath,
+															xpathContext);
+
 	xmlNodeSetPtr pnodeset = xpathObject->nodesetval;
 	if(pnodeset->nodeNr==0)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
 		logger << "Config: XPath \"" << pcXpath << "\" not found.\n";
 		xmlXPathFreeObject(xpathObject);
-		
+
 		return;
 	}
 	else if(pnodeset->nodeNr>1)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_WARN);
-		logger << "Config: Result for XPath \"" << pcXpath << "\" not unique, using first.\n";
+		logger << "Config: Result for XPath \"" << pcXpath
+			   << "\" not unique, using first.\n";
 	}
-	
+
 	xmlNodePtr pNode = pnodeset->nodeTab[0];
-	
+
 	if(!pNode || !pNode->children)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
 		logger << "Config: Node for XPath \"" << pcXpath << "\" invalid.\n";
 		xmlXPathFreeObject(xpathObject);
-		
 		return;
 	}
-	
+
 	strcpy(pcStr, (const char*)pNode->children->content);
 	trim(pcStr);
 	xmlXPathFreeObject(xpathObject);
 }
 
 
-//////////////////////////////// Singleton-Zeug ///////////////////////////
+//////////////////////////////// Singleton-Zeug ////////////////////////////////
 Config *Config::s_pConfig = 0;
 
 Config* Config::GetSingleton()
@@ -220,13 +228,15 @@ void Config::ClearSingleton()
 		s_pConfig = 0;
 	}
 }
-///////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 /*int main(void)
 {
 	Config::GetSingleton()->Load("./cascade.xml");
-	std::cout << Config::GetSingleton()->QueryInt("/cascade_config/tof_loader/image_width") << std::endl;
-	std::cout << Config::GetSingleton()->QueryInt("/cascade_config/tof_loader/image_height") << std::endl;
+	std::cout << Config::GetSingleton()->QueryInt(
+	 					"/cascade_config/tof_loader/image_width") << std::endl;
+	std::cout << Config::GetSingleton()->QueryInt(
+	 					"/cascade_config/tof_loader/image_height") << std::endl;
 	Config::ClearSingleton();
 	return 0;
 }*/

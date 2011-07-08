@@ -32,27 +32,33 @@
 #include <qwt/qwt_plot_spectrogram.h>
 #include "tofloader.h"
 
+/*
+ * base class for PadData & TofData
+ */
 class MainRasterData : public QwtRasterData
 {
 	protected:
+		// log10?
 		bool m_bLog;
-		
+
 	public:
 		MainRasterData(const QwtDoubleRect& rect);
-		
+
 		void SetLog10(bool bLog10);
 		bool GetLog10(void) const;
-		
-		// Wert ohne Berücksichtigung von m_bLog nichtlogarithmisch zurückgeben
+
+		// get (nonlog) raw value without regard to m_bLog
 		virtual double GetValueRaw(int x, int y) const = 0;
 };
 
 
-// *********************** PAD-Daten *********************** 
+/*
+ * PAD data
+ */
 class PadData : public MainRasterData, public PadImage
 {
 	protected:
-	
+
 	public:
 		PadData();
 		PadData(const PadData& pad);
@@ -65,7 +71,9 @@ class PadData : public MainRasterData, public PadImage
 };
 
 
-// *********************** TOF-Daten ***********************
+/*
+ * TOF data
+ */
 class Data2D : public MainRasterData, public TmpImage
 {
 	protected:
@@ -76,10 +84,10 @@ class Data2D : public MainRasterData, public TmpImage
 		Data2D();
 		Data2D(const Data2D& data2d);
 		virtual ~Data2D();
-		
+
 		void SetPhaseData(bool bPhaseData);	// wegen Achsen-Range
 		void clearData();
-		
+
 		virtual QwtRasterData *copy() const;
 		virtual QwtDoubleInterval range() const;
 		virtual double value(double x, double y) const;

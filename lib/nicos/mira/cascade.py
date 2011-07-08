@@ -214,7 +214,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
                     status = self._client.communicate('CMD_status_cdr')
                     if status == '':
                         raise CommunicationError(self, 'no response from server')
-                    #self.printdebug('got status %r' % status)
+                    #self.log.debug('got status %r' % status)
                     status = dict(v.split('=')
                                   for v in str(status[4:]).split(' '))
                     if status.get('stop', '0') == '1':

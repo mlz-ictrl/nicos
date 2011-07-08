@@ -23,31 +23,38 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // *****************************************************************************
-// (Singleton-)Klasse zum Einlesen einer XML-Konfigurationsdatei für Cascade
 
 #ifndef __CASCADE_CONFIG__
 #define __CASCADE_CONFIG__
 
+/*
+ * (Singleton) class for reading xml configuration files
+ */
 class Config
 {
 	private:
 		static Config *s_pConfig;
-		
+
 		Config();
 		virtual ~Config();
-	
+
 	protected:
 		void *m_pxmldoc;
 		void *m_ppathcontext;
 		void Clear();
-		
+
 	public:
+		// Load a XML file
 		bool Load(const char* pcFile);
-		
+
+		//----------------------------------------------------------------------
+		// Query values in a given xpath
 		int QueryInt(const char* pcXpath, int iDefault=0);
 		double QueryDouble(const char* pcXpath, double dDefault=0.);
 		void QueryString(const char* pcXpath, char* pcStr, const char* pcDefault);
-		
+		//----------------------------------------------------------------------
+
+		// get pointer to singleton instance of this class
 		static Config* GetSingleton();
 		static void ClearSingleton();
 };

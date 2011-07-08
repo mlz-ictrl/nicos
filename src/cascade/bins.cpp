@@ -27,24 +27,26 @@
 
 #include "bins.h"
 
-Bins::Bins(int iNumBins, double dMin, double dMax) : m_iNumBins(iNumBins), m_dMin(dMin), m_dMax(dMax), m_intervals(iNumBins), m_values(iNumBins)
+Bins::Bins(int iNumBins, double dMin, double dMax) : m_iNumBins(iNumBins),
+		m_dMin(dMin), m_dMax(dMax), m_intervals(iNumBins), m_values(iNumBins)
 {
 	m_dInterval = (dMax-dMin)/double(iNumBins);
-	
+
 	for(int i=0; i<iNumBins; ++i)
 	{
-		m_intervals[i] = QwtDoubleInterval(dMin + double(i)*m_dInterval, dMin + (double(i)+1.)*m_dInterval);
+		m_intervals[i] = QwtDoubleInterval(dMin + double(i)*m_dInterval,
+										   dMin + (double(i)+1.)*m_dInterval);
 	}
 }
 
 // Zähler des Bins, in dem dWert liegt, erhöhen
 void Bins::Inc(double dWert)
-{	
+{
 	if(dWert!=dWert) return; // NaN ignorieren
 
 	int iBin = int((dWert-m_dMin) / m_dInterval);
 	if(iBin<0 || iBin>m_iNumBins) return;
-	
+
 	m_values[iBin] += 1.;
 }
 
@@ -60,11 +62,11 @@ double Bins::GetMaxVal() const
 
 // in Qwt-kompatibles Format umwandeln
 const QwtArray<QwtDoubleInterval>& Bins::GetIntervals() const
-{ 
-	return m_intervals; 
+{
+	return m_intervals;
 }
 
 const QwtArray<double>& Bins::GetValues() const
-{ 
+{
 	return m_values;
 }

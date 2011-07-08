@@ -148,4 +148,4 @@ class IsegHV(TacoDevice, HasLimits, Moveable):
                                 'V%d=%03d' % (self.channel, ramp))
         # XXX check resp
         self._taco_guard(self._dev.communicate, 'A%d=01' % self.channel)
-        self.printinfo('ramp set to %d V/s and stored in EEPROM' % ramp)
+        self.log.info('ramp set to %d V/s and stored in EEPROM' % ramp)

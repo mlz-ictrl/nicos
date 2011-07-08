@@ -148,7 +148,7 @@ class TacoDevice(object):
         log = self.tacolog
 
         if log:
-            self.printdebug('creating %s TACO device' % class_.__name__)
+            self.log.debug('creating %s TACO device' % class_.__name__)
 
         try:
             dev = class_(devname)
@@ -161,14 +161,14 @@ class TacoDevice(object):
             if timeout != 0:
                 dev.setClientNetworkTimeout(timeout)
         except TACOError, err:
-            self.printwarning('Setting TACO network timeout failed: '
+            self.log.warning('Setting TACO network timeout failed: '
                               '[TACO %d] %s' % (err.errcode, err))
 
         try:
             if dev.isDeviceOff():
                 dev.deviceOn()
         except TACOError, err:
-            self.printwarning('Switching TACO device %r on failed: '
+            self.log.warning('Switching TACO device %r on failed: '
                               '[TACO %d] %s' % (devname, err.errcode, err))
             try:
                 if dev.deviceState() == TACOStates.FAULT:
@@ -183,14 +183,14 @@ class TacoDevice(object):
 
     def _taco_guard_log(self, function, *args):
         """Like _taco_guard(), but log the call."""
-        self.printdebug('TACO call: %s%r' % (function.__name__, args))
+        self.log.debug('TACO call: %s%r' % (function.__name__, args))
         self.__lock.acquire()
         try:
             ret = function(*args)
         except TACOError, err:
             self._raise_taco(err)
         else:
-            self.printdebug('TACO return: %r' % ret)
+            self.log.debug('TACO return: %r' % ret)
             return ret
         finally:
             self.__lock.release()
@@ -212,13 +212,13 @@ class TacoDevice(object):
         self.__lock.acquire()
         try:
             if self.tacolog:
-                self.printdebug('TACO resource update: %s %s' %
+                self.log.debug('TACO resource update: %s %s' %
                                 (resname, value))
             self._dev.deviceOff()
             self._dev.deviceUpdateResource(resname, value)
             self._dev.deviceOn()
             if self.tacolog:
-                self.printdebug('TACO resource update successful')
+                self.log.debug('TACO resource update successful')
         except TACOError, err:
             self._raise_taco(err, 'While updating %s resource' % resname)
         finally:
@@ -248,7 +248,7 @@ class TacoDevice(object):
             try:
                 return self._taco_guard(func, *args)
             except NicosError:
-                self.printwarning('%s failed; trying again' % what)
+                self.log.warning('%s failed; trying again' % what)
                 if tries <= 0:
                     raise
                 self.__lock.acquire()
@@ -261,3 +261,50 @@ class TacoDevice(object):
                     pass
                 finally:
                     self.__lock.release()
+
+
+# XXX hack around segfaults, enable by renaming MTacoDevice to TacoDevice
+
+import os
+import sys
+from subprocess import *
+from nicos.cache.utils import cache_dump, cache_load
+
+class TacoStub(object):
+    def __init__(self, mod, cls, dev):
+        from nicos import session
+        self.mod = mod
+        self.cls = cls
+        self.dev = dev
+        self.script = os.path.join(session.config.control_path,
+                                   'bin', 'nicos-tacoexec')
+
+    def __getattr__(self, cmd):
+        def method(*args):
+            n = 0
+            while n < 5:
+                p = Popen([sys.executable, self.script,
+                           self.mod, self.cls, self.dev, cmd, cache_dump(args)],
+                          stdout=PIPE, stderr=PIPE)
+                out, err = p.communicate()
+                if err:
+                    raise NicosError(err)
+                if not out:
+                    continue
+                n += 1
+                return cache_load(out)
+            raise NicosError('command failed, no output')
+        return method
+
+
+class MTacoDevice(TacoDevice):
+
+    def _create_client(self, devname=None, class_=None, resetok=None,
+                       timeout=None):
+        if class_ is None:
+            class_ = self.taco_class
+        if devname is None:
+            devname = self.tacodevice
+        mod = class_.__module__
+        cls = class_.__name__
+        return TacoStub(mod, cls, devname)

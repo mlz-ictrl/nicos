@@ -68,6 +68,16 @@
 		<level> 3 </level>
 		<log_to_file> 0 </log_to_file>
 		<file> cascade.log </file>
+		<repeat_duplicate_logs> 0 </repeat_duplicate_logs>
 	</log>
+
+	<minuit>
+		<maxfcn> 0 </maxfcn>
+		<tolerance> 0.1 </tolerance>
+
+		<!-- one of: migrad, simplex, minimize -->
+		<algo> migrad </algo>
+		<strategy> 0 </strategy>
+	</minuit>
 
 </cascade_config>

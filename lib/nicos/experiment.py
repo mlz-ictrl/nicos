@@ -205,7 +205,7 @@ class Experiment(Device):
         try:
             info = queryProposal(self._propdb, proposal)
         except Exception:
-            self.printwarning('unable to query proposal info', exc=1)
+            self.log.warning('unable to query proposal info', exc=1)
             return
         what = []
         if info.get('title') and self.title == '':
@@ -228,7 +228,7 @@ class Experiment(Device):
                 self.users = self.users + proplist
                 what.append('co-proposers')
         if what:
-            self.printinfo('Filled in %s from proposal database' %
+            self.log.info('Filled in %s from proposal database' %
                            ', '.join(what))
 
     def addUser(self, name, email, affiliation=None):

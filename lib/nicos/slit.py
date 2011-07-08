@@ -163,7 +163,7 @@ class Slit(Moveable):
         if self.opmode == 'centered':
             if abs((l+r)/2.) > self._adevs['left'].precision or \
                    abs((t+b)/2.) > self._adevs['top'].precision:
-                self.printwarning('slit seems to be offcentered, but is '
+                self.log.warning('slit seems to be offcentered, but is '
                                   'set to "centered" mode')
             return (l-r, t-b)
         elif self.opmode == 'offcentered':

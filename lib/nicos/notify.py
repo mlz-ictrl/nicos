@@ -92,14 +92,14 @@ class Jabberer(Notifier):
 
     def send(self, subject, body, what=None, short=None):
         receivers = self.receivers
-        self.printdebug('trying to send message to %s' % ', '.join(receivers))
+        self.log.debug('trying to send message to %s' % ', '.join(receivers))
         for receiver in receivers:
             try:
                 msg = self._message(receiver, subject, body)
                 self._client.send(msg)
             except Exception:
                 self.printexception('sending to %s failed' % receiver)
-        self.printinfo('%sjabber message sent to %s' %
+        self.log.info('%sjabber message sent to %s' %
                        what and what + ' ' or '', ', '.join(receivers))
 
     def _message(self, receiver, subject, body):
@@ -139,7 +139,7 @@ class Mailer(Notifier):
                                 self.copies,
                                 self.subject + ' -- ' + subject, body)
             if ok:
-                self.printinfo('%smail sent to %s' % (
+                self.log.info('%smail sent to %s' % (
                     what and what + ' ' or '', ', '.join(receivers)))
         mail_thread = threading.Thread(target=send)
         mail_thread.setDaemon(True)
@@ -148,7 +148,7 @@ class Mailer(Notifier):
     def _sendmail(self, address, to, cc, subject, text):
         """Send e-mail with given recipients, subject and text."""
         if not address:
-            self.printdebug('no sender address given, not sending anything')
+            self.log.debug('no sender address given, not sending anything')
             return False
         if isinstance(subject, unicode):
             subject = subject.encode(EMAIL_CHARSET)
@@ -183,14 +183,14 @@ class Mailer(Notifier):
         # Set Return-Path so that it isn't set (generally incorrectly) for us.
         msg['Return-Path'] = address
 
-        self.printdebug('trying to send mail to %s' % ', '.join(to))
+        self.log.debug('trying to send mail to %s' % ', '.join(to))
         try:
             sendmailp = os.popen('/usr/sbin/sendmail ' + ' '.join(to), 'w')
             # msg contains everything we need, so this is a simple write
             sendmailp.write(msg.as_string())
             sendmail_status = sendmailp.close()
             if sendmail_status:
-                self.printerror('sendmail failed with status: %s' %
+                self.log.error('sendmail failed with status: %s' %
                                 sendmail_status)
                 return False
         except Exception:
@@ -217,7 +217,7 @@ class SMSer(Notifier):
             return
         body = self.subject + ': ' + (short or body)
         body = body[:160]
-        self.printdebug('sending SMS to %s' % ', '.join(receivers))
+        self.log.debug('sending SMS to %s' % ', '.join(receivers))
         try:
             for receiver in receivers:
                 proc = subprocess.Popen(['sendsms', '-d', receiver, '-m', body,
@@ -230,6 +230,6 @@ class SMSer(Notifier):
         except Exception:
             self.printexception('sendsms failed with exception')
             return False
-        self.printinfo('%sSMS message sent to %s' % (
+        self.log.info('%sSMS message sent to %s' % (
             what and what + ' ' or '', ', '.join(receivers)))
         return True

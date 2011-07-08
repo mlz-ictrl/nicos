@@ -28,7 +28,7 @@
 #define __NICOSCLIENT__
 
 #include <QMutex>
-#include "client.h" 
+#include "client.h"
 #include "tofloader.h"
 
 class NicosClient : public TcpClient
@@ -36,23 +36,25 @@ class NicosClient : public TcpClient
 	private:
 		bool IsSizeCorrect(const QByteArray& arr, bool bPad);
 		int IsPad(const char* pcBuf);
-	
+
 	protected:
 		QMutex m_mutex;
 		PadImage m_pad;
 		TofImage m_tof;
-	
+
 	public:
 		NicosClient();
 		virtual ~NicosClient();
-		
+
+		// send a message to server and receive corresponding answer
 		const QByteArray& communicate(const char* pcMsg);
-		
-		// total counts
+
+		// get total counts in TOF or PAD
 		unsigned int counts(const QByteArray& arr);
-		
-		// counts inside ROI
-		unsigned int counts(const QByteArray& arr, int iStartX, int iEndX, int iStartY, int iEndY);
+
+		// get total counts inside ROI in TOF or PAD
+		unsigned int counts(const QByteArray& arr, int iStartX, int iEndX,
+							int iStartY, int iEndY);
 };
 
 #endif

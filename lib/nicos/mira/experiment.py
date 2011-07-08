@@ -53,5 +53,5 @@ class MiraExperiment(Experiment):
         ensureDirectory(path.join(new_datapath, 'scripts'))
         self.scriptdir = path.join(new_datapath, 'scripts')
 
-        self.printinfo('New experiment %s started' % proposal)
-        self.printinfo('Data directory set to %s' % new_datapath)
+        self.log.info('New experiment %s started' % proposal)
+        self.log.info('Data directory set to %s' % new_datapath)
