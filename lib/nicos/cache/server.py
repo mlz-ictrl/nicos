@@ -35,13 +35,11 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 import os
-import bsddb
 import Queue
 import select
 import socket
 import threading
 from os import path
-from itertools import chain
 from time import time as currenttime, sleep, localtime, mktime
 
 from nicos import session, loggers
@@ -49,8 +47,7 @@ from nicos.utils import existingdir, closeSocket, ensureDirectory
 from nicos.device import Device, Param
 from nicos.errors import ConfigurationError
 from nicos.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT, \
-     OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, OP_TELLOLD, OP_LOCK, Entry, \
-     dump_entries, load_entries, load_last_entry
+     OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, OP_TELLOLD, OP_LOCK, Entry
 
 
 class CacheUDPConnection(object):
@@ -294,7 +291,7 @@ class CacheDatabase(Device):
     def doInit(self):
         raise ConfigurationError(
             'CacheDatabase is an abstract class, use '
-            'either MemoryCacheDatabase or DbCacheDatabase')
+            'either MemoryCacheDatabase or FlatfileCacheDatabase')
 
     def initDatabase(self):
         """Initialize the database from persistent store, if present."""
@@ -416,217 +413,7 @@ class MemoryCacheDatabase(CacheDatabase):
                     return '%s%s\r\n' % (key, OP_LOCK)
 
 
-class DbCacheDatabase(MemoryCacheDatabase):
-    """Cache database that keeps history in bsddb stores."""
-
-    parameters = {
-        'storepath': Param('Directory where history stores should be saved',
-                           type=existingdir, mandatory=True),
-        'maxcached': Param('Maximum number of entries cached in memory',
-                           type=int, default=1000),
-    }
-
-    def doInit(self):
-        MemoryCacheDatabase.doInit(self)
-        # stores timestamp of the last archived entry for all keys
-        self._arctime = {}
-        # maps (y, m, d) tuples to bsddb stores
-        self._stores = {}
-        self._max = self.maxcached
-        self._storefmt = '%04d-%02d-%02d'
-        # keep open two stores: this day's, and the previous day's
-        time = currenttime()
-        self._currday = localtime(time)[:3]
-        self._prevday = localtime(time - 86400)[:3]
-        self._midnight = mktime(self._currday + (0,) * 6)
-        self._nextmidnight = self._midnight + 86400
-        self._store_lock = threading.Lock()
-        with self._store_lock:
-            self._currstore = self._open_store(self._currday)
-            self._prevstore = self._open_store(self._prevday)
-
-    def initDatabase(self):
-        # read the last entry for each key from disk
-        nkeys = 0
-        with self._db_lock:
-            with self._store_lock:
-                for key in self._currstore:
-                    entry = load_last_entry(self._currstore[key])
-                    if entry:
-                        self._db[key] = [entry]
-                        self._arctime[key] = entry.time
-                        nkeys += 1
-        self.log.info('loaded %d keys from store' % nkeys)
-
-    def doShutdown(self):
-        # write remaining unarchived entries to disk
-        nentries = 0
-        with self._db_lock:
-            with self._store_lock:
-                for key, entries in self._db.iteritems():
-                    self._archive(key, entries, sync=False)
-                    nentries += len(entries)
-        self.log.info('archived %d entries on shutdown' % nentries)
-        with self._store_lock:
-            self._prevstore.sync()
-            self._close_store(self._prevday)
-            self._currstore.sync()
-            self._close_store(self._currday)
-
-    def _open_store(self, ymd):
-        if ymd in self._stores:
-            self._stores[ymd][1] += 1
-            self.log.debug('incremented use count for store %s' % (ymd,))
-            return self._stores[ymd][0]
-        path = os.path.join(session.config.control_path,
-                            self.storepath, self._storefmt % ymd)
-        try:
-            db = bsddb.hashopen(path, 'c')
-        except bsddb.db.DBError, err:
-            raise ConfigurationError(self, 'Error opening database store %r: %s'
-                                     % (path, err.args[1]))
-        self.log.debug('opened new store for %s' % (ymd,))
-        self._stores[ymd] = [db, 1]
-        return db
-
-    def _close_store(self, ymd):
-        info = self._stores[ymd]
-        info[1] -= 1
-        self.log.debug('decremented use count for store %s' % (ymd,))
-        if info[1] == 0:
-            db = self._stores.pop(ymd)[0]
-            db.sync()
-            db.close()
-            self.log.debug('closed store for %s' % (ymd,))
-
-    def _archive(self, key, entries, sync=True):
-        """Archive entries to the store(s).  Must be called with the store
-        lock held.
-        """
-        # midnight is past: change stores
-        if currenttime() > self._nextmidnight:
-            newday = localtime()[:3]
-            # close previous day's store
-            self._close_store(self._prevday)
-            # this day's store is now previous day's
-            self._prevstore = self._currstore
-            self._currstore = self._open_store(newday)
-            # set the days and midnight time correctly
-            self._prevday = self._currday
-            self._currday = newday
-            self._midnight = mktime(self._currday + (0,) * 6)
-            self._nextmidnight = self._midnight + 86400
-        # divide the entries in two lists: those belonging to the previous
-        # day, and those for the current day
-        prev, curr = [], []
-        midnight = self._midnight
-        arctime = self._arctime.get(key, 0)
-        for entry in entries:
-            if entry.time <= arctime:
-                continue
-            elif entry.time < midnight:
-                prev.append(entry)
-            else:
-                curr.append(entry)
-        # dump them into their respective stores
-        if prev:
-            self._prevstore[key] = \
-                self._prevstore.get(key, '') + dump_entries(prev)
-            if sync:
-                self._prevstore.sync()
-        self._currstore[key] = \
-            self._currstore.get(key, '') + dump_entries(curr)
-        if sync:
-            self._currstore.sync()
-        self._arctime[key] = entries[-1].time
-        self.log.debug('archived %d+%d entries for key %s' %
-                        (len(prev), len(curr), key))
-
-    # ask and ask_wc inherited from MemoryCacheDatabase
-
-    def ask_hist(self, key, t1, t2):
-        ret = []
-        with self._db_lock:
-            if key not in self._db:
-                return []
-            entries = self._db[key]
-        # need to check in database files?
-        store_entries = []
-        if t1 < entries[0].time:
-            # XXX currently this does not open additional stores to fulfill the
-            # whole given time range
-            with self._store_lock:
-                store_entries = load_entries(self._prevstore.get(key, '')) + \
-                                load_entries(self._currstore.get(key, ''))
-                self.log.debug('history query loaded %d entries from store' %
-                                len(store_entries))
-        for entry in chain(store_entries, entries):
-            if t1 <= entry.time < t2:
-                if entry.ttl:
-                    ret.append('%s+%s@%s%s%s\r\n' %
-                               (entry.time, entry.ttl, key,
-                                OP_TELLOLD, entry.value))
-                else:
-                    ret.append('%s@%s%s%s\r\n' % (entry.time, key,
-                                                  OP_TELLOLD, entry.value))
-        return ret
-
-    def tell(self, key, value, time, ttl, from_client):
-        if value is None:
-            # deletes cannot have a TTL
-            ttl = None
-        send_update = True
-        with self._db_lock:
-            entries = self._db.setdefault(key, [])
-            if entries:
-                lastent = entries[-1]
-                if lastent.value == value:
-                    # special handling of constant values to avoid amassing
-                    # lots of duplicate entries
-                    if not lastent.ttl:
-                        if not ttl:
-                            # not a real update
-                            send_update = False
-                        else:
-                            # had no ttl, but has one now -> new entry
-                            entries.append(Entry(time, ttl, value))
-                    else:
-                        if not ttl:
-                            # had ttl, but has none now -> new entry
-                            entries.append(Entry(time, ttl, value))
-                        elif lastent.time + lastent.ttl > currenttime() and \
-                                 lastent.ttl < 120:
-                            # update of nonexpired value, just update the ttl
-                            # (but only for maximum 2 minutes)
-                            lastent.ttl = (time - lastent.time) + ttl
-                        else:
-                            # old value already expired -> new entry
-                            entries.append(Entry(time, ttl, value))
-                else:
-                    entries.append(Entry(time, ttl, value))
-            else:
-                entries.append(Entry(time, ttl, value))
-            #self.log.debug('entries are now ' + str(entries))
-            if len(entries) > self._max or ttl is None:
-                # if ttl is None, the value should be stored immediately
-                with self._store_lock:
-                    if ttl is None:
-                        self._archive(key, entries)
-                    else:
-                        # if last value has TTL, it can be updated still,
-                        # so don't write it to the archive yet
-                        self._archive(key, entries[:-1])
-                    del entries[:-1]
-                #self.log.debug('after archiving: ' + str(entries))
-        if send_update:
-            for client in self._server._connected.values():
-                if client is not from_client and client.is_active():
-                    client.update(key, OP_TELL, value, time, ttl)
-
-
-################################################################################
-
-class NewDatabase(CacheDatabase):
+class FlatfileCacheDatabase(CacheDatabase):
 
     parameters = {
         'storepath': Param('Directory where history stores should be saved',
