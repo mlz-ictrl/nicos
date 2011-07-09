@@ -414,12 +414,16 @@ class MemoryCacheDatabase(CacheDatabase):
 
 
 class FlatfileCacheDatabase(CacheDatabase):
+    """
+    Cache database which writes historical values to disk in a flatfile (ASCII)
+    format.
+
+    .. XXX document format here
+    """
 
     parameters = {
         'storepath': Param('Directory where history stores should be saved',
                            type=existingdir, mandatory=True),
-        'maxcached': Param('Maximum number of entries cached in memory',
-                           type=int, default=1000),
     }
 
     def doInit(self):
@@ -427,7 +431,6 @@ class FlatfileCacheDatabase(CacheDatabase):
         self._cat_lock = threading.Lock()
         self._locks = {}
         self._lock_lock = threading.Lock()
-        self._max = self.maxcached
 
         self._basepath = path.join(session.config.control_path, self.storepath)
         ltime = localtime()
