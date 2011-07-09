@@ -34,8 +34,8 @@ __version__ = "$Revision$"
 
 import re
 import ast
-import struct
 import cPickle as pickle
+from time import time, localtime, mktime
 from base64 import b64encode, b64decode
 
 
@@ -129,3 +129,16 @@ class Entry(object):
         if self.expired:
             return '(%s+%s@%s)' % (self.time, self.ttl, self.value)
         return '%s+%s@%s' % (self.time, self.ttl, self.value)
+
+
+# determine days of an interval between two timestamps
+
+def all_days(fromtime, totime):
+    cur = int(time())
+    ltfr = localtime(fromtime)
+    ltto = localtime(totime)
+    tmfr = int(mktime(ltfr[:3] + (0,) * 5 + (ltfr[8],)))
+    tmto = min(int(mktime(ltto[:3] + (0,) * 5 + (ltto[8],))), cur)
+    for tmday in xrange(tmfr, tmto+1, 86400):
+        lt = localtime(tmday)
+        yield str(lt[0]), '%02d-%02d' % lt[1:3]

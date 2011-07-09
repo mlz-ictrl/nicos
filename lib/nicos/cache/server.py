@@ -47,7 +47,8 @@ from nicos.utils import existingdir, closeSocket, ensureDirectory
 from nicos.device import Device, Param
 from nicos.errors import ConfigurationError
 from nicos.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT, \
-     OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, OP_TELLOLD, OP_LOCK, Entry
+     OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, OP_TELLOLD, OP_LOCK, Entry, \
+     all_days
 
 
 class CacheUDPConnection(object):
@@ -217,10 +218,10 @@ class CacheWorker(object):
             if ttl:
                 return self.db.ask_hist(key, time, time+ttl)
             else:
+                # although passed, time and ttl are ignored here
                 return self.db.ask(key, tsop, time, ttl)
         elif op == OP_WILDCARD:
-            # both time and ttl are ignored for subscription requests,
-            # but the return format changes when the @ is included
+            # time and ttl are currently ignored for wildcard requests
             return self.db.ask_wc(key, tsop, time, ttl)
         elif op == OP_SUBSCRIBE:
             # both time and ttl are ignored for subscription requests,
@@ -358,6 +359,9 @@ class MemoryCacheDatabase(CacheDatabase):
                 else:
                     ret.add(dbkey + OP_TELL + lastent.value + '\r\n')
         return ret
+
+    def ask_hist(self, key, fromtime, totime):
+        return []
 
     def tell(self, key, value, time, ttl, from_client):
         if value is None:
@@ -597,7 +601,37 @@ class FlatfileCacheDatabase(CacheDatabase):
                         ret.add(prefix+subkey + OP_TELL + entry.value + '\r\n')
         return ret
 
-    # XXX implement ask_hist query
+    def ask_hist(self, key, fromtime, totime):
+        try:
+            category, subkey = key.rsplit('/', 1)
+            category = category.replace('/', '-')
+        except ValueError:
+            category = 'nocat'
+            subkey = key
+        if fromtime > totime:
+            return []
+        elif fromtime >= self._midnight:
+            days = [(self._year, self._currday)]
+        else:
+            days = all_days(fromtime, totime)
+        ret = []
+        try:
+            for year, monthday in days:
+                fn = path.join(self._basepath, year, monthday, category)
+                if not path.isfile(fn):
+                    continue
+                with open(fn, 'U') as fd:
+                    for line in fd:
+                        fsubkey, time, value = line.rstrip().split(None, 2)
+                        if fsubkey == subkey:
+                            time = float(time)
+                            if value == '-':
+                                value = ''
+                            if fromtime <= time <= totime:
+                                ret.append('%s@%s=%s\r\n' % (time, key, value))
+        except Exception:
+            self.log.exception('error reading store files for history query')
+        return ret
 
     def _clean(self):
         while not self._stoprequest:
