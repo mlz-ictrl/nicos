@@ -466,6 +466,14 @@ class ConnectionHandler(BaseRequestHandler):
                  session.explicit_setups,
                  )))
 
+    @command()
+    def gethistory(self, key, fromtime, totime):
+        """Return history of a cache key, if available."""
+        if not session.cache:
+            self.write(STX, serialize([]))
+        history = session.cache.history('', key, float(fromtime), float(totime))
+        self.write(STX, serialize(history))
+
     # -- Watch expression commands ---------------------------------------------
 
     @command(needcontrol=True)
