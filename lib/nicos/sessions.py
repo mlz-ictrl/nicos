@@ -290,6 +290,8 @@ class Session(object):
 
         if isinstance(setupnames, basestring):
             setupnames = [setupnames]
+        else:
+            setupnames = list(setupnames)
 
         for setupname in setupnames[:]:
             if setupname in self.loaded_setups:
