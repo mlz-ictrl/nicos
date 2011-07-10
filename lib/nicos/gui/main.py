@@ -1,5 +1,4 @@
 #  -*- coding: utf-8 -*-
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # Module:
 #   $Id$
@@ -51,6 +50,7 @@ from nicos.gui.client import NicosClient, STATUS_INBREAK, STATUS_IDLE, \
      STATUS_IDLEEXC
 from nicos.gui.editor import EditorWindow
 from nicos.gui.toolsupport import main_tools, HasTools
+from nicos.cache.utils import cache_load
 from nicos.daemon import NicosDaemon
 from nicos.daemon.utils import serialize
 
@@ -549,7 +549,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
 
         # get all server status info
         allstatus = self.client.ask('getstatus')
-        status, script, messages, watch = allstatus
+        status, script, messages, watch, setups = allstatus[:5]
 
         # handle status, script and watch
         self.set_script(script)
@@ -565,6 +565,9 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
                             text='Synchronizing...', parent=self, total=total):
             self.outView.addMessages(batch)
         self.outView.scrollToBottom()
+
+        # handle setups
+        self.set_titlebar(True, setups)
 
         # retrieve datasets and put them into the analysis window
         pd = QProgressDialog(self)
@@ -675,6 +678,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             self.actionConnect.setText(self.tr('Disconnect'))
         else:
             self.actionConnect.setText(self.tr('Connect to server...'))
+            self.set_titlebar(False)
         # new status icon
         newicon = QIcon()
         newicon.addPixmap(QPixmap(':/' + status + ('exc' if exception else '')),
@@ -702,12 +706,6 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
                                self.outView.palette().color(QPalette.Base))
         self.traceView.update()
         self.commandInput.update()
-        # title bar change
-        self.setWindowTitle((str(self.instrument) or 'NICOS') + ' - ' +
-                            (status == 'disconnected' and
-                             self.tr('disconnected') or
-                             self.tr('connected to %1:%2').
-                             arg(self.client.host).arg(self.client.port)))
         # set action buttons
         self.actionBreak.setEnabled(status != 'idle')
         self.actionBreak.setVisible(status != 'interrupted')
@@ -719,6 +717,16 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         self.addWatch.setEnabled(isconnected)
         self.deleteWatch.setEnabled(isconnected)
         self.oneShotEval.setEnabled(isconnected)
+
+    def set_titlebar(self, connected, setups=[]):
+        inststr = str(self.instrument) or 'NICOS'
+        if connected:
+            hoststr = self.tr('connected to %1:%2').\
+                      arg(self.client.host).arg(self.client.port)
+            self.setWindowTitle('%s [%s] - %s' % (inststr, ', '.join(setups),
+                                                  hoststr))
+        else:
+            self.setWindowTitle('%s - disconnected' % inststr)
 
     def on_client_status(self, data):
         status, line = data
@@ -765,6 +773,13 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             self.data.add_point(xvalues, yvalues)
         except DataError, err:
             print 'Data error:', err
+
+    def on_client_cache(self, (time, key, op, value)):
+        value = cache_load(value)
+        if key == 'session/mastersetupexplicit':
+            self.set_titlebar(True, value)
+        if self.loggerWindow:
+            self.loggerWindow.newValue(time, key, op, value)
 
     def on_commandInput_textChanged(self, text):
         try:

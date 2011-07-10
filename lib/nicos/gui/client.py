@@ -40,6 +40,8 @@ import numpy as np
 
 from nicos.daemon import NicosDaemon
 from nicos.daemon.utils import unserialize
+
+# re-exported for the rest of nicos.gui
 from nicos.daemon.pyctl import STATUS_IDLEEXC, STATUS_IDLE, STATUS_RUNNING, \
      STATUS_INBREAK, STATUS_STOPPING
 
