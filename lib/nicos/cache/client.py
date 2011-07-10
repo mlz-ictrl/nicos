@@ -311,6 +311,7 @@ class CacheClient(BaseCacheClient):
         if op not in (OP_TELL, OP_TELLOLD) or not key.startswith(self._prefix):
             return
         key = key[len(self._prefix)+1:]
+        time = time and float(time)
         self._propagate((time, key, op, value))
         #self.log.debug('got %s=%s' % (key, value))
         if value is None or op == OP_TELLOLD:
@@ -379,17 +380,17 @@ class CacheClient(BaseCacheClient):
         """History query: opens a separate connection since it is otherwise not
         possible to determine which response lines belong to it.
         """
-        dbkey = ('%s/%s' % (dev, key)).lower()
+        if dev:
+            key = ('%s/%s' % (dev, key)).lower()
         tosend = '%s-%s@%s/%s%s\r\n###?\r\n' % (fromtime, totime,
-                                                self._prefix, dbkey, OP_ASK)
+                                                self._prefix, key, OP_ASK)
         ret = []
         for msgmatch in self._single_request(tosend, '###!\r\n'):
             # process data
-            time, ttl, value = msgmatch.group('time'), msgmatch.group('ttl'), \
-                               msgmatch.group('value')
+            time, value = msgmatch.group('time'), msgmatch.group('value')
             if time is None:
                 break  # it's the '###' value
-            ret.append((float(time), ttl and float(ttl), cache_load(value)))
+            ret.append((float(time), cache_load(value or 'None')))
         return ret
 
     def lock(self, key, ttl=None, unlock=False, sessionid=None):
