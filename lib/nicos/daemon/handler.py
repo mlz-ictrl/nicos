@@ -462,7 +462,8 @@ class ConnectionHandler(BaseRequestHandler):
                 ((self.controller.status, self.controller.lineno),
                  current_script and current_script.text or '',
                  self.daemon._messages,
-                 self.controller.eval_watch_expressions()
+                 self.controller.eval_watch_expressions(),
+                 session.explicit_setups,
                  )))
 
     # -- Watch expression commands ---------------------------------------------

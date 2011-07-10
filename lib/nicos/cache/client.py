@@ -292,7 +292,6 @@ class CacheClient(BaseCacheClient):
     def doInit(self):
         BaseCacheClient.doInit(self)
         self._db = {}
-
         self._callbacks = {}
 
         self._worker.start()
@@ -312,6 +311,7 @@ class CacheClient(BaseCacheClient):
         if op not in (OP_TELL, OP_TELLOLD) or not key.startswith(self._prefix):
             return
         key = key[len(self._prefix)+1:]
+        self._propagate((time, key, op, value))
         #self.log.debug('got %s=%s' % (key, value))
         if value is None or op == OP_TELLOLD:
             self._db.pop(key, None)
@@ -324,6 +324,9 @@ class CacheClient(BaseCacheClient):
                     self._callbacks[key](key, value)
                 except:
                     self.log.warning('error in cache callback', exc=1)
+
+    def _propagate(self, args):
+        pass
 
     def addCallback(self, dev, key, function):
         self._callbacks['%s/%s' % (dev.name.lower(), key)] = function
@@ -350,19 +353,22 @@ class CacheClient(BaseCacheClient):
             time = currenttime()
         ttlstr = ttl and '+%s' % ttl or ''
         dbkey = '%s/%s' % (dev.name.lower(), key)
-        msg = '%s%s@%s/%s%s%s\r\n' % (time, ttlstr, self._prefix, dbkey,
-                                      OP_TELL, cache_dump(value))
-        self.log.debug('putting %s=%s' % (dbkey, value))
         self._db[dbkey] = (value, time, ttl)
+        value = cache_dump(value)
+        msg = '%s%s@%s/%s%s%s\r\n' % (time, ttlstr, self._prefix, dbkey,
+                                      OP_TELL, value)
+        #self.log.debug('putting %s=%s' % (dbkey, value))
         self._queue.put(msg)
+        self._propagate((time, dbkey, OP_TELL, value))
 
     def clear(self, devname):
+        time = currenttime()
         for dbkey in self._db.keys():
             if dbkey.startswith(devname.lower() + '/'):
-                msg = '%s@%s/%s%s\r\n' % (currenttime(), self._prefix,
-                                          dbkey, OP_TELL)
+                msg = '%s@%s/%s%s\r\n' % (time, self._prefix, dbkey, OP_TELL)
                 self._db.pop(dbkey, None)
                 self._queue.put(msg)
+                self._propagate((time, dbkey, OP_TELL, None))
 
     def invalidate(self, dev, key):
         dbkey = '%s/%s' % (dev.name.lower(), key)
@@ -404,3 +410,8 @@ class CacheClient(BaseCacheClient):
 
     def unlock(self, key, sessionid=None):
         return self.lock(key, ttl=None, unlock=True, sessionid=sessionid)
+
+
+class DaemonCacheClient(CacheClient):
+    def _propagate(self, args):
+        session.emitfunc('cache', args)

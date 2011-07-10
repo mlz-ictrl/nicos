@@ -60,7 +60,7 @@ from nicos.notify import Notifier
 from nicos.loggers import NicosLogger, NicosLogfileHandler, \
      ColoredConsoleHandler, initLoggers, OUTPUT, INPUT
 from nicos.instrument import Instrument
-from nicos.cache.client import CacheClient, CacheLockError
+from nicos.cache.client import CacheClient, DaemonCacheClient, CacheLockError
 
 
 EXECUTIONMODES = ['master', 'slave', 'simulation', 'maintenance']
@@ -121,6 +121,7 @@ class Session(object):
 
     log = None
     name = 'session'   # used for cache operations
+    cache_class = CacheClient
 
     def __init__(self, appname):
         self.appname = appname
@@ -371,8 +372,8 @@ class Session(object):
 
         # initialize the cache connection
         if sysconfig.get('cache') and self._mode != 'simulation':
-            self.cache = CacheClient('Cache', server=sysconfig['cache'],
-                                     prefix='nicos/', lowlevel=True)
+            self.cache = self.cache_class('Cache', server=sysconfig['cache'],
+                                          prefix='nicos/', lowlevel=True)
 
         # validate and attach sysconfig devices
         sysconfig_items = [
@@ -1071,6 +1072,7 @@ class DaemonSession(SimpleSession):
     """
 
     autocreate_devices = True
+    cache_class = DaemonCacheClient
 
     # to set a point where the "break" command can break, it suffices to execute
     # some piece of code in a frame with the filename "<break>"; this object is

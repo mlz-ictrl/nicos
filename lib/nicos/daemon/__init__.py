@@ -179,6 +179,7 @@ class NicosDaemon(Device):
         'processing': True,
         'status': True,
         'watch': True,
+        'cache': True,
         'dataset': True,
         'datapoint': True,
         'liveparams': True,

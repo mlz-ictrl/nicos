@@ -669,8 +669,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         with self._cat_lock:
             if category not in self._cat:
                 self._cat[category] = [self._create_fd(category),
-                                       threading.Lock(),
-                                       {}]
+                                       threading.Lock(), {}]
             fd, lock, db = self._cat[category]
         update = True
         with lock:
