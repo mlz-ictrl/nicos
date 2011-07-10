@@ -795,6 +795,9 @@
    <property name="toolTip">
     <string>Show window with all warnings and errors</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
   </action>
   <action name="actionLiveData">
    <property name="icon">
@@ -810,6 +813,9 @@
    <property name="toolTip">
     <string>Show live data window</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
   </action>
   <action name="actionLogger">
    <property name="icon">
@@ -824,6 +830,9 @@
    </property>
    <property name="toolTip">
     <string>Show data logging and history window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
    </property>
   </action>
  </widget>

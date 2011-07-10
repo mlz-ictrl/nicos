@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>462</width>
+    <width>952</width>
     <height>530</height>
    </rect>
   </property>
@@ -100,18 +100,20 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>462</width>
-     <height>26</height>
+     <width>952</width>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="actionNew"/>
+    <addaction name="separator"/>
     <addaction name="actionPDF"/>
     <addaction name="actionPrint"/>
-    <addaction name="actionDeletePlot"/>
-    <addaction name="actionClosePlot"/>
+    <addaction name="actionDeleteView"/>
+    <addaction name="actionCloseView"/>
     <addaction name="separator"/>
     <addaction name="actionClose"/>
     <addaction name="separator"/>
@@ -154,6 +156,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionNew"/>
    <addaction name="actionClose"/>
   </widget>
   <widget class="QToolBar" name="plotToolBar">
@@ -173,9 +176,9 @@
    <addaction name="actionLogScale"/>
    <addaction name="actionLegend"/>
    <addaction name="separator"/>
-   <addaction name="separator"/>
    <addaction name="actionResetPlot"/>
-   <addaction name="actionClosePlot"/>
+   <addaction name="actionCloseView"/>
+   <addaction name="actionDeleteView"/>
   </widget>
   <action name="actionPrint">
    <property name="icon">
@@ -234,6 +237,9 @@
    <property name="text">
     <string>&amp;Save as PDF...</string>
    </property>
+   <property name="toolTip">
+    <string>Save plot as PDF</string>
+   </property>
   </action>
   <action name="actionLogScale">
    <property name="checkable">
@@ -249,12 +255,15 @@
     <string>Ctrl+L</string>
    </property>
   </action>
-  <action name="actionClosePlot">
+  <action name="actionCloseView">
    <property name="text">
-    <string>Close plot</string>
+    <string>Close view</string>
    </property>
    <property name="iconText">
     <string>Close</string>
+   </property>
+   <property name="toolTip">
+    <string>Close plot for this view</string>
    </property>
   </action>
   <action name="actionLegend">
@@ -265,17 +274,32 @@
     <string>L&amp;egend</string>
    </property>
   </action>
-  <action name="actionDeletePlot">
+  <action name="actionDeleteView">
    <property name="text">
-    <string>Delete plot</string>
+    <string>Delete view</string>
    </property>
    <property name="iconText">
     <string>Delete</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete view</string>
    </property>
   </action>
   <action name="actionResetPlot">
    <property name="text">
     <string>Reset</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="icon">
+    <iconset resource="../../../resources/nicos-gui.qrc">
+     <normaloff>:/new</normaloff>:/new</iconset>
+   </property>
+   <property name="text">
+    <string>New view</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
    </property>
   </action>
  </widget>

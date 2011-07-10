@@ -33,7 +33,7 @@ __version__ = "$Revision$"
 
 import time
 
-from PyQt4.QtCore import SIGNAL, QVariant, QSize, Qt
+from PyQt4.QtCore import SIGNAL, QVariant, QSize, QDateTime, Qt
 from PyQt4.Qwt5 import QwtPlot, QwtText, QwtSymbol, QwtLegend, QwtPlotItem, \
      QwtPlotZoomer, QwtPlotGrid, QwtPicker, QwtPlotPicker, QwtPlotCurve, \
      QwtLog10ScaleEngine, QwtLinearScaleEngine
@@ -44,13 +44,49 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np
 
-from nicos.gui.utils import SettingGroup, loadUi, DlgUtils
+from nicos.gui.utils import SettingGroup, loadUi, DlgUtils, dialogFromUi
 from nicos.gui.plothelpers import XPlotPicker
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
 
-def itemuid(item):
-    return str(item.data(32).toString())
+
+class View(object):
+    def __init__(self, name, keys, interval, fromtime, totime, client):
+        self.name = name
+        self.keys = keys
+        self.interval = interval
+        self.fromtime = fromtime
+        self.totime = totime
+
+        if self.fromtime is not None:
+            self.keydata = {}
+            totime = self.totime or time.time()
+            for key in keys:
+                x, y = [], []
+                self.keydata[key] = x, y
+                history = client.ask('gethistory', key,
+                                     str(self.fromtime), str(totime))
+                ltime = 0
+                interval = self.interval
+                for vtime, value in history:
+                    if value is not None and vtime > ltime + interval:
+                        x.append(vtime)
+                        y.append(value)
+                        ltime = vtime
+        else:
+            self.keydata = dict((key, [[], []]) for key in keys)
+
+        self.listitem = None
+        self.plot = None
+
+    def newValue(self, time, key, op, value):
+        if op != '=':
+            return
+        kd = self.keydata[key]
+        if kd[0] and kd[0][-1] > time - self.interval:
+            return
+        kd[0].append(time)
+        kd[1].append(value)
 
 
 class LoggerWindow(QMainWindow, DlgUtils):
@@ -59,27 +95,23 @@ class LoggerWindow(QMainWindow, DlgUtils):
         DlgUtils.__init__(self, 'History viewer')
         loadUi(self, 'logger.ui')
 
-        self.bulk_adding = False
-        self.no_openset = False
+        self.client = parent.client
 
-        #self.client = parent.client
-        #self.data = parent.data
-
-        # maps view uid -> plot
-        self.viewplots = {}
-        # maps view uid -> list item
-        self.viewitems = {}
+        self.views = []
+        # stack of views to display
+        self.viewStack = []
+        # maps watched keys to their views
+        self.keyviews = {}
         # current plot object
         self.currentPlot = None
-        # stack of view uids
-        self.viewUidStack = []
 
         self.userFont = self.font()
         self.userColor = self.palette().color(QPalette.Base)
 
         self.sgroup = SettingGroup('LoggerWindow')
         self.loadSettings()
-        self.updateList()
+
+        self.enablePlotActions(False)
 
     def loadSettings(self):
         with self.sgroup as settings:
@@ -102,13 +134,15 @@ class LoggerWindow(QMainWindow, DlgUtils):
         larger = QFont(font)
         larger.setPointSize(font.pointSize() * 1.6)
 
-        for plot in self.viewplots.itervalues():
-            plot.setFonts(font, bold, larger)
+        for view in self.views:
+            if view.plot:
+                view.plot.setFonts(font, bold, larger)
 
     def changeColor(self):
-        for plot in self.viewplots.itervalues():
-            plot.setCanvasBackground(self.userColor)
-            plot.replot()
+        for view in self.views:
+            if view.plot:
+                view.plot.setCanvasBackground(self.userColor)
+                view.plot.replot()
 
     def enablePlotActions(self, on):
         for action in self.plotToolBar.actions():
@@ -120,15 +154,6 @@ class LoggerWindow(QMainWindow, DlgUtils):
             settings.setValue('splitter', QVariant(self.splitter.saveState()))
         event.accept()
         self.emit(SIGNAL('closed'), self)
-
-    def updateList(self):
-        self.viewList.clear()
-        for dataset in self.data.sets:
-            if dataset.invisible:
-                continue
-            item = QListWidgetItem(dataset.name, self.viewList)
-            item.setData(32, dataset.uid)
-            self.viewitems[dataset.uid] = item
 
     @qtsig('')
     def on_actionFont_triggered(self):
@@ -151,93 +176,121 @@ class LoggerWindow(QMainWindow, DlgUtils):
         self.changeColor()
 
     def on_viewList_currentItemChanged(self, item, previous):
-        if self.no_openset or item is None:
+        if item is None:
             return
-        self.openDataset(itemuid(item))
+        for view in self.views:
+            if view.listitem == item:
+                self.openView(view)
 
     def on_viewList_itemClicked(self, item):
         # this handler is needed in addition to currentItemChanged
         # since one can't change the current item if it's the only one
-        if self.no_openset or item is None:
+        self.on_viewList_currentItemChanged(item, None)
+
+    @qtsig('')
+    def on_actionNew_triggered(self):
+        newdlg = dialogFromUi(self, 'loggernew.ui')
+        newdlg.fromdate.setDateTime(QDateTime.currentDateTime())
+        newdlg.todate.setDateTime(QDateTime.currentDateTime())
+        ret = newdlg.exec_()
+        if ret != QDialog.Accepted:
             return
-        self.openDataset(itemuid(item))
+        keys = str(newdlg.devices.text()).split(',')
+        if not keys:
+            return
+        keys = [key if '/' in key else key + '/value'
+                for key in keys]
+        name = str(newdlg.namebox.text())
+        if not name:
+            name = ', '.join(keys)
+        try:
+            interval = float(newdlg.interval.text())
+        except ValueError:
+            interval = 5.0
+        if newdlg.frombox.isChecked():
+            fromtime = time.mktime(time.localtime(
+                newdlg.fromdate.dateTime().toTime_t()))
+        else:
+            fromtime = None
+        if newdlg.tobox.isChecked():
+            totime = time.mktime(time.localtime(
+                newdlg.todate.dateTime().toTime_t()))
+        else:
+            totime = None
+        view = View(name, keys, interval, fromtime, totime, self.client)
+        self.views.append(view)
+        view.listitem = QListWidgetItem(name, self.viewList)
+        self.openView(view)
+        if totime is None:
+            for key in keys:
+                self.keyviews.setdefault(key, []).append(view)
 
-    def openDataset(self, uid):
-        set = self.data.uid2set[uid]
-        if set.uid not in self.viewplots:
-            self.viewplots[set.uid] = DataSetPlot(self.plotFrame, self, set)
-        self.viewList.setCurrentItem(self.viewitems[uid])
-        plot = self.viewplots[set.uid]
-        self.setCurrentDataset(plot)
+    def newValue(self, time, key, op, value):
+        if key not in self.keyviews:
+            return
+        for view in self.keyviews[key]:
+            view.newValue(time, key, op, value)
+            if view.plot:
+                view.plot.pointsAdded(key)
 
-    def setCurrentDataset(self, plot):
+    def openView(self, view):
+        if not view.plot:
+            view.plot = ViewPlot(self.plotFrame, self, view)
+        self.viewList.setCurrentItem(view.listitem)
+        self.setCurrentView(view)
+
+    def setCurrentView(self, view):
         if self.currentPlot:
             self.plotLayout.removeWidget(self.currentPlot)
             self.currentPlot.hide()
-        self.currentPlot = plot
-        if plot is None:
+        if view is None:
+            self.currentPlot = None
             self.enablePlotActions(False)
         else:
-            try: self.viewUidStack.remove(plot.dataset.uid)
+            self.currentPlot = view.plot
+            try: self.viewStack.remove(view)
             except ValueError: pass
-            self.viewUidStack.append(plot.dataset.uid)
+            self.viewStack.append(view)
 
             self.enablePlotActions(True)
-            self.viewList.setCurrentItem(self.viewitems[plot.dataset.uid])
+            self.viewList.setCurrentItem(view.listitem)
             self.actionLogScale.setChecked(
-                isinstance(plot.axisScaleEngine(QwtPlot.yLeft),
+                isinstance(view.plot.axisScaleEngine(QwtPlot.yLeft),
                            QwtLog10ScaleEngine))
-            self.actionNormalized.setChecked(plot.normalized)
-            self.actionLegend.setChecked(plot.legend() is not None)
-            self.plotLayout.addWidget(plot)
-            plot.show()
-
-    def on_data_datasetAdded(self, dataset):
-        if dataset.uid in self.viewitems:
-            self.viewitems[dataset.uid].setText(dataset.name)
-            if dataset.uid in self.viewplots:
-                self.viewplots[dataset.uid].updateDisplay()
-        else:
-            self.no_openset = True
-            item = QListWidgetItem(dataset.name, self.viewList)
-            item.setData(32, dataset.uid)
-            self.viewitems[dataset.uid] = item
-            if not self.bulk_adding:
-                self.openDataset(dataset.uid)
-            self.no_openset = False
-
-    def on_data_pointsAdded(self, dataset):
-        if dataset.uid in self.viewplots:
-            self.viewplots[dataset.uid].pointsAdded()
+            self.actionLegend.setChecked(view.plot.legend() is not None)
+            self.plotLayout.addWidget(view.plot)
+            view.plot.show()
 
     @qtsig('')
-    def on_actionClosePlot_triggered(self):
-        current_set = self.viewUidStack.pop()
-        if self.viewUidStack:
-            self.setCurrentDataset(self.viewplots[self.viewUidStack[-1]])
+    def on_actionCloseView_triggered(self):
+        view = self.viewStack.pop()
+        if self.viewStack:
+            self.setCurrentView(self.viewStack[-1])
         else:
-            self.setCurrentDataset(None)
-        del self.viewplots[current_set]
+            self.setCurrentView(None)
+        view.plot = None
 
     @qtsig('')
     def on_actionResetPlot_triggered(self):
-        current_set = self.viewUidStack.pop()
-        del self.viewplots[current_set]
-        self.openDataset(current_set)
+        view = self.viewStack.pop()
+        view.plot = None
+        self.openView(view)
 
     @qtsig('')
-    def on_actionDeletePlot_triggered(self):
-        current_set = self.viewUidStack.pop()
-        self.data.uid2set[current_set].invisible = True
-        if self.viewUidStack:
-            self.setCurrentDataset(self.viewplots[self.viewUidStack[-1]])
+    def on_actionDeleteView_triggered(self):
+        view = self.viewStack.pop()
+        self.views.remove(view)
+        if self.viewStack:
+            self.setCurrentView(self.viewStack[-1])
         else:
-            self.setCurrentDataset(None)
-        del self.viewplots[current_set]
+            self.setCurrentView(None)
         for i in range(self.viewList.count()):
-            if itemuid(self.viewList.item(i)) == current_set:
+            if self.viewList.item(i) == view.listitem:
                 self.viewList.takeItem(i)
                 break
+        if view.totime is None:
+            for key in view.keys:
+                self.keyviews[key].remove(view)
 
     @qtsig('')
     def on_actionPDF_triggered(self):
@@ -253,12 +306,12 @@ class LoggerWindow(QMainWindow, DlgUtils):
         printer.setColorMode(QPrinter.Color)
         printer.setOrientation(QPrinter.Landscape)
         printer.setOutputFileName(filename)
-        printer.setCreator('NICOS plot')
+        printer.setCreator('NICOS')
         color = self.currentPlot.canvasBackground()
         self.currentPlot.setCanvasBackground(Qt.white)
         self.currentPlot.print_(printer)
         self.currentPlot.setCanvasBackground(color)
-        self.statusBar.showMessage('Plot successfully saved to %s.' % filename)
+        self.statusBar.showMessage('View successfully saved to %s.' % filename)
 
     @qtsig('')
     def on_actionPrint_triggered(self):
@@ -268,7 +321,7 @@ class LoggerWindow(QMainWindow, DlgUtils):
         printer.setOutputFileName('')
         if QPrintDialog(printer, self).exec_() == QDialog.Accepted:
             self.currentPlot.print_(printer)
-        self.statusBar.showMessage('Plot successfully printed to %s.' %
+        self.statusBar.showMessage('View successfully printed to %s.' %
                                    str(printer.printerName()))
 
     @qtsig('')
@@ -290,18 +343,12 @@ class LoggerWindow(QMainWindow, DlgUtils):
         self.currentPlot.setLegend(on)
 
 
-class DataSetPlot(QwtPlot):
-    def __init__(self, parent, window, dataset):
+class ViewPlot(QwtPlot):
+    def __init__(self, parent, window, view):
         QwtPlot.__init__(self, parent)
-        self.dataset = dataset
+        self.view = view
         self.window = window
         self.curves = []
-        self.normalized = False
-        self.fits = 0
-        self.fittype = None
-        self.fitparams = None
-        self.fitstage = 0
-        self.has_secondary = False
 
         font = self.window.userFont
         bold = QFont(font)
@@ -310,16 +357,13 @@ class DataSetPlot(QwtPlot):
         larger.setPointSize(font.pointSize() * 1.6)
         self.setFonts(font, bold, larger)
 
-        self.stdpen = QPen()
         self.symbol = QwtSymbol(QwtSymbol.Ellipse, QBrush(),
-                                self.stdpen, QSize(6, 6))
+                                QPen(), QSize(6, 6))
 
         # setup zooming and unzooming
         self.zoomer = QwtPlotZoomer(QwtPlot.xBottom, QwtPlot.yLeft,
                                     self.canvas())
         self.zoomer.initMousePattern(3)
-        self.connect(self.zoomer, SIGNAL('zoomed(const QwtDoubleRect &)'),
-                     self.on_zoomer_zoomed)
 
         # setup picking and mouse tracking of coordinates
         self.picker = XPlotPicker(QwtPlot.xBottom, QwtPlot.yLeft,
@@ -340,10 +384,6 @@ class DataSetPlot(QwtPlot):
         self.connect(self, SIGNAL('legendClicked(QwtPlotItem*)'),
                      self.on_legendClicked)
 
-    def on_zoomer_zoomed(self, rect):
-        #print self.zoomer.zoomStack()
-        pass
-
     def setFonts(self, font, bold, larger):
         self.setFont(font)
         self.titleLabel().setFont(larger)
@@ -359,69 +399,42 @@ class DataSetPlot(QwtPlot):
 
     def updateDisplay(self):
         self.clear()
-        self.has_secondary = False
         grid = QwtPlotGrid()
         grid.setPen(QPen(QBrush(Qt.lightGray), 1, Qt.DotLine))
         grid.attach(self)
 
-        title = '<h3>%s</h3><font size="-2">started %s</font>' % \
-            (self.dataset.name, time.strftime(TIMEFMT, self.dataset.started))
-        self.setTitle(title)
-        xaxisname = '%s (%s)' % (self.dataset.xnames[self.dataset.xindex],
-                                 self.dataset.xunits[self.dataset.xindex])
-        xaxistext = QwtText(xaxisname)
+        self.setTitle('<h3>%s</h3>' % self.view.name)
+        xaxistext = QwtText('time')
         xaxistext.setFont(self.labelfont)
         self.setAxisTitle(QwtPlot.xBottom, xaxistext)
-        yaxisname = ''  # XXX determine good axis names
-        y2axisname = ''
-        if self.normalized:
-            yaxistext = QwtText(yaxisname + ' (norm)')
-            y2axistext = QwtText(y2axisname + ' (norm)')
-        else:
-            yaxistext = QwtText(yaxisname)
-            y2axistext = QwtText(y2axisname)
+        yaxisname = 'value'
+        yaxistext = QwtText(yaxisname)
         yaxistext.setFont(self.labelfont)
-        y2axistext.setFont(self.labelfont)
         self.setAxisTitle(QwtPlot.yLeft, yaxistext)
 
         self.curves = []
-        for i, curve in enumerate(self.dataset.curves):
-            self.addCurve(i, curve)
-        if self.has_secondary:
-            self.setAxisTitle(QwtPlot.yRight, y2axistext)
+        for i, key in enumerate(self.view.keys):
+            self.addCurve(i, key)
 
-        try:
-            xscale = (self.dataset.positions[0][self.dataset.xindex],
-                      self.dataset.positions[-1][self.dataset.xindex])
-        except IndexError:
-            self.setAxisAutoScale(QwtPlot.xBottom)
-        else:
-            self.setAxisScale(QwtPlot.xBottom, xscale[0], xscale[1])
+        # XXX for now
+        self.setAxisAutoScale(QwtPlot.xBottom)
+        #self.setAxisScale(QwtPlot.xBottom, xscale[0], xscale[1])
         # needed for zoomer base
         self.setAxisAutoScale(QwtPlot.yLeft)
-        if self.has_secondary:
-            self.setAxisAutoScale(QwtPlot.yRight)
         self.zoomer.setZoomBase(True)   # does a replot
 
     curvecolor = [Qt.black, Qt.red, Qt.green, Qt.blue,
                   Qt.magenta, Qt.cyan, Qt.darkGray]
     numcolors = len(curvecolor)
 
-    def addCurve(self, i, curve, replot=False):
+    def addCurve(self, i, key, replot=False):
         pen = QPen(self.curvecolor[i % self.numcolors])
-        plotcurve = QwtPlotCurve(title=curve.description, curvePen=pen,
-                                      errorPen=QPen(Qt.blue, 0),
-                                      errorCap=8, errorOnTop=False)
-        if not curve.function:
-            plotcurve.setSymbol(self.symbol)
-        if curve.yaxis == 2:
-            plotcurve.setYAxis(QwtPlot.yRight)
-            self.has_secondary = True
-            self.enableAxis(QwtPlot.yRight)
-        if curve.disabled:
-            plotcurve.setVisible(False)
+        plotcurve = QwtPlotCurve(key)
+        plotcurve.setPen(pen)
+        plotcurve.setSymbol(self.symbol)
         plotcurve.setRenderHint(QwtPlotItem.RenderAntialiased)
-        self.setCurveData(curve, plotcurve)
+        x, y = self.view.keydata[key]
+        plotcurve.setData(np.array(x), np.array(y))
         plotcurve.attach(self)
         if self.legend():
             item = self.legend().find(plotcurve)
@@ -432,27 +445,13 @@ class DataSetPlot(QwtPlot):
         if replot:
             self.zoomer.setZoomBase(True)
 
-    def setCurveData(self, curve, plotcurve):
-        x = np.array(curve.datax)
-        y = np.array(curve.datay, float)
-        dy = None
-        if curve.dyindex > -1:
-            dy = np.array(curve.datady)
-        if self.normalized:
-            norm = None
-            if curve.monindex > -1:
-                norm = np.array(curve.datamon)
-            elif curve.timeindex > -1:
-                norm = np.array(curve.datatime)
-            if norm is not None:
-                y /= norm
-                if dy is not None: dy /= norm
-        plotcurve.setData(x, y, None, dy)
-
-    def pointsAdded(self):
-        for curve, plotcurve in zip(self.dataset.curves, self.curves):
-            self.setCurveData(curve, plotcurve)
-        self.replot()
+    def pointsAdded(self, whichkey):
+        for key, plotcurve in zip(self.view.keys, self.curves):
+            if key == whichkey:
+                x, y = self.view.keydata[key]
+                plotcurve.setData(np.array(x), np.array(y))
+                self.replot()
+                return
 
     def setLegend(self, on):
         if on:
