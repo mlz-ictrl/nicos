@@ -329,14 +329,14 @@ class CacheClient(BaseCacheClient):
         pass
 
     def addCallback(self, dev, key, function):
-        self._callbacks['%s/%s' % (dev.name.lower(), key)] = function
+        self._callbacks[('%s/%s' % (dev, key)).lower()] = function
 
     def removeCallback(self, dev, key):
-        self._callbacks.pop('%s/%s' % (dev.name.lower(), key), None)
+        self._callbacks.pop(('%s/%s' % (dev, key)).lower(), None)
 
     def get(self, dev, key):
         self._startup_done.wait()
-        dbkey = '%s/%s' % (dev.name.lower(), key)
+        dbkey = ('%s/%s' % (dev, key)).lower()
         entry = self._db.get(dbkey)
         if entry is None:
             self.log.debug('%s not in cache' % dbkey)
@@ -352,7 +352,7 @@ class CacheClient(BaseCacheClient):
         if time is None:
             time = currenttime()
         ttlstr = ttl and '+%s' % ttl or ''
-        dbkey = '%s/%s' % (dev.name.lower(), key)
+        dbkey = ('%s/%s' % (dev, key)).lower()
         self._db[dbkey] = (value, time, ttl)
         value = cache_dump(value)
         msg = '%s%s@%s/%s%s%s\r\n' % (time, ttlstr, self._prefix, dbkey,
@@ -371,7 +371,7 @@ class CacheClient(BaseCacheClient):
                 self._propagate((time, dbkey, OP_TELL, None))
 
     def invalidate(self, dev, key):
-        dbkey = '%s/%s' % (dev.name.lower(), key)
+        dbkey = ('%s/%s' % (dev, key)).lower()
         self.log.debug('invalidating %s' % dbkey)
         self._db.pop(dbkey, None)
 
@@ -379,7 +379,7 @@ class CacheClient(BaseCacheClient):
         """History query: opens a separate connection since it is otherwise not
         possible to determine which response lines belong to it.
         """
-        dbkey = '%s/%s' % (dev.name.lower(), key)
+        dbkey = ('%s/%s' % (dev, key)).lower()
         tosend = '%s-%s@%s/%s%s\r\n###?\r\n' % (fromtime, totime,
                                                 self._prefix, dbkey, OP_ASK)
         ret = []
