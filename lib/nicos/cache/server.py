@@ -469,7 +469,7 @@ class FlatfileCacheDatabase(CacheDatabase):
                     elif subkey in db:
                         db[subkey].expired = True
                 lock = threading.Lock()
-                self._cat[cat] = (fd, lock, db)
+                self._cat[cat] = [fd, lock, db]
                 nkeys += len(db)
         self.log.info('loaded %d keys from files' % nkeys)
 
