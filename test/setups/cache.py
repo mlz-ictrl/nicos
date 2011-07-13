@@ -32,6 +32,6 @@ devices = dict(
                     server = 'localhost:14877',
                     db = 'DB'),
 
-    DB = device('nicos.cache.server.DbCacheDatabase',
+    DB = device('nicos.cache.server.FlatfileCacheDatabase',
                 storepath = 'cache'),
 )
