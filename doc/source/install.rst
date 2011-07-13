@@ -17,8 +17,29 @@ Alternatively you can get the current snapshot from::
   http://trac.frm2.tum.de/cgit/cgit.cgi/nicos/nicos-core.git/snapshot/nicos-core-master.tar.bz2
 
 
-Configure and build the distribution
-------------------------------------
+Configure and build in-place for experimenting
+----------------------------------------------
+
+::
+
+  cd nicos-core
+  make inplace
+
+Now you can start the individual :ref:`components <components>`.  A minimal
+setup that uses all the major components can be started using ::
+
+  bin/nicos-cache &
+  bin/nicos-poller &
+  bin/nicos-console
+
+The console will load the test setups from ``custom/test/setups``.  The startup
+setup contains a few devices that show basic usage of the NICOS system.  Call
+``help()`` in the console to get a list of commands, and ``ListDevices()`` to
+get a list of devices that can be manipulated.
+
+
+Configure and build the distribution at an instrument
+-----------------------------------------------------
 
 ::
 

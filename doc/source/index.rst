@@ -7,6 +7,7 @@ Contents:
    :maxdepth: 2
 
    install
+   components
    setups
    devices
    auto/modules
