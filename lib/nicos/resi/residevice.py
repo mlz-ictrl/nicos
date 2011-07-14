@@ -22,7 +22,7 @@ class ResiDevice(Moveable):
 
         self._hardware=HuberScan()
         self._hardware.LoadRmat()
-#    self._hardware.SetCellParam(a=4.9287, b=4.9287, c=5.3788, alpha=90.000, beta=90.000, gamma=120.000)
+        #    self._hardware.SetCellParam(a=4.9287, b=4.9287, c=5.3788, alpha=90.000, beta=90.000, gamma=120.000)
         self._hardware.cell.conventionalsystem = 'triclinic'
         self._hardware.cell.standardize = 0
         self._hardware.cell.pointgroup = '1'
