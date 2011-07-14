@@ -139,7 +139,7 @@ def scan(dev, *args, **kwargs):
     devs, values, restargs = _fixType(dev, args, mkpos)
     preset, infostr, detlist, envlist, move, multistep  = \
             _handleScanArgs(restargs, kwargs)
-    infostr = infostr or _infostr('scan', args, kwargs)
+    infostr = infostr or _infostr('scan', (dev,) + args, kwargs)
     Scan(devs, values, move, multistep, detlist, envlist, preset, infostr).run()
 
 @usercommand
@@ -158,7 +158,7 @@ def cscan(dev, *args, **kwargs):
     devs, values, restargs = _fixType(dev, args, mkpos)
     preset, infostr, detlist, envlist, move, multistep  = \
             _handleScanArgs(restargs, kwargs)
-    infostr = infostr or _infostr('cscan', args, kwargs)
+    infostr = infostr or _infostr('cscan', (dev,) + args, kwargs)
     Scan(devs, values, move, multistep, detlist, envlist, preset, infostr).run()
 
 ADDSCANHELP = """
@@ -206,6 +206,8 @@ def timescan(numsteps, *args, **kwargs):
     preset, infostr, detlist, envlist, move, multistep = \
             _handleScanArgs(args, kwargs)
     infostr = infostr or _infostr('timescan', (numsteps,) + args, kwargs)
+    if session.mode == 'simulation':
+        numsteps = 1
     scan = TimeScan(numsteps, move, multistep, detlist, envlist, preset, infostr)
     scan.run()
 

@@ -196,7 +196,7 @@ def CreateAllDevices():
                 continue
             try:
                 session.createDevice(devname, explicit=True)
-            except NicosError, err:
+            except NicosError:
                 printexception('error creating %s' % devname)
     finally:
         session.endMultiCreate()
