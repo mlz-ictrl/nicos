@@ -45,7 +45,7 @@ from nicos import nicos_version
 from nicos.gui.data import DataHandler, DataError
 from nicos.gui.utils import DlgUtils, SettingGroup, loadUi, dialogFromUi, \
      chunks, get_display, parse_conndata, enumerateWithProgress, \
-     setForegroundColor, setBackgroundColor, DEFAULT_PORT
+     setForegroundColor, setBackgroundColor, DEFAULT_PORT, showTraceback
 from nicos.gui.client import NicosClient, STATUS_INBREAK, STATUS_IDLE, \
      STATUS_IDLEEXC
 from nicos.gui.editor import EditorWindow
@@ -94,6 +94,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         self.errorWindow = None
         self.liveWindow = None
         self.loggerWindow = None
+        self.sim_outView = None
 
         # data handling setup
         self.data = DataHandler()
@@ -507,7 +508,19 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
 
     @qtsig('')
     def on_actionErrorWindow_triggered(self):
-        self.outView.openErrorWindow()
+        if self.outView.hasErrorView():
+            return
+        dlg = dialogFromUi(self, 'errwin.ui')
+        dlg.outView.setFont(self.outView.font())
+        def click(btn):
+            if dlg.buttonBox.standardButton(btn) == QDialogButtonBox.Reset:
+                dlg.outView.clear()
+        def close(res):
+            self.outView.setErrorView(None)
+        dlg.connect(dlg.buttonBox, SIGNAL('clicked(QAbstractButton*)'), click)
+        dlg.connect(dlg, SIGNAL('finished(int)'), close)
+        dlg.show()
+        self.outView.setErrorView(dlg.outView)
 
     @qtsig('')
     def on_actionBreak_triggered(self):
@@ -611,8 +624,11 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
                 self.errorWindow.errorText.text() + '\n' + problem)
 
     def on_client_message(self, message):
-        #print 'message:', message
-        self.outView.addMessage(message)
+        if message[-1] == '(sim) ':
+            if self.sim_outView:
+                self.sim_outView.addMessage(message)
+        else:
+            self.outView.addMessage(message)
 
     def on_client_request(self, request):
         if 'script' not in request:
@@ -781,6 +797,10 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         if self.loggerWindow:
             self.loggerWindow.newValue(time, key, op, value)
 
+    def on_client_simresult(self, (timing, devinfo)):
+        for window in self.editorWindows:
+            window.simulationResult(timing, devinfo)
+
     def on_commandInput_textChanged(self, text):
         try:
             script = str(self.commandInput.text())
@@ -893,47 +913,9 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             editor = self.on_actionUserEditor_triggered()
             editor.openFile(url[5:])
         elif url.startswith('trace:'):
-            self.showTraceback(url[6:])
+            showTraceback(url[6:], self, self.outView)
         else:
             print 'Strange anchor in outView: ' + url
-
-    def showTraceback(self, tb):
-        assert tb.startswith('Traceback')
-        # split into frames and message
-        frames = []
-        message = ''
-        for line in tb.splitlines():
-            if line.startswith('        '):
-                name, v = line.split('=', 1)
-                curframe[2][name.strip()] = v.strip()
-            elif line.startswith('    '):
-                curframe[1] = line.strip()
-            elif line.startswith('  '):
-                curframe = [line.strip(), '', {}]
-                frames.append(curframe)
-            elif not line.startswith('Traceback'):
-                message += line
-        # show traceback window
-        dlg = dialogFromUi(self, 'traceback.ui')
-        button = QPushButton('To clipboard', dlg)
-        dlg.buttonBox.addButton(button, QDialogButtonBox.ActionRole)
-        def copy():
-            QApplication.clipboard().setText(tb+'\n', QClipboard.Selection)
-            QApplication.clipboard().setText(tb+'\n', QClipboard.Clipboard)
-        self.connect(button, SIGNAL('clicked()'), copy)
-        dlg.message.setText(message)
-        dlg.tree.setFont(self.outView.font())
-        boldfont = QFont(self.outView.font())
-        boldfont.setBold(True)
-        for file, line, bindings in frames:
-            item = QTreeWidgetItem(dlg.tree, [file])
-            item.setFirstColumnSpanned(True)
-            item = QTreeWidgetItem(dlg.tree, [line])
-            item.setFirstColumnSpanned(True)
-            item.setFont(0, boldfont)
-            for var, value in bindings.iteritems():
-                bitem = QTreeWidgetItem(item, ['', var, value])
-        dlg.show()
 
     @qtsig('')
     def on_actionPrintPaper_triggered(self):

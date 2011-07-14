@@ -305,12 +305,12 @@ class ConnectionHandler(BaseRequestHandler):
     # -- Script control commands ------------------------------------------------
 
     @command(needcontrol=False, needscript=False)
-    def start(self, script_name, script_text):
+    def start(self, name, code):
         """Start a named script within the script thread."""
-        if not script_name:
-            script_name = None
+        if not name:
+            name = None
         try:
-            self.controller.new_request(ScriptRequest(script_text, script_name))
+            self.controller.new_request(ScriptRequest(code, name))
         except RequestError, err:
             self.write(NAK, str(err))
             return
@@ -319,12 +319,12 @@ class ConnectionHandler(BaseRequestHandler):
         self.write(ACK)
 
     @command(needcontrol=False)
-    def queue(self, script_name, script_text):
+    def queue(self, name, code):
         """Start a named script, or queue it if the script thread is busy."""
-        if not script_name:
-            script_name = None
+        if not name:
+            name = None
         try:
-            self.controller.new_request(ScriptRequest(script_text, script_name))
+            self.controller.new_request(ScriptRequest(code, name))
         except RequestError, err:
             self.write(NAK, str(err))
             return
@@ -349,10 +349,10 @@ class ConnectionHandler(BaseRequestHandler):
         self.write(ACK)
 
     @command(needcontrol=True, needscript=True)
-    def update(self, script_text):
+    def update(self, newcode):
         """Update the currently running script."""
         try:
-            self.controller.current_script.update(script_text, self.controller)
+            self.controller.current_script.update(newcode, self.controller)
         except ScriptError, err:
             self.write(NAK, str(err))
             return
@@ -446,6 +446,18 @@ class ConnectionHandler(BaseRequestHandler):
             self.write(NAK, 'exception raised while evaluating: %s' % err)
         else:
             self.write(STX, serialize(retval))
+
+    @command(needcontrol=True)
+    def simulate(self, name, code):
+        """Simulate a named script by forking into simulation mode."""
+        try:
+            self.log.info('running simulation\n%s' % code)
+            self.controller.simulate_script(code, name or None)
+        except Exception, err:
+            self.log.exception('exception in simulate command')
+            self.write(NAK, 'exception raised running simulation: %s' % err)
+        else:
+            self.write(ACK)
 
     # -- Runtime information commands ------------------------------------------
 

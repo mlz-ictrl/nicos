@@ -89,20 +89,11 @@ class OutputView(QTextBrowser):
     def setActionLabel(self, label):
         self._actionlabel = label
 
-    def openErrorWindow(self):
-        if self._errview is not None:
-            return
-        dlg = dialogFromUi(self.parent(), 'errwin.ui')
-        dlg.outView.setFont(self.font())
-        def click(btn):
-            if dlg.buttonBox.standardButton(btn) == QDialogButtonBox.Reset:
-                dlg.outView.clear()
-        def close(res):
-            self._errview = None
-        dlg.connect(dlg.buttonBox, SIGNAL('clicked(QAbstractButton*)'), click)
-        dlg.connect(dlg, SIGNAL('finished(int)'), close)
-        self._errview = dlg.outView
-        dlg.show()
+    def setErrorView(self, view):
+        self._errview = view
+
+    def hasErrorView(self):
+        return bool(self._errview)
 
     def clear(self):
         QTextBrowser.clear(self)
@@ -132,6 +123,7 @@ class OutputView(QTextBrowser):
                 else:
                     self._actionlabel.hide()
                 return '', None
+            return '', None
         elif levelno <= DEBUG:
             text = name + message[3]
             fmt = grey

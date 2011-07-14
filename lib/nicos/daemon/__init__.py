@@ -184,6 +184,7 @@ class NicosDaemon(Device):
         'datapoint': True,
         'liveparams': True,
         'livedata': False,
+        'simresult': True,
     }
 
     def doInit(self):

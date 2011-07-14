@@ -318,6 +318,9 @@ class ExecutionController(Controller):
     def exec_script(self, code):
         exec code in self.namespace
 
+    def simulate_script(self, code, name):
+        session.forkSimulation(code, wait=False)
+
     def add_watch_expression(self, val):
         self.watchlock.acquire()
         try:

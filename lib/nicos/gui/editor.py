@@ -31,13 +31,15 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import re
 import time
 from os import path
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
-from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, Qt, QVariant, \
+     QStringList, QFileSystemWatcher
+from PyQt4.QtGui import QMainWindow, QDialog, QPlainTextEdit, QHeaderView, \
+     QTreeWidgetItem, QMessageBox, QTextCursor, QTextDocument, QPen, QColor, \
+     QFont, QAction, QPalette, QPrintDialog, QPrinter, QFontDialog, \
+     QColorDialog, QFileDialog
 
 try:
     from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciPrinter
@@ -46,15 +48,8 @@ except (ImportError, RuntimeError):
 else:
     has_scintilla = True
 
-try:
-    from scipy.optimize import fmin
-except:
-    fmin = None
-
 from nicos.gui.utils import SettingGroup, showToolText, loadUi, DlgUtils, \
-     format_duration, format_endtime
-from nicos.gui.analyzer import AnalyzerError, AnalyzerResult, Analyzer, \
-     analyze, compile_ast, get_global_names
+     format_duration, format_endtime, showTraceback
 from nicos.gui.toolsupport import editor_tools, HasTools
 
 COMMENT_STR = '##'
@@ -189,17 +184,9 @@ class EditorWindow(QMainWindow, HasTools, DlgUtils):
         self.saving = False  # True while saving
         self.warnWidget.hide()
 
-        self.analysisErrors.header().setResizeMode(QHeaderView.ResizeToContents)
-        self.analysisRanges.header().setResizeMode(QHeaderView.ResizeToContents)
-        self.analysisTimingProblems.header().setResizeMode(
-            QHeaderView.ResizeToContents)
-        self.analysisWidget.hide()
-        # auto-check feature
-        self.checkTimer = QTimer(self)
-        self.checkTimer.setSingleShot(True)
-        self.connect(self.checkTimer, SIGNAL('timeout()'), self.autoCheck)
-        self.connect(self.editor, SIGNAL('textChanged()'),
-                     self.on_editor_textChanged)
+        self.simRanges.header().setResizeMode(QHeaderView.ResizeToContents)
+        self.simOutView.setErrorView(self.simOutViewErrors)
+        self.simPane.hide()
 
         self.connect(self.actionUndo, SIGNAL('triggered()'), self.editor.undo)
         self.connect(self.actionRedo, SIGNAL('triggered()'), self.editor.redo)
@@ -209,6 +196,7 @@ class EditorWindow(QMainWindow, HasTools, DlgUtils):
         self.connect(self.editor, SIGNAL('modificationChanged(bool)'),
                      self.setDirty)
         showToolText(self.toolBar, self.actionRun)
+        showToolText(self.toolBar, self.actionSimulate)
         showToolText(self.toolBar, self.actionGet)
         showToolText(self.toolBar, self.actionUpdate)
 
@@ -218,8 +206,7 @@ class EditorWindow(QMainWindow, HasTools, DlgUtils):
         self.setWindowModified(False)
         self.searchdlg = None
 
-        self.last_goal_time = None
-        self.last_goal_var = None
+        self.waiting_sim_result = False
 
         self.sgroup = SettingGroup('EditorWindow')
         self.loadSettings()
@@ -237,6 +224,8 @@ class EditorWindow(QMainWindow, HasTools, DlgUtils):
             self.lexer.setFont(bold, 5)
         else:
             self.editor.setFont(font)
+        self.simOutView.setFont(font)
+        self.simOutViewErrors.setFont(font)
 
     def setDirty(self, dirty):
         self.actionSave.setEnabled(dirty)
@@ -276,7 +265,7 @@ class EditorWindow(QMainWindow, HasTools, DlgUtils):
     @qtsig('')
     def on_actionPrint_triggered(self):
         if has_scintilla:
-            printer = Printer()
+            printer = QsciPrinter()
             printer.setOutputFileName('')
             printer.setDocName(self.filename)
             #printer.setFullPage(True)
@@ -316,6 +305,16 @@ class EditorWindow(QMainWindow, HasTools, DlgUtils):
             self.parent().run_script(self.filename, script)
 
     @qtsig('')
+    def on_actionSimulate_triggered(self):
+        script = self.validateScript()
+        if script is None:
+            return
+        self.client.tell('simulate', self.filename, script)
+        self.waiting_sim_result = True
+        self.parent().sim_outView = self.simOutView
+        self.clearSimPane()
+
+    @qtsig('')
     def on_actionUpdate_triggered(self):
         script = self.validateScript()
         if script is not None:
@@ -327,170 +326,36 @@ class EditorWindow(QMainWindow, HasTools, DlgUtils):
             return
         self.editor.setText(self.parent().current_request.get('script', ''))
 
-    def on_editor_textChanged(self):
-        if self.analysisAutoCheck.isChecked():
-            self.checkTimer.stop()
-            self.checkTimer.start(1000)
+    def clearSimPane(self):
+        self.simOutView.clear()
+        self.simOutViewErrors.clear()
+        self.simRanges.clear()
+        self.simTotalTime.setText('')
+        self.simFinished.setText('')
 
-    def on_analysisAutoCheck_stateChanged(self, state):
-        if state == Qt.Checked:
-            self.autoCheck()
-
-    def autoCheck(self):
-        self.on_actionEstimate_triggered()
-
-    def clearAnalysis(self):
-        self.analysisErrors.clear()
-        self.analysisTimingProblems.clear()
-        self.analysisRanges.clear()
-        self.editor.markerDeleteAll()
-        self.analysisCountingTime.setText('')
-        self.analysisMovingTime.setText('')
-        self.analysisOtherTime.setText('')
-        self.analysisTotalTime.setText('')
-        self.analysisFinished.setText('')
-
-    @qtsig('')
-    def on_actionEstimate_triggered(self):
-        # disable for now
-        return
-
-        self.analysisAutoCheck.setChecked(True)
-        try:
-            result = analyze(str(self.editor.text()))
-        except AnalyzerError, err:
-            self.showWarning(str(err))
+    def simulationResult(self, timing, devinfo):
+        if not self.waiting_sim_result:
             return
+        self.waiting_sim_result = False
 
-        # clear analysis results
-        self.clearAnalysis()
-
-        # show analysis results: timings
-        self.analysisCountingTime.setText(format_duration(result.count_time))
-        self.analysisMovingTime.setText(format_duration(result.move_time))
-        self.analysisOtherTime.setText(format_duration(result.other_time))
-        self.analysisTotalTime.setText(format_duration(result.total_time))
-        self.analysisFinished.setText(format_endtime(result.total_time))
-
-        for line, message in sorted(result.timing_problems):
-            item = QTreeWidgetItem([str(line), message], line - 1)
-            self.analysisTimingProblems.addTopLevelItem(item)
-            self.editor.markerAdd(line - 1, 1)
-
-        # errors
-        for line, message in sorted(result.errors):
-            item = QTreeWidgetItem([str(line), message], line - 1)
-            self.analysisErrors.addTopLevelItem(item)
-            self.editor.markerAdd(line - 1, 2)
+        # show timing
+        self.simTotalTime.setText(format_duration(timing))
+        self.simFinished.setText(format_endtime(timing))
 
         # device ranges
-        for devname, (dmin, dmax) in result.device_ranges.iteritems():
-            item = QTreeWidgetItem([devname, str(dmin), '-', str(dmax)])
-            self.analysisRanges.addTopLevelItem(item)
+        for devname, (_, dmin, dmax) in devinfo.iteritems():
+            if dmin is not None:
+                item = QTreeWidgetItem([devname, str(dmin), '-', str(dmax)])
+                self.simRanges.addTopLevelItem(item)
 
-        self.analysisWidget.show()
+        self.simPane.show()
 
-    def on_analysisErrors_itemClicked(self, item, column):
-        self.editor.setCursorPosition(item.type(), 0)
-        self.editor.setFocus()
-
-    def on_analysisTimingProblems_itemClicked(self, item, column):
-        self.editor.setCursorPosition(item.type(), 0)
-        self.editor.setFocus()
-
-    def on_analysisWidget_visibilityChanged(self, visible):
+    def on_simPane_visibilityChanged(self, visible):
         if not visible:
-            self.analysisAutoCheck.setCheckState(Qt.Unchecked)
             self.editor.markerDeleteAll()
 
-    @qtsig('')
-    def on_actionGoalTime_triggered(self):
-        # disable for now
-        return
-
-        # goal time estimation only works when scipy is installed
-        if fmin is None:
-            return self.showError('scipy is not available.')
-        script = str(self.editor.text())
-        try:
-            names = get_global_names(script)
-        except SyntaxError, err:
-            self.showError('Syntax error in script.')
-            self.editor.setCursorPosition(err.lineno - 1, err.offset)
-            return
-        # display the goal parameter dialog, and fill the "Variable" entry
-        # with all globally assigned variables
-        dlg = QDialog(self)
-        loadUi(dlg, 'goalinput.ui')
-        if self.last_goal_time is not None:
-            dlg.goalTime.setText(str(self.last_goal_time))
-        for i, name in enumerate(names):
-            dlg.goalVar.addItem(name)
-            # pre-select names that look like preset times
-            if name.startswith('t') or name.startswith('messzeit') or \
-                   name.startswith('preset'):
-                dlg.goalVar.setCurrentIndex(i)
-        if self.last_goal_var is not None:
-            dlg.goalVar.setEditText(self.last_goal_var)
-        if dlg.exec_() != QDialog.Accepted:
-            return
-
-        units = {'seconds': 1, 'hours': 3600, 'days': 3600*24}
-        goal_var = str(dlg.goalVar.currentText())
-        self.last_goal_var = goal_var
-        if not goal_var:
-            return self.showError('You must enter a variable name.')
-        goal_time, ok = dlg.goalTime.text().toDouble()
-        if not ok:
-            return self.showError('You must enter a valid goal time.')
-        self.last_goal_time = goal_time
-        goal_time *= units[str(dlg.goalTimeUnit.currentText())]
-
-        # minimize the difference between total and goal time
-        mod = compile_ast(script)
-        def minfunc(x):
-            result = AnalyzerResult()
-            analyzer = Analyzer(result)
-            analyzer.set_local_override(goal_var, abs(x[0]))
-            analyzer.do_suite(mod.body)
-            return abs(result.total_time - goal_time)
-        initial = 0.9999
-        opt_val, _, _, _, err = fmin(minfunc, [initial], full_output=True)
-        if err != 0 or opt_val[0] == initial:
-            return self.showError('Minimizing total time failed.')
-
-        # display result
-        if self.askQuestion(
-            self.tr('Optimum value for %1: %2\nAdd/replace assignment?').
-            arg(goal_var).arg(opt_val[0])):
-
-            # if wanted, add or replace an assignment of the goal variable
-            goal_assign = '%s = %s' % (goal_var, QString('%1').arg(opt_val[0]))
-            lines = script.splitlines()
-            insert_point = -2
-            for i, line in enumerate(lines):
-                # ignore leading empty and comment lines
-                if not line.strip() or line.lstrip().startswith('#'):
-                    continue
-                if re.match(r'%s\s*=' % goal_var, line):
-                    # it's already there, replace it  (loses line comments!)
-                    lines[i] = goal_assign
-                    insert_point = -1
-                if insert_point == -2:
-                    # if we don't find an assignment, insert it here
-                    # (after initial comment lines)
-                    insert_point = i
-            if insert_point == -2:
-                # no insertion point found (should be impossible if script is
-                # non-empty), append assignment at the end anyway
-                lines.append(goal_assign)
-            elif insert_point >= 0:
-                # not replaced, insert assignment at the insertion point
-                lines.insert(insert_point, goal_assign)
-            # XXX no undo possible when using setText
-            self.editor.setText('\n'.join(lines))
-
-        self.on_actionEstimate_triggered()
+    def on_simErrorsOnly_toggled(self, on):
+        self.simOutStack.setCurrentIndex(on)
 
     @qtsig('')
     def on_actionFont_triggered(self):
@@ -571,7 +436,7 @@ class EditorWindow(QMainWindow, HasTools, DlgUtils):
         self.editor.clear()
         self.editor.setModified(False)
         self.setFilename('')
-        self.clearAnalysis()
+        self.clearSimPane()
 
     @qtsig('')
     def on_actionOpen_triggered(self):
@@ -606,7 +471,7 @@ class EditorWindow(QMainWindow, HasTools, DlgUtils):
 
         self.editor.setModified(False)
         self.setFilename(fn)
-        self.clearAnalysis()
+        self.clearSimPane()
 
     def addToRecentf(self, fn):
         new_action = QAction(fn, self)
@@ -744,6 +609,14 @@ class EditorWindow(QMainWindow, HasTools, DlgUtils):
             self.editor.setSelection(line, 0, line, len(COMMENT_STR))
             self.editor.removeSelectedText()
             self.editor.endUndoAction()
+
+    def on_simOutView_anchorClicked(self, url):
+        url = str(url.toString())
+        if url.startswith('trace:'):
+            showTraceback(url[6:], self, self.simOutView)
+
+    def on_simOutViewErrors_anchorClicked(self, url):
+        self.on_simOutView_anchorClicked(url)
 
 
 class SearchDialog(QDialog):
