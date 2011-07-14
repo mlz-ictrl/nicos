@@ -54,8 +54,6 @@ from nicos.cache.utils import cache_load
 from nicos.daemon import NicosDaemon
 from nicos.daemon.utils import serialize
 
-from nicos.gui.custom import has_customization, list_customizations
-
 try:
     # needs Qwt5, which may not be available, so make it optional
     from nicos.gui.analysis import AnalysisWindow
@@ -218,7 +216,6 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             # from preferences dialog
             self.instrument = settings.value('instrument').toString()
             self.scriptpath = settings.value('scriptpath').toString()
-            self.customname = settings.value('customname').toString()
             self.confirmexit = settings.value('confirmexit',
                                               QVariant(True)).toBool()
             self.showtrayicon = settings.value('showtrayicon',
@@ -401,8 +398,6 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         dlg = dialogFromUi(self, 'prefs.ui')
         dlg.instrument.setText(self.instrument)
         dlg.scriptpath.setText(self.scriptpath)
-        dlg.customname.addItems(sorted(list_customizations()))
-        dlg.customname.setEditText(self.customname)
         dlg.confirmExit.setChecked(self.confirmexit)
         dlg.horzLayout.setChecked(self.mainSplitter.orientation()
                                   == Qt.Horizontal)
@@ -412,15 +407,6 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             return
         self.instrument = dlg.instrument.text()
         self.scriptpath = dlg.scriptpath.text()
-        new_customname = dlg.customname.currentText()
-        if self.customname != new_customname:
-            if not has_customization(str(new_customname)):
-                self.showError('Customization %s does not exist.' %
-                               new_customname)
-            else:
-                self.showInfo('This application has to be restarted for a '
-                              'change in customization to take effect.')
-                self.customname = new_customname
         self.confirmexit = dlg.confirmExit.isChecked()
         self.showtrayicon = dlg.showTrayIcon.isChecked()
         self.mainSplitter.setOrientation(dlg.horzLayout.isChecked() and
@@ -434,7 +420,6 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         with self.sgroup as settings:
             settings.setValue('instrument', QVariant(self.instrument))
             settings.setValue('scriptpath', QVariant(self.scriptpath))
-            settings.setValue('customname', QVariant(self.customname))
             settings.setValue('confirmexit', QVariant(self.confirmexit))
             settings.setValue('showtrayicon', QVariant(self.showtrayicon))
 
