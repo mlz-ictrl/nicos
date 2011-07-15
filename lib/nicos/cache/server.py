@@ -26,8 +26,6 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """NICOS cache server."""
 
 __author__  = "$Author$"

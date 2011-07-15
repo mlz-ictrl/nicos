@@ -25,8 +25,6 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """Module for basic user commands."""
 
 __author__  = "$Author$"

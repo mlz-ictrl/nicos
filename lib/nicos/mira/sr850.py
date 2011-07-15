@@ -25,8 +25,6 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """Class for Stanford Research SR850 lock-in amplifier."""
 
 __author__  = "$Author$"
