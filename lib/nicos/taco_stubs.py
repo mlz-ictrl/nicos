@@ -61,6 +61,7 @@ STUBS = dict(
     RS485Client = ['class RS485Client'],
     Temperature = ['class Sensor', 'class Controller'],
     TMCS = ['class Channel', 'class Admin'],
+    Modbus = ['class Modbus'],
 )
 
 
