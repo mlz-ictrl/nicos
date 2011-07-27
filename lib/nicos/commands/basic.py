@@ -25,8 +25,6 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """Module for basic user commands."""
 
 __author__  = "$Author$"
@@ -196,7 +194,7 @@ def CreateAllDevices():
                 continue
             try:
                 session.createDevice(devname, explicit=True)
-            except NicosError, err:
+            except NicosError:
                 printexception('error creating %s' % devname)
     finally:
         session.endMultiCreate()

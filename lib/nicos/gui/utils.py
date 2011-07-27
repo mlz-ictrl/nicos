@@ -193,6 +193,44 @@ def setForegroundColor(widget, color):
     widget.setForegroundRole(QtGui.QPalette.WindowText)
     widget.setPalette(palette)
 
+def showTraceback(tb, parent, fontwidget):
+    assert tb.startswith('Traceback')
+    # split into frames and message
+    frames = []
+    message = ''
+    for line in tb.splitlines():
+        if line.startswith('        '):
+            name, v = line.split('=', 1)
+            curframe[2][name.strip()] = v.strip()
+        elif line.startswith('    '):
+            curframe[1] = line.strip()
+        elif line.startswith('  '):
+            curframe = [line.strip(), '', {}]
+            frames.append(curframe)
+        elif not line.startswith('Traceback'):
+            message += line
+    # show traceback window
+    dlg = dialogFromUi(parent, 'traceback.ui')
+    button = QtGui.QPushButton('To clipboard', dlg)
+    dlg.buttonBox.addButton(button, QtGui.QDialogButtonBox.ActionRole)
+    def copy():
+        QtGui.QApplication.clipboard().setText(tb+'\n', QtGui.QClipboard.Selection)
+        QtGui.QApplication.clipboard().setText(tb+'\n', QtGui.QClipboard.Clipboard)
+    parent.connect(button, QtCore.SIGNAL('clicked()'), copy)
+    dlg.message.setText(message)
+    dlg.tree.setFont(fontwidget.font())
+    boldfont = QtGui.QFont(fontwidget.font())
+    boldfont.setBold(True)
+    for file, line, bindings in frames:
+        item = QtGui.QTreeWidgetItem(dlg.tree, [file])
+        item.setFirstColumnSpanned(True)
+        item = QtGui.QTreeWidgetItem(dlg.tree, [line])
+        item.setFirstColumnSpanned(True)
+        item.setFont(0, boldfont)
+        for var, value in bindings.iteritems():
+            bitem = QtGui.QTreeWidgetItem(item, ['', var, value])
+    dlg.show()
+
 
 # -- Fitting tools -------------------------------------------------------------
 

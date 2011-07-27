@@ -1005,7 +1005,7 @@ class InteractiveSession(Session):
         finally:
             self._in_sigint = False
 
-    def forkSimulation(self, code):
+    def forkSimulation(self, code, wait=True):
         try:
             pid = os.fork()
         except OSError:
@@ -1013,6 +1013,7 @@ class InteractiveSession(Session):
             return
         if pid == 0:
             # child process
+            signal.alarm(60)   # kill forcibly after 60 seconds
             try:
                 self.log.manager.globalprefix = '(sim) '
                 self.setMode('simulation')
@@ -1023,10 +1024,11 @@ class InteractiveSession(Session):
                 sys.exit()
             os._exit()
         # parent process
-        try:
-            os.waitpid(pid, 0)
-        except OSError:
-            self.log.exception('Error waiting for simulation process')
+        if wait:
+            try:
+                os.waitpid(pid, 0)
+            except OSError:
+                self.log.exception('Error waiting for simulation process')
 
     @classmethod
     def run(cls, setup='startup', simulate=False):
@@ -1117,10 +1119,10 @@ class DaemonSession(SimpleSession):
 
         self._exported_names.clear()
 
-    def forkSimulation(self, code):
-        from nicos.daemon.utils import DaemonPipeSender, DaemonPipeReceiver
+    def forkSimulation(self, code, wait=True):
+        from nicos.daemon.utils import SimLogSender, SimLogReceiver
         rp, wp = os.pipe()
-        receiver = DaemonPipeReceiver(rp, self.daemon_device)
+        receiver = SimLogReceiver(rp, self.daemon_device)
         receiver.start()
         try:
             pid = os.fork()
@@ -1129,16 +1131,22 @@ class DaemonSession(SimpleSession):
             return
         if pid == 0:
             # child process
+            signal.alarm(60)   # kill forcibly after 60 seconds
+            pipesender = SimLogSender(wp, self)
+            pipesender.begin()
             try:
                 self.log.manager.globalprefix = '(sim) '
-                self.addLogHandler(DaemonPipeSender(wp))
+                self.addLogHandler(pipesender)
                 self.setMode('simulation')
                 exec code in self._namespace
             except:  # really *all* exceptions
                 self.log.exception()
             finally:
+                pipesender.finish()
                 sys.exit()
-        else:
+            os._exit()
+        # parent process
+        if wait:
             try:
                 os.waitpid(pid, 0)
             except OSError:

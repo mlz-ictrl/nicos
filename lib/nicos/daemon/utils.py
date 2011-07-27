@@ -151,14 +151,26 @@ class DaemonLogHandler(logging.Handler):
 
 _lenstruct = struct.Struct('>I')
 
-class DaemonPipeSender(logging.Handler):
+class SimLogSender(logging.Handler):
     """
-    Log handler sending messages to daemon via a pipe.
+    Log handler sending messages to the original daemon via a pipe.
     """
 
-    def __init__(self, fileno):
+    def __init__(self, fileno, session):
         logging.Handler.__init__(self)
         self.fileno = fileno
+        self.session = session
+        self.devices = []
+
+    def begin(self):
+        from nicos.device import Readable
+        # Collect information on timing and range of all devices
+        self.starttime = self.session.clock.time
+        for devname, dev in self.session.devices.iteritems():
+            if isinstance(dev, Readable):
+                self.devices.append(devname)
+                dev._sim_min = None
+                dev._sim_max = None
 
     def emit(self, record, entries=TRANSMIT_ENTRIES):
         msg = [getattr(record, e) for e in entries]
@@ -167,10 +179,20 @@ class DaemonPipeSender(logging.Handler):
         msg = serialize(msg)
         os.write(self.fileno, _lenstruct.pack(len(msg)) + msg)
 
+    def finish(self):
+        stoptime = self.session.clock.time
+        devinfo = {}
+        for devname in self.devices:
+            dev = self.session.devices.get(devname)
+            if dev:
+                devinfo[dev] = (dev._sim_value, dev._sim_min, dev._sim_max)
+        msg = serialize((stoptime, devinfo))
+        os.write(self.fileno, _lenstruct.pack(len(msg)) + msg)
 
-class DaemonPipeReceiver(Thread):
+
+class SimLogReceiver(Thread):
     """
-    Thread for receiving messages from a pipe and sending them to the daemon.
+    Thread for receiving messages from a pipe and sending them to the client.
     """
 
     def __init__(self, fileno, daemon):
@@ -184,8 +206,11 @@ class DaemonPipeReceiver(Thread):
             size, = _lenstruct.unpack(data)
             data = os.read(fileno, size)
             msg = unserialize(data)
-            daemon._messages.append(msg)
-            daemon.emit_event('message', msg)
+            if isinstance(msg, list):
+                daemon._messages.append(msg)
+                daemon.emit_event('message', msg)
+            else:
+                daemon.emit_event('simresult', msg)
 
 
 # -- Module reloading handling -------------------------------------------------
