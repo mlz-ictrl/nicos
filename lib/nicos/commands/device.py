@@ -184,11 +184,12 @@ def stop(*devlist):
             dev.log.info('stopped')
 
 @usercommand
-def reset(dev):
-    """Reset the given device."""
-    dev = session.getDevice(dev, Readable)
-    status = dev.reset()
-    dev.log.info('reset done, status is now %s' % _formatStatus(status))
+def reset(*devlist):
+    """Reset the given device(s)."""
+    for dev in devlist:
+        dev = session.getDevice(dev, Readable)
+        status = dev.reset()
+        dev.log.info('reset done, status is now %s' % _formatStatus(status))
 
 @usercommand
 def set(dev, parameter, value):
@@ -230,22 +231,24 @@ def adjust(dev, value):
     dev.offset += diff
 
 @usercommand
-def version(dev):
-    """List version info of the device."""
-    dev = session.getDevice(dev, Device)
-    versions = dev.version()
-    dev.log.info('Relevant versions for this device:')
-    printTable(('module/component', 'version'), versions, printinfo)
+def version(*devlist):
+    """List version info of the device(s)."""
+    for dev in devlist:
+        dev = session.getDevice(dev, Device)
+        versions = dev.version()
+        dev.log.info('Relevant versions for this device:')
+        printTable(('module/component', 'version'), versions, printinfo)
 
 @usercommand
-def limits(dev):
+def limits(*devlist):
     """Print the limits of the device."""
-    dev = session.getDevice(dev, HasLimits)
-    dev.log.info('Limits for this device:')
-    printinfo('absolute minimum: %s %s' % (dev.format(dev.absmin), dev.unit))
-    printinfo('    user minimum: %s %s' % (dev.format(dev.usermin), dev.unit))
-    printinfo('    user maximum: %s %s' % (dev.format(dev.usermax), dev.unit))
-    printinfo('absolute maximum: %s %s' % (dev.format(dev.absmax), dev.unit))
+    for dev in devlist:
+        dev = session.getDevice(dev, HasLimits)
+        dev.log.info('Limits for this device:')
+        printinfo('absolute minimum: %s %s' % (dev.format(dev.absmin), dev.unit))
+        printinfo('    user minimum: %s %s' % (dev.format(dev.usermin), dev.unit))
+        printinfo('    user maximum: %s %s' % (dev.format(dev.usermax), dev.unit))
+        printinfo('absolute maximum: %s %s' % (dev.format(dev.absmax), dev.unit))
 
 @usercommand
 def listparams(dev):
