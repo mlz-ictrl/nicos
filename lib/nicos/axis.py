@@ -384,6 +384,7 @@ class TacoAxis(TacoDevice, BaseAxis):
         self._taco_guard(client.deviceReset)
         while self._taco_guard(client.deviceState) == TACOStates.INIT:
             sleep(0.1)
+        self._taco_guard(self._dev.setPosition, self.refpos)
         self.log.info('reference drive complete, position is now ' +
                        self.format(self.doRead()))
 
