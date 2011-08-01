@@ -83,6 +83,8 @@ _column2 = [
                 [{'dev': 'stx'}, {'dev': 'sty'}, {'dev': 'stz'}],
                 [{'dev': 'sgx'}, {'dev': 'sgy'}]],
      'sample'),
+    ('Third Axis', [[{'dev': 'ath'}, {'dev': 'att'}]],
+     'detector'),
     ('Sample environment', [
         [{'key': 't/setpoint', 'name': 'Setpoint', 'unitkey': 't/unit'},
          {'dev': 'TA', 'name': 'Sample'}, 'TB', 'TC'],

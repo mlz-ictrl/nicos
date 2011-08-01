@@ -46,8 +46,12 @@ devices = dict(
                        maxage = 30,
                        ),
 
-    MonRate   = device('nicos.mira.toni.Ratemeter',
-                       lowlevel = True,
-                       bus = 'MonoToni',
-                       addr = 0xf0),
+    ath      = device('nicos.axis.TacoAxis',
+                      tacodevice = 'mira/axis/ath',
+                      abslimits = (-180, 180),
+                      fmtstr = '%.3f'),
+    att      = device('nicos.axis.TacoAxis',
+                      tacodevice = 'mira/axis/att',
+                      abslimits = (-180, 180),
+                      fmtstr = '%.2f'),
 )
