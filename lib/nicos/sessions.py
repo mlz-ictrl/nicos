@@ -120,8 +120,12 @@ class Session(object):
         setups_path = 'setups'
 
     log = None
-    name = 'session'   # used for cache operations
+    name = 'session'
     cache_class = CacheClient
+
+    def __str__(self):
+        # used for cache operations
+        return 'session'
 
     def __init__(self, appname):
         self.appname = appname

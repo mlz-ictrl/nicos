@@ -40,4 +40,5 @@ setup(
     scripts=scripts,
     cmdclass={'install': no_install},
     package_data={'nicos.web': ['jquery.js', 'support.js']},
+    # XXX: add the .ui files for the GUI!
 )
