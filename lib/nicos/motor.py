@@ -31,6 +31,8 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+from time import sleep
+
 from Motor import Motor as TACOMotor
 import TACOStates
 
@@ -45,6 +47,10 @@ class Motor(TacoDevice, BaseMotor):
 
     def doStart(self, target):
         self._taco_guard(self._dev.start, target)
+
+    def doWait(self):
+        while self.doStatus()[0] == status.BUSY:
+            sleep(0.3)
 
     def doSetPosition(self, target):
         self._taco_guard(self._dev.setpos, target)
