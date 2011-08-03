@@ -107,6 +107,9 @@ def listcommands():
 @usercommand
 def sleep(secs):
     """Sleep for a given number of seconds."""
+    if session.mode == 'simulation':
+        session.clock.tick(secs)
+        return
     MAX_INTERVAL = 5
     # partition the whole preset time in slices of MAX_INTERVAL
     full, fraction = divmod(secs, MAX_INTERVAL)
