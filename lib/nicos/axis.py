@@ -491,6 +491,8 @@ class HoveringAxis(TacoAxis):
     def doStart(self, target):
         if self._poll_thread:
             raise NicosError(self, 'axis is already moving')
+        if abs(target - self.read()) < self.precision:
+            return
         self._adevs['switch'].move(self.switchvalues[1])
         sleep(self.startdelay)
         TacoAxis.doStart(self, target)
