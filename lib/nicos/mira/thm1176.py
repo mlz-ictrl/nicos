@@ -34,6 +34,7 @@ __version__ = "$Revision$"
 import os, fcntl, time
 import sys, struct, math
 
+from nicos import status
 from nicos.device import Measurable, Param, Value
 from nicos.errors import CommunicationError, ConfigurationError, NicosError
 
@@ -44,17 +45,23 @@ USBTMC_IOCTL_RESET_CONF = 23298 + 9
 class THM(Measurable):
 
     parameters = {
-        'device': Param('USB device name', type=str, default='/dev/usbtmc0'),
+        'device': Param('USB device name', type=str, mandatory=True),
         'measurements': Param('Number of measurements to average over',
                               type=int, default=80, settable=True),
     }
+    # timeout is 5 seconds by kernel default
     
     def doInit(self):
         self._io = None
         if self._mode != 'simulation':
             self.doReset()
 
+    def doReadFmtstr(self):
+        return '%.1f [%.0f +- %.1f, %.0f +- %.1f, %.0f +- %.1f] uT'
+
     def doReset(self):
+        if self._io is not None:
+            os.close(self._io)
         self._io = os.open(self.device, os.O_RDWR)
         #fcntl.ioctl(self._io, USBTMC_IOCTL_RESET_CONF)
         ident = self._query('*IDN?')
@@ -65,24 +72,28 @@ class THM(Measurable):
             os.close(self._io)
             self._io = None
 
+    def doStatus(self):
+        self._query('*IDN?')
+        return status.OK, 'idle'
+
     def _query(self, q, t=5):
         try:
             os.write(self._io, q + '\n')
             return os.read(self._io, 2000).rstrip()
-        except IOError:
+        except OSError, err:
             if t == 0:
-                raise CommunicationError(self, 'error executing')
-            self._reset()
+                raise CommunicationError(self, 'error querying: %s' % err)
+            self.doReset()
             return self._query(q, t-1)
         self._check_status()
 
     def _execute(self, q, t=5):
         try:
             os.write(self._io, q + '\n')
-        except IOError:
+        except OSError, err:
             if t == 0:
-                raise CommunicationError(self, 'error executing')
-            self._reset()
+                raise CommunicationError(self, 'error executing: %s' % err)
+            self.doReset()
             self._execute(q, t-1)
         self._check_status()
 
@@ -90,19 +101,29 @@ class THM(Measurable):
         try:
             os.write(self._io, '*STB?\n')
             status = os.read(self._io, 100).rstrip()
-        except IOError:
-            raise
+        except OSError, err:
+            raise CommunicationError(self, 'error getting status: %s' % err)
         if status != '0':
             raise CommunicationError(self, 'error in command!')
 
+    def zero(self):
+        """Zero the probe in zero-gauss chamber."""
+        self.log.info('Zeroing sensor, please wait a few seconds...')
+        try:
+            self._execute('CAL')
+        except OSError, err:
+            if err.errno == 110:
+                return
+            raise
+
     def valueInfo(self):
-        return Value('B', unit='mT'), \
-               Value('Bx', unit='mT', errors='next'), \
-               Value('dBx', unit='mT', type='error'), \
-               Value('By', unit='mT', errors='next'), \
-               Value('dBy', unit='mT', type='error'), \
-               Value('Bz', unit='mT', errors='next'), \
-               Value('dBz', unit='mT', type='error')
+        return Value('B', unit='uT'), \
+               Value('Bx', unit='uT', errors='next'), \
+               Value('dBx', unit='uT', type='error'), \
+               Value('By', unit='uT', errors='next'), \
+               Value('dBy', unit='uT', type='error'), \
+               Value('Bz', unit='uT', errors='next'), \
+               Value('dBz', unit='uT', type='error')
 
     def _average(self, nvalues, output):
         # format: #6nnnnnnbbbbbbbb...
