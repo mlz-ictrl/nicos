@@ -554,23 +554,6 @@ class ConnectionHandler(BaseRequestHandler):
         self.controller.controlling_user = None
         self.write(ACK)
 
-    @command(needcontrol=True, needscript=False)
-    def reloadsetup(self):
-        """Reload the current setup (and possible NICOS modules), starting a new
-        script thread.
-        """
-        try:
-            # stop the script thread
-            self.controller.stop_script_thread()
-        except RuntimeError:
-            # no script thread running
-            pass
-        # clear sys.modules
-        self.daemon._module_manager.purge()
-        # start a new script thread, this will reimport all modules
-        self.controller.start_script_thread()
-        self.write(ACK)
-
     @command()
     def quit(self):
         """Close the session."""

@@ -659,17 +659,6 @@
     <string>Run &amp;command...</string>
    </property>
   </action>
-  <action name="actionReload">
-   <property name="text">
-    <string>Reload &amp;NICOS</string>
-   </property>
-   <property name="toolTip">
-    <string>Reload NICOS modules on server</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+R</string>
-   </property>
-  </action>
   <action name="actionConnectionData">
    <property name="text">
     <string>Connection &amp;data...</string>

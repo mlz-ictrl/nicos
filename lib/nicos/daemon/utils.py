@@ -211,20 +211,3 @@ class SimLogReceiver(Thread):
                 daemon.emit_event('message', msg)
             else:
                 daemon.emit_event('simresult', msg)
-
-
-# -- Module reloading handling -------------------------------------------------
-
-class ModuleManager(object):
-    """
-    Remembers which modules were imported at its creation time, and
-    restores sys.modules to that on purge().
-    """
-    def __init__(self, protect=[]):
-        self._modules = set(sys.modules.keys())
-        self._protect = set(protect)
-
-    def purge(self):
-        for key in sys.modules.keys():
-            if key not in self._modules and key not in self._protect:
-                del sys.modules[key]

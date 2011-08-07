@@ -204,7 +204,7 @@ class NicosCmdClient(NicosClient):
 
     def help(self):
         self.err.set_text('Meta-commands: /break, /cont, /stop, /stop!, '
-                          '/reload, /exec <cmd>,\n/e(dit) <filename>, '
+                          '/exec <cmd>,\n/e(dit) <filename>, '
                           '/r(un) <filename>, /update <filename>, '
                           '/connect, /disconnect, /q(uit)')
 
@@ -241,8 +241,6 @@ class NicosCmdClient(NicosClient):
             self.tell('stop')
         elif cmd == 'stop!':
             self.tell('emergency')
-        elif cmd == 'reload':
-            self.tell('reloadsetup')
         elif cmd == 'exec':
             self.tell('exec', arg)
         elif cmd == 'disconnect':

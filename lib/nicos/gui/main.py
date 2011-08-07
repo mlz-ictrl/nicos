@@ -143,7 +143,6 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         g.addAction(self.actionStop)
         g.addAction(self.actionEmergencyStop)
         g.addAction(self.actionRunCommand)
-        g.addAction(self.actionReload)
 
         # setup tray icon
         self.trayIcon = QSystemTrayIcon(self)
@@ -526,12 +525,6 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
     def on_actionEmergencyStop_triggered(self):
         self.client.tell('emergency')
         self.action_start_time = time.time()
-
-    @qtsig('')
-    def on_actionReload_triggered(self):
-        if self.client.tell('reloadsetup'):
-            QMessageBox.information(self, self.tr('Reload'),
-                                    self.tr('Setup reloaded on server.'))
 
     def on_trayIcon_activated(self, reason):
         if reason == QSystemTrayIcon.Trigger:

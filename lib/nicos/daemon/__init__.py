@@ -46,7 +46,7 @@ from nicos import nicos_version
 from nicos.utils import listof, closeSocket
 from nicos.device import Device, Param
 
-from nicos.daemon.utils import ModuleManager, serialize
+from nicos.daemon.utils import serialize
 from nicos.daemon.script import ExecutionController
 from nicos.daemon.handler import ConnectionHandler
 
@@ -189,10 +189,6 @@ class NicosDaemon(Device):
 
     def doInit(self):
         self._stoprequest = False
-        # the module manager executes the daemon's "reload modules" function
-        self._module_manager = ModuleManager(protect=['nicos.daemon.script',
-                                                      'swig_runtime_data3',
-                                                      'swig_runtime_data4'])
         # the controller represents the internal script execution machinery
         self._controller = ExecutionController(self.log, self.emit_event,
                                                'startup')
