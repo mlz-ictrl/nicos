@@ -423,7 +423,10 @@ class Session(object):
         # execute the startup code
         for code in startupcode:
             if code:
-                exec code in self._namespace
+                try:
+                    exec code in self._namespace
+                except Exception, err:
+                    self.log.exception('error running startup code, ignoring')
 
         if failed_devs:
             self.log.error('the following devices could not be created:')
