@@ -7,21 +7,10 @@ import signal
 import ConfigParser
 from os import path
 
-import sys, os
-from os import path
 thisfile = path.abspath(__file__)
 while path.islink(thisfile):
     thisfile = path.join(path.dirname(thisfile), os.readlink(thisfile))
 root_path = path.normpath(path.join(path.dirname(thisfile), '..'))
-
-# XXX put DAEMONS into nicos.conf
-DAEMONS = ['cache', 'poller', 'daemon']
-
-try:
-    action = sys.argv[1]
-except IndexError:
-    print >>sys.stderr, 'Usage: %s start|stop|restart|status' % sys.argv[0]
-    sys.exit(1)
 
 class NicosConfigParser(ConfigParser.SafeConfigParser):
     def optionxform(self, key):
@@ -34,8 +23,30 @@ def read_config():
         for name in cfg.options('environment'):
             value = cfg.get('environment', name)
             os.environ[name] = value
+    if cfg.has_option('services', 'services'):
+        services = cfg.get('services', 'services')
+    else:
+        services = 'cache,poller'
+    return [svc.strip() for svc in services.split(',')]
 
-read_config()
+SERVICES = read_config()
+
+def usage():
+    print >>sys.stderr, \
+          'Usage: %s start|stop|restart|status [service ...]' % sys.argv[0]
+    print >>sys.stderr, \
+          'Possible services are %s' % ', '.join(SERVICES)
+    sys.exit(1)
+
+try:
+    action = sys.argv[1]
+except IndexError:
+    usage()
+
+daemons = sys.argv[2:] or SERVICES
+for daemon in daemons:
+    if daemon not in SERVICES:
+        usage()
 
 def read_pidfile(name, wait=0):
     begin = time.time()
@@ -88,18 +99,18 @@ def kill_daemon(name):
         os.kill(pid, signal.SIGTERM)
 
 if action == 'start':
-    for name in DAEMONS:
+    for name in daemons:
         start_daemon(name)
 
 elif action == 'stop':
-    for name in reversed(DAEMONS):
+    for name in reversed(daemons):
         kill_daemon(name)
 
 elif action == 'restart':
     os.system('%s stop && sleep 1 && %s start' % (sys.argv[0], sys.argv[0]))
 
 elif action == 'status':
-    for name in DAEMONS:
+    for name in daemons:
         pid = read_pidfile(name)
         if pid:
             print '%-10s: running (pid = %s)' % (name, pid)
