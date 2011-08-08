@@ -2,7 +2,7 @@
 
 import sys, glob
 
-sysuser, sysgroup, nethost, setups, services = sys.argv[1:5]
+sysuser, sysgroup, nethost, setups, services = sys.argv[1:6]
 
 services = services or 'cache,poller'
 
