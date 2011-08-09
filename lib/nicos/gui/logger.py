@@ -36,7 +36,7 @@ import time
 from PyQt4.QtCore import SIGNAL, QVariant, QSize, QDateTime, Qt
 from PyQt4.Qwt5 import QwtPlot, QwtText, QwtSymbol, QwtLegend, QwtPlotItem, \
      QwtPlotZoomer, QwtPlotGrid, QwtPicker, QwtPlotPicker, QwtPlotCurve, \
-     QwtLog10ScaleEngine, QwtLinearScaleEngine
+     QwtLog10ScaleEngine, QwtLinearScaleEngine, QwtScaleDraw
 from PyQt4.QtGui import QMainWindow, QDialog, QPalette, QFont, QColor, QPen, \
      QBrush, QListWidgetItem, QFontDialog, QColorDialog, QFileDialog, \
      QPrintDialog, QPrinter
@@ -48,6 +48,11 @@ from nicos.gui.utils import SettingGroup, loadUi, DlgUtils, dialogFromUi
 from nicos.gui.plothelpers import XPlotPicker
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
+
+
+class TimeScaleDraw(QwtScaleDraw):
+    def label(self, value, strf=time.strftime, local=time.localtime):
+        return QwtText(strf('%y-%m-%d\n%H:%M:%S', local(value)))
 
 
 class View(object):
@@ -407,6 +412,7 @@ class ViewPlot(QwtPlot):
         xaxistext = QwtText('time')
         xaxistext.setFont(self.labelfont)
         self.setAxisTitle(QwtPlot.xBottom, xaxistext)
+        self.setAxisScaleDraw(QwtPlot.xBottom, TimeScaleDraw())
         yaxisname = 'value'
         yaxistext = QwtText(yaxisname)
         yaxistext.setFont(self.labelfont)
