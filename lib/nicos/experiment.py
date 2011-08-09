@@ -46,7 +46,7 @@ except ImportError:
 
 from nicos import session
 from nicos.data import NeedsDatapath, Dataset
-from nicos.utils import listof, nonemptylistof, ensureDirectory
+from nicos.utils import listof, nonemptylistof, ensureDirectory, usermethod
 from nicos.device import Device, Measurable, Readable, Param
 from nicos.errors import ConfigurationError, UsageError
 from nicos.loggers import UserLogfileHandler
@@ -179,6 +179,7 @@ class Experiment(Device):
         self._uhandler.disabled = True
         session.addLogHandler(self._uhandler)
 
+    @usermethod
     def new(self, proposal, title=None, **kwds):
         # Individual instruments should override this to change datapath
         # according to instrument policy, and maybe call _fillProposal
@@ -231,6 +232,7 @@ class Experiment(Device):
             self.log.info('Filled in %s from proposal database' %
                            ', '.join(what))
 
+    @usermethod
     def addUser(self, name, email, affiliation=None):
         user = '%s <%s>' % (name, email)
         if affiliation is not None:

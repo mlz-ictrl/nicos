@@ -254,7 +254,7 @@ def limits(*devlist):
 def listparams(dev):
     """List all parameters of the device."""
     dev = session.getDevice(dev, Device)
-    dev.log.info('Parameters of this device:')
+    dev.log.info('Device parameters:')
     devunit = getattr(dev, 'unit', '')
     items = []
     for name, info in sorted(dev.parameters.iteritems()):
@@ -268,11 +268,28 @@ def listparams(dev):
         vstr = repr(value)
         if len(vstr) > 40:
             vstr = vstr[:37] + '...'
-        items.append((name, vstr, unit, info.description))
-    printTable(('name', 'value', 'unit', 'description'), items, printinfo)
+        settable = info.settable and 'yes' or 'no'
+        items.append((name, vstr, unit, settable, info.description))
+    printTable(('name', 'value', 'unit', 'set?', 'description'),
+               items, printinfo)
 
 @usercommand
-def listdevices():
+def listmethods(dev):
+    """List user-callable methods for the device."""
+    dev = session.getDevice(dev, Device)
+    items = []
+    def _list(cls):
+        for name, (args, doc) in sorted(cls.commands.iteritems()):
+            items.append((name + args, cls.__name__, doc))
+        for base in cls.__bases__:
+            if issubclass(base, Device):
+                _list(base)
+    _list(dev.__class__)
+    dev.log.info('Device methods:')
+    printTable(('method', 'from class', 'description'), items, printinfo)
+
+@usercommand
+def ListDevices():
     """List all currently created devices."""
     printinfo('All created devices:')
     items = []

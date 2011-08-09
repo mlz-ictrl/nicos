@@ -44,7 +44,7 @@ try:
 except:
     xmpp = None
 
-from nicos.utils import listof
+from nicos.utils import listof, usermethod
 from nicos.device import Device, Param
 
 EMAIL_CHARSET = 'utf-8'
@@ -62,10 +62,14 @@ class Notifier(Device):
                             default=300, settable=True),
     }
 
+    @usermethod
     def send(subject, body, what=None, short=None):
+        """Send a notification."""
         raise NotImplementedError
 
+    @usermethod
     def sendConditionally(self, runtime, subject, body, what=None, short=None):
+        """Send a notification if the given runtime is large enough."""
         if runtime > self.minruntime:
             self.send(subject, body, what, short)
 

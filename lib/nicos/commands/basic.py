@@ -62,12 +62,15 @@ def help(obj=None):
     elif isinstance(obj, Device):
         printinfo('%s is a device of class %s.' %
                   (obj.name, obj.__class__.__name__))
-        if obj.__class__.__doc__:
-            printinfo('Device class description: %s' %
-                      obj.__class__.__doc__.strip())
         if obj.description:
             printinfo('Device description: %s' % obj.description)
-        from nicos.commands.device import listparams
+        if obj.__class__.__doc__:
+            lines = obj.__class__.__doc__.strip().splitlines()
+            printinfo('Device class description: ' + lines[0])
+            for line in lines[1:]:
+                printinfo(line)
+        from nicos.commands.device import listmethods, listparams
+        listmethods(obj)
         listparams(obj)
     elif not inspect.isfunction(obj):
         __builtin__.help(obj)
@@ -76,7 +79,8 @@ def help(obj=None):
         real_func = getattr(obj, 'real_func', obj)
         argspec = inspect.formatargspec(*inspect.getargspec(real_func))
         printinfo('Usage: ' + real_func.__name__ + argspec)
-        printinfo(formatDocstring(real_func.__doc__ or '', '   '))
+        for line in formatDocstring(real_func.__doc__ or '', '   '):
+            printinfo(line)
 
 __builtin__.__orig_dir = dir
 

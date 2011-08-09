@@ -35,7 +35,7 @@ import os, fcntl, time
 import sys, struct, math
 
 from nicos import status
-from nicos.device import Measurable, Param, Value
+from nicos.device import Measurable, Param, Value, usermethod
 from nicos.errors import CommunicationError, ConfigurationError, NicosError
 
 USBTMC_IOCTL_CLEAR = 23298
@@ -110,6 +110,7 @@ class THM(Measurable):
         if status != '0':
             raise CommunicationError(self, 'error in command!')
 
+    @usermethod
     def zero(self):
         """Zero the probe in zero-gauss chamber."""
         self.log.info('Zeroing sensor, please wait a few seconds...')

@@ -35,8 +35,8 @@ from time import time as currenttime, sleep
 
 from nicos import session
 from nicos import status, loggers
-from nicos.utils import AutoPropsMeta, Param, Override, Value, getVersions, \
-     tupleof, floatrange, any, none_or
+from nicos.utils import DeviceMeta, Param, Override, Value, getVersions, \
+     usermethod, tupleof, floatrange, any, none_or
 from nicos.errors import NicosError, ConfigurationError, ProgrammingError, \
      UsageError, LimitError, FixedError, ModeError, CommunicationError, \
      CacheLockError
@@ -55,7 +55,7 @@ class Device(object):
     * doVersion()
     """
 
-    __metaclass__ = AutoPropsMeta
+    __metaclass__ = DeviceMeta
     __mergedattrs__ = ['parameters', 'parameter_overrides', 'attached_devices']
 
     # A dictionary mapping device names to classes (or lists of classes) that
@@ -405,10 +405,12 @@ class Device(object):
         if hasattr(self, 'doShutdown'):
             self.doShutdown()
 
+    @usermethod
     def version(self):
-        """Return a list of version tuples for this device.  These are tuples
-        (component, version) where a "component" can be the name of a
-        Python module, or an external dependency (like a TACO server).
+        """Return a list of versions for this device.
+
+        These are tuples (component, version) where a "component" can be the
+        name of a Python module, or an external dependency (like a TACO server).
 
         The base implementation already collects VCS revision information
         available from all Python modules involved in the class inheritance
@@ -541,6 +543,7 @@ class Readable(Device):
             self._cache.put(self, name, val, currenttime(), self.maxage)
         return val
 
+    @usermethod
     def read(self):
         """Read the (possibly cached) main value of the device.
 
@@ -554,9 +557,12 @@ class Readable(Device):
             return self._sim_value
         return self._get_from_cache('value', self.doRead)
 
+    @usermethod
     def status(self):
-        """Return the (possibly cached) status of the device as one of the
-        integer constants defined in the :mod:`nicos.status` module.
+        """Return the (possibly cached) status of the device.
+
+        The status is a tuple of one of the integer constants defined in the
+        :mod:`nicos.status` module, and textual extended info.
 
         .. method:: doStatus()
 
@@ -618,6 +624,7 @@ class Readable(Device):
         else:
             self._cache.put(self, name, value)
 
+    @usermethod
     def reset(self):
         """Reset the device hardware.  Returns the new status afterwards.
 
@@ -640,8 +647,9 @@ class Readable(Device):
         return self.status()
 
     def format(self, value):
-        """Format a value from :meth:`read` into a human-readable string,
-        without the unit.
+        """Format a value from :meth:`read` into a human-readable string.
+
+        The device unit is not included.
 
         This is done using Python string formatting (the ``%`` operator) with
         the :attr:`fmtstr` parameter value as the format string.
@@ -723,10 +731,13 @@ class Moveable(Readable):
             return self.read()
         return self.start(pos)
 
+    @usermethod
     def isAllowed(self, pos):
-        """Return a tuple ``(valid, why)`` describing the validity of the given
-        position.  The first item is a boolean indicating if the position is
-        valid, the second item is a string with the reason if it is invalid.
+        """Check if the given position can be moved to.
+
+        The return value is a tuple ``(valid, why)``.  The first item is a
+        boolean indicating if the position is valid, the second item is a string
+        with the reason if it is invalid.
 
         .. method:: doIsAllowed(pos)
 
@@ -741,11 +752,13 @@ class Moveable(Readable):
             return self.doIsAllowed(pos)
         return True, ''
 
+    @usermethod
     def start(self, pos):
-        """Start movement of the device to a new position.  This method does not
-        generally wait for completion of the movement, although individual
-        devices can implement it that way if it is convenient.  In that case,
-        no :meth:`doWait` should be implemented.
+        """Start movement of the device to a new position.
+
+        This method does not generally wait for completion of the movement,
+        although individual devices can implement it that way if it is
+        convenient.  In that case, no :meth:`doWait` should be implemented.
 
         The validity of the given *pos* is checked by calling :meth:`isAllowed`
         before :meth:`doStart` is called.
@@ -790,11 +803,12 @@ class Moveable(Readable):
 
     move = start
 
+    @usermethod
     def wait(self):
-        """Wait until movement of device is completed.  Return current device
-        value after waiting.
+        """Wait until movement of device is completed.
 
-        This is a no-op for hardware devices in simulation mode.
+        Return current device value after waiting.  This is a no-op for hardware
+        devices in simulation mode.
 
         .. method:: doWait()
 
@@ -828,6 +842,7 @@ class Moveable(Readable):
             self._cache.put(self, 'value', val, currenttime(), self.maxage)
         return val
 
+    @usermethod
     def stop(self):
         """Stop any movement of the device.
 
@@ -850,14 +865,17 @@ class Moveable(Readable):
         if self._cache:
             self._cache.invalidate(self, 'value')
 
+    @usermethod
     def fix(self):
-        """Fix the device, i.e. don't allow movement anymore by :meth:`start` or
-        :meth:`stop`.
+        """Fix the device: don't allow movement anymore.
+
+        This blocks :meth:`start` or :meth:`stop` when called on the device.
         """
         self._isFixed = True
 
+    @usermethod
     def release(self):
-        """Release the device, i.e. undo the effect of :meth:`fix`."""
+        """Release the device, i.e. undo the effect of fix()."""
         self._isFixed = False
 
 
@@ -1036,6 +1054,7 @@ class Measurable(Readable):
         'unit':  Override(description='(not used)', mandatory=False),
     }
 
+    @usermethod
     def start(self, **preset):
         """Start measurement, with either the given preset or the standard
         preset.
@@ -1067,11 +1086,12 @@ class Measurable(Readable):
             return self.read()
         raise UsageError(self, 'device cannot be moved')
 
+    @usermethod
     def pause(self):
-        """Pause the measurement, if possible.  Return True if paused
-        successfully.
+        """Pause the measurement, if possible.
 
-        This operation is forbidden in slave mode.
+        Return True if paused successfully.  This operation is forbidden in
+        slave mode.
 
         .. method:: doPause()
 
@@ -1086,10 +1106,12 @@ class Measurable(Readable):
             return self.doPause()
         return False
 
+    @usermethod
     def resume(self):
-        """Resume paused measurement.  Return True if resumed successfully.
+        """Resume paused measurement.
 
-        This operation is forbidden in slave mode.
+        Return True if resumed successfully.  This operation is forbidden in
+        slave mode.
 
         .. method:: doResume()
 
@@ -1104,6 +1126,7 @@ class Measurable(Readable):
             return self.doResume()
         return False
 
+    @usermethod
     def stop(self):
         """Stop measurement now.
 
@@ -1120,6 +1143,7 @@ class Measurable(Readable):
             return
         self.doStop()
 
+    @usermethod
     def isCompleted(self):
         """Return true if measurement is complete.
 
@@ -1132,13 +1156,16 @@ class Measurable(Readable):
             return True
         return self.doIsCompleted()
 
+    @usermethod
     def wait(self):
-        """Wait for completion of measurement.  This is implemented by calling
-        :meth:`isCompleted` in a loop.
+        """Wait for completion of the measurement.
+
+        This is implemented by calling :meth:`isCompleted` in a loop.
         """
         while not self.isCompleted():
             sleep(0.1)
 
+    @usermethod
     def read(self):
         """Return a tuple with the result(s) of the last measurement."""
         if self._sim_active:
@@ -1169,7 +1196,9 @@ class Measurable(Readable):
             yield item
 
     def valueInfo(self):
-        """Return a tuple of :class:`nicos.device.Value` instances describing
+        """Describe the values measured by this device.
+
+        Return a tuple of :class:`nicos.device.Value` instances describing
         the values that :meth:`read` returns.
 
         This must be overridden by every Measurable that returns more than one

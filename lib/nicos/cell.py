@@ -48,6 +48,8 @@ R2D = 180/pi
 K = 1.99573
 
 
+# XXX determine which of the methods are @usermethods
+
 class Cell(Device):
     """
     Cell object representing sample geometry.

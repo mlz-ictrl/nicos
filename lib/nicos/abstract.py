@@ -32,7 +32,7 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 from nicos.device import Readable, Moveable, HasLimits, HasOffset, \
-     HasPrecision, Param, Override
+     HasPrecision, Param, Override, usermethod
 
 
 class Coder(HasPrecision, Readable):
@@ -62,6 +62,7 @@ class Motor(HasLimits, Moveable, Coder, HasPrecision):
         'speed': Param('The motor speed', unit='main/s', settable=True),
     }
 
+    @usermethod
     def setPosition(self, pos):
         """Sets the current position of the motor controller to the target."""
         self.doSetPosition(pos)
@@ -108,3 +109,12 @@ class Axis(HasLimits, HasOffset, HasPrecision, Moveable):
     parameter_overrides = {
         'unit':      Override(mandatory=False, settable=True),
     }
+
+    @usermethod
+    def setPosition(self, pos):
+        """Sets the current position of the motor controller to the target."""
+        self.doSetPosition(pos)
+
+    def doSetPosition(self, target):
+        """Sets the current position of the motor controller to the target."""
+        pass

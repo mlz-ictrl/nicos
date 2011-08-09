@@ -39,7 +39,7 @@ import TACOStates
 
 from nicos import status
 from nicos.taco import TacoDevice
-from nicos.utils import tupleof, any
+from nicos.utils import tupleof, any, usermethod
 from nicos.device import Moveable, HasOffset, Param, Override
 from nicos.errors import ConfigurationError, NicosError, PositionError
 from nicos.errors import ProgrammingError, MoveError, LimitError
@@ -386,6 +386,7 @@ class TacoAxis(TacoDevice, BaseAxis):
     def doStop(self):
         self._taco_guard(self._dev.stop)
 
+    @usermethod
     def reference(self):
         """Do a reference drive of the axis (do not use with encoded axes)."""
         motorname = self._taco_guard(self._dev.deviceQueryResource, 'motor')

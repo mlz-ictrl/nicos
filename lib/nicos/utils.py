@@ -39,8 +39,10 @@ import sys
 import copy
 import time
 import errno
+import types
 import signal
 import socket
+import inspect
 import linecache
 import traceback
 import ConfigParser
@@ -193,10 +195,10 @@ class MergedAttrsMeta(type):
         return newtype
 
 
-class AutoPropsMeta(MergedAttrsMeta):
+class DeviceMeta(MergedAttrsMeta):
     """
-    A metaclass that automatically adds properties for the class'
-    parameters.
+    A metaclass that automatically adds properties for the class' parameters,
+    and determines a list of user methods ("commands").
     """
 
     def __new__(mcs, name, bases, attrs):
@@ -281,9 +283,37 @@ class AutoPropsMeta(MergedAttrsMeta):
             setattr(newtype, param,
                     property(getter, setter, doc=info.formatDoc()))
         del newtype.parameter_overrides
+        if 'parameter_overrides' in attrs:
+            del attrs['parameter_overrides']
         if 'valuetype' in attrs:
             newtype.valuetype = staticmethod(attrs['valuetype'])
+
+        newtype.commands = {}
+        for methname in attrs:
+            if methname.startswith(('_', 'do')):
+                continue
+            method = getattr(newtype, methname)
+            if not isinstance(method, types.MethodType):
+                continue
+            if not hasattr(method, 'is_usermethod'):
+                continue
+            argspec = inspect.getargspec(method)
+            if argspec[0] and argspec[0][0] == 'self':
+                del argspec[0][0]  # get rid of "self"
+            args = inspect.formatargspec(*argspec)
+            if method.__doc__:
+                docline = method.__doc__.strip().splitlines()[0]
+            else:
+                docline = ''
+            newtype.commands[methname] = (args, docline)
+
         return newtype
+
+
+def usermethod(func):
+    """Decorator that marks a method as a user-visible method."""
+    func.is_usermethod = True
+    return func
 
 
 class Repeater(object):
@@ -338,7 +368,7 @@ def formatDuration(secs):
 
 
 def formatDocstring(s, indentation=''):
-    """Format a docstring for display on the console."""
+    """Format a docstring into lines for display on the console."""
     lines = s.expandtabs().splitlines()
     # Find minimum indentation of any non-blank lines after first line.
     margin = sys.maxint
@@ -360,7 +390,7 @@ def formatDocstring(s, indentation=''):
     # Remove any trailing blank lines.
     while lines and not lines[-1].strip():
         del lines[-1]
-    return '\n'.join(lines)
+    return lines
 
 
 def printTable(headers, items, printfunc):
