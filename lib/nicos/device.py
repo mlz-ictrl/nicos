@@ -68,7 +68,7 @@ class Device(object):
         'description': Param('A description of the device', type=str,
                              settable=True),
         'lowlevel':    Param('Whether the device is not interesting to users',
-                             type=bool, default=False),
+                             type=bool, default=False, userparam=False),
         'loglevel':    Param('The logging level of the device', type=str,
                              default='info', settable=True),
     }

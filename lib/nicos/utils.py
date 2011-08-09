@@ -75,13 +75,16 @@ class Param(object):
     - *prefercache*: whether on initialization, a value from the cache is
       preferred to a value from the config -- the default is true for
       settable parameters and false for non-settable parameters
+    - *userparam*: whether this parameter should be shown to the user
+      (default is True)
     """
 
     _notset = object()
 
     def __init__(self, description, type=float, default=_notset,
-                 mandatory=False, settable=False, volatile=False, unit=None,
-                 category=None, preinit=False, prefercache=None):
+                 mandatory=False, settable=False, volatile=False,
+                 unit=None, category=None, preinit=False, prefercache=None,
+                 userparam=True):
         self.type = type
         if default is self._notset:
             default = type()
@@ -94,6 +97,7 @@ class Param(object):
         self.description = description
         self.preinit = preinit
         self.prefercache = prefercache
+        self.userparam = userparam
 
     def __repr__(self):
         return '<Param info>'
@@ -126,6 +130,8 @@ class Param(object):
             txt += '\n    * Is initialized before device preinit'
         if self.prefercache is not None:
             txt += '\n    * Prefer value from  cache: %s' % self.prefercache
+        if not self.userparam:
+            txt += '\n    * Not shown to user'
         return txt
 
 

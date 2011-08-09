@@ -163,8 +163,8 @@ class Experiment(Device):
                            settable=True),
         'scriptdir': Param('Standard script directory', type=str,
                            default='.', settable=True),
-        '_propdb':   Param('user@host:dbname credentials for proposal DB',
-                           type=str, default=''),
+        'propdb':    Param('user@host:dbname credentials for proposal DB',
+                           type=str, default='', userparam=False),
     }
 
     attached_devices = {
