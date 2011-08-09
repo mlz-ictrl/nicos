@@ -31,12 +31,15 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
-import os, fcntl, time
-import sys, struct, math
+import os
+import math
+import time
+import fcntl
+import struct
 
 from nicos import status
 from nicos.device import Measurable, Param, Value, usermethod
-from nicos.errors import CommunicationError, ConfigurationError, NicosError
+from nicos.errors import CommunicationError
 
 USBTMC_IOCTL_CLEAR = 23298
 USBTMC_IOCTL_RESET_CONF = 23298 + 9
@@ -50,7 +53,7 @@ class THM(Measurable):
                               type=int, default=80, settable=True),
     }
     # timeout is 5 seconds by kernel default
-    
+
     def doInit(self):
         self._io = None
         if self._mode != 'simulation':
@@ -68,6 +71,7 @@ class THM(Measurable):
         self._io = os.open(self.device, os.O_RDWR)
         #fcntl.ioctl(self._io, USBTMC_IOCTL_RESET_CONF)
         ident = self._query('*IDN?')
+        self.log.debug('sensor identification: %s' % ident)
         self._execute('FORMAT INTEGER')
 
     def doShutdown(self):
