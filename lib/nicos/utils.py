@@ -448,6 +448,23 @@ def closeSocket(sock):
         pass
 
 
+def bitDescription(bits, *descriptions):
+    """Return a description of a bit-wise value."""
+    ret = []
+    for desc in descriptions:
+        if len(desc) == 2:
+            yes, no = desc[1], None
+        else:
+            yes, no = desc[1:3]
+        if bits & (1 << desc[0]):
+            if yes:
+                ret.append(yes)
+        else:
+            if no:
+                ret.append(no)
+    return ', '.join(ret)
+
+
 # read nicos.conf files
 
 class NicosConfigParser(ConfigParser.SafeConfigParser):
