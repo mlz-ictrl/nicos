@@ -270,7 +270,7 @@ def listparams(dev):
             vstr = vstr[:37] + '...'
         settable = info.settable and 'yes' or 'no'
         items.append((name, vstr, unit, settable, info.description))
-    printTable(('name', 'value', 'unit', 'set?', 'description'),
+    printTable(('name', 'value', 'unit', 'r/w?', 'description'),
                items, printinfo)
 
 @usercommand
