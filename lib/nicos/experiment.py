@@ -95,6 +95,8 @@ def queryProposal(credentials, pnumber):
     """
     if not isinstance(pnumber, (int, long)):
         raise UsageError('proposal number must be an integer')
+    if session.instrument is None:
+        raise UsageError('cannot query proposals, no instrument configured')
     with ProposalDB(credentials) as cur:
         # get proposal title and properties
         cur.execute('''

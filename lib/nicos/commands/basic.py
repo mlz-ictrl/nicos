@@ -415,8 +415,14 @@ def SaveSimulationSetup(filename, name=None):
         f.write('name = %r\n\n' % (name or '+'.join(session.explicit_setups)))
         f.write('group = %r\n\n' % 'simulated')
         f.write('sysconfig = dict(\n')
-        f.write('    instrument = %r,\n' % session.instrument.name)
-        f.write('    experiment = %r,\n' % session.experiment.name)
+        if session.instrument is None:
+            f.write('    instrument = None,\n')
+        else:
+            f.write('    instrument = %r,\n' % session.instrument.name)
+        if session.experiment is None:
+            f.write('    experiment = None,\n')
+        else:
+            f.write('    experiment = %r,\n' % session.experiment.name)
         f.write('    datasinks = %r,\n' % [s.name for s in session.datasinks])
         f.write(')\n\n')
         f.write('devices = dict(\n')
