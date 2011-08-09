@@ -61,7 +61,10 @@ class THM(Measurable):
 
     def doReset(self):
         if self._io is not None:
-            os.close(self._io)
+            try:
+                os.close(self._io)
+            except OSError:
+                pass
         self._io = os.open(self.device, os.O_RDWR)
         #fcntl.ioctl(self._io, USBTMC_IOCTL_RESET_CONF)
         ident = self._query('*IDN?')
@@ -73,7 +76,7 @@ class THM(Measurable):
             self._io = None
 
     def doStatus(self):
-        self._query('*IDN?')
+        #self._query('*IDN?')
         return status.OK, 'idle'
 
     def _query(self, q, t=5):
@@ -87,7 +90,7 @@ class THM(Measurable):
             return self._query(q, t-1)
         self._check_status()
 
-    def _execute(self, q, t=5):
+    def _execute(self, q, t=5, wait=0):
         try:
             os.write(self._io, q + '\n')
         except OSError, err:
@@ -95,6 +98,7 @@ class THM(Measurable):
                 raise CommunicationError(self, 'error executing: %s' % err)
             self.doReset()
             self._execute(q, t-1)
+        time.sleep(wait)
         self._check_status()
 
     def _check_status(self):
@@ -110,7 +114,7 @@ class THM(Measurable):
         """Zero the probe in zero-gauss chamber."""
         self.log.info('Zeroing sensor, please wait a few seconds...')
         try:
-            self._execute('CAL')
+            self._execute('CAL', wait=5)
         except OSError, err:
             if err.errno == 110:
                 return
