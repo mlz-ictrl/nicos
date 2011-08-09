@@ -37,6 +37,7 @@ import IO
 
 from nicos import status
 from nicos.taco import TacoDevice
+from nicos.utils import waitForStatus
 from nicos.device import Readable, Moveable, HasLimits, Param
 from nicos.errors import NicosError
 
@@ -60,8 +61,7 @@ class AnalogOutput(TacoDevice, HasLimits, Moveable):
         self._taco_guard(self._dev.write, value)
 
     def doWait(self):
-        while self.status()[0] == status.BUSY:
-            sleep(self.loopdelay)
+        waitForStatus(self, self.loopdelay)
 
 
 class DigitalInput(TacoDevice, Readable):

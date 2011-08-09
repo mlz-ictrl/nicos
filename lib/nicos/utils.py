@@ -47,10 +47,11 @@ import linecache
 import traceback
 import ConfigParser
 from os import path
+from time import sleep
 
+from nicos import status
 from nicos.errors import ConfigurationError, ProgrammingError, ModeError, \
      UsageError
-from nicos import status
 
 
 class Param(object):
@@ -781,6 +782,18 @@ def multiStatus(devices):
         if state > retstate:
             retstate = state
     return retstate, ', '.join(rettext)
+
+
+def waitForStatus(dev, delay=0.3, busystate=status.BUSY):
+    # XXX add a timeout?
+    while True:
+        st = dev.doStatus()
+        if st[0] == busystate:
+            sleep(delay)
+            # XXX add a breakpoint here?
+        else:
+            break
+    return st
 
 
 # parameter conversion functions

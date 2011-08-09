@@ -38,7 +38,9 @@ import TACOStates
 
 from nicos import status
 from nicos.taco import TacoDevice
+from nicos.utils import waitForStatus
 from nicos.abstract import Motor as BaseMotor
+
 
 class Motor(TacoDevice, BaseMotor):
     """TACO motor implementation class."""
@@ -49,8 +51,7 @@ class Motor(TacoDevice, BaseMotor):
         self._taco_guard(self._dev.start, target)
 
     def doWait(self):
-        while self.doStatus()[0] == status.BUSY:
-            sleep(0.3)
+        waitForStatus(self)
 
     def doSetPosition(self, target):
         self._taco_guard(self._dev.setpos, target)
