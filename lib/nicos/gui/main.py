@@ -69,7 +69,7 @@ except (ImportError, RuntimeError):
 
 
 class NicosGuiClient(NicosClient, QObject):
-    siglist = ['connected', 'disconnected', 'error'] + \
+    siglist = ['connected', 'disconnected', 'broken', 'failed', 'error'] + \
               NicosDaemon.daemon_events.keys()
 
     def __init__(self, parent):
@@ -125,6 +125,12 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
 
         self.actionLabel.hide()
         self.outView.setActionLabel(self.actionLabel)
+
+        # timer for reconnecting
+        self.reconnectTimer = QTimer()
+        self.reconnectTimer.setSingleShot(True)
+        self.connect(self.reconnectTimer, SIGNAL('timeout()'), self._reconnect)
+        self._reconnecting = False
 
         # local command queue
         self.scriptQueue = ScriptQueue(self.queueFrame, self.queueView)
@@ -219,6 +225,8 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
                                               QVariant(True)).toBool()
             self.showtrayicon = settings.value('showtrayicon',
                                                QVariant(True)).toBool()
+            self.autoreconnect = settings.value('autoreconnect',
+                                                QVariant(True)).toBool()
 
         self.restoreGeometry(geometry)
         self.mainSplitter.restoreState(mainsplitter)
@@ -367,7 +375,11 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         self.connectionData['login'] = str(authdlg.userName.text())
         self.client.connect(self.connectionData,
                             str(authdlg.password.text()))
+        self.lastpasswd = str(authdlg.password.text())
         self.commandInput.setFocus()
+
+    def _reconnect(self):
+        self.client.connect(self.connectionData, self.lastpasswd)
 
     @qtsig('')
     def on_actionConnectionData_triggered(self):
@@ -401,6 +413,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         dlg.horzLayout.setChecked(self.mainSplitter.orientation()
                                   == Qt.Horizontal)
         dlg.showTrayIcon.setChecked(self.showtrayicon)
+        dlg.autoReconnect.setChecked(self.autoreconnect)
         ret = dlg.exec_()
         if ret != QDialog.Accepted:
             return
@@ -408,6 +421,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         self.scriptpath = dlg.scriptpath.text()
         self.confirmexit = dlg.confirmExit.isChecked()
         self.showtrayicon = dlg.showTrayIcon.isChecked()
+        self.autoreconnect = dlg.autoReconnect.isChecked()
         self.mainSplitter.setOrientation(dlg.horzLayout.isChecked() and
                                          Qt.Horizontal or Qt.Vertical)
         self.topSplitter.setOrientation(dlg.horzLayout.isChecked() and
@@ -421,6 +435,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
             settings.setValue('scriptpath', QVariant(self.scriptpath))
             settings.setValue('confirmexit', QVariant(self.confirmexit))
             settings.setValue('showtrayicon', QVariant(self.showtrayicon))
+            settings.setValue('autoreconnect', QVariant(self.autoreconnect))
 
     @qtsig('')
     def on_actionUserEditor_triggered(self):
@@ -537,6 +552,7 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
 
     def on_client_connected(self):
         self.set_status('idle')
+        self._reconnecting = False
 
         # get all server status info
         allstatus = self.client.ask('getstatus')
@@ -600,6 +616,18 @@ class MainWindow(QMainWindow, HasTools, DlgUtils):
         else:
             self.errorWindow.errorText.setText(
                 self.errorWindow.errorText.text() + '\n' + problem)
+
+    def on_client_broken(self, problem):
+        self.on_client_error(problem)
+        if self.autoreconnect:
+            self._reconnecting = True
+            self.reconnectTimer.start(500)  # half a second
+
+    def on_client_failed(self, problem):
+        if not self._reconnecting:
+            self.on_client_error(problem)
+        elif self.autoreconnect:
+            self.reconnectTimer.start(500)
 
     def on_client_message(self, message):
         if message[-1] == '(sim) ':
