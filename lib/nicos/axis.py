@@ -349,8 +349,16 @@ class TacoAxis(TacoDevice, BaseAxis):
         self._taco_guard(self._dev.start, target + self.offset)
 
     def doWait(self):
-        while self.doStatus()[0] == status.BUSY:
-            sleep(0.1)
+        while True:
+            st = self.doStatus()
+            if st[0] == status.BUSY:
+                sleep(0.3)
+            else:
+                break
+        if st[0] == status.ERROR:
+            raise MoveError(self, st[1])
+        elif st[0] == status.NOTREACHED:
+            raise PositionError(self, st[1])
 
     def doRead(self):
         return self._taco_guard(self._dev.read) - self.offset
@@ -370,21 +378,23 @@ class TacoAxis(TacoDevice, BaseAxis):
             return (status.BUSY, 'moving')
         elif state == TACOStates.INIT:
             return (status.BUSY, 'referencing')
+        elif state == TACOStates.ALARM:
+            return (status.NOTREACHED, 'position not reached')
         else:
             return (status.ERROR, TACOStates.stateDescription(state))
 
     def doStop(self):
         self._taco_guard(self._dev.stop)
 
-    def _ref(self):
-        # reference the axis (do not use with encoded axes)
+    def reference(self):
+        """Do a reference drive of the axis (do not use with encoded axes)."""
         motorname = self._taco_guard(self._dev.deviceQueryResource, 'motor')
         client = TACOMotor(motorname)
         self.log.info('referencing the axis, please wait...')
         self._taco_guard(client.deviceReset)
         while self._taco_guard(client.deviceState) == TACOStates.INIT:
-            sleep(0.1)
-        self._taco_guard(self._dev.setPosition, self.refpos)
+            sleep(0.3)
+        self.setPosition(self.refpos)
         self.log.info('reference drive complete, position is now ' +
                        self.format(self.doRead()))
 
@@ -519,8 +529,11 @@ class HoveringAxis(TacoAxis):
         if state in (TACOStates.DEVICE_NORMAL, TACOStates.STOPPED,
                      TACOStates.TRIPPED):
             # TRIPPED means: both limit switches or inhibit active
+            # which is normal when air is switched off
             return (status.OK, 'idle')
         elif state in (TACOStates.MOVING, TACOStates.STOP_REQUESTED):
             return (status.BUSY, 'moving')
+        elif state == TACOStates.ALARM:
+            return (status.NOTREACHED, 'position not reached')
         else:
             return (status.ERROR, TACOStates.stateDescription(state))
