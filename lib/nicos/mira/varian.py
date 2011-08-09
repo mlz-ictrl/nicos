@@ -58,9 +58,9 @@ class VarianPump(TacoDevice, Readable):
         window = '%03d' % window
         msg = '\x02\x80%s%s\x03' % (window, '\x30' if read else '\x31')
         resp = self._taco_guard(self._dev.communicate, addcrc(msg))
-        if resp[:2] != '\x02\x80' or resp[2:5] != window or resp[-3] != '\x03':
+        if resp[:2] != '\x02\x80' or resp[2:5] != window:
             raise CommunicationError(self, 'invalid response %r' % resp)
-        return resp[5:-3]
+        return resp[5:]
 
     def doRead(self):
         return float(self._communicate(224))
