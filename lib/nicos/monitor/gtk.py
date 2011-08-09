@@ -61,7 +61,7 @@ class Monitor(BaseMonitor):
     def initGui(self):
         gtk.rc_parse_string('style "mystyle" { engine "pixmap" {} }\n'
                             'class "GtkWidget" style "mystyle"')
-        
+
         self.setLabelText = gtk.Label.set_text
 
         self._master = master = gtk.Window(gtk.WINDOW_TOPLEVEL)
@@ -120,6 +120,8 @@ class Monitor(BaseMonitor):
             lb.add(l)
             fieldlayout.add(lb)
             field['namelabel'] = l
+            if field['unit']:
+                self.setLabelUnitText(l, field['name'], field['unit'])
 
             lb = gtk.EventBox()
             lf = gtk.Frame()

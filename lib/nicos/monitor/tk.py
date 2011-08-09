@@ -117,6 +117,8 @@ class Monitor(BaseMonitor):
                       width=field['width'] + 2, textvariable=s)
             l.grid(row=0)
             l._var = s
+            if field['unit']:
+                self.setLabelUnitText(l, field['name'], field['unit'])
 
             # store references to Tk object for later modification
             field['namelabel'] = l

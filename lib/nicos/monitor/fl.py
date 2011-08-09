@@ -355,6 +355,9 @@ class Monitor(BaseMonitor):
             fieldwidget = Sm_Field(' ' + field['name'] + ' ',
                                    field['width'] * onechar, self._fontsize,
                                    field['istext'])
+            if field['unit']:
+                self.setLabelUnitText(fieldwidget._namelabel,
+                                      field['name'], field['unit'])
 
             field['namelabel'] = fieldwidget._namelabel
             field['valuelabel'] = fieldwidget._valuelabel

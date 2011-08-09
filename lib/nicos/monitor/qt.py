@@ -171,6 +171,8 @@ class Monitor(BaseMonitor):
             fieldlayout = QVBoxLayout()
             # now put describing label and view label into subframe
             l = QLabel(' ' + escape(field['name']) + ' ', groupframe)
+            if field['unit']:
+                self.setLabelUnitText(l, field['name'], field['unit'])
             l.setFont(labelfont)
             l.setAlignment(Qt.AlignHCenter)
             l.setAutoFillBackground(True)
