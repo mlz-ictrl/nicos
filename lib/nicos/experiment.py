@@ -201,10 +201,10 @@ class Experiment(Device):
 
     def _fillProposal(self, proposal):
         """Fill proposal info from proposal database."""
-        if not self._propdb:
+        if not self.propdb:
             return
         try:
-            info = queryProposal(self._propdb, proposal)
+            info = queryProposal(self.propdb, proposal)
         except Exception:
             self.log.warning('unable to query proposal info', exc=1)
             return
