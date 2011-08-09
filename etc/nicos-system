@@ -107,7 +107,9 @@ elif action == 'stop':
         kill_daemon(name)
 
 elif action == 'restart':
-    os.system('%s stop && sleep 1 && %s start' % (sys.argv[0], sys.argv[0]))
+    dmns = ' '.join(daemons)
+    os.system('%s stop %s && sleep 1 && %s start %s' % (
+        sys.argv[0], dmns, sys.argv[0], dmns))
 
 elif action == 'status':
     for name in daemons:
