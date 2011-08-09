@@ -39,14 +39,12 @@ from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QDialog, QPushButton
 from PyQt4.uic import loadUi
 
-from nicos.gui import custom
 from nicos.gui.tools.uitools import runDlgStandalone
 
 
 class CmdTool(QDialog):
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
-        custom.load_customization()
         loadUi(path.join(path.dirname(__file__), 'cmdtool.ui'), self)
 
         self.connect(self.closeBtn, SIGNAL('clicked()'), self.close)

@@ -44,7 +44,6 @@ from PyQt4.QtGui import QDialog, QListWidgetItem, QIntValidator, \
      QDoubleValidator, QRadioButton, QMessageBox, QProgressDialog
 from PyQt4.uic import loadUi
 
-from nicos.gui import custom
 from nicos.gui.tools.uitools import DlgPresets, runDlgStandalone, selectOutputFile
 
 def toint(ctl):
@@ -63,7 +62,6 @@ def tofloat(ctl):
 class ProposalInput(QDialog):
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
-        custom.load_customization()
         loadUi(path.join(path.dirname(__file__), 'proposal.ui'), self)
 
         self.connect(self.options, SIGNAL('itemClicked(QListWidgetItem*)'),
