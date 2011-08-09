@@ -258,7 +258,7 @@ def listparams(dev):
     devunit = getattr(dev, 'unit', '')
     items = []
     for name, info in sorted(dev.parameters.iteritems()):
-        if name.startswith('_'):
+        if not info.userparam:
             continue
         try:
             value = getattr(dev, name)
