@@ -28,4 +28,13 @@ devices = dict(
                       tacodevice = 'mira/axis/m2fv',
                       abslimits = (-360, 360),
                       fmtstr = '%.2f'),
+    PBe      = device('nicos.mira.varian.VarianPump',
+                      tacodevice = 'mira/network/rs10_3',
+                      fmtstr = '%.2g'),
+    TBe      = device('nicos.temperature.Sensor',
+                      description = 'Sensor D: Be Filter temperature',
+                      tacodevice = 'mira/ls340/d',
+                      pollinterval = 3,
+                      maxage = 5,
+                      fmtstr = '%.1f'),
 )

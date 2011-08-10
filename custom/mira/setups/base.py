@@ -1,93 +1,12 @@
-includes = ['system']#, 'lakeshore', 'cascade', 'detector']
+includes = ['system', 'slits', 'sample', 'reactor']
 
 devices = dict(
-    Sample   = device('nicos.tas.TASSample'),
-
-    mira     = device('nicos.tas.TAS',
-                      instrument = 'MIRA',
-                      responsible = 'Robert Georgii <robert.georgii@frm2.tum.de>',
-                      cell = 'Sample',
-                      phi = 't_phi',
-                      psi = 't_psi',
-                      mono = 't_mono',
-                      ana = 't_ana'
-                      ),
-
-    t_phi    = device('nicos.virtual.VirtualMotor',
-                      abslimits = (-180, 180), 
-                      initval = 0,
-                      speed = 1,
-                      jitter = 0.01,
-                      unit = 'deg'),
-
-    t_psi    = device('nicos.virtual.VirtualMotor',
-                      abslimits = (0, 360),
-                      initval = 0,
-                      speed = 2,
-                      jitter = 0.05,
-                      unit = 'deg'),
-
-    t_mono   = device('nicos.tas.Monochromator',
-                      unit = 'A-1',
-                      theta = 't_mth',
-                      twotheta = 't_mtt',
-                      focush = None,
-                      focusv = None,
-                      abslimits = (0, 10),
-                      dvalue = 3.325),
-
-    t_mth    = device('nicos.virtual.VirtualMotor',
-                      unit = 'deg',
-                      abslimits = (-180, 180),
-                      jitter = 0.02),
-
-    t_mtt    = device('nicos.virtual.VirtualMotor',
-                      unit = 'deg',
-                      abslimits = (-180, 180)),
-
-    t_ana    = device('nicos.tas.Monochromator',
-                      unit = 'A-1',
-                      theta = 't_ath',
-                      twotheta = 't_att',
-                      focush = None,
-                      focusv = None,
-                      reltheta = True,
-                      abslimits = (0, 10),
-                      dvalue = 3.325),
-
-    t_ath    = device('nicos.virtual.VirtualMotor',
-                      unit = 'deg',
-                      abslimits = (-180, 180),
-                      jitter = 0.02),
-
-    t_att    = device('nicos.virtual.VirtualMotor',
-                      unit = 'deg',
-                      abslimits = (-180, 180)),
-
-    t_ki     = device('nicos.tas.Wavevector',
-                      unit = 'A-1',
-                      base = 't_mono',
-                      tas = 'mira',
-                      scanmode = 'CKI',
-                      abslimits = (0, 10)),
-
-    t_kf     = device('nicos.tas.Wavevector',
-                      unit = 'A-1',
-                      base = 't_ana',
-                      tas = 'mira',
-                      scanmode = 'CKF',
-                      abslimits = (0, 10)),
-
     MonoToni = device('nicos.mira.toni.ModBus',
                       tacodevice = 'mira/rs232/monotoni',
                       tacolog = False,
                       loglevel = 'debug', 
                       lowlevel = True),
 
-#    LeckToni  = device('nicos.mira.toni.ModBus',
-#                       tacodevice = 'mira/rs232/lecktoni',
-#                       lowlevel = True),
-#
     atten1   = device('nicos.mira.toni.Valve',
                       bus = 'MonoToni',
                       addr = 241,
@@ -103,24 +22,26 @@ devices = dict(
                        addr = 241,
                        channel = 4,
                        states = ['in', 'out']),
-    FOLin     = device('nicos.mira.toni.Valve',
+    FOL       = device('nicos.mira.toni.Valve',
                        bus = 'MonoToni',
                        addr = 241,
                        channel = 0,
                        states = ['out', 'in']),
-    FlipperMira1in = device('nicos.mira.toni.Valve',
+    flip1     = device('nicos.mira.toni.Valve',
                        bus = 'MonoToni',
                        addr = 241,
                        channel = 3,
                        states = ['out', 'in']),
-    FlipperMira2in = device('nicos.mira.toni.Valve',
+    flip2     = device('nicos.mira.toni.Valve',
                        bus = 'MonoToni',
                        addr = 241,
                        channel = 3,
                        states = ['in', 'out']),
 
-
-
+#    LeckToni  = device('nicos.mira.toni.ModBus',
+#                       tacodevice = 'mira/rs232/lecktoni',
+#                       lowlevel = True),
+#
     # Leckmon   = device('nicos.mira.toni.Leckmon',
     #                    bus = 'LeckToni',
     #                    addr = 0x17,

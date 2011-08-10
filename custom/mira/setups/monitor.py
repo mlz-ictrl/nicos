@@ -62,6 +62,10 @@ _column1 = [
         [{'dev': 'amp3', 'name': 'amp3'},   {'dev': 'amp4', 'name': 'amp4'}],
         [{'dev': 'Crane', 'min': 10, 'width': 7}],
     ], 'mieze'),
+    ('Slits', [[{'dev': 's3', 'name': 'Slit 3', 'width': 24, 'istext': True}],
+               [{'dev': 's4', 'name': 'Slit 4', 'width': 24, 'istext': True}]],
+     'slits'),
+    ('X-Z table axes', [[{'dev': 'mx'}, {'dev': 'my'}]], 'gauss'),
 ]
 
 _column2 = [
@@ -83,8 +87,6 @@ _column2 = [
                 [{'dev': 'stx'}, {'dev': 'sty'}, {'dev': 'stz'}],
                 [{'dev': 'sgx'}, {'dev': 'sgy'}]],
      'sample'),
-    ('Third Axis', [[{'dev': 'ath'}, {'dev': 'att'}]],
-     'detector'),
     ('Sample environment', [
         [{'key': 't/setpoint', 'name': 'Setpoint', 'unitkey': 't/unit'},
          {'dev': 'TA', 'name': 'Sample'}, 'TB', 'TC'],
@@ -100,8 +102,8 @@ _column2 = [
 ]
 
 _column3 = [
-    ('MIRA1', [[{'dev': 'FOLin', 'name': 'FOL', 'width': 4},
-                {'dev': 'FlipperMira1in', 'name': 'Flip', 'width': 4}],
+    ('MIRA1', [[{'dev': 'FOL', 'name': 'FOL', 'width': 4},
+                {'dev': 'flip1', 'name': 'Flip', 'width': 4}],
                ['mth', 'mtt'],
                ['mtx', 'mty'],
                ['mgx', {'dev': 'mchanger', 'name': 'mch'}],],
@@ -110,14 +112,14 @@ _column3 = [
                ['m2tx', 'm2ty', 'm2gx'],
                ['m2fv', {'dev': 'atten1', 'name': 'Att1', 'width': 4},
                 {'dev': 'atten2', 'name': 'Att2', 'width': 4},
-                {'dev': 'FlipperMira2in', 'name': 'Flip', 'width': 4}],
+                {'dev': 'flip2', 'name': 'Flip', 'width': 4}],
                [{'dev': 'lamfilter', 'name': 'Be', 'width': 4},
-                {'dev': 'TD', 'name': 'Be Temp', 'width': 7, 'max': 50}],
+                {'dev': 'TBe', 'name': 'Be Temp', 'width': 6, 'max': 50},
+                {'dev': 'PBe', 'name': 'Be P', 'width': 7, 'max': 1e-5}],
               ],
      'mono2'),
-    ('Slits', [[{'dev': 's3', 'name': 'Slit 3', 'width': 24, 'istext': True}],
-               [{'dev': 's4', 'name': 'Slit 4', 'width': 24, 'istext': True}]],
-     'slits'),
+    ('Analyzer', [[{'dev': 'ath'}, {'dev': 'att'}]],
+     'detector'),
     ('Reactor', [
         [{'dev': 'Power', 'name': 'Power', 'min': 19, 'format': '%d', 'width': 7},
          {'dev': 'Sixfold', 'name': '6-fold', 'min': 'open', 'width': 7},

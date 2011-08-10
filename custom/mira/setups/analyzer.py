@@ -1,0 +1,14 @@
+name = 'analyzer table'
+
+devices = dict(
+    ath      = device('nicos.axis.TacoAxis',
+                      tacodevice = 'mira/axis/ath',
+                      abslimits = (90 - 90, 90 + 90),
+                      fmtstr = '%.3f',
+                      offset = 90.0),
+    att      = device('nicos.axis.TacoAxis',
+                      tacodevice = 'mira/axis/att',
+                      abslimits = (-90 - 135, -90 + 135),
+                      fmtstr = '%.2f',
+                      offset = -90.0),
+)

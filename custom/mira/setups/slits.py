@@ -21,6 +21,7 @@ devices = dict(
                        right = 's3r',
                        bottom = 's3b',
                        top = 's3t',
+                       opmode = 'offcentered',
                        pollinterval = 5,
                        maxage = 10),
 
@@ -46,6 +47,7 @@ devices = dict(
                        right = 's4r',
                        bottom = 's4b',
                        top = 's4t',
+                       opmode = 'offcentered',
                        pollinterval = 5,
                        maxage = 10),
 )

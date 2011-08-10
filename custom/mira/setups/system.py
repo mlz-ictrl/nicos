@@ -15,12 +15,18 @@ devices = dict(
                       subject = 'MIRA'),
 
     smser    = device('nicos.notify.SMSer',
-                      server='triton.admin.frm2'),
+                      server = 'triton.admin.frm2'),
 
     Exp      = device('nicos.mira.experiment.MiraExperiment',
                       sample = 'Sample',
                       datapath = ['/data/testdata'],
-                      _propdb = 'useroffice@tacodb.taco.frm2:useroffice'),
+                      propdb = 'useroffice@tacodb.taco.frm2:useroffice'),
+
+    Sample   = device('nicos.experiment.Sample'),
+
+    mira     = device('nicos.instrument.Instrument',
+                      instrument = 'MIRA',
+                      responsible = 'Robert Georgii <robert.georgii@frm2.tum.de>'),
 
     filesink = device('nicos.data.AsciiDatafileSink'),
 
