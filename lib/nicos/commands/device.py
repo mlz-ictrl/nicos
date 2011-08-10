@@ -269,6 +269,7 @@ def listparams(dev):
         if len(vstr) > 40:
             vstr = vstr[:37] + '...'
         settable = info.settable and 'yes' or 'no'
+        name = dev.name + '.' + name
         items.append((name, vstr, unit, settable, info.description))
     printTable(('name', 'value', 'unit', 'r/w?', 'description'),
                items, printinfo)
@@ -280,7 +281,7 @@ def listmethods(dev):
     items = []
     def _list(cls):
         for name, (args, doc) in sorted(cls.commands.iteritems()):
-            items.append((name + args, cls.__name__, doc))
+            items.append((dev.name + '.' + name + args, cls.__name__, doc))
         for base in cls.__bases__:
             if issubclass(base, Device):
                 _list(base)
