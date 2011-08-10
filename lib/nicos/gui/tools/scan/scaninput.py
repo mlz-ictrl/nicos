@@ -37,7 +37,6 @@ from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QDialog, QDoubleValidator, QIntValidator
 from PyQt4.uic import loadUi
 
-from nicos.gui import custom
 from nicos.gui.tools.uitools import DlgPresets, runDlgStandalone
 
 def toint(text):
@@ -65,7 +64,6 @@ class ScanInputDlg(QDialog):
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         loadUi(path.join(path.dirname(__file__), 'scan.ui'), self)
-        custom.load_customization()
 
         self.connect(self.pB_Command, SIGNAL('clicked()'), self.createCommand)
         self.connect(self.pB_Clear, SIGNAL('clicked()'), self.clearAll)

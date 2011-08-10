@@ -39,7 +39,7 @@ import TACOStates
 
 from nicos import status
 from nicos.taco import TacoDevice
-from nicos.utils import tupleof, any, usermethod
+from nicos.utils import tupleof, any, usermethod, waitForStatus
 from nicos.device import Moveable, HasOffset, Param, Override
 from nicos.errors import ConfigurationError, NicosError, PositionError
 from nicos.errors import ProgrammingError, MoveError, LimitError
@@ -164,10 +164,8 @@ class Axis(BaseAxis):
         """Waits until the movement of the motor has stopped and
         the target position has been reached.
         """
-        while self.doStatus()[0] == status.BUSY:
-            sleep(self.loopdelay)
-        else:
-            self.__checkErrorState()
+        waitForStatus(self, self.loopdelay)
+        self.__checkErrorState()
 
     def doWriteOffset(self, value):
         """Called on adjust(), overridden to forbid adjusting while moving."""
@@ -344,17 +342,10 @@ class TacoAxis(TacoDevice, BaseAxis):
     # used or queried at all by this class
 
     def doStart(self, target):
-        # TODO: stop axis if already moving
-        
         self._taco_guard(self._dev.start, target + self.offset)
 
     def doWait(self):
-        while True:
-            st = self.doStatus()
-            if st[0] == status.BUSY:
-                sleep(0.3)
-            else:
-                break
+        st = waitForStatus(self, 0.3)
         if st[0] == status.ERROR:
             raise MoveError(self, st[1])
         elif st[0] == status.NOTREACHED:
@@ -513,8 +504,7 @@ class HoveringAxis(TacoAxis):
 
     def __thread(self):
         sleep(0.1)
-        while self.doStatus()[0] == status.BUSY:
-            sleep(0.1)
+        waitForStatus(self, 0.2)
         sleep(self.stopdelay)
         try:
             self._adevs['switch'].move(self.switchvalues[0])

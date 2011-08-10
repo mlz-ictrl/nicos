@@ -108,11 +108,11 @@ class NicosClient(object):
             self.socket.connect((conndata['host'], conndata['port']))
         except socket.error, err:
             errno, msg = err.args
-            self.signal('error',
+            self.signal('failed',
                 self.tr('Server control connection failed: %1.').arg(msg), err)
             return
         except Exception, err:
-            self.signal('error',
+            self.signal('failed',
                 self.tr('Server control connection failed: %1.').arg(str(err)), err)
             return
 
@@ -129,7 +129,7 @@ class NicosClient(object):
             self.event_socket.connect((conndata['host'], conndata['port']))
         except socket.error, err:
             errno, msg = err.args
-            self.signal('error',
+            self.signal('failed',
                 self.tr('Server connection failed: %1.').arg(msg), err)
             return
 
@@ -153,7 +153,8 @@ class NicosClient(object):
                 length = recv(4)
                 if len(length) != 4:
                     if not self.disconnecting:
-                        self.signal('error', self.tr('Server connection broken.'))
+                        self.signal('broken',
+                                    self.tr('Server connection broken.'))
                         self._close()
                     return
                 length, = LENGTH.unpack(length)
@@ -178,7 +179,8 @@ class NicosClient(object):
                     read = recvinto(buf[got:], length - got)
                     if not read:
                         if not self.disconnecting:
-                            self.signal('error', self.tr('Server connection broken.'))
+                            self.signal('broken',
+                                        self.tr('Server connection broken.'))
                             self._close()
                         return
                     got += read
@@ -232,7 +234,7 @@ class NicosClient(object):
                 msg = self.tr('Server connection broken: %1.').arg(err.args[1])
             else:
                 msg = self.tr('Exception occurred: %1.').arg(str(err))
-            self.signal('error', msg, err)
+            self.signal('broken', msg, err)
             self._close()
 
     def _write(self, strings):

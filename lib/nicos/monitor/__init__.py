@@ -31,9 +31,15 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import os
 import re
+import sys
+import time
+import threading
+from os import path
 from time import sleep, strftime, time as currenttime
 
+from nicos import session
 from nicos.utils import listof
 from nicos.device import Param
 from nicos.notify import Notifier
@@ -151,6 +157,11 @@ class Monitor(BaseCacheClient):
         # time when warnings were last shown/hidden?
         self._warningswitchtime = 0
 
+        # start a thread checking for modification of the setup file
+        checker = threading.Thread(target=self._checker)
+        checker.setDaemon(True)
+        checker.start()
+
         for warning in self.warnings:
             try:
                 key, cond, desc, setup = warning
@@ -173,6 +184,17 @@ class Monitor(BaseCacheClient):
         except KeyboardInterrupt:
             pass
         self._stoprequest = True
+
+    def _checker(self):
+        fn = path.join(session.getSetupPath(), 'monitor.py')
+        if not path.isfile(fn):
+            return
+        mtime = path.getmtime(fn)
+        while True:
+            if path.getmtime(fn) != mtime:
+                os.execv(sys.executable, [sys.executable] + sys.argv)
+                return
+            time.sleep(1)
 
     def wait(self):
         self.log.info('monitor quitting')

@@ -39,6 +39,7 @@ from PowerSupply import CurrentControl, VoltageControl
 
 from nicos import status
 from nicos.taco import TacoDevice
+from nicos.utils import waitForStatus
 from nicos.device import Moveable, HasOffset, HasLimits, Param
 from nicos.errors import MoveError, NicosError
 
@@ -99,17 +100,9 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
             return status.ERROR, TACOStates.stateDescription(state)
 
     def doWait(self):
-        errors = 0
-        while True:
-            st, msg = self.doStatus()
-            if st == status.OK:
-                return
-            elif st == status.ERROR:
-                errors += 1
-                if errors == 5:
-                    raise MoveError(self, 'wait failed, device in error state')
-                self.doReset()
-            sleep(0.5)
+        st = waitForStatus(self, 0.5)
+        if st[0] == status.ERROR:
+            raise MoveError(self, 'wait failed, device in error state')
 
 
 class CurrentSupply(Supply):

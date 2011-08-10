@@ -35,6 +35,7 @@ from IO import StringIO
 
 from nicos import status
 from nicos.taco import TacoDevice
+from nicos.utils import bitDescription
 from nicos.device import Readable, Override
 from nicos.errors import CommunicationError
 
@@ -75,13 +76,13 @@ class VarianPump(TacoDevice, Readable):
         stval = {0: status.ERROR, 1: status.BUSY, 2: status.BUSY,
                  3: status.OK, 4: status.BUSY, 5: status.OK, 6: status.ERROR
                  }[stcode]
-        errtext = []
-        # XXX make this a utility function
-        if errorcode & 1: errtext.append('no connection')
-        if errorcode & 2: errtext.append('pump overtemperature')
-        if errorcode & 4: errtext.append('controller overtemperature')
-        if errorcode & 32: errtext.append('overvoltage')
-        if errorcode & 64: errtext.append('short circuit')
-        if errorcode & 128: errtext.append('too high load')
+        errtext = bitDescription(errorcode,
+            (0, 'no connection'),
+            (1, 'pump overtemperature'),
+            (2, 'controller overtemperature'),
+            (5, 'overvoltage'),
+            (6, 'short circuit'),
+            (7, 'too high load')
+        )
         return stval, 'status: %s, error: %s, frequency: %s' % \
-               (sttext, ', '.join(errtext or ['none']), frequency)
+               (sttext, errtext or 'none', frequency)

@@ -62,6 +62,8 @@ class ESSController(AnalogOutput):
         if self._mode != 'simulation':
             self._dev.setRamp(0)
 
+    # XXX make it parallel moving!
+
     def doStart(self, value):
         delay = self.rampdelay
         if value != 0:

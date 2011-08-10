@@ -95,6 +95,8 @@ def queryProposal(credentials, pnumber):
     """
     if not isinstance(pnumber, (int, long)):
         raise UsageError('proposal number must be an integer')
+    if session.instrument is None:
+        raise UsageError('cannot query proposals, no instrument configured')
     with ProposalDB(credentials) as cur:
         # get proposal title and properties
         cur.execute('''
@@ -201,10 +203,10 @@ class Experiment(Device):
 
     def _fillProposal(self, proposal):
         """Fill proposal info from proposal database."""
-        if not self._propdb:
+        if not self.propdb:
             return
         try:
-            info = queryProposal(self._propdb, proposal)
+            info = queryProposal(self.propdb, proposal)
         except Exception:
             self.log.warning('unable to query proposal info', exc=1)
             return

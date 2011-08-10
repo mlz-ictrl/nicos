@@ -243,6 +243,9 @@ class Session(object):
         self._setup_path = path
         self.readSetups()
 
+    def getSetupPath(self):
+        return self._setup_path
+
     def readSetups(self):
         """Read information of all existing setups.
 

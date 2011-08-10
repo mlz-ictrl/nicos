@@ -168,7 +168,7 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
     """IPC protocol communication over TACO RS-485 server."""
 
     taco_class = RS485Client
-    
+
     parameters = {
         'maxtries': Param('Number of tries for sending and receiving',
                           type=int, default=3, settable=True),
