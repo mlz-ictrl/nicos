@@ -37,7 +37,7 @@ from nicos import session, status
 from nicos.utils import Repeater
 from nicos.errors import NicosError, LimitError, FixedError, UsageError
 from nicos.device import Readable
-from nicos.commands.output import log.warning
+from nicos.commands.output import printwarning
 from nicos.commands.measure import _count
 
 
@@ -67,7 +67,7 @@ class Scan(object):
         if not detlist:
             detlist = session.experiment.detectors
         if not detlist:
-            log.warning('Scanning without detector, use SetDetectors() '
+            printwarning('Scanning without detector, use SetDetectors() '
                          'to select which detector(s) you want to use')
         if envlist is None:
             envlist = session.experiment.sampleenv
@@ -163,7 +163,7 @@ class Scan(object):
         point.  If the scan should be aborted, the exception is reraised.
         """
         if isinstance(err, LimitError):
-            log.warning('Skipping data point', exc=1)
+            printwarning('Skipping data point', exc=1)
             return False
         elif isinstance(err, FixedError):
             raise
