@@ -232,10 +232,10 @@ class IPCModBusTCP(IPCModBus):
         response = ''
         try:
             self._connection.sendall(request)
-            self.printdebug('request sent')
+            self.log.debug('request sent')
 
             for i in range(self.commtries):
-                self.printdebug('waiting for responce, try %d/%d'%(i,self.commtries))
+                self.log.debug('waiting for responce, try %d/%d'%(i,self.commtries))
                 p = select.select([self._connection], [], [self._connection],
                                   self.roundtime)
                 if self._connection in p[0]:
@@ -250,7 +250,7 @@ class IPCModBusTCP(IPCModBus):
                 raise CommunicationError(
                     self, 'tcp connection failed: %s' % err)
             # try reopening connection
-            self.printwarning('tcp connection failed, retrying', exc=1)
+            self.log.warning('tcp connection failed, retrying', exc=1)
             self.doReset()
             return self._transmit(request, last_try=True)
         else:
@@ -260,11 +260,11 @@ class IPCModBusTCP(IPCModBus):
         if not ping:
             request += crc_ipc(request)
         request = STX + request + EOT
-        self.printdebug('sending %r' % convert( request ))
+        self.log.debug('sending %r' % convert( request ))
         with self._lock:
             response = self._transmit(request)
         # now check data
-        self.printdebug('received %r' % convert( response ))
+        self.log.debug('received %r' % convert( response ))
         if response == ACK:
             return 0
         elif response == NAK:
@@ -319,7 +319,7 @@ class IPCModBusTCP(IPCModBus):
         s = chr(addr) + chr(cmd)
         if len > 0:
             s += '%0*d' % (len, param)
-        self.printdebug('sending %s to card %s' % (cmdname, addr))
+        self.log.debug('sending %s to card %s' % (cmdname, addr))
         return self._comm(s)
 
     def get(self, addr, cmd, param=0, len=0):
@@ -360,7 +360,7 @@ class IPCModBusSerial(IPCModBusTCP):
             if last_try:
                 raise CommunicationError(self, 'serial line failed: %s' % err)
             # try reopening connection
-            self.printwarning('serial line failed, resetting', exc=1)
+            self.log.warning('serial line failed, resetting', exc=1)
             self.doReset()
             return self._transmit(request, last_try=True)
         else:
@@ -424,7 +424,7 @@ class Coder(NicosCoder):
             sleep(1)
             # try again
             value = bus.get(self.addr, 150)
-        self.printdebug('value is %d' % value)
+        self.log.debug('value is %d' % value)
         return self._fromsteps(value)
 
     def doStatus(self):
@@ -636,11 +636,11 @@ class Motor(NicosMotor):
 
     def doStart(self, target):
         target = self._tosteps(target)
-        self.printdebug('target is %d' % target)
+        self.log.debug('target is %d' % target)
         bus = self._adevs['bus']
         self.doWait()
         pos = self._tosteps(self.doRead())
-        self.printdebug('pos is %d' % pos)
+        self.log.debug('pos is %d' % pos)
         diff = target - pos
         if diff == 0:
             return
@@ -687,7 +687,7 @@ class Motor(NicosMotor):
 
     def doRead(self):
         value = self._adevs['bus'].get(self.addr, 130)
-        self.printdebug('value is %d' % value)
+        self.log.debug('value is %d' % value)
         return self._fromsteps(value)
 
     def doReadRelay(self):
@@ -766,7 +766,7 @@ class Motor(NicosMotor):
         return statusvalue, msg[2:]
 
     def doSetPosition(self, target):
-        self.printdebug('setPosition: %s' % target)
+        self.log.debug('setPosition: %s' % target)
         steps = self._adevs['bus'].get(self.addr, 130)
         self.offset = steps - target * self.slope
 
