@@ -85,7 +85,8 @@ def usercommandWrapper(func):
 def importAllCommands(module):
     mod = __import__(module, None, None, ['*'])
     for name, command in mod.__dict__.iteritems():
-        if getattr(command, 'is_usercommand', False):
+        if getattr(command, 'is_usercommand', False) or \
+           getattr(command, 'is_userobject', False):
             globals()[name] = command
 
 #importAllCommands('nicos.commands.basic')

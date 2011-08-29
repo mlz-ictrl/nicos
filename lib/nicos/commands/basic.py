@@ -470,3 +470,14 @@ def _trace():
         printinfo(''.join(traceback.format_exception(*session._lastUnhandled)))
     else:
         printinfo('No previous traceback.')
+
+
+class timer(object):
+    is_userobject = True
+    def __enter__(self):
+        self.starttime = time.time()
+    def __exit__(self, *args):
+        duration = time.time() - self.starttime
+        printinfo('Elapsed time: %.3f s' % duration)
+
+timer = timer()

@@ -327,6 +327,8 @@ class Session(object):
             for name, command in mod.__dict__.iteritems():
                 if getattr(command, 'is_usercommand', False):
                     self.export(name, usercommandWrapper(command))
+                elif getattr(command, 'is_userobject', False):
+                    self.export(name, command)
 
         def inner_load(name):
             if name in self.loaded_setups:
