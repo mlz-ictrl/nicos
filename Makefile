@@ -4,7 +4,7 @@ RCC = pyrcc4
 PYTHON = /usr/bin/python
 
 all: lib/nicos/gui/gui_rc.py cascade
-	$(PYTHON) setup.py build
+	$(PYTHON) setup.py build -e "/usr/bin/env python"
 
 lib/nicos/gui/gui_rc.py: resources/nicos-gui.qrc
 	$(RCC) -o lib/nicos/gui/gui_rc.py resources/nicos-gui.qrc

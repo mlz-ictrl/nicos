@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # Module:
-#   $Id$
+#   $Id: axis.py 606 2011-05-12 18:16:38Z gbrandl $
 #
 # Author:
 #   Jens Krüger <jens.krueger@frm2.tum.de>
@@ -39,7 +39,7 @@ import TACOStates
 
 from nicos import status
 from nicos.taco import TacoDevice
-from nicos.utils import tupleof, any, usermethod, waitForStatus
+from nicos.utils import tupleof, any
 from nicos.device import Moveable, HasOffset, Param, Override
 from nicos.errors import ConfigurationError, NicosError, PositionError
 from nicos.errors import ProgrammingError, MoveError, LimitError
@@ -72,10 +72,11 @@ class Axis(BaseAxis):
                                      ' (%s vs %s)' % (self._adevs['motor'].unit,
                                                       self._adevs['coder'].unit))
         # Check that all observers have the same unit as the motor
-        for ob in self._adevs['obs']:
-            if self._adevs['motor'].unit != ob.unit:
-                raise ConfigurationError(self, 'different units for motor '
-                                         'and observer %s' % ob)
+        if self._adevs['obs']!=None:
+            for ob in self._adevs['obs']:
+                if self._adevs['motor'].unit != ob.unit:
+                    raise ConfigurationError(self, 'different units for motor '
+                                             'and observer %s' % ob)
 
         self.__error = 0
         self.__thread = None
@@ -164,8 +165,10 @@ class Axis(BaseAxis):
         """Waits until the movement of the motor has stopped and
         the target position has been reached.
         """
-        waitForStatus(self, self.loopdelay)
-        self.__checkErrorState()
+        while self.doStatus()[0] == status.BUSY:
+            sleep(self.loopdelay)
+        else:
+            self.__checkErrorState()
 
     def doWriteOffset(self, value):
         """Called on adjust(), overridden to forbid adjusting while moving."""
@@ -215,6 +218,12 @@ class Axis(BaseAxis):
                                        self.__error)
 
     def __read(self):
+        obs=self._adevs['obs']
+        if obs:
+            for o in obs:
+                o.read()
+        for o in [self._adevs['motor'],self._adevs['coder']]:
+            o.read()
         return self._adevs['coder'].doRead() - self.offset
 
     def __checkDragerror(self):
@@ -226,9 +235,10 @@ class Axis(BaseAxis):
             return True
         ok = diff <= maxdiff
         if ok:
-            for i in self._adevs['obs']:
-                diff = abs(self._adevs['motor'].doRead() - i.doRead())
-                ok = ok and (diff <= maxdiff)
+            if self._adevs['obs']:
+                for i in self._adevs['obs']:
+                    diff = abs(self._adevs['motor'].doRead() - i.doRead())
+                    ok = ok and (diff <= maxdiff)
         if not ok:
             self.__error = 1
         return ok
@@ -238,10 +248,11 @@ class Axis(BaseAxis):
         maxdiff = self.dragerror
         ok = diff <= self.precision
         if ok:
-            for i in self._adevs['obs']:
-                diff = abs(target - i.doRead())
-                if maxdiff > 0:
-                    ok = ok and (diff <= maxdiff)
+            if self._adevs['obs']:
+                for i in self._adevs['obs']:
+                    diff = abs(target - i.doRead())
+                    if maxdiff > 0:
+                        ok = ok and (diff <= maxdiff)
         if not ok:
             self.__error = error
         return ok
@@ -342,14 +353,13 @@ class TacoAxis(TacoDevice, BaseAxis):
     # used or queried at all by this class
 
     def doStart(self, target):
+        # TODO: stop axis if already moving
+        
         self._taco_guard(self._dev.start, target + self.offset)
 
     def doWait(self):
-        st = waitForStatus(self, 0.3)
-        if st[0] == status.ERROR:
-            raise MoveError(self, st[1])
-        elif st[0] == status.NOTREACHED:
-            raise PositionError(self, st[1])
+        while self.doStatus()[0] == status.BUSY:
+            sleep(0.1)
 
     def doRead(self):
         return self._taco_guard(self._dev.read) - self.offset
@@ -369,26 +379,21 @@ class TacoAxis(TacoDevice, BaseAxis):
             return (status.BUSY, 'moving')
         elif state == TACOStates.INIT:
             return (status.BUSY, 'referencing')
-        elif state == TACOStates.ALARM:
-            return (status.NOTREACHED, 'position not reached')
         else:
             return (status.ERROR, TACOStates.stateDescription(state))
 
     def doStop(self):
         self._taco_guard(self._dev.stop)
 
-    @usermethod
-    def reference(self):
-        """Do a reference drive of the axis (do not use with encoded axes)."""
+    def _ref(self):
+        # reference the axis (do not use with encoded axes)
         motorname = self._taco_guard(self._dev.deviceQueryResource, 'motor')
         client = TACOMotor(motorname)
-        self.log.info('referencing the axis, please wait...')
+        self.printinfo('referencing the axis, please wait...')
         self._taco_guard(client.deviceReset)
         while self._taco_guard(client.deviceState) == TACOStates.INIT:
-            sleep(0.3)
-        self._taco_guard(client.deviceOn)
-        self.setPosition(self.refpos)
-        self.log.info('reference drive complete, position is now ' +
+            sleep(0.1)
+        self.printinfo('reference drive complete, position is now ' +
                        self.format(self.doRead()))
 
     def doReadSpeed(self):
@@ -494,8 +499,6 @@ class HoveringAxis(TacoAxis):
     def doStart(self, target):
         if self._poll_thread:
             raise NicosError(self, 'axis is already moving')
-        if abs(target - self.read()) < self.precision:
-            return
         self._adevs['switch'].move(self.switchvalues[1])
         sleep(self.startdelay)
         TacoAxis.doStart(self, target)
@@ -505,7 +508,8 @@ class HoveringAxis(TacoAxis):
 
     def __thread(self):
         sleep(0.1)
-        waitForStatus(self, 0.2)
+        while self.doStatus()[0] == status.BUSY:
+            sleep(0.1)
         sleep(self.stopdelay)
         try:
             self._adevs['switch'].move(self.switchvalues[0])
@@ -521,11 +525,8 @@ class HoveringAxis(TacoAxis):
         if state in (TACOStates.DEVICE_NORMAL, TACOStates.STOPPED,
                      TACOStates.TRIPPED):
             # TRIPPED means: both limit switches or inhibit active
-            # which is normal when air is switched off
             return (status.OK, 'idle')
         elif state in (TACOStates.MOVING, TACOStates.STOP_REQUESTED):
             return (status.BUSY, 'moving')
-        elif state == TACOStates.ALARM:
-            return (status.NOTREACHED, 'position not reached')
         else:
             return (status.ERROR, TACOStates.stateDescription(state))
