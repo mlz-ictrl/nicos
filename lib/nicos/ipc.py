@@ -40,8 +40,8 @@ from RS485Client import RS485Client
 
 from nicos import status
 from nicos.taco import TacoDevice
-from nicos.utils import intrange, floatrange, oneofdict, closeSocket, Override
-from nicos.device import Device, Readable, Moveable, Param
+from nicos.utils import intrange, floatrange, oneofdict, closeSocket
+from nicos.device import Device, Readable, Moveable, Param, Override
 from nicos.errors import NicosError, CommunicationError, ProgrammingError, \
     UsageError
 from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
@@ -55,15 +55,18 @@ DC1 = chr(0x11)
 DC2 = chr(0x12)
 DC3 = chr(0x13)
 
-def convert( string ):
-    PRINTABLES={STX:'<STX>', EOT:'<EOT>', ACK:'<ACK>', NAK:'<NAK>', DC1:'<DC1>', DC2:'<DC2>', DC3:'<DC3>'}
-    result=[]
-    for i in range(len(string)):
-        c=string[i]
-        if c in [STX,EOT,ACK,NAK,DC1,DC2,DC3]:
-            c=PRINTABLES[c]
-        result.append(c)
-    return ''.join( result )
+PRINTABLES = {
+    STX: '<STX>',
+    EOT: '<EOT>',
+    ACK: '<ACK>',
+    NAK: '<NAK>',
+    DC1: '<DC1>',
+    DC2: '<DC2>',
+    DC3: '<DC3>',
+}
+
+def convert(string):
+    return ''.join(PRINTABLES.get(c, c) for c in string)
 
 IPC_MAGIC = {
     # motor cards
@@ -178,7 +181,7 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
     """IPC protocol communication over TACO RS-485 server."""
 
     taco_class = RS485Client
-    
+
     parameters = {
         'maxtries': Param('Number of tries for sending and receiving',
                           type=int, default=3, settable=True),
@@ -196,10 +199,8 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
         return self._taco_multitry('ping', self.maxtries, self._dev.Ping, addr)
 
 
-class IPCModBusTCP(IPCModBus):
-    """IPC protocol communication bus over network to serial adapter
-    using TCP connection.
-    """
+class IPCModBusTacoless(IPCModBus):
+    """Base class for IPC connections not using the RS485 TACO server."""
 
     parameters = {
         'commtries': Param('Number of tries for sending and receiving',
@@ -207,10 +208,6 @@ class IPCModBusTCP(IPCModBus):
         'roundtime': Param('Maximum time to wait for an answer, set '
                            'this high to slow down everything',
                            type=float, default=0.1, settable=True),
-        'host':      Param('Hostname (or IP) of network2serial converter',
-                           type=str, settable=True, mandatory=True),
-        'port':      Param('TCP Port on network2serial converter',
-                           type=int, default=4001),
     }
 
     def doInit(self):
@@ -219,53 +216,20 @@ class IPCModBusTCP(IPCModBus):
         try:
             self.doReset()
         except Exception:
-            self.printexception()
-
-    def doReset(self):
-        if self._connection:
-            closeSocket(self._connection)
-        self._connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._connection.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self._connection.connect((self.host, self.port))
-
-    def _transmit(self, request, last_try=False):
-        response = ''
-        try:
-            self._connection.sendall(request)
-            self.log.debug('request sent')
-
-            for i in range(self.commtries):
-                self.log.debug('waiting for responce, try %d/%d'%(i,self.commtries))
-                p = select.select([self._connection], [], [self._connection],
-                                  self.roundtime)
-                if self._connection in p[0]:
-                    data = self._connection.recv(20)  # more than enough!
-                    if not data:
-                        raise CommunicationError(self, 'no reply from recv')
-                    response += data
-                    if response[-1] in (EOT, DC1, DC2, DC3, ACK, NAK):
-                        return response
-        except (socket.error, select.error), err:
-            if last_try:
-                raise CommunicationError(
-                    self, 'tcp connection failed: %s' % err)
-            # try reopening connection
-            self.log.warning('tcp connection failed, retrying', exc=1)
-            self.doReset()
-            return self._transmit(request, last_try=True)
-        else:
-            return response
+            self.log.exception()
 
     def _comm(self, request, ping=False):
         if not ping:
             request += crc_ipc(request)
         request = STX + request + EOT
-        self.log.debug('sending %r' % convert( request ))
+        self.log.debug('sending %r' % convert(request))
         with self._lock:
             response = self._transmit(request)
         # now check data
-        self.log.debug('received %r' % convert( response ))
-        if response == ACK:
+        self.log.debug('received %r' % convert(response))
+        if not response:
+            raise CommunicationError(self, 'no response')
+        elif response == ACK:
             return 0
         elif response == NAK:
             if ping:
@@ -290,10 +254,11 @@ class IPCModBusTCP(IPCModBus):
                     raise CommunicationError(self, 'wrong CRC on response')
             # return response integer (excluding address and command number)
             try:
-                return int(response[2:-3])      # command might fail if no value was transmitted
-            except ValueError,err:
+                # command might fail if no value was transmitted
+                return int(response[2:-3])
+            except ValueError, err:
                 raise CommunicationError(
-                    self, 'invalid responce: missing value (%s)' % err)
+                    self, 'invalid response: missing value (%s)' % err)
 
     def ping(self, addr):
         if 32 <= addr <= 255:
@@ -326,9 +291,64 @@ class IPCModBusTCP(IPCModBus):
         return self.send(addr, cmd, param, len)
 
 
-class IPCModBusSerial(IPCModBusTCP):
+class IPCModBusTCP(IPCModBusTacoless):
+    """IPC protocol communication bus over network to serial adapter
+    using TCP connection.
+    """
+
+    parameters = {
+        'host':      Param('Hostname (or IP) of network2serial converter',
+                           type=str, settable=True, mandatory=True),
+        'port':      Param('TCP Port on network2serial converter',
+                           type=int, default=4001),
+    }
+
+    def doReset(self):
+        if self._connection:
+            closeSocket(self._connection)
+        self._connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._connection.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self._connection.connect((self.host, self.port))
+
+    def _transmit(self, request, last_try=False):
+        response = ''
+        try:
+            self._connection.sendall(request)
+            self.log.debug('request sent')
+
+            for i in range(self.commtries):
+                self.log.debug('waiting for response, try %d/%d' %
+                               (i, self.commtries))
+                p = select.select([self._connection], [], [self._connection],
+                                  self.roundtime)
+                if self._connection in p[0]:
+                    data = self._connection.recv(20)  # more than enough!
+                    if not data:
+                        raise CommunicationError(self, 'no reply from recv')
+                    response += data
+                    if response[-1] in (EOT, DC1, DC2, DC3, ACK, NAK):
+                        return response
+        except (socket.error, select.error), err:
+            if last_try:
+                raise CommunicationError(
+                    self, 'tcp connection failed: %s' % err)
+            # try reopening connection
+            self.log.warning('tcp connection failed, retrying', exc=1)
+            self.doReset()
+            return self._transmit(request, last_try=True)
+        else:
+            return response
+
+
+class IPCModBusSerial(IPCModBusTacoless):
     """IPC protocol communication directly over serial line."""
-    _connection=None
+
+    parameters = {
+        'port': Param('Device file name of the serial port to use',
+                      type=str, settable=True, mandatory=True),
+    }
+
+    _connection = None
 
     def doReset(self):
         if self._connection:
@@ -337,7 +357,7 @@ class IPCModBusSerial(IPCModBusTCP):
             except Exception:
                 pass
         import serial
-        self._connection = serial.Serial(self.host, baudrate=19200,
+        self._connection = serial.Serial(self.port, baudrate=19200,
                                          timeout=self.roundtime)
 
     def doUpdateRoundtime(self, value):
@@ -351,11 +371,9 @@ class IPCModBusSerial(IPCModBusTCP):
 
             for i in range(self.commtries):
                 data = self._connection.read(20)
-                #if not data:
-                #    raise CommunicationError(self, 'no reply from read')
                 response += data
-                if request[-1] in (EOT, DC1, DC2, DC3, ACK, NAK):
-                    return request
+                if response and response[-1] in (EOT, DC1, DC2, DC3, ACK, NAK):
+                    return response
         except IOError, err:
             if last_try:
                 raise CommunicationError(self, 'serial line failed: %s' % err)
@@ -384,6 +402,7 @@ class Coder(NicosCoder):
     def doInit(self):
         bus = self._adevs['bus']
         bus.ping(self.addr)
+        self._lasterror = None
 
     def doVersion(self):
         version = self._adevs['bus'].get(self.addr, 151)
@@ -418,17 +437,24 @@ class Coder(NicosCoder):
     def doRead(self):
         bus = self._adevs['bus']
         try:
-            value = bus.get(self.addr, 150)
-        except NicosError:
-            self._endatclearalarm()
-            sleep(1)
-            # try again
-            value = bus.get(self.addr, 150)
+            try:
+                value = bus.get(self.addr, 150)
+            except NicosError:
+                self._endatclearalarm()
+                sleep(1)
+                # try again
+                value = bus.get(self.addr, 150)
+        except NicosError, e:
+            # record last error to return it from doStatus()
+            self._lasterror = str(e)
+            raise
         self.log.debug('value is %d' % value)
         return self._fromsteps(value)
 
     def doStatus(self):
-        return status.OK, 'no status readout'
+        if self._lasterror:
+            return status.ERROR, self._lasterror
+        return status.OK, 'idle'
 
     def doSetPosition(self, target):
         raise NicosError('setPosition not implemented for IPC coders')
@@ -478,7 +504,8 @@ class Motor(NicosMotor):
         'divider': Param('Frequency divider', type=intrange(1, 8),
                          settable=True),
         'microsteps': Param('Microsteps', type=intrange(0, 5), settable=True),
-	'relay' : Param('Relay', type=oneofdict({0:'off',1:'on'}), settable=True, default='off'),
+        'relay' : Param('Relay', type=oneofdict({0: 'off', 1: 'on'}),
+                        settable=True, default='off', volatile=True),
     }
 
     attached_devices = {
@@ -523,8 +550,8 @@ class Motor(NicosMotor):
 
     def doWriteAccel(self, value):
         self._adevs['bus'].send(self.addr, 42, value, 3)
-        self.printinfo('parameter change not permanent, use _store() '
-                       'method to write to EEPROM')
+        self.log.info('parameter change not permanent, use _store() '
+                      'method to write to EEPROM')
 
     def doReadRamptype(self):
         try:
@@ -537,8 +564,8 @@ class Motor(NicosMotor):
             self._adevs['bus'].send(self.addr, 50, value, 3)
         except InvalidCommandError:
             raise UsageError(self, 'ramp type not supported by card')
-        self.printinfo('parameter change not permanent, use _store() '
-                       'method to write to EEPROM')
+        self.log.info('parameter change not permanent, use _store() '
+                      'method to write to EEPROM')
 
     def doReadDivider(self):
         try:
@@ -551,8 +578,8 @@ class Motor(NicosMotor):
             self._adevs['bus'].send(self.addr, 60, value, 3)
         except InvalidCommandError:
             raise UsageError(self, 'divider not supported by card')
-        self.printinfo('parameter change not permanent, use _store() '
-                       'method to write to EEPROM')
+        self.log.info('parameter change not permanent, use _store() '
+                      'method to write to EEPROM')
 
     def doReadMicrosteps(self):
         try:
@@ -565,8 +592,8 @@ class Motor(NicosMotor):
             self._adevs['bus'].send(self.addr, 57, value, 3)
         except InvalidCommandError:
             raise UsageError(self, 'microsteps not supported by card')
-        self.printinfo('parameter change not permanent, use _store() '
-                       'method to write to EEPROM')
+        self.log.info('parameter change not permanent, use _store() '
+                      'method to write to EEPROM')
 
     def doReadMax(self):
         return self._adevs['bus'].get(self.addr, 131)
@@ -594,8 +621,8 @@ class Motor(NicosMotor):
             self._adevs['bus'].send(self.addr, 49, value, 3)
         except InvalidCommandError:
             raise UsageError(self, 'confbyte not supported by card')
-        self.printinfo('parameter change not permanent, use _store() '
-                       'method to write to EEPROM')
+        self.log.info('parameter change not permanent, use _store() '
+                      'method to write to EEPROM')
 
     def doReadStartdelay(self):
         if self.firmware > 40:
@@ -611,8 +638,8 @@ class Motor(NicosMotor):
             self._adevs['bus'].send(self.addr, 55, int(value * 10), 3)
         except InvalidCommandError:
             raise UsageError(self, 'startdelay not supported by card')
-        self.printinfo('parameter change not permanent, use _store() '
-                       'method to write to EEPROM')
+        self.log.info('parameter change not permanent, use _store() '
+                      'method to write to EEPROM')
 
     def doReadStopdelay(self):
         if self.firmware > 44:
@@ -628,8 +655,8 @@ class Motor(NicosMotor):
             self._adevs['bus'].send(self.addr, 58, int(value * 10), 3)
         except InvalidCommandError:
             raise UsageError(self, 'stopdelay not supported by card')
-        self.printinfo('parameter change not permanent, use _store() '
-                       'method to write to EEPROM')
+        self.log.info('parameter change not permanent, use _store() '
+                      'method to write to EEPROM')
 
     def doReadFirmware(self):
         return self._adevs['bus'].get(self.addr, 137)
@@ -691,27 +718,28 @@ class Motor(NicosMotor):
         return self._fromsteps(value)
 
     def doReadRelay(self):
-        return 'on' if (self._adevs['bus'].get(self.addr, 134) & 8) == 8 else 'off'
+        return 'on' if (self._adevs['bus'].get(self.addr, 134) & 8) else 'off'
 
     def doWriteRelay(self, value):
-        if value in [ 0, 'off' ]:
+        if value in [0, 'off']:
             self._adevs['bus'].send(self.addr, 39)
-        elif value in [ 1, 'on' ]:
+        elif value in [1, 'on']:
             self._adevs['bus'].send(self.addr, 38)
 
     def doReadHalfstep(self):
-        return True if (self._adevs['bus'].get(self.addr, 134) & 4) == 4 else False
+        return (self._adevs['bus'].get(self.addr, 134) & 4) == 4
 
     def doWriteHalfstep(self, value):
         if value:  # halfstep
             self._adevs['bus'].send(self.addr, 37)
         else:  # fullstep
             self._adevs['bus'].send(self.addr, 36)
-        self.printinfo('parameter change not permanent, use _store() '
-                       'method to write to EEPROM')
+        self.log.info('parameter change not permanent, use _store() '
+                      'method to write to EEPROM')
+
     @property
     def IsInhibit(self):
-        return True if (self._adevs['bus'].get(self.addr, 134) & 0x10) == 0x10 else False
+        return (self._adevs['bus'].get(self.addr, 134) & 0x10) == 0x10
 
     def doStatus(self):
         bus = self._adevs['bus']
@@ -772,7 +800,7 @@ class Motor(NicosMotor):
 
     def _store(self):
         self._adevs['bus'].send(self.addr, 40)
-        self.printinfo('parameters stored to EEPROM')
+        self.log.info('parameters stored to EEPROM')
 
     def _poweroff(self):
         self._adevs['bus'].send(self.addr, 53)
@@ -818,16 +846,12 @@ class Motor(NicosMotor):
         if byte & 128: c += 'freq-range: 8-300Hz\n'
         else: c += 'freq-range: 90-3000Hz\n'
 
-        self.printinfo(c)
+        self.log.info(c)
 
 
-class IPCRelay( Moveable ):
-    '''
-    Makes the Relay of an IPC-Stepper available as Switch
-    '''
-    parameters = {
-    }
-    
+class IPCRelay(Moveable):
+    """Makes the relay of an IPC stepper available as switch."""
+
     parameter_overrides = {
         'unit':      Override(mandatory=False),
     }
@@ -837,22 +861,21 @@ class IPCRelay( Moveable ):
     }
 
     def doStart(self, target):
-        self._adevs['stepper'].relay=target
+        self._adevs['stepper'].relay = target
 
     def doRead(self):
         return self._adevs['stepper'].relay
 
     def doStatus(self):
-        return status.OK, 'Relays is ' + str( self.doRead() )
+        return status.OK, 'relay is ' + str(self.doRead())
 
-class IPCInhibit( Readable ):
-    '''
-    Makes the Inhibit of an IPC-Stepper available as Input
-    returns 'on' if inhibit is active, 'off' otherwise
-    '''
-    parameters = {
-    }
-    
+
+class IPCInhibit(Readable):
+    """Makes the inhibit of an IPC stepper available as an input.
+
+    Returns 'on' if inhibit is active, 'off' otherwise.
+    """
+
     parameter_overrides = {
         'unit':      Override(mandatory=False),
     }
@@ -865,7 +888,7 @@ class IPCInhibit( Readable ):
         return 'on' if self._adevs['stepper'].IsInhibit else 'off'
 
     def doStatus(self):
-        return status.OK, 'Inhibit is ' + str( self.doRead() )
+        return status.OK, 'Inhibit is ' + str(self.doRead())
 
 
 class Input(Readable):
