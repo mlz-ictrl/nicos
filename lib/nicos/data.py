@@ -50,7 +50,7 @@ from nicos import session, status
 from nicos.utils import listof, nonemptylistof, readFileCounter, \
      updateFileCounter
 from nicos.device import Device, Param, Override, Readable
-from nicos.errors import ConfigurationError, ProgrammingError, UsageError
+from nicos.errors import ConfigurationError, ProgrammingError, NicosError
 from nicos.sessions import DaemonSession, InteractiveSession
 from nicos.commands.output import printinfo
 
@@ -428,7 +428,7 @@ class AsciiDatafileSink(DatafileSink):
         """
         pstr = session.experiment.proposal
         if not pstr:
-            raise UsageError('Please initialize the experiment first using '
+            raise NicosError('Please initialize the experiment first using '
                              'the NewExperiment() command')
         return '%s_%08d.dat' % (pstr, self._counter + 1)
 
