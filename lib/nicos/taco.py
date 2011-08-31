@@ -179,6 +179,7 @@ class TacoDevice(object):
                 self._raise_taco(err, 'Switching device %r on after '
                                  'reset failed' % devname)
 
+        # XXX: automatically wrap all TACO methods with _taco_guard?
         return dev
 
     def _taco_guard_log(self, function, *args):
