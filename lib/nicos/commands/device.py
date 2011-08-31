@@ -141,8 +141,14 @@ def read(*devlist):
             value = dev.read()
         except NicosError:
             dev.log.exception('error reading device')
+            continue
+        if isinstance(dev, Moveable):
+            target = dev.target
+            unit = dev.unit
+            dev.log.info('at %20s %-5s (target: %20s %s)' %
+                         (dev.format(value), unit, dev.format(target), unit))
         else:
-            dev.log.info('at %20s %s' % (dev.format(value), dev.unit))
+            dev.log.info('at %20s %-5s' % (dev.format(value), dev.unit))
 
 def _formatStatus(status):
     const, message = status
@@ -288,6 +294,8 @@ def listmethods(dev):
     _list(dev.__class__)
     dev.log.info('Device methods:')
     printTable(('method', 'from class', 'description'), items, printinfo)
+
+# XXX check casing!
 
 @usercommand
 def ListDevices():
