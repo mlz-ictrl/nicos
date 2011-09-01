@@ -196,6 +196,7 @@ class Axis(BaseAxis):
         return True
 
     __errorDesc = {
+        0: 'motor error',
         1: 'drag error',
         2: 'precision error',
         3: 'pre move error',
@@ -216,13 +217,8 @@ class Axis(BaseAxis):
                                        self.__error)
 
     def __read(self):
-        # XXX why is this needed?
-        obs = self._adevs['obs']
-        if obs:
-            for o in obs:
-                o.read()
-        for o in [self._adevs['motor'], self._adevs['coder']]:
-            o.read()
+        for d in [ self._adevs['motor'], self._adevs['coder'] ]+self._adevs['obs']:
+            d.poll()
         return self._adevs['coder'].doRead() - self.offset
 
     def __checkDragerror(self):
@@ -268,7 +264,9 @@ class Axis(BaseAxis):
         return ok
 
     def __positioningThread(self):
-        if not self._preMoveAction():
+        try:
+            self._preMoveAction()
+        except Exception, err:
             self.__error = 3
         else:
             self.__error = 0
@@ -279,7 +277,9 @@ class Axis(BaseAxis):
                         break
             else:
                 self.__positioning(self.__target)
-            if not self._postMoveAction():
+            try:
+                self._postMoveAction()
+            except Exception, err:
                 self.__error = 4
 
     def __positioning(self, target):
@@ -313,7 +313,7 @@ class Axis(BaseAxis):
                     # target not reached, get the current position,
                     # sets the motor to this position and restart it
                     self._adevs['motor'].setPosition(pos + self.offset)
-                    self._adevs['motor'].start(target + self.offset)
+                    self._adevs['motor'].start(target + self.offset) # XXX exception handling
                     maxtries -= 1
                 else:
                     self.log.debug('target not reached after max tries')
@@ -326,7 +326,9 @@ class Axis(BaseAxis):
                 self.log.debug('drag error detected')
                 self.__stopRequest = 1
             elif self.__stopRequest == 0:
-                if not self._duringMoveAction(pos):
+                try:
+                    self._duringMoveAction(pos)
+                except Exception, err:
                     self.__stopRequest = 1
                     self.__error = 5
 
