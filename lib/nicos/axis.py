@@ -82,7 +82,7 @@ class Axis(BaseAxis):
         self.__mutex = threading.RLock()
         self.__stopRequest = 0
         if self._mode != 'simulation':
-            self.__target = self.__read()
+            self.__target = self._adevs['coder'].read() - self.offset
 
     def doReadUnit(self):
         return self._adevs['motor'].unit
@@ -145,7 +145,7 @@ class Axis(BaseAxis):
     def doRead(self):
         """Returns the current position from coder controller."""
         self.__checkErrorState()  # XXX really?
-        return self.__read()
+        return self._adevs['coder'].read() - self.offset
 
     def doReset(self):
         """Resets the motor/coder controller."""
@@ -220,14 +220,8 @@ class Axis(BaseAxis):
                 raise ProgrammingError(self, 'unknown error constant %s' %
                                        self.__error)
 
-    def __read(self):
-        for d in [ self._adevs['motor'], self._adevs['coder'] ]+self._adevs['obs']:
-            d.poll()
-        return self._adevs['coder'].doRead() - self.offset
-
     def __checkDragerror(self):
-        diff = abs(self._adevs['motor'].doRead() -
-                   self._adevs['coder'].doRead())
+        diff = abs(self._adevs['motor'].read() - self._adevs['coder'].read())
         self.log.debug('motor/coder diff: %s' % diff)
         maxdiff = self.dragerror
         if maxdiff <= 0:
@@ -235,7 +229,7 @@ class Axis(BaseAxis):
         ok = diff <= maxdiff
         if ok:
             for i in self._adevs['obs']:
-                diff = abs(self._adevs['motor'].doRead() - i.doRead())
+                diff = abs(self._adevs['motor'].read() - i.read())
                 ok = ok and (diff <= maxdiff)
         if not ok:
             self.__error = 1
@@ -247,7 +241,7 @@ class Axis(BaseAxis):
         ok = diff <= self.precision
         if ok:
             for i in self._adevs['obs']:
-                diff = abs(target - i.doRead())
+                diff = abs(target - i.read())
                 if maxdiff > 0:
                     ok = ok and (diff <= maxdiff)
         if not ok:
@@ -291,6 +285,7 @@ class Axis(BaseAxis):
         self.__lastPosition = self.doRead()
         self._adevs['motor'].start(target + offset)
         moving = True
+        devs = [self._adevs['motor'], self._adevs['coder']] + self._adevs['obs']
 
         while moving:
             if self.__stopRequest == 1:
@@ -299,8 +294,11 @@ class Axis(BaseAxis):
                 self.__stopRequest = 2
                 continue
             sleep(self.loopdelay)
-            pos = self.__read()
-            if self._adevs['motor'].doStatus()[0] != status.BUSY:
+            # poll accurate current values and status of child devices
+            for dev in devs:
+                dev.poll()
+            pos = self._adevs['coder'].read() - self.offset
+            if self._adevs['motor'].status()[0] != status.BUSY:
                 # motor stopped; check why
                 if self.__stopRequest == 2:
                     self.log.debug('stop requested, leaving positioning')
@@ -315,7 +313,8 @@ class Axis(BaseAxis):
                     # target not reached, get the current position,
                     # sets the motor to this position and restart it
                     self._adevs['motor'].setPosition(pos + self.offset)
-                    self._adevs['motor'].start(target + self.offset) # XXX exception handling
+                    # XXX exception handling!
+                    self._adevs['motor'].start(target + self.offset)
                     maxtries -= 1
                 else:
                     self.log.debug('target not reached after max tries')
