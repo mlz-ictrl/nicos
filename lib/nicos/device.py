@@ -204,7 +204,10 @@ class Device(object):
                     self, 'device misses device %r in configuration' % aname)
             value = self._config[aname]
             if value is None:
-                self._adevs[aname] = None
+                if isinstance(cls, list):
+                    self._adevs[aname] = []
+                else:
+                    self._adevs[aname] = None
                 continue
             if isinstance(cls, list):
                 cls = cls[0]

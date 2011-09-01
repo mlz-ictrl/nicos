@@ -72,11 +72,10 @@ class Axis(BaseAxis):
                                      ' (%s vs %s)' % (self._adevs['motor'].unit,
                                                       self._adevs['coder'].unit))
         # Check that all observers have the same unit as the motor
-        if self._adevs['obs'] is not None:
-            for ob in self._adevs['obs']:
-                if self._adevs['motor'].unit != ob.unit:
-                    raise ConfigurationError(self, 'different units for motor '
-                                             'and observer %s' % ob)
+        for ob in self._adevs['obs']:
+            if self._adevs['motor'].unit != ob.unit:
+                raise ConfigurationError(self, 'different units for motor '
+                                         'and observer %s' % ob)
 
         self.__error = 0
         self.__thread = None
@@ -235,10 +234,9 @@ class Axis(BaseAxis):
             return True
         ok = diff <= maxdiff
         if ok:
-            if self._adevs['obs']:
-                for i in self._adevs['obs']:
-                    diff = abs(self._adevs['motor'].doRead() - i.doRead())
-                    ok = ok and (diff <= maxdiff)
+            for i in self._adevs['obs']:
+                diff = abs(self._adevs['motor'].doRead() - i.doRead())
+                ok = ok and (diff <= maxdiff)
         if not ok:
             self.__error = 1
         return ok
@@ -248,11 +246,10 @@ class Axis(BaseAxis):
         maxdiff = self.dragerror
         ok = diff <= self.precision
         if ok:
-            if self._adevs['obs']:
-                for i in self._adevs['obs']:
-                    diff = abs(target - i.doRead())
-                    if maxdiff > 0:
-                        ok = ok and (diff <= maxdiff)
+            for i in self._adevs['obs']:
+                diff = abs(target - i.doRead())
+                if maxdiff > 0:
+                    ok = ok and (diff <= maxdiff)
         if not ok:
             self.__error = error
         return ok
