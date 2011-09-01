@@ -177,23 +177,28 @@ class Axis(BaseAxis):
         HasOffset.doWriteOffset(self, value)
 
     def _preMoveAction(self):
-        """ This method will be called before the motor will be moved.
-        It should be overwritten in derived classes for special actions"""
-        return True
+        """This method will be called before the motor will be moved.
+        It should be overwritten in derived classes for special actions.
+
+        To abort the move, raise an exception from this method.
+        """
 
     def _postMoveAction(self):
-        """ This method will be called after the axis reached the position or
+        """This method will be called after the axis reached the position or
         will be stopped.
-        It should be overwritten in derived classes for special actions"""
-        return True
+        It should be overwritten in derived classes for special actions.
+
+        To signal an error, raise an exception from this method.
+        """
 
     def _duringMoveAction(self, position):
-        """ This method will be called during every cycle in positioning thread
-        It should be used to do some special actions like open and close some
-        neutron guides or change some blocks, ....
-        It should be overwritte in derived classes
+        """This method will be called during every cycle in positioning thread.
+        It should be used to do some special actions like changing shielding
+        blocks, checking for air pressure etc.  It should be overwritten in
+        derived classes.
+
+        To abort the move, raise an exception from this method.
         """
-        return True
 
     __errorDesc = {
         0: 'motor error',
