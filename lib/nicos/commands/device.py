@@ -145,7 +145,7 @@ def read(*devlist):
         if isinstance(dev, Moveable):
             target = dev.target
             unit = dev.unit
-            dev.log.info('at %20s %-5s (target: %20s %s)' %
+            dev.log.info('at %20s %-5s  (target: %20s %s)' %
                          (dev.format(value), unit, dev.format(target), unit))
         else:
             dev.log.info('at %20s %-5s' % (dev.format(value), dev.unit))
