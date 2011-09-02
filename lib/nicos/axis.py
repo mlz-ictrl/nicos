@@ -41,8 +41,8 @@ from nicos import status
 from nicos.taco import TacoDevice
 from nicos.utils import tupleof, any, usermethod, waitForStatus
 from nicos.device import Moveable, HasOffset, Param, Override
-from nicos.errors import ConfigurationError, NicosError, PositionError
-from nicos.errors import ProgrammingError, MoveError, LimitError
+from nicos.errors import ConfigurationError, NicosError, PositionError, \
+     MoveError, LimitError
 from nicos.abstract import Axis as BaseAxis, Motor, Coder
 
 
@@ -77,12 +77,11 @@ class Axis(BaseAxis):
                 raise ConfigurationError(self, 'different units for motor '
                                          'and observer %s' % ob)
 
-        self.__error = 0
-        self.__thread = None
-        self.__mutex = threading.RLock()
-        self.__stopRequest = 0
+        self._errorstate = None
+        self._posthread = None
+        self._stoprequest = 0
         if self._mode != 'simulation':
-            self.__target = self._adevs['coder'].read() - self.offset
+            self._target = self._adevs['coder'].read() - self.offset
 
     def doReadUnit(self):
         return self._adevs['motor'].unit
@@ -106,7 +105,7 @@ class Axis(BaseAxis):
 
     def doStart(self, target, locked=False):
         """Starts the movement of the axis to target."""
-        if self.__checkTargetPosition(self.doRead(), target, error=0):
+        if self.__checkTargetPosition(self.doRead(), target, error=False):
             return
 
         # TODO: stop the axis instead of raising an exception
@@ -119,60 +118,63 @@ class Axis(BaseAxis):
         if not ok:
             raise LimitError(self._adevs['motor'], why)
 
-        if self.__thread:
-            self.__thread.join()
-            del self.__thread
-            self.__thread = None
+        if self._posthread:
+            self._posthread.join()
+            del self._posthread
+            self._posthread = None
 
-        self.__target = target
-        self.__stopRequest = 0
-        self.__error = 0
-        if not self.__thread:
-            self.__thread = threading.Thread(None, self.__positioningThread,
-                                             'Positioning thread')
+        self._target = target
+        self._stoprequest = 0
+        self._errorstate = None
+        if not self._posthread:
+            self._posthread = threading.Thread(None, self.__positioningThread,
+                                               'Positioning thread')
             self.log.debug('start positioning thread')
-            self.__thread.start()
+            self._posthread.start()
 
     def doStatus(self):
         """Returns the status of the motor controller."""
-        if self.__error > 0:
-            return (status.ERROR, self.__errorDesc.get(self.__error, ''))
-        elif self.__thread and self.__thread.isAlive():
+        if self._errorstate:
+            return (status.ERROR, str(self._errorstate))
+        elif self._posthread and self._posthread.isAlive():
             return (status.BUSY, 'moving')
         else:
             return self._adevs['motor'].doStatus()
 
     def doRead(self):
         """Returns the current position from coder controller."""
-        self.__checkErrorState()  # XXX really?
+        if self._errorstate:
+            raise self._errorstate
         return self._adevs['coder'].read() - self.offset
 
     def doReset(self):
         """Resets the motor/coder controller."""
         if self.doStatus()[0] != status.BUSY:
-            self.__error = 0
+            self._errorstate = None
         self._adevs['motor'].setPosition(self._adevs['coder'].doRead())
 
     def doStop(self):
         """Stops the movement of the motor."""
         if self.doStatus()[0] == status.BUSY:
-            self.__stopRequest = 1
+            self._stoprequest = 1
         else:
-            self.__stopRequest = 0
+            self._stoprequest = 0
 
     def doWait(self):
         """Waits until the movement of the motor has stopped and
         the target position has been reached.
         """
         waitForStatus(self, self.loopdelay)
-        self.__checkErrorState()
+        if self._errorstate:
+            raise self._errorstate
 
     def doWriteOffset(self, value):
         """Called on adjust(), overridden to forbid adjusting while moving."""
         if self.doStatus()[0] == status.BUSY:
             raise NicosError(self, 'axis is moving now, please issue a stop '
                             'command and try it again')
-        self.__checkErrorState()
+        if self._errorstate:
+            raise self._errorstate
         HasOffset.doWriteOffset(self, value)
 
     def _preMoveAction(self):
@@ -199,26 +201,10 @@ class Axis(BaseAxis):
         To abort the move, raise an exception from this method.
         """
 
-    __errorDesc = {
-        0: 'motor error',
-        1: 'drag error',
-        2: 'precision error',
-        3: 'pre move error',
-        4: 'post move error',
-        5: 'action during the move failed',
-        6: 'maxtries reached',
-    }
-
-    def __checkErrorState(self):
-        st = self.doStatus()
-        if st[0] == status.ERROR:
-            if self.__error == 1:
-                raise PositionError(self, st[1])
-            elif self.__error in self.__errorDesc:
-                raise MoveError(self, st[1])
-            else:
-                raise ProgrammingError(self, 'unknown error constant %s' %
-                                       self.__error)
+    def _setErrorState(self, cls, text):
+        self._errorstate = cls(self, text)
+        self.log.error(text)
+        return False
 
     def __checkDragerror(self):
         diff = abs(self._adevs['motor'].read() - self._adevs['coder'].read())
@@ -226,72 +212,86 @@ class Axis(BaseAxis):
         maxdiff = self.dragerror
         if maxdiff <= 0:
             return True
-        ok = diff <= maxdiff
-        if ok:
-            for i in self._adevs['obs']:
-                diff = abs(self._adevs['motor'].read() - i.read())
-                ok = ok and (diff <= maxdiff)
-        if not ok:
-            self.__error = 1
-        return ok
+        if diff > maxdiff:
+            return self._setErrorState(PositionError,
+                'drag error (primary coder): difference %f, maximum %f' %
+                (diff, maxdiff))
+            return False
+        for obs in self._adevs['obs']:
+            diff = abs(self._adevs['motor'].read() - obs.read())
+            if diff > maxdiff:
+                return self._setErrorState(PositionError,
+                    'drag error (%s): difference %f, maximum %f' %
+                    (obs.name, diff, maxdiff))
+        return True
 
-    def __checkTargetPosition(self, target, pos, error=2):
+    def __checkTargetPosition(self, target, pos, error=True):
         diff = abs(pos - target)
         maxdiff = self.dragerror
-        ok = diff <= self.precision
-        if ok:
-            for i in self._adevs['obs']:
-                diff = abs(target - i.read())
-                if maxdiff > 0:
-                    ok = ok and (diff <= maxdiff)
-        if not ok:
-            self.__error = error
-        return ok
+        if diff > self.precision:
+            if error:
+                self._setErrorState(MoveError,
+                    'precision error: difference %f, precision %f' %
+                    (diff, self.precision))
+            return False
+        for i in self._adevs['obs']:
+            diff = abs(target - i.read())
+            if maxdiff > 0 and diff > maxdiff:
+                if error:
+                    self._setErrorState(MoveError,
+                        'drag error: difference %f, maximum %f' %
+                        (diff, maxdiff))
+                return False
+        return True
 
-    def __checkMoveToTarget(self, target, pos, error=1):
-        delta_last = abs(self.__lastPosition - target)
+    def __checkMoveToTarget(self, target, pos):
+        delta_last = abs(self._lastpos - target)
         delta_curr = abs(pos - target)
         self.log.debug('position delta: %s, was %s' % (delta_curr, delta_last))
-        self.__lastPosition = pos
+        self._lastpos = pos
         # at the end of the move, the motor can slightly overshoot
         ok = delta_last >= delta_curr or delta_curr < self.precision
         if not ok:
-             self.__error = error
-        return ok
+            return self._setErrorState(PositionError,
+                'not moving to target: last delta %f, current delta %f'
+                % (delta_last, delta_curr))
+        return True
 
     def __positioningThread(self):
         try:
             self._preMoveAction()
         except Exception, err:
-            self.__error = 3
+            self._setErrorState(MoveError, 'error in pre-move action: %s' % err)
         else:
-            self.__error = 0
+            self._errorstate = None
             if self.backlash:
-                for pos in self.__target + self.backlash, self.__target:
+                # XXX do not move twice if coming from the "right" side
+                for pos in self._target + self.backlash, self._target:
                     self.__positioning(pos)
-                    if self.__stopRequest == 2 or self.__error != 0:
+                    if self._stoprequest == 2 or self._errorstate:
                         break
             else:
-                self.__positioning(self.__target)
+                self.__positioning(self._target)
             try:
                 self._postMoveAction()
             except Exception, err:
-                self.__error = 4
+                self._setErrorState(MoveError,
+                                    'error in post-move action: %s' % err)
 
     def __positioning(self, target):
         moving = False
         offset = self.offset
         maxtries = self.maxtries
-        self.__lastPosition = self.doRead()
+        self._lastpos = self.doRead()
         self._adevs['motor'].start(target + offset)
         moving = True
         devs = [self._adevs['motor'], self._adevs['coder']] + self._adevs['obs']
 
         while moving:
-            if self.__stopRequest == 1:
+            if self._stoprequest == 1:
                 self.log.debug('stopping motor')
                 self._adevs['motor'].stop()
-                self.__stopRequest = 2
+                self._stoprequest = 2
                 continue
             sleep(self.loopdelay)
             # poll accurate current values and status of child devices
@@ -300,7 +300,7 @@ class Axis(BaseAxis):
             pos = self._adevs['coder'].read() - self.offset
             if self._adevs['motor'].status()[0] != status.BUSY:
                 # motor stopped; check why
-                if self.__stopRequest == 2:
+                if self._stoprequest == 2:
                     self.log.debug('stop requested, leaving positioning')
                     # manual stop
                     moving = False
@@ -319,19 +319,19 @@ class Axis(BaseAxis):
                 else:
                     self.log.debug('target not reached after max tries')
                     moving = False
-                    self.__error = 6
+                    self._setErrorState(MoveError,
+                        'target not reached after %d tries' % self.maxtries)
             elif not self.__checkMoveToTarget(target, pos):
-                self.log.debug('not moving to target')
-                self.__stopRequest = 1
+                self._stoprequest = 1
             elif not self.__checkDragerror():
-                self.log.debug('drag error detected')
-                self.__stopRequest = 1
-            elif self.__stopRequest == 0:
+                self._stoprequest = 1
+            elif self._stoprequest == 0:
                 try:
                     self._duringMoveAction(pos)
                 except Exception, err:
-                    self.__stopRequest = 1
-                    self.__error = 5
+                    self._setErrorState(MoveError,
+                                        'error in during-move action: %s' % err)
+                    self._stoprequest = 1
 
 
 class TacoAxis(TacoDevice, BaseAxis):
@@ -512,11 +512,11 @@ class HoveringAxis(TacoAxis):
         self._adevs['switch'].move(self.switchvalues[1])
         sleep(self.startdelay)
         TacoAxis.doStart(self, target)
-        self._poll_thread = threading.Thread(target=self.__thread)
+        self._poll_thread = threading.Thread(target=self._pollthread)
         self._poll_thread.setDaemon(True)
         self._poll_thread.start()
 
-    def __thread(self):
+    def _pollthread(self):
         sleep(0.1)
         waitForStatus(self, 0.2)
         sleep(self.stopdelay)
