@@ -306,17 +306,11 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command(needcontrol=False, needscript=False)
     def start(self, name, code):
-        """Start a named script within the script thread."""
-        if not name:
-            name = None
-        try:
-            self.controller.new_request(ScriptRequest(code, name))
-        except RequestError, err:
-            self.write(NAK, str(err))
-            return
-        # take control of the session
-        self.controller.controlling_user = self.user[0]
-        self.write(ACK)
+        """Start a named script within the script thread
+
+        Same as queue(), but will reject the command if a script is running.
+        """
+        self.queue(name, code)
 
     @command(needcontrol=False)
     def queue(self, name, code):
@@ -328,6 +322,8 @@ class ConnectionHandler(BaseRequestHandler):
         except RequestError, err:
             self.write(NAK, str(err))
             return
+        # take control of the session
+        self.controller.controlling_user = self.user[0]
         self.write(ACK)
 
     @command()
@@ -477,6 +473,12 @@ class ConnectionHandler(BaseRequestHandler):
                  self.controller.eval_watch_expressions(),
                  session.explicit_setups,
                  )))
+
+    @command()
+    def getscript(self):
+        """Return the current script text, or an empty string."""
+        current_script = self.controller.current_script
+        self.write(STX, serialize(current_script and current_script.text or ''))
 
     @command()
     def gethistory(self, key, fromtime, totime):
