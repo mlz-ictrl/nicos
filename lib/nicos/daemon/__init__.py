@@ -25,8 +25,6 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """
 NICOS daemon package.
 """
@@ -43,9 +41,10 @@ import threading
 from SocketServer import TCPServer
 
 from nicos import nicos_version
-from nicos.utils import listof, closeSocket
+from nicos.utils import listof, tupleof, oneof, closeSocket
 from nicos.device import Device, Param
 
+from nicos.daemon.user import Authenticator
 from nicos.daemon.utils import serialize
 from nicos.daemon.script import ExecutionController
 from nicos.daemon.handler import ConnectionHandler
@@ -111,7 +110,8 @@ class Server(TCPServer):
 
     def verify_request(self, request, client_address):
         """Called on a new connection.  If we have a connection from that
-        host that lacks an event connection, use this."""
+        host that lacks an event connection, use this.
+        """
         host = client_address[0]
         if host not in self.pending_clients:
             self.pending_clients[host] = None
@@ -159,16 +159,20 @@ class NicosDaemon(Device):
     """
 
     parameters = {
-        'server':       Param('Address to bind to (host or host:port)',
-                              type=str, mandatory=True),
-        'maxlogins':    Param('Maximum number of logins', type=int, default=10),
-        'reuseaddress': Param('Whether to set SO_REUSEADDR', type=bool,
-                              default=True),
+        'server':         Param('Address to bind to (host or host:port)',
+                                type=str, mandatory=True),
+        'maxlogins':      Param('Maximum number of logins', type=int,
+                                default=10),
+        'reuseaddress':   Param('Whether to set SO_REUSEADDR', type=bool,
+                                default=True),
         'updateinterval': Param('Update interval for watch expressions',
                                 type=float, unit='s', default=0.2),
-        'trustedhosts': Param('Trusted hosts allowed to log in',
-                              type=listof(str)),
-        'passwd':       Param('Password list', type=listof(str)),
+        'trustedhosts':   Param('Trusted hosts allowed to log in',
+                                type=listof(str)),
+        'authmethod':     Param('Authentication method',
+                                type=oneof(str, 'none', 'list', 'pam')),
+        'passwd':         Param('User/password list for authmethod "list"',
+                                type=listof(tupleof(str, str, int)))
     }
 
     # key: event name
@@ -192,6 +196,8 @@ class NicosDaemon(Device):
         # the controller represents the internal script execution machinery
         self._controller = ExecutionController(self.log, self.emit_event,
                                                'startup')
+        # to authenticate users
+        self._auth = Authenticator(self)
         # log messages emitted so far
         self._messages = []
 

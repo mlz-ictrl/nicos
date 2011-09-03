@@ -41,6 +41,7 @@ from Queue import Queue
 from SocketServer import BaseRequestHandler
 
 from nicos import session, nicos_version
+from nicos.daemon.user import AuthenticationError, GUEST, USER, ADMIN
 from nicos.daemon.utils import LoggerWrapper, serialize, unserialize
 from nicos.daemon.pyctl import STATUS_IDLE, STATUS_IDLEEXC, STATUS_RUNNING, \
      STATUS_STOPPING, STATUS_INBREAK
@@ -143,7 +144,9 @@ class ConnectionHandler(BaseRequestHandler):
             # this calls self.handle()
             BaseRequestHandler.__init__(self, request, client_address, server)
         except CloseConnection:
-            pass
+            # in case the client hasn't opened the event connection, stop
+            # waiting for it
+            server.pending_clients.pop(client_address[0], None)
         except Exception:
             self.log.exception('unhandled exception')
         self.event_queue.put(stop_queue)
@@ -199,8 +202,8 @@ class ConnectionHandler(BaseRequestHandler):
     def check_control(self):
         """Check if the current thread is the session's controlling thread."""
         he = self.controller.controlling_user
-        me = self.user[0]
-        if self.user[2]:
+        me = self.user
+        if self.user.level == ADMIN:
             # admin may do anything
             return True
         if he is None:
@@ -220,39 +223,34 @@ class ConnectionHandler(BaseRequestHandler):
         if self.daemon.trustedhosts:
             self.check_host()
 
+        # announce version and authentication modality
+        self.write(STX, serialize(dict(
+            daemon_version = nicos_version,
+            plain_pw = self.daemon._auth.needs_plain_pw(),
+        )))
+
+        # read login credentials
         credentials = self.read()
         if len(credentials) != 3:
-            self.log.error('invalid login: credentials=%s' % credentials)
+            self.log.error('invalid login: credentials=%r' % credentials)
             self.write(NAK, 'invalid credentials')
             raise CloseConnection
         login, passw, display = credentials
 
-        self.log.info('auth request: login=%s display=%s' % (login, display))
-
-        # check login data (if config.passwd is an empty list, no login
-        # control is done and everybody may log in)
-        if self.daemon.passwd:
-            for entry in self.daemon.passwd:
-                if entry[0] == login:
-                    self.user = entry
-                    break
-            else:
-                self.log.warning('invalid login name: %s' % login)
-                self.write(NAK, 'login not accepted')
-                raise CloseConnection
-            if passw != self.user[1]:
-                self.log.warning('invalid password from user %s' % login)
-                self.write(NAK, 'login not accepted')
-                raise CloseConnection
-        else:
-            self.user = [login, passw, True]
-        self.log.info('login succeeded')
+        # check login data according to configured authentication
+        self.log.info('auth request: login=%r display=%r' % (login, display))
+        try:
+            self.user = self.daemon._auth.authenticate(login, passw)
+        except AuthenticationError, err:
+            self.log.error('authentication failed: %s' % err)
+            self.write(NAK, 'credentials not accepted')
+            raise CloseConnection
 
         # XXX only works for the client that logged in last
-        self.display = credentials[2]
-        os.environ['DISPLAY'] = self.display
+        os.environ['DISPLAY'] = display
 
         # acknowledge the login
+        self.log.info('login succeeded, access level %d' % self.user.level)
         self.write(ACK)
 
         # start main command loop
@@ -315,7 +313,7 @@ class ConnectionHandler(BaseRequestHandler):
             self.write(NAK, str(err))
             return
         # take control of the session
-        self.controller.controlling_user = self.user[0]
+        self.controller.controlling_user = self.user
         self.write(ACK)
 
     @command()
@@ -452,7 +450,7 @@ class ConnectionHandler(BaseRequestHandler):
     @command()
     def getversion(self):
         """Return the daemon's version."""
-        self.write(STX, serialize('NICOS-NG daemon version %s' % nicos_version))
+        self.write(STX, serialize(nicos_version))
 
     @command()
     def getstatus(self):
@@ -551,8 +549,7 @@ class ConnectionHandler(BaseRequestHandler):
     @command()
     def quit(self):
         """Close the session."""
-        me = self.user[0]
-        if self.controller.controlling_user == me:
+        if self.controller.controlling_user == self.user:
             self.controller.controlling_user = None
         self.log.info('disconnect')
         self.write(ACK)
