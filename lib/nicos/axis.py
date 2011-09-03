@@ -105,7 +105,7 @@ class Axis(BaseAxis):
 
     def doStart(self, target, locked=False):
         """Starts the movement of the axis to target."""
-        if self.__checkTargetPosition(self.doRead(), target, error=False):
+        if self._checkTargetPosition(self.doRead(), target, error=False):
             return
 
         # TODO: stop the axis instead of raising an exception
@@ -206,7 +206,13 @@ class Axis(BaseAxis):
         self.log.error(text)
         return False
 
-    def __checkDragerror(self):
+    def _checkDragerror(self):
+        """Check if a "drag error" occurred, i.e. the values of motor and
+        coder deviate too much.  This indicates that the movement is blocked.
+
+        This method sets the error state and returns False if a drag error
+        occurs, and returns True otherwise.
+        """
         diff = abs(self._adevs['motor'].read() - self._adevs['coder'].read())
         self.log.debug('motor/coder diff: %s' % diff)
         maxdiff = self.dragerror
@@ -225,26 +231,12 @@ class Axis(BaseAxis):
                     (obs.name, diff, maxdiff))
         return True
 
-    def __checkTargetPosition(self, target, pos, error=True):
-        diff = abs(pos - target)
-        maxdiff = self.dragerror
-        if diff > self.precision:
-            if error:
-                self._setErrorState(MoveError,
-                    'precision error: difference %f, precision %f' %
-                    (diff, self.precision))
-            return False
-        for i in self._adevs['obs']:
-            diff = abs(target - i.read())
-            if maxdiff > 0 and diff > maxdiff:
-                if error:
-                    self._setErrorState(MoveError,
-                        'drag error: difference %f, maximum %f' %
-                        (diff, maxdiff))
-                return False
-        return True
+    def _checkMoveToTarget(self, target, pos):
+        """Check that the axis actually moves towards the target position.
 
-    def __checkMoveToTarget(self, target, pos):
+        This method sets the error state and returns False if a drag error
+        occurs, and returns True otherwise.
+        """
         delta_last = abs(self._lastpos - target)
         delta_curr = abs(pos - target)
         self.log.debug('position delta: %s, was %s' % (delta_curr, delta_last))
@@ -255,6 +247,31 @@ class Axis(BaseAxis):
             return self._setErrorState(PositionError,
                 'not moving to target: last delta %f, current delta %f'
                 % (delta_last, delta_curr))
+        return True
+
+    def _checkTargetPosition(self, target, pos, error=True):
+        """Check if the axis is at the target position.
+
+        This method returns False if not arrived at target, or True otherwise.
+        """
+        diff = abs(pos - target)
+        maxdiff = self.dragerror
+        if diff > self.precision:
+            if error:
+                # not calling _setErrorState here, since we don't want the error
+                # log message in all cases
+                self._errorstate = MoveError(self,
+                    'precision error: difference %f, precision %f' %
+                    (diff, self.precision))
+            return False
+        for obs in self._adevs['obs']:
+            diff = abs(target - obs.read())
+            if maxdiff > 0:# and diff > maxdiff:
+                if error:
+                    self._errorstate = MoveError(self,
+                        'precision error (%s): difference %f, maximum %f' %
+                        (obs, diff, maxdiff))
+                return False
         return True
 
     def __positioningThread(self):
@@ -304,11 +321,12 @@ class Axis(BaseAxis):
                     self.log.debug('stop requested, leaving positioning')
                     # manual stop
                     moving = False
-                elif self.__checkTargetPosition(target, pos):
+                elif self._checkTargetPosition(target, pos):
                     self.log.debug('target reached, leaving positioning')
                     # target reached
                     moving = False
                 elif maxtries > 0:
+                    self.log.warning(str(self._errorstate))
                     self.log.debug('target not reached, retrying')
                     # target not reached, get the current position,
                     # sets the motor to this position and restart it
@@ -321,9 +339,9 @@ class Axis(BaseAxis):
                     moving = False
                     self._setErrorState(MoveError,
                         'target not reached after %d tries' % self.maxtries)
-            elif not self.__checkMoveToTarget(target, pos):
+            elif not self._checkMoveToTarget(target, pos):
                 self._stoprequest = 1
-            elif not self.__checkDragerror():
+            elif not self._checkDragerror():
                 self._stoprequest = 1
             elif self._stoprequest == 0:
                 try:
