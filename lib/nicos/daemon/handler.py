@@ -61,8 +61,6 @@ LENGTH = struct.Struct('>I')   # used to encode length
 # argument separator in client commands
 RS = '\x1e'
 
-_queue_freelist = [Queue() for i in range(5)]
-
 
 class CloseConnection(Exception):
     """Raised to unconditionally close the connection."""
@@ -81,6 +79,7 @@ def command(needcontrol=False, needscript=None, name=None):
                 self.write(NAK, 'invalid number of arguments')
             if needcontrol:
                 if not self.check_control():
+                    self.write(NAK, 'you do not have control of the session')
                     return
             if needscript is True:
                 if self.controller.status in (STATUS_IDLE, STATUS_IDLEEXC):
@@ -129,13 +128,7 @@ class ConnectionHandler(BaseRequestHandler):
     """
 
     def __init__(self, request, client_address, server):
-        # HACK: the Queue constructor does an import of threading, therefore
-        # constructing one here will lock the import system, which leads to
-        # clients freezing on login while the startup modules are imported
-        try:
-            self.event_queue = _queue_freelist.pop()
-        except IndexError:
-            self.event_queue = Queue()
+        self.event_queue = Queue()
         # bind often used daemon attributes to self
         self.daemon = server.daemon
         self.controller = server.daemon._controller
@@ -214,7 +207,6 @@ class ConnectionHandler(BaseRequestHandler):
             self.controller.controlling_user = me
             return True
         elif he != me:
-            self.write(NAK, 'you do not have control of the session')
             return False
         return True
 
