@@ -1,0 +1,1280 @@
+<ui version="4.0" >
+ <author></author>
+ <comment></comment>
+ <exportmacro></exportmacro>
+ <class>ScanInputDlgUI</class>
+ <widget class="QDialog" name="ScanInputDlgUI" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>497</width>
+    <height>577</height>
+   </rect>
+  </property>
+  <property name="font" >
+   <font>
+    <family>Lucida Grande</family>
+    <pointsize>9</pointsize>
+    <weight>50</weight>
+    <italic>false</italic>
+    <bold>false</bold>
+    <underline>false</underline>
+    <strikeout>false</strikeout>
+   </font>
+  </property>
+  <property name="windowTitle" >
+   <string>Command Generator</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <property name="margin" >
+    <number>9</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item>
+    <widget class="QTabWidget" name="tabWidget" >
+     <property name="maximumSize" >
+      <size>
+       <width>32767</width>
+       <height>32767</height>
+      </size>
+     </property>
+     <property name="font" >
+      <font>
+       <family>Lucida Grande</family>
+       <pointsize>9</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+       <underline>false</underline>
+       <strikeout>false</strikeout>
+      </font>
+     </property>
+     <widget class="QWidget" name="tab" >
+      <attribute name="title" >
+       <string>sscan</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>9</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item row="2" column="1" >
+        <widget class="QGroupBox" name="groupBox11" >
+         <property name="title" >
+          <string>Calculated Values</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="1" column="0" colspan="3" >
+           <widget class="QPushButton" name="pB_sscan_Calc" >
+            <property name="text" >
+             <string>Calculate</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="2" >
+           <widget class="QLabel" name="tL_sscan_End_2" >
+            <property name="text" >
+             <string>&lt;b>Move time per step:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2" >
+           <widget class="QLineEdit" name="lE_sscan_movetime" />
+          </item>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="tL_sscan_End" >
+            <property name="text" >
+             <string>&lt;b>End:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="2" >
+           <widget class="QLineEdit" name="lE_sscan_End" />
+          </item>
+          <item row="3" column="0" >
+           <widget class="QLabel" name="tL_sscan_PresetH" >
+            <property name="text" >
+             <string>&lt;b>Est. time:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="2" >
+           <widget class="QLineEdit" name="lE_sscan_PresetH" />
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>571</width>
+           <height>171</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0" colspan="2" >
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="tL_sscan_device" >
+           <property name="text" >
+            <string>&lt;b>Device:&lt;/b></string>
+           </property>
+           <property name="alignment" >
+            <set>Qt::AlignTop</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QListWidget" name="lB_sscan_Device" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>7</hsizetype>
+             <vsizetype>3</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="0" colspan="2" >
+        <widget class="QLabel" name="tL_sscan" >
+         <property name="text" >
+          <string>&lt;font size="+2">&lt;b>Single Sided Scan&lt;/b>&lt;/font>&lt;/font></string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" >
+        <widget class="QGroupBox" name="groupBox10" >
+         <property name="title" >
+          <string>Input Data</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="3" column="0" >
+           <widget class="QLabel" name="tL_sscan_Preset" >
+            <property name="text" >
+             <string>&lt;b>Preset:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2" >
+           <widget class="QLabel" name="tL_sscan_PresetS" >
+            <property name="text" >
+             <string>sec</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" >
+           <widget class="QLineEdit" name="lE_sscan_PresetS" />
+          </item>
+          <item row="0" column="1" colspan="2" >
+           <widget class="QLineEdit" name="lE_sscan_Start" />
+          </item>
+          <item row="0" column="0" >
+           <widget class="QLabel" name="tL_sscan_Start" >
+            <property name="text" >
+             <string>&lt;b>Start:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="tL_sscan_Step" >
+            <property name="text" >
+             <string>&lt;b>Step size:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="tL_sscan_NStep" >
+            <property name="text" >
+             <string>&lt;b>Number of steps:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="2" >
+           <widget class="QLineEdit" name="lE_sscan_NStep" />
+          </item>
+          <item row="1" column="1" colspan="2" >
+           <widget class="QLineEdit" name="lE_sscan_Step" />
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab" >
+      <attribute name="title" >
+       <string>cscan</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>9</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item row="0" column="0" colspan="2" >
+        <widget class="QLabel" name="tL_cscan" >
+         <property name="text" >
+          <string>&lt;font size="+2">&lt;b>Centered Scan around Center&lt;/b>&lt;/font></string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>581</width>
+           <height>91</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="1" >
+        <widget class="QGroupBox" name="groupBox4" >
+         <property name="title" >
+          <string>Calculated Values</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="0" column="2" >
+           <widget class="QLineEdit" name="lE_cscan_movetime" />
+          </item>
+          <item row="0" column="0" colspan="2" >
+           <widget class="QLabel" name="tL_sscan_End_3" >
+            <property name="text" >
+             <string>&lt;b>Move time per step:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0" >
+           <widget class="QLabel" name="tL_cscan_PresetH" >
+            <property name="text" >
+             <string>&lt;b>Est. time:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" >
+           <widget class="QLabel" name="tL_cscan_End" >
+            <property name="text" >
+             <string>&lt;b> Upper end:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" >
+           <widget class="QLabel" name="textLabel10_6" >
+            <property name="text" >
+             <string>&lt;b>Total range:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="3" >
+           <widget class="QPushButton" name="pB_cscan_Calc" >
+            <property name="text" >
+             <string>Calculate</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="tL_cscan_Start" >
+            <property name="sizePolicy" >
+             <sizepolicy>
+              <hsizetype>3</hsizetype>
+              <vsizetype>5</vsizetype>
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text" >
+             <string>&lt;b>Lower end:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1" colspan="2" >
+           <widget class="QLineEdit" name="lE_cscan_PresetH" >
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" colspan="2" >
+           <widget class="QLineEdit" name="lE_cscan_TSteps" >
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="2" >
+           <widget class="QLineEdit" name="lE_cscan_UEnd" >
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="2" >
+           <widget class="QLineEdit" name="lE_cscan_LEnd" >
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2" >
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="tL_cscan_Device" >
+           <property name="text" >
+            <string>&lt;b>Device:&lt;/b></string>
+           </property>
+           <property name="alignment" >
+            <set>Qt::AlignTop</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QListWidget" name="lB_cscan_Device" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>7</hsizetype>
+             <vsizetype>3</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="0" >
+        <widget class="QGroupBox" name="groupBox5" >
+         <property name="title" >
+          <string>Input Data</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="3" column="2" >
+           <widget class="QLabel" name="tL_cscan_PresetS" >
+            <property name="text" >
+             <string>sec</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" >
+           <widget class="QLineEdit" name="lE_cscan_PresetS" />
+          </item>
+          <item row="3" column="0" >
+           <widget class="QLabel" name="tL_cscan_Preset" >
+            <property name="text" >
+             <string>&lt;b>Preset:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="tL_cscan_NStep" >
+            <property name="text" >
+             <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;/head>&lt;body style=" white-space: pre-wrap; font-family:Lucida Grande; font-size:9pt; font-weight:400; font-style:normal; text-decoration:none;">&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-weight:600;">Number of&lt;/span>&lt;/p>&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-weight:600;">steps per side:&lt;/p>&lt;/body>&lt;/html></string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="tL_cscan_Step" >
+            <property name="text" >
+             <string>&lt;b>Step size:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" >
+           <widget class="QLabel" name="tL_cscan_Center" >
+            <property name="text" >
+             <string>&lt;b>Center:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="2" >
+           <widget class="QLineEdit" name="lE_cscan_NStep" />
+          </item>
+          <item row="1" column="1" colspan="2" >
+           <widget class="QLineEdit" name="lE_cscan_Step" />
+          </item>
+          <item row="0" column="1" colspan="2" >
+           <widget class="QLineEdit" name="lE_cscan_Center" />
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="TabPage" >
+      <attribute name="title" >
+       <string>ttscan</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>9</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item row="1" column="0" colspan="2" >
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="tL_ttscan_Device" >
+           <property name="text" >
+            <string>&lt;b>Device 1, 2:&lt;/b></string>
+           </property>
+           <property name="alignment" >
+            <set>Qt::AlignBottom</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QListWidget" name="lB_ttscan_Device" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>7</hsizetype>
+             <vsizetype>3</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="1" >
+        <widget class="QGroupBox" name="groupBox14" >
+         <property name="title" >
+          <string>Calculated Values</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="0" column="2" >
+           <widget class="QLineEdit" name="lE_ttscan_movetime" />
+          </item>
+          <item row="0" column="0" colspan="2" >
+           <widget class="QLabel" name="tL_sscan_End_4" >
+            <property name="text" >
+             <string>&lt;b>Move time per step:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="3" >
+           <widget class="QPushButton" name="pB_ttscan_Calc" >
+            <property name="text" >
+             <string>Calculate</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" >
+           <widget class="QLabel" name="tL_ttscan_End_2" >
+            <property name="text" >
+             <string>&lt;b>Est. time:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="2" >
+           <widget class="QLineEdit" name="lE_ttscan_PresetH" >
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="tL_ttscan_End" >
+            <property name="text" >
+             <string>&lt;b>End:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="2" >
+           <widget class="QLineEdit" name="lE_ttscan_End" >
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="0" >
+        <widget class="QGroupBox" name="groupBox13" >
+         <property name="title" >
+          <string>Input Data</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="3" column="0" >
+           <widget class="QLabel" name="tL_ttscan_Preset" >
+            <property name="text" >
+             <string>&lt;b>Preset:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="tL_ttscan_Step" >
+            <property name="text" >
+             <string>&lt;b>Step size:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="tL_ttscan_NStep" >
+            <property name="sizePolicy" >
+             <sizepolicy>
+              <hsizetype>3</hsizetype>
+              <vsizetype>5</vsizetype>
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text" >
+             <string>&lt;b>Number of steps:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" >
+           <widget class="QLabel" name="tL_ttscan_Start" >
+            <property name="text" >
+             <string>&lt;b>Start:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2" >
+           <widget class="QLabel" name="tL_ttscan_PresetS" >
+            <property name="text" >
+             <string>sec</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="2" >
+           <widget class="QLineEdit" name="lE_ttscan_NStep" />
+          </item>
+          <item row="3" column="1" >
+           <widget class="QLineEdit" name="lE_ttscan_PresetS" />
+          </item>
+          <item row="0" column="1" colspan="2" >
+           <widget class="QLineEdit" name="lE_ttscan_Start" />
+          </item>
+          <item row="1" column="1" colspan="2" >
+           <widget class="QLineEdit" name="lE_ttscan_Step" />
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType" >
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>36</width>
+           <height>46</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="0" colspan="2" >
+        <widget class="QLabel" name="tL_ttscan" >
+         <property name="text" >
+          <string>&lt;font size="+2">&lt;b>ϑ - 2ϑ scan of device 1 and 2&lt;/b>&lt;/font></string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="TabPage" >
+      <attribute name="title" >
+       <string>qscans</string>
+      </attribute>
+      <layout class="QVBoxLayout" >
+       <property name="margin" >
+        <number>9</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <widget class="QGroupBox" name="groupBox" >
+         <property name="title" >
+          <string>Scan type</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="1" column="1" >
+           <widget class="QRadioButton" name="rB_qtscan" >
+            <property name="text" >
+             <string>transversal</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <widget class="QRadioButton" name="rB_qcscan" >
+            <property name="text" >
+             <string>centered</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" >
+           <widget class="QRadioButton" name="rB_qsscan" >
+            <property name="text" >
+             <string>single-sided</string>
+            </property>
+            <property name="checked" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2" >
+           <widget class="QRadioButton" name="rB_qrscan" >
+            <property name="text" >
+             <string>random direction</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QRadioButton" name="rB_qlscan" >
+            <property name="text" >
+             <string>longitudinal</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox3" >
+         <property name="title" >
+          <string>Start and Steps</string>
+         </property>
+         <layout class="QVBoxLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>15</number>
+            </property>
+            <item>
+             <layout class="QGridLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>15</number>
+              </property>
+              <item row="2" column="0" >
+               <widget class="QLabel" name="textLabel10_3" >
+                <property name="text" >
+                 <string>&lt;b>l&lt;/b></string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" >
+               <widget class="QLineEdit" name="kInput" >
+                <property name="text" >
+                 <string>0.0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1" >
+               <widget class="QLineEdit" name="EInput" >
+                <property name="text" >
+                 <string>0.0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1" >
+               <widget class="QLineEdit" name="lInput" >
+                <property name="text" >
+                 <string>0.0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" >
+               <widget class="QLineEdit" name="hInput" >
+                <property name="text" >
+                 <string>0.0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" >
+               <widget class="QLabel" name="textLabel10_2" >
+                <property name="text" >
+                 <string>&lt;b>k&lt;/b></string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" >
+               <widget class="QLabel" name="textLabel10" >
+                <property name="text" >
+                 <string>&lt;b>h&lt;/b></string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0" >
+               <widget class="QLabel" name="textLabel10_4" >
+                <property name="text" >
+                 <string>&lt;b>v&lt;/b></string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType" >
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" >
+               <size>
+                <width>60</width>
+                <height>16</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <layout class="QGridLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>15</number>
+              </property>
+              <item row="1" column="1" >
+               <widget class="QLineEdit" name="deltakInput" >
+                <property name="text" >
+                 <string>0.0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" >
+               <widget class="QLabel" name="label_dk" >
+                <property name="text" >
+                 <string>&lt;b>∆k&lt;/b></string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1" >
+               <widget class="QLineEdit" name="deltalInput" >
+                <property name="text" >
+                 <string>0.0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" >
+               <widget class="QLabel" name="label_dh" >
+                <property name="text" >
+                 <string>&lt;b>∆h&lt;/b></string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" >
+               <widget class="QLineEdit" name="deltahInput" >
+                <property name="text" >
+                 <string>0.0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1" >
+               <widget class="QLineEdit" name="deltaEInput" >
+                <property name="text" >
+                 <string>0.0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0" >
+               <widget class="QLabel" name="label_dl" >
+                <property name="text" >
+                 <string>&lt;b>∆l&lt;/b></string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0" >
+               <widget class="QLabel" name="label_dnu" >
+                <property name="text" >
+                 <string>&lt;b>∆v&lt;/b></string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item>
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" >
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_dnu_2" >
+              <property name="text" >
+               <string>&lt;b>∆q&lt;/b>&amp;nbsp;&amp;nbsp;&amp;nbsp;</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="deltaqInput" >
+              <property name="text" >
+               <string>0.0</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" >
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>15</number>
+            </property>
+            <item>
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType" >
+               <enum>QSizePolicy::Expanding</enum>
+              </property>
+              <property name="sizeHint" >
+               <size>
+                <width>86</width>
+                <height>21</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="textLabel8_3" >
+              <property name="sizePolicy" >
+               <sizepolicy>
+                <hsizetype>3</hsizetype>
+                <vsizetype>5</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text" >
+               <string>&lt;b>Number of steps:&lt;/b></string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="stepsInput" >
+              <property name="maximum" >
+               <number>100000</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType" >
+               <enum>QSizePolicy::Expanding</enum>
+              </property>
+              <property name="sizeHint" >
+               <size>
+                <width>91</width>
+                <height>26</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox1" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>5</hsizetype>
+           <vsizetype>0</vsizetype>
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title" >
+          <string>Calculation</string>
+         </property>
+         <layout class="QVBoxLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="textLabel8" >
+              <property name="sizePolicy" >
+               <sizepolicy>
+                <hsizetype>0</hsizetype>
+                <vsizetype>5</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text" >
+               <string>&lt;b>Time per point:&lt;/b></string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="presetInput" >
+              <property name="maximum" >
+               <number>2000000000</number>
+              </property>
+              <property name="value" >
+               <number>1000</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item>
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" >
+               <size>
+                <width>181</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pB_qscan_Calc" >
+              <property name="text" >
+               <string>Calculate</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="tL_ttscan_End_3" >
+              <property name="text" >
+               <string>&lt;b>Est. time:&lt;/b></string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lE_qscan_PresetH" >
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="pmL_Mira" >
+     <property name="sizePolicy" >
+      <sizepolicy>
+       <hsizetype>0</hsizetype>
+       <vsizetype>0</vsizetype>
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="pixmap" >
+      <pixmap/>
+     </property>
+     <property name="scaledContents" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>141</width>
+         <height>27</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pB_Command" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>5</hsizetype>
+         <vsizetype>1</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text" >
+        <string>&amp;Generate Commands</string>
+       </property>
+       <property name="shortcut" >
+        <string>Alt+G</string>
+       </property>
+       <property name="autoDefault" >
+        <bool>false</bool>
+       </property>
+       <property name="default" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pB_Clear" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>5</hsizetype>
+         <vsizetype>1</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text" >
+        <string>Clear &amp;All</string>
+       </property>
+       <property name="shortcut" >
+        <string>Alt+A</string>
+       </property>
+       <property name="autoDefault" >
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pB_Quit" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>5</hsizetype>
+         <vsizetype>1</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text" >
+        <string>&amp;Quit</string>
+       </property>
+       <property name="shortcut" >
+        <string>Alt+Q</string>
+       </property>
+       <property name="autoDefault" >
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="15" margin="15" />
+ <pixmapfunction></pixmapfunction>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>lE_sscan_Start</tabstop>
+  <tabstop>lE_sscan_Step</tabstop>
+  <tabstop>lE_sscan_NStep</tabstop>
+  <tabstop>lE_sscan_PresetS</tabstop>
+  <tabstop>pB_sscan_Calc</tabstop>
+  <tabstop>lE_sscan_End</tabstop>
+  <tabstop>lE_sscan_PresetH</tabstop>
+  <tabstop>lE_cscan_Center</tabstop>
+  <tabstop>lE_cscan_Step</tabstop>
+  <tabstop>lE_cscan_NStep</tabstop>
+  <tabstop>lE_cscan_PresetS</tabstop>
+  <tabstop>pB_cscan_Calc</tabstop>
+  <tabstop>lE_cscan_LEnd</tabstop>
+  <tabstop>lE_cscan_UEnd</tabstop>
+  <tabstop>lE_cscan_TSteps</tabstop>
+  <tabstop>lE_cscan_PresetH</tabstop>
+  <tabstop>lE_ttscan_Start</tabstop>
+  <tabstop>lE_ttscan_Step</tabstop>
+  <tabstop>lE_ttscan_NStep</tabstop>
+  <tabstop>lE_ttscan_PresetS</tabstop>
+  <tabstop>pB_ttscan_Calc</tabstop>
+  <tabstop>lE_ttscan_End</tabstop>
+  <tabstop>lE_ttscan_PresetH</tabstop>
+  <tabstop>presetInput</tabstop>
+  <tabstop>hInput</tabstop>
+  <tabstop>kInput</tabstop>
+  <tabstop>lInput</tabstop>
+  <tabstop>EInput</tabstop>
+  <tabstop>deltahInput</tabstop>
+  <tabstop>deltakInput</tabstop>
+  <tabstop>deltalInput</tabstop>
+  <tabstop>deltaEInput</tabstop>
+  <tabstop>stepsInput</tabstop>
+  <tabstop>pB_Command</tabstop>
+  <tabstop>pB_Clear</tabstop>
+  <tabstop>pB_Quit</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

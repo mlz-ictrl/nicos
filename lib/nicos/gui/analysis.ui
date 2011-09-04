@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TableWindow</class>
+ <widget class="QWidget" name="TableWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>403</width>
+    <height>530</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Data analysis</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../../resources/nicos-gui.qrc">
+    <normaloff>:/plotter</normaloff>:/plotter</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="opaqueResize">
+      <bool>true</bool>
+     </property>
+     <property name="handleWidth">
+      <number>6</number>
+     </property>
+     <widget class="QWidget" name="verticalLayoutWidget">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>5</number>
+       </property>
+       <property name="leftMargin">
+        <number>5</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Available datasets:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="datasetList">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QFrame" name="plotFrame">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <layout class="QVBoxLayout" name="plotLayout"/>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+  <action name="actionPrint">
+   <property name="icon">
+    <iconset resource="../../../resources/nicos-gui.qrc">
+     <normaloff>:/print</normaloff>:/print</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Print...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="icon">
+    <iconset resource="../../../resources/nicos-gui.qrc">
+     <normaloff>:/quit</normaloff>:/quit</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Close window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionFont">
+   <property name="text">
+    <string>&amp;Font...</string>
+   </property>
+   <property name="toolTip">
+    <string>Select Font</string>
+   </property>
+  </action>
+  <action name="actionColor">
+   <property name="text">
+    <string>&amp;Color...</string>
+   </property>
+   <property name="toolTip">
+    <string>Select Color</string>
+   </property>
+  </action>
+  <action name="actionUnzoom">
+   <property name="icon">
+    <iconset resource="../../../resources/nicos-gui.qrc">
+     <normaloff>:/viewfull</normaloff>:/viewfull</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Unzoom</string>
+   </property>
+  </action>
+  <action name="actionPDF">
+   <property name="icon">
+    <iconset resource="../../../resources/nicos-gui.qrc">
+     <normaloff>:/save</normaloff>:/save</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Save as PDF...</string>
+   </property>
+  </action>
+  <action name="actionLogScale">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Logarithmic Y scale</string>
+   </property>
+   <property name="iconText">
+    <string>Log Scale</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionClosePlot">
+   <property name="text">
+    <string>Close plot</string>
+   </property>
+   <property name="iconText">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="actionNormalized">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Normalized</string>
+   </property>
+   <property name="iconText">
+    <string>Normalized</string>
+   </property>
+  </action>
+  <action name="actionFitPeak">
+   <property name="text">
+    <string>Fit &amp;Gauß peak</string>
+   </property>
+   <property name="iconText">
+    <string>Peak fit</string>
+   </property>
+  </action>
+  <action name="actionLegend">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>L&amp;egend</string>
+   </property>
+  </action>
+  <action name="actionGrace">
+   <property name="text">
+    <string>Clone in Grace</string>
+   </property>
+  </action>
+  <action name="actionCombine">
+   <property name="text">
+    <string>&amp;Combine</string>
+   </property>
+  </action>
+  <action name="actionDeletePlot">
+   <property name="text">
+    <string>Delete plot</string>
+   </property>
+   <property name="iconText">
+    <string>Delete</string>
+   </property>
+  </action>
+  <action name="actionFitTc">
+   <property name="text">
+    <string>Fit &amp;Tc</string>
+   </property>
+   <property name="iconText">
+    <string>Fit Tc</string>
+   </property>
+  </action>
+  <action name="actionFitPeakPV">
+   <property name="text">
+    <string>Fit Pseudo-Voigt Peak</string>
+   </property>
+   <property name="iconText">
+    <string>Peak fit (PV)</string>
+   </property>
+   <property name="toolTip">
+    <string>Fit Pseudo-Voigt Peak</string>
+   </property>
+  </action>
+  <action name="actionResetPlot">
+   <property name="text">
+    <string>Reset</string>
+   </property>
+  </action>
+  <action name="actionFitPeakPVII">
+   <property name="text">
+    <string>Fit Pearson VII Peak</string>
+   </property>
+   <property name="iconText">
+    <string>Peak fit (PVII)</string>
+   </property>
+   <property name="toolTip">
+    <string>Fit Pearson VII Peak</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../../../resources/nicos-gui.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionClose</sender>
+   <signal>triggered()</signal>
+   <receiver>TableWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>321</x>
+     <y>230</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
