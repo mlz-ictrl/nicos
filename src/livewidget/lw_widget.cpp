@@ -98,7 +98,6 @@ void LWPlot::initPlot()
     m_spectro->attach(this);
 
     setCanvasBackground(Qt::white);
-    setColorMap(true, false);
 
     enableAxis(QwtPlot::yRight);
     axisWidget(QwtPlot::yRight)->setColorBarEnabled(true);
@@ -149,33 +148,11 @@ void LWPlot::setData(QwtRasterData* data)
     changeRange();
 }
 
-void LWPlot::setColorMap(bool greyscale, bool cyclic)
+void LWPlot::setColorMap(QwtColorMap &map)
 {
-    if (m_spectro == NULL)
+    if (!m_spectro)
         return;
-
-    if (greyscale) {
-        QwtLinearColorMap colorMap(Qt::black, Qt::white);
-        m_spectro->setColorMap(colorMap);
-    } else {
-        if (cyclic) {
-            // e.g. for phase (0..2pi) display
-            QwtLinearColorMap colorMap(Qt::blue, Qt::blue);
-            colorMap.addColorStop(0.0, Qt::blue);
-            colorMap.addColorStop(0.75, Qt::red);
-            colorMap.addColorStop(0.5, Qt::yellow);
-            colorMap.addColorStop(0.25, Qt::cyan);
-            colorMap.addColorStop(1.0, Qt::blue);
-            m_spectro->setColorMap(colorMap);
-        } else {
-            QwtLinearColorMap colorMap(Qt::blue, Qt::red);
-            colorMap.addColorStop(0.0, Qt::blue);
-            colorMap.addColorStop(0.33, Qt::cyan);
-            colorMap.addColorStop(0.66, Qt::yellow);
-            colorMap.addColorStop(1.0, Qt::red);
-            m_spectro->setColorMap(colorMap);
-        }
-    }
+    m_spectro->setColorMap(map);
 }
 
 void LWPlot::printPlot()
@@ -191,10 +168,10 @@ void LWPlot::printPlot()
 /** LWWidget ******************************************************************/
 
 LWWidget::LWWidget(QWidget *parent) : QWidget(parent),
-                                      m_data(NULL),
-                                      m_log10(0)
+                                      m_data(NULL)
 {
     m_plot = new LWPlot(this);
+    setColorMap(false, false);
 
     QGridLayout *grid = new QGridLayout(this);
     grid->addWidget(m_plot, 0, 0, 1, 1);
@@ -227,6 +204,67 @@ void LWWidget::setLog10(bool val)
 {
     if (m_data) {
         m_data->setLog10(val);
+        updateGraph();
+    }
+}
+
+void LWWidget::setColorMap(bool greyscale, bool cyclic)
+{
+    if (greyscale) {
+        QwtLinearColorMap colorMap(Qt::black, Qt::white);
+        m_plot->setColorMap(colorMap);
+    } else {
+        if (cyclic) {
+            // e.g. for phase (0..2pi) display
+            QwtLinearColorMap colorMap(Qt::blue, Qt::blue);
+            colorMap.addColorStop(0.0, Qt::blue);
+            colorMap.addColorStop(0.75, Qt::red);
+            colorMap.addColorStop(0.5, Qt::yellow);
+            colorMap.addColorStop(0.25, Qt::cyan);
+            colorMap.addColorStop(1.0, Qt::blue);
+            m_plot->setColorMap(colorMap);
+        } else {
+            QwtLinearColorMap colorMap(Qt::blue, Qt::red);
+            colorMap.addColorStop(0.0, Qt::blue);
+            colorMap.addColorStop(0.33, Qt::cyan);
+            colorMap.addColorStop(0.66, Qt::yellow);
+            colorMap.addColorStop(1.0, Qt::red);
+            m_plot->setColorMap(colorMap);
+        }
+    }
+    updateGraph();
+}
+
+void LWWidget::setColormapGray(bool val)
+{
+    setColorMap(val, false);
+}
+
+void LWWidget::setColormapCyclic(bool val)
+{
+    setColorMap(false, val);
+}
+
+void LWWidget::setCustomRange(double lower, double upper)
+{
+    if (m_data) {
+        m_data->setCustomRange(lower, upper);
+        updateGraph();
+    }
+}
+
+void LWWidget::setCustomRangeMin(int lower)
+{
+    if (m_data) {
+        m_data->setCustomRange((data_t)lower, m_data->customRangeMax());
+        updateGraph();
+    }
+}
+
+void LWWidget::setCustomRangeMax(int upper)
+{
+    if (m_data) {
+        m_data->setCustomRange(m_data->customRangeMin(), (data_t)upper);
         updateGraph();
     }
 }

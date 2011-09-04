@@ -79,7 +79,7 @@ class LWPlot : public QwtPlot
     const QwtRasterData *getData() const { return &m_spectro->data(); }
 
     void setData(QwtRasterData *data);
-    void setColorMap(bool greyscale, bool cyclic);
+    void setColorMap(QwtColorMap &map);
 
   public slots:
     void printPlot();
@@ -106,15 +106,21 @@ class LWWidget : public QWidget
     LWWidget(QWidget *parent = NULL);
     virtual ~LWWidget();
 
+    LWData *data() { return m_data; }
     void setData(LWData *data);
-    
-    LWPlot *plot() { return m_plot; }
 
-    bool isLog10() { return m_log10; }
+    void setCustomRange(double lower, double upper);
+    void setColorMap(bool greyscale, bool cyclic);
+
+    LWPlot *plot() { return m_plot; }
 
   public slots:
     void setLog10(bool bLog10);
-    
+    void setCustomRangeMin(int lower);
+    void setCustomRangeMax(int lower);
+    void setColormapGray(bool val);
+    void setColormapCyclic(bool val);
+
     void updateGraph();
     void updateLabels();
 };

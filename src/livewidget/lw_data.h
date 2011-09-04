@@ -47,8 +47,10 @@ class LWData : public QwtRasterData
     data_t m_min, m_max;
 
     // concerning the display
-    bool m_log10;
     int m_cur_z;
+    bool m_log10;
+    bool m_custom_range;
+    double m_range_min, m_range_max;
 
     data_t data(int x, int y, int z) const;
     int size() const { return m_width * m_height * m_depth; }
@@ -66,18 +68,23 @@ class LWData : public QwtRasterData
     int min() const { return m_min; }
     int max() const { return m_max; }
 
+    int currentZ() const { return m_cur_z; }
+    void setCurrentZ(int val);
+
     bool isLog10() const { return m_log10; }
     void setLog10(bool val);
 
-    int currentZ() const { return m_cur_z; }
-    void setCurrentZ(int val);
+    bool hasCustomRange() const { return m_custom_range; }
+    double customRangeMin() const;
+    double customRangeMax() const;
+    void setCustomRange(double lower, double upper);
 
     // QwtRasterData overridables
     virtual QwtRasterData *copy() const;
     virtual QwtDoubleInterval range() const;
     virtual double value(double x, double y) const;
 
-    // get (nonlog) raw value without regard to m_log10
+    // get (nonlog) raw value without regard to presentation settings
     virtual double valueRaw(int x, int y) const;
     virtual double valueRaw(int x, int y, int z) const;
 };

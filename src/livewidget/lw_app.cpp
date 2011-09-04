@@ -29,9 +29,12 @@
 #include <locale.h>
 
 #include <QApplication>
+#include <QCheckBox>
+#include <QLabel>
 #include <QLayout>
 #include <QLocale>
 #include <QMainWindow>
+#include <QSlider>
 
 #include <fitsio.h>
 
@@ -59,7 +62,7 @@ LWData *data_from_fits(const char *filename)
     total_pixel = naxes[0] * naxes[1];
     tmpar = new float[total_pixel];
     data = new data_t[total_pixel];
-    
+
     fits_read_img(fptr, TFLOAT, 1, total_pixel, &nullval,
                   tmpar, &anynul, &status);
     fits_close_file(fptr, &status);
@@ -71,8 +74,8 @@ LWData *data_from_fits(const char *filename)
     delete tmpar;
     return ret;
 }
-    
-    
+
+
 int main(int argc, char **argv)
 {
     setlocale(LC_ALL, "C");
@@ -80,11 +83,54 @@ int main(int argc, char **argv)
     QApplication app(argc, argv);
 
     QMainWindow mainWindow;
-    LWWidget widget(&mainWindow);
+    QFrame frame;
+    QHBoxLayout layout1;
+    frame.setLayout(&layout1);
 
+    LWWidget widget(&frame);
     widget.setData(data_from_fits("test1.fits"));
+    layout1.addWidget(&widget);
 
-    mainWindow.setCentralWidget(&widget);   
+    QVBoxLayout layout2;
+    QLabel lbl1("min", &frame);
+    layout2.addWidget(&lbl1);
+    QSlider sl1(&frame);
+    sl1.setRange(widget.data()->min(), widget.data()->max());
+    sl1.setTracking(false);
+    QObject::connect(&sl1, SIGNAL(valueChanged(int)),
+                     &widget, SLOT(setCustomRangeMin(int)));
+    layout2.addWidget(&sl1);
+    layout1.addLayout(&layout2);
+
+    QVBoxLayout layout3;
+    QLabel lbl2("max", &frame);
+    layout3.addWidget(&lbl2);
+    QSlider sl2(&frame);
+    sl2.setRange(widget.data()->min(), widget.data()->max());
+    sl2.setValue(sl2.maximum());
+    sl2.setTracking(false);
+    QObject::connect(&sl2, SIGNAL(valueChanged(int)),
+                     &widget, SLOT(setCustomRangeMax(int)));
+    layout3.addWidget(&sl2);
+    layout1.addLayout(&layout3);
+
+    QVBoxLayout layout4;
+    QCheckBox chk1("logscale", &frame);
+    layout4.addWidget(&chk1);
+    QObject::connect(&chk1, SIGNAL(toggled(bool)),
+                     &widget, SLOT(setLog10(bool)));
+    QCheckBox chk2("gray", &frame);
+    layout4.addWidget(&chk2);
+    QObject::connect(&chk2, SIGNAL(toggled(bool)),
+                     &widget, SLOT(setColormapGray(bool)));
+    QCheckBox chk3("cyclic", &frame);
+    layout4.addWidget(&chk3);
+    QObject::connect(&chk3, SIGNAL(toggled(bool)),
+                     &widget, SLOT(setColormapCyclic(bool)));
+
+    layout1.addLayout(&layout4);
+
+    mainWindow.setCentralWidget(&frame);
     mainWindow.resize(900, 750);
     mainWindow.show();
     int ret = app.exec();

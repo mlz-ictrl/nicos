@@ -32,10 +32,18 @@
 
 #include "lw_data.h"
 
+double safe_log10(double v)
+{
+    v = (v > 0.) ? log10(v) : -1;
+    if (v != v) v = -1.;
+    return v;
+}
+
 
 LWData::LWData()
     : QwtRasterData(QwtDoubleRect(0, 0, 0, 0)),
-      m_log10(0)
+      m_log10(0),
+      m_custom_range(0)
 {
     m_data = new data_t[0];
 }
@@ -45,8 +53,9 @@ LWData::LWData(int width, int height, int depth, void *data)
       m_width(width),
       m_height(height),
       m_depth(depth),
+      m_cur_z(0),
       m_log10(0),
-      m_cur_z(0)
+      m_custom_range(0)
 {
     if (data) {
         m_data = (data_t *)data;
@@ -70,8 +79,11 @@ LWData::LWData(const LWData &other)
       m_depth(other.m_depth),
       m_min(other.m_min),
       m_max(other.m_max),
+      m_cur_z(other.m_cur_z),
       m_log10(other.m_log10),
-      m_cur_z(other.m_cur_z)
+      m_custom_range(other.m_custom_range),
+      m_range_min(other.m_range_min),
+      m_range_max(other.m_range_max)
 {
     m_data = new data_t[other.size()];
     if (m_data == NULL) {
@@ -95,8 +107,9 @@ LWData::LWData(const QwtDoubleRect &rect)
       m_depth(1),
       m_min(0),
       m_max(0),
+      m_cur_z(0),
       m_log10(0),
-      m_cur_z(0)
+      m_custom_range(0)
 {
     m_data = new data_t[size()];
     if (m_data == NULL) {
@@ -122,12 +135,6 @@ data_t LWData::data(int x, int y, int z) const
     return 0;
 }
 
-void LWData::setLog10(bool val)
-{
-    m_log10 = val;
-    updateRange();
-}
-
 void LWData::setCurrentZ(int val)
 {
     if (val < 0 || val >= m_depth) {
@@ -138,17 +145,55 @@ void LWData::setCurrentZ(int val)
     updateRange();
 }
 
+void LWData::setLog10(bool val)
+{
+    if (m_log10 != val) {
+        if (m_custom_range) {
+            if (val) {
+                m_range_min = safe_log10(m_range_min);
+                m_range_max = safe_log10(m_range_max);
+            } else {
+                m_range_min = exp(m_range_min);
+                m_range_max = exp(m_range_max);
+            }
+        }
+        m_log10 = val;
+        updateRange();
+    }
+}
+
+double LWData::customRangeMin() const
+{
+    if (m_custom_range)
+        return m_range_min;
+    return m_min;
+}
+
+double LWData::customRangeMax() const
+{
+    if (m_custom_range)
+        return m_range_max;
+    return m_max;
+}
+
+void LWData::setCustomRange(double lower, double upper)
+{
+    if (lower == 0 && upper == 0) {
+        m_custom_range = false;
+    } else {
+        m_custom_range = true;
+        m_range_min = (lower < upper) ? lower : upper;
+        m_range_max = (lower < upper) ? upper : lower;
+    }
+    updateRange();
+}
+
 QwtDoubleInterval LWData::range() const
 {
     if (m_data == NULL)
         return QwtDoubleInterval(0., 1.);
 
-    if (m_log10) {
-        return QwtDoubleInterval(m_min > 0 ? log10(m_min) : -1,
-                                 m_max > 0 ? log10(m_max) : -1);
-    } else {
-        return QwtDoubleInterval(m_min, m_max);
-    }
+    return QwtDoubleInterval(m_min, m_max);
 }
 
 void LWData::updateRange()
@@ -157,7 +202,7 @@ void LWData::updateRange()
     m_max = 0;
     for (int y = 0; y < m_height; ++y) {
         for (int x = 0; x < m_width; ++x) {
-            data_t v = data(x, y, m_cur_z);
+            data_t v = value((double)x, (double)y);
             m_min = (m_min < v) ? m_min : v;
             m_max = (m_max > v) ? m_max : v;
         }
@@ -167,11 +212,13 @@ void LWData::updateRange()
 double LWData::value(double x, double y) const
 {
     double v = (double)data((int)x, (int)y, m_cur_z);
-    if (m_log10) {
-        return (v > 0.) ? log10(v) : -1;
-    } else {
-        return v;
+    if (m_log10)
+        v = safe_log10(v);
+    if (m_custom_range) {
+        v = (v > m_range_max) ? m_range_max : v;
+        v = (v < m_range_min) ? m_range_min : v;
     }
+    return v;
 }
 
 double LWData::valueRaw(int x, int y) const
