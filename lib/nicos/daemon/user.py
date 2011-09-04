@@ -44,9 +44,6 @@ class User(object):
         self.name = username
         self.level = accesslevel
 
-    def __eq__(self, other):
-        return isinstance(other, User) and self.name == other.name
-
 
 class AuthenticationError(Exception):
     pass
@@ -69,7 +66,7 @@ class Authenticator(object):
                         break
                 else:
                     raise AuthenticationError('no such user')
-                if password != entry[1]:
+                if entry[1] and password != entry[1]:
                     raise AuthenticationError('wrong password hash')
                 if entry[2] in (GUEST, USER, ADMIN):
                     return User(username, entry[2])

@@ -70,8 +70,11 @@ class Request(object):
     """
     reqno = None
 
+    def __init__(self, user=None):
+        self.user = user
+
     def serialize(self):
-        return {'reqno': self.reqno}
+        return {'reqno': self.reqno, 'user': self.user}
 
 class TerminateRequest(Request):
     """A script thread termination request."""
@@ -91,18 +94,20 @@ class ScriptRequest(Request):
     can be done with the script: execute it, and update it.
     """
 
-    def __init__(self, text, name=None):
+    def __init__(self, text, name=None, user=None):
         self._run = Event()
         self._run.set()
 
         self.name = name
+        self.user = user
         # replace bare except clauses in the code with "except Exception"
         # so that ControlStop is not caught
         self.text = fixup_script(text)
         self.curblock = -1
 
     def serialize(self):
-        return {'reqno': self.reqno, 'name': self.name, 'script': self.text}
+        return {'reqno': self.reqno, 'name': self.name, 'script': self.text,
+                'user': self.user}
 
     def __repr__(self):
         if self.name:
@@ -282,7 +287,7 @@ class ExecutionController(Controller):
             self.set_continue(arg)
         flag = self.wait_for_continue()
         if flag:
-            self.log.info('interrupted script stopped: %s' % flag)
+            self.log.info('interrupted script stopped: %s' % (flag,))
             self.set_stop(flag)
         else:
             self.log.info('interrupted script continued')
@@ -440,6 +445,8 @@ class ExecutionController(Controller):
                     break
                 elif isinstance(request, EmergencyStopRequest):
                     self.log.warn('executing ESFs')
+                    session.log.warn('Emergency stop requested by %s' %
+                                     request.user)
                     self.exec_estop_functions()
                     continue
                 elif not isinstance(request, ScriptRequest):
@@ -459,7 +466,11 @@ class ExecutionController(Controller):
                 except ControlStop, err:
                     if err.args[0] == 'emergency stop':
                         self.log.warn('emergency stop caught, executing ESFs')
+                        session.log.warn('Emergency stop requested by %s' %
+                                         err.args[1])
                         self.exec_estop_functions()
+                    else:
+                        session.log.info('Script stopped by %s' % (err.args[1],))
                     continue
                 except Exception:
                     # the topmost two frames are still in the

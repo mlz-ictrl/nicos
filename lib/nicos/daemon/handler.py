@@ -209,8 +209,13 @@ class ConnectionHandler(BaseRequestHandler):
         if he is None:
             self.controller.controlling_user = me
             return True
-        elif he != me:
+        elif he.name != me.name:
+            if he.level < me.level:
+                # user is not controlling, but currently controlling
+                # user has lower priority
+                return True
             return False
+        # user is already the controlling user
         return True
 
     def handle(self):
@@ -294,7 +299,7 @@ class ConnectionHandler(BaseRequestHandler):
 
     # -- Script control commands ------------------------------------------------
 
-    @command(needcontrol=False, needscript=False)
+    @command(needcontrol=True, needscript=False)
     def start(self, name, code):
         """Start a named script within the script thread
 
@@ -302,13 +307,14 @@ class ConnectionHandler(BaseRequestHandler):
         """
         self.queue(name, code)
 
-    @command(needcontrol=False)
+    @command(needcontrol=True)
     def queue(self, name, code):
         """Start a named script, or queue it if the script thread is busy."""
         if not name:
             name = None
         try:
-            self.controller.new_request(ScriptRequest(code, name))
+            self.controller.new_request(
+                ScriptRequest(code, name, self.user.name))
         except RequestError, err:
             self.write(NAK, str(err))
             return
@@ -325,7 +331,7 @@ class ConnectionHandler(BaseRequestHandler):
         if reqno == '*':
             self.controller.blocked_reqs.update(
                 range(self.controller.reqno_work + 1,
-                  self.controller.reqno_latest + 1))
+                      self.controller.reqno_latest + 1))
         else:
             reqno = int(reqno)
             if reqno <= self.controller.reqno_work:
@@ -376,11 +382,11 @@ class ConnectionHandler(BaseRequestHandler):
             self.write(ACK)
         elif self.controller.status == STATUS_RUNNING:
             self.log.info('script stop request while running')
-            self.controller.set_break('stop')
+            self.controller.set_break(('stop', self.user.name))
             self.write(ACK)
         else:
             self.log.info('script stop request while in break')
-            self.controller.set_continue('stop')
+            self.controller.set_continue(('stop', self.user.name))
             self.write(ACK)
 
     @command(needcontrol=True)
@@ -389,7 +395,7 @@ class ConnectionHandler(BaseRequestHandler):
         if self.controller.status in (STATUS_IDLE, STATUS_IDLEEXC):
             # only execute emergency stop functions
             self.log.warning('emergency stop without script running')
-            self.controller.new_request(EmergencyStopRequest())
+            self.controller.new_request(EmergencyStopRequest(self.user.name))
             self.write(ACK)
             return
         elif self.controller.status == STATUS_STOPPING:
@@ -398,10 +404,10 @@ class ConnectionHandler(BaseRequestHandler):
         self.log.warning('emergency stop request in %s' %
                          self.controller.current_location(True))
         if self.controller.status == STATUS_RUNNING:
-            self.controller.set_stop('emergency stop')
+            self.controller.set_stop(('emergency stop', self.user.name))
         else:
             # in break
-            self.controller.set_continue('emergency stop')
+            self.controller.set_continue(('emergency stop', self.user.name))
         self.write(ACK)
 
     # -- Asynchronous script interaction ---------------------------------------
@@ -549,7 +555,7 @@ class ConnectionHandler(BaseRequestHandler):
     @command()
     def quit(self):
         """Close the session."""
-        if self.controller.controlling_user == self.user:
+        if self.controller.controlling_user is self.user:
             self.controller.controlling_user = None
         self.log.info('disconnect')
         self.write(ACK)

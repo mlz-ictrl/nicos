@@ -71,7 +71,11 @@ def format_exception_cut_frames(cut=0):
 
 def format_script(script, prompt='>>>'):
     """Format a script with timestamp."""
-    prompt = '%s [%s] ' % (prompt, time.strftime(TIMESTAMP_FMT))
+    if script.user:
+        prompt = '%s [%s %s] ' % (prompt, script.user,
+                                  time.strftime(TIMESTAMP_FMT))
+    else:
+        prompt = '%s [%s] ' % (prompt, time.strftime(TIMESTAMP_FMT))
     if '\n' not in script.text:
         return prompt + ' ' + script.text
     else:

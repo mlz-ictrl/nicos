@@ -37,7 +37,8 @@ __version__ = "$Revision$"
 import threading
 import traceback
 
-from _pyctl import ControlStop, ControllerError
+# re-exported
+from _pyctl import ControlStop
 from _pyctl import Controller as _Controller
 
 # defines from the C module
