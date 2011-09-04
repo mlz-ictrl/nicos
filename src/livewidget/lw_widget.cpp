@@ -110,7 +110,7 @@ void LWPlot::initPlot()
     m_spectro->attach(this);
 
     setCanvasBackground(Qt::white);
-    setColorMap(false);
+    setColorMap(true, false);
 
     enableAxis(QwtPlot::yRight);
     axisWidget(QwtPlot::yRight)->setColorBarEnabled(true);
@@ -153,27 +153,32 @@ void LWPlot::setData(QwtRasterData* data)
     changeRange();
 }
 
-void LWPlot::setColorMap(bool bCyclic)
+void LWPlot::setColorMap(bool greyscale, bool cyclic)
 {
     if (m_spectro == NULL)
         return;
 
-    if (bCyclic) {
-	// Für Phasen
-        QwtLinearColorMap colorMap(Qt::blue, Qt::blue);
-        colorMap.addColorStop(0.0, Qt::blue);
-        colorMap.addColorStop(0.75, Qt::red);
-        colorMap.addColorStop(0.5, Qt::yellow);
-        colorMap.addColorStop(0.25, Qt::cyan);
-        colorMap.addColorStop(1.0, Qt::blue);
+    if (greyscale) {
+        QwtLinearColorMap colorMap(Qt::black, Qt::white);
         m_spectro->setColorMap(colorMap);
     } else {
-        QwtLinearColorMap colorMap(Qt::blue, Qt::red);
-        colorMap.addColorStop(0.0, Qt::blue);
-        colorMap.addColorStop(0.33, Qt::cyan);
-        colorMap.addColorStop(0.66, Qt::yellow);
-        colorMap.addColorStop(1.0, Qt::red);
-        m_spectro->setColorMap(colorMap);
+        if (cyclic) {
+            // e.g. for phase (0..2pi) display
+            QwtLinearColorMap colorMap(Qt::blue, Qt::blue);
+            colorMap.addColorStop(0.0, Qt::blue);
+            colorMap.addColorStop(0.75, Qt::red);
+            colorMap.addColorStop(0.5, Qt::yellow);
+            colorMap.addColorStop(0.25, Qt::cyan);
+            colorMap.addColorStop(1.0, Qt::blue);
+            m_spectro->setColorMap(colorMap);
+        } else {
+            QwtLinearColorMap colorMap(Qt::blue, Qt::red);
+            colorMap.addColorStop(0.0, Qt::blue);
+            colorMap.addColorStop(0.33, Qt::cyan);
+            colorMap.addColorStop(0.66, Qt::yellow);
+            colorMap.addColorStop(1.0, Qt::red);
+            m_spectro->setColorMap(colorMap);
+        }
     }
 }
 
@@ -221,7 +226,7 @@ void LWWidget::setData(LWData *data)
         unload();
     m_data = data;
     updateGraph();
-    
+    m_plot->getZoomer()->setZoomBase();
 }   
 
 void LWWidget::setLog10(bool val)

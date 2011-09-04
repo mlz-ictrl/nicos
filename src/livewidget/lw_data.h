@@ -30,7 +30,9 @@
 
 #include <qwt_plot_spectrogram.h>
 
+// data type used for single pixel count values
 typedef unsigned int data_t;
+
 
 class LWData : public QwtRasterData
 {
@@ -38,29 +40,35 @@ class LWData : public QwtRasterData
     void updateRange();
     
   protected:
+    // concerning the data
     bool m_data_owned;
     int m_width, m_height, m_depth;
     data_t *m_data;
     data_t m_min, m_max;
 
+    // concerning the display
     bool m_log10;
+    int m_cur_z;
 
     data_t data(int x, int y, int z) const;
     int size() const { return m_width * m_height * m_depth; }
 
   public:
     LWData();
+    LWData(const QwtDoubleRect &rect);   // required by sip
     LWData(int width, int height, int depth=1, data_t *data=NULL);
     LWData(const LWData &other);
     ~LWData();
-    //LWData(const QwtDoubleRect &rect);
 
     int width() const { return m_width; }
     int height() const { return m_height; }
     int depth() const { return m_depth; }
 
     bool isLog10() const { return m_log10; }
-    void setLog10(bool val) { m_log10 = val; updateRange(); }
+    void setLog10(bool val);
+
+    int currentZ() const { return m_cur_z; }
+    void setCurrentZ(int val);
 
     // QwtRasterData overridables
     virtual QwtRasterData *copy() const;
@@ -69,6 +77,7 @@ class LWData : public QwtRasterData
 
     // get (nonlog) raw value without regard to m_log10
     virtual double valueRaw(int x, int y) const;
+    virtual double valueRaw(int x, int y, int z) const;
 };
 
 #endif

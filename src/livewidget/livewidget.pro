@@ -2,7 +2,7 @@ CONFIG += qt
 #TEMPLATE = lib
 
 INCLUDEPATH += . /usr/include/qwt5
-LIBS += -lqwt
+LIBS += -lqwt -lcfitsio
 
 HEADERS += \
     lw_app.h \

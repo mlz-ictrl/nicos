@@ -25,6 +25,7 @@
 //
 // *****************************************************************************
 
+#include <assert.h>
 #include <locale.h>
 
 #include <QApplication>
@@ -32,11 +33,46 @@
 #include <QLocale>
 #include <QMainWindow>
 
+#include <fitsio.h>
+
 #include "lw_app.h"
 #include "lw_data.h"
 #include "lw_widget.h"
 
 
+LWData *data_from_fits(const char *filename)
+{
+    fitsfile *fptr;
+    int status = 0;
+    int bitpix, naxis, anynul, hdutype;
+    long naxes[3], total_pixel, x, y;
+    float nullval = 0.;
+    float *tmpar;
+    data_t *data;
+
+    fits_open_file(&fptr, filename, READONLY, &status);
+    fits_get_img_param(fptr, 3, &bitpix, &naxis, naxes, &status);
+    fits_get_hdu_type(fptr, &hdutype, &status);
+    assert(hdutype == IMAGE_HDU);
+    assert(naxis == 3);
+
+    total_pixel = naxes[0] * naxes[1];
+    tmpar = new float[total_pixel];
+    data = new data_t[total_pixel];
+    
+    fits_read_img(fptr, TFLOAT, 1, total_pixel, &nullval,
+                  tmpar, &anynul, &status);
+    fits_close_file(fptr, &status);
+
+    for (y = 0; y < naxes[1]; y++)
+        for (x = 0; x < naxes[0]; x++)
+            data[x + y*naxes[0]] = (data_t)tmpar[x + y*naxes[0]];
+    LWData *ret = new LWData(naxes[0], naxes[1], 1, data);
+    delete tmpar;
+    return ret;
+}
+    
+    
 int main(int argc, char **argv)
 {
     setlocale(LC_ALL, "C");
@@ -46,15 +82,7 @@ int main(int argc, char **argv)
     QMainWindow mainWindow;
     LWWidget widget(&mainWindow);
 
-    data_t *tmp = new data_t[256];
-    for (int y = 0; y < 16; y++) {
-      for (int x = 0; x < 16; x++) {
-        tmp[y*16 + x] = y*(16 - x);
-      }
-    }
-    
-    widget.setData(new LWData(16, 16, 1, tmp));
-    widget.setLog10(0);
+    widget.setData(data_from_fits("test1.fits"));
 
     mainWindow.setCentralWidget(&widget);   
     mainWindow.resize(900, 750);

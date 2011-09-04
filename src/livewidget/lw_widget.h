@@ -69,6 +69,10 @@ class LWPlot : public QwtPlot
 {
     Q_OBJECT
 
+  private:
+    void initPlot();
+    void deinitPlot();
+    
   protected:
     QwtPlotSpectrogram *m_spectro;
     LWZoomer *m_zoomer;
@@ -78,16 +82,13 @@ class LWPlot : public QwtPlot
     LWPlot(QWidget *parent);
     virtual ~LWPlot();
 
-    void initPlot();
-    void deinitPlot();
-    
     void changeRange();
     QwtPlotZoomer *getZoomer() { return m_zoomer; }
     QwtPlotPanner *getPanner() { return m_panner; }
     const QwtRasterData *getData() const { return &m_spectro->data(); }
 
-    void setData(QwtRasterData *pData);
-    void setColorMap(bool bCyclic);
+    void setData(QwtRasterData *data);
+    void setColorMap(bool greyscale, bool cyclic);
 
   public slots:
     void printPlot();
@@ -97,8 +98,10 @@ class LWPlot : public QwtPlot
 class LWWidget : public QWidget
 {
     Q_OBJECT
+
   private:
     bool m_bForceReinit;
+    void unload();
 
   protected:
     LWPlot *m_plot;
@@ -108,60 +111,21 @@ class LWWidget : public QWidget
     ///int m_iFolie, m_iZeitkanal;
     bool m_log10;
 
-public:
+  public:
     LWWidget(QWidget *parent = NULL);
     virtual ~LWWidget();
 
-    ///bool isTofLoaded() const;
-    ///bool isPadLoaded() const;
-    ///void* newPad();
-    ///void* newTof(int iCompression = TOF_COMPRESSION_USEGLOBCONFIG);
-
-    void unload();
     void setData(LWData *data);
     
-    ///TofImage* GetTof();
-    ///Data2D* GetData2d();
-    ///PadData* GetPad();
-    LWPlot* plot() { return m_plot; }
-    ///unsigned int* GetRawData();
+    LWPlot *plot() { return m_plot; }
 
     bool isLog10() { return m_log10; }
-    ///int foil() const;
-    ///int timechannel() const;
-
-    ///int mode();
-    ///void setMode(int mode);
 
   public slots:
-    // sum all foils and all time channels
-    ///void viewOverview();
-    // show single foil
-    ///void viewSlides();
-    ///void viewPhases();
-    ///void viewContrasts();
-
-    ///void viewFoilSums(const bool *pbKanaele);
-    ///void viewPhaseSums(const bool *pbFolien);
-    ///void viewContrastSums(const bool *pbFolien);
-
-    // dialogs ////////////////////////////
-    ///void showCalibrationDlg(int iNumBins);
-    ///void showGraphDlg();
-    ///void showSumDlg();
-    ///////////////////////////////////////
-
     void setLog10(bool bLog10);
-    ///void setFoil(int iFolie);
-    ///void setTimechannel(int iKanal);
     
     void updateGraph();
     void updateLabels();
-
-    ///void sumDlgSlot(const bool *pbKanaele, int iMode);
-
-  signals:
-    ///void sumDlgSignal(const bool* pbKanaele, int iMode);
 };
 
 #endif
