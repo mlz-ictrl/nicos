@@ -40,7 +40,7 @@ LWData::LWData()
     m_data = new data_t[0];
 }
 
-LWData::LWData(int width, int height, int depth, data_t *data)
+LWData::LWData(int width, int height, int depth, void *data)
     : QwtRasterData(QwtDoubleRect(0, width, 0, height)),
       m_width(width),
       m_height(height),
@@ -49,7 +49,7 @@ LWData::LWData(int width, int height, int depth, data_t *data)
       m_cur_z(0)
 {
     if (data) {
-        m_data = data;
+        m_data = (data_t *)data;
         updateRange();
     } else {
         m_data = new data_t[size()];

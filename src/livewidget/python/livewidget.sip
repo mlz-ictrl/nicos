@@ -12,6 +12,7 @@ class LWData : QwtRasterData
 %End
   public:
     LWData(const QwtDoubleRect& rect);
+    LWData(int width, int height, int depth, void *data=NULL);
 		
     void setLog10(bool val);
     bool isLog10() const;

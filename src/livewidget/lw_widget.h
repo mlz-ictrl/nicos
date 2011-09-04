@@ -45,23 +45,13 @@
 class LWZoomer : public QwtPlotZoomer
 {
   protected:
-    const QwtPlotSpectrogram *m_pData;
+    const QwtPlotSpectrogram *m_data;
 
   public:
-    LWZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram *pData);
+    LWZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram *data);
     virtual ~LWZoomer();
 
     virtual QwtText trackerText(const QwtDoublePoint &pos) const;
-};
-
-
-class LWPanner : public QwtPlotPanner
-{
-  protected:
-
-  public:
-    LWPanner(QwtPlotCanvas *canvas);
-    virtual ~LWPanner();
 };
 
 
@@ -75,8 +65,9 @@ class LWPlot : public QwtPlot
     
   protected:
     QwtPlotSpectrogram *m_spectro;
+    QwtPlotPanner *m_panner;
+    QwtPlotPicker *m_picker;
     LWZoomer *m_zoomer;
-    LWPanner *m_panner;
 
   public:
     LWPlot(QWidget *parent);

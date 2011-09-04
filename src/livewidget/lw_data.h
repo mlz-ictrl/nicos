@@ -56,13 +56,15 @@ class LWData : public QwtRasterData
   public:
     LWData();
     LWData(const QwtDoubleRect &rect);   // required by sip
-    LWData(int width, int height, int depth=1, data_t *data=NULL);
+    LWData(int width, int height, int depth=1, void *data=NULL);
     LWData(const LWData &other);
     ~LWData();
 
     int width() const { return m_width; }
     int height() const { return m_height; }
     int depth() const { return m_depth; }
+    int min() const { return m_min; }
+    int max() const { return m_max; }
 
     bool isLog10() const { return m_log10; }
     void setLog10(bool val);

@@ -32,14 +32,14 @@
 
 /** LWZoomer ******************************************************************/
 
-LWZoomer::LWZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram *pData)
-    : QwtPlotZoomer(canvas), m_pData(pData)
+LWZoomer::LWZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram *data)
+    : QwtPlotZoomer(canvas), m_data(data)
 {
     setSelectionFlags(QwtPicker::RectSelection | QwtPicker::DragSelection);
 
-    setMousePattern(QwtEventPattern::MouseSelect2, Qt::RightButton,
-                    Qt::ControlModifier);
-    setMousePattern(QwtEventPattern::MouseSelect3, Qt::RightButton);
+    //setMousePattern(QwtEventPattern::MouseSelect2, Qt::RightButton,
+    //                Qt::ControlModifier);
+    //setMousePattern(QwtEventPattern::MouseSelect3, Qt::RightButton);
 
     QColor blue(Qt::darkBlue);
     setRubberBandPen(blue);
@@ -58,7 +58,7 @@ QwtText LWZoomer::trackerText(const QwtDoublePoint &pos) const
     str += ", ";
     str += QString::number(int(pos.y()));
 
-    const LWData &data = (const LWData &)m_pData->data();
+    const LWData &data = (const LWData &)m_data->data();
 
     str += "\nValue: ";
     str += QString::number(data.valueRaw(pos.x(), pos.y()));
@@ -71,22 +71,10 @@ QwtText LWZoomer::trackerText(const QwtDoublePoint &pos) const
 }
 
 
-/** LWPanner ******************************************************************/
-
-LWPanner::LWPanner(QwtPlotCanvas *canvas) : QwtPlotPanner(canvas)
-{
-    setAxisEnabled(QwtPlot::yRight, false);
-    setMouseButton(Qt::MidButton);
-}
-
-LWPanner::~LWPanner()
-{}
-
-
 /** LWPlot *********************************************************************/
 
 LWPlot::LWPlot(QWidget *parent) : QwtPlot(parent), m_spectro(0),
-                                  m_zoomer(0), m_panner(0)
+                                  m_panner(0), m_picker(0), m_zoomer(0)
 {
 	initPlot();
 }
@@ -120,7 +108,15 @@ void LWPlot::initPlot()
     plotLayout()->setAlignCanvasToScales(true);
 
     m_zoomer = new LWZoomer(canvas(), m_spectro);
-    m_panner = new LWPanner(canvas());
+    m_panner = new QwtPlotPanner(canvas());
+    m_panner->setAxisEnabled(QwtPlot::yRight, false);
+    m_panner->setMouseButton(Qt::MidButton);
+    //m_picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
+    //                             QwtPicker::RectSelection,
+    //                             QwtPlotPicker::RectRubberBand,
+    //                             QwtPicker::AlwaysOff, canvas());
+    //m_picker->setMousePattern(QwtEventPattern::MouseSelect1, Qt::MidButton);
+    //m_picker->setRubberBandPen(QColor(Qt::green));
 
     QFontMetrics fm(axisWidget(QwtPlot::yLeft)->font());
     axisScaleDraw(QwtPlot::yLeft)->setMinimumExtent(fm.width("100."));
@@ -135,12 +131,11 @@ void LWPlot::deinitPlot()
 
 void LWPlot::changeRange()
 {
-    setAxisScale(QwtPlot::yRight, m_spectro->data().range().minValue(),
-                 m_spectro->data().range().maxValue());
+    LWData &data = (LWData &)m_spectro->data();
+
+    setAxisScale(QwtPlot::yRight, data.min(), data.max());
     axisWidget(QwtPlot::yRight)->setColorMap(m_spectro->data().range(),
                                              m_spectro->colorMap());
-
-    LWData &data = (LWData &)m_spectro->data();
     
     setAxisScale(QwtPlot::yLeft, 0, data.height());
     setAxisScale(QwtPlot::xBottom, 0, data.width());
@@ -148,7 +143,8 @@ void LWPlot::changeRange()
 
 void LWPlot::setData(QwtRasterData* data)
 {
-    if (!data) return;
+    if (!m_spectro)
+        return;
     m_spectro->setData(*data);
     changeRange();
 }
@@ -203,8 +199,6 @@ LWWidget::LWWidget(QWidget *parent) : QWidget(parent),
     QGridLayout *grid = new QGridLayout(this);
     grid->addWidget(m_plot, 0, 0, 1, 1);
     this->setLayout(grid);
-
-    updateLabels();
 }
 
 LWWidget::~LWWidget()
@@ -231,9 +225,10 @@ void LWWidget::setData(LWData *data)
 
 void LWWidget::setLog10(bool val)
 {
-    m_log10 = val;
-    ///SetLog10/ChangeRange
-    updateGraph();
+    if (m_data) {
+        m_data->setLog10(val);
+        updateGraph();
+    }
 }
 
 void LWWidget::updateGraph()
@@ -241,11 +236,13 @@ void LWWidget::updateGraph()
     if (m_data) {
         m_plot->setData(m_data);
         m_plot->replot();
+        updateLabels();
     }
-    updateLabels();
 }
 
 void LWWidget::updateLabels()
 {
-    m_plot->axisWidget(QwtPlot::yRight)->setTitle(m_log10 ? "log Counts" : "Counts");
+    if (m_data)
+        m_plot->axisWidget(QwtPlot::yRight)->setTitle(
+            m_data->isLog10() ? "log Counts" : "Counts");
 }
