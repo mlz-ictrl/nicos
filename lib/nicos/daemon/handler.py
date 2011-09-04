@@ -530,7 +530,7 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command()
     def getdataset(self, index):
-        """Get the current dataset."""
+        """Get one or more datasets."""
         if index == '*':
             try:
                 self.write(STX, serialize(session.experiment._last_datasets))
