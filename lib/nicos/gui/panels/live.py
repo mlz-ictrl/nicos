@@ -106,7 +106,7 @@ class LiveDataPanel(Panel):
         self.menu.popup(self.mapToGlobal(point))
 
     def on_client_liveparams(self, params):
-        dtype, nx, ny, nt, runtime = params
+        tag, dtype, nx, ny, nt, runtime = params
         self._runtime = runtime
         if dtype == '<I4' and nx == 128 and ny == 128:
             if nt == 1:

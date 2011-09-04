@@ -228,8 +228,9 @@ class CascadeDetector(Measurable, NeedsDatapath):
                     cascadeclient.Config_TofLoader.SetPseudoCompression(False)
                     # The other setters have to be called here!
 
-                    session.updateLiveData('<I4', self._xres, self._yres,
-                                           self._tres, time() - started, buf)
+                    session.updateLiveData(
+                        'cascade', '<I4', self._xres, self._yres,
+                        self._tres, time() - started, buf)
 
                     #ar = np.ndarray(buffer=buf, shape=self._datashape,
                     #                order='F', dtype='<I4')
@@ -258,8 +259,9 @@ class CascadeDetector(Measurable, NeedsDatapath):
                                              'server: %s' % data[:4])
                 buf = buffer(data, 4)
                 # send final image to live plots
-                session.updateLiveData('<I4', self._xres, self._yres,
-                                       self._tres, self._last_preset, buf)
+                session.updateLiveData(
+                    'cascade', '<I4', self._xres, self._yres,
+                    self._tres, self._last_preset, buf)
                 # write to data file
                 with open(self.lastfilename, 'w') as fp:
                     fp.write(buf)

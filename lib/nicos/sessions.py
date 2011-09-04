@@ -736,7 +736,7 @@ class Session(object):
 
     # -- Session-specific behavior ---------------------------------------------
 
-    def updateLiveData(self, dtype, nx, ny, nt, time, data):
+    def updateLiveData(self, tag, dtype, nx, ny, nt, time, data):
         pass
 
     def breakpoint(self, level):
@@ -1164,8 +1164,8 @@ class DaemonSession(SimpleSession):
             except OSError:
                 self.log.exception('Error waiting for simulation process')
 
-    def updateLiveData(self, dtype, nx, ny, nt, time, data):
-        self.emitfunc('liveparams', (dtype, nx, ny, nt, time))
+    def updateLiveData(self, tag, dtype, nx, ny, nt, time, data):
+        self.emitfunc('liveparams', (tag, dtype, nx, ny, nt, time))
         self.emitfunc('livedata', data)
 
     def breakpoint(self, level):
