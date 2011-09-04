@@ -32,6 +32,8 @@ PAM_PROMPT_ECHO_ON = 2
 PAM_ERROR_MSG = 3
 PAM_TEXT_INFO = 4
 
+
+
 class PamHandle(Structure):
     """wrapper class for pam_handle_t"""
     _fields_ = [("handle", c_void_p)]
@@ -71,6 +73,10 @@ PAM_AUTHENTICATE = LIBPAM.pam_authenticate
 PAM_AUTHENTICATE.restype = c_int
 PAM_AUTHENTICATE.argtypes = [PamHandle, c_int]
 
+PAM_STRERROR = LIBPAM.pam_strerror
+PAM_STRERROR.restype = c_char_p
+PAM_STRERROR.argtypes = [PamHandle, c_int]
+
 def authenticate(username, password, service='login'):
     """Returns True if the given username and password authenticate for the
     given service.  Returns False otherwise
@@ -100,13 +106,12 @@ def authenticate(username, password, service='login'):
     retval = PAM_START(service, username, pointer(conv), pointer(handle))
 
     if retval != 0:
-        # TODO: This is not an authentication error, something
-        # has gone wrong starting up PAM
-        return False
+        return 'pam_start failed with error %d' % retval
 
     retval = PAM_AUTHENTICATE(handle, 0)
-    #print retval
-    return retval == 0
+    if retval == 0:
+        return ''
+    return PAM_STRERROR(handle, retval)
 
 if __name__ == "__main__":
     import sys, getpass

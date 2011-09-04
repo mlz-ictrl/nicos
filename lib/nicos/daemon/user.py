@@ -34,7 +34,6 @@ __date__    = "$Date$"
 __version__ = "$Revision$"
 
 # access levels
-
 GUEST = 0
 USER  = 1
 ADMIN = 2
@@ -78,8 +77,10 @@ class Authenticator(object):
                     return User(username, GUEST)
             elif self.method == 'pam':
                 import pam, pwd
-                if not pam.authenticate(username, password):
-                    raise AuthenticationError('pam authenticate() failed')
+                message = pam.authenticate(username, password)
+                if message:
+                    raise AuthenticationError('PAM authentication failed: %s'
+                                              % message)
                 entry = pwd.getpwnam(username)
                 idx = entry.pw_gecos.find('access=')
                 if idx > -1:
