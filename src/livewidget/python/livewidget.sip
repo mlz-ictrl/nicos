@@ -12,13 +12,18 @@ class LWData : QwtRasterData
 %End
   public:
     LWData(const QwtDoubleRect& rect);
-    LWData(int width, int height, int depth, void *data=NULL);
-		
+    LWData(int width, int height, int depth=1, const char *data=NULL);
+
     void setLog10(bool val);
     bool isLog10() const;
-		
+
+    // QwtRasterData overridables
+    virtual QwtRasterData *copy() const;
+    virtual QwtDoubleInterval range() const;
+    virtual double value(double x, double y) const;
+
     // get raw (nonlog) value independent of m_bLog
-    virtual double valueRaw(int x, int y) const;
+    double valueRaw(int x, int y) const;
 };
 
 class LWPlot : QwtPlot
@@ -35,8 +40,6 @@ class LWPlot : QwtPlot
 
     void setData(QwtRasterData *data);
     const QwtRasterData *getData() const;
-
-    void setColorMap(bool greyscale, bool cyclic);
 
   public slots:
     void printPlot();
@@ -55,11 +58,9 @@ class LWWidget : QWidget
     void setData(LWData *data);
     LWPlot *plot();
 
-    bool isLog10();
-
   public slots:
     void setLog10(bool bLog10);
-		
+
     void updateGraph();
-    void updateLabels();		
+    void updateLabels();
 };

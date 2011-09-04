@@ -33,6 +33,7 @@ __version__ = "$Revision$"
 
 import time
 from os import path
+from logging import WARNING
 
 from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, Qt, QVariant, \
      QStringList, QFileSystemWatcher
@@ -203,7 +204,6 @@ class EditorPanel(Panel):
         self.warnWidget.hide()
 
         self.simRanges.header().setResizeMode(QHeaderView.ResizeToContents)
-        self.simOutView.setErrorView(self.simOutViewErrors)
         self.simPane.hide()
 
         self.connect(self.actionUndo, SIGNAL('triggered()'), self.editor.undo)
@@ -314,6 +314,8 @@ class EditorPanel(Panel):
             return
         if self.waiting_sim_result:
             self.simOutView.addMessage(message)
+            if message[2] >= WARNING:
+                self.simOutViewErrors.addMessage(message)
 
     def on_client_simresult(self, (timing, devinfo)):
         if not self.waiting_sim_result:

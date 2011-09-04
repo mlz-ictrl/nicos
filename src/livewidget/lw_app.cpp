@@ -70,7 +70,7 @@ LWData *data_from_fits(const char *filename)
     for (y = 0; y < naxes[1]; y++)
         for (x = 0; x < naxes[0]; x++)
             data[x + y*naxes[0]] = (data_t)tmpar[x + y*naxes[0]];
-    LWData *ret = new LWData(naxes[0], naxes[1], 1, data);
+    LWData *ret = new LWData(naxes[0], naxes[1], 1, (const char *)data);
     delete tmpar;
     return ret;
 }

@@ -58,7 +58,7 @@ class LWData : public QwtRasterData
   public:
     LWData();
     LWData(const QwtDoubleRect &rect);   // required by sip
-    LWData(int width, int height, int depth=1, void *data=NULL);
+    LWData(int width, int height, int depth=1, const char *data=NULL);
     LWData(const LWData &other);
     ~LWData();
 

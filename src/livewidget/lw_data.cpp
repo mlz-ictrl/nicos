@@ -46,9 +46,10 @@ LWData::LWData()
       m_custom_range(0)
 {
     m_data = new data_t[0];
+    m_data_owned = true;
 }
 
-LWData::LWData(int width, int height, int depth, void *data)
+LWData::LWData(int width, int height, int depth, const char *data)
     : QwtRasterData(QwtDoubleRect(0, width, 0, height)),
       m_width(width),
       m_height(height),
@@ -57,15 +58,16 @@ LWData::LWData(int width, int height, int depth, void *data)
       m_log10(0),
       m_custom_range(0)
 {
+    m_data = new data_t[size()];
+    m_data_owned = true;
+    if (m_data == NULL) {
+        std::cerr << "could not allocate memory for data" << std::endl;
+        return;
+    }
     if (data) {
-        m_data = (data_t *)data;
+        memcpy(m_data, data, sizeof(data_t) * size());
         updateRange();
     } else {
-        m_data = new data_t[size()];
-        if (m_data == NULL) {
-            std::cerr << "could not allocate memory for data" << std::endl;
-            return;
-        }
         memset(m_data, 0, sizeof(data_t) * size());
         m_min = m_max = 0;
     }
@@ -95,7 +97,7 @@ LWData::LWData(const LWData &other)
 
 LWData::~LWData()
 {
-    if (m_data)
+    if (m_data && m_data_owned)
         delete m_data;
 }
 
