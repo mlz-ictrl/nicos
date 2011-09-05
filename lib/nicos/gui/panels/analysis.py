@@ -33,10 +33,10 @@ __version__ = "$Revision$"
 
 import time
 
-from PyQt4.QtCore import Qt, QVariant, QSize, SIGNAL
+from PyQt4.QtCore import Qt, QSize, SIGNAL
 from PyQt4.QtGui import QDialog, QMenu, QToolBar, QPalette, QFont, \
-     QPen, QBrush, QColor, QListWidgetItem, QFontDialog, QColorDialog, \
-     QFileDialog, QPrintDialog, QPrinter, QStatusBar, QSizePolicy
+     QPen, QBrush, QListWidgetItem, QFileDialog, QPrintDialog, QPrinter, \
+     QStatusBar, QSizePolicy
 from PyQt4.Qwt5 import Qwt, QwtPlot, QwtPlotCurve, QwtPlotItem, QwtSymbol, \
      QwtLog10ScaleEngine, QwtLinearScaleEngine, QwtPlotZoomer, QwtPicker, \
      QwtPlotPicker, QwtPlotMarker, QwtPlotGrid, QwtText, QwtLegend
@@ -83,11 +83,13 @@ class AnalysisPanel(Panel):
         self.statusBar.sizePolicy().setVerticalPolicy(QSizePolicy.Fixed)
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
+        self.user_color = parent.user_color
+        self.user_font = parent.user_font
 
         self.bulk_adding = False
         self.no_openset = False
 
-        self.data = parent.data
+        self.data = self.mainwindow.data
 
         # maps set uid -> plot
         self.setplots = {}
@@ -98,8 +100,7 @@ class AnalysisPanel(Panel):
         # stack of set uids
         self.setUidStack = []
 
-        self.userFont = self.font()
-        self.userColor = self.palette().color(QPalette.Base)
+        self.splitter.restoreState(self.splitterstate)
 
         self.connect(self.data, SIGNAL('datasetAdded'),
                      self.on_data_datasetAdded)
@@ -108,34 +109,23 @@ class AnalysisPanel(Panel):
 
         self.updateList()
 
-    def loadSettings(self):
-        with self.sgroup as settings:
-            geometry = settings.value('geometry').toByteArray()
-            font = QFont(settings.value('font'))
-            color = QColor(settings.value('color'))
-            splitter = settings.value('splitter').toByteArray()
-        self.restoreGeometry(geometry)
-        self.splitter.restoreState(splitter)
-        self.userFont = font
-        self.changeFont()
-        if color.isValid():
-            self.userColor = color
-            self.changeColor()
+    def loadSettings(self, settings):
+        self.splitterstate = settings.value('splitter').toByteArray()
 
-    def changeFont(self):
-        font = self.userFont
+    def setCustomStyle(self, font, back):
+        self.user_font = font
+        self.user_color = back
+
+        for plot in self.setplots.itervalues():
+            plot.setCanvasBackground(back)
+            plot.replot()
+
         bold = QFont(font)
         bold.setBold(True)
         larger = QFont(font)
         larger.setPointSize(font.pointSize() * 1.6)
-
         for plot in self.setplots.itervalues():
             plot.setFonts(font, bold, larger)
-
-    def changeColor(self):
-        for plot in self.setplots.itervalues():
-            plot.setCanvasBackground(self.userColor)
-            plot.replot()
 
     def enablePlotActions(self, on):
         for action in [
@@ -193,26 +183,6 @@ class AnalysisPanel(Panel):
             item = QListWidgetItem(dataset.name, self.datasetList)
             item.setData(32, dataset.uid)
             self.setitems[dataset.uid] = item
-
-    @qtsig('')
-    def on_actionFont_triggered(self):
-        font, ok = QFontDialog.getFont(self.userFont, self)
-        if not ok:
-            return
-        self.userFont = font
-        with self.sgroup as settings:
-            settings.setValue('font', QVariant(font))
-        self.changeFont()
-
-    @qtsig('')
-    def on_actionColor_triggered(self):
-        color = QColorDialog.getColor(self.userColor, self)
-        if not color.isValid():
-            return
-        self.userColor = color
-        with self.sgroup as settings:
-            settings.setValue('color', QVariant(color))
-        self.changeColor()
 
     def on_datasetList_currentItemChanged(self, item, previous):
         if self.no_openset or item is None:
@@ -506,7 +476,7 @@ class DataSetPlot(QwtPlot):
         self.fitstage = 0
         self.has_secondary = False
 
-        font = self.window.userFont
+        font = self.window.user_font
         bold = QFont(font)
         bold.setBold(True)
         larger = QFont(font)
@@ -532,7 +502,7 @@ class DataSetPlot(QwtPlot):
                                   QwtPicker.AlwaysOff,
                                   self.canvas())
 
-        self.setCanvasBackground(self.window.userColor)
+        self.setCanvasBackground(self.window.user_color)
         self.canvas().setMouseTracking(True)
         self.connect(self.picker, SIGNAL('moved(const QPoint &)'),
                      self.on_picker_moved)
@@ -661,7 +631,7 @@ class DataSetPlot(QwtPlot):
         if on:
             legend = QwtLegend(self)
             legend.setItemMode(QwtLegend.ClickableItem)
-            legend.palette().setColor(QPalette.Base, self.window.userColor)
+            legend.palette().setColor(QPalette.Base, self.window.user_color)
             legend.setBackgroundRole(QPalette.Base)
             self.insertLegend(legend, QwtPlot.BottomLegend)
             for curve in self.curves:

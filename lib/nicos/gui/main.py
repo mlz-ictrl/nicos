@@ -108,7 +108,11 @@ class MainWindow(QMainWindow, DlgUtils):
             window('Errors/warnings', 'errors', True,
                    panel('nicos.gui.panels.errors.ErrorPanel')),
             window('Editor', 'editor', False,
-                   panel('nicos.gui.panels.editor.EditorPanel'))
+                   panel('nicos.gui.panels.editor.EditorPanel')),
+            window('Analysis', 'plotter', True,
+                   panel('nicos.gui.panels.analysis.AnalysisPanel')),
+            window('History', 'find', True,
+                   panel('nicos.gui.panels.history.HistoryPanel')),
             ])
 
         # load profiles and current profile

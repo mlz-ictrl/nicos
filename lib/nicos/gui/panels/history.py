@@ -72,6 +72,8 @@ class View(object):
                 self.keydata[key] = x, y
                 history = client.ask('gethistory', key,
                                      str(self.fromtime), str(totime))
+                if history is None:
+                    return # XXX what to do?
                 ltime = 0
                 interval = self.interval
                 for vtime, value in history:
@@ -106,8 +108,8 @@ class HistoryPanel(Panel):
         self.statusBar.sizePolicy().setVerticalPolicy(QSizePolicy.Fixed)
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
-
-        self.client = parent.client
+        self.user_color = parent.user_color
+        self.user_font = parent.user_font
 
         self.views = []
         # stack of views to display
@@ -117,43 +119,30 @@ class HistoryPanel(Panel):
         # current plot object
         self.currentPlot = None
 
-        self.userFont = self.font()
-        self.userColor = self.palette().color(QPalette.Base)
-
+        self.splitter.restoreState(self.splitterstate)
         self.connect(self.client, SIGNAL('cache'), self.on_client_cache)
 
         self.enablePlotActions(False)
 
-    def loadSettings(self):
-        with self.sgroup as settings:
-            geometry = settings.value('geometry').toByteArray()
-            font = QFont(settings.value('font'))
-            color = QColor(settings.value('color'))
-            splitter = settings.value('splitter').toByteArray()
-        self.restoreGeometry(geometry)
-        self.splitter.restoreState(splitter)
-        self.userFont = font
-        self.changeFont()
-        if color.isValid():
-            self.userColor = color
-            self.changeColor()
+    def loadSettings(self, settings):
+        self.splitterstate = settings.value('splitter').toByteArray()
 
-    def changeFont(self):
-        font = self.userFont
+    def setCustomStyle(self, font, back):
+        self.user_font = font
+        self.user_color = back
+
+        for view in self.views:
+            if view.plot:
+                view.plot.setCanvasBackground(back)
+                view.plot.replot()
+
         bold = QFont(font)
         bold.setBold(True)
         larger = QFont(font)
         larger.setPointSize(font.pointSize() * 1.6)
-
         for view in self.views:
             if view.plot:
                 view.plot.setFonts(font, bold, larger)
-
-    def changeColor(self):
-        for view in self.views:
-            if view.plot:
-                view.plot.setCanvasBackground(self.userColor)
-                view.plot.replot()
 
     def enablePlotActions(self, on):
         for action in [
@@ -198,26 +187,6 @@ class HistoryPanel(Panel):
             view.newValue(time, key, op, value)
             if view.plot:
                 view.plot.pointsAdded(key)
-
-    @qtsig('')
-    def on_actionFont_triggered(self):
-        font, ok = QFontDialog.getFont(self.userFont, self)
-        if not ok:
-            return
-        self.userFont = font
-        with self.sgroup as settings:
-            settings.setValue('font', QVariant(font))
-        self.changeFont()
-
-    @qtsig('')
-    def on_actionColor_triggered(self):
-        color = QColorDialog.getColor(self.userColor, self)
-        if not color.isValid():
-            return
-        self.userColor = color
-        with self.sgroup as settings:
-            settings.setValue('color', QVariant(color))
-        self.changeColor()
 
     def on_viewList_currentItemChanged(self, item, previous):
         if item is None:
@@ -385,7 +354,7 @@ class ViewPlot(QwtPlot):
         self.window = window
         self.curves = []
 
-        font = self.window.userFont
+        font = self.window.font() # XXX userFont
         bold = QFont(font)
         bold.setBold(True)
         larger = QFont(font)
@@ -408,7 +377,7 @@ class ViewPlot(QwtPlot):
                                   QwtPicker.AlwaysOff,
                                   self.canvas())
 
-        self.setCanvasBackground(self.window.userColor)
+        # XXX self.setCanvasBackground(self.window.userColor)
         self.canvas().setMouseTracking(True)
         self.connect(self.picker, SIGNAL('moved(const QPoint &)'),
                      self.on_picker_moved)
@@ -493,7 +462,7 @@ class ViewPlot(QwtPlot):
         if on:
             legend = QwtLegend(self)
             legend.setItemMode(QwtLegend.ClickableItem)
-            legend.palette().setColor(QPalette.Base, self.window.userColor)
+            # XXX legend.palette().setColor(QPalette.Base, self.window.userColor)
             legend.setBackgroundRole(QPalette.Base)
             self.insertLegend(legend, QwtPlot.BottomLegend)
             for curve in self.curves:
