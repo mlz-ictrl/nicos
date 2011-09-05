@@ -1,4 +1,4 @@
-CONFIG += qt
+CONFIG += qt debug
 #TEMPLATE = lib
 
 INCLUDEPATH += . /usr/include/qwt5

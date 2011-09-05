@@ -5,25 +5,26 @@
 %Import Qwt5/QwtModule.sip
 
 
-class LWData : QwtRasterData
+class LWData
 {
 %TypeHeaderCode
 #include "../lw_data.h"
 %End
   public:
-    LWData(const QwtDoubleRect& rect);
+    LWData(const LWData &other);
     LWData(int width, int height, int depth=1, const char *data=NULL);
 
     void setLog10(bool val);
     bool isLog10() const;
 
-    // QwtRasterData overridables
-    virtual QwtRasterData *copy() const;
-    virtual QwtDoubleInterval range() const;
-    virtual double value(double x, double y) const;
+    bool hasCustomRange() const;
+    double customRangeMin() const;
+    double customRangeMax() const;
+    void setCustomRange(double lower, double upper);
 
-    // get raw (nonlog) value independent of m_bLog
+    double value(double x, double y) const;
     double valueRaw(int x, int y) const;
+    double valueRaw(int x, int y, int z) const;
 };
 
 class LWPlot : QwtPlot
@@ -55,7 +56,7 @@ class LWWidget : QWidget
     LWWidget(QWidget *parent = NULL);
     virtual ~LWWidget();
 
-    void setData(LWData *data);
+    void setData(LWData *data /Transfer/);
     LWPlot *plot();
 
   public slots:

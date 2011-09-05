@@ -64,8 +64,8 @@ fix_build_file(build_file, map(basename, extra_sources),
                map(basename, extra_moc_headers))
 
 print "Generating makefile..."
-makefile = pyqtconfig.QtGuiModuleMakefile(configuration=config,
-                                          build_file=build_file)
+makefile = pyqtconfig.QtGuiModuleMakefile(
+    configuration=config, build_file=build_file, debug=True)
 
 makefile.extra_include_dirs = ["/usr/include/qwt5", ".."]
 makefile.extra_libs = ["qwt", "cfitsio"]

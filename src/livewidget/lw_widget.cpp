@@ -32,14 +32,14 @@
 
 /** LWZoomer ******************************************************************/
 
-LWZoomer::LWZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram *data)
-    : QwtPlotZoomer(canvas), m_data(data)
+LWZoomer::LWZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram *spectro)
+    : QwtPlotZoomer(canvas), m_spectro(spectro)
 {
     setSelectionFlags(QwtPicker::RectSelection | QwtPicker::DragSelection);
 
-    //setMousePattern(QwtEventPattern::MouseSelect2, Qt::RightButton,
-    //                Qt::ControlModifier);
-    //setMousePattern(QwtEventPattern::MouseSelect3, Qt::RightButton);
+    setMousePattern(QwtEventPattern::MouseSelect2, Qt::RightButton,
+                    Qt::ControlModifier);
+    setMousePattern(QwtEventPattern::MouseSelect3, Qt::RightButton);
 
     QColor blue(Qt::darkBlue);
     setRubberBandPen(blue);
@@ -58,7 +58,7 @@ QwtText LWZoomer::trackerText(const QwtDoublePoint &pos) const
     str += ", ";
     str += QString::number(int(pos.y()));
 
-    const LWData &data = (const LWData &)m_data->data();
+    const LWRasterData &data = (const LWRasterData &)m_spectro->data();
 
     str += "\nValue: ";
     str += QString::number(data.valueRaw(pos.x(), pos.y()));
@@ -76,12 +76,12 @@ QwtText LWZoomer::trackerText(const QwtDoublePoint &pos) const
 LWPlot::LWPlot(QWidget *parent) : QwtPlot(parent), m_spectro(0),
                                   m_panner(0), m_picker(0), m_zoomer(0)
 {
-	initPlot();
+    initPlot();
 }
 
 LWPlot::~LWPlot()
 {
-	deinitPlot();
+    deinitPlot();
 }
 
 void LWPlot::initPlot()
@@ -92,7 +92,7 @@ void LWPlot::initPlot()
     axisWidget(QwtPlot::yLeft)->setTitle("y Pixels");
 
     m_spectro = new QwtPlotSpectrogram();
-    m_spectro->setData(LWData());   // dummy object
+    m_spectro->setData(LWRasterData());   // dummy object
     m_spectro->setDisplayMode(QwtPlotSpectrogram::ImageMode, true);
     m_spectro->setDisplayMode(QwtPlotSpectrogram::ContourMode, false);
     m_spectro->attach(this);
@@ -130,10 +130,11 @@ void LWPlot::deinitPlot()
 
 void LWPlot::changeRange()
 {
-    LWData &data = (LWData &)m_spectro->data();
+    LWRasterData &data = (LWRasterData &)m_spectro->data();
 
-    setAxisScale(QwtPlot::yRight, data.min(), data.max());
-    axisWidget(QwtPlot::yRight)->setColorMap(m_spectro->data().range(),
+    QwtDoubleInterval range = data.range();
+    setAxisScale(QwtPlot::yRight, range.minValue(), range.maxValue());
+    axisWidget(QwtPlot::yRight)->setColorMap(data.range(),
                                              m_spectro->colorMap());
     
     setAxisScale(QwtPlot::yLeft, 0, data.height());
@@ -272,7 +273,7 @@ void LWWidget::setCustomRangeMax(int upper)
 void LWWidget::updateGraph()
 {
     if (m_data) {
-        m_plot->setData(m_data);
+        m_plot->setData(new LWRasterData(m_data));
         m_plot->replot();
         updateLabels();
     }

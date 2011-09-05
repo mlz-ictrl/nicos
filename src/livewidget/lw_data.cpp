@@ -40,9 +40,10 @@ double safe_log10(double v)
 }
 
 
+/** LWData ********************************************************************/
+
 LWData::LWData()
-    : QwtRasterData(QwtDoubleRect(0, 0, 0, 0)),
-      m_log10(0),
+    : m_log10(0),
       m_custom_range(0)
 {
     m_data = new data_t[0];
@@ -50,8 +51,7 @@ LWData::LWData()
 }
 
 LWData::LWData(int width, int height, int depth, const char *data)
-    : QwtRasterData(QwtDoubleRect(0, width, 0, height)),
-      m_width(width),
+    : m_width(width),
       m_height(height),
       m_depth(depth),
       m_cur_z(0),
@@ -74,8 +74,7 @@ LWData::LWData(int width, int height, int depth, const char *data)
 }
 
 LWData::LWData(const LWData &other)
-    : QwtRasterData(QwtDoubleRect(other.boundingRect())),
-      m_data_owned(true),
+    : m_data_owned(true),
       m_width(other.m_width),
       m_height(other.m_height),
       m_depth(other.m_depth),
@@ -88,10 +87,6 @@ LWData::LWData(const LWData &other)
       m_range_max(other.m_range_max)
 {
     m_data = new data_t[other.size()];
-    if (m_data == NULL) {
-        std::cerr << "could not allocate memory for data" << std::endl;
-        return;
-    }
     memcpy(m_data, other.m_data, sizeof(data_t) * other.size());
 }
 
@@ -99,31 +94,6 @@ LWData::~LWData()
 {
     if (m_data && m_data_owned)
         delete m_data;
-}
-
-LWData::LWData(const QwtDoubleRect &rect)
-    : QwtRasterData(rect),
-      m_data_owned(true),
-      m_width(rect.width()),
-      m_height(rect.height()),
-      m_depth(1),
-      m_min(0),
-      m_max(0),
-      m_cur_z(0),
-      m_log10(0),
-      m_custom_range(0)
-{
-    m_data = new data_t[size()];
-    if (m_data == NULL) {
-        std::cerr << "could not allocate memory for data" << std::endl;
-        return;
-    }
-    memset(m_data, 0, sizeof(data_t) * size());
-}
-
-QwtRasterData *LWData::copy() const
-{
-    return new LWData(*this);
 }
 
 data_t LWData::data(int x, int y, int z) const
@@ -188,14 +158,6 @@ void LWData::setCustomRange(double lower, double upper)
         m_range_max = (lower < upper) ? upper : lower;
     }
     updateRange();
-}
-
-QwtDoubleInterval LWData::range() const
-{
-    if (m_data == NULL)
-        return QwtDoubleInterval(0., 1.);
-
-    return QwtDoubleInterval(m_min, m_max);
 }
 
 void LWData::updateRange()

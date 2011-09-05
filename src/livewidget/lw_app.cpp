@@ -34,6 +34,7 @@
 #include <QLayout>
 #include <QLocale>
 #include <QMainWindow>
+#include <QPushButton>
 #include <QSlider>
 
 #include <fitsio.h>
@@ -96,7 +97,6 @@ int main(int argc, char **argv)
     layout2.addWidget(&lbl1);
     QSlider sl1(&frame);
     sl1.setRange(widget.data()->min(), widget.data()->max());
-    sl1.setTracking(false);
     QObject::connect(&sl1, SIGNAL(valueChanged(int)),
                      &widget, SLOT(setCustomRangeMin(int)));
     layout2.addWidget(&sl1);
@@ -108,7 +108,6 @@ int main(int argc, char **argv)
     QSlider sl2(&frame);
     sl2.setRange(widget.data()->min(), widget.data()->max());
     sl2.setValue(sl2.maximum());
-    sl2.setTracking(false);
     QObject::connect(&sl2, SIGNAL(valueChanged(int)),
                      &widget, SLOT(setCustomRangeMax(int)));
     layout3.addWidget(&sl2);
@@ -127,6 +126,10 @@ int main(int argc, char **argv)
     layout4.addWidget(&chk3);
     QObject::connect(&chk3, SIGNAL(toggled(bool)),
                      &widget, SLOT(setColormapCyclic(bool)));
+    QPushButton btn("reload", &frame);
+    layout4.addWidget(&btn);
+    QObject::connect(&btn, SIGNAL(released()),
+                     &widget, SLOT(reload()));
 
     layout1.addLayout(&layout4);
 

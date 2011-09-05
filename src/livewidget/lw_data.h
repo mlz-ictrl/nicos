@@ -34,11 +34,11 @@
 typedef unsigned int data_t;
 
 
-class LWData : public QwtRasterData
+class LWData
 {
   private:
     void updateRange();
-    
+
   protected:
     // concerning the data
     bool m_data_owned;
@@ -57,7 +57,6 @@ class LWData : public QwtRasterData
 
   public:
     LWData();
-    LWData(const QwtDoubleRect &rect);   // required by sip
     LWData(int width, int height, int depth=1, const char *data=NULL);
     LWData(const LWData &other);
     ~LWData();
@@ -79,14 +78,51 @@ class LWData : public QwtRasterData
     double customRangeMax() const;
     void setCustomRange(double lower, double upper);
 
-    // QwtRasterData overridables
-    virtual QwtRasterData *copy() const;
-    virtual QwtDoubleInterval range() const;
     virtual double value(double x, double y) const;
-
     // get (nonlog) raw value without regard to presentation settings
     virtual double valueRaw(int x, int y) const;
     virtual double valueRaw(int x, int y, int z) const;
+};
+
+
+class LWRasterData : public QwtRasterData
+{
+  private:
+    const LWData *m_data;
+
+  public:
+    LWRasterData() :
+        QwtRasterData(QwtDoubleRect(0, 1, 0, 0)),
+        m_data(new LWData()) {
+    }
+    LWRasterData(const LWData *data) :
+        QwtRasterData(QwtDoubleRect(0, data->width(), 0, data->height())),
+        m_data(data) {
+    }
+    LWRasterData(const LWRasterData &other) :
+        QwtRasterData(other), m_data(other.m_data) {
+    }
+
+    // QwtRasterData overridables
+    virtual QwtRasterData *copy() const {
+        return new LWRasterData(*this);
+    }
+    virtual QwtDoubleInterval range() const {
+        return QwtDoubleInterval(m_data->min(), m_data->max());
+    }
+    virtual double value(double x, double y) const {
+        return m_data->value(x, y);
+    }
+    virtual double valueRaw(double x, double y) const {
+        return m_data->valueRaw(x, y);
+    }
+
+    int width() {
+        return m_data->width();
+    }
+    int height() {
+        return m_data->height();
+    }
 };
 
 #endif

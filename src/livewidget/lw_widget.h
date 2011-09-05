@@ -45,10 +45,10 @@
 class LWZoomer : public QwtPlotZoomer
 {
   protected:
-    const QwtPlotSpectrogram *m_data;
+    const QwtPlotSpectrogram *m_spectro;
 
   public:
-    LWZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram *data);
+    LWZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram *spectro);
     virtual ~LWZoomer();
 
     virtual QwtText trackerText(const QwtDoublePoint &pos) const;
@@ -120,6 +120,7 @@ class LWWidget : public QWidget
     void setCustomRangeMax(int lower);
     void setColormapGray(bool val);
     void setColormapCyclic(bool val);
+    void reload() { setData(new LWData(*m_data)); }
 
     void updateGraph();
     void updateLabels();
