@@ -28,16 +28,19 @@
 #ifndef LW_DATA_H
 #define LW_DATA_H
 
+#include <stdint.h>
+
 #include <qwt_plot_spectrogram.h>
 
 // data type used for single pixel count values
-typedef unsigned int data_t;
+typedef uint32_t data_t;
 
 
 class LWData
 {
   private:
     void updateRange();
+    void initFromBuffer(const char *data);
 
   protected:
     // concerning the data
@@ -57,7 +60,9 @@ class LWData
 
   public:
     LWData();
-    LWData(int width, int height, int depth=1, const char *data=NULL);
+    LWData(int width, int height, int depth, const char *data);
+    LWData(int width, int height, int depth,
+           const char *format, const char *data);
     LWData(const LWData &other);
     ~LWData();
 

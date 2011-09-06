@@ -32,11 +32,19 @@
 
 #include "lw_data.h"
 
-double safe_log10(double v)
+static inline double safe_log10(double v)
 {
     v = (v > 0.) ? log10(v) : -1;
     if (v != v) v = -1.;
     return v;
+}
+
+static inline uint16_t bswap_16(uint16_t x) {
+    return (x << 8) | (x >> 8);
+}
+
+static inline uint32_t bswap_32(uint32_t x) {
+    return (bswap_16(x & 0xFFFF) << 16) | bswap_16(x >> 16);
 }
 
 
@@ -50,13 +58,7 @@ LWData::LWData()
     m_data_owned = true;
 }
 
-LWData::LWData(int width, int height, int depth, const char *data)
-    : m_width(width),
-      m_height(height),
-      m_depth(depth),
-      m_cur_z(0),
-      m_log10(0),
-      m_custom_range(0)
+void LWData::initFromBuffer(const char *data)
 {
     m_data = new data_t[size()];
     m_data_owned = true;
@@ -71,6 +73,66 @@ LWData::LWData(int width, int height, int depth, const char *data)
         memset(m_data, 0, sizeof(data_t) * size());
         m_min = m_max = 0;
     }
+}
+
+LWData::LWData(int width, int height, int depth, const char *data)
+    : m_width(width),
+      m_height(height),
+      m_depth(depth),
+      m_cur_z(0),
+      m_log10(0),
+      m_custom_range(0)
+{
+    initFromBuffer(data);
+}
+
+#define COPY_LOOP(type)                           \
+    type *p = (type *)data;                       \
+    data_t *q = m_data;                           \
+    for (int i = 0; i < width*height*depth; i++)  \
+        *q++ = *p++
+
+#define COPY_LOOP_CONVERTED(type, converter)            \
+    type *p = (type *)data;                             \
+    data_t *q = m_data;                                 \
+    for (int i = 0; i < width*height*depth; i++) {      \
+        *q++ = converter(*p++);                         \
+    }
+
+LWData::LWData(int width, int height, int depth,
+               const char *format, const char *data)
+    : m_width(width),
+      m_height(height),
+      m_depth(depth),
+      m_cur_z(0),
+      m_log10(0),
+      m_custom_range(0)
+{
+    // XXX currently, we interpret signed types as unsigned
+
+    // the easy case
+    if (!strcmp(format, "<I4") || !strcmp(format, "<i4")) {
+        initFromBuffer(data);
+        return;
+    }
+
+    initFromBuffer(NULL);
+    if (!strcmp(format, ">I4") || !strcmp(format, ">i4")) {
+        COPY_LOOP_CONVERTED(uint32_t, bswap_32);
+    } else if (!strcmp(format, "<I2") || !strcmp(format, "<i2")) {
+        COPY_LOOP(uint16_t);
+    } else if (!strcmp(format, ">I2") || !strcmp(format, ">i2")) {
+        COPY_LOOP_CONVERTED(uint16_t, bswap_16);
+    } else if (!strcmp(format, "I1") || !strcmp(format, "i1")) {
+        COPY_LOOP(uint8_t);
+    } else if (!strcmp(format, "f8")) {
+        COPY_LOOP(double);
+    } else if (!strcmp(format, "f4")) {
+        COPY_LOOP(float);
+    } else {
+        std::cerr << "Unsupported format: " << format << "!" << std::endl;
+    }
+    updateRange();
 }
 
 LWData::LWData(const LWData &other)

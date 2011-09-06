@@ -73,8 +73,8 @@ QwtText LWZoomer::trackerText(const QwtDoublePoint &pos) const
 
 /** LWPlot *********************************************************************/
 
-LWPlot::LWPlot(QWidget *parent) : QwtPlot(parent), m_spectro(0),
-                                  m_panner(0), m_picker(0), m_zoomer(0)
+LWPlot::LWPlot(QWidget *parent) : QwtPlot(parent), m_spectro(0), m_panner(0),
+                                  m_picker(0), m_rescaler(0), m_zoomer(0)
 {
     initPlot();
 }
@@ -116,7 +116,8 @@ void LWPlot::initPlot()
     //                             QwtPicker::AlwaysOff, canvas());
     //m_picker->setMousePattern(QwtEventPattern::MouseSelect1, Qt::MidButton);
     //m_picker->setRubberBandPen(QColor(Qt::green));
-    m_rescaler = new QwtPlotRescaler(canvas(), QwtPlot::xBottom, QwtPlotRescaler::Fitting);
+    m_rescaler = new QwtPlotRescaler(canvas(), QwtPlot::xBottom,
+                                     QwtPlotRescaler::Fitting);
 
     QFontMetrics fm(axisWidget(QwtPlot::yLeft)->font());
     axisScaleDraw(QwtPlot::yLeft)->setMinimumExtent(fm.width("100."));

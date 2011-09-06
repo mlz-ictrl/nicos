@@ -49,10 +49,9 @@ LWData *data_from_fits(const char *filename)
     fitsfile *fptr;
     int status = 0;
     int bitpix, naxis, anynul, hdutype;
-    long naxes[3], total_pixel, x, y;
+    long naxes[3], total_pixel;
     float nullval = 0.;
-    float *tmpar;
-    data_t *data;
+    float *data;
 
     fits_open_file(&fptr, filename, READONLY, &status);
     fits_get_img_param(fptr, 3, &bitpix, &naxis, naxes, &status);
@@ -61,19 +60,13 @@ LWData *data_from_fits(const char *filename)
     assert(naxis == 3);
 
     total_pixel = naxes[0] * naxes[1];
-    tmpar = new float[total_pixel];
-    data = new data_t[total_pixel];
+    data = new float[total_pixel];
 
     fits_read_img(fptr, TFLOAT, 1, total_pixel, &nullval,
-                  tmpar, &anynul, &status);
+                  data, &anynul, &status);
     fits_close_file(fptr, &status);
 
-    for (y = 0; y < naxes[1]; y++)
-        for (x = 0; x < naxes[0]; x++)
-            data[x + y*naxes[0]] = (data_t)tmpar[x + y*naxes[0]];
-    LWData *ret = new LWData(naxes[0], naxes[1], 1, (const char *)data);
-    delete tmpar;
-    return ret;
+    return new LWData(naxes[0], naxes[1], 1, "f4", (const char *)data);
 }
 
 
@@ -106,6 +99,7 @@ int main(int argc, char **argv)
     QLabel lbl2("max", &frame);
     layout3.addWidget(&lbl2);
     QSlider sl2(&frame);
+    printf("range: %d, %d\n", widget.data()->min(), widget.data()->max());
     sl2.setRange(widget.data()->min(), widget.data()->max());
     sl2.setValue(sl2.maximum());
     QObject::connect(&sl2, SIGNAL(valueChanged(int)),

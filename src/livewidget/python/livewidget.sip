@@ -12,7 +12,9 @@ class LWData
 %End
   public:
     LWData(const LWData &other);
-    LWData(int width, int height, int depth=1, const char *data=NULL);
+    LWData(int width, int height, int depth, const char *data);
+    LWData(int width, int height, int depth,
+           const char *format, const char *data);
 
     void setLog10(bool val);
     bool isLog10() const;
