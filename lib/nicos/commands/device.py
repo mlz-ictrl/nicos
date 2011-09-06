@@ -295,6 +295,24 @@ def listmethods(dev):
     dev.log.info('Device methods:')
     printTable(('method', 'from class', 'description'), items, printinfo)
 
+@usercommand
+def listallparams(*names):
+    """List the given parameters for all existing devices that have them.
+
+    Example: listallparams('pollinterval', 'maxage')
+    """
+    items = []
+    for name, dev in session.devices.iteritems():
+        pvalues = []
+        for param in names:
+            if param in dev.parameters:
+                pvalues.append(repr(getattr(dev, param)))
+            else:
+                pvalues.append(None)
+        if any(v is not None for v in pvalues):
+            items.append([name] + map(str, pvalues))
+    printTable(('device',) + names, items, printinfo)
+
 # XXX check casing!
 
 @usercommand
