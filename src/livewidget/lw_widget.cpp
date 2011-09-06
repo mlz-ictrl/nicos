@@ -116,6 +116,7 @@ void LWPlot::initPlot()
     //                             QwtPicker::AlwaysOff, canvas());
     //m_picker->setMousePattern(QwtEventPattern::MouseSelect1, Qt::MidButton);
     //m_picker->setRubberBandPen(QColor(Qt::green));
+    m_rescaler = new QwtPlotRescaler(canvas(), QwtPlot::xBottom, QwtPlotRescaler::Fitting);
 
     QFontMetrics fm(axisWidget(QwtPlot::yLeft)->font());
     axisScaleDraw(QwtPlot::yLeft)->setMinimumExtent(fm.width("100."));
@@ -125,6 +126,8 @@ void LWPlot::deinitPlot()
 {
     if (m_zoomer) { delete m_zoomer; m_zoomer = 0; }
     if (m_panner) { delete m_panner; m_panner = 0; }
+    if (m_picker) { delete m_picker; m_picker = 0; }
+    if (m_rescaler) { delete m_rescaler; m_rescaler = 0; }
     if (m_spectro) { delete m_spectro; m_spectro = 0; }
 }
 

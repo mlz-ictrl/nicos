@@ -35,6 +35,7 @@
 #include <qwt_plot.h>
 #include <qwt_plot_layout.h>
 #include <qwt_plot_panner.h>
+#include <qwt_plot_rescaler.h>
 #include <qwt_plot_spectrogram.h>
 #include <qwt_plot_zoomer.h>
 #include <qwt_scale_widget.h>
@@ -67,6 +68,7 @@ class LWPlot : public QwtPlot
     QwtPlotSpectrogram *m_spectro;
     QwtPlotPanner *m_panner;
     QwtPlotPicker *m_picker;
+    QwtPlotRescaler *m_rescaler;
     LWZoomer *m_zoomer;
 
   public:
