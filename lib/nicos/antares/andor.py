@@ -42,7 +42,7 @@ import TacoDevice
 
 from nicos import session, status
 from nicos.data import NeedsDatapath
-from nicos.utils import readFileCounter, updateFileCounter
+from nicos.utils import readFileCounter, updateFileCounter, tupleof
 from nicos.device import Measurable, Param, Override, Value
 
 
@@ -60,6 +60,17 @@ class CascadeDetector(Measurable, NeedsDatapath):
                               type=str, settable=True),
         'lastfilenumber': Param('File number of the last measurement',
                                 type=int, settable=True),
+        'roi':      Param('Region of interest, given as (x1, y1, x2, y2)',
+                          type=tupleof(int, int, int, int),
+                          default=(-1, -1, -1, -1), settable=True),
+        'binning':  Param('Binning (horizontal, vertical)',
+                          type=tupleof(int, int), default=(1, 1), settable=True)
+#        'tempcontrol': Param('Temperature control on/off', type=bool,
+#                             settable=True),
+#        'tempsetpoint': Param('Temperature setpoint', type=float,
+#                              settable=True),
+#        'temperature': Param('Current temperature', type=float,
+#                             volatile=True),
     }
 
     parameter_overrides = {
@@ -148,6 +159,18 @@ class CascadeDetector(Measurable, NeedsDatapath):
     def doWritePreselection(self, value):
         self._dev.DevCCDSetTimes(int(value * 1000))
 
+    def doWriteRoi(self, value):
+        self._dev.DevCCDSetImage(self.binning[0], self.binning[1],
+            value[0], value[2], value[1], value[3])
+
+    def doWriteBinning(self, value):
+        self._dev.DevCCDSetImage(value[0], value[1],
+            self.roi[0], self.roi[2], self.roi[1], self.roi[3])
+
+    def setRelativeRoi(self, *values):
+        self.roi = (self.roi[0] + values[0], self.roi[1] + values[1],
+                    self.roi[0] + values[2], self.roi[1] + values[3])
+
     def _thread_entry(self):
         while True:
             try:
@@ -172,11 +195,14 @@ class CascadeDetector(Measurable, NeedsDatapath):
             try:
                 data = self._dev.DevCCDReadImageBin()
                 data = array.array('I', data)
+                roi = self.roi
+                width = (roi[2] - roi[0] + 1) / self.binning[0]
+                height = (roi[3] - roi[1] + 1) / self.binning[1]
                 session.updateLiveData(
-                    'ccd', '<I4', 2048, 2048, 1, self._last_preset, buffer(data))
+                    'ccd', '<I4', width, height, 1, self._last_preset, buffer(data))
                 self._dev.DevCCDReadImageTif(self.lastfilename)
-            except:
-                self.lastfilename = '<error>'
+            except Exception, err:
+                self.lastfilename = '<error: %s>' % err
                 self.log.exception('saving measurement failed')
             finally:
                 self._processed.set()
