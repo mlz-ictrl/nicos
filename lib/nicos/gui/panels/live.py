@@ -40,6 +40,9 @@ from nicos.gui.utils import loadUi
 from nicos.gui.panels import Panel
 from nicos.gui.livewidget import LWWidget, LWData
 
+DATATYPES = frozenset(('<I4', '<i4', '>I4', '>i4', '<I2', '<i2', '>I2', '>i2',
+                       'I1', 'i1', 'f8', 'f4'))
+
 
 class LiveDataPanel(Panel):
     panelName = 'Live data view'
@@ -108,17 +111,19 @@ class LiveDataPanel(Panel):
     def on_client_liveparams(self, params):
         tag, dtype, nx, ny, nz, runtime = params
         self._runtime = runtime
-        if dtype != '<I4':
-            self._nx = self._ny = self._nz = None
+        if dtype not in DATATYPES:
+            self._format = None
             print 'Unsupported live data format:', params
             return
+        self._format = dtype
         self._nx = nx
         self._ny = ny
         self._nz = nz
 
     def on_client_livedata(self, data):
-        if self._nx:
-            self.widget.setData(LWData(self._nx, self._ny, self._nz, data))
+        if self._format:
+            self.widget.setData(
+                LWData(self._nx, self._ny, self._nz, self._format, data))
 
     @qtsig('')
     def on_actionSetAsROI_triggered(self):
