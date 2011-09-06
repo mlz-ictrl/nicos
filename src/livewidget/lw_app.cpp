@@ -99,7 +99,6 @@ int main(int argc, char **argv)
     QLabel lbl2("max", &frame);
     layout3.addWidget(&lbl2);
     QSlider sl2(&frame);
-    printf("range: %d, %d\n", widget.data()->min(), widget.data()->max());
     sl2.setRange(widget.data()->min(), widget.data()->max());
     sl2.setValue(sl2.maximum());
     QObject::connect(&sl2, SIGNAL(valueChanged(int)),

@@ -158,7 +158,7 @@ LWData::~LWData()
         delete m_data;
 }
 
-data_t LWData::data(int x, int y, int z) const
+inline data_t LWData::data(int x, int y, int z) const
 {
     if (m_data == NULL)
         return 0;
@@ -167,59 +167,6 @@ data_t LWData::data(int x, int y, int z) const
         z >= 0 && z < m_depth)
         return m_data[z*m_width*m_height + y*m_width + x];
     return 0;
-}
-
-void LWData::setCurrentZ(int val)
-{
-    if (val < 0 || val >= m_depth) {
-        std::cerr << "invalid current Z selected" << std::endl;
-        return;
-    }
-    m_cur_z = val;
-    updateRange();
-}
-
-void LWData::setLog10(bool val)
-{
-    if (m_log10 != val) {
-        if (m_custom_range) {
-            if (val) {
-                m_range_min = safe_log10(m_range_min);
-                m_range_max = safe_log10(m_range_max);
-            } else {
-                m_range_min = exp(m_range_min);
-                m_range_max = exp(m_range_max);
-            }
-        }
-        m_log10 = val;
-        updateRange();
-    }
-}
-
-double LWData::customRangeMin() const
-{
-    if (m_custom_range)
-        return m_range_min;
-    return m_min;
-}
-
-double LWData::customRangeMax() const
-{
-    if (m_custom_range)
-        return m_range_max;
-    return m_max;
-}
-
-void LWData::setCustomRange(double lower, double upper)
-{
-    if (lower == 0 && upper == 0) {
-        m_custom_range = false;
-    } else {
-        m_custom_range = true;
-        m_range_min = (lower < upper) ? lower : upper;
-        m_range_max = (lower < upper) ? upper : lower;
-    }
-    updateRange();
 }
 
 void LWData::updateRange()
@@ -255,4 +202,67 @@ double LWData::valueRaw(int x, int y) const
 double LWData::valueRaw(int x, int y, int z) const
 {
     return (double)data(x, y, z);
+}
+
+void LWData::histogram(int bins, data_t *out, double *step) const
+{
+    *step = (m_max - m_min) / (double)bins;
+    for (int y = 0; y < m_height; ++y) {
+        for (int x = 0; x < m_width; ++x) {
+            out[(int)((data(x, y, m_cur_z) - m_min) / *step)]++;
+        }
+    }
+}
+
+void LWData::setCurrentZ(int val)
+{
+    if (val < 0 || val >= m_depth) {
+        std::cerr << "invalid current Z selected" << std::endl;
+        return;
+    }
+    m_cur_z = val;
+    updateRange();
+}
+
+void LWData::setLog10(bool val)
+{
+    if (m_log10 != val) {
+        if (m_custom_range) {
+            if (val) {
+                m_range_min = safe_log10(m_range_min);
+                m_range_max = safe_log10(m_range_max);
+            } else {
+                m_range_min = (data_t)exp10(m_range_min);
+                m_range_max = (data_t)exp10(m_range_max);
+            }
+        }
+        m_log10 = val;
+        updateRange();
+    }
+}
+
+double LWData::customRangeMin() const
+{
+    if (m_custom_range)
+        return m_range_min;
+    return m_min;
+}
+
+double LWData::customRangeMax() const
+{
+    if (m_custom_range)
+        return m_range_max;
+    return m_max;
+}
+
+void LWData::setCustomRange(double lower, double upper)
+{
+    if (lower == 0 && upper == 0) {
+        m_custom_range = false;
+    } else {
+        m_custom_range = true;
+        m_range_min = (lower < upper) ? lower : upper;
+        m_range_max = (lower < upper) ? upper : lower;
+    }
+    updateRange();
 }

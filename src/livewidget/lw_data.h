@@ -66,6 +66,8 @@ class LWData
     LWData(const LWData &other);
     ~LWData();
 
+    const data_t *buffer() const { return m_data; }
+
     int width() const { return m_width; }
     int height() const { return m_height; }
     int depth() const { return m_depth; }
@@ -87,6 +89,8 @@ class LWData
     // get (nonlog) raw value without regard to presentation settings
     virtual double valueRaw(int x, int y) const;
     virtual double valueRaw(int x, int y, int z) const;
+
+    virtual void histogram(int bins, data_t *out, double *step) const;
 };
 
 
