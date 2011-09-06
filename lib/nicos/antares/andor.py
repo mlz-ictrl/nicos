@@ -33,6 +33,7 @@ __author__  = "$Author$"
 __date__    = "$Date$"
 __version__ = "$Revision$"
 
+import array
 import threading
 from os import path
 from time import sleep
@@ -103,7 +104,8 @@ class CascadeDetector(Measurable, NeedsDatapath):
         self._dev.DevCCDShutdown()
 
     def doStatus(self):
-        st = self._dev.DevCCDAcqStatus()
+        st = self._dev.DevCCDAcqStatus() & 0xFFFFFFFF
+        self.log.debug('acq status is %d' % st)
         if st == 0:
             return status.OK, 'idle'
         elif st == 1:
@@ -117,7 +119,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
         if self._datapath is None:
             self.datapath = session.experiment.datapath
         self.lastfilename = path.join(
-            self._datapath, self.nametemplate[self.mode] % self._counter)
+            self._datapath, 'ccd_%05d.fits' % self._counter)
         self.lastfilenumber = self._counter
         self._counter += 1
         updateFileCounter(path.join(self._datapath, 'counter'), self._counter)
@@ -144,7 +146,7 @@ class CascadeDetector(Measurable, NeedsDatapath):
         return 20 # XXX cannot read this out yet
 
     def doWritePreselection(self, value):
-        self._dev.DevCCDSetTimes(value * 1000)
+        self._dev.DevCCDSetTimes(int(value * 1000))
 
     def _thread_entry(self):
         while True:
@@ -154,11 +156,12 @@ class CascadeDetector(Measurable, NeedsDatapath):
                 # start measurement
                 self._dev.DevCCDAcqStart()
                 # wait for completion of measurement
-                st = self.doStatus()[0]
-                while st == status.BUSY:
-                    sleep(0.2)
-                if st == status.ERROR:
-                    raise Exception('failed')
+                st = self.doStatus()
+                while st[0] == status.BUSY:
+                    sleep(0.3)
+                    st = self.doStatus()
+                if st[0] == status.ERROR:
+                    raise Exception(st[1])
             except:
                 self.lastfilename = '<error>'
                 self.log.exception('measuring failed')
@@ -168,8 +171,9 @@ class CascadeDetector(Measurable, NeedsDatapath):
             self._measure.clear()
             try:
                 data = self._dev.DevCCDReadImageBin()
+                data = array.array('I', data)
                 session.updateLiveData(
-                    'ccd', '<I4', 2048, 2048, 1, self._last_preset, data)
+                    'ccd', '<I4', 2048, 2048, 1, self._last_preset, buffer(data))
                 self._dev.DevCCDReadImageTif(self.lastfilename)
             except:
                 self.lastfilename = '<error>'
