@@ -123,7 +123,8 @@ class LiveDataPanel(Panel):
     @qtsig('')
     def on_actionSetAsROI_triggered(self):
         zoom = self.widget.plot().getZoomer().zoomRect()
-        self.client.tell('queue', '', 'psd.roi = (%s, %s, %s, %s)' %
+        # XXX this is detector specific!
+        self.client.tell('queue', '', 'det.setRelativeRoi(%s, %s, %s, %s)' %
                          (int(zoom.left()), int(zoom.top()),
                           int(zoom.right()), int(zoom.bottom())))
 
@@ -138,9 +139,7 @@ class LiveDataPanel(Panel):
         printer.setOrientation(QPrinter.Landscape)
         printer.setOutputFileName('')
         if QPrintDialog(printer, self).exec_() == QDialog.Accepted:
-            self.widget.GetPlot().print_(printer)
-        self.statusBar.showMessage('Plot successfully printed to %s.' %
-                                   str(printer.printerName()))
+            self.widget.plot().print_(printer)
 
     def closeEvent(self, event):
         with self.sgroup as settings:
