@@ -90,7 +90,7 @@ class LWData
     virtual double valueRaw(int x, int y) const;
     virtual double valueRaw(int x, int y, int z) const;
 
-    virtual void histogram(int bins, data_t *out, double *step) const;
+    virtual void histogram(int bins, double *xs, double *ys) const;
 };
 
 

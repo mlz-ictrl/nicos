@@ -204,12 +204,15 @@ double LWData::valueRaw(int x, int y, int z) const
     return (double)data(x, y, z);
 }
 
-void LWData::histogram(int bins, data_t *out, double *step) const
+void LWData::histogram(int bins, double *xs, double *ys) const
 {
-    *step = (m_max - m_min) / (double)bins;
+    double step = (m_max - m_min) / (double)bins;
+    for (int i = 0; i < bins; ++i) {
+        xs[i] = m_min + i * step + 0.5 * step;
+    }
     for (int y = 0; y < m_height; ++y) {
         for (int x = 0; x < m_width; ++x) {
-            out[(int)((data(x, y, m_cur_z) - m_min) / *step)]++;
+            ys[(int)((data(x, y, m_cur_z) - m_min) / step)]++;
         }
     }
 }

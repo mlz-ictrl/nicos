@@ -39,6 +39,9 @@
 
 #include <fitsio.h>
 
+#include <qwt_data.h>
+#include <qwt_plot_curve.h>
+
 #include "lw_app.h"
 #include "lw_data.h"
 #include "lw_widget.h"
@@ -124,10 +127,20 @@ int main(int argc, char **argv)
     QObject::connect(&btn, SIGNAL(released()),
                      &widget, SLOT(reload()));
 
+    QwtPlot hist(&frame);
+    double hx[200], hy[200];
+    memset(hx, 0, sizeof(double)*200);
+    memset(hy, 0, sizeof(double)*200);
+    widget.data()->histogram(200, hx, hy);
+    QwtCPointerData data(hx, hy, 200);
+    QwtPlotCurve crv("test");
+    crv.setData(data);
+    crv.attach(&hist);
+    layout4.addWidget(&hist);
     layout1.addLayout(&layout4);
 
     mainWindow.setCentralWidget(&frame);
-    mainWindow.resize(900, 750);
+    mainWindow.resize(1100, 600);
     mainWindow.show();
     int ret = app.exec();
 
