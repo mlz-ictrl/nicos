@@ -64,7 +64,8 @@ class CascadeDetector(Measurable, NeedsDatapath):
                           type=tupleof(int, int, int, int),
                           default=(-1, -1, -1, -1), settable=True),
         'binning':  Param('Binning (horizontal, vertical)',
-                          type=tupleof(int, int), default=(1, 1), settable=True)
+                          type=tupleof(int, int), default=(1, 1), settable=True),
+#        'frequency': Param('Readout Frequency', type=tupleof(int, int)),
 #        'tempcontrol': Param('Temperature control on/off', type=bool,
 #                             settable=True),
 #        'tempsetpoint': Param('Temperature setpoint', type=float,
@@ -193,13 +194,12 @@ class CascadeDetector(Measurable, NeedsDatapath):
                 continue
             self._measure.clear()
             try:
-                data = self._dev.DevCCDReadImageBin()
-                data = array.array('I', data)
+                data = array.array('H', self._dev.DevCCDReadImageBin())
                 roi = self.roi
                 width = (roi[2] - roi[0] + 1) / self.binning[0]
                 height = (roi[3] - roi[1] + 1) / self.binning[1]
-                session.updateLiveData(
-                    'ccd', '<I4', width, height, 1, self._last_preset, buffer(data))
+                session.updateLiveData('ccd', '<I2', width, height, 1,
+                                       self._last_preset, buffer(data))
                 self._dev.DevCCDReadImageTif(self.lastfilename)
             except Exception, err:
                 self.lastfilename = '<error: %s>' % err
