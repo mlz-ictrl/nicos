@@ -9,6 +9,7 @@ dist/
 data/*.dat
 data/filecounter
 data/cache/*
+data/ccd/
 
 doc/build/
 doc/source/auto
@@ -39,3 +40,7 @@ nicos.conf
 
 src/livewidget/livewidget
 src/livewidget/Makefile
+src/livewidget/python/Makefile
+src/livewidget/python/lw_*.cpp
+src/livewidget/python/lw_*.h
+src/livewidget/*.fits
