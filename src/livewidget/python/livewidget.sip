@@ -33,6 +33,8 @@ class LWData
     double value(double x, double y) const;
     double valueRaw(int x, int y) const;
     double valueRaw(int x, int y, int z) const;
+
+    void histogram(int bins, QVector<double> **xs, QVector<double> **ys) const;
 };
 
 class LWPlot : QwtPlot

@@ -91,6 +91,7 @@ class LWData
     virtual double valueRaw(int x, int y, int z) const;
 
     virtual void histogram(int bins, double *xs, double *ys) const;
+    virtual void histogram(int bins, QVector<double> **xs, QVector<double> **ys) const;
 };
 
 
