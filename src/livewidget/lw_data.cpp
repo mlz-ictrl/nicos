@@ -171,11 +171,11 @@ inline data_t LWData::data(int x, int y, int z) const
 
 void LWData::updateRange()
 {
-    m_min = std::numeric_limits<data_t>::max();
+    m_min = std::numeric_limits<double>::max();
     m_max = 0;
     for (int y = 0; y < m_height; ++y) {
         for (int x = 0; x < m_width; ++x) {
-            data_t v = value((double)x, (double)y);
+            double v = value((double)x, (double)y);
             m_min = (m_min < v) ? m_min : v;
             m_max = (m_max > v) ? m_max : v;
         }
@@ -241,6 +241,7 @@ void LWData::setLog10(bool val)
         }
         m_log10 = val;
         updateRange();
+        std::cerr << "min: " << m_min << ", max: " << m_max << std::endl;
     }
 }
 

@@ -58,7 +58,8 @@ for header in extra_headers:
         extra_moc_headers.append(header)
 for fn in extra_sources + extra_headers:
     bn = os.path.basename(fn)
-    os.symlink(fn, bn)
+    if not os.path.islink(bn):
+        os.symlink(fn, bn)
 fix_build_file(build_file, map(basename, extra_sources),
                map(basename, extra_headers),
                map(basename, extra_moc_headers))

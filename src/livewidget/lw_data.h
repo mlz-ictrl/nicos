@@ -47,7 +47,7 @@ class LWData
     bool m_data_owned;
     int m_width, m_height, m_depth;
     data_t *m_data;
-    data_t m_min, m_max;
+    double m_min, m_max;
 
     // concerning the display
     int m_cur_z;
@@ -71,8 +71,8 @@ class LWData
     int width() const { return m_width; }
     int height() const { return m_height; }
     int depth() const { return m_depth; }
-    int min() const { return m_min; }
-    int max() const { return m_max; }
+    double min() const { return m_min; }
+    double max() const { return m_max; }
 
     int currentZ() const { return m_cur_z; }
     void setCurrentZ(int val);

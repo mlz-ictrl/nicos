@@ -176,7 +176,7 @@ LWWidget::LWWidget(QWidget *parent) : QWidget(parent),
                                       m_data(NULL)
 {
     m_plot = new LWPlot(this);
-    setColorMap(false, false);
+    setStandardColorMap(false, false);
 
     QGridLayout *grid = new QGridLayout(this);
     grid->addWidget(m_plot, 0, 0, 1, 1);
@@ -213,7 +213,7 @@ void LWWidget::setLog10(bool val)
     }
 }
 
-void LWWidget::setColorMap(bool greyscale, bool cyclic)
+void LWWidget::setStandardColorMap(bool greyscale, bool cyclic)
 {
     if (greyscale) {
         QwtLinearColorMap colorMap(Qt::black, Qt::white);
@@ -240,36 +240,10 @@ void LWWidget::setColorMap(bool greyscale, bool cyclic)
     updateGraph();
 }
 
-void LWWidget::setColormapGray(bool val)
-{
-    setColorMap(val, false);
-}
-
-void LWWidget::setColormapCyclic(bool val)
-{
-    setColorMap(false, val);
-}
-
 void LWWidget::setCustomRange(double lower, double upper)
 {
     if (m_data) {
         m_data->setCustomRange(lower, upper);
-        updateGraph();
-    }
-}
-
-void LWWidget::setCustomRangeMin(int lower)
-{
-    if (m_data) {
-        m_data->setCustomRange((data_t)lower, m_data->customRangeMax());
-        updateGraph();
-    }
-}
-
-void LWWidget::setCustomRangeMax(int upper)
-{
-    if (m_data) {
-        m_data->setCustomRange(m_data->customRangeMin(), (data_t)upper);
         updateGraph();
     }
 }
@@ -280,6 +254,7 @@ void LWWidget::updateGraph()
         m_plot->setData(new LWRasterData(m_data));
         m_plot->replot();
         updateLabels();
+        emit dataUpdated(m_data);
     }
 }
 

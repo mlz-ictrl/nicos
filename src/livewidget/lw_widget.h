@@ -112,20 +112,19 @@ class LWWidget : public QWidget
     void setData(LWData *data);
 
     void setCustomRange(double lower, double upper);
-    void setColorMap(bool greyscale, bool cyclic);
+    void setStandardColorMap(bool greyscale, bool cyclic);
 
     LWPlot *plot() { return m_plot; }
 
   public slots:
     void setLog10(bool bLog10);
-    void setCustomRangeMin(int lower);
-    void setCustomRangeMax(int lower);
-    void setColormapGray(bool val);
-    void setColormapCyclic(bool val);
     void reload() { setData(new LWData(*m_data)); }
 
     void updateGraph();
     void updateLabels();
+
+  signals:
+    void dataUpdated(LWData *data);
 };
 
 #endif

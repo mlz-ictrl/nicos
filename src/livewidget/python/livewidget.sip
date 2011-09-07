@@ -16,6 +16,12 @@ class LWData
     LWData(int width, int height, int depth,
            const char *format, const char *data);
 
+    int width() const;
+    int height() const;
+    int depth() const;
+    double min() const;
+    double max() const;
+
     void setLog10(bool val);
     bool isLog10() const;
 
@@ -58,7 +64,12 @@ class LWWidget : QWidget
     LWWidget(QWidget *parent = NULL);
     virtual ~LWWidget();
 
+    LWData *data();
     void setData(LWData *data /Transfer/);
+
+    void setCustomRange(double lower, double upper);
+    void setStandardColorMap(bool greyscale, bool cyclic);
+
     LWPlot *plot();
 
   public slots:
