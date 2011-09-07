@@ -111,6 +111,10 @@ class MainWindow(QMainWindow, DlgUtils):
                    panel('nicos.gui.panels.editor.EditorPanel')),
             window('Live data', 'live', True,
                    panel('nicos.gui.panels.live.LiveDataPanel')),
+            window('Analysis', 'plotter', True,
+                   panel('nicos.gui.panels.analysis.AnalysisPanel')),
+            window('History', 'find', True,
+                   panel('nicos.gui.panels.history.HistoryPanel')),
             ])
 
         # load profiles and current profile
