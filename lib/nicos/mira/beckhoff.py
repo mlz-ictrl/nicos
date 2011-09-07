@@ -33,11 +33,8 @@ __version__ = "$Revision$"
 
 from Modbus import Modbus
 
-from nicos import status
 from nicos.io import DigitalOutput
-from nicos.taco import TacoDevice
-from nicos.device import Readable, Param
-from nicos.errors import CommunicationError
+from nicos.device import Param
 
 
 class BeckhoffDigitalOutput(DigitalOutput):
@@ -52,6 +49,12 @@ class BeckhoffDigitalOutput(DigitalOutput):
         'bitwidth': Param('Number of bits to switch', type=int,
                           mandatory=True),
     }
+
+    def doInit(self):
+        DigitalOutput.doInit(self)
+        # switch off watchdog, important before doing any write access
+        if self._mode != 'simulation':
+            self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
 
     def doRead(self):
         return tuple(self._taco_guard(self._dev.readCoils, (0,
