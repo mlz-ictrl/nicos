@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os, re, glob, shutil
+import os, re, glob
 from os.path import basename
 from PyQt4 import pyqtconfig
 
@@ -58,7 +58,7 @@ for header in extra_headers:
         extra_moc_headers.append(header)
 for fn in extra_sources + extra_headers:
     bn = os.path.basename(fn)
-    shutil.copyfile(fn, bn)
+    os.symlink(fn, bn)
 fix_build_file(build_file, map(basename, extra_sources),
                map(basename, extra_headers),
                map(basename, extra_moc_headers))
