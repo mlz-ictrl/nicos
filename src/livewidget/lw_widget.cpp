@@ -53,12 +53,17 @@ LWZoomer::LWZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram *spectro)
 LWZoomer::~LWZoomer()
 {}
 
+void LWZoomer::setKeepAspect(bool val)
+{
+    m_aspect = val;
+}
+
 void LWZoomer::zoom(const QwtDoubleRect &rect)
 {
     QwtDoubleRect current = zoomRect();
     double old_aspect = current.height() / current.width();
     double new_aspect = rect.height() / rect.width();
-    if (old_aspect != new_aspect) {
+    if (m_aspect && old_aspect != new_aspect) {
         QwtDoubleRect adjusted = QwtDoubleRect(rect);
         if (old_aspect < new_aspect)
             adjusted.setWidth(adjusted.height() / old_aspect);
@@ -201,8 +206,7 @@ void LWPlot::printPlot()
 
 /** LWWidget ******************************************************************/
 
-LWWidget::LWWidget(QWidget *parent) : QWidget(parent),
-                                      m_data(NULL)
+LWWidget::LWWidget(QWidget *parent) : QWidget(parent), m_data(NULL)
 {
     m_plot = new LWPlot(this);
     setStandardColorMap(false, false);
@@ -240,6 +244,29 @@ void LWWidget::setLog10(bool val)
         m_data->setLog10(val);
         updateGraph();
     }
+}
+
+bool LWWidget::isLog10() const
+{
+    if (m_data) {
+        return m_data->isLog10();
+    }
+    return false;
+}
+
+void LWWidget::setKeepAspect(bool val)
+{
+    if (m_plot->getZoomer()) {
+        m_plot->getZoomer()->setKeepAspect(val);
+    }
+}
+
+bool LWWidget::keepAspect() const
+{
+    if (m_plot->getZoomer()) {
+        return m_plot->getZoomer()->keepAspect();
+    }
+    return false;
 }
 
 void LWWidget::setStandardColorMap(bool greyscale, bool cyclic)

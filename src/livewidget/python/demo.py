@@ -66,7 +66,8 @@ class MainWindow(QMainWindow):
         self._sliderupdating = False
 
         self.rangemarker = QwtPlotCurve()
-        self.rangemarker.setPen(QPen(QBrush(QColor(0, 0, 255, 64)), 1000, Qt.SolidLine, Qt.FlatCap))
+        self.rangemarker.setPen(QPen(QBrush(QColor(0, 0, 255, 64)),
+                                     1000, Qt.SolidLine, Qt.FlatCap))
         self.rangemarker.attach(self.histoplot)
         self.rangemarker.setData([self._curmin, self._curmax], [0, 0])
 
@@ -162,6 +163,7 @@ class MainWindow(QMainWindow):
         self._absmin = data.min()
         self._absmax = data.max()
         self._absrange = self._absmax - self._absmin
+        self.rangemarker.setData([self._absmin, self._absmax], [0, 0])
         xs, ys = data.histogram(100)
         self.histogram.setData(xs, ys)
         self.histoplot.replot()
@@ -174,5 +176,6 @@ class MainWindow(QMainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv[1:])
     window = MainWindow(None)
+    window.resize(1000, 600)
     window.show()
     app.exec_()

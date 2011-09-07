@@ -37,6 +37,17 @@ class LWData
     void histogram(int bins, QVector<double> **xs, QVector<double> **ys) const;
 };
 
+
+class LWZoomer : QwtPlotZoomer
+{
+%TypeHeaderCode
+#include "../lw_widget.h"
+%End
+  public:
+    LWZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram *spectro);
+};
+
+
 class LWPlot : QwtPlot
 {
 %TypeHeaderCode
@@ -46,7 +57,7 @@ class LWPlot : QwtPlot
     LWPlot(QWidget *parent);
 
     void updateRange();
-    QwtPlotZoomer *getZoomer();
+    LWZoomer *getZoomer();
     QwtPlotPanner *getPanner();
     const QwtRasterData *getData() const;
 

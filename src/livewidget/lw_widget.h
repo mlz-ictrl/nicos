@@ -45,12 +45,18 @@
 
 class LWZoomer : public QwtPlotZoomer
 {
+  private:
+    bool m_aspect;
+
   protected:
     const QwtPlotSpectrogram *m_spectro;
 
   public:
     LWZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram *spectro);
     virtual ~LWZoomer();
+
+    bool keepAspect() const { return m_aspect; }
+    void setKeepAspect(bool val);
 
     virtual void zoom(const QwtDoubleRect &rect);
     virtual QwtText trackerText(const QwtDoublePoint &pos) const;
@@ -79,7 +85,7 @@ class LWPlot : public QwtPlot
     virtual ~LWPlot();
 
     void updateRange();
-    QwtPlotZoomer *getZoomer() { return m_zoomer; }
+    LWZoomer *getZoomer() { return m_zoomer; }
     QwtPlotPanner *getPanner() { return m_panner; }
     const QwtRasterData *getData() const { return &m_spectro->data(); }
 
@@ -103,25 +109,26 @@ class LWWidget : public QWidget
     LWPlot *m_plot;
     LWData *m_data;
 
-    ///int m_iMode;
-    ///int m_iFolie, m_iZeitkanal;
     bool m_log10;
 
   public:
     LWWidget(QWidget *parent = NULL);
     virtual ~LWWidget();
 
+    LWPlot *plot() { return m_plot; }
+
     LWData *data() { return m_data; }
     void setData(LWData *data);
+
+    bool isLog10() const;
+    bool keepAspect() const;
 
     void setCustomRange(double lower, double upper);
     void setStandardColorMap(bool greyscale, bool cyclic);
 
-    LWPlot *plot() { return m_plot; }
-
   public slots:
-    void setLog10(bool bLog10);
-    void reload() { setData(new LWData(*m_data)); }
+    void setLog10(bool val);
+    void setKeepAspect(bool on);
 
     void updateGraph();
     void updateLabels();
