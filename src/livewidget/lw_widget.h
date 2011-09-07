@@ -52,6 +52,7 @@ class LWZoomer : public QwtPlotZoomer
     LWZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram *spectro);
     virtual ~LWZoomer();
 
+    virtual void zoom(const QwtDoubleRect &rect);
     virtual QwtText trackerText(const QwtDoublePoint &pos) const;
 };
 

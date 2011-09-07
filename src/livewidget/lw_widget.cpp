@@ -53,6 +53,26 @@ LWZoomer::LWZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram *spectro)
 LWZoomer::~LWZoomer()
 {}
 
+void LWZoomer::zoom(const QwtDoubleRect &rect)
+{
+    QwtDoubleRect current = zoomRect();
+    double old_aspect = current.height() / current.width();
+    double new_aspect = rect.height() / rect.width();
+    if (old_aspect != new_aspect) {
+        QwtDoubleRect adjusted = QwtDoubleRect(rect);
+        if (old_aspect < new_aspect)
+            adjusted.setWidth(adjusted.height() / old_aspect);
+        else {
+            // setHeight changes bottom edge, we want top
+            adjusted.setTop(adjusted.bottom() -
+                            adjusted.width() * old_aspect);
+        }
+        QwtPlotZoomer::zoom(adjusted);
+        return;
+    }
+    QwtPlotZoomer::zoom(rect);
+}
+
 QwtText LWZoomer::trackerText(const QwtDoublePoint &pos) const
 {
     QString str = "Pixel: ";
@@ -119,8 +139,8 @@ void LWPlot::initPlot()
     //                             QwtPicker::AlwaysOff, canvas());
     //m_picker->setMousePattern(QwtEventPattern::MouseSelect1, Qt::MidButton);
     //m_picker->setRubberBandPen(QColor(Qt::green));
-    m_rescaler = new QwtPlotRescaler(canvas(), QwtPlot::xBottom,
-                                     QwtPlotRescaler::Fitting);
+    //m_rescaler = new QwtPlotRescaler(canvas(), QwtPlot::xBottom,
+    //                                 QwtPlotRescaler::Fitting);
 
     QFontMetrics fm(axisWidget(QwtPlot::yLeft)->font());
     axisScaleDraw(QwtPlot::yLeft)->setMinimumExtent(fm.width("100."));
@@ -179,7 +199,6 @@ void LWPlot::printPlot()
         print(printer);
 }
 
-
 /** LWWidget ******************************************************************/
 
 LWWidget::LWWidget(QWidget *parent) : QWidget(parent),
@@ -188,9 +207,9 @@ LWWidget::LWWidget(QWidget *parent) : QWidget(parent),
     m_plot = new LWPlot(this);
     setStandardColorMap(false, false);
 
-    QGridLayout *grid = new QGridLayout(this);
-    grid->addWidget(m_plot, 0, 0, 1, 1);
-    this->setLayout(grid);
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->addWidget(m_plot);
+    this->setLayout(layout);
 }
 
 LWWidget::~LWWidget()
