@@ -43,12 +43,13 @@ class LWPlot : QwtPlot
   public:
     LWPlot(QWidget *parent);
 
-    void changeRange();
+    void updateRange();
     QwtPlotZoomer *getZoomer();
     QwtPlotPanner *getPanner();
+    const QwtRasterData *getData() const;
 
     void setData(QwtRasterData *data);
-    const QwtRasterData *getData() const;
+    void setColorMap(QwtColorMap &map);
 
   public slots:
     void printPlot();

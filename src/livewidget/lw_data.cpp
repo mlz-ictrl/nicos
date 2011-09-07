@@ -187,10 +187,12 @@ double LWData::value(double x, double y) const
     double v = (double)data((int)x, (int)y, m_cur_z);
     if (m_log10)
         v = safe_log10(v);
+    /*
     if (m_custom_range) {
         v = (v > m_range_max) ? m_range_max : v;
         v = (v < m_range_min) ? m_range_min : v;
     }
+    */
     return v;
 }
 

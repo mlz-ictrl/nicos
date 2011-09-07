@@ -117,7 +117,12 @@ class LWRasterData : public QwtRasterData
         return new LWRasterData(*this);
     }
     virtual QwtDoubleInterval range() const {
-        return QwtDoubleInterval(m_data->min(), m_data->max());
+        if (m_data->hasCustomRange()) {
+            return QwtDoubleInterval(m_data->customRangeMin(),
+                                     m_data->customRangeMax());
+        } else {
+            return QwtDoubleInterval(m_data->min(), m_data->max());
+        }
     }
     virtual double value(double x, double y) const {
         return m_data->value(x, y);

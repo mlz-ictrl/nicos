@@ -57,6 +57,7 @@ class MainWindow(QMainWindow):
         self.lw.setData(data)
 
         # XXX add histogram
+        self._updating = False
         self.updateSliders(data)
 
         self.connect(self.logscaleBox, SIGNAL('toggled(bool)'), self.setLogscale)
@@ -66,11 +67,10 @@ class MainWindow(QMainWindow):
         self.connect(self.maxSlider, SIGNAL('valueChanged(int)'), self.updateRange)
 
     def updateSliders(self, data):
+        self._updating = True
         if data.isLog10():
-            print data.min() * 100, data.max() * 100
             self.minSlider.setRange(data.min() * 100, data.max() * 100)
             self.maxSlider.setRange(data.min() * 100, data.max() * 100)
-            print data.min() * 100, data.max() * 100
             self.minSlider.setValue(data.customRangeMin() * 100)
             self.maxSlider.setValue(data.customRangeMax() * 100)
         else:
@@ -78,8 +78,11 @@ class MainWindow(QMainWindow):
             self.maxSlider.setRange(data.min(), data.max())
             self.minSlider.setValue(data.customRangeMin())
             self.maxSlider.setValue(data.customRangeMax())
+        self._updating = False
 
     def updateRange(self):
+        if self._updating:
+            return
         if self.lw.data().isLog10():
             self.lw.setCustomRange(self.minSlider.value()/100., self.maxSlider.value()/100.)
         else:

@@ -75,7 +75,7 @@ class LWPlot : public QwtPlot
     LWPlot(QWidget *parent);
     virtual ~LWPlot();
 
-    void changeRange();
+    void updateRange();
     QwtPlotZoomer *getZoomer() { return m_zoomer; }
     QwtPlotPanner *getPanner() { return m_panner; }
     const QwtRasterData *getData() const { return &m_spectro->data(); }

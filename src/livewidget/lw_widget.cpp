@@ -102,7 +102,7 @@ void LWPlot::initPlot()
     enableAxis(QwtPlot::yRight);
     axisWidget(QwtPlot::yRight)->setColorBarEnabled(true);
 
-    changeRange();
+    updateRange();
 
     plotLayout()->setAlignCanvasToScales(true);
 
@@ -132,7 +132,7 @@ void LWPlot::deinitPlot()
     if (m_spectro) { delete m_spectro; m_spectro = 0; }
 }
 
-void LWPlot::changeRange()
+void LWPlot::updateRange()
 {
     LWRasterData &data = (LWRasterData &)m_spectro->data();
 
@@ -150,7 +150,7 @@ void LWPlot::setData(QwtRasterData* data)
     if (!m_spectro)
         return;
     m_spectro->setData(*data);
-    changeRange();
+    updateRange();
 }
 
 void LWPlot::setColorMap(QwtColorMap &map)
