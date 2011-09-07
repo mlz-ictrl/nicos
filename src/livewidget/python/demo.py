@@ -42,59 +42,113 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self, parent)
         loadUi('demo.ui', self)
 
-        self.lw = LWWidget(self)
-        self.plotLayout.addWidget(self.lw)
+        self.livewidget = LWWidget(self)
+        self.plotLayout.addWidget(self.livewidget)
 
-        self.hist = QwtPlot(self)
-        self.hist.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
-        self.hist.enableAxis(QwtPlot.yLeft, False)
+        self.histoplot = QwtPlot(self)
+        self.histoplot.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.histoplot.enableAxis(QwtPlot.yLeft, False)
         afnt = QFont(self.font())
         afnt.setPointSize(afnt.pointSize() * 0.7)
-        self.hist.setAxisFont(QwtPlot.xBottom, afnt)
-        self.histogramLayout.addWidget(self.hist)
+        self.histoplot.setAxisFont(QwtPlot.xBottom, afnt)
+        self.histogramLayout.addWidget(self.histoplot)
 
-        data = LWData(2048, 2048, 1, "f4", open("test.img").read())
-        self.lw.setData(data)
+        x = open("test1.fits").read()[5760:-1664]
+        data = LWData(2048, 2048, 1, ">f4", x)
+        self.livewidget.setData(data)
 
-        # XXX add histogram
-        self._updating = False
-        self.updateSliders(data)
+        self._absmin = self.livewidget.data().min()
+        self._absmax = self.livewidget.data().max()
+        self._absrange = self._absmax - self._absmin
+        self._curmin = self._absmin
+        self._curmax = self._absmax
+        self._currange = self._absrange
+        self._sliderupdating = False
+
+        self.rangemarker = QwtPlotCurve()
+        self.rangemarker.setPen(QPen(QBrush(QColor(0, 0, 255, 64)), 1000, Qt.SolidLine, Qt.FlatCap))
+        self.rangemarker.attach(self.histoplot)
+        self.rangemarker.setData([self._curmin, self._curmax], [0, 0])
+
+        xs, ys = data.histogram(100)
+        self.histogram = QwtPlotCurve()
+        self.histogram.setData(xs, ys)
+        self.histogram.setRenderHint(QwtPlotCurve.RenderAntialiased)
+        self.histogram.attach(self.histoplot)
 
         self.connect(self.logscaleBox, SIGNAL('toggled(bool)'), self.setLogscale)
         self.connect(self.grayscaleBox, SIGNAL('toggled(bool)'), self.setColormap)
         self.connect(self.cyclicBox, SIGNAL('toggled(bool)'), self.setColormap)
-        self.connect(self.minSlider, SIGNAL('valueChanged(int)'), self.updateRange)
-        self.connect(self.maxSlider, SIGNAL('valueChanged(int)'), self.updateRange)
+        self.connect(self.minSlider, SIGNAL('valueChanged(int)'), self.updateMinMax)
+        self.connect(self.maxSlider, SIGNAL('valueChanged(int)'), self.updateMinMax)
+        self.connect(self.brtSlider, SIGNAL('valueChanged(int)'), self.updateBrightness)
+        self.connect(self.ctrSlider, SIGNAL('valueChanged(int)'), self.updateContrast)
 
-    def updateSliders(self, data):
-        self._updating = True
-        if data.isLog10():
-            self.minSlider.setRange(data.min() * 100, data.max() * 100)
-            self.maxSlider.setRange(data.min() * 100, data.max() * 100)
-            self.minSlider.setValue(data.customRangeMin() * 100)
-            self.maxSlider.setValue(data.customRangeMax() * 100)
-        else:
-            self.minSlider.setRange(data.min(), data.max())
-            self.maxSlider.setRange(data.min(), data.max())
-            self.minSlider.setValue(data.customRangeMin())
-            self.maxSlider.setValue(data.customRangeMax())
-        self._updating = False
-
-    def updateRange(self):
-        if self._updating:
+    def updateMinMax(self):
+        if self._sliderupdating:
             return
-        if self.lw.data().isLog10():
-            self.lw.setCustomRange(self.minSlider.value()/100., self.maxSlider.value()/100.)
+        self._curmin = self._absmin + self._absrange * self.minSlider.value() / 256.
+        self._curmax = self._absmin + self._absrange * self.maxSlider.value() / 256.
+        self._currange = self._curmax - self._curmin
+        self.livewidget.setCustomRange(self._curmin, self._curmax)
+        self.rangemarker.setData([self._curmin, self._curmax], [0, 0])
+        self.histoplot.replot()
+        brightness = 1.0 - (self._curmin + self._currange/2. - self._absmin)/self._absrange
+        contrast = self._absrange/self._currange * 0.5
+        if contrast > 0.5:
+            contrast = 1 - self._currange/self._absrange * 0.5
+        self._sliderupdating = True
+        self.ctrSlider.setValue(256 * contrast)
+        self.brtSlider.setValue(256 * brightness)
+        self._sliderupdating = False
+
+    def updateBrightness(self, level):
+        if self._sliderupdating:
+            return
+        level /= 256.
+        center = self._absmin + self._absrange * (1 - level)
+        width = self._curmax - self._curmin
+        self._curmin = center - width/2.
+        self._curmax = center + width/2.
+        self._currange = self._curmax - self._curmin
+        self.livewidget.setCustomRange(self._curmin, self._curmax)
+        self.rangemarker.setData([self._curmin, self._curmax], [0, 0])
+        self.histoplot.replot()
+        self._sliderupdating = True
+        self.minSlider.setValue((self._curmin - self._absmin)/self._absrange * 256)
+        self.maxSlider.setValue((self._curmax - self._absmin)/self._absrange * 256)
+        self._sliderupdating = False
+
+    def updateContrast(self, level):
+        if self._sliderupdating:
+            return
+        level /= 256.
+        center = self._curmin + self._currange/2.
+        if level <= 0.5:
+            slope = level / 0.5
         else:
-            self.lw.setCustomRange(self.minSlider.value(), self.maxSlider.value())
+            slope = 0.5 / (1 - level)
+        if slope > 0:
+            self._curmin = center - (0.5 * self._absrange)/slope
+            self._curmax = center + (0.5 * self._absrange)/slope
+            self._currange = self._curmax - self._curmin
+            self.livewidget.setCustomRange(self._curmin, self._curmax)
+            self.rangemarker.setData([self._curmin, self._curmax], [0, 0])
+            self.histoplot.replot()
+            self._sliderupdating = True
+            self.minSlider.setValue((self._curmin - self._absmin)/self._absrange * 256)
+            self.maxSlider.setValue((self._curmax - self._absmin)/self._absrange * 256)
+            self._sliderupdating = False
 
     def setLogscale(self, on):
-        self.lw.setLog10(on)
-        self.updateSliders(self.lw.data())
+        self.livewidget.setLog10(on)
+        self._absmin = self.livewidget.data().min()
+        self._absmax = self.livewidget.data().max()
+        self._absrange = self._absmax - self._absmin
 
     def setColormap(self, on):
-        self.lw.setStandardColorMap(self.grayscaleBox.isChecked(),
-                                    self.cyclicBox.isChecked())
+        self.livewidget.setStandardColorMap(self.grayscaleBox.isChecked(),
+                                            self.cyclicBox.isChecked())
 
 
 if __name__ == '__main__':
