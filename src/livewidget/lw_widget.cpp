@@ -25,6 +25,8 @@
 //
 // *****************************************************************************
 
+#include <iostream>
+
 #include <QGridLayout>
 
 #include "lw_widget.h"
@@ -74,7 +76,8 @@ QwtText LWZoomer::trackerText(const QwtDoublePoint &pos) const
 /** LWPlot *********************************************************************/
 
 LWPlot::LWPlot(QWidget *parent) : QwtPlot(parent), m_spectro(0), m_panner(0),
-                                  m_picker(0), m_rescaler(0), m_zoomer(0)
+                                  m_picker(0), m_rescaler(0), m_zoomer(0),
+                                  m_scale_width(0), m_scale_height(0)
 {
     initPlot();
 }
@@ -140,9 +143,15 @@ void LWPlot::updateRange()
     setAxisScale(QwtPlot::yRight, range.minValue(), range.maxValue());
     axisWidget(QwtPlot::yRight)->setColorMap(data.range(),
                                              m_spectro->colorMap());
-    
-    setAxisScale(QwtPlot::yLeft, 0, data.height());
-    setAxisScale(QwtPlot::xBottom, 0, data.width());
+
+    if (data.width() != m_scale_width) {
+        m_scale_width = data.width();
+        setAxisScale(QwtPlot::xBottom, 0, m_scale_width);
+    }
+    if (data.height() != m_scale_height) {
+        m_scale_height = data.height();
+        setAxisScale(QwtPlot::yLeft, 0, m_scale_height);
+    }
 }
 
 void LWPlot::setData(QwtRasterData* data)
@@ -151,6 +160,7 @@ void LWPlot::setData(QwtRasterData* data)
         return;
     m_spectro->setData(*data);
     updateRange();
+    replot();
 }
 
 void LWPlot::setColorMap(QwtColorMap &map)
@@ -252,7 +262,6 @@ void LWWidget::updateGraph()
 {
     if (m_data) {
         m_plot->setData(new LWRasterData(m_data));
-        m_plot->replot();
         updateLabels();
         emit dataUpdated(m_data);
     }

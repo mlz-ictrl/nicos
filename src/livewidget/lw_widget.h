@@ -63,13 +63,15 @@ class LWPlot : public QwtPlot
   private:
     void initPlot();
     void deinitPlot();
-    
+
   protected:
     QwtPlotSpectrogram *m_spectro;
     QwtPlotPanner *m_panner;
     QwtPlotPicker *m_picker;
     QwtPlotRescaler *m_rescaler;
     LWZoomer *m_zoomer;
+    int m_scale_width;
+    int m_scale_height;
 
   public:
     LWPlot(QWidget *parent);
