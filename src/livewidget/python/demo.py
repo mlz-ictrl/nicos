@@ -76,6 +76,15 @@ class MainWindow(QMainWindow):
         self.histogram.setRenderHint(QwtPlotCurve.RenderAntialiased)
         self.histogram.attach(self.histoplot)
 
+        self.histopicker = QwtPlotPicker(QwtPlot.xBottom, QwtPlot.yLeft,
+                                         QwtPicker.RectSelection,
+                                         QwtPicker.RectRubberBand,
+                                         QwtPicker.AlwaysOff,
+                                         self.histoplot.canvas())
+        self.histopicker.setRubberBandPen(QPen(Qt.red))
+        self.connect(self.histopicker, SIGNAL('selected(const QwtDoubleRect&)'),
+                     self.histogramPicked)
+
         self.connect(self.logscaleBox, SIGNAL('toggled(bool)'), self.setLogscale)
         self.connect(self.grayscaleBox, SIGNAL('toggled(bool)'), self.setColormap)
         self.connect(self.cyclicBox, SIGNAL('toggled(bool)'), self.setColormap)
@@ -83,6 +92,13 @@ class MainWindow(QMainWindow):
         self.connect(self.maxSlider, SIGNAL('valueChanged(int)'), self.updateMinMax)
         self.connect(self.brtSlider, SIGNAL('valueChanged(int)'), self.updateBrightness)
         self.connect(self.ctrSlider, SIGNAL('valueChanged(int)'), self.updateContrast)
+
+    def histogramPicked(self, rect):
+        self._sliderupdating = True
+        self.minSlider.setValue((rect.left() - self._absmin)/self._absrange * 256)
+        self.maxSlider.setValue((rect.right() - self._absmin)/self._absrange * 256)
+        self._sliderupdating = False
+        self.updateMinMax()
 
     def updateMinMax(self):
         if self._sliderupdating:
@@ -141,10 +157,14 @@ class MainWindow(QMainWindow):
             self._sliderupdating = False
 
     def setLogscale(self, on):
+        data = self.livewidget.data()
         self.livewidget.setLog10(on)
-        self._absmin = self.livewidget.data().min()
-        self._absmax = self.livewidget.data().max()
+        self._absmin = data.min()
+        self._absmax = data.max()
         self._absrange = self._absmax - self._absmin
+        xs, ys = data.histogram(100)
+        self.histogram.setData(xs, ys)
+        self.histoplot.replot()
 
     def setColormap(self, on):
         self.livewidget.setStandardColorMap(self.grayscaleBox.isChecked(),
