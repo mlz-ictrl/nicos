@@ -235,7 +235,7 @@ void LWData::histogram(int bins, double *xs, double *ys) const
     }
     for (int y = 0; y < m_height; ++y) {
         for (int x = 0; x < m_width; ++x) {
-            ys[(int)((data(x, y, m_cur_z) - m_min) / step)]++;
+            ys[(int)((value(x, y) - m_min) / step)]++;
         }
     }
 }
@@ -250,7 +250,7 @@ void LWData::histogram(int bins, QVector<double> **xs, QVector<double> **ys) con
     }
     for (int y = 0; y < m_height; ++y) {
         for (int x = 0; x < m_width; ++x) {
-            (**ys)[(int)((data(x, y, m_cur_z) - m_min) / step)]++;
+            (**ys)[(int)((value(x, y) - m_min) / step)]++;
         }
     }
     (**ys)[bins-1] += (**ys)[bins];
