@@ -47,6 +47,21 @@ static inline uint32_t bswap_32(uint32_t x) {
     return (bswap_16(x & 0xFFFF) << 16) | bswap_16(x >> 16);
 }
 
+static inline float bswap_32_float(float x) {
+    float res;
+    char *d = (char *)&res, *s = (char *)&x;
+    *d++ = s[3]; *d++ = s[2]; *d++ = s[1]; *d++ = s[0];
+    return res;
+}
+
+static inline float bswap_64_float(double x) {
+    double res;
+    char *d = (char *)&res, *s = (char *)&x;
+    *d++ = s[7]; *d++ = s[6]; *d++ = s[5]; *d++ = s[4];
+    *d++ = s[3]; *d++ = s[2]; *d++ = s[1]; *d++ = s[0];
+    return res;
+}
+
 
 /** LWData ********************************************************************/
 
@@ -111,7 +126,8 @@ LWData::LWData(int width, int height, int depth,
     // XXX currently, we interpret signed types as unsigned
 
     // the easy case
-    if (!strcmp(format, "<I4") || !strcmp(format, "<i4")) {
+    if (!strcmp(format, "<I4") || !strcmp(format, "<i4") ||
+        !strcmp(format, "I4")  || !strcmp(format, "i4")) {
         initFromBuffer(data);
         return;
     }
@@ -119,16 +135,21 @@ LWData::LWData(int width, int height, int depth,
     initFromBuffer(NULL);
     if (!strcmp(format, ">I4") || !strcmp(format, ">i4")) {
         COPY_LOOP_CONVERTED(uint32_t, bswap_32);
-    } else if (!strcmp(format, "<I2") || !strcmp(format, "<i2")) {
+    } else if (!strcmp(format, "<I2") || !strcmp(format, "<i2") ||
+               !strcmp(format, "I2")  || !strcmp(format, "i2")) {
         COPY_LOOP(uint16_t);
     } else if (!strcmp(format, ">I2") || !strcmp(format, ">i2")) {
         COPY_LOOP_CONVERTED(uint16_t, bswap_16);
     } else if (!strcmp(format, "I1") || !strcmp(format, "i1")) {
         COPY_LOOP(uint8_t);
-    } else if (!strcmp(format, "f8")) {
+    } else if (!strcmp(format, "<f8") || !strcmp(format, "f8")) {
         COPY_LOOP(double);
-    } else if (!strcmp(format, "f4")) {
+    } else if (!strcmp(format, ">f8")) {
+        COPY_LOOP_CONVERTED(double, bswap_64_float);
+    } else if (!strcmp(format, "<f4") || !strcmp(format, "f4")) {
         COPY_LOOP(float);
+    } else if (!strcmp(format, ">f4")) {
+        COPY_LOOP_CONVERTED(float, bswap_32_float);
     } else {
         std::cerr << "Unsupported format: " << format << "!" << std::endl;
     }
