@@ -134,12 +134,12 @@ void LWPlot::initPlot()
     m_panner = new QwtPlotPanner(canvas());
     m_panner->setAxisEnabled(QwtPlot::yRight, false);
     m_panner->setMouseButton(Qt::MidButton);
-    //m_picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
-    //                             QwtPicker::RectSelection,
-    //                             QwtPlotPicker::RectRubberBand,
-    //                             QwtPicker::AlwaysOff, canvas());
-    //m_picker->setMousePattern(QwtEventPattern::MouseSelect1, Qt::MidButton);
-    //m_picker->setRubberBandPen(QColor(Qt::green));
+    m_picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
+                                 QwtPicker::PolygonSelection,
+                                 QwtPlotPicker::PolygonRubberBand,
+                                 QwtPicker::AlwaysOff, canvas());
+    m_picker->setRubberBandPen(QColor(Qt::green));
+    m_picker->setEnabled(false);
     //m_rescaler = new QwtPlotRescaler(canvas(), QwtPlot::xBottom,
     //                                 QwtPlotRescaler::Fitting);
 

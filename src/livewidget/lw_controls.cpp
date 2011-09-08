@@ -39,6 +39,7 @@ LWControls::LWControls(QWidget *parent) : QWidget(parent)
     m_range_y[1] = 0;
     memset(m_histogram_y, 0, sizeof(m_histogram_y));
 
+    profLine = 0;
     setupUi();
 }
 
@@ -48,31 +49,34 @@ LWControls::~LWControls()
 
 void LWControls::setupUi()
 {
-    QLabel *minLabel, *maxLabel, *brtLabel, *ctrLabel;
+    QLabel *wLabel, *minLabel, *maxLabel, *brtLabel, *ctrLabel;
     QGridLayout *gridLayout;
+    QHBoxLayout *hLayout;
 
     mainLayout = new QVBoxLayout();
-    mainLayout->setObjectName("mainLayout");
 
-    /*
-      pushButton = new QPushButton(centralwidget);
-      pushButton->setObjectName("pushButton");
-      mainLayout->addWidget(pushButton);
-    */
     logscaleBox = new QCheckBox("logscale", this);
-    logscaleBox->setObjectName("logscaleBox");
     mainLayout->addWidget(logscaleBox);
 
     grayscaleBox = new QCheckBox("grayscale", this);
-    grayscaleBox->setObjectName("grayscaleBox");
     mainLayout->addWidget(grayscaleBox);
 
     cyclicBox = new QCheckBox("cyclic", this);
-    cyclicBox->setObjectName("cyclicBox");
     mainLayout->addWidget(cyclicBox);
 
+    profileButton = new QPushButton("create profile", this);
+    profileButton->setCheckable(true);
+    mainLayout->addWidget(profileButton);
+
+    hLayout = new QHBoxLayout();
+    wLabel = new QLabel("profile width:", this);
+    hLayout->addWidget(wLabel);
+    profileWidth = new QSpinBox(this);
+    profileWidth->setRange(1, 65536);
+    hLayout->addWidget(profileWidth);
+    mainLayout->addLayout(hLayout);
+
     histoPlot = new QwtPlot(this);
-    histoPlot->setObjectName("histoPlot");
     QSizePolicy plotSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
     histoPlot->setSizePolicy(plotSizePolicy);
     histoPlot->enableAxis(QwtPlot::yLeft, false);
@@ -114,7 +118,6 @@ void LWControls::setupUi()
     gridLayout->addWidget(minLabel, 0, 0, 1, 1);
 
     minSlider = new QSlider(this);
-    minSlider->setObjectName("minSlider");
     minSlider->setSizePolicy(sliderSizePolicy);
     minSlider->setMinimumSize(QSize(250, 0));
     minSlider->setMaximum(256);
@@ -126,7 +129,6 @@ void LWControls::setupUi()
     gridLayout->addWidget(maxLabel, 1, 0, 1, 1);
 
     maxSlider = new QSlider(this);
-    maxSlider->setObjectName("maxSlider");
     maxSlider->setSizePolicy(sliderSizePolicy);
     maxSlider->setMinimumSize(QSize(250, 0));
     maxSlider->setMaximum(256);
@@ -139,7 +141,6 @@ void LWControls::setupUi()
     gridLayout->addWidget(brtLabel, 2, 0, 1, 1);
 
     brtSlider = new QSlider(this);
-    brtSlider->setObjectName("brtSlider");
     brtSlider->setSizePolicy(sliderSizePolicy);
     brtSlider->setMinimumSize(QSize(250, 0));
     brtSlider->setMaximum(256);
@@ -152,7 +153,6 @@ void LWControls::setupUi()
     gridLayout->addWidget(ctrLabel, 3, 0, 1, 1);
 
     ctrSlider = new QSlider(this);
-    ctrSlider->setObjectName("ctrSlider");
     ctrSlider->setSizePolicy(sliderSizePolicy);
     ctrSlider->setMinimumSize(QSize(250, 0));
     ctrSlider->setMaximum(256);
@@ -182,6 +182,13 @@ void LWControls::setupUi()
                      this, SLOT(updateContrast(int)));
     QObject::connect(m_widget, SIGNAL(dataUpdated(LWData *)),
                      this, SLOT(dataUpdated(LWData *)));
+    QObject::connect(profileButton, SIGNAL(released()),
+                     this, SLOT(pickProfile()));
+    QObject::connect(profileWidth, SIGNAL(valueChanged(int)),
+                     this, SLOT(updateProfWidth(int)));
+    QObject::connect(m_widget->plot()->getPicker(),
+                     SIGNAL(selected(const QwtArray<QwtDoublePoint> &)), this,
+                     SLOT(createProfile(const QwtArray<QwtDoublePoint> &)));
 }
 
 void LWControls::dataUpdated(LWData *data)
@@ -306,4 +313,40 @@ void LWControls::setColorMap()
 {
     m_widget->setStandardColorMap(grayscaleBox->isChecked(),
                                   cyclicBox->isChecked());
+}
+
+void LWControls::pickProfile()
+{
+    m_widget->plot()->getPicker()->setEnabled(true);
+    m_widget->plot()->getZoomer()->setEnabled(false);
+    profileButton->setText("click two points on image");
+    profileButton->setChecked(true);
+}
+
+void LWControls::createProfile(const QwtArray<QwtDoublePoint> &points)
+{
+    m_widget->plot()->getPicker()->setEnabled(false);
+    m_widget->plot()->getZoomer()->setEnabled(true);
+    profileButton->setText("create profile");
+    profileButton->setChecked(false);
+    if (points.size() != 2)
+        return;
+    m_prof_x[0] = points[0].x();
+    m_prof_y[0] = points[0].y();
+    m_prof_x[1] = points[1].x();
+    m_prof_y[1] = points[1].y();
+    profLine = new QwtPlotCurve();
+    profLine->setRenderHint(QwtPlotCurve::RenderAntialiased);
+    profLine->setPen(QPen(QBrush(QColor(0, 0, 255, 96)), 1,
+                          Qt::SolidLine, Qt::FlatCap));
+    profLine->setData(QwtCPointerData(m_prof_x, m_prof_y, 2));
+    profLine->attach(m_widget->plot());
+    m_widget->plot()->replot();
+}
+
+void LWControls::updateProfWidth(int w)
+{
+    profLine->setPen(QPen(QBrush(QColor(0, 0, 255, 96)), w,
+                          Qt::SolidLine, Qt::FlatCap));
+    m_widget->plot()->replot();
 }

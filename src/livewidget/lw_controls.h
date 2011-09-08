@@ -33,6 +33,7 @@
 #include <QLayout>
 #include <QPushButton>
 #include <QSlider>
+#include <QSpinBox>
 
 #include "qwt_plot.h"
 #include "qwt_plot_curve.h"
@@ -60,12 +61,16 @@ class LWControls : public QWidget
     double m_histogram_x[256];
     double m_histogram_y[256];
 
+    double m_prof_x[2];
+    double m_prof_y[2];
+
   protected:
     QVBoxLayout *mainLayout;
-    QPushButton *pushButton;
     QCheckBox *logscaleBox;
     QCheckBox *grayscaleBox;
     QCheckBox *cyclicBox;
+    QPushButton *profileButton;
+    QSpinBox *profileWidth;
     QSlider *minSlider;
     QSlider *maxSlider;
     QSlider *brtSlider;
@@ -75,6 +80,8 @@ class LWControls : public QWidget
     QwtPlotCurve *histogram;
     QwtPlotCurve *histoRange;
     QwtPlotPicker *histoPicker;
+
+    QwtPlotCurve *profLine;
 
     void setupUi();
 
@@ -86,6 +93,9 @@ class LWControls : public QWidget
     void setLogscale(bool);
     void setColorMap();
     void dataUpdated(LWData *);
+    void pickProfile();
+    void createProfile(const QwtArray<QwtDoublePoint> &);
+    void updateProfWidth(int);
 
   public:
     LWControls(QWidget *parent = NULL);

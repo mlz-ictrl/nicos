@@ -87,6 +87,7 @@ class LWPlot : public QwtPlot
     void updateRange();
     LWZoomer *getZoomer() { return m_zoomer; }
     QwtPlotPanner *getPanner() { return m_panner; }
+    QwtPlotPicker *getPicker() { return m_picker; }
     const QwtRasterData *getData() const { return &m_spectro->data(); }
 
     void setData(QwtRasterData *data);
