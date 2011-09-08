@@ -22,8 +22,11 @@ class LWData
     double min() const;
     double max() const;
 
-    void setLog10(bool val);
+    int currentZ() const;
+    void setCurrentZ(int val);
+
     bool isLog10() const;
+    void setLog10(bool val);
 
     bool hasCustomRange() const;
     double customRangeMin() const;
@@ -51,7 +54,7 @@ class LWZoomer : QwtPlotZoomer
 class LWPlot : QwtPlot
 {
 %TypeHeaderCode
-#include "../lw_widget.h"
+#include "../lw_plot.h"
 %End
   public:
     LWPlot(QWidget *parent);
@@ -78,17 +81,26 @@ class LWWidget : QWidget
     LWWidget(QWidget *parent = NULL);
     virtual ~LWWidget();
 
+    LWPlot *plot();
+
     LWData *data();
     void setData(LWData *data /Transfer/);
+
+    bool isLog10() const;
+    bool keepAspect() const;
+    bool controlsVisible() const;
 
     void setCustomRange(double lower, double upper);
     void setStandardColorMap(bool greyscale, bool cyclic);
 
-    LWPlot *plot();
-
   public slots:
-    void setLog10(bool bLog10);
+    void setLog10(bool val);
+    void setKeepAspect(bool val);
+    void setControlsVisible(bool val);
 
     void updateGraph();
     void updateLabels();
+
+  signals:
+    void dataUpdated(LWData *data);
 };
