@@ -35,13 +35,13 @@ LWControls::LWControls(QWidget *parent) : QWidget(parent)
 {
     m_widget = qobject_cast<LWWidget *>(parent);
     m_sliderupdating = false;
-    m_range_y[0] = 0;
-    m_range_y[1] = 0;
+    m_range_y[0] = m_range_y[1] = 0;
     memset(m_histogram_y, 0, sizeof(m_histogram_y));
 
     profLine1 = 0;
     profLine2 = 0;
     profWindow = 0;
+    m_prof_x[0] = m_prof_x[1] = m_prof_y[0] = m_prof_y[1] = 0;
 
     setupUi();
 }
@@ -218,6 +218,9 @@ void LWControls::setupUi()
     QObject::connect(m_widget->plot()->getPicker(),
                      SIGNAL(selected(const QwtArray<QwtDoublePoint> &)), this,
                      SLOT(createProfile(const QwtArray<QwtDoublePoint> &)));
+    QObject::connect(m_widget->plot()->getZoomer(),
+                     SIGNAL(zoomed(const QwtDoubleRect &)), this,
+                     SLOT(zoomAdjusted()));
 }
 
 void LWControls::dataUpdated(LWData *data)
@@ -372,7 +375,7 @@ void LWControls::createProfile(const QwtArray<QwtDoublePoint> &points)
 
     profLine1->setVisible(true);
     profLine2->setVisible(true);
-    m_widget->plot()->replot();
+    updateProfLineWidth(profileWidth->value());  // does replot
 
     if (profWindow == NULL) {
         profWindow = new LWProfileWindow(this);
@@ -382,12 +385,28 @@ void LWControls::createProfile(const QwtArray<QwtDoublePoint> &points)
     profWindow->show();
 }
 
-void LWControls::updateProfWidth(int w)
+void LWControls::zoomAdjusted()
 {
-    // XXX pen width must be converted from image pixels to screen pixels
-    profLine2->setPen(QPen(QBrush(QColor(0, 0, 255, 96)), w,
+    updateProfLineWidth(profileWidth->value());
+}
+
+void LWControls::updateProfLineWidth(int w)
+{
+    double scale_x = m_widget->plot()->canvasMap(QwtPlot::xBottom).pDist() /
+        m_widget->plot()->canvasMap(QwtPlot::xBottom).sDist();
+    double scale_y = m_widget->plot()->canvasMap(QwtPlot::yLeft).pDist() /
+        m_widget->plot()->canvasMap(QwtPlot::yLeft).sDist();
+    double alpha = atan2(m_prof_y[1] - m_prof_y[0], m_prof_x[1] - m_prof_x[0]);
+    double width = w * (scale_y * pow(cos(alpha), 2) +
+                        scale_x * pow(sin(alpha), 2));
+    profLine2->setPen(QPen(QBrush(QColor(0, 0, 255, 96)), width,
                            Qt::SolidLine, Qt::FlatCap));
     m_widget->plot()->replot();
+}
+
+void LWControls::updateProfWidth(int w)
+{
+    updateProfLineWidth(w);
     if (profWindow) {
         profWindow->update(m_widget->data(), m_prof_x, m_prof_y, w,
                            profileBins->value());

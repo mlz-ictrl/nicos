@@ -118,6 +118,8 @@ class LWControls : public QWidget
     void createProfile(const QwtArray<QwtDoublePoint> &);
     void updateProfWidth(int);
     void updateProfBins(int);
+    void updateProfLineWidth(int);
+    void zoomAdjusted();
 
   public:
     LWControls(QWidget *parent = NULL);
