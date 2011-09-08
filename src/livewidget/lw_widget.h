@@ -58,13 +58,15 @@ class LWWidget : public QWidget
 
     bool isLog10() const;
     bool keepAspect() const;
+    bool controlsVisible() const;
 
     void setCustomRange(double lower, double upper);
     void setStandardColorMap(bool greyscale, bool cyclic);
 
   public slots:
     void setLog10(bool val);
-    void setKeepAspect(bool on);
+    void setKeepAspect(bool val);
+    void setControlsVisible(bool val);
 
     void updateGraph();
     void updateLabels();

@@ -101,6 +101,16 @@ bool LWWidget::keepAspect() const
     return false;
 }
 
+void LWWidget::setControlsVisible(bool val)
+{
+    m_controls->setVisible(val);
+}
+
+bool LWWidget::controlsVisible() const
+{
+    return m_controls->isVisible();
+}
+
 void LWWidget::setStandardColorMap(bool greyscale, bool cyclic)
 {
     if (greyscale) {
