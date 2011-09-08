@@ -28,73 +28,8 @@
 #ifndef LW_WIDGET_H
 #define LW_WIDGET_H
 
-#include <QPrinter>
-#include <QPrintDialog>
-
-#include <qwt_color_map.h>
-#include <qwt_plot.h>
-#include <qwt_plot_layout.h>
-#include <qwt_plot_panner.h>
-#include <qwt_plot_rescaler.h>
-#include <qwt_plot_spectrogram.h>
-#include <qwt_plot_zoomer.h>
-#include <qwt_scale_widget.h>
-
-#include "lw_data.h"
-
-
-class LWZoomer : public QwtPlotZoomer
-{
-  private:
-    bool m_aspect;
-
-  protected:
-    const QwtPlotSpectrogram *m_spectro;
-
-  public:
-    LWZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram *spectro);
-    virtual ~LWZoomer();
-
-    bool keepAspect() const { return m_aspect; }
-    void setKeepAspect(bool val);
-
-    virtual void zoom(const QwtDoubleRect &rect);
-    virtual QwtText trackerText(const QwtDoublePoint &pos) const;
-};
-
-
-class LWPlot : public QwtPlot
-{
-    Q_OBJECT
-
-  private:
-    void initPlot();
-    void deinitPlot();
-
-  protected:
-    QwtPlotSpectrogram *m_spectro;
-    QwtPlotPanner *m_panner;
-    QwtPlotPicker *m_picker;
-    QwtPlotRescaler *m_rescaler;
-    LWZoomer *m_zoomer;
-    int m_scale_width;
-    int m_scale_height;
-
-  public:
-    LWPlot(QWidget *parent);
-    virtual ~LWPlot();
-
-    void updateRange();
-    LWZoomer *getZoomer() { return m_zoomer; }
-    QwtPlotPanner *getPanner() { return m_panner; }
-    const QwtRasterData *getData() const { return &m_spectro->data(); }
-
-    void setData(QwtRasterData *data);
-    void setColorMap(QwtColorMap &map);
-
-  public slots:
-    void printPlot();
-};
+#include "lw_plot.h"
+#include "lw_controls.h"
 
 
 class LWWidget : public QWidget
@@ -106,8 +41,9 @@ class LWWidget : public QWidget
     void unload();
 
   protected:
-    LWPlot *m_plot;
     LWData *m_data;
+    LWPlot *m_plot;
+    LWControls *m_controls;
 
     bool m_log10;
 

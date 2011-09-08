@@ -1,12 +1,16 @@
 CONFIG += qt debug
-TEMPLATE = lib
+# TEMPLATE = lib
 
 INCLUDEPATH += . /usr/include/qwt5
 LIBS += -lqwt -lcfitsio
 
 HEADERS += \
     lw_widget.h \
+    lw_plot.h \
+    lw_controls.h \
     lw_data.h
 SOURCES += \
     lw_widget.cpp \
+    lw_plot.cpp \
+    lw_controls.cpp \
     lw_data.cpp
