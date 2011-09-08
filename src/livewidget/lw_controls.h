@@ -85,12 +85,11 @@ class LWControls : public QWidget
     void updateContrast(int);
     void setLogscale(bool);
     void setColorMap();
+    void dataUpdated(LWData *);
 
   public:
     LWControls(QWidget *parent = NULL);
     virtual ~LWControls();
-
-    void updateNewData();
 };
 
 #endif

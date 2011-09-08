@@ -68,7 +68,7 @@ class LWWidget : public QWidget
     void setKeepAspect(bool val);
     void setControlsVisible(bool val);
 
-    void updateGraph();
+    void updateGraph(bool newdata=true);
     void updateLabels();
 
   signals:

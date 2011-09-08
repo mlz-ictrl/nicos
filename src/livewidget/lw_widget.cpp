@@ -65,8 +65,7 @@ void LWWidget::setData(LWData *data)
     if (m_data)
         unload();
     m_data = data;
-    updateGraph();
-    m_controls->updateNewData();
+    updateGraph(true);
     m_plot->getZoomer()->setZoomBase();
 }
 
@@ -74,7 +73,7 @@ void LWWidget::setLog10(bool val)
 {
     if (m_data) {
         m_data->setLog10(val);
-        updateGraph();
+        updateGraph(true);
     }
 }
 
@@ -135,23 +134,24 @@ void LWWidget::setStandardColorMap(bool greyscale, bool cyclic)
             m_plot->setColorMap(colorMap);
         }
     }
-    updateGraph();
+    updateGraph(false);
 }
 
 void LWWidget::setCustomRange(double lower, double upper)
 {
     if (m_data) {
         m_data->setCustomRange(lower, upper);
-        updateGraph();
+        updateGraph(false);
     }
 }
 
-void LWWidget::updateGraph()
+void LWWidget::updateGraph(bool newdata)
 {
     if (m_data) {
         m_plot->setData(new LWRasterData(m_data));
         updateLabels();
-        emit dataUpdated(m_data);
+        if (newdata)
+            emit dataUpdated(m_data);
     }
 }
 

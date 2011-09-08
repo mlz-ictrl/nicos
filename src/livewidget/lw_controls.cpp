@@ -180,12 +180,12 @@ void LWControls::setupUi()
                      this, SLOT(updateBrightness(int)));
     QObject::connect(ctrSlider, SIGNAL(valueChanged(int)),
                      this, SLOT(updateContrast(int)));
+    QObject::connect(m_widget, SIGNAL(dataUpdated(LWData *)),
+                     this, SLOT(dataUpdated(LWData *)));
 }
 
-void LWControls::updateNewData()
+void LWControls::dataUpdated(LWData *data)
 {
-    LWData *data = m_widget->data();
-
     m_absmin = data->min();
     m_absmax = data->max();
     m_absrange = m_absmax - m_absmin;
@@ -199,6 +199,13 @@ void LWControls::updateNewData()
 
     data->histogram(256, m_histogram_x, m_histogram_y);
     histoPlot->replot();
+
+    m_sliderupdating = true;
+    minSlider->setValue(0);
+    maxSlider->setValue(256);
+    brtSlider->setValue(128);
+    ctrSlider->setValue(128);
+    m_sliderupdating = false;
 }
 
 void LWControls::pickRange(const QwtDoubleRect &rect)
@@ -293,7 +300,6 @@ void LWControls::updateContrast(int level)
 void LWControls::setLogscale(bool on)
 {
     m_widget->setLog10(on);
-    updateNewData();
 }
 
 void LWControls::setColorMap()

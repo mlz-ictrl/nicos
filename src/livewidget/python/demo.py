@@ -43,11 +43,14 @@ class MainWindow(QMainWindow):
         loadUi('demo.ui', self)
 
         self.livewidget = LWWidget(self)
+        #self.livewidget.setKeepAspect(False)
+        #self.livewidget.setControlsVisible(False)
         self.plotLayout.addWidget(self.livewidget)
 
         x = open("test1.fits").read()[5760:-1664]
         data = LWData(2048, 2048, 1, ">f4", x)
         self.livewidget.setData(data)
+        #self.livewidget.setLog10(True)
 
     def setColormap(self, on):
         self.livewidget.setStandardColorMap(self.grayscaleBox.isChecked(),
