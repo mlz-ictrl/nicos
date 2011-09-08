@@ -34,21 +34,22 @@
 
 /* Uses the "rotation by area mapping" as implemented by leptonica.com */
 
-data_t *straightenLine(LWData *data, int x1, int y1, int x2, int y2,
+double *straightenLine(LWData *data, int x1, int y1, int x2, int y2,
                        int lw, int *npixels)
 {
     double angle = - atan2(y2 - y1, x2 - x1);
     double len = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
     int width = *npixels = (int)(len + 0.5);
     int height = lw;
-    data_t *dest = new data_t[width * height];
-    data_t xpm, ypm, xp, yp, xf, yf, v00, v01, v10, v11;
+    double *dest = new double[width * height];
+    data_t xpm, ypm, xp, yp, xf, yf;
+    double v00, v01, v10, v11;
 
     double sina = 16. * sin(angle);
     double cosa = 16. * cos(angle);
 
-    double xstart = 16 * x1 - ((double)lw)/2. * sina;
-    double ystart = 16 * y1 - ((double)lw)/2. * cosa;
+    double xstart = 16. * x1 - lw/2. * sina;
+    double ystart = 16. * y1 - lw/2. * cosa;
 
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
@@ -60,16 +61,18 @@ data_t *straightenLine(LWData *data, int x1, int y1, int x2, int y2,
             yf = ypm & 0xF;
 
             // area weighting
-            v00 = (16 - xf) * (16 - yf) * data->value(xp, yp);
-            v10 = xf * (16 - yf) * data->value(xp + 1, yp);
-            v01 = (16 - xf) * yf * data->value(xp, yp + 1);
+            v00 = (16. - xf) * (16. - yf) * data->value(xp, yp);
+            v10 = xf * (16. - yf) * data->value(xp + 1, yp);
+            v01 = (16. - xf) * yf * data->value(xp, yp + 1);
             v11 = xf * yf * data->value(xp + 1, yp + 1);
-            dest[y * width + x] = (data_t)((v00 + v01 + v10 + v11 + 128) / 256);
+            dest[y * width + x] = (v00 + v01 + v10 + v11 + 128.) / 256.;
         }
     }
     return dest;
 }
 
+
+/** LWControls ****************************************************************/
 
 LWControls::LWControls(QWidget *parent) : QWidget(parent)
 {
@@ -483,7 +486,6 @@ LWProfileWindow::~LWProfileWindow()
 
 void LWProfileWindow::update(LWData *data, double *px, double *py, int w, int b)
 {
-    int start, end, nbins, direction;
     if (data_x) {
         delete[] data_x;
         data_x = 0;
@@ -491,8 +493,8 @@ void LWProfileWindow::update(LWData *data, double *px, double *py, int w, int b)
         data_y = 0;
     }
     int len;
-    data_t *straight = straightenLine(data, px[0], py[0], px[1], py[1], w, &len);
-    nbins = len / b;
+    double *straight = straightenLine(data, px[0], py[0], px[1], py[1], w, &len);
+    int nbins = len / b;
     data_x = new double[nbins];
     data_y = new double[nbins];
     for (int i = 0; i < nbins; i++) {
