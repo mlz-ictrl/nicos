@@ -26,9 +26,49 @@
 // *****************************************************************************
 
 #include <iostream>
+#include <stdio.h>
 
 #include "lw_controls.h"
 #include "lw_data.h"
+
+
+/* Uses the "rotation by area mapping" as implemented by leptonica.com */
+
+data_t *straightenLine(LWData *data, int x1, int y1, int x2, int y2,
+                       int lw, int *npixels)
+{
+    double angle = - atan2(y2 - y1, x2 - x1);
+    double len = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+    int width = *npixels = (int)(len + 0.5);
+    int height = lw;
+    data_t *dest = new data_t[width * height];
+    data_t xpm, ypm, xp, yp, xf, yf, v00, v01, v10, v11;
+
+    double sina = 16. * sin(angle);
+    double cosa = 16. * cos(angle);
+
+    double xstart = 16 * x1 - ((double)lw)/2. * sina;
+    double ystart = 16 * y1 - ((double)lw)/2. * cosa;
+
+    for (int x = 0; x < width; x++) {
+        for (int y = 0; y < height; y++) {
+            xpm = (data_t)(xstart + x * cosa + y * sina);
+            ypm = (data_t)(ystart + y * cosa - x * sina);
+            xp = xpm >> 4;
+            yp = ypm >> 4;
+            xf = xpm & 0xF;
+            yf = ypm & 0xF;
+
+            // area weighting
+            v00 = (16 - xf) * (16 - yf) * data->value(xp, yp);
+            v10 = xf * (16 - yf) * data->value(xp + 1, yp);
+            v01 = (16 - xf) * yf * data->value(xp, yp + 1);
+            v11 = xf * yf * data->value(xp + 1, yp + 1);
+            dest[y * width + x] = (data_t)((v00 + v01 + v10 + v11 + 128) / 256);
+        }
+    }
+    return dest;
+}
 
 
 LWControls::LWControls(QWidget *parent) : QWidget(parent)
@@ -38,8 +78,7 @@ LWControls::LWControls(QWidget *parent) : QWidget(parent)
     m_range_y[0] = m_range_y[1] = 0;
     memset(m_histogram_y, 0, sizeof(m_histogram_y));
 
-    profLine1 = 0;
-    profLine2 = 0;
+    profLine1 = profLine2 = 0;
     profWindow = 0;
     m_prof_x[0] = m_prof_x[1] = m_prof_y[0] = m_prof_y[1] = 0;
 
@@ -225,13 +264,9 @@ void LWControls::setupUi()
 
 void LWControls::dataUpdated(LWData *data)
 {
-    m_absmin = data->min();
-    m_absmax = data->max();
-    m_absrange = m_absmax - m_absmin;
-
-    m_curmin = m_absmin;
-    m_curmax = m_absmax;
-    m_currange = m_absrange;
+    m_absmin = m_curmin = data->min();
+    m_absmax = m_curmax = data->max();
+    m_absrange = m_currange = m_absmax - m_absmin;
 
     m_range_x[0] = m_curmin;
     m_range_x[1] = m_curmax;
@@ -455,38 +490,19 @@ void LWProfileWindow::update(LWData *data, double *px, double *py, int w, int b)
         delete[] data_y;
         data_y = 0;
     }
-    if ((int)px[0] == (int)px[1]) {
-        start = (int)py[0];
-        end = (int)py[1];
-        nbins = (abs(end - start) + 1) / b;
-        direction = start < end ? 1 : -1;
-        data_x = new double[nbins];
-        data_y = new double[nbins];
-        for (int i = 0; i < nbins; i++) {
-            data_x[i] = start + i*direction;
-            data_y[i] = 0;
-            for (int j = -w+1; j <= w-1; j++)
-                for (int k = 0; k < b; k++)
-                    data_y[i] += data->value((int)px[0] + j, start + (i*b+k)*direction);
-        }
-    } else if ((int)py[0] == (int)py[1]) {
-        start = (int)px[0];
-        end = (int)px[1];
-        nbins = (abs(end - start) + 1) / b;
-        direction = start < end ? 1 : -1;
-        data_x = new double[nbins];
-        data_y = new double[nbins];
-        for (int i = 0; i < nbins; i++) {
-            data_x[i] = start + i*direction;
-            data_y[i] = 0;
-            for (int j = -w+1; j <= w-1; j++)
-                for (int k = 0; k < b; k++)
-                    data_y[i] += data->value(start+(i*b+k)*direction, (int)py[0] + j);
-        }
-    } else {
-        curve->setData(QwtCPointerData(data_x, data_y, 0));
-        return;
+    int len;
+    data_t *straight = straightenLine(data, px[0], py[0], px[1], py[1], w, &len);
+    nbins = len / b;
+    data_x = new double[nbins];
+    data_y = new double[nbins];
+    for (int i = 0; i < nbins; i++) {
+        data_x[i] = i*b;
+        data_y[i] = 0;
+        for (int j = 0; j < w; j++)
+            for (int k = 0; k < b; k++)
+                data_y[i] += straight[len*j + (i*b + k)];
     }
+    delete[] straight;
     curve->setData(QwtCPointerData(data_x, data_y, nbins));
     plot->replot();
 }
