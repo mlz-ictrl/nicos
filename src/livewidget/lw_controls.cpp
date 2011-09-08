@@ -39,7 +39,10 @@ LWControls::LWControls(QWidget *parent) : QWidget(parent)
     m_range_y[1] = 0;
     memset(m_histogram_y, 0, sizeof(m_histogram_y));
 
-    profLine = 0;
+    profLine1 = 0;
+    profLine2 = 0;
+    profWindow = 0;
+
     setupUi();
 }
 
@@ -68,12 +71,36 @@ void LWControls::setupUi()
     profileButton->setCheckable(true);
     mainLayout->addWidget(profileButton);
 
+    profLine1 = new QwtPlotCurve();
+    profLine1->setRenderHint(QwtPlotCurve::RenderAntialiased);
+    profLine1->setPen(QPen(QBrush(QColor(0, 0, 255, 255)), 1,
+                           Qt::SolidLine, Qt::FlatCap));
+    profLine1->setData(QwtCPointerData(m_prof_x, m_prof_y, 2));
+    profLine1->setVisible(false);
+    profLine1->attach(m_widget->plot());
+
+    profLine2 = new QwtPlotCurve();
+    profLine2->setRenderHint(QwtPlotCurve::RenderAntialiased);
+    profLine2->setPen(QPen(QBrush(QColor(0, 0, 255, 96)), 1,
+                           Qt::SolidLine, Qt::FlatCap));
+    profLine2->setData(QwtCPointerData(m_prof_x, m_prof_y, 2));
+    profLine2->setVisible(false);
+    profLine2->attach(m_widget->plot());
+
     hLayout = new QHBoxLayout();
     wLabel = new QLabel("profile width:", this);
     hLayout->addWidget(wLabel);
     profileWidth = new QSpinBox(this);
     profileWidth->setRange(1, 65536);
     hLayout->addWidget(profileWidth);
+    mainLayout->addLayout(hLayout);
+
+    hLayout = new QHBoxLayout();
+    wLabel = new QLabel("profile binning:", this);
+    hLayout->addWidget(wLabel);
+    profileBins = new QSpinBox(this);
+    profileBins->setRange(1, 256);
+    hLayout->addWidget(profileBins);
     mainLayout->addLayout(hLayout);
 
     histoPlot = new QwtPlot(this);
@@ -186,6 +213,8 @@ void LWControls::setupUi()
                      this, SLOT(pickProfile()));
     QObject::connect(profileWidth, SIGNAL(valueChanged(int)),
                      this, SLOT(updateProfWidth(int)));
+    QObject::connect(profileBins, SIGNAL(valueChanged(int)),
+                     this, SLOT(updateProfBins(int)));
     QObject::connect(m_widget->plot()->getPicker(),
                      SIGNAL(selected(const QwtArray<QwtDoublePoint> &)), this,
                      SLOT(createProfile(const QwtArray<QwtDoublePoint> &)));
@@ -213,6 +242,11 @@ void LWControls::dataUpdated(LWData *data)
     brtSlider->setValue(128);
     ctrSlider->setValue(128);
     m_sliderupdating = false;
+
+    if (profWindow) {
+        profWindow->update(m_widget->data(), m_prof_x, m_prof_y,
+                           profileWidth->value(), profileBins->value());
+    }
 }
 
 void LWControls::pickRange(const QwtDoubleRect &rect)
@@ -335,18 +369,105 @@ void LWControls::createProfile(const QwtArray<QwtDoublePoint> &points)
     m_prof_y[0] = points[0].y();
     m_prof_x[1] = points[1].x();
     m_prof_y[1] = points[1].y();
-    profLine = new QwtPlotCurve();
-    profLine->setRenderHint(QwtPlotCurve::RenderAntialiased);
-    profLine->setPen(QPen(QBrush(QColor(0, 0, 255, 96)), 1,
-                          Qt::SolidLine, Qt::FlatCap));
-    profLine->setData(QwtCPointerData(m_prof_x, m_prof_y, 2));
-    profLine->attach(m_widget->plot());
+
+    profLine1->setVisible(true);
+    profLine2->setVisible(true);
     m_widget->plot()->replot();
+
+    if (profWindow == NULL) {
+        profWindow = new LWProfileWindow(this);
+    }
+    profWindow->update(m_widget->data(), m_prof_x, m_prof_y,
+                       profileWidth->value(), profileBins->value());
+    profWindow->show();
 }
 
 void LWControls::updateProfWidth(int w)
 {
-    profLine->setPen(QPen(QBrush(QColor(0, 0, 255, 96)), w,
-                          Qt::SolidLine, Qt::FlatCap));
+    // XXX pen width must be converted from image pixels to screen pixels
+    profLine2->setPen(QPen(QBrush(QColor(0, 0, 255, 96)), w,
+                           Qt::SolidLine, Qt::FlatCap));
     m_widget->plot()->replot();
+    if (profWindow) {
+        profWindow->update(m_widget->data(), m_prof_x, m_prof_y, w,
+                           profileBins->value());
+    }
+}
+
+void LWControls::updateProfBins(int b)
+{
+    if (profWindow) {
+        profWindow->update(m_widget->data(), m_prof_x, m_prof_y,
+                           profileWidth->value(), b);
+    }
+}
+
+
+/** LWProfileWindow ***********************************************************/
+
+LWProfileWindow::LWProfileWindow(QWidget *parent) :
+    QMainWindow(parent), data_x(0), data_y(0)
+{
+    plot = new QwtPlot(this);
+    curve = new QwtPlotCurve();
+    curve->setRenderHint(QwtPlotCurve::RenderAntialiased);
+    curve->attach(plot);
+    setCentralWidget(plot);
+    setWindowTitle("Line profile");
+    setContentsMargins(5, 5, 5, 5);
+    QFont plotfont(font());
+    plotfont.setPointSize(plotfont.pointSize() * 0.7);
+    plot->setAxisFont(QwtPlot::xBottom, plotfont);
+    plot->setAxisFont(QwtPlot::yLeft, plotfont);
+    plot->setCanvasBackground(Qt::white);
+    resize(800, 200);
+}
+
+LWProfileWindow::~LWProfileWindow()
+{
+}
+
+void LWProfileWindow::update(LWData *data, double *px, double *py, int w, int b)
+{
+    int start, end, nbins, direction;
+    if (data_x) {
+        delete[] data_x;
+        data_x = 0;
+        delete[] data_y;
+        data_y = 0;
+    }
+    if ((int)px[0] == (int)px[1]) {
+        start = (int)py[0];
+        end = (int)py[1];
+        nbins = (abs(end - start) + 1) / b;
+        direction = start < end ? 1 : -1;
+        data_x = new double[nbins];
+        data_y = new double[nbins];
+        for (int i = 0; i < nbins; i++) {
+            data_x[i] = start + i*direction;
+            data_y[i] = 0;
+            for (int j = -w+1; j <= w-1; j++)
+                for (int k = 0; k < b; k++)
+                    data_y[i] += data->value((int)px[0] + j, start + (i*b+k)*direction);
+        }
+    } else if ((int)py[0] == (int)py[1]) {
+        start = (int)px[0];
+        end = (int)px[1];
+        nbins = (abs(end - start) + 1) / b;
+        direction = start < end ? 1 : -1;
+        data_x = new double[nbins];
+        data_y = new double[nbins];
+        for (int i = 0; i < nbins; i++) {
+            data_x[i] = start + i*direction;
+            data_y[i] = 0;
+            for (int j = -w+1; j <= w-1; j++)
+                for (int k = 0; k < b; k++)
+                    data_y[i] += data->value(start+(i*b+k)*direction, (int)py[0] + j);
+        }
+    } else {
+        curve->setData(QwtCPointerData(data_x, data_y, 0));
+        return;
+    }
+    curve->setData(QwtCPointerData(data_x, data_y, nbins));
+    plot->replot();
 }

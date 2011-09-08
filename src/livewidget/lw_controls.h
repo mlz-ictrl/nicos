@@ -31,6 +31,7 @@
 #include <QCheckBox>
 #include <QLabel>
 #include <QLayout>
+#include <QMainWindow>
 #include <QPushButton>
 #include <QSlider>
 #include <QSpinBox>
@@ -43,6 +44,23 @@ class LWWidget;
 class LWControls;
 
 #include "lw_widget.h"
+
+
+class LWProfileWindow : public QMainWindow
+{
+    Q_OBJECT
+
+  protected:
+    QwtPlot *plot;
+    QwtPlotCurve *curve;
+    double *data_x, *data_y;
+
+  public:
+    LWProfileWindow(QWidget *parent = NULL);
+    virtual ~LWProfileWindow();
+
+    void update(LWData *data, double *px, double *py, int width, int bins);
+};
 
 
 class LWControls : public QWidget
@@ -71,6 +89,7 @@ class LWControls : public QWidget
     QCheckBox *cyclicBox;
     QPushButton *profileButton;
     QSpinBox *profileWidth;
+    QSpinBox *profileBins;
     QSlider *minSlider;
     QSlider *maxSlider;
     QSlider *brtSlider;
@@ -81,7 +100,9 @@ class LWControls : public QWidget
     QwtPlotCurve *histoRange;
     QwtPlotPicker *histoPicker;
 
-    QwtPlotCurve *profLine;
+    QwtPlotCurve *profLine1;
+    QwtPlotCurve *profLine2;
+    LWProfileWindow *profWindow;
 
     void setupUi();
 
@@ -96,6 +117,7 @@ class LWControls : public QWidget
     void pickProfile();
     void createProfile(const QwtArray<QwtDoublePoint> &);
     void updateProfWidth(int);
+    void updateProfBins(int);
 
   public:
     LWControls(QWidget *parent = NULL);
