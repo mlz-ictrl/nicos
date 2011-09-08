@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os, re, glob
+import os, re, sys, glob
 from os.path import basename
 from PyQt4 import pyqtconfig
 
@@ -66,7 +66,8 @@ fix_build_file(build_file, map(basename, extra_sources),
 
 print "Generating makefile..."
 makefile = pyqtconfig.QtGuiModuleMakefile(
-    configuration=config, build_file=build_file, debug=True)
+    configuration=config, build_file=build_file,
+    debug='-r' not in sys.argv)
 
 makefile.extra_include_dirs = ["/usr/include/qwt5"]
 makefile.extra_libs = ["qwt", "cfitsio"]
