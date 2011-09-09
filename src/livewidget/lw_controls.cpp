@@ -153,8 +153,8 @@ void LWControls::setupUi()
     newFont.setPointSize(newFont.pointSize() * 0.7);
     histoPlot->setAxisFont(QwtPlot::xBottom, newFont);
 
-    histogram = new QwtPlotCurve();
-    histogram->setRenderHint(QwtPlotCurve::RenderAntialiased);
+    histogram = new LWHistogramItem();
+    //histogram->setRenderHint(QwtPlotCurve::RenderAntialiased);
     histogram->setData(QwtCPointerData(m_histogram_x,
                                        m_histogram_y, 256));
     histogram->attach(histoPlot);

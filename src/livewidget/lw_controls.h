@@ -44,6 +44,7 @@ class LWWidget;
 class LWControls;
 
 #include "lw_widget.h"
+#include "lw_histogram.h"
 
 
 class LWProfileWindow : public QMainWindow
@@ -96,7 +97,7 @@ class LWControls : public QWidget
     QSlider *ctrSlider;
 
     QwtPlot *histoPlot;
-    QwtPlotCurve *histogram;
+    LWHistogramItem *histogram;
     QwtPlotCurve *histoRange;
     QwtPlotPicker *histoPicker;
 

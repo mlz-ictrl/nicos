@@ -60,6 +60,7 @@ class MainWindow(QMainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv[1:])
     window = MainWindow(None)
+    window.setWindowTitle('LiveWidget demo')
     window.resize(1000, 600)
     window.show()
     app.exec_()
