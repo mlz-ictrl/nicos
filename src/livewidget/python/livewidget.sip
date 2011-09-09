@@ -23,21 +23,22 @@ class LWData
     double max() const;
 
     int currentZ() const;
-    void setCurrentZ(int val);
+    virtual void setCurrentZ(int val);
 
     bool isLog10() const;
-    void setLog10(bool val);
+    virtual void setLog10(bool val);
 
     bool hasCustomRange() const;
     double customRangeMin() const;
     double customRangeMax() const;
-    void setCustomRange(double lower, double upper);
+    virtual void setCustomRange(double lower, double upper);
 
-    double value(double x, double y) const;
-    double valueRaw(int x, int y) const;
-    double valueRaw(int x, int y, int z) const;
+    virtual double value(double x, double y) const;
+    virtual double valueRaw(int x, int y) const;
+    virtual double valueRaw(int x, int y, int z) const;
 
-    void histogram(int bins, QVector<double> **xs, QVector<double> **ys) const;
+    virtual void histogram(int bins, QVector<double> **xs,
+                           QVector<double> **ys) const;
 };
 
 

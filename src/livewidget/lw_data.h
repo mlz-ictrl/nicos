@@ -39,8 +39,8 @@ typedef uint32_t data_t;
 class LWData
 {
   private:
-    void updateRange();
-    void initFromBuffer(const char *data);
+    virtual void updateRange();
+    virtual void initFromBuffer(const char *data);
 
   protected:
     // concerning the data
@@ -64,7 +64,7 @@ class LWData
     LWData(int width, int height, int depth,
            const char *format, const char *data);
     LWData(const LWData &other);
-    ~LWData();
+    virtual ~LWData();
 
     const data_t *buffer() const { return m_data; }
 
@@ -75,23 +75,29 @@ class LWData
     double max() const { return m_max; }
 
     int currentZ() const { return m_cur_z; }
-    void setCurrentZ(int val);
+    virtual void setCurrentZ(int val);
 
     bool isLog10() const { return m_log10; }
-    void setLog10(bool val);
+    virtual void setLog10(bool val);
 
     bool hasCustomRange() const { return m_custom_range; }
     double customRangeMin() const;
     double customRangeMax() const;
-    void setCustomRange(double lower, double upper);
+    virtual void setCustomRange(double lower, double upper);
 
+    /// Get current presentation value at the specified point.
     virtual double value(double x, double y) const;
-    // get (nonlog) raw value without regard to presentation settings
+    /// Get raw value without regard to presentation settings (like log10).
     virtual double valueRaw(int x, int y) const;
+    /// Same, but also specifying the layer.
     virtual double valueRaw(int x, int y, int z) const;
 
+    /// Create a histogram of the current layer.  Caller must allocate
+    /// the xs and ys arrays with a length of "bins".
     virtual void histogram(int bins, double *xs, double *ys) const;
-    virtual void histogram(int bins, QVector<double> **xs, QVector<double> **ys) const;
+    /// Same, but creates QVectors of doubles (callable from Python).
+    virtual void histogram(int bins, QVector<double> **xs,
+                           QVector<double> **ys) const;
 };
 
 
