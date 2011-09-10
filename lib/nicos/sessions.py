@@ -430,7 +430,7 @@ class Session(object):
             if code:
                 try:
                     exec code in self._namespace
-                except Exception, err:
+                except Exception:
                     self.log.exception('error running startup code, ignoring')
 
         if failed_devs:
