@@ -1,11 +1,5 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# Module:
-#   $Id$
-#
-# Author:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
-#
 # NICOS-NG, the Networked Instrument Control System of the FRM-II
 # Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
 #
@@ -23,27 +17,20 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+# Module authors:
+#   Georg Brandl <georg.brandl@frm2.tum.de>
+#
 # *****************************************************************************
 
-"""Class for Picotest ."""
+"""Class for i7000 input/output modules."""
 
-__author__  = "$Author$"
-__date__    = "$Date$"
 __version__ = "$Revision$"
-
-import os, fcntl, time
-import sys, struct, math
 
 import IO
 
 from nicos import status
 from nicos.taco import TacoDevice
-from nicos.device import Moveable, Param, Value, usermethod
-from nicos.errors import CommunicationError, ConfigurationError, NicosError
-from nicos.utils import floatrange, oneof
-
-USBTMC_IOCTL_CLEAR = 23298
-USBTMC_IOCTL_RESET_CONF = 23298 + 9
+from nicos.device import Moveable, Param
 
 
 class Output(Moveable, TacoDevice):
@@ -52,7 +39,7 @@ class Output(Moveable, TacoDevice):
     parameters = {
         'address': Param('Address of unit', type=int, mandatory=True),
     }
-    
+
     def doStatus(self):
         #self._query('*IDN?')
         return status.OK, 'idle'
@@ -66,4 +53,3 @@ class Output(Moveable, TacoDevice):
         upper = value >> 8
         self._taco_guard(self._dev.communicate, '#%02X0A%02X' % (self.address, lower))
         self._taco_guard(self._dev.communicate, '#%02X0B%02X' % (self.address, upper))
-
