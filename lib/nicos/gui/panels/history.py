@@ -1,11 +1,5 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# Module:
-#   $Id$
-#
-# Author:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
-#
 # NICOS-NG, the Networked Instrument Control System of the FRM-II
 # Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
 #
@@ -23,23 +17,24 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+# Module authors:
+#   Georg Brandl <georg.brandl@frm2.tum.de>
+#
 # *****************************************************************************
 
 """NICOS GUI history log window."""
 
-__author__  = "$Author$"
-__date__    = "$Date$"
 __version__ = "$Revision$"
 
 import time
 
-from PyQt4.QtCore import Qt, QVariant, QSize, QDateTime, SIGNAL
+from PyQt4.QtCore import Qt, QSize, QDateTime, SIGNAL
 from PyQt4.Qwt5 import QwtPlot, QwtText, QwtSymbol, QwtLegend, QwtPlotItem, \
      QwtPlotZoomer, QwtPlotGrid, QwtPicker, QwtPlotPicker, QwtPlotCurve, \
      QwtLog10ScaleEngine, QwtLinearScaleEngine, QwtScaleDraw
-from PyQt4.QtGui import QDialog, QPalette, QFont, QColor, QPen, QBrush, \
-     QListWidgetItem, QFontDialog, QColorDialog, QFileDialog, QPrintDialog, \
-     QPrinter, QToolBar, QMenu, QStatusBar, QSizePolicy
+from PyQt4.QtGui import QDialog, QPalette, QFont, QPen, QBrush, \
+     QListWidgetItem, QFileDialog, QPrintDialog, QPrinter, QToolBar, QMenu, \
+     QStatusBar, QSizePolicy
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np

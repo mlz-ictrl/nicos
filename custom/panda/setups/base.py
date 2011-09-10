@@ -23,13 +23,13 @@ devices = dict(
                       ),
 
     stt      = device('nicos.virtual.VirtualMotor',
-                      abslimits = (-180, 180), 
+                      abslimits = (-180, 180),
                       unit = 'deg'),
 
     sth      = device('nicos.virtual.VirtualMotor',
                       abslimits = (0, 360),
                       unit = 'deg'),
-                      
+
     sw=device('nicos.virtual.VirtualSwitch',
                       states=['on','off',2,1],
                       ),

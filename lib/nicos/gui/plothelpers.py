@@ -1,11 +1,5 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# Module:
-#   $Id$
-#
-# Author:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
-#
 # NICOS-NG, the Networked Instrument Control System of the FRM-II
 # Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
 #
@@ -23,21 +17,23 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+# Module authors:
+#   Georg Brandl <georg.brandl@frm2.tum.de>
+#
 # *****************************************************************************
 
 """NICOS GUI plotting helpers."""
 
-__author__  = "$Author$"
-__date__    = "$Date$"
 __version__ = "$Revision$"
 
 import time
 
 from numpy import asarray
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
-from PyQt4.Qwt5 import *
+from PyQt4.QtCore import Qt, QRectF, QLine, SIGNAL
+from PyQt4.QtGui import QPen, QPainter
+from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotPicker, \
+     QwtLog10ScaleEngine, QwtSymbol
 
 try:
     from PyQt4.Qwt5.grace import GracePlotter
