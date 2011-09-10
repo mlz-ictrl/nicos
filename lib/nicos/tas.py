@@ -427,6 +427,7 @@ class TAS(Instrument, Moveable):
         self.E.unit = val
 
     def doRead(self):
+        # XXX read or doRead
         mono, ana, phi, psi = self._adevs['mono'], self._adevs['ana'], \
                               self._adevs['phi'], self._adevs['psi']
         # read out position
