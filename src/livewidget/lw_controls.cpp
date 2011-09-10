@@ -34,8 +34,8 @@
 
 /* Uses the "rotation by area mapping" as implemented by leptonica.com */
 
-double *straightenLine(LWData *data, int x1, int y1, int x2, int y2,
-                       int lw, int *npixels)
+static double *straightenLine(LWData *data, int x1, int y1, int x2, int y2,
+                              int lw, int *npixels)
 {
     double angle = - atan2(y2 - y1, x2 - x1);
     double len = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
