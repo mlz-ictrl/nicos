@@ -1,11 +1,5 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# Module:
-#   $Id$
-#
-# Author:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
-#
 # NICOS-NG, the Networked Instrument Control System of the FRM-II
 # Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
 #
@@ -23,12 +17,13 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+# Module authors:
+#   Georg Brandl <georg.brandl@frm2.tum.de>
+#
 # *****************************************************************************
 
 """NICOS temperature controller classes."""
 
-__author__  = "$Author$"
-__date__    = "$Date$"
 __version__ = "$Revision$"
 
 import time
@@ -125,6 +120,7 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
     }
 
     def doRead(self):
+        # XXX read or doRead
         return self._adevs['sensor_%s' % self.samplechannel.lower()].read() - \
                self.offset
 
@@ -172,6 +168,7 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
         firststart = started = time.time()
         channel = self._adevs['sensor_%s' % self.controlchannel.lower()]
         while 1:
+            # XXX read or doRead
             value = channel.read()
             self.log.debug('current temperature %7.3f %s' % (value, self.unit))
             now = time.time()

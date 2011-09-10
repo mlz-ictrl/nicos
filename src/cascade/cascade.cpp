@@ -1,10 +1,4 @@
 ﻿// *****************************************************************************
-// Module:
-//   $Id$
-//
-// Author:
-//   Tobias Weber <tweber@frm2.tum.de>
-//
 // NICOS-NG, the Networked Instrument Control System of the FRM-II
 // Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
 //
@@ -21,6 +15,9 @@
 // You should have received a copy of the GNU General Public License along with
 // this program; if not, write to the Free Software Foundation, Inc.,
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+// Module authors:
+//   Tobias Weber <tweber@frm2.tum.de>
 //
 // *****************************************************************************
 // Cascade-Hauptfenster

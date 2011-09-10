@@ -1,11 +1,5 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# Module:
-#   $Id: motor.py 436 2011-04-12 07:27:20Z gbrandl $
-#
-# Author:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
-#
 # NICOS-NG, the Networked Instrument Control System of the FRM-II
 # Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
 #
@@ -23,12 +17,13 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+# Module authors:
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#
 # *****************************************************************************
 
 """PANDA S7 Interface for NICOS."""
 
-__author__  = "$Author$"
-__date__    = "$Date$"
 __version__ = "$Revision$"
 
 from time import sleep, time as currenttime

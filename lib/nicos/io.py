@@ -1,11 +1,5 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# Module:
-#   $Id$
-#
-# Author:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
-#
 # NICOS-NG, the Networked Instrument Control System of the FRM-II
 # Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
 #
@@ -23,19 +17,17 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+# Module authors:
+#   Georg Brandl <georg.brandl@frm2.tum.de>
+#
 # *****************************************************************************
 
 """Implementation of TACO I/O devices."""
 
-__author__  = "$Author$"
-__date__    = "$Date$"
 __version__ = "$Revision$"
-
-from time import sleep
 
 import IO
 
-from nicos import status
 from nicos.taco import TacoDevice
 from nicos.utils import waitForStatus
 from nicos.device import Readable, Moveable, HasLimits, Param
@@ -181,6 +173,7 @@ class MultiDigitalOutput(Moveable):
 
     def doRead(self):
         values = []
+        # XXX read or doRead
         for dev in self._adevs['outputs']:
             values.append(dev.read())
         if len(set(values)) != 1:

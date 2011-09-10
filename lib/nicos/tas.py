@@ -1,11 +1,5 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# Module:
-#   $Id$
-#
-# Author:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
-#
 # NICOS-NG, the Networked Instrument Control System of the FRM-II
 # Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
 #
@@ -23,12 +17,14 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+# Module authors:
+#   Klaudia Hradil <klaudia.hradil@frm2.tum.de>
+#   Georg Brandl <georg.brandl@frm2.tum.de>
+#
 # *****************************************************************************
 
 """NICOS triple-axis instrument devices."""
 
-__author__  = "$Author$"
-__date__    = "$Date$"
 __version__ = "$Revision$"
 
 from math import pi, cos, sin, asin, radians, degrees, sqrt
@@ -431,6 +427,7 @@ class TAS(Instrument, Moveable):
         self.E.unit = val
 
     def doRead(self):
+        # XXX read or doRead
         mono, ana, phi, psi = self._adevs['mono'], self._adevs['ana'], \
                               self._adevs['phi'], self._adevs['psi']
         # read out position

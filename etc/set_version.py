@@ -22,15 +22,16 @@
 #
 # *****************************************************************************
 
-name = 'setup for the poller'
-group = 'special'
+import sys, os
+from os import path
 
-sysconfig = dict(
-    cache = 'localhost'
-)
+current_version = os.popen('git describe --always --dirty').read().strip()
 
-devices = dict(
-    Poller = device('nicos.poller.Poller',
-                    alwayspoll = [],
-                    blacklist = ['tas']),
-)
+for root, dirs, files in os.walk(sys.argv[1]):
+    for file in files:
+        if file.endswith('.py'):
+            fpath = path.join(root, file)
+            contents = open(fpath, 'r').read()
+            new_contents = contents.replace('$Revision$', current_version)
+            if contents != new_contents:
+                open(fpath, 'w').write(new_contents)

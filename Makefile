@@ -5,6 +5,7 @@ PYTHON = /usr/bin/python
 
 all: lib/nicos/gui/gui_rc.py cascade
 	$(PYTHON) setup.py build -e "/usr/bin/env python"
+	$(PYTHON) etc/set_version.py build/lib*
 
 lib/nicos/gui/gui_rc.py: resources/nicos-gui.qrc
 	$(RCC) -o lib/nicos/gui/gui_rc.py resources/nicos-gui.qrc

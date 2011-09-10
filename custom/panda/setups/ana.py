@@ -4,7 +4,7 @@
 
 devices = dict(
     att      = device('nicos.virtual.VirtualMotor',
-                      abslimits = (-180, 180), 
+                      abslimits = (-180, 180),
                       unit = 'deg'),
 
     ath      = device('nicos.virtual.VirtualMotor',
