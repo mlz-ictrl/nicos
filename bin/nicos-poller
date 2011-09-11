@@ -8,7 +8,7 @@ while path.islink(thisfile):
 sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/../lib'))
 
 import optparse
-from nicos.sessions import SimpleSession
+from nicos.sessions.simple import NoninteractiveSession
 
 parser = optparse.OptionParser()
 parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
@@ -20,5 +20,5 @@ if len(args) > 0:
 else:
     appname = 'poller'
 
-SimpleSession.run(appname, setupname='poller', maindevname='Poller',
-                  start_args=args, daemon=opts.daemon)
+NoninteractiveSession.run(appname, setupname='poller', maindevname='Poller',
+                          start_args=args, daemon=opts.daemon)

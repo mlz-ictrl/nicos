@@ -46,8 +46,9 @@ from nicos.utils import listof, nonemptylistof, readFileCounter, \
      updateFileCounter
 from nicos.device import Device, Param, Override, Readable
 from nicos.errors import ConfigurationError, ProgrammingError, NicosError
-from nicos.sessions import DaemonSession, InteractiveSession
 from nicos.commands.output import printinfo
+from nicos.sessions.daemon import DaemonSession
+from nicos.sessions.console import ConsoleSession
 
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
@@ -245,7 +246,7 @@ class GraceSink(DataSink):
     activeInSimulation = False
 
     def isActive(self, scantype):
-        if not GracePlot or not isinstance(session, InteractiveSession):
+        if not GracePlot or not isinstance(session, ConsoleSession):
             return False
         return DataSink.isActive(self, scantype)
 
@@ -323,7 +324,7 @@ class GnuplotSink(DataSink):
     activeInSimulation = False
 
     def isActive(self, scantype):
-        if not Gnuplot or not isinstance(session, InteractiveSession):
+        if not Gnuplot or not isinstance(session, ConsoleSession):
             return False
         return DataSink.isActive(self, scantype)
 

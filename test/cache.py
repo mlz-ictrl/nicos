@@ -30,13 +30,13 @@ import logging
 from os import path
 
 from nicos import loggers
-from nicos.sessions import SimpleSession
+from nicos.sessions.simple import NoninteractiveSession
 
 
-class TestCacheSession(SimpleSession):
+class TestCacheSession(NoninteractiveSession):
 
     def __init__(self, appname):
-        SimpleSession.__init__(self, appname)
+        NoninteractiveSession.__init__(self, appname)
         self.setSetupPath(path.join(path.dirname(__file__), 'setups'))
 
     def createRootLogger(self, prefix='nicos'):
@@ -49,8 +49,9 @@ class TestCacheSession(SimpleSession):
             logging.Formatter('[CACHE] %(name)s: %(message)s'))
         self.log.addHandler(handler)
 
-SimpleSession.config.user = None
-SimpleSession.config.group = None
-SimpleSession.config.control_path = path.join(path.dirname(__file__), 'root')
+NoninteractiveSession.config.user = None
+NoninteractiveSession.config.group = None
+NoninteractiveSession.config.control_path = \
+    path.join(path.dirname(__file__), 'root')
 
 TestCacheSession.run('cache', 'Server')

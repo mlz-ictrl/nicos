@@ -264,7 +264,7 @@ class BaseCacheClient(Device):
             yield msgmatch
             match = line_pattern.match(data)
 
-    # methods to make this client usable as the main device in a SimpleSession
+    # methods to make this client usable as the main device in a simple session
 
     def start(self, *args):
         self._worker.start()

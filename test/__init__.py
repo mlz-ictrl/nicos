@@ -33,6 +33,7 @@ from nicos import session
 from nicos import loggers
 from nicos.sessions import Session
 
+
 class ErrorLogged(Exception):
     """Raised when an error is logged by NICOS."""
 
