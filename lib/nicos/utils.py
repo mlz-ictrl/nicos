@@ -32,7 +32,6 @@ import grp
 import pwd
 import sys
 import copy
-import time
 import errno
 import types
 import signal
@@ -335,23 +334,6 @@ class Repeater(object):
         return self.object
 
 
-class SimClock(object):
-    """Simulation clock."""
-
-    def __init__(self):
-        self.time = 0
-
-    def reset(self):
-        self.time = 0
-
-    def wait(self, time):
-        if self.time < time:
-            self.time = time
-
-    def tick(self, sec):
-        self.time += sec
-
-
 def _s(n):
     return int(n), (n != 1 and 's' or '')
 
@@ -562,26 +544,6 @@ def expandTemplate(template, keywords, field_re=field_re):
         current = field.end()
     result.append(template[current:])
     return ''.join(result)
-
-
-# session id support
-
-def makeSessionId():
-    """Create a unique identifier for the current session."""
-    try:
-        hostname = socket.getfqdn()
-    except socket.error:
-        hostname = 'localhost'
-    pid = os.getpid()
-    timestamp = int(time.time())
-    return '%s@%s-%s' % (pid, hostname, timestamp)
-
-def sessionInfo(id):
-    """Return a string with information gathered from the session id."""
-    pid, rest = id.split('@')
-    host, timestamp = rest.split('-')
-    return 'PID %s on host %s, started on %s' % (
-        pid, host, time.asctime(time.localtime(int(timestamp))))
 
 
 # daemonizing processes

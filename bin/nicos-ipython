@@ -9,7 +9,7 @@ sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/../lib'))
 
 import optparse
 from nicos import nicos_version
-from nicos.sessions import InteractiveSession
+from nicos.sessions.console import ConsoleSession
 
 try:
     sepindex = sys.argv.index('--')
@@ -26,9 +26,9 @@ opts, args = parser.parse_args()
 
 import IPython
 
-class IPySession(InteractiveSession):
+class IPySession(ConsoleSession):
     def __init__(self, appname):
-        InteractiveSession.__init__(self, appname)
+        ConsoleSession.__init__(self, appname)
         # IPython doesn't accept dict subclasses as namespaces
         self._namespace = dict()
         self._local_namespace = dict()

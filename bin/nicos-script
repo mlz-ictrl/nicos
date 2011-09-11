@@ -16,5 +16,5 @@ else:
 
 script_text = open(script, 'U').read()
 
-from nicos.sessions import ScriptSession
+from nicos.sessions.simple import ScriptSession
 ScriptSession.run(setup, script_text)

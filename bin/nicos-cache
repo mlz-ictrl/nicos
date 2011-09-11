@@ -8,11 +8,11 @@ while path.islink(thisfile):
 sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/../lib'))
 
 import optparse
-from nicos.sessions import SimpleSession
+from nicos.sessions.simple import NoninteractiveSession
 
 parser = optparse.OptionParser()
 parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
                   help='daemonize the cache process')
 opts, args = parser.parse_args()
 
-SimpleSession.run('cache', 'Server', daemon=opts.daemon)
+NoninteractiveSession.run('cache', 'Server', daemon=opts.daemon)

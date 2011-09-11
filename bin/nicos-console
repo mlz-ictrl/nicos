@@ -8,11 +8,11 @@ while path.islink(thisfile):
 sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/../lib'))
 
 import optparse
-from nicos.sessions import InteractiveSession
+from nicos.sessions.console import ConsoleSession
 
 parser = optparse.OptionParser()
 parser.add_option('-s', '--simulate', dest='simulate', action='store_true',
                   help='start in simulation mode')
 opts, args = parser.parse_args()
 
-InteractiveSession.run(args[0] if args else 'startup', opts.simulate)
+ConsoleSession.run(args[0] if args else 'startup', opts.simulate)
