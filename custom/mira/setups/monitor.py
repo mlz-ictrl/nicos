@@ -51,7 +51,7 @@ _column2 = [
     ('Cascade', [
         [{'dev': 'psd', 'name': 'ROI', 'item': 0, 'width': 9},
          {'dev': 'psd', 'name': 'Total', 'item': 1, 'width': 9},
-         {'key': 'psd/lastfilenumber', 'name': 'Last file'}],
+         {'key': 'psd/lastfilenumber', 'name': 'Last image'}],
         ],
      'cascade'),
     ('Sample', [[{'dev': 'om'}, {'dev': 'phi'}],
