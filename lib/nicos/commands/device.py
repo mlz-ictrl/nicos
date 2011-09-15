@@ -196,6 +196,7 @@ def reset(*devlist):
 def set(dev, parameter, value):
     """Set a the parameter of the device to a new value."""
     session.getDevice(dev).setPar(parameter, value)
+    dev.log.info('%s set to %r' % (parameter, value))
 
 @usercommand
 def get(dev, parameter):
