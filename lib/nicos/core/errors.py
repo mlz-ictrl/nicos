@@ -40,6 +40,16 @@ class NicosError(Exception):
        def doRead(self):
            if not self._ready:
                raise NicosError(self, 'device is not ready')
+
+
+    The constructor accepts a the keyword 'wikicode' with an integer argument
+    to create a link to a wiki page
+    https://trac.frm2.tum.de/projects/NICOS/wiki/NicosError/<integer>
+    where more information can be given.
+    The integer should be the unix timestamp (e.g from 'date +%%s', to get a uniqe id) of the
+    first use of this specific error.
+    To create the wiki page, log in to trac and enter 'wiki:NicosError/<integer>'
+    in the search box on the upper right.
     """
     category = 'Error'
     device = None
@@ -51,6 +61,9 @@ class NicosError(Exception):
         if args and not isinstance(args[0], basestring):
             self.device = args[0]
             args[0] = '[%s] ' % args[0].name
+        if kwds and kwds.has_key('wikicode'):
+            self.wikiinfo = kwds['wikicode']
+            args.append('\n Additional information: https://trac.frm2.tum.de/projects/NICOS/wiki/NicosError/%d ' % kwds['wikicode'])
         self.__dict__.update(kwds)
         Exception.__init__(self, ''.join(args))
 
