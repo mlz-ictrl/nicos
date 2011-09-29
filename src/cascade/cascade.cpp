@@ -97,7 +97,7 @@ class MainWindow : public QMainWindow
 		QToolButton *btnLog;
 		QSlider *sliderFolien, *sliderZeitkanaele;
 		QStatusBar *statusbar;
-		QLabel *pStatusMsg;
+		QLabel *pStatusMsg, *pStatusExtCount;
 		QAction *actionViewsOverview, *actionViewsSlides,
 				*actionViewsPhases, *actionViewsContrasts;
 
@@ -127,6 +127,21 @@ class MainWindow : public QMainWindow
 				statusbar->showMessage(pcMsg);
 			else
 				pStatusMsg->setText(pcMsg);
+		}
+
+		void SetExtCounts(int iCnts)
+		{
+			static int iLastCnts=-1;
+
+			if(iCnts != iLastCnts)
+			{
+				iLastCnts = iCnts;
+
+				std::ostringstream ostr;
+				ostr << "Ext Counts: " << iCnts;
+
+				pStatusExtCount->setText(ostr.str().c_str());
+			}
 		}
 
 		void UpdateLabels(bool bUpdateWidgetLabels=true)
@@ -395,6 +410,11 @@ class MainWindow : public QMainWindow
 					Config_TofLoader::SetPseudoCompression(bComp);
 					ServerCfgDlg::SetStatComp(bComp);
 				}
+
+				bool bHasExtCnt=0;
+				int iExtCnt = args.QueryInt("ext_count",0,&bHasExtCnt);
+				if(bHasExtCnt)
+					SetExtCounts(iExtCnt);
 			}
 			else if(!strncmp(pcBuf,"OKAY",4))
 			{}
@@ -937,9 +957,13 @@ class MainWindow : public QMainWindow
 			// Statusleiste
 			statusbar = new QStatusBar(this);
 			pStatusMsg = new QLabel(this);
+			pStatusExtCount = new QLabel(this);
 			//pStatusMsg->setFrameStyle(QFrame::Panel|QFrame::Sunken);
 			statusbar->addWidget(pStatusMsg,1);
+			statusbar->addPermanentWidget(pStatusExtCount,0);
 			setStatusBar(statusbar);
+
+			SetExtCounts(0);
 
 			// Verbindungen
 			// Toolbar
