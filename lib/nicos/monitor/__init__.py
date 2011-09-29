@@ -208,6 +208,7 @@ class Monitor(BaseCacheClient):
             'min': None, 'max': None, 'unit': '', 'item': -1, 'format': '%s',
             # current values
             'value': None, 'expired': 0, 'status': None, 'changetime': 0,
+            'exptime': 0,
             # key names
             'key': '', 'statuskey': '', 'unitkey': '', 'formatkey': '',
         }
@@ -292,14 +293,11 @@ class Monitor(BaseCacheClient):
 
             # set the foreground color: determined by the status
 
-            valueage = currenttime() - field['changetime']
-            if not status:
-                # no status yet, determine on time alone
-                if valueage < 3:
-                    self.setForeColor(vlabel, self._yellow)
-                    newwatch.add(field)
-                else:
-                    self.setForeColor(vlabel, self._green)
+            time = currenttime()
+            valueage = time - field['changetime']
+            if valueage < 2:
+                self.setForeColor(vlabel, self._yellow)
+                newwatch.add(field)
             else:
                 # if we have a status
                 try:
@@ -317,7 +315,8 @@ class Monitor(BaseCacheClient):
 
             # set the background color: determined by the value's up-to-dateness
 
-            if value is None or field['expired']:
+            if value is None or \
+                (field['expired'] and time - field['exptime'] > 0.7):
                 self.setBackColor(vlabel, self._gray)
             else:
                 self.setBackColor(vlabel, self._black)
@@ -371,6 +370,8 @@ class Monitor(BaseCacheClient):
             self._watch.add(field)
             if key == field['key']:
                 field['expired'] = expired
+                if expired:
+                    field['exptime'] = time
                 if field['item'] >= 0:
                     fvalue = value[field['item']]
                 else:
