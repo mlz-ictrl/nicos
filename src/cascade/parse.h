@@ -125,54 +125,71 @@ class ArgumentMap
 		}
 
 		// get string value corresponding to key pcKey
-		// if pcKey isn't found, return strDefault
-		// set pbHasKey to true if key was found
-		const std::string& QueryString(const char* pcKey,
-						 const std::string& strDefault, bool *pbHasKey=0) const
+		// if pcKey isn't found, use strDefault
+		// return a pair with a bool indicating if the key was found and the value
+		std::pair<bool, std::string> QueryString(const char* pcKey,
+						 const std::string& strDefault) const
 		{
+			std::pair<bool, std::string> pairRet;
+
 			std::map<std::string,std::string>::const_iterator iter =
 														  m_mapArgs.find(pcKey);
 
 			if(iter == m_mapArgs.end())
 			{
-				if(pbHasKey) *pbHasKey = false;
-				return strDefault;
+				pairRet.first = false;
+				pairRet.second = strDefault;
+				return pairRet;
 			}
+			pairRet.first = true;
+			pairRet.second = (*iter).second;
 
-			if(pbHasKey) *pbHasKey = true;
-			return (*iter).second;
+			return pairRet;
 		}
 
 		// get int value corresponding to key pcKey
-		// if pcKey isn't found, return iDefault
-		// set pbHasKey to true if key was found
-		int QueryInt(const char* pcKey, int iDefault=0, bool *pbHasKey=0) const
+		// if pcKey isn't found, use iDefault
+		// return a pair with a bool indicating if the key was found and the value
+		std::pair<bool, int> QueryInt(const char* pcKey, int iDefault=0) const
 		{
+			std::pair<bool, int> pairRet;
+
 			const char* pcStr = QueryString(pcKey);
 			if(pcStr==NULL)
 			{
-				if(pbHasKey) *pbHasKey = 0;
-				return iDefault;
+				pairRet.first = false;
+				pairRet.second = iDefault;
+				return pairRet;
 			}
-			if(pbHasKey) *pbHasKey = 1;
-			return atoi(pcStr);
+
+			pairRet.first = true;
+			pairRet.second = atoi(pcStr);
+
+			return pairRet;
 		}
 
 		// get double value corresponding to key pcKey
-		// if pcKey isn't found, return dDefault
-		// set pbHasKey to true if key was found
-		double QueryDouble(const char* pcKey, double dDefault=0.,
-						   bool *pbHasKey=0) const
+		// if pcKey isn't found, use dDefault
+		// return a pair with a bool indicating if the key was found and the value
+		std::pair<bool, double>  QueryDouble(const char* pcKey, double dDefault=0.) const
 		{
+			std::pair<bool, double> pairRet;
+
 			const char* pcStr = QueryString(pcKey);
 			if(pcStr==NULL)
 			{
-				if(pbHasKey) *pbHasKey = 0;
-				return dDefault;
+				pairRet.first = false;
+				pairRet.second = dDefault;
+				return pairRet;
 			}
-			if(pbHasKey) *pbHasKey = 1;
-			return atof(pcStr);
+
+			pairRet.first = true;
+			pairRet.second = atof(pcStr);
+
+			return pairRet;
 		}
+
+
 		//----------------------------------------------------------------------
 
 		// dump map contents for debugging
