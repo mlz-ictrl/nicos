@@ -135,6 +135,10 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         if not self._client.isconnected():
             return status.ERROR, 'disconnected from server'
 
+    def doSetPreset(self, **preset):
+        if preset.get('t'):
+            self.preselection = self._last_preset = preset['t']
+
     def _preStartAction(self, **preset):
         self._newFile()
         if preset.get('t'):
