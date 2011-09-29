@@ -113,6 +113,7 @@ class MainWindow : public QMainWindow
 			{
 				QMessageBox::critical(0, "Error", "Not connected to server.",
 									  QMessageBox::Ok);
+				ServerDisconnect();	// stop timer
 				return false;
 			}
 			return true;
