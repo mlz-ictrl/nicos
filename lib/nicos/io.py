@@ -29,8 +29,8 @@ __version__ = "$Revision$"
 import IO
 
 from nicos.taco import TacoDevice
-from nicos.utils import waitForStatus
-from nicos.device import Readable, Moveable, HasLimits, Param
+from nicos.utils import waitForStatus, dictof
+from nicos.device import Readable, Moveable, HasLimits, Param, Override
 from nicos.errors import NicosError
 
 
@@ -59,19 +59,27 @@ class AnalogOutput(TacoDevice, HasLimits, Moveable):
 class DigitalInput(TacoDevice, Readable):
     """Base class for TACO DigitalInputs."""
 
+    parameter_overrides = {
+        'fmtstr': Override(default='%d'),
+    }
+
     taco_class = IO.DigitalInput
 
 
-class DigitalOutput(TacoDevice, Moveable):
-    """Base class for TACO DigitalOutputs."""
+class NamedDigitalInput(DigitalInput):
+    """A DigitalInput with numeric values mapped to names."""
 
-    taco_class = IO.DigitalOutput
+    parameters = {
+        'mapping': Param('A dictionary mapping integer values to names',
+                         type=dictof(int, str)),
+    }
 
-    def doStart(self, target):
-        self._taco_guard(self._dev.write, target)
+    def doRead(self):
+        value = self._taco_guard(self._dev.read)
+        return self.mapping.get(value, value)
 
 
-class PartialDigitalInput(DigitalInput):
+class PartialDigitalInput(NamedDigitalInput):
     """Base class for a TACO DigitalOutput with only a part of the full
     bit width accessed.
     """
@@ -85,10 +93,44 @@ class PartialDigitalInput(DigitalInput):
         self._mask = ((1 << self.bitwidth) - 1) << self.startbit
 
     def doRead(self):
-        return self._taco_guard(self._dev.read) & self._mask
+        value = self._taco_guard(self._dev.read) & self._mask
+        return self.mapping.get(value, value)
 
 
-class PartialDigitalOutput(DigitalOutput):
+class DigitalOutput(TacoDevice, Moveable):
+    """Base class for TACO DigitalOutputs."""
+
+    parameter_overrides = {
+        'fmtstr': Override(default='%d'),
+    }
+
+    taco_class = IO.DigitalOutput
+
+    def doStart(self, target):
+        self._taco_guard(self._dev.write, target)
+
+
+class NamedDigitalOutput(DigitalOutput):
+    """A DigitalInput with numeric values mapped to names."""
+
+    parameters = {
+        'mapping': Param('A dictionary mapping integer values to names',
+                         type=dictof(int, str)),
+    }
+
+    def doInit(self):
+        self._reverse = dict((v, k) for (k, v) in self.mapping.iteritems())
+
+    def doStart(self, target):
+        value = self._reverse.get(target, target)
+        self._taco_guard(self._dev.write, value)
+
+    def doRead(self):
+        value = self._taco_guard(self._dev.read)
+        return self.mapping.get(value, value)
+
+
+class PartialDigitalOutput(NamedDigitalOutput):
     """Base class for a TACO DigitalOutput with only a part of the full
     bit width accessed.
     """
@@ -99,21 +141,25 @@ class PartialDigitalOutput(DigitalOutput):
     }
 
     def doInit(self):
+        NamedDigitalOutput.doInit(self)
         self._max = (1 << self.bitwidth) - 1
 
     def doRead(self):
         value = int(self._taco_guard(self._dev.read))
-        return (value >> self.startbit) & self._max
+        value = (value >> self.startbit) & self._max
+        return self.mapping.get(value, value)
 
     def doStart(self, target):
+        value = self._reverse.get(target, target)
         curvalue = self._taco_guard(self._dev.read)
         newvalue = (curvalue & ~(self._max << self.startbit)) | \
-                   (target << self.startbit)
+                   (value << self.startbit)
         self._taco_guard(self._dev.write, newvalue)
 
     def doIsAllowed(self, target):
-        if target < 0 or target > self._max:
-            return False, '%d outside range [0, %d]' % (target, self._max)
+        value = self._reverse.get(target, target)
+        if value < 0 or value > self._max:
+            return False, '%d outside range [0, %d]' % (value, self._max)
         return True, ''
 
 

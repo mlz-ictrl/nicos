@@ -276,7 +276,6 @@ class DeviceMeta(MergedAttrsMeta):
                     if umethod:
                         umethod(self, value)
                     self._params[param] = value
-                    self.log.info('%s set to %r' % (param, value))
                     if self._cache:
                         self._cache.put(self, param, value)
 

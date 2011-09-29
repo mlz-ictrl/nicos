@@ -277,15 +277,25 @@ class Axis(BaseAxis):
         except Exception, err:
             self._setErrorState(MoveError, 'error in pre-move action: %s' % err)
         else:
+            target = self._target
             self._errorstate = None
             if self.backlash:
-                # XXX do not move twice if coming from the "right" side
-                for pos in self._target + self.backlash, self._target:
+                backlash = self.backlash
+                lastpos = self.doRead()
+                # make sure not to move twice if coming from the side in the
+                # direction of the backlash
+                if backlash > 0 and lastpos < target + backlash:
+                    positions = [target + backlash, target]
+                elif backlash < 0 and lastpos > target + backlash:
+                    positions = [target + backlash, target]
+                else:
+                    positions = [target]
+                for pos in positions:
                     self.__positioning(pos)
                     if self._stoprequest == 2 or self._errorstate:
                         break
             else:
-                self.__positioning(self._target)
+                self.__positioning(target)
             try:
                 self._postMoveAction()
             except Exception, err:

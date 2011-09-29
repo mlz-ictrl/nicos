@@ -202,6 +202,17 @@ class FRMDetector(Measurable):
     def doReadFmtstr(self):
         return ', '.join('%s %%s' % ctr.name for ctr in self.__counters)
 
+    def doSetPreset(self, **preset):
+        for master in self.__masters:
+            master.ismaster = False
+            master.mode = 'normal'
+        for name in preset:
+            if name in self.attached_devices and self._adevs[name]:
+                self._adevs[name].ismaster = True
+                self._adevs[name].mode = 'preselection'
+                self._adevs[name].preselection = preset[name]
+        self.__getMasters()
+
     def doStart(self, **preset):
         self.doStop()
         if preset:

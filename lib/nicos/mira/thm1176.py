@@ -152,6 +152,9 @@ class THM(Measurable):
         mod = math.sqrt(x*x + y*y + z*z)
         return mod, x, dx, y, dy, z, dz
 
+    def doSetPreset(self, **preset):
+        pass
+
     def doStart(self, **preset):
         pass
 

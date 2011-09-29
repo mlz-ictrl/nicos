@@ -97,7 +97,7 @@ class MainWindow : public QMainWindow
 		QToolButton *btnLog;
 		QSlider *sliderFolien, *sliderZeitkanaele;
 		QStatusBar *statusbar;
-		QLabel *pStatusMsg;
+		QLabel *pStatusMsg, *pStatusExtCount;
 		QAction *actionViewsOverview, *actionViewsSlides,
 				*actionViewsPhases, *actionViewsContrasts;
 
@@ -113,6 +113,7 @@ class MainWindow : public QMainWindow
 			{
 				QMessageBox::critical(0, "Error", "Not connected to server.",
 									  QMessageBox::Ok);
+				ServerDisconnect();	// stop timer
 				return false;
 			}
 			return true;
@@ -126,6 +127,21 @@ class MainWindow : public QMainWindow
 				statusbar->showMessage(pcMsg);
 			else
 				pStatusMsg->setText(pcMsg);
+		}
+
+		void SetExtCounts(int iCnts)
+		{
+			static int iLastCnts=-1;
+
+			if(iCnts != iLastCnts)
+			{
+				iLastCnts = iCnts;
+
+				std::ostringstream ostr;
+				ostr << "Ext Counts: " << iCnts;
+
+				pStatusExtCount->setText(ostr.str().c_str());
+			}
 		}
 
 		void UpdateLabels(bool bUpdateWidgetLabels=true)
@@ -332,49 +348,44 @@ class MainWindow : public QMainWindow
 				ArgumentMap args(pcBuf+4);
 
 				// stop?
-				bool bHasStop;
-				bool bMessungFertig = (bool)args.QueryInt("stop",1,&bHasStop);
-				if(bHasStop)
-					ShowMessage(bMessungFertig
+				std::pair<bool, int> pairStop = args.QueryInt("stop",1);
+				if(pairStop.first)
+					ShowMessage(pairStop.second
 									? "Server: Measurement stopped."
 									: "Server: Measurement running.");
 
 				// xres?
-				bool bHasX;
-				int iXRes = args.QueryInt("xres", ServerCfgDlg::GetStatXRes(),
-											&bHasX);
-				if(bHasX)
+				std::pair<bool, int> pairXRes =
+							args.QueryInt("xres", ServerCfgDlg::GetStatXRes());
+				if(pairXRes.first)
 				{
-					ServerCfgDlg::SetStatXRes(iXRes);
-					Config_TofLoader::SetImageWidth(iXRes);
+					ServerCfgDlg::SetStatXRes(pairXRes.second);
+					Config_TofLoader::SetImageWidth(pairXRes.second);
 				}
 
 				// yres?
-				bool bHasY;
-				int iYRes = args.QueryInt("yres", ServerCfgDlg::GetStatYRes(),
-											&bHasY);
-				if(bHasY)
+				std::pair<bool, int> pairYRes =
+							args.QueryInt("yres", ServerCfgDlg::GetStatYRes());
+				if(pairYRes.first)
 				{
-					ServerCfgDlg::SetStatYRes(iYRes);
-					Config_TofLoader::SetImageWidth(iYRes);
+					ServerCfgDlg::SetStatYRes(pairYRes.second);
+					Config_TofLoader::SetImageWidth(pairYRes.second);
 				}
 
 				// tres?
-				bool bHasT;
-				int iTRes = args.QueryInt("tres", ServerCfgDlg::GetStatTRes(),
-											&bHasT);
-				if(bHasT)
+				std::pair<bool, int> pairTRes =
+							args.QueryInt("tres", ServerCfgDlg::GetStatTRes());
+				if(pairTRes.first)
 				{
-					ServerCfgDlg::SetStatTRes(iTRes);
-					Config_TofLoader::SetImageCount(iTRes);
+					ServerCfgDlg::SetStatTRes(pairTRes.second);
+					Config_TofLoader::SetImageCount(pairTRes.second);
 				}
 
 				// measurement time?
-				bool bHasTime;
-				double dTime = args.QueryDouble("time",
-										ServerCfgDlg::GetStatTime(), &bHasTime);
-				if(bHasTime)
-					ServerCfgDlg::SetStatTime(dTime);
+				std::pair<bool, double> pairTime = args.QueryDouble("time",
+										ServerCfgDlg::GetStatTime());
+				if(pairTime.first)
+					ServerCfgDlg::SetStatTime(pairTime.second);
 
 				// mode?
 				const char* pcMode = args.QueryString("mode");
@@ -387,13 +398,16 @@ class MainWindow : public QMainWindow
 				}
 
 				// pseudo-compression?
-				bool bHasComp=0;
-				bool bComp = (bool)args.QueryInt("comp",1,&bHasComp);
-				if(bHasComp)
+				std::pair<bool, int> pairComp = args.QueryInt("comp",1);
+				if(pairComp.first)
 				{
-					Config_TofLoader::SetPseudoCompression(bComp);
-					ServerCfgDlg::SetStatComp(bComp);
+					Config_TofLoader::SetPseudoCompression(pairComp.second);
+					ServerCfgDlg::SetStatComp(pairComp.second);
 				}
+
+				std::pair<bool, int> pairCnt = args.QueryInt("ext_count",0);
+				if(pairCnt.first)
+					SetExtCounts(pairCnt.second);
 			}
 			else if(!strncmp(pcBuf,"OKAY",4))
 			{}
@@ -936,9 +950,13 @@ class MainWindow : public QMainWindow
 			// Statusleiste
 			statusbar = new QStatusBar(this);
 			pStatusMsg = new QLabel(this);
+			pStatusExtCount = new QLabel(this);
 			//pStatusMsg->setFrameStyle(QFrame::Panel|QFrame::Sunken);
 			statusbar->addWidget(pStatusMsg,1);
+			statusbar->addPermanentWidget(pStatusExtCount,0);
 			setStatusBar(statusbar);
+
+			SetExtCounts(0);
 
 			// Verbindungen
 			// Toolbar

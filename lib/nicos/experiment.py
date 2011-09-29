@@ -233,6 +233,7 @@ class Experiment(Device):
         if affiliation is not None:
             user += ', ' + affiliation
         self.users = self.users + [user]
+        self.log.info('User "%s" added' % self.users[-1])
 
     def finish(self):
         pass

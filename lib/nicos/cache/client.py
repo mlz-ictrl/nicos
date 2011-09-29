@@ -342,6 +342,20 @@ class CacheClient(BaseCacheClient):
             return None
         return value
 
+    def get_explicit(self, dev, key):
+        """Get a value from the cache server, bypassing the local cache.  This
+        is needed if the current update time and ttl is required.
+        """
+        if dev:
+            key = ('%s/%s' % (dev, key)).lower()
+        tosend = '@%s/%s%s\r\n' % (self._prefix, key, OP_ASK)
+        for msgmatch in self._single_request(tosend):
+            time, ttl, value = msgmatch.group('time'), msgmatch.group('ttl'), \
+                               msgmatch.group('value')
+            return (time and float(time), ttl and float(ttl),
+                    cache_load(value or 'None'))
+        return (None, None, None)  # shouldn't happen
+
     def put(self, dev, key, value, time=None, ttl=None):
         if time is None:
             time = currenttime()

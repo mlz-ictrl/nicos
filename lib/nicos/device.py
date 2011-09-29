@@ -531,18 +531,27 @@ class Readable(Device):
             raise UsageError(self, 'not a moveable device')
         return self.read()
 
-    def _get_from_cache(self, name, func):
-        """Get *name* from the cache, or call *func* if outdated/not present."""
+    def _get_from_cache(self, name, func, maxage=None):
+        """Get *name* from the cache, or call *func* if outdated/not present.
+
+        If the *maxage* parameter is set, do not allow the value to be older
+        than that amount of seconds.
+        """
         if not self._cache:
             return func()
-        val = self._cache.get(self, name)
+        if maxage is not None:
+            time, ttl, val = self._cache.get_explicit(self, name)
+            if val is not None and time + min(maxage, ttl) < currenttime():
+                val = None
+        else:
+            val = self._cache.get(self, name)
         if val is None:
             val = func()
             self._cache.put(self, name, val, currenttime(), self.maxage)
         return val
 
     @usermethod
-    def read(self):
+    def read(self, maxage=None):
         """Read the (possibly cached) main value of the device.
 
         .. method:: doRead()
@@ -553,10 +562,10 @@ class Readable(Device):
         """
         if self._sim_active:
             return self._sim_value
-        return self._get_from_cache('value', self.doRead)
+        return self._get_from_cache('value', self.doRead, maxage)
 
     @usermethod
-    def status(self):
+    def status(self, maxage=None):
         """Return the (possibly cached) status of the device.
 
         The status is a tuple of one of the integer constants defined in the
@@ -575,7 +584,7 @@ class Readable(Device):
             return (status.OK, 'simulated ok')
         if hasattr(self, 'doStatus'):
             try:
-                value = self._get_from_cache('status', self.doStatus)
+                value = self._get_from_cache('status', self.doStatus, maxage)
             except NicosError, err:
                 value = (status.ERROR, str(err))
             if value[0] not in status.statuses:
@@ -1036,6 +1045,7 @@ class Measurable(Readable):
     Subclasses *need* to implement:
 
     * doRead()
+    * doSetPreset(**preset)
     * doStart(**preset)
     * doStop()
     * doIsCompleted()
@@ -1051,6 +1061,11 @@ class Measurable(Readable):
     parameter_overrides = {
         'unit':  Override(description='(not used)', mandatory=False),
     }
+
+    @usermethod
+    def setPreset(self, **preset):
+        """Set the new standard preset for this detector."""
+        self.doSetPreset(**preset)
 
     @usermethod
     def start(self, **preset):
@@ -1164,13 +1179,13 @@ class Measurable(Readable):
             sleep(0.1)
 
     @usermethod
-    def read(self):
+    def read(self, maxage=None):
         """Return a tuple with the result(s) of the last measurement."""
         if self._sim_active:
             if hasattr(self, 'doSimulate'):
                 return self.doSimulate(self._sim_preset)
             return (0,) * len(self.valueInfo())
-        # always get fresh result from cache
+        # always get fresh result from cache => maxage parameter is ignored
         if self._cache:
             self._cache.invalidate(self, 'value')
         result = self._get_from_cache('value', self.doRead)

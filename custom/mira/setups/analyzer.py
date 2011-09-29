@@ -11,4 +11,8 @@ devices = dict(
                       abslimits = (-90 - 135, -90 + 135),
                       fmtstr = '%.2f',
                       offset = -90.0),
+    adr      = device('nicos.axis.TacoAxis',
+                      tacodevice = 'mira/axis/adr',
+                      abslimits = (-180, 180),
+                      fmtstr = '%.3f'),
 )

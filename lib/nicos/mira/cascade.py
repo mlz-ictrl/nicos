@@ -26,20 +26,15 @@
 
 __version__ = "$Revision$"
 
-import threading
-from os import path
-from time import sleep, time
-
 from nicos import session, status
-from nicos.data import NeedsDatapath
-from nicos.utils import tupleof, oneof, dictof, readFileCounter, \
-     updateFileCounter
-from nicos.device import Measurable, Param, Override, Value
+from nicos.utils import tupleof, oneof, dictof
+from nicos.device import Param, Override, Value
+from nicos.abstract import ImageStorage, AsyncDetector
 from nicos.errors import CommunicationError
 from nicos.mira import cascadeclient
 
 
-class CascadeDetector(Measurable, NeedsDatapath):
+class CascadeDetector(AsyncDetector, ImageStorage):
 
     parameters = {
         'server':   Param('"host:port" of the cascade server to connect to',
@@ -60,11 +55,6 @@ class CascadeDetector(Measurable, NeedsDatapath):
                               settable=True, type=float),
         'lastcounts': Param('Counts of the last measurement',
                             type=tupleof(int, int), settable=True),
-        # XXX this is awkward with simulation mode
-        'lastfilename': Param('File name of the last measurement',
-                              type=str, settable=True),
-        'lastfilenumber': Param('File number of the last measurement',
-                                type=int, settable=True),
     }
 
     parameter_overrides = {
@@ -78,17 +68,9 @@ class CascadeDetector(Measurable, NeedsDatapath):
 
     def doInit(self):
         self._last_preset = self.preselection
-        self._measure = threading.Event()
-        self._processed = threading.Event()
-        self._processed.set()
 
         # self._tres is set by doUpdateMode
         self._xres, self._yres = (128, 128)
-
-        if self._mode != 'simulation':
-            self._thread = threading.Thread(target=self._thread_entry)
-            self._thread.setDaemon(True)
-            self._thread.start()
 
     def doReset(self):
         self._client.disconnect()
@@ -96,17 +78,6 @@ class CascadeDetector(Measurable, NeedsDatapath):
         port = int(port)
         if not self._client.connecttohost(host, port):
             raise CommunicationError(self, 'could not connect to server')
-
-    def doReadDatapath(self):
-        return session.experiment.datapath
-
-    def doUpdateDatapath(self, value):
-        # always use only first data path
-        self._datapath = path.join(value[0], 'cascade')
-        self._counter = readFileCounter(path.join(self._datapath, 'counter'))
-        self._setROParam('lastfilenumber', self._counter)
-        self._setROParam('listfilename',
-                         self.nametemplate[self.mode] % self._counter)
 
     def valueInfo(self):
         return Value(self.name + '.roi', unit='cts', type='counter',
@@ -121,36 +92,6 @@ class CascadeDetector(Measurable, NeedsDatapath):
 
     def doShutdown(self):
         self._client.disconnect()
-
-    def doStatus(self):
-        if not self._client.isconnected():
-            return status.ERROR, 'disconnected from server'
-        elif self._measure.isSet():
-            return status.BUSY, 'measuring'
-        elif not self._processed.isSet():
-            return status.BUSY, 'processing',
-        return status.OK, 'idle'
-
-    def doStart(self, **preset):
-        if self._datapath is None:
-            self.datapath = session.experiment.datapath
-        self.lastfilename = path.join(
-            self._datapath, self.nametemplate[self.mode] % self._counter)
-        self.lastfilenumber = self._counter
-        self._counter += 1
-        updateFileCounter(path.join(self._datapath, 'counter'), self._counter)
-        self._processed.wait()
-        self._processed.clear()
-        try:
-            if preset.get('t'):
-                self.preselection = self._last_preset = preset['t']
-        except:
-            self._processed.set()
-            raise
-        self._measure.set()
-
-    def doIsCompleted(self):
-        return not self._measure.isSet() and self._processed.isSet()
 
     def doStop(self):
         reply = str(self._client.communicate('CMD_stop'))
@@ -190,88 +131,69 @@ class CascadeDetector(Measurable, NeedsDatapath):
             raise CommunicationError(self, 'could not set measurement time: %s'
                                      % reply[4:])
 
-    def _thread_entry(self):
-        while True:
-            try:
-                # wait for start signal
-                self._measure.wait()
-                # start measurement
-                reply = str(self._client.communicate('CMD_start'))
-                if reply != 'OKAY':
-                    raise CommunicationError(self, 'could not start '
-                                             'measurement: %s' % reply[4:])
-                started = time()
-                # wait for completion of measurement
-                while True:
-                    sleep(0.2)
-                    status = self._client.communicate('CMD_status_cdr')
-                    if status == '':
-                        raise CommunicationError(self, 'no response from server')
-                    #self.log.debug('got status %r' % status)
-                    status = dict(v.split('=')
-                                  for v in str(status[4:]).split(' '))
-                    if status.get('stop', '0') == '1':
-                        break
-                    data = self._client.communicate('CMD_readsram')
-                    buf = buffer(data, 4)
+    def _devStatus(self):
+        if not self._client.isconnected():
+            return status.ERROR, 'disconnected from server'
 
-                    cascadeclient.Config_TofLoader.SetImageWidth(self._xres)
-                    cascadeclient.Config_TofLoader.SetImageHeight(self._yres)
-                    cascadeclient.Config_TofLoader.SetImageCount(self._tres)
-                    cascadeclient.Config_TofLoader.SetPseudoCompression(False)
-                    # The other setters have to be called here!
+    def doSetPreset(self, **preset):
+        if preset.get('t'):
+            self.preselection = self._last_preset = preset['t']
 
-                    session.updateLiveData(
-                        'cascade', '<I4', self._xres, self._yres,
-                        self._tres, time() - started, buf)
+    def _preStartAction(self, **preset):
+        self._newFile()
+        if preset.get('t'):
+            self.preselection = self._last_preset = preset['t']
+        cascadeclient.Config_TofLoader.SetImageWidth(self._xres)
+        cascadeclient.Config_TofLoader.SetImageHeight(self._yres)
+        cascadeclient.Config_TofLoader.SetImageCount(self._tres)
+        cascadeclient.Config_TofLoader.SetPseudoCompression(False)
 
-                    #ar = np.ndarray(buffer=buf, shape=self._datashape,
-                    #                order='F', dtype='<I4')
-                    #total = int(long(ar.sum()))
+    def _startAction(self):
+        reply = str(self._client.communicate('CMD_start'))
+        if reply != 'OKAY':
+            raise CommunicationError(self, 'could not start '
+                                     'measurement: %s' % reply[4:])
 
-                    total = self._client.counts(data)
-                    if self.roi != (-1, -1, -1, -1):
-                        x1, y1, x2, y2 = self.roi
-                        #roi = int(long(ar[x1:x2, y1:y2].sum()))
-                        roi = self._client.counts(data, x1, x2, y1, y2)
-                    else:
-                        roi = total
-                    self.lastcounts = (roi, total)
-            except:
-                self.lastfilename = '<error>'
-                self.log.exception('measuring failed')
-                self._measure.clear()
-                self._processed.set()
-                continue
-            self._measure.clear()
-            try:
-                # get final data including all events from detector
-                data = self._client.communicate('CMD_readsram')
-                if data[:4] != self._dataprefix:
-                    raise CommunicationError(self, 'error receiving data from '
-                                             'server: %s' % data[:4])
-                buf = buffer(data, 4)
-                # send final image to live plots
-                session.updateLiveData(
-                    'cascade', '<I4', self._xres, self._yres,
-                    self._tres, self._last_preset, buf)
-                # write to data file
-                with open(self.lastfilename, 'w') as fp:
-                    fp.write(buf)
-                # determine total and roi counts
-                total = self._client.counts(data)
-                #ar = np.ndarray(buffer=buf, shape=self._datashape,
-                #                order='F', dtype='<I4')
-                #total = int(long(ar.sum()))
-                if self.roi != (-1, -1, -1, -1):
-                    x1, y1, x2, y2 = self.roi
-                    #roi = int(long(ar[x1:x2, y1:y2].sum()))
-                    roi = self._client.counts(data, x1, x2, y1, y2)
-                else:
-                    roi = total
-                self.lastcounts = (roi, total)
-            except:
-                self.lastfilename = '<error>'
-                self.log.exception('saving measurement failed')
-            finally:
-                self._processed.set()
+    def _measurementComplete(self):
+        status = self._client.communicate('CMD_status_cdr')
+        if status == '':
+            raise CommunicationError(self, 'no response from server')
+        #self.log.debug('got status %r' % status)
+        status = dict(v.split('=') for v in str(status[4:]).split(' '))
+        return status.get('stop', '0') == '1'
+
+    def _duringMeasureAction(self, elapsedtime):
+        self._readLiveData(elapsedtime)
+
+    def _afterMeasureAction(self):
+        # get final data including all events from detector
+        buf = self._readLiveData(self._last_preset)
+        # and write into measurement file
+        self._writeFile(buf)
+
+    def _measurementFailedAction(self, err):
+        self.lastfilename = '<error>'
+
+    def _readLiveData(self, data, elapsedtime):
+        # get current data array from detector
+        data = self._client.communicate('CMD_readsram')
+        if data[:4] != self._dataprefix:
+            raise CommunicationError(self, 'error receiving data from '
+                                     'server: %s' % data[:4])
+        buf = buffer(data, 4)
+        # send image to live plots
+        session.updateLiveData(
+            'cascade', '<I4', self._xres, self._yres,
+            self._tres, elapsedtime, buf)
+        # determine total and roi counts
+        total = self._client.counts(data)
+        #ar = np.ndarray(buffer=buf, shape=self._datashape,
+        #                order='F', dtype='<I4')
+        #total = int(long(ar.sum()))
+        if self.roi != (-1, -1, -1, -1):
+            x1, y1, x2, y2 = self.roi
+            #roi = int(long(ar[x1:x2, y1:y2].sum()))
+            roi = self._client.counts(data, x1, x2, y1, y2)
+        else:
+            roi = total
+        self.lastcounts = (roi, total)
