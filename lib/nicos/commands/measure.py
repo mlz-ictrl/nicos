@@ -32,6 +32,7 @@ from nicos import session
 from nicos.device import Measurable
 from nicos.errors import UsageError
 from nicos.commands import usercommand
+from nicos.commands.output import printinfo
 
 
 def _count(detlist, preset):
@@ -75,6 +76,15 @@ def count(*detlist, **preset):
     if not detectors:
         detectors = session.experiment.detectors
     return _count(detectors, preset)
+
+
+@usercommand
+def preset(**preset):
+    """Set a new default preset for the currently selected detectors."""
+    for detector in session.experiment.detectors:
+        detector.setPreset(**preset)
+    printinfo('new preset: ' +
+              ', '.join('%s=%s' % item for item in preset.iteritems()))
 
 
 @usercommand

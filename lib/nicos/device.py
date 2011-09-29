@@ -1045,6 +1045,7 @@ class Measurable(Readable):
     Subclasses *need* to implement:
 
     * doRead()
+    * doSetPreset(**preset)
     * doStart(**preset)
     * doStop()
     * doIsCompleted()
@@ -1060,6 +1061,11 @@ class Measurable(Readable):
     parameter_overrides = {
         'unit':  Override(description='(not used)', mandatory=False),
     }
+
+    @usermethod
+    def setPreset(self, **preset):
+        """Set the new standard preset for this detector."""
+        self.doSetPreset(**preset)
 
     @usermethod
     def start(self, **preset):
