@@ -83,7 +83,7 @@ class Poller(Device):
                 try:
                     stval, rdval = dev.poll(i)
                     self.log.debug('%-10s status = %-25s, value = %s' %
-                                    (dev, stval, rdval))
+                                   (dev, stval, rdval))
                 except Exception, err:
                     if errcount < 5:
                         # only print the warning the first five times
@@ -109,7 +109,8 @@ class Poller(Device):
                 wait_event(interval)
                 clear_event()
 
-        dev  = None
+        dev = None
+        waittime = 30
         while not self._stoprequest:
             if dev is None:
                 try:
@@ -123,8 +124,9 @@ class Poller(Device):
                     state = ['normal']
                 except NicosError, err:
                     self.log.warning('error creating %s, trying again in '
-                                      '%d sec' % (devname, 30), exc=err)
-                    self._long_sleep(30)
+                                      '%d sec' % (devname, waittime), exc=err)
+                    self._long_sleep(waittime)
+                    waittime = min(waittime*2, 600)
                     continue
             self.log.info('starting polling loop for %s' % dev)
             try:
