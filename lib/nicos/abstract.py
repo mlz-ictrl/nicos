@@ -33,8 +33,9 @@ from time import time, sleep
 
 from nicos import session
 from nicos import status
+from nicos.data import NeedsDatapath
 from nicos.utils import readFileCounter, updateFileCounter
-from nicos.device import Readable, Moveable, Measurable, NeedsDatapath, \
+from nicos.device import Readable, Moveable, Measurable, \
      HasLimits, HasOffset, HasPrecision, Param, Override, usermethod
 
 
