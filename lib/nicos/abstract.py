@@ -228,7 +228,7 @@ class AsyncDetector(Measurable):
         self._measure.set()
 
     def doStatus(self):
-        st = self._devStatus(self)
+        st = self._devStatus()
         if st is not None:
             return st
         elif self._measure.isSet():
