@@ -44,14 +44,15 @@ _column2 = [
         ['timer', 'ctr1', 'mon1'],
         '---',
         [{'dev': 'MonHV', 'name': 'Mon HV', 'min': 490, 'width': 5},
-         {'dev': 'DetHV', 'name': 'Det HV', 'min': 840, 'width': 5},
-         {'dev': 'PSDHV', 'name': 'PSD HV', 'min': 2800, 'width': 5}],
+         {'dev': 'DetHV', 'name': 'Det HV', 'min': 840, 'width': 5}],
         ],
      'detector'),
     ('Cascade', [
         [{'dev': 'psd', 'name': 'ROI', 'item': 0, 'width': 9},
          {'dev': 'psd', 'name': 'Total', 'item': 1, 'width': 9},
          {'key': 'psd/lastfilenumber', 'name': 'Last image'}],
+        [{'dev': 'PSDGas', 'name': 'Gas', 'min': 'okay'},
+         {'dev': 'PSDHV', 'name': 'HV', 'min': 2800, 'width': 5}],
         ],
      'cascade'),
     ('Sample', [[{'dev': 'om'}, {'dev': 'phi'}],
@@ -99,7 +100,7 @@ _column3 = [
 ]
 
 _warnings = [
-#    ('psdhv/value', '== 0', 'PSD HV switched off'),
+    ('psdgas/value', '== "empty"', 'Change detector counting gas'),
 #    ('sixfold/value', '== "closed"', 'Six-fold shutter closed'),
 #    ('freq3/value', '> 9', 'freq3 under frequency', 'mieze'),
 #    ('freq4/value', '< 10', 'freq4 under frequency'),
