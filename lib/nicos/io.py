@@ -30,7 +30,7 @@ import IO
 
 from nicos.taco import TacoDevice
 from nicos.utils import waitForStatus, dictof
-from nicos.device import Readable, Moveable, HasLimits, Param
+from nicos.device import Readable, Moveable, HasLimits, Param, Override
 from nicos.errors import NicosError
 
 
@@ -58,6 +58,10 @@ class AnalogOutput(TacoDevice, HasLimits, Moveable):
 
 class DigitalInput(TacoDevice, Readable):
     """Base class for TACO DigitalInputs."""
+
+    parameter_overrides = {
+        'fmtstr': Override(default='%d'),
+    }
 
     taco_class = IO.DigitalInput
 
@@ -96,6 +100,10 @@ class PartialDigitalInput(NamedDigitalInput):
 class DigitalOutput(TacoDevice, Moveable):
     """Base class for TACO DigitalOutputs."""
 
+    parameter_overrides = {
+        'fmtstr': Override(default='%d'),
+    }
+
     taco_class = IO.DigitalOutput
 
     def doStart(self, target):
@@ -111,7 +119,7 @@ class NamedDigitalOutput(DigitalOutput):
     }
 
     def doInit(self):
-        self._reverse = dict((v, k) for (k, v) in self.mapping)
+        self._reverse = dict((v, k) for (k, v) in self.mapping.iteritems())
 
     def doStart(self, target):
         value = self._reverse.get(target, target)
