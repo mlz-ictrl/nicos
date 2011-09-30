@@ -77,7 +77,7 @@ class AnalysisPanel(Panel):
         self.statusBar = QStatusBar(self)
         self.statusBar.sizePolicy().setVerticalPolicy(QSizePolicy.Fixed)
         self.statusBar.setSizeGripEnabled(False)
-        self.layout().addWidget(self.statusBar)
+        #self.layout().addWidget(self.statusBar)
         self.user_color = parent.user_color
         self.user_font = parent.user_font
 

@@ -42,6 +42,7 @@ import numpy as np
 from nicos.gui.panels import Panel
 from nicos.gui.utils import loadUi, dialogFromUi
 from nicos.gui.plothelpers import XPlotPicker
+from nicos.cache.utils import cache_load
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
 
@@ -102,7 +103,7 @@ class HistoryPanel(Panel):
         self.statusBar = QStatusBar(self)
         self.statusBar.sizePolicy().setVerticalPolicy(QSizePolicy.Fixed)
         self.statusBar.setSizeGripEnabled(False)
-        self.layout().addWidget(self.statusBar)
+        #self.layout().addWidget(self.statusBar)
         self.user_color = parent.user_color
         self.user_font = parent.user_font
 
@@ -179,6 +180,7 @@ class HistoryPanel(Panel):
         if key not in self.keyviews:
             return
         for view in self.keyviews[key]:
+            value = cache_load(value)
             view.newValue(time, key, op, value)
             if view.plot:
                 view.plot.pointsAdded(key)
@@ -206,7 +208,7 @@ class HistoryPanel(Panel):
         keys = str(newdlg.devices.text()).split(',')
         if not keys:
             return
-        keys = [key if '/' in key else key + '/value'
+        keys = [key.lower() if '/' in key else key.lower() + '/value'
                 for key in keys]
         name = str(newdlg.namebox.text())
         if not name:
@@ -480,8 +482,9 @@ class ViewPlot(QwtPlot):
             legenditemtext.setText(legenditemtext.text())
         self.replot()
 
-    def on_picker_moved(self, point):
-        info = "X = %g, Y = %g" % (
-            self.invTransform(QwtPlot.xBottom, point.x()),
+    def on_picker_moved(self, point, strf=time.strftime, local=time.localtime):
+        tstamp = local(int(self.invTransform(QwtPlot.xBottom, point.x())))
+        info = "X = %s, Y = %g" % (
+            strf('%y-%m-%d %H:%M:%S', tstamp),
             self.invTransform(QwtPlot.yLeft, point.y()))
         self.window.statusBar.showMessage(info)
