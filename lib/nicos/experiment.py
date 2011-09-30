@@ -187,8 +187,8 @@ class Experiment(Device):
         self.remark = ''
         self.users = []
         self.sample.samplename = ''
-        self.envlist = []
-        self.detlist = []
+        #self.envlist = []
+        #self.detlist = []
 
     def _setMode(self, mode):
         self._uhandler.disabled = mode != 'master'

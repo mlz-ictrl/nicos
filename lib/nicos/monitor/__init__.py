@@ -302,7 +302,7 @@ class Monitor(BaseCacheClient):
                 # if we have a status
                 try:
                     const = status[0]
-                except ValueError:
+                except (TypeError, ValueError):
                     const = status
                 if const == OK:
                     self.setForeColor(vlabel, self._green)
