@@ -494,7 +494,7 @@ class Readable(Device):
                               mandatory=True, settable=True),
         'maxage':       Param('Maximum age of cached value and status (or None '
                               'to cache them indefinitely)', unit='s',
-                              type=none_or(floatrange(0.01, 24*3600)),
+                              type=none_or(floatrange(0, 24*3600)),
                               default=6, settable=True),
         'pollinterval': Param('Polling interval for value and status',
                               unit='s', default=5, settable=True),

@@ -26,6 +26,8 @@
 
 __version__ = "$Revision$"
 
+import __builtin__
+
 from nicos import session
 from nicos.utils import printTable
 from nicos.device import Device, Moveable, Measurable, Readable, \
@@ -281,7 +283,10 @@ def listmethods(dev):
     """List user-callable methods for the device."""
     dev = session.getDevice(dev, Device)
     items = []
+    listed = __builtin__.set()
     def _list(cls):
+        if cls in listed: return
+        listed.add(cls)
         for name, (args, doc) in sorted(cls.commands.iteritems()):
             items.append((dev.name + '.' + name + args, cls.__name__, doc))
         for base in cls.__bases__:
