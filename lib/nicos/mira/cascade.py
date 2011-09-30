@@ -41,10 +41,6 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                           type=str, mandatory=True, preinit=True),
         'debugmsg': Param('Whether to print debug messages from the client',
                           type=bool, settable=True, default=False),
-        'nametemplate': Param('Template for the data file names',
-                              type=dictof(str, str),
-                              default={'image': 'cascade_%05d.pad',
-                                       'tof':   'cascade_%05d.tof'}),
         'roi':      Param('Region of interest, given as (x1, y1, x2, y2)',
                           type=tupleof(int, int, int, int),
                           default=(-1, -1, -1, -1), settable=True),
@@ -68,6 +64,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
 
     def doInit(self):
         self._last_preset = self.preselection
+        AsyncDetector.doInit(self)
 
         # self._tres is set by doUpdateMode
         self._xres, self._yres = (128, 128)
@@ -174,7 +171,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
     def _measurementFailedAction(self, err):
         self.lastfilename = '<error>'
 
-    def _readLiveData(self, data, elapsedtime):
+    def _readLiveData(self, elapsedtime):
         # get current data array from detector
         data = self._client.communicate('CMD_readsram')
         if data[:4] != self._dataprefix:
@@ -197,3 +194,4 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         else:
             roi = total
         self.lastcounts = (roi, total)
+        return buf

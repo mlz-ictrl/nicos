@@ -35,7 +35,7 @@ from nicos import session
 from nicos import status
 from nicos.data import NeedsDatapath
 from nicos.utils import readFileCounter, updateFileCounter
-from nicos.device import Readable, Moveable, Measurable, \
+from nicos.device import Device, Readable, Moveable, Measurable, \
      HasLimits, HasOffset, HasPrecision, Param, Override, usermethod
 
 
@@ -124,7 +124,7 @@ class Axis(HasLimits, HasOffset, HasPrecision, Moveable):
         pass
 
 
-class ImageStorage(NeedsDatapath):
+class ImageStorage(Device, NeedsDatapath):
     """
     Mixin for detectors that store images in their own directory.
     """
@@ -155,7 +155,7 @@ class ImageStorage(NeedsDatapath):
         if self._datapath is None:
             self.datapath = session.experiment.datapath
         self.lastfilename = path.join(
-            self._datapath, self.nametemplate[self.mode] % self._counter)
+            self._datapath, self.nametemplate % self._counter)
         self.lastfilenumber = self._counter
         self._counter += 1
         updateFileCounter(path.join(self._datapath, 'counter'), self._counter)
@@ -252,7 +252,7 @@ class AsyncDetector(Measurable):
                 while True:
                     sleep(0.2)
                     if self._measurementComplete():
-                        return
+                        break
                     self._duringMeasureAction(time() - started)
             except:
                 self._measurementFailedAction(sys.exc_info()[1])
