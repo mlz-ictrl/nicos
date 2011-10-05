@@ -16,7 +16,7 @@
 		<foil_4_start> 48 </foil_4_start>
 		<foil_5_start> 64 </foil_5_start>
 		<foil_6_start> 80 </foil_6_start>
-		
+
 		<pseudo_compression> 1 </pseudo_compression>
 	</tof_file>
 
@@ -32,7 +32,7 @@
                 <foil_2_start> 32 </foil_2_start>
                 <foil_3_start> 128 </foil_3_start>
                 <foil_4_start> 160 </foil_4_start>
-		
+
 		<pseudo_compression> 0 </pseudo_compression>
         </tof_file>
 -->
@@ -51,7 +51,7 @@
 	<main_window>
 		<width> 900 </width>
 		<height> 700 </height>
-		<title> Cascade </title>
+		<title> Cascade Viewer </title>
 	</main_window>
 
 	<server>
@@ -63,7 +63,7 @@
 		<use_message_timeout> 0 </use_message_timeout>
 		<message_timeout> 10000 </message_timeout>
 	</server>
-	
+
 	<log>
 		<level> 3 </level>
 		<log_to_file> 0 </log_to_file>

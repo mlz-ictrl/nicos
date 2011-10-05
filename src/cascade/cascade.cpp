@@ -22,7 +22,8 @@
 // *****************************************************************************
 // Cascade-Hauptfenster
 
-// Werden Daten vom Server komprimiert gesendet?
+// Werden Daten vom Server zlib-komprimiert gesendet?
+// Dies hat nichts mit der "Pseudokompression" zu tun!
 //#define DATA_COMPRESSED
 
 #define WIN_W 900
@@ -717,28 +718,37 @@ class MainWindow : public QMainWindow
 		///////////////////////// Hilfe ///////////////////////////////////
 		void About()
 		{
-			QString strAbout = "Cascade Qt Client written by Tobias Weber.";
+			QString strAbout = "Cascade Viewer written by Tobias Weber.";
 			strAbout += "\n";
 
 			#if defined(__DATE__) && defined(__TIME__)
 			strAbout += QString("\n") + QString("Build time: ") +
-						QString(__DATE__) + QString(" ") + QString(__TIME__);
+						QString(__DATE__) + QString(" ") + QString(__TIME__)
+						+ QString(".");
 			#endif
 
 			#ifdef __VERSION__
 			strAbout += QString("\n") + QString("Built with CC version ") +
-						QString(__VERSION__);
+						QString(__VERSION__) + QString(".");
 			#endif
 			strAbout += "\n";
 
 			#ifdef QT_VERSION_STR
 			strAbout += QString("\n") + QString("Linked to Qt version ") +
-						QString(QT_VERSION_STR);
+						QString(QT_VERSION_STR) + QString(".");
 			#endif
 
 			#ifdef QWT_VERSION_STR
 			strAbout += QString("\n") + QString("Linked to Qwt version ") +
-						QString(QWT_VERSION_STR);
+						QString(QWT_VERSION_STR) + QString(".");
+			#endif
+
+			#ifdef USE_MINUIT
+			strAbout += QString("\n") + QString("Linked to Minuit 2.");
+			#endif
+
+			#ifdef USE_BOOST
+			strAbout += QString("\n") + QString("Using Boost.");
 			#endif
 
 			QMessageBox::about(this, "About", strAbout);
@@ -761,7 +771,7 @@ class MainWindow : public QMainWindow
 			char pcBuf[256];
 			Config::GetSingleton()->QueryString(
 							"/cascade_config/main_window/title",
-							pcBuf, "Cascade");
+							pcBuf, "Cascade Viewer");
 			setWindowTitle(QString(pcBuf).simplified());
 
 			QWidget *pCentralWidget = new QWidget(this);
@@ -810,46 +820,67 @@ class MainWindow : public QMainWindow
 
 			// Datei-Menüpunkte
 			QAction *actionLoadPad = new QAction(this);
-			actionLoadPad->setText("Load PAD File...");
+			actionLoadPad->setText("Load &PAD File...");
+			actionLoadPad->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_P));
+
 			QAction *actionLoadTof = new QAction(this);
-			actionLoadTof->setText("Load TOF File...");
+			actionLoadTof->setText("Load &TOF File...");
+			actionLoadTof->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
+
 			QAction *actionWriteXML = new QAction(this);
-			actionWriteXML->setText("Write XML...");
+			actionWriteXML->setText("Write &XML...");
+
 			QAction *actionPrint = new QAction(this);
-			actionPrint->setText("Print Plot...");
+			actionPrint->setText("P&rint Plot...");
+
 			QAction *actionExit = new QAction(this);
-			actionExit->setText("Exit");
+			actionExit->setText("&Exit");
 
 			// Server-Menüpunkte
 			QAction *actionConnectServer = new QAction(this);
-			actionConnectServer->setText("Connect to Server...");
+			actionConnectServer->setText("&Connect to Server...");
+			actionConnectServer->setShortcut(
+											QKeySequence(Qt::CTRL + Qt::Key_C));
+
 			QAction *actionServerDisconnect = new QAction(this);
-			actionServerDisconnect->setText("Disconnect from Server");
+			actionServerDisconnect->setText("&Disconnect from Server");
+
 			QAction *actionServerMeasurementStart = new QAction(this);
-			actionServerMeasurementStart->setText("Start Measurement");
+			actionServerMeasurementStart->setText("&Start Measurement");
+			actionServerMeasurementStart->setShortcut(
+											QKeySequence(Qt::CTRL + Qt::Key_S));
+
 			QAction *actionServerMeasurementStop = new QAction(this);
-			actionServerMeasurementStop->setText("Stop Measurement");
+			actionServerMeasurementStop->setText("&End Measurement");
+
 			QAction *actionLoadTofServer = new QAction(this);
-			actionLoadTofServer->setText("Get Data");
+			actionLoadTofServer->setText("Get &Data");
+			actionLoadTofServer->setShortcut(
+											QKeySequence(Qt::CTRL + Qt::Key_D));
+
 			QAction *actionConfigServer = new QAction(this);
-			actionConfigServer->setText("Configure...");
+			actionConfigServer->setText("C&onfigure...");
+
 			QAction *actionConfigFromServer = new QAction(this);
-			actionConfigFromServer->setText("Retrieve Configuration");
+			actionConfigFromServer->setText("&Retrieve Configuration");
 
 			// Graph-Menüpunkte
 			QAction *actionGraph = new QAction(this);
-			actionGraph->setText("Counts vs. time channels...");
+			actionGraph->setText("&Counts vs. time channels...");
+
 			QAction *actionSummen = new QAction(this);
-			actionSummen->setText("Sum Images...");
+			actionSummen->setText("&Sum Images...");
+
 			QAction *actionCalibration = new QAction(this);
-			actionCalibration->setText("Calibration...");
+			actionCalibration->setText("C&alibration...");
 
 
 			// Hilfe-Menüpunkte
 			QAction *actionAbout = new QAction(this);
-			actionAbout->setText("About...");
+			actionAbout->setText("&About...");
+
 			QAction *actionAboutQt = new QAction(this);
-			actionAboutQt->setText("About Qt...");
+			actionAboutQt->setText("About &Qt...");
 
 
 			// Menüleiste
@@ -857,7 +888,7 @@ class MainWindow : public QMainWindow
 
 			menubar->setGeometry(QRect(0, 0, 800, 25));
 			QMenu *menuFile = new QMenu(menubar);
-			menuFile->setTitle("File");
+			menuFile->setTitle("&File");
 			menubar->addAction(menuFile->menuAction());
 			menuFile->addAction(actionLoadPad);
 			menuFile->addAction(actionLoadTof);
@@ -868,7 +899,7 @@ class MainWindow : public QMainWindow
 			menuFile->addAction(actionExit);
 
 			QMenu *menuServer = new QMenu(menubar);
-			menuServer->setTitle("Server");
+			menuServer->setTitle("&Server");
 			menubar->addAction(menuServer->menuAction());
 			menuServer->addAction(actionConnectServer);
 			menuServer->addAction(actionServerDisconnect);
@@ -882,7 +913,7 @@ class MainWindow : public QMainWindow
 			menuServer->addAction(actionLoadTofServer);
 
 			QMenu *menuGraph = new QMenu(menubar);
-			menuGraph->setTitle("Graph");
+			menuGraph->setTitle("&Graph");
 			menubar->addAction(menuGraph->menuAction());
 			menuGraph->addAction(actionCalibration);
 			menuGraph->addSeparator();
@@ -890,7 +921,7 @@ class MainWindow : public QMainWindow
 			menuGraph->addAction(actionSummen);
 
 			QMenu *menuHelp = new QMenu(menubar);
-			menuHelp->setTitle("Help");
+			menuHelp->setTitle("&Help");
 			menubar->addAction(menuHelp->menuAction());
 			menuHelp->addAction(actionAbout);
 			menuHelp->addAction(actionAboutQt);
