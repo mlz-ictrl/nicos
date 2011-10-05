@@ -122,5 +122,4 @@ class ErrorBarPlotCurve : public QwtPlotCurve
 			painter->restore();
 		}
 };
-
 #endif

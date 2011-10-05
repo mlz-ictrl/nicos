@@ -20,7 +20,10 @@
 //   Tobias Weber <tweber@frm2.tum.de>
 //
 // *****************************************************************************
-// Cascade-Hauptfenster
+/*
+ * Cascade Viewer Main Window
+ * (initially based on "spectrogram" qwt sample code)
+ */
 
 // Werden Daten vom Server zlib-komprimiert gesendet?
 // Dies hat nichts mit der "Pseudokompression" zu tun!
@@ -28,7 +31,6 @@
 
 #define WIN_W 900
 #define WIN_H 675
-
 
 #include <iostream>
 #include <stdlib.h>
@@ -130,16 +132,26 @@ class MainWindow : public QMainWindow
 				pStatusMsg->setText(pcMsg);
 		}
 
-		void SetExtCounts(int iCnts)
+		// iCnts or iClients set to -1 means: do not update respective value
+		void SetRightStatus(int iCnts, int iClients=-1)
 		{
 			static int iLastCnts=-1;
+			static int iLastClients=-1;
 
-			if(iCnts != iLastCnts)
+			bool bUpdateCnts = (iCnts!=-1);
+			bool bUpdateClients = (iClients!=-1);
+
+			if((bUpdateCnts && iCnts!=iLastCnts) ||
+				(bUpdateClients && iClients!=iLastClients))
 			{
-				iLastCnts = iCnts;
+				if(bUpdateCnts)
+					iLastCnts = iCnts;
+				if(bUpdateClients)
+					iLastClients = iClients;
 
 				std::ostringstream ostr;
-				ostr << "Ext Counts: " << iCnts;
+				ostr << "Ext Counts: " << iLastCnts
+					 << ", Clients: " << iLastClients;
 
 				pStatusExtCount->setText(ostr.str().c_str());
 			}
@@ -408,7 +420,11 @@ class MainWindow : public QMainWindow
 
 				std::pair<bool, int> pairCnt = args.QueryInt("ext_count",0);
 				if(pairCnt.first)
-					SetExtCounts(pairCnt.second);
+					SetRightStatus(pairCnt.second);
+
+				std::pair<bool, int> pairClients = args.QueryInt("clients",0);
+				if(pairClients.first)
+					SetRightStatus(-1, pairClients.second);
 			}
 			else if(!strncmp(pcBuf,"OKAY",4))
 			{}
@@ -598,6 +614,7 @@ class MainWindow : public QMainWindow
 		{
 			if(!CheckConnected()) return;
 			m_client.sendmsg("CMD_status_cdr");
+			m_client.sendmsg("CMD_status_server");
 		}
 
 		void ServerMeasurementStart()
@@ -723,32 +740,31 @@ class MainWindow : public QMainWindow
 
 			#if defined(__DATE__) && defined(__TIME__)
 			strAbout += QString("\n") + QString("Build time: ") +
-						QString(__DATE__) + QString(" ") + QString(__TIME__)
-						+ QString(".");
+						QString(__DATE__) + QString(" ") + QString(__TIME__);
 			#endif
 
 			#ifdef __VERSION__
 			strAbout += QString("\n") + QString("Built with CC version ") +
-						QString(__VERSION__) + QString(".");
+						QString(__VERSION__);
 			#endif
 			strAbout += "\n";
 
 			#ifdef QT_VERSION_STR
-			strAbout += QString("\n") + QString("Linked to Qt version ") +
-						QString(QT_VERSION_STR) + QString(".");
+			strAbout += QString("\n") + QString("Uses Qt version ") +
+						QString(QT_VERSION_STR) + QString("\thttp://qt.nokia.com");
 			#endif
 
 			#ifdef QWT_VERSION_STR
-			strAbout += QString("\n") + QString("Linked to Qwt version ") +
-						QString(QWT_VERSION_STR) + QString(".");
+			strAbout += QString("\n") + QString("Uses Qwt version ") +
+						QString(QWT_VERSION_STR) + QString("\thttp://qwt.sf.net");
 			#endif
 
 			#ifdef USE_MINUIT
-			strAbout += QString("\n") + QString("Linked to Minuit 2.");
+			strAbout += QString("\n") + QString("Uses Minuit 2\t\thttp://root.cern.ch");
 			#endif
 
 			#ifdef USE_BOOST
-			strAbout += QString("\n") + QString("Using Boost.");
+			strAbout += QString("\n") + QString("Uses Boost\t\thttp://www.boost.org");
 			#endif
 
 			QMessageBox::about(this, "About", strAbout);
@@ -987,7 +1003,7 @@ class MainWindow : public QMainWindow
 			statusbar->addPermanentWidget(pStatusExtCount,0);
 			setStatusBar(statusbar);
 
-			SetExtCounts(0);
+			SetRightStatus(0,0);
 
 			// Verbindungen
 			// Toolbar
