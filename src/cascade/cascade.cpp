@@ -571,17 +571,41 @@ class MainWindow : public QMainWindow
 		void ConnectToServer()
 		{
 			m_statustimer.stop();
+
 			ServerDlg SrvDlg(this);
 
 			char pcBuf[512];
+
+			// get default settings from config file
 			Config::GetSingleton()->QueryString(
 						"/cascade_config/server/address", pcBuf, "127.0.0.1");
-			SrvDlg.editAddress->setText(QString(pcBuf).simplified());
 
-			int iPort = Config::GetSingleton()
+			int iConfigPort = Config::GetSingleton()
 						->QueryInt("/cascade_config/server/port", 1234);
-			QString strPort; strPort.setNum(iPort);
-			SrvDlg.editPort->setText(strPort);
+
+
+			QString strConfigAddress = QString(pcBuf).simplified();
+
+			static QString strLastAddress("");
+			static int iLastPort = 0;
+
+			// no previous address entered
+			if(strLastAddress==QString("") || iLastPort==0)
+			{
+				SrvDlg.editAddress->setText(strConfigAddress);
+
+				QString strPort;
+				strPort.setNum(iConfigPort);
+				SrvDlg.editPort->setText(strPort);
+			}
+			else 								// use previous address
+			{
+				SrvDlg.editAddress->setText(strLastAddress);
+
+				QString strPort;
+				strPort.setNum(iLastPort);
+				SrvDlg.editPort->setText(strPort);
+			}
 
 			if(SrvDlg.exec()==QDialog::Accepted)
 			{
@@ -596,8 +620,12 @@ class MainWindow : public QMainWindow
 					QMessageBox::critical(0, "Error", pcBuf, QMessageBox::Ok);
 					return;
 				}
+
 				ShowMessage("Connected to server.");
 				m_statustimer.start(SERVER_STATUS_POLL_TIME);
+
+				strLastAddress = SrvDlg.editAddress->text();
+				iLastPort = SrvDlg.editPort->text().toInt();
 
 				// get current config of hardware
 				GetServerConfig();
