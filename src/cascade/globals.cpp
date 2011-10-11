@@ -54,12 +54,12 @@ void Config_TofLoader::Init()
 {
 #ifdef __BIG_ENDIAN__
 	logger.SetCurLogLevel(LOGLEVEL_INFO);
-	logger << "Loader: This is a PowerPC (big endian).\n";
+	logger << "Globals: This is a PowerPC (big endian).\n";
 #endif
 
 #ifndef USE_MINUIT
 	logger.SetCurLogLevel(LOGLEVEL_ERR);
-	logger << "Loader: Minuit not available." << "\n";
+	logger << "Globals: Minuit not available." << "\n";
 #endif
 
 	Deinit();
@@ -124,7 +124,7 @@ void Config_TofLoader::Init()
 	else
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
-		logger << "Loader: Unknown algorithm: \"" << strAlgo << "\".\n";
+		logger << "Globals: Unknown algorithm: \"" << strAlgo << "\".\n";
 	}
 
 #else	// Nicos-Client holt Einstellungen von Detektor
@@ -271,7 +271,7 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen,
 	if(bFirstCall)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_WARN);
-		logger << "Loader: Trying to guess correct configuration."
+		logger << "Globals: Trying to guess correct configuration."
 			   " (Please configure the loader correctly using either"
 			   " Config_TofLoader or the config file.)"
 			   << "\n";
@@ -342,7 +342,7 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen,
 		if(bFound)
 		{
 			logger.SetCurLogLevel(LOGLEVEL_WARN);
-			logger << "Loader: Guessing image count: " << IMAGE_COUNT << "\n";
+			logger << "Globals: Guessing image count: " << IMAGE_COUNT << "\n";
 		}
 		return bFound;
 	}
@@ -350,7 +350,7 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen,
 	{
 		// TODO
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
-		logger << "Loader: Pseudo-compressed size guess not yet implemented.\n";
+		logger << "Globals: Pseudo-compressed size guess not yet implemented.\n";
 		return 0;
 	}
 	else	// PAD
@@ -422,8 +422,8 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen,
 		if(bFound)
 		{
 			logger.SetCurLogLevel(LOGLEVEL_WARN);
-			logger << "Loader: Guessing image width: " << IMAGE_WIDTH << "\n";
-			logger << "Loader: Guessing image height: " << IMAGE_HEIGHT << "\n";
+			logger << "Globals: Guessing image width: " << IMAGE_WIDTH << "\n";
+			logger << "Globals: Guessing image height: " << IMAGE_HEIGHT << "\n";
 		}
 
 		return bFound;

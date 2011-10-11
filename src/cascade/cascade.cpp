@@ -530,16 +530,37 @@ class MainWindow : public QMainWindow
 
 		void showCalibration(void)
 		{
+			if(!m_cascadewidget.IsTofLoaded())
+			{
+				QMessageBox::critical(0, "Calibration", "No TOF loaded "
+										"or not in TOF mode.", QMessageBox::Ok);
+				return;
+			}
+
 			m_cascadewidget.showCalibrationDlg(NUM_BINS);
 		}
 
 		void showGraph(void)
 		{
+			if(!m_cascadewidget.IsTofLoaded())
+			{
+				QMessageBox::critical(0, "Graph", "No TOF loaded "
+										"or not in TOF mode.", QMessageBox::Ok);
+				return;
+			}
+
 			m_cascadewidget.showGraphDlg();
 		}
 
 		void showSummenDialog(void)
 		{
+			if(!m_cascadewidget.IsTofLoaded())
+			{
+				QMessageBox::critical(0, "Sums", "No TOF loaded "
+										"or not in TOF mode.", QMessageBox::Ok);
+				return;
+			}
+
 			m_cascadewidget.showSumDlg();
 		}
 
@@ -567,7 +588,7 @@ class MainWindow : public QMainWindow
 			UpdateLabels(false);
 		}
 
-		////////////////////////// Server-Menüpunkte ///////////////////////////
+		////////////////////////// Server Menu Items ///////////////////////////
 		void ConnectToServer()
 		{
 			ServerDlg SrvDlg(this);
@@ -729,7 +750,7 @@ class MainWindow : public QMainWindow
 		////////////////////////////////////////////////////////////////////////
 
 
-		///////////////////////////// Datei-Menüpunkte /////////////////////////
+		///////////////////////////// File Menu Items /////////////////////////
 		void LoadPad()
 		{
 			m_cascadewidget.NewPad(/*btnLog->isChecked()*/);
@@ -781,7 +802,7 @@ class MainWindow : public QMainWindow
 		///////////////////////////////////////////////////////////////////
 
 
-		///////////////////////// Hilfe ///////////////////////////////////
+		///////////////////////// Help ///////////////////////////////////
 		void About()
 		{
 			QString strAbout = "Cascade Viewer written by Tobias Weber.";
@@ -833,27 +854,22 @@ class MainWindow : public QMainWindow
 		{
 			m_cascadewidget.SetLog10(true);
 
+
 			std::string strTitle = Config::GetSingleton()->QueryString(
 							"/cascade_config/main_window/title",
 							"Cascade Viewer");
 			setWindowTitle(QString(strTitle.c_str()).simplified());
 
+
 			QWidget *pCentralWidget = new QWidget(this);
 			setCentralWidget(pCentralWidget);
 
-			// Gruppen
+
+			//------------------------------------------------------------------
 			//QGroupBox *grouptopright = new QGroupBox(&m_cascadewidget);
 			//QGroupBox *groupbottomright = new QGroupBox(&m_cascadewidget);
 			QGroupBox *groupbottomleft = new QGroupBox(pCentralWidget);
 
-			QGridLayout *centralgridlayout = new QGridLayout(pCentralWidget);
-			centralgridlayout->addWidget(&m_cascadewidget, 0, 0, 1, 1);
-			//centralgridlayout->addWidget(grouptopright, 0, 1, 1, 1);
-			//centralgridlayout->addWidget(groupbottomright, 1, 1, 1, 1);
-			centralgridlayout->addWidget(groupbottomleft, 1, 0, 1, 1);
-
-
-			// Gruppe links unten
 			QGridLayout *pLayoutBL = new QGridLayout(groupbottomleft);
 
 			labelFolie = new QLabel(groupbottomleft);
@@ -880,9 +896,23 @@ class MainWindow : public QMainWindow
 			UpdateSliders();
 
 			pLayoutBL->addWidget(sliderZeitkanaele, 1, 1, 1, 1);
+			//------------------------------------------------------------------
 
 
-			// Datei-Menüpunkte
+
+			//------------------------------------------------------------------
+			QGridLayout *centralgridlayout = new QGridLayout(pCentralWidget);
+			centralgridlayout->addWidget(&m_cascadewidget, 0, 0, 1, 1);
+			//centralgridlayout->addWidget(grouptopright, 0, 1, 1, 1);
+			//centralgridlayout->addWidget(groupbottomright, 1, 1, 1, 1);
+			centralgridlayout->addWidget(groupbottomleft, 1, 0, 1, 1);
+			//------------------------------------------------------------------
+
+
+
+			//------------------------------------------------------------------
+			// Menu Items
+			// File Menu Items
 			QAction *actionLoadPad = new QAction(this);
 			actionLoadPad->setText("Load &PAD File...");
 			actionLoadPad->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_P));
@@ -900,7 +930,7 @@ class MainWindow : public QMainWindow
 			QAction *actionExit = new QAction(this);
 			actionExit->setText("&Exit");
 
-			// Server-Menüpunkte
+			// Server Menu Items
 			QAction *actionConnectServer = new QAction(this);
 			actionConnectServer->setText("&Connect to Server...");
 			actionConnectServer->setShortcut(
@@ -931,7 +961,7 @@ class MainWindow : public QMainWindow
 			QAction *actionConfigFromServer = new QAction(this);
 			actionConfigFromServer->setText("&Retrieve Configuration");
 
-			// Graph-Menüpunkte
+			// Graph Menu Items
 			QAction *actionGraph = new QAction(this);
 			actionGraph->setText("&Counts vs. time channels...");
 
@@ -942,14 +972,16 @@ class MainWindow : public QMainWindow
 			actionCalibration->setText("C&alibration...");
 
 
-			// Hilfe-Menüpunkte
+			// Help Menu Items
 			QAction *actionAbout = new QAction(this);
 			actionAbout->setText("&About...");
 
 			QAction *actionAboutQt = new QAction(this);
 			actionAboutQt->setText("About &Qt...");
+			//------------------------------------------------------------------
 
 
+			//------------------------------------------------------------------
 			// Menu Bar
 			QMenuBar *menubar = new QMenuBar(this);;
 
@@ -996,8 +1028,10 @@ class MainWindow : public QMainWindow
 			menuHelp->addAction(actionAboutQt);
 
 			setMenuBar(menubar);
+			//------------------------------------------------------------------
 
 
+			//------------------------------------------------------------------
 			// Toolbar
 			QToolBar *toolBar = new QToolBar(this);
 
@@ -1045,9 +1079,11 @@ class MainWindow : public QMainWindow
 			toolBar->addWidget(btnView);
 
 			addToolBar(toolBar);
+			//------------------------------------------------------------------
 
 
-			// Statusleiste
+			//------------------------------------------------------------------
+			// Status Bar
 			statusbar = new QStatusBar(this);
 			pStatusMsg = new QLabel(this);
 			pStatusExtCount = new QLabel(this);
@@ -1057,8 +1093,11 @@ class MainWindow : public QMainWindow
 			setStatusBar(statusbar);
 
 			SetRightStatus(0,0);
+			//------------------------------------------------------------------
 
-			// Verbindungen
+
+			//------------------------------------------------------------------
+			// Connections
 			// Toolbar
 			connect(btnLog, SIGNAL(toggled(bool)), this,
 							SLOT(SetLog10(bool)));
@@ -1132,10 +1171,11 @@ class MainWindow : public QMainWindow
 			// Widget
 			connect(&m_cascadewidget, SIGNAL(SumDlgSignal(const bool *, int)),
 								this, SLOT(FolienSummeSlot(const bool *, int)));
+			//------------------------------------------------------------------
 		}
 };
 
-// Default-Werte
+// Default Values
 int MainWindow::NUM_BINS = 100;
 int MainWindow::SERVER_STATUS_POLL_TIME = 1000;
 

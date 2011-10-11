@@ -74,7 +74,7 @@
         <item row="2" column="0">
          <widget class="QLabel" name="label_5">
           <property name="text">
-           <string>Folie:</string>
+           <string>Foil:</string>
           </property>
          </widget>
         </item>
@@ -154,6 +154,7 @@
    <class>QwtPlot</class>
    <extends>QFrame</extends>
    <header>qwt_plot.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
