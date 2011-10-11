@@ -570,8 +570,6 @@ class MainWindow : public QMainWindow
 		////////////////////////// Server-Menüpunkte ///////////////////////////
 		void ConnectToServer()
 		{
-			m_statustimer.stop();
-
 			ServerDlg SrvDlg(this);
 
 			// get default settings from config file
@@ -606,8 +604,10 @@ class MainWindow : public QMainWindow
 				SrvDlg.editPort->setText(strPort);
 			}
 
-			if(SrvDlg.exec()==QDialog::Accepted)
+			if(SrvDlg.exec() == QDialog::Accepted)
 			{
+				ServerDisconnect();
+
 				if(!m_client.connecttohost(
 						SrvDlg.editAddress->text().toAscii().data(),
 						SrvDlg.editPort->text().toInt()))
@@ -639,9 +639,24 @@ class MainWindow : public QMainWindow
 			ShowMessage("Disconnected from server.");
 		}
 
+		// enter manual server command
+		void ServerCommand()
+		{
+			if(!CheckConnected()) return;
+
+			CommandDlg commanddlg(this);
+			if(commanddlg.exec() == QDialog::Accepted)
+			{
+				QString strCmd = commanddlg.editCommand->text().simplified();
+				if(strCmd != QString(""))
+					m_client.sendmsg(strCmd.toAscii().data());
+			}
+		}
+
 		void ServerStatus()
 		{
 			if(!CheckConnected()) return;
+
 			m_client.sendmsg("CMD_status_cdr");
 			m_client.sendmsg("CMD_status_server");
 		}
@@ -649,30 +664,35 @@ class MainWindow : public QMainWindow
 		void ServerMeasurementStart()
 		{
 			if(!CheckConnected()) return;
+
 			m_client.sendmsg("CMD_start");
 		}
 
 		void ServerMeasurementStop()
 		{
 			if(!CheckConnected()) return;
+
 			m_client.sendmsg("CMD_stop");
 		}
 
 		void LoadTofServer()
 		{
 			if(!CheckConnected()) return;
+
 			m_client.sendmsg("CMD_readsram");
 		}
 
 		void GetServerConfig()
 		{
 			if(!CheckConnected()) return;
+
 			m_client.sendmsg("CMD_getconfig_cdr");
 		}
 
 		void ServerConfig()
 		{
 			if(!CheckConnected()) return;
+
 			ServerCfgDlg srvcfgdlg(this);
 
 			if(srvcfgdlg.exec()==QDialog::Accepted)
@@ -889,6 +909,9 @@ class MainWindow : public QMainWindow
 			QAction *actionServerDisconnect = new QAction(this);
 			actionServerDisconnect->setText("&Disconnect from Server");
 
+			QAction *actionServerCommand = new QAction(this);
+			actionServerCommand->setText("Enter &Manual Command...");
+
 			QAction *actionServerMeasurementStart = new QAction(this);
 			actionServerMeasurementStart->setText("&Start Measurement");
 			actionServerMeasurementStart->setShortcut(
@@ -927,7 +950,7 @@ class MainWindow : public QMainWindow
 			actionAboutQt->setText("About &Qt...");
 
 
-			// Menüleiste
+			// Menu Bar
 			QMenuBar *menubar = new QMenuBar(this);;
 
 			menubar->setGeometry(QRect(0, 0, 800, 25));
@@ -947,6 +970,8 @@ class MainWindow : public QMainWindow
 			menubar->addAction(menuServer->menuAction());
 			menuServer->addAction(actionConnectServer);
 			menuServer->addAction(actionServerDisconnect);
+			menuServer->addSeparator();
+			menuServer->addAction(actionServerCommand);
 			menuServer->addSeparator();
 			menuServer->addAction(actionConfigFromServer);
 			menuServer->addAction(actionConfigServer);
@@ -1052,7 +1077,7 @@ class MainWindow : public QMainWindow
 			connect(sliderZeitkanaele, SIGNAL(valueChanged(int)), this,
 								  SLOT(ChangeZeitkanal(int)));
 
-			// Datei
+			// File
 			connect(actionExit, SIGNAL(triggered()), this,
 								SLOT(close()));
 			connect(actionLoadPad, SIGNAL(triggered()), this,
@@ -1070,6 +1095,9 @@ class MainWindow : public QMainWindow
 			connect(actionServerDisconnect, SIGNAL(triggered()), this,
 										 SLOT(ServerDisconnect()));
 
+			connect(actionServerCommand, SIGNAL(triggered()), this,
+										 SLOT(ServerCommand()));
+
 			connect(actionLoadTofServer, SIGNAL(triggered()), this,
 										 SLOT(LoadTofServer()));
 			connect(actionServerMeasurementStart, SIGNAL(triggered()), this,
@@ -1081,7 +1109,7 @@ class MainWindow : public QMainWindow
 			connect(actionConfigFromServer, SIGNAL(triggered()), this,
 											SLOT(GetServerConfig()));
 
-			// Hilfe
+			// Help
 			connect(actionAbout, SIGNAL(triggered()), this,
 										 SLOT(About()));
 			connect(actionAboutQt, SIGNAL(triggered()), this,

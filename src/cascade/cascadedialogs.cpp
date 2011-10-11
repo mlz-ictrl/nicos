@@ -26,6 +26,17 @@
 #include <stdio.h>
 
 
+// ************************* Server Command Dialog ********************
+CommandDlg::CommandDlg(QWidget *pParent) : QDialog(pParent)
+{
+	setupUi(this);
+}
+
+CommandDlg::~CommandDlg()
+{}
+// ********************************************************************
+
+
 // ************************* Kalibrierungs-Dialog *********************
 CalibrationDlg::CalibrationDlg(QWidget *pParent, const Bins& bins) :
 								QDialog(pParent), m_pgrid(0)
@@ -419,8 +430,7 @@ ServerDlg::ServerDlg(QWidget *pParent) : QDialog(pParent)
 }
 
 ServerDlg::~ServerDlg()
-{
-}
+{}
 
 ServerCfgDlg::ServerCfgDlg(QWidget *pParent) : QDialog(pParent)
 {

@@ -50,6 +50,8 @@
 #include "ui_calibrationdlg.h"
 #include "ui_serverdlg.h"
 #include "ui_servercfgdlg.h"
+#include "ui_commanddlg.h"
+
 #include "histogram_item.h"
 #include "bins.h"
 #include "globals.h"
@@ -59,6 +61,22 @@
 
 #define MODE_PAD 1
 #define MODE_TOF 2
+
+// *********************************************************************
+class CommandDlg : public QDialog, public Ui::CommandDlg
+{
+	Q_OBJECT
+
+	protected:
+
+	protected slots:
+
+	public:
+		CommandDlg(QWidget *pParent);
+		virtual ~CommandDlg();
+};
+// ********************************************************************
+
 
 
 // *********************************************************************

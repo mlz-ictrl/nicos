@@ -1,6 +1,17 @@
 #
-# Makefile für den Cascade-Qt-Client und die Nicos-Module
+# Makefile for Cascade Viewer
+# (and Cascade Nicos Modules)
 #
+# * "make".................build all
+# * "make cascade".........build Cascade Viewer
+# * "make nicosmodules"....build Nicos Modules
+#
+# * "make clean"...........clean all
+# * "make clean_qt"........clean Cascade Viewer
+# * "make clean_nicos".....clean Nicos Modules
+# *
+#
+
 
 COMPILER	= gcc
 FLAGS		= -O2 -Wall -Wextra -D __CASCADE_QT_CLIENT__
@@ -61,7 +72,7 @@ globals.o: globals.cpp globals.h
 
 
 ############################ Dialoge ############################
-cascadedialogs.h: ui_calibrationdlg.h ui_sumdialog.h ui_serverdlg.h ui_servercfgdlg.h ui_graphdlg.h
+cascadedialogs.h: ui_calibrationdlg.h ui_sumdialog.h ui_serverdlg.h ui_servercfgdlg.h ui_graphdlg.h ui_commanddlg.h
 
 ui_calibrationdlg.h: calibrationdlg.ui
 	uic calibrationdlg.ui > ui_calibrationdlg.h
@@ -77,6 +88,9 @@ ui_servercfgdlg.h: servercfgdlg.ui
 
 ui_graphdlg.h: graphdlg.ui
 	uic graphdlg.ui > ui_graphdlg.h
+
+ui_commanddlg.h: commanddlg.ui
+	uic commanddlg.ui > ui_commanddlg.h
 #################################################################
 
 
