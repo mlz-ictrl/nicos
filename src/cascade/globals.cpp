@@ -112,15 +112,20 @@ void Config_TofLoader::Init()
 	uiMinuitStrategy = (unsigned int)Config::GetSingleton()->QueryInt(
 				"/cascade_config/minuit/strategy", uiMinuitStrategy);
 
-	char pcAlgo[256];
-	Config::GetSingleton()->QueryString(
-				"/cascade_config/minuit/algo", pcAlgo, "migrad");
-	if(strcasecmp(pcAlgo, "migrad")==0)
+	std::string strAlgo =
+		Config::GetSingleton()->QueryString("/cascade_config/minuit/algo",
+											"migrad");
+	if(strcasecmp(strAlgo.c_str(), "migrad")==0)
 		iMinuitAlgo = MINUIT_MIGRAD;
-	else if(strcasecmp(pcAlgo, "minimize")==0)
+	else if(strcasecmp(strAlgo.c_str(), "minimize")==0)
 		iMinuitAlgo = MINUIT_MINIMIZE;
-	else if(strcasecmp(pcAlgo, "simplex")==0)
+	else if(strcasecmp(strAlgo.c_str(), "simplex")==0)
 		iMinuitAlgo = MINUIT_SIMPLEX;
+	else
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Unknown algorithm: \"" << strAlgo << "\".\n";
+	}
 
 #else	// Nicos-Client holt Einstellungen von Detektor
 

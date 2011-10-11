@@ -20,7 +20,7 @@
 //   Tobias Weber <tweber@frm2.tum.de>
 //
 // *****************************************************************************
-// (Singleton-)Klasse zum Einlesen einer XML-Konfigurationsdatei für Cascade
+// (singleton) class for reading xml configuration files
 
 #include "config.h"
 
@@ -163,13 +163,19 @@ double Config::QueryDouble(const char* pcXpath, double dDefault)
 	return dRet;
 }
 
-void Config::QueryString(const char* pcXpath, char* pcStr,
-						 const char* pcDefault)
+std::string Config::QueryString(const char* pcXpath, const char* pcDefault)
 {
-	if(pcStr!=pcDefault && pcDefault)
-		strcpy(pcStr,pcDefault);
+	std::string strRet;
+
+	if(pcDefault)
+	{
+		strRet = pcDefault;
+		strRet = trim(strRet);
+	}
+
 	if(!m_pxmldoc)
-		return;
+		return strRet;
+
 	const xmlChar* pxmlPath = xmlCharStrdup(pcXpath);
 
 	xmlXPathContextPtr xpathContext = (xmlXPathContextPtr)m_ppathcontext;
@@ -177,13 +183,14 @@ void Config::QueryString(const char* pcXpath, char* pcStr,
 															xpathContext);
 
 	xmlNodeSetPtr pnodeset = xpathObject->nodesetval;
+
 	if(pnodeset->nodeNr==0)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
 		logger << "Config: XPath \"" << pcXpath << "\" not found.\n";
 		xmlXPathFreeObject(xpathObject);
 
-		return;
+		return strRet;
 	}
 	else if(pnodeset->nodeNr>1)
 	{
@@ -199,12 +206,15 @@ void Config::QueryString(const char* pcXpath, char* pcStr,
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
 		logger << "Config: Node for XPath \"" << pcXpath << "\" invalid.\n";
 		xmlXPathFreeObject(xpathObject);
-		return;
+		return strRet;
 	}
 
-	strcpy(pcStr, (const char*)pNode->children->content);
-	trim(pcStr);
+	strRet = (const char*)pNode->children->content;
+	strRet = trim(strRet);
+
 	xmlXPathFreeObject(xpathObject);
+
+	return strRet;
 }
 
 

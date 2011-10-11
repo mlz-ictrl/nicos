@@ -574,17 +574,16 @@ class MainWindow : public QMainWindow
 
 			ServerDlg SrvDlg(this);
 
-			char pcBuf[512];
-
 			// get default settings from config file
-			Config::GetSingleton()->QueryString(
-						"/cascade_config/server/address", pcBuf, "127.0.0.1");
+			QString strConfigAddress =
+						QString(Config::GetSingleton()->QueryString(
+						"/cascade_config/server/address",
+						"127.0.0.1").c_str()).simplified();
 
 			int iConfigPort = Config::GetSingleton()
 						->QueryInt("/cascade_config/server/port", 1234);
 
 
-			QString strConfigAddress = QString(pcBuf).simplified();
 
 			static QString strLastAddress("");
 			static int iLastPort = 0;
@@ -613,6 +612,7 @@ class MainWindow : public QMainWindow
 						SrvDlg.editAddress->text().toAscii().data(),
 						SrvDlg.editPort->text().toInt()))
 				{
+					char pcBuf[512];
 					sprintf(pcBuf, "Could not connect to server\n"
 								   "\"%s\"\nat port %d.",
 								   SrvDlg.editAddress->text().toAscii().data(),
@@ -813,11 +813,10 @@ class MainWindow : public QMainWindow
 		{
 			m_cascadewidget.SetLog10(true);
 
-			char pcBuf[256];
-			Config::GetSingleton()->QueryString(
+			std::string strTitle = Config::GetSingleton()->QueryString(
 							"/cascade_config/main_window/title",
-							pcBuf, "Cascade Viewer");
-			setWindowTitle(QString(pcBuf).simplified());
+							"Cascade Viewer");
+			setWindowTitle(QString(strTitle.c_str()).simplified());
 
 			QWidget *pCentralWidget = new QWidget(this);
 			setCentralWidget(pCentralWidget);
@@ -1135,10 +1134,10 @@ int main(int argc, char **argv)
 						"/cascade_config/log/log_to_file", 0);
 	if(iLogToFile)
 	{
-		char pcLogFile[256];
-		Config::GetSingleton()->QueryString(
-						"/cascade_config/log/file", pcLogFile, "cascade.log");
-		logger.Init(pcLogFile);
+		std::string strLogFile =
+			Config::GetSingleton()->QueryString("/cascade_config/log/file",
+												"cascade.log");
+		logger.Init(strLogFile.c_str());
 	}
 
 	int iLogLevel = Config::GetSingleton()->QueryInt(

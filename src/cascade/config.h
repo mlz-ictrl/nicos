@@ -24,6 +24,8 @@
 #ifndef __CASCADE_CONFIG__
 #define __CASCADE_CONFIG__
 
+#include <string>
+
 /*
  * (Singleton) class for reading xml configuration files
  */
@@ -48,7 +50,7 @@ class Config
 		// Query values in a given xpath
 		int QueryInt(const char* pcXpath, int iDefault=0);
 		double QueryDouble(const char* pcXpath, double dDefault=0.);
-		void QueryString(const char* pcXpath, char* pcStr, const char* pcDefault);
+		std::string QueryString(const char* pcXpath, const char* pcDefault);
 		//----------------------------------------------------------------------
 
 		// get pointer to singleton instance of this class
