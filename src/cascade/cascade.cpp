@@ -22,7 +22,7 @@
 // *****************************************************************************
 /*
  * Cascade Viewer Main Window
- * (initially based on "spectrogram" qwt sample code)
+ * (Plotter initially based on "spectrogram" qwt sample code)
  */
 
 // Werden Daten vom Server zlib-komprimiert gesendet?
@@ -59,6 +59,7 @@
 #include <QLine>
 #include <QMessageBox>
 
+#include "globals.h"
 #include "tofloader.h"
 #include "tofdata.h"
 #include "bins.h"

@@ -20,6 +20,7 @@
 //   Tobias Weber <tweber@frm2.tum.de>
 //
 // *****************************************************************************
+// Plotter initially based on "spectrogram" qwt sample code
 
 #include "cascadewidget.h"
 

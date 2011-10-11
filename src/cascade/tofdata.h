@@ -26,6 +26,7 @@
 #define __TOFDATA__
 
 #include <qwt/qwt_plot_spectrogram.h>
+#include "globals.h"
 #include "tofloader.h"
 
 /*

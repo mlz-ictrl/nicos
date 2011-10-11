@@ -52,6 +52,7 @@
 #include "ui_servercfgdlg.h"
 #include "histogram_item.h"
 #include "bins.h"
+#include "globals.h"
 #include "tofloader.h"
 #include "ErrorBarPlotCurve.h"
 

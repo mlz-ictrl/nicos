@@ -4,6 +4,7 @@
 %Import QtCore/QtCoremod.sip
 %Import Qwt5/QwtModule.sip
 
+%Include globals.sip
 %Include tofloader.sip
 
 
@@ -30,16 +31,16 @@ class MainRasterData :  QwtRasterData
 %End
 	public:
 		MainRasterData(const QwtDoubleRect& rect);
-		
+
 		void SetLog10(bool bLog10);
 		bool GetLog10() const;
-		
+
 		// get raw (nonlog) value independent of m_bLog
 		virtual double GetValueRaw(int x, int y) const = 0;
 };
 
 
-// *********************** PAD-Daten *********************** 
+// *********************** PAD-Daten ***********************
 class PadData :  MainRasterData, PadImage
 {
 %TypeHeaderCode
@@ -68,10 +69,10 @@ class Data2D :  MainRasterData, TmpImage
 		Data2D();
 		Data2D(const Data2D& data2d);
 		virtual ~Data2D();
-		
+
 		void SetPhaseData(bool bPhaseData);	// due to axis range
 		void clearData();
-		
+
 		virtual QwtRasterData *copy() const;
 		virtual QwtDoubleInterval range() const;
 		virtual double value(double x, double y) const;
@@ -109,7 +110,7 @@ class CascadeWidget : QWidget
 	public:
 		CascadeWidget(QWidget *parent=NULL);
 		virtual ~CascadeWidget();
-		
+
 		void Unload();
 		bool IsTofLoaded() const;
 		bool IsPadLoaded() const;
@@ -130,11 +131,11 @@ class CascadeWidget : QWidget
 		Data2D* GetData2d();
 		PadData* GetPad();
 		Plot* GetPlot();
-		
+
 		bool GetLog10();
 		int GetFoil() const;
 		int GetTimechannel() const;
-		
+
 		void SetMode(int iMode);
 		int GetMode();
 
@@ -143,7 +144,7 @@ class CascadeWidget : QWidget
 		void viewSlides();		// show single foils
 		void viewPhases();		// show phases
 		void viewContrasts();		// show contrasts
-		
+
 		void viewFoilSums(const bool* pbKanaele);
 		void viewPhaseSums(const bool* pbFolien);
 		void viewContrastSums(const bool* pbFolien);
@@ -153,12 +154,12 @@ class CascadeWidget : QWidget
 		void showGraphDlg();
 		void showSumDlg();
 		/////////////////////////////////////////////
-		
+
 		void SetLog10(bool bLog10);
 		void SetFoil(int iFolie);
 		void SetTimechannel(int iKanal);
-		
+
 		void UpdateGraph();
-		void UpdateLabels();		
+		void UpdateLabels();
 		void UpdateRange();
 };

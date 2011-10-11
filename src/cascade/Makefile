@@ -13,8 +13,8 @@ all: cascade nicosmodules
 
 
 ###################### cascade-qt-client ################
-cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o
-	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o
+cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o globals.o
+	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o globals.o
 #########################################################
 
 
@@ -24,7 +24,7 @@ cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o
 cascade.o: cascade.cpp cascade.moc cascadedialogs_moc.cpp cascadedialogs.moc bins.h parse.h ErrorBarPlotCurve.h tofdata.h cascadedialogs.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascade.o cascade.cpp
 
-cascadedialogs.o: cascadedialogs_moc.cpp cascadedialogs.h cascadedialogs.moc 
+cascadedialogs.o: cascadedialogs_moc.cpp cascadedialogs.h cascadedialogs.moc
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascadedialogs.o cascadedialogs_moc.cpp
 
 bins.o: bins.cpp bins.h
@@ -53,6 +53,9 @@ helper.o: helper.cpp helper.h
 
 logger.o: logger.cpp logger.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o logger.o logger.cpp
+
+globals.o: globals.cpp globals.h
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o globals.o globals.cpp
 #########################################################
 
 
@@ -125,7 +128,7 @@ clean_nicos:
 	rm -f nicosclient/pythonbinding/Makefile
 	rm -f nicosclient/pythonbinding/sip*.cpp nicosclient/pythonbinding/sip*.h
 	rm -f nicosclient/pythonbinding/*.exp nicosclient/pythonbinding/*.sbf
-	
+
 	rm -f nicoswidget/Makefile
 	rm -f nicoswidget/*.a nicoswidget/pythonbinding/*.so
 	rm -f nicoswidget/*.o nicoswidget/pythonbinding/*.o
