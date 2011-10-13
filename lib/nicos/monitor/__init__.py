@@ -207,8 +207,8 @@ class Monitor(BaseCacheClient):
             'name': '', 'dev': '', 'width': 8, 'istext': False, 'maxlen': None,
             'min': None, 'max': None, 'unit': '', 'item': -1, 'format': '%s',
             # current values
-            'value': None, 'expired': 0, 'status': None, 'changetime': 0,
-            'exptime': 0,
+            'value': None, 'strvalue': None, 'expired': 0, 'status': None,
+            'changetime': 0, 'exptime': 0,
             # key names
             'key': '', 'statuskey': '', 'unitkey': '', 'formatkey': '',
         }
@@ -372,26 +372,27 @@ class Monitor(BaseCacheClient):
                 field['expired'] = expired
                 if expired:
                     field['exptime'] = time
-                if field['item'] >= 0:
+                if field['item'] >= 0 and value is not None:
                     fvalue = value[field['item']]
                 else:
                     fvalue = value
-                oldvalue = field['value']
-                if oldvalue != fvalue:
-                    field['changetime'] = time
-                field['value'] = value
                 if value is None:
-                    text = '----'
+                    strvalue = '----'
                 else:
                     try:
-                        text = field['format'] % fvalue
-                    except Exception:
-                        text = str(fvalue)
-                self.setLabelText(field['valuelabel'], text[:field['maxlen']])
+                        strvalue = field['format'] % fvalue
+                    except Exception, e:
+                        strvalue = str(fvalue)
+                if field['strvalue'] != strvalue:
+                    field['changetime'] = time
+                field['strvalue'] = strvalue
+                field['value'] = value
+                self.setLabelText(field['valuelabel'], strvalue[:field['maxlen']])
             elif key == field['statuskey']:
                 if value is not None:
+                    if field['status'] != value:
+                        field['changetime'] = time
                     field['status'] = value
-                field['changetime'] = time
             elif key == field['unitkey']:
                 if value is not None:
                     field['unit'] = value
@@ -400,7 +401,7 @@ class Monitor(BaseCacheClient):
             elif key == field['formatkey']:
                 if value is not None:
                     field['format'] = value
-                if field['value'] is not None:
+                if field['value'] is not None and field['item'] < 0:
                     try:
                         self.setLabelText(field['valuelabel'], field['format'] %
                                           field['value'])
