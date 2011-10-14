@@ -36,7 +36,7 @@ from email.Utils import formatdate, make_msgid
 
 try:
     import xmpp
-except:
+except ImportError:
     xmpp = None
 
 from nicos.utils import listof, usermethod

@@ -88,11 +88,11 @@ class ScriptRequest(Request):
     """
 
     def __init__(self, text, name=None, user=None):
+        Request.__init__(self, user)
         self._run = Event()
         self._run.set()
 
         self.name = name
-        self.user = user
         # replace bare except clauses in the code with "except Exception"
         # so that ControlStop is not caught
         self.text = fixup_script(text)

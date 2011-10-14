@@ -39,6 +39,7 @@ load-plugins=
 # E1101: instance has no member ...
 # E1103: instance has no member ... (but some types could not be inferred)
 # E1123: passing unexpected keyword argument
+# W0122: usage of "exec"
 # W0141: usage of "map"
 # W0142: usage of "*" or "**"
 # W0201: attribute '%s' defined outside __init__
@@ -51,15 +52,18 @@ load-plugins=
 # W0703: Catch Exception
 # R0201: method could be a function
 # R0801: similar lines
+# R0901: too many ancestors
 # R0903: too few public methods
+# R0911: too many return statements
 # R0912: too many branches
 # R0913: too many arguments
+# C0102: blacklisted name (!?)
 # C0103: invalid name "..."
 # C0111: missing docstring
 # C0302: too many lines in module
 # C0321: more than one statement on a line
 # C0324: comma not followed by a space
-disable=E1101,E1103,E1123,W0141,W0142,W0201,W0212,W0232,W0404,W0613,W0614,W0621,W0703,R0201,R0801,R0903,R0912,R0913,C0103,C0111,C0302,C0321,C0324
+disable=E1101,E1103,E1123,W0122,W0141,W0142,W0201,W0212,W0232,W0404,W0613,W0614,W0621,W0703,R0201,R0801,R0901,R0903,R0911,R0912,R0913,C0102,C0103,C0111,C0302,C0321,C0324
 
 [REPORTS]
 
