@@ -398,7 +398,7 @@ class Cell(Device):
             a = skalpro / (hkl1_len * hkl2_len)
             try:
                 an = arccos(a) * R2D
-            except:
+            except Exception:
                 if a < -1:
                     an = 180
                 elif a > 1:
