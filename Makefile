@@ -25,6 +25,9 @@ inplace: cascade
 test:
 	@$(PYTHON) test/run.py $(O)
 
+lint:
+	-pylint --rcfile=./pylintrc lib/nicos/
+
 test-coverage:
 	@$(PYTHON) test/run.py --with-coverage --cover-package=nicos --cover-html
 

@@ -5,6 +5,7 @@ dist/
 *.egg-info
 *.log
 *.pid
+pylint_*.txt
 
 data/*.dat
 data/filecounter
@@ -12,6 +13,13 @@ data/cache/*
 
 doc/build/
 doc/source/auto
+doc/_sources/
+doc/_static/
+doc/auto/
+doc/objects.inv
+doc/searchindex.js
+
+
 
 test/root/
 
