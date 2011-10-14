@@ -58,7 +58,7 @@ class Notifier(Device):
     }
 
     @usermethod
-    def send(subject, body, what=None, short=None):
+    def send(self, subject, body, what=None, short=None):
         """Send a notification."""
         raise NotImplementedError
 

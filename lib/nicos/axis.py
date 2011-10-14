@@ -219,7 +219,6 @@ class Axis(BaseAxis):
             return self._setErrorState(PositionError,
                 'drag error (primary coder): difference %f, maximum %f' %
                 (diff, maxdiff))
-            return False
         for obs in self._adevs['obs']:
             diff = abs(self._adevs['motor'].read() - obs.read())
             if diff > maxdiff:
