@@ -814,7 +814,7 @@ def tacodev(val=None):
         raise ValueError('%s is not a valid Taco device name' % val)
     return val
 
-def any(val=None):
+def anytype(val=None):
     """any value"""
     return val
 

@@ -35,7 +35,7 @@ import TACOStates
 
 from nicos import status
 from nicos.taco import TacoDevice
-from nicos.utils import tupleof, any, usermethod, waitForStatus
+from nicos.utils import tupleof, anytype, usermethod, waitForStatus
 from nicos.device import Moveable, HasOffset, Param, Override
 from nicos.errors import ConfigurationError, NicosError, PositionError, \
      MoveError, LimitError
@@ -523,7 +523,7 @@ class HoveringAxis(TacoAxis):
         'stopdelay':  Param('Delay before switching off air', type=float,
                             mandatory=True, unit='s'),
         'switchvalues': Param('[off, on] value to write to switch device',
-                              type=tupleof(any, any), default=(0, 1)),
+                              type=tupleof(anytype, anytype), default=(0, 1)),
     }
 
     def doInit(self):

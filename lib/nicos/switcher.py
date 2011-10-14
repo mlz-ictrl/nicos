@@ -26,7 +26,7 @@
 
 __version__ = "$Revision$"
 
-from nicos.utils import listof, any
+from nicos.utils import listof, anytype
 from nicos.errors import ConfigurationError, PositionError, NicosError
 from nicos.device import Moveable, Readable, Param, Override
 
@@ -44,7 +44,7 @@ class Switcher(Moveable):
     parameters = {
         'states':    Param('List of state names.', type=listof(str),
                            mandatory=True),
-        'values':    Param('List of values to move to', type=listof(any),
+        'values':    Param('List of values to move to', type=listof(anytype),
                            mandatory=True),
         'precision': Param('Precision for comparison', mandatory=True),
     }
@@ -98,7 +98,7 @@ class ReadonlySwitcher(Readable):
     parameters = {
         'states':    Param('List of state names.', type=listof(str),
                            mandatory=True),
-        'values':    Param('List of values to move to', type=listof(any),
+        'values':    Param('List of values to move to', type=listof(anytype),
                            mandatory=True),
         'precision': Param('Precision for comparison', type=float, default=0),
     }

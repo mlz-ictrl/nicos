@@ -31,8 +31,8 @@ import random
 import threading
 
 from nicos import status
-from nicos.utils import tacodev, tupleof,nonemptylistof,any,Override
-from nicos.device import Readable, Moveable, HasOffset, Param
+from nicos.utils import tacodev, tupleof, nonemptylistof, anytype
+from nicos.device import Readable, Moveable, HasOffset, Param, Override
 from nicos.errors import PositionError, NicosError
 from nicos.abstract import Motor, Coder
 from nicos.detector import FRMTimerChannel, FRMCounterChannel
@@ -229,9 +229,9 @@ class VirtualSwitch(Moveable):
     attached_devices = {}
 
     parameters = {
-        'states': Param('List of allowed states', type=nonemptylistof(any),
+        'states': Param('List of allowed states', type=nonemptylistof(anytype),
                         mandatory=True),
-        'defaultstate': Param('Default state upon initialisation', type=any,
+        'defaultstate': Param('Default state upon initialisation', type=anytype,
                               mandatory=False),
     }
 

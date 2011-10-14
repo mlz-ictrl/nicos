@@ -31,7 +31,7 @@ from time import time as currenttime, sleep
 from nicos import session
 from nicos import status, loggers
 from nicos.utils import DeviceMeta, Param, Override, Value, getVersions, \
-     usermethod, tupleof, floatrange, any, none_or
+     usermethod, tupleof, floatrange, anytype, none_or
 from nicos.errors import NicosError, ConfigurationError, ProgrammingError, \
      UsageError, LimitError, FixedError, ModeError, CommunicationError, \
      CacheLockError
@@ -722,11 +722,11 @@ class Moveable(Readable):
 
     parameters = {
         'target': Param('Last target position of a start() action',
-                        unit='main', type=any, default=0.),
+                        unit='main', type=anytype, default=0.),
     }
 
     # The type of the device value, used for typechecking in doStart().
-    valuetype = any
+    valuetype = anytype
 
     def __init__(self, name, **config):
         Readable.__init__(self, name, **config)
