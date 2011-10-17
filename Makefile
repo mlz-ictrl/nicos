@@ -28,6 +28,13 @@ test:
 lint:
 	-pylint --rcfile=./pylintrc lib/nicos/
 
+jenkinslint: 
+	-pylint --rcfile=./pylintrc lib/nicos/ `git diff --name-only HEAD HEAD^ | grep ".py"`
+
+changelint: 
+	-pylint --rcfile=./pylintrc lib/nicos/ `git diff --name-only HEAD | grep ".py"`
+
+
 test-coverage:
 	@$(PYTHON) test/run.py --with-coverage --cover-package=nicos --cover-html
 
