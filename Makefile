@@ -28,11 +28,14 @@ test:
 lint:
 	-pylint --rcfile=./pylintrc lib/nicos/
 
+jenkinslintall:
+	-pylint --rcfile=./pylintrc --files-output=y lib/nicos/
+
 jenkinslint: 
-	-pylint --rcfile=./pylintrc lib/nicos/ `git diff --name-only HEAD HEAD^ | grep ".py"`
+	-pylint --rcfile=./pylintrc  --files-output=y  `git diff --name-only HEAD HEAD^ | grep ".py"`
 
 changelint: 
-	-pylint --rcfile=./pylintrc lib/nicos/ `git diff --name-only HEAD | grep ".py"`
+	-pylint --rcfile=./pylintrc  `git diff --name-only HEAD | grep ".py"`
 
 
 test-coverage:
