@@ -1046,7 +1046,7 @@ class MainWindow : public QMainWindow
 
 			//------------------------------------------------------------------
 			// Toolbar
-			QToolBar *toolBar = new QToolBar(this);
+			QToolBar *toolBar = new QToolBar("Toolbar",this);
 
 			btnLog = new QToolButton(toolBar);
 			btnLog->setText("Log10");
