@@ -34,12 +34,12 @@
 NicosClient::NicosClient() : TcpClient(0, true), m_pad(0, true),
 							 m_tof(0, TOF_COMPRESSION_USEGLOBCONFIG, true)
 {
-	Config_TofLoader::Init();
+	GlobalConfig::Init();
 }
 
 NicosClient::~NicosClient()
 {
-	Config_TofLoader::Deinit();
+	GlobalConfig::Deinit();
 }
 
 const QByteArray& NicosClient::communicate(const char* pcMsg)

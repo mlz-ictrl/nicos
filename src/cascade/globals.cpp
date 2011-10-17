@@ -29,28 +29,189 @@
 #include <string.h>
 #include <stdio.h>
 
-// ************************* Configuration *************************************
-// Default Values
-int Config_TofLoader::FOIL_COUNT = 6;
-int Config_TofLoader::IMAGES_PER_FOIL = 8;		// Zeitkanäle
-int Config_TofLoader::IMAGE_WIDTH = 128;
-int Config_TofLoader::IMAGE_HEIGHT = 128;
-int Config_TofLoader::IMAGE_COUNT = 192;
-int *Config_TofLoader::piFoilBegin = 0 /*{0, 32, 128, 160}*/;
+//------------------------------------------------------------------------------
+// PAD config
 
-int Config_TofLoader::iPhaseBlockSize[2] = {1, 2};
-int Config_TofLoader::iContrastBlockSize[2] = {1, 2};
+PadConfig::PadConfig()
+{
+	IMAGE_WIDTH = 128;
+	IMAGE_HEIGHT = 128;
+}
 
-double Config_TofLoader::LOG_LOWER_RANGE = -0.5;
-bool Config_TofLoader::USE_PSEUDO_COMPRESSION = 1;
+PadConfig::PadConfig(const PadConfig& conf)
+{
+	(*this) = conf;
+}
+
+const PadConfig& PadConfig::operator=(const PadConfig& conf)
+{
+	IMAGE_WIDTH = conf.IMAGE_WIDTH;
+	IMAGE_HEIGHT = conf.IMAGE_HEIGHT;
+
+	return *this;
+}
+
+
+int PadConfig::GetImageWidth() const { return IMAGE_WIDTH; }
+int PadConfig::GetImageHeight() const { return IMAGE_HEIGHT; }
+
+void PadConfig::SetImageWidth(int iImgWidth) { IMAGE_WIDTH = iImgWidth; }
+void PadConfig::SetImageHeight(int iImgHeight) { IMAGE_HEIGHT = iImgHeight; }
+
+//------------------------------------------------------------------------------
+// TOF config
+
+TofConfig::TofConfig() : PadConfig()
+{
+	// defaults
+	FOIL_COUNT = 6;
+	vecFoilBegin.resize(FOIL_COUNT);
+
+	IMAGES_PER_FOIL = 8;
+	IMAGE_COUNT = 192;
+
+	USE_PSEUDO_COMPRESSION = 1;
+}
+
+TofConfig::TofConfig(const TofConfig& conf) : PadConfig(conf)
+{
+	(*this) = conf;
+}
+
+const TofConfig& TofConfig::operator=(const TofConfig& conf)
+{
+	PadConfig::operator =(conf);
+
+	FOIL_COUNT = conf.FOIL_COUNT;
+	vecFoilBegin = conf.vecFoilBegin;
+
+	IMAGES_PER_FOIL = conf.IMAGES_PER_FOIL;
+	IMAGE_COUNT = conf.IMAGE_COUNT;
+
+	USE_PSEUDO_COMPRESSION = conf.USE_PSEUDO_COMPRESSION;
+
+	return *this;
+}
+
+int TofConfig::GetFoilCount() const { return FOIL_COUNT; }
+int TofConfig::GetImagesPerFoil() const { return IMAGES_PER_FOIL; }
+int TofConfig::GetImageCount() const { return IMAGE_COUNT; }
+
+bool TofConfig::GetPseudoCompression() const
+{ return USE_PSEUDO_COMPRESSION; }
+
+int TofConfig::GetFoilBegin(int iFoil) const
+{
+	if(iFoil<0 || iFoil>=FOIL_COUNT) return -1;
+	return vecFoilBegin[iFoil];
+}
+
+static inline int GetNextPowerOfTwo(int iNum)
+{
+	int i=0;
+	while(1)
+	{
+		if(iNum < (1<<i)) break;
+		++i;
+	}
+	return 1<<i;
+}
+
+void TofConfig::SetFoilCount(int iNumFoils)
+{
+	FOIL_COUNT = iNumFoils;
+	vecFoilBegin.resize(iNumFoils);
+
+	// halbvernünftige Default-Werte setzen
+	for(int i=0; i<iNumFoils; ++i)
+		vecFoilBegin[i] = GetNextPowerOfTwo(IMAGES_PER_FOIL)*i;
+}
+
+void TofConfig::SetFoilBegin(int iFoil, int iOffs)
+{
+	if(iFoil<0 || iFoil>=FOIL_COUNT) return;
+	vecFoilBegin[iFoil] = iOffs;
+}
+
+void TofConfig::SetImagesPerFoil(int iNumImagesPerFoil)
+{ IMAGES_PER_FOIL = iNumImagesPerFoil; }
+void TofConfig::SetImageCount(int iImgCount)
+{ IMAGE_COUNT = iImgCount; }
+void TofConfig::SetPseudoCompression(bool bSet)
+{ USE_PSEUDO_COMPRESSION = bSet; }
+
+
+
+void PadConfig::CheckPadArguments(int* piStartX, int* piEndX,
+								  int* piStartY, int* piEndY) const
+{
+	if(piStartX && piEndX && piStartY && piEndY)
+	{
+		if(*piStartX>*piEndX)
+		{ int iTmp = *piStartX; *piStartX = *piEndX; *piEndX = iTmp; }
+		if(*piStartY>*piEndY)
+		{ int iTmp = *piStartY; *piStartY = *piEndY; *piEndY = iTmp; }
+
+		if(*piStartX<0)
+			*piStartX = 0;
+		else if(*piStartX>GetImageWidth())
+			*piStartX = GetImageWidth();
+		if(*piEndX<0)
+			*piEndX = 0;
+		else if(*piEndX>GetImageWidth())
+			*piEndX = GetImageWidth();
+
+		if(*piStartY<0)
+			*piStartY = 0;
+		else if(*piStartY>GetImageHeight())
+			*piStartY = GetImageHeight();
+		if(*piEndY<0)
+			*piEndY = 0;
+		else if(*piEndY>GetImageHeight())
+			*piEndY = GetImageHeight();
+	}
+}
+
+void TofConfig::CheckTofArguments(int* piStartX, int* piEndX, int* piStartY,
+								  int* piEndY, int* piFolie, int* piZ) const
+{
+	CheckPadArguments(piStartX, piEndX, piStartY, piEndY);
+
+	if(piFolie)
+	{
+		if(*piFolie<0)
+			*piFolie=0;
+		if(*piFolie >= FOIL_COUNT)
+			*piFolie = FOIL_COUNT-1;
+
+	}
+	if(piZ)
+	{
+		if(*piZ<0)
+			*piZ = 0;
+		if(*piZ >= IMAGES_PER_FOIL)
+			*piZ = IMAGES_PER_FOIL-1;
+	}
+}
+
+
+
+//------------------------------------------------------------------------------
+// global config
+
+TofConfig GlobalConfig::s_config = TofConfig();
+
+int GlobalConfig::iPhaseBlockSize[2] = {1, 2};
+int GlobalConfig::iContrastBlockSize[2] = {1, 2};
+double GlobalConfig::LOG_LOWER_RANGE = -0.5;
 
 // Defaults used in ROOT::Minuit2::MnApplication::operator()
-double Config_TofLoader::dMinuitTolerance = 0.1;
-unsigned int Config_TofLoader::uiMinuitMaxFcn = 0;
-int Config_TofLoader::iMinuitAlgo = MINUIT_MIGRAD;
-unsigned int Config_TofLoader::uiMinuitStrategy = 1;
+double GlobalConfig::dMinuitTolerance = 0.1;
+unsigned int GlobalConfig::uiMinuitMaxFcn = 0;
+int GlobalConfig::iMinuitAlgo = MINUIT_MIGRAD;
+unsigned int GlobalConfig::uiMinuitStrategy = 1;
 
-void Config_TofLoader::Init()
+void GlobalConfig::Init()
 {
 #ifdef __BIG_ENDIAN__
 	logger.SetCurLogLevel(LOGLEVEL_INFO);
@@ -66,27 +227,28 @@ void Config_TofLoader::Init()
 
 // Cascade-Qt-Client lädt Einstellungen über XML-Datei
 #ifdef __CASCADE_QT_CLIENT__
-	IMAGE_COUNT = Config::GetSingleton()->QueryInt(
-				"/cascade_config/tof_file/image_count", IMAGE_COUNT);
-	FOIL_COUNT = Config::GetSingleton()->QueryInt(
-				"/cascade_config/tof_file/foil_count", FOIL_COUNT);
-	IMAGES_PER_FOIL = Config::GetSingleton()->QueryInt(
-				"/cascade_config/tof_file/images_per_foil", IMAGES_PER_FOIL);
-	IMAGE_WIDTH = Config::GetSingleton()->QueryInt(
-				"/cascade_config/tof_file/image_width", IMAGE_WIDTH);
-	IMAGE_HEIGHT = Config::GetSingleton()->QueryInt(
-				"/cascade_config/tof_file/image_height", IMAGE_HEIGHT);
-	USE_PSEUDO_COMPRESSION = Config::GetSingleton()->QueryInt(
+	s_config.IMAGE_COUNT = Config::GetSingleton()->QueryInt(
+				"/cascade_config/tof_file/image_count", s_config.IMAGE_COUNT);
+	s_config.FOIL_COUNT = Config::GetSingleton()->QueryInt(
+				"/cascade_config/tof_file/foil_count", s_config.FOIL_COUNT);
+	s_config.IMAGES_PER_FOIL = Config::GetSingleton()->QueryInt(
+				"/cascade_config/tof_file/images_per_foil",
+													 s_config.IMAGES_PER_FOIL);
+	s_config.IMAGE_WIDTH = Config::GetSingleton()->QueryInt(
+				"/cascade_config/tof_file/image_width", s_config.IMAGE_WIDTH);
+	s_config.IMAGE_HEIGHT = Config::GetSingleton()->QueryInt(
+				"/cascade_config/tof_file/image_height", s_config.IMAGE_HEIGHT);
+	s_config.USE_PSEUDO_COMPRESSION = Config::GetSingleton()->QueryInt(
 				"/cascade_config/tof_file/pseudo_compression",
-				USE_PSEUDO_COMPRESSION);
+				s_config.USE_PSEUDO_COMPRESSION);
 
-	piFoilBegin = new int[FOIL_COUNT];
-	for(int i=0; i<FOIL_COUNT; ++i)
+	s_config.vecFoilBegin.resize(s_config.FOIL_COUNT);
+	for(int i=0; i<s_config.FOIL_COUNT; ++i)
 	{
 		char pcStr[256];
 		sprintf(pcStr, "/cascade_config/tof_file/foil_%d_start", i+1);
-		piFoilBegin[i] = Config::GetSingleton()->QueryInt(
-				pcStr, IMAGES_PER_FOIL*2*i);
+		s_config.vecFoilBegin[i] = (Config::GetSingleton()->QueryInt(
+				pcStr, s_config.IMAGES_PER_FOIL*2*i));
 	}
 
 	iPhaseBlockSize[0] = Config::GetSingleton()->QueryInt(
@@ -130,142 +292,43 @@ void Config_TofLoader::Init()
 #else	// Nicos-Client holt Einstellungen von Detektor
 
 	// Defaults setzen
-	piFoilBegin = new int[FOIL_COUNT];
-	for(int i=0; i<FOIL_COUNT; ++i)
-		piFoilBegin[i] = IMAGES_PER_FOIL*2*i /*default*/;
+	s_config.vecFoilBegin.resize(s_config.FOIL_COUNT);
+	for(int i=0; i<s_config.FOIL_COUNT; ++i)
+		s_config.vecFoilBegin[i] = (s_config.IMAGES_PER_FOIL*2*i); /*default*/
 
 	// TODO: richtige Einstellungen holen oder mit den Setter-Funktionen setzen
 #endif
 }
 
-void Config_TofLoader::Deinit()
+void GlobalConfig::Deinit()
 {
-	if(piFoilBegin)
-	{
-		delete[] piFoilBegin;
-		piFoilBegin = 0;
-	}
 }
 
 // ***************************** Getter & Setter *******************************
-double Config_TofLoader::GetLogLowerRange() { return LOG_LOWER_RANGE; }
-int Config_TofLoader::GetFoilCount() { return FOIL_COUNT; }
-int Config_TofLoader::GetImagesPerFoil() { return IMAGES_PER_FOIL; }
-int Config_TofLoader::GetImageWidth() { return IMAGE_WIDTH; }
-int Config_TofLoader::GetImageHeight() { return IMAGE_HEIGHT; }
-int Config_TofLoader::GetImageCount() { return IMAGE_COUNT; }
-bool Config_TofLoader::GetPseudoCompression() { return USE_PSEUDO_COMPRESSION; }
-unsigned int Config_TofLoader::GetMinuitMaxFcn() { return uiMinuitMaxFcn; }
-double Config_TofLoader::GetMinuitTolerance() { return dMinuitTolerance; }
-int Config_TofLoader::GetMinuitAlgo() { return iMinuitAlgo; }
-unsigned int Config_TofLoader::GetMinuitStrategy() { return uiMinuitStrategy; }
+double GlobalConfig::GetLogLowerRange() { return LOG_LOWER_RANGE; }
 
-int Config_TofLoader::GetFoilBegin(int iFoil)
-{
-	if(iFoil<0 || iFoil>=FOIL_COUNT) return -1;
-	return piFoilBegin[iFoil];
-}
+unsigned int GlobalConfig::GetMinuitMaxFcn() { return uiMinuitMaxFcn; }
+double GlobalConfig::GetMinuitTolerance() { return dMinuitTolerance; }
+int GlobalConfig::GetMinuitAlgo() { return iMinuitAlgo; }
+unsigned int GlobalConfig::GetMinuitStrategy() { return uiMinuitStrategy; }
 
-static inline int GetNextPowerOfTwo(int iNum)
-{
-	int i=0;
-	while(1)
-	{
-		if(iNum < (1<<i)) break;
-		++i;
-	}
-	return 1<<i;
-}
+TofConfig& GlobalConfig::GetTofConfig() { return s_config;}
 
-void Config_TofLoader::SetFoilCount(int iNumFoils)
-{
-	Deinit();
-	FOIL_COUNT = iNumFoils;
-	piFoilBegin = new int[iNumFoils];
-
-	// halbvernünftige Default-Werte setzen
-	for(int i=0; i<iNumFoils; ++i)
-		piFoilBegin[i] = GetNextPowerOfTwo(IMAGES_PER_FOIL)*i;
-}
-
-void Config_TofLoader::SetImagesPerFoil(int iNumImagesPerFoil)
-{ IMAGES_PER_FOIL = iNumImagesPerFoil; }
-void Config_TofLoader::SetImageWidth(int iImgWidth)
-{ IMAGE_WIDTH = iImgWidth; }
-void Config_TofLoader::SetImageHeight(int iImgHeight)
-{ IMAGE_HEIGHT = iImgHeight; }
-void Config_TofLoader::SetImageCount(int iImgCount)
-{ IMAGE_COUNT = iImgCount; }
-void Config_TofLoader::SetPseudoCompression(bool bSet)
-{ USE_PSEUDO_COMPRESSION = bSet; }
-void Config_TofLoader::SetMinuitMaxFnc(unsigned int uiMaxFcn)
+void GlobalConfig::SetMinuitMaxFnc(unsigned int uiMaxFcn)
 { uiMinuitMaxFcn = uiMaxFcn; }
-void Config_TofLoader::SetMinuitTolerance(double dTolerance)
+void GlobalConfig::SetMinuitTolerance(double dTolerance)
 { dMinuitTolerance = dTolerance; }
-void Config_TofLoader::SetMinuitAlgo(int iAlgo)
+void GlobalConfig::SetMinuitAlgo(int iAlgo)
 { iMinuitAlgo = iAlgo; }
-void Config_TofLoader::SetMinuitStrategy(unsigned int uiStrategy)
+void GlobalConfig::SetMinuitStrategy(unsigned int uiStrategy)
 { uiMinuitStrategy = uiStrategy; }
-void Config_TofLoader::SetLogLevel(int iLevel)
+void GlobalConfig::SetLogLevel(int iLevel)
 { logger.SetLogLevel(iLevel); }
-void Config_TofLoader::SetRepeatLogs(bool bRepeat)
+void GlobalConfig::SetRepeatLogs(bool bRepeat)
 { logger.SetRepeatLogs(bRepeat); }
-
-void Config_TofLoader::SetFoilBegin(int iFoil, int iOffs)
-{
-	if(iFoil<0 || iFoil>=FOIL_COUNT) return;
-
-	piFoilBegin[iFoil] = iOffs;
-}
 // *****************************************************************************
 
-void Config_TofLoader::CheckArguments(int* piStartX, int* piEndX, int* piStartY,
-									  int* piEndY, int* piFolie, int* piZ)
-{
-	if(piStartX && piEndX && piStartY && piEndY)
-	{
-		if(*piStartX>*piEndX)
-		{ int iTmp = *piStartX; *piStartX = *piEndX; *piEndX = iTmp; }
-		if(*piStartY>*piEndY)
-		{ int iTmp = *piStartY; *piStartY = *piEndY; *piEndY = iTmp; }
-
-		if(*piStartX<0)
-			*piStartX = 0;
-		else if(*piStartX>Config_TofLoader::Config_TofLoader::GetImageWidth())
-			*piStartX = Config_TofLoader::Config_TofLoader::GetImageWidth();
-		if(*piEndX<0)
-			*piEndX = 0;
-		else if(*piEndX>Config_TofLoader::Config_TofLoader::GetImageWidth())
-			*piEndX = Config_TofLoader::Config_TofLoader::GetImageWidth();
-
-		if(*piStartY<0)
-			*piStartY = 0;
-		else if(*piStartY>Config_TofLoader::Config_TofLoader::GetImageHeight())
-			*piStartY = Config_TofLoader::Config_TofLoader::GetImageHeight();
-		if(*piEndY<0)
-			*piEndY = 0;
-		else if(*piEndY>Config_TofLoader::Config_TofLoader::GetImageHeight())
-			*piEndY = Config_TofLoader::Config_TofLoader::GetImageHeight();
-	}
-
-	if(piFolie)
-	{
-		if(*piFolie<0)
-			*piFolie=0;
-		if(*piFolie>=Config_TofLoader::FOIL_COUNT)
-			*piFolie = Config_TofLoader::FOIL_COUNT-1;
-
-	}
-	if(piZ)
-	{
-		if(*piZ<0)
-			*piZ = 0;
-		if(*piZ>=Config_TofLoader::IMAGES_PER_FOIL)
-			*piZ=Config_TofLoader::IMAGES_PER_FOIL-1;
-	}
-}
-
-bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen,
+bool GlobalConfig::GuessConfigFromSize(bool bPseudoCompressed, int iLen,
 											bool bIsTof, bool bFirstCall)
 {
 	if(bFirstCall)
@@ -273,7 +336,7 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen,
 		logger.SetCurLogLevel(LOGLEVEL_WARN);
 		logger << "Globals: Trying to guess correct configuration."
 			   " (Please configure the loader correctly using either"
-			   " Config_TofLoader or the config file.)"
+			   " GlobalConfig or the config file.)"
 			   << "\n";
 	}
 
@@ -298,9 +361,9 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen,
 								false,false);
 
 			bFound = true;
-			IMAGE_WIDTH = iKnownX[i];
-			IMAGE_HEIGHT = iKnownY[i];
-			IMAGE_COUNT = iKnownCnt[i];
+			s_config.IMAGE_WIDTH = iKnownX[i];
+			s_config.IMAGE_HEIGHT = iKnownY[i];
+			s_config.IMAGE_COUNT = iKnownCnt[i];
 		}
 
 		if(!bFound)
@@ -315,7 +378,7 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen,
 										false, false))
 				{
 					bFound = true;
-					IMAGE_COUNT = iImgCnt;
+					s_config.IMAGE_COUNT = iImgCnt;
 					break;
 				}
 			}
@@ -333,7 +396,7 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen,
 										false, false))
 				{
 					bFound = true;
-					IMAGE_COUNT = iImgCnt;
+					s_config.IMAGE_COUNT = iImgCnt;
 					break;
 				}
 			}
@@ -342,7 +405,8 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen,
 		if(bFound)
 		{
 			logger.SetCurLogLevel(LOGLEVEL_WARN);
-			logger << "Globals: Guessing image count: " << IMAGE_COUNT << "\n";
+			logger << "Globals: Guessing image count: "
+				   << s_config.IMAGE_COUNT << "\n";
 		}
 		return bFound;
 	}
@@ -364,8 +428,8 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen,
 			if(iPadLen != iLen) continue;
 
 			bFound = true;
-			IMAGE_WIDTH = iKnownX[i];
-			IMAGE_HEIGHT = iKnownY[i];
+			s_config.IMAGE_WIDTH = iKnownX[i];
+			s_config.IMAGE_HEIGHT = iKnownY[i];
 		}
 
 		if(!bFound)
@@ -381,8 +445,8 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen,
 					if(iSideLenX*iSideLenY==iLen)
 					{
 						bFound=true;
-						IMAGE_WIDTH = iSideLenX;
-						IMAGE_HEIGHT = iSideLenY;
+						s_config.IMAGE_WIDTH = iSideLenX;
+						s_config.IMAGE_HEIGHT = iSideLenY;
 						break;
 					}
 
@@ -406,8 +470,8 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen,
 					if(i*j==iLen)
 					{
 						bFound=true;
-						IMAGE_WIDTH = i;
-						IMAGE_HEIGHT = j;
+						s_config.IMAGE_WIDTH = i;
+						s_config.IMAGE_HEIGHT = j;
 						break;
 					}
 
@@ -422,8 +486,10 @@ bool Config_TofLoader::GuessConfigFromSize(bool bPseudoCompressed, int iLen,
 		if(bFound)
 		{
 			logger.SetCurLogLevel(LOGLEVEL_WARN);
-			logger << "Globals: Guessing image width: " << IMAGE_WIDTH << "\n";
-			logger << "Globals: Guessing image height: " << IMAGE_HEIGHT << "\n";
+			logger << "Globals: Guessing image width: "
+				   << s_config.IMAGE_WIDTH << "\n";
+			logger << "Globals: Guessing image height: "
+				   << s_config.IMAGE_HEIGHT << "\n";
 		}
 
 		return bFound;

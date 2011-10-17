@@ -226,8 +226,10 @@ class MainWindow : public QMainWindow
 
 		void UpdateSliders()
 		{
-			sliderFolien->setMaximum(Config_TofLoader::GetFoilCount()-1);
-			sliderZeitkanaele->setMaximum(Config_TofLoader::GetImagesPerFoil()-1);
+			const TofConfig& conf = GlobalConfig::GetTofConfig();
+
+			sliderFolien->setMaximum(conf.GetFoilCount()-1);
+			sliderZeitkanaele->setMaximum(conf.GetImagesPerFoil()-1);
 		}
 
 	// Slots
@@ -238,17 +240,19 @@ class MainWindow : public QMainWindow
 			// Antworten müssen mindestens 4 Zeichen lang sein (Kommandostring)
 			if(iLen<4) return;
 
+			const TofConfig& conf = GlobalConfig::GetTofConfig();
+
 			////////////////////////////////////////////////////////////////////
 			// PAD-Daten vorhanden
 			if(!strncmp(pcBuf,"IMAG",4))
 			{
 	#ifndef DATA_COMPRESSED
 				// Abfrage nur für unkomprimierte Daten möglich
-				if(iLen-4 != (int)sizeof(int)*Config_TofLoader::GetImageHeight()
-											 *Config_TofLoader::GetImageWidth())
+				if(iLen-4 != (int)sizeof(int)*conf.GetImageHeight()
+											 *conf.GetImageWidth())
 				{
 					// Dimensionen stimmen nicht, neue raten
-					if(!Config_TofLoader::GuessConfigFromSize(0,(iLen-4)/4,
+					if(!GlobalConfig::GuessConfigFromSize(0,(iLen-4)/4,
 																		false))
 					{
 						char pcMsg[256];
@@ -256,8 +260,8 @@ class MainWindow : public QMainWindow
 								"Client expected: %d bytes\n"
 								"Server sent: %d bytes",
 								(int)sizeof(int)*
-								Config_TofLoader::GetImageHeight()*
-								Config_TofLoader::GetImageWidth(), iLen-4);
+								conf.GetImageHeight()*
+								conf.GetImageWidth(), iLen-4);
 						QMessageBox::critical(0, "Cascade - Server", pcMsg,
 															QMessageBox::Ok);
 						return;
@@ -268,8 +272,8 @@ class MainWindow : public QMainWindow
 				void* pvData = m_cascadewidget.NewPad();
 	#ifdef DATA_COMPRESSED
 				// Komprimierte Daten umkopieren
-				int iLenOut = sizeof(int)*Config_TofLoader::IMAGE_HEIGHT*
-										  Config_TofLoader::IMAGE_WIDTH;
+				int iLenOut = sizeof(int)*conf.IMAGE_HEIGHT*
+										  conf.IMAGE_WIDTH;
 				if(!zlib_decompress(pcBuf+4, iLen-4, pvData, iLenOut))
 				{
 					QMessageBox::critical(0, "Cascade - Server",
@@ -280,8 +284,8 @@ class MainWindow : public QMainWindow
 	#else
 				// Unkomprimierte Daten umkopieren
 				memcpy(pvData, pcBuf+4, sizeof(int)*
-										Config_TofLoader::GetImageHeight()*
-										Config_TofLoader::GetImageWidth());
+										conf.GetImageHeight()*
+										conf.GetImageWidth());
 	#endif
 
 				m_cascadewidget.UpdateRange();
@@ -295,19 +299,19 @@ class MainWindow : public QMainWindow
 			else if(!strncmp(pcBuf,"DATA",4))
 			{
 	#ifndef DATA_COMPRESSED
-				int iExpectedSize = Config_TofLoader::GetPseudoCompression()
-								? sizeof(int)*Config_TofLoader::GetFoilCount()*
-								  Config_TofLoader::GetImagesPerFoil()*
-								  Config_TofLoader::GetImageHeight()*
-								  Config_TofLoader::GetImageWidth()
-								: sizeof(int)*Config_TofLoader::GetImageCount()*
-								  Config_TofLoader::GetImageHeight()*
-								  Config_TofLoader::GetImageWidth();
+				int iExpectedSize = conf.GetPseudoCompression()
+								? sizeof(int) * conf.GetFoilCount()*
+								  conf.GetImagesPerFoil()*
+								  conf.GetImageHeight()*
+								  conf.GetImageWidth()
+								: sizeof(int) * conf.GetImageCount()*
+								  conf.GetImageHeight()*
+								  conf.GetImageWidth();
 
 				if(iLen-4 != iExpectedSize)
 				{
 					// Dimensionen stimmen nicht, neue raten
-					if(!Config_TofLoader::GuessConfigFromSize(
+					if(!GlobalConfig::GuessConfigFromSize(
 								m_cascadewidget.GetTof()->GetCompressionMethod()
 													==TOF_COMPRESSION_PSEUDO,
 								(iLen-4)/4, true))
@@ -327,9 +331,9 @@ class MainWindow : public QMainWindow
 
 	#ifdef DATA_COMPRESSED
 				// Komprimierte Daten umkopieren
-				int iLenOut = sizeof(int)*Config_TofLoader::IMAGE_COUNT*
-										  Config_TofLoader::IMAGE_HEIGHT*
-										  Config_TofLoader::IMAGE_WIDTH;
+				int iLenOut = sizeof(int)*conf.IMAGE_COUNT*
+										  conf.IMAGE_HEIGHT*
+										  conf.IMAGE_WIDTH;
 				if(!zlib_decompress(pcBuf+4, iLen-4, pvData, iLenOut))
 				{
 					QMessageBox::critical(0, "Cascade - Server",
@@ -374,7 +378,9 @@ class MainWindow : public QMainWindow
 				if(pairXRes.first)
 				{
 					ServerCfgDlg::SetStatXRes(pairXRes.second);
-					Config_TofLoader::SetImageWidth(pairXRes.second);
+
+					TofConfig& conf = GlobalConfig::GetTofConfig();
+					conf.SetImageWidth(pairXRes.second);
 				}
 
 				// yres?
@@ -383,7 +389,9 @@ class MainWindow : public QMainWindow
 				if(pairYRes.first)
 				{
 					ServerCfgDlg::SetStatYRes(pairYRes.second);
-					Config_TofLoader::SetImageWidth(pairYRes.second);
+
+					TofConfig& conf = GlobalConfig::GetTofConfig();
+					conf.SetImageWidth(pairYRes.second);
 				}
 
 				// tres?
@@ -392,7 +400,9 @@ class MainWindow : public QMainWindow
 				if(pairTRes.first)
 				{
 					ServerCfgDlg::SetStatTRes(pairTRes.second);
-					Config_TofLoader::SetImageCount(pairTRes.second);
+
+					TofConfig& conf = GlobalConfig::GetTofConfig();
+					conf.SetImageCount(pairTRes.second);
 				}
 
 				// measurement time?
@@ -415,7 +425,9 @@ class MainWindow : public QMainWindow
 				std::pair<bool, int> pairComp = args.QueryInt("comp",1);
 				if(pairComp.first)
 				{
-					Config_TofLoader::SetPseudoCompression(pairComp.second);
+					TofConfig& conf = GlobalConfig::GetTofConfig();
+
+					conf.SetPseudoCompression(pairComp.second);
 					ServerCfgDlg::SetStatComp(pairComp.second);
 				}
 
@@ -724,10 +736,11 @@ class MainWindow : public QMainWindow
 				unsigned int iTRes = srvcfgdlg.GetTRes();
 				bool bComp = srvcfgdlg.GetPseudoComp();
 
-				Config_TofLoader::SetImageWidth(iXRes);
-				Config_TofLoader::SetImageHeight(iYRes);
-				Config_TofLoader::SetImageCount(iTRes);
-				Config_TofLoader::SetPseudoCompression(bComp);
+				TofConfig& conf = GlobalConfig::GetTofConfig();
+				conf.SetImageWidth(iXRes);
+				conf.SetImageHeight(iYRes);
+				conf.SetImageCount(iTRes);
+				conf.SetPseudoCompression(bComp);
 
 				const char* pcMode = "";
 				switch(srvcfgdlg.GetMode())
@@ -1196,7 +1209,7 @@ int main(int argc, char **argv)
 	}
 
 	// Konfigurationseinstellungen laden
-	Config_TofLoader::Init();
+	GlobalConfig::Init();
 
 	int iLogToFile = Config::GetSingleton()->QueryInt(
 						"/cascade_config/log/log_to_file", 0);
@@ -1210,11 +1223,11 @@ int main(int argc, char **argv)
 
 	int iLogLevel = Config::GetSingleton()->QueryInt(
 						"/cascade_config/log/level", LOGLEVEL_INFO);
-	Config_TofLoader::SetLogLevel(iLogLevel);
+	GlobalConfig::SetLogLevel(iLogLevel);
 
 	bool bRepeatLogs = Config::GetSingleton()->QueryInt(
 						"/cascade_config/log/repeat_duplicate_logs", 1);
-	Config_TofLoader::SetRepeatLogs(bRepeatLogs);
+	GlobalConfig::SetRepeatLogs(bRepeatLogs);
 
 	int iWinW = Config::GetSingleton()->QueryInt(
 						"/cascade_config/main_window/width", WIN_W);
@@ -1234,7 +1247,7 @@ int main(int argc, char **argv)
 	int iRet = a.exec();
 
 	// aufräumen
-	Config_TofLoader::Deinit();
+	GlobalConfig::Deinit();
 	Config::ClearSingleton();
 	return iRet;
 }

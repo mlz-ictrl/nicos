@@ -24,33 +24,123 @@
 #ifndef __GLOBALS__
 #define __GLOBALS__
 
-#include "tofloader.h"
+#include <vector>
+
+// use minuit for fits?
+#define USE_MINUIT
+
+#define LOAD_SUCCESS		 1
+#define LOAD_FAIL			 0
+#define LOAD_SIZE_MISMATCH	-1
+
+#define MINUIT_SIMPLEX 	1
+#define MINUIT_MINIMIZE	2
+#define MINUIT_MIGRAD 	3
+
+#define TOF_COMPRESSION_NONE 			0
+#define TOF_COMPRESSION_PSEUDO 			1
+#define TOF_COMPRESSION_USEGLOBCONFIG 	2
+
+#ifndef NULL
+	#define NULL	0
+#endif
+
+class GlobalConfig;
+
+/*
+ * configuration of PAD class
+ */
+class PadConfig
+{
+	friend class GlobalConfig;
+
+	protected:
+		// width & height of PAD and TOF images
+		int IMAGE_WIDTH;
+		int IMAGE_HEIGHT;
+
+	public:
+		PadConfig();
+		PadConfig(const PadConfig& conf);
+
+		virtual const PadConfig& operator=(const PadConfig& conf);
+
+		//----------------------------------------------------------------------
+		// getter
+		int GetImageWidth() const;
+		int GetImageHeight() const;
+
+		//----------------------------------------------------------------------
+		// setter
+		void SetImageWidth(int iImgWidth);
+		void SetImageHeight(int iImgHeight);
+
+		// check & correct argument ranges
+		void CheckPadArguments(int* piStartX, int* piEndX,
+									  int* piStartY, int* piEndY) const;
+};
+
+/*
+ * configuration of TOF class
+ */
+class TofConfig : public PadConfig
+{
+	friend class GlobalConfig;
+
+	protected:
+		// how many foils in TOF images
+		int FOIL_COUNT;
+
+		// how many time channels per foil in TOF?
+		int IMAGES_PER_FOIL;
+
+		// total image count in TOF
+		int IMAGE_COUNT;
+
+		// vector of indices marking the beginning of the individual foils
+		std::vector<int> vecFoilBegin;
+
+		bool USE_PSEUDO_COMPRESSION;
+
+	public:
+		TofConfig();
+		TofConfig(const TofConfig& conf);
+
+		virtual const TofConfig& operator=(const TofConfig& conf);
+
+		//----------------------------------------------------------------------
+		// getter
+		int GetFoilCount() const;
+		int GetImagesPerFoil() const;
+		int GetImageCount() const;
+		int GetFoilBegin(int iFoil) const;
+		bool GetPseudoCompression() const;
+
+		//----------------------------------------------------------------------
+		// setter
+		void SetFoilCount(int iNumFoils);
+		void SetImagesPerFoil(int iNumImagesPerFoil);
+		void SetImageCount(int iImgCount);
+		void SetFoilBegin(int iFoil, int iOffs);
+		void SetPseudoCompression(bool bSet);
+
+		// check & correct argument ranges
+		void CheckTofArguments(int* piStartX, int* piEndX,
+							   int* piStartY, int* piEndY,
+							   int* piFoil=0, int* piTimechannel=0) const;
+};
 
 /*
  * global, static configuration class
  * used to configure layout of TOF & PAD formats etc. before first use of
  * these classes
  */
-class Config_TofLoader
+class GlobalConfig
 {
 	friend class TofImage;
 
 	protected:
-		// how many foils in TOF images
-		static int FOIL_COUNT;
-
-		// how many time channels per foil in TOF?
-		static int IMAGES_PER_FOIL;
-
-		// width & height of PAD and TOF images
-		static int IMAGE_WIDTH;
-		static int IMAGE_HEIGHT;
-
-		// total image count in TOF
-		static int IMAGE_COUNT;
-
-		// array of indices marking the beginning of the individual foils
-		static int *piFoilBegin;
+		static TofConfig s_config;
 
 		// width & height of blocks used for calculation phase or
 		// constrast images
@@ -58,10 +148,6 @@ class Config_TofLoader
 		static int iContrastBlockSize[2];
 
 		static double LOG_LOWER_RANGE;
-
-		// does server use "pseudo-compression" i.e. remove zero images between
-		// foils and add first and last time channel?
-		static bool USE_PSEUDO_COMPRESSION;
 
 		// parameters for minuit minimizer
 		static double dMinuitTolerance;
@@ -79,38 +165,21 @@ class Config_TofLoader
 		//----------------------------------------------------------------------
 		// getter
 		static double GetLogLowerRange();
-		static int GetFoilCount();
-		static int GetImagesPerFoil();
-		static int GetImageWidth();
-		static int GetImageHeight();
-		static int GetImageCount();
-		static int GetFoilBegin(int iFoil);
-		static bool GetPseudoCompression();
 		static unsigned int GetMinuitMaxFcn();
 		static double GetMinuitTolerance();
 		static int GetMinuitAlgo();
 		static unsigned int GetMinuitStrategy();
+
+		static TofConfig& GetTofConfig();
 		//----------------------------------------------------------------------
 
 		//----------------------------------------------------------------------
 		// setter
-		static void SetFoilCount(int iNumFoils);
-		static void SetImagesPerFoil(int iNumImagesPerFoil);
-		static void SetImageWidth(int iImgWidth);
-		static void SetImageHeight(int iImgHeight);
-		static void SetImageCount(int iImgCount);
-		static void SetFoilBegin(int iFoil, int iOffs);
-		static void SetPseudoCompression(bool bSet);
 		static void SetMinuitMaxFnc(unsigned int uiMaxFcn);
 		static void SetMinuitTolerance(double dTolerance);
 		static void SetMinuitAlgo(int iAlgo);
 		static void SetMinuitStrategy(unsigned int iStrategy);
 		//----------------------------------------------------------------------
-
-		// check & correct argument ranges
-		static void CheckArguments(int* piStartX, int* piEndX, int* piStartY,
-								   int* piEndY, int* piFoil=0,
-								   int* piTimechannel=0);
 
 		static void SetLogLevel(int iLevel);
 		static void SetRepeatLogs(bool bRepeat);

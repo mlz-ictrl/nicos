@@ -118,7 +118,7 @@ class CascadeWidget : QWidget
 		void* NewTof(int iCompression = TOF_COMPRESSION_USEGLOBCONFIG);
 
 		//
-		// use the Config_TofLoader setter methods to configure
+		// use the GlobalConfig setter methods to configure
 		// layout of TOF file before calling LoadTofMem / LoadTofFile
 		// otherwise default or guessed layout will be assumed
 		//

@@ -8,7 +8,9 @@ class PadImage
 #include "../../tofloader.h"
 %End
 	public:
-		PadImage(const char *pcFileName=NULL, bool bExternalMem=false);
+		PadImage(const char *pcFileName=NULL,
+				 bool bExternalMem=false,
+				 const PadConfig* conf=0);
 		PadImage(const PadImage& pad);
 		virtual ~PadImage();
 
@@ -27,6 +29,8 @@ class PadImage
 
 		unsigned int GetCounts() const;
 		unsigned int GetCounts(int iStartX, int iEndX, int iStartY, int iEndY) const;
+
+		const PadConfig& GetPadConfig() const;
 };
 
 //
@@ -85,7 +89,10 @@ class TofImage
 #include "../../tofloader.h"
 %End
 	public:
-		TofImage(const char *pcFileName=NULL, int iCompression=TOF_COMPRESSION_USEGLOBCONFIG, bool bExternalMem=false);
+		TofImage(const char *pcFileName=NULL,
+				int iCompression=TOF_COMPRESSION_USEGLOBCONFIG,
+				bool bExternalMem=false,
+				const TofConfig* conf=0);
 		virtual ~TofImage();
 
 		void SetExternalMem(void* pvDaten);
@@ -114,5 +121,7 @@ class TofImage
 		TmpImage AddFoils(const bool *pbChannels) const;
 		TmpImage AddPhases(const bool *pbFoils) const;
 		TmpImage AddContrasts(const bool *pbFoils) const;
+
+		const TofConfig& GetTofConfig() const;
 };
 /////////////////////////////////////////////////////////////////////////////////////

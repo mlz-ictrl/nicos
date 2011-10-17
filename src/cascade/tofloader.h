@@ -25,31 +25,12 @@
 #ifndef __TOFLOADER__
 #define __TOFLOADER__
 
-// use minuit for fits?
-#define USE_MINUIT
-
-#ifndef NULL
-	#define NULL	0
-#endif
+#include "globals.h"
 
 class TmpImage;
 class TmpGraph;
 class TofImage;
 class PadImage;
-
-#define LOAD_SUCCESS		 1
-#define LOAD_FAIL			 0
-#define LOAD_SIZE_MISMATCH	-1
-
-#define MINUIT_SIMPLEX 	1
-#define MINUIT_MINIMIZE	2
-#define MINUIT_MIGRAD 	3
-
-#define TOF_COMPRESSION_NONE 			0
-#define TOF_COMPRESSION_PSEUDO 			1
-#define TOF_COMPRESSION_USEGLOBCONFIG 	2
-
-//==============================================================================
 
 /*
  * PAD
@@ -71,12 +52,17 @@ class PadImage
 		// i.e. allocation & freeing?
 		bool m_bExternalMem;
 
+		// get configuration from GlobalConfig?
+		bool m_bUseGlobalConfig;
+		PadConfig m_config;
+
 		// clean up
 		void Clear(void);
 
 	public:
 		// create PAD from file (or empty PAD otherwise)
-		PadImage(const char *pcFileName=NULL, bool bExternalMem=false);
+		PadImage(const char *pcFileName=NULL, bool bExternalMem=false,
+				 const PadConfig* conf=0);
 
 		// create PAD from other PAD
 		PadImage(const PadImage& pad);
@@ -113,6 +99,8 @@ class PadImage
 		// total number of counts in given region of interest
 		unsigned int GetCounts(int iStartX, int iEndX,
 							   int iStartY, int iEndY) const;
+
+		const PadConfig& GetPadConfig() const;
 };
 
 
@@ -236,6 +224,10 @@ class TofImage
 		// i.e. allocation & freeing?
 		bool m_bExternalMem;
 
+		// get configuration from GlobalConfig?
+		bool m_bUseGlobalConfig;
+		TofConfig m_config;
+
 	public:
 		//----------------------------------------------------------------------
 		// "internal" methods => use corresponding method below
@@ -258,12 +250,14 @@ class TofImage
 		void AddFoils(const bool *pbChannels, TmpImage *pImg) const;
 		void AddPhases(const bool *pbFoils, TmpImage *pImg) const;
 		void AddContrasts(const bool *pbFoils, TmpImage *pImg) const;
+
+		const TofConfig& GetTofConfig() const;
 		//----------------------------------------------------------------------
 
 	public:
 		TofImage(const char *pcFileName=NULL,
 				 int iCompression=TOF_COMPRESSION_USEGLOBCONFIG,
-				 bool bExternalMem=false);
+				 bool bExternalMem=false, const TofConfig* conf=0);
 
 		virtual ~TofImage();
 

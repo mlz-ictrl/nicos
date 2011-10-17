@@ -40,7 +40,7 @@ class NicosClient : TcpClient
 
 		/////////////////////////////////////////////////////////////
 		// !!
-		// call the setters in Config_TofLoader
+		// call the setters in GlobalConfig
 		// before using these count methods
 		//
 

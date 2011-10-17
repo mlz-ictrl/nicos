@@ -52,7 +52,7 @@ class MainRasterData : public QwtRasterData
 /*
  * PAD data
  */
-class PadData : public MainRasterData, public PadImage
+class PadData : public PadImage, public MainRasterData
 {
 	protected:
 
@@ -71,7 +71,7 @@ class PadData : public MainRasterData, public PadImage
 /*
  * TOF data
  */
-class Data2D : public MainRasterData, public TmpImage
+class Data2D : public TmpImage, public MainRasterData
 {
 	protected:
 		bool m_bPhaseData;

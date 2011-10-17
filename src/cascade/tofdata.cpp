@@ -44,17 +44,15 @@ bool MainRasterData::GetLog10(void) const
 
 
 // *********************** PAD-Daten ***********************
-PadData::PadData() : MainRasterData(QwtDoubleRect(0,
-									Config_TofLoader::GetImageWidth(), 0,
-									Config_TofLoader::GetImageHeight()))
-{
-}
+PadData::PadData() : PadImage(), MainRasterData(QwtDoubleRect(0,
+									GetPadConfig().GetImageWidth(), 0,
+									GetPadConfig().GetImageHeight()))
+{}
 
 PadData::PadData(const PadData& pad)
-		: MainRasterData(QwtDoubleRect(0,
-									Config_TofLoader::GetImageWidth(), 0,
-									Config_TofLoader::GetImageHeight())),
-		  PadImage(pad)
+		: PadImage(pad), MainRasterData(QwtDoubleRect(0,
+									GetPadConfig().GetImageWidth(), 0,
+									GetPadConfig().GetImageHeight()))
 {
 	m_bLog = pad.m_bLog;
 }
@@ -79,12 +77,12 @@ QwtDoubleInterval PadData::range() const
 		if(dTmpMax>0.)
 			dTmpMax = log10(dTmpMax);
 		else
-			dTmpMax=Config_TofLoader::GetLogLowerRange();
+			dTmpMax=GlobalConfig::GetLogLowerRange();
 
 		if(dTmpMin>0.)
 			dTmpMin = log10(dTmpMin);
 		else
-			dTmpMin=Config_TofLoader::GetLogLowerRange();
+			dTmpMin=GlobalConfig::GetLogLowerRange();
 
 		if(dTmpMax!=dTmpMax)
 			dTmpMax=0.;
@@ -127,17 +125,20 @@ double PadData::GetValueRaw(int x, int y) const
 
 // *********************** TOF-Daten ***********************
 Data2D::Data2D(const QwtDoubleRect& rect)
-		: MainRasterData(rect), m_bPhaseData(0)
+		: TmpImage(),
+		  MainRasterData(rect), m_bPhaseData(0)
 {}
 
-Data2D::Data2D() : MainRasterData(QwtDoubleRect(0,
-								  Config_TofLoader::GetImageWidth(), 0,
-								  Config_TofLoader::GetImageHeight()))
+Data2D::Data2D()
+	: TmpImage(),
+	  MainRasterData(QwtDoubleRect(0,
+						GlobalConfig::GetTofConfig().GetImageWidth(), 0,
+						GlobalConfig::GetTofConfig().GetImageHeight()))
 {}
 
 Data2D::Data2D(const Data2D& data2d)
-		: MainRasterData(QwtDoubleRect(0,data2d.m_iW,0,data2d.m_iH)),
-		  TmpImage(data2d)
+		: TmpImage(data2d),
+		  MainRasterData(QwtDoubleRect(0, data2d.m_iW, 0, data2d.m_iH))
 {
 	this->m_bLog = data2d.m_bLog;
 	this->m_bPhaseData = data2d.m_bPhaseData;
@@ -195,11 +196,11 @@ QwtDoubleInterval Data2D::range() const
 		if(dTmpMax>0.)
 			dTmpMax=log10(dTmpMax);
 		else
-			dTmpMax=Config_TofLoader::GetLogLowerRange();
+			dTmpMax=GlobalConfig::GetLogLowerRange();
 		if(dTmpMin>0.)
 			dTmpMin=log10(dTmpMin);
 		else
-			dTmpMin=Config_TofLoader::GetLogLowerRange();
+			dTmpMin=GlobalConfig::GetLogLowerRange();
 
 		if(dTmpMax!=dTmpMax) dTmpMax=0.;
 		if(dTmpMin!=dTmpMin) dTmpMin=0.;
