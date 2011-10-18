@@ -97,6 +97,7 @@ class MainWindow : public QMainWindow
 		TcpClient m_client;
 		QTimer m_statustimer;
 
+		std::string m_strTitle;
 		QLabel *labelZeitkanal, *labelFolie;
 		QToolButton *btnLog;
 		QSlider *sliderFolien, *sliderZeitkanaele;
@@ -131,6 +132,26 @@ class MainWindow : public QMainWindow
 				statusbar->showMessage(pcMsg);
 			else
 				pStatusMsg->setText(pcMsg);
+		}
+
+		void ShowTitleMessage(const char* pcMsg)
+		{
+			if(pcMsg==0)
+				return;
+
+			std::string strMsg = pcMsg;
+			strMsg = trim(strMsg);
+			if(strMsg=="")
+			{
+				setWindowTitle(QString(m_strTitle.c_str()).simplified());
+				return;
+			}
+
+			std::string strNewTitle = m_strTitle;
+			strNewTitle += std::string(" - ");
+			strNewTitle += strMsg;
+
+			setWindowTitle(QString(strNewTitle.c_str()));
 		}
 
 		// iCnts or iClients set to -1 means: do not update respective value
@@ -615,7 +636,6 @@ class MainWindow : public QMainWindow
 						->QueryInt("/cascade_config/server/port", 1234);
 
 
-
 			static QString strLastAddress("");
 			static int iLastPort = 0;
 
@@ -654,7 +674,16 @@ class MainWindow : public QMainWindow
 					return;
 				}
 
+				// show messages
 				ShowMessage("Connected to server.");
+
+				std::string strTitleMsg
+								= SrvDlg.editAddress->text().toAscii().data();
+				strTitleMsg += ":";
+				strTitleMsg += SrvDlg.editPort->text().toAscii().data();
+				ShowTitleMessage(strTitleMsg.c_str());
+				// -------------
+
 				m_statustimer.start(SERVER_STATUS_POLL_TIME);
 
 				strLastAddress = SrvDlg.editAddress->text();
@@ -670,6 +699,7 @@ class MainWindow : public QMainWindow
 			m_statustimer.stop();
 			m_client.disconnect();
 			ShowMessage("Disconnected from server.");
+			ShowTitleMessage("");
 		}
 
 		// enter manual server command
@@ -868,10 +898,10 @@ class MainWindow : public QMainWindow
 			m_cascadewidget.SetLog10(true);
 
 
-			std::string strTitle = Config::GetSingleton()->QueryString(
+			m_strTitle = Config::GetSingleton()->QueryString(
 							"/cascade_config/main_window/title",
 							"Cascade Viewer");
-			setWindowTitle(QString(strTitle.c_str()).simplified());
+			setWindowTitle(QString(m_strTitle.c_str()).simplified());
 
 
 			QWidget *pCentralWidget = new QWidget(this);
