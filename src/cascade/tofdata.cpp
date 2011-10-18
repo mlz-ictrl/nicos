@@ -75,14 +75,12 @@ BasicImage* Data2D::GetImage() { return m_pImg; }
 int Data2D::GetWidth() const
 {
 	if(!m_pImg) return 0;
-
 	return m_pImg->GetWidth();
 }
 
 int Data2D::GetHeight() const
 {
 	if(!m_pImg) return 0;
-
 	return m_pImg->GetHeight();
 }
 

@@ -267,11 +267,16 @@ class MainWindow : public QMainWindow
 			// PAD-Daten vorhanden
 			if(!strncmp(pcBuf,"IMAG",4))
 			{
+				// if global config changed
+				bool bForceReinit = false;
+
 	#ifndef DATA_COMPRESSED
 				// Abfrage nur für unkomprimierte Daten möglich
 				if(iLen-4 != (int)sizeof(int)*conf.GetImageHeight()
 											 *conf.GetImageWidth())
 				{
+					bForceReinit = true;
+
 					// Dimensionen stimmen nicht, neue raten
 					if(!GlobalConfig::GuessConfigFromSize(0,(iLen-4)/4,
 																		false))
@@ -289,7 +294,8 @@ class MainWindow : public QMainWindow
 					}
 				}
 	#endif
-
+				if(bForceReinit)
+					m_cascadewidget.ForceReinit();
 				void* pvData = m_cascadewidget.NewPad();
 	#ifdef DATA_COMPRESSED
 				// Komprimierte Daten umkopieren
@@ -319,6 +325,9 @@ class MainWindow : public QMainWindow
 			// TOF-Daten vorhanden
 			else if(!strncmp(pcBuf,"DATA",4))
 			{
+				// if global config changed
+				bool bForceReinit = false;
+
 	#ifndef DATA_COMPRESSED
 				int iExpectedSize = conf.GetPseudoCompression()
 								? sizeof(int) * conf.GetFoilCount()*
@@ -331,6 +340,8 @@ class MainWindow : public QMainWindow
 
 				if(iLen-4 != iExpectedSize)
 				{
+					bForceReinit = true;
+
 					// Dimensionen stimmen nicht, neue raten
 					if(!GlobalConfig::GuessConfigFromSize(
 								m_cascadewidget.GetTof()->GetCompressionMethod()
@@ -348,6 +359,8 @@ class MainWindow : public QMainWindow
 					}
 				}
 	#endif
+				if(bForceReinit)
+					m_cascadewidget.ForceReinit();
 				void* pvData = m_cascadewidget.NewTof(/*btnLog->isChecked()*/);
 
 	#ifdef DATA_COMPRESSED
@@ -459,6 +472,12 @@ class MainWindow : public QMainWindow
 				std::pair<bool, int> pairClients = args.QueryInt("clients",0);
 				if(pairClients.first)
 					SetRightStatus(-1, pairClients.second);
+
+
+				// if global config changed, reinit PAD & TOF memory
+				if(pairXRes.first || pairYRes.first || pairTRes.first ||
+				   pairComp.first)
+				   m_cascadewidget.ForceReinit();
 			}
 			else if(!strncmp(pcBuf,"OKAY",4))
 			{}
@@ -771,6 +790,9 @@ class MainWindow : public QMainWindow
 				conf.SetImageHeight(iYRes);
 				conf.SetImageCount(iTRes);
 				conf.SetPseudoCompression(bComp);
+
+				// reinit PAD & TOF memory
+				m_cascadewidget.ForceReinit();
 
 				const char* pcMode = "";
 				switch(srvcfgdlg.GetMode())

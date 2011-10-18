@@ -177,6 +177,9 @@ void Plot::ChangeRange()
 		setAxisScale(QwtPlot::yLeft, 0, conf.GetImageHeight());
 		setAxisScale(QwtPlot::xBottom, 0, conf.GetImageWidth());
 	}
+
+	if(m_pZoomer)
+		m_pZoomer->setZoomBase();
 }
 
 QwtPlotZoomer* Plot::GetZoomer() { return m_pZoomer; }
@@ -334,7 +337,7 @@ bool CascadeWidget::LoadPadFile(const char* pcFile)
 		long lSize = GetFileSize(pcFile);
 		if(GlobalConfig::GuessConfigFromSize(0,int(lSize)/4, false))
 		{
-			m_bForceReinit = true;
+			ForceReinit();
 			NewPad();
 			iRet = m_pPad->LoadFile(pcFile);
 		}
@@ -355,7 +358,7 @@ bool CascadeWidget::LoadTofFile(const char* pcFile)
 					m_pTof->GetCompressionMethod()==TOF_COMPRESSION_PSEUDO,
 					int(lSize)/4, true))
 		{
-			m_bForceReinit = true;
+			ForceReinit();
 			NewTof();
 			iRet = m_pTof->LoadFile(pcFile);
 		}
@@ -374,7 +377,7 @@ bool CascadeWidget::LoadPadMem(const char* pcMem, unsigned int uiLen)
 	{
 		if(GlobalConfig::GuessConfigFromSize(0,uiLen/4, false))
 		{
-			m_bForceReinit = true;
+			ForceReinit();
 			NewPad();
 			iRet = m_pPad->LoadMem((unsigned int*)pcMem, uiLen/4);
 		}
@@ -395,7 +398,7 @@ bool CascadeWidget::LoadTofMem(const char* pcMem, unsigned int uiLen)
 				m_pTof->GetCompressionMethod()==TOF_COMPRESSION_PSEUDO,
 				uiLen/4, true))
 		{
-			m_bForceReinit = true;
+			ForceReinit();
 			NewTof();
 			iRet = m_pTof->LoadMem((unsigned int*)pcMem, uiLen/4);
 		}
@@ -706,3 +709,5 @@ void CascadeWidget::showSumDlg()
 			break;
 	}
 }
+
+void CascadeWidget::ForceReinit() { m_bForceReinit = true; }

@@ -157,6 +157,8 @@ Q_OBJECT
 		// load TOF from memory
 		bool LoadTofMem(const char* pcMem, unsigned int iLen);
 
+		void ForceReinit();
+
 		TofImage* GetTof();
 		TmpImage* GetTmpImg();
 		Data2D& GetData2d();

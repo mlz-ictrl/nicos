@@ -55,15 +55,14 @@ TofImage::TofImage(const char *pcFileName, int iCompressed, bool bExternalMem,
 	m_puiDaten = 0;
 
 	if(conf)
-	{
-		// don't use global config
 		m_config = *conf;
-		m_bUseGlobalConfig = false;
-	}
 	else
-	{
-		m_bUseGlobalConfig = true;
-	}
+		m_config = GlobalConfig::GetTofConfig();
+
+	logger << "Loader: New TOF image: " << "external mem=" << m_bExternalMem
+			  << ", width=" << GetTofConfig().GetImageWidth()
+			  << ", height=" << GetTofConfig().GetImageHeight()
+			  << ", images=" << GetTofConfig().GetImageCount() << ".\n";
 
 	if(!m_bExternalMem)
 	{
@@ -91,10 +90,7 @@ TofImage::~TofImage()
 
 const TofConfig& TofImage::GetTofConfig() const
 {
-	if(m_bUseGlobalConfig)
-		return GlobalConfig::GetTofConfig();
-	else
-		return m_config;
+	return m_config;
 }
 
 void TofImage::SetExternalMem(void* pvDaten)
@@ -759,15 +755,14 @@ PadImage::PadImage(const char *pcFileName, bool bExternalMem,
 	m_puiDaten = 0;
 
 	if(conf)
-	{
-		// don't use global config
 		m_config = *conf;
-		m_bUseGlobalConfig = false;
-	}
 	else
-	{
-		m_bUseGlobalConfig = true;
-	}
+		m_config = (PadConfig)GlobalConfig::GetTofConfig();
+
+	logger.SetCurLogLevel(LOGLEVEL_INFO);
+	logger << "Loader: New PAD image: " << "external mem=" << m_bExternalMem
+			  << ", width=" << GetWidth()
+			  << ", height=" << GetHeight() << ".\n";
 
 	if(!m_bExternalMem)
 	{
@@ -792,7 +787,6 @@ PadImage::PadImage(const PadImage& pad) : m_bExternalMem(false)
 	m_iMin=pad.m_iMin;
 	m_iMax=pad.m_iMax;
 
-	m_bUseGlobalConfig = pad.m_bUseGlobalConfig;
 	m_config = pad.m_config;
 
 	m_puiDaten = new unsigned int[GetPadSize()];
@@ -837,10 +831,7 @@ int PadImage::GetPadSize() const
 
 const PadConfig& PadImage::GetPadConfig() const
 {
-	if(m_bUseGlobalConfig)
-		return GlobalConfig::GetTofConfig();
-	else
-		return m_config;
+	return m_config;
 }
 
 void PadImage::SetExternalMem(void* pvDaten)

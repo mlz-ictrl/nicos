@@ -112,7 +112,7 @@ class TofConfig : public PadConfig
 		// getter
 		int GetFoilCount() const;
 		int GetImagesPerFoil() const;
-		int GetImageCount() const;
+		int GetImageCount() const;			// TOTAL images in TOF
 		int GetFoilBegin(int iFoil) const;
 		bool GetPseudoCompression() const;
 
@@ -120,7 +120,7 @@ class TofConfig : public PadConfig
 		// setter
 		void SetFoilCount(int iNumFoils);
 		void SetImagesPerFoil(int iNumImagesPerFoil);
-		void SetImageCount(int iImgCount);
+		void SetImageCount(int iImgCount);	// TOTAL images in TOF
 		void SetFoilBegin(int iFoil, int iOffs);
 		void SetPseudoCompression(bool bSet);
 

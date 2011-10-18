@@ -70,8 +70,6 @@ class PadImage : public BasicImage
 		// i.e. allocation & freeing?
 		bool m_bExternalMem;
 
-		// get configuration from GlobalConfig?
-		bool m_bUseGlobalConfig;
 		PadConfig m_config;
 
 		// clean up
@@ -258,8 +256,6 @@ class TofImage
 		// i.e. allocation & freeing?
 		bool m_bExternalMem;
 
-		// get configuration from GlobalConfig?
-		bool m_bUseGlobalConfig;
 		TofConfig m_config;
 
 	public:
