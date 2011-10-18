@@ -1,8 +1,29 @@
-/////////////////////////////////////////////////////////////////////////////////////
+//
+// minimal interface for images
+//
+class BasicImage
+{
+%TypeHeaderCode
+#include "../../tofloader.h"
+%End
+
+	public:
+		virtual int GetWidth() const = 0;
+		virtual int GetHeight() const = 0;
+
+		virtual double GetDoubleData(int iX, int iY) const = 0;
+		virtual unsigned int GetIntData(int iX, int iY) const = 0;
+
+		virtual int GetIntMin() const = 0;
+		virtual int GetIntMax() const = 0;
+		virtual double GetDoubleMin() const = 0;
+		virtual double GetDoubleMax() const = 0;
+};
+
 //
 // PAD images
 //
-class PadImage
+class PadImage : BasicImage
 {
 %TypeHeaderCode
 #include "../../tofloader.h"
@@ -25,7 +46,9 @@ class PadImage
 
 		void Print(const char* pcOutFile=NULL);
 
-		unsigned int GetData(int iX, int iY) const;
+		virtual unsigned int GetData(int iX, int iY) const;
+		virtual double GetDoubleData(int iX, int iY) const;
+		virtual unsigned int GetIntData(int iX, int iY) const;
 
 		unsigned int GetCounts() const;
 		unsigned int GetCounts(int iStartX, int iEndX, int iStartY, int iEndY) const;
@@ -36,7 +59,7 @@ class PadImage
 //
 // management of temporary images
 //
-class TmpImage
+class TmpImage : BasicImage
 {
 %TypeHeaderCode
 #include "../../tofloader.h"
@@ -47,8 +70,10 @@ class TmpImage
 		virtual ~TmpImage();
 
 		void Clear();
-		double GetData(int iX, int iY) const;
-		unsigned int GetIntData(int iX, int iY) const;
+
+		virtual double GetData(int iX, int iY) const;
+		virtual unsigned int GetIntData(int iX, int iY) const;
+		virtual double GetDoubleData(int iX, int iY) const;
 
 		int GetWidth() const;
 		int GetHeight() const;

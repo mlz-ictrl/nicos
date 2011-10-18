@@ -106,7 +106,7 @@ MainPanner::~MainPanner()
 ////////////////////////////////////////////////////////////////////////////////
 
 Plot::Plot(QWidget *parent) : QwtPlot(parent), m_pSpectrogram(0),
-							  m_pZoomer(0), m_pPanner(0)
+							  m_pZoomer(0), m_pPanner(0), m_pImage(0)
 {
 	InitPlot();
 }
@@ -124,7 +124,7 @@ void Plot::InitPlot()
 	axisWidget(QwtPlot::yLeft)->setTitle("y Pixels");
 
 	m_pSpectrogram = new QwtPlotSpectrogram();
-	m_pSpectrogram->setData(PadData());		// Dummy-Objekt
+	m_pSpectrogram->setData(Data2D());		// Dummy-Objekt
 	m_pSpectrogram->setDisplayMode(QwtPlotSpectrogram::ImageMode, true);
 	m_pSpectrogram->setDisplayMode(QwtPlotSpectrogram::ContourMode, false);
 	m_pSpectrogram->attach(this);
@@ -149,6 +149,7 @@ void Plot::InitPlot()
 
 void Plot::DeinitPlot()
 {
+	m_pImage = 0;
 	if(m_pZoomer) { delete m_pZoomer; m_pZoomer=0; }
 	if(m_pPanner) { delete m_pPanner; m_pPanner=0; }
 	if(m_pSpectrogram) { delete m_pSpectrogram; m_pSpectrogram=0; }
@@ -157,26 +158,44 @@ void Plot::DeinitPlot()
 void Plot::ChangeRange()
 {
 	setAxisScale(QwtPlot::yRight, m_pSpectrogram->data().range().minValue(),
-								  m_pSpectrogram->data().range().maxValue());
+								m_pSpectrogram->data().range().maxValue());
 	axisWidget(QwtPlot::yRight)->setColorMap(m_pSpectrogram->data().range(),
-												m_pSpectrogram->colorMap());
+								m_pSpectrogram->colorMap());
 
-	// TODO: get dimensions from actually used object, not from global config
-	const PadConfig& conf = GlobalConfig::GetTofConfig();
-	setAxisScale(QwtPlot::yLeft, 0, conf.GetImageHeight());
-	setAxisScale(QwtPlot::xBottom, 0, conf.GetImageWidth());
+	if(m_pImage)
+	{
+		// use dimensions of image
+
+		setAxisScale(QwtPlot::yLeft, 0, m_pImage->GetHeight());
+		setAxisScale(QwtPlot::xBottom, 0, m_pImage->GetWidth());
+	}
+	else
+	{
+		// otherwise: global config
+
+		const PadConfig& conf = GlobalConfig::GetTofConfig();
+		setAxisScale(QwtPlot::yLeft, 0, conf.GetImageHeight());
+		setAxisScale(QwtPlot::xBottom, 0, conf.GetImageWidth());
+	}
 }
 
 QwtPlotZoomer* Plot::GetZoomer() { return m_pZoomer; }
 QwtPlotPanner* Plot::GetPanner() { return m_pPanner; }
 
-const QwtRasterData* Plot::GetData() const { return &m_pSpectrogram->data(); }
-
-void Plot::SetData(QwtRasterData* pData)
+const QwtRasterData* Plot::GetData() const
 {
-	if(!pData) return;
-	m_pSpectrogram->setData(*pData);
-	ChangeRange();
+	return &m_pSpectrogram->data();
+}
+
+void Plot::SetData(Data2D* pData, bool bUpdate)
+{
+	m_pImage = pData->GetImage();
+
+	if(bUpdate)
+	{
+		m_pSpectrogram->setData(*pData);
+		ChangeRange();
+	}
 }
 
 void Plot::SetColorMap(bool bCyclic)
@@ -219,7 +238,7 @@ CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 												 m_bForceReinit(0),
 												 m_pPad(0),
 												 m_pTof(0),
-												 m_pdata2d(0),
+												 m_pTmpImg(0),
 												 m_iMode(MODE_SLIDES),
 												 m_iFolie(0),
 												 m_iZeitkanal(0),
@@ -240,19 +259,18 @@ CascadeWidget::~CascadeWidget()
 }
 
 TofImage* CascadeWidget::GetTof() { return m_pTof; }
-PadData* CascadeWidget::GetPad() { return m_pPad; }
-Data2D* CascadeWidget::GetData2d() { return m_pdata2d; }
+TmpImage* CascadeWidget::GetTmpImg() { return m_pTmpImg; }
+PadImage* CascadeWidget::GetPad() { return m_pPad; }
+Data2D& CascadeWidget::GetData2d() { return m_data2d; }
 Plot* CascadeWidget::GetPlot() { return m_pPlot; }
 
 void CascadeWidget::Unload()
 {
+	m_data2d.clearData();
+
 	if(m_pPad) { delete m_pPad; m_pPad=NULL; }
 	if(m_pTof) { delete m_pTof; m_pTof=NULL; }
-	if(m_pdata2d)
-	{
-		m_pdata2d->clearData();
-		delete m_pdata2d; m_pdata2d=NULL;
-	}
+	if(m_pTmpImg) { delete m_pTmpImg; m_pTmpImg=NULL; }
 }
 
 void* CascadeWidget::NewPad()
@@ -260,16 +278,17 @@ void* CascadeWidget::NewPad()
 	if(!IsPadLoaded() || IsTofLoaded() || m_bForceReinit)
 	{
 		Unload();
-		m_pPad = new PadData();
-		m_pPad->SetLog10(m_bLog);
-		//m_pPlot->SetData(m_pPad);
+		m_pPad = new PadImage();
 
+		m_data2d.SetImage(m_pPad);
+		m_data2d.SetLog10(m_bLog);
+
+		m_pPlot->SetData(&m_data2d, false);
 		//m_pPlot->InitPlot();
 		m_bForceReinit=false;
 	}
 	// ansonsten einfach bestehendes PAD-Objekt recyclen
 
-	//return ((PadData*)m_pPlot->GetData())->GetRawData();
 	return m_pPad->GetRawData();
 }
 
@@ -283,10 +302,12 @@ void* CascadeWidget::NewTof(int iCompression)
 	{
 		Unload();
 		m_pTof = new TofImage(0,iCompression);
-		m_pdata2d = new Data2D;
-		m_pdata2d->SetLog10(m_bLog);
-		//m_pPlot->SetData(m_pdata2d);
+		m_pTmpImg = new TmpImage();
 
+		m_data2d.SetImage(m_pTmpImg);
+		m_data2d.SetLog10(m_bLog);
+
+		m_pPlot->SetData(&m_data2d, false);
 		//m_pPlot->InitPlot();
 		m_bForceReinit=false;
 	}
@@ -386,7 +407,7 @@ bool CascadeWidget::LoadTofMem(const char* pcMem, unsigned int uiLen)
 
 bool CascadeWidget::IsTofLoaded() const
 {
-	return bool(m_pTof) && bool(m_pdata2d);
+	return bool(m_pTof) && bool(m_pTmpImg);
 }
 
 bool CascadeWidget::IsPadLoaded() const
@@ -431,46 +452,31 @@ void CascadeWidget::UpdateGraph()
 	if(IsPadLoaded())
 	{
 		//m_pPad->UpdateRange();
-		m_pPlot->SetData(m_pPad);	// !!
+		m_data2d.SetImage(m_pPad);
+		m_pPlot->SetData(&m_data2d);	// !!
 	}
 	else if(IsTofLoaded())
 	{
 		if(m_iMode==MODE_SLIDES)
 		{
-			m_pdata2d->clearData();
 			m_pTof->GetROI(0,m_pTof->GetTofConfig().GetImageWidth()-1, 0,
 							 m_pTof->GetTofConfig().GetImageHeight()-1,
-							 m_iFolie,m_iZeitkanal,m_pdata2d);
+							 m_iFolie,m_iZeitkanal, m_pTmpImg);
 		}
 		else if(m_iMode==MODE_PHASES)
 		{
-			m_pdata2d->clearData();
-			m_pTof->GetPhaseGraph(m_iFolie, m_pdata2d);
+			m_pTof->GetPhaseGraph(m_iFolie, m_pTmpImg);
 		}
 		else if(m_iMode==MODE_CONTRASTS)
 		{
-			m_pdata2d->clearData();
-			m_pTof->GetContrastGraph(m_iFolie, m_pdata2d);
+			m_pTof->GetContrastGraph(m_iFolie, m_pTmpImg);
 		}
 
-		m_pdata2d->UpdateRange();
-		m_pPlot->SetData(m_pdata2d);	// !!
+		m_pTmpImg->UpdateRange();
+
+		m_data2d.SetImage(m_pTmpImg);
+		m_pPlot->SetData(&m_data2d);	// !!
 	}
-
-
-/*
-	const PadConfig* pconf;
-
-	if(IsTofLoaded())
-		pconf = &m_pTof->GetTofConfig();
-	else if(IsPadLoaded())
-		pconf = &m_pPad->GetPadConfig();
-	else
-		pconf = &GlobalConfig::GetTofConfig();
-
-	m_pPlot->setAxisScale(QwtPlot::yLeft, 0, pconf->GetImageHeight());
-	m_pPlot->setAxisScale(QwtPlot::xBottom, 0, pconf->GetImageWidth());
-*/
 
 	if(IsPadLoaded() || IsTofLoaded())
 	{
@@ -492,23 +498,15 @@ bool CascadeWidget::GetLog10() { return m_bLog; }
 void CascadeWidget::SetLog10(bool bLog10)
 {
 	m_bLog = bLog10;
-	if(m_pPad)
-	{
-		m_pPad->SetLog10(bLog10);
-		m_pPlot->ChangeRange();
-	}
-	else if(m_pdata2d)
-	{
-		m_pdata2d->SetLog10(bLog10);
-		m_pPlot->ChangeRange();
-	}
+	m_data2d.SetLog10(bLog10);
+	m_pPlot->ChangeRange();
 	UpdateGraph();
 }
 
 void CascadeWidget::UpdateRange()
 {
 	if(IsTofLoaded())
-		GetData2d()->UpdateRange();
+		GetTmpImg()->UpdateRange();
 	else if(IsPadLoaded())
 		GetPad()->UpdateRange();
 }
@@ -518,9 +516,10 @@ void CascadeWidget::viewOverview()
 	if(!IsTofLoaded()) return;
 	SetMode(MODE_SUMS);
 
-	GetData2d()->clearData();
-	GetTof()->GetOverview(GetData2d());
-	GetData2d()->SetPhaseData(false);
+	GetTof()->GetOverview(m_pTmpImg);
+	m_data2d.SetImage(m_pTmpImg);
+
+	m_data2d.SetPhaseData(false);
 	GetPlot()->SetColorMap(false);
 
 	UpdateGraph();
@@ -531,7 +530,7 @@ void CascadeWidget::viewSlides()
 	if(!IsTofLoaded()) return;
 	SetMode(MODE_SLIDES);
 
-	GetData2d()->SetPhaseData(false);
+	m_data2d.SetPhaseData(false);
 	GetPlot()->SetColorMap(false);
 
 	UpdateGraph();
@@ -542,7 +541,7 @@ void CascadeWidget::viewPhases()
 	if(!IsTofLoaded()) return;
 	SetMode(MODE_PHASES);
 
-	GetData2d()->SetPhaseData(true);
+	m_data2d.SetPhaseData(true);
 	GetPlot()->SetColorMap(true);
 
 	UpdateGraph();
@@ -553,7 +552,7 @@ void CascadeWidget::viewContrasts()
 	if(!IsTofLoaded()) return;
 	SetMode(MODE_CONTRASTS);
 
-	GetData2d()->SetPhaseData(false);
+	m_data2d.SetPhaseData(false);
 	GetPlot()->SetColorMap(false);
 
 	UpdateGraph();
@@ -562,7 +561,8 @@ void CascadeWidget::viewContrasts()
 void CascadeWidget::viewFoilSums(const bool* pbKanaele)
 {
 	SetMode(MODE_SUMS);
-	GetTof()->AddFoils(pbKanaele, GetData2d());
+	GetTof()->AddFoils(pbKanaele, m_pTmpImg);
+	m_data2d.SetImage(m_pTmpImg);
 
 	UpdateRange();
 	UpdateGraph();
@@ -571,7 +571,8 @@ void CascadeWidget::viewFoilSums(const bool* pbKanaele)
 void CascadeWidget::viewPhaseSums(const bool* pbFolien)
 {
 	SetMode(MODE_PHASESUMS);
-	GetTof()->AddPhases(pbFolien, GetData2d());
+	GetTof()->AddPhases(pbFolien, m_pTmpImg);
+	m_data2d.SetImage(m_pTmpImg);
 
 	UpdateRange();
 	UpdateGraph();
@@ -580,7 +581,8 @@ void CascadeWidget::viewPhaseSums(const bool* pbFolien)
 void CascadeWidget::viewContrastSums(const bool* pbFolien)
 {
 	SetMode(MODE_CONTRASTSUMS);
-	GetTof()->AddContrasts(pbFolien, GetData2d());
+	GetTof()->AddContrasts(pbFolien, m_pTmpImg);
+	m_data2d.SetImage(m_pTmpImg);
 
 	UpdateRange();
 	UpdateGraph();

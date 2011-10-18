@@ -88,6 +88,7 @@ class Plot : public QwtPlot
 		QwtPlotSpectrogram *m_pSpectrogram;
 		MainZoomer* m_pZoomer;
 		MainPanner* m_pPanner;
+		const BasicImage* m_pImage;
 
 	public:
 		Plot(QWidget *parent);
@@ -97,7 +98,7 @@ class Plot : public QwtPlot
 		QwtPlotZoomer* GetZoomer();
 		QwtPlotPanner* GetPanner();
 
-		void SetData(QwtRasterData* pData);
+		void SetData(Data2D* pData, bool bUpdate=true);
 		const QwtRasterData* GetData() const;
 
 		void SetColorMap(bool bCyclic);
@@ -121,11 +122,14 @@ Q_OBJECT
 		Plot *m_pPlot;
 
 		// PAD
-		PadData *m_pPad;
+		PadImage *m_pPad;
 
 		// TOF
 		TofImage *m_pTof;
-		Data2D *m_pdata2d;
+		TmpImage *m_pTmpImg;
+
+		// Image Container
+		Data2D m_data2d;
 
 		int m_iMode;
 		int m_iFolie, m_iZeitkanal;
@@ -154,8 +158,9 @@ Q_OBJECT
 		bool LoadTofMem(const char* pcMem, unsigned int iLen);
 
 		TofImage* GetTof();
-		Data2D* GetData2d();
-		PadData* GetPad();
+		TmpImage* GetTmpImg();
+		Data2D& GetData2d();
+		PadImage* GetPad();
 		Plot* GetPlot();
 		unsigned int* GetRawData();
 

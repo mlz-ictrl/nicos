@@ -820,9 +820,19 @@ void PadImage::Clear()
 	}
 }
 
+int PadImage::GetWidth() const
+{
+	return GetPadConfig().GetImageWidth();
+}
+
+int PadImage::GetHeight() const
+{
+	return GetPadConfig().GetImageHeight();
+}
+
 int PadImage::GetPadSize() const
 {
-	return GetPadConfig().GetImageHeight()*GetPadConfig().GetImageWidth();
+	return GetHeight()*GetWidth();
 }
 
 const PadConfig& PadImage::GetPadConfig() const
@@ -860,6 +870,11 @@ void PadImage::UpdateRange()
 		}
 	}
 }
+
+double PadImage::GetDoubleMin() const { return double(GetIntMin()); }
+double PadImage::GetDoubleMax() const { return double(GetIntMax()); }
+int PadImage::GetIntMin() const { return m_iMin; }
+int PadImage::GetIntMax() const { return m_iMax; }
 
 int PadImage::LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen)
 {
@@ -977,6 +992,16 @@ unsigned int* PadImage::GetRawData(void)
 
 unsigned int PadImage::GetData(int iX, int iY) const
 {
+	return GetIntData(iX, iY);
+}
+
+double PadImage::GetDoubleData(int iX, int iY) const
+{
+	return double(GetIntData(iX, iY));
+}
+
+unsigned int PadImage::GetIntData(int iX, int iY) const
+{
 	if(m_puiDaten==NULL) return 0;
 
 	if(iX>=0 && iX<GetPadConfig().GetImageWidth() &&
@@ -1069,14 +1094,7 @@ TmpImage::~TmpImage()
 
 double TmpImage::GetData(int iX, int iY) const
 {
-	if(iX>=0 && iX<m_iW && iY>=0 && iY<m_iH)
-	{
-		if(m_puiDaten)
-			return double(m_puiDaten[iY*m_iW + iX]);
-		else if(m_pdDaten)
-			return m_pdDaten[iY*m_iW + iX];
-	}
-	return 0.;
+	return GetDoubleData(iX, iY);
 }
 
 unsigned int TmpImage::GetIntData(int iX, int iY) const
@@ -1089,6 +1107,18 @@ unsigned int TmpImage::GetIntData(int iX, int iY) const
 			return (unsigned int)(m_pdDaten[iY*m_iW + iX]);
 	}
 	return 0;
+}
+
+double TmpImage::GetDoubleData(int iX, int iY) const
+{
+	if(iX>=0 && iX<m_iW && iY>=0 && iY<m_iH)
+	{
+		if(m_puiDaten)
+			return double(m_puiDaten[iY*m_iW + iX]);
+		else if(m_pdDaten)
+			return m_pdDaten[iY*m_iW + iX];
+	}
+	return 0.;
 }
 
 int TmpImage::GetWidth() const { return m_iW; }
@@ -1151,6 +1181,11 @@ void TmpImage::UpdateRange()
 		}
 	}
 }
+
+int TmpImage::GetIntMin(void) const { return int(GetDoubleMin()); }
+int TmpImage::GetIntMax(void) const { return int(GetDoubleMax()); }
+double TmpImage::GetDoubleMin(void) const { return m_dMin; }
+double TmpImage::GetDoubleMax(void) const { return m_dMax; }
 
 bool TmpImage::WriteXML(const char* pcFileName) const
 {

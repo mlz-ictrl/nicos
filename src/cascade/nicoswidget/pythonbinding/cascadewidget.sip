@@ -40,26 +40,7 @@ class MainRasterData :  QwtRasterData
 };
 
 
-// *********************** PAD-Daten ***********************
-class PadData :  MainRasterData, PadImage
-{
-%TypeHeaderCode
-#include "../../tofdata.h"
-%End
-	public:
-		PadData();
-		PadData(const PadData& pad);
-		virtual ~PadData();
-
-		virtual QwtRasterData *copy() const;
-		virtual QwtDoubleInterval range() const;
-		virtual double value(double x, double y) const;
-		virtual double GetValueRaw(int x, int y) const;
-};
-
-
-// *********************** TOF-Daten ***********************
-class Data2D :  MainRasterData, TmpImage
+class Data2D :  MainRasterData
 {
 %TypeHeaderCode
 #include "../../tofdata.h"
@@ -77,6 +58,8 @@ class Data2D :  MainRasterData, TmpImage
 		virtual QwtDoubleInterval range() const;
 		virtual double value(double x, double y) const;
 		virtual double GetValueRaw(int x, int y) const;
+
+		BasicImage* GetImage();
 };
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -90,7 +73,7 @@ class Plot : QwtPlot
 		QwtPlotZoomer* GetZoomer();
 		QwtPlotPanner* GetPanner();
 
-		void SetData(QwtRasterData* pData);
+		void SetData(Data2D* pData, bool bUpdate=true);
 		const QwtRasterData* GetData() const;
 
 		void SetColorMap(bool bCyclic);
@@ -128,8 +111,9 @@ class CascadeWidget : QWidget
 		bool LoadTofMem(const char* pcMem, unsigned int iLen);	// load TOF from mem
 
 		TofImage* GetTof();
-		Data2D* GetData2d();
-		PadData* GetPad();
+		TmpImage* GetTmpImg();
+		Data2D& GetData2d();
+		PadImage* GetPad();
 		Plot* GetPlot();
 
 		bool GetLog10();

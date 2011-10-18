@@ -50,37 +50,22 @@ class MainRasterData : public QwtRasterData
 
 
 /*
- * PAD data
+ * TOF & PAD data
  */
-class PadData : public PadImage, public MainRasterData
-{
-	protected:
-
-	public:
-		PadData();
-		PadData(const PadData& pad);
-		virtual ~PadData();
-
-		virtual QwtRasterData *copy() const;
-		virtual QwtDoubleInterval range() const;
-		virtual double value(double x, double y) const;
-		virtual double GetValueRaw(int x, int y) const;
-};
-
-
-/*
- * TOF data
- */
-class Data2D : public TmpImage, public MainRasterData
+class Data2D : public MainRasterData
 {
 	protected:
 		bool m_bPhaseData;
+		BasicImage* m_pImg;
 
 	public:
 		Data2D(const QwtDoubleRect& rect);
 		Data2D();
 		Data2D(const Data2D& data2d);
 		virtual ~Data2D();
+
+		void SetImage(BasicImage* pImg);
+		BasicImage* GetImage();
 
 		void SetPhaseData(bool bPhaseData);	// wegen Achsen-Range
 		void clearData();
@@ -89,6 +74,9 @@ class Data2D : public TmpImage, public MainRasterData
 		virtual QwtDoubleInterval range() const;
 		virtual double value(double x, double y) const;
 		virtual double GetValueRaw(int x, int y) const;
+
+		int GetWidth() const;
+		int GetHeight() const;
 };
 
 #endif

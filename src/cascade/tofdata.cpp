@@ -43,110 +43,47 @@ bool MainRasterData::GetLog10(void) const
 }
 
 
-// *********************** PAD-Daten ***********************
-PadData::PadData() : PadImage(), MainRasterData(QwtDoubleRect(0,
-									GetPadConfig().GetImageWidth(), 0,
-									GetPadConfig().GetImageHeight()))
-{}
-
-PadData::PadData(const PadData& pad)
-		: PadImage(pad), MainRasterData(QwtDoubleRect(0,
-									GetPadConfig().GetImageWidth(), 0,
-									GetPadConfig().GetImageHeight()))
-{
-	m_bLog = pad.m_bLog;
-}
-
-PadData::~PadData()
-{}
-
-QwtRasterData *PadData::copy() const
-{
-	return new PadData(*this);
-}
-
-QwtDoubleInterval PadData::range() const
-{
-	if(m_puiDaten==NULL) return QwtDoubleInterval(0.,1.);
-
-	if(m_bLog)
-	{
-		double dTmpMax = m_iMax,
-		       dTmpMin = m_iMin;
-
-		if(dTmpMax>0.)
-			dTmpMax = log10(dTmpMax);
-		else
-			dTmpMax=GlobalConfig::GetLogLowerRange();
-
-		if(dTmpMin>0.)
-			dTmpMin = log10(dTmpMin);
-		else
-			dTmpMin=GlobalConfig::GetLogLowerRange();
-
-		if(dTmpMax!=dTmpMax)
-			dTmpMax=0.;
-		if(dTmpMin!=dTmpMin)
-			dTmpMin=0.;
-
-		return QwtDoubleInterval(dTmpMin,dTmpMax);
-	}
-	else
-	{
-		return QwtDoubleInterval(m_iMin,m_iMax);
-	}
-}
-
-
-double PadData::value(double x, double y) const
-{
-	double dRet=(double)GetData((int)x,(int)y);
-
-	if(m_bLog)
-	{
-		if(dRet>0.)
-			dRet = log10(dRet);
-		else
-			// ungültige Werte weit außerhalb der Range verlagern
-			dRet = -std::numeric_limits<double>::max();
-	}
-
-	if(dRet!=dRet) dRet=0.;
-	return dRet;
-}
-
-double PadData::GetValueRaw(int x, int y) const
-{
-	return (double)GetData(x,y);
-}
-
-// ***********************************************************
-
-
-// *********************** TOF-Daten ***********************
+// *********************************************************
 Data2D::Data2D(const QwtDoubleRect& rect)
-		: TmpImage(),
-		  MainRasterData(rect), m_bPhaseData(0)
+		: MainRasterData(rect), m_bPhaseData(0), m_pImg(0)
 {}
 
 Data2D::Data2D()
-	: TmpImage(),
-	  MainRasterData(QwtDoubleRect(0,
-						GlobalConfig::GetTofConfig().GetImageWidth(), 0,
-						GlobalConfig::GetTofConfig().GetImageHeight()))
+	: MainRasterData(QwtDoubleRect(0,
+					 GlobalConfig::GetTofConfig().GetImageWidth(), 0,
+					 GlobalConfig::GetTofConfig().GetImageHeight())),
+					 m_bPhaseData(0), m_pImg(0)
 {}
 
 Data2D::Data2D(const Data2D& data2d)
-		: TmpImage(data2d),
-		  MainRasterData(QwtDoubleRect(0, data2d.m_iW, 0, data2d.m_iH))
+		:  MainRasterData(QwtDoubleRect(0, data2d.GetWidth(),
+										0, data2d.GetHeight()))
 {
 	this->m_bLog = data2d.m_bLog;
 	this->m_bPhaseData = data2d.m_bPhaseData;
+	this->m_pImg = data2d.m_pImg;
 }
 
 Data2D::~Data2D()
 {
 	clearData();
+}
+
+void Data2D::SetImage(BasicImage* pImg) { m_pImg = pImg; }
+BasicImage* Data2D::GetImage() { return m_pImg; }
+
+int Data2D::GetWidth() const
+{
+	if(!m_pImg) return 0;
+
+	return m_pImg->GetWidth();
+}
+
+int Data2D::GetHeight() const
+{
+	if(!m_pImg) return 0;
+
+	return m_pImg->GetHeight();
 }
 
 // wegen Achsen-Range
@@ -157,16 +94,7 @@ void Data2D::SetPhaseData(bool bPhaseData)
 
 void Data2D::clearData()
 {
-	if(m_puiDaten!=NULL)
-	{
-		delete[] m_puiDaten;
-		m_puiDaten = NULL;
-	}
-	if(m_pdDaten!=NULL)
-	{
-		delete[] m_pdDaten;
-		m_pdDaten = NULL;
-	}
+	m_pImg = 0;
 }
 
 QwtRasterData *Data2D::copy() const
@@ -176,7 +104,7 @@ QwtRasterData *Data2D::copy() const
 
 QwtDoubleInterval Data2D::range() const
 {
-	if(m_puiDaten==NULL && m_pdDaten==NULL)
+	if(m_pImg == 0)
 		return QwtDoubleInterval(0.,1.);
 
 	double dTmpMax, dTmpMin;
@@ -187,8 +115,8 @@ QwtDoubleInterval Data2D::range() const
 	}
 	else
 	{
-		dTmpMax = m_dMax;
-		dTmpMin = m_dMin;
+		dTmpMax = m_pImg->GetDoubleMax();
+		dTmpMin = m_pImg->GetDoubleMin();
 	}
 
 	if(m_bLog)
@@ -202,8 +130,10 @@ QwtDoubleInterval Data2D::range() const
 		else
 			dTmpMin=GlobalConfig::GetLogLowerRange();
 
-		if(dTmpMax!=dTmpMax) dTmpMax=0.;
-		if(dTmpMin!=dTmpMin) dTmpMin=0.;
+		if(dTmpMax!=dTmpMax)
+			dTmpMax=0.;
+		if(dTmpMin!=dTmpMin)
+			dTmpMin=0.;
 
 		return QwtDoubleInterval(dTmpMin,dTmpMax);
 	}
@@ -213,7 +143,9 @@ QwtDoubleInterval Data2D::range() const
 
 double Data2D::value(double x, double y) const
 {
-	double dRet=(double)GetData((int)x,(int)y);
+	if(m_pImg == 0) return 0.;
+
+	double dRet = m_pImg->GetDoubleData((int)x,(int)y);
 
 	if(m_bLog)
 	{
@@ -230,7 +162,9 @@ double Data2D::value(double x, double y) const
 
 double Data2D::GetValueRaw(int x, int y) const
 {
-	return (double)GetData(x,y);
+	if(m_pImg == 0) return 0.;
+
+	return m_pImg->GetDoubleData(x,y);
 }
 
 // **********************************************************
