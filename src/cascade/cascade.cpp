@@ -425,7 +425,7 @@ class MainWindow : public QMainWindow
 					ServerCfgDlg::SetStatYRes(pairYRes.second);
 
 					TofConfig& conf = GlobalConfig::GetTofConfig();
-					conf.SetImageWidth(pairYRes.second);
+					conf.SetImageHeight(pairYRes.second);
 				}
 
 				// tres?
@@ -476,8 +476,8 @@ class MainWindow : public QMainWindow
 
 				// if global config changed, reinit PAD & TOF memory
 				if(pairXRes.first || pairYRes.first || pairTRes.first ||
-				   pairComp.first)
-				   m_cascadewidget.ForceReinit();
+									 pairComp.first)
+					m_cascadewidget.ForceReinit();
 			}
 			else if(!strncmp(pcBuf,"OKAY",4))
 			{}
