@@ -41,7 +41,7 @@ from nicos.cache.utils import msg_pattern, line_pattern, cache_load, cache_dump,
      DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, \
      OP_LOCK
 
-BUFSIZE = 8192
+BUFSIZE = 81920
 
 
 class BaseCacheClient(Device):
@@ -133,7 +133,7 @@ class BaseCacheClient(Device):
 
         # read response
         data, n = '', 0
-        while not data.endswith('###!\r\n') and n < 100:
+        while not data.endswith('###!\r\n') and n < 1000:
             data += self._socket.recv(BUFSIZE)
             n += 1
 
@@ -145,19 +145,20 @@ class BaseCacheClient(Device):
     def _process_data(self, data,
                       lmatch=line_pattern.match, mmatch=msg_pattern.match):
         #n = 0
-        match = lmatch(data)
+        i = 0  # avoid making a string copy for every line
+        match = lmatch(data, i)
         while match:
             line = match.group(1)
-            data = data[match.end():]
+            i = match.end()
             msgmatch = mmatch(line)
             # ignore invalid lines
             if msgmatch:
                 #n += 1
                 self._handle_msg(**msgmatch.groupdict())
             # continue loop
-            match = lmatch(data)
+            match = lmatch(data, i)
         #self.log.debug('processed %d items' % n)
-        return data
+        return data[i:]
 
     def _worker_thread(self):
         data = ''
@@ -227,7 +228,7 @@ class BaseCacheClient(Device):
         # end of while loop
         self._disconnect()
 
-    def _single_request(self, tosend, sentinel='\r\n'):
+    def _single_request(self, tosend, sentinel='\r\n', retry=2):
         """Communicate over the secondary socket."""
         if not self._socket:
             return
@@ -243,26 +244,39 @@ class BaseCacheClient(Device):
                     self._secsocket = None
                     return
 
-        with self._sec_lock:
-            # write request
-            self._secsocket.sendall(tosend)
+        try:
+            with self._sec_lock:
+                # write request
+                self._secsocket.sendall(tosend)
 
-            # read response
-            data, n = '', 0
-            while not data.endswith(sentinel) and n < 100:
-                data += self._secsocket.recv(BUFSIZE)
-                n += 1
+                # read response
+                data, n = '', 0
+                while not data.endswith(sentinel) and n < 1000:
+                    data += self._secsocket.recv(BUFSIZE)
+                    n += 1
+        except socket.error:
+            # retry?
+            if retry:
+                self._secsocket = None
+                for m in self._single_request(tosend, sentinel, retry-1):
+                    yield m
+                return
+            raise
 
-        match = line_pattern.match(data)
+
+        lmatch = line_pattern.match
+        mmatch = msg_pattern.match
+        i = 0
+        match = lmatch(data, i)
         while match:
             line = match.group(1)
-            data = data[match.end():]
-            msgmatch = msg_pattern.match(line)
+            i = match.end()
+            msgmatch = mmatch(line)
             if not msgmatch:
                 # ignore invalid lines
                 continue
             yield msgmatch
-            match = line_pattern.match(data)
+            match = lmatch(data, i)
 
     # methods to make this client usable as the main device in a simple session
 
