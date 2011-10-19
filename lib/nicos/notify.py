@@ -29,10 +29,10 @@ __version__ = "$Revision$"
 import os
 import threading
 import subprocess
-from email.Header import Header
-from email.Message import Message
-from email.Charset import Charset, QP
-from email.Utils import formatdate, make_msgid
+from email.header import Header
+from email.message import Message
+from email.charset import Charset, QP
+from email.utils import formatdate, make_msgid
 
 try:
     import xmpp

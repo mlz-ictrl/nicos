@@ -157,11 +157,11 @@ def crc_ipc(string):
     for byte in string:
         byte = ord(byte)
         crc ^= byte
-        for j in range(8):
+        for _ in range(8):
             temp = crc % 2
             crc = int(crc / 2)
             if temp != 0:
-                crc ^= 161  # 0xA1
+                crc ^= 0xA1
     return '%03d' % crc
 
 
@@ -183,13 +183,13 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
                           type=int, default=3, settable=True),
     }
 
-    def send(self, addr, cmd, param=0, len=0):
+    def send(self, addr, cmd, param=0, length=0):
         return self._taco_multitry('send', self.maxtries, self._dev.genSDA,
-                                   addr, cmd-31, len, param)
+                                   addr, cmd-31, length, param)
 
-    def get(self, addr, cmd, param=0, len=0):
+    def get(self, addr, cmd, param=0, length=0):
         return self._taco_multitry('get', self.maxtries, self._dev.genSRD,
-                                   addr, cmd-98, len, param)
+                                   addr, cmd-98, length, param)
 
     def ping(self, addr):
         return self._taco_multitry('ping', self.maxtries, self._dev.Ping, addr)
@@ -265,26 +265,26 @@ class IPCModBusTacoless(IPCModBus):
         else:
             return -1
 
-    def send(self, addr, cmd, param=0, len=0):
+    def send(self, addr, cmd, param=0, length=0):
         try:
             cmdname, limits = IPC_MAGIC[cmd]
         except KeyError:
             raise ProgrammingError(self, 'Command %s not supported' % cmd)
         if limits:
-            if len != limits[0] or not limits[1] <= param <= limits[2]:
+            if length != limits[0] or not limits[1] <= param <= limits[2]:
                 raise ProgrammingError(self, 'Parameter %s outside allowed '
                     'values %s for cmd %s' % (param, limits, cmdname))
-        elif len or param:
+        elif length or param:
             raise ProgrammingError(self, 'Sending parameters is not allowed '
                                     'for cmd %s' % cmdname)
         s = chr(addr) + chr(cmd)
-        if len > 0:
-            s += '%0*d' % (len, param)
+        if length > 0:
+            s += '%0*d' % (length, param)
         self.log.debug('sending %s to card %s' % (cmdname, addr))
         return self._comm(s)
 
-    def get(self, addr, cmd, param=0, len=0):
-        return self.send(addr, cmd, param, len)
+    def get(self, addr, cmd, param=0, length=0):
+        return self.send(addr, cmd, param, length)
 
 
 class IPCModBusTCP(IPCModBusTacoless):
@@ -365,7 +365,7 @@ class IPCModBusSerial(IPCModBusTacoless):
         try:
             self._connection.write(request)
 
-            for i in range(self.commtries):
+            for _ in range(self.commtries):
                 data = self._connection.read(20)
                 response += data
                 if response and response[-1] in (EOT, DC1, DC2, DC3, ACK, NAK):
@@ -681,15 +681,15 @@ class Motor(NicosMotor):
         actpos = bus.get(self.addr, 130)
         speed = bus.get(self.addr, 128)
         accel = bus.get(self.addr, 129)
-        min = bus.get(self.addr, 132)
-        max = bus.get(self.addr, 131)
+        minstep = bus.get(self.addr, 132)
+        maxstep = bus.get(self.addr, 131)
         bus.send(self.addr, 31)  # reset card
         sleep(0.2)
         # update state
         bus.send(self.addr, 41, speed, 3)
         bus.send(self.addr, 42, accel, 3)
-        bus.send(self.addr, 45, min, 6)
-        bus.send(self.addr, 44, max, 6)
+        bus.send(self.addr, 45, minstep, 6)
+        bus.send(self.addr, 44, maxstep, 6)
         bus.send(self.addr, 43, actpos, 6)
 
     def doWait(self):
@@ -936,9 +936,9 @@ class Output(Input, Moveable):
         return status.OK, 'idle'
 
     def doIsAllowed(self, pos):
-        max = self._mask >> self.first
-        if not 0 <= pos <= max:
-            return False, 'outside range [0, %d] of digital output' % max
+        maxval = self._mask >> self.first
+        if not 0 <= pos <= maxval:
+            return False, 'outside range [0, %d] of digital output' % maxval
         return True, ''
 
     def doStart(self, pos):

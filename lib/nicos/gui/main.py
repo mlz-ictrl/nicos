@@ -56,8 +56,8 @@ class NicosGuiClient(NicosClient, QObject):
         QObject.__init__(self, parent)
         NicosClient.__init__(self)
 
-    def signal(self, type, *args):
-        self.emit(SIGNAL(type), *args)
+    def signal(self, name, *args):
+        self.emit(SIGNAL(name), *args)
 
 
 class MainWindow(QMainWindow, DlgUtils):
@@ -185,13 +185,13 @@ class MainWindow(QMainWindow, DlgUtils):
         self.action_start_time = None
         self.setStatus('disconnected')
 
-    def createWindow(self, type):
-        wconfig = self.profiles[self.curprofile][1][type+1]
-        if wconfig[2] and self.windows.get(type):
+    def createWindow(self, wtype):
+        wconfig = self.profiles[self.curprofile][1][wtype+1]
+        if wconfig[2] and self.windows.get(wtype):
             return
-        window = AuxiliaryWindow(self, type, wconfig, self.curprofile)
+        window = AuxiliaryWindow(self, wtype, wconfig, self.curprofile)
         window.setWindowIcon(QIcon(':/' + wconfig[1]))
-        self.windows.setdefault(type, set()).add(window)
+        self.windows.setdefault(wtype, set()).add(window)
         self.connect(window, SIGNAL('closed'), self.on_auxWindow_closed)
         window.show()
 
@@ -248,8 +248,8 @@ class MainWindow(QMainWindow, DlgUtils):
         self.update()
 
         auxstate = settings.value('auxwindows').toList()
-        for type in [x.toInt()[0] for x in auxstate]:
-            self.createWindow(type)
+        for wtype in [x.toInt()[0] for x in auxstate]:
+            self.createWindow(wtype)
         # XXX restore e.g. last edited files
 
     def saveSettings(self, settings):
@@ -258,9 +258,9 @@ class MainWindow(QMainWindow, DlgUtils):
         settings.setValue('splitstate',
                           QVariant([sp.saveState() for sp in self.splitters]))
         auxstate = []
-        for type, windows in self.windows.iteritems():
-            for window in windows:
-                auxstate.append(type)
+        for wtype, windows in self.windows.iteritems():
+            for _ in windows:
+                auxstate.append(wtype)
         settings.setValue('auxwindows', QVariant(auxstate))
         settings.setValue('autoconnect', QVariant(self.client.connected))
         servers = sorted(set(map(str, self.servers)))
@@ -286,7 +286,7 @@ class MainWindow(QMainWindow, DlgUtils):
             with panel.sgroup as settings:
                 panel.saveSettings(settings)
 
-        for wtype, windows in self.windows.items():
+        for windows in self.windows.values():
             for window in list(windows):
                 if not window.close():
                     event.ignore()
@@ -297,7 +297,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
         event.accept()
 
-    def setTitlebar(self, connected, setups=[]):
+    def setTitlebar(self, connected, setups=()):
         inststr = str(self.instrument) or 'NICOS'
         if connected:
             hoststr = '%s at %s:%s' % (self.connectionData['login'],
@@ -397,7 +397,7 @@ class MainWindow(QMainWindow, DlgUtils):
                 panel.commandInput.setFocus()
 
     def on_client_status(self, data):
-        status, line = data
+        status = data[0]
         if status == STATUS_IDLE:
             self.setStatus('idle')
         elif status == STATUS_IDLEEXC:

@@ -471,10 +471,10 @@ class TacoAxis(TacoDevice, BaseAxis):
 
     # resources that need to be set on the motor, not the axis device
 
-    def _readMotorParam(self, resource, type=float):
+    def _readMotorParam(self, resource, conv=float):
         motorname = self._taco_guard(self._dev.deviceQueryResource, 'motor')
         client = TACOMotor(motorname)
-        return type(client.deviceQueryResource(resource))
+        return conv(client.deviceQueryResource(resource))
 
     def _writeMotorParam(self, resource, value):
         motorname = self._taco_guard(self._dev.deviceQueryResource, 'motor')

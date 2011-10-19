@@ -80,7 +80,7 @@ class NicosClient(object):
         self.version = None
         self.gzip = False
 
-    def signal(self, type, *args):
+    def signal(self, name, *args):
         # must be overwritten
         raise NotImplementedError
 
@@ -93,7 +93,7 @@ class NicosClient(object):
         try:
             self.socket.connect((conndata['host'], conndata['port']))
         except socket.error, err:
-            errno, msg = err.args
+            msg = err.args[1]
             self.signal('failed', 'Server connection failed: %s.' % msg, err)
             return
         except Exception, err:

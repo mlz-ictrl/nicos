@@ -645,7 +645,7 @@ class Cell(Device):
             print '  ' + ('%-9s' * 13) % (
                 'h', 'k', 'l', 'ny', 'ki', 'kf', 'phi', 'psi',
                 'hcalc', 'kcalc', 'lcalc', 'nycalc', 'dval')
-            for i in range(numsteps):
+            for _ in range(numsteps):
                 Qhkl += dQhkl
                 ny += dny
                 angles = self.cal_angles(Qhkl, ny, SM, SC, sense, True)

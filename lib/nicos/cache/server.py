@@ -195,11 +195,11 @@ class CacheWorker(object):
         value = value or None
         try:
             time = float(time)
-        except:
+        except ValueError:
             time = currenttime()
         try:
             ttl = float(ttl)
-        except:
+        except ValueError:
             ttl = None
         if tsop == '-' and ttl:
             ttl = ttl - time
@@ -509,7 +509,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         self._midnight = mktime(ltime[:3] + (0,) * (8-3) + (ltime[8],))
         self._nextmidnight = self._midnight + 86400
         # roll over all file descriptors
-        for category, (fd, lock, db) in self._cat.iteritems():
+        for category, (fd, _, db) in self._cat.iteritems():
             fd.close()
             fd = self._cat[category][0] = self._create_fd(category)
             for subkey, entry in db.iteritems():
@@ -544,7 +544,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         with self._cat_lock:
             if category not in self._cat:
                 return [key + OP_TELLOLD + '\r\n']
-            fd, lock, db = self._cat[category]
+            _, lock, db = self._cat[category]
         with lock:
             if subkey not in db:
                 return [key + OP_TELLOLD + '\r\n']
@@ -569,7 +569,7 @@ class FlatfileCacheDatabase(CacheDatabase):
     def ask_wc(self, key, ts, time, ttl):
         ret = set()
         # look for matching keys
-        for cat, (fd, lock, db) in self._cat.items():
+        for cat, (_, lock, db) in self._cat.items():
             prefix = cat + '/'
             with lock:
                 for subkey, entry in db.iteritems():
@@ -714,7 +714,7 @@ class CacheServer(Device):
     def _worker_thread(self):
         self.log.info('server starting')
 
-        def bind_to(address, type='tcp'):
+        def bind_to(address, proto='tcp'):
             if ':' not in address:
                 host = address
                 port = DEFAULT_CACHE_PORT
@@ -722,14 +722,14 @@ class CacheServer(Device):
                 host, port = address.split(':')
                 port = int(port)
             serversocket = socket.socket(socket.AF_INET,
-                type == 'tcp' and socket.SOCK_STREAM or socket.SOCK_DGRAM)
+                proto == 'tcp' and socket.SOCK_STREAM or socket.SOCK_DGRAM)
             serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            if type == 'udp':
+            if proto == 'udp':
                 # we want to be able to receive UDP broadcasts
                 serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
             try:
                 serversocket.bind((socket.gethostbyname(host), port))
-                if type == 'tcp':
+                if proto == 'tcp':
                     serversocket.listen(50) # max waiting connections....
                 return serversocket
             except Exception:

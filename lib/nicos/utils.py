@@ -317,8 +317,8 @@ def usermethod(func):
 
 
 class Repeater(object):
-    def __init__(self, object):
-        self.object = object
+    def __init__(self, obj):
+        self.object = obj
 
     def __iter__(self):
         return self
@@ -392,7 +392,7 @@ def printTable(headers, items, printfunc):
         printfunc(fmtstr % tuple(row))
 
 
-def getVersions(object):
+def getVersions(obj):
     """Return SVN Revision info for all modules where one of the object's
     class and base classes are in.
     """
@@ -409,7 +409,7 @@ def getVersions(object):
             pass
         for base in cls.__bases__:
             _add(base)
-    _add(object.__class__)
+    _add(obj.__class__)
     return versions
 
 
@@ -560,7 +560,7 @@ def daemonize():
             sys.stdout.close()
             sys.exit(0)
     except OSError, err:
-        print >>sys.stderr, 'fork #1 failed:', err
+        print >> sys.stderr, 'fork #1 failed:', err
         sys.exit(1)
 
     # decouple from parent environment
@@ -575,7 +575,7 @@ def daemonize():
             sys.stdout.close()
             sys.exit(0)
     except OSError, err:
-        print >>sys.stderr, 'fork #2 failed:', err
+        print >> sys.stderr, 'fork #2 failed:', err
 
     # now I am a daemon!
     from nicos.sessions import Session
