@@ -85,7 +85,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
 
     def doUpdateDebugmsg(self, value):
         if self._mode != 'simulation':
-            cascadeclient.Config_TofLoader.SetLogLevel(value and 3 or 0)
+            cascadeclient.GlobalConfig.SetLogLevel(value and 3 or 0)
 
     def doShutdown(self):
         self._client.disconnect()
@@ -140,10 +140,11 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         self._newFile()
         if preset.get('t'):
             self.preselection = self._last_preset = preset['t']
-        cascadeclient.Config_TofLoader.SetImageWidth(self._xres)
-        cascadeclient.Config_TofLoader.SetImageHeight(self._yres)
-        cascadeclient.Config_TofLoader.SetImageCount(self._tres)
-        cascadeclient.Config_TofLoader.SetPseudoCompression(False)
+        config = cascadeclient.GlobalConfig.GetTofConfig()
+        config.SetImageWidth(self._xres)
+        config.SetImageHeight(self._yres)
+        config.SetImageCount(self._tres)
+        config.SetPseudoCompression(False)
 
     def _startAction(self):
         reply = str(self._client.communicate('CMD_start'))
