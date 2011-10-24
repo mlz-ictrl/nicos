@@ -225,7 +225,12 @@ class AsyncDetector(Measurable):
         except:
             self._processed.set()
             raise
-        self._measure.set()
+        try:
+            self._startAction()
+        except:
+            self._processed.set()
+        else:
+            self._measure.set()
 
     def doStatus(self):
         st = self._devStatus()
@@ -246,7 +251,7 @@ class AsyncDetector(Measurable):
                 # wait for start signal
                 self._measure.wait()
                 # start measurement
-                self._startAction()
+                #self._startAction()
                 started = time()
                 # wait for completion of measurement
                 while True:

@@ -46,6 +46,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                           default=(-1, -1, -1, -1), settable=True),
         'mode':     Param('Data acquisition mode (tof or image)',
                           type=oneof(str, 'tof', 'image'), settable=True),
+        'slave':    Param('Slave mode', type=bool, settable=True),
         # XXX what about monitor preselection?
         'preselection': Param('Current preselection', unit='s',
                               settable=True, type=float),
@@ -123,6 +124,8 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         return float(self._getconfig()['time'])
 
     def doWritePreselection(self, value):
+        if self.slave:
+            value = 2*value  # wait for external signal
         reply = self._client.communicate('CMD_config_cdr time=%s' % value)
         if reply != 'OKAY':
             raise CommunicationError(self, 'could not set measurement time: %s'
