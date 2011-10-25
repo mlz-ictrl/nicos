@@ -3,9 +3,6 @@
 name = 'setup for the status monitor'
 group = 'special'
 
-_reactor = [
-]
-
 _expcolumn = [
     ('Experiment', [
         [{'name': 'Proposal', 'key': 'exp/proposal', 'width': 7},
@@ -21,6 +18,23 @@ _expcolumn = [
 ]
 
 _column1 = [
+    ('Detector', [
+        ['timer', 'mon1'],
+        '---',
+        [{'dev': 'MonHV', 'name': 'Mon HV', 'min': 490, 'width': 5},
+         {'dev': 'DetHV', 'name': 'Det HV', 'min': 840, 'width': 5}],
+        ],
+     'detector'),
+    ('Cascade', [
+        [{'dev': 'psd', 'name': 'ROI', 'item': 0, 'width': 9},
+         {'dev': 'psd', 'name': 'Total', 'item': 1, 'width': 9},
+         {'key': 'psd/lastfilenumber', 'name': 'Last image'}],
+        [{'dev': 'PSDGas', 'name': 'Gas', 'min': 'okay'},
+         {'dev': 'PSDHV', 'name': 'HV', 'min': 2800, 'width': 5},
+         {'dev': 'dtx', 'name': 'dtx'},
+         ]
+        ],
+     'cascade'),
     ('MIEZE', [
         [{'dev': 'freq1', 'name': 'freq1'}, {'dev': 'freq2', 'name': 'freq2'}],
         [{'dev': 'amp1', 'name': 'amp1'},   {'dev': 'amp2', 'name': 'amp2'}],
@@ -33,28 +47,13 @@ _column1 = [
         [{'dev': 'amp3', 'name': 'amp3'},   {'dev': 'amp4', 'name': 'amp4'}],
         [{'dev': 'Crane', 'min': 10, 'width': 7}],
     ], 'mieze'),
-    ('Slits', [[{'dev': 's3', 'name': 'Slit 3', 'width': 24, 'istext': True}],
-               [{'dev': 's4', 'name': 'Slit 4', 'width': 24, 'istext': True}]],
-     'slits'),
     ('X-Z table axes', [[{'dev': 'mx'}, {'dev': 'my'}]], 'gauss'),
 ]
 
 _column2 = [
-    ('Detector', [
-        ['timer', 'ctr1', 'mon1'],
-        '---',
-        [{'dev': 'MonHV', 'name': 'Mon HV', 'min': 490, 'width': 5},
-         {'dev': 'DetHV', 'name': 'Det HV', 'min': 840, 'width': 5}],
-        ],
-     'detector'),
-    ('Cascade', [
-        [{'dev': 'psd', 'name': 'ROI', 'item': 0, 'width': 9},
-         {'dev': 'psd', 'name': 'Total', 'item': 1, 'width': 9},
-         {'key': 'psd/lastfilenumber', 'name': 'Last image'}],
-        [{'dev': 'PSDGas', 'name': 'Gas', 'min': 'okay'},
-         {'dev': 'PSDHV', 'name': 'HV', 'min': 2800, 'width': 5}],
-        ],
-     'cascade'),
+    ('Slits', [[{'dev': 's3', 'name': 'Slit 3', 'width': 24, 'istext': True}],
+               [{'dev': 's4', 'name': 'Slit 4', 'width': 24, 'istext': True}]],
+     'slits'),
     ('Sample', [[{'dev': 'om'}, {'dev': 'phi'}],
                 [{'dev': 'stx'}, {'dev': 'sty'}, {'dev': 'stz'}],
                 [{'dev': 'sgx'}, {'dev': 'sgy'}]],
@@ -91,7 +90,7 @@ _column3 = [
               ],
      'mono2'),
     ('Analyzer', [[{'dev': 'ath'}, {'dev': 'att'}]],
-     'detector'),
+     'analyzer'),
     ('Reactor', [
         [{'dev': 'Power', 'name': 'Power', 'min': 19, 'format': '%d', 'width': 7},
          {'dev': 'Sixfold', 'name': '6-fold', 'min': 'open', 'width': 7},

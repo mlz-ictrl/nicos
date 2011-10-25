@@ -27,11 +27,12 @@
 __version__ = "$Revision$"
 
 from nicos import session, status
-from nicos.utils import tupleof, oneof, dictof
+from nicos.utils import tupleof, oneof
 from nicos.device import Param, Override, Value
 from nicos.abstract import ImageStorage, AsyncDetector
 from nicos.errors import CommunicationError
 from nicos.mira import cascadeclient
+from nicos.detector import FRMDetector
 
 
 class CascadeDetector(AsyncDetector, ImageStorage):
@@ -52,6 +53,10 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                               settable=True, type=float),
         'lastcounts': Param('Counts of the last measurement',
                             type=tupleof(int, int), settable=True),
+    }
+
+    attached_devices = {
+        'master':   FRMDetector,
     }
 
     parameter_overrides = {
@@ -76,13 +81,18 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         port = int(port)
         if not self._client.connecttohost(host, port):
             raise CommunicationError(self, 'could not connect to server')
+        if self.slave:
+            self._adevs['master'].reset()
 
     def valueInfo(self):
-        return Value(self.name + '.roi', unit='cts', type='counter',
-                     errors='sqrt', active=self.roi != (-1, -1, -1, -1)), \
-               Value(self.name + '.total', unit='cts', type='counter',
-                     errors='sqrt'), \
-               Value(self.name + '.file', type='info')
+        cvals = (Value(self.name + '.roi', unit='cts', type='counter',
+                       errors='sqrt', active=self.roi != (-1, -1, -1, -1)),
+                 Value(self.name + '.total', unit='cts', type='counter',
+                       errors='sqrt'), \
+                 Value(self.name + '.file', type='info'))
+        if self.slave:
+            return self._adevs['master'].valueInfo() + cvals
+        return cvals
 
     def doUpdateDebugmsg(self, value):
         if self._mode != 'simulation':
@@ -92,12 +102,18 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         self._client.disconnect()
 
     def doStop(self):
-        reply = str(self._client.communicate('CMD_stop'))
-        if reply != 'OKAY':
-            raise CommunicationError(self, 'could not stop measurement: %s'
-                                     % reply[4:])
+        if self.slave:
+            self._adevs['master'].stop()
+        else:
+            reply = str(self._client.communicate('CMD_stop'))
+            if reply != 'OKAY':
+                raise CommunicationError(self, 'could not stop measurement: %s'
+                                         % reply[4:])
 
     def doRead(self):
+        if self.slave:
+            return self._adevs['master'].read() + self.lastcounts + \
+                (self.lastfilename,)
         return self.lastcounts + (self.lastfilename,)
 
     def _getconfig(self):
@@ -124,8 +140,6 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         return float(self._getconfig()['time'])
 
     def doWritePreselection(self, value):
-        if self.slave:
-            value = 2*value  # wait for external signal
         reply = self._client.communicate('CMD_config_cdr time=%s' % value)
         if reply != 'OKAY':
             raise CommunicationError(self, 'could not set measurement time: %s'
@@ -139,9 +153,11 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         if preset.get('t'):
             self.preselection = self._last_preset = preset['t']
 
-    def _preStartAction(self, **preset):
+    def _startAction(self, **preset):
         self._newFile()
-        if preset.get('t'):
+        if self.slave:
+            self.preselection = 1000000  # master controls preset
+        elif preset.get('t'):
             self.preselection = self._last_preset = preset['t']
         config = cascadeclient.GlobalConfig.GetTofConfig()
         config.SetImageWidth(self._xres)
@@ -149,11 +165,12 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         config.SetImageCount(self._tres)
         config.SetPseudoCompression(False)
 
-    def _startAction(self):
         reply = str(self._client.communicate('CMD_start'))
         if reply != 'OKAY':
             raise CommunicationError(self, 'could not start '
                                      'measurement: %s' % reply[4:])
+        if self.slave:
+            self._adevs['master'].start(**preset)
 
     def _measurementComplete(self):
         status = self._client.communicate('CMD_status_cdr')

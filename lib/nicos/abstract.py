@@ -180,14 +180,10 @@ class AsyncDetector(Measurable):
         """
         return None
 
-    def _preStartAction(self, **preset):
+    def _startAction(self, **preset):
         """Action to run before starting measurement.  This should set the
-        preset in the detector.
+        preset in the detector and start the measurement.
         """
-        raise NotImplementedError
-
-    def _startAction(self):
-        """Action to start the actual measurement, run in the thread."""
         raise NotImplementedError
 
     def _measurementComplete(self):
@@ -221,14 +217,10 @@ class AsyncDetector(Measurable):
         self._processed.wait()
         self._processed.clear()
         try:
-            self._preStartAction(**preset)
+            self._startAction(**preset)
         except:
             self._processed.set()
             raise
-        try:
-            self._startAction()
-        except:
-            self._processed.set()
         else:
             self._measure.set()
 
