@@ -71,6 +71,9 @@ class CacheUDPConnection(object):
         self.log('UDP: recv')
         return ''
 
+    def settimeout(self, timeout):
+        self.udpsocket.settimeout(timeout)
+
     def sendall(self, data):
         datalen = len(data)
         # split data into chunks which are less than self.maxsize
@@ -87,6 +90,18 @@ class CacheUDPConnection(object):
             self.log('UDP: sent %d bytes' % (p+1))
             data = data[p+1:] # look at remaining data
         return datalen
+
+
+class CacheUDPQueue(object):
+    """Pseudo-queue for synchronous writes to UDP connections."""
+    def __init__(self, conn):
+        self.conn = conn
+
+    def get(self):
+        return None
+
+    def put(self, msg):
+        self.conn.sendall(msg)
 
 
 class CacheWorker(object):
@@ -110,7 +125,7 @@ class CacheWorker(object):
         self.log = session.getLogger(name)
         self.log.setLevel(loggers.loglevels[loglevel])
 
-        self.send_queue = Queue.Queue()
+        self.start_sender(name)
 
         if initstring:
             if not self.writeto(initstring):
@@ -120,6 +135,9 @@ class CacheWorker(object):
                                          'receiver %s' % name, args=(initdata,))
         self.receiver.setDaemon(True)
         self.receiver.start()
+
+    def start_sender(self, name):
+        self.send_queue = Queue.Queue()
         self.sender = threading.Thread(None, self._sender_thread,
                                        'sender %s' % name, args=())
         self.sender.setDaemon(True)
@@ -195,11 +213,11 @@ class CacheWorker(object):
         value = value or None
         try:
             time = float(time)
-        except ValueError:
+        except:
             time = currenttime()
         try:
             ttl = float(ttl)
-        except ValueError:
+        except:
             ttl = None
         if tsop == '-' and ttl:
             ttl = ttl - time
@@ -278,6 +296,14 @@ class CacheWorker(object):
                 self.send_queue.put('%s%s%s\r\n' % (key, op, value))
         # no update neccessary, signal success
         return True
+
+
+class CacheUDPWorker(CacheWorker):
+    def start_sender(self, name):
+        self.send_queue = CacheUDPQueue(self.connection)
+
+    def join(self):
+        self.receiver.join()
 
 
 class CacheDatabase(Device):
@@ -796,7 +822,7 @@ class CacheServer(Device):
                 self.log.info('new connection from %s' % nice_addr)
                 conn = CacheUDPConnection(self._serversocket_udp, addr,
                                           log=self.log.debug)
-                self._connected[nice_addr] = CacheWorker(
+                self._connected[nice_addr] = CacheUDPWorker(
                     self._adevs['db'], conn, name=nice_addr, initdata=data,
                     loglevel=self.loglevel)
         if self._serversocket:
