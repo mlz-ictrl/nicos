@@ -47,6 +47,29 @@ from nicos.gui.panels.console import ConsolePanel
 from nicos.gui.settings import SettingsDialog
 from nicos.cache.utils import cache_load
 
+# the default profile
+default_profile_uid = '07139e62-d244-11e0-b94b-00199991c246'
+try:
+    from nicos.gui.defconfig import default_profile_config
+except ImportError:
+    default_profile_config = ('Default', [
+        vsplit(
+            hsplit(
+                panel('nicos.gui.panels.status.ScriptStatusPanel'),
+                panel('nicos.gui.panels.watch.WatchPanel')),
+            panel('nicos.gui.panels.console.ConsolePanel'),
+            ),
+        window('Errors/warnings', 'errors', True,
+               panel('nicos.gui.panels.errors.ErrorPanel')),
+        window('Editor', 'editor', False,
+               panel('nicos.gui.panels.editor.EditorPanel')),
+        window('Analysis', 'plotter', True,
+               panel('nicos.gui.panels.analysis.AnalysisPanel')),
+        window('History', 'find', True,
+               panel('nicos.gui.panels.history.HistoryPanel')),
+        ], []
+    )
+
 
 class NicosGuiClient(NicosClient, QObject):
     siglist = ['connected', 'disconnected', 'broken', 'failed', 'error'] + \
@@ -91,24 +114,6 @@ class MainWindow(QMainWindow, DlgUtils):
 
         # data handling setup
         self.data = DataHandler(self.client)
-
-        default_profile_uid = '07139e62-d244-11e0-b94b-00199991c246'
-        default_profile_config = ('Default', [
-            vsplit(
-                hsplit(
-                    panel('nicos.gui.panels.status.ScriptStatusPanel'),
-                    panel('nicos.gui.panels.watch.WatchPanel')),
-                panel('nicos.gui.panels.console.ConsolePanel'),
-                ),
-            window('Errors/warnings', 'errors', True,
-                   panel('nicos.gui.panels.errors.ErrorPanel')),
-            window('Editor', 'editor', False,
-                   panel('nicos.gui.panels.editor.EditorPanel')),
-            window('Analysis', 'plotter', True,
-                   panel('nicos.gui.panels.analysis.AnalysisPanel')),
-            window('History', 'find', True,
-                   panel('nicos.gui.panels.history.HistoryPanel')),
-            ])
 
         # load profiles and current profile
         self.pgroup = SettingGroup('Application')
