@@ -596,7 +596,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         ret = set()
         # look for matching keys
         for cat, (_, lock, db) in self._cat.items():
-            prefix = cat + '/'
+            prefix = cat + '/' if cat != 'nocat' else ''
             with lock:
                 for subkey, entry in db.iteritems():
                     if key not in prefix+subkey:
