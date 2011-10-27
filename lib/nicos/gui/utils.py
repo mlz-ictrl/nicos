@@ -35,10 +35,10 @@ from os import path
 from itertools import islice, chain
 
 from PyQt4 import uic
-from PyQt4.QtCore import Qt, QSettings, SIGNAL
+from PyQt4.QtCore import Qt, QSettings, QVariant, QDateTime, QSize, SIGNAL
 from PyQt4.QtGui import QApplication, QDialog, QProgressDialog, QMessageBox, \
      QPushButton, QTreeWidgetItem, QPalette, QFont, QClipboard, QDialogButtonBox, \
-     QToolButton
+     QToolButton, QFileDialog, QLabel, QTextEdit, QWidget, QVBoxLayout
 
 from nicos.gui.client import DEFAULT_PORT
 
@@ -174,6 +174,61 @@ class DlgUtils(object):
         return QMessageBox.question(self, self._dlgutils_title, text,
                                     buttons, defbutton) == QMessageBox.Yes
 
+    def selectInputFile(self, ctl, text='Choose an input file'):
+        previous = str(ctl.text())
+        if previous:
+            startdir = path.dirname(previous)
+        else:
+            startdir = '.'
+        fname = QFileDialog.getOpenFileName(self, text,
+                                            startdir, 'All files (*)')
+        if fname:
+            ctl.setText(fname)
+
+    def selectOutputFile(self, ctl, text='Choose an output filename'):
+        previous = str(ctl.text())
+        if previous:
+            startdir = path.dirname(previous)
+        else:
+            startdir = '.'
+        fname = QFileDialog.getSaveFileName(self, text,
+                                            startdir, 'All files (*)')
+        if fname:
+            ctl.setText(fname)
+
+    def selectDirectory(self, ctl, text='Choose a directory'):
+        previous = str(ctl.text())
+        startdir = previous or '.'
+        fname = QFileDialog.getExistingDirectory(self, text, startdir)
+        if fname:
+            ctl.setText(fname)
+
+    def viewTextFile(self, fname):
+        f = open(fname)
+        contents = f.read()
+        f.close()
+        qd = QDialog(self, 'PreviewDlg', True)
+        qd.setCaption('File preview')
+        qd.resize(QSize(500, 500))
+        lay = QVBoxLayout(qd, 11, 6, 'playout')
+        lb = QLabel(qd, 'label')
+        lb.setText('Viewing %s:' % fname)
+        lay.addWidget(lb)
+        tx = QTextEdit(qd, 'preview')
+        tx.setReadOnly(1)
+        tx.setText(contents)
+        font = QFont(tx.font())
+        font.setFamily('monospace')
+        tx.setFont(font)
+        lay.addWidget(tx)
+        btn = QPushButton(qd, 'ok')
+        btn.setAutoDefault(1)
+        btn.setDefault(1)
+        btn.setText('Close')
+        qd.connect(btn, SIGNAL('clicked()'), qd.accept)
+        lay.addWidget(btn, 0, QWidget.AlignRight)
+        qd.show()
+
 
 class SettingGroup(object):
     def __init__(self, name):
@@ -227,3 +282,87 @@ def showTraceback(tb, parent, fontwidget):
         for var, value in bindings.iteritems():
             QTreeWidgetItem(item, ['', var, value])
     dlg.show()
+
+
+class DlgPresets(object):
+    """Save dialog presets for Qt dialogs."""
+
+    def __init__(self, group, ctls):
+        self.group = group
+        self.ctls = ctls
+        self.settings = QSettings('nicostools')
+
+    def load(self):
+        self.settings.beginGroup(self.group)
+        for (ctl, default) in self.ctls:
+            entry = 'presets/' + ctl.objectName()
+            val = self.settings.value(entry, QVariant(default))
+            try:
+                if type(default) is int:
+                    val = val.toInt()[0]
+                else:
+                    val = val.toString()
+                getattr(self, 'set_' + ctl.__class__.__name__)(ctl, val)
+            except Exception, err:
+                print ctl, err
+        self.settings.endGroup()
+
+    def save(self):
+        self.settings.beginGroup(self.group)
+        for (ctl, _) in self.ctls:
+            entry = 'presets/' + ctl.objectName()
+            try:
+                val = getattr(self, 'get_' + ctl.__class__.__name__)(ctl)
+                self.settings.setValue(entry, QVariant(val))
+            except Exception, err:
+                print err
+        self.settings.endGroup()
+        self.settings.sync()
+
+    def set_QLineEdit(self, ctl, val):
+        ctl.setText(val)
+    def set_QListBox(self, ctl, val):
+        ctl.setSelected(ctl.findItem(val), 1)
+    def set_QListWidget(self, ctl, val):
+        ctl.setCurrentItem(ctl.findItems(val, Qt.MatchExactly)[0])
+    def set_QComboBox(self, ctl, val):
+        if ctl.isEditable():
+            ctl.setEditText(val)
+        else:
+            ctl.setCurrentIndex(val)
+    def set_QTextEdit(self, ctl, val):
+        ctl.setText(val)
+    def set_QTabWidget(self, ctl, val):
+        ctl.setCurrentIndex(val)
+    def set_QSpinBox(self, ctl, val):
+        ctl.setValue(val)
+    def set_QRadioButton(self, ctl, val):
+        ctl.setChecked(bool(val))
+    def set_QCheckBox(self, ctl, val):
+        ctl.setChecked(bool(val))
+    def set_QDateTimeEdit(self, ctl, val):
+        ctl.setDateTime(QDateTime.fromString(val))
+
+    def get_QLineEdit(self, ctl):
+        return ctl.text()
+    def get_QListBox(self, ctl):
+        return ctl.selectedItem().text()
+    def get_QListWidget(self, ctl):
+        return ctl.currentItem().text()
+    def get_QComboBox(self, ctl):
+        if ctl.isEditable():
+            return ctl.currentText()
+        else:
+            return ctl.currentIndex()
+    def get_QTextEdit(self, ctl):
+        return ctl.text()
+    def get_QTabWidget(self, ctl):
+        return ctl.currentIndex()
+    def get_QSpinBox(self, ctl):
+        return ctl.value()
+    def get_QRadioButton(self, ctl):
+        return int(ctl.isChecked())
+    def get_QCheckBox(self, ctl):
+        return int(ctl.isChecked())
+    def get_QDateTimeEdit(self, ctl):
+        return ctl.dateTime().toString()

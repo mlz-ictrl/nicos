@@ -1,6 +1,42 @@
 # Default MIRA GUI config
 
-from nicos.gui.panels import vsplit, hsplit, panel, window
+from nicos.gui.config import vsplit, hsplit, panel, window, tool
+
+maint_commands = [
+    ('Restart TACO server for RS232/mira1',
+     'ssh maint@mira1 sudo /etc/init.d/taco-server-rs232 restart'),
+    ('Restart TACO server for RS485/mira1',
+     'ssh maint@mira1 sudo /etc/init.d/taco-server-rs485 restart'),
+    ('Restart TACO server for LakeShore',
+     'ssh maint@mira1 sudo /etc/init.d/taco-server-lakeshore340 restart'),
+    ('Restart TACO server for Phytron',
+     'ssh maint@mira1 sudo /etc/init.d/taco-server-phytronixe restart'),
+    ('Restart TACO server for FRM counter',
+     'ssh maint@mira1 sudo /etc/init.d/taco-server-frmcounter restart'),
+    ('Restart TACO server for ZUPs',
+     'ssh maint@mira1 sudo /etc/init.d/taco-server-zup restart'),
+    ('Restart TACO server for IPC encoder',
+     'ssh maint@mira1 sudo /etc/init.d/taco-server-ipcencoder restart'),
+
+    ('Restart TACO server for RS232/mira4',
+     'ssh maint@mira4 sudo /etc/init.d/taco-server-rs232 restart'),
+    ('Restart TACO server for network/mira4',
+     'ssh maint@mira4 sudo /etc/init.d/taco-server-network restart'),
+    ('Restart TACO server for HPE power supplies',
+     'ssh maint@mira4 sudo /etc/init.d/taco-server-hpe3631a restart'),
+    ('Restart TACO server for NTN (FUG)',
+     'ssh maint@mira4 sudo /etc/init.d/taco-server-ntn14000m restart'),
+    ('Restart TACO server for Heinzinger',
+     'ssh maint@mira4 sudo /etc/init.d/taco-server-heinzingerptn3p restart'),
+    ('Restart TACO server for Tektronix',
+     'ssh maint@mira4 sudo /etc/init.d/taco-server-tektronixtds restart'),
+    ('Restart TACO server for Agilent frequency generators',
+     'ssh maint@mira4 sudo /etc/init.d/taco-server-hp33250a restart'),
+    ('Restart TACO server for C-Boxes',
+     'ssh maint@mira4 sudo /etc/init.d/taco-server-pci2032 restart'),
+    ('Restart TACO server for TMCA counter',
+     'ssh maint@mira4 sudo /etc/init.d/taco-server-tmca restart'),
+]
 
 default_profile_config = ('Default', [
     vsplit(
@@ -19,5 +55,9 @@ default_profile_config = ('Default', [
            panel('nicos.gui.panels.analysis.AnalysisPanel')),
     window('History', 'find', True,
            panel('nicos.gui.panels.history.HistoryPanel')),
-    ], []
+    ], [
+        tool('nicos.gui.tools.commands.CommandsTool',
+             commands=maint_commands),
+        tool('nicos.gui.tools.'),
+    ]
 )

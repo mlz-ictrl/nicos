@@ -41,8 +41,8 @@ from nicos.gui.utils import DlgUtils, SettingGroup, \
      parseConnectionData, getXDisplay, dialogFromUi, loadUi
 from nicos.gui.client import NicosDaemon, NicosClient, DEFAULT_PORT, \
      STATUS_INBREAK, STATUS_IDLE, STATUS_IDLEEXC
-from nicos.gui.panels import hsplit, vsplit, panel, window, AuxiliaryWindow, \
-     createWindowItem
+from nicos.gui.config import hsplit, vsplit, panel, window
+from nicos.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.gui.panels.console import ConsolePanel
 from nicos.gui.settings import SettingsDialog
 from nicos.cache.utils import cache_load

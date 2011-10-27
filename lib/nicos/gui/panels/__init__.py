@@ -31,7 +31,7 @@ from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFont, QColor, \
      QFontDialog, QColorDialog
 
 from nicos.gui.utils import DlgUtils, SettingGroup, loadUi, importString
-
+from nicos.gui.config import hsplit, vsplit, panel
 
 class AuxiliaryWindow(QMainWindow):
 
@@ -138,23 +138,6 @@ class Panel(QWidget, DlgUtils):
 
     def updateStatus(self, status, exception=False):
         pass
-
-
-class window(tuple):
-    def __new__(cls, title, icon, unique, child):
-        return tuple.__new__(cls, (title, icon, unique, child))
-
-class hsplit(tuple):
-    def __new__(cls, *children):
-        return tuple.__new__(cls, children)
-
-class vsplit(tuple):
-    def __new__(cls, *children):
-        return tuple.__new__(cls, children)
-
-class panel(tuple):
-    def __new__(cls, type, **settings):
-        return tuple.__new__(cls, (type, settings))
 
 
 def createWindowItem(item, window, container):

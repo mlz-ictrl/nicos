@@ -34,20 +34,19 @@ from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QDialog, QPushButton
 from PyQt4.uic import loadUi
 
-from nicos.gui.tools.uitools import runDlgStandalone
 
-
-class CmdTool(QDialog):
-    def __init__(self, parent=None):
+class CommandsTool(QDialog):
+    def __init__(self, parent=None, **settings):
         QDialog.__init__(self, parent)
-        loadUi(path.join(path.dirname(__file__), 'cmdtool.ui'), self)
+        loadUi(path.join(path.dirname(__file__), 'commands.ui'), self)
 
         self.connect(self.closeBtn, SIGNAL('clicked()'), self.close)
 
-        ncmds = len(custom.MAINT_COMMANDS)
+        commands = settings.get('commands', [])
+        ncmds = len(commands)
         collen = min(ncmds, 8)
 
-        for i, (text, cmd) in enumerate(custom.MAINT_COMMANDS):
+        for i, (text, cmd) in enumerate(commands):
             btn = QPushButton(text, self)
             self.buttonLayout.addWidget(btn, i % collen, i // collen)
             self.connect(btn, SIGNAL('clicked()'),
@@ -60,7 +59,3 @@ class CmdTool(QDialog):
                                 stderr=subprocess.STDOUT)
         out = proc.communicate()[0]
         self.outputBox.appendPlainText(out)
-
-
-if __name__ == '__main__':
-    runDlgStandalone(CmdTool)
