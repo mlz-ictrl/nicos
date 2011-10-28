@@ -179,8 +179,8 @@ class HistoryPanel(Panel):
     def on_client_cache(self, (time, key, op, value)):
         if key not in self.keyviews:
             return
+        value = cache_load(value)
         for view in self.keyviews[key]:
-            value = cache_load(value)
             view.newValue(time, key, op, value)
             if view.plot:
                 view.plot.pointsAdded(key)
