@@ -64,21 +64,26 @@ class View(object):
             self.keydata = {}
             totime = self.totime or time.time()
             for key in keys:
-                x, y = [], []
-                self.keydata[key] = x, y
                 history = client.ask('gethistory', key,
                                      str(self.fromtime), str(totime))
                 if history is None:
-                    return # XXX what to do?
+                    print 'Error getting history.'
+                    history = []
                 ltime = 0
                 interval = self.interval
+                x, y = np.zeros(len(history)), np.zeros(len(history))
+                i = 0
                 for vtime, value in history:
                     if value is not None and vtime > ltime + interval:
-                        x.append(vtime)
-                        y.append(value)
+                        x[i] = vtime
+                        y[i] = value
+                        i += 1
                         ltime = vtime
+                x.resize((2*i,)); y.resize((2*i,))
+                self.keydata[key] = [x, y, i]
         else:
-            self.keydata = dict((key, [[], []]) for key in keys)
+            self.keydata = dict((key, [np.zeros(1000), np.zeros(1000), 0])
+                                for key in keys)
 
         self.listitem = None
         self.plot = None
@@ -87,14 +92,23 @@ class View(object):
         if op != '=':
             return
         kd = self.keydata[key]
-        if kd[0] and kd[0][-1] > time - self.interval:
+        n = kd[2]
+        if n and kd[0][n-1] > time - self.interval:
             return
-        kd[0].append(time)
-        kd[1].append(value)
+        # double array size if array is full
+        if n == kd[0].shape[0]:
+            kd[0].resize((2*kd[0].shape[0],))
+            kd[1].resize((2*kd[0].shape[0],))
+        # fill next entry
+        kd[0][n] = time
+        kd[1][n] = value
+        kd[2] += 1
 
 
 class HistoryPanel(Panel):
     panelName = 'History viewer'
+
+    # XXX save history views when closing?
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
@@ -179,8 +193,8 @@ class HistoryPanel(Panel):
     def on_client_cache(self, (time, key, op, value)):
         if key not in self.keyviews:
             return
+        value = cache_load(value)
         for view in self.keyviews[key]:
-            value = cache_load(value)
             view.newValue(time, key, op, value)
             if view.plot:
                 view.plot.pointsAdded(key)
@@ -435,8 +449,8 @@ class ViewPlot(QwtPlot):
         plotcurve.setPen(pen)
         plotcurve.setSymbol(self.symbol)
         plotcurve.setRenderHint(QwtPlotItem.RenderAntialiased)
-        x, y = self.view.keydata[key]
-        plotcurve.setData(np.array(x), np.array(y))
+        x, y, n = self.view.keydata[key]
+        plotcurve.setData(x[:n], y[:n])
         plotcurve.attach(self)
         if self.legend():
             item = self.legend().find(plotcurve)
@@ -450,8 +464,8 @@ class ViewPlot(QwtPlot):
     def pointsAdded(self, whichkey):
         for key, plotcurve in zip(self.view.keys, self.curves):
             if key == whichkey:
-                x, y = self.view.keydata[key]
-                plotcurve.setData(np.array(x), np.array(y))
+                x, y, n = self.view.keydata[key]
+                plotcurve.setData(x[:n], y[:n])
                 self.replot()
                 return
 
