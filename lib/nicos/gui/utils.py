@@ -290,7 +290,7 @@ class DlgPresets(object):
     def __init__(self, group, ctls):
         self.group = group
         self.ctls = ctls
-        self.settings = QSettings('nicostools')
+        self.settings = QSettings()
 
     def load(self):
         self.settings.beginGroup(self.group)

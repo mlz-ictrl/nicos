@@ -26,32 +26,6 @@
 
 __version__ = "$Revision$"
 
-# ----- user changeable parameters ---------------------------------------------
-
-MIEZE_SETTINGS = [
-    '46_69',
-#    '65_97p5',
-#    '74_111',
-    '72_108',
-#    '103_154p5',
-    '99_148p5',
-    '138_207',
-    '139_208p5_BS',
-    '200_300',
-    '200_300_BS',
-    '279_418p5_BS',
-    '280_420',
-]
-
-# not really changeable :-)
-
-M_N = 1.6749e-27
-H   = 6.6261e-34
-PI  = 3.1415926
-
-# ------------------------------------------------------------------------------
-
-
 import re
 import math
 from os import path
@@ -60,7 +34,12 @@ from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QDialog, QPixmap, QTreeWidgetItem, QDoubleValidator
 from PyQt4.uic import loadUi
 
-from nicos.gui.tools.uitools import DlgPresets, runDlgStandalone
+from nicos.gui.utils import DlgPresets
+
+
+M_N = 1.6749e-27
+H   = 6.6261e-34
+PI  = 3.1415926
 
 def tofloat(ctl):
     try:
@@ -74,30 +53,36 @@ bragg_fields = ['Lambda', '2Theta', 'N', 'D', 'Q', 'SampleDet']
 bragg_convs  = [1e-10, PI/180, 1, 1e-10, 1e10, 1]
 
 
-class CalcTool(QDialog):
-    def __init__(self, parent=None):
+class CalculatorTool(QDialog):
+    def __init__(self, parent=None, **settings):
         QDialog.__init__(self, parent)
         loadUi(path.join(path.dirname(__file__), 'calc.ui'), self)
 
         self.connect(self.closeBtn, SIGNAL('clicked()'),
                      self.doclose)
 
-        self.connect(self.mzwavelengthInput,
-                     SIGNAL('textChanged(const QString &)'), self.mzcalc)
-        self.connect(self.mzdistanceInput,
-                     SIGNAL('textChanged(const QString &)'), self.mzcalc)
-
-        self.mzformulaLabel.setPixmap(QPixmap(
-                path.join(path.dirname(__file__), 'formulas', 'miezefml.png')))
         self.braggfmlLabel.setPixmap(QPixmap(
-                path.join(path.dirname(__file__), 'formulas', 'braggfml.png')))
-
+            path.join(path.dirname(__file__), 'calculator_images',
+                      'braggfml.png')))
         for fld in bragg_fields:
-            self.connect(getattr(self, 'chk'+fld), SIGNAL('toggled(bool)'),
+            self.connect(getattr(self, 'chk' + fld), SIGNAL('toggled(bool)'),
                          self.gen_checked(fld))
-        self.mztimeTable.setHeaderLabels(['Setting', u'MIEZE time τ'])
-        for setting in MIEZE_SETTINGS:
-            self.mztimeTable.addTopLevelItem(QTreeWidgetItem([setting, '']))
+
+        self._miezesettings = settings.get('mieze', [])
+        if not self._miezesettings:
+            self.tabWidget.removeTab(2)
+        else:
+            self.connect(self.mzwavelengthInput,
+                         SIGNAL('textChanged(const QString &)'), self.mzcalc)
+            self.connect(self.mzdistanceInput,
+                         SIGNAL('textChanged(const QString &)'), self.mzcalc)
+            self.mzformulaLabel.setPixmap(QPixmap(
+                    path.join(path.dirname(__file__), 'calculator_images',
+                              'miezefml.png')))
+
+            self.mztimeTable.setHeaderLabels(['Setting', u'MIEZE time τ'])
+            for setting in self._miezesettings:
+                self.mztimeTable.addTopLevelItem(QTreeWidgetItem([setting, '']))
 
         self.presets = DlgPresets('nicoscalctool', [
             (self.tabWidget, 0),
@@ -114,7 +99,8 @@ class CalcTool(QDialog):
         dblval = QDoubleValidator(self)
         for fld in bragg_fields:
             input = getattr(self, 'input'+fld)
-            self.connect(input, SIGNAL('textChanged(const QString &)'), self.braggcalc)
+            self.connect(input, SIGNAL('textChanged(const QString &)'),
+                         self.braggcalc)
             input.setValidator(dblval)
 
     def doclose(self, *ignored):
@@ -193,7 +179,7 @@ class CalcTool(QDialog):
         L_s = tofloat(self.mzdistanceInput) * 1e-2  # in cm
         lam = tofloat(self.mzwavelengthInput) * 1e-10  # in Ang
 
-        for i, setting in enumerate(MIEZE_SETTINGS):
+        for i, setting in self._miezesettings:
             f1, f2, bs = re.match(r'([\dp]+)_([\dp]+)(_BS)?', setting).groups()
             f1 = float(f1.replace('p', '.')) * 1000  # in kHz
             f2 = float(f2.replace('p', '.')) * 1000  # in kHz
@@ -201,7 +187,3 @@ class CalcTool(QDialog):
             if bs: dOmega *= 2
             tau = (prefactor * lam**3 * dOmega * L_s) * 1e12  # in ps
             self.mztimeTable.topLevelItem(i).setText(1, '%.1f ps' % tau)
-
-
-if __name__ == '__main__':
-    runDlgStandalone(CalcTool)

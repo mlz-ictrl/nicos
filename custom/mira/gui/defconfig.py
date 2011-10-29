@@ -38,6 +38,22 @@ maint_commands = [
      'ssh maint@mira4 sudo /etc/init.d/taco-server-tmca restart'),
 ]
 
+
+MIEZE_settings = [
+    '46_69',
+#    '65_97p5',
+#    '74_111',
+    '72_108',
+#    '103_154p5',
+    '99_148p5',
+    '138_207',
+    '139_208p5_BS',
+    '200_300',
+    '200_300_BS',
+    '279_418p5_BS',
+    '280_420',
+]
+
 default_profile_config = ('Default', [
     vsplit(
         hsplit(
@@ -58,6 +74,7 @@ default_profile_config = ('Default', [
     ], [
         tool('nicos.gui.tools.commands.CommandsTool',
              commands=maint_commands),
-        tool('nicos.gui.tools.'),
+        tool('nicos.gui.tools.calculator.CalculatorTool',
+             mieze=MIEZE_settings),
     ]
 )
