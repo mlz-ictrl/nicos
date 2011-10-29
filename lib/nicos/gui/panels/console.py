@@ -113,10 +113,14 @@ class ConsolePanel(Panel):
         """Called when the user clicks a link in the out view."""
         url = str(url.toString())
         if url.startswith('exec:'):
-            self.client.tell('queue', '', url[5:])
-            self.mainwindow.action_start_time = time.time()
+            # Direct execution is too dangerous. Just insert it in the editor.
+            #self.client.tell('queue', '', url[5:])
+            #self.mainwindow.action_start_time = time.time()
+            if self.hasinput:
+                self.commandInput.setText(url[5:])
+                self.commandInput.setFocus()
         elif url.startswith('edit:'):
-            # XXX implement this? (also check if file is already open)
+            # XXX implement this (also check if file is already open)
             # editor = self.on_actionUserEditor_triggered()
             # editor.openFile(url[5:])
             pass
