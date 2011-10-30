@@ -27,6 +27,7 @@
 __version__ = "$Revision$"
 
 import time
+import subprocess
 import cPickle as pickle
 
 from PyQt4.QtCore import Qt, QObject, QTimer, QSize, QVariant, QStringList, SIGNAL
@@ -194,10 +195,16 @@ class MainWindow(QMainWindow, DlgUtils):
 
     def runTool(self, ttype):
         tconfig = self.profiles[self.curprofile][2][ttype]
-        toolclass = importString(tconfig[1])
-        dialog = toolclass(self, **tconfig[2])
-        dialog.setWindowModality(Qt.NonModal)
-        dialog.show()
+        try:
+            # either it's a class name
+            toolclass = importString(tconfig[1])
+        except ImportError:
+            # or it's a system command
+            subprocess.Popen(tconfig[1], shell=True)
+        else:
+            dialog = toolclass(self, **tconfig[2])
+            dialog.setWindowModality(Qt.NonModal)
+            dialog.show()
 
     def setConnData(self, login, host, port):
         self.connectionData['login'] = login
