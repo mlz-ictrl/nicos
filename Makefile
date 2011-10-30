@@ -74,6 +74,7 @@ main-install:
 	@echo "Installing NICOS-ng to $(ROOTDIR)..."
 	@echo "============================================================="
 	install $(VOPT) -d $(ROOTDIR)/{bin,doc,etc,lib,log,pid,setups,scripts}
+	rm -f $(VOPT) $(ROOTDIR)/lib/nicos/daemon/_pyctl.so
 	cp -pr $(VOPT) build/lib*/* $(ROOTDIR)/lib
 	cp -pr $(VOPT) pid/README $(ROOTDIR)/pid
 	chown $(SYSUSER):$(SYSGROUP) $(ROOTDIR)/pid
