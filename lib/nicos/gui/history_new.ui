@@ -131,7 +131,7 @@
    <item>
     <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>If &quot;To&quot; is not activated or the date is in the future, new values will be added to the plot as they are recorded.</string>
+      <string>If &quot;To&quot; is not activated, new values will be added to the plot as they are acquired by the system.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
