@@ -105,6 +105,9 @@ class AnalysisPanel(Panel):
     def loadSettings(self, settings):
         self.splitterstate = settings.value('splitter').toByteArray()
 
+    def saveSettings(self, settings):
+        settings.setValue('splitter', self.splitter.saveState())
+
     def setCustomStyle(self, font, back):
         self.user_font = font
         self.user_color = back
