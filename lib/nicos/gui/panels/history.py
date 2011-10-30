@@ -28,20 +28,18 @@ __version__ = "$Revision$"
 
 import time
 
-from PyQt4.QtCore import Qt, QSize, QDateTime, SIGNAL
-from PyQt4.Qwt5 import QwtPlot, QwtText, QwtSymbol, QwtLegend, QwtPlotItem, \
-     QwtPlotZoomer, QwtPlotGrid, QwtPicker, QwtPlotPicker, QwtPlotCurve, \
+from PyQt4.QtCore import Qt, QDateTime, SIGNAL
+from PyQt4.Qwt5 import QwtPlot, QwtText, QwtPlotCurve, \
      QwtLog10ScaleEngine, QwtLinearScaleEngine, QwtScaleDraw
-from PyQt4.QtGui import QDialog, QPalette, QFont, QPen, QBrush, \
-     QListWidgetItem, QFileDialog, QPrintDialog, QPrinter, QToolBar, QMenu, \
-     QStatusBar, QSizePolicy
+from PyQt4.QtGui import QDialog, QFont, QPen, QListWidgetItem, QFileDialog, \
+     QPrintDialog, QPrinter, QToolBar, QMenu, QStatusBar, QSizePolicy
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np
 
 from nicos.gui.panels import Panel
 from nicos.gui.utils import loadUi, dialogFromUi
-from nicos.gui.plothelpers import XPlotPicker
+from nicos.gui.plothelpers import NicosPlot
 from nicos.cache.utils import cache_load
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
@@ -358,108 +356,40 @@ class HistoryPanel(Panel):
         self.currentPlot.setLegend(on)
 
 
-class ViewPlot(QwtPlot):
+class ViewPlot(NicosPlot):
     def __init__(self, parent, window, view):
-        QwtPlot.__init__(self, parent)
         self.view = view
-        self.window = window
-        self.curves = []
+        NicosPlot.__init__(self, parent, window)
 
-        font = self.window.font() # XXX userFont
-        bold = QFont(font)
-        bold.setBold(True)
-        larger = QFont(font)
-        larger.setPointSize(font.pointSize() * 1.6)
-        self.setFonts(font, bold, larger)
+    def titleString(self):
+        return '<h3>%s</h3>' % self.view.name
 
-        self.symbol = QwtSymbol(QwtSymbol.Ellipse, QBrush(),
-                                QPen(), QSize(6, 6))
+    def xaxisName(self):
+        return 'time'
 
-        # setup zooming and unzooming
-        self.zoomer = QwtPlotZoomer(QwtPlot.xBottom, QwtPlot.yLeft,
-                                    self.canvas())
-        self.zoomer.initMousePattern(3)
+    def yaxisName(self):
+        return 'value'
 
-        # setup picking and mouse tracking of coordinates
-        self.picker = XPlotPicker(QwtPlot.xBottom, QwtPlot.yLeft,
-                                  QwtPicker.PointSelection |
-                                  QwtPicker.DragSelection,
-                                  QwtPlotPicker.NoRubberBand,
-                                  QwtPicker.AlwaysOff,
-                                  self.canvas())
-
-        # XXX self.setCanvasBackground(self.window.userColor)
-        self.canvas().setMouseTracking(True)
-        self.connect(self.picker, SIGNAL('moved(const QPoint &)'),
-                     self.on_picker_moved)
-
-        self.updateDisplay()
-
-        self.setLegend(True)
-        self.connect(self, SIGNAL('legendClicked(QwtPlotItem*)'),
-                     self.on_legendClicked)
-
-    def setFonts(self, font, bold, larger):
-        self.setFont(font)
-        self.titleLabel().setFont(larger)
-        self.setAxisFont(QwtPlot.yLeft, font)
-        self.setAxisFont(QwtPlot.yRight, font)
-        self.setAxisFont(QwtPlot.xBottom, font)
-        self.axisTitle(QwtPlot.xBottom).setFont(bold)
-        self.axisTitle(QwtPlot.yLeft).setFont(bold)
-        self.axisTitle(QwtPlot.yRight).setFont(bold)
-        self.labelfont = bold
-        #self.disabledfont = QFont(font)
-        #self.disabledfont.setStrikeOut(True)
-
-    def updateDisplay(self):
-        self.clear()
-        grid = QwtPlotGrid()
-        grid.setPen(QPen(QBrush(Qt.lightGray), 1, Qt.DotLine))
-        grid.attach(self)
-
-        self.setTitle('<h3>%s</h3>' % self.view.name)
-        xaxistext = QwtText('time')
-        xaxistext.setFont(self.labelfont)
-        self.setAxisTitle(QwtPlot.xBottom, xaxistext)
-        self.setAxisScaleDraw(QwtPlot.xBottom, TimeScaleDraw())
-        yaxisname = 'value'
-        yaxistext = QwtText(yaxisname)
-        yaxistext.setFont(self.labelfont)
-        self.setAxisTitle(QwtPlot.yLeft, yaxistext)
-
-        self.curves = []
+    def addAllCurves(self):
         for i, key in enumerate(self.view.keys):
             self.addCurve(i, key)
 
-        # XXX for now
-        self.setAxisAutoScale(QwtPlot.xBottom)
-        #self.setAxisScale(QwtPlot.xBottom, xscale[0], xscale[1])
-        # needed for zoomer base
-        self.setAxisAutoScale(QwtPlot.yLeft)
-        self.zoomer.setZoomBase(True)   # does a replot
-
-    curvecolor = [Qt.black, Qt.red, Qt.green, Qt.blue,
-                  Qt.magenta, Qt.cyan, Qt.darkGray]
-    numcolors = len(curvecolor)
+    def on_picker_moved(self, point, strf=time.strftime, local=time.localtime):
+        # overridden to show the correct timestamp
+        tstamp = local(int(self.invTransform(QwtPlot.xBottom, point.x())))
+        info = "X = %s, Y = %g" % (
+            strf('%y-%m-%d %H:%M:%S', tstamp),
+            self.invTransform(QwtPlot.yLeft, point.y()))
+        self.window.statusBar.showMessage(info)
 
     def addCurve(self, i, key, replot=False):
         pen = QPen(self.curvecolor[i % self.numcolors])
         plotcurve = QwtPlotCurve(key)
         plotcurve.setPen(pen)
         plotcurve.setSymbol(self.symbol)
-        plotcurve.setRenderHint(QwtPlotItem.RenderAntialiased)
         x, y, n = self.view.keydata[key]
         plotcurve.setData(x[:n], y[:n])
-        plotcurve.attach(self)
-        if self.legend():
-            item = self.legend().find(plotcurve)
-            if not plotcurve.isVisible():
-                #item.setFont(self.disabledfont)
-                item.text().setText('(' + item.text().text() + ')')
-        self.curves.append(plotcurve)
-        if replot:
-            self.zoomer.setZoomBase(True)
+        self.addPlotCurve(plotcurve, replot)
 
     def pointsAdded(self, whichkey):
         for key, plotcurve in zip(self.view.keys, self.curves):
@@ -468,37 +398,3 @@ class ViewPlot(QwtPlot):
                 plotcurve.setData(x[:n], y[:n])
                 self.replot()
                 return
-
-    def setLegend(self, on):
-        if on:
-            legend = QwtLegend(self)
-            legend.setItemMode(QwtLegend.ClickableItem)
-            # XXX legend.palette().setColor(QPalette.Base, self.window.userColor)
-            legend.setBackgroundRole(QPalette.Base)
-            self.insertLegend(legend, QwtPlot.BottomLegend)
-            for curve in self.curves:
-                if not curve.isVisible():
-                    #legend.find(curve).setFont(self.disabledfont)
-                    itemtext = legend.find(curve).text()
-                    itemtext.setText('(' + itemtext.text() + ')')
-        else:
-            self.insertLegend(None)
-
-    def on_legendClicked(self, item):
-        legenditemtext = self.legend().find(item).text()
-        if item.isVisible():
-            item.setVisible(False)
-            #legenditem.setFont(self.disabledfont)
-            legenditemtext.setText('(' + legenditemtext.text() + ')')
-        else:
-            item.setVisible(True)
-            #legenditem.setFont(self.font())
-            legenditemtext.setText(legenditemtext.text())
-        self.replot()
-
-    def on_picker_moved(self, point, strf=time.strftime, local=time.localtime):
-        tstamp = local(int(self.invTransform(QwtPlot.xBottom, point.x())))
-        info = "X = %s, Y = %g" % (
-            strf('%y-%m-%d %H:%M:%S', tstamp),
-            self.invTransform(QwtPlot.yLeft, point.y()))
-        self.window.statusBar.showMessage(info)

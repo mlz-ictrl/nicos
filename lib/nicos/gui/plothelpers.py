@@ -30,10 +30,11 @@ import time
 
 from numpy import asarray
 
-from PyQt4.QtCore import Qt, QRectF, QLine, SIGNAL
-from PyQt4.QtGui import QPen, QPainter
-from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotPicker, \
-     QwtLog10ScaleEngine, QwtSymbol
+from PyQt4.QtCore import Qt, QRectF, QLine, QSize, SIGNAL
+from PyQt4.QtGui import QPen, QPainter, QBrush, QPalette, QFont
+from PyQt4.Qwt5 import Qwt, QwtPlot, QwtPlotItem, QwtPlotCurve, QwtPlotPicker, \
+     QwtLog10ScaleEngine, QwtSymbol, QwtPlotZoomer, QwtPicker, QwtPlotGrid, \
+     QwtText, QwtLegend
 
 try:
     from PyQt4.Qwt5.grace import GracePlotter
@@ -41,7 +42,7 @@ except ImportError:
     GracePlotter = None
 
 
-class XPlotPicker(QwtPlotPicker):
+class ActivePlotPicker(QwtPlotPicker):
     """QwtPlotPicker that emits mouse move events when activated."""
     def __init__(self, *args):
         QwtPlotPicker.__init__(self, *args)
@@ -51,109 +52,6 @@ class XPlotPicker(QwtPlotPicker):
         if self.active:
             self.emit(SIGNAL('moved(const QPoint &)'), event.pos())
         return QwtPlotPicker.widgetMouseMoveEvent(self, event)
-
-
-def cloneToGrace(plot, saveall="", pause=0.2):
-    """Clone the plot into Grace for very high quality hard copy output.
-
-    Know bug: Grace does not scale the data correctly when Grace cannot
-    cannot keep up with gracePlot.  This happens when it takes too long
-    to load Grace in memory (exit the Grace process and try again) or
-    when 'pause' is too short.
-
-    Cloned from the Qwt5.qplt module and applied some fixes.
-    """
-    g = GracePlotter(debug=0)
-    g('title "%s"' % str(plot.title().text()).replace('"', '\\"'))
-    #g('subtitle "%s"' % self.last_plotinfo['subtitle'].replace('"', '\\"'))
-    index = 0
-    for xAxis, yAxis, graph, xPlace, yPlace in (
-        (QwtPlot.xBottom, QwtPlot.yLeft, 'g0', 'normal', 'normal'),
-        (QwtPlot.xBottom, QwtPlot.yRight, 'g1', 'normal', 'opposite'),
-        (QwtPlot.xTop, QwtPlot.yLeft, 'g2', 'opposite', 'normal'),
-        (QwtPlot.xTop, QwtPlot.yRight, 'g3', 'opposite', 'opposite')
-        ):
-        if not (plot.axisEnabled(xAxis) and plot.axisEnabled(yAxis)):
-            continue
-        g('%s on; with %s' % (graph, graph))
-
-        # x-axes
-        xmin = plot.axisScaleDiv(xAxis).lBound()
-        xmax = plot.axisScaleDiv(xAxis).hBound()
-        #majStep = minStep = axisScale.majStep()
-        #majStep *= 2
-        g('world xmin %g; world xmax %g' % (xmin, xmax))
-        g('xaxis label "%s"; xaxis label char size 1.5'
-          % plot.axisTitle(xAxis).text())
-        g('xaxis label place %s' % xPlace)
-        g('xaxis tick place %s' % xPlace)
-        g('xaxis ticklabel place %s' % xPlace)
-        time.sleep(pause)
-        if isinstance(plot.axisScaleEngine(xAxis), QwtLog10ScaleEngine):
-            g('xaxes scale Logarithmic')
-            g('xaxis tick major 10')
-            g('xaxis tick minor ticks 9')
-        else:
-            g('xaxes scale Normal')
-            #g('xaxis tick major %12.6f; xaxis tick minor %12.6f'
-            #  % (majStep, minStep))
-
-        # y-axes
-        ymin = plot.axisScaleDiv(yAxis).lBound()
-        ymax = plot.axisScaleDiv(yAxis).hBound()
-        #majStep = minStep = axisScale.majStep()
-        #majStep *= 2
-        g('world ymin %g; world ymax %g' % (ymin, ymax))
-        g('yaxis label "%s"; yaxis label char size 1.5' %
-          plot.axisTitle(yAxis).text())
-        g('yaxis label place %s' % yPlace)
-        g('yaxis tick place %s' % yPlace)
-        g('yaxis ticklabel place %s' % yPlace)
-        time.sleep(pause)
-        if isinstance(plot.axisScaleEngine(yAxis), QwtLog10ScaleEngine):
-            g('yaxes scale Logarithmic')
-            g('yaxis tick major 10')
-            g('yaxis tick minor ticks 9')
-        else:
-            g('yaxes scale Normal')
-            #g('yaxis tick major %12.6f; yaxis tick minor %12.6f' %
-            #  (majStep, minStep))
-
-        # curves
-        for curve in plot.itemList():
-            if not isinstance(curve, QwtPlotCurve):
-                continue
-            if not curve.isVisible():
-                continue
-            if not (xAxis == curve.xAxis() and yAxis == curve.yAxis()):
-                continue
-            g('s%s legend "%s"' % (index, curve.title().text()))
-            if curve._dy is not None:
-                g('s%s type xydy' % index)
-            if curve.symbol().style() > QwtSymbol.NoSymbol:
-                g('s%s symbol 1;'
-                  's%s symbol size 0.4;'
-                  's%s symbol fill pattern 1'
-                  % (index, index, index))
-            if curve.style():
-                g('s%s line linestyle 1' % index)
-            else:
-                g('s%s line linestyle 0' % index)
-            for i in xrange(curve.dataSize()):
-                g('%s.s%s point %g, %g' %
-                  (graph, index, curve._x[i], curve._y[i]))
-                if curve._dy is not None:
-                    g('%s.s%s.y1[%s] = %g' %
-                      (graph, index, i, curve._dy[i]))
-            index += 1
-
-    # finalize
-    g('redraw')
-    if saveall:
-        time.sleep(pause)
-        g('saveall "%s"' % saveall)
-        time.sleep(pause)
-        g.kill()
 
 
 class ErrorBarPlotCurve(QwtPlotCurve):
@@ -329,3 +227,287 @@ class ErrorBarPlotCurve(QwtPlotCurve):
 
         if not self.errorOnTop:
             QwtPlotCurve.drawFromTo(self, painter, xMap, yMap, first, last)
+
+
+class NicosPlot(QwtPlot):
+    def __init__(self, parent, window):
+        QwtPlot.__init__(self, parent)
+        self.window = window
+        self.curves = []
+        self.normalized = False
+        self.has_secondary = False
+
+        font = self.window.user_font
+        bold = QFont(font)
+        bold.setBold(True)
+        larger = QFont(font)
+        larger.setPointSize(font.pointSize() * 1.6)
+        self.setFonts(font, bold, larger)
+
+        self.stdpen = QPen()
+        self.symbol = QwtSymbol(QwtSymbol.Ellipse, QBrush(),
+                                self.stdpen, QSize(6, 6))
+
+        # setup zooming and unzooming
+        self.zoomer = QwtPlotZoomer(QwtPlot.xBottom, QwtPlot.yLeft,
+                                    self.canvas())
+        self.zoomer.initMousePattern(3)
+        self.connect(self.zoomer, SIGNAL('zoomed(const QwtDoubleRect &)'),
+                     self.on_zoomer_zoomed)
+
+        # setup picking and mouse tracking of coordinates
+        self.picker = ActivePlotPicker(QwtPlot.xBottom, QwtPlot.yLeft,
+                                       QwtPicker.PointSelection |
+                                       QwtPicker.DragSelection,
+                                       QwtPlotPicker.NoRubberBand,
+                                       QwtPicker.AlwaysOff,
+                                       self.canvas())
+
+        self.setCanvasBackground(self.window.user_color)
+        self.canvas().setMouseTracking(True)
+        self.connect(self.picker, SIGNAL('moved(const QPoint &)'),
+                     self.on_picker_moved)
+
+        self.updateDisplay()
+
+        self.setLegend(True)
+        self.connect(self, SIGNAL('legendClicked(QwtPlotItem*)'),
+                     self.on_legendClicked)
+
+    def on_zoomer_zoomed(self, rect):
+        #print self.zoomer.zoomStack()
+        pass
+
+    def setFonts(self, font, bold, larger):
+        self.setFont(font)
+        self.titleLabel().setFont(larger)
+        self.setAxisFont(QwtPlot.yLeft, font)
+        self.setAxisFont(QwtPlot.yRight, font)
+        self.setAxisFont(QwtPlot.xBottom, font)
+        self.axisTitle(QwtPlot.xBottom).setFont(bold)
+        self.axisTitle(QwtPlot.yLeft).setFont(bold)
+        self.axisTitle(QwtPlot.yRight).setFont(bold)
+        self.labelfont = bold
+
+    def titleString(self):
+        raise NotImplementedError
+    def xaxisName(self):
+        raise NotImplementedError
+    def yaxisName(self):
+        raise NotImplementedError
+    def y2axisName(self):
+        return ''
+    def xaxisScale(self):
+        return None
+    def yaxisScale(self):
+        return None
+    def y2axisScale(self):
+        return None
+
+    def updateDisplay(self):
+        self.clear()
+        self.has_secondary = False
+        grid = QwtPlotGrid()
+        grid.setPen(QPen(QBrush(Qt.lightGray), 1, Qt.DotLine))
+        grid.attach(self)
+
+        self.setTitle(self.titleString())
+        xaxistext = QwtText(self.xaxisName())
+        xaxistext.setFont(self.labelfont)
+        self.setAxisTitle(QwtPlot.xBottom, xaxistext)
+        yaxisname = self.yaxisName()
+        y2axisname = self.y2axisName()
+        if self.normalized:
+            yaxistext = QwtText(yaxisname + ' (norm)')
+            y2axistext = QwtText(y2axisname + ' (norm)')
+        else:
+            yaxistext = QwtText(yaxisname)
+            y2axistext = QwtText(y2axisname)
+        yaxistext.setFont(self.labelfont)
+        y2axistext.setFont(self.labelfont)
+        self.setAxisTitle(QwtPlot.yLeft, yaxistext)
+
+        self.curves = []
+        self.addAllCurves()
+        if self.has_secondary:
+            self.setAxisTitle(QwtPlot.yRight, y2axistext)
+
+        scale = self.xaxisScale()
+        if scale is None:
+            self.setAxisAutoScale(QwtPlot.xBottom)
+        else:
+            self.setAxisScale(QwtPlot.xBottom, scale[0], scale[1])
+        scale = self.yaxisScale()
+        if scale is None:
+            self.setAxisAutoScale(QwtPlot.yLeft)
+        else:
+            self.setAxisScale(QwtPlot.yLeft, scale[0], scale[1])
+        if self.has_secondary:
+            scale = self.y2axisScale()
+            if scale is None:
+                self.setAxisAutoScale(QwtPlot.yRight)
+            else:
+                self.setAxisScale(QwtPlot.yRight, scale[0], scale[1])
+        self.zoomer.setZoomBase(True)   # does a replot
+
+    curvecolor = [Qt.black, Qt.red, Qt.green, Qt.blue,
+                  Qt.magenta, Qt.cyan, Qt.darkGray]
+    numcolors = len(curvecolor)
+
+    def setLegend(self, on):
+        if on:
+            legend = QwtLegend(self)
+            legend.setItemMode(QwtLegend.ClickableItem)
+            legend.palette().setColor(QPalette.Base, self.window.user_color)
+            legend.setBackgroundRole(QPalette.Base)
+            self.insertLegend(legend, QwtPlot.BottomLegend)
+            for curve in self.curves:
+                if not curve.isVisible():
+                    item = legend.find(curve)
+                    newtext = QwtText('(' + item.text().text() + ')')
+                    newtext.setColor(Qt.darkGray)
+                    item.setText(newtext)
+        else:
+            self.insertLegend(None)
+
+    def on_legendClicked(self, item):
+        legenditem = self.legend().find(item)
+        if item.isVisible():
+            item.setVisible(False)
+            if isinstance(item, ErrorBarPlotCurve):
+                for dep in item.dependent:
+                    dep.setVisible(False)
+            newtext = QwtText('(' + legenditem.text().text() + ')')
+            newtext.setColor(Qt.darkGray)
+            legenditem.setText(newtext)
+        else:
+            item.setVisible(True)
+            if isinstance(item, ErrorBarPlotCurve):
+                for dep in item.dependent:
+                    dep.setVisible(True)
+            newtext = QwtText(legenditem.text().text())
+            newtext.setColor(Qt.black)
+            legenditem.setText(newtext)
+        self.replot()
+
+    def on_picker_moved(self, point):
+        info = "X = %g, Y = %g" % (
+            self.invTransform(Qwt.QwtPlot.xBottom, point.x()),
+            self.invTransform(Qwt.QwtPlot.yLeft, point.y()))
+        self.window.statusBar.showMessage(info)
+
+    def addPlotCurve(self, plotcurve, replot=False):
+        plotcurve.setRenderHint(QwtPlotItem.RenderAntialiased)
+        plotcurve.attach(self)
+        if self.legend():
+            item = self.legend().find(plotcurve)
+            if not plotcurve.isVisible():
+                newtext = QwtText('(' + item.text().text() + ')')
+                newtext.setColor(Qt.darkGray)
+                item.setText(newtext)
+        self.curves.append(plotcurve)
+        if replot:
+            self.zoomer.setZoomBase(True)
+
+
+def cloneToGrace(plot, saveall="", pause=0.2):
+    """Clone the plot into Grace for very high quality hard copy output.
+
+    Know bug: Grace does not scale the data correctly when Grace cannot
+    cannot keep up with gracePlot.  This happens when it takes too long
+    to load Grace in memory (exit the Grace process and try again) or
+    when 'pause' is too short.
+
+    Cloned from the Qwt5.qplt module and applied some fixes.
+    """
+    g = GracePlotter(debug=0)
+    g('title "%s"' % str(plot.title().text()).replace('"', '\\"'))
+    #g('subtitle "%s"' % self.last_plotinfo['subtitle'].replace('"', '\\"'))
+    index = 0
+    for xAxis, yAxis, graph, xPlace, yPlace in (
+        (QwtPlot.xBottom, QwtPlot.yLeft, 'g0', 'normal', 'normal'),
+        (QwtPlot.xBottom, QwtPlot.yRight, 'g1', 'normal', 'opposite'),
+        (QwtPlot.xTop, QwtPlot.yLeft, 'g2', 'opposite', 'normal'),
+        (QwtPlot.xTop, QwtPlot.yRight, 'g3', 'opposite', 'opposite')
+        ):
+        if not (plot.axisEnabled(xAxis) and plot.axisEnabled(yAxis)):
+            continue
+        g('%s on; with %s' % (graph, graph))
+
+        # x-axes
+        xmin = plot.axisScaleDiv(xAxis).lBound()
+        xmax = plot.axisScaleDiv(xAxis).hBound()
+        #majStep = minStep = axisScale.majStep()
+        #majStep *= 2
+        g('world xmin %g; world xmax %g' % (xmin, xmax))
+        g('xaxis label "%s"; xaxis label char size 1.5'
+          % plot.axisTitle(xAxis).text())
+        g('xaxis label place %s' % xPlace)
+        g('xaxis tick place %s' % xPlace)
+        g('xaxis ticklabel place %s' % xPlace)
+        time.sleep(pause)
+        if isinstance(plot.axisScaleEngine(xAxis), QwtLog10ScaleEngine):
+            g('xaxes scale Logarithmic')
+            g('xaxis tick major 10')
+            g('xaxis tick minor ticks 9')
+        else:
+            g('xaxes scale Normal')
+            #g('xaxis tick major %12.6f; xaxis tick minor %12.6f'
+            #  % (majStep, minStep))
+
+        # y-axes
+        ymin = plot.axisScaleDiv(yAxis).lBound()
+        ymax = plot.axisScaleDiv(yAxis).hBound()
+        #majStep = minStep = axisScale.majStep()
+        #majStep *= 2
+        g('world ymin %g; world ymax %g' % (ymin, ymax))
+        g('yaxis label "%s"; yaxis label char size 1.5' %
+          plot.axisTitle(yAxis).text())
+        g('yaxis label place %s' % yPlace)
+        g('yaxis tick place %s' % yPlace)
+        g('yaxis ticklabel place %s' % yPlace)
+        time.sleep(pause)
+        if isinstance(plot.axisScaleEngine(yAxis), QwtLog10ScaleEngine):
+            g('yaxes scale Logarithmic')
+            g('yaxis tick major 10')
+            g('yaxis tick minor ticks 9')
+        else:
+            g('yaxes scale Normal')
+            #g('yaxis tick major %12.6f; yaxis tick minor %12.6f' %
+            #  (majStep, minStep))
+
+        # curves
+        for curve in plot.itemList():
+            if not isinstance(curve, QwtPlotCurve):
+                continue
+            if not curve.isVisible():
+                continue
+            if not (xAxis == curve.xAxis() and yAxis == curve.yAxis()):
+                continue
+            g('s%s legend "%s"' % (index, curve.title().text()))
+            if curve._dy is not None:
+                g('s%s type xydy' % index)
+            if curve.symbol().style() > QwtSymbol.NoSymbol:
+                g('s%s symbol 1;'
+                  's%s symbol size 0.4;'
+                  's%s symbol fill pattern 1'
+                  % (index, index, index))
+            if curve.style():
+                g('s%s line linestyle 1' % index)
+            else:
+                g('s%s line linestyle 0' % index)
+            for i in xrange(curve.dataSize()):
+                g('%s.s%s point %g, %g' %
+                  (graph, index, curve._x[i], curve._y[i]))
+                if curve._dy is not None:
+                    g('%s.s%s.y1[%s] = %g' %
+                      (graph, index, i, curve._dy[i]))
+            index += 1
+
+    # finalize
+    g('redraw')
+    if saveall:
+        time.sleep(pause)
+        g('saveall "%s"' % saveall)
+        time.sleep(pause)
+        g.kill()
