@@ -214,20 +214,26 @@ class HistoryPanel(Panel):
 
     @qtsig('')
     def on_actionNew_triggered(self):
+        helptext = 'Enter a comma-separated list of device names or ' \
+            'parameters (as "device.parameter").  Example:\n\n' \
+            'T, T.setpoint\n\nshows the value of device T, and the value ' \
+            'of the T.setpoint parameter.'
         newdlg = dialogFromUi(self, 'history_new.ui')
         newdlg.fromdate.setDateTime(QDateTime.currentDateTime())
         newdlg.todate.setDateTime(QDateTime.currentDateTime())
+        newdlg.connect(newdlg.helpButton, SIGNAL('clicked()'),
+                       lambda: self.showInfo(helptext))
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return
-        keys = str(newdlg.devices.text()).split(',')
-        if not keys:
+        parts = [part.strip().lower().replace('.', '/')
+                 for part in str(newdlg.devices.text()).split(',')]
+        if not parts:
             return
-        keys = [key.lower() if '/' in key else key.lower() + '/value'
-                for key in keys]
+        keys = [part if '/' in part else part + '/value' for part in parts]
         name = str(newdlg.namebox.text())
         if not name:
-            name = ', '.join(keys)
+            name = str(newdlg.devices.text())
         try:
             interval = float(newdlg.interval.text())
         except ValueError:
