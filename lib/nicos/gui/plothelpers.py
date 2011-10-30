@@ -362,9 +362,10 @@ class NicosPlot(QwtPlot):
             legend.setBackgroundRole(QPalette.Base)
             self.insertLegend(legend, QwtPlot.BottomLegend)
             for curve in self.curves:
+                item = legend.find(curve)
+                item.setIdentifierWidth(20)
                 if not curve.isVisible():
-                    item = legend.find(curve)
-                    newtext = QwtText('(' + item.text().text() + ')')
+                    newtext = QwtText(item.text())
                     newtext.setColor(Qt.darkGray)
                     item.setText(newtext)
         else:
@@ -374,18 +375,20 @@ class NicosPlot(QwtPlot):
         legenditem = self.legend().find(item)
         if item.isVisible():
             item.setVisible(False)
+            item.setItemAttribute(QwtPlotItem.AutoScale, False)
             if isinstance(item, ErrorBarPlotCurve):
                 for dep in item.dependent:
                     dep.setVisible(False)
-            newtext = QwtText('(' + legenditem.text().text() + ')')
+            newtext = QwtText(legenditem.text())
             newtext.setColor(Qt.darkGray)
             legenditem.setText(newtext)
         else:
             item.setVisible(True)
+            item.setItemAttribute(QwtPlotItem.AutoScale, True)
             if isinstance(item, ErrorBarPlotCurve):
                 for dep in item.dependent:
                     dep.setVisible(True)
-            newtext = QwtText(legenditem.text().text())
+            newtext = QwtText(legenditem.text())
             newtext.setColor(Qt.black)
             legenditem.setText(newtext)
         self.replot()
@@ -402,7 +405,8 @@ class NicosPlot(QwtPlot):
         if self.legend():
             item = self.legend().find(plotcurve)
             if not plotcurve.isVisible():
-                newtext = QwtText('(' + item.text().text() + ')')
+                plotcurve.setItemAttribute(QwtPlotItem.AutoScale, False)
+                newtext = QwtText(item.text())
                 newtext.setColor(Qt.darkGray)
                 item.setText(newtext)
         self.curves.append(plotcurve)
