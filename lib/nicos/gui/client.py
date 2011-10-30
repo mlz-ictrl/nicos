@@ -136,6 +136,7 @@ class NicosClient(object):
 
         self.connected = True
         self.host, self.port = conndata['host'], conndata['port']
+        self.login = conndata['login']
 
         self.version = 'NICOS daemon version %s' % banner['daemon_version']
         self.signal('connected')

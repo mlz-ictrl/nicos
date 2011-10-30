@@ -308,8 +308,8 @@ class MainWindow(QMainWindow, DlgUtils):
     def setTitlebar(self, connected, setups=()):
         inststr = str(self.instrument) or 'NICOS'
         if connected:
-            hoststr = '%s at %s:%s' % (self.connectionData['login'],
-                                       self.client.host, self.client.port)
+            hoststr = '%s at %s:%s' % (self.client.login, self.client.host,
+                                       self.client.port)
             self.setWindowTitle('%s [%s] - %s' % (inststr, ', '.join(setups),
                                                   hoststr))
         else:

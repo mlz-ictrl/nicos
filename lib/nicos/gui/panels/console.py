@@ -59,6 +59,7 @@ class ConsolePanel(Panel):
             self.inputFrame.setVisible(False)
         self.commandInput.history = self.cmdhistory
 
+        self.connect(client, SIGNAL('connected'), self.on_client_connected)
         self.connect(client, SIGNAL('message'), self.on_client_message)
         self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
 
@@ -94,6 +95,9 @@ class ConsolePanel(Panel):
             setBackgroundColor(self.commandInput, self.idle_color)
         self.commandInput.update()
         self.commandInput.setEnabled(status != 'disconnected')
+
+    def on_client_connected(self):
+        self.outView._currentuser = self.client.login
 
     def on_client_initstatus(self, state):
         messages = state[2]
