@@ -125,8 +125,14 @@ def sleep(secs):
 
 @usercommand
 def NewSetup(*setupnames):
-    """Load the given setup instead of the current one."""
+    """Load the given setups instead of the current one.
+
+    Without arguments, the current setups are reloaded.
+    """
     current_mode = session.mode
+    # reload current setups if none given
+    if not setupnames:
+        setupnames = session.explicit_setups
     # refresh setup files first
     session.readSetups()
     session.unloadSetup()
