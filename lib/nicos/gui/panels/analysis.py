@@ -73,9 +73,12 @@ class AnalysisPanel(Panel):
         loadUi(self, 'analysis.ui')
 
         self.statusBar = QStatusBar(self)
-        self.statusBar.sizePolicy().setVerticalPolicy(QSizePolicy.Fixed)
+        policy = self.statusBar.sizePolicy()
+        policy.setVerticalPolicy(QSizePolicy.Fixed)
+        self.statusBar.setSizePolicy(policy)
         self.statusBar.setSizeGripEnabled(False)
-        #self.layout().addWidget(self.statusBar)
+        self.layout().addWidget(self.statusBar)
+
         self.user_color = parent.user_color
         self.user_font = parent.user_font
 
