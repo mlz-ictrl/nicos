@@ -72,9 +72,11 @@ default_profile_config = ('Default', [
     window('History', 'find', True,
            panel('nicos.gui.panels.history.HistoryPanel')),
     ], [
-        tool('nicos.gui.tools.commands.CommandsTool',
+        tool('Maintenance',
+             'nicos.gui.tools.commands.CommandsTool',
              commands=maint_commands),
-        tool('nicos.gui.tools.calculator.CalculatorTool',
+        tool('Calculator',
+             'nicos.gui.tools.calculator.CalculatorTool',
              mieze=MIEZE_settings),
     ]
 )

@@ -56,7 +56,7 @@ bragg_convs  = [1e-10, PI/180, 1, 1e-10, 1e10, 1]
 class CalculatorTool(QDialog):
     def __init__(self, parent=None, **settings):
         QDialog.__init__(self, parent)
-        loadUi(path.join(path.dirname(__file__), 'calc.ui'), self)
+        loadUi(path.join(path.dirname(__file__), 'calculator.ui'), self)
 
         self.connect(self.closeBtn, SIGNAL('clicked()'),
                      self.doclose)
@@ -179,7 +179,7 @@ class CalculatorTool(QDialog):
         L_s = tofloat(self.mzdistanceInput) * 1e-2  # in cm
         lam = tofloat(self.mzwavelengthInput) * 1e-10  # in Ang
 
-        for i, setting in self._miezesettings:
+        for i, setting in enumerate(self._miezesettings):
             f1, f2, bs = re.match(r'([\dp]+)_([\dp]+)(_BS)?', setting).groups()
             f1 = float(f1.replace('p', '.')) * 1000  # in kHz
             f2 = float(f2.replace('p', '.')) * 1000  # in kHz

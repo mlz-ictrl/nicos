@@ -22,27 +22,30 @@
 #
 # *****************************************************************************
 
-"""NICOS GUI config helpers."""
+"""NICOS GUI default configuration."""
 
 __version__ = "$Revision$"
 
+from nicos.gui.config import hsplit, vsplit, window, panel, tool
 
-class window(tuple):
-    def __new__(cls, title, icon, unique, child):
-        return tuple.__new__(cls, (title, icon, unique, child))
-
-class hsplit(tuple):
-    def __new__(cls, *children):
-        return tuple.__new__(cls, children)
-
-class vsplit(tuple):
-    def __new__(cls, *children):
-        return tuple.__new__(cls, children)
-
-class panel(tuple):
-    def __new__(cls, type, **settings):
-        return tuple.__new__(cls, (type, settings))
-
-class tool(tuple):
-    def __new__(cls, name, type, **settings):
-        return tuple.__new__(cls, (name, type, settings))
+default_profile_config = ('Default', [
+    vsplit(
+        hsplit(
+            panel('nicos.gui.panels.status.ScriptStatusPanel'),
+            panel('nicos.gui.panels.watch.WatchPanel')),
+        panel('nicos.gui.panels.console.ConsolePanel'),
+        ),
+    window('Errors/warnings', 'errors', True,
+           panel('nicos.gui.panels.errors.ErrorPanel')),
+    window('Editor', 'editor', False,
+           panel('nicos.gui.panels.editor.EditorPanel')),
+    window('Analysis', 'plotter', True,
+           panel('nicos.gui.panels.analysis.AnalysisPanel')),
+    window('History', 'find', True,
+           panel('nicos.gui.panels.history.HistoryPanel')),
+    ], [
+    tool('Calculator',
+         'nicos.gui.tools.calculator.CalculatorTool',
+         mieze=['46_69'])
+    ]
+)

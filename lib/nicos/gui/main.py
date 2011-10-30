@@ -38,37 +38,17 @@ from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
 from nicos import __version__ as nicos_version
 from nicos.gui.data import DataHandler
 from nicos.gui.utils import DlgUtils, SettingGroup, \
-     parseConnectionData, getXDisplay, dialogFromUi, loadUi
+     parseConnectionData, getXDisplay, dialogFromUi, loadUi, importString
 from nicos.gui.client import NicosDaemon, NicosClient, DEFAULT_PORT, \
      STATUS_INBREAK, STATUS_IDLE, STATUS_IDLEEXC
-from nicos.gui.config import hsplit, vsplit, panel, window
 from nicos.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.gui.panels.console import ConsolePanel
 from nicos.gui.settings import SettingsDialog
 from nicos.cache.utils import cache_load
 
 # the default profile
+from nicos.gui.defconfig import default_profile_config
 default_profile_uid = '07139e62-d244-11e0-b94b-00199991c246'
-try:
-    from nicos.gui.defconfig import default_profile_config
-except ImportError:
-    default_profile_config = ('Default', [
-        vsplit(
-            hsplit(
-                panel('nicos.gui.panels.status.ScriptStatusPanel'),
-                panel('nicos.gui.panels.watch.WatchPanel')),
-            panel('nicos.gui.panels.console.ConsolePanel'),
-            ),
-        window('Errors/warnings', 'errors', True,
-               panel('nicos.gui.panels.errors.ErrorPanel')),
-        window('Editor', 'editor', False,
-               panel('nicos.gui.panels.editor.EditorPanel')),
-        window('Analysis', 'plotter', True,
-               panel('nicos.gui.panels.analysis.AnalysisPanel')),
-        window('History', 'find', True,
-               panel('nicos.gui.panels.history.HistoryPanel')),
-        ], []
-    )
 
 
 class NicosGuiClient(NicosClient, QObject):
@@ -143,19 +123,28 @@ class MainWindow(QMainWindow, DlgUtils):
         with self.sgroup as settings:
             self.loadSettings(settings)
 
-        config = self.profiles[self.curprofile][1]
-        createWindowItem(config[0], self, self.centralLayout)
+        windowconfig = self.profiles[self.curprofile][1]
+        createWindowItem(windowconfig[0], self, self.centralLayout)
 
         if len(self.splitstate) == len(self.splitters):
             for sp, st in zip(self.splitters, self.splitstate):
                 sp.restoreState(st.toByteArray())
 
-        for i, wconfig in enumerate(config[1:]):
+        for i, wconfig in enumerate(windowconfig[1:]):
             action = QAction(QIcon(':/' + wconfig[1]), wconfig[0], self)
             self.toolBarWindows.addAction(action)
             self.menuWindows.addAction(action)
             def callback(on, i=i):
                 self.createWindow(i)
+            self.connect(action, SIGNAL('triggered(bool)'), callback)
+
+        # load tools menu
+        toolconfig = self.profiles[self.curprofile][2]
+        for i, tconfig in enumerate(toolconfig):
+            action = QAction(tconfig[0], self)
+            self.menuTools.addAction(action)
+            def callback(on, i=i):
+                self.runTool(i)
             self.connect(action, SIGNAL('triggered(bool)'), callback)
 
         # timer for reconnecting
@@ -202,6 +191,13 @@ class MainWindow(QMainWindow, DlgUtils):
 
     def on_auxWindow_closed(self, window):
         self.windows[window.type].discard(window)
+
+    def runTool(self, ttype):
+        tconfig = self.profiles[self.curprofile][2][ttype]
+        toolclass = importString(tconfig[1])
+        dialog = toolclass(self, **tconfig[2])
+        dialog.setWindowModality(Qt.NonModal)
+        dialog.show()
 
     def setConnData(self, login, host, port):
         self.connectionData['login'] = login
