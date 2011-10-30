@@ -231,7 +231,7 @@ class MainWindow(QMainWindow, DlgUtils):
         if color.isValid():
             self.user_color = color
         else:
-            self.user_color = Qt.white
+            self.user_color = QColor(Qt.white)
 
         # state of connection, editor and analysis windows
         self.autoconnect = settings.value('autoconnect').toBool()

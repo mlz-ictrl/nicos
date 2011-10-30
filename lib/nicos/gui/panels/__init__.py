@@ -33,6 +33,7 @@ from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFont, QColor, \
 from nicos.gui.utils import DlgUtils, SettingGroup, loadUi, importString
 from nicos.gui.config import hsplit, vsplit, panel
 
+
 class AuxiliaryWindow(QMainWindow):
 
     def __init__(self, parent, type, config, profile):
@@ -58,7 +59,7 @@ class AuxiliaryWindow(QMainWindow):
             if color.isValid():
                 self.user_color = color
             else:
-                self.user_color = Qt.white
+                self.user_color = QColor(Qt.white)
 
         createWindowItem(config[3], self, self.centralLayout)
         self.setWindowTitle(config[0])
@@ -68,8 +69,8 @@ class AuxiliaryWindow(QMainWindow):
                 sp.restoreState(st.toByteArray())
 
     def closeEvent(self, event):
-        for panel in self.panels:
-            if not panel.requestClose():
+        for pnl in self.panels:
+            if not pnl.requestClose():
                 event.ignore()
                 return
         with self.sgroup as settings:
@@ -79,9 +80,9 @@ class AuxiliaryWindow(QMainWindow):
                               QVariant([sp.saveState() for sp in self.splitters]))
             settings.setValue('font', QVariant(self.user_font))
             settings.setValue('color', QVariant(self.user_color))
-        for panel in self.panels:
-            with panel.sgroup as settings:
-                panel.saveSettings(settings)
+        for pnl in self.panels:
+            with pnl.sgroup as settings:
+                pnl.saveSettings(settings)
         event.accept()
         self.emit(SIGNAL('closed'), self)
 
@@ -90,8 +91,8 @@ class AuxiliaryWindow(QMainWindow):
         font, ok = QFontDialog.getFont(self.user_font, self)
         if not ok:
             return
-        for panel in self.panels:
-            panel.setCustomStyle(font, self.user_color)
+        for pnl in self.panels:
+            pnl.setCustomStyle(font, self.user_color)
         self.user_font = font
 
     @qtsig('')
@@ -99,8 +100,8 @@ class AuxiliaryWindow(QMainWindow):
         color = QColorDialog.getColor(self.user_color, self)
         if not color.isValid():
             return
-        for panel in self.panels:
-            panel.setCustomStyle(self.user_font, color)
+        for pnl in self.panels:
+            pnl.setCustomStyle(self.user_font, color)
         self.user_color = color
 
 
