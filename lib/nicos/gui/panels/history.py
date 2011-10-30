@@ -187,7 +187,7 @@ class HistoryPanel(Panel):
         bar.addAction(self.actionLogScale)
         bar.addSeparator()
         bar.addAction(self.actionResetView)
-        bar.addAction(self.actionCloseView)
+        bar.addAction(self.actionDeleteView)
         return [bar]
 
     def on_client_cache(self, (time, key, op, value)):

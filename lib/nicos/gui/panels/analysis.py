@@ -133,7 +133,7 @@ class AnalysisPanel(Panel):
             action.setEnabled(on)
 
     def getMenus(self):
-        menu1 = QMenu('&Data analysis', self)
+        menu1 = QMenu('&Data plot', self)
         menu1.addAction(self.actionPDF)
         menu1.addAction(self.actionGrace)
         menu1.addAction(self.actionPrint)
@@ -148,7 +148,7 @@ class AnalysisPanel(Panel):
         menu1.addAction(self.actionUnzoom)
         menu1.addAction(self.actionLegend)
         menu1.addSeparator()
-        menu2 = QMenu('&Data fit', self)
+        menu2 = QMenu('&Data fitting', self)
         menu2.addAction(self.actionFitPeak)
         menu2.addAction(self.actionFitPeakPV)
         menu2.addAction(self.actionFitPeakPVII)
@@ -523,8 +523,6 @@ class DataSetPlot(QwtPlot):
         self.axisTitle(QwtPlot.yLeft).setFont(bold)
         self.axisTitle(QwtPlot.yRight).setFont(bold)
         self.labelfont = bold
-        #self.disabledfont = QFont(font)
-        #self.disabledfont.setStrikeOut(True)
 
     def updateDisplay(self):
         self.clear()
@@ -595,8 +593,9 @@ class DataSetPlot(QwtPlot):
         if self.legend():
             item = self.legend().find(plotcurve)
             if not plotcurve.isVisible():
-                #item.setFont(self.disabledfont)
-                item.text().setText('(' + item.text().text() + ')')
+                newtext = QwtText('(' + item.text().text() + ')')
+                newtext.setColor(Qt.darkGray)
+                item.setText(newtext)
         self.curves.append(plotcurve)
         if replot:
             self.zoomer.setZoomBase(True)
@@ -632,28 +631,31 @@ class DataSetPlot(QwtPlot):
             self.insertLegend(legend, QwtPlot.BottomLegend)
             for curve in self.curves:
                 if not curve.isVisible():
-                    #legend.find(curve).setFont(self.disabledfont)
-                    itemtext = legend.find(curve).text()
-                    itemtext.setText('(' + itemtext.text() + ')')
+                    item = legend.find(curve)
+                    newtext = QwtText('(' + item.text().text() + ')')
+                    newtext.setColor(Qt.darkGray)
+                    item.setText(newtext)
         else:
             self.insertLegend(None)
 
     def on_legendClicked(self, item):
-        legenditemtext = self.legend().find(item).text()
+        legenditem = self.legend().find(item)
         if item.isVisible():
             item.setVisible(False)
             if isinstance(item, ErrorBarPlotCurve):
                 for dep in item.dependent:
                     dep.setVisible(False)
-            #legenditem.setFont(self.disabledfont)
-            legenditemtext.setText('(' + legenditemtext.text() + ')')
+            newtext = QwtText('(' + legenditem.text().text() + ')')
+            newtext.setColor(Qt.darkGray)
+            legenditem.setText(newtext)
         else:
             item.setVisible(True)
             if isinstance(item, ErrorBarPlotCurve):
                 for dep in item.dependent:
                     dep.setVisible(True)
-            #legenditem.setFont(self.font())
-            legenditemtext.setText(legenditemtext.text())
+            newtext = QwtText(legenditem.text().text())
+            newtext.setColor(Qt.black)
+            legenditem.setText(newtext)
         self.replot()
 
     def on_picker_moved(self, point):

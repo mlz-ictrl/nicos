@@ -67,7 +67,7 @@ class SettingsDialog(QDialog, DlgUtils):
         self.display.setText(main.connectionData['display'])
 
         # profiles page
-        for (uid, (name, config)) in self.local_profiles.iteritems():
+        for (uid, (name, wconfig, tconfig)) in self.local_profiles.iteritems():
             QTreeWidgetItem(self.pitem, [name], 1).setData(0, 32, uid)
             QListWidgetItem(name, self.profileList).setData(32, uid)
             self.profileCombo.addItem(name)
