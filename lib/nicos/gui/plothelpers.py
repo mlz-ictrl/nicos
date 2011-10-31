@@ -34,7 +34,7 @@ from PyQt4.QtCore import Qt, QRectF, QLine, QSize, SIGNAL
 from PyQt4.QtGui import QPen, QPainter, QBrush, QPalette, QFont
 from PyQt4.Qwt5 import Qwt, QwtPlot, QwtPlotItem, QwtPlotCurve, QwtPlotPicker, \
      QwtLog10ScaleEngine, QwtSymbol, QwtPlotZoomer, QwtPicker, QwtPlotGrid, \
-     QwtText, QwtLegend
+     QwtText, QwtLegend, QwtScaleDraw
 
 try:
     from PyQt4.Qwt5.grace import GracePlotter
@@ -229,13 +229,19 @@ class ErrorBarPlotCurve(QwtPlotCurve):
             QwtPlotCurve.drawFromTo(self, painter, xMap, yMap, first, last)
 
 
+class TimeScaleDraw(QwtScaleDraw):
+    def label(self, value, strf=time.strftime, local=time.localtime):
+        return QwtText(strf('%y-%m-%d\n%H:%M:%S', local(value)))
+
+
 class NicosPlot(QwtPlot):
-    def __init__(self, parent, window):
+    def __init__(self, parent, window, timeaxis=False):
         QwtPlot.__init__(self, parent)
         self.window = window
         self.curves = []
         self.normalized = False
         self.has_secondary = False
+        self.timeaxis = timeaxis
 
         font = self.window.user_font
         bold = QFont(font)
@@ -315,6 +321,8 @@ class NicosPlot(QwtPlot):
         xaxistext = QwtText(self.xaxisName())
         xaxistext.setFont(self.labelfont)
         self.setAxisTitle(QwtPlot.xBottom, xaxistext)
+        if self.timeaxis:
+            self.setAxisScaleDraw(QwtPlot.xBottom, TimeScaleDraw())
         yaxisname = self.yaxisName()
         y2axisname = self.y2axisName()
         if self.normalized:

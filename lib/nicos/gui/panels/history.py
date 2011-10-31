@@ -29,10 +29,10 @@ __version__ = "$Revision$"
 import time
 
 from PyQt4.QtCore import Qt, QDateTime, SIGNAL
-from PyQt4.Qwt5 import QwtPlot, QwtText, QwtPlotCurve, \
-     QwtLog10ScaleEngine, QwtLinearScaleEngine, QwtScaleDraw
+from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtLog10ScaleEngine, \
+     QwtLinearScaleEngine
 from PyQt4.QtGui import QDialog, QFont, QPen, QListWidgetItem, QFileDialog, \
-     QPrintDialog, QPrinter, QToolBar, QMenu, QStatusBar, QSizePolicy
+     QPrintDialog, QPrinter, QToolBar, QMenu, QStatusBar, QSizePolicy, QImage
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np
@@ -41,13 +41,6 @@ from nicos.gui.panels import Panel
 from nicos.gui.utils import loadUi, dialogFromUi
 from nicos.gui.plothelpers import NicosPlot
 from nicos.cache.utils import cache_load
-
-TIMEFMT = '%Y-%m-%d %H:%M:%S'
-
-
-class TimeScaleDraw(QwtScaleDraw):
-    def label(self, value, strf=time.strftime, local=time.localtime):
-        return QwtText(strf('%y-%m-%d\n%H:%M:%S', local(value)))
 
 
 class View(object):
@@ -371,7 +364,7 @@ class HistoryPanel(Panel):
 class ViewPlot(NicosPlot):
     def __init__(self, parent, window, view):
         self.view = view
-        NicosPlot.__init__(self, parent, window)
+        NicosPlot.__init__(self, parent, window, timeaxis=True)
 
     def titleString(self):
         return '<h3>%s</h3>' % self.view.name
