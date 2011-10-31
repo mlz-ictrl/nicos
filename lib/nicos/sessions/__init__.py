@@ -177,6 +177,7 @@ class Session(object):
             if self.loaded_setups != set(['startup']):
                 cache.put(self, 'mastersetup', list(self.loaded_setups))
                 cache.put(self, 'mastersetupexplicit', list(self.explicit_setups))
+                self.elog_event('setup', list(self.explicit_setups))
         elif mode in ['slave', 'maintenance']:
             # switching from master (or slave) to slave or to maintenance
             if cache and cache._ismaster:
@@ -399,6 +400,7 @@ class Session(object):
             self.cache.put(self, 'mastersetup', list(self.loaded_setups))
             self.cache.put(self, 'mastersetupexplicit',
                            list(self.explicit_setups))
+            self.elog_event('setup', list(self.explicit_setups))
 
         self.resetPrompt()
         self.log.info('setup loaded')
@@ -667,6 +669,10 @@ class Session(object):
         else:
             self.log.error(exc_info=exc_info)
         self._lastUnhandled = exc_info
+
+    def elog_event(self, eventtype, data):
+        if self.cache:
+            self.cache.put_raw('logbook/' + eventtype, data)
 
     # -- Action logging --------------------------------------------------------
 

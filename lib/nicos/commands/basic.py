@@ -482,3 +482,23 @@ class timer(object):
         printinfo('Elapsed time: %.3f s' % duration)
 
 timer = timer()
+
+
+@usercommand
+def LogEntry(entry):
+    """Make a free-form entry in the electronic logbook.
+
+    The entry will be processed as Creole markup.
+    """
+    session.elog_event('entry', entry)
+
+
+@usercommand
+def LogAttach(description, paths, names):
+    """Attach one or more files to the electronic logbook.
+
+    The file *paths* must be accessible from the machine on which the electronic
+    logbook daemon runs (i.e. on a common network share).  They will be renamed
+    using the given *names*.
+    """
+    session.elog_event('attachment', (description, paths, names))

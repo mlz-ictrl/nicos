@@ -132,6 +132,7 @@ class Scan(object):
                 continue
             for sink in self._sinks:
                 sink.addInfo(dataset, catinfo, bycategory[catname])
+        session.elog_event('scanbegin', dataset)
 
     def preparePoint(self, num, xvalues):
         session.beginActionScope('Point %d/%d' % (num, self._npoints))
@@ -149,6 +150,7 @@ class Scan(object):
     def endScan(self):
         for sink in self._sinks:
             sink.endDataset(self.dataset)
+        session.elog_event('scanend', self.dataset)
         session.breakpoint(1)
 
     def handleError(self, dev, val, err):

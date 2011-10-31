@@ -31,10 +31,11 @@ import sys
 import time
 import codecs
 import traceback
-from logging import addLevelName, Manager, Logger, Formatter, FileHandler, \
-     StreamHandler, DEBUG, INFO, WARNING, ERROR
+from logging import addLevelName, Manager, Logger, Formatter, Handler, \
+     FileHandler, StreamHandler, DEBUG, INFO, WARNING, ERROR
 from logging.handlers import BaseRotatingHandler
 
+from nicos import session
 from nicos.errors import NicosError
 from nicos.utils import colorize, formatExtendedTraceback
 
@@ -258,24 +259,26 @@ class NicosLogfileHandler(BaseRotatingHandler):
                                         t[6], t[7], t[8])) + SECONDS_PER_DAY
 
 
-class UserLogfileFormatter(Formatter):
+TRANSMIT_ENTRIES = ('name', 'created', 'levelno', 'message', 'exc_text',
+                    'filename')
 
-    def format(self, record):
-        record.message = record.getMessage()
-        if '%(asctime)s' in self._fmt:
-            record.asctime = self.formatTime(record, self.datefmt)
-        return self._fmt % record.__dict__
+class ELogHandler(Handler):
 
-
-class UserLogfileHandler(NicosLogfileHandler):
-
-    def __init__(self, directory):
-        NicosLogfileHandler.__init__(self, directory)
-        self.setFormatter(UserLogfileFormatter(USERLOGFMT, DATEFMT))
+    def __init__(self):
+        Handler.__init__(self)
         self.disabled = False
 
     def filter(self, record):
         return not self.disabled
+
+    def emit(self, record, entries=TRANSMIT_ENTRIES):
+        # "message" is by convention created by a handler; let's assume that
+        # the logfile handler already did that
+        #record.message = record.getMessage()
+        msg = [getattr(record, e) for e in entries]
+        if not hasattr(record, 'nonl'):
+            msg[3] += '\n'
+        session.elog_event('message', msg)
 
 
 def initLoggers():

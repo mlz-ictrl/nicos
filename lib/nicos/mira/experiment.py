@@ -38,11 +38,11 @@ class MiraExperiment(Experiment):
     def new(self, proposal, title=None, **kwds):
         if not isinstance(proposal, (int, long)):
             proposal = int(proposal)
+        new_datapath = '/data/%s/%s' % (time.strftime('%Y'), proposal)
+        self.datapath = [new_datapath]
         Experiment.new(self, proposal, title)
         self._fillProposal(proposal)
 
-        new_datapath = '/data/%s/%s' % (time.strftime('%Y'), proposal)
-        self.datapath = [new_datapath]
         ensureDirectory(path.join(new_datapath, 'scripts'))
         self.scriptdir = path.join(new_datapath, 'scripts')
 

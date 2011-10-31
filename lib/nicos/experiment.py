@@ -42,7 +42,7 @@ from nicos.data import NeedsDatapath, Dataset
 from nicos.utils import listof, nonemptylistof, ensureDirectory, usermethod
 from nicos.device import Device, Measurable, Readable, Param
 from nicos.errors import ConfigurationError, UsageError
-from nicos.loggers import UserLogfileHandler
+from nicos.loggers import ELogHandler
 
 
 class ProposalDB(object):
@@ -134,6 +134,9 @@ class Sample(Device):
         'samplename':  Param('Sample name', type=str, settable=True),
     }
 
+    def doWriteSamplename(self, name):
+        session.elog_event('sample', name)
+
 
 class Experiment(Device):
     """A special singleton device to represent the experiment."""
@@ -168,11 +171,12 @@ class Experiment(Device):
 
     def doInit(self):
         self._last_datasets = []
-        ensureDirectory(path.join(self.datapath[0], 'log'))
-        self._uhandler = UserLogfileHandler(path.join(self.datapath[0], 'log'))
+        ensureDirectory(path.join(self.datapath[0], 'logbook'))
+        session.elog_event('directory', path.join(self.datapath[0], 'logbook'))
+        self._eloghandler = ELogHandler()
         # only enable in master mode, see below
-        self._uhandler.disabled = True
-        session.addLogHandler(self._uhandler)
+        self._eloghandler.disabled = True
+        session.addLogHandler(self._eloghandler)
 
     @usermethod
     def new(self, proposal, title=None, **kwds):
@@ -189,9 +193,11 @@ class Experiment(Device):
         self.sample.samplename = ''
         #self.envlist = []
         #self.detlist = []
+        session.elog_event('newexperiment', (proposal, title))
+        session.elog_event('setup', list(session.explicit_setups))
 
     def _setMode(self, mode):
-        self._uhandler.disabled = mode != 'master'
+        self._eloghandler.disabled = mode != 'master'
         Device._setMode(self, mode)
 
     def _fillProposal(self, proposal):
@@ -238,12 +244,16 @@ class Experiment(Device):
     def finish(self):
         pass
 
+    def doWriteRemark(self, remark):
+        session.elog_event('remark', remark)
+
     def doWriteDatapath(self, paths):
         for datapath in paths:
             if not path.isdir(datapath):
                 os.makedirs(datapath)
         ensureDirectory(path.join(paths[0], 'log'))
-        self._uhandler.changeDirectory(path.join(paths[0], 'log'))
+        self._eloghandler.changeDirectory(path.join(paths[0], 'logbook'))
+        session.elog_event('directory', path.join(paths[0], 'logbook'))
         for dev in session.devices.itervalues():
             if isinstance(dev, NeedsDatapath):
                 dev.datapath = paths
