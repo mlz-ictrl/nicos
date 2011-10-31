@@ -223,10 +223,12 @@ class Handler(object):
     def handle_entry(self, time, data):
         # XXX scan for headings and add to TOC
         if creole:
-            data = creole.translate(data)
+            data, headers = creole.translate(data, self.out.new_id)
         else:
-            data = escape(data)
+            data, headers = escape(data), []
         self.out.newstate('entry', '', '', data)
+        for level, text, targetid in headers:
+            self.out.toc_entry(level, text, targetid)
 
     def handle_remark(self, time, remark):
         targetid = self.out.new_id()

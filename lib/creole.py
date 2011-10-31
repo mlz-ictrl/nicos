@@ -407,10 +407,11 @@ class HtmlEmitter(object):
     tree consisting of DocNodes.
     """
 
-    def __init__(self, root, link_rules=None):
+    def __init__(self, root, idfunc, link_rules=None):
         self.root = root
+        self.idfunc = idfunc
+        self.headers = []
         self.link_rules = link_rules or LinkRules()
-        self.root = root
 
     def get_text(self, node):
         """Try to emit whatever text is in the node."""
@@ -468,8 +469,11 @@ class HtmlEmitter(object):
         return u'<b>%s</b>' % self.emit_children(node)
 
     def header_emit(self, node):
-        return u'<h%d>%s</h%d>\n' % (
-            node.level, self.html_escape(node.content), node.level)
+        hid = self.idfunc()
+        content = self.html_escape(node.content)
+        self.headers.append((node.level, content, hid))
+        return u'<h%d id="%s">%s</h%d>\n' % (
+            node.level, hid, content, node.level)
 
     def code_emit(self, node):
         return u'<tt>%s</tt>' % self.html_escape(node.content)
@@ -534,5 +538,7 @@ class HtmlEmitter(object):
         return self.emit_node(self.root)
 
 
-def translate(data):
-    return HtmlEmitter(Parser(data).parse()).emit()
+def translate(data, idfunc):
+    emitter = HtmlEmitter(Parser(data).parse(), idfunc)
+    html = emitter.emit()
+    return html, emitter.headers
