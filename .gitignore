@@ -10,6 +10,7 @@ pylint_*.txt
 data/*.dat
 data/filecounter
 data/cache/*
+data/logbook/*
 
 doc/build/
 doc/source/auto
