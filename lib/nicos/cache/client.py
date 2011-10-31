@@ -128,8 +128,8 @@ class BaseCacheClient(Device):
         # send request for all keys and updates....
         # HACK: send a single request for a nonexisting key afterwards to
         # determine the end of data
-        self._socket.sendall(
-            '@%s\r\n###?\r\n@%s\r\n' % (OP_WILDCARD, OP_SUBSCRIBE))
+        self._socket.sendall('@%s/%s\r\n###%s\r\n@%s/%s\r\n' %
+            (self._prefix, OP_WILDCARD, OP_ASK, self._prefix, OP_SUBSCRIBE))
 
         # read response
         data, n = '', 0
@@ -382,6 +382,15 @@ class CacheClient(BaseCacheClient):
         #self.log.debug('putting %s=%s' % (dbkey, value))
         self._queue.put(msg)
         self._propagate((time, dbkey, OP_TELL, value))
+
+    def put_raw(self, key, value, time=None, ttl=None):
+        if time is None:
+            time = currenttime()
+        ttlstr = ttl and '+%s' % ttl or ''
+        value = cache_dump(value)
+        msg = '%s%s@%s%s%s\r\n' % (time, ttlstr, key, OP_TELL, value)
+        #self.log.debug('putting %s=%s' % (dbkey, value))
+        self._queue.put(msg)
 
     def clear(self, devname):
         time = currenttime()
