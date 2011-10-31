@@ -29,6 +29,7 @@ __version__ = "$Revision$"
 from os import path
 from cgi import escape
 from time import strftime, localtime
+from shutil import copyfile
 
 from nicos.elog.utils import formatMessage
 
@@ -56,6 +57,11 @@ PROLOG = '''\
 body      { font-family: 'Arial', 'Helvetica', sans-serif; }
 .remark   { font-weight: bold; }
 .sample   { font-weight: bold; }
+.attach:before  { content: url('data:image/png;base64,\
+iVBORw0KGgoAAAANSUhEUgAAAAcAAAAPAQMAAAASz0f9AAAAFXRFWHRDcmVhdGlvbiBUaW1lAAfT\
+AgsIESPfE/DqAAAAB3RJTUUH0wILCBE0icGWXQAAAAlwSFlzAAAK8AAACvABQqw0mAAAAAZQTFRF\
+////AAAAVcLTfgAAAB5JREFUeNpjkGFQAkJlIF4NhKvAcDXDZoYmBheGGgBQzQaaI6OKqAAAAABJ\
+RU5ErkJggg=='); margin-right: 10px; }
 .time     { font-size: small; float: right; background-color: #eee; }
 .msgblock { cursor: pointer; margin-left: 20px; }
 .msglabel { font-size: small; border: 1px solid #ccc;
@@ -240,11 +246,30 @@ class Handler(object):
 
     def handle_sample(self, time, data):
         self.out.timestamp(time)
+        text = 'New sample: %s' % escape(data)
+        targetid = self.out.new_id()
+        self.out.toc_entry(2, text, targetid)
         self.out.newstate('plain', '', '',
-            '<p class="sample">New sample: %s</p>\n' % escape(data))
+            '<p id="%s" class="sample">%s</p>\n' % (targetid, text))
 
     def handle_attachment(self, time, data):
-        print 'XXX Attachment:', data
+        description, fpaths, names = data
+        links = []
+        for fpath, name in zip(fpaths, names):
+            if not name:
+                name = path.basename(fpath)
+            fullname = path.join(self.dir, name)
+            oname = name; i = 0
+            while path.exists(fullname):
+                i += 1
+                name = oname + str(i)
+                fullname = path.join(self.dir, name)
+            copyfile(fpath, fullname)
+            links.append('<a href="%s">%s</a>' % (name, escape(oname)))
+        text = '<b>%s:</b> %s' % (escape(description) or 'Attachment',
+                                  ' '.join(links))
+        self.out.timestamp(time)
+        self.out.newstate('plain', '', '', '<p class="attach">%s</p>\n' % text)
 
     def handle_message(self, time, message):
         msg = formatMessage(message)
