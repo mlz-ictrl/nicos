@@ -29,6 +29,8 @@ __version__ = "$Revision$"
 from os import path
 from cgi import escape
 
+from nicos.elog.utils import formatMessage
+
 try:
     import creole
 except ImportError:
@@ -39,11 +41,27 @@ PROLOG = '''\
 <head>
 <style type="text/css">
 body      { font-family: 'Arial', 'Helvetica', sans-serif;
-            margin-left: 100px; margin-right: 100px;
-          }
+            margin-left: 100px; margin-right: 100px; }
 .remark   { font-weight: bold; }
-.messages { display: none; margin-left: 20px; }
+.sample   { font-weight: bold; }
+.msgblock { cursor: pointer; }
+.messages { display: none; margin-left: 20px; border: 1px solid #ccc;
+            background-color: #eee; }
+.messages .debug { color: #666; }
+.messages .input { font-weight: bold; }
+.messages .warn  { color: #c000c0; }
+.messages .err   { font-weight: bold; color: #c00000; }
 </style>
+<script type="text/javascript">
+function hideshow(divel) {
+  var el = divel.childNodes[1];
+  if (el.style.display == 'block') {
+    el.style.display = 'none';
+  } else {
+    el.style.display = 'block';
+  }
+}
+</script>
 <title>NICOS electronic logbook</title>
 </head>
 <body>
@@ -125,16 +143,24 @@ class Handler(object):
             '<p class="sample">New sample: %s</p>\n' % escape(data))
 
     def handle_attachment(self, data):
-        print 'Attachment:', data
+        print 'XXX Attachment:', data
 
-    def handle_message(self, data):
-        print 'message:', data
-        self.out.newstate('messages',
-            '<div class="msgblock">Commands<pre class="messages">\n',
-            '</pre></div>\n', escape(str(data)) + '\n')
+    def handle_message(self, message):
+        msg = formatMessage(message)
+        if msg:
+            self.out.newstate('messages',
+                '<div class="msgblock" onclick="hideshow(this)">Messages'
+                '<pre class="messages">\n', '</pre></div>\n', msg)
 
     def handle_scanbegin(self, dataset):
-        print 'Scan begin:', dataset
+        print 'XXX Scan begin:', dataset
 
     def handle_scanend(self, dataset):
-        print 'Scan end:', dataset
+        print 'XXX Scan end:', dataset
+
+
+# XXX more ideas:
+# - internal links -> reference scan numbers or attachments
+# - integrated latex $foo$ syntax
+# - count()s
+# - show errors in messages (or at least summary: "1 error")
