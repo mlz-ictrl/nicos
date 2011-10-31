@@ -41,6 +41,8 @@ class ELogPanel(Panel, DlgUtils):
         Panel.__init__(self, parent, client)
         DlgUtils.__init__(self, 'Logbook')
         loadUi(self, 'elog.ui')
+        self.stacker.setCurrentIndex(0)
+
         self.timer = QTimer(self)
         self.timer.setSingleShot(True)
         self.connect(self.timer, SIGNAL('timeout()'), self.on_timer_timeout)
@@ -103,8 +105,10 @@ class ELogPanel(Panel, DlgUtils):
         self.timer.start(500)
 
     def on_creoleLabel_linkActivated(self, link):
-        # XXX show help here
-        pass
+        self.stacker.setCurrentIndex(1)
+
+    def on_creoleDone_clicked(self):
+        self.stacker.setCurrentIndex(0)
 
     def on_remarkText_returnPressed(self):
         self.addRemark.click()
