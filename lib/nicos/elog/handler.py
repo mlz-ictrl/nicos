@@ -40,8 +40,7 @@ PROLOG = '''\
 <html>
 <head>
 <style type="text/css">
-body      { font-family: 'Arial', 'Helvetica', sans-serif;
-            margin-left: 100px; margin-right: 100px; }
+body      { font-family: 'Arial', 'Helvetica', sans-serif; }
 .remark   { font-weight: bold; }
 .sample   { font-weight: bold; }
 .msgblock { cursor: pointer; }

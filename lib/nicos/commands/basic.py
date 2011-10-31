@@ -502,3 +502,9 @@ def LogAttach(description, paths, names):
     using the given *names*.
     """
     session.elog_event('attachment', (description, paths, names))
+
+
+@usercommand
+def _LogbookFile():
+    """Return the name of the current electronic logfile."""
+    return path.join(session.experiment.datapath[0], 'logbook', 'logbook.html')
