@@ -109,6 +109,10 @@ def formatDuration(secs):
 def formatEndtime(secs):
     return time.strftime('%A, %H:%M', time.localtime(time.time() + secs))
 
+def safeFilename(fn):
+    return re.compile('[^a-zA-Z0-9_.-]').sub('', fn)
+
+
 # -- UI tools ------------------------------------------------------------------
 
 uipath = path.dirname(__file__)

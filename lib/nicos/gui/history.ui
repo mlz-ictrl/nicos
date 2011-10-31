@@ -199,6 +199,11 @@
     <string>Ctrl+N</string>
    </property>
   </action>
+  <action name="actionAttachElog">
+   <property name="text">
+    <string>Attach to electronic log</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../resources/nicos-gui.qrc"/>

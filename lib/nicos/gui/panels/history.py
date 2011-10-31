@@ -26,7 +26,9 @@
 
 __version__ = "$Revision$"
 
+import os
 import time
+import tempfile
 
 from PyQt4.QtCore import Qt, QDateTime, SIGNAL
 from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtLog10ScaleEngine, \
@@ -38,7 +40,7 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 import numpy as np
 
 from nicos.gui.panels import Panel
-from nicos.gui.utils import loadUi, dialogFromUi
+from nicos.gui.utils import loadUi, dialogFromUi, safeFilename
 from nicos.gui.plothelpers import NicosPlot
 from nicos.cache.utils import cache_load
 
@@ -153,8 +155,8 @@ class HistoryPanel(Panel):
 
     def enablePlotActions(self, on):
         for action in [
-            self.actionPDF, self.actionPrint, self.actionCloseView,
-            self.actionDeleteView, self.actionResetView,
+            self.actionPDF, self.actionPrint, self.actionAttachElog,
+            self.actionCloseView, self.actionDeleteView, self.actionResetView,
             self.actionUnzoom, self.actionLogScale, self.actionLegend
             ]:
             action.setEnabled(on)
@@ -162,8 +164,11 @@ class HistoryPanel(Panel):
     def getMenus(self):
         menu = QMenu('&History viewer', self)
         menu.addAction(self.actionNew)
+        menu.addSeparator()
         menu.addAction(self.actionPDF)
         menu.addAction(self.actionPrint)
+        menu.addAction(self.actionAttachElog)
+        menu.addSeparator()
         menu.addAction(self.actionCloseView)
         menu.addAction(self.actionDeleteView)
         menu.addAction(self.actionResetView)
@@ -341,6 +346,25 @@ class HistoryPanel(Panel):
             self.currentPlot.print_(printer)
         self.statusBar.showMessage('View successfully printed to %s.' %
                                    str(printer.printerName()))
+
+    @qtsig('')
+    def on_actionAttachElog_triggered(self):
+        newdlg = dialogFromUi(self, 'plot_attach.ui')
+        newdlg.filename.setText(
+            safeFilename('history_%s.png' % self.currentPlot.view.name))
+        ret = newdlg.exec_()
+        if ret != QDialog.Accepted:
+            return
+        descr = str(newdlg.description.text())
+        fname = str(newdlg.filename.text())
+        img = QImage(800, 600, QImage.Format_RGB32)
+        img.fill(0xffffff)
+        self.currentPlot.print_(img)
+        h, pathname = tempfile.mkstemp('.png')
+        os.close(h)
+        img.save(pathname, 'png')
+        self.client.ask('eval', 'LogAttach(%r, [%r], [%r])' %
+                        (descr, pathname, fname))
 
     @qtsig('')
     def on_actionUnzoom_triggered(self):

@@ -26,11 +26,13 @@
 
 __version__ = "$Revision$"
 
+import os
 import time
+import tempfile
 
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, QPen, \
-     QListWidgetItem, QFileDialog, QPrintDialog, QPrinter, QSizePolicy
+     QListWidgetItem, QFileDialog, QPrintDialog, QPrinter, QSizePolicy, QImage
 from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotItem, QwtText, QwtPicker, \
      QwtLog10ScaleEngine, QwtLinearScaleEngine, QwtPlotPicker, QwtPlotMarker
 from PyQt4.QtCore import pyqtSignature as qtsig
@@ -39,7 +41,7 @@ import numpy as np
 
 #from nicos.gui.data import DataSet, Curve
 from nicos.gui.panels import Panel
-from nicos.gui.utils import loadUi
+from nicos.gui.utils import loadUi, dialogFromUi, safeFilename
 from nicos.gui.fitutils import has_odr, FitError, fit_gauss, fwhm_to_sigma, \
      fit_tc, fit_pseudo_voigt, fit_pearson_vii
 from nicos.gui.plothelpers import NicosPlot, ErrorBarPlotCurve, cloneToGrace
@@ -129,10 +131,10 @@ class AnalysisPanel(Panel):
     def enablePlotActions(self, on):
         for action in [
             self.actionPDF, self.actionGrace, self.actionPrint,
-            self.actionCombine, self.actionClosePlot, self.actionDeletePlot,
-            self.actionLogScale, self.actionNormalized, self.actionUnzoom,
-            self.actionLegend, self.actionFitPeak, self.actionFitPeakPV,
-            self.actionFitPeakPVII,
+            self.actionAttachElog, self.actionCombine, self.actionClosePlot,
+            self.actionDeletePlot, self.actionLogScale, self.actionNormalized,
+            self.actionUnzoom, self.actionLegend, self.actionFitPeak,
+            self.actionFitPeakPV, self.actionFitPeakPVII,
             ]:
             action.setEnabled(on)
 
@@ -141,6 +143,7 @@ class AnalysisPanel(Panel):
         menu1.addAction(self.actionPDF)
         menu1.addAction(self.actionGrace)
         menu1.addAction(self.actionPrint)
+        menu1.addAction(self.actionAttachElog)
         menu1.addSeparator()
         menu1.addAction(self.actionResetPlot)
         menu1.addAction(self.actionCombine)
@@ -303,6 +306,25 @@ class AnalysisPanel(Panel):
             self.currentPlot.print_(printer)
         self.statusBar.showMessage('Plot successfully printed to %s.' %
                                    str(printer.printerName()))
+
+    @qtsig('')
+    def on_actionAttachElog_triggered(self):
+        newdlg = dialogFromUi(self, 'plot_attach.ui')
+        newdlg.filename.setText(
+            safeFilename('data_%s.png' % self.currentPlot.dataset.name))
+        ret = newdlg.exec_()
+        if ret != QDialog.Accepted:
+            return
+        descr = str(newdlg.description.text())
+        fname = str(newdlg.filename.text())
+        img = QImage(800, 600, QImage.Format_RGB32)
+        img.fill(0xffffff)
+        self.currentPlot.print_(img)
+        h, pathname = tempfile.mkstemp('.png')
+        os.close(h)
+        img.save(pathname, 'png')
+        self.client.ask('eval', 'LogAttach(%r, [%r], [%r])' %
+                        (descr, pathname, fname))
 
     @qtsig('')
     def on_actionGrace_triggered(self):

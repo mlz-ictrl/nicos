@@ -54,8 +54,13 @@ class ELogPanel(Panel, DlgUtils):
         logfile = self.client.ask('eval', '_LogbookFile()')[1:-1]
         self.preview.load(QUrl(logfile))  # XXX reload periodically
 
-    def on_refreshLabel_linkActivated(self):
-        self.preview.reload()
+    def on_refreshLabel_linkActivated(self, link):
+        if link == 'refresh':
+            self.preview.reload()
+        elif link == 'back':
+            self.preview.back()
+        elif link == 'forward':
+            self.preview.forward()
 
     def setCustomStyle(self, font, back):
         self.freeFormText.setFont(font)
