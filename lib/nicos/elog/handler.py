@@ -142,10 +142,12 @@ class HtmlWriter(object):
         open(path.join(dir, 'logbook.html'), 'w').write(
             FRAMESET % (instr, proposal))
         self.fd = open(path.join(dir, 'content.html'), 'a+b')
+        self.fd.seek(0, 2)
         if self.fd.tell() == 0:
             self.fd.write(PROLOG)
             self.fd.flush()
         self.fd_toc = open(path.join(dir, 'toc.html'), 'a+b')
+        self.fd_toc.seek(0, 2)
         if self.fd_toc.tell() == 0:
             self.fd_toc.write(PROLOG + PROLOG_TOC)
             self.fd_toc.flush()
