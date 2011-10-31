@@ -81,10 +81,32 @@ function hideshow(divel) {
     span.style.display = 'none';
   }
 }
+function msgshow() {
+  var els = document.getElementsByClassName('msgblock');
+  for (var i = 0; i < els.length; i++) {
+    els[i].childNodes[0].style.display = 'none';
+    els[i].childNodes[1].style.display = 'block';
+  }
+}
+function msghide() {
+  var els = document.getElementsByClassName('msgblock');
+  for (var i = 0; i < els.length; i++) {
+    els[i].childNodes[0].style.display = 'inline';
+    els[i].childNodes[1].style.display = 'none';
+  }
+}
 </script>
 <title>NICOS electronic logbook</title>
 </head>
 <body>
+'''
+
+PROLOG_TOC = '''\
+<p style="font-size: small">
+  <a href="javascript:parent.content.msgshow()">Show all messages</a><br>
+  <a href="javascript:parent.content.msghide()">Hide all messages</a>
+</p>
+<p><b>Contents</b></p>
 '''
 
 
@@ -117,7 +139,7 @@ class HtmlWriter(object):
             self.fd.flush()
         self.fd_toc = open(path.join(dir, 'toc.html'), 'a+b')
         if self.fd_toc.tell() == 0:
-            self.fd_toc.write(PROLOG)
+            self.fd_toc.write(PROLOG + PROLOG_TOC)
             self.fd_toc.flush()
 
     def emit(self, html):
