@@ -68,6 +68,8 @@ body      { font-family: 'Arial', 'Helvetica', sans-serif; }
 .messages .err   { font-weight: bold; color: #c00000; }
 body > ul.toc { padding-left: 0; }
 ul.toc        { padding-left: 25px; }
+table     { border-collapse: collapse; }
+td, th    { border: 1px solid #ccc; padding: 3px; }
 </style>
 <script type="text/javascript">
 function hideshow(divel) {
@@ -221,7 +223,6 @@ class Handler(object):
             '<p class="setup">New setup: %s</p>\n' % setupnames)
 
     def handle_entry(self, time, data):
-        # XXX scan for headings and add to TOC
         if creole:
             data, headers = creole.translate(data, self.out.new_id)
         else:
