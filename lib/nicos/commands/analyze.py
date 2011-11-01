@@ -61,7 +61,7 @@ def _getData(xcol=None, ycol=None):
             except ValueError:
                 raise UsageError('no such y column: %r' % ycol)
         try:
-            ys = np.array([p[ycol] for p in dataset.results])
+            ys = np.array([p[ycol] for p in dataset.yresults])
         except IndexError:
             raise UsageError('no such y column: %r' % ycol)
     return xs, ys

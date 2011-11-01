@@ -79,8 +79,10 @@ class Dataset(object):
     scaninfo = ''
     # additional info from data sinks
     sinkinfo = {}
+    # resulting x values (should coincide with positions)
+    xresults = []
     # resulting y values at the positions
-    results = []
+    yresults = []
     # index of the x value to use for plotting
     xindex = 0
     # current point number

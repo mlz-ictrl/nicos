@@ -97,7 +97,8 @@ class Scan(object):
     def beginScan(self):
         dataset = self.dataset
         session.experiment._last_datasets.append(dataset)
-        dataset.results = []
+        dataset.xresults = []
+        dataset.yresults = []
         dataset.sinkinfo = []
         dataset.xnames, dataset.xunits = [], []
         for dev in self._devices + self._envlist:
@@ -139,7 +140,8 @@ class Scan(object):
         self.dataset.curpoint = num
 
     def addPoint(self, xvalues, yvalues):
-        self.dataset.results.append(yvalues)
+        self.dataset.xresults.append(xvalues)
+        self.dataset.yresults.append(yvalues)
         for sink in self._sinks:
             sink.addPoint(self.dataset, xvalues, yvalues)
 

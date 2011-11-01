@@ -90,14 +90,15 @@ class DataHandler(QObject):
         set.invisible = False
         set.name = str(set.sinkinfo.get('number', set.scaninfo)) # XXX
         set.curves = self._init_curves(set)
-        for xvalues, yvalues in zip(set.positions, set.results):
+        for xvalues, yvalues in zip(set.xresults, set.yresults):
             self._update_curves(xvalues, yvalues)
         self.emit(SIGNAL('datasetAdded'), set)
 
     def on_client_datapoint(self, (xvalues, yvalues)):
         if not self.currentset:
             raise DataError('No current set, trying to add a point')
-        self.currentset.results.append(yvalues)
+        self.currentset.xresults.append(xvalues)
+        self.currentset.yresults.append(yvalues)
         self._update_curves(xvalues, yvalues)
         self.emit(SIGNAL('pointsAdded'), self.currentset)
 
@@ -131,13 +132,6 @@ class DataHandler(QObject):
             curve.timeindex = timeindex
             curve.monindex = monindex
         return curves
-
-    def on_client_datapoint(self, (xvalues, yvalues)):
-        if not self.currentset:
-            raise DataError('No current set, trying to add a point')
-        self.currentset.results.append(yvalues)
-        self._update_curves(xvalues, yvalues)
-        self.emit(SIGNAL('pointsAdded'), self.currentset)
 
     def _update_curves(self, xvalues, yvalues):
         for curve in self.currentset.curves:
