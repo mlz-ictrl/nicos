@@ -76,6 +76,9 @@ body > ul.toc { padding-left: 0; }
 ul.toc        { padding-left: 25px; }
 table     { border-collapse: collapse; }
 td, th    { border: 1px solid #ccc; padding: 3px; }
+th        { text-align: left; }
+.scan     { width: 100%; }
+.scannum  { font-weight: bold; }
 </style>
 <script type="text/javascript">
 function hideshow(divel) {
@@ -138,7 +141,6 @@ class HtmlWriter(object):
     def open(self, dir, instr, proposal):
         if self.fd:
             self.close()
-        frameset = path.join(dir, 'logbook.html')
         open(path.join(dir, 'logbook.html'), 'w').write(
             FRAMESET % (instr, proposal))
         self.fd = open(path.join(dir, 'content.html'), 'a+b')
@@ -204,17 +206,18 @@ class Handler(object):
             if name.startswith('handle_'):
                 self.handlers[name[7:].replace('_', '/')] = getattr(self, name)
 
-        self.dir = None
+        self.dir = self.logdir = None
         self.out = HtmlWriter()
 
     def close(self):
         self.out.close()
 
     def handle_directory(self, time, data):
-        dir, instr, proposal = data
-        self.dir = dir
-        self.out.open(dir, instr or 'NICOS', proposal)
-        self.log.info('Openend new output file in ' + dir)
+        directory, instr, proposal = data
+        self.dir = directory
+        self.logdir = path.join(directory, 'logbook')
+        self.out.open(self.logdir, instr or 'NICOS', proposal)
+        self.log.info('Openend new output file in ' + directory)
 
     def handle_newexperiment(self, time, data):
         proposal, title = data
@@ -260,12 +263,12 @@ class Handler(object):
         for fpath, name in zip(fpaths, names):
             if not name:
                 name = path.basename(fpath)
-            fullname = path.join(self.dir, name)
+            fullname = path.join(self.logdir, name)
             oname = name; i = 0
             while path.exists(fullname):
                 i += 1
                 name = oname + str(i)
-                fullname = path.join(self.dir, name)
+                fullname = path.join(self.logdir, name)
             copyfile(fpath, fullname)
             links.append('<a href="%s">%s</a>' % (name, escape(oname)))
         text = '<b>%s:</b> %s' % (escape(description) or 'Attachment',
@@ -281,14 +284,44 @@ class Handler(object):
                 '<span class="msglabel">Messages</span>'
                 '<pre class="messages">\n', '</pre></div>\n', msg)
 
-    def handle_scanbegin(self, time, dataset):
-        print 'XXX Scan begin:', dataset
+    #def handle_scanbegin(self, time, dataset):
+    #    print 'Scan begin:', dataset
 
     def handle_scanend(self, time, dataset):
-        print 'XXX Scan end:', dataset
+        names = '+'.join(dataset.xnames)
+        headers = ['Scan#'] + dataset.xnames + ['Plot', 'Data']
+        scannumber = dataset.sinkinfo.get('number', -1)
+        scanfile = dataset.sinkinfo.get('filename', '')
+        if scannumber >= 0:
+            html = ['<tr id="scan%s">' % scannumber]
+            html.append('<td class="scannum">%s</td>' % scannumber)
+        else:
+            html = ['<tr>', '<td>-</td>']
+        for i, xname in enumerate(dataset.xnames):
+            first = dataset.xresults[0][i]
+            last = dataset.xresults[-1][i]
+            if first == last:
+                html.append('<td>%s</td>' % first)
+            else:
+                html.append('<td>%s - %s</td>' % (first, last))
+        # plot link
+        #html.append('<td><a href="">Plot</a></td>')
+        html.append('<td>...</td>')
+        # file link
+        if scanfile:
+            relfile = path.relpath(path.join(
+                self.dir, dataset.sinkinfo.get('filename')), self.logdir)
+            html.append('<td><a href="%s" type="text/plain">File</a></td>'
+                        % relfile)
+        else:
+            html.append('<td>...</td>')
+        html.append('</tr>')
+        self.out.newstate('scan-' + names, '<table class="scan"><tr>' +
+            ''.join('<th>%s</th>' % escape(h) for h in headers) + '</tr>',
+            '</table>\n', ''.join(html))
 
 
-# XXX more ideas:
+# TODO more ideas:
 # - internal links -> reference scan numbers or attachments
 # - integrated latex $foo$ syntax
 # - count()s

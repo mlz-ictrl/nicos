@@ -135,7 +135,8 @@ class Sample(Device):
     }
 
     def doWriteSamplename(self, name):
-        session.elog_event('sample', name)
+        if name:
+            session.elog_event('sample', name)
 
 
 class Experiment(Device):
@@ -173,7 +174,7 @@ class Experiment(Device):
         self._last_datasets = []
         ensureDirectory(path.join(self.datapath[0], 'logbook'))
         instname = session.instrument and session.instrument.instrument or ''
-        session.elog_event('directory', (path.join(self.datapath[0], 'logbook'),
+        session.elog_event('directory', (self.datapath[0],
                                          instname, self.proposal))
         self._eloghandler = ELogHandler()
         # only enable in master mode, see below
@@ -257,8 +258,7 @@ class Experiment(Device):
         ensureDirectory(path.join(paths[0], 'log'))
         self._eloghandler.changeDirectory(path.join(paths[0], 'logbook'))
         instname = session.instrument and session.instrument.instrument or ''
-        session.elog_event('directory', (path.join(paths[0], 'logbook'),
-                                         instname, self.proposal))
+        session.elog_event('directory', (paths[0], instname, self.proposal))
         for dev in session.devices.itervalues():
             if isinstance(dev, NeedsDatapath):
                 dev.datapath = paths
