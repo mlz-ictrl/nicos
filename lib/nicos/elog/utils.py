@@ -26,6 +26,7 @@
 
 __version__ = "$Revision$"
 
+import math
 import time
 from cgi import escape
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
@@ -67,3 +68,19 @@ def formatMessage(message):
     #if message[4]:
     #    # XXX handle traceback info
     return '<span class="%s">%s</span>' % (cls, escape(text))
+
+
+def pretty1(value):
+    try:
+        return '%.3f' % value
+    except (ValueError, TypeError):
+        return value
+
+
+def pretty2(value1, value2):
+    try:
+        ldiff = math.log10(abs(value2 - value1))
+        ncomma = 3 - int(ldiff)
+        return '%.*f - %.*f' % (ncomma, value1, ncomma, value2)
+    except (ValueError, TypeError):
+        return '%s - %s' % (value1, value2)

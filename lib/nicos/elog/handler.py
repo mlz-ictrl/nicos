@@ -31,7 +31,7 @@ from cgi import escape
 from time import strftime, localtime
 from shutil import copyfile
 
-from nicos.elog.utils import formatMessage
+from nicos.elog.utils import formatMessage, pretty1, pretty2
 
 try:
     import creole
@@ -301,9 +301,9 @@ class Handler(object):
             first = dataset.xresults[0][i]
             last = dataset.xresults[-1][i]
             if first == last:
-                html.append('<td>%s</td>' % first)
+                html.append('<td>%s</td>' % pretty1(first))
             else:
-                html.append('<td>%s - %s</td>' % (first, last))
+                html.append('<td>%s</td>' % pretty2(first, last))
         # plot link
         #html.append('<td><a href="">Plot</a></td>')
         html.append('<td>...</td>')
