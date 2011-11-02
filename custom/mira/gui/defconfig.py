@@ -71,6 +71,8 @@ default_profile_config = ('Default', [
            panel('nicos.gui.panels.analysis.AnalysisPanel')),
     window('History', 'find', True,
            panel('nicos.gui.panels.history.HistoryPanel')),
+    window('Logbook', 'table', True,
+           panel('nicos.gui.panels.elog.ELogPanel')),
     ], [
         tool('Maintenance',
              'nicos.gui.tools.commands.CommandsTool',
