@@ -178,7 +178,7 @@ class Experiment(Device):
                                          instname, self.proposal))
         self._eloghandler = ELogHandler()
         # only enable in master mode, see below
-        self._eloghandler.disabled = True
+        self._eloghandler.disabled = session.mode != 'master'
         session.addLogHandler(self._eloghandler)
 
     @usermethod
