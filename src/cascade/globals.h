@@ -28,6 +28,7 @@
 
 // use minuit for fits?
 #define USE_MINUIT
+// #define USE_BOOST
 
 #define LOAD_SUCCESS		 1
 #define LOAD_FAIL			 0

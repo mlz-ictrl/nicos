@@ -54,16 +54,18 @@ TofImage::TofImage(const char *pcFileName, int iCompressed, bool bExternalMem,
 	SetCompressionMethod(iCompressed);
 	m_puiDaten = 0;
 
-	if(conf)
+	if(conf)	// use given config
 		m_config = *conf;
-	else
+	else 		// if no config is given, copy global one
 		m_config = GlobalConfig::GetTofConfig();
 
+	logger.SetCurLogLevel(LOGLEVEL_INFO);
 	logger << "Loader: New TOF image: " << "external mem=" << m_bExternalMem
 			  << ", width=" << GetTofConfig().GetImageWidth()
 			  << ", height=" << GetTofConfig().GetImageHeight()
 			  << ", images=" << GetTofConfig().GetImageCount() << ".\n";
 
+	// should TofImage manage its own memory?
 	if(!m_bExternalMem)
 	{
 		int iSize = GetTofSize();

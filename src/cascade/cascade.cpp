@@ -68,6 +68,7 @@
 #include "parse.h"
 #include "cascadewidget.h"
 #include "logger.h"
+#include "helper.h"
 
 #include "ErrorBarPlotCurve.h"
 #include "histogram_item.h"

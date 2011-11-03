@@ -24,8 +24,8 @@ all: cascade nicosmodules
 
 
 ###################### cascade-qt-client ################
-cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o globals.o
-	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o globals.o
+cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o globals.o parse.o
+	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o globals.o parse.o
 #########################################################
 
 
@@ -67,11 +67,14 @@ logger.o: logger.cpp logger.h
 
 globals.o: globals.cpp globals.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o globals.o globals.cpp
+
+parse.o: parse.cpp parse.h
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o parse.o parse.cpp
 #########################################################
 
 
 
-############################ Dialoge ############################
+############################ Dialogs ############################
 cascadedialogs.h: ui_calibrationdlg.h ui_sumdialog.h ui_serverdlg.h ui_servercfgdlg.h ui_graphdlg.h ui_commanddlg.h
 
 ui_calibrationdlg.h: calibrationdlg.ui
