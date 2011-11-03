@@ -26,8 +26,13 @@
 
 __version__ = "$Revision$"
 
+import copy
+import uuid
+
 from PyQt4.QtCore import QObject, SIGNAL
 from PyQt4.QtGui import QApplication, QProgressDialog
+
+from nicos.gui.utils import unzip
 
 
 class DataError(Exception):
@@ -47,6 +52,23 @@ class Curve(object):
     def __init__(self):
         self.datax, self.datay, self.datady, self.datatime, self.datamon = \
                     [], [], [], [], []
+
+    def copy(self):
+        return copy.copy(self)
+
+    def tolist(self):
+        # XXX doesn't handle time/mon
+        if self.dyindex != -1:
+            return zip(self.datax, self.datay, self.datady)
+        return zip(self.datax, self.datay)
+
+    def setdata(self, data):
+        # XXX doesn't handle time/mon
+        lists = unzip(data)
+        self.datax = lists[0]
+        self.datay = lists[1]
+        if len(lists) == 3:
+            self.datady = lists[2]
 
 
 class DataHandler(QObject):
@@ -92,6 +114,12 @@ class DataHandler(QObject):
         set.curves = self._init_curves(set)
         for xvalues, yvalues in zip(set.xresults, set.yresults):
             self._update_curves(xvalues, yvalues)
+        self.emit(SIGNAL('datasetAdded'), set)
+
+    def add_existing_dataset(self, set):
+        set.uid = str(uuid.uuid1())
+        self.sets.append(set)
+        self.uid2set[set.uid] = set
         self.emit(SIGNAL('datasetAdded'), set)
 
     def on_client_datapoint(self, (xvalues, yvalues)):

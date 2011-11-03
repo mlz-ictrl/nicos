@@ -112,6 +112,15 @@ def formatEndtime(secs):
 def safeFilename(fn):
     return re.compile('[^a-zA-Z0-9_.-]').sub('', fn)
 
+def unzip(data):
+    if not data:
+        return []
+    n = len(data[0])
+    res = [[] for i in range(n)]
+    for row in data:
+        for i in range(n):
+            res[i].append(row[i])
+    return res
 
 # -- UI tools ------------------------------------------------------------------
 

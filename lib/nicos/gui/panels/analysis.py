@@ -32,14 +32,15 @@ import tempfile
 
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, QPen, \
-     QListWidgetItem, QFileDialog, QPrintDialog, QPrinter, QSizePolicy, QImage
+     QListWidgetItem, QFileDialog, QPrintDialog, QPrinter, QSizePolicy, \
+     QImage, QPalette
 from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotItem, QwtText, QwtPicker, \
      QwtLog10ScaleEngine, QwtLinearScaleEngine, QwtPlotPicker, QwtPlotMarker
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np
 
-#from nicos.gui.data import DataSet, Curve
+from nicos.data import Dataset
 from nicos.gui.panels import Panel
 from nicos.gui.utils import loadUi, dialogFromUi, safeFilename
 from nicos.gui.fitutils import has_odr, FitError, fit_gauss, fwhm_to_sigma, \
@@ -61,7 +62,7 @@ def combinestr(strings, **kwds):
     return res
 
 def combineattr(it, attr, sep=' | '):
-    return combinestr((getattr(x, attr) for x in it))
+    return combinestr((getattr(x, attr) for x in it), sep=sep)
 
 def itemuid(item):
     return str(item.data(32).toString())
@@ -173,6 +174,7 @@ class AnalysisPanel(Panel):
         bar.addAction(self.actionLegend)
         bar.addAction(self.actionResetPlot)
         bar.addSeparator()
+        bar.addAction(self.actionCombine)
         bar.addAction(self.actionFitPeak)
         bar.addAction(self.actionFitTc)
         return [bar]
@@ -374,115 +376,112 @@ class AnalysisPanel(Panel):
 
     @qtsig('')
     def on_actionCombine_triggered(self):
-        # XXX currently not working
-        return
+        current = self.currentPlot.dataset.uid
+        dlg = QDialog(self)
+        loadUi(dlg, 'dataops.ui')
+        for i in range(self.datasetList.count()):
+            item = self.datasetList.item(i)
+            newitem = QListWidgetItem(item.text(), dlg.otherList)
+            newitem.setData(32, item.data(32))
+            if itemuid(item) == current:
+                dlg.otherList.setCurrentItem(newitem)
+                # paint the current set in grey to indicate it's not allowed
+                # to be selected
+                newitem.setBackground(self.palette().brush(QPalette.Mid))
+                newitem.setFlags(Qt.NoItemFlags)
+        if dlg.exec_() != QDialog.Accepted:
+            return
 
-        # current = self.currentPlot.dataset.uid
-        # dlg = QDialog(self)
-        # loadUi(dlg, 'dataops.ui')
-        # for i in range(self.datasetList.count()):
-        #     item = self.datasetList.item(i)
-        #     newitem = QListWidgetItem(item.text(), dlg.otherList)
-        #     newitem.setData(32, item.data(32))
-        #     if itemuid(item) == current:
-        #         dlg.otherList.setCurrentItem(newitem)
-        #         # paint the current set in grey to indicate it's not allowed
-        #         # to be selected
-        #         newitem.setBackground(self.palette().brush(QPalette.Mid))
-        #         newitem.setFlags(Qt.NoItemFlags)
-        # if dlg.exec_() != QDialog.Accepted:
-        #     return
+        items = dlg.otherList.selectedItems()
+        sets = [self.data.uid2set[current]]
+        for item in items:
+            if itemuid(item) == current:
+                return self.showError('Cannot combine set with itself.')
+            sets.append(self.data.uid2set[itemuid(item)])
+        for rop, rb in [(TOGETHER, dlg.opTogether),
+                        (COMBINE, dlg.opCombine),
+                        (ADD, dlg.opAdd),
+                        (SUBTRACT, dlg.opSubtract),
+                        (DIVIDE, dlg.opDivide)]:
+            if rb.isChecked():
+                op = rop
+                break
+        if op == TOGETHER:
+            newset = Dataset()
+            newset.name = combineattr(sets, 'name', sep=', ')
+            newset.curves = []
+            newset.started = time.localtime()
+            newset.xnames = sets[0].xnames # XXX combine from sets
+            newset.xindex = sets[0].xindex
+            newset.xunits = sets[0].xunits
+            # for together only, the number of curves and their columns
+            # are irrelevant, just put all together
+            for set in sets:
+                for curve in set.curves:
+                    newcurve = curve.copy()
+                    newcurve.description = (newcurve.description or '') + \
+                        ' (%s)' % set.name
+                    newset.curves.append(newcurve)
+            self.data.add_existing_dataset(newset)
+            return
+        # else, need same axes, and same number and types of curves
 
-        # items = dlg.otherList.selectedItems()
-        # sets = [self.data.uid2set[current]]
-        # for item in items:
-        #     if itemuid(item) == current:
-        #         return self.showError('Cannot combine set with itself.')
-        #     sets.append(self.data.uid2set[itemuid(item)])
-        # for rop, rb in [(TOGETHER, dlg.opTogether),
-        #                 (COMBINE, dlg.opCombine),
-        #                 (ADD, dlg.opAdd),
-        #                 (SUBTRACT, dlg.opSubtract),
-        #                 (DIVIDE, dlg.opDivide)]:
-        #     if rb.isChecked():
-        #         op = rop
-        #         break
-        # if op == TOGETHER:
-        #     newset = DataSet(
-        #         -1,
-        #         #title=combineattr(sets, 'title'),
-        #         #subtitle=combineattr(sets, 'subtitle', sep='\n'),
-        #         title=combineattr(sets, 'name', sep=', '),
-        #         name=combineattr(sets, 'name', sep=', '),
-        #         xaxisname=combineattr(sets, 'xaxisname'),
-        #         yaxisname=combineattr(sets, 'yaxisname'),
-        #         y2axisname=combineattr(sets, 'y2axisname'),
-        #         )
-        #     # for together only, the number of curves and their columns
-        #     # are irrelevant, just put all together
-        #     for set in sets:
-        #         for curve in set.curves:
-        #             newcurve = curve.copy()
-        #             newcurve.name = (newcurve.name or '') + ' (%s)' % set.name
-        #             newset.curves.append(newcurve)
-        #     self.data.add_existing_dataset(newset)
-        #     return
-        # # else, need same axes, and same number and types of curves
-        # firstset = sets[0]
-        # axisprops = (firstset.xaxisname, firstset.yaxisname, firstset.y2axisname)
-        # curveprops = [(curve.name, curve.coldesc) for curve in firstset.curves]
-        # for set in sets[1:]:
-        #     if (set.xaxisname, set.yaxisname, set.y2axisname) != axisprops:
-        #         return self.showError('Sets have different axes.')
-        #     if [(curve.name, curve.coldesc) for curve in set.curves] != curveprops:
-        #         return self.showError('Sets have different curves.')
-        # if op == COMBINE:
-        #     newset = DataSet(
-        #         -1, title=combineattr(sets, 'title'),
-        #         subtitle=combineattr(sets, 'subtitle', sep='\n'),
-        #         name=combineattr(sets, 'name', sep=', '),
-        #         xaxisname=firstset.xaxisname, yaxisname=firstset.yaxisname,
-        #         y2axisname=firstset.y2axisname)
-        #     for curves in zip(*(set.curves for set in sets)):
-        #         newcurve = Curve(curves[0].name, curves[0].coldesc,
-        #                          curves[0].plotmode)
-        #         newdata = sum((curve.data.tolist() for curve in curves), [])
-        #         newdata.sort()
-        #         newcurve.data = np.array(newdata)
-        #         newset.curves.append(newcurve)
-        #     self.data.add_existing_dataset(newset)
-        #     return
-        # if op == ADD:
-        #     sep = ' + '
-        # elif op == SUBTRACT:
-        #     sep = ' - '
-        # elif op == DIVIDE:
-        #     sep = ' / '
-        # newset = DataSet(
-        #     -1, title=combineattr(sets, 'title', sep=sep),
-        #     subtitle=combineattr(sets, 'subtitle', sep='\n'),
-        #     name=combineattr(sets, 'name', sep=sep),
-        #     xaxisname=firstset.xaxisname, yaxisname=firstset.yaxisname,
-        #     y2axisname=firstset.y2axisname)
-        # for curves in zip(*(set.curves for set in sets)):
-        #     newcurve = Curve(curves[0].name, curves[0].coldesc,
-        #                      curves[0].plotmode)
-        #     # CRUDE: don't care about the x values, operate by index
-        #     newdata = curves[0].data.copy()
-        #     for curve in curves[1:]:
-        #         try:
-        #             if op == ADD:
-        #                 newdata[:,1] += curve.data[:,1]
-        #             elif op == SUBTRACT:
-        #                 newdata[:,1] -= curve.data[:,1]
-        #             elif op == DIVIDE:
-        #                 newdata[:,1] /= curve.data[:,1]
-        #         except Exception:
-        #             pass
-        #     newcurve.data = newdata
-        #     # XXX treat errors correctly
-        #     newset.curves.append(newcurve)
-        # self.data.add_existing_dataset(newset)
+        firstset = sets[0]
+        nameprops = [firstset.xnames, firstset.xunits]
+        curveprops = [(curve.description, curve.yindex)
+                      for curve in firstset.curves]
+        for set in sets[1:]:
+            if [set.xnames, set.xunits] != nameprops:
+                return self.showError('Sets have different axes.')
+            if [(curve.description, curve.yindex)
+                for curve in set.curves] != curveprops:
+                return self.showError('Sets have different curves.')
+        if op == COMBINE:
+            newset = Dataset()
+            newset.name = combineattr(sets, 'name', sep=', ')
+            newset.curves = []
+            newset.started = time.localtime()
+            newset.xnames = firstset.xnames
+            newset.xindex = firstset.xindex
+            newset.xunits = firstset.xunits
+            for curves in zip(*(set.curves for set in sets)):
+                newcurve = curves[0].copy()
+                newdata = sum((curve.tolist() for curve in curves), [])
+                newdata.sort()
+                newcurve.setdata(newdata)
+                newset.curves.append(newcurve)
+            self.data.add_existing_dataset(newset)
+            return
+        if op == ADD:
+            sep = ' + '
+        elif op == SUBTRACT:
+            sep = ' - '
+        elif op == DIVIDE:
+            sep = ' / '
+        newset = Dataset()
+        newset.name = combineattr(sets, 'name', sep=sep)
+        newset.curves = []
+        newset.started = time.localtime()
+        newset.xnames = firstset.xnames
+        newset.xindex = firstset.xindex
+        newset.xunits = firstset.xunits
+        for curves in zip(*(set.curves for set in sets)):
+            newcurve = curves[0].copy()
+            # CRUDE: don't care about the x values, operate by index
+            for curve in curves[1:]:
+                for i in range(len(newcurve.datay)):
+                    try:
+                        if op == ADD:
+                            newcurve.datay[i] += curve.datay[i]
+                        elif op == SUBTRACT:
+                            newcurve.datay[i] -= curve.datay[i]
+                        elif op == DIVIDE:
+                            newcurve.datay[i] /= float(curve.datay[i])
+                    except Exception:
+                        pass
+            # XXX treat errors correctly
+            newset.curves.append(newcurve)
+        self.data.add_existing_dataset(newset)
 
 
 class DataSetPlot(NicosPlot):
