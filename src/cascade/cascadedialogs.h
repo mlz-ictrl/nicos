@@ -51,6 +51,7 @@
 #include "ui_serverdlg.h"
 #include "ui_servercfgdlg.h"
 #include "ui_commanddlg.h"
+#include "ui_roidlg.h"
 
 #include "histogram_item.h"
 #include "bins.h"
@@ -242,5 +243,21 @@ class ServerCfgDlg : public QDialog, public Ui::ServerConfigDlg
 		static double GetStatTime();
 		static bool GetStatComp();
 };
+
+
+// ************************* Roi-Dialog ****************************************
+
+class RoiDlg : public QDialog, public Ui::RoiDlg
+{
+	Q_OBJECT
+
+	protected:
+
+	public:
+		RoiDlg(QWidget *pParent);
+		virtual ~RoiDlg();
+};
+
+// *****************************************************************************
 
 #endif

@@ -572,3 +572,14 @@ unsigned int ServerCfgDlg::s_iTRes = 128;
 int ServerCfgDlg::s_iMode = 1;
 bool ServerCfgDlg::s_bUsePseudoComp = 0;
 // *****************************************************************************
+
+
+// ************************* Roi-Dlg *******************************************
+RoiDlg::RoiDlg(QWidget *pParent) : QDialog(pParent)
+{
+	setupUi(this);
+}
+
+RoiDlg::~RoiDlg()
+{}
+// *****************************************************************************

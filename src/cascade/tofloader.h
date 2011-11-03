@@ -26,6 +26,7 @@
 #define __TOFLOADER__
 
 #include "globals.h"
+#include "roi.h"
 
 class TmpImage;
 class TmpGraph;
@@ -258,6 +259,9 @@ class TofImage
 
 		TofConfig m_config;
 
+		Roi m_roi;
+		bool m_bUseRoi;
+
 	public:
 		//----------------------------------------------------------------------
 		// "internal" methods => use corresponding method below
@@ -280,9 +284,12 @@ class TofImage
 		void AddFoils(const bool *pbChannels, TmpImage *pImg) const;
 		void AddPhases(const bool *pbFoils, TmpImage *pImg) const;
 		void AddContrasts(const bool *pbFoils, TmpImage *pImg) const;
+		//----------------------------------------------------------------------
 
 		const TofConfig& GetTofConfig() const;
-		//----------------------------------------------------------------------
+
+		Roi& GetRoi();
+		void UseRoi(bool bUseRoi=true);
 
 	public:
 		TofImage(const char *pcFileName=NULL,

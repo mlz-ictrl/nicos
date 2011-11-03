@@ -66,4 +66,16 @@ std::string trim(const std::string& str);
 // convert big endian to little endian and vice versa
 unsigned int endian_swap(unsigned int ui);
 
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+// swap values
+template<class T> void swap(T& t1, T& t2)
+{
+	T tmp = t1;
+	t1 = t2;
+	t2 = tmp;
+}
+
 #endif

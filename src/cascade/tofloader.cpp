@@ -53,6 +53,7 @@ TofImage::TofImage(const char *pcFileName, int iCompressed, bool bExternalMem,
 {
 	SetCompressionMethod(iCompressed);
 	m_puiDaten = 0;
+	m_bUseRoi = false;
 
 	if(conf)	// use given config
 		m_config = *conf;
@@ -89,6 +90,9 @@ TofImage::~TofImage()
 {
 	Clear();
 }
+
+void TofImage::UseRoi(bool bUseRoi) { m_bUseRoi = bUseRoi; }
+Roi& TofImage::GetRoi() { return m_roi; }
 
 const TofConfig& TofImage::GetTofConfig() const
 {
@@ -159,18 +163,33 @@ void TofImage::SetCompressionMethod(int iComp)
 
 unsigned int TofImage::GetData(int iBild, int iX, int iY) const
 {
+	if(m_bUseRoi)
+	{
+		// only continue if point is in ROI
+		if(!m_roi.IsInside(iX, iY))
+			return 0;
+	}
+
 	if(m_puiDaten && iBild>=0 && iBild<GetTofConfig().GetImageCount() &&
 	   iX>=0 && iX<GetTofConfig().GetImageWidth() &&
 	   iY>=0 && iY<GetTofConfig().GetImageHeight())
 		return m_puiDaten[iBild*GetTofConfig().GetImageWidth()*
 							    GetTofConfig().GetImageHeight() +
 								iY*GetTofConfig().GetImageWidth() + iX];
+
 	return 0;
 }
 
 unsigned int TofImage::GetData(int iFoil, int iTimechannel,
 							   int iX, int iY) const
 {
+	if(m_bUseRoi)
+	{
+		// only continue if point is in ROI
+		if(!m_roi.IsInside(iX, iY))
+			return 0;
+	}
+
 	if(!m_bPseudoCompressed)
 	{
 		int iZ = GetTofConfig().GetFoilBegin(iFoil) + iTimechannel;

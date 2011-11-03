@@ -868,6 +868,17 @@ class MainWindow : public QMainWindow
 		///////////////////////////////////////////////////////////////////
 
 
+		//////////////////////////ROI /////////////////////////////////////
+		void showRoiDlg()
+		{
+			RoiDlg roidlg(this);
+
+			if(roidlg.exec()==QDialog::Accepted)
+			{
+			}
+		}
+		///////////////////////////////////////////////////////////////////
+
 		///////////////////////// Help ///////////////////////////////////
 		void About()
 		{
@@ -996,6 +1007,7 @@ class MainWindow : public QMainWindow
 			QAction *actionExit = new QAction(this);
 			actionExit->setText("&Exit");
 
+
 			// Server Menu Items
 			QAction *actionConnectServer = new QAction(this);
 			actionConnectServer->setText("&Connect to Server...");
@@ -1027,15 +1039,21 @@ class MainWindow : public QMainWindow
 			QAction *actionConfigFromServer = new QAction(this);
 			actionConfigFromServer->setText("&Retrieve Configuration");
 
+
 			// Graph Menu Items
 			QAction *actionGraph = new QAction(this);
-			actionGraph->setText("&Counts vs. time channels...");
+			actionGraph->setText("&Counts vs. Time Channels...");
 
 			QAction *actionSummen = new QAction(this);
 			actionSummen->setText("&Sum Images...");
 
 			QAction *actionCalibration = new QAction(this);
 			actionCalibration->setText("C&alibration...");
+
+
+			// ROI Menu Items
+			QAction *actionManageRois = new QAction(this);
+			actionManageRois->setText("&Manage ROI items...");
 
 
 			// Help Menu Items
@@ -1054,7 +1072,6 @@ class MainWindow : public QMainWindow
 			menubar->setGeometry(QRect(0, 0, 800, 25));
 			QMenu *menuFile = new QMenu(menubar);
 			menuFile->setTitle("&File");
-			menubar->addAction(menuFile->menuAction());
 			menuFile->addAction(actionLoadPad);
 			menuFile->addAction(actionLoadTof);
 			menuFile->addSeparator();
@@ -1062,10 +1079,10 @@ class MainWindow : public QMainWindow
 			menuFile->addAction(actionPrint);
 			menuFile->addSeparator();
 			menuFile->addAction(actionExit);
+			menubar->addAction(menuFile->menuAction());
 
 			QMenu *menuServer = new QMenu(menubar);
 			menuServer->setTitle("&Server");
-			menubar->addAction(menuServer->menuAction());
 			menuServer->addAction(actionConnectServer);
 			menuServer->addAction(actionServerDisconnect);
 			menuServer->addSeparator();
@@ -1078,20 +1095,26 @@ class MainWindow : public QMainWindow
 			menuServer->addAction(actionServerMeasurementStop);
 			menuServer->addSeparator();
 			menuServer->addAction(actionLoadTofServer);
+			menubar->addAction(menuServer->menuAction());
 
 			QMenu *menuGraph = new QMenu(menubar);
 			menuGraph->setTitle("&Graph");
-			menubar->addAction(menuGraph->menuAction());
 			menuGraph->addAction(actionCalibration);
 			menuGraph->addSeparator();
 			menuGraph->addAction(actionGraph);
 			menuGraph->addAction(actionSummen);
+			menubar->addAction(menuGraph->menuAction());
+
+			QMenu *menuRoi = new QMenu(menubar);
+			menuRoi->setTitle("&ROI");
+			menuRoi->addAction(actionManageRois);
+			menubar->addAction(menuRoi->menuAction());
 
 			QMenu *menuHelp = new QMenu(menubar);
 			menuHelp->setTitle("&Help");
-			menubar->addAction(menuHelp->menuAction());
 			menuHelp->addAction(actionAbout);
 			menuHelp->addAction(actionAboutQt);
+			menubar->addAction(menuHelp->menuAction());
 
 			setMenuBar(menubar);
 			//------------------------------------------------------------------
@@ -1233,6 +1256,10 @@ class MainWindow : public QMainWindow
 
 			connect(&m_client, SIGNAL(MessageSignal(const char*, int)), this,
 							   SLOT(ServerMessageSlot(const char*, int)));
+
+			// ROI
+			connect(actionManageRois, SIGNAL(triggered()), this,
+									   SLOT(showRoiDlg()));
 
 			// Widget
 			connect(&m_cascadewidget, SIGNAL(SumDlgSignal(const bool *, int)),
