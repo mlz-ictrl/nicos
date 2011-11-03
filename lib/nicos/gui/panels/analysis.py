@@ -575,18 +575,21 @@ class DataSetPlot(NicosPlot):
             return self.showError('scipy.odr is not available.')
         if not self.curves:
             return self.showError('Plot must have a curve to be fitted.')
-        self.fitcurve = 0
-        if len(self.curves) > 1:
+        visible_curves = [i for (i, curve) in enumerate(self.dataset.curves)
+                          if not curve.disabled]
+        if len(visible_curves) > 1:
             dlg = QDialog(self)
             loadUi(dlg, 'selector.ui')
             dlg.setWindowTitle('Select curve to fit')
             dlg.label.setText('Select a curve:')
-            for curve in self.dataset.curves:
-                QListWidgetItem(curve.description, dlg.list)
+            for i in visible_curves:
+                QListWidgetItem(self.dataset.curves[i].description, dlg.list)
             dlg.list.setCurrentRow(0)
             if dlg.exec_() != QDialog.Accepted:
                 return
-            self.fitcurve = dlg.list.currentRow()
+            self.fitcurve = visible_curves[dlg.list.currentRow()]
+        else:
+            self.fitcurve = visible_curves[0]
         self.picker.active = False
         self.zoomer.setEnabled(False)
         self.fitvalues = []
