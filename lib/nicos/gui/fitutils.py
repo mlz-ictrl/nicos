@@ -57,8 +57,8 @@ def fit_peak_common(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw),
     maxi = i
     if mini >= maxi:
         raise FitError('No data in selected region')
-    fitx = xdata[mini:maxi]
-    fity = ydata[mini:maxi]
+    fitx = xdata[mini-1:maxi+1]
+    fity = ydata[mini-1:maxi+1]
     model = Model(modelfunc)
     if yerr is not None and yerr.shape == 1:
         fiterr = yerr[mini:maxi]
@@ -67,7 +67,7 @@ def fit_peak_common(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw),
         data = RealData(fitx, fity)
     odr = ODR(data, model, beta0, ifixx=array([0]*len(fitx)))
     out = odr.run()
-    if out.info >= 5:
+    if out.info & 0xFFFFFFFF >= 5:
         raise FitError(', '.join(out.stopreason))
     xfine = arange(xmin, xmax, (xmax-xmin)/200)
     return out.beta, xfine, modelfunc(out.beta, xfine)
