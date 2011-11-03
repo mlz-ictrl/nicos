@@ -61,7 +61,7 @@ def fit_peak_common(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw),
     fity = ydata[mini-1:maxi+1]
     model = Model(modelfunc)
     if yerr is not None and yerr.shape == 1:
-        fiterr = yerr[mini:maxi]
+        fiterr = yerr[mini-1:maxi+1]
         data = RealData(fitx, fity, sy=fiterr)
     else:
         data = RealData(fitx, fity)
