@@ -413,10 +413,11 @@ class NicosPlot(QwtPlot):
         if self.legend():
             item = self.legend().find(plotcurve)
             if not plotcurve.isVisible():
-                plotcurve.setItemAttribute(QwtPlotItem.AutoScale, False)
                 newtext = QwtText(item.text())
                 newtext.setColor(Qt.darkGray)
                 item.setText(newtext)
+        if not plotcurve.isVisible():
+            plotcurve.setItemAttribute(QwtPlotItem.AutoScale, False)
         self.curves.append(plotcurve)
         if replot:
             self.zoomer.setZoomBase(True)

@@ -576,7 +576,7 @@ class DataSetPlot(NicosPlot):
         if not self.curves:
             return self.showError('Plot must have a curve to be fitted.')
         visible_curves = [i for (i, curve) in enumerate(self.dataset.curves)
-                          if not curve.disabled]
+                          if self.curves[i].isVisible()]
         if len(visible_curves) > 1:
             dlg = QDialog(self)
             loadUi(dlg, 'selector.ui')
