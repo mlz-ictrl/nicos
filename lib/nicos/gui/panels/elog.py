@@ -28,7 +28,7 @@ __version__ = "$Revision$"
 
 from os import path
 
-from PyQt4.QtCore import SIGNAL, QTimer, QUrl
+from PyQt4.QtCore import SIGNAL, QTimer, QUrl, pyqtSignature as qtsig
 
 from nicos.gui.panels import Panel
 from nicos.gui.utils import loadUi, DlgUtils, setBackgroundColor
@@ -68,6 +68,7 @@ class ELogPanel(Panel, DlgUtils):
         self.freeFormText.setFont(font)
         setBackgroundColor(self.freeFormText, back)
 
+    @qtsig('')
     def on_addRemark_clicked(self):
         remark = str(self.remarkText.text())
         if not remark:
@@ -77,6 +78,7 @@ class ELogPanel(Panel, DlgUtils):
         self.remarkText.setFocus()
         self.timer.start(500)
 
+    @qtsig('')
     def on_addFreeForm_clicked(self):
         freeform = str(self.freeFormText.toPlainText())
         if not freeform:
@@ -86,10 +88,12 @@ class ELogPanel(Panel, DlgUtils):
         self.freeFormText.setFocus()
         self.timer.start(500)
 
+    @qtsig('')
     def on_fileSelect_clicked(self):
         self.selectInputFile(self.fileName, 'Choose a file to attach')
         self.fileRename.setFocus()
 
+    @qtsig('')
     def on_addFile_clicked(self):
         fname = str(self.fileName.text())
         if not path.isfile(fname):
@@ -107,6 +111,7 @@ class ELogPanel(Panel, DlgUtils):
     def on_creoleLabel_linkActivated(self, link):
         self.stacker.setCurrentIndex(1)
 
+    @qtsig('')
     def on_creoleDone_clicked(self):
         self.stacker.setCurrentIndex(0)
 
