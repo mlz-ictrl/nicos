@@ -409,9 +409,12 @@ class EditorPanel(Panel):
     def checkDirty(self):
         if not self.editor.isModified():
             return True
+        if self.filename:
+            message = 'Save changes in %s before continuing?' % self.filename
+        else:
+            message = 'Save new file before continuing?'
         rc = QMessageBox.question(
-            self, 'User Editor',
-            'Save changes in %s before continuing?' % self.filename,
+            self, 'User Editor', message,
             QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
         if rc == QMessageBox.Save:
             return self.on_actionSave_triggered()

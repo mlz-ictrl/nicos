@@ -61,8 +61,8 @@ class AuxiliaryWindow(QMainWindow):
             else:
                 self.user_color = QColor(Qt.white)
 
-        createWindowItem(config[3], self, self.centralLayout)
         self.setWindowTitle(config[0])
+        createWindowItem(config[3], self, self.centralLayout)
 
         if len(self.splitstate) == len(self.splitters):
             for sp, st in zip(self.splitters, self.splitstate):
