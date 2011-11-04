@@ -684,6 +684,7 @@ class DataSetPlot(NicosPlot):
         # check that the given position is inside the viewport
         xi = self.axisScaleDiv(resultcurve.xAxis()).interval()
         xmin, xmax = xi.minValue(), xi.maxValue()
+        xmin, xmax = min(xmin, xmax), max(xmin, xmax)
         yi = self.axisScaleDiv(resultcurve.yAxis()).interval()
         ymin, ymax = yi.minValue(), yi.maxValue()
 
