@@ -84,6 +84,9 @@ class CascadeDetector(AsyncDetector, ImageStorage):
             raise CommunicationError(self, 'could not connect to server')
         if self.slave:
             self._adevs['master'].reset()
+        # reset parameters in case the server forgot them
+        self.mode = self.mode
+        self.preselection = self.preselection
 
     def valueInfo(self):
         cvals = (Value(self.name + '.roi', unit='cts', type='counter',
