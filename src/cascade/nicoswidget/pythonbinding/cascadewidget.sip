@@ -70,6 +70,8 @@ class Plot : QwtPlot
 %End
 	public:
 		void ChangeRange();
+		void ChangeRange_xy();
+
 		QwtPlotZoomer* GetZoomer();
 		QwtPlotPanner* GetPanner();
 
