@@ -83,6 +83,10 @@ class MainWindow(QMainWindow, DlgUtils):
             display = getXDisplay(),
         )
 
+        # state members
+        self.current_status = None
+        self.action_start_time = None
+
         # connect the client's events
         self.client = NicosGuiClient(self)
         self.connect(self.client, SIGNAL('error'), self.on_client_error)
@@ -174,9 +178,7 @@ class MainWindow(QMainWindow, DlgUtils):
         self.statusLabel.setMinimumSize(QSize(30, 10))
         self.toolBarMain.addWidget(self.statusLabel)
 
-        # setup state members
-        self.current_status = None
-        self.action_start_time = None
+        # create initial state
         self.setStatus('disconnected')
 
     def createWindow(self, wtype):
@@ -187,6 +189,8 @@ class MainWindow(QMainWindow, DlgUtils):
         window.setWindowIcon(QIcon(':/' + wconfig[1]))
         self.windows.setdefault(wtype, set()).add(window)
         self.connect(window, SIGNAL('closed'), self.on_auxWindow_closed)
+        for panel in window.panels:
+            panel.updateStatus(self.current_status)
         window.show()
 
     def on_auxWindow_closed(self, window):
