@@ -20,10 +20,13 @@
 //   Tobias Weber <tweber@frm2.tum.de>
 //
 // *****************************************************************************
-// Cascade-Unterdialoge
+// Cascade sub dialogs
 
 #include "cascadedialogs.h"
 #include <stdio.h>
+#include <sstream>
+#include <QVariant>
+#include <QMenu>
 
 
 // ************************* Server Command Dialog ********************
@@ -574,12 +577,139 @@ bool ServerCfgDlg::s_bUsePseudoComp = 0;
 // *****************************************************************************
 
 
+
 // ************************* Roi-Dlg *******************************************
-RoiDlg::RoiDlg(QWidget *pParent) : QDialog(pParent)
+RoiDlg::RoiDlg(QWidget *pParent, Roi& roi) : QDialog(pParent), m_roi(roi)
 {
 	setupUi(this);
+
+	connect(listRois, SIGNAL(itemSelectionChanged()),
+			this, SLOT(ItemSelected()));
+	connect(tableParams, SIGNAL(itemChanged(QTableWidgetItem *)),
+			this, SLOT(ValueChanged(QTableWidgetItem *)));
+	connect(btnDelete, SIGNAL(clicked()), this, SLOT(DeleteItem()));
+
+
+	//--------------------------------------------------------------------------
+	QAction *actionNewRect = new QAction("Rectangle", this);
+	QAction *actionNewCircle = new QAction("Circle", this);
+
+	QMenu *pMenu = new QMenu(this);
+	pMenu->addAction(actionNewRect);
+	pMenu->addAction(actionNewCircle);
+
+	connect(actionNewRect, SIGNAL(triggered()), this, SLOT(NewRect()));
+	connect(actionNewCircle, SIGNAL(triggered()), this, SLOT(NewCircle()));
+
+	btnAdd->setMenu(pMenu);
+	//--------------------------------------------------------------------------
+
+	// add all roi elements to list
+	for(int i=0; i<m_roi.GetNumElements(); ++i)
+	{
+		new QListWidgetItem(m_roi.GetElement(i).GetName().c_str(), listRois);
+	}
 }
 
 RoiDlg::~RoiDlg()
 {}
+
+// an item (e.g. "circle", "rectangle", ... has been selected)
+void RoiDlg::ItemSelected()
+{
+	m_iCurrentItem = listRois->currentRow();
+
+	if(m_iCurrentItem<0 || m_iCurrentItem >= m_roi.GetNumElements())
+		return;
+
+	RoiElement& elem = m_roi.GetElement(m_iCurrentItem);
+
+	tableParams->setRowCount(elem.GetParamCount());
+	tableParams->setColumnCount(2);
+
+	for(int iParam=0; iParam<elem.GetParamCount(); ++iParam)
+	{
+		std::string strParamName = elem.GetParamName(iParam);
+		double dParamValue = elem.GetParam(iParam);
+
+		std::ostringstream ostrValue;
+		ostrValue << dParamValue;
+
+		QTableWidgetItem *pItemName =
+								new QTableWidgetItem(strParamName.c_str());
+		pItemName->setFlags(pItemName->flags() & ~Qt::ItemIsEditable);
+		tableParams->setItem(iParam, 0, pItemName);
+
+		QTableWidgetItem *pItemValue =
+								new QTableWidgetItem(ostrValue.str().c_str());
+
+		pItemValue->setData(Qt::UserRole, iParam);
+		pItemValue->setData(Qt::UserRole+1, 1);		// flag 'editable'
+
+		//pItemValue->setData(Qt::UserRole, QVariant::fromValue(pvElem));
+		tableParams->setItem(iParam, 1, pItemValue);
+	}
+}
+
+// a property of the selected item has changed
+void RoiDlg::ValueChanged(QTableWidgetItem* pItem)
+{
+	// only edit if this flag is set
+	if(pItem->data(Qt::UserRole+1).value<int>() != 1)
+		return;
+
+	if(m_iCurrentItem<0 || m_iCurrentItem >= m_roi.GetNumElements())
+		return;
+	RoiElement& elem = m_roi.GetElement(m_iCurrentItem);
+
+	QVariant var = pItem->data(Qt::UserRole);
+	int iParam = var.value<int>();
+
+	bool bOk = true;
+	double dVal = pItem->text().toDouble(&bOk);
+	if(!bOk)
+	{	// reset to original value
+		QString strOldVal;
+		strOldVal.setNum(elem.GetParam(iParam));
+		pItem->setText(strOldVal);
+	}
+	else
+	{	// accept new value
+		elem.SetParam(iParam,dVal);
+	}
+}
+
+void RoiDlg::NewElement(RoiElement* pNewElem)
+{
+	int iPos = m_roi.add(pNewElem);
+	new QListWidgetItem(m_roi.GetElement(iPos).GetName().c_str(), listRois);
+}
+
+void RoiDlg::NewCircle()
+{
+	NewElement(new RoiCircle);
+}
+
+void RoiDlg::NewRect()
+{
+	NewElement(new RoiRect);
+}
+
+void RoiDlg::DeleteItem()
+{
+	if(m_iCurrentItem<0 || m_iCurrentItem >= m_roi.GetNumElements())
+		return;
+
+	int iCurItem = m_iCurrentItem;
+
+	QListWidgetItem* pItem = listRois->item(iCurItem);
+	if(pItem)
+	{
+		delete pItem;
+		m_roi.DeleteElement(iCurItem);
+
+		m_iCurrentItem = listRois->currentRow();
+	}
+}
+
 // *****************************************************************************

@@ -58,6 +58,7 @@
 #include "globals.h"
 #include "tofloader.h"
 #include "ErrorBarPlotCurve.h"
+#include "roi.h"
 
 
 #define MODE_PAD 1
@@ -252,10 +253,23 @@ class RoiDlg : public QDialog, public Ui::RoiDlg
 	Q_OBJECT
 
 	protected:
+		Roi& m_roi;
+		int m_iCurrentItem;
+
+		void NewElement(RoiElement* pNewElem);
 
 	public:
-		RoiDlg(QWidget *pParent);
+		RoiDlg(QWidget *pParent, Roi& roi);
 		virtual ~RoiDlg();
+
+	public slots:
+		void ItemSelected();
+		void ValueChanged(QTableWidgetItem *pItem);
+
+		void NewCircle();
+		void NewRect();
+
+		void DeleteItem();
 };
 
 // *****************************************************************************

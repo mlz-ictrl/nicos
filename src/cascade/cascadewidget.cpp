@@ -136,6 +136,7 @@ void Plot::InitPlot()
 	axisWidget(QwtPlot::yRight)->setColorBarEnabled(true);
 
 	ChangeRange();
+	ChangeRange_xy();
 
 	plotLayout()->setAlignCanvasToScales(true);
 
@@ -161,7 +162,10 @@ void Plot::ChangeRange()
 								m_pSpectrogram->data().range().maxValue());
 	axisWidget(QwtPlot::yRight)->setColorMap(m_pSpectrogram->data().range(),
 								m_pSpectrogram->colorMap());
+}
 
+void Plot::ChangeRange_xy()
+{
 	if(m_pImage)
 	{
 		// use dimensions of image
@@ -288,6 +292,7 @@ void* CascadeWidget::NewPad()
 
 		m_pPlot->SetData(&m_data2d, false);
 		//m_pPlot->InitPlot();
+		m_pPlot->ChangeRange_xy();
 		m_bForceReinit=false;
 	}
 	// ansonsten einfach bestehendes PAD-Objekt recyclen
@@ -312,6 +317,7 @@ void* CascadeWidget::NewTof(int iCompression)
 
 		m_pPlot->SetData(&m_data2d, false);
 		//m_pPlot->InitPlot();
+		m_pPlot->ChangeRange_xy();
 		m_bForceReinit=false;
 	}
 	// ansonsten einfach bestehendes TOF-Objekt recyclen

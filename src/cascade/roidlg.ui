@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>350</width>
-    <height>430</height>
+    <width>391</width>
+    <height>298</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>140</x>
-     <y>390</y>
+     <x>180</x>
+     <y>260</y>
      <width>201</width>
      <height>32</height>
     </rect>
@@ -34,142 +34,75 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>331</width>
-     <height>271</height>
+     <width>121</width>
+     <height>201</height>
     </rect>
    </property>
   </widget>
-  <widget class="QWidget" name="layoutWidget">
+  <widget class="QTableWidget" name="tableParams">
    <property name="geometry">
     <rect>
-     <x>180</x>
-     <y>290</y>
-     <width>158</width>
-     <height>26</height>
+     <x>140</x>
+     <y>10</y>
+     <width>241</width>
+     <height>201</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_2">
-    <item>
-     <widget class="QLabel" name="label_2">
-      <property name="text">
-       <string>Param 2:</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLineEdit" name="lineEdit_2"/>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QWidget" name="layoutWidget_2">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>320</y>
-     <width>158</width>
-     <height>26</height>
-    </rect>
+   <property name="showGrid">
+    <bool>true</bool>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_3">
-    <item>
-     <widget class="QLabel" name="label_3">
-      <property name="text">
-       <string>Param 3:</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLineEdit" name="lineEdit_3"/>
-    </item>
-   </layout>
+   <attribute name="verticalHeaderVisible">
+    <bool>false</bool>
+   </attribute>
+   <column>
+    <property name="text">
+     <string>Property</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Value</string>
+    </property>
+   </column>
   </widget>
-  <widget class="QWidget" name="layoutWidget_3">
-   <property name="geometry">
-    <rect>
-     <x>180</x>
-     <y>320</y>
-     <width>158</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_4">
-    <item>
-     <widget class="QLabel" name="label_4">
-      <property name="text">
-       <string>Param 4:</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLineEdit" name="lineEdit_4"/>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QWidget" name="layoutWidget_4">
+  <widget class="QCheckBox" name="checkBoxUseRoi">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>350</y>
-     <width>158</width>
-     <height>26</height>
+     <y>220</y>
+     <width>79</width>
+     <height>20</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_5">
-    <item>
-     <widget class="QLabel" name="label_5">
-      <property name="text">
-       <string>Param 5:</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLineEdit" name="lineEdit_5"/>
-    </item>
-   </layout>
+   <property name="text">
+    <string>Use ROI</string>
+   </property>
   </widget>
-  <widget class="QWidget" name="layoutWidget_5">
+  <widget class="QPushButton" name="btnAdd">
    <property name="geometry">
     <rect>
-     <x>180</x>
-     <y>350</y>
-     <width>158</width>
-     <height>26</height>
+     <x>210</x>
+     <y>220</y>
+     <width>80</width>
+     <height>25</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_6">
-    <item>
-     <widget class="QLabel" name="label_6">
-      <property name="text">
-       <string>Param 6:</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLineEdit" name="lineEdit_6"/>
-    </item>
-   </layout>
+   <property name="text">
+    <string>Add</string>
+   </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QPushButton" name="btnDelete">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>290</y>
-     <width>158</width>
-     <height>26</height>
+     <x>300</x>
+     <y>220</y>
+     <width>80</width>
+     <height>25</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout">
-    <item>
-     <widget class="QLabel" name="label_1">
-      <property name="text">
-       <string>Param 1:</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLineEdit" name="lineEdit"/>
-    </item>
-   </layout>
+   <property name="text">
+    <string>Delete</string>
+   </property>
   </widget>
  </widget>
  <resources/>

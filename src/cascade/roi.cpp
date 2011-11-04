@@ -190,9 +190,10 @@ Roi::~Roi()
 	clear();
 }
 
-void Roi::add(RoiElement* elem)
+int Roi::add(RoiElement* elem)
 {
 	m_vecRoi.push_back(elem);
+	return m_vecRoi.size()-1;
 }
 
 void Roi::clear()
@@ -221,6 +222,13 @@ bool Roi::IsInside(int iX, int iY) const
 RoiElement& Roi::GetElement(int iElement)
 {
 	return *m_vecRoi[iElement];
+}
+
+void Roi::DeleteElement(int iElement)
+{
+	if(m_vecRoi[iElement])
+		delete m_vecRoi[iElement];
+	m_vecRoi.erase(m_vecRoi.begin()+iElement);
 }
 
 int Roi::GetNumElements() const

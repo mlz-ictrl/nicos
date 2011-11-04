@@ -104,12 +104,14 @@ class Roi
 		Roi();
 		virtual ~Roi();
 
-		void add(RoiElement* elem);
+		// add element, return position of element
+		int add(RoiElement* elem);
 		void clear();
 
 		bool IsInside(int iX, int iY) const;
 
 		RoiElement& GetElement(int iElement);
+		void DeleteElement(int iElement);
 		int GetNumElements() const;
 };
 

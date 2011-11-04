@@ -290,6 +290,7 @@ class TofImage
 
 		Roi& GetRoi();
 		void UseRoi(bool bUseRoi=true);
+		bool GetUseRoi() const;
 
 	public:
 		TofImage(const char *pcFileName=NULL,

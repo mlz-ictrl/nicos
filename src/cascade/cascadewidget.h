@@ -95,6 +95,8 @@ class Plot : public QwtPlot
 		virtual ~Plot();
 
 		void ChangeRange();
+		void ChangeRange_xy();
+
 		QwtPlotZoomer* GetZoomer();
 		QwtPlotPanner* GetPanner();
 

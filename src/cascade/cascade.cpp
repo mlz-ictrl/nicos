@@ -871,10 +871,31 @@ class MainWindow : public QMainWindow
 		//////////////////////////ROI /////////////////////////////////////
 		void showRoiDlg()
 		{
-			RoiDlg roidlg(this);
+			if(!m_cascadewidget.IsTofLoaded())
+			{
+				QMessageBox::critical(0, "ROI", "No TOF loaded "
+										"or not in TOF mode.", QMessageBox::Ok);
+				return;
+			}
+
+			/*Roi roi;
+			roi.add(new RoiRect(1,2,3,4));
+			roi.add(new RoiRect(2,3,4,5));
+
+			double dtst[] = {1.,2.};
+			roi.add(new RoiCircle(dtst,3.));*/
+
+			Roi& roi = m_cascadewidget.GetTof()->GetRoi();
+			RoiDlg roidlg(this, roi);
+
+			roidlg.checkBoxUseRoi->setCheckState(
+					m_cascadewidget.GetTof()->GetUseRoi() ? Qt::Checked
+														  : Qt::Unchecked);
 
 			if(roidlg.exec()==QDialog::Accepted)
 			{
+				bool bCk = (roidlg.checkBoxUseRoi->checkState() == Qt::Checked);
+				m_cascadewidget.GetTof()->UseRoi(bCk);
 			}
 		}
 		///////////////////////////////////////////////////////////////////
