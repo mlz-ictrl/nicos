@@ -257,6 +257,30 @@ class Handler(object):
         self.out.newstate('plain', '', '',
             '<p id="%s" class="sample">%s</p>\n' % (targetid, text))
 
+    def handle_detectors(self, time, dlist):
+        self.out.timestamp(time)
+        text = 'New standard detectors: %s' % escape(str(dlist))
+        targetid = self.out.new_id()
+        self.out.toc_entry(2, text, targetid)
+        self.out.newstate('plain', '', '',
+            '<p id="%s" class="detectors">%s</p>\n' % (targetid, text))
+
+    def handle_environment(self, time, dlist):
+        self.out.timestamp(time)
+        text = 'New standard environment: %s' % escape(str(dlist))
+        targetid = self.out.new_id()
+        self.out.toc_entry(2, text, targetid)
+        self.out.newstate('plain', '', '',
+            '<p id="%s" class="environment">%s</p>\n' % (targetid, text))
+
+    def handle_offset(self, time, data):
+        self.out.timestamp(time)
+        dev, old, new = data
+        self.out.newstate('plain', '', '',
+            '<p class="offset"><b>Adjustment:</b>' +
+            escape('Offset of %s changed from %s to %s' % (dev, old, new))
+            + '</p>\n')
+
     def handle_attachment(self, time, data):
         description, fpaths, names = data
         links = []

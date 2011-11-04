@@ -286,6 +286,7 @@ class Experiment(Device):
                 det = det.name
             dlist.append(det)
         self.detlist = dlist
+        session.elog_event('detectors', dlist)
 
     def doUpdateDetlist(self, detectors):
         detlist = []
@@ -313,6 +314,7 @@ class Experiment(Device):
                 dev = dev.name
             dlist.append(dev)
         self.envlist = dlist
+        session.elog_event('environment', dlist)
 
     def doUpdateEnvlist(self, devices):
         devlist = []

@@ -1009,7 +1009,8 @@ class HasOffset(object):
 
     def doWriteOffset(self, value):
         """Adapt the limits to the new offset."""
-        diff = value - self.offset
+        old_offset = self.offset
+        diff = value - old_offset
         if isinstance(self, HasLimits):
             # this applies only to Moveables with limits
             limits = self.userlimits
@@ -1021,6 +1022,7 @@ class HasOffset(object):
         if self._cache:
             self._cache.put(self, 'value', self.doRead() - diff,
                             currenttime(), self.maxage)
+        session.elog_event('offset', (str(self), old_offset, value))
 
 
 class HasPrecision(object):
