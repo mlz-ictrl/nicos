@@ -28,7 +28,7 @@ __version__ = "$Revision$"
 
 from os import path
 
-from PyQt4.QtCore import SIGNAL, QTimer, QUrl, pyqtSignature as qtsig
+from PyQt4.QtCore import SIGNAL, Qt, QTimer, QUrl, pyqtSignature as qtsig
 
 from nicos.gui.panels import Panel
 from nicos.gui.utils import loadUi, DlgUtils, setBackgroundColor
@@ -50,6 +50,20 @@ class ELogPanel(Panel, DlgUtils):
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
 
     def on_timer_timeout(self):
+        sig = SIGNAL('loadFinished(bool)')
+        frame = self.preview.page().mainFrame().childFrames()[1]
+        scrollval = frame.scrollBarValue(Qt.Vertical)
+        was_at_bottom = scrollval == frame.scrollBarMaximum(Qt.Vertical)
+        # restore current scrolling position in document on reload
+        def callback(new_size):
+            nframe = self.preview.page().mainFrame().childFrames()[1]
+            if was_at_bottom:
+                nframe.setScrollBarValue(Qt.Vertical,
+                                         nframe.scrollBarMaximum(Qt.Vertical))
+            else:
+                nframe.setScrollBarValue(Qt.Vertical, scrollval)
+            self.disconnect(self.preview, sig, callback)
+        self.connect(self.preview, sig, callback)
         self.preview.reload()
 
     def on_client_connected(self):
@@ -59,7 +73,7 @@ class ELogPanel(Panel, DlgUtils):
 
     def on_refreshLabel_linkActivated(self, link):
         if link == 'refresh':
-            self.preview.reload()
+            self.on_timer_timeout()
         elif link == 'back':
             self.preview.back()
         elif link == 'forward':
@@ -77,7 +91,7 @@ class ELogPanel(Panel, DlgUtils):
         self.client.ask('eval', 'Remark(%r)' % remark)
         self.remarkText.setText('')
         self.remarkText.setFocus()
-        self.timer.start(500)
+        self.timer.start(750)
 
     @qtsig('')
     def on_addFreeForm_clicked(self):
@@ -87,7 +101,7 @@ class ELogPanel(Panel, DlgUtils):
         self.client.ask('eval', 'LogEntry(%r)' % freeform)
         self.freeFormText.clear()
         self.freeFormText.setFocus()
-        self.timer.start(500)
+        self.timer.start(750)
 
     @qtsig('')
     def on_fileSelect_clicked(self):
@@ -107,7 +121,7 @@ class ELogPanel(Panel, DlgUtils):
         self.client.ask('eval', 'LogAttach(%r, [%r], [%r])' %
                         (desc, fname, newname))
         self.fileName.setFocus()
-        self.timer.start(500)
+        self.timer.start(750)
 
     def on_creoleLabel_linkActivated(self, link):
         self.stacker.setCurrentIndex(1)
