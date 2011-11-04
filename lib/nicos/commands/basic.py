@@ -505,6 +505,6 @@ def LogAttach(description, paths, names):
 
 
 @usercommand
-def _LogbookFile():
-    """Return the name of the current electronic logfile."""
-    return path.join(session.experiment.datapath[0], 'logbook', 'logbook.html')
+def _GetDatapath():
+    """Return the name of the current data path."""
+    return session.experiment.datapath

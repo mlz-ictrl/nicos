@@ -248,7 +248,6 @@ class MainWindow(QMainWindow, DlgUtils):
         self.servers = settings.value('servers').toStringList()
 
         self.instrument = settings.value('instrument').toString()
-        self.scriptpath = settings.value('scriptpath').toString()
         self.confirmexit = settings.value('confirmexit',
                                           QVariant(True)).toBool()
         self.showtrayicon = settings.value('showtrayicon',

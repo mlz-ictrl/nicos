@@ -26,6 +26,7 @@
 
 __version__ = "$Revision$"
 
+import ast
 import socket
 import struct
 import hashlib
@@ -284,6 +285,9 @@ class NicosClient(object):
                 return unserialize(data)
         except Exception, err:
             return self.handle_error(err)
+
+    def eval(self, expr):
+        return ast.literal_eval(self.ask('eval', expr))
 
     def read(self):
         if not self.socket:

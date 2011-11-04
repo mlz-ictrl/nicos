@@ -471,8 +471,11 @@ class EditorPanel(Panel):
     def on_actionOpen_triggered(self):
         if not self.checkDirty():
             return
-        initialdir = self.filename and path.dirname(self.filename) or \
-                     self.mainwindow.scriptpath
+        if not self.filename:
+            initialdir = path.join(self.client.eval('_GetDatapath()')[0],
+                                   'scripts')
+        else:
+            initialdir = path.dirname(self.filename)
         fn = QFileDialog.getOpenFileName(self, 'Open script', initialdir,
                                          'Script files (*.py)')
         if fn.isEmpty():
@@ -539,7 +542,8 @@ class EditorPanel(Panel):
         if self.filename:
             initialdir = path.dirname(self.filename)
         else:
-            initialdir = self.mainwindow.scriptpath
+            initialdir = path.join(self.client.eval('_GetDatapath()')[0],
+                                   'scripts')
         fn = str(QFileDialog.getSaveFileName(self, 'Save script', initialdir,
                                              'Script files (*.py)'))
         if fn == '':

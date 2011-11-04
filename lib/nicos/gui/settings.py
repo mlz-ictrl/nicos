@@ -54,7 +54,6 @@ class SettingsDialog(QDialog, DlgUtils):
 
         # general page
         self.instrument.setText(main.instrument)
-        self.scriptpath.setText(main.scriptpath)
         self.confirmExit.setChecked(main.confirmexit)
         self.showTrayIcon.setChecked(main.showtrayicon)
         self.autoReconnect.setChecked(main.autoreconnect)
@@ -78,7 +77,6 @@ class SettingsDialog(QDialog, DlgUtils):
         self.main.connectionData['login'] = str(self.login.currentText())
         self.main.connectionData['display'] = str(self.display.text())
         self.main.instrument = self.instrument.text()
-        self.main.scriptpath = self.scriptpath.text()
         self.main.confirmexit = self.confirmExit.isChecked()
         self.main.showtrayicon = self.showTrayIcon.isChecked()
         self.main.autoreconnect = self.autoReconnect.isChecked()
@@ -90,7 +88,6 @@ class SettingsDialog(QDialog, DlgUtils):
             settings.setValue('login',
                               QVariant(self.main.connectionData['login']))
             settings.setValue('instrument', QVariant(self.main.instrument))
-            settings.setValue('scriptpath', QVariant(self.main.scriptpath))
             settings.setValue('confirmexit', QVariant(self.main.confirmexit))
             settings.setValue('showtrayicon', QVariant(self.main.showtrayicon))
             settings.setValue('autoreconnect', QVariant(self.main.autoreconnect))

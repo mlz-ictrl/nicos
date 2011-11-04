@@ -53,7 +53,8 @@ class ELogPanel(Panel, DlgUtils):
         self.preview.reload()
 
     def on_client_connected(self):
-        logfile = self.client.ask('eval', '_LogbookFile()')[1:-1]
+        datapath = self.client.eval('_GetDatapath()')
+        logfile = path.join(datapath[0], 'logbook', 'logbook.html')
         self.preview.load(QUrl(logfile))  # XXX reload periodically
 
     def on_refreshLabel_linkActivated(self, link):
