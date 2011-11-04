@@ -62,6 +62,9 @@
 
 		<use_message_timeout> 0 </use_message_timeout>
 		<message_timeout> 10000 </message_timeout>
+
+		<autofetch_use> 1 </autofetch_use>
+		<autofetch_poll_time> 250 </autofetch_poll_time>
 	</server>
 
 	<log>

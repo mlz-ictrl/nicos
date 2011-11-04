@@ -91,19 +91,24 @@ class MainWindow : public QMainWindow
 		// Anzahl der Bins für Kalibrationsdialog
 		static int NUM_BINS;
 		static int SERVER_STATUS_POLL_TIME;
+		static int AUTOFETCH_POLL_TIME;
 
 	protected:
 		CascadeWidget m_cascadewidget;
 
 		TcpClient m_client;
-		QTimer m_statustimer;
+		QTimer m_statustimer, m_autofetchtimer;
 
 		std::string m_strTitle;
 		QLabel *labelZeitkanal, *labelFolie;
-		QToolButton *btnLog;
+
+		QToolButton *btnLog, *btnAutoFetch;
+
 		QSlider *sliderFolien, *sliderZeitkanaele;
+
 		QStatusBar *statusbar;
 		QLabel *pStatusMsg, *pStatusExtCount;
+
 		QAction *actionViewsOverview, *actionViewsSlides,
 				*actionViewsPhases, *actionViewsContrasts;
 
@@ -320,7 +325,7 @@ class MainWindow : public QMainWindow
 				m_cascadewidget.UpdateGraph();
 
 				UpdateLabels(false);
-				ShowMessage("PAD loaded from Server.");
+				//ShowMessage("PAD loaded from Server.");
 			}
 			////////////////////////////////////////////////////////////////////
 			// TOF-Daten vorhanden
@@ -384,7 +389,7 @@ class MainWindow : public QMainWindow
 				//UpdateLabels(false);
 
 				UpdateSliders();
-				ShowMessage("TOF loaded from Server.");
+				//ShowMessage("TOF loaded from Server.");
 				viewOverview();
 				actionViewsOverview->setChecked(true);
 			}
@@ -400,12 +405,15 @@ class MainWindow : public QMainWindow
 			{
 				ArgumentMap args(pcBuf+4);
 
+//---------------------------------------
+// TODO: don't display this in status bar
 				// stop?
 				std::pair<bool, int> pairStop = args.QueryInt("stop",1);
 				if(pairStop.first)
 					ShowMessage(pairStop.second
 									? "Server: Measurement stopped."
 									: "Server: Measurement running.");
+//---------------------------------------
 
 				// xres?
 				std::pair<bool, int> pairXRes =
@@ -579,6 +587,25 @@ class MainWindow : public QMainWindow
 		{
 			m_cascadewidget.SetLog10(bLog);
 			UpdateLabels(false);
+		}
+
+		void SetAutoFetch(bool bAutoFetch)
+		{
+			if(bAutoFetch)
+				m_autofetchtimer.start(AUTOFETCH_POLL_TIME);
+			else
+				m_autofetchtimer.stop();
+		}
+
+		void AutoFetch()
+		{
+			if(!m_client.isconnected())
+			{
+				//SetAutoFetch(false);
+				//btnAutoFetch->setChecked(false);
+				return;
+			}
+			m_client.sendmsg("CMD_readsram");
 		}
 
 		void showCalibration(void)
@@ -948,7 +975,8 @@ class MainWindow : public QMainWindow
 
 		MainWindow(QWidget *parent=NULL)
 			: QMainWindow(parent), m_cascadewidget(this),
-			  m_client(this, false), m_statustimer(this), statusbar(NULL)
+			  m_client(this, false), m_statustimer(this), m_autofetchtimer(this),
+			  statusbar(NULL)
 		{
 			m_cascadewidget.SetLog10(true);
 
@@ -1050,7 +1078,7 @@ class MainWindow : public QMainWindow
 			actionServerMeasurementStop->setText("&End Measurement");
 
 			QAction *actionLoadTofServer = new QAction(this);
-			actionLoadTofServer->setText("Get &Data");
+			actionLoadTofServer->setText("Fetch &Data");
 			actionLoadTofServer->setShortcut(
 											QKeySequence(Qt::CTRL + Qt::Key_D));
 
@@ -1151,6 +1179,13 @@ class MainWindow : public QMainWindow
 			btnLog->setChecked(m_cascadewidget.GetLog10());
 			toolBar->addWidget(btnLog);
 
+			btnAutoFetch = new QToolButton(toolBar);
+			btnAutoFetch->setText("AutoFetch");
+			btnAutoFetch->setCheckable(true);
+			btnAutoFetch->setChecked(false);
+			toolBar->addWidget(btnAutoFetch);
+
+
 			QMenu *pMenuViews = new QMenu;
 
 			actionViewsOverview = new QAction(this);
@@ -1211,6 +1246,8 @@ class MainWindow : public QMainWindow
 			// Toolbar
 			connect(btnLog, SIGNAL(toggled(bool)), this,
 							SLOT(SetLog10(bool)));
+			connect(btnAutoFetch, SIGNAL(toggled(bool)), this,
+							SLOT(SetAutoFetch(bool)));
 			connect(actionViewsOverview, SIGNAL(triggered()), this,
 										 SLOT(viewOverview()));
 			connect(actionViewsSlides, SIGNAL(triggered()), this,
@@ -1272,9 +1309,14 @@ class MainWindow : public QMainWindow
 			connect(actionSummen, SIGNAL(triggered()), this,
 								  SLOT(showSummenDialog()));
 
+			// Timer
 			connect(&m_statustimer, SIGNAL(timeout()), this,
 									SLOT(ServerStatus()));
 
+			connect(&m_autofetchtimer, SIGNAL(timeout()), this,
+									SLOT(AutoFetch()));
+
+			// Server Message
 			connect(&m_client, SIGNAL(MessageSignal(const char*, int)), this,
 							   SLOT(ServerMessageSlot(const char*, int)));
 
@@ -1286,12 +1328,24 @@ class MainWindow : public QMainWindow
 			connect(&m_cascadewidget, SIGNAL(SumDlgSignal(const bool *, int)),
 								this, SLOT(FolienSummeSlot(const bool *, int)));
 			//------------------------------------------------------------------
+
+
+			bool bUseAutoFetch = (Config::GetSingleton()->QueryInt(
+						"/cascade_config/server/autofetch_use",
+						1) !=0 );
+
+			if(bUseAutoFetch)
+			{
+				btnAutoFetch->setChecked(true);
+				SetAutoFetch(true);
+			}
 		}
 };
 
 // Default Values
 int MainWindow::NUM_BINS = 100;
-int MainWindow::SERVER_STATUS_POLL_TIME = 1000;
+int MainWindow::SERVER_STATUS_POLL_TIME = 500;
+int MainWindow::AUTOFETCH_POLL_TIME = 250;
 
 int main(int argc, char **argv)
 {
@@ -1341,6 +1395,10 @@ int main(int argc, char **argv)
 	MainWindow::SERVER_STATUS_POLL_TIME = Config::GetSingleton()->QueryInt(
 						"/cascade_config/server/status_poll_time",
 						MainWindow::SERVER_STATUS_POLL_TIME);
+
+	MainWindow::AUTOFETCH_POLL_TIME	= Config::GetSingleton()->QueryInt(
+						"/cascade_config/server/autofetch_poll_time",
+						MainWindow::AUTOFETCH_POLL_TIME);
 
 	MainWindow mainWindow;
 	mainWindow.resize(iWinW, iWinH);
