@@ -48,28 +48,22 @@ def fit_peak_common(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw),
     xmax = x0 + totalwidth
     if not len(xdata):
         raise FitError('No data in plot')
-    i, maxi = 0, len(xdata) - 1
-    while xdata[i] < xmin and i < maxi:
-        i += 1
-    mini = i
-    while xdata[i] < xmax and i < maxi:
-        i += 1
-    maxi = i
-    if mini >= maxi:
-        raise FitError('No data in selected region')
-    fitx = xdata[mini-1:maxi+1]
-    fity = ydata[mini-1:maxi+1]
+    indices = (xmin <= xdata) & (xdata <= xmax)
+    xfit = xdata[indices]
+    if len(xfit) == 0:
+        raise FitError('No data in selected range')
+    yfit = ydata[indices]
     model = Model(modelfunc)
     if yerr is not None and yerr.shape == 1:
-        fiterr = yerr[mini-1:maxi+1]
-        data = RealData(fitx, fity, sy=fiterr)
+        dyfit = yerr[indices]
+        data = RealData(xfit, yfit, sy=dyfit)
     else:
-        data = RealData(fitx, fity)
-    odr = ODR(data, model, beta0, ifixx=array([0]*len(fitx)))
+        data = RealData(xfit, yfit)
+    odr = ODR(data, model, beta0, ifixx=array([0]*len(xfit)))
     out = odr.run()
     if out.info & 0xFFFFFFFF >= 5:
         raise FitError(', '.join(out.stopreason))
-    xfine = arange(xmin, xmax, (xmax-xmin)/200)
+    xfine = arange(xmin, xmax, (xmax-xmin)/500.)
     return out.beta, xfine, modelfunc(out.beta, xfine)
 
 
