@@ -48,8 +48,7 @@ from nicos.gui.settings import SettingsDialog
 from nicos.cache.utils import cache_load
 
 # the default profile
-from nicos.gui.defconfig import default_profile_config
-default_profile_uid = '07139e62-d244-11e0-b94b-00199991c246'
+from nicos.gui.defconfig import default_profile_config, default_profile_uid
 
 
 class NicosGuiClient(NicosClient, QObject):

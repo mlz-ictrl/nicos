@@ -146,6 +146,7 @@ class DataHandler(QObject):
                 timeindex = i
                 curve.disabled = True
             elif info.type == 'monitor':
+                # XXX this can go wrong with multiple monitors
                 if monindex == -1:
                     monindex = i
                 curve.disabled = True

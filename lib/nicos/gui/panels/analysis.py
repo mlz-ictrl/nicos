@@ -498,8 +498,11 @@ class DataSetPlot(NicosPlot):
             (self.dataset.name, time.strftime(TIMEFMT, self.dataset.started))
 
     def xaxisName(self):
-        return '%s (%s)' % (self.dataset.xnames[self.dataset.xindex],
-                            self.dataset.xunits[self.dataset.xindex])
+        try:
+            return '%s (%s)' % (self.dataset.xnames[self.dataset.xindex],
+                                self.dataset.xunits[self.dataset.xindex])
+        except IndexError:
+            return ''
 
     def yaxisName(self):
         return ''  # XXX determine good axis names
