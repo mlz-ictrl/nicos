@@ -108,7 +108,7 @@
   </layout>
   <action name="actionBreak">
    <property name="icon">
-    <iconset resource="../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
      <normaloff>:/break</normaloff>:/break</iconset>
    </property>
    <property name="text">
@@ -117,7 +117,7 @@
   </action>
   <action name="actionContinue">
    <property name="icon">
-    <iconset resource="../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
      <normaloff>:/continue</normaloff>:/continue</iconset>
    </property>
    <property name="text">
@@ -126,7 +126,7 @@
   </action>
   <action name="actionStop">
    <property name="icon">
-    <iconset resource="../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
      <normaloff>:/stop</normaloff>:/stop</iconset>
    </property>
    <property name="text">
@@ -135,7 +135,7 @@
   </action>
   <action name="actionEmergencyStop">
    <property name="icon">
-    <iconset resource="../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
      <normaloff>:/emergency</normaloff>:/emergency</iconset>
    </property>
    <property name="text">
@@ -149,7 +149,7 @@
   </action>
  </widget>
  <resources>
-  <include location="../../../resources/nicos-gui.qrc"/>
+  <include location="../../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections/>
 </ui>
