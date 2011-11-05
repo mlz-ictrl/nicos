@@ -141,7 +141,7 @@ class EditorPanel(Panel):
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        loadUi(self, 'editor.ui')
+        loadUi(self, 'editor.ui', 'panels')
 
         self.window = parent
 
@@ -652,7 +652,7 @@ class EditorPanel(Panel):
 class SearchDialog(QDialog):
     def __init__(self, parent, editor):
         QDialog.__init__(self, parent)
-        loadUi(self, 'search.ui')
+        loadUi(self, 'search.ui', 'panels')
 
         self.editor  = editor
         self.found   = False

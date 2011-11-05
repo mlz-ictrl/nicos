@@ -88,7 +88,7 @@ class ScriptStatusPanel(Panel):
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        loadUi(self, 'status.ui')
+        loadUi(self, 'status.ui', 'panels')
 
         self.queueFrame.hide()
         self.statusLabel.hide()

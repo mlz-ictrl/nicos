@@ -28,17 +28,17 @@ __version__ = "$Revision$"
 
 import time
 import subprocess
-from os import path
 
 from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QDialog, QPushButton
-from PyQt4.uic import loadUi
+
+from nicos.gui.utils import loadUi
 
 
 class CommandsTool(QDialog):
     def __init__(self, parent=None, **settings):
         QDialog.__init__(self, parent)
-        loadUi(path.join(path.dirname(__file__), 'commands.ui'), self)
+        loadUi(self, 'commands.ui', 'tools')
 
         self.connect(self.closeBtn, SIGNAL('clicked()'), self.close)
 

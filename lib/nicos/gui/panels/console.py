@@ -45,7 +45,7 @@ class ConsolePanel(Panel):
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        loadUi(self, 'console.ui')
+        loadUi(self, 'console.ui', 'panels')
 
         self.current_status = None
         self.run_color = QColor('#ffdddd')

@@ -126,12 +126,12 @@ def unzip(data):
 
 uipath = path.dirname(__file__)
 
-def loadUi(widget, uiname):
-    uic.loadUi(path.join(uipath, uiname), widget)
+def loadUi(widget, uiname, subdir=''):
+    uic.loadUi(path.join(uipath, subdir, uiname), widget)
 
-def dialogFromUi(parent, uiname):
+def dialogFromUi(parent, uiname, subdir=''):
     dlg = QDialog(parent)
-    loadUi(dlg, uiname)
+    loadUi(dlg, uiname, subdir)
     return dlg
 
 def enumerateWithProgress(seq, text, every=1, parent=None, total=None):

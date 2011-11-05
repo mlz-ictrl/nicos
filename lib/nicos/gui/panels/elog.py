@@ -40,7 +40,7 @@ class ELogPanel(Panel, DlgUtils):
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
         DlgUtils.__init__(self, 'Logbook')
-        loadUi(self, 'elog.ui')
+        loadUi(self, 'elog.ui', 'panels')
         self.stacker.setCurrentIndex(0)
 
         self.timer = QTimer(self)

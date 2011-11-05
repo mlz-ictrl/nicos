@@ -40,7 +40,7 @@ class ErrorPanel(Panel):
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        loadUi(self, 'errpanel.ui')
+        loadUi(self, 'errpanel.ui', 'panels')
 
         self.connect(self.client, SIGNAL('message'), self.on_client_message)
 

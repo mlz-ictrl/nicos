@@ -32,9 +32,8 @@ from os import path
 
 from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QDialog, QPixmap, QTreeWidgetItem, QDoubleValidator
-from PyQt4.uic import loadUi
 
-from nicos.gui.utils import DlgPresets
+from nicos.gui.utils import loadUi, DlgPresets
 
 
 M_N = 1.6749e-27
@@ -56,7 +55,7 @@ bragg_convs  = [1e-10, PI/180, 1, 1e-10, 1e10, 1]
 class CalculatorTool(QDialog):
     def __init__(self, parent=None, **settings):
         QDialog.__init__(self, parent)
-        loadUi(path.join(path.dirname(__file__), 'calculator.ui'), self)
+        loadUi(self, 'calculator.ui', 'tools')
 
         self.connect(self.closeBtn, SIGNAL('clicked()'),
                      self.doclose)

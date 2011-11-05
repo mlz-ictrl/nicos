@@ -105,7 +105,7 @@ class HistoryPanel(Panel):
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        loadUi(self, 'history.ui')
+        loadUi(self, 'history.ui', 'panels')
 
         self.statusBar = QStatusBar(self)
         policy = self.statusBar.sizePolicy()
@@ -219,7 +219,7 @@ class HistoryPanel(Panel):
             'parameters (as "device.parameter").  Example:\n\n' \
             'T, T.setpoint\n\nshows the value of device T, and the value ' \
             'of the T.setpoint parameter.'
-        newdlg = dialogFromUi(self, 'history_new.ui')
+        newdlg = dialogFromUi(self, 'history_new.ui', 'panels')
         newdlg.fromdate.setDateTime(QDateTime.currentDateTime())
         newdlg.todate.setDateTime(QDateTime.currentDateTime())
         newdlg.connect(newdlg.helpButton, SIGNAL('clicked()'),
@@ -349,7 +349,7 @@ class HistoryPanel(Panel):
 
     @qtsig('')
     def on_actionAttachElog_triggered(self):
-        newdlg = dialogFromUi(self, 'plot_attach.ui')
+        newdlg = dialogFromUi(self, 'plot_attach.ui', 'panels')
         newdlg.filename.setText(
             safeFilename('history_%s.png' % self.currentPlot.view.name))
         ret = newdlg.exec_()

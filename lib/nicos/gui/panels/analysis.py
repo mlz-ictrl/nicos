@@ -73,7 +73,7 @@ class AnalysisPanel(Panel):
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        loadUi(self, 'analysis.ui')
+        loadUi(self, 'analysis.ui', 'panels')
 
         self.statusBar = QStatusBar(self)
         policy = self.statusBar.sizePolicy()
@@ -311,7 +311,7 @@ class AnalysisPanel(Panel):
 
     @qtsig('')
     def on_actionAttachElog_triggered(self):
-        newdlg = dialogFromUi(self, 'plot_attach.ui')
+        newdlg = dialogFromUi(self, 'plot_attach.ui', 'panels')
         newdlg.filename.setText(
             safeFilename('data_%s.png' % self.currentPlot.dataset.name))
         ret = newdlg.exec_()
@@ -377,8 +377,7 @@ class AnalysisPanel(Panel):
     @qtsig('')
     def on_actionCombine_triggered(self):
         current = self.currentPlot.dataset.uid
-        dlg = QDialog(self)
-        loadUi(dlg, 'dataops.ui')
+        dlg = dialogFromUi(self, 'dataops.ui', 'panels')
         for i in range(self.datasetList.count()):
             item = self.datasetList.item(i)
             newitem = QListWidgetItem(item.text(), dlg.otherList)
@@ -580,8 +579,7 @@ class DataSetPlot(NicosPlot):
         visible_curves = [i for (i, curve) in enumerate(self.dataset.curves)
                           if self.curves[i].isVisible()]
         if len(visible_curves) > 1:
-            dlg = QDialog(self)
-            loadUi(dlg, 'selector.ui')
+            dlg = dialogFromUi(self, 'selector.ui', 'panels')
             dlg.setWindowTitle('Select curve to fit')
             dlg.label.setText('Select a curve:')
             for i in visible_curves:

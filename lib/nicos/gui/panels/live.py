@@ -41,7 +41,7 @@ class LiveDataPanel(Panel):
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        loadUi(self, 'live.ui')
+        loadUi(self, 'live.ui', 'panels')
 
         self._format = None
         self._runtime = 0
