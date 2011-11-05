@@ -698,7 +698,7 @@ class Session(object):
 
     # -- Session-specific behavior ---------------------------------------------
 
-    def updateLiveData(self, tag, dtype, nx, ny, nt, time, data):
+    def updateLiveData(self, tag, filename, dtype, nx, ny, nt, time, data):
         pass
 
     def breakpoint(self, level):

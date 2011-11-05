@@ -26,10 +26,12 @@
 
 __version__ = "$Revision$"
 
+from os import path
+
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
 from PyQt4.QtCore import pyqtSignature as qtsig
 from PyQt4.QtGui import QStatusBar, QFileDialog, QPrinter, QPrintDialog, \
-     QDialog, QMenu, QToolBar, QSizePolicy
+     QDialog, QMenu, QToolBar, QSizePolicy, QListWidgetItem
 
 from nicos.gui.utils import loadUi
 from nicos.gui.panels import Panel
@@ -45,6 +47,7 @@ class LiveDataPanel(Panel):
 
         self._format = None
         self._runtime = 0
+        self._no_direct_display = False
 
         self.statusBar = QStatusBar(self)
         policy = self.statusBar.sizePolicy()
@@ -108,8 +111,9 @@ class LiveDataPanel(Panel):
         self.menu.popup(self.mapToGlobal(point))
 
     def on_client_liveparams(self, params):
-        tag, dtype, nx, ny, nt, runtime = params
+        tag, filename, dtype, nx, ny, nt, runtime = params
         self._runtime = runtime
+        self._filename = filename
         if dtype == '<I4' and nx == 128 and ny == 128:
             if nt == 1:
                 self._format = 'pad'
@@ -121,10 +125,39 @@ class LiveDataPanel(Panel):
         self._format = None
 
     def on_client_livedata(self, data):
-        if self._format == 'pad':
-            self.widget.LoadPadMem(data, 128*128*4)
-        elif self._format == 'tof':
-            self.widget.LoadTofMem(data, 128*128*128*4)
+        if self._format not in ('pad', 'tof'):
+            return
+        self._last_data = data
+        if not self._no_direct_display:
+            if self._format == 'pad':
+                self.widget.LoadPadMem(data, 128*128*4)
+            else:
+                self.widget.LoadTofMem(data, 128*128*128*4)
+        if self._filename and path.isfile(self._filename):
+            shortname = path.basename(self._filename)
+            item = QListWidgetItem(shortname, self.fileList)
+            item.setData(32, self._filename)
+            item.setData(33, self._format)
+
+    def on_fileList_itemClicked(self, item):
+        if item is None:
+            return
+        fname = item.data(32).toString()
+        format = item.data(33).toString()
+        self._no_direct_display = True
+        if format == 'pad':
+            self.widget.LoadPadFile(fname)
+        elif format == 'tof':
+            self.widget.LoadTofFile(fname)
+
+    @qtsig('')
+    def on_liveButton_clicked(self):
+        if self._no_direct_display:
+            self._no_direct_display = False
+            if self._format == 'pad':
+                self.widget.LoadPadMem(self._last_data)
+            elif self._format == 'tof':
+                self.widget.LoadTofMem(self._last_data)
 
     @qtsig('')
     def on_actionLoadTOF_triggered(self):

@@ -189,14 +189,14 @@ class CascadeDetector(AsyncDetector, ImageStorage):
 
     def _afterMeasureAction(self):
         # get final data including all events from detector
-        buf = self._readLiveData(self._last_preset)
+        buf = self._readLiveData(self._last_preset, self.lastfilename)
         # and write into measurement file
         self._writeFile(buf)
 
     def _measurementFailedAction(self, err):
         self.lastfilename = '<error>'
 
-    def _readLiveData(self, elapsedtime):
+    def _readLiveData(self, elapsedtime, filename=''):
         # get current data array from detector
         data = self._client.communicate('CMD_readsram')
         if data[:4] != self._dataprefix:
@@ -205,7 +205,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         buf = buffer(data, 4)
         # send image to live plots
         session.updateLiveData(
-            'cascade', '<I4', self._xres, self._yres,
+            'cascade', filename, '<I4', self._xres, self._yres,
             self._tres, elapsedtime, buf)
         # determine total and roi counts
         total = self._client.counts(data)

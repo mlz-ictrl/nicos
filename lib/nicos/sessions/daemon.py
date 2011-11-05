@@ -123,8 +123,8 @@ class DaemonSession(NoninteractiveSession):
             except OSError:
                 self.log.exception('Error waiting for simulation process')
 
-    def updateLiveData(self, tag, dtype, nx, ny, nt, time, data):
-        self.emitfunc('liveparams', (tag, dtype, nx, ny, nt, time))
+    def updateLiveData(self, tag, filename, dtype, nx, ny, nt, time, data):
+        self.emitfunc('liveparams', (tag, filename, dtype, nx, ny, nt, time))
         self.emitfunc('livedata', data)
 
     def breakpoint(self, level):
