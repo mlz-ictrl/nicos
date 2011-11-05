@@ -28,8 +28,8 @@ __version__ = "$Revision$"
 
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
 from PyQt4.QtCore import pyqtSignature as qtsig
-from PyQt4.QtGui import QLabel, QVBoxLayout, QFileDialog, QPrinter, \
-     QPrintDialog, QDialog, QMenu, QToolBar
+from PyQt4.QtGui import QStatusBar, QFileDialog, QPrinter, QPrintDialog, \
+     QDialog, QMenu, QToolBar, QSizePolicy
 
 from nicos.gui.utils import loadUi
 from nicos.gui.panels import Panel
@@ -46,17 +46,18 @@ class LiveDataPanel(Panel):
         self._format = None
         self._runtime = 0
 
-        layout = QVBoxLayout(self)
+        self.statusBar = QStatusBar(self)
+        policy = self.statusBar.sizePolicy()
+        policy.setVerticalPolicy(QSizePolicy.Fixed)
+        self.statusBar.setSizePolicy(policy)
+        self.statusBar.setSizeGripEnabled(False)
+        self.layout().addWidget(self.statusBar)
 
         self.widget = CascadeWidget(self)
         self.widget.setContextMenuPolicy(Qt.CustomContextMenu)
-        # XXX display countrate/estimation
-        self.label = QLabel('', self)
+        self.widgetLayout.addWidget(self.widget)
 
-        layout.addWidget(self.widget)
-        layout.addWidget(self.label)
-
-        self.setLayout(layout)
+        self.splitter.restoreState(self.splitterstate)
 
         self.connect(client, SIGNAL('livedata'), self.on_client_livedata)
         self.connect(client, SIGNAL('liveparams'), self.on_client_liveparams)
@@ -68,6 +69,12 @@ class LiveDataPanel(Panel):
         self.connect(self.widget,
                      SIGNAL('customContextMenuRequested(const QPoint&)'),
                      self.on_widget_customContextMenuRequested)
+
+    def loadSettings(self, settings):
+        self.splitterstate = settings.value('splitter').toByteArray()
+
+    def saveSettings(self, settings):
+        settings.setValue('splitter', self.splitter.saveState())
 
     def getMenus(self):
         self.menu = menu = QMenu('&Live data', self)
