@@ -49,7 +49,6 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                           type=oneof(str, 'tof', 'image'), settable=True),
         'slave':    Param('Slave mode: start together with master device',
                           type=bool),
-        # XXX what about monitor preselection?
         'preselection': Param('Current preselection', unit='s',
                               settable=True, type=float),
         'lastcounts': Param('Counts of the last measurement',
