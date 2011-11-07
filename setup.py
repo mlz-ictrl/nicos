@@ -36,7 +36,9 @@ class no_install(install):
         print 'Please use "make install" to install nicos-ng.'
         sys.exit(1)
 
-package_data = {'nicos.web': ['jquery.js', 'support.js']}
+package_data = {'nicos.web': ['jquery.js', 'support.js'],
+                'nicos.gui.tools.calculator_images':
+                ['braggfml.png', 'miezefml.png']}
 package_data.update(find_ui_files())
 
 setup(
