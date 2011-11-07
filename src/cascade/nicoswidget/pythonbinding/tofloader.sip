@@ -50,8 +50,10 @@ class PadImage : BasicImage
 		virtual double GetDoubleData(int iX, int iY) const;
 		virtual unsigned int GetIntData(int iX, int iY) const;
 
+		// same as above, but return 0 if outside ROI (if ROI is used)
+		unsigned int GetDataInsideROI(int iX, int iY) const;
+
 		unsigned int GetCounts() const;
-		unsigned int GetCounts(int iStartX, int iEndX, int iStartY, int iEndY) const;
 
 		const PadConfig& GetPadConfig() const;
 };
@@ -129,13 +131,17 @@ class TofImage
 		unsigned int GetData(int iFoil, int iTimechannel, int iX, int iY) const;
 		unsigned int GetData(int iImage, int iX, int iY) const;
 
+		// same as above, but return 0 if outside ROI (if ROI is used)
+		unsigned int GetDataInsideROI(int iFoil, int iTimechannel,
+									  int iX, int iY) const;
+		unsigned int GetDataInsideROI(int iImage, int iX, int iY) const;
+
 		int LoadFile(const char *pcFileName);
 
 		// uiBufLen specifies number of ints (NOT # of bytes; unlike CascadeWidget::LoadTofMem)
 		int LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen);
 
 		unsigned int GetCounts() const;
-		unsigned int GetCounts(int iStartX, int iEndX, int iStartY, int iEndY) const;
 
 		TmpImage GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil, int iTimechannel) const;
 		TmpGraph GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil) const;

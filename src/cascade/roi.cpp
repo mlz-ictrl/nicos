@@ -103,10 +103,16 @@ void RoiRect::SetParam(int iParam, double dVal)
 }
 
 
+RoiElement* RoiRect::copy() const
+{
+	return new RoiRect(m_iX1, m_iY1, m_iX2, m_iY2);
+}
+
+
 //------------------------------------------------------------------------------
 
 
-RoiCircle::RoiCircle(double dCenter[2], double dRadius)
+RoiCircle::RoiCircle(const double dCenter[2], double dRadius)
 {
 	m_dCenter[0] = dCenter[0];
 	m_dCenter[1] = dCenter[1];
@@ -182,12 +188,33 @@ void RoiCircle::SetParam(int iParam, double dVal)
 	}
 }
 
+RoiElement* RoiCircle::copy() const
+{
+	return new RoiCircle(m_dCenter, m_dRadius);
+}
 
 //------------------------------------------------------------------------------
 
 
 Roi::Roi()
 {}
+
+Roi::Roi(const Roi& roi)
+{
+	operator=(roi);
+}
+
+Roi& Roi::operator=(const Roi& roi)
+{
+	for(int i=0; i<roi.GetNumElements(); ++i)
+	{
+		const RoiElement& elem = roi.GetElement(i);
+
+		RoiElement* pNewElem = elem.copy();
+		add(pNewElem);
+	}
+	return *this;
+}
 
 Roi::~Roi()
 {
@@ -224,6 +251,11 @@ bool Roi::IsInside(int iX, int iY) const
 }
 
 RoiElement& Roi::GetElement(int iElement)
+{
+	return *m_vecRoi[iElement];
+}
+
+const RoiElement& Roi::GetElement(int iElement) const
 {
 	return *m_vecRoi[iElement];
 }

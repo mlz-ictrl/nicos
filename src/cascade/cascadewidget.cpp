@@ -53,6 +53,7 @@
 #include "cascadedialogs.h"
 #include "bins.h"
 #include "helper.h"
+#include "logger.h"
 
 MainZoomer::MainZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram* pData)
 										: QwtPlotZoomer(canvas), m_pData(pData)
@@ -599,7 +600,13 @@ void CascadeWidget::viewContrastSums(const bool* pbFolien)
 
 void CascadeWidget::showCalibrationDlg(int iNumBins)
 {
-	if(!IsTofLoaded()) return;
+	if(!IsTofLoaded())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Widget: No TOF loaded.\n";
+
+		return;
+	}
 	Bins bins(iNumBins, 0., 360.);
 
 	QwtDoubleRect rect = GetPlot()->GetZoomer()->zoomRect();
@@ -632,7 +639,13 @@ void CascadeWidget::showCalibrationDlg(int iNumBins)
 
 void CascadeWidget::showGraphDlg()
 {
-	if(!IsTofLoaded()) return;
+	if(!IsTofLoaded())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Widget: No TOF loaded.\n";
+
+		return;
+	}
 
 	QwtDoubleRect rect = GetPlot()->GetZoomer()->zoomRect();
 	int iROIx1 = rect.left(),
@@ -669,7 +682,13 @@ void CascadeWidget::SumDlgSlot(const bool *pbKanaele, int iMode)
 
 void CascadeWidget::showSumDlg()
 {
-	if(!IsTofLoaded()) return;
+	if(!IsTofLoaded())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Widget: No TOF loaded.\n";
+
+		return;
+	}
 
 	static SumDlg *pSummenDlgSlides = NULL;
 	static SumDlgNoChannels *pSummenDlgPhases = NULL;
@@ -713,6 +732,61 @@ void CascadeWidget::showSumDlg()
 			pSummenDlgContrasts->raise();
 			pSummenDlgContrasts->activateWindow();
 			break;
+	}
+}
+
+void CascadeWidget::showRoiDlg()
+{
+	if(!IsTofLoaded() && !IsPadLoaded())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Widget: Neither TOF nor PAD loaded.\n";
+
+		return;
+	}
+
+	Roi *pRoi = 0;
+	bool bUseRoi = false;
+
+	if(IsTofLoaded())
+	{
+		pRoi = &GetTof()->GetRoi();
+		bUseRoi = GetTof()->GetUseRoi();
+
+	}
+	else if(IsPadLoaded())
+	{
+		pRoi = &GetPad()->GetRoi();
+		bUseRoi = GetPad()->GetUseRoi();
+	}
+	else
+	{
+		return;
+	}
+
+/*
+		Roi roi;
+		roi.add(new RoiRect(1,2,3,4));
+		roi.add(new RoiRect(2,3,4,5));
+
+		double dtst[] = {1.,2.};
+		roi.add(new RoiCircle(dtst,3.));
+
+		RoiDlg roidlg(this, roi);
+*/
+
+	RoiDlg roidlg(this, *pRoi);
+	roidlg.checkBoxUseRoi->setCheckState(bUseRoi ? Qt::Checked
+												 : Qt::Unchecked);
+
+	if(roidlg.exec()==QDialog::Accepted)
+	{
+		bool bCk = (roidlg.checkBoxUseRoi->checkState() == Qt::Checked);
+
+		if(IsTofLoaded())
+			GetTof()->UseRoi(bCk);
+		else if(IsPadLoaded())
+			GetPad()->UseRoi(bCk);
 	}
 }
 

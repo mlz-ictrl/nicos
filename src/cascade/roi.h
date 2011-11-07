@@ -49,6 +49,9 @@ class RoiElement
 
 		// set value of a parameter
 		virtual void SetParam(int iParam, double dVal) = 0;
+
+
+		virtual RoiElement* copy() const = 0;
 };
 
 
@@ -68,6 +71,8 @@ class RoiRect : public RoiElement
 		virtual std::string GetParamName(int iParam) const;
 		virtual double GetParam(int iParam) const;
 		virtual void SetParam(int iParam, double dVal);
+
+		virtual RoiElement* copy() const;
 };
 
 
@@ -78,7 +83,7 @@ class RoiCircle : public RoiElement
 		double m_dRadius;
 
 	public:
-		RoiCircle(double dCenter[2], double dRadius);
+		RoiCircle(const double dCenter[2], double dRadius);
 		RoiCircle();
 
 		virtual bool IsInside(int iX, int iY) const;
@@ -89,6 +94,8 @@ class RoiCircle : public RoiElement
 		virtual std::string GetParamName(int iParam) const;
 		virtual double GetParam(int iParam) const;
 		virtual void SetParam(int iParam, double dVal);
+
+		virtual RoiElement* copy() const;
 };
 
 
@@ -102,6 +109,9 @@ class Roi
 
 	public:
 		Roi();
+		Roi(const Roi& roi);
+		Roi& operator=(const Roi& roi);
+
 		virtual ~Roi();
 
 		// add element, return position of element
@@ -111,6 +121,7 @@ class Roi
 		bool IsInside(int iX, int iY) const;
 
 		RoiElement& GetElement(int iElement);
+		const RoiElement& GetElement(int iElement) const;
 		void DeleteElement(int iElement);
 		int GetNumElements() const;
 

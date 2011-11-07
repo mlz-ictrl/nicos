@@ -51,6 +51,7 @@ class BasicImage
 		virtual double GetDoubleMax() const = 0;
 };
 
+
 /*
  * PAD
  * container representing a PAD image
@@ -72,6 +73,9 @@ class PadImage : public BasicImage
 		bool m_bExternalMem;
 
 		PadConfig m_config;
+
+		Roi m_roi;
+		bool m_bUseRoi;
 
 		// clean up
 		void Clear(void);
@@ -117,17 +121,20 @@ class PadImage : public BasicImage
 		virtual double GetDoubleData(int iX, int iY) const;
 		virtual unsigned int GetIntData(int iX, int iY) const;
 
+		// same as above, but return 0 if outside ROI (if ROI is used)
+		unsigned int GetDataInsideROI(int iX, int iY) const;
+
 		// get pointer to internal memory
 		unsigned int* GetRawData(void);
 
-		// total number of counts
+		// total number of counts (inside ROI, if used)
 		unsigned int GetCounts() const;
 
-		// total number of counts in given region of interest
-		unsigned int GetCounts(int iStartX, int iEndX,
-							   int iStartY, int iEndY) const;
-
 		const PadConfig& GetPadConfig() const;
+
+		Roi& GetRoi();
+		void UseRoi(bool bUseRoi=true);
+		bool GetUseRoi() const;
 };
 
 
@@ -265,6 +272,7 @@ class TofImage
 	public:
 		//----------------------------------------------------------------------
 		// "internal" methods => use corresponding method below
+		// TODO: rename method
 		void GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil,
 					int iTimechannel, TmpImage *pImg) const;
 		void GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
@@ -311,6 +319,11 @@ class TofImage
 		unsigned int GetData(int iFoil, int iTimechannel, int iX, int iY) const;
 		unsigned int GetData(int iImage, int iX, int iY) const;
 
+		// same as above, but return 0 if outside ROI (if ROI is used)
+		unsigned int GetDataInsideROI(int iFoil, int iTimechannel,
+									  int iX, int iY) const;
+		unsigned int GetDataInsideROI(int iImage, int iX, int iY) const;
+
 		// get raw pointer to data array
 		unsigned int* GetRawData(void) const;
 
@@ -319,15 +332,12 @@ class TofImage
 		// uiBufLen: # of ints (NOT # of bytes)
 		int LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen);
 
-		// get total counts
+		// total number of counts (inside ROI, if used)
 		unsigned int GetCounts() const;
-
-		// get total counts in specific region of interest
-		unsigned int GetCounts(int iStartX, int iEndX,
-							   int iStartY, int iEndY) const;
 
 		//----------------------------------------------------------------------
 		// copy ROI into new temporary image
+		// TODO: rename method to avoid confusion with new ROI stuff
 		TmpImage GetROI(int iStartX, int iEndX, int iStartY, int iEndY,
 						int iFoil, int iTimechannel) const;
 

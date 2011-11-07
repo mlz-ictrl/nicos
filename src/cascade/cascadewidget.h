@@ -191,6 +191,7 @@ Q_OBJECT
 		void showCalibrationDlg(int iNumBins);
 		void showGraphDlg();
 		void showSumDlg();
+		void showRoiDlg();
 		///////////////////////////////////////
 
 		void SetLog10(bool bLog10);
