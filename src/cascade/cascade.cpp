@@ -1102,7 +1102,7 @@ class MainWindow : public QMainWindow
 
 			// ROI Menu Items
 			QAction *actionManageRois = new QAction(this);
-			actionManageRois->setText("&Manage ROI items...");
+			actionManageRois->setText("&Manage ROI Items...");
 
 
 			// Help Menu Items

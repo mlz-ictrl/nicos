@@ -21,10 +21,14 @@
 //
 // *****************************************************************************
 
-#include "roi.h"
-#include "helper.h"
 #include <math.h>
 #include <sstream>
+#include <fstream>
+
+#include "roi.h"
+#include "helper.h"
+#include "config.h"
+#include "logger.h"
 
 
 RoiRect::RoiRect(int iX1, int iY1, int iX2, int iY2)
@@ -148,8 +152,8 @@ std::string RoiCircle::GetParamName(int iParam) const
 
 	switch(iParam)
 	{
-		case 0: strRet="center x"; break;
-		case 1: strRet="center y"; break;
+		case 0: strRet="center_x"; break;
+		case 1: strRet="center_y"; break;
 		case 2: strRet="radius"; break;
 		default: strRet="unknown"; break;
 	}
@@ -234,4 +238,97 @@ void Roi::DeleteElement(int iElement)
 int Roi::GetNumElements() const
 {
 	return m_vecRoi.size();
+}
+
+bool Roi::Load(const char* pcFile)
+{
+	clear();
+
+	Config xml;
+	if(!xml.Load(pcFile))
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Roi: Cannot load \"" << pcFile << "\".\n";
+
+		return false;
+	}
+
+	for(int iElem=0; true; ++iElem)
+	{
+		std::ostringstream ostr;
+		ostr << "/roi_elements/element_";
+		ostr << iElem;
+		ostr << "/";
+
+		std::string strQueryBase = ostr.str();
+		std::string strQueryType = strQueryBase + std::string("type");
+
+		bool bOK=false;
+		std::string strType = xml.QueryString(strQueryType.c_str(), "", &bOK);
+		if(!bOK)
+			break;
+
+		RoiElement *pElem = 0;
+		if(strType == std::string("rectangle"))
+			pElem = new RoiRect;
+		else if(strType == std::string("circle"))
+			pElem = new RoiCircle;
+		else
+		{
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Roi: Unknown element \"" << strType << "\".\n";
+			continue;
+		}
+
+		for(int iParam=0; iParam<pElem->GetParamCount(); ++iParam)
+		{
+			std::string strQueryParam = pElem->GetParamName(iParam);
+			double dVal = xml.QueryDouble((strQueryBase + strQueryParam).c_str());
+
+			pElem->SetParam(iParam, dVal);
+		}
+
+		add(pElem);
+	}
+	return true;
+}
+
+bool Roi::Save(const char* pcFile)
+{
+	std::ofstream ofstr(pcFile);
+	if(!ofstr.is_open())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Roi: Cannot save \"" << pcFile << "\".\n";
+
+		return false;
+	}
+
+	ofstr << "<?xml version=\"1.0\"?>\n\n";
+	ofstr << "<!-- ROI element configuration for Cascade Viewer -->\n\n";
+	ofstr << "<roi_elements>\n\n";
+
+	for(int i=0; i<GetNumElements(); ++i)
+	{
+		RoiElement& elem = GetElement(i);
+		ofstr << "\t<element_" << i << ">\n";
+		ofstr << "\t\t<type>" << elem.GetName() << "</type>\n";
+
+		for(int iParam=0; iParam<elem.GetParamCount(); ++iParam)
+		{
+			std::string strParam = elem.GetParamName(iParam);
+			double dValue = elem.GetParam(iParam);
+
+			ofstr << "\t\t<" << strParam << "> ";
+			ofstr << dValue;
+			ofstr << " </" << strParam << ">\n";
+		}
+
+		ofstr << "\t</element_" << i << ">\n\n";
+	}
+
+	ofstr << "</roi_elements>\n";
+	ofstr.close();
+
+	return true;
 }

@@ -33,9 +33,7 @@ class Config
 {
 	private:
 		static Config *s_pConfig;
-
-		Config();
-		virtual ~Config();
+		static int s_iInstances;
 
 	protected:
 		void *m_pxmldoc;
@@ -43,14 +41,17 @@ class Config
 		void Clear();
 
 	public:
+		Config();
+		virtual ~Config();
+
 		// Load a XML file
 		bool Load(const char* pcFile);
 
 		//----------------------------------------------------------------------
 		// Query values in a given xpath
-		int QueryInt(const char* pcXpath, int iDefault=0);
-		double QueryDouble(const char* pcXpath, double dDefault=0.);
-		std::string QueryString(const char* pcXpath, const char* pcDefault);
+		int QueryInt(const char* pcXpath, int iDefault=0, bool* pOK=0);
+		double QueryDouble(const char* pcXpath, double dDefault=0., bool* pOK=0);
+		std::string QueryString(const char* pcXpath, const char* pcDefault, bool* pOK=0);
 		//----------------------------------------------------------------------
 
 		// get pointer to singleton instance of this class

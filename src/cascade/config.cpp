@@ -40,16 +40,25 @@
 	#error "Fehler: libxml mit XPath benötigt."
 #endif
 
+int Config::s_iInstances = 0;
+
 Config::Config() : m_pxmldoc(0), m_ppathcontext(0)
 {
-	xmlInitParser();
-	LIBXML_TEST_VERSION
+	if(s_iInstances == 0)
+	{
+		xmlInitParser();
+		LIBXML_TEST_VERSION
+	}
+	++s_iInstances;
 }
 
 Config::~Config()
 {
 	Clear();
-	xmlCleanupParser();
+
+	--s_iInstances;
+	if(s_iInstances == 0)
+		xmlCleanupParser();
 }
 
 void Config::Clear()
@@ -82,9 +91,13 @@ bool Config::Load(const char* pcFile)
 	return true;
 }
 
-int Config::QueryInt(const char* pcXpath, int iDefault)
+int Config::QueryInt(const char* pcXpath, int iDefault, bool* pOK)
 {
-	if(!m_pxmldoc) return iDefault;
+	if(!m_pxmldoc)
+	{
+		if(pOK) *pOK=false;
+		return iDefault;
+	}
 	const xmlChar* pxmlPath = xmlCharStrdup(pcXpath);
 
 	xmlXPathContextPtr xpathContext = (xmlXPathContextPtr)m_ppathcontext;
@@ -97,6 +110,8 @@ int Config::QueryInt(const char* pcXpath, int iDefault)
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
 		logger << "Config: XPath \"" << pcXpath << "\" not found.\n";
 		xmlXPathFreeObject(xpathObject);
+
+		if(pOK) *pOK=false;
 		return iDefault;
 	}
 	else if(pnodeset->nodeNr>1)
@@ -113,18 +128,26 @@ int Config::QueryInt(const char* pcXpath, int iDefault)
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
 		logger << "Config: Node for XPath \"" << pcXpath << "\" invalid.\n";
 		xmlXPathFreeObject(xpathObject);
+
+		if(pOK) *pOK=false;
 		return iDefault;
 	}
 
 	// Vorsicht mit diesem Cast!
 	int iRet = atoi((const char*)pNode->children->content);
 	xmlXPathFreeObject(xpathObject);
+
+	if(pOK) *pOK=true;
 	return iRet;
 }
 
-double Config::QueryDouble(const char* pcXpath, double dDefault)
+double Config::QueryDouble(const char* pcXpath, double dDefault, bool* pOK)
 {
-	if(!m_pxmldoc) return dDefault;
+	if(!m_pxmldoc)
+	{
+		if(pOK) *pOK=false;
+		return dDefault;
+	}
 	const xmlChar* pxmlPath = xmlCharStrdup(pcXpath);
 
 	xmlXPathContextPtr xpathContext = (xmlXPathContextPtr)m_ppathcontext;
@@ -137,6 +160,8 @@ double Config::QueryDouble(const char* pcXpath, double dDefault)
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
 		logger << "Config: XPath \"" << pcXpath << "\" not found.\n";
 		xmlXPathFreeObject(xpathObject);
+
+		if(pOK) *pOK=false;
 		return dDefault;
 	}
 	else if(pnodeset->nodeNr>1)
@@ -153,6 +178,8 @@ double Config::QueryDouble(const char* pcXpath, double dDefault)
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
 		logger << "Config: Node for XPath \"" << pcXpath << "\" invalid.\n";
 		xmlXPathFreeObject(xpathObject);
+
+		if(pOK) *pOK=false;
 		return dDefault;
 	}
 
@@ -160,10 +187,13 @@ double Config::QueryDouble(const char* pcXpath, double dDefault)
 	// Vorsicht mit diesem Cast!
 	sscanf((const char*)pNode->children->content, "%lf", &dRet);
 	xmlXPathFreeObject(xpathObject);
+
+	if(pOK) *pOK=true;
 	return dRet;
 }
 
-std::string Config::QueryString(const char* pcXpath, const char* pcDefault)
+std::string Config::QueryString(const char* pcXpath, const char* pcDefault,
+								bool* pOK)
 {
 	std::string strRet;
 
@@ -174,7 +204,10 @@ std::string Config::QueryString(const char* pcXpath, const char* pcDefault)
 	}
 
 	if(!m_pxmldoc)
+	{
+		if(pOK) *pOK=false;
 		return strRet;
+	}
 
 	const xmlChar* pxmlPath = xmlCharStrdup(pcXpath);
 
@@ -190,6 +223,7 @@ std::string Config::QueryString(const char* pcXpath, const char* pcDefault)
 		logger << "Config: XPath \"" << pcXpath << "\" not found.\n";
 		xmlXPathFreeObject(xpathObject);
 
+		if(pOK) *pOK=false;
 		return strRet;
 	}
 	else if(pnodeset->nodeNr>1)
@@ -206,6 +240,8 @@ std::string Config::QueryString(const char* pcXpath, const char* pcDefault)
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
 		logger << "Config: Node for XPath \"" << pcXpath << "\" invalid.\n";
 		xmlXPathFreeObject(xpathObject);
+
+		if(pOK) *pOK=false;
 		return strRet;
 	}
 
@@ -214,6 +250,7 @@ std::string Config::QueryString(const char* pcXpath, const char* pcDefault)
 
 	xmlXPathFreeObject(xpathObject);
 
+	if(pOK) *pOK=true;
 	return strRet;
 }
 

@@ -113,6 +113,9 @@ class Roi
 		RoiElement& GetElement(int iElement);
 		void DeleteElement(int iElement);
 		int GetNumElements() const;
+
+		bool Load(const char* pcFile);
+		bool Save(const char* pcFile);
 };
 
 #endif
