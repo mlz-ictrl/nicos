@@ -849,7 +849,7 @@ class MainWindow : public QMainWindow
 			m_cascadewidget.NewPad(/*btnLog->isChecked()*/);
 			QString strFile = QFileDialog::getOpenFileName(this,
 									"Open PAD File","",
-									"PAD File (*.pad *.PAD);;All files (*)");
+									"PAD Files (*.pad *.PAD);;All Files (*)");
 			if(strFile!="" &&
 				m_cascadewidget.LoadPadFile(strFile.toAscii().data()))
 			{
@@ -864,7 +864,7 @@ class MainWindow : public QMainWindow
 			m_cascadewidget.NewTof(/*btnLog->isChecked()*/);
 			QString strFile = QFileDialog::getOpenFileName(
 								this, "Open TOF File","",
-								"TOF File (*.tof *.TOF);;All files (*)");
+								"TOF Files (*.tof *.TOF);;All Files (*)");
 			if(strFile!="" &&
 			   m_cascadewidget.LoadTofFile(strFile.toAscii().data()))
 			{
@@ -883,7 +883,10 @@ class MainWindow : public QMainWindow
 			if(m_cascadewidget.IsTofLoaded() || m_cascadewidget.IsPadLoaded())
 			{
 				QString strFile = QFileDialog::getSaveFileName(this,
-									"Save XML File","","XML Files (*.xml)");
+									"XML Files (*.xml *.XML);;All Files (*)");
+				if(strFile=="")
+					return;
+
 				TmpImage tmpimg;
 				if(m_cascadewidget.IsTofLoaded())	// TOF-Datei offen
 					m_cascadewidget.GetTof()->GetOverview(&tmpimg);
@@ -906,6 +909,46 @@ class MainWindow : public QMainWindow
 			}
 
 			m_cascadewidget.showRoiDlg();
+		}
+
+		void LoadRoi()
+		{
+			if(!m_cascadewidget.IsTofLoaded() && !m_cascadewidget.IsPadLoaded())
+			{
+				QMessageBox::critical(0, "ROI", "No TOF or PAD loaded.",
+									  QMessageBox::Ok);
+				return;
+			}
+
+			QString strFile = QFileDialog::getOpenFileName(this,
+									"Open ROI File","",
+									"XML Files (*.xml *.XML);;All Files (*)");
+			if(strFile!="" && m_cascadewidget.LoadRoi(strFile.toAscii().data()))
+			{
+				UpdateLabels(false);
+				ShowMessage("ROI loaded.");
+			}
+		}
+
+		void SaveRoi()
+		{
+			if(!m_cascadewidget.IsTofLoaded() && !m_cascadewidget.IsPadLoaded())
+			{
+				QMessageBox::critical(0, "ROI", "No TOF or PAD loaded.",
+									  QMessageBox::Ok);
+				return;
+			}
+
+			QString strFile = QFileDialog::getSaveFileName(this,
+								"XML Files (*.xml *.XML);;All Files (*)");
+			if(strFile=="")
+				return;
+
+			if(m_cascadewidget.SaveRoi(strFile.toAscii().data()))
+			{
+				UpdateLabels(false);
+				ShowMessage("ROI saved.");
+			}
 		}
 		///////////////////////////////////////////////////////////////////
 
@@ -1084,7 +1127,13 @@ class MainWindow : public QMainWindow
 
 			// ROI Menu Items
 			QAction *actionManageRois = new QAction(this);
-			actionManageRois->setText("&Manage ROI Items...");
+			actionManageRois->setText("&Manage ROI...");
+
+			QAction *actionLoadRoi = new QAction(this);
+			actionLoadRoi->setText("Load ROI...");
+
+			QAction *actionSaveRoi = new QAction(this);
+			actionSaveRoi->setText("Save ROI...");
 
 
 			// Help Menu Items
@@ -1139,6 +1188,9 @@ class MainWindow : public QMainWindow
 			QMenu *menuRoi = new QMenu(menubar);
 			menuRoi->setTitle("&ROI");
 			menuRoi->addAction(actionManageRois);
+			menuRoi->addSeparator();
+			menuRoi->addAction(actionLoadRoi);
+			menuRoi->addAction(actionSaveRoi);
 			menubar->addAction(menuRoi->menuAction());
 
 			QMenu *menuHelp = new QMenu(menubar);
@@ -1302,9 +1354,16 @@ class MainWindow : public QMainWindow
 			connect(&m_client, SIGNAL(MessageSignal(const char*, int)), this,
 							   SLOT(ServerMessageSlot(const char*, int)));
 
+
 			// ROI
 			connect(actionManageRois, SIGNAL(triggered()), this,
 									   SLOT(showRoiDlg()));
+
+			connect(actionSaveRoi, SIGNAL(triggered()), this,
+								   SLOT(SaveRoi()));
+
+			connect(actionLoadRoi, SIGNAL(triggered()), this,
+								   SLOT(LoadRoi()));
 
 			// Widget
 			connect(&m_cascadewidget, SIGNAL(SumDlgSignal(const bool *, int)),

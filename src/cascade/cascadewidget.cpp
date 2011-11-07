@@ -790,4 +790,44 @@ void CascadeWidget::showRoiDlg()
 	}
 }
 
+bool CascadeWidget::LoadRoi(const char* pcFile)
+{
+	if(!IsTofLoaded() && !IsPadLoaded())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Widget: Neither TOF nor PAD loaded.\n";
+
+		return false;
+	}
+
+	Roi *pRoi = 0;
+
+	if(IsTofLoaded())
+		pRoi = &GetTof()->GetRoi();
+	else if(IsPadLoaded())
+		pRoi = &GetPad()->GetRoi();
+
+	return pRoi->Load(pcFile);
+}
+
+bool CascadeWidget::SaveRoi(const char* pcFile)
+{
+	if(!IsTofLoaded() && !IsPadLoaded())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Widget: Neither TOF nor PAD loaded.\n";
+
+		return false;
+	}
+
+	Roi *pRoi = 0;
+
+	if(IsTofLoaded())
+		pRoi = &GetTof()->GetRoi();
+	else if(IsPadLoaded())
+		pRoi = &GetPad()->GetRoi();
+
+	return pRoi->Save(pcFile);
+}
+
 void CascadeWidget::ForceReinit() { m_bForceReinit = true; }

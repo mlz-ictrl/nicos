@@ -159,6 +159,10 @@ Q_OBJECT
 		// load TOF from memory
 		bool LoadTofMem(const char* pcMem, unsigned int iLen);
 
+		// loading/saving of ROI elements
+		bool LoadRoi(const char* pcFile);
+		bool SaveRoi(const char* pcFile);
+
 		void ForceReinit();
 
 		TofImage* GetTof();
