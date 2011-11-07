@@ -414,11 +414,15 @@ class TacoAxis(TacoDevice, BaseAxis):
     def doStop(self):
         self._taco_guard(self._dev.stop)
 
+    def _getMotor(self):
+        motorname = self._taco_guard(self._dev.deviceQueryResource, 'motor')
+        client = TACOMotor(motorname)
+        return client
+
     @usermethod
     def reference(self):
         """Do a reference drive of the axis (do not use with encoded axes)."""
-        motorname = self._taco_guard(self._dev.deviceQueryResource, 'motor')
-        client = TACOMotor(motorname)
+        client = self._getMotor()
         self.log.info('referencing the axis, please wait...')
         self._taco_guard(client.deviceReset)
         while self._taco_guard(client.deviceState) == TACOStates.INIT:
@@ -427,6 +431,15 @@ class TacoAxis(TacoDevice, BaseAxis):
         self.setPosition(self.refpos)
         self.log.info('reference drive complete, position is now ' +
                       self.format(self.doRead()))
+
+    def _reset_phytron(self):
+        import IO
+        motor = self._getMotor()
+        iodev = self._taco_guard(motor.deviceQueryResource, 'iodev')
+        addr = self._taco_guard(motor.deviceQueryResource, 'address')
+        client = IO.StringIO(iodev)
+        self._taco_guard(client.communicate, '\x02%sCR' % addr)
+        self.log.info('Phytron reset complete')
 
     def doReadSpeed(self):
         return self._taco_guard(self._dev.speed)
