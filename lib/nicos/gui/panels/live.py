@@ -155,9 +155,9 @@ class LiveDataPanel(Panel):
         if self._no_direct_display:
             self._no_direct_display = False
             if self._format == 'pad':
-                self.widget.LoadPadMem(self._last_data)
+                self.widget.LoadPadMem(self._last_data, 128*128*4)
             elif self._format == 'tof':
-                self.widget.LoadTofMem(self._last_data)
+                self.widget.LoadTofMem(self._last_data, 128*128*128*4)
 
     @qtsig('')
     def on_actionLoadTOF_triggered(self):
