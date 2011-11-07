@@ -27,9 +27,11 @@
 __version__ = "$Revision$"
 
 import os
+import sys
 import time
 import errno
 import signal
+import traceback
 import threading
 import subprocess
 
@@ -150,7 +152,8 @@ class Poller(Device):
                 continue
             self.log.debug('starting thread for %s' % devname)
             event = threading.Event()
-            worker = threading.Thread(target=self._worker_thread,
+            worker = threading.Thread(name='%s poller' % devname,
+                                      target=self._worker_thread,
                                       args=(devname, event))
             worker.event = event
             worker.setDaemon(True)
@@ -188,6 +191,27 @@ class Poller(Device):
                 os.kill(pid, signal.SIGTERM)
             except Exception, err:
                 self.log.error(str(err))
+
+    def statusinfo(self):
+        self.log.info('got SIGUSR2')
+        if self._setup is not None:
+            info = []
+            for worker in self._workers:
+                wname = worker.getName()
+                if worker.isAlive():
+                    info.append('%s: alive' % wname)
+                else:
+                    info.append('%s: dead' % wname)
+            self.log.info(', '.join(info))
+            self.log.info('current stacktraces for each thread:')
+            active = threading._active
+            for id, frame in sys._current_frames().items():
+                if id in active:
+                    name = active[id].getName()
+                else:
+                    name = str(id)
+                self.log.info('%s: %s' % (name,
+                    ''.join(traceback.format_stack(frame))))
 
     def _start_master(self):
         self._childpids = {}
