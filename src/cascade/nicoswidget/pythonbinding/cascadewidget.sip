@@ -18,7 +18,7 @@ class GraphDlg : QDialog
 %End
 	public:
 		GraphDlg(QWidget *pParent, TofImage* pTof);
-		GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie);
+		GraphDlg(QWidget *pParent, TofImage* pTof, int iFoil);
 		virtual ~GraphDlg();
 };
 /////////////////////////////////////////////////////////////////////////////////////
@@ -111,6 +111,10 @@ class CascadeWidget : QWidget
 		bool LoadTofFile(const char* pcFile);			// load TOF from file
 		bool LoadPadMem(const char* pcMem, unsigned int iLen);	// load PAD from mem
 		bool LoadTofMem(const char* pcMem, unsigned int iLen);	// load TOF from mem
+
+		// loading/saving of ROI elements
+		bool LoadRoi(const char* pcFile);
+		bool SaveRoi(const char* pcFile);
 
 		TofImage* GetTof();
 		TmpImage* GetTmpImg();

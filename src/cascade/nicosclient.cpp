@@ -85,37 +85,6 @@ unsigned int NicosClient::counts(const QByteArray& arr)
 	}
 }
 
-unsigned int NicosClient::counts(const QByteArray& arr, int iStartX, int iEndX,
-													    int iStartY, int iEndY)
-{
-	if(arr.size()<4)
-		return 0;
-
-	int iPad = IsPad(arr.data());
-	if(iPad == IS_NONE) return 0;
-	bool bPad = (iPad == IS_PAD);
-
-	if(!bPad)
-		m_tof.SetCompressionMethod(TOF_COMPRESSION_USEGLOBCONFIG);
-
-	if(!IsSizeCorrect(arr, bPad))
-		return 0;
-
-	if(bPad)
-	{
-		m_pad.SetExternalMem((unsigned int*)(arr.data()+4));
-		return m_pad.GetCounts(iStartX, iEndX, iStartY, iEndY);
-	}
-	else
-	{
-		m_tof.SetExternalMem((unsigned int*)(arr.data()+4));
-		unsigned int uiCnts = m_tof.GetCounts(iStartX, iEndX, iStartY, iEndY);
-		m_tof.SetExternalMem(NULL);
-
-		return uiCnts;
-	}
-}
-
 bool NicosClient::IsSizeCorrect(const QByteArray& arr, bool bPad)
 {
 	bool bOk = true;
