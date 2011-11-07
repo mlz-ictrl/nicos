@@ -277,14 +277,11 @@ class TofImage
 					int iTimechannel, TmpImage *pImg) const;
 		void GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 					  int iFoil, TmpGraph* pGraph) const;
+		void GetGraph(int iFoil, TmpGraph* pGraph) const;
 		void GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 						   double dPhaseShift ,TmpGraph* pGraph) const;
 		void GetOverview(TmpImage *pImg) const;
-		void GetPhaseGraph(int iFoil, TmpImage *pImg, int iStartX, int iEndX,
-						   int iStartY, int iEndY, bool bInDeg=true) const;
 		void GetPhaseGraph(int iFoil, TmpImage *pImg, bool bInDeg=true) const;
-		void GetContrastGraph(int iFoil, TmpImage *pImg, int iStartX, int iEndX,
-							  int iStartY, int iEndY) const;
 		void GetContrastGraph(int iFoil, TmpImage *pImg) const;
 
 		void AddFoils(int iBits, int iChannelBits/*=0xffffffff*/,
@@ -345,6 +342,8 @@ class TofImage
 		TmpGraph GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 						  int iFoil) const;
 
+		TmpGraph GetGraph(int iFoil) const;
+
 		// TODO
 		TmpGraph GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 							   double dPhaseShift) const;
@@ -353,12 +352,10 @@ class TofImage
 		TmpImage GetOverview() const;
 
 		// phase image
-		TmpImage GetPhaseGraph(int iFoil, int iStartX, int iEndX, int iStartY,
-							   int iEndY, bool bInDeg=true) const;
+		TmpImage GetPhaseGraph(int iFoil, bool bInDeg=true) const;
 
 		// contrast image
-		TmpImage GetContrastGraph(int iFoil, int iStartX, int iEndX,
-								  int iStartY, int iEndY) const;
+		TmpImage GetContrastGraph(int iFoil) const;
 
 		// sum foils/phases/contrasts marked in respective bool array
 		TmpImage AddFoils(const bool *pbChannels) const;

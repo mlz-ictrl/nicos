@@ -145,10 +145,11 @@ class TofImage
 
 		TmpImage GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil, int iTimechannel) const;
 		TmpGraph GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil) const;
+		TmpGraph GetGraph(int iFoil) const;
 		TmpGraph GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, double dPhaseShift) const;
 		TmpImage GetOverview() const;
-		TmpImage GetPhaseGraph(int iFoil, int iStartX, int iEndX, int iStartY, int iEndY, bool bInDeg=true) const;
-		TmpImage GetContrastGraph(int iFoil, int iStartX, int iEndX, int iStartY, int iEndY) const;
+		TmpImage GetPhaseGraph(int iFoil, bool bInDeg=true) const;
+		TmpImage GetContrastGraph(int iFoil) const;
 		TmpImage AddFoils(const bool *pbChannels) const;
 		TmpImage AddPhases(const bool *pbFoils) const;
 		TmpImage AddContrasts(const bool *pbFoils) const;

@@ -258,8 +258,7 @@ void GraphDlg::UpdateGraph(void)
 
 	// Messpunkte für eine Folie
 	TmpGraph tmpGraph;
-	m_pTofImg->GetGraph(spinBoxROIx1->value(),spinBoxROIx2->value(),spinBoxROIy1
-			->value(),spinBoxROIy2->value(),spinBoxFolie->value()-1, &tmpGraph);
+	m_pTofImg->GetGraph(spinBoxFolie->value()-1, &tmpGraph);
 
 	double *pdx = new double[tmpGraph.GetWidth()];
 	double *pdy = new double[tmpGraph.GetWidth()];
@@ -325,14 +324,12 @@ void GraphDlg::UpdateGraph(void)
 	qwtPlot->replot();
 }
 
-void GraphDlg::ROIy1changed(int iVal) { UpdateGraph(); }
-void GraphDlg::ROIy2changed(int iVal) { UpdateGraph(); }
-void GraphDlg::ROIx1changed(int iVal) { UpdateGraph(); }
-void GraphDlg::ROIx2changed(int iVal) { UpdateGraph(); }
-void GraphDlg::Foilchanged(int iVal) { UpdateGraph(); }
-void GraphDlg::Phasechanged(double dVal) { UpdateGraph(); }
+void GraphDlg::Foilchanged(int iVal)
+{
+	UpdateGraph();
+}
 
-void GraphDlg::Init(int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie)
+void GraphDlg::Init(int iFolie)
 {
 	const TofConfig& conf = GlobalConfig::GetTofConfig();
 
@@ -348,40 +345,16 @@ void GraphDlg::Init(int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie)
 	m_pgrid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
 	m_pgrid->attach(qwtPlot);
 
-	spinBoxROIx1->setMinimum(0);
-	spinBoxROIx1->setMaximum(conf.GetImageWidth());
-	spinBoxROIx2->setMinimum(0);
-	spinBoxROIx2->setMaximum(conf.GetImageWidth());
-	spinBoxROIy1->setMinimum(0);
-	spinBoxROIy1->setMaximum(conf.GetImageHeight());
-	spinBoxROIy2->setMinimum(0);
-	spinBoxROIy2->setMaximum(conf.GetImageHeight());
 	spinBoxFolie->setMinimum(1);
 	spinBoxFolie->setMaximum(conf.GetFoilCount());
-
-	spinBoxROIx1->setValue(iROIx1);
-	spinBoxROIx2->setValue(iROIx2);
-	spinBoxROIy1->setValue(iROIy1);
-	spinBoxROIy2->setValue(iROIy2);
 	spinBoxFolie->setValue(iFolie+1);
 
 	QwtLegend *m_plegend = new QwtLegend;
 	//m_plegend->setItemMode(QwtLegend::CheckableItem);
 	qwtPlot->insertLegend(m_plegend, QwtPlot::RightLegend);
 
-	QObject::connect(spinBoxROIy1, SIGNAL(valueChanged(int)), this,
-								   SLOT(ROIy1changed(int)));
-	QObject::connect(spinBoxROIy2, SIGNAL(valueChanged(int)), this,
-								   SLOT(ROIy2changed(int)));
-	QObject::connect(spinBoxROIx1, SIGNAL(valueChanged(int)), this,
-								   SLOT(ROIx1changed(int)));
-	QObject::connect(spinBoxROIx2, SIGNAL(valueChanged(int)), this,
-								   SLOT(ROIx2changed(int)));
 	QObject::connect(spinBoxFolie, SIGNAL(valueChanged(int)), this,
 								   SLOT(Foilchanged(int)));
-	QObject::connect(spinBoxPhase, SIGNAL(valueChanged(double)), this,
-								   SLOT(Phasechanged(double)));
-
 
 	// Kurve für Messpunkte für eine Folie
 	QwtSymbol sym;
@@ -421,12 +394,12 @@ GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof) : QDialog(pParent),
 
 	const TofConfig& conf = GlobalConfig::GetTofConfig();
 
-	Init(0, conf.GetImageWidth()-1, 0, conf.GetImageHeight()-1, 0);
+	Init(0);
 	UpdateGraph();
 }
 
-GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2,
-					int iROIy1, int iROIy2, int iFolie) : QDialog(pParent),
+GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof, int iFolie)
+														: QDialog(pParent),
 														  m_pTofImg(pTof),
 														  m_curve("Foil"),
 														  m_curvefit("Fit"),
@@ -435,7 +408,6 @@ GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2,
 														  m_pgrid(0)
 {
 	setupUi(this);
-	Init(iROIx1, iROIx2, iROIy1, iROIy2, iFolie);
 	UpdateGraph();
 }
 

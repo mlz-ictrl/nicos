@@ -336,11 +336,9 @@ void TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 						int iFolie, TmpGraph* pGraph) const
 {
 	if(!pGraph) return;
+	GetTofConfig().CheckTofArguments(&iStartX,&iEndX,&iStartY,&iEndY,&iFolie);
 
-	GetTofConfig().CheckTofArguments(&iStartX, &iEndX,
-							      &iStartY, &iEndY, &iFolie);
-	unsigned int *puiWave = new unsigned int[
-										GetTofConfig().GetImagesPerFoil()];
+	unsigned int *puiWave = new unsigned int[GetTofConfig().GetImagesPerFoil()];
 
 	pGraph->m_iW = GetTofConfig().GetImagesPerFoil();
 	pGraph->m_puiDaten = puiWave;
@@ -354,6 +352,16 @@ void TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 
 		puiWave[iZ0]=uiSummedVal;
 	}
+}
+
+void TofImage::GetGraph(int iFoil, TmpGraph* pGraph) const
+{
+	int iStartX = 0,
+		iStartY = 0,
+		iEndX = GetTofConfig().GetImageWidth(),
+		iEndY = GetTofConfig().GetImageHeight();
+
+	GetGraph(iStartX, iEndX, iStartY, iEndY, iFoil, pGraph);
 }
 
 void TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
@@ -588,16 +596,15 @@ void TofImage::AddContrasts(const bool *pbFolien, TmpImage *pImg) const
 }
 
 // Für Kalibrierungsdiagramm
-void TofImage::GetPhaseGraph(int iFoil, TmpImage *pImg, bool bInDeg) const
-{
-	GetPhaseGraph(iFoil, pImg, 0, GetTofConfig().GetImageWidth(), 0,
-								  GetTofConfig().GetImageHeight(), bInDeg);
-}
-
-void TofImage::GetPhaseGraph(int iFolie, TmpImage *pImg, int iStartX, int iEndX,
-								int iStartY, int iEndY, bool bInDeg) const
+void TofImage::GetPhaseGraph(int iFolie, TmpImage *pImg, bool bInDeg) const
 {
 	if(pImg==NULL) return;
+
+	int iStartX = 0,
+		iStartY = 0,
+		iEndX = GetTofConfig().GetImageWidth(),
+		iEndY = GetTofConfig().GetImageHeight();
+
 	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY);
 
 	pImg->Clear();
@@ -639,14 +646,13 @@ void TofImage::GetPhaseGraph(int iFolie, TmpImage *pImg, int iStartX, int iEndX,
 
 void TofImage::GetContrastGraph(int iFoil, TmpImage *pImg) const
 {
-	GetContrastGraph(iFoil, pImg, 0, GetTofConfig().GetImageWidth(), 0,
-									 GetTofConfig().GetImageHeight());
-}
-
-void TofImage::GetContrastGraph(int iFoil, TmpImage *pImg, int iStartX,
-								int iEndX, int iStartY, int iEndY) const
-{
 	if(pImg==NULL) return;
+
+	int iStartX = 0,
+		iStartY = 0,
+		iEndX = GetTofConfig().GetImageWidth(),
+		iEndY = GetTofConfig().GetImageHeight();
+
 	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY);
 
 	pImg->Clear();
@@ -711,10 +717,17 @@ TmpImage TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY,
 }
 
 TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
-						    int iFolie) const
+						    int iFoil) const
 {
 	TmpGraph graph;
-	GetGraph(iStartX, iEndX, iStartY, iEndY, iFolie, &graph);
+	GetGraph(iStartX, iEndX, iStartY, iEndY, iFoil, &graph);
+	return graph;
+}
+
+TmpGraph TofImage::GetGraph(int iFoil) const
+{
+	TmpGraph graph;
+	GetGraph(iFoil, &graph);
 	return graph;
 }
 
@@ -733,19 +746,17 @@ TmpImage TofImage::GetOverview() const
 	return img;
 }
 
-TmpImage TofImage::GetPhaseGraph(int iFolie, int iStartX, int iEndX,
-								 int iStartY, int iEndY, bool bInDeg) const
+TmpImage TofImage::GetPhaseGraph(int iFolie, bool bInDeg) const
 {
 	TmpImage img;
-	GetPhaseGraph(iFolie, &img, iStartX, iEndX, iStartY, iEndY, bInDeg);
+	GetPhaseGraph(iFolie, &img, bInDeg);
 	return img;
 }
 
-TmpImage TofImage::GetContrastGraph(int iFolie, int iStartX, int iEndX,
-									int iStartY, int iEndY) const
+TmpImage TofImage::GetContrastGraph(int iFolie) const
 {
 	TmpImage img;
-	GetContrastGraph(iFolie, &img, iStartX, iEndX, iStartY, iEndY);
+	GetContrastGraph(iFolie, &img);
 	return img;
 }
 

@@ -617,8 +617,8 @@ void CascadeWidget::showCalibrationDlg(int iNumBins)
 
 	TmpImage* ptmpimg = new TmpImage[m_pTof->GetTofConfig().GetFoilCount()];
 	for(int iFolie=0; iFolie<m_pTof->GetTofConfig().GetFoilCount(); ++iFolie)
-		GetTof()->GetPhaseGraph(iFolie, ptmpimg+iFolie, iROIx1, iROIx2,
-														iROIy1, iROIy2, true);
+		GetTof()->GetPhaseGraph(iFolie, ptmpimg+iFolie, /*iROIx1, iROIx2,
+														iROIy1, iROIy2,*/ true);
 
 	int iW = iROIx2-iROIx1; if(iW<0) iW=-iW;
 	int iH = iROIy2-iROIy1; if(iH<0) iH=-iH;
@@ -647,13 +647,13 @@ void CascadeWidget::showGraphDlg()
 		return;
 	}
 
-	QwtDoubleRect rect = GetPlot()->GetZoomer()->zoomRect();
+	/*QwtDoubleRect rect = GetPlot()->GetZoomer()->zoomRect();
 	int iROIx1 = rect.left(),
 	iROIx2 = rect.right(),
 	iROIy1 = rect.top(),
-	iROIy2 = rect.bottom();
+	iROIy2 = rect.bottom();*/
 
-	GraphDlg graphdlg(this, GetTof(), iROIx1, iROIx2, iROIy1, iROIy2, m_iFolie);
+	GraphDlg graphdlg(this, GetTof(), m_iFolie);
 	graphdlg.exec();
 }
 
