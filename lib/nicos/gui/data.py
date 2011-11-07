@@ -45,7 +45,7 @@ class Curve(object):
     yindex = -1
     dyindex = -1
     timeindex = -1
-    monindex = -1
+    monindices = []
     disabled = False
     function = False
 
@@ -133,7 +133,7 @@ class DataHandler(QObject):
     def _init_curves(self, set):
         curves = []
         timeindex = -1
-        monindex = -1
+        monindices = []
         for i, (name, info) in enumerate(zip(set.ynames, set.yvalueinfo)):
             if info.type in ('info', 'error'):
                 continue
@@ -146,9 +146,7 @@ class DataHandler(QObject):
                 timeindex = i
                 curve.disabled = True
             elif info.type == 'monitor':
-                # XXX this can go wrong with multiple monitors
-                if monindex == -1:
-                    monindex = i
+                monindices.append(i)
                 curve.disabled = True
             elif info.type == 'calc':
                 curve.function = True
@@ -159,7 +157,7 @@ class DataHandler(QObject):
             curves.append(curve)
         for curve in curves:
             curve.timeindex = timeindex
-            curve.monindex = monindex
+            curve.monindices = monindices
         return curves
 
     def _update_curves(self, xvalues, yvalues):
@@ -173,5 +171,9 @@ class DataHandler(QObject):
                 curve.datady.append(yvalues[curve.dyindex])
             if curve.timeindex != -1:
                 curve.datatime.append(yvalues[curve.timeindex])
-            if curve.monindex != -1:
-                curve.datamon.append(yvalues[curve.monindex])
+            for i in curve.monindices:
+                if yvalues[i] != 0:
+                    curve.datamon.append(yvalues[i])
+                    break
+            else:
+                curve.datamon.append(0)

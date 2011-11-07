@@ -543,7 +543,7 @@ class DataSetPlot(NicosPlot):
             dy = np.array(curve.datady)
         if self.normalized:
             norm = None
-            if curve.monindex > -1:
+            if curve.monindices:
                 norm = np.array(curve.datamon)
             elif curve.timeindex > -1:
                 norm = np.array(curve.datatime)
