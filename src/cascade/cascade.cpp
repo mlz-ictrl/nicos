@@ -883,6 +883,7 @@ class MainWindow : public QMainWindow
 			if(m_cascadewidget.IsTofLoaded() || m_cascadewidget.IsPadLoaded())
 			{
 				QString strFile = QFileDialog::getSaveFileName(this,
+									"Save as XML File", "",
 									"XML Files (*.xml *.XML);;All Files (*)");
 				if(strFile=="")
 					return;
@@ -940,6 +941,7 @@ class MainWindow : public QMainWindow
 			}
 
 			QString strFile = QFileDialog::getSaveFileName(this,
+								"Save ROI File", "",
 								"XML Files (*.xml *.XML);;All Files (*)");
 			if(strFile=="")
 				return;

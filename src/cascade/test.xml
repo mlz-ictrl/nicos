@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<!-- ROI element configuration for Cascade Viewer -->
+
+<roi_elements>
+
+	<element_0>
+		<type>rectangle</type>
+		<x1> 1 </x1>
+		<y1> 2 </y1>
+		<x2> 3 </x2>
+		<y2> 4 </y2>
+	</element_0>
+
+</roi_elements>
