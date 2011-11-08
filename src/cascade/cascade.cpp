@@ -856,6 +856,8 @@ class MainWindow : public QMainWindow
 				//m_cascadewidget.UpdateGraph();
 				UpdateLabels(false);
 				ShowMessage("PAD loaded.");
+
+				ShowTitleMessage(strFile.toAscii().data());
 			}
 		}
 
@@ -872,29 +874,49 @@ class MainWindow : public QMainWindow
 				UpdateLabels(false);
 				UpdateSliders();
 				ShowMessage("TOF loaded.");
+				ShowTitleMessage(strFile.toAscii().data());
 
 				//viewOverview();
 				actionViewsOverview->setChecked(true);
 			}
 		}
 
-		void WriteXML(void)
+		void SaveFile()
 		{
-			if(m_cascadewidget.IsTofLoaded() || m_cascadewidget.IsPadLoaded())
+			// PAD
+			if(m_cascadewidget.IsPadLoaded())
 			{
 				QString strFile = QFileDialog::getSaveFileName(this,
-									"Save as XML File", "",
-									"XML Files (*.xml *.XML);;All Files (*)");
+									"Save as PAD File", "",
+									"PAD Files (*.pad *.PAD);;All Files (*)");
 				if(strFile=="")
 					return;
 
-				TmpImage tmpimg;
-				if(m_cascadewidget.IsTofLoaded())	// TOF-Datei offen
-					m_cascadewidget.GetTof()->GetOverview(&tmpimg);
-				else					// PAD-Datei offen
-					tmpimg.ConvertPAD(m_cascadewidget.GetPad());
-				tmpimg.WriteXML(strFile.toAscii().data());
+				m_cascadewidget.GetPad()->SaveFile(strFile.toAscii().data());
 			}
+			if(m_cascadewidget.IsTofLoaded())
+			{
+				// TODO
+			}
+		}
+
+		void WriteXML(void)
+		{
+			if(!m_cascadewidget.IsTofLoaded() && !m_cascadewidget.IsPadLoaded())
+				return;
+
+			QString strFile = QFileDialog::getSaveFileName(this,
+								"Save as XML File", "",
+								"XML Files (*.xml *.XML);;All Files (*)");
+			if(strFile=="")
+				return;
+
+			TmpImage tmpimg;
+			if(m_cascadewidget.IsTofLoaded())	// TOF-Datei offen
+				m_cascadewidget.GetTof()->GetOverview(&tmpimg);
+			else					// PAD-Datei offen
+				tmpimg.ConvertPAD(m_cascadewidget.GetPad());
+			tmpimg.WriteXML(strFile.toAscii().data());
 		}
 		///////////////////////////////////////////////////////////////////
 
@@ -1074,6 +1096,9 @@ class MainWindow : public QMainWindow
 			actionLoadTof->setText("Load &TOF File...");
 			actionLoadTof->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
 
+			QAction *actionSaveFile = new QAction(this);
+			actionSaveFile->setText("&Save File...");
+
 			QAction *actionWriteXML = new QAction(this);
 			actionWriteXML->setText("Write &XML...");
 
@@ -1156,6 +1181,8 @@ class MainWindow : public QMainWindow
 			menuFile->setTitle("&File");
 			menuFile->addAction(actionLoadPad);
 			menuFile->addAction(actionLoadTof);
+			menuFile->addSeparator();
+			menuFile->addAction(actionSaveFile);
 			menuFile->addSeparator();
 			menuFile->addAction(actionWriteXML);
 			menuFile->addAction(actionPrint);
@@ -1300,12 +1327,10 @@ class MainWindow : public QMainWindow
 								  SLOT(ChangeZeitkanal(int)));
 
 			// File
-			connect(actionExit, SIGNAL(triggered()), this,
-								SLOT(close()));
-			connect(actionLoadPad, SIGNAL(triggered()), this,
-								SLOT(LoadPad()));
-			connect(actionLoadTof, SIGNAL(triggered()), this,
-								   SLOT(LoadTof()));
+			connect(actionExit, SIGNAL(triggered()), this, SLOT(close()));
+			connect(actionLoadPad, SIGNAL(triggered()), this, SLOT(LoadPad()));
+			connect(actionLoadTof, SIGNAL(triggered()), this, SLOT(LoadTof()));
+			connect(actionSaveFile, SIGNAL(triggered()), this,SLOT(SaveFile()));
 			connect(actionWriteXML, SIGNAL(triggered()), this,
 									SLOT(WriteXML()));
 			connect(actionPrint, SIGNAL(triggered()), m_cascadewidget.GetPlot(),
@@ -1392,9 +1417,10 @@ int MainWindow::AUTOFETCH_POLL_TIME = 250;
 
 int main(int argc, char **argv)
 {
+	QApplication a(argc, argv);
+
 	setlocale(LC_ALL, "C");
 	QLocale::setDefault(QLocale::English);
-	QApplication a(argc, argv);
 
 	// Konfigurationssingleton erzeugen
 	const char pcConfigFile[] = "./cascade.xml";
@@ -1446,6 +1472,7 @@ int main(int argc, char **argv)
 	MainWindow mainWindow;
 	mainWindow.resize(iWinW, iWinH);
 	mainWindow.show();
+
 	int iRet = a.exec();
 
 	// aufräumen

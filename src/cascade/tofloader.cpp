@@ -942,6 +942,35 @@ int PadImage::LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen)
 	return LOAD_SUCCESS;
 }
 
+int PadImage::SaveFile(const char *pcFileName)
+{
+	FILE *pf = fopen(pcFileName, "wb");
+	if(!pf)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Could not open file \"" << pcFileName
+			   << "\" for writing."
+			   << "\n";
+		return SAVE_FAIL;
+	}
+
+	unsigned int uiLen = fwrite(m_puiDaten, sizeof(unsigned int),
+		   GetPadConfig().GetImageHeight()*GetPadConfig().GetImageWidth(), pf);
+
+	int iRet = SAVE_SUCCESS;
+	if(uiLen != (unsigned int)(GetPadConfig().GetImageHeight()*
+							   GetPadConfig().GetImageWidth()))
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Could not write file \"" << pcFileName << "\"."
+			   << "\n";
+		iRet = SAVE_FAIL;
+	}
+
+	fclose(pf);
+	return iRet;
+}
+
 int PadImage::LoadFile(const char *pcFileName)
 {
 	if(m_bExternalMem)
