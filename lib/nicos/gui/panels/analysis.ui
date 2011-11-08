@@ -242,6 +242,11 @@
     <string>Attach to electronic log</string>
    </property>
   </action>
+  <action name="actionFitArby">
+   <property name="text">
+    <string>Fit arbitrary function...</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

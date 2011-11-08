@@ -368,7 +368,7 @@ class DlgPresets(object):
         else:
             return ctl.currentIndex()
     def get_QTextEdit(self, ctl):
-        return ctl.text()
+        return ctl.toPlainText()
     def get_QTabWidget(self, ctl):
         return ctl.currentIndex()
     def get_QSpinBox(self, ctl):
