@@ -409,7 +409,7 @@ class MainWindow : public QMainWindow
 				// stop?
 				std::pair<bool, int> pairStop = args.QueryInt("stop",1);
 				if(pairStop.first)
-					ShowRightMessage(-1,-1,pairStop.second);
+					ShowRightMessage(-1,-1,!pairStop.second);
 
 				// xres?
 				std::pair<bool, int> pairXRes =
