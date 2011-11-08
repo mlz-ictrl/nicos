@@ -161,26 +161,27 @@ class MainWindow : public QMainWindow
 		}
 
 		// iCnts or iClients set to -1 means: do not update respective value
-		void SetRightStatus(int iCnts, int iClients=-1)
+		void ShowRightMessage(int iCnts=-1, int iClients=-1, int iRunning=-1)
 		{
-			static int iLastCnts=-1;
-			static int iLastClients=-1;
+			static int iLastCnts=0,
+					   iLastClients=0,
+					   iLastRunning=0;
 
-			bool bUpdateCnts = (iCnts!=-1);
-			bool bUpdateClients = (iClients!=-1);
+			if(iCnts!=-1)
+				iLastCnts = iCnts;
+			if(iClients!=-1)
+				iLastClients = iClients;
+			if(iRunning!=-1)
+				iLastRunning = iRunning;
 
-			if((bUpdateCnts && iCnts!=iLastCnts) ||
-				(bUpdateClients && iClients!=iLastClients))
-			{
-				if(bUpdateCnts)
-					iLastCnts = iCnts;
-				if(bUpdateClients)
-					iLastClients = iClients;
+			std::ostringstream ostr;
 
-				std::ostringstream ostr;
-				ostr << "Ext Counts: " << iLastCnts
-					 << ", Clients: " << iLastClients;
+			ostr << "Ext. Counts: " << iLastCnts
+				 << ", Clients: " << iLastClients
+				 << ", Measurement " << (iLastRunning?"running":"not running");
 
+			if(ostr.str() != pStatusExtCount->text().toAscii().data())
+			{ // set new status
 				pStatusExtCount->setText(ostr.str().c_str());
 			}
 		}
@@ -405,15 +406,10 @@ class MainWindow : public QMainWindow
 			{
 				ArgumentMap args(pcBuf+4);
 
-//---------------------------------------
-// TODO: don't display this in status bar
 				// stop?
 				std::pair<bool, int> pairStop = args.QueryInt("stop",1);
 				if(pairStop.first)
-					ShowMessage(pairStop.second
-									? "Server: Measurement stopped."
-									: "Server: Measurement running.");
-//---------------------------------------
+					ShowRightMessage(-1,-1,pairStop.second);
 
 				// xres?
 				std::pair<bool, int> pairXRes =
@@ -476,11 +472,11 @@ class MainWindow : public QMainWindow
 
 				std::pair<bool, int> pairCnt = args.QueryInt("ext_count",0);
 				if(pairCnt.first)
-					SetRightStatus(pairCnt.second);
+					ShowRightMessage(pairCnt.second);
 
 				std::pair<bool, int> pairClients = args.QueryInt("clients",0);
 				if(pairClients.first)
-					SetRightStatus(-1, pairClients.second);
+					ShowRightMessage(-1, pairClients.second);
 
 
 				// if global config changed, reinit PAD & TOF memory
@@ -747,6 +743,7 @@ class MainWindow : public QMainWindow
 			m_client.disconnect();
 			ShowMessage("Disconnected from server.");
 			ShowTitleMessage("");
+			ShowRightMessage(0,0,0);
 		}
 
 		// enter manual server command
@@ -1300,7 +1297,7 @@ class MainWindow : public QMainWindow
 			statusbar->addPermanentWidget(pStatusExtCount,0);
 			setStatusBar(statusbar);
 
-			SetRightStatus(0,0);
+			ShowRightMessage(0,0,0);
 			//------------------------------------------------------------------
 
 

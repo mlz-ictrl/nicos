@@ -38,6 +38,7 @@ class PadImage : BasicImage
 		void SetExternalMem(void* pvDaten);
 		int GetPadSize() const;
 		int LoadFile(const char *pcFileName);
+		int SaveFile(const char *pcFileName);
 
 		// uiBufLen specifies number of ints (NOT # of bytes; unlike CascadeWidget::LoadPadMem)
 		int LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen);
