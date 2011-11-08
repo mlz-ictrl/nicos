@@ -325,7 +325,7 @@ class MainWindow(QMainWindow, DlgUtils):
            time.time() - self.action_start_time > 20:
             # show a visual indication of what happened
             if status == 'interrupted':
-                msg = 'Script is not interrupted.'
+                msg = 'Script is now interrupted.'
             elif exception:
                 msg = 'Script has exited with an error.'
             else:
