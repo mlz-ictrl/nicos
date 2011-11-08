@@ -110,6 +110,7 @@ class Plot : public QwtPlot
 
 	public slots:
 		void printPlot();
+		virtual void replot();
 };
 
 
@@ -136,6 +137,14 @@ Q_OBJECT
 		int m_iMode;
 		int m_iFolie, m_iZeitkanal;
 		bool m_bLog;
+
+		//----------------------------------------------------------------------
+		// ROI curves
+		std::vector<QwtPlotCurve*> m_vecRoiCurves;
+		void ClearRoiVector();
+		void UpdateRoiVector();
+		void RedrawRoi();
+		//----------------------------------------------------------------------
 
 	public:
 		CascadeWidget(QWidget *parent=NULL);

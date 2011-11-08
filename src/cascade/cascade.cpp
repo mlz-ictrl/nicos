@@ -850,6 +850,8 @@ class MainWindow : public QMainWindow
 			if(strFile!="" &&
 				m_cascadewidget.LoadPadFile(strFile.toAscii().data()))
 			{
+				ServerDisconnect();
+
 				//m_cascadewidget.UpdateGraph();
 				UpdateLabels(false);
 				ShowMessage("PAD loaded.");
@@ -867,6 +869,8 @@ class MainWindow : public QMainWindow
 			if(strFile!="" &&
 			   m_cascadewidget.LoadTofFile(strFile.toAscii().data()))
 			{
+				ServerDisconnect();
+
 				//m_cascadewidget.UpdateGraph();	// macht viewOverview schon
 				UpdateLabels(false);
 				UpdateSliders();
@@ -1180,8 +1184,8 @@ class MainWindow : public QMainWindow
 			menuFile->addAction(actionLoadTof);
 			menuFile->addSeparator();
 			menuFile->addAction(actionSaveFile);
-			menuFile->addSeparator();
 			menuFile->addAction(actionWriteXML);
+			menuFile->addSeparator();
 			menuFile->addAction(actionPrint);
 			menuFile->addSeparator();
 			menuFile->addAction(actionExit);

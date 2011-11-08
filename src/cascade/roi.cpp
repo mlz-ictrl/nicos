@@ -31,23 +31,27 @@
 #include "logger.h"
 
 
-RoiRect::RoiRect(int iX1, int iY1, int iX2, int iY2)
-		: m_iX1(iX1), m_iY1(iY1), m_iX2(iX2), m_iY2(iY2)
+RoiRect::RoiRect(const Vec2d<int>& bottomleft, const Vec2d<int>& topright)
+		: m_bottomleft(bottomleft), m_topright(topright)
 {
-	if(m_iX1 > m_iX2)
-		swap(m_iX1, m_iX2);
-	if(m_iY1 > m_iY2)
-		swap(m_iY1, m_iY2);
+	if(m_bottomleft[0] > m_topright[0])
+		swap(m_bottomleft[0], m_topright[0]);
+	if(m_bottomleft[1] > m_topright[1])
+		swap(m_bottomleft[1], m_topright[1]);
+}
+
+RoiRect::RoiRect(int iX1, int iY1, int iX2, int iY2)
+{
+	*this = RoiRect(Vec2d<int>(iX1, iY1), Vec2d<int>(iX2, iY2));
 }
 
 RoiRect::RoiRect()
-	    : m_iX1(0.), m_iY1(0.), m_iX2(0.), m_iY2(0.)
 {}
 
 bool RoiRect::IsInside(int iX, int iY) const
 {
-	if(iX>=m_iX1 && iX<=m_iX2 &&
-	   iY>=m_iY1 && iY<=m_iY2)
+	if(iX>=m_bottomleft[0] && iX<=m_topright[0] &&
+	   iY>=m_bottomleft[1] && iY<=m_topright[1])
 	   return true;
 	return false;
 }
@@ -56,10 +60,6 @@ std::string RoiRect::GetName() const { return "rectangle"; }
 
 int RoiRect::GetParamCount() const
 {
-	// 0: m_iX1
-	// 1: m_iY1
-	// 2: m_iX2
-	// 3: m_iY2
 	return 4;
 }
 
@@ -69,10 +69,10 @@ std::string RoiRect::GetParamName(int iParam) const
 
 	switch(iParam)
 	{
-		case 0: strRet="x1"; break;
-		case 1: strRet="y1"; break;
-		case 2: strRet="x2"; break;
-		case 3: strRet="y2"; break;
+		case 0: strRet="bottomleft_x"; break;
+		case 1: strRet="bottomleft_y"; break;
+		case 2: strRet="topright_x"; break;
+		case 3: strRet="topright_y"; break;
 		default: strRet="unknown"; break;
 	}
 
@@ -83,10 +83,10 @@ double RoiRect::GetParam(int iParam) const
 {
 	switch(iParam)
 	{
-		case 0: return m_iX1;
-		case 1: return m_iY1;
-		case 2: return m_iX2;
-		case 3: return m_iY2;
+		case 0: return m_bottomleft[0];
+		case 1: return m_bottomleft[1];
+		case 2: return m_topright[0];
+		case 3: return m_topright[1];
 	}
 	return 0.;
 }
@@ -95,38 +95,50 @@ void RoiRect::SetParam(int iParam, double dVal)
 {
 	switch(iParam)
 	{
-		case 0: m_iX1 = dVal; break;
-		case 1: m_iY1 = dVal; break;
-		case 2: m_iX2 = dVal; break;
-		case 3: m_iY2 = dVal; break;
+		case 0: m_bottomleft[0] = dVal; break;
+		case 1: m_bottomleft[1] = dVal; break;
+		case 2: m_topright[0] = dVal; break;
+		case 3: m_topright[1] = dVal; break;
 	}
+}
+
+int RoiRect::GetVertexCount() const
+{
+	return 4;
+}
+
+Vec2d<double> RoiRect::GetVertex(int i) const
+{
+	Vec2d<int> topleft(m_bottomleft[0], m_topright[1]);
+	Vec2d<int> bottomright(m_topright[0], m_bottomleft[1]);
+
+	switch(i)
+	{
+		case 0: return m_bottomleft.cast<double>(); break;
+		case 1: return topleft.cast<double>(); break;
+		case 2: return m_topright.cast<double>();  break;
+		case 3: return bottomright.cast<double>(); break;
+	}
+
+	return Vec2d<double>(0,0);
 }
 
 
 RoiElement* RoiRect::copy() const
 {
-	return new RoiRect(m_iX1, m_iY1, m_iX2, m_iY2);
+	return new RoiRect(m_bottomleft, m_topright);
 }
 
 
 //------------------------------------------------------------------------------
 
 
-RoiCircle::RoiCircle(const double dCenter[2], double dRadius)
-{
-	m_dCenter[0] = dCenter[0];
-	m_dCenter[1] = dCenter[1];
+RoiCircle::RoiCircle(const Vec2d<double>& vecCenter, double dRadius)
+		 : m_vecCenter(vecCenter), m_dRadius(dRadius)
+{}
 
-	m_dRadius = dRadius;
-}
-
-RoiCircle::RoiCircle()
-{
-	m_dCenter[0] = 0.;
-	m_dCenter[1] = 0.;
-
-	m_dRadius = 0.;
-}
+RoiCircle::RoiCircle() : m_dRadius(0.)
+{}
 
 bool RoiCircle::IsInside(int iX, int iY) const
 {
@@ -135,8 +147,8 @@ bool RoiCircle::IsInside(int iX, int iY) const
 
 bool RoiCircle::IsInside(double dX, double dY) const
 {
-	double dX_0 = dX - m_dCenter[0];
-	double dY_0 = dY - m_dCenter[1];
+	double dX_0 = dX - m_vecCenter[0];
+	double dY_0 = dY - m_vecCenter[1];
 
 	double dLen = sqrt(dX_0*dX_0 + dY_0*dY_0);
 	return dLen <= m_dRadius;
@@ -171,8 +183,8 @@ double RoiCircle::GetParam(int iParam) const
 {
 	switch(iParam)
 	{
-		case 0: return m_dCenter[0];
-		case 1: return m_dCenter[1];
+		case 0: return m_vecCenter[0];
+		case 1: return m_vecCenter[1];
 		case 2: return m_dRadius;
 	}
 	return 0.;
@@ -182,15 +194,32 @@ void RoiCircle::SetParam(int iParam, double dVal)
 {
 	switch(iParam)
 	{
-		case 0: m_dCenter[0] = dVal; break;
-		case 1: m_dCenter[1] = dVal; break;
+		case 0: m_vecCenter[0] = dVal; break;
+		case 1: m_vecCenter[1] = dVal; break;
 		case 2: m_dRadius = dVal; break;
 	}
 }
 
+#define CIRCLE_VERTICES 128
+
+int RoiCircle::GetVertexCount() const
+{
+	return CIRCLE_VERTICES;
+}
+
+Vec2d<double> RoiCircle::GetVertex(int i) const
+{
+	double dAngle = 2*M_PI * double(i)/double(CIRCLE_VERTICES);
+
+	Vec2d<double> vecRet(m_dRadius*cos(dAngle), m_dRadius*sin(dAngle));
+	vecRet = vecRet + m_vecCenter;
+
+	return vecRet;
+}
+
 RoiElement* RoiCircle::copy() const
 {
-	return new RoiCircle(m_dCenter, m_dRadius);
+	return new RoiCircle(m_vecCenter, m_dRadius);
 }
 
 //------------------------------------------------------------------------------

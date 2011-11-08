@@ -236,7 +236,13 @@ void Plot::printPlot()
 	QPrinter printer;
 	printer.setOrientation(QPrinter::Landscape);
 	QPrintDialog dialog(&printer);
-	if(dialog.exec()) print(printer);
+	if(dialog.exec())
+		print(printer);
+}
+
+void Plot::replot()
+{
+	QwtPlot::replot();
 }
 
 
@@ -275,6 +281,7 @@ Plot* CascadeWidget::GetPlot() { return m_pPlot; }
 void CascadeWidget::Unload()
 {
 	m_data2d.clearData();
+	ClearRoiVector();
 
 	if(m_pPad) { delete m_pPad; m_pPad=NULL; }
 	if(m_pTof) { delete m_pTof; m_pTof=NULL; }
@@ -764,17 +771,6 @@ void CascadeWidget::showRoiDlg()
 		return;
 	}
 
-/*
-		Roi roi;
-		roi.add(new RoiRect(1,2,3,4));
-		roi.add(new RoiRect(2,3,4,5));
-
-		double dtst[] = {1.,2.};
-		roi.add(new RoiCircle(dtst,3.));
-
-		RoiDlg roidlg(this, roi);
-*/
-
 	RoiDlg roidlg(this, *pRoi);
 	roidlg.checkBoxUseRoi->setCheckState(bUseRoi ? Qt::Checked
 												 : Qt::Unchecked);
@@ -787,6 +783,8 @@ void CascadeWidget::showRoiDlg()
 			GetTof()->UseRoi(bCk);
 		else if(IsPadLoaded())
 			GetPad()->UseRoi(bCk);
+
+		RedrawRoi();
 	}
 }
 
@@ -807,7 +805,10 @@ bool CascadeWidget::LoadRoi(const char* pcFile)
 	else if(IsPadLoaded())
 		pRoi = &GetPad()->GetRoi();
 
-	return pRoi->Load(pcFile);
+	int iRet = pRoi->Load(pcFile);
+	RedrawRoi();
+
+	return iRet;
 }
 
 bool CascadeWidget::SaveRoi(const char* pcFile)
@@ -831,3 +832,97 @@ bool CascadeWidget::SaveRoi(const char* pcFile)
 }
 
 void CascadeWidget::ForceReinit() { m_bForceReinit = true; }
+
+
+//----------------------------------------------------------------------
+// ROI curves
+void CascadeWidget::UpdateRoiVector()
+{
+	if(!IsTofLoaded() && !IsPadLoaded())
+		return;
+
+	Roi *pRoi = 0;
+
+	if(IsTofLoaded())
+		pRoi = &GetTof()->GetRoi();
+	else if(IsPadLoaded())
+		pRoi = &GetPad()->GetRoi();
+
+
+	ClearRoiVector();
+
+	for(int i=0; i<pRoi->GetNumElements(); ++i)
+	{
+		RoiElement& elem = pRoi->GetElement(i);
+
+		QwtPlotCurve* pcurve = new QwtPlotCurve;
+		m_vecRoiCurves.push_back(pcurve);
+
+		pcurve->setRenderHint(QwtPlotItem::RenderAntialiased);
+		QPen pen = QPen(Qt::white);
+		pen.setWidth(2);
+		pcurve->setPen(pen);
+
+		const int iVertexCount = elem.GetVertexCount();
+
+		double *pdx = new double[iVertexCount+1];
+		double *pdy = new double[iVertexCount+1];
+
+		for(int iVertex=0; iVertex<iVertexCount; ++iVertex)
+		{
+			Vec2d<double> vec = elem.GetVertex(iVertex);
+			pdx[iVertex] = vec[0];
+			pdy[iVertex] = vec[1];
+			//std::cout << vec << std::endl;
+
+			if(iVertex==0)
+			{
+				pdx[iVertexCount] = vec[0];
+				pdy[iVertexCount] = vec[1];
+			}
+		}
+
+		pcurve->setData(pdx, pdy, iVertexCount+1);
+
+		delete[] pdx;
+		delete[] pdy;
+
+		pcurve->attach(m_pPlot);
+	}
+}
+
+void CascadeWidget::ClearRoiVector()
+{
+	for(unsigned int i=0; i<m_vecRoiCurves.size(); ++i)
+	{
+		if(m_vecRoiCurves[i])
+		{
+			m_vecRoiCurves[i]->detach();
+			delete m_vecRoiCurves[i];
+		}
+	}
+	m_vecRoiCurves.clear();
+}
+
+void CascadeWidget::RedrawRoi()
+{
+	bool bUseRoi = false;
+
+	if(IsTofLoaded())
+		bUseRoi = GetTof()->GetUseRoi();
+	else if(IsPadLoaded())
+		bUseRoi = GetPad()->GetUseRoi();
+
+	if(bUseRoi)
+	{
+		UpdateRoiVector();
+		m_pPlot->replot();
+	}
+	else
+	{
+		ClearRoiVector();
+		m_pPlot->replot();
+	}
+}
+
+//----------------------------------------------------------------------

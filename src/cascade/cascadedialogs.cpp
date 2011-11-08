@@ -581,6 +581,9 @@ RoiDlg::RoiDlg(QWidget *pParent, Roi& roi) : QDialog(pParent), m_roi(roi)
 	{
 		new QListWidgetItem(m_roi.GetElement(i).GetName().c_str(), listRois);
 	}
+
+	if(m_roi.GetNumElements() > 0)
+		listRois->setCurrentRow(0);
 }
 
 RoiDlg::~RoiDlg()
@@ -655,6 +658,9 @@ void RoiDlg::NewElement(RoiElement* pNewElem)
 {
 	int iPos = m_roi.add(pNewElem);
 	new QListWidgetItem(m_roi.GetElement(iPos).GetName().c_str(), listRois);
+
+	listRois->setCurrentRow(iPos);
+	checkBoxUseRoi->setCheckState(Qt::Checked);
 }
 
 void RoiDlg::NewCircle()
@@ -677,11 +683,16 @@ void RoiDlg::DeleteItem()
 	QListWidgetItem* pItem = listRois->item(iCurItem);
 	if(pItem)
 	{
+		tableParams->setRowCount(0);
+
 		delete pItem;
 		m_roi.DeleteElement(iCurItem);
 
 		m_iCurrentItem = listRois->currentRow();
 	}
+
+	if(m_roi.GetNumElements()==0)
+		checkBoxUseRoi->setCheckState(Qt::Unchecked);
 }
 
 // *****************************************************************************
