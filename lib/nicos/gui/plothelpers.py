@@ -37,9 +37,9 @@ from PyQt4.Qwt5 import Qwt, QwtPlot, QwtPlotItem, QwtPlotCurve, QwtPlotPicker, \
      QwtText, QwtLegend, QwtScaleDraw
 
 try:
-    from PyQt4.Qwt5.grace import GracePlotter
+    from PyQt4.Qwt5.grace import GraceProcess
 except ImportError:
-    GracePlotter = None
+    GraceProcess = None
 
 
 class ActivePlotPicker(QwtPlotPicker):
@@ -433,7 +433,7 @@ def cloneToGrace(plot, saveall="", pause=0.2):
 
     Cloned from the Qwt5.qplt module and applied some fixes.
     """
-    g = GracePlotter(debug=0)
+    g = GraceProcess(debug=0)
     g('title "%s"' % str(plot.title().text()).replace('"', '\\"'))
     #g('subtitle "%s"' % self.last_plotinfo['subtitle'].replace('"', '\\"'))
     index = 0
@@ -448,8 +448,8 @@ def cloneToGrace(plot, saveall="", pause=0.2):
         g('%s on; with %s' % (graph, graph))
 
         # x-axes
-        xmin = plot.axisScaleDiv(xAxis).lBound()
-        xmax = plot.axisScaleDiv(xAxis).hBound()
+        xmin = plot.axisScaleDiv(xAxis).lowerBound()
+        xmax = plot.axisScaleDiv(xAxis).upperBound()
         #majStep = minStep = axisScale.majStep()
         #majStep *= 2
         g('world xmin %g; world xmax %g' % (xmin, xmax))
@@ -469,8 +469,8 @@ def cloneToGrace(plot, saveall="", pause=0.2):
             #  % (majStep, minStep))
 
         # y-axes
-        ymin = plot.axisScaleDiv(yAxis).lBound()
-        ymax = plot.axisScaleDiv(yAxis).hBound()
+        ymin = plot.axisScaleDiv(yAxis).lowerBound()
+        ymax = plot.axisScaleDiv(yAxis).upperBound()
         #majStep = minStep = axisScale.majStep()
         #majStep *= 2
         g('world ymin %g; world ymax %g' % (ymin, ymax))
