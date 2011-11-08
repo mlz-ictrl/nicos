@@ -551,7 +551,7 @@ bool ServerCfgDlg::s_bUsePseudoComp = 0;
 
 
 // ************************* Roi-Dlg *******************************************
-RoiDlg::RoiDlg(QWidget *pParent, Roi& roi) : QDialog(pParent), m_roi(roi)
+RoiDlg::RoiDlg(QWidget *pParent) : QDialog(pParent), m_pRoi(0)
 {
 	setupUi(this);
 
@@ -575,29 +575,24 @@ RoiDlg::RoiDlg(QWidget *pParent, Roi& roi) : QDialog(pParent), m_roi(roi)
 
 	btnAdd->setMenu(pMenu);
 	//--------------------------------------------------------------------------
-
-	// add all roi elements to list
-	for(int i=0; i<m_roi.GetNumElements(); ++i)
-	{
-		new QListWidgetItem(m_roi.GetElement(i).GetName().c_str(), listRois);
-	}
-
-	if(m_roi.GetNumElements() > 0)
-		listRois->setCurrentRow(0);
 }
 
 RoiDlg::~RoiDlg()
-{}
+{
+	Deinit();
+}
 
 // an item (e.g. "circle", "rectangle", ... has been selected)
 void RoiDlg::ItemSelected()
 {
+	if(!m_pRoi) return;
+
 	m_iCurrentItem = listRois->currentRow();
 
-	if(m_iCurrentItem<0 || m_iCurrentItem >= m_roi.GetNumElements())
+	if(m_iCurrentItem<0 || m_iCurrentItem >= m_pRoi->GetNumElements())
 		return;
 
-	RoiElement& elem = m_roi.GetElement(m_iCurrentItem);
+	RoiElement& elem = m_pRoi->GetElement(m_iCurrentItem);
 
 	tableParams->setRowCount(elem.GetParamCount());
 	tableParams->setColumnCount(2);
@@ -629,13 +624,15 @@ void RoiDlg::ItemSelected()
 // a property of the selected item has changed
 void RoiDlg::ValueChanged(QTableWidgetItem* pItem)
 {
+	if(!m_pRoi) return;
+
 	// only edit if this flag is set
 	if(pItem->data(Qt::UserRole+1).value<int>() != 1)
 		return;
 
-	if(m_iCurrentItem<0 || m_iCurrentItem >= m_roi.GetNumElements())
+	if(m_iCurrentItem<0 || m_iCurrentItem >= m_pRoi->GetNumElements())
 		return;
-	RoiElement& elem = m_roi.GetElement(m_iCurrentItem);
+	RoiElement& elem = m_pRoi->GetElement(m_iCurrentItem);
 
 	QVariant var = pItem->data(Qt::UserRole);
 	int iParam = var.value<int>();
@@ -656,8 +653,10 @@ void RoiDlg::ValueChanged(QTableWidgetItem* pItem)
 
 void RoiDlg::NewElement(RoiElement* pNewElem)
 {
-	int iPos = m_roi.add(pNewElem);
-	new QListWidgetItem(m_roi.GetElement(iPos).GetName().c_str(), listRois);
+	if(!m_pRoi) return;
+
+	int iPos = m_pRoi->add(pNewElem);
+	new QListWidgetItem(m_pRoi->GetElement(iPos).GetName().c_str(), listRois);
 
 	listRois->setCurrentRow(iPos);
 	checkBoxUseRoi->setCheckState(Qt::Checked);
@@ -675,7 +674,9 @@ void RoiDlg::NewRect()
 
 void RoiDlg::DeleteItem()
 {
-	if(m_iCurrentItem<0 || m_iCurrentItem >= m_roi.GetNumElements())
+	if(!m_pRoi) return;
+
+	if(m_iCurrentItem<0 || m_iCurrentItem >= m_pRoi->GetNumElements())
 		return;
 
 	int iCurItem = m_iCurrentItem;
@@ -686,13 +687,48 @@ void RoiDlg::DeleteItem()
 		tableParams->setRowCount(0);
 
 		delete pItem;
-		m_roi.DeleteElement(iCurItem);
+		m_pRoi->DeleteElement(iCurItem);
 
 		m_iCurrentItem = listRois->currentRow();
 	}
 
-	if(m_roi.GetNumElements()==0)
+	if(m_pRoi->GetNumElements()==0)
 		checkBoxUseRoi->setCheckState(Qt::Unchecked);
+}
+
+void RoiDlg::ClearList()
+{
+	listRois->clear();
+}
+
+void RoiDlg::SetRoi(const Roi* pRoi)
+{
+	ClearList();
+
+	if(m_pRoi)
+		delete m_pRoi;
+
+	m_pRoi = new Roi(*pRoi);
+
+	// add all roi elements to list
+	for(int i=0; i<m_pRoi->GetNumElements(); ++i)
+	{
+		new QListWidgetItem(m_pRoi->GetElement(i).GetName().c_str(), listRois);
+	}
+
+	if(m_pRoi->GetNumElements() > 0)
+		listRois->setCurrentRow(0);
+}
+
+const Roi* RoiDlg::GetRoi(void) const
+{
+	return m_pRoi;
+}
+
+void RoiDlg::Deinit()
+{
+	if(m_pRoi)
+		delete m_pRoi;
 }
 
 // *****************************************************************************

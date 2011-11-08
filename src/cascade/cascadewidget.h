@@ -45,6 +45,7 @@
 #include <qwt/qwt_symbol.h>
 
 #include "tofdata.h"
+#include "cascadedialogs.h"
 
 
 #define MODE_SLIDES		1
@@ -138,6 +139,8 @@ Q_OBJECT
 		int m_iFolie, m_iZeitkanal;
 		bool m_bLog;
 
+		RoiDlg* m_proidlg;
+
 		//----------------------------------------------------------------------
 		// ROI curves
 		std::vector<QwtPlotCurve*> m_vecRoiCurves;
@@ -216,6 +219,9 @@ Q_OBJECT
 		void UpdateRange();
 
 		void SumDlgSlot(const bool *pbKanaele, int iMode);
+
+	protected slots:
+		void RoiDlgAccepted(QAbstractButton*);
 
 	signals:
 		void SumDlgSignal(const bool* pbKanaele, int iMode);

@@ -200,7 +200,7 @@ void RoiCircle::SetParam(int iParam, double dVal)
 	}
 }
 
-#define CIRCLE_VERTICES 128
+#define CIRCLE_VERTICES 256
 
 int RoiCircle::GetVertexCount() const
 {
@@ -235,10 +235,11 @@ Roi::Roi(const Roi& roi)
 
 Roi& Roi::operator=(const Roi& roi)
 {
+	clear();
+
 	for(int i=0; i<roi.GetNumElements(); ++i)
 	{
 		const RoiElement& elem = roi.GetElement(i);
-
 		RoiElement* pNewElem = elem.copy();
 		add(pNewElem);
 	}

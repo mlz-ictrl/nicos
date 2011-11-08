@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<!-- ROI element configuration for Cascade Viewer -->
+
+<roi_elements>
+
+	<element_0>
+		<type>circle</type>
+		<center_x> 50 </center_x>
+		<center_y> 50 </center_y>
+		<radius> 50 </radius>
+	</element_0>
+
+</roi_elements>

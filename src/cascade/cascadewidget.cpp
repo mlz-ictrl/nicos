@@ -256,7 +256,8 @@ CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 												 m_iMode(MODE_SLIDES),
 												 m_iFolie(0),
 												 m_iZeitkanal(0),
-												 m_bLog(0)
+												 m_bLog(0),
+												 m_proidlg(0)
 {
 	m_pPlot = new Plot(this);
 
@@ -705,9 +706,12 @@ void CascadeWidget::showSumDlg()
 	{
 		case MODE_SLIDES:
 		case MODE_SUMS:
-			if(!pSummenDlgSlides) pSummenDlgSlides = new SumDlg(this);
-			connect(pSummenDlgSlides, SIGNAL(SumSignal(const bool *, int)),
-					this, SLOT(SumDlgSlot(const bool *, int)));
+			if(!pSummenDlgSlides)
+			{
+				pSummenDlgSlides = new SumDlg(this);
+				connect(pSummenDlgSlides, SIGNAL(SumSignal(const bool *, int)),
+						this, SLOT(SumDlgSlot(const bool *, int)));
+			}
 
 			pSummenDlgSlides->SetMode(GetMode());
 			pSummenDlgSlides->show();
@@ -717,9 +721,12 @@ void CascadeWidget::showSumDlg()
 
 		case MODE_PHASES:
 		case MODE_PHASESUMS:
-			if(!pSummenDlgPhases) pSummenDlgPhases = new SumDlgNoChannels(this);
-			connect(pSummenDlgPhases, SIGNAL(SumSignal(const bool *, int)),
-					this, SLOT(SumDlgSlot(const bool *, int)));
+			if(!pSummenDlgPhases)
+			{
+				pSummenDlgPhases = new SumDlgNoChannels(this);
+				connect(pSummenDlgPhases, SIGNAL(SumSignal(const bool *, int)),
+						this, SLOT(SumDlgSlot(const bool *, int)));
+			}
 
 			pSummenDlgPhases->SetMode(GetMode());
 			pSummenDlgPhases->show();
@@ -729,10 +736,12 @@ void CascadeWidget::showSumDlg()
 
 		case MODE_CONTRASTS:
 		case MODE_CONTRASTSUMS:
-			if(!pSummenDlgContrasts) pSummenDlgContrasts =
-													new SumDlgNoChannels(this);
-			connect(pSummenDlgContrasts, SIGNAL(SumSignal(const bool *, int)),
-					this, SLOT(SumDlgSlot(const bool *, int)));
+			if(!pSummenDlgContrasts)
+			{
+				pSummenDlgContrasts = new SumDlgNoChannels(this);
+				connect(pSummenDlgContrasts, SIGNAL(SumSignal(const bool *, int)),
+						this, SLOT(SumDlgSlot(const bool *, int)));
+			}
 
 			pSummenDlgContrasts->SetMode(GetMode());
 			pSummenDlgContrasts->show();
@@ -766,18 +775,42 @@ void CascadeWidget::showRoiDlg()
 		pRoi = &GetPad()->GetRoi();
 		bUseRoi = GetPad()->GetUseRoi();
 	}
-	else
+
+
+	if(!m_proidlg)
 	{
-		return;
+		m_proidlg = new RoiDlg(this);
+		connect(m_proidlg->buttonBox, SIGNAL(clicked(QAbstractButton*)),
+				this, SLOT(RoiDlgAccepted(QAbstractButton*)));
 	}
 
-	RoiDlg roidlg(this, *pRoi);
-	roidlg.checkBoxUseRoi->setCheckState(bUseRoi ? Qt::Checked
-												 : Qt::Unchecked);
+	m_proidlg->SetRoi(pRoi);
 
-	if(roidlg.exec()==QDialog::Accepted)
+	m_proidlg->checkBoxUseRoi->setCheckState(bUseRoi ? Qt::Checked
+													 : Qt::Unchecked);
+
+	m_proidlg->show();
+	m_proidlg->raise();
+	m_proidlg->activateWindow();
+}
+
+void CascadeWidget::RoiDlgAccepted(QAbstractButton* pBtn)
+{
+	Roi *pRoi = 0;
+
+	if(IsTofLoaded())
+		pRoi = &GetTof()->GetRoi();
+	else if(IsPadLoaded())
+		pRoi = &GetPad()->GetRoi();
+
+
+	// "OK" or "Apply" clicked?
+	if(m_proidlg->buttonBox->standardButton(pBtn) == QDialogButtonBox::Apply ||
+	   m_proidlg->buttonBox->standardButton(pBtn) == QDialogButtonBox::Ok)
 	{
-		bool bCk = (roidlg.checkBoxUseRoi->checkState() == Qt::Checked);
+		(*pRoi) = (*m_proidlg->GetRoi());
+
+		bool bCk = (m_proidlg->checkBoxUseRoi->checkState() == Qt::Checked);
 
 		if(IsTofLoaded())
 			GetTof()->UseRoi(bCk);
@@ -806,8 +839,13 @@ bool CascadeWidget::LoadRoi(const char* pcFile)
 		pRoi = &GetPad()->GetRoi();
 
 	int iRet = pRoi->Load(pcFile);
-	RedrawRoi();
 
+	if(IsTofLoaded())
+		GetTof()->UseRoi(true);
+	else if(IsPadLoaded())
+		GetPad()->UseRoi(true);
+
+	RedrawRoi();
 	return iRet;
 }
 

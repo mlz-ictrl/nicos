@@ -246,14 +246,19 @@ class RoiDlg : public QDialog, public Ui::RoiDlg
 	Q_OBJECT
 
 	protected:
-		Roi& m_roi;
+		Roi *m_pRoi;
 		int m_iCurrentItem;
 
 		void NewElement(RoiElement* pNewElem);
+		void Deinit();
 
 	public:
-		RoiDlg(QWidget *pParent, Roi& roi);
+		RoiDlg(QWidget *pParent);
 		virtual ~RoiDlg();
+
+		void SetRoi(const Roi* pRoi);
+		const Roi* GetRoi(void) const;
+		void ClearList();
 
 	public slots:
 		void ItemSelected();
