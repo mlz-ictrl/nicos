@@ -29,21 +29,13 @@
 
 MainRasterData::MainRasterData(const QwtDoubleRect& rect)
 				: QwtRasterData(rect), m_bLog(1)
-{
-}
+{}
 
-void MainRasterData::SetLog10(bool bLog10)
-{
-	m_bLog = bLog10;
-}
-
-bool MainRasterData::GetLog10(void) const
-{
-	return m_bLog;
-}
-
+void MainRasterData::SetLog10(bool bLog10) { m_bLog = bLog10; }
+bool MainRasterData::GetLog10(void) const { return m_bLog; }
 
 // *********************************************************
+
 Data2D::Data2D(const QwtDoubleRect& rect)
 		: MainRasterData(rect), m_bPhaseData(0), m_pImg(0)
 {}
@@ -64,10 +56,7 @@ Data2D::Data2D(const Data2D& data2d)
 	this->m_pImg = data2d.m_pImg;
 }
 
-Data2D::~Data2D()
-{
-	clearData();
-}
+Data2D::~Data2D() { clearData(); }
 
 void Data2D::SetImage(BasicImage** pImg) { m_pImg = pImg; }
 BasicImage* Data2D::GetImage()

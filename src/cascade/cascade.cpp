@@ -979,6 +979,18 @@ class MainWindow : public QMainWindow
 				ShowMessage("ROI saved.");
 			}
 		}
+
+		////////////////////////// ROI Toolbar ////////////////////////////
+		void toolZoom()
+		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_NONE); }
+		void toolRect()
+		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_RECT); }
+		void toolCircle()
+		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_CIRC); }
+		void toolEllipse()
+		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_ELLIPSE); }
+		void toolCircSeg()
+		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_CIRCSEG); }
 		///////////////////////////////////////////////////////////////////
 
 		///////////////////////// Help ///////////////////////////////////
@@ -1238,8 +1250,8 @@ class MainWindow : public QMainWindow
 
 
 			//------------------------------------------------------------------
-			// Toolbar
-			QToolBar *toolBar = new QToolBar("Toolbar",this);
+			// Plot Toolbar
+			QToolBar *toolBar = new QToolBar("Plot Toolbar",this);
 
 			btnLog = new QToolButton(toolBar);
 			btnLog->setText("Log10");
@@ -1252,7 +1264,6 @@ class MainWindow : public QMainWindow
 			btnAutoFetch->setCheckable(true);
 			btnAutoFetch->setChecked(false);
 			toolBar->addWidget(btnAutoFetch);
-
 
 			QMenu *pMenuViews = new QMenu;
 
@@ -1292,6 +1303,53 @@ class MainWindow : public QMainWindow
 			toolBar->addWidget(btnView);
 
 			addToolBar(toolBar);
+
+
+			//------------------------------------------------------------------
+			// Roi Toolbar
+
+			QToolBar *pRoiToolbar = new QToolBar("ROI Toolbar",this);
+
+			QActionGroup *pRoiActionGroup = new QActionGroup(pRoiToolbar);
+			pRoiActionGroup->setExclusive(true);
+
+			QAction *pZoom = new QAction(QString("Zoom"), pRoiToolbar);
+			pZoom->setCheckable(true);
+			pZoom->setChecked(true);
+			pRoiActionGroup->addAction(pZoom);
+			pRoiToolbar->addAction(pZoom);
+
+			QAction *pRect = new QAction(QIcon("res/ico_rect.png"),
+										QString("Rectangle"),
+										pRoiToolbar);
+			pRect->setCheckable(true);
+			pRoiActionGroup->addAction(pRect);
+			pRoiToolbar->addAction(pRect);
+
+			QAction *pCircle = new QAction(QIcon("res/ico_circle.png"),
+											QString("Circle"),
+											pRoiToolbar);
+			pCircle->setCheckable(true);
+			pRoiActionGroup->addAction(pCircle);
+			pRoiToolbar->addAction(pCircle);
+
+			QAction *pEllipse = new QAction(QIcon("res/ico_ellipse.png"),
+											QString("Ellipse"),
+											pRoiToolbar);
+			pEllipse->setCheckable(true);
+			pRoiActionGroup->addAction(pEllipse);
+			pRoiToolbar->addAction(pEllipse);
+
+			QAction *pCircleSeg = new QAction(QIcon("res/ico_circlesegment.png"),
+											QString("Circle Segment"),
+											pRoiToolbar);
+			pCircleSeg->setCheckable(true);
+			pRoiActionGroup->addAction(pCircleSeg);
+			pRoiToolbar->addAction(pCircleSeg);
+
+
+			addToolBar(pRoiToolbar);
+
 			//------------------------------------------------------------------
 
 
@@ -1324,6 +1382,14 @@ class MainWindow : public QMainWindow
 									   SLOT(viewPhases()));
 			connect(actionViewsContrasts, SIGNAL(triggered()), this,
 									   SLOT(viewContrasts()));
+
+			// ROI Toolbar
+			connect(pZoom, SIGNAL(triggered()), this, SLOT(toolZoom()));
+			connect(pRect, SIGNAL(triggered()), this, SLOT(toolRect()));
+			connect(pCircle, SIGNAL(triggered()), this, SLOT(toolCircle()));
+			connect(pEllipse, SIGNAL(triggered()), this, SLOT(toolEllipse()));
+			connect(pCircleSeg, SIGNAL(triggered()), this, SLOT(toolCircSeg()));
+
 
 			// Slider
 			connect(sliderFolien, SIGNAL(valueChanged(int)), this,

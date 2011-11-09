@@ -144,10 +144,22 @@ void Plot::InitPlot()
 	m_pZoomer = new MainZoomer(canvas(), m_pSpectrogram);
 	m_pPanner = new MainPanner(canvas());
 
+	// avoid jumping of the layout
 	QFontMetrics fm(axisWidget(QwtPlot::yLeft)->font());
 	axisScaleDraw(QwtPlot::yLeft)->setMinimumExtent(fm.width("100."));
-
+	axisScaleDraw(QwtPlot::yRight)->setMinimumExtent(55);
+	axisWidget(QwtPlot::yRight)->setMinBorderDist(25,0);
 }
+
+/*
+void Plot::ChangeLog(bool bLog10)
+{
+	if(bLog10)
+		axisScaleDraw(QwtPlot::yRight)->setMinimumExtent(50);
+	else
+		axisScaleDraw(QwtPlot::yRight)->setMinimumExtent(75);
+}
+*/
 
 void Plot::DeinitPlot()
 {
@@ -257,7 +269,8 @@ CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 												 m_iFolie(0),
 												 m_iZeitkanal(0),
 												 m_bLog(0),
-												 m_proidlg(0)
+												 m_proidlg(0),
+												 m_iRoiDrawMode(ROI_DRAW_NONE)
 {
 	m_pPlot = new Plot(this);
 
@@ -517,6 +530,7 @@ void CascadeWidget::SetLog10(bool bLog10)
 	m_bLog = bLog10;
 	m_data2d.SetLog10(bLog10);
 	m_pPlot->ChangeRange();
+	//m_pPlot->ChangeLog(bLog10);
 	UpdateGraph();
 }
 
@@ -960,6 +974,16 @@ void CascadeWidget::RedrawRoi()
 		ClearRoiVector();
 		m_pPlot->replot();
 	}
+}
+
+void CascadeWidget::SetRoiDrawMode(int iMode)
+{
+	if(iMode == ROI_DRAW_NONE)
+		GetPlot()->GetZoomer()->setEnabled(true);
+	else
+		GetPlot()->GetZoomer()->setEnabled(false);
+
+	m_iRoiDrawMode = iMode;
 }
 
 //----------------------------------------------------------------------

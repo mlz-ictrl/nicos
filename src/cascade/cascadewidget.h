@@ -57,6 +57,12 @@
 #define MODE_CONTRASTSUMS	6
 
 
+#define ROI_DRAW_NONE		0
+#define ROI_DRAW_RECT		1
+#define ROI_DRAW_CIRC		2
+#define ROI_DRAW_CIRCSEG 	3
+#define ROI_DRAW_ELLIPSE	4
+
 
 class MainZoomer : public QwtPlotZoomer
 {
@@ -149,6 +155,8 @@ Q_OBJECT
 		void RedrawRoi();
 		//----------------------------------------------------------------------
 
+		int m_iRoiDrawMode;
+
 	public:
 		CascadeWidget(QWidget *parent=NULL);
 		virtual ~CascadeWidget();
@@ -190,6 +198,8 @@ Q_OBJECT
 
 		void SetMode(int iMode);
 		int GetMode();
+
+		void SetRoiDrawMode(int iMode);
 
 	public slots:
 		// sum all foils and all time channels
