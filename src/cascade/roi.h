@@ -28,6 +28,8 @@
 #include <string>
 #include "vec2d.h"
 
+#define CIRCLE_VERTICES 256
+
 // interface for roi elements (rectangle, circle, ...)
 class RoiElement
 {
@@ -71,10 +73,12 @@ class RoiRect : public RoiElement
 {
 	protected:
 		Vec2d<int> m_bottomleft, m_topright;
+		double m_dAngle;
 
 	public:
-		RoiRect(int iX1, int iY1, int iX2, int iY2);
-		RoiRect(const Vec2d<int>& bottomleft, const Vec2d<int>& topright);
+		RoiRect(int iX1, int iY1, int iX2, int iY2, double dAngle=0.);
+		RoiRect(const Vec2d<int>& bottomleft,
+				const Vec2d<int>& topright, double dAngle=0.);
 		RoiRect();
 
 		virtual bool IsInside(int iX, int iY) const;
@@ -102,6 +106,36 @@ class RoiCircle : public RoiElement
 	public:
 		RoiCircle(const Vec2d<double>& vecCenter, double dRadius);
 		RoiCircle();
+
+		virtual bool IsInside(int iX, int iY) const;
+		virtual bool IsInside(double dX, double dY) const;
+
+		virtual std::string GetName() const;
+
+		virtual int GetParamCount() const;
+		virtual std::string GetParamName(int iParam) const;
+		virtual double GetParam(int iParam) const;
+		virtual void SetParam(int iParam, double dVal);
+
+		virtual int GetVertexCount() const;
+		virtual Vec2d<double> GetVertex(int i) const;
+
+		virtual RoiElement* copy() const;
+};
+
+
+class RoiCircleSegment : public RoiElement
+{
+	protected:
+		Vec2d<double> m_vecCenter;
+		double m_dInnerRadius, m_dOuterRadius;
+		double m_dBeginAngle, m_dEndAngle;
+
+	public:
+		RoiCircleSegment(const Vec2d<double>& vecCenter,
+						double dInnerRadius, double dOuterRadius,
+						double dBeginAngle, double dEndAngle);
+		RoiCircleSegment();
 
 		virtual bool IsInside(int iX, int iY) const;
 		virtual bool IsInside(double dX, double dY) const;

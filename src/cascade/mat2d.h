@@ -128,10 +128,13 @@ template<class T> class Mat2d
 		{
 			Mat2d<T> matrot;
 
-			matrot(0,0) = cos(tangle);
-			matrot(0,1) = -sin(tangle);
-			matrot(1,0) = sin(tangle);
-			matrot(1,1) = cos(tangle);
+			const T tc = cos(tangle);
+			const T ts = sin(tangle);
+
+			matrot(0,0) = tc;
+			matrot(0,1) = -ts;
+			matrot(1,0) = ts;
+			matrot(1,1) = tc;
 
 			return matrot;
 		}
@@ -186,8 +189,8 @@ template<class T> Vec2d<T> operator*(const Mat2d<T>& mat, const Vec2d<T>& vec)
 {
 	Vec2d<T> vecRet;
 
-	vecRet(0) = mat(0,0)*vec[0] + mat0(0,1)*vec[1];
-	vecRet(1) = mat(1,0)*vec[0] + mat0(1,1)*vec[1];
+	vecRet[0] = mat(0,0)*vec[0] + mat(0,1)*vec[1];
+	vecRet[1] = mat(1,0)*vec[0] + mat(1,1)*vec[1];
 
 	return vecRet;
 }

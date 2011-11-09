@@ -265,6 +265,7 @@ class RoiDlg : public QDialog, public Ui::RoiDlg
 		void ValueChanged(QTableWidgetItem *pItem);
 
 		void NewCircle();
+		void NewCircleSeg();
 		void NewRect();
 
 		void DeleteItem();

@@ -565,13 +565,16 @@ RoiDlg::RoiDlg(QWidget *pParent) : QDialog(pParent), m_pRoi(0)
 	//--------------------------------------------------------------------------
 	QAction *actionNewRect = new QAction("Rectangle", this);
 	QAction *actionNewCircle = new QAction("Circle", this);
+	QAction *actionNewCircleSeg = new QAction("Circle Segment", this);
 
 	QMenu *pMenu = new QMenu(this);
 	pMenu->addAction(actionNewRect);
 	pMenu->addAction(actionNewCircle);
+	pMenu->addAction(actionNewCircleSeg);
 
 	connect(actionNewRect, SIGNAL(triggered()), this, SLOT(NewRect()));
 	connect(actionNewCircle, SIGNAL(triggered()), this, SLOT(NewCircle()));
+	connect(actionNewCircleSeg, SIGNAL(triggered()), this, SLOT(NewCircleSeg()));
 
 	btnAdd->setMenu(pMenu);
 	//--------------------------------------------------------------------------
@@ -662,15 +665,9 @@ void RoiDlg::NewElement(RoiElement* pNewElem)
 	checkBoxUseRoi->setCheckState(Qt::Checked);
 }
 
-void RoiDlg::NewCircle()
-{
-	NewElement(new RoiCircle);
-}
-
-void RoiDlg::NewRect()
-{
-	NewElement(new RoiRect);
-}
+void RoiDlg::NewCircle() { NewElement(new RoiCircle); }
+void RoiDlg::NewCircleSeg() { NewElement(new RoiCircleSegment); }
+void RoiDlg::NewRect() { NewElement(new RoiRect); }
 
 void RoiDlg::DeleteItem()
 {

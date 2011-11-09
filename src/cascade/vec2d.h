@@ -73,6 +73,16 @@ template<class T> class Vec2d
 			return m_elem[iIdx];
 		}
 
+		T& operator()(int iIdx)
+		{
+			return operator[](iIdx);
+		}
+
+		const T& operator()(int iIdx) const
+		{
+			return operator[](iIdx);
+		}
+
 		template<class S> Vec2d<S> cast() const
 		{
 			Vec2d<S> vecRet;

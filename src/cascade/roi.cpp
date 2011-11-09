@@ -29,10 +29,12 @@
 #include "helper.h"
 #include "config.h"
 #include "logger.h"
+#include "mat2d.h"
 
 
-RoiRect::RoiRect(const Vec2d<int>& bottomleft, const Vec2d<int>& topright)
-		: m_bottomleft(bottomleft), m_topright(topright)
+RoiRect::RoiRect(const Vec2d<int>& bottomleft,
+				 const Vec2d<int>& topright, double dAngle)
+		: m_bottomleft(bottomleft), m_topright(topright), m_dAngle(dAngle)
 {
 	if(m_bottomleft[0] > m_topright[0])
 		swap(m_bottomleft[0], m_topright[0]);
@@ -40,18 +42,27 @@ RoiRect::RoiRect(const Vec2d<int>& bottomleft, const Vec2d<int>& topright)
 		swap(m_bottomleft[1], m_topright[1]);
 }
 
-RoiRect::RoiRect(int iX1, int iY1, int iX2, int iY2)
+RoiRect::RoiRect(int iX1, int iY1, int iX2, int iY2, double dAngle)
 {
-	*this = RoiRect(Vec2d<int>(iX1, iY1), Vec2d<int>(iX2, iY2));
+	*this = RoiRect(Vec2d<int>(iX1, iY1), Vec2d<int>(iX2, iY2), dAngle);
 }
 
-RoiRect::RoiRect()
+RoiRect::RoiRect() : m_dAngle(0.)
 {}
 
 bool RoiRect::IsInside(int iX, int iY) const
 {
-	if(iX>=m_bottomleft[0] && iX<=m_topright[0] &&
-	   iY>=m_bottomleft[1] && iY<=m_topright[1])
+	Vec2d<double> bottomleft = m_bottomleft.cast<double>();
+	Vec2d<double> topright = m_topright.cast<double>();
+
+	Vec2d<double> vecCenter = bottomleft + (topright-bottomleft)*.5;
+	Mat2d<double> matRot_inv = Mat2d<double>::rotation(-m_dAngle/180.*M_PI);
+
+	Vec2d<double> vecPoint(iX, iY);
+	vecPoint = matRot_inv*(vecPoint-vecCenter) + vecCenter;
+
+	if(vecPoint[0]>=bottomleft[0] && vecPoint[0]<=topright[0] &&
+	   vecPoint[1]>=bottomleft[1] && vecPoint[1]<=topright[1])
 	   return true;
 	return false;
 }
@@ -60,7 +71,7 @@ std::string RoiRect::GetName() const { return "rectangle"; }
 
 int RoiRect::GetParamCount() const
 {
-	return 4;
+	return 5;
 }
 
 std::string RoiRect::GetParamName(int iParam) const
@@ -73,6 +84,7 @@ std::string RoiRect::GetParamName(int iParam) const
 		case 1: strRet="bottomleft_y"; break;
 		case 2: strRet="topright_x"; break;
 		case 3: strRet="topright_y"; break;
+		case 4: strRet="angle"; break;
 		default: strRet="unknown"; break;
 	}
 
@@ -87,6 +99,7 @@ double RoiRect::GetParam(int iParam) const
 		case 1: return m_bottomleft[1];
 		case 2: return m_topright[0];
 		case 3: return m_topright[1];
+		case 4: return m_dAngle;
 	}
 	return 0.;
 }
@@ -99,6 +112,7 @@ void RoiRect::SetParam(int iParam, double dVal)
 		case 1: m_bottomleft[1] = dVal; break;
 		case 2: m_topright[0] = dVal; break;
 		case 3: m_topright[1] = dVal; break;
+		case 4: m_dAngle = dVal; break;
 	}
 }
 
@@ -109,28 +123,41 @@ int RoiRect::GetVertexCount() const
 
 Vec2d<double> RoiRect::GetVertex(int i) const
 {
-	Vec2d<int> topleft(m_bottomleft[0], m_topright[1]);
-	Vec2d<int> bottomright(m_topright[0], m_bottomleft[1]);
+	Vec2d<double> topleft(m_bottomleft[0], m_topright[1]);
+	Vec2d<double> bottomright(m_topright[0], m_bottomleft[1]);
+	Vec2d<double> bottomleft = m_bottomleft.cast<double>();
+	Vec2d<double> topright = m_topright.cast<double>();
+
+	Vec2d<double> vecRet;
 
 	switch(i)
 	{
-		case 0: return m_bottomleft.cast<double>(); break;
-		case 1: return topleft.cast<double>(); break;
-		case 2: return m_topright.cast<double>();  break;
-		case 3: return bottomright.cast<double>(); break;
+		case 0: vecRet = bottomleft; break;
+		case 1: vecRet = topleft; break;
+		case 2: vecRet = topright; break;
+		case 3: vecRet = bottomright; break;
+		default: return Vec2d<double>(0,0);
 	}
 
-	return Vec2d<double>(0,0);
+	Vec2d<double> vecCenter = bottomleft + (topright-bottomleft)*.5;
+	Mat2d<double> matRot = Mat2d<double>::rotation(m_dAngle / 180. * M_PI);
+
+	vecRet = matRot*(vecRet-vecCenter) + vecCenter;
+	return vecRet;
 }
 
 
 RoiElement* RoiRect::copy() const
 {
-	return new RoiRect(m_bottomleft, m_topright);
+	return new RoiRect(m_bottomleft, m_topright, m_dAngle);
 }
 
 
+
+
 //------------------------------------------------------------------------------
+
+
 
 
 RoiCircle::RoiCircle(const Vec2d<double>& vecCenter, double dRadius)
@@ -200,8 +227,6 @@ void RoiCircle::SetParam(int iParam, double dVal)
 	}
 }
 
-#define CIRCLE_VERTICES 256
-
 int RoiCircle::GetVertexCount() const
 {
 	return CIRCLE_VERTICES;
@@ -224,6 +249,108 @@ RoiElement* RoiCircle::copy() const
 
 //------------------------------------------------------------------------------
 
+
+
+RoiCircleSegment::RoiCircleSegment(const Vec2d<double>& vecCenter,
+								   double dInnerRadius, double dOuterRadius,
+								   double dBeginAngle, double dEndAngle)
+				: m_vecCenter(vecCenter),
+				  m_dInnerRadius(dInnerRadius), m_dOuterRadius(dOuterRadius),
+				  m_dBeginAngle(dBeginAngle), m_dEndAngle(dEndAngle)
+{}
+
+RoiCircleSegment::RoiCircleSegment()
+				: m_dInnerRadius(0.), m_dOuterRadius(0.),
+				  m_dBeginAngle(0.), m_dEndAngle(0.)
+{}
+
+bool RoiCircleSegment::IsInside(int iX, int iY) const
+{
+	return IsInside(double(iX), double(iY));
+}
+
+bool RoiCircleSegment::IsInside(double dX, double dY) const
+{
+	return false;
+}
+
+std::string RoiCircleSegment::GetName() const
+{
+	return "circle_segment";
+}
+
+int RoiCircleSegment::GetParamCount() const
+{
+	return 6;
+}
+
+std::string RoiCircleSegment::GetParamName(int iParam) const
+{
+	std::string strRet;
+
+	switch(iParam)
+	{
+		case 0: strRet="center_x"; break;
+		case 1: strRet="center_y"; break;
+		case 2: strRet="inner_radius"; break;
+		case 3: strRet="outer_radius"; break;
+		case 4: strRet="begin_angle"; break;
+		case 5: strRet="end_angle"; break;
+		default: strRet="unknown"; break;
+	}
+
+	return strRet;
+}
+
+double RoiCircleSegment::GetParam(int iParam) const
+{
+	switch(iParam)
+	{
+		case 0: return m_vecCenter[0];
+		case 1: return m_vecCenter[1];
+		case 2: return m_dInnerRadius;
+		case 3: return m_dOuterRadius;
+		case 4: return m_dBeginAngle;
+		case 5: return m_dEndAngle;
+	}
+	return 0.;
+}
+
+void RoiCircleSegment::SetParam(int iParam, double dVal)
+{
+	switch(iParam)
+	{
+		case 0: m_vecCenter[0] = dVal; break;
+		case 1: m_vecCenter[1] = dVal; break;
+		case 2: m_dInnerRadius = dVal; break;
+		case 3: m_dOuterRadius = dVal; break;
+		case 4: m_dBeginAngle = dVal; break;
+		case 5: m_dEndAngle = dVal; break;
+	}
+}
+
+int RoiCircleSegment::GetVertexCount() const
+{
+	return 0;
+}
+
+Vec2d<double> RoiCircleSegment::GetVertex(int i) const
+{
+	Vec2d<double> vecRet;
+
+	return vecRet;
+}
+
+RoiElement* RoiCircleSegment::copy() const
+{
+	return new RoiCircleSegment(m_vecCenter,
+								m_dInnerRadius, m_dOuterRadius,
+								m_dBeginAngle, m_dEndAngle);
+}
+
+
+
+//------------------------------------------------------------------------------
 
 Roi::Roi()
 {}
