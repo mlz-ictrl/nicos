@@ -93,7 +93,8 @@ class MainWindow(QMainWindow, DlgUtils):
         self.connect(self.client, SIGNAL('broken'), self.on_client_broken)
         self.connect(self.client, SIGNAL('failed'), self.on_client_failed)
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(self.client, SIGNAL('disconnected'), self.on_client_disconnected)
+        self.connect(self.client, SIGNAL('disconnected'),
+                     self.on_client_disconnected)
         self.connect(self.client, SIGNAL('status'), self.on_client_status)
 
         # data handling setup
@@ -398,6 +399,8 @@ class MainWindow(QMainWindow, DlgUtils):
         initstatus = self.client.ask('getstatus')
         # handle setups
         self.setTitlebar(True, initstatus[4])
+        # handle initial status
+        self.on_client_status(initstatus[0])
         # propagate info to all components
         self.client.signal('initstatus', initstatus)
 
