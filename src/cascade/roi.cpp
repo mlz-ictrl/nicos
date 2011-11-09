@@ -234,7 +234,7 @@ int RoiCircle::GetVertexCount() const
 
 Vec2d<double> RoiCircle::GetVertex(int i) const
 {
-	double dAngle = 2*M_PI * double(i)/double(GetVertexCount());
+	double dAngle = 2*M_PI * double(i)/double(GetVertexCount()-1);
 
 	Vec2d<double> vecRet(m_dRadius*cos(dAngle), m_dRadius*sin(dAngle));
 	vecRet = vecRet + m_vecCenter;
@@ -334,7 +334,7 @@ int RoiEllipse::GetVertexCount() const
 
 Vec2d<double> RoiEllipse::GetVertex(int i) const
 {
-	double dAngle = 2*M_PI * double(i)/double(GetVertexCount());
+	double dAngle = 2*M_PI * double(i)/double(GetVertexCount()-1);
 
 	Vec2d<double> vecRet(m_dRadiusX*cos(dAngle), m_dRadiusY*sin(dAngle));
 	vecRet = vecRet + m_vecCenter;
@@ -372,8 +372,35 @@ bool RoiCircleSegment::IsInside(int iX, int iY) const
 
 bool RoiCircleSegment::IsInside(double dX, double dY) const
 {
-	// TODO
-	return false;
+	Vec2d<double> vecVertex(dX,dY);
+
+	double dX0 = dX - m_vecCenter[0];
+	double dY0 = dY - m_vecCenter[1];
+
+	// outside inner radius?
+	bool bOutsideInnerRad = ((dX0*dX0/(m_dInnerRadius*m_dInnerRadius) +
+						      dY0*dY0/(m_dInnerRadius*m_dInnerRadius)) >= 1.);
+	if(!bOutsideInnerRad)
+		return false;
+
+	// inside outer radius?
+	bool bInsideOuterRad = ((dX0*dX0/(m_dOuterRadius*m_dOuterRadius) +
+						     dY0*dY0/(m_dOuterRadius*m_dOuterRadius)) <= 1.);
+	if(!bInsideOuterRad)
+		return false;
+
+	// between the two angles?
+	bool bBetweenAngles = false;
+	vecVertex.normalize();
+	double dAngle = acos(vecVertex*Vec2d<double>(1.,0.));
+	dAngle = dAngle/M_PI*180.;
+	if(dAngle>=m_dBeginAngle && dAngle<=m_dEndAngle)
+		bBetweenAngles = true;
+
+	if(!bBetweenAngles)
+		return false;
+
+	return true;
 }
 
 std::string RoiCircleSegment::GetName() const
@@ -447,9 +474,9 @@ Vec2d<double> RoiCircleSegment::GetVertex(int i) const
 		i=0;
 
 	// inner circle
-	if(i<=iVerticesPerArc)
+	if(i<iVerticesPerArc)
 	{
-		double dAngle = dAngleRange*double(i)/double(iVerticesPerArc);
+		double dAngle = dAngleRange*double(i)/double(iVerticesPerArc-1);
 		dAngle += m_dBeginAngle / 180. * M_PI;
 
 		vecRet[0] = m_dInnerRadius*cos(dAngle);
@@ -458,11 +485,11 @@ Vec2d<double> RoiCircleSegment::GetVertex(int i) const
 		vecRet = vecRet + m_vecCenter;
 	}
 	// outer circle
-	else if(i>iVerticesPerArc && i<GetVertexCount()-1)
+	else if(i>=iVerticesPerArc && i<GetVertexCount()-1)
 	{
 		const int iIdx = 2*iVerticesPerArc - i - 1;
 
-		double dAngle = dAngleRange*double(iIdx)/double(iVerticesPerArc);
+		double dAngle = dAngleRange*double(iIdx)/double(iVerticesPerArc-1);
 		dAngle += m_dBeginAngle / 180. * M_PI;
 
 		vecRet[0] = m_dOuterRadius*cos(dAngle);

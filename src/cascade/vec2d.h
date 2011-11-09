@@ -25,6 +25,7 @@
 #define __VEC2d__
 
 #include <iostream>
+#include <math.h>
 
 /*
  * 2D vectors
@@ -81,6 +82,18 @@ template<class T> class Vec2d
 		const T& operator()(int iIdx) const
 		{
 			return operator[](iIdx);
+		}
+
+		T length() const
+		{
+			return sqrt(m_elem[0]*m_elem[0] + m_elem[1]*m_elem[1]);
+		}
+
+		void normalize()
+		{
+			T len = length();
+			m_elem[0] /= len;
+			m_elem[1] /= len;
 		}
 
 		template<class S> Vec2d<S> cast() const
