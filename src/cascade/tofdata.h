@@ -56,7 +56,11 @@ class Data2D : public MainRasterData
 {
 	protected:
 		bool m_bPhaseData;
-		BasicImage* m_pImg;
+
+		// has to be a pointer to a pointer since qwt copies
+		// these objects and clearData() wouldn't invalidate
+		// the pointer in the copies
+		BasicImage** m_pImg;
 
 	public:
 		Data2D(const QwtDoubleRect& rect);
@@ -64,7 +68,7 @@ class Data2D : public MainRasterData
 		Data2D(const Data2D& data2d);
 		virtual ~Data2D();
 
-		void SetImage(BasicImage* pImg);
+		void SetImage(BasicImage** pImg);
 		BasicImage* GetImage();
 
 		void SetPhaseData(bool bPhaseData);	// wegen Achsen-Range

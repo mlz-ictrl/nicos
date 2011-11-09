@@ -843,12 +843,14 @@ class MainWindow : public QMainWindow
 		///////////////////////////// File Menu Items /////////////////////////
 		void LoadPad()
 		{
-			m_cascadewidget.NewPad(/*btnLog->isChecked()*/);
 			QString strFile = QFileDialog::getOpenFileName(this,
 									"Open PAD File","",
 									"PAD Files (*.pad *.PAD);;All Files (*)");
-			if(strFile!="" &&
-				m_cascadewidget.LoadPadFile(strFile.toAscii().data()))
+
+			if(strFile=="")
+				return;
+
+			if(m_cascadewidget.LoadPadFile(strFile.toAscii().data()))
 			{
 				ServerDisconnect();
 
@@ -862,12 +864,14 @@ class MainWindow : public QMainWindow
 
 		void LoadTof()
 		{
-			m_cascadewidget.NewTof(/*btnLog->isChecked()*/);
 			QString strFile = QFileDialog::getOpenFileName(
 								this, "Open TOF File","",
 								"TOF Files (*.tof *.TOF);;All Files (*)");
-			if(strFile!="" &&
-			   m_cascadewidget.LoadTofFile(strFile.toAscii().data()))
+
+			if(strFile=="")
+				return;
+
+			if(m_cascadewidget.LoadTofFile(strFile.toAscii().data()))
 			{
 				ServerDisconnect();
 

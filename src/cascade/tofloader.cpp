@@ -64,7 +64,9 @@ TofImage::TofImage(const char *pcFileName, int iCompressed, bool bExternalMem,
 	logger << "Loader: New TOF image: " << "external mem=" << m_bExternalMem
 			  << ", width=" << GetTofConfig().GetImageWidth()
 			  << ", height=" << GetTofConfig().GetImageHeight()
-			  << ", images=" << GetTofConfig().GetImageCount() << ".\n";
+			  << ", images=" << GetTofConfig().GetImageCount()
+			  << ", comp=" << GetCompressionMethod()
+			  << ".\n";
 
 	// should TofImage manage its own memory?
 	if(!m_bExternalMem)
@@ -404,6 +406,7 @@ void TofImage::GetOverview(TmpImage *pImg) const
 	pImg->Clear();
 	pImg->m_iW = GetTofConfig().GetImageWidth();
 	pImg->m_iH = GetTofConfig().GetImageHeight();
+
 	pImg->m_puiDaten = new unsigned int[GetTofConfig().GetImageWidth()*
 										GetTofConfig().GetImageHeight()];
 	if(pImg->m_puiDaten==NULL)
@@ -891,14 +894,16 @@ void PadImage::SetExternalMem(void* pvDaten)
 
 void PadImage::UpdateRange()
 {
-	m_iMin=std::numeric_limits<double>::max();
+	m_iMin=std::numeric_limits<int>::max();
 	m_iMax=0;
 	for(int iY=0; iY<GetPadConfig().GetImageHeight(); ++iY)
 	{
 		for(int iX=0; iX<GetPadConfig().GetImageWidth(); ++iX)
 		{
-			m_iMin = (m_iMin<int(GetData(iX,iY)))?m_iMin:GetData(iX,iY);
-			m_iMax = (m_iMax>int(GetData(iX,iY)))?m_iMax:GetData(iX,iY);
+			int iDat = int(GetData(iX,iY));
+
+			m_iMin = (m_iMin<iDat) ? m_iMin : iDat;
+			m_iMax = (m_iMax>iDat) ? m_iMax : iDat;
 		}
 	}
 }
@@ -1102,7 +1107,9 @@ bool PadImage::GetUseRoi() const { return m_bUseRoi; };
 
 
 // *************** TmpImage ****************************************************
-TmpImage::TmpImage() : m_iW(0), m_iH(0), m_puiDaten(NULL), m_pdDaten(NULL),
+TmpImage::TmpImage() : m_iW(GlobalConfig::GetTofConfig().GetImageWidth()),
+					   m_iH(GlobalConfig::GetTofConfig().GetImageHeight()),
+					   m_puiDaten(NULL), m_pdDaten(NULL),
 					   m_dMin(0), m_dMax(0)
 {}
 

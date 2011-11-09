@@ -281,12 +281,12 @@ Plot* CascadeWidget::GetPlot() { return m_pPlot; }
 
 void CascadeWidget::Unload()
 {
-	m_data2d.clearData();
-	ClearRoiVector();
-
 	if(m_pPad) { delete m_pPad; m_pPad=NULL; }
 	if(m_pTof) { delete m_pTof; m_pTof=NULL; }
 	if(m_pTmpImg) { delete m_pTmpImg; m_pTmpImg=NULL; }
+
+	m_data2d.clearData();
+	ClearRoiVector();
 }
 
 void* CascadeWidget::NewPad()
@@ -296,7 +296,7 @@ void* CascadeWidget::NewPad()
 		Unload();
 		m_pPad = new PadImage();
 
-		m_data2d.SetImage(m_pPad);
+		m_data2d.SetImage((BasicImage**)&m_pPad);
 		m_data2d.SetLog10(m_bLog);
 
 		m_pPlot->SetData(&m_data2d, false);
@@ -318,10 +318,11 @@ void* CascadeWidget::NewTof(int iCompression)
 	if(IsPadLoaded()||!IsTofLoaded() || m_bForceReinit || !bCorrectCompression)
 	{
 		Unload();
+
 		m_pTof = new TofImage(0,iCompression);
 		m_pTmpImg = new TmpImage();
 
-		m_data2d.SetImage(m_pTmpImg);
+		m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 		m_data2d.SetLog10(m_bLog);
 
 		m_pPlot->SetData(&m_data2d, false);
@@ -470,8 +471,7 @@ void CascadeWidget::UpdateGraph()
 	if(IsPadLoaded())
 	{
 		//m_pPad->UpdateRange();
-		m_data2d.SetImage(m_pPad);
-		m_pPlot->SetData(&m_data2d);	// !!
+		m_data2d.SetImage((BasicImage**)&m_pPad);
 	}
 	else if(IsTofLoaded())
 	{
@@ -491,13 +491,12 @@ void CascadeWidget::UpdateGraph()
 		}
 
 		m_pTmpImg->UpdateRange();
-
-		m_data2d.SetImage(m_pTmpImg);
-		m_pPlot->SetData(&m_data2d);	// !!
+		m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 	}
 
 	if(IsPadLoaded() || IsTofLoaded())
 	{
+		m_pPlot->SetData(&m_data2d);	// !!
 		m_pPlot->replot();
 	}
 	UpdateLabels();
@@ -535,7 +534,7 @@ void CascadeWidget::viewOverview()
 	SetMode(MODE_SUMS);
 
 	GetTof()->GetOverview(m_pTmpImg);
-	m_data2d.SetImage(m_pTmpImg);
+	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
 	m_data2d.SetPhaseData(false);
 	GetPlot()->SetColorMap(false);
@@ -580,7 +579,7 @@ void CascadeWidget::viewFoilSums(const bool* pbKanaele)
 {
 	SetMode(MODE_SUMS);
 	GetTof()->AddFoils(pbKanaele, m_pTmpImg);
-	m_data2d.SetImage(m_pTmpImg);
+	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
 	UpdateRange();
 	UpdateGraph();
@@ -590,7 +589,7 @@ void CascadeWidget::viewPhaseSums(const bool* pbFolien)
 {
 	SetMode(MODE_PHASESUMS);
 	GetTof()->AddPhases(pbFolien, m_pTmpImg);
-	m_data2d.SetImage(m_pTmpImg);
+	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
 	UpdateRange();
 	UpdateGraph();
@@ -600,7 +599,7 @@ void CascadeWidget::viewContrastSums(const bool* pbFolien)
 {
 	SetMode(MODE_CONTRASTSUMS);
 	GetTof()->AddContrasts(pbFolien, m_pTmpImg);
-	m_data2d.SetImage(m_pTmpImg);
+	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
 	UpdateRange();
 	UpdateGraph();
