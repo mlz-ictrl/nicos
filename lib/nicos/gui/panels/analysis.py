@@ -597,6 +597,8 @@ class DataSetPlot(NicosPlot):
                 xmax = float(str(dlg.xto.text()))
             except ValueError:
                 xmax = None
+            if xmin is not None and xmax is not None and xmin > xmax:
+                xmax, xmin = xmin, xmax
             params, values = [], []
             for line in str(dlg.fitparams.toPlainText()).splitlines():
                 name_value = line.strip().split('=', 2)

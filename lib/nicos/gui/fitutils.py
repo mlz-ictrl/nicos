@@ -159,7 +159,7 @@ def fit_arby(xdata, ydata, yerr, fcnstr, params, guesses, xlimits):
     else:
         data = RealData(xfit, yfit)
     model = Model(fcn)
-    odr = ODR(data, model, guesses, ifixx=[0]*len(xdata))
+    odr = ODR(data, model, guesses, ifixx=[0]*len(xfit))
     out = odr.run()
     xfine = arange(xmin, xmax, (xmax-xmin)/200)
     if out.info & 0xFFFFFFFF >= 5:
