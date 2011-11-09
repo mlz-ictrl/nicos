@@ -234,7 +234,7 @@ int RoiCircle::GetVertexCount() const
 
 Vec2d<double> RoiCircle::GetVertex(int i) const
 {
-	double dAngle = 2*M_PI * double(i)/double(CIRCLE_VERTICES);
+	double dAngle = 2*M_PI * double(i)/double(GetVertexCount());
 
 	Vec2d<double> vecRet(m_dRadius*cos(dAngle), m_dRadius*sin(dAngle));
 	vecRet = vecRet + m_vecCenter;
@@ -247,8 +247,109 @@ RoiElement* RoiCircle::copy() const
 	return new RoiCircle(m_vecCenter, m_dRadius);
 }
 
+
 //------------------------------------------------------------------------------
 
+
+RoiEllipse::RoiEllipse(const Vec2d<double>& vecCenter,
+					   double dRadiusX, double dRadiusY)
+		 : m_vecCenter(vecCenter), m_dRadiusX(dRadiusX), m_dRadiusY(dRadiusY)
+{}
+
+RoiEllipse::RoiEllipse() : m_dRadiusX(0.), m_dRadiusY(0.)
+{}
+
+bool RoiEllipse::IsInside(int iX, int iY) const
+{
+	return IsInside(double(iX), double(iY));
+}
+
+bool RoiEllipse::IsInside(double dX, double dY) const
+{
+	Vec2d<double> vecVertex(dX,dY);
+
+	double dX0 = dX - m_vecCenter[0];
+	double dY0 = dY - m_vecCenter[1];
+
+	bool bInside = ((dX0*dX0/(m_dRadiusX*m_dRadiusX) +
+				     dY0*dY0/(m_dRadiusY*m_dRadiusY)) <= 1.);
+
+	return bInside;
+}
+
+std::string RoiEllipse::GetName() const { return "ellipse"; }
+
+int RoiEllipse::GetParamCount() const
+{
+	// 0: m_dCenter[0]
+	// 1: m_dCenter[1]
+	// 2: m_dRadiusX
+	// 3: m_dRadiusY
+	return 4;
+}
+
+std::string RoiEllipse::GetParamName(int iParam) const
+{
+	std::string strRet;
+
+	switch(iParam)
+	{
+		case 0: strRet="center_x"; break;
+		case 1: strRet="center_y"; break;
+		case 2: strRet="radius_x"; break;
+		case 3: strRet="radius_y"; break;
+		default: strRet="unknown"; break;
+	}
+
+	return strRet;
+}
+
+double RoiEllipse::GetParam(int iParam) const
+{
+	switch(iParam)
+	{
+		case 0: return m_vecCenter[0];
+		case 1: return m_vecCenter[1];
+		case 2: return m_dRadiusX;
+		case 3: return m_dRadiusY;
+	}
+	return 0.;
+}
+
+void RoiEllipse::SetParam(int iParam, double dVal)
+{
+	switch(iParam)
+	{
+		case 0: m_vecCenter[0] = dVal; break;
+		case 1: m_vecCenter[1] = dVal; break;
+		case 2: m_dRadiusX = dVal; break;
+		case 3: m_dRadiusY = dVal; break;
+	}
+}
+
+int RoiEllipse::GetVertexCount() const
+{
+	return CIRCLE_VERTICES;
+}
+
+Vec2d<double> RoiEllipse::GetVertex(int i) const
+{
+	double dAngle = 2*M_PI * double(i)/double(GetVertexCount());
+
+	Vec2d<double> vecRet(m_dRadiusX*cos(dAngle), m_dRadiusY*sin(dAngle));
+	vecRet = vecRet + m_vecCenter;
+
+	return vecRet;
+}
+
+RoiElement* RoiEllipse::copy() const
+{
+	return new RoiEllipse(m_vecCenter, m_dRadiusX, m_dRadiusY);
+}
+
+
+
+//------------------------------------------------------------------------------
 
 
 RoiCircleSegment::RoiCircleSegment(const Vec2d<double>& vecCenter,
@@ -271,6 +372,7 @@ bool RoiCircleSegment::IsInside(int iX, int iY) const
 
 bool RoiCircleSegment::IsInside(double dX, double dY) const
 {
+	// TODO
 	return false;
 }
 
@@ -331,12 +433,43 @@ void RoiCircleSegment::SetParam(int iParam, double dVal)
 
 int RoiCircleSegment::GetVertexCount() const
 {
-	return 0;
+	return CIRCLE_VERTICES + 1;
 }
 
 Vec2d<double> RoiCircleSegment::GetVertex(int i) const
 {
 	Vec2d<double> vecRet;
+	const int iVerticesPerArc = (GetVertexCount()-1)/2;
+	const double dAngleRange = (m_dEndAngle-m_dBeginAngle) / 180. * M_PI;
+
+	// starting vertex again
+	if(i==GetVertexCount()-1)
+		i=0;
+
+	// inner circle
+	if(i<=iVerticesPerArc)
+	{
+		double dAngle = dAngleRange*double(i)/double(iVerticesPerArc);
+		dAngle += m_dBeginAngle / 180. * M_PI;
+
+		vecRet[0] = m_dInnerRadius*cos(dAngle);
+		vecRet[1] = m_dInnerRadius*sin(dAngle);
+
+		vecRet = vecRet + m_vecCenter;
+	}
+	// outer circle
+	else if(i>iVerticesPerArc && i<GetVertexCount()-1)
+	{
+		const int iIdx = 2*iVerticesPerArc - i - 1;
+
+		double dAngle = dAngleRange*double(iIdx)/double(iVerticesPerArc);
+		dAngle += m_dBeginAngle / 180. * M_PI;
+
+		vecRet[0] = m_dOuterRadius*cos(dAngle);
+		vecRet[1] = m_dOuterRadius*sin(dAngle);
+
+		vecRet = vecRet + m_vecCenter;
+	}
 
 	return vecRet;
 }
@@ -349,8 +482,8 @@ RoiElement* RoiCircleSegment::copy() const
 }
 
 
-
 //------------------------------------------------------------------------------
+
 
 Roi::Roi()
 {}
