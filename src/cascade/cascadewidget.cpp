@@ -55,6 +55,84 @@
 #include "helper.h"
 #include "logger.h"
 
+
+//------------------------------------------------------------------------------
+// picker
+
+MainPicker::MainPicker(QwtPlotCanvas* pcanvas)
+		   : QwtPlotPicker(pcanvas), m_iRoiDrawMode(ROI_DRAW_RECT)
+{
+	setSelectionFlags(QwtPicker::RectSelection | QwtPicker::DragSelection);
+
+	QColor c(Qt::darkBlue);
+	setRubberBandPen(c);
+	setTrackerPen(c);
+
+	setRubberBand(RectRubberBand);
+	setTrackerMode(AlwaysOn);
+}
+
+QwtText MainPicker::trackerText(const QwtDoublePoint &pos) const
+{
+	QString str;
+	switch(m_iRoiDrawMode)
+	{
+		case ROI_DRAW_RECT:
+			str += "Drawing Rectangle";
+			break;
+		case ROI_DRAW_CIRC:
+			str += "Drawing Circle";
+			break;
+		case ROI_DRAW_CIRCSEG:
+			str += "Drawing Circle Segment";
+			break;
+		case ROI_DRAW_ELLIPSE:
+			str += "Drawing Ellipse";
+			break;
+	}
+
+	str += "\nPixel: ";
+	str += QString::number(int(pos.x()));
+	str += ", ";
+	str += QString::number(int(pos.y()));
+
+	QwtText text = str;
+	QColor bg(Qt::white);
+	bg.setAlpha(200);
+	text.setBackgroundBrush(QBrush(bg));
+	return text;
+}
+
+MainPicker::~MainPicker()
+{}
+
+void MainPicker::SetRoiDrawMode(int iMode)
+{
+	m_iRoiDrawMode = iMode;
+
+	switch(iMode)
+	{
+		case ROI_DRAW_RECT:
+			setRubberBand(RectRubberBand);
+			break;
+		case ROI_DRAW_CIRC:
+			setRubberBand(RectRubberBand);
+			break;
+		case ROI_DRAW_CIRCSEG:
+			setRubberBand(RectRubberBand);
+			break;
+		case ROI_DRAW_ELLIPSE:
+			setRubberBand(EllipseRubberBand);
+			break;
+	}
+}
+
+int MainPicker::GetRoiDrawMode() const { return m_iRoiDrawMode; }
+
+
+//------------------------------------------------------------------------------
+// zoomer
+
 MainZoomer::MainZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram* pData)
 										: QwtPlotZoomer(canvas), m_pData(pData)
 {
@@ -93,7 +171,9 @@ QwtText MainZoomer::trackerText(const QwtDoublePoint &pos) const
 	return text;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+
+//------------------------------------------------------------------------------
+// panner
 
 MainPanner::MainPanner(QwtPlotCanvas *canvas) : QwtPlotPanner(canvas)
 {
@@ -104,10 +184,14 @@ MainPanner::MainPanner(QwtPlotCanvas *canvas) : QwtPlotPanner(canvas)
 MainPanner::~MainPanner()
 {}
 
-////////////////////////////////////////////////////////////////////////////////
+
+
+//------------------------------------------------------------------------------
+// plot
 
 Plot::Plot(QWidget *parent) : QwtPlot(parent), m_pSpectrogram(0),
-							  m_pZoomer(0), m_pPanner(0), m_pImage(0)
+							  m_pZoomer(0), m_pPanner(0), m_pRoiPicker(0),
+							  m_pImage(0)
 {
 	InitPlot();
 }
@@ -143,10 +227,11 @@ void Plot::InitPlot()
 
 	m_pZoomer = new MainZoomer(canvas(), m_pSpectrogram);
 	m_pPanner = new MainPanner(canvas());
+	m_pRoiPicker = new MainPicker(canvas());
+	m_pRoiPicker->setEnabled(false);
 
 	// avoid jumping of the layout
-	QFontMetrics fm(axisWidget(QwtPlot::yLeft)->font());
-	axisScaleDraw(QwtPlot::yLeft)->setMinimumExtent(fm.width("100."));
+	axisScaleDraw(QwtPlot::yLeft)->setMinimumExtent(35);
 	axisScaleDraw(QwtPlot::yRight)->setMinimumExtent(55);
 	axisWidget(QwtPlot::yRight)->setMinBorderDist(25,0);
 }
@@ -166,6 +251,7 @@ void Plot::DeinitPlot()
 	m_pImage = 0;
 	if(m_pZoomer) { delete m_pZoomer; m_pZoomer=0; }
 	if(m_pPanner) { delete m_pPanner; m_pPanner=0; }
+	if(m_pRoiPicker) { delete m_pRoiPicker; m_pRoiPicker=0; }
 	if(m_pSpectrogram) { delete m_pSpectrogram; m_pSpectrogram=0; }
 }
 
@@ -201,6 +287,7 @@ void Plot::ChangeRange_xy()
 
 QwtPlotZoomer* Plot::GetZoomer() { return m_pZoomer; }
 QwtPlotPanner* Plot::GetPanner() { return m_pPanner; }
+QwtPlotPicker* Plot::GetRoiPicker() { return m_pRoiPicker; }
 
 const QwtRasterData* Plot::GetData() const
 {
@@ -258,7 +345,9 @@ void Plot::replot()
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
+
+//------------------------------------------------------------------------------
+// widget
 
 CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 												 m_bForceReinit(0),
@@ -269,8 +358,7 @@ CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 												 m_iFolie(0),
 												 m_iZeitkanal(0),
 												 m_bLog(0),
-												 m_proidlg(0),
-												 m_iRoiDrawMode(ROI_DRAW_NONE)
+												 m_proidlg(0)
 {
 	m_pPlot = new Plot(this);
 
@@ -979,11 +1067,18 @@ void CascadeWidget::RedrawRoi()
 void CascadeWidget::SetRoiDrawMode(int iMode)
 {
 	if(iMode == ROI_DRAW_NONE)
+	{
+		GetPlot()->GetRoiPicker()->setEnabled(false);
 		GetPlot()->GetZoomer()->setEnabled(true);
+	}
 	else
+	{
 		GetPlot()->GetZoomer()->setEnabled(false);
+		GetPlot()->GetRoiPicker()->setEnabled(true);
+	}
 
-	m_iRoiDrawMode = iMode;
+	MainPicker* pPicker = (MainPicker*)GetPlot()->GetRoiPicker();
+	pPicker->SetRoiDrawMode(iMode);
 }
 
 //----------------------------------------------------------------------

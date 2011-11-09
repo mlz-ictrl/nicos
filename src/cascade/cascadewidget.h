@@ -35,6 +35,7 @@
 #include <qwt/qwt_plot_marker.h>
 #include <qwt/qwt_plot_rescaler.h>
 #include <qwt/qwt_interval_data.h>
+#include <qwt_plot_picker.h>
 #include <qwt/qwt_plot_curve.h>
 #include <qwt/qwt_plot_spectrogram.h>
 #include <qwt/qwt_scale_widget.h>
@@ -62,6 +63,22 @@
 #define ROI_DRAW_CIRC		2
 #define ROI_DRAW_CIRCSEG 	3
 #define ROI_DRAW_ELLIPSE	4
+
+
+class MainPicker : public QwtPlotPicker
+{
+	protected:
+		int m_iRoiDrawMode;
+
+	public:
+		MainPicker(QwtPlotCanvas* pcanvas);
+		virtual ~MainPicker();
+
+		virtual QwtText trackerText(const QwtDoublePoint &pos) const;
+
+		void SetRoiDrawMode(int iMode);
+		int GetRoiDrawMode() const;
+};
 
 
 class MainZoomer : public QwtPlotZoomer
@@ -95,6 +112,9 @@ class Plot : public QwtPlot
 		QwtPlotSpectrogram *m_pSpectrogram;
 		MainZoomer* m_pZoomer;
 		MainPanner* m_pPanner;
+
+		MainPicker* m_pRoiPicker;
+
 		const BasicImage* m_pImage;
 
 	public:
@@ -106,6 +126,7 @@ class Plot : public QwtPlot
 
 		QwtPlotZoomer* GetZoomer();
 		QwtPlotPanner* GetPanner();
+		QwtPlotPicker* GetRoiPicker();
 
 		void SetData(Data2D* pData, bool bUpdate=true);
 		const QwtRasterData* GetData() const;
@@ -154,8 +175,6 @@ Q_OBJECT
 		void UpdateRoiVector();
 		void RedrawRoi();
 		//----------------------------------------------------------------------
-
-		int m_iRoiDrawMode;
 
 	public:
 		CascadeWidget(QWidget *parent=NULL);
