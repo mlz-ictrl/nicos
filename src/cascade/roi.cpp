@@ -31,6 +31,7 @@
 #include "config.h"
 #include "logger.h"
 #include "mat2d.h"
+#include "pnpoly.h"
 
 //------------------------------------------------------------------------------
 // rect
@@ -642,7 +643,27 @@ bool RoiPolygon::IsInside(int iX, int iY) const
 
 bool RoiPolygon::IsInside(double dX, double dY) const
 {
-	return false;
+	const int iVertCnt = GetVertexCount();
+
+	double *vertx = new double[iVertCnt+1];
+	double *verty = new double[iVertCnt+1];
+
+	for(int i=0; i<iVertCnt; ++i)
+	{
+		vertx[i] = m_vertices[i][0];
+		verty[i] = m_vertices[i][1];
+	}
+
+	// repeat first vertex
+	vertx[iVertCnt] = m_vertices[iVertCnt-1][0];
+	verty[iVertCnt] = m_vertices[iVertCnt-1][1];
+
+	bool bInPoly = (pnpoly(iVertCnt+1, vertx, verty, dX, dY) != 0);
+
+	delete[] vertx;
+	delete[] verty;
+
+	return bInPoly;
 }
 
 std::string RoiPolygon::GetName() const

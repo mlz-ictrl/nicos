@@ -5,47 +5,15 @@
 <roi_elements>
 
 	<element_0>
-		<type> circle </type>
-		<center_x> 29 </center_x>
-		<center_y> 93 </center_y>
-		<radius> 17 </radius>
-	</element_0>
-
-	<element_1>
-		<type> ellipse </type>
-		<center_x> 88 </center_x>
-		<center_y> 106 </center_y>
-		<radius_x> 25 </radius_x>
-		<radius_y> -7 </radius_y>
-	</element_1>
-
-	<element_2>
-		<type> rectangle </type>
-		<bottomleft_x> 71 </bottomleft_x>
-		<bottomleft_y> 26 </bottomleft_y>
-		<topright_x> 86 </topright_x>
-		<topright_y> 76 </topright_y>
-		<angle> 0 </angle>
-	</element_2>
-
-	<element_3>
-		<type> circle_ring </type>
-		<center_x> 41 </center_x>
-		<center_y> 34 </center_y>
-		<inner_radius> 3 </inner_radius>
-		<outer_radius> 13 </outer_radius>
-	</element_3>
-
-	<element_4>
 		<type> polygon </type>
-		<vertex_0_x> 10 </vertex_0_x>
-		<vertex_0_y> 10 </vertex_0_y>
-
-		<vertex_1_x> 50 </vertex_1_x>
-		<vertex_1_y> 10 </vertex_1_y>
-
-		<vertex_2_x> 25 </vertex_2_x>
-		<vertex_2_y> 50 </vertex_2_y>
-	</element_4>
+		<vertex_0_x> 48.4276 </vertex_0_x>
+		<vertex_0_y> 108.396 </vertex_0_y>
+		<vertex_1_x> 100.636 </vertex_1_x>
+		<vertex_1_y> 78.4144 </vertex_1_y>
+		<vertex_2_x> 34.2053 </vertex_2_x>
+		<vertex_2_y> 25.9459 </vertex_2_y>
+		<vertex_3_x> 26.1041 </vertex_3_x>
+		<vertex_3_y> 97.1532 </vertex_3_y>
+	</element_0>
 
 </roi_elements>

@@ -1037,6 +1037,21 @@ class MainWindow : public QMainWindow
 			strAbout += QString("\n") + QString("Uses Boost\t\thttp://www.boost.org");
 			#endif
 
+			strAbout += "\n\n";
+			strAbout += "This program is free software; you can redistribute it and/or modify it under\n"
+						"the terms of the GNU General Public License as published by the Free Software\n"
+						"Foundation; either version 2 of the License, or (at your option) any later\n"
+						"version.\n\n"
+
+						"This program is distributed in the hope that it will be useful, but WITHOUT\n"
+						"ANY WARRANTY; without even the implied warranty of MERCHANTABILITY\n"
+						"or FITNESS FOR A PARTICULAR PURPOSE.\n"
+						"See the GNU General Public License for more details.\n\n"
+
+						"You should have received a copy of the GNU General Public License along with\n"
+						"this program; if not, write to the Free Software Foundation, Inc.,\n"
+						"59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n";
+
 			QMessageBox::about(this, "About", strAbout);
 		}
 		void AboutQt() { QMessageBox::aboutQt(this); }
