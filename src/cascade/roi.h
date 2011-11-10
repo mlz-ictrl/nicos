@@ -209,6 +209,33 @@ class RoiCircleSegment : public RoiCircleRing
 
 
 
+class RoiPolygon : public RoiElement
+{
+	protected:
+		std::vector<Vec2d<double> > m_vertices;
+
+	public:
+		RoiPolygon();
+
+		virtual bool IsInside(int iX, int iY) const;
+		virtual bool IsInside(double dX, double dY) const;
+
+		virtual std::string GetName() const;
+
+		virtual int GetParamCount() const;
+		virtual std::string GetParamName(int iParam) const;
+		virtual double GetParam(int iParam) const;
+		virtual void SetParam(int iParam, double dVal);
+
+		virtual int GetVertexCount() const;
+		virtual Vec2d<double> GetVertex(int i) const;
+
+		virtual RoiElement* copy() const;
+
+		void AddVertex(const Vec2d<double>& vertex);
+};
+
+
 //------------------------------------------------------------------------------
 
 

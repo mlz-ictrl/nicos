@@ -633,6 +633,72 @@ RoiElement* RoiCircleSegment::copy() const
 
 
 //------------------------------------------------------------------------------
+// polygon
+
+RoiPolygon::RoiPolygon()
+{}
+
+bool RoiPolygon::IsInside(int iX, int iY) const
+{
+	return IsInside(double(iX), double(iY));
+}
+
+bool RoiPolygon::IsInside(double dX, double dY) const
+{
+	return false;
+}
+
+std::string RoiPolygon::GetName() const
+{
+	return "polygon";
+}
+
+int RoiPolygon::GetParamCount() const
+{
+	return GetVertexCount()*2;
+}
+
+std::string RoiPolygon::GetParamName(int iParam) const
+{
+	return "";
+}
+
+double RoiPolygon::GetParam(int iParam) const
+{
+	return 0.;
+}
+
+void RoiPolygon::SetParam(int iParam, double dVal)
+{
+}
+
+int RoiPolygon::GetVertexCount() const
+{
+	return m_vertices.size();
+}
+
+Vec2d<double> RoiPolygon::GetVertex(int i) const
+{
+	return m_vertices[i];
+}
+
+RoiElement* RoiPolygon::copy() const
+{
+	RoiPolygon *pPoly = new RoiPolygon;
+
+	pPoly->m_vertices = this->m_vertices;
+
+	return pPoly;
+}
+
+void RoiPolygon::AddVertex(const Vec2d<double>& vertex)
+{
+	m_vertices.push_back(vertex);
+}
+
+
+
+//------------------------------------------------------------------------------
 // roi
 
 Roi::Roi()
