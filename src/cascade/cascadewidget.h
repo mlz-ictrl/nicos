@@ -54,7 +54,7 @@
 #define ROI_DRAW_CIRCRING 	3
 #define ROI_DRAW_CIRCSEG 	4
 #define ROI_DRAW_ELLIPSE	5
-
+#define ROI_DRAW_POLYGON	6
 
 class MainPicker : public QwtPlotPicker
 {
@@ -66,6 +66,7 @@ class MainPicker : public QwtPlotPicker
 
 	protected slots:
 		void selectedRect(const QwtDoubleRect& rect);
+		void selectedPoly(const QwtArray<QwtDoublePoint>& poly);
 
 	public:
 		MainPicker(QwtPlotCanvas* pcanvas);

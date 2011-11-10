@@ -24,6 +24,7 @@
 #include <math.h>
 #include <sstream>
 #include <fstream>
+#include <limits>
 
 #include "roi.h"
 #include "helper.h"
@@ -582,18 +583,14 @@ void RoiCircleSegment::SetParam(int iParam, double dVal)
 
 int RoiCircleSegment::GetVertexCount() const
 {
-	return RoiCircleRing::GetVertexCount() + 1;
+	return RoiCircleRing::GetVertexCount();
 }
 
 Vec2d<double> RoiCircleSegment::GetVertex(int i) const
 {
 	Vec2d<double> vecRet;
-	const int iVerticesPerArc = (GetVertexCount()-1)/2;
+	const int iVerticesPerArc = (GetVertexCount())/2;
 	const double dAngleRange = (m_dEndAngle-m_dBeginAngle) / 180. * M_PI;
-
-	// starting vertex again
-	if(i==GetVertexCount()-1)
-		i=0;
 
 	// inner circle
 	if(i<iVerticesPerArc)
@@ -607,7 +604,7 @@ Vec2d<double> RoiCircleSegment::GetVertex(int i) const
 		vecRet = vecRet + m_vecCenter;
 	}
 	// outer circle
-	else if(i>=iVerticesPerArc && i<GetVertexCount()-1)
+	else if(i>=iVerticesPerArc)
 	{
 		const int iIdx = 2*iVerticesPerArc - i - 1;
 
@@ -660,16 +657,36 @@ int RoiPolygon::GetParamCount() const
 
 std::string RoiPolygon::GetParamName(int iParam) const
 {
-	return "";
+	int iVertex = iParam/2;
+	int iCoord = iParam%2;
+
+	std::ostringstream ostr;
+	ostr << "vertex_" << iVertex << "_" << (iCoord==0?"x":"y");
+
+	return ostr.str();
 }
 
 double RoiPolygon::GetParam(int iParam) const
 {
-	return 0.;
+	int iVertex = iParam/2;
+	int iCoord = iParam%2;
+
+	return GetVertex(iVertex)[iCoord];
 }
 
 void RoiPolygon::SetParam(int iParam, double dVal)
 {
+	int iVertex = iParam/2;
+	int iCoord = iParam%2;
+
+	if(iVertex < GetVertexCount())
+		m_vertices[iVertex][iCoord] = dVal;
+	else
+	{
+		Vec2d<double> vec;
+		vec[iCoord] = dVal;
+		m_vertices.push_back(vec);
+	}
 }
 
 int RoiPolygon::GetVertexCount() const
@@ -806,6 +823,8 @@ bool Roi::Load(const char* pcFile)
 		if(!bOK)
 			break;
 
+		bool bUndeterminedParamCount=false;
+
 		RoiElement *pElem = 0;
 		if(strType == std::string("rectangle"))
 			pElem = new RoiRect;
@@ -817,6 +836,11 @@ bool Roi::Load(const char* pcFile)
 			pElem = new RoiCircleSegment;
 		else if(strType == std::string("ellipse"))
 			pElem = new RoiEllipse;
+		else if(strType == std::string("polygon"))
+		{
+			bUndeterminedParamCount = true;
+			pElem = new RoiPolygon;
+		}
 		else
 		{
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -824,11 +848,19 @@ bool Roi::Load(const char* pcFile)
 			continue;
 		}
 
-		for(int iParam=0; iParam<pElem->GetParamCount(); ++iParam)
-		{
-			std::string strQueryParam = pElem->GetParamName(iParam);
-			double dVal = xml.QueryDouble((strQueryBase + strQueryParam).c_str());
+		int iParamCount = pElem->GetParamCount();
+		if(bUndeterminedParamCount)
+			iParamCount = std::numeric_limits<int>::max();
 
+		for(int iParam=0; iParam<iParamCount; ++iParam)
+		{
+			bool bOk=false;
+
+			std::string strQueryParam = pElem->GetParamName(iParam);
+			double dVal = xml.QueryDouble((strQueryBase + strQueryParam).c_str(),
+											0., &bOk);
+			if(!bOk)
+				break;
 			pElem->SetParam(iParam, dVal);
 		}
 

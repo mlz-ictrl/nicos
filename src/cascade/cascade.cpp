@@ -998,6 +998,8 @@ class MainWindow : public QMainWindow
 		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_CIRCRING); }
 		void toolCircSeg()
 		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_CIRCSEG); }
+		void toolPolygon()
+		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_POLYGON); }
 		///////////////////////////////////////////////////////////////////
 
 		///////////////////////// Help ///////////////////////////////////
@@ -1366,6 +1368,13 @@ class MainWindow : public QMainWindow
 			pRoiActionGroup->addAction(pCircleSeg);
 			pRoiToolbar->addAction(pCircleSeg);
 
+			QAction *pPolygon = new QAction(QIcon("res/ico_polygon.png"),
+											QString("Polygon"),
+											pRoiToolbar);
+			pPolygon->setCheckable(true);
+			pRoiActionGroup->addAction(pPolygon);
+			pRoiToolbar->addAction(pPolygon);
+
 
 			addToolBar(pRoiToolbar);
 
@@ -1409,6 +1418,7 @@ class MainWindow : public QMainWindow
 			connect(pEllipse, SIGNAL(triggered()), this, SLOT(toolEllipse()));
 			connect(pCircleRing, SIGNAL(triggered()), this, SLOT(toolCircRing()));
 			connect(pCircleSeg, SIGNAL(triggered()), this, SLOT(toolCircSeg()));
+			connect(pPolygon, SIGNAL(triggered()), this, SLOT(toolPolygon()));
 
 
 			// Slider

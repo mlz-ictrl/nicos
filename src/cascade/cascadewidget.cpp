@@ -72,8 +72,11 @@ MainPicker::MainPicker(QwtPlotCanvas* pcanvas)
 	setRubberBand(RectRubberBand);
 	setTrackerMode(QwtPicker::ActiveOnly);
 
-	connect((QwtPlotPicker*)this, SIGNAL(selected (const QwtDoubleRect&)),
+	connect((QwtPlotPicker*)this, SIGNAL(selected(const QwtDoubleRect&)),
 			this, SLOT(selectedRect (const QwtDoubleRect&)));
+
+	connect((QwtPlotPicker*)this, SIGNAL(selected(const QwtArray<QwtDoublePoint> &)),
+			this, SLOT(selectedPoly(const QwtArray<QwtDoublePoint> &)));
 }
 
 MainPicker::~MainPicker()
@@ -99,6 +102,9 @@ QwtText MainPicker::trackerText(const QwtDoublePoint &pos) const
 		case ROI_DRAW_ELLIPSE:
 			str += "Drawing Ellipse";
 			break;
+		case ROI_DRAW_POLYGON:
+			str += "Drawing Polygon";
+			break;
 	}
 
 	str += "\nPixel: ";
@@ -120,21 +126,35 @@ void MainPicker::SetRoiDrawMode(int iMode)
 	switch(iMode)
 	{
 		case ROI_DRAW_RECT:
+			setSelectionFlags(QwtPicker::RectSelection);
 			setRubberBand(RectRubberBand);
 			break;
 		case ROI_DRAW_CIRC:
+			setSelectionFlags(QwtPicker::RectSelection);
 			setRubberBand(EllipseRubberBand);	// !!
 			break;
 		case ROI_DRAW_CIRCRING:
+			setSelectionFlags(QwtPicker::RectSelection);
 			setRubberBand(EllipseRubberBand);	// !!
 			break;
 		case ROI_DRAW_CIRCSEG:
+			setSelectionFlags(QwtPicker::RectSelection);
 			setRubberBand(EllipseRubberBand);	// !!
 			break;
 		case ROI_DRAW_ELLIPSE:
+			setSelectionFlags(QwtPicker::RectSelection);
 			setRubberBand(EllipseRubberBand);
 			break;
+		case ROI_DRAW_POLYGON:
+			setSelectionFlags(QwtPicker::PolygonSelection);
+			setRubberBand(PolygonRubberBand);
+			break;
 	}
+}
+
+void MainPicker::selectedPoly(const QwtArray<QwtDoublePoint>& poly)
+{
+	std::cout << "in poly" << std::endl;
 }
 
 void MainPicker::selectedRect(const QwtDoubleRect &rect)

@@ -36,4 +36,16 @@
 		<outer_radius> 13 </outer_radius>
 	</element_3>
 
+	<element_4>
+		<type> polygon </type>
+		<vertex_0_x> 10 </vertex_0_x>
+		<vertex_0_y> 10 </vertex_0_y>
+
+		<vertex_1_x> 50 </vertex_1_x>
+		<vertex_1_y> 10 </vertex_1_y>
+
+		<vertex_2_x> 25 </vertex_2_x>
+		<vertex_2_y> 50 </vertex_2_y>
+	</element_4>
+
 </roi_elements>
