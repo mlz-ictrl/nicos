@@ -255,8 +255,7 @@ class Experiment(Device):
         for datapath in paths:
             if not path.isdir(datapath):
                 os.makedirs(datapath)
-        ensureDirectory(path.join(paths[0], 'log'))
-        self._eloghandler.changeDirectory(path.join(paths[0], 'logbook'))
+        ensureDirectory(path.join(paths[0], 'logbook'))
         instname = session.instrument and session.instrument.instrument or ''
         session.elog_event('directory', (paths[0], instname, self.proposal))
         for dev in session.devices.itervalues():
