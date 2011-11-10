@@ -90,6 +90,9 @@ QwtText MainPicker::trackerText(const QwtDoublePoint &pos) const
 		case ROI_DRAW_CIRC:
 			str += "Drawing Circle";
 			break;
+		case ROI_DRAW_CIRCRING:
+			str += "Drawing Circle Ring";
+			break;
 		case ROI_DRAW_CIRCSEG:
 			str += "Drawing Circle Segment";
 			break;
@@ -120,10 +123,13 @@ void MainPicker::SetRoiDrawMode(int iMode)
 			setRubberBand(RectRubberBand);
 			break;
 		case ROI_DRAW_CIRC:
-			setRubberBand(RectRubberBand);
+			setRubberBand(EllipseRubberBand);	// !!
+			break;
+		case ROI_DRAW_CIRCRING:
+			setRubberBand(EllipseRubberBand);	// !!
 			break;
 		case ROI_DRAW_CIRCSEG:
-			setRubberBand(RectRubberBand);
+			setRubberBand(EllipseRubberBand);	// !!
 			break;
 		case ROI_DRAW_ELLIPSE:
 			setRubberBand(EllipseRubberBand);
@@ -149,14 +155,37 @@ void MainPicker::selectedRect(const QwtDoubleRect &rect)
 	switch(m_iRoiDrawMode)
 	{
 		case ROI_DRAW_RECT:
+		{
 			pElem = new RoiRect(bottomleft, topright);
 			break;
+		}
 
 		case ROI_DRAW_CIRC:
+		{
+			double dRadius = double(topright[0] - bottomleft[0]) * 0.5;
+			Vec2d<double> vecCenter = (topright.cast<double>()-
+									  bottomleft.cast<double>()) * 0.5 +
+									  bottomleft.cast<double>();
+
+			pElem = new RoiCircle(vecCenter, dRadius);
 			break;
+		}
+
+		case ROI_DRAW_CIRCRING:
+		{
+			double dRadius = double(topright[0] - bottomleft[0]) * 0.5;
+			Vec2d<double> vecCenter = (topright.cast<double>()-
+									  bottomleft.cast<double>()) * 0.5 +
+									  bottomleft.cast<double>();
+
+			pElem = new RoiCircleRing(vecCenter, dRadius-5., dRadius+5.);
+			break;
+		}
 
 		case ROI_DRAW_CIRCSEG:
+		{
 			break;
+		}
 
 		case ROI_DRAW_ELLIPSE:
 		{

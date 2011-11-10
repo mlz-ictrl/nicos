@@ -51,8 +51,9 @@
 #define ROI_DRAW_NONE		0
 #define ROI_DRAW_RECT		1
 #define ROI_DRAW_CIRC		2
-#define ROI_DRAW_CIRCSEG 	3
-#define ROI_DRAW_ELLIPSE	4
+#define ROI_DRAW_CIRCRING 	3
+#define ROI_DRAW_CIRCSEG 	4
+#define ROI_DRAW_ELLIPSE	5
 
 
 class MainPicker : public QwtPlotPicker

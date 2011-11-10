@@ -266,6 +266,7 @@ class RoiDlg : public QDialog, public Ui::RoiDlg
 
 		void NewCircle();
 		void NewEllipse();
+		void NewCircleRing();
 		void NewCircleSeg();
 		void NewRect();
 

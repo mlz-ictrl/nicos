@@ -152,11 +152,37 @@ class RoiEllipse : public RoiElement
 };
 
 
-class RoiCircleSegment : public RoiElement
+class RoiCircleRing : public RoiElement
 {
 	protected:
 		Vec2d<double> m_vecCenter;
 		double m_dInnerRadius, m_dOuterRadius;
+
+	public:
+		RoiCircleRing(const Vec2d<double>& vecCenter,
+					  double dInnerRadius, double dOuterRadius);
+		RoiCircleRing();
+
+		virtual bool IsInside(int iX, int iY) const;
+		virtual bool IsInside(double dX, double dY) const;
+
+		virtual std::string GetName() const;
+
+		virtual int GetParamCount() const;
+		virtual std::string GetParamName(int iParam) const;
+		virtual double GetParam(int iParam) const;
+		virtual void SetParam(int iParam, double dVal);
+
+		virtual int GetVertexCount() const;
+		virtual Vec2d<double> GetVertex(int i) const;
+
+		virtual RoiElement* copy() const;
+};
+
+
+class RoiCircleSegment : public RoiCircleRing
+{
+	protected:
 		double m_dBeginAngle, m_dEndAngle;
 
 	public:
@@ -180,6 +206,7 @@ class RoiCircleSegment : public RoiElement
 
 		virtual RoiElement* copy() const;
 };
+
 
 
 //------------------------------------------------------------------------------

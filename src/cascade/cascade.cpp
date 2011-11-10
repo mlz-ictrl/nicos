@@ -994,6 +994,8 @@ class MainWindow : public QMainWindow
 		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_CIRC); }
 		void toolEllipse()
 		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_ELLIPSE); }
+		void toolCircRing()
+		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_CIRCRING); }
 		void toolCircSeg()
 		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_CIRCSEG); }
 		///////////////////////////////////////////////////////////////////
@@ -1350,6 +1352,13 @@ class MainWindow : public QMainWindow
 			pRoiActionGroup->addAction(pEllipse);
 			pRoiToolbar->addAction(pEllipse);
 
+			QAction *pCircleRing = new QAction(QIcon("res/ico_circlering.png"),
+											QString("Circle Ring"),
+											pRoiToolbar);
+			pCircleRing->setCheckable(true);
+			pRoiActionGroup->addAction(pCircleRing);
+			pRoiToolbar->addAction(pCircleRing);
+
 			QAction *pCircleSeg = new QAction(QIcon("res/ico_circlesegment.png"),
 											QString("Circle Segment"),
 											pRoiToolbar);
@@ -1398,6 +1407,7 @@ class MainWindow : public QMainWindow
 			connect(pRect, SIGNAL(triggered()), this, SLOT(toolRect()));
 			connect(pCircle, SIGNAL(triggered()), this, SLOT(toolCircle()));
 			connect(pEllipse, SIGNAL(triggered()), this, SLOT(toolEllipse()));
+			connect(pCircleRing, SIGNAL(triggered()), this, SLOT(toolCircRing()));
 			connect(pCircleSeg, SIGNAL(triggered()), this, SLOT(toolCircSeg()));
 
 

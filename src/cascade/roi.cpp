@@ -31,6 +31,8 @@
 #include "logger.h"
 #include "mat2d.h"
 
+//------------------------------------------------------------------------------
+// rect
 
 RoiRect::RoiRect(const Vec2d<int>& bottomleft,
 				 const Vec2d<int>& topright, double dAngle)
@@ -156,9 +158,7 @@ RoiElement* RoiRect::copy() const
 
 
 //------------------------------------------------------------------------------
-
-
-
+// circle
 
 RoiCircle::RoiCircle(const Vec2d<double>& vecCenter, double dRadius)
 		 : m_vecCenter(vecCenter), m_dRadius(dRadius)
@@ -248,8 +248,9 @@ RoiElement* RoiCircle::copy() const
 }
 
 
-//------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// ellipse
 
 RoiEllipse::RoiEllipse(const Vec2d<double>& vecCenter,
 					   double dRadiusX, double dRadiusY)
@@ -349,28 +350,26 @@ RoiElement* RoiEllipse::copy() const
 
 
 
+
 //------------------------------------------------------------------------------
+// circle ring
 
-
-RoiCircleSegment::RoiCircleSegment(const Vec2d<double>& vecCenter,
-								   double dInnerRadius, double dOuterRadius,
-								   double dBeginAngle, double dEndAngle)
+RoiCircleRing::RoiCircleRing(const Vec2d<double>& vecCenter,
+								   double dInnerRadius, double dOuterRadius)
 				: m_vecCenter(vecCenter),
-				  m_dInnerRadius(dInnerRadius), m_dOuterRadius(dOuterRadius),
-				  m_dBeginAngle(dBeginAngle), m_dEndAngle(dEndAngle)
+				  m_dInnerRadius(dInnerRadius), m_dOuterRadius(dOuterRadius)
 {}
 
-RoiCircleSegment::RoiCircleSegment()
-				: m_dInnerRadius(0.), m_dOuterRadius(0.),
-				  m_dBeginAngle(0.), m_dEndAngle(0.)
+RoiCircleRing::RoiCircleRing()
+				: m_dInnerRadius(0.), m_dOuterRadius(0.)
 {}
 
-bool RoiCircleSegment::IsInside(int iX, int iY) const
+bool RoiCircleRing::IsInside(int iX, int iY) const
 {
 	return IsInside(double(iX), double(iY));
 }
 
-bool RoiCircleSegment::IsInside(double dX, double dY) const
+bool RoiCircleRing::IsInside(double dX, double dY) const
 {
 	Vec2d<double> vecVertex(dX,dY);
 
@@ -388,6 +387,129 @@ bool RoiCircleSegment::IsInside(double dX, double dY) const
 						     dY0*dY0/(m_dOuterRadius*m_dOuterRadius)) <= 1.);
 	if(!bInsideOuterRad)
 		return false;
+
+	return true;
+}
+
+std::string RoiCircleRing::GetName() const
+{
+	return "circle_ring";
+}
+
+int RoiCircleRing::GetParamCount() const
+{
+	return 4;
+}
+
+std::string RoiCircleRing::GetParamName(int iParam) const
+{
+	std::string strRet;
+
+	switch(iParam)
+	{
+		case 0: strRet="center_x"; break;
+		case 1: strRet="center_y"; break;
+		case 2: strRet="inner_radius"; break;
+		case 3: strRet="outer_radius"; break;
+		default: strRet="unknown"; break;
+	}
+
+	return strRet;
+}
+
+double RoiCircleRing::GetParam(int iParam) const
+{
+	switch(iParam)
+	{
+		case 0: return m_vecCenter[0];
+		case 1: return m_vecCenter[1];
+		case 2: return m_dInnerRadius;
+		case 3: return m_dOuterRadius;
+	}
+	return 0.;
+}
+
+void RoiCircleRing::SetParam(int iParam, double dVal)
+{
+	switch(iParam)
+	{
+		case 0: m_vecCenter[0] = dVal; break;
+		case 1: m_vecCenter[1] = dVal; break;
+		case 2: m_dInnerRadius = dVal; break;
+		case 3: m_dOuterRadius = dVal; break;
+	}
+}
+
+int RoiCircleRing::GetVertexCount() const
+{
+	return CIRCLE_VERTICES;
+}
+
+Vec2d<double> RoiCircleRing::GetVertex(int i) const
+{
+	Vec2d<double> vecRet;
+	const int iVerticesPerArc = (GetVertexCount())/2;
+	const double dAngleRange = 2. * M_PI;
+
+	// inner circle
+	if(i<iVerticesPerArc)
+	{
+		double dAngle = dAngleRange*double(i)/double(iVerticesPerArc-1);
+
+		vecRet[0] = m_dInnerRadius*cos(dAngle);
+		vecRet[1] = m_dInnerRadius*sin(dAngle);
+
+		vecRet = vecRet + m_vecCenter;
+	}
+	// outer circle
+	else if(i>=iVerticesPerArc)
+	{
+		const int iIdx = 2*iVerticesPerArc - i - 1;
+
+		double dAngle = dAngleRange*double(iIdx)/double(iVerticesPerArc-1);
+
+		vecRet[0] = m_dOuterRadius*cos(dAngle);
+		vecRet[1] = m_dOuterRadius*sin(dAngle);
+
+		vecRet = vecRet + m_vecCenter;
+	}
+
+	return vecRet;
+}
+
+RoiElement* RoiCircleRing::copy() const
+{
+	return new RoiCircleRing(m_vecCenter, m_dInnerRadius, m_dOuterRadius);
+}
+
+
+
+//------------------------------------------------------------------------------
+// circle segment
+
+RoiCircleSegment::RoiCircleSegment(const Vec2d<double>& vecCenter,
+								   double dInnerRadius, double dOuterRadius,
+								   double dBeginAngle, double dEndAngle)
+				: RoiCircleRing(vecCenter, dInnerRadius, dOuterRadius),
+				  m_dBeginAngle(dBeginAngle), m_dEndAngle(dEndAngle)
+{}
+
+RoiCircleSegment::RoiCircleSegment()
+				: RoiCircleRing(),
+				  m_dBeginAngle(0.), m_dEndAngle(0.)
+{}
+
+bool RoiCircleSegment::IsInside(int iX, int iY) const
+{
+	return IsInside(double(iX), double(iY));
+}
+
+bool RoiCircleSegment::IsInside(double dX, double dY) const
+{
+	if(!RoiCircleRing::IsInside(dX, dY))
+		return false;
+
+	Vec2d<double> vecVertex(dX,dY);
 
 	// between the two angles?
 	bool bBetweenAngles = false;
@@ -417,12 +539,11 @@ std::string RoiCircleSegment::GetParamName(int iParam) const
 {
 	std::string strRet;
 
+	if(iParam>=0 && iParam<4)
+		return RoiCircleRing::GetParamName(iParam);
+
 	switch(iParam)
 	{
-		case 0: strRet="center_x"; break;
-		case 1: strRet="center_y"; break;
-		case 2: strRet="inner_radius"; break;
-		case 3: strRet="outer_radius"; break;
 		case 4: strRet="begin_angle"; break;
 		case 5: strRet="end_angle"; break;
 		default: strRet="unknown"; break;
@@ -433,12 +554,11 @@ std::string RoiCircleSegment::GetParamName(int iParam) const
 
 double RoiCircleSegment::GetParam(int iParam) const
 {
+	if(iParam>=0 && iParam<4)
+		return RoiCircleRing::GetParam(iParam);
+
 	switch(iParam)
 	{
-		case 0: return m_vecCenter[0];
-		case 1: return m_vecCenter[1];
-		case 2: return m_dInnerRadius;
-		case 3: return m_dOuterRadius;
 		case 4: return m_dBeginAngle;
 		case 5: return m_dEndAngle;
 	}
@@ -447,12 +567,11 @@ double RoiCircleSegment::GetParam(int iParam) const
 
 void RoiCircleSegment::SetParam(int iParam, double dVal)
 {
+	if(iParam>=0 && iParam<4)
+		RoiCircleRing::SetParam(iParam, dVal);
+
 	switch(iParam)
 	{
-		case 0: m_vecCenter[0] = dVal; break;
-		case 1: m_vecCenter[1] = dVal; break;
-		case 2: m_dInnerRadius = dVal; break;
-		case 3: m_dOuterRadius = dVal; break;
 		case 4: m_dBeginAngle = dVal; break;
 		case 5: m_dEndAngle = dVal; break;
 	}
@@ -460,7 +579,7 @@ void RoiCircleSegment::SetParam(int iParam, double dVal)
 
 int RoiCircleSegment::GetVertexCount() const
 {
-	return CIRCLE_VERTICES + 1;
+	return RoiCircleRing::GetVertexCount() + 1;
 }
 
 Vec2d<double> RoiCircleSegment::GetVertex(int i) const
@@ -509,8 +628,9 @@ RoiElement* RoiCircleSegment::copy() const
 }
 
 
-//------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// roi
 
 Roi::Roi()
 {}
