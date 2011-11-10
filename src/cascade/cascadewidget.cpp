@@ -1093,7 +1093,7 @@ void CascadeWidget::UpdateRoiVector()
 
 		pcurve->setRenderHint(QwtPlotItem::RenderAntialiased);
 		QPen pen = QPen(Qt::white);
-		pen.setWidth(2);
+		pen.setWidthF(1.5);
 		pcurve->setPen(pen);
 
 		const int iVertexCount = elem.GetVertexCount();

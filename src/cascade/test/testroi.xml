@@ -5,10 +5,35 @@
 <roi_elements>
 
 	<element_0>
-		<type>circle</type>
-		<center_x> 50 </center_x>
-		<center_y> 50 </center_y>
-		<radius> 50 </radius>
+		<type> circle </type>
+		<center_x> 29 </center_x>
+		<center_y> 93 </center_y>
+		<radius> 17 </radius>
 	</element_0>
+
+	<element_1>
+		<type> ellipse </type>
+		<center_x> 88 </center_x>
+		<center_y> 106 </center_y>
+		<radius_x> 25 </radius_x>
+		<radius_y> -7 </radius_y>
+	</element_1>
+
+	<element_2>
+		<type> rectangle </type>
+		<bottomleft_x> 71 </bottomleft_x>
+		<bottomleft_y> 26 </bottomleft_y>
+		<topright_x> 86 </topright_x>
+		<topright_y> 76 </topright_y>
+		<angle> 0 </angle>
+	</element_2>
+
+	<element_3>
+		<type> circle_ring </type>
+		<center_x> 41 </center_x>
+		<center_y> 34 </center_y>
+		<inner_radius> 3 </inner_radius>
+		<outer_radius> 13 </outer_radius>
+	</element_3>
 
 </roi_elements>

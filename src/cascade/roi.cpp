@@ -358,7 +358,10 @@ RoiCircleRing::RoiCircleRing(const Vec2d<double>& vecCenter,
 								   double dInnerRadius, double dOuterRadius)
 				: m_vecCenter(vecCenter),
 				  m_dInnerRadius(dInnerRadius), m_dOuterRadius(dOuterRadius)
-{}
+{
+	if(m_dOuterRadius < m_dInnerRadius)
+		swap(m_dOuterRadius, m_dInnerRadius);
+}
 
 RoiCircleRing::RoiCircleRing()
 				: m_dInnerRadius(0.), m_dOuterRadius(0.)
@@ -742,6 +745,12 @@ bool Roi::Load(const char* pcFile)
 			pElem = new RoiRect;
 		else if(strType == std::string("circle"))
 			pElem = new RoiCircle;
+		else if(strType == std::string("circle_ring"))
+			pElem = new RoiCircleRing;
+		else if(strType == std::string("circle_segment"))
+			pElem = new RoiCircleSegment;
+		else if(strType == std::string("ellipse"))
+			pElem = new RoiEllipse;
 		else
 		{
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -781,7 +790,7 @@ bool Roi::Save(const char* pcFile)
 	{
 		RoiElement& elem = GetElement(i);
 		ofstr << "\t<element_" << i << ">\n";
-		ofstr << "\t\t<type>" << elem.GetName() << "</type>\n";
+		ofstr << "\t\t<type> " << elem.GetName() << " </type>\n";
 
 		for(int iParam=0; iParam<elem.GetParamCount(); ++iParam)
 		{
