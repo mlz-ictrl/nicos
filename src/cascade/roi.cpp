@@ -702,14 +702,13 @@ Vec2d<double> RoiPolygon::GetVertex(int i) const
 RoiElement* RoiPolygon::copy() const
 {
 	RoiPolygon *pPoly = new RoiPolygon;
-
 	pPoly->m_vertices = this->m_vertices;
-
 	return pPoly;
 }
 
 void RoiPolygon::AddVertex(const Vec2d<double>& vertex)
 {
+	//std::cout << vertex[0] << " " << vertex[1] << std::endl;
 	m_vertices.push_back(vertex);
 }
 

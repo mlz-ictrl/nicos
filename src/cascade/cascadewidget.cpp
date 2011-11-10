@@ -154,7 +154,24 @@ void MainPicker::SetRoiDrawMode(int iMode)
 
 void MainPicker::selectedPoly(const QwtArray<QwtDoublePoint>& poly)
 {
-	std::cout << "in poly" << std::endl;
+	if(m_pCurRoi == NULL)
+		return;
+
+	// minimum of 3 vertices needed
+	if(poly.size()<=2)
+		return;
+
+	RoiPolygon *pElem = new RoiPolygon();
+	for(unsigned int i=0; i<poly.size(); ++i)
+	{
+		const QwtDoublePoint& pt = poly[i];
+
+		Vec2d<double> vertex(pt.x(), pt.y());
+		pElem->AddVertex(vertex);
+	}
+
+	m_pCurRoi->add(pElem);
+	emit RoiHasChanged();
 }
 
 void MainPicker::selectedRect(const QwtDoubleRect &rect)
@@ -198,12 +215,19 @@ void MainPicker::selectedRect(const QwtDoubleRect &rect)
 									  bottomleft.cast<double>()) * 0.5 +
 									  bottomleft.cast<double>();
 
-			pElem = new RoiCircleRing(vecCenter, dRadius-5., dRadius+5.);
+			pElem = new RoiCircleRing(vecCenter, dRadius-4., dRadius+4.);
 			break;
 		}
 
 		case ROI_DRAW_CIRCSEG:
 		{
+			double dRadius = double(topright[0] - bottomleft[0]) * 0.5;
+			Vec2d<double> vecCenter = (topright.cast<double>()-
+									  bottomleft.cast<double>()) * 0.5 +
+									  bottomleft.cast<double>();
+
+			pElem = new RoiCircleSegment(vecCenter, dRadius-4., dRadius+4.,
+										0., 90.);
 			break;
 		}
 
