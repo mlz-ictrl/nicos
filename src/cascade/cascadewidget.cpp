@@ -60,7 +60,8 @@
 // picker
 
 MainPicker::MainPicker(QwtPlotCanvas* pcanvas)
-		   : QwtPlotPicker(pcanvas), m_iRoiDrawMode(ROI_DRAW_RECT)
+		   : QwtPlotPicker(pcanvas),
+			 m_iRoiDrawMode(ROI_DRAW_RECT), m_pCurRoi(0)
 {
 	setSelectionFlags(QwtPicker::RectSelection | QwtPicker::DragSelection);
 
@@ -69,8 +70,14 @@ MainPicker::MainPicker(QwtPlotCanvas* pcanvas)
 	setTrackerPen(c);
 
 	setRubberBand(RectRubberBand);
-	setTrackerMode(AlwaysOn);
+	setTrackerMode(QwtPicker::ActiveOnly);
+
+	connect((QwtPlotPicker*)this, SIGNAL(selected (const QwtDoubleRect&)),
+			this, SLOT(selectedRect (const QwtDoubleRect&)));
 }
+
+MainPicker::~MainPicker()
+{}
 
 QwtText MainPicker::trackerText(const QwtDoublePoint &pos) const
 {
@@ -103,9 +110,6 @@ QwtText MainPicker::trackerText(const QwtDoublePoint &pos) const
 	return text;
 }
 
-MainPicker::~MainPicker()
-{}
-
 void MainPicker::SetRoiDrawMode(int iMode)
 {
 	m_iRoiDrawMode = iMode;
@@ -127,7 +131,56 @@ void MainPicker::SetRoiDrawMode(int iMode)
 	}
 }
 
+void MainPicker::selectedRect(const QwtDoubleRect &rect)
+{
+	if(m_pCurRoi == NULL)
+		return;
+
+	Vec2d<int> bottomleft;
+	Vec2d<int> topright;
+
+	bottomleft[0] = rect.bottomLeft().x();
+	bottomleft[1] = rect.bottomLeft().y();
+	topright[0] = rect.topRight().x();
+	topright[1] = rect.topRight().y();
+
+	RoiElement* pElem = 0;
+
+	switch(m_iRoiDrawMode)
+	{
+		case ROI_DRAW_RECT:
+			pElem = new RoiRect(bottomleft, topright);
+			break;
+
+		case ROI_DRAW_CIRC:
+			break;
+
+		case ROI_DRAW_CIRCSEG:
+			break;
+
+		case ROI_DRAW_ELLIPSE:
+		{
+			double dRadiusX = double(topright[0] - bottomleft[0]) * 0.5;
+			double dRadiusY = double(topright[1] - bottomleft[1]) * 0.5;
+			Vec2d<double> vecCenter = (topright.cast<double>()-
+									  bottomleft.cast<double>()) * 0.5 +
+									  bottomleft.cast<double>();
+
+			pElem = new RoiEllipse(vecCenter, dRadiusX, dRadiusY);
+			break;
+		}
+	}
+
+	if(pElem)
+	{
+		m_pCurRoi->add(pElem);
+		emit RoiHasChanged();
+	}
+}
+
 int MainPicker::GetRoiDrawMode() const { return m_iRoiDrawMode; }
+void MainPicker::SetCurRoi(Roi* pRoi) { m_pCurRoi = pRoi; }
+
 
 
 //------------------------------------------------------------------------------
@@ -172,6 +225,7 @@ QwtText MainZoomer::trackerText(const QwtDoublePoint &pos) const
 }
 
 
+
 //------------------------------------------------------------------------------
 // panner
 
@@ -183,6 +237,7 @@ MainPanner::MainPanner(QwtPlotCanvas *canvas) : QwtPlotPanner(canvas)
 
 MainPanner::~MainPanner()
 {}
+
 
 
 
@@ -227,6 +282,7 @@ void Plot::InitPlot()
 
 	m_pZoomer = new MainZoomer(canvas(), m_pSpectrogram);
 	m_pPanner = new MainPanner(canvas());
+
 	m_pRoiPicker = new MainPicker(canvas());
 	m_pRoiPicker->setEnabled(false);
 
@@ -346,6 +402,7 @@ void Plot::replot()
 
 
 
+
 //------------------------------------------------------------------------------
 // widget
 
@@ -361,6 +418,8 @@ CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 												 m_proidlg(0)
 {
 	m_pPlot = new Plot(this);
+	connect(m_pPlot->GetRoiPicker(), SIGNAL(RoiHasChanged()),
+			this, SLOT(RedrawRoi()));
 
 	QGridLayout *gridLayout = new QGridLayout(this);
 	gridLayout->addWidget(m_pPlot,0,0,1,1);
@@ -975,11 +1034,9 @@ void CascadeWidget::ForceReinit() { m_bForceReinit = true; }
 
 //----------------------------------------------------------------------
 // ROI curves
-void CascadeWidget::UpdateRoiVector()
-{
-	if(!IsTofLoaded() && !IsPadLoaded())
-		return;
 
+Roi* CascadeWidget::GetCurRoi()
+{
 	Roi *pRoi = 0;
 
 	if(IsTofLoaded())
@@ -987,7 +1044,15 @@ void CascadeWidget::UpdateRoiVector()
 	else if(IsPadLoaded())
 		pRoi = &GetPad()->GetRoi();
 
+	return pRoi;
+}
 
+void CascadeWidget::UpdateRoiVector()
+{
+	if(!IsTofLoaded() && !IsPadLoaded())
+		return;
+
+	Roi *pRoi = GetCurRoi();
 	ClearRoiVector();
 
 	for(int i=0; i<pRoi->GetNumElements(); ++i)
@@ -1064,21 +1129,41 @@ void CascadeWidget::RedrawRoi()
 	}
 }
 
+void CascadeWidget::ClearRoi()
+{
+	Roi* pRoi = GetCurRoi();
+	if(!pRoi) return;
+
+	pRoi->clear();
+	ClearRoiVector();
+	RedrawRoi();
+}
+
 void CascadeWidget::SetRoiDrawMode(int iMode)
 {
+	MainPicker* pPicker = (MainPicker*)GetPlot()->GetRoiPicker();
+
 	if(iMode == ROI_DRAW_NONE)
 	{
-		GetPlot()->GetRoiPicker()->setEnabled(false);
+		pPicker->setEnabled(false);
 		GetPlot()->GetZoomer()->setEnabled(true);
+
+		pPicker->SetCurRoi(0);
 	}
 	else
 	{
-		GetPlot()->GetZoomer()->setEnabled(false);
-		GetPlot()->GetRoiPicker()->setEnabled(true);
-	}
+		if(IsTofLoaded())
+			GetTof()->UseRoi(true);
+		else if(IsPadLoaded())
+			GetPad()->UseRoi(true);
 
-	MainPicker* pPicker = (MainPicker*)GetPlot()->GetRoiPicker();
-	pPicker->SetRoiDrawMode(iMode);
+		Roi *pRoi = GetCurRoi();
+		pPicker->SetCurRoi(pRoi);
+		pPicker->SetRoiDrawMode(iMode);
+
+		GetPlot()->GetZoomer()->setEnabled(false);
+		pPicker->setEnabled(true);
+	}
 }
 
 //----------------------------------------------------------------------

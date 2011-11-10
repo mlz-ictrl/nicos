@@ -939,6 +939,11 @@ class MainWindow : public QMainWindow
 			m_cascadewidget.showRoiDlg();
 		}
 
+		void ClearRoi()
+		{
+			m_cascadewidget.ClearRoi();
+		}
+
 		void LoadRoi()
 		{
 			if(!m_cascadewidget.IsTofLoaded() && !m_cascadewidget.IsPadLoaded())
@@ -1179,6 +1184,9 @@ class MainWindow : public QMainWindow
 			QAction *actionSaveRoi = new QAction(this);
 			actionSaveRoi->setText("Save ROI...");
 
+			QAction *actionClearRoi = new QAction(this);
+			actionClearRoi->setText("Clear ROI");
+
 
 			// Help Menu Items
 			QAction *actionAbout = new QAction(this);
@@ -1237,6 +1245,8 @@ class MainWindow : public QMainWindow
 			menuRoi->addSeparator();
 			menuRoi->addAction(actionLoadRoi);
 			menuRoi->addAction(actionSaveRoi);
+			menuRoi->addSeparator();
+			menuRoi->addAction(actionClearRoi);
 			menubar->addAction(menuRoi->menuAction());
 
 			QMenu *menuHelp = new QMenu(menubar);
@@ -1370,18 +1380,18 @@ class MainWindow : public QMainWindow
 			//------------------------------------------------------------------
 			// Connections
 			// Toolbar
-			connect(btnLog, SIGNAL(toggled(bool)), this,
-							SLOT(SetLog10(bool)));
-			connect(btnAutoFetch, SIGNAL(toggled(bool)), this,
-							SLOT(SetAutoFetch(bool)));
-			connect(actionViewsOverview, SIGNAL(triggered()), this,
-										 SLOT(viewOverview()));
-			connect(actionViewsSlides, SIGNAL(triggered()), this,
-									   SLOT(viewSlides()));
-			connect(actionViewsPhases, SIGNAL(triggered()), this,
-									   SLOT(viewPhases()));
-			connect(actionViewsContrasts, SIGNAL(triggered()), this,
-									   SLOT(viewContrasts()));
+			connect(btnLog, SIGNAL(toggled(bool)),
+					this, SLOT(SetLog10(bool)));
+			connect(btnAutoFetch, SIGNAL(toggled(bool)),
+					this, SLOT(SetAutoFetch(bool)));
+			connect(actionViewsOverview, SIGNAL(triggered()),
+					this, SLOT(viewOverview()));
+			connect(actionViewsSlides, SIGNAL(triggered()),
+					this, SLOT(viewSlides()));
+			connect(actionViewsPhases, SIGNAL(triggered()),
+					this, SLOT(viewPhases()));
+			connect(actionViewsContrasts, SIGNAL(triggered()),
+					this, SLOT(viewContrasts()));
 
 			// ROI Toolbar
 			connect(pZoom, SIGNAL(triggered()), this, SLOT(toolZoom()));
@@ -1392,80 +1402,80 @@ class MainWindow : public QMainWindow
 
 
 			// Slider
-			connect(sliderFolien, SIGNAL(valueChanged(int)), this,
-								  SLOT(ChangeFolie(int)));
-			connect(sliderZeitkanaele, SIGNAL(valueChanged(int)), this,
-								  SLOT(ChangeZeitkanal(int)));
+			connect(sliderFolien, SIGNAL(valueChanged(int)),
+					this, SLOT(ChangeFolie(int)));
+			connect(sliderZeitkanaele, SIGNAL(valueChanged(int)),
+					this, SLOT(ChangeZeitkanal(int)));
 
 			// File
 			connect(actionExit, SIGNAL(triggered()), this, SLOT(close()));
 			connect(actionLoadPad, SIGNAL(triggered()), this, SLOT(LoadPad()));
 			connect(actionLoadTof, SIGNAL(triggered()), this, SLOT(LoadTof()));
 			connect(actionSaveFile, SIGNAL(triggered()), this,SLOT(SaveFile()));
-			connect(actionWriteXML, SIGNAL(triggered()), this,
-									SLOT(WriteXML()));
-			connect(actionPrint, SIGNAL(triggered()), m_cascadewidget.GetPlot(),
-									SLOT(printPlot()));
+			connect(actionWriteXML, SIGNAL(triggered()),
+					this, SLOT(WriteXML()));
+			connect(actionPrint, SIGNAL(triggered()),
+					m_cascadewidget.GetPlot(), SLOT(printPlot()));
 
 			// Server
-			connect(actionConnectServer, SIGNAL(triggered()), this,
-										 SLOT(ConnectToServer()));
-			connect(actionServerDisconnect, SIGNAL(triggered()), this,
-										 SLOT(ServerDisconnect()));
+			connect(actionConnectServer, SIGNAL(triggered()),
+					this, SLOT(ConnectToServer()));
+			connect(actionServerDisconnect, SIGNAL(triggered()),
+					this, SLOT(ServerDisconnect()));
 
-			connect(actionServerCommand, SIGNAL(triggered()), this,
-										 SLOT(ServerCommand()));
+			connect(actionServerCommand, SIGNAL(triggered()),
+					this, SLOT(ServerCommand()));
 
-			connect(actionLoadTofServer, SIGNAL(triggered()), this,
-										 SLOT(LoadTofServer()));
-			connect(actionServerMeasurementStart, SIGNAL(triggered()), this,
-												SLOT(ServerMeasurementStart()));
-			connect(actionServerMeasurementStop, SIGNAL(triggered()), this,
-												SLOT(ServerMeasurementStop()));
-			connect(actionConfigServer, SIGNAL(triggered()), this,
-										SLOT(ServerConfig()));
-			connect(actionConfigFromServer, SIGNAL(triggered()), this,
-											SLOT(GetServerConfig()));
+			connect(actionLoadTofServer, SIGNAL(triggered()),
+					this, SLOT(LoadTofServer()));
+			connect(actionServerMeasurementStart, SIGNAL(triggered()),
+					this, SLOT(ServerMeasurementStart()));
+			connect(actionServerMeasurementStop, SIGNAL(triggered()),
+					this, SLOT(ServerMeasurementStop()));
+			connect(actionConfigServer, SIGNAL(triggered()),
+					this, SLOT(ServerConfig()));
+			connect(actionConfigFromServer, SIGNAL(triggered()),
+					this, SLOT(GetServerConfig()));
 
 			// Help
-			connect(actionAbout, SIGNAL(triggered()), this,
-										 SLOT(About()));
-			connect(actionAboutQt, SIGNAL(triggered()), this,
-										 SLOT(AboutQt()));
+			connect(actionAbout, SIGNAL(triggered()),
+					this, SLOT(About()));
+			connect(actionAboutQt, SIGNAL(triggered()),
+					this, SLOT(AboutQt()));
 
 			// Graph
-			connect(actionCalibration, SIGNAL(triggered()), this,
-									   SLOT(showCalibration()));
-			connect(actionGraph, SIGNAL(triggered()), this,
-								 SLOT(showGraph()));
-			connect(actionSummen, SIGNAL(triggered()), this,
-								  SLOT(showSummenDialog()));
+			connect(actionCalibration, SIGNAL(triggered()),
+					this, SLOT(showCalibration()));
+			connect(actionGraph, SIGNAL(triggered()),
+					this, SLOT(showGraph()));
+			connect(actionSummen, SIGNAL(triggered()),
+					this, SLOT(showSummenDialog()));
 
 			// Timer
-			connect(&m_statustimer, SIGNAL(timeout()), this,
-									SLOT(ServerStatus()));
+			connect(&m_statustimer, SIGNAL(timeout()),
+					this, SLOT(ServerStatus()));
 
-			connect(&m_autofetchtimer, SIGNAL(timeout()), this,
-									SLOT(AutoFetch()));
+			connect(&m_autofetchtimer, SIGNAL(timeout()),
+					this, SLOT(AutoFetch()));
 
 			// Server Message
-			connect(&m_client, SIGNAL(MessageSignal(const char*, int)), this,
-							   SLOT(ServerMessageSlot(const char*, int)));
+			connect(&m_client, SIGNAL(MessageSignal(const char*, int)),
+					this, SLOT(ServerMessageSlot(const char*, int)));
 
 
 			// ROI
-			connect(actionManageRois, SIGNAL(triggered()), this,
-									   SLOT(showRoiDlg()));
-
-			connect(actionSaveRoi, SIGNAL(triggered()), this,
-								   SLOT(SaveRoi()));
-
-			connect(actionLoadRoi, SIGNAL(triggered()), this,
-								   SLOT(LoadRoi()));
+			connect(actionManageRois, SIGNAL(triggered()),
+					this, SLOT(showRoiDlg()));
+			connect(actionSaveRoi, SIGNAL(triggered()),
+					this, SLOT(SaveRoi()));
+			connect(actionLoadRoi, SIGNAL(triggered()),
+					this, SLOT(LoadRoi()));
+			connect(actionClearRoi, SIGNAL(triggered()),
+					this, SLOT(ClearRoi()));
 
 			// Widget
 			connect(&m_cascadewidget, SIGNAL(SumDlgSignal(const bool *, int)),
-								this, SLOT(FolienSummeSlot(const bool *, int)));
+					this, SLOT(FolienSummeSlot(const bool *, int)));
 			//------------------------------------------------------------------
 
 

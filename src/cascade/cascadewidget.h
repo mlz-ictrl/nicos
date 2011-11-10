@@ -28,21 +28,11 @@
 #include <QtGui/QWidget>
 
 #include <qwt/qwt_plot.h>
-#include <qwt/qwt_plot_grid.h>
 #include <qwt/qwt_plot_zoomer.h>
 #include <qwt/qwt_plot_panner.h>
-#include <qwt/qwt_plot_layout.h>
-#include <qwt/qwt_plot_marker.h>
-#include <qwt/qwt_plot_rescaler.h>
-#include <qwt/qwt_interval_data.h>
-#include <qwt_plot_picker.h>
-#include <qwt/qwt_plot_curve.h>
+#include <qwt/qwt_plot_picker.h>
 #include <qwt/qwt_plot_spectrogram.h>
-#include <qwt/qwt_scale_widget.h>
-#include <qwt/qwt_scale_draw.h>
 #include <qwt/qwt_color_map.h>
-#include <qwt/qwt_legend.h>
-#include <qwt/qwt_legend_item.h>
 #include <qwt/qwt_symbol.h>
 
 #include "tofdata.h"
@@ -67,8 +57,14 @@
 
 class MainPicker : public QwtPlotPicker
 {
+	Q_OBJECT
+
 	protected:
 		int m_iRoiDrawMode;
+		Roi *m_pCurRoi;
+
+	protected slots:
+		void selectedRect(const QwtDoubleRect& rect);
 
 	public:
 		MainPicker(QwtPlotCanvas* pcanvas);
@@ -78,6 +74,10 @@ class MainPicker : public QwtPlotPicker
 
 		void SetRoiDrawMode(int iMode);
 		int GetRoiDrawMode() const;
+		void SetCurRoi(Roi* pRoi);
+
+	signals:
+		void RoiHasChanged();
 };
 
 
@@ -169,10 +169,15 @@ Q_OBJECT
 		RoiDlg* m_proidlg;
 
 		//----------------------------------------------------------------------
-		// ROI curves
+		// ROI curves for qwt
 		std::vector<QwtPlotCurve*> m_vecRoiCurves;
-		void ClearRoiVector();
 		void UpdateRoiVector();
+		void ClearRoiVector();
+
+	public:
+		void ClearRoi();
+
+	public slots:
 		void RedrawRoi();
 		//----------------------------------------------------------------------
 
@@ -219,6 +224,7 @@ Q_OBJECT
 		int GetMode();
 
 		void SetRoiDrawMode(int iMode);
+		Roi* GetCurRoi();
 
 	public slots:
 		// sum all foils and all time channels

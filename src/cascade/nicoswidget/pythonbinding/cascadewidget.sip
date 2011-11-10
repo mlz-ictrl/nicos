@@ -8,6 +8,7 @@
 %Include tofloader.sip
 
 
+
 /////////////////////////////////////////////////////////////////////////////////////
 // GraphDlg
 // use CascadeWidget::showGraphDlg() instead
@@ -128,6 +129,8 @@ class CascadeWidget : QWidget
 
 		void SetMode(int iMode);
 		int GetMode();
+
+		void SetRoiDrawMode(int iMode);
 
 	public slots:
 		void viewOverview();		// add all time channels of all foils
