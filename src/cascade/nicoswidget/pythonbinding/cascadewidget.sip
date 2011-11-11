@@ -135,6 +135,9 @@ class CascadeWidget : QWidget
 
 		void SetRoiDrawMode(int iMode);
 
+		bool IsRoiInUse();
+		void UseRoi(bool bUse);
+
 	public slots:
 		void viewOverview();		// add all time channels of all foils
 		void viewSlides();		// show single foils

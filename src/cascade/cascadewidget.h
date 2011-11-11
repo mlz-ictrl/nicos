@@ -265,6 +265,7 @@ Q_OBJECT
 
 	protected slots:
 		void RoiDlgAccepted(QAbstractButton*);
+		void RoiHasChanged();
 
 	signals:
 		void SumDlgSignal(const bool* pbKanaele, int iMode);

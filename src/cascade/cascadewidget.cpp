@@ -512,7 +512,7 @@ CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 {
 	m_pPlot = new Plot(this);
 	connect(m_pPlot->GetRoiPicker(), SIGNAL(RoiHasChanged()),
-			this, SLOT(RedrawRoi()));
+			this, SLOT(RoiHasChanged()));
 
 	QGridLayout *gridLayout = new QGridLayout(this);
 	gridLayout->addWidget(m_pPlot,0,0,1,1);
@@ -1189,6 +1189,12 @@ void CascadeWidget::ClearRoiVector()
 		}
 	}
 	m_vecRoiCurves.clear();
+}
+
+void CascadeWidget::RoiHasChanged()
+{
+	UseRoi(true);
+	RedrawRoi();
 }
 
 void CascadeWidget::RedrawRoi()
