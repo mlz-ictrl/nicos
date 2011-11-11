@@ -179,6 +179,7 @@ class MainWindow : public QMainWindow
 				iLastTotalCounts = iTotalCounts;
 
 			std::ostringstream ostr;
+			SetNumberGrouping(ostr);
 
 			ostr << "Total Counts: " << iLastTotalCounts
 				 << ", Ext. Counts: " << iLastCnts
@@ -1217,6 +1218,7 @@ class MainWindow : public QMainWindow
 			// ROI Menu Items
 			QAction *actionManageRois = new QAction(this);
 			actionManageRois->setText("&Manage ROI...");
+			actionManageRois->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
 
 			QAction *actionLoadRoi = new QAction(this);
 			actionLoadRoi->setText("Load ROI...");
@@ -1551,6 +1553,7 @@ class MainWindow : public QMainWindow
 int MainWindow::NUM_BINS = 100;
 int MainWindow::SERVER_STATUS_POLL_TIME = 500;
 int MainWindow::AUTOFETCH_POLL_TIME = 250;
+
 
 int main(int argc, char **argv)
 {

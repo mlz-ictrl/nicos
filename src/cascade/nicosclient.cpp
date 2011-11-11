@@ -88,8 +88,7 @@ unsigned int NicosClient::counts(const QByteArray& arr)
 unsigned int NicosClient::counts(const QByteArray& arr, int iStartX, int iEndX,
 								 int iStartY, int iEndY)
 {
-	if(arr.size()<4)
-		return 0;
+	if(arr.size()<4) return 0;
 
 	int iPad = IsPad(arr.data());
 	if(iPad == IS_NONE) return 0;

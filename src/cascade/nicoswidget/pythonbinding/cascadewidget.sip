@@ -114,7 +114,7 @@ class CascadeWidget : QWidget
 		bool LoadTofMem(const char* pcMem, unsigned int iLen);	// load TOF from mem
 
 		// get total counts of currently loaded PAD or TOF
-		int GetCounts() const;
+		unsigned int GetCounts() const;
 
 		// loading/saving of ROI elements
 		bool LoadRoi(const char* pcFile);

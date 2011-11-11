@@ -303,8 +303,12 @@ QwtText MainZoomer::trackerText(const QwtDoublePoint &pos) const
 
 	const MainRasterData& rasterdata = (const MainRasterData&)m_pData->data();
 
-	str += "\nValue: ";
-	str += QString::number(rasterdata.GetValueRaw(pos.x(),pos.y()));
+	str += "\nCount: ";
+
+	std::ostringstream ostr;
+	SetNumberGrouping(ostr);
+	ostr << rasterdata.GetValueRaw(pos.x(),pos.y());
+	str += ostr.str().c_str();
 
 	QwtText text = str;
 	QColor bg(Qt::white);
@@ -683,7 +687,7 @@ bool CascadeWidget::IsPadLoaded() const
 	return bool(m_pPad);
 }
 
-int CascadeWidget::GetCounts() const
+unsigned int CascadeWidget::GetCounts() const
 {
 	if(IsTofLoaded())
 		return m_pTof->GetCounts();

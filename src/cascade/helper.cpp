@@ -22,6 +22,7 @@
 // *****************************************************************************
 
 #include <stdio.h>
+#include <locale>
 #include <string.h>
 #include "helper.h"
 
@@ -48,7 +49,7 @@ long GetFileSize(const char* pcFileName)
 	return lSize;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+//------------------------------------------------------------------------------
 
 std::string trim(const std::string& str)
 {
@@ -91,9 +92,35 @@ void trim(char* pcStr)
 	}
 }
 
-////////////////////////////////////////////////////////////////////////////////
+
+//------------------------------------------------------------------------------
+
 
 unsigned int endian_swap(unsigned int ui)
 {
 	return (ui>>24) | ((ui<<8)&0x00ff0000) | ((ui>>8)&0x0000ff00) | (ui<<24);
+}
+
+
+//------------------------------------------------------------------------------
+
+
+class NumberGrouping : public std::numpunct<char>
+{
+	protected:
+		virtual char do_thousands_sep() const
+		{
+			return ' ';
+		}
+
+		virtual std::string do_grouping() const
+		{
+			return "\03";
+		}
+};
+
+void SetNumberGrouping(std::ostream& ostr)
+{
+	std::locale loc(ostr.getloc(), new NumberGrouping);
+	ostr.imbue(loc);
 }

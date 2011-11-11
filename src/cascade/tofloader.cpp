@@ -1124,6 +1124,7 @@ unsigned int PadImage::GetCounts(int iStartX, int iEndX,
 	for(int iY=iStartY; iY<iEndY; ++iY)
 		for(int iX=iStartX; iX<iEndX; ++iX)
 			uiCnt += GetData(iX, iY);
+
 	return uiCnt;
 }
 

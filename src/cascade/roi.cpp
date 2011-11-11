@@ -657,7 +657,7 @@ bool RoiPolygon::IsInside(int iX, int iY) const
 	return IsInside(double(iX), double(iY));
 }
 
-// Adapter to use external pnpoly function more efficiently
+// Adaptor to use external pnpoly function more efficiently
 class RoiPolygonArrayAdaptor
 {
 	protected:
@@ -683,10 +683,10 @@ bool RoiPolygon::IsInside(double dX, double dY) const
 {
 	const int iVertCnt = GetVertexCount();
 
-	RoiPolygonArrayAdaptor m_adapter_x(this,0);
-	RoiPolygonArrayAdaptor m_adapter_y(this,1);
+	RoiPolygonArrayAdaptor m_adaptor_x(this,0);
+	RoiPolygonArrayAdaptor m_adaptor_y(this,1);
 
-	return (pnpoly(iVertCnt+1, m_adapter_x, m_adapter_y, dX, dY) != 0);
+	return (pnpoly(iVertCnt+1, m_adaptor_x, m_adaptor_y, dX, dY) != 0);
 }
 
 std::string RoiPolygon::GetName() const
