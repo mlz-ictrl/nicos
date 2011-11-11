@@ -30,6 +30,14 @@
 
 #define CIRCLE_VERTICES 256
 
+
+struct BoundingRect
+{
+	Vec2d<int> bottomleft;
+	Vec2d<int> topright;
+};
+
+
 // interface for roi elements (rectangle, circle, ...)
 class RoiElement
 {
@@ -66,6 +74,9 @@ class RoiElement
 		// set value of a parameter
 		virtual void SetParam(int iParam, double dVal) = 0;
 		//----------------------------------------------------------------------
+
+		// bounding rect for the element's current parameters
+		virtual BoundingRect GetBoundingRect() const;
 };
 
 
@@ -120,6 +131,8 @@ class RoiCircle : public RoiElement
 		virtual int GetVertexCount() const;
 		virtual Vec2d<double> GetVertex(int i) const;
 
+		virtual BoundingRect GetBoundingRect() const;
+
 		virtual RoiElement* copy() const;
 };
 
@@ -147,6 +160,8 @@ class RoiEllipse : public RoiElement
 
 		virtual int GetVertexCount() const;
 		virtual Vec2d<double> GetVertex(int i) const;
+
+		virtual BoundingRect GetBoundingRect() const;
 
 		virtual RoiElement* copy() const;
 };
@@ -176,6 +191,8 @@ class RoiCircleRing : public RoiElement
 		virtual int GetVertexCount() const;
 		virtual Vec2d<double> GetVertex(int i) const;
 
+		virtual BoundingRect GetBoundingRect() const;
+
 		virtual RoiElement* copy() const;
 };
 
@@ -204,6 +221,8 @@ class RoiCircleSegment : public RoiCircleRing
 		virtual int GetVertexCount() const;
 		virtual Vec2d<double> GetVertex(int i) const;
 
+		virtual BoundingRect GetBoundingRect() const;
+
 		virtual RoiElement* copy() const;
 };
 
@@ -229,10 +248,9 @@ class RoiPolygon : public RoiElement
 
 		virtual int GetVertexCount() const;
 		virtual Vec2d<double> GetVertex(int i) const;
+		void AddVertex(const Vec2d<double>& vertex);
 
 		virtual RoiElement* copy() const;
-
-		void AddVertex(const Vec2d<double>& vertex);
 };
 
 

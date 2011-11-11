@@ -912,6 +912,7 @@ void PadImage::UpdateRange()
 {
 	m_iMin=std::numeric_limits<int>::max();
 	m_iMax=0;
+
 	for(int iY=0; iY<GetPadConfig().GetImageHeight(); ++iY)
 	{
 		for(int iX=0; iX<GetPadConfig().GetImageWidth(); ++iX)

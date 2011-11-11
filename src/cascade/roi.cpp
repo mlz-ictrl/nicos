@@ -33,6 +33,30 @@
 #include "mat2d.h"
 #include "pnpoly.h"
 
+
+BoundingRect RoiElement::GetBoundingRect() const
+{
+	BoundingRect rect;
+
+	rect.bottomleft[0] = std::numeric_limits<int>::max();
+	rect.bottomleft[1] = std::numeric_limits<int>::max();
+	rect.topright[0] = std::numeric_limits<int>::min();
+	rect.topright[1] = std::numeric_limits<int>::min();
+
+	for(int i=0; i<GetVertexCount(); ++i)
+	{
+		Vec2d<double> vert = GetVertex(i);
+
+		rect.bottomleft[0] = min(double(rect.bottomleft[0]), vert[0]);
+		rect.bottomleft[1] = min(double(rect.bottomleft[1]), vert[1]);
+
+		rect.topright[0] = max(double(rect.topright[0]), vert[0]);
+		rect.topright[1] = max(double(rect.topright[1]), vert[1]);
+	}
+
+	return rect;
+}
+
 //------------------------------------------------------------------------------
 // rect
 
@@ -150,7 +174,6 @@ Vec2d<double> RoiRect::GetVertex(int i) const
 	return vecRet;
 }
 
-
 RoiElement* RoiRect::copy() const
 {
 	return new RoiRect(m_bottomleft, m_topright, m_dAngle);
@@ -242,6 +265,21 @@ Vec2d<double> RoiCircle::GetVertex(int i) const
 	vecRet = vecRet + m_vecCenter;
 
 	return vecRet;
+}
+
+BoundingRect RoiCircle::GetBoundingRect() const
+{
+	BoundingRect rect;
+
+	rect.bottomleft = m_vecCenter.cast<int>();
+	rect.bottomleft[0] -= m_dRadius;
+	rect.bottomleft[1] -= m_dRadius;
+
+	rect.topright = m_vecCenter.cast<int>();
+	rect.topright[0] += m_dRadius;
+	rect.topright[1] += m_dRadius;
+
+	return rect;
 }
 
 RoiElement* RoiCircle::copy() const
@@ -343,6 +381,21 @@ Vec2d<double> RoiEllipse::GetVertex(int i) const
 	vecRet = vecRet + m_vecCenter;
 
 	return vecRet;
+}
+
+BoundingRect RoiEllipse::GetBoundingRect() const
+{
+	BoundingRect rect;
+
+	rect.bottomleft = m_vecCenter.cast<int>();
+	rect.bottomleft[0] -= m_dRadiusX;
+	rect.bottomleft[1] -= m_dRadiusY;
+
+	rect.topright = m_vecCenter.cast<int>();
+	rect.topright[0] += m_dRadiusX;
+	rect.topright[1] += m_dRadiusY;
+
+	return rect;
 }
 
 RoiElement* RoiEllipse::copy() const
@@ -480,6 +533,21 @@ Vec2d<double> RoiCircleRing::GetVertex(int i) const
 	}
 
 	return vecRet;
+}
+
+BoundingRect RoiCircleRing::GetBoundingRect() const
+{
+	BoundingRect rect;
+
+	rect.bottomleft = m_vecCenter.cast<int>();
+	rect.bottomleft[0] -= m_dOuterRadius;
+	rect.bottomleft[1] -= m_dOuterRadius;
+
+	rect.topright = m_vecCenter.cast<int>();
+	rect.topright[0] += m_dOuterRadius;
+	rect.topright[1] += m_dOuterRadius;
+
+	return rect;
 }
 
 RoiElement* RoiCircleRing::copy() const
@@ -633,6 +701,12 @@ Vec2d<double> RoiCircleSegment::GetVertex(int i) const
 	}
 
 	return vecRet;
+}
+
+BoundingRect RoiCircleSegment::GetBoundingRect() const
+{
+	// TODO!!
+	return RoiCircleRing::GetBoundingRect();
 }
 
 RoiElement* RoiCircleSegment::copy() const
