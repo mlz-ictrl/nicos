@@ -65,8 +65,8 @@ bool RoiRect::IsInside(int iX, int iY) const
 	Vec2d<double> vecPoint(iX, iY);
 	vecPoint = matRot_inv*(vecPoint-vecCenter) + vecCenter;
 
-	if(vecPoint[0]>=bottomleft[0] && vecPoint[0]<=topright[0] &&
-	   vecPoint[1]>=bottomleft[1] && vecPoint[1]<=topright[1])
+	if(vecPoint[0]>=bottomleft[0] && vecPoint[0]<topright[0] &&
+	   vecPoint[1]>=bottomleft[1] && vecPoint[1]<topright[1])
 	   return true;
 	return false;
 }
