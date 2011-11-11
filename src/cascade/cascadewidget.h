@@ -229,7 +229,10 @@ Q_OBJECT
 		int GetMode();
 
 		void SetRoiDrawMode(int iMode);
+
 		Roi* GetCurRoi();
+		bool IsRoiInUse();
+		void UseRoi(bool bUse);
 
 	public slots:
 		// sum all foils and all time channels

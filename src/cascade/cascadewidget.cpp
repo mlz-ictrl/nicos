@@ -178,7 +178,7 @@ void MainPicker::selectedPoly(const QwtArray<QwtDoublePoint>& poly)
 		return;
 
 	RoiPolygon *pElem = new RoiPolygon();
-	for(unsigned int i=0; i<poly.size(); ++i)
+	for(int i=0; i<poly.size(); ++i)
 	{
 		const QwtDoublePoint& pt = poly[i];
 
@@ -1024,21 +1024,8 @@ void CascadeWidget::showRoiDlg()
 		return;
 	}
 
-	Roi *pRoi = 0;
-	bool bUseRoi = false;
-
-	if(IsTofLoaded())
-	{
-		pRoi = &GetTof()->GetRoi();
-		bUseRoi = GetTof()->GetUseRoi();
-
-	}
-	else if(IsPadLoaded())
-	{
-		pRoi = &GetPad()->GetRoi();
-		bUseRoi = GetPad()->GetUseRoi();
-	}
-
+	Roi *pRoi = GetCurRoi();
+	bool bUseRoi = IsRoiInUse();
 
 	if(!m_proidlg)
 	{
@@ -1059,13 +1046,7 @@ void CascadeWidget::showRoiDlg()
 
 void CascadeWidget::RoiDlgAccepted(QAbstractButton* pBtn)
 {
-	Roi *pRoi = 0;
-
-	if(IsTofLoaded())
-		pRoi = &GetTof()->GetRoi();
-	else if(IsPadLoaded())
-		pRoi = &GetPad()->GetRoi();
-
+	Roi *pRoi = GetCurRoi();
 
 	// "OK" or "Apply" clicked?
 	if(m_proidlg->buttonBox->standardButton(pBtn) == QDialogButtonBox::Apply ||
@@ -1075,11 +1056,7 @@ void CascadeWidget::RoiDlgAccepted(QAbstractButton* pBtn)
 
 		bool bCk = (m_proidlg->checkBoxUseRoi->checkState() == Qt::Checked);
 
-		if(IsTofLoaded())
-			GetTof()->UseRoi(bCk);
-		else if(IsPadLoaded())
-			GetPad()->UseRoi(bCk);
-
+		UseRoi(bCk);
 		RedrawRoi();
 	}
 }
@@ -1094,19 +1071,10 @@ bool CascadeWidget::LoadRoi(const char* pcFile)
 		return false;
 	}
 
-	Roi *pRoi = 0;
-
-	if(IsTofLoaded())
-		pRoi = &GetTof()->GetRoi();
-	else if(IsPadLoaded())
-		pRoi = &GetPad()->GetRoi();
-
+	Roi *pRoi = GetCurRoi();
 	int iRet = pRoi->Load(pcFile);
 
-	if(IsTofLoaded())
-		GetTof()->UseRoi(true);
-	else if(IsPadLoaded())
-		GetPad()->UseRoi(true);
+	UseRoi(true);
 
 	RedrawRoi();
 	return iRet;
@@ -1122,13 +1090,7 @@ bool CascadeWidget::SaveRoi(const char* pcFile)
 		return false;
 	}
 
-	Roi *pRoi = 0;
-
-	if(IsTofLoaded())
-		pRoi = &GetTof()->GetRoi();
-	else if(IsPadLoaded())
-		pRoi = &GetPad()->GetRoi();
-
+	Roi *pRoi = GetCurRoi();
 	return pRoi->Save(pcFile);
 }
 
@@ -1148,6 +1110,24 @@ Roi* CascadeWidget::GetCurRoi()
 		pRoi = &GetPad()->GetRoi();
 
 	return pRoi;
+}
+
+bool CascadeWidget::IsRoiInUse()
+{
+	if(IsTofLoaded())
+		return GetTof()->GetUseRoi();
+	else if(IsPadLoaded())
+		return GetPad()->GetUseRoi();
+
+	return false;
+}
+
+void CascadeWidget::UseRoi(bool bUse)
+{
+	if(IsTofLoaded())
+		GetTof()->UseRoi(bUse);
+	else if(IsPadLoaded())
+		GetPad()->UseRoi(bUse);
 }
 
 void CascadeWidget::UpdateRoiVector()
@@ -1213,13 +1193,7 @@ void CascadeWidget::ClearRoiVector()
 
 void CascadeWidget::RedrawRoi()
 {
-	bool bUseRoi = false;
-
-	if(IsTofLoaded())
-		bUseRoi = GetTof()->GetUseRoi();
-	else if(IsPadLoaded())
-		bUseRoi = GetPad()->GetUseRoi();
-
+	bool bUseRoi = IsRoiInUse();
 	if(bUseRoi)
 	{
 		UpdateRoiVector();
@@ -1236,6 +1210,8 @@ void CascadeWidget::ClearRoi()
 {
 	Roi* pRoi = GetCurRoi();
 	if(!pRoi) return;
+
+	UseRoi(false);
 
 	pRoi->clear();
 	ClearRoiVector();
@@ -1255,10 +1231,7 @@ void CascadeWidget::SetRoiDrawMode(int iMode)
 	}
 	else
 	{
-		if(IsTofLoaded())
-			GetTof()->UseRoi(true);
-		else if(IsPadLoaded())
-			GetPad()->UseRoi(true);
+		UseRoi(true);
 
 		Roi *pRoi = GetCurRoi();
 		pPicker->SetCurRoi(pRoi);

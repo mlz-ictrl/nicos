@@ -181,8 +181,12 @@ class MainWindow : public QMainWindow
 			std::ostringstream ostr;
 			SetNumberGrouping(ostr);
 
-			ostr << "Total Counts: " << iLastTotalCounts
-				 << ", Ext. Counts: " << iLastCnts
+			std::string strTotalCounts =
+					(m_cascadewidget.IsRoiInUse() ? "Counts (ROI): "
+												  : "Counts (Total): ");
+
+			ostr << strTotalCounts << iLastTotalCounts
+				 /*<< ", Ext. Counts: " << iLastCnts*/
 				 << ", Clients: " << iLastClients
 				 << ", Measurement " << (iLastRunning?"running":"not running");
 
