@@ -161,11 +161,13 @@ class MainWindow : public QMainWindow
 		}
 
 		// iCnts or iClients set to -1 means: do not update respective value
-		void ShowRightMessage(int iCnts=-1, int iClients=-1, int iRunning=-1)
+		void ShowRightMessage(int iCnts=-1, int iClients=-1, int iRunning=-1,
+							  int iTotalCounts=-1)
 		{
 			static int iLastCnts=0,
 					   iLastClients=0,
-					   iLastRunning=0;
+					   iLastRunning=0,
+					   iLastTotalCounts=0;
 
 			if(iCnts!=-1)
 				iLastCnts = iCnts;
@@ -173,10 +175,13 @@ class MainWindow : public QMainWindow
 				iLastClients = iClients;
 			if(iRunning!=-1)
 				iLastRunning = iRunning;
+			if(iTotalCounts!=-1)
+				iLastTotalCounts = iTotalCounts;
 
 			std::ostringstream ostr;
 
-			ostr << "Ext. Counts: " << iLastCnts
+			ostr << "Total Counts: " << iLastTotalCounts
+				 << ", Ext. Counts: " << iLastCnts
 				 << ", Clients: " << iLastClients
 				 << ", Measurement " << (iLastRunning?"running":"not running");
 
@@ -326,6 +331,10 @@ class MainWindow : public QMainWindow
 				m_cascadewidget.UpdateGraph();
 
 				UpdateLabels(false);
+
+				int iTotalCounts = m_cascadewidget.GetCounts();
+				ShowRightMessage(-1,-1,-1,iTotalCounts);
+
 				//ShowMessage("PAD loaded from Server.");
 			}
 			////////////////////////////////////////////////////////////////////
@@ -390,6 +399,10 @@ class MainWindow : public QMainWindow
 				//UpdateLabels(false);
 
 				UpdateSliders();
+
+				int iTotalCounts = m_cascadewidget.GetCounts();
+				ShowRightMessage(-1,-1,-1,iTotalCounts);
+
 				//ShowMessage("TOF loaded from Server.");
 				viewOverview();
 				actionViewsOverview->setChecked(true);
@@ -855,6 +868,10 @@ class MainWindow : public QMainWindow
 				ServerDisconnect();
 
 				//m_cascadewidget.UpdateGraph();
+
+				int iTotalCounts = m_cascadewidget.GetCounts();
+				ShowRightMessage(-1,-1,-1,iTotalCounts);
+
 				UpdateLabels(false);
 				ShowMessage("PAD loaded.");
 
@@ -876,6 +893,10 @@ class MainWindow : public QMainWindow
 				ServerDisconnect();
 
 				//m_cascadewidget.UpdateGraph();	// macht viewOverview schon
+
+				int iTotalCounts = m_cascadewidget.GetCounts();
+				ShowRightMessage(-1,-1,-1,iTotalCounts);
+
 				UpdateLabels(false);
 				UpdateSliders();
 				ShowMessage("TOF loaded.");

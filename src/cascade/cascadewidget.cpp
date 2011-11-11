@@ -361,7 +361,7 @@ void Plot::InitPlot()
 
 	// avoid jumping of the layout
 	axisScaleDraw(QwtPlot::yLeft)->setMinimumExtent(35);
-	axisScaleDraw(QwtPlot::yRight)->setMinimumExtent(55);
+	axisScaleDraw(QwtPlot::yRight)->setMinimumExtent(60);
 	axisWidget(QwtPlot::yRight)->setMinBorderDist(25,0);
 }
 
@@ -665,6 +665,16 @@ bool CascadeWidget::IsTofLoaded() const
 bool CascadeWidget::IsPadLoaded() const
 {
 	return bool(m_pPad);
+}
+
+int CascadeWidget::GetCounts() const
+{
+	if(IsTofLoaded())
+		return m_pTof->GetCounts();
+	else if(IsPadLoaded())
+		return m_pPad->GetCounts();
+
+	return 0;
 }
 
 void CascadeWidget::UpdateLabels()

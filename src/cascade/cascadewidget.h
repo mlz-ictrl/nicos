@@ -205,6 +205,9 @@ Q_OBJECT
 		// load TOF from memory
 		bool LoadTofMem(const char* pcMem, unsigned int iLen);
 
+		// get total counts of currently loaded PAD or TOF
+		int GetCounts() const;
+
 		// loading/saving of ROI elements
 		bool LoadRoi(const char* pcFile);
 		bool SaveRoi(const char* pcFile);
