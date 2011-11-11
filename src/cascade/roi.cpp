@@ -509,8 +509,6 @@ bool RoiCircleSegment::IsInside(int iX, int iY) const
 	return IsInside(double(iX), double(iY));
 }
 
-#include <errno.h>
-
 bool RoiCircleSegment::IsInside(double dX, double dY) const
 {
 	if(!RoiCircleRing::IsInside(dX, dY))
