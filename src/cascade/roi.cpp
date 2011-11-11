@@ -657,29 +657,36 @@ bool RoiPolygon::IsInside(int iX, int iY) const
 	return IsInside(double(iX), double(iY));
 }
 
+// Adapter to use external pnpoly function more efficiently
+class RoiPolygonArrayAdaptor
+{
+	protected:
+		const RoiPolygon* m_pPoly;
+		int m_iCoord;
+
+	public:
+		RoiPolygonArrayAdaptor(const RoiPolygon* pPoly, int iCoord)
+					: m_pPoly(pPoly), m_iCoord(iCoord)
+		{}
+
+		double operator[](int i) const
+		{
+			// repeat first vertex
+			if(i==m_pPoly->GetVertexCount())
+				i=0;
+
+			return m_pPoly->GetVertex(i)[m_iCoord];
+		}
+};
+
 bool RoiPolygon::IsInside(double dX, double dY) const
 {
 	const int iVertCnt = GetVertexCount();
 
-	double *vertx = new double[iVertCnt+1];
-	double *verty = new double[iVertCnt+1];
+	RoiPolygonArrayAdaptor m_adapter_x(this,0);
+	RoiPolygonArrayAdaptor m_adapter_y(this,1);
 
-	for(int i=0; i<iVertCnt; ++i)
-	{
-		vertx[i] = m_vertices[i][0];
-		verty[i] = m_vertices[i][1];
-	}
-
-	// repeat first vertex
-	vertx[iVertCnt] = m_vertices[iVertCnt-1][0];
-	verty[iVertCnt] = m_vertices[iVertCnt-1][1];
-
-	bool bInPoly = (pnpoly(iVertCnt+1, vertx, verty, dX, dY) != 0);
-
-	delete[] vertx;
-	delete[] verty;
-
-	return bInPoly;
+	return (pnpoly(iVertCnt+1, m_adapter_x, m_adapter_y, dX, dY) != 0);
 }
 
 std::string RoiPolygon::GetName() const
