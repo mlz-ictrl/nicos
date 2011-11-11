@@ -509,20 +509,36 @@ bool RoiCircleSegment::IsInside(int iX, int iY) const
 	return IsInside(double(iX), double(iY));
 }
 
+#include <errno.h>
+
 bool RoiCircleSegment::IsInside(double dX, double dY) const
 {
 	if(!RoiCircleRing::IsInside(dX, dY))
 		return false;
 
-	Vec2d<double> vecVertex(dX,dY);
+	// test if point is between the two angles?
 
-	// between the two angles?
+	Vec2d<double> vecVertex(dX,dY);
+	vecVertex = vecVertex - m_vecCenter;
+	//vecVertex.normalize();
+
+	const double dAngle1Rad = m_dBeginAngle / 180. * M_PI;
+	const double dAngle2Rad = m_dEndAngle / 180. * M_PI;
+
+	Vec2d<double> vecNormal1;
+	vecNormal1[0] = -sin(dAngle1Rad);
+	vecNormal1[1] = cos(dAngle1Rad);
+
+	Vec2d<double> vecNormal2;
+	vecNormal2[0] = -sin(dAngle2Rad);
+	vecNormal2[1] = cos(dAngle2Rad);
+
 	bool bBetweenAngles = false;
-	vecVertex.normalize();
-	double dAngle = acos(vecVertex*Vec2d<double>(1.,0.));
-	dAngle = dAngle/M_PI*180.;
-	if(dAngle>=m_dBeginAngle && dAngle<=m_dEndAngle)
-		bBetweenAngles = true;
+	double dDot1 = vecVertex * vecNormal1;
+	double dDot2 = vecVertex * vecNormal2;
+
+	if(dDot1>=0. && dDot2<=0.)
+		bBetweenAngles=true;
 
 	if(!bBetweenAngles)
 		return false;

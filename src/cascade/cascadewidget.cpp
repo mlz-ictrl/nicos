@@ -70,7 +70,8 @@ MainPicker::MainPicker(QwtPlotCanvas* pcanvas)
 	setTrackerPen(c);
 
 	setRubberBand(RectRubberBand);
-	setTrackerMode(QwtPicker::ActiveOnly);
+	//setTrackerMode(QwtPicker::ActiveOnly);
+	setTrackerMode(AlwaysOn);
 
 	connect((QwtPlotPicker*)this, SIGNAL(selected(const QwtDoubleRect&)),
 			this, SLOT(selectedRect (const QwtDoubleRect&)));
@@ -84,33 +85,48 @@ MainPicker::~MainPicker()
 
 QwtText MainPicker::trackerText(const QwtDoublePoint &pos) const
 {
+	const int iX = int(pos.x());
+	const int iY = int(pos.y());
+
 	QString str;
-	switch(m_iRoiDrawMode)
+	if(isActive())
 	{
-		case ROI_DRAW_RECT:
-			str += "Drawing Rectangle";
-			break;
-		case ROI_DRAW_CIRC:
-			str += "Drawing Circle";
-			break;
-		case ROI_DRAW_CIRCRING:
-			str += "Drawing Circle Ring";
-			break;
-		case ROI_DRAW_CIRCSEG:
-			str += "Drawing Circle Segment";
-			break;
-		case ROI_DRAW_ELLIPSE:
-			str += "Drawing Ellipse";
-			break;
-		case ROI_DRAW_POLYGON:
-			str += "Drawing Polygon";
-			break;
+		switch(m_iRoiDrawMode)
+		{
+			case ROI_DRAW_RECT:
+				str += "Drawing Rectangle";
+				break;
+			case ROI_DRAW_CIRC:
+				str += "Drawing Circle";
+				break;
+			case ROI_DRAW_CIRCRING:
+				str += "Drawing Circle Ring";
+				break;
+			case ROI_DRAW_CIRCSEG:
+				str += "Drawing Circle Segment";
+				break;
+			case ROI_DRAW_ELLIPSE:
+				str += "Drawing Ellipse";
+				break;
+			case ROI_DRAW_POLYGON:
+				str += "Drawing Polygon";
+				break;
+		}
+	}
+	else
+	{
+		if(!m_pCurRoi)
+			str = "no active roi";
+		else if(m_pCurRoi->IsInside(iX, iY))
+			str = "inside roi";
+		else
+			str = "outside roi";
 	}
 
 	str += "\nPixel: ";
-	str += QString::number(int(pos.x()));
+	str += QString::number(iX);
 	str += ", ";
-	str += QString::number(int(pos.y()));
+	str += QString::number(iY);
 
 	QwtText text = str;
 	QColor bg(Qt::white);
