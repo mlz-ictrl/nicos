@@ -49,6 +49,10 @@ class NicosClient : public TcpClient
 
 		// get total counts in TOF or PAD
 		unsigned int counts(const QByteArray& arr);
+
+		// get total counts inside ROI in TOF or PAD
+		unsigned int counts(const QByteArray& arr, int iStartX, int iEndX,
+							int iStartY, int iEndY);
 };
 
 #endif

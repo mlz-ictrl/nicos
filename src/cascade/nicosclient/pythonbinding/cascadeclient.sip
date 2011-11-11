@@ -46,5 +46,8 @@ class NicosClient : TcpClient
 
 		// total counts
 		unsigned int counts(const QByteArray& arr);
+
+		// counts inside ROI
+		unsigned int counts(const QByteArray& arr, int iStartX, int iEndX, int iStartY, int iEndY);
 		/////////////////////////////////////////////////////////////
 };

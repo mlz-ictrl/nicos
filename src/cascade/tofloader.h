@@ -131,6 +131,10 @@ class PadImage : public BasicImage
 		// total number of counts (inside ROI, if used)
 		unsigned int GetCounts() const;
 
+		// old style GetCounts, ignoring main roi
+		unsigned int GetCounts(int iStartX, int iEndX,
+							   int iStartY, int iEndY) const;
+
 		const PadConfig& GetPadConfig() const;
 
 		Roi& GetRoi();
@@ -332,6 +336,10 @@ class TofImage
 
 		// total number of counts (inside ROI, if used)
 		unsigned int GetCounts() const;
+
+		// old style GetCounts, ignoring main roi
+		unsigned int GetCounts(int iStartX, int iEndX,
+							   int iStartY, int iEndY) const;
 
 		//----------------------------------------------------------------------
 		// copy ROI into new temporary image

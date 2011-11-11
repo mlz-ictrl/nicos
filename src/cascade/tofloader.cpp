@@ -709,6 +709,22 @@ unsigned int TofImage::GetCounts() const
 	return uiCnt;
 }
 
+unsigned int TofImage::GetCounts(int iStartX, int iEndX,
+								 int iStartY, int iEndY) const
+{
+	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY);
+
+	TmpImage img;
+	GetOverview(&img);
+
+	unsigned int uiCnt = 0;
+	for(int iY=iStartY; iY<iEndY; ++iY)
+		for(int iX=iStartX; iX<iEndX; ++iX)
+			uiCnt += img.GetData(iX, iY);
+
+	return uiCnt;
+}
+
 // *****************************************************************************
 
 TmpImage TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY,
@@ -1096,6 +1112,18 @@ unsigned int PadImage::GetCounts() const
 		for(int iX=0; iX<GetPadConfig().GetImageWidth(); ++iX)
 			uiCnt += GetDataInsideROI(iX, iY);
 
+	return uiCnt;
+}
+
+unsigned int PadImage::GetCounts(int iStartX, int iEndX,
+								 int iStartY, int iEndY) const
+{
+	GetPadConfig().CheckPadArguments(&iStartX, &iEndX, &iStartY, &iEndY);
+
+	unsigned int uiCnt = 0;
+	for(int iY=iStartY; iY<iEndY; ++iY)
+		for(int iX=iStartX; iX<iEndX; ++iX)
+			uiCnt += GetData(iX, iY);
 	return uiCnt;
 }
 
