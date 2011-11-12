@@ -64,7 +64,9 @@ TofImage::TofImage(const char *pcFileName, int iCompressed, bool bExternalMem,
 	logger << "Loader: New TOF image: " << "external mem=" << m_bExternalMem
 			  << ", width=" << GetTofConfig().GetImageWidth()
 			  << ", height=" << GetTofConfig().GetImageHeight()
-			  << ", images=" << GetTofConfig().GetImageCount() << ".\n";
+			  << ", images=" << GetTofConfig().GetImageCount()
+			  << ", comp=" << GetCompressionMethod()
+			  << ".\n";
 
 	// should TofImage manage its own memory?
 	if(!m_bExternalMem)
@@ -164,13 +166,6 @@ void TofImage::SetCompressionMethod(int iComp)
 
 unsigned int TofImage::GetData(int iBild, int iX, int iY) const
 {
-	if(m_bUseRoi)
-	{
-		// only continue if point is in ROI
-		if(!m_roi.IsInside(iX, iY))
-			return 0;
-	}
-
 	if(m_puiDaten && iBild>=0 && iBild<GetTofConfig().GetImageCount() &&
 	   iX>=0 && iX<GetTofConfig().GetImageWidth() &&
 	   iY>=0 && iY<GetTofConfig().GetImageHeight())
@@ -184,13 +179,6 @@ unsigned int TofImage::GetData(int iBild, int iX, int iY) const
 unsigned int TofImage::GetData(int iFoil, int iTimechannel,
 							   int iX, int iY) const
 {
-	if(m_bUseRoi)
-	{
-		// only continue if point is in ROI
-		if(!m_roi.IsInside(iX, iY))
-			return 0;
-	}
-
 	if(!m_bPseudoCompressed)
 	{
 		int iZ = GetTofConfig().GetFoilBegin(iFoil) + iTimechannel;
@@ -206,6 +194,31 @@ unsigned int TofImage::GetData(int iFoil, int iTimechannel,
 		return GetData(iFoil*GetTofConfig().GetImagesPerFoil()
 						+ iTimechannel, iX, iY);
 	}
+}
+
+unsigned int TofImage::GetDataInsideROI(int iFoil, int iTimechannel,
+										int iX, int iY) const
+{
+	if(m_bUseRoi)
+	{
+		// only continue if point is in ROI
+		if(!m_roi.IsInside(iX, iY))
+			return 0;
+	}
+
+	return GetData(iFoil, iTimechannel, iX, iY);
+}
+
+unsigned int TofImage::GetDataInsideROI(int iImage, int iX, int iY) const
+{
+	if(m_bUseRoi)
+	{
+		// only continue if point is in ROI
+		if(!m_roi.IsInside(iX, iY))
+			return 0;
+	}
+
+	return GetData(iImage, iX, iY);
 }
 
 unsigned int* TofImage::GetRawData(void) const
@@ -325,11 +338,9 @@ void TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 						int iFolie, TmpGraph* pGraph) const
 {
 	if(!pGraph) return;
+	GetTofConfig().CheckTofArguments(&iStartX,&iEndX,&iStartY,&iEndY,&iFolie);
 
-	GetTofConfig().CheckTofArguments(&iStartX, &iEndX,
-							      &iStartY, &iEndY, &iFolie);
-	unsigned int *puiWave = new unsigned int[
-										GetTofConfig().GetImagesPerFoil()];
+	unsigned int *puiWave = new unsigned int[GetTofConfig().GetImagesPerFoil()];
 
 	pGraph->m_iW = GetTofConfig().GetImagesPerFoil();
 	pGraph->m_puiDaten = puiWave;
@@ -339,10 +350,20 @@ void TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 		unsigned int uiSummedVal=0;
 		for(int iY=iStartY; iY<iEndY; ++iY)
 			for(int iX=iStartX; iX<iEndX; ++iX)
-				uiSummedVal += GetData(iFolie, iZ0, iX, iY);
+				uiSummedVal += GetDataInsideROI(iFolie, iZ0, iX, iY);
 
 		puiWave[iZ0]=uiSummedVal;
 	}
+}
+
+void TofImage::GetGraph(int iFoil, TmpGraph* pGraph) const
+{
+	int iStartX = 0,
+		iStartY = 0,
+		iEndX = GetTofConfig().GetImageWidth(),
+		iEndY = GetTofConfig().GetImageHeight();
+
+	GetGraph(iStartX, iEndX, iStartY, iEndY, iFoil, pGraph);
 }
 
 void TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
@@ -371,7 +392,7 @@ void TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 					if(iShift>=GetTofConfig().GetImagesPerFoil())
 						iShift%=GetTofConfig().GetImagesPerFoil();
 
-					uiSummedVal += GetData(iFolie, iShift, iX, iY);
+					uiSummedVal += GetDataInsideROI(iFolie, iShift, iX, iY);
 				}
 			}
 		}
@@ -385,6 +406,7 @@ void TofImage::GetOverview(TmpImage *pImg) const
 	pImg->Clear();
 	pImg->m_iW = GetTofConfig().GetImageWidth();
 	pImg->m_iH = GetTofConfig().GetImageHeight();
+
 	pImg->m_puiDaten = new unsigned int[GetTofConfig().GetImageWidth()*
 										GetTofConfig().GetImageHeight()];
 	if(pImg->m_puiDaten==NULL)
@@ -577,16 +599,15 @@ void TofImage::AddContrasts(const bool *pbFolien, TmpImage *pImg) const
 }
 
 // Für Kalibrierungsdiagramm
-void TofImage::GetPhaseGraph(int iFoil, TmpImage *pImg, bool bInDeg) const
-{
-	GetPhaseGraph(iFoil, pImg, 0, GetTofConfig().GetImageWidth(), 0,
-								  GetTofConfig().GetImageHeight(), bInDeg);
-}
-
-void TofImage::GetPhaseGraph(int iFolie, TmpImage *pImg, int iStartX, int iEndX,
-								int iStartY, int iEndY, bool bInDeg) const
+void TofImage::GetPhaseGraph(int iFolie, TmpImage *pImg, bool bInDeg) const
 {
 	if(pImg==NULL) return;
+
+	int iStartX = 0,
+		iStartY = 0,
+		iEndX = GetTofConfig().GetImageWidth(),
+		iEndY = GetTofConfig().GetImageHeight();
+
 	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY);
 
 	pImg->Clear();
@@ -628,14 +649,13 @@ void TofImage::GetPhaseGraph(int iFolie, TmpImage *pImg, int iStartX, int iEndX,
 
 void TofImage::GetContrastGraph(int iFoil, TmpImage *pImg) const
 {
-	GetContrastGraph(iFoil, pImg, 0, GetTofConfig().GetImageWidth(), 0,
-									 GetTofConfig().GetImageHeight());
-}
-
-void TofImage::GetContrastGraph(int iFoil, TmpImage *pImg, int iStartX,
-								int iEndX, int iStartY, int iEndY) const
-{
 	if(pImg==NULL) return;
+
+	int iStartX = 0,
+		iStartY = 0,
+		iEndX = GetTofConfig().GetImageWidth(),
+		iEndY = GetTofConfig().GetImageHeight();
+
 	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY);
 
 	pImg->Clear();
@@ -676,25 +696,18 @@ void TofImage::GetContrastGraph(int iFoil, TmpImage *pImg, int iStartX,
 
 unsigned int TofImage::GetCounts() const
 {
-	return GetCounts(0, GetTofConfig().GetImageWidth(),
-					 0, GetTofConfig().GetImageHeight());
-}
-
-unsigned int TofImage::GetCounts(int iStartX, int iEndX,
-								 int iStartY, int iEndY) const
-{
-	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY);
-
 	TmpImage img;
 	GetOverview(&img);
 
 	unsigned int uiCnt = 0;
-	for(int iY=iStartY; iY<iEndY; ++iY)
-		for(int iX=iStartX; iX<iEndX; ++iX)
-			uiCnt += img.GetData(iX, iY);
+	for(int iY=0; iY<GetTofConfig().GetImageHeight(); ++iY)
+		for(int iX=0; iX<GetTofConfig().GetImageWidth(); ++iX)
+		{
+			if(m_bUseRoi && m_roi.IsInside(iX, iY))
+				uiCnt += img.GetData(iX, iY);
+		}
 	return uiCnt;
 }
-
 
 // *****************************************************************************
 
@@ -707,10 +720,17 @@ TmpImage TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY,
 }
 
 TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
-						    int iFolie) const
+						    int iFoil) const
 {
 	TmpGraph graph;
-	GetGraph(iStartX, iEndX, iStartY, iEndY, iFolie, &graph);
+	GetGraph(iStartX, iEndX, iStartY, iEndY, iFoil, &graph);
+	return graph;
+}
+
+TmpGraph TofImage::GetGraph(int iFoil) const
+{
+	TmpGraph graph;
+	GetGraph(iFoil, &graph);
 	return graph;
 }
 
@@ -729,19 +749,17 @@ TmpImage TofImage::GetOverview() const
 	return img;
 }
 
-TmpImage TofImage::GetPhaseGraph(int iFolie, int iStartX, int iEndX,
-								 int iStartY, int iEndY, bool bInDeg) const
+TmpImage TofImage::GetPhaseGraph(int iFolie, bool bInDeg) const
 {
 	TmpImage img;
-	GetPhaseGraph(iFolie, &img, iStartX, iEndX, iStartY, iEndY, bInDeg);
+	GetPhaseGraph(iFolie, &img, bInDeg);
 	return img;
 }
 
-TmpImage TofImage::GetContrastGraph(int iFolie, int iStartX, int iEndX,
-									int iStartY, int iEndY) const
+TmpImage TofImage::GetContrastGraph(int iFolie) const
 {
 	TmpImage img;
-	GetContrastGraph(iFolie, &img, iStartX, iEndX, iStartY, iEndY);
+	GetContrastGraph(iFolie, &img);
 	return img;
 }
 
@@ -775,6 +793,7 @@ PadImage::PadImage(const char *pcFileName, bool bExternalMem,
 		: m_iMin(0),m_iMax(0), m_bExternalMem(bExternalMem)
 {
 	m_puiDaten = 0;
+	m_bUseRoi = false;
 
 	if(conf)
 		m_config = *conf;
@@ -810,6 +829,9 @@ PadImage::PadImage(const PadImage& pad) : m_bExternalMem(false)
 	m_iMax=pad.m_iMax;
 
 	m_config = pad.m_config;
+
+	m_bUseRoi = pad.m_bUseRoi;
+	m_roi = pad.m_roi;
 
 	m_puiDaten = new unsigned int[GetPadSize()];
 	if(m_puiDaten == NULL)
@@ -872,14 +894,16 @@ void PadImage::SetExternalMem(void* pvDaten)
 
 void PadImage::UpdateRange()
 {
-	m_iMin=std::numeric_limits<double>::max();
+	m_iMin=std::numeric_limits<int>::max();
 	m_iMax=0;
 	for(int iY=0; iY<GetPadConfig().GetImageHeight(); ++iY)
 	{
 		for(int iX=0; iX<GetPadConfig().GetImageWidth(); ++iX)
 		{
-			m_iMin = (m_iMin<int(GetData(iX,iY)))?m_iMin:GetData(iX,iY);
-			m_iMax = (m_iMax>int(GetData(iX,iY)))?m_iMax:GetData(iX,iY);
+			int iDat = int(GetData(iX,iY));
+
+			m_iMin = (m_iMin<iDat) ? m_iMin : iDat;
+			m_iMax = (m_iMax>iDat) ? m_iMax : iDat;
 		}
 	}
 }
@@ -921,6 +945,35 @@ int PadImage::LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen)
 
 	UpdateRange();
 	return LOAD_SUCCESS;
+}
+
+int PadImage::SaveFile(const char *pcFileName)
+{
+	FILE *pf = fopen(pcFileName, "wb");
+	if(!pf)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Could not open file \"" << pcFileName
+			   << "\" for writing."
+			   << "\n";
+		return SAVE_FAIL;
+	}
+
+	unsigned int uiLen = fwrite(m_puiDaten, sizeof(unsigned int),
+		   GetPadConfig().GetImageHeight()*GetPadConfig().GetImageWidth(), pf);
+
+	int iRet = SAVE_SUCCESS;
+	if(uiLen != (unsigned int)(GetPadConfig().GetImageHeight()*
+							   GetPadConfig().GetImageWidth()))
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Could not write file \"" << pcFileName << "\"."
+			   << "\n";
+		iRet = SAVE_FAIL;
+	}
+
+	fclose(pf);
+	return iRet;
 }
 
 int PadImage::LoadFile(const char *pcFileName)
@@ -1008,6 +1061,18 @@ unsigned int PadImage::GetData(int iX, int iY) const
 	return GetIntData(iX, iY);
 }
 
+unsigned int PadImage::GetDataInsideROI(int iX, int iY) const
+{
+	if(m_bUseRoi)
+	{
+		// only continue if point is in ROI
+		if(!m_roi.IsInside(iX, iY))
+			return 0;
+	}
+
+	return GetData(iX, iY);
+}
+
 double PadImage::GetDoubleData(int iX, int iY) const
 {
 	return double(GetIntData(iX, iY));
@@ -1026,28 +1091,25 @@ unsigned int PadImage::GetIntData(int iX, int iY) const
 
 unsigned int PadImage::GetCounts() const
 {
-	return GetCounts(0, GetPadConfig().GetImageWidth(),
-					 0, GetPadConfig().GetImageHeight());
-}
-
-unsigned int PadImage::GetCounts(int iStartX, int iEndX,
-								 int iStartY, int iEndY) const
-{
-	GetPadConfig().CheckPadArguments(&iStartX, &iEndX, &iStartY, &iEndY);
-
 	unsigned int uiCnt = 0;
-	for(int iY=iStartY; iY<iEndY; ++iY)
-		for(int iX=iStartX; iX<iEndX; ++iX)
-			uiCnt += GetData(iX, iY);
+	for(int iY=0; iY<GetPadConfig().GetImageHeight(); ++iY)
+		for(int iX=0; iX<GetPadConfig().GetImageWidth(); ++iX)
+			uiCnt += GetDataInsideROI(iX, iY);
 
 	return uiCnt;
 }
+
+void PadImage::UseRoi(bool bUseRoi) { m_bUseRoi = bUseRoi; }
+Roi& PadImage::GetRoi() { return m_roi; }
+bool PadImage::GetUseRoi() const { return m_bUseRoi; };
 // *************** PAD *********************************************************
 
 
 
 // *************** TmpImage ****************************************************
-TmpImage::TmpImage() : m_iW(0), m_iH(0), m_puiDaten(NULL), m_pdDaten(NULL),
+TmpImage::TmpImage() : m_iW(GlobalConfig::GetTofConfig().GetImageWidth()),
+					   m_iH(GlobalConfig::GetTofConfig().GetImageHeight()),
+					   m_puiDaten(NULL), m_pdDaten(NULL),
 					   m_dMin(0), m_dMax(0)
 {}
 

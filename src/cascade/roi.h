@@ -26,18 +26,34 @@
 
 #include <vector>
 #include <string>
+#include "vec2d.h"
+
+#define CIRCLE_VERTICES 256
 
 // interface for roi elements (rectangle, circle, ...)
 class RoiElement
 {
 	public:
+		virtual RoiElement* copy() const = 0;
+
+
+		// get name of element
+		virtual std::string GetName() const = 0;
+
+
 		// is point (iX, iY) inside element?
 		virtual bool IsInside(int iX, int iY) const = 0;
 
 
-		// get description string of element
-		virtual std::string GetName() const = 0;
+		//----------------------------------------------------------------------
+		// vertices of element (interpolated for circles)
+		virtual int GetVertexCount() const = 0;
+		virtual Vec2d<double> GetVertex(int i) const = 0;
+		//----------------------------------------------------------------------
 
+
+		//----------------------------------------------------------------------
+		// parameters
 		// how many parameters does the element have?
 		virtual int GetParamCount() const = 0;
 
@@ -49,46 +65,174 @@ class RoiElement
 
 		// set value of a parameter
 		virtual void SetParam(int iParam, double dVal) = 0;
+		//----------------------------------------------------------------------
 };
 
 
 class RoiRect : public RoiElement
 {
 	protected:
-		int m_iX1, m_iY1, m_iX2, m_iY2;
+		Vec2d<int> m_bottomleft, m_topright;
+		double m_dAngle;
 
 	public:
-		RoiRect(int iX1, int iY1, int iX2, int iY2);
+		RoiRect(int iX1, int iY1, int iX2, int iY2, double dAngle=0.);
+		RoiRect(const Vec2d<int>& bottomleft,
+				const Vec2d<int>& topright, double dAngle=0.);
 		RoiRect();
 
 		virtual bool IsInside(int iX, int iY) const;
 
 		virtual std::string GetName() const;
+
 		virtual int GetParamCount() const;
 		virtual std::string GetParamName(int iParam) const;
 		virtual double GetParam(int iParam) const;
 		virtual void SetParam(int iParam, double dVal);
+
+		virtual int GetVertexCount() const;
+		virtual Vec2d<double> GetVertex(int i) const;
+
+		virtual RoiElement* copy() const;
 };
 
 
 class RoiCircle : public RoiElement
 {
 	protected:
-		double m_dCenter[2];
+		Vec2d<double> m_vecCenter;
 		double m_dRadius;
 
 	public:
-		RoiCircle(double dCenter[2], double dRadius);
+		RoiCircle(const Vec2d<double>& vecCenter, double dRadius);
 		RoiCircle();
 
 		virtual bool IsInside(int iX, int iY) const;
 		virtual bool IsInside(double dX, double dY) const;
 
 		virtual std::string GetName() const;
+
 		virtual int GetParamCount() const;
 		virtual std::string GetParamName(int iParam) const;
 		virtual double GetParam(int iParam) const;
 		virtual void SetParam(int iParam, double dVal);
+
+		virtual int GetVertexCount() const;
+		virtual Vec2d<double> GetVertex(int i) const;
+
+		virtual RoiElement* copy() const;
+};
+
+
+class RoiEllipse : public RoiElement
+{
+	protected:
+		Vec2d<double> m_vecCenter;
+		double m_dRadiusX, m_dRadiusY;
+
+	public:
+		RoiEllipse(const Vec2d<double>& vecCenter,
+					double dRadiusX, double dRadiusY);
+		RoiEllipse();
+
+		virtual bool IsInside(int iX, int iY) const;
+		virtual bool IsInside(double dX, double dY) const;
+
+		virtual std::string GetName() const;
+
+		virtual int GetParamCount() const;
+		virtual std::string GetParamName(int iParam) const;
+		virtual double GetParam(int iParam) const;
+		virtual void SetParam(int iParam, double dVal);
+
+		virtual int GetVertexCount() const;
+		virtual Vec2d<double> GetVertex(int i) const;
+
+		virtual RoiElement* copy() const;
+};
+
+
+class RoiCircleRing : public RoiElement
+{
+	protected:
+		Vec2d<double> m_vecCenter;
+		double m_dInnerRadius, m_dOuterRadius;
+
+	public:
+		RoiCircleRing(const Vec2d<double>& vecCenter,
+					  double dInnerRadius, double dOuterRadius);
+		RoiCircleRing();
+
+		virtual bool IsInside(int iX, int iY) const;
+		virtual bool IsInside(double dX, double dY) const;
+
+		virtual std::string GetName() const;
+
+		virtual int GetParamCount() const;
+		virtual std::string GetParamName(int iParam) const;
+		virtual double GetParam(int iParam) const;
+		virtual void SetParam(int iParam, double dVal);
+
+		virtual int GetVertexCount() const;
+		virtual Vec2d<double> GetVertex(int i) const;
+
+		virtual RoiElement* copy() const;
+};
+
+
+class RoiCircleSegment : public RoiCircleRing
+{
+	protected:
+		double m_dBeginAngle, m_dEndAngle;
+
+	public:
+		RoiCircleSegment(const Vec2d<double>& vecCenter,
+						double dInnerRadius, double dOuterRadius,
+						double dBeginAngle, double dEndAngle);
+		RoiCircleSegment();
+
+		virtual bool IsInside(int iX, int iY) const;
+		virtual bool IsInside(double dX, double dY) const;
+
+		virtual std::string GetName() const;
+
+		virtual int GetParamCount() const;
+		virtual std::string GetParamName(int iParam) const;
+		virtual double GetParam(int iParam) const;
+		virtual void SetParam(int iParam, double dVal);
+
+		virtual int GetVertexCount() const;
+		virtual Vec2d<double> GetVertex(int i) const;
+
+		virtual RoiElement* copy() const;
+};
+
+
+
+class RoiPolygon : public RoiElement
+{
+	protected:
+		std::vector<Vec2d<double> > m_vertices;
+
+	public:
+		RoiPolygon();
+
+		virtual bool IsInside(int iX, int iY) const;
+		virtual bool IsInside(double dX, double dY) const;
+
+		virtual std::string GetName() const;
+
+		virtual int GetParamCount() const;
+		virtual std::string GetParamName(int iParam) const;
+		virtual double GetParam(int iParam) const;
+		virtual void SetParam(int iParam, double dVal);
+
+		virtual int GetVertexCount() const;
+		virtual Vec2d<double> GetVertex(int i) const;
+
+		virtual RoiElement* copy() const;
+
+		void AddVertex(const Vec2d<double>& vertex);
 };
 
 
@@ -102,6 +246,9 @@ class Roi
 
 	public:
 		Roi();
+		Roi(const Roi& roi);
+		Roi& operator=(const Roi& roi);
+
 		virtual ~Roi();
 
 		// add element, return position of element
@@ -111,8 +258,12 @@ class Roi
 		bool IsInside(int iX, int iY) const;
 
 		RoiElement& GetElement(int iElement);
+		const RoiElement& GetElement(int iElement) const;
 		void DeleteElement(int iElement);
 		int GetNumElements() const;
+
+		bool Load(const char* pcFile);
+		bool Save(const char* pcFile);
 };
 
 #endif

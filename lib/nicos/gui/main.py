@@ -93,7 +93,8 @@ class MainWindow(QMainWindow, DlgUtils):
         self.connect(self.client, SIGNAL('broken'), self.on_client_broken)
         self.connect(self.client, SIGNAL('failed'), self.on_client_failed)
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(self.client, SIGNAL('disconnected'), self.on_client_disconnected)
+        self.connect(self.client, SIGNAL('disconnected'),
+                     self.on_client_disconnected)
         self.connect(self.client, SIGNAL('status'), self.on_client_status)
 
         # data handling setup
@@ -325,7 +326,7 @@ class MainWindow(QMainWindow, DlgUtils):
            time.time() - self.action_start_time > 20:
             # show a visual indication of what happened
             if status == 'interrupted':
-                msg = 'Script is not interrupted.'
+                msg = 'Script is now interrupted.'
             elif exception:
                 msg = 'Script has exited with an error.'
             else:
@@ -398,6 +399,8 @@ class MainWindow(QMainWindow, DlgUtils):
         initstatus = self.client.ask('getstatus')
         # handle setups
         self.setTitlebar(True, initstatus[4])
+        # handle initial status
+        self.on_client_status(initstatus[0])
         # propagate info to all components
         self.client.signal('initstatus', initstatus)
 

@@ -53,6 +53,211 @@
 #include "cascadedialogs.h"
 #include "bins.h"
 #include "helper.h"
+#include "logger.h"
+
+
+//------------------------------------------------------------------------------
+// picker
+
+MainPicker::MainPicker(QwtPlotCanvas* pcanvas)
+		   : QwtPlotPicker(pcanvas),
+			 m_iRoiDrawMode(ROI_DRAW_RECT), m_pCurRoi(0)
+{
+	setSelectionFlags(QwtPicker::RectSelection | QwtPicker::DragSelection);
+
+	QColor c(Qt::darkBlue);
+	setRubberBandPen(c);
+	setTrackerPen(c);
+
+	setRubberBand(RectRubberBand);
+	setTrackerMode(QwtPicker::ActiveOnly);
+
+	connect((QwtPlotPicker*)this, SIGNAL(selected(const QwtDoubleRect&)),
+			this, SLOT(selectedRect (const QwtDoubleRect&)));
+
+	connect((QwtPlotPicker*)this, SIGNAL(selected(const QwtArray<QwtDoublePoint> &)),
+			this, SLOT(selectedPoly(const QwtArray<QwtDoublePoint> &)));
+}
+
+MainPicker::~MainPicker()
+{}
+
+QwtText MainPicker::trackerText(const QwtDoublePoint &pos) const
+{
+	QString str;
+	switch(m_iRoiDrawMode)
+	{
+		case ROI_DRAW_RECT:
+			str += "Drawing Rectangle";
+			break;
+		case ROI_DRAW_CIRC:
+			str += "Drawing Circle";
+			break;
+		case ROI_DRAW_CIRCRING:
+			str += "Drawing Circle Ring";
+			break;
+		case ROI_DRAW_CIRCSEG:
+			str += "Drawing Circle Segment";
+			break;
+		case ROI_DRAW_ELLIPSE:
+			str += "Drawing Ellipse";
+			break;
+		case ROI_DRAW_POLYGON:
+			str += "Drawing Polygon";
+			break;
+	}
+
+	str += "\nPixel: ";
+	str += QString::number(int(pos.x()));
+	str += ", ";
+	str += QString::number(int(pos.y()));
+
+	QwtText text = str;
+	QColor bg(Qt::white);
+	bg.setAlpha(200);
+	text.setBackgroundBrush(QBrush(bg));
+	return text;
+}
+
+void MainPicker::SetRoiDrawMode(int iMode)
+{
+	m_iRoiDrawMode = iMode;
+
+	switch(iMode)
+	{
+		case ROI_DRAW_RECT:
+			setSelectionFlags(QwtPicker::RectSelection);
+			setRubberBand(RectRubberBand);
+			break;
+		case ROI_DRAW_CIRC:
+			setSelectionFlags(QwtPicker::RectSelection);
+			setRubberBand(EllipseRubberBand);	// !!
+			break;
+		case ROI_DRAW_CIRCRING:
+			setSelectionFlags(QwtPicker::RectSelection);
+			setRubberBand(EllipseRubberBand);	// !!
+			break;
+		case ROI_DRAW_CIRCSEG:
+			setSelectionFlags(QwtPicker::RectSelection);
+			setRubberBand(EllipseRubberBand);	// !!
+			break;
+		case ROI_DRAW_ELLIPSE:
+			setSelectionFlags(QwtPicker::RectSelection);
+			setRubberBand(EllipseRubberBand);
+			break;
+		case ROI_DRAW_POLYGON:
+			setSelectionFlags(QwtPicker::PolygonSelection);
+			setRubberBand(PolygonRubberBand);
+			break;
+	}
+}
+
+void MainPicker::selectedPoly(const QwtArray<QwtDoublePoint>& poly)
+{
+	if(m_pCurRoi == NULL)
+		return;
+
+	// minimum of 3 vertices needed
+	if(poly.size()<=2)
+		return;
+
+	RoiPolygon *pElem = new RoiPolygon();
+	for(unsigned int i=0; i<poly.size(); ++i)
+	{
+		const QwtDoublePoint& pt = poly[i];
+
+		Vec2d<double> vertex(pt.x(), pt.y());
+		pElem->AddVertex(vertex);
+	}
+
+	m_pCurRoi->add(pElem);
+	emit RoiHasChanged();
+}
+
+void MainPicker::selectedRect(const QwtDoubleRect &rect)
+{
+	if(m_pCurRoi == NULL)
+		return;
+
+	Vec2d<int> bottomleft;
+	Vec2d<int> topright;
+
+	bottomleft[0] = rect.bottomLeft().x();
+	bottomleft[1] = rect.bottomLeft().y();
+	topright[0] = rect.topRight().x();
+	topright[1] = rect.topRight().y();
+
+	RoiElement* pElem = 0;
+
+	switch(m_iRoiDrawMode)
+	{
+		case ROI_DRAW_RECT:
+		{
+			pElem = new RoiRect(bottomleft, topright);
+			break;
+		}
+
+		case ROI_DRAW_CIRC:
+		{
+			double dRadius = double(topright[0] - bottomleft[0]) * 0.5;
+			Vec2d<double> vecCenter = (topright.cast<double>()-
+									  bottomleft.cast<double>()) * 0.5 +
+									  bottomleft.cast<double>();
+
+			pElem = new RoiCircle(vecCenter, dRadius);
+			break;
+		}
+
+		case ROI_DRAW_CIRCRING:
+		{
+			double dRadius = double(topright[0] - bottomleft[0]) * 0.5;
+			Vec2d<double> vecCenter = (topright.cast<double>()-
+									  bottomleft.cast<double>()) * 0.5 +
+									  bottomleft.cast<double>();
+
+			pElem = new RoiCircleRing(vecCenter, dRadius-4., dRadius+4.);
+			break;
+		}
+
+		case ROI_DRAW_CIRCSEG:
+		{
+			double dRadius = double(topright[0] - bottomleft[0]) * 0.5;
+			Vec2d<double> vecCenter = (topright.cast<double>()-
+									  bottomleft.cast<double>()) * 0.5 +
+									  bottomleft.cast<double>();
+
+			pElem = new RoiCircleSegment(vecCenter, dRadius-4., dRadius+4.,
+										0., 90.);
+			break;
+		}
+
+		case ROI_DRAW_ELLIPSE:
+		{
+			double dRadiusX = double(topright[0] - bottomleft[0]) * 0.5;
+			double dRadiusY = double(topright[1] - bottomleft[1]) * 0.5;
+			Vec2d<double> vecCenter = (topright.cast<double>()-
+									  bottomleft.cast<double>()) * 0.5 +
+									  bottomleft.cast<double>();
+
+			pElem = new RoiEllipse(vecCenter, dRadiusX, dRadiusY);
+			break;
+		}
+	}
+
+	if(pElem)
+	{
+		m_pCurRoi->add(pElem);
+		emit RoiHasChanged();
+	}
+}
+
+int MainPicker::GetRoiDrawMode() const { return m_iRoiDrawMode; }
+void MainPicker::SetCurRoi(Roi* pRoi) { m_pCurRoi = pRoi; }
+
+
+
+//------------------------------------------------------------------------------
+// zoomer
 
 MainZoomer::MainZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram* pData)
 										: QwtPlotZoomer(canvas), m_pData(pData)
@@ -92,7 +297,10 @@ QwtText MainZoomer::trackerText(const QwtDoublePoint &pos) const
 	return text;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+
+
+//------------------------------------------------------------------------------
+// panner
 
 MainPanner::MainPanner(QwtPlotCanvas *canvas) : QwtPlotPanner(canvas)
 {
@@ -103,10 +311,15 @@ MainPanner::MainPanner(QwtPlotCanvas *canvas) : QwtPlotPanner(canvas)
 MainPanner::~MainPanner()
 {}
 
-////////////////////////////////////////////////////////////////////////////////
+
+
+
+//------------------------------------------------------------------------------
+// plot
 
 Plot::Plot(QWidget *parent) : QwtPlot(parent), m_pSpectrogram(0),
-							  m_pZoomer(0), m_pPanner(0), m_pImage(0)
+							  m_pZoomer(0), m_pPanner(0), m_pRoiPicker(0),
+							  m_pImage(0)
 {
 	InitPlot();
 }
@@ -143,16 +356,31 @@ void Plot::InitPlot()
 	m_pZoomer = new MainZoomer(canvas(), m_pSpectrogram);
 	m_pPanner = new MainPanner(canvas());
 
-	QFontMetrics fm(axisWidget(QwtPlot::yLeft)->font());
-	axisScaleDraw(QwtPlot::yLeft)->setMinimumExtent(fm.width("100."));
+	m_pRoiPicker = new MainPicker(canvas());
+	m_pRoiPicker->setEnabled(false);
 
+	// avoid jumping of the layout
+	axisScaleDraw(QwtPlot::yLeft)->setMinimumExtent(35);
+	axisScaleDraw(QwtPlot::yRight)->setMinimumExtent(55);
+	axisWidget(QwtPlot::yRight)->setMinBorderDist(25,0);
 }
+
+/*
+void Plot::ChangeLog(bool bLog10)
+{
+	if(bLog10)
+		axisScaleDraw(QwtPlot::yRight)->setMinimumExtent(50);
+	else
+		axisScaleDraw(QwtPlot::yRight)->setMinimumExtent(75);
+}
+*/
 
 void Plot::DeinitPlot()
 {
 	m_pImage = 0;
 	if(m_pZoomer) { delete m_pZoomer; m_pZoomer=0; }
 	if(m_pPanner) { delete m_pPanner; m_pPanner=0; }
+	if(m_pRoiPicker) { delete m_pRoiPicker; m_pRoiPicker=0; }
 	if(m_pSpectrogram) { delete m_pSpectrogram; m_pSpectrogram=0; }
 }
 
@@ -188,6 +416,7 @@ void Plot::ChangeRange_xy()
 
 QwtPlotZoomer* Plot::GetZoomer() { return m_pZoomer; }
 QwtPlotPanner* Plot::GetPanner() { return m_pPanner; }
+QwtPlotPicker* Plot::GetRoiPicker() { return m_pRoiPicker; }
 
 const QwtRasterData* Plot::GetData() const
 {
@@ -235,11 +464,20 @@ void Plot::printPlot()
 	QPrinter printer;
 	printer.setOrientation(QPrinter::Landscape);
 	QPrintDialog dialog(&printer);
-	if(dialog.exec()) print(printer);
+	if(dialog.exec())
+		print(printer);
+}
+
+void Plot::replot()
+{
+	QwtPlot::replot();
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
+
+
+//------------------------------------------------------------------------------
+// widget
 
 CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 												 m_bForceReinit(0),
@@ -249,9 +487,12 @@ CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 												 m_iMode(MODE_SLIDES),
 												 m_iFolie(0),
 												 m_iZeitkanal(0),
-												 m_bLog(0)
+												 m_bLog(0),
+												 m_proidlg(0)
 {
 	m_pPlot = new Plot(this);
+	connect(m_pPlot->GetRoiPicker(), SIGNAL(RoiHasChanged()),
+			this, SLOT(RedrawRoi()));
 
 	QGridLayout *gridLayout = new QGridLayout(this);
 	gridLayout->addWidget(m_pPlot,0,0,1,1);
@@ -273,11 +514,12 @@ Plot* CascadeWidget::GetPlot() { return m_pPlot; }
 
 void CascadeWidget::Unload()
 {
-	m_data2d.clearData();
-
 	if(m_pPad) { delete m_pPad; m_pPad=NULL; }
 	if(m_pTof) { delete m_pTof; m_pTof=NULL; }
 	if(m_pTmpImg) { delete m_pTmpImg; m_pTmpImg=NULL; }
+
+	m_data2d.clearData();
+	ClearRoiVector();
 }
 
 void* CascadeWidget::NewPad()
@@ -287,7 +529,7 @@ void* CascadeWidget::NewPad()
 		Unload();
 		m_pPad = new PadImage();
 
-		m_data2d.SetImage(m_pPad);
+		m_data2d.SetImage((BasicImage**)&m_pPad);
 		m_data2d.SetLog10(m_bLog);
 
 		m_pPlot->SetData(&m_data2d, false);
@@ -309,10 +551,11 @@ void* CascadeWidget::NewTof(int iCompression)
 	if(IsPadLoaded()||!IsTofLoaded() || m_bForceReinit || !bCorrectCompression)
 	{
 		Unload();
+
 		m_pTof = new TofImage(0,iCompression);
 		m_pTmpImg = new TmpImage();
 
-		m_data2d.SetImage(m_pTmpImg);
+		m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 		m_data2d.SetLog10(m_bLog);
 
 		m_pPlot->SetData(&m_data2d, false);
@@ -461,8 +704,7 @@ void CascadeWidget::UpdateGraph()
 	if(IsPadLoaded())
 	{
 		//m_pPad->UpdateRange();
-		m_data2d.SetImage(m_pPad);
-		m_pPlot->SetData(&m_data2d);	// !!
+		m_data2d.SetImage((BasicImage**)&m_pPad);
 	}
 	else if(IsTofLoaded())
 	{
@@ -482,13 +724,12 @@ void CascadeWidget::UpdateGraph()
 		}
 
 		m_pTmpImg->UpdateRange();
-
-		m_data2d.SetImage(m_pTmpImg);
-		m_pPlot->SetData(&m_data2d);	// !!
+		m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 	}
 
 	if(IsPadLoaded() || IsTofLoaded())
 	{
+		m_pPlot->SetData(&m_data2d);	// !!
 		m_pPlot->replot();
 	}
 	UpdateLabels();
@@ -509,6 +750,7 @@ void CascadeWidget::SetLog10(bool bLog10)
 	m_bLog = bLog10;
 	m_data2d.SetLog10(bLog10);
 	m_pPlot->ChangeRange();
+	//m_pPlot->ChangeLog(bLog10);
 	UpdateGraph();
 }
 
@@ -526,7 +768,7 @@ void CascadeWidget::viewOverview()
 	SetMode(MODE_SUMS);
 
 	GetTof()->GetOverview(m_pTmpImg);
-	m_data2d.SetImage(m_pTmpImg);
+	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
 	m_data2d.SetPhaseData(false);
 	GetPlot()->SetColorMap(false);
@@ -571,7 +813,7 @@ void CascadeWidget::viewFoilSums(const bool* pbKanaele)
 {
 	SetMode(MODE_SUMS);
 	GetTof()->AddFoils(pbKanaele, m_pTmpImg);
-	m_data2d.SetImage(m_pTmpImg);
+	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
 	UpdateRange();
 	UpdateGraph();
@@ -581,7 +823,7 @@ void CascadeWidget::viewPhaseSums(const bool* pbFolien)
 {
 	SetMode(MODE_PHASESUMS);
 	GetTof()->AddPhases(pbFolien, m_pTmpImg);
-	m_data2d.SetImage(m_pTmpImg);
+	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
 	UpdateRange();
 	UpdateGraph();
@@ -591,7 +833,7 @@ void CascadeWidget::viewContrastSums(const bool* pbFolien)
 {
 	SetMode(MODE_CONTRASTSUMS);
 	GetTof()->AddContrasts(pbFolien, m_pTmpImg);
-	m_data2d.SetImage(m_pTmpImg);
+	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
 	UpdateRange();
 	UpdateGraph();
@@ -599,7 +841,13 @@ void CascadeWidget::viewContrastSums(const bool* pbFolien)
 
 void CascadeWidget::showCalibrationDlg(int iNumBins)
 {
-	if(!IsTofLoaded()) return;
+	if(!IsTofLoaded())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Widget: No TOF loaded.\n";
+
+		return;
+	}
 	Bins bins(iNumBins, 0., 360.);
 
 	QwtDoubleRect rect = GetPlot()->GetZoomer()->zoomRect();
@@ -610,8 +858,8 @@ void CascadeWidget::showCalibrationDlg(int iNumBins)
 
 	TmpImage* ptmpimg = new TmpImage[m_pTof->GetTofConfig().GetFoilCount()];
 	for(int iFolie=0; iFolie<m_pTof->GetTofConfig().GetFoilCount(); ++iFolie)
-		GetTof()->GetPhaseGraph(iFolie, ptmpimg+iFolie, iROIx1, iROIx2,
-														iROIy1, iROIy2, true);
+		GetTof()->GetPhaseGraph(iFolie, ptmpimg+iFolie, /*iROIx1, iROIx2,
+														iROIy1, iROIy2,*/ true);
 
 	int iW = iROIx2-iROIx1; if(iW<0) iW=-iW;
 	int iH = iROIy2-iROIy1; if(iH<0) iH=-iH;
@@ -632,15 +880,21 @@ void CascadeWidget::showCalibrationDlg(int iNumBins)
 
 void CascadeWidget::showGraphDlg()
 {
-	if(!IsTofLoaded()) return;
+	if(!IsTofLoaded())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Widget: No TOF loaded.\n";
 
-	QwtDoubleRect rect = GetPlot()->GetZoomer()->zoomRect();
+		return;
+	}
+
+	/*QwtDoubleRect rect = GetPlot()->GetZoomer()->zoomRect();
 	int iROIx1 = rect.left(),
 	iROIx2 = rect.right(),
 	iROIy1 = rect.top(),
-	iROIy2 = rect.bottom();
+	iROIy2 = rect.bottom();*/
 
-	GraphDlg graphdlg(this, GetTof(), iROIx1, iROIx2, iROIy1, iROIy2, m_iFolie);
+	GraphDlg graphdlg(this, GetTof(), m_iFolie);
 	graphdlg.exec();
 }
 
@@ -669,7 +923,13 @@ void CascadeWidget::SumDlgSlot(const bool *pbKanaele, int iMode)
 
 void CascadeWidget::showSumDlg()
 {
-	if(!IsTofLoaded()) return;
+	if(!IsTofLoaded())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Widget: No TOF loaded.\n";
+
+		return;
+	}
 
 	static SumDlg *pSummenDlgSlides = NULL;
 	static SumDlgNoChannels *pSummenDlgPhases = NULL;
@@ -679,9 +939,12 @@ void CascadeWidget::showSumDlg()
 	{
 		case MODE_SLIDES:
 		case MODE_SUMS:
-			if(!pSummenDlgSlides) pSummenDlgSlides = new SumDlg(this);
-			connect(pSummenDlgSlides, SIGNAL(SumSignal(const bool *, int)),
-					this, SLOT(SumDlgSlot(const bool *, int)));
+			if(!pSummenDlgSlides)
+			{
+				pSummenDlgSlides = new SumDlg(this);
+				connect(pSummenDlgSlides, SIGNAL(SumSignal(const bool *, int)),
+						this, SLOT(SumDlgSlot(const bool *, int)));
+			}
 
 			pSummenDlgSlides->SetMode(GetMode());
 			pSummenDlgSlides->show();
@@ -691,9 +954,12 @@ void CascadeWidget::showSumDlg()
 
 		case MODE_PHASES:
 		case MODE_PHASESUMS:
-			if(!pSummenDlgPhases) pSummenDlgPhases = new SumDlgNoChannels(this);
-			connect(pSummenDlgPhases, SIGNAL(SumSignal(const bool *, int)),
-					this, SLOT(SumDlgSlot(const bool *, int)));
+			if(!pSummenDlgPhases)
+			{
+				pSummenDlgPhases = new SumDlgNoChannels(this);
+				connect(pSummenDlgPhases, SIGNAL(SumSignal(const bool *, int)),
+						this, SLOT(SumDlgSlot(const bool *, int)));
+			}
 
 			pSummenDlgPhases->SetMode(GetMode());
 			pSummenDlgPhases->show();
@@ -703,10 +969,12 @@ void CascadeWidget::showSumDlg()
 
 		case MODE_CONTRASTS:
 		case MODE_CONTRASTSUMS:
-			if(!pSummenDlgContrasts) pSummenDlgContrasts =
-													new SumDlgNoChannels(this);
-			connect(pSummenDlgContrasts, SIGNAL(SumSignal(const bool *, int)),
-					this, SLOT(SumDlgSlot(const bool *, int)));
+			if(!pSummenDlgContrasts)
+			{
+				pSummenDlgContrasts = new SumDlgNoChannels(this);
+				connect(pSummenDlgContrasts, SIGNAL(SumSignal(const bool *, int)),
+						this, SLOT(SumDlgSlot(const bool *, int)));
+			}
 
 			pSummenDlgContrasts->SetMode(GetMode());
 			pSummenDlgContrasts->show();
@@ -716,4 +984,259 @@ void CascadeWidget::showSumDlg()
 	}
 }
 
+void CascadeWidget::showRoiDlg()
+{
+	if(!IsTofLoaded() && !IsPadLoaded())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Widget: Neither TOF nor PAD loaded.\n";
+
+		return;
+	}
+
+	Roi *pRoi = 0;
+	bool bUseRoi = false;
+
+	if(IsTofLoaded())
+	{
+		pRoi = &GetTof()->GetRoi();
+		bUseRoi = GetTof()->GetUseRoi();
+
+	}
+	else if(IsPadLoaded())
+	{
+		pRoi = &GetPad()->GetRoi();
+		bUseRoi = GetPad()->GetUseRoi();
+	}
+
+
+	if(!m_proidlg)
+	{
+		m_proidlg = new RoiDlg(this);
+		connect(m_proidlg->buttonBox, SIGNAL(clicked(QAbstractButton*)),
+				this, SLOT(RoiDlgAccepted(QAbstractButton*)));
+	}
+
+	m_proidlg->SetRoi(pRoi);
+
+	m_proidlg->checkBoxUseRoi->setCheckState(bUseRoi ? Qt::Checked
+													 : Qt::Unchecked);
+
+	m_proidlg->show();
+	m_proidlg->raise();
+	m_proidlg->activateWindow();
+}
+
+void CascadeWidget::RoiDlgAccepted(QAbstractButton* pBtn)
+{
+	Roi *pRoi = 0;
+
+	if(IsTofLoaded())
+		pRoi = &GetTof()->GetRoi();
+	else if(IsPadLoaded())
+		pRoi = &GetPad()->GetRoi();
+
+
+	// "OK" or "Apply" clicked?
+	if(m_proidlg->buttonBox->standardButton(pBtn) == QDialogButtonBox::Apply ||
+	   m_proidlg->buttonBox->standardButton(pBtn) == QDialogButtonBox::Ok)
+	{
+		(*pRoi) = (*m_proidlg->GetRoi());
+
+		bool bCk = (m_proidlg->checkBoxUseRoi->checkState() == Qt::Checked);
+
+		if(IsTofLoaded())
+			GetTof()->UseRoi(bCk);
+		else if(IsPadLoaded())
+			GetPad()->UseRoi(bCk);
+
+		RedrawRoi();
+	}
+}
+
+bool CascadeWidget::LoadRoi(const char* pcFile)
+{
+	if(!IsTofLoaded() && !IsPadLoaded())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Widget: Neither TOF nor PAD loaded.\n";
+
+		return false;
+	}
+
+	Roi *pRoi = 0;
+
+	if(IsTofLoaded())
+		pRoi = &GetTof()->GetRoi();
+	else if(IsPadLoaded())
+		pRoi = &GetPad()->GetRoi();
+
+	int iRet = pRoi->Load(pcFile);
+
+	if(IsTofLoaded())
+		GetTof()->UseRoi(true);
+	else if(IsPadLoaded())
+		GetPad()->UseRoi(true);
+
+	RedrawRoi();
+	return iRet;
+}
+
+bool CascadeWidget::SaveRoi(const char* pcFile)
+{
+	if(!IsTofLoaded() && !IsPadLoaded())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Widget: Neither TOF nor PAD loaded.\n";
+
+		return false;
+	}
+
+	Roi *pRoi = 0;
+
+	if(IsTofLoaded())
+		pRoi = &GetTof()->GetRoi();
+	else if(IsPadLoaded())
+		pRoi = &GetPad()->GetRoi();
+
+	return pRoi->Save(pcFile);
+}
+
 void CascadeWidget::ForceReinit() { m_bForceReinit = true; }
+
+
+//----------------------------------------------------------------------
+// ROI curves
+
+Roi* CascadeWidget::GetCurRoi()
+{
+	Roi *pRoi = 0;
+
+	if(IsTofLoaded())
+		pRoi = &GetTof()->GetRoi();
+	else if(IsPadLoaded())
+		pRoi = &GetPad()->GetRoi();
+
+	return pRoi;
+}
+
+void CascadeWidget::UpdateRoiVector()
+{
+	if(!IsTofLoaded() && !IsPadLoaded())
+		return;
+
+	Roi *pRoi = GetCurRoi();
+	ClearRoiVector();
+
+	for(int i=0; i<pRoi->GetNumElements(); ++i)
+	{
+		RoiElement& elem = pRoi->GetElement(i);
+
+		QwtPlotCurve* pcurve = new QwtPlotCurve;
+		m_vecRoiCurves.push_back(pcurve);
+
+		pcurve->setRenderHint(QwtPlotItem::RenderAntialiased);
+		QPen pen = QPen(Qt::white);
+		pen.setWidthF(1.5);
+		pcurve->setPen(pen);
+
+		const int iVertexCount = elem.GetVertexCount();
+
+		double *pdx = new double[iVertexCount+1];
+		double *pdy = new double[iVertexCount+1];
+
+		for(int iVertex=0; iVertex<iVertexCount; ++iVertex)
+		{
+			Vec2d<double> vec = elem.GetVertex(iVertex);
+			pdx[iVertex] = vec[0];
+			pdy[iVertex] = vec[1];
+			//std::cout << vec << std::endl;
+
+			if(iVertex==0)
+			{
+				pdx[iVertexCount] = vec[0];
+				pdy[iVertexCount] = vec[1];
+			}
+		}
+
+		pcurve->setData(pdx, pdy, iVertexCount+1);
+
+		delete[] pdx;
+		delete[] pdy;
+
+		pcurve->attach(m_pPlot);
+	}
+}
+
+void CascadeWidget::ClearRoiVector()
+{
+	for(unsigned int i=0; i<m_vecRoiCurves.size(); ++i)
+	{
+		if(m_vecRoiCurves[i])
+		{
+			m_vecRoiCurves[i]->detach();
+			delete m_vecRoiCurves[i];
+		}
+	}
+	m_vecRoiCurves.clear();
+}
+
+void CascadeWidget::RedrawRoi()
+{
+	bool bUseRoi = false;
+
+	if(IsTofLoaded())
+		bUseRoi = GetTof()->GetUseRoi();
+	else if(IsPadLoaded())
+		bUseRoi = GetPad()->GetUseRoi();
+
+	if(bUseRoi)
+	{
+		UpdateRoiVector();
+		m_pPlot->replot();
+	}
+	else
+	{
+		ClearRoiVector();
+		m_pPlot->replot();
+	}
+}
+
+void CascadeWidget::ClearRoi()
+{
+	Roi* pRoi = GetCurRoi();
+	if(!pRoi) return;
+
+	pRoi->clear();
+	ClearRoiVector();
+	RedrawRoi();
+}
+
+void CascadeWidget::SetRoiDrawMode(int iMode)
+{
+	MainPicker* pPicker = (MainPicker*)GetPlot()->GetRoiPicker();
+
+	if(iMode == ROI_DRAW_NONE)
+	{
+		pPicker->setEnabled(false);
+		GetPlot()->GetZoomer()->setEnabled(true);
+
+		pPicker->SetCurRoi(0);
+	}
+	else
+	{
+		if(IsTofLoaded())
+			GetTof()->UseRoi(true);
+		else if(IsPadLoaded())
+			GetPad()->UseRoi(true);
+
+		Roi *pRoi = GetCurRoi();
+		pPicker->SetCurRoi(pRoi);
+		pPicker->SetRoiDrawMode(iMode);
+
+		GetPlot()->GetZoomer()->setEnabled(false);
+		pPicker->setEnabled(true);
+	}
+}
+
+//----------------------------------------------------------------------

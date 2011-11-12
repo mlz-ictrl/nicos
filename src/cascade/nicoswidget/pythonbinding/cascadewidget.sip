@@ -8,6 +8,7 @@
 %Include tofloader.sip
 
 
+
 /////////////////////////////////////////////////////////////////////////////////////
 // GraphDlg
 // use CascadeWidget::showGraphDlg() instead
@@ -18,7 +19,7 @@ class GraphDlg : QDialog
 %End
 	public:
 		GraphDlg(QWidget *pParent, TofImage* pTof);
-		GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie);
+		GraphDlg(QWidget *pParent, TofImage* pTof, int iFoil);
 		virtual ~GraphDlg();
 };
 /////////////////////////////////////////////////////////////////////////////////////
@@ -112,6 +113,10 @@ class CascadeWidget : QWidget
 		bool LoadPadMem(const char* pcMem, unsigned int iLen);	// load PAD from mem
 		bool LoadTofMem(const char* pcMem, unsigned int iLen);	// load TOF from mem
 
+		// loading/saving of ROI elements
+		bool LoadRoi(const char* pcFile);
+		bool SaveRoi(const char* pcFile);
+
 		TofImage* GetTof();
 		TmpImage* GetTmpImg();
 		Data2D& GetData2d();
@@ -124,6 +129,8 @@ class CascadeWidget : QWidget
 
 		void SetMode(int iMode);
 		int GetMode();
+
+		void SetRoiDrawMode(int iMode);
 
 	public slots:
 		void viewOverview();		// add all time channels of all foils
@@ -139,6 +146,7 @@ class CascadeWidget : QWidget
 		void showCalibrationDlg(int iNumBins);
 		void showGraphDlg();
 		void showSumDlg();
+		void showRoiDlg();
 		/////////////////////////////////////////////
 
 		void SetLog10(bool bLog10);

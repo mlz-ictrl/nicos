@@ -174,7 +174,7 @@ class Slit(Moveable):
 
     def doReadUnit(self):
         return self._adevs['left'].unit
-    
+
     def doWriteOpmode(self, value):
         if value == '4blades':
             self.fmtstr = '%.2f %.2f %.2f %.2f'
@@ -203,12 +203,12 @@ class SlitAxis(Moveable, AutoDevice):
     def doStart(self, target):
         currentpos = map(lambda d: d.doRead(), self._adevs['slit']._axes)
         positions = self._convertStart(target, currentpos)
-        self._adevs['slit']._moveto(positions)
+        self._adevs['slit']._doStartPositions(positions)
 
     def doIsAllowed(self, target):
         currentpos = map(lambda d: d.doRead(), self._adevs['slit']._axes)
         positions = self._convertStart(target, currentpos)
-        return self._adevs['slit'].doIsAllowed(positions)
+        return self._adevs['slit']._doIsAllowedPositions(positions)
 
 
 class RightSlitAxis(SlitAxis):
@@ -261,5 +261,4 @@ class HeightSlitAxis(SlitAxis):
         return positions[3] - positions[2]
     def _convertStart(self, target, current):
         centery = (current[2] + current[3]) / 2.
-        return (current[0], current[1], centery-target/2., centery+target/2)
-
+        return (current[0], current[1], centery-target/2., centery+target/2.)

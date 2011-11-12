@@ -161,26 +161,27 @@ class MainWindow : public QMainWindow
 		}
 
 		// iCnts or iClients set to -1 means: do not update respective value
-		void SetRightStatus(int iCnts, int iClients=-1)
+		void ShowRightMessage(int iCnts=-1, int iClients=-1, int iRunning=-1)
 		{
-			static int iLastCnts=-1;
-			static int iLastClients=-1;
+			static int iLastCnts=0,
+					   iLastClients=0,
+					   iLastRunning=0;
 
-			bool bUpdateCnts = (iCnts!=-1);
-			bool bUpdateClients = (iClients!=-1);
+			if(iCnts!=-1)
+				iLastCnts = iCnts;
+			if(iClients!=-1)
+				iLastClients = iClients;
+			if(iRunning!=-1)
+				iLastRunning = iRunning;
 
-			if((bUpdateCnts && iCnts!=iLastCnts) ||
-				(bUpdateClients && iClients!=iLastClients))
-			{
-				if(bUpdateCnts)
-					iLastCnts = iCnts;
-				if(bUpdateClients)
-					iLastClients = iClients;
+			std::ostringstream ostr;
 
-				std::ostringstream ostr;
-				ostr << "Ext Counts: " << iLastCnts
-					 << ", Clients: " << iLastClients;
+			ostr << "Ext. Counts: " << iLastCnts
+				 << ", Clients: " << iLastClients
+				 << ", Measurement " << (iLastRunning?"running":"not running");
 
+			if(ostr.str() != pStatusExtCount->text().toAscii().data())
+			{ // set new status
 				pStatusExtCount->setText(ostr.str().c_str());
 			}
 		}
@@ -405,15 +406,10 @@ class MainWindow : public QMainWindow
 			{
 				ArgumentMap args(pcBuf+4);
 
-//---------------------------------------
-// TODO: don't display this in status bar
 				// stop?
 				std::pair<bool, int> pairStop = args.QueryInt("stop",1);
 				if(pairStop.first)
-					ShowMessage(pairStop.second
-									? "Server: Measurement stopped."
-									: "Server: Measurement running.");
-//---------------------------------------
+					ShowRightMessage(-1,-1,!pairStop.second);
 
 				// xres?
 				std::pair<bool, int> pairXRes =
@@ -476,11 +472,11 @@ class MainWindow : public QMainWindow
 
 				std::pair<bool, int> pairCnt = args.QueryInt("ext_count",0);
 				if(pairCnt.first)
-					SetRightStatus(pairCnt.second);
+					ShowRightMessage(pairCnt.second);
 
 				std::pair<bool, int> pairClients = args.QueryInt("clients",0);
 				if(pairClients.first)
-					SetRightStatus(-1, pairClients.second);
+					ShowRightMessage(-1, pairClients.second);
 
 
 				// if global config changed, reinit PAD & TOF memory
@@ -747,6 +743,7 @@ class MainWindow : public QMainWindow
 			m_client.disconnect();
 			ShowMessage("Disconnected from server.");
 			ShowTitleMessage("");
+			ShowRightMessage(0,0,0);
 		}
 
 		// enter manual server command
@@ -846,51 +843,85 @@ class MainWindow : public QMainWindow
 		///////////////////////////// File Menu Items /////////////////////////
 		void LoadPad()
 		{
-			m_cascadewidget.NewPad(/*btnLog->isChecked()*/);
 			QString strFile = QFileDialog::getOpenFileName(this,
 									"Open PAD File","",
-									"PAD File (*.pad *.PAD);;All files (*)");
-			if(strFile!="" &&
-				m_cascadewidget.LoadPadFile(strFile.toAscii().data()))
+									"PAD Files (*.pad *.PAD);;All Files (*)");
+
+			if(strFile=="")
+				return;
+
+			if(m_cascadewidget.LoadPadFile(strFile.toAscii().data()))
 			{
+				ServerDisconnect();
+
 				//m_cascadewidget.UpdateGraph();
 				UpdateLabels(false);
 				ShowMessage("PAD loaded.");
+
+				ShowTitleMessage(strFile.toAscii().data());
 			}
 		}
 
 		void LoadTof()
 		{
-			m_cascadewidget.NewTof(/*btnLog->isChecked()*/);
 			QString strFile = QFileDialog::getOpenFileName(
 								this, "Open TOF File","",
-								"TOF File (*.tof *.TOF);;All files (*)");
-			if(strFile!="" &&
-			   m_cascadewidget.LoadTofFile(strFile.toAscii().data()))
+								"TOF Files (*.tof *.TOF);;All Files (*)");
+
+			if(strFile=="")
+				return;
+
+			if(m_cascadewidget.LoadTofFile(strFile.toAscii().data()))
 			{
+				ServerDisconnect();
+
 				//m_cascadewidget.UpdateGraph();	// macht viewOverview schon
 				UpdateLabels(false);
 				UpdateSliders();
 				ShowMessage("TOF loaded.");
+				ShowTitleMessage(strFile.toAscii().data());
 
 				//viewOverview();
 				actionViewsOverview->setChecked(true);
 			}
 		}
 
-		void WriteXML(void)
+		void SaveFile()
 		{
-			if(m_cascadewidget.IsTofLoaded() || m_cascadewidget.IsPadLoaded())
+			// PAD
+			if(m_cascadewidget.IsPadLoaded())
 			{
 				QString strFile = QFileDialog::getSaveFileName(this,
-									"Save XML File","","XML Files (*.xml)");
-				TmpImage tmpimg;
-				if(m_cascadewidget.IsTofLoaded())	// TOF-Datei offen
-					m_cascadewidget.GetTof()->GetOverview(&tmpimg);
-				else					// PAD-Datei offen
-					tmpimg.ConvertPAD(m_cascadewidget.GetPad());
-				tmpimg.WriteXML(strFile.toAscii().data());
+									"Save as PAD File", "",
+									"PAD Files (*.pad *.PAD);;All Files (*)");
+				if(strFile=="")
+					return;
+
+				m_cascadewidget.GetPad()->SaveFile(strFile.toAscii().data());
 			}
+			if(m_cascadewidget.IsTofLoaded())
+			{
+				// TODO
+			}
+		}
+
+		void WriteXML(void)
+		{
+			if(!m_cascadewidget.IsTofLoaded() && !m_cascadewidget.IsPadLoaded())
+				return;
+
+			QString strFile = QFileDialog::getSaveFileName(this,
+								"Save as XML File", "",
+								"XML Files (*.xml *.XML);;All Files (*)");
+			if(strFile=="")
+				return;
+
+			TmpImage tmpimg;
+			if(m_cascadewidget.IsTofLoaded())	// TOF-Datei offen
+				m_cascadewidget.GetTof()->GetOverview(&tmpimg);
+			else					// PAD-Datei offen
+				tmpimg.ConvertPAD(m_cascadewidget.GetPad());
+			tmpimg.WriteXML(strFile.toAscii().data());
 		}
 		///////////////////////////////////////////////////////////////////
 
@@ -898,33 +929,77 @@ class MainWindow : public QMainWindow
 		//////////////////////////ROI /////////////////////////////////////
 		void showRoiDlg()
 		{
-			if(!m_cascadewidget.IsTofLoaded())
+			if(!m_cascadewidget.IsTofLoaded() && !m_cascadewidget.IsPadLoaded())
 			{
-				QMessageBox::critical(0, "ROI", "No TOF loaded "
-										"or not in TOF mode.", QMessageBox::Ok);
+				QMessageBox::critical(0, "ROI", "No TOF or PAD loaded.",
+									  QMessageBox::Ok);
 				return;
 			}
 
-			/*Roi roi;
-			roi.add(new RoiRect(1,2,3,4));
-			roi.add(new RoiRect(2,3,4,5));
+			m_cascadewidget.showRoiDlg();
+		}
 
-			double dtst[] = {1.,2.};
-			roi.add(new RoiCircle(dtst,3.));*/
+		void ClearRoi()
+		{
+			m_cascadewidget.ClearRoi();
+		}
 
-			Roi& roi = m_cascadewidget.GetTof()->GetRoi();
-			RoiDlg roidlg(this, roi);
-
-			roidlg.checkBoxUseRoi->setCheckState(
-					m_cascadewidget.GetTof()->GetUseRoi() ? Qt::Checked
-														  : Qt::Unchecked);
-
-			if(roidlg.exec()==QDialog::Accepted)
+		void LoadRoi()
+		{
+			if(!m_cascadewidget.IsTofLoaded() && !m_cascadewidget.IsPadLoaded())
 			{
-				bool bCk = (roidlg.checkBoxUseRoi->checkState() == Qt::Checked);
-				m_cascadewidget.GetTof()->UseRoi(bCk);
+				QMessageBox::critical(0, "ROI", "No TOF or PAD loaded.",
+									  QMessageBox::Ok);
+				return;
+			}
+
+			QString strFile = QFileDialog::getOpenFileName(this,
+									"Open ROI File","",
+									"XML Files (*.xml *.XML);;All Files (*)");
+			if(strFile!="" && m_cascadewidget.LoadRoi(strFile.toAscii().data()))
+			{
+				UpdateLabels(false);
+				ShowMessage("ROI loaded.");
 			}
 		}
+
+		void SaveRoi()
+		{
+			if(!m_cascadewidget.IsTofLoaded() && !m_cascadewidget.IsPadLoaded())
+			{
+				QMessageBox::critical(0, "ROI", "No TOF or PAD loaded.",
+									  QMessageBox::Ok);
+				return;
+			}
+
+			QString strFile = QFileDialog::getSaveFileName(this,
+								"Save ROI File", "",
+								"XML Files (*.xml *.XML);;All Files (*)");
+			if(strFile=="")
+				return;
+
+			if(m_cascadewidget.SaveRoi(strFile.toAscii().data()))
+			{
+				UpdateLabels(false);
+				ShowMessage("ROI saved.");
+			}
+		}
+
+		////////////////////////// ROI Toolbar ////////////////////////////
+		void toolZoom()
+		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_NONE); }
+		void toolRect()
+		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_RECT); }
+		void toolCircle()
+		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_CIRC); }
+		void toolEllipse()
+		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_ELLIPSE); }
+		void toolCircRing()
+		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_CIRCRING); }
+		void toolCircSeg()
+		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_CIRCSEG); }
+		void toolPolygon()
+		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_POLYGON); }
 		///////////////////////////////////////////////////////////////////
 
 		///////////////////////// Help ///////////////////////////////////
@@ -961,6 +1036,21 @@ class MainWindow : public QMainWindow
 			#ifdef USE_BOOST
 			strAbout += QString("\n") + QString("Uses Boost\t\thttp://www.boost.org");
 			#endif
+
+			strAbout += "\n\n";
+			strAbout += "This program is free software; you can redistribute it and/or modify it under\n"
+						"the terms of the GNU General Public License as published by the Free Software\n"
+						"Foundation; either version 2 of the License, or (at your option) any later\n"
+						"version.\n\n"
+
+						"This program is distributed in the hope that it will be useful, but WITHOUT\n"
+						"ANY WARRANTY; without even the implied warranty of MERCHANTABILITY\n"
+						"or FITNESS FOR A PARTICULAR PURPOSE.\n"
+						"See the GNU General Public License for more details.\n\n"
+
+						"You should have received a copy of the GNU General Public License along with\n"
+						"this program; if not, write to the Free Software Foundation, Inc.,\n"
+						"59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n";
 
 			QMessageBox::about(this, "About", strAbout);
 		}
@@ -1047,6 +1137,9 @@ class MainWindow : public QMainWindow
 			actionLoadTof->setText("Load &TOF File...");
 			actionLoadTof->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
 
+			QAction *actionSaveFile = new QAction(this);
+			actionSaveFile->setText("&Save File...");
+
 			QAction *actionWriteXML = new QAction(this);
 			actionWriteXML->setText("Write &XML...");
 
@@ -1102,7 +1195,16 @@ class MainWindow : public QMainWindow
 
 			// ROI Menu Items
 			QAction *actionManageRois = new QAction(this);
-			actionManageRois->setText("&Manage ROI items...");
+			actionManageRois->setText("&Manage ROI...");
+
+			QAction *actionLoadRoi = new QAction(this);
+			actionLoadRoi->setText("Load ROI...");
+
+			QAction *actionSaveRoi = new QAction(this);
+			actionSaveRoi->setText("Save ROI...");
+
+			QAction *actionClearRoi = new QAction(this);
+			actionClearRoi->setText("Clear ROI");
 
 
 			// Help Menu Items
@@ -1124,7 +1226,9 @@ class MainWindow : public QMainWindow
 			menuFile->addAction(actionLoadPad);
 			menuFile->addAction(actionLoadTof);
 			menuFile->addSeparator();
+			menuFile->addAction(actionSaveFile);
 			menuFile->addAction(actionWriteXML);
+			menuFile->addSeparator();
 			menuFile->addAction(actionPrint);
 			menuFile->addSeparator();
 			menuFile->addAction(actionExit);
@@ -1157,6 +1261,11 @@ class MainWindow : public QMainWindow
 			QMenu *menuRoi = new QMenu(menubar);
 			menuRoi->setTitle("&ROI");
 			menuRoi->addAction(actionManageRois);
+			menuRoi->addSeparator();
+			menuRoi->addAction(actionLoadRoi);
+			menuRoi->addAction(actionSaveRoi);
+			menuRoi->addSeparator();
+			menuRoi->addAction(actionClearRoi);
 			menubar->addAction(menuRoi->menuAction());
 
 			QMenu *menuHelp = new QMenu(menubar);
@@ -1170,8 +1279,8 @@ class MainWindow : public QMainWindow
 
 
 			//------------------------------------------------------------------
-			// Toolbar
-			QToolBar *toolBar = new QToolBar("Toolbar",this);
+			// Plot Toolbar
+			QToolBar *toolBar = new QToolBar("Plot Toolbar",this);
 
 			btnLog = new QToolButton(toolBar);
 			btnLog->setText("Log10");
@@ -1184,7 +1293,6 @@ class MainWindow : public QMainWindow
 			btnAutoFetch->setCheckable(true);
 			btnAutoFetch->setChecked(false);
 			toolBar->addWidget(btnAutoFetch);
-
 
 			QMenu *pMenuViews = new QMenu;
 
@@ -1224,6 +1332,67 @@ class MainWindow : public QMainWindow
 			toolBar->addWidget(btnView);
 
 			addToolBar(toolBar);
+
+
+			//------------------------------------------------------------------
+			// Roi Toolbar
+
+			QToolBar *pRoiToolbar = new QToolBar("ROI Toolbar",this);
+
+			QActionGroup *pRoiActionGroup = new QActionGroup(pRoiToolbar);
+			pRoiActionGroup->setExclusive(true);
+
+			QAction *pZoom = new QAction(QString("Zoom"), pRoiToolbar);
+			pZoom->setCheckable(true);
+			pZoom->setChecked(true);
+			pRoiActionGroup->addAction(pZoom);
+			pRoiToolbar->addAction(pZoom);
+
+			QAction *pRect = new QAction(QIcon("res/ico_rect.png"),
+										QString("Rectangle"),
+										pRoiToolbar);
+			pRect->setCheckable(true);
+			pRoiActionGroup->addAction(pRect);
+			pRoiToolbar->addAction(pRect);
+
+			QAction *pCircle = new QAction(QIcon("res/ico_circle.png"),
+											QString("Circle"),
+											pRoiToolbar);
+			pCircle->setCheckable(true);
+			pRoiActionGroup->addAction(pCircle);
+			pRoiToolbar->addAction(pCircle);
+
+			QAction *pEllipse = new QAction(QIcon("res/ico_ellipse.png"),
+											QString("Ellipse"),
+											pRoiToolbar);
+			pEllipse->setCheckable(true);
+			pRoiActionGroup->addAction(pEllipse);
+			pRoiToolbar->addAction(pEllipse);
+
+			QAction *pCircleRing = new QAction(QIcon("res/ico_circlering.png"),
+											QString("Circle Ring"),
+											pRoiToolbar);
+			pCircleRing->setCheckable(true);
+			pRoiActionGroup->addAction(pCircleRing);
+			pRoiToolbar->addAction(pCircleRing);
+
+			QAction *pCircleSeg = new QAction(QIcon("res/ico_circlesegment.png"),
+											QString("Circle Segment"),
+											pRoiToolbar);
+			pCircleSeg->setCheckable(true);
+			pRoiActionGroup->addAction(pCircleSeg);
+			pRoiToolbar->addAction(pCircleSeg);
+
+			QAction *pPolygon = new QAction(QIcon("res/ico_polygon.png"),
+											QString("Polygon"),
+											pRoiToolbar);
+			pPolygon->setCheckable(true);
+			pRoiActionGroup->addAction(pPolygon);
+			pRoiToolbar->addAction(pPolygon);
+
+
+			addToolBar(pRoiToolbar);
+
 			//------------------------------------------------------------------
 
 
@@ -1237,96 +1406,111 @@ class MainWindow : public QMainWindow
 			statusbar->addPermanentWidget(pStatusExtCount,0);
 			setStatusBar(statusbar);
 
-			SetRightStatus(0,0);
+			ShowRightMessage(0,0,0);
 			//------------------------------------------------------------------
 
 
 			//------------------------------------------------------------------
 			// Connections
 			// Toolbar
-			connect(btnLog, SIGNAL(toggled(bool)), this,
-							SLOT(SetLog10(bool)));
-			connect(btnAutoFetch, SIGNAL(toggled(bool)), this,
-							SLOT(SetAutoFetch(bool)));
-			connect(actionViewsOverview, SIGNAL(triggered()), this,
-										 SLOT(viewOverview()));
-			connect(actionViewsSlides, SIGNAL(triggered()), this,
-									   SLOT(viewSlides()));
-			connect(actionViewsPhases, SIGNAL(triggered()), this,
-									   SLOT(viewPhases()));
-			connect(actionViewsContrasts, SIGNAL(triggered()), this,
-									   SLOT(viewContrasts()));
+			connect(btnLog, SIGNAL(toggled(bool)),
+					this, SLOT(SetLog10(bool)));
+			connect(btnAutoFetch, SIGNAL(toggled(bool)),
+					this, SLOT(SetAutoFetch(bool)));
+			connect(actionViewsOverview, SIGNAL(triggered()),
+					this, SLOT(viewOverview()));
+			connect(actionViewsSlides, SIGNAL(triggered()),
+					this, SLOT(viewSlides()));
+			connect(actionViewsPhases, SIGNAL(triggered()),
+					this, SLOT(viewPhases()));
+			connect(actionViewsContrasts, SIGNAL(triggered()),
+					this, SLOT(viewContrasts()));
+
+			// ROI Toolbar
+			connect(pZoom, SIGNAL(triggered()), this, SLOT(toolZoom()));
+			connect(pRect, SIGNAL(triggered()), this, SLOT(toolRect()));
+			connect(pCircle, SIGNAL(triggered()), this, SLOT(toolCircle()));
+			connect(pEllipse, SIGNAL(triggered()), this, SLOT(toolEllipse()));
+			connect(pCircleRing, SIGNAL(triggered()), this, SLOT(toolCircRing()));
+			connect(pCircleSeg, SIGNAL(triggered()), this, SLOT(toolCircSeg()));
+			connect(pPolygon, SIGNAL(triggered()), this, SLOT(toolPolygon()));
+
 
 			// Slider
-			connect(sliderFolien, SIGNAL(valueChanged(int)), this,
-								  SLOT(ChangeFolie(int)));
-			connect(sliderZeitkanaele, SIGNAL(valueChanged(int)), this,
-								  SLOT(ChangeZeitkanal(int)));
+			connect(sliderFolien, SIGNAL(valueChanged(int)),
+					this, SLOT(ChangeFolie(int)));
+			connect(sliderZeitkanaele, SIGNAL(valueChanged(int)),
+					this, SLOT(ChangeZeitkanal(int)));
 
 			// File
-			connect(actionExit, SIGNAL(triggered()), this,
-								SLOT(close()));
-			connect(actionLoadPad, SIGNAL(triggered()), this,
-								SLOT(LoadPad()));
-			connect(actionLoadTof, SIGNAL(triggered()), this,
-								   SLOT(LoadTof()));
-			connect(actionWriteXML, SIGNAL(triggered()), this,
-									SLOT(WriteXML()));
-			connect(actionPrint, SIGNAL(triggered()), m_cascadewidget.GetPlot(),
-									SLOT(printPlot()));
+			connect(actionExit, SIGNAL(triggered()), this, SLOT(close()));
+			connect(actionLoadPad, SIGNAL(triggered()), this, SLOT(LoadPad()));
+			connect(actionLoadTof, SIGNAL(triggered()), this, SLOT(LoadTof()));
+			connect(actionSaveFile, SIGNAL(triggered()), this,SLOT(SaveFile()));
+			connect(actionWriteXML, SIGNAL(triggered()),
+					this, SLOT(WriteXML()));
+			connect(actionPrint, SIGNAL(triggered()),
+					m_cascadewidget.GetPlot(), SLOT(printPlot()));
 
 			// Server
-			connect(actionConnectServer, SIGNAL(triggered()), this,
-										 SLOT(ConnectToServer()));
-			connect(actionServerDisconnect, SIGNAL(triggered()), this,
-										 SLOT(ServerDisconnect()));
+			connect(actionConnectServer, SIGNAL(triggered()),
+					this, SLOT(ConnectToServer()));
+			connect(actionServerDisconnect, SIGNAL(triggered()),
+					this, SLOT(ServerDisconnect()));
 
-			connect(actionServerCommand, SIGNAL(triggered()), this,
-										 SLOT(ServerCommand()));
+			connect(actionServerCommand, SIGNAL(triggered()),
+					this, SLOT(ServerCommand()));
 
-			connect(actionLoadTofServer, SIGNAL(triggered()), this,
-										 SLOT(LoadTofServer()));
-			connect(actionServerMeasurementStart, SIGNAL(triggered()), this,
-												SLOT(ServerMeasurementStart()));
-			connect(actionServerMeasurementStop, SIGNAL(triggered()), this,
-												SLOT(ServerMeasurementStop()));
-			connect(actionConfigServer, SIGNAL(triggered()), this,
-										SLOT(ServerConfig()));
-			connect(actionConfigFromServer, SIGNAL(triggered()), this,
-											SLOT(GetServerConfig()));
+			connect(actionLoadTofServer, SIGNAL(triggered()),
+					this, SLOT(LoadTofServer()));
+			connect(actionServerMeasurementStart, SIGNAL(triggered()),
+					this, SLOT(ServerMeasurementStart()));
+			connect(actionServerMeasurementStop, SIGNAL(triggered()),
+					this, SLOT(ServerMeasurementStop()));
+			connect(actionConfigServer, SIGNAL(triggered()),
+					this, SLOT(ServerConfig()));
+			connect(actionConfigFromServer, SIGNAL(triggered()),
+					this, SLOT(GetServerConfig()));
 
 			// Help
-			connect(actionAbout, SIGNAL(triggered()), this,
-										 SLOT(About()));
-			connect(actionAboutQt, SIGNAL(triggered()), this,
-										 SLOT(AboutQt()));
+			connect(actionAbout, SIGNAL(triggered()),
+					this, SLOT(About()));
+			connect(actionAboutQt, SIGNAL(triggered()),
+					this, SLOT(AboutQt()));
 
 			// Graph
-			connect(actionCalibration, SIGNAL(triggered()), this,
-									   SLOT(showCalibration()));
-			connect(actionGraph, SIGNAL(triggered()), this,
-								 SLOT(showGraph()));
-			connect(actionSummen, SIGNAL(triggered()), this,
-								  SLOT(showSummenDialog()));
+			connect(actionCalibration, SIGNAL(triggered()),
+					this, SLOT(showCalibration()));
+			connect(actionGraph, SIGNAL(triggered()),
+					this, SLOT(showGraph()));
+			connect(actionSummen, SIGNAL(triggered()),
+					this, SLOT(showSummenDialog()));
 
 			// Timer
-			connect(&m_statustimer, SIGNAL(timeout()), this,
-									SLOT(ServerStatus()));
+			connect(&m_statustimer, SIGNAL(timeout()),
+					this, SLOT(ServerStatus()));
 
-			connect(&m_autofetchtimer, SIGNAL(timeout()), this,
-									SLOT(AutoFetch()));
+			connect(&m_autofetchtimer, SIGNAL(timeout()),
+					this, SLOT(AutoFetch()));
 
 			// Server Message
-			connect(&m_client, SIGNAL(MessageSignal(const char*, int)), this,
-							   SLOT(ServerMessageSlot(const char*, int)));
+			connect(&m_client, SIGNAL(MessageSignal(const char*, int)),
+					this, SLOT(ServerMessageSlot(const char*, int)));
+
 
 			// ROI
-			connect(actionManageRois, SIGNAL(triggered()), this,
-									   SLOT(showRoiDlg()));
+			connect(actionManageRois, SIGNAL(triggered()),
+					this, SLOT(showRoiDlg()));
+			connect(actionSaveRoi, SIGNAL(triggered()),
+					this, SLOT(SaveRoi()));
+			connect(actionLoadRoi, SIGNAL(triggered()),
+					this, SLOT(LoadRoi()));
+			connect(actionClearRoi, SIGNAL(triggered()),
+					this, SLOT(ClearRoi()));
 
 			// Widget
 			connect(&m_cascadewidget, SIGNAL(SumDlgSignal(const bool *, int)),
-								this, SLOT(FolienSummeSlot(const bool *, int)));
+					this, SLOT(FolienSummeSlot(const bool *, int)));
 			//------------------------------------------------------------------
 
 
@@ -1349,9 +1533,10 @@ int MainWindow::AUTOFETCH_POLL_TIME = 250;
 
 int main(int argc, char **argv)
 {
+	QApplication a(argc, argv);
+
 	setlocale(LC_ALL, "C");
 	QLocale::setDefault(QLocale::English);
-	QApplication a(argc, argv);
 
 	// Konfigurationssingleton erzeugen
 	const char pcConfigFile[] = "./cascade.xml";
@@ -1403,6 +1588,7 @@ int main(int argc, char **argv)
 	MainWindow mainWindow;
 	mainWindow.resize(iWinW, iWinH);
 	mainWindow.show();
+
 	int iRet = a.exec();
 
 	// aufräumen

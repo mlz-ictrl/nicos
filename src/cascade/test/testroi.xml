@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<!-- ROI element configuration for Cascade Viewer -->
+
+<roi_elements>
+
+	<element_0>
+		<type> polygon </type>
+		<vertex_0_x> 48.4276 </vertex_0_x>
+		<vertex_0_y> 108.396 </vertex_0_y>
+		<vertex_1_x> 100.636 </vertex_1_x>
+		<vertex_1_y> 78.4144 </vertex_1_y>
+		<vertex_2_x> 34.2053 </vertex_2_x>
+		<vertex_2_y> 25.9459 </vertex_2_y>
+		<vertex_3_x> 26.1041 </vertex_3_x>
+		<vertex_3_y> 97.1532 </vertex_3_y>
+	</element_0>
+
+</roi_elements>

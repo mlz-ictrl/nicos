@@ -58,7 +58,7 @@
 		<address> miracascade.mira.frm2 </address>
 		<port> 1234 </port>
 
-		<status_poll_time> 1000 </status_poll_time>
+		<status_poll_time> 500 </status_poll_time>
 
 		<use_message_timeout> 0 </use_message_timeout>
 		<message_timeout> 10000 </message_timeout>

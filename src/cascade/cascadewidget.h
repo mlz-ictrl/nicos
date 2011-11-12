@@ -28,23 +28,15 @@
 #include <QtGui/QWidget>
 
 #include <qwt/qwt_plot.h>
-#include <qwt/qwt_plot_grid.h>
 #include <qwt/qwt_plot_zoomer.h>
 #include <qwt/qwt_plot_panner.h>
-#include <qwt/qwt_plot_layout.h>
-#include <qwt/qwt_plot_marker.h>
-#include <qwt/qwt_plot_rescaler.h>
-#include <qwt/qwt_interval_data.h>
-#include <qwt/qwt_plot_curve.h>
+#include <qwt/qwt_plot_picker.h>
 #include <qwt/qwt_plot_spectrogram.h>
-#include <qwt/qwt_scale_widget.h>
-#include <qwt/qwt_scale_draw.h>
 #include <qwt/qwt_color_map.h>
-#include <qwt/qwt_legend.h>
-#include <qwt/qwt_legend_item.h>
 #include <qwt/qwt_symbol.h>
 
 #include "tofdata.h"
+#include "cascadedialogs.h"
 
 
 #define MODE_SLIDES		1
@@ -55,6 +47,40 @@
 #define MODE_PHASESUMS		5
 #define MODE_CONTRASTSUMS	6
 
+
+#define ROI_DRAW_NONE		0
+#define ROI_DRAW_RECT		1
+#define ROI_DRAW_CIRC		2
+#define ROI_DRAW_CIRCRING 	3
+#define ROI_DRAW_CIRCSEG 	4
+#define ROI_DRAW_ELLIPSE	5
+#define ROI_DRAW_POLYGON	6
+
+class MainPicker : public QwtPlotPicker
+{
+	Q_OBJECT
+
+	protected:
+		int m_iRoiDrawMode;
+		Roi *m_pCurRoi;
+
+	protected slots:
+		void selectedRect(const QwtDoubleRect& rect);
+		void selectedPoly(const QwtArray<QwtDoublePoint>& poly);
+
+	public:
+		MainPicker(QwtPlotCanvas* pcanvas);
+		virtual ~MainPicker();
+
+		virtual QwtText trackerText(const QwtDoublePoint &pos) const;
+
+		void SetRoiDrawMode(int iMode);
+		int GetRoiDrawMode() const;
+		void SetCurRoi(Roi* pRoi);
+
+	signals:
+		void RoiHasChanged();
+};
 
 
 class MainZoomer : public QwtPlotZoomer
@@ -88,6 +114,9 @@ class Plot : public QwtPlot
 		QwtPlotSpectrogram *m_pSpectrogram;
 		MainZoomer* m_pZoomer;
 		MainPanner* m_pPanner;
+
+		MainPicker* m_pRoiPicker;
+
 		const BasicImage* m_pImage;
 
 	public:
@@ -99,6 +128,7 @@ class Plot : public QwtPlot
 
 		QwtPlotZoomer* GetZoomer();
 		QwtPlotPanner* GetPanner();
+		QwtPlotPicker* GetRoiPicker();
 
 		void SetData(Data2D* pData, bool bUpdate=true);
 		const QwtRasterData* GetData() const;
@@ -110,6 +140,7 @@ class Plot : public QwtPlot
 
 	public slots:
 		void printPlot();
+		virtual void replot();
 };
 
 
@@ -137,6 +168,21 @@ Q_OBJECT
 		int m_iFolie, m_iZeitkanal;
 		bool m_bLog;
 
+		RoiDlg* m_proidlg;
+
+		//----------------------------------------------------------------------
+		// ROI curves for qwt
+		std::vector<QwtPlotCurve*> m_vecRoiCurves;
+		void UpdateRoiVector();
+		void ClearRoiVector();
+
+	public:
+		void ClearRoi();
+
+	public slots:
+		void RedrawRoi();
+		//----------------------------------------------------------------------
+
 	public:
 		CascadeWidget(QWidget *parent=NULL);
 		virtual ~CascadeWidget();
@@ -159,6 +205,10 @@ Q_OBJECT
 		// load TOF from memory
 		bool LoadTofMem(const char* pcMem, unsigned int iLen);
 
+		// loading/saving of ROI elements
+		bool LoadRoi(const char* pcFile);
+		bool SaveRoi(const char* pcFile);
+
 		void ForceReinit();
 
 		TofImage* GetTof();
@@ -174,6 +224,9 @@ Q_OBJECT
 
 		void SetMode(int iMode);
 		int GetMode();
+
+		void SetRoiDrawMode(int iMode);
+		Roi* GetCurRoi();
 
 	public slots:
 		// sum all foils and all time channels
@@ -191,6 +244,7 @@ Q_OBJECT
 		void showCalibrationDlg(int iNumBins);
 		void showGraphDlg();
 		void showSumDlg();
+		void showRoiDlg();
 		///////////////////////////////////////
 
 		void SetLog10(bool bLog10);
@@ -202,6 +256,9 @@ Q_OBJECT
 		void UpdateRange();
 
 		void SumDlgSlot(const bool *pbKanaele, int iMode);
+
+	protected slots:
+		void RoiDlgAccepted(QAbstractButton*);
 
 	signals:
 		void SumDlgSignal(const bool* pbKanaele, int iMode);

@@ -105,7 +105,7 @@ class GraphDlg : public QDialog, public Ui::GraphDlg
 	Q_OBJECT
 
 	private:
-		void Init(int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie);
+		void Init(int iFolie);
 
 	protected:
 		TofImage *m_pTofImg;
@@ -117,18 +117,11 @@ class GraphDlg : public QDialog, public Ui::GraphDlg
 		void UpdateGraph(void);
 
 	protected slots:
-		void ROIy1changed(int iVal);
-		void ROIy2changed(int iVal);
-		void ROIx1changed(int iVal);
-		void ROIx2changed(int iVal);
 		void Foilchanged(int iVal);
-		void Phasechanged(double dVal);
 
 	public:
 		GraphDlg(QWidget *pParent, TofImage* pTof);
-		GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2,
-												   int iROIy1, int iROIy2,
-												   int iFolie);
+		GraphDlg(QWidget *pParent, TofImage* pTof, int iFolie);
 		virtual ~GraphDlg();
 };
 // *****************************************************************************
@@ -253,20 +246,28 @@ class RoiDlg : public QDialog, public Ui::RoiDlg
 	Q_OBJECT
 
 	protected:
-		Roi& m_roi;
+		Roi *m_pRoi;
 		int m_iCurrentItem;
 
 		void NewElement(RoiElement* pNewElem);
+		void Deinit();
 
 	public:
-		RoiDlg(QWidget *pParent, Roi& roi);
+		RoiDlg(QWidget *pParent);
 		virtual ~RoiDlg();
+
+		void SetRoi(const Roi* pRoi);
+		const Roi* GetRoi(void) const;
+		void ClearList();
 
 	public slots:
 		void ItemSelected();
 		void ValueChanged(QTableWidgetItem *pItem);
 
 		void NewCircle();
+		void NewEllipse();
+		void NewCircleRing();
+		void NewCircleSeg();
 		void NewRect();
 
 		void DeleteItem();

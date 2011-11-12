@@ -26,7 +26,6 @@
  * based on the following python code:
  * http://pyqwt.sourceforge.net/examples/ErrorBarDemo.py.html
  */
-
 #ifndef __ERROR_BARS__
 #define __ERROR_BARS__
 

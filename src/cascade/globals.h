@@ -34,6 +34,9 @@
 #define LOAD_FAIL			 0
 #define LOAD_SIZE_MISMATCH	-1
 
+#define SAVE_SUCCESS		 1
+#define SAVE_FAIL			 0
+
 #define MINUIT_SIMPLEX 	1
 #define MINUIT_MINIMIZE	2
 #define MINUIT_MIGRAD 	3

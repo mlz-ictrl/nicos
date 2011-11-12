@@ -149,13 +149,16 @@ class ImageStorage(Device, NeedsDatapath):
         self._datapath = path.join(value[0], self.subdir)
         self._counter = readFileCounter(path.join(self._datapath, 'counter'))
         self._setROParam('lastfilenumber', self._counter)
-        self._setROParam('listfilename', self.nametemplate % self._counter)
+        self._setROParam('lastfilename', self._getFilename(self._counter))
+
+    def _getFilename(self, counter):
+        return self.nametemplate % counter
 
     def _newFile(self):
         if self._datapath is None:
             self.datapath = session.experiment.datapath
         self.lastfilename = path.join(
-            self._datapath, self.nametemplate % self._counter)
+            self._datapath, self._getFilename(self._counter))
         self.lastfilenumber = self._counter
         self._counter += 1
         updateFileCounter(path.join(self._datapath, 'counter'), self._counter)

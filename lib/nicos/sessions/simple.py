@@ -104,9 +104,13 @@ class NoninteractiveSession(Session):
         def reload_handler(signum, frame):
             if hasattr(maindev, 'reload'):
                 maindev.reload()
+        def status_handler(signum, frame):
+            if hasattr(maindev, 'statusinfo'):
+                maindev.statusinfo()
         signal.signal(signal.SIGINT, quit_handler)
         signal.signal(signal.SIGTERM, quit_handler)
         signal.signal(signal.SIGUSR1, reload_handler)
+        signal.signal(signal.SIGUSR2, status_handler)
 
         if pidfile:
             writePidfile(appname)

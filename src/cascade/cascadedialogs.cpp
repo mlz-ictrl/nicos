@@ -258,8 +258,7 @@ void GraphDlg::UpdateGraph(void)
 
 	// Messpunkte für eine Folie
 	TmpGraph tmpGraph;
-	m_pTofImg->GetGraph(spinBoxROIx1->value(),spinBoxROIx2->value(),spinBoxROIy1
-			->value(),spinBoxROIy2->value(),spinBoxFolie->value()-1, &tmpGraph);
+	m_pTofImg->GetGraph(spinBoxFolie->value()-1, &tmpGraph);
 
 	double *pdx = new double[tmpGraph.GetWidth()];
 	double *pdy = new double[tmpGraph.GetWidth()];
@@ -325,14 +324,12 @@ void GraphDlg::UpdateGraph(void)
 	qwtPlot->replot();
 }
 
-void GraphDlg::ROIy1changed(int iVal) { UpdateGraph(); }
-void GraphDlg::ROIy2changed(int iVal) { UpdateGraph(); }
-void GraphDlg::ROIx1changed(int iVal) { UpdateGraph(); }
-void GraphDlg::ROIx2changed(int iVal) { UpdateGraph(); }
-void GraphDlg::Foilchanged(int iVal) { UpdateGraph(); }
-void GraphDlg::Phasechanged(double dVal) { UpdateGraph(); }
+void GraphDlg::Foilchanged(int iVal)
+{
+	UpdateGraph();
+}
 
-void GraphDlg::Init(int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie)
+void GraphDlg::Init(int iFolie)
 {
 	const TofConfig& conf = GlobalConfig::GetTofConfig();
 
@@ -348,40 +345,16 @@ void GraphDlg::Init(int iROIx1, int iROIx2, int iROIy1, int iROIy2, int iFolie)
 	m_pgrid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
 	m_pgrid->attach(qwtPlot);
 
-	spinBoxROIx1->setMinimum(0);
-	spinBoxROIx1->setMaximum(conf.GetImageWidth());
-	spinBoxROIx2->setMinimum(0);
-	spinBoxROIx2->setMaximum(conf.GetImageWidth());
-	spinBoxROIy1->setMinimum(0);
-	spinBoxROIy1->setMaximum(conf.GetImageHeight());
-	spinBoxROIy2->setMinimum(0);
-	spinBoxROIy2->setMaximum(conf.GetImageHeight());
 	spinBoxFolie->setMinimum(1);
 	spinBoxFolie->setMaximum(conf.GetFoilCount());
-
-	spinBoxROIx1->setValue(iROIx1);
-	spinBoxROIx2->setValue(iROIx2);
-	spinBoxROIy1->setValue(iROIy1);
-	spinBoxROIy2->setValue(iROIy2);
 	spinBoxFolie->setValue(iFolie+1);
 
 	QwtLegend *m_plegend = new QwtLegend;
 	//m_plegend->setItemMode(QwtLegend::CheckableItem);
 	qwtPlot->insertLegend(m_plegend, QwtPlot::RightLegend);
 
-	QObject::connect(spinBoxROIy1, SIGNAL(valueChanged(int)), this,
-								   SLOT(ROIy1changed(int)));
-	QObject::connect(spinBoxROIy2, SIGNAL(valueChanged(int)), this,
-								   SLOT(ROIy2changed(int)));
-	QObject::connect(spinBoxROIx1, SIGNAL(valueChanged(int)), this,
-								   SLOT(ROIx1changed(int)));
-	QObject::connect(spinBoxROIx2, SIGNAL(valueChanged(int)), this,
-								   SLOT(ROIx2changed(int)));
 	QObject::connect(spinBoxFolie, SIGNAL(valueChanged(int)), this,
 								   SLOT(Foilchanged(int)));
-	QObject::connect(spinBoxPhase, SIGNAL(valueChanged(double)), this,
-								   SLOT(Phasechanged(double)));
-
 
 	// Kurve für Messpunkte für eine Folie
 	QwtSymbol sym;
@@ -421,12 +394,12 @@ GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof) : QDialog(pParent),
 
 	const TofConfig& conf = GlobalConfig::GetTofConfig();
 
-	Init(0, conf.GetImageWidth()-1, 0, conf.GetImageHeight()-1, 0);
+	Init(0);
 	UpdateGraph();
 }
 
-GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2,
-					int iROIy1, int iROIy2, int iFolie) : QDialog(pParent),
+GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof, int iFolie)
+														: QDialog(pParent),
 														  m_pTofImg(pTof),
 														  m_curve("Foil"),
 														  m_curvefit("Fit"),
@@ -435,7 +408,6 @@ GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof, int iROIx1, int iROIx2,
 														  m_pgrid(0)
 {
 	setupUi(this);
-	Init(iROIx1, iROIx2, iROIy1, iROIy2, iFolie);
 	UpdateGraph();
 }
 
@@ -579,7 +551,7 @@ bool ServerCfgDlg::s_bUsePseudoComp = 0;
 
 
 // ************************* Roi-Dlg *******************************************
-RoiDlg::RoiDlg(QWidget *pParent, Roi& roi) : QDialog(pParent), m_roi(roi)
+RoiDlg::RoiDlg(QWidget *pParent) : QDialog(pParent), m_pRoi(0)
 {
 	setupUi(this);
 
@@ -593,36 +565,43 @@ RoiDlg::RoiDlg(QWidget *pParent, Roi& roi) : QDialog(pParent), m_roi(roi)
 	//--------------------------------------------------------------------------
 	QAction *actionNewRect = new QAction("Rectangle", this);
 	QAction *actionNewCircle = new QAction("Circle", this);
+	QAction *actionNewEllipse = new QAction("Ellipse", this);
+	QAction *actionNewCircleRing = new QAction("Circle Ring", this);
+	QAction *actionNewCircleSeg = new QAction("Circle Segment", this);
 
 	QMenu *pMenu = new QMenu(this);
 	pMenu->addAction(actionNewRect);
 	pMenu->addAction(actionNewCircle);
+	pMenu->addAction(actionNewEllipse);
+	pMenu->addAction(actionNewCircleRing);
+	pMenu->addAction(actionNewCircleSeg);
 
 	connect(actionNewRect, SIGNAL(triggered()), this, SLOT(NewRect()));
 	connect(actionNewCircle, SIGNAL(triggered()), this, SLOT(NewCircle()));
+	connect(actionNewEllipse, SIGNAL(triggered()), this, SLOT(NewEllipse()));
+	connect(actionNewCircleRing, SIGNAL(triggered()), this, SLOT(NewCircleRing()));
+	connect(actionNewCircleSeg, SIGNAL(triggered()), this, SLOT(NewCircleSeg()));
 
 	btnAdd->setMenu(pMenu);
 	//--------------------------------------------------------------------------
-
-	// add all roi elements to list
-	for(int i=0; i<m_roi.GetNumElements(); ++i)
-	{
-		new QListWidgetItem(m_roi.GetElement(i).GetName().c_str(), listRois);
-	}
 }
 
 RoiDlg::~RoiDlg()
-{}
+{
+	Deinit();
+}
 
 // an item (e.g. "circle", "rectangle", ... has been selected)
 void RoiDlg::ItemSelected()
 {
+	if(!m_pRoi) return;
+
 	m_iCurrentItem = listRois->currentRow();
 
-	if(m_iCurrentItem<0 || m_iCurrentItem >= m_roi.GetNumElements())
+	if(m_iCurrentItem<0 || m_iCurrentItem >= m_pRoi->GetNumElements())
 		return;
 
-	RoiElement& elem = m_roi.GetElement(m_iCurrentItem);
+	RoiElement& elem = m_pRoi->GetElement(m_iCurrentItem);
 
 	tableParams->setRowCount(elem.GetParamCount());
 	tableParams->setColumnCount(2);
@@ -654,13 +633,15 @@ void RoiDlg::ItemSelected()
 // a property of the selected item has changed
 void RoiDlg::ValueChanged(QTableWidgetItem* pItem)
 {
+	if(!m_pRoi) return;
+
 	// only edit if this flag is set
 	if(pItem->data(Qt::UserRole+1).value<int>() != 1)
 		return;
 
-	if(m_iCurrentItem<0 || m_iCurrentItem >= m_roi.GetNumElements())
+	if(m_iCurrentItem<0 || m_iCurrentItem >= m_pRoi->GetNumElements())
 		return;
-	RoiElement& elem = m_roi.GetElement(m_iCurrentItem);
+	RoiElement& elem = m_pRoi->GetElement(m_iCurrentItem);
 
 	QVariant var = pItem->data(Qt::UserRole);
 	int iParam = var.value<int>();
@@ -681,23 +662,26 @@ void RoiDlg::ValueChanged(QTableWidgetItem* pItem)
 
 void RoiDlg::NewElement(RoiElement* pNewElem)
 {
-	int iPos = m_roi.add(pNewElem);
-	new QListWidgetItem(m_roi.GetElement(iPos).GetName().c_str(), listRois);
+	if(!m_pRoi) return;
+
+	int iPos = m_pRoi->add(pNewElem);
+	new QListWidgetItem(m_pRoi->GetElement(iPos).GetName().c_str(), listRois);
+
+	listRois->setCurrentRow(iPos);
+	checkBoxUseRoi->setCheckState(Qt::Checked);
 }
 
-void RoiDlg::NewCircle()
-{
-	NewElement(new RoiCircle);
-}
-
-void RoiDlg::NewRect()
-{
-	NewElement(new RoiRect);
-}
+void RoiDlg::NewCircle() { NewElement(new RoiCircle); }
+void RoiDlg::NewEllipse() { NewElement(new RoiEllipse); }
+void RoiDlg::NewCircleRing() { NewElement(new RoiCircleRing); }
+void RoiDlg::NewCircleSeg() { NewElement(new RoiCircleSegment); }
+void RoiDlg::NewRect() { NewElement(new RoiRect); }
 
 void RoiDlg::DeleteItem()
 {
-	if(m_iCurrentItem<0 || m_iCurrentItem >= m_roi.GetNumElements())
+	if(!m_pRoi) return;
+
+	if(m_iCurrentItem<0 || m_iCurrentItem >= m_pRoi->GetNumElements())
 		return;
 
 	int iCurItem = m_iCurrentItem;
@@ -705,11 +689,51 @@ void RoiDlg::DeleteItem()
 	QListWidgetItem* pItem = listRois->item(iCurItem);
 	if(pItem)
 	{
+		tableParams->setRowCount(0);
+
 		delete pItem;
-		m_roi.DeleteElement(iCurItem);
+		m_pRoi->DeleteElement(iCurItem);
 
 		m_iCurrentItem = listRois->currentRow();
 	}
+
+	if(m_pRoi->GetNumElements()==0)
+		checkBoxUseRoi->setCheckState(Qt::Unchecked);
+}
+
+void RoiDlg::ClearList()
+{
+	listRois->clear();
+}
+
+void RoiDlg::SetRoi(const Roi* pRoi)
+{
+	ClearList();
+
+	if(m_pRoi)
+		delete m_pRoi;
+
+	m_pRoi = new Roi(*pRoi);
+
+	// add all roi elements to list
+	for(int i=0; i<m_pRoi->GetNumElements(); ++i)
+	{
+		new QListWidgetItem(m_pRoi->GetElement(i).GetName().c_str(), listRois);
+	}
+
+	if(m_pRoi->GetNumElements() > 0)
+		listRois->setCurrentRow(0);
+}
+
+const Roi* RoiDlg::GetRoi(void) const
+{
+	return m_pRoi;
+}
+
+void RoiDlg::Deinit()
+{
+	if(m_pRoi)
+		delete m_pRoi;
 }
 
 // *****************************************************************************

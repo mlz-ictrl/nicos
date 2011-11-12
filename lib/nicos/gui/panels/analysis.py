@@ -42,9 +42,9 @@ import numpy as np
 
 from nicos.data import Dataset
 from nicos.gui.panels import Panel
-from nicos.gui.utils import loadUi, dialogFromUi, safeFilename
+from nicos.gui.utils import loadUi, dialogFromUi, safeFilename, DlgPresets
 from nicos.gui.fitutils import has_odr, FitError, fit_gauss, fwhm_to_sigma, \
-     fit_tc, fit_pseudo_voigt, fit_pearson_vii
+     fit_tc, fit_pseudo_voigt, fit_pearson_vii, fit_arby
 from nicos.gui.plothelpers import NicosPlot, ErrorBarPlotCurve, cloneToGrace
 
 
@@ -135,7 +135,7 @@ class AnalysisPanel(Panel):
             self.actionAttachElog, self.actionCombine, self.actionClosePlot,
             self.actionDeletePlot, self.actionLogScale, self.actionNormalized,
             self.actionUnzoom, self.actionLegend, self.actionFitPeak,
-            self.actionFitPeakPV, self.actionFitPeakPVII,
+            self.actionFitPeakPV, self.actionFitPeakPVII, self.actionFitArby,
             ]:
             action.setEnabled(on)
 
@@ -161,6 +161,8 @@ class AnalysisPanel(Panel):
         menu2.addAction(self.actionFitPeakPV)
         menu2.addAction(self.actionFitPeakPVII)
         menu2.addAction(self.actionFitTc)
+        menu2.addSeparator()
+        menu2.addAction(self.actionFitArby)
         return [menu1, menu2]
 
     def getToolbars(self):
@@ -176,7 +178,8 @@ class AnalysisPanel(Panel):
         bar.addSeparator()
         bar.addAction(self.actionCombine)
         bar.addAction(self.actionFitPeak)
-        bar.addAction(self.actionFitTc)
+        #bar.addAction(self.actionFitTc)
+        bar.addAction(self.actionFitArby)
         return [bar]
 
     def updateList(self):
@@ -375,6 +378,10 @@ class AnalysisPanel(Panel):
         self.currentPlot.fitTc()
 
     @qtsig('')
+    def on_actionFitArby_triggered(self):
+        self.currentPlot.fitArby()
+
+    @qtsig('')
     def on_actionCombine_triggered(self):
         current = self.currentPlot.dataset.uid
         dlg = dialogFromUi(self, 'dataops.ui', 'panels')
@@ -490,6 +497,7 @@ class DataSetPlot(NicosPlot):
         self.fittype = None
         self.fitparams = None
         self.fitstage = 0
+        self.fitPicker = None
         NicosPlot.__init__(self, parent, window)
 
     def titleString(self):
@@ -543,7 +551,7 @@ class DataSetPlot(NicosPlot):
             dy = np.array(curve.datady)
         if self.normalized:
             norm = None
-            if curve.monindex > -1:
+            if curve.monindices:
                 norm = np.array(curve.datamon)
             elif curve.timeindex > -1:
                 norm = np.array(curve.datatime)
@@ -569,7 +577,43 @@ class DataSetPlot(NicosPlot):
     def fitTc(self):
         self._beginFit('Tc', ['Background', 'Tc'])
 
-    def _beginFit(self, fittype, fitparams):
+    def fitArby(self):
+        def callback():
+            dlg = dialogFromUi(self, 'fit_arby.ui', 'panels')
+            pr = DlgPresets('fit_arby',
+                [(dlg.function, ''), (dlg.fitparams, ''),
+                 (dlg.xfrom, ''), (dlg.xto, '')])
+            pr.load()
+            ret = dlg.exec_()
+            if ret != QDialog.Accepted:
+                return False
+            pr.save()
+            fcn = str(dlg.function.text())
+            try:
+                xmin = float(str(dlg.xfrom.text()))
+            except ValueError:
+                xmin = None
+            try:
+                xmax = float(str(dlg.xto.text()))
+            except ValueError:
+                xmax = None
+            if xmin is not None and xmax is not None and xmin > xmax:
+                xmax, xmin = xmin, xmax
+            params, values = [], []
+            for line in str(dlg.fitparams.toPlainText()).splitlines():
+                name_value = line.strip().split('=', 2)
+                if len(name_value) < 2:
+                    continue
+                params.append(name_value[0])
+                try:
+                    values.append(float(name_value[1]))
+                except ValueError:
+                    values.append(0)
+            self.fitvalues = [fcn, params, values, (xmin, xmax)]
+            return True
+        self._beginFit('Arbitrary', [], callback)
+
+    def _beginFit(self, fittype, fitparams, callback=None):
         if self.fittype is not None:
             return
         if not has_odr:
@@ -590,27 +634,35 @@ class DataSetPlot(NicosPlot):
             self.fitcurve = visible_curves[dlg.list.currentRow()]
         else:
             self.fitcurve = visible_curves[0]
-        self.picker.active = False
-        self.zoomer.setEnabled(False)
         self.fitvalues = []
         self.fitparams = fitparams
         self.fittype = fittype
         self.fitstage = 0
+        self.fitcallback = callback
+        if self.fitparams:
+            self.picker.active = False
+            self.zoomer.setEnabled(False)
 
-        self.window.statusBar.showMessage('Fitting: Click on %s' % fitparams[0])
-        self.fitPicker = QwtPlotPicker(
-            QwtPlot.xBottom, self.curves[self.fitcurve].yAxis(),
-            QwtPicker.PointSelection | QwtPicker.ClickSelection,
-            QwtPlotPicker.CrossRubberBand,
-            QwtPicker.AlwaysOn, self.canvas())
-        self.connect(self.fitPicker,
-                     SIGNAL('selected(const QwtDoublePoint &)'),
-                     self.on_fitPicker_selected)
+            self.window.statusBar.showMessage('Fitting: Click on %s' %
+                                              fitparams[0])
+            self.fitPicker = QwtPlotPicker(
+                QwtPlot.xBottom, self.curves[self.fitcurve].yAxis(),
+                QwtPicker.PointSelection | QwtPicker.ClickSelection,
+                QwtPlotPicker.CrossRubberBand,
+                QwtPicker.AlwaysOn, self.canvas())
+            self.connect(self.fitPicker,
+                         SIGNAL('selected(const QwtDoublePoint &)'),
+                         self.on_fitPicker_selected)
+        else:
+            self._finishFit()
 
     def _finishFit(self):
-        curve = self.curves[self.fitcurve]
-        args = [curve._x, curve._y, curve._dy] + self.fitvalues
         try:
+            if self.fitcallback:
+                if not self.fitcallback():
+                    raise FitError('Aborted.')
+            curve = self.curves[self.fitcurve]
+            args = [curve._x, curve._y, curve._dy] + self.fitvalues
             labelalign = Qt.AlignRight | Qt.AlignBottom
             linefrom = lineto = liney = None
             if self.fittype == 'Gauss':
@@ -654,10 +706,18 @@ class DataSetPlot(NicosPlot):
                 labely = beta[0]  # at I_background
                 labelalign = Qt.AlignLeft | Qt.AlignTop
                 interesting = [('Tc', beta[2]), (u'α', beta[3])]
+            elif self.fittype == 'Arbitrary':
+                title = 'Fit'
+                beta, x, y = fit_arby(*args)
+                labelx = x[0]
+                labely = y.max()
+                labelalign = Qt.AlignRight | Qt.AlignBottom
+                interesting = zip(self.fitvalues[1], beta)
         except FitError, err:
             self.window.statusBar.showMessage('Fitting failed: %s.' % err)
-            self.fitPicker.setEnabled(False)
-            del self.fitPicker
+            if self.fitPicker:
+                self.fitPicker.setEnabled(False)
+                self.fitPicker = None
             self.picker.active = True
             self.zoomer.setEnabled(True)
             self.fittype = None
@@ -706,8 +766,9 @@ class DataSetPlot(NicosPlot):
 
         self.replot()
 
-        self.fitPicker.setEnabled(False)
-        del self.fitPicker
+        if self.fitPicker:
+            self.fitPicker.setEnabled(False)
+            del self.fitPicker
         self.picker.active = True
         self.zoomer.setEnabled(True)
         self.fittype = None

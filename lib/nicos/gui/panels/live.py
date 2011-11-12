@@ -60,6 +60,10 @@ class LiveDataPanel(Panel):
         self.widget.setContextMenuPolicy(Qt.CustomContextMenu)
         self.widgetLayout.addWidget(self.widget)
 
+        self.liveitem = QListWidgetItem('<Live>', self.fileList)
+        self.liveitem.setData(32, '')
+        self.liveitem.setData(33, '')
+
         self.splitter.restoreState(self.splitterstate)
 
         self.connect(client, SIGNAL('livedata'), self.on_client_livedata)
@@ -141,29 +145,37 @@ class LiveDataPanel(Panel):
                                            (cts/self._runtime, cts))
         if self._filename and path.isfile(self._filename):
             shortname = path.basename(self._filename)
-            item = QListWidgetItem(shortname, self.fileList)
+            item = QListWidgetItem(shortname)
             item.setData(32, self._filename)
             item.setData(33, self._format)
+            self.fileList.insertItem(self.fileList.count()-1, item)
+            self.fileList.scrollToBottom()
 
     def on_fileList_itemClicked(self, item):
         if item is None:
             return
         fname = item.data(32).toString()
         format = item.data(33).toString()
-        self._no_direct_display = True
-        if format == 'pad':
-            self.widget.LoadPadFile(fname)
-        elif format == 'tof':
-            self.widget.LoadTofFile(fname)
+        if fname == '':
+            if self._no_direct_display:
+                self._no_direct_display = False
+                if self._format == 'pad':
+                    self.widget.LoadPadMem(self._last_data, 128*128*4)
+                elif self._format == 'tof':
+                    self.widget.LoadTofMem(self._last_data, 128*128*128*4)
+        else:
+            self._no_direct_display = True
+            if format == 'pad':
+                self.widget.LoadPadFile(fname)
+            elif format == 'tof':
+                self.widget.LoadTofFile(fname)
 
-    @qtsig('')
-    def on_liveButton_clicked(self):
-        if self._no_direct_display:
-            self._no_direct_display = False
-            if self._format == 'pad':
-                self.widget.LoadPadMem(self._last_data)
-            elif self._format == 'tof':
-                self.widget.LoadTofMem(self._last_data)
+    def on_fileList_currentItemChanged(self, item, previous):
+        self.on_fileList_itemClicked(item)
+
+    #@qtsig('')
+    #def on_liveButton_clicked(self):
+    #    if self._no_direct_display:
 
     @qtsig('')
     def on_actionLoadTOF_triggered(self):

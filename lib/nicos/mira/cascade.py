@@ -153,6 +153,11 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         if preset.get('t'):
             self.preselection = self._last_preset = preset['t']
 
+    def _getFilename(self, counter):
+        if self.mode == 'tof':
+            return '%08d.tof' % counter
+        return '%08d.pad' % counter
+
     def _startAction(self, **preset):
         self._newFile()
         if self.slave:

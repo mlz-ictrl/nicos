@@ -120,7 +120,7 @@ def fit_tc(xdata, ydata, yerr, (Tb, Ib), (Tc, Ic)):
         raise FitError('No data in plot')
     Tmin, Tmax = xdata.min(), xdata.max()
     model = Model(tc_curve)
-    if yerr and yerr.shape == 1:
+    if yerr is not None and yerr.shape == 1:
         data = RealData(xdata, ydata, sy=yerr)
     else:
         data = RealData(xdata, ydata)
@@ -131,6 +131,37 @@ def fit_tc(xdata, ydata, yerr, (Tb, Ib), (Tc, Ic)):
     odr = ODR(data, model, beta0, ifixx=array([0]*len(xdata)))
     out = odr.run()
     Tfine = arange(Tmin, Tmax, (Tmax-Tmin)/100)
-    if out.info >= 5:
+    if out.info & 0xFFFFFFFF >= 5:
         raise FitError(', '.join(out.stopreason))
     return out.beta, Tfine, tc_curve(out.beta, Tfine)
+
+
+def fit_arby(xdata, ydata, yerr, fcnstr, params, guesses, xlimits):
+    xmin, xmax = xlimits
+    if xmin is None:
+        xmin = xdata.min()
+    if xmax is None:
+        xmax = xdata.max()
+    indices = (xmin <= xdata) & (xdata <= xmax)
+    xfit = xdata[indices]
+    if not len(xfit):
+        raise FitError('No data in plot')
+    yfit = ydata[indices]
+    ns = {}
+    exec 'from numpy import *' in ns
+    try:
+        fcn = eval('lambda (%s), x: %s' % (', '.join(params), fcnstr), ns)
+    except SyntaxError, e:
+        raise FitError('Syntax error in function: %s' % e)
+    if yerr is not None and yerr.shape == 1:
+        dyfit = yerr[indices]
+        data = RealData(xfit, yfit, sy=dyfit)
+    else:
+        data = RealData(xfit, yfit)
+    model = Model(fcn)
+    odr = ODR(data, model, guesses, ifixx=[0]*len(xfit))
+    out = odr.run()
+    xfine = arange(xmin, xmax, (xmax-xmin)/200)
+    if out.info & 0xFFFFFFFF >= 5:
+        raise FitError(', '.join(out.stopreason))
+    return out.beta, xfine, fcn(out.beta, xfine)
