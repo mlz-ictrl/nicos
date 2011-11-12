@@ -27,13 +27,13 @@
 
 #include <QtGui/QWidget>
 
-#include <qwt/qwt_plot.h>
-#include <qwt/qwt_plot_zoomer.h>
-#include <qwt/qwt_plot_panner.h>
-#include <qwt/qwt_plot_picker.h>
-#include <qwt/qwt_plot_spectrogram.h>
-#include <qwt/qwt_color_map.h>
-#include <qwt/qwt_symbol.h>
+#include <qwt_plot.h>
+#include <qwt_plot_zoomer.h>
+#include <qwt_plot_panner.h>
+#include <qwt_plot_picker.h>
+#include <qwt_plot_spectrogram.h>
+#include <qwt_color_map.h>
+#include <qwt_symbol.h>
 
 #include "tofdata.h"
 #include "cascadedialogs.h"

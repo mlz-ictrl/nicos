@@ -24,7 +24,8 @@
 #ifndef __NICOSCLIENT__
 #define __NICOSCLIENT__
 
-#include <QMutex>
+#include <QtCore/QMutex>
+
 #include "client.h"
 #include "globals.h"
 #include "tofloader.h"

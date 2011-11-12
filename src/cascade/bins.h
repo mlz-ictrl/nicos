@@ -25,8 +25,8 @@
 #ifndef __BINS__
 #define __BINS__
 
-#include <qwt/qwt_data.h>
-#include <qwt/qwt_double_interval.h>
+#include <qwt_data.h>
+#include <qwt_double_interval.h>
 
 class Bins
 {
