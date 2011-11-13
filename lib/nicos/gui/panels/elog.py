@@ -84,6 +84,23 @@ class ELogPanel(Panel, DlgUtils):
         setBackgroundColor(self.freeFormText, back)
 
     @qtsig('')
+    def on_newProposal_clicked(self):
+        try:
+            num = int(str(self.proposalNum.text()))
+        except ValueError:
+            return self.showError('Proposal should be numeric.')
+        self.client.ask('eval', 'NewExperiment(%r)' % num)
+        self.timer.start(750)
+
+    @qtsig('')
+    def on_newSample_clicked(self):
+        name = str(self.sampleName.text())
+        if not name:
+            return
+        self.client.ask('eval', 'NewSample(%r)' % name)
+        self.timer.start(750)
+
+    @qtsig('')
     def on_addRemark_clicked(self):
         remark = str(self.remarkText.text())
         if not remark:
