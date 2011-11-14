@@ -1155,91 +1155,130 @@ class MainWindow : public QMainWindow
 			//------------------------------------------------------------------
 			// Menu Items
 			// File Menu Items
-			QAction *actionLoadPad = new QAction(this);
-			actionLoadPad->setText("Load &PAD File...");
+			QAction *actionLoadPad = new QAction(
+						QIcon::fromTheme("document-open"),
+						"Load &PAD File...",
+						this);
 			actionLoadPad->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_P));
 
-			QAction *actionLoadTof = new QAction(this);
-			actionLoadTof->setText("Load &TOF File...");
+			QAction *actionLoadTof = new QAction(
+						QIcon::fromTheme("document-open"),
+						"Load &TOF File...",
+						this);
 			actionLoadTof->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
 
-			QAction *actionSaveFile = new QAction(this);
-			actionSaveFile->setText("&Save File...");
+			QAction *actionSaveFile = new QAction(
+						QIcon::fromTheme("document-save-as"),
+						"&Save File...",
+						this);
 
-			QAction *actionWriteXML = new QAction(this);
-			actionWriteXML->setText("Write &XML...");
+			QAction *actionWriteXML = new QAction(
+						QIcon::fromTheme("document-save-as"),
+						"Write &XML...",
+						this);
 
-			QAction *actionPrint = new QAction(this);
-			actionPrint->setText("P&rint Plot...");
+			QAction *actionPrint = new QAction(
+						QIcon::fromTheme("document-print"),
+						"P&rint Plot...",
+						this);
 
-			QAction *actionExit = new QAction(this);
-			actionExit->setText("&Exit");
+			QAction *actionExit = new QAction(
+						QIcon::fromTheme("application-exit"),
+						"&Exit",
+						this);
 
 
 			// Server Menu Items
-			QAction *actionConnectServer = new QAction(this);
-			actionConnectServer->setText("&Connect to Server...");
+			QAction *actionConnectServer = new QAction(
+						QIcon::fromTheme("network-wireless"),
+						"&Connect to Server...",
+						this);
 			actionConnectServer->setShortcut(
-											QKeySequence(Qt::CTRL + Qt::Key_C));
+						QKeySequence(Qt::CTRL + Qt::Key_C));
 
-			QAction *actionServerDisconnect = new QAction(this);
-			actionServerDisconnect->setText("&Disconnect from Server");
+			QAction *actionServerDisconnect = new QAction(
+						QIcon::fromTheme("network-offline"),
+						"&Disconnect from Server",
+						this);
 
-			QAction *actionServerCommand = new QAction(this);
-			actionServerCommand->setText("Enter &Manual Command...");
+			QAction *actionServerCommand = new QAction(
+						QIcon::fromTheme("network-transmit"),
+						"Enter &Manual Command...",
+						this);
 
-			QAction *actionServerMeasurementStart = new QAction(this);
-			actionServerMeasurementStart->setText("&Start Measurement");
+			QAction *actionServerMeasurementStart = new QAction(
+						"&Start Measurement",
+						this);
 			actionServerMeasurementStart->setShortcut(
 											QKeySequence(Qt::CTRL + Qt::Key_S));
 
 			QAction *actionServerMeasurementStop = new QAction(this);
 			actionServerMeasurementStop->setText("&End Measurement");
 
-			QAction *actionLoadTofServer = new QAction(this);
-			actionLoadTofServer->setText("Fetch &Data");
+			QAction *actionLoadTofServer = new QAction(
+						QIcon::fromTheme("network-receive"),
+						"Fetch &Data",
+						this);
 			actionLoadTofServer->setShortcut(
-											QKeySequence(Qt::CTRL + Qt::Key_D));
+						QKeySequence(Qt::CTRL + Qt::Key_D));
 
-			QAction *actionConfigServer = new QAction(this);
-			actionConfigServer->setText("C&onfigure...");
+			QAction *actionConfigServer = new QAction(
+						QIcon::fromTheme("preferences-system-network"),
+						"C&onfigure...",
+						this);
 
-			QAction *actionConfigFromServer = new QAction(this);
-			actionConfigFromServer->setText("&Retrieve Configuration");
+			QAction *actionConfigFromServer = new QAction(
+						"&Retrieve Configuration",
+						this);
 
 
 			// Graph Menu Items
-			QAction *actionGraph = new QAction(this);
-			actionGraph->setText("&Counts vs. Time Channels...");
+			QAction *actionGraph = new QAction(
+						"&Counts vs. Time Channels...",
+						this);
 
-			QAction *actionSummen = new QAction(this);
-			actionSummen->setText("&Sum Images...");
+			QAction *actionSummen = new QAction(
+						"&Sum Images...",
+						this);
 
-			QAction *actionCalibration = new QAction(this);
-			actionCalibration->setText("C&alibration...");
+			QAction *actionCalibration = new QAction(
+						"C&alibration...",
+						this);
 
 
 			// ROI Menu Items
-			QAction *actionManageRois = new QAction(this);
-			actionManageRois->setText("&Manage ROI...");
+			QAction *actionManageRois = new QAction(
+						QIcon::fromTheme("list-add"),
+						"&Manage ROI...",
+						this);
 			actionManageRois->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
 
-			QAction *actionLoadRoi = new QAction(this);
-			actionLoadRoi->setText("Load ROI...");
+			QAction *actionLoadRoi = new QAction(
+						QIcon::fromTheme("document-open"),
+						"Load ROI...",
+						this);
 
-			QAction *actionSaveRoi = new QAction(this);
-			actionSaveRoi->setText("Save ROI...");
+			QAction *actionSaveRoi = new QAction(
+						QIcon::fromTheme("document-save-as"),
+						"Save ROI...",
+						this);
 
-			QAction *actionClearRoi = new QAction(this);
-			actionClearRoi->setText("Clear ROI");
+			QAction *actionClearRoi = new QAction(
+						QIcon::fromTheme("edit-clear"),
+						"Clear ROI",
+						this);
 
 
 			// Help Menu Items
-			QAction *actionAbout = new QAction(this);
-			actionAbout->setText("&About...");
+			QAction *actionAbout = new QAction(
+						QIcon::fromTheme("help-about"),
+						"&About...",
+						this);
 
-			QAction *actionAboutQt = new QAction(this);
-			actionAboutQt->setText("About &Qt...");
+			QAction *actionAboutQt = new QAction(
+						//QIcon::fromTheme("help-about"),
+						"About &Qt...",
+						this);
 			//------------------------------------------------------------------
 
 
@@ -1369,7 +1408,9 @@ class MainWindow : public QMainWindow
 			QActionGroup *pRoiActionGroup = new QActionGroup(pRoiToolbar);
 			pRoiActionGroup->setExclusive(true);
 
-			QAction *pZoom = new QAction(QString("Zoom"), pRoiToolbar);
+			QAction *pZoom = new QAction(QIcon::fromTheme("zoom-in"),
+										 QString("Zoom"),
+										 pRoiToolbar);
 			pZoom->setCheckable(true);
 			pZoom->setChecked(true);
 			pRoiActionGroup->addAction(pZoom);
