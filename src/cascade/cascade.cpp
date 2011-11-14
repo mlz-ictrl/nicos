@@ -1561,6 +1561,10 @@ int MainWindow::AUTOFETCH_POLL_TIME = 250;
 
 int main(int argc, char **argv)
 {
+	RoiCircle c1;
+	RoiCircle c2 = c1;
+
+
 	QApplication a(argc, argv);
 
 	setlocale(LC_ALL, "C");

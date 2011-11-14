@@ -38,10 +38,17 @@ struct BoundingRect
 };
 
 
-// interface for roi elements (rectangle, circle, ...)
+// base class for roi elements (rectangle, circle, ...)
 class RoiElement
 {
+	protected:
+		BoundingRect m_boundingrect;
+		virtual void CalculateBoundingRect();
+
+		RoiElement();
+
 	public:
+		virtual RoiElement& operator=(const RoiElement& elem);
 		virtual RoiElement* copy() const = 0;
 
 
@@ -76,7 +83,10 @@ class RoiElement
 		//----------------------------------------------------------------------
 
 		// bounding rect for the element's current parameters
-		virtual BoundingRect GetBoundingRect() const;
+		virtual const BoundingRect& GetBoundingRect() const;
+
+		// is point (iX, iY) inside elementzy
+		virtual bool IsInBoundingRect(int iX, int iY) const;
 };
 
 
@@ -91,6 +101,7 @@ class RoiRect : public RoiElement
 		RoiRect(const Vec2d<int>& bottomleft,
 				const Vec2d<int>& topright, double dAngle=0.);
 		RoiRect();
+		RoiRect(const RoiRect& rect);
 
 		virtual bool IsInside(int iX, int iY) const;
 
@@ -104,6 +115,7 @@ class RoiRect : public RoiElement
 		virtual int GetVertexCount() const;
 		virtual Vec2d<double> GetVertex(int i) const;
 
+		virtual RoiRect& operator=(const RoiRect& elem);
 		virtual RoiElement* copy() const;
 };
 
@@ -114,9 +126,12 @@ class RoiCircle : public RoiElement
 		Vec2d<double> m_vecCenter;
 		double m_dRadius;
 
+		virtual void CalculateBoundingRect();
+
 	public:
 		RoiCircle(const Vec2d<double>& vecCenter, double dRadius);
 		RoiCircle();
+		RoiCircle(const RoiCircle& elem);
 
 		virtual bool IsInside(int iX, int iY) const;
 		virtual bool IsInside(double dX, double dY) const;
@@ -131,8 +146,7 @@ class RoiCircle : public RoiElement
 		virtual int GetVertexCount() const;
 		virtual Vec2d<double> GetVertex(int i) const;
 
-		virtual BoundingRect GetBoundingRect() const;
-
+		virtual RoiCircle& operator=(const RoiCircle& elem);
 		virtual RoiElement* copy() const;
 };
 
@@ -143,10 +157,13 @@ class RoiEllipse : public RoiElement
 		Vec2d<double> m_vecCenter;
 		double m_dRadiusX, m_dRadiusY;
 
+		virtual void CalculateBoundingRect();
+
 	public:
 		RoiEllipse(const Vec2d<double>& vecCenter,
 					double dRadiusX, double dRadiusY);
 		RoiEllipse();
+		RoiEllipse(const RoiEllipse& elem);
 
 		virtual bool IsInside(int iX, int iY) const;
 		virtual bool IsInside(double dX, double dY) const;
@@ -161,8 +178,7 @@ class RoiEllipse : public RoiElement
 		virtual int GetVertexCount() const;
 		virtual Vec2d<double> GetVertex(int i) const;
 
-		virtual BoundingRect GetBoundingRect() const;
-
+		virtual RoiEllipse& operator=(const RoiEllipse& elem);
 		virtual RoiElement* copy() const;
 };
 
@@ -173,10 +189,13 @@ class RoiCircleRing : public RoiElement
 		Vec2d<double> m_vecCenter;
 		double m_dInnerRadius, m_dOuterRadius;
 
+		virtual void CalculateBoundingRect();
+
 	public:
 		RoiCircleRing(const Vec2d<double>& vecCenter,
 					  double dInnerRadius, double dOuterRadius);
 		RoiCircleRing();
+		RoiCircleRing(const RoiCircleRing& elem);
 
 		virtual bool IsInside(int iX, int iY) const;
 		virtual bool IsInside(double dX, double dY) const;
@@ -191,8 +210,7 @@ class RoiCircleRing : public RoiElement
 		virtual int GetVertexCount() const;
 		virtual Vec2d<double> GetVertex(int i) const;
 
-		virtual BoundingRect GetBoundingRect() const;
-
+		virtual RoiCircleRing& operator=(const RoiCircleRing& elem);
 		virtual RoiElement* copy() const;
 };
 
@@ -202,11 +220,14 @@ class RoiCircleSegment : public RoiCircleRing
 	protected:
 		double m_dBeginAngle, m_dEndAngle;
 
+		virtual void CalculateBoundingRect();
+
 	public:
 		RoiCircleSegment(const Vec2d<double>& vecCenter,
 						double dInnerRadius, double dOuterRadius,
 						double dBeginAngle, double dEndAngle);
 		RoiCircleSegment();
+		RoiCircleSegment(const RoiCircleSegment& elem);
 
 		virtual bool IsInside(int iX, int iY) const;
 		virtual bool IsInside(double dX, double dY) const;
@@ -221,8 +242,7 @@ class RoiCircleSegment : public RoiCircleRing
 		virtual int GetVertexCount() const;
 		virtual Vec2d<double> GetVertex(int i) const;
 
-		virtual BoundingRect GetBoundingRect() const;
-
+		virtual RoiCircleSegment& operator=(const RoiCircleSegment& elem);
 		virtual RoiElement* copy() const;
 };
 
@@ -235,6 +255,7 @@ class RoiPolygon : public RoiElement
 
 	public:
 		RoiPolygon();
+		RoiPolygon(const RoiPolygon& elem);
 
 		virtual bool IsInside(int iX, int iY) const;
 		virtual bool IsInside(double dX, double dY) const;
@@ -250,6 +271,7 @@ class RoiPolygon : public RoiElement
 		virtual Vec2d<double> GetVertex(int i) const;
 		void AddVertex(const Vec2d<double>& vertex);
 
+		virtual RoiPolygon& operator=(const RoiPolygon& elem);
 		virtual RoiElement* copy() const;
 };
 

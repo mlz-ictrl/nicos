@@ -34,9 +34,15 @@
 #include "pnpoly.h"
 
 
-BoundingRect RoiElement::GetBoundingRect() const
+//------------------------------------------------------------------------------
+// RoiElement
+
+RoiElement::RoiElement()
+{}
+
+void RoiElement::CalculateBoundingRect()
 {
-	BoundingRect rect;
+	BoundingRect& rect = m_boundingrect;
 
 	rect.bottomleft[0] = std::numeric_limits<int>::max();
 	rect.bottomleft[1] = std::numeric_limits<int>::max();
@@ -53,8 +59,28 @@ BoundingRect RoiElement::GetBoundingRect() const
 		rect.topright[0] = max(double(rect.topright[0]), vert[0]);
 		rect.topright[1] = max(double(rect.topright[1]), vert[1]);
 	}
+}
 
-	return rect;
+const BoundingRect& RoiElement::GetBoundingRect() const
+{
+	return m_boundingrect;
+}
+
+RoiElement& RoiElement::operator=(const RoiElement& elem)
+{
+	this->m_boundingrect = elem.m_boundingrect;
+	return *this;
+}
+
+bool RoiElement::IsInBoundingRect(int iX, int iY) const
+{
+	const BoundingRect& rect = m_boundingrect;
+
+	if(iX >= rect.bottomleft[0] && iX < rect.topright[0] &&
+	   iY >= rect.bottomleft[1] && iY < rect.topright[1])
+	   return true;
+
+	return false;
 }
 
 //------------------------------------------------------------------------------
@@ -68,6 +94,8 @@ RoiRect::RoiRect(const Vec2d<int>& bottomleft,
 		swap(m_bottomleft[0], m_topright[0]);
 	if(m_bottomleft[1] > m_topright[1])
 		swap(m_bottomleft[1], m_topright[1]);
+
+	CalculateBoundingRect();
 }
 
 RoiRect::RoiRect(int iX1, int iY1, int iX2, int iY2, double dAngle)
@@ -77,6 +105,11 @@ RoiRect::RoiRect(int iX1, int iY1, int iX2, int iY2, double dAngle)
 
 RoiRect::RoiRect() : m_dAngle(0.)
 {}
+
+RoiRect::RoiRect(const RoiRect& rect)
+{
+	*this = rect;
+}
 
 bool RoiRect::IsInside(int iX, int iY) const
 {
@@ -142,6 +175,8 @@ void RoiRect::SetParam(int iParam, double dVal)
 		case 3: m_topright[1] = dVal; break;
 		case 4: m_dAngle = dVal; break;
 	}
+
+	CalculateBoundingRect();
 }
 
 int RoiRect::GetVertexCount() const
@@ -174,9 +209,22 @@ Vec2d<double> RoiRect::GetVertex(int i) const
 	return vecRet;
 }
 
+RoiRect& RoiRect::operator=(const RoiRect& elem)
+{
+	RoiElement::operator=(elem);
+
+	this->m_bottomleft = elem.m_bottomleft;
+	this->m_topright = elem.m_topright;
+	this->m_dAngle = elem.m_dAngle;
+
+	return *this;
+}
+
 RoiElement* RoiRect::copy() const
 {
-	return new RoiRect(m_bottomleft, m_topright, m_dAngle);
+	RoiRect* pElem = new RoiRect;
+	pElem->operator=(*this);
+	return pElem;
 }
 
 
@@ -187,10 +235,19 @@ RoiElement* RoiRect::copy() const
 
 RoiCircle::RoiCircle(const Vec2d<double>& vecCenter, double dRadius)
 		 : m_vecCenter(vecCenter), m_dRadius(dRadius)
-{}
+{
+	if(m_dRadius < 0.) m_dRadius = -m_dRadius;
+
+	CalculateBoundingRect();
+}
 
 RoiCircle::RoiCircle() : m_dRadius(0.)
 {}
+
+RoiCircle::RoiCircle(const RoiCircle& elem)
+{
+	*this = elem;
+}
 
 bool RoiCircle::IsInside(int iX, int iY) const
 {
@@ -250,6 +307,8 @@ void RoiCircle::SetParam(int iParam, double dVal)
 		case 1: m_vecCenter[1] = dVal; break;
 		case 2: m_dRadius = dVal; break;
 	}
+
+	CalculateBoundingRect();
 }
 
 int RoiCircle::GetVertexCount() const
@@ -267,9 +326,9 @@ Vec2d<double> RoiCircle::GetVertex(int i) const
 	return vecRet;
 }
 
-BoundingRect RoiCircle::GetBoundingRect() const
+void RoiCircle::CalculateBoundingRect()
 {
-	BoundingRect rect;
+	BoundingRect& rect = m_boundingrect;
 
 	rect.bottomleft = m_vecCenter.cast<int>();
 	rect.bottomleft[0] -= m_dRadius;
@@ -278,13 +337,23 @@ BoundingRect RoiCircle::GetBoundingRect() const
 	rect.topright = m_vecCenter.cast<int>();
 	rect.topright[0] += m_dRadius;
 	rect.topright[1] += m_dRadius;
+}
 
-	return rect;
+RoiCircle& RoiCircle::operator=(const RoiCircle& elem)
+{
+	RoiElement::operator=(elem);
+
+	this->m_vecCenter = elem.m_vecCenter;
+	this->m_dRadius = elem.m_dRadius;
+
+	return *this;
 }
 
 RoiElement* RoiCircle::copy() const
 {
-	return new RoiCircle(m_vecCenter, m_dRadius);
+	RoiCircle *pElem = new RoiCircle;
+	pElem->operator=(*this);
+	return pElem;
 }
 
 
@@ -295,10 +364,20 @@ RoiElement* RoiCircle::copy() const
 RoiEllipse::RoiEllipse(const Vec2d<double>& vecCenter,
 					   double dRadiusX, double dRadiusY)
 		 : m_vecCenter(vecCenter), m_dRadiusX(dRadiusX), m_dRadiusY(dRadiusY)
-{}
+{
+	if(m_dRadiusX < 0.) m_dRadiusX = -m_dRadiusX;
+	if(m_dRadiusY < 0.) m_dRadiusY = -m_dRadiusY;
+
+	CalculateBoundingRect();
+}
 
 RoiEllipse::RoiEllipse() : m_dRadiusX(0.), m_dRadiusY(0.)
 {}
+
+RoiEllipse::RoiEllipse(const RoiEllipse& elem)
+{
+	*this = elem;
+}
 
 bool RoiEllipse::IsInside(int iX, int iY) const
 {
@@ -366,6 +445,8 @@ void RoiEllipse::SetParam(int iParam, double dVal)
 		case 2: m_dRadiusX = dVal; break;
 		case 3: m_dRadiusY = dVal; break;
 	}
+
+	CalculateBoundingRect();
 }
 
 int RoiEllipse::GetVertexCount() const
@@ -383,9 +464,9 @@ Vec2d<double> RoiEllipse::GetVertex(int i) const
 	return vecRet;
 }
 
-BoundingRect RoiEllipse::GetBoundingRect() const
+void RoiEllipse::CalculateBoundingRect()
 {
-	BoundingRect rect;
+	BoundingRect &rect = m_boundingrect;
 
 	rect.bottomleft = m_vecCenter.cast<int>();
 	rect.bottomleft[0] -= m_dRadiusX;
@@ -394,13 +475,24 @@ BoundingRect RoiEllipse::GetBoundingRect() const
 	rect.topright = m_vecCenter.cast<int>();
 	rect.topright[0] += m_dRadiusX;
 	rect.topright[1] += m_dRadiusY;
+}
 
-	return rect;
+RoiEllipse& RoiEllipse::operator=(const RoiEllipse& elem)
+{
+	RoiElement::operator=(elem);
+
+	this->m_vecCenter = elem.m_vecCenter;
+	this->m_dRadiusX = elem.m_dRadiusX;
+	this->m_dRadiusY = elem.m_dRadiusY;
+
+	return *this;
 }
 
 RoiElement* RoiEllipse::copy() const
 {
-	return new RoiEllipse(m_vecCenter, m_dRadiusX, m_dRadiusY);
+	RoiEllipse *pElem = new RoiEllipse;
+	pElem->operator=(*this);
+	return pElem;
 }
 
 
@@ -414,13 +506,23 @@ RoiCircleRing::RoiCircleRing(const Vec2d<double>& vecCenter,
 				: m_vecCenter(vecCenter),
 				  m_dInnerRadius(dInnerRadius), m_dOuterRadius(dOuterRadius)
 {
+	if(m_dInnerRadius < 0.) m_dInnerRadius = -m_dInnerRadius;
+	if(m_dOuterRadius < 0.) m_dOuterRadius = -m_dOuterRadius;
+
 	if(m_dOuterRadius < m_dInnerRadius)
 		swap(m_dOuterRadius, m_dInnerRadius);
+
+	CalculateBoundingRect();
 }
 
 RoiCircleRing::RoiCircleRing()
 				: m_dInnerRadius(0.), m_dOuterRadius(0.)
 {}
+
+RoiCircleRing::RoiCircleRing(const RoiCircleRing& elem)
+{
+	*this = elem;
+}
 
 bool RoiCircleRing::IsInside(int iX, int iY) const
 {
@@ -496,6 +598,8 @@ void RoiCircleRing::SetParam(int iParam, double dVal)
 		case 2: m_dInnerRadius = dVal; break;
 		case 3: m_dOuterRadius = dVal; break;
 	}
+
+	CalculateBoundingRect();
 }
 
 int RoiCircleRing::GetVertexCount() const
@@ -535,9 +639,9 @@ Vec2d<double> RoiCircleRing::GetVertex(int i) const
 	return vecRet;
 }
 
-BoundingRect RoiCircleRing::GetBoundingRect() const
+void RoiCircleRing::CalculateBoundingRect()
 {
-	BoundingRect rect;
+	BoundingRect& rect = m_boundingrect;
 
 	rect.bottomleft = m_vecCenter.cast<int>();
 	rect.bottomleft[0] -= m_dOuterRadius;
@@ -546,13 +650,24 @@ BoundingRect RoiCircleRing::GetBoundingRect() const
 	rect.topright = m_vecCenter.cast<int>();
 	rect.topright[0] += m_dOuterRadius;
 	rect.topright[1] += m_dOuterRadius;
+}
 
-	return rect;
+RoiCircleRing& RoiCircleRing::operator=(const RoiCircleRing& elem)
+{
+	RoiElement::operator=(elem);
+
+	this->m_vecCenter = elem.m_vecCenter;
+	this->m_dInnerRadius = elem.m_dInnerRadius;
+	this->m_dOuterRadius = elem.m_dOuterRadius;
+
+	return *this;
 }
 
 RoiElement* RoiCircleRing::copy() const
 {
-	return new RoiCircleRing(m_vecCenter, m_dInnerRadius, m_dOuterRadius);
+	RoiCircleRing *pElem = new RoiCircleRing;
+	pElem->operator=(*this);
+	return pElem;
 }
 
 
@@ -565,12 +680,20 @@ RoiCircleSegment::RoiCircleSegment(const Vec2d<double>& vecCenter,
 								   double dBeginAngle, double dEndAngle)
 				: RoiCircleRing(vecCenter, dInnerRadius, dOuterRadius),
 				  m_dBeginAngle(dBeginAngle), m_dEndAngle(dEndAngle)
-{}
+{
+	CalculateBoundingRect();
+}
 
 RoiCircleSegment::RoiCircleSegment()
 				: RoiCircleRing(),
 				  m_dBeginAngle(0.), m_dEndAngle(0.)
 {}
+
+RoiCircleSegment::RoiCircleSegment(const RoiCircleSegment& elem)
+				: RoiCircleRing()
+{
+	*this = elem;
+}
 
 bool RoiCircleSegment::IsInside(int iX, int iY) const
 {
@@ -662,6 +785,8 @@ void RoiCircleSegment::SetParam(int iParam, double dVal)
 		case 4: m_dBeginAngle = dVal; break;
 		case 5: m_dEndAngle = dVal; break;
 	}
+
+	CalculateBoundingRect();
 }
 
 int RoiCircleSegment::GetVertexCount() const
@@ -703,17 +828,27 @@ Vec2d<double> RoiCircleSegment::GetVertex(int i) const
 	return vecRet;
 }
 
-BoundingRect RoiCircleSegment::GetBoundingRect() const
+void RoiCircleSegment::CalculateBoundingRect()
 {
 	// TODO!!
-	return RoiCircleRing::GetBoundingRect();
+	RoiCircleRing::CalculateBoundingRect();
+}
+
+RoiCircleSegment& RoiCircleSegment::operator=(const RoiCircleSegment& elem)
+{
+	RoiCircleRing::operator=(elem);
+
+	this->m_dBeginAngle = elem.m_dBeginAngle;
+	this->m_dEndAngle = elem.m_dEndAngle;
+
+	return *this;
 }
 
 RoiElement* RoiCircleSegment::copy() const
 {
-	return new RoiCircleSegment(m_vecCenter,
-								m_dInnerRadius, m_dOuterRadius,
-								m_dBeginAngle, m_dEndAngle);
+	RoiCircleSegment *pElem = new RoiCircleSegment;
+	pElem->operator=(*this);
+	return pElem;
 }
 
 
@@ -723,6 +858,11 @@ RoiElement* RoiCircleSegment::copy() const
 
 RoiPolygon::RoiPolygon()
 {}
+
+RoiPolygon::RoiPolygon(const RoiPolygon& elem)
+{
+	*this = elem;
+}
 
 bool RoiPolygon::IsInside(int iX, int iY) const
 {
@@ -803,6 +943,8 @@ void RoiPolygon::SetParam(int iParam, double dVal)
 		vec[iCoord] = dVal;
 		m_vertices.push_back(vec);
 	}
+
+	CalculateBoundingRect();
 }
 
 int RoiPolygon::GetVertexCount() const
@@ -815,19 +957,29 @@ Vec2d<double> RoiPolygon::GetVertex(int i) const
 	return m_vertices[i];
 }
 
-RoiElement* RoiPolygon::copy() const
-{
-	RoiPolygon *pPoly = new RoiPolygon;
-	pPoly->m_vertices = this->m_vertices;
-	return pPoly;
-}
-
 void RoiPolygon::AddVertex(const Vec2d<double>& vertex)
 {
 	//std::cout << vertex[0] << " " << vertex[1] << std::endl;
 	m_vertices.push_back(vertex);
+
+	CalculateBoundingRect();
 }
 
+RoiPolygon& RoiPolygon::operator=(const RoiPolygon& elem)
+{
+	RoiElement::operator=(elem);
+
+	this->m_vertices = elem.m_vertices;
+
+	return *this;
+}
+
+RoiElement* RoiPolygon::copy() const
+{
+	RoiPolygon *pElem = new RoiPolygon;
+	pElem->operator=(*this);
+	return pElem;
+}
 
 
 //------------------------------------------------------------------------------
@@ -880,6 +1032,21 @@ void Roi::clear()
 
 bool Roi::IsInside(int iX, int iY) const
 {
+	// check bounding rects
+	bool bInBoundingRect = false;
+	for(unsigned int i=0; i<m_vecRoi.size(); ++i)
+	{
+		if(m_vecRoi[i]->IsInBoundingRect(iX, iY))
+		{
+			bInBoundingRect = true;
+			break;
+		}
+	}
+	if(!bInBoundingRect)
+		return false;
+
+
+	// check actual elements
 	for(unsigned int i=0; i<m_vecRoi.size(); ++i)
 	{
 		if(m_vecRoi[i]->IsInside(iX, iY))
