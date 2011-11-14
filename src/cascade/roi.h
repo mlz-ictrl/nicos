@@ -35,6 +35,9 @@ struct BoundingRect
 {
 	Vec2d<int> bottomleft;
 	Vec2d<int> topright;
+
+	void SetInvalidBounds();
+	void AddVertex(const Vec2d<int>& vertex);
 };
 
 
@@ -93,13 +96,13 @@ class RoiElement
 class RoiRect : public RoiElement
 {
 	protected:
-		Vec2d<int> m_bottomleft, m_topright;
+		Vec2d<double> m_bottomleft, m_topright;
 		double m_dAngle;
 
 	public:
-		RoiRect(int iX1, int iY1, int iX2, int iY2, double dAngle=0.);
-		RoiRect(const Vec2d<int>& bottomleft,
-				const Vec2d<int>& topright, double dAngle=0.);
+		RoiRect(double dX1, double dY1, double dX2, double dY2, double dAngle=0.);
+		RoiRect(const Vec2d<double>& bottomleft,
+				const Vec2d<double>& topright, double dAngle=0.);
 		RoiRect();
 		RoiRect(const RoiRect& rect);
 
@@ -301,6 +304,9 @@ class Roi
 		const RoiElement& GetElement(int iElement) const;
 		void DeleteElement(int iElement);
 		int GetNumElements() const;
+
+		// get total bounding rectangle of all elements
+		BoundingRect GetBoundingRect() const;
 
 		bool Load(const char* pcFile);
 		bool Save(const char* pcFile);

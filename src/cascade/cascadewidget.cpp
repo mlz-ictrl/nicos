@@ -20,7 +20,10 @@
 //   Tobias Weber <tweber@frm2.tum.de>
 //
 // *****************************************************************************
-// Plotter initially based on "spectrogram" qwt sample code
+/*
+ * Cascade Widget
+ * (Plotter initially based on "spectrogram" qwt sample code)
+ */
 
 #include "cascadewidget.h"
 
@@ -209,7 +212,8 @@ void MainPicker::selectedRect(const QwtDoubleRect &rect)
 	{
 		case ROI_DRAW_RECT:
 		{
-			pElem = new RoiRect(bottomleft, topright);
+			pElem = new RoiRect(bottomleft.cast<double>(),
+								topright.cast<double>());
 			break;
 		}
 
@@ -1247,5 +1251,3 @@ void CascadeWidget::SetRoiDrawMode(int iMode)
 		pPicker->setEnabled(true);
 	}
 }
-
-//----------------------------------------------------------------------

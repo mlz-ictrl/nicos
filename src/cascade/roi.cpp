@@ -33,6 +33,26 @@
 #include "mat2d.h"
 #include "pnpoly.h"
 
+//------------------------------------------------------------------------------
+// Bounding Rectangle
+
+void BoundingRect::SetInvalidBounds()
+{
+	bottomleft[0] = std::numeric_limits<int>::max();
+	bottomleft[1] = std::numeric_limits<int>::max();
+	topright[0] = std::numeric_limits<int>::min();
+	topright[1] = std::numeric_limits<int>::min();
+}
+
+void BoundingRect::AddVertex(const Vec2d<int>& vertex)
+{
+	bottomleft[0] = min(bottomleft[0], vertex[0]);
+	bottomleft[1] = min(bottomleft[1], vertex[1]);
+
+	topright[0] = max(topright[0], vertex[0]);
+	topright[1] = max(topright[1], vertex[1]);
+}
+
 
 //------------------------------------------------------------------------------
 // RoiElement
@@ -43,21 +63,12 @@ RoiElement::RoiElement()
 void RoiElement::CalculateBoundingRect()
 {
 	BoundingRect& rect = m_boundingrect;
-
-	rect.bottomleft[0] = std::numeric_limits<int>::max();
-	rect.bottomleft[1] = std::numeric_limits<int>::max();
-	rect.topright[0] = std::numeric_limits<int>::min();
-	rect.topright[1] = std::numeric_limits<int>::min();
+	rect.SetInvalidBounds();
 
 	for(int i=0; i<GetVertexCount(); ++i)
 	{
 		Vec2d<double> vert = GetVertex(i);
-
-		rect.bottomleft[0] = min(double(rect.bottomleft[0]), vert[0]);
-		rect.bottomleft[1] = min(double(rect.bottomleft[1]), vert[1]);
-
-		rect.topright[0] = max(double(rect.topright[0]), vert[0]);
-		rect.topright[1] = max(double(rect.topright[1]), vert[1]);
+		rect.AddVertex(vert.cast<int>());
 	}
 }
 
@@ -86,8 +97,8 @@ bool RoiElement::IsInBoundingRect(int iX, int iY) const
 //------------------------------------------------------------------------------
 // rect
 
-RoiRect::RoiRect(const Vec2d<int>& bottomleft,
-				 const Vec2d<int>& topright, double dAngle)
+RoiRect::RoiRect(const Vec2d<double>& bottomleft,
+				 const Vec2d<double>& topright, double dAngle)
 		: m_bottomleft(bottomleft), m_topright(topright), m_dAngle(dAngle)
 {
 	if(m_bottomleft[0] > m_topright[0])
@@ -98,9 +109,9 @@ RoiRect::RoiRect(const Vec2d<int>& bottomleft,
 	CalculateBoundingRect();
 }
 
-RoiRect::RoiRect(int iX1, int iY1, int iX2, int iY2, double dAngle)
+RoiRect::RoiRect(double dX1, double dY1, double dX2, double dY2, double dAngle)
 {
-	*this = RoiRect(Vec2d<int>(iX1, iY1), Vec2d<int>(iX2, iY2), dAngle);
+	*this = RoiRect(Vec2d<double>(dX1, dY1), Vec2d<double>(dX2, dY2), dAngle);
 }
 
 RoiRect::RoiRect() : m_dAngle(0.)
@@ -113,17 +124,14 @@ RoiRect::RoiRect(const RoiRect& rect)
 
 bool RoiRect::IsInside(int iX, int iY) const
 {
-	Vec2d<double> bottomleft = m_bottomleft.cast<double>();
-	Vec2d<double> topright = m_topright.cast<double>();
-
-	Vec2d<double> vecCenter = bottomleft + (topright-bottomleft)*.5;
+	Vec2d<double> vecCenter = m_bottomleft + (m_topright-m_bottomleft)*.5;
 	Mat2d<double> matRot_inv = Mat2d<double>::rotation(-m_dAngle/180.*M_PI);
 
 	Vec2d<double> vecPoint(iX, iY);
 	vecPoint = matRot_inv*(vecPoint-vecCenter) + vecCenter;
 
-	if(vecPoint[0]>=bottomleft[0] && vecPoint[0]<topright[0] &&
-	   vecPoint[1]>=bottomleft[1] && vecPoint[1]<topright[1])
+	if(vecPoint[0]>=m_bottomleft[0] && vecPoint[0]<m_topright[0] &&
+	   vecPoint[1]>=m_bottomleft[1] && vecPoint[1]<m_topright[1])
 	   return true;
 	return false;
 }
@@ -188,8 +196,8 @@ Vec2d<double> RoiRect::GetVertex(int i) const
 {
 	Vec2d<double> topleft(m_bottomleft[0], m_topright[1]);
 	Vec2d<double> bottomright(m_topright[0], m_bottomleft[1]);
-	Vec2d<double> bottomleft = m_bottomleft.cast<double>();
-	Vec2d<double> topright = m_topright.cast<double>();
+	const Vec2d<double>& bottomleft = m_bottomleft;
+	const Vec2d<double>& topright = m_topright;
 
 	Vec2d<double> vecRet;
 
@@ -1075,6 +1083,22 @@ void Roi::DeleteElement(int iElement)
 int Roi::GetNumElements() const
 {
 	return m_vecRoi.size();
+}
+
+BoundingRect Roi::GetBoundingRect() const
+{
+	BoundingRect totalrect;
+	totalrect.SetInvalidBounds();
+
+	for(int i=0; i<GetNumElements(); ++i)
+	{
+		const BoundingRect& rect = GetElement(i).GetBoundingRect();
+
+		totalrect.AddVertex(rect.bottomleft);
+		totalrect.AddVertex(rect.topright);
+	}
+
+	return totalrect;
 }
 
 bool Roi::Load(const char* pcFile)

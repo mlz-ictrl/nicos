@@ -696,16 +696,42 @@ void TofImage::GetContrastGraph(int iFoil, TmpImage *pImg) const
 
 unsigned int TofImage::GetCounts() const
 {
+	int iXStart, iXEnd, iYStart, iYEnd;
+
+	if(m_bUseRoi)
+	{
+		BoundingRect rect = m_roi.GetBoundingRect();
+		iXStart = rect.bottomleft[0];
+		iYStart = rect.bottomleft[1];
+		iXEnd = rect.topright[0];
+		iYEnd = rect.topright[1];
+	}
+	else
+	{
+		iXStart = 0;
+		iYStart = 0;
+		iXEnd = GetTofConfig().GetImageWidth();
+		iYEnd = GetTofConfig().GetImageHeight();
+	}
+
 	TmpImage img;
 	GetOverview(&img);
 
 	unsigned int uiCnt = 0;
-	for(int iY=0; iY<GetTofConfig().GetImageHeight(); ++iY)
-		for(int iX=0; iX<GetTofConfig().GetImageWidth(); ++iX)
+	for(int iY=iYStart; iY<iYEnd; ++iY)
+		for(int iX=iXStart; iX<iXEnd; ++iX)
 		{
-			if(m_bUseRoi && m_roi.IsInside(iX, iY))
+			if(m_bUseRoi)
+			{
+				if(m_roi.IsInside(iX,iY))
+					uiCnt += img.GetData(iX, iY);
+			}
+			else
+			{
 				uiCnt += img.GetData(iX, iY);
+			}
 		}
+
 	return uiCnt;
 }
 
@@ -1108,9 +1134,28 @@ unsigned int PadImage::GetIntData(int iX, int iY) const
 
 unsigned int PadImage::GetCounts() const
 {
+	int iXStart, iXEnd, iYStart, iYEnd;
+
+	if(m_bUseRoi)
+	{
+		BoundingRect rect = m_roi.GetBoundingRect();
+		iXStart = rect.bottomleft[0];
+		iYStart = rect.bottomleft[1];
+		iXEnd = rect.topright[0];
+		iYEnd = rect.topright[1];
+	}
+	else
+	{
+		iXStart = 0;
+		iYStart = 0;
+		iXEnd = GetPadConfig().GetImageWidth();
+		iYEnd = GetPadConfig().GetImageHeight();
+	}
+
 	unsigned int uiCnt = 0;
-	for(int iY=0; iY<GetPadConfig().GetImageHeight(); ++iY)
-		for(int iX=0; iX<GetPadConfig().GetImageWidth(); ++iX)
+
+	for(int iY=iYStart; iY<iYEnd; ++iY)
+		for(int iX=iXStart; iX<iXEnd; ++iX)
 			uiCnt += GetDataInsideROI(iX, iY);
 
 	return uiCnt;
