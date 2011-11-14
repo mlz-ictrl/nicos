@@ -135,8 +135,14 @@ class LiveDataPanel(Panel):
         if not self._no_direct_display:
             if self._format == 'pad':
                 self.widget.LoadPadMem(data, 128*128*4)
+                cts = self.widget.GetPad().GetCounts()
+                self.statusBar.showMessage('cps: %.2f | total: %s' %
+                                           (cts/self._runtime, cts))
             else:
                 self.widget.LoadTofMem(data, 128*128*128*4)
+                cts = self.widget.GetTof().GetCounts()
+                self.statusBar.showMessage('cps: %.2f | total: %s' %
+                                           (cts/self._runtime, cts))
         if self._filename and path.isfile(self._filename):
             shortname = path.basename(self._filename)
             item = QListWidgetItem(shortname)

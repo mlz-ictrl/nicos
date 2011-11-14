@@ -37,13 +37,13 @@
 #include <limits>
 #include <string.h>
 
-#include <qapplication.h>
-#include <qmainwindow.h>
-#include <qtoolbar.h>
-#include <qtoolbutton.h>
-#include <qprinter.h>
-#include <qprintdialog.h>
-#include <qpen.h>
+#include <QtGui/QApplication>
+#include <QtGui/QMainWindow>
+#include <QtGui/QToolBar>
+#include <QtGui/QToolButton>
+#include <QtGui/QPrinter>
+#include <QtGui/QPrintDialog>
+#include <QtGui/QPen>
 #include <QtCore/QVariant>
 #include <QtCore/QTimer>
 #include <QtGui/QGridLayout>
@@ -55,9 +55,9 @@
 #include <QtGui/QSlider>
 #include <QtGui/QLabel>
 #include <QtGui/QPainter>
-#include <QDialog>
-#include <QLine>
-#include <QMessageBox>
+#include <QtGui/QDialog>
+#include <QtCore/QLine>
+#include <QtGui/QMessageBox>
 
 #include "globals.h"
 #include "tofloader.h"

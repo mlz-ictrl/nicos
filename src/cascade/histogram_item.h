@@ -10,9 +10,9 @@
 #ifndef HISTOGRAM_ITEM_H
 #define HISTOGRAM_ITEM_H
 
-#include <qglobal.h>
-#include <qcolor.h>
-#include <qwt/qwt_plot_item.h>
+#include <Qt/qglobal.h>
+#include <QtGui/QColor>
+#include <qwt_plot_item.h>
 
 class QwtIntervalData;
 class QString;

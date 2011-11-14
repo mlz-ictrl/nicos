@@ -15,8 +15,12 @@
 
 COMPILER	= gcc
 FLAGS		= -O2 -Wall -Wextra -D __CASCADE_QT_CLIENT__
-LIBS		= -lQtCore -lQtGui -lQtNetwork -lqwt -lMinuit2 -lgomp -lxml++-2.6
-INCLUDES	= -I /usr/include/Qt -I /usr/include/QtCore -I /usr/include/QtGui -I /usr/include/qwt
+LIBS		= -lQtCore -lQtGui -lQtNetwork -lqwt -lMinuit2 -lgomp -lxml++-2.6 \
+                  -L /usr/lib/qt4
+INCLUDES	= -I /usr/include/qwt -I /usr/include/qwt5 -I /usr/include/qt4 \
+                  -I /usr/include/Qt -I /usr/include/QtCore -I /usr/include/QtGui \
+                  -I /usr/include/qt4/Qt -I /usr/include/qt4/QtCore -I /usr/include/qt4/QtGui \
+		  -I /usr/include/libxml2
 
 
 all: cascade nicosmodules

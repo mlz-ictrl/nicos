@@ -7,12 +7,12 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <qstring.h>
-#include <qpainter.h>
-#include <qwt/qwt_plot.h>
-#include <qwt/qwt_interval_data.h>
-#include <qwt/qwt_painter.h>
-#include <qwt/qwt_scale_map.h>
+#include <QtCore/QString>
+#include <QtGui/QPainter>
+#include <qwt_plot.h>
+#include <qwt_interval_data.h>
+#include <qwt_painter.h>
+#include <qwt_scale_map.h>
 #include "histogram_item.h"
 
 class HistogramItem::PrivateData

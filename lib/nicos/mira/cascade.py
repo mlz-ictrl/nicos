@@ -49,7 +49,6 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                           type=oneof(str, 'tof', 'image'), settable=True),
         'slave':    Param('Slave mode: start together with master device',
                           type=bool),
-        # XXX what about monitor preselection?
         'preselection': Param('Current preselection', unit='s',
                               settable=True, type=float),
         'lastcounts': Param('Counts of the last measurement',
@@ -111,8 +110,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         else:
             reply = str(self._client.communicate('CMD_stop'))
             if reply != 'OKAY':
-                raise CommunicationError(self, 'could not stop measurement: %s'
-                                         % reply[4:])
+                self._raise_reply('could not stop measurement', reply)
 
     def doRead(self):
         if self.slave:
@@ -123,8 +121,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
     def _getconfig(self):
         cfg = self._client.communicate('CMD_getconfig_cdr')
         if cfg[:4] != 'MSG_':
-            raise CommunicationError(self, 'could not get configuration: %s'
-                                     % cfg[4:])
+            self._raise_reply('could not get configuration', cfg)
         return dict(v.split('=') for v in str(cfg[4:]).split(' '))
 
     def doReadMode(self):
@@ -133,7 +130,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
     def doWriteMode(self, value):
         reply = self._client.communicate('CMD_config_cdr mode=%s' % value)
         if reply != 'OKAY':
-            raise CommunicationError(self, 'could not set mode: %s' % reply[4:])
+            self._raise_reply('could not set mode', reply)
 
     def doUpdateMode(self, value):
         self._dataprefix = (value == 'image') and 'IMAG' or 'DATA'
@@ -146,8 +143,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
     def doWritePreselection(self, value):
         reply = self._client.communicate('CMD_config_cdr time=%s' % value)
         if reply != 'OKAY':
-            raise CommunicationError(self, 'could not set measurement time: %s'
-                                     % reply[4:])
+            self._raise_reply('could not set measurement time', reply)
 
     def _devStatus(self):
         if not self._client.isconnected():
@@ -176,8 +172,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
 
         reply = str(self._client.communicate('CMD_start'))
         if reply != 'OKAY':
-            raise CommunicationError(self, 'could not start '
-                                     'measurement: %s' % reply[4:])
+            self._raise_reply('could not start measurement', reply)
         if self.slave:
             self._adevs['master'].start(**preset)
 
@@ -205,8 +200,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         # get current data array from detector
         data = self._client.communicate('CMD_readsram')
         if data[:4] != self._dataprefix:
-            raise CommunicationError(self, 'error receiving data from '
-                                     'server: %s' % data[:4])
+            self._raise_reply('error receiving data from server', data)
         buf = buffer(data, 4)
         # send image to live plots
         session.updateLiveData(
@@ -225,3 +219,9 @@ class CascadeDetector(AsyncDetector, ImageStorage):
             roi = total
         self.lastcounts = (roi, total)
         return buf
+
+    def _raise_reply(self, message, reply):
+        if not reply:
+            raise CommunicationError(self,
+                message + ': empty reply (reset device to reconnect)')
+        raise CommunicationError(self, message + ': ' + reply[4:])
