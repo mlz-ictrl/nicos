@@ -1337,7 +1337,9 @@ int TmpImage::GetIntMax(void) const { return int(GetDoubleMax()); }
 double TmpImage::GetDoubleMin(void) const { return m_dMin; }
 double TmpImage::GetDoubleMax(void) const { return m_dMax; }
 
-bool TmpImage::WriteXML(const char* pcFileName) const
+bool TmpImage::WriteXML(const char* pcFileName,
+						int iSampleDetector, int iWavelength,
+						int iLifetime, int iBeamMonitor) const
 {
 	std::ofstream ofstr(pcFileName);
 	if(!ofstr.is_open())
@@ -1348,15 +1350,21 @@ bool TmpImage::WriteXML(const char* pcFileName) const
 		return false;
 	}
 
-	ofstr << "<measurement_file>\n";
+	ofstr << "<measurement_file>\n\n";
 	ofstr << "<instrument_name>MIRA</instrument_name>\n";
 	ofstr << "<location>Forschungsreaktor Muenchen II - FRM2</location>\n";
 
 	int iRes = 1024;
 
-	ofstr << "<measurement_data>\n";
+	ofstr << "\n<measurement_data>\n";
+
+	ofstr << "<Sample_Detector>" << iSampleDetector << "</Sample_Detector>\n";
+	ofstr << "<wavelength>" << iWavelength << "</wavelength>\n";
+	ofstr << "<lifetime>" << iLifetime << "</lifetime>\n";
+	ofstr << "<beam_monitor>" << iBeamMonitor << "</beam_monitor>\n";
 	ofstr << "<resolution>" << iRes << "</resolution>\n";
-	ofstr << "<detector_value>\n";
+
+	ofstr << "\n<detector_value>\n";
 
 	if(iRes % m_iW || iRes % m_iH)
 	{
@@ -1364,23 +1372,36 @@ bool TmpImage::WriteXML(const char* pcFileName) const
 		logger << "Loader: Resolution does not match.\n";
 	}
 
+	bool *pbPixel = new bool[m_iW*m_iH];
+	memset(pbPixel, 0, m_iW*m_iH*sizeof(bool));
+
 	for(int iX=0; iX<m_iW; ++iX)
 	{
 		for (int t1=0; t1 < iRes/m_iW; ++t1)
 		{
 			for(int iY=0; iY<m_iH; ++iY)
 			{
-				for (int t2=0; t2 < iRes/m_iH; ++t2)
-					ofstr << GetIntData(iX,iY) << " ";
+				for(int t2=0; t2 < iRes/m_iH; ++t2)
+				{
+					if(!pbPixel[m_iW*iY + iX])
+					{
+						ofstr << GetIntData(iX,iY) << " ";
+						pbPixel[m_iW*iY + iX] = true;
+					}
+					else
+						ofstr << "0 ";
+				}
 			}
 			ofstr << "\n";
 		}
 	}
 
-	ofstr << "</detector_value>\n";
+	delete[] pbPixel;
+
+	ofstr << "</detector_value>\n\n";
 	ofstr << "</measurement_data>\n";
 
-	ofstr << "</measurement_file>\n";
+	ofstr << "\n</measurement_file>\n";
 	ofstr.close();
 	return true;
 }

@@ -201,7 +201,11 @@ class TmpImage : public BasicImage
 	virtual double GetDoubleMax(void) const;
 
 	// write XML representation of image
-	bool WriteXML(const char* pcFileName) const;
+	bool WriteXML(const char* pcFileName,
+				  int iSampleDetector=0,
+				  int iWavelength=0,
+				  int iLifetime=0,
+				  int iBeamMonitor=0) const;
 
 	// create TmpImage from PAD image
 	void ConvertPAD(PadImage* pPad);

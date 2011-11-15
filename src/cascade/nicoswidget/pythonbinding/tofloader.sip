@@ -80,11 +80,20 @@ class TmpImage : BasicImage
 		virtual unsigned int GetIntData(int iX, int iY) const;
 		virtual double GetDoubleData(int iX, int iY) const;
 
-		int GetWidth() const;
-		int GetHeight() const;
+		virtual int GetWidth() const;
+		virtual int GetHeight() const;
+
+		virtual int GetIntMin() const;
+		virtual int GetIntMax() const;
+		virtual double GetDoubleMin() const;
+		virtual double GetDoubleMax() const;
 
 		void UpdateRange();
-		bool WriteXML(const char* pcFileName) const;
+		bool WriteXML(const char* pcFileName,
+					  int iSampleDetector=0,
+					  int iWavelength=0,
+					  int iLifetime=0,
+					  int iBeamMonitor=0) const;
 		void ConvertPAD(PadImage* pPad);
 
 		void Add(const TmpImage& tmp);
