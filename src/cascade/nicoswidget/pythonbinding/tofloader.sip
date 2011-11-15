@@ -59,6 +59,14 @@ class PadImage : BasicImage
 							   int iStartY, int iEndY) const;
 
 		const PadConfig& GetPadConfig() const;
+
+		virtual int GetIntMin() const;
+		virtual int GetIntMax() const;
+		virtual double GetDoubleMin() const;
+		virtual double GetDoubleMax() const;
+
+		virtual int GetWidth() const;
+		virtual int GetHeight() const;
 };
 
 //

@@ -1354,7 +1354,7 @@ bool TmpImage::WriteXML(const char* pcFileName,
 	ofstr << "<instrument_name>MIRA</instrument_name>\n";
 	ofstr << "<location>Forschungsreaktor Muenchen II - FRM2</location>\n";
 
-	int iRes = 1024;
+	const int iRes = 1024;
 
 	ofstr << "\n<measurement_data>\n";
 
@@ -1372,22 +1372,16 @@ bool TmpImage::WriteXML(const char* pcFileName,
 		logger << "Loader: Resolution does not match.\n";
 	}
 
-	bool *pbPixel = new bool[m_iW*m_iH];
-	memset(pbPixel, 0, m_iW*m_iH*sizeof(bool));
-
 	for(int iX=0; iX<m_iW; ++iX)
 	{
-		for (int t1=0; t1 < iRes/m_iW; ++t1)
+		for(int t1=0; t1 < iRes/m_iW; ++t1)
 		{
 			for(int iY=0; iY<m_iH; ++iY)
 			{
 				for(int t2=0; t2 < iRes/m_iH; ++t2)
 				{
-					if(!pbPixel[m_iW*iY + iX])
-					{
-						ofstr << GetIntData(iX,iY) << " ";
-						pbPixel[m_iW*iY + iX] = true;
-					}
+					if(t1%4==0 && t2%4==0)
+						ofstr << GetDoubleData(iX,iY) / 4. << " ";
 					else
 						ofstr << "0 ";
 				}
@@ -1395,8 +1389,6 @@ bool TmpImage::WriteXML(const char* pcFileName,
 			ofstr << "\n";
 		}
 	}
-
-	delete[] pbPixel;
 
 	ofstr << "</detector_value>\n\n";
 	ofstr << "</measurement_data>\n";
