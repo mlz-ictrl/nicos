@@ -25,7 +25,7 @@
 
 """IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
 
-__version__ = "$Revision$"
+__version__ = ""
 
 import socket
 import select
@@ -65,63 +65,64 @@ def convert(string):
     return ''.join(PRINTABLES.get(c, c) for c in string)
 
 IPC_MAGIC = {
-    # motor cards
-    31:  ['Reset motor card', None],
-    32:  ['Start motor', None],
-    33:  ['Stop motor immediately', None],
-    34:  ['Switch forward direction', None],
-    35:  ['Switch backward direction', None],
-    36:  ['Switch fullstep', None],
-    37:  ['Switch halfstep', None],
-    38:  ['Switch relay on', None],
-    39:  ['Switch relay off', None],
-    40:  ['Write values to EEPROM', None],
-    41:  ['Set speed', (3, 0, 255)],  # numdigits, minvalue, maxvalue
-    42:  ['Set acceleration', (3, 0, 255)],
-    43:  ['Set current position', (6, 0, 999999)],
-    44:  ['Set maximum position', (6, 0, 999999)],
-    45:  ['Set minimum position', (6, 0, 999999)],
-    46:  ['Set multisteps and start', (6, 0, 999999)],
+    # motor cards   # only works for single cards, ### only works for triple cards ###### only works for sixfold cards
+    # limits is None or Tupel(numdigits, minvalue, maxvalue)
+    31:  ['Reset motor card', None],                    # ### ######
+    32:  ['Start motor', None],                         # ### ######
+    33:  ['Stop motor immediately', None],              # ### ######
+    34:  ['Switch forward direction', None],            # ### ######
+    35:  ['Switch backward direction', None],           # ### ######
+    36:  ['Switch fullstep', None],                     #
+    37:  ['Switch halfstep', None],                     #
+    38:  ['Switch relay on', None],                     #
+    39:  ['Switch relay off', None],                    #
+    40:  ['Write values to EEPROM', None],              # ### ######
+    41:  ['Set speed', (3, 0, 255)],                    # ### ######
+    42:  ['Set acceleration', (3, 0, 255)],             # ### ######
+    43:  ['Set current position', (6, 0, 999999)],      # ### ######
+    44:  ['Set maximum position', (6, 0, 999999)],      # ### ######
+    45:  ['Set minimum position', (6, 0, 999999)],      # ### ######
+    46:  ['Set multisteps and start', (6, 0, 999999)],  # ### ######
     # ... with given speed and switch back
-    47:  ['Find reference switch', (3, 0, 255)],
-    48:  ['Check motor connection', None],
-    49:  ['Save config byte to EEPROM', (3, 0, 63)],
-    50:  ['Select ramp shape', (3, 1, 4)],
-    51:  ['Save user value to EEPROM', (6, 0, 999999)],
-    52:  ['Stop motor using ramp', None],
-    53:  ['Switch driver off', None],
-    54:  ['Switch driver on', None],
-    55:  ['Set inhibit delay', (3, 0, 255)],
-    56:  ['Set target position', (6, 0, 999999)],
-    57:  ['Set microsteps', (3, 0, 4)],
-    58:  ['Set stop delay', (3, 0, 255)],
-    60:  ['Set clock divider', (3, 1, 7)],
-    128: ['Read speed', None],
-    129: ['Read accel', None],
-    130: ['Read position', None],
-    131: ['Read maximum', None],
-    132: ['Read minimum', None],
-    133: ['Read multisteps', None],
-    134: ['Read status', None],
-    135: ['Read config byte', None],
-    136: ['Read ramp shape', None],
-    137: ['Read version number', None],
-    138: ['Read user value', None],
-    139: ['Read inhibit delay', None],
-    140: ['Read target position', None],
-    141: ['Read microsteps', None],
-    142: ['Read load indicator', None],
-    143: ['Read stop delay', None],
-    144: ['Read clock divider', None],
-    # encoder/potentiometer
-    150: ['Read encoder value', None],
-    151: ['Read encoder version', None],
-    152: ['Read encoder configuration', None],
-    153: ['Reset encoder', None],
-    154: ['Set encoder configuration', (3, 0, 255)],
-    155: ['Select endat memory range', (3, 161, 185)],
-    156: ['Read endat parameter', (3, 0, 15)],
-    157: ['Write endat parameter', (3, 0, 15)],
+    47:  ['Find reference switch', (3, 0, 255)],        #
+    48:  ['Check motor connection', None],              #
+    49:  ['Save config byte to EEPROM', (3, 0, 63)],    #
+    50:  ['Select ramp shape', (3, 1, 4)],              #
+    51:  ['Save user value to EEPROM', (6, 0, 999999)], # ### ######
+    52:  ['Stop motor using ramp', None],               #
+    53:  ['Switch driver off', None],                   # ### ######
+    54:  ['Switch driver on', None],                    # ### ######
+    55:  ['Set inhibit delay', (3, 0, 255)],            #
+    56:  ['Set target position', (6, 0, 999999)],         ### ######
+    57:  ['Set microsteps', (3, 0, 4)],                   ### ######
+    58:  ['Set stop delay', (3, 0, 255)],               #
+    60:  ['Set clock divider', (3, 1, 7)],                ###
+    128: ['Read speed', None],                          # ### ######
+    129: ['Read accel', None],                          # ### ######
+    130: ['Read position', None],                       # ### ######
+    131: ['Read maximum', None],                        # ### ######
+    132: ['Read minimum', None],                        # ### ######
+    133: ['Read multisteps', None],                     #
+    134: ['Read status', None],                         # ### ######
+    135: ['Read config byte', None],                    #
+    136: ['Read ramp shape', None],                     #
+    137: ['Read version number', None],                 # ### ######
+    138: ['Read user value', None],                     # ### ######
+    139: ['Read inhibit delay', None],                  #
+    140: ['Read target position', None],                  ### ######
+    141: ['Read microsteps', None],                       ### ######
+    142: ['Read load indicator', None],                   ### ######
+    143: ['Read stop delay', None],                     #
+    144: ['Read clock divider', None],                    ###
+    # encoder/potentiometer (abs enc=#, inc enc=##, poti=###)
+    150: ['Read encoder value', None],                  # ## ###
+    151: ['Read encoder version', None],                # ## ###
+    152: ['Read encoder configuration', None],          # ## ###
+    153: ['Reset encoder', None],                       # ## ###
+    154: ['Set encoder configuration', (3, 0, 255)],    # ##
+    155: ['Select endat memory range', (3, 161, 185)],  #
+    156: ['Read endat parameter', (3, 0, 15)],          #
+    157: ['Write endat parameter', (3, 0, 15)],         #
     # 4-wing slits
     160: ['Set bottom target position', (4, 0, 4095)],
     161: ['Set top target position', (4, 0, 4095)],
@@ -389,6 +390,7 @@ class Coder(NicosCoder):
                     settable=True),
         'offset': Param('Coder offset', type=float, settable=True),
         'slope': Param('Coder slope', type=float, settable=True, default=1.0),
+        'firmware': Param('Firmware version', type=int),
     }
 
     attached_devices = {
@@ -403,6 +405,9 @@ class Coder(NicosCoder):
     def doVersion(self):
         version = self._adevs['bus'].get(self.addr, 151)
         return [('IPC encoder card', str(version))]
+
+    def doReadFirmware(self):
+        return self._adevs['bus'].get(self.addr, 151)
 
     def doReadConfbyte(self):
         return self._adevs['bus'].get(self.addr, 152)
