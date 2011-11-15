@@ -70,6 +70,8 @@ class TacoDevice(object):
     taco_class = None
     # whether to call deviceReset() if the initial switch-on fails
     taco_resetok = True
+    # additional TACO error codes mapping to Nicos exception classes
+    taco_errorcodes = {}
     # TACO device instance
     _dev = None
 
@@ -231,6 +233,8 @@ class TacoDevice(object):
         elif 401 <= code < 499:
             # error number 401-499: database system error messages
             cls = CommunicationError
+        elif code in self.taco_errorcodes:
+            cls = self.taco_errorcodes[code]
         # TODO: add more cases
         msg = '[TACO %d] %s' % (err.errcode, err)
         if addmsg is not None:

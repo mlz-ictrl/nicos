@@ -181,6 +181,9 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
     """IPC protocol communication over TACO RS-485 server."""
 
     taco_class = RS485Client
+    taco_errorcodes = {
+        537133063: InvalidCommandError,
+    }
 
     parameters = {
         'maxtries': Param('Number of tries for sending and receiving',
