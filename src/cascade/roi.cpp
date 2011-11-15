@@ -903,10 +903,10 @@ bool RoiPolygon::IsInside(double dX, double dY) const
 {
 	const int iVertCnt = GetVertexCount();
 
-	RoiPolygonArrayAdaptor m_adaptor_x(this,0);
-	RoiPolygonArrayAdaptor m_adaptor_y(this,1);
+	RoiPolygonArrayAdaptor adaptor_x(this,0);
+	RoiPolygonArrayAdaptor adaptor_y(this,1);
 
-	return (pnpoly(iVertCnt+1, m_adaptor_x, m_adaptor_y, dX, dY) != 0);
+	return (pnpoly(iVertCnt+1, adaptor_x, adaptor_y, dX, dY) != 0);
 }
 
 std::string RoiPolygon::GetName() const
