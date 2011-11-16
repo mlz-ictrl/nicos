@@ -31,7 +31,6 @@
 #include <qwt_plot_panner.h>
 #include <qwt_plot_layout.h>
 #include <qwt_plot_marker.h>
-#include <qwt_plot_rescaler.h>
 #include <qwt_interval_data.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_spectrogram.h>
@@ -59,6 +58,8 @@
 #include "tofloader.h"
 #include "ErrorBarPlotCurve.h"
 #include "roi.h"
+
+class CascadeWidget;
 
 
 #define MODE_PAD 1
@@ -246,6 +247,7 @@ class RoiDlg : public QDialog, public Ui::RoiDlg
 	Q_OBJECT
 
 	protected:
+		CascadeWidget *m_pwidget;
 		Roi *m_pRoi;
 		int m_iCurrentItem;
 
@@ -253,7 +255,7 @@ class RoiDlg : public QDialog, public Ui::RoiDlg
 		void Deinit();
 
 	public:
-		RoiDlg(QWidget *pParent);
+		RoiDlg(CascadeWidget *pParent);
 		virtual ~RoiDlg();
 
 		void SetRoi(const Roi* pRoi);
@@ -271,6 +273,8 @@ class RoiDlg : public QDialog, public Ui::RoiDlg
 		void NewRect();
 
 		void DeleteItem();
+		void CopyItem();
+		void Fit();
 };
 
 // *****************************************************************************

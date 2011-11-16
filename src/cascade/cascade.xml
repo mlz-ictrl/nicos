@@ -75,12 +75,12 @@
 	</log>
 
 	<minuit>
-		<maxfcn> 0 </maxfcn>
-		<tolerance> 0.1 </tolerance>
+		<maxfcn> 1000 </maxfcn>
+		<tolerance> 0.001 </tolerance>
 
 		<!-- one of: migrad, simplex, minimize -->
 		<algo> migrad </algo>
-		<strategy> 0 </strategy>
+		<strategy> 1 </strategy>
 	</minuit>
 
 </cascade_config>

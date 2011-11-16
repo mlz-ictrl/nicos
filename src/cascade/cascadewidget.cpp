@@ -1164,7 +1164,6 @@ void CascadeWidget::UpdateRoiVector()
 			Vec2d<double> vec = elem.GetVertex(iVertex);
 			pdx[iVertex] = vec[0];
 			pdy[iVertex] = vec[1];
-			//std::cout << vec << std::endl;
 
 			if(iVertex==0)
 			{

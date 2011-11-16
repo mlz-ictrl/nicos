@@ -1422,6 +1422,8 @@ bool TmpImage::FitGaussian(double &dAmp,
 	dAmp = GetDoubleMax();
 	dCenterX = double(m_iW) * 0.5;
 	dCenterY = double(m_iH) * 0.5;
+	dSpreadX = 1.;
+	dSpreadY = 1.;
 
 	if(m_puiDaten)
 		return ::FitGaussian(m_iW, m_iH, m_puiDaten,

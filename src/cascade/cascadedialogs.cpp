@@ -23,6 +23,7 @@
 // Cascade sub dialogs
 
 #include "cascadedialogs.h"
+#include "cascadewidget.h"
 #include <stdio.h>
 #include <sstream>
 #include <QVariant>
@@ -551,7 +552,8 @@ bool ServerCfgDlg::s_bUsePseudoComp = 0;
 
 
 // ************************* Roi-Dlg *******************************************
-RoiDlg::RoiDlg(QWidget *pParent) : QDialog(pParent), m_pRoi(0)
+RoiDlg::RoiDlg(CascadeWidget *pParent) : QDialog(pParent),
+										 m_pwidget(pParent), m_pRoi(0)
 {
 	setupUi(this);
 
@@ -560,6 +562,8 @@ RoiDlg::RoiDlg(QWidget *pParent) : QDialog(pParent), m_pRoi(0)
 	connect(tableParams, SIGNAL(itemChanged(QTableWidgetItem *)),
 			this, SLOT(ValueChanged(QTableWidgetItem *)));
 	connect(btnDelete, SIGNAL(clicked()), this, SLOT(DeleteItem()));
+	connect(btnCopy, SIGNAL(clicked()), this, SLOT(CopyItem()));
+	connect(btnFit, SIGNAL(clicked()), this, SLOT(Fit()));
 
 
 	//--------------------------------------------------------------------------
@@ -657,6 +661,45 @@ void RoiDlg::ValueChanged(QTableWidgetItem* pItem)
 	else
 	{	// accept new value
 		elem.SetParam(iParam,dVal);
+	}
+}
+
+void RoiDlg::CopyItem()
+{
+	if(!m_pRoi) return;
+
+	if(m_iCurrentItem<0 || m_iCurrentItem >= m_pRoi->GetNumElements())
+		return;
+
+	RoiElement& elem = m_pRoi->GetElement(m_iCurrentItem);
+	NewElement(elem.copy());
+}
+
+void RoiDlg::Fit()
+{
+	if(!m_pwidget)
+		return;
+
+	TmpImage tmpimg;
+	if(m_pwidget->IsTofLoaded())
+		m_pwidget->GetTof()->GetOverview(&tmpimg);
+	else
+		tmpimg.ConvertPAD(m_pwidget->GetPad());
+
+	double dAmp=0., dCenterX=0., dCenterY=0., dSpreadX=0., dSpreadY=0.;
+	bool bOk = tmpimg.FitGaussian(dAmp,dCenterX,dCenterY,dSpreadX,dSpreadY);
+
+	if(bOk)
+	{
+		std::ostringstream ostr;
+		ostr << "amp=" << dAmp << ", x=" << dCenterX << ", y="<<dCenterY
+							   << ", sx=" << dSpreadX << ", sy=" << dSpreadY;
+
+		labelFit->setText(ostr.str().c_str());
+	}
+	else
+	{
+		labelFit->setText("No valid Gaussian fit found.");
 	}
 }
 

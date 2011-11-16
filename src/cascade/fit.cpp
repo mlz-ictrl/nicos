@@ -263,10 +263,10 @@ class Gaussian : public ROOT::Minuit2::FCNBase
 					if(dSpreadX<0. || dSpreadY<0.) return std::numeric_limits<double>::max();
 
 					// force positive amp
-					if(dAmp<0.) return std::numeric_limits<double>::max();
+					if(dAmp<1.) return std::numeric_limits<double>::max();
 
 					// force positive center
-					if(dCenterX<0. || dCenterY<0.) return std::numeric_limits<double>::max();
+					//if(dCenterX<0. || dCenterY<0.) return std::numeric_limits<double>::max();
 
 
 					// prevent division by zero
@@ -328,10 +328,10 @@ bool FitGaussian(int iSizeX, int iSizeY,
 
 	ROOT::Minuit2::MnUserParameters upar;
 	upar.Add("amp", dAmp, sqrt(dAmp));
-	upar.Add("center_x", dCenterX, 20.);	//!!
-	upar.Add("center_y", dCenterY, 20.);
-	upar.Add("spread_x", dSpreadX, 20.);
-	upar.Add("spread_y", dSpreadY, 20.);
+	upar.Add("center_x", dCenterX, dSpreadX);
+	upar.Add("center_y", dCenterY, dSpreadY);
+	upar.Add("spread_x", dSpreadX, 1.);
+	upar.Add("spread_y", dSpreadY, 1.);
 
 	ROOT::Minuit2::MnApplication *pMinimize = 0;
 
