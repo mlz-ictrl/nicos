@@ -529,10 +529,10 @@ class DataSetPlot(NicosPlot):
 
     def enableCurvesFrom(self, otherplot):
         visible = {}
-        for plotcurve in otherplot.curves:
+        for plotcurve in otherplot.plotcurves:
             visible[str(plotcurve.title().text())] = plotcurve.isVisible()
         changed = False
-        for plotcurve in self.curves:
+        for plotcurve in self.plotcurves:
             namestr = str(plotcurve.title().text())
             if namestr in visible:
                 self.setVisibility(plotcurve, visible[namestr])
@@ -576,7 +576,7 @@ class DataSetPlot(NicosPlot):
         plotcurve.setData(x, y, None, dy)
 
     def pointsAdded(self):
-        for curve, plotcurve in zip(self.dataset.curves, self.curves):
+        for curve, plotcurve in zip(self.dataset.curves, self.plotcurves):
             self.setCurveData(curve, plotcurve)
         self.replot()
 
@@ -633,10 +633,10 @@ class DataSetPlot(NicosPlot):
             return
         if not has_odr:
             return self.showError('scipy.odr is not available.')
-        if not self.curves:
+        if not self.plotcurves:
             return self.showError('Plot must have a curve to be fitted.')
         visible_curves = [i for (i, curve) in enumerate(self.dataset.curves)
-                          if self.curves[i].isVisible()]
+                          if self.plotcurves[i].isVisible()]
         if len(visible_curves) > 1:
             dlg = dialogFromUi(self, 'selector.ui', 'panels')
             dlg.setWindowTitle('Select curve to fit')
@@ -661,7 +661,7 @@ class DataSetPlot(NicosPlot):
             self.window.statusBar.showMessage('Fitting: Click on %s' %
                                               fitparams[0])
             self.fitPicker = QwtPlotPicker(
-                QwtPlot.xBottom, self.curves[self.fitcurve].yAxis(),
+                QwtPlot.xBottom, self.plotcurves[self.fitcurve].yAxis(),
                 QwtPicker.PointSelection | QwtPicker.ClickSelection,
                 QwtPlotPicker.CrossRubberBand,
                 QwtPicker.AlwaysOn, self.canvas())
@@ -676,8 +676,8 @@ class DataSetPlot(NicosPlot):
             if self.fitcallback:
                 if not self.fitcallback():
                     raise FitError('Aborted.')
-            curve = self.curves[self.fitcurve]
-            args = [curve._x, curve._y, curve._dy] + self.fitvalues
+            plotcurve = self.plotcurves[self.fitcurve]
+            args = [plotcurve._x, plotcurve._y, plotcurve._dy] + self.fitvalues
             labelalign = Qt.AlignRight | Qt.AlignBottom
             linefrom = lineto = liney = None
             if self.fittype == 'Gauss':
@@ -742,7 +742,7 @@ class DataSetPlot(NicosPlot):
                  Qt.darkGray][self.fits % 4]
 
         resultcurve = ErrorBarPlotCurve(title=title)
-        resultcurve.setYAxis(curve.yAxis())
+        resultcurve.setYAxis(plotcurve.yAxis())
         resultcurve.setRenderHint(QwtPlotItem.RenderAntialiased)
         resultcurve.setStyle(QwtPlotCurve.Lines)
         resultcurve.setPen(QPen(color, 2))
