@@ -772,9 +772,9 @@ class Motor(NicosMotor):
             timeleft -= 0.2
             #~ if self.doStatus()[0] != status.BUSY and self.doStatus()[0] != status.BUSY:
             if self.poll()[0][0] != status.BUSY:
-                self.doRead()
-                sleep(1.0)      # triple crds have status idle before they are really stopped. reading position directly after becoming idle yields not the final value
-                self.doRead()
+                #~ self.doRead()
+                #~ sleep(1.0)      # triple crds have status idle before they are really stopped. reading position directly after becoming idle yields not the final value
+                #~ self.doRead()
                 break
         else:
             raise TimeoutError(self, 'movement timed out (timeout %.1f s)'
