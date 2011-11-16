@@ -1304,27 +1304,36 @@ void TmpImage::UpdateRange()
 
 	m_dMin=std::numeric_limits<double>::max();
 	m_dMax=0;
+
 	for(int iY=0; iY<m_iH; ++iY)
 	{
 		for(int iX=0; iX<m_iW; ++iX)
 		{
 			if(m_puiDaten)
 			{
-				m_dMin = (m_dMin<m_puiDaten[m_iW*iY+iX])
-							? m_dMin
-							: m_puiDaten[m_iW*iY+iX];
-				m_dMax = (m_dMax>m_puiDaten[m_iW*iY+iX])
-							? m_dMax
-							: m_puiDaten[m_iW*iY+iX];
+				unsigned int uiVal = m_puiDaten[m_iW*iY+iX];
+
+				if(m_dMax < uiVal)
+				{
+					m_vecMax[0] = iX;
+					m_vecMax[1] = iY;
+				}
+
+				m_dMin = min(m_dMin, double(uiVal));
+				m_dMax = max(m_dMax, double(uiVal));
 			}
 			else if(m_pdDaten)
 			{
-				m_dMin = (m_dMin<m_pdDaten[m_iW*iY+iX])
-							? m_dMin
-							: m_pdDaten[m_iW*iY+iX];
-				m_dMax = (m_dMax>m_pdDaten[m_iW*iY+iX])
-							? m_dMax
-							: m_pdDaten[m_iW*iY+iX];
+				double dVal = m_pdDaten[m_iW*iY+iX];
+
+				if(m_dMax < dVal)
+				{
+					m_vecMax[0] = iX;
+					m_vecMax[1] = iY;
+				}
+
+				m_dMin = min(m_dMin, dVal);
+				m_dMax = max(m_dMax, dVal);
 			}
 		}
 	}
@@ -1413,17 +1422,23 @@ void TmpImage::ConvertPAD(PadImage* pPad)
 		return;
 	}
 	memcpy(m_puiDaten, pPad->m_puiDaten, m_iW*m_iH*sizeof(int));
+
+	UpdateRange();
 }
+
+const Vec2d<int>& TmpImage::GetMaxCoord() const { return m_vecMax; }
 
 bool TmpImage::FitGaussian(double &dAmp,
 						   double &dCenterX, double &dCenterY,
 						   double &dSpreadX, double &dSpreadY) const
 {
 	dAmp = GetDoubleMax();
-	dCenterX = double(m_iW) * 0.5;
-	dCenterY = double(m_iH) * 0.5;
+	dCenterX = double(GetMaxCoord()[0]);
+	dCenterY = double(GetMaxCoord()[1]);
 	dSpreadX = 1.;
 	dSpreadY = 1.;
+
+	std::cout << GetMaxCoord() << std::endl;
 
 	if(m_puiDaten)
 		return ::FitGaussian(m_iW, m_iH, m_puiDaten,

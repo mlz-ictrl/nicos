@@ -789,8 +789,8 @@ void RoiDlg::Deinit()
 
 // ******************* Browse Dialog *******************************************
 
-BrowseDlg::BrowseDlg(CascadeWidget *pParent) : QDialog(pParent),
-											   m_pwidget(pParent)
+BrowseDlg::BrowseDlg(CascadeWidget *pParent, const char* pcDir)
+			: QDialog(pParent), m_pwidget(pParent)
 {
 	setupUi(this);
 
@@ -799,7 +799,7 @@ BrowseDlg::BrowseDlg(CascadeWidget *pParent) : QDialog(pParent),
 	connect(listFiles, SIGNAL(itemSelectionChanged()),
 			this, SLOT(SelectedFile()));
 
-	SetDir(".");
+	SetDir(pcDir);
 }
 
 BrowseDlg::~BrowseDlg()

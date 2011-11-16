@@ -258,7 +258,7 @@ Q_OBJECT
 		void showGraphDlg();
 		void showSumDlg();
 		void showRoiDlg();
-		void showBrowseDlg();
+		void showBrowseDlg(const char* pcDir=".");
 		///////////////////////////////////////
 
 		void SetLog10(bool bLog10);

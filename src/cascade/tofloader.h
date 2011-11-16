@@ -170,6 +170,10 @@ class TmpImage : public BasicImage
 
 	// lower & upper bound values
 	double m_dMin, m_dMax;
+	// position of maximum
+	Vec2d<int> m_vecMax;
+
+	const Vec2d<int>& GetMaxCoord() const;
 
   public:
 	// create EMPTY TmpImage without allocation any memory etc.

@@ -859,9 +859,9 @@ class MainWindow : public QMainWindow
 
 
 		///////////////////////////// File Menu Items /////////////////////////
-		void BrowseFiles()
+		void BrowseFiles(const char* pcDir=".")
 		{
-			m_cascadewidget.showBrowseDlg();
+			m_cascadewidget.showBrowseDlg(pcDir);
 		}
 
 		void LoadPad()
@@ -1162,7 +1162,7 @@ class MainWindow : public QMainWindow
 			// File Menu Items
 			QAction *actionBrowseFiles = new QAction(
 						QIcon::fromTheme("system-file-manager"),
-						"Browse Files...",
+						"&Browse Files...",
 						this);
 			actionBrowseFiles->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
 
@@ -1616,10 +1616,6 @@ int MainWindow::AUTOFETCH_POLL_TIME = 250;
 
 int main(int argc, char **argv)
 {
-	RoiCircle c1;
-	RoiCircle c2 = c1;
-
-
 	QApplication a(argc, argv);
 
 	setlocale(LC_ALL, "C");
@@ -1675,6 +1671,25 @@ int main(int argc, char **argv)
 	MainWindow mainWindow;
 	mainWindow.resize(iWinW, iWinH);
 	mainWindow.show();
+
+	// user wants to open file/dir
+	if(argc>1)
+	{
+		QString strArg = argv[1];
+		strArg = strArg.trimmed();
+
+		// check if a directory of that name exists
+		QDir dir(strArg);
+		if(dir.exists())
+			mainWindow.BrowseFiles(strArg.toAscii().data());
+		else
+		{
+			// check if a file of that name exists
+			QFile file(strArg);
+			if(file.exists())
+				mainWindow.m_cascadewidget.LoadFile(strArg.toAscii().data());
+		}
+	}
 
 	int iRet = a.exec();
 

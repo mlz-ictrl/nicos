@@ -1031,11 +1031,13 @@ void CascadeWidget::showSumDlg()
 	}
 }
 
-void CascadeWidget::showBrowseDlg()
+void CascadeWidget::showBrowseDlg(const char* pcDir)
 {
 	if(!m_pbrowsedlg)
-		m_pbrowsedlg = new BrowseDlg(this);
+		m_pbrowsedlg = new BrowseDlg(this, pcDir);
 
+	QPoint pt = mapToGlobal(pos());
+	m_pbrowsedlg->move(pt.x()+width(),pt.y());
 	m_pbrowsedlg->show();
 	m_pbrowsedlg->raise();
 	m_pbrowsedlg->activateWindow();

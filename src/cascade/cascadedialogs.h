@@ -296,7 +296,7 @@ class BrowseDlg : public QDialog, public Ui::BrowseDlg
 		void SelectedFile();
 
 	public:
-		BrowseDlg(CascadeWidget *pParent);
+		BrowseDlg(CascadeWidget *pParent, const char* pcDir=".");
 		virtual ~BrowseDlg();
 
 		void SetDir(const QString& strDir);

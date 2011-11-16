@@ -153,6 +153,7 @@ class CascadeWidget : QWidget
 		void showGraphDlg();
 		void showSumDlg();
 		void showRoiDlg();
+		void showBrowseDlg(const char* pcDir=".");
 		/////////////////////////////////////////////
 
 		void SetLog10(bool bLog10);
