@@ -105,6 +105,11 @@ class TmpImage : BasicImage
 		void ConvertPAD(PadImage* pPad);
 
 		void Add(const TmpImage& tmp);
+
+		// Gaussian fit for finding the beam center
+		bool FitGaussian(double &dAmp,
+						 double &dCenterX, double &dCenterY,
+						 double &dSpreadX, double &dSpreadY) const;
 };
 
 //

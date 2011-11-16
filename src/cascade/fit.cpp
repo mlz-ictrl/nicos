@@ -250,6 +250,7 @@ class Gaussian : public ROOT::Minuit2::FCNBase
 			double dSpreadY = params[4];
 
 			double dchi2 = 0.;
+
 			for (int iY=0; iY<m_iH; ++iY)
 				for(int iX=0; iX<m_iW; ++iX)
 				{
@@ -258,13 +259,30 @@ class Gaussian : public ROOT::Minuit2::FCNBase
 					double dX = double(iX);
 					double dY = double(iY);
 
+					// force positive spread values
+					if(dSpreadX<0. || dSpreadY<0.) return std::numeric_limits<double>::max();
+
+					// force positive amp
+					if(dAmp<0.) return std::numeric_limits<double>::max();
+
+					// force positive center
+					if(dCenterX<0. || dCenterY<0.) return std::numeric_limits<double>::max();
+
+
 					// prevent division by zero
 					if(fabs(dSpread) < std::numeric_limits<double>::epsilon())
 						dSpread = std::numeric_limits<double>::epsilon();
 
+					if(fabs(dSpreadX) < std::numeric_limits<double>::epsilon())
+						dSpreadX = std::numeric_limits<double>::epsilon();
+
+					if(fabs(dSpreadY) < std::numeric_limits<double>::epsilon())
+						dSpreadY = std::numeric_limits<double>::epsilon();
+
 					double d = dVal - dAmp *
 							   exp(-0.5*(dX-dCenterX)*(dX-dCenterX)/(dSpreadX*dSpreadX)) *
 							   exp(-0.5*(dY-dCenterY)*(dY-dCenterY)/(dSpreadY*dSpreadY));
+
 					d /= dSpread;
 					dchi2 += d*d;
 				}
@@ -310,10 +328,10 @@ bool FitGaussian(int iSizeX, int iSizeY,
 
 	ROOT::Minuit2::MnUserParameters upar;
 	upar.Add("amp", dAmp, sqrt(dAmp));
-	upar.Add("center_x", dCenterX, 1.);
-	upar.Add("center_y", dCenterY, 1.);
-	upar.Add("spread_x", dSpreadX, 0.1);
-	upar.Add("spread_y", dSpreadY, 0.1);
+	upar.Add("center_x", dCenterX, 20.);	//!!
+	upar.Add("center_y", dCenterY, 20.);
+	upar.Add("spread_x", dSpreadX, 20.);
+	upar.Add("spread_y", dSpreadY, 20.);
 
 	ROOT::Minuit2::MnApplication *pMinimize = 0;
 
