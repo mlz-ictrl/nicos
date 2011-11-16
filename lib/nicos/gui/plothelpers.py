@@ -379,26 +379,23 @@ class NicosPlot(QwtPlot):
         else:
             self.insertLegend(None)
 
+    def setVisibility(self, item, on):
+        item.setVisible(on)
+        item.setItemAttribute(QwtPlotItem.AutoScale, on)
+        if isinstance(item, ErrorBarPlotCurve):
+            for dep in item.dependent:
+                dep.setVisible(on)
+        if self.legend():
+            legenditem = self.legend().find(item)
+            newtext = QwtText(legenditem.text())
+            if on:
+                newtext.setColor(Qt.black)
+            else:
+                newtext.setColor(Qt.darkGray)
+            legenditem.setText(newtext)
+
     def on_legendClicked(self, item):
-        legenditem = self.legend().find(item)
-        if item.isVisible():
-            item.setVisible(False)
-            item.setItemAttribute(QwtPlotItem.AutoScale, False)
-            if isinstance(item, ErrorBarPlotCurve):
-                for dep in item.dependent:
-                    dep.setVisible(False)
-            newtext = QwtText(legenditem.text())
-            newtext.setColor(Qt.darkGray)
-            legenditem.setText(newtext)
-        else:
-            item.setVisible(True)
-            item.setItemAttribute(QwtPlotItem.AutoScale, True)
-            if isinstance(item, ErrorBarPlotCurve):
-                for dep in item.dependent:
-                    dep.setVisible(True)
-            newtext = QwtText(legenditem.text())
-            newtext.setColor(Qt.black)
-            legenditem.setText(newtext)
+        self.setVisibility(item, not item.isVisible())
         self.replot()
 
     def on_picker_moved(self, point):

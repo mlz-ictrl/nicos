@@ -206,8 +206,10 @@ class AnalysisPanel(Panel):
     def openDataset(self, uid):
         dataset = self.data.uid2set[uid]
         if dataset.uid not in self.setplots:
-            self.setplots[dataset.uid] = \
-                DataSetPlot(self.plotFrame, self, dataset)
+            newplot = DataSetPlot(self.plotFrame, self, dataset)
+            if self.currentPlot:
+                newplot.enableCurvesFrom(self.currentPlot)
+            self.setplots[dataset.uid] = newplot
         self.datasetList.setCurrentItem(self.setitems[uid])
         plot = self.setplots[dataset.uid]
         self.setCurrentDataset(plot)
@@ -524,6 +526,19 @@ class DataSetPlot(NicosPlot):
     def addAllCurves(self):
         for i, curve in enumerate(self.dataset.curves):
             self.addCurve(i, curve)
+
+    def enableCurvesFrom(self, otherplot):
+        visible = {}
+        for plotcurve in otherplot.curves:
+            visible[str(plotcurve.title().text())] = plotcurve.isVisible()
+        changed = False
+        for plotcurve in self.curves:
+            namestr = str(plotcurve.title().text())
+            if namestr in visible:
+                self.setVisibility(plotcurve, visible[namestr])
+                changed = True
+        if changed:
+            self.replot()
 
     def addCurve(self, i, curve, replot=False):
         pen = QPen(self.curvecolor[i % self.numcolors])
