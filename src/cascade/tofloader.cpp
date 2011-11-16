@@ -1438,8 +1438,6 @@ bool TmpImage::FitGaussian(double &dAmp,
 	dSpreadX = 1.;
 	dSpreadY = 1.;
 
-	std::cout << GetMaxCoord() << std::endl;
-
 	if(m_puiDaten)
 		return ::FitGaussian(m_iW, m_iH, m_puiDaten,
 							 dAmp, dCenterX, dCenterY, dSpreadX, dSpreadY);
