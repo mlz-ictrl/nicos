@@ -38,6 +38,7 @@ import signal
 import socket
 import inspect
 import linecache
+import threading
 import traceback
 import ConfigParser
 from os import path
@@ -316,6 +317,20 @@ def usermethod(func):
     return func
 
 
+class lazy_property(object):
+    """A property that calculates its value only once."""
+    def __init__(self, func):
+        self._func = func
+        self.__name__ = func.__name__
+        self.__doc__ = func.__doc__
+
+    def __get__(self, obj, obj_class):
+        if obj is None:
+            return obj
+        obj.__dict__[self.__name__] = self._func(obj)
+        return obj.__dict__[self.__name__]
+
+
 class Repeater(object):
     def __init__(self, obj):
         self.object = obj
@@ -440,6 +455,14 @@ def bitDescription(bits, *descriptions):
             if no:
                 ret.append(no)
     return ', '.join(ret)
+
+
+def runAsync(func):
+    def inner(*args, **kwargs):
+        thr = threading.Thread(target=func, args=args, kwargs=kwargs)
+        thr.setDaemon(True)
+        thr.start()
+    return inner
 
 
 # read nicos.conf files

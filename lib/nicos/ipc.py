@@ -25,7 +25,7 @@
 
 """IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
 
-__version__ = "$Revision$"
+__version__ = ""
 
 import socket
 import select
@@ -36,10 +36,11 @@ from RS485Client import RS485Client
 
 from nicos import status
 from nicos.taco import TacoDevice
-from nicos.utils import intrange, floatrange, oneofdict, closeSocket
+from nicos.utils import intrange, floatrange, oneofdict, oneof, closeSocket, \
+     lazy_property, runAsync, usermethod
 from nicos.device import Device, Readable, Moveable, Param, Override
 from nicos.errors import NicosError, CommunicationError, ProgrammingError, \
-    UsageError
+    UsageError, TimeoutError
 from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
 
 
@@ -66,62 +67,65 @@ def convert(string):
 
 IPC_MAGIC = {
     # motor cards
-    31:  ['Reset motor card', None],
-    32:  ['Start motor', None],
-    33:  ['Stop motor immediately', None],
-    34:  ['Switch forward direction', None],
-    35:  ['Switch backward direction', None],
-    36:  ['Switch fullstep', None],
-    37:  ['Switch halfstep', None],
-    38:  ['Switch relay on', None],
-    39:  ['Switch relay off', None],
-    40:  ['Write values to EEPROM', None],
-    41:  ['Set speed', (3, 0, 255)],  # numdigits, minvalue, maxvalue
-    42:  ['Set acceleration', (3, 0, 255)],
-    43:  ['Set current position', (6, 0, 999999)],
-    44:  ['Set maximum position', (6, 0, 999999)],
-    45:  ['Set minimum position', (6, 0, 999999)],
-    46:  ['Set multisteps and start', (6, 0, 999999)],
+    # # only works for single cards, ### only works for triple cards
+    # ###### only works for sixfold cards
+    # limits is None or a tuple (numdigits, minvalue, maxvalue)
+    31:  ['Reset motor card', None],                    # ### ######
+    32:  ['Start motor', None],                         # ### ######
+    33:  ['Stop motor immediately', None],              # ### ######
+    34:  ['Switch forward direction', None],            # ### ######
+    35:  ['Switch backward direction', None],           # ### ######
+    36:  ['Switch fullstep', None],                     #
+    37:  ['Switch halfstep', None],                     #
+    38:  ['Switch relay on', None],                     #
+    39:  ['Switch relay off', None],                    #
+    40:  ['Write values to EEPROM', None],              # ### ######
+    41:  ['Set speed', (3, 0, 255)],                    # ### ######
+    42:  ['Set acceleration', (3, 0, 255)],             # ### ######
+    43:  ['Set current position', (6, 0, 999999)],      # ### ######
+    44:  ['Set maximum position', (6, 0, 999999)],      # ### ######
+    45:  ['Set minimum position', (6, 0, 999999)],      # ### ######
+    46:  ['Set multisteps and start', (6, 0, 999999)],  # ### ######
     # ... with given speed and switch back
-    47:  ['Find reference switch', (3, 0, 255)],
-    48:  ['Check motor connection', None],
-    49:  ['Save config byte to EEPROM', (3, 0, 63)],
-    50:  ['Select ramp shape', (3, 1, 4)],
-    51:  ['Save user value to EEPROM', (6, 0, 999999)],
-    52:  ['Stop motor using ramp', None],
-    53:  ['Switch driver off', None],
-    54:  ['Switch driver on', None],
-    55:  ['Set inhibit delay', (3, 0, 255)],
-    56:  ['Set target position', (6, 0, 999999)],
-    57:  ['Set microsteps', (3, 0, 4)],
-    58:  ['Set stop delay', (3, 0, 255)],
-    60:  ['Set clock divider', (3, 1, 7)],
-    128: ['Read speed', None],
-    129: ['Read accel', None],
-    130: ['Read position', None],
-    131: ['Read maximum', None],
-    132: ['Read minimum', None],
-    133: ['Read multisteps', None],
-    134: ['Read status', None],
-    135: ['Read config byte', None],
-    136: ['Read ramp shape', None],
-    137: ['Read version number', None],
-    138: ['Read user value', None],
-    139: ['Read inhibit delay', None],
-    140: ['Read target position', None],
-    141: ['Read microsteps', None],
-    142: ['Read load indicator', None],
-    143: ['Read stop delay', None],
-    144: ['Read clock divider', None],
-    # encoder/potentiometer
-    150: ['Read encoder value', None],
-    151: ['Read encoder version', None],
-    152: ['Read encoder configuration', None],
-    153: ['Reset encoder', None],
-    154: ['Set encoder configuration', (3, 0, 255)],
-    155: ['Select endat memory range', (3, 161, 185)],
-    156: ['Read endat parameter', (3, 0, 15)],
-    157: ['Write endat parameter', (3, 0, 15)],
+    47:  ['Find reference switch', (3, 0, 255)],        #
+    48:  ['Check motor connection', None],              #
+    49:  ['Save config byte to EEPROM', (3, 0, 63)],    #
+    50:  ['Select ramp shape', (3, 1, 4)],              #
+    51:  ['Save user value to EEPROM', (6, 0, 999999)], # ### ######
+    52:  ['Stop motor using ramp', None],               #
+    53:  ['Switch driver off', None],                   # ### ######
+    54:  ['Switch driver on', None],                    # ### ######
+    55:  ['Set inhibit delay', (3, 0, 255)],            #
+    56:  ['Set target position', (6, 0, 999999)],         ### ######
+    57:  ['Set microsteps', (3, 0, 4)],                   ### ######
+    58:  ['Set stop delay', (3, 0, 255)],               #
+    60:  ['Set clock divider', (3, 1, 7)],                ###
+    128: ['Read speed', None],                          # ### ######
+    129: ['Read accel', None],                          # ### ######
+    130: ['Read position', None],                       # ### ######
+    131: ['Read maximum', None],                        # ### ######
+    132: ['Read minimum', None],                        # ### ######
+    133: ['Read multisteps', None],                     #
+    134: ['Read status', None],                         # ### ######
+    135: ['Read config byte', None],                    #
+    136: ['Read ramp shape', None],                     #
+    137: ['Read version number', None],                 # ### ######
+    138: ['Read user value', None],                     # ### ######
+    139: ['Read inhibit delay', None],                  #
+    140: ['Read target position', None],                  ### ######
+    141: ['Read microsteps', None],                       ### ######
+    142: ['Read load indicator', None],                   ### ######
+    143: ['Read stop delay', None],                     #
+    144: ['Read clock divider', None],                    ###
+    # encoder/potentiometer (abs enc=#, inc enc=##, poti=###)
+    150: ['Read encoder value', None],                  # ## ###
+    151: ['Read encoder version', None],                # ## ###
+    152: ['Read encoder configuration', None],          # ## ###
+    153: ['Reset encoder', None],                       # ## ###
+    154: ['Set encoder configuration', (3, 0, 255)],    # ##
+    155: ['Select endat memory range', (3, 161, 185)],  #
+    156: ['Read endat parameter', (3, 0, 15)],          #
+    157: ['Write endat parameter', (3, 0, 15)],         #
     # 4-wing slits
     160: ['Set bottom target position', (4, 0, 4095)],
     161: ['Set top target position', (4, 0, 4095)],
@@ -177,6 +181,9 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
     """IPC protocol communication over TACO RS-485 server."""
 
     taco_class = RS485Client
+    taco_errorcodes = {
+        537133063: InvalidCommandError,
+    }
 
     parameters = {
         'maxtries': Param('Number of tries for sending and receiving',
@@ -389,6 +396,7 @@ class Coder(NicosCoder):
                     settable=True),
         'offset': Param('Coder offset', type=float, settable=True),
         'slope': Param('Coder slope', type=float, settable=True, default=1.0),
+        'firmware': Param('Firmware version', type=int),
     }
 
     attached_devices = {
@@ -403,6 +411,9 @@ class Coder(NicosCoder):
     def doVersion(self):
         version = self._adevs['bus'].get(self.addr, 151)
         return [('IPC encoder card', str(version))]
+
+    def doReadFirmware(self):
+        return self._adevs['bus'].get(self.addr, 151)
 
     def doReadConfbyte(self):
         return self._adevs['bus'].get(self.addr, 152)
@@ -473,35 +484,43 @@ class Coder(NicosCoder):
 class Motor(NicosMotor):
 
     parameters = {
-        'addr': Param('Bus address of the motor', type=int, mandatory=True),
-        'timeout': Param('Waiting timeout', type=int, unit='s', default=360),
-        'unit': Param('Motor unit', type=str, default='steps'),
-        'offset': Param('Motor offset', type=float, settable=True),
-        'slope': Param('Motor slope', type=float, settable=True, default=1.0),
+        'addr':       Param('Bus address of the motor', type=int, mandatory=True),
+        'timeout':    Param('Waiting timeout', type=int, unit='s', default=360),
+        'unit':       Param('Motor unit', type=str, default='steps'),
+        'offset':     Param('Motor offset', type=float, settable=True),
+        'slope':      Param('Motor slope', type=float, settable=True,
+                            default=1.0),
         # those parameters come from the card
-        'firmware': Param('Firmware version', type=int),
-        'speed': Param('Motor speed (0..255)', type=intrange(0, 256),
-                       settable=True),
-        'accel': Param('Motor acceleration (0..255)', type=intrange(0, 256),
-                       settable=True),
-        'confbyte': Param('Configuration byte', type=intrange(0, 256),
-                          settable=True),
-        'ramptype': Param('Ramp type', type=intrange(1, 5),
-                          settable=True),
-        'halfstep': Param('Halfstep mode', type=bool, settable=True),
-        'min': Param('Lower motorlimit', type=intrange(0, 1000000),
-                     unit='steps', settable=True),
-        'max': Param('Upper motorlimit', type=intrange(0, 1000000),
-                     unit='steps', settable=True),
+        'firmware':   Param('Firmware version', type=int),
+        'steps':      Param('Last position in steps', settable=True,
+                            type=intrange(0, 1000000)),
+        'speed':      Param('Motor speed (0..255)', settable=True,
+                            type=intrange(0, 256)),
+        'accel':      Param('Motor acceleration (0..255)', settable=True,
+                            type=intrange(0, 256)),
+        'confbyte':   Param('Configuration byte', type=intrange(0, 256),
+                            settable=True),
+        'ramptype':   Param('Ramp type', settable=True, type=intrange(1, 5)),
+        'microstep':  Param('Microstepping mode', unit='steps', settable=True,
+                            type=oneof(int, 1, 2, 4, 8, 16)),
+        'min':        Param('Lower motorlimit', settable=True,
+                            type=intrange(0, 1000000), unit='steps'),
+        'max':        Param('Upper motorlimit', settable=True,
+                            type=intrange(0, 1000000), unit='steps'),
         'startdelay': Param('Start delay', type=floatrange(0, 25), unit='s',
                             settable=True),
-        'stopdelay': Param('Stop delay', type=floatrange(0, 25), unit='s',
-                           settable=True),
-        'divider': Param('Frequency divider', type=intrange(1, 8),
-                         settable=True),
-        'microsteps': Param('Microsteps', type=intrange(0, 5), settable=True),
-        'relay' : Param('Relay', type=oneofdict({0: 'off', 1: 'on'}),
-                        settable=True, default='off', volatile=True),
+        'stopdelay':  Param('Stop delay', type=floatrange(0, 25), unit='s',
+                            settable=True),
+        'divider':    Param('Speed divider', settable=True,
+                            type=intrange(0, 8)),
+        # volatile parameters to read/switch card features
+        'inhibit':    Param('Inhibit input', default='off', volatile=True,
+                            type=oneofdict({0: 'off', 1: 'on'})),
+        'relay':      Param('Relay switch', type=oneofdict({0: 'off', 1: 'on'}),
+                            settable=True, default='off', volatile=True),
+        'power':      Param('Internal power stage switch', default='on',
+                            type=oneofdict({0: 'off', 1: 'on'}), settable=True,
+                            volatile=True),
     }
 
     attached_devices = {
@@ -511,6 +530,11 @@ class Motor(NicosMotor):
     def doInit(self):
         bus = self._adevs['bus']
         bus.ping(self.addr)
+        # make sure that the card has the right "last steps"
+        if self.steps != self.doReadSteps():
+            self.doWriteSteps(self.steps)
+            self.log.warning('Resetting stepper position to last known good '
+                             'value %d' % self.steps)
 
     def doVersion(self):
         try:
@@ -525,6 +549,19 @@ class Motor(NicosMotor):
 
     def _fromsteps(self, value):
         return float((value - self.offset) / self.slope)
+
+    @lazy_property
+    def _hwtype(self):
+        """Returns 'single' or 'triple', used for features that only one of the
+        card types supports.
+        """
+        return self.doReadDivider() == -1 and 'single' or 'triple'
+
+    def doReadUserlimits(self):
+        if self.slope < 0:
+            return (self._fromsteps(self.max), self._fromsteps(self.min))
+        else:
+            return (self._fromsteps(self.min), self._fromsteps(self.max))
 
     def doWriteUserlimits(self, limits):
         NicosMotor.doWriteUserlimits(self, limits)
@@ -567,7 +604,7 @@ class Motor(NicosMotor):
         try:
             return self._adevs['bus'].get(self.addr, 144)
         except InvalidCommandError:
-            return 0
+            return -1
 
     def doWriteDivider(self, value):
         try:
@@ -577,17 +614,25 @@ class Motor(NicosMotor):
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
 
-    def doReadMicrosteps(self):
+    def doReadMicrostep(self):
         try:
-            return self._adevs['bus'].get(self.addr, 141)
+            # microstepping cards
+            return [1, 2, 4, 8, 16][self._adevs['bus'].get(self.addr, 141)]
         except InvalidCommandError:
-            return 0
+            # sinple cards only support full or half steps
+            return [1, 2][(self._adevs['bus'].get(self.addr, 134) & 4) >> 2]
 
-    def doWriteMicrosteps(self, value):
-        try:
-            self._adevs['bus'].send(self.addr, 57, value, 3)
-        except InvalidCommandError:
-            raise UsageError(self, 'microsteps not supported by card')
+    def doWriteMicrostep(self, value):
+        if self._hwtype == 'single':
+            if value == 1:
+                self._adevs['bus'].send(self.addr, 36)
+            elif value == 2:
+                self._adevs['bus'].send(self.addr, 37)
+            else:
+                raise UsageError(self, 'microsteps > 2 not supported by card')
+        else:
+            self._adevs['bus'].send(self.addr, 57,
+                                    [1, 2, 4, 8, 16].index(value), 3)
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
 
@@ -610,12 +655,12 @@ class Motor(NicosMotor):
         try:
             return self._adevs['bus'].get(self.addr, 135)
         except InvalidCommandError:
-            return 0
+            return -1
 
     def doWriteConfbyte(self, value):
-        try:
+        if self._hwtype == 'single':
             self._adevs['bus'].send(self.addr, 49, value, 3)
-        except InvalidCommandError:
+        else:
             raise UsageError(self, 'confbyte not supported by card')
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
@@ -625,14 +670,14 @@ class Motor(NicosMotor):
             try:
                 return self._adevs['bus'].get(self.addr, 139) / 10.0
             except InvalidCommandError:
-                return 0
+                return 0.0
         else:
-            return 0
+            return 0.0
 
     def doWriteStartdelay(self, value):
-        try:
+        if self._hwtype == 'single':
             self._adevs['bus'].send(self.addr, 55, int(value * 10), 3)
-        except InvalidCommandError:
+        else:
             raise UsageError(self, 'startdelay not supported by card')
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
@@ -642,20 +687,27 @@ class Motor(NicosMotor):
             try:
                 return self._adevs['bus'].get(self.addr, 143) / 10.0
             except InvalidCommandError:
-                return 0
+                return 0.0
         else:
-            return 0
+            return 0.0
 
     def doWriteStopdelay(self, value):
-        try:
+        if self._hwtype == 'single':
             self._adevs['bus'].send(self.addr, 58, int(value * 10), 3)
-        except InvalidCommandError:
+        else:
             raise UsageError(self, 'stopdelay not supported by card')
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
 
     def doReadFirmware(self):
         return self._adevs['bus'].get(self.addr, 137)
+
+    def doReadSteps(self):
+        return self._adevs['bus'].get(self.addr, 130)
+
+    def doWriteSteps(self, value):
+        self.log.debug('setting new steps value: %s' % value)
+        self._adevs['bus'].send(self.addr, 43, value, 6)
 
     def doStart(self, target):
         target = self._tosteps(target)
@@ -671,50 +723,69 @@ class Motor(NicosMotor):
             bus.send(self.addr, 35)
         else:
             bus.send(self.addr, 34)
-        # XXX handle limit switch touch
+        # XXX handle limit switch touch (???)
         bus.send(self.addr, 46, abs(diff), 6)
 
     def doReset(self):
-        bus = self._adevs['bus']
-        bus.send(self.addr, 33)  # stop
-        # remember current state
-        actpos = bus.get(self.addr, 130)
-        speed = bus.get(self.addr, 128)
-        accel = bus.get(self.addr, 129)
-        minstep = bus.get(self.addr, 132)
-        maxstep = bus.get(self.addr, 131)
-        bus.send(self.addr, 31)  # reset card
-        sleep(0.2)
-        # update state
-        bus.send(self.addr, 41, speed, 3)
-        bus.send(self.addr, 42, accel, 3)
-        bus.send(self.addr, 45, minstep, 6)
-        bus.send(self.addr, 44, maxstep, 6)
-        bus.send(self.addr, 43, actpos, 6)
+        def rewind():
+            bus = self._adevs['bus']
+            # remember current state
+            actpos  = bus.get(self.addr, 130)
+            speed   = bus.get(self.addr, 128)
+            accel   = bus.get(self.addr, 129)
+            minstep = bus.get(self.addr, 132)
+            maxstep = bus.get(self.addr, 131)
+            bus.send(self.addr, 31)  # reset card
+            sleep(0.2)
+            # update state
+            bus.send(self.addr, 41, speed, 3)
+            bus.send(self.addr, 42, accel, 3)
+            bus.send(self.addr, 45, minstep, 6)
+            bus.send(self.addr, 44, maxstep, 6)
+            bus.send(self.addr, 43, actpos, 6)
+        @runAsync
+        def stopandrewind():
+            bus = self._adevs['bus']
+            bus.send(self.addr, 33)  # stop
+            try:
+                self.doWait()        # this might take a while, ignore errors
+            except:
+                pass
+            rewind()
+        if self.doStatus()[0] != status.OK:  # busy or error
+            stopandrewind()
+        else:
+            rewind()
 
     def doWait(self):
         timeleft = self.timeout
+        sleep(0.1)
         while timeleft >= 0:
-            sleep(0.1)
-            timeleft -= 0.1
+            sleep(0.2)
+            timeleft -= 0.2
             if self.doStatus()[0] != status.BUSY:
                 break
         else:
-            self.doStop()
+            raise TimeoutError(self, 'movement timed out (timeout %.1f s)'
+                               % self.timeout)
 
     def doStop(self):
-        try:
+        if self._hwtype == 'single':
             self._adevs['bus'].send(self.addr, 52)
-        except InvalidCommandError:
+        else:
             self._adevs['bus'].send(self.addr, 33)
+        sleep(0.2)
 
     def doRead(self):
         value = self._adevs['bus'].get(self.addr, 130)
+        self._params['steps'] = value  # save last valid position in cache
+        if self._cache:
+            self._cache.put(self, 'steps', value)
         self.log.debug('value is %d' % value)
         return self._fromsteps(value)
 
     def doReadRelay(self):
-        return 'on' if (self._adevs['bus'].get(self.addr, 134) & 8) else 'off'
+        return 'on' if self._adevs['bus'].get(self.addr, 134) & 8 else 'off'
 
     def doWriteRelay(self, value):
         if value in [0, 'off']:
@@ -722,35 +793,27 @@ class Motor(NicosMotor):
         elif value in [1, 'on']:
             self._adevs['bus'].send(self.addr, 38)
 
-    def doReadHalfstep(self):
-        return (self._adevs['bus'].get(self.addr, 134) & 4) == 4
+    def doReadInhibit(self):
+        return (self._adevs['bus'].get(self.addr, 134) & 16) == 16
 
-    def doWriteHalfstep(self, value):
-        if value:  # halfstep
-            self._adevs['bus'].send(self.addr, 37)
-        else:  # fullstep
-            self._adevs['bus'].send(self.addr, 36)
-        self.log.info('parameter change not permanent, use _store() '
-                      'method to write to EEPROM')
+    def doReadPower(self):
+        return 'on' if self._adevs['bus'].get(self.addr, 134) & 16384 else 'off'
 
-    @property
-    def IsInhibit(self):
-        return (self._adevs['bus'].get(self.addr, 134) & 0x10) == 0x10
+    def doWritePower(self, value):
+        if value in [0, 'off']:
+            self._adevs['bus'].send(self.addr, 53)
+        elif value in [1, 'on']:
+            self._adevs['bus'].send(self.addr, 54)
 
     def doStatus(self):
-        bus = self._adevs['bus']
-        state = bus.get(self.addr, 134)
+        state = self._adevs['bus'].get(self.addr, 134)
+        st = status.OK
 
-        statusvalue = status.OK
         msg = ''
-
-        msg += (state & 2) and ', backward' or ', forward'
-        msg += (state & 4) and ', halfsteps' or ', fullsteps'
-        msg += (state & 8) and ', relais on' or ', relais off'
-        if state & 32:
-            msg += ', limit switch - active'
-        if state & 64:
-            msg += ', limit switch + active'
+        #msg += (state & 2) and ', backward' or ', forward'
+        #msg += (state & 4) and ', halfsteps' or ', fullsteps'
+        if state & 16:
+            msg += ', inhibit active'
         if state & 128:
             msg += ', reference switch active'
         if state & 256:
@@ -758,69 +821,51 @@ class Motor(NicosMotor):
         if state & 512:
             msg += ', software limit + reached'
         if state & 16384 == 0:
-            msg += ', external booster stage active'
+            msg += ', external power stage enabled'
+        if state & 32:
+            msg += ', limit switch - active'
+        if state & 64:
+            msg += ', limit switch + active'
+        if self._hwtype == 'single':
+            msg += (state & 8) and ', relais on' or ', relais off'
         if state & 32768:
-            statusvalue = status.NOTREACHED
+            st = status.NOTREACHED
             msg += 'waiting for start/stopdelay'
 
         # check error states last
-        if state & 16:
-            statusvalue = status.ERROR
-            msg += ', inhibit active'
         if state & 32 and state & 64:
-            statusvalue = status.ERROR
+            st = status.ERROR
         if state & 1024:
-            statusvalue = status.ERROR
+            st = status.ERROR
             msg += ', device overheated'
         if state & 2048:
-            statusvalue = status.ERROR
+            st = status.ERROR
             msg += ', motor undervoltage'
         if state & 4096:
-            statusvalue = status.ERROR
+            st = status.ERROR
             msg += ', motor not connected or leads broken'
         if state & 8192:
-            statusvalue = status.ERROR
+            st = status.ERROR
             msg += ', hardware failure or device not reset after power-on'
 
         # if it's moving, it's not in error state!
         if state & 1:
-            statusvalue = status.BUSY
+            st = status.BUSY
             msg = ', moving' + msg
 
-        return statusvalue, msg[2:]
+        return st, msg[2:]
 
     def doSetPosition(self, target):
         self.log.debug('setPosition: %s' % target)
         steps = self._adevs['bus'].get(self.addr, 130)
         self.offset = steps - target * self.slope
 
+    @usermethod
     def _store(self):
         self._adevs['bus'].send(self.addr, 40)
         self.log.info('parameters stored to EEPROM')
 
-    def _poweroff(self):
-        self._adevs['bus'].send(self.addr, 53)
-
-    def _poweron(self):
-        self._adevs['bus'].send(self.addr, 54)
-
-    def _relaison(self):
-        try:
-            self._adevs['bus'].send(self.addr, 38)
-        except InvalidCommandError:
-            raise UsageError(self, 'card does not support relais commands')
-
-    def _relaisoff(self):
-        try:
-            self._adevs['bus'].send(self.addr, 39)
-        except InvalidCommandError:
-            raise UsageError(self, 'card does not support relais commands')
-
-    def _setsteps(self, value):
-        if not 0 <= value <= 999999:
-            raise UsageError(self, 'invalid stepper position: %s' % value)
-        self._adevs['bus'].send(self.addr, 43, value, 6)
-
+    @usermethod
     def _printconfig(self):
         byte = self.confbyte
         c = ''
@@ -881,10 +926,10 @@ class IPCInhibit(Readable):
     }
 
     def doRead(self):
-        return 'on' if self._adevs['stepper'].IsInhibit else 'off'
+        return 'on' if self._adevs['stepper'].inhibit else 'off'
 
     def doStatus(self):
-        return status.OK, 'Inhibit is ' + str(self.doRead())
+        return status.OK, 'inhibit is ' + str(self.doRead())
 
 
 class Input(Readable):
