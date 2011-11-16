@@ -212,6 +212,11 @@ class TmpImage : public BasicImage
 
 	// adds another TmpImage to this one
 	void Add(const TmpImage& tmp);
+
+	// Gaussian fit for finding the beam center
+	bool FitGaussian(double &dAmp,
+					 double &dCenterX, double &dCenterY,
+					 double &dSpreadX, double &dSpreadY) const;
 };
 
 

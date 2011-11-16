@@ -33,20 +33,11 @@
 #include <limits>
 #include "logger.h"
 #include "helper.h"
-
-#ifdef USE_MINUIT
-	#include <Minuit2/FCNBase.h>
-	#include <Minuit2/FunctionMinimum.h>
-	#include <Minuit2/MnMigrad.h>
-	#include <Minuit2/MnSimplex.h>
-	#include <Minuit2/MnMinimize.h>
-	#include <Minuit2/MnFumiliMinimize.h>
-	#include <Minuit2/MnUserParameters.h>
-	#include <Minuit2/MnPrint.h>
-#endif
+#include "fit.h"
 
 
-// *************** TOF *********************************************************
+//------------------------------------------------------------------------------
+// TOF
 TofImage::TofImage(const char *pcFileName, int iCompressed, bool bExternalMem,
 				   const TofConfig* conf)
 		: m_bExternalMem(bExternalMem)
@@ -825,11 +816,14 @@ TmpImage TofImage::AddContrasts(const bool *pbFolien) const
 	AddContrasts(pbFolien, &img);
 	return img;
 }
-// **************** TOF ********************************************************
 
 
 
-// **************** PAD ********************************************************
+
+
+
+//------------------------------------------------------------------------------
+// PAD
 PadImage::PadImage(const char *pcFileName, bool bExternalMem,
 				   const PadConfig* conf)
 		: m_iMin(0),m_iMax(0), m_bExternalMem(bExternalMem)
@@ -1177,11 +1171,15 @@ unsigned int PadImage::GetCounts(int iStartX, int iEndX,
 void PadImage::UseRoi(bool bUseRoi) { m_bUseRoi = bUseRoi; }
 Roi& PadImage::GetRoi() { return m_roi; }
 bool PadImage::GetUseRoi() const { return m_bUseRoi; };
-// *************** PAD *********************************************************
 
 
 
-// *************** TmpImage ****************************************************
+
+
+
+
+//------------------------------------------------------------------------------
+// TmpImage
 TmpImage::TmpImage() : m_iW(GlobalConfig::GetTofConfig().GetImageWidth()),
 					   m_iH(GlobalConfig::GetTofConfig().GetImageHeight()),
 					   m_puiDaten(NULL), m_pdDaten(NULL),
@@ -1417,9 +1415,26 @@ void TmpImage::ConvertPAD(PadImage* pPad)
 	memcpy(m_puiDaten, pPad->m_puiDaten, m_iW*m_iH*sizeof(int));
 }
 
+bool TmpImage::FitGaussian(double &dAmp,
+						   double &dCenterX, double &dCenterY,
+						   double &dSpreadX, double &dSpreadY) const
+{
+	if(m_puiDaten)
+		return ::FitGaussian(m_iW, m_iH, m_puiDaten,
+							 dAmp, dCenterX, dCenterY, dSpreadX, dSpreadY);
+	//else if(m_pdDaten)
+	// ...
 
-// ********************** TmpGraph *********************************************
+	return false;
+}
 
+
+
+
+
+
+//------------------------------------------------------------------------------
+// TmpGraph
 TmpGraph::TmpGraph() : m_iW(0), m_puiDaten(0)
 {}
 
@@ -1471,101 +1486,6 @@ bool TmpGraph::IsLowerThan(int iTotal) const
 	return iSum < iTotal;
 }
 
-#ifdef USE_MINUIT
-// ************************** Zeug für Minuit **********************************
-// Modellfunktion für sin-Fit
-class Sinus : public ROOT::Minuit2::FCNBase
-{
-	protected:
-		double *m_pdy;			// experimentelle Werte
- 		double *m_pddy;			// Standardabweichungen
-		int m_iNum;				// Anzahl der Werte
-
-	public:
-		Sinus() : m_pdy(NULL), m_pddy(NULL), m_iNum(0)
-		{}
-
-		void Clear(void)
-		{
-			if(m_pddy) { delete[] m_pddy; m_pddy=NULL; }
-			if(m_pdy) { delete[] m_pdy; m_pdy=NULL; }
-			m_iNum=0;
-		}
-
-		virtual ~Sinus()
-		{
-			Clear();
-		}
-
-		double chi2(const std::vector<double>& params) const
-		{
-			double dphase = params[0];
-			double damp = params[1];
-			double doffs = params[2];
-			double dscale = 2.*M_PI/double(m_iNum);
-
-			// force non-negative amplitude parameter
-			if(damp<0.) return std::numeric_limits<double>::max();
-
-			double dchi2 = 0.;
-			for(int i=0; i<m_iNum; ++i)
-			{
-				double dAbweichung = m_pddy[i];
-
-				// prevent division by zero
-				if(fabs(dAbweichung) < std::numeric_limits<double>::epsilon())
-					dAbweichung = std::numeric_limits<double>::epsilon();
-
-				double d = (m_pdy[i] - (damp*sin(double(i)*dscale +
-										dphase)+doffs)) / dAbweichung;
-				dchi2 += d*d;
-			}
-			return dchi2;
-		}
-
-		double operator()(const std::vector<double>& params) const
-		{
-			return chi2(params);
-		}
-
-		double Up() const
-		{ return 1.; }
-
-		const double* GetValues() const
-		{ return m_pdy; }
-
-		const double* GetDeviations() const
-		{ return m_pddy; }
-
-		void SetValues(int iSize, const double* pdy)
-		{
-			Clear();
-			m_iNum = iSize;
-			m_pdy = new double[iSize];
-			m_pddy = new double[iSize];
-
-			for(int i=0; i<iSize; ++i)
-			{
-				m_pdy[i] = pdy[i];			// Wert
-				m_pddy[i] = sqrt(m_pdy[i]);	// Fehler
-			}
-		}
-
-		void SetValues(int iSize, const unsigned int* piy)
-		{
-			Clear();
-			m_iNum = iSize;
-			m_pdy = new double[iSize];
-			m_pddy = new double[iSize];
-
-			for(int i=0; i<iSize; ++i)
-			{
-				m_pdy[i] = double(piy[i]);	// Wert
-				m_pddy[i] = sqrt(m_pdy[i]);	// Fehler
-			}
-		}
-};
-
 bool TmpGraph::FitSinus(double &dPhase, double &dScale,
 						double &dAmp, double &dOffs) const
 {
@@ -1575,8 +1495,8 @@ bool TmpGraph::FitSinus(double &dPhase, double &dScale,
 	dScale = 2.*M_PI/double(m_iW);
 
 	double dMaxVal=GetMax(), dMinVal=GetMin();
-	dOffs = dMinVal + (dMaxVal-dMinVal)/2.;		// Hint-Werte
-	dAmp = (dMaxVal-dMinVal)/2.;				// Hint-Werte
+	dOffs = dMinVal + (dMaxVal-dMinVal)/2.;		// Hints
+	dAmp = (dMaxVal-dMinVal)/2.;				// Hints
 
 	if(IsLowerThan(1))
 	{
@@ -1584,72 +1504,5 @@ bool TmpGraph::FitSinus(double &dPhase, double &dScale,
 		return false;
 	}
 
-	Sinus fkt;
-	fkt.SetValues(m_iW, m_puiDaten);
-
-	ROOT::Minuit2::MnUserParameters upar;
-	upar.Add("phase", M_PI, 0.01);
-	upar.Add("amp", dAmp, sqrt(dAmp));
-	upar.Add("offset", dOffs, sqrt(dOffs));
-	//upar.Add("scale", 2.*M_PI/16., 0.1);		// kein Fit-Parameter
-
-	ROOT::Minuit2::MnApplication *pMinimize = 0;
-
-	unsigned int uiStrategy = GlobalConfig::GetMinuitStrategy();
-	switch(GlobalConfig::GetMinuitAlgo())
-	{
-		case MINUIT_SIMPLEX:
-			pMinimize = new ROOT::Minuit2::MnSimplex(fkt, upar, uiStrategy);
-			break;
-
-		case MINUIT_MINIMIZE:
-			pMinimize = new ROOT::Minuit2::MnMinimize(fkt, upar, uiStrategy);
-			break;
-
-		default:
-		case MINUIT_MIGRAD:
-			pMinimize = new ROOT::Minuit2::MnMigrad(fkt, upar, uiStrategy);
-			break;
-	}
-
-	ROOT::Minuit2::FunctionMinimum mini = (*pMinimize)(
-									GlobalConfig::GetMinuitMaxFcn(),
-									GlobalConfig::GetMinuitTolerance());
-	delete pMinimize;
-	pMinimize = 0;
-
-	dPhase = mini.Parameters().Vec()[0];
-	dAmp = mini.Parameters().Vec()[1];
-	dOffs = mini.Parameters().Vec()[2];
-	//dScale = mini.Parameters().Vec()[3];
-
-	// Phasen auf 0..2*Pi einschränken
-	dPhase = fmod(dPhase, 2.*M_PI);
-	if(dPhase<0.) dPhase += 2.*M_PI;
-
-	if(!mini.IsValid())
-	{
-		logger.SetCurLogLevel(LOGLEVEL_ERR);
-		logger << "Loader: Invalid fit." << "\n";
-		return false;
-	}
-
-	// check for NaN
-	if(dPhase!=dPhase || dAmp!=dAmp || dOffs!=dOffs)
-	{
-		logger.SetCurLogLevel(LOGLEVEL_WARN);
-		logger << "Loader: Incorrect fit." << "\n";
-		return false;
-	}
-	return true;
+	return ::FitSinus(m_iW, m_puiDaten, dPhase, /*dScale,*/ dAmp, dOffs);
 }
-// *****************************************************************************
-#else
-bool TmpGraph::FitSinus(double &dPhase, double &dScale,
-						double &dAmp, double &dOffs) const
-{
-	logger.SetCurLogLevel(LOGLEVEL_ERR);
-	logger << "Loader: Not compiled with minuit." << "\n";
-	return false;
-}
-#endif //USE_MINUIT

@@ -14,7 +14,7 @@
 
 
 COMPILER	= gcc
-FLAGS		= -O2 -Wall -Wextra -D __CASCADE_QT_CLIENT__
+FLAGS		= -O2 -mtune=native -Wall -Wextra -D __CASCADE_QT_CLIENT__
 LIBS		= -lQtCore -lQtGui -lQtNetwork -lqwt -lMinuit2 -lgomp -lxml++-2.6 \
                   -L /usr/lib/qt4
 INCLUDES	= -I /usr/include/qwt -I /usr/include/qwt5 -I /usr/include/qt4 \
@@ -28,8 +28,8 @@ all: cascade nicosmodules
 
 
 ###################### cascade-qt-client ################
-cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o globals.o parse.o roi.o
-	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o globals.o parse.o roi.o
+cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o globals.o parse.o roi.o fit.o
+	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o globals.o parse.o roi.o fit.o
 #########################################################
 
 
@@ -77,6 +77,9 @@ parse.o: parse.cpp parse.h
 
 roi.o: roi.cpp roi.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o roi.o roi.cpp
+
+fit.o: fit.cpp fit.h
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o fit.o fit.cpp
 #########################################################
 
 
