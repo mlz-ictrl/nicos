@@ -26,6 +26,7 @@
 
 __version__ = "$Revision$"
 
+import os
 from os import path
 
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
@@ -68,6 +69,7 @@ class LiveDataPanel(Panel):
 
         self.connect(client, SIGNAL('livedata'), self.on_client_livedata)
         self.connect(client, SIGNAL('liveparams'), self.on_client_liveparams)
+        self.connect(client, SIGNAL('connected'), self.on_client_connected)
 
         self.connect(self.actionLogScale, SIGNAL("toggled(bool)"),
                      self.widget, SLOT("SetLog10(bool)"))
@@ -114,6 +116,15 @@ class LiveDataPanel(Panel):
     def on_widget_customContextMenuRequested(self, point):
         self.menu.popup(self.mapToGlobal(point))
 
+    def on_client_connected(self):
+        datapath = self.client.eval('_GetDatapath()')
+        caspath = path.join(datapath[0], 'cascade')
+        for fn in os.listdir(caspath):
+            if fn.endswith('.pad'):
+                self.add_to_flist(path.join(caspath, fn), 'pad')
+            elif fn.endswith('tof'):
+                self.add_to_flist(path.join(caspath, fn), 'tof')
+
     def on_client_liveparams(self, params):
         tag, filename, dtype, nx, ny, nt, runtime = params
         self._runtime = runtime
@@ -143,13 +154,8 @@ class LiveDataPanel(Panel):
                 cts = self.widget.GetTof().GetCounts()
                 self.statusBar.showMessage('cps: %.2f | total: %s' %
                                            (cts/self._runtime, cts))
-        if self._filename and path.isfile(self._filename):
-            shortname = path.basename(self._filename)
-            item = QListWidgetItem(shortname)
-            item.setData(32, self._filename)
-            item.setData(33, self._format)
-            self.fileList.insertItem(self.fileList.count()-1, item)
-            self.fileList.scrollToBottom()
+        if self._filename:# and path.isfile(self._filename):
+            self.add_to_flist(self._filename, self._format)
 
     def on_fileList_itemClicked(self, item):
         if item is None:
@@ -183,6 +189,7 @@ class LiveDataPanel(Panel):
             'Open TOF File', '', 'TOF File (*.tof *.TOF);;All files (*)')
         if filename:
             self.widget.LoadTofFile(filename)
+            self.add_to_flist(filename, 'tof')
 
     @qtsig('')
     def on_actionLoadPAD_triggered(self):
@@ -190,6 +197,15 @@ class LiveDataPanel(Panel):
             'Open PAD File', '', 'PAD File (*.pad *.PAD);;All files (*)')
         if filename:
             self.widget.LoadPadFile(filename)
+            self.add_to_flist(filename, 'pad')
+
+    def add_to_flist(self, filename, format):
+        shortname = path.basename(filename)
+        item = QListWidgetItem(shortname)
+        item.setData(32, filename)
+        item.setData(33, format)
+        self.fileList.insertItem(self.fileList.count()-1, item)
+        self.fileList.scrollToBottom()
 
     @qtsig('')
     def on_actionWriteXml_triggered(self):
