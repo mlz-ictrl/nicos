@@ -134,6 +134,7 @@ class AnalysisPanel(Panel):
             self.actionPDF, self.actionGrace, self.actionPrint,
             self.actionAttachElog, self.actionCombine, self.actionClosePlot,
             self.actionDeletePlot, self.actionLogScale, self.actionNormalized,
+            self.actionShowAllCurves,
             self.actionUnzoom, self.actionLegend, self.actionFitPeak,
             self.actionFitPeakPV, self.actionFitPeakPVII, self.actionFitArby,
             ]:
@@ -151,9 +152,10 @@ class AnalysisPanel(Panel):
         menu1.addAction(self.actionClosePlot)
         menu1.addAction(self.actionDeletePlot)
         menu1.addSeparator()
+        menu1.addAction(self.actionUnzoom)
         menu1.addAction(self.actionLogScale)
         menu1.addAction(self.actionNormalized)
-        menu1.addAction(self.actionUnzoom)
+        menu1.addAction(self.actionShowAllCurves)
         menu1.addAction(self.actionLegend)
         menu1.addSeparator()
         menu2 = QMenu('&Data fitting', self)
@@ -360,6 +362,11 @@ class AnalysisPanel(Panel):
         self.currentPlot.updateDisplay()
 
     @qtsig('bool')
+    def on_actionShowAllCurves_toggled(self, on):
+        self.currentPlot.show_all = on
+        self.currentPlot.updateDisplay()
+
+    @qtsig('bool')
     def on_actionLegend_toggled(self, on):
         self.currentPlot.setLegend(on)
 
@@ -552,7 +559,9 @@ class DataSetPlot(NicosPlot):
             self.has_secondary = True
             self.enableAxis(QwtPlot.yRight)
         if curve.disabled:
-            plotcurve.setVisible(False)
+            if not self.show_all:
+                plotcurve.setVisible(False)
+                plotcurve.setItemAttribute(QwtPlotItem.Legend, False)
         self.setCurveData(curve, plotcurve)
         self.addPlotCurve(plotcurve, replot)
 

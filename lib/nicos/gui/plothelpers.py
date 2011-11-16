@@ -241,6 +241,7 @@ class NicosPlot(QwtPlot):
         self.plotcurves = []
         self.normalized = False
         self.has_secondary = False
+        self.show_all = False
         self.timeaxis = timeaxis
 
         font = self.window.user_font
@@ -371,6 +372,8 @@ class NicosPlot(QwtPlot):
             self.insertLegend(legend, QwtPlot.BottomLegend)
             for plotcurve in self.plotcurves:
                 legenditem = legend.find(plotcurve)
+                if not legenditem:
+                    continue
                 legenditem.setIdentifierWidth(20)
                 if not plotcurve.isVisible():
                     newtext = QwtText(legenditem.text())
@@ -387,12 +390,13 @@ class NicosPlot(QwtPlot):
                 dep.setVisible(on)
         if self.legend():
             legenditem = self.legend().find(item)
-            newtext = QwtText(legenditem.text())
-            if on:
-                newtext.setColor(Qt.black)
-            else:
-                newtext.setColor(Qt.darkGray)
-            legenditem.setText(newtext)
+            if legenditem:
+                newtext = QwtText(legenditem.text())
+                if on:
+                    newtext.setColor(Qt.black)
+                else:
+                    newtext.setColor(Qt.darkGray)
+                legenditem.setText(newtext)
 
     def on_legendClicked(self, item):
         self.setVisibility(item, not item.isVisible())
@@ -409,7 +413,7 @@ class NicosPlot(QwtPlot):
         plotcurve.attach(self)
         if self.legend():
             legenditem = self.legend().find(plotcurve)
-            if not plotcurve.isVisible():
+            if legenditem and not plotcurve.isVisible():
                 newtext = QwtText(legenditem.text())
                 newtext.setColor(Qt.darkGray)
                 legenditem.setText(newtext)
