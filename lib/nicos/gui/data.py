@@ -77,6 +77,7 @@ class DataHandler(QObject):
         self.client = client
         self.sets = []
         self.uid2set = {}
+        self.dependent = []
         self.currentset = None
         self.bulk_adding = False
 
@@ -108,6 +109,7 @@ class DataHandler(QObject):
         self.sets.append(set)
         self.uid2set[set.uid] = set
         self.currentset = set
+        self.dependent = []
         # add some custom attributes of the dataset
         set.invisible = False
         set.name = str(set.sinkinfo.get('number', set.scaninfo)) # XXX
@@ -116,11 +118,13 @@ class DataHandler(QObject):
             self._update_curves(xvalues, yvalues)
         self.emit(SIGNAL('datasetAdded'), set)
 
-    def add_existing_dataset(self, set):
+    def add_existing_dataset(self, set, origins=()):
         set.uid = str(uuid.uuid1())
         self.sets.append(set)
         self.uid2set[set.uid] = set
         self.emit(SIGNAL('datasetAdded'), set)
+        if self.currentset.uid in origins:
+            self.dependent.append(set)
 
     def on_client_datapoint(self, (xvalues, yvalues)):
         if not self.currentset:
@@ -129,6 +133,8 @@ class DataHandler(QObject):
         self.currentset.yresults.append(yvalues)
         self._update_curves(xvalues, yvalues)
         self.emit(SIGNAL('pointsAdded'), self.currentset)
+        for depset in self.dependent:
+            self.emit(SIGNAL('pointsAdded'), depset)
 
     def _init_curves(self, set):
         curves = []

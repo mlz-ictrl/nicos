@@ -437,7 +437,7 @@ class AnalysisPanel(Panel):
                     newcurve.description = (newcurve.description or '') + \
                         ' (%s)' % set.name
                     newset.curves.append(newcurve)
-            self.data.add_existing_dataset(newset)
+            self.data.add_existing_dataset(newset, [set.uid for set in sets])
             return
         # else, need same axes, and same number and types of curves
 
