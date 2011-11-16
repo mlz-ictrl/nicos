@@ -859,6 +859,11 @@ class MainWindow : public QMainWindow
 
 
 		///////////////////////////// File Menu Items /////////////////////////
+		void BrowseFiles()
+		{
+			m_cascadewidget.showBrowseDlg();
+		}
+
 		void LoadPad()
 		{
 			QString strFile = QFileDialog::getOpenFileName(this,
@@ -1155,6 +1160,12 @@ class MainWindow : public QMainWindow
 			//------------------------------------------------------------------
 			// Menu Items
 			// File Menu Items
+			QAction *actionBrowseFiles = new QAction(
+						QIcon::fromTheme("system-file-manager"),
+						"Browse Files...",
+						this);
+			actionBrowseFiles->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
+
 			QAction *actionLoadPad = new QAction(
 						QIcon::fromTheme("document-open"),
 						"Load &PAD File...",
@@ -1289,6 +1300,7 @@ class MainWindow : public QMainWindow
 			menubar->setGeometry(QRect(0, 0, 800, 25));
 			QMenu *menuFile = new QMenu(menubar);
 			menuFile->setTitle("&File");
+			menuFile->addAction(actionBrowseFiles);
 			menuFile->addAction(actionLoadPad);
 			menuFile->addAction(actionLoadTof);
 			menuFile->addSeparator();
@@ -1512,6 +1524,8 @@ class MainWindow : public QMainWindow
 
 			// File
 			connect(actionExit, SIGNAL(triggered()), this, SLOT(close()));
+			connect(actionBrowseFiles, SIGNAL(triggered()),
+					this, SLOT(BrowseFiles()));
 			connect(actionLoadPad, SIGNAL(triggered()), this, SLOT(LoadPad()));
 			connect(actionLoadTof, SIGNAL(triggered()), this, SLOT(LoadTof()));
 			connect(actionSaveFile, SIGNAL(triggered()), this,SLOT(SaveFile()));

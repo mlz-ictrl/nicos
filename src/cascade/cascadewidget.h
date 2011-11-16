@@ -172,6 +172,7 @@ Q_OBJECT
 		bool m_bLog;
 
 		RoiDlg* m_proidlg;
+		BrowseDlg* m_pbrowsedlg;
 
 		//----------------------------------------------------------------------
 		// ROI curves for qwt
@@ -195,6 +196,9 @@ Q_OBJECT
 		bool IsPadLoaded() const;
 		void* NewPad();
 		void* NewTof(int iCompression = TOF_COMPRESSION_USEGLOBCONFIG);
+
+		// load PAD or TOF from file
+		bool LoadFile(const char* pcFile);
 
 		// load PAD from file
 		bool LoadPadFile(const char* pcFile);
@@ -254,6 +258,7 @@ Q_OBJECT
 		void showGraphDlg();
 		void showSumDlg();
 		void showRoiDlg();
+		void showBrowseDlg();
 		///////////////////////////////////////
 
 		void SetLog10(bool bLog10);

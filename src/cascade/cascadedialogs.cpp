@@ -28,6 +28,8 @@
 #include <sstream>
 #include <QVariant>
 #include <QMenu>
+#include <QFileDialog>
+#include <QDir>
 
 
 // ************************* Server Command Dialog ********************
@@ -777,6 +779,78 @@ void RoiDlg::Deinit()
 {
 	if(m_pRoi)
 		delete m_pRoi;
+}
+
+// *****************************************************************************
+
+
+
+
+
+// ******************* Browse Dialog *******************************************
+
+BrowseDlg::BrowseDlg(CascadeWidget *pParent) : QDialog(pParent),
+											   m_pwidget(pParent)
+{
+	setupUi(this);
+
+	connect(btnBrowse, SIGNAL(clicked()),
+			this, SLOT(SelectDir()));
+	connect(listFiles, SIGNAL(itemSelectionChanged()),
+			this, SLOT(SelectedFile()));
+
+	SetDir(".");
+}
+
+BrowseDlg::~BrowseDlg()
+{}
+
+void BrowseDlg::SetDir(const QString& strDir)
+{
+	listFiles->clear();
+	labDir->setText(strDir);
+
+	QDir dir(strDir);
+	dir.setFilter(QDir::Files | QDir::Hidden);
+
+	//QStringList namefilters;
+	//namefilters << "*.pad" << "*.tof" << "*.PAD" << "*.TOF";
+	//dir.setNameFilters(namefilters);
+
+	QFileInfoList filelist = dir.entryInfoList();
+
+	for(int iFile=0; iFile<filelist.size(); ++iFile)
+	{
+		QFileInfo fileinfo = filelist.at(iFile);
+		new QListWidgetItem(fileinfo.fileName(), listFiles);
+	}
+}
+
+void BrowseDlg::SelectDir()
+{
+	QString strDir = QFileDialog::getExistingDirectory(
+				this,
+				"Select Directory",
+				".",
+				QFileDialog::ShowDirsOnly);
+
+	if(strDir == "")
+		return;
+
+	SetDir(strDir);
+}
+
+void BrowseDlg::SelectedFile()
+{
+	QListWidgetItem *pCurItem = listFiles->currentItem();
+	if(!pCurItem)
+		return;
+
+	QString strFile = labDir->text();
+	strFile += "/";
+	strFile += pCurItem->text();
+
+	m_pwidget->LoadFile(strFile.toAscii().data());
 }
 
 // *****************************************************************************

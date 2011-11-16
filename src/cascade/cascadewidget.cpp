@@ -512,7 +512,8 @@ CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 												 m_iFolie(0),
 												 m_iZeitkanal(0),
 												 m_bLog(0),
-												 m_proidlg(0)
+												 m_proidlg(0),
+												 m_pbrowsedlg(0)
 {
 	m_pPlot = new Plot(this);
 	connect(m_pPlot->GetRoiPicker(), SIGNAL(RoiHasChanged()),
@@ -599,6 +600,18 @@ unsigned int* CascadeWidget::GetRawData()
 	else if(IsPadLoaded())
 		return m_pPad->GetRawData();
 	return 0;
+}
+
+bool CascadeWidget::LoadFile(const char* pcFile)
+{
+	// try to load as PAD file
+	bool bOk = LoadPadFile(pcFile);
+	if(bOk)
+		return true;
+
+	// if this didn't work, try to load as TOF file
+	bOk = LoadTofFile(pcFile);
+	return bOk;
 }
 
 bool CascadeWidget::LoadPadFile(const char* pcFile)
@@ -1016,6 +1029,16 @@ void CascadeWidget::showSumDlg()
 			pSummenDlgContrasts->activateWindow();
 			break;
 	}
+}
+
+void CascadeWidget::showBrowseDlg()
+{
+	if(!m_pbrowsedlg)
+		m_pbrowsedlg = new BrowseDlg(this);
+
+	m_pbrowsedlg->show();
+	m_pbrowsedlg->raise();
+	m_pbrowsedlg->activateWindow();
 }
 
 void CascadeWidget::showRoiDlg()

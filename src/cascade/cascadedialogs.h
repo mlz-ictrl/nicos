@@ -51,6 +51,7 @@
 #include "ui_servercfgdlg.h"
 #include "ui_commanddlg.h"
 #include "ui_roidlg.h"
+#include "ui_browsedlg.h"
 
 #include "histogram_item.h"
 #include "bins.h"
@@ -275,6 +276,30 @@ class RoiDlg : public QDialog, public Ui::RoiDlg
 		void DeleteItem();
 		void CopyItem();
 		void Fit();
+};
+
+// *****************************************************************************
+
+
+
+// ************************* Browse Dialog *************************************
+
+class BrowseDlg : public QDialog, public Ui::BrowseDlg
+{
+	Q_OBJECT
+
+	protected:
+		CascadeWidget *m_pwidget;
+
+	protected slots:
+		void SelectDir();
+		void SelectedFile();
+
+	public:
+		BrowseDlg(CascadeWidget *pParent);
+		virtual ~BrowseDlg();
+
+		void SetDir(const QString& strDir);
 };
 
 // *****************************************************************************
