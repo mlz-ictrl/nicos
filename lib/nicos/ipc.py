@@ -191,19 +191,21 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
     }
 
     def send(self, addr, cmd, param=0, length=0):
-        self.log.debug('IPCModBusTaco:send: (%d, %d, %d, %d)'%(addr,cmd,param,length))
+        self.log.debug('IPCModBusTaco:send: (%d, %d, %d, %d)'
+                       % (addr, cmd, param, length))
         return self._taco_multitry('send', self.maxtries, self._dev.genSDA,
                                    addr, cmd-31, length, param)
 
     def get(self, addr, cmd, param=0, length=0):
-        self.log.debug('IPCModBusTaco:get: (%d, %d, %d, %d)'%(addr,cmd,param,length))
-        res= self._taco_multitry('get', self.maxtries, self._dev.genSRD,
-                                   addr, cmd-98, length, param)
-        self.log.debug('IPCModBusTaco:get: result is %d'%res)
+        self.log.debug('IPCModBusTaco:get: (%d, %d, %d, %d)'
+                       % (addr, cmd, param, length))
+        res = self._taco_multitry('get', self.maxtries, self._dev.genSRD,
+                                  addr, cmd-98, length, param)
+        self.log.debug('IPCModBusTaco:get: result is %d' % res)
         return res
 
     def ping(self, addr):
-        self.log.debug('IPCModBusTaco:ping:%d'%addr)
+        self.log.debug('IPCModBusTaco:ping:%d' % addr)
         return self._taco_multitry('ping', self.maxtries, self._dev.Ping, addr)
 
 
@@ -588,7 +590,8 @@ class Motor(NicosMotor):
 
     def doWriteAccel(self, value):
         if self._hwtype != 'single' and value > 31:
-            raise ValueError(self,'Acceleration value %d too big for non-single cards!'%value)
+            raise ValueError(self, 'acceleration value %d too big for '
+                             'non-single cards' % value)
         self._adevs['bus'].send(self.addr, 42, value, 3)
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
@@ -770,10 +773,11 @@ class Motor(NicosMotor):
         while timeleft >= 0:
             sleep(0.2)
             timeleft -= 0.2
-            #~ if self.doStatus()[0] != status.BUSY and self.doStatus()[0] != status.BUSY:
             if self.poll()[0][0] != status.BUSY:
                 #~ self.doRead()
-                #~ sleep(1.0)      # triple crds have status idle before they are really stopped. reading position directly after becoming idle yields not the final value
+                #~ sleep(1.0)   # triple crds have status idle before they
+                                # are really stopped. reading position directly
+                                # after becoming idle yields not the final value
                 #~ self.doRead()
                 break
         else:
@@ -839,11 +843,11 @@ class Motor(NicosMotor):
             msg += ', limit switch + active'
         if self._hwtype == 'single':
             msg += (state & 8) and ', relais on' or ', relais off'
-            if state & 8:       # on single cards, if relay is ON, card is supposedly BUSY
+            if state & 8:
+                # on single cards, if relay is ON, card is supposedly BUSY
                 st = status.BUSY
         if state & 32768:
-            #~ st = status.NOTREACHED   #doWait exits too early if this line is used!
-            st = status.BUSY   
+            st = status.BUSY
             msg += ', waiting for start/stopdelay'
 
         # check error states last
@@ -866,7 +870,7 @@ class Motor(NicosMotor):
         if state & 1:
             st = status.BUSY
             msg = ', moving' + msg
-        self.log.debug('status is %d:%s'%(st,msg[2:]))
+        self.log.debug('status is %d:%s' % (st, msg[2:]))
         return st, msg[2:]
 
     def doSetPosition(self, target):
