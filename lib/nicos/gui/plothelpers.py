@@ -238,9 +238,10 @@ class NicosPlot(QwtPlot):
     def __init__(self, parent, window, timeaxis=False):
         QwtPlot.__init__(self, parent)
         self.window = window
-        self.curves = []
+        self.plotcurves = []
         self.normalized = False
         self.has_secondary = False
+        self.show_all = False
         self.timeaxis = timeaxis
 
         font = self.window.user_font
@@ -335,7 +336,7 @@ class NicosPlot(QwtPlot):
         y2axistext.setFont(self.labelfont)
         self.setAxisTitle(QwtPlot.yLeft, yaxistext)
 
-        self.curves = []
+        self.plotcurves = []
         self.addAllCurves()
         if self.has_secondary:
             self.setAxisTitle(QwtPlot.yRight, y2axistext)
@@ -369,36 +370,36 @@ class NicosPlot(QwtPlot):
             legend.palette().setColor(QPalette.Base, self.window.user_color)
             legend.setBackgroundRole(QPalette.Base)
             self.insertLegend(legend, QwtPlot.BottomLegend)
-            for curve in self.curves:
-                item = legend.find(curve)
-                item.setIdentifierWidth(20)
-                if not curve.isVisible():
-                    newtext = QwtText(item.text())
+            for plotcurve in self.plotcurves:
+                legenditem = legend.find(plotcurve)
+                if not legenditem:
+                    continue
+                legenditem.setIdentifierWidth(20)
+                if not plotcurve.isVisible():
+                    newtext = QwtText(legenditem.text())
                     newtext.setColor(Qt.darkGray)
-                    item.setText(newtext)
+                    legenditem.setText(newtext)
         else:
             self.insertLegend(None)
 
+    def setVisibility(self, item, on):
+        item.setVisible(on)
+        item.setItemAttribute(QwtPlotItem.AutoScale, on)
+        if isinstance(item, ErrorBarPlotCurve):
+            for dep in item.dependent:
+                dep.setVisible(on)
+        if self.legend():
+            legenditem = self.legend().find(item)
+            if legenditem:
+                newtext = QwtText(legenditem.text())
+                if on:
+                    newtext.setColor(Qt.black)
+                else:
+                    newtext.setColor(Qt.darkGray)
+                legenditem.setText(newtext)
+
     def on_legendClicked(self, item):
-        legenditem = self.legend().find(item)
-        if item.isVisible():
-            item.setVisible(False)
-            item.setItemAttribute(QwtPlotItem.AutoScale, False)
-            if isinstance(item, ErrorBarPlotCurve):
-                for dep in item.dependent:
-                    dep.setVisible(False)
-            newtext = QwtText(legenditem.text())
-            newtext.setColor(Qt.darkGray)
-            legenditem.setText(newtext)
-        else:
-            item.setVisible(True)
-            item.setItemAttribute(QwtPlotItem.AutoScale, True)
-            if isinstance(item, ErrorBarPlotCurve):
-                for dep in item.dependent:
-                    dep.setVisible(True)
-            newtext = QwtText(legenditem.text())
-            newtext.setColor(Qt.black)
-            legenditem.setText(newtext)
+        self.setVisibility(item, not item.isVisible())
         self.replot()
 
     def on_picker_moved(self, point):
@@ -411,14 +412,14 @@ class NicosPlot(QwtPlot):
         plotcurve.setRenderHint(QwtPlotItem.RenderAntialiased)
         plotcurve.attach(self)
         if self.legend():
-            item = self.legend().find(plotcurve)
-            if not plotcurve.isVisible():
-                newtext = QwtText(item.text())
+            legenditem = self.legend().find(plotcurve)
+            if legenditem and not plotcurve.isVisible():
+                newtext = QwtText(legenditem.text())
                 newtext.setColor(Qt.darkGray)
-                item.setText(newtext)
+                legenditem.setText(newtext)
         if not plotcurve.isVisible():
             plotcurve.setItemAttribute(QwtPlotItem.AutoScale, False)
-        self.curves.append(plotcurve)
+        self.plotcurves.append(plotcurve)
         if replot:
             self.zoomer.setZoomBase(True)
 

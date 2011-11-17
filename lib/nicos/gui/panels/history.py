@@ -421,7 +421,7 @@ class ViewPlot(NicosPlot):
         self.addPlotCurve(plotcurve, replot)
 
     def pointsAdded(self, whichkey):
-        for key, plotcurve in zip(self.view.keys, self.curves):
+        for key, plotcurve in zip(self.view.keys, self.plotcurves):
             if key == whichkey:
                 x, y, n = self.view.keydata[key]
                 plotcurve.setData(x[:n], y[:n])
