@@ -879,8 +879,7 @@ class MainWindow : public QMainWindow
 
 				//m_cascadewidget.UpdateGraph();
 
-				int iTotalCounts = m_cascadewidget.GetCounts();
-				ShowRightMessage(-1,-1,-1,iTotalCounts);
+				FileHasChanged();
 
 				UpdateLabels(false);
 				ShowMessage("PAD loaded.");
@@ -904,8 +903,7 @@ class MainWindow : public QMainWindow
 
 				//m_cascadewidget.UpdateGraph();	// macht viewOverview schon
 
-				int iTotalCounts = m_cascadewidget.GetCounts();
-				ShowRightMessage(-1,-1,-1,iTotalCounts);
+				FileHasChanged();
 
 				UpdateLabels(false);
 				UpdateSliders();
@@ -915,6 +913,12 @@ class MainWindow : public QMainWindow
 				//viewOverview();
 				actionViewsOverview->setChecked(true);
 			}
+		}
+
+		void FileHasChanged()
+		{
+			int iTotalCounts = m_cascadewidget.GetCounts();
+			ShowRightMessage(-1,-1,-1,iTotalCounts);
 		}
 
 		void SaveFile()
@@ -1593,6 +1597,8 @@ class MainWindow : public QMainWindow
 			// Widget
 			connect(&m_cascadewidget, SIGNAL(SumDlgSignal(const bool *, int)),
 					this, SLOT(FolienSummeSlot(const bool *, int)));
+			connect(&m_cascadewidget, SIGNAL(FileHasChanged()),
+					this, SLOT(FileHasChanged()));
 			//------------------------------------------------------------------
 
 

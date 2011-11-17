@@ -628,7 +628,11 @@ bool CascadeWidget::LoadPadFile(const char* pcFile)
 			iRet = m_pPad->LoadFile(pcFile);
 		}
 	}
-	if(iRet) UpdateGraph();
+	if(iRet)
+	{
+		UpdateGraph();
+		emit FileHasChanged();
+	}
 	return iRet;
 }
 
@@ -650,7 +654,11 @@ bool CascadeWidget::LoadTofFile(const char* pcFile)
 		}
 	}
 
-	if(iRet) viewOverview();
+	if(iRet)
+	{
+		viewOverview();
+		emit FileHasChanged();
+	}
 	return iRet;
 }
 
@@ -669,7 +677,11 @@ bool CascadeWidget::LoadPadMem(const char* pcMem, unsigned int uiLen)
 		}
 	}
 
-	if(iRet) UpdateGraph();
+	if(iRet)
+	{
+		UpdateGraph();
+		emit FileHasChanged();
+	}
 	return iRet;
 }
 
@@ -690,7 +702,11 @@ bool CascadeWidget::LoadTofMem(const char* pcMem, unsigned int uiLen)
 		}
 	}
 
-	if(iRet) viewOverview();
+	if(iRet)
+	{
+		viewOverview();
+		emit FileHasChanged();
+	}
 	return iRet;
 }
 
@@ -1223,6 +1239,8 @@ void CascadeWidget::RoiHasChanged()
 {
 	UseRoi(true);
 	RedrawRoi();
+
+	emit FileHasChanged();
 }
 
 void CascadeWidget::RedrawRoi()
@@ -1250,6 +1268,8 @@ void CascadeWidget::ClearRoi()
 	pRoi->clear();
 	ClearRoiVector();
 	RedrawRoi();
+
+	emit FileHasChanged();
 }
 
 void CascadeWidget::SetRoiDrawMode(int iMode)

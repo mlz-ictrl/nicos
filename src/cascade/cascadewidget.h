@@ -182,9 +182,8 @@ Q_OBJECT
 
 	public:
 		void ClearRoi();
-
-	public slots:
 		void RedrawRoi();
+
 		//----------------------------------------------------------------------
 
 	public:
@@ -277,6 +276,9 @@ Q_OBJECT
 
 	signals:
 		void SumDlgSignal(const bool* pbKanaele, int iMode);
+
+		// emitted, when the file or its parameters (e.g. ROI) have changed
+		void FileHasChanged();
 };
 
 #endif
