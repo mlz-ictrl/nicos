@@ -65,7 +65,7 @@ class Device(object):
         'lowlevel':    Param('Whether the device is not interesting to users',
                              type=bool, default=False, userparam=False),
         'loglevel':    Param('The logging level of the device', type=str,
-                             default='info', settable=True),
+                             default='info', settable=True, preinit=True),
     }
 
     # A dictionary mapping parameter names to Override objects that override
