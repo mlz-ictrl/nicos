@@ -57,8 +57,6 @@ class TacoDevice(object):
                              preinit=True),
         'tacotimeout': Param('TACO client network timeout', unit='s',
                              default=3, settable=True, preinit=True),
-        'tacolog':     Param('If true, log all TACO calls', type=bool,
-                             settable=True, preinit=True),
     }
 
     parameter_overrides = {
@@ -77,7 +75,7 @@ class TacoDevice(object):
 
     def doPreinit(self):
         self.__lock = threading.Lock()
-        if self.tacolog:
+        if self.loglevel == 'debug':
             self._taco_guard = self._taco_guard_log
         if self.taco_class is None:
             raise ProgrammingError('missing taco_class attribute in class '
@@ -116,14 +114,8 @@ class TacoDevice(object):
         if self._dev:
             self._taco_guard(self._dev.setClientNetworkTimeout, value)
 
-    def doWriteTacolog(self, value):
-        # automatically set the loglevel to debug, otherwise taco log
-        # messages won't be emitted
-        if value:
-            self.loglevel = 'debug'
-
-    def doUpdateTacolog(self, value):
-        self._taco_guard = value and self._taco_guard_log or \
+    def doUpdateLoglevel(self, value):
+        self._taco_guard = value == 'debug' and self._taco_guard_log or \
                            self._taco_guard_nolog
 
     # internal utilities
@@ -142,10 +134,8 @@ class TacoDevice(object):
             resetok = self.taco_resetok
         if timeout is None:
             timeout = self.tacotimeout
-        log = self.tacolog
 
-        if log:
-            self.log.debug('creating %s TACO device' % class_.__name__)
+        self.log.debug('creating %s TACO device' % class_.__name__)
 
         try:
             dev = class_(devname)
@@ -209,14 +199,12 @@ class TacoDevice(object):
         """Update a TACO resource, switching the device off and on."""
         self.__lock.acquire()
         try:
-            if self.tacolog:
-                self.log.debug('TACO resource update: %s %s' %
-                                (resname, value))
+            self.log.debug('TACO resource update: %s %s' %
+                           (resname, value))
             self._dev.deviceOff()
             self._dev.deviceUpdateResource(resname, value)
             self._dev.deviceOn()
-            if self.tacolog:
-                self.log.debug('TACO resource update successful')
+            self.log.debug('TACO resource update successful')
         except TACOError, err:
             self._raise_taco(err, 'While updating %s resource' % resname)
         finally:
