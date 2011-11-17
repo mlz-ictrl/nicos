@@ -321,12 +321,16 @@ class IntegrationDlg : public QDialog, public Ui::IntegrationDlg
 		QwtLegend *m_plegend;
 		QwtPlotGrid *m_pgrid;
 
+		TmpImage GetRoiImage();
+
 	public:
 		IntegrationDlg(CascadeWidget *pParent);
 		virtual ~IntegrationDlg();
 
 	public slots:
 		void UpdateGraph();
+		void UseBeamCenter();
+		void UseImageCenter();
 };
 
 // *****************************************************************************

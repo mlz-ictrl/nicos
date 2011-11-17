@@ -25,6 +25,7 @@
 #include "cascadedialogs.h"
 #include "cascadewidget.h"
 #include "helper.h"
+#include "logger.h"
 
 #include <stdio.h>
 #include <sstream>
@@ -891,28 +892,31 @@ IntegrationDlg::IntegrationDlg(CascadeWidget *pParent)
 	m_curve.setPen(penfit);
 	m_curve.setSymbol(sym);
 	m_curve.attach(plot);
+
+	connect(btnBeamCenter, SIGNAL(clicked()), this, SLOT(UseBeamCenter()));
+	connect(btnImageCenter, SIGNAL(clicked()), this, SLOT(UseImageCenter()));
+
+	connect(doubleSpinBoxX, SIGNAL(valueChanged(double)),
+			this, SLOT(UpdateGraph()));
+	connect(doubleSpinBoxY, SIGNAL(valueChanged(double)),
+			this, SLOT(UpdateGraph()));
+
+	UseImageCenter();
 }
 
 IntegrationDlg::~IntegrationDlg() {}
 
 void IntegrationDlg::UpdateGraph()
 {
-	TmpImage tmpImg;
-
-	if(m_pwidget->IsPadLoaded())
-		tmpImg = m_pwidget->GetPad()->GetRoiImage();
-	else if(m_pwidget->IsTofLoaded())
-		tmpImg = m_pwidget->GetTof()->GetOverview(true);
-	else
-		return;
+	TmpImage tmpImg = GetRoiImage();
 
 	const double dRadInc = 0.5;
 	const double dAngInc = 0.001;
 
 	// TODO: Use beam center!
 	Vec2d<double> vecCenter;
-	vecCenter[0] = double(tmpImg.GetWidth()) * .5;
-	vecCenter[1] = double(tmpImg.GetHeight()) * .5;
+	vecCenter[0] = doubleSpinBoxX->value();
+	vecCenter[1] = doubleSpinBoxY->value();
 
 	TmpGraph tmpGraph = tmpImg.GetRadialIntegration(dAngInc, dRadInc, vecCenter);
 
@@ -935,6 +939,60 @@ void IntegrationDlg::UpdateGraph()
 	plot->replot();
 }
 
+void IntegrationDlg::UseBeamCenter()
+{
+	TmpImage tmpImg;
+
+	if(m_pwidget->IsTofLoaded())
+		tmpImg = m_pwidget->GetTof()->GetOverview();
+	else
+		tmpImg.ConvertPAD(m_pwidget->GetPad());
+
+	double dAmp=0., dCenterX=0., dCenterY=0., dSpreadX=0., dSpreadY=0.;
+	bool bOk = tmpImg.FitGaussian(dAmp,dCenterX,dCenterY,dSpreadX,dSpreadY);
+
+	if(bOk)
+	{
+		std::ostringstream ostr;
+		ostr << "Gaussian fit: amp=" << dAmp
+			 << ", x=" << dCenterX << ", y="<<dCenterY
+			 << ", sx=" << dSpreadX << ", sy=" << dSpreadY;
+
+		logger.SetCurLogLevel(LOGLEVEL_INFO);
+		logger << "Integration Dialog: " << ostr.str() << "\n";
+	}
+	else
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Integration Dialog: No valid Gaussian fit found.\n";
+	}
+
+	doubleSpinBoxX->setValue(dCenterX);
+	doubleSpinBoxY->setValue(dCenterY);
+}
+
+void IntegrationDlg::UseImageCenter()
+{
+	TmpImage tmpImg = GetRoiImage();
+
+	double dX = double(tmpImg.GetWidth()) * .5;
+	double dY = double(tmpImg.GetHeight()) * .5;
+
+	doubleSpinBoxX->setValue(dX);
+	doubleSpinBoxY->setValue(dY);
+}
+
+TmpImage IntegrationDlg::GetRoiImage()
+{
+	TmpImage tmpImg;
+
+	if(m_pwidget->IsPadLoaded())
+		tmpImg = m_pwidget->GetPad()->GetRoiImage();
+	else if(m_pwidget->IsTofLoaded())
+		tmpImg = m_pwidget->GetTof()->GetOverview(true);
+
+	return tmpImg;
+}
 
 // *****************************************************************************
 
