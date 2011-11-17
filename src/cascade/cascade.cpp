@@ -964,7 +964,7 @@ class MainWindow : public QMainWindow
 
 			TmpImage tmpimg;
 			if(m_cascadewidget.IsTofLoaded())	// TOF-Datei offen
-				m_cascadewidget.GetTof()->GetOverview(&tmpimg);
+				tmpimg = m_cascadewidget.GetTof()->GetOverview();
 			else					// PAD-Datei offen
 				tmpimg.ConvertPAD(m_cascadewidget.GetPad());
 			tmpimg.WriteXML(strFile.toAscii().data());

@@ -178,13 +178,17 @@ class TmpImage : public BasicImage
 
 	const Vec2d<int>& GetMaxCoord() const;
 
+	// if true, this object manages the memory
+	bool m_bCleanup;
+
   public:
-	// create EMPTY TmpImage without allocation any memory etc.
-	// (which done externally)
+	// create EMPTY TmpImage without allocating any memory etc.
+	// (which is done externally)
 	TmpImage();
 
-	// create TmpImage from other TmpImage; does allocate memory
+	// create TmpImage from other TmpImage; does NOT allocate memory
 	TmpImage(const TmpImage& tmp);
+	TmpImage& operator=(const TmpImage& tmp);
 
 	virtual ~TmpImage();
 
@@ -246,10 +250,16 @@ class TmpGraph
 	// pointer to data array
 	unsigned int* m_puiDaten;
 
+	bool m_bCleanup;
+
   public:
 	// create empty graph (does not allocate memory)
 	TmpGraph();
 	virtual ~TmpGraph();
+
+	// create TmpGraph from other TmpGraph; does allocate memory
+	TmpGraph(const TmpGraph& tmp);
+	TmpGraph& operator=(const TmpGraph& tmp);
 
 	// fit a sinus function to the data points
 	// return value: fit successful?
@@ -293,34 +303,12 @@ class TofImage
 		bool m_bUseRoi;
 
 	public:
-		//----------------------------------------------------------------------
-		// "internal" methods => use corresponding method below
-		// TODO: rename method
-		void GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil,
-					int iTimechannel, TmpImage *pImg) const;
-		void GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
-					  int iFoil, TmpGraph* pGraph) const;
-		void GetGraph(int iFoil, TmpGraph* pGraph) const;
-		void GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
-						   double dPhaseShift ,TmpGraph* pGraph) const;
-		void GetOverview(TmpImage *pImg) const;
-		void GetPhaseGraph(int iFoil, TmpImage *pImg, bool bInDeg=true) const;
-		void GetContrastGraph(int iFoil, TmpImage *pImg) const;
-
-		void AddFoils(int iBits, int iChannelBits/*=0xffffffff*/,
-					  TmpImage *pImg) const;
-		void AddFoils(const bool *pbChannels, TmpImage *pImg) const;
-		void AddPhases(const bool *pbFoils, TmpImage *pImg) const;
-		void AddContrasts(const bool *pbFoils, TmpImage *pImg) const;
-		//----------------------------------------------------------------------
-
 		const TofConfig& GetTofConfig() const;
 
 		Roi& GetRoi();
 		void UseRoi(bool bUseRoi=true);
 		bool GetUseRoi() const;
 
-	public:
 		TofImage(const char *pcFileName=NULL,
 				 int iCompression=TOF_COMPRESSION_USEGLOBCONFIG,
 				 bool bExternalMem=false, const TofConfig* conf=0);
@@ -388,6 +376,8 @@ class TofImage
 		TmpImage AddFoils(const bool *pbChannels) const;
 		TmpImage AddPhases(const bool *pbFoils) const;
 		TmpImage AddContrasts(const bool *pbFoils) const;
+
+		void AddFoils(int iBits, int iChannelBits, TmpImage *pImg) const;
 		//----------------------------------------------------------------------
 };
 

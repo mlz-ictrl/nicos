@@ -774,17 +774,18 @@ void CascadeWidget::UpdateGraph()
 	{
 		if(m_iMode==MODE_SLIDES)
 		{
-			m_pTof->GetROI(0,m_pTof->GetTofConfig().GetImageWidth()-1, 0,
+			*m_pTmpImg = m_pTof->GetROI(0,
+							 m_pTof->GetTofConfig().GetImageWidth()-1, 0,
 							 m_pTof->GetTofConfig().GetImageHeight()-1,
-							 m_iFolie,m_iZeitkanal, m_pTmpImg);
+							 m_iFolie,m_iZeitkanal);
 		}
 		else if(m_iMode==MODE_PHASES)
 		{
-			m_pTof->GetPhaseGraph(m_iFolie, m_pTmpImg);
+			*m_pTmpImg = m_pTof->GetPhaseGraph(m_iFolie);
 		}
 		else if(m_iMode==MODE_CONTRASTS)
 		{
-			m_pTof->GetContrastGraph(m_iFolie, m_pTmpImg);
+			*m_pTmpImg = m_pTof->GetContrastGraph(m_iFolie);
 		}
 
 		m_pTmpImg->UpdateRange();
@@ -831,7 +832,7 @@ void CascadeWidget::viewOverview()
 	if(!IsTofLoaded()) return;
 	SetMode(MODE_SUMS);
 
-	GetTof()->GetOverview(m_pTmpImg);
+	*m_pTmpImg = GetTof()->GetOverview();
 	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
 	m_data2d.SetPhaseData(false);
@@ -876,7 +877,7 @@ void CascadeWidget::viewContrasts()
 void CascadeWidget::viewFoilSums(const bool* pbKanaele)
 {
 	SetMode(MODE_SUMS);
-	GetTof()->AddFoils(pbKanaele, m_pTmpImg);
+	*m_pTmpImg = GetTof()->AddFoils(pbKanaele);
 	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
 	UpdateRange();
@@ -886,7 +887,7 @@ void CascadeWidget::viewFoilSums(const bool* pbKanaele)
 void CascadeWidget::viewPhaseSums(const bool* pbFolien)
 {
 	SetMode(MODE_PHASESUMS);
-	GetTof()->AddPhases(pbFolien, m_pTmpImg);
+	*m_pTmpImg = GetTof()->AddPhases(pbFolien);
 	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
 	UpdateRange();
@@ -896,7 +897,7 @@ void CascadeWidget::viewPhaseSums(const bool* pbFolien)
 void CascadeWidget::viewContrastSums(const bool* pbFolien)
 {
 	SetMode(MODE_CONTRASTSUMS);
-	GetTof()->AddContrasts(pbFolien, m_pTmpImg);
+	*m_pTmpImg = GetTof()->AddContrasts(pbFolien);
 	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
 	UpdateRange();
@@ -922,8 +923,7 @@ void CascadeWidget::showCalibrationDlg(int iNumBins)
 
 	TmpImage* ptmpimg = new TmpImage[m_pTof->GetTofConfig().GetFoilCount()];
 	for(int iFolie=0; iFolie<m_pTof->GetTofConfig().GetFoilCount(); ++iFolie)
-		GetTof()->GetPhaseGraph(iFolie, ptmpimg+iFolie, /*iROIx1, iROIx2,
-														iROIy1, iROIy2,*/ true);
+		*(ptmpimg+iFolie) = GetTof()->GetPhaseGraph(iFolie, true);
 
 	int iW = iROIx2-iROIx1; if(iW<0) iW=-iW;
 	int iH = iROIy2-iROIy1; if(iH<0) iH=-iH;

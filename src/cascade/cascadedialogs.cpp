@@ -263,7 +263,7 @@ void GraphDlg::UpdateGraph(void)
 
 	// Messpunkte für eine Folie
 	TmpGraph tmpGraph;
-	m_pTofImg->GetGraph(spinBoxFolie->value()-1, &tmpGraph);
+	tmpGraph = m_pTofImg->GetGraph(spinBoxFolie->value()-1);
 
 	double *pdx = new double[tmpGraph.GetWidth()];
 	double *pdy = new double[tmpGraph.GetWidth()];
@@ -684,7 +684,7 @@ void RoiDlg::Fit()
 
 	TmpImage tmpimg;
 	if(m_pwidget->IsTofLoaded())
-		m_pwidget->GetTof()->GetOverview(&tmpimg);
+		tmpimg = m_pwidget->GetTof()->GetOverview();
 	else
 		tmpimg.ConvertPAD(m_pwidget->GetPad());
 

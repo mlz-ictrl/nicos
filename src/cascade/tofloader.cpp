@@ -304,14 +304,70 @@ int TofImage::LoadFile(const char *pcFileName)
 	return iRet;
 }
 
-// GetROI
-void TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY,
-					  int iFolie, int iTimechannel, TmpImage *pImg) const
+unsigned int TofImage::GetCounts() const
 {
-	if(!pImg) return;
+	int iXStart, iXEnd, iYStart, iYEnd;
+
+	if(m_bUseRoi)
+	{
+		BoundingRect rect = m_roi.GetBoundingRect();
+		iXStart = rect.bottomleft[0];
+		iYStart = rect.bottomleft[1];
+		iXEnd = rect.topright[0];
+		iYEnd = rect.topright[1];
+	}
+	else
+	{
+		iXStart = 0;
+		iYStart = 0;
+		iXEnd = GetTofConfig().GetImageWidth();
+		iYEnd = GetTofConfig().GetImageHeight();
+	}
+
+	TmpImage img = GetOverview();
+
+	unsigned int uiCnt = 0;
+	for(int iY=iYStart; iY<iYEnd; ++iY)
+		for(int iX=iXStart; iX<iXEnd; ++iX)
+		{
+			if(m_bUseRoi)
+			{
+				if(m_roi.IsInside(iX,iY))
+					uiCnt += img.GetData(iX, iY);
+			}
+			else
+			{
+				uiCnt += img.GetData(iX, iY);
+			}
+		}
+
+	return uiCnt;
+}
+
+unsigned int TofImage::GetCounts(int iStartX, int iEndX,
+								 int iStartY, int iEndY) const
+{
+	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY);
+
+	TmpImage img = GetOverview();
+
+	unsigned int uiCnt = 0;
+	for(int iY=iStartY; iY<iEndY; ++iY)
+		for(int iX=iStartX; iX<iEndX; ++iX)
+			uiCnt += img.GetData(iX, iY);
+
+	return uiCnt;
+}
+
+// *****************************************************************************
+
+TmpImage TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY,
+						  int iFolie, int iZ) const
+{
+	TmpImage img;
 
 	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY,
-								  &iFolie, &iTimechannel);
+								     &iFolie, &iZ);
 
 	int iBildBreite = abs(iEndX-iStartX);
 	int iBildHoehe = abs(iEndY-iStartY);
@@ -322,63 +378,67 @@ void TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY,
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
 		logger << "Loader: Could not allocate memory (line "
 			   << __LINE__ << ")!\n";
-		return;
+		return img;
 	}
 
-	pImg->Clear();
-	pImg->m_iW = iBildBreite;
-	pImg->m_iH = iBildHoehe;
-	pImg->m_puiDaten = puiWave;
+	img.Clear();
+	img.m_iW = iBildBreite;
+	img.m_iH = iBildHoehe;
+	img.m_puiDaten = puiWave;
 
 	for(int iY=iStartY; iY<iEndY; ++iY)
 		for(int iX=iStartX; iX<iEndX; ++iX)
 			puiWave[(iX-iStartX) + (iY-iStartY)*iBildBreite] =
-											GetData(iFolie,iTimechannel,iX,iY);
+											GetData(iFolie,iZ,iX,iY);
+
+	return img;
 }
 
-// TOF-Graph
-void TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
-						int iFolie, TmpGraph* pGraph) const
+TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
+						    int iFoil) const
 {
-	if(!pGraph) return;
-	GetTofConfig().CheckTofArguments(&iStartX,&iEndX,&iStartY,&iEndY,&iFolie);
+	TmpGraph graph;
+
+	GetTofConfig().CheckTofArguments(&iStartX,&iEndX,&iStartY,&iEndY,&iFoil);
 
 	unsigned int *puiWave = new unsigned int[GetTofConfig().GetImagesPerFoil()];
 
-	pGraph->m_iW = GetTofConfig().GetImagesPerFoil();
-	pGraph->m_puiDaten = puiWave;
+	graph.m_iW = GetTofConfig().GetImagesPerFoil();
+	graph.m_puiDaten = puiWave;
 
 	for(int iZ0=0; iZ0<GetTofConfig().GetImagesPerFoil(); ++iZ0)
 	{
 		unsigned int uiSummedVal=0;
 		for(int iY=iStartY; iY<iEndY; ++iY)
 			for(int iX=iStartX; iX<iEndX; ++iX)
-				uiSummedVal += GetDataInsideROI(iFolie, iZ0, iX, iY);
+				uiSummedVal += GetDataInsideROI(iFoil, iZ0, iX, iY);
 
 		puiWave[iZ0]=uiSummedVal;
 	}
+
+	return graph;
 }
 
-void TofImage::GetGraph(int iFoil, TmpGraph* pGraph) const
+TmpGraph TofImage::GetGraph(int iFoil) const
 {
 	int iStartX = 0,
 		iStartY = 0,
 		iEndX = GetTofConfig().GetImageWidth(),
 		iEndY = GetTofConfig().GetImageHeight();
 
-	GetGraph(iStartX, iEndX, iStartY, iEndY, iFoil, pGraph);
+	return GetGraph(iStartX, iEndX, iStartY, iEndY, iFoil);
 }
 
-void TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
-							 double dPhaseShift, TmpGraph* pGraph) const
+TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
+								 double dPhaseShift) const
 {
-	if(!pGraph) return;
+	TmpGraph graph;
 
 	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY);
 	unsigned int *puiWave = new unsigned int[GetTofConfig().GetImagesPerFoil()];
 
-	pGraph->m_iW = GetTofConfig().GetImagesPerFoil();
-	pGraph->m_puiDaten = puiWave;
+	graph.m_iW = GetTofConfig().GetImagesPerFoil();
+	graph.m_puiDaten = puiWave;
 
 	// Zeitkanäle
 	for(int iZ0=0; iZ0<GetTofConfig().GetImagesPerFoil(); ++iZ0)
@@ -401,34 +461,179 @@ void TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 		}
 		puiWave[iZ0]=uiSummedVal;
 	}
+
+	return graph;
 }
 
-// Summe aller Bilder
-void TofImage::GetOverview(TmpImage *pImg) const
+TmpImage TofImage::GetOverview() const
 {
-	if(!pImg) return;
+	TmpImage img;
 
-	pImg->Clear();
-	pImg->m_iW = GetTofConfig().GetImageWidth();
-	pImg->m_iH = GetTofConfig().GetImageHeight();
+	img.Clear();
+	img.m_iW = GetTofConfig().GetImageWidth();
+	img.m_iH = GetTofConfig().GetImageHeight();
 
-	pImg->m_puiDaten = new unsigned int[GetTofConfig().GetImageWidth()*
-										GetTofConfig().GetImageHeight()];
-	if(pImg->m_puiDaten==NULL)
+	img.m_puiDaten = new unsigned int[GetTofConfig().GetImageWidth()*
+									  GetTofConfig().GetImageHeight()];
+	if(img.m_puiDaten==NULL)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
 		logger << "Loader: Could not allocate memory (line "
 			   << __LINE__ << ")!\n";
-		return;
+		return img;
 	}
-	memset(pImg->m_puiDaten,0,sizeof(int)*pImg->m_iW*pImg->m_iH);
+	memset(img.m_puiDaten,0,sizeof(int)*img.m_iW*img.m_iH);
 
 	for(int iFolie=0; iFolie<GetTofConfig().GetFoilCount(); ++iFolie)
 		for(int iZ0=0; iZ0<GetTofConfig().GetImagesPerFoil(); ++iZ0)
 			for(int iY=0; iY<GetTofConfig().GetImageHeight(); ++iY)
 				for(int iX=0; iX<GetTofConfig().GetImageWidth(); ++iX)
-					pImg->m_puiDaten[iY*GetTofConfig().GetImageWidth()+iX] +=
+					img.m_puiDaten[iY*GetTofConfig().GetImageWidth()+iX] +=
 													GetData(iFolie,iZ0,iX,iY);
+
+	return img;
+}
+
+TmpImage TofImage::GetPhaseGraph(int iFolie, bool bInDeg) const
+{
+	TmpImage img;
+
+	int iStartX = 0,
+		iStartY = 0,
+		iEndX = GetTofConfig().GetImageWidth(),
+		iEndY = GetTofConfig().GetImageHeight();
+
+	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY);
+
+	img.Clear();
+	img.m_iW = abs(iEndX-iStartX);
+	img.m_iH = abs(iEndY-iStartY);
+
+	const int XSIZE = GlobalConfig::iPhaseBlockSize[0],
+			  YSIZE = GlobalConfig::iPhaseBlockSize[1];
+
+	double *pdWave = new double[(img.m_iW+XSIZE) * (img.m_iH+YSIZE)];
+	if(pdWave==NULL)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Could not allocate memory (line "
+			   << __LINE__ << ")!\n";
+		return img;
+	}
+	img.m_pdDaten = pdWave;
+
+	for(int iY=iStartY; iY<iEndY; iY+=YSIZE)
+		for(int iX=iStartX; iX<iEndX; iX+=XSIZE)
+		{
+			TmpGraph tmpGraph = GetGraph(iX, iX+XSIZE, iY, iY+YSIZE, iFolie);
+
+			double dPhase, dFreq, dAmp, dOffs;
+			bool bFitValid = tmpGraph.FitSinus(dPhase, dFreq, dAmp, dOffs);
+
+			if(!bFitValid || dPhase!=dPhase)
+				dPhase = 0.;
+
+			if(bInDeg) dPhase = dPhase*180./M_PI;
+
+			for(int i=0; i<YSIZE; ++i)
+				for(int j=0; j<XSIZE; ++j)
+					pdWave[(iY-iStartY+i)*img.m_iW+(iX-iStartX+j)] = dPhase;
+		}
+
+	return img;
+}
+
+TmpImage TofImage::GetContrastGraph(int iFoil) const
+{
+	TmpImage img;
+
+	int iStartX = 0,
+		iStartY = 0,
+		iEndX = GetTofConfig().GetImageWidth(),
+		iEndY = GetTofConfig().GetImageHeight();
+
+	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY);
+
+	img.Clear();
+	img.m_iW = iEndX-iStartX;
+	img.m_iH = iEndY-iStartY;
+
+	const int XSIZE = GlobalConfig::iContrastBlockSize[0],
+			  YSIZE = GlobalConfig::iContrastBlockSize[1];
+
+	double *pdWave = new double[(img.m_iW+XSIZE) * (img.m_iH+YSIZE)];
+	if(pdWave==NULL)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Could not allocate memory (line "
+			   << __LINE__ << ")!\n";
+		return img;
+	}
+	img.m_pdDaten = pdWave;
+
+	for(int iY=iStartY; iY<iEndY; iY+=YSIZE)
+		for(int iX=iStartX; iX<iEndX; iX+=XSIZE)
+		{
+			TmpGraph tmpGraph = GetGraph(iX, iX+XSIZE, iY, iY+YSIZE, iFoil);
+
+			double dPhase, dFreq, dAmp, dOffs;
+			bool bFitValid = tmpGraph.FitSinus(dPhase, dFreq, dAmp, dOffs);
+
+			double dContrast = fabs(dAmp/dOffs);
+			if(!bFitValid || dContrast!=dContrast)
+				dContrast = 0.;
+
+			for(int i=0; i<YSIZE; ++i)
+				for(int j=0; j<XSIZE; ++j)
+					pdWave[(iY-iStartY+i)*img.m_iW+(iX-iStartX+j)]=dContrast;
+		}
+
+	return img;
+}
+
+TmpImage TofImage::AddFoils(const bool *pbKanaele) const
+{
+	TmpImage img;
+
+	unsigned int uiAusgabe[GetTofConfig().GetImageHeight()]
+						  [GetTofConfig().GetImageWidth()];
+	memset(uiAusgabe, 0, GetTofConfig().GetImageHeight()*
+						 GetTofConfig().GetImageWidth()*sizeof(int));
+
+	unsigned int *puiWave = new unsigned int[GetTofConfig().GetImageWidth()*
+											 GetTofConfig().GetImageHeight()];
+	if(puiWave==NULL)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Could not allocate memory (line "
+			   << __LINE__ << ")!\n";
+		return img;
+	}
+
+	img.Clear();
+	img.m_iW = GetTofConfig().GetImageWidth();
+	img.m_iH = GetTofConfig().GetImageHeight();
+	img.m_puiDaten = puiWave;
+
+	for(int iFolie=0; iFolie<GetTofConfig().GetFoilCount(); ++iFolie)
+	{
+		for(int iZ0=0; iZ0<GetTofConfig().GetImagesPerFoil(); ++iZ0)
+		{
+			if(!pbKanaele[iFolie*GetTofConfig().GetImagesPerFoil() + iZ0])
+				continue;
+
+			for(int iY=0; iY<GetTofConfig().GetImageHeight(); ++iY)
+				for(int iX=0; iX<GetTofConfig().GetImageWidth(); ++iX)
+					uiAusgabe[iY][iX] += GetData(iFolie, iZ0, iX, iY);
+		}
+	}
+
+	for(int iY=0; iY<GetTofConfig().GetImageHeight(); ++iY)
+		for(int iX=0; iX<GetTofConfig().GetImageWidth(); ++iX)
+				puiWave[iY*GetTofConfig().GetImageWidth()+iX] =
+															uiAusgabe[iY][iX];
+
+	return img;
 }
 
 // Alle Folien, die in iBits als aktiv markiert sind, addieren;
@@ -491,343 +696,71 @@ void TofImage::AddFoils(int iBits, int iZeitKanaeleBits, TmpImage *pImg) const
 															uiAusgabe[iY][iX];
 }
 
-// Alle Kanaele, die im bool-Feld gesetzt sind, addieren
-void TofImage::AddFoils(const bool *pbKanaele, TmpImage *pImg) const
-{
-	if(!pImg) return;
-
-	unsigned int uiAusgabe[GetTofConfig().GetImageHeight()]
-						  [GetTofConfig().GetImageWidth()];
-	memset(uiAusgabe, 0, GetTofConfig().GetImageHeight()*
-						 GetTofConfig().GetImageWidth()*sizeof(int));
-
-	unsigned int *puiWave = new unsigned int[GetTofConfig().GetImageWidth()*
-											 GetTofConfig().GetImageHeight()];
-	if(puiWave==NULL)
-	{
-		logger.SetCurLogLevel(LOGLEVEL_ERR);
-		logger << "Loader: Could not allocate memory (line "
-			   << __LINE__ << ")!\n";
-		return;
-	}
-
-	pImg->Clear();
-	pImg->m_iW = GetTofConfig().GetImageWidth();
-	pImg->m_iH = GetTofConfig().GetImageHeight();
-	pImg->m_puiDaten = puiWave;
-
-	for(int iFolie=0; iFolie<GetTofConfig().GetFoilCount(); ++iFolie)
-	{
-		for(int iZ0=0; iZ0<GetTofConfig().GetImagesPerFoil(); ++iZ0)
-		{
-			if(!pbKanaele[iFolie*GetTofConfig().GetImagesPerFoil() + iZ0])
-				continue;
-
-			for(int iY=0; iY<GetTofConfig().GetImageHeight(); ++iY)
-				for(int iX=0; iX<GetTofConfig().GetImageWidth(); ++iX)
-					uiAusgabe[iY][iX] += GetData(iFolie, iZ0, iX, iY);
-		}
-	}
-
-	for(int iY=0; iY<GetTofConfig().GetImageHeight(); ++iY)
-		for(int iX=0; iX<GetTofConfig().GetImageWidth(); ++iX)
-				puiWave[iY*GetTofConfig().GetImageWidth()+iX] =
-															uiAusgabe[iY][iX];
-}
-
-// Alle Phasenbilder, die im bool-Feld gesetzt sind, addieren
-void TofImage::AddPhases(const bool *pbFolien, TmpImage *pImg) const
-{
-	if(pImg==NULL) return;
-	double *pdWave = new double[GetTofConfig().GetImageWidth()*
-								GetTofConfig().GetImageHeight()];
-	if(pdWave==NULL)
-	{
-		logger.SetCurLogLevel(LOGLEVEL_ERR);
-		logger << "Loader: Could not allocate memory (line "
-			   << __LINE__ << ")!\n";
-		return;
-	}
-
-	pImg->Clear();
-	pImg->m_iW = GetTofConfig().GetImageWidth();
-	pImg->m_iH = GetTofConfig().GetImageHeight();
-	pImg->m_pdDaten = pdWave;
-
-	memset(pdWave, 0, sizeof(double)*pImg->m_iW*pImg->m_iH);
-
-	for(int iFolie=0; iFolie<GetTofConfig().GetFoilCount(); ++iFolie)
-	{
-		if(!pbFolien[iFolie]) continue;
-
-		TmpImage tmpimg;
-		GetPhaseGraph(iFolie, &tmpimg);
-
-		pImg->Add(tmpimg);
-	}
-
-	for(int iY=0; iY<pImg->m_iH; ++iY)
-		for(int iX=0; iX<pImg->m_iW; ++iX)
-			pdWave[iY*pImg->m_iW + iX] = fmod(pdWave[iY*pImg->m_iW + iX], 360.);
-}
-
-// Alle Kontrastbilder, die im bool-Feld gesetzt sind, addieren
-void TofImage::AddContrasts(const bool *pbFolien, TmpImage *pImg) const
-{
-	if(pImg==NULL) return;
-	double *pdWave = new double[GetTofConfig().GetImageWidth()*
-								GetTofConfig().GetImageHeight()];
-	if(pdWave==NULL)
-	{
-		logger.SetCurLogLevel(LOGLEVEL_ERR);
-		logger << "Loader: Could not allocate memory (line "
-			   << __LINE__ << ")!\n";
-		return;
-	}
-
-	pImg->Clear();
-	pImg->m_iW = GetTofConfig().GetImageWidth();
-	pImg->m_iH = GetTofConfig().GetImageHeight();
-	pImg->m_pdDaten = pdWave;
-
-	memset(pdWave, 0, sizeof(double)*pImg->m_iW*pImg->m_iH);
-
-	for(int iFolie=0; iFolie<GetTofConfig().GetFoilCount(); ++iFolie)
-	{
-		if(!pbFolien[iFolie]) continue;
-
-		TmpImage tmpimg;
-		GetContrastGraph(iFolie, &tmpimg);
-
-		pImg->Add(tmpimg);
-	}
-}
-
-// Für Kalibrierungsdiagramm
-void TofImage::GetPhaseGraph(int iFolie, TmpImage *pImg, bool bInDeg) const
-{
-	if(pImg==NULL) return;
-
-	int iStartX = 0,
-		iStartY = 0,
-		iEndX = GetTofConfig().GetImageWidth(),
-		iEndY = GetTofConfig().GetImageHeight();
-
-	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY);
-
-	pImg->Clear();
-	pImg->m_iW = abs(iEndX-iStartX);
-	pImg->m_iH = abs(iEndY-iStartY);
-
-	const int XSIZE = GlobalConfig::iPhaseBlockSize[0],
-			  YSIZE = GlobalConfig::iPhaseBlockSize[1];
-
-	double *pdWave = new double[(pImg->m_iW+XSIZE) * (pImg->m_iH+YSIZE)];
-	if(pdWave==NULL)
-	{
-		logger.SetCurLogLevel(LOGLEVEL_ERR);
-		logger << "Loader: Could not allocate memory (line "
-			   << __LINE__ << ")!\n";
-		return;
-	}
-	pImg->m_pdDaten = pdWave;
-
-	for(int iY=iStartY; iY<iEndY; iY+=YSIZE)
-		for(int iX=iStartX; iX<iEndX; iX+=XSIZE)
-		{
-			TmpGraph tmpGraph;
-			GetGraph(iX, iX+XSIZE, iY, iY+YSIZE, iFolie, &tmpGraph);
-
-			double dPhase, dFreq, dAmp, dOffs;
-			bool bFitValid = tmpGraph.FitSinus(dPhase, dFreq, dAmp, dOffs);
-
-			if(!bFitValid || dPhase!=dPhase)
-				dPhase = 0.;
-
-			if(bInDeg) dPhase = dPhase*180./M_PI;
-
-			for(int i=0; i<YSIZE; ++i)
-				for(int j=0; j<XSIZE; ++j)
-					pdWave[(iY-iStartY+i)*pImg->m_iW+(iX-iStartX+j)] = dPhase;
-		}
-}
-
-void TofImage::GetContrastGraph(int iFoil, TmpImage *pImg) const
-{
-	if(pImg==NULL) return;
-
-	int iStartX = 0,
-		iStartY = 0,
-		iEndX = GetTofConfig().GetImageWidth(),
-		iEndY = GetTofConfig().GetImageHeight();
-
-	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY);
-
-	pImg->Clear();
-	pImg->m_iW = iEndX-iStartX;
-	pImg->m_iH = iEndY-iStartY;
-
-	const int XSIZE = GlobalConfig::iContrastBlockSize[0],
-		  YSIZE = GlobalConfig::iContrastBlockSize[1];
-
-	double *pdWave = new double[(pImg->m_iW+XSIZE) * (pImg->m_iH+YSIZE)];
-	if(pdWave==NULL)
-	{
-		logger.SetCurLogLevel(LOGLEVEL_ERR);
-		logger << "Loader: Could not allocate memory (line "
-			   << __LINE__ << ")!\n";
-		return;
-	}
-	pImg->m_pdDaten = pdWave;
-
-	for(int iY=iStartY; iY<iEndY; iY+=YSIZE)
-		for(int iX=iStartX; iX<iEndX; iX+=XSIZE)
-		{
-			TmpGraph tmpGraph;
-			GetGraph(iX, iX+XSIZE, iY, iY+YSIZE, iFoil, &tmpGraph);
-
-			double dPhase, dFreq, dAmp, dOffs;
-			bool bFitValid = tmpGraph.FitSinus(dPhase, dFreq, dAmp, dOffs);
-
-			double dContrast = fabs(dAmp/dOffs);
-			if(!bFitValid || dContrast!=dContrast)
-				dContrast = 0.;
-
-			for(int i=0; i<YSIZE; ++i)
-				for(int j=0; j<XSIZE; ++j)
-					pdWave[(iY-iStartY+i)*pImg->m_iW+(iX-iStartX+j)]=dContrast;
-		}
-}
-
-unsigned int TofImage::GetCounts() const
-{
-	int iXStart, iXEnd, iYStart, iYEnd;
-
-	if(m_bUseRoi)
-	{
-		BoundingRect rect = m_roi.GetBoundingRect();
-		iXStart = rect.bottomleft[0];
-		iYStart = rect.bottomleft[1];
-		iXEnd = rect.topright[0];
-		iYEnd = rect.topright[1];
-	}
-	else
-	{
-		iXStart = 0;
-		iYStart = 0;
-		iXEnd = GetTofConfig().GetImageWidth();
-		iYEnd = GetTofConfig().GetImageHeight();
-	}
-
-	TmpImage img;
-	GetOverview(&img);
-
-	unsigned int uiCnt = 0;
-	for(int iY=iYStart; iY<iYEnd; ++iY)
-		for(int iX=iXStart; iX<iXEnd; ++iX)
-		{
-			if(m_bUseRoi)
-			{
-				if(m_roi.IsInside(iX,iY))
-					uiCnt += img.GetData(iX, iY);
-			}
-			else
-			{
-				uiCnt += img.GetData(iX, iY);
-			}
-		}
-
-	return uiCnt;
-}
-
-unsigned int TofImage::GetCounts(int iStartX, int iEndX,
-								 int iStartY, int iEndY) const
-{
-	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY);
-
-	TmpImage img;
-	GetOverview(&img);
-
-	unsigned int uiCnt = 0;
-	for(int iY=iStartY; iY<iEndY; ++iY)
-		for(int iX=iStartX; iX<iEndX; ++iX)
-			uiCnt += img.GetData(iX, iY);
-
-	return uiCnt;
-}
-
-// *****************************************************************************
-
-TmpImage TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY,
-						  int iFolie, int iZ) const
-{
-	TmpImage img;
-	GetROI(iStartX, iEndX, iStartY, iEndY, iFolie, iZ, &img);
-	return img;
-}
-
-TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
-						    int iFoil) const
-{
-	TmpGraph graph;
-	GetGraph(iStartX, iEndX, iStartY, iEndY, iFoil, &graph);
-	return graph;
-}
-
-TmpGraph TofImage::GetGraph(int iFoil) const
-{
-	TmpGraph graph;
-	GetGraph(iFoil, &graph);
-	return graph;
-}
-
-TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
-								 double dPhaseShift) const
-{
-	TmpGraph graph;
-	GetTotalGraph(iStartX, iEndX, iStartY, iEndY, dPhaseShift, &graph);
-	return graph;
-}
-
-TmpImage TofImage::GetOverview() const
-{
-	TmpImage img;
-	GetOverview(&img);
-	return img;
-}
-
-TmpImage TofImage::GetPhaseGraph(int iFolie, bool bInDeg) const
-{
-	TmpImage img;
-	GetPhaseGraph(iFolie, &img, bInDeg);
-	return img;
-}
-
-TmpImage TofImage::GetContrastGraph(int iFolie) const
-{
-	TmpImage img;
-	GetContrastGraph(iFolie, &img);
-	return img;
-}
-
-TmpImage TofImage::AddFoils(const bool *pbKanaele) const
-{
-	TmpImage img;
-	AddFoils(pbKanaele, &img);
-	return img;
-}
-
 TmpImage TofImage::AddPhases(const bool *pbFolien) const
 {
 	TmpImage img;
-	AddPhases(pbFolien, &img);
+
+	double *pdWave = new double[GetTofConfig().GetImageWidth()*
+								GetTofConfig().GetImageHeight()];
+	if(pdWave==NULL)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Could not allocate memory (line "
+			   << __LINE__ << ")!\n";
+		return img;
+	}
+
+	img.Clear();
+	img.m_iW = GetTofConfig().GetImageWidth();
+	img.m_iH = GetTofConfig().GetImageHeight();
+	img.m_pdDaten = pdWave;
+
+	memset(pdWave, 0, sizeof(double)*img.m_iW*img.m_iH);
+
+	for(int iFolie=0; iFolie<GetTofConfig().GetFoilCount(); ++iFolie)
+	{
+		if(!pbFolien[iFolie]) continue;
+
+		TmpImage tmpimg = GetPhaseGraph(iFolie);
+		img.Add(tmpimg);
+	}
+
+	for(int iY=0; iY<img.m_iH; ++iY)
+		for(int iX=0; iX<img.m_iW; ++iX)
+			pdWave[iY*img.m_iW + iX] = fmod(pdWave[iY*img.m_iW + iX], 360.);
+
 	return img;
 }
 
 TmpImage TofImage::AddContrasts(const bool *pbFolien) const
 {
 	TmpImage img;
-	AddContrasts(pbFolien, &img);
+
+	double *pdWave = new double[GetTofConfig().GetImageWidth()*
+								GetTofConfig().GetImageHeight()];
+	if(pdWave==NULL)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Could not allocate memory (line "
+			   << __LINE__ << ")!\n";
+		return img;
+	}
+
+	img.Clear();
+	img.m_iW = GetTofConfig().GetImageWidth();
+	img.m_iH = GetTofConfig().GetImageHeight();
+	img.m_pdDaten = pdWave;
+
+	memset(pdWave, 0, sizeof(double)*img.m_iW*img.m_iH);
+
+	for(int iFolie=0; iFolie<GetTofConfig().GetFoilCount(); ++iFolie)
+	{
+		if(!pbFolien[iFolie]) continue;
+
+		TmpImage tmpimg = GetContrastGraph(iFolie);
+		img.Add(tmpimg);
+	}
+
 	return img;
 }
 
@@ -1221,46 +1154,40 @@ TmpImage PadImage::GetRoiImage() const
 TmpImage::TmpImage() : m_iW(GlobalConfig::GetTofConfig().GetImageWidth()),
 					   m_iH(GlobalConfig::GetTofConfig().GetImageHeight()),
 					   m_puiDaten(NULL), m_pdDaten(NULL),
-					   m_dMin(0), m_dMax(0)
+					   m_dMin(0), m_dMax(0), m_bCleanup(1)
 {}
 
 TmpImage::TmpImage(const TmpImage& tmp)
+{
+	operator=(tmp);
+}
+
+TmpImage& TmpImage::operator=(const TmpImage& tmp)
 {
 	m_iW = tmp.m_iW;
 	m_iH = tmp.m_iH;
 	m_dMin = tmp.m_dMin;
 	m_dMax = tmp.m_dMax;
-	m_puiDaten = NULL;
-	m_pdDaten = NULL;
+	m_puiDaten = tmp.m_puiDaten;
+	m_pdDaten = tmp.m_pdDaten;
+	m_bCleanup = 0;
 
-	if(tmp.m_puiDaten)
+	if(tmp.m_bCleanup)
 	{
-		m_puiDaten = new unsigned int[m_iW*m_iH];
-		if(m_puiDaten==NULL)
-		{
-			logger.SetCurLogLevel(LOGLEVEL_ERR);
-			logger << "Loader: Could not allocate memory (line "
-				   << __LINE__ << ")!\n";
-			return;
-		}
-		memcpy(m_puiDaten,tmp.m_puiDaten,sizeof(int)*m_iW*m_iH);
+		// the copied object is now responsible for cleaning up
+
+		m_bCleanup = 1;
+		const_cast<TmpImage&>(tmp).m_bCleanup = 0;
 	}
-	if(tmp.m_pdDaten)
-	{
-		m_pdDaten = new double[m_iW*m_iH];
-		if(m_pdDaten==NULL)
-		{
-			logger.SetCurLogLevel(LOGLEVEL_ERR);
-			logger << "Loader: Could not allocate memory (line "
-				   << __LINE__ << ")!\n";
-			return;
-		}
-		memcpy(m_pdDaten,tmp.m_pdDaten,sizeof(double)*m_iW*m_iH);
-	}
+
+	return *this;
 }
 
 void TmpImage::Clear(void)
 {
+	if(!m_bCleanup)
+		return;
+
 	if(m_puiDaten)
 	{
 		delete[] m_puiDaten;
@@ -1503,16 +1430,38 @@ TmpGraph TmpImage::GetRadialIntegration() const
 
 //------------------------------------------------------------------------------
 // TmpGraph
-TmpGraph::TmpGraph() : m_iW(0), m_puiDaten(0)
+TmpGraph::TmpGraph() : m_iW(0), m_puiDaten(0), m_bCleanup(1)
 {}
 
 TmpGraph::~TmpGraph()
 {
-	if(m_puiDaten)
+	if(m_puiDaten && m_bCleanup)
 	{
 		delete[] m_puiDaten;
 		m_puiDaten=NULL;
 	}
+}
+
+TmpGraph::TmpGraph(const TmpGraph& tmp)
+{
+	operator=(const_cast<TmpGraph&>(tmp));
+}
+
+TmpGraph& TmpGraph::operator=(const TmpGraph& tmp)
+{
+	m_iW = tmp.m_iW;
+	m_puiDaten = tmp.m_puiDaten;
+	m_bCleanup = 0;
+
+	if(tmp.m_bCleanup)
+	{
+		// the copied object is now responsible for cleaning up
+
+		m_bCleanup = 1;
+		const_cast<TmpGraph&>(tmp).m_bCleanup = 0;
+	}
+
+	return *this;
 }
 
 unsigned int TmpGraph::GetData(int iX) const
