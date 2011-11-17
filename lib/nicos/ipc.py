@@ -193,14 +193,18 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
     def send(self, addr, cmd, param=0, length=0):
         self.log.debug('IPCModBusTaco:send: (%d, %d, %d, %d)'
                        % (addr, cmd, param, length))
-        return self._taco_multitry('send', self.maxtries, self._dev.genSDA,
-                                   addr, cmd-31, length, param)
+        #~ return self._taco_multitry('send', self.maxtries, self._dev.genSDA,
+                                   #~ addr, cmd-31, length, param)
+        return self._taco_multitry('send', self.maxtries, self._dev.SDARaw,
+                                   addr, cmd, length, param)
 
     def get(self, addr, cmd, param=0, length=0):
         self.log.debug('IPCModBusTaco:get: (%d, %d, %d, %d)'
                        % (addr, cmd, param, length))
-        res = self._taco_multitry('get', self.maxtries, self._dev.genSRD,
-                                  addr, cmd-98, length, param)
+        #~ res = self._taco_multitry('get', self.maxtries, self._dev.genSRD,
+                                  #~ addr, cmd-98, length, param)
+        res = self._taco_multitry('get', self.maxtries, self._dev.SRDRaw,
+                                  addr, cmd, length, param)
         self.log.debug('IPCModBusTaco:get: result is %d' % res)
         return res
 
