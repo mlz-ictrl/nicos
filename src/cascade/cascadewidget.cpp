@@ -513,7 +513,8 @@ CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 												 m_iZeitkanal(0),
 												 m_bLog(0),
 												 m_proidlg(0),
-												 m_pbrowsedlg(0)
+												 m_pbrowsedlg(0),
+												 m_pintdlg(0)
 {
 	m_pPlot = new Plot(this);
 	connect(m_pPlot->GetRoiPicker(), SIGNAL(RoiHasChanged()),
@@ -1057,6 +1058,16 @@ void CascadeWidget::showBrowseDlg(const char* pcDir)
 	m_pbrowsedlg->show();
 	m_pbrowsedlg->raise();
 	m_pbrowsedlg->activateWindow();
+}
+
+void CascadeWidget::showIntegrationDialog()
+{
+	if(!m_pintdlg)
+		m_pintdlg = new IntegrationDlg(this);
+
+	m_pintdlg->show();
+	m_pintdlg->raise();
+	m_pintdlg->activateWindow();
 }
 
 void CascadeWidget::showRoiDlg()

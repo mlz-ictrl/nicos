@@ -665,6 +665,18 @@ class MainWindow : public QMainWindow
 			m_cascadewidget.showSumDlg();
 		}
 
+		void showIntegrationDialog()
+		{
+			if(!m_cascadewidget.IsTofLoaded() && !m_cascadewidget.IsPadLoaded())
+			{
+				QMessageBox::critical(0, "Integration", "No TOF or PAD loaded.",
+									  QMessageBox::Ok);
+				return;
+			}
+
+			m_cascadewidget.showIntegrationDialog();
+		}
+
 		void viewOverview()
 		{
 			m_cascadewidget.viewOverview();
@@ -1185,17 +1197,14 @@ class MainWindow : public QMainWindow
 						QIcon::fromTheme("document-save-as"),
 						"&Save File...",
 						this);
-
 			QAction *actionWriteXML = new QAction(
 						QIcon::fromTheme("document-save-as"),
 						"Write &XML...",
 						this);
-
 			QAction *actionPrint = new QAction(
 						QIcon::fromTheme("document-print"),
 						"P&rint Plot...",
 						this);
-
 			QAction *actionExit = new QAction(
 						QIcon::fromTheme("application-exit"),
 						"&Exit",
@@ -1214,7 +1223,6 @@ class MainWindow : public QMainWindow
 						QIcon::fromTheme("network-offline"),
 						"&Disconnect from Server",
 						this);
-
 			QAction *actionServerCommand = new QAction(
 						QIcon::fromTheme("network-transmit"),
 						"Enter &Manual Command...",
@@ -1250,13 +1258,14 @@ class MainWindow : public QMainWindow
 			QAction *actionGraph = new QAction(
 						"&Counts vs. Time Channels...",
 						this);
-
 			QAction *actionSummen = new QAction(
 						"&Sum Images...",
 						this);
-
 			QAction *actionCalibration = new QAction(
 						"C&alibration...",
+						this);
+			QAction *actionIntegrate = new QAction(
+						"&Integrate Radially...",
 						this);
 
 
@@ -1271,12 +1280,10 @@ class MainWindow : public QMainWindow
 						QIcon::fromTheme("document-open"),
 						"Load ROI...",
 						this);
-
 			QAction *actionSaveRoi = new QAction(
 						QIcon::fromTheme("document-save-as"),
 						"Save ROI...",
 						this);
-
 			QAction *actionClearRoi = new QAction(
 						QIcon::fromTheme("edit-clear"),
 						"Clear ROI",
@@ -1288,7 +1295,6 @@ class MainWindow : public QMainWindow
 						QIcon::fromTheme("help-about"),
 						"&About...",
 						this);
-
 			QAction *actionAboutQt = new QAction(
 						//QIcon::fromTheme("help-about"),
 						"About &Qt...",
@@ -1337,6 +1343,8 @@ class MainWindow : public QMainWindow
 			menuGraph->addSeparator();
 			menuGraph->addAction(actionGraph);
 			menuGraph->addAction(actionSummen);
+			menuGraph->addSeparator();
+			menuGraph->addAction(actionIntegrate);
 			menubar->addAction(menuGraph->menuAction());
 
 			QMenu *menuRoi = new QMenu(menubar);
@@ -1417,7 +1425,6 @@ class MainWindow : public QMainWindow
 
 			//------------------------------------------------------------------
 			// Roi Toolbar
-
 			QToolBar *pRoiToolbar = new QToolBar("ROI Toolbar",this);
 
 			QActionGroup *pRoiActionGroup = new QActionGroup(pRoiToolbar);
@@ -1570,6 +1577,8 @@ class MainWindow : public QMainWindow
 					this, SLOT(showGraph()));
 			connect(actionSummen, SIGNAL(triggered()),
 					this, SLOT(showSummenDialog()));
+			connect(actionIntegrate, SIGNAL(triggered()),
+					this, SLOT(showIntegrationDialog()));
 
 			// Timer
 			connect(&m_statustimer, SIGNAL(timeout()),

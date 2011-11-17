@@ -254,6 +254,8 @@ void SumDlgNoChannels::SetMode(int iMode) { m_iMode = iMode; }
 
 
 
+
+
 // ************************* Zeug für Graph-Dialog *****************************
 void GraphDlg::UpdateGraph(void)
 {
@@ -394,8 +396,6 @@ GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof) : QDialog(pParent),
 													   m_pgrid(0)
 {
 	setupUi(this);
-
-	const TofConfig& conf = GlobalConfig::GetTofConfig();
 
 	Init(0);
 	UpdateGraph();
@@ -813,9 +813,9 @@ void BrowseDlg::SetDir(const QString& strDir)
 	QDir dir(strDir);
 	dir.setFilter(QDir::Files | QDir::Hidden);
 
-	//QStringList namefilters;
-	//namefilters << "*.pad" << "*.tof" << "*.PAD" << "*.TOF";
-	//dir.setNameFilters(namefilters);
+	QStringList namefilters;
+	namefilters << "*.pad" << "*.tof" << "*.PAD" << "*.TOF";
+	dir.setNameFilters(namefilters);
 
 	QFileInfoList filelist = dir.entryInfoList();
 
@@ -854,3 +854,73 @@ void BrowseDlg::SelectedFile()
 }
 
 // *****************************************************************************
+
+
+
+
+
+// *********************** Integration Dialog **********************************
+
+IntegrationDlg::IntegrationDlg(CascadeWidget *pParent)
+				: QDialog(pParent), m_pwidget(pParent)
+{
+	setupUi(this);
+
+	plot->setAutoReplot(false);
+	plot->setCanvasBackground(QColor(255,255,255));
+	plot->axisWidget(QwtPlot::xBottom)->setTitle("Radius");
+	plot->axisWidget(QwtPlot::yLeft)->setTitle("Counts");
+
+	m_pgrid = new QwtPlotGrid;
+	m_pgrid->enableXMin(true);
+	m_pgrid->enableYMin(true);
+	m_pgrid->setMajPen(QPen(Qt::black, 0, Qt::DotLine));
+	m_pgrid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
+	m_pgrid->attach(plot);
+
+	QwtLegend *m_plegend = new QwtLegend;
+	plot->insertLegend(m_plegend, QwtPlot::RightLegend);
+
+	QwtSymbol sym;
+	sym.setStyle(QwtSymbol::Ellipse);
+	sym.setPen(QColor(Qt::blue));
+	sym.setBrush(QColor(Qt::blue));
+	sym.setSize(5);
+
+	m_curve.setRenderHint(QwtPlotItem::RenderAntialiased);
+	QPen penfit = QPen(Qt::red);
+	m_curve.setPen(penfit);
+	m_curve.setSymbol(sym);
+	m_curve.attach(plot);
+}
+
+IntegrationDlg::~IntegrationDlg() {}
+
+void IntegrationDlg::UpdateGraph()
+{
+	TmpImage tmpImg;
+
+	// TODO: also for TOF
+	if(m_pwidget->IsPadLoaded())
+		tmpImg = m_pwidget->GetPad()->GetRoiImage();
+
+	TmpGraph tmpGraph = tmpImg.GetRadialIntegration();
+
+	double *pdx = new double[tmpGraph.GetWidth()];
+	double *pdy = new double[tmpGraph.GetWidth()];
+	for(int i=0; i<tmpGraph.GetWidth(); ++i)
+	{
+		pdx[i]=i;
+		pdy[i]=tmpGraph.GetData(i);
+	}
+	m_curve.setData(pdx,pdy,tmpGraph.GetWidth());
+	delete[] pdx;
+	delete[] pdy;
+
+	plot->replot();
+}
+
+
+// *****************************************************************************
+
+

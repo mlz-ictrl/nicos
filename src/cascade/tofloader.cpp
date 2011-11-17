@@ -406,6 +406,8 @@ void TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 // Summe aller Bilder
 void TofImage::GetOverview(TmpImage *pImg) const
 {
+	if(!pImg) return;
+
 	pImg->Clear();
 	pImg->m_iW = GetTofConfig().GetImageWidth();
 	pImg->m_iH = GetTofConfig().GetImageHeight();
@@ -1129,7 +1131,6 @@ unsigned int PadImage::GetDataInsideROI(int iX, int iY) const
 		if(!m_roi.IsInside(iX, iY))
 			return 0;
 	}
-
 	return GetData(iX, iY);
 }
 
@@ -1196,6 +1197,20 @@ Roi& PadImage::GetRoi() { return m_roi; }
 bool PadImage::GetUseRoi() const { return m_bUseRoi; };
 
 
+TmpImage PadImage::GetRoiImage() const
+{
+	TmpImage img;
+
+	img.m_iW = GetWidth();
+	img.m_iH = GetHeight();
+	img.m_puiDaten = new unsigned int[img.m_iW*img.m_iH];
+
+	for(int iY=0; iY<img.m_iH; ++iY)
+		for(int iX=0; iX<img.m_iW; ++iX)
+			m_puiDaten[iY*img.m_iW + iX] = GetDataInsideROI(iX,iY);
+
+	return img;
+}
 
 
 
@@ -1470,6 +1485,17 @@ bool TmpImage::FitGaussian(double &dAmp,
 	return false;
 }
 
+
+// TODO
+TmpGraph TmpImage::GetRadialIntegration() const
+{
+	TmpGraph graph;
+
+	//pGraph->m_iW = ###;
+	//pGraph->m_puiDaten = ###;
+
+	return graph;
+}
 
 
 

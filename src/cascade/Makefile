@@ -85,7 +85,7 @@ fit.o: fit.cpp fit.h
 
 
 ############################ Dialogs ############################
-cascadedialogs.h: ui_calibrationdlg.h ui_sumdialog.h ui_serverdlg.h ui_servercfgdlg.h ui_graphdlg.h ui_commanddlg.h ui_roidlg.h ui_browsedlg.h
+cascadedialogs.h: ui_calibrationdlg.h ui_sumdialog.h ui_serverdlg.h ui_servercfgdlg.h ui_graphdlg.h ui_commanddlg.h ui_roidlg.h ui_browsedlg.h ui_integrationdlg.h
 
 ui_calibrationdlg.h: calibrationdlg.ui
 	uic calibrationdlg.ui > ui_calibrationdlg.h
@@ -110,6 +110,9 @@ ui_roidlg.h: roidlg.ui
 
 ui_browsedlg.h: browsedlg.ui
 	uic browsedlg.ui > ui_browsedlg.h
+
+ui_integrationdlg.h: integrationdlg.ui
+	uic integrationdlg.ui > ui_integrationdlg.h
 #################################################################
 
 

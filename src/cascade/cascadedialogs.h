@@ -20,7 +20,7 @@
 //   Tobias Weber <tweber@frm2.tum.de>
 //
 // *****************************************************************************
-// Cascade-Unterdialoge
+// Cascade sub dialogs
 
 #ifndef __CASCADE_DIALOGE__
 #define __CASCADE_DIALOGE__
@@ -52,6 +52,7 @@
 #include "ui_commanddlg.h"
 #include "ui_roidlg.h"
 #include "ui_browsedlg.h"
+#include "ui_integrationdlg.h"
 
 #include "histogram_item.h"
 #include "bins.h"
@@ -303,5 +304,32 @@ class BrowseDlg : public QDialog, public Ui::BrowseDlg
 };
 
 // *****************************************************************************
+
+
+
+
+
+// ************************* Integration Dialog ********************************
+
+class IntegrationDlg : public QDialog, public Ui::IntegrationDlg
+{
+	Q_OBJECT
+
+	protected:
+		CascadeWidget *m_pwidget;
+		QwtPlotCurve m_curve;
+		QwtLegend *m_plegend;
+		QwtPlotGrid *m_pgrid;
+
+	public:
+		IntegrationDlg(CascadeWidget *pParent);
+		virtual ~IntegrationDlg();
+
+	public slots:
+		void UpdateGraph();
+};
+
+// *****************************************************************************
+
 
 #endif

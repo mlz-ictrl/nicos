@@ -140,6 +140,9 @@ class PadImage : public BasicImage
 		Roi& GetRoi();
 		void UseRoi(bool bUseRoi=true);
 		bool GetUseRoi() const;
+
+		// filter out everything except selected regions
+		TmpImage GetRoiImage() const;
 };
 
 
@@ -221,6 +224,8 @@ class TmpImage : public BasicImage
 	bool FitGaussian(double &dAmp,
 					 double &dCenterX, double &dCenterY,
 					 double &dSpreadX, double &dSpreadY) const;
+
+	TmpGraph GetRadialIntegration() const;
 };
 
 
