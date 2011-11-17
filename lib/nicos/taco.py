@@ -115,6 +115,7 @@ class TacoDevice(object):
             self._taco_guard(self._dev.setClientNetworkTimeout, value)
 
     def doUpdateLoglevel(self, value):
+        super(TacoDevice, self).doUpdateLoglevel(value)
         self._taco_guard = value == 'debug' and self._taco_guard_log or \
                            self._taco_guard_nolog
 
