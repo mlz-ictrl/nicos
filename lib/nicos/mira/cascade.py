@@ -162,6 +162,8 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         self._newFile()
         if self.slave:
             self.preselection = 1000000  # master controls preset
+            if preset.get('t'):
+                self._last_preset = preset['t']
         elif preset.get('t'):
             self.preselection = self._last_preset = preset['t']
         config = cascadeclient.GlobalConfig.GetTofConfig()

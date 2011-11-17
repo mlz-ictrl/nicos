@@ -1309,9 +1309,10 @@ class MainWindow : public QMainWindow
 			menubar->setGeometry(QRect(0, 0, 800, 25));
 			QMenu *menuFile = new QMenu(menubar);
 			menuFile->setTitle("&File");
-			menuFile->addAction(actionBrowseFiles);
 			menuFile->addAction(actionLoadPad);
 			menuFile->addAction(actionLoadTof);
+			menuFile->addSeparator();
+			menuFile->addAction(actionBrowseFiles);
 			menuFile->addSeparator();
 			menuFile->addAction(actionSaveFile);
 			menuFile->addAction(actionWriteXML);
