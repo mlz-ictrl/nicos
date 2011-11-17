@@ -134,6 +134,7 @@ class AnalysisPanel(Panel):
             self.actionPDF, self.actionGrace, self.actionPrint,
             self.actionAttachElog, self.actionCombine, self.actionClosePlot,
             self.actionDeletePlot, self.actionLogScale, self.actionNormalized,
+            self.actionShowAllCurves,
             self.actionUnzoom, self.actionLegend, self.actionFitPeak,
             self.actionFitPeakPV, self.actionFitPeakPVII, self.actionFitArby,
             ]:
@@ -151,9 +152,10 @@ class AnalysisPanel(Panel):
         menu1.addAction(self.actionClosePlot)
         menu1.addAction(self.actionDeletePlot)
         menu1.addSeparator()
+        menu1.addAction(self.actionUnzoom)
         menu1.addAction(self.actionLogScale)
         menu1.addAction(self.actionNormalized)
-        menu1.addAction(self.actionUnzoom)
+        menu1.addAction(self.actionShowAllCurves)
         menu1.addAction(self.actionLegend)
         menu1.addSeparator()
         menu2 = QMenu('&Data fitting', self)
@@ -206,8 +208,10 @@ class AnalysisPanel(Panel):
     def openDataset(self, uid):
         dataset = self.data.uid2set[uid]
         if dataset.uid not in self.setplots:
-            self.setplots[dataset.uid] = \
-                DataSetPlot(self.plotFrame, self, dataset)
+            newplot = DataSetPlot(self.plotFrame, self, dataset)
+            if self.currentPlot:
+                newplot.enableCurvesFrom(self.currentPlot)
+            self.setplots[dataset.uid] = newplot
         self.datasetList.setCurrentItem(self.setitems[uid])
         plot = self.setplots[dataset.uid]
         self.setCurrentDataset(plot)
@@ -358,6 +362,11 @@ class AnalysisPanel(Panel):
         self.currentPlot.updateDisplay()
 
     @qtsig('bool')
+    def on_actionShowAllCurves_toggled(self, on):
+        self.currentPlot.show_all = on
+        self.currentPlot.updateDisplay()
+
+    @qtsig('bool')
     def on_actionLegend_toggled(self, on):
         self.currentPlot.setLegend(on)
 
@@ -428,7 +437,7 @@ class AnalysisPanel(Panel):
                     newcurve.description = (newcurve.description or '') + \
                         ' (%s)' % set.name
                     newset.curves.append(newcurve)
-            self.data.add_existing_dataset(newset)
+            self.data.add_existing_dataset(newset, [set.uid for set in sets])
             return
         # else, need same axes, and same number and types of curves
 
@@ -525,6 +534,19 @@ class DataSetPlot(NicosPlot):
         for i, curve in enumerate(self.dataset.curves):
             self.addCurve(i, curve)
 
+    def enableCurvesFrom(self, otherplot):
+        visible = {}
+        for plotcurve in otherplot.plotcurves:
+            visible[str(plotcurve.title().text())] = plotcurve.isVisible()
+        changed = False
+        for plotcurve in self.plotcurves:
+            namestr = str(plotcurve.title().text())
+            if namestr in visible:
+                self.setVisibility(plotcurve, visible[namestr])
+                changed = True
+        if changed:
+            self.replot()
+
     def addCurve(self, i, curve, replot=False):
         pen = QPen(self.curvecolor[i % self.numcolors])
         plotcurve = ErrorBarPlotCurve(title=curve.description, curvePen=pen,
@@ -537,7 +559,9 @@ class DataSetPlot(NicosPlot):
             self.has_secondary = True
             self.enableAxis(QwtPlot.yRight)
         if curve.disabled:
-            plotcurve.setVisible(False)
+            if not self.show_all:
+                plotcurve.setVisible(False)
+                plotcurve.setItemAttribute(QwtPlotItem.Legend, False)
         self.setCurveData(curve, plotcurve)
         self.addPlotCurve(plotcurve, replot)
 
@@ -561,7 +585,7 @@ class DataSetPlot(NicosPlot):
         plotcurve.setData(x, y, None, dy)
 
     def pointsAdded(self):
-        for curve, plotcurve in zip(self.dataset.curves, self.curves):
+        for curve, plotcurve in zip(self.dataset.curves, self.plotcurves):
             self.setCurveData(curve, plotcurve)
         self.replot()
 
@@ -618,10 +642,10 @@ class DataSetPlot(NicosPlot):
             return
         if not has_odr:
             return self.showError('scipy.odr is not available.')
-        if not self.curves:
+        if not self.plotcurves:
             return self.showError('Plot must have a curve to be fitted.')
         visible_curves = [i for (i, curve) in enumerate(self.dataset.curves)
-                          if self.curves[i].isVisible()]
+                          if self.plotcurves[i].isVisible()]
         if len(visible_curves) > 1:
             dlg = dialogFromUi(self, 'selector.ui', 'panels')
             dlg.setWindowTitle('Select curve to fit')
@@ -646,7 +670,7 @@ class DataSetPlot(NicosPlot):
             self.window.statusBar.showMessage('Fitting: Click on %s' %
                                               fitparams[0])
             self.fitPicker = QwtPlotPicker(
-                QwtPlot.xBottom, self.curves[self.fitcurve].yAxis(),
+                QwtPlot.xBottom, self.plotcurves[self.fitcurve].yAxis(),
                 QwtPicker.PointSelection | QwtPicker.ClickSelection,
                 QwtPlotPicker.CrossRubberBand,
                 QwtPicker.AlwaysOn, self.canvas())
@@ -661,8 +685,8 @@ class DataSetPlot(NicosPlot):
             if self.fitcallback:
                 if not self.fitcallback():
                     raise FitError('Aborted.')
-            curve = self.curves[self.fitcurve]
-            args = [curve._x, curve._y, curve._dy] + self.fitvalues
+            plotcurve = self.plotcurves[self.fitcurve]
+            args = [plotcurve._x, plotcurve._y, plotcurve._dy] + self.fitvalues
             labelalign = Qt.AlignRight | Qt.AlignBottom
             linefrom = lineto = liney = None
             if self.fittype == 'Gauss':
@@ -727,7 +751,7 @@ class DataSetPlot(NicosPlot):
                  Qt.darkGray][self.fits % 4]
 
         resultcurve = ErrorBarPlotCurve(title=title)
-        resultcurve.setYAxis(curve.yAxis())
+        resultcurve.setYAxis(plotcurve.yAxis())
         resultcurve.setRenderHint(QwtPlotItem.RenderAntialiased)
         resultcurve.setStyle(QwtPlotCurve.Lines)
         resultcurve.setPen(QPen(color, 2))
