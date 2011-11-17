@@ -954,7 +954,7 @@ void IntegrationDlg::UseBeamCenter()
 	if(bOk)
 	{
 		std::ostringstream ostr;
-		ostr << "Gaussian fit: amp=" << dAmp
+		ostr << "Gaussian fit with amp=" << dAmp
 			 << ", x=" << dCenterX << ", y="<<dCenterY
 			 << ", sx=" << dSpreadX << ", sy=" << dSpreadY;
 
@@ -995,5 +995,3 @@ TmpImage IntegrationDlg::GetRoiImage()
 }
 
 // *****************************************************************************
-
-

@@ -31,7 +31,14 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QDoubleSpinBox" name="doubleSpinBoxX"/>
+       <widget class="QDoubleSpinBox" name="doubleSpinBoxX">
+        <property name="minimum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>1000.000000000000000</double>
+        </property>
+       </widget>
       </item>
       <item row="0" column="2">
        <widget class="QPushButton" name="btnBeamCenter">
@@ -48,7 +55,11 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QDoubleSpinBox" name="doubleSpinBoxY"/>
+       <widget class="QDoubleSpinBox" name="doubleSpinBoxY">
+        <property name="maximum">
+         <double>1000.000000000000000</double>
+        </property>
+       </widget>
       </item>
       <item row="1" column="2">
        <widget class="QPushButton" name="btnImageCenter">

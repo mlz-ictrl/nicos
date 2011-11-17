@@ -52,6 +52,8 @@ template<class T> class cleanup
 long GetFileSize(FILE* pf);
 long GetFileSize(const char* pcFileName);
 
+std::string GetFileEnding(const char* pcFileName);
+
 //------------------------------------------------------------------------------
 
 

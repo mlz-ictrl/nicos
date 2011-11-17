@@ -605,14 +605,28 @@ unsigned int* CascadeWidget::GetRawData()
 
 bool CascadeWidget::LoadFile(const char* pcFile)
 {
-	// try to load as PAD file
-	bool bOk = LoadPadFile(pcFile);
-	if(bOk)
-		return true;
+	std::string strFileType = GetFileEnding(pcFile);
 
-	// if this didn't work, try to load as TOF file
-	bOk = LoadTofFile(pcFile);
-	return bOk;
+	if(strFileType=="pad" || strFileType=="PAD")
+		return LoadPadFile(pcFile);
+	else if(strFileType=="tof" || strFileType=="TOF")
+		return LoadTofFile(pcFile);
+	else // guessing file type
+	{
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "Widget: Unknown file extension \"" << strFileType
+			   << "\", guessing type.\n";
+
+		// try to load as PAD file
+		if(LoadPadFile(pcFile))
+			return true;
+
+		// if this didn't work, try to load as TOF file
+		if(LoadTofFile(pcFile))
+			return true;
+	}
+
+	return false;
 }
 
 bool CascadeWidget::LoadPadFile(const char* pcFile)

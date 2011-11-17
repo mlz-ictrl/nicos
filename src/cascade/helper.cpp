@@ -49,6 +49,28 @@ long GetFileSize(const char* pcFileName)
 	return lSize;
 }
 
+std::string GetFileEnding(const char* pcFileName)
+{
+	int iLen = strlen(pcFileName);
+
+	bool bFound = false;
+	int iIdx;
+
+	for(iIdx=iLen-1; iIdx>=0; --iIdx)
+	{
+		if(pcFileName[iIdx] == '.')
+		{
+			bFound = true;
+			break;
+		}
+	}
+
+	if(bFound)
+		return std::string(pcFileName + iIdx+1);
+
+	return std::string("");
+}
+
 //------------------------------------------------------------------------------
 
 std::string trim(const std::string& str)
