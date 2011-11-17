@@ -278,7 +278,7 @@ Q_OBJECT
 		void SumDlgSignal(const bool* pbKanaele, int iMode);
 
 		// emitted, when the file or its parameters (e.g. ROI) have changed
-		void FileHasChanged();
+		void FileHasChanged(const char* pcFileName=0);
 };
 
 #endif

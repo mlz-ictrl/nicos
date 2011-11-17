@@ -272,6 +272,17 @@ class MainWindow : public QMainWindow
 
 	// Slots
 	protected slots:
+		void FileHasChanged(const char* pcFile=0)
+		{
+			int iCounts = m_cascadewidget.GetCounts();
+			ShowRightMessage(-1,-1,-1,iCounts);
+
+			if(pcFile)
+			{
+				ShowTitleMessage(pcFile);
+			}
+		}
+
 		/////////// Slot für Tcp-Client ////////////////////////////////////////
 		void ServerMessageSlot(const char* pcBuf, int iLen)
 		{
@@ -336,9 +347,7 @@ class MainWindow : public QMainWindow
 				m_cascadewidget.UpdateGraph();
 
 				UpdateLabels(false);
-
-				int iTotalCounts = m_cascadewidget.GetCounts();
-				ShowRightMessage(-1,-1,-1,iTotalCounts);
+				FileHasChanged();
 
 				//ShowMessage("PAD loaded from Server.");
 			}
@@ -404,9 +413,7 @@ class MainWindow : public QMainWindow
 				//UpdateLabels(false);
 
 				UpdateSliders();
-
-				int iTotalCounts = m_cascadewidget.GetCounts();
-				ShowRightMessage(-1,-1,-1,iTotalCounts);
+				FileHasChanged();
 
 				//ShowMessage("TOF loaded from Server.");
 				viewOverview();
@@ -861,6 +868,7 @@ class MainWindow : public QMainWindow
 		///////////////////////////// File Menu Items /////////////////////////
 		void BrowseFiles(const char* pcDir=".")
 		{
+			ServerDisconnect();
 			m_cascadewidget.showBrowseDlg(pcDir);
 		}
 
@@ -879,12 +887,10 @@ class MainWindow : public QMainWindow
 
 				//m_cascadewidget.UpdateGraph();
 
-				FileHasChanged();
+				FileHasChanged(strFile.toAscii().data());
 
 				UpdateLabels(false);
 				ShowMessage("PAD loaded.");
-
-				ShowTitleMessage(strFile.toAscii().data());
 			}
 		}
 
@@ -903,22 +909,15 @@ class MainWindow : public QMainWindow
 
 				//m_cascadewidget.UpdateGraph();	// macht viewOverview schon
 
-				FileHasChanged();
+				FileHasChanged(strFile.toAscii().data());
 
 				UpdateLabels(false);
 				UpdateSliders();
 				ShowMessage("TOF loaded.");
-				ShowTitleMessage(strFile.toAscii().data());
 
 				//viewOverview();
 				actionViewsOverview->setChecked(true);
 			}
-		}
-
-		void FileHasChanged()
-		{
-			int iTotalCounts = m_cascadewidget.GetCounts();
-			ShowRightMessage(-1,-1,-1,iTotalCounts);
 		}
 
 		void SaveFile()
@@ -1597,8 +1596,8 @@ class MainWindow : public QMainWindow
 			// Widget
 			connect(&m_cascadewidget, SIGNAL(SumDlgSignal(const bool *, int)),
 					this, SLOT(FolienSummeSlot(const bool *, int)));
-			connect(&m_cascadewidget, SIGNAL(FileHasChanged()),
-					this, SLOT(FileHasChanged()));
+			connect(&m_cascadewidget, SIGNAL(FileHasChanged(const char*)),
+					this, SLOT(FileHasChanged(const char*)));
 			//------------------------------------------------------------------
 
 

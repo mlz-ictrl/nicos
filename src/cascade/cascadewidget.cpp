@@ -631,7 +631,7 @@ bool CascadeWidget::LoadPadFile(const char* pcFile)
 	if(iRet)
 	{
 		UpdateGraph();
-		emit FileHasChanged();
+		emit FileHasChanged(pcFile);
 	}
 	return iRet;
 }
@@ -657,7 +657,7 @@ bool CascadeWidget::LoadTofFile(const char* pcFile)
 	if(iRet)
 	{
 		viewOverview();
-		emit FileHasChanged();
+		emit FileHasChanged(pcFile);
 	}
 	return iRet;
 }
@@ -680,7 +680,7 @@ bool CascadeWidget::LoadPadMem(const char* pcMem, unsigned int uiLen)
 	if(iRet)
 	{
 		UpdateGraph();
-		emit FileHasChanged();
+		emit FileHasChanged("<memfile>");
 	}
 	return iRet;
 }
@@ -705,7 +705,7 @@ bool CascadeWidget::LoadTofMem(const char* pcMem, unsigned int uiLen)
 	if(iRet)
 	{
 		viewOverview();
-		emit FileHasChanged();
+		emit FileHasChanged("<memfile>");
 	}
 	return iRet;
 }
