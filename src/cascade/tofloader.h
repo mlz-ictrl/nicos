@@ -242,6 +242,7 @@ class TmpImage : public BasicImage
 class TmpGraph
 {
   friend class TofImage;
+  friend class TmpImage;
 
   protected:
 	// # of data points
@@ -257,7 +258,7 @@ class TmpGraph
 	TmpGraph();
 	virtual ~TmpGraph();
 
-	// create TmpGraph from other TmpGraph; does allocate memory
+	// create TmpGraph from other TmpGraph; does NOT allocate memory
 	TmpGraph(const TmpGraph& tmp);
 	TmpGraph& operator=(const TmpGraph& tmp);
 
@@ -364,7 +365,7 @@ class TofImage
 							   double dPhaseShift) const;
 
 		// get overview image (summing all individual images in TOF)
-		TmpImage GetOverview() const;
+		TmpImage GetOverview(bool bOnlyInRoi=false) const;
 
 		// phase image
 		TmpImage GetPhaseGraph(int iFoil, bool bInDeg=true) const;

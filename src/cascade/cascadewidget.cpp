@@ -1068,6 +1068,7 @@ void CascadeWidget::showIntegrationDialog()
 	m_pintdlg->show();
 	m_pintdlg->raise();
 	m_pintdlg->activateWindow();
+	m_pintdlg->UpdateGraph();
 }
 
 void CascadeWidget::showRoiDlg()

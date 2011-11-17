@@ -869,7 +869,7 @@ IntegrationDlg::IntegrationDlg(CascadeWidget *pParent)
 	plot->setAutoReplot(false);
 	plot->setCanvasBackground(QColor(255,255,255));
 	plot->axisWidget(QwtPlot::xBottom)->setTitle("Radius");
-	plot->axisWidget(QwtPlot::yLeft)->setTitle("Counts");
+	plot->axisWidget(QwtPlot::yLeft)->setTitle("Intensity");
 
 	m_pgrid = new QwtPlotGrid;
 	m_pgrid->enableXMin(true);
@@ -877,9 +877,6 @@ IntegrationDlg::IntegrationDlg(CascadeWidget *pParent)
 	m_pgrid->setMajPen(QPen(Qt::black, 0, Qt::DotLine));
 	m_pgrid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
 	m_pgrid->attach(plot);
-
-	QwtLegend *m_plegend = new QwtLegend;
-	plot->insertLegend(m_plegend, QwtPlot::RightLegend);
 
 	QwtSymbol sym;
 	sym.setStyle(QwtSymbol::Ellipse);
@@ -900,9 +897,12 @@ void IntegrationDlg::UpdateGraph()
 {
 	TmpImage tmpImg;
 
-	// TODO: also for TOF
 	if(m_pwidget->IsPadLoaded())
 		tmpImg = m_pwidget->GetPad()->GetRoiImage();
+	else if(m_pwidget->IsTofLoaded())
+		tmpImg = m_pwidget->GetTof()->GetOverview(true);
+	else
+		return;
 
 	TmpGraph tmpGraph = tmpImg.GetRadialIntegration();
 
@@ -910,8 +910,8 @@ void IntegrationDlg::UpdateGraph()
 	double *pdy = new double[tmpGraph.GetWidth()];
 	for(int i=0; i<tmpGraph.GetWidth(); ++i)
 	{
-		pdx[i]=i;
-		pdy[i]=tmpGraph.GetData(i);
+		pdx[i] = i;
+		pdy[i] = tmpGraph.GetData(i);
 	}
 	m_curve.setData(pdx,pdy,tmpGraph.GetWidth());
 	delete[] pdx;

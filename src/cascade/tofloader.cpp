@@ -465,7 +465,7 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 	return graph;
 }
 
-TmpImage TofImage::GetOverview() const
+TmpImage TofImage::GetOverview(bool bOnlyInRoi) const
 {
 	TmpImage img;
 
@@ -488,8 +488,14 @@ TmpImage TofImage::GetOverview() const
 		for(int iZ0=0; iZ0<GetTofConfig().GetImagesPerFoil(); ++iZ0)
 			for(int iY=0; iY<GetTofConfig().GetImageHeight(); ++iY)
 				for(int iX=0; iX<GetTofConfig().GetImageWidth(); ++iX)
-					img.m_puiDaten[iY*GetTofConfig().GetImageWidth()+iX] +=
-													GetData(iFolie,iZ0,iX,iY);
+				{
+					if(bOnlyInRoi)
+						img.m_puiDaten[iY*GetTofConfig().GetImageWidth()+iX] +=
+											GetDataInsideROI(iFolie,iZ0,iX,iY);
+					else
+						img.m_puiDaten[iY*GetTofConfig().GetImageWidth()+iX] +=
+											GetData(iFolie,iZ0,iX,iY);
+				}
 
 	return img;
 }
@@ -1140,7 +1146,7 @@ TmpImage PadImage::GetRoiImage() const
 
 	for(int iY=0; iY<img.m_iH; ++iY)
 		for(int iX=0; iX<img.m_iW; ++iX)
-			m_puiDaten[iY*img.m_iW + iX] = GetDataInsideROI(iX,iY);
+			img.m_puiDaten[iY*img.m_iW + iX] = GetDataInsideROI(iX,iY);
 
 	return img;
 }
@@ -1416,10 +1422,28 @@ bool TmpImage::FitGaussian(double &dAmp,
 // TODO
 TmpGraph TmpImage::GetRadialIntegration() const
 {
-	TmpGraph graph;
+	const double dAngleInc = 0.1;
+	const double dRadInc = 1.;
+	const double dMaxRad = max(double(GetWidth()), double(GetHeight()));
+	const int iSteps = int(dMaxRad / dRadInc);
+	const double dCenterX = double(GetWidth()) * .5;
+	const double dCenterY = double(GetHeight()) * .5;
 
-	//pGraph->m_iW = ###;
-	//pGraph->m_puiDaten = ###;
+	TmpGraph graph;
+	graph.m_iW = iSteps;
+	graph.m_puiDaten = new unsigned int[iSteps];
+	memset(graph.m_puiDaten, 0, iSteps*sizeof(int));
+
+	for(int i=0; i<iSteps; ++i)
+		for(double dAngle=0.; dAngle<2.*M_PI; dAngle+=dAngleInc)
+		{
+			double dRad = double(i)*dRadInc;
+
+			double dX = dCenterX + dRad*cos(dAngle);
+			double dY = dCenterY + dRad*sin(dAngle);
+
+			graph.m_puiDaten[i] += GetIntData(int(dX), int(dY));
+		}
 
 	return graph;
 }
@@ -1430,6 +1454,7 @@ TmpGraph TmpImage::GetRadialIntegration() const
 
 //------------------------------------------------------------------------------
 // TmpGraph
+
 TmpGraph::TmpGraph() : m_iW(0), m_puiDaten(0), m_bCleanup(1)
 {}
 
