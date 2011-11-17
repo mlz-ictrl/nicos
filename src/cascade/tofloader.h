@@ -229,7 +229,8 @@ class TmpImage : public BasicImage
 					 double &dCenterX, double &dCenterY,
 					 double &dSpreadX, double &dSpreadY) const;
 
-	TmpGraph GetRadialIntegration() const;
+	TmpGraph GetRadialIntegration(double dAngleInc, double dRadInc,
+								  const Vec2d<double>& vecCenter) const;
 };
 
 

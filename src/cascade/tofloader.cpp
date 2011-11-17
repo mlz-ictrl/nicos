@@ -1418,16 +1418,12 @@ bool TmpImage::FitGaussian(double &dAmp,
 	return false;
 }
 
-
-// TODO
-TmpGraph TmpImage::GetRadialIntegration() const
+TmpGraph TmpImage::GetRadialIntegration(double dAngleInc, double dRadInc,
+										const Vec2d<double>& vecCenter) const
 {
-	const double dAngleInc = 0.1;
-	const double dRadInc = 1.;
-	const double dMaxRad = max(double(GetWidth()), double(GetHeight()));
+	const double dMaxRad = sqrt((double(GetWidth())/2.)*(double(GetWidth())/2.)
+						   + (double(GetHeight())/2.)*(double(GetHeight())/2.));
 	const int iSteps = int(dMaxRad / dRadInc);
-	const double dCenterX = double(GetWidth()) * .5;
-	const double dCenterY = double(GetHeight()) * .5;
 
 	TmpGraph graph;
 	graph.m_iW = iSteps;
@@ -1439,8 +1435,8 @@ TmpGraph TmpImage::GetRadialIntegration() const
 		{
 			double dRad = double(i)*dRadInc;
 
-			double dX = dCenterX + dRad*cos(dAngle);
-			double dY = dCenterY + dRad*sin(dAngle);
+			double dX = vecCenter[0] + dRad*cos(dAngle);
+			double dY = vecCenter[1] + dRad*sin(dAngle);
 
 			graph.m_puiDaten[i] += GetIntData(int(dX), int(dY));
 		}

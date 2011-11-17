@@ -24,6 +24,8 @@
 
 #include "cascadedialogs.h"
 #include "cascadewidget.h"
+#include "helper.h"
+
 #include <stdio.h>
 #include <sstream>
 #include <QVariant>
@@ -869,7 +871,7 @@ IntegrationDlg::IntegrationDlg(CascadeWidget *pParent)
 	plot->setAutoReplot(false);
 	plot->setCanvasBackground(QColor(255,255,255));
 	plot->axisWidget(QwtPlot::xBottom)->setTitle("Radius");
-	plot->axisWidget(QwtPlot::yLeft)->setTitle("Intensity");
+	plot->axisWidget(QwtPlot::yLeft)->setTitle("Relative Counts");
 
 	m_pgrid = new QwtPlotGrid;
 	m_pgrid->enableXMin(true);
@@ -904,14 +906,27 @@ void IntegrationDlg::UpdateGraph()
 	else
 		return;
 
-	TmpGraph tmpGraph = tmpImg.GetRadialIntegration();
+	const double dRadInc = 0.5;
+	const double dAngInc = 0.001;
+
+	// TODO: Use beam center!
+	Vec2d<double> vecCenter;
+	vecCenter[0] = double(tmpImg.GetWidth()) * .5;
+	vecCenter[1] = double(tmpImg.GetHeight()) * .5;
+
+	TmpGraph tmpGraph = tmpImg.GetRadialIntegration(dAngInc, dRadInc, vecCenter);
 
 	double *pdx = new double[tmpGraph.GetWidth()];
 	double *pdy = new double[tmpGraph.GetWidth()];
+
+	double dMax = 1.;
+	for(int i=0; i<tmpGraph.GetWidth(); ++i)
+		dMax = max(dMax, double(tmpGraph.GetData(i)));
+
 	for(int i=0; i<tmpGraph.GetWidth(); ++i)
 	{
-		pdx[i] = i;
-		pdy[i] = tmpGraph.GetData(i);
+		pdx[i] = double(i) * dRadInc;
+		pdy[i] = double(tmpGraph.GetData(i)) / dMax;
 	}
 	m_curve.setData(pdx,pdy,tmpGraph.GetWidth());
 	delete[] pdx;
