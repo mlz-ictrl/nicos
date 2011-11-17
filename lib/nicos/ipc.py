@@ -191,16 +191,12 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
     }
 
     def send(self, addr, cmd, param=0, length=0, maxtries=None):
-        #~ return self._taco_multitry('send', self.maxtries, self._dev.SDARaw,
-                                   #~ addr, cmd, length, param)
-        return self._taco_multitry( repr(IPC_MAGIC[cmd][0])+' on addr 0x%x'%addr, 
-                maxtries or self.maxtries, self._dev.SDARaw, addr, cmd, length, param)
+        return self._taco_multitry('%r on addr 0x%x' % (IPC_MAGIC[cmd][0], addr),
+            maxtries or self.maxtries, self._dev.SDARaw, addr, cmd, length, param)
 
     def get(self, addr, cmd, param=0, length=0, maxtries=None):
-        #~ return self._taco_multitry('get', self.maxtries, self._dev.SRDRaw,
-                                  #~ addr, cmd, length, param)
-        return self._taco_multitry( repr(IPC_MAGIC[cmd][0])+' on addr 0x%x'%addr, 
-                maxtries or self.maxtries, self._dev.SRDRaw, addr, cmd, length, param)
+        return self._taco_multitry('%r on addr 0x%x' % (IPC_MAGIC[cmd][0], addr),
+            maxtries or self.maxtries, self._dev.SRDRaw, addr, cmd, length, param)
 
     def ping(self, addr):
         return self._taco_multitry('ping', self.maxtries, self._dev.Ping, addr)
@@ -414,15 +410,16 @@ class Coder(NicosCoder):
 
     def doVersion(self):
         version = self._adevs['bus'].get(self.addr, 151)
-        return [('IPC encoder card, %s'%self._hwtype, str(version))]
+        return [('IPC encoder card, %s' % self._hwtype, str(version))]
 
     def doReadFirmware(self):
         return self._adevs['bus'].get(self.addr, 151)
 
     def doReadConfbyte(self):
         byte = self._adevs['bus'].get(self.addr, 152)
-        self._type = self._getcodertype(byte)
-        self._resolution = byte & 31
+        # XXX shouldn't be necessary, doUpdateConfbyte is called
+        #self._type = self._getcodertype(byte)
+        #self._resolution = byte & 31
         return byte
 
     def doWriteConfbyte(self, byte):
@@ -435,28 +432,31 @@ class Coder(NicosCoder):
     @lazy_property
     def _hwtype(self):
         """Returns 'analog' or 'digital', used for features that only one of the
-        card types supports. 'analog' type is for potis and 'digital' is for rotary encoders
+        card types supports. 'analog' type is for potis and 'digital' is for
+        rotary encoders.
         """
-        firmware=self._adevs['bus'].get(self.addr,151,maxtries=1)
-        confbyte=self._adevs['bus'].get(self.addr,152,maxtries=1)
-        if confbyte<4:
+        firmware = self._adevs['bus'].get(self.addr, 151, maxtries=1)
+        confbyte = self._adevs['bus'].get(self.addr, 152, maxtries=1)
+        if confbyte < 4:
             return 'digital'
         if confbyte & 0xe0 == 0x20:
-            if firmware<20:     # wild guess, but seems to work....
+            if firmware < 20:  # wild guess, but seems to work...
                 return 'analog'
         return 'digital'
 
     def _getcodertype(self, byte):
         """Extract coder type from configuration byte."""
-        if byte <4:
-            return 'incremental encoder, 24bit' + \
-                ['no Reset','Reset once','Reset Always','Reset once to Halfrange'][byte]
-        if self._hwtype=='analog':
-            return 'potentiometer, %dbit' % ( byte & 0x1F )
+        if byte < 4:
+            return 'incremental encoder, 24bit, ' + \
+                ['no reset', 'reset once', 'reset always',
+                 'reset once to halfrange'][byte]
+        if self._hwtype == 'analog':
+            return 'potentiometer, %dbit' % (byte & 0x1F)
         proto = byte & 128 and 'endat' or 'ssi'
         coding = byte & 64 and 'gray' or 'binary'
         parity = byte & 32 and 'no parity' or 'even parity'
-        return 'absolute encoder, %s-protocol, %s-coded, %s, %dbit' % (proto, coding, parity, byte & 31)
+        return 'absolute encoder, %s-protocol, %s-coded, %s, %dbit' % \
+            (proto, coding, parity, byte & 31)
 
     def doReset(self):
         self._adevs['bus'].send(self.addr, 153)
@@ -492,7 +492,7 @@ class Coder(NicosCoder):
 
     def _endatclearalarm(self):
         """Clear alarm for a binary-endat encoder."""
-        if not self._type.startswith('endat'):
+        if 'endat-protocol' not in self._type:
             return
         bus = self._adevs['bus']
         try:
@@ -559,7 +559,7 @@ class Motor(NicosMotor):
             self.doWriteSteps(self.steps)
             self.log.warning('Resetting stepper position to last known good '
                              'value %d' % self.steps)
-        self._type='stepper motor, '+self._hwtype
+        self._type = 'stepper motor, ' + self._hwtype
 
     def doVersion(self):
         try:
@@ -630,7 +630,7 @@ class Motor(NicosMotor):
 
     def doReadDivider(self):
         try:
-            return self._adevs['bus'].get(self.addr, 144,maxtries=1)
+            return self._adevs['bus'].get(self.addr, 144, maxtries=1)
         except InvalidCommandError:
             return -1
 
