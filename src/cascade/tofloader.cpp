@@ -243,6 +243,7 @@ int TofImage::LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen)
 	for(int i=0; i<iExpectedSize; ++i)
 		m_puiDaten[i] = endian_swap(m_puiDaten[i]);
 #endif
+
 	return LOAD_SUCCESS;
 }
 
@@ -255,7 +256,7 @@ int TofImage::LoadFile(const char *pcFileName)
 				  " (line " << __LINE__ << ")!\n";
 	}
 
-	int iSize = GetTofSize();
+	unsigned int iSize = (unsigned int)GetTofSize();
 	int iRet = LOAD_SUCCESS;
 
 	FILE *pf = fopen(pcFileName,"rb");
@@ -265,6 +266,17 @@ int TofImage::LoadFile(const char *pcFileName)
 		logger << "Loader: Could not open file \"" << pcFileName << "\"."
 			   << "\n";
 		return LOAD_FAIL;
+	}
+
+	unsigned int uiFileSize = GetFileSize(pf);
+	if(uiFileSize != iSize*sizeof(int))
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: TOF file size (" << uiFileSize << " bytes) "
+			   << "!= expected size (" << iSize*sizeof(int)
+			   << " bytes).\n";
+
+		iRet = LOAD_SIZE_MISMATCH;
 	}
 
 	unsigned int uiBufLen = fread(m_puiDaten, sizeof(unsigned int), iSize, pf);
@@ -1033,9 +1045,21 @@ int PadImage::LoadFile(const char *pcFileName)
 		return LOAD_FAIL;
 	}
 
-	unsigned int uiBufLen = fread(m_puiDaten, sizeof(unsigned int),
-								GetPadConfig().GetImageHeight()*
-								GetPadConfig().GetImageWidth(), pf);
+	unsigned int uiExpectedSize = GetPadConfig().GetImageHeight()*
+								  GetPadConfig().GetImageWidth();
+
+	unsigned int uiFileSize = GetFileSize(pf);
+	if(uiFileSize != uiExpectedSize*sizeof(int))
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: PAD file size (" << uiFileSize << " bytes) "
+			   << "!= expected size (" << uiExpectedSize*sizeof(int)
+			   << " bytes).\n";
+
+		iRet = LOAD_SIZE_MISMATCH;
+	}
+
+	unsigned int uiBufLen = fread(m_puiDaten, sizeof(int), uiExpectedSize, pf);
 	if(!uiBufLen)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -1043,14 +1067,13 @@ int PadImage::LoadFile(const char *pcFileName)
 			   << "\n";
 	}
 
-	if(uiBufLen != (unsigned int)GetPadConfig().GetImageHeight()*
-								 GetPadConfig().GetImageWidth())
+	if(uiBufLen != (unsigned int)uiExpectedSize)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
 		logger << "Loader: Buffer size (" << uiBufLen << " ints) != PAD size ("
-			   << GetPadConfig().GetImageHeight()*
-				  GetPadConfig().GetImageWidth() << " ints)."
+			   << uiExpectedSize << " ints)."
 			   << "\n";
+
 		iRet = LOAD_SIZE_MISMATCH;
 	}
 	fclose(pf);
