@@ -910,8 +910,8 @@ void IntegrationDlg::UpdateGraph()
 {
 	TmpImage tmpImg = GetRoiImage();
 
-	const double dRadInc = 0.5;
-	const double dAngInc = 0.001;
+	const double dRadInc = .5;
+	const double dAngInc = 0.01;
 
 	// TODO: Use beam center!
 	Vec2d<double> vecCenter;

@@ -193,8 +193,11 @@ unsigned int TofImage::GetDataInsideROI(int iFoil, int iTimechannel,
 	if(m_bUseRoi)
 	{
 		// only continue if point is in ROI
-		if(!m_roi.IsInside(iX, iY))
-			return 0;
+		//if(!m_roi.IsInside(iX, iY))
+		//	return 0;
+
+		double dFractionInRoi = m_roi.HowMuchInside(iX, iY);
+		return double(GetData(iFoil, iTimechannel, iX, iY)) * dFractionInRoi;
 	}
 
 	return GetData(iFoil, iTimechannel, iX, iY);
@@ -205,8 +208,11 @@ unsigned int TofImage::GetDataInsideROI(int iImage, int iX, int iY) const
 	if(m_bUseRoi)
 	{
 		// only continue if point is in ROI
-		if(!m_roi.IsInside(iX, iY))
-			return 0;
+		//if(!m_roi.IsInside(iX, iY))
+		//	return 0;
+
+		double dFractionInRoi = m_roi.HowMuchInside(iX, iY);
+		return double(GetData(iImage, iX, iY)) * dFractionInRoi;
 	}
 
 	return GetData(iImage, iX, iY);
@@ -332,8 +338,11 @@ unsigned int TofImage::GetCounts() const
 		{
 			if(m_bUseRoi)
 			{
-				if(m_roi.IsInside(iX,iY))
-					uiCnt += img.GetData(iX, iY);
+				//if(m_roi.IsInside(iX,iY))
+				//	uiCnt += img.GetData(iX, iY);
+
+				double dFractionInRoi = m_roi.HowMuchInside(iX, iY);
+				uiCnt += double(img.GetData(iX, iY)) * dFractionInRoi;
 			}
 			else
 			{
@@ -1067,8 +1076,11 @@ unsigned int PadImage::GetDataInsideROI(int iX, int iY) const
 	if(m_bUseRoi)
 	{
 		// only continue if point is in ROI
-		if(!m_roi.IsInside(iX, iY))
-			return 0;
+		//if(!m_roi.IsInside(iX, iY))
+		//	return 0;
+
+		double dFractionInRoi = m_roi.HowMuchInside(iX, iY);
+		return GetDoubleData(iX, iY) * dFractionInRoi;
 	}
 	return GetData(iX, iY);
 }
@@ -1431,15 +1443,18 @@ TmpGraph TmpImage::GetRadialIntegration(double dAngleInc, double dRadInc,
 	memset(graph.m_puiDaten, 0, iSteps*sizeof(int));
 
 	for(int i=0; i<iSteps; ++i)
+	{
+		double dRad = double(i)*dRadInc;
+
 		for(double dAngle=0.; dAngle<2.*M_PI; dAngle+=dAngleInc)
 		{
-			double dRad = double(i)*dRadInc;
-
 			double dX = vecCenter[0] + dRad*cos(dAngle);
 			double dY = vecCenter[1] + dRad*sin(dAngle);
 
-			graph.m_puiDaten[i] += GetIntData(int(dX), int(dY));
+			graph.m_puiDaten[i] += dRad * dAngleInc*
+								   double(GetIntData(int(dX), int(dY)));
 		}
+	}
 
 	return graph;
 }
