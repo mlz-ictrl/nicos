@@ -69,6 +69,7 @@
 #include "cascadewidget.h"
 #include "logger.h"
 #include "helper.h"
+#include "gc.h"
 
 #include "ErrorBarPlotCurve.h"
 #include "histogram_item.h"
@@ -878,6 +879,12 @@ class MainWindow : public QMainWindow
 
 
 		///////////////////////////// File Menu Items /////////////////////////
+		void GarbageCollect()
+		{
+			gc.gc();
+			gc.print();
+		}
+
 		void BrowseFiles(const char* pcDir=".")
 		{
 			ServerDisconnect();
@@ -1205,6 +1212,9 @@ class MainWindow : public QMainWindow
 						QIcon::fromTheme("document-print"),
 						"P&rint Plot...",
 						this);
+			QAction *actionGc = new QAction(
+						"Garbage Collection",
+						this);
 			QAction *actionExit = new QAction(
 						QIcon::fromTheme("application-exit"),
 						"&Exit",
@@ -1319,6 +1329,7 @@ class MainWindow : public QMainWindow
 			menuFile->addSeparator();
 			menuFile->addAction(actionPrint);
 			menuFile->addSeparator();
+			menuFile->addAction(actionGc);
 			menuFile->addAction(actionExit);
 			menubar->addAction(menuFile->menuAction());
 
@@ -1544,6 +1555,8 @@ class MainWindow : public QMainWindow
 					this, SLOT(WriteXML()));
 			connect(actionPrint, SIGNAL(triggered()),
 					m_cascadewidget.GetPlot(), SLOT(printPlot()));
+			connect(actionGc, SIGNAL(triggered()),
+					this, SLOT(GarbageCollect()));
 
 			// Server
 			connect(actionConnectServer, SIGNAL(triggered()),

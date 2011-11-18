@@ -34,6 +34,7 @@
 #include "logger.h"
 #include "helper.h"
 #include "fit.h"
+#include "gc.h"
 
 
 //------------------------------------------------------------------------------
@@ -375,7 +376,12 @@ TmpImage TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY,
 	int iBildBreite = abs(iEndX-iStartX);
 	int iBildHoehe = abs(iEndY-iStartY);
 
-	unsigned int *puiWave = new unsigned int[iBildHoehe*iBildBreite];
+	img.Clear();
+	img.m_iW = iBildBreite;
+	img.m_iH = iBildHoehe;
+	img.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*iBildHoehe*iBildBreite);
+
+	unsigned int *puiWave = img.m_puiDaten;
 	if(puiWave==NULL)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -383,11 +389,6 @@ TmpImage TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY,
 			   << __LINE__ << ")!\n";
 		return img;
 	}
-
-	img.Clear();
-	img.m_iW = iBildBreite;
-	img.m_iH = iBildHoehe;
-	img.m_puiDaten = puiWave;
 
 	for(int iY=iStartY; iY<iEndY; ++iY)
 		for(int iX=iStartX; iX<iEndX; ++iX)
@@ -404,10 +405,10 @@ TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 
 	GetTofConfig().CheckTofArguments(&iStartX,&iEndX,&iStartY,&iEndY,&iFoil);
 
-	unsigned int *puiWave = new unsigned int[GetTofConfig().GetImagesPerFoil()];
-
 	graph.m_iW = GetTofConfig().GetImagesPerFoil();
-	graph.m_puiDaten = puiWave;
+	graph.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)
+										* GetTofConfig().GetImagesPerFoil());
+	unsigned int *puiWave = graph.m_puiDaten;
 
 	for(int iZ0=0; iZ0<GetTofConfig().GetImagesPerFoil(); ++iZ0)
 	{
@@ -438,10 +439,11 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 	TmpGraph graph;
 
 	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY);
-	unsigned int *puiWave = new unsigned int[GetTofConfig().GetImagesPerFoil()];
 
 	graph.m_iW = GetTofConfig().GetImagesPerFoil();
-	graph.m_puiDaten = puiWave;
+	graph.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)
+										* GetTofConfig().GetImagesPerFoil());
+	unsigned int *puiWave = graph.m_puiDaten;
 
 	// Zeitkanäle
 	for(int iZ0=0; iZ0<GetTofConfig().GetImagesPerFoil(); ++iZ0)
@@ -476,8 +478,9 @@ TmpImage TofImage::GetOverview(bool bOnlyInRoi) const
 	img.m_iW = GetTofConfig().GetImageWidth();
 	img.m_iH = GetTofConfig().GetImageHeight();
 
-	img.m_puiDaten = new unsigned int[GetTofConfig().GetImageWidth()*
-									  GetTofConfig().GetImageHeight()];
+	img.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*
+										   GetTofConfig().GetImageWidth()*
+										   GetTofConfig().GetImageHeight());
 	if(img.m_puiDaten==NULL)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -521,7 +524,8 @@ TmpImage TofImage::GetPhaseGraph(int iFolie, bool bInDeg) const
 	const int XSIZE = GlobalConfig::iPhaseBlockSize[0],
 			  YSIZE = GlobalConfig::iPhaseBlockSize[1];
 
-	double *pdWave = new double[(img.m_iW+XSIZE) * (img.m_iH+YSIZE)];
+	double *pdWave = (double*)gc.malloc(sizeof(double)*(img.m_iW+XSIZE)
+													  *(img.m_iH+YSIZE));
 	if(pdWave==NULL)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -570,7 +574,9 @@ TmpImage TofImage::GetContrastGraph(int iFoil) const
 	const int XSIZE = GlobalConfig::iContrastBlockSize[0],
 			  YSIZE = GlobalConfig::iContrastBlockSize[1];
 
-	double *pdWave = new double[(img.m_iW+XSIZE) * (img.m_iH+YSIZE)];
+	img.m_pdDaten = (double*)gc.malloc(sizeof(double) * (img.m_iW+XSIZE)
+													  * (img.m_iH+YSIZE));
+	double *pdWave = img.m_pdDaten;
 	if(pdWave==NULL)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -578,7 +584,6 @@ TmpImage TofImage::GetContrastGraph(int iFoil) const
 			   << __LINE__ << ")!\n";
 		return img;
 	}
-	img.m_pdDaten = pdWave;
 
 	for(int iY=iStartY; iY<iEndY; iY+=YSIZE)
 		for(int iX=iStartX; iX<iEndX; iX+=XSIZE)
@@ -609,8 +614,14 @@ TmpImage TofImage::AddFoils(const bool *pbKanaele) const
 	memset(uiAusgabe, 0, GetTofConfig().GetImageHeight()*
 						 GetTofConfig().GetImageWidth()*sizeof(int));
 
-	unsigned int *puiWave = new unsigned int[GetTofConfig().GetImageWidth()*
-											 GetTofConfig().GetImageHeight()];
+	img.Clear();
+	img.m_iW = GetTofConfig().GetImageWidth();
+	img.m_iH = GetTofConfig().GetImageHeight();
+	img.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)
+										*GetTofConfig().GetImageWidth()
+										*GetTofConfig().GetImageHeight());
+
+	unsigned int *puiWave = img.m_puiDaten;
 	if(puiWave==NULL)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -618,11 +629,6 @@ TmpImage TofImage::AddFoils(const bool *pbKanaele) const
 			   << __LINE__ << ")!\n";
 		return img;
 	}
-
-	img.Clear();
-	img.m_iW = GetTofConfig().GetImageWidth();
-	img.m_iH = GetTofConfig().GetImageHeight();
-	img.m_puiDaten = puiWave;
 
 	for(int iFolie=0; iFolie<GetTofConfig().GetFoilCount(); ++iFolie)
 	{
@@ -671,8 +677,14 @@ void TofImage::AddFoils(int iBits, int iZeitKanaeleBits, TmpImage *pImg) const
 	memset(uiAusgabe,0,GetTofConfig().GetImageHeight()*
 					   GetTofConfig().GetImageWidth()*sizeof(int));
 
-	unsigned int *puiWave = new unsigned int[GetTofConfig().GetImageWidth()*
-											GetTofConfig().GetImageHeight()];
+	pImg->Clear();
+	pImg->m_iW = GetTofConfig().GetImageWidth();
+	pImg->m_iH = GetTofConfig().GetImageHeight();
+	pImg->m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)
+										*GetTofConfig().GetImageWidth()
+										*GetTofConfig().GetImageHeight());
+
+	unsigned int *puiWave = pImg->m_puiDaten;
 	if(puiWave==NULL)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -680,11 +692,6 @@ void TofImage::AddFoils(int iBits, int iZeitKanaeleBits, TmpImage *pImg) const
 			   << __LINE__ << ")!\n";
 		return;
 	}
-
-	pImg->Clear();
-	pImg->m_iW = GetTofConfig().GetImageWidth();
-	pImg->m_iH = GetTofConfig().GetImageHeight();
-	pImg->m_puiDaten = puiWave;
 
 	for(int iFolie=0; iFolie<GetTofConfig().GetFoilCount(); ++iFolie)
 	{
@@ -709,8 +716,14 @@ TmpImage TofImage::AddPhases(const bool *pbFolien) const
 {
 	TmpImage img;
 
-	double *pdWave = new double[GetTofConfig().GetImageWidth()*
-								GetTofConfig().GetImageHeight()];
+	img.Clear();
+	img.m_iW = GetTofConfig().GetImageWidth();
+	img.m_iH = GetTofConfig().GetImageHeight();
+	img.m_pdDaten = (double*)gc.malloc(sizeof(double)
+											*GetTofConfig().GetImageWidth()
+											*GetTofConfig().GetImageHeight());
+
+	double *pdWave = img.m_pdDaten;
 	if(pdWave==NULL)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -718,12 +731,6 @@ TmpImage TofImage::AddPhases(const bool *pbFolien) const
 			   << __LINE__ << ")!\n";
 		return img;
 	}
-
-	img.Clear();
-	img.m_iW = GetTofConfig().GetImageWidth();
-	img.m_iH = GetTofConfig().GetImageHeight();
-	img.m_pdDaten = pdWave;
-
 	memset(pdWave, 0, sizeof(double)*img.m_iW*img.m_iH);
 
 	for(int iFolie=0; iFolie<GetTofConfig().GetFoilCount(); ++iFolie)
@@ -745,8 +752,14 @@ TmpImage TofImage::AddContrasts(const bool *pbFolien) const
 {
 	TmpImage img;
 
-	double *pdWave = new double[GetTofConfig().GetImageWidth()*
-								GetTofConfig().GetImageHeight()];
+	img.Clear();
+	img.m_iW = GetTofConfig().GetImageWidth();
+	img.m_iH = GetTofConfig().GetImageHeight();
+	img.m_pdDaten = (double*)gc.malloc(sizeof(double)
+											*GetTofConfig().GetImageWidth()
+											*GetTofConfig().GetImageHeight());
+
+	double *pdWave = img.m_pdDaten;
 	if(pdWave==NULL)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -754,11 +767,6 @@ TmpImage TofImage::AddContrasts(const bool *pbFolien) const
 			   << __LINE__ << ")!\n";
 		return img;
 	}
-
-	img.Clear();
-	img.m_iW = GetTofConfig().GetImageWidth();
-	img.m_iH = GetTofConfig().GetImageHeight();
-	img.m_pdDaten = pdWave;
 
 	memset(pdWave, 0, sizeof(double)*img.m_iW*img.m_iH);
 
@@ -1127,7 +1135,7 @@ TmpImage PadImage::GetRoiImage() const
 
 	img.m_iW = GetWidth();
 	img.m_iH = GetHeight();
-	img.m_puiDaten = new unsigned int[img.m_iW*img.m_iH];
+	img.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*img.m_iW*img.m_iH);
 
 	for(int iY=0; iY<img.m_iH; ++iY)
 		for(int iX=0; iX<img.m_iW; ++iX)
@@ -1145,7 +1153,7 @@ TmpImage PadImage::GetRoiImage() const
 TmpImage::TmpImage() : m_iW(GlobalConfig::GetTofConfig().GetImageWidth()),
 					   m_iH(GlobalConfig::GetTofConfig().GetImageHeight()),
 					   m_puiDaten(NULL), m_pdDaten(NULL),
-					   m_dMin(0), m_dMax(0), m_bCleanup(1)
+					   m_dMin(0), m_dMax(0)
 {}
 
 TmpImage::TmpImage(const TmpImage& tmp)
@@ -1161,15 +1169,9 @@ TmpImage& TmpImage::operator=(const TmpImage& tmp)
 	m_dMax = tmp.m_dMax;
 	m_puiDaten = tmp.m_puiDaten;
 	m_pdDaten = tmp.m_pdDaten;
-	m_bCleanup = 0;
 
-	if(tmp.m_bCleanup)
-	{
-		// the copied object is now responsible for cleaning up
-
-		m_bCleanup = 1;
-		const_cast<TmpImage&>(tmp).m_bCleanup = 0;
-	}
+	gc.acquire(m_puiDaten);
+	gc.acquire(m_pdDaten);
 
 	return *this;
 }
@@ -1181,12 +1183,12 @@ void TmpImage::Clear(void)
 
 	if(m_puiDaten)
 	{
-		delete[] m_puiDaten;
+		gc.release(m_puiDaten);
 		m_puiDaten=NULL;
 	}
 	if(m_pdDaten)
 	{
-		delete[] m_pdDaten;
+		gc.release(m_pdDaten);
 		m_pdDaten=NULL;
 	}
 }
@@ -1366,7 +1368,7 @@ void TmpImage::ConvertPAD(PadImage* pPad)
 	m_dMin = pPad->m_iMin;
 	m_dMax = pPad->m_iMax;
 
-	m_puiDaten = new unsigned int[m_iW*m_iH];
+	m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*m_iW*m_iH);
 	if(m_puiDaten==NULL)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -1409,7 +1411,7 @@ TmpGraph TmpImage::GetRadialIntegration(double dAngleInc, double dRadInc,
 
 	TmpGraph graph;
 	graph.m_iW = iSteps;
-	graph.m_puiDaten = new unsigned int[iSteps];
+	graph.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*iSteps);
 	memset(graph.m_puiDaten, 0, iSteps*sizeof(int));
 
 	for(int i=0; i<iSteps; ++i)
@@ -1436,14 +1438,14 @@ TmpGraph TmpImage::GetRadialIntegration(double dAngleInc, double dRadInc,
 //------------------------------------------------------------------------------
 // TmpGraph
 
-TmpGraph::TmpGraph() : m_iW(0), m_puiDaten(0), m_bCleanup(1)
+TmpGraph::TmpGraph() : m_iW(0), m_puiDaten(0)
 {}
 
 TmpGraph::~TmpGraph()
 {
-	if(m_puiDaten && m_bCleanup)
+	if(m_puiDaten)
 	{
-		delete[] m_puiDaten;
+		gc.release(m_puiDaten);
 		m_puiDaten=NULL;
 	}
 }
@@ -1457,15 +1459,7 @@ TmpGraph& TmpGraph::operator=(const TmpGraph& tmp)
 {
 	m_iW = tmp.m_iW;
 	m_puiDaten = tmp.m_puiDaten;
-	m_bCleanup = 0;
-
-	if(tmp.m_bCleanup)
-	{
-		// the copied object is now responsible for cleaning up
-
-		m_bCleanup = 1;
-		const_cast<TmpGraph&>(tmp).m_bCleanup = 0;
-	}
+	gc.acquire(m_puiDaten);
 
 	return *this;
 }

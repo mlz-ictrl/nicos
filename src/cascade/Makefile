@@ -28,8 +28,8 @@ all: cascade nicosmodules
 
 
 ###################### cascade-qt-client ################
-cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o globals.o parse.o roi.o fit.o
-	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o globals.o parse.o roi.o fit.o
+cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o globals.o parse.o roi.o fit.o gc.o
+	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o globals.o parse.o roi.o fit.o gc.o
 #########################################################
 
 
@@ -80,6 +80,9 @@ roi.o: roi.cpp roi.h
 
 fit.o: fit.cpp fit.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o fit.o fit.cpp
+
+gc.o: gc.cpp gc.h
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o gc.o gc.cpp
 #########################################################
 
 

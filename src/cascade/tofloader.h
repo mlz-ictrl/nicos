@@ -252,8 +252,6 @@ class TmpGraph
 	// pointer to data array
 	unsigned int* m_puiDaten;
 
-	bool m_bCleanup;
-
   public:
 	// create empty graph (does not allocate memory)
 	TmpGraph();
