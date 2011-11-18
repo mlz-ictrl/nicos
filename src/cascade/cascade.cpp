@@ -1213,6 +1213,7 @@ class MainWindow : public QMainWindow
 						"P&rint Plot...",
 						this);
 			QAction *actionGc = new QAction(
+						QIcon::fromTheme("user-trash-full"),
 						"Garbage Collection",
 						this);
 			QAction *actionExit = new QAction(

@@ -63,6 +63,16 @@ void Gc::gc()
 void* Gc::malloc(unsigned int uiSize)
 {
 	void* pv = ::malloc(uiSize);
+
+	if(pv==0)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "gc: Memory could not be allocated. "
+				<< "Requested size: " << uiSize << "\n";
+
+		return 0;
+	}
+
 	Gc_info gci;
 	gci.iLen = uiSize;
 	++gci.iRefs;
@@ -73,9 +83,20 @@ void* Gc::malloc(unsigned int uiSize)
 
 bool Gc::acquire(void* pv)
 {
+	if(pv==0)
+	{
+		//logger.SetCurLogLevel(LOGLEVEL_WARN);
+		//logger << "gc: Tried to aquire NULL.\n";
+		return false;
+	}
+
 	t_map::iterator iter = m_map.find(pv);
 	if(iter == m_map.end())
+	{
+		//logger.SetCurLogLevel(LOGLEVEL_WARN);
+		//logger << "gc: Tried to aquire unreferenced mem.\n";
 		return false;
+	}
 
 	++(*iter).second.iRefs;
 	return true;
@@ -83,9 +104,21 @@ bool Gc::acquire(void* pv)
 
 bool Gc::release(void* pv)
 {
+	if(pv==0)
+	{
+		//logger.SetCurLogLevel(LOGLEVEL_WARN);
+		//logger << "gc: Tried to release NULL.\n";
+		return false;
+	}
+
 	t_map::iterator iter = m_map.find(pv);
 	if(iter == m_map.end())
+	{
+		//logger.SetCurLogLevel(LOGLEVEL_WARN);
+		//logger << "gc: Tried to release unreferenced mem.\n";
+
 		return false;
+	}
 
 	--(*iter).second.iRefs;
 	if((*iter).second.iRefs == 0)

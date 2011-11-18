@@ -1178,19 +1178,11 @@ TmpImage& TmpImage::operator=(const TmpImage& tmp)
 
 void TmpImage::Clear(void)
 {
-	if(!m_bCleanup)
-		return;
+	gc.release(m_puiDaten);
+	m_puiDaten=NULL;
 
-	if(m_puiDaten)
-	{
-		gc.release(m_puiDaten);
-		m_puiDaten=NULL;
-	}
-	if(m_pdDaten)
-	{
-		gc.release(m_pdDaten);
-		m_pdDaten=NULL;
-	}
+	gc.release(m_pdDaten);
+	m_pdDaten=NULL;
 }
 
 TmpImage::~TmpImage() { Clear(); }

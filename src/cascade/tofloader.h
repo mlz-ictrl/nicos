@@ -178,9 +178,6 @@ class TmpImage : public BasicImage
 
 	const Vec2d<int>& GetMaxCoord() const;
 
-	// if true, this object manages the memory
-	bool m_bCleanup;
-
   public:
 	// create EMPTY TmpImage without allocating any memory etc.
 	// (which is done externally)
