@@ -136,7 +136,7 @@ void Gc::print() const
 	if(m_map.size()==0)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_INFO);
-		logger << "gc: clean.\n";
+		logger << "gc: Clean.\n";
 	}
 
 	for(t_map::const_iterator iter=m_map.begin(); iter!=m_map.end(); ++iter)
