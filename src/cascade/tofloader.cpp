@@ -79,19 +79,12 @@ TofImage::TofImage(const char *pcFileName, int iCompressed, bool bExternalMem,
 	}
 }
 
-TofImage::~TofImage()
-{
-	Clear();
-}
+TofImage::~TofImage() { Clear(); }
 
 void TofImage::UseRoi(bool bUseRoi) { m_bUseRoi = bUseRoi; }
 Roi& TofImage::GetRoi() { return m_roi; }
 bool TofImage::GetUseRoi() const { return m_bUseRoi; };
-
-const TofConfig& TofImage::GetTofConfig() const
-{
-	return m_config;
-}
+const TofConfig& TofImage::GetTofConfig() const { return m_config; }
 
 void TofImage::SetExternalMem(void* pvDaten)
 {
@@ -114,6 +107,7 @@ int TofImage::GetTofSize() const
 			  GetTofConfig().GetImagesPerFoil()*
 			  GetTofConfig().GetImageHeight()*
 			  GetTofConfig().GetImageWidth()
+
 			: GetTofConfig().GetImageCount()*
 			  GetTofConfig().GetImageHeight()*
 			  GetTofConfig().GetImageWidth();
@@ -842,10 +836,7 @@ PadImage::PadImage(const PadImage& pad) : m_bExternalMem(false)
 	memcpy(m_puiDaten, pad.m_puiDaten, sizeof(int)*GetPadSize());
 }
 
-PadImage::~PadImage()
-{
-	Clear();
-}
+PadImage::~PadImage() { Clear(); }
 
 void PadImage::Clear()
 {
@@ -856,25 +847,10 @@ void PadImage::Clear()
 	}
 }
 
-int PadImage::GetWidth() const
-{
-	return GetPadConfig().GetImageWidth();
-}
-
-int PadImage::GetHeight() const
-{
-	return GetPadConfig().GetImageHeight();
-}
-
-int PadImage::GetPadSize() const
-{
-	return GetHeight()*GetWidth();
-}
-
-const PadConfig& PadImage::GetPadConfig() const
-{
-	return m_config;
-}
+int PadImage::GetWidth() const { return GetPadConfig().GetImageWidth(); }
+int PadImage::GetHeight() const { return GetPadConfig().GetImageHeight(); }
+int PadImage::GetPadSize() const { return GetHeight()*GetWidth(); }
+const PadConfig& PadImage::GetPadConfig() const { return m_config; }
 
 void PadImage::SetExternalMem(void* pvDaten)
 {
@@ -1061,10 +1037,7 @@ void PadImage::Print(const char* pcOutFile)
 	}
 }
 
-unsigned int* PadImage::GetRawData(void)
-{
-	return m_puiDaten;
-}
+unsigned int* PadImage::GetRawData(void) { return m_puiDaten; }
 
 unsigned int PadImage::GetData(int iX, int iY) const
 {
@@ -1218,10 +1191,7 @@ void TmpImage::Clear(void)
 	}
 }
 
-TmpImage::~TmpImage()
-{
-	Clear();
-}
+TmpImage::~TmpImage() { Clear(); }
 
 double TmpImage::GetData(int iX, int iY) const
 {

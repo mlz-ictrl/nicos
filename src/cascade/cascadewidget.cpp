@@ -796,8 +796,8 @@ void CascadeWidget::UpdateGraph()
 		if(m_iMode==MODE_SLIDES)
 		{
 			*m_pTmpImg = m_pTof->GetROI(0,
-							 m_pTof->GetTofConfig().GetImageWidth()-1, 0,
-							 m_pTof->GetTofConfig().GetImageHeight()-1,
+							 m_pTof->GetTofConfig().GetImageWidth(), 0,
+							 m_pTof->GetTofConfig().GetImageHeight(),
 							 m_iFolie,m_iZeitkanal);
 		}
 		else if(m_iMode==MODE_PHASES)
