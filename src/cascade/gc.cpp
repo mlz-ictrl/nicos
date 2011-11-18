@@ -133,6 +133,12 @@ bool Gc::release(void* pv)
 
 void Gc::print() const
 {
+	if(m_map.size()==0)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_INFO);
+		logger << "gc: clean.\n";
+	}
+
 	for(t_map::const_iterator iter=m_map.begin(); iter!=m_map.end(); ++iter)
 	{
 		void *pv = (*iter).first;
@@ -142,7 +148,7 @@ void Gc::print() const
 		logger << "gc: mem=" << std::hex << pv
 			   << ", len=" << std::dec << info.iLen
 			   << ", refs=" << info.iRefs
-			   << "\n";
+			   << ".\n";
 	}
 }
 
