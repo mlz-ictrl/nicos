@@ -88,10 +88,16 @@ MainPicker::~MainPicker()
 
 QwtText MainPicker::trackerText(const QwtDoublePoint &pos) const
 {
-	const int iX = int(pos.x());
-	const int iY = int(pos.y());
+	const double dX = pos.x();
+	const double dY = pos.y();
 
 	QString str;
+	str += "Pixel: ";
+	str += QString::number(int(dX));
+	str += ", ";
+	str += QString::number(int(dY));
+	str += "\n";
+
 	if(isActive())
 	{
 		switch(m_iRoiDrawMode)
@@ -118,18 +124,19 @@ QwtText MainPicker::trackerText(const QwtDoublePoint &pos) const
 	}
 	else
 	{
-		if(!m_pCurRoi)
-			str = "no active roi";
-		else if(m_pCurRoi->IsInside(iX, iY))
-			str = "inside roi";
-		else
-			str = "outside roi";
-	}
+		if(m_pCurRoi)
+		{
+			if(m_pCurRoi->IsInside(dX, dY))
+				str += "cursor inside roi";
+			else
+				str += "cursor outside roi";
 
-	str += "\nPixel: ";
-	str += QString::number(iX);
-	str += ", ";
-	str += QString::number(iY);
+			double dFraction = m_pCurRoi->HowMuchInside(dX, dY);
+			str += "\npixel ";
+			str += QString::number(dFraction*100.);
+			str += "% inside roi";
+		}
+	}
 
 	QwtText text = str;
 	QColor bg(Qt::white);

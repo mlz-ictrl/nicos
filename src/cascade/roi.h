@@ -33,11 +33,11 @@
 
 struct BoundingRect
 {
-	Vec2d<int> bottomleft;
-	Vec2d<int> topright;
+	Vec2d<double> bottomleft;
+	Vec2d<double> topright;
 
 	void SetInvalidBounds();
-	void AddVertex(const Vec2d<int>& vertex);
+	void AddVertex(const Vec2d<double>& vertex);
 };
 
 
@@ -59,8 +59,11 @@ class RoiElement
 		virtual std::string GetName() const = 0;
 
 
-		// is point (iX, iY) inside element?
-		virtual bool IsInside(int iX, int iY) const = 0;
+		// is point (dX, dY) inside roi element?
+		virtual bool IsInside(double dX, double dY) const = 0;
+
+		// what fraction (0.0 .. 1.0) of pixel (iX, iY) is inside roi element?
+		virtual double HowMuchInside(int iX, int iY) const;
 
 
 		//----------------------------------------------------------------------
@@ -89,7 +92,7 @@ class RoiElement
 		virtual const BoundingRect& GetBoundingRect() const;
 
 		// is point (iX, iY) inside elementzy
-		virtual bool IsInBoundingRect(int iX, int iY) const;
+		virtual bool IsInBoundingRect(double dX, double dY) const;
 };
 
 
@@ -106,7 +109,7 @@ class RoiRect : public RoiElement
 		RoiRect();
 		RoiRect(const RoiRect& rect);
 
-		virtual bool IsInside(int iX, int iY) const;
+		virtual bool IsInside(double dX, double dY) const;
 
 		virtual std::string GetName() const;
 
@@ -136,7 +139,6 @@ class RoiCircle : public RoiElement
 		RoiCircle();
 		RoiCircle(const RoiCircle& elem);
 
-		virtual bool IsInside(int iX, int iY) const;
 		virtual bool IsInside(double dX, double dY) const;
 
 		virtual std::string GetName() const;
@@ -168,7 +170,6 @@ class RoiEllipse : public RoiElement
 		RoiEllipse();
 		RoiEllipse(const RoiEllipse& elem);
 
-		virtual bool IsInside(int iX, int iY) const;
 		virtual bool IsInside(double dX, double dY) const;
 
 		virtual std::string GetName() const;
@@ -200,7 +201,6 @@ class RoiCircleRing : public RoiElement
 		RoiCircleRing();
 		RoiCircleRing(const RoiCircleRing& elem);
 
-		virtual bool IsInside(int iX, int iY) const;
 		virtual bool IsInside(double dX, double dY) const;
 
 		virtual std::string GetName() const;
@@ -232,7 +232,6 @@ class RoiCircleSegment : public RoiCircleRing
 		RoiCircleSegment();
 		RoiCircleSegment(const RoiCircleSegment& elem);
 
-		virtual bool IsInside(int iX, int iY) const;
 		virtual bool IsInside(double dX, double dY) const;
 
 		virtual std::string GetName() const;
@@ -260,7 +259,6 @@ class RoiPolygon : public RoiElement
 		RoiPolygon();
 		RoiPolygon(const RoiPolygon& elem);
 
-		virtual bool IsInside(int iX, int iY) const;
 		virtual bool IsInside(double dX, double dY) const;
 
 		virtual std::string GetName() const;
@@ -298,7 +296,11 @@ class Roi
 		int add(RoiElement* elem);
 		void clear();
 
-		bool IsInside(int iX, int iY) const;
+		// is point (dX, dY) inside roi?
+		bool IsInside(double dX, double dY) const;
+
+		// what fraction (0.0 .. 1.0) of pixel (iX, iY) is inside roi?
+		double HowMuchInside(int iX, int iY) const;
 
 		RoiElement& GetElement(int iElement);
 		const RoiElement& GetElement(int iElement) const;

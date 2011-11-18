@@ -38,13 +38,13 @@
 
 void BoundingRect::SetInvalidBounds()
 {
-	bottomleft[0] = std::numeric_limits<int>::max();
-	bottomleft[1] = std::numeric_limits<int>::max();
-	topright[0] = std::numeric_limits<int>::min();
-	topright[1] = std::numeric_limits<int>::min();
+	bottomleft[0] = std::numeric_limits<double>::max();
+	bottomleft[1] = std::numeric_limits<double>::max();
+	topright[0] = std::numeric_limits<double>::min();
+	topright[1] = std::numeric_limits<double>::min();
 }
 
-void BoundingRect::AddVertex(const Vec2d<int>& vertex)
+void BoundingRect::AddVertex(const Vec2d<double>& vertex)
 {
 	bottomleft[0] = min(bottomleft[0], vertex[0]);
 	bottomleft[1] = min(bottomleft[1], vertex[1]);
@@ -68,7 +68,7 @@ void RoiElement::CalculateBoundingRect()
 	for(int i=0; i<GetVertexCount(); ++i)
 	{
 		Vec2d<double> vert = GetVertex(i);
-		rect.AddVertex(vert.cast<int>());
+		rect.AddVertex(vert);
 	}
 }
 
@@ -83,15 +83,35 @@ RoiElement& RoiElement::operator=(const RoiElement& elem)
 	return *this;
 }
 
-bool RoiElement::IsInBoundingRect(int iX, int iY) const
+bool RoiElement::IsInBoundingRect(double dX, double dY) const
 {
 	const BoundingRect& rect = m_boundingrect;
 
-	if(iX >= rect.bottomleft[0] && iX < rect.topright[0] &&
-	   iY >= rect.bottomleft[1] && iY < rect.topright[1])
+	if(dX >= rect.bottomleft[0] && dX < rect.topright[0] &&
+	   dY >= rect.bottomleft[1] && dY < rect.topright[1])
 	   return true;
 
 	return false;
+}
+
+// TODO: directly calculate fraction inside roi element
+//       in the respective child classes; this general
+//       method is horribly inefficient
+double RoiElement::HowMuchInside(int iX, int iY) const
+{
+	const double dInc = 0.1;
+	const double dTotal = (1./dInc) * (1./dInc);
+
+	double dFraction = 0.;
+
+	for(double dY=iY; dY<iY+1; dY+=dInc)
+		for(double dX=iX; dX<iX+1; dX+=dInc)
+		{
+			if(IsInside(dX, dY))
+				dFraction += 1./dTotal;
+		}
+
+	return dFraction;
 }
 
 //------------------------------------------------------------------------------
@@ -122,12 +142,12 @@ RoiRect::RoiRect(const RoiRect& rect)
 	*this = rect;
 }
 
-bool RoiRect::IsInside(int iX, int iY) const
+bool RoiRect::IsInside(double dX, double dY) const
 {
 	Vec2d<double> vecCenter = m_bottomleft + (m_topright-m_bottomleft)*.5;
 	Mat2d<double> matRot_inv = Mat2d<double>::rotation(-m_dAngle/180.*M_PI);
 
-	Vec2d<double> vecPoint(iX, iY);
+	Vec2d<double> vecPoint(dX, dY);
 	vecPoint = matRot_inv*(vecPoint-vecCenter) + vecCenter;
 
 	if(vecPoint[0]>=m_bottomleft[0] && vecPoint[0]<m_topright[0] &&
@@ -257,11 +277,6 @@ RoiCircle::RoiCircle(const RoiCircle& elem)
 	*this = elem;
 }
 
-bool RoiCircle::IsInside(int iX, int iY) const
-{
-	return IsInside(double(iX), double(iY));
-}
-
 bool RoiCircle::IsInside(double dX, double dY) const
 {
 	double dX_0 = dX - m_vecCenter[0];
@@ -338,11 +353,11 @@ void RoiCircle::CalculateBoundingRect()
 {
 	BoundingRect& rect = m_boundingrect;
 
-	rect.bottomleft = m_vecCenter.cast<int>();
+	rect.bottomleft = m_vecCenter;
 	rect.bottomleft[0] -= m_dRadius;
 	rect.bottomleft[1] -= m_dRadius;
 
-	rect.topright = m_vecCenter.cast<int>();
+	rect.topright = m_vecCenter;
 	rect.topright[0] += m_dRadius;
 	rect.topright[1] += m_dRadius;
 }
@@ -385,11 +400,6 @@ RoiEllipse::RoiEllipse() : m_dRadiusX(0.), m_dRadiusY(0.)
 RoiEllipse::RoiEllipse(const RoiEllipse& elem)
 {
 	*this = elem;
-}
-
-bool RoiEllipse::IsInside(int iX, int iY) const
-{
-	return IsInside(double(iX), double(iY));
 }
 
 bool RoiEllipse::IsInside(double dX, double dY) const
@@ -476,11 +486,11 @@ void RoiEllipse::CalculateBoundingRect()
 {
 	BoundingRect &rect = m_boundingrect;
 
-	rect.bottomleft = m_vecCenter.cast<int>();
+	rect.bottomleft = m_vecCenter;
 	rect.bottomleft[0] -= m_dRadiusX;
 	rect.bottomleft[1] -= m_dRadiusY;
 
-	rect.topright = m_vecCenter.cast<int>();
+	rect.topright = m_vecCenter;
 	rect.topright[0] += m_dRadiusX;
 	rect.topright[1] += m_dRadiusY;
 }
@@ -530,11 +540,6 @@ RoiCircleRing::RoiCircleRing()
 RoiCircleRing::RoiCircleRing(const RoiCircleRing& elem)
 {
 	*this = elem;
-}
-
-bool RoiCircleRing::IsInside(int iX, int iY) const
-{
-	return IsInside(double(iX), double(iY));
 }
 
 bool RoiCircleRing::IsInside(double dX, double dY) const
@@ -651,11 +656,11 @@ void RoiCircleRing::CalculateBoundingRect()
 {
 	BoundingRect& rect = m_boundingrect;
 
-	rect.bottomleft = m_vecCenter.cast<int>();
+	rect.bottomleft = m_vecCenter;
 	rect.bottomleft[0] -= m_dOuterRadius;
 	rect.bottomleft[1] -= m_dOuterRadius;
 
-	rect.topright = m_vecCenter.cast<int>();
+	rect.topright = m_vecCenter;
 	rect.topright[0] += m_dOuterRadius;
 	rect.topright[1] += m_dOuterRadius;
 }
@@ -701,11 +706,6 @@ RoiCircleSegment::RoiCircleSegment(const RoiCircleSegment& elem)
 				: RoiCircleRing()
 {
 	*this = elem;
-}
-
-bool RoiCircleSegment::IsInside(int iX, int iY) const
-{
-	return IsInside(double(iX), double(iY));
 }
 
 bool RoiCircleSegment::IsInside(double dX, double dY) const
@@ -872,11 +872,6 @@ RoiPolygon::RoiPolygon(const RoiPolygon& elem)
 	*this = elem;
 }
 
-bool RoiPolygon::IsInside(int iX, int iY) const
-{
-	return IsInside(double(iX), double(iY));
-}
-
 // Adaptor to use external pnpoly function more efficiently
 class RoiPolygonArrayAdaptor
 {
@@ -1038,13 +1033,13 @@ void Roi::clear()
 	m_vecRoi.clear();
 }
 
-bool Roi::IsInside(int iX, int iY) const
+bool Roi::IsInside(double dX, double dY) const
 {
 	// check bounding rects
 	bool bInBoundingRect = false;
 	for(unsigned int i=0; i<m_vecRoi.size(); ++i)
 	{
-		if(m_vecRoi[i]->IsInBoundingRect(iX, iY))
+		if(m_vecRoi[i]->IsInBoundingRect(dX, dY))
 		{
 			bInBoundingRect = true;
 			break;
@@ -1057,10 +1052,23 @@ bool Roi::IsInside(int iX, int iY) const
 	// check actual elements
 	for(unsigned int i=0; i<m_vecRoi.size(); ++i)
 	{
-		if(m_vecRoi[i]->IsInside(iX, iY))
+		if(m_vecRoi[i]->IsInside(dX, dY))
 			return true;
 	}
 	return false;
+}
+
+// TODO: consider overlapping roi elements
+double Roi::HowMuchInside(int iX, int iY) const
+{
+	double dFraction = 0.;
+	for(unsigned int i=0; i<m_vecRoi.size(); ++i)
+	{
+		dFraction += m_vecRoi[i]->HowMuchInside(iX, iY);
+		if(dFraction >= 1.)
+			return 1.;
+	}
+	return dFraction;
 }
 
 RoiElement& Roi::GetElement(int iElement)
