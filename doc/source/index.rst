@@ -1,5 +1,5 @@
-NICOS-ng Documentation
-======================
+Welcome to NICOS
+================
 
 Contents:
 
@@ -10,10 +10,8 @@ Contents:
    components
    setups
    devices
-   auto/modules
-
-Indices and tables
-==================
+   api
+   glossary
 
 * :ref:`genindex`
 * :ref:`modindex`
