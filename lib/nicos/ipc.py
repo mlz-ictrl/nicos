@@ -40,7 +40,7 @@ from nicos.utils import intrange, floatrange, oneofdict, oneof, closeSocket, \
      lazy_property, runAsync, usermethod
 from nicos.device import Device, Readable, Moveable, Param, Override
 from nicos.errors import NicosError, CommunicationError, ProgrammingError, \
-    UsageError, TimeoutError
+    InvalidValueError, TimeoutError
 from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
 
 
@@ -624,7 +624,7 @@ class Motor(NicosMotor):
         try:
             self._adevs['bus'].send(self.addr, 50, value, 3)
         except InvalidCommandError:
-            raise UsageError(self, 'ramp type not supported by card')
+            raise InvalidValueError(self, 'ramp type not supported by card')
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
 
@@ -638,7 +638,7 @@ class Motor(NicosMotor):
         try:
             self._adevs['bus'].send(self.addr, 60, value, 3)
         except InvalidCommandError:
-            raise UsageError(self, 'divider not supported by card')
+            raise InvalidValueError(self, 'divider not supported by card')
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
 
@@ -657,7 +657,8 @@ class Motor(NicosMotor):
             elif value == 2:
                 self._adevs['bus'].send(self.addr, 37)
             else:
-                raise UsageError(self, 'microsteps > 2 not supported by card')
+                raise InvalidValueError(self,
+                                        'microsteps > 2 not supported by card')
         else:
             self._adevs['bus'].send(self.addr, 57,
                                     [1, 2, 4, 8, 16].index(value), 3)
@@ -689,7 +690,7 @@ class Motor(NicosMotor):
         if self._hwtype == 'single':
             self._adevs['bus'].send(self.addr, 49, value, 3)
         else:
-            raise UsageError(self, 'confbyte not supported by card')
+            raise InvalidValueError(self, 'confbyte not supported by card')
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
 
@@ -706,7 +707,7 @@ class Motor(NicosMotor):
         if self._hwtype == 'single':
             self._adevs['bus'].send(self.addr, 55, int(value * 10), 3)
         else:
-            raise UsageError(self, 'startdelay not supported by card')
+            raise InvalidValueError(self, 'startdelay not supported by card')
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
 
@@ -723,7 +724,7 @@ class Motor(NicosMotor):
         if self._hwtype == 'single':
             self._adevs['bus'].send(self.addr, 58, int(value * 10), 3)
         else:
-            raise UsageError(self, 'stopdelay not supported by card')
+            raise InvalidValueError(self, 'stopdelay not supported by card')
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
 

@@ -34,7 +34,7 @@ from nicos import status
 from nicos.taco import TacoDevice
 from nicos.utils import intrange, listof
 from nicos.device import Device, Readable, Moveable, Param, Override
-from nicos.errors import NicosError, CommunicationError, UsageError, \
+from nicos.errors import NicosError, CommunicationError, InvalidValueError, \
      ConfigurationError
 
 
@@ -103,8 +103,8 @@ class Valve(Moveable):
 
     def doStart(self, value):
         if value not in self.states:
-            raise UsageError(self, 'value must be one of %s' %
-                             ', '.join(repr(s) for s in self.states))
+            raise InvalidValueError(self, 'value must be one of %s' %
+                                    ', '.join(repr(s) for s in self.states))
         value = self.states.index(value)
         self.doWait()
         self._timer = time()

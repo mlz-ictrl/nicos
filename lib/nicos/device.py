@@ -34,7 +34,7 @@ from nicos.utils import DeviceMeta, Param, Override, Value, getVersions, \
      usermethod, tupleof, floatrange, anytype, none_or
 from nicos.errors import NicosError, ConfigurationError, ProgrammingError, \
      UsageError, LimitError, FixedError, ModeError, CommunicationError, \
-     CacheLockError
+     CacheLockError, InvalidValueError
 
 
 class Device(object):
@@ -157,8 +157,8 @@ class Device(object):
 
     def doUpdateLoglevel(self, value):
         if value not in loggers.loglevels:
-            raise UsageError(self, 'loglevel must be one of %s' %
-                             ', '.join(map(repr, loggers.loglevels.keys())))
+            raise InvalidValueError(self, 'loglevel must be one of %s' %
+                ', '.join(map(repr, loggers.loglevels.keys())))
         self.log.setLevel(loggers.loglevels[value])
 
     def init(self):

@@ -30,7 +30,7 @@ from time import sleep
 
 from nicos.utils import oneof
 from nicos.device import Moveable, HasPrecision, Param, Override, AutoDevice
-from nicos.errors import UsageError
+from nicos.errors import InvalidValueError
 
 
 class Slit(Moveable):
@@ -72,19 +72,20 @@ class Slit(Moveable):
     def _getPositions(self, target):
         if self.opmode == '4blades':
             if len(target) != 4:
-                raise UsageError(self, 'arguments required for 4-blades mode: '
-                                 '[xmin, xmax, ymin, ymax]')
+                raise InvalidValueError(self, 'arguments required for 4-blades '
+                                        'mode: [xmin, xmax, ymin, ymax]')
             positions = list(target)
         elif self.opmode == 'centered':
             if len(target) != 2:
-                raise UsageError(self, 'arguments required for centered mode: '
-                                 '[width, height]')
+                raise InvalidValueError(self, 'arguments required for centered '
+                                        'mode: [width, height]')
             positions = [-target[0]/2., target[0]/2.,
                          -target[1]/2., target[1]/2.]
         else:
             if len(target) != 4:
-                raise UsageError(self, 'arguments required for offcentered mode: '
-                                 '[xcenter, ycenter, width, height]')
+                raise InvalidValueError(self, 'arguments required for '
+                                        'offcentered mode: [xcenter, ycenter, '
+                                        'width, height]')
             positions = [target[0] - target[2]/2., target[0] + target[2]/2.,
                          target[1] - target[3]/2., target[1] + target[3]/2.]
         return positions

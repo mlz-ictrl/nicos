@@ -31,12 +31,16 @@ class NicosError(Exception):
     """
     The basic exception class for exceptions raised by NICOS.
 
-    Every NicosError has a "category", a string that is shown to the user
-    instead of the exception class.
+    Every NicosError subclass has a "category" attribute, a string that is shown
+    to the user instead of the exception class.
 
-    The constructor accepts a :class:`.Device` instance as its first argument,
-    which is then used to display the error to the user as coming from this
-    device.
+    The constructor also accepts a :class:`.Device` instance as its first
+    argument, which is then used to display the error to the user as coming from
+    this device.  For example::
+
+       def doRead(self):
+           if not self._ready:
+               raise NicosError(self, 'device is not ready')
     """
     category = 'Error'
     device = None
@@ -53,39 +57,87 @@ class NicosError(Exception):
 
 
 class ProgrammingError(NicosError):
+    """
+    Exception to be raised when an error in the code is detected.
+    """
     category = 'Programming error'
 
 class ConfigurationError(NicosError):
+    """
+    Exception to be raised when an error in the :term:`setup` is detected, or a
+    device is supplied with invalid configuration data.
+    """
     category = 'Configuration error'
 
 class UsageError(NicosError):
+    """
+    Exception to be raised when user commands are used wrongly.
+
+    When this exception is caught by the :term:`user command` handler, the help
+    for the command that was executed is shown.
+    """
     category = 'Usage error'
 
+class InvalidValueError(NicosError):
+    """
+    Exception to be raised when the user gives an invalid value to a device
+    (as a move target or parameter value).
+    """
+    category = 'Invalid value'
+
 class ModeError(NicosError):
+    """
+    Exception to be raised when an action is not allowed in the current
+    :term:`execution mode`.
+    """
     category = 'Mode error'
 
 class PositionError(NicosError):
+    """
+    Exception to be raised when a device detects an invalid position.
+    """
     category = 'Position error'
 
 class MoveError(NicosError):
+    """
+    Exception to be raised when moving a device is not possible.
+    """
     category = 'Positioning error'
 
 class LimitError(NicosError):
+    """
+    Exception to be raised when a requested move target is out of limits.
+    """
     category = 'Out of bounds'
 
-class FixedError(NicosError):
-    category = 'Device fixed'
-
 class CommunicationError(NicosError):
+    """
+    Exception to be raised when some hardware communication fails.
+    """
     category = 'Communication error'
 
 class TimeoutError(CommunicationError):
+    """
+    Exception to be raised when a timeout occurs.
+    """
     category = 'Timeout'
 
 class ComputationError(NicosError):
+    """
+    Exception to be raised when a computation (e.g. of physical values) fails.
+    """
     category = 'Computation error'
 
+class FixedError(NicosError):
+    """
+    Exception to be raised when moving a :term:`fix`\ ed device is attempted.
+    """
+    category = 'Device fixed'
+
 class CacheLockError(ProgrammingError):
+    """
+    Exception to be raised when a :term:`cache lock` cannot be acquired.
+    """
     def __init__(self, locked_by):
         self.locked_by = locked_by
         ProgrammingError.__init__(self, 'locked by ' + locked_by)
