@@ -20,7 +20,7 @@
 //   Tobias Weber <tweber@frm2.tum.de>
 //
 // *****************************************************************************
-// Klassen, um die TOF- und PAD-Datentypen mit Qwt zu nutzen
+// Klasse, um die TOF- und PAD-Datentypen mit Qwt zu nutzen
 
 #ifndef __TOFDATA__
 #define __TOFDATA__
@@ -38,24 +38,6 @@ class MainRasterData : public QwtRasterData
 	protected:
 		// log10?
 		bool m_bLog;
-
-	public:
-		MainRasterData(const QwtDoubleRect& rect);
-
-		void SetLog10(bool bLog10);
-		bool GetLog10(void) const;
-
-		// get (nonlog) raw value without regard to m_bLog
-		virtual double GetValueRaw(int x, int y) const = 0;
-};
-
-
-/*
- * TOF & PAD data
- */
-class Data2D : public MainRasterData
-{
-	protected:
 		bool m_bPhaseData;
 
 		// has to be a pointer to a pointer since qwt copies
@@ -63,11 +45,18 @@ class Data2D : public MainRasterData
 		// the pointer in the copies
 		BasicImage** m_pImg;
 
+		bool m_bAutoRange;
+		QwtDoubleInterval m_OwnRange;
+
 	public:
-		Data2D(const QwtDoubleRect& rect);
-		Data2D();
-		Data2D(const Data2D& data2d);
-		virtual ~Data2D();
+		MainRasterData(const QwtDoubleRect& rect);
+		MainRasterData();
+		MainRasterData(const MainRasterData& data2d);
+		virtual ~MainRasterData();
+
+		void SetLog10(bool bLog10);
+		bool GetLog10(void) const;
+
 
 		void SetImage(BasicImage** pImg);
 		BasicImage* GetImage();
@@ -78,10 +67,15 @@ class Data2D : public MainRasterData
 		virtual QwtRasterData *copy() const;
 		virtual QwtDoubleInterval range() const;
 		virtual double value(double x, double y) const;
-		virtual double GetValueRaw(int x, int y) const;
+
+		// get (nonlog) raw value without regard to m_bLog
+		double GetValueRaw(int x, int y) const;
 
 		int GetWidth() const;
 		int GetHeight() const;
+
+		void SetAutoCountRange(bool bAuto);
+		void SetCountRange(double dMin, double dMax);
 };
 
 #endif

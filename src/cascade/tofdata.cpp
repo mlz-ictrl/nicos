@@ -29,52 +29,48 @@
 #include "helper.h"
 
 MainRasterData::MainRasterData(const QwtDoubleRect& rect)
-				: QwtRasterData(rect), m_bLog(1)
+				: QwtRasterData(rect), m_bLog(1),
+				  m_bPhaseData(0), m_pImg(0), m_bAutoRange(1)
 {}
 
 void MainRasterData::SetLog10(bool bLog10) { m_bLog = bLog10; }
 bool MainRasterData::GetLog10(void) const { return m_bLog; }
 
-// *********************************************************
-
-Data2D::Data2D(const QwtDoubleRect& rect)
-		: MainRasterData(rect), m_bPhaseData(0), m_pImg(0)
-{}
-
-Data2D::Data2D()
-	: MainRasterData(QwtDoubleRect(0,
+MainRasterData::MainRasterData()
+	: QwtRasterData(QwtDoubleRect(0,
 					 GlobalConfig::GetTofConfig().GetImageWidth(), 0,
 					 GlobalConfig::GetTofConfig().GetImageHeight())),
-					 m_bPhaseData(0), m_pImg(0)
+					 m_bLog(1), m_bPhaseData(0), m_pImg(0), m_bAutoRange(1)
 {}
 
-Data2D::Data2D(const Data2D& data2d)
-		:  MainRasterData(QwtDoubleRect(0, data2d.GetWidth(),
-										0, data2d.GetHeight()))
+MainRasterData::MainRasterData(const MainRasterData& data2d)
+		:  QwtRasterData(QwtDoubleRect(0, data2d.GetWidth(),
+									   0, data2d.GetHeight()))
 {
 	this->m_bLog = data2d.m_bLog;
 	this->m_bPhaseData = data2d.m_bPhaseData;
 	this->m_pImg = data2d.m_pImg;
+	this->m_bAutoRange = data2d.m_bAutoRange;
 }
 
-Data2D::~Data2D() { clearData(); }
+MainRasterData::~MainRasterData() { clearData(); }
 
-void Data2D::SetImage(BasicImage** pImg) { m_pImg = pImg; }
-BasicImage* Data2D::GetImage()
+void MainRasterData::SetImage(BasicImage** pImg) { m_pImg = pImg; }
+BasicImage* MainRasterData::GetImage()
 {
 	if(m_pImg)
 		return *m_pImg;
 	return 0;
 }
 
-int Data2D::GetWidth() const
+int MainRasterData::GetWidth() const
 {
 	if(!m_pImg || !*m_pImg)
 		return GlobalConfig::GetTofConfig().GetImageWidth();
 	return (*m_pImg)->GetWidth();
 }
 
-int Data2D::GetHeight() const
+int MainRasterData::GetHeight() const
 {
 	if(!m_pImg || !*m_pImg)
 		return GlobalConfig::GetTofConfig().GetImageHeight();
@@ -82,25 +78,29 @@ int Data2D::GetHeight() const
 }
 
 // wegen Achsen-Range
-void Data2D::SetPhaseData(bool bPhaseData)
+void MainRasterData::SetPhaseData(bool bPhaseData)
 {
 	m_bPhaseData = bPhaseData;
 }
 
-void Data2D::clearData()
+void MainRasterData::clearData()
 {
 //	if(m_pImg)
 //		*m_pImg=0;
 	m_pImg = 0;
 }
 
-QwtRasterData *Data2D::copy() const
+QwtRasterData *MainRasterData::copy() const
 {
-	return new Data2D(*this);
+	return new MainRasterData(*this);
 }
 
-QwtDoubleInterval Data2D::range() const
+QwtDoubleInterval MainRasterData::range() const
 {
+	if(!m_bAutoRange)
+		return m_OwnRange;
+
+
 	if(!m_pImg || !*m_pImg)
 	{
 		return QwtDoubleInterval(0.,1.);
@@ -139,7 +139,7 @@ QwtDoubleInterval Data2D::range() const
 		return QwtDoubleInterval(dTmpMin,dTmpMax);
 }
 
-double Data2D::value(double x, double y) const
+double MainRasterData::value(double x, double y) const
 {
 	if(!m_pImg || !*m_pImg)
 		return 0.;
@@ -153,12 +153,25 @@ double Data2D::value(double x, double y) const
 	return dRet;
 }
 
-double Data2D::GetValueRaw(int x, int y) const
+double MainRasterData::GetValueRaw(int x, int y) const
 {
 	if(!m_pImg || !*m_pImg)
 		return 0.;
 
 	return (*m_pImg)->GetDoubleData(x,y);
+}
+
+void MainRasterData::SetAutoCountRange(bool bAuto)
+{
+	m_bAutoRange = bAuto;
+}
+
+void MainRasterData::SetCountRange(double dMin, double dMax)
+{
+	m_OwnRange.setMinValue(dMin);
+	m_OwnRange.setMaxValue(dMax);
+
+	SetAutoCountRange(false);
 }
 
 // **********************************************************

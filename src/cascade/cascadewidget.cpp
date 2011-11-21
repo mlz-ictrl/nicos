@@ -368,7 +368,7 @@ void Plot::InitPlot()
 	axisWidget(QwtPlot::yLeft)->setTitle("y Pixels");
 
 	m_pSpectrogram = new QwtPlotSpectrogram();
-	m_pSpectrogram->setData(Data2D());		// Dummy-Objekt
+	m_pSpectrogram->setData(MainRasterData());		// Dummy-Objekt
 	m_pSpectrogram->setDisplayMode(QwtPlotSpectrogram::ImageMode, true);
 	m_pSpectrogram->setDisplayMode(QwtPlotSpectrogram::ContourMode, false);
 	m_pSpectrogram->attach(this);
@@ -417,10 +417,10 @@ void Plot::DeinitPlot()
 
 void Plot::ChangeRange()
 {
-	setAxisScale(QwtPlot::yRight, m_pSpectrogram->data().range().minValue(),
-								m_pSpectrogram->data().range().maxValue());
-	axisWidget(QwtPlot::yRight)->setColorMap(m_pSpectrogram->data().range(),
-								m_pSpectrogram->colorMap());
+	const QwtDoubleInterval& range = m_pSpectrogram->data().range();
+
+	setAxisScale(QwtPlot::yRight, range.minValue(), range.maxValue());
+	axisWidget(QwtPlot::yRight)->setColorMap(range, m_pSpectrogram->colorMap());
 }
 
 void Plot::ChangeRange_xy()
@@ -454,7 +454,7 @@ const QwtRasterData* Plot::GetData() const
 	return &m_pSpectrogram->data();
 }
 
-void Plot::SetData(Data2D* pData, bool bUpdate)
+void Plot::SetData(MainRasterData* pData, bool bUpdate)
 {
 	m_pImage = pData->GetImage();
 
@@ -506,7 +506,6 @@ void Plot::replot()
 
 
 
-
 //------------------------------------------------------------------------------
 // widget
 
@@ -542,7 +541,7 @@ CascadeWidget::~CascadeWidget()
 TofImage* CascadeWidget::GetTof() { return m_pTof; }
 TmpImage* CascadeWidget::GetTmpImg() { return m_pTmpImg; }
 PadImage* CascadeWidget::GetPad() { return m_pPad; }
-Data2D& CascadeWidget::GetData2d() { return m_data2d; }
+MainRasterData& CascadeWidget::GetData2d() { return m_data2d; }
 Plot* CascadeWidget::GetPlot() { return m_pPlot; }
 
 void CascadeWidget::Unload()

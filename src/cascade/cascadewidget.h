@@ -133,7 +133,7 @@ class Plot : public QwtPlot
 		QwtPlotPanner* GetPanner();
 		QwtPlotPicker* GetRoiPicker();
 
-		void SetData(Data2D* pData, bool bUpdate=true);
+		void SetData(MainRasterData* pData, bool bUpdate=true);
 		const QwtRasterData* GetData() const;
 
 		void SetColorMap(bool bCyclic);
@@ -165,7 +165,7 @@ Q_OBJECT
 		TmpImage *m_pTmpImg;
 
 		// Image Container
-		Data2D m_data2d;
+		MainRasterData m_data2d;
 
 		int m_iMode;
 		int m_iFolie, m_iZeitkanal;
@@ -223,7 +223,7 @@ Q_OBJECT
 
 		TofImage* GetTof();
 		TmpImage* GetTmpImg();
-		Data2D& GetData2d();
+		MainRasterData& GetData2d();
 		PadImage* GetPad();
 		Plot* GetPlot();
 		unsigned int* GetRawData();

@@ -25,43 +25,42 @@ class GraphDlg : QDialog
 /////////////////////////////////////////////////////////////////////////////////////
 
 
-class MainRasterData :  QwtRasterData
+class MainRasterData : QwtRasterData
 {
 %TypeHeaderCode
 #include "../../tofdata.h"
 %End
+
 	public:
 		MainRasterData(const QwtDoubleRect& rect);
+		MainRasterData();
+		MainRasterData(const MainRasterData& data2d);
+		virtual ~MainRasterData();
 
 		void SetLog10(bool bLog10);
 		bool GetLog10() const;
 
-		// get raw (nonlog) value independent of m_bLog
-		virtual double GetValueRaw(int x, int y) const = 0;
-};
+		void SetImage(BasicImage** pImg);
+		BasicImage* GetImage();
 
-
-class Data2D :  MainRasterData
-{
-%TypeHeaderCode
-#include "../../tofdata.h"
-%End
-	public:
-		Data2D(const QwtDoubleRect& rect);
-		Data2D();
-		Data2D(const Data2D& data2d);
-		virtual ~Data2D();
-
-		void SetPhaseData(bool bPhaseData);	// due to axis range
+		void SetPhaseData(bool bPhaseData);	// wegen Achsen-Range
 		void clearData();
 
 		virtual QwtRasterData *copy() const;
 		virtual QwtDoubleInterval range() const;
 		virtual double value(double x, double y) const;
-		virtual double GetValueRaw(int x, int y) const;
 
-		BasicImage* GetImage();
+		// get (nonlog) raw value without regard to m_bLog
+		double GetValueRaw(int x, int y) const;
+
+		int GetWidth() const;
+		int GetHeight() const;
+
+		void SetAutoCountRange(bool bAuto);
+		void SetCountRange(double dMin, double dMax);
 };
+
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 class Plot : QwtPlot
@@ -76,7 +75,7 @@ class Plot : QwtPlot
 		QwtPlotZoomer* GetZoomer();
 		QwtPlotPanner* GetPanner();
 
-		void SetData(Data2D* pData, bool bUpdate=true);
+		void SetData(MainRasterData* pData, bool bUpdate=true);
 		const QwtRasterData* GetData() const;
 
 		void SetColorMap(bool bCyclic);
@@ -122,7 +121,7 @@ class CascadeWidget : QWidget
 
 		TofImage* GetTof();
 		TmpImage* GetTmpImg();
-		Data2D& GetData2d();
+		MainRasterData& GetData2d();
 		PadImage* GetPad();
 		Plot* GetPlot();
 
