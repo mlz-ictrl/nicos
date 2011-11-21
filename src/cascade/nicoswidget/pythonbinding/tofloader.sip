@@ -142,7 +142,6 @@ class TofImage
 %End
 	public:
 		TofImage(const char *pcFileName=NULL,
-				int iCompression=TOF_COMPRESSION_USEGLOBCONFIG,
 				bool bExternalMem=false,
 				const TofConfig* conf=0);
 		virtual ~TofImage();
@@ -150,8 +149,6 @@ class TofImage
 		void SetExternalMem(void* pvDaten);
 		int GetTofSize() const;
 		void Clear();
-		int GetCompressionMethod() const;
-		void SetCompressionMethod(int iComp);
 
 		unsigned int GetData(int iFoil, int iTimechannel, int iX, int iY) const;
 		unsigned int GetData(int iImage, int iX, int iY) const;

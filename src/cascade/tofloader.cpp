@@ -39,11 +39,10 @@
 
 //------------------------------------------------------------------------------
 // TOF
-TofImage::TofImage(const char *pcFileName, int iCompressed, bool bExternalMem,
-				   const TofConfig* conf)
+TofImage::TofImage(const char *pcFileName,
+				   bool bExternalMem, const TofConfig* conf)
 		: m_bExternalMem(bExternalMem)
 {
-	SetCompressionMethod(iCompressed);
 	m_puiDaten = 0;
 	m_bUseRoi = false;
 
@@ -57,7 +56,7 @@ TofImage::TofImage(const char *pcFileName, int iCompressed, bool bExternalMem,
 			  << ", width=" << GetTofConfig().GetImageWidth()
 			  << ", height=" << GetTofConfig().GetImageHeight()
 			  << ", images=" << GetTofConfig().GetImageCount()
-			  << ", comp=" << GetCompressionMethod()
+			  << ", comp=" << GetTofConfig().GetPseudoCompression()
 			  << ".\n";
 
 	// should TofImage manage its own memory?
@@ -103,7 +102,9 @@ void TofImage::SetExternalMem(void* pvDaten)
 
 int TofImage::GetTofSize() const
 {
-	int iSize = m_bPseudoCompressed
+	bool bPseudoCompressed = GetTofConfig().GetPseudoCompression();
+
+	int iSize = bPseudoCompressed
 			? GetTofConfig().GetFoilCount()*
 			  GetTofConfig().GetImagesPerFoil()*
 			  GetTofConfig().GetImageHeight()*
@@ -124,32 +125,6 @@ void TofImage::Clear(void)
 	}
 }
 
-int TofImage::GetCompressionMethod() const
-{
-	if(m_bPseudoCompressed)
-		return TOF_COMPRESSION_PSEUDO;
-	return TOF_COMPRESSION_NONE;
-}
-
-void TofImage::SetCompressionMethod(int iComp)
-{
-	switch(iComp)
-	{
-		case TOF_COMPRESSION_NONE:
-			m_bPseudoCompressed=0;
-			break;
-		case TOF_COMPRESSION_PSEUDO:
-			m_bPseudoCompressed=1;
-			break;
-		case TOF_COMPRESSION_USEGLOBCONFIG:
-			m_bPseudoCompressed=GetTofConfig().GetPseudoCompression();
-			break;
-		default:
-			m_bPseudoCompressed=1;
-			break;
-	}
-}
-
 unsigned int TofImage::GetData(int iBild, int iX, int iY) const
 {
 	if(m_puiDaten && iBild>=0 && iBild<GetTofConfig().GetImageCount() &&
@@ -165,7 +140,7 @@ unsigned int TofImage::GetData(int iBild, int iX, int iY) const
 unsigned int TofImage::GetData(int iFoil, int iTimechannel,
 							   int iX, int iY) const
 {
-	if(!m_bPseudoCompressed)
+	if(!GetTofConfig().GetPseudoCompression())
 	{
 		int iZ = GetTofConfig().GetFoilBegin(iFoil) + iTimechannel;
 
@@ -1394,6 +1369,7 @@ bool TmpImage::FitGaussian(double &dAmp,
 	return false;
 }
 
+// TODO: do a better version of this method!
 TmpGraph TmpImage::GetRadialIntegration(double dAngleInc, double dRadInc,
 										const Vec2d<double>& vecCenter) const
 {
@@ -1406,20 +1382,35 @@ TmpGraph TmpImage::GetRadialIntegration(double dAngleInc, double dRadInc,
 	graph.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*iSteps);
 	memset(graph.m_puiDaten, 0, iSteps*sizeof(int));
 
+	unsigned int uiTotalCnts = 0;
+
 	for(int i=0; i<iSteps; ++i)
 	{
-		double dRad = double(i)*dRadInc;
+		const double dBeginRad = double(i)*dRadInc;
+		const double dEndRad = double(i+1)*dRadInc;
 
-		for(double dAngle=0.; dAngle<2.*M_PI; dAngle+=dAngleInc)
-		{
-			double dX = vecCenter[0] + dRad*cos(dAngle);
-			double dY = vecCenter[1] + dRad*sin(dAngle);
+		Roi roi;
+		roi.add(new RoiCircleRing(vecCenter,dBeginRad,dEndRad));
 
-			graph.m_puiDaten[i] += dRad * dAngleInc*
-								   double(GetIntData(int(dX), int(dY)));
-		}
+		// brute force search
+		for(int iY=0; iY<GetHeight(); ++iY)
+			for(int iX=0; iX<GetWidth(); ++iX)
+			{
+				bool bPixelInside = roi.IsInside(iX,iY) || roi.IsInside(iX,iY+1)
+							|| roi.IsInside(iX+1,iY) || roi.IsInside(iX+1,iY+1);
+
+				if(!bPixelInside)
+					continue;
+
+				double dFraction = roi.HowMuchInside(iX, iY);
+				graph.m_puiDaten[i] += dFraction*double(GetIntData(iX, iY));
+			}
+
+		uiTotalCnts += graph.m_puiDaten[i];
 	}
 
+	logger.SetCurLogLevel(LOGLEVEL_INFO);
+	logger << "Loader: Total counts summed = " << uiTotalCnts << "\n";
 	return graph;
 }
 

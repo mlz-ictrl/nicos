@@ -99,7 +99,7 @@ bool RoiElement::IsInBoundingRect(double dX, double dY) const
 //       method is horribly inefficient
 double RoiElement::HowMuchInside(int iX, int iY) const
 {
-	const double dInc = 0.1;
+	const double dInc = 0.2;
 	const double dTotal = (1./dInc) * (1./dInc);
 
 	double dFraction = 0.;
@@ -557,7 +557,7 @@ bool RoiCircleRing::IsInside(double dX, double dY) const
 
 	// inside outer radius?
 	bool bInsideOuterRad = ((dX0*dX0/(m_dOuterRadius*m_dOuterRadius) +
-						     dY0*dY0/(m_dOuterRadius*m_dOuterRadius)) <= 1.);
+						     dY0*dY0/(m_dOuterRadius*m_dOuterRadius)) < 1.);
 	if(!bInsideOuterRad)
 		return false;
 

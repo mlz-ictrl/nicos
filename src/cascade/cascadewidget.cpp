@@ -575,17 +575,13 @@ void* CascadeWidget::NewPad()
 	return m_pPad->GetRawData();
 }
 
-void* CascadeWidget::NewTof(int iCompression)
+void* CascadeWidget::NewTof()
 {
-	bool bCorrectCompression = 1;
-	if(IsTofLoaded())
-		bCorrectCompression = (m_pTof->GetCompressionMethod() == iCompression);
-
-	if(IsPadLoaded()||!IsTofLoaded() || m_bForceReinit || !bCorrectCompression)
+	if(IsPadLoaded()||!IsTofLoaded() || m_bForceReinit)
 	{
 		Unload();
 
-		m_pTof = new TofImage(0,iCompression);
+		m_pTof = new TofImage(0);
 		m_pTmpImg = new TmpImage();
 
 		m_data2d.SetImage((BasicImage**)&m_pTmpImg);
@@ -660,14 +656,14 @@ bool CascadeWidget::LoadPadFile(const char* pcFile)
 
 bool CascadeWidget::LoadTofFile(const char* pcFile)
 {
-	NewTof(TOF_COMPRESSION_NONE);
+	NewTof();
 	int iRet = m_pTof->LoadFile(pcFile);
 
 	if(iRet == LOAD_SIZE_MISMATCH)
 	{
 		long lSize = GetFileSize(pcFile);
 		if(GlobalConfig::GuessConfigFromSize(
-					m_pTof->GetCompressionMethod()==TOF_COMPRESSION_PSEUDO,
+					m_pTof->GetTofConfig().GetPseudoCompression(),
 					int(lSize)/4, true))
 		{
 			ForceReinit();
@@ -715,7 +711,7 @@ bool CascadeWidget::LoadTofMem(const char* pcMem, unsigned int uiLen)
 	if(iRet == LOAD_SIZE_MISMATCH)
 	{
 		if(GlobalConfig::GuessConfigFromSize(
-				m_pTof->GetCompressionMethod()==TOF_COMPRESSION_PSEUDO,
+				m_pTof->GetTofConfig().GetPseudoCompression(),
 				uiLen/4, true))
 		{
 			ForceReinit();

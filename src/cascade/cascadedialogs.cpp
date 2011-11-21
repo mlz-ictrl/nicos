@@ -872,7 +872,7 @@ IntegrationDlg::IntegrationDlg(CascadeWidget *pParent)
 	plot->setAutoReplot(false);
 	plot->setCanvasBackground(QColor(255,255,255));
 	plot->axisWidget(QwtPlot::xBottom)->setTitle("Radius");
-	plot->axisWidget(QwtPlot::yLeft)->setTitle("Relative Counts");
+	plot->axisWidget(QwtPlot::yLeft)->setTitle("Counts");
 
 	m_pgrid = new QwtPlotGrid;
 	m_pgrid->enableXMin(true);
@@ -895,12 +895,14 @@ IntegrationDlg::IntegrationDlg(CascadeWidget *pParent)
 
 	connect(btnBeamCenter, SIGNAL(clicked()), this, SLOT(UseBeamCenter()));
 	connect(btnImageCenter, SIGNAL(clicked()), this, SLOT(UseImageCenter()));
+	connect(btnLog10, SIGNAL(toggled(bool)), this, SLOT(SetLog10(bool)));
 
-	connect(doubleSpinBoxX, SIGNAL(valueChanged(double)),
-			this, SLOT(UpdateGraph()));
-	connect(doubleSpinBoxY, SIGNAL(valueChanged(double)),
-			this, SLOT(UpdateGraph()));
+	//connect(doubleSpinBoxX, SIGNAL(valueChanged(double)),
+	//		this, SLOT(UpdateGraph()));
+	//connect(doubleSpinBoxY, SIGNAL(valueChanged(double)),
+	//		this, SLOT(UpdateGraph()));
 
+	connect(btnUpdate, SIGNAL(clicked()), this, SLOT(UpdateGraph()));
 	UseImageCenter();
 }
 
@@ -908,9 +910,11 @@ IntegrationDlg::~IntegrationDlg() {}
 
 void IntegrationDlg::UpdateGraph()
 {
+	bool bLog10 = btnLog10->isChecked();
+
 	TmpImage tmpImg = GetRoiImage();
 
-	const double dRadInc = .5;
+	const double dRadInc = 1.;
 	const double dAngInc = 0.01;
 
 	// TODO: Use beam center!
@@ -930,12 +934,19 @@ void IntegrationDlg::UpdateGraph()
 	for(int i=0; i<tmpGraph.GetWidth(); ++i)
 	{
 		pdx[i] = double(i) * dRadInc;
-		pdy[i] = double(tmpGraph.GetData(i)) / dMax;
+		pdy[i] = double(tmpGraph.GetData(i)) /* / dMax*/;
+
+		if(bLog10)
+			pdy[i] = safe_log10(pdy[i]);
 	}
 	m_curve.setData(pdx,pdy,tmpGraph.GetWidth());
 	delete[] pdx;
 	delete[] pdy;
 
+	if(bLog10)
+		dMax = safe_log10(dMax);
+
+	plot->setAxisScale(QwtPlot::yLeft, GlobalConfig::GetLogLowerRange(), dMax);
 	plot->replot();
 }
 
@@ -969,6 +980,8 @@ void IntegrationDlg::UseBeamCenter()
 
 	doubleSpinBoxX->setValue(dCenterX);
 	doubleSpinBoxY->setValue(dCenterY);
+
+	UpdateGraph();
 }
 
 void IntegrationDlg::UseImageCenter()
@@ -980,6 +993,8 @@ void IntegrationDlg::UseImageCenter()
 
 	doubleSpinBoxX->setValue(dX);
 	doubleSpinBoxY->setValue(dY);
+
+	UpdateGraph();
 }
 
 TmpImage IntegrationDlg::GetRoiImage()
@@ -992,6 +1007,12 @@ TmpImage IntegrationDlg::GetRoiImage()
 		tmpImg = m_pwidget->GetTof()->GetOverview(true);
 
 	return tmpImg;
+}
+
+void IntegrationDlg::SetLog10(bool bLog10)
+{
+	plot->axisWidget(QwtPlot::yLeft)->setTitle(bLog10?"Counts 10^":"Counts");
+	UpdateGraph();
 }
 
 // *****************************************************************************

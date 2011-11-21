@@ -375,8 +375,8 @@ class MainWindow : public QMainWindow
 
 					// Dimensionen stimmen nicht, neue raten
 					if(!GlobalConfig::GuessConfigFromSize(
-								m_cascadewidget.GetTof()->GetCompressionMethod()
-													==TOF_COMPRESSION_PSEUDO,
+						m_cascadewidget.GetTof()->
+						GetTofConfig().GetPseudoCompression(),
 								(iLen-4)/4, true))
 					{
 						char pcMsg[256];
@@ -392,7 +392,7 @@ class MainWindow : public QMainWindow
 	#endif
 				if(bForceReinit)
 					m_cascadewidget.ForceReinit();
-				void* pvData = m_cascadewidget.NewTof(/*btnLog->isChecked()*/);
+				void* pvData = m_cascadewidget.NewTof();
 
 	#ifdef DATA_COMPRESSED
 				// Komprimierte Daten umkopieren

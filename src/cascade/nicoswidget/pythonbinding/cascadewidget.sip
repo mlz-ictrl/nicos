@@ -101,7 +101,7 @@ class CascadeWidget : QWidget
 		bool IsTofLoaded() const;
 		bool IsPadLoaded() const;
 		void* NewPad();
-		void* NewTof(int iCompression = TOF_COMPRESSION_USEGLOBCONFIG);
+		void* NewTof();
 
 		//
 		// use the GlobalConfig setter methods to configure

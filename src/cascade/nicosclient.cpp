@@ -32,7 +32,7 @@
 #define IS_NONE	-1
 
 NicosClient::NicosClient() : TcpClient(0, true), m_pad(0, true),
-							 m_tof(0, TOF_COMPRESSION_USEGLOBCONFIG, true)
+							 m_tof(0, true)
 {
 	GlobalConfig::Init();
 }
@@ -64,9 +64,6 @@ unsigned int NicosClient::counts(const QByteArray& arr)
 	if(iPad == IS_NONE) return 0;
 	bool bPad = (iPad == IS_PAD);
 
-	if(!bPad)
-		m_tof.SetCompressionMethod(TOF_COMPRESSION_USEGLOBCONFIG);
-
 	if(!IsSizeCorrect(arr, bPad))
 		return 0;
 
@@ -93,9 +90,6 @@ unsigned int NicosClient::counts(const QByteArray& arr, int iStartX, int iEndX,
 	int iPad = IsPad(arr.data());
 	if(iPad == IS_NONE) return 0;
 	bool bPad = (iPad == IS_PAD);
-
-	if(!bPad)
-		m_tof.SetCompressionMethod(TOF_COMPRESSION_USEGLOBCONFIG);
 
 	if(!IsSizeCorrect(arr, bPad))
 		return 0;

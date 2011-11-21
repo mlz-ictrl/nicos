@@ -331,6 +331,7 @@ class IntegrationDlg : public QDialog, public Ui::IntegrationDlg
 		void UpdateGraph();
 		void UseBeamCenter();
 		void UseImageCenter();
+		void SetLog10(bool);
 };
 
 // *****************************************************************************

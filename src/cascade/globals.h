@@ -41,10 +41,6 @@
 #define MINUIT_MINIMIZE	2
 #define MINUIT_MIGRAD 	3
 
-#define TOF_COMPRESSION_NONE 			0
-#define TOF_COMPRESSION_PSEUDO 			1
-#define TOF_COMPRESSION_USEGLOBCONFIG 	2
-
 #ifndef NULL
 	#define NULL	0
 #endif

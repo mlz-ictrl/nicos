@@ -104,4 +104,9 @@ template<class T> T max(const T& t1, const T& t2)
 // group numbers, e.g.: 123 456 789
 void SetNumberGrouping(std::ostream& ostr);
 
+
+//------------------------------------------------------------------------------
+
+double safe_log10(double d);
+
 #endif

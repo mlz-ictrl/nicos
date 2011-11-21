@@ -288,7 +288,6 @@ class TofImage
 	protected:
 		// pointer to data array (format depends on compression used)
 		unsigned int *m_puiDaten;
-		bool m_bPseudoCompressed;
 
 		// TOF data stored in external memory which needs no management,
 		// i.e. allocation & freeing?
@@ -307,7 +306,6 @@ class TofImage
 		bool GetUseRoi() const;
 
 		TofImage(const char *pcFileName=NULL,
-				 int iCompression=TOF_COMPRESSION_USEGLOBCONFIG,
 				 bool bExternalMem=false, const TofConfig* conf=0);
 
 		virtual ~TofImage();
@@ -317,8 +315,6 @@ class TofImage
 
 		int GetTofSize() const;
 		void Clear();
-		int GetCompressionMethod() const;
-		void SetCompressionMethod(int iComp);
 
 		// get specific count value
 		unsigned int GetData(int iFoil, int iTimechannel, int iX, int iY) const;

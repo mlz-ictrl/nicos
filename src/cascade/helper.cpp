@@ -24,6 +24,8 @@
 #include <stdio.h>
 #include <locale>
 #include <string.h>
+#include <math.h>
+#include <limits>
 #include "helper.h"
 
 // file size
@@ -145,4 +147,18 @@ void SetNumberGrouping(std::ostream& ostr)
 {
 	std::locale loc(ostr.getloc(), new NumberGrouping);
 	ostr.imbue(loc);
+}
+
+
+//------------------------------------------------------------------------------
+
+double safe_log10(double d)
+{
+	if(d>0.)
+		d = log10(d);
+	else
+		// ungültige Werte weit außerhalb der Range verlagern
+		d = /*-std::numeric_limits<double>::max()*/ -100.;
+
+	return d;
 }

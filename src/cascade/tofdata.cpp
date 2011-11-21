@@ -26,6 +26,7 @@
 #include <math.h>
 #include <iostream>
 #include "tofdata.h"
+#include "helper.h"
 
 MainRasterData::MainRasterData(const QwtDoubleRect& rect)
 				: QwtRasterData(rect), m_bLog(1)
@@ -123,15 +124,14 @@ QwtDoubleInterval Data2D::range() const
 			dTmpMax=log10(dTmpMax);
 		else
 			dTmpMax=GlobalConfig::GetLogLowerRange();
+
 		if(dTmpMin>0.)
 			dTmpMin=log10(dTmpMin);
 		else
 			dTmpMin=GlobalConfig::GetLogLowerRange();
 
-		if(dTmpMax!=dTmpMax)
-			dTmpMax=0.;
-		if(dTmpMin!=dTmpMin)
-			dTmpMin=0.;
+		if(dTmpMax!=dTmpMax) dTmpMax=0.;
+		if(dTmpMin!=dTmpMin) dTmpMin=0.;
 
 		return QwtDoubleInterval(dTmpMin,dTmpMax);
 	}
@@ -147,13 +147,7 @@ double Data2D::value(double x, double y) const
 	double dRet = (*m_pImg)->GetDoubleData((int)x,(int)y);
 
 	if(m_bLog)
-	{
-		if(dRet>0.)
-			dRet = log10(dRet);
-		else
-			// ungültige Werte weit außerhalb der Range verlagern
-			dRet = -std::numeric_limits<double>::max();
-	}
+		dRet = safe_log10(dRet);
 
 	if(dRet!=dRet) dRet=0.;
 	return dRet;
