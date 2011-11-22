@@ -1025,7 +1025,7 @@ void IntegrationDlg::SetLog10(bool bLog10)
 // ************************ Range Dialog ***************************************
 
 RangeDlg::RangeDlg(CascadeWidget *pParent)
-		: QDialog(pParent), m_pWidget(pParent)
+		: QDialog(pParent), m_pWidget(pParent), m_bReadOnly(false)
 {
 	setupUi(this);
 
@@ -1044,6 +1044,8 @@ RangeDlg::~RangeDlg()
 
 void RangeDlg::SetAutoRange(bool bAuto)
 {
+	if(m_bReadOnly) return;
+
 	spinBoxMin->setEnabled(!bAuto);
 	spinBoxMax->setEnabled(!bAuto);
 
@@ -1056,8 +1058,9 @@ void RangeDlg::SetAutoRange(bool bAuto)
 
 void RangeDlg::RangeChanged()
 {
-	btnAuto->setChecked(false);
+	if(m_bReadOnly) return;
 
+	btnAuto->setChecked(false);
 	double dMin = spinBoxMin->value();
 	double dMax = spinBoxMax->value();
 	m_pWidget->SetCountRange(dMin, dMax);
@@ -1065,6 +1068,8 @@ void RangeDlg::RangeChanged()
 
 void RangeDlg::Update()
 {
+	m_bReadOnly = true;
+
 	QwtDoubleInterval interval = m_pWidget->GetData2d().range();
 	spinBoxMin->setValue(interval.minValue());
 	spinBoxMax->setValue(interval.maxValue());
@@ -1073,6 +1078,8 @@ void RangeDlg::Update()
 	btnAuto->setChecked(bUseAuto);
 	spinBoxMin->setEnabled(!bUseAuto);
 	spinBoxMax->setEnabled(!bUseAuto);
+
+	m_bReadOnly = false;
 }
 
 // *****************************************************************************

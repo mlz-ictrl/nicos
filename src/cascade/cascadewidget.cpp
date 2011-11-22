@@ -834,6 +834,9 @@ void CascadeWidget::SetLog10(bool bLog10)
 	m_pPlot->ChangeRange();
 	//m_pPlot->ChangeLog(bLog10);
 	UpdateGraph();
+
+	if(m_pRangeDlg)
+		m_pRangeDlg->Update();
 }
 
 void CascadeWidget::UpdateRange()
@@ -1093,7 +1096,7 @@ void CascadeWidget::showRangeDlg()
 	if(!m_pRangeDlg)
 		m_pRangeDlg = new RangeDlg(this);
 
-	//m_pRangeDlg->Update();
+	m_pRangeDlg->Update();
 
 	m_pRangeDlg->show();
 	m_pRangeDlg->raise();

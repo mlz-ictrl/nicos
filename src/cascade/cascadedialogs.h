@@ -349,6 +349,9 @@ class RangeDlg : public QDialog, public Ui::RangeDlg
 	protected:
 		CascadeWidget *m_pWidget;
 
+		// don't write changes back to m_pWidget
+		bool m_bReadOnly;
+
 	public:
 		RangeDlg(CascadeWidget *pParent);
 		virtual ~RangeDlg();
