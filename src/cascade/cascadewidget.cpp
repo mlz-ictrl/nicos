@@ -1112,6 +1112,8 @@ void CascadeWidget::showBrowseDlg(const char* pcDir)
 	if(!m_pbrowsedlg)
 		m_pbrowsedlg = new BrowseDlg(this, pcDir);
 
+	m_pbrowsedlg->SetDir(pcDir);
+
 	QPoint pt = mapToGlobal(pos());
 	m_pbrowsedlg->move(pt.x()+width(),pt.y());
 	m_pbrowsedlg->show();

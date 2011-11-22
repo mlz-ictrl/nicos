@@ -94,6 +94,9 @@ class MainWindow : public QMainWindow
 		static int SERVER_STATUS_POLL_TIME;
 		static int AUTOFETCH_POLL_TIME;
 
+		// working dir
+		QString m_strCurDir;
+
 	protected:
 		CascadeWidget m_cascadewidget;
 
@@ -885,9 +888,12 @@ class MainWindow : public QMainWindow
 			gc.print();
 		}
 
-		void BrowseFiles(const char* pcDir=".")
+		void BrowseFiles(const char* pcDir=0)
 		{
 			ServerDisconnect();
+
+			if(pcDir==0)
+				pcDir = m_strCurDir.toAscii().data();
 			m_cascadewidget.showBrowseDlg(pcDir);
 		}
 
@@ -899,6 +905,11 @@ class MainWindow : public QMainWindow
 
 			if(strFile=="")
 				return;
+
+			// set current directory
+			QDir dir(strFile);
+			dir.cdUp();
+			m_strCurDir = dir.absolutePath();
 
 			if(m_cascadewidget.LoadPadFile(strFile.toAscii().data()))
 			{
@@ -921,6 +932,11 @@ class MainWindow : public QMainWindow
 
 			if(strFile=="")
 				return;
+
+			// set current directory
+			QDir dir(strFile);
+			dir.cdUp();
+			m_strCurDir = dir.absolutePath();
 
 			if(m_cascadewidget.LoadTofFile(strFile.toAscii().data()))
 			{
