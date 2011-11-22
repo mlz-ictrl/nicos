@@ -524,8 +524,11 @@ CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 												 m_pRangeDlg(0)
 {
 	m_pPlot = new Plot(this);
+
 	connect(m_pPlot->GetRoiPicker(), SIGNAL(RoiHasChanged()),
 			this, SLOT(RoiHasChanged()));
+	connect(this, SIGNAL(FileHasChanged(const char*)),
+			this, SLOT(_FileHasChanged(const char*)));
 
 	QGridLayout *gridLayout = new QGridLayout(this);
 	gridLayout->addWidget(m_pPlot,0,0,1,1);
@@ -728,6 +731,12 @@ bool CascadeWidget::LoadTofMem(const char* pcMem, unsigned int uiLen)
 	return iRet;
 }
 
+void CascadeWidget::_FileHasChanged(const char* pcFile)
+{
+	if(m_pRangeDlg)
+		m_pRangeDlg->Update();
+}
+
 bool CascadeWidget::IsTofLoaded() const
 {
 	return bool(m_pTof) && bool(m_pTmpImg);
@@ -833,13 +842,9 @@ void CascadeWidget::SetLog10(bool bLog10)
 		return;
 
 	m_bLog = bLog10;
-	m_data2d.SetLog10(bLog10);
-	m_pPlot->ChangeRange();
-	//m_pPlot->ChangeLog(bLog10);
-	UpdateGraph();
 
-	// manual range is set
-	if(!m_data2d.GetAutoCountRange())
+	// update range dialog
+	if(m_pRangeDlg)
 	{
 		QwtDoubleInterval range = m_data2d.range();
 
@@ -857,17 +862,20 @@ void CascadeWidget::SetLog10(bool bLog10)
 			dMax = pow(10.,dMax);
 		}
 
-		if(m_pRangeDlg)
-		{
-			m_pRangeDlg->SetReadOnly(true);
-			m_pRangeDlg->spinBoxMin->setValue(dMin);
-			m_pRangeDlg->spinBoxMax->setValue(dMax);
-			m_pRangeDlg->SetReadOnly(false);
-		}
+		m_pRangeDlg->SetReadOnly(true);
+		m_pRangeDlg->spinBoxMin->setValue(dMin);
+		m_pRangeDlg->spinBoxMax->setValue(dMax);
+		m_pRangeDlg->SetReadOnly(false);
+
+		// if manual range is set -> update plot with converted range
+		if(!m_data2d.GetAutoCountRange())
+			SetCountRange(dMin, dMax);
 	}
 
-	if(m_pRangeDlg)
-		m_pRangeDlg->Update();
+	m_data2d.SetLog10(bLog10);
+	m_pPlot->ChangeRange();
+	//m_pPlot->ChangeLog(bLog10);
+	UpdateGraph();
 }
 
 void CascadeWidget::UpdateRange()

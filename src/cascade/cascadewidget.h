@@ -281,6 +281,9 @@ Q_OBJECT
 		void RoiDlgAccepted(QAbstractButton*);
 		void RoiHasChanged();
 
+		// internal loopback method for the FileHasChanged signal
+		void _FileHasChanged(const char* pcFileName);
+
 	signals:
 		void SumDlgSignal(const bool* pbKanaele, int iMode);
 
