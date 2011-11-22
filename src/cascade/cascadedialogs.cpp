@@ -593,12 +593,12 @@ RoiDlg::RoiDlg(CascadeWidget *pParent) : QDialog(pParent),
 
 	btnAdd->setMenu(pMenu);
 	//--------------------------------------------------------------------------
+
+	connect(buttonBox, SIGNAL(clicked(QAbstractButton*)),
+			m_pwidget, SLOT(RoiDlgAccepted(QAbstractButton*)));
 }
 
-RoiDlg::~RoiDlg()
-{
-	Deinit();
-}
+RoiDlg::~RoiDlg() { Deinit(); }
 
 // an item (e.g. "circle", "rectangle", ... has been selected)
 void RoiDlg::ItemSelected()
@@ -1013,6 +1013,66 @@ void IntegrationDlg::SetLog10(bool bLog10)
 {
 	plot->axisWidget(QwtPlot::yLeft)->setTitle(bLog10?"Counts 10^":"Counts");
 	UpdateGraph();
+}
+
+// *****************************************************************************
+
+
+
+
+
+
+// ************************ Range Dialog ***************************************
+
+RangeDlg::RangeDlg(CascadeWidget *pParent)
+		: QDialog(pParent), m_pWidget(pParent)
+{
+	setupUi(this);
+
+	Update();
+
+	connect(btnAuto, SIGNAL(toggled(bool)), this, SLOT(SetAutoRange(bool)));
+
+	connect(spinBoxMin, SIGNAL(valueChanged(double)),
+			this, SLOT(RangeChanged()));
+	connect(spinBoxMax, SIGNAL(valueChanged(double)),
+			this, SLOT(RangeChanged()));
+}
+
+RangeDlg::~RangeDlg()
+{}
+
+void RangeDlg::SetAutoRange(bool bAuto)
+{
+	spinBoxMin->setEnabled(!bAuto);
+	spinBoxMax->setEnabled(!bAuto);
+
+	bool bAutoRange = btnAuto->isChecked();
+	m_pWidget->SetAutoCountRange(bAutoRange);
+
+	if(!bAuto)
+		RangeChanged();
+}
+
+void RangeDlg::RangeChanged()
+{
+	btnAuto->setChecked(false);
+
+	double dMin = spinBoxMin->value();
+	double dMax = spinBoxMax->value();
+	m_pWidget->SetCountRange(dMin, dMax);
+}
+
+void RangeDlg::Update()
+{
+	QwtDoubleInterval interval = m_pWidget->GetData2d().range();
+	spinBoxMin->setValue(interval.minValue());
+	spinBoxMax->setValue(interval.maxValue());
+
+	bool bUseAuto = m_pWidget->GetData2d().GetAutoCountRange();
+	btnAuto->setChecked(bUseAuto);
+	spinBoxMin->setEnabled(!bUseAuto);
+	spinBoxMax->setEnabled(!bUseAuto);
 }
 
 // *****************************************************************************

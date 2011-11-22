@@ -520,7 +520,8 @@ CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 												 m_bLog(0),
 												 m_proidlg(0),
 												 m_pbrowsedlg(0),
-												 m_pintdlg(0)
+												 m_pintdlg(0),
+												 m_pRangeDlg(0)
 {
 	m_pPlot = new Plot(this);
 	connect(m_pPlot->GetRoiPicker(), SIGNAL(RoiHasChanged()),
@@ -1076,7 +1077,7 @@ void CascadeWidget::showBrowseDlg(const char* pcDir)
 	m_pbrowsedlg->activateWindow();
 }
 
-void CascadeWidget::showIntegrationDialog()
+void CascadeWidget::showIntegrationDlg()
 {
 	if(!m_pintdlg)
 		m_pintdlg = new IntegrationDlg(this);
@@ -1085,6 +1086,18 @@ void CascadeWidget::showIntegrationDialog()
 	m_pintdlg->raise();
 	m_pintdlg->activateWindow();
 	m_pintdlg->UpdateGraph();
+}
+
+void CascadeWidget::showRangeDlg()
+{
+	if(!m_pRangeDlg)
+		m_pRangeDlg = new RangeDlg(this);
+
+	//m_pRangeDlg->Update();
+
+	m_pRangeDlg->show();
+	m_pRangeDlg->raise();
+	m_pRangeDlg->activateWindow();
 }
 
 void CascadeWidget::showRoiDlg()
@@ -1101,11 +1114,7 @@ void CascadeWidget::showRoiDlg()
 	bool bUseRoi = IsRoiInUse();
 
 	if(!m_proidlg)
-	{
 		m_proidlg = new RoiDlg(this);
-		connect(m_proidlg->buttonBox, SIGNAL(clicked(QAbstractButton*)),
-				this, SLOT(RoiDlgAccepted(QAbstractButton*)));
-	}
 
 	m_proidlg->SetRoi(pRoi);
 

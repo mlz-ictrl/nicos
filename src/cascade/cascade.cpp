@@ -675,7 +675,7 @@ class MainWindow : public QMainWindow
 				return;
 			}
 
-			m_cascadewidget.showIntegrationDialog();
+			m_cascadewidget.showIntegrationDlg();
 		}
 
 		void viewOverview()
@@ -978,7 +978,6 @@ class MainWindow : public QMainWindow
 		}
 		///////////////////////////////////////////////////////////////////
 
-
 		//////////////////////////ROI /////////////////////////////////////
 		void showRoiDlg()
 		{
@@ -1222,6 +1221,13 @@ class MainWindow : public QMainWindow
 						this);
 
 
+			// Plot Menu Items
+			QAction *actionCountRange = new QAction(
+						"Change Count &Range...",
+						this
+						);
+
+
 			// Server Menu Items
 			QAction *actionConnectServer = new QAction(
 						QIcon::fromTheme("network-wireless"),
@@ -1333,6 +1339,11 @@ class MainWindow : public QMainWindow
 			menuFile->addAction(actionGc);
 			menuFile->addAction(actionExit);
 			menubar->addAction(menuFile->menuAction());
+
+			QMenu *menuPlot = new QMenu(menubar);
+			menuPlot->setTitle("&Plot");
+			menuPlot->addAction(actionCountRange);
+			menubar->addAction(menuPlot->menuAction());
 
 			QMenu *menuServer = new QMenu(menubar);
 			menuServer->setTitle("&Server");
@@ -1558,6 +1569,10 @@ class MainWindow : public QMainWindow
 					m_cascadewidget.GetPlot(), SLOT(printPlot()));
 			connect(actionGc, SIGNAL(triggered()),
 					this, SLOT(GarbageCollect()));
+
+			// Plot
+			connect(actionCountRange, SIGNAL(triggered()),
+					&m_cascadewidget, SLOT(showRangeDlg()));
 
 			// Server
 			connect(actionConnectServer, SIGNAL(triggered()),

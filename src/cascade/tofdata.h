@@ -74,6 +74,7 @@ class MainRasterData : public QwtRasterData
 		int GetWidth() const;
 		int GetHeight() const;
 
+		bool GetAutoCountRange() const;
 		void SetAutoCountRange(bool bAuto);
 		void SetCountRange(double dMin, double dMax);
 };

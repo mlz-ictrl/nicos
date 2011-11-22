@@ -53,6 +53,7 @@
 #include "ui_roidlg.h"
 #include "ui_browsedlg.h"
 #include "ui_integrationdlg.h"
+#include "ui_rangedlg.h"
 
 #include "histogram_item.h"
 #include "bins.h"
@@ -336,5 +337,31 @@ class IntegrationDlg : public QDialog, public Ui::IntegrationDlg
 
 // *****************************************************************************
 
+
+
+
+// ************************* Range Dialog **************************************
+
+class RangeDlg : public QDialog, public Ui::RangeDlg
+{
+	Q_OBJECT
+
+	protected:
+		CascadeWidget *m_pWidget;
+
+	public:
+		RangeDlg(CascadeWidget *pParent);
+		virtual ~RangeDlg();
+
+		void Update();
+
+	public slots:
+		void SetAutoRange(bool bAuto);
+
+	protected slots:
+		void RangeChanged();
+};
+
+// *****************************************************************************
 
 #endif

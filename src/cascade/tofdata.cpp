@@ -164,16 +164,16 @@ double MainRasterData::GetValueRaw(int x, int y) const
 }
 
 void MainRasterData::SetAutoCountRange(bool bAuto)
-{
-	m_bAutoRange = bAuto;
-}
+{ m_bAutoRange = bAuto; }
+bool MainRasterData::GetAutoCountRange() const
+{ return m_bAutoRange; }
 
 void MainRasterData::SetCountRange(double dMin, double dMax)
 {
+	SetAutoCountRange(false);
+
 	m_dRange[0] = dMin;
 	m_dRange[1] = dMax;
-
-	SetAutoCountRange(false);
 }
 
 // **********************************************************

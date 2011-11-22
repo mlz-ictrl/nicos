@@ -174,6 +174,7 @@ Q_OBJECT
 		RoiDlg* m_proidlg;
 		BrowseDlg* m_pbrowsedlg;
 		IntegrationDlg* m_pintdlg;
+		RangeDlg* m_pRangeDlg;
 
 		//----------------------------------------------------------------------
 		// ROI curves for qwt
@@ -262,7 +263,8 @@ Q_OBJECT
 		void showSumDlg();
 		void showRoiDlg();
 		void showBrowseDlg(const char* pcDir=".");
-		void showIntegrationDialog();
+		void showIntegrationDlg();
+		void showRangeDlg();
 		///////////////////////////////////////
 
 		void SetLog10(bool bLog10);
