@@ -802,7 +802,7 @@ BrowseDlg::BrowseDlg(CascadeWidget *pParent, const char* pcDir)
 	connect(listFiles, SIGNAL(itemSelectionChanged()),
 			this, SLOT(SelectedFile()));
 
-	SetDir(pcDir);
+	SetDir(QString(pcDir));
 }
 
 BrowseDlg::~BrowseDlg()

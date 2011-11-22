@@ -892,9 +892,10 @@ class MainWindow : public QMainWindow
 		{
 			ServerDisconnect();
 
-			if(pcDir==0)
-				pcDir = m_strCurDir.toAscii().data();
-			m_cascadewidget.showBrowseDlg(pcDir);
+			if(pcDir)
+				m_cascadewidget.showBrowseDlg(pcDir);
+			else
+				m_cascadewidget.showBrowseDlg(m_strCurDir.toAscii().data());
 		}
 
 		void LoadPad()
