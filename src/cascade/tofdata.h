@@ -46,7 +46,7 @@ class MainRasterData : public QwtRasterData
 		BasicImage** m_pImg;
 
 		bool m_bAutoRange;
-		QwtDoubleInterval m_OwnRange;
+		double m_dRange[2];
 
 	public:
 		MainRasterData(const QwtDoubleRect& rect);

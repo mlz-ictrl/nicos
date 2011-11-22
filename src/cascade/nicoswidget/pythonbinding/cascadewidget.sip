@@ -137,6 +137,9 @@ class CascadeWidget : QWidget
 		bool IsRoiInUse();
 		void UseRoi(bool bUse);
 
+		void SetAutoCountRange(bool bAuto);
+		void SetCountRange(double dMin, double dMax);
+
 	public slots:
 		void viewOverview();		// add all time channels of all foils
 		void viewSlides();		// show single foils

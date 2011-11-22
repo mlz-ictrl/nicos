@@ -1323,3 +1323,22 @@ void CascadeWidget::SetRoiDrawMode(int iMode)
 		pPicker->setEnabled(true);
 	}
 }
+
+
+void CascadeWidget::SetAutoCountRange(bool bAuto)
+{
+	if(!GetPlot()) return;
+
+	GetData2d().SetAutoCountRange(bAuto);
+	GetPlot()->ChangeRange();
+	UpdateGraph();
+}
+
+void CascadeWidget::SetCountRange(double dMin, double dMax)
+{
+	if(!GetPlot()) return;
+
+	GetData2d().SetCountRange(dMin, dMax);
+	GetPlot()->ChangeRange();
+	UpdateGraph();
+}

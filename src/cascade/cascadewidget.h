@@ -241,6 +241,9 @@ Q_OBJECT
 		bool IsRoiInUse();
 		void UseRoi(bool bUse);
 
+		void SetAutoCountRange(bool bAuto);
+		void SetCountRange(double dMin, double dMax);
+
 	public slots:
 		// sum all foils and all time channels
 		void viewOverview();

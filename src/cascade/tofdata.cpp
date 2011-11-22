@@ -51,6 +51,8 @@ MainRasterData::MainRasterData(const MainRasterData& data2d)
 	this->m_bPhaseData = data2d.m_bPhaseData;
 	this->m_pImg = data2d.m_pImg;
 	this->m_bAutoRange = data2d.m_bAutoRange;
+	this->m_dRange[0] = data2d.m_dRange[0];
+	this->m_dRange[1] = data2d.m_dRange[1];
 }
 
 MainRasterData::~MainRasterData() { clearData(); }
@@ -98,7 +100,7 @@ QwtRasterData *MainRasterData::copy() const
 QwtDoubleInterval MainRasterData::range() const
 {
 	if(!m_bAutoRange)
-		return m_OwnRange;
+		return QwtDoubleInterval(m_dRange[0], m_dRange[1]);
 
 
 	if(!m_pImg || !*m_pImg)
@@ -168,8 +170,8 @@ void MainRasterData::SetAutoCountRange(bool bAuto)
 
 void MainRasterData::SetCountRange(double dMin, double dMax)
 {
-	m_OwnRange.setMinValue(dMin);
-	m_OwnRange.setMaxValue(dMax);
+	m_dRange[0] = dMin;
+	m_dRange[1] = dMax;
 
 	SetAutoCountRange(false);
 }
