@@ -357,6 +357,7 @@ class RangeDlg : public QDialog, public Ui::RangeDlg
 		virtual ~RangeDlg();
 
 		void Update();
+		void SetReadOnly(bool bReadOnly);
 
 	public slots:
 		void SetAutoRange(bool bAuto);

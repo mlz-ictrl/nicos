@@ -108,5 +108,6 @@ void SetNumberGrouping(std::ostream& ostr);
 //------------------------------------------------------------------------------
 
 double safe_log10(double d);
+double safe_log10_lowerrange(double d);
 
 #endif

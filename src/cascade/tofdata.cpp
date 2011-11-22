@@ -122,15 +122,8 @@ QwtDoubleInterval MainRasterData::range() const
 
 	if(m_bLog)
 	{
-		if(dTmpMax>0.)
-			dTmpMax=log10(dTmpMax);
-		else
-			dTmpMax=GlobalConfig::GetLogLowerRange();
-
-		if(dTmpMin>0.)
-			dTmpMin=log10(dTmpMin);
-		else
-			dTmpMin=GlobalConfig::GetLogLowerRange();
+		dTmpMax = safe_log10_lowerrange(dTmpMax);
+		dTmpMin = safe_log10_lowerrange(dTmpMin);
 
 		if(dTmpMax!=dTmpMax) dTmpMax=0.;
 		if(dTmpMin!=dTmpMin) dTmpMin=0.;

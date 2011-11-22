@@ -1028,7 +1028,6 @@ RangeDlg::RangeDlg(CascadeWidget *pParent)
 		: QDialog(pParent), m_pWidget(pParent), m_bReadOnly(false)
 {
 	setupUi(this);
-
 	Update();
 
 	connect(btnAuto, SIGNAL(toggled(bool)), this, SLOT(SetAutoRange(bool)));
@@ -1081,5 +1080,8 @@ void RangeDlg::Update()
 
 	m_bReadOnly = false;
 }
+
+void RangeDlg::SetReadOnly(bool bReadOnly)
+{ m_bReadOnly = bReadOnly; }
 
 // *****************************************************************************

@@ -21,12 +21,14 @@
 //
 // *****************************************************************************
 
+#include "helper.h"
+#include "globals.h"
+
 #include <stdio.h>
 #include <locale>
 #include <string.h>
 #include <math.h>
 #include <limits>
-#include "helper.h"
 
 // file size
 long GetFileSize(FILE* pf)
@@ -159,6 +161,16 @@ double safe_log10(double d)
 	else
 		// ungültige Werte weit außerhalb der Range verlagern
 		d = /*-std::numeric_limits<double>::max()*/ -100.;
+
+	return d;
+}
+
+double safe_log10_lowerrange(double d)
+{
+	if(d>0.)
+		d = log10(d);
+	else
+		d = GlobalConfig::GetLogLowerRange();
 
 	return d;
 }

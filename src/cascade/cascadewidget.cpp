@@ -829,11 +829,42 @@ void CascadeWidget::SetTimechannel(int iKanal) { m_iZeitkanal = iKanal; }
 bool CascadeWidget::GetLog10() { return m_bLog; }
 void CascadeWidget::SetLog10(bool bLog10)
 {
+	if(m_bLog == bLog10)
+		return;
+
 	m_bLog = bLog10;
 	m_data2d.SetLog10(bLog10);
 	m_pPlot->ChangeRange();
 	//m_pPlot->ChangeLog(bLog10);
 	UpdateGraph();
+
+	// manual range is set
+	if(!m_data2d.GetAutoCountRange())
+	{
+		QwtDoubleInterval range = m_data2d.range();
+
+		double dMin = range.minValue();
+		double dMax = range.maxValue();
+
+		if(bLog10)
+		{
+			dMin = safe_log10_lowerrange(dMin);
+			dMax = safe_log10_lowerrange(dMax);
+		}
+		else
+		{
+			dMin = pow(10.,dMin);
+			dMax = pow(10.,dMax);
+		}
+
+		if(m_pRangeDlg)
+		{
+			m_pRangeDlg->SetReadOnly(true);
+			m_pRangeDlg->spinBoxMin->setValue(dMin);
+			m_pRangeDlg->spinBoxMax->setValue(dMax);
+			m_pRangeDlg->SetReadOnly(false);
+		}
+	}
 
 	if(m_pRangeDlg)
 		m_pRangeDlg->Update();
