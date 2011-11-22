@@ -782,7 +782,7 @@ class Moveable(Readable):
         if self._mode == 'slave':
             raise ModeError(self, 'start not possible in slave mode')
         if self._isFixed:
-            raise FixedError(self, 'use release() first')
+            raise FixedError(self, 'use release() to enable movement again')
         try:
             pos = self.valuetype(pos)
         except (ValueError, TypeError), err:
