@@ -46,7 +46,7 @@ from time import sleep
 
 from nicos import status
 from nicos.errors import ConfigurationError, ProgrammingError, ModeError, \
-     UsageError
+     NicosError
 
 
 class Param(object):
@@ -561,7 +561,7 @@ def expandTemplate(template, keywords, field_re=field_re):
         if replacement is None:
             replacement = field.group('default')
             if replacement is None:
-                raise UsageError('no value given for %r' % field.group('key'))
+                raise NicosError('no value given for %r' % field.group('key'))
         result.append(replacement)
         current = field.end()
     result.append(template[current:])

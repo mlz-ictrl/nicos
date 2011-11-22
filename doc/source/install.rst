@@ -56,6 +56,7 @@ Requirements
 * At least Python 2.6
 
 * For the basic system:
+
   - numpy
   - the TACO Python libraries (optional)
   - scipy (optional, for fitting)
@@ -65,16 +66,19 @@ Requirements
   - pyserial (optional, for TACO-less serial line communication)
 
 * For the status monitor: one of
+
   - PyQt4
   - PyGTK
   - PyFLTK
   - Tkinter
 
 * For the client-server GUI:
+
   - PyQt4
   - numpy
   - PyQwt (optional, for liveplot display)
   - scipy (optional, for fitting)
 
 * For the client-server text UI:
+
   - urwid

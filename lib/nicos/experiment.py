@@ -41,7 +41,7 @@ from nicos import session
 from nicos.data import NeedsDatapath, Dataset
 from nicos.utils import listof, nonemptylistof, ensureDirectory, usermethod
 from nicos.device import Device, Measurable, Readable, Param
-from nicos.errors import ConfigurationError, UsageError
+from nicos.errors import ConfigurationError, InvalidValueError
 from nicos.loggers import ELogHandler
 
 
@@ -87,9 +87,10 @@ def queryProposal(credentials, pnumber):
     proposal number.
     """
     if not isinstance(pnumber, (int, long)):
-        raise UsageError('proposal number must be an integer')
+        raise InvalidValueError('proposal number must be an integer')
     if session.instrument is None:
-        raise UsageError('cannot query proposals, no instrument configured')
+        raise InvalidValueError('cannot query proposals, no instrument '
+                                'configured')
     with ProposalDB(credentials) as cur:
         # get proposal title and properties
         cur.execute('''
@@ -104,9 +105,10 @@ def queryProposal(credentials, pnumber):
             WHERE user_id = _uid AND xid = %s''', (pnumber,))
         userrow = cur.fetchone()
     if not rows or len(rows) < 3:
-        raise UsageError('proposal %s does not exist in database' % pnumber)
+        raise InvalidValueError('proposal %s does not exist in database' %
+                                pnumber)
     if not userrow:
-        raise UsageError('user does not exist in database')
+        raise InvalidValueError('user does not exist in database')
     # structure of returned data: (title, user, prop_name, prop_value)
     info = {
         'title': rows[0][0],
@@ -120,8 +122,8 @@ def queryProposal(credentials, pnumber):
         value = row[2]
         if key == 'instrument':
             if value[4:].lower() != session.instrument.instrument.lower():
-                raise UsageError('proposal %s is not a proposal for this '
-                                 'instrument, but %s' % (pnumber, value[4:]))
+                raise InvalidValueError('proposal %s is not a proposal for '
+                    'this instrument, but %s' % (pnumber, value[4:]))
         if value:
             info[key] = value
     return info
@@ -297,8 +299,8 @@ class Experiment(Device):
                                    detname)
             else:
                 if not isinstance(det, Measurable):
-                    raise UsageError(self, 'cannot use device %r as a detector:'
-                                     ' it is not a Measurable' % det)
+                    raise InvalidValueError(self, 'cannot use device %r as a '
+                        'detector: it is not a Measurable' % det)
                 detlist.append(det)
         self._detlist = detlist
 
@@ -325,7 +327,7 @@ class Experiment(Device):
                                    devname)
             else:
                 if not isinstance(dev, Readable):
-                    raise UsageError(self, 'cannot use device %r as environment:'
-                                     ' it is not a Readable' % dev)
+                    raise InvalidValueError(self, 'cannot use device %r as '
+                        'environment: it is not a Readable' % dev)
                 devlist.append(dev)
         self._envlist = devlist

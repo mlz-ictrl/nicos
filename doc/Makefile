@@ -40,7 +40,7 @@ clean:
 
 codedoc: 
 	-mkdir -p source/auto
-	./sphinx-autodoc-sourcegen.py -d source/auto -s rst -f ../lib/nicos
+	#./sphinx-autodoc-sourcegen.py -d source/auto -s rst -f ../lib/nicos
 
 html: codedoc
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
