@@ -117,7 +117,7 @@ class Sinus : public ROOT::Minuit2::FCNBase
 			for(int i=0; i<iSize; ++i)
 			{
 				m_pdy[i] = T(pdy[i]);			// Wert
-				m_pddy[i] = sqrt(m_pdy[i]);		// Fehler
+				m_pddy[i] = 1./sqrt(m_pdy[i]);		// Fehler
 			}
 		}
 };
@@ -133,8 +133,8 @@ bool FitSinus(int iSize, const unsigned int* pData,
 
 	ROOT::Minuit2::MnUserParameters upar;
 	upar.Add("phase", M_PI, 0.01);
-	upar.Add("amp", dAmp, sqrt(dAmp));
-	upar.Add("offset", dOffs, sqrt(dOffs));
+	upar.Add("amp", dAmp, 1./sqrt(dAmp));
+	upar.Add("offset", dOffs, 1./sqrt(dOffs));
 	//upar.Add("scale", 2.*M_PI/16., 0.1);		// don't fit this parameter
 
 	ROOT::Minuit2::MnApplication *pMinimize = 0;
@@ -310,7 +310,7 @@ class Gaussian : public ROOT::Minuit2::FCNBase
 			for(int i=0; i<iW*iH; ++i)
 			{
 				m_pdata[i] = T(pdata[i]);
-				m_pspread[i] = sqrt(pdata[i]);
+				m_pspread[i] = 1./sqrt(pdata[i]);
 			}
 		}
 };
@@ -327,7 +327,7 @@ bool FitGaussian(int iSizeX, int iSizeY,
 	fkt.SetValues(iSizeX, iSizeY, pData);
 
 	ROOT::Minuit2::MnUserParameters upar;
-	upar.Add("amp", dAmp, sqrt(dAmp));
+	upar.Add("amp", dAmp, 1./sqrt(dAmp));
 	upar.Add("center_x", dCenterX, dSpreadX);
 	upar.Add("center_y", dCenterY, dSpreadY);
 	upar.Add("spread_x", dSpreadX, 1.);
