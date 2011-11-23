@@ -888,14 +888,10 @@ class MainWindow : public QMainWindow
 			gc.print();
 		}
 
-		void BrowseFiles(const char* pcDir=0)
+		void BrowseFiles()
 		{
 			ServerDisconnect();
-
-			if(pcDir)
-				m_cascadewidget.showBrowseDlg(pcDir);
-			else
-				m_cascadewidget.showBrowseDlg(m_strCurDir.toAscii().data());
+			m_cascadewidget.showBrowseDlg(m_strCurDir.toAscii().data());
 		}
 
 		void LoadPad()
@@ -1742,7 +1738,10 @@ int main(int argc, char **argv)
 		// check if a directory of that name exists
 		QDir dir(strArg);
 		if(dir.exists())
-			mainWindow.BrowseFiles(strArg.toAscii().data());
+		{
+			mainWindow.m_strCurDir = strArg;
+			mainWindow.BrowseFiles();
+		}
 		else
 		{
 			// check if a file of that name exists
