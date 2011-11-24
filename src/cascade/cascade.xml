@@ -76,7 +76,7 @@
 
 	<minuit>
 		<maxfcn> 1000 </maxfcn>
-		<tolerance> 0.001 </tolerance>
+		<tolerance> 0.01 </tolerance>
 
 		<!-- one of: migrad, simplex, minimize -->
 		<algo> migrad </algo>
