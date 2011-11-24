@@ -518,7 +518,7 @@ class MainWindow : public QMainWindow
 			else
 			{
 				logger.SetCurLogLevel(LOGLEVEL_ERR);
-				logger << "Cascade: Unknown prefix in server response: \""
+				logger << "Main: Unknown prefix in server response: \""
 					   << pcBuf[0]<<pcBuf[1]<<pcBuf[2]<<pcBuf[3]
 					   << "\".\n";
 			}
@@ -1678,6 +1678,7 @@ int main(int argc, char **argv)
 	setlocale(LC_ALL, "C");
 	QLocale::setDefault(QLocale::English);
 
+	bool bConfigOk;
 	// Konfigurationssingleton erzeugen
 	const char pcConfigFile[] = "./cascade.xml";
 	if(!Config::GetSingleton()->Load(pcConfigFile))
@@ -1686,6 +1687,12 @@ int main(int argc, char **argv)
 		sprintf(pcMsg, "Configuration file \"%s\" could not be found.\n"
 					   "Using default configuration.", pcConfigFile);
 		QMessageBox::warning(0, "Warning", pcMsg, QMessageBox::Ok);
+
+		bConfigOk = false;
+	}
+	else
+	{
+		bConfigOk = true;
 	}
 
 	// Konfigurationseinstellungen laden
@@ -1699,6 +1706,17 @@ int main(int argc, char **argv)
 			Config::GetSingleton()->QueryString("/cascade_config/log/file",
 												"cascade.log");
 		logger.Init(strLogFile.c_str());
+	}
+
+	if(bConfigOk)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_INFO);
+		logger << "Main: Using configuration in \"" << pcConfigFile << "\".\n";
+	}
+	else
+	{
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "Main: Using default configuration.\n";
 	}
 
 	int iLogLevel = Config::GetSingleton()->QueryInt(

@@ -49,9 +49,9 @@
 class Sinus : public ROOT::Minuit2::FCNBase
 {
 	protected:
-		double *m_pdy;			// experimentelle Werte
- 		double *m_pddy;			// Standardabweichungen
-		int m_iNum;				// Anzahl der Werte
+		double *m_pdy;			// experimental values
+ 		double *m_pddy;			// deviations
+		int m_iNum;				// number of values
 
 	public:
 		Sinus() : m_pdy(0), m_pddy(0), m_iNum(0)
@@ -116,8 +116,8 @@ class Sinus : public ROOT::Minuit2::FCNBase
 
 			for(int i=0; i<iSize; ++i)
 			{
-				m_pdy[i] = T(pdy[i]);			// Wert
-				m_pddy[i] = 1./sqrt(m_pdy[i]);		// Fehler
+				m_pdy[i] = T(pdy[i]);				// Value
+				m_pddy[i] = 1./sqrt(m_pdy[i]);		// Error
 			}
 		}
 };
@@ -251,7 +251,7 @@ class Gaussian : public ROOT::Minuit2::FCNBase
 
 			double dchi2 = 0.;
 
-			for (int iY=0; iY<m_iH; ++iY)
+			for(int iY=0; iY<m_iH; ++iY)
 				for(int iX=0; iX<m_iW; ++iX)
 				{
 					double dSpread = GetSpread(iX, iY);

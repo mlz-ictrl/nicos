@@ -185,6 +185,4 @@ class GlobalConfig
 		static void SetRepeatLogs(bool bRepeat);
 };
 
-//==============================================================================
-
 #endif
