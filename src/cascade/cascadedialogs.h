@@ -321,6 +321,7 @@ class IntegrationDlg : public QDialog, public Ui::IntegrationDlg
 		QwtPlotCurve m_curve;
 		QwtLegend *m_plegend;
 		QwtPlotGrid *m_pgrid;
+		bool m_bAutoUpdate;
 
 		TmpImage GetRoiImage();
 

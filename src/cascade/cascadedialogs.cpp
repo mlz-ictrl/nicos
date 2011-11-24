@@ -865,7 +865,7 @@ void BrowseDlg::SelectedFile()
 // *********************** Integration Dialog **********************************
 
 IntegrationDlg::IntegrationDlg(CascadeWidget *pParent)
-				: QDialog(pParent), m_pwidget(pParent)
+				: QDialog(pParent), m_pwidget(pParent), m_bAutoUpdate(true)
 {
 	setupUi(this);
 
@@ -897,20 +897,23 @@ IntegrationDlg::IntegrationDlg(CascadeWidget *pParent)
 	connect(btnImageCenter, SIGNAL(clicked()), this, SLOT(UseImageCenter()));
 	connect(btnLog10, SIGNAL(toggled(bool)), this, SLOT(SetLog10(bool)));
 
-	//connect(doubleSpinBoxX, SIGNAL(valueChanged(double)),
-	//		this, SLOT(UpdateGraph()));
-	//connect(doubleSpinBoxY, SIGNAL(valueChanged(double)),
-	//		this, SLOT(UpdateGraph()));
+	connect(doubleSpinBoxX, SIGNAL(valueChanged(double)),
+			this, SLOT(UpdateGraph()));
+	connect(doubleSpinBoxY, SIGNAL(valueChanged(double)),
+			this, SLOT(UpdateGraph()));
 
-	connect(btnUpdate, SIGNAL(clicked()), this, SLOT(UpdateGraph()));
-	UseImageCenter();
+	connect(chkAngMean, SIGNAL(stateChanged(int)), this, SLOT(UpdateGraph()));
 }
 
 IntegrationDlg::~IntegrationDlg() {}
 
 void IntegrationDlg::UpdateGraph()
 {
+	if(!m_bAutoUpdate)
+		return;
+
 	bool bLog10 = btnLog10->isChecked();
+	bool bAngMean = (chkAngMean->checkState()==Qt::Checked);
 
 	TmpImage tmpImg = GetRoiImage();
 
@@ -922,7 +925,8 @@ void IntegrationDlg::UpdateGraph()
 	vecCenter[0] = doubleSpinBoxX->value();
 	vecCenter[1] = doubleSpinBoxY->value();
 
-	TmpGraph tmpGraph = tmpImg.GetRadialIntegration(dAngInc, dRadInc, vecCenter);
+	TmpGraph tmpGraph = tmpImg.
+					GetRadialIntegration(dAngInc, dRadInc, vecCenter, bAngMean);
 
 	double *pdx = new double[tmpGraph.GetWidth()];
 	double *pdy = new double[tmpGraph.GetWidth()];
@@ -978,8 +982,10 @@ void IntegrationDlg::UseBeamCenter()
 		logger << "Integration Dialog: No valid Gaussian fit found.\n";
 	}
 
+	m_bAutoUpdate = false;
 	doubleSpinBoxX->setValue(dCenterX);
 	doubleSpinBoxY->setValue(dCenterY);
+	m_bAutoUpdate = true;
 
 	UpdateGraph();
 }
@@ -991,8 +997,10 @@ void IntegrationDlg::UseImageCenter()
 	double dX = double(tmpImg.GetWidth()) * .5;
 	double dY = double(tmpImg.GetHeight()) * .5;
 
+	m_bAutoUpdate = false;
 	doubleSpinBoxX->setValue(dX);
 	doubleSpinBoxY->setValue(dY);
+	m_bAutoUpdate = true;
 
 	UpdateGraph();
 }

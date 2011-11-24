@@ -124,7 +124,8 @@ class TmpGraph
 		TmpGraph();
 		virtual ~TmpGraph();
 
-		bool FitSinus(double &dPhase, double &dScale, double &dAmp, double &dOffs) const;
+		bool FitSinus(double &dPhase, double &dScale,
+					  double &dAmp, double &dOffs) const;
 
 		unsigned int GetData(int iX) const;
 		int GetWidth() const;

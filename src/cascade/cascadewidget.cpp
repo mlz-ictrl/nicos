@@ -1131,7 +1131,6 @@ void CascadeWidget::showIntegrationDlg()
 	m_pintdlg->activateWindow();
 
 	m_pintdlg->UseBeamCenter();
-	m_pintdlg->UpdateGraph();
 }
 
 void CascadeWidget::showRangeDlg()

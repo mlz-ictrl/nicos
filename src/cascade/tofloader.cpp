@@ -1371,7 +1371,8 @@ bool TmpImage::FitGaussian(double &dAmp,
 
 // TODO: do a better version of this method!
 TmpGraph TmpImage::GetRadialIntegration(double dAngleInc, double dRadInc,
-										const Vec2d<double>& vecCenter) const
+										const Vec2d<double>& vecCenter,
+										bool bAngMean) const
 {
 	const double dMaxRad = sqrt((double(GetWidth())/2.)*(double(GetWidth())/2.)
 						   + (double(GetHeight())/2.)*(double(GetHeight())/2.));
@@ -1406,12 +1407,19 @@ TmpGraph TmpImage::GetRadialIntegration(double dAngleInc, double dRadInc,
 				graph.m_puiDaten[i] += dFraction*double(GetIntData(iX, iY));
 			}
 
-		graph.m_puiDaten[i] /= (dBeginRad + (dEndRad - dBeginRad)*0.5)*2.*M_PI;
+		// bAngMean: graph is a radial slice with mean angular counts
+		if(bAngMean)
+		{
+			graph.m_puiDaten[i] /= (dEndRad*dEndRad - dBeginRad*dBeginRad)*M_PI;
+		}
 		uiTotalCnts += graph.m_puiDaten[i];
 	}
 
-	logger.SetCurLogLevel(LOGLEVEL_INFO);
-	logger << "Loader: Total counts summed = " << uiTotalCnts << "\n";
+	if(!bAngMean)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_INFO);
+		logger << "Loader: Total counts summed = " << uiTotalCnts << "\n";
+	}
 	return graph;
 }
 
