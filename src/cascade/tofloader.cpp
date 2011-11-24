@@ -1406,6 +1406,7 @@ TmpGraph TmpImage::GetRadialIntegration(double dAngleInc, double dRadInc,
 				graph.m_puiDaten[i] += dFraction*double(GetIntData(iX, iY));
 			}
 
+		graph.m_puiDaten[i] /= (dBeginRad + (dEndRad - dBeginRad)*0.5)*2.*M_PI;
 		uiTotalCnts += graph.m_puiDaten[i];
 	}
 
