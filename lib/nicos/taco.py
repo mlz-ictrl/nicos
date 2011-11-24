@@ -36,7 +36,8 @@ from TACOClient import TACOError
 from nicos import status
 from nicos.utils import tacodev
 from nicos.device import Param, Override
-from nicos.errors import NicosError, ProgrammingError, CommunicationError
+from nicos.errors import NicosError, ProgrammingError, CommunicationError, \
+    LimitError, InvalidValueError
 
 
 class TacoDevice(object):
@@ -216,15 +217,24 @@ class TacoDevice(object):
         tb = sys.exc_info()[2]
         code = err.errcode
         cls = NicosError
-        if code in (2, 16, 4019):
-            # client call timeout or no network manager
-            cls = CommunicationError
-        elif 401 <= code < 499:
-            # error number 401-499: database system error messages
-            cls = CommunicationError
-        elif code in self.taco_errorcodes:
+        if code in self.taco_errorcodes:
             cls = self.taco_errorcodes[code]
-        # TODO: add more cases
+        elif code < 50:
+            # error numbers 0-50: RPC call errors
+            cls = CommunicationError
+        elif 400 <= code < 500:
+            # error number 400-499: database system error messages
+            cls = CommunicationError
+        elif code == 4017:
+            # range error
+            cls = LimitError
+        elif code == 4018:
+            # invalid value
+            cls = InvalidValueError
+        elif code == 4024:
+            # IO error
+            cls = CommunicationError
+        # TODO: add more cases?
         msg = '[TACO %d] %s' % (err.errcode, err)
         if addmsg is not None:
             msg = addmsg + ': ' + msg

@@ -234,6 +234,7 @@ class Handler(object):
             '<p class="setup">New setup: %s</p>\n' % setupnames)
 
     def handle_entry(self, time, data):
+        self.out.timestamp(time)
         if creole:
             data, headers = creole.translate(data, self.out.new_id)
         else:

@@ -30,7 +30,8 @@ import time
 
 from nicos import session, status
 from nicos.utils import Repeater
-from nicos.errors import NicosError, LimitError, FixedError, ModeError
+from nicos.errors import NicosError, LimitError, FixedError, ModeError, \
+    InvalidValueError
 from nicos.device import Readable
 from nicos.commands.output import printwarning
 from nicos.commands.measure import _count
@@ -161,7 +162,7 @@ class Scan(object):
         the device has not arrived.  If it is False, continue with the next
         point.  If the scan should be aborted, the exception is reraised.
         """
-        if isinstance(err, LimitError):
+        if isinstance(err, (InvalidValueError, LimitError)):
             printwarning('Skipping data point', exc=1)
             return False
         elif isinstance(err, FixedError):
