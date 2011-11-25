@@ -1019,8 +1019,9 @@ class MainWindow : public QMainWindow
 			}
 
 			QString strFile = QFileDialog::getOpenFileName(this,
-									"Open ROI File","",
-									"XML Files (*.xml *.XML);;All Files (*)");
+							"Open ROI File","",
+							"ROI Files (*.roi *.roi);;XML Files (*.xml *.XML);;"
+							"All Files (*)");
 			if(strFile!="" && m_cascadewidget.LoadRoi(strFile.toAscii().data()))
 			{
 				UpdateLabels(false);
@@ -1038,8 +1039,9 @@ class MainWindow : public QMainWindow
 			}
 
 			QString strFile = QFileDialog::getSaveFileName(this,
-								"Save ROI File", "",
-								"XML Files (*.xml *.XML);;All Files (*)");
+							"Save ROI File", "",
+							"ROI Files (*.roi *.roi);;XML Files (*.xml *.XML);;"
+							"All Files (*)");
 			if(strFile=="")
 				return;
 

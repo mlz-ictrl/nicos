@@ -54,6 +54,7 @@
 #include "ui_browsedlg.h"
 #include "ui_integrationdlg.h"
 #include "ui_rangedlg.h"
+#include "ui_countsvsimagesdlg.h"
 
 #include "histogram_item.h"
 #include "bins.h"
@@ -319,7 +320,6 @@ class IntegrationDlg : public QDialog, public Ui::IntegrationDlg
 	protected:
 		CascadeWidget *m_pwidget;
 		QwtPlotCurve m_curve;
-		QwtLegend *m_plegend;
 		QwtPlotGrid *m_pgrid;
 		bool m_bAutoUpdate;
 
@@ -365,6 +365,34 @@ class RangeDlg : public QDialog, public Ui::RangeDlg
 
 	protected slots:
 		void RangeChanged();
+};
+
+// *****************************************************************************
+
+
+
+
+// ************************* Range Dialog **************************************
+
+class CountsVsImagesDlg : public QDialog, public Ui::CountsVsImagesDlg
+{
+	Q_OBJECT
+
+	protected:
+		QwtPlotCurve m_curve;
+		QwtPlotGrid *m_pgrid;
+
+	public:
+		CountsVsImagesDlg(QWidget *pParent);
+		virtual ~CountsVsImagesDlg();
+
+	protected slots:
+		void LoadRoi();
+		void SetRoiUseCurrent(bool bCur);
+		void AddFile();
+
+	public slots:
+		void UpdateGraph();
 };
 
 // *****************************************************************************

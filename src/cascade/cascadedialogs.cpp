@@ -1093,3 +1093,83 @@ void RangeDlg::SetReadOnly(bool bReadOnly)
 { m_bReadOnly = bReadOnly; }
 
 // *****************************************************************************
+
+
+
+
+// ********************* Counts vs Images **************************************
+
+CountsVsImagesDlg::CountsVsImagesDlg(QWidget *pParent)
+				 : QDialog(pParent), m_pgrid(0)
+{
+	setupUi(this);
+
+	plot->setAutoReplot(false);
+	plot->setCanvasBackground(QColor(255,255,255));
+	plot->axisWidget(QwtPlot::xBottom)->setTitle("Images");
+	plot->axisWidget(QwtPlot::yLeft)->setTitle("Counts");
+
+	m_pgrid = new QwtPlotGrid;
+	m_pgrid->enableXMin(true);
+	m_pgrid->enableYMin(true);
+	m_pgrid->setMajPen(QPen(Qt::black, 0, Qt::DotLine));
+	m_pgrid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
+	m_pgrid->attach(plot);
+
+	QwtSymbol sym;
+	sym.setStyle(QwtSymbol::Ellipse);
+	sym.setPen(QColor(Qt::blue));
+	sym.setBrush(QColor(Qt::blue));
+	sym.setSize(5);
+
+	m_curve.setRenderHint(QwtPlotItem::RenderAntialiased);
+	QPen penfit = QPen(Qt::red);
+	m_curve.setPen(penfit);
+	m_curve.setSymbol(sym);
+	m_curve.attach(plot);
+
+	connect(btnAdd, SIGNAL(clicked()), this, SLOT(AddFile()));
+	connect(btnRoiLoad, SIGNAL(clicked()), this, SLOT(LoadRoi()));
+	connect(btnRoiCurrent, SIGNAL(toggled(bool)),
+			this, SLOT(SetRoiUseCurrent(bool)));
+}
+
+CountsVsImagesDlg::~CountsVsImagesDlg()
+{
+	if(m_pgrid) delete m_pgrid;
+}
+
+void CountsVsImagesDlg::UpdateGraph()
+{
+	bool bUseRoi = groupRoi->isChecked();
+	bool bUseCurRoi = btnRoiCurrent->isChecked();
+	QString strRoiFile = editRoi->text();
+
+
+
+}
+
+void CountsVsImagesDlg::LoadRoi()
+{
+	QString strFile = QFileDialog::getOpenFileName(this,
+							"Open ROI File","",
+							"ROI Files (*.roi *.roi);;XML Files (*.xml *.XML);;"
+							"All Files (*)");
+
+	editRoi->setText(strFile);
+}
+
+void CountsVsImagesDlg::SetRoiUseCurrent(bool bCur)
+{
+	editRoi->setEnabled(!bCur);
+	btnRoiLoad->setEnabled(!bCur);
+}
+
+void CountsVsImagesDlg::AddFile()
+{
+	QStringList pads = QFileDialog::getOpenFileNames(this, "PAD files", "",
+							"PAD Files (*.pad *.PAD);;All Files (*)");
+
+
+	listPads->addItems(pads);
+}

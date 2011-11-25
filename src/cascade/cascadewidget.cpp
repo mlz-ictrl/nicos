@@ -44,7 +44,8 @@ CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 												 m_proidlg(0),
 												 m_pbrowsedlg(0),
 												 m_pintdlg(0),
-												 m_pRangeDlg(0)
+												 m_pRangeDlg(0),
+												 m_pCountsVsImagesDlg(0)
 {
 	m_pPlot = new Plot(this);
 
@@ -718,6 +719,12 @@ void CascadeWidget::RoiDlgAccepted(QAbstractButton* pBtn)
 
 void CascadeWidget::showCountsVsImagesDlg()
 {
+	if(!m_pCountsVsImagesDlg)
+		m_pCountsVsImagesDlg = new CountsVsImagesDlg(this);
+
+	m_pCountsVsImagesDlg->show();
+	m_pCountsVsImagesDlg->raise();
+	m_pCountsVsImagesDlg->activateWindow();
 }
 
 //------------------------------------------------------------------------------

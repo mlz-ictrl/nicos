@@ -91,7 +91,7 @@ gc.o: gc.cpp gc.h
 
 
 ############################ Dialogs ############################
-cascadedialogs.h: ui_calibrationdlg.h ui_sumdialog.h ui_serverdlg.h ui_servercfgdlg.h ui_graphdlg.h ui_commanddlg.h ui_roidlg.h ui_browsedlg.h ui_integrationdlg.h ui_rangedlg.h
+cascadedialogs.h: ui_calibrationdlg.h ui_sumdialog.h ui_serverdlg.h ui_servercfgdlg.h ui_graphdlg.h ui_commanddlg.h ui_roidlg.h ui_browsedlg.h ui_integrationdlg.h ui_rangedlg.h ui_countsvsimagesdlg.h
 
 ui_calibrationdlg.h: calibrationdlg.ui
 	uic calibrationdlg.ui > ui_calibrationdlg.h
@@ -122,6 +122,9 @@ ui_integrationdlg.h: integrationdlg.ui
 
 ui_rangedlg.h: rangedlg.ui
 	uic rangedlg.ui > ui_rangedlg.h
+
+ui_countsvsimagesdlg.h:
+	uic countsvsimagesdlg.ui > ui_countsvsimagesdlg.h
 #################################################################
 
 

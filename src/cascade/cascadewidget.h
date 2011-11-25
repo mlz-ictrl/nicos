@@ -67,6 +67,7 @@ Q_OBJECT
 		BrowseDlg* m_pbrowsedlg;
 		IntegrationDlg* m_pintdlg;
 		RangeDlg* m_pRangeDlg;
+		CountsVsImagesDlg* m_pCountsVsImagesDlg;
 
 		//----------------------------------------------------------------------
 		// ROI curves for qwt
