@@ -1294,8 +1294,12 @@ class MainWindow : public QMainWindow
 			QAction *actionCalibration = new QAction(
 						"C&alibration...",
 						this);
+
 			QAction *actionIntegrate = new QAction(
 						"&Integrate Radially...",
+						this);
+			QAction *actionCountsVsImages = new QAction(
+						"&Counts vs. Images...",
 						this);
 
 
@@ -1375,14 +1379,18 @@ class MainWindow : public QMainWindow
 			menubar->addAction(menuServer->menuAction());
 
 			QMenu *menuGraph = new QMenu(menubar);
-			menuGraph->setTitle("&Graph");
-			menuGraph->addAction(actionCalibration);
-			menuGraph->addSeparator();
-			menuGraph->addAction(actionGraph);
-			menuGraph->addAction(actionSummen);
-			menuGraph->addSeparator();
+			menuGraph->setTitle("&Graphs");
 			menuGraph->addAction(actionIntegrate);
+			menuGraph->addAction(actionCountsVsImages);
 			menubar->addAction(menuGraph->menuAction());
+
+			QMenu *menuTofGraph = new QMenu(menubar);
+			menuTofGraph->setTitle("&TOF Graphs");
+			menuTofGraph->addAction(actionCalibration);
+			menuTofGraph->addSeparator();
+			menuTofGraph->addAction(actionGraph);
+			menuTofGraph->addAction(actionSummen);
+			menubar->addAction(menuTofGraph->menuAction());
 
 			QMenu *menuRoi = new QMenu(menubar);
 			menuRoi->setTitle("&ROI");
@@ -1620,8 +1628,11 @@ class MainWindow : public QMainWindow
 					this, SLOT(showGraph()));
 			connect(actionSummen, SIGNAL(triggered()),
 					this, SLOT(showSummenDialog()));
+
 			connect(actionIntegrate, SIGNAL(triggered()),
 					this, SLOT(showIntegrationDialog()));
+			connect(actionCountsVsImages, SIGNAL(triggered()),
+					&m_cascadewidget, SLOT(showCountsVsImagesDlg()));
 
 			// Timer
 			connect(&m_statustimer, SIGNAL(timeout()),

@@ -66,7 +66,7 @@ class MainRasterData : QwtRasterData
 class Plot : QwtPlot
 {
 %TypeHeaderCode
-#include "../../cascadewidget.h"
+#include "../../plotter.h"
 %End
 	public:
 		void ChangeRange();
