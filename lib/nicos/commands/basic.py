@@ -27,6 +27,7 @@
 __version__ = "$Revision$"
 
 import os
+import sys
 import time
 import shutil
 import inspect
@@ -77,13 +78,12 @@ def help(obj=None):
         for line in formatDocstring(real_func.__doc__ or '', '   '):
             printinfo(line)
 
-__builtin__.__orig_dir = dir
 
 @usercommand
 def dir(obj=None):
     """Show all public attributes for the given object."""
     if obj is None:
-        return __builtin__.__orig_dir()
+        return sorted(sys._getframe(2).f_locals)
     return [name for name in __builtin__.__orig_dir(obj)
             if not name.startswith(('_', 'do'))]
 
