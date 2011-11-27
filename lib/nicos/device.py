@@ -294,7 +294,7 @@ class Device(object):
             for param in self.parameters:
                 umethod = getattr(self, 'doUpdate' + param.title(), None)
                 if umethod:
-                    def updateparam(key, value, param=param, umethod=umethod):
+                    def updateparam(key, value, time, umethod=umethod):
                         umethod(value)
                     self._cache.addCallback(self, param, updateparam)
 

@@ -28,12 +28,12 @@ __version__ = "$Revision$"
 
 import os
 import sys
-import time
 import errno
 import signal
 import traceback
 import threading
 import subprocess
+from time import time as currenttime, sleep
 
 from nicos import status, session
 from nicos.utils import listof, whyExited
@@ -58,16 +58,16 @@ class Poller(Device):
         self._creation_lock = threading.Lock()
 
     def _long_sleep(self, interval):
-        te = time.time() + interval
-        while time.time() < te:
+        te = currenttime() + interval
+        while currenttime() < te:
             if self._stoprequest:
                 return
-            time.sleep(5)
+            sleep(5)
 
     def _worker_thread(self, devname, event):
         state = ['unused']
 
-        def reconfigure(key, value):
+        def reconfigure(key, value, time):
             if key.endswith('target'):
                 state[0] = 'nowmoving'
             elif key.endswith('pollinterval'):
@@ -123,10 +123,10 @@ class Poller(Device):
                         return
                     session.cache.addCallback(dev, 'target', reconfigure)
                     session.cache.addCallback(dev, 'pollinterval', reconfigure)
-                    state = ['normal']
+                    state[0] = 'normal'
                 except NicosError, err:
                     self.log.warning('error creating %s, trying again in '
-                                      '%d sec' % (devname, waittime), exc=err)
+                                     '%d sec' % (devname, waittime), exc=err)
                     self._long_sleep(waittime)
                     waittime = min(waittime*2, 600)
                     continue
@@ -164,7 +164,7 @@ class Poller(Device):
         if self._setup is None:
             return self._wait_master()
         while not self._stoprequest:
-            time.sleep(1)
+            sleep(1)
         for worker in self._workers:
             worker.join()
 
@@ -236,7 +236,7 @@ class Poller(Device):
         if self.autosetup:
             self._cache.addCallback(session, 'mastersetup', self._reconfigure)
 
-    def _reconfigure(self, key, value):
+    def _reconfigure(self, key, value, time):
         self.log.info('reconfiguring for new master setups %s' % value)
         session.readSetups()
         old_setups = self._setups
