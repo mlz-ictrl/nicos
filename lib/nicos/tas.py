@@ -34,7 +34,7 @@ from nicos.cell import Cell
 from nicos.utils import tupleof, listof, oneof, multiStatus
 from nicos.errors import ConfigurationError, ComputationError, LimitError
 from nicos.device import Moveable, HasLimits, HasPrecision, Param, Override, \
-     AutoDevice
+     AutoDevice, Value
 from nicos.experiment import Sample
 from nicos.instrument import Instrument
 
@@ -426,6 +426,12 @@ class TAS(Instrument, Moveable):
             self._cache.invalidate(self, 'value')
         self.unit = 'rlu rlu rlu %s' % val
         self.E.unit = val
+
+    def valueInfo(self):
+        return Value('h', unit='rlu', fmtstr='%.4f'), \
+            Value('k', unit='rlu', fmtstr='%.4f'), \
+            Value('l', unit='rlu', fmtstr='%.4f'), \
+            Value('E', unit=self.energytransferunit, fmtstr='%.4f')
 
     def doRead(self):
         # XXX read() or read(0)

@@ -91,6 +91,7 @@ class Dataset(object):
     # cached info for all sinks to use
     xnames = []
     xunits = []
+    xvalueinfo = []
     ynames = []
     yunits = []
     yvalueinfo = []
@@ -209,9 +210,10 @@ class ConsoleSink(DataSink):
             point = str(dataset.curpoint)
         printinfo('\t'.join(
             [point] +
-            [dev.format(val) for (dev, val) in
-             zip(dataset.devices + dataset.envlist, xvalues)] +
-            [str(val) for val in yvalues]).expandtabs())
+            [info.fmtstr % val for (info, val) in
+             zip(dataset.xvalueinfo, xvalues)] +
+            [info.fmtstr % val for (info, val) in
+             zip(dataset.yvalueinfo, yvalues)]).expandtabs())
 
     def endDataset(self, dataset):
         printinfo('-' * 80)
@@ -481,9 +483,10 @@ class AsciiDatafileSink(DatafileSink):
             self._file.write('%s %s\n' % (self._commentc,
                                           '\t'.join(self._colunits)))
             self._wrote_columninfo = True
-        xv = [dev.format(val) for (dev, val) in
-              zip(dataset.devices + dataset.envlist, xvalues)]
-        yv = map(str, yvalues)
+        xv = [info.fmtstr % val for (info, val) in
+              zip(dataset.xvalueinfo, xvalues)]
+        yv = [info.fmtstr % val for (info, val) in
+              zip(dataset.yvalueinfo, yvalues)]
         if self.semicolon:
             values = xv + [';'] + yv
         else:

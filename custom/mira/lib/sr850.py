@@ -101,7 +101,7 @@ class Amplifier(Measurable, TacoDevice):
         Y = sum(ys) / float(N)
         R = hypot(X, Y)
         Theta = degrees(atan2(Y, X))
-        return (X, Y, R, Theta)
+        return [X, Y, R, Theta]
 
     def doStop(self):
         pass

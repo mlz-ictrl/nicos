@@ -148,11 +148,13 @@ class Value(object):
     This class defines the properties of a Measurable read value.
     """
 
-    def __init__(self, name, type='other', errors='none', unit='', active=True):
+    def __init__(self, name, type='other', errors='none', unit='',
+                 fmtstr='%.3f', active=True):
         self.name = name
         self.type = type
         self.errors = errors
         self.unit = unit
+        self.fmtstr = fmtstr
         self.active = active
 
     def __repr__(self):

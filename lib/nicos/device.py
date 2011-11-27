@@ -481,6 +481,7 @@ class Readable(Device):
 
     * doReset()
     * doPoll()
+    * valueInfo()
     """
 
     # Set this to False on devices that directly access hardware, and therefore
@@ -551,6 +552,17 @@ class Readable(Device):
             val = func()
             self._cache.put(self, name, val, currenttime(), self.maxage)
         return val
+
+    def valueInfo(self):
+        """Describe the values read by this device.
+
+        Return a tuple of :class:`nicos.device.Value` instances describing
+        the values that :meth:`read` returns.
+
+        This should be overridden by every Readable that returns more than one
+        value.
+        """
+        return Value(self.name, unit=self.unit, fmtstr=self.fmtstr),
 
     @usermethod
     def read(self, maxage=None):
@@ -1188,13 +1200,13 @@ class Measurable(Readable):
         if self._sim_active:
             if hasattr(self, 'doSimulate'):
                 return self.doSimulate(self._sim_preset)
-            return (0,) * len(self.valueInfo())
+            return [0] * len(self.valueInfo())
         # always get fresh result from cache => maxage parameter is ignored
         if self._cache:
             self._cache.invalidate(self, 'value')
         result = self._get_from_cache('value', self.doRead)
-        if not isinstance(result, tuple):
-            return (result,)
+        if not isinstance(result, list):
+            return [result]
         return result
 
     def info(self):

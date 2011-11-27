@@ -130,7 +130,7 @@ class FRMTimerChannel(FRMChannel):
         return 's'
 
     def valueInfo(self):
-        return Value(self.name, unit='s', type='time'),
+        return Value(self.name, unit='s', type='time', fmtstr='%.3f'),
 
     def doTime(self, preset):
         if self.ismaster:
@@ -158,7 +158,8 @@ class FRMCounterChannel(FRMChannel):
         return 'cts'
 
     def valueInfo(self):
-        return Value(self.name, unit='cts', errors='sqrt', type=self.type),
+        return Value(self.name, unit='cts', errors='sqrt',
+                     type=self.type, fmtstr='%d'),
 
 
 class FRMDetector(Measurable):
@@ -244,7 +245,7 @@ class FRMDetector(Measurable):
             master.stop()
 
     def doRead(self):
-        return sum((ctr.read() for ctr in self.__counters), ())
+        return sum((ctr.read() for ctr in self.__counters), [])
 
     def doStatus(self):
         for master in self.__masters:

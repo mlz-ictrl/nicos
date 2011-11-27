@@ -104,7 +104,7 @@ def qscan(Q, dQ, numsteps, *args, **kwargs):
     if all(v == 0 for v in dQ) and numsteps > 1:
         raise UsageError('scanning with zero step width')
     infostr = infostr or _infostr('qscan', (Q, dQ, numsteps) + args, kwargs)
-    values = [[Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3]]
+    values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
                for i in range(numsteps)]
     scan = QScan(values, move, multistep, detlist, envlist, preset, infostr)
     scan.run()
@@ -119,7 +119,7 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
     if all(v == 0 for v in dQ) and numperside > 0:
         raise UsageError('scanning with zero step width')
     infostr = infostr or _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
-    values = [[Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3]]
+    values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
                for i in range(-numperside, numperside+1)]
     scan = QScan(values, move, multistep, detlist, envlist, preset, infostr)
     scan.run()
