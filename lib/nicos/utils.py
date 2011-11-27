@@ -125,7 +125,7 @@ class Param(object):
         if self.preinit:
             txt += '\n    * Is initialized before device preinit'
         if self.prefercache is not None:
-            txt += '\n    * Prefer value from  cache: %s' % self.prefercache
+            txt += '\n    * Prefer value from cache: %s' % self.prefercache
         if not self.userparam:
             txt += '\n    * Not shown to user'
         return txt
