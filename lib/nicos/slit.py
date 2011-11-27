@@ -111,7 +111,7 @@ class Slit(Moveable):
         tr, tl, tb, tt = positions
         # determine which axes to move first, so that the blades can
         # not touch when one moves first
-        cr, cl, cb, ct = map(lambda d: d.doRead(), self._axes)
+        cr, cl, cb, ct = map(lambda d: d.read(0), self._axes)
         ar, al, ab, at = self._axes
         if tr < cr and tl < cl:
             # both move to smaller values, need to start right blade first
@@ -154,6 +154,7 @@ class Slit(Moveable):
             ax.stop()
 
     def doRead(self):
+        # XXX read() or read(0)
         positions = map(lambda d: d.read(), self._axes)
         r, l, b, t = positions
         if self.opmode == 'centered':
@@ -168,6 +169,7 @@ class Slit(Moveable):
             return tuple(positions)
 
     def doStatus(self):
+        # XXX status() or status(0)
         svalues = map(lambda d: d.status(), self._axes)
         return max(s[0] for s in svalues), 'axis status: ' + \
                ', '.join('%s=%s' % (n, s[1])
@@ -198,16 +200,17 @@ class SlitAxis(Moveable, AutoDevice):
     hardware_access = False
 
     def doRead(self):
+        # XXX read() or read(0)
         positions = map(lambda d: d.read(), self._adevs['slit']._axes)
         return self._convertRead(positions)
 
     def doStart(self, target):
-        currentpos = map(lambda d: d.doRead(), self._adevs['slit']._axes)
+        currentpos = map(lambda d: d.read(0), self._adevs['slit']._axes)
         positions = self._convertStart(target, currentpos)
         self._adevs['slit']._doStartPositions(positions)
 
     def doIsAllowed(self, target):
-        currentpos = map(lambda d: d.doRead(), self._adevs['slit']._axes)
+        currentpos = map(lambda d: d.read(0), self._adevs['slit']._axes)
         positions = self._convertStart(target, currentpos)
         return self._adevs['slit']._doIsAllowedPositions(positions)
 

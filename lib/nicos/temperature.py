@@ -120,7 +120,7 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
     }
 
     def doRead(self):
-        # XXX read or doRead
+        # XXX read or read(0)
         return self._adevs['sensor_%s' % self.samplechannel.lower()].read() - \
                self.offset
 
@@ -168,7 +168,7 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
         firststart = started = time.time()
         channel = self._adevs['sensor_%s' % self.controlchannel.lower()]
         while 1:
-            # XXX read or doRead
+            # XXX read() or read(0)
             value = channel.read()
             self.log.debug('current temperature %7.3f %s' % (value, self.unit))
             now = time.time()

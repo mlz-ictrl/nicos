@@ -206,6 +206,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         return True, ''
 
     def doRead(self):
+        # XXX read() or read(0)
         tt = self._scatsense * self._adevs['twotheta'].read()
         th = self._adevs['theta'].read()
         # analyser scattering side
@@ -393,7 +394,7 @@ class TAS(Instrument, Moveable):
             ana.wait()
         phi.wait()
         psi.wait()
-        #h, k, l, ny = self.doRead()
+        #h, k, l, ny = self.read(0)
         # make sure index members read the latest value
         for index in (self.h, self.k, self.l, self.E):
             if index._cache:
@@ -427,7 +428,7 @@ class TAS(Instrument, Moveable):
         self.E.unit = val
 
     def doRead(self):
-        # XXX read or doRead
+        # XXX read() or read(0)
         mono, ana, phi, psi = self._adevs['mono'], self._adevs['ana'], \
                               self._adevs['phi'], self._adevs['psi']
         # read out position
@@ -462,9 +463,11 @@ class TASIndex(Moveable, AutoDevice):
     hardware_access = False
 
     def doRead(self):
+        # XXX read() or read(0)
         return self._adevs['tas'].read()[self.index]
 
     def doStart(self, pos):
+        # XXX read() or read(0)
         current = list(self._adevs['tas'].read())
         current[self.index] = pos
         self._adevs['tas'].start(current)
@@ -492,6 +495,7 @@ class Wavevector(Moveable):
 
     def doRead(self):
         if self._value is None:
+            # XXX read() or read(0)
             self._value = self._adevs['base'].read()
         return self._value
 

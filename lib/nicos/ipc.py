@@ -743,7 +743,7 @@ class Motor(NicosMotor):
         self.log.debug('target is %d' % target)
         bus = self._adevs['bus']
         self.doWait()
-        pos = self._tosteps(self.doRead())
+        pos = self._tosteps(self.read(0))
         self.log.debug('pos is %d' % pos)
         diff = target - pos
         if diff == 0:
@@ -781,7 +781,7 @@ class Motor(NicosMotor):
             except:
                 pass
             rewind()
-        if self.doStatus()[0] != status.OK:  # busy or error
+        if self.status(0)[0] != status.OK:  # busy or error
             stopandrewind()
         else:
             rewind()
@@ -792,12 +792,10 @@ class Motor(NicosMotor):
         while timeleft >= 0:
             sleep(0.2)
             timeleft -= 0.2
-            if self.poll()[0][0] != status.BUSY:
-                #~ self.doRead()
-                #~ sleep(1.0)   # triple crds have status idle before they
+            if self.status(0)[0] != status.BUSY:
+                #~ sleep(1.0)   # triple cards have status idle before they
                                 # are really stopped. reading position directly
                                 # after becoming idle yields not the final value
-                #~ self.doRead()
                 break
         else:
             raise TimeoutError(self, 'movement timed out (timeout %.1f s)'
@@ -945,7 +943,7 @@ class IPCRelay(Moveable):
         return self._adevs['stepper'].relay
 
     def doStatus(self):
-        return status.OK, 'relay is ' + str(self.doRead())
+        return status.OK, 'relay is %s' % self._adevs['stepper'].relay
 
 
 class IPCInhibit(Readable):
@@ -966,7 +964,7 @@ class IPCInhibit(Readable):
         return 'on' if self._adevs['stepper'].inhibit else 'off'
 
     def doStatus(self):
-        return status.OK, 'inhibit is ' + str(self.doRead())
+        return status.OK, 'inhibit is ' + self.doRead()
 
 
 class Input(Readable):

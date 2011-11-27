@@ -248,7 +248,7 @@ class FRMDetector(Measurable):
 
     def doStatus(self):
         for master in self.__masters:
-            masterstatus = master.status()
+            masterstatus = master.status(0)
             if masterstatus[0] == status.BUSY:
                 return masterstatus
         return (status.OK, 'idle')

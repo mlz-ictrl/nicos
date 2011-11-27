@@ -101,11 +101,11 @@ class Axis(BaseAxis):
 
     def doStart(self, target, locked=False):
         """Starts the movement of the axis to target."""
-        if self._checkTargetPosition(self.doRead(), target, error=False):
+        if self._checkTargetPosition(self.read(0), target, error=False):
             return
 
         # TODO: stop the axis instead of raising an exception
-        if self.doStatus()[0] == status.BUSY:
+        if self.status(0)[0] == status.BUSY:
             raise NicosError(self, 'axis is moving now, please issue a stop '
                             'command and try it again')
 
@@ -135,24 +135,24 @@ class Axis(BaseAxis):
         elif self._posthread and self._posthread.isAlive():
             return (status.BUSY, 'moving')
         else:
-            return self._adevs['motor'].doStatus()
+            return self._adevs['motor'].status(0)
 
     def doRead(self):
         """Returns the current position from coder controller."""
         if self._errorstate:
             raise self._errorstate
-        # XXX read or doRead
+        # XXX read() or read(0)
         return self._adevs['coder'].read() - self.offset
 
     def doReset(self):
         """Resets the motor/coder controller."""
-        if self.doStatus()[0] != status.BUSY:
+        if self.status(0)[0] != status.BUSY:
             self._errorstate = None
-        self._adevs['motor'].setPosition(self._adevs['coder'].doRead())
+        self._adevs['motor'].setPosition(self._adevs['coder'].read(0))
 
     def doStop(self):
         """Stops the movement of the motor."""
-        if self.doStatus()[0] == status.BUSY:
+        if self.status(0)[0] == status.BUSY:
             self._stoprequest = 1
         else:
             self._stoprequest = 0
@@ -167,7 +167,7 @@ class Axis(BaseAxis):
 
     def doWriteOffset(self, value):
         """Called on adjust(), overridden to forbid adjusting while moving."""
-        if self.doStatus()[0] == status.BUSY:
+        if self.status(0)[0] == status.BUSY:
             raise NicosError(self, 'axis is moving now, please issue a stop '
                             'command and try it again')
         if self._errorstate:
@@ -280,7 +280,7 @@ class Axis(BaseAxis):
             self._errorstate = None
             if self.backlash:
                 backlash = self.backlash
-                lastpos = self.doRead()
+                self._lastpos = lastpos = self.read(0)
                 # make sure not to move twice if coming from the side in the
                 # direction of the backlash
                 if backlash > 0 and lastpos < target + backlash:
@@ -294,6 +294,7 @@ class Axis(BaseAxis):
                     if self._stoprequest == 2 or self._errorstate:
                         break
             else:
+                self._lastpos = self.read(0)
                 self.__positioning(target)
             try:
                 self._postMoveAction()
@@ -305,7 +306,6 @@ class Axis(BaseAxis):
         moving = False
         offset = self.offset
         maxtries = self.maxtries
-        self._lastpos = self.doRead()
         self._adevs['motor'].start(target + offset)
         moving = True
         devs = [self._adevs['motor'], self._adevs['coder']] + self._adevs['obs']
@@ -317,7 +317,8 @@ class Axis(BaseAxis):
                 self._stoprequest = 2
                 continue
             sleep(self.loopdelay)
-            # poll accurate current values and status of child devices
+            # poll accurate current values and status of child devices so that
+            # we can use read() and status() subsequently
             for dev in devs:
                 dev.poll()
             pos = self._adevs['coder'].read() - self.offset
@@ -430,7 +431,7 @@ class TacoAxis(TacoDevice, BaseAxis):
         self._taco_guard(client.deviceOn)
         self.setPosition(self.refpos)
         self.log.info('reference drive complete, position is now ' +
-                      self.format(self.doRead()))
+                      self.format(self.read(0)))
 
     def _reset_phytron(self):
         import IO

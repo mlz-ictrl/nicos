@@ -75,7 +75,7 @@ class VirtualMotor(Motor, HasOffset):
     def __moving(self, pos):
         self._stop = False
         incr = 0.2 * self.speed
-        delta = pos - self.doRead()
+        delta = pos - self.curvalue + self.offset
         steps = int(abs(delta) / incr)
         incr = delta < 0 and -incr or incr
         for i in range(steps):
@@ -97,7 +97,7 @@ class VirtualCoder(Coder, HasOffset):
     }
 
     def doRead(self):
-        val = self._adevs['motor'] and self._adevs['motor'].doRead() or 0
+        val = self._adevs['motor'] and self._adevs['motor'].read(0) or 0
         return val - self.offset
 
     def doStatus(self):

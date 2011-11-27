@@ -516,7 +516,7 @@ class Readable(Device):
         if sim_active:
             # save the last known value
             try:
-                self._sim_value = self.read()
+                self._sim_value = self.read()  # cached value is ok here
                 self.log.debug('last value before simulation mode is %r' %
                                 (self._sim_value,))
             except Exception, err:
@@ -539,7 +539,9 @@ class Readable(Device):
         """
         if not self._cache:
             return func()
-        if maxage is not None:
+        if maxage == 0:
+            val = None
+        elif maxage is not None:
             time, ttl, val = self._cache.get_explicit(self, name)
             if val is not None and time + min(maxage, ttl) < currenttime():
                 val = None
@@ -607,6 +609,8 @@ class Readable(Device):
 
         .. automethod:: _pollParam
         """
+        if self._sim_active:
+            return (self.status(), self.read())
         stval = None
         if hasattr(self, 'doStatus'):
             stval = self.doStatus()
@@ -649,9 +653,7 @@ class Readable(Device):
             return
         if hasattr(self, 'doReset'):
             self.doReset()
-        if self._cache:
-            self._cache.invalidate(self, 'status')
-        return self.status()
+        return self.status(0)
 
     def format(self, value):
         """Format a value from :meth:`read` into a human-readable string.
@@ -844,7 +846,7 @@ class Moveable(Readable):
         else:
             # else, assume the device did move and the cache needs to be
             # updated in most cases
-            val = self.doRead()
+            val = self.doRead()  # not read(0), we already cache value below
         if self._cache and self._mode != 'slave':
             self._cache.put(self, 'value', val, currenttime(), self.maxage)
         return val
@@ -980,7 +982,7 @@ class HasLimits(Moveable):
 
     def doWriteUserlimits(self, value):
         self._checkLimits(value)
-        curval = self.read()
+        curval = self.read(0)
         if not value[0] <= curval <= value[1]:
             self.log.warning('current device value (%s) not within new '
                               'userlimits (%s, %s)' %
@@ -1020,7 +1022,7 @@ class HasOffset(object):
         # Since offset changes directly change the device value, refresh
         # the cache instantly here
         if self._cache:
-            self._cache.put(self, 'value', self.doRead() - diff,
+            self._cache.put(self, 'value', self.read(0) - diff,
                             currenttime(), self.maxage)
         session.elog_event('offset', (str(self), old_offset, value))
 

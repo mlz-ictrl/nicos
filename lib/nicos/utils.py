@@ -756,6 +756,7 @@ def multiStatus(devices):
     for devname, dev in devices:
         if dev is None:
             continue
+        # XXX status or status(0)
         state, text = dev.status()
         rettext.append('%s=%s' % (devname, text))
         if state > retstate:
@@ -765,8 +766,9 @@ def multiStatus(devices):
 
 def waitForStatus(dev, delay=0.3, busystate=status.BUSY):
     # XXX add a timeout?
+    # XXX what about error status?
     while True:
-        st = dev.doStatus()
+        st = dev.status(0)
         if st[0] == busystate:
             sleep(delay)
             # XXX add a breakpoint here?

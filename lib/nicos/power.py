@@ -68,13 +68,12 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
         self._taco_multitry('write', 2, self._dev.write, value + self.offset)
         sleep(0.5)  # wait until server goes into "moving" status
         if self.variance > 0:
-            self.doWait()
+            newvalue = self.wait()
             maxdelta = value * (self.variance/100.) + 0.1
-            newvalue = self.doRead()
             if abs(newvalue - value) > maxdelta:
                 if not fromvarcheck:
                     self.log.warning('value %s instead of %s exceeds variance'
-                                      % (newvalue, value))
+                                     % (newvalue, value))
                     self.doStart(value, fromvarcheck=True)
                 else:
                     raise MoveError(self,

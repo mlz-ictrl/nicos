@@ -231,7 +231,7 @@ def adjust(dev, value):
     """Adjust the offset of the device so that read() returns the given value.
     """
     dev = session.getDevice(dev, HasOffset)
-    diff = dev.read() - value
+    diff = dev.read(0) - value
     dev.offset += diff
 
 @usercommand

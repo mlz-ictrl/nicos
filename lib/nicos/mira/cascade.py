@@ -114,6 +114,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
 
     def doRead(self):
         if self.slave:
+            # XXX read() or read(0)
             return self._adevs['master'].read() + self.lastcounts + \
                 (self.lastfilename,)
         return self.lastcounts + (self.lastfilename,)

@@ -197,11 +197,13 @@ class Scan(object):
         return True
 
     def readPosition(self):
+        # XXX read() or read(0)
+        # using read() assumes all devices have updated cached value on wait()
         return [dev.read() for dev in self._devices]
 
     def readEnvironment(self, start, finished):
         # XXX take history mean, warn if values deviate too much?
-        return [dev.doRead() for dev in self._envlist]
+        return [dev.read(0) for dev in self._envlist]
 
     def run(self):
         session.beginActionScope('Scan')
@@ -386,10 +388,10 @@ class ContinuousScan(Scan):
             for det in detlist:
                 det.start(t=preset)
             last = sum((det.read() for det in detlist), ())
-            while device.doStatus()[0] == status.BUSY:
+            while device.status(0)[0] == status.BUSY:
                 time.sleep(1)
                 session.breakpoint(2)
-                devpos = device.doRead()
+                devpos = device.read(0)
                 read = sum((det.read() for det in detlist), ())
                 diff = [read[i] - last[i]
                         if isinstance(i, (int, long, float)) else read[i]

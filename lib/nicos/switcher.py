@@ -73,6 +73,7 @@ class Switcher(Moveable):
         self._adevs['moveable'].wait()
 
     def doRead(self):
+        # XXX read() or read(0)
         pos = self._adevs['moveable'].read()
         prec = self.precision
         for name, value in self._switchlist.iteritems():
@@ -86,6 +87,7 @@ class Switcher(Moveable):
                             self._adevs['moveable'])
 
     def doStatus(self):
+        # XXX status() or status(0)
         return self._adevs['moveable'].status()
 
 
@@ -118,6 +120,7 @@ class ReadonlySwitcher(Readable):
         self._switchlist = dict(zip(states, values))
 
     def doRead(self):
+        # XXX read() or read(0)
         pos = self._adevs['readable'].read()
         prec = self.precision
         for name, value in self._switchlist.iteritems():
@@ -131,4 +134,5 @@ class ReadonlySwitcher(Readable):
                             self._adevs['moveable'])
 
     def doStatus(self):
+        # XXX status() or status(0)
         return self._adevs['readable'].status()

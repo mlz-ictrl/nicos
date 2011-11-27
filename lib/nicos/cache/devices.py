@@ -35,18 +35,10 @@ from nicos.errors import CommunicationError, TimeoutError
 class CacheReader(Readable):
 
     def doRead(self):
-        # although read() already looked in the cache, we need to do it again
-        # since some routines call doRead() directly in order to get a fresh
-        # value directly from the device
-        val = self._cache.get(self, 'value')
-        if val is None:
-            raise CommunicationError(self, 'CacheReader value not in cache')
-        return val
+        raise CommunicationError(self, 'CacheReader value not in cache')
 
     def doStatus(self):
-        # same here as for doRead, however if no status info is in the
-        # cache, we assume it's ok
-        return (status.OK, 'no status found in cache')
+        return (status.UNKNOWN, 'no status found in cache')
 
 
 class CacheWriter(HasLimits, Moveable):

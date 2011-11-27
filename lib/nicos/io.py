@@ -219,7 +219,7 @@ class MultiDigitalOutput(Moveable):
 
     def doRead(self):
         values = []
-        # XXX read or doRead
+        # XXX read() or read(0)
         for dev in self._adevs['outputs']:
             values.append(dev.read())
         if len(set(values)) != 1:
