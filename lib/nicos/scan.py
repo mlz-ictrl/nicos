@@ -402,7 +402,7 @@ class ContinuousScan(Scan):
                 devpos = device.read(0)
                 read = sum((det.read() for det in detlist), ())
                 diff = [read[i] - last[i]
-                        if isinstance(i, (int, long, float)) else read[i]
+                        if isinstance(read[i], (int, long, float)) else read[i]
                         for i in range(len(read))]
                 self.addPoint([devpos], diff)
                 last = read
