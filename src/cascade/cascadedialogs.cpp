@@ -1099,8 +1099,9 @@ void RangeDlg::SetReadOnly(bool bReadOnly)
 
 // ********************* Counts vs Images **************************************
 
-CountsVsImagesDlg::CountsVsImagesDlg(QWidget *pParent)
-				 : QDialog(pParent), m_pgrid(0)
+CountsVsImagesDlg::CountsVsImagesDlg(CascadeWidget *pParent)
+				 : QDialog(pParent), m_pwidget(pParent),
+				   m_pgrid(0), m_ppanner(0)
 {
 	setupUi(this);
 
@@ -1154,6 +1155,7 @@ CountsVsImagesDlg::CountsVsImagesDlg(QWidget *pParent)
 	connect(btnRoiLoad, SIGNAL(clicked()), this, SLOT(LoadRoi()));
 	connect(btnRoiCurrent, SIGNAL(toggled(bool)),
 			this, SLOT(SetRoiUseCurrent(bool)));
+	connect(groupRoi, SIGNAL(toggled(bool)), this, SLOT(RoiGroupToggled()));
 }
 
 CountsVsImagesDlg::~CountsVsImagesDlg()
@@ -1169,12 +1171,47 @@ void CountsVsImagesDlg::UpdateGraph()
 	bool bUseCurRoi = btnRoiCurrent->isChecked();
 	QString strRoiFile = editRoi->text();
 
+	PadImage pad;
+
+	if(bUseRoi)
+	{
+		Roi &roi = pad.GetRoi();
+		pad.UseRoi(true);
+
+		if(bUseCurRoi)
+		{
+			Roi *pRoi = m_pwidget->GetCurRoi();
+			if(pRoi==0)
+			{
+				logger.SetCurLogLevel(LOGLEVEL_ERR);
+				logger << "Counts Dialog: No current ROI available.\n";
+
+				pad.UseRoi(false);
+			}
+			else
+			{
+				// copy current roi
+				roi = *pRoi;
+			}
+		}
+		else // load roi from file
+		{
+			if(!roi.Load(strRoiFile.toAscii().data()))
+			{
+				logger.SetCurLogLevel(LOGLEVEL_ERR);
+				logger << "Counts Dialog: Could not load ROI \""
+					   << strRoiFile.toAscii().data() << "\".\n";
+
+				pad.UseRoi(false);
+			}
+		}
+	}
+
 	const int iPadCnt = listPads->count();
 
 	double *pdx = new double[iPadCnt];
 	double *pdy = new double[iPadCnt];
 
-	PadImage pad;
 	unsigned int uiMax = 0;
 	for(int iItem=0; iItem<iPadCnt; ++iItem)
 	{
@@ -1183,7 +1220,7 @@ void CountsVsImagesDlg::UpdateGraph()
 		if(!pad.LoadFile(pItem->text().toAscii().data()))
 		{
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
-			logger << "CountsDialog: Could not load \""
+			logger << "Counts Dialog: Could not load \""
 				   << pItem->text().toAscii().data() << "\".\n";
 			continue;
 		}
@@ -1207,6 +1244,11 @@ void CountsVsImagesDlg::UpdateGraph()
 	plot->replot();
 }
 
+void CountsVsImagesDlg::RoiGroupToggled()
+{
+	UpdateGraph();
+}
+
 void CountsVsImagesDlg::LoadRoi()
 {
 	QString strFile = QFileDialog::getOpenFileName(this,
@@ -1215,12 +1257,15 @@ void CountsVsImagesDlg::LoadRoi()
 							"All Files (*)");
 
 	editRoi->setText(strFile);
+	UpdateGraph();
 }
 
 void CountsVsImagesDlg::SetRoiUseCurrent(bool bCur)
 {
 	editRoi->setEnabled(!bCur);
 	btnRoiLoad->setEnabled(!bCur);
+
+	UpdateGraph();
 }
 
 void CountsVsImagesDlg::AddFile()
