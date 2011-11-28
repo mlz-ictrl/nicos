@@ -1104,10 +1104,31 @@ CountsVsImagesDlg::CountsVsImagesDlg(QWidget *pParent)
 {
 	setupUi(this);
 
+	listPads->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
 	plot->setAutoReplot(false);
 	plot->setCanvasBackground(QColor(255,255,255));
 	plot->axisWidget(QwtPlot::xBottom)->setTitle("Images");
 	plot->axisWidget(QwtPlot::yLeft)->setTitle("Counts");
+
+
+	m_pzoomer = new QwtPlotZoomer(plot->canvas());
+
+	m_pzoomer->setSelectionFlags(QwtPicker::RectSelection |
+								 QwtPicker::DragSelection);
+
+	m_pzoomer->setMousePattern(QwtEventPattern::MouseSelect2,Qt::RightButton,
+							   Qt::ControlModifier);
+	m_pzoomer->setMousePattern(QwtEventPattern::MouseSelect3,Qt::RightButton);
+
+	QColor c(Qt::darkBlue);
+	m_pzoomer->setRubberBandPen(c);
+	m_pzoomer->setTrackerPen(c);
+
+
+	m_ppanner = new QwtPlotPanner(plot->canvas());
+	m_ppanner->setMouseButton(Qt::MidButton);
+
 
 	m_pgrid = new QwtPlotGrid;
 	m_pgrid->enableXMin(true);
@@ -1129,6 +1150,7 @@ CountsVsImagesDlg::CountsVsImagesDlg(QWidget *pParent)
 	m_curve.attach(plot);
 
 	connect(btnAdd, SIGNAL(clicked()), this, SLOT(AddFile()));
+	connect(btnDelete, SIGNAL(clicked()), this, SLOT(DeleteFile()));
 	connect(btnRoiLoad, SIGNAL(clicked()), this, SLOT(LoadRoi()));
 	connect(btnRoiCurrent, SIGNAL(toggled(bool)),
 			this, SLOT(SetRoiUseCurrent(bool)));
@@ -1137,6 +1159,8 @@ CountsVsImagesDlg::CountsVsImagesDlg(QWidget *pParent)
 CountsVsImagesDlg::~CountsVsImagesDlg()
 {
 	if(m_pgrid) delete m_pgrid;
+	if(m_pzoomer) delete m_pzoomer;
+	if(m_ppanner) delete m_ppanner;
 }
 
 void CountsVsImagesDlg::UpdateGraph()
@@ -1145,8 +1169,42 @@ void CountsVsImagesDlg::UpdateGraph()
 	bool bUseCurRoi = btnRoiCurrent->isChecked();
 	QString strRoiFile = editRoi->text();
 
+	const int iPadCnt = listPads->count();
 
+	double *pdx = new double[iPadCnt];
+	double *pdy = new double[iPadCnt];
 
+	PadImage pad;
+	unsigned int uiMax = 0;
+	for(int iItem=0; iItem<iPadCnt; ++iItem)
+	{
+		QListWidgetItem* pItem = listPads->item(iItem);
+
+		if(!pad.LoadFile(pItem->text().toAscii().data()))
+		{
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "CountsDialog: Could not load \""
+				   << pItem->text().toAscii().data() << "\".\n";
+			continue;
+		}
+
+		unsigned int uiCnts = pad.GetCounts();
+		uiMax = max(uiMax, uiCnts);
+
+		pdx[iItem] = iItem;
+		pdy[iItem] = uiCnts;
+	}
+
+	m_curve.setData(pdx, pdy, iPadCnt);
+
+	delete[] pdx;
+	delete[] pdy;
+
+	plot->setAxisScale(QwtPlot::yLeft, 0, uiMax);
+	plot->setAxisScale(QwtPlot::xBottom, 0, iPadCnt);
+	m_pzoomer->setZoomBase();
+
+	plot->replot();
 }
 
 void CountsVsImagesDlg::LoadRoi()
@@ -1170,6 +1228,26 @@ void CountsVsImagesDlg::AddFile()
 	QStringList pads = QFileDialog::getOpenFileNames(this, "PAD files", "",
 							"PAD Files (*.pad *.PAD);;All Files (*)");
 
-
 	listPads->addItems(pads);
+	UpdateGraph();
+}
+
+void CountsVsImagesDlg::DeleteFile()
+{
+	QList<QListWidgetItem*> items = listPads->selectedItems();
+
+	// nothing specific selected -> clear all
+	if(items.size() == 0)
+		listPads->clear();
+
+	for(int i=0; i<items.size(); ++i)
+	{
+		if(items[i])
+		{
+			delete items[i];
+			items[i] = 0;
+		}
+	}
+
+	UpdateGraph();
 }

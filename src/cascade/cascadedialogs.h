@@ -381,6 +381,8 @@ class CountsVsImagesDlg : public QDialog, public Ui::CountsVsImagesDlg
 	protected:
 		QwtPlotCurve m_curve;
 		QwtPlotGrid *m_pgrid;
+		QwtPlotZoomer *m_pzoomer;
+		QwtPlotPanner *m_ppanner;
 
 	public:
 		CountsVsImagesDlg(QWidget *pParent);
@@ -390,6 +392,7 @@ class CountsVsImagesDlg : public QDialog, public Ui::CountsVsImagesDlg
 		void LoadRoi();
 		void SetRoiUseCurrent(bool bCur);
 		void AddFile();
+		void DeleteFile();
 
 	public slots:
 		void UpdateGraph();
