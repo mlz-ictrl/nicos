@@ -26,8 +26,10 @@
 
 __version__ = "$Revision$"
 
+from time import sleep
+
 from nicos import session, status
-from nicos.utils import tupleof, oneof
+from nicos.utils import tupleof, listof, oneof
 from nicos.device import Param, Override, Value
 from nicos.abstract import ImageStorage, AsyncDetector
 from nicos.errors import CommunicationError
@@ -52,7 +54,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         'preselection': Param('Current preselection', unit='s',
                               settable=True, type=float),
         'lastcounts': Param('Counts of the last measurement',
-                            type=tupleof(int, int), settable=True),
+                            type=listof(int), settable=True),
     }
 
     attached_devices = {
@@ -89,10 +91,11 @@ class CascadeDetector(AsyncDetector, ImageStorage):
 
     def valueInfo(self):
         cvals = (Value(self.name + '.roi', unit='cts', type='counter',
-                       errors='sqrt', active=self.roi != (-1, -1, -1, -1)),
+                       errors='sqrt', active=self.roi != (-1, -1, -1, -1),
+                       fmtstr='%d'),
                  Value(self.name + '.total', unit='cts', type='counter',
-                       errors='sqrt'), \
-                 Value(self.name + '.file', type='info'))
+                       errors='sqrt', fmtstr='%d'), \
+                 Value(self.name + '.file', type='info', fmtstr='%s'))
         if self.slave:
             return self._adevs['master'].valueInfo() + cvals
         return cvals
@@ -173,6 +176,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         config.SetImageCount(self._tres)
         config.SetPseudoCompression(False)
 
+        sleep(0.005)
         reply = str(self._client.communicate('CMD_start'))
         if reply != 'OKAY':
             self._raise_reply('could not start measurement', reply)

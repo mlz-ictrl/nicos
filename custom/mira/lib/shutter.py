@@ -52,7 +52,8 @@ class Shutter(NamedDigitalInput):
 
     @usermethod
     def close(self):
-        self._taco_guard(self._outdev.write, 1)
-        time.sleep(0.5)
-        self._taco_guard(self._outdev.write, 0)
-        self.log.info('instrument shutter closed')
+        if self._mode != 'simulation':
+            self._taco_guard(self._outdev.write, 1)
+            time.sleep(0.5)
+            self._taco_guard(self._outdev.write, 0)
+            self.log.info('instrument shutter closed')
