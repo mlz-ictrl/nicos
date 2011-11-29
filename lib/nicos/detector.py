@@ -139,7 +139,7 @@ class FRMTimerChannel(FRMChannel):
             return 0
 
     def doSimulate(self, preset):
-        return (self.preselection,)
+        return [self.preselection]
 
 
 class FRMCounterChannel(FRMChannel):
