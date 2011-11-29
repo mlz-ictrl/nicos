@@ -233,6 +233,8 @@ def adjust(dev, value):
     dev = session.getDevice(dev, HasOffset)
     diff = dev.read(0) - value
     dev.offset += diff
+    dev.log.info('adjusted to %s %s, new offset is %.3f' %
+                 (dev.format(value), dev.unit, dev.offset))
 
 @usercommand
 def version(*devlist):
