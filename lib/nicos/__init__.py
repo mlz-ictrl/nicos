@@ -33,19 +33,19 @@ nicos_version = "2.0a1"
 import os
 import new
 import sys
-import pkgutil
+from os import path
 
 # Check for Python version 2.5+.
 if sys.version_info[:2] < (2, 5):
     raise ImportError('NICOS requires Python 2.5 or higher')
 
 # Add instrument-specific directories to the package path.
-pkgpath = os.path.join(os.path.dirname(__file__), '..', '..', 'custom')
-for dir in  os.listdir(pkgpath):
-    mod = new.module('nicos.' + dir)
-    sys.modules['nicos.' + dir] = mod
-    mod.__path__ = [os.path.join(pkgpath, dir, 'lib')]
-    globals()[dir] = mod
+pkgpath = path.join(path.dirname(__file__), '..', '..', 'custom')
+if path.isdir(pkgpath):
+    for dir in  os.listdir(pkgpath):
+        mod = sys.modules['nicos.' + dir] = new.module('nicos.' + dir)
+        mod.__path__ = [path.join(pkgpath, dir, 'lib')]
+        globals()[dir] = mod
 
 # Create the nicos session object here to allow the import of submodules.
 # The real class is set later.
