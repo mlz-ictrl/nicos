@@ -150,7 +150,7 @@ class THM(Measurable):
         (x, dx), (y, dy), (z, dz) = \
             self._average(n, xs), self._average(n, ys), self._average(n, zs)
         mod = math.sqrt(x*x + y*y + z*z)
-        return mod, x, dx, y, dy, z, dz
+        return [mod, x, dx, y, dy, z, dz]
 
     def doSetPreset(self, **preset):
         pass

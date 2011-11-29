@@ -325,11 +325,11 @@ class CacheClient(BaseCacheClient):
             self._db.pop(key, None)
         else:
             value = cache_load(value)
-            self._db[key] = (value, time and float(time), ttl and float(ttl))
+            self._db[key] = (value, time, ttl and float(ttl))
         if key in self._callbacks:
             if self._do_callbacks:
                 try:
-                    self._callbacks[key](key, value)
+                    self._callbacks[key](key, value, time)
                 except:
                     self.log.warning('error in cache callback', exc=1)
 

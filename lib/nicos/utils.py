@@ -125,7 +125,7 @@ class Param(object):
         if self.preinit:
             txt += '\n    * Is initialized before device preinit'
         if self.prefercache is not None:
-            txt += '\n    * Prefer value from  cache: %s' % self.prefercache
+            txt += '\n    * Prefer value from cache: %s' % self.prefercache
         if not self.userparam:
             txt += '\n    * Not shown to user'
         return txt
@@ -148,11 +148,13 @@ class Value(object):
     This class defines the properties of a Measurable read value.
     """
 
-    def __init__(self, name, type='other', errors='none', unit='', active=True):
+    def __init__(self, name, type='other', errors='none', unit='',
+                 fmtstr='%.3f', active=True):
         self.name = name
         self.type = type
         self.errors = errors
         self.unit = unit
+        self.fmtstr = fmtstr
         self.active = active
 
     def __repr__(self):

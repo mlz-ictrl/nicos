@@ -116,8 +116,8 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         if self.slave:
             # XXX read() or read(0)
             return self._adevs['master'].read() + self.lastcounts + \
-                (self.lastfilename,)
-        return self.lastcounts + (self.lastfilename,)
+                [self.lastfilename]
+        return self.lastcounts + [self.lastfilename]
 
     def _getconfig(self):
         cfg = self._client.communicate('CMD_getconfig_cdr')
@@ -220,7 +220,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
             roi = self._client.counts(data, x1, x2, y1, y2)
         else:
             roi = total
-        self.lastcounts = (roi, total)
+        self.lastcounts = [roi, total]
         return buf
 
     def _raise_reply(self, message, reply):

@@ -101,11 +101,12 @@ class Scan(object):
         dataset.xresults = []
         dataset.yresults = []
         dataset.sinkinfo = []
-        dataset.xnames, dataset.xunits = [], []
-        for dev in self._devices + self._envlist:
-            dataset.xnames.append(dev.name)
-            dataset.xunits.append(dev.unit)
-        dataset.yvalueinfo = sum((det.valueInfo() for det in dataset.detlist), ())
+        dataset.xvalueinfo = sum((dev.valueInfo()
+                                  for dev in self._devices + self._envlist), ())
+        dataset.xnames = [val.name for val in dataset.xvalueinfo]
+        dataset.xunits = [val.unit for val in dataset.xvalueinfo]
+        dataset.yvalueinfo = sum((det.valueInfo()
+                                  for det in dataset.detlist), ())
         dataset.yunits = [val.unit for val in dataset.yvalueinfo]
         if self._multistep:
             dataset.ynames = []
@@ -199,7 +200,14 @@ class Scan(object):
     def readPosition(self):
         # XXX read() or read(0)
         # using read() assumes all devices have updated cached value on wait()
-        return [dev.read() for dev in self._devices]
+        ret = []
+        for dev in self._devices:
+            val = dev.read()
+            if isinstance(val, list):
+                ret.extend(val)
+            else:
+                ret.append(val)
+        return ret
 
     def readEnvironment(self, start, finished):
         # XXX take history mean, warn if values deviate too much?
@@ -334,7 +342,7 @@ class QScan(Scan):
                  detlist=None, envlist=None, preset=None, scaninfo=None,
                  scantype=None):
         inst = session.instrument
-        Scan.__init__(self, [inst.h, inst.k, inst.l, inst.E], positions,
+        Scan.__init__(self, [inst], positions,
                       firstmoves, multistep, detlist, envlist, preset,
                       scaninfo, scantype)
         self._envlist[0:0] = [inst._adevs['mono'], inst._adevs['ana'],
@@ -344,14 +352,14 @@ class QScan(Scan):
         if len(self._positions) > 1:
             # determine first varying index as the plotting index
             for i in range(4):
-                if self._positions[0][i] != self._positions[1][i]:
+                if self._positions[0][0][i] != self._positions[1][0][i]:
                     self.dataset.xindex = i
                     break
         Scan.beginScan(self)
 
-    def moveTo(self, position):
-        # move instrument en-bloc, not individual Q indices
-        return self.moveDevices([(session.instrument, position)])
+#    def moveTo(self, position):
+#        # move instrument en-bloc, not individual Q indices
+#        return self.moveDevices([(session.instrument, position)])
 
 
 class ContinuousScan(Scan):
@@ -394,7 +402,7 @@ class ContinuousScan(Scan):
                 devpos = device.read(0)
                 read = sum((det.read() for det in detlist), ())
                 diff = [read[i] - last[i]
-                        if isinstance(i, (int, long, float)) else read[i]
+                        if isinstance(read[i], (int, long, float)) else read[i]
                         for i in range(len(read))]
                 self.addPoint([devpos], diff)
                 last = read
