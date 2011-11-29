@@ -450,7 +450,7 @@ class TAS(Instrument, Moveable):
             ny = self._adevs['cell'].cal_ny(mono._readInvAng(), ana._readInvAng())
             if self.energytransferunit == 'meV':
                 ny *= THZ2MEV
-        return (hkl[0], hkl[1], hkl[2], ny)
+        return [hkl[0], hkl[1], hkl[2], ny]
 
 
 class TASIndex(Moveable, AutoDevice):
