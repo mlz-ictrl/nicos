@@ -865,7 +865,9 @@ void BrowseDlg::SelectedFile()
 // *********************** Integration Dialog **********************************
 
 IntegrationDlg::IntegrationDlg(CascadeWidget *pParent)
-				: QDialog(pParent), m_pwidget(pParent), m_bAutoUpdate(true)
+				: QDialog(pParent), m_pwidget(pParent),
+				  m_pzoomer(0), m_ppanner(0),
+				  m_bAutoUpdate(true)
 {
 	setupUi(this);
 
@@ -880,6 +882,25 @@ IntegrationDlg::IntegrationDlg(CascadeWidget *pParent)
 	m_pgrid->setMajPen(QPen(Qt::black, 0, Qt::DotLine));
 	m_pgrid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
 	m_pgrid->attach(plot);
+
+
+	m_pzoomer = new QwtPlotZoomer(plot->canvas());
+
+	m_pzoomer->setSelectionFlags(QwtPicker::RectSelection |
+								 QwtPicker::DragSelection);
+
+	m_pzoomer->setMousePattern(QwtEventPattern::MouseSelect2,Qt::RightButton,
+							   Qt::ControlModifier);
+	m_pzoomer->setMousePattern(QwtEventPattern::MouseSelect3,Qt::RightButton);
+
+	QColor c(Qt::darkBlue);
+	m_pzoomer->setRubberBandPen(c);
+	m_pzoomer->setTrackerPen(c);
+
+
+	m_ppanner = new QwtPlotPanner(plot->canvas());
+	m_ppanner->setMouseButton(Qt::MidButton);
+
 
 	QwtSymbol sym;
 	sym.setStyle(QwtSymbol::Ellipse);
@@ -905,7 +926,12 @@ IntegrationDlg::IntegrationDlg(CascadeWidget *pParent)
 	connect(chkAngMean, SIGNAL(stateChanged(int)), this, SLOT(UpdateGraph()));
 }
 
-IntegrationDlg::~IntegrationDlg() {}
+IntegrationDlg::~IntegrationDlg()
+{
+	if(m_pgrid) delete m_pgrid;
+	if(m_pzoomer) delete m_pzoomer;
+	if(m_ppanner) delete m_ppanner;
+}
 
 void IntegrationDlg::UpdateGraph()
 {
@@ -951,6 +977,9 @@ void IntegrationDlg::UpdateGraph()
 		dMax = safe_log10(dMax);
 
 	plot->setAxisScale(QwtPlot::yLeft, GlobalConfig::GetLogLowerRange(), dMax);
+	plot->setAxisScale(QwtPlot::xBottom, 0, (tmpGraph.GetWidth()-1)*dRadInc);
+	m_pzoomer->setZoomBase();
+
 	plot->replot();
 }
 

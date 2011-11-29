@@ -321,6 +321,10 @@ class IntegrationDlg : public QDialog, public Ui::IntegrationDlg
 		CascadeWidget *m_pwidget;
 		QwtPlotCurve m_curve;
 		QwtPlotGrid *m_pgrid;
+
+		QwtPlotZoomer *m_pzoomer;
+		QwtPlotPanner *m_ppanner;
+
 		bool m_bAutoUpdate;
 
 		TmpImage GetRoiImage();
