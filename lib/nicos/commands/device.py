@@ -207,14 +207,14 @@ def get(dev, parameter):
     dev.log.info('parameter %s is %s' % (parameter, value))
 
 @usercommand
-def fix(*devlist):
-    """Fix one or more devices, i.e. prevent movement until release()."""
-    if not devlist:
-        raise UsageError('at least one device argument is required')
-    for dev in devlist:
-        dev = session.getDevice(dev, Moveable)
-        dev.fix()
-        dev.log.info('fixed')
+def fix(dev, reason=''):
+    """Fix a device, i.e. prevent movement until release() is called.
+
+    You can give a reason that is displayed when movement is attempted.
+    """
+    dev = session.getDevice(dev, Moveable)
+    dev.fix(reason)
+    dev.log.info(reason and 'now fixed: ' + reason or 'now fixed')
 
 @usercommand
 def release(*devlist):

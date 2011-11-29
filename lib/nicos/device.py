@@ -796,6 +796,9 @@ class Moveable(Readable):
         if self._mode == 'slave':
             raise ModeError(self, 'start not possible in slave mode')
         if self._isFixed:
+            if isinstance(self._isFixed, str):
+                raise FixedError(self, '%s; use release() to enable movement '
+                                 'again' % self._isFixed)
             raise FixedError(self, 'use release() to enable movement again')
         try:
             pos = self.valuetype(pos)
@@ -879,20 +882,18 @@ class Moveable(Readable):
             raise ModeError(self, 'stop not possible in slave mode')
         elif self._sim_active:
             return
-        if self._isFixed:
-            raise FixedError(self, 'use release() first')
         if hasattr(self, 'doStop'):
             self.doStop()
         if self._cache:
             self._cache.invalidate(self, 'value')
 
     @usermethod
-    def fix(self):
+    def fix(self, reason=''):
         """Fix the device: don't allow movement anymore.
 
         This blocks :meth:`start` or :meth:`stop` when called on the device.
         """
-        self._isFixed = True
+        self._isFixed = reason or True
 
     @usermethod
     def release(self):
