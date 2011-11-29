@@ -89,7 +89,8 @@ main-install:
 	  cp -p $(INSTRDIR)/gui/defconfig.py "$(ROOTDIR)/lib/nicos/gui"; fi
 	@echo "============================================================="
 	@echo "Installing custom modules..."
-	cp -pr $(VOPT) $(INSTRDIR)/lib $(ROOTDIR)/lib/nicos/$(INSTRUMENT)
+	mkdir -p $(VOPT) $(ROOTDIR)/lib/nicos/$(INSTRUMENT)
+	cp -pr $(VOPT) $(INSTRDIR)/lib/* $(ROOTDIR)/lib/nicos/$(INSTRUMENT)
 	@echo "============================================================="
 	@echo "Installing setups (not overwriting existing files)..."
 	cp -prn $(VOPT) $(INSTRDIR)/setups/* $(ROOTDIR)/setups
