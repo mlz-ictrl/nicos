@@ -49,7 +49,7 @@ def _count(detlist, preset):
         if not detset:
             # all detectors finished measuring
             break
-    return sum((det.read() for det in detlist), ())
+    return sum((det.read() for det in detlist), [])
 
 
 @usercommand
