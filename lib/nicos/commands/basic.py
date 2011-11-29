@@ -79,6 +79,8 @@ def help(obj=None):
             printinfo(line)
 
 
+__builtin__.__orig_dir = __builtin__.dir
+
 @usercommand
 def dir(obj=None):
     """Show all public attributes for the given object."""
