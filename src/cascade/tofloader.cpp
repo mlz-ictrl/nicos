@@ -41,11 +41,10 @@
 // TOF
 TofImage::TofImage(const char *pcFileName,
 				   bool bExternalMem, const TofConfig* conf)
-		: m_bExternalMem(bExternalMem)
+		: m_puiDaten(0),
+		  m_bExternalMem(bExternalMem),
+		  m_bUseRoi(false)
 {
-	m_puiDaten = 0;
-	m_bUseRoi = false;
-
 	if(conf)	// use given config
 		m_config = *conf;
 	else 		// if no config is given, copy global one
@@ -113,6 +112,7 @@ int TofImage::GetTofSize() const
 			: GetTofConfig().GetImageCount()*
 			  GetTofConfig().GetImageHeight()*
 			  GetTofConfig().GetImageWidth();
+
 	return iSize;
 }
 
@@ -765,11 +765,11 @@ TmpImage TofImage::AddContrasts(const bool *pbFolien) const
 // PAD
 PadImage::PadImage(const char *pcFileName, bool bExternalMem,
 				   const PadConfig* conf)
-		: m_iMin(0),m_iMax(0), m_bExternalMem(bExternalMem)
+		: m_puiDaten(0),
+		  m_iMin(0), m_iMax(0),
+		  m_bExternalMem(bExternalMem),
+		  m_bUseRoi(false)
 {
-	m_puiDaten = 0;
-	m_bUseRoi = false;
-
 	if(conf)
 		m_config = *conf;
 	else
@@ -816,7 +816,11 @@ PadImage::PadImage(const PadImage& pad) : m_bExternalMem(false)
 			   << __LINE__ << ")!\n";
 		return;
 	}
-	memcpy(m_puiDaten, pad.m_puiDaten, sizeof(int)*GetPadSize());
+
+	if(pad.m_puiDaten)
+		memcpy(m_puiDaten, pad.m_puiDaten, sizeof(int)*GetPadSize());
+	else
+		memset(pad.m_puiDaten, 0, sizeof(int)*GetPadSize());
 }
 
 PadImage::~PadImage() { Clear(); }

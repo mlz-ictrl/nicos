@@ -74,11 +74,14 @@ unsigned int NicosClient::counts(const QByteArray& arr)
 	}
 	else
 	{
-		m_tof.SetExternalMem((unsigned int*)(arr.data()+4));
-		unsigned int uiCnts = m_tof.GetCounts();
-		m_tof.SetExternalMem(NULL);
+		//-----------------------------------------------
+		// REMOVE THIS AGAIN AFTER TEST
+		std::cerr << "TOF debug test." << std::endl;
+		return 0;
+		//-----------------------------------------------
 
-		return uiCnts;
+		m_tof.SetExternalMem((unsigned int*)(arr.data()+4));
+		return m_tof.GetCounts();
 	}
 }
 
@@ -101,11 +104,14 @@ unsigned int NicosClient::counts(const QByteArray& arr, int iStartX, int iEndX,
 	}
 	else
 	{
-		m_tof.SetExternalMem((unsigned int*)(arr.data()+4));
-		unsigned int uiCnts = m_tof.GetCounts(iStartX, iEndX, iStartY, iEndY);
-		m_tof.SetExternalMem(NULL);
+		//-----------------------------------------------
+		// REMOVE THIS AGAIN AFTER TEST
+		std::cerr << "TOF debug test." << std::endl;
+		return 0;
+		//-----------------------------------------------
 
-		return uiCnts;
+		m_tof.SetExternalMem((unsigned int*)(arr.data()+4));
+		return m_tof.GetCounts(iStartX, iEndX, iStartY, iEndY);
 	}
 }
 

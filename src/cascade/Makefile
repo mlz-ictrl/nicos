@@ -14,7 +14,7 @@
 
 
 COMPILER	= gcc
-FLAGS		= -O2 -mtune=native -Wall -Wextra -D __CASCADE_QT_CLIENT__
+FLAGS		= -O2 -march=core2 -Wall -Wextra -D __CASCADE_QT_CLIENT__
 LIBS		= -lQtCore -lQtGui -lQtNetwork -lqwt -lMinuit2 -lgomp -lxml++-2.6 \
                   -L /usr/lib/qt4
 INCLUDES	= -I /usr/include/qwt -I /usr/include/qwt5 -I /usr/include/qt4 \
