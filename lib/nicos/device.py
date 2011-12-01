@@ -737,14 +737,13 @@ class Moveable(Readable):
     parameters = {
         'target': Param('Last target position of a start() action',
                         unit='main', type=anytype, default=0.),
+        'fixed':  Param('None if the device is not fixed, else a string '
+                        'describing why', settable=True, userparam=False,
+                        type=none_or(str)),
     }
 
     # The type of the device value, used for typechecking in doStart().
     valuetype = anytype
-
-    def __init__(self, name, **config):
-        Readable.__init__(self, name, **config)
-        self._isFixed = False
 
     def __call__(self, pos=None):
         """Allow dev() and dev(newpos) as shortcuts for read and start."""
@@ -795,10 +794,10 @@ class Moveable(Readable):
         """
         if self._mode == 'slave':
             raise ModeError(self, 'start not possible in slave mode')
-        if self._isFixed:
-            if isinstance(self._isFixed, str):
+        if self.fixed is not None:
+            if self.fixed != '':
                 raise FixedError(self, '%s; use release() to enable movement '
-                                 'again' % self._isFixed)
+                                 'again' % self.fixed)
             raise FixedError(self, 'use release() to enable movement again')
         try:
             pos = self.valuetype(pos)
@@ -893,12 +892,12 @@ class Moveable(Readable):
 
         This blocks :meth:`start` or :meth:`stop` when called on the device.
         """
-        self._isFixed = reason or True
+        self.fixed = reason
 
     @usermethod
     def release(self):
         """Release the device, i.e. undo the effect of fix()."""
-        self._isFixed = False
+        self.fixed = None
 
 
 class HasLimits(Moveable):
