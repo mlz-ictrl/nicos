@@ -525,9 +525,10 @@ class DataSetPlot(NicosPlot):
 
     def xaxisScale(self):
         try:
-            return (self.dataset.positions[0][self.dataset.xindex],
-                    self.dataset.positions[-1][self.dataset.xindex])
-        except IndexError:
+            # XXX what about tuples (e.g. 3ax)?
+            return (float(self.dataset.positions[0][self.dataset.xindex]),
+                    float(self.dataset.positions[-1][self.dataset.xindex]))
+        except (IndexError, TypeError):
             return None
 
     def addAllCurves(self):
