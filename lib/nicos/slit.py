@@ -153,20 +153,38 @@ class Slit(Moveable):
         for ax in self._axes:
             ax.stop()
 
-    def doRead(self):
+    def _doReadPositions(self):
         # XXX read() or read(0)
-        positions = map(lambda d: d.read(), self._axes)
+        return map(lambda d: d.read(), self._axes)
+
+    def doRead(self):
+        positions = self._doReadPositions()
         r, l, b, t = positions
         if self.opmode == 'centered':
             if abs((l+r)/2.) > self._adevs['left'].precision or \
                    abs((t+b)/2.) > self._adevs['top'].precision:
                 self.log.warning('slit seems to be offcentered, but is '
                                   'set to "centered" mode')
-            return (l-r, t-b)
+            return [l-r, t-b]
         elif self.opmode == 'offcentered':
-            return ((l+r)/2, (t+b)/2, l-r, t-b)
+            return [(l+r)/2, (t+b)/2, l-r, t-b]
         else:
-            return tuple(positions)
+            return positions
+
+    def valueInfo(self):
+        if self.opmode == 'centered':
+            return Value('%s.width', unit=self.unit, fmtstr='%.2f'), \
+                   Value('%s.height', unit=self.unit, fmtstr='%.2f')
+        elif self.opmode == 'offcentered':
+            return Value('%s.centerx', unit=self.unit, fmtstr='%.2f'), \
+                   Value('%s.centery', unit=self.unit, fmtstr='%.2f'), \
+                   Value('%s.width', unit=self.unit, fmtstr='%.2f'), \
+                   Value('%s.height', unit=self.unit, fmtstr='%.2f')
+        else:
+            return Value('%s.right', unit=self.unit, fmtstr='%.2f'), \
+                   Value('%s.left', unit=self.unit, fmtstr='%.2f'), \
+                   Value('%s.bottom', unit=self.unit, fmtstr='%.2f'), \
+                   Value('%s.top', unit=self.unit, fmtstr='%.2f')
 
     def doStatus(self):
         # XXX status() or status(0)
@@ -213,6 +231,9 @@ class SlitAxis(Moveable, AutoDevice):
         currentpos = map(lambda d: d.read(0), self._adevs['slit']._axes)
         positions = self._convertStart(target, currentpos)
         return self._adevs['slit']._doIsAllowedPositions(positions)
+
+    def doWait(self):
+        self._adevs['slit'].wait()
 
 
 class RightSlitAxis(SlitAxis):
