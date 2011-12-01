@@ -30,7 +30,7 @@ __version__ = ""
 import socket
 import select
 from time import sleep
-from threading import RLock
+from threading import RLock, Thread
 
 from RS485Client import RS485Client
 
@@ -38,9 +38,10 @@ from nicos import status
 from nicos.taco import TacoDevice
 from nicos.utils import intrange, floatrange, oneofdict, oneof, closeSocket, \
      lazy_property, runAsync, usermethod
-from nicos.device import Device, Readable, Moveable, Param, Override
+from nicos.device import Device, Readable, Moveable, Param, Override, \
+     HasPrecision, HasLimits
 from nicos.errors import NicosError, CommunicationError, ProgrammingError, \
-    InvalidValueError, TimeoutError
+     InvalidValueError, TimeoutError, MoveError
 from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
 
 
@@ -1025,3 +1026,134 @@ class Output(Input, Moveable):
         curval = self._adevs['bus'].get(self.addr, 191)
         newval = (pos << self.first) | (curval & ~self._mask)
         self._adevs['bus'].send(self.addr, 190, newval, 3)
+
+
+class SlitAxis(HasPrecision, HasLimits, Moveable):
+    """
+    Class for one axis of a IPC 4-wing slit.
+    """
+
+    parameters = {
+        'addr':       Param('Bus address of the slit', type=int, mandatory=True),
+        'side':       Param('Side of axis', type=int, mandatory=True),
+        'timeout':    Param('Waiting timeout', type=int, unit='s', default=5),
+        'unit':       Param('Axis unit', type=str, default='mm'),
+        'offset':     Param('Motor offset', type=float, settable=True),
+        'slope':      Param('Motor slope', type=float, settable=True,
+                            default=1.0),
+        'lowerbreak': Param('Lower break', type=int, default=0),
+        'upperbreak': Param('Upper break', type=int, default=4096),
+        'loweroffset': Param('Lower offset', type=float, default=0.),
+        'upperoffset': Param('Upper offset', type=float, default=0.),
+    }
+
+    attached_devices = {
+        'bus': IPCModBus,
+    }
+
+    def _wait(self, function, state, timeslice, totaltime, error):
+        while function() != state:
+            if totaltime <= 0:
+                raise error
+            sleep(timeslice)
+            totaltime -= timeslice
+
+    def doInit(self):
+        bus = self._adevs['bus']
+        bus.ping(self.addr)
+
+        self._poscontrol = None
+        self._thestatus = self.doStatus()[0]
+        try:
+            self._lastvalue = self.doRead()
+        except NicosError:
+            self.log.warning('could not read current position', exc=1)
+            self._lastvalue = self._fromsteps(3000)
+
+    def doVersion(self):
+        return [('IPC slit axis', str(self._adevs['bus'].get(self.addr, 165)))]
+
+    # XXX switch this around!
+    # slope_new = 1/slope_old
+    # offset_new = -offset_old/slope_old
+    def _tosteps(self, value):
+        return int((value - self.offset) / self.slope)
+
+    def _fromsteps(self, value):
+        if value <= self.lowerbreak:
+            return self.loweroffset
+        if value >= self.upperbreak:
+            return self.upperoffset
+        return float(value) * self.slope + self.offset
+
+    def doReadUserlimits(self):
+        minsteps, maxsteps = 100, 3800
+        if self.slope < 0:
+            return (self._fromsteps(max), self._fromsteps(min))
+        else:
+            return (self._fromsteps(min), self._fromsteps(max))
+
+    def doStart(self, target):
+        self._stoprequest = 0
+        if self._thestatus == status.BUSY:
+            self.doWait() # wait for previous movement
+        if self._thestatus == status.ERROR:
+           raise NicosError(self, 'device blocked, please reset')
+        self._poscontrol = Thread(None, self._positioning, args=[target])
+        self._poscontrol.start()
+        sleep(0.2)
+
+    def _positioning(self, target):
+        temp1 = self._tosteps(target)
+        temp2 = self._tosteps(self.doRead())
+        self._thestatus = status.BUSY   # moving
+        try:
+            if temp1 > temp2:
+                temp2 = temp1 + 10
+                self._adevs['bus'].send(self.addr, self.side+160, temp2, 4)
+                self._wait(self.doStatus, (status.OK, 'idle'), 1,
+                           self.timeout, TimeoutError(self, 'timeout occured'))
+            self._adevs['bus'].send(self.addr, self.side+160, temp1, 4)
+            self._wait(self.doStatus, (status.OK, 'idle'), 1,
+                       self.timeout, TimeoutError(self, 'timeout occured'))
+        except NicosError:
+            self._thestatus = status.ERROR
+            raise MoveError(self, 'failed to position')
+        self._thestatus = status.IDLE  # finished
+        self._lastvalue = target
+
+    def doReset(self):
+        self._thestatus = status.BUSY
+        temp = self._tosteps(self._lastvalue)
+        sleep(0.3)
+        self._adevs['bus'].send(self.addr, self.side+160, temp, 4)
+        self._wait(self.doStatus, (status.OK, 'idle'), 1,
+                   self.timeout, TimeoutError(self, 'reset timed out'))
+        self._thestatus = status.IDLE
+
+    def doWait(self):
+        if self.doStatus()[0] in [status.IDLE, status.ERROR]:
+            return
+        self.log.info('waiting for positioning')
+        self._poscontrol.join(self.timeout)
+        if self._thestatus != status.IDLE:
+            raise NicosError(self, 'timeout occurred in positioning')
+
+    def doStop(self):
+        pass
+
+    def doStatus(self):
+        temp = self._adevs['bus'].get(self.addr, 164)
+        temp = (temp >> (2*self.side)) & 3
+        if temp == 1:
+            return status.OK, 'idle'
+        elif temp == 0:
+            return status.BUSY, 'moving'
+        else:
+            return status.ERROR, 'blocked'
+
+    def doRead(self):
+        steps = self._adevs['bus'].get(self.addr, self.side + 166)
+        if steps == 9999:
+            raise NicosError(self, 'could not read, please reset')
+        return self._fromsteps(steps)
