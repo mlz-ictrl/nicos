@@ -739,7 +739,7 @@ class Moveable(Readable):
                         unit='main', type=anytype, default=0.),
         'fixed':  Param('None if the device is not fixed, else a string '
                         'describing why', settable=True, userparam=False,
-                        type=none_or(str)),
+                        type=str),
     }
 
     # The type of the device value, used for typechecking in doStart().
@@ -794,11 +794,9 @@ class Moveable(Readable):
         """
         if self._mode == 'slave':
             raise ModeError(self, 'start not possible in slave mode')
-        if self.fixed is not None:
-            if self.fixed != '':
-                raise FixedError(self, '%s; use release() to enable movement '
-                                 'again' % self.fixed)
-            raise FixedError(self, 'use release() to enable movement again')
+        if self.fixed:
+            raise FixedError(self, '%s; use release() to enable movement '
+                             'again' % self.fixed)
         try:
             pos = self.valuetype(pos)
         except (ValueError, TypeError), err:
@@ -892,12 +890,12 @@ class Moveable(Readable):
 
         This blocks :meth:`start` or :meth:`stop` when called on the device.
         """
-        self.fixed = reason
+        self.fixed = reason or 'fixed'
 
     @usermethod
     def release(self):
         """Release the device, i.e. undo the effect of fix()."""
-        self.fixed = None
+        self.fixed = ''
 
 
 class HasLimits(Moveable):

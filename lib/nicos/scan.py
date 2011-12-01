@@ -31,7 +31,7 @@ import time
 from nicos import session, status
 from nicos.utils import Repeater
 from nicos.errors import NicosError, LimitError, FixedError, ModeError, \
-    InvalidValueError
+    InvalidValueError, PositionError
 from nicos.device import Readable
 from nicos.commands.output import printwarning
 from nicos.commands.measure import _count
@@ -356,10 +356,6 @@ class QScan(Scan):
                     self.dataset.xindex = i
                     break
         Scan.beginScan(self)
-
-#    def moveTo(self, position):
-#        # move instrument en-bloc, not individual Q indices
-#        return self.moveDevices([(session.instrument, position)])
 
 
 class ContinuousScan(Scan):
