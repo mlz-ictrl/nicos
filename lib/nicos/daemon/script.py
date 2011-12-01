@@ -114,6 +114,7 @@ class ScriptRequest(Request):
             # results are shown
             if self.text.strip().startswith('#'):
                 start = 'exec'
+                self.text = session.commentHandler(self.text)
             else:
                 start = 'single'
             self.code = [compile(self.text + '\n', '<script>',

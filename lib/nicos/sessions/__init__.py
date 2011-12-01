@@ -517,6 +517,12 @@ class Session(object):
                 self.unloadSetup()
                 self.loadSetup(setups)
 
+    def commentHandler(self, comment):
+        """This method when the user "executes" a comment.  It should return
+        code that is then executed instead of the comment.
+        """
+        return 'LogEntry(%r)' % comment[1:].strip()
+
     # -- Device control --------------------------------------------------------
 
     def startMultiCreate(self):

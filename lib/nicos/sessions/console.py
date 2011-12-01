@@ -78,6 +78,8 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         """Mostly copied from code.InteractiveInterpreter, but added the
         logging call before runcode().
         """
+        if source.startswith('#'):
+            source = self.session.commentHandler(source)
         try:
             code = self.compile(source, filename, symbol)
         except (OverflowError, SyntaxError, ValueError):
