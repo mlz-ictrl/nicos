@@ -29,7 +29,8 @@ __version__ = "$Revision$"
 from time import sleep
 
 from nicos.utils import oneof
-from nicos.device import Moveable, HasPrecision, Param, Override, AutoDevice
+from nicos.device import Moveable, HasPrecision, Param, Value, Override, \
+     AutoDevice
 from nicos.errors import InvalidValueError
 
 
