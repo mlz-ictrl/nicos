@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-"""NICOS GUI analysis window."""
+"""NICOS GUI scan plot window."""
 
 __version__ = "$Revision$"
 
@@ -69,7 +69,7 @@ def itemuid(item):
 
 
 class AnalysisPanel(Panel):
-    panelName = 'Data analysis'
+    panelName = 'Scans'
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
@@ -168,7 +168,7 @@ class AnalysisPanel(Panel):
         return [menu1, menu2]
 
     def getToolbars(self):
-        bar = QToolBar('Data analysis')
+        bar = QToolBar('Scans')
         bar.addAction(self.actionPDF)
         bar.addAction(self.actionPrint)
         bar.addSeparator()

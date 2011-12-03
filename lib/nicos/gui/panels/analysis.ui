@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Data analysis</string>
+   <string>Scans</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../../../../resources/nicos-gui.qrc">
