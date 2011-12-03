@@ -139,9 +139,7 @@ class DaemonLogHandler(logging.Handler):
         msg = [getattr(record, e) for e in entries]
         if not hasattr(record, 'nonl'):
             msg[3] += '\n'
-        if not record.filename:
-            # do not record messages from simulation mode
-            self.daemon._messages.append(msg)
+        self.daemon._messages.append(msg)
         self.daemon.emit_event('message', msg)
 
 
@@ -203,7 +201,8 @@ class SimLogReceiver(Thread):
             data = os.read(fileno, size)
             msg = unserialize(data)
             if isinstance(msg, list):
-                daemon._messages.append(msg)
+                # do not cache these messages
+                #daemon._messages.append(msg)
                 daemon.emit_event('message', msg)
             else:
                 daemon.emit_event('simresult', msg)
