@@ -69,7 +69,7 @@ default_profile_config = ('Default', [
     window('Live data', 'live', True,
            panel('nicos.gui.panels.live.LiveDataPanel')),
     window('Scans', 'plotter', True,
-           panel('nicos.gui.panels.analysis.AnalysisPanel')),
+           panel('nicos.gui.panels.scans.ScansPanel')),
     window('History', 'find', True,
            panel('nicos.gui.panels.history.HistoryPanel')),
     window('Logbook', 'table', True,

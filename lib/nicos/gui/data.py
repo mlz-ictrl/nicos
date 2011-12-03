@@ -86,7 +86,7 @@ class DataHandler(QObject):
         self.connect(self.client, SIGNAL('datapoint'), self.on_client_datapoint)
 
     def on_client_connected(self):
-        # retrieve datasets and put them into the analysis window
+        # retrieve datasets and put them into the scans window
         pd = QProgressDialog()
         pd.setLabelText('Transferring datasets, please wait...')
         pd.setRange(0, 1)

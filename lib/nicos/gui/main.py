@@ -237,7 +237,6 @@ class MainWindow(QMainWindow, DlgUtils):
         else:
             self.user_color = QColor(Qt.white)
 
-        # state of connection, editor and analysis windows
         self.autoconnect = settings.value('autoconnect').toBool()
 
         self.connectionData['host'] = str(settings.value(

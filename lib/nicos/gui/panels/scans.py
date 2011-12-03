@@ -68,12 +68,12 @@ def itemuid(item):
     return str(item.data(32).toString())
 
 
-class AnalysisPanel(Panel):
+class ScansPanel(Panel):
     panelName = 'Scans'
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        loadUi(self, 'analysis.ui', 'panels')
+        loadUi(self, 'scans.ui', 'panels')
 
         self.statusBar = QStatusBar(self)
         policy = self.statusBar.sizePolicy()

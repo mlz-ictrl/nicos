@@ -26,7 +26,7 @@ NICOS system and execute commands.
 ``nicos-gui``
   This is the GUI client part of the server-client execution shell.  It connects
   to a ``nicos-daemon`` instance (see below).  The GUI requires PyQt4 for the
-  basic functionality, and PyQwt5 for the data plotting and analysis windows.
+  basic functionality, and PyQwt5 for the data plotting and scans windows.
 
 
 **Other clients**
