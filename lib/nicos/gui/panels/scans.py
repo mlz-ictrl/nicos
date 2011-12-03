@@ -702,36 +702,36 @@ class DataSetPlot(NicosPlot):
                     raise FitError('Aborted.')
             plotcurve = self.plotcurves[self.fitcurve]
             args = [plotcurve._x, plotcurve._y, plotcurve._dy] + self.fitvalues
-            labelalign = Qt.AlignRight | Qt.AlignBottom
             linefrom = lineto = liney = None
             if self.fittype == 'Gauss':
                 title = 'peak fit'
                 beta, x, y = fit_gauss(*args)
-                labelx = beta[2] + beta[3]
+                labelx = beta[2] + beta[3]/2
                 labely = beta[0] + beta[1]
                 interesting = [('Center', beta[2]),
                                ('FWHM', beta[3] * fwhm_to_sigma),
-                               ('Int', beta[1]*beta[3]*np.sqrt(2*np.pi))]
+                               ('Ampl', beta[1]),
+                               ('Integr', beta[1]*beta[3]*np.sqrt(2*np.pi))]
                 linefrom = beta[2] - beta[3]*fwhm_to_sigma/2
                 lineto = beta[2] + beta[3]*fwhm_to_sigma/2
                 liney = beta[0] + beta[1]/2
             elif self.fittype == 'Pseudo-Voigt':
                 title = 'peak fit (PV)'
                 beta, x, y = fit_pseudo_voigt(*args)
-                labelx = beta[2] + beta[3]
+                labelx = beta[2] + beta[3]/2
                 labely = beta[0] + beta[1]
                 eta = beta[4] % 1.0
                 integr = beta[1] * beta[3] * (
                     eta*np.pi + (1-eta)*np.sqrt(np.pi/np.log(2)))
                 interesting = [('Center', beta[2]), ('FWHM', beta[3]*2),
-                               ('Eta', eta), ('Int', integr)]
+                               ('Eta', eta), ('Integr', integr)]
                 linefrom = beta[2] - beta[3]
                 lineto = beta[2] + beta[3]
                 liney = beta[0] + beta[1]/2
             elif self.fittype == 'PearsonVII':
                 title = 'peak fit (PVII)'
                 beta, x, y = fit_pearson_vii(*args)
-                labelx = beta[2] + beta[3]
+                labelx = beta[2] + beta[3]/2
                 labely = beta[0] + beta[1]
                 interesting = [('Center', beta[2]), ('FWHM', beta[3]*2),
                                ('m', beta[4])]
@@ -742,15 +742,13 @@ class DataSetPlot(NicosPlot):
                 title = 'Tc fit'
                 beta, x, y = fit_tc(*args)
                 labelx = beta[2]  # at Tc
-                labely = beta[0]  # at I_background
-                labelalign = Qt.AlignLeft | Qt.AlignTop
+                labely = beta[0] + beta[1]  # at I_max
                 interesting = [('Tc', beta[2]), (u'α', beta[3])]
             elif self.fittype == 'Arbitrary':
-                title = 'Fit'
+                title = 'fit'
                 beta, x, y = fit_arby(*args)
                 labelx = x[0]
                 labely = y.max()
-                labelalign = Qt.AlignRight | Qt.AlignBottom
                 interesting = zip(self.fitvalues[1], beta)
         except FitError, err:
             self.window.statusBar.showMessage('Fitting failed: %s.' % err)
@@ -774,22 +772,30 @@ class DataSetPlot(NicosPlot):
         resultcurve.attach(self)
 
         textmarker = QwtPlotMarker()
-        textmarker.setLabelAlignment(labelalign)
+        textmarker.setYAxis(plotcurve.yAxis())
         textmarker.setLabel(QwtText(
             '\n'.join('%s: %g' % i for i in interesting)))
 
         # check that the given position is inside the viewport
+        halign = Qt.AlignRight
         xi = self.axisScaleDiv(resultcurve.xAxis()).interval()
         xmin, xmax = xi.minValue(), xi.maxValue()
-        xmin, xmax = min(xmin, xmax), max(xmin, xmax)
-        yi = self.axisScaleDiv(resultcurve.yAxis()).interval()
-        ymin, ymax = yi.minValue(), yi.maxValue()
+        extentx = self.canvasMap(QwtPlot.xBottom).invTransform(
+            textmarker.label().textSize().width())
+        if xmin < xmax:
+            if labelx < xmin:
+                labelx = xmin
+            elif labelx + extentx > xmax:
+                labelx = xmax
+                halign = Qt.AlignLeft
+        else:
+            if labelx > xmin:
+                labelx = xmin
+            elif labelx - extentx < xmax:
+                labelx = xmax
+                halign= Qt.AlignLeft
 
-        labelx = max(labelx, xmin)
-        labelx = min(labelx, xmax)
-        labely = max(labely, ymin)
-        labely = min(labely, ymax)
-
+        textmarker.setLabelAlignment(halign | Qt.AlignBottom)
         textmarker.setValue(labelx, labely)
         textmarker.attach(self)
         resultcurve.dependent.append(textmarker)
@@ -807,7 +813,7 @@ class DataSetPlot(NicosPlot):
 
         if self.fitPicker:
             self.fitPicker.setEnabled(False)
-            del self.fitPicker
+            self.fitPicker = None
         self.picker.active = True
         self.zoomer.setEnabled(True)
         self.fittype = None
