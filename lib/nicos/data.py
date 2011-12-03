@@ -92,9 +92,11 @@ class Dataset(object):
     xnames = []
     xunits = []
     xvalueinfo = []
+    xrange = None
     ynames = []
     yunits = []
     yvalueinfo = []
+    yrange = None
 
 
 class NeedsDatapath(object):

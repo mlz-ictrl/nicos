@@ -524,12 +524,17 @@ class DataSetPlot(NicosPlot):
         return ''  # XXX determine good axis names
 
     def xaxisScale(self):
+        if self.dataset.xrange:
+            return self.dataset.xrange
         try:
-            # XXX what about tuples (e.g. 3ax)?
             return (float(self.dataset.positions[0][self.dataset.xindex]),
                     float(self.dataset.positions[-1][self.dataset.xindex]))
         except (IndexError, TypeError):
             return None
+
+    def yaxisScale(self):
+        if self.dataset.yrange:
+            return self.dataset.yrange
 
     def addAllCurves(self):
         for i, curve in enumerate(self.dataset.curves):

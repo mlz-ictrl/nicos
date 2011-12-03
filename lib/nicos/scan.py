@@ -358,6 +358,8 @@ class QScan(Scan):
             for i in range(4):
                 if self._positions[0][0][i] != self._positions[1][0][i]:
                     self.dataset.xindex = i
+                    self.dataset.xrange = (self._positions[0][0][i],
+                                           self._positions[-1][0][i])
                     break
         Scan.beginScan(self)
 
