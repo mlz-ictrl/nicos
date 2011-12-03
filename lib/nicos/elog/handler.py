@@ -32,6 +32,7 @@ from time import strftime, localtime
 from shutil import copyfile
 
 from nicos.elog.utils import formatMessage, pretty1, pretty2
+from nicos.elog.genplot import plotDataset
 
 try:
     import creole
@@ -333,8 +334,15 @@ class Handler(object):
         else:
             html.extend(['<td></td>'] * len(dataset.xnames))
         # plot link
-        #html.append('<td><a href="">Plot</a></td>')
-        html.append('<td>...</td>')
+        try:
+            plotDataset(dataset, path.join(self.logdir, 'scan-%d' % scannumber))
+        except Exception:
+            self.log.warning('error generating plot svg', exc=1)
+            html.append('<td>&mdash;</td>')
+        else:
+            html.append('<td><a href="scan-%d-lin.svg">Lin</a> / '
+                        '<a href="scan-%d-log.svg">Log</a></td>' %
+                        (scannumber, scannumber))
         # file link
         if scanfile:
             relfile = path.relpath(path.join(
