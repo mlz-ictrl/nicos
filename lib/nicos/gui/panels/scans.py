@@ -595,6 +595,13 @@ class DataSetPlot(NicosPlot):
                 y /= norm
                 if dy is not None: dy /= norm
         plotcurve.setData(x, y, None, dy)
+        # setData creates a new legend item that must be styled
+        if not plotcurve.isVisible() and self.legend():
+            legenditem = self.legend().find(plotcurve)
+            if legenditem:
+                newtext = QwtText(legenditem.text())
+                newtext.setColor(Qt.darkGray)
+                legenditem.setText(newtext)
 
     def pointsAdded(self):
         for curve, plotcurve in zip(self.dataset.curves, self.plotcurves):
