@@ -322,13 +322,16 @@ class Handler(object):
             html.append('<td class="scannum">%s</td>' % scannumber)
         else:
             html = ['<tr>', '<td>-</td>']
-        for i, xname in enumerate(dataset.xnames):
-            first = dataset.xresults[0][i]
-            last = dataset.xresults[-1][i]
-            if first == last:
-                html.append('<td>%s</td>' % pretty1(first))
-            else:
-                html.append('<td>%s</td>' % pretty2(first, last))
+        if dataset.xresults:
+            for i, xname in enumerate(dataset.xnames):
+                first = dataset.xresults[0][i]
+                last = dataset.xresults[-1][i]
+                if first == last:
+                    html.append('<td>%s</td>' % pretty1(first))
+                else:
+                    html.append('<td>%s</td>' % pretty2(first, last))
+        else:
+            html.extend(['<td></td>'] * len(dataset.xnames))
         # plot link
         #html.append('<td><a href="">Plot</a></td>')
         html.append('<td>...</td>')
@@ -349,5 +352,4 @@ class Handler(object):
 # TODO more ideas:
 # - internal links -> reference scan numbers or attachments
 # - integrated latex $foo$ syntax
-# - count()s
 # - show errors in messages (or at least summary: "1 error")
