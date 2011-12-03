@@ -562,7 +562,7 @@ class DataSetPlot(NicosPlot):
     def addCurve(self, i, curve, replot=False):
         pen = QPen(self.curvecolor[i % self.numcolors])
         plotcurve = ErrorBarPlotCurve(title=curve.description, curvePen=pen,
-                                      errorPen=QPen(Qt.blue, 0),
+                                      errorPen=QPen(Qt.darkGray, 0),
                                       errorCap=8, errorOnTop=False)
         if not curve.function:
             plotcurve.setSymbol(self.symbol)

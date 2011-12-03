@@ -131,7 +131,7 @@ class ErrorBarPlotCurve(QwtPlotCurve):
             ymax = max(self._y + self._dy[1])
 
         if logplot and ymin <= 0:
-            ymin = QwtPlotCurve.boundingRect(self).y()
+            ymin = QwtPlotCurve.boundingRect(self).y() or 0.1
         return QRectF(xmin, ymin, xmax-xmin, ymax-ymin)
 
     def drawFromTo(self, painter, xMap, yMap, first, last=-1):
@@ -194,16 +194,15 @@ class ErrorBarPlotCurve(QwtPlotCurve):
                 ymin = (self._y - self._dy[0])
                 ymax = (self._y + self._dy[1])
             if logplot:
-                min_y = self._y.min()
-                ymin = ymin.clip(min_y, ymin)
+                ymin = ymin.clip(0.1, ymin)
+                ymax = ymax.clip(0.1, ymax)
             x = self._x
             n, i, = len(x), 0
             lines = []
             while i < n:
-                xi = xMap.transform(x[i])
-                tmin = yMap.transform(ymin[i])
-                lines.append(QLine(xi, tmin,
-                                   xi, yMap.transform(ymax[i])))
+                tx = xMap.transform(x[i])
+                lines.append(QLine(tx, yMap.transform(ymin[i]),
+                                   tx, yMap.transform(ymax[i])))
                 i += 1
             painter.drawLines(lines)
             # draw the caps
@@ -212,14 +211,11 @@ class ErrorBarPlotCurve(QwtPlotCurve):
                 n, i = len(x), 0
                 lines = []
                 while i < n:
-                    xi = xMap.transform(x[i])
-                    tmin = yMap.transform(ymin[i])
-                    lines.append(
-                        QLine(xi - cap, tmin,
-                              xi + cap, tmin))
-                    lines.append(
-                        QLine(xi - cap, yMap.transform(ymax[i]),
-                              xi + cap, yMap.transform(ymax[i])))
+                    tx = xMap.transform(x[i])
+                    tymin = yMap.transform(ymin[i])
+                    tymax = yMap.transform(ymax[i])
+                    lines.append(QLine(tx - cap, tymin, tx + cap, tymin))
+                    lines.append(QLine(tx - cap, tymax, tx + cap, tymax))
                     i += 1
             painter.drawLines(lines)
 
