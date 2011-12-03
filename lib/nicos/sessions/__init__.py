@@ -517,11 +517,24 @@ class Session(object):
                 self.unloadSetup()
                 self.loadSetup(setups)
 
-    def commentHandler(self, comment):
-        """This method when the user "executes" a comment.  It should return
-        code that is then executed instead of the comment.
+    def commandHandler(self, command, compile):
+        """This method when the user executes a simple command.  It should
+        return a compiled code object that is then executed instead of the
+        command.
         """
-        return 'LogEntry(%r)' % comment[1:].strip()
+        if command.startswith('#'):
+            return compile('LogEntry(%r)' % command[1:].strip())
+        try:
+            return compile(command)
+        except SyntaxError:
+            # XXX experimental command handler to allow e.g. "read om"
+            if 0 and '\n' not in command:
+                parts = command.split()
+                if parts[0] in self._exported_names and \
+                  hasattr(self._namespace[parts[0]], 'is_usercommand'):
+                    newcmd = parts[0] + '(' + ','.join(parts[1:]) + ')'
+                    return compile(newcmd)
+            raise
 
     # -- Device control --------------------------------------------------------
 

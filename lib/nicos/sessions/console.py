@@ -37,6 +37,7 @@ import traceback
 
 from nicos import session, nicos_version
 from nicos.utils import colorcode, formatExtendedStack
+from nicos.device import Readable
 from nicos.loggers import INPUT, OUTPUT
 from nicos.sessions import Session
 from nicos.sessions.utils import NicosCompleter
@@ -79,10 +80,9 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         """Mostly copied from code.InteractiveInterpreter, but added the
         logging call before runcode().
         """
-        if source.startswith('#'):
-            source = self.session.commentHandler(source)
         try:
-            code = self.compile(source, filename, symbol)
+            code = self.session.commandHandler(source,
+                       lambda src: self.compile(src, filename, symbol))
         except (OverflowError, SyntaxError, ValueError):
             self.log.exception()
             return False
