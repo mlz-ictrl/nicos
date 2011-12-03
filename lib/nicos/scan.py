@@ -29,6 +29,7 @@ __version__ = "$Revision$"
 import time
 
 from nicos import session, status
+from nicos.tas import TAS
 from nicos.utils import Repeater
 from nicos.errors import NicosError, LimitError, FixedError, ModeError, \
     InvalidValueError, PositionError
@@ -342,6 +343,9 @@ class QScan(Scan):
                  detlist=None, envlist=None, preset=None, scaninfo=None,
                  scantype=None):
         inst = session.instrument
+        if not isinstance(inst, TAS):
+            raise NicosError('cannot do a Q scan, your instrument device '
+                             'is not a triple axis device')
         Scan.__init__(self, [inst], positions,
                       firstmoves, multistep, detlist, envlist, preset,
                       scaninfo, scantype)
