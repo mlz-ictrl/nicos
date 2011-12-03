@@ -31,8 +31,8 @@ import sys
 import time
 import codecs
 import traceback
-from logging import addLevelName, Manager, Logger, Formatter, Handler, \
-     FileHandler, StreamHandler, DEBUG, INFO, WARNING, ERROR
+from logging import addLevelName, Manager, Logger, LogRecord, Formatter, \
+     Handler, FileHandler, StreamHandler, DEBUG, INFO, WARNING, ERROR
 from logging.handlers import BaseRotatingHandler
 
 from nicos import session
@@ -104,10 +104,13 @@ class NicosLogger(Logger):
         Logger.log(self, ACTION, msg)
 
     def _log(self, level, msg, args, exc_info=None, extra=None):
-        record = self.makeRecord(self.name, level, self.manager.globalprefix,
-                                 0, msg, args, exc_info, '', extra)
+        record = LogRecord(self.name, level, self.manager.globalprefix,
+                           0, msg, args, exc_info, '')
+        record.message = msg  # we don't do args substitution on demand
+        if extra is not None:
+            for key in extra:
+                record.__dict__[key] = extra[key]
         self.handle(record)
-
 
 
 class NicosConsoleFormatter(Formatter):
@@ -157,7 +160,6 @@ class NicosConsoleFormatter(Formatter):
             fmtstr = '%(filename)s' + datefmt + fmtstr
             if not getattr(record, 'nonl', False):
                 fmtstr += '\n'
-        record.message = record.getMessage()
         record.asctime = self.formatTime(record, self.datefmt)
         s = fmtstr % record.__dict__
         # never output more exception info -- the exception message is already
@@ -230,8 +232,9 @@ class NicosLogfileHandler(BaseRotatingHandler):
         self.setFormatter(NicosLogfileFormatter(LOGFMT, DATEFMT))
 
     def emit(self, record):
-        if record.levelno == ACTION:
+        if record.levelno == ACTION or record.filename:
             # do not write ACTIONs to logfiles, they're only informative
+            # also do not write messages from simulation mode
             return
         try:
             t = int(time.time())
@@ -272,9 +275,10 @@ class ELogHandler(Handler):
         return not self.disabled
 
     def emit(self, record, entries=TRANSMIT_ENTRIES):
-        # "message" is by convention created by a handler; let's assume that
-        # the logfile handler already did that
-        #record.message = record.getMessage()
+        if record.levelno == ACTION or record.filename:
+            # do not write ACTIONs to logfiles, they're only informative
+            # also do not write messages from simulation mode
+            return
         msg = [getattr(record, e) for e in entries]
         if not hasattr(record, 'nonl'):
             msg[3] += '\n'

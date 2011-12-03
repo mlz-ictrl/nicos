@@ -136,13 +136,12 @@ class DaemonLogHandler(logging.Handler):
         self.daemon = daemon
 
     def emit(self, record, entries=TRANSMIT_ENTRIES):
-        # "message" is by convention created by a handler; let's assume that
-        # the logfile handler already did that
-        #record.message = record.getMessage()
         msg = [getattr(record, e) for e in entries]
         if not hasattr(record, 'nonl'):
             msg[3] += '\n'
-        self.daemon._messages.append(msg)
+        if not record.filename:
+            # do not record messages from simulation mode
+            self.daemon._messages.append(msg)
         self.daemon.emit_event('message', msg)
 
 
