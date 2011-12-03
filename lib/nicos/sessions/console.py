@@ -90,7 +90,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         if code is None:
             return True
 
-        self.log.log(INPUT, source)
+        self.log.log(INPUT, '>>> ' + source)
         self.runcode(code)
         return False
 
