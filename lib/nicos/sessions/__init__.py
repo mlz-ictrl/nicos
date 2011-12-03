@@ -690,6 +690,8 @@ class Session(object):
         self._lastUnhandled = exc_info
 
     def elog_event(self, eventtype, data):
+        # NOTE: simulation mode is disconnected from cache, therefore no elog
+        # events will be sent in simulation mode
         if self.cache:
             self.cache.put_raw('logbook/' + eventtype, data)
 

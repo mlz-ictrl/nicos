@@ -33,7 +33,7 @@ import struct
 
 from nicos import status
 from nicos.device import Measurable, Param, Value, usermethod
-from nicos.errors import CommunicationError
+from nicos.errors import CommunicationError, ModeError
 
 USBTMC_IOCTL_CLEAR = 23298
 USBTMC_IOCTL_RESET_CONF = 23298 + 9
@@ -111,6 +111,10 @@ class THM(Measurable):
     @usermethod
     def zero(self):
         """Zero the probe in zero-gauss chamber."""
+        if self._mode == 'slave':
+            raise ModeError(self, 'cannot zero probe in slave mode')
+        elif self._sim_active:
+            return
         self.log.info('Zeroing sensor, please wait a few seconds...')
         try:
             self._execute('CAL', wait=5)

@@ -38,7 +38,7 @@ from nicos.taco import TacoDevice
 from nicos.utils import tupleof, anytype, usermethod, waitForStatus
 from nicos.device import Moveable, HasOffset, Param, Override
 from nicos.errors import ConfigurationError, NicosError, PositionError, \
-     MoveError, LimitError
+     MoveError, LimitError, ModeError
 from nicos.abstract import Axis as BaseAxis, Motor, Coder
 
 
@@ -423,6 +423,11 @@ class TacoAxis(TacoDevice, BaseAxis):
     @usermethod
     def reference(self):
         """Do a reference drive of the axis (do not use with encoded axes)."""
+        if self._mode == 'slave':
+            raise ModeError(self, 'referencing not possible in slave mode')
+        elif self._sim_active:
+            self.setPosition(self.refpos)
+            return
         client = self._getMotor()
         self.log.info('referencing the axis, please wait...')
         self._taco_guard(client.deviceReset)

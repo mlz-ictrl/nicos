@@ -37,6 +37,7 @@ from nicos.data import NeedsDatapath
 from nicos.utils import readFileCounter, updateFileCounter
 from nicos.device import Device, Readable, Moveable, Measurable, \
      HasLimits, HasOffset, HasPrecision, Param, Override, usermethod
+from nicos.errors import ModeError
 
 
 class Coder(HasPrecision, Readable):
@@ -69,6 +70,19 @@ class Motor(HasLimits, Moveable, Coder, HasPrecision):
     @usermethod
     def setPosition(self, pos):
         """Sets the current position of the motor controller to the target."""
+        if self._mode == 'slave':
+            raise ModeError(self, 'setting new position not possible in '
+                            'slave mode')
+        elif self._sim_active:
+            self._sim_old_value = self._sim_value
+            self._sim_value = pos
+            if self._sim_min is None:
+                self._sim_min = pos
+            self._sim_min = min(pos, self._sim_min)
+            if self._sim_max is None:
+                self._sim_max = pos
+            self._sim_max = max(pos, self._sim_max)
+            return
         self.doSetPosition(pos)
 
     def doInit(self):
@@ -117,6 +131,19 @@ class Axis(HasLimits, HasOffset, HasPrecision, Moveable):
     @usermethod
     def setPosition(self, pos):
         """Sets the current position of the motor controller to the target."""
+        if self._mode == 'slave':
+            raise ModeError(self, 'setting new position not possible in '
+                            'slave mode')
+        elif self._sim_active:
+            self._sim_old_value = self._sim_value
+            self._sim_value = pos
+            if self._sim_min is None:
+                self._sim_min = pos
+            self._sim_min = min(pos, self._sim_min)
+            if self._sim_max is None:
+                self._sim_max = pos
+            self._sim_max = max(pos, self._sim_max)
+            return
         self.doSetPosition(pos)
 
     def doSetPosition(self, target):

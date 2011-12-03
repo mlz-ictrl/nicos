@@ -30,9 +30,10 @@ import time
 
 import IO
 
-from nicos.device import Readable, Param
-from nicos.utils import usermethod, tacodev
 from nicos.io import NamedDigitalInput
+from nicos.utils import usermethod, tacodev
+from nicos.device import Readable, Param
+from nicos.errors import ModeError
 
 
 class Shutter(NamedDigitalInput):
@@ -52,8 +53,11 @@ class Shutter(NamedDigitalInput):
 
     @usermethod
     def close(self):
-        if self._mode != 'simulation':
-            self._taco_guard(self._outdev.write, 1)
-            time.sleep(0.5)
-            self._taco_guard(self._outdev.write, 0)
-            self.log.info('instrument shutter closed')
+        if self._mode == 'slave':
+            raise ModeError(self, 'closing shutter not allowed in slave mode')
+        elif self._sim_active:
+            return
+        self._taco_guard(self._outdev.write, 1)
+        time.sleep(0.5)
+        self._taco_guard(self._outdev.write, 0)
+        self.log.info('instrument shutter closed')
