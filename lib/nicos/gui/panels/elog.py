@@ -52,6 +52,11 @@ class ELogPanel(Panel, DlgUtils):
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
 
+        self.preview.page().setForwardUnsupportedContent(True)
+        self.connect(self.preview.page(),
+                     SIGNAL('unsupportedContent(QNetworkReply *)'),
+                     self.on_page_unsupportedContent)
+
     def on_timer_timeout(self):
         sig = SIGNAL('loadFinished(bool)')
         frame = self.preview.page().mainFrame().childFrames()[1]
@@ -76,18 +81,16 @@ class ELogPanel(Panel, DlgUtils):
             return
         logfile = path.join(datapath[0], 'logbook', 'logbook.html')
         self.preview.load(QUrl(logfile))  # XXX reload periodically?
-        self.preview.page().setForwardUnsupportedContent(True)
-        self.connect(self.preview.page(),
-                     SIGNAL('unsupportedContent(QNetworkReply *)'),
-                     self.on_page_unsupportedContent)
 
     def on_page_unsupportedContent(self, reply):
-        print reply
-        if reply.url().scheme() == 'file':
-            content = open(reply.url().path()).read()
+        if reply.url().scheme() != 'file':
+            return
+        filename = str(reply.url().path())
+        if filename.endswith('.dat'):
+            content = open(filename).read()
             window = QMainWindow(self)
             window.resize(600, 800)
-            window.setWindowTitle(reply.url().path())
+            window.setWindowTitle(filename)
             widget = QTextEdit(window)
             widget.setFontFamily('monospace')
             window.setCentralWidget(widget)
