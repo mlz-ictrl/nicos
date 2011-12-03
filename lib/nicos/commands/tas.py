@@ -48,11 +48,11 @@ def _getQ(v, name):
         raise UsageError('%s must be a sequence of (h, k, l) or (h, k, l, E)'
                          % name)
 
-def _handleQScanArgs(args, kwargs, Q, dQ):
-    preset, infostr, detlist, envlist, move, multistep = {}, None, [], [], [], []
+def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
+    preset, detlist, envlist, move, multistep = {}, [], [], [], []
     for arg in args:
         if isinstance(arg, str):
-            infostr = arg
+            scaninfo = arg + ' - ' + scaninfo
         elif isinstance(arg, (int, long, float)):
             preset['t'] = arg
         elif isinstance(arg, Measurable):
@@ -92,21 +92,21 @@ def _handleQScanArgs(args, kwargs, Q, dQ):
         else:
             # XXX this silently accepts wrong keys; restrict the possible keys?
             preset[key] = value
-    return preset, infostr, detlist, envlist, move, multistep, Q, dQ
+    return preset, scaninfo, detlist, envlist, move, multistep, Q, dQ
 
 
 @usercommand
 def qscan(Q, dQ, numsteps, *args, **kwargs):
     """Single-sided Q scan."""
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
-    preset, infostr, detlist, envlist, move, multistep, Q, dQ = \
-            _handleQScanArgs(args, kwargs, Q, dQ)
+    scanstr = _infostr('qscan', (Q, dQ, numsteps) + args, kwargs)
+    preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
+            _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
     if all(v == 0 for v in dQ) and numsteps > 1:
         raise UsageError('scanning with zero step width')
-    infostr = infostr or _infostr('qscan', (Q, dQ, numsteps) + args, kwargs)
     values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
                for i in range(numsteps)]
-    scan = QScan(values, move, multistep, detlist, envlist, preset, infostr)
+    scan = QScan(values, move, multistep, detlist, envlist, preset, scaninfo)
     scan.run()
 
 
@@ -114,14 +114,14 @@ def qscan(Q, dQ, numsteps, *args, **kwargs):
 def qcscan(Q, dQ, numperside, *args, **kwargs):
     """Centered Q scan."""
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
-    preset, infostr, detlist, envlist, move, multistep, Q, dQ = \
-            _handleQScanArgs(args, kwargs, Q, dQ)
+    scanstr = _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
+    preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
+            _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
     if all(v == 0 for v in dQ) and numperside > 0:
         raise UsageError('scanning with zero step width')
-    infostr = infostr or _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
     values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
                for i in range(-numperside, numperside+1)]
-    scan = QScan(values, move, multistep, detlist, envlist, preset, infostr)
+    scan = QScan(values, move, multistep, detlist, envlist, preset, scaninfo)
     scan.run()
 
 

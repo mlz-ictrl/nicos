@@ -71,12 +71,11 @@ def _fixType(dev, args, mkpos):
     devs = [session.getDevice(d, Moveable) for d in devs]
     return devs, values, restargs
 
-def _handleScanArgs(args, kwargs):
-    preset, infostr, detlist, envlist, move, multistep = \
-            {}, None, [], None, [], []
+def _handleScanArgs(args, kwargs, scaninfo):
+    preset, detlist, envlist, move, multistep = {}, [], None, [], []
     for arg in args:
         if isinstance(arg, str):
-            infostr = arg
+            scaninfo = arg + ' - ' + scaninfo
         elif isinstance(arg, (int, long, float)):
             preset['t'] = arg
         elif isinstance(arg, Measurable):
@@ -101,7 +100,7 @@ def _handleScanArgs(args, kwargs):
         else:
             # XXX this silently accepts wrong keys; restrict the possible keys?
             preset[key] = value
-    return preset, infostr, detlist, envlist, move, multistep
+    return preset, scaninfo, detlist, envlist, move, multistep
 
 def _infostr(fn, args, kwargs):
     def devrepr(x):
@@ -133,11 +132,11 @@ def scan(dev, *args, **kwargs):
     def mkpos(starts, steps, numsteps):
         return [[start + i*step for (start, step) in zip(starts, steps)]
                 for i in range(numsteps)]
+    scanstr = _infostr('scan', (dev,) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
-    preset, infostr, detlist, envlist, move, multistep  = \
-            _handleScanArgs(restargs, kwargs)
-    infostr = infostr or _infostr('scan', (dev,) + args, kwargs)
-    Scan(devs, values, move, multistep, detlist, envlist, preset, infostr).run()
+    preset, scaninfo, detlist, envlist, move, multistep  = \
+        _handleScanArgs(restargs, kwargs, scanstr)
+    Scan(devs, values, move, multistep, detlist, envlist, preset, scaninfo).run()
 
 @usercommand
 def cscan(dev, *args, **kwargs):
@@ -152,11 +151,11 @@ def cscan(dev, *args, **kwargs):
     def mkpos(centers, steps, numperside):
         return [[center + (i-numperside)*step for (center, step)
                  in zip(centers, steps)] for i in range(2*numperside+1)]
+    scanstr = _infostr('cscan', (dev,) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
-    preset, infostr, detlist, envlist, move, multistep  = \
-            _handleScanArgs(restargs, kwargs)
-    infostr = infostr or _infostr('cscan', (dev,) + args, kwargs)
-    Scan(devs, values, move, multistep, detlist, envlist, preset, infostr).run()
+    preset, scaninfo, detlist, envlist, move, multistep  = \
+        _handleScanArgs(restargs, kwargs, scanstr)
+    Scan(devs, values, move, multistep, detlist, envlist, preset, scaninfo).run()
 
 ADDSCANHELP = """
     The device can also be a list of devices that should be moved for each step.
@@ -200,12 +199,12 @@ def timescan(numsteps, *args, **kwargs):
 
     "numsteps" can be -1 to scan for unlimited steps (break to quit).
     """
-    preset, infostr, detlist, envlist, move, multistep = \
-            _handleScanArgs(args, kwargs)
-    infostr = infostr or _infostr('timescan', (numsteps,) + args, kwargs)
+    scanstr = _infostr('timescan', (numsteps,) + args, kwargs)
+    preset, scaninfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(args, kwargs, scanstr)
     if session.mode == 'simulation':
         numsteps = 1
-    scan = TimeScan(numsteps, move, multistep, detlist, envlist, preset, infostr)
+    scan = TimeScan(numsteps, move, multistep, detlist, envlist, preset, scaninfo)
     scan.run()
 
 
@@ -215,27 +214,26 @@ def contscan(dev, start, end, speed=None, *args, **kwargs):
     dev = session.getDevice(dev, Moveable)
     if 'speed' not in dev.parameters:
         raise UsageError('continuous scan device must have a speed parameter')
-    preset, infostr, detlist, envlist, move, multistep = \
-            _handleScanArgs(args, kwargs)
+    scanstr = _infostr('contscan', (dev, start, end, speed) + args, kwargs)
+    preset, scaninfo, detlist, envlist, move, multistep = \
+            _handleScanArgs(args, kwargs, scanstr)
     if preset:
         raise UsageError('preset not supported in continuous scan')
     if envlist:
         raise UsageError('environment devices not supported in continuous scan')
     if multistep:
         raise UsageError('multi-step not supported in continuous scan')
-    infostr = infostr or \
-              _infostr('contscan', (dev, start, end, speed) + args, kwargs)
-    scan = ContinuousScan(dev, start, end, speed, move, detlist, infostr)
+    scan = ContinuousScan(dev, start, end, speed, move, detlist, scaninfo)
     scan.run()
 
 
 class _ManualScan(object):
     def __init__(self, args, kwargs):
-        preset, infostr, detlist, envlist, move, multistep = \
-                _handleScanArgs(args, kwargs)
-        infostr = infostr or _infostr('manualscan', args, kwargs)
+        scanstr = _infostr('manualscan', args, kwargs)
+        preset, scaninfo, detlist, envlist, move, multistep = \
+            _handleScanArgs(args, kwargs, scanstr)
         self.scan = ManualScan(move, multistep, detlist, envlist,
-                               preset, infostr)
+                               preset, scaninfo)
 
     def __enter__(self):
         session._manualscan = self.scan
