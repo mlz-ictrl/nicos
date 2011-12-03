@@ -344,9 +344,10 @@ class Handler(object):
         else:
             html.append('<td>...</td>')
         html.append('</tr>')
-        self.out.newstate('scan-' + names, '<table class="scan"><tr>' +
-            ''.join('<th>%s</th>' % escape(h) for h in headers) + '</tr>',
-            '</table>\n', ''.join(html))
+        headers = ''.join('<th width="%d%%">%s</th>' %
+                          (100/len(headers), escape(h)) for h in headers)
+        self.out.newstate('scan-' + names, '<table class="scan"><tr>' + headers
+                          + '</tr>', '</table>\n', ''.join(html))
 
 
 # TODO more ideas:

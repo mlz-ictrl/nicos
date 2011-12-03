@@ -70,7 +70,10 @@ class ELogPanel(Panel, DlgUtils):
         self.preview.reload()
 
     def on_client_connected(self):
-        datapath = self.client.eval('_GetDatapath()')
+        try:
+            datapath = self.client.eval('_GetDatapath()')
+        except Exception:
+            return
         logfile = path.join(datapath[0], 'logbook', 'logbook.html')
         self.preview.load(QUrl(logfile))  # XXX reload periodically?
         self.preview.page().setForwardUnsupportedContent(True)
