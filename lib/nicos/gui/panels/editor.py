@@ -379,6 +379,7 @@ class EditorPanel(Panel):
         self.client.tell('simulate', self.filename, script)
         self.waiting_sim_result = True
         self.clearSimPane()
+        self.simPane.show()
 
     @qtsig('')
     def on_actionUpdate_triggered(self):
