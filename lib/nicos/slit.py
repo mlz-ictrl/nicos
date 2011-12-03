@@ -174,18 +174,18 @@ class Slit(Moveable):
 
     def valueInfo(self):
         if self.opmode == 'centered':
-            return Value('%s.width', unit=self.unit, fmtstr='%.2f'), \
-                   Value('%s.height', unit=self.unit, fmtstr='%.2f')
+            return Value('%s.width' % self, unit=self.unit, fmtstr='%.2f'), \
+                   Value('%s.height' % self, unit=self.unit, fmtstr='%.2f')
         elif self.opmode == 'offcentered':
-            return Value('%s.centerx', unit=self.unit, fmtstr='%.2f'), \
-                   Value('%s.centery', unit=self.unit, fmtstr='%.2f'), \
-                   Value('%s.width', unit=self.unit, fmtstr='%.2f'), \
-                   Value('%s.height', unit=self.unit, fmtstr='%.2f')
+            return Value('%s.centerx' % self, unit=self.unit, fmtstr='%.2f'), \
+                   Value('%s.centery' % self, unit=self.unit, fmtstr='%.2f'), \
+                   Value('%s.width' % self, unit=self.unit, fmtstr='%.2f'), \
+                   Value('%s.height' % self, unit=self.unit, fmtstr='%.2f')
         else:
-            return Value('%s.right', unit=self.unit, fmtstr='%.2f'), \
-                   Value('%s.left', unit=self.unit, fmtstr='%.2f'), \
-                   Value('%s.bottom', unit=self.unit, fmtstr='%.2f'), \
-                   Value('%s.top', unit=self.unit, fmtstr='%.2f')
+            return Value('%s.right' % self, unit=self.unit, fmtstr='%.2f'), \
+                   Value('%s.left' % self, unit=self.unit, fmtstr='%.2f'), \
+                   Value('%s.bottom' % self, unit=self.unit, fmtstr='%.2f'), \
+                   Value('%s.top' % self, unit=self.unit, fmtstr='%.2f')
 
     def doStatus(self):
         # XXX status() or status(0)
