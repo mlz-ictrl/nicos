@@ -32,7 +32,8 @@ from os import path
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
 from PyQt4.QtCore import pyqtSignature as qtsig
 from PyQt4.QtGui import QStatusBar, QFileDialog, QPrinter, QPrintDialog, \
-     QDialog, QMenu, QToolBar, QSizePolicy, QListWidgetItem
+     QDialog, QMenu, QToolBar, QSizePolicy, QListWidgetItem, \
+     QDoubleSpinBox, QLabel
 
 from nicos.gui.utils import loadUi
 from nicos.gui.panels import Panel
@@ -49,6 +50,7 @@ class LiveDataPanel(Panel):
         self._format = None
         self._runtime = 0
         self._no_direct_display = False
+        self._range_active = False
 
         self.statusBar = QStatusBar(self)
         policy = self.statusBar.sizePolicy()
@@ -61,6 +63,16 @@ class LiveDataPanel(Panel):
         self.widget.setContextMenuPolicy(Qt.CustomContextMenu)
         self.widgetLayout.addWidget(self.widget)
 
+        self.rangeFrom = QDoubleSpinBox(self)
+        self.rangeTo = QDoubleSpinBox(self)
+        for ctrl in [self.rangeFrom, self.rangeTo]:
+            ctrl.setEnabled(False)
+            ctrl.setMaximumWidth(90)
+            ctrl.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,
+                                           QSizePolicy.Fixed))
+            self.connect(ctrl, SIGNAL('valueChanged(double)'),
+                         self.on_rangeChanged)
+
         self.liveitem = QListWidgetItem('<Live>', self.fileList)
         self.liveitem.setData(32, '')
         self.liveitem.setData(33, '')
@@ -69,6 +81,8 @@ class LiveDataPanel(Panel):
 
         self.connect(client, SIGNAL('livedata'), self.on_client_livedata)
         self.connect(client, SIGNAL('liveparams'), self.on_client_liveparams)
+        if client.connected:
+            self.on_client_connected()
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
 
         self.connect(self.actionLogScale, SIGNAL("toggled(bool)"),
@@ -111,6 +125,11 @@ class LiveDataPanel(Panel):
         bar.addAction(self.actionSetAsROI)
         bar.addSeparator()
         bar.addAction(self.actionSelectChannels)
+        bar.addSeparator()
+        bar.addAction(self.actionCustomRange)
+        bar.addWidget(self.rangeFrom)
+        bar.addWidget(QLabel(' to '))
+        bar.addWidget(self.rangeTo)
         return [bar]
 
     def on_widget_customContextMenuRequested(self, point):
@@ -119,11 +138,12 @@ class LiveDataPanel(Panel):
     def on_client_connected(self):
         datapath = self.client.eval('_GetDatapath()')
         caspath = path.join(datapath[0], 'cascade')
-        for fn in os.listdir(caspath):
-            if fn.endswith('.pad'):
-                self.add_to_flist(path.join(caspath, fn), 'pad')
-            elif fn.endswith('tof'):
-                self.add_to_flist(path.join(caspath, fn), 'tof')
+        if path.isdir(caspath):
+            for fn in sorted(os.listdir(caspath)):
+                if fn.endswith('.pad'):
+                    self.add_to_flist(path.join(caspath, fn), 'pad', False)
+                elif fn.endswith('tof'):
+                    self.add_to_flist(path.join(caspath, fn), 'tof', False)
 
     def on_client_liveparams(self, params):
         tag, filename, dtype, nx, ny, nt, runtime = params
@@ -154,6 +174,7 @@ class LiveDataPanel(Panel):
                 cts = self.widget.GetTof().GetCounts()
                 self.statusBar.showMessage('cps: %.2f | total: %s' %
                                            (cts/self._runtime, cts))
+            self.updateRange()
         if self._filename:# and path.isfile(self._filename):
             self.add_to_flist(self._filename, self._format)
 
@@ -169,19 +190,17 @@ class LiveDataPanel(Panel):
                     self.widget.LoadPadMem(self._last_data, 128*128*4)
                 elif self._format == 'tof':
                     self.widget.LoadTofMem(self._last_data, 128*128*128*4)
+                self.updateRange()
         else:
             self._no_direct_display = True
             if format == 'pad':
                 self.widget.LoadPadFile(fname)
             elif format == 'tof':
                 self.widget.LoadTofFile(fname)
+            self.updateRange()
 
     def on_fileList_currentItemChanged(self, item, previous):
         self.on_fileList_itemClicked(item)
-
-    #@qtsig('')
-    #def on_liveButton_clicked(self):
-    #    if self._no_direct_display:
 
     @qtsig('')
     def on_actionLoadTOF_triggered(self):
@@ -197,15 +216,17 @@ class LiveDataPanel(Panel):
             'Open PAD File', '', 'PAD File (*.pad *.PAD);;All files (*)')
         if filename:
             self.widget.LoadPadFile(filename)
+            self.updateRange()
             self.add_to_flist(filename, 'pad')
 
-    def add_to_flist(self, filename, format):
+    def add_to_flist(self, filename, format, scroll=True):
         shortname = path.basename(filename)
         item = QListWidgetItem(shortname)
         item.setData(32, filename)
         item.setData(33, format)
         self.fileList.insertItem(self.fileList.count()-1, item)
-        self.fileList.scrollToBottom()
+        if scroll:
+            self.fileList.scrollToBottom()
 
     @qtsig('')
     def on_actionWriteXml_triggered(self):
@@ -243,6 +264,27 @@ class LiveDataPanel(Panel):
             self.widget.GetPlot().print_(printer)
         self.statusBar.showMessage('Plot successfully printed to %s.' %
                                    str(printer.printerName()))
+
+    def on_actionCustomRange_toggled(self, on):
+        self.rangeFrom.setEnabled(on)
+        self.rangeTo.setEnabled(on)
+        self.widget.SetAutoCountRange(not on)
+        self._range_active = on
+        if on:
+            self.on_rangeChanged(0)
+        else:
+            self.updateRange()
+
+    def on_rangeChanged(self, val):
+        if self._range_active:
+            self.widget.SetCountRange(self.rangeFrom.value(),
+                                      self.rangeTo.value())
+
+    def updateRange(self):
+        if not self.actionCustomRange.isChecked():
+            range = self.widget.GetData2d().range()
+            self.rangeFrom.setValue(range.minValue())
+            self.rangeTo.setValue(range.maxValue())
 
     def closeEvent(self, event):
         with self.sgroup as settings:
