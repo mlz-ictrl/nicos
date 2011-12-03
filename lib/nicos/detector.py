@@ -181,30 +181,30 @@ class FRMDetector(Measurable):
 
     hardware_access = False
 
-    def __getMasters(self):
-        """Internal method to get the masters from the card."""
-        self.__masters = []
-        self.__slaves = []
-        for counter in self.__counters:
-            if counter.ismaster:
-                self.__masters.append(counter)
-            else:
-                self.__slaves.append(counter)
-
     def doPreinit(self):
-        self.__counters = []
+        self._counters = []
 
         for name in ['t', 'm1', 'm2', 'm3', 'z1', 'z2', 'z3', 'z4', 'z5']:
             if self._adevs[name] is not None:
-                self.__counters.append(self._adevs[name])
+                self._counters.append(self._adevs[name])
 
-        self.__getMasters()
+        self._getMasters()
 
     def doReadFmtstr(self):
-        return ', '.join('%s %%s' % ctr.name for ctr in self.__counters)
+        return ', '.join('%s %%s' % ctr.name for ctr in self._counters)
+
+    def _getMasters(self):
+        """Internal method to collect all masters from the card."""
+        self._masters = []
+        self._slaves = []
+        for counter in self._counters:
+            if counter.ismaster:
+                self._masters.append(counter)
+            else:
+                self._slaves.append(counter)
 
     def doSetPreset(self, **preset):
-        for master in self.__masters:
+        for master in self._masters:
             master.ismaster = False
             master.mode = 'normal'
         for name in preset:
@@ -212,12 +212,12 @@ class FRMDetector(Measurable):
                 self._adevs[name].ismaster = True
                 self._adevs[name].mode = 'preselection'
                 self._adevs[name].preselection = preset[name]
-        self.__getMasters()
+        self._getMasters()
 
     def doStart(self, **preset):
         self.doStop()
         if preset:
-            for master in self.__masters:
+            for master in self._masters:
                 master.ismaster = False
                 master.mode = 'normal'
             for name in preset:
@@ -225,44 +225,46 @@ class FRMDetector(Measurable):
                     self._adevs[name].ismaster = True
                     self._adevs[name].mode = 'preselection'
                     self._adevs[name].preselection = preset[name]
-            self.__getMasters()
-        for slave in self.__slaves:
+            self._getMasters()
+        for slave in self._slaves:
             slave.start()
-        for master in self.__masters:
+        for master in self._masters:
             master.start()
 
     def doPause(self):
-        for master in self.__masters:
+        for master in self._masters:
             master.doPause()
         return True
 
     def doResume(self):
-        for master in self.__masters:
+        for master in self._masters:
             master.doResume()
 
     def doStop(self):
-        for master in self.__masters:
+        for master in self._masters:
             master.stop()
 
     def doRead(self):
-        return sum((ctr.read() for ctr in self.__counters), [])
+        return sum((ctr.read() for ctr in self._counters), [])
 
     def doStatus(self):
-        for master in self.__masters:
+        for master in self._masters:
             masterstatus = master.status(0)
             if masterstatus[0] == status.BUSY:
                 return masterstatus
         return (status.OK, 'idle')
 
     def doIsCompleted(self):
-        for master in self.__masters:
+        for master in self._masters:
             if master.isCompleted():
                 return True
+        if not self._masters:
+            return True
         return False
 
     def doReset(self):
-        for counter in self.__counters:
+        for counter in self._counters:
             counter.reset()
 
     def valueInfo(self):
-        return sum((ctr.valueInfo() for ctr in self.__counters), ())
+        return sum((ctr.valueInfo() for ctr in self._counters), ())

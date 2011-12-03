@@ -177,6 +177,9 @@ class VirtualCounter(FRMCounterChannel):
             return self.preselection
         return random.randint(0, self.countrate)
 
+    def doIsCompleted(self):
+        return True
+
     def doReadPreselection(self):
         return 0
 
