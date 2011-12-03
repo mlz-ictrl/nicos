@@ -29,6 +29,7 @@ __version__ = "$Revision$"
 from os import path
 
 from PyQt4.QtCore import SIGNAL, Qt, QTimer, QUrl, pyqtSignature as qtsig
+from PyQt4.QtGui import QMainWindow, QTextEdit
 
 from nicos.gui.panels import Panel
 from nicos.gui.utils import loadUi, DlgUtils, setBackgroundColor
@@ -47,6 +48,8 @@ class ELogPanel(Panel, DlgUtils):
         self.timer.setSingleShot(True)
         self.connect(self.timer, SIGNAL('timeout()'), self.on_timer_timeout)
 
+        if self.client.connected:
+            self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
 
     def on_timer_timeout(self):
@@ -69,7 +72,24 @@ class ELogPanel(Panel, DlgUtils):
     def on_client_connected(self):
         datapath = self.client.eval('_GetDatapath()')
         logfile = path.join(datapath[0], 'logbook', 'logbook.html')
-        self.preview.load(QUrl(logfile))  # XXX reload periodically
+        self.preview.load(QUrl(logfile))  # XXX reload periodically?
+        self.preview.page().setForwardUnsupportedContent(True)
+        self.connect(self.preview.page(),
+                     SIGNAL('unsupportedContent(QNetworkReply *)'),
+                     self.on_page_unsupportedContent)
+
+    def on_page_unsupportedContent(self, reply):
+        print reply
+        if reply.url().scheme() == 'file':
+            content = open(reply.url().path()).read()
+            window = QMainWindow(self)
+            window.resize(600, 800)
+            window.setWindowTitle(reply.url().path())
+            widget = QTextEdit(window)
+            widget.setFontFamily('monospace')
+            window.setCentralWidget(widget)
+            widget.setText(content)
+            window.show()
 
     def on_refreshLabel_linkActivated(self, link):
         if link == 'refresh':
