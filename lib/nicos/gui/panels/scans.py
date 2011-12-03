@@ -67,6 +67,15 @@ def combineattr(it, attr, sep=' | '):
 def itemuid(item):
     return str(item.data(32).toString())
 
+arby_functions = {
+    'Gaussian x2': ('a + b*exp(-(x-x1)**2/s1**2) + c*exp(-(x-x2)**2/s2**2)',
+                    'a b c x1 x2 s1 s2'),
+    'Gaussian x3 symm.':
+        ('a + b*exp(-(x-x0-x1)**2/s1**2) + b*exp(-(x-x0+x1)**2/s1**2) + '
+         'c*exp(-(x-x0)**2/s0**2)', 'a b c x0 x1 s0 s1'),
+    'Parabola': ('a*x**2 + b*x + c', 'a b c'),
+}
+
 
 class ScansPanel(Panel):
     panelName = 'Scans'
@@ -630,6 +639,15 @@ class DataSetPlot(NicosPlot):
                 [(dlg.function, ''), (dlg.fitparams, ''),
                  (dlg.xfrom, ''), (dlg.xto, '')])
             pr.load()
+            for name in sorted(arby_functions):
+                QListWidgetItem(name, dlg.oftenUsed)
+            def click_cb(item):
+                func, vars = arby_functions[str(item.text())]
+                dlg.function.setText(func)
+                dlg.fitparams.setPlainText('\n'.join(
+                    v + ' =' for v in vars.split()))
+            dlg.connect(dlg.oftenUsed,
+                        SIGNAL('itemClicked(QListWidgetItem *)'), click_cb)
             ret = dlg.exec_()
             if ret != QDialog.Accepted:
                 return False
