@@ -189,7 +189,9 @@ class AnalysisPanel(Panel):
         for dataset in self.data.sets:
             if dataset.invisible:
                 continue
-            item = QListWidgetItem(dataset.name, self.datasetList)
+            shortname = '%s (%s)' % (dataset.name,
+                                     dataset.xnames[dataset.xindex])
+            item = QListWidgetItem(shortname, self.datasetList)
             item.setData(32, dataset.uid)
             self.setitems[dataset.uid] = item
 
@@ -239,13 +241,15 @@ class AnalysisPanel(Panel):
             plot.show()
 
     def on_data_datasetAdded(self, dataset):
+        shortname = '%s (%s)' % (dataset.name,
+                                 dataset.xnames[dataset.xindex])
         if dataset.uid in self.setitems:
-            self.setitems[dataset.uid].setText(dataset.name)
+            self.setitems[dataset.uid].setText(shortname)
             if dataset.uid in self.setplots:
                 self.setplots[dataset.uid].updateDisplay()
         else:
             self.no_openset = True
-            item = QListWidgetItem(dataset.name, self.datasetList)
+            item = QListWidgetItem(shortname, self.datasetList)
             item.setData(32, dataset.uid)
             self.setitems[dataset.uid] = item
             if not self.data.bulk_adding:
@@ -510,8 +514,9 @@ class DataSetPlot(NicosPlot):
         NicosPlot.__init__(self, parent, window)
 
     def titleString(self):
-        return '<h3>%s</h3><font size="-2">started %s</font>' % \
-            (self.dataset.name, time.strftime(TIMEFMT, self.dataset.started))
+        return '<h3>Scan %s</h3><font size="-2">%s, started %s</font>' % \
+            (self.dataset.name, self.dataset.scaninfo,
+             time.strftime(TIMEFMT, self.dataset.started))
 
     def xaxisName(self):
         try:
