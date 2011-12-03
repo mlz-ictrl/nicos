@@ -190,7 +190,6 @@ class ScansPanel(Panel):
         bar.addSeparator()
         bar.addAction(self.actionCombine)
         bar.addAction(self.actionFitPeak)
-        #bar.addAction(self.actionFitTc)
         bar.addAction(self.actionFitArby)
         return [bar]
 
@@ -287,6 +286,10 @@ class ScansPanel(Panel):
 
     @qtsig('')
     def on_actionDeletePlot_triggered(self):
+        if self.currentPlot.dataset.scaninfo != 'combined set':
+            if not self.askQuestion('This is not a combined set: still '
+                                    'delete it from the list?'):
+                return
         current_set = self.setUidStack.pop()
         self.data.uid2set[current_set].invisible = True
         if self.setUidStack:
@@ -439,6 +442,7 @@ class ScansPanel(Panel):
             newset = Dataset()
             newset.name = combineattr(sets, 'name', sep=', ')
             newset.curves = []
+            newset.scaninfo = 'combined set'
             newset.started = time.localtime()
             newset.xnames = sets[0].xnames # XXX combine from sets
             newset.xindex = sets[0].xindex
@@ -469,6 +473,7 @@ class ScansPanel(Panel):
             newset = Dataset()
             newset.name = combineattr(sets, 'name', sep=', ')
             newset.curves = []
+            newset.scaninfo = 'combined set'
             newset.started = time.localtime()
             newset.xnames = firstset.xnames
             newset.xindex = firstset.xindex
@@ -489,6 +494,7 @@ class ScansPanel(Panel):
             sep = ' / '
         newset = Dataset()
         newset.name = combineattr(sets, 'name', sep=sep)
+        newset.scaninfo = 'combined set'
         newset.curves = []
         newset.started = time.localtime()
         newset.xnames = firstset.xnames
