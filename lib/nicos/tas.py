@@ -325,6 +325,8 @@ class TAS(Instrument, Moveable):
                                  category='instrument'),
         'energytransferunit': Param('Energy transfer unit', type=str,
                                     default='THz', settable=True),
+        'collimation':  Param('Collimation settings', type=str,
+                              settable=True, category='instrument'),
     }
 
     parameter_overrides = {

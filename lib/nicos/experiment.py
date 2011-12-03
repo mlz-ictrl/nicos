@@ -133,7 +133,8 @@ class Sample(Device):
     """A special device to represent a sample."""
 
     parameters = {
-        'samplename':  Param('Sample name', type=str, settable=True),
+        'samplename':  Param('Sample name', type=str, settable=True,
+                             category='sample'),
     }
 
     def doWriteSamplename(self, name):
