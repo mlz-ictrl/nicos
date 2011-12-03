@@ -729,6 +729,24 @@ def formatExtendedTraceback(etype, value, tb):
     ret += traceback.format_exception_only(etype, value)
     return ''.join(ret).rstrip('\n')
 
+def formatExtendedStack(level=1):
+    f = sys._getframe(level)
+    ret = ['Stack trace (most recent call last):\n\n']
+    while f is not None:
+        lineno = f.f_lineno
+        co = f.f_code
+        filename = co.co_filename
+        name = co.co_name
+        item = '  File "%s", line %d, in %s\n' % (filename, lineno, name)
+        linecache.checkcache(filename)
+        line = linecache.getline(filename, lineno, f.f_globals)
+        if line:
+            item = item + '    %s\n' % line.strip()
+        ret.insert(1, item)
+        if filename != '<script>':
+            ret[2:2] = formatExtendedFrame(f)
+        f = f.f_back
+    return ''.join(ret).rstrip('\n')
 
 # file counter utilities
 

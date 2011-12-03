@@ -27,6 +27,7 @@
 __version__ = "$Revision$"
 
 import os
+import pdb
 import sys
 import code
 import time
@@ -35,7 +36,7 @@ import readline
 import traceback
 
 from nicos import session, nicos_version
-from nicos.utils import colorcode
+from nicos.utils import colorcode, formatExtendedStack
 from nicos.loggers import INPUT, OUTPUT
 from nicos.sessions import Session
 from nicos.sessions.utils import NicosCompleter
@@ -189,9 +190,14 @@ class ConsoleSession(Session):
                 # when already in readline(), this will be raised
                 reply = 'S'
             self.log.log(INPUT, reply)
+            # first two choices are hidden, but useful for debugging purposes
             if reply.upper() == 'R':
                 # handle further Ctrl-C presses with KeyboardInterrupt
                 signal.signal(signal.SIGINT, signal.default_int_handler)
+            elif reply.upper() == 'D':
+                # print a stacktrace and debug
+                self.log.info(formatExtendedStack(2))
+                pdb.Pdb().set_trace(sys._getframe(1))
             elif reply.upper() == 'I':
                 pass
             elif reply.upper() == 'H':
