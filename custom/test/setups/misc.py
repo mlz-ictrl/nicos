@@ -91,4 +91,10 @@ devices = dict(
                       right = 'sxr',
                       bottom = 'sxb',
                       top = 'sxt'),
+
+    mm       = device('nicos.manual.ManualMove',
+                      abslimits = (0, 100),
+                      unit = 'mm'),
+    msw      = device('nicos.manual.ManualSwitch',
+                      states = ['unknown', 'on', 'off']),
 )
