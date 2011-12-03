@@ -58,13 +58,6 @@ def count(*detlist, **preset):
 
     Within a manual scan, perform the count as one step of the manual scan.
     """
-    scan = getattr(session, '_manualscan', None)
-    if scan is not None:
-        if detlist:
-            raise UsageError('cannot specify different detector list '
-                             'in manual scan')
-        scan.step(**preset)
-        return
     detectors = []
     for det in detlist:
         if isinstance(det, (int, long, float)):
@@ -73,6 +66,13 @@ def count(*detlist, **preset):
         if not isinstance(det, Measurable):
             raise UsageError('device %s is not a measurable device' % det)
         detectors.append(det)
+    scan = getattr(session, '_manualscan', None)
+    if scan is not None:
+        if detectors:
+            raise UsageError('cannot specify different detector list '
+                             'in manual scan')
+        scan.step(**preset)
+        return
     if not detectors:
         detectors = session.experiment.detectors
     return _count(detectors, preset)
