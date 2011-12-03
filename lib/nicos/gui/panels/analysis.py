@@ -177,6 +177,7 @@ class AnalysisPanel(Panel):
         bar.addAction(self.actionLogScale)
         bar.addAction(self.actionLegend)
         bar.addAction(self.actionResetPlot)
+        bar.addAction(self.actionDeletePlot)
         bar.addSeparator()
         bar.addAction(self.actionCombine)
         bar.addAction(self.actionFitPeak)
@@ -598,7 +599,10 @@ class DataSetPlot(NicosPlot):
     def pointsAdded(self):
         for curve, plotcurve in zip(self.dataset.curves, self.plotcurves):
             self.setCurveData(curve, plotcurve)
-        self.replot()
+        if len(curve.datax) == 1:
+            self.zoomer.setZoomBase(True)
+        else:
+            self.replot()
 
     def fitGaussPeak(self):
         self._beginFit('Gauss', ['Background', 'Peak', 'Half Maximum'])
