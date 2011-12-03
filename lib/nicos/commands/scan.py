@@ -107,6 +107,8 @@ def _infostr(fn, args, kwargs):
     def devrepr(x):
         if isinstance(x, Device):
             return x.name
+        elif isinstance(x, list) and x and isinstance(x[0], Device):
+            return '[' + ', '.join(map(devrepr, x)) + ']'
         return repr(x)
     if kwargs:
         return '%s(%s, %s)' % (fn,
