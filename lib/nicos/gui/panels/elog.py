@@ -154,9 +154,10 @@ class ELogPanel(Panel, DlgUtils):
         if not newname:
             newname = path.basename(fname)
         desc = str(self.fileDesc.text())
-        # XXX put the file somewhere the daemon can find it
+        filecontent = open(fname, 'rb').read()
+        remotefn = self.client.ask('transfer', filecontent)
         self.client.ask('eval', 'LogAttach(%r, [%r], [%r])' %
-                        (desc, fname, newname))
+                        (desc, remotefn, newname))
         self.fileName.setFocus()
         self.timer.start(750)
 

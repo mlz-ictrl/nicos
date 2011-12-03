@@ -32,6 +32,7 @@ import os
 import errno
 import socket
 import struct
+import tempfile
 from Queue import Queue
 from SocketServer import BaseRequestHandler
 
@@ -540,6 +541,13 @@ class ConnectionHandler(BaseRequestHandler):
                 self.write(STX, serialize(None))
 
     # -- Miscellaneous commands ------------------------------------------------
+
+    @command()
+    def transfer(self, content):
+        """Transfer a file to the server."""
+        fd, filename = tempfile.mkstemp(prefix='nicos')
+        os.write(fd, content)
+        self.write(STX, serialize(filename))
 
     @command(needcontrol=True)
     def unlock(self):
