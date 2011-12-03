@@ -182,6 +182,12 @@ class DataSink(Device):
         pass
 
 
+def safe_format(fmtstr, value):
+    try:
+        return fmtstr % value
+    except (TypeError, ValueError):
+        return str(value)
+
 class ConsoleSink(DataSink):
     """
     A DataSink that prints scan data onto the console.
@@ -212,9 +218,9 @@ class ConsoleSink(DataSink):
             point = str(dataset.curpoint)
         printinfo('\t'.join(
             [point] +
-            [info.fmtstr % val for (info, val) in
+            [safe_format(info.fmtstr, val) for (info, val) in
              zip(dataset.xvalueinfo, xvalues)] +
-            [info.fmtstr % val for (info, val) in
+            [safe_format(info.fmtstr, val) for (info, val) in
              zip(dataset.yvalueinfo, yvalues)]).expandtabs())
 
     def endDataset(self, dataset):
@@ -485,9 +491,9 @@ class AsciiDatafileSink(DatafileSink):
             self._file.write('%s %s\n' % (self._commentc,
                                           '\t'.join(self._colunits)))
             self._wrote_columninfo = True
-        xv = [info.fmtstr % val for (info, val) in
+        xv = [safe_format(info.fmtstr, val) for (info, val) in
               zip(dataset.xvalueinfo, xvalues)]
-        yv = [info.fmtstr % val for (info, val) in
+        yv = [safe_format(info.fmtstr, val) for (info, val) in
               zip(dataset.yvalueinfo, yvalues)]
         if self.semicolon:
             values = xv + [';'] + yv
