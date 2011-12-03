@@ -178,8 +178,13 @@ class SimLogSender(logging.Handler):
         devinfo = {}
         for devname in self.devices:
             dev = self.session.devices.get(devname)
-            if dev:
-                devinfo[dev] = (dev._sim_value, dev._sim_min, dev._sim_max)
+            if dev and dev._sim_min is not None:
+                try:
+                    devinfo[dev] = (dev.format(dev._sim_value),
+                                    dev.format(dev._sim_min),
+                                    dev.format(dev._sim_max))
+                except Exception:
+                    pass
         msg = serialize((stoptime, devinfo))
         os.write(self.fileno, _lenstruct.pack(len(msg)) + msg)
 

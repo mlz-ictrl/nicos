@@ -324,7 +324,7 @@ class EditorPanel(Panel):
         # device ranges
         for devname, (_, dmin, dmax) in devinfo.iteritems():
             if dmin is not None:
-                item = QTreeWidgetItem([devname, str(dmin), '-', str(dmax)])
+                item = QTreeWidgetItem([devname, dmin, '-', dmax])
                 self.simRanges.addTopLevelItem(item)
 
         self.simPane.show()
