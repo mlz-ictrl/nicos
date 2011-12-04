@@ -58,15 +58,16 @@ class Notifier(Device):
     }
 
     @usermethod
-    def send(self, subject, body, what=None, short=None):
+    def send(self, subject, body, what=None, short=None, important=True):
         """Send a notification."""
         raise NotImplementedError
 
     @usermethod
-    def sendConditionally(self, runtime, subject, body, what=None, short=None):
+    def sendConditionally(self, runtime, subject, body, what=None, short=None,
+                          important=True):
         """Send a notification if the given runtime is large enough."""
         if runtime > self.minruntime:
-            self.send(subject, body, what, short)
+            self.send(subject, body, what, short, important)
 
 
 class Jabberer(Notifier):
@@ -89,7 +90,7 @@ class Jabberer(Notifier):
         self._client.connect()
         self._client.auth(self._jid.getNode(), self.password)
 
-    def send(self, subject, body, what=None, short=None):
+    def send(self, subject, body, what=None, short=None, important=True):
         receivers = self.receivers
         self.log.debug('trying to send message to %s' % ', '.join(receivers))
         for receiver in receivers:
@@ -128,14 +129,14 @@ class Mailer(Notifier):
         'subject':   Param('Subject prefix', type=str, default='NICOS'),
     }
 
-    def send(self, subject, body, what=None, short=None):
+    def send(self, subject, body, what=None, short=None, important=True):
         def send():
             if not self.receivers:
                 return
             receivers = self.receivers + self.copies
             ok = self._sendmail(self.sender,
                                 self.receivers,
-                                self.copies,
+                                important and self.copies or [],
                                 self.subject + ' -- ' + subject, body)
             if ok:
                 self.log.info('%smail sent to %s' % (
@@ -210,7 +211,9 @@ class SMSer(Notifier):
         'subject':   Param('Body prefix', type=str, default='NICOS'),
     }
 
-    def send(self, subject, body, what=None, short=None):
+    def send(self, subject, body, what=None, short=None, important=True):
+        if not important:
+            return
         receivers = self.receivers
         if not receivers:
             return

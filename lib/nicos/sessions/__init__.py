@@ -616,21 +616,23 @@ class Session(object):
         if devname in self._namespace:
             self.unexport(devname)
 
-    def notifyConditionally(self, runtime, subject, body, what=None, short=None):
+    def notifyConditionally(self, runtime, subject, body, what=None,
+                            short=None, important=True):
         """Send a notification if the current runtime exceeds the configured
         minimum runtimer for notifications.
         """
         if self._mode == 'simulation':
             return
         for notifier in self.notifiers:
-            notifier.sendConditionally(runtime, subject, body, what, short)
+            notifier.sendConditionally(runtime, subject, body, what,
+                                       short, important)
 
-    def notify(self, subject, body, what=None, short=None):
+    def notify(self, subject, body, what=None, short=None, important=True):
         """Send a notification unconditionally."""
         if self._mode == 'simulation':
             return
         for notifier in self.notifiers:
-            notifier.send(subject, body, what, short)
+            notifier.send(subject, body, what, short, important)
 
     # -- Logging ---------------------------------------------------------------
 

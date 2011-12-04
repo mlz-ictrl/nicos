@@ -364,10 +364,10 @@ def Notify(*args):
     if len(args) == 1:
         # use first line of text as subject
         text, = args
-        session.notify(text.splitlines()[0], text)
+        session.notify(text.splitlines()[0], text, important=False)
     elif len(args) == 2:
         subject, text = args
-        session.notify(subject, text)
+        session.notify(subject, text, important=False)
     else:
         raise TypeError("Usage: Notify('text') or Notify('subject', 'text')")
 
