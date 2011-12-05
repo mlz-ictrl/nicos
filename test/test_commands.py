@@ -25,7 +25,7 @@
 """NICOS commands tests."""
 
 from nicos import session
-from nicos.errors import UsageError, LimitError
+from nicos.errors import UsageError, LimitError, ModeError
 
 from nicos.commands.scan import scan
 from nicos.commands.measure import count
@@ -44,7 +44,7 @@ def test_commands():
     motor = session.getDevice('motor')
 
     session.setMode('slave')
-    assert raises(UsageError, scan, motor, [0, 1, 2, 10])
+    assert raises(ModeError, scan, motor, [0, 1, 2, 10])
 
     session.setMode('master')
     scan(motor, [0, 1, 2, 10])
