@@ -170,10 +170,11 @@ def test_methods():
     dev2.wait()
     assert 'doWait' in methods_called
     # fixing and releasing
-    dev2.fix()
-    assert raises(FixedError, dev2.move, 7)
-    assert raises(FixedError, dev2.stop)
-    dev2.release()
+    dev2.fix('blah')
+    try:
+        assert raises(FixedError, dev2.move, 7)
+    finally:
+        dev2.release()
     dev2.move(7)
     # test info() method
     keys = set(value[1] for value in dev2.info())
