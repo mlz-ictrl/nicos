@@ -8,11 +8,21 @@ while path.islink(thisfile):
 sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/../lib'))
 
 import optparse
+from nicos.utils import nocolor
 from nicos.sessions.console import ConsoleSession
+
+symname = ''
+if path.basename(sys.argv[0]) != 'nicos-console':
+    symname = path.basename(sys.argv[0])
 
 parser = optparse.OptionParser()
 parser.add_option('-s', '--simulate', dest='simulate', action='store_true',
                   help='start in simulation mode')
+parser.add_option('-n', '--nocolor', dest='nocolor', action='store_true',
+                  help='disable colorization')
 opts, args = parser.parse_args()
 
-ConsoleSession.run(args[0] if args else 'startup', opts.simulate)
+if opts.nocolor:
+    nocolor()
+
+ConsoleSession.run(args[0] if args else (symname or 'startup'), opts.simulate)

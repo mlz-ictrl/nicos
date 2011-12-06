@@ -682,6 +682,10 @@ def colorize(name, text):
 def colorcode(name):
     return _codes.get(name, '')
 
+def nocolor():
+    for key in _codes.keys():
+        _codes[key] = ''
+
 
 # nice formatting for an exit status
 
