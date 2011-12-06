@@ -25,6 +25,7 @@
 name = 'miscellaneous devices'
 
 includes = ['system']
+excludes = ['excluded']
 
 devices = dict(
     m1       = device('nicos.virtual.VirtualMotor',

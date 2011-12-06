@@ -97,6 +97,8 @@ class Session(object):
         self.user_modules = set()
         # contains all loaded setups
         self.loaded_setups = set()
+        # contains all setups excluded from the currently loaded
+        self.excluded_setups = set()
         # contains all explicitly loaded setups
         self.explicit_setups = []
         # path to setup files
@@ -233,6 +235,7 @@ class Session(object):
                 'group': ns.get('group', 'base'),
                 'sysconfig': ns.get('sysconfig', {}),
                 'includes': ns.get('includes', []),
+                'excludes': ns.get('excludes', []),
                 'modules': ns.get('modules', []),
                 'devices': ns.get('devices', {}),
                 'startupcode': ns.get('startupcode', ''),
@@ -292,14 +295,22 @@ class Session(object):
                 return
             if name not in setupnames:
                 self.log.debug('loading include setup %s' % name)
+            if name in self.excluded_setups:
+                raise ConfigurationError('Cannot load setup %r, it is excluded '
+                                         'by one of the current setups' % name)
 
             info = self._setup_info[name]
             if info['group'] == 'special' and not allow_special:
                 raise ConfigurationError('Cannot load special setup %r' % name)
             if info['group'] == 'simulated' and self._mode != 'simulation':
                 raise ConfigurationError('Cannot load simulation setup %r' % name)
+            for exclude in info['excludes']:
+                if exclude in self.loaded_setups:
+                    raise ConfigurationError('Cannot load setup %r when setup '
+                        '%r is already loaded' % (name, exclude))
 
             self.loaded_setups.add(name)
+            self.excluded_setups.update(info['excludes'])
 
             sysconfig = {}
             devlist = {}
@@ -434,6 +445,7 @@ class Session(object):
         self.datasinks = []
         self.notifiers = []
         self.loaded_setups = set()
+        self.excluded_setups = set()
         self.explicit_setups = []
         self.user_modules = set()
         for handler in self._log_handlers:
