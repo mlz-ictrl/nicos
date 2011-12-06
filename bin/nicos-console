@@ -11,6 +11,7 @@ import optparse
 from nicos.utils import nocolor
 from nicos.sessions.console import ConsoleSession
 
+# support calling via a symlink with the name of a setup
 symname = ''
 if path.basename(sys.argv[0]) != 'nicos-console':
     symname = path.basename(sys.argv[0])
