@@ -35,10 +35,10 @@ from nicos import status
 from nicos.taco import TacoDevice
 from nicos.utils import oneof
 from nicos.device import Param, Readable, Moveable, HasOffset, HasLimits
-from nicos.errors import TimeoutError, ConfigurationError
+from nicos.errors import TimeoutError
 
 
-class Sensor(TacoDevice, Readable, HasOffset):
+class Sensor(TacoDevice, Readable):
     taco_class = Temperature.Sensor
 
     parameters = {
@@ -65,9 +65,6 @@ class Sensor(TacoDevice, Readable, HasOffset):
         '12': 'Thermocouple',
     }
 
-    def doRead(self):
-        return TacoDevice.doRead(self) - self.offset
-
     def doReadSensortype(self):
         stype = self._taco_guard(self._dev.deviceQueryResource, 'sensortype')
         return self.sensor_types.get(stype, stype)
@@ -90,7 +87,7 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
     }
 
     parameters = {
-        'setpoint':  Param('Current temperature setpint', unit='main',
+        'setpoint':  Param('Current temperature setpoint', unit='main',
                            category='general'),
         'controlchannel': Param('Control channel (A-D)',
                                 type=oneof(str, 'A', 'B', 'C', 'D'),
