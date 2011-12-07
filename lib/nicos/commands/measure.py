@@ -54,9 +54,20 @@ def _count(detlist, preset):
 
 @usercommand
 def count(*detlist, **preset):
-    """Perform a counting of the given detector(s) with the given preset(s).
+    """Perform a single counting.
+
+    With preset arguments, this preset is used instead of the default preset.
+
+    With detector devices as arguments, these detectors are used instead of the
+    default detectors set with SetDetectors().
 
     Within a manual scan, perform the count as one step of the manual scan.
+
+    Examples:
+
+        count()             # count once with the default preset and detectors
+        count(t=10)         # count once with time preset of 10 seconds
+        count(psd, t=10)    # count 10 seconds with the psd detector
     """
     detectors = []
     for det in detlist:
@@ -80,7 +91,16 @@ def count(*detlist, **preset):
 
 @usercommand
 def preset(**preset):
-    """Set a new default preset for the currently selected detectors."""
+    """Set a new default preset for the currently selected detectors.
+
+    The arguments that are accepted depend on the detectors.
+
+    Examples:
+
+        preset(t=10)      # sets a time preset of 5 seconds
+        preset(m1=5000)   # sets a monitor preset of 5000 counts, for detectors
+                          # that support monitor presets
+    """
     for detector in session.experiment.detectors:
         detector.setPreset(**preset)
     printinfo('new preset: ' +
@@ -89,9 +109,24 @@ def preset(**preset):
 
 @usercommand
 def SetDetectors(*detlist):
+    """Select the detector device(s) to read out when calling scan() or count().
+
+    Examples:
+
+        SetDetectors(det)       # to use the "det" detector
+        SetDetectors(det, psd)  # to use both the "det" and "psd" detectors
+    """
     session.experiment.setDetectors(detlist)
 
 
 @usercommand
 def SetEnvironment(*devlist):
+    """Select the device(s) to read out as "experiment environment" at every
+    step of a scan.
+
+    Examples:
+
+        SetEnvironment(T, B)   # to read out T and B devices
+        SetEnvironment()       # to read out no additional devices
+    """
     session.experiment.setEnvironment(devlist)
