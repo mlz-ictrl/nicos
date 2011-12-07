@@ -370,7 +370,7 @@ class NicosPlot(QwtPlot):
                 legenditem = legend.find(plotcurve)
                 if not legenditem:
                     continue
-                legenditem.setIdentifierWidth(20)
+                legenditem.setIdentifierWidth(30)
                 if not plotcurve.isVisible():
                     newtext = QwtText(legenditem.text())
                     newtext.setColor(Qt.darkGray)
