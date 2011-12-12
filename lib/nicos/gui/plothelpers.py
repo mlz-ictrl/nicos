@@ -250,6 +250,7 @@ class NicosPlot(QwtPlot):
         self.stdpen = QPen()
         self.symbol = QwtSymbol(QwtSymbol.Ellipse, QBrush(),
                                 self.stdpen, QSize(6, 6))
+        self.nosymbol = QwtSymbol()
 
         # setup zooming and unzooming
         self.zoomer = QwtPlotZoomer(QwtPlot.xBottom, QwtPlot.yLeft,

@@ -204,6 +204,28 @@
     <string>Attach to electronic log</string>
    </property>
   </action>
+  <action name="actionSymbols">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show symbols</string>
+   </property>
+   <property name="iconText">
+    <string>Symbols</string>
+   </property>
+  </action>
+  <action name="actionLines">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show lines</string>
+   </property>
+   <property name="iconText">
+    <string>Lines</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

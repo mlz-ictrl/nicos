@@ -160,7 +160,8 @@ class HistoryPanel(Panel):
         for action in [
             self.actionPDF, self.actionPrint, self.actionAttachElog,
             self.actionCloseView, self.actionDeleteView, self.actionResetView,
-            self.actionUnzoom, self.actionLogScale, self.actionLegend
+            self.actionUnzoom, self.actionLogScale, self.actionLegend,
+            self.actionSymbols, self.actionLines
             ]:
             action.setEnabled(on)
 
@@ -179,6 +180,8 @@ class HistoryPanel(Panel):
         menu.addAction(self.actionLogScale)
         menu.addAction(self.actionUnzoom)
         menu.addAction(self.actionLegend)
+        menu.addAction(self.actionSymbols)
+        menu.addAction(self.actionLines)
         menu.addSeparator()
         return [menu]
 
@@ -304,6 +307,8 @@ class HistoryPanel(Panel):
                 isinstance(view.plot.axisScaleEngine(QwtPlot.yLeft),
                            QwtLog10ScaleEngine))
             self.actionLegend.setChecked(view.plot.legend() is not None)
+            self.actionSymbols.setChecked(view.plot.hasSymbols)
+            self.actionLines.setChecked(view.plot.hasLines)
             self.plotLayout.addWidget(view.plot)
             view.plot.show()
 
@@ -406,10 +411,20 @@ class HistoryPanel(Panel):
     def on_actionLegend_toggled(self, on):
         self.currentPlot.setLegend(on)
 
+    @qtsig('bool')
+    def on_actionSymbols_toggled(self, on):
+        self.currentPlot.setSymbols(on)
+
+    @qtsig('bool')
+    def on_actionLines_toggled(self, on):
+        self.currentPlot.setLines(on)
+
 
 class ViewPlot(NicosPlot):
     def __init__(self, parent, window, view):
         self.view = view
+        self.hasSymbols = True
+        self.hasLines = True
         NicosPlot.__init__(self, parent, window, timeaxis=True)
 
     def titleString(self):
@@ -441,7 +456,7 @@ class ViewPlot(NicosPlot):
         pen = QPen(self.curvecolor[i % self.numcolors])
         plotcurve = QwtPlotCurve(key)
         plotcurve.setPen(pen)
-        plotcurve.setSymbol(self.symbol)
+        #plotcurve.setSymbol(self.symbol)
         x, y, n = self.view.keydata[key]
         plotcurve.setData(x[:n], y[:n])
         self.addPlotCurve(plotcurve, replot)
@@ -453,3 +468,21 @@ class ViewPlot(NicosPlot):
                 plotcurve.setData(x[:n], y[:n])
                 self.replot()
                 return
+
+    def setLines(self, on):
+        for i, plotcurve in enumerate(self.plotcurves):
+            if on:
+                plotcurve.setStyle(QwtPlotCurve.Lines)
+            else:
+                plotcurve.setStyle(QwtPlotCurve.NoCurve)
+        self.hasLines = on
+        self.replot()
+
+    def setSymbols(self, on):
+        for i, plotcurve in enumerate(self.plotcurves):
+            if on:
+                plotcurve.setSymbol(self.symbol)
+            else:
+                plotcurve.setSymbol(self.nosymbol)
+        self.hasSymbols = on
+        self.replot()
