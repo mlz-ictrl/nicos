@@ -97,7 +97,10 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
 
 @usercommand
 def qscan(Q, dQ, numsteps, *args, **kwargs):
-    """Single-sided Q scan."""
+    """Single-sided Q scan.
+
+    XXX
+    """
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
     scanstr = _infostr('qscan', (Q, dQ, numsteps) + args, kwargs)
     preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
@@ -112,7 +115,10 @@ def qscan(Q, dQ, numsteps, *args, **kwargs):
 
 @usercommand
 def qcscan(Q, dQ, numperside, *args, **kwargs):
-    """Centered Q scan."""
+    """Centered Q scan.
+
+    XXX
+    """
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
     scanstr = _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
     preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
@@ -135,16 +141,21 @@ _Q = Q
 def Q(*args, **kwds):
     """Create a Q-E vector that can be used for calculations.  Use:
 
-    To create a Q vector (1, 0, 0) with energy transfer 0 or 5:
+    To create a Q vector (1, 0, 0) with energy transfer 0 or 5::
+
         q = Q(1)
         q = Q(1, 0, 0)
         q = Q(1, 0, 0, 5)
         q = Q(h=1, E=5)
 
-    To create a Q vector from another Q vector, adjusting one or more entries:
+    To create a Q vector from another Q vector, adjusting one or more entries::
 
         q2 = Q(q, h=2, k=1)
         q2 = Q(q, E=0)
+
+    You can then use the Q-E vectors in scanning commands::
+
+        qscan(q, q2, 5, t=10)
     """
     q = _Q(4)
     q[:] = 0.

@@ -63,7 +63,7 @@ def count(*detlist, **preset):
 
     Within a manual scan, perform the count as one step of the manual scan.
 
-    Examples:
+    Examples::
 
         count()             # count once with the default preset and detectors
         count(t=10)         # count once with time preset of 10 seconds
@@ -95,7 +95,7 @@ def preset(**preset):
 
     The arguments that are accepted depend on the detectors.
 
-    Examples:
+    Examples::
 
         preset(t=10)      # sets a time preset of 5 seconds
         preset(m1=5000)   # sets a monitor preset of 5000 counts, for detectors
@@ -111,7 +111,7 @@ def preset(**preset):
 def SetDetectors(*detlist):
     """Select the detector device(s) to read out when calling scan() or count().
 
-    Examples:
+    Examples::
 
         SetDetectors(det)       # to use the "det" detector
         SetDetectors(det, psd)  # to use both the "det" and "psd" detectors
@@ -124,7 +124,7 @@ def SetEnvironment(*devlist):
     """Select the device(s) to read out as "experiment environment" at every
     step of a scan.
 
-    Examples:
+    Examples::
 
         SetEnvironment(T, B)   # to read out T and B devices
         SetEnvironment()       # to read out no additional devices

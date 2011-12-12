@@ -52,7 +52,11 @@ CO_DIVISION = 0x2000
 
 @usercommand
 def help(obj=None):
-    """Show help for a command or other object."""
+    """Show help for a command, for a device or for any other object.
+
+    For commands, the command help and usage will be shown.  For devices, the
+    device help, parameters and special commands will be shown.
+    """
     if obj is None:
         listcommands()
     elif isinstance(obj, Device):
@@ -107,7 +111,11 @@ def listcommands():
 
 @usercommand
 def sleep(secs):
-    """Sleep for a given number of seconds."""
+    """Sleep for a given number of seconds.
+
+    This is different from Python's `time.sleep()` in that it allows breaking
+    and stopping the sleep, and supports simulation mode.
+    """
     if session.mode == 'simulation':
         session.clock.tick(secs)
         return
@@ -128,8 +136,14 @@ def sleep(secs):
 @usercommand
 def NewSetup(*setupnames):
     """Load the given setups instead of the current one.
-
     Without arguments, the current setups are reloaded.
+
+    Example::
+
+        NewSetup('tas', 'psd')
+
+    will clear the current setup and load the "tas" and "psd" setups at the
+    same time.
     """
     current_mode = session.mode
     # reload current setups if none given
@@ -153,7 +167,14 @@ def NewSetup(*setupnames):
 
 @usercommand
 def AddSetup(*setupnames):
-    """Load the given setup additional to the current one."""
+    """Load the given setups additional to the current one.
+
+    Example::
+
+        AddSetup('gaussmeter')
+
+    will load the "gaussmeter" setup in addition to the current setups.
+    """
     session.readSetups()
     session.startMultiCreate()
     try:
@@ -175,18 +196,32 @@ def ListSetups():
 
 @usercommand
 def Keep(name, object):
-    """Export the given object into the NICOS namespace."""
+    """Export the given "object" into the NICOS namespace under the "name".
+
+    This makes the given name read-only, so that the object cannot be
+    overwritten by accident.
+    """
     session.export(name, object)
 
 @usercommand
 def CreateDevice(*devnames):
-    """Create all given devices."""
+    """Create all given devices.
+
+    Example::
+
+        CreateDevice('stx', 'sty', 'stz')
+    """
     for devname in devnames:
         session.createDevice(devname, explicit=True)
 
 @usercommand
 def DestroyDevice(*devnames):
-    """Destroy all given devices."""
+    """Destroy all given devices.
+
+    Example::
+
+        DestroyDevice('stx', 'sty', 'stz')
+    """
     for devname in devnames:
         if isinstance(devname, Device):
             devname = devname.name
@@ -196,6 +231,9 @@ def DestroyDevice(*devnames):
 def CreateAllDevices():
     """Create all devices in the current setup that are not marked as
     lowlevel devices.
+
+    This is useful when a setup failed to load many devices, and another attempt
+    should be made.
     """
     session.startMultiCreate()
     try:
@@ -210,9 +248,13 @@ def CreateAllDevices():
         session.endMultiCreate()
 
 @usercommand
-def NewExperiment(proposal, title='', **kwds):
-    """Start a new experiment with the given proposal number and title."""
-    session.experiment.new(proposal, title, **kwds)
+def NewExperiment(proposal, title='', **parameters):
+    """Start a new experiment with the given proposal number and title.
+
+    When configured, proposal information will be automatically filled in from
+    the proposal database.
+    """
+    session.experiment.new(proposal, title, **parameters)
 
 @usercommand
 def AddUser(name, email, affiliation=None):
@@ -220,9 +262,17 @@ def AddUser(name, email, affiliation=None):
     session.experiment.addUser(name, email, affiliation)
 
 @usercommand
-def NewSample(name):
-    """Start a new sample with the given sample name."""
+def NewSample(name, **parameters):
+    """Start a new sample with the given sample name.
+
+    Which other parameters can be given depends on the parameters of the sample
+    object.  For example, for TAS samples, the following command is valid::
+
+        NewSample('Cr', lattice=[2.88, 2.88, 2.88], angles=[90, 90, 90])
+    """
     session.experiment.sample.samplename = name
+    for param, value in parameters.iteritems():
+        setattr(session.experiment.sample, param, value)
 
 @usercommand
 def Remark(remark):
@@ -246,7 +296,18 @@ SetMode.__doc__ += ', '.join(EXECUTIONMODES)
 
 @usercommand
 def ClearCache(*devnames):
-    """Clear all local cached information for a given device."""
+    """Clear all cached information for the given device(s).
+
+    This can be used when a device has been reconfigured in the setup and all
+    parameters should be read from the setup file on the next loading of the
+    setup.  Example::
+
+        ClearCache('om', 'phi')
+        NewSetup()
+
+    will clear cache information for devices "om" and "phi" and then reload the
+    current setup.
+    """
     for devname in devnames:
         if isinstance(devname, Device):
             devname = devname.name
@@ -264,10 +325,11 @@ class _Scope(object):
 
 @usercommand
 def UserInfo(name):
-    """Return an object that can be used like this:
+    """Return an object for use in "with" that adds status information.
+    It can be used like this::
 
-    with UserInfo('Qscan around (1,1,0)'):
-        qscan(...)
+        with UserInfo('Qscan around (1,1,0)'):
+            qscan(...)
     """
     return _Scope(name)
 
@@ -284,7 +346,7 @@ def Edit(filename):
     """Edit the script file given by file name.  If the file name is not
     absolute, it is relative to the experiment script directory.
 
-    The editor is given by the EDITOR environment variable.
+    The editor is given by the ``EDITOR`` environment variable.
     """
     if 'EDITOR' not in os.environ:
         printerror('no EDITOR environment variable is set, cannot edit')
@@ -340,12 +402,14 @@ def Simulate(filename, *devices):
     """Run a script file in simulation mode.  If the file name is not absolute,
     it is relative to the experiment script directory.
 
-    Position statistics will be collected for the given list of devices:
+    Position statistics will be collected for the given list of devices::
+
         Simulate('test', T)
+
     will simulate the 'test.py' user script and print out minimum/maximum/
     last value of T during the run.
 
-    If the session is already in simulation mode, this is the same as Run().
+    If the session is already in simulation mode, this is the same as `Run()`.
     """
     if session.mode == 'simulation':
         return _RunScript(filename, devices)
@@ -356,7 +420,7 @@ def Simulate(filename, *devices):
 @usercommand
 def Notify(*args):
     """Send a message via email and/or SMS to the receivers selected by
-    SetMailReceivers and SetSMSReceivers.  Usage is one of these two:
+    `SetMailReceivers()` and `SetSMSReceivers()`.  Usage is one of these two::
 
         Notify('some text')
         Notify('subject', 'some text')
@@ -369,13 +433,13 @@ def Notify(*args):
         subject, text = args
         session.notify(subject, text, important=False)
     else:
-        raise TypeError("Usage: Notify('text') or Notify('subject', 'text')")
+        raise UsageError("Usage: Notify('text') or Notify('subject', 'text')")
 
 
 @usercommand
 def SetMailReceivers(*emails):
     """Set a list of email addresses that will be notified on unhandled errors,
-    and when the Notify() command is used.
+    and when the `Notify()` command is used.
     """
     for notifier in session.notifiers:
         if isinstance(notifier, Mailer):
@@ -391,7 +455,7 @@ def SetMailReceivers(*emails):
 @usercommand
 def SetSMSReceivers(*numbers):
     """Set a list of mobile phone numbers that will be notified on unhandled
-    errors, and when the Notify() command is used.
+    errors, and when the `Notify()` command is used.
 
     Note that all those phone numbers have to be registered with the IT
     department before they can be used.
@@ -491,18 +555,37 @@ def LogEntry(entry):
     """Make a free-form entry in the electronic logbook.
 
     The entry will be processed as Creole markup.
+
+    Note: on the command line, you can also call this function by entering a
+    Python comment.  I.e., these two commands are equivalent at the command
+    line:
+
+    >>> LogEntry('improved sample holder')
+
+    >>> # improved sample holder
     """
     session.elog_event('entry', entry)
 
 
 @usercommand
-def LogAttach(description, paths, names):
+def LogAttach(description, paths, names=None):
     """Attach one or more files to the electronic logbook.
 
     The file *paths* must be accessible from the machine on which the electronic
     logbook daemon runs (i.e. on a common network share).  They will be renamed
-    using the given *names*.
+    using the given *names*, if given, otherwise the current names are used.
+
+    Examples::
+
+        LogAttach('quick fit of peak', '/tmp/peakfit.png', 'peak_100.png')
+        LogAttach('calibrations', ['/tmp/cal1.dat', '/tmp/cal2.dat'])
     """
+    if isinstance(paths, basestring):
+        paths = [paths]
+    if isinstance(names, basestring):
+        names = [names]
+    if names is None:
+        names = [path.basename(f) for f in paths]
     session.elog_event('attachment', (description, paths, names))
 
 

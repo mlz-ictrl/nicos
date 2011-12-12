@@ -89,7 +89,8 @@ def _handleScanArgs(args, kwargs, scaninfo):
         else:
             raise UsageError('unsupported scan argument: %r' % arg)
     for key, value in kwargs.iteritems():
-        if key in session.devices and isinstance(session.devices[key], Moveable):
+        if key in session.devices and isinstance(session.devices[key],
+                                                 Moveable):
             if isinstance(value, list):
                 if multistep and len(value) != len(multistep[-1][1]):
                     raise UsageError('all multi-step arguments must have the '
@@ -120,13 +121,13 @@ def _infostr(fn, args, kwargs):
 def scan(dev, *args, **kwargs):
     """Scan over device(s) and count detector(s).
 
-    The general syntax is either to give start, step and number of steps:
+    The general syntax is either to give start, step and number of steps::
 
-        scan(dev, 0, 1, 11)   scans from 0 to 10 in steps of 1.
+        scan(dev, 0, 1, 11)   # scans from 0 to 10 in steps of 1.
 
-    or a list of positions to scan:
+    or a list of positions to scan::
 
-        scan(dev, [0, 1, 2, 3, 7, 8, 9])   scans at the given positions.
+        scan(dev, [0, 1, 2, 3, 7, 8, 9])  # scans at the given positions.
 
     """
     def mkpos(starts, steps, numsteps):
@@ -142,9 +143,9 @@ def scan(dev, *args, **kwargs):
 def cscan(dev, *args, **kwargs):
     """Scan around center.
 
-    The general syntax is to give center, step and number of steps per side:
+    The general syntax is to give center, step and number of steps per side::
 
-        cscan(dev, 0, 1, 5)    scans from -5 to 5 in steps of 1.
+        cscan(dev, 0, 1, 5)   # scans from -5 to 5 in steps of 1.
 
     The total number of steps is (2 * numperside) + 1.
     """
@@ -175,20 +176,20 @@ def timescan(numsteps, *args, **kwargs):
 
 ADDSCANHELP1 = """
     The device can also be a list of devices that should be moved for each step.
-    In this case, the start and stepwidth also have to be lists:
+    In this case, the start and stepwidth also have to be lists::
 
         scan([dev1, dev2], [0, 0], [0.5, 1], 10)
 
-    This also works for the second basic syntax:
+    This also works for the second basic syntax::
 
         scan([dev1, dev2], [[0, 1, 2, 3], [0, 2, 4, 6]])
 
-    Presets can be given using keyword arguments:
+    Presets can be given using keyword arguments::
 
         scan(dev, ..., t=5)
         scan(dev, ..., m1=1000)
 
-    An info string describing the scan can be given as a string argument:
+    An info string describing the scan can be given as a string argument::
 
         scan(dev, ..., 'peak search', ...)
 """
@@ -196,19 +197,19 @@ ADDSCANHELP1 = """
 
 # XXX multistep
 ADDSCANHELP2 = """
-    By default, the detectors are those selected by SetDetectors().  They can be
-    replaced by a custom set of detectors by giving them as arguments:
+    By default, the detectors are those selected by `SetDetectors()`.  They can
+    be replaced by a custom set of detectors by giving them as arguments::
 
         scan(dev, ..., det1, det2)
 
     Other devices that should be recorded at every point (so-called environment
-    devices) are by default those selected by SetEnvironment().  They can also
-    be overridden by giving them as arguments:
+    devices) are by default those selected by `SetEnvironment()`.  They can also
+    be overridden by giving them as arguments::
 
         scan(dev, ..., T1, T2)
 
     Any devices can be moved to different positions *before* the scan starts.
-    This is done by giving them as keyword arguments:
+    This is done by giving them as keyword arguments::
 
         scan(dev, ..., ki=1.55)
 
@@ -227,7 +228,7 @@ def contscan(dev, start, end, speed=None, *args, **kwargs):
     of the device.
 
     By default, the detectors are those selected by SetDetectors().  They can be
-    replaced by a custom set of detectors by giving them as arguments:
+    replaced by a custom set of detectors by giving them as arguments::
 
         contscan(dev, ..., det1, det2)
     """
@@ -271,7 +272,7 @@ class _ManualScan(object):
 def manualscan(*args, **kwargs):
     """"Manual" scan where no devices are moved automatically.
 
-    An example usage:
+    An example usage::
 
         with manualscan(device, otherdevice):
             for i in range(10):
@@ -280,17 +281,17 @@ def manualscan(*args, **kwargs):
                 maw(device, i+1)
                 count(t=600)
 
-    This example mimicks a regular scan(), with the exception that before every
-    point the value of another device is checked for validity.
+    This example mimicks a regular `scan()`, with the exception that before
+    every point the value of another device is checked for validity.
 
-    The arguments to manualscan() can be are:
+    The arguments to `manualscan()` can be are:
 
     * detector devices, to use these for counting
     * other devices, to read them at every scan point
     * presets, in the form accepted by the other scan commands
 
-    Within the "with manualscan" block, call "count()" (using the default
-    preset) or "count(presets...)" whenever you want to measure a point.
+    Within the ``with manualscan`` block, call `count()` (using the default
+    preset) or ``count(presets...)`` whenever you want to measure a point.
     """
     if getattr(session, '_manualscan', None):
         raise UsageError('cannot start manual scan within manual scan')

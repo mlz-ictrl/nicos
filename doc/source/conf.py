@@ -7,6 +7,8 @@ extensions = ['sphinx.ext.autodoc']
 templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'index'
+add_module_names = False
+default_role = 'obj'
 
 project = u'NICOS-ng'
 copyright = u'2011, NICOS-ng contributors'

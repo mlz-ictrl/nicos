@@ -56,8 +56,9 @@ def _devposlist(dev_pos_list, cls):
 def move(*dev_pos_list):
     """Move one or more devices to a new position.
 
-    This can be used with multiple devices like this:
-       move(dev1, pos1, dev2, pos2, ...)
+    This can be used with multiple devices like this::
+
+        move(dev1, pos1, dev2, pos2, ...)
     """
     for dev, pos in _devposlist(dev_pos_list, Moveable):
         dev.log.info('moving to', dev.format(pos), dev.unit)
@@ -65,10 +66,11 @@ def move(*dev_pos_list):
 
 @usercommand
 def drive(*dev_pos_list):
-    """Move one or more devices to a new position.  Same as "move".
+    """Move one or more devices to a new position.  Same as `move()`.
 
-    This can be used with multiple devices like this:
-       drive(dev1, pos1, dev2, pos2, ...)
+    This can be used with multiple devices like this::
+
+        drive(dev1, pos1, dev2, pos2, ...)
     """
     return move(*dev_pos_list)
 
@@ -77,8 +79,9 @@ def maw(*dev_pos_list):
     """Move one or more devices to a new position and wait until motion
     of all devices is completed.
 
-    This can be used with multiple devices like this:
-       maw(dev1, pos1, dev2, pos2, ...)
+    This can be used with multiple devices like this::
+
+        maw(dev1, pos1, dev2, pos2, ...)
     """
     devs = []
     for dev, pos in _devposlist(dev_pos_list, Moveable):
@@ -92,10 +95,11 @@ def maw(*dev_pos_list):
 @usercommand
 def switch(*dev_pos_list):
     """Move one or more devices to a new position and wait until motion
-    of all devices is completed.  Same as "maw".
+    of all devices is completed.  Same as `maw()`.
 
-    This can be used with multiple devices like this:
-       switch(dev1, pos1, dev2, pos2, ...)
+    This can be used with multiple devices like this::
+
+        switch(dev1, pos1, dev2, pos2, ...)
     """
     maw(*dev_pos_list)
 
@@ -105,13 +109,17 @@ def wait(*devlist):
     out of "busy" status.  A time in seconds can also be used to wait the
     given number of seconds.
 
-    Example:
+    Example::
+
         wait(T, 60)
+
     waits for the T device, and then another 60 seconds.
     """
     if not devlist:
-        devlist = [session.devices[devname] for devname in session.explicit_devices
-                   if isinstance(session.devices[devname], (Moveable, Measurable))]
+        devlist = [session.devices[devname]
+                   for devname in session.explicit_devices
+                   if isinstance(session.devices[devname],
+                                 (Moveable, Measurable))]
     for dev in devlist:
         if isinstance(dev, (int, float, long)):
             sleep(dev)
@@ -124,8 +132,9 @@ def wait(*devlist):
 
 @usercommand
 def read(*devlist):
-    """Read the position (or value) of one or more devices, or if no device
-    is given, all existing devices.
+    """Read the position (or value) of one or more devices.
+
+    If no device is given, read all readable devices.
     """
     if not devlist:
         devlist = [session.devices[devname]
@@ -154,11 +163,13 @@ def _formatStatus(status):
 
 @usercommand
 def status(*devlist):
-    """Read the status of one or more devices, or if no device is given,
-    all existing devices.
+    """Read the status of one or more devices.
+
+    If no device is given, read the status of all readable devices.
     """
     if not devlist:
-        devlist = [session.devices[devname] for devname in session.explicit_devices
+        devlist = [session.devices[devname]
+                   for devname in session.explicit_devices
                    if isinstance(session.devices[devname], Readable)]
     for dev in devlist:
         dev = session.getDevice(dev, Readable)
@@ -171,12 +182,15 @@ def status(*devlist):
 
 @usercommand
 def stop(*devlist):
-    """Stop one or more devices, or if no device is given,
-    all startable devices.
+    """Stop one or more devices.
+
+    If no device is given, stop all stoppable devices.
     """
     if not devlist:
-        devlist = [session.devices[devname] for devname in session.explicit_devices
-                   if isinstance(session.devices[devname], (Moveable, Measurable))]
+        devlist = [session.devices[devname]
+                   for devname in session.explicit_devices
+                   if isinstance(session.devices[devname],
+                                 (Moveable, Measurable))]
     for dev in devlist:
         dev = session.getDevice(dev, (Moveable, Measurable))
         try:
@@ -208,9 +222,12 @@ def get(dev, parameter):
 
 @usercommand
 def fix(dev, reason=''):
-    """Fix a device, i.e. prevent movement until release() is called.
+    """Fix a device, i.e. prevent movement until `release()` is called.
 
     You can give a reason that is displayed when movement is attempted.
+    Example::
+
+        fix(phi, 'will drive into the wall')
     """
     dev = session.getDevice(dev, Moveable)
     dev.fix(reason)
@@ -218,7 +235,7 @@ def fix(dev, reason=''):
 
 @usercommand
 def release(*devlist):
-    """Release one or more devices, i.e. undo the effect of fix()."""
+    """Release one or more devices, i.e. undo the effect of `fix()`."""
     if not devlist:
         raise UsageError('at least one device argument is required')
     for dev in devlist:
@@ -228,7 +245,9 @@ def release(*devlist):
 
 @usercommand
 def adjust(dev, value):
-    """Adjust the offset of the device so that read() returns the given value.
+    """Adjust the offset of the device so that `read()` returns the given value.
+
+    "dev" must be a device that supports the "offset" parameter.
     """
     dev = session.getDevice(dev, HasOffset)
     diff = dev.read(0) - value
@@ -251,10 +270,14 @@ def limits(*devlist):
     for dev in devlist:
         dev = session.getDevice(dev, HasLimits)
         dev.log.info('Limits for this device:')
-        printinfo('absolute minimum: %s %s' % (dev.format(dev.absmin), dev.unit))
-        printinfo('    user minimum: %s %s' % (dev.format(dev.usermin), dev.unit))
-        printinfo('    user maximum: %s %s' % (dev.format(dev.usermax), dev.unit))
-        printinfo('absolute maximum: %s %s' % (dev.format(dev.absmax), dev.unit))
+        printinfo('absolute minimum: %s %s' %
+                  (dev.format(dev.absmin), dev.unit))
+        printinfo('    user minimum: %s %s' %
+                  (dev.format(dev.usermin), dev.unit))
+        printinfo('    user maximum: %s %s' %
+                  (dev.format(dev.usermax), dev.unit))
+        printinfo('absolute maximum: %s %s' %
+                  (dev.format(dev.absmax), dev.unit))
 
 @usercommand
 def listparams(dev):
@@ -302,7 +325,11 @@ def listmethods(dev):
 def listallparams(*names):
     """List the given parameters for all existing devices that have them.
 
-    Example: listallparams('pollinterval', 'maxage')
+    Example::
+
+        listallparams('offset')
+
+    lists the offset for all devices with an "offset" parameter.
     """
     items = []
     for name, dev in session.devices.iteritems():
@@ -319,7 +346,7 @@ def listallparams(*names):
 # XXX check casing!
 
 @usercommand
-def ListDevices():
+def listdevices():
     """List all currently created devices."""
     printinfo('All created devices:')
     items = []

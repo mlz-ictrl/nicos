@@ -10,6 +10,7 @@ Contents:
    components
    setups
    devices
+   commands
    api
    glossary
 

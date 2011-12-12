@@ -32,20 +32,25 @@ from nicos.commands import usercommand
 
 @usercommand
 def printdebug(*msgs, **kwds):
+    """Print a debug message."""
     session.log.debug(*msgs, **kwds)
 
 @usercommand
 def printinfo(*msgs, **kwds):
+    """Print a message."""
     session.log.info(*msgs, **kwds)
 
 @usercommand
 def printwarning(*msgs, **kwds):
+    """Print a warning message."""
     session.log.warning(*msgs, **kwds)
 
 @usercommand
 def printerror(*msgs):
+    """Print an error message."""
     session.log.error(*msgs)
 
 @usercommand
 def printexception(*msgs):
+    """Print an error message, and add info about the last exception."""
     session.log.exception(*msgs)
