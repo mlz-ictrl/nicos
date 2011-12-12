@@ -408,6 +408,8 @@ class AsciiDatafileSink(DatafileSink):
                                 'values', type=bool, default=True),
         'lastfilenumber': Param('The number of the last written data file',
                                 type=int),
+        'lastpoint':      Param('The number of the last point in the data file',
+                                type=int),
     }
 
     def doReadDatapath(self):
@@ -423,6 +425,7 @@ class AsciiDatafileSink(DatafileSink):
             self._counter = readFileCounter(
                 path.join(self._path, 'filecounter'))
         self._setROParam('lastfilenumber', self._counter)
+        self._setROParam('lastpoint', 0)
 
     def doUpdateCommentchar(self, value):
         if len(value) > 1:
@@ -450,6 +453,7 @@ class AsciiDatafileSink(DatafileSink):
             updateFileCounter(path.join(self._path, 'filecounter'),
                               self._counter)
         self._setROParam('lastfilenumber', self._counter)
+        self._setROParam('lastpoint', 0)
         self._fullfname = path.join(self._path, self._fname)
         dataset.sinkinfo['filename'] = self._fname
         dataset.sinkinfo['number'] = self._counter
@@ -501,6 +505,7 @@ class AsciiDatafileSink(DatafileSink):
             values = xv + yv
         self._file.write('\t'.join(values) + '\n')
         self._file.flush()
+        self._setROParam('lastpoint', dataset.curpoint)
 
     def endDataset(self, dataset):
         self._file.write('%s End of NICOS data file %s\n' %
