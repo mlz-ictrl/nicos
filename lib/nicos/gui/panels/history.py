@@ -46,12 +46,15 @@ from nicos.cache.utils import cache_load
 
 
 class View(object):
-    def __init__(self, name, keys, interval, fromtime, totime, client):
+    def __init__(self, name, keys, interval, fromtime, totime,
+                 yfrom, yto, client):
         self.name = name
         self.keys = keys
         self.interval = interval
         self.fromtime = fromtime
         self.totime = totime
+        self.yfrom = yfrom
+        self.yto = yto
 
         if self.fromtime is not None:
             self.keydata = {}
@@ -224,6 +227,13 @@ class HistoryPanel(Panel):
         newdlg.todate.setDateTime(QDateTime.currentDateTime())
         newdlg.connect(newdlg.helpButton, SIGNAL('clicked()'),
                        lambda: self.showInfo(helptext))
+        newdlg.customYFrom.setEnabled(False)
+        newdlg.customYTo.setEnabled(False)
+        def callback(on):
+            newdlg.customYFrom.setEnabled(on)
+            newdlg.customYTo.setEnabled(on)
+            if on: newdlg.customYFrom.setFocus()
+        newdlg.connect(newdlg.customY, SIGNAL('toggled(bool)'), callback)
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return
@@ -249,7 +259,19 @@ class HistoryPanel(Panel):
                 newdlg.todate.dateTime().toTime_t()))
         else:
             totime = None
-        view = View(name, keys, interval, fromtime, totime, self.client)
+        if newdlg.customY.isChecked():
+            try:
+                yfrom = float(str(newdlg.customYFrom.text()))
+            except ValueError:
+                return self.showError('You have to input valid y axis limits.')
+            try:
+                yto = float(str(newdlg.customYTo.text()))
+            except ValueError:
+                return self.showError('You have to input valid y axis limits.')
+        else:
+            yfrom = yto = None
+        view = View(name, keys, interval, fromtime, totime, yfrom, yto,
+                    self.client)
         self.views.append(view)
         view.listitem = QListWidgetItem(name, self.viewList)
         self.openView(view)
@@ -402,6 +424,10 @@ class ViewPlot(NicosPlot):
     def addAllCurves(self):
         for i, key in enumerate(self.view.keys):
             self.addCurve(i, key)
+
+    def yaxisScale(self):
+        if self.view.yfrom is not None:
+            return (self.view.yfrom, self.view.yto)
 
     def on_picker_moved(self, point, strf=time.strftime, local=time.localtime):
         # overridden to show the correct timestamp
