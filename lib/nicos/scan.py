@@ -401,18 +401,19 @@ class ContinuousScan(Scan):
         try:
             device.speed = self._speed
             device.move(self._endpos)
-            preset = abs(self._speed * (self._endpos - self._startpos)) * 5
+            preset = abs(self._endpos - self._startpos) / self.speed * 5
             for det in detlist:
                 det.start(t=preset)
-            last = sum((det.read() for det in detlist), ())
+            last = sum((det.read() for det in detlist), [])
             while device.status(0)[0] == status.BUSY:
                 time.sleep(1)
                 session.breakpoint(2)
                 devpos = device.read(0)
-                read = sum((det.read() for det in detlist), ())
+                read = sum((det.read() for det in detlist), [])
                 diff = [read[i] - last[i]
                         if isinstance(read[i], (int, long, float)) else read[i]
                         for i in range(len(read))]
+                self.dataset.curpoint += 1
                 self.addPoint([devpos], diff)
                 last = read
             for det in detlist:
