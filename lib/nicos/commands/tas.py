@@ -33,7 +33,7 @@ from nicos.scan import QScan
 from nicos.device import Measurable, Moveable, Readable
 from nicos.errors import UsageError
 from nicos.commands import usercommand
-from nicos.commands.scan import _infostr
+from nicos.commands.scan import _infostr, ADDSCANHELP2
 
 
 def _getQ(v, name):
@@ -99,7 +99,8 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
 def qscan(Q, dQ, numsteps, *args, **kwargs):
     """Single-sided Q scan.
 
-    XXX
+    The *Q* and *dQ* arguments can be lists of 3 or 4 components, or a `Q`
+    object.
     """
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
     scanstr = _infostr('qscan', (Q, dQ, numsteps) + args, kwargs)
@@ -117,7 +118,8 @@ def qscan(Q, dQ, numsteps, *args, **kwargs):
 def qcscan(Q, dQ, numperside, *args, **kwargs):
     """Centered Q scan.
 
-    XXX
+    The *Q* and *dQ* arguments can be lists of 3 or 4 components, or a `Q`
+    object.
     """
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
     scanstr = _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
@@ -129,6 +131,9 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
                for i in range(-numperside, numperside+1)]
     scan = QScan(values, move, multistep, detlist, envlist, preset, scaninfo)
     scan.run()
+
+qscan.__doc__  += ADDSCANHELP2.replace('scan(dev, ', 'qscan(Q, dQ, ')
+qcscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'qcscan(Q, dQ, ')
 
 
 class Q(ndarray):

@@ -175,7 +175,14 @@ class InvalidCommandError(ProgrammingError):
 
 
 class IPCModBus(Device):
-    """Abstract class for IPC protocol communication over RS-485."""
+    """Abstract class for IPC protocol communication over RS-485.
+
+    A device of this type is needed as the `.bus` parameter of the other IPC
+    devices.
+
+    Concrete implementations are `IPCModBusTaco`, `IPCModBusTCP`,
+    `IPCModBusSerial`.
+    """
 
 
 class IPCModBusTaco(TacoDevice, IPCModBus):
@@ -204,7 +211,10 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
 
 
 class IPCModBusTacoless(IPCModBus):
-    """Base class for IPC connections not using the RS485 TACO server."""
+    """Base class for IPC connections not using the RS485 TACO server.
+
+    This is an abstract class; use one of `IPCModBusTCP` or `IPCModBusSerial`.
+    """
 
     parameters = {
         'commtries': Param('Number of tries for sending and receiving',
@@ -390,6 +400,7 @@ class IPCModBusSerial(IPCModBusTacoless):
 
 
 class Coder(NicosCoder):
+    """This class supports both IPC absolute and incremental coder cards."""
 
     parameters = {
         'addr': Param('Bus address of the coder', type=int, mandatory=True),
@@ -507,6 +518,7 @@ class Coder(NicosCoder):
 
 
 class Motor(NicosMotor):
+    """This class supports IPC 6-fold, 3-fold and single motor cards."""
 
     parameters = {
         'addr':       Param('Bus address of the motor', type=int, mandatory=True),
@@ -927,7 +939,7 @@ class Motor(NicosMotor):
 
 
 class IPCRelay(Moveable):
-    """Makes the relay of an IPC stepper available as switch."""
+    """Makes the relay of an IPC single stepper card available as switch."""
 
     parameter_overrides = {
         'unit':      Override(mandatory=False),
@@ -948,7 +960,7 @@ class IPCRelay(Moveable):
 
 
 class IPCInhibit(Readable):
-    """Makes the inhibit of an IPC stepper available as an input.
+    """Makes the inhibit of an IPC single stepper card available as an input.
 
     Returns 'on' if inhibit is active, 'off' otherwise.
     """
@@ -999,7 +1011,7 @@ class Output(Input, Moveable):
     """
     IPC I/O card digital output class.
 
-    Shares parameters and doInit with Input.
+    Shares parameters and doInit with `Input`.
     """
 
     def doVersion(self):
@@ -1029,8 +1041,9 @@ class Output(Input, Moveable):
 
 
 class SlitAxis(HasPrecision, HasLimits, Moveable):
-    """
-    Class for one axis of a IPC 4-wing slit.
+    """Class for one axis of a IPC 4-wing slit.
+
+    Use this together with `nicos.slit.Slit` to add a 4-wing slit device.
     """
 
     parameters = {

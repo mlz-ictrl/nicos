@@ -90,7 +90,7 @@ class DeviceDocumenter(ClassDocumenter):
             return ClassDocumenter.document_members(self, all_members)
         if self.doc_as_attr:
             return
-        self.add_line('.. rubric:: Parameters', '<autodoc>')
+        self.add_line('**Parameters**', '<autodoc>')
         self.add_line('', '<autodoc>')
         orig_indent = self.indent
         baseparams = {}
@@ -98,6 +98,7 @@ class DeviceDocumenter(ClassDocumenter):
             baseparams.update(base.parameters)
         baseparaminfo = []
         n = 0
+        # XXX document usermethods
         for param, info in sorted(self.object.parameters.iteritems()):
             if param in baseparams:
                 baseparaminfo.append((param, info))
