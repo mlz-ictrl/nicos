@@ -837,7 +837,7 @@ def tupleof(*types):
         if not isinstance(val, (list, tuple)) or not len(types) == len(val):
             raise ValueError('value needs to be a %d-tuple' % len(types))
         return tuple(t(v) for (t, v) in zip(types, val))
-    converter.__doc__ = 'a tuple of ' + ', '.join(map(convdoc, types))
+    converter.__doc__ = 'a tuple of (' + ', '.join(map(convdoc, types)) + ')'
     return converter
 
 def dictof(keyconv, valconv):

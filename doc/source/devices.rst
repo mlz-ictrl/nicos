@@ -316,6 +316,11 @@ levels of interaction that is possible with the device:
 
       The last target position of a :meth:`start` operation on the device.
 
+   .. parameter:: fixed : str, not shown to the user
+
+      This parameter is set by :meth:`fix` and :meth:`release` to indicate if
+      the device has been fixed.
+
 
 ``Measurable``
 ==============
@@ -396,3 +401,18 @@ Mixin classes
       The current offset of the device zero to the hardware zero.
 
       The device position is ``hardware_position - offset``.
+
+
+``HasPrecision``
+================
+
+.. class:: HasPrecision
+
+   Mixin class for Readable or Moveable devices that want to provide a
+   'precision' parameter.
+
+   .. rubric:: Parameters
+
+   .. parameter:: precision : number, optional
+
+      The precision of the device.

@@ -9,9 +9,10 @@ Contents:
    install
    components
    setups
-   devices
    commands
+   classes/index
    api
+   devices
    glossary
 
 * :ref:`genindex`

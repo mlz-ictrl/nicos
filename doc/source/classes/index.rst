@@ -1,0 +1,7 @@
+Device classes
+==============
+
+.. toctree::
+
+   abstract
+
