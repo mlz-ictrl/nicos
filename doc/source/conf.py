@@ -90,12 +90,25 @@ class DeviceDocumenter(ClassDocumenter):
             return ClassDocumenter.document_members(self, all_members)
         if self.doc_as_attr:
             return
-        self.add_line('**Parameters**', '<autodoc>')
-        self.add_line('', '<autodoc>')
         orig_indent = self.indent
         baseparams = {}
         for base in self.object.__bases__:
             baseparams.update(base.parameters)
+        if self.object.attached_devices:
+            self.add_line('**Attached devices**', '<autodoc>')
+            self.add_line('', '<autodoc>')
+            for adev, info in sorted(self.object.attached_devices.iteritems()):
+                if isinstance(info, list):
+                    atype = 'a list of `~%s.%s`' % (info[0].__module__,
+                                                    info[0].__name__)
+                else:
+                    atype = '`~%s.%s`' % (info.__module__, info.__name__)
+                self.add_line('.. parameter:: %s' % adev, '<autodoc>')
+                self.add_line('', '<autodoc>')
+                self.add_line('   Type: ' + atype, '<autodoc>')
+            self.add_line('', '<autodoc>')
+        self.add_line('**Parameters**', '<autodoc>')
+        self.add_line('', '<autodoc>')
         baseparaminfo = []
         n = 0
         # XXX document usermethods
