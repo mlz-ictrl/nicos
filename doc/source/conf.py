@@ -107,8 +107,6 @@ class DeviceDocumenter(ClassDocumenter):
                 self.add_line('', '<autodoc>')
                 self.add_line('   Type: ' + atype, '<autodoc>')
             self.add_line('', '<autodoc>')
-        self.add_line('**Parameters**', '<autodoc>')
-        self.add_line('', '<autodoc>')
         baseparaminfo = []
         n = 0
         # XXX document usermethods
@@ -116,6 +114,9 @@ class DeviceDocumenter(ClassDocumenter):
             if param in baseparams:
                 baseparaminfo.append((param, info))
                 continue
+            if n == 0:
+                self.add_line('**Parameters**', '<autodoc>')
+                self.add_line('', '<autodoc>')
             if isinstance(info.type, type(listof)):
                 ptype = info.type.__doc__ or '?'
             else:
@@ -139,9 +140,6 @@ class DeviceDocumenter(ClassDocumenter):
             self.add_line('', '<autodoc>')
             self.indent = orig_indent
             n += 1
-        if n == 0:
-            self.add_line('None defined.', '<autodoc>')
-            self.add_line('', '<autodoc>')
         if baseparaminfo:
             self.add_line('Parameters inherited from the base classes: ' + ', '.join(
                 '`.%s`' % name for (name, info) in baseparaminfo), '<autodoc>')
