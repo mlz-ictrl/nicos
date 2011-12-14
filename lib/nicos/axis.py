@@ -531,17 +531,18 @@ class TacoAxis(TacoDevice, BaseAxis):
 
 
 class HoveringAxis(TacoAxis):
+    """A TACO axis that also controls air for airpads."""
 
     attached_devices = {
         'switch': (Moveable, 'The device used for switching air on and off'),
     }
 
     parameters = {
-        'startdelay': Param('Delay after switching on air', type=float,
-                            mandatory=True, unit='s'),
-        'stopdelay':  Param('Delay before switching off air', type=float,
-                            mandatory=True, unit='s'),
-        'switchvalues': Param('[off, on] value to write to switch device',
+        'startdelay':   Param('Delay after switching on air', type=float,
+                              mandatory=True, unit='s'),
+        'stopdelay':    Param('Delay before switching off air', type=float,
+                              mandatory=True, unit='s'),
+        'switchvalues': Param('(off, on) values to write to switch device',
                               type=tupleof(anytype, anytype), default=(0, 1)),
     }
 

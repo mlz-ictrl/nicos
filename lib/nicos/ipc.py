@@ -220,7 +220,7 @@ class IPCModBusTacoless(IPCModBus):
         'commtries': Param('Number of tries for sending and receiving',
                            type=int, default=5, settable=True),
         'roundtime': Param('Maximum time to wait for an answer, set '
-                           'this high to slow down everything',
+                           'this high to slow down everything', unit='s',
                            type=float, default=0.1, settable=True),
     }
 
@@ -400,7 +400,10 @@ class IPCModBusSerial(IPCModBusTacoless):
 
 
 class Coder(NicosCoder):
-    """This class supports both IPC absolute and incremental coder cards."""
+    """This class supports both IPC absolute and incremental coder cards.
+
+    It can be used with the `.Axis` class.
+    """
 
     parameters = {
         'addr': Param('Bus address of the coder', type=int, mandatory=True),
@@ -518,7 +521,10 @@ class Coder(NicosCoder):
 
 
 class Motor(NicosMotor):
-    """This class supports IPC 6-fold, 3-fold and single motor cards."""
+    """This class supports IPC 6-fold, 3-fold and single motor cards.
+
+    It can be used with the `.Axis` class.
+    """
 
     parameters = {
         'addr':       Param('Bus address of the motor', type=int, mandatory=True),

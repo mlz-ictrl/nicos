@@ -5,4 +5,5 @@ Device classes
 
    abstract
    detector
+   axis
    ipc
