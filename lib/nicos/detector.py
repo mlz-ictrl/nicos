@@ -38,8 +38,9 @@ from nicos.device import Measurable, Param, Value
 
 
 class FRMChannel(TacoDevice, Measurable):
-    """
-    One channel of the FRM-II counter card.
+    """Base class for one channel of the FRM-II counter card.
+
+    Use one of the concrete classes `FRMTimerChannel` or `FRMCounterChannel`.
     """
 
     parameters = {
@@ -163,9 +164,7 @@ class FRMCounterChannel(FRMChannel):
 
 
 class FRMDetector(Measurable):
-    """
-    The standard detector at FRM-II, using the FRM-II counter card.
-    """
+    """The standard detector at FRM-II, using the FRM-II counter card."""
 
     attached_devices = {
         't':  FRMChannel,

@@ -910,7 +910,7 @@ def oneofdict(vals):
             raise ValueError('invalid value: %s, must be one of %s' %
                              (val, ', '.join(map(repr, vals))))
         return val
-    converter.__doc__ = 'one of ' + ', '.join(map(repr, vals))
+    converter.__doc__ = 'one of ' + ', '.join(map(repr, vals.values()))
     return converter
 
 def existingdir(val='.'):
