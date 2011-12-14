@@ -49,7 +49,7 @@ class Dev1(Device):
     pass
 
 class Dev2(HasLimits, HasOffset, Moveable):
-    attached_devices = {'attached': Dev1}
+    attached_devices = {'attached': (Dev1, 'Test attached device')}
     parameters = {
         'param1': Param('An optional parameter', type=int, default=42),
         'param2': Param('A mandatory parameter', type=int, mandatory=True,
