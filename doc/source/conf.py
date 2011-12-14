@@ -91,9 +91,26 @@ class DeviceDocumenter(ClassDocumenter):
         if self.doc_as_attr:
             return
         orig_indent = self.indent
-        baseparams = {}
+        basecmds = {}
+        basecmdinfo = []
         for base in self.object.__bases__:
-            baseparams.update(base.parameters)
+            if hasattr(base, 'commands'):
+                basecmds.update(base.commands)
+        for name, (args, doc) in sorted(self.object.commands.iteritems()):
+            if name in basecmds:
+                basecmdinfo.append(name)
+                continue
+            self.add_line('.. method:: %s%s' % (name, args), '<autodoc>')
+            self.add_line('', '<autodoc>')
+            self.indent += self.content_indent
+            for line in doc.splitlines():
+                self.add_line(line, '<doc of %s.%s>' % (self.object, name))
+            self.add_line('', '<autodoc>')
+            self.indent = orig_indent
+        if basecmdinfo:
+            self.add_line('Methods inherited from the base classes: ' +
+                          ', '.join('`.%s`' % name for name in basecmdinfo),
+                          '<autodoc>')
         if self.object.attached_devices:
             self.add_line('**Attached devices**', '<autodoc>')
             self.add_line('', '<autodoc>')
@@ -107,6 +124,10 @@ class DeviceDocumenter(ClassDocumenter):
                 self.add_line('', '<autodoc>')
                 self.add_line('   Type: ' + atype, '<autodoc>')
             self.add_line('', '<autodoc>')
+        baseparams = {}
+        for base in self.object.__bases__:
+            if hasattr(base, 'parameters'):
+                baseparams.update(base.parameters)
         baseparaminfo = []
         n = 0
         # XXX document usermethods
@@ -121,22 +142,20 @@ class DeviceDocumenter(ClassDocumenter):
                 ptype = info.type.__doc__ or '?'
             else:
                 ptype = info.type.__name__
-            addinfo = []
+            addinfo = [ptype]
             if info.settable: addinfo.append('settable at runtime')
             if info.mandatory: addinfo.append('mandatory in setup')
             if info.volatile: addinfo.append('volatile')
             if info.preinit: addinfo.append('initialized for preinit')
             if not info.userparam: addinfo.append('not shown to user')
-            self.add_line('.. parameter:: %s : %s, %s' %
-                          (param, ptype, ', '.join(addinfo)), '<autodoc>')
+            self.add_line('.. parameter:: %s : %s' %
+                          (param, ', '.join(addinfo)), '<autodoc>')
             self.add_line('', '<autodoc>')
             self.indent += self.content_indent
             descr = info.description or ''
             if descr and not descr.endswith('.'): descr += '.'
+            descr += ' Default value: ``%r``.' % info.default
             self.add_line(descr, '<%s.%s description>' % (self.object, param))
-            self.add_line('', '<autodoc>')
-            self.add_line('Default value: ``' + repr(info.default) + '``',
-                          '<autodoc>')
             self.add_line('', '<autodoc>')
             self.indent = orig_indent
             n += 1
