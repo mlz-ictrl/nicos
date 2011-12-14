@@ -43,7 +43,7 @@ from nicos.errors import NicosError, ProgrammingError, CommunicationError, \
 class TacoDevice(object):
     """Mixin class for TACO devices.
 
-    Use it in concrete device classes like this:
+    Use it in concrete device classes like this::
 
         class Counter(TacoDevice, Countable):
             taco_class = IO.Counter

@@ -210,7 +210,8 @@ class BitsDigitalOutput(DigitalOutput):
 
 class MultiDigitalOutput(Moveable):
     attached_devices = {
-        'outputs': [DigitalOutput],
+        'outputs': ([DigitalOutput], 'A list of digital outputs to '
+                    'switch simultaneously'),
     }
 
     def doStart(self, target):

@@ -56,9 +56,10 @@ Entries in the ``devices`` dictionary
 -------------------------------------
 
 A device definition consists of a call like ``device(classname, parameters)``.
-The class name is fully qualified (i.e., includes the package/module name).  The
-parameters are given as keyword arguments.  Here are some example ``devices``
-entries::
+The class name is fully qualified (i.e., includes the package/module name).  See
+the :doc:`class documentation <classes/index>` for the existing device classes.
+The parameters are given as keyword arguments.  Here are some example
+``devices`` entries::
 
    devices = dict(
        p   = device('nicos.io.AnalogInput',

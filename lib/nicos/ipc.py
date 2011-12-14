@@ -412,7 +412,7 @@ class Coder(NicosCoder):
     }
 
     attached_devices = {
-        'bus': IPCModBus,
+        'bus': (IPCModBus, 'The communication bus'),
     }
 
     def doInit(self):
@@ -561,7 +561,7 @@ class Motor(NicosMotor):
     }
 
     attached_devices = {
-        'bus': IPCModBus,
+        'bus': (IPCModBus, 'The communication bus'),
     }
 
     def doInit(self):
@@ -946,7 +946,7 @@ class IPCRelay(Moveable):
     }
 
     attached_devices = {
-        'stepper': Motor,
+        'stepper': (Motor, 'The stepper card whose relay is controlled'),
     }
 
     def doStart(self, target):
@@ -970,7 +970,7 @@ class IPCInhibit(Readable):
     }
 
     attached_devices = {
-        'stepper': Motor,
+        'stepper': (Motor, 'The stepper card whose inhibit is read out'),
     }
 
     def doRead(self):
@@ -992,7 +992,7 @@ class Input(Readable):
     }
 
     attached_devices = {
-        'bus': IPCModBus,
+        'bus': (IPCModBus, 'The communication bus'),
     }
 
     def doInit(self):
@@ -1061,7 +1061,7 @@ class SlitAxis(HasPrecision, HasLimits, Moveable):
     }
 
     attached_devices = {
-        'bus': IPCModBus,
+        'bus': (IPCModBus, 'The communication bus'),
     }
 
     def _wait(self, function, state, timeslice, totaltime, error):

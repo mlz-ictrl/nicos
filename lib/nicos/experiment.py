@@ -170,7 +170,7 @@ class Experiment(Device):
     }
 
     attached_devices = {
-        'sample': Sample,
+        'sample': (Sample, 'The device object representing the sample'),
     }
 
     def doInit(self):

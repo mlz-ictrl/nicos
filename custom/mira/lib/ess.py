@@ -41,8 +41,8 @@ class ESSController(AnalogOutput):
     taco_class = CurrentControl
 
     attached_devices = {
-        'plusswitch': DigitalOutput,
-        'minusswitch': DigitalOutput,
+        'plusswitch':  (DigitalOutput, 'Switch to set for positive polarity'),
+        'minusswitch': (DigitalOutput, 'Switch to set for negative polarity'),
     }
 
     # XXX switch to single "ramp" parameter

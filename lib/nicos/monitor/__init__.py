@@ -80,7 +80,8 @@ class Monitor(BaseCacheClient):
     }
 
     attached_devices = {
-        'notifiers': [Notifier],
+        'notifiers': ([Notifier], 'A list of notifiers used for warning '
+                      'messages'),
     }
 
     # methods to be implemented in concrete implementations

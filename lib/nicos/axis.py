@@ -46,9 +46,10 @@ class Axis(BaseAxis):
     """An axis implemented in Python, with NICOS devices for motor and coders."""
 
     attached_devices = {
-        'motor': Motor,
-        'coder': Coder,
-        'obs':   [Coder],
+        'motor': (Motor, 'Axis motor device'),
+        'coder': (Coder, 'Main axis encoder device'),
+        'obs':   ([Coder], 'Auxiliary encoders used to verify position, '
+                  'can be empty'),
     }
 
     # TODO: add validation for new parameter values where needed
@@ -532,7 +533,7 @@ class TacoAxis(TacoDevice, BaseAxis):
 class HoveringAxis(TacoAxis):
 
     attached_devices = {
-        'switch': Moveable,
+        'switch': (Moveable, 'The device used for switching air on and off'),
     }
 
     parameters = {

@@ -62,10 +62,10 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
     """
 
     attached_devices = {
-        'theta':    HasPrecision,
-        'twotheta': HasPrecision,
-        'focush':   Moveable,
-        'focusv':   Moveable,
+        'theta':    (HasPrecision, 'Monochromator rocking angle'),
+        'twotheta': (HasPrecision, 'Monochromator scattering angle'),
+        'focush':   (Moveable, 'Horizontal focusing axis'),
+        'focusv':   (Moveable, 'Vertical focusing axis'),
     }
 
     hardware_access = False
@@ -180,7 +180,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
             if focush:
                 focush.move(self._calfocus(lam, self.hfocuspars))
         else:
-            if self._focwarnings:
+            if self._focwarnings and (focusv or focush):
                 self.log.warning('focus is in manual mode')
                 self._focwarnings -= 1
 
@@ -302,11 +302,11 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
 class TAS(Instrument, Moveable):
 
     attached_devices = {
-        'cell': Cell,
-        'mono': Monochromator,
-        'ana':  Monochromator,
-        'phi':  Moveable,
-        'psi':  Moveable,
+        'cell': (Cell, 'Unit cell object to calculate angles'),
+        'mono': (Monochromator, 'Monochromator device'),
+        'ana':  (Monochromator, 'Analysator device'),
+        'phi':  (Moveable, 'Sample scattering angle'),
+        'psi':  (Moveable, 'Sample rocking angle'),
     }
 
     parameters = {
@@ -465,7 +465,7 @@ class TASIndex(Moveable, AutoDevice):
     }
 
     attached_devices = {
-        'tas': TAS,
+        'tas': (TAS, 'The spectrometer to control'),
     }
 
     hardware_access = False
@@ -495,8 +495,8 @@ class Wavevector(Moveable):
     }
 
     attached_devices = {
-        'base': Moveable,
-        'tas': TAS,
+        'base': (Moveable, 'Device to move (mono or ana)'),
+        'tas':  (TAS, 'The spectrometer for setting scanmode'),
     }
 
     hardware_access = False

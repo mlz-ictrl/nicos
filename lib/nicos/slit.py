@@ -38,10 +38,10 @@ class Slit(Moveable):
     """A rectangular slit consisting of four blades."""
 
     attached_devices = {
-        'right':  HasPrecision,
-        'left':   HasPrecision,
-        'bottom': HasPrecision,
-        'top':    HasPrecision,
+        'right':  (HasPrecision, 'Right blade'),
+        'left':   (HasPrecision, 'Left blade'),
+        'bottom': (HasPrecision, 'Bottom blade'),
+        'top':    (HasPrecision, 'Top blade'),
     }
 
     parameters = {
@@ -213,7 +213,7 @@ class SlitAxis(Moveable, AutoDevice):
     """
 
     attached_devices = {
-        'slit': Slit,
+        'slit': (Slit, 'Slit whose axis is controlled'),
     }
 
     hardware_access = False

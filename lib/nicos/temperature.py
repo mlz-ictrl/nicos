@@ -80,10 +80,10 @@ class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
     taco_class = Temperature.Controller
 
     attached_devices = {
-        'sensor_a': Sensor,
-        'sensor_b': Sensor,
-        'sensor_c': Sensor,
-        'sensor_d': Sensor,
+        'sensor_a': (Sensor, 'First sensor'),
+        'sensor_b': (Sensor, 'Second sensor'),
+        'sensor_c': (Sensor, 'Third sensor'),
+        'sensor_d': (Sensor, 'Fourth sensor'),
     }
 
     parameters = {

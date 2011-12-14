@@ -85,7 +85,7 @@ class S7Coder(NicosCoder):
     }
 
     attached_devices = {
-        'bus': S7Bus,
+        'bus': (S7Bus, 'S7 communication bus'),
     }
 
     def doRead( self ):
@@ -116,7 +116,7 @@ class S7Motor(NicosMotor):
     }
 
     attached_devices = {
-        'bus': S7Bus,
+        'bus': (S7Bus, 'S7 communication bus'),
     }
 
     def doStop (self):
@@ -332,8 +332,8 @@ class Panda_mtt(Axis):
     attached_devices = {
         # 'coder': Readable,
         # 'motor': Moveable,
-        'air_enable': Moveable,
-        'air_sensor': Readable,
+        'air_enable': (Moveable, 'Switch to enable air'),
+        'air_sensor': (Readable, 'Air sensor device'),
     }
 
     def _AirIsOn(self):

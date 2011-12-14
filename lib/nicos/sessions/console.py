@@ -37,7 +37,6 @@ import traceback
 
 from nicos import session, nicos_version
 from nicos.utils import colorcode, formatExtendedStack
-from nicos.device import Readable
 from nicos.loggers import INPUT, OUTPUT
 from nicos.sessions import Session
 from nicos.sessions.utils import NicosCompleter

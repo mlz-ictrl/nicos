@@ -93,7 +93,7 @@ class VirtualMotor(Motor, HasOffset):
 
 class VirtualCoder(Coder, HasOffset):
     attached_devices = {
-        'motor': Readable,
+        'motor': (Readable, 'Motor to read out to get coder value')
     }
 
     def doRead(self):
@@ -204,7 +204,7 @@ class VirtualCounter(FRMCounterChannel):
 
 class ArbitraryValues(Moveable, HasOffset):
     attached_devices = {
-        'which': Moveable,
+        'which': (Moveable, 'Device to move to single steps'),
     }
     parameters = {
         'steps': Param('', type=tupleof(float)),

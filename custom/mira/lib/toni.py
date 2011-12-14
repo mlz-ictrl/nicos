@@ -77,7 +77,7 @@ class ModBus(TacoDevice, Device):
 class Valve(Moveable):
 
     attached_devices = {
-        'bus': ModBus,
+        'bus':  (ModBus, 'Toni communication bus'),
     }
 
     parameters = {
@@ -140,7 +140,7 @@ class Valve(Moveable):
 
 class Leckmon(Readable):
     attached_devices = {
-        'bus': ModBus,
+        'bus': (ModBus, 'Toni communication bus'),
     }
 
     parameters = {
@@ -157,7 +157,7 @@ class Ratemeter(Readable):
     """
 
     attached_devices = {
-        'bus': ModBus,
+        'bus': (ModBus, 'Toni communication bus'),
     }
 
     parameters = {

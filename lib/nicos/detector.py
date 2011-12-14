@@ -166,16 +166,17 @@ class FRMCounterChannel(FRMChannel):
 class FRMDetector(Measurable):
     """The standard detector at FRM-II, using the FRM-II counter card."""
 
+    # XXX make this two list of monitor and counter channels?
     attached_devices = {
-        't':  FRMChannel,
-        'm1': FRMChannel,
-        'm2': FRMChannel,
-        'm3': FRMChannel,
-        'z1': FRMChannel,
-        'z2': FRMChannel,
-        'z3': FRMChannel,
-        'z4': FRMChannel,
-        'z5': FRMChannel,
+        't':  (FRMChannel, 'Timer channel'),
+        'm1': (FRMChannel, 'First monitor channel'),
+        'm2': (FRMChannel, 'Second monitor channel'),
+        'm3': (FRMChannel, 'Third monitor channel'),
+        'z1': (FRMChannel, 'First counter channel'),
+        'z2': (FRMChannel, 'Second counter channel'),
+        'z3': (FRMChannel, 'Third counter channel'),
+        'z4': (FRMChannel, 'Fourth counter channel'),
+        'z5': (FRMChannel, 'Fifth counter channel'),
     }
 
     hardware_access = False

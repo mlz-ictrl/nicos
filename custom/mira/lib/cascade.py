@@ -58,7 +58,8 @@ class CascadeDetector(AsyncDetector, ImageStorage):
     }
 
     attached_devices = {
-        'master':   FRMDetector,
+        'master':   (FRMDetector, 'Master to control measurement time '
+                     'in slave mode'),
     }
 
     parameter_overrides = {

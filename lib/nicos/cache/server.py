@@ -721,7 +721,7 @@ class CacheServer(Device):
     }
 
     attached_devices = {
-        'db': CacheDatabase,
+        'db': (CacheDatabase, 'The cache database instance'),
     }
 
     def doInit(self):

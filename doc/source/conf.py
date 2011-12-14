@@ -86,7 +86,8 @@ class DeviceDocumenter(ClassDocumenter):
                               '<autodoc>')
 
     def document_members(self, all_members=False):
-        if not issubclass(self.object, Device):
+        if not issubclass(self.object, Device) and not \
+            hasattr(self.object, 'parameters'):
             return ClassDocumenter.document_members(self, all_members)
         if self.doc_as_attr:
             return
@@ -96,33 +97,35 @@ class DeviceDocumenter(ClassDocumenter):
         for base in self.object.__bases__:
             if hasattr(base, 'commands'):
                 basecmds.update(base.commands)
-        for name, (args, doc) in sorted(self.object.commands.iteritems()):
-            if name in basecmds:
-                basecmdinfo.append(name)
-                continue
-            self.add_line('.. method:: %s%s' % (name, args), '<autodoc>')
-            self.add_line('', '<autodoc>')
-            self.indent += self.content_indent
-            for line in doc.splitlines():
-                self.add_line(line, '<doc of %s.%s>' % (self.object, name))
-            self.add_line('', '<autodoc>')
-            self.indent = orig_indent
-        if basecmdinfo:
-            self.add_line('Methods inherited from the base classes: ' +
-                          ', '.join('`.%s`' % name for name in basecmdinfo),
-                          '<autodoc>')
-        if self.object.attached_devices:
+        if hasattr(self.object, 'commands'):
+            for name, (args, doc) in sorted(self.object.commands.iteritems()):
+                if name in basecmds:
+                    basecmdinfo.append(name)
+                    continue
+                self.add_line('.. method:: %s%s' % (name, args), '<autodoc>')
+                self.add_line('', '<autodoc>')
+                self.indent += self.content_indent
+                for line in doc.splitlines():
+                    self.add_line(line, '<doc of %s.%s>' % (self.object, name))
+                self.add_line('', '<autodoc>')
+                self.indent = orig_indent
+            if basecmdinfo:
+                self.add_line('Methods inherited from the base classes: ' +
+                              ', '.join('`.%s`' % name for name in basecmdinfo),
+                              '<autodoc>')
+        if getattr(self.object, 'attached_devices', None):
             self.add_line('**Attached devices**', '<autodoc>')
             self.add_line('', '<autodoc>')
-            for adev, info in sorted(self.object.attached_devices.iteritems()):
-                if isinstance(info, list):
-                    atype = 'a list of `~%s.%s`' % (info[0].__module__,
-                                                    info[0].__name__)
+            for adev, (cls, doc) in sorted(self.object.attached_devices.iteritems()):
+                if isinstance(cls, list):
+                    atype = 'a list of `~%s.%s`' % (cls[0].__module__,
+                                                    cls[0].__name__)
                 else:
-                    atype = '`~%s.%s`' % (info.__module__, info.__name__)
+                    atype = '`~%s.%s`' % (cls.__module__, cls.__name__)
+                descr = doc + (not doc.endswith('.') and '.' or '')
                 self.add_line('.. parameter:: %s' % adev, '<autodoc>')
                 self.add_line('', '<autodoc>')
-                self.add_line('   Type: ' + atype, '<autodoc>')
+                self.add_line('   %s Type: %s.' %  (descr, atype), '<autodoc>')
             self.add_line('', '<autodoc>')
         baseparams = {}
         for base in self.object.__bases__:
@@ -130,7 +133,6 @@ class DeviceDocumenter(ClassDocumenter):
                 baseparams.update(base.parameters)
         baseparaminfo = []
         n = 0
-        # XXX document usermethods
         for param, info in sorted(self.object.parameters.iteritems()):
             if param in baseparams:
                 baseparaminfo.append((param, info))
@@ -154,7 +156,13 @@ class DeviceDocumenter(ClassDocumenter):
             self.indent += self.content_indent
             descr = info.description or ''
             if descr and not descr.endswith('.'): descr += '.'
-            descr += ' Default value: ``%r``.' % info.default
+            if not info.mandatory:
+                descr += ' Default value: ``%r``.' % info.default
+            if info.unit:
+                if info.unit == 'main':
+                    descr += ' Unit: same as device value.'
+                else:
+                    descr += ' Unit: ``%s``.' % info.unit
             self.add_line(descr, '<%s.%s description>' % (self.object, param))
             self.add_line('', '<autodoc>')
             self.indent = orig_indent

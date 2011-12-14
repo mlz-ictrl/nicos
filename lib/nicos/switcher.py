@@ -38,7 +38,7 @@ class Switcher(Moveable):
     """
 
     attached_devices = {
-        'moveable': Moveable,
+        'moveable': (Moveable, 'The continuous device which is controlled'),
     }
 
     parameters = {
@@ -94,7 +94,7 @@ class Switcher(Moveable):
 class ReadonlySwitcher(Readable):
 
     attached_devices = {
-        'readable': Readable,
+        'readable': (Readable, 'The continuous device which is read'),
     }
 
     parameters = {
