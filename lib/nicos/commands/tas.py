@@ -49,7 +49,7 @@ def _getQ(v, name):
                          % name)
 
 def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
-    preset, detlist, envlist, move, multistep = {}, [], [], [], []
+    preset, detlist, envlist, move, multistep = {}, [], None, [], []
     for arg in args:
         if isinstance(arg, str):
             scaninfo = arg + ' - ' + scaninfo
@@ -60,6 +60,8 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
         elif isinstance(arg, list):
             detlist.extend(arg)
         elif isinstance(arg, Readable):
+            if envlist is None:
+                envlist = []
             envlist.append(arg)
         else:
             raise UsageError('unsupported qscan argument: %r' % arg)
