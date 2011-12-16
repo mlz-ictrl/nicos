@@ -92,16 +92,15 @@ class DeviceDocumenter(ClassDocumenter):
         if self.doc_as_attr:
             return
         orig_indent = self.indent
-        basecmds = {}
+        myclsname = self.object.__module__ + '.' + self.object.__name__
         basecmdinfo = []
-        for base in self.object.__bases__:
-            if hasattr(base, 'commands'):
-                basecmds.update(base.commands)
         if hasattr(self.object, 'commands'):
             n = 0
             for name, (args, doc) in sorted(self.object.commands.iteritems()):
-                if name in basecmds:
-                    basecmdinfo.append(name)
+                func = getattr(self.object, name)
+                funccls = func.__module__ + '.' + func.im_class.__name__
+                if funccls != myclsname:
+                    basecmdinfo.append((funccls, name))
                     continue
                 if n == 0:
                     self.add_line('**User methods**', '<autodoc>')
@@ -116,7 +115,7 @@ class DeviceDocumenter(ClassDocumenter):
                 n += 1
             if basecmdinfo:
                 self.add_line('Methods inherited from the base classes: ' +
-                              ', '.join('`.%s`' % name for name in basecmdinfo),
+                              ', '.join('`~%s.%s`' % i for i in basecmdinfo),
                               '<autodoc>')
         if getattr(self.object, 'attached_devices', None):
             self.add_line('**Attached devices**', '<autodoc>')
@@ -133,14 +132,10 @@ class DeviceDocumenter(ClassDocumenter):
                 self.add_line('', '<autodoc>')
                 self.add_line('   %s Type: %s.' %  (descr, atype), '<autodoc>')
             self.add_line('', '<autodoc>')
-        baseparams = {}
-        for base in self.object.__bases__:
-            if hasattr(base, 'parameters'):
-                baseparams.update(base.parameters)
         baseparaminfo = []
         n = 0
         for param, info in sorted(self.object.parameters.iteritems()):
-            if param in baseparams:
+            if info.classname != myclsname:
                 baseparaminfo.append((param, info))
                 continue
             if n == 0:
@@ -174,8 +169,9 @@ class DeviceDocumenter(ClassDocumenter):
             self.indent = orig_indent
             n += 1
         if baseparaminfo:
-            self.add_line('Parameters inherited from the base classes: ' + ', '.join(
-                '`.%s`' % name for (name, info) in baseparaminfo), '<autodoc>')
+            self.add_line('Parameters inherited from the base classes: ' +
+                          ', '.join('`~%s.%s`' % (info.classname or '', name)
+                          for (name, info) in baseparaminfo), '<autodoc>')
 
 def setup(app):
     app.add_directive_to_domain('py', 'parameter', PyParameter)

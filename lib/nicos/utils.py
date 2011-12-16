@@ -94,6 +94,7 @@ class Param(object):
         self.preinit = preinit
         self.prefercache = prefercache
         self.userparam = userparam
+        self.classname = None  # filled by DeviceMeta
 
     def __repr__(self):
         return '<Param info>'
@@ -161,33 +162,19 @@ class Value(object):
         return 'value %r' % self.name
 
 
-class MergedAttrsMeta(type):
+class DeviceMeta(type):
     """
-    A metaclass that allows defining dictionaries as class attributes that are
-    automatically merged with those of any ancestors.
+    A metaclass that automatically adds properties for the class' parameters,
+    and determines a list of user methods ("commands").
 
-    Consider a class hierarchy like the following:
-
-        class Root:
-            __metaclass__ = MergedAttrsMeta
-            __mergedattrs__ = ['test']
-
-            test = {'attr1': 'arbitrary value'}
-
-        class Child(Root):
-            test = {'attr2': 'arbitrary value'}
-
-        class Grandchild(Child):
-            test = {'attr3': 'arbitrary value'}
-
-    Now, Grandchild.test is a dictionary with all the keys defined by itself
-    and any of its parents, i.e. 'attr1', 'attr2' and 'attr3'.
-
-    Note that the subclasses don't have to set the __metaclass__, it is
-    automatically "inherited" from Root.
+    It also merges attached_devices, parameters and parameter_overrides defined
+    in the class with those defined in all base classes.
     """
 
     def __new__(mcs, name, bases, attrs):
+        if 'parameters' in attrs:
+            for pname, pinfo in attrs['parameters'].iteritems():
+                pinfo.classname = attrs['__module__'] + '.' + name
         newtype = type.__new__(mcs, name, bases, attrs)
         for entry in newtype.__mergedattrs__:
             newentry = {}
@@ -196,17 +183,6 @@ class MergedAttrsMeta(type):
                     newentry.update(getattr(base, entry))
             newentry.update(attrs.get(entry, {}))
             setattr(newtype, entry, newentry)
-        return newtype
-
-
-class DeviceMeta(MergedAttrsMeta):
-    """
-    A metaclass that automatically adds properties for the class' parameters,
-    and determines a list of user methods ("commands").
-    """
-
-    def __new__(mcs, name, bases, attrs):
-        newtype = MergedAttrsMeta.__new__(mcs, name, bases, attrs)
         for param, info in newtype.parameters.iteritems():
             # parameter names are always lowercased
             param = param.lower()
