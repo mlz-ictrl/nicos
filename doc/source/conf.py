@@ -17,6 +17,7 @@ release = '2.0a1'
 pygments_style = 'emacs'
 
 html_title = 'NICOS documentation'
+html_show_sourcelink = False
 html_theme_options = {'sidebarbgcolor': '#EDF1F3',
                       'relbarbgcolor': '#DBDEDE',
                       'relbartextcolor': 'black',
