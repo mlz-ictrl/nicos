@@ -9,22 +9,32 @@ source_suffix = '.rst'
 master_doc = 'index'
 default_role = 'obj'
 
-project = u'NICOS-ng'
-copyright = u'2011, NICOS-ng contributors'
-version = '2.0a1'
+project = u'NICOS'
+copyright = u'2011, FRM-II / NICOS contributors'
+version = '2.0'
 release = '2.0a1'
 
-html_theme_options = {'sidebarbgcolor': 'white',
-                      'relbarbgcolor': '#ccc',
+pygments_style = 'emacs'
+
+html_title = 'NICOS documentation'
+html_theme_options = {'sidebarbgcolor': '#EDF1F3',
+                      'relbarbgcolor': '#DBDEDE',
                       'relbartextcolor': 'black',
-                      'relbarlinkcolor': '#355f7c',
+                      'relbarlinkcolor': '#004682',
                       'bgcolor': 'white',
                       'footerbgcolor': 'white',
                       'bodyfont': 'Arial, sans-serif',
                       'headfont': 'Arial, sans-serif',
+                      'headbgcolor': 'white',
+                      'headtextcolor': '#004682',
+                      'headlinkcolor': 'white',
+                      'linkcolor': '#0072BD',
+                      'visitedlinkcolor': '#0072BD',
                       'sidebartextcolor': 'black',
-                      'sidebarlinkcolor': '#355f7c',
+                      'sidebarlinkcolor': '#0072BD',
                       'footertextcolor': 'black',
+                      'stickysidebar': True,
+                      'codebgcolor': '#F5F7F6',
                       }
 
 latex_documents = [

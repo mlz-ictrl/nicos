@@ -1,5 +1,5 @@
-Welcome to NICOS
-================
+Welcome to the NICOS documentation
+==================================
 
 Contents:
 
