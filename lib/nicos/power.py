@@ -40,7 +40,11 @@ from nicos.errors import MoveError, NicosError
 
 
 class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
-    """Base class for TACO power supplies."""
+    """Base class for TACO power supplies.
+
+    This is a common base class, please use either `CurrentSupply` or
+    `VoltageSupply` for concrete devices.
+    """
 
     parameters = {
         'ramp': Param('Ramp for the supply; can be zero to deactivate ramping',
@@ -101,8 +105,10 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
 
 
 class CurrentSupply(Supply):
+    """Concrete device for TACO current supplies."""
     taco_class = CurrentControl
 
 
 class VoltageSupply(Supply):
+    """Concrete device for TACO voltage supplies."""
     taco_class = VoltageControl

@@ -59,7 +59,8 @@ class TacoDevice(object):
     * `.doRead` (reads the TACO device)
     * `.doStatus` (returns status.OK for ON and DEVICE_NORMAL, ERROR otherwise)
     * `.doReset` (resets the TACO device)
-    * `.doReadUnit` (reads the unit parameter from the TACO device)
+    * `.doReadUnit` (reads the unit parameter from the TACO device if not
+      configured in setup)
 
     You can however override them and provide your own specialized
     implementation.
@@ -80,6 +81,7 @@ class TacoDevice(object):
 
     .. automethod:: _taco_guard
     .. automethod:: _taco_multitry
+    .. automethod:: _taco_update_resource
     .. automethod:: _create_client
     """
 
@@ -159,7 +161,10 @@ class TacoDevice(object):
         handling eventual errors.
 
         If no arguments are given, the values of *devname*, *class_*, *resetok*
-        and *timeout* are taken from class attributes and device parameters.
+        and *timeout* are taken from the class attributes *taco_class* and
+        *taco_resetok* as well as the device parameters *tacodevice* and
+        *tacotimeout*.  This is done during `.doPreinit`, so that you usually
+        don't have to call this method in TacoDevice subclasses.
 
         You can use this method to create additional TACO clients in a device
         implementation that uses more than one TACO device.
@@ -240,7 +245,9 @@ class TacoDevice(object):
     _taco_guard = _taco_guard_nolog
 
     def _taco_update_resource(self, resname, value):
-        """Update a TACO resource, switching the device off and on."""
+        """Update the TACO resource *resname* to *value* (both must be strings),
+        switching the device off and on.
+        """
         self.__lock.acquire()
         try:
             self.log.debug('TACO resource update: %s %s' %

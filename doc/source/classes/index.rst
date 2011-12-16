@@ -6,4 +6,7 @@ Device classes
    abstract
    detector
    axis
+   power
+   temperature
+   io
    ipc

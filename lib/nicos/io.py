@@ -35,13 +35,21 @@ from nicos.errors import NicosError
 
 
 class AnalogInput(TacoDevice, Readable):
-    """Base class for TACO AnalogInputs."""
+    """Base class for TACO AnalogInput devices.
+
+    This class can be used for concrete devices, or other more specific device
+    classes can be derived from it.
+    """
 
     taco_class = IO.AnalogInput
 
 
 class AnalogOutput(TacoDevice, HasLimits, Moveable):
-    """Base class for TACO AnalogOutputs."""
+    """Base class for TACO AnalogOutput devices.
+
+    This class can be used for concrete devices, or other more specific device
+    classes can be derived from it.
+    """
 
     parameters = {
         'loopdelay': Param('Wait loop delay', unit='s', default=0.3),
@@ -57,7 +65,11 @@ class AnalogOutput(TacoDevice, HasLimits, Moveable):
 
 
 class DigitalInput(TacoDevice, Readable):
-    """Base class for TACO DigitalInputs."""
+    """Base class for TACO DigitalInput devices.  The values are plain integers.
+
+    This class can be used for concrete devices, or other more specific device
+    classes can be derived from it.
+    """
 
     parameter_overrides = {
         'fmtstr': Override(default='%d'),
@@ -98,7 +110,11 @@ class PartialDigitalInput(NamedDigitalInput):
 
 
 class DigitalOutput(TacoDevice, Moveable):
-    """Base class for TACO DigitalOutputs."""
+    """Base class for TACO DigitalOutputs.
+
+    This class can be used for concrete devices, or other more specific device
+    classes can be derived from it.
+    """
 
     parameter_overrides = {
         'fmtstr': Override(default='%d'),
@@ -111,7 +127,7 @@ class DigitalOutput(TacoDevice, Moveable):
 
 
 class NamedDigitalOutput(DigitalOutput):
-    """A DigitalInput with numeric values mapped to names."""
+    """A DigitalOutput with numeric values mapped to names."""
 
     parameters = {
         'mapping': Param('A dictionary mapping integer values to names',
@@ -209,6 +225,8 @@ class BitsDigitalOutput(DigitalOutput):
 
 
 class MultiDigitalOutput(Moveable):
+    """Writes the same value to multiple digital outputs at once."""
+
     attached_devices = {
         'outputs': ([DigitalOutput], 'A list of digital outputs to '
                     'switch simultaneously'),

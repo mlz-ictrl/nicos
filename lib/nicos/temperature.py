@@ -39,6 +39,7 @@ from nicos.errors import TimeoutError
 
 
 class Sensor(TacoDevice, Readable):
+    """TACO temperature sensor device."""
     taco_class = Temperature.Sensor
 
     parameters = {
@@ -77,6 +78,7 @@ class Sensor(TacoDevice, Readable):
 
 
 class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
+    """TACO temperature controller device."""
     taco_class = Temperature.Controller
 
     attached_devices = {
