@@ -147,7 +147,7 @@ class DeviceDocumenter(ClassDocumenter):
         baseparaminfo = []
         n = 0
         for param, info in sorted(self.object.parameters.iteritems()):
-            if info.classname != myclsname:
+            if info.classname is not None and info.classname != myclsname:
                 baseparaminfo.append((param, info))
                 continue
             if n == 0:

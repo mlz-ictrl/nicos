@@ -51,6 +51,36 @@ class TacoDevice(object):
             # more overwritten methods
 
     i.e., put TacoDevice first in the base class list.
+
+    TacoDevice provides the following methods already:
+
+    * `.doVersion` (returns TACO device version)
+    * `.doPreinit` (creates the TACO device from the `tacodevice` parameter)
+    * `.doRead` (reads the TACO device)
+    * `.doStatus` (returns status.OK for ON and DEVICE_NORMAL, ERROR otherwise)
+    * `.doReset` (resets the TACO device)
+    * `.doReadUnit` (reads the unit parameter from the TACO device)
+
+    You can however override them and provide your own specialized
+    implementation.
+
+    TacoDevice subclasses will automatically log all calls to TACO if their
+    loglevel is DEBUG.
+
+    TacoDevice also has the following class attributes, which can be overridden
+    in derived classes:
+
+    * `taco_class` -- the Python class to use for the TACO client
+    * `taco_resetok` -- a boolean value indicating if the device can be reset
+      during connection if it is in error state
+    * `taco_errorcodes` -- a dictionary mapping TACO error codes to NICOS
+      exception classes
+
+    The following utility methods are provided:
+
+    .. automethod:: _taco_guard
+    .. automethod:: _taco_multitry
+    .. automethod:: _create_client
     """
 
     parameters = {
@@ -124,9 +154,15 @@ class TacoDevice(object):
 
     def _create_client(self, devname=None, class_=None, resetok=None,
                        timeout=None):
-        """
-        Create a new TACO client and initialize the device in a
-        consistent state, handling eventual errors.
+        """Create a new TACO client to the device given by *devname*, using the
+        Python class *class_*.  Initialize the device in a consistent state,
+        handling eventual errors.
+
+        If no arguments are given, the values of *devname*, *class_*, *resetok*
+        and *timeout* are taken from class attributes and device parameters.
+
+        You can use this method to create additional TACO clients in a device
+        implementation that uses more than one TACO device.
         """
         if devname is None:
             devname = self.tacodevice
@@ -186,7 +222,13 @@ class TacoDevice(object):
             self.__lock.release()
 
     def _taco_guard_nolog(self, function, *args):
-        """Try running the TACO function, and raise a NicosError on exception."""
+        """Try running the TACO function, and raise a NicosError on exception.
+
+        A more specific NicosError subclass is chosen if appropriate.  For
+        example, database-related errors are converted to `.CommunicationError`.
+        A TacoDevice subclass can add custom error code to exception class
+        mappings by using the `.taco_errorcodes` class attribute.
+        """
         self.__lock.acquire()
         try:
             return function(*args)
@@ -242,6 +284,14 @@ class TacoDevice(object):
         raise exc, None, tb
 
     def _taco_multitry(self, what, tries, func, *args):
+        """Try the TACO method *func* with given *args* for the number of times
+        given by *tries*.  On each failure, a warning log message is emitted.
+        If the device is in error state after a try, it is reset.  If the number
+        of tries is exceeded, the error from the call is re-raised.
+
+        *what* is a string that explains the call; it is used in the warning
+        messages.
+        """
         while True:
             tries -= 1
             try:
