@@ -402,7 +402,7 @@ class IPCModBusSerial(IPCModBusTacoless):
 class Coder(NicosCoder):
     """This class supports both IPC absolute and incremental coder cards.
 
-    It can be used with the `.Axis` class.
+    It can be used with the `nicos.axis.Axis` class.
     """
 
     parameters = {
@@ -523,7 +523,7 @@ class Coder(NicosCoder):
 class Motor(NicosMotor):
     """This class supports IPC 6-fold, 3-fold and single motor cards.
 
-    It can be used with the `.Axis` class.
+    It can be used with the `nicos.axis.Axis` class.
     """
 
     parameters = {

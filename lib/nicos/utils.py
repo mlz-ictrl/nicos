@@ -175,6 +175,11 @@ class DeviceMeta(type):
         if 'parameters' in attrs:
             for pname, pinfo in attrs['parameters'].iteritems():
                 pinfo.classname = attrs['__module__'] + '.' + name
+        for base in bases:
+            if hasattr(base, 'parameters'):
+                for pinfo in base.parameters.itervalues():
+                    if pinfo.classname is None:
+                        pinfo.classname = base.__module__ + '.' + base.__name__
         newtype = type.__new__(mcs, name, bases, attrs)
         for entry in newtype.__mergedattrs__:
             newentry = {}
