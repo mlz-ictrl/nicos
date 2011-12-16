@@ -81,9 +81,10 @@ class DeviceDocumenter(ClassDocumenter):
                 bases = [b.__module__ == '__builtin__' and
                          u':class:`%s`' % b.__name__ or
                          u':class:`~%s.%s`' % (b.__module__, b.__name__)
-                         for b in self.object.__bases__]
-                self.add_line('   Bases: %s' % ', '.join(bases),
-                              '<autodoc>')
+                         for b in self.object.__bases__ if b is not object]
+                if bases:
+                    self.add_line('   Bases: %s' % ', '.join(bases),
+                                  '<autodoc>')
 
     def document_members(self, all_members=False):
         if not issubclass(self.object, Device) and not \
