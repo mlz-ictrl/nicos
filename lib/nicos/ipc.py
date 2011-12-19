@@ -36,8 +36,8 @@ from RS485Client import RS485Client
 
 from nicos import status
 from nicos.taco import TacoDevice
-from nicos.utils import intrange, floatrange, oneofdict, oneof, none_or, closeSocket, \
-     lazy_property, runAsync, usermethod
+from nicos.utils import intrange, floatrange, oneofdict, oneof, none_or, \
+     closeSocket, lazy_property, runAsync, usermethod
 from nicos.device import Device, Readable, Moveable, Param, Override, \
      HasPrecision, HasLimits
 from nicos.errors import NicosError, CommunicationError, ProgrammingError, \
@@ -406,14 +406,20 @@ class Coder(NicosCoder):
     """
 
     parameters = {
-        'addr': Param('Bus address of the coder', type=int, mandatory=True),
-        'confbyte': Param('Configuration byte of the coder', type=intrange(0, 256),
-                    settable=True, prefercache=False),
-        'zerosteps': Param('Coder steps for physical zero', type=float, settable=True),
-        'slope': Param('Coder slope', type=float, settable=True, default=1.0),
-        'firmware': Param('Firmware version', type=int),
-        'steps': Param('Current Coder position in steps', type=int, settable=False),
-        'circular': Param('Wrap-around value for circular coders, if negative use it as +/-, else as 0..value, None disables this', type=none_or(float), settable=True, default=None),
+        'addr':      Param('Bus address of the coder', type=int,
+                           mandatory=True),
+        'confbyte':  Param('Configuration byte of the coder', settable=True,
+                           type=intrange(0, 256), prefercache=False),
+        'zerosteps': Param('Coder steps for physical zero', type=float,
+                           unit='steps', settable=True),
+        'slope':     Param('Coder slope', type=float, default=1.0,
+                           unit='steps/main', settable=True),
+        'firmware':  Param('Firmware version', type=int),
+        'steps':     Param('Current coder position in steps', type=int,
+                           settable=False),
+        'circular':  Param('Wrap-around value for circular coders, if negative '
+                           'use it as +/-, else as 0..value, None disables this',
+                           type=none_or(float), settable=True, default=None),
     }
 
     attached_devices = {
@@ -422,12 +428,13 @@ class Coder(NicosCoder):
 
     def doInit(self):
         bus = self._adevs['bus']
-        if self._mode!='simulation':
+        if self._mode != 'simulation':
             bus.ping(self.addr)
             if self.confbyte != self.doReadConfbyte():
-                self.doWriteConfbyte( self.confbyte )
+                self.doWriteConfbyte(self.confbyte)
                 self.log.warning('Confbyte mismatch between setup and card, '
-                                    'overriding Card value to 0x%02x' % self.confbyte)
+                                 'overriding card value to 0x%02x' %
+                                 self.confbyte)
         self._lasterror = None
 
     def doVersion(self):
@@ -486,7 +493,7 @@ class Coder(NicosCoder):
 
     def _fromsteps(self, value):
         return float((value - self.zerosteps) / self.slope)
-    
+
     def doReadSteps(self):
         bus = self._adevs['bus']
         try:
@@ -505,15 +512,19 @@ class Coder(NicosCoder):
         return value
 
     def doRead(self):
-        pos=self._fromsteps( self.doReadSteps())     # make sure to ask Hardware, don use cached value of steps
+        # make sure to ask hardware, don't use cached value of steps
+        pos = self._fromsteps(self.doReadSteps())
         self._params['steps'] = pos  # save last valid position in cache
         if self._cache:
             self._cache.put(self, 'steps', pos)
-        if self.circular!=None:
-            pos = pos % abs( self.circular )                    # make it wrap around
-            if self.circular<0 and pos>-0.5*self.circular:      # if we want +/- instead of 0 to x and value is >x/2
-                pos += self.circular                                    # subtract x to make it -x/2..0..x/2 (circular is negative here!)
-        self.log.debug( ('position is '+self.fmtstr) % pos)
+        if self.circular is not None:
+            # make it wrap around
+            pos = pos % abs(self.circular)
+            # if we want +/- instead of 0 to x and value is >x/2
+            if self.circular < 0 and pos > -0.5*self.circular:
+                # subtract x to make it -x/2..0..x/2 (circular is negative here)
+                pos += self.circular
+        self.log.debug('position is ' + self.format(pos))
         return pos
 
     def doStatus(self):
@@ -549,13 +560,14 @@ class Motor(NicosMotor):
         'addr':       Param('Bus address of the motor', type=int, mandatory=True),
         'timeout':    Param('Waiting timeout', type=int, unit='s', default=360),
         'unit':       Param('Motor unit', type=str, default='steps'),
-        'zerosteps':     Param('Motor steps for physical zero', type=float, settable=True),
+        'zerosteps':  Param('Motor steps for physical zero', type=float,
+                            unit='steps', settable=True),
         'slope':      Param('Motor slope', type=float, settable=True,
-                            default=1.0),
+                            unit='steps/main', default=1.0),
         # those parameters come from the card
         'firmware':   Param('Firmware version', type=int),
-        'steps':      Param('Last position in steps', settable=True, prefercache=False,
-                            type=intrange(0, 1000000)),
+        'steps':      Param('Last position in steps', settable=True,
+                            type=intrange(0, 1000000), prefercache=False),
         'speed':      Param('Motor speed (0..255)', settable=True,
                             type=intrange(0, 256)),
         'accel':      Param('Motor acceleration (0..255)', settable=True,
@@ -591,18 +603,19 @@ class Motor(NicosMotor):
 
     def doInit(self):
         bus = self._adevs['bus']
-        if self._mode!='simulation':
+        if self._mode != 'simulation':
             bus.ping(self.addr)
-            if self._hwtype=='single':
+            if self._hwtype == 'single':
                 if self.confbyte != self.doReadConfbyte():
-                    self.doWriteConfbyte( self.confbyte )
-                    self.log.warning('Confbyte mismatch between setup and card, '
-                                        'overriding Card value to 0x%02x' % self.confbyte)
+                    self.doWriteConfbyte(self.confbyte)
+                    self.log.warning('Confbyte mismatch between setup and card,'
+                                     ' overriding card value to 0x%02x' %
+                                     self.confbyte)
             # make sure that the card has the right "last steps"
             if self.steps != self.doReadSteps():
                 self.doWriteSteps(self.steps)
-                self.log.warning('Resetting stepper position to last known good '
-                                 'value %d' % self.steps)
+                self.log.warning('Resetting stepper position to last known '
+                                 'good value %d' % self.steps)
             self._type = 'stepper motor, ' + self._hwtype
         else:
             self._type = 'simulated stepper'
@@ -675,7 +688,7 @@ class Motor(NicosMotor):
                       'method to write to EEPROM')
 
     def doReadDivider(self):
-        if self._mode=='simulation':
+        if self._mode == 'simulation':
             return -1   # can't determine value in simulation mode!
         try:
             return self._adevs['bus'].get(self.addr, 144, maxtries=1)
@@ -939,17 +952,20 @@ class Motor(NicosMotor):
         return st, msg[2:]
 
     def doSetPosition(self, target):
-        ''' adjust the current stepper position of the IPC-stepper card to match the given position
-        This is in contrast to the normal behaviour which just adjusts the zerosteps
-        Bit IPC-Cards have a limited range so it is crucial to stay within that
-        so we 'set' the position of the card instead of adjusting our zerostepst....'''
+        """Adjust the current stepper position of the IPC-stepper card to match
+        the given position.
+
+        This is in contrast to the normal behaviour which just adjusts the
+        zerosteps, but IPC cards have a limited range, so it is crucial to stay
+        within that.  So we 'set' the position of the card instead of adjusting
+        our zerosteps.
+        """
         self.log.debug('setPosition: %s' % target)
-        value = self._tosteps( target )
-        self.doWriteSteps( value )
+        value = self._tosteps(target)
+        self.doWriteSteps(value)
         self._params['steps'] = value  # save last valid position in cache
         if self._cache:
             self._cache.put(self, 'steps', value)
-
 
     @usermethod
     def _store(self):
