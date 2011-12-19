@@ -76,14 +76,14 @@ class Beckhoff(Device):
                 while True:
                     self.log.debug('Communicate: innermost loop')
                     sent = 0
-                    while sent<len( request ):
+                    while sent < len( request ):
                         self.log.debug('Communicate: sending request')
                         try:
                             sent += sock.send( request[sent:] )
                             if sent == 0:
                                 self.log.debug('Communicate: sent nada !!!')
                                 break	# connection broken, so do a reconnect
-                        except:
+                        except Exception:
                             self.log.debug('Communicate: sending failed, closing down')
                             sent = 0
                             break
@@ -100,7 +100,7 @@ class Beckhoff(Device):
                     self.log.debug('Communicate: read 7 bytes')
                     try:
                         d = unpack('>HHHB',data) # transaction ID, protocol ID, numbytes, subunit
-                    except:
+                    except Exception:
                         self.log.debug('Communicate: unpacking failed !')
                         break
                     self.log.debug('Communicate: reading %d more bytes'%(d[2]-1))
@@ -122,11 +122,11 @@ class Beckhoff(Device):
                 self.log.debug('Communicate: Problem: closing socket')
                 # we get here if the connection got broken somehow
                 try: sock.shutdown( socket.SHUT_RDWR )
-                except: pass
+                except Exception: pass
                 try: sock.close() # be kind and close down everything
-                except: pass
+                except Exception: pass
                 self.log.debug('Communicate: socket closed, looping outer loop again')
-            except:
+            except Exception:
                 self.log.debug('Communicate: Something bad happened, relooping....')
         self.log.debug('Communicate: This should never happen: End of While True: Loop !!!')
 
@@ -136,28 +136,28 @@ class Beckhoff(Device):
     def ReadBitOutput( self, addr ):
         request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 1, addr, 1 ) # can read more than 1 bit !
         response = self.communicate( request )
-        FOE, BC, status = unpack('>BBB', response )
+        FOE, _, status = unpack('>BBB', response )
         if FOE == 1: return status
         raise Exception ('Returned function should be 1 but is 0x%02x!'%FOE)
 
     def ReadBitInput( self, addr ):
         request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 2, addr, 1 ) # can read more than 1 bit !
         response = self.communicate( request )
-        FOE, BC, status = unpack('>BBB', response )
+        FOE, _, status = unpack('>BBB', response )
         if FOE == 2: return status
         raise Exception ('Returned function should be 2 but is 0x%02x!'%FOE)
 
     def ReadWordOutput( self, addr ):
         request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 3, addr, 1 ) # can read more than 1 word !
         response = self.communicate( request )
-        FOE, BC, status = unpack('>BBH', response )
+        FOE, _, status = unpack('>BBH', response )
         if FOE == 3: return status
         raise Exception ('Returned function should be 3 but is 0x%02x!'%FOE)
 
     def ReadWordInput( self, addr ):
         request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 4, addr, 1 ) # can read more than 1 word !
         response = self.communicate( request )
-        FOE, BC, status = unpack('>BBH', response )
+        FOE, _, status = unpack('>BBH', response )
         if FOE == 4: return status
         raise Exception ('Returned function should be 4 but is 0x%02x!'%FOE)
 
@@ -165,7 +165,7 @@ class Beckhoff(Device):
         value = 0xff00 if value else 0x0000 # only 0x0 or 0xff00 are allowed
         request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 5, addr, value ) # can write exactly 1 word !
         response = self.communicate( request )
-        FOE, addr, status = unpack('>BHH', response )
+        FOE, _, status = unpack('>BHH', response )
         if FOE == 5: return status
         raise Exception ('Returned function should be 5 but is 0x%02x!'%FOE)
 
@@ -174,13 +174,13 @@ class Beckhoff(Device):
         request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 6, addr, value ) # can write exactly 1 word !
         response = self.communicate( request )
         try:
-            FOE, addr, status = unpack('>BHH', response )
-        except:
+            FOE, _, status = unpack('>BHH', response )
+        except Exception:
             self.log.error( self.dp(request),'->',self.dp(response) )
             raise
         if FOE == 6: return status
         raise Exception ('Returned function should be 6 but is 0x%02x!'%FOE)
-
+        
     def ReadBitsOutput( self, addr, num ):
         if num > 2000: raise ValueError('%d Bits are too much for ReadBitsOutput!'%num)
         request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 1, addr, num )
@@ -226,7 +226,7 @@ class Beckhoff(Device):
         b = 0
         for i in range(len(values)):
             if values[i]:
-                b |= 1<< (i & 7)
+                b |= 1 << (i & 7)
             if i&7 == 7:
                 data.append(b)
                 b = 0
@@ -238,6 +238,7 @@ class Beckhoff(Device):
         FOE, addr, status = unpack('>BHH', response )
         if FOE == 15: return
         raise Exception ('Returned function should be 15 but is 0x%02x!'%FOE)
+        return addr
 
     def WriteWordsOutput( self, addr, values ):
         values = tuple([int(v) for v in values])
@@ -246,15 +247,15 @@ class Beckhoff(Device):
         response = self.communicate( request )
         try:
             data = unpack('>HHHBBHHB%dB'%m, response )
-        except:
+        except Exception:
             self.log.error( self.dp(request),'->',self.dp(response) )
             raise
         FOE = data[0]
         if FOE == 16: return
         raise Exception ('Returned function should be 16 but is 0x%02x!'%FOE)
 
-    ''' Beckhoff registers consist of a pair of two adresse: at baseaddr is the index+r/Wflag, at baseaddr+1 is the data
-    To write you have to add 0x800 to the addr'''
+    #''' Beckhoff registers consist of a pair of two adresse: at baseaddr is the index+r/Wflag, at baseaddr+1 is the data
+    #To write you have to add 0x800 to the addr'''
     def ReadReg( self, baseaddr, reg ):
         self.WriteWordOutput( baseaddr+0x800, 0x80+(reg & 0x3f) )
         return self.ReadWordInput( baseaddr+1 )
@@ -280,7 +281,8 @@ class MonoWechsler( Device ):
     }
     positions = ['111','011','110','101'] # Clockwise
     monos = ['Cu', 'Si','PG','Heusler'] # assigned monos
-    shields = ['111','011','110','101'] # which magzinslot after changing  (e.g. Put a PE dummy to 101 and set this to ('101,'*4).split(',')
+    shields = ['111','011','110','101'] # which magzinslot after changing 
+                        #    (e.g. Put a PE dummy to 101 and set this to ('101,'*4).split(',')
 
     @property
     def bhd(self):  # BeckHoffDevice
@@ -377,11 +379,11 @@ class MonoWechsler( Device ):
     def Monogreifer_011( self ):
         try:    # first readout might fail, but second should never!
             l = self.Monogreifer_011_Links()
-        except:
+        except Exception:
             l = self.Monogreifer_011_Links()
         try:
             r = self.Monogreifer_011_Rechts()
-        except:
+        except Exception:
             r = self.Monogreifer_011_Rechts()
         if  l and r:
             return True
@@ -389,11 +391,11 @@ class MonoWechsler( Device ):
     def Monogreifer_101( self ):
         try:    # first readout might fail, but second should never!
             l = self.Monogreifer_101_Links()
-        except:
+        except Exception:
             l = self.Monogreifer_101_Links()
         try:
             r = self.Monogreifer_101_Rechts()
-        except:
+        except Exception:
             r = self.Monogreifer_101_Rechts()
         if  l and r:
             return True
@@ -401,11 +403,11 @@ class MonoWechsler( Device ):
     def Monogreifer_110( self ):
         try:    # first readout might fail, but second should never!
             l = self.Monogreifer_110_Links()
-        except:
+        except Exception:
             l = self.Monogreifer_110_Links()
         try:
             r = self.Monogreifer_110_Rechts()
-        except:
+        except Exception:
             r = self.Monogreifer_110_Rechts()
         if  l and r:
             return True
@@ -413,11 +415,11 @@ class MonoWechsler( Device ):
     def Monogreifer_111( self ):
         try:    # first readout might fail, but second should never!
             l = self.Monogreifer_111_Links()
-        except:
+        except Exception:
             l = self.Monogreifer_111_Links()
         try:
             r = self.Monogreifer_111_Rechts()
-        except:
+        except Exception:
             r = self.Monogreifer_111_Rechts()
         if  l and r:
             return True
@@ -461,22 +463,22 @@ class MonoWechsler( Device ):
     def Liftgreifer_geschlossen( self ):
         try:
             l = self.Liftgreifer_links_geschlossen()
-        except:
+        except Exception:
             l = self.Liftgreifer_links_geschlossen()
         try:
             r = self.Liftgreifer_rechts_geschlossen()
-        except:
+        except Exception:
             r = self.Liftgreifer_rechts_geschlossen()
         return (l and r)
     
     def Liftgreifer_offen( self ):
         try:
             l = self.Liftgreifer_links_offen()
-        except:
+        except Exception:
             l = self.Liftgreifer_links_offen()
         try:
             r = self.Liftgreifer_rechts_offen()
-        except:
+        except Exception:
             r = self.Liftgreifer_rechts_offen()
         return (l and r)
     
@@ -543,7 +545,7 @@ class MonoWechsler( Device ):
     def MonoID( self ):
         try:
             r = ( self.MonoID1() and '1' or '0')+( self.MonoID2() and '1' or '0')+( self.MonoID3() and '1' or '0')
-        except:
+        except Exception:
             r = ( self.MonoID1() and '1' or '0')+( self.MonoID2() and '1' or '0')+( self.MonoID3() and '1' or '0')
         return r
 
@@ -633,11 +635,11 @@ class MonoWechsler( Device ):
         return False # dont mess with index bytes !
     
     def SecShutter_is_closed( self ):
-        #~ return self.KL2552_0()   ## XXX need to wire first !!!
+        #~ return self.KL2552_0()   # XXX need to wire first !!!
         return True
 
     def Freigabe_vom_Motorrahmen( self ):
-        #~ return self.KL2552_1()   ## XXX need to wire first !!!
+        #~ return self.KL2552_1()   # XXX need to wire first !!!
         return True
         
     # spare outs (from left to right...)
@@ -718,7 +720,7 @@ class MonoWechsler( Device ):
             self.Lift_Bremse( True )                      # aktiviere Bremse
             self.bhd.WriteWordOutput( 0x804, 0 ) # loesche Enable-Bit Kanal1
         else:
-            if speed<0: speed = speed + 65536   # hack around signed/unsigned stuff...
+            if speed < 0: speed = speed + 65536   # hack around signed/unsigned stuff...
             self.bhd.WriteWordOutput( 0x805, speed )
             self.bhd.WriteWordOutput( 0x804, 0x20 ) # setze Enable-Bit und fahre los
             self.Lift_Bremse( False )      # 'Hand'bremse loesen nicht vergessen!
@@ -747,7 +749,7 @@ class MonoWechsler( Device ):
         Motor( speed )  # losfahren:
         def mygoal( func ):
             try: return func()
-            except: return func()
+            except Exception: return func()
         while not( mygoal(Goal)            ):    # not there yet ?
             if timeout and timeoutime < time(): # time is up?
                 Motor( 0 )        # STOP
@@ -804,7 +806,7 @@ class MonoWechsler( Device ):
         try:  #not all monos have foci
             maw(mfh,0); mfh.power = 0  # go to known good value and switch off
             maw(mfv,0); mfv.power = 0
-        except: pass
+        except Exception: pass
         # now switch on the enable signal from Motorrahmen to bhd
         #XXX TODO !
         sleep(0.1)
@@ -820,7 +822,7 @@ class MonoWechsler( Device ):
         try:
             mfh.power = 1
             mfv.power = 1
-        except:
+        except Exception:
             pass
      
     # robust higher level functions
@@ -833,7 +835,7 @@ class MonoWechsler( Device ):
             self.Fahre( self.FahreMagazinMotor, lambda: not(self.Magazin_Referenzposition()), 3000, 6) 
             self.Fahre( self.FahreMagazinMotor, self.Magazin_Referenzposition, -500, 6) 
             return self.MagazinSelect( pos )
-        elif mpos<currentpos:
+        elif mpos < currentpos:
             self.Fahre( self.FahreMagazinMotor, lambda: not(self.Magazin_Referenzposition()), -3000, 6) 
             self.Fahre( self.FahreMagazinMotor, self.Magazin_Referenzposition, -10000, 30) 
             self.Fahre( self.FahreMagazinMotor, lambda: not(self.Magazin_Referenzposition()), 3000, 6) 
@@ -904,6 +906,8 @@ class MonoWechsler( Device ):
             raise HWError( self, 'Monokupplung did not close within 5s!')
 
     def CheckMagazinSlotEmpty( self, slot ): # checks if the given slot in the magazin is empty
+        if not( slot in self.positions ):
+            raise UsageError( self, 'Got Illegal MonoIdCode to check')
         if slot == '111' and ( self.Monogreifer_111_Links() or self.Monogreifer_111_Rechts() ):
             raise HWError( self, 'Magazin for Position 111 is already occupied, please check!')
         if slot == '110' and ( self.Monogreifer_110_Links() or self.Monogreifer_110_Rechts() ):
@@ -914,6 +918,8 @@ class MonoWechsler( Device ):
             raise HWError( self, 'Magazin for Position 011 is already occupied, please check!')
 
     def CheckMagazinSlotUsed( self, slot ): # checks if the given slot in the magazin is used (contains a monoframe)
+        if not( slot in self.positions ):
+            raise UsageError( self, 'Got Illegal MonoIdCode to check')
         if slot == '111' and not( self.Monogreifer_111_Links() and self.Monogreifer_111_Rechts() ):
             raise HWError( self, 'Magazin for Position 111 is empty, please check!')
         if slot == '110' and not( self.Monogreifer_110_Links() and self.Monogreifer_110_Rechts() ):
@@ -1010,10 +1016,10 @@ class MonoWechsler( Device ):
         
         if whereto != 'None':
             monocode_new = self.positions[ self.monos.index( whereto ) ]
-            CheckMagazinSlotUsed( monocode_new ) # if it's in the magazin it's not on the table
+            self.CheckMagazinSlotUsed( monocode_new ) # if it's in the magazin it's not on the table
         if self.mono_on_table != 'None':
             monocode_old = self.positions[ self.monos.index( self.mono_on_table ) ]
-            CheckMagazinSlotEmpty( monocode_old ) # if it's on the table, it isnt in the magazin
+            self.CheckMagazinSlotEmpty( monocode_old ) # if it's on the table, it isnt in the magazin
         
         # Ok, so first thing is to move the mono (if any) from the table to the magazin
         if self.mono_on_table != 'None':
