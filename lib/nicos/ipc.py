@@ -506,6 +506,9 @@ class Coder(NicosCoder):
 
     def doRead(self):
         pos=self._fromsteps( self.doReadSteps())     # make sure to ask Hardware, don use cached value of steps
+        self._params['steps'] = pos  # save last valid position in cache
+        if self._cache:
+            self._cache.put(self, 'steps', pos)
         if self.circular!=None:
             pos = pos % abs( self.circular )                    # make it wrap around
             if self.circular<0 and pos>-0.5*self.circular:      # if we want +/- instead of 0 to x and value is >x/2
@@ -934,9 +937,17 @@ class Motor(NicosMotor):
         return st, msg[2:]
 
     def doSetPosition(self, target):
+        ''' adjust the current stepper position of the IPC-stepper card to match the given position
+        This is in contrast to the normal behaviour which just adjusts the offset
+        Bit IPC-Cards have a limited range so it is crucial to stay within that
+        so we 'set' the position of the card instead of adjusting our offsett....'''
         self.log.debug('setPosition: %s' % target)
-        steps = self._adevs['bus'].get(self.addr, 130)
-        self.offset = steps - target * self.slope
+        value = self._tosteps( target )
+        self.doWriteSteps( value )
+        self._params['steps'] = value  # save last valid position in cache
+        if self._cache:
+            self._cache.put(self, 'steps', value)
+
 
     @usermethod
     def _store(self):
