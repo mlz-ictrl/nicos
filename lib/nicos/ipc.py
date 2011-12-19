@@ -409,7 +409,7 @@ class Coder(NicosCoder):
         'addr': Param('Bus address of the coder', type=int, mandatory=True),
         'confbyte': Param('Configuration byte of the coder', type=intrange(0, 256),
                     settable=True, prefercache=False),
-        'offset': Param('Coder offset', type=float, settable=True),
+        'zerosteps': Param('Coder steps for physical zero', type=float, settable=True),
         'slope': Param('Coder slope', type=float, settable=True, default=1.0),
         'firmware': Param('Firmware version', type=int),
         'steps': Param('Current Coder position in steps', type=int, settable=False),
@@ -485,7 +485,7 @@ class Coder(NicosCoder):
         sleep(0.5)
 
     def _fromsteps(self, value):
-        return float((value - self.offset) / self.slope)
+        return float((value - self.zerosteps) / self.slope)
     
     def doReadSteps(self):
         bus = self._adevs['bus']
@@ -549,7 +549,7 @@ class Motor(NicosMotor):
         'addr':       Param('Bus address of the motor', type=int, mandatory=True),
         'timeout':    Param('Waiting timeout', type=int, unit='s', default=360),
         'unit':       Param('Motor unit', type=str, default='steps'),
-        'offset':     Param('Motor offset', type=float, settable=True),
+        'zerosteps':     Param('Motor steps for physical zero', type=float, settable=True),
         'slope':      Param('Motor slope', type=float, settable=True,
                             default=1.0),
         # those parameters come from the card
@@ -616,10 +616,10 @@ class Motor(NicosMotor):
             return [('IPC motor card', str(version))]
 
     def _tosteps(self, value):
-        return int(float(value) * self.slope + self.offset)
+        return int(float(value) * self.slope + self.zerosteps)
 
     def _fromsteps(self, value):
-        return float((value - self.offset) / self.slope)
+        return float((value - self.zerosteps) / self.slope)
 
     @lazy_property
     def _hwtype(self):
@@ -940,9 +940,9 @@ class Motor(NicosMotor):
 
     def doSetPosition(self, target):
         ''' adjust the current stepper position of the IPC-stepper card to match the given position
-        This is in contrast to the normal behaviour which just adjusts the offset
+        This is in contrast to the normal behaviour which just adjusts the zerosteps
         Bit IPC-Cards have a limited range so it is crucial to stay within that
-        so we 'set' the position of the card instead of adjusting our offsett....'''
+        so we 'set' the position of the card instead of adjusting our zerostepst....'''
         self.log.debug('setPosition: %s' % target)
         value = self._tosteps( target )
         self.doWriteSteps( value )
