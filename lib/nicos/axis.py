@@ -276,7 +276,7 @@ class Axis(BaseAxis):
             return False
         for obs in self._adevs['obs']:
             diff = abs(target - obs.read())
-            if maxdiff > 0:# and diff > maxdiff:
+            if maxdiff > 0 and diff > maxdiff:
                 if error:
                     self._errorstate = MoveError(self,
                         'precision error (%s): difference %f, maximum %f' %

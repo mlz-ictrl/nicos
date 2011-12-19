@@ -501,7 +501,7 @@ class Coder(NicosCoder):
             # record last error to return it from doStatus()
             self._lasterror = str(e)
             raise
-        self.log.debug('value is %d' % value)
+        self.log.debug('value is %d steps' % value)
         return value
 
     def doRead(self):
@@ -513,6 +513,7 @@ class Coder(NicosCoder):
             pos = pos % abs( self.circular )                    # make it wrap around
             if self.circular<0 and pos>-0.5*self.circular:      # if we want +/- instead of 0 to x and value is >x/2
                 pos += self.circular                                    # subtract x to make it -x/2..0..x/2 (circular is negative here!)
+        self.log.debug( ('position is '+self.fmtstr) % pos)
         return pos
 
     def doStatus(self):
@@ -786,11 +787,11 @@ class Motor(NicosMotor):
 
     def doStart(self, target):
         target = self._tosteps(target)
-        self.log.debug('target is %d' % target)
+        self.log.debug('target is %d steps' % target)
         bus = self._adevs['bus']
         self.doWait()
         pos = self._tosteps(self.read(0))
-        self.log.debug('pos is %d' % pos)
+        self.log.debug('pos is %d steps' % pos)
         diff = target - pos
         if diff == 0:
             return
