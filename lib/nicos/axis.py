@@ -144,12 +144,25 @@ class Axis(BaseAxis):
             raise self._errorstate
         # XXX read() or read(0)
         return self._adevs['coder'].read() - self.offset
+    
+    def GetReading( self ):
+        ''' find a good value from the observers, taking into account that they usually have lower resolution,
+        so we have to average of a few readings to get a (more) precise value'''
+        if ((self._adevs['coder']==self._adevs['motor']) or  # coder!= motor -> use coder (its more precise!)
+            (len(self._adevs['obs'])==0)):                                      # no observers, rely on coder (even if its == motor)
+                return self._adevs['coder'].read(0)                     # read the coder
+        pos=0
+        rounds=100                      # probably make this a parameter.... , could also be a par of the obs-device.... someone please decide!
+        for i in range(rounds):
+            for o in self._adevs['obs']:
+                pos+=o.doRead()/float(rounds*len(self._adevs['obs']))
+        return pos
 
     def doReset(self):
         """Resets the motor/coder controller."""
         if self.status(0)[0] != status.BUSY:
             self._errorstate = None
-        self._adevs['motor'].setPosition(self._adevs['coder'].read(0))
+        self._adevs['motor'].setPosition(self.GetReading())
 
     def doStop(self):
         """Stops the movement of the motor."""
@@ -338,7 +351,7 @@ class Axis(BaseAxis):
                     self.log.debug('target not reached, retrying')
                     # target not reached, get the current position,
                     # sets the motor to this position and restart it
-                    self._adevs['motor'].setPosition(pos + self.offset)
+                    self._adevs['motor'].setPosition(self.GetReading()) # GetReading is the 'real' value, may ask the coder again (so could slow down!)
                     # XXX exception handling!
                     self._adevs['motor'].start(target + self.offset)
                     maxtries -= 1
