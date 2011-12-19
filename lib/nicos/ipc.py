@@ -593,10 +593,11 @@ class Motor(NicosMotor):
         bus = self._adevs['bus']
         if self._mode!='simulation':
             bus.ping(self.addr)
-            if self.confbyte != self.doReadConfbyte():
-                self.doWriteConfbyte( self.confbyte )
-                self.log.warning('Confbyte mismatch between setup and card, '
-                                    'overriding Card value to 0x%02x' % self.confbyte)
+            if self._hwtype=='single':
+                if self.confbyte != self.doReadConfbyte():
+                    self.doWriteConfbyte( self.confbyte )
+                    self.log.warning('Confbyte mismatch between setup and card, '
+                                        'overriding Card value to 0x%02x' % self.confbyte)
             # make sure that the card has the right "last steps"
             if self.steps != self.doReadSteps():
                 self.doWriteSteps(self.steps)
