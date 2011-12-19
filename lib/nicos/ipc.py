@@ -408,7 +408,7 @@ class Coder(NicosCoder):
     parameters = {
         'addr': Param('Bus address of the coder', type=int, mandatory=True),
         'confbyte': Param('Configuration byte of the coder', type=intrange(0, 256),
-                    settable=True),
+                    settable=True, prefercache=False),
         'offset': Param('Coder offset', type=float, settable=True),
         'slope': Param('Coder slope', type=float, settable=True, default=1.0),
         'firmware': Param('Firmware version', type=int),
@@ -422,7 +422,12 @@ class Coder(NicosCoder):
 
     def doInit(self):
         bus = self._adevs['bus']
-        bus.ping(self.addr)
+        if self._mode!='simulation':
+            bus.ping(self.addr)
+            if self.confbyte != self.doReadConfbyte():
+                self.doWriteConfbyte( self.confbyte )
+                self.log.warning('Confbyte mismatch between setup and card, '
+                                    'overriding Card value to 0x%02x' % self.confbyte)
         self._lasterror = None
 
     def doVersion(self):
@@ -545,7 +550,7 @@ class Motor(NicosMotor):
                             default=1.0),
         # those parameters come from the card
         'firmware':   Param('Firmware version', type=int),
-        'steps':      Param('Last position in steps', settable=True,
+        'steps':      Param('Last position in steps', settable=True, prefercache=False,
                             type=intrange(0, 1000000)),
         'speed':      Param('Motor speed (0..255)', settable=True,
                             type=intrange(0, 256)),
@@ -582,13 +587,20 @@ class Motor(NicosMotor):
 
     def doInit(self):
         bus = self._adevs['bus']
-        bus.ping(self.addr)
-        # make sure that the card has the right "last steps"
-        if self.steps != self.doReadSteps():
-            self.doWriteSteps(self.steps)
-            self.log.warning('Resetting stepper position to last known good '
-                             'value %d' % self.steps)
-        self._type = 'stepper motor, ' + self._hwtype
+        if self._mode!='simulation':
+            bus.ping(self.addr)
+            if self.confbyte != self.doReadConfbyte():
+                self.doWriteConfbyte( self.confbyte )
+                self.log.warning('Confbyte mismatch between setup and card, '
+                                    'overriding Card value to 0x%02x' % self.confbyte)
+            # make sure that the card has the right "last steps"
+            if self.steps != self.doReadSteps():
+                self.doWriteSteps(self.steps)
+                self.log.warning('Resetting stepper position to last known good '
+                                 'value %d' % self.steps)
+            self._type = 'stepper motor, ' + self._hwtype
+        else:
+            self._type = 'simulated stepper'
 
     def doVersion(self):
         try:
@@ -658,6 +670,8 @@ class Motor(NicosMotor):
                       'method to write to EEPROM')
 
     def doReadDivider(self):
+        if self._mode=='simulation':
+            return -1   # can't determine value in simulation mode!
         try:
             return self._adevs['bus'].get(self.addr, 144, maxtries=1)
         except InvalidCommandError:

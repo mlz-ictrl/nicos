@@ -25,7 +25,7 @@
 import sys, os
 from os import path
 
-current_version = os.popen('git describe --always --dirty').read().strip()
+current_version = os.popen('git describe --always').read().strip()
 
 for root, dirs, files in os.walk(sys.argv[1]):
     for file in files:
