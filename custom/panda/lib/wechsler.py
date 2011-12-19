@@ -269,7 +269,8 @@ class Beckhoff(Device):
 
 class MonoWechsler( Device ):
     attached_devices = {
-        'beckhoff': Beckhoff,
+        'beckhoff': (Beckhoff,'Beckhoff device used for controling al the nifty '
+                                                    'bits\'n pieces of the Monochanger'),
     }
     
     parameters = {
