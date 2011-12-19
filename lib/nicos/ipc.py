@@ -36,7 +36,7 @@ from RS485Client import RS485Client
 
 from nicos import status
 from nicos.taco import TacoDevice
-from nicos.utils import intrange, floatrange, oneofdict, oneof, closeSocket, \
+from nicos.utils import intrange, floatrange, oneofdict, oneof, none_or, closeSocket, \
      lazy_property, runAsync, usermethod
 from nicos.device import Device, Readable, Moveable, Param, Override, \
      HasPrecision, HasLimits
@@ -412,6 +412,8 @@ class Coder(NicosCoder):
         'offset': Param('Coder offset', type=float, settable=True),
         'slope': Param('Coder slope', type=float, settable=True, default=1.0),
         'firmware': Param('Firmware version', type=int),
+        'steps': Param('Current Coder position in steps', type=int, settable=False),
+        'circular': Param('Wrap-around value for circular coders, if negative use it as +/-, else as 0..value, None disables this', type=none_or(float), settable=True, default=None),
     }
 
     attached_devices = {
@@ -479,8 +481,8 @@ class Coder(NicosCoder):
 
     def _fromsteps(self, value):
         return float((value - self.offset) / self.slope)
-
-    def doRead(self):
+    
+    def doReadSteps(self):
         bus = self._adevs['bus']
         try:
             try:
@@ -495,7 +497,15 @@ class Coder(NicosCoder):
             self._lasterror = str(e)
             raise
         self.log.debug('value is %d' % value)
-        return self._fromsteps(value)
+        return value
+
+    def doRead(self):
+        pos=self._fromsteps( self.doReadSteps())     # make sure to ask Hardware, don use cached value of steps
+        if self.circular!=None:
+            pos = pos % abs( self.circular )                    # make it wrap around
+            if self.circular<0 and pos>-0.5*self.circular:      # if we want +/- instead of 0 to x and value is >x/2
+                pos += self.circular                                    # subtract x to make it -x/2..0..x/2 (circular is negative here!)
+        return pos
 
     def doStatus(self):
         if self._lasterror:
