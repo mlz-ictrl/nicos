@@ -278,7 +278,7 @@ class MonoWechsler( Device ):
                           type=oneof('PG','Si','Cu','Heusler','None'), default='None', settable=True),
     }
     positions=['111','011','110','101'] # Clockwise
-    monos=['PG', 'Si','Heusler','Cu'] # assigned monos
+    monos=['Cu', 'Si','PG','Heusler'] # assigned monos
     shields=['111','011','110','101'] # which magzinslot after changing  (e.g. Put a pe dummy to 101 and set this to ('101,'*4).split(',')
 
     @property
