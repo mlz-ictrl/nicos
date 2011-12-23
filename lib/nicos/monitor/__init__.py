@@ -380,6 +380,7 @@ class Monitor(BaseCacheClient):
                 if value is None:
                     strvalue = '----'
                 else:
+                    if isinstance(fvalue, list): fvalue = tuple(fvalue)
                     try:
                         strvalue = field['format'] % fvalue
                     except Exception, e:
@@ -403,11 +404,13 @@ class Monitor(BaseCacheClient):
                 if value is not None:
                     field['format'] = value
                 if field['value'] is not None and field['item'] < 0:
+                    fvalue = field['value']
+                    if isinstance(fvalue, list): fvalue = tuple(fvalue)
                     try:
                         self.setLabelText(field['valuelabel'], field['format'] %
-                                          field['value'])
+                                          fvalue)
                     except Exception:
-                        self.setLabelText(field['valuelabel'], str(field['value']))
+                        self.setLabelText(field['valuelabel'], str(fvalue))
 
     def _process_warnings(self, key, info, value):
         if info['setup']:
