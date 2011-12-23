@@ -31,7 +31,7 @@ import time
 import PowerSupply
 
 from nicos.device import Moveable, Param, Override
-from nicos.utils import usermethod
+from nicos.utils import usermethod, oneof
 from nicos.taco import TacoDevice
 from nicos.errors import UsageError
 
@@ -43,22 +43,28 @@ class HePolarizer(TacoDevice, Moveable):
 
     taco_class = PowerSupply.VoltageControl
 
+    parameters = {
+        'current': Param('Current polarization direction', settable=True,
+                         type=oneof(str, 'up', 'down')),
+    }
+
     parameter_overrides = {
         'abslimits': Override(mandatory=False, default=('down', 'up')),
     }
 
     def doInit(self):
-        self._current = 'up'
+        #self.current = 'up'
+        pass
 
     @usermethod
     def define(self, value):
         """Define the current polarizing direction as 'up' or 'down'."""
         if value not in ['up', 'down']:
             raise UsageError(self, "value must be 'up' or 'down'")
-        self._current = value
+        self.current = value
 
     def doRead(self):
-        return self._current
+        return self.current
 
     def doReadUnit(self):
         return ''
@@ -66,11 +72,11 @@ class HePolarizer(TacoDevice, Moveable):
     def doStart(self, value):
         if value not in ['up', 'down']:
             raise UsageError(self, "value must be 'up' or 'down'")
-        if self._current == value:
+        if self.current == value:
             return
         curvoltage = self._taco_guard(self._dev.read)
         if curvoltage > 4:
             self._taco_guard(self._dev.write, 0)
         else:
             self._taco_guard(self._dev.write, 5)
-        self._current = value
+        self.current = value
