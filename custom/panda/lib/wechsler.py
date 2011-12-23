@@ -4,7 +4,7 @@
 #   $Id$
 #
 # Author:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # NICOS-NG, the Networked Instrument Control System of the FRM-II
 # Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
@@ -29,19 +29,18 @@
 
 __author__  = "Enrico Fauhaber $Author$"
 __date__    = "$Date$"
-__version__ = "0.01alpha"
+__version__ = "0.1beta"
 
 from time import sleep, time
-from struct import pack, unpack, calcsize
+from struct import pack, unpack
 import socket
 import random
 
-from nicos import status
+#~ from nicos import status
 #from nicos.taco import TacoDevice
-from nicos.utils import intrange, floatrange, oneof
+from nicos.utils import oneof, usermethod
 from nicos.device import Device, Param
-from nicos.errors import NicosError, CommunicationError, ProgrammingError, \
-    UsageError, TimeoutError
+from nicos.errors import NicosError, UsageError
 
 
 class HWError(NicosError):
@@ -54,205 +53,209 @@ class Beckhoff(Device):
                           type=str, default='wechsler.panda.frm2', settable=True),
     }
     def doInit(self):
-        c=self.communicator()
+        c = self.communicator()
         c.next()
-        self._communicate=c.send
+        self._communicate = c.send
     
     def communicate(self, request ):
         return self._communicate( request )
         
     def communicator(self):
         self.log.debug('Communicate: init')
-        request=yield()	# boost the starting....
+        request = yield()	# boost the starting....
         self.log.debug('Communicate: Warm up')
         while True:
-            # reconnect
-            self.log.debug('Communicate: make socket')
-            sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-            self.log.debug('Communicate: connect')
-            sock.connect( (self.host, 502) )
-            #~ sock.setblocking(0)	# non blocking socket
-            # connection alive, try to send
-            while True:
-                self.log.debug('Communicate: innermost loop')
-                sent=0
-                while sent<len( request ):
-                    self.log.debug('Communicate: sending request')
+            try:
+                # reconnect
+                self.log.debug('Communicate: make socket')
+                sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
+                self.log.debug('Communicate: connect')
+                sock.connect( (self.host, 502) )
+                #~ sock.setblocking(0)	# non blocking socket
+                # connection alive, try to send
+                while True:
+                    self.log.debug('Communicate: innermost loop')
+                    sent = 0
+                    while sent < len( request ):
+                        self.log.debug('Communicate: sending request')
+                        try:
+                            sent += sock.send( request[sent:] )
+                            if sent == 0:
+                                self.log.debug('Communicate: sent nada !!!')
+                                break	# connection broken, so do a reconnect
+                        except Exception:
+                            self.log.debug('Communicate: sending failed, closing down')
+                            sent = 0
+                            break
+                    self.log.debug('Communicate: sending complete')
+                    if sent == 0:
+                        self.log.debug('Communicate: sent nada !!!')
+                        break	# connection broken, so do a reconnect
+                    # request was sent, now receive
+                    #~ data=''
+                    #~ while len(data)<7:
+                        #~ data+=sock.recv( 500) # just some number bigger than 260
+                    self.log.debug('Communicate: reading 7 bytes')
+                    data = sock.recv(7) #get modbus-tcp specific header
+                    self.log.debug('Communicate: read 7 bytes')
                     try:
-                        sent+= sock.send( request[sent:] )
-                        if sent==0:
-                            self.log.debug('Communicate: sent nada !!!')
-                            break	# connection broken, so do a reconnect
-                    except:
-                        self.log.debug('Communicate: sending failed, closing down')
-                        sent=0
+                        d = unpack('>HHHB',data) # transaction ID, protocol ID, numbytes, subunit
+                    except Exception:
+                        self.log.debug('Communicate: unpacking failed !')
                         break
-                self.log.debug('Communicate: sending complete')
-                if sent==0:
-                    self.log.debug('Communicate: sent nada !!!')
-                    break	# connection broken, so do a reconnect
-                # request was sent, now receive
-                #~ data=''
-                #~ while len(data)<7:
-                    #~ data+=sock.recv( 500) # just some number bigger than 260
-                self.log.debug('Communicate: reading 7 bytes')
-                data=sock.recv(7) #get modbus-tcp specific header
-                self.log.debug('Communicate: read 7 bytes')
-                try:
-                    d=unpack('>HHHB',data) # transaction ID, protocol ID, numbytes, subunit
-                except:
-                    self.log.debug('Communicate: unpacking failed !')
-                    break
-                self.log.debug('Communicate: reading %d more bytes'%(d[2]-1))
-                data+=sock.recv(d[2]-1)
-                self.log.debug('Communicate: read %d more bytes'%(d[2]-1))
-                #~ s=''
-                #~ for i in request:
-                    #~ s=s+':%02x'%ord(i)
-                #~ print s[1:],' -> ',
-                #~ s=''
-                #~ for i in data:
-                    #~ s=s+':%02x'%ord(i)
-                #~ print s[1:]
-                #~ print 'request of %d Bytes gave response of %d Bytes'%(len(request),len(data))
-                #~ dt('result')
-                self.log.debug('Communicate: return result and await next request')
-                request = yield( data[7:] )	# return response and request new request
-                self.log.debug('Communicate: got another request')
-            self.log.debug('Communicate: Problem: closing socket')
-            # we get here if the connection got broken somehow
-            try: sock.shutdown( socket.SHUT_RDWR )
-            except: pass
-            try: sock.close() # be kind and close down everything
-            except: pass
-            self.log.debug('Communicate: socket closed, looping outer loop again')
+                    self.log.debug('Communicate: reading %d more bytes'%(d[2]-1))
+                    data += sock.recv(d[2]-1)
+                    self.log.debug('Communicate: read %d more bytes'%(d[2]-1))
+                    #~ s=''
+                    #~ for i in request:
+                        #~ s=s+':%02x'%ord(i)
+                    #~ print s[1:],' -> ',
+                    #~ s=''
+                    #~ for i in data:
+                        #~ s=s+':%02x'%ord(i)
+                    #~ print s[1:]
+                    #~ print 'request of %d Bytes gave response of %d Bytes'%(len(request),len(data))
+                    #~ dt('result')
+                    self.log.debug('Communicate: return result and await next request')
+                    request = yield( data[7:] )	# return response and request new request
+                    self.log.debug('Communicate: got another request')
+                self.log.debug('Communicate: Problem: closing socket')
+                # we get here if the connection got broken somehow
+                try: sock.shutdown( socket.SHUT_RDWR )
+                except Exception: pass
+                try: sock.close() # be kind and close down everything
+                except Exception: pass
+                self.log.debug('Communicate: socket closed, looping outer loop again')
+            except Exception:
+                self.log.debug('Communicate: Something bad happened, relooping....')
         self.log.debug('Communicate: This should never happen: End of While True: Loop !!!')
 
     def dp(self, s):    # for debugging aid
         return', '.join(['0x%02x'%ord(s[i]) for i in range(len(s)) ])
 
     def ReadBitOutput( self, addr ):
-        request=pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 1, addr, 1 ) # can read more than 1 bit !
-        response=self.communicate( request )
-        FOE, BC, status=unpack('>BBB', response )
-        if FOE==1: return status
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 1, addr, 1 ) # can read more than 1 bit !
+        response = self.communicate( request )
+        FOE, _, status = unpack('>BBB', response )
+        if FOE == 1: return status
         raise Exception ('Returned function should be 1 but is 0x%02x!'%FOE)
 
     def ReadBitInput( self, addr ):
-        request=pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 2, addr, 1 ) # can read more than 1 bit !
-        response=self.communicate( request )
-        FOE, BC, status=unpack('>BBB', response )
-        if FOE==2: return status
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 2, addr, 1 ) # can read more than 1 bit !
+        response = self.communicate( request )
+        FOE, _, status = unpack('>BBB', response )
+        if FOE == 2: return status
         raise Exception ('Returned function should be 2 but is 0x%02x!'%FOE)
 
     def ReadWordOutput( self, addr ):
-        request=pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 3, addr, 1 ) # can read more than 1 word !
-        response=self.communicate( request )
-        FOE, BC, status=unpack('>BBH', response )
-        if FOE==3: return status
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 3, addr, 1 ) # can read more than 1 word !
+        response = self.communicate( request )
+        FOE, _, status = unpack('>BBH', response )
+        if FOE == 3: return status
         raise Exception ('Returned function should be 3 but is 0x%02x!'%FOE)
 
     def ReadWordInput( self, addr ):
-        request=pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 4, addr, 1 ) # can read more than 1 word !
-        response=self.communicate( request )
-        FOE, BC, status=unpack('>BBH', response )
-        if FOE==4: return status
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 4, addr, 1 ) # can read more than 1 word !
+        response = self.communicate( request )
+        FOE, _, status = unpack('>BBH', response )
+        if FOE == 4: return status
         raise Exception ('Returned function should be 4 but is 0x%02x!'%FOE)
 
     def WriteBitOutput( self, addr, value ):
-        value=0xff00 if value else 0x0000 # only 0x0 or 0xff00 are allowed
-        request=pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 5, addr, value ) # can write exactly 1 word !
-        response=self.communicate( request )
-        FOE, addr, status=unpack('>BHH', response )
-        if FOE==5: return status
+        value = 0xff00 if value else 0x0000 # only 0x0 or 0xff00 are allowed
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 5, addr, value ) # can write exactly 1 word !
+        response = self.communicate( request )
+        FOE, _, status = unpack('>BHH', response )
+        if FOE == 5: return status
         raise Exception ('Returned function should be 5 but is 0x%02x!'%FOE)
 
     def WriteWordOutput( self, addr, value ):
         assert( 0x0000 <= value <= 0xffff ) # value is exactly 16 bits unsigned!
-        request=pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 6, addr, value ) # can write exactly 1 word !
-        response=self.communicate( request )
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 6, addr, value ) # can write exactly 1 word !
+        response = self.communicate( request )
         try:
-            FOE, addr, status=unpack('>BHH', response )
-        except:
+            FOE, _, status = unpack('>BHH', response )
+        except Exception:
             self.log.error( self.dp(request),'->',self.dp(response) )
             raise
-        if FOE==6: return status
+        if FOE == 6: return status
         raise Exception ('Returned function should be 6 but is 0x%02x!'%FOE)
-
+        
     def ReadBitsOutput( self, addr, num ):
         if num > 2000: raise ValueError('%d Bits are too much for ReadBitsOutput!'%num)
-        request=pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 1, addr, num )
-        response=self.communicate( request )
-        m=(num+7)/8
-        data=unpack('>BB%dB'%m, response )
-        FOE=data[0]
-        if FOE!=1: 
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 1, addr, num )
+        response = self.communicate( request )
+        m = (num+7)/8
+        data = unpack('>BB%dB'%m, response )
+        FOE = data[0]
+        if FOE != 1: 
             raise Exception ('Returned function should be 1 but is 0x%02x!'%FOE)
         return [ (data[i/8 + 2] >> i) & 0x01 for i in range(num) ]
 
     def ReadBitsInput( self, addr, num ):
         if num > 2000: raise ValueError('%d Bits are too much for ReadBitsInput!'%num)
-        request=pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 2, addr, num )
-        response=self.communicate( request )
-        m=(num+7)/8
-        data=unpack('>BB%dB'%m, response )
-        FOE=data[0]
-        if FOE!=2: 
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 2, addr, num )
+        response = self.communicate( request )
+        m = (num+7)/8
+        data = unpack('>BB%dB'%m, response )
+        FOE = data[0]
+        if FOE != 2: 
             raise Exception ('Returned function should be 2 but is 0x%02x!'%FOE)
         return [ (data[i/8 + 2] >> i) & 0x01 for i in range(num) ]
 
     def ReadWordsOutput( self, addr, num ):
         if num > 125: raise ValueError('%d Words are too much for ReadWordsOutput!'%num)
-        request=pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 3, addr, num ) # can read more than 1 word !
-        response=self.communicate( request )
-        data=unpack('>BB%dH'%num, response )
-        FOE=data[0]
-        if FOE==3: return data[2:]
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 3, addr, num ) # can read more than 1 word !
+        response = self.communicate( request )
+        data = unpack('>BB%dH'%num, response )
+        FOE = data[0]
+        if FOE == 3: return data[2:]
         raise Exception ('Returned function should be 3 but is 0x%02x!'%FOE)
 
     def ReadWordsInput( self, addr, num ):
         if num > 125: raise ValueError('%d Words are too much for ReadWordsInput!'%num)
-        request=pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 4, addr, num ) # can read more than 1 word !
-        response=self.communicate( request )
-        data=unpack('>BB%dH'%num, response )
-        FOE=data[0]
-        if FOE==4: return data[2:]
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 4, addr, num ) # can read more than 1 word !
+        response = self.communicate( request )
+        data = unpack('>BB%dH'%num, response )
+        FOE = data[0]
+        if FOE == 4: return data[2:]
         raise Exception ('Returned function should be 4 but is 0x%02x!'%FOE)
 
     def WriteBitsOutput( self, addr, values ):
-        data=[]
-        b=0
+        data = []
+        b = 0
         for i in range(len(values)):
             if values[i]:
-                b|= 1<< (i & 7)
-            if i&7==7:
+                b |= 1 << (i & 7)
+            if i&7 == 7:
                 data.append(b)
-                b=0
+                b = 0
         data.append(b)
-        m=len(data)
-        request=pack('>HHHBBHHB%dB'%m, random.getrandbits(16), 0, 7+m, 0, 15, addr, len(values), m, *data )
-        response=self.communicate( request )
+        m = len(data)
+        request = pack('>HHHBBHHB%dB'%m, random.getrandbits(16), 0, 7+m, 0, 15, addr, len(values), m, *data )
+        response = self.communicate( request )
         #~ print dp(request), ' -> ', dp(response)
-        FOE, addr, status=unpack('>BHH', response )
-        if FOE==15: return
+        FOE, addr, status = unpack('>BHH', response )
+        if FOE == 15: return
         raise Exception ('Returned function should be 15 but is 0x%02x!'%FOE)
+        return addr
 
     def WriteWordsOutput( self, addr, values ):
-        values=tuple([int(v) for v in values])
-        m=len(values)
-        request=pack('>HHHBBH%dH'%m, random.getrandbits(16), 0, 4+2*m, 0, 16, addr, *values )
-        response=self.communicate( request )
+        values = tuple([int(v) for v in values])
+        m = len(values)
+        request = pack('>HHHBBH%dH'%m, random.getrandbits(16), 0, 4+2*m, 0, 16, addr, *values )
+        response = self.communicate( request )
         try:
-            data=unpack('>HHHBBHHB%dB'%m, response )
-        except:
-            self.log.error( dp(request),'->',dp(response) )
+            data = unpack('>HHHBBHHB%dB'%m, response )
+        except Exception:
+            self.log.error( self.dp(request),'->',self.dp(response) )
             raise
-        FOE=data[0]
-        if FOE==16: return
+        FOE = data[0]
+        if FOE == 16: return
         raise Exception ('Returned function should be 16 but is 0x%02x!'%FOE)
 
-    ''' Beckhoff registers consist of a pair of two adresse: at baseaddr is the index+r/Wflag, at baseaddr+1 is the data
-    To write you have to add 0x800 to the addr'''
+    #''' Beckhoff registers consist of a pair of two adresse: at baseaddr is the index+r/Wflag, at baseaddr+1 is the data
+    #To write you have to add 0x800 to the addr'''
     def ReadReg( self, baseaddr, reg ):
         self.WriteWordOutput( baseaddr+0x800, 0x80+(reg & 0x3f) )
         return self.ReadWordInput( baseaddr+1 )
@@ -269,16 +272,17 @@ class Beckhoff(Device):
 
 class MonoWechsler( Device ):
     attached_devices = {
-        'beckhoff': Beckhoff,
+        'beckhoff': (Beckhoff,'X'),
     }
     
     parameters = {
         'mono_on_table': Param('Name of Mono on the Monotable',
                           type=oneof('PG','Si','Cu','Heusler','None'), default='None', settable=True),
     }
-    positions=['111','011','110','101'] # Clockwise
-    monos=['PG', 'Si','Heusler','Cu'] # assigned monos
-    shields=['111','011','110','101'] # which magzinslot after changing  (e.g. Put a pe dummy to 101 and set this to ('101,'*4).split(',')
+    positions = ['111','011','110','101'] # Clockwise
+    monos = ['Cu', 'Si','PG','Heusler'] # assigned monos
+    shields = ['111','011','110','101'] # which magzinslot after changing 
+                        #    (e.g. Put a PE dummy to 101 and set this to ('101,'*4).split(',')
 
     @property
     def bhd(self):  # BeckHoffDevice
@@ -325,168 +329,232 @@ class MonoWechsler( Device ):
     # define all inputs
 
     def Monogreifer_011_Rechts( self ):
-        r=self.input2( 0 )
-        if r=='00': return True
-        if r=='10': return False
+        r = self.input2( 0 )
+        if r == '00': return True
+        if r == '10': return False
         raise HWError('Taster Monogreifer 011 Rechts defekt')
     
     def Monogreifer_011_Links( self ):
-        r=self.input2( 2 )
-        if r=='00': return True
-        if r=='10': return False
+        r = self.input2( 2 )
+        if r == '00': return True
+        if r == '10': return False
         raise HWError('Taster Monogreifer 011 Links defekt')
     
     def Monogreifer_101_Rechts( self ):
-        r=self.input2( 4 )
-        if r=='00': return True
-        if r=='10': return False
+        r = self.input2( 4 )
+        if r == '00': return True
+        if r == '10': return False
         raise HWError('Taster Monogreifer 101 Rechts defekt')
     
     def Monogreifer_101_Links( self ):
-        r=self.input2( 6 )
-        if r=='00': return True
-        if r=='10': return False
+        r = self.input2( 6 )
+        if r == '00': return True
+        if r == '10': return False
         raise HWError('Taster Monogreifer 101 Links defekt')
     
     def Monogreifer_110_Rechts( self ):
-        r=self.input2( 8 )
-        if r=='00': return True
-        if r=='10': return False
+        r = self.input2( 8 )
+        if r == '00': return True
+        if r == '10': return False
         raise HWError('Taster Monogreifer 110 Rechts defekt')
     
     def Monogreifer_110_Links( self ):
-        r=self.input2( 10 )
-        if r=='00': return True
-        if r=='10': return False
+        r = self.input2( 10 )
+        if r == '00': return True
+        if r == '10': return False
         raise HWError('Taster Monogreifer 110 Links defekt')
     
     def Monogreifer_111_Rechts( self ):
-        r=self.input2( 12 )
-        if r=='00': return True
-        if r=='10': return False
+        r = self.input2( 12 )
+        if r == '00': return True
+        if r == '10': return False
         raise HWError('Taster Monogreifer 111 Rechts defekt')
     
     def Monogreifer_111_Links( self ):
-        r=self.input2( 14 )
-        if r=='00': return True
-        if r=='10': return False
+        r = self.input2( 14 )
+        if r == '00': return True
+        if r == '10': return False
         raise HWError('Taster Monogreifer 111 Links defekt')
         
     def Monogreifer_011( self ):
-        if  Monogreifer_011_Rechts() and Monogreifer_011_Links():
+        try:    # first readout might fail, but second should never!
+            l = self.Monogreifer_011_Links()
+        except Exception:
+            l = self.Monogreifer_011_Links()
+        try:
+            r = self.Monogreifer_011_Rechts()
+        except Exception:
+            r = self.Monogreifer_011_Rechts()
+        if  l and r:
+            return True
+    
+    def Monogreifer_101( self ):
+        try:    # first readout might fail, but second should never!
+            l = self.Monogreifer_101_Links()
+        except Exception:
+            l = self.Monogreifer_101_Links()
+        try:
+            r = self.Monogreifer_101_Rechts()
+        except Exception:
+            r = self.Monogreifer_101_Rechts()
+        if  l and r:
+            return True
+    
+    def Monogreifer_110( self ):
+        try:    # first readout might fail, but second should never!
+            l = self.Monogreifer_110_Links()
+        except Exception:
+            l = self.Monogreifer_110_Links()
+        try:
+            r = self.Monogreifer_110_Rechts()
+        except Exception:
+            r = self.Monogreifer_110_Rechts()
+        if  l and r:
+            return True
+    
+    def Monogreifer_111( self ):
+        try:    # first readout might fail, but second should never!
+            l = self.Monogreifer_111_Links()
+        except Exception:
+            l = self.Monogreifer_111_Links()
+        try:
+            r = self.Monogreifer_111_Rechts()
+        except Exception:
+            r = self.Monogreifer_111_Rechts()
+        if  l and r:
             return True
     
     def Lift_Absetzposition( self ):
-        r=self.input2( 16 )
-        if r=='01': return True
-        if r=='10': return False
+        r = self.input2( 16 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster Lift Absetzposition (ganz unten) defekt')
     
     def Liftgreifer_rechts_offen( self ):
-        r=self.input2( 18 )
-        if r=='01': return True
-        if r=='10': return False
+        r = self.input2( 18 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster Liftgreifer rechts offen defekt')
 
     def Lift_Parkposition( self ):
-        r=self.input2( 20 )
-        if r=='01': return True
-        if r=='10': return False
+        r = self.input2( 20 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster Lift Parkposition (fast ganz unten) defekt')
     
     def Liftgreifer_rechts_geschlossen( self ):
-        r=self.input2( 22 )
-        if r=='01': return True
-        if r=='10': return False
+        r = self.input2( 22 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster Liftgreifer rechts geschlossen defekt')
         
     def Lift_obere_Ablage( self ):
-        r=self.input2( 24 )
-        if r=='01': return True
-        if r=='10': return False
+        r = self.input2( 24 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster Lift obere Ablageposition (fast ganz oben) defekt')
         
     def Liftgreifer_links_geschlossen( self ):
-        r=self.input2( 26 )
-        if r=='01': return True
-        if r=='10': return False
+        r = self.input2( 26 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster Liftgreifer links geschlossen defekt')
     
     def Liftgreifer_geschlossen( self ):
-        return self.Liftgreifer_links_geschlossen() and self.Liftgreifer_rechts_geschlossen()
+        try:
+            l = self.Liftgreifer_links_geschlossen()
+        except Exception:
+            l = self.Liftgreifer_links_geschlossen()
+        try:
+            r = self.Liftgreifer_rechts_geschlossen()
+        except Exception:
+            r = self.Liftgreifer_rechts_geschlossen()
+        return (l and r)
     
     def Liftgreifer_offen( self ):
-        return self.Liftgreifer_links_offen() and self.Liftgreifer_rechts_offen()
+        try:
+            l = self.Liftgreifer_links_offen()
+        except Exception:
+            l = self.Liftgreifer_links_offen()
+        try:
+            r = self.Liftgreifer_rechts_offen()
+        except Exception:
+            r = self.Liftgreifer_rechts_offen()
+        return (l and r)
     
     def Lift_untere_Ablage( self ):
-        r=self.input2( 28 )
-        if r=='01': return True
-        if r=='10': return False
+        r = self.input2( 28 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster Lift untere Ablageposition (ganz oben) defekt')
     
     def Liftgreifer_links_offen( self ):
-        r=self.input2( 30 )
-        if r=='01': return True
-        if r=='10': return False
+        r = self.input2( 30 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster Liftgreifer links offen defekt')
 
     def MonoID3( self ):
-        r=self.input2( 32 )
-        if r=='01': return True
-        if r=='10': return False
+        r = self.input2( 32 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster MonoID3 defekt')
     
     def Magazin_Klammer_geschlossen( self ):
-        r=self.input2( 34 )
-        if r=='01': return True
-        if r=='10': return False
+        r = self.input2( 34 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster MagazinKlammer geschlossen defekt')
     
     def MonoID2( self ):
-        r=self.input2( 36 )
-        if r=='01': return True
-        if r=='10': return False
+        r = self.input2( 36 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster MonoID2 defekt')
     
     def unused1( self ):
-        r=self.input2( 38 )
-        if r=='01': return True
-        if r=='10': return False
+        r = self.input2( 38 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster unused1 defekt')
     
     def MonoID1( self ):
-        r=self.input2( 40 )
-        if r=='01': return True
-        if r=='10': return False
+        r = self.input2( 40 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster MonoID1 defekt')
     
     def unused2( self ):
-        r=self.input2( 42 )
-        if r=='01': return True
-        if r=='10': return False
+        r = self.input2( 42 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster unused2 defekt')
 
     def Magazin_Klammer_offen( self ):
-        r=self.input2( 44 )
-        if r=='01': return True
-        if r=='10': return False
+        r = self.input2( 44 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster MagazinKlammer offen defekt')
 
     def Magazin_Referenzposition( self ):
-        r=self.input2( 46 )
-        if r=='01': return True
-        if r=='10': return False
+        r = self.input2( 46 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster Magazin:Referenzposition defekt')
     
     def MonoID( self ):
-        return ( self.MonoID1() and '1' or '0')+( self.MonoID2() and '1' or '0')+( self.MonoID3() and '1' or '0')
-        
+        try:
+            r = ( self.MonoID1() and '1' or '0')+( self.MonoID2() and '1' or '0')+( self.MonoID3() and '1' or '0')
+        except Exception:
+            r = ( self.MonoID1() and '1' or '0')+( self.MonoID2() and '1' or '0')+( self.MonoID3() and '1' or '0')
+        return r
+
     # Bremse invertiert !!!
     def Lift_Bremse( self , *args):
-        if len(args)==0:    # read_access
-            r=self.input2(48)       # first check state
-            if r[0]=='1': raise HWError('Bremse Lift Drahtbruch !')
-            if r[1]=='1': raise HWError('Bremse Lift Kurzschluss !')
+        if len(args) == 0:    # read_access
+            r = self.input2(48)       # first check state
+            if r[0] == '1': raise HWError('Bremse Lift Drahtbruch !')
+            if r[1] == '1': raise HWError('Bremse Lift Kurzschluss !')
             return 1-self.bhd.ReadBitOutput( 0 )  # state OK, read current setting and return
         else:
             if args[0]: return self.bhd.WriteBitOutput( 0, 0)
@@ -494,20 +562,20 @@ class MonoWechsler( Device ):
     
     # Bremse invertiert !!!
     def Magazin_Bremse( self, *args ):
-        if len(args)==0:    # read_access
-            r=self.input2(50)       # first check state
-            if r[0]=='1': raise HWError('Bremse Magazin Drahtbruch !')
-            if r[1]=='1': raise HWError('Bremse Magazin Kurzschluss !')
+        if len(args) == 0:    # read_access
+            r = self.input2(50)       # first check state
+            if r[0] == '1': raise HWError('Bremse Magazin Drahtbruch !')
+            if r[1] == '1': raise HWError('Bremse Magazin Kurzschluss !')
             return 1-self.bhd.ReadBitOutput( 1 )  # state OK, read current setting and return
         else:
             if args[0]: return self.bhd.WriteBitOutput( 1, 0)
             else: return self.bhd.WriteBitOutput( 1, 1 )
 
     def Lift_Druckluft( self, *args ):
-        if len(args)==0:    # read_access
-            r=self.input2(52)       # first check state
-            if r[0]=='1': raise HWError('Druckluft Lift Drahtbruch !')
-            if r[1]=='1': raise HWError('Druckluft Lift Kurzschluss !')
+        if len(args) == 0:    # read_access
+            r = self.input2(52)       # first check state
+            if r[0] == '1': raise HWError('Druckluft Lift Drahtbruch !')
+            if r[1] == '1': raise HWError('Druckluft Lift Kurzschluss !')
             if self.bhd.ReadBitInput( 60 ) == 0:
                 raise HWError('Druckluft Lift: zu geringer Druck! ')
             return self.bhd.ReadBitOutput( 4 )  # state OK, read current setting and return
@@ -516,10 +584,10 @@ class MonoWechsler( Device ):
             else: return self.bhd.WriteBitOutput( 4, 0 )
 
     def Magazin_Druckluft( self, *args ):
-        if len(args)==0:
-            r=self.input2(54)       # first check state
-            if r[0]=='1': raise HWError('Druckluft Magazin Drahtbruch !')
-            if r[1]=='1': raise HWError('Druckluft Magazin Kurzschluss !')
+        if len(args) == 0:
+            r = self.input2(54)       # first check state
+            if r[0] == '1': raise HWError('Druckluft Magazin Drahtbruch !')
+            if r[1] == '1': raise HWError('Druckluft Magazin Kurzschluss !')
             if self.bhd.ReadBitInput( 61 ) == 0:
                 raise HWError('Druckluft Magazin: zu geringer Druck! ')
             return self.bhd.ReadBitOutput( 5 )  # state OK, read current setting and return
@@ -528,10 +596,10 @@ class MonoWechsler( Device ):
             else: return self.bhd.WriteBitOutput( 5, 0 )
 
     def Mono_Druckluft( self, *args ):
-        if len(args)==0:
-            r=self.input2(56)       # first check state
-            if r[0]=='1': raise HWError('Druckluft Mono Drahtbruch !')
-            if r[1]=='1': raise HWError('Druckluft Mono Kurzschluss !')
+        if len(args) == 0:
+            r = self.input2(56)       # first check state
+            if r[0] == '1': raise HWError('Druckluft Mono Drahtbruch !')
+            if r[1] == '1': raise HWError('Druckluft Mono Kurzschluss !')
             if self.bhd.ReadBitInput( 62 ) == 0:
                 raise HWError('Druckluft Mono: zu geringer Druck! ')
             return self.bhd.ReadBitOutput( 8 )  # state OK, read current setting and return
@@ -540,10 +608,10 @@ class MonoWechsler( Device ):
             else: return self.bhd.WriteBitOutput( 8, 0 )
 
     def InhibitRelay( self, *args ):
-        if len(args)==0:
-            r=self.input2(58)       # first check state
-            if r[0]=='1': raise HWError('InhibitRelay Drahtbruch !')
-            if r[1]=='1': raise HWError('InhibitRelay Kurzschluss !')
+        if len(args) == 0:
+            r = self.input2(58)       # first check state
+            if r[0] == '1': raise HWError('InhibitRelay Drahtbruch !')
+            if r[1] == '1': raise HWError('InhibitRelay Kurzschluss !')
             return self.bhd.ReadBitOutput( 9 )  # state OK, read current setting and return
         else:
             if args[0]: return self.bhd.WriteBitOutput( 9, 1)
@@ -553,50 +621,50 @@ class MonoWechsler( Device ):
         return [ True, False ][ self.bhd.ReadBitInput(63) ]
     
     def KL2552_0( self ):
-        r=self.bhd.ReadWordInput(4) & 0xff
-        if r<128:
+        r = self.bhd.ReadWordInput(4) & 0xff
+        if r < 128:
             if r & 1: return True
             else: return False
         return False # dont mess with index bytes, return false instead !
         
     def KL2552_1( self ):
-        r=self.bhd.ReadWordInput(6) & 0xff
-        if r<128:
+        r = self.bhd.ReadWordInput(6) & 0xff
+        if r < 128:
             if r & 1: return True
             else: return False
         return False # dont mess with index bytes !
     
     def SecShutter_is_closed( self ):
-        #~ return self.KL2552_0()   ## XXX need to wire first !!!
+        #~ return self.KL2552_0()   # XXX need to wire first !!!
         return True
 
     def Freigabe_vom_Motorrahmen( self ):
-        #~ return self.KL2552_1()   ## XXX need to wire first !!!
+        #~ return self.KL2552_1()   # XXX need to wire first !!!
         return True
         
     # spare outs (from left to right...)
-    KL2032_0=property( lambda self: self.bhd.ReadBitOutput( 12 ), lambda self, x: self.bhd.WriteBitOutput( 12, x) )
-    KL2032_1=property( lambda self: self.bhd.ReadBitOutput( 13 ), lambda self, x: self.bhd.WriteBitOutput( 13, x) )
-    KL2032_2=property( lambda self: self.bhd.ReadBitOutput( 14 ), lambda self, x: self.bhd.WriteBitOutput( 14, x) )
-    KL2032_3=property( lambda self: self.bhd.ReadBitOutput( 15 ), lambda self, x: self.bhd.WriteBitOutput( 15, x) )
+    KL2032_0 = property( lambda self: self.bhd.ReadBitOutput( 12 ), lambda self, x: self.bhd.WriteBitOutput( 12, x) )
+    KL2032_1 = property( lambda self: self.bhd.ReadBitOutput( 13 ), lambda self, x: self.bhd.WriteBitOutput( 13, x) )
+    KL2032_2 = property( lambda self: self.bhd.ReadBitOutput( 14 ), lambda self, x: self.bhd.WriteBitOutput( 14, x) )
+    KL2032_3 = property( lambda self: self.bhd.ReadBitOutput( 15 ), lambda self, x: self.bhd.WriteBitOutput( 15, x) )
 
-    KL1859_0_out=property( lambda self: self.bhd.ReadBitOutput( 16 ), lambda self, x: self.bhd.WriteBitOutput( 16, x) )
-    KL1859_1_out=property( lambda self: self.bhd.ReadBitOutput( 17 ), lambda self, x: self.bhd.WriteBitOutput( 17, x) )
-    KL1859_2_out=property( lambda self: self.bhd.ReadBitOutput( 18 ), lambda self, x: self.bhd.WriteBitOutput( 18, x) )
-    KL1859_3_out=property( lambda self: self.bhd.ReadBitOutput( 19 ), lambda self, x: self.bhd.WriteBitOutput( 19, x) )
-    KL1859_4_out=property( lambda self: self.bhd.ReadBitOutput( 20 ), lambda self, x: self.bhd.WriteBitOutput( 20, x) )
-    KL1859_5_out=property( lambda self: self.bhd.ReadBitOutput( 21 ), lambda self, x: self.bhd.WriteBitOutput( 21, x) )
-    KL1859_6_out=property( lambda self: self.bhd.ReadBitOutput( 22 ), lambda self, x: self.bhd.WriteBitOutput( 22, x) )
-    KL1859_7_out=property( lambda self: self.bhd.ReadBitOutput( 23 ), lambda self, x: self.bhd.WriteBitOutput( 23, x) )
+    KL1859_0_out = property( lambda self: self.bhd.ReadBitOutput( 16 ), lambda self, x: self.bhd.WriteBitOutput( 16, x) )
+    KL1859_1_out = property( lambda self: self.bhd.ReadBitOutput( 17 ), lambda self, x: self.bhd.WriteBitOutput( 17, x) )
+    KL1859_2_out = property( lambda self: self.bhd.ReadBitOutput( 18 ), lambda self, x: self.bhd.WriteBitOutput( 18, x) )
+    KL1859_3_out = property( lambda self: self.bhd.ReadBitOutput( 19 ), lambda self, x: self.bhd.WriteBitOutput( 19, x) )
+    KL1859_4_out = property( lambda self: self.bhd.ReadBitOutput( 20 ), lambda self, x: self.bhd.WriteBitOutput( 20, x) )
+    KL1859_5_out = property( lambda self: self.bhd.ReadBitOutput( 21 ), lambda self, x: self.bhd.WriteBitOutput( 21, x) )
+    KL1859_6_out = property( lambda self: self.bhd.ReadBitOutput( 22 ), lambda self, x: self.bhd.WriteBitOutput( 22, x) )
+    KL1859_7_out = property( lambda self: self.bhd.ReadBitOutput( 23 ), lambda self, x: self.bhd.WriteBitOutput( 23, x) )
 
-    KL2408_0=property( lambda self: self.bhd.ReadBitOutput( 24 ), lambda self, x: self.bhd.WriteBitOutput( 24, x) )
-    KL2408_1=property( lambda self: self.bhd.ReadBitOutput( 25 ), lambda self, x: self.bhd.WriteBitOutput( 25, x) )
-    KL2408_2=property( lambda self: self.bhd.ReadBitOutput( 26 ), lambda self, x: self.bhd.WriteBitOutput( 26, x) )
-    KL2408_3=property( lambda self: self.bhd.ReadBitOutput( 27 ), lambda self, x: self.bhd.WriteBitOutput( 27, x) )
-    KL2408_4=property( lambda self: self.bhd.ReadBitOutput( 28 ), lambda self, x: self.bhd.WriteBitOutput( 28, x) )
-    KL2408_5=property( lambda self: self.bhd.ReadBitOutput( 29 ), lambda self, x: self.bhd.WriteBitOutput( 29, x) )
-    KL2408_6=property( lambda self: self.bhd.ReadBitOutput( 30 ), lambda self, x: self.bhd.WriteBitOutput( 30, x) )
-    KL2408_7=property( lambda self: self.bhd.ReadBitOutput( 31 ), lambda self, x: self.bhd.WriteBitOutput( 31, x) )
+    KL2408_0 = property( lambda self: self.bhd.ReadBitOutput( 24 ), lambda self, x: self.bhd.WriteBitOutput( 24, x) )
+    KL2408_1 = property( lambda self: self.bhd.ReadBitOutput( 25 ), lambda self, x: self.bhd.WriteBitOutput( 25, x) )
+    KL2408_2 = property( lambda self: self.bhd.ReadBitOutput( 26 ), lambda self, x: self.bhd.WriteBitOutput( 26, x) )
+    KL2408_3 = property( lambda self: self.bhd.ReadBitOutput( 27 ), lambda self, x: self.bhd.WriteBitOutput( 27, x) )
+    KL2408_4 = property( lambda self: self.bhd.ReadBitOutput( 28 ), lambda self, x: self.bhd.WriteBitOutput( 28, x) )
+    KL2408_5 = property( lambda self: self.bhd.ReadBitOutput( 29 ), lambda self, x: self.bhd.WriteBitOutput( 29, x) )
+    KL2408_6 = property( lambda self: self.bhd.ReadBitOutput( 30 ), lambda self, x: self.bhd.WriteBitOutput( 30, x) )
+    KL2408_7 = property( lambda self: self.bhd.ReadBitOutput( 31 ), lambda self, x: self.bhd.WriteBitOutput( 31, x) )
 
     # spare inputs (from left to right...)
     @property
@@ -642,61 +710,61 @@ class MonoWechsler( Device ):
     def BK9100_MissedCnt( self ): return self.bhd.ReadWordInput(15)
 
     # now the middle layer functions....
-    # also make Motors more easily accessible
+    # first make Motors more easily accessible
     def FahreLiftMotor( self, speed ):
-        ''' Schaltet LiftMotor an, speed>0 -> aufwärts, speed<0 abwärts, speed=0 schaltet alles ab
+        ''' Schaltet LiftMotor an, speed>0 -> hoch, speed<0 runter, speed=0 schaltet alles ab
             Sinnvolle Werte sind +30000/-20000 (schnell), +/-5000 (langsam)'''
-        assert( -32767<=speed<=32767 )
+        assert( -32767 <= speed <= 32767 )
         if speed == 0:
             self.bhd.WriteWordOutput( 0x805, 0 ) # setze Speed 0
             self.Lift_Bremse( True )                      # aktiviere Bremse
-            self.bhd.WriteWordOutput( 0x804, 0 ) # lösche Enable-Bit für Kanal1
+            self.bhd.WriteWordOutput( 0x804, 0 ) # loesche Enable-Bit Kanal1
         else:
-            if speed<0: speed=speed+65536   # hack around signed/unsigned stuff...
+            if speed < 0: speed = speed + 65536   # hack around signed/unsigned stuff...
             self.bhd.WriteWordOutput( 0x805, speed )
             self.bhd.WriteWordOutput( 0x804, 0x20 ) # setze Enable-Bit und fahre los
-            self.Lift_Bremse( False )      # 'Hand'bremse löschen nicht vergessen!
+            self.Lift_Bremse( False )      # 'Hand'bremse loesen nicht vergessen!
             
     def FahreMagazinMotor( self, speed ):
         ''' Schaltet MagazinMotor an, speed>0 -> CW, speed<0 CCW, speed=0 schaltet alles ab
             Sinnvolle Werte sind +/-5000 (schnell), +/- 500 (langsam)'''
-        assert( -32767<=speed<=32767 )
+        assert( -32767 <= speed <= 32767 )
         if speed == 0:
             self.bhd.WriteWordOutput( 0x807, 0 ) # setze Speed 0
             self.Magazin_Bremse( True )                      # aktiviere Bremse
-            self.bhd.WriteWordOutput( 0x806, 0 ) # lösche Enable-Bit für Kanal1
+            self.bhd.WriteWordOutput( 0x806, 0 ) # loesche Enable-Bit Kanal2
         else:
-            if speed<0: speed=speed+65536   # hack around signed/unsigned stuff...
+            if speed<0: speed = speed + 65536   # hack around signed/unsigned stuff...
             self.bhd.WriteWordOutput( 0x807, speed )
             self.bhd.WriteWordOutput( 0x806, 0x20 ) # setze Enable-Bit und fahre los
-            self.Magazin_Bremse( False )      # Handbremse löschen nicht vergessen!
+            self.Magazin_Bremse( False )      # Handbremse loesen nicht vergessen!
 
     # allgemeine 'fahrfunktion'
     def Fahre( self, Motor, Goal, speed=3000, timeout=None):
         if Goal(): return   # already at goal
-        if speed==0:
-            Motor(speed)
+        if speed == 0:
+            Motor( speed )
             return      # finished!
-        if timeout: timeoutime=time()+timeout
+        if timeout: timeoutime = time() + timeout
         Motor( speed )  # losfahren:
         def mygoal( func ):
             try: return func()
-            except: return False
+            except Exception: return func()
         while not( mygoal(Goal)            ):    # not there yet ?
-            if timeout and timeoutime<time(): # time is up?
-                Motor(0)        # STOP
+            if timeout and timeoutime < time(): # time is up?
+                Motor( 0 )        # STOP
                 raise HWError('Motor %s didn\'t reach Goal %s within %d seconds'%(Motor.__name__,Goal.__name__,timeout))
-        Motor(0)    # Stop Motor, we are there!
+        Motor( 0 )    # Stop Motor, we are there!
     
     
     def PrepareChange( self ) :
-        ''' prüft, ob alle Bedingungen für einen Wechsel gegeben sind und stellt diese ggfs. her'''
+        ''' prueft, ob alle Bedingungen fuer einen Wechsel gegeben sind und stellt diese ggfs. her'''
         if not( self.SecShutter_is_closed() ):
             raise UsageError( self, 'Secondary Shutter needs to be closed, please close by Hand and retry!')
         if self.NotAus():
             raise UsageError( self, 'NotAus (Emergency stop) activated, please check and retry!')
         # read all inputs and check for problems
-        p=[]
+        p = []
         p.append( self.InhibitRelay() )
         p.append( self.Magazin_Referenzposition() )
         p.append( self.Monogreifer_111_Links() )
@@ -736,9 +804,9 @@ class MonoWechsler( Device ):
         maw(mtx, 0)
         maw(mty, 0)
         try:  #not all monos have foci
-            maw(mfh,0); mfh.power=0  # go to known good value and switch off
-            maw(mfv,0); mfv.power=0
-        except: pass
+            maw(mfh,0); mfh.power = 0  # go to known good value and switch off
+            maw(mfv,0); mfv.power = 0
+        except Exception: pass
         # now switch on the enable signal from Motorrahmen to bhd
         #XXX TODO !
         sleep(0.1)
@@ -752,23 +820,23 @@ class MonoWechsler( Device ):
     def FinishChange( self ):
         self.InhibitRelay( False )  # allow Motors to move again
         try:
-            mfh.power=1
-            mfv.power=1
-        except:
+            mfh.power = 1
+            mfv.power = 1
+        except Exception:
             pass
      
     # robust higher level functions
-    def MagazinSelect( self, pos ): # fährt angeforderte Magazinposition an den Lift (pos in self.positions)
-        currentpos=self.positions.index( self.MonoID() )
-        mpos=self.positions.index( pos )                              # make positions numeric.....
-        if mpos>currentpos:
-            self.Fahre( self.FahreMagazinMotor, lambda: not(self.Magazin_Referenzposition()), 8000, 6) 
+    def MagazinSelect( self, pos ): # faehrt angeforderte Magazinposition an den Lift (pos in self.positions)
+        currentpos = self.positions.index( self.MonoID() )
+        mpos = self.positions.index( pos )                              # make positions numeric.....
+        if mpos > currentpos:
+            self.Fahre( self.FahreMagazinMotor, lambda: not(self.Magazin_Referenzposition()), 3000, 6) 
             self.Fahre( self.FahreMagazinMotor, self.Magazin_Referenzposition, 10000, 30) 
             self.Fahre( self.FahreMagazinMotor, lambda: not(self.Magazin_Referenzposition()), 3000, 6) 
             self.Fahre( self.FahreMagazinMotor, self.Magazin_Referenzposition, -500, 6) 
             return self.MagazinSelect( pos )
-        elif mpos<currentpos:
-            self.Fahre( self.FahreMagazinMotor, lambda: not(self.Magazin_Referenzposition()), -8000, 6) 
+        elif mpos < currentpos:
+            self.Fahre( self.FahreMagazinMotor, lambda: not(self.Magazin_Referenzposition()), -3000, 6) 
             self.Fahre( self.FahreMagazinMotor, self.Magazin_Referenzposition, -10000, 30) 
             self.Fahre( self.FahreMagazinMotor, lambda: not(self.Magazin_Referenzposition()), 3000, 6) 
             self.Fahre( self.FahreMagazinMotor, self.Magazin_Referenzposition, -500, 6) 
@@ -777,18 +845,18 @@ class MonoWechsler( Device ):
             return False
         
         
-    def LiftSelect( self, pos ): # fährt angeforderte Liftposition an (0=unten,1=park,2=ablageu,3=ablageo
-        currentpos=-1
-        if self.Lift_Absetzposition(): currentpos=0
-        elif self.Lift_Parkposition(): currentpos=1
-        elif self.Lift_untere_Ablage(): currentpos=2
-        elif self.Lift_obere_Ablage(): currentpos=3
-        if currentpos==-1:
+    def LiftSelect( self, pos ): # faehrt angeforderte Liftposition an (0=unten,1=park,2=ablageu,3=ablageo
+        currentpos = -1
+        if self.Lift_Absetzposition(): currentpos = 0
+        elif self.Lift_Parkposition(): currentpos = 1
+        elif self.Lift_untere_Ablage(): currentpos = 2
+        elif self.Lift_obere_Ablage(): currentpos = 3
+        if currentpos == -1:
             raise HWError('Lifposition not determined !!!!!')
-        if pos>currentpos:
+        if pos > currentpos:
             self.Fahre( self.FahreLiftMotor, [self.Lift_Absetzposition, self.Lift_Parkposition, self.Lift_untere_Ablage, 
                                                             self.Lift_obere_Ablage][pos], 30000, 300) 
-        elif pos<currentpos:
+        elif pos < currentpos:
             self.Fahre( self.FahreLiftMotor, [self.Lift_Absetzposition, self.Lift_Parkposition, self.Lift_untere_Ablage, 
                                                             self.Lift_obere_Ablage][pos], -20000, 300) 
     
@@ -838,23 +906,27 @@ class MonoWechsler( Device ):
             raise HWError( self, 'Monokupplung did not close within 5s!')
 
     def CheckMagazinSlotEmpty( self, slot ): # checks if the given slot in the magazin is empty
-        if slot=='111' and ( self.Monogreifer_111_Links() or self.Monogreifer_111_Rechts() ):
+        if not( slot in self.positions ):
+            raise UsageError( self, 'Got Illegal MonoIdCode to check')
+        if slot == '111' and ( self.Monogreifer_111_Links() or self.Monogreifer_111_Rechts() ):
             raise HWError( self, 'Magazin for Position 111 is already occupied, please check!')
-        if slot=='110' and ( self.Monogreifer_110_Links() or self.Monogreifer_110_Rechts() ):
+        if slot == '110' and ( self.Monogreifer_110_Links() or self.Monogreifer_110_Rechts() ):
             raise HWError( self, 'Magazin for Position 110 is already occupied, please check!')
-        if slot=='101' and ( self.Monogreifer_101_Links() or self.Monogreifer_101_Rechts() ):
+        if slot == '101' and ( self.Monogreifer_101_Links() or self.Monogreifer_101_Rechts() ):
             raise HWError( self, 'Magazin for Position 101 is already occupied, please check!')
-        if slot=='011' and ( self.Monogreifer_011_Links() or self.Monogreifer_011_Rechts() ):
+        if slot == '011' and ( self.Monogreifer_011_Links() or self.Monogreifer_011_Rechts() ):
             raise HWError( self, 'Magazin for Position 011 is already occupied, please check!')
 
     def CheckMagazinSlotUsed( self, slot ): # checks if the given slot in the magazin is used (contains a monoframe)
-        if slot=='111' and not( self.Monogreifer_111_Links() and self.Monogreifer_111_Rechts() ):
+        if not( slot in self.positions ):
+            raise UsageError( self, 'Got Illegal MonoIdCode to check')
+        if slot == '111' and not( self.Monogreifer_111_Links() and self.Monogreifer_111_Rechts() ):
             raise HWError( self, 'Magazin for Position 111 is empty, please check!')
-        if slot=='110' and not( self.Monogreifer_110_Links() and self.Monogreifer_110_Rechts() ):
+        if slot == '110' and not( self.Monogreifer_110_Links() and self.Monogreifer_110_Rechts() ):
             raise HWError( self, 'Magazin for Position 110 is empty, please check!')
-        if slot=='101' and not( self.Monogreifer_101_Links() and self.Monogreifer_101_Rechts() ):
+        if slot == '101' and not( self.Monogreifer_101_Links() and self.Monogreifer_101_Rechts() ):
             raise HWError( self, 'Magazin for Position 101 is empty, please check!')
-        if slot=='011' and not( self.Monogreifer_011_Links() and self.Monogreifer_011_Rechts() ):
+        if slot == '011' and not( self.Monogreifer_011_Links() and self.Monogreifer_011_Rechts() ):
             raise HWError( self, 'Magazin for Position 011 is empty, please check!')
 
         
@@ -922,15 +994,16 @@ class MonoWechsler( Device ):
         self.close_Liftgreifer()
         self.open_MonoKupplung()
         self.LiftSelect( 1 )
+        self.close_MonoKupplung()
 
 
-    #~ @usercommand
+    @usermethod
     def change( self, old, whereto ):
         ''' cool kurze Wechselroutine
         Der Knackpunkt ist in den Hilfsroutinen!'''
-        if not( old in self.monos+['None'] ):
+        if not( old in self.monos + ['None'] ):
             raise UsageError( self, '\'%s\' is illegal value for Mono, use one of'%old + ', '.join(self.monos) ) 
-        if not( whereto in self.monos+['None'] ):
+        if not( whereto in self.monos + ['None'] ):
             raise UsageError( self, '\'%s\' is illegal value for Mono, use one of'%whereto + ', '.join(self.monos) ) 
         self.PrepareChange()
         if self.monos.index( whereto ) == self.monos.index( old ):
@@ -938,15 +1011,15 @@ class MonoWechsler( Device ):
         # Ok, we have a good state, the only thing we do not know is which mono is on the table......
         # for this we use the (cached) parameter mono_on_table
         
-        if self.mono_on_table!= old:
+        if self.mono_on_table != old:
             raise UsageError( self, 'Mono %s is not supposed to be on the table, %s is!'%(old,self.mono_on_table))
         
-        if whereto!='None':
-            monocode_new=self.positions[ self.monos.index( whereto ) ]
-            CheckMagazinSlotUsed( monocode_new ) # if it's in the magazin it's not on the table
-        if self.mono_on_table!='None':
-            monocode_old=self.positions[ self.monos.index( self.mono_on_table ) ]
-            CheckMagazinSlotEmpty( monocode_old ) # if it's on the table, it isnt in the magazin
+        if whereto != 'None':
+            monocode_new = self.positions[ self.monos.index( whereto ) ]
+            self.CheckMagazinSlotUsed( monocode_new ) # if it's in the magazin it's not on the table
+        if self.mono_on_table != 'None':
+            monocode_old = self.positions[ self.monos.index( self.mono_on_table ) ]
+            self.CheckMagazinSlotEmpty( monocode_old ) # if it's on the table, it isnt in the magazin
         
         # Ok, so first thing is to move the mono (if any) from the table to the magazin
         if self.mono_on_table != 'None':
@@ -954,15 +1027,15 @@ class MonoWechsler( Device ):
             self.MagazinSelect( monocode_old )  # rotate magazin to the position according to the old mono
             self.Transfer_Mono_Monotisch2Lift()
             self.Transfer_Mono_Lift2Magazin()
-            self.mono_on_table='None' # no longer a Mono on the table
+            self.mono_on_table = 'None' # no longer a Mono on the table
         self.LiftSelect(1)  # go to parking position to allow rotation of magazin
         # secondly we transfer the requested Mono onto the table
-        if whereto!='None':
+        if whereto != 'None':
             self.MagazinSelect( monocode_new )
             self.Transfer_Mono_Magazin2Lift()
             self.Transfer_Mono_Lift2Monotisch()
-            self.LiftSelect(1)
-            self.mono_on_table=whereto
+            self.LiftSelect( 1 )
+            self.mono_on_table = whereto
         # put default magazinslot above mono
         self.MagazinSelect( self.defaults[ self.monos.index( self.mono_on_table ) ] )
         # now release all the brakes....
@@ -975,30 +1048,33 @@ class MonoWechsler( Device ):
         self.FahreLiftMotor( 0 )
         self.FahreMagazinMotor( 0 ) 
 
-    #~ @usercommand
+    @usermethod
     def printstatusinfo( self ):
-        currentpos=4
-        if self.Lift_Absetzposition(): currentpos=0
-        elif self.Lift_Parkposition(): currentpos=1
-        elif self.Lift_untere_Ablage(): currentpos=2
-        elif self.Lift_obere_Ablage(): currentpos=3
-        self.log.info('Lift is at '+['Absetzposition','Parkposition','untere Ablage','obere Ablage','unknown position'][currentpos])
-        self.log.info('Liftgreifer should be '+(self.Lift_Druckluft() and 'open' or 'closed')+
-                            ' and are '+(self.Liftgreifer_offen() and 'open' or 
+        currentpos = 4
+        if self.Lift_Absetzposition(): currentpos = 0
+        elif self.Lift_Parkposition(): currentpos = 1
+        elif self.Lift_untere_Ablage(): currentpos = 2
+        elif self.Lift_obere_Ablage(): currentpos = 3
+        self.log.info('Lift is at ' + 
+                ['Absetzposition','Parkposition','untere Ablage','obere Ablage',
+                    'unknown position'][currentpos])
+        self.log.info('Liftgreifer should be ' + (self.Lift_Druckluft() and 'open' or 'closed') + 
+                            ' and are ' + (self.Liftgreifer_offen() and 'open' or 
                                 (self.Liftgreifer_geschlossen() and 'closed' or 'undetermined')) )
-        self.log.info('Magazin is at '+self.MonoID() + ' which is assigned to '+self.monos[ self.positions.index( self.MonoID() )] )
-        self.log.info('Magazin_Klammer should be '+(self.Magazin_Druckluft() and 'open' or 'closed')+
-                            ' and are '+(self.Magazin_Klammer_offen() and 'open' or 
+        self.log.info('Magazin is at ' + self.MonoID() + ' which is assigned to ' + 
+                            self.monos[ self.positions.index( self.MonoID() )] )
+        self.log.info('Magazin_Klammer should be ' + (self.Magazin_Druckluft() and 'open' or 'closed') + 
+                            ' and are ' + (self.Magazin_Klammer_offen() and 'open' or 
                                 (self.Magazin_Klammer_geschlossen() and 'closed' or 'undetermined')) )
-        self.log.info('MagazinSlot 111 is '+( (self.Monogreifer_111_Links() and 'occupied' or 
+        self.log.info('MagazinSlot 111 is ' + ( (self.Monogreifer_111_Links() and 'occupied' or 
                                 (self.Monogreifer_111_Rechts() and 'unknown' or 'free'))))
-        self.log.info('MagazinSlot 011 is '+( (self.Monogreifer_011_Links() and 'occupied' or 
+        self.log.info('MagazinSlot 011 is ' + ( (self.Monogreifer_011_Links() and 'occupied' or 
                                 (self.Monogreifer_011_Rechts() and 'unknown' or 'free'))))
-        self.log.info('MagazinSlot 101 is '+( (self.Monogreifer_101_Links() and 'occupied' or 
+        self.log.info('MagazinSlot 101 is ' + ( (self.Monogreifer_101_Links() and 'occupied' or 
                                 (self.Monogreifer_101_Rechts() and 'unknown' or 'free'))))
-        self.log.info('MagazinSlot 110 is '+( (self.Monogreifer_110_Links() and 'occupied' or 
+        self.log.info('MagazinSlot 110 is ' + ( (self.Monogreifer_110_Links() and 'occupied' or 
                                 (self.Monogreifer_110_Rechts() and 'unknown' or 'free'))))
-        self.log.info('MonoKupplung is '+(self.Mono_Druckluft() and 'open' or 'closed'))
+        self.log.info('MonoKupplung is ' + (self.Mono_Druckluft() and 'open' or 'closed'))
 
     # dangerous stuff to aid in recovering
     #~ @usercommand
