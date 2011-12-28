@@ -64,7 +64,7 @@ class Scan(object):
         if not detlist:
             detlist = session.experiment.detectors
         if not detlist:
-            printwarning('Scanning without detector, use SetDetectors() '
+            printwarning('scanning without detector, use SetDetectors() '
                          'to select which detector(s) you want to use')
         if envlist is None:
             envlist = session.experiment.sampleenv

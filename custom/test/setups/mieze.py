@@ -1,6 +1,7 @@
 name = 'MIEZE devices'
 
 includes = ['startup']
+modules = ['nicos.mira.mieze']
 
 devices = dict(
 

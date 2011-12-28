@@ -30,11 +30,13 @@ import copy
 from itertools import chain
 
 from nicos import session
+from nicos.scan import Scan
 from nicos.utils import dictof, listof, anytype, usermethod, printTable, \
      multiStatus
-from nicos.device import Moveable, Param, Override
+from nicos.device import Moveable, Param, Override, Value
 from nicos.errors import NicosError
 from nicos.commands import usercommand
+from nicos.commands.scan import _fixType, _handleScanArgs, _infostr
 from nicos.commands.output import printinfo
 
 
@@ -62,7 +64,10 @@ class MiezeMaster(Moveable):
     def doRead(self):
         if self.tuning == '':
             return '<no tuning selected>'
-        return self.curtable[self.setting]['_name_']
+        return [self.curtable[self.setting]['_name_'], 0.0]
+
+    def valueInfo(self):
+        return Value('mieze', fmtstr='%s'), Value('tau', fmtstr='%.2f', unit='ps')
 
     def _findsetting(self, target):
         if self.tuning == '':
@@ -89,6 +94,7 @@ class MiezeMaster(Moveable):
             dev = session.getDevice(devname)
             dev.move(devvalue)
             self._started_devs.append(dev)
+        self.setting = index
 
     def doWait(self):
         for dev in self._started_devs:
@@ -209,6 +215,39 @@ class MiezeMaster(Moveable):
         self.curtable = new_table
 
 
+class MiezeScan(Scan):
+    """
+    Special scan class for MIEZE scans.
+    """
+
+    def __init__(self, settings, devices, positions, firstmoves=None,
+                 multistep=None, detlist=None, envlist=None, preset=None,
+                 scaninfo=None, scantype=None):
+        miezedev = session.getDevice('mieze', MiezeMaster)
+        if settings is not None:
+            if settings == '*':
+                settings = [sett['_name_'] for sett in miezedev.curtable]
+            if isinstance(settings, (str, int, long)):
+                settings = [settings]
+            new_devices = devices + [miezedev]
+            new_positions = []
+            for poslist in positions:
+                new_positions.extend(poslist + [sett] for sett in settings)
+            devices = new_devices
+            positions = new_positions
+        Scan.__init__(self, devices, positions, firstmoves, multistep,
+                      detlist, envlist, preset, scaninfo, scantype)
+
+
 @usercommand
-def mscan():
-    pass
+def mscan(settings, dev, *args, **kwargs):
+    """MIEZE scan over device(s)."""
+    def mkpos(starts, steps, numsteps):
+        return [[start + i*step for (start, step) in zip(starts, steps)]
+                for i in range(numsteps)]
+    scanstr = _infostr('mscan', (dev,) + args, kwargs)
+    devs, values, restargs = _fixType(dev, args, mkpos)
+    preset, scaninfo, detlist, envlist, move, multistep  = \
+        _handleScanArgs(restargs, kwargs, scanstr)
+    MiezeScan(settings, devs, values, move, multistep, detlist,
+              envlist, preset, scaninfo).run()
