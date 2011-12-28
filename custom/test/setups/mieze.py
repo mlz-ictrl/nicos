@@ -1,0 +1,58 @@
+name = 'MIEZE devices'
+
+includes = ['system']
+
+devices = dict(
+
+    mieze    = device('nicos.mira.mieze.MiezeMaster',
+                      ),
+
+    amp1     = device('nicos.manual.ManualMove',
+                      unit = 'V',
+                      abslimits = (0, 1)),
+    amp2     = device('nicos.manual.ManualMove',
+                      unit = 'V',
+                      abslimits = (0, 1)),
+    amp3     = device('nicos.manual.ManualMove',
+                      unit = 'V',
+                      abslimits = (0, 1)),
+
+    freq1    = device('nicos.manual.ManualMove',
+                      unit = 'Hz',
+                      fmtstr = '%.0f',
+                      abslimits = (0, 80000000)),
+    freq2    = device('nicos.manual.ManualMove',
+                      unit = 'Hz',
+                      fmtstr = '%.0f',
+                      abslimits = (0, 80000000)),
+    freq3    = device('nicos.manual.ManualMove',
+                      unit = 'Hz',
+                      fmtstr = '%.0f',
+                      abslimits = (0, 80000000)),
+
+#    pk2pk1   = device('nicos.io.AnalogInput',
+#                      tacodevice = '//mira4/mira/tds2014/ch1_pk2pk'),
+#    pk2pk2   = device('nicos.io.AnalogInput',
+#                      tacodevice = '//mira4/mira/tds2014/ch2_pk2pk'),
+
+    dc1      = device('nicos.manual.ManualMove',
+                      unit = 'A',
+                      abslimits = (0, 100)),
+    dc2      = device('nicos.manual.ManualMove',
+                      unit = 'A',
+                      abslimits = (0, 100)),
+
+    Cbox1    = device('nicos.manual.ManualSwitch',
+                      states = []),
+    Cbox2    = device('nicos.manual.ManualSwitch',
+                      states = []),
+
+   # fp1       = device('nicos.io.AnalogInput',
+   #                    tacodevice = '//mira4/mira/ag1016/fp01'),
+   # rp1       = device('nicos.io.AnalogInput',
+   #                    tacodevice = '//mira4/mira/ag1016/rp01'),
+   # fp2       = device('nicos.io.AnalogInput',
+   #                    tacodevice = '//mira4/mira/ag1016/fp02'),
+   # rp2       = device('nicos.io.AnalogInput',
+   #                    tacodevice = '//mira4/mira/ag1016/rp02'),
+)
