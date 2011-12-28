@@ -913,17 +913,21 @@ class HasLimits(Moveable):
 
     def init(self):
         Moveable.init(self)
+        if isinstance(self, HasOffset):
+            offset = self.offset
+        else:
+            offset = 0
         if self.abslimits[0] > self.abslimits[1]:
             raise ConfigurationError(self, 'absolute minimum (%s) above the '
                                      'absolute maximum (%s)' % self.abslimits)
-        if self.userlimits[0] < self.abslimits[0]:
+        if self.userlimits[0] + offset < self.abslimits[0]:
             self.log.warning('user minimum (%s) below absolute minimum (%s), '
-                              'please check and re-set limits' %
-                              (self.userlimits[0], self.abslimits[0]))
-        if self.userlimits[1] > self.abslimits[1]:
+                             'please check and re-set limits' %
+                             (self.userlimits[0], self.abslimits[0]))
+        if self.userlimits[1] + offset > self.abslimits[1]:
             self.log.warning('user maximum (%s) above absolute maximum (%s), '
-                              'please check and re-set limits' %
-                              (self.userlimits[1], self.abslimits[1]))
+                             'please check and re-set limits' %
+                             (self.userlimits[1], self.abslimits[1]))
         if session.mode == 'simulation':
             # special case: in simulation mode, doReadUserlimits is not called,
             # so the limits are not set from the absolute limits, and are always
