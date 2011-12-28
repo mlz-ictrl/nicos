@@ -120,6 +120,18 @@ Scanning commands
 .. autofunction:: contscan
 .. autofunction:: manualscan
 
+On-line analysis commands
+-------------------------
+
+.. module:: nicos.commands.analyze
+
+.. autofunction:: center_of_mass
+.. autofunction:: root_mean_square
+.. autofunction:: poly
+.. autofunction:: gauss
+.. autofunction:: center
+.. autofunction:: checkoffset
+
 Triple-axis commands
 --------------------
 

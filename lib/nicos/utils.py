@@ -147,6 +147,8 @@ class Override(object):
 class Value(object):
     """
     This class defines the properties of a Measurable read value.
+
+    XXX Document possible values of "type" and "errors"
     """
 
     def __init__(self, name, type='other', errors='none', unit='',
