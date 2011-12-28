@@ -734,10 +734,16 @@ class Session(object):
     # -- Session-specific behavior ---------------------------------------------
 
     def updateLiveData(self, tag, filename, dtype, nx, ny, nt, time, data):
-        pass
+        """Send new live data to clients.
+
+        XXX explain arguments here
+        """
 
     def breakpoint(self, level):
-        pass
+        """Allow breaking or stopping the script here."""
+
+    def clearExperiment(self):
+        """Reset experiment-specific data."""
 
 
 # must be imported after class definitions due to module interdependencies

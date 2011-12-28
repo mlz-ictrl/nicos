@@ -139,6 +139,10 @@ class Sample(Device):
                              category='sample'),
     }
 
+    def reset(self):
+        """Reset experiment-specific information."""
+        self.samplename = ''
+
     def doWriteSamplename(self, name):
         if name:
             session.elog_event('sample', name)
@@ -198,9 +202,12 @@ class Experiment(Device):
         # reset everything else to defaults
         self.remark = ''
         self.users = []
-        self.sample.samplename = ''
-        #self.envlist = []
+        self.sample.reset()
+        self.envlist = []
         #self.detlist = []
+        for notifier in session.notifiers:
+            notifier.reset()
+        self._last_datasets = []
         session.elog_event('newexperiment', (proposal, title))
         session.elog_event('setup', list(session.explicit_setups))
 

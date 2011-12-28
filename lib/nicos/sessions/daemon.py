@@ -129,3 +129,7 @@ class DaemonSession(NoninteractiveSession):
 
     def breakpoint(self, level):
         exec self._bpcode
+
+    def clearExperiment(self):
+        # reset cached messages
+        del self.daemon_device._messages[:]

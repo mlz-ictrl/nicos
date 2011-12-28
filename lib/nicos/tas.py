@@ -46,7 +46,15 @@ THZ2MEV = 4.136
 
 
 class TASSample(Sample, Cell):
-    pass
+    """TAS-specific sample with cell information."""
+
+    def reset(self):
+        Sample.reset(self)
+        self.lattice = [2*pi, 2*pi, 2*pi]
+        self.angles  = [90, 90, 90]
+        self.orient1 = [1, 0, 0]
+        self.orient2 = [0, 1, 0]
+        self.psi0    = 0.0
 
 
 def wavelength(dvalue, order, theta):

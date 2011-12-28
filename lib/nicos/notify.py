@@ -69,6 +69,9 @@ class Notifier(Device):
         if runtime > self.minruntime:
             self.send(subject, body, what, short, important)
 
+    def reset(self):
+        """Reset experiment-specific configuration.  Does nothing by default."""
+
 
 class Jabberer(Notifier):
     """
@@ -128,6 +131,10 @@ class Mailer(Notifier):
                            settable=True),
         'subject':   Param('Subject prefix', type=str, default='NICOS'),
     }
+
+    def reset(self):
+        self.log.info('mail receivers cleared')
+        self.receivers = []
 
     def send(self, subject, body, what=None, short=None, important=True):
         def send():
