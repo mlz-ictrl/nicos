@@ -194,18 +194,18 @@ class ConsoleSink(DataSink):
     """
 
     def beginDataset(self, dataset):
-        printinfo('=' * 80)
+        printinfo('=' * 100)
         printinfo('Starting scan:      ' + (dataset.scaninfo or ''))
         for name, value in dataset.sinkinfo.iteritems():
             printinfo('%-20s%s' % (name+':', value))
         printinfo('Started at:         ' +
                   time.strftime(TIMEFMT, dataset.started))
-        printinfo('-' * 80)
+        printinfo('-' * 100)
         printinfo('\t'.join(map(str, ['#'] + dataset.xnames + dataset.ynames)).
                   expandtabs())
         printinfo('\t'.join([''] + dataset.xunits + dataset.yunits).
                   expandtabs())
-        printinfo('-' * 80)
+        printinfo('-' * 100)
         if dataset.positions:
             self._npoints = len(dataset.positions)
         else:
@@ -224,9 +224,9 @@ class ConsoleSink(DataSink):
              zip(dataset.yvalueinfo, yvalues)]).expandtabs())
 
     def endDataset(self, dataset):
-        printinfo('-' * 80)
+        printinfo('-' * 100)
         printinfo('Finished at:        ' + time.strftime(TIMEFMT))
-        printinfo('=' * 80)
+        printinfo('=' * 100)
 
 
 class DaemonSink(DataSink):
