@@ -117,6 +117,17 @@ def SetDetectors(*detlist):
         SetDetectors(det, psd)  # to use both the "det" and "psd" detectors
     """
     session.experiment.setDetectors(detlist)
+    session.log.info('standard detectors are now: %s' %
+                     ', '.join(session.experiment.detlist))
+
+
+@usercommand
+def AddDetector(*detlist):
+    """Add the specified detector device(s) to the standard detectors."""
+    existing = session.experiment.detlist
+    session.experiment.setDetectors(existing + list(detlist))
+    session.log.info('standard detectors are now: %s' %
+                     ', '.join(session.experiment.detlist))
 
 
 @usercommand
@@ -130,3 +141,14 @@ def SetEnvironment(*devlist):
         SetEnvironment()       # to read out no additional devices
     """
     session.experiment.setEnvironment(devlist)
+    session.log.info('standard environment is now: %s' %
+                     ', '.join(session.experiment.envlist))
+
+
+@usercommand
+def AddEnvironment(*devlist):
+    """Add the specified environment device(s) to the standard environment."""
+    existing = session.experiment.envlist
+    session.experiment.setEnvironment(existing + list(devlist))
+    session.log.info('standard environment is now: %s' %
+                     ', '.join(session.experiment.envlist))

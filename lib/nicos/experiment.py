@@ -295,7 +295,8 @@ class Experiment(Device):
         for det in detectors:
             if isinstance(det, Device):
                 det = det.name
-            dlist.append(det)
+            if det not in dlist:
+                dlist.append(det)
         self.detlist = dlist
         session.elog_event('detectors', dlist)
 
@@ -323,7 +324,8 @@ class Experiment(Device):
         for dev in devices:
             if isinstance(dev, Device):
                 dev = dev.name
-            dlist.append(dev)
+            if dev not in dlist:
+                dlist.append(dev)
         self.envlist = dlist
         session.elog_event('environment', dlist)
 
