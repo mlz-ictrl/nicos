@@ -26,12 +26,17 @@
 
 __version__ = "$Revision$"
 
+import threading
+from time import sleep
+
+from nicos import status
 from nicos.io import AnalogOutput
 from nicos.utils import oneof
-from nicos.device import Param
+from nicos.device import HasLimits, Moveable, Readable, Param, Override
 
 
-class HFDevice(AnalogOutput):
+class GeneratorDevice(AnalogOutput):
+    """RF generator frequency and amplitude device."""
 
     parameters = {
         'shape': Param('Wave shape', type=oneof(str, 'sinusoid', 'square'),
@@ -51,3 +56,84 @@ class HFDevice(AnalogOutput):
 
     def doWriteOffset(self, val):
         self._taco_update_resource('offset', str(val))
+
+
+class RFCurrent(HasLimits, Moveable):
+    """RF current device for controlling the RF amplitude due to changes in
+    amplification in the RF amplifier with temperature.
+    """
+
+    attached_devices = {
+        'amplitude': (Moveable, 'The frequency generator amplitude'),
+        'readout':   (Readable, 'The current readout'),
+    }
+
+    parameters = {
+        'rfcontrol':  Param('Whether to control the RF amplitude for a stable '
+                            'current in the coils', type=bool, default=False,
+                            settable=True),
+        'kp':         Param('Proportionality constant between difference and '
+                            'correction', type=float, default=0.005, settable=True),
+        'checktime':  Param('Time between control checks', type=float, default=10.,
+                            settable=True, unit='s'),
+        'maxdelta':   Param('Maximum delta between read value and target value',
+                            type=float, unit='%', default=5, settable=True),
+    }
+
+    parameter_overrides = {
+        'unit':  Override(mandatory=False),
+    }
+
+    def doInit(self):
+        self._runthread = True
+
+    def doShutdown(self):
+        self._runthread = False
+
+    def _setMode(self, mode):
+        Moveable._setMode(self, mode)
+        if mode == 'master':
+            self._rfthread = threading.Thread(target=self._rfcontrol)
+            self._rfthread.setDaemon(True)
+            self._rfthread.start()
+
+    def doReadUnit(self):
+        return self._adevs['readout'].unit
+
+    def doStart(self, target):
+        pass
+
+    def doRead(self):
+        # XXX read() or read(0)
+        return self._adevs['readout'].read()
+
+    def doStatus(self):
+        return status.OK, ''
+
+    def _rfcontrol(self):
+        self.log.debug('RF control thread started')
+        amp, cur = self._adevs['amplitude'], self._adevs['readout']
+        while self._runthread:
+            curamp = amp.read()
+            while self.rfcontrol:
+                sleep(self.checktime)
+                curp2p = cur.read()
+                p2p = self.target
+                if abs(curp2p - p2p)/p2p > self.maxdelta/100.:
+                    self.log.debug('P2P %.4f, should be %.4f' % (curp2p, p2p))
+                    diff = curp2p - p2p
+                    # negate diff: move in opposite direction of difference!
+                    prevamp = curamp
+                    nextamp = curamp = prevamp - diff * self.kp
+                    ok, why = amp.isAllowed(nextamp)
+                    if not ok:
+                        self.log.warning('not setting new RF amplitude '
+                                         '%s: %s' % (amp.format(nextamp),
+                                                     why))
+                        continue
+                    self.log.debug('setting amplitude to %s (was %s)' %
+                                   (amp.format(nextamp),
+                                    amp.format(prevamp)))
+                    amp.move(nextamp)
+            while not self.rfcontrol:
+                sleep(self.checktime)

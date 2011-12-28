@@ -541,7 +541,7 @@ class FreeSpace(Readable):
         if free < self.minfree:
             return status.ERROR, 'free space %.2f GiB below %.2f GiB' \
                 % (free, self.minfree)
-        return status.OK, '%.2f GiB free'
+        return status.OK, '%.2f GiB free' % free
 
     def doUpdateMinfree(self, value):
         if self._cache:
