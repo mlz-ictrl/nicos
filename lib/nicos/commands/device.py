@@ -194,11 +194,11 @@ def stop(*devlist):
     for dev in devlist:
         dev = session.getDevice(dev, (Moveable, Measurable))
         try:
-            dev.stop()
+            status = dev.stop()
         except NicosError:
             dev.log.exception('error stopping device')
         else:
-            dev.log.info('stopped')
+            dev.log.info('stopped, status is now %s' % _formatStatus(status))
 
 @usercommand
 def reset(*devlist):
@@ -261,15 +261,19 @@ def version(*devlist):
     for dev in devlist:
         dev = session.getDevice(dev, Device)
         versions = dev.version()
-        dev.log.info('Relevant versions for this device:')
+        dev.log.info('relevant versions for this device:')
         printTable(('module/component', 'version'), versions, printinfo)
 
 @usercommand
 def limits(*devlist):
-    """Print the limits of the device."""
+    """Print the limits of the device(s)."""
     for dev in devlist:
-        dev = session.getDevice(dev, HasLimits)
-        dev.log.info('Limits for this device:')
+        try:
+            dev = session.getDevice(dev, HasLimits)
+        except UsageError:
+            dev.log.warning('device has no limits')
+            continue
+        dev.log.info('limits for this device:')
         printinfo('absolute minimum: %s %s' %
                   (dev.format(dev.absmin), dev.unit))
         printinfo('    user minimum: %s %s' %
@@ -278,6 +282,9 @@ def limits(*devlist):
                   (dev.format(dev.usermax), dev.unit))
         printinfo('absolute maximum: %s %s' %
                   (dev.format(dev.absmax), dev.unit))
+        if isinstance(dev, HasOffset):
+            printinfo('offset:           %s %s' %
+                      (dev.format(dev.offset), dev.unit))
 
 @usercommand
 def listparams(dev):

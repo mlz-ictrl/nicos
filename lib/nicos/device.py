@@ -883,6 +883,7 @@ class Moveable(Readable):
             self.doStop()
         if self._cache:
             self._cache.invalidate(self, 'value')
+        return self.status(0)
 
     @usermethod
     def fix(self, reason=''):
