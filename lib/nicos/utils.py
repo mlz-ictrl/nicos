@@ -148,7 +148,20 @@ class Value(object):
     """
     This class defines the properties of a Measurable read value.
 
-    XXX Document possible values of "type" and "errors"
+    *type* can be one of:
+
+    - ``counter`` -- some counter value
+    - ``monitor`` -- some monitor value
+    - ``time`` -- some timing value
+    - ``other`` -- other numeric value
+    - ``error`` -- standard error for previous value
+    - ``info`` -- non-numeric info value
+
+    *errors* can be one of:
+
+    - ``none`` -- no errors known
+    - ``next`` -- errors are in next value
+    - ``sqrt`` -- counter-like value: errors are square root
     """
 
     def __init__(self, name, type='other', errors='none', unit='',

@@ -238,6 +238,8 @@ class MiezeScan(Scan):
         Scan.__init__(self, devices, positions, firstmoves, multistep,
                       detlist, envlist, preset, scaninfo, scantype)
 
+    # XXX automatic fitting and live data
+
 
 @usercommand
 def mscan(settings, dev, *args, **kwargs):
