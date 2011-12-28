@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import with_statement
+
 """NICOS live 2D data plot window/panel."""
 
 __version__ = "$Revision$"

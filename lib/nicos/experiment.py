@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import with_statement
+
 """NICOS Experiment devices."""
 
 __version__ = "$Revision$"

@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+from __future__ import with_statement
+
 """NICOS cache clients."""
 
 __version__ = "$Revision$"

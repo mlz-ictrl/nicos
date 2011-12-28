@@ -53,7 +53,7 @@ The configuration will be installed as ``/opt/nicos/setups`` by default.
 Requirements
 ------------
 
-* At least Python 2.6
+* At least Python 2.5
 
 * For the basic system:
 

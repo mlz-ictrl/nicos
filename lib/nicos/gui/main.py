@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import with_statement
+
 """NICOS GUI main window and application startup."""
 
 __version__ = "$Revision$"

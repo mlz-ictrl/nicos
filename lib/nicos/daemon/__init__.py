@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import with_statement
+
 """NICOS daemon package."""
 
 __version__ = "$Revision$"

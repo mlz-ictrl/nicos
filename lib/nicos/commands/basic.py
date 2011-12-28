@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import with_statement
+
 """Module for basic user commands."""
 
 __version__ = "$Revision$"

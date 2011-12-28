@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import with_statement
+
 """Web interface for NICOS."""
 
 __version__ = "$Revision$"

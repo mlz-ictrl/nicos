@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import with_statement
+
 """Definition of abstract base device classes."""
 
 __version__ = "$Revision$"

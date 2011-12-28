@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import with_statement
+
 """NICOS GUI virtual console panel component."""
 
 __version__ = "$Revision$"

@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import with_statement
+
 """Contains a process that polls devices automatically."""
 
 __version__ = "$Revision$"

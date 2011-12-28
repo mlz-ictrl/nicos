@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+from __future__ import with_statement
+
 """IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
 
 __version__ = ""

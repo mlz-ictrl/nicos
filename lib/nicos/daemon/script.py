@@ -26,17 +26,14 @@
 
 __version__ = "$Revision$"
 
+import sys
 import time
 import traceback
 import __builtin__
 from Queue import Queue
 from threading import Lock, Event, Thread
 
-# the ast module (and AST compilation) need Python 2.6
-try:
-    import ast
-except ImportError:
-    ast = None
+import ast
 
 from nicos import session
 from nicos.loggers import INPUT
@@ -116,7 +113,7 @@ class ScriptRequest(Request):
                 compile(src, '<script>', 'single', CO_DIVISION)
             self.code = [session.commandHandler(self.text, compiler)]
             self.blocks = None
-        elif ast is None:
+        elif sys.version_info < (2, 6):
             # Python < 2.6, no splitting possible
             self.code = [compile(self.text + '\n', '<script>',
                                  'exec', CO_DIVISION)]
