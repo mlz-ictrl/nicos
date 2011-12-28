@@ -736,7 +736,7 @@ class Moveable(Readable):
 
     parameters = {
         'target': Param('Last target position of a start() action',
-                        unit='main', type=anytype, default=0.),
+                        unit='main', type=anytype, default='unknown'),
         'fixed':  Param('None if the device is not fixed, else a string '
                         'describing why', settable=True, userparam=False,
                         type=str),
