@@ -82,13 +82,15 @@ Device commands
 
 .. autofunction:: read
 .. autofunction:: status
-.. autofunction:: limits
 
 .. autofunction:: move
 .. autofunction:: wait
 .. autofunction:: maw
 .. autofunction:: stop
 .. autofunction:: reset
+
+.. autofunction:: limits
+.. autofunction:: resetlimits
 
 .. autofunction:: fix
 .. autofunction:: release

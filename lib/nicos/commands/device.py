@@ -274,17 +274,49 @@ def limits(*devlist):
             dev.log.warning('device has no limits')
             continue
         dev.log.info('limits for this device:')
-        printinfo('absolute minimum: %s %s' %
-                  (dev.format(dev.absmin), dev.unit))
-        printinfo('    user minimum: %s %s' %
-                  (dev.format(dev.usermin), dev.unit))
-        printinfo('    user maximum: %s %s' %
-                  (dev.format(dev.usermax), dev.unit))
-        printinfo('absolute maximum: %s %s' %
-                  (dev.format(dev.absmax), dev.unit))
         if isinstance(dev, HasOffset):
-            printinfo('offset:           %s %s' %
+            printinfo('    absolute limits (physical): %s --- %s %s' %
+                      (dev.format(dev.absmin), dev.format(dev.absmax),
+                       dev.unit))
+            printinfo('user limits (including offset): %s --- %s %s' %
+                      (dev.format(dev.usermin), dev.format(dev.usermax),
+                       dev.unit))
+            printinfo('                current offset: %s %s' %
                       (dev.format(dev.offset), dev.unit))
+            printinfo('     => user limits (physical): %s --- %s %s' %
+                      (dev.format(dev.usermin + dev.offset),
+                       dev.format(dev.usermax + dev.offset), dev.unit))
+        else:
+            printinfo('absolute limits: %s --- %s %s' %
+                      (dev.format(dev.absmin), dev.format(dev.absmax),
+                       dev.unit))
+            printinfo('    user limits: %s --- %s %s' %
+                      (dev.format(dev.usermin), dev.format(dev.usermax),
+                       dev.unit))
+
+@usercommand
+def resetlimits(*devlist):
+    """Reset the user limits for the device(s) to the absolute limits."""
+    if not devlist:
+        devlist = [session.devices[devname]
+                   for devname in session.explicit_devices
+                   if isinstance(session.devices[devname], HasLimits)]
+    for dev in devlist:
+        try:
+            dev = session.getDevice(dev, HasLimits)
+        except UsageError:
+            dev.log.warning('device has no limits')
+            continue
+        alim = dev.abslimits
+        if isinstance(dev, HasOffset):
+            newlim = (alim[0] - dev.offset, alim[1] - dev.offset)
+        else:
+            newlim = alim
+        if dev.userlimits != newlim:
+            dev.userlimits = newlim
+            dev.log.info('limits reset to absolute limits, new range: %s --- %s %s'
+                         % (dev.format(dev.userlimits[0]),
+                            dev.format(dev.userlimits[1]), dev.unit))
 
 @usercommand
 def listparams(dev):
