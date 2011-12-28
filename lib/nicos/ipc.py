@@ -1193,7 +1193,7 @@ class SlitAxis(HasPrecision, HasLimits, Moveable):
         except NicosError:
             self._thestatus = status.ERROR
             raise MoveError(self, 'failed to position')
-        self._thestatus = status.IDLE  # finished
+        self._thestatus = status.OK  # finished
         self._lastvalue = target
 
     def doReset(self):
@@ -1203,14 +1203,14 @@ class SlitAxis(HasPrecision, HasLimits, Moveable):
         self._adevs['bus'].send(self.addr, self.side+160, temp, 4)
         self._wait(self.doStatus, (status.OK, 'idle'), 1,
                    self.timeout, TimeoutError(self, 'reset timed out'))
-        self._thestatus = status.IDLE
+        self._thestatus = status.OK
 
     def doWait(self):
-        if self.doStatus()[0] in [status.IDLE, status.ERROR]:
+        if self.doStatus()[0] in [status.OK, status.ERROR]:
             return
         self.log.info('waiting for positioning')
         self._poscontrol.join(self.timeout)
-        if self._thestatus != status.IDLE:
+        if self._thestatus != status.OK:
             raise NicosError(self, 'timeout occurred in positioning')
 
     def doStop(self):
