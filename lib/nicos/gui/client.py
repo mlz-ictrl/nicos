@@ -272,9 +272,10 @@ class NicosClient(object):
         except Exception, err:
             return self.handle_error(err)
 
-    def ask(self, *command):
+    def ask(self, *command, **kwds):
         if not self.socket:
-            self.signal('error', 'You are not connected to a server.')
+            if not kwds.get('quiet', False):
+                self.signal('error', 'You are not connected to a server.')
             return
         try:
             with self.lock:
@@ -287,7 +288,10 @@ class NicosClient(object):
             return self.handle_error(err)
 
     def eval(self, expr):
-        return ast.literal_eval(self.ask('eval', expr))
+        result = self.ask('eval', expr, quiet=True)
+        if result is None:
+            return None
+        return ast.literal_eval(result)
 
     def read(self):
         if not self.socket:
