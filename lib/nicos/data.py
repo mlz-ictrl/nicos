@@ -537,9 +537,11 @@ class FreeSpace(Readable):
         return (st.f_bsize * st.f_bavail) / (1024 * 1024 * 1024.)
 
     def doStatus(self):
-        if self.read() < self.minfree:
-            return status.ERROR, 'free space below %s GiB' % self.minfree
-        return status.OK, ''
+        free = self.read()
+        if free < self.minfree:
+            return status.ERROR, 'free space %.2f GiB below %.2f GiB' \
+                % (free, self.minfree)
+        return status.OK, '%.2f GiB free'
 
     def doUpdateMinfree(self, value):
         if self._cache:

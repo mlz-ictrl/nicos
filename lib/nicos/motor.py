@@ -53,13 +53,13 @@ class Motor(TacoDevice, BaseMotor):
     def doStatus(self):
         state = self._taco_guard(self._dev.deviceState)
         if state == TACOStates.DEVICE_NORMAL:
-            return (status.OK, 'idle')
+            return status.OK, 'idle'
         elif state == TACOStates.MOVING:
-            return (status.BUSY, 'moving')
+            return status.BUSY, 'moving'
         elif state == TACOStates.INIT:
-            return (status.BUSY, 'referencing')
+            return status.BUSY, 'referencing'
         else:
-            return (status.ERROR, TACOStates.stateDescription(state))
+            return status.ERROR, TACOStates.stateDescription(state)
 
     def doStop(self):
         self._taco_guard(self._dev.stop)

@@ -263,8 +263,8 @@ class AsyncDetector(Measurable):
         elif self._measure.isSet():
             return status.BUSY, 'measuring'
         elif not self._processed.isSet():
-            return status.BUSY, 'processing',
-        return status.OK, 'idle'
+            return status.BUSY, 'processing'
+        return status.OK, ''
 
     def doIsCompleted(self):
         return not self._measure.isSet() and self._processed.isSet()

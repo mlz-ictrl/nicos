@@ -532,7 +532,7 @@ class Coder(NicosCoder):
     def doStatus(self):
         if self._lasterror:
             return status.ERROR, self._lasterror
-        return status.OK, 'idle'
+        return status.OK, ''
 
     def doSetPosition(self, target):
         raise NicosError('setPosition not implemented for IPC coders')
@@ -1065,7 +1065,7 @@ class Input(Readable):
         return ((high + low) & self._mask) >> self.first
 
     def doStatus(self):
-        return status.OK, 'idle'
+        return status.OK, ''
 
 
 class Output(Input, Moveable):
@@ -1087,7 +1087,7 @@ class Output(Input, Moveable):
         st = self._adevs['bus'].get(self.addr, 195)
         if st == 1:
             return status.ERROR, 'power stage overheat'
-        return status.OK, 'idle'
+        return status.OK, ''
 
     def doIsAllowed(self, pos):
         maxval = self._mask >> self.first

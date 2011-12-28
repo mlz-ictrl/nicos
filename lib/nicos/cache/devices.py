@@ -38,7 +38,7 @@ class CacheReader(Readable):
         raise CommunicationError(self, 'CacheReader value not in cache')
 
     def doStatus(self):
-        return (status.UNKNOWN, 'no status found in cache')
+        return status.UNKNOWN, 'no status found in cache'
 
 
 class CacheWriter(HasLimits, Moveable):
@@ -61,7 +61,7 @@ class CacheWriter(HasLimits, Moveable):
         raise CommunicationError(self, 'CacheWriter value not in cache')
 
     def doStatus(self):
-        return (status.OK, 'no status found in cache')
+        return status.OK, 'no status found in cache'
 
     def doStart(self, pos):
         self._cache.put(self, self.setkey, pos)

@@ -80,14 +80,14 @@ class FRMChannel(TacoDevice, Measurable):
     def doStatus(self):
         state = self._taco_guard(self._dev.deviceState)
         if state == TACOStates.PRESELECTION_REACHED:
-            return (status.OK, 'preselection reached')
+            return status.OK, 'preselection reached'
         elif state == TACOStates.STOPPED:
             if self.__stopMode == status.OK:
-                return (status.OK, 'idle')
+                return status.OK, 'idle'
             else:
-                return (status.BUSY, 'paused')
+                return status.BUSY, 'paused'
         else:
-            return (status.BUSY, TACOStates.stateDescription(state))
+            return status.BUSY, TACOStates.stateDescription(state)
 
     def doIsCompleted(self):
         return self.doStatus()[0] == status.OK
@@ -252,7 +252,7 @@ class FRMDetector(Measurable):
             masterstatus = master.status(0)
             if masterstatus[0] == status.BUSY:
                 return masterstatus
-        return (status.OK, 'idle')
+        return status.OK, 'idle'
 
     def doIsCompleted(self):
         for master in self._masters:

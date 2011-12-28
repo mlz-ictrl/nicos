@@ -425,15 +425,15 @@ class TacoAxis(TacoDevice, BaseAxis):
     def doStatus(self):
         state = self._taco_guard(self._dev.deviceState)
         if state in (TACOStates.DEVICE_NORMAL, TACOStates.STOPPED):
-            return (status.OK, 'idle')
+            return status.OK, 'idle'
         elif state in (TACOStates.MOVING, TACOStates.STOP_REQUESTED):
-            return (status.BUSY, 'moving')
+            return status.BUSY, 'moving'
         elif state == TACOStates.INIT:
-            return (status.BUSY, 'referencing')
+            return status.BUSY, 'referencing'
         elif state == TACOStates.ALARM:
-            return (status.NOTREACHED, 'position not reached')
+            return status.NOTREACHED, 'position not reached'
         else:
-            return (status.ERROR, TACOStates.stateDescription(state))
+            return status.ERROR, TACOStates.stateDescription(state)
 
     def doStop(self):
         self._taco_guard(self._dev.stop)
@@ -602,10 +602,10 @@ class HoveringAxis(TacoAxis):
                      TACOStates.TRIPPED):
             # TRIPPED means: both limit switches or inhibit active
             # which is normal when air is switched off
-            return (status.OK, 'idle')
+            return status.OK, 'idle'
         elif state in (TACOStates.MOVING, TACOStates.STOP_REQUESTED):
-            return (status.BUSY, 'moving')
+            return status.BUSY, 'moving'
         elif state == TACOStates.ALARM:
-            return (status.NOTREACHED, 'position not reached')
+            return status.NOTREACHED, 'position not reached'
         else:
-            return (status.ERROR, TACOStates.stateDescription(state))
+            return status.ERROR, TACOStates.stateDescription(state)

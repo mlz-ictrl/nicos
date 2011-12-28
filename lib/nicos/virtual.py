@@ -101,7 +101,7 @@ class VirtualCoder(Coder, HasOffset):
         return val - self.offset
 
     def doStatus(self):
-        return (status.OK, 'idle')
+        return status.OK, ''
 
 
 class VirtualTimer(FRMTimerChannel):
@@ -129,7 +129,7 @@ class VirtualTimer(FRMTimerChannel):
         self.__finish = True
 
     def doStatus(self):
-        return (status.OK, 'idle')
+        return status.OK, ''
 
     def doRead(self):
         if self.ismaster:
@@ -170,7 +170,7 @@ class VirtualCounter(FRMCounterChannel):
                 doReset = nothing
 
     def doStatus(self):
-        return (status.OK, 'idle')
+        return status.OK, ''
 
     def doRead(self):
         if self.ismaster:
