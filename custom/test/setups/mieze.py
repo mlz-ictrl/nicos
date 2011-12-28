@@ -1,6 +1,6 @@
 name = 'MIEZE devices'
 
-includes = ['system']
+includes = ['startup']
 
 devices = dict(
 
@@ -37,11 +37,11 @@ devices = dict(
                       unit = 'A',
                       abslimits = (0, 5)),
 
-    curr1    = device('nicos.mira.agilent.RFCurrent',
+    curr1    = device('nicos.mira.rfcircuit.RFCurrent',
                       amplitude = 'amp1',
                       readout = 'pk2pk1',
                       abslimits = (0, 5)),
-    curr2    = device('nicos.mira.agilent.RFCurrent',
+    curr2    = device('nicos.mira.rfcircuit.RFCurrent',
                       amplitude = 'amp2',
                       readout = 'pk2pk2',
                       abslimits = (0, 5)),
