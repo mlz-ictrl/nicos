@@ -275,22 +275,22 @@ def limits(*devlist):
             continue
         dev.log.info('limits for this device:')
         if isinstance(dev, HasOffset):
-            printinfo('    absolute limits (physical): %s --- %s %s' %
+            printinfo('    absolute limits (physical): %8s --- %8s %s' %
                       (dev.format(dev.absmin), dev.format(dev.absmax),
                        dev.unit))
-            printinfo('user limits (including offset): %s --- %s %s' %
+            printinfo('user limits (including offset): %8s --- %8s %s' %
                       (dev.format(dev.usermin), dev.format(dev.usermax),
                        dev.unit))
-            printinfo('                current offset: %s %s' %
+            printinfo('                current offset: %8s %s' %
                       (dev.format(dev.offset), dev.unit))
-            printinfo('     => user limits (physical): %s --- %s %s' %
+            printinfo('     => user limits (physical): %8s --- %8s %s' %
                       (dev.format(dev.usermin + dev.offset),
                        dev.format(dev.usermax + dev.offset), dev.unit))
         else:
-            printinfo('absolute limits: %s --- %s %s' %
+            printinfo('absolute limits: %8s --- %8s %s' %
                       (dev.format(dev.absmin), dev.format(dev.absmax),
                        dev.unit))
-            printinfo('    user limits: %s --- %s %s' %
+            printinfo('    user limits: %8s --- %8s %s' %
                       (dev.format(dev.usermin), dev.format(dev.usermax),
                        dev.unit))
 
@@ -314,7 +314,7 @@ def resetlimits(*devlist):
             newlim = alim
         if dev.userlimits != newlim:
             dev.userlimits = newlim
-            dev.log.info('limits reset to absolute limits, new range: %s --- %s %s'
+            dev.log.info('limits reset to absolute limits, new range: %8s --- %8s %s'
                          % (dev.format(dev.userlimits[0]),
                             dev.format(dev.userlimits[1]), dev.unit))
 
