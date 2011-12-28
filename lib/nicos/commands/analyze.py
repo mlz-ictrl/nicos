@@ -31,7 +31,7 @@ from math import sqrt
 import numpy as np
 
 from nicos import session
-from nicos.errors import UsageError
+from nicos.errors import NicosError
 from nicos.commands import usercommand
 from nicos.commands.scan import cscan
 from nicos.commands.device import maw
@@ -41,7 +41,7 @@ from nicos.fitutils import Fit
 
 def _getData(xcol=None, ycol=None):
     if not session.experiment._last_datasets:
-        raise UsageError('no latest dataset has been stored')
+        raise NicosError('no latest dataset has been stored')
     dataset = session.experiment._last_datasets[-1]
     xs = ys = None
     if xcol is not None:
@@ -49,29 +49,29 @@ def _getData(xcol=None, ycol=None):
             try:
                 xcol = dataset.xnames.index(xcol)
             except ValueError:
-                raise UsageError('no such x column: %r' % xcol)
+                raise NicosError('no such x column: %r' % xcol)
         try:
             xs = np.array([p[xcol] for p in dataset.positions])
         except IndexError:
-            raise UsageError('no such x column: %r' % xcol)
+            raise NicosError('no such x column: %r' % xcol)
     if ycol is not None:
         if isinstance(ycol, str):
             try:
                 ycol = dataset.ynames.index(ycol)
             except ValueError:
-                raise UsageError('no such y column: %r' % ycol)
+                raise NicosError('no such y column: %r' % ycol)
         try:
             ys = np.array([p[ycol] for p in dataset.yresults])
         except IndexError:
-            raise UsageError('no such y column: %r' % ycol)
+            raise NicosError('no such y column: %r' % ycol)
     return xs, ys
 
 
 @usercommand
-def center_of_mass(xcol, ycol):
-    """
-    Calculate the center of mass x-coordinate of the last scan.
-    """
+def center_of_mass(xcol, ycol=None):
+    """Calculate the center of mass x-coordinate of the last scan."""
+    if ycol is None:
+        xcol, ycol = 0, xcol
     xs, ys = _getData(xcol, ycol)
     cm = (xs*ys).sum() / float(ys.sum())
     return float(cm)
@@ -79,18 +79,32 @@ def center_of_mass(xcol, ycol):
 
 @usercommand
 def root_mean_square(ycol):
-    """
-    Calculate the root-mean-square of the last scan.
-    """
+    """Calculate the root-mean-square of the last scan."""
     ys = _getData(None, ycol)
     return sqrt((ys**2).sum() / len(ys))
 
 
 @usercommand
-def gauss(xcol, ycol):
-    """
-    Fit a Gaussian through the data.
-    """
+def poly(n, xcol, ycol=None):
+    """Fit a polynomial of degree *n* through the last scan."""
+    if ycol is None:
+        xcol, ycol = 0, xcol
+    xs, ys = _getData(xcol, ycol)
+    def model(v, x):
+        return sum(v[i]*x**i for i in range(n+1))
+    fit = Fit(model, ['a%d' % i for i in range(n+1)], [1] * (n+1))
+    # XXX sqrt(ys) is wrong in general
+    res = fit.run('poly', xs, ys, np.sqrt(ys))
+    if res._failed:
+        return None, None
+    return tuple(res._pars[1]), tuple(res._pars[2])
+
+
+@usercommand
+def gauss(xcol, ycol=None):
+    """Fit a Gaussian through the data of the last scan."""
+    if ycol is None:
+        xcol, ycol = 0, xcol
     xs, ys = _getData(xcol, ycol)
     c = 2 * np.sqrt(2 * np.log(2))
     def model(v, x):
@@ -98,6 +112,7 @@ def gauss(xcol, ycol):
     fit = Fit(model, ['x0', 'A', 'sigma', 'B'],
               [0.5*(xs[0]+xs[-1]), xs.max(), (xs[1]-xs[0])*5, 0],
               allow_leastsq=False)
+    # XXX sqrt(ys) is wrong in general
     res = fit.run('gauss', xs, ys, np.sqrt(ys))
     if res._failed:
         return None, None
@@ -106,9 +121,8 @@ def gauss(xcol, ycol):
 
 @usercommand
 def center(dev, center, step, numsteps, *args, **kwargs):
-    """
-    Move the given device to the maximum of a Gaussian fit through a
-    center scan with the given parameters.
+    """Move the given device to the maximum of a Gaussian fit through a scan
+    around center with the given parameters.
     """
     cscan(dev, center, step, numsteps, *args, **kwargs)
     params, errors = gauss(0, -1)  # XXX which column!
