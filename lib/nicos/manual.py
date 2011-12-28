@@ -27,7 +27,7 @@
 __version__ = "$Revision$"
 
 from nicos import status
-from nicos.utils import nonemptylistof, anytype
+from nicos.utils import listof, anytype
 from nicos.device import Moveable, Param, Override, HasLimits
 from nicos.errors import InvalidValueError
 
@@ -48,13 +48,15 @@ class ManualMove(HasLimits, Moveable):
 
 
 class ManualSwitch(Moveable):
-    """
-    A representation of a manually changeable device.
+    """A representation of a manually changeable device.
+
+    If the *states* parameter is not empty, it represents a list of all
+    allowed values of the device.
     """
 
     parameters = {
         'states': Param('List of allowed states',
-                        type=nonemptylistof(anytype), mandatory=True),
+                        type=listof(anytype), mandatory=True),
     }
 
     parameter_overrides = {
@@ -62,14 +64,19 @@ class ManualSwitch(Moveable):
     }
 
     def doReadTarget(self):
-        return self.states[0]
+        if self.states:
+            return self.states[0]
+
+    def doIsAllowed(self, target):
+        if self.states and target not in self.states:
+            positions = ', '.join(repr(pos) for pos in self.states)
+            return False, \
+                '%r is an invalid position for this device; ' \
+                'valid positions are %s' % (target, positions)
+        return True, ''
 
     def doStart(self, target):
-        if target not in self.states:
-            positions = ', '.join(repr(pos) for pos in self.states)
-            raise InvalidValueError(self,
-                '%r is an invalid position for this device; '
-                'valid positions are %s' % (target, positions))
+        pass
 
     def doRead(self):
         return self.target
