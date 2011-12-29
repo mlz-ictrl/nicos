@@ -422,3 +422,35 @@ class ContinuousScan(Scan):
             device.stop()
             device.speed = original_speed
             self.endScan()
+
+
+class TwoDimScan(Scan):
+    """
+    Special scan class for two-dimensional scans.
+    """
+
+    def __init__(self, dev1, start1, step1, numsteps1,
+                 dev2, start2, step2, numsteps2,
+                 firstmoves=None, multistep=None, detlist=None,
+                 envlist=None, preset=None, scaninfo=None):
+        scantype = '2D'
+        devices = [dev1, dev2]
+        positions = []
+        for i in range(numsteps1):
+            dev1value = start1 + i*step1
+            # move dev2 forward in one row, then move it back in the next row
+            if i % 2 == 0:
+                positions.extend([dev1value, start2 + j*step2]
+                                 for j in range(numsteps2))
+            else:
+                positions.extend([dev1value, start2 + (numsteps2-j-1)*step2]
+                                 for j in range(numsteps2))
+        self._pointsperrow = numsteps1
+        Scan.__init__(self, devices, positions, firstmoves, multistep,
+                      detlist, envlist, preset, scaninfo, scantype)
+
+    def preparePoint(self, num, xvalues):
+        if num > 1 and (num-1) % self._pointsperrow == 0:
+            for sink in self._sinks:
+                sink.addBreak(self.dataset)
+        Scan.preparePoint(self, num, xvalues)

@@ -177,6 +177,14 @@ class DataSink(Device):
         """
         pass
 
+    def addBreak(self, dataset):
+        """Add a "break" to the dataset.
+
+        A break indicates a division in the data, e.g. between successive rows
+        of a 2-dimensional scan.
+        """
+        pass
+
     def endDataset(self, dataset):
         """End the current dataset."""
         pass
@@ -192,6 +200,10 @@ class ConsoleSink(DataSink):
     """
     A DataSink that prints scan data onto the console.
     """
+
+    parameter_overrides = {
+        'scantypes':  Override(default=['2D']),
+    }
 
     def beginDataset(self, dataset):
         printinfo('=' * 100)
@@ -222,6 +234,9 @@ class ConsoleSink(DataSink):
              zip(dataset.xvalueinfo, xvalues)] +
             [safe_format(info.fmtstr, val) for (info, val) in
              zip(dataset.yvalueinfo, yvalues)]).expandtabs())
+
+    def addBreak(self, dataset):
+        printinfo('-' * 100)
 
     def endDataset(self, dataset):
         printinfo('-' * 100)
@@ -412,6 +427,10 @@ class AsciiDatafileSink(DatafileSink):
                                 type=int),
     }
 
+    parameter_overrides = {
+        'scantypes':      Override(default=['2D']),
+    }
+
     def doReadDatapath(self):
         return session.experiment.datapath
 
@@ -506,6 +525,9 @@ class AsciiDatafileSink(DatafileSink):
         self._file.write('\t'.join(values) + '\n')
         self._file.flush()
         self._setROParam('lastpoint', dataset.curpoint)
+
+    def addBreak(self, dataset):
+        self._file.write('\n')
 
     def endDataset(self, dataset):
         self._file.write('%s End of NICOS data file %s\n' %

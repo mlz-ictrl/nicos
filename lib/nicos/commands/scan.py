@@ -27,7 +27,7 @@
 __version__ = "$Revision$"
 
 from nicos import session
-from nicos.scan import Scan, TimeScan, ContinuousScan, ManualScan
+from nicos.scan import Scan, TimeScan, ContinuousScan, ManualScan, TwoDimScan
 from nicos.device import Device, Measurable, Moveable, Readable
 from nicos.errors import UsageError
 from nicos.commands import usercommand
@@ -174,6 +174,23 @@ def timescan(numsteps, *args, **kwargs):
     scan.run()
 
 
+@usercommand
+def twodscan(dev1, start1, step1, numsteps1,
+             dev2, start2, step2, numsteps2,
+             *args, **kwargs):
+    """Two-dimensional scan of two devices.
+    """
+    scanstr = _infostr('twodscan',
+                       (dev1, start1, step1, numsteps1,
+                        dev2, start2, step2, numsteps2) + args, kwargs)
+    preset, scaninfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(args, kwargs, scanstr)
+    scan = TwoDimScan(dev1, start1, step1, numsteps1,
+                      dev2, start2, step2, numsteps2,
+                      move, multistep, detlist, envlist, preset, scaninfo)
+    scan.run()
+
+
 ADDSCANHELP1 = """
     The device can also be a list of devices that should be moved for each step.
     In this case, the start and stepwidth also have to be lists::
@@ -218,6 +235,7 @@ ADDSCANHELP2 = """
 scan.__doc__     += ADDSCANHELP1 + ADDSCANHELP2
 cscan.__doc__    += (ADDSCANHELP1 + ADDSCANHELP2).replace('scan(', 'cscan(')
 timescan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'timescan(5, ')
+twodscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'twodscan(dev1, ')
 
 
 @usercommand
