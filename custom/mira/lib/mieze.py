@@ -30,13 +30,13 @@ import copy
 from itertools import chain
 
 from nicos import session
-from nicos.scan import Scan
+from nicos.scan import Scan, ManualScan
 from nicos.utils import dictof, listof, anytype, usermethod, printTable, \
      multiStatus
 from nicos.device import Moveable, Param, Override, Value
 from nicos.errors import NicosError
 from nicos.commands import usercommand
-from nicos.commands.scan import _fixType, _handleScanArgs, _infostr
+from nicos.commands.scan import _fixType, _handleScanArgs, _infostr, _ManualScan
 from nicos.commands.output import printinfo
 
 
@@ -224,13 +224,18 @@ class MiezeScan(Scan):
                  multistep=None, detlist=None, envlist=None, preset=None,
                  scaninfo=None, scantype=None):
         miezedev = session.getDevice('mieze', MiezeMaster)
+        self._nsettings = 1
         if settings is not None:
-            if settings == '*':
+            if settings == '*' or settings == -1:
                 settings = [sett['_name_'] for sett in miezedev.curtable]
-            if isinstance(settings, (str, int, long)):
+            elif isinstance(settings, (str, int, long)):
                 settings = [settings]
+            self._nsettings = len(settings)
             new_devices = devices + [miezedev]
             new_positions = []
+            if not positions:
+                # the msingle case
+                new_positions.extend([sett] for sett in settings)
             for poslist in positions:
                 new_positions.extend(poslist + [sett] for sett in settings)
             devices = new_devices
@@ -238,7 +243,53 @@ class MiezeScan(Scan):
         Scan.__init__(self, devices, positions, firstmoves, multistep,
                       detlist, envlist, preset, scaninfo, scantype)
 
-    # XXX automatic fitting and live data
+    def preparePoint(self, num, xvalues):
+        if num > 1 and self._nsettings > 1 and (num-1) % self._nsettings == 0:
+            for sink in self._sinks:
+                sink.addBreak(self.dataset)
+        Scan.preparePoint(self, num, xvalues)
+
+
+class MiezeManualScan(ManualScan):
+    """
+    Special scan class for MIEZE manual scans.
+    """
+
+    def __init__(self, settings, firstmoves=None, multistep=None, detlist=None,
+                 envlist=None, preset=None, scaninfo=None, scantype=None):
+        self.miezedev = session.getDevice('mieze', MiezeMaster)
+        if envlist is None:
+            envlist = session.experiment.sampleenv
+        envlist.append(self.miezedev)
+        ManualScan.__init__(self, firstmoves, multistep, detlist, envlist,
+                            preset, scaninfo, scantype)
+        if settings is not None:
+            if settings == '*' or settings == -1:
+                self.settings = [sett['_name_']
+                                 for sett in self.miezedev.curtable]
+            elif isinstance(settings, (str, int, long)):
+                self.settings = [settings]
+            else:
+                self.settings = settings
+        else:
+            self.settings = None
+
+    def step(self, **preset):
+        if self.settings is None:
+            return ManualScan.step(self, **preset)
+        for setting in self.settings:
+            self.miezedev.move(setting)
+            self.miezedev.wait()
+            ManualScan.step(self, **preset)
+
+
+class _MiezeManualScan(_ManualScan):
+    def __init__(self, settings, args, kwargs):
+        scanstr = _infostr('mmanualscan', (settings,) + args, kwargs)
+        preset, scaninfo, detlist, envlist, move, multistep = \
+            _handleScanArgs(args, kwargs, scanstr)
+        self.scan = MiezeManualScan(settings, move, multistep, detlist,
+                                    envlist, preset, scaninfo)
 
 
 @usercommand
@@ -247,9 +298,41 @@ def mscan(settings, dev, *args, **kwargs):
     def mkpos(starts, steps, numsteps):
         return [[start + i*step for (start, step) in zip(starts, steps)]
                 for i in range(numsteps)]
-    scanstr = _infostr('mscan', (dev,) + args, kwargs)
+    scanstr = _infostr('mscan', (settings, dev) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
     preset, scaninfo, detlist, envlist, move, multistep  = \
         _handleScanArgs(restargs, kwargs, scanstr)
     MiezeScan(settings, devs, values, move, multistep, detlist,
               envlist, preset, scaninfo).run()
+
+
+@usercommand
+def mcscan(settings, dev, *args, **kwargs):
+    """MIEZE centered scan over device(s)."""
+    def mkpos(centers, steps, numperside):
+        return [[center + (i-numperside)*step for (center, step)
+                 in zip(centers, steps)] for i in range(2*numperside+1)]
+    scanstr = _infostr('mcscan', (settings, dev) + args, kwargs)
+    devs, values, restargs = _fixType(dev, args, mkpos)
+    preset, scaninfo, detlist, envlist, move, multistep  = \
+        _handleScanArgs(restargs, kwargs, scanstr)
+    MiezeScan(settings, devs, values, move, multistep, detlist,
+              envlist, preset, scaninfo).run()
+
+
+@usercommand
+def msingle(settings, *args, **kwargs):
+    """Single MIEZE counting."""
+    scanstr = _infostr('msingle', (settings,) + args, kwargs)
+    preset, scaninfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(args, kwargs, scanstr)
+    MiezeScan(settings, [], [], move, multistep, detlist,
+              envlist, preset, scaninfo).run()
+
+
+@usercommand
+def mmanualscan(settings, *args, **kwargs):
+    """MIEZE scan that works just like `manualscan`."""
+    if getattr(session, '_manualscan', None):
+        raise UsageError('cannot start manual scan within manual scan')
+    return _MiezeManualScan(settings, args, kwargs)
