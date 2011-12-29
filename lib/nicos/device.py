@@ -1178,6 +1178,7 @@ class Measurable(Readable):
         elif self._sim_active:
             return
         self.doStop()
+        return self.status(0)
 
     @usermethod
     def isCompleted(self):
