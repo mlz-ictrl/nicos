@@ -110,11 +110,11 @@ def _infostr(fn, args, kwargs):
         elif isinstance(x, list) and x and isinstance(x[0], Device):
             return '[' + ', '.join(map(devrepr, x)) + ']'
         return repr(x)
+    argrepr = ', '.join(devrepr(a) for a in args if not isinstance(a, str))
     if kwargs:
-        return '%s(%s, %s)' % (fn,
-                               ', '.join(map(devrepr, args)),
+        return '%s(%s, %s)' % (fn, argrepr,
                                ', '.join('%s=%r' % kv for kv in kwargs.items()))
-    return '%s(%s)' % (fn, ', '.join(map(devrepr, args)))
+    return '%s(%s)' % (fn, argrepr)
 
 
 @usercommand
