@@ -28,11 +28,10 @@ __version__ = "$Revision$"
 
 from IO import StringIO
 
-from nicos import status
-from nicos.taco import TacoDevice
+from nicos.core import status, Readable, Override, CommunicationError
 from nicos.utils import bitDescription
-from nicos.device import Readable, Override
-from nicos.errors import CommunicationError
+from nicos.taco.core import TacoDevice
+
 
 def addcrc(msg):
     crc = 0

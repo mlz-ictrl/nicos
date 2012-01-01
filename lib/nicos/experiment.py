@@ -40,11 +40,11 @@ except ImportError:
     MySQLdb = None
 
 from nicos import session
+from nicos.core import listof, nonemptylistof, usermethod, Device, Measurable, \
+     Readable, Param, ConfigurationError, InvalidValueError
 from nicos.data import NeedsDatapath, Dataset
-from nicos.utils import listof, nonemptylistof, ensureDirectory, usermethod
-from nicos.device import Device, Measurable, Readable, Param
-from nicos.errors import ConfigurationError, InvalidValueError
-from nicos.loggers import ELogHandler
+from nicos.utils import ensureDirectory
+from nicos.utils.loggers import ELogHandler
 
 
 class ProposalDB(object):

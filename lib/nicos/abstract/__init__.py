@@ -34,12 +34,11 @@ from os import path
 from time import time, sleep
 
 from nicos import session
-from nicos import status
+from nicos.core import status, Device, Readable, Moveable, Measurable, \
+     HasLimits, HasOffset, HasPrecision, Param, Override, usermethod, \
+     ModeError
 from nicos.data import NeedsDatapath
 from nicos.utils import readFileCounter, updateFileCounter
-from nicos.device import Device, Readable, Moveable, Measurable, \
-     HasLimits, HasOffset, HasPrecision, Param, Override, usermethod
-from nicos.errors import ModeError
 
 
 class Coder(HasPrecision, Readable):

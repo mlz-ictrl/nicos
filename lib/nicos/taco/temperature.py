@@ -31,14 +31,12 @@ import time
 import TACOStates
 import Temperature
 
-from nicos import status
-from nicos.taco import TacoDevice
-from nicos.utils import oneof
-from nicos.device import Param, Readable, Moveable, HasOffset, HasLimits
-from nicos.errors import TimeoutError
+from nicos.core import status, oneof, Param, Readable, Moveable, HasOffset, \
+     HasLimits, TimeoutError
+from nicos.taco.core import TacoDevice
 
 
-class Sensor(TacoDevice, Readable):
+class TemperatureSensor(TacoDevice, Readable):
     """TACO temperature sensor device."""
     taco_class = Temperature.Sensor
 
@@ -77,15 +75,15 @@ class Sensor(TacoDevice, Readable):
         return self._taco_guard(self._dev.deviceQueryResource, 'serno')
 
 
-class Controller(TacoDevice, HasLimits, HasOffset, Moveable):
+class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
     """TACO temperature controller device."""
     taco_class = Temperature.Controller
 
     attached_devices = {
-        'sensor_a': (Sensor, 'First sensor'),
-        'sensor_b': (Sensor, 'Second sensor'),
-        'sensor_c': (Sensor, 'Third sensor'),
-        'sensor_d': (Sensor, 'Fourth sensor'),
+        'sensor_a': (TemperatureSensor, 'First sensor'),
+        'sensor_b': (TemperatureSensor, 'Second sensor'),
+        'sensor_c': (TemperatureSensor, 'Third sensor'),
+        'sensor_d': (TemperatureSensor, 'Fourth sensor'),
     }
 
     parameters = {

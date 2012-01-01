@@ -37,10 +37,10 @@ import threading
 import subprocess
 from time import time as currenttime, sleep
 
-from nicos import status, session
-from nicos.utils import listof, whyExited
-from nicos.device import Device, Readable, Param
-from nicos.errors import NicosError, ConfigurationError
+from nicos import session
+from nicos.core import status, listof, Device, Readable, Param, NicosError, \
+     ConfigurationError
+from nicos.utils import whyExited
 
 
 class Poller(Device):

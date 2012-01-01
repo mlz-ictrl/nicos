@@ -26,14 +26,10 @@
 
 __version__ = "$Revision$"
 
-import time
-
 import PowerSupply
 
-from nicos.device import Moveable, Param, Override
-from nicos.utils import usermethod, oneof
-from nicos.taco import TacoDevice
-from nicos.errors import UsageError
+from nicos.core import Moveable, Param, Override, usermethod, oneof, UsageError
+from nicos.taco.core import TacoDevice
 
 
 class HePolarizer(TacoDevice, Moveable):

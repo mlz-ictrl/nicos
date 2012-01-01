@@ -43,7 +43,7 @@ from SocketServer import ThreadingMixIn
 from wsgiref.simple_server import WSGIServer
 
 from nicos import session
-from nicos.loggers import NicosConsoleFormatter, DATEFMT
+from nicos.utils.loggers import NicosConsoleFormatter, DATEFMT
 
 QUIT_MESSAGE = 'Just close the browser window to quit the session.'
 

@@ -18,24 +18,17 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
+#   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""Taco coder class for NICOS."""
+"""Generic device classes using hardware-specific attached devices."""
 
 __version__ = "$Revision$"
 
-from Encoder import Encoder
-
-from nicos.taco import TacoDevice
-from nicos.abstract import Coder as BaseCoder
-
-
-class Coder(TacoDevice, BaseCoder):
-    """TACO coder implementation class."""
-
-    taco_class = Encoder
-
-    def doSetPosition(self, target):
-        self._taco_guard(self._dev.setpos, target)
+from nicos.generic.axis import Axis
+from nicos.generic.manual import ManualMove, ManualSwitch
+from nicos.generic.slit import Slit
+from nicos.generic.switcher import Switcher
+from nicos.generic.virtual import VirtualMotor, VirtualCoder, VirtualTimer, \
+     VirtualCounter, ArbitraryValues, VirtualSwitch

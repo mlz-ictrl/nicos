@@ -30,9 +30,8 @@ import os
 import time
 from os import path
 
+from nicos.core import Param, UsageError
 from nicos.utils import disableDirectory, enableDirectory, ensureDirectory
-from nicos.device import Param
-from nicos.errors import UsageError
 from nicos.experiment import Experiment, queryCycle
 
 

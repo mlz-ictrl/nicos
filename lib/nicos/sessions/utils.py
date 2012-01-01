@@ -33,7 +33,7 @@ import exceptions
 import rlcompleter
 
 from nicos import session
-from nicos.errors import UsageError
+from nicos.core.errors import UsageError
 
 
 class NicosNamespace(dict):

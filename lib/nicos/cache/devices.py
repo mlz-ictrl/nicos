@@ -27,9 +27,8 @@ __version__ = "$Revision$"
 
 import time
 
-from nicos import status
-from nicos.device import Readable, Moveable, HasLimits, Param
-from nicos.errors import CommunicationError, TimeoutError
+from nicos.core import status, Readable, Moveable, HasLimits, Param, \
+     CommunicationError, TimeoutError
 
 
 class CacheReader(Readable):

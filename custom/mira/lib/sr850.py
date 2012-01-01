@@ -31,10 +31,9 @@ from time import time
 
 from IO import StringIO
 
-from nicos.taco import TacoDevice
-from nicos.utils import intrange
-from nicos.device import Measurable, Param, Value
-from nicos.errors import CommunicationError, ConfigurationError, NicosError
+from nicos.core import intrange, Measurable, Param, Value, CommunicationError, \
+     ConfigurationError, NicosError
+from nicos.taco.core import TacoDevice
 
 
 TIMECONSTANTS = sum(([k, 3*k] for k in range(1, 11)), [])

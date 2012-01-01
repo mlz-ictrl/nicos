@@ -34,7 +34,7 @@ try:
 except ImportError:
     ODR = None
 
-from nicos.errors import ProgrammingError
+from nicos.core import ProgrammingError
 
 
 class FitResult(object):

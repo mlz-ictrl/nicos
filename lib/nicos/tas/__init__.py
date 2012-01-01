@@ -22,40 +22,10 @@
 #
 # *****************************************************************************
 
-"""Class for MIRA shutter readout/operation."""
+"""Package for triple-axis device classes."""
 
 __version__ = "$Revision$"
 
-import time
-
-import IO
-
-from nicos.core import usermethod, tacodev, Param, ModeError
-from nicos.taco.io import NamedDigitalInput
-
-
-class Shutter(NamedDigitalInput):
-    """
-    Class for readout of the MIRA shutter via digital input card, and closing
-    the shutter via digital output (tied into Pilz security system).
-    """
-
-    parameters = {
-        'output': Param('The output for closing the shutter',
-                        type=tacodev, mandatory=True),
-    }
-
-    def doInit(self):
-        if self._mode != 'simulation':
-            self._outdev = self._create_client(self.output, IO.DigitalOutput)
-
-    @usermethod
-    def close(self):
-        if self._mode == 'slave':
-            raise ModeError(self, 'closing shutter not allowed in slave mode')
-        elif self._sim_active:
-            return
-        self._taco_guard(self._outdev.write, 1)
-        time.sleep(0.5)
-        self._taco_guard(self._outdev.write, 0)
-        self.log.info('instrument shutter closed')
+from nicos.tas.cell import Cell, TASSample
+from nicos.tas.mono import Monochromator
+from nicos.tas.spectro import TAS, TASIndex, Wavevector

@@ -28,8 +28,8 @@ __version__ = "$Revision$"
 
 from Modbus import Modbus
 
-from nicos.io import DigitalOutput
-from nicos.device import Param
+from nicos.core import Param
+from nicos.taco.io import DigitalOutput
 
 
 class BeckhoffDigitalOutput(DigitalOutput):

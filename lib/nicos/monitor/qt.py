@@ -35,8 +35,8 @@ from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
      QCursor, QStackedWidget
 from PyQt4.QtCore import QSize, Qt, SIGNAL
 
-from nicos.status import statuses
 from nicos.monitor import Monitor as BaseMonitor
+from nicos.core.status import statuses
 
 
 class MonitorWindow(QMainWindow):

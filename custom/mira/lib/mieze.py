@@ -30,11 +30,10 @@ import copy
 from itertools import chain
 
 from nicos import session
+from nicos.core import dictof, listof, anytype, usermethod, multiStatus, \
+     Moveable, Param, Override, Value, NicosError
 from nicos.scan import Scan, ManualScan
-from nicos.utils import dictof, listof, anytype, usermethod, printTable, \
-     multiStatus
-from nicos.device import Moveable, Param, Override, Value
-from nicos.errors import NicosError
+from nicos.utils import printTable
 from nicos.commands import usercommand
 from nicos.commands.scan import _fixType, _handleScanArgs, _infostr, _ManualScan
 from nicos.commands.output import printinfo

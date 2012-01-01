@@ -28,11 +28,9 @@ __version__ = "$Revision$"
 
 from IO import StringIO
 
-from nicos import status
-from nicos.taco import TacoDevice
-from nicos.utils import intrange
-from nicos.device import Moveable, HasLimits, Param, Override
-from nicos.errors import NicosError, CommunicationError
+from nicos.core import status, intrange, Moveable, HasLimits, Param, Override, \
+     NicosError, CommunicationError
+from nicos.taco.core import TacoDevice
 
 
 class IsegHV(TacoDevice, HasLimits, Moveable):

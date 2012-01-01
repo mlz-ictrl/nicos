@@ -28,13 +28,12 @@ __version__ = "$Revision$"
 
 from time import sleep
 
-from nicos import session, status
-from nicos.utils import tupleof, listof, oneof
-from nicos.device import Param, Override, Value
-from nicos.abstract import ImageStorage, AsyncDetector
-from nicos.errors import CommunicationError
+from nicos import session
+from nicos.core import status, tupleof, listof, oneof, Param, Override, Value, \
+     CommunicationError
 from nicos.mira import cascadeclient
-from nicos.detector import FRMDetector
+from nicos.abstract import ImageStorage, AsyncDetector
+from nicos.taco.detector import FRMDetector
 
 
 class CascadeDetector(AsyncDetector, ImageStorage):

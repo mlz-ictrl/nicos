@@ -36,7 +36,7 @@ from logging import addLevelName, Manager, Logger, LogRecord, Formatter, \
 from logging.handlers import BaseRotatingHandler
 
 from nicos import session
-from nicos.errors import NicosError
+from nicos.core import NicosError
 from nicos.utils import colorize, formatExtendedTraceback
 
 

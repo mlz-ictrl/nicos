@@ -29,10 +29,9 @@ __version__ = "$Revision$"
 import threading
 from time import sleep
 
-from nicos import status
-from nicos.io import AnalogOutput
-from nicos.utils import oneof
-from nicos.device import HasLimits, Moveable, Readable, Param, Override
+from nicos.core import status, oneof, HasLimits, Moveable, Readable, Param, \
+     Override
+from nicos.taco.io import AnalogOutput
 
 
 class GeneratorDevice(AnalogOutput):

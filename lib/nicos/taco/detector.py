@@ -31,10 +31,8 @@ import IOCommon
 import TACOStates
 from IO import Timer, Counter
 
-from nicos import status
-from nicos.taco import TacoDevice
-from nicos.utils import oneof, oneofdict
-from nicos.device import Measurable, Param, Value
+from nicos.core import Measurable, Param, Value, status, oneof, oneofdict
+from nicos.taco.core import TacoDevice
 
 
 class FRMChannel(TacoDevice, Measurable):

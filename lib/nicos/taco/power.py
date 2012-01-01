@@ -32,11 +32,9 @@ import DEVERRORS
 import TACOStates
 from PowerSupply import CurrentControl, VoltageControl
 
-from nicos import status
-from nicos.taco import TacoDevice
-from nicos.utils import waitForStatus
-from nicos.device import Moveable, HasOffset, HasLimits, Param
-from nicos.errors import MoveError, NicosError
+from nicos.core import status, Moveable, HasOffset, HasLimits, Param, \
+     MoveError, NicosError, waitForStatus
+from nicos.taco.core import TacoDevice
 
 
 class Supply(HasOffset, HasLimits, TacoDevice, Moveable):

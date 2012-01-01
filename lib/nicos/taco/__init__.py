@@ -22,49 +22,19 @@
 #
 # *****************************************************************************
 
-"""Multi-channel counter card class."""
+"""Package for TACO device classes in NICOS."""
 
 __version__ = "$Revision$"
 
-import TMCS
-import TACOStates
-
-from nicos.core import status, tacodev, Measurable, Param
+from nicos.taco.axis import Axis, HoveringAxis
+from nicos.taco.coder import Coder
 from nicos.taco.core import TacoDevice
-
-
-class Channel(TacoDevice, Measurable):
-    taco_class = TMCS.Channel
-
-    parameters = {
-        'admin': Param('The admin taco device', type=tacodev, mandatory=True),
-    }
-
-    def doInit(self):
-        if self._mode != 'simulation':
-            self._admin = self._create_client(self.admin, TMCS.Admin)
-
-    def doStart(self, **preset):
-        self._taco_guard(self._admin.start)
-
-    def doReset(self):
-        self._taco_guard(self._admin.stop)
-        self._taco_guard(self._dev.clear)
-
-    def doIsCompleted(self):
-        return self._taco_guard(self._admin.deviceState) == TACOStates.STOPPED
-
-    def doStop(self):
-        self._taco_guard(self._admin.stop)
-
-    def doRead(self):
-        return map(int, self._taco_guard(self._dev.read))
-
-    def doStatus(self):
-        state = self._taco_guard(self._admin.deviceState)
-        if state == TACOStates.STOPPED:
-            return status.OK, 'stopped'
-        return status.BUSY, TACOStates.stateDescription(state)
-
-    def doReadUnit(self):
-        return 'cts'
+from nicos.taco.detector import FRMChannel, FRMTimerChannel, \
+     FRMCounterChannel, FRMDetector
+from nicos.taco.io import AnalogInput, AnalogOutput, DigitalInput, \
+     NamedDigitalInput, PartialDigitalInput, DigitalOutput, \
+     NamedDigitalOutput, PartialDigitalOutput, BitsDigitalOutput, \
+     MultiDigitalOutput
+from nicos.taco.motor import Motor
+from nicos.taco.power import Supply, CurrentSupply, VoltageSupply
+from nicos.taco.temperature import TemperatureSensor, TemperatureController

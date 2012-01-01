@@ -30,9 +30,9 @@ import os
 import sys
 import signal
 
-from nicos.loggers import OUTPUT
 from nicos.sessions import Session
 from nicos.cache.client import DaemonCacheClient
+from nicos.utils.loggers import OUTPUT
 from nicos.sessions.utils import LoggingStdout
 from nicos.sessions.simple import NoninteractiveSession
 

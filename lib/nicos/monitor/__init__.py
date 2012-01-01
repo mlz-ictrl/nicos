@@ -36,10 +36,9 @@ from os import path
 from time import sleep, strftime, time as currenttime
 
 from nicos import session
-from nicos.utils import listof
-from nicos.device import Param
+from nicos.core import listof, Param
+from nicos.core.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
 from nicos.notify import Notifier
-from nicos.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
 from nicos.cache.utils import OP_TELL, OP_TELLOLD, cache_load
 from nicos.cache.client import BaseCacheClient
 

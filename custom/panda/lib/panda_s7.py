@@ -28,13 +28,11 @@ __version__ = "$Revision$"
 
 from time import sleep, time as currenttime
 
-from nicos import status
-from nicos.utils import intrange, oneof, anytype
-from nicos.device import Device, Param, Readable, Moveable
-from nicos.errors import NicosError, ProgrammingError, TimeoutError
+from nicos.core import status, intrange, oneof, anytype, Device, Param, \
+     Readable, Moveable, NicosError, ProgrammingError, TimeoutError
 from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
-from nicos.axis import Axis
-from nicos.taco import TacoDevice
+from nicos.taco.core import TacoDevice
+from nicos.generic.axis import Axis
 
 from ProfibusDP import IO as ProfibusIO
 

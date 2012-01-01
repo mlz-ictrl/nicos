@@ -36,15 +36,13 @@ from threading import RLock, Thread
 
 from RS485Client import RS485Client
 
-from nicos import status
-from nicos.taco import TacoDevice
-from nicos.utils import intrange, floatrange, oneofdict, oneof, none_or, \
-     closeSocket, lazy_property, runAsync, usermethod
-from nicos.device import Device, Readable, Moveable, Param, Override, \
-     HasPrecision, HasLimits
-from nicos.errors import NicosError, CommunicationError, ProgrammingError, \
+from nicos.core import status, intrange, floatrange, oneofdict, oneof, none_or, \
+     usermethod, Device, Readable, Moveable, Param, Override, HasPrecision, \
+     HasLimits, NicosError, CommunicationError, ProgrammingError, \
      InvalidValueError, TimeoutError, MoveError
+from nicos.utils import closeSocket, lazy_property, runAsync
 from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
+from nicos.taco.core import TacoDevice
 
 
 STX = chr(2)

@@ -27,9 +27,8 @@
 __version__ = "$Revision$"
 
 from nicos import session
+from nicos.core import Device, Measurable, Moveable, Readable, UsageError
 from nicos.scan import Scan, TimeScan, ContinuousScan, ManualScan, TwoDimScan
-from nicos.device import Device, Measurable, Moveable, Readable
-from nicos.errors import UsageError
 from nicos.commands import usercommand
 
 

@@ -28,10 +28,9 @@ __version__ = "$Revision$"
 
 import IO
 
-from nicos.taco import TacoDevice
-from nicos.utils import waitForStatus, dictof
-from nicos.device import Readable, Moveable, HasLimits, Param, Override
-from nicos.errors import NicosError
+from nicos.core import dictof, Readable, Moveable, HasLimits, Param, Override, \
+     NicosError, waitForStatus
+from nicos.taco.core import TacoDevice
 
 
 class AnalogInput(TacoDevice, Readable):

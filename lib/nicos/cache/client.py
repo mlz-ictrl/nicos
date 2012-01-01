@@ -36,9 +36,8 @@ import threading
 from time import sleep, time as currenttime
 
 from nicos import session
+from nicos.core import Device, Param, CacheLockError
 from nicos.utils import closeSocket
-from nicos.device import Device, Param
-from nicos.errors import CacheLockError
 from nicos.cache.utils import msg_pattern, line_pattern, cache_load, cache_dump, \
      DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, \
      OP_LOCK

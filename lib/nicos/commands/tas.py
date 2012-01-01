@@ -29,9 +29,8 @@ __version__ = "$Revision$"
 from numpy import ndarray
 
 from nicos import session
+from nicos.core import Measurable, Moveable, Readable, UsageError
 from nicos.scan import QScan
-from nicos.device import Measurable, Moveable, Readable
-from nicos.errors import UsageError
 from nicos.commands import usercommand
 from nicos.commands.scan import _infostr, ADDSCANHELP2
 

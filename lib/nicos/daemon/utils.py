@@ -157,7 +157,7 @@ class SimLogSender(logging.Handler):
         self.devices = []
 
     def begin(self):
-        from nicos.device import Readable
+        from nicos.core import Readable
         # Collect information on timing and range of all devices
         self.starttime = self.session.clock.time
         for devname, dev in self.session.devices.iteritems():

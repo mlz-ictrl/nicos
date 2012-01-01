@@ -30,12 +30,10 @@ from time import sleep, time
 
 from IO import StringIO
 
-from nicos import status
-from nicos.taco import TacoDevice
-from nicos.utils import intrange, listof
-from nicos.device import Device, Readable, Moveable, Param, Override
-from nicos.errors import NicosError, CommunicationError, InvalidValueError, \
+from nicos.core import status, intrange, listof, Device, Readable, Moveable, \
+     Param, Override, NicosError, CommunicationError, InvalidValueError, \
      ConfigurationError
+from nicos.taco.core import TacoDevice
 
 
 class ModBus(TacoDevice, Device):

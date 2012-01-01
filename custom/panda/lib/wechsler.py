@@ -31,16 +31,14 @@ __author__  = "Enrico Fauhaber $Author$"
 __date__    = "$Date$"
 __version__ = "0.1beta"
 
+import random
+import socket
 from time import sleep, time
 from struct import pack, unpack
-import socket
-import random
 
-#~ from nicos import status
-#from nicos.taco import TacoDevice
-from nicos.utils import oneof, usermethod
-from nicos.device import Device, Param
-from nicos.errors import NicosError, UsageError
+#~ from nicos.core import status
+from nicos.core import oneof, usermethod, Device, Param, NicosError, UsageError
+#from nicos.taco.core import TacoDevice
 
 
 class HWError(NicosError):

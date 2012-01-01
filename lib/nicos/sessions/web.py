@@ -31,9 +31,9 @@ from wsgiref.simple_server import make_server
 
 from nicos import session
 from nicos.web import FakeInput, MTWSGIServer, NicosApp
-from nicos.loggers import OUTPUT
 from nicos.sessions import Session
 from nicos.sessions.utils import LoggingStdout
+from nicos.utils.loggers import OUTPUT
 
 
 class WebSession(Session):

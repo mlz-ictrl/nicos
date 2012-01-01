@@ -31,9 +31,8 @@ import math
 import time
 import struct
 
-from nicos import status
-from nicos.device import Measurable, Param, Value, usermethod
-from nicos.errors import CommunicationError, ModeError
+from nicos.core import status, Measurable, Param, Value, usermethod, \
+     CommunicationError, ModeError
 
 USBTMC_IOCTL_CLEAR = 23298
 USBTMC_IOCTL_RESET_CONF = 23298 + 9

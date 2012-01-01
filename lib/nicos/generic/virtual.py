@@ -30,12 +30,10 @@ import time
 import random
 import threading
 
-from nicos import status
-from nicos.utils import tacodev, tupleof, nonemptylistof, anytype
-from nicos.device import Readable, Moveable, HasOffset, Param, Override
-from nicos.errors import PositionError, NicosError
+from nicos.core import status, tacodev, tupleof, nonemptylistof, anytype, \
+     Readable, Moveable, HasOffset, Param, Override, PositionError, NicosError
 from nicos.abstract import Motor, Coder
-from nicos.detector import FRMTimerChannel, FRMCounterChannel
+from nicos.taco.detector import FRMTimerChannel, FRMCounterChannel
 
 
 class VirtualMotor(Motor, HasOffset):

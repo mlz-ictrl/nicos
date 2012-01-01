@@ -38,9 +38,9 @@ import __builtin__
 from os import path
 
 from nicos import session
+from nicos.core import Device, AutoDevice, Readable, ModeError, NicosError, \
+     UsageError
 from nicos.utils import formatDocstring, formatDuration, printTable
-from nicos.device import Device, AutoDevice, Readable
-from nicos.errors import ModeError, NicosError, UsageError
 from nicos.notify import Mailer, SMSer
 from nicos.sessions import EXECUTIONMODES
 from nicos.commands import usercommand

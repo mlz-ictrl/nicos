@@ -34,7 +34,7 @@ from PyQt4.QtCore import Qt, QRegExp
 from PyQt4.QtGui import QTextCharFormat, QBrush, QColor, QFont, QTextBrowser, \
      QTextCursor
 
-from nicos.loggers import INPUT, OUTPUT, ACTION
+from nicos.utils.loggers import INPUT, OUTPUT, ACTION
 
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',

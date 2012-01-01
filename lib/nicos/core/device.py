@@ -26,15 +26,157 @@
 
 __version__ = "$Revision$"
 
+import types
+import inspect
 from time import time as currenttime, sleep
 
 from nicos import session
-from nicos import status, loggers
-from nicos.utils import DeviceMeta, Param, Override, Value, getVersions, \
-     usermethod, tupleof, floatrange, anytype, none_or
-from nicos.errors import NicosError, ConfigurationError, ProgrammingError, \
-     UsageError, LimitError, FixedError, ModeError, CommunicationError, \
-     CacheLockError, InvalidValueError
+from nicos.core import status
+from nicos.core.params import Param, Override, Value, tupleof, floatrange, \
+     anytype, none_or
+from nicos.core.errors import NicosError, ConfigurationError, \
+     ProgrammingError, UsageError, LimitError, FixedError, ModeError, \
+     CommunicationError, CacheLockError, InvalidValueError
+from nicos.utils import loggers
+from nicos.utils import getVersions
+
+
+def usermethod(func):
+    """Decorator that marks a method as a user-visible method."""
+    func.is_usermethod = True
+    return func
+
+
+class DeviceMeta(type):
+    """
+    A metaclass that automatically adds properties for the class' parameters,
+    and determines a list of user methods ("commands").
+
+    It also merges attached_devices, parameters and parameter_overrides defined
+    in the class with those defined in all base classes.
+    """
+
+    def __new__(mcs, name, bases, attrs):
+        if 'parameters' in attrs:
+            for pname, pinfo in attrs['parameters'].iteritems():
+                pinfo.classname = attrs['__module__'] + '.' + name
+        for base in bases:
+            if hasattr(base, 'parameters'):
+                for pinfo in base.parameters.itervalues():
+                    if pinfo.classname is None:
+                        pinfo.classname = base.__module__ + '.' + base.__name__
+        newtype = type.__new__(mcs, name, bases, attrs)
+        for entry in newtype.__mergedattrs__:
+            newentry = {}
+            for base in reversed(bases):
+                if hasattr(base, entry):
+                    newentry.update(getattr(base, entry))
+            newentry.update(attrs.get(entry, {}))
+            setattr(newtype, entry, newentry)
+        for param, info in newtype.parameters.iteritems():
+            # parameter names are always lowercased
+            param = param.lower()
+            if not isinstance(info, Param):
+                raise ProgrammingError('%r device %r parameter info should be '
+                                       'a Param object' % (name, param))
+
+            # process overrides
+            override = newtype.parameter_overrides.get(param)
+            if override:
+                info = newtype.parameters[param] = override.apply(info)
+
+            # create the getter method
+            if not info.volatile:
+                def getter(self, param=param):
+                    if param not in self._params:
+                        self._initParam(param)
+                    if self._cache:
+                        value = self._cache.get(self, param)
+                        if value is not None:
+                            self._params[param] = value
+                            return value
+                    return self._params[param]
+            else:
+                rmethod = getattr(newtype, 'doRead' + param.title(), None)
+                if rmethod is None:
+                    raise ProgrammingError('%r device %r parameter is marked '
+                                           'as "volatile=True", but has no '
+                                           'doRead%s method' %
+                                           (name, param, param.title()))
+                def getter(self, param=param, rmethod=rmethod):
+                    if self._mode == 'simulation':
+                        return self._initParam(param)
+                    value = rmethod(self)
+                    if self._cache:
+                        self._cache.put(self, param, value)
+                    self._params[param] = value
+                    return value
+
+            # create the setter method
+            if not info.settable:
+                def setter(self, value, param=param):
+                    raise ConfigurationError(
+                        self, 'cannot set the %s parameter' % param)
+            else:
+                wmethod = getattr(newtype, 'doWrite' + param.title(), None)
+                umethod = getattr(newtype, 'doUpdate' + param.title(), None)
+                def setter(self, value, param=param, wmethod=wmethod,
+                           umethod=umethod):
+                    pconv = self.parameters[param].type
+                    try:
+                        value = pconv(value)
+                    except (ValueError, TypeError), err:
+                        raise ConfigurationError(
+                            self, '%r is an invalid value for parameter '
+                            '%s: %s' % (value, param, err))
+                    if self._mode == 'slave':
+                        raise ModeError('setting parameter %s not possible in '
+                                        'slave mode' % param)
+                    elif self._mode == 'simulation':
+                        if umethod:
+                            umethod(self, value)
+                        self._params[param] = value
+                        return
+                    if wmethod:
+                        # allow doWrite to override the value
+                        rv = wmethod(self, value)
+                        if rv is not None:
+                            value = rv
+                    if umethod:
+                        umethod(self, value)
+                    self._params[param] = value
+                    if self._cache:
+                        self._cache.put(self, param, value)
+
+            # create a property and attach to the new device class
+            setattr(newtype, param,
+                    property(getter, setter, doc=info.formatDoc()))
+        del newtype.parameter_overrides
+        if 'parameter_overrides' in attrs:
+            del attrs['parameter_overrides']
+        if 'valuetype' in attrs:
+            newtype.valuetype = staticmethod(attrs['valuetype'])
+
+        newtype.commands = {}
+        for methname in attrs:
+            if methname.startswith(('_', 'do')):
+                continue
+            method = getattr(newtype, methname)
+            if not isinstance(method, types.MethodType):
+                continue
+            if not hasattr(method, 'is_usermethod'):
+                continue
+            argspec = inspect.getargspec(method)
+            if argspec[0] and argspec[0][0] == 'self':
+                del argspec[0][0]  # get rid of "self"
+            args = inspect.formatargspec(*argspec)
+            if method.__doc__:
+                docline = method.__doc__.strip().splitlines()[0]
+            else:
+                docline = ''
+            newtype.commands[methname] = (args, docline)
+
+        return newtype
 
 
 class Device(object):

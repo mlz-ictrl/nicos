@@ -36,7 +36,7 @@ from threading import Lock, Event, Thread
 import ast
 
 from nicos import session
-from nicos.loggers import INPUT
+from nicos.utils.loggers import INPUT
 from nicos.daemon.utils import format_exception_cut_frames, format_script, \
      fixup_script, update_linecache
 from nicos.daemon.pyctl import Controller, ControlStop

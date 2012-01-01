@@ -32,8 +32,8 @@ from time import sleep
 
 from PowerSupply import CurrentControl
 
-from nicos.io import AnalogOutput, DigitalOutput
-from nicos.device import Param
+from nicos.core import Param
+from nicos.taco.io import AnalogOutput, DigitalOutput
 
 
 class ESSController(AnalogOutput):

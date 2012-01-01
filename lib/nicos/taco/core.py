@@ -33,11 +33,8 @@ from time import sleep
 import TACOStates
 from TACOClient import TACOError
 
-from nicos import status
-from nicos.utils import tacodev
-from nicos.device import Param, Override
-from nicos.errors import NicosError, ProgrammingError, CommunicationError, \
-    LimitError, InvalidValueError
+from nicos.core import status, tacodev, Param, Override, NicosError, \
+     ProgrammingError, CommunicationError, LimitError, InvalidValueError
 
 
 class TacoDevice(object):

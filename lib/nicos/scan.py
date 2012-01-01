@@ -28,12 +28,11 @@ __version__ = "$Revision$"
 
 import time
 
-from nicos import session, status
+from nicos import session
 from nicos.tas import TAS
+from nicos.core import status, Readable, NicosError, LimitError, FixedError, \
+     ModeError, InvalidValueError, PositionError
 from nicos.utils import Repeater
-from nicos.errors import NicosError, LimitError, FixedError, ModeError, \
-    InvalidValueError, PositionError
-from nicos.device import Readable
 from nicos.commands.output import printwarning
 from nicos.commands.measure import _count
 

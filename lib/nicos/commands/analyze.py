@@ -31,12 +31,12 @@ from math import sqrt
 import numpy as np
 
 from nicos import session
-from nicos.errors import NicosError, UsageError
+from nicos.core import NicosError, UsageError
+from nicos.utils.fitting import Fit
 from nicos.commands import usercommand
 from nicos.commands.scan import cscan
 from nicos.commands.device import maw
 from nicos.commands.output import printinfo, printwarning
-from nicos.fitutils import Fit
 
 
 def _getData(columns):

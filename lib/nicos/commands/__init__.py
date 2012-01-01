@@ -36,7 +36,7 @@ def usercommand(func):
 import sys
 from functools import wraps
 
-from nicos.errors import UsageError
+from nicos.core.errors import UsageError
 from nicos.commands.output import printerror, printexception
 
 def usercommandWrapper(func):

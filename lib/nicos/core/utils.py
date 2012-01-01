@@ -18,44 +18,42 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""Class for MIRA shutter readout/operation."""
+"""NICOS core utility functions."""
 
 __version__ = "$Revision$"
 
-import time
+from time import sleep
 
-import IO
-
-from nicos.core import usermethod, tacodev, Param, ModeError
-from nicos.taco.io import NamedDigitalInput
+from nicos.core import status
 
 
-class Shutter(NamedDigitalInput):
-    """
-    Class for readout of the MIRA shutter via digital input card, and closing
-    the shutter via digital output (tied into Pilz security system).
-    """
+def multiStatus(devices):
+    rettext = []
+    retstate = status.OK
+    for devname, dev in devices:
+        if dev is None:
+            continue
+        # XXX status or status(0)
+        state, text = dev.status()
+        rettext.append('%s=%s' % (devname, text))
+        if state > retstate:
+            retstate = state
+    return retstate, ', '.join(rettext)
 
-    parameters = {
-        'output': Param('The output for closing the shutter',
-                        type=tacodev, mandatory=True),
-    }
 
-    def doInit(self):
-        if self._mode != 'simulation':
-            self._outdev = self._create_client(self.output, IO.DigitalOutput)
-
-    @usermethod
-    def close(self):
-        if self._mode == 'slave':
-            raise ModeError(self, 'closing shutter not allowed in slave mode')
-        elif self._sim_active:
-            return
-        self._taco_guard(self._outdev.write, 1)
-        time.sleep(0.5)
-        self._taco_guard(self._outdev.write, 0)
-        self.log.info('instrument shutter closed')
+def waitForStatus(dev, delay=0.3, busystate=status.BUSY):
+    # XXX add a timeout?
+    # XXX what about error status?
+    while True:
+        st = dev.status(0)
+        if st[0] == busystate:
+            sleep(delay)
+            # XXX add a breakpoint here?
+        else:
+            break
+    return st

@@ -36,8 +36,8 @@ import threading
 from SocketServer import TCPServer
 
 from nicos import nicos_version
-from nicos.utils import listof, tupleof, oneof, closeSocket
-from nicos.device import Device, Param
+from nicos.core import listof, tupleof, oneof, Device, Param
+from nicos.utils import closeSocket
 
 from nicos.daemon.user import Authenticator
 from nicos.daemon.utils import serialize

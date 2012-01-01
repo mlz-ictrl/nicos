@@ -37,15 +37,16 @@ import sys
 import logging
 from os import path
 
-from nicos.device import Device
-from nicos.errors import NicosError, UsageError, ModeError, ConfigurationError
+from nicos.core.device import Device
+from nicos.core.errors import NicosError, UsageError, ModeError, \
+     ConfigurationError
 from nicos.notify import Notifier
-from nicos.loggers import initLoggers, NicosLogger, ColoredConsoleHandler, \
-    NicosLogfileHandler
+from nicos.utils.loggers import initLoggers, NicosLogger, \
+     ColoredConsoleHandler, NicosLogfileHandler
 from nicos.instrument import Instrument
 from nicos.cache.client import CacheClient, CacheLockError
 from nicos.sessions.utils import makeSessionId, sessionInfo, \
-    NicosNamespace, SimClock
+     NicosNamespace, SimClock
 
 
 EXECUTIONMODES = ['master', 'slave', 'simulation', 'maintenance']

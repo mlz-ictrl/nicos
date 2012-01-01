@@ -18,22 +18,24 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""NICOS Instrument device."""
+"""Taco coder class for NICOS."""
 
 __version__ = "$Revision$"
 
-from nicos.core import Device, Param
+from Encoder import Encoder
+
+from nicos.abstract import Coder as BaseCoder
+from nicos.taco.core import TacoDevice
 
 
-class Instrument(Device):
-    """A special singleton device to represent the instrument."""
+class Coder(TacoDevice, BaseCoder):
+    """TACO coder implementation class."""
 
-    parameters = {
-        'instrument': Param('Instrument name', type=str, category='experiment'),
-        'responsible': Param('Instrument responsible name and email',
-                             type=str, category='experiment'),
-    }
+    taco_class = Encoder
+
+    def doSetPosition(self, target):
+        self._taco_guard(self._dev.setpos, target)

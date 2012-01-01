@@ -29,8 +29,7 @@ __version__ = "$Revision$"
 from time import sleep
 
 from nicos import session
-from nicos.device import Measurable
-from nicos.errors import UsageError
+from nicos.core import Measurable, UsageError
 from nicos.commands import usercommand
 from nicos.commands.output import printinfo
 

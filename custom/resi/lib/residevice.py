@@ -33,7 +33,7 @@ __version__ = "$Revision$"
 import sys
 sys.path.append('/home/resi/pedersen/workspace_python/singlecounter')
 sys.path.append('/home/resi/pedersen/workspace_python/nonius_new/app')
-from nicos.device import Moveable, Param #@UnusedImport  pylint: disable=W0611
+from nicos.core import Moveable, Param #@UnusedImport  pylint: disable=W0611
 from sc_scan_new import HuberScan #pylint: disable=F0401
 class ResiDevice(Moveable):
     '''

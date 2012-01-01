@@ -40,12 +40,12 @@ devices = dict(
                       mono = 'mono',
                       ana = 'ana'),
 
-    phi      = device('nicos.virtual.VirtualMotor',
+    phi      = device('nicos.generic.VirtualMotor',
                       abslimits = (-180, 180),
                       initval = 0,
                       unit = 'deg'),
 
-    psi      = device('nicos.virtual.VirtualMotor',
+    psi      = device('nicos.generic.VirtualMotor',
                       abslimits = (0, 360),
                       initval = 0,
                       unit = 'deg'),
@@ -59,13 +59,13 @@ devices = dict(
                       focusv = None,
                       abslimits = (0, 10)),
 
-    mth      = device('nicos.virtual.VirtualMotor',
+    mth      = device('nicos.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       precision = 0.05,
                       initval = 45),
 
-    mtt      = device('nicos.virtual.VirtualMotor',
+    mtt      = device('nicos.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       precision = 0.05,
@@ -80,13 +80,13 @@ devices = dict(
                       focusv = None,
                       abslimits = (0, 10)),
 
-    ath      = device('nicos.virtual.VirtualMotor',
+    ath      = device('nicos.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       precision = 0.05,
                       initval = 35),
 
-    att      = device('nicos.virtual.VirtualMotor',
+    att      = device('nicos.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       precision = 0.05,

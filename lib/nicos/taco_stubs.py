@@ -34,7 +34,7 @@ __version__ = "$Revision$"
 import new
 import sys
 
-from nicos.errors import ProgrammingError
+from nicos.core.errors import ProgrammingError
 
 
 class NICOSTACOStub(object):

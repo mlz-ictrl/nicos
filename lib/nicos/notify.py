@@ -39,8 +39,7 @@ try:
 except ImportError:
     xmpp = None
 
-from nicos.utils import listof, usermethod
-from nicos.device import Device, Param
+from nicos.core import listof, usermethod, Device, Param
 
 EMAIL_CHARSET = 'utf-8'
 NS_XHTML = 'http://www.w3.org/1999/xhtml'

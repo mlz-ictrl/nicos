@@ -30,10 +30,9 @@ import __builtin__
 
 from nicos import session
 from nicos.utils import printTable
-from nicos.device import Device, Moveable, Measurable, Readable, \
-     HasOffset, HasLimits
-from nicos.errors import NicosError, UsageError
-from nicos.status import statuses
+from nicos.core import Device, Moveable, Measurable, Readable, HasOffset, \
+     HasLimits, NicosError, UsageError
+from nicos.core.status import statuses
 from nicos.commands import usercommand
 from nicos.commands.basic import sleep
 from nicos.commands.output import printinfo

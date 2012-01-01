@@ -41,11 +41,10 @@ try:
 except ImportError:
     Gnuplot = None
 
-from nicos import session, status
-from nicos.utils import listof, nonemptylistof, readFileCounter, \
-     updateFileCounter
-from nicos.device import Device, Param, Override, Readable
-from nicos.errors import ConfigurationError, ProgrammingError, NicosError
+from nicos import session
+from nicos.core import status, listof, nonemptylistof, Device, Param, \
+     Override, Readable, ConfigurationError, ProgrammingError, NicosError
+from nicos.utils import readFileCounter, updateFileCounter
 from nicos.commands.output import printinfo
 from nicos.sessions.daemon import DaemonSession
 from nicos.sessions.console import ConsoleSession

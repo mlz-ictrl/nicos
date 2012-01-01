@@ -33,9 +33,9 @@ from numpy import arccos, arcsin, arctan2, cos, sin, pi, sqrt, \
      array, identity, zeros, cross, dot, sign
 from numpy.linalg import inv, norm
 
-from nicos.device import Device, Param
-from nicos.errors import ComputationError, ConfigurationError
-from nicos.utils import vec3
+from nicos.core import Device, Param, ComputationError, ConfigurationError, \
+     vec3
+from nicos.experiment import Sample
 
 D2R = pi/180
 R2D = 180/pi
@@ -667,3 +667,15 @@ class Cell(Device):
         TQscan(1,   1, 0, 1,  0.005, 0.005, 0, 0,   21, 'CKF',  2.662, s)
         print '## CPHI'
         TQscan(1.5, 1, 0, 5,  0,     0,     0, 0.1, 21, 'CPHI', 30,    s)
+
+
+class TASSample(Sample, Cell):
+    """TAS-specific sample with cell information."""
+
+    def reset(self):
+        Sample.reset(self)
+        self.lattice = [2*pi, 2*pi, 2*pi]
+        self.angles  = [90, 90, 90]
+        self.orient1 = [1, 0, 0]
+        self.orient2 = [0, 1, 0]
+        self.psi0    = 0.0

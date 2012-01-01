@@ -31,7 +31,7 @@ import time
 from cgi import escape
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 
-from nicos.loggers import INPUT, OUTPUT, ACTION
+from nicos.utils.loggers import INPUT, OUTPUT, ACTION
 
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',

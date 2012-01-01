@@ -30,10 +30,9 @@ __version__ = "$Revision$"
 from Motor import Motor as TACOMotor
 import TACOStates
 
-from nicos import status
-from nicos.taco import TacoDevice
-from nicos.utils import waitForStatus
+from nicos.core import status, waitForStatus
 from nicos.abstract import Motor as BaseMotor
+from nicos.taco.core import TacoDevice
 
 
 class Motor(TacoDevice, BaseMotor):
