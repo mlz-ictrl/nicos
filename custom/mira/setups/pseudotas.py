@@ -1,4 +1,4 @@
-includes = ['base', 'mono2', 'analyzer', 'detector']
+includes = ['base', 'mono2', 'detector', 'analyzer']
 
 devices = dict(
     Sample = device('nicos.tas.TASSample'),
@@ -6,6 +6,8 @@ devices = dict(
     mira   = device('nicos.tas.TAS',
                     instrument = 'MIRA',
                     responsible = 'Robert Georgii <robert.georgii@frm2.tum.de>',
+                    axiscoupling = False,
+                    psi360 = False,
                     cell = 'Sample',
                     phi = 'phi',
                     psi = 'om',
@@ -13,14 +15,10 @@ devices = dict(
                     ana = 'ana',
                     scatteringsense = (-1, 1, -1)),
 
-    vom    = device('nicos.generic.VirtualMotor',
-                    abslimits = (-360, 360),
-                    unit = 'deg'),
-
     mono   = device('nicos.tas.Monochromator',
                     unit = 'A-1',
-                    theta = 'm2th',
-                    twotheta = 'm2tt',
+                    theta = 'vmth',
+                    twotheta = 'vmtt',
                     focush = None,
                     focusv = None,
                     abslimits = (0, 10),
@@ -28,12 +26,28 @@ devices = dict(
 
     ana    = device('nicos.tas.Monochromator',
                     unit = 'A-1',
-                    theta = 'ath',
-                    twotheta = 'att',
+                    theta = 'vath',
+                    twotheta = 'vatt',
                     focush = None,
                     focusv = None,
                     abslimits = (0, 10),
                     dvalue = 3.325),
+
+    vmth   = device('nicos.generic.VirtualMotor',
+                    unit = 'deg',
+                    abslimits = (-360, 360)),
+
+    vmtt   = device('nicos.generic.VirtualMotor',
+                    unit = 'deg',
+                    abslimits = (-360, 360)),
+
+    vath   = device('nicos.generic.VirtualMotor',
+                    unit = 'deg',
+                    abslimits = (-360, 360)),
+
+    vatt   = device('nicos.generic.VirtualMotor',
+                    unit = 'deg',
+                    abslimits = (-360, 360)),
 
     ki     = device('nicos.tas.Wavevector',
                     unit = 'A-1',
@@ -50,6 +64,3 @@ devices = dict(
                     abslimits = (0, 10)),
 )
 
-startupcode = '''
-#SetDetectors(det)
-'''

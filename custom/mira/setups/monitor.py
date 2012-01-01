@@ -19,22 +19,28 @@ _expcolumn = [
 
 _column1 = [
     ('Detector', [
-        ['timer', 'mon1'],
+        ['timer', 'mon1', 'mon2'],
         '---',
-        [{'dev': 'MonHV', 'name': 'Mon HV', 'min': 490, 'width': 5},
+        ['ctr1',
+         {'dev': 'MonHV', 'name': 'Mon HV', 'min': 490, 'width': 5},
          {'dev': 'DetHV', 'name': 'Det HV', 'min': 840, 'width': 5}],
         ],
      'detector'),
     ('Cascade', [
-        [{'dev': 'psd', 'name': 'ROI', 'item': 0, 'width': 9},
-         {'dev': 'psd', 'name': 'Total', 'item': 1, 'width': 9},
+        [{'key': 'psd/lastcounts', 'name': 'ROI', 'item': 0, 'width': 9},
+         {'key': 'psd/lastcounts', 'name': 'Total', 'item': 1, 'width': 9},
          {'key': 'psd/lastfilenumber', 'name': 'Last image'}],
         [{'dev': 'PSDGas', 'name': 'Gas', 'min': 'okay'},
-         {'dev': 'PSDHV', 'name': 'HV', 'min': 2800, 'width': 5},
+         {'dev': 'PSDHV', 'name': 'HV', 'max': -2800, 'width': 6},
          {'dev': 'dtx', 'name': 'dtx'},
          ]
         ],
      'cascade'),
+    ('3He cell', [
+        [{'dev': 'pol', 'name': 'Polarization', 'width': 7},
+         {'dev': 'He_GF', 'name': 'Guide field'}],
+        ],
+     'helios'),
     ('MIEZE', [
         [{'dev': 'freq1', 'name': 'freq1'}, {'dev': 'freq2', 'name': 'freq2'}],
         [{'dev': 'amp1', 'name': 'amp1'},   {'dev': 'amp2', 'name': 'amp2'}],
@@ -47,12 +53,18 @@ _column1 = [
         [{'dev': 'amp3', 'name': 'amp3'},   {'dev': 'amp4', 'name': 'amp4'}],
         [{'dev': 'Crane', 'min': 10, 'width': 7}],
     ], 'mieze'),
-    ('X-Z table axes', [[{'dev': 'mx'}, {'dev': 'my'}]], 'gauss'),
+#    ('X-Z table axes', [[{'dev': 'mx'}, {'dev': 'my'}]], 'gauss'),
+    ('TAS', [
+        [{'dev': 'mira', 'name': 'H', 'item': 0, 'format': '%.3f', 'unit': ' '}, {'dev': 'mira', 'name': 'K', 'item': 1, 'format': '%.3f', 'unit': ' '},
+         {'dev': 'mira', 'name': 'L', 'item': 2, 'format': '%.3f', 'unit': ' '}, {'dev': 'mira', 'name': 'E', 'item': 3, 'format': '%.3f', 'unit': ' '}],
+        [{'key': 'mira/scanmode', 'name': 'Mode'},
+         {'dev': 'mono', 'name': 'ki'}, {'dev': 'ana', 'name': 'kf'}, {'key': 'mira/energytransferunit', 'name': 'Unit'},],
+    ], 'tas'),
 ]
 
 _column2 = [
-    ('Slits', [[{'dev': 's3', 'name': 'Slit 3', 'width': 24, 'istext': True}],
-               [{'dev': 's4', 'name': 'Slit 4', 'width': 24, 'istext': True}]],
+    ('Slits', [[{'dev': 'ss1', 'name': 'Slit 1', 'width': 24, 'istext': True}],
+               [{'dev': 'ss2', 'name': 'Slit 2', 'width': 24, 'istext': True}]],
      'slits'),
     ('Sample', [[{'dev': 'om'}, {'dev': 'phi'}],
                 [{'dev': 'stx'}, {'dev': 'sty'}, {'dev': 'stz'}],
@@ -85,11 +97,11 @@ _column3 = [
                 {'dev': 'atten2', 'name': 'Att2', 'width': 4},
                 {'dev': 'flip2', 'name': 'Flip', 'width': 4}],
                [{'dev': 'lamfilter', 'name': 'Be', 'width': 4},
-                {'dev': 'TBe', 'name': 'Be Temp', 'width': 6, 'max': 50},
+                {'dev': 'TBe', 'name': 'Be Temp', 'width': 6, 'max': 60},
                 {'dev': 'PBe', 'name': 'Be P', 'width': 7, 'max': 1e-5}],
               ],
      'mono2'),
-    ('Analyzer', [[{'dev': 'ath'}, {'dev': 'att'}]],
+    ('Analyzer', [[{'dev': 'ath'}, {'dev': 'att'}, {'dev': 'adr'}]],
      'analyzer'),
     ('Reactor', [
         [{'dev': 'Power', 'name': 'Power', 'min': 19, 'format': '%d', 'width': 7},
@@ -100,12 +112,22 @@ _column3 = [
 
 _warnings = [
     ('psdgas/value', '== "empty"', 'Change detector counting gas'),
+    ('TBe/value','> 70','Check Be filter temeparture'),
 #    ('sixfold/value', '== "closed"', 'Six-fold shutter closed'),
 #    ('freq3/value', '> 9', 'freq3 under frequency', 'mieze'),
 #    ('freq4/value', '< 10', 'freq4 under frequency'),
 ]
 
 devices = dict(
+    email    = device('nicos.notify.Mailer',
+                      sender = 'nicos@mira1',
+                      receivers = ['rgeorgii@frm2.tum.de'],
+                      subject = 'MIRA'),
+
+    smser    = device('nicos.notify.SMSer',
+                      server = 'triton.admin.frm2',
+                      receivers = ['01719251564']),
+
     Monitor = device('nicos.monitor.qt.Monitor',
                      title = 'MIRA Status monitor',
                      loglevel = 'debug',
@@ -116,5 +138,5 @@ devices = dict(
                      padding = 5,
                      layout = [[_expcolumn], [_column1, _column2, _column3]],
                      warnings = _warnings,
-                     notifiers = [])
+                     notifiers = ['smser', 'email'])
 )
