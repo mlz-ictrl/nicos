@@ -51,8 +51,7 @@ man_pages = [
 autodoc_default_options = ['members']
 
 from sphinx import addnodes
-from nicos.utils import listof
-from nicos.device import Device
+from nicos.core import listof, Device
 from sphinx.domains import ObjType
 from sphinx.domains.python import PyClassmember, PyModulelevel, PythonDomain
 from sphinx.ext.autodoc import ClassDocumenter

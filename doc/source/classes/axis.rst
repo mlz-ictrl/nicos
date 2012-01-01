@@ -4,11 +4,9 @@ Axis classes
 TACO motor and coder devices
 ----------------------------
 
-.. module:: nicos.motor
+.. module:: nicos.taco
 
 .. autoclass:: Motor
-
-.. module:: nicos.coder
 
 .. autoclass:: Coder
 
@@ -16,7 +14,7 @@ TACO motor and coder devices
 NICOS axis implementation
 -------------------------
 
-.. module:: nicos.axis
+.. module:: nicos.generic
 
 .. autoclass:: Axis
 
@@ -24,6 +22,8 @@ NICOS axis implementation
 TACO axis implementation
 ------------------------
 
-.. autoclass:: TacoAxis
+.. module:: nicos.taco
+
+.. autoclass:: Axis
 
 .. autoclass:: HoveringAxis

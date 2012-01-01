@@ -1,7 +1,7 @@
 I/O classes
 ===========
 
-.. module:: nicos.io
+.. module:: nicos.taco
 
 Analog I/O
 ----------

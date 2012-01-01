@@ -6,7 +6,7 @@ These classes are not for direct use as an instrument component, but for
 deriving custom device classes from them.
 
 
-.. module:: nicos.taco
+.. module:: nicos.taco.core
 
 Taco-related classes
 --------------------

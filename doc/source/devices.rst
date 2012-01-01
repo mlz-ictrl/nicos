@@ -2,7 +2,7 @@
 Writing devices
 ===============
 
-.. module:: nicos.device
+.. module:: nicos.core.device
 
 ----------------
 Device interface

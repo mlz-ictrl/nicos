@@ -1,7 +1,7 @@
 Power supply classes
 ====================
 
-.. module:: nicos.power
+.. module:: nicos.taco
 
 .. autoclass:: Supply()
 .. autoclass:: CurrentSupply()
