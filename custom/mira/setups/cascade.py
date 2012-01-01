@@ -32,7 +32,7 @@ devices = dict(
 
     # this overwrites the "det" device from the detector setup
     # and removes all counters
-    #det    = device('nicos.detector.FRMDetector',
+    #det    = device('nicos.taco.FRMDetector',
     #                t  = 'timer',
     #                m1 = 'mon1',
     #                m2 = 'mon2',

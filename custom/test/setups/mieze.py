@@ -59,12 +59,12 @@ devices = dict(
     Cbox2    = device('nicos.generic.ManualSwitch',
                       states = []),
 
-   # fp1       = device('nicos.io.AnalogInput',
+   # fp1       = device('nicos.taco.AnalogInput',
    #                    tacodevice = '//mira4/mira/ag1016/fp01'),
-   # rp1       = device('nicos.io.AnalogInput',
+   # rp1       = device('nicos.taco.AnalogInput',
    #                    tacodevice = '//mira4/mira/ag1016/rp01'),
-   # fp2       = device('nicos.io.AnalogInput',
+   # fp2       = device('nicos.taco.AnalogInput',
    #                    tacodevice = '//mira4/mira/ag1016/fp02'),
-   # rp2       = device('nicos.io.AnalogInput',
+   # rp2       = device('nicos.taco.AnalogInput',
    #                    tacodevice = '//mira4/mira/ag1016/rp02'),
 )

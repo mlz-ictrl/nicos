@@ -33,7 +33,7 @@ devices = dict(
                       type = 'counter',
                       countrate = 200),
 
-    det      = device('nicos.detector.FRMDetector',
+    det      = device('nicos.taco.FRMDetector',
                       t  = 'timer',
                       m1 = 'mon1',
                       m2 = 'mon2',
