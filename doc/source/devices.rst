@@ -31,8 +31,9 @@ Device classes
 --------------
 
 The base classes for all devices are contained in the module
-:mod:`nicos.device`.  There is a hierarchy of classes that correspond to varying
-levels of interaction that is possible with the device:
+:mod:`nicos.core.device` and re-exported in :mod:`nicos.core`.  There is a
+hierarchy of classes that correspond to varying levels of interaction that is
+possible with the device:
 
 ``Device``
 ==========
@@ -49,8 +50,8 @@ levels of interaction that is possible with the device:
 
       Device objects must have a :attr:`parameters` class attribute that defines
       the available additional parameters.  It must be a dictionary mapping
-      parameter name to a :class:`nicos.device.Param` object that describes the
-      parameter's properties (e.g. whether is it user-settable).
+      parameter name to a :class:`~nicos.core.params.Param` object that
+      describes the parameter's properties (e.g. whether is it user-settable).
 
       The :attr:`parameters` attribute does *not* need to contain the parameters
       of base classes again, they are automatically merged.
@@ -72,7 +73,7 @@ levels of interaction that is possible with the device:
       While a subclass automatically inherits all parameters defined by base
       classes, it can make changes to parameters' properties using the override
       mechanism.  This dictionary, if present, must be a mapping of existing
-      parameter names from base classes to :class:`nicos.device.Override`
+      parameter names from base classes to :class:`~nicos.core.params.Override`
       objects that describe the desired changes to the parameter info.
 
       For example, while usually the :attr:`~Readable.unit` parameter is
