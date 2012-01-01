@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 from nicos import session
-from nicos.errors import NicosError, LimitError, ConfigurationError
+from nicos.core import NicosError, LimitError, ConfigurationError
 from test.utils import raises
 
 def setup_module():

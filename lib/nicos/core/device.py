@@ -698,7 +698,7 @@ class Readable(Device):
     def valueInfo(self):
         """Describe the values read by this device.
 
-        Return a tuple of :class:`nicos.device.Value` instances describing
+        Return a tuple of :class:`nicos.core.Value` instances describing
         the values that :meth:`read` returns.
 
         This should be overridden by every Readable that returns more than one
@@ -725,7 +725,7 @@ class Readable(Device):
         """Return the (possibly cached) status of the device.
 
         The status is a tuple of one of the integer constants defined in the
-        :mod:`nicos.status` module, and textual extended info.
+        :mod:`nicos.core.status` module, and textual extended info.
 
         .. method:: doStatus()
 
@@ -1377,7 +1377,7 @@ class Measurable(Readable):
     def valueInfo(self):
         """Describe the values measured by this device.
 
-        Return a tuple of :class:`nicos.device.Value` instances describing
+        Return a tuple of :class:`nicos.core.Value` instances describing
         the values that :meth:`read` returns.
 
         This must be overridden by every Measurable that returns more than one

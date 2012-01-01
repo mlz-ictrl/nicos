@@ -402,7 +402,7 @@ class IPCModBusSerial(IPCModBusTacoless):
 class Coder(NicosCoder):
     """This class supports both IPC absolute and incremental coder cards.
 
-    It can be used with the `nicos.axis.Axis` class.
+    It can be used with the `nicos.generic.Axis` class.
     """
 
     parameters = {
@@ -553,7 +553,7 @@ class Coder(NicosCoder):
 class Motor(NicosMotor):
     """This class supports IPC 6-fold, 3-fold and single motor cards.
 
-    It can be used with the `nicos.axis.Axis` class.
+    It can be used with the `nicos.generic.Axis` class.
     """
 
     parameters = {
@@ -1102,7 +1102,7 @@ class Output(Input, Moveable):
 class SlitAxis(HasPrecision, HasLimits, Moveable):
     """Class for one axis of a IPC 4-wing slit.
 
-    Use this together with `nicos.slit.Slit` to add a 4-wing slit device.
+    Use this together with `nicos.generic.Slit` to add a 4-wing slit device.
     """
 
     parameters = {

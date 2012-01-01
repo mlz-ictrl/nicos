@@ -28,24 +28,24 @@ includes = ['system']
 
 devices = dict(
 
-    motor_left = device('nicos.virtual.VirtualMotor',
+    motor_left = device('nicos.generic.VirtualMotor',
                         unit = 'mm',
                         abslimits= (-10, 20)),
 
-    motor_right = device('nicos.virtual.VirtualMotor',
+    motor_right = device('nicos.generic.VirtualMotor',
                         unit = 'mm',
                         abslimits= (-20, 10)),
 
-    motor_bottom = device('nicos.virtual.VirtualMotor',
+    motor_bottom = device('nicos.generic.VirtualMotor',
                           unit = 'mm',
                           abslimits= (-20, 10)),
 
-    motor_top = device('nicos.virtual.VirtualMotor',
+    motor_top = device('nicos.generic.VirtualMotor',
                        unit = 'mm',
                        abslimits= (-10, 20)),
 
 
-    slit_1 = device('nicos.slit.Slit',
+    slit_1 = device('nicos.generic.Slit',
                     left = 'motor_left',
                     right = 'motor_right',
                     bottom = 'motor_bottom',

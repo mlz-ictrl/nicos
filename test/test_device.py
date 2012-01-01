@@ -27,10 +27,8 @@
 __version__ = "$Revision$"
 
 from nicos import session
-from nicos import status
-from nicos.device import Device, Moveable, HasLimits, HasOffset, Param
-from nicos.errors import ConfigurationError, ProgrammingError, LimitError, \
-     FixedError, UsageError
+from nicos.core import status, Device, Moveable, HasLimits, HasOffset, Param, \
+     ConfigurationError, ProgrammingError, LimitError, FixedError, UsageError
 from test.utils import raises
 
 

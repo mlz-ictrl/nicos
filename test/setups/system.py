@@ -43,14 +43,14 @@ devices = dict(
     ),
 
 
-    t_phi    = device('nicos.virtual.VirtualMotor',
+    t_phi    = device('nicos.generic.VirtualMotor',
                       abslimits = (-180, 180),
                       initval = 0,
                       speed = 1,
                       jitter = 0.01,
                       unit = 'deg'),
 
-    t_psi    = device('nicos.virtual.VirtualMotor',
+    t_psi    = device('nicos.generic.VirtualMotor',
                       abslimits = (0, 360),
                       initval = 0,
                       speed = 2,
@@ -66,12 +66,12 @@ devices = dict(
                       abslimits = (0, 10),
                       dvalue = 3.325),
 
-    t_mth    = device('nicos.virtual.VirtualMotor',
+    t_mth    = device('nicos.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       jitter = 0.02),
 
-    t_mtt    = device('nicos.virtual.VirtualMotor',
+    t_mtt    = device('nicos.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180)),
 
@@ -86,12 +86,12 @@ devices = dict(
                       abslimits = (0, 10),
                       dvalue = 3.325),
 
-    t_ath    = device('nicos.virtual.VirtualMotor',
+    t_ath    = device('nicos.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       jitter = 0.02),
 
-    t_att    = device('nicos.virtual.VirtualMotor',
+    t_att    = device('nicos.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180)),
 

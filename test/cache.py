@@ -29,7 +29,7 @@ __version__ = "$Revision$"
 import logging
 from os import path
 
-from nicos import loggers
+from nicos.utils import loggers
 from nicos.sessions.simple import NoninteractiveSession
 
 

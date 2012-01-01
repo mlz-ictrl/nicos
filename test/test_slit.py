@@ -24,7 +24,7 @@
 # *****************************************************************************
 
 from nicos import session
-from nicos.errors import LimitError
+from nicos.core import LimitError
 from test.utils import raises
 
 def setup_module():

@@ -28,20 +28,20 @@ includes = ['system']
 
 devices = dict(
     motor = device(
-        'nicos.virtual.VirtualMotor',
+        'nicos.generic.VirtualMotor',
         unit = 'mm',
         initval = 0,
         abslimits = (-100, 100),
     ),
 
     coder = device(
-        'nicos.virtual.VirtualCoder',
+        'nicos.generic.VirtualCoder',
         motor = 'motor',
         unit = 'mm',
     ),
 
     axis = device(
-        'nicos.axis.Axis',
+        'nicos.generic.Axis',
         motor = 'motor',
         coder = 'coder',
         obs = [],

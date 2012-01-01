@@ -27,8 +27,7 @@
 __version__ = "$Revision$"
 
 from nicos import session
-from nicos import status
-from nicos.errors import NicosError, LimitError
+from nicos.core import status, NicosError, LimitError
 from test.utils import raises
 
 def setup_module():

@@ -30,7 +30,7 @@ from os import path
 from logging import ERROR, WARNING,Handler
 
 from nicos import session
-from nicos import loggers
+from nicos.utils import loggers
 from nicos.sessions import Session
 
 
