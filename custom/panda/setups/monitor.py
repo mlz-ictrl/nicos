@@ -24,7 +24,7 @@ _column1 = [
 ]
 
 devices = dict(
-    Monitor = device('nicos.fltkmonitor.Monitor',
+    Monitor = device('nicos.monitor.fl.Monitor',
                      title = 'PANDA status monitor',
                      loglevel = 'info',
                      server = 'pandasrv',

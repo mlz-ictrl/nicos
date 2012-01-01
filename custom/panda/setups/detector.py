@@ -10,25 +10,25 @@ modules=[]
 
 devices = dict(
 
-    timer    = device('nicos.virtual.VirtualTimer',
+    timer    = device('nicos.generic.VirtualTimer',
                       lowlevel = True),
 
-    mon1     = device('nicos.virtual.VirtualCounter',
+    mon1     = device('nicos.generic.VirtualCounter',
                       lowlevel = True,
                       type = 'monitor',
                       countrate = 2500),
 
-    mon2     = device('nicos.virtual.VirtualCounter',
+    mon2     = device('nicos.generic.VirtualCounter',
                       lowlevel = True,
                       type = 'monitor',
                       countrate = 100),
 
-    det1    = device('nicos.virtual.VirtualCounter',
+    det1    = device('nicos.generic.VirtualCounter',
                       lowlevel = True,
                       type = 'counter',
                       countrate = 2000),
 
-    det2    = device('nicos.virtual.VirtualCounter',
+    det2    = device('nicos.generic.VirtualCounter',
                       lowlevel = True,
                       type = 'counter',
                       countrate = 200),
