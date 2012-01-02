@@ -162,7 +162,7 @@ class Scan(object):
         session.elog_event('scanend', self.dataset)
         session.breakpoint(1)
 
-    def handleError(self, dev, val, err):
+    def handleError(self, what, dev, val, err):
         """Handle an error occurring during positioning or readout for a point.
 
         This method can do several things:
@@ -175,7 +175,7 @@ class Scan(object):
         """
         if isinstance(err, (PositionError, MoveError, TimeoutError)):
             # continue counting anyway
-            printwarning('Positioning problem', exc=1)
+            printwarning('Positioning problem during %s' % what, exc=1)
             return
         elif isinstance(err, (InvalidValueError, LimitError,
                               CommunicationError, ComputationError)):
@@ -205,14 +205,14 @@ class Scan(object):
             except NicosError, err:
                 # handleError can reraise for fatal error, return False
                 # to skip this point and True to measure anyway
-                self.handleError(dev, val, err)
+                self.handleError('move', dev, val, err)
             else:
                 waitdevs.append((dev, val))
         for dev, val in waitdevs:
             try:
                 dev.wait()
             except NicosError, err:
-                self.handleError(dev, val, err)
+                self.handleError('wait', dev, val, err)
 
     def readPosition(self):
         # XXX read() or read(0)
@@ -222,8 +222,8 @@ class Scan(object):
             try:
                 val = dev.read()
             except NicosError, err:
-                self.handleError(dev, None, err)
-                # XXX synthesize value
+                self.handleError('read', dev, None, err)
+                val = [None] * len(dev.valueInfo())
             if isinstance(val, list):
                 ret.extend(val)
             else:
@@ -237,7 +237,7 @@ class Scan(object):
             try:
                 val = dev.read(0)
             except NicosError, err:
-                self.handleError(dev, None, err)
+                self.handleError('read', dev, None, err)
                 # XXX synthesize value
             if isinstance(val, list):
                 ret.extend(val)
