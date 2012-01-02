@@ -28,7 +28,8 @@ __version__ = "$Revision$"
 
 from nicos import session
 from nicos.core import Device, Measurable, Moveable, Readable, UsageError
-from nicos.scan import Scan, TimeScan, ContinuousScan, ManualScan, TwoDimScan
+from nicos.scan import Scan, TimeScan, ContinuousScan, ManualScan, TwoDimScan, \
+     StopScan
 from nicos.commands import usercommand
 
 
@@ -284,6 +285,8 @@ class _ManualScan(object):
     def __exit__(self, *exc):
         self.scan.manualEnd()
         session._manualscan = None
+        if exc and exc[0] is StopScan:
+            return True
 
 @usercommand
 def manualscan(*args, **kwargs):

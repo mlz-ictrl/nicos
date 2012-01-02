@@ -31,9 +31,10 @@ import time
 from nicos import session
 from nicos.tas import TAS
 from nicos.core import status, Readable, NicosError, LimitError, FixedError, \
-     ModeError, InvalidValueError, PositionError
+     ModeError, InvalidValueError, PositionError, CommunicationError, \
+     TimeoutError, ComputationError, MoveError
 from nicos.utils import Repeater
-from nicos.commands.output import printwarning
+from nicos.commands.output import printwarning, printexception
 from nicos.commands.measure import _count
 
 
@@ -47,6 +48,12 @@ INFO_CATEGORIES = [
     ('status', 'Instrument status'),
     ('general', 'Instrument state at first scan point'),
 ]
+
+class SkipPoint(Exception):
+    """Custom exception class to skip a scan point."""
+
+class StopScan(Exception):
+    """Custom exception class to stop the rest of the scan."""
 
 
 class Scan(object):
@@ -87,13 +94,11 @@ class Scan(object):
 
     def prepareScan(self, positions):
         session.action('Moving to start')
-        can_measure = True
         # the move-before devices
         if self._firstmoves:
-            can_measure = self.moveDevices(self._firstmoves)
+            self.moveDevices(self._firstmoves)
         # the scanned-over devices
-        can_measure &= self.moveTo(positions)
-        return can_measure
+        self.moveTo(positions)
 
     def beginScan(self):
         dataset = self.dataset
@@ -158,16 +163,29 @@ class Scan(object):
         session.breakpoint(1)
 
     def handleError(self, dev, val, err):
-        """Handle an error occurring during positioning for a point.
-        If the return value is True, continue measuring this point even if
-        the device has not arrived.  If it is False, continue with the next
-        point.  If the scan should be aborted, the exception is reraised.
+        """Handle an error occurring during positioning or readout for a point.
+
+        This method can do several things:
+
+        - re-raise the current exception to abort everything
+        - raise `StopScan` to end the current scan with an error, but not
+          raise an exception in the script
+        - raise `SkipPoint` to skip current point and continue with next point
+        - return: to ignore error and continue with current point
         """
-        if isinstance(err, (InvalidValueError, LimitError)):
+        if isinstance(err, (PositionError, MoveError, TimeoutError)):
+            # continue counting anyway
+            printwarning('Positioning problem', exc=1)
+            return
+        elif isinstance(err, (InvalidValueError, LimitError,
+                              CommunicationError, ComputationError)):
             printwarning('Skipping data point', exc=1)
-            return False
+            raise SkipPoint
         elif isinstance(err, FixedError):
-            raise
+            # if one of the devices can't be moved, the whole scan makes no
+            # sense anymore, but maybe the next scan doesn't move the device
+            printexception('Aborting current scan')
+            raise StopScan
         else:
             # consider all other errors to be fatal
             raise
@@ -187,22 +205,25 @@ class Scan(object):
             except NicosError, err:
                 # handleError can reraise for fatal error, return False
                 # to skip this point and True to measure anyway
-                return self.handleError(dev, val, err)
+                self.handleError(dev, val, err)
             else:
                 waitdevs.append((dev, val))
         for dev, val in waitdevs:
             try:
                 dev.wait()
             except NicosError, err:
-                return self.handleError(dev, val, err)
-        return True
+                self.handleError(dev, val, err)
 
     def readPosition(self):
         # XXX read() or read(0)
         # using read() assumes all devices have updated cached value on wait()
         ret = []
         for dev in self._devices:
-            val = dev.read()
+            try:
+                val = dev.read()
+            except NicosError, err:
+                self.handleError(dev, None, err)
+                # XXX synthesize value
             if isinstance(val, list):
                 ret.extend(val)
             else:
@@ -213,7 +234,11 @@ class Scan(object):
         # XXX take history mean, warn if values deviate too much?
         ret = []
         for dev in self._envlist:
-            val = dev.read(0)
+            try:
+                val = dev.read(0)
+            except NicosError, err:
+                self.handleError(dev, None, err)
+                # XXX synthesize value
             if isinstance(val, list):
                 ret.extend(val)
             else:
@@ -229,7 +254,14 @@ class Scan(object):
 
     def _inner_run(self):
         # move all devices to starting position before starting scan
-        can_measure = self.prepareScan(self._positions[0])
+        try:
+            self.prepareScan(self._positions[0])
+        except StopScan:
+            return
+        except SkipPoint:
+            can_measure = False
+        else:
+            can_measure = True
         self.beginScan()
         try:
             for i, position in enumerate(self._positions):
@@ -237,9 +269,9 @@ class Scan(object):
                 try:
                     if position:
                         session.action('Positioning')
-                        if i > 0:
-                            can_measure = self.moveTo(position)
-                        if not can_measure:
+                        if i != 0:
+                            self.moveTo(position)
+                        elif not can_measure:
                             continue
                     started = time.time()
                     actualpos = self.readPosition()
@@ -248,6 +280,7 @@ class Scan(object):
                         for i in range(self._mscount):
                             self.moveDevices(self._mswhere[i])
                             session.action('Counting (step %s)' % (i+1))
+                            # XXX handle errors in _count
                             result.extend(_count(self._detlist, self._preset))
                     else:
                         session.action('Counting')
@@ -255,8 +288,12 @@ class Scan(object):
                     finished = time.time()
                     actualpos += self.readEnvironment(started, finished)
                     self.addPoint(actualpos, result)
+                except SkipPoint:
+                    pass
                 finally:
                     self.finishPoint()
+        except StopScan:
+            pass
         finally:
             self.endScan()
 
@@ -336,6 +373,8 @@ class ManualScan(Scan):
             finished = time.time()
             actualpos += self.readEnvironment(started, finished)
             self.addPoint(actualpos, result)
+        except SkipPoint:
+            pass
         finally:
             self.finishPoint()
 
@@ -391,8 +430,9 @@ class ContinuousScan(Scan):
     def run(self):
         device = self._devices[0]
         detlist = self._detlist
-        can_measure = self.prepareScan([self._startpos])
-        if not can_measure:
+        try:
+            self.prepareScan([self._startpos])
+        except (StopScan, SkipPoint):
             return
         self.beginScan()
         session.action('Scanning')

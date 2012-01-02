@@ -102,6 +102,7 @@ class MoveError(NicosError):
     """
     Exception to be raised when moving a device is not possible.
     """
+    # XXX specify when to use this and PositionError
     category = 'Positioning error'
 
 class LimitError(NicosError):
@@ -116,10 +117,17 @@ class CommunicationError(NicosError):
     """
     category = 'Communication error'
 
+class HardwareError(NicosError):
+    """
+    Exception to be raised on fatal hardware errprs.
+    """
+    category = 'Hardware failure'
+
 class TimeoutError(CommunicationError):
     """
     Exception to be raised when a timeout occurs.
     """
+    # XXX generalize timeouts
     category = 'Timeout'
 
 class ComputationError(NicosError):
