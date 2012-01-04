@@ -30,7 +30,8 @@ from nicos.core import status
 from nicos.core.errors import NicosError, ProgrammingError, \
      ConfigurationError, UsageError, InvalidValueError, ModeError, \
      PositionError, MoveError, LimitError, CommunicationError, \
-     TimeoutError, ComputationError, FixedError, CacheLockError
+     HardwareError, TimeoutError, ComputationError, FixedError, \
+     CacheLockError
 from nicos.core.device import Device, AutoDevice, Readable, Moveable, \
      HasLimits, HasOffset, HasPrecision, Measurable, usermethod
 from nicos.core.params import Param, Override, Value, \
