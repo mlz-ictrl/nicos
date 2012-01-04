@@ -73,7 +73,7 @@ class BaseCacheClient(Device):
         self._secsocket = None
         self._sec_lock = threading.Lock()
         self._prefix = self.prefix.strip('/')
-        self._selecttimeout = 1.0  # seconds
+        self._selecttimeout = 0.5  # seconds
         self._do_callbacks = True
 
         self._stoprequest = False
@@ -183,12 +183,14 @@ class BaseCacheClient(Device):
                 self._wait_data()
 
                 # determine if something needs to be sent
+                tosend = ''
+                writelist = []
                 try:
-                    tosend = self._queue.get(False)
-                    writelist = [self._socket]
+                    while 1:
+                        tosend += self._queue.get(False)
+                        writelist = [self._socket]
                 except:
-                    tosend = None
-                    writelist = []
+                    pass
                 # try to read or write some data
                 res = select.select([self._socket], writelist, [self._socket],
                                     self._selecttimeout)
@@ -219,12 +221,16 @@ class BaseCacheClient(Device):
                     data += newdata
         if self._socket:
             # send rest of data
-            while True:
-                try:
-                    tosend = self._queue.get(False)
-                except:
-                    break
+            tosend = ''
+            try:
+                while 1:
+                    tosend += self._queue.get(False)
+            except:
+                pass
+            try:
                 self._socket.sendall(tosend)
+            except:
+                self._disconnect('disconnect: last send failed')
 
         # end of while loop
         self._disconnect()
