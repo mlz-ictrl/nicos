@@ -117,18 +117,19 @@ def center_of_mass(*columns):
 
 center_of_mass.__doc__ += COLHELP.replace('func(', 'center_of_mass(')
 
+
 @usercommand
 def fwhm(*columns):
-    """
-    calculate an estimate of full width at half maximum
+    """Calculate an estimate of full width at half maximum.
 
     The search starts a the 'left' end of the data.
 
-    returns tuple (fwhm,xpeak,ymax,ymin)
-    fwhm - return full width half maximum
-    xpeak - return x value at y = ymax
-    ymax - maximum y-value
-    ymin - minimum y-value
+    Returns a tuple ``(fwhm, xpeak, ymax, ymin)``:
+
+    * fwhm - full width half maximum
+    * xpeak - x value at y = ymax
+    * ymax - maximum y-value
+    * ymin - minimum y-value
     """
     xs, ys, _ = _getData(columns)
 
@@ -157,21 +158,24 @@ def fwhm(*columns):
     if ys[i1] == y_halfmax:
         x_hpeak_l = xs[i1]
     else:
-        x_hpeak_l = (y_halfmax - ys[i1 - 1]) / (ys[i1] - ys[i1 - 1]) * (xs[i1] - xs[i1 - 1]) + xs[i1 - 1]
+        x_hpeak_l = (y_halfmax - ys[i1 - 1]) / (ys[i1] - ys[i1 - 1]) * \
+            (xs[i1] - xs[i1 - 1]) + xs[i1 - 1]
     if ys[i2] == y_halfmax:
         x_hpeak_r = xs[i2]
     else:
-        x_hpeak_r = (y_halfmax - ys[i2 - 1]) / (ys[i2] - ys[i2 - 1]) * (xs[i2] - xs[i2 - 1]) + xs[i2 - 1]
+        x_hpeak_r = (y_halfmax - ys[i2 - 1]) / (ys[i2] - ys[i2 - 1]) * \
+            (xs[i2] - xs[i2 - 1]) + xs[i2 - 1]
     x_hpeak = [x_hpeak_l, x_hpeak_r]
 
     fwhm = abs(x_hpeak[1] - x_hpeak[0])
 
     # locate maximum location
-    jmax=ys.argmax()
+    jmax = ys.argmax()
     xpeak = xs[jmax]
     return (fwhm, xpeak, ymax, ymin)
 
 fwhm.__doc__ += COLHELP.replace('func(', 'fwhm(')
+
 
 @usercommand
 def root_mean_square(col=None):
