@@ -444,9 +444,9 @@ class ScansPanel(Panel):
             newset.curves = []
             newset.scaninfo = 'combined set'
             newset.started = time.localtime()
-            newset.xnames = sets[0].xnames # XXX combine from sets
+            newset.xvalueinfo = sets[0].xvalueinfo # XXX combine from sets
+            #newset.xnames = sets[0].xnames
             newset.xindex = sets[0].xindex
-            newset.xunits = sets[0].xunits
             # for together only, the number of curves and their columns
             # are irrelevant, just put all together
             for set in sets:
@@ -475,9 +475,10 @@ class ScansPanel(Panel):
             newset.curves = []
             newset.scaninfo = 'combined set'
             newset.started = time.localtime()
-            newset.xnames = firstset.xnames
+            newset.xvalueinfo = firstset.xvalueinfo
+            #newset.xnames = firstset.xnames
             newset.xindex = firstset.xindex
-            newset.xunits = firstset.xunits
+            #newset.xunits = firstset.xunits
             for curves in zip(*(set.curves for set in sets)):
                 newcurve = curves[0].copy()
                 newdata = sum((curve.tolist() for curve in curves), [])
@@ -497,9 +498,10 @@ class ScansPanel(Panel):
         newset.scaninfo = 'combined set'
         newset.curves = []
         newset.started = time.localtime()
-        newset.xnames = firstset.xnames
+        newset.xvalueinfo = firstset.xvalueinfo
+        #newset.xnames = firstset.xnames
         newset.xindex = firstset.xindex
-        newset.xunits = firstset.xunits
+        #newset.xunits = firstset.xunits
         for curves in zip(*(set.curves for set in sets)):
             newcurve = curves[0].copy()
             # CRUDE: don't care about the x values, operate by index

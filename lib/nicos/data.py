@@ -44,7 +44,7 @@ except ImportError:
 from nicos import session
 from nicos.core import status, listof, nonemptylistof, Device, Param, \
      Override, Readable, ConfigurationError, ProgrammingError, NicosError
-from nicos.utils import readFileCounter, updateFileCounter
+from nicos.utils import readFileCounter, updateFileCounter, lazy_property
 from nicos.commands.output import printinfo
 from nicos.sessions.daemon import DaemonSession
 from nicos.sessions.console import ConsoleSession
@@ -88,14 +88,32 @@ class Dataset(object):
     curpoint = 0
 
     # cached info for all sinks to use
-    xnames = []
-    xunits = []
     xvalueinfo = []
     xrange = None
-    ynames = []
-    yunits = []
     yvalueinfo = []
     yrange = None
+
+    # info derived from valueinfo
+    @lazy_property
+    def xnames(self):
+        return [v.name for v in self.xvalueinfo]
+    @lazy_property
+    def xunits(self):
+        return [v.unit for v in self.xvalueinfo]
+    @lazy_property
+    def ynames(self):
+        if self.multistep:
+            ret = []
+            mscount = len(self.multistep[0][1])
+            for i in range(mscount):
+                addname = '_' + '_'.join('%s_%s' % (mse[0], mse[1][i])
+                                         for mse in self.multistep)
+                ret.extend(val.name + addname for val in self.yvalueinfo)
+            return ret
+        return [v.name for v in self.yvalueinfo]
+    @lazy_property
+    def yunits(self):
+        return [v.unit for v in self.yvalueinfo]
 
 
 class NeedsDatapath(object):

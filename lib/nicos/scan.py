@@ -108,22 +108,10 @@ class Scan(object):
         dataset.sinkinfo = []
         dataset.xvalueinfo = sum((dev.valueInfo()
                                   for dev in self._devices + self._envlist), ())
-        dataset.xnames = [val.name for val in dataset.xvalueinfo]
-        dataset.xunits = [val.unit for val in dataset.xvalueinfo]
         dataset.yvalueinfo = sum((det.valueInfo()
                                   for det in dataset.detlist), ())
-        dataset.yunits = [val.unit for val in dataset.yvalueinfo]
         if self._multistep:
-            dataset.ynames = []
-            for i in range(self._mscount):
-                addname = '_' + '_'.join('%s_%s' % (mse[0], mse[1][i])
-                                         for mse in self._multistep)
-                dataset.ynames.extend(val.name + addname
-                                      for val in dataset.yvalueinfo)
             dataset.yvalueinfo = dataset.yvalueinfo * self._mscount
-            dataset.yunits = dataset.yunits * self._mscount
-        else:
-            dataset.ynames = [val.name for val in dataset.yvalueinfo]
         dataset.sinkinfo = {}
         for sink in self._sinks:
             sink.prepareDataset(dataset)

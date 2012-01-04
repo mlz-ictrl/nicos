@@ -77,10 +77,6 @@ def generate_dataset():
     xpoints = numpy.arange(-9, 9)
     assert len(data) == len(xpoints)
     dataset = session.experiment.createDataset(None)
-    dataset.xnames = ['x']
-    dataset.ynames = ['y1', 'y2']
-    dataset.xunits = ['steps']
-    dataset.yunits = ['counts', 'counts']
     dataset.xvalueinfo = [Value('x', 'other')]
     dataset.yvalueinfo = [Value('y1', 'counter'), Value('y2', 'counter')]
     dataset.xresults = [[x] for x in xpoints]
