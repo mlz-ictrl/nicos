@@ -30,6 +30,8 @@ import os
 import re
 import copy
 
+from nicos.core.errors import ProgrammingError
+
 
 class Param(object):
     """
@@ -148,6 +150,10 @@ class Value(object):
 
     def __init__(self, name, type='other', errors='none', unit='',
                  fmtstr='%.3f', active=True):
+        if type not in ('counter', 'monitor', 'time', 'other', 'error', 'info'):
+            raise ProgrammingError('invalid Value type parameter')
+        if errors not in ('none', 'next', 'sqrt'):
+            raise ProgrammingError('invalid Value errors parameter')
         self.name = name
         self.type = type
         self.errors = errors
