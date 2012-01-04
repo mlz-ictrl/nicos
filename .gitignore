@@ -21,7 +21,8 @@ doc/auto/
 doc/objects.inv
 doc/searchindex.js
 
-
+.coverage
+cover/
 
 test/root/
 

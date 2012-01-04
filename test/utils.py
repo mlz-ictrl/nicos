@@ -28,6 +28,40 @@ __version__ = "$Revision$"
 
 from nose.tools import assert_raises
 
+from nicos.data import DataSink
+
+
 def raises(exc, *args, **kwds):
     assert_raises(exc, *args, **kwds)
     return True
+
+
+class TestSink(DataSink):
+
+    def doInit(self):
+        self.clear()
+
+    def clear(self):
+        self._calls = []
+        self._info = []
+        self._points = []
+
+    def prepareDataset(self, dataset):
+        self._calls.append('prepareDataset')
+
+    def beginDataset(self, dataset):
+        self._calls.append('beginDataset')
+
+    def addInfo(self, dataset, category, valuelist):
+        self._calls.append('addInfo')
+        self._info.extend(valuelist)
+
+    def addPoint(self, dataset, xvalues, yvalues):
+        self._calls.append('addPoint')
+        self._points.append(xvalues + yvalues)
+
+    def addBreak(self, dataset):
+        self._calls.append('addBreak')
+
+    def endDataset(self, dataset):
+        self._calls.append('endDataset')

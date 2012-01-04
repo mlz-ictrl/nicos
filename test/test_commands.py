@@ -81,9 +81,11 @@ def test_scan():
     m2 = session.getDevice('motor2')
     c = session.getDevice('coder')
     ctr = session.getDevice('ctr1')
+    mm = session.getDevice('manual')
+    mm.move(0)
 
-    # plain scan
-    scan(m, 0, 1, 5, 0., 'test scan')
+    # plain scan, with some extras: infostring, firstmove
+    scan(m, 0, 1, 5, 0., 'test scan', manual=1)
     dataset = session.experiment._last_datasets[-1]
     assert dataset.xnames == ['motor']
     assert dataset.xunits == ['mm']
@@ -92,6 +94,7 @@ def test_scan():
     assert dataset.yunits == ['s', 'cts', 'cts', 'cts']
     assert dataset.scaninfo.startswith('test scan')
     assert len(dataset.yresults) == 5
+    assert mm.read() == 1
 
     # scan with second basic syntax
     scan(m, [0, 4, 5], 0.)
@@ -121,6 +124,15 @@ def test_scan():
     assert dataset.xresults == [[0., 0.], [1., 1.]]
     assert dataset.xnames == ['motor', 'coder']
     assert dataset.xunits == ['mm', 'mm']
+
+    # scan with multistep
+    scan(m, [0, 1], ctr, manual=[3, 4])
+    dataset = session.experiment._last_datasets[-1]
+    assert dataset.xresults == [[0.], [1.]]
+    assert dataset.ynames == ['ctr1_manual_3', 'ctr1_manual_4']
+
+def test_cscan():
+    m = session.getDevice('motor')
 
 
 # tests for the nicos.commands.analyze module

@@ -105,10 +105,12 @@ class Dataset(object):
         if self.multistep:
             ret = []
             mscount = len(self.multistep[0][1])
+            nyvalues = len(self.yvalueinfo) // mscount
             for i in range(mscount):
                 addname = '_' + '_'.join('%s_%s' % (mse[0], mse[1][i])
                                          for mse in self.multistep)
-                ret.extend(val.name + addname for val in self.yvalueinfo)
+                ret.extend(val.name + addname
+                           for val in self.yvalueinfo[:nyvalues])
             return ret
         return [v.name for v in self.yvalueinfo]
     @lazy_property

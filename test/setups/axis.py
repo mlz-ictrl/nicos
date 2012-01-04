@@ -55,5 +55,11 @@ devices = dict(
         unit = 'deg',
         initval = 0,
         abslimits = (0, 5),
-    )
+    ),
+
+    manual = device(
+        'nicos.generic.ManualMove',
+        unit = 'mm',
+        abslimits = (-5, 5),
+    ),
 )

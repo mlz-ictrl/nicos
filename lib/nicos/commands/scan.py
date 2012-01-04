@@ -211,8 +211,6 @@ ADDSCANHELP1 = """
         scan(dev, ..., 'peak search', ...)
 """
 
-
-# XXX multistep
 ADDSCANHELP2 = """
     By default, the detectors are those selected by `SetDetectors()`.  They can
     be replaced by a custom set of detectors by giving them as arguments::
@@ -230,6 +228,13 @@ ADDSCANHELP2 = """
 
         scan(dev, ..., ki=1.55)
 
+    A similar syntax can be used to count multiple times per scan point, with
+    one or more devices at different positions::
+
+        scan(dev, ..., pol=['up', 'down'])
+
+    will measure twice at every point: once with *pol* moved to 'up', once with
+    *pol* moved to 'down'.
 """
 
 scan.__doc__     += ADDSCANHELP1 + ADDSCANHELP2

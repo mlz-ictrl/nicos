@@ -28,11 +28,14 @@ sysconfig = dict(
     cache = 'localhost:14877',
     experiment = 'Exp',
     instrument = 'Tas',
+    datasinks = ['testsink'],
 )
 
 
 devices = dict(
     sample   = device('nicos.tas.TASSample'),
+
+    testsink = device('test.utils.TestSink'),
 
     Exp      = device('nicos.experiment.Experiment',
                       sample = 'sample',
