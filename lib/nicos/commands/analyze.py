@@ -167,7 +167,7 @@ def gauss(*columns):
     def model(v, x):
         return v[1] * np.exp(-0.5 * (x - v[0])**2 / (v[2] / c)**2) + v[3]
     fit = Fit(model, ['x0', 'A', 'sigma', 'B'],
-              [0.5*(xs[0]+xs[-1]), xs.max(), (xs[1]-xs[0])*5, 0],
+              [0.5*(xs[0]+xs[-1]), ys.max(), (xs[1]-xs[0])*5, 0],
               allow_leastsq=False)
     res = fit.run('gauss', xs, ys, dys)
     if res._failed:
