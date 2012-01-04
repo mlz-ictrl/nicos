@@ -34,14 +34,12 @@ sysconfig = dict(
 devices = dict(
     sample   = device('nicos.tas.TASSample'),
 
-    Exp = device('nicos.experiment.Experiment',
-        sample = 'sample',
-        loglevel = 'info',
-        datapath = ['./data/testdata'],
-        scriptdir = '.',
-        lowlevel = False,
-    ),
-
+    Exp      = device('nicos.experiment.Experiment',
+                      sample = 'sample',
+                      loglevel = 'info',
+                      datapath = ['./data/testdata'],
+                      scriptdir = '.',
+                      lowlevel = False),
 
     t_phi    = device('nicos.generic.VirtualMotor',
                       abslimits = (-180, 180),
@@ -75,7 +73,6 @@ devices = dict(
                       unit = 'deg',
                       abslimits = (-180, 180)),
 
-
     t_ana    = device('nicos.tas.Monochromator',
                       unit = 'A-1',
                       theta = 't_ath',
@@ -95,12 +92,11 @@ devices = dict(
                       unit = 'deg',
                       abslimits = (-180, 180)),
 
-    Tas = device('nicos.tas.TAS',
-                 cell = 'sample',
-                 mono = 't_mono',
-                 phi = 't_phi',
-                 psi = 't_psi',
-                 ana = 't_ana',
-                 instrument = 'Tas'),
-
+    Tas      = device('nicos.tas.TAS',
+                      cell = 'sample',
+                      mono = 't_mono',
+                      phi = 't_phi',
+                      psi = 't_psi',
+                      ana = 't_ana',
+                      instrument = 'Tas'),
 )

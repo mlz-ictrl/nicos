@@ -22,38 +22,39 @@
 #
 # *****************************************************************************
 
-name = 'test_axis setup'
+name = 'test detector setup'
 
 includes = ['system']
 
 devices = dict(
-    motor = device(
-        'nicos.generic.VirtualMotor',
-        unit = 'mm',
-        initval = 0,
-        abslimits = (-100, 100),
-    ),
+    timer    = device('nicos.generic.VirtualTimer',
+                      lowlevel = True),
 
-    coder = device(
-        'nicos.generic.VirtualCoder',
-        motor = 'motor',
-        unit = 'mm',
-    ),
+    mon1     = device('nicos.generic.VirtualCounter',
+                      lowlevel = True,
+                      type = 'monitor',
+                      countrate = 1000),
 
-    axis = device(
-        'nicos.generic.Axis',
-        motor = 'motor',
-        coder = 'coder',
-        obs = [],
-        precision = 0,
-        userlimits = (-50, 50),
-        loopdelay = 0.005,  # delay not necessary for virtual motor
-    ),
+    ctr1     = device('nicos.generic.VirtualCounter',
+                      lowlevel = True,
+                      type = 'counter',
+                      countrate = 2000),
 
-    motor2 = device(
-        'nicos.generic.VirtualMotor',
-        unit = 'deg',
-        initval = 0,
-        abslimits = (0, 5),
-    )
+    ctr2     = device('nicos.generic.VirtualCounter',
+                      lowlevel = True,
+                      type = 'counter',
+                      countrate = 120),
+
+    det      = device('nicos.taco.FRMDetector',
+                      t  = 'timer',
+                      m1 = 'mon1',
+                      m2 = None,
+                      m3 = None,
+                      z1 = 'ctr1',
+                      z2 = 'ctr2',
+                      z3 = None,
+                      z4 = None,
+                      z5 = None,
+                      maxage = 3,
+                      pollinterval = 0.5),
 )

@@ -34,13 +34,19 @@ from nicos.commands.device import move, maw
 from nicos.commands.analyze import fwhm, center_of_mass, root_mean_square, \
      poly, gauss
 
+from nicos.commands.scan import scan, cscan, timescan, twodscan, contscan, \
+     manualscan
+
 from test.utils import raises
 
 def setup_module():
     session.loadSetup('axis')
+    session.loadSetup('detector')
     session.setMode('master')
+    session.experiment.detlist = [session.getDevice('det')]
 
 def teardown_module():
+    session.experiment.detlist = []
     session.unloadSetup()
 
 def test_commands():
@@ -66,6 +72,55 @@ def test_commands():
     for pos in positions:
         maw(motor, pos)
         assert motor.curvalue == pos
+
+
+# tests for the nicos.commands.scan module
+
+def test_scan():
+    m = session.getDevice('motor')
+    m2 = session.getDevice('motor2')
+    c = session.getDevice('coder')
+    ctr = session.getDevice('ctr1')
+
+    # plain scan
+    scan(m, 0, 1, 5, 0., 'test scan')
+    dataset = session.experiment._last_datasets[-1]
+    assert dataset.xnames == ['motor']
+    assert dataset.xunits == ['mm']
+    assert dataset.xresults == [[float(i)] for i in range(5)]
+    assert dataset.ynames == ['timer', 'mon1', 'ctr1', 'ctr2']
+    assert dataset.yunits == ['s', 'cts', 'cts', 'cts']
+    assert dataset.scaninfo.startswith('test scan')
+    assert len(dataset.yresults) == 5
+
+    # scan with second basic syntax
+    scan(m, [0, 4, 5], 0.)
+    dataset = session.experiment._last_datasets[-1]
+    assert dataset.xresults == [[float(i)] for i in [0, 4, 5]]
+
+    # scan with multiple devices
+    scan([m, m2], [0, 0], [1, 2], 3, t=0.)
+    dataset = session.experiment._last_datasets[-1]
+    assert dataset.xresults == [[float(i), float(i*2)] for i in [0, 1, 2]]
+
+    # scan with multiple devices and second basic syntax
+    scan([m, m2], [[0, 0, 1], [4, 2, 1]], t=0.)
+    dataset = session.experiment._last_datasets[-1]
+    assert dataset.xresults == [[0., 4.], [0., 2.], [1., 1.]]
+
+    # scan with different detectors
+    scan(m, [0, 1], ctr)
+    dataset = session.experiment._last_datasets[-1]
+    assert dataset.xresults == [[0.], [1.]]
+    assert len(dataset.yresults) == 2 and len(dataset.yresults[0]) == 1
+    assert dataset.ynames == ['ctr1']
+
+    # scan with different environment
+    scan(m, [0, 1], c)
+    dataset = session.experiment._last_datasets[-1]
+    assert dataset.xresults == [[0., 0.], [1., 1.]]
+    assert dataset.xnames == ['motor', 'coder']
+    assert dataset.xunits == ['mm', 'mm']
 
 
 # tests for the nicos.commands.analyze module
