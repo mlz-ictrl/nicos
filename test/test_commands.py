@@ -31,6 +31,9 @@ from nicos.commands.scan import scan
 from nicos.commands.measure import count
 from nicos.commands.device import move, maw
 
+from nicos.commands.analyze import fwhm
+from nicos.core import Value
+
 from test.utils import raises
 
 def setup_module():
@@ -64,3 +67,20 @@ def test_commands():
         maw(motor, pos)
         assert motor.curvalue == pos
 
+def test_fwhm():
+    import numpy
+    data = numpy.array((1, 2, 1, 2, 2, 2, 5, 20, 30, 20, 10, 2, 3, 1, 2, 1, 1, 1))
+    xpoints = numpy.arange(-9,9)
+    assert len(data)== len(xpoints)
+    dataset = session.experiment.createDataset(None)
+    dataset.xvalueinfo= [Value('x','steps')]
+    dataset.yvalueinfo= [Value('y','counts'),Value('y','counts')]
+    dataset.xresults = [ [x] for x in xpoints]
+    dataset.yresults = [ [y] for y in data]
+
+    print dataset.xresults
+    session.experiment._last_datasets.append(dataset)
+
+    result=fwhm(1,1)
+    print result
+    assert result == (2.75, -1, 30, 1)

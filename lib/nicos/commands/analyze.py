@@ -117,6 +117,61 @@ def center_of_mass(*columns):
 
 center_of_mass.__doc__ += COLHELP.replace('func(', 'center_of_mass(')
 
+@usercommand
+def fwhm(*columns):
+    """
+    calculate an estimate of full width at half maximum
+
+    The search starts a the 'left' end of the data.
+
+    returns tuple (fwhm,xpeak,ymax,ymin)
+    fwhm - return full width half maximum
+    xpeak - return x value at y = ymax
+    ymax - maximum y-value
+    ymin - minimum y-value
+    """
+    xs, ys, _ = _getData(columns)
+
+    ymin = ys.min()
+    ymax = ys.max()
+
+    # Locate left and right point where the
+    # y-value is larger than the half maximum value
+    # (offset by ymin)
+    y_halfmax = ymin + .5 * (ymax - ymin)
+
+    numpoints = len(xs)
+    i1 = 0
+    for index, yval in np.ndenumerate(ys):
+        if yval >= y_halfmax:
+            i1 = index[0]
+            break
+
+    i2 = numpoints - 1
+    for index, yval in np.ndenumerate(ys[i1+1:]):
+        if yval <= y_halfmax:
+            i2 = index[0]+i1+1
+            break
+
+    # if not an exact match, use average
+    if ys[i1] == y_halfmax:
+        x_hpeak_l = xs[i1]
+    else:
+        x_hpeak_l = (y_halfmax - ys[i1 - 1]) / (ys[i1] - ys[i1 - 1]) * (xs[i1] - xs[i1 - 1]) + xs[i1 - 1]
+    if ys[i2] == y_halfmax:
+        x_hpeak_r = xs[i2]
+    else:
+        x_hpeak_r = (y_halfmax - ys[i2 - 1]) / (ys[i2] - ys[i2 - 1]) * (xs[i2] - xs[i2 - 1]) + xs[i2 - 1]
+    x_hpeak = [x_hpeak_l, x_hpeak_r]
+
+    fwhm = abs(x_hpeak[1] - x_hpeak[0])
+
+    # locate maximum location
+    jmax=ys.argmax()
+    xpeak = xs[jmax]
+    return (fwhm, xpeak, ymax, ymin)
+
+fwhm.__doc__ += COLHELP.replace('func(', 'fwhm(')
 
 @usercommand
 def root_mean_square(col=None):
@@ -167,7 +222,7 @@ def gauss(*columns):
     def model(v, x):
         return v[1] * np.exp(-0.5 * (x - v[0])**2 / (v[2] / c)**2) + v[3]
     fit = Fit(model, ['x0', 'A', 'sigma', 'B'],
-              [0.5*(xs[0]+xs[-1]), xs.max(), (xs[1]-xs[0])*5, 0],
+              [0.5*(xs[0]+xs[-1]), ys.max(), (xs[1]-xs[0])*5, 0],
               allow_leastsq=False)
     res = fit.run('gauss', xs, ys, dys)
     if res._failed:
