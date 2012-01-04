@@ -219,7 +219,12 @@ def gauss(*columns):
         ((x0, ampl, sigma, background), (d_x0, d_ampl, d_sigma, d_back))
 
     where the elements of the second tuple are the estimated standard errors of
-    the fit values.
+    the fit parameters.  The fit parameters are:
+
+    * x0 - center of the Gaussian
+    * ampl - amplitude
+    * sigma - FWHM
+    * background
     """
     xs, ys, dys = _getData(columns)
     c = 2 * np.sqrt(2 * np.log(2))
