@@ -30,6 +30,8 @@ from nicos.core import Value
 from nicos.commands.analyze import fwhm, center_of_mass, root_mean_square, \
      poly, gauss
 
+from test.utils import raises
+
 
 def setup_module():
     session.loadSetup('scanning')

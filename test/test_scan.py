@@ -34,6 +34,7 @@ from nicos.commands.scan import scan, cscan, timescan, twodscan, contscan, \
 
 from test.utils import raises
 
+
 def setup_module():
     session.loadSetup('scanning')
     session.setMode('master')
