@@ -1006,6 +1006,15 @@ class Moveable(Readable):
         return val
 
     @usermethod
+    def maw(self, target):
+        """Move to target and wait for completion.
+
+        Equivalent to ``dev.start(target); return dev.wait()``.
+        """
+        self.start(target)
+        return self.wait()
+
+    @usermethod
     def stop(self):
         """Stop any movement of the device.
 
