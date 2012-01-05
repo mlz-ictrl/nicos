@@ -221,6 +221,9 @@ class ArbitraryValues(Moveable, HasOffset):
         self._adevs['which'].start(self.steps[int(pos + self.offset + 0.5)])
         self._value = pos + self.offset
 
+    def doWait(self):
+        self._adevs['which'].wait()
+
 
 class VirtualSwitch(Moveable):
     """
@@ -246,11 +249,15 @@ class VirtualSwitch(Moveable):
         if self.defaultstate in self.states:
             self.start(self.defaultstate)
 
-    def doStart(self, target):
+    def doIsAllowed(self, target):
         if target not in self.states:
             positions = ', '.join(repr(pos) for pos in self.states)
-            raise NicosError(self, '%r is an invalid position for this device; '
-                            'valid positions are %s' % (target, positions))
+            return False, '%r is an invalid position for this device; ' \
+                'valid positions are %s' % (target, positions)
+        return True, ''
+
+    def doStart(self, target):
+        pass
 
     def doRead(self):
         if self.target in self.states:
