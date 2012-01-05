@@ -126,5 +126,5 @@ class NoninteractiveSession(Session):
 class SingleDeviceSession(NoninteractiveSession):
 
     @classmethod
-    def _get_maindev(self, appname, maindevcls, setup):
+    def _get_maindev(cls, appname, maindevcls, setup):
         return maindevcls(appname, **setup)

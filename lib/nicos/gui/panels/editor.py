@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """NICOS GUI user editor window."""
+
+from __future__ import with_statement
 
 __version__ = "$Revision$"
 
@@ -576,7 +576,7 @@ class EditorPanel(Panel):
             # comment selection
 
             # get the selection boundaries
-            lineFrom, indexFrom, lineTo, indexTo = self.editor.getSelection()
+            lineFrom, _, lineTo, indexTo = self.editor.getSelection()
             if indexTo == 0:
                 endLine = lineTo - 1
             else:
@@ -591,7 +591,7 @@ class EditorPanel(Panel):
             self.editor.endUndoAction()
         else:
             # comment line
-            line, index = self.editor.getCursorPosition()
+            line, _ = self.editor.getCursorPosition()
             self.editor.beginUndoAction()
             self.editor.insertAt(COMMENT_STR, line, 0)
             self.editor.endUndoAction()
@@ -636,7 +636,7 @@ class EditorPanel(Panel):
             self.editor.endUndoAction()
         else:
             # uncomment line
-            line, index = self.editor.getCursorPosition()
+            line, _ = self.editor.getCursorPosition()
 
             # check if line starts with our comment string (i.e. was commented
             # by our comment...() slots

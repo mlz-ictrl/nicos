@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """A line editor control with history stepping."""
+
+from __future__ import with_statement
 
 __version__ = "$Revision$"
 

@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """Module for basic user commands."""
+
+from __future__ import with_statement
 
 __version__ = "$Revision$"
 
@@ -197,13 +197,13 @@ def ListSetups():
     printTable(('name', 'description', 'devices'), items, printinfo)
 
 @usercommand
-def Keep(name, object):
-    """Export the given "object" into the NICOS namespace under the "name".
+def Keep(name, obj):
+    """Export the given *obj* into the NICOS namespace under the *name*.
 
     This makes the given name read-only, so that the object cannot be
     overwritten by accident.
     """
-    session.export(name, object)
+    session.export(name, obj)
 
 @usercommand
 def CreateDevice(*devnames):

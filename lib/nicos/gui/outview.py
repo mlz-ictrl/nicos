@@ -172,13 +172,13 @@ class OutputView(QTextBrowser):
     def addMessages(self, messages):
         textcursor = self.textCursor()
         textcursor.movePosition(QTextCursor.End)
-        format = self.formatMessage
+        formatter = self.formatMessage
         # insert text with the same format in one batch; this can save
         # quite a lot of time with text mainly in one format (info)
         lastfmt = None
         lasttext = ''
         for message in messages:
-            text, fmt = format(message)
+            text, fmt = formatter(message)
             if fmt is lastfmt:
                 lasttext += text
             else:

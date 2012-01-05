@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """The base class for communication with the NICOS server."""
+
+from __future__ import with_statement
 
 __version__ = "$Revision$"
 

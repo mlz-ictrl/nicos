@@ -23,9 +23,9 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """NICOS cache clients."""
+
+from __future__ import with_statement
 
 __version__ = "$Revision$"
 
@@ -188,7 +188,7 @@ class BaseCacheClient(Device):
                 writelist = []
                 try:
                     # bunch a few messages together, but not unlimited
-                    for i in range10:
+                    for _ in range10:
                         tosend += self._queue.get(False)
                         writelist = [self._socket]
                 except:
@@ -205,7 +205,7 @@ class BaseCacheClient(Device):
                     # write data
                     try:
                         self._socket.sendall(tosend)
-                    except:
+                    except Exception:
                         self._disconnect('disconnect: send failed')
                         data = ''
                         break
@@ -213,7 +213,7 @@ class BaseCacheClient(Device):
                     # got some data
                     try:
                         newdata = self._socket.recv(BUFSIZE)
-                    except:
+                    except Exception:
                         newdata = ''
                     if not newdata:
                         # no new data from blocking read -> abort
@@ -227,11 +227,11 @@ class BaseCacheClient(Device):
             try:
                 while 1:
                     tosend += self._queue.get(False)
-            except:
+            except Queue.Empty:
                 pass
             try:
                 self._socket.sendall(tosend)
-            except:
+            except Exception:
                 self._disconnect('disconnect: last send failed')
 
         # end of while loop
@@ -339,7 +339,7 @@ class CacheClient(BaseCacheClient):
             if self._do_callbacks:
                 try:
                     self._callbacks[key](key, value, time)
-                except:
+                except Exception:
                     self.log.warning('error in cache callback', exc=1)
 
     def _propagate(self, args):

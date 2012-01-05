@@ -319,8 +319,7 @@ class TacoDevice(object):
 # XXX hack around segfaults, enable by renaming MTacoDevice to TacoDevice
 
 import os
-import sys
-from subprocess import *
+from subprocess import Popen, PIPE
 from nicos.cache.utils import cache_dump, cache_load
 
 class TacoStub(object):

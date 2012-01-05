@@ -30,8 +30,9 @@ __version__ = "$Revision$"
 import threading
 from time import sleep
 
-from Motor import Motor as TACOMotor
+import IO
 import TACOStates
+from Motor import Motor as TACOMotor
 
 from nicos.core import status, tupleof, anytype, usermethod, Moveable, Param, \
     NicosError, PositionError, MoveError, ModeError, waitForStatus
@@ -119,7 +120,6 @@ class Axis(TacoDevice, BaseAxis):
                       self.format(self.read(0)))
 
     def _reset_phytron(self):
-        import IO
         motor = self._getMotor()
         iodev = self._taco_guard(motor.deviceQueryResource, 'iodev')
         addr = self._taco_guard(motor.deviceQueryResource, 'address')

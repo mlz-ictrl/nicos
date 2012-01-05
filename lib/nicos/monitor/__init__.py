@@ -161,7 +161,7 @@ class Monitor(BaseCacheClient):
         for warning in self.warnings:
             try:
                 key, cond, desc, setup = warning
-            except:
+            except ValueError:
                 key, cond, desc = warning
                 setup = None
             self._warnmap[self._prefix + '/' + key] = \
@@ -382,7 +382,7 @@ class Monitor(BaseCacheClient):
                     if isinstance(fvalue, list): fvalue = tuple(fvalue)
                     try:
                         strvalue = field['format'] % fvalue
-                    except Exception, e:
+                    except Exception:
                         strvalue = str(fvalue)
                 if field['strvalue'] != strvalue:
                     field['changetime'] = time

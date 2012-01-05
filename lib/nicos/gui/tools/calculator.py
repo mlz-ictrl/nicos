@@ -43,7 +43,7 @@ PI  = 3.1415926
 def tofloat(ctl):
     try:
         return float(str(ctl.text()))
-    except:
+    except ValueError:
         return 0.0
 
 prefactor = M_N**2 / (PI * H**2)
@@ -97,10 +97,10 @@ class CalculatorTool(QDialog):
 
         dblval = QDoubleValidator(self)
         for fld in bragg_fields:
-            input = getattr(self, 'input'+fld)
-            self.connect(input, SIGNAL('textChanged(const QString &)'),
+            inputbox = getattr(self, 'input'+fld)
+            self.connect(inputbox, SIGNAL('textChanged(const QString &)'),
                          self.braggcalc)
-            input.setValidator(dblval)
+            inputbox.setValidator(dblval)
 
     def doclose(self, *ignored):
         self.presets.save()

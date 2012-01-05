@@ -470,7 +470,7 @@ class ViewPlot(NicosPlot):
                 return
 
     def setLines(self, on):
-        for i, plotcurve in enumerate(self.plotcurves):
+        for plotcurve in self.plotcurves:
             if on:
                 plotcurve.setStyle(QwtPlotCurve.Lines)
             else:
@@ -479,7 +479,7 @@ class ViewPlot(NicosPlot):
         self.replot()
 
     def setSymbols(self, on):
-        for i, plotcurve in enumerate(self.plotcurves):
+        for plotcurve in self.plotcurves:
             if on:
                 plotcurve.setSymbol(self.symbol)
             else:

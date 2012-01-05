@@ -139,17 +139,17 @@ class HtmlWriter(object):
         self.fd_toc.close()
         self.toc_level = 0
 
-    def open(self, dir, instr, proposal):
+    def open(self, directory, instr, proposal):
         if self.fd:
             self.close()
-        open(path.join(dir, 'logbook.html'), 'w').write(
+        open(path.join(directory, 'logbook.html'), 'w').write(
             FRAMESET % (instr, proposal))
-        self.fd = open(path.join(dir, 'content.html'), 'a+b')
+        self.fd = open(path.join(directory, 'content.html'), 'a+b')
         self.fd.seek(0, 2)
         if self.fd.tell() == 0:
             self.fd.write(PROLOG)
             self.fd.flush()
-        self.fd_toc = open(path.join(dir, 'toc.html'), 'a+b')
+        self.fd_toc = open(path.join(directory, 'toc.html'), 'a+b')
         self.fd_toc.seek(0, 2)
         if self.fd_toc.tell() == 0:
             self.fd_toc.write(PROLOG + PROLOG_TOC)
@@ -203,7 +203,7 @@ class Handler(object):
         self.log = log
         self.handlers = {}
         # register all handlers
-        for name, func in Handler.__dict__.iteritems():
+        for name in Handler.__dict__:
             if name.startswith('handle_'):
                 self.handlers[name[7:].replace('_', '/')] = getattr(self, name)
 
@@ -324,7 +324,7 @@ class Handler(object):
         else:
             html = ['<tr>', '<td>-</td>']
         if dataset.xresults:
-            for i, xname in enumerate(dataset.xnames):
+            for i in range(len(dataset.xnames)):
                 first = dataset.xresults[0][i]
                 last = dataset.xresults[-1][i]
                 if first == last:

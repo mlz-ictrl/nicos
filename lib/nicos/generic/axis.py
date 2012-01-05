@@ -31,7 +31,7 @@ import threading
 from time import sleep
 
 from nicos.core import status, HasOffset, Override, ConfigurationError, \
-     NicosError, PositionError, MoveError, LimitError, waitForStatus
+     NicosError, PositionError, MoveError, waitForStatus
 from nicos.abstract import Axis as BaseAxis, Motor, Coder
 
 
@@ -155,9 +155,9 @@ class Axis(BaseAxis):
         # XXX probably make this a parameter.... , could also be a par of the
         # obs-device.... someone please decide!
         rounds = 100
-        for i in range(rounds):
+        for _ in range(rounds):
             for o in self._adevs['obs']:
-                pos += o.doRead()/float(rounds*len(self._adevs['obs']))
+                pos += o.doRead() / float(rounds * len(self._adevs['obs']))
         return pos
 
     def doReset(self):

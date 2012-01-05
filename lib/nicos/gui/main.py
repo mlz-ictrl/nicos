@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """NICOS GUI main window and application startup."""
+
+from __future__ import with_statement
 
 __version__ = "$Revision$"
 
@@ -141,18 +141,18 @@ class MainWindow(QMainWindow, DlgUtils):
             action = QAction(QIcon(':/' + wconfig[1]), wconfig[0], self)
             self.toolBarWindows.addAction(action)
             self.menuWindows.addAction(action)
-            def callback(on, i=i):
+            def window_callback(on, i=i):
                 self.createWindow(i)
-            self.connect(action, SIGNAL('triggered(bool)'), callback)
+            self.connect(action, SIGNAL('triggered(bool)'), window_callback)
 
         # load tools menu
         toolconfig = self.profiles[self.curprofile][2]
         for i, tconfig in enumerate(toolconfig):
             action = QAction(tconfig[0], self)
             self.menuTools.addAction(action)
-            def callback(on, i=i):
+            def tool_callback(on, i=i):
                 self.runTool(i)
-            self.connect(action, SIGNAL('triggered(bool)'), callback)
+            self.connect(action, SIGNAL('triggered(bool)'), tool_callback)
 
         # timer for reconnecting
         self.reconnectTimer = QTimer()

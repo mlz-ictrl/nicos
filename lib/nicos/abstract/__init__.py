@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """Definition of abstract base device classes."""
+
+from __future__ import with_statement
 
 __version__ = "$Revision$"
 
@@ -282,7 +282,7 @@ class AsyncDetector(Measurable):
                     if self._measurementComplete():
                         break
                     self._duringMeasureAction(time() - started)
-            except:
+            except Exception:
                 self._measurementFailedAction(sys.exc_info()[1])
                 self.log.exception('measuring failed')
                 self._measure.clear()
@@ -291,7 +291,7 @@ class AsyncDetector(Measurable):
             self._measure.clear()
             try:
                 self._afterMeasureAction()
-            except:
+            except Exception:
                 self._measurementFailedAction(sys.exc_info()[1])
                 self.log.exception('completing measurement failed')
             finally:

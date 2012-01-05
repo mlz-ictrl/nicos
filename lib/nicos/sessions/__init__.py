@@ -361,15 +361,15 @@ class Session(object):
             ('notifiers',  [Notifier]),
         ]
 
-        for key, type in sysconfig_items:
+        for key, devtype in sysconfig_items:
             if key not in sysconfig:
                 continue
             value = sysconfig[key]
-            if isinstance(type, list):
+            if isinstance(devtype, list):
                 if not isinstance(sysconfig[key], list):
                     raise ConfigurationError('sysconfig %s entry must be '
                                              'a list' % key)
-                setattr(self, key, [self.getDevice(name, type[0])
+                setattr(self, key, [self.getDevice(name, devtype[0])
                                     for name in value])
             else:
                 if value is None:
@@ -378,7 +378,7 @@ class Session(object):
                     raise ConfigurationError('sysconfig %s entry must be '
                                              'a device name' % key)
                 else:
-                    dev = self.getDevice(value, type)
+                    dev = self.getDevice(value, devtype)
                 setattr(self, key, dev)
 
         # create all other devices
@@ -471,13 +471,13 @@ class Session(object):
             simulation = 'turquoise'
         )[self._mode]
 
-    def export(self, name, object):
+    def export(self, name, obj):
         if isinstance(self._namespace, NicosNamespace):
-            self._namespace.setForbidden(name, object)
+            self._namespace.setForbidden(name, obj)
             self._namespace.addForbidden(name)
             self._local_namespace.addForbidden(name)
         else:
-            self._namespace[name] = object
+            self._namespace[name] = obj
         self._exported_names.add(name)
 
     def unexport(self, name, warn=True):
@@ -530,15 +530,15 @@ class Session(object):
                 self.unloadSetup()
                 self.loadSetup(setups)
 
-    def commandHandler(self, command, compile):
+    def commandHandler(self, command, compiler):
         """This method when the user executes a simple command.  It should
         return a compiled code object that is then executed instead of the
         command.
         """
         if command.startswith('#'):
-            return compile('LogEntry(%r)' % command[1:].strip())
+            return compiler('LogEntry(%r)' % command[1:].strip())
         try:
-            return compile(command)
+            return compiler(command)
         except SyntaxError:
             # XXX experimental command handler to allow e.g. "read om"
             if 0 and '\n' not in command:
@@ -546,7 +546,7 @@ class Session(object):
                 if parts[0] in self._exported_names and \
                   hasattr(self._namespace[parts[0]], 'is_usercommand'):
                     newcmd = parts[0] + '(' + ','.join(parts[1:]) + ')'
-                    return compile(newcmd)
+                    return compiler(newcmd)
             raise
 
     # -- Device control --------------------------------------------------------
@@ -621,7 +621,8 @@ class Session(object):
         dev.shutdown()
         for adev in dev._adevs.values():
             if isinstance(adev, list):
-                [real_adev._sdevs.discard(dev.name) for real_adev in adev]
+                for real_adev in adev:
+                    real_adev._sdevs.discard(dev.name)
             else:
                 adev._sdevs.discard(dev.name)
         del self.devices[devname]
@@ -693,11 +694,11 @@ class Session(object):
                 exc_info[1].device.log.error(exc_info=exc_info)
                 return
         if cut_frames:
-            type, value, tb = exc_info
+            etype, evalue, tb = exc_info
             while cut_frames:
                 tb = tb.tb_next
                 cut_frames -= 1
-            exc_info = (type, value, tb)
+            exc_info = (etype, evalue, tb)
         if msg:
             self.log.error(msg, exc_info=exc_info)
         else:

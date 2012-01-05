@@ -23,9 +23,9 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """NICOS cache server."""
+
+from __future__ import with_statement
 
 __version__ = "$Revision$"
 
@@ -171,7 +171,6 @@ class CacheWorker(object):
                 try:
                     ret = self._handle_line(line)
                 except Exception, err:
-                    raise
                     self.log.warning('error handling line %r' % line, exc=err)
                 else:
                     #self.log.debug('return is %r' % ret)
@@ -214,11 +213,11 @@ class CacheWorker(object):
         value = value or None
         try:
             time = float(time)
-        except:
+        except ValueError:
             time = currenttime()
         try:
             ttl = float(ttl)
-        except:
+        except ValueError:
             ttl = None
         if tsop == '-' and ttl:
             ttl = ttl - time

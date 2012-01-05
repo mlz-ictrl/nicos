@@ -650,10 +650,10 @@ class DataSetPlot(NicosPlot):
             for name in sorted(arby_functions):
                 QListWidgetItem(name, dlg.oftenUsed)
             def click_cb(item):
-                func, vars = arby_functions[str(item.text())]
+                func, params = arby_functions[str(item.text())]
                 dlg.function.setText(func)
                 dlg.fitparams.setPlainText('\n'.join(
-                    v + ' =' for v in vars.split()))
+                    p + ' = ' for p in params.split()))
             dlg.connect(dlg.oftenUsed,
                         SIGNAL('itemClicked(QListWidgetItem *)'), click_cb)
             ret = dlg.exec_()
@@ -692,7 +692,7 @@ class DataSetPlot(NicosPlot):
             return self.showError('scipy.odr is not available.')
         if not self.plotcurves:
             return self.showError('Plot must have a curve to be fitted.')
-        visible_curves = [i for (i, curve) in enumerate(self.dataset.curves)
+        visible_curves = [i for (i, _) in enumerate(self.dataset.curves)
                           if self.plotcurves[i].isVisible()]
         if len(visible_curves) > 1:
             dlg = dialogFromUi(self, 'selector.ui', 'panels')
@@ -826,7 +826,7 @@ class DataSetPlot(NicosPlot):
                 labelx = xmin
             elif labelx - extentx < xmax:
                 labelx = xmax
-                halign= Qt.AlignLeft
+                halign = Qt.AlignLeft
 
         textmarker.setLabelAlignment(halign | Qt.AlignBottom)
         textmarker.setValue(labelx, labely)

@@ -42,10 +42,10 @@ if sys.version_info[:2] < (2, 5):
 # Add instrument-specific directories to the package path.
 pkgpath = path.join(path.dirname(__file__), '..', '..', 'custom')
 if path.isdir(pkgpath):
-    for dir in  os.listdir(pkgpath):
-        mod = sys.modules['nicos.' + dir] = new.module('nicos.' + dir)
-        mod.__path__ = [path.join(pkgpath, dir, 'lib')]
-        globals()[dir] = mod
+    for subdir in os.listdir(pkgpath):
+        mod = sys.modules['nicos.' + subdir] = new.module('nicos.' + subdir)
+        mod.__path__ = [path.join(pkgpath, subdir, 'lib')]
+        globals()[subdir] = mod
 
 # Create the nicos session object here to allow the import of submodules.
 # The real class is set later.

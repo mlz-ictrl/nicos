@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """NICOS GUI virtual console panel component."""
+
+from __future__ import with_statement
 
 __version__ = "$Revision$"
 
@@ -105,7 +105,7 @@ class ConsolePanel(Panel):
         messages = state[2]
         self.outView.clear()
         total = len(messages) // 2500 + 1
-        for i, batch in enumerateWithProgress(chunks(messages, 2500),
+        for _, batch in enumerateWithProgress(chunks(messages, 2500),
                             text='Synchronizing...', parent=self, total=total):
             self.outView.addMessages(batch)
         self.outView.scrollToBottom()

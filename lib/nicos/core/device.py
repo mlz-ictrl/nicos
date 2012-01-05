@@ -58,7 +58,7 @@ class DeviceMeta(type):
 
     def __new__(mcs, name, bases, attrs):
         if 'parameters' in attrs:
-            for pname, pinfo in attrs['parameters'].iteritems():
+            for pinfo in attrs['parameters'].itervalues():
                 pinfo.classname = attrs['__module__'] + '.' + name
         for base in bases:
             if hasattr(base, 'parameters'):
@@ -252,7 +252,8 @@ class Device(object):
             # and remove from adevs' sdevs
             for adev in self._adevs.values():
                 if isinstance(adev, list):
-                    [real_adev._sdevs.discard(self.name) for real_adev in adev]
+                    for real_adev in adev:
+                        real_adev._sdevs.discard(self.name)
                 elif adev is not None:
                     adev._sdevs.discard(self.name)
             raise
@@ -335,7 +336,7 @@ class Device(object):
            ``self._mode != 'simulation'``.
         """
         # validate and create attached devices
-        for aname, (cls, doc) in sorted(self.attached_devices.iteritems()):
+        for aname, (cls, _) in sorted(self.attached_devices.iteritems()):
             if aname not in self._config:
                 raise ConfigurationError(
                     self, 'device misses device %r in configuration' % aname)
@@ -948,8 +949,8 @@ class Moveable(Readable):
         try:
             pos = self.valuetype(pos)
         except (ValueError, TypeError), err:
-            raise NicosError(self, '%r is an invalid value for this '
-                             'device: %s' % (pos, err))
+            raise InvalidValueError(self, '%r is an invalid value for this '
+                                    'device: %s' % (pos, err))
         ok, why = self.isAllowed(pos)
         if not ok:
             raise LimitError(self, 'moving to %s is not allowed: %s' %

@@ -27,7 +27,7 @@
 __version__ = "$Revision$"
 
 from nicos.core import status, listof, anytype, Moveable, Param, Override, \
-     HasLimits, InvalidValueError
+     HasLimits
 
 
 class ManualMove(HasLimits, Moveable):

@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """Web interface for NICOS."""
+
+from __future__ import with_statement
 
 __version__ = "$Revision$"
 
@@ -129,7 +129,7 @@ try:
         open(os.path.join(os.path.dirname(__file__), 'jquery.js')).read())
     CONSOLE_PAGE = CONSOLE_PAGE.replace('@@support@@',
         open(os.path.join(os.path.dirname(__file__), 'support.js')).read())
-except:
+except Exception:
     CONSOLE_PAGE = ''
 
 class FakeInput(object):
@@ -146,10 +146,10 @@ class FakeInput(object):
 class WebHandler(logging.Handler):
     """Log handler for transmitting log messages to the client."""
 
-    def __init__(self, buffer, lock):
+    def __init__(self, buf, lock):
         logging.Handler.__init__(self)
         self.setFormatter(NicosConsoleFormatter(datefmt=DATEFMT))
-        self.buffer = buffer
+        self.buffer = buf
         self.lock = lock
 
     def emit(self, record):

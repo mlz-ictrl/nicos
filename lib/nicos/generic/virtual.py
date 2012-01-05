@@ -31,7 +31,7 @@ import random
 import threading
 
 from nicos.core import status, tacodev, tupleof, nonemptylistof, anytype, \
-     Readable, Moveable, HasOffset, Param, Override, PositionError, NicosError
+     Readable, Moveable, HasOffset, Param, Override, PositionError
 from nicos.abstract import Motor, Coder
 from nicos.taco.detector import FRMTimerChannel, FRMCounterChannel
 
@@ -76,7 +76,7 @@ class VirtualMotor(Motor, HasOffset):
         delta = pos - self.curvalue + self.offset
         steps = int(abs(delta) / incr)
         incr = delta < 0 and -incr or incr
-        for i in range(steps):
+        for _ in range(steps):
             if self._stop:
                 self.log.debug('thread stopped')
                 self.curstatus = (status.OK, 'idle')

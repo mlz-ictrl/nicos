@@ -46,8 +46,8 @@ def serialize(data):
     """Serialize an object."""
     return pickle.dumps(data, 2)
 
-unserialize = pickle.loads
-"""Unserialize an object."""
+unserialize = pickle.loads   # Unserialize an object.
+
 
 def format_exception_cut_frames(cut=0):
     """

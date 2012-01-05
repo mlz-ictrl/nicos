@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """NICOS live 2D data plot window/panel."""
+
+from __future__ import with_statement
 
 __version__ = "$Revision$"
 
@@ -184,7 +184,7 @@ class LiveDataPanel(Panel):
         if item is None:
             return
         fname = item.data(32).toString()
-        format = item.data(33).toString()
+        fformat = item.data(33).toString()
         if fname == '':
             if self._no_direct_display:
                 self._no_direct_display = False
@@ -195,9 +195,9 @@ class LiveDataPanel(Panel):
                 self.updateRange()
         else:
             self._no_direct_display = True
-            if format == 'pad':
+            if fformat == 'pad':
                 self.widget.LoadPadFile(fname)
-            elif format == 'tof':
+            elif fformat == 'tof':
                 self.widget.LoadTofFile(fname)
             self.updateRange()
 
@@ -221,11 +221,11 @@ class LiveDataPanel(Panel):
             self.updateRange()
             self.add_to_flist(filename, 'pad')
 
-    def add_to_flist(self, filename, format, scroll=True):
+    def add_to_flist(self, filename, fformat, scroll=True):
         shortname = path.basename(filename)
         item = QListWidgetItem(shortname)
         item.setData(32, filename)
-        item.setData(33, format)
+        item.setData(33, fformat)
         self.fileList.insertItem(self.fileList.count()-1, item)
         if scroll:
             self.fileList.scrollToBottom()
@@ -284,9 +284,9 @@ class LiveDataPanel(Panel):
 
     def updateRange(self):
         if not self.actionCustomRange.isChecked():
-            range = self.widget.GetData2d().range()
-            self.rangeFrom.setValue(range.minValue())
-            self.rangeTo.setValue(range.maxValue())
+            crange = self.widget.GetData2d().range()
+            self.rangeFrom.setValue(crange.minValue())
+            self.rangeTo.setValue(crange.maxValue())
 
     def closeEvent(self, event):
         with self.sgroup as settings:

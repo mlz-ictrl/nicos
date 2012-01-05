@@ -222,7 +222,7 @@ class Monitor(BaseMonitor):
 
     def reconfigureBoxes(self):
         for setup, boxes in self._onlymap.iteritems():
-            for layout, blockbox in boxes:
+            for _, blockbox in boxes:
                 if setup in self._setups:
                     blockbox.show()
                 else:

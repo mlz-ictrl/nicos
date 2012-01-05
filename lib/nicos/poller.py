@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """Contains a process that polls devices automatically."""
+
+from __future__ import with_statement
 
 __version__ = "$Revision$"
 
@@ -207,11 +207,11 @@ class Poller(Device):
             self.log.info(', '.join(info))
             self.log.info('current stacktraces for each thread:')
             active = threading._active
-            for id, frame in sys._current_frames().items():
-                if id in active:
-                    name = active[id].getName()
+            for tid, frame in sys._current_frames().items():
+                if tid in active:
+                    name = active[tid].getName()
                 else:
-                    name = str(id)
+                    name = str(tid)
                 self.log.info('%s: %s' % (name,
                     ''.join(traceback.format_stack(frame))))
 

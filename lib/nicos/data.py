@@ -318,8 +318,8 @@ class GraceSink(DataSink):
 
             self._xdata = []
             self._nperstep = len(dataset.ynames)
-            self._ydata = [[] for i in range(self._nperstep)]
-            self._dydata = [[] for i in range(self._nperstep)]
+            self._ydata = [[] for _ in range(self._nperstep)]
+            self._dydata = [[] for _ in range(self._nperstep)]
             self._ynames = dataset.ynames
         except Exception:
             self.log.warning('could not create Grace plot', exc=1)
@@ -392,8 +392,8 @@ class GnuplotSink(DataSink):
 
             self._xdata = []
             self._nperstep = len(dataset.ynames)
-            self._ydata = [[] for i in range(self._nperstep)]
-            self._dydata = [[] for i in range(self._nperstep)]
+            self._ydata = [[] for _ in range(self._nperstep)]
+            self._dydata = [[] for _ in range(self._nperstep)]
             self._ynames = dataset.ynames
         except Exception:
             self.log.warning('could not create Gnuplot instance', exc=1)

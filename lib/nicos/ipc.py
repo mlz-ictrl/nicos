@@ -23,11 +23,11 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
 
-__version__ = ""
+from __future__ import with_statement
+
+__version__ = "$Revision$"
 
 import socket
 import select
@@ -839,7 +839,7 @@ class Motor(NicosMotor):
             bus.send(self.addr, 33)  # stop
             try:
                 self.doWait()        # this might take a while, ignore errors
-            except:
+            except Exception:
                 pass
             rewind()
         if self.status(0)[0] != status.OK:  # busy or error
@@ -1161,16 +1161,16 @@ class SlitAxis(HasPrecision, HasLimits, Moveable):
     def doReadUserlimits(self):
         minsteps, maxsteps = 100, 3800
         if self.slope < 0:
-            return (self._fromsteps(max), self._fromsteps(min))
+            return (self._fromsteps(maxsteps), self._fromsteps(minsteps))
         else:
-            return (self._fromsteps(min), self._fromsteps(max))
+            return (self._fromsteps(minsteps), self._fromsteps(maxsteps))
 
     def doStart(self, target):
         self._stoprequest = 0
         if self._thestatus == status.BUSY:
             self.doWait() # wait for previous movement
         if self._thestatus == status.ERROR:
-           raise NicosError(self, 'device blocked, please reset')
+            raise NicosError(self, 'device blocked, please reset')
         self._poscontrol = Thread(None, self._positioning, args=[target])
         self._poscontrol.start()
         sleep(0.2)

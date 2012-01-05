@@ -184,7 +184,7 @@ def root_mean_square(col=None):
     The data column to use can be given by an argument (by name or number); the
     default is the first Y column of type "counter".
     """
-    xs, ys, _ = _getData(col and (0, col) or ())
+    _, ys, _ = _getData(col and (0, col) or ())
     return sqrt((ys**2).sum() / len(ys))
 
 
@@ -247,7 +247,7 @@ def center(dev, center, step, numsteps, *args, **kwargs):
     around center with the given parameters.
     """
     cscan(dev, center, step, numsteps, 'centering', *args, **kwargs)
-    params, errors = gauss()  # XXX which column!
+    params, _ = gauss()  # XXX which column!
     # do not allow moving outside of the scanned region
     minvalue = center - step*numsteps
     maxvalue = center + step*numsteps
@@ -267,7 +267,7 @@ def checkoffset(dev, center, step, numsteps, *args, **kwargs):
     scan coincides with the center of a Gaussian fit.
     """
     cscan(dev, center, step, numsteps, 'offset check', *args, **kwargs)
-    params, errors = gauss()  # XXX which column!
+    params, _ = gauss()  # XXX which column!
     # do not allow moving outside of the scanned region
     minvalue = center - step*numsteps
     maxvalue = center + step*numsteps

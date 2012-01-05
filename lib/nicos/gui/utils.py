@@ -286,8 +286,8 @@ def showTraceback(tb, parent, fontwidget):
     dlg.tree.setFont(fontwidget.font())
     boldfont = QFont(fontwidget.font())
     boldfont.setBold(True)
-    for file, line, bindings in frames:
-        item = QTreeWidgetItem(dlg.tree, [file])
+    for filename, line, bindings in frames:
+        item = QTreeWidgetItem(dlg.tree, [filename])
         item.setFirstColumnSpanned(True)
         item = QTreeWidgetItem(dlg.tree, [line])
         item.setFirstColumnSpanned(True)

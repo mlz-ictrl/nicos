@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """NICOS daemon package."""
+
+from __future__ import with_statement
 
 __version__ = "$Revision$"
 
@@ -63,7 +63,7 @@ class Server(TCPServer):
         self.__serving = True
         self.__is_shut_down.clear()
         while self.__serving:
-            r, w, e = select.select([self], [], [], 1.0)
+            r = select.select([self], [], [], 1.0)[0]
             if r:
                 self._handle_request_noblock()
         self.__is_shut_down.set()
@@ -76,7 +76,7 @@ class Server(TCPServer):
         if self.verify_request(request, client_address):
             try:
                 self.process_request(request, client_address)
-            except:
+            except Exception:
                 self.handle_error(request, client_address)
                 self.close_request(request)
 
@@ -99,7 +99,7 @@ class Server(TCPServer):
             # this call instantiates the RequestHandler class
             self.finish_request(request, client_address)
             self.close_request(request)
-        except:
+        except Exception:
             self.handle_error(request, client_address)
             self.close_request(request)
 
