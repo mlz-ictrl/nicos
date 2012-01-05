@@ -28,12 +28,40 @@ __version__ = "$Revision$"
 
 from nose.tools import assert_raises
 
+from nicos.core import Moveable, HasLimits, status
 from nicos.data import DataSink
 
 
 def raises(exc, *args, **kwds):
     assert_raises(exc, *args, **kwds)
     return True
+
+
+class TestDevice(HasLimits, Moveable):
+
+    def doInit(self):
+        self._value = 0
+        self._start_exception = None
+        self._read_exception = None
+        self._status_exception = None
+
+    def doRead(self):
+        if self._read_exception:
+            raise self._read_exception
+        return self._value
+
+    def doStart(self, target):
+        if self._start_exception and target != 0:
+            raise self._start_exception
+        self._value = target
+
+    def doWait(self):
+        return self._value
+
+    def doStatus(self):
+        if self._status_exception:
+            raise self._status_exception
+        return status.OK, 'fine'
 
 
 class TestSink(DataSink):

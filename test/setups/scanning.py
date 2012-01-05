@@ -22,31 +22,28 @@
 #
 # *****************************************************************************
 
-name = 'test_axis setup'
+name = 'test scanning setup'
 
-includes = ['system']
+includes = ['axis', 'detector']
 
 devices = dict(
-    motor = device(
+    motor2 = device(
         'nicos.generic.VirtualMotor',
-        unit = 'mm',
+        unit = 'deg',
         initval = 0,
-        abslimits = (-100, 100),
+        abslimits = (0, 5),
     ),
 
-    coder = device(
-        'nicos.generic.VirtualCoder',
-        motor = 'motor',
+    manual = device(
+        'nicos.generic.ManualMove',
         unit = 'mm',
+        abslimits = (-5, 5),
     ),
 
-    axis = device(
-        'nicos.generic.Axis',
-        motor = 'motor',
-        coder = 'coder',
-        obs = [],
-        precision = 0,
-        userlimits = (-50, 50),
-        loopdelay = 0.005,  # delay not necessary for virtual motor
-    ),
+    tdev = device(
+        'test.utils.TestDevice',
+        unit = 'mm',
+        abslimits = (-5, 5),
+        maxage = 0.0,  # no caching!
+    )
 )

@@ -163,12 +163,18 @@ class Scan(object):
         """
         if isinstance(err, (PositionError, MoveError, TimeoutError)):
             # continue counting anyway
-            printwarning('Positioning problem during %s' % what, exc=1)
+            if what == 'read':
+                printwarning('Readout problem', exc=1)
+            else:
+                printwarning('Positioning problem, continuing', exc=1)
             return
         elif isinstance(err, (InvalidValueError, LimitError,
                               CommunicationError, ComputationError)):
-            printwarning('Skipping data point', exc=1)
-            raise SkipPoint
+            if what == 'read':
+                printwarning('Readout problem', exc=1)
+            else:
+                printwarning('Skipping data point', exc=1)
+                raise SkipPoint
         elif isinstance(err, FixedError):
             # if one of the devices can't be moved, the whole scan makes no
             # sense anymore, but maybe the next scan doesn't move the device
@@ -226,7 +232,7 @@ class Scan(object):
                 val = dev.read(0)
             except NicosError, err:
                 self.handleError('read', dev, None, err)
-                # XXX synthesize value
+                val = [None] * len(dev.valueInfo())
             if isinstance(val, list):
                 ret.extend(val)
             else:
@@ -403,6 +409,8 @@ class ContinuousScan(Scan):
     peak search).
     """
 
+    DELTA = 1.0
+
     def __init__(self, device, start, end, speed, firstmoves=None, detlist=None,
                  scaninfo=None):
         self._startpos = start
@@ -428,12 +436,12 @@ class ContinuousScan(Scan):
         try:
             device.speed = self._speed
             device.move(self._endpos)
-            preset = abs(self._endpos - self._startpos) / self.speed * 5
+            preset = abs(self._endpos - self._startpos) / self._speed * 5
             for det in detlist:
                 det.start(t=preset)
             last = sum((det.read() for det in detlist), [])
             while device.status(0)[0] == status.BUSY:
-                time.sleep(1)
+                time.sleep(self.DELTA)
                 session.breakpoint(2)
                 devpos = device.read(0)
                 read = sum((det.read() for det in detlist), [])

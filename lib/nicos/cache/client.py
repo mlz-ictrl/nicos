@@ -378,6 +378,9 @@ class CacheClient(BaseCacheClient):
         return (None, None, None)  # shouldn't happen
 
     def put(self, dev, key, value, time=None, ttl=None):
+        if ttl == 0:
+            # no need to process immediately-expired values
+            return
         if time is None:
             time = currenttime()
         ttlstr = ttl and '+%s' % ttl or ''
@@ -391,6 +394,9 @@ class CacheClient(BaseCacheClient):
         self._propagate((time, dbkey, OP_TELL, value))
 
     def put_raw(self, key, value, time=None, ttl=None):
+        if ttl == 0:
+            # no need to process immediately-expired values
+            return
         if time is None:
             time = currenttime()
         ttlstr = ttl and '+%s' % ttl or ''

@@ -80,8 +80,6 @@ def _handleScanArgs(args, kwargs, scaninfo):
             preset['t'] = arg
         elif isinstance(arg, Measurable):
             detlist.append(arg)
-        elif isinstance(arg, list):
-            detlist.extend(arg)
         elif isinstance(arg, Readable):
             if envlist is None:
                 envlist = []

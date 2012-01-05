@@ -42,9 +42,10 @@ class TestLogHandler(Handler):
     def __init__(self):
         Handler.__init__(self)
         self._warnings = []
+        self._raising = True
 
     def emit(self, record):
-        if record.levelno >= ERROR:
+        if record.levelno >= ERROR and self._raising:
             if record.exc_info:
                 # raise the original exception
                 raise record.exc_info[1], None, record.exc_info[2]
@@ -52,6 +53,9 @@ class TestLogHandler(Handler):
                 raise ErrorLogged(record.message)
         elif record.levelno >= WARNING:
             self._warnings.append(record)
+
+    def enable_raising(self, raising):
+        self._raising = raising
 
     def warns(self, func, *args, **kwds):
         plen = len(self._warnings)
