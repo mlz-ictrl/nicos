@@ -130,7 +130,7 @@ class ReadonlySwitcher(Readable):
                 if pos == value:
                     return name
         raise PositionError(self, 'unknown position of %s' %
-                            self._adevs['moveable'])
+                            self._adevs['readable'])
 
     def doStatus(self):
         # XXX status() or status(0)
