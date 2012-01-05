@@ -277,13 +277,6 @@ def oneofdict(vals):
     converter.__doc__ = 'one of ' + ', '.join(map(repr, vals.values()))
     return converter
 
-def existingdir(val='.'):
-    """an existing directory name"""
-    val = str(val)
-    if not os.path.isdir(val):
-        raise ValueError('value %s is not an existing directory' % val)
-    return val
-
 def none_or(conv):
     def converter(val=None):
         if val is None:

@@ -28,8 +28,7 @@ from nicos import session
 from nicos.core import UsageError, LimitError, ModeError, FixedError
 
 from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
-     tacodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
-     existingdir, none_or
+     tacodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, none_or
 
 from test.utils import raises
 
@@ -60,3 +59,32 @@ def test_param_converters():
     assert raises(ValueError, tacodev, 'test/device')
 
     assert anytype('foo') == 'foo'
+
+    assert vec3([1, 0, 0]) == [1., 0., 0.]
+    assert vec3() == [0., 0., 0.]
+    assert raises(ValueError, vec3, [1, 0])
+    assert raises(ValueError, vec3, ['x', 'y', 'z'])
+
+    assert intrange(0, 10)(5) == 5
+    assert intrange(1, 3)() == 1
+    assert raises(ValueError, intrange(0, 10), 15)
+    assert raises(ValueError, intrange(0, 10), 'x')
+
+    assert floatrange(0, 10)(5) == 5.0
+    assert floatrange(1, 3)() == 1.0
+    assert raises(ValueError, floatrange(0, 10), 15.)
+    assert raises(ValueError, floatrange(0, 10), 'x')
+
+    assert oneof(int, 0, 1)('0') == 0
+    assert oneof(int, 2, 3)() == 2
+    assert raises(ValueError, oneof(int, 0, 1), 2)
+    assert raises(ValueError, oneof(int, 0, 1), 'x')
+
+    assert oneofdict({'A': 1, 'B': 2})('A') == 1
+    assert oneofdict({'A': 1, 'B': 2})(1) == 1
+    assert raises(ValueError, oneofdict({}))
+    assert raises(ValueError, oneofdict({'A': 1}), 2)
+
+    assert none_or(int)(None) == None
+    assert none_or(int)(5.0) == 5
+    assert raises(ValueError, none_or(int), 'x')

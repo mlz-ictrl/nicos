@@ -36,6 +36,5 @@ from nicos.core.device import Device, AutoDevice, Readable, Moveable, \
      HasLimits, HasOffset, HasPrecision, Measurable, usermethod
 from nicos.core.params import Param, Override, Value, \
      listof, nonemptylistof, tupleof, dictof, tacodev, anytype, \
-     vec3, intrange, floatrange, oneof, oneofdict, existingdir, \
-     none_or
+     vec3, intrange, floatrange, oneof, oneofdict, none_or
 from nicos.core.utils import multiStatus, waitForStatus
