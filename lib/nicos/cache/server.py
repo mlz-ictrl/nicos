@@ -38,7 +38,7 @@ from os import path
 from time import time as currenttime, sleep, localtime, mktime
 
 from nicos import session
-from nicos.core import Device, Param, existingdir,  ConfigurationError
+from nicos.core import Device, Param, ConfigurationError
 from nicos.utils import loggers, closeSocket, ensureDirectory
 from nicos.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT, \
      OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, OP_TELLOLD, OP_LOCK, Entry, \
@@ -447,7 +447,7 @@ class FlatfileCacheDatabase(CacheDatabase):
 
     parameters = {
         'storepath': Param('Directory where history stores should be saved',
-                           type=existingdir, mandatory=True),
+                           type=str, mandatory=True),
     }
 
     def doInit(self):

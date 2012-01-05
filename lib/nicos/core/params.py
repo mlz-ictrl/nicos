@@ -224,7 +224,7 @@ def tacodev(val=None):
         return ''
     val = str(val)
     if not tacodev_re.match(val):
-        raise ValueError('%s is not a valid Taco device name' % val)
+        raise ValueError('%r is not a valid Taco device name' % val)
     return val
 
 def anytype(val=None):

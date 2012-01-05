@@ -474,6 +474,12 @@ class Device(object):
             value = self._params[param]
         else:
             value = self._config.get(param, paraminfo.default)
+            try:
+                value = paraminfo.type(value)
+            except (ValueError, TypeError), err:
+                raise ConfigurationError(
+                    self, '%r is an invalid value for parameter '
+                    '%s: %s' % (value, param, err))
         if self._cache:
             self._cache.put(self, param, value)
         if umethod:

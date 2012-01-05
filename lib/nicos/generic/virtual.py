@@ -104,7 +104,7 @@ class VirtualCoder(Coder, HasOffset):
 
 class VirtualTimer(FRMTimerChannel):
     parameters = {
-        'tacodevice': Param('(not used)', type=tacodev),
+        'tacodevice': Param('(not used)', type=tacodev, default=None),
     }
 
     def doInit(self):
@@ -159,7 +159,7 @@ class VirtualTimer(FRMTimerChannel):
 class VirtualCounter(FRMCounterChannel):
     parameters = {
         'countrate':  Param('The maximum countrate', default=1000),
-        'tacodevice': Param('(not used)', type=tacodev),
+        'tacodevice': Param('(not used)', type=tacodev, default=None),
     }
 
     def nothing(self):
@@ -205,7 +205,7 @@ class ArbitraryValues(Moveable, HasOffset):
         'which': (Moveable, 'Device to move to single steps'),
     }
     parameters = {
-        'steps': Param('', type=tupleof(float)),
+        'steps': Param('', type=nonemptylistof(float)),
     }
 
     def doInit(self):
