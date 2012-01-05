@@ -26,9 +26,12 @@
 
 __version__ = "$Revision$"
 
+from time import sleep
+
 from nicos import session
 from nicos.core import status, NicosError, LimitError
 from test.utils import raises
+
 
 def setup_module():
     session.loadSetup('axis')
@@ -36,6 +39,7 @@ def setup_module():
 
 def teardown_module():
     session.unloadSetup()
+
 
 def test_params():
     axis = session.getDevice('axis')
@@ -45,19 +49,24 @@ def test_params():
     assert axis.userlimits == (-50, +50)
     # unit automatically from motor device
     assert axis.unit == 'mm'
+    # abslimits from config
+    axis2 = session.getDevice('limit_axis')
+    assert axis2.abslimits == (-1, +1)
+    # offset
+    axis.maw(1)
+    assert axis.read() == 1
+    axis.offset = 1
+    assert axis.read() == 0
+    axis.offset = 0
 
 def test_movement():
     axis = session.getDevice('axis')
-    # initial position
-    assert axis.read() == 0
     # moving once
-    axis.move(1)
-    axis.wait()
+    axis.maw(1)
     assert axis.read() == 1
     assert axis.status()[0] == status.OK
     # moving again
-    axis.move(2)
-    axis.wait()
+    axis.maw(2)
     assert axis.read() == 2
     assert axis.status()[0] == status.OK
     # moving out of limits?
@@ -70,3 +79,49 @@ def test_movement():
     axis._cache.clear(axis.name)
     assert axis.status()[0] == status.BUSY
     axis._adevs['motor'].curstatus = (status.OK, '')
+
+    # now move for a while
+    axis.maw(0)
+    motor = session.getDevice('motor')
+    motor.speed = 0.5
+    try:
+        axis.move(1)
+        axis.wait()
+        assert axis.read() == 1
+
+        axis.move(0)
+        sleep(0.1)
+        axis.stop()
+        axis.wait()
+        assert 0 <= axis.read() <= 1
+    finally:
+        motor.speed = 0
+        motor.stop()
+
+def test_reset():
+    axis = session.getDevice('axis')
+    axis.reset()
+
+def test_backlash():
+    axis = session.getDevice('backlash_axis')
+    motor = session.getDevice('motor')
+    motor.stop()  # if it's still moving from previous test
+    axis.maw(0)
+    motor.speed = 0.5
+    try:
+        axis.move(1)
+        sleep(0.1)
+        axis.stop()
+        assert 0 <= axis.read() <= 1
+    finally:
+        motor.speed = 0
+
+def test_obs():
+    axis = session.getDevice('obs_axis')
+    obs = session.getDevice('coder2')
+    obs.offset = 0.1
+    axis.maw(0)
+    axis.reset()
+    obs.offset = 0.5
+    axis.maw(1)
+    axis.reset()

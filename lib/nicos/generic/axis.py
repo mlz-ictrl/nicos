@@ -93,6 +93,13 @@ class Axis(BaseAxis):
             amin, amax = mmin, mmax
         return amin, amax
 
+    def doIsAllowed(self, target):
+        # do limit check here already instead of in the thread
+        ok, why = self._adevs['motor'].isAllowed(target + self.offset)
+        if not ok:
+            return ok, 'motor cannot move there: ' + why
+        return True, ''
+
     def doStart(self, target, locked=False):
         """Starts the movement of the axis to target."""
         if self._checkTargetPosition(self.read(0), target, error=False):
@@ -102,11 +109,6 @@ class Axis(BaseAxis):
         if self.status(0)[0] == status.BUSY:
             raise NicosError(self, 'axis is moving now, please issue a stop '
                             'command and try it again')
-
-        # do limit check here already instead of in the thread
-        ok, why = self._adevs['motor'].isAllowed(target + self.offset)
-        if not ok:
-            raise LimitError(self._adevs['motor'], why)
 
         if self._posthread:
             self._posthread.join()

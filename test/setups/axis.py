@@ -49,4 +49,41 @@ devices = dict(
         userlimits = (-50, 50),
         loopdelay = 0.005,  # delay not necessary for virtual motor
     ),
+
+    limit_axis = device(
+        'nicos.generic.Axis',
+        motor = 'motor',
+        coder = 'coder',
+        obs = [],
+        abslimits = (-1, 1),
+        precision = 0,
+    ),
+
+    backlash_axis = device(
+        'nicos.generic.Axis',
+        motor = 'motor',
+        coder = 'coder',
+        obs = [],
+        backlash = 0.5,
+        precision = 0,
+        userlimits = (-50, 50),
+        loopdelay = 0.005,  # delay not necessary for virtual motor
+    ),
+
+    coder2 = device(
+        'nicos.generic.VirtualCoder',
+        motor = 'motor',
+        unit = 'mm',
+    ),
+
+    obs_axis = device(
+        'nicos.generic.Axis',
+        motor = 'motor',
+        coder = 'coder',
+        obs = ['coder2'],
+        backlash = 0.5,
+        precision = 0,
+        userlimits = (-50, 50),
+        loopdelay = 0.005,  # delay not necessary for virtual motor
+    )
 )

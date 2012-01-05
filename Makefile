@@ -39,7 +39,7 @@ changelint:
 
 
 test-coverage:
-	@$(PYTHON) test/run.py --with-coverage --cover-package=nicos --cover-html
+	@$(PYTHON) test/run.py --with-coverage --cover-package=nicos --cover-html $(O)
 
 # get the instrument from the full hostname (mira1.mira.frm2 -> mira)
 INSTRUMENT = $(shell hostname -f | cut -d. -f2)
