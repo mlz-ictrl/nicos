@@ -202,6 +202,8 @@ class Slit(Moveable):
             self.fmtstr = '(%.2f, %.2f) %.2f x %.2f'
         else:
             self.fmtstr = '%.2f x %.2f'
+        if self._cache:
+            self._cache.invalidate(self, 'value')
 
 
 class SlitAxis(Moveable, AutoDevice):

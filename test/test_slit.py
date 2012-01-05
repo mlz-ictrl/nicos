@@ -24,7 +24,7 @@
 # *****************************************************************************
 
 from nicos import session
-from nicos.core import LimitError
+from nicos.core import status, LimitError, InvalidValueError
 from test.utils import raises
 
 def setup_module():
@@ -33,6 +33,7 @@ def setup_module():
 
 def teardown_module():
     session.unloadSetup()
+
 
 def test_slit():
     slit = session.getDevice('slit_1')
@@ -53,24 +54,75 @@ def test_slit():
                              motor_bottom.doRead(),
                              motor_top.doRead()]
 
-    slit.doStart([8, 7, 6, 5])
-    slit.doWait()
-    assert slit.doRead() == [8, 7, 6, 5]
+    slit.reset()
+    slit.stop()
+    assert slit.doStatus()[0] == status.OK
 
-    assert raises(LimitError, slit.doStart, [8000, 7, 6, 5])
 
-    slit.doStart([8, 4, 3, 5])
-    slit.doWait()
-    assert slit.doRead() == [8, 4, 3, 5]
+def test_slit_opmodes():
+    slit = session.getDevice('slit_1')
+
+    slit.opmode = '4blades'
+    slit.maw([8, 9, 4, 5])
+    assert slit.read() == [8, 9, 4, 5]
+    assert raises(InvalidValueError, slit.start, [800, 0])
+    assert raises(LimitError, slit.start, [8, 8000, 4, 6])
+    assert len(slit.valueInfo()) == 4
+
+    slit.maw([8, 10, 4, 7])
+    assert slit.read() == [8, 10, 4, 7]
 
     slit.opmode = 'centered'
-    assert slit.doRead() == [-4, 2]
+    assert slit.read() == [2, 3]
+    slit.maw([0, 0])
+    assert raises(InvalidValueError, slit.doStart, [800, 0, 0, 0])
+    assert raises(LimitError, slit.start, [-2, 0])
+    assert raises(LimitError, slit.start, [0, -2])
+    slit.maw([2, 3])
+    assert len(slit.valueInfo()) == 2
 
     slit.opmode = 'offcentered'
-    assert slit.doRead() == [6, 4, -4, 2]
+    assert slit.read() == [0, 0, 2, 3]
+    assert raises(InvalidValueError, slit.start, [800, 0])
+    assert raises(LimitError, slit.start, [-1, -1, 1000, 0])
+    slit.maw([5, 1, 4, 4])
+    assert slit.read() == [5, 1, 4, 4]
+    assert len(slit.valueInfo()) == 4
 
-    slit.doStart([4, 2, 3, 5])
-    slit.doWait()
-    assert slit.doRead() == [4, 2, 3, 5]
     slit.opmode = '4blades'
-    assert slit.doRead() == [2.5, 5.5, -0.5, 4.5]
+    assert slit.read() == [3, 7, -1, 3]
+
+
+def test_slit_subaxes():
+    slit = session.getDevice('slit_1')
+
+    slit.opmode = 'offcentered'
+    slit.maw([5, 1, 4, 4])
+    assert slit.read() == [5, 1, 4, 4]
+
+    assert slit.centerx() == 5
+    assert slit.centery() == 1
+    assert slit.width() == 4
+    assert slit.height() == 4
+    assert slit.left() == 7
+    assert slit.right() == 3
+    assert slit.bottom() == -1
+    assert slit.top() == 3
+
+    slit.centerx.maw(0)
+    assert slit.read() == [0, 1, 4, 4]
+    slit.centery.maw(0)
+    assert slit.read() == [0, 0, 4, 4]
+    slit.width.maw(2)
+    assert slit.read() == [0, 0, 2, 4]
+    slit.height.maw(2)
+    assert slit.read() == [0, 0, 2, 2]
+
+    slit.right.maw(-3)
+    assert slit.read() == [-1, 0, 4, 2]
+    slit.left.maw(3)
+    assert slit.read() == [0, 0, 6, 2]
+    slit.bottom.maw(-3)
+    assert slit.read() == [0, -1, 6, 4]
+    slit.top.maw(3)
+    assert slit.read() == [0, 0, 6, 6]
