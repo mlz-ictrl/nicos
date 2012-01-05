@@ -118,6 +118,8 @@ def test_backlash():
 
 def test_obs():
     axis = session.getDevice('obs_axis')
+    motor = session.getDevice('motor')
+    motor.stop()  # if it's still moving from previous test
     obs = session.getDevice('coder2')
     obs.offset = 0.1
     axis.maw(0)

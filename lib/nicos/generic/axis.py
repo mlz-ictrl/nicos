@@ -108,7 +108,7 @@ class Axis(BaseAxis):
         # TODO: stop the axis instead of raising an exception
         if self.status(0)[0] == status.BUSY:
             raise NicosError(self, 'axis is moving now, please issue a stop '
-                            'command and try it again')
+                             'command and try it again')
 
         if self._posthread:
             self._posthread.join()
@@ -185,7 +185,7 @@ class Axis(BaseAxis):
         """Called on adjust(), overridden to forbid adjusting while moving."""
         if self.status(0)[0] == status.BUSY:
             raise NicosError(self, 'axis is moving now, please issue a stop '
-                            'command and try it again')
+                             'command and try it again')
         if self._errorstate:
             raise self._errorstate
         HasOffset.doWriteOffset(self, value)

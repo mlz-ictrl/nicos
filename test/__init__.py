@@ -27,20 +27,20 @@
 __version__ = "$Revision$"
 
 from os import path
-from logging import ERROR, WARNING,Handler
+from logging import ERROR, WARNING
 
 from nicos import session
-from nicos.utils import loggers
 from nicos.sessions import Session
+from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
 
 
 class ErrorLogged(Exception):
     """Raised when an error is logged by NICOS."""
 
 
-class TestLogHandler(Handler):
+class TestLogHandler(ColoredConsoleHandler):
     def __init__(self):
-        Handler.__init__(self)
+        ColoredConsoleHandler.__init__(self)
         self._warnings = []
         self._raising = True
 
@@ -53,6 +53,7 @@ class TestLogHandler(Handler):
                 raise ErrorLogged(record.message)
         elif record.levelno >= WARNING:
             self._warnings.append(record)
+        ColoredConsoleHandler.emit(self, record)
 
     def enable_raising(self, raising):
         self._raising = raising
@@ -72,7 +73,7 @@ class TestSession(Session):
         self.setSetupPath(path.join(path.dirname(__file__), 'setups'))
 
     def createRootLogger(self, prefix='nicos'):
-        self.log = loggers.NicosLogger('nicos')
+        self.log = NicosLogger('nicos')
         self.log.parent = None
         self.testhandler = TestLogHandler()
         self.log.addHandler(self.testhandler)

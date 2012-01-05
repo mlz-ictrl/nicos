@@ -47,7 +47,8 @@ devices = dict(
         obs = [],
         precision = 0,
         userlimits = (-50, 50),
-        loopdelay = 0.005,  # delay not necessary for virtual motor
+        loopdelay = 0.05,
+        loglevel = 'debug',
     ),
 
     limit_axis = device(
@@ -67,7 +68,7 @@ devices = dict(
         backlash = 0.5,
         precision = 0,
         userlimits = (-50, 50),
-        loopdelay = 0.005,  # delay not necessary for virtual motor
+        loopdelay = 0.05,
     ),
 
     coder2 = device(
@@ -84,6 +85,6 @@ devices = dict(
         backlash = 0.5,
         precision = 0,
         userlimits = (-50, 50),
-        loopdelay = 0.005,  # delay not necessary for virtual motor
+        loopdelay = 0.05,
     )
 )

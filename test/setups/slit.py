@@ -28,28 +28,35 @@ includes = ['system']
 
 devices = dict(
 
-    motor_left = device('nicos.generic.VirtualMotor',
-                        unit = 'mm',
-                        abslimits= (-10, 20)),
+    m_left = device(
+        'nicos.generic.VirtualMotor',
+        unit = 'mm',
+        abslimits = (-10, 20),
+    ),
 
-    motor_right = device('nicos.generic.VirtualMotor',
-                        unit = 'mm',
-                        abslimits= (-20, 10)),
+    m_right = device(
+        'nicos.generic.VirtualMotor',
+        unit = 'mm',
+        abslimits = (-20, 10),
+    ),
 
-    motor_bottom = device('nicos.generic.VirtualMotor',
-                          unit = 'mm',
-                          abslimits= (-20, 10)),
+    m_bottom = device(
+        'nicos.generic.VirtualMotor',
+        unit = 'mm',
+        abslimits = (-20, 10),
+    ),
 
-    motor_top = device('nicos.generic.VirtualMotor',
-                       unit = 'mm',
-                       abslimits= (-10, 20)),
+    m_top = device(
+        'nicos.generic.VirtualMotor',
+        unit = 'mm',
+        abslimits = (-10, 20),
+    ),
 
-
-    slit_1 = device('nicos.generic.Slit',
-                    left = 'motor_left',
-                    right = 'motor_right',
-                    bottom = 'motor_bottom',
-                    top = 'motor_top',
-                    pollinterval = 5,
-                    maxage = 10),
+    slit = device(
+        'nicos.generic.Slit',
+        left = 'm_left',
+        right = 'm_right',
+        bottom = 'm_bottom',
+        top = 'm_top',
+    ),
 )

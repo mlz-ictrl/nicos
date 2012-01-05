@@ -36,15 +36,18 @@ def teardown_module():
 
 
 def test_slit():
-    slit = session.getDevice('slit_1')
-    motor_right = session.getDevice('motor_right')
-    motor_left = session.getDevice('motor_left')
-    motor_bottom = session.getDevice('motor_bottom')
-    motor_top = session.getDevice('motor_top')
+    slit = session.getDevice('slit')
+    motor_right = session.getDevice('m_right')
+    motor_left = session.getDevice('m_left')
+    motor_bottom = session.getDevice('m_bottom')
+    motor_top = session.getDevice('m_top')
 
     slit.opmode = '4blades'
-    slit.doStart([1, 2, 3, 4])
-    slit.doWait()
+    slit.maw([1, 2, 3, 4])
+    print    [motor_right.doRead(),
+                             motor_left.doRead(),
+                             motor_bottom.doRead(),
+                             motor_top.doRead()]
     assert motor_right.doRead() == 1
     assert motor_left.doRead() == 2
     assert motor_bottom.doRead() == 3
@@ -60,7 +63,7 @@ def test_slit():
 
 
 def test_slit_opmodes():
-    slit = session.getDevice('slit_1')
+    slit = session.getDevice('slit')
 
     slit.opmode = '4blades'
     slit.maw([8, 9, 4, 5])
@@ -94,7 +97,7 @@ def test_slit_opmodes():
 
 
 def test_slit_subaxes():
-    slit = session.getDevice('slit_1')
+    slit = session.getDevice('slit')
 
     slit.opmode = 'offcentered'
     slit.maw([5, 1, 4, 4])
