@@ -63,7 +63,7 @@ devices = dict(
         'nicos.generic.Axis',
         motor = 'motor',
         coder = 'coder',
-        obs = [],
+        obs = None,
         backlash = 0.5,
         precision = 0,
         userlimits = (-50, 50),

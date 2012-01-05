@@ -28,7 +28,9 @@ __version__ = "$Revision$"
 
 from nicos import session
 from nicos.core import status, Device, Moveable, HasLimits, HasOffset, Param, \
-     ConfigurationError, ProgrammingError, LimitError, FixedError, UsageError
+     ConfigurationError, ProgrammingError, LimitError, FixedError, UsageError, \
+     InvalidValueError
+
 from test.utils import raises
 
 
@@ -100,6 +102,9 @@ class Dev2(HasLimits, HasOffset, Moveable):
     def doInfo(self):
         return [('instrument', 'testkey', 'testval')]
 
+    def doVersion(self):
+        return [('testversion', 1.0)]
+
 
 def test_initialization():
     # make sure dev2_1 is created and then try to instantiate another device
@@ -143,11 +148,14 @@ def test_params():
     # test legacy getPar/setPar API
     dev2.setPar('param2', 7)
     assert dev2.getPar('param2') == 8
+    assert raises(UsageError, dev2.setPar, 'param3', 1)
+    assert raises(UsageError, dev2.getPar, 'param3')
 
 def test_methods():
     dev2 = session.getDevice('dev2_3')
     assert 'doInit' in methods_called
     dev2.move(10)
+    dev2.maw(10)
     assert 'doStart' in methods_called
     assert 'doIsAllowed' in methods_called
     # moving beyond limits
@@ -180,6 +188,11 @@ def test_methods():
     assert 'param2' in keys
     assert 'value' in keys
     assert 'status' in keys
+    # loglevel
+    dev2.loglevel = 'info'
+    assert raises(InvalidValueError, setattr, dev2, 'loglevel', 'xxx')
+    # test version() method
+    assert ('testversion', 1.0) in dev2.version()
 
 def test_limits():
     dev2 = session.getDevice('dev2_3')
