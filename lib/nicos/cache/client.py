@@ -163,6 +163,7 @@ class BaseCacheClient(Device):
 
     def _worker_thread(self):
         data = ''
+        range10 = range(10)
         process = self._process_data
 
         while not self._stoprequest:
@@ -186,7 +187,8 @@ class BaseCacheClient(Device):
                 tosend = ''
                 writelist = []
                 try:
-                    while 1:
+                    # bunch a few messages together, but not unlimited
+                    for i in range10:
                         tosend += self._queue.get(False)
                         writelist = [self._socket]
                 except:
