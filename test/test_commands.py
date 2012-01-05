@@ -30,7 +30,10 @@ from nicos.core import UsageError, LimitError, ModeError, FixedError
 from nicos.commands.measure import count
 from nicos.commands.device import move, maw
 from nicos.commands.scan import scan
+from nicos.commands.output import printdebug, printinfo, printwarning, \
+     printerror, printexception
 
+from test import ErrorLogged
 from test.utils import raises
 
 
@@ -42,7 +45,17 @@ def teardown_module():
     session.unloadSetup()
 
 
-def test_commands():
+def test_output_commands():
+    printdebug('a', 'b')
+    printinfo('testing...')
+    try:
+        1/0
+    except ZeroDivisionError:
+        assert session.testhandler.warns(printwarning, 'warn!', exc=1)
+    assert raises(ErrorLogged, printerror, 'error!')
+    assert raises(ZeroDivisionError, printexception, 'exception!')
+
+def test_device_commands():
     motor = session.getDevice('motor')
 
     session.setMode('slave')
