@@ -40,6 +40,7 @@ from nicos.utils.loggers import INPUT
 from nicos.daemon.utils import format_exception_cut_frames, format_script, \
      fixup_script, update_linecache
 from nicos.daemon.pyctl import Controller, ControlStop
+from nicos.sessions.utils import NicosCompleter
 
 # compile flag to activate new division
 CO_DIVISION = 0x2000
@@ -242,6 +243,8 @@ class ExecutionController(Controller):
         self.current_script = None # currently executed script
         self.namespace = session.namespace
                                    # namespace in which scripts execute
+        self.completer = NicosCompleter(self.namespace)
+                                   # completer for the namespace
         self.watchexprs = set()    # watch expressions to evaluate
         self.watchlock = Lock()    # lock for watch expression list modification
         self.estop_functions = []  # functions to run on emergency stop

@@ -60,6 +60,7 @@ class ConsolePanel(Panel):
         if not self.hasinput:
             self.inputFrame.setVisible(False)
         self.commandInput.history = self.cmdhistory
+        self.commandInput.completion_callback = self.completeInput
 
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
         self.connect(client, SIGNAL('message'), self.on_client_message)
@@ -97,6 +98,12 @@ class ConsolePanel(Panel):
             setBackgroundColor(self.commandInput, self.idle_color)
         self.commandInput.update()
         self.commandInput.setEnabled(status != 'disconnected')
+
+    def completeInput(self, startstring):
+        try:
+            return self.client.ask('complete', str(startstring))
+        except:
+            return []
 
     def on_client_connected(self):
         self.outView._currentuser = self.client.login

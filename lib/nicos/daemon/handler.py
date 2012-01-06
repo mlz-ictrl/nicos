@@ -447,6 +447,12 @@ class ConnectionHandler(BaseRequestHandler):
         else:
             self.write(ACK)
 
+    @command()
+    def complete(self, prefix):
+        """Get completions for the given prefix."""
+        matches = sorted(set(self.controller.completer.get_matches(prefix)))
+        self.write(STX, serialize(matches))
+
     # -- Runtime information commands ------------------------------------------
 
     @command()

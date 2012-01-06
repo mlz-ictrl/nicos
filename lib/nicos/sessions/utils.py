@@ -102,6 +102,12 @@ class NicosCompleter(rlcompleter.Completer):
         matches = rlcompleter.Completer.global_matches(self, text)
         return [m for m in matches if m[:-1] not in self.global_hidden]
 
+    def get_matches(self, text):
+        if '.' in text:
+            return self.attr_matches(text)
+        else:
+            return self.global_matches(text)
+
 
 class LoggingStdout(object):
     """
