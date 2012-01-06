@@ -42,8 +42,8 @@ except ImportError:
     Gnuplot = None
 
 from nicos import session
-from nicos.core import status, listof, nonemptylistof, Device, Param, \
-     Override, Readable, ConfigurationError, ProgrammingError, NicosError
+from nicos.core import listof, nonemptylistof, Device, Param, Override, \
+     ConfigurationError, ProgrammingError, NicosError
 from nicos.utils import readFileCounter, updateFileCounter, lazy_property
 from nicos.commands.output import printinfo
 from nicos.sessions.daemon import DaemonSession
@@ -553,37 +553,3 @@ class AsciiDatafileSink(DatafileSink):
                          (self._commentc*3, self._fname))
         self._file.close()
         self._file = None
-
-
-class FreeSpace(Readable):
-    """
-    Device that returns the free space on a filesystem.
-    """
-
-    parameters = {
-        'path':     Param('The path to the filesystem mount point',
-                          type=str, mandatory=True),
-        'minfree':  Param('Minimum free space for "ok" status',
-                          unit='GiB', default=5, settable=True),
-    }
-
-    parameter_overrides = {
-        'unit':         Override(default='GiB', mandatory=False),
-        'pollinterval': Override(default=300),  # every 5 minutes is sufficient
-        'maxage':       Override(default=330),
-    }
-
-    def doRead(self):
-        st = os.statvfs(self.path)
-        return (st.f_bsize * st.f_bavail) / (1024 * 1024 * 1024.)
-
-    def doStatus(self):
-        free = self.read()
-        if free < self.minfree:
-            return status.ERROR, 'free space %.2f GiB below %.2f GiB' \
-                % (free, self.minfree)
-        return status.OK, '%.2f GiB free' % free
-
-    def doUpdateMinfree(self, value):
-        if self._cache:
-            self._cache.invalidate(self, 'status')
