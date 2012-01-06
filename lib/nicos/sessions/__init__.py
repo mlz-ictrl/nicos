@@ -114,8 +114,8 @@ class Session(object):
         # info about all loadable setups
         self._setup_info = {}
         # namespace to place user-accessible items in
-        self._namespace = NicosNamespace()
-        self._local_namespace = NicosNamespace()
+        self.namespace = NicosNamespace()
+        self.local_namespace = NicosNamespace()
         # contains all NICOS-exported names
         self._exported_names = set()
         # action stack for status line
@@ -141,14 +141,8 @@ class Session(object):
 
     def setNamespace(self, ns):
         """Set the namespace to export commands and devices into."""
-        self._namespace = ns
+        self.namespace = ns
         self._exported_names = set()
-
-    def getNamespace(self):
-        return self._namespace
-
-    def getLocalNamespace(self):
-        return self._local_namespace
 
     @property
     def mode(self):
@@ -398,7 +392,7 @@ class Session(object):
         for code in startupcode:
             if code:
                 try:
-                    exec code in self._namespace
+                    exec code in self.namespace
                 except Exception:
                     self.log.exception('error running startup code, ignoring')
 
@@ -472,31 +466,31 @@ class Session(object):
         )[self._mode]
 
     def export(self, name, obj):
-        if isinstance(self._namespace, NicosNamespace):
-            self._namespace.setForbidden(name, obj)
-            self._namespace.addForbidden(name)
-            self._local_namespace.addForbidden(name)
+        if isinstance(self.namespace, NicosNamespace):
+            self.namespace.setForbidden(name, obj)
+            self.namespace.addForbidden(name)
+            self.local_namespace.addForbidden(name)
         else:
-            self._namespace[name] = obj
+            self.namespace[name] = obj
         self._exported_names.add(name)
 
     def unexport(self, name, warn=True):
-        if name not in self._namespace:
+        if name not in self.namespace:
             if warn:
                 self.log.warning('unexport: name %r not in namespace' % name)
             return
         if name not in self._exported_names:
             self.log.warning('unexport: name %r not exported by NICOS' % name)
-        if isinstance(self._namespace, NicosNamespace):
-            self._namespace.removeForbidden(name)
-            self._local_namespace.removeForbidden(name)
-        del self._namespace[name]
+        if isinstance(self.namespace, NicosNamespace):
+            self.namespace.removeForbidden(name)
+            self.local_namespace.removeForbidden(name)
+        del self.namespace[name]
         self._exported_names.remove(name)
 
     def getExportedObjects(self):
         for name in self._exported_names:
-            if name in self._namespace:
-                yield self._namespace[name]
+            if name in self.namespace:
+                yield self.namespace[name]
 
     def handleInitialSetup(self, setup, simulate):
         # If simulation mode is wanted, we need to set that before loading any
@@ -544,7 +538,7 @@ class Session(object):
             if 0 and '\n' not in command:
                 parts = command.split()
                 if parts[0] in self._exported_names and \
-                  hasattr(self._namespace[parts[0]], 'is_usercommand'):
+                  hasattr(self.namespace[parts[0]], 'is_usercommand'):
                     newcmd = parts[0] + '(' + ','.join(parts[1:]) + ')'
                     return compiler(newcmd)
             raise
@@ -627,7 +621,7 @@ class Session(object):
                 adev._sdevs.discard(dev.name)
         del self.devices[devname]
         self.explicit_devices.discard(devname)
-        if devname in self._namespace:
+        if devname in self.namespace:
             self.unexport(devname)
 
     def notifyConditionally(self, runtime, subject, body, what=None,

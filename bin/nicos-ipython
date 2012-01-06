@@ -39,7 +39,7 @@ class IPySession(ConsoleSession):
                   % nicos_version)
         help = self._namespace['help']   # save our help() command
         embedshell = IPython.Shell.IPShellEmbed(banner=banner, argv=ipyargs,
-                                                user_ns=self.getNamespace())
+                                                user_ns=self.namespace)
         self._namespace['help'] = help
         embedshell()
 

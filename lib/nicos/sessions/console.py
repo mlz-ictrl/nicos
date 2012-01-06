@@ -156,8 +156,8 @@ class ConsoleSession(Session):
         banner = ('NICOS console ready (version %s).\nTry help() for a '
                   'list of commands, or help(command) for help on a command.'
                   % nicos_version)
-        console = NicosInteractiveConsole(self, self.getNamespace(),
-                                          self.getLocalNamespace())
+        console = NicosInteractiveConsole(self,
+                                          self.namespace, self.local_namespace)
         console.interact(banner)
         sys.stdout.write(colorcode('reset'))
 

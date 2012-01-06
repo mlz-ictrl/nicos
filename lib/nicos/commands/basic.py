@@ -380,7 +380,7 @@ def _RunScript(filename, statdevices):
         code = unicode(fp.read(), 'utf-8')
         compiled = compile(code, fn, 'exec', CO_DIVISION)
         with _Scope(fn):
-            exec compiled in session.getLocalNamespace(), session.getNamespace()
+            exec compiled in session.local_namespace, session.namespace
     printinfo('finished user script: ' + fn)
     if session.mode == 'simulation':
         printinfo('simulated minimum runtime: ' +

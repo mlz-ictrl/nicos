@@ -240,7 +240,7 @@ class ExecutionController(Controller):
         self.in_startup = True     # True while startup code is executed
         self.queue = Queue()       # user scripts get put here
         self.current_script = None # currently executed script
-        self.namespace = session.getNamespace()
+        self.namespace = session.namespace
                                    # namespace in which scripts execute
         self.watchexprs = set()    # watch expressions to evaluate
         self.watchlock = Lock()    # lock for watch expression list modification

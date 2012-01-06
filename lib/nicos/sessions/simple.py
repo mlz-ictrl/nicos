@@ -56,7 +56,7 @@ class ScriptSession(Session):
         session.handleInitialSetup(setup, False)
 
         # Execute the script code and shut down.
-        exec code in session.getNamespace()
+        exec code in session.namespace
         session.shutdown()
 
 

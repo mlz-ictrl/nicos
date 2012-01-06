@@ -236,8 +236,7 @@ class NicosApp(object):
             raise RuntimeError('session taken over by another client.')
         try:
             code = compile(code, '<stdin>', 'single', 0, 1)
-            exec code in session.getNamespace(), \
-                         session.getLocalNamespace()
+            exec code in session.namespace, session.local_namespace
         except SystemExit:
             print QUIT_MESSAGE
         except:
