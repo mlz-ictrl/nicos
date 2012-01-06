@@ -39,7 +39,7 @@ clean:
 	-rm -rf source/auto/*
 
 codedoc: 
-	-mkdir -p source/auto
+	#-mkdir -p source/auto
 	#./sphinx-autodoc-sourcegen.py -d source/auto -s rst -f ../lib/nicos
 
 html: codedoc
