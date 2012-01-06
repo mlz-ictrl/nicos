@@ -143,6 +143,11 @@ class ConsoleSession(Session):
     an exception hook that reports unhandled exceptions via the logging system.
     """
 
+    def __init__(self, appname):
+        Session.__init__(self, appname)
+        # prompt color
+        self._pscolor = 'reset'
+
     def _initLogging(self):
         Session._initLogging(self)
         sys.displayhook = self._displayhook
@@ -150,6 +155,26 @@ class ConsoleSession(Session):
     def _displayhook(self, value):
         if value is not None:
             self.log.log(OUTPUT, repr(value))
+
+    def loadSetup(self, setupnames, allow_special=False, raise_failed=False):
+        Session.loadSetup(self, setupnames, allow_special, raise_failed)
+        self.resetPrompt()
+
+    def setMode(self, mode):
+        Session.setMode(self, mode)
+        self.resetPrompt()
+
+    def resetPrompt(self):
+        base = self._mode != 'master' and self._mode + ' ' or ''
+        expsetups = '+'.join(self.explicit_setups)
+        sys.ps1 = base + '(%s) >>> ' % expsetups
+        sys.ps2 = base + ' %s  ... ' % (' ' * len(expsetups))
+        self._pscolor = dict(
+            slave  = 'brown',
+            master = 'darkblue',
+            maintenance = 'darkred',
+            simulation = 'turquoise'
+        )[self._mode]
 
     def console(self):
         """Run an interactive console, and exit after it is finished."""

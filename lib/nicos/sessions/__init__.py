@@ -122,8 +122,6 @@ class Session(object):
         self._actionStack = []
         # execution mode; initially always slave
         self._mode = 'slave'
-        # prompt color
-        self._pscolor = 'reset'
         # simulation clock
         self.clock = SimClock()
         # traceback of last unhandled exception
@@ -190,7 +188,6 @@ class Session(object):
             cache.doShutdown()
             self.cache = None
         self.log.info('switched to %s mode' % mode)
-        self.resetPrompt()
 
     def setSetupPath(self, path):
         """Set the path to the setup files."""
@@ -408,7 +405,6 @@ class Session(object):
                            list(self.explicit_setups))
             self.elog_event('setup', list(self.explicit_setups))
 
-        self.resetPrompt()
         self.log.info('setup loaded')
 
     def unloadSetup(self):
@@ -452,18 +448,6 @@ class Session(object):
             self.cache._ismaster = False
             self.cache.unlock('master')
         self.unloadSetup()
-
-    def resetPrompt(self):
-        base = self._mode != 'master' and self._mode + ' ' or ''
-        expsetups = '+'.join(self.explicit_setups)
-        sys.ps1 = base + '(%s) >>> ' % expsetups
-        sys.ps2 = base + ' %s  ... ' % (' ' * len(expsetups))
-        self._pscolor = dict(
-            slave  = 'brown',
-            master = 'darkblue',
-            maintenance = 'darkred',
-            simulation = 'turquoise'
-        )[self._mode]
 
     def export(self, name, obj):
         if isinstance(self.namespace, NicosNamespace):
@@ -732,7 +716,18 @@ class Session(object):
     def updateLiveData(self, tag, filename, dtype, nx, ny, nt, time, data):
         """Send new live data to clients.
 
-        XXX explain arguments here
+        The parameters are:
+
+        * tag - a string describing the type of data that is sent.  It is used
+          by clients to determine if they can display this data.
+        * filename - a string giving the filename of the data once measurement
+          is finished.  Can be empty.
+        * dtype - a string describing the data array in numpy style, if it is
+          in array format.
+        * nx, ny, nt - three integers giving the dimensions of the data array,
+          if it is in array format.
+        * time - the current measurement time, for determining count rate.
+        * data - the actual data as a byte string.
         """
 
     def breakpoint(self, level):
