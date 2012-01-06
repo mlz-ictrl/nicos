@@ -162,7 +162,6 @@ class DataSink(Device):
         to communicate the file name to sinks that write the info to the console
         or display them otherwise.
         """
-        pass
 
     def beginDataset(self, dataset):
         """Begin a new dataset.
@@ -177,7 +176,6 @@ class DataSink(Device):
         *userinfo* is an arbitrary string.  *sinkinfo* is a list of ``(key,
         value)`` pairs as explained in `prepareDataset()`.
         """
-        pass
 
     def addInfo(self, dataset, category, valuelist):
         """Add additional information to the dataset.
@@ -185,7 +183,6 @@ class DataSink(Device):
         This is meant to record e.g. device values at scan startup.  *valuelist*
         is a sequence of tuples ``(device, key, value)``.
         """
-        pass
 
     def addPoint(self, dataset, xvalues, yvalues):
         """Add a point to the dataset.
@@ -194,7 +191,6 @@ class DataSink(Device):
         *devices* list given to `beginDataset()`, and *yvalues* is a list of
         values with the same length as the all of detlist's value lists.
         """
-        pass
 
     def addBreak(self, dataset):
         """Add a "break" to the dataset.
@@ -202,11 +198,9 @@ class DataSink(Device):
         A break indicates a division in the data, e.g. between successive rows
         of a 2-dimensional scan.
         """
-        pass
 
     def endDataset(self, dataset):
         """End the current dataset."""
-        pass
 
 
 def safe_format(fmtstr, value):
