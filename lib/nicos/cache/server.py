@@ -213,11 +213,11 @@ class CacheWorker(object):
         value = value or None
         try:
             time = float(time)
-        except ValueError:
+        except (TypeError, ValueError):
             time = currenttime()
         try:
             ttl = float(ttl)
-        except ValueError:
+        except (TypeError, ValueError):
             ttl = None
         if tsop == '-' and ttl:
             ttl = ttl - time
