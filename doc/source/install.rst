@@ -37,12 +37,7 @@ Requirements
   - python-xmpp (optional, for Jabber notifications)
   - pyserial (optional, for TACO-less serial line communication)
 
-* For the status monitor: one of
-
-  - PyQt4
-  - PyGTK
-  - PyFLTK
-  - Tkinter
+* For the status monitor: one of PyQt4, PyGTK, PyFLTK or Tkinter
 
 * For the client-server GUI:
 
@@ -60,7 +55,7 @@ Configure and build in-place for experimenting
 ----------------------------------------------
 
 For development and testing purposes, NICOS components can be run directly from
-the source directory.  For this, you have to build the C module once using
+the source directory.  For this, you have to build the C modules once using
 ``make inplace``::
 
   cd nicos-core
@@ -79,7 +74,7 @@ setup contains a few devices that show basic usage of the NICOS system.  Call
 get a list of devices that can be manipulated.  You can also call ``help(dev)``
 to get help for an individual device.
 
-You can continue with :ref:`the tutorial <tutorial>` from here.
+You can continue with :ref:`the first steps <firststeps>` from here.
 
 
 Configure and build the distribution at an instrument
