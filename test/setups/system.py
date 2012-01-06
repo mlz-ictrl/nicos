@@ -40,8 +40,9 @@ devices = dict(
     Exp      = device('nicos.experiment.Experiment',
                       sample = 'sample',
                       loglevel = 'info',
-                      datapath = ['testdata'],
+                      datapath = ['.'],
                       scriptdir = '.',
+                      elog = False,
                       lowlevel = False),
 
     t_phi    = device('nicos.generic.VirtualMotor',

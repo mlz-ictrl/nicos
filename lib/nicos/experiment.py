@@ -82,6 +82,8 @@ class Experiment(Device):
                            settable=True),
         'scriptdir': Param('Standard script directory', type=str,
                            default='.', settable=True),
+        'elog':      Param('True if the electronig logbook should be enabled',
+                           type=bool, default=True),
         'propdb':    Param('user@host:dbname credentials for proposal DB',
                            type=str, default='', userparam=False),
     }
@@ -92,14 +94,15 @@ class Experiment(Device):
 
     def doInit(self):
         self._last_datasets = []
-        ensureDirectory(path.join(self.datapath[0], 'logbook'))
         instname = session.instrument and session.instrument.instrument or ''
-        session.elog_event('directory', (self.datapath[0],
-                                         instname, self.proposal))
-        self._eloghandler = ELogHandler()
-        # only enable in master mode, see below
-        self._eloghandler.disabled = session.mode != 'master'
-        session.addLogHandler(self._eloghandler)
+        if self.elog:
+            ensureDirectory(path.join(self.datapath[0], 'logbook'))
+            session.elog_event('directory', (self.datapath[0],
+                                             instname, self.proposal))
+            self._eloghandler = ELogHandler()
+            # only enable in master mode, see below
+            self._eloghandler.disabled = session.mode != 'master'
+            session.addLogHandler(self._eloghandler)
 
     @usermethod
     def new(self, proposal, title=None, **kwds):
@@ -123,7 +126,8 @@ class Experiment(Device):
         session.elog_event('setup', list(session.explicit_setups))
 
     def _setMode(self, mode):
-        self._eloghandler.disabled = mode != 'master'
+        if self.elog:
+            self._eloghandler.disabled = mode != 'master'
         Device._setMode(self, mode)
 
     def _fillProposal(self, proposal):
