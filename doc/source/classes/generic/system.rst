@@ -1,4 +1,4 @@
-System related classes
+System related devices
 ======================
 
 .. module:: nicos.generic.system

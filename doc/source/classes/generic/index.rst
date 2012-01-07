@@ -16,5 +16,6 @@ valid entries for the class name in a setup file.
    slit
    switcher
    manual
+   cache
    system
    virtual

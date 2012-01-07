@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+"""Cache reader/writer devices."""
+
 __version__ = "$Revision$"
 
 import time
@@ -32,6 +34,19 @@ from nicos.core import status, Readable, Moveable, HasLimits, Param, \
 
 
 class CacheReader(Readable):
+    """A readable device that gets values exclusively via cache.
+
+    This is useful for devices that cannot be usefully integrated into NICOS,
+    but that can be coerced to write their current value into the NICOS cache.
+    NICOS will then rely on the cache to supply current values for the device;
+    if there is no such value in the cache, a `CommunicationError` will be
+    raised.  The status is likewise read from the cache; if none is present,
+    `status.UNKNOWN` is returned.
+
+    Devices must write into the cache under the keys
+    :samp:`nicos/{devname}/value` and :samp:`nicos/{devname}/status`, where
+    *devname* is the NICOS device name configured in the setup.
+    """
 
     def doRead(self):
         raise CommunicationError(self, 'CacheReader value not in cache')
@@ -41,6 +56,16 @@ class CacheReader(Readable):
 
 
 class CacheWriter(HasLimits, Moveable):
+    """A moveable device that writes values via the cache.
+
+    This is the equivalent to `CacheReader` for moveable devices.  The device is
+    expected to itself subscribe to cache updates relating to its subkeys, and
+    deliver value updates via the cache as well.
+
+    This class will write setpoint changes into the cache under the key
+    :samp:`nicos/{devname}/{setkey}`, where *devname* is the NICOS device name,
+    and *setkey* is given by the device parameter.
+    """
 
     parameters = {
         'setkey':    Param('Subkey to use to set the device value',

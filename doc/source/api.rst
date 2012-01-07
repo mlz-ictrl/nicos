@@ -39,3 +39,9 @@ The following exceptions can be used when writing custom devices:
 .. autoexception:: FixedError()
 
 .. autoexception:: CacheLockError()
+
+
+Parameter definition
+====================
+
+.. 
