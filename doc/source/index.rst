@@ -19,7 +19,8 @@ Documentation contents:
    setups
    commands
    classes/index
-   devices
+   sessionapi
+   deviceapi
    coreapi
    glossary
 

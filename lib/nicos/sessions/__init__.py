@@ -53,9 +53,16 @@ EXECUTIONMODES = ['master', 'slave', 'simulation', 'maintenance']
 
 
 class Session(object):
-    """
-    The Session class provides all low-level routines needed for NICOS
+    """The Session class provides all low-level routines needed for NICOS
     operations and keeps the global state: devices, configuration, loggers.
+
+    Within one NICOS process, there is only one singleton session object that is
+    always importable using ::
+
+        from nicos import session
+
+    There are several specialized subclasses of `Session`; one of them will
+    always be used in concrete applications.
     """
 
     auto_modules = [
@@ -144,9 +151,16 @@ class Session(object):
 
     @property
     def mode(self):
+        """The current :term:`execution mode` of the session."""
         return self._mode
 
     def setMode(self, mode):
+        """Set a new mode for the session.
+
+        This raises `.ModeError` if the new mode cannot be switched to at the
+        moment (for example, if switching to master mode, but another master is
+        already active).
+        """
         mode = mode.lower()
         oldmode = self._mode
         cache = self.cache
@@ -190,18 +204,23 @@ class Session(object):
         self.log.info('switched to %s mode' % mode)
 
     def setSetupPath(self, path):
-        """Set the path to the setup files."""
+        """Set the path to the setup files.
+
+        Normally, the setup path is given in nicos.conf and does not need to be
+        set explicitly.
+        """
         self._setup_path = path
         self.readSetups()
 
     def getSetupPath(self):
+        """Return the current setup path."""
         return self._setup_path
 
     def readSetups(self):
-        """Read information of all existing setups.
+        """Read information of all existing setups, and validate them.
 
-        Setup modules are looked for in the setup/ directory which
-        should be a sibling to this package's directory.
+        Setup modules are looked for in the directory given by the "setups_path"
+        entry in nicos.conf, or by "control_path"/setups.
         """
         self._setup_info.clear()
         for filename in os.listdir(self._setup_path):
@@ -241,10 +260,24 @@ class Session(object):
                                              'does not exist' % (name, include))
 
     def getSetupInfo(self):
+        """Return information about all existing setups.
+
+        This is a dictionary mapping setup name to another dictionary.  The keys
+        of that dictionary are those present in the setup files: 'name',
+        'group', 'sysconfig', 'includes', 'excludes', 'modules', 'devices',
+        'startupcode'.
+        """
         return self._setup_info.copy()
 
     def loadSetup(self, setupnames, allow_special=False, raise_failed=False):
-        """Load one or more setup modules and set up devices accordingly."""
+        """Load one or more setup modules given in *setupnames* and set up
+        devices accordingly.
+
+        If *allow_special* is true, special setups (with group "special") are
+        allowed, otherwise `.ConfigurationError` is raised.  If *raise_failed*
+        is true, errors when creating devices are re-raised (otherwise, they are
+        reported as warnings).
+        """
         if not self._setup_info:
             self.readSetups()
 
@@ -408,8 +441,9 @@ class Session(object):
         self.log.info('setup loaded')
 
     def unloadSetup(self):
-        """Unload the current setup: destroy all devices and clear the
-        NICOS namespace.
+        """Unload the current setup.
+
+        This shuts down all created devices and clears the NICOS namespace.
         """
         # shutdown according to device dependencies
         devs = self.devices.values()
@@ -444,12 +478,14 @@ class Session(object):
         self._log_handlers = []
 
     def shutdown(self):
+        """Shut down the session: unload the setup and give up master mode."""
         if self._mode == 'master':
             self.cache._ismaster = False
             self.cache.unlock('master')
         self.unloadSetup()
 
     def export(self, name, obj):
+        """Export an object *obj* into the NICOS namespace with given *name*."""
         if isinstance(self.namespace, NicosNamespace):
             self.namespace.setForbidden(name, obj)
             self.namespace.addForbidden(name)
@@ -459,6 +495,7 @@ class Session(object):
         self._exported_names.add(name)
 
     def unexport(self, name, warn=True):
+        """Unexport the object with *name* from the NICOS namespace."""
         if name not in self.namespace:
             if warn:
                 self.log.warning('unexport: name %r not in namespace' % name)
@@ -472,11 +509,16 @@ class Session(object):
         self._exported_names.remove(name)
 
     def getExportedObjects(self):
+        """Return an iterable of all objects exported to the NICOS namespace."""
         for name in self._exported_names:
             if name in self.namespace:
                 yield self.namespace[name]
 
     def handleInitialSetup(self, setup, simulate):
+        """Determine which setup to load, and try to become master.
+
+        Called by sessions during startup.
+        """
         # If simulation mode is wanted, we need to set that before loading any
         # initial setup.
         if simulate:
@@ -536,10 +578,18 @@ class Session(object):
         self._failed_devices = set()
 
     def endMultiCreate(self):
+        """Mark the end of a multi-create."""
         self._failed_devices = None
 
     def getDevice(self, dev, cls=None):
-        """Convenience: get a device by name or instance."""
+        """Return a device *dev* from the current setup.
+
+        If *dev* is a string, the corresponding device will be looked up or
+        created, if necessary.
+
+        *cls* gives a class, or tuple of classes, that *dev* needs to be an
+        instance of.
+        """
         if isinstance(dev, str):
             if dev in self.devices:
                 dev = self.devices[dev]
@@ -557,6 +607,8 @@ class Session(object):
         """Create device given by a device name.
 
         If device exists and *recreate* is true, destroy and create it again.
+        If *explicit* is true, the device is added to the list of "explicitly
+        created devices".
         """
         if self._failed_devices and devname in self._failed_devices:
             raise NicosError('device already failed to create before')
@@ -591,7 +643,7 @@ class Session(object):
         return dev
 
     def destroyDevice(self, devname):
-        """Shutdown and destroy a device."""
+        """Shutdown a device and remove it from the list of created devices."""
         if devname not in self.devices:
             raise UsageError('device %r not created' % devname)
         self.log.info('shutting down device %r...' % devname)
@@ -648,6 +700,7 @@ class Session(object):
             self.log.error('cannot open log file: %s' % err)
 
     def getLogger(self, name):
+        """Return a new NICOS logger for the specified device name."""
         if name in self._loggers:
             return self._loggers[name]
         logger = NicosLogger(name)
@@ -658,12 +711,17 @@ class Session(object):
         return logger
 
     def addLogHandler(self, handler):
+        """Add a new logging handler to the list of handlers for all NICOS
+        loggers.
+        """
         self._log_handlers.append(handler)
         self.log.addHandler(handler)
 
     def logUnhandledException(self, exc_info=None, cut_frames=0, msg=''):
-        """Log an unhandled exception.  Log using the originating device's
-        logger, if that information is available.
+        """Log an unhandled exception (occurred during user scripts).
+
+        The exception is logged using the originating device's logger, if that
+        information is available.
         """
         if exc_info is None:
             exc_info = sys.exc_info()
@@ -731,9 +789,10 @@ class Session(object):
         """
 
     def breakpoint(self, level):
-        """Allow breaking or stopping the script here.
+        """Allow breaking or stopping the script at a well-defined time.
 
-        XXX document level parameter.
+        *level* can be 1 to indicate a breakpoint "after current scan" or 2 to
+        indicate a breakpoint "after current step".
         """
 
     def clearExperiment(self):
