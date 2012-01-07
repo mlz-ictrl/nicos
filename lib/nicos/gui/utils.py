@@ -40,7 +40,7 @@ from PyQt4.QtGui import QApplication, QDialog, QProgressDialog, QMessageBox, \
      QPushButton, QTreeWidgetItem, QPalette, QFont, QClipboard, QDialogButtonBox, \
      QToolButton, QFileDialog, QLabel, QTextEdit, QWidget, QVBoxLayout
 
-from nicos.gui.client import DEFAULT_PORT
+from nicos.daemon import DEFAULT_PORT
 
 
 def parseConnectionData(s):

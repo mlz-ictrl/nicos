@@ -45,6 +45,9 @@ from nicos.daemon.script import ExecutionController
 from nicos.daemon.handler import ConnectionHandler
 
 
+DEFAULT_PORT = 1301
+
+
 class Server(TCPServer):
     def __init__(self, daemon, address, handler):
         self.daemon = daemon
@@ -199,7 +202,7 @@ class NicosDaemon(Device):
         address = self.server
         if ':' not in address:
             host = address
-            port = 1301
+            port = DEFAULT_PORT
         else:
             host, port = address.split(':')
             port = int(port)

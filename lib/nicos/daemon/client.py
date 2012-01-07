@@ -30,37 +30,17 @@ __version__ = "$Revision$"
 
 import ast
 import socket
-import struct
 import hashlib
 import threading
 
 import numpy as np
 
-# also re-exported for the rest of nicos.gui
 from nicos.daemon import NicosDaemon
-from nicos.daemon.utils import serialize, unserialize
-from nicos.daemon.pyctl import STATUS_IDLEEXC, STATUS_IDLE, STATUS_RUNNING, \
-     STATUS_INBREAK, STATUS_STOPPING
+from nicos.daemon.utils import unserialize
+from nicos.daemon.handler import ACK, STX, NAK, LENGTH, RS
 
-
-DEFAULT_PORT    = 1301
-
-# Script status constants
-
-# General constants
 BUFSIZE = 8192
 TIMEOUT = 30.0
-
-# one-byte responses without length
-ACK = '\x06'   # executed ok, no further information follows
-
-# responses with length, encoded as a 32-bit integer
-STX = '\x03'   # executed ok, reply follows
-NAK = '\x15'   # error occurred, message follows
-LENGTH = struct.Struct('>I')   # used to encode length
-
-# argument separator in client commands
-RS = '\x1e'
 
 
 class ProtocolError(Exception):

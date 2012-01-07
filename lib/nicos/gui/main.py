@@ -42,12 +42,13 @@ from nicos import __version__ as nicos_version
 from nicos.gui.data import DataHandler
 from nicos.gui.utils import DlgUtils, SettingGroup, \
      parseConnectionData, getXDisplay, dialogFromUi, loadUi, importString
-from nicos.gui.client import NicosDaemon, NicosClient, DEFAULT_PORT, \
-     STATUS_INBREAK, STATUS_IDLE, STATUS_IDLEEXC
 from nicos.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.gui.panels.console import ConsolePanel
 from nicos.gui.settings import SettingsDialog
 from nicos.cache.utils import cache_load
+from nicos.daemon import NicosDaemon, DEFAULT_PORT
+from nicos.daemon.pyctl import STATUS_INBREAK, STATUS_IDLE, STATUS_IDLEEXC
+from nicos.daemon.client import NicosClient
 
 # the default profile
 from nicos.gui.defconfig import default_profile_config, default_profile_uid

@@ -31,8 +31,8 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 from PyQt4.QtGui import QInputDialog, QMessageBox, QTreeWidgetItem
 
 from nicos.gui.utils import loadUi, setBackgroundColor
-from nicos.gui.client import serialize
 from nicos.gui.panels import Panel
+from nicos.daemon.utils import serialize
 
 
 class WatchPanel(Panel):
