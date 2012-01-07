@@ -32,4 +32,4 @@ from nicos.generic.slit import Slit
 from nicos.generic.switcher import Switcher, ReadonlySwitcher
 from nicos.generic.system import FreeSpace
 from nicos.generic.virtual import VirtualMotor, VirtualCoder, VirtualTimer, \
-     VirtualCounter, ArbitraryValues, VirtualSwitch
+     VirtualCounter

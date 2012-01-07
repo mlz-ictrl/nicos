@@ -34,9 +34,8 @@ devices = dict(
         speed = 1.5
     ),
     v2 = device(
-        'nicos.generic.VirtualSwitch',
+        'nicos.generic.ManualSwitch',
         states = ['up', 'down'],
-        defaultstate = 'up',
     ),
     v3 = device(
         'nicos.generic.VirtualMotor',
@@ -45,10 +44,10 @@ devices = dict(
         speed = 0,
     ),
     av = device(
-        'nicos.generic.ArbitraryValues',
-        unit = '',
-        which = 'v3',
-        steps = [0, 1, 3, 6, 10],
+        'nicos.generic.Switcher',
+        moveable = 'v3',
+	states = range(5),
+        values = [0, 1, 3, 6, 10],
     ),
     m1 = device(
         'nicos.generic.ManualSwitch',

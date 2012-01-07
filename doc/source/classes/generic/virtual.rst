@@ -13,5 +13,3 @@ testing purposes.
 
 .. autoclass:: VirtualTimer()
 .. autoclass:: VirtualCounter()
-
-.. autoclass:: VirtualSwitch()

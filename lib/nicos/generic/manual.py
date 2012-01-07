@@ -27,7 +27,7 @@
 __version__ = "$Revision$"
 
 from nicos.core import status, listof, anytype, Moveable, Param, Override, \
-     HasLimits
+     HasLimits, PositionError
 
 
 class ManualMove(HasLimits, Moveable):
@@ -37,6 +37,8 @@ class ManualMove(HasLimits, Moveable):
     is useful for instrument parameters that have to be changed manually, but
     you still want to record them in data files, status monitor etc.
     """
+
+    hardware_access = False
 
     def doStart(self, target):
         pass  # self.target has already been set to position
@@ -67,6 +69,8 @@ class ManualSwitch(Moveable):
         'unit':   Override(mandatory=False),
     }
 
+    hardware_access = False
+
     def doReadTarget(self):
         if self.states:
             return self.states[0]
@@ -83,7 +87,9 @@ class ManualSwitch(Moveable):
         pass
 
     def doRead(self):
-        return self.target
+        if self.target in self.states:
+            return self.target
+        raise PositionError(self, 'is in an unknown state')
 
     def doStatus(self):
         return status.OK, ''

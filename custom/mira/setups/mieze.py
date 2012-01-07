@@ -31,9 +31,6 @@ devices = dict(
                       fmtstr = '%.0f',
                       abslimits = (0, 80000000)),
 
-    tf3 = device('nicos.generic.ArbitraryValues', which='freq4',
-          steps=(1,1,3,5,7,11,8,4,3,2,1,1,1), unit='ds'),
-
 #    pk2pk1   = device('nicos.taco.AnalogInput',
 #                      tacodevice = '//mira4/mira/tds2014/ch1_pk2pk'),
 #    pk2pk2   = device('nicos.taco.AnalogInput',

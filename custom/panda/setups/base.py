@@ -30,8 +30,8 @@ devices = dict(
                       abslimits = (0, 360),
                       unit = 'deg'),
 
-    sw=device('nicos.generic.VirtualSwitch',
-                      states=['on','off',2,1],
+    sw       = device('nicos.generic.ManualSwitch',
+                      states = ['on','off',2,1],
                       ),
 
 )
