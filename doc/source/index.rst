@@ -20,7 +20,7 @@ Documentation contents:
    commands
    classes/index
    devices
-   api
+   coreapi
    glossary
 
 * :ref:`genindex`
