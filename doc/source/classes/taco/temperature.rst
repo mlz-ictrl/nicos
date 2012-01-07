@@ -1,7 +1,8 @@
 Temperature control classes
 ===========================
 
-.. module:: nicos.taco
+.. module:: nicos.taco.temperature
 
 .. autoclass:: TemperatureSensor()
+
 .. autoclass:: TemperatureController()

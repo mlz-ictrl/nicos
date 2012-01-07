@@ -11,7 +11,7 @@ still incorporates much the design and philosophy of NICOS version 1.
 Documentation contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    install
    firststeps

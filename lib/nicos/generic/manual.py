@@ -31,12 +31,15 @@ from nicos.core import status, listof, anytype, Moveable, Param, Override, \
 
 
 class ManualMove(HasLimits, Moveable):
-    """
-    A representation of a manually moveable continuous device.
+    """A representation of a manually moveable continuous device.
+
+    This device does nothing but record the latest position you moved to.  This
+    is useful for instrument parameters that have to be changed manually, but
+    you still want to record them in data files, status monitor etc.
     """
 
     def doStart(self, target):
-        pass  # self.target has already been set to pos
+        pass  # self.target has already been set to position
 
     def doRead(self):
         return self.target
@@ -48,8 +51,11 @@ class ManualMove(HasLimits, Moveable):
 class ManualSwitch(Moveable):
     """A representation of a manually changeable device.
 
-    If the *states* parameter is not empty, it represents a list of all
-    allowed values of the device.
+    This is akin to the `ManualMove` device, but for instrument parameters that
+    take only discrete values.
+
+    If the `states` parameter is not empty, it represents a list of all allowed
+    values of the device.  If it is empty, all values are allowed.
     """
 
     parameters = {

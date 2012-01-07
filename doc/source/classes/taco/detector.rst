@@ -1,7 +1,7 @@
-FRM-II detector classes
-=======================
+Taco FRM-II detector classes
+============================
 
-.. module:: nicos.taco
+.. module:: nicos.taco.detector
 
 .. autoclass:: FRMChannel()
 

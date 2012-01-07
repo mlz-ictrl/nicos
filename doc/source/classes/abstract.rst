@@ -3,15 +3,9 @@ Abstract device classes
 =======================
 
 These classes are not for direct use as an instrument component, but for
-deriving custom device classes from them.
-
-
-.. module:: nicos.taco.core
-
-Taco-related classes
---------------------
-
-.. autoclass:: TacoDevice
+deriving custom device classes from them.  They extend the base classes in
+:mod:`nicos.core.device`, which are also abstract, but are a little more
+concrete.
 
 
 .. module:: nicos.abstract

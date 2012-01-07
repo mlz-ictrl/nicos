@@ -1032,6 +1032,8 @@ class Moveable(Readable):
 
            This is called to actually stop the device.  If not present,
            :meth:`stop` will be a no-op.
+
+        The `stop` method will return the device status after stopping.
         """
         if self._mode == 'slave':
             raise ModeError(self, 'stop not possible in slave mode')
@@ -1330,6 +1332,8 @@ class Measurable(Readable):
 
            This method must be present and is called to actually stop the
            measurement.
+
+        The `stop` method will return the device status after stopping.
         """
         if self._mode == 'slave':
             raise ModeError(self, 'stop not possible in slave mode')

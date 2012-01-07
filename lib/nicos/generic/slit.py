@@ -33,7 +33,37 @@ from nicos.core import oneof, Moveable, HasPrecision, Param, Value, Override, \
 
 
 class Slit(Moveable):
-    """A rectangular slit consisting of four blades."""
+    """A rectangular slit consisting of four blades.
+
+    The slit can operate in four "opmodes", controlled by the `opmode`
+    parameter:
+
+    * '4blades' -- all four blades are controlled separately.  Values read from
+      the slit are lists in the order ``[right, left, bottom, top]``; for
+      ``move()`` the same list of coordinates has to be supplied.
+    * 'centered' -- only width and height are controlled; the slit is centered
+      at the zero value of the right-left and bottom-top coordinates.  Values
+      read and written are in the form ``[width, height]``.
+    * 'offcentered' -- the center and width/height are controlled.  Values read
+      and written are in the form ``[centerx, centery, width, height]``.
+
+    The ``right`` and ``left`` as well as the ``bottom`` and ``top`` devices
+    need to share a common coordinate system, i.e. when ``right.read() ==
+    left.read()`` the slit is closed.
+
+    All instances have attributes controlling single attributes that can be used
+    as devices, for example in scans.  These attributes are:
+
+    * `left`, `right`, `bottom`, `top` -- controlling the blades individually,
+      independent of the opmode
+    * `centerx`, `centery`, `width`, `height` -- controlling "logical"
+      coordinates of the slit, independent of the opmode
+
+    Example usage::
+
+        >>> move(slit.centerx, 5)      # move slit center
+        >>> scan(slit.width, 0, 1, 6)  # scan over slit width from 0 to 5 mm
+    """
 
     attached_devices = {
         'right':  (HasPrecision, 'Right blade'),

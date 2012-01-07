@@ -4,9 +4,6 @@ Device classes
 .. toctree::
 
    abstract
-   detector
-   axis
-   power
-   temperature
-   io
+   generic/index
+   taco/index
    ipc

@@ -1,0 +1,21 @@
+============
+Taco classes
+============
+
+These classes serve to interface with Taco devices.  Generally the corresponding
+Taco Python modules need to be installed; for example, the temperature control
+classes need the ``Temperature`` module from the ``taco-client-temperature``
+package.
+
+All classes described here are re-exported in the :mod:`nicos.taco` module, so
+for example both ``nicos.taco.AnalogOutput`` and ``nicos.taco.io.AnalogOutput``
+are valid entries for the class name in a setup file.
+
+.. toctree::
+
+   core
+   detector
+   axis
+   power
+   temperature
+   io

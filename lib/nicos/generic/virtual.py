@@ -37,6 +37,8 @@ from nicos.taco.detector import FRMTimerChannel, FRMCounterChannel
 
 
 class VirtualMotor(Motor, HasOffset):
+    """A virtual motor that can be set to move in finite time using a thread."""
+
     parameters = {
         'speed':     Param('Virtual speed of the device', settable=True),
         'jitter':    Param('Jitter of the read value', default=0),
@@ -90,6 +92,8 @@ class VirtualMotor(Motor, HasOffset):
 
 
 class VirtualCoder(Coder, HasOffset):
+    """A virtual coder that just returns the value of a motor, with offset."""
+
     attached_devices = {
         'motor': (Readable, 'Motor to read out to get coder value')
     }
@@ -103,6 +107,8 @@ class VirtualCoder(Coder, HasOffset):
 
 
 class VirtualTimer(FRMTimerChannel):
+    """A virtual timer channel for use together with `nicos.taco.Detector`."""
+
     parameters = {
         'tacodevice': Param('(not used)', type=tacodev, default=None),
     }
@@ -157,6 +163,8 @@ class VirtualTimer(FRMTimerChannel):
 
 
 class VirtualCounter(FRMCounterChannel):
+    """A virtual counter channel for use together with `nicos.taco.Detector`."""
+
     parameters = {
         'countrate':  Param('The maximum countrate', default=1000),
         'tacodevice': Param('(not used)', type=tacodev, default=None),
@@ -227,7 +235,7 @@ class ArbitraryValues(Moveable, HasOffset):
 
 class VirtualSwitch(Moveable):
     """
-    Virtual Device allowing to be positioned into a set of states.
+    Virtual device allowing to be positioned into a set of states.
     """
 
     attached_devices = {}

@@ -32,8 +32,13 @@ from nicos.core import Readable, Param, Override, status
 
 
 class FreeSpace(Readable):
-    """
-    Device that returns the free space on a filesystem.
+    """This is a readable device that returns the free space on a filesystem.
+
+    It is useful to record this in the cache, for example to enable warnings
+    about low free space before data files cannot be saved anymore.
+
+    The device status is `OK` until free space is below the value set by the
+    `minfree` parameter.
     """
 
     parameters = {

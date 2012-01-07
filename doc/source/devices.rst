@@ -91,11 +91,11 @@ possible with the device:
       low-level communication device, or motor and encoders for an axis class.
       It maps the "internal name" (the device will be available as an attribute
       with that name) to the type of the device (which usually is an abstract
-      type).  For example::
+      type), and a string describing the purpose of the device.  For example::
 
          attached_devices = {
-             'motor': nicos.motor.Motor,
-             'coder': nicos.coder.Coder
+             'motor': (nicos.abstract.Motor, 'The motor to move'),
+             'coder': (nicos.abstract.Coder, 'The coder for reading position'),
          }
 
       The actual attached devices for a specific instance (given in the
@@ -306,6 +306,8 @@ possible with the device:
    .. automethod:: stop
 
    .. automethod:: wait
+
+   .. automethod:: maw
 
    .. automethod:: fix
 

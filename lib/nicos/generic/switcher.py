@@ -31,9 +31,23 @@ from nicos.core import listof, anytype, ConfigurationError, PositionError, \
 
 
 class Switcher(Moveable):
-    """
-    Device that maps switch states onto discrete values of a continuously
-    moveable device.
+    """The switcher is a device that maps switch states onto discrete values of
+    a continuously moveable device.
+
+    This is useful if you have for example a motor that only every moves to
+    certain discrete positions, e.g. a monochromator changer.  Then you can
+    control it using ::
+
+        move(changer_switch, 'up')
+        move(changer_switch, 'down')
+
+    instead of moving the axis to positions hard to understand::
+
+        move(changer, 14.55)
+        move(changer, 51.3)
+
+    and still have the underlying continuously moveable device available for
+    debugging purposes.
     """
 
     attached_devices = {
@@ -91,6 +105,7 @@ class Switcher(Moveable):
 
 
 class ReadonlySwitcher(Readable):
+    """Same as the `Switcher`, but for read-only underlying devices."""
 
     attached_devices = {
         'readable': (Readable, 'The continuous device which is read'),
