@@ -22,25 +22,25 @@ Communication
 Stepper Motors
 --------------
 
-.. autoclass:: Motor
+.. autoclass:: Motor()
 
-.. autoclass:: IPCRelay
+.. autoclass:: IPCRelay()
 
-.. autoclass:: IPCInhibit
+.. autoclass:: IPCInhibit()
 
 Coders
 ------
 
-.. autoclass:: Coder
+.. autoclass:: Coder()
 
 4-Wing Slits
 ------------
 
-.. autoclass:: SlitAxis
+.. autoclass:: SlitAxis()
 
 Digital I/O
 -----------
 
-.. autoclass:: Input
+.. autoclass:: Input()
 
-.. autoclass:: Output
+.. autoclass:: Output()

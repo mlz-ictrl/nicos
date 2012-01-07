@@ -3,14 +3,14 @@ Taco axis-related classes
 
 .. module:: nicos.taco.motor
 
-.. autoclass:: Motor
+.. autoclass:: Motor()
 
 .. module:: nicos.taco.coder
 
-.. autoclass:: Coder
+.. autoclass:: Coder()
 
 .. module:: nicos.taco.axis
 
-.. autoclass:: Axis
+.. autoclass:: Axis()
 
-.. autoclass:: HoveringAxis
+.. autoclass:: HoveringAxis()
