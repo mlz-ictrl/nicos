@@ -731,7 +731,10 @@ class Session(object):
         """
 
     def breakpoint(self, level):
-        """Allow breaking or stopping the script here."""
+        """Allow breaking or stopping the script here.
+
+        XXX document level parameter.
+        """
 
     def clearExperiment(self):
         """Reset experiment-specific data."""

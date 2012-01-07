@@ -32,26 +32,43 @@ from time import sleep
 from nicos.core import status
 
 
-def multiStatus(devices):
+def multiStatus(devices, maxage=None):
+    """Combine the status of multiple devices to form a single status value.
+
+    This is typically called in the `doStatus` method of "superdevices" that
+    control several attached devices.
+
+    The resulting state value is the highest value of all devices' values
+    (i.e. if all devices are `OK`, it will be `OK`, if one is `BUSY`, it will be
+    `BUSY`, but if one is `ERROR`, it will be `ERROR`).
+
+    The resulting state text is a combination of the status texts of all
+    devices.
+    """
     rettext = []
     retstate = status.OK
     for devname, dev in devices:
         if dev is None:
             continue
-        # XXX status or status(0)
-        state, text = dev.status()
+        state, text = dev.status(maxage)
         rettext.append('%s=%s' % (devname, text))
         if state > retstate:
             retstate = state
     return retstate, ', '.join(rettext)
 
 
-def waitForStatus(dev, delay=0.3, busystate=status.BUSY):
+def waitForStatus(device, delay=0.3, busystates=(status.BUSY,)):
+    """Wait for the *device* status to return exit the busy state.
+
+    *delay* is the delay between status inquiries, and *busystates* gives the
+    state values that are considered as "busy" states; by default only
+    `status.BUSY`.
+    """
     # XXX add a timeout?
     # XXX what about error status?
     while True:
-        st = dev.status(0)
-        if st[0] == busystate:
+        st = device.status(0)
+        if st[0] in busystates:
             sleep(delay)
             # XXX add a breakpoint here?
         else:

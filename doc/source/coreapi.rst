@@ -4,8 +4,9 @@ Further NICOS API
 
 .. module:: nicos.core
 
-All API elements described here are defined in submodules of :mod:`nicos.core`,
-but re-exported in :mod:`nicos.core` for easier importing.
+All API elements described here are used when writing new device classes.  They
+are defined in submodules of :mod:`nicos.core`, but re-exported in
+:mod:`nicos.core` for easier importing.
 
 Exceptions
 ==========
@@ -191,3 +192,16 @@ as the first item of the tuple that `.Device.status` returns.  The whole
 
    A dictionary mapping these status values, which are integers, to their
    lowercased name (i.e., ``statuses[ERROR] == 'error'``).
+
+
+Utilities
+=========
+
+.. module:: nicos.core.utils
+
+The :mod:`nicos.core.utils` module defines some utility functions.  They are
+re-exported in :mod:`nicos.core`.
+
+.. autofunction:: multiStatus
+
+.. autofunction:: waitForStatus
