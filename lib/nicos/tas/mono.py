@@ -34,9 +34,6 @@ from nicos.core import Moveable, HasLimits, HasPrecision, Param, Override, \
      listof, oneof, ComputationError, LimitError, multiStatus
 
 
-SCANMODES = ['CKI', 'CKF', 'CPHI', 'CPSI', 'DIFF']
-
-ENERGYTRANSFERUNITS = ['meV', 'THz']
 THZ2MEV = 4.136
 
 
@@ -48,8 +45,21 @@ def thetaangle(dvalue, order, lam):
 
 
 class Monochromator(HasLimits, HasPrecision, Moveable):
-    """
-    General monochromator theta/two-theta device.
+    """General monochromator theta/two-theta device.
+
+    It supports setting the `unit` parameter to different values and will
+    calculate the theta/two-theta angles correctly for each supported value:
+
+    * "A-1" -- wavevector in inverse Angstrom
+    * "A" -- wavelength in Angstrom
+    * "meV" -- energy in meV
+    * "THz" -- energy in THz
+
+    Also supported is a focussing monochromator setup.  For this, set the
+    `focush` and `focusv` attached devices to the axes that control the
+    focussing, and set `hfocuspars` and `vfocuspars` to a list of coefficients
+    (starting with the constant coefficient) for a polynomial that calculates
+    the `focush` and `focusv` values from a given wavelength.
     """
 
     attached_devices = {

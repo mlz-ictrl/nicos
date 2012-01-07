@@ -46,11 +46,9 @@ K = 1.99573
 # XXX determine which of the methods are @usermethods
 
 class Cell(Device):
-    """
-    Cell object representing sample geometry.
+    """Cell object representing sample geometry."""
 
-    XXX _angles_rec is in radians, _angles is in degrees
-    """
+    # XXX _angles_rec is in radians, _angles is in degrees
 
     parameters = {
         'lattice': Param('Lattice constants', type=vec3, settable=True,
@@ -670,7 +668,15 @@ class Cell(Device):
 
 
 class TASSample(Sample, Cell):
-    """TAS-specific sample with cell information."""
+    """TAS-specific `~nicos.experiment.Sample` subclass with cell information.
+
+    This class can do all the necessary computations to calculate instrument
+    angles from a given (hkl) value.  This is used by the TAS instrument class
+    to enable movement in (q,w) space.
+
+    When setting up a triple-axis configuration, use this as your *sample*
+    device.
+    """
 
     def reset(self):
         Sample.reset(self)

@@ -41,6 +41,11 @@ THZ2MEV = 4.136
 
 
 class TAS(Instrument, Moveable):
+    """An instrument class that can move in (q,w) space.
+
+    When setting up a triple-axis configuration, use this as your instrument
+    device (or derive an individual subclass).
+    """
 
     attached_devices = {
         'cell': (Cell, 'Unit cell object to calculate angles'),
