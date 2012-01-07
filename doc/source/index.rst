@@ -19,8 +19,8 @@ Documentation contents:
    setups
    commands
    classes/index
-   api
    devices
+   api
    glossary
 
 * :ref:`genindex`

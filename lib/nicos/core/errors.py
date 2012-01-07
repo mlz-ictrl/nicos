@@ -119,13 +119,14 @@ class CommunicationError(NicosError):
 
 class HardwareError(NicosError):
     """
-    Exception to be raised on fatal hardware errprs.
+    Exception to be raised on fatal hardware errors.
     """
     category = 'Hardware failure'
 
-class TimeoutError(CommunicationError):
+class TimeoutError(NicosError):
     """
-    Exception to be raised when a timeout occurs.
+    Exception to be raised when a hardware timeout occurs -- this is *not* a
+    communication timeout; for that purpose `CommunicationError` should be used.
     """
     # XXX generalize timeouts
     category = 'Timeout'

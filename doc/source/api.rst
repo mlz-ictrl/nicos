@@ -1,6 +1,6 @@
-=========
-NICOS API
-=========
+=================
+Further NICOS API
+=================
 
 Exceptions
 ==========
@@ -33,6 +33,8 @@ The following exceptions can be used when writing custom devices:
 .. autoexception:: CommunicationError()
 
 .. autoexception:: TimeoutError()
+
+.. autoexception:: HardwareError()
 
 .. autoexception:: FixedError()
 

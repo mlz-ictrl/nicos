@@ -1,6 +1,6 @@
-===============
-Writing devices
-===============
+====================
+Device API reference
+====================
 
 .. module:: nicos.core.device
 
