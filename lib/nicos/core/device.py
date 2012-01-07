@@ -705,11 +705,19 @@ class Readable(Device):
     def valueInfo(self):
         """Describe the values read by this device.
 
-        Return a tuple of :class:`nicos.core.Value` instances describing
+        Return a tuple of :class:`~nicos.core.params.Value` instances describing
         the values that :meth:`read` returns.
 
-        This should be overridden by every Readable that returns more than one
-        value.
+        This must be overridden by every Readable that returns more than one
+        value in a list.  For example, a slit that returns a width and height
+        would define ::
+
+            def valueInfo(self):
+                return (Value(self.name + '.width', unit=self.unit),
+                        Value(self.name + '.height', unit=self.unit))
+
+        By default, this returns a Value that indicates one return value with
+        the proper unit and format string of the device.
         """
         return Value(self.name, unit=self.unit, fmtstr=self.fmtstr),
 
@@ -1397,11 +1405,11 @@ class Measurable(Readable):
     def valueInfo(self):
         """Describe the values measured by this device.
 
-        Return a tuple of :class:`nicos.core.Value` instances describing
+        Return a tuple of :class:`~nicos.core.params.Value` instances describing
         the values that :meth:`read` returns.
 
         This must be overridden by every Measurable that returns more than one
-        value.  The default indicates a single return value with no additional
-        info about the value type.
+        value in a list.  The default indicates a single return value with no
+        additional info about the value type.
         """
         return Value(self.name, unit=self.unit),

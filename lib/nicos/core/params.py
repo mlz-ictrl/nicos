@@ -32,30 +32,59 @@ import copy
 from nicos.core.errors import ProgrammingError
 
 
+INFO_CATEGORIES = [
+    ('experiment', 'Experiment information'),
+    ('sample', 'Sample and alignment'),
+    ('instrument', 'Instrument setup'),
+    ('offsets', 'Offsets'),
+    ('limits', 'Limits'),
+    ('precisions', 'Precisions'),
+    ('status', 'Instrument status'),
+    ('general', 'Instrument state at first scan point'),
+]
+
+
 class Param(object):
-    """
-    This class defines the properties of a device parameter.
+    """This class defines the properties of a device parameter.
 
-    Attributes (and constructor arguments):
+    The `.Device.parameters` attribute contains a mapping of parameter names to
+    instances of this class.
 
-    - *description*: a concise parameter description
-    - *type*: the parameter type; better a conversion function that either
-      returns a value of the correct type, or raises TypeError or ValueError.
+    Attributes (equivalent to constructor arguments):
+
+    - *description*: a concise parameter description.
+
+    - *type*: the parameter type; either a standard Python type (`int`, `float`,
+      `str`) or one of the type converter functions from this module that either
+      return a value of the correct type, or raises `TypeError` or `ValueError`.
+
     - *default*: a default value, in case the parameter cannot be read from
-      the hardware or the cache
-    - *mandatory*: if the parameter must be given in the config file
-    - *settable*: if the parameter can be set after startup
-    - *volatile*: if the parameter should always be read from hardware
-    - *unit*: unit of the parameter for informational purposes; 'main' is
-      replaced by the device unit when presented
-    - *category*: category of the parameter when returned by device.info()
-      or None to ignore the parameter
-    - *preinit*: whether the parameter must be initialized before preinit()
+      the hardware or the cache.
+
+    - *mandatory*: true if the parameter must be given in the config file.
+
+    - *settable*: true if the parameter can be set by NICOS or the user after
+      startup.
+
+    - *volatile*: true if the parameter should always be read from hardware.
+      For this, a ``doReadParamname`` method on the device is needed.
+
+    - *unit*: unit of the parameter for informational purposes; in there, the
+      substring 'main' is replaced by the device unit when presented.
+
+    - *category*: category of the parameter when returned by `.Device.info()` or
+      ``None`` to ignore the parameter.  See `INFO_CATEGORIES` for the list of
+      possible categories.
+
+    - *preinit*: whether the parameter must be initialized before
+      `.Device.preinit()` is called.
+
     - *prefercache*: whether on initialization, a value from the cache is
       preferred to a value from the config -- the default is true for
-      settable parameters and false for non-settable parameters
+      settable parameters and false for non-settable parameters.
+
     - *userparam*: whether this parameter should be shown to the user
-      (default is True)
+      (default is True).
     """
 
     _notset = object()
@@ -116,6 +145,25 @@ class Param(object):
 
 
 class Override(object):
+    """This class defines the overridden properties of a base class parameter.
+
+    The `.Device.parameter_overrides` attribute contains a mapping of parameter
+    names to instances of this class.
+
+    Overriding parameters allows to share parameters with the base class, but
+    still have slightly different behavior for the parameters.  For example, for
+    a general `.Moveable` device the *unit* parameter is mandatory.  However,
+    for some subclasses this will not be necessary, since the unit can either be
+    automatically determined from the device, or the value never has any unit.
+    Instead of redefining the *unit* parameter in subclasses, you only need to
+    override its *mandatory* property in the subclass like this::
+
+        parameter_overrides = {'unit': Override(mandatory=False)}
+
+    The constructor takes all keywords that the `Param` constructor accepts.
+    These properties of the parameter are then overridden compared to the base
+    class.
+    """
 
     def __init__(self, **kw):
         self._kw = kw
@@ -128,23 +176,38 @@ class Override(object):
 
 
 class Value(object):
-    """
-    This class defines the properties of a Measurable read value.
+    """This class defines the properties of the "value" read from `.Readable`
+    and `.Measurable` classes.  Their `.valueInfo` method must return a tuple of
+    instances of this class.
 
-    *type* can be one of:
+    * The *name* parameter is the name of the value.  By convention, if only one
+      value is returned, this is the name of the device.  Otherwise, if the
+      values are collected from subdevices, the value names should be the
+      subdevice names.  In all other cases, they should be called
+      "devname.valuename" where *devname* is the device name.
 
-    - ``counter`` -- some counter value
-    - ``monitor`` -- some monitor value
-    - ``time`` -- some timing value
-    - ``other`` -- other numeric value
-    - ``error`` -- standard error for previous value
-    - ``info`` -- non-numeric info value
+    * The *type* parameter can be one of:
 
-    *errors* can be one of:
+      - ``'counter'`` -- some counter value
+      - ``'monitor'`` -- some monitor value
+      - ``'time'`` -- some timing value
+      - ``'other'`` -- other numeric value
+      - ``'error'`` -- standard error for previous value
+      - ``'info'`` -- non-numeric info value
 
-    - ``none`` -- no errors known
-    - ``next`` -- errors are in next value
-    - ``sqrt`` -- counter-like value: errors are square root
+    * The *errors* parameter can be one of:
+
+      - ``'none'`` -- no errors known
+      - ``'next'`` -- errors are in next value
+      - ``'sqrt'`` -- counter-like value: errors are square root
+
+    * The *unit* parameter is the unit of the value, or '' if it has no unit.
+      This will generally be ``device.unit`` for Readables.
+
+    * The *fmtstr* parameter selects how to format the value for display.  This
+      will generally be ``device.fmtstr`` for Readables.
+
+    * The *active* parameter is reserved.
     """
 
     def __init__(self, name, type='other', errors='none', unit='',

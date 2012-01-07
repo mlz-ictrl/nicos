@@ -32,22 +32,11 @@ from nicos import session
 from nicos.tas import TAS
 from nicos.core import status, Readable, NicosError, LimitError, FixedError, \
      ModeError, InvalidValueError, PositionError, CommunicationError, \
-     TimeoutError, ComputationError, MoveError
+     TimeoutError, ComputationError, MoveError, INFO_CATEGORIES
 from nicos.utils import Repeater
 from nicos.commands.output import printwarning, printexception
 from nicos.commands.measure import _count
 
-
-INFO_CATEGORIES = [
-    ('experiment', 'Experiment information'),
-    ('sample', 'Sample and alignment'),
-    ('instrument', 'Instrument setup'),
-    ('offsets', 'Offsets'),
-    ('limits', 'Limits'),
-    ('precisions', 'Precisions'),
-    ('status', 'Instrument status'),
-    ('general', 'Instrument state at first scan point'),
-]
 
 class SkipPoint(Exception):
     """Custom exception class to skip a scan point."""

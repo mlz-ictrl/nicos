@@ -34,7 +34,7 @@ from nicos.core.errors import NicosError, ProgrammingError, \
      CacheLockError
 from nicos.core.device import Device, AutoDevice, Readable, Moveable, \
      HasLimits, HasOffset, HasPrecision, Measurable, usermethod
-from nicos.core.params import Param, Override, Value, \
+from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \
      listof, nonemptylistof, tupleof, dictof, tacodev, anytype, \
      vec3, intrange, floatrange, oneof, oneofdict, none_or
 from nicos.core.utils import multiStatus, waitForStatus
