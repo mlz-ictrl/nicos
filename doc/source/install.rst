@@ -21,6 +21,10 @@ Note that you have to log in once at the `FRM II Gerrit instance
 <http://trac.frm2.tum.de/review/>`_ and add a public key for SSH, since only
 public key authentication is enabled.
 
+The bug tracker and project wiki are at
+
+  https://trac.frm2.tum.de/projects/NICOS/
+
 
 Requirements
 ------------
