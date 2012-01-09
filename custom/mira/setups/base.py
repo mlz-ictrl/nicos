@@ -40,7 +40,8 @@ devices = dict(
 
     Shutter   = device('nicos.mira.shutter.Shutter',
                        tacodevice = 'mira/io/in_unused',
-                       output = 'mira/io/closeshutter'),
+                       output = 'mira/io/closeshutter',
+                       mapping = {0: 'closed', 1: 'open'}),
 
     # LeckToni  = device('nicos.mira.toni.ModBus',
     #                    tacodevice = 'mira/rs232/lecktoni',
