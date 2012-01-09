@@ -78,7 +78,7 @@ setup contains a few devices that show basic usage of the NICOS system.  Call
 get a list of devices that can be manipulated.  You can also call ``help(dev)``
 to get help for an individual device.
 
-You can continue with :ref:`the first steps <firststeps>` from here.
+.. You can continue with :ref:`the first steps <firststeps>` from here.
 
 
 Configure and build the distribution at an instrument

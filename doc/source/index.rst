@@ -14,7 +14,6 @@ Documentation contents:
    :maxdepth: 3
 
    install
-   firststeps
    components
    setups
    commands
