@@ -111,8 +111,8 @@ _column3 = [
 ]
 
 _warnings = [
-    ('psdgas/value', '== "empty"', 'Change detector counting gas'),
-    ('TBe/value','> 70','Check Be filter temeparture'),
+#    ('psdgas/value', '== "empty"', 'Change detector counting gas'),
+#    ('TBe/value', '> 70', 'Check Be filter temperature'),
 #    ('sixfold/value', '== "closed"', 'Six-fold shutter closed'),
 #    ('freq3/value', '> 9', 'freq3 under frequency', 'mieze'),
 #    ('freq4/value', '< 10', 'freq4 under frequency'),

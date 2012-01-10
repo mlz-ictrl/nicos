@@ -51,7 +51,7 @@ class Slit(Moveable):
     need to share a common coordinate system, i.e. when ``right.read() ==
     left.read()`` the slit is closed.
 
-    All instances have attributes controlling single attributes that can be used
+    All instances have attributes controlling single dimensions that can be used
     as devices, for example in scans.  These attributes are:
 
     * `left`, `right`, `bottom`, `top` -- controlling the blades individually,

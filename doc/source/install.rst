@@ -21,6 +21,10 @@ Note that you have to log in once at the `FRM II Gerrit instance
 <http://trac.frm2.tum.de/review/>`_ and add a public key for SSH, since only
 public key authentication is enabled.
 
+The bug tracker and project wiki are at
+
+  https://trac.frm2.tum.de/projects/NICOS/
+
 
 Requirements
 ------------
@@ -74,7 +78,7 @@ setup contains a few devices that show basic usage of the NICOS system.  Call
 get a list of devices that can be manipulated.  You can also call ``help(dev)``
 to get help for an individual device.
 
-You can continue with :ref:`the first steps <firststeps>` from here.
+.. You can continue with :ref:`the first steps <firststeps>` from here.
 
 
 Configure and build the distribution at an instrument
