@@ -43,12 +43,6 @@ devices = dict(
         unit = 'mm',
         speed = 0,
     ),
-    av = device(
-        'nicos.generic.Switcher',
-        moveable = 'v3',
-	states = range(5),
-        values = [0, 1, 3, 6, 10],
-    ),
     m1 = device(
         'nicos.generic.ManualSwitch',
         states = ['up', 'down']

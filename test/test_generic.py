@@ -54,16 +54,6 @@ def test_virtual_switch():
     assert raises(NicosError, v.move, 'sideways')
     assert v.read() == 'up'
 
-def test_arbitrary_values():
-    a = session.getDevice('av')
-    v = session.getDevice('v3')
-    a.maw(0)
-    assert a.read() == 0
-    assert v.read() == 0
-    a.maw(3)
-    assert a.read() == 3
-    assert v.read() == 6
-
 def test_manual_switch():
     m = session.getDevice('m1')
     assert m.read() == 'up'
