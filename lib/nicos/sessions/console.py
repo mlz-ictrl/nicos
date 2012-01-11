@@ -246,7 +246,7 @@ class ConsoleSession(Session):
             try:
                 self.log.manager.globalprefix = '(sim) '
                 self.setMode('simulation')
-                exec code in self._namespace
+                exec code in self.namespace
             except:  # really *all* exceptions
                 self.log.exception()
             finally:

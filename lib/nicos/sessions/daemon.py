@@ -109,7 +109,7 @@ class DaemonSession(NoninteractiveSession):
                 self.log.manager.globalprefix = '(sim) '
                 self.addLogHandler(pipesender)
                 self.setMode('simulation')
-                exec code in self._namespace
+                exec code in self.namespace
             except:  # really *all* exceptions
                 self.log.exception()
             finally:
