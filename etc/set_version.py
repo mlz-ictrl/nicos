@@ -25,7 +25,11 @@
 import sys, os
 from os import path
 
-current_version = os.popen('git describe --always').read().strip()
+if path.isdir('.git'):
+    current_version = os.popen('git describe --always').read().strip()
+else:
+    sys.path.insert(0, 'lib')
+    current_version = __import__('nicos').nicos_version
 
 for root, dirs, files in os.walk(sys.argv[1]):
     for file in files:
