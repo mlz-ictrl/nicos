@@ -6,6 +6,7 @@ dist/
 *.log
 *.pid
 pylint_*.txt
+MANIFEST
 
 data/*.dat
 data/filecounter
