@@ -21,6 +21,7 @@ Documentation contents:
    sessionapi
    deviceapi
    coreapi
+   changes
    glossary
 
 * :ref:`genindex`
