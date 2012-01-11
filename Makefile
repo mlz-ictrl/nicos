@@ -113,5 +113,5 @@ main-install:
 
 release:
 	make test
-	cd doc; make html
+	cd doc; rm -r build/html; make html
 	python setup.py sdist
