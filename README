@@ -1,5 +1,18 @@
+This is the NICOS 2 instrument control system
+=============================================
+
+Starting points
+---------------
+
+Start a basic system and experiment:
+
+  $ bin/nicos-cache & bin/nicos-console
+
+Documentation: for release packages look in doc/build/html.
+
+
 Requirements
-============
+------------
 
 * At least Python 2.5
 
