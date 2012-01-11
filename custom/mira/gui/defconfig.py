@@ -67,7 +67,7 @@ default_profile_config = ('Default', [
     window('Editor', 'editor', False,
            panel('nicos.gui.panels.editor.EditorPanel')),
     window('Live data', 'live', True,
-           panel('nicos.gui.panels.live.LiveDataPanel')),
+           panel('nicos.mira.gui.live.LiveDataPanel')),
     window('Scans', 'plotter', True,
            panel('nicos.gui.panels.scans.ScansPanel')),
     window('History', 'find', True,

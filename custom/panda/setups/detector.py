@@ -10,28 +10,35 @@ modules=[]
 
 devices = dict(
 
-    timer    = device('nicos.generic.VirtualTimer',
+
+    timer    = device('nicos.taco.FRMTimerChannel',
+                      tacodevice = 'panda/frmctr/at',
                       lowlevel = True),
 
-    mon1     = device('nicos.generic.VirtualCounter',
-                      lowlevel = True,
+    mon1     = device('nicos.taco.FRMCounterChannel',
+                      tacodevice = 'panda/frmctr/a1',
                       type = 'monitor',
-                      countrate = 2500),
-
-    mon2     = device('nicos.generic.VirtualCounter',
                       lowlevel = True,
+                      ),
+
+    mon2     = device('nicos.taco.FRMCounterChannel',
+                      tacodevice = 'panda/frmctr/a2',
                       type = 'monitor',
-                      countrate = 100),
-
-    det1    = device('nicos.generic.VirtualCounter',
                       lowlevel = True,
-                      type = 'counter',
-                      countrate = 2000),
+                      ),
 
-    det2    = device('nicos.generic.VirtualCounter',
-                      lowlevel = True,
+    det1     = device('nicos.taco.FRMCounterChannel',
+                      tacodevice = 'panda/frmctr/a3',
                       type = 'counter',
-                      countrate = 200),
+                      lowlevel = True,
+                      ),
+
+    det2     = device('nicos.taco.FRMCounterChannel',
+                      tacodevice = 'panda/frmctr/a4',
+                      type = 'counter',
+                      lowlevel = True,
+                      ),
+
 
     det      = device('nicos.taco.FRMDetector',
                       t  = 'timer',
