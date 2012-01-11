@@ -37,6 +37,8 @@ jenkinslint:
 changelint: 
 	-pylint --rcfile=./pylintrc  `git diff --name-only HEAD | grep ".py"`
 
+check:
+	pyflakes lib/nicos custom/*/lib
 
 test-coverage:
 	@$(PYTHON) test/run.py --with-coverage --cover-package=nicos --cover-html $(O)
@@ -110,5 +112,6 @@ main-install:
 	@echo "============================================================="
 
 release:
+	make test
 	cd doc; make html
 	python setup.py sdist
