@@ -3,6 +3,8 @@
 import sys, os
 sys.path.insert(0, os.path.abspath('../../lib'))
 
+import nicos
+
 extensions = ['sphinx.ext.autodoc']
 templates_path = ['_templates']
 source_suffix = '.rst'
@@ -10,9 +12,9 @@ master_doc = 'index'
 default_role = 'obj'
 
 project = u'NICOS'
-copyright = u'2011, FRM-II / NICOS contributors'
-version = '2.0'
-release = '2.0a1'
+copyright = u'2009-2012, FRM-II / NICOS contributors'
+version = nicos.nicos_version
+release = nicos.nicos_version
 
 pygments_style = 'emacs'
 
