@@ -31,7 +31,7 @@ from itertools import chain
 
 from nicos import session
 from nicos.core import dictof, listof, anytype, usermethod, multiStatus, \
-     Moveable, Param, Override, Value, NicosError
+     Moveable, Param, Override, Value, NicosError, UsageError
 from nicos.scan import Scan, ManualScan
 from nicos.utils import printTable
 from nicos.commands import usercommand
