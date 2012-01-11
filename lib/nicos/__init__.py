@@ -28,7 +28,7 @@ The nicos package contains all standard NICOS commands and devices.
 
 __version__ = "$Revision$"
 
-nicos_version = "2.0a1"
+nicos_version = "2.0.0"
 
 import os
 import new
