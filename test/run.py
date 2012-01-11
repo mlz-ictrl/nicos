@@ -57,7 +57,7 @@ cache = subprocess.Popen([sys.executable, path.join(rootdir, '..', 'cache.py')])
 print 'Cache PID = %s' % cache.pid
 print '-' * 70
 
-print 'Running nicos-ng test suite...'
+print 'Running NICOS test suite...'
 print '-' * 70
 
 try:

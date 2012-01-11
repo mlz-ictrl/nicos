@@ -35,7 +35,7 @@ py_modules = [name[:-3] for name in os.listdir('lib') if name.endswith('.py')]
 
 class no_install(install):
     def initialize_options(self):
-        print 'Please use "make install" to install nicos-ng.'
+        print 'Please use "make install" to install NICOS.'
         sys.exit(1)
 
 package_data = {'nicos.web': ['jquery.js', 'support.js'],

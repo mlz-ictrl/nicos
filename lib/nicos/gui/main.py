@@ -436,7 +436,7 @@ class MainWindow(QMainWindow, DlgUtils):
     @qtsig('')
     def on_actionAbout_triggered(self):
         QMessageBox.information(
-            self, 'About this application', 'NICOS-NG GUI client version %s, '
+            self, 'About this application', 'NICOS GUI client version %s, '
             'written by Georg Brandl.\n\nServer: ' % nicos_version
             + (self.client.connected and self.client.version or
                'not connected'))

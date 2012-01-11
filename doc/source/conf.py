@@ -39,13 +39,13 @@ html_theme_options = {'sidebarbgcolor': '#EDF1F3',
                       }
 
 latex_documents = [
-  ('index', 'NICOS-ng.tex', u'NICOS-ng Documentation',
-   u'NICOS-ng contributors', 'manual'),
+  ('index', 'NICOS.tex', u'NICOS v2 Documentation',
+   u'NICOS contributors', 'manual'),
 ]
 
 man_pages = [
-    ('index', 'nicos-ng', u'NICOS-ng Documentation',
-     [u'NICOS-ng contributors'], 1)
+    ('index', 'nicos', u'NICOS v2 Documentation',
+     [u'NICOS contributors'], 1)
 ]
 
 autodoc_default_options = ['members']

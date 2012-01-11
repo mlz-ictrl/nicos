@@ -76,7 +76,7 @@ install: all main-install custom-install
 main-install:
 	$(INSTALL_ERR)
 	@echo "============================================================="
-	@echo "Installing NICOS-ng to $(ROOTDIR)..."
+	@echo "Installing NICOS to $(ROOTDIR)..."
 	@echo "============================================================="
 	install $(VOPT) -d $(ROOTDIR)/{bin,doc,etc,lib,log,pid,setups,scripts}
 	rm -f $(VOPT) $(ROOTDIR)/lib/nicos/daemon/_pyctl.so
