@@ -52,6 +52,11 @@ ifeq "$(INSTRDIR)" ""
   INSTALL_ERR = $(error No customization found for instrument $(INSTRUMENT). \
     If this is not the correct instrument, use 'make install INSTRUMENT=instname', \
     where instname can also be "test")
+  # dummy targets
+  custom-all:
+  custom-inplace:
+  custom-install:
+  custom-clean:
 else
   include $(INSTRDIR)/make.conf
   # check that the include provided all necessary variables
@@ -103,3 +108,7 @@ main-install:
 	@echo "============================================================="
 	@echo "Finished."
 	@echo "============================================================="
+
+release:
+	cd doc; make html
+	python setup.py sdist
