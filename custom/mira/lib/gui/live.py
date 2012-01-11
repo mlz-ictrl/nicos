@@ -39,7 +39,8 @@ from PyQt4.QtGui import QStatusBar, QFileDialog, QPrinter, QPrintDialog, \
 
 from nicos.gui.utils import loadUi
 from nicos.gui.panels import Panel
-from nicos.gui.cascadewidget import CascadeWidget, TmpImage
+
+from nicos.mira.gui.cascadewidget import CascadeWidget, TmpImage
 
 
 class LiveDataPanel(Panel):
