@@ -5,6 +5,11 @@ Changelog for NICOS 2
 
   - Introduce Measurable.duringMeasureHook and Measurable.save/doSave.
 
+**Release 2.0.1**
+
+  - In ImageStorage, make sure the data file isn't overwritten unless
+    explicitly allowed.
+
 **Release 2.0.0 (2012-01-11)**
 
   - Initial release.
