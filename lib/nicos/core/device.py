@@ -1290,6 +1290,15 @@ class Measurable(Readable):
             return self.read()
         raise UsageError(self, 'device cannot be moved')
 
+    def duringMeasureHook(self, cycle):
+        """Hook called during measurement.
+
+        This can be overridden in subclasses to perform some periodic action
+        while measuring.  The hook is called by `.count` for every detector in
+        a loop with a delay of 0.025 seconds.  The *cycle* argument is a number
+        incremented with each call to the hook.
+        """
+
     @usermethod
     def pause(self):
         """Pause the measurement, if possible.
@@ -1386,6 +1395,20 @@ class Measurable(Readable):
         if not isinstance(result, list):
             return [result]
         return result
+
+    def save(self):
+        """Save the current measurement, if necessary.
+
+        Called by `.count` for all detectors at the end of a counting.
+
+        .. method:: doSave()
+
+           This method can be implemented if the detector needs to save data.
+        """
+        if self._sim_active:
+            return
+        if hasattr(self, 'doSave'):
+            self.doSave()
 
     def info(self):
         """Automatically add device status (if not OK).  Does not add the

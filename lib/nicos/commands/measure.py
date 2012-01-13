@@ -39,6 +39,7 @@ def _count(detlist, preset):
     detset = set(detlist)
     for det in detlist:
         det.start(**preset)
+    i = 0
     while True:
         # XXX implement pause logic
         sleep(0.025)
@@ -48,6 +49,18 @@ def _count(detlist, preset):
         if not detset:
             # all detectors finished measuring
             break
+        i += 1
+        for det in detset:
+            try:
+                det.duringMeasureHook(i)
+            finally:
+                for det in detset:
+                    det.stop()
+    for det in detlist:
+        try:
+            det.save()
+        except Exception:
+            det.log.exception('error saving measurement data')
     return sum((det.read() for det in detlist), [])
 
 

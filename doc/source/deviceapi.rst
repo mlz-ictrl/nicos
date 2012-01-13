@@ -345,9 +345,13 @@ possible with the device:
 
    .. automethod:: resume
 
+   .. automethod:: duringMeasureHook
+
    .. automethod:: isCompleted
 
    .. automethod:: wait
+
+   .. automethod:: save
 
    .. automethod:: valueInfo
 
