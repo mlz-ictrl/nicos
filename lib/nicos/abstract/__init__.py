@@ -36,7 +36,7 @@ from time import time, sleep
 from nicos import session
 from nicos.core import status, Device, Readable, Moveable, Measurable, \
      HasLimits, HasOffset, HasPrecision, Param, Override, usermethod, \
-     ModeError
+     ModeError, ProgrammingError
 from nicos.data import NeedsDatapath
 from nicos.utils import readFileCounter, updateFileCounter
 
@@ -191,7 +191,10 @@ class ImageStorage(Device, NeedsDatapath):
         self._counter += 1
         updateFileCounter(path.join(self._datapath, 'counter'), self._counter)
 
-    def _writeFile(self, content):
+    def _writeFile(self, content, exists_ok=False):
+        if path.isfile(self.lastfilename) and not exists_ok:
+            raise ProgrammingError(self, 'data file %r already exists' %
+                                   self.lastfilename)
         with open(self.lastfilename, 'w') as fp:
             fp.write(content)
 
