@@ -32,6 +32,12 @@ from time import sleep
 from nicos.core import status
 
 
+# user access levels
+GUEST = 0
+USER  = 10
+ADMIN = 20
+
+
 def multiStatus(devices, maxage=None):
     """Combine the status of multiple devices to form a single status value.
 

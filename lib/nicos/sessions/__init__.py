@@ -798,6 +798,12 @@ class Session(object):
     def clearExperiment(self):
         """Reset experiment-specific data."""
 
+    def checkAccess(self, required):
+        """Check if the current user fulfills the requirements given in the
+        *required* dictionary.
+        """
+        return False
+
 
 # must be imported after class definitions due to module interdependencies
 from nicos.data import DataSink

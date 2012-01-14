@@ -276,3 +276,7 @@ class ConsoleSession(Session):
         # After the console is finished, cleanup.
         session.log.info('shutting down...')
         session.shutdown()
+
+    def checkAccess(self, required):
+        # for now, we have no way of knowing who the user is
+        return True

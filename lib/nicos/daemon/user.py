@@ -26,10 +26,7 @@
 
 __version__ = "$Revision$"
 
-# access levels
-GUEST = 0
-USER  = 1
-ADMIN = 2
+from nicos.core import GUEST, USER, ADMIN
 
 
 class User(object):
@@ -40,6 +37,7 @@ class User(object):
 
 class AuthenticationError(Exception):
     pass
+
 
 class Authenticator(object):
     def __init__(self, daemon):

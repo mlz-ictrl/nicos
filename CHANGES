@@ -8,6 +8,9 @@ Changelog for NICOS 2
   - Added Experiment.scripts parameter that stores the code of the
     currently executed script.
 
+  - Added easy access control using the requires() decorator.  Added
+    AccessError and Session.checkAccess() APIs.
+
 **Release 2.0.1**
 
   - In ImageStorage, make sure the data file isn't overwritten unless

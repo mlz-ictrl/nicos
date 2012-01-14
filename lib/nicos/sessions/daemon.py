@@ -133,3 +133,10 @@ class DaemonSession(NoninteractiveSession):
     def clearExperiment(self):
         # reset cached messages
         del self.daemon_device._messages[:]
+
+    def checkAccess(self, required):
+        if 'level' in required:
+            script = self.daemon_device.current_script()
+            if script:
+                return required['level'] <= script.userlevel
+        return True

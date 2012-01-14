@@ -92,6 +92,12 @@ class ModeError(NicosError):
     """
     category = 'Mode error'
 
+class AccessError(NicosError):
+    """
+    Exception to be raised when an action is forbidden to the current user.
+    """
+    category = 'Access denied'
+
 class PositionError(NicosError):
     """
     Exception to be raised when a device detects an invalid position.

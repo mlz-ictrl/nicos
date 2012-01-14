@@ -36,7 +36,7 @@ from nicos.core.params import Param, Override, Value, tupleof, floatrange, \
      anytype, none_or
 from nicos.core.errors import NicosError, ConfigurationError, \
      ProgrammingError, UsageError, LimitError, FixedError, ModeError, \
-     CommunicationError, CacheLockError, InvalidValueError
+     CommunicationError, CacheLockError, InvalidValueError, AccessError
 from nicos.utils import loggers
 from nicos.utils import getVersions
 
@@ -45,6 +45,22 @@ def usermethod(func):
     """Decorator that marks a method as a user-visible method."""
     func.is_usermethod = True
     return func
+
+
+def requires(**access):
+    """Decorator to implement user access control."""
+    def decorator(func):
+        def new_func(*args, **kwds):
+            if not session.checkAccess(access):
+                if args and isinstance(args[0], Device):
+                    raise AccessError(args[0], 'cannot execute %s as current '
+                                      'user' % func.__name__)
+                raise AccessError('cannot execute %s as current user' %
+                                  func.__name__)
+            return func(*args, **kwds)
+        new_func.__name__ = func.__name__
+        return new_func
+    return decorator
 
 
 class DeviceMeta(type):
