@@ -33,13 +33,14 @@ from time import strftime, time as currenttime
 import numpy as np
 
 from nicos import session
-from nicos.core import Measurable, Param, Value, Override, intrange
+from nicos.core import Measurable, Moveable, Param, Value, Override, \
+     NicosError, intrange
 from nicos.abstract import ImageStorage
 
 from nicos.toftof.tofcounter import TofCounter
 from nicos.toftof import chopper
 
-# TofChopper parameters: wavelength, speed, ratio, crc, slittype, discspeeds, pmacread
+# TofChopper parameters: wavelength, speed, ratio, crc, slittype
 
 
 class TofTofMeasurement(Measurable, ImageStorage):
@@ -54,6 +55,14 @@ class TofTofMeasurement(Measurable, ImageStorage):
         'ch5_90deg_offset': Param('Whether chopper 5 is mounted the right way '
                                   '(= 0) or with 90deg offset (= 1)',
                                   type=intrange(0, 2), default=0, mandatory=True),
+        'delay_address':    Param('Chopper delay address ???',
+                                  settable=True, type=int, default=241),
+        'delay':            Param('Additional delay ???', type=float,
+                                  settable=True, default=0),
+        # XXX do we need those in here and on TofCounter?
+        'timechannels':     Param('Number of time channels', default=1024,
+                                  type=intrange(1, 1025), settable=True),
+        'timeinterval':   Param('Time interval ???', type=float, settable=True),
     }
 
     parameter_overrides = {
@@ -65,24 +74,17 @@ class TofTofMeasurement(Measurable, ImageStorage):
         return Value('filename', type='info')
 
     def doInit(self):
-        self._last_interval = 0
-        self._last_delayaddr = 241
-
         self._detinfo = []   # XXX
         self._detinfolength = 0
 
     def doSetPreset(self, **preset):
-        ctr = self._adevs['counter']
-        mch = preset.pop('monitorAt', None)
-        if mch is not None:
-            ctr.monitorchannel = mch
-        tch = preset.pop('tchannels', None)
-        if tch is not None:
-            ctr.timechannels = tch
-        self._last_interval = preset.pop('timeInterval', 0)
-        self._last_delay = preset.pop('delay', 0)
-        self._last_delayaddr = preset.pop('chDelayAddress', 241)
-        ctr.setPreset(**preset)
+        self._adevs['counter'].setPreset(**preset)
+
+    def doReadTimechannels(self):
+        return self._adevs['counter'].timechannels
+
+    def doWriteTimechannels(self, value):
+        self._adevs['counter'].timechannels = value
 
     def doStart(self, **preset):
         ctr = self._adevs['counter']
@@ -94,13 +96,13 @@ class TofTofMeasurement(Measurable, ImageStorage):
         else:
             chratio2 = (chratio-1.0)/chratio
 
-        if self._last_interval == 0:
+        if self.timeinterval == 0:
             if chspeed == 0:
                 interval = 0.052
             else:
                 interval = 30.0 / chspeed * chratio
         else:
-            interval = self._last_interval
+            interval = self.timeinterval
         ctr.timeinterval = interval
 
         chdelay = 0.0
@@ -123,7 +125,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
             else:
                 TOFoffset = 15.0/chspeed/chratio2   # normal mode
             tel = (chopper.a[0]-chopper.a[5]) * chopper.mn * chwl * 1.0e-10 / chopper.h + TOFoffset
-            tel += self._last_delay
+            tel += self.delay
             n = int(tel / (chratio / chspeed * 30.0))
             tel = tel - n * (chratio / chspeed * 30.0)
             tel = int(round(tel/5.0e-8))
@@ -172,7 +174,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         head.append('TOF_MonitorInput: %d\n' % ctr.monitorchannel)
         head.append('TOF_Ch5_90deg_Offset: %d\n' % self.ch5_90deg_offset)
         guess = round(4.0*chwl*2.527784152e-4/5.0e-8/ctr.channelwidth)
-        head.append('TOF_ChannelOfElasticLine_Guess: %d\n' % guess_channel)
+        head.append('TOF_ChannelOfElasticLine_Guess: %d\n' % guess)
         hvvals = []
         for i in range(3):
             try:
@@ -227,7 +229,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         head = []
         head.append('SavingDate: %s\n' % strftime('%d.%m.%Y'))
         head.append('SavingTime: %s\n' % strftime('%H:%M:%S'))
-        if self._last_mode == 'monitor'
+        if self._last_mode == 'monitor':
             if moncounts < self._last_preset:
                 head.append('ToGo: %d counts\n' % (self._last_preset - moncounts))
             head.append('Status: %5.1f %% completed\n' %
@@ -282,12 +284,4 @@ class TofTofMeasurement(Measurable, ImageStorage):
         # XXX save log files accordingly
 
 
-@usercommand
-def m(title='no title', mtime=300, mcounts=0, delay=0, interval=0,
-      monitorAt=956, chDelayAddress=241, nosave=False, tchannels=1024):
-    pass
-
-@usercommand
-def nosave(*args, **kwds):
-    kwds['nosave'] = True
-    return m(*args, **kwds)
+# XXX nosave measurement!
