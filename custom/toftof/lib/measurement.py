@@ -259,6 +259,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
             else:
                 head.append('AverageSampleTemperature: %10.4f K\n' % temperature)
         # more info
+        tempinfo = []
         head.append('MonitorCounts: %d\n' % moncounts)
         head.append('NumOfDetectors: %d\n' % counts[1])
         head.append('NumOfChannels: %d\n' % counts[0])
@@ -299,7 +300,10 @@ class TofTofMeasurement(Measurable, ImageStorage):
 
     def doSave(self):
         self._saveDataFile()
-        # XXX save log files accordingly
+        with open(self.lastfilename.replace('0000.raw', '5200.raw'), 'w') as fp:
+            fp.write(session.experiment.scripts[-1])
+        # XXX save device log files accordingly
+        #with open(self.lastfilename.replace('0000.raw', '1200.raw'), 'w') as fp:
 
 
 # XXX nosave measurement!
