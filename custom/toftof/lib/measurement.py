@@ -55,6 +55,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         'ch5_90deg_offset': Param('Whether chopper 5 is mounted the right way '
                                   '(= 0) or with 90deg offset (= 1)',
                                   type=intrange(0, 2), default=0, mandatory=True),
+        # XXX move this one to chdelay adev
         'delay_address':    Param('Chopper delay address ???',
                                   settable=True, type=int, default=241),
         'delay':            Param('Additional delay ???', type=float,
@@ -96,6 +97,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         else:
             chratio2 = (chratio-1.0)/chratio
 
+        # select time interval from chopper parameters
         if self.timeinterval == 0:
             if chspeed == 0:
                 interval = 0.052
@@ -105,6 +107,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
             interval = self.timeinterval
         ctr.timeinterval = interval
 
+        # select chopper delay from chopper parameters
         chdelay = 0.0
         if chspeed > 150:
             if self.ch5_90deg_offset:
@@ -112,13 +115,16 @@ class TofTofMeasurement(Measurable, ImageStorage):
                 chdelay = -15.0e6/chspeed/chratio2
             if chst == 1:
                 chdelay = 15.0e6/chspeed
-            chdelay += (252.7784 * chwl * 8.028 - 15.0e6*(1.0/chspeed/chratio2-1.0/chspeed))
+            chdelay += (252.7784 * chwl * 8.028 -
+                        15.0e6*(1.0/chspeed/chratio2-1.0/chspeed))
             chdelay = chdelay % (30.0e6/chspeed)
             chdelay -= 100.0
             if chdelay < 0:
                 chdelay += 30.0e6/chspeed
             chdelay = int(round(chdelay))
         self._adevs['chdelay'].start(chdelay)
+
+        # select counter delay from chopper parameters
         if chspeed > 150:
             if self.ch5_90deg_offset:
                 TOFoffset = 30.0/chspeed/chratio2   # chopper 5 90 deg rotated
@@ -152,6 +158,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         self._starttime = self._lasttime = currenttime()
         self._lastcounts = 0
         self._lastmonitor = 0
+        self._lasttemps = []
         self.log.info('Measurement %s started' % self.lastfilenumber)
         ctr.start(**preset)
 
@@ -225,7 +232,8 @@ class TofTofMeasurement(Measurable, ImageStorage):
             meastime, moncounts, counts = self._adevs['counter'].read_full()
         except NicosError:
             self.log.exception('error getting measurement data')
-            return 0, 0, 0
+            return 0, 0, 0, 0, None
+        countsum = sum(counts) - moncounts  # monitor counts are in the array
         head = []
         head.append('SavingDate: %s\n' % strftime('%d.%m.%Y'))
         head.append('SavingTime: %s\n' % strftime('%H:%M:%S'))
@@ -239,7 +247,18 @@ class TofTofMeasurement(Measurable, ImageStorage):
                 head.append('ToGo: %.0f s\n' % (self._last_preset - meastime))
             head.append('Status: %5.1f %% completed\n' %
                         ((100. * meastime)/self._last_preset))
-        # XXX sample temperature info
+        # sample temperature is assumed to be the first device in the envlist
+        if session.experiment.sampleenv:
+            tdev = session.experiment.sampleenv[0]
+            try:
+                temperature = tdev.read()
+                if tdev.unit == 'degC':
+                    temperature += 273.15
+            except NicosError:
+                temperature = 0
+            else:
+                head.append('AverageSampleTemperature: %10.4f K\n' % temperature)
+        # more info
         head.append('MonitorCounts: %d\n' % moncounts)
         head.append('NumOfDetectors: %d\n' % counts[1])
         head.append('NumOfChannels: %d\n' % counts[0])
@@ -251,21 +270,20 @@ class TofTofMeasurement(Measurable, ImageStorage):
             fp.write('aData(%u,%u): \n' % (counts[1], counts[0]))
             np.savetxt(fp, counts[2:], '%d')
             os.fsync(fp)
-        return meastime, moncounts, counts
+        return meastime, moncounts, counts, countsum, tempinfo
 
     def duringMeasureHook(self, i):
         if i % self._updateevery:
             return
-        result = self._saveDataFile()
-        if not result[0]:
+        meastime, moncounts, counts, countsum, tempinfo = self._saveDataFile()
+        if not meastime:
             return
-        countsum = sum(result[2]) - result[1]  # monitor counts are in the array
-        monrate = result[1]/result[0]
-        monrate_inst = (result[1] - self._lastmonitor) / (result[0] - self._lasttime)
-        detrate = countsum/result[0]
-        detrate_inst = (countsum - self._lastcounts) / (result[0] - self._lasttime)
-        self._lasttime = result[0]
-        self._lastmonitor = result[1]
+        monrate = moncounts/meastime
+        monrate_inst = (moncounts - self._lastmonitor) / (meastime - self._lasttime)
+        detrate = countsum/meastime
+        detrate_inst = (countsum - self._lastcounts) / (meastime - self._lasttime)
+        self._lasttime = meastime
+        self._lastmonitor = moncounts
         self._lastcounts = countsum
         # XXX sample temperature info
         self.log.info('Monitor: rate: %.3f counts/s, instantaneous rate: %.3f counts/s' %
