@@ -5,6 +5,9 @@ Changelog for NICOS 2
 
   - Introduce Measurable.duringMeasureHook and Measurable.save/doSave.
 
+  - Added Experiment.scripts parameter that stores the code of the
+    currently executed script.
+
 **Release 2.0.1**
 
   - In ImageStorage, make sure the data file isn't overwritten unless

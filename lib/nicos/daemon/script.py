@@ -133,11 +133,17 @@ class ScriptRequest(Request):
         # this is to allow the traceback module to report the script's
         # source code correctly
         update_linecache('<script>', self.text)
-        while self.curblock < len(self.code) - 1:
-            self._run.wait()
-            self.curblock += 1
-            controller.start_exec(self.code[self.curblock],
-                                  controller.namespace)
+        if session.experiment:
+            session.experiment.scripts += [self.text]
+        try:
+            while self.curblock < len(self.code) - 1:
+                self._run.wait()
+                self.curblock += 1
+                controller.start_exec(self.code[self.curblock],
+                                      controller.namespace)
+        finally:
+            if session.experiment:
+                session.experiment.scripts = session.experiment.scripts[:-1]
 
     def update(self, text, controller):
         """Update the code with a new script.
