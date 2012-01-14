@@ -86,6 +86,8 @@ class Experiment(Device):
                            type=bool, default=True),
         'propdb':    Param('user@host:dbname credentials for proposal DB',
                            type=str, default='', userparam=False),
+        'scripts':   Param('Currently executed scripts',
+                           type=listof(str), settable=True),
     }
 
     attached_devices = {
