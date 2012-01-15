@@ -95,6 +95,8 @@ class ModeError(NicosError):
 class AccessError(NicosError):
     """
     Exception to be raised when an action is forbidden to the current user.
+
+    Used by the `.requires` decorator.
     """
     category = 'Access denied'
 

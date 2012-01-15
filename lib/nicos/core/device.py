@@ -42,13 +42,25 @@ from nicos.utils import getVersions
 
 
 def usermethod(func):
-    """Decorator that marks a method as a user-visible method."""
+    """Decorator that marks a method as a user-visible method.
+
+    The method will be shown to the user in the help for a device.
+    """
     func.is_usermethod = True
     return func
 
 
 def requires(**access):
-    """Decorator to implement user access control."""
+    """Decorator to implement user access control.
+
+    The access is checked based on the keywords given.  Currently, only the
+    keyword "level" has a meaning.  It gives the minimum required user access
+    level and can have the values ``GUEST``, ``USER`` or ``ADMIN`` as defined in
+    the :mod:`nicos.core.utils` module.
+
+    The wrapper function calls `.Session.checkAccess` to verify the
+    requirements.  If the check fails, `.AccessError` is raised.
+    """
     def decorator(func):
         def new_func(*args, **kwds):
             if not session.checkAccess(access):

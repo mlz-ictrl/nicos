@@ -800,7 +800,9 @@ class Session(object):
 
     def checkAccess(self, required):
         """Check if the current user fulfills the requirements given in the
-        *required* dictionary.
+        *required* dictionary.  Return true or false.
+
+        This is called by the `.requires` decorator.
         """
         return False
 

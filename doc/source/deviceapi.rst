@@ -26,6 +26,12 @@ When writing a device class for a specific device, only those implementation
 methods need to written that the device can support; the others will be skipped
 when called by the public methods.
 
+Additional public methods can be implemented for specific devices, such as
+``setPosition()`` for motors; the ``method``/``doMethod`` split should only be
+applied if the ``method`` implementation does something common for all possible
+implementations of ``doMethod``.  Public methods that can be called by the user
+should be decorated with `.usermethod`.
+
 --------------
 Device classes
 --------------
