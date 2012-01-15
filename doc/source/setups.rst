@@ -48,6 +48,11 @@ A setup file can consist of the following entries, all of which are optional:
    processed and the devices that are marked for automatic creation have been
    created.
 
+``extended``
+   A dictionary, reserved for future use.
+
+.. XXX document "extended" more once we have use for it.
+
 
 .. _deviceentries:
 

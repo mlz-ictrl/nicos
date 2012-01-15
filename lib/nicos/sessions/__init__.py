@@ -250,6 +250,7 @@ class Session(object):
                 'modules': ns.get('modules', []),
                 'devices': ns.get('devices', {}),
                 'startupcode': ns.get('startupcode', ''),
+                'extended': ns.get('extended', {}),
             }
             self._setup_info[modname] = info
         # check if all includes exist
@@ -265,7 +266,7 @@ class Session(object):
         This is a dictionary mapping setup name to another dictionary.  The keys
         of that dictionary are those present in the setup files: 'name',
         'group', 'sysconfig', 'includes', 'excludes', 'modules', 'devices',
-        'startupcode'.
+        'startupcode', 'extended'.
         """
         return self._setup_info.copy()
 

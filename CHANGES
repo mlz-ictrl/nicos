@@ -3,19 +3,22 @@ Changelog for NICOS 2
 
 **Release 2.1.0**
 
-  - Introduced Measurable.duringMeasureHook and Measurable.save/doSave.
+  - Introduced the "Measurable.duringMeasureHook()" and
+    "Measurable.save()/doSave()" methods.
 
-  - Added Experiment.scripts parameter that stores the code of the
+  - Added "Experiment.scripts" parameter that stores the code of the
     currently executed script.
 
-  - Added easy access control using the requires() decorator.  Added
-    AccessError and Session.checkAccess() APIs.
+  - Added easy access control using the "requires()" decorator.  Added
+    "AccessError" and "Session.checkAccess()" APIs.
 
-  - Added the three-parameter form of adjust() that allows to adjust to
+  - Added the three-parameter form of "adjust()" that allows to adjust to
     some other than the current position.
 
   - Added automatic retry of Taco calls with the new "tacotries" parameter
     of TacoDevice objects.
+
+  - Added the "extended" entry to setup files, for future use.
 
 **Release 2.0.1**
 
