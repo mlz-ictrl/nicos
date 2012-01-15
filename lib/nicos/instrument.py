@@ -30,7 +30,14 @@ from nicos.core import Device, Param
 
 
 class Instrument(Device):
-    """A special singleton device to represent the instrument."""
+    """A special singleton device to represent the instrument.
+
+    This class can be subclassed for specific instruments to e.g. provide the
+    notion of moving "the instrument" in HKL space, such as in `.TAS`.
+
+    The instrument singleton is available at runtime as
+    `nicos.session.instrument`.
+    """
 
     parameters = {
         'instrument': Param('Instrument name', type=str, category='experiment'),
