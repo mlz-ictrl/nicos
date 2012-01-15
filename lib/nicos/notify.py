@@ -46,9 +46,7 @@ NS_XHTML = 'http://www.w3.org/1999/xhtml'
 
 
 class Notifier(Device):
-    """
-    Interface for all notification systems.
-    """
+    """Base class for all notification systems."""
 
     parameters = {
         'minruntime': Param('Minimum runtime of a command before a failure '
@@ -73,8 +71,9 @@ class Notifier(Device):
 
 
 class Jabberer(Notifier):
-    """
-    Jabber notification handling.
+    """Notifier to send Jabber notifications.
+
+    Needs the xmpp module.
     """
 
     parameters = {
@@ -118,8 +117,10 @@ class Jabberer(Notifier):
 
 
 class Mailer(Notifier):
-    """
-    E-Mail notification handling.
+    """E-Mail notification handling.
+
+    If a Mailer is configured as a notifier, the receiver addresses (not copies)
+    can be set by `.SetMailReceivers`.
     """
 
     parameters = {
@@ -206,8 +207,10 @@ class Mailer(Notifier):
 
 
 class SMSer(Notifier):
-    """
-    SMS notifications via smslink client program.
+    """SMS notifications via smslink client program.
+
+    If a SMSer is configured as a notifier, the receiver addresses (not copies)
+    can be set by `.SetSMSReceivers`.
     """
 
     parameters = {

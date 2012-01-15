@@ -6,6 +6,7 @@ distribution.
 
 .. toctree::
 
+   system
    abstract
    generic/index
    tas

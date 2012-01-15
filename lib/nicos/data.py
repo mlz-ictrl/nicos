@@ -132,10 +132,11 @@ class NeedsDatapath(object):
 
 
 class DataSink(Device):
-    """
-    A DataSink is a configurable object that receives measurement data.  All
-    data handling is done by sinks; e.g. displaying it on the console or saving
-    to a data file.
+    """Base class for all data sinks.
+
+    A DataSink is a configurable object that receives scan data.  All data
+    handling is done by sinks; e.g. displaying it on the console or saving to a
+    data file.
     """
 
     parameters = {
@@ -210,9 +211,7 @@ def safe_format(fmtstr, value):
         return str(value)
 
 class ConsoleSink(DataSink):
-    """
-    A DataSink that prints scan data onto the console.
-    """
+    """A DataSink that prints scan data onto the console."""
 
     parameter_overrides = {
         'scantypes':  Override(default=['2D']),
@@ -258,9 +257,8 @@ class ConsoleSink(DataSink):
 
 
 class DaemonSink(DataSink):
-    """
-    A DataSink that sends datasets to connected GUI clients.  Only active for
-    daemon sessions.
+    """A DataSink that sends datasets to connected GUI clients for live
+    plotting.  Only active for daemon sessions.
     """
 
     activeInSimulation = False
@@ -278,9 +276,9 @@ class DaemonSink(DataSink):
 
 
 class GraceSink(DataSink):
-    """
-    A DataSink that plots datasets in the Grace plotting program.  Needs the
-    GracePlot module.  Only active for console sessions.
+    """A DataSink that plots datasets in the Grace plotting program.
+
+    Needs the GracePlot module.  Only active for console sessions.
     """
 
     activeInSimulation = False
@@ -356,9 +354,9 @@ class GraceSink(DataSink):
 
 
 class GnuplotSink(DataSink):
-    """
-    A DataSink that plots datasets in the Gnuplot plotting program.  Needs the
-    Gnuplot module.  Only active for console sessions.
+    """A DataSink that plots datasets in the Gnuplot plotting program.
+
+    Needs the Gnuplot module.  Only active for console sessions.
     """
 
     activeInSimulation = False
@@ -427,6 +425,15 @@ class DatafileSink(DataSink, NeedsDatapath):
 
 
 class AsciiDatafileSink(DatafileSink):
+    """A data sink that writes to a plain ASCII data file.
+
+    The `lastfilenumber` and `lastpoint` parameters are managed automatically.
+
+    The current file counter is normally stored in a file called "counter" in
+    the data directory.  If the `globalcounter` parameter is nonempty, it gives
+    the name of a global counter file instead, which is always used regardless
+    of data path.
+    """
     parameters = {
         'globalcounter':  Param('File name for a global file counter instead '
                                 'of one per datapath', type=str, default=''),
