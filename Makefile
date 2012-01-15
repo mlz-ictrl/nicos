@@ -31,10 +31,10 @@ lint:
 jenkinslintall:
 	-pylint --rcfile=./pylintrc --files-output=y lib/nicos/
 
-jenkinslint: 
+jenkinslint:
 	-pylint --rcfile=./pylintrc  --files-output=y  `git diff --name-only HEAD HEAD^ | grep ".py"`
 
-changelint: 
+changelint:
 	-pylint --rcfile=./pylintrc  `git diff --name-only HEAD | grep ".py"`
 
 check:

@@ -309,13 +309,51 @@ class CacheUDPWorker(CacheWorker):
 class CacheDatabase(Device):
 
     def doInit(self):
-        raise ConfigurationError(
-            'CacheDatabase is an abstract class, use '
-            'either MemoryCacheDatabase or FlatfileCacheDatabase')
+        if self.__class__ is CacheDatabase:
+            raise ConfigurationError(
+                'CacheDatabase is an abstract class, use '
+                'either MemoryCacheDatabase or FlatfileCacheDatabase')
+        self._lock_lock = threading.Lock()
+        self._locks = {}
 
     def initDatabase(self):
         """Initialize the database from persistent store, if present."""
         pass
+
+    def lock(self, key, value, time, ttl):
+        """Lock handling code, common to both subclasses."""
+        with self._lock_lock:
+            entry = self._locks.get(key)
+            # want to lock?
+            req, client_id = value[0], value[1:]
+            if req == '+':
+                if entry and entry.value != client_id and \
+                     (not entry.ttl or entry.time + entry.ttl >= currenttime()):
+                    # still locked by different client, deny (tell the client
+                    # the current client_id though)
+                    self.log.debug('lock request %s=%s, but still locked by %s'
+                                    % (key, client_id, entry.value))
+                    return '%s%s%s\r\n' % (key, OP_LOCK, entry.value)
+                else:
+                    # not locked, expired or locked by same client, overwrite
+                    ttl = ttl or 1800  # set a maximum time to live
+                    self.log.debug('lock request %s=%s ttl %s, accepted' %
+                                    (key, client_id, ttl))
+                    self._locks[key] = Entry(time, ttl, client_id)
+                    return '%s%s\r\n' % (key, OP_LOCK)
+            # want to unlock?
+            elif req == '-':
+                if entry and entry.value != client_id:
+                    # locked by different client, deny
+                    self.log.debug('unlock request %s=%s, but locked by %s'
+                                    % (key, client_id, entry.value))
+                    return '%s%s%s\r\n' % (key, OP_LOCK, entry.value)
+                else:
+                    # unlocked or locked by same client, allow
+                    self.log.debug('unlock request %s=%s, accepted'
+                                    % (key, client_id))
+                    self._locks.pop(key, None)
+                    return '%s%s\r\n' % (key, OP_LOCK)
 
 
 class MemoryCacheDatabase(CacheDatabase):
@@ -326,8 +364,7 @@ class MemoryCacheDatabase(CacheDatabase):
     def doInit(self):
         self._db = {}
         self._db_lock = threading.Lock()
-        self._locks = {}
-        self._lock_lock = threading.Lock()
+        CacheDatabase.doInit(self)
 
     def ask(self, key, ts, time, ttl):
         with self._db_lock:
@@ -401,40 +438,6 @@ class MemoryCacheDatabase(CacheDatabase):
                 if client is not from_client and client.is_active():
                     client.update(key, OP_TELL, value, time, ttl)
 
-    def lock(self, key, value, time, ttl):
-        with self._lock_lock:
-            entry = self._locks.get(key)
-            # want to lock?
-            req, client_id = value[0], value[1:]
-            if req == '+':
-                if entry and entry.value != client_id and \
-                     (not entry.ttl or entry.time + entry.ttl >= currenttime()):
-                    # still locked by different client, deny (tell the client
-                    # the current client_id though)
-                    self.log.debug('lock request %s=%s, but still locked by %s'
-                                    % (key, client_id, entry.value))
-                    return '%s%s%s\r\n' % (key, OP_LOCK, entry.value)
-                else:
-                    # not locked, expired or locked by same client, overwrite
-                    ttl = ttl or 1800  # set a maximum time to live
-                    self.log.debug('lock request %s=%s ttl %s, accepted' %
-                                    (key, client_id, ttl))
-                    self._locks[key] = Entry(time, ttl, client_id)
-                    return '%s%s\r\n' % (key, OP_LOCK)
-            # want to unlock?
-            elif req == '-':
-                if entry and entry.value != client_id:
-                    # locked by different client, deny
-                    self.log.debug('unlock request %s=%s, but locked by %s'
-                                    % (key, client_id, entry.value))
-                    return '%s%s%s\r\n' % (key, OP_LOCK, entry.value)
-                else:
-                    # unlocked or locked by same client, allow
-                    self.log.debug('unlock request %s=%s, accepted'
-                                    % (key, client_id))
-                    self._locks.pop(key, None)
-                    return '%s%s\r\n' % (key, OP_LOCK)
-
 
 class FlatfileCacheDatabase(CacheDatabase):
     """
@@ -452,8 +455,7 @@ class FlatfileCacheDatabase(CacheDatabase):
     def doInit(self):
         self._cat = {}
         self._cat_lock = threading.Lock()
-        self._locks = {}
-        self._lock_lock = threading.Lock()
+        CacheDatabase.doInit(self)
 
         self._basepath = path.join(session.config.control_path, self.storepath)
         ltime = localtime()
@@ -491,40 +493,6 @@ class FlatfileCacheDatabase(CacheDatabase):
                 self._cat[cat] = [fd, lock, db]
                 nkeys += len(db)
         self.log.info('loaded %d keys from files' % nkeys)
-
-    def lock(self, key, value, time, ttl):
-        with self._lock_lock:
-            entry = self._locks.get(key)
-            # want to lock?
-            req, client_id = value[0], value[1:]
-            if req == '+':
-                if entry and entry.value != client_id and \
-                     (not entry.ttl or entry.time + entry.ttl >= currenttime()):
-                    # still locked by different client, deny (tell the client
-                    # the current client_id though)
-                    self.log.debug('lock request %s=%s, but still locked by %s'
-                                    % (key, client_id, entry.value))
-                    return '%s%s%s\r\n' % (key, OP_LOCK, entry.value)
-                else:
-                    # not locked, expired or locked by same client, overwrite
-                    ttl = ttl or 1800  # set a maximum time to live
-                    self.log.debug('lock request %s=%s ttl %s, accepted' %
-                                    (key, client_id, ttl))
-                    self._locks[key] = Entry(time, ttl, client_id)
-                    return '%s%s\r\n' % (key, OP_LOCK)
-            # want to unlock?
-            elif req == '-':
-                if entry and entry.value != client_id:
-                    # locked by different client, deny
-                    self.log.debug('unlock request %s=%s, but locked by %s'
-                                    % (key, client_id, entry.value))
-                    return '%s%s%s\r\n' % (key, OP_LOCK, entry.value)
-                else:
-                    # unlocked or locked by same client, allow
-                    self.log.debug('unlock request %s=%s, accepted'
-                                    % (key, client_id))
-                    self._locks.pop(key, None)
-                    return '%s%s\r\n' % (key, OP_LOCK)
 
     def _rollover(self):
         self.log.debug('ROLLOVER started')
