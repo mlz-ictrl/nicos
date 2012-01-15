@@ -33,7 +33,7 @@ from time import sleep
 import TACOStates
 from TACOClient import TACOError
 
-from nicos.core import status, tacodev, Param, Override, NicosError, \
+from nicos.core import status, tacodev, intrange, Param, Override, NicosError, \
      ProgrammingError, CommunicationError, LimitError, InvalidValueError
 
 
@@ -87,6 +87,10 @@ class TacoDevice(object):
                              preinit=True),
         'tacotimeout': Param('TACO client network timeout', unit='s',
                              default=3, settable=True, preinit=True),
+        'tacotries':   Param('Number of tries per TACO call', default=1,
+                             type=intrange(1, 10), settable=True),
+        'tacodelay':   Param('Delay between retries', unit='s', default=0.1,
+                             settable=True),
     }
 
     parameter_overrides = {
@@ -216,6 +220,24 @@ class TacoDevice(object):
         try:
             ret = function(*args)
         except TACOError, err:
+            # for performance reasons, starting the loop and querying
+            # self.tacotries only triggers in the error case
+            if self.tacotries > 1:
+                tries = self.tacotries - 1
+                self.log.warning('TACO %s failed, retrying up to %d times' %
+                                 (function.__name__, tries), exc=1)
+                while True:
+                    sleep(self.tacodelay)
+                    tries -= 1
+                    try:
+                        ret = function(*args)
+                        self.log.debug('TACO return: %r' % ret)
+                        return ret
+                    except TACOError, err:
+                        if tries == 0:
+                            break  # and fall through to _raise_taco
+                        self.log.warning('TACO %s failed again' %
+                                         function.__name__, exc=1)
             self._raise_taco(err)
         else:
             self.log.debug('TACO return: %r' % ret)
@@ -230,11 +252,27 @@ class TacoDevice(object):
         example, database-related errors are converted to `.CommunicationError`.
         A TacoDevice subclass can add custom error code to exception class
         mappings by using the `.taco_errorcodes` class attribute.
+
+        If the `tacotries` parameter is > 1, the call is retried accordingly.
         """
         self.__lock.acquire()
         try:
             return function(*args)
         except TACOError, err:
+            # for performance reasons, starting the loop and querying
+            # self.tacotries only triggers in the error case
+            if self.tacotries > 1:
+                tries = self.tacotries - 1
+                self.log.warning('TACO %s failed, retrying up to %d times' %
+                                 (function.__name__, tries))
+                while True:
+                    sleep(self.tacodelay)
+                    tries -= 1
+                    try:
+                        return function(*args)
+                    except TACOError, err:
+                        if tries == 0:
+                            break  # and fall through to _raise_taco
             self._raise_taco(err, '%s%r' % (function.__name__, args))
         finally:
             self.__lock.release()

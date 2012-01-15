@@ -14,6 +14,9 @@ Changelog for NICOS 2
   - Added the three-parameter form of adjust() that allows to adjust to
     some other than the current position.
 
+  - Added automatic retry of Taco calls with the new "tacotries" parameter
+    of TacoDevice objects.
+
 **Release 2.0.1**
 
   - In ImageStorage, make sure the data file isn't overwritten unless
