@@ -1,5 +1,5 @@
-Welcome to NICOS
-================
+Welcome to NICOS |version|
+==========================
 
 NICOS is a network-based control system written for neutron scattering
 instruments at the `FRM II <http://frm2.tum.de/>`_.  Its main goals are
