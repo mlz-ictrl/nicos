@@ -32,7 +32,7 @@ devices = dict(
                     server = 'localhost',
                     authmethod = 'list',
                     passwd = [('guest', '', 0),
-                              ('user', hashlib.sha1('user').hexdigest(), 1),
-                              ('root', hashlib.sha1('root').hexdigest(), 2)],
+                              ('user', hashlib.sha1('user').hexdigest(), 10),
+                              ('admin', hashlib.sha1('admin').hexdigest(), 20)],
                     loglevel = 'debug'),
 )

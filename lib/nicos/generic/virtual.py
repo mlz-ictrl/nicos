@@ -30,8 +30,7 @@ import time
 import random
 import threading
 
-from nicos.core import status, tacodev, tupleof, nonemptylistof, anytype, \
-     Readable, Moveable, HasOffset, Param, Override, PositionError
+from nicos.core import status, tacodev, tupleof, Readable, HasOffset, Param
 from nicos.abstract import Motor, Coder
 from nicos.taco.detector import FRMTimerChannel, FRMCounterChannel
 

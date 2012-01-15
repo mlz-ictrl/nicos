@@ -62,7 +62,8 @@ class Request(object):
     reqno = None
 
     def __init__(self, user=None):
-        self.user = user
+        self.user = user.name
+        self.userlevel = user.level
 
     def serialize(self):
         return {'reqno': self.reqno, 'user': self.user}

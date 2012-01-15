@@ -28,6 +28,8 @@ The following exceptions can be used when writing custom devices:
 
 .. autoexception:: ModeError()
 
+.. autoexception:: AccessError()
+
 .. autoexception:: ProgrammingError()
 
 .. autoexception:: PositionError()
@@ -197,10 +199,18 @@ as the first item of the tuple that `.Device.status` returns.  The whole
 Utilities
 =========
 
+.. currentmodule:: nicos.core.device
+
+The :mod:`nicos.core.device` module defines some decorators for device methods:
+
+.. autofunction:: usermethod
+
+.. autofunction:: requires
+
 .. module:: nicos.core.utils
 
-The :mod:`nicos.core.utils` module defines some utility functions.  They are
-re-exported in :mod:`nicos.core`.
+The :mod:`nicos.core.utils` module also defines some utility functions.  They
+are re-exported in :mod:`nicos.core`.
 
 .. autofunction:: multiStatus
 
