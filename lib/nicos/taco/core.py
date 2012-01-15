@@ -42,7 +42,7 @@ class TacoDevice(object):
 
     Use it in concrete device classes like this::
 
-        class Counter(TacoDevice, Countable):
+        class Counter(TacoDevice, Measurable):
             taco_class = IO.Counter
 
             # more overwritten methods
