@@ -17,7 +17,7 @@ devices = dict(
                       datapath = ['/home/antares/nicos-core/data'],
                       sample = 'Sample', _propdb='useroffice@tacodb.taco.frm2:useroffice'),
 
-    ANTARES  = device('nicos.instrument.Instrument', instrument='RESEDA'),
+    ANTARES  = device('nicos.instrument.Instrument', instrument='ANTARES'),
 
     filesink = device('nicos.data.AsciiDatafileSink',
                       prefix = 'data'),

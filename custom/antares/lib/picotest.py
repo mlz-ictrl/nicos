@@ -29,20 +29,18 @@ __version__ = "$Revision$"
 import os
 import time
 
-from nicos import status
-from nicos.device import Moveable, Param
-from nicos.errors import CommunicationError
-from nicos.utils import floatrange, oneof
+from nicos.core import status, Moveable, Param, CommunicationError, \
+     floatrange, oneof
 
 
 class G5100A(Moveable):
 
     parameters = {
-        'device': Param('USB device name', type=str, mandatory=True),
+        'device':    Param('USB device name', type=str, mandatory=True),
         'amplitude': Param('Amplitude of signal', type=floatrange(20, 1000),
                            unit='mV', settable=True),
-        'shape': Param('Signal shape', type=oneof(str, 'sine', 'square', 'ramp'),
-                       settable=True),
+        'shape':     Param('Signal shape', settable=True,
+                           type=oneof(str, 'sine', 'square', 'ramp')),
     }
     # timeout is 5 seconds by kernel default
 

@@ -35,16 +35,16 @@ from time import sleep
 
 import TacoDevice
 
-from nicos import session, status
+from nicos import session
+from nicos.core import status, tupleof, Measurable, Param, Override, Value
 from nicos.data import NeedsDatapath
-from nicos.utils import readFileCounter, updateFileCounter, tupleof
-from nicos.device import Measurable, Param, Override, Value
+from nicos.utils import readFileCounter, updateFileCounter
 
 
 # XXX this is not yet a TacoDevice since the server doesn't support the
 # standard FRM methods
 
-class CascadeDetector(Measurable, NeedsDatapath):
+class AndorDetector(Measurable, NeedsDatapath):
 
     parameters = {
         'tacodevice': Param('taco device name', type=str, mandatory=True,
