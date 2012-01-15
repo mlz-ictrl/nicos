@@ -37,8 +37,9 @@ from nicos.core import Measurable, Moveable, Param, Value, Override, \
      NicosError, intrange
 from nicos.abstract import ImageStorage
 
+from nicos.toftof.chopper import TofChopper
 from nicos.toftof.tofcounter import TofCounter
-from nicos.toftof import chopper
+from nicos.toftof import calculations as calc
 
 # TofChopper parameters: wavelength, speed, ratio, crc, slittype
 
@@ -130,7 +131,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
                 TOFoffset = 30.0/chspeed/chratio2   # chopper 5 90 deg rotated
             else:
                 TOFoffset = 15.0/chspeed/chratio2   # normal mode
-            tel = (chopper.a[0]-chopper.a[5]) * chopper.mn * chwl * 1.0e-10 / chopper.h + TOFoffset
+            tel = (calc.a[0]-calc.a[5]) * calc.mn * chwl * 1.0e-10 / calc.h + TOFoffset
             tel += self.delay
             n = int(tel / (chratio / chspeed * 30.0))
             tel = tel - n * (chratio / chspeed * 30.0)
