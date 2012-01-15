@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -23,6 +23,8 @@
 # *****************************************************************************
 
 """NICOS GUI settings window."""
+
+from __future__ import with_statement
 
 __version__ = "$Revision$"
 
@@ -54,7 +56,6 @@ class SettingsDialog(QDialog, DlgUtils):
 
         # general page
         self.instrument.setText(main.instrument)
-        self.scriptpath.setText(main.scriptpath)
         self.confirmExit.setChecked(main.confirmexit)
         self.showTrayIcon.setChecked(main.showtrayicon)
         self.autoReconnect.setChecked(main.autoreconnect)
@@ -67,7 +68,7 @@ class SettingsDialog(QDialog, DlgUtils):
         self.display.setText(main.connectionData['display'])
 
         # profiles page
-        for (uid, (name, config)) in self.local_profiles.iteritems():
+        for (uid, (name, wconfig, tconfig)) in self.local_profiles.iteritems():
             QTreeWidgetItem(self.pitem, [name], 1).setData(0, 32, uid)
             QListWidgetItem(name, self.profileList).setData(32, uid)
             self.profileCombo.addItem(name)
@@ -78,7 +79,6 @@ class SettingsDialog(QDialog, DlgUtils):
         self.main.connectionData['login'] = str(self.login.currentText())
         self.main.connectionData['display'] = str(self.display.text())
         self.main.instrument = self.instrument.text()
-        self.main.scriptpath = self.scriptpath.text()
         self.main.confirmexit = self.confirmExit.isChecked()
         self.main.showtrayicon = self.showTrayIcon.isChecked()
         self.main.autoreconnect = self.autoReconnect.isChecked()
@@ -90,7 +90,6 @@ class SettingsDialog(QDialog, DlgUtils):
             settings.setValue('login',
                               QVariant(self.main.connectionData['login']))
             settings.setValue('instrument', QVariant(self.main.instrument))
-            settings.setValue('scriptpath', QVariant(self.main.scriptpath))
             settings.setValue('confirmexit', QVariant(self.main.confirmexit))
             settings.setValue('showtrayicon', QVariant(self.main.showtrayicon))
             settings.setValue('autoreconnect', QVariant(self.main.autoreconnect))

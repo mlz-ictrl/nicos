@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -36,10 +36,9 @@ from os import path
 from time import sleep, strftime, time as currenttime
 
 from nicos import session
-from nicos.utils import listof
-from nicos.device import Param
+from nicos.core import listof, Param
+from nicos.core.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
 from nicos.notify import Notifier
-from nicos.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
 from nicos.cache.utils import OP_TELL, OP_TELLOLD, cache_load
 from nicos.cache.client import BaseCacheClient
 
@@ -80,7 +79,8 @@ class Monitor(BaseCacheClient):
     }
 
     attached_devices = {
-        'notifiers': [Notifier],
+        'notifiers': ([Notifier], 'A list of notifiers used for warning '
+                      'messages'),
     }
 
     # methods to be implemented in concrete implementations
@@ -161,7 +161,7 @@ class Monitor(BaseCacheClient):
         for warning in self.warnings:
             try:
                 key, cond, desc, setup = warning
-            except:
+            except ValueError:
                 key, cond, desc = warning
                 setup = None
             self._warnmap[self._prefix + '/' + key] = \
@@ -207,7 +207,8 @@ class Monitor(BaseCacheClient):
             'name': '', 'dev': '', 'width': 8, 'istext': False, 'maxlen': None,
             'min': None, 'max': None, 'unit': '', 'item': -1, 'format': '%s',
             # current values
-            'value': None, 'expired': 0, 'status': None, 'changetime': 0,
+            'value': None, 'strvalue': None, 'expired': 0, 'status': None,
+            'changetime': 0, 'exptime': 0,
             # key names
             'key': '', 'statuskey': '', 'unitkey': '', 'formatkey': '',
         }
@@ -292,19 +293,16 @@ class Monitor(BaseCacheClient):
 
             # set the foreground color: determined by the status
 
-            valueage = currenttime() - field['changetime']
-            if not status:
-                # no status yet, determine on time alone
-                if valueage < 3:
-                    self.setForeColor(vlabel, self._yellow)
-                    newwatch.add(field)
-                else:
-                    self.setForeColor(vlabel, self._green)
+            time = currenttime()
+            valueage = time - field['changetime']
+            if valueage < 2:
+                self.setForeColor(vlabel, self._yellow)
+                newwatch.add(field)
             else:
                 # if we have a status
                 try:
                     const = status[0]
-                except ValueError:
+                except (TypeError, ValueError):
                     const = status
                 if const == OK:
                     self.setForeColor(vlabel, self._green)
@@ -317,7 +315,8 @@ class Monitor(BaseCacheClient):
 
             # set the background color: determined by the value's up-to-dateness
 
-            if value is None or field['expired']:
+            if value is None or \
+                (field['expired'] and time - field['exptime'] > 0.7):
                 self.setBackColor(vlabel, self._gray)
             else:
                 self.setBackColor(vlabel, self._black)
@@ -371,26 +370,30 @@ class Monitor(BaseCacheClient):
             self._watch.add(field)
             if key == field['key']:
                 field['expired'] = expired
-                if field['item'] >= 0:
+                if expired:
+                    field['exptime'] = time
+                if field['item'] >= 0 and value is not None:
                     fvalue = value[field['item']]
                 else:
                     fvalue = value
-                oldvalue = field['value']
-                if oldvalue != fvalue:
-                    field['changetime'] = time
-                field['value'] = value
                 if value is None:
-                    text = '----'
+                    strvalue = '----'
                 else:
+                    if isinstance(fvalue, list): fvalue = tuple(fvalue)
                     try:
-                        text = field['format'] % fvalue
+                        strvalue = field['format'] % fvalue
                     except Exception:
-                        text = str(fvalue)
-                self.setLabelText(field['valuelabel'], text[:field['maxlen']])
+                        strvalue = str(fvalue)
+                if field['strvalue'] != strvalue:
+                    field['changetime'] = time
+                field['strvalue'] = strvalue
+                field['value'] = value
+                self.setLabelText(field['valuelabel'], strvalue[:field['maxlen']])
             elif key == field['statuskey']:
                 if value is not None:
+                    if field['status'] != value:
+                        field['changetime'] = time
                     field['status'] = value
-                field['changetime'] = time
             elif key == field['unitkey']:
                 if value is not None:
                     field['unit'] = value
@@ -399,12 +402,14 @@ class Monitor(BaseCacheClient):
             elif key == field['formatkey']:
                 if value is not None:
                     field['format'] = value
-                if field['value'] is not None:
+                if field['value'] is not None and field['item'] < 0:
+                    fvalue = field['value']
+                    if isinstance(fvalue, list): fvalue = tuple(fvalue)
                     try:
                         self.setLabelText(field['valuelabel'], field['format'] %
-                                          field['value'])
+                                          fvalue)
                     except Exception:
-                        self.setLabelText(field['valuelabel'], str(field['value']))
+                        self.setLabelText(field['valuelabel'], str(fvalue))
 
     def _process_warnings(self, key, info, value):
         if info['setup']:

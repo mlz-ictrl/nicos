@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -28,29 +28,31 @@ sysconfig = dict(
     cache = 'localhost:14877',
     experiment = 'Exp',
     instrument = 'Tas',
+    datasinks = ['testsink'],
 )
 
 
 devices = dict(
     sample   = device('nicos.tas.TASSample'),
 
-    Exp = device('nicos.experiment.Experiment',
-        sample = 'sample',
-        loglevel = 'info',
-        datapath = ['./data/testdata'],
-        scriptdir = '.',
-        lowlevel = False,
-    ),
+    testsink = device('test.utils.TestSink'),
 
+    Exp      = device('nicos.experiment.Experiment',
+                      sample = 'sample',
+                      loglevel = 'info',
+                      datapath = ['.'],
+                      scriptdir = '.',
+                      elog = False,
+                      lowlevel = False),
 
-    t_phi    = device('nicos.virtual.VirtualMotor',
+    t_phi    = device('nicos.generic.VirtualMotor',
                       abslimits = (-180, 180),
                       initval = 0,
                       speed = 1,
                       jitter = 0.01,
                       unit = 'deg'),
 
-    t_psi    = device('nicos.virtual.VirtualMotor',
+    t_psi    = device('nicos.generic.VirtualMotor',
                       abslimits = (0, 360),
                       initval = 0,
                       speed = 2,
@@ -66,15 +68,14 @@ devices = dict(
                       abslimits = (0, 10),
                       dvalue = 3.325),
 
-    t_mth    = device('nicos.virtual.VirtualMotor',
+    t_mth    = device('nicos.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       jitter = 0.02),
 
-    t_mtt    = device('nicos.virtual.VirtualMotor',
+    t_mtt    = device('nicos.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180)),
-
 
     t_ana    = device('nicos.tas.Monochromator',
                       unit = 'A-1',
@@ -86,21 +87,20 @@ devices = dict(
                       abslimits = (0, 10),
                       dvalue = 3.325),
 
-    t_ath    = device('nicos.virtual.VirtualMotor',
+    t_ath    = device('nicos.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       jitter = 0.02),
 
-    t_att    = device('nicos.virtual.VirtualMotor',
+    t_att    = device('nicos.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180)),
 
-    Tas = device('nicos.tas.TAS',
-                 cell = 'sample',
-                 mono = 't_mono',
-                 phi = 't_phi',
-                 psi = 't_psi',
-                 ana = 't_ana',
-                 instrument = 'Tas'),
-
+    Tas      = device('nicos.tas.TAS',
+                      cell = 'sample',
+                      mono = 't_mono',
+                      phi = 't_phi',
+                      psi = 't_psi',
+                      ana = 't_ana',
+                      instrument = 'Tas'),
 )

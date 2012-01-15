@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -23,6 +23,8 @@
 # *****************************************************************************
 
 """NICOS GUI user editor window."""
+
+from __future__ import with_statement
 
 __version__ = "$Revision$"
 
@@ -141,7 +143,7 @@ class EditorPanel(Panel):
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        loadUi(self, 'editor.ui')
+        loadUi(self, 'editor.ui', 'panels')
 
         self.window = parent
 
@@ -324,7 +326,7 @@ class EditorPanel(Panel):
         # device ranges
         for devname, (_, dmin, dmax) in devinfo.iteritems():
             if dmin is not None:
-                item = QTreeWidgetItem([devname, str(dmin), '-', str(dmax)])
+                item = QTreeWidgetItem([devname, dmin, '-', dmax])
                 self.simRanges.addTopLevelItem(item)
 
         self.simPane.show()
@@ -379,6 +381,7 @@ class EditorPanel(Panel):
         self.client.tell('simulate', self.filename, script)
         self.waiting_sim_result = True
         self.clearSimPane()
+        self.simPane.show()
 
     @qtsig('')
     def on_actionUpdate_triggered(self):
@@ -409,9 +412,12 @@ class EditorPanel(Panel):
     def checkDirty(self):
         if not self.editor.isModified():
             return True
+        if self.filename:
+            message = 'Save changes in %s before continuing?' % self.filename
+        else:
+            message = 'Save new file before continuing?'
         rc = QMessageBox.question(
-            self, 'User Editor',
-            'Save changes in %s before continuing?' % self.filename,
+            self, 'User Editor', message,
             QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
         if rc == QMessageBox.Save:
             return self.on_actionSave_triggered()
@@ -468,8 +474,14 @@ class EditorPanel(Panel):
     def on_actionOpen_triggered(self):
         if not self.checkDirty():
             return
-        initialdir = self.filename and path.dirname(self.filename) or \
-                     self.mainwindow.scriptpath
+        if not self.filename:
+            try:
+                initialdir = path.join(self.client.eval('_GetDatapath()')[0],
+                                       'scripts')
+            except Exception:
+                initialdir = ''
+        else:
+            initialdir = path.dirname(self.filename)
         fn = QFileDialog.getOpenFileName(self, 'Open script', initialdir,
                                          'Script files (*.py)')
         if fn.isEmpty():
@@ -536,7 +548,11 @@ class EditorPanel(Panel):
         if self.filename:
             initialdir = path.dirname(self.filename)
         else:
-            initialdir = self.mainwindow.scriptpath
+            try:
+                initialdir = path.join(self.client.eval('_GetDatapath()')[0],
+                                       'scripts')
+            except Exception:
+                initialdir = ''
         fn = str(QFileDialog.getSaveFileName(self, 'Save script', initialdir,
                                              'Script files (*.py)'))
         if fn == '':
@@ -560,7 +576,7 @@ class EditorPanel(Panel):
             # comment selection
 
             # get the selection boundaries
-            lineFrom, indexFrom, lineTo, indexTo = self.editor.getSelection()
+            lineFrom, _, lineTo, indexTo = self.editor.getSelection()
             if indexTo == 0:
                 endLine = lineTo - 1
             else:
@@ -575,7 +591,7 @@ class EditorPanel(Panel):
             self.editor.endUndoAction()
         else:
             # comment line
-            line, index = self.editor.getCursorPosition()
+            line, _ = self.editor.getCursorPosition()
             self.editor.beginUndoAction()
             self.editor.insertAt(COMMENT_STR, line, 0)
             self.editor.endUndoAction()
@@ -620,7 +636,7 @@ class EditorPanel(Panel):
             self.editor.endUndoAction()
         else:
             # uncomment line
-            line, index = self.editor.getCursorPosition()
+            line, _ = self.editor.getCursorPosition()
 
             # check if line starts with our comment string (i.e. was commented
             # by our comment...() slots
@@ -645,7 +661,7 @@ class EditorPanel(Panel):
 class SearchDialog(QDialog):
     def __init__(self, parent, editor):
         QDialog.__init__(self, parent)
-        loadUi(self, 'search.ui')
+        loadUi(self, 'search.ui', 'panels')
 
         self.editor  = editor
         self.found   = False

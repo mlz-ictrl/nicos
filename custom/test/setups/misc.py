@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -25,30 +25,29 @@
 name = 'miscellaneous devices'
 
 includes = ['system']
+excludes = ['excluded']
 
 devices = dict(
-    m1       = device('nicos.virtual.VirtualMotor',
+    m1       = device('nicos.generic.VirtualMotor',
                       lowlevel = True,
                       #loglevel = 'debug',
-                      initval = 1,
                       abslimits = (-100, 100),
                       speed = 0.5,
                       unit = 'deg'),
 
-    m2       = device('nicos.virtual.VirtualMotor',
+    m2       = device('nicos.generic.VirtualMotor',
                       lowlevel = True,
                       loglevel = 'debug',
-                      initval = 0.5,
                       abslimits = (-100, 100),
                       speed = 1,
                       unit = 'deg'),
 
-    c1       = device('nicos.virtual.VirtualCoder',
+    c1       = device('nicos.generic.VirtualCoder',
                       lowlevel = True,
                       motor = 'm1',
                       unit = 'deg'),
 
-    a1       = device('nicos.axis.Axis',
+    a1       = device('nicos.generic.Axis',
                       motor = 'm1',
                       coder = 'c1',
                       obs = ['c1'],
@@ -57,38 +56,40 @@ devices = dict(
                       precision = 0,
                       pollinterval = 0.5),
 
-    a2       = device('nicos.axis.Axis',
+    a2       = device('nicos.generic.Axis',
                       motor = 'm2',
                       coder = 'm2',
                       obs = [],
                       precision = 0,
                       abslimits = (0, 100)),
 
-    sw       = device('nicos.switcher.Switcher',
+    sw       = device('nicos.generic.Switcher',
                       moveable = 'a2',
                       states = ['in', 'out'],
                       values = [1, 0],
                       precision = 0),
 
-    sxl      = device('nicos.virtual.VirtualMotor',
+    sxl      = device('nicos.generic.VirtualMotor',
                       abslimits = (-20, 40),
-                      unit = 'mm',
-                      initval = 0),
-    sxr      = device('nicos.virtual.VirtualMotor',
+                      unit = 'mm'),
+    sxr      = device('nicos.generic.VirtualMotor',
                       abslimits = (-40, 20),
-                      unit = 'mm',
-                      initval = 0),
-    sxb      = device('nicos.virtual.VirtualMotor',
+                      unit = 'mm'),
+    sxb      = device('nicos.generic.VirtualMotor',
                       abslimits = (-50, 30),
-                      unit = 'mm',
-                      initval = 0),
-    sxt      = device('nicos.virtual.VirtualMotor',
+                      unit = 'mm'),
+    sxt      = device('nicos.generic.VirtualMotor',
                       abslimits = (-30, 50),
-                      unit = 'mm',
-                      initval = 0),
-    slit     = device('nicos.slit.Slit',
+                      unit = 'mm'),
+    slit     = device('nicos.generic.Slit',
                       left = 'sxl',
                       right = 'sxr',
                       bottom = 'sxb',
                       top = 'sxt'),
+
+    mm       = device('nicos.generic.ManualMove',
+                      abslimits = (0, 100),
+                      unit = 'mm'),
+    msw      = device('nicos.generic.ManualSwitch',
+                      states = ['unknown', 'on', 'off']),
 )

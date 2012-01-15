@@ -31,25 +31,31 @@ import nicos
 scripts = ['bin/' + name for name in os.listdir('bin')
            if name.startswith('nicos-')]
 
+py_modules = [name[:-3] for name in os.listdir('lib') if name.endswith('.py')]
+
 class no_install(install):
     def initialize_options(self):
-        print 'Please use "make install" to install nicos-ng.'
+        print 'Please use "make install" to install NICOS.'
         sys.exit(1)
 
-package_data = {'nicos.web': ['jquery.js', 'support.js']}
+package_data = {'nicos.web': ['jquery.js', 'support.js'],
+                'nicos.gui.tools.calculator_images':
+                ['braggfml.png', 'miezefml.png']}
 package_data.update(find_ui_files())
 
 setup(
-    name = 'nicos-ng',
-    version = nicos.__version__,
+    name = 'nicos',
+    version = nicos.nicos_version,
     license = 'GPL',
     author = 'Georg Brandl',
     author_email = 'georg.brandl@frm2.tum.de',
     maintainer = 'Jens Krueger',
     maintainer_email = 'jens.krueger@frm2.tum.de',
     description = 'The Networked Instrument COntrol System of the FRM-II',
+    url = 'https://trac.frm2.tum.de/projects/NICOS/',
 
     cmdclass = {'install': no_install},
+    py_modules = py_modules,
     package_dir = {'': 'lib'},
     packages = find_packages(),
     package_data = package_data,

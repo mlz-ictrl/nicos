@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -40,12 +40,12 @@ devices = dict(
                       mono = 'mono',
                       ana = 'ana'),
 
-    phi      = device('nicos.virtual.VirtualMotor',
+    phi      = device('nicos.generic.VirtualMotor',
                       abslimits = (-180, 180),
                       initval = 0,
                       unit = 'deg'),
 
-    psi      = device('nicos.virtual.VirtualMotor',
+    psi      = device('nicos.generic.VirtualMotor',
                       abslimits = (0, 360),
                       initval = 0,
                       unit = 'deg'),
@@ -59,13 +59,13 @@ devices = dict(
                       focusv = None,
                       abslimits = (0, 10)),
 
-    mth      = device('nicos.virtual.VirtualMotor',
+    mth      = device('nicos.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       precision = 0.05,
                       initval = 45),
 
-    mtt      = device('nicos.virtual.VirtualMotor',
+    mtt      = device('nicos.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       precision = 0.05,
@@ -80,13 +80,13 @@ devices = dict(
                       focusv = None,
                       abslimits = (0, 10)),
 
-    ath      = device('nicos.virtual.VirtualMotor',
+    ath      = device('nicos.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       precision = 0.05,
                       initval = 35),
 
-    att      = device('nicos.virtual.VirtualMotor',
+    att      = device('nicos.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       precision = 0.05,

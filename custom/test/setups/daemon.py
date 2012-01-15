@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -32,7 +32,7 @@ devices = dict(
                     server = 'localhost',
                     authmethod = 'list',
                     passwd = [('guest', '', 0),
-                              ('user', hashlib.sha1('user').hexdigest(), 1),
-                              ('root', hashlib.sha1('root').hexdigest(), 2)],
+                              ('user', hashlib.sha1('user').hexdigest(), 10),
+                              ('admin', hashlib.sha1('admin').hexdigest(), 20)],
                     loglevel = 'debug'),
 )

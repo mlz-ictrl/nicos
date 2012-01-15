@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -24,6 +24,8 @@
 
 """NICOS GUI application package."""
 
+from __future__ import with_statement
+
 __version__ = "$Revision$"
 
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, pyqtSignature as qtsig
@@ -31,6 +33,7 @@ from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFont, QColor, \
      QFontDialog, QColorDialog
 
 from nicos.gui.utils import DlgUtils, SettingGroup, loadUi, importString
+from nicos.gui.config import hsplit, vsplit, panel
 
 
 class AuxiliaryWindow(QMainWindow):
@@ -58,18 +61,18 @@ class AuxiliaryWindow(QMainWindow):
             if color.isValid():
                 self.user_color = color
             else:
-                self.user_color = Qt.white
+                self.user_color = QColor(Qt.white)
 
-        createWindowItem(config[3], self, self.centralLayout)
         self.setWindowTitle(config[0])
+        createWindowItem(config[3], self, self.centralLayout)
 
         if len(self.splitstate) == len(self.splitters):
             for sp, st in zip(self.splitters, self.splitstate):
                 sp.restoreState(st.toByteArray())
 
     def closeEvent(self, event):
-        for panel in self.panels:
-            if not panel.requestClose():
+        for pnl in self.panels:
+            if not pnl.requestClose():
                 event.ignore()
                 return
         with self.sgroup as settings:
@@ -79,9 +82,9 @@ class AuxiliaryWindow(QMainWindow):
                               QVariant([sp.saveState() for sp in self.splitters]))
             settings.setValue('font', QVariant(self.user_font))
             settings.setValue('color', QVariant(self.user_color))
-        for panel in self.panels:
-            with panel.sgroup as settings:
-                panel.saveSettings(settings)
+        for pnl in self.panels:
+            with pnl.sgroup as settings:
+                pnl.saveSettings(settings)
         event.accept()
         self.emit(SIGNAL('closed'), self)
 
@@ -90,8 +93,8 @@ class AuxiliaryWindow(QMainWindow):
         font, ok = QFontDialog.getFont(self.user_font, self)
         if not ok:
             return
-        for panel in self.panels:
-            panel.setCustomStyle(font, self.user_color)
+        for pnl in self.panels:
+            pnl.setCustomStyle(font, self.user_color)
         self.user_font = font
 
     @qtsig('')
@@ -99,8 +102,8 @@ class AuxiliaryWindow(QMainWindow):
         color = QColorDialog.getColor(self.user_color, self)
         if not color.isValid():
             return
-        for panel in self.panels:
-            panel.setCustomStyle(self.user_font, color)
+        for pnl in self.panels:
+            pnl.setCustomStyle(self.user_font, color)
         self.user_color = color
 
 
@@ -138,23 +141,6 @@ class Panel(QWidget, DlgUtils):
 
     def updateStatus(self, status, exception=False):
         pass
-
-
-class window(tuple):
-    def __new__(cls, title, icon, unique, child):
-        return tuple.__new__(cls, (title, icon, unique, child))
-
-class hsplit(tuple):
-    def __new__(cls, *children):
-        return tuple.__new__(cls, children)
-
-class vsplit(tuple):
-    def __new__(cls, *children):
-        return tuple.__new__(cls, children)
-
-class panel(tuple):
-    def __new__(cls, type, **settings):
-        return tuple.__new__(cls, (type, settings))
 
 
 def createWindowItem(item, window, container):

@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -27,10 +27,10 @@
 __version__ = "$Revision$"
 
 from nicos import session
-from nicos import status
-from nicos.device import Device, Moveable, HasLimits, HasOffset, Param
-from nicos.errors import ConfigurationError, ProgrammingError, LimitError, \
-     FixedError, UsageError
+from nicos.core import status, Device, Moveable, HasLimits, HasOffset, Param, \
+     ConfigurationError, ProgrammingError, LimitError, FixedError, UsageError, \
+     InvalidValueError, AccessError, requires, usermethod, ADMIN
+
 from test.utils import raises
 
 
@@ -49,7 +49,7 @@ class Dev1(Device):
     pass
 
 class Dev2(HasLimits, HasOffset, Moveable):
-    attached_devices = {'attached': Dev1}
+    attached_devices = {'attached': (Dev1, 'Test attached device')}
     parameters = {
         'param1': Param('An optional parameter', type=int, default=42),
         'param2': Param('A mandatory parameter', type=int, mandatory=True,
@@ -102,6 +102,14 @@ class Dev2(HasLimits, HasOffset, Moveable):
     def doInfo(self):
         return [('instrument', 'testkey', 'testval')]
 
+    def doVersion(self):
+        return [('testversion', 1.0)]
+
+    @usermethod
+    @requires(level=ADMIN)
+    def calibrate(self):
+        return True
+
 
 def test_initialization():
     # make sure dev2_1 is created and then try to instantiate another device
@@ -145,11 +153,14 @@ def test_params():
     # test legacy getPar/setPar API
     dev2.setPar('param2', 7)
     assert dev2.getPar('param2') == 8
+    assert raises(UsageError, dev2.setPar, 'param3', 1)
+    assert raises(UsageError, dev2.getPar, 'param3')
 
 def test_methods():
     dev2 = session.getDevice('dev2_3')
     assert 'doInit' in methods_called
     dev2.move(10)
+    dev2.maw(10)
     assert 'doStart' in methods_called
     assert 'doIsAllowed' in methods_called
     # moving beyond limits
@@ -170,10 +181,11 @@ def test_methods():
     dev2.wait()
     assert 'doWait' in methods_called
     # fixing and releasing
-    dev2.fix()
-    assert raises(FixedError, dev2.move, 7)
-    assert raises(FixedError, dev2.stop)
-    dev2.release()
+    dev2.fix('blah')
+    try:
+        assert raises(FixedError, dev2.move, 7)
+    finally:
+        dev2.release()
     dev2.move(7)
     # test info() method
     keys = set(value[1] for value in dev2.info())
@@ -181,6 +193,14 @@ def test_methods():
     assert 'param2' in keys
     assert 'value' in keys
     assert 'status' in keys
+    # loglevel
+    dev2.loglevel = 'info'
+    assert raises(InvalidValueError, setattr, dev2, 'loglevel', 'xxx')
+    # test version() method
+    assert ('testversion', 1.0) in dev2.version()
+
+    # test access control (test session always returns False for access check)
+    assert raises(AccessError, dev2.calibrate)
 
 def test_limits():
     dev2 = session.getDevice('dev2_3')

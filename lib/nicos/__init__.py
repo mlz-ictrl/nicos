@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -28,14 +28,24 @@ The nicos package contains all standard NICOS commands and devices.
 
 __version__ = "$Revision$"
 
-nicos_version = "2.0a1"
+nicos_version = "2.0.0"
 
+import os
+import new
 import sys
+from os import path
 
 # Check for Python version 2.5+.
 if sys.version_info[:2] < (2, 5):
     raise ImportError('NICOS requires Python 2.5 or higher')
 
+# Add instrument-specific directories to the package path.
+pkgpath = path.join(path.dirname(__file__), '..', '..', 'custom')
+if path.isdir(pkgpath):
+    for subdir in os.listdir(pkgpath):
+        mod = sys.modules['nicos.' + subdir] = new.module('nicos.' + subdir)
+        mod.__path__ = [path.join(pkgpath, subdir, 'lib')]
+        globals()[subdir] = mod
 
 # Create the nicos session object here to allow the import of submodules.
 # The real class is set later.

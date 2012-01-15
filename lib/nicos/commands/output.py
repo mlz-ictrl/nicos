@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -32,20 +32,25 @@ from nicos.commands import usercommand
 
 @usercommand
 def printdebug(*msgs, **kwds):
+    """Print a debug message."""
     session.log.debug(*msgs, **kwds)
 
 @usercommand
 def printinfo(*msgs, **kwds):
+    """Print a message."""
     session.log.info(*msgs, **kwds)
 
 @usercommand
 def printwarning(*msgs, **kwds):
+    """Print a warning message."""
     session.log.warning(*msgs, **kwds)
 
 @usercommand
 def printerror(*msgs):
+    """Print an error message."""
     session.log.error(*msgs)
 
 @usercommand
 def printexception(*msgs):
+    """Print an error message, and add info about the last exception."""
     session.log.exception(*msgs)

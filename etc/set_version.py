@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -25,7 +25,11 @@
 import sys, os
 from os import path
 
-current_version = os.popen('git describe --always --dirty').read().strip()
+if path.isdir('.git'):
+    current_version = os.popen('git describe --always').read().strip()
+else:
+    sys.path.insert(0, 'lib')
+    current_version = __import__('nicos').nicos_version
 
 for root, dirs, files in os.walk(sys.argv[1]):
     for file in files:

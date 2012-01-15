@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -56,7 +56,7 @@ class ScriptSession(Session):
         session.handleInitialSetup(setup, False)
 
         # Execute the script code and shut down.
-        exec code in session.getNamespace()
+        exec code in session.namespace
         session.shutdown()
 
 
@@ -104,9 +104,13 @@ class NoninteractiveSession(Session):
         def reload_handler(signum, frame):
             if hasattr(maindev, 'reload'):
                 maindev.reload()
+        def status_handler(signum, frame):
+            if hasattr(maindev, 'statusinfo'):
+                maindev.statusinfo()
         signal.signal(signal.SIGINT, quit_handler)
         signal.signal(signal.SIGTERM, quit_handler)
         signal.signal(signal.SIGUSR1, reload_handler)
+        signal.signal(signal.SIGUSR2, status_handler)
 
         if pidfile:
             writePidfile(appname)
@@ -122,5 +126,5 @@ class NoninteractiveSession(Session):
 class SingleDeviceSession(NoninteractiveSession):
 
     @classmethod
-    def _get_maindev(self, appname, maindevcls, setup):
+    def _get_maindev(cls, appname, maindevcls, setup):
         return maindevcls(appname, **setup)

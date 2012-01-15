@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -26,8 +26,13 @@
 
 __version__ = "$Revision$"
 
+import copy
+import uuid
+
 from PyQt4.QtCore import QObject, SIGNAL
 from PyQt4.QtGui import QApplication, QProgressDialog
+
+from nicos.gui.utils import unzip
 
 
 class DataError(Exception):
@@ -40,13 +45,30 @@ class Curve(object):
     yindex = -1
     dyindex = -1
     timeindex = -1
-    monindex = -1
+    monindices = []
     disabled = False
     function = False
 
     def __init__(self):
         self.datax, self.datay, self.datady, self.datatime, self.datamon = \
                     [], [], [], [], []
+
+    def copy(self):
+        return copy.copy(self)
+
+    def tolist(self):
+        # XXX doesn't handle time/mon
+        if self.dyindex != -1:
+            return zip(self.datax, self.datay, self.datady)
+        return zip(self.datax, self.datay)
+
+    def setdata(self, data):
+        # XXX doesn't handle time/mon
+        lists = unzip(data)
+        self.datax = lists[0]
+        self.datay = lists[1]
+        if len(lists) == 3:
+            self.datady = lists[2]
 
 
 class DataHandler(QObject):
@@ -55,6 +77,7 @@ class DataHandler(QObject):
         self.client = client
         self.sets = []
         self.uid2set = {}
+        self.dependent = []
         self.currentset = None
         self.bulk_adding = False
 
@@ -63,7 +86,7 @@ class DataHandler(QObject):
         self.connect(self.client, SIGNAL('datapoint'), self.on_client_datapoint)
 
     def on_client_connected(self):
-        # retrieve datasets and put them into the analysis window
+        # retrieve datasets and put them into the scans window
         pd = QProgressDialog()
         pd.setLabelText('Transferring datasets, please wait...')
         pd.setRange(0, 1)
@@ -86,25 +109,37 @@ class DataHandler(QObject):
         self.sets.append(set)
         self.uid2set[set.uid] = set
         self.currentset = set
+        self.dependent = []
         # add some custom attributes of the dataset
         set.invisible = False
         set.name = str(set.sinkinfo.get('number', set.scaninfo)) # XXX
         set.curves = self._init_curves(set)
-        for xvalues, yvalues in zip(set.positions, set.results):
+        for xvalues, yvalues in zip(set.xresults, set.yresults):
             self._update_curves(xvalues, yvalues)
         self.emit(SIGNAL('datasetAdded'), set)
+
+    def add_existing_dataset(self, set, origins=()):
+        set.uid = str(uuid.uuid1())
+        self.sets.append(set)
+        self.uid2set[set.uid] = set
+        self.emit(SIGNAL('datasetAdded'), set)
+        if self.currentset.uid in origins:
+            self.dependent.append(set)
 
     def on_client_datapoint(self, (xvalues, yvalues)):
         if not self.currentset:
             raise DataError('No current set, trying to add a point')
-        self.currentset.results.append(yvalues)
+        self.currentset.xresults.append(xvalues)
+        self.currentset.yresults.append(yvalues)
         self._update_curves(xvalues, yvalues)
         self.emit(SIGNAL('pointsAdded'), self.currentset)
+        for depset in self.dependent:
+            self.emit(SIGNAL('pointsAdded'), depset)
 
     def _init_curves(self, set):
         curves = []
         timeindex = -1
-        monindex = -1
+        monindices = []
         for i, (name, info) in enumerate(zip(set.ynames, set.yvalueinfo)):
             if info.type in ('info', 'error'):
                 continue
@@ -117,8 +152,7 @@ class DataHandler(QObject):
                 timeindex = i
                 curve.disabled = True
             elif info.type == 'monitor':
-                if monindex == -1:
-                    monindex = i
+                monindices.append(i)
                 curve.disabled = True
             elif info.type == 'calc':
                 curve.function = True
@@ -129,15 +163,8 @@ class DataHandler(QObject):
             curves.append(curve)
         for curve in curves:
             curve.timeindex = timeindex
-            curve.monindex = monindex
+            curve.monindices = monindices
         return curves
-
-    def on_client_datapoint(self, (xvalues, yvalues)):
-        if not self.currentset:
-            raise DataError('No current set, trying to add a point')
-        self.currentset.results.append(yvalues)
-        self._update_curves(xvalues, yvalues)
-        self.emit(SIGNAL('pointsAdded'), self.currentset)
 
     def _update_curves(self, xvalues, yvalues):
         for curve in self.currentset.curves:
@@ -150,5 +177,9 @@ class DataHandler(QObject):
                 curve.datady.append(yvalues[curve.dyindex])
             if curve.timeindex != -1:
                 curve.datatime.append(yvalues[curve.timeindex])
-            if curve.monindex != -1:
-                curve.datamon.append(yvalues[curve.monindex])
+            for i in curve.monindices:
+                if yvalues[i] != 0:
+                    curve.datamon.append(yvalues[i])
+                    break
+            else:
+                curve.datamon.append(0)

@@ -8,8 +8,11 @@ devices = dict(
                     storepath = '/data/cache',
                     maxcached = 500),
 
+    DB2     = device('nicos.cache.server.FlatfileCacheDatabase',
+                    storepath = '/data/cache'),
+
     Server = device('nicos.cache.server.CacheServer',
-                    db = 'DB',
+                    db = 'DB2',
                     server = 'pandasrv',
-                    loglevel = 'info'),
+                    loglevel = 'debug'),
 )

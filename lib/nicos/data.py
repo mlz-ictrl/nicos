@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -41,11 +41,10 @@ try:
 except ImportError:
     Gnuplot = None
 
-from nicos import session, status
-from nicos.utils import listof, nonemptylistof, readFileCounter, \
-     updateFileCounter
-from nicos.device import Device, Param, Override, Readable
-from nicos.errors import ConfigurationError, ProgrammingError, NicosError
+from nicos import session
+from nicos.core import listof, nonemptylistof, Device, Param, Override, \
+     ConfigurationError, ProgrammingError, NicosError
+from nicos.utils import readFileCounter, updateFileCounter, lazy_property
 from nicos.commands.output import printinfo
 from nicos.sessions.daemon import DaemonSession
 from nicos.sessions.console import ConsoleSession
@@ -79,19 +78,44 @@ class Dataset(object):
     scaninfo = ''
     # additional info from data sinks
     sinkinfo = {}
+    # resulting x values (should coincide with positions)
+    xresults = []
     # resulting y values at the positions
-    results = []
+    yresults = []
     # index of the x value to use for plotting
     xindex = 0
     # current point number
     curpoint = 0
 
     # cached info for all sinks to use
-    xnames = []
-    xunits = []
-    ynames = []
-    yunits = []
+    xvalueinfo = []
+    xrange = None
     yvalueinfo = []
+    yrange = None
+
+    # info derived from valueinfo
+    @lazy_property
+    def xnames(self):
+        return [v.name for v in self.xvalueinfo]
+    @lazy_property
+    def xunits(self):
+        return [v.unit for v in self.xvalueinfo]
+    @lazy_property
+    def ynames(self):
+        if self.multistep:
+            ret = []
+            mscount = len(self.multistep[0][1])
+            nyvalues = len(self.yvalueinfo) // mscount
+            for i in range(mscount):
+                addname = '_' + '_'.join('%s_%s' % (mse[0], mse[1][i])
+                                         for mse in self.multistep)
+                ret.extend(val.name + addname
+                           for val in self.yvalueinfo[:nyvalues])
+            return ret
+        return [v.name for v in self.yvalueinfo]
+    @lazy_property
+    def yunits(self):
+        return [v.unit for v in self.yvalueinfo]
 
 
 class NeedsDatapath(object):
@@ -108,10 +132,11 @@ class NeedsDatapath(object):
 
 
 class DataSink(Device):
-    """
-    A DataSink is a configurable object that receives measurement data.  All
-    data handling is done by sinks; e.g. displaying it on the console or saving
-    to a data file.
+    """Base class for all data sinks.
+
+    A DataSink is a configurable object that receives scan data.  All data
+    handling is done by sinks; e.g. displaying it on the console or saving to a
+    data file.
     """
 
     parameters = {
@@ -138,7 +163,6 @@ class DataSink(Device):
         to communicate the file name to sinks that write the info to the console
         or display them otherwise.
         """
-        pass
 
     def beginDataset(self, dataset):
         """Begin a new dataset.
@@ -153,7 +177,6 @@ class DataSink(Device):
         *userinfo* is an arbitrary string.  *sinkinfo* is a list of ``(key,
         value)`` pairs as explained in `prepareDataset()`.
         """
-        pass
 
     def addInfo(self, dataset, category, valuelist):
         """Add additional information to the dataset.
@@ -161,7 +184,6 @@ class DataSink(Device):
         This is meant to record e.g. device values at scan startup.  *valuelist*
         is a sequence of tuples ``(device, key, value)``.
         """
-        pass
 
     def addPoint(self, dataset, xvalues, yvalues):
         """Add a point to the dataset.
@@ -170,31 +192,44 @@ class DataSink(Device):
         *devices* list given to `beginDataset()`, and *yvalues* is a list of
         values with the same length as the all of detlist's value lists.
         """
-        pass
+
+    def addBreak(self, dataset):
+        """Add a "break" to the dataset.
+
+        A break indicates a division in the data, e.g. between successive rows
+        of a 2-dimensional scan.
+        """
 
     def endDataset(self, dataset):
         """End the current dataset."""
-        pass
 
+
+def safe_format(fmtstr, value):
+    try:
+        return fmtstr % value
+    except (TypeError, ValueError):
+        return str(value)
 
 class ConsoleSink(DataSink):
-    """
-    A DataSink that prints scan data onto the console.
-    """
+    """A DataSink that prints scan data onto the console."""
+
+    parameter_overrides = {
+        'scantypes':  Override(default=['2D']),
+    }
 
     def beginDataset(self, dataset):
-        printinfo('=' * 80)
+        printinfo('=' * 100)
         printinfo('Starting scan:      ' + (dataset.scaninfo or ''))
         for name, value in dataset.sinkinfo.iteritems():
             printinfo('%-20s%s' % (name+':', value))
         printinfo('Started at:         ' +
                   time.strftime(TIMEFMT, dataset.started))
-        printinfo('-' * 80)
+        printinfo('-' * 100)
         printinfo('\t'.join(map(str, ['#'] + dataset.xnames + dataset.ynames)).
                   expandtabs())
         printinfo('\t'.join([''] + dataset.xunits + dataset.yunits).
                   expandtabs())
-        printinfo('-' * 80)
+        printinfo('-' * 100)
         if dataset.positions:
             self._npoints = len(dataset.positions)
         else:
@@ -207,20 +242,23 @@ class ConsoleSink(DataSink):
             point = str(dataset.curpoint)
         printinfo('\t'.join(
             [point] +
-            [dev.format(val) for (dev, val) in
-             zip(dataset.devices + dataset.envlist, xvalues)] +
-            [str(val) for val in yvalues]).expandtabs())
+            [safe_format(info.fmtstr, val) for (info, val) in
+             zip(dataset.xvalueinfo, xvalues)] +
+            [safe_format(info.fmtstr, val) for (info, val) in
+             zip(dataset.yvalueinfo, yvalues)]).expandtabs())
+
+    def addBreak(self, dataset):
+        printinfo('-' * 100)
 
     def endDataset(self, dataset):
-        printinfo('-' * 80)
+        printinfo('-' * 100)
         printinfo('Finished at:        ' + time.strftime(TIMEFMT))
-        printinfo('=' * 80)
+        printinfo('=' * 100)
 
 
 class DaemonSink(DataSink):
-    """
-    A DataSink that sends datasets to connected GUI clients.  Only active for
-    daemon sessions.
+    """A DataSink that sends datasets to connected GUI clients for live
+    plotting.  Only active for daemon sessions.
     """
 
     activeInSimulation = False
@@ -238,9 +276,9 @@ class DaemonSink(DataSink):
 
 
 class GraceSink(DataSink):
-    """
-    A DataSink that plots datasets in the Grace plotting program.  Needs the
-    GracePlot module.  Only active for console sessions.
+    """A DataSink that plots datasets in the Grace plotting program.
+
+    Needs the GracePlot module.  Only active for console sessions.
     """
 
     activeInSimulation = False
@@ -272,8 +310,8 @@ class GraceSink(DataSink):
 
             self._xdata = []
             self._nperstep = len(dataset.ynames)
-            self._ydata = [[] for i in range(self._nperstep)]
-            self._dydata = [[] for i in range(self._nperstep)]
+            self._ydata = [[] for _ in range(self._nperstep)]
+            self._dydata = [[] for _ in range(self._nperstep)]
             self._ynames = dataset.ynames
         except Exception:
             self.log.warning('could not create Grace plot', exc=1)
@@ -316,9 +354,9 @@ class GraceSink(DataSink):
 
 
 class GnuplotSink(DataSink):
-    """
-    A DataSink that plots datasets in the Gnuplot plotting program.  Needs the
-    Gnuplot module.  Only active for console sessions.
+    """A DataSink that plots datasets in the Gnuplot plotting program.
+
+    Needs the Gnuplot module.  Only active for console sessions.
     """
 
     activeInSimulation = False
@@ -346,8 +384,8 @@ class GnuplotSink(DataSink):
 
             self._xdata = []
             self._nperstep = len(dataset.ynames)
-            self._ydata = [[] for i in range(self._nperstep)]
-            self._dydata = [[] for i in range(self._nperstep)]
+            self._ydata = [[] for _ in range(self._nperstep)]
+            self._dydata = [[] for _ in range(self._nperstep)]
             self._ynames = dataset.ynames
         except Exception:
             self.log.warning('could not create Gnuplot instance', exc=1)
@@ -387,6 +425,15 @@ class DatafileSink(DataSink, NeedsDatapath):
 
 
 class AsciiDatafileSink(DatafileSink):
+    """A data sink that writes to a plain ASCII data file.
+
+    The `lastfilenumber` and `lastpoint` parameters are managed automatically.
+
+    The current file counter is normally stored in a file called "counter" in
+    the data directory.  If the `globalcounter` parameter is nonempty, it gives
+    the name of a global counter file instead, which is always used regardless
+    of data path.
+    """
     parameters = {
         'globalcounter':  Param('File name for a global file counter instead '
                                 'of one per datapath', type=str, default=''),
@@ -396,6 +443,12 @@ class AsciiDatafileSink(DatafileSink):
                                 'values', type=bool, default=True),
         'lastfilenumber': Param('The number of the last written data file',
                                 type=int),
+        'lastpoint':      Param('The number of the last point in the data file',
+                                type=int),
+    }
+
+    parameter_overrides = {
+        'scantypes':      Override(default=['2D']),
     }
 
     def doReadDatapath(self):
@@ -411,6 +464,7 @@ class AsciiDatafileSink(DatafileSink):
             self._counter = readFileCounter(
                 path.join(self._path, 'filecounter'))
         self._setROParam('lastfilenumber', self._counter)
+        self._setROParam('lastpoint', 0)
 
     def doUpdateCommentchar(self, value):
         if len(value) > 1:
@@ -438,6 +492,7 @@ class AsciiDatafileSink(DatafileSink):
             updateFileCounter(path.join(self._path, 'filecounter'),
                               self._counter)
         self._setROParam('lastfilenumber', self._counter)
+        self._setROParam('lastpoint', 0)
         self._fullfname = path.join(self._path, self._fname)
         dataset.sinkinfo['filename'] = self._fname
         dataset.sinkinfo['number'] = self._counter
@@ -479,50 +534,23 @@ class AsciiDatafileSink(DatafileSink):
             self._file.write('%s %s\n' % (self._commentc,
                                           '\t'.join(self._colunits)))
             self._wrote_columninfo = True
-        xv = [dev.format(val) for (dev, val) in
-              zip(dataset.devices + dataset.envlist, xvalues)]
-        yv = map(str, yvalues)
+        xv = [safe_format(info.fmtstr, val) for (info, val) in
+              zip(dataset.xvalueinfo, xvalues)]
+        yv = [safe_format(info.fmtstr, val) for (info, val) in
+              zip(dataset.yvalueinfo, yvalues)]
         if self.semicolon:
             values = xv + [';'] + yv
         else:
             values = xv + yv
         self._file.write('\t'.join(values) + '\n')
         self._file.flush()
+        self._setROParam('lastpoint', dataset.curpoint)
+
+    def addBreak(self, dataset):
+        self._file.write('\n')
 
     def endDataset(self, dataset):
         self._file.write('%s End of NICOS data file %s\n' %
                          (self._commentc*3, self._fname))
         self._file.close()
         self._file = None
-
-
-class FreeSpace(Readable):
-    """
-    Device that returns the free space on a filesystem.
-    """
-
-    parameters = {
-        'path':     Param('The path to the filesystem mount point',
-                          type=str, mandatory=True),
-        'minfree':  Param('Minimum free space for "ok" status',
-                          unit='GiB', default=5, settable=True),
-    }
-
-    parameter_overrides = {
-        'unit':         Override(default='GiB', mandatory=False),
-        'pollinterval': Override(default=300),  # every 5 minutes is sufficient
-        'maxage':       Override(default=330),
-    }
-
-    def doRead(self):
-        st = os.statvfs(self.path)
-        return (st.f_bsize * st.f_bavail) / (1024 * 1024 * 1024.)
-
-    def doStatus(self):
-        if self.read() < self.minfree:
-            return status.ERROR, 'free space below %s GiB' % self.minfree
-        return status.OK, ''
-
-    def doUpdateMinfree(self, value):
-        if self._cache:
-            self._cache.invalidate(self, 'status')

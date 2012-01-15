@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -24,126 +24,77 @@
 
 """NICOS Experiment devices."""
 
+from __future__ import with_statement
+
 __version__ = "$Revision$"
 
 import os
 import time
-import datetime
 from os import path
 from uuid import uuid1
 
-try:
-    import MySQLdb
-except ImportError:
-    MySQLdb = None
-
 from nicos import session
+from nicos.core import listof, nonemptylistof, usermethod, Device, Measurable, \
+     Readable, Param, InvalidValueError
 from nicos.data import NeedsDatapath, Dataset
-from nicos.utils import listof, nonemptylistof, ensureDirectory, usermethod
-from nicos.device import Device, Measurable, Readable, Param
-from nicos.errors import ConfigurationError, UsageError
-from nicos.loggers import UserLogfileHandler
-
-
-class ProposalDB(object):
-    def __init__(self,credentials):
-        try:
-            self.user, hostdb = credentials.split('@')
-            self.host, self.db = hostdb.split(':')
-        except ValueError:
-            raise ConfigurationError('%r is an invalid credentials string '
-                                     '(user "user@host:dbname")' % credentials)
-        if MySQLdb is None:
-            raise ConfigurationError('MySQL adapter is not installed')
-
-    def __enter__(self):
-        self.conn = MySQLdb.connect(host=self.host, user=self.user, db=self.db)
-        self.cursor = self.conn.cursor()
-        return self.cursor
-
-    def __exit__(self, *exc):
-        self.cursor.close()
-        self.conn.close()
-
-
-def queryCycle(credentials):
-    """Query the FRM-II proposal database for the current cycle."""
-    today = datetime.date.today()
-    with ProposalDB(credentials) as cur:
-        cur.execute('''
-            SELECT value, xname FROM Cycles, Cycles_members, Cycles_values
-            WHERE mname = "_CM_START" AND value <= %s
-            AND Cycles_values._mid = Cycles_members.mid
-            AND Cycles_values._xid = Cycles.xid
-            ORDER BY xid DESC LIMIT 1''', (today,))
-        row = cur.fetchone()
-        startdate = datetime.datetime.strptime(row[0], '%Y-%m-%d').date()
-        cycle = row[1]
-    return cycle, startdate
-
-
-def queryProposal(credentials, pnumber):
-    """Query the FRM-II proposal database for information about the given
-    proposal number.
-    """
-    if not isinstance(pnumber, (int, long)):
-        raise UsageError('proposal number must be an integer')
-    if session.instrument is None:
-        raise UsageError('cannot query proposals, no instrument configured')
-    with ProposalDB(credentials) as cur:
-        # get proposal title and properties
-        cur.execute('''
-            SELECT xname, mname, value
-            FROM Proposal, Proposal_members, Proposal_values
-            WHERE xid = %s AND xid = _xid AND mid = _mid
-            ORDER BY abs(mid-4.8) ASC''', (pnumber,))
-        rows = cur.fetchall()
-        # get user info
-        cur.execute('''
-            SELECT name, user_email, institute1 FROM nuke_users, Proposal
-            WHERE user_id = _uid AND xid = %s''', (pnumber,))
-        userrow = cur.fetchone()
-    if not rows or len(rows) < 3:
-        raise UsageError('proposal %s does not exist in database' % pnumber)
-    if not userrow:
-        raise UsageError('user does not exist in database')
-    # structure of returned data: (title, user, prop_name, prop_value)
-    info = {
-        'title': rows[0][0],
-        'user': userrow[0],
-        'user_email': userrow[1],
-        'affiliation': userrow[2],
-    }
-    for row in rows:
-        # extract the property name in a form usable as dictionary key
-        key = row[1][4:].lower().replace('-', '_')
-        value = row[2]
-        if key == 'instrument':
-            if value[4:].lower() != session.instrument.instrument.lower():
-                raise UsageError('proposal %s is not a proposal for this '
-                                 'instrument, but %s' % (pnumber, value[4:]))
-        if value:
-            info[key] = value
-    return info
+from nicos.utils import ensureDirectory
+from nicos.utils.loggers import ELogHandler
+from nicos.utils.proposaldb import queryProposal
 
 
 class Sample(Device):
-    """A special device to represent a sample."""
+    """A special device to represent a sample.
+
+    An instance of this class is used as the *sample* attached device of the
+    `Experiment` object.  It can be subclassed to add special sample properties,
+    such as lattice and orientation calculations, or more parameters describing
+    the sample.
+    """
 
     parameters = {
-        'samplename':  Param('Sample name', type=str, settable=True),
+        'samplename':  Param('Sample name', type=str, settable=True,
+                             category='sample'),
     }
+
+    def reset(self):
+        """Reset experiment-specific information."""
+        self.samplename = ''
+
+    def doWriteSamplename(self, name):
+        if name:
+            session.elog_event('sample', name)
 
 
 class Experiment(Device):
-    """A special singleton device to represent the experiment."""
+    """A special singleton device to represent the experiment.
+
+    This class is normally subclassed for specific instruments to e.g. select
+    the data paths according to instrument standards.
+
+    Several parameters configure special behavior:
+
+    * `datapath` (usually set proposal-specific by the `new` method) is a list
+      of paths where raw data files are stored.  If there is more than one entry
+      in the list, the data files are created in the first path and hardlinked
+      in the others.
+    * `detlist` and `envlist` are lists of names of the currently selected
+      standard detector and sample environment devices, respectively.  The
+      Experiment object has `detectors` and `sampleenv` properties that return
+      lists of the actual devices.
+    * `scripts` is managed by the session and should contain a stack of code of
+      user scripts currently executed.
+
+    The experiment singleton is available at runtime as
+    `nicos.session.experiment`.
+    """
 
     parameters = {
         'title':     Param('Experiment title', type=str, settable=True,
                            category='experiment'),
-        'proposal':  Param('Proposal number or proposal string',
+        'proposal':  Param('Current proposal number or proposal string',
                            type=str, settable=True, category='experiment'),
-        'users':     Param('User names', type=listof(str), settable=True,
+        'users':     Param('User names and affiliations for the proposal',
+                           type=listof(str), settable=True,
                            category='experiment'),
         'remark':    Param('Current remark about experiment configuration',
                            type=str, settable=True, category='experiment'),
@@ -151,31 +102,40 @@ class Experiment(Device):
                            type=nonemptylistof(str), default=['.'],
                            mandatory=True, settable=True,
                            category='experiment'),
-        'detlist':   Param('List of default detectors', type=listof(str),
-                           settable=True),
-        'envlist':   Param('List of default environment devices to read '
+        'detlist':   Param('List of default detector device names',
+                           type=listof(str), settable=True),
+        'envlist':   Param('List of default environment device names to read '
                            'at every scan point', type=listof(str),
                            settable=True),
         'scriptdir': Param('Standard script directory', type=str,
                            default='.', settable=True),
+        'elog':      Param('True if the electronig logbook should be enabled',
+                           type=bool, default=True),
         'propdb':    Param('user@host:dbname credentials for proposal DB',
                            type=str, default='', userparam=False),
+        'scripts':   Param('Currently executed scripts',
+                           type=listof(str), settable=True),
     }
 
     attached_devices = {
-        'sample': Sample,
+        'sample': (Sample, 'The device object representing the sample'),
     }
 
     def doInit(self):
         self._last_datasets = []
-        ensureDirectory(path.join(self.datapath[0], 'log'))
-        self._uhandler = UserLogfileHandler(path.join(self.datapath[0], 'log'))
-        # only enable in master mode, see below
-        self._uhandler.disabled = True
-        session.addLogHandler(self._uhandler)
+        instname = session.instrument and session.instrument.instrument or ''
+        if self.elog:
+            ensureDirectory(path.join(self.datapath[0], 'logbook'))
+            session.elog_event('directory', (self.datapath[0],
+                                             instname, self.proposal))
+            self._eloghandler = ELogHandler()
+            # only enable in master mode, see below
+            self._eloghandler.disabled = session.mode != 'master'
+            session.addLogHandler(self._eloghandler)
 
     @usermethod
     def new(self, proposal, title=None, **kwds):
+        """Called by `.NewExperiment`."""
         # Individual instruments should override this to change datapath
         # according to instrument policy, and maybe call _fillProposal
         # to get info from the proposal database
@@ -186,12 +146,18 @@ class Experiment(Device):
         # reset everything else to defaults
         self.remark = ''
         self.users = []
-        self.sample.samplename = ''
+        self.sample.reset()
         self.envlist = []
-        self.detlist = []
+        #self.detlist = []
+        for notifier in session.notifiers:
+            notifier.reset()
+        self._last_datasets = []
+        session.elog_event('newexperiment', (proposal, title))
+        session.elog_event('setup', list(session.explicit_setups))
 
     def _setMode(self, mode):
-        self._uhandler.disabled = mode != 'master'
+        if self.elog:
+            self._eloghandler.disabled = mode != 'master'
         Device._setMode(self, mode)
 
     def _fillProposal(self, proposal):
@@ -229,20 +195,27 @@ class Experiment(Device):
 
     @usermethod
     def addUser(self, name, email, affiliation=None):
+        """Called by `.AddUser`."""
         user = '%s <%s>' % (name, email)
         if affiliation is not None:
             user += ', ' + affiliation
         self.users = self.users + [user]
+        self.log.info('User "%s" added' % self.users[-1])
 
     def finish(self):
         pass
+
+    def doWriteRemark(self, remark):
+        if remark:
+            session.elog_event('remark', remark)
 
     def doWriteDatapath(self, paths):
         for datapath in paths:
             if not path.isdir(datapath):
                 os.makedirs(datapath)
-        ensureDirectory(path.join(paths[0], 'log'))
-        self._uhandler.changeDirectory(path.join(paths[0], 'log'))
+        ensureDirectory(path.join(paths[0], 'logbook'))
+        instname = session.instrument and session.instrument.instrument or ''
+        session.elog_event('directory', (paths[0], instname, self.proposal))
         for dev in session.devices.itervalues():
             if isinstance(dev, NeedsDatapath):
                 dev.datapath = paths
@@ -268,8 +241,10 @@ class Experiment(Device):
         for det in detectors:
             if isinstance(det, Device):
                 det = det.name
-            dlist.append(det)
+            if det not in dlist:
+                dlist.append(det)
         self.detlist = dlist
+        session.elog_event('detectors', dlist)
 
     def doUpdateDetlist(self, detectors):
         detlist = []
@@ -281,8 +256,8 @@ class Experiment(Device):
                                    detname)
             else:
                 if not isinstance(det, Measurable):
-                    raise UsageError(self, 'cannot use device %r as a detector:'
-                                     ' it is not a Measurable' % det)
+                    raise InvalidValueError(self, 'cannot use device %r as a '
+                        'detector: it is not a Measurable' % det)
                 detlist.append(det)
         self._detlist = detlist
 
@@ -295,8 +270,10 @@ class Experiment(Device):
         for dev in devices:
             if isinstance(dev, Device):
                 dev = dev.name
-            dlist.append(dev)
+            if dev not in dlist:
+                dlist.append(dev)
         self.envlist = dlist
+        session.elog_event('environment', dlist)
 
     def doUpdateEnvlist(self, devices):
         devlist = []
@@ -308,7 +285,7 @@ class Experiment(Device):
                                    devname)
             else:
                 if not isinstance(dev, Readable):
-                    raise UsageError(self, 'cannot use device %r as environment:'
-                                     ' it is not a Readable' % dev)
+                    raise InvalidValueError(self, 'cannot use device %r as '
+                        'environment: it is not a Readable' % dev)
                 devlist.append(dev)
         self._envlist = devlist

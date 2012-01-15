@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -97,16 +97,16 @@ def cache_dump(obj):
             raise ValueError('unserializable object: %r (%s)' % (obj, err))
     return ''.join(res)
 
-def cache_load(str):
+def cache_load(entry):
     try:
         # parsing with 'eval' always gives an ast.Expression node
-        expr = ast.parse(str, mode='eval').body
+        expr = ast.parse(entry, mode='eval').body
         if isinstance(expr, ast.Call) and expr.func.id == 'cache_unpickle':
             return pickle.loads(b64decode(ast.literal_eval(expr.args[0])))
         else:
             return ast.literal_eval(expr)
     except Exception, err:
-        raise ValueError('corrupt cache entry: %r (%s)' % (str, err))
+        raise ValueError('corrupt cache entry: %r (%s)' % (entry, err))
 
 
 # cache entry support

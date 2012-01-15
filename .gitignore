@@ -5,14 +5,26 @@ dist/
 *.egg-info
 *.log
 *.pid
+pylint_*.txt
+MANIFEST
 
 data/*.dat
 data/filecounter
 data/cache/*
-data/ccd/
+data/ccd/*
+data/logbook/*
+data/cascade/*
 
 doc/build/
 doc/source/auto
+doc/_sources/
+doc/_static/
+doc/auto/
+doc/objects.inv
+doc/searchindex.js
+
+.coverage
+cover/
 
 test/root/
 

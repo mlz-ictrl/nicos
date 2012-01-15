@@ -57,8 +57,14 @@
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuWindows"/>
+   <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="toolBarMain">
@@ -142,21 +148,6 @@
     <string>&amp;Color...</string>
    </property>
   </action>
-  <action name="actionUserEditor">
-   <property name="icon">
-    <iconset resource="../../../resources/nicos-gui.qrc">
-     <normaloff>:/editor</normaloff>:/editor</iconset>
-   </property>
-   <property name="text">
-    <string>User &amp;editor</string>
-   </property>
-   <property name="iconText">
-    <string>Editor</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+E</string>
-   </property>
-  </action>
   <action name="actionAbout">
    <property name="text">
     <string>&amp;About...</string>
@@ -173,75 +164,6 @@
   <action name="actionAboutQt">
    <property name="text">
     <string>About Qt...</string>
-   </property>
-  </action>
-  <action name="actionAnalysis">
-   <property name="icon">
-    <iconset resource="../../../resources/nicos-gui.qrc">
-     <normaloff>:/plotter</normaloff>:/plotter</iconset>
-   </property>
-   <property name="text">
-    <string>Data &amp;Analysis</string>
-   </property>
-   <property name="iconText">
-    <string>Data</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+D</string>
-   </property>
-  </action>
-  <action name="actionErrorWindow">
-   <property name="icon">
-    <iconset resource="../../../resources/nicos-gui.qrc">
-     <normaloff>:/errors</normaloff>:/errors</iconset>
-   </property>
-   <property name="text">
-    <string>Errors and warnings</string>
-   </property>
-   <property name="iconText">
-    <string>Errors</string>
-   </property>
-   <property name="toolTip">
-    <string>Show window with all warnings and errors</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+W</string>
-   </property>
-  </action>
-  <action name="actionLiveData">
-   <property name="icon">
-    <iconset resource="../../../resources/nicos-gui.qrc">
-     <normaloff>:/live</normaloff>:/live</iconset>
-   </property>
-   <property name="text">
-    <string>Live data</string>
-   </property>
-   <property name="iconText">
-    <string>Live</string>
-   </property>
-   <property name="toolTip">
-    <string>Show live data window</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+L</string>
-   </property>
-  </action>
-  <action name="actionLogger">
-   <property name="icon">
-    <iconset resource="../../../resources/nicos-gui.qrc">
-     <normaloff>:/find</normaloff>:/find</iconset>
-   </property>
-   <property name="text">
-    <string>History viewer</string>
-   </property>
-   <property name="iconText">
-    <string>History</string>
-   </property>
-   <property name="toolTip">
-    <string>Show data logging and history window</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+H</string>
    </property>
   </action>
  </widget>

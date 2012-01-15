@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -24,19 +24,23 @@
 
 """Contains a process that polls devices automatically."""
 
+from __future__ import with_statement
+
 __version__ = "$Revision$"
 
 import os
-import time
+import sys
 import errno
 import signal
+import traceback
 import threading
 import subprocess
+from time import time as currenttime, sleep
 
-from nicos import status, session
-from nicos.utils import listof, whyExited
-from nicos.device import Device, Readable, Param
-from nicos.errors import NicosError, ConfigurationError
+from nicos import session
+from nicos.core import status, listof, Device, Readable, Param, NicosError, \
+     ConfigurationError
+from nicos.utils import whyExited
 
 
 class Poller(Device):
@@ -56,16 +60,16 @@ class Poller(Device):
         self._creation_lock = threading.Lock()
 
     def _long_sleep(self, interval):
-        te = time.time() + interval
-        while time.time() < te:
+        te = currenttime() + interval
+        while currenttime() < te:
             if self._stoprequest:
                 return
-            time.sleep(5)
+            sleep(5)
 
     def _worker_thread(self, devname, event):
         state = ['unused']
 
-        def reconfigure(key, value):
+        def reconfigure(key, value, time):
             if key.endswith('target'):
                 state[0] = 'nowmoving'
             elif key.endswith('pollinterval'):
@@ -83,7 +87,7 @@ class Poller(Device):
                 try:
                     stval, rdval = dev.poll(i)
                     self.log.debug('%-10s status = %-25s, value = %s' %
-                                    (dev, stval, rdval))
+                                   (dev, stval, rdval))
                 except Exception, err:
                     if errcount < 5:
                         # only print the warning the first five times
@@ -109,7 +113,8 @@ class Poller(Device):
                 wait_event(interval)
                 clear_event()
 
-        dev  = None
+        dev = None
+        waittime = 30
         while not self._stoprequest:
             if dev is None:
                 try:
@@ -120,11 +125,12 @@ class Poller(Device):
                         return
                     session.cache.addCallback(dev, 'target', reconfigure)
                     session.cache.addCallback(dev, 'pollinterval', reconfigure)
-                    state = ['normal']
+                    state[0] = 'normal'
                 except NicosError, err:
                     self.log.warning('error creating %s, trying again in '
-                                      '%d sec' % (devname, 30), exc=err)
-                    self._long_sleep(30)
+                                     '%d sec' % (devname, waittime), exc=err)
+                    self._long_sleep(waittime)
+                    waittime = min(waittime*2, 600)
                     continue
             self.log.info('starting polling loop for %s' % dev)
             try:
@@ -148,7 +154,8 @@ class Poller(Device):
                 continue
             self.log.debug('starting thread for %s' % devname)
             event = threading.Event()
-            worker = threading.Thread(target=self._worker_thread,
+            worker = threading.Thread(name='%s poller' % devname,
+                                      target=self._worker_thread,
                                       args=(devname, event))
             worker.event = event
             worker.setDaemon(True)
@@ -159,7 +166,7 @@ class Poller(Device):
         if self._setup is None:
             return self._wait_master()
         while not self._stoprequest:
-            time.sleep(1)
+            sleep(1)
         for worker in self._workers:
             worker.join()
 
@@ -187,6 +194,27 @@ class Poller(Device):
             except Exception, err:
                 self.log.error(str(err))
 
+    def statusinfo(self):
+        self.log.info('got SIGUSR2')
+        if self._setup is not None:
+            info = []
+            for worker in self._workers:
+                wname = worker.getName()
+                if worker.isAlive():
+                    info.append('%s: alive' % wname)
+                else:
+                    info.append('%s: dead' % wname)
+            self.log.info(', '.join(info))
+            self.log.info('current stacktraces for each thread:')
+            active = threading._active
+            for tid, frame in sys._current_frames().items():
+                if tid in active:
+                    name = active[tid].getName()
+                else:
+                    name = str(tid)
+                self.log.info('%s: %s' % (name,
+                    ''.join(traceback.format_stack(frame))))
+
     def _start_master(self):
         self._childpids = {}
         self._children = {}
@@ -210,7 +238,7 @@ class Poller(Device):
         if self.autosetup:
             self._cache.addCallback(session, 'mastersetup', self._reconfigure)
 
-    def _reconfigure(self, key, value):
+    def _reconfigure(self, key, value, time):
         self.log.info('reconfiguring for new master setups %s' % value)
         session.readSetups()
         old_setups = self._setups

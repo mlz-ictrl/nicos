@@ -26,21 +26,31 @@ opts, args = parser.parse_args()
 
 import IPython
 
+if not hasattr(IPython, 'Shell'):
+    # IPython 0.11... heavy API changes there
+    from IPython.frontend.terminal.embed import InteractiveShellEmbed
+    def startshell(banner, argv, namespace, help):
+        shell = InteractiveShellEmbed(banner1=banner, user_ns=namespace)
+        shell()
+else:
+    def startshell(banner, argv, namespace, help):
+        shell = IPython.Shell.IPShellEmbed(banner=banner, argv=argv,
+                                           user_ns=namespace)
+        namespace['help'] = help
+        shell()
+
 class IPySession(ConsoleSession):
     def __init__(self, appname):
         ConsoleSession.__init__(self, appname)
         # IPython doesn't accept dict subclasses as namespaces
-        self._namespace = dict()
-        self._local_namespace = dict()
+        self.namespace = dict()
+        self.local_namespace = dict()
 
     def console(self):
         banner = ('NICOS IPython console ready (version %s).\nTry help() for a '
                   'list of commands, or help(command) for help on a command.'
                   % nicos_version)
-        help = self._namespace['help']   # save our help() command
-        embedshell = IPython.Shell.IPShellEmbed(banner=banner, argv=ipyargs,
-                                                user_ns=self.getNamespace())
-        self._namespace['help'] = help
-        embedshell()
+        help = self.namespace['help']   # save our help() command
+        startshell(banner, ipyargs, self.namespace, help)
 
 IPySession.run(args[0] if args else 'startup', opts.simulate)

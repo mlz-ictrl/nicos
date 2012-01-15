@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -26,11 +26,18 @@
 
 __version__ = "$Revision$"
 
-from nicos.device import Device, Param
+from nicos.core import Device, Param
 
 
 class Instrument(Device):
-    """A special singleton device to represent the instrument."""
+    """A special singleton device to represent the instrument.
+
+    This class can be subclassed for specific instruments to e.g. provide the
+    notion of moving "the instrument" in HKL space, such as in `.TAS`.
+
+    The instrument singleton is available at runtime as
+    `nicos.session.instrument`.
+    """
 
     parameters = {
         'instrument': Param('Instrument name', type=str, category='experiment'),

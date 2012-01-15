@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -27,6 +27,7 @@
 __version__ = "$Revision$"
 
 import os
+import pdb
 import sys
 import code
 import time
@@ -35,8 +36,8 @@ import readline
 import traceback
 
 from nicos import session, nicos_version
-from nicos.utils import colorcode
-from nicos.loggers import INPUT, OUTPUT
+from nicos.utils import colorcode, formatExtendedStack
+from nicos.utils.loggers import INPUT, OUTPUT
 from nicos.sessions import Session
 from nicos.sessions.utils import NicosCompleter
 
@@ -79,7 +80,8 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         logging call before runcode().
         """
         try:
-            code = self.compile(source, filename, symbol)
+            code = self.session.commandHandler(source,
+                       lambda src: self.compile(src, filename, symbol))
         except (OverflowError, SyntaxError, ValueError):
             self.log.exception()
             return False
@@ -87,7 +89,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         if code is None:
             return True
 
-        self.log.log(INPUT, source)
+        self.log.log(INPUT, '>>> ' + source)
         self.runcode(code)
         return False
 
@@ -141,6 +143,11 @@ class ConsoleSession(Session):
     an exception hook that reports unhandled exceptions via the logging system.
     """
 
+    def __init__(self, appname):
+        Session.__init__(self, appname)
+        # prompt color
+        self._pscolor = 'reset'
+
     def _initLogging(self):
         Session._initLogging(self)
         sys.displayhook = self._displayhook
@@ -149,13 +156,33 @@ class ConsoleSession(Session):
         if value is not None:
             self.log.log(OUTPUT, repr(value))
 
+    def loadSetup(self, setupnames, allow_special=False, raise_failed=False):
+        Session.loadSetup(self, setupnames, allow_special, raise_failed)
+        self.resetPrompt()
+
+    def setMode(self, mode):
+        Session.setMode(self, mode)
+        self.resetPrompt()
+
+    def resetPrompt(self):
+        base = self._mode != 'master' and self._mode + ' ' or ''
+        expsetups = '+'.join(self.explicit_setups)
+        sys.ps1 = base + '(%s) >>> ' % expsetups
+        sys.ps2 = base + ' %s  ... ' % (' ' * len(expsetups))
+        self._pscolor = dict(
+            slave  = 'brown',
+            master = 'darkblue',
+            maintenance = 'darkred',
+            simulation = 'turquoise'
+        )[self._mode]
+
     def console(self):
         """Run an interactive console, and exit after it is finished."""
         banner = ('NICOS console ready (version %s).\nTry help() for a '
                   'list of commands, or help(command) for help on a command.'
                   % nicos_version)
-        console = NicosInteractiveConsole(self, self.getNamespace(),
-                                          self.getLocalNamespace())
+        console = NicosInteractiveConsole(self,
+                                          self.namespace, self.local_namespace)
         console.interact(banner)
         sys.stdout.write(colorcode('reset'))
 
@@ -187,9 +214,14 @@ class ConsoleSession(Session):
                 # when already in readline(), this will be raised
                 reply = 'S'
             self.log.log(INPUT, reply)
+            # first two choices are hidden, but useful for debugging purposes
             if reply.upper() == 'R':
                 # handle further Ctrl-C presses with KeyboardInterrupt
                 signal.signal(signal.SIGINT, signal.default_int_handler)
+            elif reply.upper() == 'D':
+                # print a stacktrace and debug
+                self.log.info(formatExtendedStack(2))
+                pdb.Pdb().set_trace(sys._getframe(1))
             elif reply.upper() == 'I':
                 pass
             elif reply.upper() == 'H':
@@ -214,7 +246,7 @@ class ConsoleSession(Session):
             try:
                 self.log.manager.globalprefix = '(sim) '
                 self.setMode('simulation')
-                exec code in self._namespace
+                exec code in self.namespace
             except:  # really *all* exceptions
                 self.log.exception()
             finally:
@@ -244,3 +276,7 @@ class ConsoleSession(Session):
         # After the console is finished, cleanup.
         session.log.info('shutting down...')
         session.shutdown()
+
+    def checkAccess(self, required):
+        # for now, we have no way of knowing who the user is
+        return True

@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -25,22 +25,24 @@
 
 """IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
 
+from __future__ import with_statement
+
 __version__ = "$Revision$"
 
 import socket
 import select
 from time import sleep
-from threading import RLock
+from threading import RLock, Thread
 
 from RS485Client import RS485Client
 
-from nicos import status
-from nicos.taco import TacoDevice
-from nicos.utils import intrange, floatrange, oneofdict, closeSocket
-from nicos.device import Device, Readable, Moveable, Param, Override
-from nicos.errors import NicosError, CommunicationError, ProgrammingError, \
-    UsageError
+from nicos.core import status, intrange, floatrange, oneofdict, oneof, none_or, \
+     usermethod, Device, Readable, Moveable, Param, Override, HasPrecision, \
+     HasLimits, NicosError, CommunicationError, ProgrammingError, \
+     InvalidValueError, TimeoutError, MoveError
+from nicos.utils import closeSocket, lazy_property, runAsync
 from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
+from nicos.taco.core import TacoDevice
 
 
 STX = chr(2)
@@ -66,62 +68,65 @@ def convert(string):
 
 IPC_MAGIC = {
     # motor cards
-    31:  ['Reset motor card', None],
-    32:  ['Start motor', None],
-    33:  ['Stop motor immediately', None],
-    34:  ['Switch forward direction', None],
-    35:  ['Switch backward direction', None],
-    36:  ['Switch fullstep', None],
-    37:  ['Switch halfstep', None],
-    38:  ['Switch relay on', None],
-    39:  ['Switch relay off', None],
-    40:  ['Write values to EEPROM', None],
-    41:  ['Set speed', (3, 0, 255)],  # numdigits, minvalue, maxvalue
-    42:  ['Set acceleration', (3, 0, 255)],
-    43:  ['Set current position', (6, 0, 999999)],
-    44:  ['Set maximum position', (6, 0, 999999)],
-    45:  ['Set minimum position', (6, 0, 999999)],
-    46:  ['Set multisteps and start', (6, 0, 999999)],
+    # # only works for single cards, ### only works for triple cards
+    # ###### only works for sixfold cards
+    # limits is None or a tuple (numdigits, minvalue, maxvalue)
+    31:  ['Reset motor card', None],                    # ### ######
+    32:  ['Start motor', None],                         # ### ######
+    33:  ['Stop motor immediately', None],              # ### ######
+    34:  ['Switch forward direction', None],            # ### ######
+    35:  ['Switch backward direction', None],           # ### ######
+    36:  ['Switch fullstep', None],                     #
+    37:  ['Switch halfstep', None],                     #
+    38:  ['Switch relay on', None],                     #
+    39:  ['Switch relay off', None],                    #
+    40:  ['Write values to EEPROM', None],              # ### ######
+    41:  ['Set speed', (3, 0, 255)],                    # ### ######
+    42:  ['Set acceleration', (3, 0, 255)],             # ### ######
+    43:  ['Set current position', (6, 0, 999999)],      # ### ######
+    44:  ['Set maximum position', (6, 0, 999999)],      # ### ######
+    45:  ['Set minimum position', (6, 0, 999999)],      # ### ######
+    46:  ['Set multisteps and start', (6, 0, 999999)],  # ### ######
     # ... with given speed and switch back
-    47:  ['Find reference switch', (3, 0, 255)],
-    48:  ['Check motor connection', None],
-    49:  ['Save config byte to EEPROM', (3, 0, 63)],
-    50:  ['Select ramp shape', (3, 1, 4)],
-    51:  ['Save user value to EEPROM', (6, 0, 999999)],
-    52:  ['Stop motor using ramp', None],
-    53:  ['Switch driver off', None],
-    54:  ['Switch driver on', None],
-    55:  ['Set inhibit delay', (3, 0, 255)],
-    56:  ['Set target position', (6, 0, 999999)],
-    57:  ['Set microsteps', (3, 0, 4)],
-    58:  ['Set stop delay', (3, 0, 255)],
-    60:  ['Set clock divider', (3, 1, 7)],
-    128: ['Read speed', None],
-    129: ['Read accel', None],
-    130: ['Read position', None],
-    131: ['Read maximum', None],
-    132: ['Read minimum', None],
-    133: ['Read multisteps', None],
-    134: ['Read status', None],
-    135: ['Read config byte', None],
-    136: ['Read ramp shape', None],
-    137: ['Read version number', None],
-    138: ['Read user value', None],
-    139: ['Read inhibit delay', None],
-    140: ['Read target position', None],
-    141: ['Read microsteps', None],
-    142: ['Read load indicator', None],
-    143: ['Read stop delay', None],
-    144: ['Read clock divider', None],
-    # encoder/potentiometer
-    150: ['Read encoder value', None],
-    151: ['Read encoder version', None],
-    152: ['Read encoder configuration', None],
-    153: ['Reset encoder', None],
-    154: ['Set encoder configuration', (3, 0, 255)],
-    155: ['Select endat memory range', (3, 161, 185)],
-    156: ['Read endat parameter', (3, 0, 15)],
-    157: ['Write endat parameter', (3, 0, 15)],
+    47:  ['Find reference switch', (3, 0, 255)],        #
+    48:  ['Check motor connection', None],              #
+    49:  ['Save config byte to EEPROM', (3, 0, 63)],    #
+    50:  ['Select ramp shape', (3, 1, 4)],              #
+    51:  ['Save user value to EEPROM', (6, 0, 999999)], # ### ######
+    52:  ['Stop motor using ramp', None],               #
+    53:  ['Switch driver off', None],                   # ### ######
+    54:  ['Switch driver on', None],                    # ### ######
+    55:  ['Set inhibit delay', (3, 0, 255)],            #
+    56:  ['Set target position', (6, 0, 999999)],         ### ######
+    57:  ['Set microsteps', (3, 0, 4)],                   ### ######
+    58:  ['Set stop delay', (3, 0, 255)],               #
+    60:  ['Set clock divider', (3, 1, 7)],                ###
+    128: ['Read speed', None],                          # ### ######
+    129: ['Read accel', None],                          # ### ######
+    130: ['Read position', None],                       # ### ######
+    131: ['Read maximum', None],                        # ### ######
+    132: ['Read minimum', None],                        # ### ######
+    133: ['Read multisteps', None],                     #
+    134: ['Read status', None],                         # ### ######
+    135: ['Read config byte', None],                    #
+    136: ['Read ramp shape', None],                     #
+    137: ['Read version number', None],                 # ### ######
+    138: ['Read user value', None],                     # ### ######
+    139: ['Read inhibit delay', None],                  #
+    140: ['Read target position', None],                  ### ######
+    141: ['Read microsteps', None],                       ### ######
+    142: ['Read load indicator', None],                   ### ######
+    143: ['Read stop delay', None],                     #
+    144: ['Read clock divider', None],                    ###
+    # encoder/potentiometer (abs enc=#, inc enc=##, poti=###)
+    150: ['Read encoder value', None],                  # ## ###
+    151: ['Read encoder version', None],                # ## ###
+    152: ['Read encoder configuration', None],          # ## ###
+    153: ['Reset encoder', None],                       # ## ###
+    154: ['Set encoder configuration', (3, 0, 255)],    # ##
+    155: ['Select endat memory range', (3, 161, 185)],  #
+    156: ['Read endat parameter', (3, 0, 15)],          #
+    157: ['Write endat parameter', (3, 0, 15)],         #
     # 4-wing slits
     160: ['Set bottom target position', (4, 0, 4095)],
     161: ['Set top target position', (4, 0, 4095)],
@@ -157,11 +162,11 @@ def crc_ipc(string):
     for byte in string:
         byte = ord(byte)
         crc ^= byte
-        for j in range(8):
+        for _ in range(8):
             temp = crc % 2
             crc = int(crc / 2)
             if temp != 0:
-                crc ^= 161  # 0xA1
+                crc ^= 0xA1
     return '%03d' % crc
 
 
@@ -170,39 +175,52 @@ class InvalidCommandError(ProgrammingError):
 
 
 class IPCModBus(Device):
-    """Abstract class for IPC protocol communication over RS-485."""
+    """Abstract class for IPC protocol communication over RS-485.
+
+    A device of this type is needed as the `.bus` parameter of the other IPC
+    devices.
+
+    Concrete implementations are `IPCModBusTaco`, `IPCModBusTCP`,
+    `IPCModBusSerial`.
+    """
 
 
 class IPCModBusTaco(TacoDevice, IPCModBus):
     """IPC protocol communication over TACO RS-485 server."""
 
     taco_class = RS485Client
+    taco_errorcodes = {
+        537133063: InvalidCommandError,
+    }
 
     parameters = {
         'maxtries': Param('Number of tries for sending and receiving',
                           type=int, default=3, settable=True),
     }
 
-    def send(self, addr, cmd, param=0, len=0):
-        return self._taco_multitry('send', self.maxtries, self._dev.genSDA,
-                                   addr, cmd-31, len, param)
+    def send(self, addr, cmd, param=0, length=0, maxtries=None):
+        return self._taco_multitry('%r on addr 0x%x' % (IPC_MAGIC[cmd][0], addr),
+            maxtries or self.maxtries, self._dev.SDARaw, addr, cmd, length, param)
 
-    def get(self, addr, cmd, param=0, len=0):
-        return self._taco_multitry('get', self.maxtries, self._dev.genSRD,
-                                   addr, cmd-98, len, param)
+    def get(self, addr, cmd, param=0, length=0, maxtries=None):
+        return self._taco_multitry('%r on addr 0x%x' % (IPC_MAGIC[cmd][0], addr),
+            maxtries or self.maxtries, self._dev.SRDRaw, addr, cmd, length, param)
 
     def ping(self, addr):
         return self._taco_multitry('ping', self.maxtries, self._dev.Ping, addr)
 
 
 class IPCModBusTacoless(IPCModBus):
-    """Base class for IPC connections not using the RS485 TACO server."""
+    """Base class for IPC connections not using the RS485 TACO server.
+
+    This is an abstract class; use one of `IPCModBusTCP` or `IPCModBusSerial`.
+    """
 
     parameters = {
         'commtries': Param('Number of tries for sending and receiving',
                            type=int, default=5, settable=True),
         'roundtime': Param('Maximum time to wait for an answer, set '
-                           'this high to slow down everything',
+                           'this high to slow down everything', unit='s',
                            type=float, default=0.1, settable=True),
     }
 
@@ -265,26 +283,26 @@ class IPCModBusTacoless(IPCModBus):
         else:
             return -1
 
-    def send(self, addr, cmd, param=0, len=0):
+    def send(self, addr, cmd, param=0, length=0, maxtries=None):
         try:
             cmdname, limits = IPC_MAGIC[cmd]
         except KeyError:
             raise ProgrammingError(self, 'Command %s not supported' % cmd)
         if limits:
-            if len != limits[0] or not limits[1] <= param <= limits[2]:
+            if length != limits[0] or not limits[1] <= param <= limits[2]:
                 raise ProgrammingError(self, 'Parameter %s outside allowed '
                     'values %s for cmd %s' % (param, limits, cmdname))
-        elif len or param:
+        elif length or param:
             raise ProgrammingError(self, 'Sending parameters is not allowed '
                                     'for cmd %s' % cmdname)
         s = chr(addr) + chr(cmd)
-        if len > 0:
-            s += '%0*d' % (len, param)
+        if length > 0:
+            s += '%0*d' % (length, param)
         self.log.debug('sending %s to card %s' % (cmdname, addr))
         return self._comm(s)
 
-    def get(self, addr, cmd, param=0, len=0):
-        return self.send(addr, cmd, param, len)
+    def get(self, addr, cmd, param=0, length=0, maxtries=None):
+        return self.send(addr, cmd, param, length, maxtries)
 
 
 class IPCModBusTCP(IPCModBusTacoless):
@@ -365,7 +383,7 @@ class IPCModBusSerial(IPCModBusTacoless):
         try:
             self._connection.write(request)
 
-            for i in range(self.commtries):
+            for _ in range(self.commtries):
                 data = self._connection.read(20)
                 response += data
                 if response and response[-1] in (EOT, DC1, DC2, DC3, ACK, NAK):
@@ -382,30 +400,56 @@ class IPCModBusSerial(IPCModBusTacoless):
 
 
 class Coder(NicosCoder):
+    """This class supports both IPC absolute and incremental coder cards.
+
+    It can be used with the `nicos.generic.Axis` class.
+    """
 
     parameters = {
-        'addr': Param('Bus address of the coder', type=int, mandatory=True),
-        'confbyte': Param('Configuration byte of the coder', type=intrange(0, 256),
-                    settable=True),
-        'offset': Param('Coder offset', type=float, settable=True),
-        'slope': Param('Coder slope', type=float, settable=True, default=1.0),
+        'addr':      Param('Bus address of the coder', type=int,
+                           mandatory=True),
+        'confbyte':  Param('Configuration byte of the coder', settable=True,
+                           type=intrange(0, 256), prefercache=False),
+        'zerosteps': Param('Coder steps for physical zero', type=float,
+                           unit='steps', settable=True),
+        'slope':     Param('Coder slope', type=float, default=1.0,
+                           unit='steps/main', settable=True),
+        'firmware':  Param('Firmware version', type=int),
+        'steps':     Param('Current coder position in steps', type=int,
+                           settable=False),
+        'circular':  Param('Wrap-around value for circular coders, if negative '
+                           'use it as +/-, else as 0..value, None disables this',
+                           type=none_or(float), settable=True, default=None),
     }
 
     attached_devices = {
-        'bus': IPCModBus,
+        'bus': (IPCModBus, 'The communication bus'),
     }
 
     def doInit(self):
         bus = self._adevs['bus']
-        bus.ping(self.addr)
+        if self._mode != 'simulation':
+            bus.ping(self.addr)
+            if self.confbyte != self.doReadConfbyte():
+                self.doWriteConfbyte(self.confbyte)
+                self.log.warning('Confbyte mismatch between setup and card, '
+                                 'overriding card value to 0x%02x' %
+                                 self.confbyte)
         self._lasterror = None
 
     def doVersion(self):
         version = self._adevs['bus'].get(self.addr, 151)
-        return [('IPC encoder card', str(version))]
+        return [('IPC encoder card, %s' % self._hwtype, str(version))]
+
+    def doReadFirmware(self):
+        return self._adevs['bus'].get(self.addr, 151)
 
     def doReadConfbyte(self):
-        return self._adevs['bus'].get(self.addr, 152)
+        byte = self._adevs['bus'].get(self.addr, 152)
+        # XXX shouldn't be necessary, doUpdateConfbyte is called
+        #self._type = self._getcodertype(byte)
+        #self._resolution = byte & 31
+        return byte
 
     def doWriteConfbyte(self, byte):
         self._adevs['bus'].send(self.addr, 154, byte, 3)
@@ -414,23 +458,43 @@ class Coder(NicosCoder):
         self._type = self._getcodertype(byte)
         self._resolution = byte & 31
 
+    @lazy_property
+    def _hwtype(self):
+        """Returns 'analog' or 'digital', used for features that only one of the
+        card types supports. 'analog' type is for potis and 'digital' is for
+        rotary encoders.
+        """
+        firmware = self._adevs['bus'].get(self.addr, 151, maxtries=1)
+        confbyte = self._adevs['bus'].get(self.addr, 152, maxtries=1)
+        if confbyte < 4:
+            return 'digital'
+        if confbyte & 0xe0 == 0x20:
+            if firmware < 20:  # wild guess, but seems to work...
+                return 'analog'
+        return 'digital'
+
     def _getcodertype(self, byte):
         """Extract coder type from configuration byte."""
-        if byte == 44:
-            return 'potentiometer'
+        if byte < 4:
+            return 'incremental encoder, 24bit, ' + \
+                ['no reset', 'reset once', 'reset always',
+                 'reset once to halfrange'][byte]
+        if self._hwtype == 'analog':
+            return 'potentiometer, %dbit' % (byte & 0x1F)
         proto = byte & 128 and 'endat' or 'ssi'
         coding = byte & 64 and 'gray' or 'binary'
-        parity = byte & 32 and 'nopar' or 'evenpar'
-        return '%s-%s-%s-%dbit' % (proto, coding, parity, byte & 31)
+        parity = byte & 32 and 'no parity' or 'even parity'
+        return 'absolute encoder, %s-protocol, %s-coded, %s, %dbit' % \
+            (proto, coding, parity, byte & 31)
 
     def doReset(self):
         self._adevs['bus'].send(self.addr, 153)
         sleep(0.5)
 
     def _fromsteps(self, value):
-        return float((value - self.offset) / self.slope)
+        return float((value - self.zerosteps) / self.slope)
 
-    def doRead(self):
+    def doReadSteps(self):
         bus = self._adevs['bus']
         try:
             try:
@@ -444,20 +508,36 @@ class Coder(NicosCoder):
             # record last error to return it from doStatus()
             self._lasterror = str(e)
             raise
-        self.log.debug('value is %d' % value)
-        return self._fromsteps(value)
+        self.log.debug('value is %d steps' % value)
+        return value
+
+    def doRead(self):
+        # make sure to ask hardware, don't use cached value of steps
+        pos = self._fromsteps(self.doReadSteps())
+        self._params['steps'] = pos  # save last valid position in cache
+        if self._cache:
+            self._cache.put(self, 'steps', pos)
+        if self.circular is not None:
+            # make it wrap around
+            pos = pos % abs(self.circular)
+            # if we want +/- instead of 0 to x and value is >x/2
+            if self.circular < 0 and pos > -0.5*self.circular:
+                # subtract x to make it -x/2..0..x/2 (circular is negative here)
+                pos += self.circular
+        self.log.debug('position is ' + self.format(pos))
+        return pos
 
     def doStatus(self):
         if self._lasterror:
             return status.ERROR, self._lasterror
-        return status.OK, 'idle'
+        return status.OK, ''
 
     def doSetPosition(self, target):
         raise NicosError('setPosition not implemented for IPC coders')
 
     def _endatclearalarm(self):
         """Clear alarm for a binary-endat encoder."""
-        if not self._type.startswith('endat'):
+        if 'endat-protocol' not in self._type:
             return
         bus = self._adevs['bus']
         try:
@@ -471,46 +551,74 @@ class Coder(NicosCoder):
 
 
 class Motor(NicosMotor):
+    """This class supports IPC 6-fold, 3-fold and single motor cards.
+
+    It can be used with the `nicos.generic.Axis` class.
+    """
 
     parameters = {
-        'addr': Param('Bus address of the motor', type=int, mandatory=True),
-        'timeout': Param('Waiting timeout', type=int, unit='s', default=360),
-        'unit': Param('Motor unit', type=str, default='steps'),
-        'offset': Param('Motor offset', type=float, settable=True),
-        'slope': Param('Motor slope', type=float, settable=True, default=1.0),
+        'addr':       Param('Bus address of the motor', type=int, mandatory=True),
+        'timeout':    Param('Waiting timeout', type=int, unit='s', default=360),
+        'unit':       Param('Motor unit', type=str, default='steps'),
+        'zerosteps':  Param('Motor steps for physical zero', type=float,
+                            unit='steps', settable=True),
+        'slope':      Param('Motor slope', type=float, settable=True,
+                            unit='steps/main', default=1.0),
         # those parameters come from the card
-        'firmware': Param('Firmware version', type=int),
-        'speed': Param('Motor speed (0..255)', type=intrange(0, 256),
-                       settable=True),
-        'accel': Param('Motor acceleration (0..255)', type=intrange(0, 256),
-                       settable=True),
-        'confbyte': Param('Configuration byte', type=intrange(0, 256),
-                          settable=True),
-        'ramptype': Param('Ramp type', type=intrange(1, 5),
-                          settable=True),
-        'halfstep': Param('Halfstep mode', type=bool, settable=True),
-        'min': Param('Lower motorlimit', type=intrange(0, 1000000),
-                     unit='steps', settable=True),
-        'max': Param('Upper motorlimit', type=intrange(0, 1000000),
-                     unit='steps', settable=True),
+        'firmware':   Param('Firmware version', type=int),
+        'steps':      Param('Last position in steps', settable=True,
+                            type=intrange(0, 1000000), prefercache=False),
+        'speed':      Param('Motor speed (0..255)', settable=True,
+                            type=intrange(0, 256)),
+        'accel':      Param('Motor acceleration (0..255)', settable=True,
+                            type=intrange(0, 256)),
+        'confbyte':   Param('Configuration byte', type=intrange(0, 256),
+                            settable=True),
+        'ramptype':   Param('Ramp type', settable=True, type=intrange(1, 5)),
+        'microstep':  Param('Microstepping mode', unit='steps', settable=True,
+                            type=oneof(int, 1, 2, 4, 8, 16)),
+        'min':        Param('Lower motorlimit', settable=True,
+                            type=intrange(0, 1000000), unit='steps'),
+        'max':        Param('Upper motorlimit', settable=True,
+                            type=intrange(0, 1000000), unit='steps'),
         'startdelay': Param('Start delay', type=floatrange(0, 25), unit='s',
                             settable=True),
-        'stopdelay': Param('Stop delay', type=floatrange(0, 25), unit='s',
-                           settable=True),
-        'divider': Param('Frequency divider', type=intrange(1, 8),
-                         settable=True),
-        'microsteps': Param('Microsteps', type=intrange(0, 5), settable=True),
-        'relay' : Param('Relay', type=oneofdict({0: 'off', 1: 'on'}),
-                        settable=True, default='off', volatile=True),
+        'stopdelay':  Param('Stop delay', type=floatrange(0, 25), unit='s',
+                            settable=True),
+        'divider':    Param('Speed divider', settable=True,
+                            type=intrange(0, 8)),
+        # volatile parameters to read/switch card features
+        'inhibit':    Param('Inhibit input', default='off', volatile=True,
+                            type=oneofdict({0: 'off', 1: 'on'})),
+        'relay':      Param('Relay switch', type=oneofdict({0: 'off', 1: 'on'}),
+                            settable=True, default='off', volatile=True),
+        'power':      Param('Internal power stage switch', default='on',
+                            type=oneofdict({0: 'off', 1: 'on'}), settable=True,
+                            volatile=True),
     }
 
     attached_devices = {
-        'bus': IPCModBus,
+        'bus': (IPCModBus, 'The communication bus'),
     }
 
     def doInit(self):
         bus = self._adevs['bus']
-        bus.ping(self.addr)
+        if self._mode != 'simulation':
+            bus.ping(self.addr)
+            if self._hwtype == 'single':
+                if self.confbyte != self.doReadConfbyte():
+                    self.doWriteConfbyte(self.confbyte)
+                    self.log.warning('Confbyte mismatch between setup and card,'
+                                     ' overriding card value to 0x%02x' %
+                                     self.confbyte)
+            # make sure that the card has the right "last steps"
+            if self.steps != self.doReadSteps():
+                self.doWriteSteps(self.steps)
+                self.log.warning('Resetting stepper position to last known '
+                                 'good value %d' % self.steps)
+            self._type = 'stepper motor, ' + self._hwtype
+        else:
+            self._type = 'simulated stepper'
 
     def doVersion(self):
         try:
@@ -521,10 +629,23 @@ class Motor(NicosMotor):
             return [('IPC motor card', str(version))]
 
     def _tosteps(self, value):
-        return int(float(value) * self.slope + self.offset)
+        return int(float(value) * self.slope + self.zerosteps)
 
     def _fromsteps(self, value):
-        return float((value - self.offset) / self.slope)
+        return float((value - self.zerosteps) / self.slope)
+
+    @lazy_property
+    def _hwtype(self):
+        """Returns 'single' or 'triple', used for features that only one of the
+        card types supports.
+        """
+        return self.doReadDivider() == -1 and 'single' or 'triple'
+
+    def doReadUserlimits(self):
+        if self.slope < 0:
+            return (self._fromsteps(self.max), self._fromsteps(self.min))
+        else:
+            return (self._fromsteps(self.min), self._fromsteps(self.max))
 
     def doWriteUserlimits(self, limits):
         NicosMotor.doWriteUserlimits(self, limits)
@@ -545,6 +666,9 @@ class Motor(NicosMotor):
         return self._adevs['bus'].get(self.addr, 129)
 
     def doWriteAccel(self, value):
+        if self._hwtype != 'single' and value > 31:
+            raise ValueError(self, 'acceleration value %d too big for '
+                             'non-single cards' % value)
         self._adevs['bus'].send(self.addr, 42, value, 3)
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
@@ -559,35 +683,46 @@ class Motor(NicosMotor):
         try:
             self._adevs['bus'].send(self.addr, 50, value, 3)
         except InvalidCommandError:
-            raise UsageError(self, 'ramp type not supported by card')
+            raise InvalidValueError(self, 'ramp type not supported by card')
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
 
     def doReadDivider(self):
+        if self._mode == 'simulation':
+            return -1   # can't determine value in simulation mode!
         try:
-            return self._adevs['bus'].get(self.addr, 144)
+            return self._adevs['bus'].get(self.addr, 144, maxtries=1)
         except InvalidCommandError:
-            return 0
+            return -1
 
     def doWriteDivider(self, value):
         try:
             self._adevs['bus'].send(self.addr, 60, value, 3)
         except InvalidCommandError:
-            raise UsageError(self, 'divider not supported by card')
+            raise InvalidValueError(self, 'divider not supported by card')
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
 
-    def doReadMicrosteps(self):
+    def doReadMicrostep(self):
         try:
-            return self._adevs['bus'].get(self.addr, 141)
+            # microstepping cards
+            return [1, 2, 4, 8, 16][self._adevs['bus'].get(self.addr, 141)]
         except InvalidCommandError:
-            return 0
+            # sinple cards only support full or half steps
+            return [1, 2][(self._adevs['bus'].get(self.addr, 134) & 4) >> 2]
 
-    def doWriteMicrosteps(self, value):
-        try:
-            self._adevs['bus'].send(self.addr, 57, value, 3)
-        except InvalidCommandError:
-            raise UsageError(self, 'microsteps not supported by card')
+    def doWriteMicrostep(self, value):
+        if self._hwtype == 'single':
+            if value == 1:
+                self._adevs['bus'].send(self.addr, 36)
+            elif value == 2:
+                self._adevs['bus'].send(self.addr, 37)
+            else:
+                raise InvalidValueError(self,
+                                        'microsteps > 2 not supported by card')
+        else:
+            self._adevs['bus'].send(self.addr, 57,
+                                    [1, 2, 4, 8, 16].index(value), 3)
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
 
@@ -610,13 +745,13 @@ class Motor(NicosMotor):
         try:
             return self._adevs['bus'].get(self.addr, 135)
         except InvalidCommandError:
-            return 0
+            return -1
 
     def doWriteConfbyte(self, value):
-        try:
+        if self._hwtype == 'single':
             self._adevs['bus'].send(self.addr, 49, value, 3)
-        except InvalidCommandError:
-            raise UsageError(self, 'confbyte not supported by card')
+        else:
+            raise InvalidValueError(self, 'confbyte not supported by card')
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
 
@@ -625,15 +760,15 @@ class Motor(NicosMotor):
             try:
                 return self._adevs['bus'].get(self.addr, 139) / 10.0
             except InvalidCommandError:
-                return 0
+                return 0.0
         else:
-            return 0
+            return 0.0
 
     def doWriteStartdelay(self, value):
-        try:
+        if self._hwtype == 'single':
             self._adevs['bus'].send(self.addr, 55, int(value * 10), 3)
-        except InvalidCommandError:
-            raise UsageError(self, 'startdelay not supported by card')
+        else:
+            raise InvalidValueError(self, 'startdelay not supported by card')
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
 
@@ -642,28 +777,35 @@ class Motor(NicosMotor):
             try:
                 return self._adevs['bus'].get(self.addr, 143) / 10.0
             except InvalidCommandError:
-                return 0
+                return 0.0
         else:
-            return 0
+            return 0.0
 
     def doWriteStopdelay(self, value):
-        try:
+        if self._hwtype == 'single':
             self._adevs['bus'].send(self.addr, 58, int(value * 10), 3)
-        except InvalidCommandError:
-            raise UsageError(self, 'stopdelay not supported by card')
+        else:
+            raise InvalidValueError(self, 'stopdelay not supported by card')
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
 
     def doReadFirmware(self):
         return self._adevs['bus'].get(self.addr, 137)
 
+    def doReadSteps(self):
+        return self._adevs['bus'].get(self.addr, 130)
+
+    def doWriteSteps(self, value):
+        self.log.debug('setting new steps value: %s' % value)
+        self._adevs['bus'].send(self.addr, 43, value, 6)
+
     def doStart(self, target):
         target = self._tosteps(target)
-        self.log.debug('target is %d' % target)
+        self.log.debug('target is %d steps' % target)
         bus = self._adevs['bus']
         self.doWait()
-        pos = self._tosteps(self.doRead())
-        self.log.debug('pos is %d' % pos)
+        pos = self._tosteps(self.read(0))
+        self.log.debug('pos is %d steps' % pos)
         diff = target - pos
         if diff == 0:
             return
@@ -671,50 +813,72 @@ class Motor(NicosMotor):
             bus.send(self.addr, 35)
         else:
             bus.send(self.addr, 34)
-        # XXX handle limit switch touch
+        # XXX handle limit switch touch (???)
         bus.send(self.addr, 46, abs(diff), 6)
 
     def doReset(self):
-        bus = self._adevs['bus']
-        bus.send(self.addr, 33)  # stop
-        # remember current state
-        actpos = bus.get(self.addr, 130)
-        speed = bus.get(self.addr, 128)
-        accel = bus.get(self.addr, 129)
-        min = bus.get(self.addr, 132)
-        max = bus.get(self.addr, 131)
-        bus.send(self.addr, 31)  # reset card
-        sleep(0.2)
-        # update state
-        bus.send(self.addr, 41, speed, 3)
-        bus.send(self.addr, 42, accel, 3)
-        bus.send(self.addr, 45, min, 6)
-        bus.send(self.addr, 44, max, 6)
-        bus.send(self.addr, 43, actpos, 6)
+        def rewind():
+            bus = self._adevs['bus']
+            # remember current state
+            actpos  = bus.get(self.addr, 130)
+            speed   = bus.get(self.addr, 128)
+            accel   = bus.get(self.addr, 129)
+            minstep = bus.get(self.addr, 132)
+            maxstep = bus.get(self.addr, 131)
+            bus.send(self.addr, 31)  # reset card
+            sleep(0.2)
+            # update state
+            bus.send(self.addr, 41, speed, 3)
+            bus.send(self.addr, 42, accel, 3)
+            bus.send(self.addr, 45, minstep, 6)
+            bus.send(self.addr, 44, maxstep, 6)
+            bus.send(self.addr, 43, actpos, 6)
+        @runAsync
+        def stopandrewind():
+            bus = self._adevs['bus']
+            bus.send(self.addr, 33)  # stop
+            try:
+                self.doWait()        # this might take a while, ignore errors
+            except Exception:
+                pass
+            rewind()
+        if self.status(0)[0] != status.OK:  # busy or error
+            stopandrewind()
+        else:
+            rewind()
 
     def doWait(self):
         timeleft = self.timeout
+        sleep(0.1)
         while timeleft >= 0:
-            sleep(0.1)
-            timeleft -= 0.1
-            if self.doStatus()[0] != status.BUSY:
+            sleep(0.2)
+            timeleft -= 0.2
+            if self.status(0)[0] != status.BUSY:
+                #~ sleep(1.0)   # triple cards have status idle before they
+                                # are really stopped. reading position directly
+                                # after becoming idle yields not the final value
                 break
         else:
-            self.doStop()
+            raise TimeoutError(self, 'movement timed out (timeout %.1f s)'
+                               % self.timeout)
 
     def doStop(self):
-        try:
+        if self._hwtype == 'single':
             self._adevs['bus'].send(self.addr, 52)
-        except InvalidCommandError:
+        else:
             self._adevs['bus'].send(self.addr, 33)
+        sleep(0.2)
 
     def doRead(self):
         value = self._adevs['bus'].get(self.addr, 130)
+        self._params['steps'] = value  # save last valid position in cache
+        if self._cache:
+            self._cache.put(self, 'steps', value)
         self.log.debug('value is %d' % value)
         return self._fromsteps(value)
 
     def doReadRelay(self):
-        return 'on' if (self._adevs['bus'].get(self.addr, 134) & 8) else 'off'
+        return 'on' if self._adevs['bus'].get(self.addr, 134) & 8 else 'off'
 
     def doWriteRelay(self, value):
         if value in [0, 'off']:
@@ -722,35 +886,27 @@ class Motor(NicosMotor):
         elif value in [1, 'on']:
             self._adevs['bus'].send(self.addr, 38)
 
-    def doReadHalfstep(self):
-        return (self._adevs['bus'].get(self.addr, 134) & 4) == 4
+    def doReadInhibit(self):
+        return (self._adevs['bus'].get(self.addr, 134) & 16) == 16
 
-    def doWriteHalfstep(self, value):
-        if value:  # halfstep
-            self._adevs['bus'].send(self.addr, 37)
-        else:  # fullstep
-            self._adevs['bus'].send(self.addr, 36)
-        self.log.info('parameter change not permanent, use _store() '
-                      'method to write to EEPROM')
+    def doReadPower(self):
+        return 'on' if self._adevs['bus'].get(self.addr, 134) & 16384 else 'off'
 
-    @property
-    def IsInhibit(self):
-        return (self._adevs['bus'].get(self.addr, 134) & 0x10) == 0x10
+    def doWritePower(self, value):
+        if value in [0, 'off']:
+            self._adevs['bus'].send(self.addr, 53)
+        elif value in [1, 'on']:
+            self._adevs['bus'].send(self.addr, 54)
 
     def doStatus(self):
-        bus = self._adevs['bus']
-        state = bus.get(self.addr, 134)
+        state = self._adevs['bus'].get(self.addr, 134)
+        st = status.OK
 
-        statusvalue = status.OK
         msg = ''
-
-        msg += (state & 2) and ', backward' or ', forward'
-        msg += (state & 4) and ', halfsteps' or ', fullsteps'
-        msg += (state & 8) and ', relais on' or ', relais off'
-        if state & 32:
-            msg += ', limit switch - active'
-        if state & 64:
-            msg += ', limit switch + active'
+        #msg += (state & 2) and ', backward' or ', forward'
+        #msg += (state & 4) and ', halfsteps' or ', fullsteps'
+        if state & 16:
+            msg += ', inhibit active'
         if state & 128:
             msg += ', reference switch active'
         if state & 256:
@@ -758,69 +914,65 @@ class Motor(NicosMotor):
         if state & 512:
             msg += ', software limit + reached'
         if state & 16384 == 0:
-            msg += ', external booster stage active'
+            msg += ', external power stage enabled'
+        if state & 32:
+            msg += ', limit switch - active'
+        if state & 64:
+            msg += ', limit switch + active'
+        if self._hwtype == 'single':
+            msg += (state & 8) and ', relais on' or ', relais off'
+            if state & 8:
+                # on single cards, if relay is ON, card is supposedly BUSY
+                st = status.BUSY
         if state & 32768:
-            statusvalue = status.NOTREACHED
-            msg += 'waiting for start/stopdelay'
+            st = status.BUSY
+            msg += ', waiting for start/stopdelay'
 
         # check error states last
-        if state & 16:
-            statusvalue = status.ERROR
-            msg += ', inhibit active'
         if state & 32 and state & 64:
-            statusvalue = status.ERROR
+            st = status.ERROR
         if state & 1024:
-            statusvalue = status.ERROR
+            st = status.ERROR
             msg += ', device overheated'
         if state & 2048:
-            statusvalue = status.ERROR
+            st = status.ERROR
             msg += ', motor undervoltage'
         if state & 4096:
-            statusvalue = status.ERROR
+            st = status.ERROR
             msg += ', motor not connected or leads broken'
         if state & 8192:
-            statusvalue = status.ERROR
+            st = status.ERROR
             msg += ', hardware failure or device not reset after power-on'
 
         # if it's moving, it's not in error state!
         if state & 1:
-            statusvalue = status.BUSY
+            st = status.BUSY
             msg = ', moving' + msg
-
-        return statusvalue, msg[2:]
+        self.log.debug('status is %d:%s' % (st, msg[2:]))
+        return st, msg[2:]
 
     def doSetPosition(self, target):
-        self.log.debug('setPosition: %s' % target)
-        steps = self._adevs['bus'].get(self.addr, 130)
-        self.offset = steps - target * self.slope
+        """Adjust the current stepper position of the IPC-stepper card to match
+        the given position.
 
+        This is in contrast to the normal behaviour which just adjusts the
+        zerosteps, but IPC cards have a limited range, so it is crucial to stay
+        within that.  So we 'set' the position of the card instead of adjusting
+        our zerosteps.
+        """
+        self.log.debug('setPosition: %s' % target)
+        value = self._tosteps(target)
+        self.doWriteSteps(value)
+        self._params['steps'] = value  # save last valid position in cache
+        if self._cache:
+            self._cache.put(self, 'steps', value)
+
+    @usermethod
     def _store(self):
         self._adevs['bus'].send(self.addr, 40)
         self.log.info('parameters stored to EEPROM')
 
-    def _poweroff(self):
-        self._adevs['bus'].send(self.addr, 53)
-
-    def _poweron(self):
-        self._adevs['bus'].send(self.addr, 54)
-
-    def _relaison(self):
-        try:
-            self._adevs['bus'].send(self.addr, 38)
-        except InvalidCommandError:
-            raise UsageError(self, 'card does not support relais commands')
-
-    def _relaisoff(self):
-        try:
-            self._adevs['bus'].send(self.addr, 39)
-        except InvalidCommandError:
-            raise UsageError(self, 'card does not support relais commands')
-
-    def _setsteps(self, value):
-        if not 0 <= value <= 999999:
-            raise UsageError(self, 'invalid stepper position: %s' % value)
-        self._adevs['bus'].send(self.addr, 43, value, 6)
-
+    @usermethod
     def _printconfig(self):
         byte = self.confbyte
         c = ''
@@ -846,14 +998,14 @@ class Motor(NicosMotor):
 
 
 class IPCRelay(Moveable):
-    """Makes the relay of an IPC stepper available as switch."""
+    """Makes the relay of an IPC single stepper card available as switch."""
 
     parameter_overrides = {
         'unit':      Override(mandatory=False),
     }
 
     attached_devices = {
-        'stepper': Motor,
+        'stepper': (Motor, 'The stepper card whose relay is controlled'),
     }
 
     def doStart(self, target):
@@ -863,11 +1015,11 @@ class IPCRelay(Moveable):
         return self._adevs['stepper'].relay
 
     def doStatus(self):
-        return status.OK, 'relay is ' + str(self.doRead())
+        return status.OK, 'relay is %s' % self._adevs['stepper'].relay
 
 
 class IPCInhibit(Readable):
-    """Makes the inhibit of an IPC stepper available as an input.
+    """Makes the inhibit of an IPC single stepper card available as an input.
 
     Returns 'on' if inhibit is active, 'off' otherwise.
     """
@@ -877,14 +1029,14 @@ class IPCInhibit(Readable):
     }
 
     attached_devices = {
-        'stepper': Motor,
+        'stepper': (Motor, 'The stepper card whose inhibit is read out'),
     }
 
     def doRead(self):
-        return 'on' if self._adevs['stepper'].IsInhibit else 'off'
+        return 'on' if self._adevs['stepper'].inhibit else 'off'
 
     def doStatus(self):
-        return status.OK, 'Inhibit is ' + str(self.doRead())
+        return status.OK, 'inhibit is ' + self.doRead()
 
 
 class Input(Readable):
@@ -899,7 +1051,7 @@ class Input(Readable):
     }
 
     attached_devices = {
-        'bus': IPCModBus,
+        'bus': (IPCModBus, 'The communication bus'),
     }
 
     def doInit(self):
@@ -911,14 +1063,14 @@ class Input(Readable):
         return ((high + low) & self._mask) >> self.first
 
     def doStatus(self):
-        return status.OK, 'idle'
+        return status.OK, ''
 
 
 class Output(Input, Moveable):
     """
     IPC I/O card digital output class.
 
-    Shares parameters and doInit with Input.
+    Shares parameters and doInit with `Input`.
     """
 
     def doVersion(self):
@@ -933,15 +1085,147 @@ class Output(Input, Moveable):
         st = self._adevs['bus'].get(self.addr, 195)
         if st == 1:
             return status.ERROR, 'power stage overheat'
-        return status.OK, 'idle'
+        return status.OK, ''
 
     def doIsAllowed(self, pos):
-        max = self._mask >> self.first
-        if not 0 <= pos <= max:
-            return False, 'outside range [0, %d] of digital output' % max
+        maxval = self._mask >> self.first
+        if not 0 <= pos <= maxval:
+            return False, 'outside range [0, %d] of digital output' % maxval
         return True, ''
 
     def doStart(self, pos):
         curval = self._adevs['bus'].get(self.addr, 191)
         newval = (pos << self.first) | (curval & ~self._mask)
         self._adevs['bus'].send(self.addr, 190, newval, 3)
+
+
+class SlitAxis(HasPrecision, HasLimits, Moveable):
+    """Class for one axis of a IPC 4-wing slit.
+
+    Use this together with `nicos.generic.Slit` to add a 4-wing slit device.
+    """
+
+    parameters = {
+        'addr':       Param('Bus address of the slit', type=int, mandatory=True),
+        'side':       Param('Side of axis', type=int, mandatory=True),
+        'timeout':    Param('Waiting timeout', type=int, unit='s', default=5),
+        'unit':       Param('Axis unit', type=str, default='mm'),
+        'offset':     Param('Motor offset', type=float, settable=True),
+        'slope':      Param('Motor slope', type=float, settable=True,
+                            default=1.0),
+        'lowerbreak': Param('Lower break', type=int, default=0),
+        'upperbreak': Param('Upper break', type=int, default=4096),
+        'loweroffset': Param('Lower offset', type=float, default=0.),
+        'upperoffset': Param('Upper offset', type=float, default=0.),
+    }
+
+    attached_devices = {
+        'bus': (IPCModBus, 'The communication bus'),
+    }
+
+    def _wait(self, function, state, timeslice, totaltime, error):
+        while function() != state:
+            if totaltime <= 0:
+                raise error
+            sleep(timeslice)
+            totaltime -= timeslice
+
+    def doInit(self):
+        bus = self._adevs['bus']
+        bus.ping(self.addr)
+
+        self._poscontrol = None
+        self._thestatus = self.doStatus()[0]
+        try:
+            self._lastvalue = self.doRead()
+        except NicosError:
+            self.log.warning('could not read current position', exc=1)
+            self._lastvalue = self._fromsteps(3000)
+
+    def doVersion(self):
+        return [('IPC slit axis', str(self._adevs['bus'].get(self.addr, 165)))]
+
+    # XXX switch this around!
+    # slope_new = 1/slope_old
+    # offset_new = -offset_old/slope_old
+    def _tosteps(self, value):
+        return int((value - self.offset) / self.slope)
+
+    def _fromsteps(self, value):
+        if value <= self.lowerbreak:
+            return self.loweroffset
+        if value >= self.upperbreak:
+            return self.upperoffset
+        return float(value) * self.slope + self.offset
+
+    def doReadUserlimits(self):
+        minsteps, maxsteps = 100, 3800
+        if self.slope < 0:
+            return (self._fromsteps(maxsteps), self._fromsteps(minsteps))
+        else:
+            return (self._fromsteps(minsteps), self._fromsteps(maxsteps))
+
+    def doStart(self, target):
+        self._stoprequest = 0
+        if self._thestatus == status.BUSY:
+            self.doWait() # wait for previous movement
+        if self._thestatus == status.ERROR:
+            raise NicosError(self, 'device blocked, please reset')
+        self._poscontrol = Thread(None, self._positioning, args=[target])
+        self._poscontrol.start()
+        sleep(0.2)
+
+    def _positioning(self, target):
+        temp1 = self._tosteps(target)
+        temp2 = self._tosteps(self.doRead())
+        self._thestatus = status.BUSY   # moving
+        try:
+            if temp1 > temp2:
+                temp2 = temp1 + 10
+                self._adevs['bus'].send(self.addr, self.side+160, temp2, 4)
+                self._wait(self.doStatus, (status.OK, 'idle'), 1,
+                           self.timeout, TimeoutError(self, 'timeout occured'))
+            self._adevs['bus'].send(self.addr, self.side+160, temp1, 4)
+            self._wait(self.doStatus, (status.OK, 'idle'), 1,
+                       self.timeout, TimeoutError(self, 'timeout occured'))
+        except NicosError:
+            self._thestatus = status.ERROR
+            raise MoveError(self, 'failed to position')
+        self._thestatus = status.OK  # finished
+        self._lastvalue = target
+
+    def doReset(self):
+        self._thestatus = status.BUSY
+        temp = self._tosteps(self._lastvalue)
+        sleep(0.3)
+        self._adevs['bus'].send(self.addr, self.side+160, temp, 4)
+        self._wait(self.doStatus, (status.OK, 'idle'), 1,
+                   self.timeout, TimeoutError(self, 'reset timed out'))
+        self._thestatus = status.OK
+
+    def doWait(self):
+        if self.doStatus()[0] in [status.OK, status.ERROR]:
+            return
+        self.log.info('waiting for positioning')
+        self._poscontrol.join(self.timeout)
+        if self._thestatus != status.OK:
+            raise NicosError(self, 'timeout occurred in positioning')
+
+    def doStop(self):
+        pass
+
+    def doStatus(self):
+        temp = self._adevs['bus'].get(self.addr, 164)
+        temp = (temp >> (2*self.side)) & 3
+        if temp == 1:
+            return status.OK, 'idle'
+        elif temp == 0:
+            return status.BUSY, 'moving'
+        else:
+            return status.ERROR, 'blocked'
+
+    def doRead(self):
+        steps = self._adevs['bus'].get(self.addr, self.side + 166)
+        if steps == 9999:
+            raise NicosError(self, 'could not read, please reset')
+        return self._fromsteps(steps)

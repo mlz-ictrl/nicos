@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -28,6 +28,68 @@ __version__ = "$Revision$"
 
 from nose.tools import assert_raises
 
+from nicos.core import Moveable, HasLimits, status
+from nicos.data import DataSink
+
+
 def raises(exc, *args, **kwds):
     assert_raises(exc, *args, **kwds)
     return True
+
+
+class TestDevice(HasLimits, Moveable):
+
+    def doInit(self):
+        self._value = 0
+        self._start_exception = None
+        self._read_exception = None
+        self._status_exception = None
+
+    def doRead(self):
+        if self._read_exception:
+            raise self._read_exception
+        return self._value
+
+    def doStart(self, target):
+        if self._start_exception and target != 0:
+            raise self._start_exception
+        self._value = target
+
+    def doWait(self):
+        return self._value
+
+    def doStatus(self):
+        if self._status_exception:
+            raise self._status_exception
+        return status.OK, 'fine'
+
+
+class TestSink(DataSink):
+
+    def doInit(self):
+        self.clear()
+
+    def clear(self):
+        self._calls = []
+        self._info = []
+        self._points = []
+
+    def prepareDataset(self, dataset):
+        self._calls.append('prepareDataset')
+
+    def beginDataset(self, dataset):
+        self._calls.append('beginDataset')
+
+    def addInfo(self, dataset, category, valuelist):
+        self._calls.append('addInfo')
+        self._info.extend(valuelist)
+
+    def addPoint(self, dataset, xvalues, yvalues):
+        self._calls.append('addPoint')
+        self._points.append(xvalues + yvalues)
+
+    def addBreak(self, dataset):
+        self._calls.append('addBreak')
+
+    def endDataset(self, dataset):
+        self._calls.append('endDataset')

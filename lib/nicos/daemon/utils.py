@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -46,8 +46,8 @@ def serialize(data):
     """Serialize an object."""
     return pickle.dumps(data, 2)
 
-unserialize = pickle.loads
-"""Unserialize an object."""
+unserialize = pickle.loads   # Unserialize an object.
+
 
 def format_exception_cut_frames(cut=0):
     """
@@ -123,8 +123,8 @@ class LoggerWrapper(object):
             setattr(self, name, getlogfunc())
 
 
-TRANSMIT_ENTRIES = ['name', 'created', 'levelno', 'message', 'exc_text',
-                    'filename']
+TRANSMIT_ENTRIES = ('name', 'created', 'levelno', 'message', 'exc_text',
+                    'filename')
 
 class DaemonLogHandler(logging.Handler):
     """
@@ -136,9 +136,6 @@ class DaemonLogHandler(logging.Handler):
         self.daemon = daemon
 
     def emit(self, record, entries=TRANSMIT_ENTRIES):
-        # "message" is by convention created by a handler; let's assume that
-        # the logfile handler already did that
-        #record.message = record.getMessage()
         msg = [getattr(record, e) for e in entries]
         if not hasattr(record, 'nonl'):
             msg[3] += '\n'
@@ -160,7 +157,7 @@ class SimLogSender(logging.Handler):
         self.devices = []
 
     def begin(self):
-        from nicos.device import Readable
+        from nicos.core import Readable
         # Collect information on timing and range of all devices
         self.starttime = self.session.clock.time
         for devname, dev in self.session.devices.iteritems():
@@ -181,8 +178,13 @@ class SimLogSender(logging.Handler):
         devinfo = {}
         for devname in self.devices:
             dev = self.session.devices.get(devname)
-            if dev:
-                devinfo[dev] = (dev._sim_value, dev._sim_min, dev._sim_max)
+            if dev and dev._sim_min is not None:
+                try:
+                    devinfo[dev] = (dev.format(dev._sim_value),
+                                    dev.format(dev._sim_min),
+                                    dev.format(dev._sim_max))
+                except Exception:
+                    pass
         msg = serialize((stoptime, devinfo))
         os.write(self.fileno, _lenstruct.pack(len(msg)) + msg)
 
@@ -204,7 +206,8 @@ class SimLogReceiver(Thread):
             data = os.read(fileno, size)
             msg = unserialize(data)
             if isinstance(msg, list):
-                daemon._messages.append(msg)
+                # do not cache these messages
+                #daemon._messages.append(msg)
                 daemon.emit_event('message', msg)
             else:
                 daemon.emit_event('simresult', msg)

@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+
+<!-- Konfigurationsdatei vom Cascade-Client -->
+
+<cascade_config>
+	<tof_file>
+		<image_count> 128 </image_count>
+		<foil_count> 6  </foil_count>
+		<images_per_foil> 8 </images_per_foil>
+		<image_height> 128 </image_height>
+		<image_width> 128 </image_width>
+
+		<foil_1_start> 0  </foil_1_start>
+		<foil_2_start> 16 </foil_2_start>
+		<foil_3_start> 32 </foil_3_start>
+		<foil_4_start> 48 </foil_4_start>
+		<foil_5_start> 64 </foil_5_start>
+		<foil_6_start> 80 </foil_6_start>
+
+		<pseudo_compression> 1 </pseudo_compression>
+	</tof_file>
+
+<!--
+        <tof_file>
+                <image_count> 196 </image_count>
+                <foil_count> 4  </foil_count>
+                <images_per_foil> 16 </images_per_foil>
+                <image_height> 128 </image_height>
+                <image_width> 64 </image_width>
+
+                <foil_1_start> 0  </foil_1_start>
+                <foil_2_start> 32 </foil_2_start>
+                <foil_3_start> 128 </foil_3_start>
+                <foil_4_start> 160 </foil_4_start>
+
+		<pseudo_compression> 0 </pseudo_compression>
+        </tof_file>
+-->
+
+	<graphs>
+		<phase_block_size_x> 1 </phase_block_size_x>
+		<phase_block_size_y> 2 </phase_block_size_y>
+
+		<contrast_block_size_x> 1 </contrast_block_size_x>
+		<contrast_block_size_y> 2 </contrast_block_size_y>
+
+		<bin_count> 100  </bin_count>
+		<log_lower_range> -1.0 </log_lower_range>
+	</graphs>
+
+	<main_window>
+		<width> 900 </width>
+		<height> 700 </height>
+		<title> Cascade Viewer </title>
+	</main_window>
+
+	<server>
+		<address> miracascade.mira.frm2 </address>
+		<port> 1234 </port>
+
+		<status_poll_time> 500 </status_poll_time>
+
+		<use_message_timeout> 0 </use_message_timeout>
+		<message_timeout> 10000 </message_timeout>
+
+		<autofetch_use> 1 </autofetch_use>
+		<autofetch_poll_time> 250 </autofetch_poll_time>
+	</server>
+
+	<log>
+		<level> 3 </level>
+		<log_to_file> 0 </log_to_file>
+		<file> cascade.log </file>
+		<repeat_duplicate_logs> 0 </repeat_duplicate_logs>
+	</log>
+
+	<minuit>
+		<maxfcn> 1000 </maxfcn>
+		<tolerance> 0.01 </tolerance>
+
+		<!-- one of: migrad, simplex, minimize -->
+		<algo> migrad </algo>
+		<strategy> 1 </strategy>
+	</minuit>
+
+</cascade_config>

@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -31,87 +31,223 @@ from math import sqrt
 import numpy as np
 
 from nicos import session
-from nicos.errors import UsageError
+from nicos.core import NicosError, UsageError
+from nicos.utils.fitting import Fit
 from nicos.commands import usercommand
 from nicos.commands.scan import cscan
 from nicos.commands.device import maw
 from nicos.commands.output import printinfo, printwarning
-from nicos.fitutils import Fit
 
 
-def _getData(xcol=None, ycol=None):
+def _getData(columns):
     if not session.experiment._last_datasets:
-        raise UsageError('no latest dataset has been stored')
+        raise NicosError('no latest dataset has been stored')
     dataset = session.experiment._last_datasets[-1]
-    xs = ys = None
-    if xcol is not None:
-        if isinstance(xcol, str):
-            try:
-                xcol = dataset.xnames.index(xcol)
-            except ValueError:
-                raise UsageError('no such x column: %r' % xcol)
-        try:
-            xs = np.array([p[xcol] for p in dataset.positions])
-        except IndexError:
-            raise UsageError('no such x column: %r' % xcol)
-    if ycol is not None:
-        if isinstance(ycol, str):
-            try:
-                ycol = dataset.ynames.index(ycol)
-            except ValueError:
-                raise UsageError('no such y column: %r' % ycol)
-        try:
-            ys = np.array([p[ycol] for p in dataset.results])
-        except IndexError:
-            raise UsageError('no such y column: %r' % ycol)
-    return xs, ys
 
+    if not columns:
+        xcol = 0
+        ycol = -1
+    elif len(columns) == 1:
+        xcol, ycol = 0, columns[0] - 1
+    elif len(columns) == 2:
+        xcol, ycol = columns[0] - 1, columns[1] - 1
+    else:
+        raise UsageError('you can give none, one or two columns names or numbers')
+
+    if isinstance(xcol, str):
+        try:
+            xcol = dataset.xnames.index(xcol)
+        except ValueError:
+            raise NicosError('no such X column name: %r' % xcol)
+    try:
+        xs = np.array([p[xcol] for p in dataset.xresults])
+    except IndexError:
+        raise NicosError('no such X column: %r' % xcol)
+
+    if isinstance(ycol, str):
+        try:
+            ycol = dataset.ynames.index(ycol)
+        except ValueError:
+            raise NicosError('no such Y column name: %r' % ycol)
+    elif ycol == -1:
+        try:
+            ycol = [i for i in range(len(dataset.ynames))
+                    if dataset.yvalueinfo[i].type == 'counter'][0]
+        except IndexError:
+            raise NicosError('no Y column of type "counter"')
+    try:
+        ys = np.array([p[ycol] for p in dataset.yresults])
+    except IndexError:
+        raise NicosError('no such Y column: %r' % ycol)
+
+    if dataset.yvalueinfo[ycol].errors == 'sqrt':
+        dys = np.sqrt(ys)
+    elif dataset.yvalueinfo[ycol].errors == 'next':
+        try:
+            dys = np.array([p[ycol+1] for p in dataset.yresults])
+        except IndexError:
+            dys = np.array([1] * len(ys))
+    else:
+        dys = np.array([1] * len(ys))
+
+    return xs, ys, dys
+
+
+COLHELP = """
+    The data columns to use can be given by the arguments: either only the Y
+    column, or both X and Y columns.  If they are not given, then the default X
+    column is the first, and the default Y column is the first column of type
+    "counter".  Examples::
+
+        func()     # use first X column and first counter Y column
+        func(2)    # use first X column and second Y column
+        func(2, 3) # use second X column and third Y column
+
+    It is also possible to give columns by name, for example::
+
+        func('om', 'ctr1')
+"""
 
 @usercommand
-def center_of_mass(xcol, ycol):
-    """
-    Calculate the center of mass x-coordinate of the last scan.
-    """
-    xs, ys = _getData(xcol, ycol)
+def center_of_mass(*columns):
+    """Calculate the center of mass x-coordinate of the last scan."""
+    xs, ys, _ = _getData(columns)
     cm = (xs*ys).sum() / float(ys.sum())
     return float(cm)
 
+center_of_mass.__doc__ += COLHELP.replace('func(', 'center_of_mass(')
+
 
 @usercommand
-def root_mean_square(ycol):
+def fwhm(*columns):
+    """Calculate an estimate of full width at half maximum.
+
+    The search starts a the 'left' end of the data.
+
+    Returns a tuple ``(fwhm, xpeak, ymax, ymin)``:
+
+    * fwhm - full width half maximum
+    * xpeak - x value at y = ymax
+    * ymax - maximum y-value
+    * ymin - minimum y-value
     """
-    Calculate the root-mean-square of the last scan.
+    xs, ys, _ = _getData(columns)
+
+    ymin = ys.min()
+    ymax = ys.max()
+
+    # Locate left and right point where the
+    # y-value is larger than the half maximum value
+    # (offset by ymin)
+    y_halfmax = ymin + .5 * (ymax - ymin)
+
+    numpoints = len(xs)
+    i1 = 0
+    for index, yval in np.ndenumerate(ys):
+        if yval >= y_halfmax:
+            i1 = index[0]
+            break
+
+    i2 = numpoints - 1
+    for index, yval in np.ndenumerate(ys[i1+1:]):
+        if yval <= y_halfmax:
+            i2 = index[0]+i1+1
+            break
+
+    # if not an exact match, use average
+    if ys[i1] == y_halfmax:
+        x_hpeak_l = xs[i1]
+    else:
+        x_hpeak_l = (y_halfmax - ys[i1 - 1]) / (ys[i1] - ys[i1 - 1]) * \
+            (xs[i1] - xs[i1 - 1]) + xs[i1 - 1]
+    if ys[i2] == y_halfmax:
+        x_hpeak_r = xs[i2]
+    else:
+        x_hpeak_r = (y_halfmax - ys[i2 - 1]) / (ys[i2] - ys[i2 - 1]) * \
+            (xs[i2] - xs[i2 - 1]) + xs[i2 - 1]
+    x_hpeak = [x_hpeak_l, x_hpeak_r]
+
+    fwhm = abs(x_hpeak[1] - x_hpeak[0])
+
+    # locate maximum location
+    jmax = ys.argmax()
+    xpeak = xs[jmax]
+    return (fwhm, xpeak, ymax, ymin)
+
+fwhm.__doc__ += COLHELP.replace('func(', 'fwhm(')
+
+
+@usercommand
+def root_mean_square(col=None):
+    """Calculate the root-mean-square of the last scan.
+
+    The data column to use can be given by an argument (by name or number); the
+    default is the first Y column of type "counter".
     """
-    ys = _getData(None, ycol)
+    _, ys, _ = _getData(col and (0, col) or ())
     return sqrt((ys**2).sum() / len(ys))
 
 
 @usercommand
-def gauss(xcol, ycol):
+def poly(n, *columns):
+    """Fit a polynomial of degree *n* through the last scan.
+
+    The return value is a pair of tuples::
+
+        (coefficients, coeff_errors)
+
+    where both *coefficients* and *coeff_errors* are tuples of *n+1* elements.
     """
-    Fit a Gaussian through the data.
-    """
-    xs, ys = _getData(xcol, ycol)
-    c = 2 * np.sqrt(2 * np.log(2))
+    xs, ys, dys = _getData(columns)
     def model(v, x):
-        return v[1] * np.exp(-0.5 * (x - v[0])**2 / (v[2] / c)**2) + v[3]
-    fit = Fit(model, ['x0', 'A', 'sigma', 'B'],
-              [0.5*(xs[0]+xs[-1]), xs.max(), (xs[1]-xs[0])*5, 0],
-              allow_leastsq=False)
-    res = fit.run('gauss', xs, ys, np.sqrt(ys))
+        return sum(v[i]*x**i for i in range(n+1))
+    fit = Fit(model, ['a%d' % i for i in range(n+1)], [1] * (n+1))
+    res = fit.run('poly', xs, ys, dys)
     if res._failed:
         return None, None
     return tuple(res._pars[1]), tuple(res._pars[2])
 
+poly.__doc__ += COLHELP.replace('func(', 'poly(2, ')
+
+
+@usercommand
+def gauss(*columns):
+    """Fit a Gaussian through the data of the last scan.
+
+    The return value is a pair of tuples::
+
+        ((x0, ampl, sigma, background), (d_x0, d_ampl, d_sigma, d_back))
+
+    where the elements of the second tuple are the estimated standard errors of
+    the fit parameters.  The fit parameters are:
+
+    * x0 - center of the Gaussian
+    * ampl - amplitude
+    * sigma - FWHM
+    * background
+    """
+    xs, ys, dys = _getData(columns)
+    c = 2 * np.sqrt(2 * np.log(2))
+    def model(v, x):
+        return v[1] * np.exp(-0.5 * (x - v[0])**2 / (v[2] / c)**2) + v[3]
+    fit = Fit(model, ['x0', 'A', 'sigma', 'B'],
+              [0.5*(xs[0]+xs[-1]), ys.max(), (xs[1]-xs[0])*5, 0],
+              allow_leastsq=False)
+    res = fit.run('gauss', xs, ys, dys)
+    if res._failed:
+        return None, None
+    return tuple(res._pars[1]), tuple(res._pars[2])
+
+gauss.__doc__ += COLHELP.replace('func(', 'gauss(')
+
 
 @usercommand
 def center(dev, center, step, numsteps, *args, **kwargs):
+    """Move the given device to the maximum of a Gaussian fit through a scan
+    around center with the given parameters.
     """
-    Move the given device to the maximum of a Gaussian fit through a
-    center scan with the given parameters.
-    """
-    cscan(dev, center, step, numsteps, *args, **kwargs)
-    params, errors = gauss(0, -1)  # XXX which column!
+    cscan(dev, center, step, numsteps, 'centering', *args, **kwargs)
+    params, _ = gauss()  # XXX which column!
     # do not allow moving outside of the scanned region
     minvalue = center - step*numsteps
     maxvalue = center + step*numsteps
@@ -121,18 +257,17 @@ def center(dev, center, step, numsteps, *args, **kwargs):
         printwarning('Gaussian fit resulted in center outside scanning area, '
                      'no centering done')
     else:
-        printinfo('Centered peak for %s' % dev)
+        printinfo('centered peak for %s' % dev)
         maw(dev, params[0])
 
 
 @usercommand
 def checkoffset(dev, center, step, numsteps, *args, **kwargs):
-    """
-    Readjust offset of the given device, so that the center of the given
+    """Readjust offset of the given device, so that the center of the given
     scan coincides with the center of a Gaussian fit.
     """
-    cscan(dev, center, step, numsteps, *args, **kwargs)
-    params, errors = gauss(0, -1)  # XXX which column!
+    cscan(dev, center, step, numsteps, 'offset check', *args, **kwargs)
+    params, _ = gauss()  # XXX which column!
     # do not allow moving outside of the scanned region
     minvalue = center - step*numsteps
     maxvalue = center + step*numsteps
@@ -143,6 +278,8 @@ def checkoffset(dev, center, step, numsteps, *args, **kwargs):
                      'offset unchanged')
     else:
         diff = params[0] - center
-        printinfo('Center of Gaussian fit at %.2f %s' % (params[0], dev.unit))
-        printinfo('Adjusting offset of %s by %.2f %s' % (dev, diff, dev.unit))
+        printinfo('center of Gaussian fit at %s %s' %
+                  (dev.format(params[0]), dev.unit))
+        printinfo('adjusting offset of %s by %s %s' %
+                  (dev, dev.format(diff), dev.unit))
         dev.offset += diff

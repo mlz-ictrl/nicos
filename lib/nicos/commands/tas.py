@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -29,11 +29,10 @@ __version__ = "$Revision$"
 from numpy import ndarray
 
 from nicos import session
+from nicos.core import Measurable, Moveable, Readable, UsageError
 from nicos.scan import QScan
-from nicos.device import Measurable, Moveable, Readable
-from nicos.errors import UsageError
 from nicos.commands import usercommand
-from nicos.commands.scan import _infostr
+from nicos.commands.scan import _infostr, ADDSCANHELP2
 
 
 def _getQ(v, name):
@@ -48,18 +47,18 @@ def _getQ(v, name):
         raise UsageError('%s must be a sequence of (h, k, l) or (h, k, l, E)'
                          % name)
 
-def _handleQScanArgs(args, kwargs, Q, dQ):
-    preset, infostr, detlist, envlist, move, multistep = {}, None, [], [], [], []
+def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
+    preset, detlist, envlist, move, multistep = {}, [], None, [], []
     for arg in args:
         if isinstance(arg, str):
-            infostr = arg
-        #elif isinstance(arg, (int, long, float)):
-        #    preset['t'] = arg
+            scaninfo = arg + ' - ' + scaninfo
+        elif isinstance(arg, (int, long, float)):
+            preset['t'] = arg
         elif isinstance(arg, Measurable):
             detlist.append(arg)
-        elif isinstance(arg, list):
-            detlist.extend(arg)
         elif isinstance(arg, Readable):
+            if envlist is None:
+                envlist = []
             envlist.append(arg)
         else:
             raise UsageError('unsupported qscan argument: %r' % arg)
@@ -92,37 +91,48 @@ def _handleQScanArgs(args, kwargs, Q, dQ):
         else:
             # XXX this silently accepts wrong keys; restrict the possible keys?
             preset[key] = value
-    return preset, infostr, detlist, envlist, move, multistep, Q, dQ
+    return preset, scaninfo, detlist, envlist, move, multistep, Q, dQ
 
 
 @usercommand
 def qscan(Q, dQ, numsteps, *args, **kwargs):
-    """Single-sided Q scan."""
+    """Single-sided Q scan.
+
+    The *Q* and *dQ* arguments can be lists of 3 or 4 components, or a `Q`
+    object.
+    """
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
-    preset, infostr, detlist, envlist, move, multistep, Q, dQ = \
-            _handleQScanArgs(args, kwargs, Q, dQ)
+    scanstr = _infostr('qscan', (Q, dQ, numsteps) + args, kwargs)
+    preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
+            _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
     if all(v == 0 for v in dQ) and numsteps > 1:
         raise UsageError('scanning with zero step width')
-    infostr = infostr or _infostr('qscan', (Q, dQ, numsteps) + args, kwargs)
-    values = [[Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3]]
+    values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
                for i in range(numsteps)]
-    scan = QScan(values, move, multistep, detlist, envlist, preset, infostr)
+    scan = QScan(values, move, multistep, detlist, envlist, preset, scaninfo)
     scan.run()
 
 
 @usercommand
 def qcscan(Q, dQ, numperside, *args, **kwargs):
-    """Centered Q scan."""
+    """Centered Q scan.
+
+    The *Q* and *dQ* arguments can be lists of 3 or 4 components, or a `Q`
+    object.
+    """
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
-    preset, infostr, detlist, envlist, move, multistep, Q, dQ = \
-            _handleQScanArgs(args, kwargs, Q, dQ)
+    scanstr = _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
+    preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
+            _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
     if all(v == 0 for v in dQ) and numperside > 0:
         raise UsageError('scanning with zero step width')
-    infostr = infostr or _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
-    values = [[Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3]]
+    values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
                for i in range(-numperside, numperside+1)]
-    scan = QScan(values, move, multistep, detlist, envlist, preset, infostr)
+    scan = QScan(values, move, multistep, detlist, envlist, preset, scaninfo)
     scan.run()
+
+qscan.__doc__  += ADDSCANHELP2.replace('scan(dev, ', 'qscan(Q, dQ, ')
+qcscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'qcscan(Q, dQ, ')
 
 
 class Q(ndarray):
@@ -135,16 +145,21 @@ _Q = Q
 def Q(*args, **kwds):
     """Create a Q-E vector that can be used for calculations.  Use:
 
-    To create a Q vector (1, 0, 0) with energy transfer 0 or 5:
+    To create a Q vector (1, 0, 0) with energy transfer 0 or 5::
+
         q = Q(1)
         q = Q(1, 0, 0)
         q = Q(1, 0, 0, 5)
         q = Q(h=1, E=5)
 
-    To create a Q vector from another Q vector, adjusting one or more entries:
+    To create a Q vector from another Q vector, adjusting one or more entries::
 
         q2 = Q(q, h=2, k=1)
         q2 = Q(q, E=0)
+
+    You can then use the Q-E vectors in scanning commands::
+
+        qscan(q, q2, 5, t=10)
     """
     q = _Q(4)
     q[:] = 0.

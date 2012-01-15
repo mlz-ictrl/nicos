@@ -38,10 +38,15 @@ devices = dict(
                        channel = 3,
                        states = ['in', 'out']),
 
-#    LeckToni  = device('nicos.mira.toni.ModBus',
-#                       tacodevice = 'mira/rs232/lecktoni',
-#                       lowlevel = True),
-#
+    Shutter   = device('nicos.mira.shutter.Shutter',
+                       tacodevice = 'mira/io/in_unused',
+                       output = 'mira/io/closeshutter',
+                       mapping = {0: 'closed', 1: 'open'}),
+
+    # LeckToni  = device('nicos.mira.toni.ModBus',
+    #                    tacodevice = 'mira/rs232/lecktoni',
+    #                    lowlevel = True),
+
     # Leckmon   = device('nicos.mira.toni.Leckmon',
     #                    bus = 'LeckToni',
     #                    addr = 0x17,

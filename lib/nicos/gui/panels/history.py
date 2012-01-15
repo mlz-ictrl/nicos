@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -26,58 +26,60 @@
 
 __version__ = "$Revision$"
 
+import os
 import time
+import tempfile
 
-from PyQt4.QtCore import Qt, QSize, QDateTime, SIGNAL
-from PyQt4.Qwt5 import QwtPlot, QwtText, QwtSymbol, QwtLegend, QwtPlotItem, \
-     QwtPlotZoomer, QwtPlotGrid, QwtPicker, QwtPlotPicker, QwtPlotCurve, \
-     QwtLog10ScaleEngine, QwtLinearScaleEngine, QwtScaleDraw
-from PyQt4.QtGui import QDialog, QPalette, QFont, QPen, QBrush, \
-     QListWidgetItem, QFileDialog, QPrintDialog, QPrinter, QToolBar, QMenu, \
-     QStatusBar, QSizePolicy
+from PyQt4.QtCore import Qt, QDateTime, SIGNAL
+from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtLog10ScaleEngine, \
+     QwtLinearScaleEngine
+from PyQt4.QtGui import QDialog, QFont, QPen, QListWidgetItem, QFileDialog, \
+     QPrintDialog, QPrinter, QToolBar, QMenu, QStatusBar, QSizePolicy, QImage
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np
 
 from nicos.gui.panels import Panel
-from nicos.gui.utils import loadUi, dialogFromUi
-from nicos.gui.plothelpers import XPlotPicker
-
-TIMEFMT = '%Y-%m-%d %H:%M:%S'
-
-
-class TimeScaleDraw(QwtScaleDraw):
-    def label(self, value, strf=time.strftime, local=time.localtime):
-        return QwtText(strf('%y-%m-%d\n%H:%M:%S', local(value)))
+from nicos.gui.utils import loadUi, dialogFromUi, safeFilename
+from nicos.gui.plothelpers import NicosPlot
+from nicos.cache.utils import cache_load
 
 
 class View(object):
-    def __init__(self, name, keys, interval, fromtime, totime, client):
+    def __init__(self, name, keys, interval, fromtime, totime,
+                 yfrom, yto, client):
         self.name = name
         self.keys = keys
         self.interval = interval
         self.fromtime = fromtime
         self.totime = totime
+        self.yfrom = yfrom
+        self.yto = yto
 
         if self.fromtime is not None:
             self.keydata = {}
             totime = self.totime or time.time()
             for key in keys:
-                x, y = [], []
-                self.keydata[key] = x, y
                 history = client.ask('gethistory', key,
                                      str(self.fromtime), str(totime))
                 if history is None:
-                    return # XXX what to do?
+                    print 'Error getting history.'
+                    history = []
                 ltime = 0
                 interval = self.interval
+                x, y = np.zeros(len(history)), np.zeros(len(history))
+                i = 0
                 for vtime, value in history:
                     if value is not None and vtime > ltime + interval:
-                        x.append(vtime)
-                        y.append(value)
+                        x[i] = vtime
+                        y[i] = value
+                        i += 1
                         ltime = vtime
+                x.resize((2*i,)); y.resize((2*i,))
+                self.keydata[key] = [x, y, i]
         else:
-            self.keydata = dict((key, [[], []]) for key in keys)
+            self.keydata = dict((key, [np.zeros(1000), np.zeros(1000), 0])
+                                for key in keys)
 
         self.listitem = None
         self.plot = None
@@ -86,23 +88,35 @@ class View(object):
         if op != '=':
             return
         kd = self.keydata[key]
-        if kd[0] and kd[0][-1] > time - self.interval:
+        n = kd[2]
+        if n and kd[0][n-1] > time - self.interval:
             return
-        kd[0].append(time)
-        kd[1].append(value)
+        # double array size if array is full
+        if n == kd[0].shape[0]:
+            kd[0].resize((2*kd[0].shape[0],))
+            kd[1].resize((2*kd[0].shape[0],))
+        # fill next entry
+        kd[0][n] = time
+        kd[1][n] = value
+        kd[2] += 1
 
 
 class HistoryPanel(Panel):
     panelName = 'History viewer'
 
+    # XXX save history views when closing?
+
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        loadUi(self, 'history.ui')
+        loadUi(self, 'history.ui', 'panels')
 
         self.statusBar = QStatusBar(self)
-        self.statusBar.sizePolicy().setVerticalPolicy(QSizePolicy.Fixed)
+        policy = self.statusBar.sizePolicy()
+        policy.setVerticalPolicy(QSizePolicy.Fixed)
+        self.statusBar.setSizePolicy(policy)
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
+
         self.user_color = parent.user_color
         self.user_font = parent.user_font
 
@@ -121,6 +135,9 @@ class HistoryPanel(Panel):
 
     def loadSettings(self, settings):
         self.splitterstate = settings.value('splitter').toByteArray()
+
+    def saveSettings(self, settings):
+        settings.setValue('splitter', self.splitter.saveState())
 
     def setCustomStyle(self, font, back):
         self.user_font = font
@@ -141,17 +158,21 @@ class HistoryPanel(Panel):
 
     def enablePlotActions(self, on):
         for action in [
-            self.actionPDF, self.actionPrint, self.actionCloseView,
-            self.actionDeleteView, self.actionResetView,
-            self.actionUnzoom, self.actionLogScale, self.actionLegend
+            self.actionPDF, self.actionPrint, self.actionAttachElog,
+            self.actionCloseView, self.actionDeleteView, self.actionResetView,
+            self.actionUnzoom, self.actionLogScale, self.actionLegend,
+            self.actionSymbols, self.actionLines
             ]:
             action.setEnabled(on)
 
     def getMenus(self):
         menu = QMenu('&History viewer', self)
         menu.addAction(self.actionNew)
+        menu.addSeparator()
         menu.addAction(self.actionPDF)
         menu.addAction(self.actionPrint)
+        menu.addAction(self.actionAttachElog)
+        menu.addSeparator()
         menu.addAction(self.actionCloseView)
         menu.addAction(self.actionDeleteView)
         menu.addAction(self.actionResetView)
@@ -159,6 +180,8 @@ class HistoryPanel(Panel):
         menu.addAction(self.actionLogScale)
         menu.addAction(self.actionUnzoom)
         menu.addAction(self.actionLegend)
+        menu.addAction(self.actionSymbols)
+        menu.addAction(self.actionLines)
         menu.addSeparator()
         return [menu]
 
@@ -172,12 +195,13 @@ class HistoryPanel(Panel):
         bar.addAction(self.actionLogScale)
         bar.addSeparator()
         bar.addAction(self.actionResetView)
-        bar.addAction(self.actionCloseView)
+        bar.addAction(self.actionDeleteView)
         return [bar]
 
     def on_client_cache(self, (time, key, op, value)):
         if key not in self.keyviews:
             return
+        value = cache_load(value)
         for view in self.keyviews[key]:
             view.newValue(time, key, op, value)
             if view.plot:
@@ -197,20 +221,33 @@ class HistoryPanel(Panel):
 
     @qtsig('')
     def on_actionNew_triggered(self):
-        newdlg = dialogFromUi(self, 'history_new.ui')
+        helptext = 'Enter a comma-separated list of device names or ' \
+            'parameters (as "device.parameter").  Example:\n\n' \
+            'T, T.setpoint\n\nshows the value of device T, and the value ' \
+            'of the T.setpoint parameter.'
+        newdlg = dialogFromUi(self, 'history_new.ui', 'panels')
         newdlg.fromdate.setDateTime(QDateTime.currentDateTime())
         newdlg.todate.setDateTime(QDateTime.currentDateTime())
+        newdlg.connect(newdlg.helpButton, SIGNAL('clicked()'),
+                       lambda: self.showInfo(helptext))
+        newdlg.customYFrom.setEnabled(False)
+        newdlg.customYTo.setEnabled(False)
+        def callback(on):
+            newdlg.customYFrom.setEnabled(on)
+            newdlg.customYTo.setEnabled(on)
+            if on: newdlg.customYFrom.setFocus()
+        newdlg.connect(newdlg.customY, SIGNAL('toggled(bool)'), callback)
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return
-        keys = str(newdlg.devices.text()).split(',')
-        if not keys:
+        parts = [part.strip().lower().replace('.', '/')
+                 for part in str(newdlg.devices.text()).split(',')]
+        if not parts:
             return
-        keys = [key if '/' in key else key + '/value'
-                for key in keys]
+        keys = [part if '/' in part else part + '/value' for part in parts]
         name = str(newdlg.namebox.text())
         if not name:
-            name = ', '.join(keys)
+            name = str(newdlg.devices.text())
         try:
             interval = float(newdlg.interval.text())
         except ValueError:
@@ -225,7 +262,19 @@ class HistoryPanel(Panel):
                 newdlg.todate.dateTime().toTime_t()))
         else:
             totime = None
-        view = View(name, keys, interval, fromtime, totime, self.client)
+        if newdlg.customY.isChecked():
+            try:
+                yfrom = float(str(newdlg.customYFrom.text()))
+            except ValueError:
+                return self.showError('You have to input valid y axis limits.')
+            try:
+                yto = float(str(newdlg.customYTo.text()))
+            except ValueError:
+                return self.showError('You have to input valid y axis limits.')
+        else:
+            yfrom = yto = None
+        view = View(name, keys, interval, fromtime, totime, yfrom, yto,
+                    self.client)
         self.views.append(view)
         view.listitem = QListWidgetItem(name, self.viewList)
         self.openView(view)
@@ -258,6 +307,8 @@ class HistoryPanel(Panel):
                 isinstance(view.plot.axisScaleEngine(QwtPlot.yLeft),
                            QwtLog10ScaleEngine))
             self.actionLegend.setChecked(view.plot.legend() is not None)
+            self.actionSymbols.setChecked(view.plot.hasSymbols)
+            self.actionLines.setChecked(view.plot.hasLines)
             self.plotLayout.addWidget(view.plot)
             view.plot.show()
 
@@ -324,6 +375,25 @@ class HistoryPanel(Panel):
                                    str(printer.printerName()))
 
     @qtsig('')
+    def on_actionAttachElog_triggered(self):
+        newdlg = dialogFromUi(self, 'plot_attach.ui', 'panels')
+        newdlg.filename.setText(
+            safeFilename('history_%s.png' % self.currentPlot.view.name))
+        ret = newdlg.exec_()
+        if ret != QDialog.Accepted:
+            return
+        descr = str(newdlg.description.text())
+        fname = str(newdlg.filename.text())
+        img = QImage(800, 600, QImage.Format_RGB32)
+        img.fill(0xffffff)
+        self.currentPlot.print_(img)
+        h, pathname = tempfile.mkstemp('.png')
+        os.close(h)
+        img.save(pathname, 'png')
+        self.client.ask('eval', 'LogAttach(%r, [%r], [%r])' %
+                        (descr, pathname, fname))
+
+    @qtsig('')
     def on_actionUnzoom_triggered(self):
         self.currentPlot.zoomer.zoom(0)
 
@@ -341,147 +411,78 @@ class HistoryPanel(Panel):
     def on_actionLegend_toggled(self, on):
         self.currentPlot.setLegend(on)
 
+    @qtsig('bool')
+    def on_actionSymbols_toggled(self, on):
+        self.currentPlot.setSymbols(on)
 
-class ViewPlot(QwtPlot):
+    @qtsig('bool')
+    def on_actionLines_toggled(self, on):
+        self.currentPlot.setLines(on)
+
+
+class ViewPlot(NicosPlot):
     def __init__(self, parent, window, view):
-        QwtPlot.__init__(self, parent)
         self.view = view
-        self.window = window
-        self.curves = []
+        self.hasSymbols = True
+        self.hasLines = True
+        NicosPlot.__init__(self, parent, window, timeaxis=True)
 
-        font = self.window.font() # XXX userFont
-        bold = QFont(font)
-        bold.setBold(True)
-        larger = QFont(font)
-        larger.setPointSize(font.pointSize() * 1.6)
-        self.setFonts(font, bold, larger)
+    def titleString(self):
+        return '<h3>%s</h3>' % self.view.name
 
-        self.symbol = QwtSymbol(QwtSymbol.Ellipse, QBrush(),
-                                QPen(), QSize(6, 6))
+    def xaxisName(self):
+        return 'time'
 
-        # setup zooming and unzooming
-        self.zoomer = QwtPlotZoomer(QwtPlot.xBottom, QwtPlot.yLeft,
-                                    self.canvas())
-        self.zoomer.initMousePattern(3)
+    def yaxisName(self):
+        return 'value'
 
-        # setup picking and mouse tracking of coordinates
-        self.picker = XPlotPicker(QwtPlot.xBottom, QwtPlot.yLeft,
-                                  QwtPicker.PointSelection |
-                                  QwtPicker.DragSelection,
-                                  QwtPlotPicker.NoRubberBand,
-                                  QwtPicker.AlwaysOff,
-                                  self.canvas())
-
-        # XXX self.setCanvasBackground(self.window.userColor)
-        self.canvas().setMouseTracking(True)
-        self.connect(self.picker, SIGNAL('moved(const QPoint &)'),
-                     self.on_picker_moved)
-
-        self.updateDisplay()
-
-        self.setLegend(True)
-        self.connect(self, SIGNAL('legendClicked(QwtPlotItem*)'),
-                     self.on_legendClicked)
-
-    def setFonts(self, font, bold, larger):
-        self.setFont(font)
-        self.titleLabel().setFont(larger)
-        self.setAxisFont(QwtPlot.yLeft, font)
-        self.setAxisFont(QwtPlot.yRight, font)
-        self.setAxisFont(QwtPlot.xBottom, font)
-        self.axisTitle(QwtPlot.xBottom).setFont(bold)
-        self.axisTitle(QwtPlot.yLeft).setFont(bold)
-        self.axisTitle(QwtPlot.yRight).setFont(bold)
-        self.labelfont = bold
-        #self.disabledfont = QFont(font)
-        #self.disabledfont.setStrikeOut(True)
-
-    def updateDisplay(self):
-        self.clear()
-        grid = QwtPlotGrid()
-        grid.setPen(QPen(QBrush(Qt.lightGray), 1, Qt.DotLine))
-        grid.attach(self)
-
-        self.setTitle('<h3>%s</h3>' % self.view.name)
-        xaxistext = QwtText('time')
-        xaxistext.setFont(self.labelfont)
-        self.setAxisTitle(QwtPlot.xBottom, xaxistext)
-        self.setAxisScaleDraw(QwtPlot.xBottom, TimeScaleDraw())
-        yaxisname = 'value'
-        yaxistext = QwtText(yaxisname)
-        yaxistext.setFont(self.labelfont)
-        self.setAxisTitle(QwtPlot.yLeft, yaxistext)
-
-        self.curves = []
+    def addAllCurves(self):
         for i, key in enumerate(self.view.keys):
             self.addCurve(i, key)
 
-        # XXX for now
-        self.setAxisAutoScale(QwtPlot.xBottom)
-        #self.setAxisScale(QwtPlot.xBottom, xscale[0], xscale[1])
-        # needed for zoomer base
-        self.setAxisAutoScale(QwtPlot.yLeft)
-        self.zoomer.setZoomBase(True)   # does a replot
+    def yaxisScale(self):
+        if self.view.yfrom is not None:
+            return (self.view.yfrom, self.view.yto)
 
-    curvecolor = [Qt.black, Qt.red, Qt.green, Qt.blue,
-                  Qt.magenta, Qt.cyan, Qt.darkGray]
-    numcolors = len(curvecolor)
+    def on_picker_moved(self, point, strf=time.strftime, local=time.localtime):
+        # overridden to show the correct timestamp
+        tstamp = local(int(self.invTransform(QwtPlot.xBottom, point.x())))
+        info = "X = %s, Y = %g" % (
+            strf('%y-%m-%d %H:%M:%S', tstamp),
+            self.invTransform(QwtPlot.yLeft, point.y()))
+        self.window.statusBar.showMessage(info)
 
     def addCurve(self, i, key, replot=False):
         pen = QPen(self.curvecolor[i % self.numcolors])
         plotcurve = QwtPlotCurve(key)
         plotcurve.setPen(pen)
-        plotcurve.setSymbol(self.symbol)
-        plotcurve.setRenderHint(QwtPlotItem.RenderAntialiased)
-        x, y = self.view.keydata[key]
-        plotcurve.setData(np.array(x), np.array(y))
-        plotcurve.attach(self)
-        if self.legend():
-            item = self.legend().find(plotcurve)
-            if not plotcurve.isVisible():
-                #item.setFont(self.disabledfont)
-                item.text().setText('(' + item.text().text() + ')')
-        self.curves.append(plotcurve)
-        if replot:
-            self.zoomer.setZoomBase(True)
+        #plotcurve.setSymbol(self.symbol)
+        x, y, n = self.view.keydata[key]
+        plotcurve.setData(x[:n], y[:n])
+        self.addPlotCurve(plotcurve, replot)
 
     def pointsAdded(self, whichkey):
-        for key, plotcurve in zip(self.view.keys, self.curves):
+        for key, plotcurve in zip(self.view.keys, self.plotcurves):
             if key == whichkey:
-                x, y = self.view.keydata[key]
-                plotcurve.setData(np.array(x), np.array(y))
+                x, y, n = self.view.keydata[key]
+                plotcurve.setData(x[:n], y[:n])
                 self.replot()
                 return
 
-    def setLegend(self, on):
-        if on:
-            legend = QwtLegend(self)
-            legend.setItemMode(QwtLegend.ClickableItem)
-            # XXX legend.palette().setColor(QPalette.Base, self.window.userColor)
-            legend.setBackgroundRole(QPalette.Base)
-            self.insertLegend(legend, QwtPlot.BottomLegend)
-            for curve in self.curves:
-                if not curve.isVisible():
-                    #legend.find(curve).setFont(self.disabledfont)
-                    itemtext = legend.find(curve).text()
-                    itemtext.setText('(' + itemtext.text() + ')')
-        else:
-            self.insertLegend(None)
-
-    def on_legendClicked(self, item):
-        legenditemtext = self.legend().find(item).text()
-        if item.isVisible():
-            item.setVisible(False)
-            #legenditem.setFont(self.disabledfont)
-            legenditemtext.setText('(' + legenditemtext.text() + ')')
-        else:
-            item.setVisible(True)
-            #legenditem.setFont(self.font())
-            legenditemtext.setText(legenditemtext.text())
+    def setLines(self, on):
+        for plotcurve in self.plotcurves:
+            if on:
+                plotcurve.setStyle(QwtPlotCurve.Lines)
+            else:
+                plotcurve.setStyle(QwtPlotCurve.NoCurve)
+        self.hasLines = on
         self.replot()
 
-    def on_picker_moved(self, point):
-        info = "X = %g, Y = %g" % (
-            self.invTransform(QwtPlot.xBottom, point.x()),
-            self.invTransform(QwtPlot.yLeft, point.y()))
-        self.window.statusBar.showMessage(info)
+    def setSymbols(self, on):
+        for plotcurve in self.plotcurves:
+            if on:
+                plotcurve.setSymbol(self.symbol)
+            else:
+                plotcurve.setSymbol(self.nosymbol)
+        self.hasSymbols = on
+        self.replot()

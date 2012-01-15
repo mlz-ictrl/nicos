@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -48,28 +48,22 @@ def fit_peak_common(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw),
     xmax = x0 + totalwidth
     if not len(xdata):
         raise FitError('No data in plot')
-    i, maxi = 0, len(xdata) - 1
-    while xdata[i] < xmin and i < maxi:
-        i += 1
-    mini = i
-    while xdata[i] < xmax and i < maxi:
-        i += 1
-    maxi = i
-    if mini >= maxi:
-        raise FitError('No data in selected region')
-    fitx = xdata[mini:maxi]
-    fity = ydata[mini:maxi]
+    indices = (xmin <= xdata) & (xdata <= xmax)
+    xfit = xdata[indices]
+    if len(xfit) == 0:
+        raise FitError('No data in selected range')
+    yfit = ydata[indices]
     model = Model(modelfunc)
     if yerr is not None and yerr.shape == 1:
-        fiterr = yerr[mini:maxi]
-        data = RealData(fitx, fity, sy=fiterr)
+        dyfit = yerr[indices]
+        data = RealData(xfit, yfit, sy=dyfit)
     else:
-        data = RealData(fitx, fity)
-    odr = ODR(data, model, beta0, ifixx=array([0]*len(fitx)))
+        data = RealData(xfit, yfit)
+    odr = ODR(data, model, beta0, ifixx=array([0]*len(xfit)))
     out = odr.run()
-    if out.info >= 5:
+    if out.info & 0xFFFFFFFF >= 5:
         raise FitError(', '.join(out.stopreason))
-    xfine = arange(xmin, xmax, (xmax-xmin)/200)
+    xfine = arange(xmin, xmax, (xmax-xmin)/500.)
     return out.beta, xfine, modelfunc(out.beta, xfine)
 
 
@@ -126,7 +120,7 @@ def fit_tc(xdata, ydata, yerr, (Tb, Ib), (Tc, Ic)):
         raise FitError('No data in plot')
     Tmin, Tmax = xdata.min(), xdata.max()
     model = Model(tc_curve)
-    if yerr and yerr.shape == 1:
+    if yerr is not None and yerr.shape == 1:
         data = RealData(xdata, ydata, sy=yerr)
     else:
         data = RealData(xdata, ydata)
@@ -137,6 +131,37 @@ def fit_tc(xdata, ydata, yerr, (Tb, Ib), (Tc, Ic)):
     odr = ODR(data, model, beta0, ifixx=array([0]*len(xdata)))
     out = odr.run()
     Tfine = arange(Tmin, Tmax, (Tmax-Tmin)/100)
-    if out.info >= 5:
+    if out.info & 0xFFFFFFFF >= 5:
         raise FitError(', '.join(out.stopreason))
     return out.beta, Tfine, tc_curve(out.beta, Tfine)
+
+
+def fit_arby(xdata, ydata, yerr, fcnstr, params, guesses, xlimits):
+    xmin, xmax = xlimits
+    if xmin is None:
+        xmin = xdata.min()
+    if xmax is None:
+        xmax = xdata.max()
+    indices = (xmin <= xdata) & (xdata <= xmax)
+    xfit = xdata[indices]
+    if not len(xfit):
+        raise FitError('No data in plot')
+    yfit = ydata[indices]
+    ns = {}
+    exec 'from numpy import *' in ns
+    try:
+        fcn = eval('lambda (%s), x: %s' % (', '.join(params), fcnstr), ns)
+    except SyntaxError, e:
+        raise FitError('Syntax error in function: %s' % e)
+    if yerr is not None and yerr.shape == 1:
+        dyfit = yerr[indices]
+        data = RealData(xfit, yfit, sy=dyfit)
+    else:
+        data = RealData(xfit, yfit)
+    model = Model(fcn)
+    odr = ODR(data, model, guesses, ifixx=[0]*len(xfit))
+    out = odr.run()
+    xfine = arange(xmin, xmax, (xmax-xmin)/200)
+    if out.info & 0xFFFFFFFF >= 5:
+        raise FitError(', '.join(out.stopreason))
+    return out.beta, xfine, fcn(out.beta, xfine)

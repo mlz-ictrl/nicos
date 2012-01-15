@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -37,24 +37,32 @@ import sys
 import logging
 from os import path
 
-from nicos.device import Device
-from nicos.errors import NicosError, UsageError, ModeError, ConfigurationError
+from nicos.core.device import Device
+from nicos.core.errors import NicosError, UsageError, ModeError, \
+     ConfigurationError
 from nicos.notify import Notifier
-from nicos.loggers import initLoggers, NicosLogger, ColoredConsoleHandler, \
-    NicosLogfileHandler
+from nicos.utils.loggers import initLoggers, NicosLogger, \
+     ColoredConsoleHandler, NicosLogfileHandler
 from nicos.instrument import Instrument
 from nicos.cache.client import CacheClient, CacheLockError
 from nicos.sessions.utils import makeSessionId, sessionInfo, \
-    NicosNamespace, SimClock
+     NicosNamespace, SimClock
 
 
 EXECUTIONMODES = ['master', 'slave', 'simulation', 'maintenance']
 
 
 class Session(object):
-    """
-    The Session class provides all low-level routines needed for NICOS
+    """The Session class provides all low-level routines needed for NICOS
     operations and keeps the global state: devices, configuration, loggers.
+
+    Within one NICOS process, there is only one singleton session object that is
+    always importable using ::
+
+        from nicos import session
+
+    There are several specialized subclasses of `Session`; one of them will
+    always be used in concrete applications.
     """
 
     auto_modules = [
@@ -97,6 +105,8 @@ class Session(object):
         self.user_modules = set()
         # contains all loaded setups
         self.loaded_setups = set()
+        # contains all setups excluded from the currently loaded
+        self.excluded_setups = set()
         # contains all explicitly loaded setups
         self.explicit_setups = []
         # path to setup files
@@ -111,16 +121,14 @@ class Session(object):
         # info about all loadable setups
         self._setup_info = {}
         # namespace to place user-accessible items in
-        self._namespace = NicosNamespace()
-        self._local_namespace = NicosNamespace()
+        self.namespace = NicosNamespace()
+        self.local_namespace = NicosNamespace()
         # contains all NICOS-exported names
         self._exported_names = set()
         # action stack for status line
         self._actionStack = []
         # execution mode; initially always slave
         self._mode = 'slave'
-        # prompt color
-        self._pscolor = 'reset'
         # simulation clock
         self.clock = SimClock()
         # traceback of last unhandled exception
@@ -138,20 +146,21 @@ class Session(object):
 
     def setNamespace(self, ns):
         """Set the namespace to export commands and devices into."""
-        self._namespace = ns
+        self.namespace = ns
         self._exported_names = set()
-
-    def getNamespace(self):
-        return self._namespace
-
-    def getLocalNamespace(self):
-        return self._local_namespace
 
     @property
     def mode(self):
+        """The current :term:`execution mode` of the session."""
         return self._mode
 
     def setMode(self, mode):
+        """Set a new mode for the session.
+
+        This raises `.ModeError` if the new mode cannot be switched to at the
+        moment (for example, if switching to master mode, but another master is
+        already active).
+        """
         mode = mode.lower()
         oldmode = self._mode
         cache = self.cache
@@ -177,6 +186,7 @@ class Session(object):
             if self.loaded_setups != set(['startup']):
                 cache.put(self, 'mastersetup', list(self.loaded_setups))
                 cache.put(self, 'mastersetupexplicit', list(self.explicit_setups))
+                self.elog_event('setup', list(self.explicit_setups))
         elif mode in ['slave', 'maintenance']:
             # switching from master (or slave) to slave or to maintenance
             if cache and cache._ismaster:
@@ -192,21 +202,25 @@ class Session(object):
             cache.doShutdown()
             self.cache = None
         self.log.info('switched to %s mode' % mode)
-        self.resetPrompt()
 
     def setSetupPath(self, path):
-        """Set the path to the setup files."""
+        """Set the path to the setup files.
+
+        Normally, the setup path is given in nicos.conf and does not need to be
+        set explicitly.
+        """
         self._setup_path = path
         self.readSetups()
 
     def getSetupPath(self):
+        """Return the current setup path."""
         return self._setup_path
 
     def readSetups(self):
-        """Read information of all existing setups.
+        """Read information of all existing setups, and validate them.
 
-        Setup modules are looked for in the setup/ directory which
-        should be a sibling to this package's directory.
+        Setup modules are looked for in the directory given by the "setups_path"
+        entry in nicos.conf, or by "control_path"/setups.
         """
         self._setup_info.clear()
         for filename in os.listdir(self._setup_path):
@@ -232,6 +246,7 @@ class Session(object):
                 'group': ns.get('group', 'base'),
                 'sysconfig': ns.get('sysconfig', {}),
                 'includes': ns.get('includes', []),
+                'excludes': ns.get('excludes', []),
                 'modules': ns.get('modules', []),
                 'devices': ns.get('devices', {}),
                 'startupcode': ns.get('startupcode', ''),
@@ -245,10 +260,24 @@ class Session(object):
                                              'does not exist' % (name, include))
 
     def getSetupInfo(self):
+        """Return information about all existing setups.
+
+        This is a dictionary mapping setup name to another dictionary.  The keys
+        of that dictionary are those present in the setup files: 'name',
+        'group', 'sysconfig', 'includes', 'excludes', 'modules', 'devices',
+        'startupcode'.
+        """
         return self._setup_info.copy()
 
     def loadSetup(self, setupnames, allow_special=False, raise_failed=False):
-        """Load one or more setup modules and set up devices accordingly."""
+        """Load one or more setup modules given in *setupnames* and set up
+        devices accordingly.
+
+        If *allow_special* is true, special setups (with group "special") are
+        allowed, otherwise `.ConfigurationError` is raised.  If *raise_failed*
+        is true, errors when creating devices are re-raised (otherwise, they are
+        reported as warnings).
+        """
         if not self._setup_info:
             self.readSetups()
 
@@ -291,14 +320,22 @@ class Session(object):
                 return
             if name not in setupnames:
                 self.log.debug('loading include setup %s' % name)
+            if name in self.excluded_setups:
+                raise ConfigurationError('Cannot load setup %r, it is excluded '
+                                         'by one of the current setups' % name)
 
             info = self._setup_info[name]
             if info['group'] == 'special' and not allow_special:
                 raise ConfigurationError('Cannot load special setup %r' % name)
             if info['group'] == 'simulated' and self._mode != 'simulation':
                 raise ConfigurationError('Cannot load simulation setup %r' % name)
+            for exclude in info['excludes']:
+                if exclude in self.loaded_setups:
+                    raise ConfigurationError('Cannot load setup %r when setup '
+                        '%r is already loaded' % (name, exclude))
 
             self.loaded_setups.add(name)
+            self.excluded_setups.update(info['excludes'])
 
             sysconfig = {}
             devlist = {}
@@ -348,15 +385,15 @@ class Session(object):
             ('notifiers',  [Notifier]),
         ]
 
-        for key, type in sysconfig_items:
+        for key, devtype in sysconfig_items:
             if key not in sysconfig:
                 continue
             value = sysconfig[key]
-            if isinstance(type, list):
+            if isinstance(devtype, list):
                 if not isinstance(sysconfig[key], list):
                     raise ConfigurationError('sysconfig %s entry must be '
                                              'a list' % key)
-                setattr(self, key, [self.getDevice(name, type[0])
+                setattr(self, key, [self.getDevice(name, devtype[0])
                                     for name in value])
             else:
                 if value is None:
@@ -365,7 +402,7 @@ class Session(object):
                     raise ConfigurationError('sysconfig %s entry must be '
                                              'a device name' % key)
                 else:
-                    dev = self.getDevice(value, type)
+                    dev = self.getDevice(value, devtype)
                 setattr(self, key, dev)
 
         # create all other devices
@@ -385,7 +422,7 @@ class Session(object):
         for code in startupcode:
             if code:
                 try:
-                    exec code in self._namespace
+                    exec code in self.namespace
                 except Exception:
                     self.log.exception('error running startup code, ignoring')
 
@@ -399,13 +436,14 @@ class Session(object):
             self.cache.put(self, 'mastersetup', list(self.loaded_setups))
             self.cache.put(self, 'mastersetupexplicit',
                            list(self.explicit_setups))
+            self.elog_event('setup', list(self.explicit_setups))
 
-        self.resetPrompt()
         self.log.info('setup loaded')
 
     def unloadSetup(self):
-        """Unload the current setup: destroy all devices and clear the
-        NICOS namespace.
+        """Unload the current setup.
+
+        This shuts down all created devices and clears the NICOS namespace.
         """
         # shutdown according to device dependencies
         devs = self.devices.values()
@@ -432,6 +470,7 @@ class Session(object):
         self.datasinks = []
         self.notifiers = []
         self.loaded_setups = set()
+        self.excluded_setups = set()
         self.explicit_setups = []
         self.user_modules = set()
         for handler in self._log_handlers:
@@ -439,51 +478,47 @@ class Session(object):
         self._log_handlers = []
 
     def shutdown(self):
+        """Shut down the session: unload the setup and give up master mode."""
         if self._mode == 'master':
             self.cache._ismaster = False
             self.cache.unlock('master')
         self.unloadSetup()
 
-    def resetPrompt(self):
-        base = self._mode != 'master' and self._mode + ' ' or ''
-        expsetups = '+'.join(self.explicit_setups)
-        sys.ps1 = base + '(%s) >>> ' % expsetups
-        sys.ps2 = base + ' %s  ... ' % (' ' * len(expsetups))
-        self._pscolor = dict(
-            slave  = 'brown',
-            master = 'darkblue',
-            maintenance = 'darkred',
-            simulation = 'turquoise'
-        )[self._mode]
-
-    def export(self, name, object):
-        if isinstance(self._namespace, NicosNamespace):
-            self._namespace.setForbidden(name, object)
-            self._namespace.addForbidden(name)
-            self._local_namespace.addForbidden(name)
+    def export(self, name, obj):
+        """Export an object *obj* into the NICOS namespace with given *name*."""
+        if isinstance(self.namespace, NicosNamespace):
+            self.namespace.setForbidden(name, obj)
+            self.namespace.addForbidden(name)
+            self.local_namespace.addForbidden(name)
         else:
-            self._namespace[name] = object
+            self.namespace[name] = obj
         self._exported_names.add(name)
 
     def unexport(self, name, warn=True):
-        if name not in self._namespace:
+        """Unexport the object with *name* from the NICOS namespace."""
+        if name not in self.namespace:
             if warn:
                 self.log.warning('unexport: name %r not in namespace' % name)
             return
         if name not in self._exported_names:
             self.log.warning('unexport: name %r not exported by NICOS' % name)
-        if isinstance(self._namespace, NicosNamespace):
-            self._namespace.removeForbidden(name)
-            self._local_namespace.removeForbidden(name)
-        del self._namespace[name]
+        if isinstance(self.namespace, NicosNamespace):
+            self.namespace.removeForbidden(name)
+            self.local_namespace.removeForbidden(name)
+        del self.namespace[name]
         self._exported_names.remove(name)
 
     def getExportedObjects(self):
+        """Return an iterable of all objects exported to the NICOS namespace."""
         for name in self._exported_names:
-            if name in self._namespace:
-                yield self._namespace[name]
+            if name in self.namespace:
+                yield self.namespace[name]
 
     def handleInitialSetup(self, setup, simulate):
+        """Determine which setup to load, and try to become master.
+
+        Called by sessions during startup.
+        """
         # If simulation mode is wanted, we need to set that before loading any
         # initial setup.
         if simulate:
@@ -515,6 +550,25 @@ class Session(object):
                 self.unloadSetup()
                 self.loadSetup(setups)
 
+    def commandHandler(self, command, compiler):
+        """This method when the user executes a simple command.  It should
+        return a compiled code object that is then executed instead of the
+        command.
+        """
+        if command.startswith('#'):
+            return compiler('LogEntry(%r)' % command[1:].strip())
+        try:
+            return compiler(command)
+        except SyntaxError:
+            # XXX experimental command handler to allow e.g. "read om"
+            if 0 and '\n' not in command:
+                parts = command.split()
+                if parts[0] in self._exported_names and \
+                  hasattr(self.namespace[parts[0]], 'is_usercommand'):
+                    newcmd = parts[0] + '(' + ','.join(parts[1:]) + ')'
+                    return compiler(newcmd)
+            raise
+
     # -- Device control --------------------------------------------------------
 
     def startMultiCreate(self):
@@ -524,10 +578,18 @@ class Session(object):
         self._failed_devices = set()
 
     def endMultiCreate(self):
+        """Mark the end of a multi-create."""
         self._failed_devices = None
 
     def getDevice(self, dev, cls=None):
-        """Convenience: get a device by name or instance."""
+        """Return a device *dev* from the current setup.
+
+        If *dev* is a string, the corresponding device will be looked up or
+        created, if necessary.
+
+        *cls* gives a class, or tuple of classes, that *dev* needs to be an
+        instance of.
+        """
         if isinstance(dev, str):
             if dev in self.devices:
                 dev = self.devices[dev]
@@ -545,6 +607,8 @@ class Session(object):
         """Create device given by a device name.
 
         If device exists and *recreate* is true, destroy and create it again.
+        If *explicit* is true, the device is added to the list of "explicitly
+        created devices".
         """
         if self._failed_devices and devname in self._failed_devices:
             raise NicosError('device already failed to create before')
@@ -579,7 +643,7 @@ class Session(object):
         return dev
 
     def destroyDevice(self, devname):
-        """Shutdown and destroy a device."""
+        """Shutdown a device and remove it from the list of created devices."""
         if devname not in self.devices:
             raise UsageError('device %r not created' % devname)
         self.log.info('shutting down device %r...' % devname)
@@ -587,29 +651,32 @@ class Session(object):
         dev.shutdown()
         for adev in dev._adevs.values():
             if isinstance(adev, list):
-                [real_adev._sdevs.discard(dev.name) for real_adev in adev]
+                for real_adev in adev:
+                    real_adev._sdevs.discard(dev.name)
             else:
                 adev._sdevs.discard(dev.name)
         del self.devices[devname]
         self.explicit_devices.discard(devname)
-        if devname in self._namespace:
+        if devname in self.namespace:
             self.unexport(devname)
 
-    def notifyConditionally(self, runtime, subject, body, what=None, short=None):
+    def notifyConditionally(self, runtime, subject, body, what=None,
+                            short=None, important=True):
         """Send a notification if the current runtime exceeds the configured
         minimum runtimer for notifications.
         """
         if self._mode == 'simulation':
             return
         for notifier in self.notifiers:
-            notifier.sendConditionally(runtime, subject, body, what, short)
+            notifier.sendConditionally(runtime, subject, body, what,
+                                       short, important)
 
-    def notify(self, subject, body, what=None, short=None):
+    def notify(self, subject, body, what=None, short=None, important=True):
         """Send a notification unconditionally."""
         if self._mode == 'simulation':
             return
         for notifier in self.notifiers:
-            notifier.send(subject, body, what, short)
+            notifier.send(subject, body, what, short, important)
 
     # -- Logging ---------------------------------------------------------------
 
@@ -633,6 +700,7 @@ class Session(object):
             self.log.error('cannot open log file: %s' % err)
 
     def getLogger(self, name):
+        """Return a new NICOS logger for the specified device name."""
         if name in self._loggers:
             return self._loggers[name]
         logger = NicosLogger(name)
@@ -643,12 +711,17 @@ class Session(object):
         return logger
 
     def addLogHandler(self, handler):
+        """Add a new logging handler to the list of handlers for all NICOS
+        loggers.
+        """
         self._log_handlers.append(handler)
         self.log.addHandler(handler)
 
     def logUnhandledException(self, exc_info=None, cut_frames=0, msg=''):
-        """Log an unhandled exception.  Log using the originating device's
-        logger, if that information is available.
+        """Log an unhandled exception (occurred during user scripts).
+
+        The exception is logged using the originating device's logger, if that
+        information is available.
         """
         if exc_info is None:
             exc_info = sys.exc_info()
@@ -657,16 +730,22 @@ class Session(object):
                 exc_info[1].device.log.error(exc_info=exc_info)
                 return
         if cut_frames:
-            type, value, tb = exc_info
+            etype, evalue, tb = exc_info
             while cut_frames:
                 tb = tb.tb_next
                 cut_frames -= 1
-            exc_info = (type, value, tb)
+            exc_info = (etype, evalue, tb)
         if msg:
             self.log.error(msg, exc_info=exc_info)
         else:
             self.log.error(exc_info=exc_info)
         self._lastUnhandled = exc_info
+
+    def elog_event(self, eventtype, data):
+        # NOTE: simulation mode is disconnected from cache, therefore no elog
+        # events will be sent in simulation mode
+        if self.cache:
+            self.cache.put_raw('logbook/' + eventtype, data)
 
     # -- Action logging --------------------------------------------------------
 
@@ -692,11 +771,40 @@ class Session(object):
 
     # -- Session-specific behavior ---------------------------------------------
 
-    def updateLiveData(self, tag, dtype, nx, ny, nt, time, data):
-        pass
+    def updateLiveData(self, tag, filename, dtype, nx, ny, nt, time, data):
+        """Send new live data to clients.
+
+        The parameters are:
+
+        * tag - a string describing the type of data that is sent.  It is used
+          by clients to determine if they can display this data.
+        * filename - a string giving the filename of the data once measurement
+          is finished.  Can be empty.
+        * dtype - a string describing the data array in numpy style, if it is
+          in array format.
+        * nx, ny, nt - three integers giving the dimensions of the data array,
+          if it is in array format.
+        * time - the current measurement time, for determining count rate.
+        * data - the actual data as a byte string.
+        """
 
     def breakpoint(self, level):
-        pass
+        """Allow breaking or stopping the script at a well-defined time.
+
+        *level* can be 1 to indicate a breakpoint "after current scan" or 2 to
+        indicate a breakpoint "after current step".
+        """
+
+    def clearExperiment(self):
+        """Reset experiment-specific data."""
+
+    def checkAccess(self, required):
+        """Check if the current user fulfills the requirements given in the
+        *required* dictionary.  Return true or false.
+
+        This is called by the `.requires` decorator.
+        """
+        return False
 
 
 # must be imported after class definitions due to module interdependencies

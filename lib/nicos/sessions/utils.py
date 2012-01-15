@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -33,7 +33,7 @@ import exceptions
 import rlcompleter
 
 from nicos import session
-from nicos.errors import UsageError
+from nicos.core.errors import UsageError
 
 
 class NicosNamespace(dict):
@@ -101,6 +101,12 @@ class NicosCompleter(rlcompleter.Completer):
     def global_matches(self, text):
         matches = rlcompleter.Completer.global_matches(self, text)
         return [m for m in matches if m[:-1] not in self.global_hidden]
+
+    def get_matches(self, text):
+        if '.' in text:
+            return self.attr_matches(text)
+        else:
+            return self.global_matches(text)
 
 
 class LoggingStdout(object):

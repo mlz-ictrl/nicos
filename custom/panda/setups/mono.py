@@ -3,11 +3,11 @@
 #~ includes = ['system']
 
 devices = dict(
-    mtt      = device('nicos.virtual.VirtualMotor',
+    mtt      = device('nicos.generic.VirtualMotor',
                       abslimits = (-125, -25), 
                       unit = 'deg'),
 
-    mth      = device('nicos.virtual.VirtualMotor',
+    mth      = device('nicos.generic.VirtualMotor',
                       abslimits = (-20, 120),
                       unit = 'deg'),
 

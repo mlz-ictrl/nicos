@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -31,9 +31,9 @@ from wsgiref.simple_server import make_server
 
 from nicos import session
 from nicos.web import FakeInput, MTWSGIServer, NicosApp
-from nicos.loggers import OUTPUT
 from nicos.sessions import Session
 from nicos.sessions.utils import LoggingStdout
+from nicos.utils.loggers import OUTPUT
 
 
 class WebSession(Session):

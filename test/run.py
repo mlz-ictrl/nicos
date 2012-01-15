@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -57,7 +57,7 @@ cache = subprocess.Popen([sys.executable, path.join(rootdir, '..', 'cache.py')])
 print 'Cache PID = %s' % cache.pid
 print '-' * 70
 
-print 'Running nicos-ng test suite...'
+print 'Running NICOS test suite...'
 print '-' * 70
 
 try:

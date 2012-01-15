@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -25,26 +25,41 @@
 """NICOS commands tests."""
 
 from nicos import session
-from nicos.errors import UsageError, LimitError
+from nicos.core import UsageError, LimitError, ModeError, FixedError
 
-from nicos.commands.scan import scan
 from nicos.commands.measure import count
 from nicos.commands.device import move, maw
+from nicos.commands.scan import scan
+from nicos.commands.output import printdebug, printinfo, printwarning, \
+     printerror, printexception
 
+from test import ErrorLogged
 from test.utils import raises
 
+
 def setup_module():
-    session.loadSetup('axis')
+    session.loadSetup('scanning')
     session.setMode('master')
 
 def teardown_module():
     session.unloadSetup()
 
-def test_commands():
+
+def test_output_commands():
+    printdebug('a', 'b')
+    printinfo('testing...')
+    try:
+        1/0
+    except ZeroDivisionError:
+        assert session.testhandler.warns(printwarning, 'warn!', exc=1)
+    assert raises(ErrorLogged, printerror, 'error!')
+    assert raises(ZeroDivisionError, printexception, 'exception!')
+
+def test_device_commands():
     motor = session.getDevice('motor')
 
     session.setMode('slave')
-    assert raises(UsageError, scan, motor, [0, 1, 2, 10])
+    assert raises(ModeError, scan, motor, [0, 1, 2, 10])
 
     session.setMode('master')
     scan(motor, [0, 1, 2, 10])
@@ -63,4 +78,3 @@ def test_commands():
     for pos in positions:
         maw(motor, pos)
         assert motor.curvalue == pos
-

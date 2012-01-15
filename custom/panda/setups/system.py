@@ -2,7 +2,7 @@
 
 name = 'system setup for PANDA'
 
-includes=[]
+includes=['detector']
 
 sysconfig = dict(
     cache = 'pandasrv',
@@ -19,11 +19,12 @@ devices = dict(
                     ),
     Exp      = device('nicos.panda.experiment.PandaExperiment',
                       sample = 'Sample',
-                      datapath = ['/data']),
+                      datapath = ['/data'],
+                      ),
     Sample   = device('nicos.tas.TASSample'),
     filesink = device('nicos.data.AsciiDatafileSink',
                       globalcounter = '/data/filecounter'),
     conssink = device('nicos.data.ConsoleSink'),
 )
 
-startupcode=''
+startupcode='Exp.detectors.append(det)'

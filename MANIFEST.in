@@ -1,0 +1,23 @@
+include AUTHORS
+include LICENSE
+include Makefile
+include pylintrc
+include README
+
+recursive-include custom *
+recursive-include etc *
+recursive-include src *
+recursive-include resources *
+
+include log/README
+include pid/README
+include data/README data/cache/.keep
+
+recursive-include test *.py
+prune test/root
+
+include doc/Makefile
+recursive-include doc/source *
+recursive-include doc/build/html *
+
+recursive-include lib/nicos/gui/tools/calculator_images *

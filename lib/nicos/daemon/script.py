@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -26,23 +26,21 @@
 
 __version__ = "$Revision$"
 
+import sys
 import time
 import traceback
 import __builtin__
 from Queue import Queue
 from threading import Lock, Event, Thread
 
-# the ast module (and AST compilation) need Python 2.6
-try:
-    import ast
-except ImportError:
-    ast = None
+import ast
 
 from nicos import session
-from nicos.loggers import INPUT
+from nicos.utils.loggers import INPUT
 from nicos.daemon.utils import format_exception_cut_frames, format_script, \
      fixup_script, update_linecache
 from nicos.daemon.pyctl import Controller, ControlStop
+from nicos.sessions.utils import NicosCompleter
 
 # compile flag to activate new division
 CO_DIVISION = 0x2000
@@ -64,7 +62,8 @@ class Request(object):
     reqno = None
 
     def __init__(self, user=None):
-        self.user = user
+        self.user = user.name
+        self.userlevel = user.level
 
     def serialize(self):
         return {'reqno': self.reqno, 'user': self.user}
@@ -88,11 +87,11 @@ class ScriptRequest(Request):
     """
 
     def __init__(self, text, name=None, user=None):
+        Request.__init__(self, user)
         self._run = Event()
         self._run.set()
 
         self.name = name
-        self.user = user
         # replace bare except clauses in the code with "except Exception"
         # so that ControlStop is not caught
         self.text = fixup_script(text)
@@ -112,14 +111,11 @@ class ScriptRequest(Request):
             # if the script is a single line, compile it like a line
             # in the interactive interpreter, so that expression
             # results are shown
-            if self.text.strip().startswith('#'):
-                start = 'exec'
-            else:
-                start = 'single'
-            self.code = [compile(self.text + '\n', '<script>',
-                                 start, CO_DIVISION)]
+            compiler = lambda src: \
+                compile(src, '<script>', 'single', CO_DIVISION)
+            self.code = [session.commandHandler(self.text, compiler)]
             self.blocks = None
-        elif ast is None:
+        elif sys.version_info < (2, 6):
             # Python < 2.6, no splitting possible
             self.code = [compile(self.text + '\n', '<script>',
                                  'exec', CO_DIVISION)]
@@ -138,11 +134,17 @@ class ScriptRequest(Request):
         # this is to allow the traceback module to report the script's
         # source code correctly
         update_linecache('<script>', self.text)
-        while self.curblock < len(self.code) - 1:
-            self._run.wait()
-            self.curblock += 1
-            controller.start_exec(self.code[self.curblock],
-                                  controller.namespace)
+        if session.experiment:
+            session.experiment.scripts += [self.text]
+        try:
+            while self.curblock < len(self.code) - 1:
+                self._run.wait()
+                self.curblock += 1
+                controller.start_exec(self.code[self.curblock],
+                                      controller.namespace)
+        finally:
+            if session.experiment:
+                session.experiment.scripts = session.experiment.scripts[:-1]
 
     def update(self, text, controller):
         """Update the code with a new script.
@@ -246,8 +248,10 @@ class ExecutionController(Controller):
         self.in_startup = True     # True while startup code is executed
         self.queue = Queue()       # user scripts get put here
         self.current_script = None # currently executed script
-        self.namespace = session.getNamespace()
+        self.namespace = session.namespace
                                    # namespace in which scripts execute
+        self.completer = NicosCompleter(self.namespace)
+                                   # completer for the namespace
         self.watchexprs = set()    # watch expressions to evaluate
         self.watchlock = Lock()    # lock for watch expression list modification
         self.estop_functions = []  # functions to run on emergency stop

@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -30,9 +30,9 @@ import os
 import sys
 import signal
 
-from nicos.loggers import OUTPUT
 from nicos.sessions import Session
 from nicos.cache.client import DaemonCacheClient
+from nicos.utils.loggers import OUTPUT
 from nicos.sessions.utils import LoggingStdout
 from nicos.sessions.simple import NoninteractiveSession
 
@@ -109,7 +109,7 @@ class DaemonSession(NoninteractiveSession):
                 self.log.manager.globalprefix = '(sim) '
                 self.addLogHandler(pipesender)
                 self.setMode('simulation')
-                exec code in self._namespace
+                exec code in self.namespace
             except:  # really *all* exceptions
                 self.log.exception()
             finally:
@@ -123,9 +123,20 @@ class DaemonSession(NoninteractiveSession):
             except OSError:
                 self.log.exception('Error waiting for simulation process')
 
-    def updateLiveData(self, tag, dtype, nx, ny, nt, time, data):
-        self.emitfunc('liveparams', (tag, dtype, nx, ny, nt, time))
+    def updateLiveData(self, tag, filename, dtype, nx, ny, nt, time, data):
+        self.emitfunc('liveparams', (tag, filename, dtype, nx, ny, nt, time))
         self.emitfunc('livedata', data)
 
     def breakpoint(self, level):
         exec self._bpcode
+
+    def clearExperiment(self):
+        # reset cached messages
+        del self.daemon_device._messages[:]
+
+    def checkAccess(self, required):
+        if 'level' in required:
+            script = self.daemon_device.current_script()
+            if script:
+                return required['level'] <= script.userlevel
+        return True

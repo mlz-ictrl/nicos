@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -31,8 +31,8 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 from PyQt4.QtGui import QInputDialog, QMessageBox, QTreeWidgetItem
 
 from nicos.gui.utils import loadUi, setBackgroundColor
-from nicos.gui.client import serialize
 from nicos.gui.panels import Panel
+from nicos.daemon.utils import serialize
 
 
 class WatchPanel(Panel):
@@ -40,7 +40,7 @@ class WatchPanel(Panel):
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        loadUi(self, 'watch.ui')
+        loadUi(self, 'watch.ui', 'panels')
 
         self.watch_items = {}
         self.connect(client, SIGNAL('watch'), self.on_client_watch)

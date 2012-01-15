@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -24,6 +24,8 @@
 
 """NICOS GUI virtual console panel component."""
 
+from __future__ import with_statement
+
 __version__ = "$Revision$"
 
 import re
@@ -45,7 +47,7 @@ class ConsolePanel(Panel):
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        loadUi(self, 'console.ui')
+        loadUi(self, 'console.ui', 'panels')
 
         self.current_status = None
         self.run_color = QColor('#ffdddd')
@@ -58,7 +60,9 @@ class ConsolePanel(Panel):
         if not self.hasinput:
             self.inputFrame.setVisible(False)
         self.commandInput.history = self.cmdhistory
+        self.commandInput.completion_callback = self.completeInput
 
+        self.connect(client, SIGNAL('connected'), self.on_client_connected)
         self.connect(client, SIGNAL('message'), self.on_client_message)
         self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
 
@@ -95,11 +99,20 @@ class ConsolePanel(Panel):
         self.commandInput.update()
         self.commandInput.setEnabled(status != 'disconnected')
 
+    def completeInput(self, startstring):
+        try:
+            return self.client.ask('complete', str(startstring))
+        except:
+            return []
+
+    def on_client_connected(self):
+        self.outView._currentuser = self.client.login
+
     def on_client_initstatus(self, state):
         messages = state[2]
         self.outView.clear()
         total = len(messages) // 2500 + 1
-        for i, batch in enumerateWithProgress(chunks(messages, 2500),
+        for _, batch in enumerateWithProgress(chunks(messages, 2500),
                             text='Synchronizing...', parent=self, total=total):
             self.outView.addMessages(batch)
         self.outView.scrollToBottom()
@@ -113,10 +126,14 @@ class ConsolePanel(Panel):
         """Called when the user clicks a link in the out view."""
         url = str(url.toString())
         if url.startswith('exec:'):
-            self.client.tell('queue', '', url[5:])
-            self.mainwindow.action_start_time = time.time()
+            # Direct execution is too dangerous. Just insert it in the editor.
+            #self.client.tell('queue', '', url[5:])
+            #self.mainwindow.action_start_time = time.time()
+            if self.hasinput:
+                self.commandInput.setText(url[5:])
+                self.commandInput.setFocus()
         elif url.startswith('edit:'):
-            # XXX implement this? (also check if file is already open)
+            # XXX implement this (also check if file is already open)
             # editor = self.on_actionUserEditor_triggered()
             # editor.openFile(url[5:])
             pass

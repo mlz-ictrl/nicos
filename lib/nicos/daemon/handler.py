@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -32,11 +32,13 @@ import os
 import errno
 import socket
 import struct
+import tempfile
 from Queue import Queue
 from SocketServer import BaseRequestHandler
 
 from nicos import session, nicos_version
-from nicos.daemon.user import AuthenticationError, GUEST, USER, ADMIN
+from nicos.core import ADMIN
+from nicos.daemon.user import AuthenticationError
 from nicos.daemon.utils import LoggerWrapper, serialize, unserialize
 from nicos.daemon.pyctl import STATUS_IDLE, STATUS_IDLEEXC, STATUS_RUNNING, \
      STATUS_STOPPING, STATUS_INBREAK
@@ -308,8 +310,7 @@ class ConnectionHandler(BaseRequestHandler):
         if not name:
             name = None
         try:
-            self.controller.new_request(
-                ScriptRequest(code, name, self.user.name))
+            self.controller.new_request(ScriptRequest(code, name, self.user))
         except RequestError, err:
             self.write(NAK, str(err))
             return
@@ -390,7 +391,7 @@ class ConnectionHandler(BaseRequestHandler):
         if self.controller.status in (STATUS_IDLE, STATUS_IDLEEXC):
             # only execute emergency stop functions
             self.log.warning('emergency stop without script running')
-            self.controller.new_request(EmergencyStopRequest(self.user.name))
+            self.controller.new_request(EmergencyStopRequest(self.user))
             self.write(ACK)
             return
         elif self.controller.status == STATUS_STOPPING:
@@ -445,6 +446,12 @@ class ConnectionHandler(BaseRequestHandler):
             self.write(NAK, 'exception raised running simulation: %s' % err)
         else:
             self.write(ACK)
+
+    @command()
+    def complete(self, prefix):
+        """Get completions for the given prefix."""
+        matches = sorted(set(self.controller.completer.get_matches(prefix)))
+        self.write(STX, serialize(matches))
 
     # -- Runtime information commands ------------------------------------------
 
@@ -540,6 +547,13 @@ class ConnectionHandler(BaseRequestHandler):
                 self.write(STX, serialize(None))
 
     # -- Miscellaneous commands ------------------------------------------------
+
+    @command()
+    def transfer(self, content):
+        """Transfer a file to the server."""
+        fd, filename = tempfile.mkstemp(prefix='nicos')
+        os.write(fd, content)
+        self.write(STX, serialize(filename))
 
     @command(needcontrol=True)
     def unlock(self):

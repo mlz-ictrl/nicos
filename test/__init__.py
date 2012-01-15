@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -27,24 +27,25 @@
 __version__ = "$Revision$"
 
 from os import path
-from logging import ERROR, WARNING,Handler
+from logging import ERROR, WARNING
 
 from nicos import session
-from nicos import loggers
 from nicos.sessions import Session
+from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
 
 
 class ErrorLogged(Exception):
     """Raised when an error is logged by NICOS."""
 
 
-class TestLogHandler(Handler):
+class TestLogHandler(ColoredConsoleHandler):
     def __init__(self):
-        Handler.__init__(self)
+        ColoredConsoleHandler.__init__(self)
         self._warnings = []
+        self._raising = True
 
     def emit(self, record):
-        if record.levelno >= ERROR:
+        if record.levelno >= ERROR and self._raising:
             if record.exc_info:
                 # raise the original exception
                 raise record.exc_info[1], None, record.exc_info[2]
@@ -52,6 +53,10 @@ class TestLogHandler(Handler):
                 raise ErrorLogged(record.message)
         elif record.levelno >= WARNING:
             self._warnings.append(record)
+        ColoredConsoleHandler.emit(self, record)
+
+    def enable_raising(self, raising):
+        self._raising = raising
 
     def warns(self, func, *args, **kwds):
         plen = len(self._warnings)
@@ -68,7 +73,7 @@ class TestSession(Session):
         self.setSetupPath(path.join(path.dirname(__file__), 'setups'))
 
     def createRootLogger(self, prefix='nicos'):
-        self.log = loggers.NicosLogger('nicos')
+        self.log = NicosLogger('nicos')
         self.log.parent = None
         self.testhandler = TestLogHandler()
         self.log.addHandler(self.testhandler)

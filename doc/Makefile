@@ -39,8 +39,8 @@ clean:
 	-rm -rf source/auto/*
 
 codedoc: 
-	-mkdir -p source/auto
-	./sphinx-autodoc-sourcegen.py -d source/auto -s rst -f ../lib/nicos
+	#-mkdir -p source/auto
+	#./sphinx-autodoc-sourcegen.py -d source/auto -s rst -f ../lib/nicos
 
 html: codedoc
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
@@ -78,17 +78,17 @@ qthelp:  codedoc
 	@echo
 	@echo "Build finished; now you can run "qcollectiongenerator" with the" \
 	      ".qhcp project file in $(BUILDDIR)/qthelp, like this:"
-	@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/NICOS-ng.qhcp"
+	@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/NICOS.qhcp"
 	@echo "To view the help file:"
-	@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/NICOS-ng.qhc"
+	@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/NICOS.qhc"
 
 devhelp:  codedoc
 	$(SPHINXBUILD) -b devhelp $(ALLSPHINXOPTS) $(BUILDDIR)/devhelp
 	@echo
 	@echo "Build finished."
 	@echo "To view the help file:"
-	@echo "# mkdir -p $$HOME/.local/share/devhelp/NICOS-ng"
-	@echo "# ln -s $(BUILDDIR)/devhelp $$HOME/.local/share/devhelp/NICOS-ng"
+	@echo "# mkdir -p $$HOME/.local/share/devhelp/NICOS"
+	@echo "# ln -s $(BUILDDIR)/devhelp $$HOME/.local/share/devhelp/NICOS"
 	@echo "# devhelp"
 
 epub:  codedoc

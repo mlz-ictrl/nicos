@@ -13,6 +13,10 @@ devices = dict(
                     ana = 'ana',
                     scatteringsense = (-1, 1, -1)),
 
+    vom    = device('nicos.generic.VirtualMotor',
+                    abslimits = (-360, 360),
+                    unit = 'deg'),
+
     mono   = device('nicos.tas.Monochromator',
                     unit = 'A-1',
                     theta = 'm2th',

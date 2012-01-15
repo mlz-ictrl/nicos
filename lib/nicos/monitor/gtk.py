@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -222,7 +222,7 @@ class Monitor(BaseMonitor):
 
     def reconfigureBoxes(self):
         for setup, boxes in self._onlymap.iteritems():
-            for layout, blockbox in boxes:
+            for _, blockbox in boxes:
                 if setup in self._setups:
                     blockbox.show()
                 else:

@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -28,25 +28,63 @@ includes = ['system']
 
 devices = dict(
     motor = device(
-        'nicos.virtual.VirtualMotor',
+        'nicos.generic.VirtualMotor',
         unit = 'mm',
         initval = 0,
         abslimits = (-100, 100),
     ),
 
     coder = device(
-        'nicos.virtual.VirtualCoder',
+        'nicos.generic.VirtualCoder',
         motor = 'motor',
         unit = 'mm',
     ),
 
     axis = device(
-        'nicos.axis.Axis',
+        'nicos.generic.Axis',
         motor = 'motor',
         coder = 'coder',
         obs = [],
         precision = 0,
         userlimits = (-50, 50),
-        loopdelay = 0.005,  # delay not necessary for virtual motor
+        loopdelay = 0.05,
+        loglevel = 'debug',
     ),
+
+    limit_axis = device(
+        'nicos.generic.Axis',
+        motor = 'motor',
+        coder = 'coder',
+        obs = [],
+        abslimits = (-1, 1),
+        precision = 0,
+    ),
+
+    backlash_axis = device(
+        'nicos.generic.Axis',
+        motor = 'motor',
+        coder = 'coder',
+        obs = None,
+        backlash = 0.5,
+        precision = 0,
+        userlimits = (-50, 50),
+        loopdelay = 0.05,
+    ),
+
+    coder2 = device(
+        'nicos.generic.VirtualCoder',
+        motor = 'motor',
+        unit = 'mm',
+    ),
+
+    obs_axis = device(
+        'nicos.generic.Axis',
+        motor = 'motor',
+        coder = 'coder',
+        obs = ['coder2'],
+        backlash = 0.5,
+        precision = 0,
+        userlimits = (-50, 50),
+        loopdelay = 0.05,
+    )
 )

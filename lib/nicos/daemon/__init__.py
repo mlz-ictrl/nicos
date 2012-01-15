@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -24,6 +24,8 @@
 
 """NICOS daemon package."""
 
+from __future__ import with_statement
+
 __version__ = "$Revision$"
 
 import time
@@ -34,13 +36,16 @@ import threading
 from SocketServer import TCPServer
 
 from nicos import nicos_version
-from nicos.utils import listof, tupleof, oneof, closeSocket
-from nicos.device import Device, Param
+from nicos.core import listof, tupleof, oneof, Device, Param
+from nicos.utils import closeSocket
 
 from nicos.daemon.user import Authenticator
 from nicos.daemon.utils import serialize
 from nicos.daemon.script import ExecutionController
 from nicos.daemon.handler import ConnectionHandler
+
+
+DEFAULT_PORT = 1301
 
 
 class Server(TCPServer):
@@ -61,7 +66,7 @@ class Server(TCPServer):
         self.__serving = True
         self.__is_shut_down.clear()
         while self.__serving:
-            r, w, e = select.select([self], [], [], 1.0)
+            r = select.select([self], [], [], 1.0)[0]
             if r:
                 self._handle_request_noblock()
         self.__is_shut_down.set()
@@ -74,7 +79,7 @@ class Server(TCPServer):
         if self.verify_request(request, client_address):
             try:
                 self.process_request(request, client_address)
-            except:
+            except Exception:
                 self.handle_error(request, client_address)
                 self.close_request(request)
 
@@ -97,7 +102,7 @@ class Server(TCPServer):
             # this call instantiates the RequestHandler class
             self.finish_request(request, client_address)
             self.close_request(request)
-        except:
+        except Exception:
             self.handle_error(request, client_address)
             self.close_request(request)
 
@@ -197,7 +202,7 @@ class NicosDaemon(Device):
         address = self.server
         if ':' not in address:
             host = address
-            port = 1301
+            port = DEFAULT_PORT
         else:
             host, port = address.split(':')
             port = int(port)
@@ -254,3 +259,6 @@ class NicosDaemon(Device):
         self._server.shutdown()
         self._worker.join()
         self._server.server_close()
+
+    def current_script(self):
+        return self._controller.current_script

@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -28,7 +28,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = None,
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = [],
 )
 
@@ -44,7 +44,9 @@ devices = dict(
 
     conssink = device('nicos.data.ConsoleSink'),
 
-    Space    = device('nicos.data.FreeSpace',
+    daemonsink = device('nicos.data.DaemonSink'),
+
+    Space    = device('nicos.generic.FreeSpace',
                       path = 'data',
                       minfree = 5),
 )

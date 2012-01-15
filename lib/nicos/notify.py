@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -29,27 +29,24 @@ __version__ = "$Revision$"
 import os
 import threading
 import subprocess
-from email.Header import Header
-from email.Message import Message
-from email.Charset import Charset, QP
-from email.Utils import formatdate, make_msgid
+from email.header import Header
+from email.message import Message
+from email.charset import Charset, QP
+from email.utils import formatdate, make_msgid
 
 try:
     import xmpp
-except:
+except ImportError:
     xmpp = None
 
-from nicos.utils import listof, usermethod
-from nicos.device import Device, Param
+from nicos.core import listof, usermethod, Device, Param
 
 EMAIL_CHARSET = 'utf-8'
 NS_XHTML = 'http://www.w3.org/1999/xhtml'
 
 
 class Notifier(Device):
-    """
-    Interface for all notification systems.
-    """
+    """Base class for all notification systems."""
 
     parameters = {
         'minruntime': Param('Minimum runtime of a command before a failure '
@@ -58,20 +55,25 @@ class Notifier(Device):
     }
 
     @usermethod
-    def send(subject, body, what=None, short=None):
+    def send(self, subject, body, what=None, short=None, important=True):
         """Send a notification."""
         raise NotImplementedError
 
     @usermethod
-    def sendConditionally(self, runtime, subject, body, what=None, short=None):
+    def sendConditionally(self, runtime, subject, body, what=None, short=None,
+                          important=True):
         """Send a notification if the given runtime is large enough."""
         if runtime > self.minruntime:
-            self.send(subject, body, what, short)
+            self.send(subject, body, what, short, important)
+
+    def reset(self):
+        """Reset experiment-specific configuration.  Does nothing by default."""
 
 
 class Jabberer(Notifier):
-    """
-    Jabber notification handling.
+    """Notifier to send Jabber notifications.
+
+    Needs the xmpp module.
     """
 
     parameters = {
@@ -89,7 +91,7 @@ class Jabberer(Notifier):
         self._client.connect()
         self._client.auth(self._jid.getNode(), self.password)
 
-    def send(self, subject, body, what=None, short=None):
+    def send(self, subject, body, what=None, short=None, important=True):
         receivers = self.receivers
         self.log.debug('trying to send message to %s' % ', '.join(receivers))
         for receiver in receivers:
@@ -115,8 +117,10 @@ class Jabberer(Notifier):
 
 
 class Mailer(Notifier):
-    """
-    E-Mail notification handling.
+    """E-Mail notification handling.
+
+    If a Mailer is configured as a notifier, the receiver addresses (not copies)
+    can be set by `.SetMailReceivers`.
     """
 
     parameters = {
@@ -128,14 +132,18 @@ class Mailer(Notifier):
         'subject':   Param('Subject prefix', type=str, default='NICOS'),
     }
 
-    def send(self, subject, body, what=None, short=None):
+    def reset(self):
+        self.log.info('mail receivers cleared')
+        self.receivers = []
+
+    def send(self, subject, body, what=None, short=None, important=True):
         def send():
             if not self.receivers:
                 return
             receivers = self.receivers + self.copies
             ok = self._sendmail(self.sender,
                                 self.receivers,
-                                self.copies,
+                                important and self.copies or [],
                                 self.subject + ' -- ' + subject, body)
             if ok:
                 self.log.info('%smail sent to %s' % (
@@ -199,8 +207,10 @@ class Mailer(Notifier):
 
 
 class SMSer(Notifier):
-    """
-    SMS notifications via smslink client program.
+    """SMS notifications via smslink client program.
+
+    If a SMSer is configured as a notifier, the receiver addresses (not copies)
+    can be set by `.SetSMSReceivers`.
     """
 
     parameters = {
@@ -210,7 +220,9 @@ class SMSer(Notifier):
         'subject':   Param('Body prefix', type=str, default='NICOS'),
     }
 
-    def send(self, subject, body, what=None, short=None):
+    def send(self, subject, body, what=None, short=None, important=True):
+        if not important:
+            return
         receivers = self.receivers
         if not receivers:
             return

@@ -22,16 +22,16 @@ devices = dict(
                       scatteringsense=(-1,1,-1),
                       ),
 
-    stt      = device('nicos.virtual.VirtualMotor',
+    stt      = device('nicos.generic.VirtualMotor',
                       abslimits = (-180, 180),
                       unit = 'deg'),
 
-    sth      = device('nicos.virtual.VirtualMotor',
+    sth      = device('nicos.generic.VirtualMotor',
                       abslimits = (0, 360),
                       unit = 'deg'),
 
-    sw=device('nicos.virtual.VirtualSwitch',
-                      states=['on','off',2,1],
+    sw       = device('nicos.generic.ManualSwitch',
+                      states = ['on','off',2,1],
                       ),
 
 )

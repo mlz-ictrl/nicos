@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -24,6 +24,8 @@
 
 """Web interface for NICOS."""
 
+from __future__ import with_statement
+
 __version__ = "$Revision$"
 
 import os
@@ -41,7 +43,7 @@ from SocketServer import ThreadingMixIn
 from wsgiref.simple_server import WSGIServer
 
 from nicos import session
-from nicos.loggers import NicosConsoleFormatter, DATEFMT
+from nicos.utils.loggers import NicosConsoleFormatter, DATEFMT
 
 QUIT_MESSAGE = 'Just close the browser window to quit the session.'
 
@@ -127,7 +129,7 @@ try:
         open(os.path.join(os.path.dirname(__file__), 'jquery.js')).read())
     CONSOLE_PAGE = CONSOLE_PAGE.replace('@@support@@',
         open(os.path.join(os.path.dirname(__file__), 'support.js')).read())
-except:
+except Exception:
     CONSOLE_PAGE = ''
 
 class FakeInput(object):
@@ -144,10 +146,10 @@ class FakeInput(object):
 class WebHandler(logging.Handler):
     """Log handler for transmitting log messages to the client."""
 
-    def __init__(self, buffer, lock):
+    def __init__(self, buf, lock):
         logging.Handler.__init__(self)
         self.setFormatter(NicosConsoleFormatter(datefmt=DATEFMT))
-        self.buffer = buffer
+        self.buffer = buf
         self.lock = lock
 
     def emit(self, record):
@@ -234,8 +236,7 @@ class NicosApp(object):
             raise RuntimeError('session taken over by another client.')
         try:
             code = compile(code, '<stdin>', 'single', 0, 1)
-            exec code in session.getNamespace(), \
-                         session.getLocalNamespace()
+            exec code in session.namespace, session.local_namespace
         except SystemExit:
             print QUIT_MESSAGE
         except:

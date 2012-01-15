@@ -28,7 +28,8 @@ devices = dict(
                       instrument = 'MIRA',
                       responsible = 'Robert Georgii <robert.georgii@frm2.tum.de>'),
 
-    filesink = device('nicos.data.AsciiDatafileSink'),
+    filesink = device('nicos.data.AsciiDatafileSink',
+                      semicolon = False),
 
     conssink = device('nicos.data.ConsoleSink'),
 

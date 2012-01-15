@@ -1,3 +1,5 @@
+.. _setups:
+
 =========================
 Configuring NICOS: Setups
 =========================
@@ -54,26 +56,27 @@ Entries in the ``devices`` dictionary
 -------------------------------------
 
 A device definition consists of a call like ``device(classname, parameters)``.
-The class name is fully qualified (i.e., includes the package/module name).  The
-parameters are given as keyword arguments.  Here are some example ``devices``
-entries::
+The class name is fully qualified (i.e., includes the package/module name).  See
+the :doc:`class documentation <classes/index>` for the existing device classes.
+The parameters are given as keyword arguments.  Here are some example
+``devices`` entries::
 
    devices = dict(
-       p   = device('nicos.io.AnalogInput',
+       p   = device('nicos.taco.AnalogInput',
                      tacodevice = 'mira/ccr/pressure',
                      unit = 'bar'),
 
-       mth_motor = device('nicos.motor.Motor',
+       mth_motor = device('nicos.taco.Motor',
                      tacodevice = 'mira/motor/mth',
                      lowlevel = True,
                      unit = 'deg'),
 
-       mth_coder = device('nicos.coder.Coder',
+       mth_coder = device('nicos.taco.Coder',
                      tacodevice = 'mira/coder/mth',
                      lowlevel = True,
                      unit = 'deg'),
 
-       mth = device('nicos.axis.Axis',
+       mth = device('nicos.generic.Axis',
                    motor = 'mth_motor',
                    coder = 'mth_coder',
                    abslimits = (0, 100),

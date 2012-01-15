@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -24,10 +24,13 @@
 
 """A line editor control with history stepping."""
 
+from __future__ import with_statement
+
 __version__ = "$Revision$"
 
-from PyQt4.QtGui import QApplication, QKeyEvent, QLineEdit
-from PyQt4.QtCore import Qt, SIGNAL
+from PyQt4.QtGui import QApplication, QKeyEvent, QLineEdit, QCompleter, \
+     QStringListModel
+from PyQt4.QtCore import Qt, SIGNAL, QEvent
 
 
 class HistoryLineEdit(QLineEdit):
@@ -42,8 +45,24 @@ class HistoryLineEdit(QLineEdit):
         QLineEdit.__init__(self, parent)
         self.history = history or []
         self.scrollWidget = None
+        self.completion_callback = None
         self._start_text = ''
         self._current = -1
+        self._completer = QCompleter([], self)
+        self.setCompleter(self._completer)
+
+    def event(self, event):
+        # need to reimplement the general event handler to enable catching Tab
+        if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Tab and \
+            self.completion_callback:
+            matches = self.completion_callback(self.text())
+            if len(matches) == 1:
+                self.setText(matches[0])
+            else:
+                self._completer.setModel(QStringListModel(matches, self))
+                self._completer.complete()
+            return True
+        return QLineEdit.event(self, event)
 
     def keyPressEvent(self, kev):
         key_code = kev.key()
@@ -63,6 +82,7 @@ class HistoryLineEdit(QLineEdit):
             self.setText(self._start_text)
             self._current = -1
             self.emit(SIGNAL('escapePressed()'))
+            QLineEdit.keyPressEvent(self, kev)
 
         elif key_code == Qt.Key_Up:
             # go earlier
@@ -102,6 +122,8 @@ class HistoryLineEdit(QLineEdit):
                 if text and (not self.history or self.history[-1] != text):
                     # append to history, but only if it isn't equal to the last
                     self.history.append(text)
+            self._completer.setCompletionPrefix('')
+            self._completer.setModel(QStringListModel([], self))
             QLineEdit.keyPressEvent(self, kev)
 
         else:

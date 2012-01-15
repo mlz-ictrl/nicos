@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# NICOS-NG, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -34,7 +34,7 @@ from PyQt4.QtCore import Qt, QRegExp
 from PyQt4.QtGui import QTextCharFormat, QBrush, QColor, QFont, QTextBrowser, \
      QTextCursor
 
-from nicos.loggers import INPUT, OUTPUT, ACTION
+from nicos.utils.loggers import INPUT, OUTPUT, ACTION
 
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
@@ -62,8 +62,8 @@ redbold.setFontWeight(QFont.Bold)
 
 # REs for hyperlinks
 
-script_re = re.compile(r'>>> \[.*?\] -{20} (.*?)\n')
-command_re = re.compile(r'>>> \[.*?\]  (.*?)\n')
+script_re = re.compile(r'>>> \[([^ ]+) .*?\] -{20} (.*?)\n')
+command_re = re.compile(r'>>> \[([^ ]+) .*?\]  (.*?)\n')
 
 # time formatter
 
@@ -78,6 +78,7 @@ class OutputView(QTextBrowser):
         self._messages = []
         self._inview = False
         self._actionlabel = None
+        self._currentuser = None
 
     def setActionLabel(self, label):
         self._actionlabel = label
@@ -121,14 +122,18 @@ class OutputView(QTextBrowser):
             if m:
                 fmt = QTextCharFormat()
                 fmt.setAnchor(True)
-                fmt.setAnchorHref('edit:' + m.group(1))
+                fmt.setAnchorHref('edit:' + m.group(2))
+                if m.group(1) != self._currentuser:
+                    fmt.setForeground(QBrush(QColor('#0000C0')))
                 fmt.setFontWeight(QFont.Bold)
                 return message[3], fmt
             m = command_re.match(message[3])
             if m:
                 fmt = QTextCharFormat()
                 fmt.setAnchor(True)
-                fmt.setAnchorHref('exec:' + m.group(1))
+                fmt.setAnchorHref('exec:' + m.group(2))
+                if m.group(1) != self._currentuser:
+                    fmt.setForeground(QBrush(QColor('#0000C0')))
                 fmt.setFontWeight(QFont.Bold)
                 return message[3], fmt
             return message[3], bold
@@ -167,13 +172,13 @@ class OutputView(QTextBrowser):
     def addMessages(self, messages):
         textcursor = self.textCursor()
         textcursor.movePosition(QTextCursor.End)
-        format = self.formatMessage
+        formatter = self.formatMessage
         # insert text with the same format in one batch; this can save
         # quite a lot of time with text mainly in one format (info)
         lastfmt = None
         lasttext = ''
         for message in messages:
-            text, fmt = format(message)
+            text, fmt = formatter(message)
             if fmt is lastfmt:
                 lasttext += text
             else:
