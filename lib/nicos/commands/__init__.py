@@ -83,11 +83,3 @@ def importAllCommands(module):
         if getattr(command, 'is_usercommand', False) or \
            getattr(command, 'is_userobject', False):
             globals()[name] = command
-
-#importAllCommands('nicos.commands.basic')
-#importAllCommands('nicos.commands.device')
-#importAllCommands('nicos.commands.output')
-#importAllCommands('nicos.commands.measure')
-#importAllCommands('nicos.commands.scan')
-#importAllCommands('nicos.commands.analyze')
-#importAllCommands('nicos.commands.tas')
