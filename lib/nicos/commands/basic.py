@@ -192,7 +192,8 @@ def ListSetups():
     for name, info in session.getSetupInfo().iteritems():
         if info['group'] == 'special':
             continue
-        items.append((name, info['name'], ', '.join(sorted(info['devices']))))
+        items.append((name, info['description'],
+                      ', '.join(sorted(info['devices']))))
     items.sort()
     printTable(('name', 'description', 'devices'), items, printinfo)
 
