@@ -28,8 +28,7 @@ __version__ = "$Revision$"
 
 
 class NicosError(Exception):
-    """
-    The basic exception class for exceptions raised by NICOS.
+    """The basic exception class for exceptions raised by NICOS.
 
     Every NicosError subclass has a "category" attribute, a string that is shown
     to the user instead of the exception class.
@@ -57,21 +56,20 @@ class NicosError(Exception):
 
 
 class ProgrammingError(NicosError):
-    """
-    Exception to be raised when an error in the code is detected.
+    """Exception to be raised when an error in the code is detected.
+
+    This should not occur during normal operation.
     """
     category = 'Programming error'
 
 class ConfigurationError(NicosError):
-    """
-    Exception to be raised when an error in the :term:`setup` is detected, or a
-    device is supplied with invalid configuration data.
+    """Exception to be raised when an error in the :term:`setup` is detected,
+    or a device is supplied with invalid configuration data.
     """
     category = 'Configuration error'
 
 class UsageError(NicosError):
-    """
-    Exception to be raised when user commands are used wrongly.
+    """Exception to be raised when user commands are used wrongly.
 
     When this exception is caught by the :term:`user command` handler, the help
     for the command that was executed is shown.
@@ -79,81 +77,70 @@ class UsageError(NicosError):
     category = 'Usage error'
 
 class InvalidValueError(NicosError):
-    """
-    Exception to be raised when the user gives an invalid value to a device
+    """Exception to be raised when the user gives an invalid value to a device
     (as a move target or parameter value).
     """
     category = 'Invalid value'
 
 class ModeError(NicosError):
-    """
-    Exception to be raised when an action is not allowed in the current
+    """Exception to be raised when an action is not allowed in the current
     :term:`execution mode`.
     """
     category = 'Mode error'
 
 class AccessError(NicosError):
-    """
-    Exception to be raised when an action is forbidden to the current user.
+    """Exception to be raised when an action is forbidden to the current user.
 
     Used by the `.requires` decorator.
     """
     category = 'Access denied'
 
 class PositionError(NicosError):
-    """
-    Exception to be raised when a device detects an invalid position.
+    """Exception to be raised when a device detects an undefined position.
+
+    For example, this should be raised when several coders do not agree.
     """
     category = 'Undefined position'
 
 class MoveError(NicosError):
-    """
-    Exception to be raised when moving a device is not possible.
-    """
+    """Exception to be raised when errors occur while moving a device."""
     category = 'Positioning error'
 
 class LimitError(NicosError):
-    """
-    Exception to be raised when a requested move target is out of limits.
-    """
+    """Exception to be raised when a requested move target is out of limits."""
     category = 'Out of bounds'
 
 class CommunicationError(NicosError):
-    """
-    Exception to be raised when some hardware communication fails.
-    """
+    """Exception to be raised when some hardware communication fails."""
     category = 'Communication error'
 
 class HardwareError(NicosError):
-    """
-    Exception to be raised on fatal hardware errors.
-    """
+    """Exception to be raised on fatal hardware errors."""
     category = 'Hardware failure'
 
 class TimeoutError(NicosError):
-    """
-    Exception to be raised when a hardware timeout occurs -- this is *not* a
-    communication timeout; for that purpose `CommunicationError` should be used.
+    """Exception to be raised when a timeout waiting for hardware occurs.
+
+    This is *not* a communication timeout; for that purpose `CommunicationError`
+    should be used.
     """
     # XXX generalize timeouts
     category = 'Timeout'
 
 class ComputationError(NicosError):
-    """
-    Exception to be raised when a computation (e.g. of physical values) fails.
+    """Exception to be raised when a computation fails.
+
+    Examples are the conversion of physical values to logical values.
     """
     category = 'Computation error'
 
 class FixedError(NicosError):
-    """
-    Exception to be raised when moving a :term:`fix`\ ed device is attempted.
-    """
+    """Exception to be raised when moving a fixed device is attempted."""
     category = 'Device fixed'
 
-class CacheLockError(ProgrammingError):
-    """
-    Exception to be raised when a :term:`cache lock` cannot be acquired.
-    """
+class CacheLockError(NicosError):
+    """Exception to be raised when a :term:`cache lock` cannot be acquired."""
+    category = 'Cannot lock device in cache'
     def __init__(self, locked_by):
         self.locked_by = locked_by
         ProgrammingError.__init__(self, 'locked by ' + locked_by)
