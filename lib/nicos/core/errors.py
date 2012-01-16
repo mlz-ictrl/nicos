@@ -104,13 +104,12 @@ class PositionError(NicosError):
     """
     Exception to be raised when a device detects an invalid position.
     """
-    category = 'Position error'
+    category = 'Undefined position'
 
 class MoveError(NicosError):
     """
     Exception to be raised when moving a device is not possible.
     """
-    # XXX specify when to use this and PositionError
     category = 'Positioning error'
 
 class LimitError(NicosError):

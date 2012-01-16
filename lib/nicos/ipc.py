@@ -1103,6 +1103,8 @@ class SlitAxis(HasPrecision, HasLimits, Moveable):
     """Class for one axis of a IPC 4-wing slit.
 
     Use this together with `nicos.generic.Slit` to add a 4-wing slit device.
+
+    # XXX check this code, it is only half ported
     """
 
     parameters = {

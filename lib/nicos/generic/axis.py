@@ -36,7 +36,7 @@ from nicos.abstract import Axis as BaseAxis, Motor, Coder
 
 
 class Axis(BaseAxis):
-    """An axis implemented in Python, with NICOS devices for motor and coders."""
+    """Axis implemented in Python, with NICOS devices for motor and coders."""
 
     attached_devices = {
         'motor': (Motor, 'Axis motor device'),
@@ -232,13 +232,13 @@ class Axis(BaseAxis):
         if maxdiff <= 0:
             return True
         if diff > maxdiff:
-            return self._setErrorState(PositionError,
+            return self._setErrorState(MoveError,
                 'drag error (primary coder): difference %f, maximum %f' %
                 (diff, maxdiff))
         for obs in self._adevs['obs']:
             diff = abs(self._adevs['motor'].read() - obs.read())
             if diff > maxdiff:
-                return self._setErrorState(PositionError,
+                return self._setErrorState(MoveError,
                     'drag error (%s): difference %f, maximum %f' %
                     (obs.name, diff, maxdiff))
         return True
@@ -256,7 +256,7 @@ class Axis(BaseAxis):
         # at the end of the move, the motor can slightly overshoot
         ok = delta_last >= delta_curr or delta_curr < self.precision
         if not ok:
-            return self._setErrorState(PositionError,
+            return self._setErrorState(MoveError,
                 'not moving to target: last delta %f, current delta %f'
                 % (delta_last, delta_curr))
         return True
@@ -272,7 +272,7 @@ class Axis(BaseAxis):
             if error:
                 # not calling _setErrorState here, since we don't want the error
                 # log message in all cases
-                self._errorstate = MoveError(self,
+                self._errorstate = PositionError(self,
                     'precision error: difference %f, precision %f' %
                     (diff, self.precision))
             return False
@@ -280,7 +280,7 @@ class Axis(BaseAxis):
             diff = abs(target - obs.read())
             if maxdiff > 0 and diff > maxdiff:
                 if error:
-                    self._errorstate = MoveError(self,
+                    self._errorstate = PositionError(self,
                         'precision error (%s): difference %f, maximum %f' %
                         (obs, diff, maxdiff))
                 return False
@@ -362,7 +362,7 @@ class Axis(BaseAxis):
                 else:
                     self.log.debug('target not reached after max tries')
                     moving = False
-                    self._setErrorState(MoveError,
+                    self._setErrorState(PositionError,
                         'target not reached after %d tries' % self.maxtries)
             elif not self._checkMoveToTarget(target, pos):
                 self._stoprequest = 1

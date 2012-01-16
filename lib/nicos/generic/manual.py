@@ -89,7 +89,7 @@ class ManualSwitch(Moveable):
     def doRead(self):
         if self.target in self.states:
             return self.target
-        raise PositionError(self, 'is in an unknown state')
+        raise PositionError(self, 'device is in an unknown state')
 
     def doStatus(self):
         return status.OK, ''
