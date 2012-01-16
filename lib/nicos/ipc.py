@@ -513,10 +513,11 @@ class Coder(NicosCoder):
 
     def doRead(self):
         # make sure to ask hardware, don't use cached value of steps
-        pos = self._fromsteps(self.doReadSteps())
-        self._params['steps'] = pos  # save last valid position in cache
-        if self._cache:
-            self._cache.put(self, 'steps', pos)
+        steps = self.doReadSteps()
+        self._params['steps'] = steps
+        if self._cache:  # save last valid position in cache
+            self._cache.put(self, 'steps', steps)
+        pos = self._fromsteps(steps)
         if self.circular is not None:
             # make it wrap around
             pos = pos % abs(self.circular)
