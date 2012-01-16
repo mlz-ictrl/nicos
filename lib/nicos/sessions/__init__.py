@@ -242,7 +242,7 @@ class Session(object):
                 raise ConfigurationError('An error occurred while reading '
                                          'setup %s: %s' % (modname, err))
             info = {
-                'name': ns.get('name', modname),
+                'description': ns.get('description', modname),
                 'group': ns.get('group', 'base'),
                 'sysconfig': ns.get('sysconfig', {}),
                 'includes': ns.get('includes', []),
@@ -264,7 +264,7 @@ class Session(object):
         """Return information about all existing setups.
 
         This is a dictionary mapping setup name to another dictionary.  The keys
-        of that dictionary are those present in the setup files: 'name',
+        of that dictionary are those present in the setup files: 'description',
         'group', 'sysconfig', 'includes', 'excludes', 'modules', 'devices',
         'startupcode', 'extended'.
         """
@@ -322,7 +322,7 @@ class Session(object):
             info = self._setup_info[name]
             if name not in setupnames:
                 self.log.debug('loading include setup %r (%s)' %
-                               (name, info['name']))
+                               (name, info['description']))
             if name in self.excluded_setups:
                 raise ConfigurationError('Cannot load setup %r, it is excluded '
                                          'by one of the current setups' % name)
@@ -368,7 +368,7 @@ class Session(object):
         sysconfig, devlist, startupcode = {}, {}, []
         for setupname in setupnames:
             self.log.info('loading setup %r (%s)' %
-                          (setupname, self._setup_info[setupname]['name']))
+                (setupname, self._setup_info[setupname]['description']))
             ret = inner_load(setupname)
             if ret:
                 sysconfig.update(ret[0])

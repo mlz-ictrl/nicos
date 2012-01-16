@@ -1,4 +1,4 @@
-name = 'MIEZE devices'
+description = 'MIEZE test setup'
 
 includes = ['startup']
 modules = ['nicos.mira.mieze']

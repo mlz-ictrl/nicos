@@ -25,7 +25,7 @@
 #
 # *****************************************************************************
 
-name = 'setup for the status monitor'
+description = 'setup for the status monitor'
 group = 'special'
 
 _exp = [('Experiment', [[{'key': 'exp/proposal', 'name': 'Proposal'},

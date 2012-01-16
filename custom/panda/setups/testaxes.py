@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-name = 'test setup for 8 axes in 1 Motorrahmen'
+description = 'test setup for 8 axes in 1 Motorrahmen'
 
 includes = ['system']
 

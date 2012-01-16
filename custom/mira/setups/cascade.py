@@ -1,4 +1,4 @@
-name = 'cascade psd detector'
+description = 'cascade psd detector'
 
 includes = ['detector']
 

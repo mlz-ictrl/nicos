@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-name = 'devices for the TAS setup'
+description = 'test triple-axis setup'
 
 includes = ['system']
 

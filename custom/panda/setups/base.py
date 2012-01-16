@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-name='base system'
+description='base system'
 
 group='internal'
 

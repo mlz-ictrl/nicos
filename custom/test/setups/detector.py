@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-name = 'devices for the detector'
+description = 'virtual detector'
 
 includes = ['system']
 

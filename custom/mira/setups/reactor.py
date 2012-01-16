@@ -1,4 +1,4 @@
-name = 'reactor status devices'
+description = 'reactor status devices'
 
 devices = dict(
     Power    = device('nicos.taco.AnalogInput',

@@ -1,4 +1,4 @@
-name = 'MIRA electromagnet'
+description = 'MIRA electromagnet'
 
 includes = ['base']
 

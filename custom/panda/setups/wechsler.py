@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-name = 'test setup for Monowechsler on PANDA'
+description = 'test setup for Monowechsler on PANDA'
 
 includes = ['system']
 

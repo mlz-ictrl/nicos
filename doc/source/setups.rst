@@ -18,8 +18,8 @@ subdirectory ``setups`` of the site-specific NICOS root directory.
 
 A setup file can consist of the following entries, all of which are optional:
 
-``name``
-   A string describing the setup in more detail than the module name.
+``description``
+   A string describing the setup in more detail than the file name.
 
 ``group``
    A string giving the group of the setup (meaning to be decided later).
