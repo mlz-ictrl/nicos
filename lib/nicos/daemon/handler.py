@@ -248,7 +248,7 @@ class ConnectionHandler(BaseRequestHandler):
             self.write(NAK, 'credentials not accepted')
             raise CloseConnection
 
-        # XXX only works for the client that logged in last
+        # of course this only works for the client that logged in last
         os.environ['DISPLAY'] = display
 
         # acknowledge the login

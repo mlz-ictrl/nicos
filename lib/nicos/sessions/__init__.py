@@ -561,7 +561,9 @@ class Session(object):
         try:
             return compiler(command)
         except SyntaxError:
-            # XXX experimental command handler to allow e.g. "read om"
+            # this could be a command extension to allow e.g. "read om",
+            # disabled for now since it has too many ambiguities and will
+            # confuse users
             if 0 and '\n' not in command:
                 parts = command.split()
                 if parts[0] in self._exported_names and \
@@ -600,7 +602,8 @@ class Session(object):
                 raise ConfigurationError(
                     'device %r not found in configuration' % dev)
         if not isinstance(dev, cls or Device):
-            # XXX error message wrong for tuples
+            if isinstance(cls, tuple):
+                raise UsageError('dev must be one of %s' % (cls,))
             raise UsageError('dev must be a %s' % (cls or Device).__name__)
         return dev
 
