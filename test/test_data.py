@@ -33,7 +33,7 @@ from nicos import session
 from nicos.utils import readFile
 from nicos.commands.scan import scan
 
-from test.utils import raises
+from test.utils import raises, assert_response
 
 
 def setup_module():
@@ -69,8 +69,8 @@ def test_sinks():
         session._log_handlers.remove(handler)
 
     assert '=' * 100 in handler.messages
-    assert 'Starting scan:      scan(motor2, 0, 1, 5, det, t=0.1)' \
-        in handler.messages
+    assert_response(handler.messages,
+            matches='Starting scan:      scan\(motor2, 0, 1, 5, det, t=0\.1.*\)')
 
     fname = path.join(session.config.control_path, 'testdata', 'filecounter')
     assert path.isfile(fname)

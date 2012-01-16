@@ -26,6 +26,7 @@
 
 __version__ = "$Revision$"
 
+import re
 from nose.tools import assert_raises
 
 from nicos.core import Moveable, HasLimits, status
@@ -35,6 +36,25 @@ from nicos.data import DataSink
 def raises(exc, *args, **kwds):
     assert_raises(exc, *args, **kwds)
     return True
+
+def assert_response(resp, contains=None, matches=None):
+    """ Check for specific strings in a response array
+	
+	resp: iterable object containing reponse strings
+        contains:  string to check for presence, does string comparison
+        matches:  re.regexp to search for in response
+
+    """
+    if contains:
+        assert contains in resp, "Response does not contain %r" % contains
+
+    if matches:
+        reg = re.compile(matches)
+	for sub in resp:
+	    found = reg.findall(sub)
+	    if len(found):
+		return True		
+	assert False , "Response does not match %r" % matches
 
 
 class TestDevice(HasLimits, Moveable):
