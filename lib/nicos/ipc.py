@@ -39,7 +39,7 @@ from RS485Client import RS485Client
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, none_or, \
      usermethod, Device, Readable, Moveable, Param, Override, HasPrecision, \
      HasLimits, NicosError, CommunicationError, ProgrammingError, \
-     InvalidValueError, TimeoutError, MoveError
+     InvalidValueError, TimeoutError, MoveError, waitForStatus
 from nicos.utils import closeSocket, lazy_property, runAsync
 from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.taco.core import TacoDevice
@@ -848,19 +848,9 @@ class Motor(NicosMotor):
             rewind()
 
     def doWait(self):
-        timeleft = self.timeout
         sleep(0.1)
-        while timeleft >= 0:
-            sleep(0.2)
-            timeleft -= 0.2
-            if self.status(0)[0] != status.BUSY:
-                #~ sleep(1.0)   # triple cards have status idle before they
-                                # are really stopped. reading position directly
-                                # after becoming idle yields not the final value
-                break
-        else:
-            raise TimeoutError(self, 'movement timed out (timeout %.1f s)'
-                               % self.timeout)
+        # XXX is it ok to not react to error states?
+        waitForStatus(self, 0.2, self.timeout, errorstates=())
 
     def doStop(self):
         if self._hwtype == 'single':

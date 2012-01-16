@@ -64,11 +64,8 @@ class Axis(TacoDevice, BaseAxis):
         self._taco_guard(self._dev.start, target + self.offset)
 
     def doWait(self):
-        st = waitForStatus(self, 0.3)
-        if st[0] == status.ERROR:
-            raise MoveError(self, st[1])
-        elif st[0] == status.NOTREACHED:
-            raise PositionError(self, st[1])
+        # XXX add a timeout?
+        waitForStatus(self, 0.3)
 
     def doRead(self):
         return self._taco_guard(self._dev.read) - self.offset

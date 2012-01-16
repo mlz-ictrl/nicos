@@ -20,6 +20,9 @@ Changelog for NICOS 2
 
   - Added the "extended" entry to setup files, for future use.
 
+  - The "waitForStatus" utility function now supports timeout and handling
+    error states.
+
 **Release 2.0.1**
 
   - In ImageStorage, make sure the data file isn't overwritten unless

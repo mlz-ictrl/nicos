@@ -177,7 +177,8 @@ class Axis(BaseAxis):
         """Waits until the movement of the motor has stopped and
         the target position has been reached.
         """
-        waitForStatus(self, self.loopdelay)
+        # XXX add a timeout?
+        waitForStatus(self, self.loopdelay, errorstates=())
         if self._errorstate:
             raise self._errorstate
 
