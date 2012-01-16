@@ -20,8 +20,11 @@ Changelog for NICOS 2
 
   - Added the "extended" entry to setup files, for future use.
 
-  - The "waitForStatus" utility function now supports timeout and handling
+  - The "waitForStatus()" utility function now supports timeout and handling
     error states.
+
+  - The "center()" and "checkoffset()" user commands now can take an "ycol"
+    keyword that determines which data column is used for fitting.
 
 **Release 2.0.1**
 
