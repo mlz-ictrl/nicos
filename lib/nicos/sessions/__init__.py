@@ -319,13 +319,14 @@ class Session(object):
         def inner_load(name):
             if name in self.loaded_setups:
                 return
+            info = self._setup_info[name]
             if name not in setupnames:
-                self.log.debug('loading include setup %s' % name)
+                self.log.debug('loading include setup %r (%s)' %
+                               (name, info['name']))
             if name in self.excluded_setups:
                 raise ConfigurationError('Cannot load setup %r, it is excluded '
                                          'by one of the current setups' % name)
 
-            info = self._setup_info[name]
             if info['group'] == 'special' and not allow_special:
                 raise ConfigurationError('Cannot load special setup %r' % name)
             if info['group'] == 'simulated' and self._mode != 'simulation':
@@ -366,7 +367,8 @@ class Session(object):
 
         sysconfig, devlist, startupcode = {}, {}, []
         for setupname in setupnames:
-            self.log.info('loading setup %s' % setupname)
+            self.log.info('loading setup %r (%s)' %
+                          (setupname, self._setup_info[setupname]['name']))
             ret = inner_load(setupname)
             if ret:
                 sysconfig.update(ret[0])
@@ -626,8 +628,12 @@ class Session(object):
                     self.export(devname, self.devices[devname])
                 return self.devices[devname]
             self.destroyDevice(devname)
-        self.log.info('creating device %r... ' % devname)
         devclsname, devconfig = self.configured_devices[devname]
+        if 'description' in devconfig:
+            self.log.info('creating device %r (%s)... ' %
+                          (devname, devconfig['description']))
+        else:
+            self.log.info('creating device %r... ' % devname)
         modname, clsname = devclsname.rsplit('.', 1)
         try:
             devcls = getattr(__import__(modname, None, None, [clsname]),

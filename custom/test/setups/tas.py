@@ -32,6 +32,7 @@ sysconfig = dict(
 
 devices = dict(
     tas      = device('nicos.tas.TAS',
+                      description = 'test triple-axis spectrometer',
                       instrument = 'VTAS',
                       responsible = 'R. Esponsible <responsible@frm2.tum.de>',
                       cell = 'Sample',
