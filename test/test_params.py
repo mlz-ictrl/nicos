@@ -24,9 +24,6 @@
 
 """NICOS parameter utilities tests."""
 
-from nicos import session
-from nicos.core import UsageError, LimitError, ModeError, FixedError
-
 from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
      tacodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, none_or
 
@@ -75,10 +72,11 @@ def test_param_converters():
     assert raises(ValueError, floatrange(0, 10), 15.)
     assert raises(ValueError, floatrange(0, 10), 'x')
 
-    assert oneof(int, 0, 1)('0') == 0
-    assert oneof(int, 2, 3)() == 2
-    assert raises(ValueError, oneof(int, 0, 1), 2)
-    assert raises(ValueError, oneof(int, 0, 1), 'x')
+    assert oneof(0, 1)(1) == 1
+    assert oneof(2, 3)() == 2
+    assert raises(ValueError, oneof(0, 1), '0')
+    assert raises(ValueError, oneof(0, 1), 2)
+    assert raises(ValueError, oneof(0, 1), 'x')
 
     assert oneofdict({'A': 1, 'B': 2})('A') == 1
     assert oneofdict({'A': 1, 'B': 2})(1) == 1

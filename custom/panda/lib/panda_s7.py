@@ -77,9 +77,9 @@ class S7Coder(NicosCoder):
     """
     parameters = {
         'startbyte': Param('Adressoffset in S7-image (0 or 4)',
-                           type=oneof(int, 0, 4), mandatory=True, default=4),
+                           type=oneof(0, 4), mandatory=True, default=4),
         'sign':      Param('Sign of returned Encoder Value',
-                           type=oneof(int, -1, 1), default=-1),
+                           type=oneof(-1, 1), default=-1),
     }
 
     attached_devices = {
@@ -106,7 +106,7 @@ class S7Motor(NicosMotor):
         'timeout'   : Param('Timeout in seconds for moving the motor or getting a reaction',
                             type=intrange(1, 3601), default=360),
         'sign'      : Param('Sign of moving direction Value',
-                            type=oneof(float, -1.0, 1.0 ), default=-1.0),
+                            type=oneof(-1.0, 1.0 ), default=-1.0),
         'precision' : Param('Precision of the device value',
                             type=float, unit='main', settable=False, category='precisions', default=0.001),
         'fmtstr'    : Param('Format string for the device value',
@@ -306,7 +306,7 @@ class Panda_mtt(Axis):
         'timeout':     Param('Timeout in seconds for moving the motor or getting a reaction',
                              type=intrange(1, 3601), default=360),
         'sign':        Param('Sign of moving direction Value',
-                             type=oneof(float, -1.0, 1.0 ), default=-1.0),
+                             type=oneof(-1.0, 1.0), default=-1.0),
         'precision' :  Param('Precision of the device value', type=float,
                              unit='main', settable=False, category='precisions', default=0.001),
         'fmtstr':      Param('Format string for the device value', type=str,

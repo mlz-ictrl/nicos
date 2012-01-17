@@ -76,11 +76,11 @@ class Slit(Moveable):
 
     parameters = {
         'opmode': Param('Mode of operation for the slit',
-                        type=oneof(str, '4blades', 'centered', 'offcentered'),
+                        type=oneof('4blades', 'centered', 'offcentered'),
                         settable=True),
         'coordinates': Param('Coordinate convention for right/left and '
                              'top/bottom blades', default='equal',
-                             type=oneof(str, 'equal', 'opposite')),
+                             type=oneof('equal', 'opposite')),
     }
 
     parameter_overrides = {

@@ -275,7 +275,7 @@ class MonoWechsler( Device ):
     
     parameters = {
         'mono_on_table': Param('Name of Mono on the Monotable',
-                          type=oneof(str,'PG','Si','Cu','Heusler','None'), default='None', settable=True),
+                          type=oneof('PG','Si','Cu','Heusler','None'), default='None', settable=True),
     }
     positions = ['111','011','110','101'] # Clockwise
     monos = ['Cu', 'Si','PG','Heusler'] # assigned monos
