@@ -30,7 +30,7 @@ __version__ = "$Revision$"
 from Motor import Motor as TACOMotor
 import TACOStates
 
-from nicos.core import status, waitForStatus
+from nicos.core import status, waitForStatus, Override
 from nicos.abstract import Motor as BaseMotor
 from nicos.taco.core import TacoDevice
 
@@ -39,6 +39,10 @@ class Motor(TacoDevice, BaseMotor):
     """TACO motor implementation class."""
 
     taco_class = TACOMotor
+
+    parameter_overrides = {
+        'abslimits':  Override(mandatory=False),
+    }
 
     def doStart(self, target):
         self._taco_guard(self._dev.start, target)
@@ -68,3 +72,12 @@ class Motor(TacoDevice, BaseMotor):
 
     def doWriteSpeed(self, value):
         self._taco_guard(self._dev.setSpeed, value)
+
+    def doReadAbslimits(self):
+        minimum = self._taco_guard(self._dev.deviceQueryResource, 'limitmin')
+        maximum = self._taco_guard(self._dev.deviceQueryResource, 'limitmax')
+        if minimum >= maximum:
+            self.log.warning('TACO limitmin/max (%s, %s) are not usable' %
+                             (minimum, maximum))
+            return (0, 0)
+        return (minimum, maximum)
