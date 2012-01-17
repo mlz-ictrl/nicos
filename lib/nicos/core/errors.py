@@ -143,4 +143,4 @@ class CacheLockError(NicosError):
     category = 'Cannot lock device in cache'
     def __init__(self, locked_by):
         self.locked_by = locked_by
-        ProgrammingError.__init__(self, 'locked by ' + locked_by)
+        NicosError.__init__(self, 'locked by ' + locked_by)
