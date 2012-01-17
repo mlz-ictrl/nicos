@@ -40,8 +40,9 @@ class TofCounter(Measurable):
         'timechannels':   Param('Number of time channels per detector channel',
                                 type=intrange(1, 1025), settable=True,
                                 default=1024),
-        'timeinterval':   Param('Time interval ???', type=float, settable=True),
-        'delay':          Param('TOF electronics clear delay', type=int,
+        'timeinterval':   Param('Time interval between pulses', type=float,
+                                settable=True),
+        'delay':          Param('Additional frame delay', type=int,
                                 settable=True),
         'monitorchannel': Param('Channel number of the monitor counter',
                                 type=intrange(1, 1025), settable=True),
@@ -50,7 +51,7 @@ class TofCounter(Measurable):
                                 volatile=True),
     }
 
-    def _create_dev(devname):
+    def _create_dev(self, devname):
         dev = TacoDevice.TacoDevice(devname)
         TacoDevice.dev_tcpudp(devname, 'tcp')
         TacoDevice.dev_timeout(devname, 10.0)
@@ -78,16 +79,21 @@ class TofCounter(Measurable):
             self._monitor.SetPreselectionUlong(int(preset['m']))
 
     def doStart(self, **preset):
-        self.doSetPreset(**preset)
         self.doStop()
+        self.doSetPreset(**preset)
         self._counter.Start()
         self._timer.Start()
         self._monitor.Start()
 
+    def duringMeasureHook(self):
+        print self._timer.ReadDouble()
+
     def doStop(self):
-        self._counter.Stop()
-        self._timer.Stop()
-        self._monitor.Stop()
+        #self._counter.Stop()
+        #self._timer.Stop()
+        #self._monitor.Stop()
+        for dev in self._counter, self._timer, self._monitor:
+            dev.DevOn()
 
     def doStatus(self):
         return status.UNKNOWN, 'not implemented'
@@ -98,11 +104,11 @@ class TofCounter(Measurable):
 
     def doRead(self):
         arr = self._counter.ReadULongArray()
-        return self._timer.ReadDouble(), self._monitor.ReadULong(), sum(arr)
+        return self._timer.ReadDouble(), self._monitor.ReadULong(), sum(arr[2:])
 
     def read_full(self):
         return self._timer.ReadDouble(), self._monitor.ReadULong(), \
-            np.array(self._counter.ReadULongArray())
+            np.array(self._counter.ReadULongArray()[2:])
 
     def doReset(self):
         self._counter.DevOn()
