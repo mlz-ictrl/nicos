@@ -36,6 +36,10 @@ Changelog for NICOS 2
   - Removed "setPosition()" from abstract Axis.  Moved "setPosition()" from
     abstract Motor to abstract Coder.
 
+  - Changed the "FRMDetector" class to have lists of monitor and counter
+    channels as adevs.  Presets are either "t" or "monX" or "ctrX", where
+    X is the number of the monitor/counter channel.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless

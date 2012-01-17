@@ -164,17 +164,10 @@ class FRMCounterChannel(FRMChannel):
 class FRMDetector(Measurable):
     """The standard detector at FRM-II, using the FRM-II counter card."""
 
-    # XXX make this two list of monitor and counter channels?
     attached_devices = {
-        't':  (FRMChannel, 'Timer channel'),
-        'm1': (FRMChannel, 'First monitor channel'),
-        'm2': (FRMChannel, 'Second monitor channel'),
-        'm3': (FRMChannel, 'Third monitor channel'),
-        'z1': (FRMChannel, 'First counter channel'),
-        'z2': (FRMChannel, 'Second counter channel'),
-        'z3': (FRMChannel, 'Third counter channel'),
-        'z4': (FRMChannel, 'Fourth counter channel'),
-        'z5': (FRMChannel, 'Fifth counter channel'),
+        'timer':    (FRMChannel, 'Timer channel'),
+        'monitors': ([FRMChannel], 'Monitor channels'),
+        'counters': ([FRMChannel], 'Counter channels')
     }
 
     hardware_access = False
@@ -182,10 +175,12 @@ class FRMDetector(Measurable):
     def doPreinit(self):
         self._counters = []
 
-        for name in ['t', 'm1', 'm2', 'm3', 'z1', 'z2', 'z3', 'z4', 'z5']:
-            if self._adevs[name] is not None:
-                self._counters.append(self._adevs[name])
-
+        if self._adevs['timer'] is not None:
+            self._counters.append(self._adevs['timer'])
+        for mdev in self._adevs['monitors']:
+            self._counters.append(mdev)
+        for cdev in self._adevs['counters']:
+            self._counters.append(cdev)
         self._getMasters()
 
     def doReadFmtstr(self):
@@ -206,24 +201,23 @@ class FRMDetector(Measurable):
             master.ismaster = False
             master.mode = 'normal'
         for name in preset:
-            if name in self.attached_devices and self._adevs[name]:
-                self._adevs[name].ismaster = True
-                self._adevs[name].mode = 'preselection'
-                self._adevs[name].preselection = preset[name]
+            if name == 't' or name == 'time':
+                dev = self._adevs['timer']
+            elif name.startswith('mon'):
+                dev = self._adevs['monitors'][int(name[3:])-1]
+            elif name.startswith('ctr') or name.startswith('det'):
+                dev = self._adevs['counters'][int(name[3:])-1]
+            else:
+                continue
+            dev.ismaster = True
+            dev.mode = 'preselection'
+            dev.preselection = preset[name]
         self._getMasters()
 
     def doStart(self, **preset):
         self.doStop()
         if preset:
-            for master in self._masters:
-                master.ismaster = False
-                master.mode = 'normal'
-            for name in preset:
-                if name in self.attached_devices and self._adevs[name]:
-                    self._adevs[name].ismaster = True
-                    self._adevs[name].mode = 'preselection'
-                    self._adevs[name].preselection = preset[name]
-            self._getMasters()
+            self.doSetPreset(**preset)
         for slave in self._slaves:
             slave.start()
         for master in self._masters:
