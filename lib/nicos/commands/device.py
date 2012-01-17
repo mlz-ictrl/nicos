@@ -397,8 +397,6 @@ def listallparams(*names):
             items.append([name] + map(str, pvalues))
     printTable(('device',) + names, items, printinfo)
 
-# XXX check casing!
-
 @usercommand
 def listdevices():
     """List all currently created devices."""

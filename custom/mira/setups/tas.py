@@ -1,3 +1,5 @@
+description = 'MIRA triple-axis setup'
+
 includes = ['base', 'mono2', 'analyzer', 'detector']
 
 devices = dict(

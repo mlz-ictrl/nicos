@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-name = 'system setup for PANDA'
+description = 'system setup for PANDA'
 
 includes=['detector']
 

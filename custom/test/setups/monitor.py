@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-name = 'setup for the status monitor'
+description = 'setup for the status monitor'
 group = 'special'
 
 _expcolumn = [

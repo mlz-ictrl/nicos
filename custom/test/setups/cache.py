@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-name = 'setup for the cache server'
+description = 'setup for the cache server'
 group = 'special'
 
 devices = dict(

@@ -242,7 +242,7 @@ class Session(object):
                 raise ConfigurationError('An error occurred while reading '
                                          'setup %s: %s' % (modname, err))
             info = {
-                'name': ns.get('name', modname),
+                'description': ns.get('description', modname),
                 'group': ns.get('group', 'base'),
                 'sysconfig': ns.get('sysconfig', {}),
                 'includes': ns.get('includes', []),
@@ -250,6 +250,7 @@ class Session(object):
                 'modules': ns.get('modules', []),
                 'devices': ns.get('devices', {}),
                 'startupcode': ns.get('startupcode', ''),
+                'extended': ns.get('extended', {}),
             }
             self._setup_info[modname] = info
         # check if all includes exist
@@ -263,9 +264,9 @@ class Session(object):
         """Return information about all existing setups.
 
         This is a dictionary mapping setup name to another dictionary.  The keys
-        of that dictionary are those present in the setup files: 'name',
+        of that dictionary are those present in the setup files: 'description',
         'group', 'sysconfig', 'includes', 'excludes', 'modules', 'devices',
-        'startupcode'.
+        'startupcode', 'extended'.
         """
         return self._setup_info.copy()
 
@@ -318,13 +319,14 @@ class Session(object):
         def inner_load(name):
             if name in self.loaded_setups:
                 return
+            info = self._setup_info[name]
             if name not in setupnames:
-                self.log.debug('loading include setup %s' % name)
+                self.log.debug('loading include setup %r (%s)' %
+                               (name, info['description']))
             if name in self.excluded_setups:
                 raise ConfigurationError('Cannot load setup %r, it is excluded '
                                          'by one of the current setups' % name)
 
-            info = self._setup_info[name]
             if info['group'] == 'special' and not allow_special:
                 raise ConfigurationError('Cannot load special setup %r' % name)
             if info['group'] == 'simulated' and self._mode != 'simulation':
@@ -365,7 +367,8 @@ class Session(object):
 
         sysconfig, devlist, startupcode = {}, {}, []
         for setupname in setupnames:
-            self.log.info('loading setup %s' % setupname)
+            self.log.info('loading setup %r (%s)' %
+                (setupname, self._setup_info[setupname]['description']))
             ret = inner_load(setupname)
             if ret:
                 sysconfig.update(ret[0])
@@ -560,7 +563,9 @@ class Session(object):
         try:
             return compiler(command)
         except SyntaxError:
-            # XXX experimental command handler to allow e.g. "read om"
+            # this could be a command extension to allow e.g. "read om",
+            # disabled for now since it has too many ambiguities and will
+            # confuse users
             if 0 and '\n' not in command:
                 parts = command.split()
                 if parts[0] in self._exported_names and \
@@ -599,7 +604,8 @@ class Session(object):
                 raise ConfigurationError(
                     'device %r not found in configuration' % dev)
         if not isinstance(dev, cls or Device):
-            # XXX error message wrong for tuples
+            if isinstance(cls, tuple):
+                raise UsageError('dev must be one of %s' % (cls,))
             raise UsageError('dev must be a %s' % (cls or Device).__name__)
         return dev
 
@@ -622,8 +628,12 @@ class Session(object):
                     self.export(devname, self.devices[devname])
                 return self.devices[devname]
             self.destroyDevice(devname)
-        self.log.info('creating device %r... ' % devname)
         devclsname, devconfig = self.configured_devices[devname]
+        if 'description' in devconfig:
+            self.log.info('creating device %r (%s)... ' %
+                          (devname, devconfig['description']))
+        else:
+            self.log.info('creating device %r... ' % devname)
         modname, clsname = devclsname.rsplit('.', 1)
         try:
             devcls = getattr(__import__(modname, None, None, [clsname]),

@@ -1,10 +1,11 @@
+description = 'base setup for all instrument configurations'
+
 includes = ['system', 'slits', 'sample', 'reactor']
 
 devices = dict(
     MonoToni = device('nicos.mira.toni.ModBus',
                       tacodevice = 'mira/rs232/monotoni',
                       tacolog = False,
-                      loglevel = 'debug', 
                       lowlevel = True),
 
     atten1   = device('nicos.mira.toni.Valve',

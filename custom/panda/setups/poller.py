@@ -25,7 +25,7 @@
 #
 # *****************************************************************************
 
-name = 'setup for the poller'
+description = 'setup for the poller'
 group = 'special'
 
 includes = []

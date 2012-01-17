@@ -1,4 +1,4 @@
-name = 'setup including ALL devices'
+description = 'setup including ALL devices'
 
 includes = [
     'base',

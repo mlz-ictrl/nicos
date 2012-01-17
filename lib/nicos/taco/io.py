@@ -60,6 +60,7 @@ class AnalogOutput(TacoDevice, HasLimits, Moveable):
         self._taco_guard(self._dev.write, value)
 
     def doWait(self):
+        # XXX add a timeout?
         waitForStatus(self, self.loopdelay)
 
 

@@ -1,4 +1,4 @@
-name = 'setup for the electronic logbook'
+description = 'setup for the electronic logbook'
 group = 'special'
 
 sysconfig = dict(

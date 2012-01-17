@@ -138,6 +138,9 @@ Triple-axis commands
 
 .. module:: nicos.commands.tas
 
+.. autofunction:: Q
 .. autofunction:: qscan
 .. autofunction:: qcscan
-.. autofunction:: Q
+.. autofunction:: calpos
+.. autofunction:: pos
+.. autofunction:: rp

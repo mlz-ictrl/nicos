@@ -440,11 +440,33 @@ class MemoryCacheDatabase(CacheDatabase):
 
 
 class FlatfileCacheDatabase(CacheDatabase):
-    """
-    Cache database which writes historical values to disk in a flatfile (ASCII)
-    format.
+    """Cache database which writes historical values to disk in a flatfile
+    (ASCII) format.
 
-    .. XXX document format here
+    The store format is the following:
+
+    * Each cache key is separated at the last slash.  The part before the slash
+      is called "category" (usually prefix + a device name).
+    * For each category, there is a subdirectory (with slashes in the category
+      name replaced by dashes) in the store path.  This contains subdirectories
+      for every year, and these subdirectories contain one file per day, in the
+      format "MM-DD".
+    * These files are also hardlinked at another hierarchy, starting with year
+      and day subdirectories, where the files are named by category.
+
+    For example, the cache entries for category "nicos/slit" at 2012-01-05 are
+    available in the files ``nicos-slit/2012/01-05`` and
+    ``2012/01-05/nicos-slit``.
+
+    The format of these files is a simple three-column tab-separated ascii
+    format: the first column is the last part of the cache key (which combined
+    with the category gives the full key); the second column is the Unix
+    timestamp of the change, and the third column is the actual value.
+
+    All values should be valid Python literals, but this is not enforced by the
+    cache server, rather by the NICOS clients.  The value can also a single
+    dash, this indicates that at the given timestamp the latest value for this
+    key expired.
     """
 
     parameters = {

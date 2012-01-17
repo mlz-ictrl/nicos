@@ -44,33 +44,17 @@ from nicos.utils import readFileCounter, updateFileCounter
 class Coder(HasPrecision, Readable):
     """Base class for all coders."""
 
-    def doRead(self):
-        """Returns the current position from encoder controller."""
-        return 0
-
-    def doSetPosition(self, target):
-        """Sets the current position of the encoder controller to the target."""
-        pass
-
-    def doReset(self):
-        """Resets the encoder controller."""
-        pass
-
-
-class Motor(HasLimits, Moveable, Coder, HasPrecision):
-    """Base class for all motors.
-
-    This class inherits from Coder since a Motor can be used instead of a true
-    encoder to supply the current position to an Axis.
-    """
-
-    parameters = {
-        'speed': Param('The motor speed', unit='main/s', settable=True),
-    }
-
     @usermethod
     def setPosition(self, pos):
-        """Sets the current position of the motor controller to the target."""
+        """Sets the current position of the controller to the target.
+
+        This operation is forbidden in slave mode, and does the right thing
+        virtually in simulation mode.
+
+        .. method:: doSetPosition(pos)
+
+           This is called to actually set the new position in the hardware.
+        """
         if self._mode == 'slave':
             raise ModeError(self, 'setting new position not possible in '
                             'slave mode')
@@ -86,29 +70,20 @@ class Motor(HasLimits, Moveable, Coder, HasPrecision):
             return
         self.doSetPosition(pos)
 
-    def doInit(self):
-        """Initializes the class."""
-        pass
+    def doSetPosition(self, pos):
+        raise NotImplementedError
 
-    def doStart(self, target):
-        """Starts the movement of the motor to target."""
-        pass
 
-    def doRead(self):
-        """Returns the current position from motor controller."""
-        return 0
+class Motor(HasLimits, Moveable, Coder, HasPrecision):
+    """Base class for all motors.
 
-    def doSetPosition(self, target):
-        """Sets the current position of the motor controller to the target."""
-        pass
+    This class inherits from Coder since a Motor can be used instead of a true
+    encoder to supply the current position to an Axis.
+    """
 
-    def doReset(self):
-        """Resets the motor controller."""
-        pass
-
-    def doStop(self):
-        """Stops the movement of the motor."""
-        pass
+    parameters = {
+        'speed': Param('The motor speed', unit='main/s', settable=True),
+    }
 
 
 class Axis(HasLimits, HasOffset, HasPrecision, Moveable):
@@ -128,28 +103,6 @@ class Axis(HasLimits, HasOffset, HasPrecision, Moveable):
     parameter_overrides = {
         'unit':      Override(mandatory=False, settable=True),
     }
-
-    @usermethod
-    def setPosition(self, pos):
-        """Sets the current position of the motor controller to the target."""
-        if self._mode == 'slave':
-            raise ModeError(self, 'setting new position not possible in '
-                            'slave mode')
-        elif self._sim_active:
-            self._sim_old_value = self._sim_value
-            self._sim_value = pos
-            if self._sim_min is None:
-                self._sim_min = pos
-            self._sim_min = min(pos, self._sim_min)
-            if self._sim_max is None:
-                self._sim_max = pos
-            self._sim_max = max(pos, self._sim_max)
-            return
-        self.doSetPosition(pos)
-
-    def doSetPosition(self, target):
-        """Sets the current position of the motor controller to the target."""
-        pass
 
 
 class ImageStorage(Device, NeedsDatapath):

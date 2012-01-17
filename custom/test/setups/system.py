@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-name = 'system setup'
+description = 'system setup'
 
 sysconfig = dict(
     cache = 'localhost',

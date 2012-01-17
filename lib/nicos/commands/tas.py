@@ -29,10 +29,12 @@ __version__ = "$Revision$"
 from numpy import ndarray
 
 from nicos import session
-from nicos.core import Measurable, Moveable, Readable, UsageError
+from nicos.core import Measurable, Moveable, Readable, UsageError, NicosError
 from nicos.scan import QScan
+from nicos.tas.spectro import TAS
 from nicos.commands import usercommand
 from nicos.commands.scan import _infostr, ADDSCANHELP2
+from nicos.commands.device import maw, read
 
 
 def _getQ(v, name):
@@ -187,3 +189,85 @@ def Q(*args, **kwds):
     if 'E' in kwds:
         q[3] = kwds['E']
     return q
+
+
+@usercommand
+def calpos(*args):
+    """Calculate instrument position for a given (Q, E) position.
+
+    Can be called with 3 to 5 arguments:
+
+    >>> calpos(1, 0, 0)             # H, K, L
+    >>> calpos(1, 0, 0, -4)         # H, K, L, E
+    >>> calpos(1, 0, 0, -4, 2.662)  # H, K, L, E, scanconstant
+
+    or with a Q-E vector:
+
+    >>> calpos(Q(1, 0, 0, -4))         # Q-E vector
+    >>> calpos(Q(1, 0, 0, -4), 2.662)  # Q-E vector and scanconstant
+    """
+    instr = session.instrument
+    if not isinstance(instr, TAS):
+        raise NicosError('your instrument device is not a triple axis device')
+    if len(args) == 1:
+        assert isinstance(args[0], (tuple, _Q))
+        pos = tuple(args[0]) + (instr.scanconstant,)
+    elif len(args) == 2:
+        assert isinstance(args[0], (tuple, _Q))
+        pos = tuple(args[0]) + (args[1],)
+    elif len(args) == 3:
+        pos = args + (0, instr.scanconstant)
+    elif len(args) == 4:
+        pos = args + (instr.scanconstant,)
+    elif len(args) == 5:
+        pos = args
+    else:
+        raise UsageError('calpos() takes at least one argument')
+    return instr._calpos(pos)
+
+
+@usercommand
+def pos(*args):
+    """Move the instrument to a given (Q, E) position, or without arguments
+    to the last position calculated with `calpos()`.  Examples:
+
+    >>> pos()                       # last calpos() position
+    >>> pos(1, 0, 0)                # H, K, L
+    >>> pos(1, 0, 0, -4)            # H, K, L, E
+    >>> pos(1, 0, 0, -4, 2.662)     # H, K, L, E, scanconstant
+    >>> pos(Q(1, 0, 0, -4))         # Q-E vector
+    >>> pos(Q(1, 0, 0, -4), 2.662)  # Q-E vector and scanconstant
+    """
+    instr = session.instrument
+    if not isinstance(instr, TAS):
+        raise NicosError('your instrument device is not a triple axis device')
+    if not args:
+        pos = instr._last_calpos
+        if pos is None:
+            raise NicosError('no position previously stored by calpos()')
+    elif len(args) == 1:
+        assert isinstance(args[0], (tuple, _Q))
+        pos = tuple(args[0]) + (instr.scanconstant,)
+    elif len(args) == 2:
+        assert isinstance(args[0], (tuple, _Q))
+        pos = tuple(args[0]) + (args[1],)
+    elif len(args) == 3:
+        pos = args + (0, instr.scanconstant)
+    elif len(args) == 4:
+        pos = args + (instr.scanconstant,)
+    elif len(args) == 5:
+        pos = args
+    else:
+        raise UsageError('pos() takes no arguments or 3-5 arguments')
+    if pos[-1] != instr.scanconstant:
+        instr.scanconstant = pos[-1]
+    maw(instr, pos[:-1])
+
+
+@usercommand
+def rp():
+    """Read the current (Q, E) position."""
+    instr = session.instrument
+    if not isinstance(instr, TAS):
+        raise NicosError('your instrument device is not a triple axis device')
+    read(instr)

@@ -25,7 +25,7 @@
 #
 # *****************************************************************************
 
-name = 'setup for the execution daemon'
+description = 'setup for the execution daemon'
 group = 'special'
 
 devices = dict(

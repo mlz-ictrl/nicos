@@ -27,9 +27,10 @@
 
 __version__ = "$Revision$"
 
-from time import sleep
+from time import sleep, time as currenttime
 
 from nicos.core import status
+from nicos.core.errors import TimeoutError, MoveError, PositionError
 
 
 # user access levels
@@ -63,20 +64,29 @@ def multiStatus(devices, maxage=None):
     return retstate, ', '.join(rettext)
 
 
-def waitForStatus(device, delay=0.3, busystates=(status.BUSY,)):
+def waitForStatus(device, delay=0.3, timeout=None,
+                  busystates=(status.BUSY,),
+                  errorstates=(status.ERROR, status.NOTREACHED)):
     """Wait for the *device* status to return exit the busy state.
 
     *delay* is the delay between status inquiries, and *busystates* gives the
     state values that are considered as "busy" states; by default only
     `status.BUSY`.
     """
-    # XXX add a timeout?
-    # XXX what about error status?
+    started = currenttime()
     while True:
         st = device.status(0)
         if st[0] in busystates:
             sleep(delay)
+            if timeout is not None and currenttime() - started > timeout:
+                raise TimeoutError(device, 'waiting timed out (timeout %.1f s)'
+                                   % timeout)
             # XXX add a breakpoint here?
+        elif st[0] in errorstates:
+            if st[0] == status.NOTREACHED:
+                raise PositionError(device, st[1])
+            else:
+                raise MoveError(device, st[1])
         else:
             break
     return st

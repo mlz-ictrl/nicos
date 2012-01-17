@@ -3,24 +3,45 @@ Changelog for NICOS 2
 
 **Release 2.1.0**
 
-  - Introduced Measurable.duringMeasureHook and Measurable.save/doSave.
+  - Introduced the "Measurable.duringMeasureHook()" and
+    "Measurable.save()/doSave()" methods.
 
-  - Added Experiment.scripts parameter that stores the code of the
+  - Added "Experiment.scripts" parameter that stores the code of the
     currently executed script.
 
-  - Added easy access control using the requires() decorator.  Added
-    AccessError and Session.checkAccess() APIs.
+  - Added easy access control using the "requires()" decorator.  Added
+    "AccessError" and "Session.checkAccess()" APIs.
 
-  - Added the three-parameter form of adjust() that allows to adjust to
+  - Added the three-parameter form of "adjust()" that allows to adjust to
     some other than the current position.
 
   - Added automatic retry of Taco calls with the new "tacotries" parameter
     of TacoDevice objects.
 
+  - Added the "extended" entry to setup files, for future use.
+
+  - The "waitForStatus()" utility function now supports timeout and handling
+    error states.
+
+  - The "center()" and "checkoffset()" user commands now can take an "ycol"
+    keyword that determines which data column is used for fitting.
+
+  - Added "calpos()", "pos()" and "rp()" commands for triple-axis
+    spectrometers.
+
+  - Renamed the "name" setup entry to "description" to match its function.
+
+  - Taco motors now can read the absolute limits from the Taco device.
+
+  - Removed "setPosition()" from abstract Axis.  Moved "setPosition()" from
+    abstract Motor to abstract Coder.
+
 **Release 2.0.1**
 
-  - In ImageStorage, make sure the data file isn't overwritten unless
+  - In "ImageStorage", made sure the data file isn't overwritten unless
     explicitly allowed.
+
+  - Fixed the "steps" parameter of IPC coders.
 
 **Release 2.0.0 (2012-01-11)**
 

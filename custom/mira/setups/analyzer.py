@@ -1,4 +1,4 @@
-name = 'analyzer table'
+description = 'analyzer table'
 
 devices = dict(
     ath      = device('nicos.taco.Axis',

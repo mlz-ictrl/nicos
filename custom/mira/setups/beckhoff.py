@@ -1,3 +1,5 @@
+description = 'test beckhoff setup'
+
 devices = dict(
   bh1 = device('nicos.mira.beckhoff.BeckhoffDigitalOutput',
                tacodevice = 'mira/modbus/beckhoff',
