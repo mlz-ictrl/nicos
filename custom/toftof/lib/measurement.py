@@ -38,7 +38,7 @@ from nicos.core import Measurable, Param, Value, Override, \
 from nicos.abstract import ImageStorage
 
 from nicos.toftof.toni import DelayBox
-from nicos.toftof.chopper import TofChopper
+from nicos.toftof.chopper import Controller
 from nicos.toftof.tofcounter import TofCounter
 from nicos.toftof import calculations as calc
 
@@ -49,8 +49,8 @@ class TofTofMeasurement(Measurable, ImageStorage):
 
     attached_devices = {
         'counter': (TofCounter, 'The TOF counter'),
-        'chopper': (TofChopper, 'The chopper controller'),
-        'chdelay': (DelayBox,   'Setting chopper delay'),
+        'chopper': (Controller, 'The chopper controller'),
+        'chdelay': (DelayBox, 'Setting chopper delay'),
     }
 
     parameters = {
@@ -58,8 +58,8 @@ class TofTofMeasurement(Measurable, ImageStorage):
                                   settable=True, default=0),
         'timechannels':     Param('Number of time channels', default=1024,
                                   type=intrange(1, 1025), settable=True),
-        'timeinterval':     Param('Time interval between pulses', type=float,
-                                  settable=True),
+        'timeinterval':     Param('Time interval between pulses, or zero to '
+                                  'auto-select', type=float, settable=True),
     }
 
     parameter_overrides = {
@@ -87,7 +87,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         ctr = self._adevs['counter']
         self.doSetPreset(**preset)
 
-        chwl, chspeed, chratio, chcrc, chst = self._adevs['chopper'].read()
+        chwl, chspeed, chratio, chcrc, chst = self._adevs['chopper']._getparams()
         if chratio == 1:
             chratio2 = 1.0
         else:
@@ -161,7 +161,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
 
     def _start_header(self, interval, chdelay):
         ctr = self._adevs['counter']
-        chwl, chspeed, chratio, chcrc, chst = self._adevs['chopper'].read()
+        chwl, chspeed, chratio, chcrc, chst = self._adevs['chopper']._getparams()
         head = []
         head.append('StartDate: %s\n' % strftime('%d.%m.%Y'))
         head.append('StartTime: %s\n' % strftime('%H:%M:%S'))
