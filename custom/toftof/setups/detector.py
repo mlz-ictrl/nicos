@@ -27,34 +27,7 @@ name = 'devices for the detector'
 includes = ['system']
 
 devices = dict(
-    timer    = device('nicos.generic.VirtualTimer',
-                      lowlevel = True),
-
-    mon1     = device('nicos.generic.VirtualCounter',
-                      lowlevel = True,
-                      type = 'monitor',
-                      countrate = 1000),
-
-    ctr1     = device('nicos.generic.VirtualCounter',
-                      lowlevel = True,
-                      type = 'counter',
-                      countrate = 2000),
-
-    ctr2     = device('nicos.generic.VirtualCounter',
-                      lowlevel = True,
-                      type = 'counter',
-                      countrate = 120),
-
-    det      = device('nicos.taco.FRMDetector',
-                      t  = 'timer',
-                      m1 = 'mon1',
-                      m2 = None,
-                      m3 = None,
-                      z1 = 'ctr1',
-                      z2 = 'ctr2',
-                      z3 = None,
-                      z4 = None,
-                      z5 = None,
-                      maxage = 3,
-                      pollinterval = 0.5),
+    det = device('nicos.toftof.tofcounter.TofCounter',
+                 pollinterval = 0,
+		),
 )

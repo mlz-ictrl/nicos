@@ -30,7 +30,6 @@ devices = dict(
 		right = 'SampleSlitMotHR',
 		opmode = 'offcentered',
 		),
-
 )
 
 startupcode = """
