@@ -34,6 +34,7 @@ import time
 import signal
 import readline
 import traceback
+import exceptions
 
 from nicos import session, nicos_version
 from nicos.utils import colorcode, formatExtendedStack
@@ -90,7 +91,8 @@ class NicosInteractiveConsole(code.InteractiveConsole):
             return True
 
         self.log.log(INPUT, '>>> ' + source)
-        self.runcode(code)
+        self.runcode(code, source)
+
         return False
 
     def raw_input(self, prompt):
@@ -101,7 +103,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
             sys.stdout.write(colorcode('reset'))
         return inp
 
-    def runcode(self, codeobj):
+    def runcode(self, codeobj, source=None):
         """Mostly copied from code.InteractiveInterpreter, but added the
         logging call for exceptions.
         """
@@ -127,6 +129,11 @@ class NicosInteractiveConsole(code.InteractiveConsole):
                 'An exception occurred in the executed script:\n\n' +
                 exception, 'error notification',
                 short='Exception: ' + exception.splitlines()[-1])
+            if exc_info[0] == exceptions.NameError:
+                self.GuessCorrectCommand(source)
+            if exc_info[0] == exceptions.AttributeError:
+                self.GuessCorrectCommand(source, attribute=True)
+
             return
         finally:
             # enable own sigint handler again
@@ -135,6 +142,50 @@ class NicosInteractiveConsole(code.InteractiveConsole):
             print
         #self.locals.clear()
 
+    def GuessCorrectCommand(self, source, attribute=False):
+        """ Try to guess the command that was meant by source
+
+            Will do a fuzzy match in all usercommands in the top level
+            namespace and tries to find attributes if attribute=True
+
+        """
+
+        if source is not None:
+            from nicos.utils.comparestrings import compare
+            parts = source.split()
+            localparts = parts[0].split('.')
+            allowed_keys = [x for x in self.session._exported_names
+                          if hasattr(self.session.namespace[x], 'is_usercommand')]
+
+            allowed_keys += __builtins__.keys()
+            allowed_keys += self.locals.keys()
+            allowed_keys += self.globals.keys()
+            if attribute:
+                namespace = None
+                if self.globals.has_key(localparts[0]):
+                    namespace = self.globals[localparts[0]]
+                if self.locals.has_key(localparts[0]):
+                    namespace = self.locals[localparts[0]]
+                if namespace is not None:
+                    allowed_keys = dir(namespace)
+
+            comp = {}
+
+            if attribute:
+                poi = localparts[1].split('(')
+            else:
+                poi = localparts[0].split('(')
+            for key in allowed_keys:
+                comp[key] = compare(poi[0], key)
+            comp = sorted(comp.items(), key=lambda t:t[1], reverse=True)
+            bestmatch = comp[0]
+            if attribute:
+                localparts[1] = bestmatch[0] + '('
+            else:
+                localparts[0] = bestmatch[0]
+            newcmd = '.'.join(localparts) + ' '.join(poi[1:])
+
+            self.session.log.info('Did you mean: %s' % newcmd)
 
 class ConsoleSession(Session):
     """
