@@ -31,9 +31,9 @@ from time import sleep, time
 
 from IO import StringIO
 
-from nicos.core import status, intrange, listof, Device, Readable, Moveable, \
-     Param, Override, NicosError, CommunicationError, InvalidValueError, \
-     ConfigurationError
+from nicos.core import status, intrange, listof, oneofdict, requires, ADMIN, \
+     Device, Readable, Moveable, Param, Override, NicosError, \
+     CommunicationError, InvalidValueError, ConfigurationError
 from nicos.taco.core import TacoDevice
 
 
@@ -51,7 +51,7 @@ class ModBus(TacoDevice, Device):
             crc ^= ord(i)
         return '%02X' % crc
 
-    def communicate(self, msg, dest, expect_ok=False):
+    def communicate(self, msg, dest, expect_ok=False, expect_hex=0):
         msg = '%02X%02X%s' % (dest, self.source, msg)
         msg = '\x02' + msg + self._crc(msg)
         tries = self.maxtries
@@ -69,10 +69,19 @@ class ModBus(TacoDevice, Device):
         crc = self._crc(ret[1:-2])
         if (len(ret) < 8 or ret[0] != '\x02' or ret[5] != '>' or ret[-2:] != crc
               or ret[1:3] != '%02X' % self.source or ret[3:5] != '%02X' % dest):
-            raise CommunicationError(self, 'ModBus reply garbled: %r' % ret)
-        if expect_ok and ret[6:-2] != 'OK':
-            raise CommunicationError(self, 'unexpected reply: %r' % ret[6:-2])
-        return ret[6:-2]
+            raise CommunicationError(self, 'garbled reply: %r' % ret)
+        resp = ret[6:-2]
+        if expect_ok and resp != 'OK':
+            raise CommunicationError(self, 'unexpected reply: %r' % resp)
+        if expect_hex:
+            if len(resp) != expect_hex:
+                raise CommunicationError(self, 'response too short: %r' % resp)
+            try:
+                value = int(resp, 16)
+            except ValueError:
+                raise CommunicationError(self, 'invalid hex number: %r' % resp)
+            return value
+        return resp
 
 
 class Valve(Moveable):
@@ -114,17 +123,13 @@ class Valve(Moveable):
 
     def doRead(self):
         self.doWait()
-        ret = self._adevs['bus'].communicate('R?', self.addr)
-        if not ret:
-            raise CommunicationError(self, 'ModBus read error: %r' % ret)
-        return self.states[bool(int(ret, 16) & (1 << self.channel))]
+        ret = self._adevs['bus'].communicate('R?', self.addr, expect_hex=2)
+        return self.states[bool(ret & (1 << self.channel))]
 
     def doStatus(self):
         self.doWait()
-        ret = self._adevs['bus'].communicate('I?', self.addr)
-        if not ret:
-            raise CommunicationError(self, 'ModBus read error: %r' % ret)
-        if int(ret) == 0:
+        ret = self._adevs['bus'].communicate('I?', self.addr, expect_hex=2)
+        if ret == 0:
             return status.OK, 'idle'
         else:
             return status.BUSY, 'busy'
@@ -222,15 +227,9 @@ class Vacuum(Readable) :
         sleep(0.1)
 
     def doRead(self):
-        a = self._adevs['bus'].communicate('R%1d?' % (self.channel + 1))
-        if len(a) != 8:
-            raise CommunicationError(self, 'ITR90: string too short (%r)' % a)
-        try:
-            pressure = int(a[0:4], 16)
-            config = int(a[4:6], 16)
-        except ValueError:
-            raise CommunicationError(self, 'ITR90: invalid number (%r)' % a)
-
+        resp = self._adevs['bus'].communicate('R%1d?' % (self.channel + 1),
+                                              expect_hex=8)
+        pressure, config = resp >> 16, (resp >> 8) & 0xFF
         if config & 16:
             ret = 10.0 ** (pressure / 4000.0 - 12.625) # Torr
             self.unit = 'Torr'
@@ -243,13 +242,9 @@ class Vacuum(Readable) :
         return ret
 
     def doStatus(self):
-        a = self._adevs['bus'].communicate('R%1d?' % (self.channel + 1))
-        if len(a) != 8:
-            raise CommunicationError(self, 'ITR90: string too short (%r)' % a)
-        try:
-            state = int(a[6:8], 16)
-        except ValueError:
-            raise CommunicationError(self, 'ITR90: invalid number (%r)' % a)
+        resp = self._adevs['bus'].communicate('R%1d?' % (self.channel + 1),
+                                              expect_hex=8)
+        state = resp & 0xFF
         if state == 0:
             return status.OK, ''
         else:
@@ -265,3 +260,38 @@ class Vacuum(Readable) :
     def doWritePower(self, value):
         self._adevs['bus'].communicate(
             'P%1d=%d' % (self.channel + 1, value), self.addr, expect_ok=True)
+
+
+class LVPower(Readable):
+    """
+    Toni TOFTOF-type low-voltage power supplies.
+    """
+
+    attached_devices = {
+        'bus':  (ModBus, 'Toni communication bus'),
+    }
+
+    parameters = {
+        'addr':  Param('Bus address of the supply controller',
+                       type=intrange(0xf0, 0x100), mandatory=True),
+    }
+
+    parameter_overrides = {
+        'unit':  Override(mandatory=False, default=''),
+    }
+
+    valuetype = oneofdict({1: 'on', 0: 'off'})
+
+    def doRead(self):
+        sval = self._adevs['bus'].communicate('S?', self.addr, expect_hex=2)
+        return 'on' if sval >> 7 else 'off'
+
+    def doStatus(self):
+        sval = self._adevs['bus'].communicate('S?', self.addr, expect_hex=2)
+        tval = self._adevs['bus'].communicate('T?', self.addr, expect_hex=2)
+        # XXX
+        return status.OK, 'status=%d, temperature=%d' % (sval, tval)
+
+    @requires(level=ADMIN)
+    def doStart(self, target):
+        self._adevs['bus'].communicate('P%d' % (target == 'on'), expect_ok=True)
