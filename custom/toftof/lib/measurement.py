@@ -33,10 +33,11 @@ from time import strftime, time as currenttime
 import numpy as np
 
 from nicos import session
-from nicos.core import Measurable, Moveable, Param, Value, Override, \
+from nicos.core import Measurable, Param, Value, Override, \
      NicosError, intrange
 from nicos.abstract import ImageStorage
 
+from nicos.toftof.toni import DelayBox
 from nicos.toftof.chopper import TofChopper
 from nicos.toftof.tofcounter import TofCounter
 from nicos.toftof import calculations as calc
@@ -49,7 +50,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
     attached_devices = {
         'counter': (TofCounter, 'The TOF counter'),
         'chopper': (TofChopper, 'The chopper controller'),
-        'chdelay': (Moveable, 'Setting chopper delay'),
+        'chdelay': (DelayBox,   'Setting chopper delay'),
     }
 
     parameters = {

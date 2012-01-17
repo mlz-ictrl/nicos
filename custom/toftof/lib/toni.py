@@ -295,3 +295,33 @@ class LVPower(Readable):
     @requires(level=ADMIN)
     def doStart(self, target):
         self._adevs['bus'].communicate('P%d' % (target == 'on'), expect_ok=True)
+
+
+class DelayBox(Moveable):
+    """
+    Toni TOFTOF-type chopper-delay box.
+    """
+
+    attached_devices = {
+        'bus':  (ModBus, 'Toni communication bus'),
+    }
+
+    parameters = {
+        'addr':  Param('Bus address of the supply controller',
+                       type=intrange(0xf0, 0x100), mandatory=True),
+    }
+
+    parameter_overrides = {
+        'unit':  Override(mandatory=False, default=''),
+    }
+
+    def doRead(self):
+        return self._adevs['bus'].communicate('D?', self.addr, expect_hex=3)
+
+    def doStart(self, target):
+        self._adevs['bus'].communicate('D=%03X' % target, self.addr,
+                                       expect_ok=True)
+
+    def doStatus(self):
+        # XXX
+        return status.OK, ''

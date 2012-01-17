@@ -92,11 +92,9 @@ class TofCounter(Measurable):
         print self._timer.ReadDouble()
 
     def doStop(self):
-        #self._counter.Stop()
-        #self._timer.Stop()
-        #self._monitor.Stop()
-        for dev in self._counter, self._timer, self._monitor:
-            dev.DevOn()
+        self._counter.DevOn()
+        self._timer.DevOn()
+        self._monitor.DevOn()
 
     def doStatus(self):
         return status.UNKNOWN, 'not implemented'
