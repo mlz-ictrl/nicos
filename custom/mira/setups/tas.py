@@ -2,6 +2,8 @@ description = 'MIRA triple-axis setup'
 
 includes = ['base', 'mono2', 'analyzer', 'detector']
 
+modules = ['nicos.commands.tas']
+
 devices = dict(
     Sample = device('nicos.tas.TASSample'),
 

@@ -41,15 +41,9 @@ devices = dict(
 
 
     det      = device('nicos.taco.FRMDetector',
-                      t  = 'timer',
-                      m1 = 'mon1',
-                      m2 = 'mon2',
-                      m3 = None,
-                      z1 = 'det1',
-                      z2 = 'det2',
-                      z3 = None,
-                      z4 = None,
-                      z5 = None,
+                      timer = 'timer',
+                      monitors = ['mon1', 'mon2'],
+                      counters = ['det1', 'det2'],
                       maxage = 3,
                       pollinterval = 0.5),
 )

@@ -116,12 +116,11 @@ etc.), but also do more validation of the parameter.
 
        Param(..., type=none_or(str))
 
-.. function:: oneof(converter, *values)
+.. function:: oneof(*values)
 
-   Create a converter that accepts only one of the given *values* after
-   conversion by the *converter*.  Example::
+   Create a converter that accepts only one of the given *values*.  Example::
 
-       Param(..., type=oneof(str, 'up', 'down'))
+       Param(..., type=oneof('up', 'down'))
 
 .. function:: listof(element_converter)
 

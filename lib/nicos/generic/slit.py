@@ -47,9 +47,11 @@ class Slit(Moveable):
     * 'offcentered' -- the center and width/height are controlled.  Values read
       and written are in the form ``[centerx, centery, width, height]``.
 
-    The ``right`` and ``left`` as well as the ``bottom`` and ``top`` devices
-    need to share a common coordinate system, i.e. when ``right.read() ==
-    left.read()`` the slit is closed.
+    Normally, the ``right`` and ``left`` as well as the ``bottom`` and ``top``
+    devices need to share a common coordinate system, i.e. when ``right.read()
+    == left.read()`` the slit is closed.  A different convention can be selected
+    when setting `coordinates` to ``"opposite"``: in this case, the blades meet
+    at coordinate 0, and both move in positive direction when they open.
 
     All instances have attributes controlling single dimensions that can be used
     as devices, for example in scans.  These attributes are:
@@ -74,8 +76,11 @@ class Slit(Moveable):
 
     parameters = {
         'opmode': Param('Mode of operation for the slit',
-                        type=oneof(str, '4blades', 'centered', 'offcentered'),
+                        type=oneof('4blades', 'centered', 'offcentered'),
                         settable=True),
+        'coordinates': Param('Coordinate convention for right/left and '
+                             'top/bottom blades', default='equal',
+                             type=oneof('equal', 'opposite')),
     }
 
     parameter_overrides = {
@@ -123,7 +128,10 @@ class Slit(Moveable):
         return self._doIsAllowedPositions(self._getPositions(target))
 
     def _doIsAllowedPositions(self, positions):
+        f = self.coordinates == 'opposite' and -1 or +1
         for ax, axname, pos in zip(self._axes, self._axnames, positions):
+            if axname in ('right', 'bottom'):
+                pos *= f
             ok, why = ax.isAllowed(pos)
             if not ok:
                 return ok, '[%s blade] %s' % (axname, why)
@@ -137,36 +145,39 @@ class Slit(Moveable):
         self._doStartPositions(self._getPositions(target))
 
     def _doStartPositions(self, positions):
+        f = self.coordinates == 'opposite' and -1 or +1
         tr, tl, tb, tt = positions
         # determine which axes to move first, so that the blades can
         # not touch when one moves first
         cr, cl, cb, ct = map(lambda d: d.read(0), self._axes)
+        cr *= f
+        cb *= f
         ar, al, ab, at = self._axes
         if tr < cr and tl < cl:
             # both move to smaller values, need to start right blade first
-            ar.move(tr)
+            ar.move(tr * f)
             sleep(0.25)
             al.move(tl)
         elif tr > cr and tl > cl:
             # both move to larger values, need to start left blade first
             al.move(tl)
             sleep(0.25)
-            ar.move(tr)
+            ar.move(tr * f)
         else:
             # don't care
             al.move(tl)
-            ar.move(tr)
+            ar.move(tr * f)
         if tb < cb and tt < ct:
-            ab.move(tb)
+            ab.move(tb * f)
             sleep(0.25)
             at.move(tt)
         elif tb > cb and tt > ct:
             at.move(tt)
             sleep(0.25)
-            ab.move(tb)
+            ab.move(tb * f)
         else:
             at.move(tt)
-            ab.move(tb)
+            ab.move(tb * f)
 
     def doReset(self):
         for ax in self._axes:
@@ -184,7 +195,11 @@ class Slit(Moveable):
 
     def _doReadPositions(self):
         # XXX read() or read(0)
-        return map(lambda d: d.read(), self._axes)
+        cr, cl, cb, ct = map(lambda d: d.read(), self._axes)
+        if self.coordinates == 'opposite':
+            cr *= -1
+            cb *= -1
+        return [cr, cl, cb, ct]
 
     def doRead(self):
         positions = self._doReadPositions()

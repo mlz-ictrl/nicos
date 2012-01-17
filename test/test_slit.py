@@ -44,10 +44,10 @@ def test_slit():
 
     slit.opmode = '4blades'
     slit.maw([1, 2, 3, 4])
-    print    [motor_right.doRead(),
-                             motor_left.doRead(),
-                             motor_bottom.doRead(),
-                             motor_top.doRead()]
+    print [motor_right.doRead(),
+           motor_left.doRead(),
+           motor_bottom.doRead(),
+           motor_top.doRead()]
     assert motor_right.doRead() == 1
     assert motor_left.doRead() == 2
     assert motor_bottom.doRead() == 3
@@ -60,6 +60,30 @@ def test_slit():
     slit.reset()
     slit.stop()
     assert slit.doStatus()[0] == status.OK
+
+
+def test_slit_opposite():
+    s2 = session.getDevice('slit2')
+    motor_right = session.getDevice('m_right')
+    motor_left = session.getDevice('m_left')
+    motor_bottom = session.getDevice('m_bottom')
+    motor_top = session.getDevice('m_top')
+
+    s2.opmode = '4blades'
+    s2.maw([1, 2, 3, 4])
+    assert motor_right.doRead() == -1
+    assert motor_left.doRead() == 2
+    assert motor_bottom.doRead() == -3
+    assert motor_top.doRead() == 4
+
+    s2.opmode = 'offcentered'
+    s2.maw([1, 2, 4, 6])
+    assert motor_right.doRead() == 1
+    assert motor_left.doRead() == 3
+    assert motor_bottom.doRead() == 1
+    assert motor_top.doRead() == 5
+
+    assert raises(LimitError, s2.start, [1, 2, -1, 0])
 
 
 def test_slit_opmodes():

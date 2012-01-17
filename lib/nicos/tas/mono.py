@@ -81,7 +81,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         # XXX explanation?
         'sidechange': Param('', type=int, default=False),
         'focmode':  Param('focussing mode', default='manual', settable=True,
-                          type=oneof(str, 'manual', 'flat', 'horizontal',
+                          type=oneof('manual', 'flat', 'horizontal',
                                      'vertical', 'double')),
         'hfocuspars': Param('horizontal focus polynomial coefficients',
                             type=listof(float), default=[0.], settable=True),
@@ -92,8 +92,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
     }
 
     parameter_overrides = {
-        'unit':  Override(default='A-1',
-                          type=oneof(str, 'A-1', 'A', 'meV', 'THz')),
+        'unit':  Override(default='A-1', type=oneof('A-1', 'A', 'meV', 'THz')),
         'precision': Override(volatile=True, settable=False),
         'fmtstr': Override(default='%.3f'),
     }

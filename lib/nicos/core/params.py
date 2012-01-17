@@ -318,9 +318,8 @@ def floatrange(fr, to):
     converter.__doc__ = 'a float in the range [%f, %f]' % (fr, to)
     return converter
 
-def oneof(conv, *vals):
+def oneof(*vals):
     def converter(val=vals[0]):
-        val = conv(val)
         if val not in vals:
             raise ValueError('invalid value: %s, must be one of %s' %
                              (val, ', '.join(map(repr, vals))))
