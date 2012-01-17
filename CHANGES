@@ -33,6 +33,9 @@ Changelog for NICOS 2
 
   - Taco motors now can read the absolute limits from the Taco device.
 
+  - Removed "setPosition()" from abstract Axis.  Moved "setPosition()" from
+    abstract Motor to abstract Coder.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless
