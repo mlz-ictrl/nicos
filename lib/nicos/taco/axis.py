@@ -98,7 +98,7 @@ class Axis(TacoDevice, BaseAxis):
                 self._sim_max = pos
             self._sim_max = max(pos, self._sim_max)
             return
-        self._taco_guard(self._dev.setpos, target)
+        self._taco_guard(self._dev.setpos, pos)
 
     def doStatus(self):
         state = self._taco_guard(self._dev.deviceState)

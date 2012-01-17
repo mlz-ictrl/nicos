@@ -71,6 +71,9 @@ class VirtualMotor(Motor, HasOffset):
     def doStop(self):
         self._stop = True
 
+    def doSetPosition(self, pos):
+        self.curvalue = pos + self.offset
+
     def __moving(self, pos):
         self._stop = False
         incr = 0.2 * self.speed
