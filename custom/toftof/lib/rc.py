@@ -18,11 +18,12 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Tobias Unruh <tobias.unruh@frm2.tum.de>
+#   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""Huber Motor Controller Protocol NICOS driver"""
+"""Huber Motor Controller Protocol NICOS driver."""
 
 __version__ = "$Revision$"
 
@@ -30,21 +31,12 @@ from time import sleep, time
 
 from IO import StringIO
 
-from nicos.core import status, intrange, listof, Device, Readable, Moveable, \
-     Param, Override, NicosError, CommunicationError, InvalidValueError, \
-     ConfigurationError, ProgrammingError
+from nicos.core import status, intrange, Device, Moveable, \
+     Param, NicosError, CommunicationError, ProgrammingError
 from nicos.taco.core import TacoDevice
 
 class ModBusDriverHP (TacoDevice, Device):
     """Basic Huber Protocol client class.
-       ---------------------------------
-
-       Parameters:
-        
-       Command Name                 | Description
-       -----------------------------+----------------------------------------------------------
-       string* read ()              | read a message from device
-       string* write (istr)         | write a message to bus and return the answer
     """
 
     taco_class = StringIO
@@ -53,15 +45,12 @@ class ModBusDriverHP (TacoDevice, Device):
         'maxtries': Param('Maximum tries before raising', type=int, default=50),
     }
 
-    def _CRC (self,str):
+    def _crc(self, str):
         crc = ord(str[0])
         for i in str[1:]:
-            crc = crc ^ ord(i)
-        return self._str(crc)
+            crc ^= ord(i)
+        return '%02X' % crc
 
-    def _str (self, val):
-        return "%01x%01x" % (((val&0xf0)>>4),(val&0x0f))
-    
     def _w (self, istr):
         istr2 = istr
         iexit = False
@@ -93,7 +82,7 @@ class ModBusDriverHP (TacoDevice, Device):
                             raise CommunicationError ("could not read from device %s" % self.name)
                         continue
                     else:
-                        chsum = self._CRC (ret[:-2]).lower()
+                        chsum = self._crc(ret[:-2]).lower()
 #                       print ret, chsum
 #                       if chsum != ret [-2:].lower():
 #                           maxtry -= 1
@@ -165,6 +154,7 @@ class ModBusDriverHP (TacoDevice, Device):
         ret = self._w (istr)
         return ret
 
+
 class RadialCollimator(Moveable):
     """Start/Stop movement of radial collimator"""
 
@@ -173,18 +163,18 @@ class RadialCollimator(Moveable):
     }
 
     parameters = {
-        'address' : Param('address of the motor',
-                          type = intrange(1, 17), default = 7),
+        'address' :     Param('address of the motor',
+                              type = intrange(1, 17), default = 7),
         'start_angle' : Param('',
-			  type = float, default = 1.0),
-        'stop_angle' : Param('',
-                          type = float, default = 5.4),
-        'std_speed' : Param('',
-                          type = int, default = 1200),
-        'ref_speed' : Param('',
-                          type = int, default = 100),
-        'timeout' : Param ('',
-                          type = float, default = 120),
+                              type = float, default = 1.0),
+        'stop_angle' :  Param('',
+                              type = float, default = 5.4),
+        'std_speed' :   Param('',
+                              type = int, default = 1200),
+        'ref_speed' :   Param('',
+                              type = int, default = 100),
+        'timeout' :     Param('',
+                              type = float, default = 120),
     }
 
     def doInit (self):
@@ -193,31 +183,32 @@ class RadialCollimator(Moveable):
             return
 
     def doStart(self, state=1):
-	print self.status()
+        print self.status()
+        bus = self._adevs['bus']
         if self.status()[0] == status.OK :
-            self._adevs['bus'].write("clr")
-            self._adevs['bus'].write("%d:a%.1f" % (self.address, self.start_angle))
-            self._adevs['bus'].write("nl")
-            self._adevs['bus'].write("%d:a%.1f" % (self.address, self.stop_angle))
-            self._adevs['bus'].write("nl")
-            self._adevs['bus'].write("jmp1")
-            self._adevs['bus'].write("nl")
-            self._adevs['bus'].write("end")
-            self._adevs['bus'].write("start")
+            bus.write("clr")
+            bus.write("%d:a%.1f" % (self.address, self.start_angle))
+            bus.write("nl")
+            bus.write("%d:a%.1f" % (self.address, self.stop_angle))
+            bus.write("nl")
+            bus.write("jmp1")
+            bus.write("nl")
+            bus.write("end")
+            bus.write("start")
         #self._stime = time.time()
-        #self._adevs['bus'].write("osc%d:0" % (self.address,))
+        #bus.write("osc%d:0" % (self.address,))
         #sleep(0.1)
-        #self._adevs['bus'].write("goto%d:%f" % (self.address, self.start_angle))
+        #bus.write("goto%d:%f" % (self.address, self.start_angle))
         #sleep(0.1)
         #ret = 0
         #while ret & 1 == 0:
-        #    ret = self._adevs['bus'].write("?s%d" % (self.address,))
+        #    ret = bus.write("?s%d" % (self.address,))
         #    ret = int(ret[ret.find(":")+1:])
         #    if time.time() > self._stime + self.timeout:
-        #        self._adevs['bus'].write("q%d" % (self.address,))
+        #        bus.write("q%d" % (self.address,))
         #        raise NicmError("could not reach reset position within timeout")
         #    sleep(0.1)
-        #self._adevs['bus'].write("osc%d:%f" % (self.address, self.stop_angle - self.start_angle))
+        #bus.write("osc%d:%f" % (self.address, self.stop_angle - self.start_angle))
         #sleep(0.1)
 
     def doStop (self):
@@ -229,14 +220,14 @@ class RadialCollimator(Moveable):
         try:
             ret = self._adevs['bus'].write("?s%d" % (self.address,))
             val = int(ret[ret.find(":")+1:-1])
-	    print '%d, 0x%04x' % (val, val)
-	    if (val & 0x100) == 0x100 :	  # Oscillation active
+            print '%d, 0x%04x' % (val, val)
+            if (val & 0x100) == 0x100 :   # Oscillation active
                 return (status.BUSY, 'oscillating')
             elif (val & 0x040) == 0x040 : # Program execution active
                 return (status.BUSY, 'oscillating')
             elif (val & 0x001) == 0x001 : # Controller passive
-		return (status.OK, '')
-            else :
+                return (status.OK, '')
+            else:
                 return (status.UNKNOWN, 'unknown')
         except:
             raise CommunicationError ("could not get the status of the motor axis of the radial collimator")
@@ -251,43 +242,44 @@ class RadialCollimator(Moveable):
 
     def doReset(self):
         self._stime = time.time()
-        # self._adevs['bus'].write("osc%d:0" % (self.address,))
-        self._adevs['bus'].write("ffast%d:%f" % (self.address, 200))
-        self._adevs['bus'].write("frun%d:%f" % (self.address, 100))
-        self._adevs['bus'].write("move%d:%f" % (self.address, -10))
+        bus = self._adevs['bus']
+        # bus.write("osc%d:0" % (self.address,))
+        bus.write("ffast%d:%f" % (self.address, 200))
+        bus.write("frun%d:%f" % (self.address, 100))
+        bus.write("move%d:%f" % (self.address, -10))
         sleep(0.4)
         ret = 0
         while ret & 1 == 0:
-            ret = self._adevs['bus'].write("?s%d" % (self.address,))
+            ret = bus.write("?s%d" % (self.address,))
             ret = int(ret[ret.find(":")+1:-1])
             if time.time() > self._stime + self.timeout:
-                    self._adevs['bus'].write("q%d" % (self.address,))
+                    bus.write("q%d" % (self.address,))
                     raise NicosError("could not reach reset position within timeout")
             sleep(0.1)
-        self._adevs['bus'].write("move%d:%f" % (self.address, 0.3))
+        bus.write("move%d:%f" % (self.address, 0.3))
         sleep(0.4)
         ret = 0
         while ret & 1 == 0:
-            ret = self._adevs['bus'].write("?s%d" % (self.address,))
+            ret = bus.write("?s%d" % (self.address,))
             ret = int(ret[ret.find(":")+1:-1])
             if time.time() > self._stime + self.timeout:
-                self._adevs['bus'].write("q%d" % (self.address,))
+                bus.write("q%d" % (self.address,))
                 raise NicosError("could not reach reset position within timeout")
             sleep(0.1)
-        self._adevs['bus'].write("ffast%d:%f" % (self.address, self.ref_speed))
-        self._adevs['bus'].write("frun%d:%f" % (self.address, 100))
-        self._adevs['bus'].write("move%d:%f" % (self.address, -10))
+        bus.write("ffast%d:%f" % (self.address, self.ref_speed))
+        bus.write("frun%d:%f" % (self.address, 100))
+        bus.write("move%d:%f" % (self.address, -10))
         sleep(0.4)
         ret = 0
         while ret & 1 == 0:
-            ret = self._adevs['bus'].write("?s%d" % (self.address,))
+            ret = bus.write("?s%d" % (self.address,))
             ret = int(ret[ret.find(":")+1:-1])
             if time.time() > self._stime + self.timeout:
-                self._adevs['bus'].write("q%d" % (self.address,))
+                bus.write("q%d" % (self.address,))
                 raise NicosError("could not reach reset position within timeout")
             sleep(0.1)
-        self._adevs['bus'].write("zero%d" % (self.address,))
-        self._adevs['bus'].write("ffast%d:%f" % (self.address, self.std_speed))
+        bus.write("zero%d" % (self.address,))
+        bus.write("ffast%d:%f" % (self.address, self.std_speed))
         sspeed = int (round(self.std_speed / 4.0))
-        self._adevs['bus'].write("frun%d:%f" % (self.address, sspeed))
+        bus.write("frun%d:%f" % (self.address, sspeed))
 

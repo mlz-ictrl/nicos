@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Tobias Unruh <tobias.unruh@frm2.tum.de>
 #
 # *****************************************************************************
 
