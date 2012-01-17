@@ -44,6 +44,9 @@ Changelog for NICOS 2
 
   - The TAS commands are not included automatically in setups anymore.
 
+  - Added "coordinates" parameter to slits to select the coordinate
+    convention for right/left, bottom/top axes.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless
