@@ -27,6 +27,7 @@
 __version__ = "$Revision$"
 
 import os
+import re
 import pdb
 import sys
 import code
@@ -130,9 +131,9 @@ class NicosInteractiveConsole(code.InteractiveConsole):
                 exception, 'error notification',
                 short='Exception: ' + exception.splitlines()[-1])
             if exc_info[0] == exceptions.NameError:
-                self.GuessCorrectCommand(source)
+                self._guessCorrectCommand(source)
             if exc_info[0] == exceptions.AttributeError:
-                self.GuessCorrectCommand(source, attribute=True)
+                self._guessCorrectCommand(source, attribute=True)
 
             return
         finally:
@@ -142,50 +143,72 @@ class NicosInteractiveConsole(code.InteractiveConsole):
             print
         #self.locals.clear()
 
-    def GuessCorrectCommand(self, source, attribute=False):
-        """ Try to guess the command that was meant by source
+    def _guessCorrectCommand(self, source, attribute=False):
+        """Try to guess the command that was meant by *source*.
 
-            Will do a fuzzy match in all usercommands in the top level
-            namespace and tries to find attributes if attribute=True
-
+        Will do a fuzzy match in all usercommands in the top level namespace and
+        tries to find attributes if *attribute* is true.
         """
+        if source is None:
+            return
 
-        if source is not None:
-            from nicos.utils.comparestrings import compare
-            parts = source.split()
-            localparts = parts[0].split('.')
+        from nicos.utils.comparestrings import compare
+        try:
+            # extract the first dotted item on the line
+            match = re.match('[a-zA-Z_][a-zA-Z0-9_.]*', source)
+            if match is None:
+                return
+            object_parts = match.group(0).split('.')
+            if attribute and len(object_parts) < 2:
+                return
+
+            # compile a list of existing commands
             allowed_keys = [x for x in self.session._exported_names
-                          if hasattr(self.session.namespace[x], 'is_usercommand')]
-
+                            if hasattr(self.session.namespace[x], 'is_usercommand')]
             allowed_keys += __builtins__.keys()
             allowed_keys += self.locals.keys()
             allowed_keys += self.globals.keys()
+            # for attributes, use a list of existing attributes instead
             if attribute:
-                namespace = None
-                if self.globals.has_key(localparts[0]):
-                    namespace = self.globals[localparts[0]]
-                if self.locals.has_key(localparts[0]):
-                    namespace = self.locals[localparts[0]]
-                if namespace is not None:
-                    allowed_keys = dir(namespace)
+                obj = None
+                if self.globals.has_key(object_parts[0]):
+                    obj = self.globals[object_parts[0]]
+                if self.locals.has_key(object_parts[0]):
+                    obj = self.locals[object_parts[0]]
+                for i in range(1, len(object_parts)):
+                    try:
+                        obj = getattr(obj, object_parts[i])
+                    except AttributeError:
+                        base = '.'.join(object_parts[:i])
+                        poi = object_parts[i]
+                        allowed_keys = dir(obj)
+                        break
+                else:
+                    return  # whole object chain exists -- error comes from
+                            # somewhere else
+            else:
+                base = ''
+                poi = object_parts[0]
 
+            # compare all allowed keys against given
             comp = {}
 
             if attribute:
-                poi = localparts[1].split('(')
+                poi = object_parts[1]
             else:
-                poi = localparts[0].split('(')
+                poi = object_parts[0]
             for key in allowed_keys:
-                comp[key] = compare(poi[0], key)
-            comp = sorted(comp.items(), key=lambda t:t[1], reverse=True)
-            bestmatch = comp[0]
-            if attribute:
-                localparts[1] = bestmatch[0] + '('
-            else:
-                localparts[0] = bestmatch[0]
-            newcmd = '.'.join(localparts) + ' '.join(poi[1:])
+                if key == poi:
+                    return  # the error probably occurred with another object
+                            # on the line
+                comp[key] = compare(poi, key)
+            comp = sorted(comp.items(), key=lambda t: t[1], reverse=True)
+            suggestions = [(base and base + '.' or '') + m[0]
+                           for m in comp[:3] if m[1] > 2]
+            self.session.log.info('Did you mean: %s' % ', '.join(suggestions))
+        except Exception:
+            pass
 
-            self.session.log.info('Did you mean: %s' % newcmd)
 
 class ConsoleSession(Session):
     """

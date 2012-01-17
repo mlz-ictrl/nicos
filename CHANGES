@@ -40,6 +40,8 @@ Changelog for NICOS 2
     channels as adevs.  Presets are either "t" or "monX" or "ctrX", where
     X is the number of the monitor/counter channel.
 
+  - Added suggestion of possible commands when misspelled on the console.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless
