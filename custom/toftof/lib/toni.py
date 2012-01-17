@@ -50,7 +50,7 @@ class ModBus(TacoDevice, Device):
             crc ^= ord(i)
         return '%02X' % crc
 
-    def communicate(self, msg, dest):
+    def communicate(self, msg, dest, expect_ok=False):
         msg = '%02X%02X%s' % (dest, self.source, msg)
         msg = '\x02' + msg + self._crc(msg)
         tries = self.maxtries
@@ -69,6 +69,8 @@ class ModBus(TacoDevice, Device):
         if (len(ret) < 8 or ret[0] != '\x02' or ret[5] != '>' or ret[-2:] != crc
               or ret[1:3] != '%02X' % self.source or ret[3:5] != '%02X' % dest):
             raise CommunicationError(self, 'ModBus reply garbled: %r' % ret)
+        if expect_ok and ret[6:-2] != 'OK':
+            raise CommunicationError(self, 'unexpected reply: %r' % ret[6:-2])
         return ret[6:-2]
 
 
@@ -107,9 +109,7 @@ class Valve(Moveable):
         self.doWait()
         self._timer = time()
         msg = '%s=%02x' % (value and 'O' or 'C', 1 << self.channel)
-        ret = self._adevs['bus'].communicate(msg, self.addr)
-        if ret != 'OK':
-            raise CommunicationError(self, 'ModBus read error: %r' % ret)
+        self._adevs['bus'].communicate(msg, self.addr, expect_ok=True)
 
     def doRead(self):
         self.doWait()
@@ -168,13 +168,9 @@ class Ratemeter(Readable):
         self._cachelock_acquire()
         try:
             # ratemeter is on channel 2
-            ret = bus.communicate('C2', self.addr)
-            if ret != 'OK':
-                raise CommunicationError('could not select crate channel')
+            bus.communicate('C2', self.addr, expect_ok=True)
             # send command (T = transmit, X = anything for input buffer update
-            ret = bus.communicate('TX', self.addr)
-            if ret != 'OK':
-                raise CommunicationError('update command failed')
+            bus.communicate('TX', self.addr, expect_ok=True)
             # wait until response is ready
             rlen = -1
             t = 0
@@ -191,83 +187,80 @@ class Ratemeter(Readable):
 
 class Vacuum(Readable) :
     """
-    Toni vacuum gauge ITR90 read out system
+    Toni vacuum gauge ITR90 read out system.
     """
     attached_devices = {
         'bus': (ModBus, 'Toni communication bus'),
     }
 
     parameters = {
-        'addr':     Param('Bus address of the valve control', 
-                          type = intrange(0xf0, 0xff), mandatory=True, default=0xf0),
-        'channel':  Param('Channel of the vacuum gauge', 
-                          type = intrange(0, 4), mandatory=True, default=0),
-        'power' : Param('',
-                          type = intrange(0, 2), default=0, settable=True),
+        'addr':    Param('Bus address of the valve control',
+                         type=intrange(0xF0, 0x100), mandatory=True),
+        'channel': Param('Channel of the vacuum gauge',
+                         type=intrange(0, 4), mandatory=True),
+        'power' :  Param('True if the readout is switched on',
+                         type=intrange(0, 2), default=0, settable=True),
     }
 
     parameter_overrides = {
-        'unit': Override(mandatory=False, default='mbar'),
+        'fmtstr': Override(default='%g'),
+        'unit':   Override(mandatory=False, default='mbar'),
     }
 
     def doInit(self):
-        if self._mode == 'simulation' :
+        if self._mode == 'simulation':
             return
-#       if nicd_getLogin()[1] >= 2:
-#           raise NicosError("only users with priorities < 2 are allowed to reload TOFTOF_HV devices")
 
 #   @requires(level=ADMIN)
     def doReset (self):
-        ret = self._adevs['bus'].communicate('P%1d=0' % (self.channel + 1,), self.addr)
-        if ret != "OK":
-            raise CommunicationError ("ITR90: read error")
+        self._adevs['bus'].communicate('P%1d=0' % (self.channel + 1),
+                                       self.addr, expect_ok=True)
         sleep(1)
-        ret = self._adevs['bus'].communicate('P%1d=1' % (self.channel + 1,), self.addr)
-        if ret != "OK":
-            raise CommunicationError ("ITR90: read error")
+        self._adevs['bus'].communicate('P%1d=1' % (self.channel + 1),
+                                       self.addr, expect_ok=True)
         sleep(0.1)
 
-    def doRead (self):
-        a = self._t('R%1d?' % (self.channel+1,))
+    def doRead(self):
+        a = self._adevs['bus'].communicate('R%1d?' % (self.channel + 1))
+        if len(a) != 8:
+            raise CommunicationError(self, 'ITR90: string too short (%r)' % a)
         try:
-            ret1 = int(a[0:4], 16)
-            ret3 = int(a[4:6], 16)
+            pressure = int(a[0:4], 16)
+            config = int(a[4:6], 16)
         except ValueError:
-            raise CommunicationError ("ITR90: read error")
+            raise CommunicationError(self, 'ITR90: invalid number (%r)' % a)
 
-        if ret3 & 16:
-            ret = 10.0 ** (ret1 / 4000.0 - 12.625) # Torr
-            self.unit = "Torr"
-        elif ret3 & 32:
-            ret = 10.0 ** (ret1 / 4000.0 - 10.5) # Pa
-            self.unit = "Pa"
+        if config & 16:
+            ret = 10.0 ** (pressure / 4000.0 - 12.625) # Torr
+            self.unit = 'Torr'
+        elif config & 32:
+            ret = 10.0 ** (pressure / 4000.0 - 10.5) # Pa
+            self.unit = 'Pa'
         else:
-            ret = 10.0 ** (ret1 / 4000.0 - 12.5) # mbar
-            self.unit = "mbar"
+            ret = 10.0 ** (pressure / 4000.0 - 12.5) # mbar
+            self.unit = 'mbar'
         return ret
 
-    def doStatus (self):
-        a = self._t('R%1d?' % (self.channel + 1))
+    def doStatus(self):
+        a = self._adevs['bus'].communicate('R%1d?' % (self.channel + 1))
+        if len(a) != 8:
+            raise CommunicationError(self, 'ITR90: string too short (%r)' % a)
         try:
-            ret1 = int(a[6:8], 16)
+            state = int(a[6:8], 16)
         except ValueError:
-            raise CommunicationError ("ITR90: read error")
-        return status.OK if ret1 == 0 else status.ERROR, ""
+            raise CommunicationError(self, 'ITR90: invalid number (%r)' % a)
+        if state == 0:
+            return status.OK, ''
+        else:
+            return status.ERROR, 'status value = 0x%X' % state
 
     def doReadPower(self):
         try:
             self.status()
             return 1
-        except:
+        except CommunicationError:
             return 0
 
     def doWritePower(self, value):
-        ret = self._adevs['bus'].communicate("P%1d=%d" % (self.channel + 1, value), self.addr)
-        if ret != "OK":
-            raise CommunicationError ("ITR90: read error")
-
-    def _t (self, istr):
-        ret = self._adevs['bus'].communicate(istr, self.addr)
-        if len (ret) != 8:
-            raise CommunicationError ("ITR90: read error : string to short, not 8 chars %s" % (ret))
-        return ret
+        self._adevs['bus'].communicate(
+            'P%1d=%d' % (self.channel + 1, value), self.addr, expect_ok=True)
