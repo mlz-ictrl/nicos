@@ -55,6 +55,7 @@ class ModBus(TacoDevice, Device):
         msg = '\x02' + msg + self._crc(msg)
         tries = self.maxtries
         while True:
+            tries -= 1
             try:
                 ret = self._taco_guard(self._dev.communicate, msg)
             except NicosError:
@@ -63,7 +64,6 @@ class ModBus(TacoDevice, Device):
                 sleep(0.1)
             else:
                 break
-            tries -= 1
         # check reply for validity
         crc = self._crc(ret[1:-2])
         if (len(ret) < 8 or ret[0] != '\x02' or ret[5] != '>' or ret[-2:] != crc
@@ -191,6 +191,7 @@ class Ratemeter(Readable):
 
 class Vacuum(Readable) :
     """
+    Toni vacuum gauge ITR90 read out system
     """
     attached_devices = {
         'bus': (ModBus, 'Toni communication bus'),
@@ -218,12 +219,10 @@ class Vacuum(Readable) :
 #   @requires(level=ADMIN)
     def doReset (self):
         ret = self._adevs['bus'].communicate('P%1d=0' % (self.channel + 1,), self.addr)
-        print ret
         if ret != "OK":
             raise CommunicationError ("ITR90: read error")
         sleep(1)
         ret = self._adevs['bus'].communicate('P%1d=1' % (self.channel + 1,), self.addr)
-        print ret
         if ret != "OK":
             raise CommunicationError ("ITR90: read error")
         sleep(0.1)
