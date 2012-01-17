@@ -45,7 +45,7 @@ class TofCounter(Measurable):
                                 default=1024),
         'timeinterval':   Param('Time interval between pulses', type=float,
                                 settable=True),
-        'delay':          Param('Additional frame delay', type=int,
+        'delay':          Param('TOF frame delay', type=int,
                                 settable=True),
         'monitorchannel': Param('Channel number of the monitor counter',
                                 type=intrange(1, 1025), settable=True),

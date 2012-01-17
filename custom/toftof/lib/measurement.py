@@ -53,18 +53,12 @@ class TofTofMeasurement(Measurable, ImageStorage):
     }
 
     parameters = {
-        'ch5_90deg_offset': Param('Whether chopper 5 is mounted the right way '
-                                  '(= 0) or with 90deg offset (= 1)',
-                                  type=intrange(0, 2), default=0, mandatory=True),
-        # XXX move this one to chdelay adev
-        'delay_address':    Param('Chopper delay address ???',
-                                  settable=True, type=int, default=241),
-        'delay':            Param('Additional delay ???', type=float,
+        'delay':            Param('Additional chopper delay', type=float,
                                   settable=True, default=0),
-        # XXX do we need those in here and on TofCounter?
         'timechannels':     Param('Number of time channels', default=1024,
                                   type=intrange(1, 1025), settable=True),
-        'timeinterval':   Param('Time interval ???', type=float, settable=True),
+        'timeinterval':     Param('Time interval between pulses', type=float,
+                                  settable=True),
     }
 
     parameter_overrides = {
@@ -111,7 +105,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         # select chopper delay from chopper parameters
         chdelay = 0.0
         if chspeed > 150:
-            if self.ch5_90deg_offset:
+            if self._adevs['chopper'].ch5_90deg_offset:
                 # chopper 5 90 deg rotated
                 chdelay = -15.0e6/chspeed/chratio2
             if chst == 1:
@@ -127,11 +121,12 @@ class TofTofMeasurement(Measurable, ImageStorage):
 
         # select counter delay from chopper parameters
         if chspeed > 150:
-            if self.ch5_90deg_offset:
+            if self._adevs['chopper'].ch5_90deg_offset:
                 TOFoffset = 30.0/chspeed/chratio2   # chopper 5 90 deg rotated
             else:
                 TOFoffset = 15.0/chspeed/chratio2   # normal mode
-            tel = (calc.a[0]-calc.a[5]) * calc.mn * chwl * 1.0e-10 / calc.h + TOFoffset
+            tel = (calc.a[0]-calc.a[5]) * calc.mn * chwl * 1.0e-10 / calc.h + \
+                TOFoffset
             tel += self.delay
             n = int(tel / (chratio / chspeed * 30.0))
             tel = tel - n * (chratio / chspeed * 30.0)
@@ -180,7 +175,8 @@ class TofTofMeasurement(Measurable, ImageStorage):
         head.append('TOF_NumInputs: %lu\n' % ctr.numinputs)
         head.append('TOF_Delay: %lu\n' % ctr.delay)
         head.append('TOF_MonitorInput: %d\n' % ctr.monitorchannel)
-        head.append('TOF_Ch5_90deg_Offset: %d\n' % self.ch5_90deg_offset)
+        head.append('TOF_Ch5_90deg_Offset: %d\n' %
+                    self._adevs['chopper'].ch5_90deg_offset)
         guess = round(4.0*chwl*2.527784152e-4/5.0e-8/ctr.channelwidth)
         head.append('TOF_ChannelOfElasticLine_Guess: %d\n' % guess)
         hvvals = []

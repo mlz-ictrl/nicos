@@ -29,7 +29,7 @@ __version__ = "$Revision$"
 
 import IO
 
-from nicos.core import Moveable, Param, NicosError
+from nicos.core import Moveable, Param, NicosError, intrange
 from nicos.taco import TacoDevice
 
 #from nicos.toftof import calculations as calc
@@ -39,6 +39,9 @@ class TofChopper(TacoDevice, Moveable):
     taco_class = IO.StringIO
 
     parameters = {
+        'ch5_90deg_offset': Param('Whether chopper 5 is mounted the right way '
+                                  '(= 0) or with 90deg offset (= 1)',
+                                  type=intrange(0, 2), mandatory=True),
         'phase_accuracy': Param('Required accuracy of the chopper phases',
                                 settable=True, default=10), # XXX unit?
         'speed_accuracy': Param('Required accuracy of the chopper speeds',

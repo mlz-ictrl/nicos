@@ -86,7 +86,7 @@ def phi1(x, w, ilambda=4.5):
     """
     return 360.0 * w/60.0 * t1(1, x, ilambda, 0.0)
 
-def phi(x, w, ilambda=4.5, crc=1, slittype=0, ratio=1):
+def phi(x, w, ilambda=4.5, crc=1, slittype=0, ratio=1, ch5_90deg_offset=0):
     """Return the phase angle that has to be set for wavelength *ilambda* [A]
     at chopper *x*.
     """
@@ -122,9 +122,8 @@ def phi(x, w, ilambda=4.5, crc=1, slittype=0, ratio=1):
         phi_1 += itv * st0[x]
     elif slittype == 2:
         phi_1 += itv * st1[x]
-    # XXX should give this as a parameter!
-    #if x==5:              # comment these two lines out if chopper 5 is mounted in the right way
-    #    phi_1 += 90.0     # use these lines if chopper 5 is mounted with an offset of 90 degrees
+    if ch5_90deg_offset and x == 5:
+        phi_1 += 90.0
     phi_2 = phi_1 - sgn(phi_1) * int(abs(phi_1)/360.0) * 360.0
     phi_3 = phi_2 - sgn(phi_2) * int(abs(phi_2)/180.0) * 360.0
     phi_4 = round(phi_3*100.0) / 100.0
