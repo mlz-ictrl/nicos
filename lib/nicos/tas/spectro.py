@@ -28,7 +28,7 @@
 __version__ = "$Revision$"
 
 from nicos.core import Moveable, Param, Override, AutoDevice, Value, \
-     ConfigurationError, ComputationError, UsageError, tupleof, multiStatus
+     ConfigurationError, ComputationError, tupleof, multiStatus
 from nicos.tas.cell import Cell
 from nicos.tas.mono import Monochromator
 from nicos.instrument import Instrument
