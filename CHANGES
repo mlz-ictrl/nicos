@@ -42,6 +42,8 @@ Changelog for NICOS 2
 
   - Added suggestion of possible commands when misspelled on the console.
 
+  - The TAS commands are not included automatically in setups anymore.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless

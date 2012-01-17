@@ -1,12 +1,12 @@
 #  -*- coding: utf-8 -*-
 
-description='base system'
+description = 'base system'
 
-group='internal'
+group = 'internal'
 
 includes = ['mono', 'ana', 'system']
 
-modules=[]
+modules = ['nicos.commands.tas']
 
 
 devices = dict(

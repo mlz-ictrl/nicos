@@ -72,7 +72,6 @@ class Session(object):
         'nicos.commands.measure',
         'nicos.commands.scan',
         'nicos.commands.analyze',
-        'nicos.commands.tas',
     ]
     autocreate_devices = True
 

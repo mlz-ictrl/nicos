@@ -26,6 +26,8 @@ description = 'test triple-axis setup'
 
 includes = ['system']
 
+modules = ['nicos.commands.tas']
+
 sysconfig = dict(
     instrument = 'tas',
 )
