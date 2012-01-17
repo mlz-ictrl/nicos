@@ -31,6 +31,8 @@ Changelog for NICOS 2
 
   - Renamed the "name" setup entry to "description" to match its function.
 
+  - Taco motors now can read the absolute limits from the Taco device.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless
