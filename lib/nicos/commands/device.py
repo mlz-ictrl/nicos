@@ -243,13 +243,29 @@ def release(*devlist):
         dev.log.info('released')
 
 @usercommand
-def adjust(dev, value):
-    """Adjust the offset of the device so that `read()` returns the given value.
+def adjust(dev, value, newvalue=None):
+    """Adjust the offset of the device.
+
+    There are two ways to call this function:
+
+    * with one value: the offset is adjusted so that `read()` then returns
+      the given value.
+    * with two values: the offset is adjusted so that the position that
+      previously had the value of the first parameter now has the value of
+      the second parameter.
+
+    Examples:
+
+    >>> adjust(om, 100)     # om's current value is now 100
+    >>> adjust(om, 99, 100) # what was om = 99 before is now om = 100
 
     "dev" must be a device that supports the "offset" parameter.
     """
     dev = session.getDevice(dev, HasOffset)
-    diff = dev.read(0) - value
+    if newvalue is None:
+        diff = dev.read(0) - value
+    else:
+        diff = value - newvalue
     dev.offset += diff
     dev.log.info('adjusted to %s %s, new offset is %.3f' %
                  (dev.format(value), dev.unit, dev.offset))
@@ -380,8 +396,6 @@ def listallparams(*names):
         if any(v is not None for v in pvalues):
             items.append([name] + map(str, pvalues))
     printTable(('device',) + names, items, printinfo)
-
-# XXX check casing!
 
 @usercommand
 def listdevices():

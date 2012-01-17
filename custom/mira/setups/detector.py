@@ -1,4 +1,4 @@
-name = 'standard detector and counter card'
+description = 'standard detector and counter card'
 
 includes = ['base']
 

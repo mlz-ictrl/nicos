@@ -1,3 +1,5 @@
+description = 'THM1176 gaussmeter'
+
 includes = ['base']
 
 devices = dict(

@@ -29,7 +29,7 @@ __version__ = "$Revision$"
 from nicos import session
 from nicos.core import status, Device, Moveable, HasLimits, HasOffset, Param, \
      ConfigurationError, ProgrammingError, LimitError, FixedError, UsageError, \
-     InvalidValueError
+     InvalidValueError, AccessError, requires, usermethod, ADMIN
 
 from test.utils import raises
 
@@ -104,6 +104,11 @@ class Dev2(HasLimits, HasOffset, Moveable):
 
     def doVersion(self):
         return [('testversion', 1.0)]
+
+    @usermethod
+    @requires(level=ADMIN)
+    def calibrate(self):
+        return True
 
 
 def test_initialization():
@@ -193,6 +198,9 @@ def test_methods():
     assert raises(InvalidValueError, setattr, dev2, 'loglevel', 'xxx')
     # test version() method
     assert ('testversion', 1.0) in dev2.version()
+
+    # test access control (test session always returns False for access check)
+    assert raises(AccessError, dev2.calibrate)
 
 def test_limits():
     dev2 = session.getDevice('dev2_3')

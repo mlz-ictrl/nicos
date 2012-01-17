@@ -4,7 +4,7 @@ Further NICOS API
 
 .. module:: nicos.core
 
-All API elements described here are used when writing new device classes.  They
+Most API elements described here are used when writing new device classes.  They
 are defined in submodules of :mod:`nicos.core`, but re-exported in
 :mod:`nicos.core` for easier importing.
 
@@ -27,6 +27,8 @@ The following exceptions can be used when writing custom devices:
 .. autoexception:: ConfigurationError()
 
 .. autoexception:: ModeError()
+
+.. autoexception:: AccessError()
 
 .. autoexception:: ProgrammingError()
 
@@ -197,11 +199,36 @@ as the first item of the tuple that `.Device.status` returns.  The whole
 Utilities
 =========
 
+.. currentmodule:: nicos.core.device
+
+The :mod:`nicos.core.device` module defines some decorators for device methods:
+
+.. autofunction:: usermethod
+
+.. autofunction:: requires
+
 .. module:: nicos.core.utils
 
-The :mod:`nicos.core.utils` module defines some utility functions.  They are
-re-exported in :mod:`nicos.core`.
+The :mod:`nicos.core.utils` module also defines some utility functions.  They
+are re-exported in :mod:`nicos.core`.
 
 .. autofunction:: multiStatus
 
 .. autofunction:: waitForStatus
+
+
+Writing commands
+================
+
+.. module:: nicos.commands
+
+Writing a custom user command is easy: just write a normal function and apply
+the `usercommand` decorator.  The docstring of the function is the help for the
+command.  A user command should raise `.UsageError` when used improperly: the
+command help is shown automatically when such an error is raised.
+
+In order to make user commands available in the NICOS namespace, they must be in
+a module that is mentioned by a `modules` list in a loaded setup (see
+:ref:`setups`).
+
+.. autofunction:: usercommand

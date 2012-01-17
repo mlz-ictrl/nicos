@@ -1,6 +1,4 @@
-#  -*- coding: utf-8 -*-
-
-name = 'setup for the daemon'
+description = 'setup for the daemon'
 group = 'special'
 
 devices = dict(

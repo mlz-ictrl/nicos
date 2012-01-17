@@ -192,7 +192,8 @@ def ListSetups():
     for name, info in session.getSetupInfo().iteritems():
         if info['group'] == 'special':
             continue
-        items.append((name, info['name'], ', '.join(sorted(info['devices']))))
+        items.append((name, info['description'],
+                      ', '.join(sorted(info['devices']))))
     items.sort()
     printTable(('name', 'description', 'devices'), items, printinfo)
 
@@ -363,6 +364,19 @@ def Edit(filename):
         Simulate(filename)
 
 
+class _ScriptScope(object):
+    def __init__(self, filename, code):
+        self.filename = filename
+        self.code = code
+    def __enter__(self):
+        session.beginActionScope(self.filename)
+        if session.experiment:
+            session.experiment.scripts += [self.code]
+    def __exit__(self, *args):
+        session.endActionScope()
+        if session.experiment:
+            session.experiment.scripts = session.experiment.scripts[:-1]
+
 @usercommand
 def _RunScript(filename, statdevices):
     fn = _scriptfilename(filename)
@@ -379,7 +393,7 @@ def _RunScript(filename, statdevices):
     with open(fn, 'r') as fp:
         code = unicode(fp.read(), 'utf-8')
         compiled = compile(code, fn, 'exec', CO_DIVISION)
-        with _Scope(fn):
+        with _ScriptScope(fn, code):
             exec compiled in session.local_namespace, session.namespace
     printinfo('finished user script: ' + fn)
     if session.mode == 'simulation':

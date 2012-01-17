@@ -1,8 +1,10 @@
+description = 'MIRA1 monochromator'
+
 includes = ['base']
 
 devices = dict(
     Sample   = device('nicos.tas.TASSample'),
-    
+
     MonoIPC  = device('nicos.ipc.TacoModBus',
                       tacodevice = 'mira/rs485/mgott',
                       lowlevel = True),

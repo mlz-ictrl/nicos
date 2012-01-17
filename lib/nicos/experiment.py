@@ -43,7 +43,13 @@ from nicos.utils.proposaldb import queryProposal
 
 
 class Sample(Device):
-    """A special device to represent a sample."""
+    """A special device to represent a sample.
+
+    An instance of this class is used as the *sample* attached device of the
+    `Experiment` object.  It can be subclassed to add special sample properties,
+    such as lattice and orientation calculations, or more parameters describing
+    the sample.
+    """
 
     parameters = {
         'samplename':  Param('Sample name', type=str, settable=True,
@@ -60,14 +66,35 @@ class Sample(Device):
 
 
 class Experiment(Device):
-    """A special singleton device to represent the experiment."""
+    """A special singleton device to represent the experiment.
+
+    This class is normally subclassed for specific instruments to e.g. select
+    the data paths according to instrument standards.
+
+    Several parameters configure special behavior:
+
+    * `datapath` (usually set proposal-specific by the `new` method) is a list
+      of paths where raw data files are stored.  If there is more than one entry
+      in the list, the data files are created in the first path and hardlinked
+      in the others.
+    * `detlist` and `envlist` are lists of names of the currently selected
+      standard detector and sample environment devices, respectively.  The
+      Experiment object has `detectors` and `sampleenv` properties that return
+      lists of the actual devices.
+    * `scripts` is managed by the session and should contain a stack of code of
+      user scripts currently executed.
+
+    The experiment singleton is available at runtime as
+    `nicos.session.experiment`.
+    """
 
     parameters = {
         'title':     Param('Experiment title', type=str, settable=True,
                            category='experiment'),
-        'proposal':  Param('Proposal number or proposal string',
+        'proposal':  Param('Current proposal number or proposal string',
                            type=str, settable=True, category='experiment'),
-        'users':     Param('User names', type=listof(str), settable=True,
+        'users':     Param('User names and affiliations for the proposal',
+                           type=listof(str), settable=True,
                            category='experiment'),
         'remark':    Param('Current remark about experiment configuration',
                            type=str, settable=True, category='experiment'),
@@ -75,9 +102,9 @@ class Experiment(Device):
                            type=nonemptylistof(str), default=['.'],
                            mandatory=True, settable=True,
                            category='experiment'),
-        'detlist':   Param('List of default detectors', type=listof(str),
-                           settable=True),
-        'envlist':   Param('List of default environment devices to read '
+        'detlist':   Param('List of default detector device names',
+                           type=listof(str), settable=True),
+        'envlist':   Param('List of default environment device names to read '
                            'at every scan point', type=listof(str),
                            settable=True),
         'scriptdir': Param('Standard script directory', type=str,
@@ -86,6 +113,8 @@ class Experiment(Device):
                            type=bool, default=True),
         'propdb':    Param('user@host:dbname credentials for proposal DB',
                            type=str, default='', userparam=False),
+        'scripts':   Param('Currently executed scripts',
+                           type=listof(str), settable=True),
     }
 
     attached_devices = {
@@ -106,6 +135,7 @@ class Experiment(Device):
 
     @usermethod
     def new(self, proposal, title=None, **kwds):
+        """Called by `.NewExperiment`."""
         # Individual instruments should override this to change datapath
         # according to instrument policy, and maybe call _fillProposal
         # to get info from the proposal database
@@ -165,6 +195,7 @@ class Experiment(Device):
 
     @usermethod
     def addUser(self, name, email, affiliation=None):
+        """Called by `.AddUser`."""
         user = '%s <%s>' % (name, email)
         if affiliation is not None:
             user += ', ' + affiliation

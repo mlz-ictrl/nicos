@@ -1,3 +1,5 @@
+description = 'IPC slit after mono shielding'
+
 devices = dict(
 #    ss0bus    = device('nicos.ipc.IPCModBusTaco',
 #                       lowlevel = True,

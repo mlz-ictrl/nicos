@@ -7,6 +7,7 @@ dist/
 *.pid
 pylint_*.txt
 MANIFEST
+nicos.conf
 
 data/*.dat
 data/filecounter
@@ -40,9 +41,9 @@ sip*.h
 moc_*.cpp
 *_moc.cpp
 ui_*.h
-src/cascade/cascade
-src/cascade/nicosclient/Makefile
-src/cascade/nicosclient/pythonbinding/Makefile
-src/cascade/nicoswidget/Makefile
-src/cascade/nicoswidget/pythonbinding/Makefile
-nicos.conf
+
+custom/mira/src/cascade/cascade
+custom/mira/src/cascade/nicosclient/Makefile
+custom/mira/src/cascade/nicosclient/pythonbinding/Makefile
+custom/mira/src/cascade/nicoswidget/Makefile
+custom/mira/src/cascade/nicoswidget/pythonbinding/Makefile

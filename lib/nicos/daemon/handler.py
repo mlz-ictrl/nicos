@@ -37,7 +37,8 @@ from Queue import Queue
 from SocketServer import BaseRequestHandler
 
 from nicos import session, nicos_version
-from nicos.daemon.user import AuthenticationError, GUEST, USER, ADMIN
+from nicos.core import ADMIN
+from nicos.daemon.user import AuthenticationError
 from nicos.daemon.utils import LoggerWrapper, serialize, unserialize
 from nicos.daemon.pyctl import STATUS_IDLE, STATUS_IDLEEXC, STATUS_RUNNING, \
      STATUS_STOPPING, STATUS_INBREAK
@@ -247,7 +248,7 @@ class ConnectionHandler(BaseRequestHandler):
             self.write(NAK, 'credentials not accepted')
             raise CloseConnection
 
-        # XXX only works for the client that logged in last
+        # of course this only works for the client that logged in last
         os.environ['DISPLAY'] = display
 
         # acknowledge the login
@@ -309,8 +310,7 @@ class ConnectionHandler(BaseRequestHandler):
         if not name:
             name = None
         try:
-            self.controller.new_request(
-                ScriptRequest(code, name, self.user.name))
+            self.controller.new_request(ScriptRequest(code, name, self.user))
         except RequestError, err:
             self.write(NAK, str(err))
             return
@@ -391,7 +391,7 @@ class ConnectionHandler(BaseRequestHandler):
         if self.controller.status in (STATUS_IDLE, STATUS_IDLEEXC):
             # only execute emergency stop functions
             self.log.warning('emergency stop without script running')
-            self.controller.new_request(EmergencyStopRequest(self.user.name))
+            self.controller.new_request(EmergencyStopRequest(self.user))
             self.write(ACK)
             return
         elif self.controller.status == STATUS_STOPPING:

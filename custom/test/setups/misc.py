@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-name = 'miscellaneous devices'
+description = 'miscellaneous devices'
 
 includes = ['system']
 excludes = ['excluded']

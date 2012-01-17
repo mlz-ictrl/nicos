@@ -1,3 +1,5 @@
+description = 'Stanford SR-850 lock-in amplifier'
+
 includes = ['base', 'lakeshore']
 
 devices = dict(

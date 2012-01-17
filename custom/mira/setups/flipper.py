@@ -1,4 +1,4 @@
-name = 'MIEZE devices'
+description = 'RF flipper'
 
 devices = dict(
     amp1     = device('nicos.mira.agilent.HFDevice',

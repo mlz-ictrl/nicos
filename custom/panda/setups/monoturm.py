@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-name = 'Monoturm, everything inside the Monochromator housing'
+description = 'Monoturm, everything inside the Monochromator housing'
 
 #~ includes = ['system','panda_s7']
 includes = ['system']

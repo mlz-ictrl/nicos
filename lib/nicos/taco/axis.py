@@ -35,7 +35,7 @@ import TACOStates
 from Motor import Motor as TACOMotor
 
 from nicos.core import status, tupleof, anytype, usermethod, Moveable, Param, \
-    NicosError, PositionError, MoveError, ModeError, waitForStatus
+     NicosError, ModeError, waitForStatus
 from nicos.abstract import Axis as BaseAxis
 from nicos.taco.core import TacoDevice
 
@@ -64,11 +64,8 @@ class Axis(TacoDevice, BaseAxis):
         self._taco_guard(self._dev.start, target + self.offset)
 
     def doWait(self):
-        st = waitForStatus(self, 0.3)
-        if st[0] == status.ERROR:
-            raise MoveError(self, st[1])
-        elif st[0] == status.NOTREACHED:
-            raise PositionError(self, st[1])
+        # XXX add a timeout?
+        waitForStatus(self, 0.3)
 
     def doRead(self):
         return self._taco_guard(self._dev.read) - self.offset
@@ -77,7 +74,30 @@ class Axis(TacoDevice, BaseAxis):
         self._taco_guard(self._dev.deviceReset)
         self._taco_guard(self._dev.deviceOn)
 
-    def doSetPosition(self, target):
+    @usermethod
+    def setPosition(self, pos):
+        """Sets the current position of the axis to the target.
+
+        This operation is forbidden in slave mode, and does the right thing
+        virtually in simulation mode.
+
+        .. method:: doSetPosition(pos)
+
+           This is called to actually set the new position in the hardware.
+        """
+        if self._mode == 'slave':
+            raise ModeError(self, 'setting new position not possible in '
+                            'slave mode')
+        elif self._sim_active:
+            self._sim_old_value = self._sim_value
+            self._sim_value = pos
+            if self._sim_min is None:
+                self._sim_min = pos
+            self._sim_min = min(pos, self._sim_min)
+            if self._sim_max is None:
+                self._sim_max = pos
+            self._sim_max = max(pos, self._sim_max)
+            return
         self._taco_guard(self._dev.setpos, target)
 
     def doStatus(self):

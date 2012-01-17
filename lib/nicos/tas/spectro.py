@@ -28,7 +28,7 @@
 __version__ = "$Revision$"
 
 from nicos.core import Moveable, Param, Override, AutoDevice, Value, \
-     ConfigurationError, ComputationError, tupleof, multiStatus
+     ConfigurationError, ComputationError, UsageError, tupleof, multiStatus
 from nicos.tas.cell import Cell
 from nicos.tas.mono import Monochromator
 from nicos.instrument import Instrument
@@ -93,6 +93,7 @@ class TAS(Instrument, Moveable):
         self.__dict__['E'] = TASIndex('E', unit=self.energytransferunit,
                                       fmtstr='%.3f', index=3, lowlevel=True,
                                       tas=self)
+        self._last_calpos = None
 
     def _thz(self, ny):
         if self.energytransferunit == 'meV':
@@ -199,6 +200,36 @@ class TAS(Instrument, Moveable):
             if self.energytransferunit == 'meV':
                 ny *= THZ2MEV
         return [hkl[0], hkl[1], hkl[2], ny]
+
+    def _calpos(self, pos):
+        qh, qk, ql, ny, sc = pos
+        ny = self._thz(ny)
+        try:
+            angles = self._adevs['cell'].cal_angles(
+                [qh, qk, ql], ny, self.scanmode, sc,
+                self.scatteringsense[1], self.axiscoupling, self.psi360)
+        except ComputationError, err:
+            self.log.warning('cannot calculation position: %s' % err)
+            return
+        for devname, value in zip(['mono', 'ana', 'phi', 'psi'], angles[:4]):
+            dev = self._adevs[devname]
+            if isinstance(dev, Monochromator):
+                ok, why = dev._allowedInvAng(value)
+            else:
+                ok, why = dev.isAllowed(value)
+            if not ok:
+                why = 'target position %s %s outside limits for %s: %s' % \
+                    (dev.format(value), dev.unit, dev, why)
+                break
+        self._last_calpos = pos
+        self.log.info('ki:            %8.3f A-1' % angles[0])
+        self.log.info('kf:            %8.3f A-1' % angles[1])
+        self.log.info('2theta sample: %8.3f deg' % angles[2])
+        self.log.info('theta sample:  %8.3f deg' % angles[3])
+        if ok:
+            self.log.info('position allowed')
+        else:
+            self.log.warning('position not allowed: ' + why)
 
 
 class TASIndex(Moveable, AutoDevice):

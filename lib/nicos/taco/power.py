@@ -97,9 +97,8 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
             return status.ERROR, TACOStates.stateDescription(state)
 
     def doWait(self):
-        st = waitForStatus(self, 0.5)
-        if st[0] == status.ERROR:
-            raise MoveError(self, 'wait failed, device in error state')
+        # XXX add a timeout?
+        waitForStatus(self, 0.5)
 
 
 class CurrentSupply(Supply):

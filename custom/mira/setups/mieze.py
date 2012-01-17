@@ -1,4 +1,4 @@
-name = 'MIEZE devices'
+description = 'MIEZE devices'
 
 devices = dict(
     amp1     = device('nicos.mira.rfcircuit.GeneratorDevice',

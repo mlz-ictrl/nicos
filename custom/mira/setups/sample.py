@@ -1,3 +1,5 @@
+description = 'sample table'
+
 devices = dict(
     phi      = device('nicos.taco.HoveringAxis',
                       tacodevice = 'mira/axis/phi',

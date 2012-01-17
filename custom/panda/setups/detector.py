@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-name='detectors'
+description='detectors'
 
 group='internal'
 

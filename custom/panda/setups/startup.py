@@ -25,7 +25,7 @@
 #
 # *****************************************************************************
 
-name = 'minimal NICOS startup setup'
+description = 'minimal NICOS startup setup'
 group = 'startup'
 
 includes = ['base']

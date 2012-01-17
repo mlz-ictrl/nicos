@@ -30,8 +30,7 @@ import time
 import random
 import threading
 
-from nicos.core import status, tacodev, tupleof, nonemptylistof, anytype, \
-     Readable, Moveable, HasOffset, Param, Override, PositionError
+from nicos.core import status, tacodev, tupleof, Readable, HasOffset, Param
 from nicos.abstract import Motor, Coder
 from nicos.taco.detector import FRMTimerChannel, FRMCounterChannel
 
@@ -67,7 +66,7 @@ class VirtualMotor(Motor, HasOffset):
 
     def doWait(self):
         while self.curstatus[0] == status.BUSY:
-            time.sleep(0.5)
+            time.sleep(0.1)
 
     def doStop(self):
         self._stop = True

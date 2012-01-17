@@ -1,3 +1,5 @@
+description = 'MIRA2 monochromator'
+
 includes = ['base']
 
 devices = dict(

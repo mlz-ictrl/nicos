@@ -1,3 +1,5 @@
+description = 'LakeShore 340 cryo controller'
+
 devices = dict(
     T        = device('nicos.taco.TemperatureController',
                       tacodevice = 'mira/ls340/control',

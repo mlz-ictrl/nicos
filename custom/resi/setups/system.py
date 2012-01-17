@@ -1,4 +1,4 @@
-name = 'system setup only'
+description = 'system setup only'
 
 sysconfig = dict(
     cache = 'resi2',

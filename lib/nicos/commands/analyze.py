@@ -69,7 +69,7 @@ def _getData(columns):
             ycol = dataset.ynames.index(ycol)
         except ValueError:
             raise NicosError('no such Y column name: %r' % ycol)
-    elif ycol == -1:
+    elif ycol < 0:
         try:
             ycol = [i for i in range(len(dataset.ynames))
                     if dataset.yvalueinfo[i].type == 'counter'][0]
@@ -245,9 +245,15 @@ gauss.__doc__ += COLHELP.replace('func(', 'gauss(')
 def center(dev, center, step, numsteps, *args, **kwargs):
     """Move the given device to the maximum of a Gaussian fit through a scan
     around center with the given parameters.
+
+    This supports all arguments and keyword arguments that `cscan()` supports,
+    and additionally a keyword "ycol" that gives the Y column of the dataset to
+    use for the Gaussian fit (see the help for `gauss()` for the meaning of this
+    parameter).
     """
+    ycol = kwargs.pop('ycol', -1)
     cscan(dev, center, step, numsteps, 'centering', *args, **kwargs)
-    params, _ = gauss()  # XXX which column!
+    params, _ = gauss(ycol)
     # do not allow moving outside of the scanned region
     minvalue = center - step*numsteps
     maxvalue = center + step*numsteps
@@ -265,9 +271,15 @@ def center(dev, center, step, numsteps, *args, **kwargs):
 def checkoffset(dev, center, step, numsteps, *args, **kwargs):
     """Readjust offset of the given device, so that the center of the given
     scan coincides with the center of a Gaussian fit.
+
+    This supports all arguments and keyword arguments that `cscan()` supports,
+    and additionally a keyword "ycol" that gives the Y column of the dataset to
+    use for the Gaussian fit (see the help for `gauss()` for the meaning of this
+    parameter).
     """
+    ycol = kwargs.pop('ycol', -1)
     cscan(dev, center, step, numsteps, 'offset check', *args, **kwargs)
-    params, _ = gauss()  # XXX which column!
+    params, _ = gauss(ycol)
     # do not allow moving outside of the scanned region
     minvalue = center - step*numsteps
     maxvalue = center + step*numsteps

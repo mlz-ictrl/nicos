@@ -259,3 +259,6 @@ class NicosDaemon(Device):
         self._server.shutdown()
         self._worker.join()
         self._server.server_close()
+
+    def current_script(self):
+        return self._controller.current_script
