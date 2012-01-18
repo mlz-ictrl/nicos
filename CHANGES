@@ -47,6 +47,9 @@ Changelog for NICOS 2
 
   - Fixed the "steps" parameter of IPC coders.
 
+  - Fixed nicos.conf not being read.  Prepend PYTHONPATH entries to
+    sys.path instead of appending.
+
 **Release 2.0.0 (2012-01-11)**
 
   - Initial release.
