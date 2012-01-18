@@ -168,7 +168,7 @@ class NicosDaemon(Device):
         'trustedhosts':   Param('Trusted hosts allowed to log in',
                                 type=listof(str)),
         'authmethod':     Param('Authentication method',
-                                type=oneof(str, 'none', 'list', 'pam')),
+                                type=oneof('none', 'list', 'pam')),
         'passwd':         Param('User/password list for authmethod "list"',
                                 type=listof(tupleof(str, str, int)))
     }

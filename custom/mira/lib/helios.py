@@ -41,7 +41,7 @@ class HePolarizer(TacoDevice, Moveable):
 
     parameters = {
         'current': Param('Current polarization direction', settable=True,
-                         type=oneof(str, 'up', 'down')),
+                         type=oneof('up', 'down')),
     }
 
     parameter_overrides = {

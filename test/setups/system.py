@@ -31,6 +31,8 @@ sysconfig = dict(
     datasinks = ['testsink'],
 )
 
+modules = ['nicos.commands.tas']
+
 
 devices = dict(
     sample   = device('nicos.tas.TASSample'),

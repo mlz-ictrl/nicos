@@ -577,7 +577,7 @@ class Motor(NicosMotor):
                             settable=True),
         'ramptype':   Param('Ramp type', settable=True, type=intrange(1, 5)),
         'microstep':  Param('Microstepping mode', unit='steps', settable=True,
-                            type=oneof(int, 1, 2, 4, 8, 16)),
+                            type=oneof(1, 2, 4, 8, 16)),
         'min':        Param('Lower motorlimit', settable=True,
                             type=intrange(0, 1000000), unit='steps'),
         'max':        Param('Upper motorlimit', settable=True,

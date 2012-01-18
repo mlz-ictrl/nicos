@@ -47,7 +47,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                           type=tupleof(int, int, int, int),
                           default=(-1, -1, -1, -1), settable=True),
         'mode':     Param('Data acquisition mode (tof or image)',
-                          type=oneof(str, 'tof', 'image'), settable=True),
+                          type=oneof('tof', 'image'), settable=True),
         'slave':    Param('Slave mode: start together with master device',
                           type=bool),
         'preselection': Param('Current preselection', unit='s',

@@ -40,6 +40,15 @@ Changelog for NICOS 2
     channels as adevs.  Presets are either "t" or "monX" or "ctrX", where
     X is the number of the monitor/counter channel.
 
+  - Added suggestion of possible commands when misspelled on the console.
+
+  - The TAS commands are not included automatically in setups anymore.
+
+  - Added "coordinates" parameter to slits to select the coordinate
+    convention for right/left, bottom/top axes.
+
+  - Removed first ("converter") argument from parameter type "oneof".
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless

@@ -21,6 +21,7 @@ devices = dict(
                         top = 'SampleSlitMotVT',
                         left = 'SampleSlitMotHL',
                         right = 'SampleSlitMotHR',
+                        coordinates = 'opposite',
                         opmode = 'offcentered'),
 )
 
