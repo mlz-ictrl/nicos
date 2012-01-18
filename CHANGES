@@ -49,6 +49,8 @@ Changelog for NICOS 2
 
   - Removed first ("converter") argument from parameter type "oneof".
 
+  - Added a "FinishExperiment()" user command.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless
