@@ -26,7 +26,9 @@
 
 __version__ = "$Revision$"
 
+import os
 import time
+import zipfile
 from os import path
 
 from nicos.utils import ensureDirectory
@@ -48,3 +50,22 @@ class MiraExperiment(Experiment):
 
         self.log.info('New experiment %s started' % proposal)
         self.log.info('Data directory set to %s' % new_datapath)
+
+    def finish(self, **kwds):
+        if kwds.get('zip', True):
+            try:
+                self.log.info('zipping experiment data, please wait...')
+                zipname = self.datapath[0].rstrip('/') + '.zip'
+                zf = zipfile.ZipFile(zipname, 'w')
+                try:
+                    for root, dirs, files in os.walk(self.datapath[0]):
+                        xroot = root[len(self.datapath[0]):].strip('/') + '/'
+                        for fn in files:
+                            zf.write(path.join(root, fn), xroot + fn)
+                finally:
+                    zf.close()
+            except Exception:
+                self.log.warning('could not zip up experiment data', exc=1)
+            else:
+                self.log.info('done: ' + zipname)
+        self.new(0)
