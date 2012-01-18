@@ -146,7 +146,7 @@ class FRMCounterChannel(FRMChannel):
 
     parameters = {
         'type': Param('Type of channel: monitor or counter',
-                      type=oneof(str, 'monitor', 'counter'), mandatory=True),
+                      type=oneof('monitor', 'counter'), mandatory=True),
     }
 
     def doRead(self):

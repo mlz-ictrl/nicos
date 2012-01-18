@@ -136,6 +136,9 @@ On-line analysis commands
 Triple-axis commands
 --------------------
 
+To use these commands, add ``'nicos.commands.tas'`` to the ``modules`` list of
+one of your loaded setups.
+
 .. module:: nicos.commands.tas
 
 .. autofunction:: Q

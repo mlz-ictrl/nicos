@@ -38,7 +38,7 @@ class GeneratorDevice(AnalogOutput):
     """RF generator frequency and amplitude device."""
 
     parameters = {
-        'shape': Param('Wave shape', type=oneof(str, 'sinusoid', 'square'),
+        'shape': Param('Wave shape', type=oneof('sinusoid', 'square'),
                        settable=True, category='general'),
         'offset': Param('Offset of zero point', type=float, settable=True,
                         category='offsets'),
