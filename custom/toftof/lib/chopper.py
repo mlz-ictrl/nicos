@@ -312,21 +312,21 @@ class PropertyChanger(Moveable):
         self._adevs['chopper']._change(self._prop, target)
 
 
-class Wavelength(HasLimits, Moveable):
+class Wavelength(HasLimits, PropertyChanger):
     _prop = 'wavelength'
     parameter_overrides = {
         'unit':  Override(mandatory=False, default='A'),
     }
 
 
-class Speed(HasLimits, Moveable):
+class Speed(HasLimits, PropertyChanger):
     _prop = 'speed'
     parameter_overrides = {
         'unit':  Override(mandatory=False, default='rpm'),
     }
 
 
-class Ratio(Moveable):
+class Ratio(PropertyChanger):
     _prop = 'ratio'
     parameter_overrides = {
         'unit':  Override(mandatory=False, default=''),
@@ -334,7 +334,7 @@ class Ratio(Moveable):
     valuetype = oneof(*range(1, 11))
 
 
-class CRC(Moveable):
+class CRC(PropertyChanger):
     _prop = 'crc'
     parameter_overrides = {
         'unit':  Override(mandatory=False, default=''),
@@ -342,7 +342,7 @@ class CRC(Moveable):
     valuetype = oneof(0, 1)
 
 
-class SlitType(Moveable):
+class SlitType(PropertyChanger):
     _prop = 'slittype'
     parameter_overrides = {
         'unit':  Override(mandatory=False, default=''),
