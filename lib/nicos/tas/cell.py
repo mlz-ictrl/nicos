@@ -624,7 +624,7 @@ class Cell(Device):
             if psi360:
                 if psi < 0:
                     psi += 360
-                # XXX can that happen?
+                # can that happen?
                 elif psi > 360:
                     psi -= 360
 
