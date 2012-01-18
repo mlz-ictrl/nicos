@@ -60,14 +60,14 @@ class Controller(TacoDevice, Readable):
     }
 
     def _read(self, n):
-        return float(self._taco_guard(self._dev.communicate, 'M%04d' % n))
+        return int(self._taco_guard(self._dev.communicate, 'M%04d' % n))
 
     def _write(self, n, v):
         self._taco_guard(self._dev.writeLine('M%04d=%d' % (n, v)))
 
     def _write_multi(self, *values):
         tstr = ' '.join('M%04d=%d' % x for x in zip(values[::2], values[1::2]))
-        self._taco_guard(self._dev.write(tstr))
+        self._taco_guard(self._dev.writeLine(tstr))
 
     def doInit(self):
         self._phases = [0, 0]
@@ -80,12 +80,12 @@ class Controller(TacoDevice, Readable):
             self._setROParam('wavelength', wavelength)
             self._setROParam('speed', round(self._read(4150) / 1118.4735))
             self._setROParam('ratio', abs(self._read(4507)))
-            slittype = int(self._read(4182))
+            slittype = self._read(4182)
             if slittype == 2:  # XXX this looks strange
                 self._setROParam('slittype', 1)
             else:
                 self._setROParam('slittype', 0)
-            crc = int(self._read(4183))
+            crc = self._read(4183)
             if crc == 1:
                 self._setROParam('crc', 0)
             else:
@@ -108,7 +108,7 @@ class Controller(TacoDevice, Readable):
 
     def _is_cal(self):
         for ch in range(1, 8):
-            ret = int(self._read(4140 + ch))
+            ret = self._read(4140 + ch)
             if ret in [0,1,2,6,8]:
                 return False
         return True
@@ -136,6 +136,7 @@ class Controller(TacoDevice, Readable):
         for ch in range(1, 8):
             phi = calc.phi(ch, self.speed, self.wavelength, self.crc,
                            self.slittype, self.ratio, self.ch5_90deg_offset)
+            assert -180. <= phi <= 180.
             self._phases.append(int(round(100.0 * phi)))
         if self.crc == 0:
             r1 = 2
@@ -210,7 +211,7 @@ class Controller(TacoDevice, Readable):
             self._setROParam('speed', 0)
 
     def doStatus(self):
-        errstates = {0: 'inactive', 1: 'cal', 2: 'com', 3: 'estop'}
+        errstates = {0: 'inactive', 1: 'cal', 2: 'com', 8: 'estop'}
         ret = []
         stval = status.OK
         # read status values
