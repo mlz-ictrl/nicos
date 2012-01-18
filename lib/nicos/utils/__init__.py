@@ -196,7 +196,8 @@ class NicosConfigParser(ConfigParser.SafeConfigParser):
         return key
 
 def readConfig():
-    fn = path.normpath(path.join(path.dirname(__file__), '../../nicos.conf'))
+    fn = path.normpath(path.join(path.dirname(__file__),
+                                 '../../../nicos.conf'))
     cfg = NicosConfigParser()
     cfg.read(fn)
     if cfg.has_section('environment'):
@@ -204,7 +205,7 @@ def readConfig():
             value = cfg.get('environment', name)
             if name == 'PYTHONPATH':
                 # needs to be special-cased
-                sys.path.extend(value.split(':'))
+                sys.path[:0] = value.split(':')
             else:
                 os.environ[name] = value
     from nicos.sessions import Session
