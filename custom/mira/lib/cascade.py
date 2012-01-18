@@ -26,17 +26,27 @@
 
 __version__ = "$Revision$"
 
+from os import path
+from math import pi
 from time import sleep
 
 from nicos import session
+from nicos.tas import Monochromator
 from nicos.core import status, tupleof, listof, oneof, Param, Override, Value, \
-     CommunicationError
+     CommunicationError, Readable
 from nicos.mira import cascadeclient
 from nicos.abstract import ImageStorage, AsyncDetector
 from nicos.taco.detector import FRMDetector
 
 
 class CascadeDetector(AsyncDetector, ImageStorage):
+
+    attached_devices = {
+        'master':    (FRMDetector, 'Master to control measurement time '
+                      'in slave mode and to read monitor counts'),
+        'mono':      (Monochromator, 'Monochromator device to read out'),
+        'sampledet': (Readable, 'Sample-detector distance readout'),
+    }
 
     parameters = {
         'server':   Param('"host:port" of the cascade server to connect to',
@@ -54,11 +64,8 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                               settable=True, type=float),
         'lastcounts': Param('Counts of the last measurement',
                             type=listof(int), settable=True),
-    }
-
-    attached_devices = {
-        'master':   (FRMDetector, 'Master to control measurement time '
-                     'in slave mode'),
+        'monchannel': Param('Monitor channel to read from master detector',
+                            type=int, settable=True)
     }
 
     parameter_overrides = {
@@ -68,6 +75,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
     def doPreinit(self):
         if self._mode != 'simulation':
             self._client = cascadeclient.NicosClient()
+            self._padimg = cascadeclient.PadImage()
             self.doReset()
 
     def doInit(self):
@@ -86,8 +94,8 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         if self.slave:
             self._adevs['master'].reset()
         # reset parameters in case the server forgot them
-        self.mode = self.mode
-        self.preselection = self.preselection
+        self.doWriteMode(self.mode)
+        self.doWritePreselection(self.preselection)
 
     def valueInfo(self):
         cvals = (Value(self.name + '.roi', unit='cts', type='counter',
@@ -199,6 +207,12 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         buf = self._readLiveData(self._last_preset, self.lastfilename)
         # and write into measurement file
         self._writeFile(buf)
+        # also write as XML file
+        if self.mode == 'image':
+            try:
+                self._write_xml(buf)
+            except Exception:
+                self.log.warning('Error saving measurement as XML', exc=1)
 
     def _measurementFailedAction(self, err):
         self.lastfilename = '<error>'
@@ -226,6 +240,17 @@ class CascadeDetector(AsyncDetector, ImageStorage):
             roi = total
         self.lastcounts = [roi, total]
         return buf
+
+    def _write_xml(self, buf):
+        xml_fn = path.join(self._datapath,
+                           'mira_cas_%05d.xml' % self.lastfilenumber)
+        tmp = cascadeclient.TmpImage()
+        self._padimg.LoadMem(buf)
+        tmp.ConvertPAD(self._padimg)
+        mon = self._adevs['master']._adevs['monitors'][self.monchannel - 1]
+        tmp.WriteXML(xml_fn, self._adevs['sampledet'].read(),
+                     2*pi/self._adevs['mono']._readInvAng(),
+                     self._last_preset, mon.read())
 
     def _raise_reply(self, message, reply):
         if not reply:
