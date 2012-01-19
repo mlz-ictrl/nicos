@@ -228,7 +228,7 @@ class Vacuum(Readable) :
 
     def doRead(self):
         resp = self._adevs['bus'].communicate('R%1d?' % (self.channel + 1),
-                                              expect_hex=8)
+                                              self.addr, expect_hex=8)
         pressure, config = resp >> 16, (resp >> 8) & 0xFF
         if config & 16:
             ret = 10.0 ** (pressure / 4000.0 - 12.625) # Torr
@@ -243,7 +243,7 @@ class Vacuum(Readable) :
 
     def doStatus(self):
         resp = self._adevs['bus'].communicate('R%1d?' % (self.channel + 1),
-                                              expect_hex=8)
+                                              self.addr, expect_hex=8)
         state = resp & 0xFF
         if state == 0:
             return status.OK, ''
@@ -294,7 +294,7 @@ class LVPower(Readable):
 
     @requires(level=ADMIN)
     def doStart(self, target):
-        self._adevs['bus'].communicate('P%d' % (target == 'on'), expect_ok=True)
+        self._adevs['bus'].communicate('P%d' % (target == 'on'), self.addr, expect_ok=True)
 
 
 class DelayBox(Moveable):
