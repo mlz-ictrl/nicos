@@ -210,7 +210,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         # also write as XML file
         if self.mode == 'image':
             try:
-                self._write_xml(buf)
+                self._writeXml(buf)
             except Exception:
                 self.log.warning('Error saving measurement as XML', exc=1)
 
@@ -241,16 +241,16 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         self.lastcounts = [roi, total]
         return buf
 
-    def _write_xml(self, buf):
+    def _writeXml(self, buf):
         xml_fn = path.join(self._datapath,
                            'mira_cas_%05d.xml' % self.lastfilenumber)
         tmp = cascadeclient.TmpImage()
-        self._padimg.LoadMem(buf)
+        self._padimg.LoadMem(buf, 128*128*4)  # XXX size
         tmp.ConvertPAD(self._padimg)
         mon = self._adevs['master']._adevs['monitors'][self.monchannel - 1]
         tmp.WriteXML(xml_fn, self._adevs['sampledet'].read(),
                      2*pi/self._adevs['mono']._readInvAng(),
-                     self._last_preset, mon.read())
+                     self._last_preset, mon.read()[0])
 
     def _raise_reply(self, message, reply):
         if not reply:

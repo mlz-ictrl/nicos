@@ -16,6 +16,17 @@ devices = dict(
                       tacodevice = 'mira/axis/m2th',
                       abslimits = (-54, -31),
                       fmtstr = '%.3f'),
+
+    mono     = device('nicos.tas.Monochromator',
+                      unit = 'A-1',
+                      theta = 'm2th',
+                      twotheta = 'm2tt',
+                      focush = None,
+                      focusv = None,
+                      abslimits = (0, 10),
+                      scatteringsense = -1,
+                      dvalue = 3.325),
+
     m2tx     = device('nicos.taco.Axis',
                       tacodevice = 'mira/axis/m2tx',
                       abslimits = (-12.5, 10),

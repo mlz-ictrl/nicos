@@ -210,7 +210,7 @@ bool CascadeWidget::LoadTofFile(const char* pcFile)
 bool CascadeWidget::LoadPadMem(const char* pcMem, unsigned int uiLen)
 {
 	NewPad();
-	int iRet = m_pPad->LoadMem((unsigned int*)pcMem, uiLen/4);
+	int iRet = m_pPad->LoadMem(pcMem, uiLen);
 
 	if(iRet == LOAD_SIZE_MISMATCH)
 	{
@@ -218,7 +218,7 @@ bool CascadeWidget::LoadPadMem(const char* pcMem, unsigned int uiLen)
 		{
 			ForceReinit();
 			NewPad();
-			iRet = m_pPad->LoadMem((unsigned int*)pcMem, uiLen/4);
+			iRet = m_pPad->LoadMem(pcMem, uiLen);
 		}
 	}
 
@@ -233,7 +233,7 @@ bool CascadeWidget::LoadPadMem(const char* pcMem, unsigned int uiLen)
 bool CascadeWidget::LoadTofMem(const char* pcMem, unsigned int uiLen)
 {
 	NewTof();
-	int iRet = m_pTof->LoadMem((unsigned int*)pcMem, uiLen/4);
+	int iRet = m_pTof->LoadMem(pcMem, uiLen);
 
 	if(iRet == LOAD_SIZE_MISMATCH)
 	{
@@ -243,7 +243,7 @@ bool CascadeWidget::LoadTofMem(const char* pcMem, unsigned int uiLen)
 		{
 			ForceReinit();
 			NewTof();
-			iRet = m_pTof->LoadMem((unsigned int*)pcMem, uiLen/4);
+			iRet = m_pTof->LoadMem(pcMem, uiLen);
 		}
 	}
 

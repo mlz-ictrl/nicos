@@ -40,8 +40,8 @@ class PadImage : BasicImage
 		int LoadFile(const char *pcFileName);
 		int SaveFile(const char *pcFileName);
 
-		// uiBufLen specifies number of ints (NOT # of bytes; unlike CascadeWidget::LoadPadMem)
-		int LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen);
+		// strBufLen specifies number of bytes
+		int LoadMem(const char *strBuf, unsigned int strBufLen);
 
 		void UpdateRange();
 
@@ -161,8 +161,8 @@ class TofImage
 
 		int LoadFile(const char *pcFileName);
 
-		// uiBufLen specifies number of ints (NOT # of bytes; unlike CascadeWidget::LoadTofMem)
-		int LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen);
+		// strBufLen specifies number of bytes
+		int LoadMem(const char *strBuf, unsigned int strBufLen);
 
 		unsigned int GetCounts() const;
 		unsigned int GetCounts(int iStartX, int iEndX,

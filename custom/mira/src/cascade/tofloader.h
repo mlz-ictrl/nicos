@@ -103,8 +103,8 @@ class PadImage : public BasicImage
 		int SaveFile(const char *pcFileName);
 
 		// load PAD from memory
-		// uiBufLen: # of ints (NOT # of bytes)
-		int LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen);
+		// strBufLen: # of bytes
+		int LoadMem(const char *strBuf, unsigned int strBufLen);
 
 		// calculate lower & upper bound values
 		void UpdateRange();
@@ -331,8 +331,8 @@ class TofImage
 
 		int LoadFile(const char *pcFileName);
 
-		// uiBufLen: # of ints (NOT # of bytes)
-		int LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen);
+		// strBufLen: # bytes
+		int LoadMem(const char *strBuf, unsigned int strBufLen);
 
 		// total number of counts (inside ROI, if used)
 		unsigned int GetCounts() const;

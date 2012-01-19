@@ -193,8 +193,11 @@ unsigned int* TofImage::GetRawData(void) const
 	return m_puiDaten;
 }
 
-int TofImage::LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen)
+int TofImage::LoadMem(const char *strBuf, unsigned int strBufLen)
 {
+	const unsigned int *puiBuf = (unsigned int *)strBuf;
+	unsigned int uiBufLen = strBufLen / 4;
+
 	if(m_bExternalMem)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_WARN);
@@ -875,8 +878,11 @@ double PadImage::GetDoubleMax() const { return double(GetIntMax()); }
 int PadImage::GetIntMin() const { return m_iMin; }
 int PadImage::GetIntMax() const { return m_iMax; }
 
-int PadImage::LoadMem(const unsigned int *puiBuf, unsigned int uiBufLen)
+int PadImage::LoadMem(const char *strBuf, unsigned int strBufLen)
 {
+	const unsigned int *puiBuf = (unsigned int *)strBuf;
+	unsigned int uiBufLen = strBufLen / 4;
+
 	if(m_bExternalMem)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_WARN);
