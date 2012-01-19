@@ -126,15 +126,14 @@ class Julabo(HasLimits, Moveable):
     }
 
     parameters = {
-        'rampType': Param('ramping(0) or stepping(1)', type=int_range(0, 2), default=0),
+        'rampType': Param('ramping(0) or stepping(1)', type=intrange(0, 2), default=0),
         'rampRate': Param('ramp speed in K/s', type=float, default=0.002),
         'tolerance' : Param('tolerance in K', type=float, default=0.2),
         'thermostat_type' : Param('Type of thermostat', 
                                   type=oneof('JulaboF32HD', 'HaakeDC50'),
                                   default='JulaboF32HD'),
         'intern_extern' : Param('internal(0) or external(1) temperature sensor',
-                                  type=int_rang(0, 2), default = 1
-				),
+                                  type=intrange(0, 2), default=1),
     }
     
     def doInit (self):
