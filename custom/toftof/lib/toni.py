@@ -75,7 +75,7 @@ class ModBus(TacoDevice, Device):
             raise CommunicationError(self, 'unexpected reply: %r' % resp)
         if expect_hex:
             if len(resp) != expect_hex:
-                raise CommunicationError(self, 'response too short: %r' % resp)
+                raise CommunicationError(self, 'response invalid: %r' % resp)
             try:
                 value = int(resp, 16)
             except ValueError:
@@ -312,14 +312,14 @@ class DelayBox(Moveable):
     }
 
     parameter_overrides = {
-        'unit':  Override(mandatory=False, default=''),
+        'fmtstr':  Override(default='%d'),
     }
 
     def doRead(self):
-        return self._adevs['bus'].communicate('D?', self.addr, expect_hex=3)
+        return self._adevs['bus'].communicate('D?', self.addr, expect_hex=4)
 
     def doStart(self, target):
-        self._adevs['bus'].communicate('D=%03X' % target, self.addr,
+        self._adevs['bus'].communicate('D=%04X' % target, self.addr,
                                        expect_ok=True)
 
     def doStatus(self):
