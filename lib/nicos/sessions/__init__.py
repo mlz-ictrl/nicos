@@ -39,7 +39,7 @@ from os import path
 
 from nicos.core.device import Device
 from nicos.core.errors import NicosError, UsageError, ModeError, \
-     ConfigurationError
+     ConfigurationError, AccessError
 from nicos.notify import Notifier
 from nicos.utils.loggers import initLoggers, NicosLogger, \
      ColoredConsoleHandler, NicosLogfileHandler
@@ -231,15 +231,17 @@ class Session(object):
                 code = modfile[0].read()
                 modfile[0].close()
             except (ImportError, IOError), err:
-                raise ConfigurationError('Could not find or read setup '
-                                         'module %r: %s' % (modname, err))
+                self.log.exception('Could not find or read setup '
+                                   'module %r: %s' % (modname, err))
+                continue
             # device() is a helper function to make configuration prettier
             ns = {'device': lambda cls, **params: (cls, params)}
             try:
                 exec code in ns
             except Exception, err:
-                raise ConfigurationError('An error occurred while reading '
-                                         'setup %s: %s' % (modname, err))
+                self.log.exception('An error occurred while reading '
+                                   'setup %s: %s' % (modname, err))
+                continue
             info = {
                 'description': ns.get('description', modname),
                 'group': ns.get('group', 'base'),
@@ -809,11 +811,14 @@ class Session(object):
 
     def checkAccess(self, required):
         """Check if the current user fulfills the requirements given in the
-        *required* dictionary.  Return true or false.
+        *required* dictionary.  Raise `.AccessError` if check failed.
 
         This is called by the `.requires` decorator.
         """
-        return False
+        if 'mode' in required:
+            if self.mode != required['mode']:
+                raise AccessError('requires %s mode' % required['mode'])
+        return True
 
 
 # must be imported after class definitions due to module interdependencies

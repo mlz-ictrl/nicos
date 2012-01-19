@@ -53,22 +53,30 @@ def usermethod(func):
 def requires(**access):
     """Decorator to implement user access control.
 
-    The access is checked based on the keywords given.  Currently, only the
-    keyword "level" has a meaning.  It gives the minimum required user access
-    level and can have the values ``GUEST``, ``USER`` or ``ADMIN`` as defined in
-    the :mod:`nicos.core.utils` module.
+    The access is checked based on the keywords given.  Currently, the
+    keywords with meaning are:
+
+    * ``'level'``: gives the minimum required user access level and can
+      have the values ``GUEST``, ``USER`` or ``ADMIN`` as defined in the
+      :mod:`nicos.core.utils` module.
+    * ``'mode'``: gives the required exection mode ("master", "slave",
+      "maintenance", "simulation").
+    * ``'passcode'``: only usable in the interactive console: gives a
+      passcode that the user has to type back.
 
     The wrapper function calls `.Session.checkAccess` to verify the
     requirements.  If the check fails, `.AccessError` is raised.
     """
     def decorator(func):
         def new_func(*args, **kwds):
-            if not session.checkAccess(access):
+            try:
+                session.checkAccess(access)
+            except AccessError, err:
                 if args and isinstance(args[0], Device):
-                    raise AccessError(args[0], 'cannot execute %s as current '
-                                      'user' % func.__name__)
-                raise AccessError('cannot execute %s as current user' %
-                                  func.__name__)
+                    raise AccessError(args[0], 'cannot execute %s: %s' %
+                                      (func.__name__, err))
+                raise AccessError('cannot execute %s: %s' %
+                                  (func.__name__, err))
             return func(*args, **kwds)
         new_func.__name__ = func.__name__
         return new_func

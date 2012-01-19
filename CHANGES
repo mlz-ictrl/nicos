@@ -51,6 +51,10 @@ Changelog for NICOS 2
 
   - Added a "FinishExperiment()" user command.
 
+  - Added "poll" and "neverpoll" parameters to the Poller object.
+
+  - When calling "stop()" without devices, stop all devices in parallel.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless

@@ -48,8 +48,13 @@ class Poller(Device):
     parameters = {
         'autosetup':  Param('True if all master setups should always be polled',
                             type=bool, default=True),
+        'poll':       Param('Setups that should be polled if in master setup '
+                            '(only used if autosetup is false)',
+                            type=listof(str)),
         'alwayspoll': Param('Setups whose devices should always be polled',
                             type=listof(str), mandatory=True),
+        'neverpoll':  Param('Setups that should never be polled, even if in '
+                            'master setup', type=listof(str)),
         'blacklist':  Param('Devices that should never be polled',
                             type=listof(str)),
     }
@@ -222,9 +227,12 @@ class Poller(Device):
         if not self._cache:
             raise ConfigurationError('the poller needs a cache configured')
 
-        self._setups = set()
+        mastersetups = set(self._cache.get(session, 'mastersetup') or [])
         if self.autosetup:
-            self._setups.update(self._cache.get(session, 'mastersetup') or [])
+            self._setups = mastersetups
+        else:
+            self._setups = mastersetups & set(self.poll)
+        self._setups.difference_update(self.neverpoll)
         self._setups.update(self.alwayspoll)
 
         if not self._setups:
@@ -235,7 +243,7 @@ class Poller(Device):
         for setup in self._setups:
             self._start_child(setup)
 
-        if self.autosetup:
+        if self.autosetup or self.poll:
             self._cache.addCallback(session, 'mastersetup', self._reconfigure)
 
     def _reconfigure(self, key, value, time):
@@ -243,7 +251,11 @@ class Poller(Device):
         session.readSetups()
         old_setups = self._setups
 
-        new_setups = set(value)
+        if self.autosetup:
+            new_setups = set(value)
+        else:
+            new_setups = set(value) & set(self.poll)
+        new_setups.difference_update(self.neverpoll)
         new_setups.update(self.alwayspoll)
         self._setups = new_setups
 
