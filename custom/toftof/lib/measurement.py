@@ -44,8 +44,6 @@ from nicos.toftof.chopper import Controller
 from nicos.toftof.tofcounter import TofCounter
 from nicos.toftof import calculations as calc
 
-# TofChopper parameters: wavelength, speed, ratio, crc, slittype
-
 
 class TofTofMeasurement(Measurable, ImageStorage):
 
@@ -310,9 +308,9 @@ class TofTofMeasurement(Measurable, ImageStorage):
             detrate = countsum/(self._last_preset - meastime)
             detrate_inst = - (countsum - self._lastcounts) / (meastime - self._lasttime)
             # XXX sample temperature info
-            self.log.info('Monitor: rate: %.3f counts/s, instantaneous rate: %.3f counts/s' %
+            self.log.info('Monitor: rate: %8.3f counts/s, instantaneous rate: %8.3f counts/s' %
                           (monrate, monrate_inst))
-            self.log.info('Signal: rate: %.3f counts/s, instantaneous rate: %.3f counts/s' %
+            self.log.info('Signal:  rate: %8.3f counts/s, instantaneous rate: %8.3f counts/s' %
                           (detrate, detrate_inst))
         self._lasttime = meastime
         self._lastmonitor = moncounts
@@ -332,6 +330,8 @@ class TofTofMeasurement(Measurable, ImageStorage):
                 fp.write(session.experiment.scripts[-1])
         # XXX save device log files accordingly
         #with open(self.lastfilename.replace('0000.raw', '1200.raw'), 'w') as fp:
+        self.log.info('Measurement %06d finished' % self.lastfilenumber)
+        session.breakpoint(2)
 
     def doRead(self):
         return [self.lastfilename]

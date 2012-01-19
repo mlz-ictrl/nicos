@@ -47,7 +47,7 @@ devices = dict(
 
     hvbus = device('nicos.toftof.toni.ModBus',
                    tacodevice = 'toftof/rs232/ifpowersupply',
-                   lowlevel = False),
+                   lowlevel = True),
 #    hv0   = device('nicos.toftof.iseg.IsegHV',
 #                   bus = 'hvbus',
 #                   toniaddr = 0xF0,
