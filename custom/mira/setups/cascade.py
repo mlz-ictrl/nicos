@@ -1,13 +1,15 @@
 description = 'cascade psd detector'
 
-includes = ['detector']
+includes = ['detector', 'mono2']
 
 devices = dict(
     psd    = device('nicos.mira.cascade.CascadeDetector',
                     subdir = 'cascade',
                     server = 'miracascade.mira.frm2:1234',
                     slave = True,
-                    master = 'det'),
+                    master = 'det',
+                    sampledet = 'sampledet',
+                    mono = 'mono'),
 
     PSDHV  = device('nicos.mira.iseg.IsegHV',
                     tacodevice = 'mira/network/rs12_4',
@@ -30,19 +32,7 @@ devices = dict(
                     pollinterval = 5,
                     maxage = 10),
 
-    # this overwrites the "det" device from the detector setup
-    # and removes all counters
-    #det    = device('nicos.taco.FRMDetector',
-    #                t  = 'timer',
-    #                m1 = 'mon1',
-    #                m2 = 'mon2',
-    #                m3 = None,
-    #                z1 = None,
-    #                z2 = None,
-    #                z3 = None,
-    #                z4 = None,
-    #                z5 = None,
-    #                fmtstr = 'timer %s, mon1 %s, mon2 %s',
-    #                maxage = 2,
-    #                pollinterval = 0.5),
+    sampledet = device('nicos.generic.ManualMove',
+                       abslimits = (0, 5000),
+                       unit = 'mm'),
 )
