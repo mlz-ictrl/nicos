@@ -89,6 +89,8 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                             type=listof(float), default=[0.], settable=True),
         'warninterval': Param('interval between warnings about theta/two-theta '
                               'mismatch', unit='s', default=5),
+        'scatteringsense': Param('default scattering sense when not used '
+                                 'in triple-axis mode', type=oneof(1, -1)),
     }
 
     parameter_overrides = {
@@ -105,9 +107,8 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         # warnings about theta/twotheta
         self._lastwarn = time() - self.warninterval # make sure for next warning
 
-        # needs to be set by TAS object, if it isn't this will give an exception
-        # when it's used in a calculation
-        self._scatsense = None
+        # can be re-set by TAS object
+        self._scatsense = self.scatteringsense
 
         # need to consider rounding effects since a difference of 0.0104 is
         # rounded to 0.010 so the combined axisprecision need to be larger than
