@@ -416,7 +416,7 @@ class ExecutionController(Controller):
                     exec code in {}
                 except Exception:
                     session.log.warning('Error loading previous setups, '
-                                        'loading startup setup')
+                                        'loading startup setup', exc=1)
                     setup_code = ('from nicos import session; '
                         'session.handleInitialSetup("startup", False)')
                 else:
