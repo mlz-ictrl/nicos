@@ -202,7 +202,9 @@ class Experiment(Device):
         self.users = self.users + [user]
         self.log.info('User "%s" added' % self.users[-1])
 
-    def finish(self):
+    @usermethod
+    def finish(self, **kwargs):
+        """Called by `.FinishExperiment`.  Does nothing by default."""
         pass
 
     def doWriteRemark(self, remark):

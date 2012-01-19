@@ -87,6 +87,9 @@ def count(*detlist, **preset):
         if isinstance(det, (int, long, float)):
             preset['t'] = det
             continue
+        elif isinstance(det, str):
+            preset['info'] = det
+            continue
         if not isinstance(det, Measurable):
             raise UsageError('device %s is not a measurable device' % det)
         detectors.append(det)

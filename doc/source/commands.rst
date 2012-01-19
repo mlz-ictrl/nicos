@@ -48,6 +48,7 @@ Experiment-related commands
 .. autofunction:: Remark
 .. autofunction:: LogEntry
 .. autofunction:: LogAttach
+.. autofunction:: FinishExperiment
 
 Script-related commands
 -----------------------
