@@ -1,4 +1,3 @@
-
 includes = ['system']
 
 devices = dict(
@@ -29,4 +28,23 @@ devices = dict(
     lv7   = device('nicos.toftof.toni.LVPower',
                    bus = 'lvbus',
                    addr = 0xF8),
+
+    hvbus = device('nicos.toftof.toni.ModBus',
+                   tacodevice = 'toftof/rs232/ifpowersupply',
+                   lowlevel = False),
+    hv0   = device('nicos.toftof.iseg.IsegHV',
+                   bus = 'hvbus',
+                   toniaddr = 0xF0,
+                   tonichannel = 0,
+                   channel = 1),
+    hv1   = device('nicos.toftof.iseg.IsegHV',
+                   bus = 'hvbus',
+                   toniaddr = 0xF0,
+                   tonichannel = 1,
+                   channel = 1),
+    hv2   = device('nicos.toftof.iseg.IsegHV',
+                   bus = 'hvbus',
+                   toniaddr = 0xF0,
+                   tonichannel = 2,
+                   channel = 1),
 )
