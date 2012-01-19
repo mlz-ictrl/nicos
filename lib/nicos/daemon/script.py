@@ -407,19 +407,25 @@ class ExecutionController(Controller):
             self.namespace['__builtins__'] = __builtin__.__dict__
             setup_code = ('from nicos import session; '
                           'session.handleInitialSetup(%r, False)' % self.setup)
-            # this is to allow the traceback module to report the script's
-            # source code correctly
-            update_linecache('<setup>', setup_code)
-            try:
-                code = compile(setup_code, '<setup>', 'exec')
-                exec code in {}
-            except Exception:
-                session.logUnhandledException(msg='Error loading NICOS:')
+            for _ in range(2):
+                # this is to allow the traceback module to report the script's
+                # source code correctly
+                update_linecache('<setup>', setup_code)
+                try:
+                    code = compile(setup_code, '<setup>', 'exec')
+                    exec code in {}
+                except Exception:
+                    session.log.warning('Error loading previous setups, '
+                                        'loading startup setup')
+                    setup_code = ('from nicos import session; '
+                        'session.handleInitialSetup("startup", False)')
+                else:
+                    break
+            else:
                 self.log.warning('error in setup, terminating script_thread')
                 self.thread = None
                 return
-            else:
-                self.in_startup = False
+            self.in_startup = False
 
             while 1:
                 # get a script (or other request) from the queue
