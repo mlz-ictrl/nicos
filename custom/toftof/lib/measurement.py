@@ -25,6 +25,8 @@
 
 """TOFTOF measurement."""
 
+from __future__ import with_statement
+
 __version__ = "$Revision$"
 
 import os
@@ -61,6 +63,8 @@ class TofTofMeasurement(Measurable, ImageStorage):
                                   type=intrange(1, 1025), settable=True),
         'timeinterval':     Param('Time interval between pulses, or zero to '
                                   'auto-select', type=float, settable=True),
+        'detinfofile':      Param('Path to the detector-info file',
+                                  type=str, mandatory=True),
     }
 
     parameter_overrides = {
@@ -72,8 +76,13 @@ class TofTofMeasurement(Measurable, ImageStorage):
         return Value('filename', type='info')
 
     def doInit(self):
-        self._detinfo = []   # XXX
-        self._detinfolength = 0
+        with open(self.detinfofile, 'U') as fp:
+            self._detinfo = list(fp)
+        i = 0
+        for i, line in enumerate(self._detinfo):
+            if not line.startswith('#'):
+               break
+        self._detinfolength = len(self._detinfo) - i
         self._finished = False
 
     def doSetPreset(self, **preset):
