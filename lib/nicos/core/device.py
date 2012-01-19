@@ -63,12 +63,14 @@ def requires(**access):
     """
     def decorator(func):
         def new_func(*args, **kwds):
-            if not session.checkAccess(access):
+            try:
+                session.checkAccess(access)
+            except AccessError, err:
                 if args and isinstance(args[0], Device):
-                    raise AccessError(args[0], 'cannot execute %s as current '
-                                      'user' % func.__name__)
-                raise AccessError('cannot execute %s as current user' %
-                                  func.__name__)
+                    raise AccessError(args[0], 'cannot execute %s: %s' %
+                                      (func.__name__, err))
+                raise AccessError('cannot execute %s: %s' %
+                                  (func.__name__, err))
             return func(*args, **kwds)
         new_func.__name__ = func.__name__
         return new_func
