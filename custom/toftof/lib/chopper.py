@@ -27,7 +27,7 @@
 
 __version__ = "$Revision$"
 
-from time import sleep
+from time import sleep, time as currenttime
 
 import IO
 
@@ -50,24 +50,31 @@ class Controller(TacoDevice, Readable):
         'speed_accuracy': Param('Required accuracy of the chopper speeds',
                                 settable=True, default=2),  # XXX unit?
         'resolution':     Param('Current energy resolution', volatile=True),
+        'timeout':        Param('Timeout waiting for changes', settable=True,
+                                default=90.0, unit='s'),
 
-        # readonly parameters giving current values
-        'wavelength':     Param('Selected wavelength', unit='A'),
-        'speed':          Param('Disk speed', unit='rpm'), # XXX unit?
-        'ratio':          Param('Frame-overlap ratio', type=int),
-        'crc':            Param('Counter-rotating mode', type=int),
-        'slittype':       Param('Slit type', type=int),
+        # readonly hidden state parameters giving current values
+        'wavelength':     Param('Selected wavelength', unit='A', userparam=False),
+        'speed':          Param('Disk speed', unit='rpm', userparam=False),
+        'ratio':          Param('Frame-overlap ratio', type=int, userparam=False),
+        'crc':            Param('Counter-rotating mode', type=int, userparam=False),
+        'slittype':       Param('Slit type', type=int, userparam=False),
+        'changetime':     Param('Time of last change', userparam=False), 
     }
 
     def _read(self, n):
-        return int(self._taco_guard(self._dev.communicate, 'M%04d' % n))
+        return int(self._taco_guard(self._dev.communicate, 'M%04d' % n).strip('\x06'))
 
     def _write(self, n, v):
-        self._taco_guard(self._dev.writeLine('M%04d=%d' % (n, v)))
+        self._taco_guard(self._dev.writeLine, 'M%04d=%d' % (n, v))
+        while self._read(4070) != 0:
+            sleep(0.04)
 
     def _write_multi(self, *values):
         tstr = ' '.join('M%04d=%d' % x for x in zip(values[::2], values[1::2]))
-        self._taco_guard(self._dev.writeLine(tstr))
+        self._taco_guard(self._dev.writeLine, tstr)
+        while self._read(4070) != 0:
+            sleep(0.04)
 
     def doInit(self):
         self._phases = [0, 0]
@@ -159,21 +166,20 @@ class Controller(TacoDevice, Readable):
                           4075, self._phases[6], 4070, 7)
         self._write_multi(4073, 7, 4076, r1, 4074, r2*self.speed,
                           4075, self._phases[7], 4070, 7)
+        self._setROParam('changetime', currenttime())
 
     def _stop(self):
         self._phases = [0] + [4500] * 7
         self._setROParam('speed', 0)
         for ch in range(1, 8):
             self._write_multi(4073, ch, 4076, 0, 4074, self.speed, 4075, self._phases[ch], 4070, 7)
+        self._setROParam('changetime', currenttime())
 
     def _readspeeds(self):
         return [abs(self._read(4080 + ch)) for ch in range(1, 8)]
 
-    def _readspeed(self, ch):
-        return abs(self._read(4080 + ch))
-
-    def _readspeed_2(self, ch):
-        return abs(self._read(66 + ch*100))
+    def _readspeeds_actual(self):
+        return [abs(self._read(66 + ch*100)) for ch in range(1, 8)]
 
     def _readphase(self, ch):
         return self._read(4100 + ch) / 100.0
@@ -186,14 +192,14 @@ class Controller(TacoDevice, Readable):
         speeds = self._readspeeds()
         speed = 0.0
         for ch in [1, 2, 3, 4, 6, 7]:
-            speed += speeds[ch]
+            speed += speeds[ch-1]
         if self.ratio != None:
             if self.ratio == 1:
-                speed += speeds[5]
+                speed += speeds[5-1]
             elif self.ratio < 9:
-                speed += speeds[5] * self.ratio / (self.ratio - 1.0)
+                speed += speeds[5-1] * self.ratio / (self.ratio - 1.0)
             else:
-                speed += speeds[5] * self.ratio / 7.0
+                speed += speeds[5-1] * self.ratio / 7.0
             return speed / 7.0
         else:
             return speed / 6.0
@@ -209,11 +215,13 @@ class Controller(TacoDevice, Readable):
             sleep(3)
             self._write(4070, 5)
             self._setROParam('speed', 0)
+        self._setROParam('changetime', currenttime())
 
     def doStatus(self):
         errstates = {0: 'inactive', 1: 'cal', 2: 'com', 8: 'estop'}
         ret = []
         stval = status.OK
+        timedout = currenttime() > self.changetime + self.timeout
         # read status values
         for ch in range(1, 8):
             state = self._read(4140 + ch)
@@ -233,14 +241,20 @@ class Controller(TacoDevice, Readable):
                     r2 *= self.ratio / 7.0
             speed = self._read(4080 + ch) * r2
             if abs(speed - self.speed) > self.speed_accuracy:
-                stval = status.ERROR
-                ret.append('ch %d: speed %s out of limits' % (ch, speed))
+                if timedout:
+                    stval = status.ERROR
+                else:
+                    stval = status.BUSY
+                ret.append('ch %d: speed %s != nominal %s' % (ch, speed, self.speed))
         # read phases
         for ch in range(2, 8):
             phase = self._read(4100 + ch)
             if abs(phase - self._phases[ch]) > self.phase_accuracy:
-                stval = status.ERROR
-                ret.append('ch %d: phase %s out of limits' % (ch, phase))
+                if timedout:
+                    stval = status.ERROR
+                else:
+                    stval = status.BUSY
+                ret.append('ch %d: phase %s != nominal %s' % (ch, phase, self._phases[ch]))
         return stval, ', '.join(ret) or 'normal'
 
     @requires(level=ADMIN)
@@ -254,6 +268,7 @@ class Controller(TacoDevice, Readable):
         for ch in range(1, 8):
             self._write_multi(4073, ch, 4076, 0, 4074, self.speed,
                               4075, self._phases[ch] + angle, 4070, 7)
+        self._setROParam('changetime', currenttime())
 
     @requires(level=ADMIN)
     def chmoveto(self, ch, angle=0.0):
@@ -267,6 +282,7 @@ class Controller(TacoDevice, Readable):
         self._setROParam('speed', 0)
         self._write_multi(4073, ch, 4076, 0, 4074, self.speed,
                           4075, int(round(angle*100.0)), 4070, 7)
+        self._setROParam('changetime', currenttime())
 
     @requires(level=ADMIN)
     def chrun(self, ch, speed=0):
@@ -277,19 +293,21 @@ class Controller(TacoDevice, Readable):
         if ch < 1 or ch > 7:
             raise NicosError(self, 'invalid chopper number')
         self._write_multi(4073, ch, 4076, 0, 4074, ds, 4070, 7)
+        self._setROParam('changetime', currenttime())
 
 
 class SpeedReadout(Readable):
     attached_devices = {
-        'chopper': Controller,
+        'chopper': (Controller, 'Chopper controller'),
     }
 
-    parameters = {
-        'number':  Param('Chopper number', type=intrange(1, 8), mandatory=True),
+    parameter_overrides = {
+        'unit': Override(mandatory=False, default='rpm'),
     }
 
     def doRead(self):
-        return self._adevs['chopper']._readspeed_2(self.number) / 279.618375
+        return map(lambda v: v / 279.618375,
+                   self._adevs['chopper']._readspeeds_actual())
 
     def doStatus(self):
         return status.OK, 'no status info'
@@ -297,7 +315,7 @@ class SpeedReadout(Readable):
 
 class PropertyChanger(Moveable):
     attached_devices = {
-        'chopper': Controller,
+        'chopper': (Controller, 'Chopper controller'),
     }
 
     def doStatus(self):
@@ -311,6 +329,9 @@ class PropertyChanger(Moveable):
 
     def doStart(self, target):
         self._adevs['chopper']._change(self._prop, target)
+
+    def doReadTarget(self):
+        return getattr(self._adevs['chopper'], self._prop)
 
 
 class Wavelength(HasLimits, PropertyChanger):
@@ -331,6 +352,7 @@ class Ratio(PropertyChanger):
     _prop = 'ratio'
     parameter_overrides = {
         'unit':  Override(mandatory=False, default=''),
+        'fmtstr': Override(default='%d'),
     }
     valuetype = oneof(*range(1, 11))
 
@@ -338,7 +360,8 @@ class Ratio(PropertyChanger):
 class CRC(PropertyChanger):
     _prop = 'crc'
     parameter_overrides = {
-        'unit':  Override(mandatory=False, default=''),
+        'unit':   Override(mandatory=False, default=''),
+        'fmtstr': Override(default='%d'),
     }
     valuetype = oneof(0, 1)
 
@@ -347,5 +370,6 @@ class SlitType(PropertyChanger):
     _prop = 'slittype'
     parameter_overrides = {
         'unit':  Override(mandatory=False, default=''),
+        'fmtstr': Override(default='%d'),
     }
     valuetype = oneof(0, 1, 2)
