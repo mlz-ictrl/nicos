@@ -27,13 +27,8 @@
 
 __version__ = "$Revision$"
 
-from time import sleep
-
-import IO
-
-from nicos.core import Readable, Moveable, HasLimits, Param, Override, \
-     NicosError, intrange, oneof, status, requires, ADMIN, waitForStatus
-from nicos.taco import TacoDevice, DigitalInput
+from nicos.core import Readable, Override, status
+from nicos.taco import DigitalInput
 
 try:
     bin
@@ -112,6 +107,7 @@ class SafetyInputs(Readable):
         'i7053_2': (DigitalInput, 'second 7053 module'),
         'i7053_3': (DigitalInput, 'third 7053 module'),
     }
+
     parameter_overrides = {
         'unit': Override(mandatory=False),
         'fmtstr': Override(default='%d'),
@@ -127,9 +123,8 @@ class SafetyInputs(Readable):
         return state
 
     def doStatus(self):
-        # XXX define which bits may be active
+        # XXX define which bits may be active for normal state
         state = (self._adevs['i7053_1'].read() |
                 (self._adevs['i7053_2'].read() << 16) |
                 (self._adevs['i7053_3'].read() << 32))
         return status.OK, str(state)
-        

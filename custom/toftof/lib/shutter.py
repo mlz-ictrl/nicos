@@ -27,83 +27,48 @@
 
 __version__ = "$Revision$"
 
-from time import sleep, time
+from time import sleep
 
-from IO import StringIO
+from nicos.core import status, oneofdict, Moveable
+from nicos.taco.io import DigitalOutput
 
-from nicos.core import status, intrange, Device, Moveable, \
-     Param, NicosError, CommunicationError, ProgrammingError
-from nicos.taco.core import TacoDevice
-from nicos.taco.io import DigitalInput, DigitalOutput
 
-class Shutter (Moveable):
-    """TOFTOF Shutter Control
-    """
+class Shutter(Moveable):
+    """TOFTOF Shutter Control."""
 
     attached_devices = {
-        'open': (DigitalOutput, 'Shutter open button device'),
-        'close': (DigitalOutput, 'Shutter close button device'),
+        'open':   (DigitalOutput, 'Shutter open button device'),
+        'close':  (DigitalOutput, 'Shutter close button device'),
         'status': (DigitalOutput, 'Shutter status device'),
     }
 
-    parameters = {
-        'maxtries': Param('Maximum tries before raising', type=int, default=3),
-    }
+    valuetype = oneofdict({0: 'closed', 1: 'open'})
 
-    def doInit (self):
-        if self._mode == 'simulation' :
-            return
-            
-    def doStart (self, *args):
-        """ This function opens the TOFTOF instrument shutter"""
-        maxtry = self.maxtries
-        while 1==1:
-            try:
-                ret = self._adevs['open'].move(1)
-                sleep(0.01)
-                ret = self._adevs['open'].move(0)
-                return
-            except:
-                if maxtry == 0:
-                     self.log.warning("could not send open shutter signal", exc=1)
-                     return
-                maxtry -= 1
-    
-    def doStop (self, *args):
-        """ This function closes the TOFTOF instrument shutter"""
-        maxtry = self.maxtries
-        while 1==1:
-            try:
-                ret = self._adevs['close'].move(1)
-                sleep (0.01)
-                ret = self._adevs['close'].move(0)
-                break
-            except:
-                if maxtry == 0:
-                    self.log.warning("could not send close shutter signal", exc=1)
-                    return
-                maxtry -= 1
+    def doStart(self, target):
+        """This function opens or closes the TOFTOF instrument shutter."""
+        if target == 'open':
+            self._adevs['open'].start(1)
+            sleep(0.01)
+            self._adevs['open'].start(0)
+        else:
+            self._adevs['close'].start(1)
+            sleep(0.01)
+            self._adevs['close'].start(0)
 
-    def doRead (self, *args):
-        """ This function returns 1 if shutter is opened, 2 on read error and 0 otherwise """
-        maxtry = self.maxtries
-        while 1==1:
-            try:
-                ret = self._adevs['status'].read()
-            	if ret == 1:
-                    return 0
-                else:
-                    return 1
-            except:
-                if maxtry == 0:
-                    self.log.warning("could not read shutter status", exc=1)
-                    return 2
-                maxtry -= 1
+    def doStop(self):
+        """This function closes the TOFTOF instrument shutter."""
+        self.start(0)
 
-    def doStatus (self, *args):
-        """ This function returns 1 if shutter is opened, 2 on read error and 0 otherwise """
-        ret = self.read()
-	if ret == 1 :
-            return status.BUSY, 'Open'
-        else :
-            return status.OK, 'Closed'
+    def doRead(self):
+        ret = self._adevs['status'].read()
+        if ret == 1:
+            return 'closed'
+        else:
+            return 'open'
+
+    def doStatus(self):
+        ret = self.read(0)
+        if ret == 'open':
+            return status.BUSY, 'open'
+        else:
+            return status.OK, 'closed'

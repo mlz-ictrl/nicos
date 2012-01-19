@@ -54,25 +54,28 @@ class Controller(TacoDevice, Readable):
                                 default=90.0, unit='s'),
 
         # readonly hidden state parameters giving current values
-        'wavelength':     Param('Selected wavelength', unit='A', userparam=False),
-        'speed':          Param('Disk speed', unit='rpm', userparam=False),
-        'ratio':          Param('Frame-overlap ratio', type=int, userparam=False),
-        'crc':            Param('Counter-rotating mode', type=int, userparam=False),
-        'slittype':       Param('Slit type', type=int, userparam=False),
-        'changetime':     Param('Time of last change', userparam=False), 
+        'wavelength': Param('Selected wavelength', unit='A', userparam=False),
+        'speed':      Param('Disk speed', unit='rpm', userparam=False),
+        'ratio':      Param('Frame-overlap ratio', type=int, userparam=False),
+        'crc':        Param('Counter-rotating mode', type=int, userparam=False),
+        'slittype':   Param('Slit type', type=int, userparam=False),
+        'changetime': Param('Time of last change', userparam=False),
     }
 
     def _read(self, n):
-        return int(self._taco_guard(self._dev.communicate, 'M%04d' % n).strip('\x06'))
+        return int(self._taco_guard(
+            self._dev.communicate, 'M%04d' % n).strip('\x06'))
 
     def _write(self, n, v):
         self._taco_guard(self._dev.writeLine, 'M%04d=%d' % (n, v))
+        # wait for controller to process current commands
         while self._read(4070) != 0:
             sleep(0.04)
 
     def _write_multi(self, *values):
         tstr = ' '.join('M%04d=%d' % x for x in zip(values[::2], values[1::2]))
         self._taco_guard(self._dev.writeLine, tstr)
+        # wait for controller to process current commands
         while self._read(4070) != 0:
             sleep(0.04)
 
@@ -83,7 +86,7 @@ class Controller(TacoDevice, Readable):
                 raise NicosError('not possible in simulation mode')
             wavelength = self._read(4181) / 1000.0
             if wavelength == 0.0:
-                wavelength = 4.5   # XXX does this occur?
+                wavelength = 4.5
             self._setROParam('wavelength', wavelength)
             self._setROParam('speed', round(self._read(4150) / 1118.4735))
             self._setROParam('ratio', abs(self._read(4507)))
@@ -98,7 +101,8 @@ class Controller(TacoDevice, Readable):
             else:
                 self._setROParam('crc', 1)
             for ch in range(2, 8):
-                self._phases.append(int(round(self._read(4048 + ch*100) / 466.0378)))
+                self._phases.append(
+                    int(round(self._read(4048 + ch*100) / 466.0378)))
         except NicosError:
             self._setROParam('wavelength', 4.5)
             self._setROParam('speed', 0)
@@ -172,7 +176,8 @@ class Controller(TacoDevice, Readable):
         self._phases = [0] + [4500] * 7
         self._setROParam('speed', 0)
         for ch in range(1, 8):
-            self._write_multi(4073, ch, 4076, 0, 4074, self.speed, 4075, self._phases[ch], 4070, 7)
+            self._write_multi(4073, ch, 4076, 0, 4074, self.speed,
+                              4075, self._phases[ch], 4070, 7)
         self._setROParam('changetime', currenttime())
 
     def _readspeeds(self):
@@ -245,7 +250,8 @@ class Controller(TacoDevice, Readable):
                     stval = status.ERROR
                 else:
                     stval = status.BUSY
-                ret.append('ch %d: speed %s != nominal %s' % (ch, speed, self.speed))
+                ret.append('ch %d: speed %s != nominal %s' %
+                           (ch, speed, self.speed))
         # read phases
         for ch in range(2, 8):
             phase = self._read(4100 + ch)
@@ -254,7 +260,8 @@ class Controller(TacoDevice, Readable):
                     stval = status.ERROR
                 else:
                     stval = status.BUSY
-                ret.append('ch %d: phase %s != nominal %s' % (ch, phase, self._phases[ch]))
+                ret.append('ch %d: phase %s != nominal %s' %
+                           (ch, phase, self._phases[ch]))
         return stval, ', '.join(ret) or 'normal'
 
     @requires(level=ADMIN)

@@ -26,8 +26,6 @@
 
 __version__ = "$Revision$"
 
-from IO import StringIO
-
 from nicos.core import status, intrange, Moveable, HasLimits, Param, Override, \
      NicosError, CommunicationError
 
@@ -71,7 +69,8 @@ class IsegHV(HasLimits, Moveable):
         bus = self._adevs['bus']
         bus._cachelock_acquire()
         try:
-            bus.communicate('C%d' % self.tonichannel, self.toniaddr, expect_ok=True)
+            bus.communicate('C%d' % self.tonichannel, self.toniaddr,
+                            expect_ok=True)
             bus.communicate('T%s' + istr, self.toniaddr, expect_ok=True)
             ret = bus.communicate('R?', self.toniaddr)
         finally:

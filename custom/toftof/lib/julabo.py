@@ -23,7 +23,7 @@
 #
 # *****************************************************************************
 
-"""Haake/Julabo thermostat Protocol NICOS driver"""
+"""Haake/Julabo thermostat Protocol NICOS driver."""
 
 __version__ = "$Revision$"
 
@@ -32,8 +32,9 @@ from time import sleep, time
 from IO import StringIO
 
 from nicos.core import status, intrange, oneof, Device, Moveable, \
-     Param, NicosError, CommunicationError, ProgrammingError
+     Param, HasLimits, NicosError, CommunicationError
 from nicos.taco.core import TacoDevice
+
 
 class HaakeRS232Driver(TacoDevice, Device):
     """Basic Haake client class (tested for Haake DC50/K35)
@@ -45,9 +46,9 @@ class HaakeRS232Driver(TacoDevice, Device):
         'maxtries': Param('Maximum tries before raising', type=int, default=5),
     }
 
-    def _w (self,cmd,par=""):
-        maxtry = self.maxtry
-        while 1==1:
+    def _w(self, cmd, par=""):
+        maxtry = self.maxtries
+        while 1:
             if par == "":
                 apar = par
             else:
@@ -91,9 +92,9 @@ class HaakeRS232Driver(TacoDevice, Device):
             except RuntimeError, e:
                 raise NicosError(self, e.__str__ ())
         return istr
-        
-    def _r (self):
-        maxtry = self.maxtry
+
+    def _r(self):
+        maxtry = self.maxtries
         inp = "a"
         ainput = ""
         atime = time.time()
@@ -106,18 +107,16 @@ class HaakeRS232Driver(TacoDevice, Device):
             if inp == "":
                 maxtry -= 1
                 if maxtry == 0:
-                    raise NicmError ("read error")
+                    raise NicosError(self, "read error")
                 continue
             ainput = ainput + inp
         return ainput
 
-    def doInit (self):
-        pass
-
-    def write (self, cmd, par=""):
-        a = self._w (cmd, par)
+    def write(self, cmd, par=""):
+        a = self._w(cmd, par)
         sleep(0.1)
         return a
+
 
 class Julabo(HasLimits, Moveable):
 
@@ -126,19 +125,20 @@ class Julabo(HasLimits, Moveable):
     }
 
     parameters = {
-        'rampType': Param('ramping(0) or stepping(1)', type=intrange(0, 2), default=0),
+        'rampType': Param('ramping(0) or stepping(1)', type=intrange(0, 2),
+                          default=0),
         'rampRate': Param('ramp speed in K/s', type=float, default=0.002),
         'tolerance' : Param('tolerance in K', type=float, default=0.2),
-        'thermostat_type' : Param('Type of thermostat', 
+        'thermostat_type' : Param('Type of thermostat',
                                   type=oneof('JulaboF32HD', 'HaakeDC50'),
                                   default='JulaboF32HD'),
         'intern_extern' : Param('internal(0) or external(1) temperature sensor',
                                   type=intrange(0, 2), default=1),
     }
-    
+
     def doInit (self):
         # set default values
-        self._waiting = FALSE
+        self._waiting = False
         self._stime = 0
         self._TRamp = 0
         self._TStep = 0
@@ -147,16 +147,16 @@ class Julabo(HasLimits, Moveable):
 
     def doStart (self, pos):
         if self.thermostat_type == "JulaboF32HD":
-            if self._adevs['bus'].write ("in_mode_05") == 0:
-                self._adevs['bus'].write ("out_mode_05",1)
+            if self._adevs['bus'].write("in_mode_05") == 0:
+                self._adevs['bus'].write("out_mode_05",1)
                 sleep (5)
-            if self._adevs['bus'].write ("in_mode_04") != self.intern_extern:
-                self._adevs['bus'].write ("out_mode_04", self.intern_extern)
+            if self._adevs['bus'].write("in_mode_04") != self.intern_extern:
+                self._adevs['bus'].write("out_mode_04", self.intern_extern)
                 sleep (5)
         # start ramp/step
-        if self.rampType == 0:	# ramp
+        if self.rampType == 0:  # ramp
             self._TRamp = pos
-        else:			# step
+        else:                   # step
             self._TStep = pos
 
         temp = self.read()
@@ -165,9 +165,9 @@ class Julabo(HasLimits, Moveable):
         else:
             self._SKind = 1
         if self.thermostat_type == "JulaboF32HD":
-            self._adevs['bus'].write ("out_sp_00",pos)
+            self._adevs['bus'].write("out_sp_00",pos)
         elif self.thermostat_type == "HaakeDC50":
-            self._adevs['bus'].write ("W S0 %f" % (pos,))
+            self._adevs['bus'].write("W S0 %f" % (pos,))
         self._stime = time()
         sleep (1)
 
@@ -176,21 +176,20 @@ class Julabo(HasLimits, Moveable):
         try:
             if self.thermostat_type == "JulaboF32HD":
                 if self.intern_extern == 0:
-                    temp = self._adevs['bus'].write ("in_pv_00")
+                    temp = self._adevs['bus'].write("in_pv_00")
                 else:
-                    temp = self._adevs['bus'].write ("in_pv_02")
+                    temp = self._adevs['bus'].write("in_pv_02")
             elif self.thermostat_type == "HaakeDC50":
-                temp = self._adevs['bus'].write ("R T3")
+                temp = self._adevs['bus'].write("R T3")
             ret = temp
         except:
             raise NicosError(self, "could not read from device")
         return ret
 
-
     def doStop (self):
         # stop ramp/step immediately
         if self.thermostat_type == "JulaboF32HD":
-            self._adevs['bus'].write ("out_mode_05",0)
+            self._adevs['bus'].write("out_mode_05",0)
         else:
             pass
 
@@ -199,42 +198,38 @@ class Julabo(HasLimits, Moveable):
         # 1: ramping
         # 2: stepping
         # 3: error
-        try:
-            temp = self.read()
-        except:
-            return 3
+        temp = self.read()
         if self.rampType == 0:
             if self._SKind == 0:
                 if self._TRamp - self.tolerance >= temp:
-                    return 1
+                    return status.BUSY, 'ramping'
                 else:
-                    return 0
+                    return status.OK, 'idle'
             else:
                 if self._TRamp + self.tolerance <= temp:
-                    return 1
+                    return status.BUSY, 'ramping'
                 else:
-                    return 0
+                    return status.OK, 'idle'
         else:
             if self._SKind == 0:
                 if self._TStep - self.tolerance >= temp:
-                    return 2
+                    return status.BUSY, 'stepping'
                 else:
-                    return 0
+                    return status.OK, 'idle'
             else:
                 if self._TStep + self.tolerance <= temp:
-                    return 2
+                    return status.BUSY, 'stepping'
                 else:
-                    return 0
-                
+                    return status.OK, 'idle'
+
     def doWait (self, stime=0):
-        #
-        while self._waiting == TRUE:
+        while self._waiting:
             sleep(0.03)
-        self._waiting = TRUE
+        self._waiting = True
         if stime == 0:
             a = self.doStatus()
             return a
-        while 1==1:
+        while 1:
             a = self.doStatus()
             if a == 0:
                 break
@@ -242,5 +237,5 @@ class Julabo(HasLimits, Moveable):
                 self.log.warning("timeout occurred - did not reach selected temperature in time", exc =1)
                 break
             sleep(0.1)
-        self._waiting = FALSE
+        self._waiting = False
         return 0

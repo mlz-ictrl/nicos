@@ -30,7 +30,7 @@ from __future__ import with_statement
 __version__ = "$Revision$"
 
 import os
-from time import strftime, time as currenttime
+from time import strftime, asctime, time as currenttime
 
 import numpy as np
 
@@ -98,6 +98,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         ctr = self._adevs['counter']
         ctr.stop()
         self.doSetPreset(**preset)
+        self._lasttitle = preset.get('info', '')
 
         self.log.debug('reading chopper parameters')
         chwl, chspeed, chratio, chcrc, chst = self._adevs['chopper']._getparams()
@@ -180,6 +181,13 @@ class TofTofMeasurement(Measurable, ImageStorage):
         ctr = self._adevs['counter']
         chwl, chspeed, chratio, chcrc, chst = self._adevs['chopper']._getparams()
         head = []
+        head.append('File_Creation_Time: %s\n' % asctime())
+        head.append('Title: %s\n' % self._lasttitle)
+        head.append('ExperimentTitle: %s\n' % session.experiment.title)
+        head.append('ProposalTitle: %s\n' % session.experiment.title)
+        head.append('ProposalNr: %s\n' % session.experiment.proposal)
+        head.append('ExperimentTeam: %s\n' % ', '.join(session.experiment.users))
+        head.append('LocalContact: %s\n' % session.instrument.responsible)
         head.append('StartDate: %s\n' % strftime('%d.%m.%Y'))
         head.append('StartTime: %s\n' % strftime('%H:%M:%S'))
         if self._last_mode == 'monitor':
