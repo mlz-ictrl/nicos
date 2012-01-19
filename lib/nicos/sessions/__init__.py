@@ -231,15 +231,17 @@ class Session(object):
                 code = modfile[0].read()
                 modfile[0].close()
             except (ImportError, IOError), err:
-                raise ConfigurationError('Could not find or read setup '
-                                         'module %r: %s' % (modname, err))
+                self.log.exception('Could not find or read setup '
+                                   'module %r: %s' % (modname, err))
+                continue
             # device() is a helper function to make configuration prettier
             ns = {'device': lambda cls, **params: (cls, params)}
             try:
                 exec code in ns
             except Exception, err:
-                raise ConfigurationError('An error occurred while reading '
-                                         'setup %s: %s' % (modname, err))
+                self.log.exception('An error occurred while reading '
+                                   'setup %s: %s' % (modname, err))
+                continue
             info = {
                 'description': ns.get('description', modname),
                 'group': ns.get('group', 'base'),
