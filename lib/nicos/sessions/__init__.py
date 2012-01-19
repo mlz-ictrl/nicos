@@ -39,7 +39,7 @@ from os import path
 
 from nicos.core.device import Device
 from nicos.core.errors import NicosError, UsageError, ModeError, \
-     ConfigurationError
+     ConfigurationError, AccessError
 from nicos.notify import Notifier
 from nicos.utils.loggers import initLoggers, NicosLogger, \
      ColoredConsoleHandler, NicosLogfileHandler
@@ -811,11 +811,14 @@ class Session(object):
 
     def checkAccess(self, required):
         """Check if the current user fulfills the requirements given in the
-        *required* dictionary.  Return true or false.
+        *required* dictionary.  Raise `.AccessError` if check failed.
 
         This is called by the `.requires` decorator.
         """
-        return False
+        if 'mode' in required:
+            if self.mode != required['mode']:
+                raise AccessError('requires %s mode' % required['mode'])
+        return True
 
 
 # must be imported after class definitions due to module interdependencies

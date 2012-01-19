@@ -38,6 +38,7 @@ import traceback
 import exceptions
 
 from nicos import session, nicos_version
+from nicos.core import AccessError
 from nicos.utils import colorcode, formatExtendedStack
 from nicos.utils.loggers import INPUT, OUTPUT
 from nicos.sessions import Session
@@ -352,5 +353,11 @@ class ConsoleSession(Session):
         session.shutdown()
 
     def checkAccess(self, required):
-        # for now, we have no way of knowing who the user is
-        return True
+        # for now, we have no way of knowing who the user is, so we cannot
+        # respond to level= keyword
+        if 'passcode' in required:
+            code = required['passcode']
+            if raw_input('Please enter "%s" to proceed, or press Enter to '
+                         'cancel: ' % code) != code:
+                raise AccessError('passcode not correct')
+        return Session.checkAccess(self, required)
