@@ -74,10 +74,10 @@ class Motor(TacoDevice, BaseMotor):
         self._taco_guard(self._dev.setSpeed, value)
 
     def doReadAbslimits(self):
-        minimum = self._taco_guard(self._dev.deviceQueryResource, 'limitmin')
-        maximum = self._taco_guard(self._dev.deviceQueryResource, 'limitmax')
-        if minimum >= maximum:
+        m1 = float(self._taco_guard(self._dev.deviceQueryResource, 'limitmin'))
+        m2 = float(self._taco_guard(self._dev.deviceQueryResource, 'limitmax'))
+        if m1 >= m2:
             self.log.warning('TACO limitmin/max (%s, %s) are not usable' %
-                             (minimum, maximum))
+                             (m1, m2))
             return (0, 0)
-        return (minimum, maximum)
+        return (m1, m2)
