@@ -53,6 +53,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         'chdelay': (DelayBox, 'Setting chopper delay'),
     }
 
+    # XXX lastcounts, lastmonitor, rate etc. als parameter
     parameters = {
         'delay':            Param('Additional chopper delay', type=float,
                                   settable=True, default=0),
@@ -73,6 +74,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
     def doInit(self):
         self._detinfo = []   # XXX
         self._detinfolength = 0
+        self._finished = False
 
     def doSetPreset(self, **preset):
         self._adevs['counter'].setPreset(**preset)
@@ -85,8 +87,10 @@ class TofTofMeasurement(Measurable, ImageStorage):
 
     def doStart(self, **preset):
         ctr = self._adevs['counter']
+        ctr.stop()
         self.doSetPreset(**preset)
 
+        self.log.debug('reading chopper parameters')
         chwl, chspeed, chratio, chcrc, chst = self._adevs['chopper']._getparams()
         if chratio == 1:
             chratio2 = 1.0
@@ -104,6 +108,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         ctr.timeinterval = interval
 
         # select chopper delay from chopper parameters
+        self.log.debug('setting chopper delay')
         chdelay = 0.0
         if chspeed > 150:
             if self._adevs['chopper'].ch5_90deg_offset:
@@ -121,6 +126,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         self._adevs['chdelay'].start(chdelay)
 
         # select counter delay from chopper parameters
+        self.log.debug('setting counter delay')
         if chspeed > 150:
             if self._adevs['chopper'].ch5_90deg_offset:
                 TOFoffset = 30.0/chspeed/chratio2   # chopper 5 90 deg rotated
@@ -141,22 +147,24 @@ class TofTofMeasurement(Measurable, ImageStorage):
             self._last_mode = 'time'
             self._last_preset = preset['t']
 
+        self.log.debug('collecting status information')
         self._startheader = self._start_header(interval, chdelay)
         # update interval: about every 30 seconds for 1024 time channels
-        self._updateevery = int(30*ctr.timechannels/1024 * 40)
+        self._updateevery = max(int(30.*ctr.timechannels/1024 * 40), 10)
 
         # start new file
         self._newFile()
 
         self._startheader.append('FileName: %s\n' % self.lastfilename)
         # write once already, to check that it doesn't exist
-        self._writeFile(''.join(self._last_startheader))
+        self._writeFile(''.join(self._startheader))
 
         self._starttime = self._lasttime = currenttime()
         self._lastcounts = 0
         self._lastmonitor = 0
         self._lasttemps = []
-        self.log.info('Measurement %s started' % self.lastfilenumber)
+        self._finished = False
+        self.log.info('Measurement %06d started' % self.lastfilenumber)
         ctr.start(**preset)
 
     def _start_header(self, interval, chdelay):
@@ -196,7 +204,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
                 value = 'unknown'
             hvvals.append(value)
         head.append('LV_PowerSupplies: lv0-7: %s\n' % ', '.join(map(str, lvvals)))
-        slit_pos = session.getDevice('ss').read()
+        slit_pos = session.getDevice('slit').read()
         head.append('SampleSlit_ho: %s\n' % slit_pos[0])
         head.append('SampleSlit_hg: %s\n' % slit_pos[2])
         head.append('SampleSlit_vo: %s\n' % slit_pos[1])
@@ -231,7 +239,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         except NicosError:
             self.log.exception('error getting measurement data')
             return 0, 0, 0, 0, None
-        countsum = sum(counts) - moncounts  # monitor counts are in the array
+        countsum = counts.sum() - moncounts  # monitor counts are in the array
         head = []
         head.append('SavingDate: %s\n' % strftime('%d.%m.%Y'))
         head.append('SavingTime: %s\n' % strftime('%H:%M:%S'))
@@ -241,10 +249,10 @@ class TofTofMeasurement(Measurable, ImageStorage):
             head.append('Status: %5.1f %% completed\n' %
                         ((100. * moncounts)/self._last_preset))
         else:
-            if meastime < self._last_preset:
-                head.append('ToGo: %.0f s\n' % (self._last_preset - meastime))
+            if meastime > 0:  # < self._last_preset:
+                head.append('ToGo: %.0f s\n' % meastime)
             head.append('Status: %5.1f %% completed\n' %
-                        ((100. * meastime)/self._last_preset))
+                        ((100. * (self._last_preset - meastime))/self._last_preset))
         # sample temperature is assumed to be the first device in the envlist
         if session.experiment.sampleenv:
             tdev = session.experiment.sampleenv[0]
@@ -259,36 +267,39 @@ class TofTofMeasurement(Measurable, ImageStorage):
         # more info
         tempinfo = []
         head.append('MonitorCounts: %d\n' % moncounts)
-        head.append('NumOfDetectors: %d\n' % counts[1])
-        head.append('NumOfChannels: %d\n' % counts[0])
+        head.append('NumOfDetectors: %d\n' % counts.shape[1])
+        head.append('NumOfChannels: %d\n' % counts.shape[0])
         head.append('aDetInfo(%u,%u): \n' % (14, self._detinfolength))
+        self.log.debug('saving data file')
         with open(self.lastfilename, 'w') as fp:
-            fp.write(''.join(self._staticheader))
+            fp.write(''.join(self._startheader))
             fp.write(''.join(head))
             fp.write(''.join(self._detinfo))
-            fp.write('aData(%u,%u): \n' % (counts[1], counts[0]))
-            np.savetxt(fp, counts[2:], '%d')
+            fp.write('aData(%u,%u): \n' % (counts.shape[1], counts.shape[0]))
+            np.savetxt(fp, counts, '%d')
             os.fsync(fp)
         return meastime, moncounts, counts, countsum, tempinfo
 
     def duringMeasureHook(self, i):
         if i % self._updateevery:
             return
+        self.log.debug('collecting progress info')
         meastime, moncounts, counts, countsum, tempinfo = self._saveDataFile()
-        if not meastime:
-            return
-        monrate = moncounts/meastime
-        monrate_inst = (moncounts - self._lastmonitor) / (meastime - self._lasttime)
-        detrate = countsum/meastime
-        detrate_inst = (countsum - self._lastcounts) / (meastime - self._lasttime)
+        if self._last_mode == 'monitor':
+            pass
+        else:
+            monrate = moncounts/(self._last_preset - meastime)
+            monrate_inst = - (moncounts - self._lastmonitor) / (meastime - self._lasttime)
+            detrate = countsum/(self._last_preset - meastime)
+            detrate_inst = - (countsum - self._lastcounts) / (meastime - self._lasttime)
+            # XXX sample temperature info
+            self.log.info('Monitor: rate: %.3f counts/s, instantaneous rate: %.3f counts/s' %
+                          (monrate, monrate_inst))
+            self.log.info('Signal: rate: %.3f counts/s, instantaneous rate: %.3f counts/s' %
+                          (detrate, detrate_inst))
         self._lasttime = meastime
         self._lastmonitor = moncounts
         self._lastcounts = countsum
-        # XXX sample temperature info
-        self.log.info('Monitor: rate: %.3f counts/s, instantaneous rate: %.3f counts/s' %
-                      (monrate, monrate_inst))
-        self.log.info('Signal: rate: %.3f counts/s, instantaneous rate: %.3f counts/s' %
-                      (detrate, detrate_inst))
 
     def doStop(self):
         self._adevs['counter'].stop()
@@ -297,11 +308,18 @@ class TofTofMeasurement(Measurable, ImageStorage):
         pass
 
     def doSave(self):
+        self.log.debug('measurement finished')
         self._saveDataFile()
-        with open(self.lastfilename.replace('0000.raw', '5200.raw'), 'w') as fp:
-            fp.write(session.experiment.scripts[-1])
+        if session.experiment.scripts:
+            with open(self.lastfilename.replace('0000.raw', '5200.raw'), 'w') as fp:
+                fp.write(session.experiment.scripts[-1])
         # XXX save device log files accordingly
         #with open(self.lastfilename.replace('0000.raw', '1200.raw'), 'w') as fp:
 
+    def doRead(self):
+        return [self.lastfilename]
+
+    def doIsCompleted(self):
+        return self._adevs['counter'].isCompleted()
 
 # XXX nosave measurement!

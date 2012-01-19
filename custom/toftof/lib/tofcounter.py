@@ -48,6 +48,7 @@ class TofCounter(Measurable):
         'delay':          Param('TOF frame delay', type=int,
                                 settable=True),
         'monitorchannel': Param('Channel number of the monitor counter',
+                                default=956,
                                 type=intrange(1, 1025), settable=True),
         'channelwidth':   Param('Channel width', volatile=True),
         'numinputs':      Param('Number of detector channels', type=int,
@@ -88,16 +89,23 @@ class TofCounter(Measurable):
         self._timer.Start()
         self._monitor.Start()
 
-    def duringMeasureHook(self):
-        print self._timer.ReadDouble()
-
+    def duringMeasureHook(self, i):
+        #print self._timer.ReadDouble()
+        pass
+    
     def doStop(self):
         self._counter.DevOn()
         self._timer.DevOn()
         self._monitor.DevOn()
 
     def doStatus(self):
-        return status.UNKNOWN, 'not implemented'
+        state = ''.join(map(chr, self._counter.DevStatus()))
+        if state == 'counting':
+            return status.BUSY, 'counting'
+        elif state in ['init', 'unknown']:
+            return status.OK, 'idle'
+        else:
+            return status.ERROR, state
 
     def doIsCompleted(self):
         # DevStatus "counting"
@@ -105,11 +113,12 @@ class TofCounter(Measurable):
 
     def doRead(self):
         arr = self._counter.ReadULongArray()
-        return self._timer.ReadDouble(), self._monitor.ReadULong(), sum(arr[2:])
+        return [self._timer.ReadDouble(), self._monitor.ReadULong(), sum(arr[2:])]
 
     def read_full(self):
-        return self._timer.ReadDouble(), self._monitor.ReadULong(), \
-            np.array(self._counter.ReadULongArray()[2:])
+        arr = np.array(self._counter.ReadULongArray())
+        ndata = np.reshape(arr[2:], (arr[0], arr[1]))
+        return self._timer.ReadDouble(), self._monitor.ReadULong(), ndata
 
     def doReset(self):
         self._counter.DevOn()
@@ -127,12 +136,6 @@ class TofCounter(Measurable):
 
     def doWriteTimeinterval(self, value):
         self._counter.SetTimeInterval(value)
-
-    def doReadMonitorchannel(self):
-        return self._counter.MonitorInput()
-
-    def doWriteMonitorchannel(self, value):
-        self._counter.SetMonitorInput(value)
 
     def doReadDelay(self):
         return self._counter.GetDelay()

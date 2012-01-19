@@ -16,18 +16,18 @@ devices = dict(
     SampleSlitMotHR = device('nicos.taco.motor.Motor',
                              tacodevice = nethost + 'toftof/huber/ssrm',
                              fmtstr = "%7.3f"),
-    SampleSlit = device('nicos.generic.Slit',
-                        bottom = 'SampleSlitMotVB',
-                        top = 'SampleSlitMotVT',
-                        left = 'SampleSlitMotHL',
-                        right = 'SampleSlitMotHR',
-                        coordinates = 'opposite',
-                        opmode = 'offcentered'),
+    slit = device('nicos.generic.Slit',
+                  bottom = 'SampleSlitMotVB',
+                  top = 'SampleSlitMotVT',
+                  left = 'SampleSlitMotHL',
+                  right = 'SampleSlitMotHR',
+                  coordinates = 'opposite',
+                  opmode = 'offcentered'),
 )
 
 startupcode = """
-ssvg = SampleSlit.height
-ssvo = SampleSlit.centery
-sshg = SampleSlit.width
-ssho = SampleSlit.centerx
+ssvg = slit.height
+ssvo = slit.centery
+sshg = slit.width
+ssho = slit.centerx
 """
