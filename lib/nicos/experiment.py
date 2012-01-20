@@ -96,6 +96,8 @@ class Experiment(Device):
         'users':     Param('User names and affiliations for the proposal',
                            type=listof(str), settable=True,
                            category='experiment'),
+        'localcontact': Param('Local contact for current experiment',
+                              type=str, settable=True, category='experiment'),
         'remark':    Param('Current remark about experiment configuration',
                            type=str, settable=True, category='experiment'),
         'datapath':  Param('List of paths where data files should be stored',
@@ -143,6 +145,8 @@ class Experiment(Device):
             proposal = str(proposal)
         self.proposal = proposal
         self.title = title or ''
+        if 'localcontact' in kwds:
+            self.localcontact = kwds['localcontact']
         # reset everything else to defaults
         self.remark = ''
         self.users = []
