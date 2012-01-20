@@ -30,7 +30,7 @@ from __future__ import with_statement
 __version__ = "$Revision$"
 
 import os
-from time import strftime, asctime, time as currenttime
+from time import strftime, asctime, localtime, time as currenttime
 
 import numpy as np
 
@@ -81,7 +81,8 @@ class TofTofMeasurement(Measurable, ImageStorage):
             if not line.startswith('#'):
                break
         self._detinfolength = len(self._detinfo) - i
-        self._finished = False
+        self._measuring = False
+        self._devicelogs = {}
 
     def doSetPreset(self, **preset):
         self._adevs['counter'].setPreset(**preset)
@@ -97,6 +98,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         ctr.stop()
         self.doSetPreset(**preset)
         self._lasttitle = preset.get('info', '')
+        self._lastnosave = bool(preset.get('nosave', False))
 
         self.log.debug('reading chopper parameters')
         chwl, chspeed, chratio, chcrc, chst = self._adevs['chopper']._getparams()
@@ -156,26 +158,26 @@ class TofTofMeasurement(Measurable, ImageStorage):
             self._last_preset = preset['t']
 
         self.log.debug('collecting status information')
-        self._startheader = self._start_header(interval, chdelay)
+        self._startheader = self._startHeader(interval, chdelay)
         # update interval: about every 30 seconds for 1024 time channels
         self._updateevery = max(int(30.*ctr.timechannels/1024 * 40), 10)
 
         # start new file
-        self._newFile()
-
+        self._newFile(increment=not self._lastnosave)
         self._startheader.append('FileName: %s\n' % self.lastfilename)
-        # write once already, to check that it doesn't exist
-        self._writeFile(''.join(self._startheader))
 
-        self._starttime = self._lasttime = currenttime()
+        # open individual device logfiles
+        self._openDeviceLogs()
+
         self._lastcounts = 0
         self._lastmonitor = 0
         self._lasttemps = []
-        self._finished = False
         self.log.info('Measurement %06d started' % self.lastfilenumber)
+        self._starttime = self._lasttime = currenttime()
+        self._measuring = True
         ctr.start(**preset)
 
-    def _start_header(self, interval, chdelay):
+    def _startHeader(self, interval, chdelay):
         ctr = self._adevs['counter']
         chwl, chspeed, chratio, chcrc, chst = self._adevs['chopper']._getparams()
         head = []
@@ -248,6 +250,41 @@ class TofTofMeasurement(Measurable, ImageStorage):
                                                         gvals['gcx'], gvals['gcy']))
         return head
 
+    def _openDeviceLogs(self):
+        if not self._cache:
+            return
+        self._closeDeviceLogs()
+        i = 5001
+        for dev in [session.getDevice('Power'),
+                    session.getDevice('chDS')] + session.experiment.sampleenv:
+            fn = self.lastfilename.replace('0000.raw', '%04d.raw' % i)
+            self._devicelogs[dev.name] = fp = open(fn, 'w')
+            fp.write('# File_Creation_Time: %s\n' %
+                     asctime(localtime(self._starttime)))
+            fp.write('# Title: continuous logging of %s\n\n' % dev.name)
+            self._cache.addCallback(dev, 'value', self._logCallback)
+            i += 1
+
+    def _logCallback(self, key, value, time):
+        devname = key.split('/')[0]
+        if devname not in self._devicelogs:
+            return  # shouldn't happen
+        self._devicelogs[devname].write(
+            '%10.2f  %s' % (time - self._starttime, value))
+
+    def _closeDeviceLogs(self):
+        # first clear the dictionary, then close files, so that the callback
+        # doesn't write to closed files
+        olddevlogs = self._devicelogs.copy()
+        self._devicelogs.clear()
+        for devname, fp in olddevlogs.iteritems():
+            try:
+                fp.close()
+            except Exception:
+                pass
+            if self._cache:
+                self._cache.removeCallback(devname, 'value')
+
     def _saveDataFile(self):
         try:
             meastime, moncounts, counts = self._adevs['counter'].read_full()
@@ -308,16 +345,18 @@ class TofTofMeasurement(Measurable, ImageStorage):
             detrate = countsum/(self._last_preset - meastime)
             detrate_inst = - (countsum - self._lastcounts) / (meastime - self._lasttime)
             # XXX sample temperature info
-            self.log.info('Monitor: rate: %8.3f counts/s, instantaneous rate: %8.3f counts/s' %
-                          (monrate, monrate_inst))
-            self.log.info('Signal:  rate: %8.3f counts/s, instantaneous rate: %8.3f counts/s' %
-                          (detrate, detrate_inst))
+            self.log.info('Monitor: rate: %8.3f counts/s, instantaneous rate: '
+                          '%8.3f counts/s' % (monrate, monrate_inst))
+            self.log.info('Signal:  rate: %8.3f counts/s, instantaneous rate: '
+                          '%8.3f counts/s' % (detrate, detrate_inst))
         self._lasttime = meastime
         self._lastmonitor = moncounts
         self._lastcounts = countsum
 
     def doStop(self):
         self._adevs['counter'].stop()
+        self._measuring = False
+        self._closeDeviceLogs()
 
     def doReset(self):
         pass
@@ -328,9 +367,9 @@ class TofTofMeasurement(Measurable, ImageStorage):
         if session.experiment.scripts:
             with open(self.lastfilename.replace('0000.raw', '5200.raw'), 'w') as fp:
                 fp.write(session.experiment.scripts[-1])
-        # XXX save device log files accordingly
-        #with open(self.lastfilename.replace('0000.raw', '1200.raw'), 'w') as fp:
         self.log.info('Measurement %06d finished' % self.lastfilenumber)
+        self._measuring = False
+        self._closeDeviceLogs()
         session.breakpoint(2)
 
     def doRead(self):
@@ -338,5 +377,3 @@ class TofTofMeasurement(Measurable, ImageStorage):
 
     def doIsCompleted(self):
         return self._adevs['counter'].isCompleted()
-
-# XXX nosave measurement!
