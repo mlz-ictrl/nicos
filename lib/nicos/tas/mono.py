@@ -271,6 +271,10 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         self.log.info('adjusting foci')
         self._movefoci()
 
+    def doWriteUnit(self, value):
+        if self._cache:
+            self._cache.invalidate(self, 'value')
+
     def _fromlambda(self, value):
         try:
             if self.unit == 'A-1':
