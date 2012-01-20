@@ -284,12 +284,12 @@ class Wavevector(Moveable):
     def doRead(self):
         if self._value is None:
             # XXX read() or read(0)
-            self._value = self._adevs['base'].read()
+            self._value = self._adevs['base']._readInvAng()
         return self._value
 
     def doStart(self, pos):
         # first drive there, to determine if it is within limits
-        self._adevs['base'].start(pos)
+        self._adevs['base']._startInvAng(pos)
         self._adevs['tas'].scanmode = self.scanmode
         self._adevs['tas'].scanconstant = pos
         self._value = pos
