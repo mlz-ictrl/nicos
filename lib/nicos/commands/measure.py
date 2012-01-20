@@ -53,7 +53,7 @@ def _count(detlist, preset):
         for det in detset:
             try:
                 det.duringMeasureHook(i)
-            except Exception:
+            except:  # really ALL exceptions
                 for det in detset:
                     det.stop()
                 raise
