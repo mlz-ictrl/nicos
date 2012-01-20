@@ -377,7 +377,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
             detrate = countsum / meastime
             detrate_inst = - (countsum - self._lastcounts) / (meastime - self._lasttime)
             if tempinfo:
-                self.log.info('Sample: temperature %.4f %s, average: %.4f, '
+                self.log.info('Sample:  current: %.4f %s, average: %.4f, '
                               'stddev: %.4f, min: %.4f, max: %.4f' % tempinfo)
             self.log.info('Monitor: rate: %8.3f counts/s, instantaneous rate: '
                           '%8.3f counts/s' % (monrate, monrate_inst))
