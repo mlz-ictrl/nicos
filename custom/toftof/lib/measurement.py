@@ -187,7 +187,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         head.append('ProposalTitle: %s\n' % session.experiment.title)
         head.append('ProposalNr: %s\n' % session.experiment.proposal)
         head.append('ExperimentTeam: %s\n' % ', '.join(session.experiment.users))
-        head.append('LocalContact: %s\n' % session.instrument.responsible)
+        head.append('LocalContact: %s\n' % session.experiment.localcontact)
         head.append('StartDate: %s\n' % strftime('%d.%m.%Y'))
         head.append('StartTime: %s\n' % strftime('%H:%M:%S'))
         if self._last_mode == 'monitor':
