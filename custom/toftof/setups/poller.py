@@ -7,6 +7,7 @@ sysconfig = dict(
 
 devices = dict(
     Poller = device('nicos.poller.Poller',
+                    autosetup = False,  # important! do not poll everything
                     poll = ['chopper', 'power', 'vacuum', 'voltage'] +
                            ['he3', 'htf', 'ls', 'biofurnace'],
                     alwayspoll = [],
