@@ -156,7 +156,8 @@ class RadialCollimator(Moveable):
             bus.write("q")
 
     def doStop(self):
-        self.start(0)
+        self.log.info('note: radial collimator does not use stop() anymore, '
+                      'use move(%s, "off")' % self)
 
     def doStatus(self):
         try:

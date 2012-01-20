@@ -45,7 +45,6 @@ class Shutter(Moveable):
     valuetype = oneofdict({0: 'closed', 1: 'open'})
 
     def doStart(self, target):
-        """This function opens or closes the TOFTOF instrument shutter."""
         if target == 'open':
             self._adevs['open'].start(1)
             sleep(0.01)
@@ -56,8 +55,8 @@ class Shutter(Moveable):
             self._adevs['close'].start(0)
 
     def doStop(self):
-        """This function closes the TOFTOF instrument shutter."""
-        self.start(0)
+        self.log.info('note: shutter collimator does not use stop() anymore, '
+                      'use move(%s, "closed")' % self)
 
     def doRead(self):
         ret = self._adevs['status'].read()
