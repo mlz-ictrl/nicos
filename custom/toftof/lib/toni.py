@@ -213,10 +213,6 @@ class Vacuum(Readable) :
         'unit':   Override(mandatory=False, default='mbar'),
     }
 
-    def doInit(self):
-        if self._mode == 'simulation':
-            return
-
 #   @requires(level=ADMIN)
     def doReset (self):
         self._adevs['bus'].communicate('P%1d=0' % (self.channel + 1),
@@ -231,15 +227,31 @@ class Vacuum(Readable) :
                                               self.addr, expect_hex=8)
         pressure, config = resp >> 16, (resp >> 8) & 0xFF
         if config & 16:
-            ret = 10.0 ** (pressure / 4000.0 - 12.625) # Torr
-            self.unit = 'Torr'
+            ret = 10.0 ** (pressure / 4000.0 - 12.625)
+            realunit = 'Torr'
         elif config & 32:
             ret = 10.0 ** (pressure / 4000.0 - 10.5) # Pa
-            self.unit = 'Pa'
+            realunit = 'Pa'
         else:
             ret = 10.0 ** (pressure / 4000.0 - 12.5) # mbar
-            self.unit = 'mbar'
+            realunit = 'mbar'
+        if self.unit != realunit:
+            if self._mode == 'master':
+                self.unit = 'Torr'
+            else:
+                self.log.warning('unit should be set to %s' % realunit)
         return ret
+
+    def doReadUnit(self):
+        resp = self._adevs['bus'].communicate('R%1d?' % (self.channel + 1),
+                                              self.addr, expect_hex=8)
+        config = (resp >> 8) & 0xFF
+        if config & 16:
+            return 'Torr'
+        elif config & 32:
+            return 'Pa'
+        else:
+            return 'mbar'
 
     def doStatus(self):
         resp = self._adevs['bus'].communicate('R%1d?' % (self.channel + 1),
