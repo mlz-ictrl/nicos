@@ -105,9 +105,11 @@ def listcommands():
             real_func = getattr(obj, 'real_func', obj)
             argspec = inspect.formatargspec(*inspect.getargspec(real_func))
             docstring = real_func.__doc__ or ' '
+            signature = real_func.__name__ + argspec
+            if len(signature) > 50:
+                signature = signature[:47] + '...'
             if not real_func.__name__.startswith('_'):
-                items.append((real_func.__name__ + argspec,
-                              docstring.splitlines()[0]))
+                items.append((signature, docstring.splitlines()[0]))
     items.sort()
     printTable(('name', 'description'), items, printinfo)
 
