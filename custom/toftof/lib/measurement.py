@@ -198,6 +198,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
             head.append('TOF_TimePreselection: %g\n' % self._last_preset)
         head.append('TOF_TimeInterval: %g\n' % interval)
         head.append('TOF_ChannelWidth: %lu\n' % ctr.channelwidth)
+        head.append('TOF_TimeChannels: %u\n' % ctr.timechannels)
         head.append('TOF_NumInputs: %lu\n' % ctr.numinputs)
         head.append('TOF_Delay: %lu\n' % ctr.delay)
         head.append('TOF_MonitorInput: %d\n' % ctr.monitorchannel)
@@ -219,7 +220,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
                 value = session.getDevice('lv%d' % i).read()
             except NicosError:
                 value = 'unknown'
-            hvvals.append(value)
+            lvvals.append(value)
         head.append('LV_PowerSupplies: lv0-7: %s\n' % ', '.join(map(str, lvvals)))
         slit_pos = session.getDevice('slit').read()
         head.append('SampleSlit_ho: %s\n' % slit_pos[0])
@@ -229,6 +230,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         head.append('Chopper_Speed: %.1f rpm\n' % chspeed)
         head.append('Chopper_Wavelength: %.2f A\n' % chwl)
         head.append('Chopper_Ratio: %s\n' % chratio)
+        head.append('Chopper_CRC: %s\n' % chcrc)
         head.append('Chopper_SlitType: %s\n' % chst)
         head.append('Chopper_Delay: %s\n' % chdelay)
         for i in range(4):
@@ -254,29 +256,40 @@ class TofTofMeasurement(Measurable, ImageStorage):
         if not self._cache:
             return
         self._closeDeviceLogs()
+        self._logstarttime = currenttime()
         i = 5001
-        for dev in [session.getDevice('Power'),
+        for dev in [session.getDevice('ReactorPower'),
                     session.getDevice('chDS')] + session.experiment.sampleenv:
-            fn = self.lastfilename.replace('0000.raw', '%04d.raw' % i)
-            self._devicelogs[dev.name] = fp = open(fn, 'w')
-            fp.write('# File_Creation_Time: %s\n' %
-                     asctime(localtime(self._starttime)))
-            fp.write('# Title: continuous logging of %s\n\n' % dev.name)
-            self._cache.addCallback(dev, 'value', self._logCallback)
+            try:
+                fn = self.lastfilename.replace('0000.raw', '%04d.raw' % i)
+                self._devicelogs[dev.name.lower()] = fp = open(fn, 'w')
+                fp.write('# File_Creation_Time: %s\n' %
+                         asctime(localtime(self._logstarttime)))
+                fp.write('# Title: logging of changes to %s' % dev.name)
+                if dev.unit:
+                    fp.write(' (%s)' % dev.unit)
+                fp.write('\n\n%10.2f  %s\n' % (0.0, dev.read()))
+                self._cache.addCallback(dev, 'value', self._logCallback)
+                self.log.debug('opened logfile %d for device %s' % (i, dev))
+            except Exception:
+                self.log.warning('could not open device logfile for %s' % dev, exc=1)
+                self._devicelogs.pop(dev.name.lower(), None)
             i += 1
 
     def _logCallback(self, key, value, time):
+        self.log.debug('device log: %s = %s' % (key, value))
         devname = key.split('/')[0]
         if devname not in self._devicelogs:
             return  # shouldn't happen
         self._devicelogs[devname].write(
-            '%10.2f  %s' % (time - self._starttime, value))
+            '%10.2f  %s\n' % (time - self._logstarttime, value))
 
     def _closeDeviceLogs(self):
         # first clear the dictionary, then close files, so that the callback
         # doesn't write to closed files
         olddevlogs = self._devicelogs.copy()
         self._devicelogs.clear()
+        self.log.debug('closing device logs')
         for devname, fp in olddevlogs.iteritems():
             try:
                 fp.close()
@@ -319,15 +332,16 @@ class TofTofMeasurement(Measurable, ImageStorage):
         # more info
         tempinfo = []
         head.append('MonitorCounts: %d\n' % moncounts)
-        head.append('NumOfDetectors: %d\n' % counts.shape[1])
-        head.append('NumOfChannels: %d\n' % counts.shape[0])
+        head.append('NumOfDetectors: %d\n' % counts.shape[0])
+        head.append('NumOfChannels: %d\n' % counts.shape[1])
+        head.append('Plattform: Linux\n')
         head.append('aDetInfo(%u,%u): \n' % (14, self._detinfolength))
         self.log.debug('saving data file')
         with open(self.lastfilename, 'w') as fp:
             fp.write(''.join(self._startheader))
             fp.write(''.join(head))
             fp.write(''.join(self._detinfo))
-            fp.write('aData(%u,%u): \n' % (counts.shape[1], counts.shape[0]))
+            fp.write('aData(%u,%u): \n' % (counts.shape[0], counts.shape[1]))
             np.savetxt(fp, counts, '%d')
             os.fsync(fp)
         return meastime, moncounts, counts, countsum, tempinfo
@@ -362,8 +376,8 @@ class TofTofMeasurement(Measurable, ImageStorage):
         pass
 
     def doSave(self):
-        self.log.debug('measurement finished')
         self._saveDataFile()
+        self.log.debug('saving current script')
         if session.experiment.scripts:
             with open(self.lastfilename.replace('0000.raw', '5200.raw'), 'w') as fp:
                 fp.write(session.experiment.scripts[-1])

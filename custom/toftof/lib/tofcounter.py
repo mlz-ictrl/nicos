@@ -117,7 +117,7 @@ class TofCounter(Measurable):
 
     def read_full(self):
         arr = np.array(self._counter.ReadULongArray())
-        ndata = np.reshape(arr[2:], (arr[0], arr[1]))
+        ndata = np.reshape(arr[2:], (arr[1], arr[0]))
         return self._timer.ReadDouble(), self._monitor.ReadULong(), ndata
 
     def doReset(self):
