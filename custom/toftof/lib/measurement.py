@@ -35,8 +35,8 @@ from time import strftime, asctime, localtime, time as currenttime
 import numpy as np
 
 from nicos import session
-from nicos.core import Measurable, Param, Value, Override, \
-     NicosError, intrange
+from nicos.core import Measurable, Param, Value, Override, NicosError, \
+     intrange, listof
 from nicos.abstract import ImageStorage
 
 from nicos.toftof.toni import DelayBox
@@ -53,7 +53,6 @@ class TofTofMeasurement(Measurable, ImageStorage):
         'chdelay': (DelayBox, 'Setting chopper delay'),
     }
 
-    # XXX lastcounts, lastmonitor, rate etc. als parameter
     parameters = {
         'delay':            Param('Additional chopper delay', type=float,
                                   settable=True, default=0),
@@ -63,6 +62,10 @@ class TofTofMeasurement(Measurable, ImageStorage):
                                   'auto-select', type=float, settable=True),
         'detinfofile':      Param('Path to the detector-info file',
                                   type=str, mandatory=True),
+
+        # status parameters
+        'laststats':       Param('Count statistics of the last measurement',
+                                 type=listof(float), settable=True),
     }
 
     parameter_overrides = {
@@ -170,11 +173,11 @@ class TofTofMeasurement(Measurable, ImageStorage):
         self._openDeviceLogs()
 
         self._lastcounts = 0
-        self._lastmonitor = 0
+        self._lastmoncounts = 0
         self._lasttemps = []
         self.log.info('Measurement %06d started' % self.lastfilenumber)
-        self._starttime = self._lasttime = currenttime()
         self._measuring = True
+        self._starttime = self._lasttime = currenttime()
         ctr.start(**preset)
 
     def _startHeader(self, interval, chdelay):
@@ -300,10 +303,11 @@ class TofTofMeasurement(Measurable, ImageStorage):
 
     def _saveDataFile(self):
         try:
-            meastime, moncounts, counts = self._adevs['counter'].read_full()
+            timeleft, moncounts, counts = self._adevs['counter'].read_full()
         except NicosError:
-            self.log.exception('error getting measurement data')
-            return 0, 0, 0, 0, None
+            self.log.exception('error reading measurement data')
+            return 0, 0, 0, 0, 0, None
+        meastime = currenttime() - self._starttime
         countsum = counts.sum() - moncounts  # monitor counts are in the array
         head = []
         head.append('SavingDate: %s\n' % strftime('%d.%m.%Y'))
@@ -312,26 +316,41 @@ class TofTofMeasurement(Measurable, ImageStorage):
             if moncounts < self._last_preset:
                 head.append('ToGo: %d counts\n' % (self._last_preset - moncounts))
             head.append('Status: %5.1f %% completed\n' %
-                        ((100. * moncounts)/self._last_preset))
+                        ((100. * moncounts) / self._last_preset))
         else:
-            if meastime > 0:  # < self._last_preset:
-                head.append('ToGo: %.0f s\n' % meastime)
+            if timeleft > 0:
+                head.append('ToGo: %.0f s\n' % timeleft)
             head.append('Status: %5.1f %% completed\n' %
-                        ((100. * (self._last_preset - meastime))/self._last_preset))
+                (100. * (self._last_preset - timeleft) / self._last_preset))
         # sample temperature is assumed to be the first device in the envlist
+        tempinfo = []
         if session.experiment.sampleenv:
             tdev = session.experiment.sampleenv[0]
             try:
-                temperature = tdev.read()
+                curtemp = tdev.read()
+                tempinfo.append(curtemp)
+                tempinfo.append(tdev.unit)
                 if tdev.unit == 'degC':
-                    temperature += 273.15
+                    curtemp += 273.15
             except NicosError:
-                temperature = 0
+                curtemp = 0
             else:
-                head.append('AverageSampleTemperature: %10.4f K\n' % temperature)
+                self._lasttemps.append(curtemp)
+                lt = self._lasttemps
+                stats = np.mean(lt), np.std(lt), np.min(lt), np.max(lt)
+                head.append('AverageSampleTemperature: %10.4f K\n' % stats[0])
+                head.append('StandardDeviationOfSampleTemperature: %10.4f K\n' %
+                            stats[1])
+                head.append('MinimumSampleTemperature: %10.4f K\n' % stats[2])
+                head.append('MaximumSampleTemperature: %10.4f K\n' % stats[3])
+                tempinfo.extend(stats)
+                tempinfo = tuple(tempinfo)
         # more info
-        tempinfo = []
         head.append('MonitorCounts: %d\n' % moncounts)
+        # next 3 fields are new in the data file
+        head.append('TotalCounts: %d\n' % countsum)
+        head.append('MonitorCountRate: %.3f\n' % (moncounts / meastime))
+        head.append('TotalCountRate: %.3f\n' % (countsum / meastime))
         head.append('NumOfDetectors: %d\n' % counts.shape[0])
         head.append('NumOfChannels: %d\n' % counts.shape[1])
         head.append('Plattform: Linux\n')
@@ -344,28 +363,30 @@ class TofTofMeasurement(Measurable, ImageStorage):
             fp.write('aData(%u,%u): \n' % (counts.shape[0], counts.shape[1]))
             np.savetxt(fp, counts, '%d')
             os.fsync(fp)
-        return meastime, moncounts, counts, countsum, tempinfo
+        return timeleft, moncounts, counts, countsum, meastime, tempinfo
 
     def duringMeasureHook(self, i):
         if i % self._updateevery:
             return
         self.log.debug('collecting progress info')
-        meastime, moncounts, counts, countsum, tempinfo = self._saveDataFile()
-        if self._last_mode == 'monitor':
-            pass
-        else:
-            monrate = moncounts/(self._last_preset - meastime)
-            monrate_inst = - (moncounts - self._lastmonitor) / (meastime - self._lasttime)
-            detrate = countsum/(self._last_preset - meastime)
+        _, moncounts, _, countsum, meastime, tempinfo = self._saveDataFile()
+        monrate = detrate = 0.0
+        if meastime > 0:
+            monrate = moncounts / meastime
+            monrate_inst = (moncounts - self._lastmoncounts) / (meastime - self._lasttime)
+            detrate = countsum / meastime
             detrate_inst = - (countsum - self._lastcounts) / (meastime - self._lasttime)
-            # XXX sample temperature info
+            if tempinfo:
+                self.log.info('Sample: temperature %.4f %s, average: %.4f, '
+                              'stddev: %.4f, min: %.4f, max: %.4f' % tempinfo)
             self.log.info('Monitor: rate: %8.3f counts/s, instantaneous rate: '
                           '%8.3f counts/s' % (monrate, monrate_inst))
             self.log.info('Signal:  rate: %8.3f counts/s, instantaneous rate: '
                           '%8.3f counts/s' % (detrate, detrate_inst))
         self._lasttime = meastime
-        self._lastmonitor = moncounts
+        self._lastmoncounts = moncounts
         self._lastcounts = countsum
+        self.laststats = [meastime, moncounts, countsum, monrate, detrate]
 
     def doStop(self):
         self._adevs['counter'].stop()
@@ -373,13 +394,14 @@ class TofTofMeasurement(Measurable, ImageStorage):
         self._closeDeviceLogs()
 
     def doReset(self):
-        pass
+        self._adevs['counter'].reset()
 
     def doSave(self):
         self._saveDataFile()
         self.log.debug('saving current script')
         if session.experiment.scripts:
-            with open(self.lastfilename.replace('0000.raw', '5200.raw'), 'w') as fp:
+            script_fn = self.lastfilename.replace('0000.raw', '5200.raw')
+            with open(script_fn, 'w') as fp:
                 fp.write(session.experiment.scripts[-1])
         self.log.info('Measurement %06d finished' % self.lastfilenumber)
         self._measuring = False
