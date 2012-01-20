@@ -334,7 +334,7 @@ def oneofdict(vals):
             val = vals[val]
         elif val not in vals.values():
             raise ValueError('invalid value: %s, must be one of %s' %
-                             (val, ', '.join(map(repr, vals))))
+                             (val, ', '.join(map(repr, vals.values()))))
         return val
     converter.__doc__ = 'one of ' + ', '.join(map(repr, vals.values()))
     return converter
