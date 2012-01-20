@@ -16,7 +16,8 @@ devices = dict(
 
     Exp      = device('nicos.experiment.Experiment',
                       datapath = ['/users/testdata'],
-                      sample = 'Sample'),
+                      sample = 'Sample',
+                      elog = False),
 
     filesink = device('nicos.data.AsciiDatafileSink',
                       prefix = 'data'),

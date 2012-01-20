@@ -160,7 +160,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         self.log.debug('collecting status information')
         self._startheader = self._startHeader(interval, chdelay)
         # update interval: about every 30 seconds for 1024 time channels
-        self._updateevery = max(int(30.*ctr.timechannels/1024 * 40), 10)
+        self._updateevery = max(int(15.*ctr.timechannels/1024 * 40), 80)
 
         # start new file
         self._newFile(increment=not self._lastnosave)

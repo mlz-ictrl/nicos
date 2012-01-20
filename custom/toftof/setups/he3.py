@@ -29,6 +29,6 @@ devices = dict(
 )
 
 startupcode = """
-Ts = he3
-T = sensor_a
+T = he3
+Ts = sensor_a
 """
