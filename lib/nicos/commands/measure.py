@@ -53,9 +53,10 @@ def _count(detlist, preset):
         for det in detset:
             try:
                 det.duringMeasureHook(i)
-            finally:
+            except Exception:
                 for det in detset:
                     det.stop()
+                raise
     for det in detlist:
         try:
             det.save()
@@ -85,6 +86,9 @@ def count(*detlist, **preset):
     for det in detlist:
         if isinstance(det, (int, long, float)):
             preset['t'] = det
+            continue
+        elif isinstance(det, str):
+            preset['info'] = det
             continue
         if not isinstance(det, Measurable):
             raise UsageError('device %s is not a measurable device' % det)

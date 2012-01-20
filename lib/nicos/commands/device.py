@@ -26,6 +26,7 @@
 
 __version__ = "$Revision$"
 
+import threading
 import __builtin__
 
 from nicos import session
@@ -183,13 +184,17 @@ def status(*devlist):
 def stop(*devlist):
     """Stop one or more devices.
 
-    If no device is given, stop all stoppable devices.
+    If no device is given, stop all stoppable devices in parallel.
     """
     if not devlist:
         devlist = [session.devices[devname]
                    for devname in session.explicit_devices
                    if isinstance(session.devices[devname],
                                  (Moveable, Measurable))]
+        for dev in devlist:
+            stopthread = threading.Thread(target=stop, args=(dev,))
+            stopthread.setDaemon(True)
+            stopthread.start()
     for dev in devlist:
         dev = session.getDevice(dev, (Moveable, Measurable))
         try:

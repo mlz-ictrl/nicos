@@ -51,6 +51,10 @@ Changelog for NICOS 2
 
   - Added a "FinishExperiment()" user command.
 
+  - Added "poll" and "neverpoll" parameters to the Poller object.
+
+  - When calling "stop()" without devices, stop all devices in parallel.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless
@@ -60,6 +64,8 @@ Changelog for NICOS 2
 
   - Fixed nicos.conf not being read.  Prepend PYTHONPATH entries to
     sys.path instead of appending.
+
+  - Fixed TAS wavevectors to always move in inverse angstroms.
 
 **Release 2.0.0 (2012-01-11)**
 
