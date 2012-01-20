@@ -254,6 +254,12 @@ def CreateAllDevices():
 def NewExperiment(proposal, title='', **parameters):
     """Start a new experiment with the given proposal number and title.
 
+    You can also give a "localcontact" argument.  Users can be added with
+    `AddUser`.  Example:
+
+    >>> NewExperiment(5401, 'Dynamics of H2O', localcontact='L. Ocal')
+    >>> AddUser('F. User', 'friendlyuser@frm2.tum.de')
+
     When configured, proposal information will be automatically filled in from
     the proposal database.
     """
