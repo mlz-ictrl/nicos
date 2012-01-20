@@ -458,13 +458,16 @@ class AsciiDatafileSink(DatafileSink):
         self._path = value[0]
         self._addpaths = value[1:]
         # determine current file counter value
+        self._readCurrentCounter()
+        self._setROParam('lastpoint', 0)
+
+    def _readCurrentCounter(self):
         if self.globalcounter:
             self._counter = readFileCounter(self.globalcounter)
         else:
             self._counter = readFileCounter(
                 path.join(self._path, 'filecounter'))
         self._setROParam('lastfilenumber', self._counter)
-        self._setROParam('lastpoint', 0)
 
     def doUpdateCommentchar(self, value):
         if len(value) > 1:
@@ -485,6 +488,9 @@ class AsciiDatafileSink(DatafileSink):
     def prepareDataset(self, dataset):
         self._wrote_columninfo = False
         self._fname = self.nextFileName()
+        if self.lastfilenumber != self._counter:
+            # inconsistent state -- better read the on-disk counter
+            self._readCurrentCounter()
         self._counter += 1
         if self.globalcounter:
             updateFileCounter(self.globalcounter, self._counter)

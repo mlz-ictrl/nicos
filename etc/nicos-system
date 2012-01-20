@@ -134,13 +134,16 @@ elif action == 'restart':
         sys.argv[0], dmns, sys.argv[0], dmns))
 
 elif action == 'status':
+    exitstatus = 0
     for name in daemons:
         pid = read_pidfile(name)
         if pid:
             print '%-10s: running (pid = %s)' % (name, pid)
         else:
             print '%-10s: dead' % name
+            exitstatus = 1
+    sys.exit(exitstatus)
 
 else:
     print >>sys.stderr, 'Usage: %s start|stop|restart|status' % sys.argv[0]
-    sys.exit(1)
+    sys.exit(2)
