@@ -57,6 +57,9 @@ Changelog for NICOS 2
 
   - Added "localcontact" parameter for experiment.
 
+  - The "pollinterval" parameter of readables can now be None, to disable
+    polling.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless
