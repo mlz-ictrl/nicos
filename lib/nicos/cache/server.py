@@ -210,7 +210,7 @@ class CacheWorker(object):
         # extract and clean up individual values
         time, ttl, tsop, key, op, value = match.groups()
         key = key.lower()
-        value = value or None
+        value = value or None  # no value -> value gets deleted
         try:
             time = float(time)
         except (TypeError, ValueError):
