@@ -257,6 +257,8 @@ def nonemptylistof(conv):
     return converter
 
 def tupleof(*types):
+    if not types:
+        raise ProgrammingError('tupleof() needs some types as arguments')
     def converter(val=None):
         if val is None:
             return tuple(type() for type in types)

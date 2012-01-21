@@ -127,8 +127,8 @@ class DeviceMeta(type):
                     if param not in self._params:
                         self._initParam(param)
                     if self._cache:
-                        value = self._cache.get(self, param)
-                        if value is not None:
+                        value = self._cache.get(self, param, Ellipsis)
+                        if value is not Ellipsis:
                             self._params[param] = value
                             return value
                     return self._params[param]
@@ -413,10 +413,11 @@ class Device(object):
                 raise ConfigurationError(self, 'missing configuration '
                                          'parameter %r' % param)
             # try to get from cache
-            value = None
+            value = Ellipsis  # Ellipsis representing "no value" since None
+                              # is a valid value for some parameters
             if self._cache:
-                value = self._cache.get(self, param)
-            if value is not None:
+                value = self._cache.get(self, param, Ellipsis)
+            if value is not Ellipsis:
                 if param in self._config:
                     cfgvalue = self._config[param]
                     if cfgvalue != value:
