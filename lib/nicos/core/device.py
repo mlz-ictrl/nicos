@@ -127,8 +127,8 @@ class DeviceMeta(type):
                     if param not in self._params:
                         self._initParam(param)
                     if self._cache:
-                        value = self._cache.get(self, param)
-                        if value is not None:
+                        value = self._cache.get(self, param, Ellipsis)
+                        if value is not Ellipsis:
                             self._params[param] = value
                             return value
                     return self._params[param]
@@ -372,7 +372,12 @@ class Device(object):
            ``self._mode != 'simulation'``.
         """
         # validate and create attached devices
-        for aname, (cls, _) in sorted(self.attached_devices.iteritems()):
+        for aname, entry in sorted(self.attached_devices.iteritems()):
+            if not isinstance(entry, tuple) or len(entry) != 2:
+                raise ProgrammingError(self, 'attached device entry for %r is '
+                                       'invalid; the value should be of the '
+                                       'form (cls, docstring)' % aname)
+            cls = entry[0]
             if aname not in self._config:
                 raise ConfigurationError(
                     self, 'device misses device %r in configuration' % aname)
@@ -413,10 +418,11 @@ class Device(object):
                 raise ConfigurationError(self, 'missing configuration '
                                          'parameter %r' % param)
             # try to get from cache
-            value = None
+            value = Ellipsis  # Ellipsis representing "no value" since None
+                              # is a valid value for some parameters
             if self._cache:
-                value = self._cache.get(self, param)
-            if value is not None:
+                value = self._cache.get(self, param, Ellipsis)
+            if value is not Ellipsis:
                 if param in self._config:
                     cfgvalue = self._config[param]
                     if cfgvalue != value:
@@ -681,9 +687,11 @@ class Readable(Device):
         'maxage':       Param('Maximum age of cached value and status (or None '
                               'to cache them indefinitely)', unit='s',
                               type=none_or(floatrange(0, 24*3600)),
-                              default=6, settable=True),
-        'pollinterval': Param('Polling interval for value and status',
-                              unit='s', default=5, settable=True),
+                              default=6.0, settable=True),
+        'pollinterval': Param('Polling interval for value and status (or None '
+                              'to disable polling)', unit='s',
+                              type=none_or(floatrange(0.5, 24*3600)),
+                              default=5.0, settable=True),
     }
 
     def init(self):

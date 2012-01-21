@@ -128,6 +128,9 @@ class ImageStorage(Device, NeedsDatapath):
     def doUpdateDatapath(self, value):
         # always use only first data path
         self._datapath = path.join(value[0], self.subdir)
+        self._readCurrentCounter()
+
+    def _readCurrentCounter(self):
         self._counter = readFileCounter(path.join(self._datapath, 'counter'))
         self._setROParam('lastfilenumber', self._counter)
         self._setROParam('lastfilename', self._getFilename(self._counter))
@@ -138,12 +141,15 @@ class ImageStorage(Device, NeedsDatapath):
     def _newFile(self, increment=True):
         if self._datapath is None:
             self.datapath = session.experiment.datapath
-        self.lastfilename = path.join(
-            self._datapath, self._getFilename(self._counter))
-        self.lastfilenumber = self._counter
+        if self.lastfilenumber != self._counter:
+            # inconsistent state -- better read the on-disk counter
+            self._readCurrentCounter()
         if increment:
             self._counter += 1
         updateFileCounter(path.join(self._datapath, 'counter'), self._counter)
+        self.lastfilename = path.join(self._datapath,
+                                      self._getFilename(self._counter))
+        self.lastfilenumber = self._counter
 
     def _writeFile(self, content, exists_ok=False):
         if path.isfile(self.lastfilename) and not exists_ok:
