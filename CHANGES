@@ -55,6 +55,8 @@ Changelog for NICOS 2
 
   - When calling "stop()" without devices, stop all devices in parallel.
 
+  - Added "localcontact" parameter for experiment.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless
@@ -66,6 +68,9 @@ Changelog for NICOS 2
     sys.path instead of appending.
 
   - Fixed TAS wavevectors to always move in inverse angstroms.
+
+  - Fixed data file counting bug: when two sessions were writing data
+    files, they could use the same counter and try to write the same file.
 
 **Release 2.0.0 (2012-01-11)**
 
