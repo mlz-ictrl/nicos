@@ -36,4 +36,13 @@ devices = dict(
                           fmtstr = '[%7.2f, %7.2f, %7.2f, %7.2f, %7.2f, %7.2f, %7.2f]',
                           pollinterval = 10,
                           maxage = 12),
+
+    chdelaybus   = device('nicos.toftof.toni.ModBus',
+                          tacodevice = 'toftof/rs232/ifchdelay',
+                          lowlevel = True),
+    chdelay      = device('nicos.toftof.toni.DelayBox',
+                          bus = 'chdelaybus',
+                          addr = 0xF1,
+                          unit = '', # ???
+                          fmtstr = '%d'),
 )

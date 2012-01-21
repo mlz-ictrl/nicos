@@ -1,4 +1,4 @@
-description = 'bio furnace aka Julabo '
+description = 'Julabo bio furnace'
 includes = ['system']
 
 devices = dict(

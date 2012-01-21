@@ -1,4 +1,4 @@
-description = 'high temperature furnace'
+description = 'FRM-II high temperature furnace'
 includes = ['system']
 
 devices = dict(

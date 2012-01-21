@@ -1,7 +1,15 @@
 description = 'complete measurement'
 
-includes = ['detector', 'chopper', 'chdelay', 'voltage', 'safety', 'shutter', 'vacuum', 'power']
-includes += ['table', 'rc', 'slit']
+includes = [
+    'detector',
+    'chopper',
+    'vacuum',
+    'voltage',
+    'safety',
+    'reactor',
+    'table',
+    'slit',
+]
 
 devices = dict(
     m = device('nicos.toftof.measurement.TofTofMeasurement',

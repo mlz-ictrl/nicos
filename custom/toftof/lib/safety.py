@@ -27,8 +27,10 @@
 
 __version__ = "$Revision$"
 
-from nicos.core import Readable, Override, status
-from nicos.taco import DigitalInput
+from time import sleep
+
+from nicos.core import Readable, Moveable, Override, status, oneofdict
+from nicos.taco import DigitalInput, DigitalOutput
 
 try:
     bin
@@ -109,8 +111,9 @@ class SafetyInputs(Readable):
     }
 
     parameter_overrides = {
-        'unit': Override(mandatory=False),
+        'unit':   Override(mandatory=False),
         'fmtstr': Override(default='%d'),
+        'maxage': Override(default=0),
     }
 
     def doRead(self):
@@ -128,3 +131,48 @@ class SafetyInputs(Readable):
                 (self._adevs['i7053_2'].read() << 16) |
                 (self._adevs['i7053_3'].read() << 32))
         return status.OK, str(state)
+
+
+class Shutter(Moveable):
+    """TOFTOF Shutter Control."""
+
+    attached_devices = {
+        'open':   (DigitalOutput, 'Shutter open button device'),
+        'close':  (DigitalOutput, 'Shutter close button device'),
+        'status': (DigitalOutput, 'Shutter status device'),
+    }
+
+    parameter_overrides = {
+        'unit':   Override(mandatory=False),
+        'fmtstr': Override(default='%s'),
+    }
+
+    valuetype = oneofdict({0: 'closed', 1: 'open'})
+
+    def doStart(self, target):
+        if target == 'open':
+            self._adevs['open'].start(1)
+            sleep(0.01)
+            self._adevs['open'].start(0)
+        else:
+            self._adevs['close'].start(1)
+            sleep(0.01)
+            self._adevs['close'].start(0)
+
+    def doStop(self):
+        self.log.info('note: shutter collimator does not use stop() anymore, '
+                      'use move(%s, "closed")' % self)
+
+    def doRead(self):
+        ret = self._adevs['status'].read()
+        if ret == 1:
+            return 'closed'
+        else:
+            return 'open'
+
+    def doStatus(self):
+        ret = self.read(0)
+        if ret == 'open':
+            return status.BUSY, 'open'
+        else:
+            return status.OK, 'closed'
