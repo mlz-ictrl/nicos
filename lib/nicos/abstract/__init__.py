@@ -135,13 +135,14 @@ class ImageStorage(Device, NeedsDatapath):
     def _getFilename(self, counter):
         return self.nametemplate % counter
 
-    def _newFile(self):
+    def _newFile(self, increment=True):
         if self._datapath is None:
             self.datapath = session.experiment.datapath
         self.lastfilename = path.join(
             self._datapath, self._getFilename(self._counter))
         self.lastfilenumber = self._counter
-        self._counter += 1
+        if increment:
+            self._counter += 1
         updateFileCounter(path.join(self._datapath, 'counter'), self._counter)
 
     def _writeFile(self, content, exists_ok=False):
