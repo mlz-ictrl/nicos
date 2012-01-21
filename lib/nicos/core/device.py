@@ -372,7 +372,12 @@ class Device(object):
            ``self._mode != 'simulation'``.
         """
         # validate and create attached devices
-        for aname, (cls, _) in sorted(self.attached_devices.iteritems()):
+        for aname, entry in sorted(self.attached_devices.iteritems()):
+            if not isinstance(entry, tuple) or len(entry) != 2:
+                raise ProgrammingError(self, 'attached device entry for %r is '
+                                       'invalid; the value should be of the '
+                                       'form (cls, docstring)' % aname)
+            cls = entry[0]
             if aname not in self._config:
                 raise ConfigurationError(
                     self, 'device misses device %r in configuration' % aname)
