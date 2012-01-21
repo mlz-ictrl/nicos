@@ -351,21 +351,21 @@ class CacheClient(BaseCacheClient):
     def removeCallback(self, dev, key):
         self._callbacks.pop(('%s/%s' % (dev, key)).lower(), None)
 
-    def get(self, dev, key):
+    def get(self, dev, key, default=None):
         self._startup_done.wait()
         dbkey = ('%s/%s' % (dev, key)).lower()
         entry = self._db.get(dbkey)
         if entry is None:
             self.log.debug('%s not in cache' % dbkey)
-            return None
+            return default
         value, time, ttl = entry
         if ttl and time + ttl < currenttime():
             self.log.debug('%s timed out' % dbkey)
             del self._db[dbkey]
-            return None
+            return default
         return value
 
-    def get_explicit(self, dev, key):
+    def get_explicit(self, dev, key, default=None):
         """Get a value from the cache server, bypassing the local cache.  This
         is needed if the current update time and ttl is required.
         """
@@ -375,9 +375,12 @@ class CacheClient(BaseCacheClient):
         for msgmatch in self._single_request(tosend):
             time, ttl, value = msgmatch.group('time'), msgmatch.group('ttl'), \
                                msgmatch.group('value')
+            if value:
+                return (time and float(time), ttl and float(ttl),
+                        cache_load(value))
             return (time and float(time), ttl and float(ttl),
-                    cache_load(value or 'None'))
-        return (None, None, None)  # shouldn't happen
+                    default)
+        return (None, None, default)  # shouldn't happen
 
     def put(self, dev, key, value, time=None, ttl=None):
         if ttl == 0:
@@ -414,7 +417,7 @@ class CacheClient(BaseCacheClient):
                 msg = '%s@%s/%s%s\r\n' % (time, self._prefix, dbkey, OP_TELL)
                 self._db.pop(dbkey, None)
                 self._queue.put(msg)
-                self._propagate((time, dbkey, OP_TELL, None))
+                self._propagate((time, dbkey, OP_TELL, ''))
 
     def invalidate(self, dev, key):
         dbkey = ('%s/%s' % (dev, key)).lower()
