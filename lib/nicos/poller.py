@@ -264,6 +264,8 @@ class Poller(Device):
             new_setups = set(value) & set(self.poll)
         new_setups.difference_update(self.neverpoll)
         new_setups.update(self.alwayspoll)
+        if not new_setups:  # setup list shouldn't be empty, see above
+            new_setups.add('<dummy>')
         self._setups = new_setups
 
         for setup in old_setups - new_setups:
