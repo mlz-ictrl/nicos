@@ -105,9 +105,11 @@ def listcommands():
             real_func = getattr(obj, 'real_func', obj)
             argspec = inspect.formatargspec(*inspect.getargspec(real_func))
             docstring = real_func.__doc__ or ' '
+            signature = real_func.__name__ + argspec
+            if len(signature) > 50:
+                signature = signature[:47] + '...'
             if not real_func.__name__.startswith('_'):
-                items.append((real_func.__name__ + argspec,
-                              docstring.splitlines()[0]))
+                items.append((signature, docstring.splitlines()[0]))
     items.sort()
     printTable(('name', 'description'), items, printinfo)
 
@@ -253,6 +255,12 @@ def CreateAllDevices():
 @usercommand
 def NewExperiment(proposal, title='', **parameters):
     """Start a new experiment with the given proposal number and title.
+
+    You can also give a "localcontact" argument.  Users can be added with
+    `AddUser`.  Example:
+
+    >>> NewExperiment(5401, 'Dynamics of H2O', localcontact='L. Ocal')
+    >>> AddUser('F. User', 'friendlyuser@frm2.tum.de')
 
     When configured, proposal information will be automatically filled in from
     the proposal database.

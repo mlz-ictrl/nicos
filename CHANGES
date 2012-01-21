@@ -55,6 +55,8 @@ Changelog for NICOS 2
 
   - When calling "stop()" without devices, stop all devices in parallel.
 
+  - Added "localcontact" parameter for experiment.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless
