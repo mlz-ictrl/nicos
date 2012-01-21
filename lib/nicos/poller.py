@@ -85,14 +85,18 @@ class Poller(Device):
             wait_event = event.wait
             clear_event = event.clear
             interval = dev.pollinterval
+            active = interval is not None
+            if interval is None:
+                interval = 3600
             errcount = 0
             i = 0
             while not self._stoprequest:
                 i += 1
                 try:
-                    stval, rdval = dev.poll(i)
-                    self.log.debug('%-10s status = %-25s, value = %s' %
-                                   (dev, stval, rdval))
+                    if active:
+                        stval, rdval = dev.poll(i)
+                        self.log.debug('%-10s status = %-25s, value = %s' %
+                                       (dev, stval, rdval))
                 except Exception, err:
                     if errcount < 5:
                         # only print the warning the first five times
@@ -105,16 +109,19 @@ class Poller(Device):
                     if errcount > 0:
                         interval = dev.pollinterval
                         errcount = 0
-                    if state[0] == 'nowmoving':
-                        interval = 0.5
-                        state[0] = 'moving'
-                    elif state[0] == 'moving':
-                        if stval and stval[0] != status.BUSY:
-                            state[0] = 'normal'
-                            interval = dev.pollinterval
-                    elif state[0] == 'newinterval':
-                        interval = dev.pollinterval
+                if state[0] == 'nowmoving':
+                    interval = 0.5
+                    state[0] = 'moving'
+                elif state[0] == 'moving':
+                    if stval and stval[0] != status.BUSY:
                         state[0] = 'normal'
+                        interval = dev.pollinterval
+                elif state[0] == 'newinterval':
+                    interval = dev.pollinterval
+                    active = interval is not None
+                    if interval is None:
+                        interval = 3600
+                    state[0] = 'normal'
                 wait_event(interval)
                 clear_event()
 

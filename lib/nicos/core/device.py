@@ -682,9 +682,11 @@ class Readable(Device):
         'maxage':       Param('Maximum age of cached value and status (or None '
                               'to cache them indefinitely)', unit='s',
                               type=none_or(floatrange(0, 24*3600)),
-                              default=6, settable=True),
-        'pollinterval': Param('Polling interval for value and status',
-                              unit='s', default=5, settable=True),
+                              default=6.0, settable=True),
+        'pollinterval': Param('Polling interval for value and status (or None '
+                              'to disable polling)', unit='s',
+                              type=none_or(floatrange(0.5, 24*3600)),
+                              default=5.0, settable=True),
     }
 
     def init(self):
