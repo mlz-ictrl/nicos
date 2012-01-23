@@ -18,6 +18,9 @@ Changelog for NICOS 2
 
   - Fixed TAS wavevectors to always move in inverse angstroms.
 
+  - The Axis now correctly resets the error state on multiple positioning
+    tries.
+
 **Release 2.0.0 (2012-01-11)**
 
   - Initial release.

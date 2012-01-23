@@ -355,6 +355,7 @@ class Axis(BaseAxis):
                     # sets the motor to this position and restart it
                     # _getReading is the 'real' value, may ask the coder again
                     # (so could slow down!)
+                    self._errorstate = None
                     self._adevs['motor'].setPosition(self._getReading())
                     # XXX exception handling!
                     self._adevs['motor'].start(target + self.offset)
