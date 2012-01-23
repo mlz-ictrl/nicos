@@ -1,5 +1,5 @@
 CONFIG += qt debug
-# TEMPLATE = lib
+TEMPLATE = lib
 
 INCLUDEPATH += . /usr/include/qwt5
 LIBS += -lqwt
