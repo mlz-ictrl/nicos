@@ -30,7 +30,7 @@ import time
 import random
 import threading
 
-from nicos.core import status, tacodev, tupleof, Readable, HasOffset, Param, requires
+from nicos.core import status, tacodev, tupleof, Readable, HasOffset, Param
 from nicos.abstract import Motor, Coder
 from nicos.taco.detector import FRMTimerChannel, FRMCounterChannel
 
@@ -46,7 +46,6 @@ class VirtualMotor(Motor, HasOffset):
                            settable=True, default=(status.OK, 'idle')),
     }
 
-    @requires(mode='maintenance')
     def doStart(self, pos):
         pos = float(pos) + self.offset
         self.curstatus = (status.BUSY, 'virtual moving')
