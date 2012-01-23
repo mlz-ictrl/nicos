@@ -106,7 +106,7 @@ class Dev2(HasLimits, HasOffset, Moveable):
         return [('testversion', 1.0)]
 
     @usermethod
-    @requires(level=ADMIN)
+    @requires(level=ADMIN, mode='maintenance')
     def calibrate(self):
         return True
 
