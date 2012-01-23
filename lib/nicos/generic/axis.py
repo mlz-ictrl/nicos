@@ -31,7 +31,7 @@ import threading
 from time import sleep
 
 from nicos.core import status, HasOffset, Override, ConfigurationError, \
-     NicosError, PositionError, MoveError, waitForStatus
+     NicosError, PositionError, MoveError, waitForStatus, floatrange, Param
 from nicos.abstract import Axis as BaseAxis, Motor, Coder
 
 
@@ -53,6 +53,11 @@ class Axis(BaseAxis):
         # these are not mandatory for the axis: the motor should have them
         # defined anyway, and by default they are correct for the axis as well
         'abslimits': Override(mandatory=False),
+    }
+
+    parameters = {
+        'airpadjitter': Param('Amount of Position-Jitter caused by airpads (defaults to 0=no Jitter)',
+                          type=floatrange(0.0,10.0), default=0.0, settable=True),
     }
 
     def doInit(self):
@@ -250,12 +255,18 @@ class Axis(BaseAxis):
         This method sets the error state and returns False if a drag error
         occurs, and returns True otherwise.
         """
-        delta_last = abs(self._lastpos - target)
+        #~ delta_last = abs(self._lastpos - target)
+        delta_last = self._lastdiff
         delta_curr = abs(pos - target)
         self.log.debug('position delta: %s, was %s' % (delta_curr, delta_last))
         self._lastpos = pos
         # at the end of the move, the motor can slightly overshoot
-        ok = delta_last >= delta_curr or delta_curr < self.precision
+        # during movement we also allow for small jitter, since airpads usually wiggle a little 
+        # resulting in non monotonic movement!
+        ok = ( delta_last >= ( delta_curr - self.airpadjitter )) or delta_curr < self.precision
+        # since we allow to move away a little, we want to remember the smallest distance so far
+        # so that we can detect a slow crawl away from the target which we would otherwise miss
+        self._lastdiff = min( delta_last, delta_curr )
         if not ok:
             return self._setErrorState(MoveError,
                 'not moving to target: last delta %f, current delta %f'
@@ -326,6 +337,7 @@ class Axis(BaseAxis):
         self._adevs['motor'].start(target + offset)
         moving = True
         devs = [self._adevs['motor'], self._adevs['coder']] + self._adevs['obs']
+        self._lastdiff = abs( target - self._adevs['coder'].read() - self.offset) # init _lastdiff before starting movement
 
         while moving:
             if self._stoprequest == 1:
