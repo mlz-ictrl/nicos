@@ -46,7 +46,6 @@ class VirtualMotor(Motor, HasOffset):
                            settable=True, default=(status.OK, 'idle')),
     }
 
-    @requires(mode='maintenance')
     def doStart(self, pos):
         pos = float(pos) + self.offset
         self.curstatus = (status.BUSY, 'virtual moving')
