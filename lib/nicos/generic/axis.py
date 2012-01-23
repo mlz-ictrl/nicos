@@ -56,8 +56,8 @@ class Axis(BaseAxis):
     }
 
     parameters = {
-        'airpadjitter': Param('Amount of Position-Jitter caused by airpads (defaults to 0=no Jitter)',
-                          type=floatrange(0.0,10.0), default=0.0, settable=True),
+        'jitter': Param('Amount of position jitter allowed', unit='main',
+                        type=floatrange(0.0, 10.0), settable=True),
     }
 
     def doInit(self):
@@ -260,13 +260,15 @@ class Axis(BaseAxis):
         delta_curr = abs(pos - target)
         self.log.debug('position delta: %s, was %s' % (delta_curr, delta_last))
         self._lastpos = pos
-        # at the end of the move, the motor can slightly overshoot
-        # during movement we also allow for small jitter, since airpads usually wiggle a little 
-        # resulting in non monotonic movement!
-        ok = ( delta_last >= ( delta_curr - self.airpadjitter )) or delta_curr < self.precision
-        # since we allow to move away a little, we want to remember the smallest distance so far
-        # so that we can detect a slow crawl away from the target which we would otherwise miss
-        self._lastdiff = min( delta_last, delta_curr )
+        # at the end of the move, the motor can slightly overshoot during
+        # movement we also allow for small jitter, since airpads usually wiggle
+        # a little resulting in non monotonic movement!
+        ok = (delta_last >= (delta_curr - self.jitter)) or \
+            delta_curr < self.precision
+        # since we allow to move away a little, we want to remember the smallest
+        # distance so far so that we can detect a slow crawl away from the
+        # target which we would otherwise miss
+        self._lastdiff = min(delta_last, delta_curr)
         if not ok:
             return self._setErrorState(MoveError,
                 'not moving to target: last delta %f, current delta %f'
@@ -309,6 +311,7 @@ class Axis(BaseAxis):
             if self.backlash:
                 backlash = self.backlash
                 self._lastpos = lastpos = self.read(0)
+
                 # make sure not to move twice if coming from the side in the
                 # direction of the backlash
                 if backlash > 0 and lastpos < target + backlash:
@@ -318,11 +321,13 @@ class Axis(BaseAxis):
                 else:
                     positions = [target]
                 for pos in positions:
+                    self._lastdiff = abs(pos - self._lastpos)
                     self.__positioning(pos)
                     if self._stoprequest == 2 or self._errorstate:
                         break
             else:
                 self._lastpos = self.read(0)
+                self._lastdiff = abs(target - self._lastpos)
                 self.__positioning(target)
             try:
                 self._postMoveAction()
@@ -337,7 +342,6 @@ class Axis(BaseAxis):
         self._adevs['motor'].start(target + offset)
         moving = True
         devs = [self._adevs['motor'], self._adevs['coder']] + self._adevs['obs']
-        self._lastdiff = abs( target - self._adevs['coder'].read() - self.offset) # init _lastdiff before starting movement
 
         while moving:
             if self._stoprequest == 1:
