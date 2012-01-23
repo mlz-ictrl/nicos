@@ -255,11 +255,9 @@ class Axis(BaseAxis):
         This method sets the error state and returns False if a drag error
         occurs, and returns True otherwise.
         """
-        #~ delta_last = abs(self._lastpos - target)
         delta_last = self._lastdiff
         delta_curr = abs(pos - target)
         self.log.debug('position delta: %s, was %s' % (delta_curr, delta_last))
-        self._lastpos = pos
         # at the end of the move, the motor can slightly overshoot during
         # movement we also allow for small jitter, since airpads usually wiggle
         # a little resulting in non monotonic movement!
@@ -310,8 +308,7 @@ class Axis(BaseAxis):
             self._errorstate = None
             if self.backlash:
                 backlash = self.backlash
-                self._lastpos = lastpos = self.read(0)
-
+                lastpos = self.read(0)
                 # make sure not to move twice if coming from the side in the
                 # direction of the backlash
                 if backlash > 0 and lastpos < target + backlash:
@@ -321,13 +318,10 @@ class Axis(BaseAxis):
                 else:
                     positions = [target]
                 for pos in positions:
-                    self._lastdiff = abs(pos - self._lastpos)
                     self.__positioning(pos)
                     if self._stoprequest == 2 or self._errorstate:
                         break
             else:
-                self._lastpos = self.read(0)
-                self._lastdiff = abs(target - self._lastpos)
                 self.__positioning(target)
             try:
                 self._postMoveAction()
@@ -342,6 +336,7 @@ class Axis(BaseAxis):
         self._adevs['motor'].start(target + offset)
         moving = True
         devs = [self._adevs['motor'], self._adevs['coder']] + self._adevs['obs']
+        self._lastdiff = abs(target - self.read(0))
 
         while moving:
             if self._stoprequest == 1:
