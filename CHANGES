@@ -60,6 +60,9 @@ Changelog for NICOS 2
   - The "pollinterval" parameter of readables can now be None, to disable
     polling.
 
+  - The Axis class now has a "jitter" parameter that can account for
+    jitter in the movement, e.g. due to airpads.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless
