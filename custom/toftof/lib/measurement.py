@@ -86,7 +86,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         self._detinfolength = len(self._detinfo) - i
         dmap = {}
         for line in self._detinfo:
-            if not line.startswith('#') :
+            if not line.startswith('#'):
                 ls = line.split()
                 if 'None' not in ls[13]:
                     dmap[int(ls[12])] = float(ls[5])
@@ -371,7 +371,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
             np.savetxt(fp, counts, '%d')
             os.fsync(fp)
         try:
-            treated = counts.T[self._anglemap, :].copy()
+            treated = counts.T[self._anglemap, :].astype('<I4')
             ndet = treated.shape[0]
             session.updateLiveData('toftof', self.lastfilename, '<I4',
                                    1024, ndet, 1, meastime, buffer(treated))

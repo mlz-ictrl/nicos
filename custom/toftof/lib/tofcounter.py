@@ -89,10 +89,6 @@ class TofCounter(Measurable):
         self._timer.Start()
         self._monitor.Start()
 
-    def duringMeasureHook(self, i):
-        #print self._timer.ReadDouble()
-        pass
-    
     def doStop(self):
         self._counter.DevOn()
         self._timer.DevOn()
