@@ -198,9 +198,12 @@ class Experiment(Device):
                            ', '.join(what))
 
     @usermethod
-    def addUser(self, name, email, affiliation=None):
+    def addUser(self, name, email=None, affiliation=None):
         """Called by `.AddUser`."""
-        user = '%s <%s>' % (name, email)
+        if email:
+            user = '%s <%s>' % (name, email)
+        else:
+            user = name
         if affiliation is not None:
             user += ', ' + affiliation
         self.users = self.users + [user]

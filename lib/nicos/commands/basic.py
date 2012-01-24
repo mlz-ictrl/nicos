@@ -276,7 +276,7 @@ def FinishExperiment(**kwargs):
     session.experiment.finish(**kwargs)
 
 @usercommand
-def AddUser(name, email, affiliation=None):
+def AddUser(name, email=None, affiliation=None):
     """Add a new user to the experiment."""
     session.experiment.addUser(name, email, affiliation)
 
