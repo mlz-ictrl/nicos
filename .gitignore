@@ -12,6 +12,7 @@ nicos.conf
 data/*.dat
 data/filecounter
 data/cache/*
+data/ccd/*
 data/logbook/*
 data/cascade/*
 
@@ -28,6 +29,8 @@ cover/
 
 test/root/
 
+\#*
+.#*
 *.o
 *.a
 *.moc

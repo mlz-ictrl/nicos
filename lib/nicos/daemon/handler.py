@@ -290,7 +290,7 @@ class ConnectionHandler(BaseRequestHandler):
                     self.log.warning('broken pipe in event sender')
                     break
                 self.log.exception('exception in event sender; '
-                                   'event: %s, data: %r' % (event, data))
+                                   'event: %s, data: %s' % (event, repr(data)[:1000]))
         self.log.debug('closing event connection')
         sock.close()
 
