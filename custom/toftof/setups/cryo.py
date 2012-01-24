@@ -66,6 +66,7 @@ devices = dict(
 )
 
 startupcode = """
-Ts = cryo
-T = cryo_a
+T = cryo
+Ts = cryo_a
+SetEnvironment(Ts, T)
 """

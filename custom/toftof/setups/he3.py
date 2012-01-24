@@ -31,4 +31,5 @@ devices = dict(
 startupcode = """
 T = he3
 Ts = sensor_a
+SetEnvironment(Ts, T)
 """

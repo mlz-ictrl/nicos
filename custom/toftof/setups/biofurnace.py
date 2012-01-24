@@ -22,4 +22,5 @@ devices = dict(
 startupcode = """
 Ts = bio
 T = bio
+SetEnvironment(Ts, T)
 """

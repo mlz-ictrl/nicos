@@ -18,3 +18,7 @@ devices = dict(
                chdelay = 'chdelay',
                counter = 'det'),
 )
+
+startupcode = """
+SetDetectors(m)
+"""

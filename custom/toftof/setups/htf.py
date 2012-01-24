@@ -13,4 +13,5 @@ devices = dict(
 startupcode = """
 Ts = oven
 T = oven
+SetEnvironment(Ts, T)
 """
