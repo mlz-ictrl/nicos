@@ -265,16 +265,16 @@ class SlitAxis(Moveable, AutoDevice):
 
     def doRead(self):
         # XXX read() or read(0)
-        positions = map(lambda d: d.read(), self._adevs['slit']._axes)
+        positions = self._adevs['slit']._doReadPositions()
         return self._convertRead(positions)
 
     def doStart(self, target):
-        currentpos = map(lambda d: d.read(0), self._adevs['slit']._axes)
+        currentpos = self._adevs['slit']._doReadPositions()
         positions = self._convertStart(target, currentpos)
         self._adevs['slit']._doStartPositions(positions)
 
     def doIsAllowed(self, target):
-        currentpos = map(lambda d: d.read(0), self._adevs['slit']._axes)
+        currentpos = self._adevs['slit']._doReadPositions()
         positions = self._convertStart(target, currentpos)
         return self._adevs['slit']._doIsAllowedPositions(positions)
 
