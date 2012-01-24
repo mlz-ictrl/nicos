@@ -168,3 +168,8 @@ void LWWidget::updateLabels()
         m_plot->axisWidget(QwtPlot::yRight)->setTitle(
             m_data->isLog10() ? "log Counts" : "Counts");
 }
+
+void LWWidget::setControls(LWCtrl which)
+{
+    m_controls->setControls(which);
+}

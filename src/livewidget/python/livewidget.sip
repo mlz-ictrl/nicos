@@ -129,3 +129,18 @@ class LWWidget : QWidget
   signals:
     void dataUpdated(LWData *data);
 };
+
+%UnitCode
+#include "../lw_common.h"
+%End
+
+enum LWCtrl
+{
+    Logscale,
+    Grayscale,
+    Cyclic,
+    CreateProfile,
+    Histogram,
+    MinimumMaximum,
+    BrightnessContrast
+};

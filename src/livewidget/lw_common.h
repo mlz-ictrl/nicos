@@ -17,62 +17,21 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Module authors:
-//   Tobias Weber <tobias.weber@frm2.tum.de>
 //   Georg Brandl <georg.brandl@frm2.tum.de>
 //
 // *****************************************************************************
 
-#ifndef LW_WIDGET_H
-#define LW_WIDGET_H
+#ifndef LW_COMMON_H
+#define LW_COMMON_H
 
-#include "lw_plot.h"
-#include "lw_controls.h"
-#include "lw_common.h"
-
-
-class LWWidget : public QWidget
-{
-    Q_OBJECT
-
-  private:
-    bool m_bForceReinit;
-    void unload();
-
-  protected:
-    LWData *m_data;
-    LWPlot *m_plot;
-    LWControls *m_controls;
-
-    bool m_log10;
-
-  public:
-    LWWidget(QWidget *parent = NULL);
-    virtual ~LWWidget();
-
-    LWPlot *plot() { return m_plot; }
-
-    LWData *data() { return m_data; }
-    void setData(LWData *data);
-
-    bool isLog10() const;
-    bool keepAspect() const;
-    bool controlsVisible() const;
-
-    void setCustomRange(double lower, double upper);
-    void setStandardColorMap(bool greyscale, bool cyclic);
-    void setAxisLabels(const char *xaxis, const char *yaxis);
-
-  public slots:
-    void setLog10(bool val);
-    void setKeepAspect(bool val);
-    void setControlsVisible(bool val);
-    void setControls(LWCtrl which);
-
-    void updateGraph(bool newdata=true);
-    void updateLabels();
-
-  signals:
-    void dataUpdated(LWData *data);
+enum LWCtrl {
+    Logscale             = 0x001,
+    Grayscale            = 0x002,
+    Cyclic               = 0x004,
+    CreateProfile        = 0x008,
+    Histogram            = 0x010,
+    MinimumMaximum       = 0x020,
+    BrightnessContrast   = 0x080
 };
 
 #endif

@@ -38,7 +38,7 @@ from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, \
 
 from nicos.gui.utils import loadUi
 from nicos.gui.panels import Panel
-from nicos.gui.livewidget import LWWidget, LWData
+from nicos.gui.livewidget import LWWidget, LWData, Logscale, MinimumMaximum
 
 DATATYPES = frozenset(('<I4', '<i4', '>I4', '>i4', '<I2', '<i2', '>I2', '>i2',
                        'I1', 'i1', 'f8', 'f4'))
@@ -67,6 +67,7 @@ class LiveDataPanel(Panel):
         self.widget.setAxisLabels('time channels', 'detectors')
         self.widget.setContextMenuPolicy(Qt.CustomContextMenu)
         self.widget.setKeepAspect(False)
+        #self.widget.setControls(Logscale | MinimumMaximum)
         self.widgetLayout.addWidget(self.widget)
 
         self.liveitem = QListWidgetItem('<Live>', self.fileList)

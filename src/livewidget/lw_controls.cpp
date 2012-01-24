@@ -90,7 +90,6 @@ LWControls::~LWControls()
 
 void LWControls::setupUi()
 {
-    QLabel *wLabel, *minLabel, *maxLabel, *brtLabel, *ctrLabel;
     QGridLayout *gridLayout;
     QHBoxLayout *hLayout;
 
@@ -126,16 +125,16 @@ void LWControls::setupUi()
     profLine2->attach(m_widget->plot());
 
     hLayout = new QHBoxLayout();
-    wLabel = new QLabel("profile width:", this);
-    hLayout->addWidget(wLabel);
+    profileWidthLabel = new QLabel("profile width:", this);
+    hLayout->addWidget(profileWidthLabel);
     profileWidth = new QSpinBox(this);
     profileWidth->setRange(1, 65536);
     hLayout->addWidget(profileWidth);
     mainLayout->addLayout(hLayout);
 
     hLayout = new QHBoxLayout();
-    wLabel = new QLabel("profile binning:", this);
-    hLayout->addWidget(wLabel);
+    profileBinsLabel = new QLabel("profile binning:", this);
+    hLayout->addWidget(profileBinsLabel);
     profileBins = new QSpinBox(this);
     profileBins->setRange(1, 256);
     hLayout->addWidget(profileBins);
@@ -178,9 +177,9 @@ void LWControls::setupUi()
 
     gridLayout = new QGridLayout();
 
-    minLabel = new QLabel("minimum", this);
-    minLabel->setSizePolicy(labelSizePolicy);
-    gridLayout->addWidget(minLabel, 0, 0, 1, 1);
+    minSliderLabel = new QLabel("minimum", this);
+    minSliderLabel->setSizePolicy(labelSizePolicy);
+    gridLayout->addWidget(minSliderLabel, 0, 0, 1, 1);
 
     minSlider = new QSlider(this);
     minSlider->setSizePolicy(sliderSizePolicy);
@@ -189,9 +188,9 @@ void LWControls::setupUi()
     minSlider->setOrientation(Qt::Horizontal);
     gridLayout->addWidget(minSlider, 0, 1, 1, 1);
 
-    maxLabel = new QLabel("maximum", this);
-    maxLabel->setSizePolicy(labelSizePolicy);
-    gridLayout->addWidget(maxLabel, 1, 0, 1, 1);
+    maxSliderLabel = new QLabel("maximum", this);
+    maxSliderLabel->setSizePolicy(labelSizePolicy);
+    gridLayout->addWidget(maxSliderLabel, 1, 0, 1, 1);
 
     maxSlider = new QSlider(this);
     maxSlider->setSizePolicy(sliderSizePolicy);
@@ -201,9 +200,9 @@ void LWControls::setupUi()
     maxSlider->setOrientation(Qt::Horizontal);
     gridLayout->addWidget(maxSlider, 1, 1, 1, 1);
 
-    brtLabel = new QLabel("brightness", this);
-    brtLabel->setSizePolicy(labelSizePolicy);
-    gridLayout->addWidget(brtLabel, 2, 0, 1, 1);
+    brtSliderLabel = new QLabel("brightness", this);
+    brtSliderLabel->setSizePolicy(labelSizePolicy);
+    gridLayout->addWidget(brtSliderLabel, 2, 0, 1, 1);
 
     brtSlider = new QSlider(this);
     brtSlider->setSizePolicy(sliderSizePolicy);
@@ -213,9 +212,9 @@ void LWControls::setupUi()
     brtSlider->setOrientation(Qt::Horizontal);
     gridLayout->addWidget(brtSlider, 2, 1, 1, 1);
 
-    ctrLabel = new QLabel("contrast", this);
-    ctrLabel->setSizePolicy(labelSizePolicy);
-    gridLayout->addWidget(ctrLabel, 3, 0, 1, 1);
+    ctrSliderLabel = new QLabel("contrast", this);
+    ctrSliderLabel->setSizePolicy(labelSizePolicy);
+    gridLayout->addWidget(ctrSliderLabel, 3, 0, 1, 1);
 
     ctrSlider = new QSlider(this);
     ctrSlider->setSizePolicy(sliderSizePolicy);
@@ -455,6 +454,29 @@ void LWControls::updateProfBins(int b)
     }
 }
 
+void LWControls::setControls(LWCtrl which)
+{
+    logscaleBox->setVisible(which & Logscale);
+    grayscaleBox->setVisible(which & Grayscale);
+    cyclicBox->setVisible(which & Cyclic);
+
+    profileButton->setVisible(which & CreateProfile);
+    profileWidth->setVisible(which & CreateProfile);
+    profileBins->setVisible(which & CreateProfile);
+    profileWidthLabel->setVisible(which & CreateProfile);
+    profileBinsLabel->setVisible(which & CreateProfile);
+
+    histoPlot->setVisible(which & Histogram);
+    
+    minSlider->setVisible(which & MinimumMaximum);
+    maxSlider->setVisible(which & MinimumMaximum);
+    minSliderLabel->setVisible(which & MinimumMaximum);
+    maxSliderLabel->setVisible(which & MinimumMaximum);
+    brtSlider->setVisible(which & BrightnessContrast);
+    ctrSlider->setVisible(which & BrightnessContrast);
+    brtSliderLabel->setVisible(which & BrightnessContrast);
+    ctrSliderLabel->setVisible(which & BrightnessContrast);
+}
 
 /** LWProfileWindow ***********************************************************/
 

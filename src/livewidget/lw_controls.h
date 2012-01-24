@@ -41,6 +41,7 @@ class LWControls;
 
 #include "lw_widget.h"
 #include "lw_histogram.h"
+#include "lw_common.h"
 
 
 class LWProfileWindow : public QMainWindow
@@ -64,6 +65,8 @@ class LWControls : public QWidget
 {
     Q_OBJECT
 
+    friend class LWWidget;
+
   private:
     LWWidget *m_widget;
     bool m_sliderupdating;
@@ -86,11 +89,17 @@ class LWControls : public QWidget
     QCheckBox *cyclicBox;
     QPushButton *profileButton;
     QSpinBox *profileWidth;
+    QLabel *profileWidthLabel;
     QSpinBox *profileBins;
+    QLabel *profileBinsLabel;
     QSlider *minSlider;
+    QLabel *minSliderLabel;
     QSlider *maxSlider;
+    QLabel *maxSliderLabel;
     QSlider *brtSlider;
+    QLabel *brtSliderLabel;
     QSlider *ctrSlider;
+    QLabel *ctrSliderLabel;
 
     QwtPlot *histoPlot;
     LWHistogramItem *histogram;
@@ -102,6 +111,7 @@ class LWControls : public QWidget
     LWProfileWindow *profWindow;
 
     void setupUi();
+    void setControls(LWCtrl which);
 
   protected slots:
     void pickRange(const QwtDoubleRect &);
