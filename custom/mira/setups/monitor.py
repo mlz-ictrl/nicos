@@ -58,13 +58,14 @@ _column1 = [
         [{'key': 'mira/scanmode', 'name': 'Mode'},
          {'dev': 'mono', 'name': 'ki'}, {'dev': 'ana', 'name': 'kf'}, {'key': 'mira/energytransferunit', 'name': 'Unit'},],
     ], 'tas'),
+    ('MIRA Magnet', [[{'dev': 'I', 'name': 'I'}]], 'miramagnet'),
 ]
 
 _column2 = [
-    ('Slits', [[{'dev': 'ss1', 'name': 'Slit 1', 'width': 24, 'istext': True}],
-               [{'dev': 'ss2', 'name': 'Slit 2', 'width': 24, 'istext': True}]],
+    ('Slits', [[{'dev': 'ss1', 'name': 'Sample slit 1', 'width': 24, 'istext': True}],
+               [{'dev': 'ss2', 'name': 'Sample slit 2', 'width': 24, 'istext': True}]],
      'slits'),
-    ('Sample', [[{'dev': 'om'}, {'dev': 'phi'}],
+    ('Sample', [[{'dev': 'om'}, {'dev': 'srot'}, {'dev': 'phi'},],
                 [{'dev': 'stx'}, {'dev': 'sty'}, {'dev': 'stz'}],
                 [{'dev': 'sgx'}, {'dev': 'sgy'}]],
      'sample'),
@@ -79,7 +80,6 @@ _column2 = [
                     [{'dev': 'Tm1', 'max': 4.1}, {'dev': 'Tm2', 'max': 4.1},
                      {'dev': 'Tm3', 'max': 4.9}, {'dev': 'Tm4', 'max': 4.5}, 
                      {'dev': 'Tm8', 'max': 4.1}]], 'frm2magnet'),
-    ('MIRA Magnet', [[{'dev': 'I', 'name': 'I'}]], 'miramagnet'),
 ]
 
 _column3 = [
@@ -95,8 +95,9 @@ _column3 = [
                 {'dev': 'atten2', 'name': 'Att2', 'width': 4},
                 {'dev': 'flip2', 'name': 'Flip', 'width': 4}],
                [{'dev': 'lamfilter', 'name': 'Be', 'width': 4},
-                {'dev': 'TBe', 'name': 'Be Temp', 'width': 6, 'max': 60},
+                {'dev': 'TBe', 'name': 'Be Temp', 'width': 6, 'max': 65},
                 {'dev': 'PBe', 'name': 'Be P', 'width': 7, 'max': 1e-5}],
+               [{'dev': 'slit0', 'name': 'Mono slit 2'}],
               ],
      'mono2'),
     ('Analyzer', [[{'dev': 'ath'}, {'dev': 'att'}, {'dev': 'adr'}]],
@@ -109,9 +110,9 @@ _column3 = [
 ]
 
 _warnings = [
-#    ('psdgas/value', '== "empty"', 'Change detector counting gas'),
-#    ('TBe/value', '> 70', 'Check Be filter temperature'),
-#    ('sixfold/value', '== "closed"', 'Six-fold shutter closed'),
+    ('psdgas/value', '== "empty"', 'Change detector counting gas'),
+    ('TBe/value', '> 70', 'Check Be filter temperature'),
+    ('sixfold/value', '== "closed"', 'Six-fold shutter closed'),
 #    ('freq3/value', '> 9', 'freq3 under frequency', 'mieze'),
 #    ('freq4/value', '< 10', 'freq4 under frequency'),
 ]

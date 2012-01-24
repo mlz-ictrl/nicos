@@ -38,6 +38,11 @@ devices = dict(
                        addr = 241,
                        channel = 3,
                        states = ['in', 'out']),
+    slit0     = device('nicos.mira.toni.Valve',
+                       bus = 'MonoToni',
+                       addr = 241,
+                       channel = 5,
+                       states = ['out', 'in']),
 
     Shutter   = device('nicos.mira.shutter.Shutter',
                        tacodevice = 'mira/io/in_unused',
