@@ -346,6 +346,7 @@ class Wavelength(HasLimits, PropertyChanger):
     parameter_overrides = {
         'unit':  Override(mandatory=False, default='A'),
     }
+    valuetype = float
 
 
 class Speed(HasLimits, PropertyChanger):
@@ -353,6 +354,7 @@ class Speed(HasLimits, PropertyChanger):
     parameter_overrides = {
         'unit':  Override(mandatory=False, default='rpm'),
     }
+    valuetype = float
 
 
 class Ratio(PropertyChanger):

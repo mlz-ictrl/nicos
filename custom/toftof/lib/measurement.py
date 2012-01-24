@@ -371,7 +371,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
             np.savetxt(fp, counts, '%d')
             os.fsync(fp)
         try:
-            treated = counts.T[self._anglemap, :]
+            treated = counts.T[self._anglemap, :].copy()
             ndet = treated.shape[0]
             session.updateLiveData('toftof', self.lastfilename, '<I4',
                                    1024, ndet, 1, meastime, buffer(treated))
@@ -389,7 +389,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
             monrate = moncounts / meastime
             monrate_inst = (moncounts - self._lastmoncounts) / (meastime - self._lasttime)
             detrate = countsum / meastime
-            detrate_inst = - (countsum - self._lastcounts) / (meastime - self._lasttime)
+            detrate_inst = (countsum - self._lastcounts) / (meastime - self._lasttime)
             if tempinfo:
                 self.log.info('Sample:  current: %.4f %s, average: %.4f, '
                               'stddev: %.4f, min: %.4f, max: %.4f' % tempinfo)
