@@ -47,3 +47,9 @@ custom/mira/src/cascade/nicosclient/Makefile
 custom/mira/src/cascade/nicosclient/pythonbinding/Makefile
 custom/mira/src/cascade/nicoswidget/Makefile
 custom/mira/src/cascade/nicoswidget/pythonbinding/Makefile
+
+src/livewidget/livewidget
+src/livewidget/Makefile
+src/livewidget/python/Makefile
+src/livewidget/python/lw_*.cpp
+src/livewidget/python/lw_*.h

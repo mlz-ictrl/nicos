@@ -46,6 +46,8 @@ default_profile_config = ('Default', [
             panel('nicos.gui.panels.history.HistoryPanel')),
         window('Logbook', 'table', True,
             panel('nicos.gui.panels.elog.ELogPanel')),
+        window('Live data', 'live', True,
+            panel('nicos.gui.panels.live.LiveDataPanel')),
     ], [
         tool('Calculator',
             'nicos.gui.tools.calculator.CalculatorTool'),
