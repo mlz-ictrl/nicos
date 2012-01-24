@@ -84,6 +84,13 @@ class TofTofMeasurement(Measurable, ImageStorage):
             if not line.startswith('#'):
                break
         self._detinfolength = len(self._detinfo) - i
+        dmap = {}
+        for line in self._detinfo:
+            if not line.startswith('#') :
+                ls = line.split()
+                if 'None' not in ls[13]:
+                    dmap[int(ls[12])] = float(ls[5])
+        self._anglemap = tuple((i-1) for i in sorted(dmap, key=dmap.__getitem__))
         self._measuring = False
         self._devicelogs = {}
 
@@ -363,6 +370,13 @@ class TofTofMeasurement(Measurable, ImageStorage):
             fp.write('aData(%u,%u): \n' % (counts.shape[0], counts.shape[1]))
             np.savetxt(fp, counts, '%d')
             os.fsync(fp)
+        try:
+            treated = counts.T[self._anglemap, :]
+            ndet = treated.shape[0]
+            session.updateLiveData('toftof', self.lastfilename, '<I4',
+                                   1024, ndet, 1, meastime, buffer(treated))
+        except Exception:
+            pass
         return timeleft, moncounts, counts, countsum, meastime, tempinfo
 
     def duringMeasureHook(self, i):
