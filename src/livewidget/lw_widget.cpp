@@ -142,6 +142,7 @@ void LWWidget::setAxisLabels(const char *xaxis, const char *yaxis)
 {
     m_plot->axisWidget(QwtPlot::xBottom)->setTitle(xaxis);
     m_plot->axisWidget(QwtPlot::yLeft)->setTitle(yaxis);
+    m_controls->setAxisNames(xaxis, yaxis);
 }
 
 void LWWidget::setCustomRange(double lower, double upper)

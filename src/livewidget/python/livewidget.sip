@@ -142,5 +142,6 @@ enum LWCtrl
     CreateProfile,
     Histogram,
     MinimumMaximum,
-    BrightnessContrast
+    BrightnessContrast,
+    Integrate
 };

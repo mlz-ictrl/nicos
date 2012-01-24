@@ -140,6 +140,11 @@ void LWControls::setupUi()
     hLayout->addWidget(profileBins);
     mainLayout->addLayout(hLayout);
 
+    xsumButton = new QPushButton("integrate over x", this);
+    mainLayout->addWidget(xsumButton);
+    ysumButton = new QPushButton("integrate over y", this);
+    mainLayout->addWidget(ysumButton);
+
     histoPlot = new QwtPlot(this);
     QSizePolicy plotSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
     histoPlot->setSizePolicy(plotSizePolicy);
@@ -252,6 +257,10 @@ void LWControls::setupUi()
                      this, SLOT(updateProfWidth(int)));
     QObject::connect(profileBins, SIGNAL(valueChanged(int)),
                      this, SLOT(updateProfBins(int)));
+    QObject::connect(xsumButton, SIGNAL(released()),
+                     this, SLOT(createXSum()));
+    QObject::connect(ysumButton, SIGNAL(released()),
+                     this, SLOT(createYSum()));
     QObject::connect(m_widget->plot()->getPicker(),
                      SIGNAL(selected(const QwtArray<QwtDoublePoint> &)), this,
                      SLOT(createProfile(const QwtArray<QwtDoublePoint> &)));
@@ -393,6 +402,16 @@ void LWControls::pickProfile()
     profileButton->setChecked(true);
 }
 
+void LWControls::showProfWindow()
+{
+    if (profWindow == NULL) {
+        profWindow = new LWProfileWindow(this);
+    }
+    profWindow->update(m_widget->data(), m_prof_x, m_prof_y,
+                       profileWidth->value(), profileBins->value());
+    profWindow->show();
+}
+
 void LWControls::createProfile(const QwtArray<QwtDoublePoint> &points)
 {
     m_widget->plot()->getPicker()->setEnabled(false);
@@ -410,12 +429,27 @@ void LWControls::createProfile(const QwtArray<QwtDoublePoint> &points)
     profLine2->setVisible(true);
     updateProfLineWidth(profileWidth->value());  // does replot
 
-    if (profWindow == NULL) {
-        profWindow = new LWProfileWindow(this);
-    }
-    profWindow->update(m_widget->data(), m_prof_x, m_prof_y,
-                       profileWidth->value(), profileBins->value());
-    profWindow->show();
+    showProfWindow();
+}
+
+void LWControls::createYSum()
+{
+    m_prof_x[0] = 0;
+    m_prof_x[1] = m_widget->data()->width();
+    m_prof_y[0] = m_widget->data()->height() / 2;
+    m_prof_y[1] = m_widget->data()->height() / 2;
+    profileWidth->setValue(m_widget->data()->height());
+    showProfWindow();
+}
+
+void LWControls::createXSum()
+{
+    m_prof_y[0] = 0;
+    m_prof_y[1] = m_widget->data()->height();
+    m_prof_x[0] = m_widget->data()->width() / 2;
+    m_prof_x[1] = m_widget->data()->width() / 2;
+    profileWidth->setValue(m_widget->data()->width());
+    showProfWindow();
 }
 
 void LWControls::zoomAdjusted()
@@ -466,6 +500,9 @@ void LWControls::setControls(LWCtrl which)
     profileWidthLabel->setVisible(which & CreateProfile);
     profileBinsLabel->setVisible(which & CreateProfile);
 
+    xsumButton->setVisible(which & Integrate);
+    ysumButton->setVisible(which & Integrate);
+    
     histoPlot->setVisible(which & Histogram);
     
     minSlider->setVisible(which & MinimumMaximum);
@@ -476,6 +513,16 @@ void LWControls::setControls(LWCtrl which)
     ctrSlider->setVisible(which & BrightnessContrast);
     brtSliderLabel->setVisible(which & BrightnessContrast);
     ctrSliderLabel->setVisible(which & BrightnessContrast);
+}
+
+void LWControls::setAxisNames(const char *xaxis, const char *yaxis)
+{
+    QString tmp1("integrate over ");
+    QString tmp2("integrate over ");
+    tmp1 += xaxis;
+    tmp2 += yaxis;
+    xsumButton->setText(tmp1);
+    ysumButton->setText(tmp2);
 }
 
 /** LWProfileWindow ***********************************************************/

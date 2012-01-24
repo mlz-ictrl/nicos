@@ -82,16 +82,24 @@ class LWControls : public QWidget
     double m_prof_x[2];
     double m_prof_y[2];
 
+    void showProfWindow();
+
   protected:
     QVBoxLayout *mainLayout;
+
     QCheckBox *logscaleBox;
     QCheckBox *grayscaleBox;
     QCheckBox *cyclicBox;
+
     QPushButton *profileButton;
     QSpinBox *profileWidth;
     QLabel *profileWidthLabel;
     QSpinBox *profileBins;
     QLabel *profileBinsLabel;
+
+    QPushButton *xsumButton;
+    QPushButton *ysumButton;
+
     QSlider *minSlider;
     QLabel *minSliderLabel;
     QSlider *maxSlider;
@@ -112,6 +120,7 @@ class LWControls : public QWidget
 
     void setupUi();
     void setControls(LWCtrl which);
+    void setAxisNames(const char *xaxis, const char *yaxis);
 
   protected slots:
     void pickRange(const QwtDoubleRect &);
@@ -127,6 +136,8 @@ class LWControls : public QWidget
     void updateProfBins(int);
     void updateProfLineWidth(int);
     void zoomAdjusted();
+    void createXSum();
+    void createYSum();
 
   public:
     LWControls(QWidget *parent = NULL);

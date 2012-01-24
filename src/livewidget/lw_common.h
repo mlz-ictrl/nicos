@@ -31,7 +31,8 @@ enum LWCtrl {
     CreateProfile        = 0x008,
     Histogram            = 0x010,
     MinimumMaximum       = 0x020,
-    BrightnessContrast   = 0x080
+    BrightnessContrast   = 0x080,
+    Integrate            = 0x100,
 };
 
 #endif
