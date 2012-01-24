@@ -380,7 +380,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         return timeleft, moncounts, counts, countsum, meastime, tempinfo
 
     def duringMeasureHook(self, i):
-        if i % self._updateevery:
+        if (i + 400) % self._updateevery:
             return
         self.log.debug('collecting progress info')
         _, moncounts, _, countsum, meastime, tempinfo = self._saveDataFile()

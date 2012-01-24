@@ -4,5 +4,5 @@ includes = ['system']
 
 devices = dict(
     det = device('nicos.toftof.tofcounter.TofCounter',
-                 pollinterval = 0),
+                 pollinterval = None),
 )
