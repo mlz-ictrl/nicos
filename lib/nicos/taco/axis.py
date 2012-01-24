@@ -262,9 +262,9 @@ class HoveringAxis(Axis):
 
     def _pollthread(self):
         sleep(0.1)
-        waitForStatus(self, 0.2)
-        sleep(self.stopdelay)
         try:
+            waitForStatus(self, 0.2)
+            sleep(self.stopdelay)
             self._adevs['switch'].move(self.switchvalues[0])
         finally:
             self._poll_thread = None
@@ -286,3 +286,7 @@ class HoveringAxis(Axis):
             return status.NOTREACHED, 'position not reached'
         else:
             return status.ERROR, TACOStates.stateDescription(state)
+
+    def doReset(self):
+        Axis.doReset(self)
+        self._poll_thread = None
