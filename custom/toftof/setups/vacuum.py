@@ -1,0 +1,33 @@
+description = 'chopper vacuum readout'
+includes = ['system']
+
+devices = dict(
+    vacbus = device('nicos.toftof.toni.ModBus',
+                    tacodevice = '//toftofsrv/toftof/rs232/ifvacuumcontrol',
+                    lowlevel = True),
+    vac0   = device('nicos.toftof.toni.Vacuum',
+                    bus = 'vacbus',
+                    addr = 0xF0,
+                    channel = 0,
+                    pollinterval = 10,
+                    maxage = 12,
+                    unit = 'mbar'),
+    vac1   = device('nicos.toftof.toni.Vacuum',
+                    bus = 'vacbus',
+                    addr = 0xF0,
+                    channel = 1,
+                    pollinterval = 10,
+                    maxage = 12),
+    vac2   = device('nicos.toftof.toni.Vacuum',
+                    bus = 'vacbus',
+                    addr = 0xF0,
+                    channel = 2,
+                    pollinterval = 10,
+                    maxage = 12),
+    vac3   = device('nicos.toftof.toni.Vacuum',
+                    bus = 'vacbus',
+                    addr = 0xF0,
+                    channel = 3,
+                    pollinterval = 10,
+                    maxage = 12),
+)
