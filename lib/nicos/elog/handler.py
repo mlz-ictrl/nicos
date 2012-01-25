@@ -58,6 +58,7 @@ PROLOG = '''\
 body      { font-family: 'Arial', 'Helvetica', sans-serif; }
 .remark   { font-weight: bold; }
 .sample   { font-weight: bold; }
+.script   { font-weight: bold; }
 .attach:before  { content: url('data:image/png;base64,\
 iVBORw0KGgoAAAANSUhEUgAAAAcAAAAPAQMAAAASz0f9AAAAFXRFWHRDcmVhdGlvbiBUaW1lAAfT\
 AgsIESPfE/DqAAAAB3RJTUUH0wILCBE0icGWXQAAAAlwSFlzAAAK8AAACvABQqw0mAAAAAZQTFRF\
@@ -250,6 +251,22 @@ class Handler(object):
         self.out.newstate('plain', '', '',
             '<p id="%s" class="remark">%s</p>\n' % (targetid, escape(remark)))
         self.out.toc_entry(2, escape(remark), targetid)
+
+    def handle_scriptbegin(self, time, data):
+        self.out.timestamp(time)
+        targetid = self.out.new_id()
+        text = 'Script started: %s' % escape(data)
+        #self.out.toc_entry(2, text, targetid)
+        self.out.newstate('plain', '', '',
+            '<p id="%s" class="script">%s</p>\n' % (targetid, text))
+
+    def handle_scriptend(self, time, data):
+        self.out.timestamp(time)
+        targetid = self.out.new_id()
+        text = 'Script finished: %s' % escape(data)
+        #self.out.toc_entry(2, text, targetid)
+        self.out.newstate('plain', '', '',
+            '<p id="%s" class="script">%s</p>\n' % (targetid, text))
 
     def handle_sample(self, time, data):
         self.out.timestamp(time)

@@ -137,6 +137,8 @@ class ScriptRequest(Request):
         if session.experiment:
             session.experiment.scripts += [self.text]
             self._exp_script_index = len(session.experiment.scripts) - 1
+        if self.name:
+            session.elog_event('scriptbegin', self.name)
         try:
             while self.curblock < len(self.code) - 1:
                 self._run.wait()
@@ -146,6 +148,8 @@ class ScriptRequest(Request):
         finally:
             if session.experiment:
                 session.experiment.scripts = session.experiment.scripts[:-1]
+            if self.name:
+                session.elog_event('scriptend', self.name)
 
     def update(self, text, controller):
         """Update the code with a new script.

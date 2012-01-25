@@ -410,10 +410,12 @@ class _ScriptScope(object):
         session.beginActionScope(self.filename)
         if session.experiment:
             session.experiment.scripts += [self.code]
+        session.elog_event('scriptbegin', self.filename)
     def __exit__(self, *args):
         session.endActionScope()
         if session.experiment:
             session.experiment.scripts = session.experiment.scripts[:-1]
+        session.elog_event('scriptend', self.filename)
 
 @usercommand
 def _RunScript(filename, statdevices):
