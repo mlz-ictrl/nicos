@@ -510,12 +510,19 @@ class Device(object):
                 umethod(self._params[param])
             return self._params[param]
         rmethod = getattr(self, 'doRead' + param.title(), None)
+        done = False
         if rmethod:
-            value = rmethod()
-        elif param in self._params:
+            try:
+                value = rmethod()
+            except NicosError:
+                self.log.warning('could not read initial value for parameter '
+                                 '%s from device' % param)
+            else:
+                done = True
+        if not done and param in self._params:
             # happens when called from a param getter, not from init()
             value = self._params[param]
-        else:
+        elif not done:
             value = self._config.get(param, paraminfo.default)
             try:
                 value = paraminfo.type(value)
