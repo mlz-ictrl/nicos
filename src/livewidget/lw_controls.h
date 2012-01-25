@@ -82,7 +82,7 @@ class LWControls : public QWidget
     double m_prof_x[2];
     double m_prof_y[2];
 
-    void showProfWindow();
+    void showProfWindow(const char *title);
 
   protected:
     QVBoxLayout *mainLayout;

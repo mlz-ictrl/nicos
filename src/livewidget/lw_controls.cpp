@@ -407,19 +407,22 @@ void LWControls::setColorMap()
 
 void LWControls::pickProfile()
 {
+    if (!m_widget->data())
+        return;
     m_widget->plot()->getPicker()->setEnabled(true);
     m_widget->plot()->getZoomer()->setEnabled(false);
     profileButton->setText("click two points on image");
     profileButton->setChecked(true);
 }
 
-void LWControls::showProfWindow()
+void LWControls::showProfWindow(const char *title)
 {
     if (profWindow == NULL) {
         profWindow = new LWProfileWindow(this);
     }
     profWindow->update(m_widget->data(), m_prof_x, m_prof_y,
                        profileWidth->value(), profileBins->value());
+    profWindow->setWindowTitle(title);
     profWindow->show();
 }
 
@@ -440,27 +443,31 @@ void LWControls::createProfile(const QwtArray<QwtDoublePoint> &points)
     profLine2->setVisible(true);
     updateProfLineWidth(profileWidth->value());  // does replot
 
-    showProfWindow();
+    showProfWindow("Line profile");
 }
 
 void LWControls::createYSum()
 {
+    if (!m_widget->data())
+        return;
     m_prof_x[0] = 0;
     m_prof_x[1] = m_widget->data()->width();
     m_prof_y[0] = m_widget->data()->height() / 2;
     m_prof_y[1] = m_widget->data()->height() / 2;
     profileWidth->setValue(m_widget->data()->height());
-    showProfWindow();
+    showProfWindow("Y Integration");
 }
 
 void LWControls::createXSum()
 {
+    if (!m_widget->data())
+        return;
     m_prof_y[0] = 0;
     m_prof_y[1] = m_widget->data()->height();
     m_prof_x[0] = m_widget->data()->width() / 2;
     m_prof_x[1] = m_widget->data()->width() / 2;
     profileWidth->setValue(m_widget->data()->width());
-    showProfWindow();
+    showProfWindow("X Integration");
 }
 
 void LWControls::zoomAdjusted()
@@ -546,7 +553,6 @@ LWProfileWindow::LWProfileWindow(QWidget *parent) :
     curve->setRenderHint(QwtPlotCurve::RenderAntialiased);
     curve->attach(plot);
     setCentralWidget(plot);
-    setWindowTitle("Line profile");
     setContentsMargins(5, 5, 5, 5);
     QFont plotfont(font());
     plotfont.setPointSize(plotfont.pointSize() * 0.7);
