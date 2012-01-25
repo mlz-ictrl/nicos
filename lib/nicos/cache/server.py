@@ -23,7 +23,107 @@
 #
 # *****************************************************************************
 
-"""NICOS cache server."""
+"""NICOS cache server.
+
+Cache protocol documentation
+============================
+
+Cache listens by default on TCP and UDP port 14869 (it will also receive
+UDP broadcasts).
+
+The protocol is line-based.  Each line is one of
+
+* setting a key
+* querying a single key
+* querying with wildcard
+* subscribing to a wildcard
+* locking
+
+The basic syntax is
+
+[time1] [+|-] [time2] [@] key op [value]
+
+Keys are hierarchic, separated by slashes.  All values are strings.  The cache
+server does not interpret them in any way.
+
+Setting a key
+-------------
+
+- op is '='
+- time1 is the timestamp of the value
+- time2 is the TTL
+- both are optional: time1 defaults to current time, ttl to no expiration
+
+Without any value, the key is deleted.
+
+Examples:
+
+1327504784.71+5@nicos/temp/value=5.003
+nicos/temp/setpoint=5
++5@nicos/temp/value=1.102
+
+Response: none
+
+Querying a single key
+---------------------
+
+- op is '?'
+- with only @ or time1, the timestamp is also returned
+- with both time1 and time2, a history query is returned
+- value is ignored
+
+Examples:
+
+nicos/temp/value?
+@nicos/temp/value?
+1327504780-1327504790@nicos/temp/value?
+
+Response: a single line.  in the form 'key=value' or 'time@key=value', see
+below.  If the key is nonexistent or expired, the form is '[time@]key!' or
+'[time@]key!value'.
+
+Querying with wildcard
+----------------------
+
+- op is '*'
+- history queries are not allowed
+- with only @ or time1, the timestamps are also returned
+
+Examples:
+
+nicos/temp/*
+@nicos/temp/*
+
+Response: Each value whose key contains the key given is returned as a single
+line as for single query.
+
+Subscribing to updates
+----------------------
+
+- op is ':'
+- when a @ is present, the updates
+
+Response: none immediately, but every update matching the given key (matched by
+substring) is sent to the client.
+
+Locking
+-------
+
+The lock mechanism allows only one client at the same time to obtain a lock
+
+- op is '$'
+- time1 is the time when the lock is requested (default current time)
+- time2 is the ttl for the lock
+- key is the identifier for the lock
+- value is either +clientid (lock) or -clientid (unlock); clientid is a
+  string identifying the client
+
+Response:
+on lock:   either key$otherclientid -> already locked by other client
+           or     key$ -> locked successfully
+on unlock: either key$otherclientid -> not locked by this client
+           or     key$ -> unlocked successfully
+"""
 
 from __future__ import with_statement
 
