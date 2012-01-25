@@ -280,7 +280,7 @@ def dictof(keyconv, valconv):
                         (convdoc(keyconv), convdoc(valconv))
     return converter
 
-tacodev_re = re.compile(r'^(//[a-zA-Z0-9_\-.]+/)?[a-zA-Z0-9_\-]+/[a-zA-Z0-9_\-]+/[a-zA-Z0-9_\-]+$', re.I)
+tacodev_re = re.compile(r'^(//[\w.-]+/)?[\w-]+/[\w-]+/[\w-]+$', re.I)
 
 def tacodev(val=None):
     """a valid taco device"""
