@@ -48,5 +48,5 @@ devices = dict(
 
     Space    = device('nicos.generic.FreeSpace',
                       path = 'data',
-                      minfree = 5),
+                      minfree = 0.5),
 )

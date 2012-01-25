@@ -100,7 +100,7 @@ main-install:
 	cp -pr $(VOPT) $(INSTRDIR)/lib/* $(ROOTDIR)/lib/nicos/$(INSTRUMENT)
 	@echo "============================================================="
 	@echo "Installing setups (not overwriting existing files)..."
-	cp -prn $(VOPT) $(INSTRDIR)/setups/* $(ROOTDIR)/setups
+	cp -pr $(VOPT) $(INSTRDIR)/setups/* $(ROOTDIR)/setups
 	@echo "============================================================="
 	@echo "Everything is now installed to $(ROOTDIR)."
 	@echo "Trying to create system-wide symbolic links..."
