@@ -136,6 +136,7 @@ class ScriptRequest(Request):
         update_linecache('<script>', self.text)
         if session.experiment:
             session.experiment.scripts += [self.text]
+            self._exp_script_index = len(session.experiment.scripts) - 1
         try:
             while self.curblock < len(self.code) - 1:
                 self._run.wait()
@@ -174,6 +175,10 @@ class ScriptRequest(Request):
                                       'part of the code')
             # everything is ok, replace the script and the remaining blocks
             self.text = text
+            if session.experiment:
+                scr = session.experiment.scripts
+                scr[self._exp_script_index] = self.text
+                session.experiment.scripts = scr
             update_linecache('<script>', text)
             self.code, self.blocks = newcode, newblocks
             # let the client know of the update
