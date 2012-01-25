@@ -173,19 +173,21 @@ class Session(object):
         if mode == 'master':
             # switching from slave to master
             if not cache:
-                raise ModeError('no cache present, cannot get master lock')
-            self.log.info('checking master status...')
-            try:
-                cache.lock('master')
-            except CacheLockError, err:
-                raise ModeError('another master is already active: %s' %
-                                sessionInfo(err.locked_by))
+                self.log.info('no cache present, switching to master anyway')
+                #raise ModeError('no cache present, cannot get master lock')
             else:
-                cache._ismaster = True
-            if self.loaded_setups != set(['startup']):
-                cache.put(self, 'mastersetup', list(self.loaded_setups))
-                cache.put(self, 'mastersetupexplicit', list(self.explicit_setups))
-                self.elog_event('setup', list(self.explicit_setups))
+                self.log.info('checking master status...')
+                try:
+                    cache.lock('master')
+                except CacheLockError, err:
+                    raise ModeError('another master is already active: %s' %
+                                    sessionInfo(err.locked_by))
+                else:
+                    cache._ismaster = True
+                if self.loaded_setups != set(['startup']):
+                    cache.put(self, 'mastersetup', list(self.loaded_setups))
+                    cache.put(self, 'mastersetupexplicit', list(self.explicit_setups))
+                    self.elog_event('setup', list(self.explicit_setups))
         elif mode in ['slave', 'maintenance']:
             # switching from master (or slave) to slave or to maintenance
             if cache and cache._ismaster:
@@ -491,7 +493,7 @@ class Session(object):
 
     def shutdown(self):
         """Shut down the session: unload the setup and give up master mode."""
-        if self._mode == 'master':
+        if self._mode == 'master' and self.cache:
             self.cache._ismaster = False
             self.cache.unlock('master')
         self.unloadSetup()
