@@ -36,7 +36,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core import Measurable, Param, Value, Override, NicosError, \
-     intrange, listof
+     intrange, listof, status
 from nicos.abstract import ImageStorage
 
 from nicos.toftof.toni import DelayBox
@@ -109,6 +109,13 @@ class TofTofMeasurement(Measurable, ImageStorage):
         self.doSetPreset(**preset)
         self._lasttitle = preset.get('info', '')
         self._lastnosave = bool(preset.get('nosave', False))
+
+        try:
+            rc = session.getDevice('rc')
+            if rc.status()[0] != status.BUSY:
+                self.log.warning('radial collimator is not moving!')
+        except NicosError:
+            self.log.warning('could not check radial collimator', exc=1)
 
         self.log.debug('reading chopper parameters')
         chwl, chspeed, chratio, chcrc, chst = self._adevs['chopper']._getparams()
