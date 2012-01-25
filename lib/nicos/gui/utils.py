@@ -282,7 +282,7 @@ def showTraceback(tb, parent, fontwidget):
         QApplication.clipboard().setText(tb+'\n', QClipboard.Selection)
         QApplication.clipboard().setText(tb+'\n', QClipboard.Clipboard)
     parent.connect(button, SIGNAL('clicked()'), copy)
-    dlg.message.setText(message)
+    dlg.message.setText(message[:200])
     dlg.tree.setFont(fontwidget.font())
     boldfont = QFont(fontwidget.font())
     boldfont.setBold(True)
