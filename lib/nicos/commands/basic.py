@@ -187,6 +187,28 @@ def AddSetup(*setupnames):
         session.endMultiCreate()
 
 @usercommand
+def RemoveSetup(*setupnames):
+    """Remove the given setups from the currently loaded ones.
+
+    Example::
+
+        RemoveSetup('gaussmeter')
+
+    will re-load all current setups except for "gaussmeter".
+    """
+    current = session.explicit_setups[:]
+    original = current[:]
+    for setupname in setupnames:
+        try:
+            current.remove(setupname)
+        except ValueError:
+            printwarning('the setup %r is not currently explicitly loaded' %
+                         setupname)
+    if current == original:
+        return
+    NewSetup(*current)
+
+@usercommand
 def ListSetups():
     """Print a list of all known setups."""
     printinfo('Available setups:')

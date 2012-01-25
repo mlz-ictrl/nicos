@@ -63,6 +63,9 @@ Changelog for NICOS 2
   - The Axis class now has a "jitter" parameter that can account for
     jitter in the movement, e.g. due to airpads.
 
+  - Added a "RemoveSetup" command that re-loads everything except for the
+    given setups.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless

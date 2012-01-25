@@ -33,6 +33,7 @@ Setup-related commands
 
 .. autofunction:: NewSetup
 .. autofunction:: AddSetup
+.. autofunction:: RemoveSetup
 .. autofunction:: ListSetups
 .. autofunction:: CreateDevice
 .. autofunction:: CreateAllDevices
