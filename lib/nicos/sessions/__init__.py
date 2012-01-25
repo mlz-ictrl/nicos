@@ -233,6 +233,7 @@ class Session(object):
             except (ImportError, IOError), err:
                 self.log.exception('Could not find or read setup '
                                    'module %r: %s' % (modname, err))
+                self._setup_info[modname] = None
                 continue
             # device() is a helper function to make configuration prettier
             ns = {'device': lambda cls, **params: (cls, params)}
@@ -256,10 +257,13 @@ class Session(object):
             self._setup_info[modname] = info
         # check if all includes exist
         for name, info in self._setup_info.iteritems():
+            if info is None:
+                continue  # erroneous setup
             for include in info['includes']:
-                if include not in self._setup_info:
+                if not self._setup_info.get(include):
                     raise ConfigurationError('Setup %s includes setup %s which '
-                                             'does not exist' % (name, include))
+                                             'does not exist or has errors' %
+                                             (name, include))
 
     def getSetupInfo(self):
         """Return information about all existing setups.
@@ -292,6 +296,10 @@ class Session(object):
             if setupname in self.loaded_setups:
                 self.log.warning('setup %s is already loaded' % setupname)
                 setupnames.remove(setupname)
+            elif self._setup_info.get(setupname) is None:
+                raise ConfigurationError(
+                    'Setup %s exists, but could not be read (see above)'
+                    % setupname)
             elif setupname not in self._setup_info:
                 raise ConfigurationError(
                     'Setup %s does not exist (setup path is %s)' %
