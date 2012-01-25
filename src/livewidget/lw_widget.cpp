@@ -60,12 +60,19 @@ void LWWidget::unload()
 void LWWidget::setData(LWData *data)
 {
     bool prev_log10 = false;
+    double prev_min = -1, prev_max = -1;
     if (m_data) {
         prev_log10 = m_data->isLog10();
+        if (m_data->hasCustomRange()) {
+            prev_min = m_data->customRangeMin();
+            prev_max = m_data->customRangeMax();
+        }
         unload();
     }
     m_data = data;
     m_data->setLog10(prev_log10);
+    if (prev_min != -1 || prev_max != -1)
+        m_data->setCustomRange(prev_min, prev_max);
     updateGraph(true);
     m_plot->getZoomer()->setZoomBase();
 }

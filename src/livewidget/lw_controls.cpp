@@ -271,8 +271,15 @@ void LWControls::setupUi()
 
 void LWControls::dataUpdated(LWData *data)
 {
-    m_absmin = m_curmin = data->min();
-    m_absmax = m_curmax = data->max();
+    m_absmin = data->min();
+    m_absmax = data->max();
+    if (data->hasCustomRange()) {
+        m_curmin = data->customRangeMin();
+        m_curmax = data->customRangeMax();
+    } else {
+        m_curmin = m_absmin;
+        m_curmax = m_absmax;
+    }
     m_absrange = m_currange = m_absmax - m_absmin;
 
     m_range_x[0] = m_curmin;
@@ -282,10 +289,14 @@ void LWControls::dataUpdated(LWData *data)
     histoPlot->replot();
 
     m_sliderupdating = true;
-    minSlider->setValue(0);
-    maxSlider->setValue(256);
-    brtSlider->setValue(128);
-    ctrSlider->setValue(128);
+    minSlider->setValue((m_curmin - m_absmin)/m_absrange * 256);
+    maxSlider->setValue((m_curmax - m_absmin)/m_absrange * 256);
+    double brightness = 1.0 - (m_curmin + m_currange/2. - m_absmin)/m_absrange;
+    double contrast = m_absrange/m_currange * 0.5;
+    if (contrast > 0.5)
+        contrast = 1.0 - m_currange/m_absrange * 0.5;
+    brtSlider->setValue(256 * brightness);
+    ctrSlider->setValue(256 * contrast);
     m_sliderupdating = false;
 
     if (profWindow) {
