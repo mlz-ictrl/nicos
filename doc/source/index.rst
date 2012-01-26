@@ -21,6 +21,7 @@ Documentation contents:
    sessionapi
    deviceapi
    coreapi
+   auto/modules
    changes
    glossary
 
