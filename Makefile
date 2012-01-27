@@ -3,10 +3,15 @@
 RCC = pyrcc4
 PYTHON = /usr/bin/python
 
-all: lib/nicos/gui/gui_rc.py
+all:
 	$(PYTHON) setup.py build -e "/usr/bin/env python"
 	$(PYTHON) etc/set_version.py build/lib*
 	-make custom-all
+
+gui: lib/nicos/gui/gui_rc.py
+	$(PYTHON) setup.py build -e "/usr/bin/env python"
+	$(PYTHON) etc/set_version.py build/lib*
+	-make custom-gui
 
 lib/nicos/gui/gui_rc.py: resources/nicos-gui.qrc
 	$(RCC) -o lib/nicos/gui/gui_rc.py resources/nicos-gui.qrc
@@ -107,6 +112,31 @@ main-install:
 	@echo "============================================================="
 	-ln -sf $(VOPT) -t /etc/init.d $(ROOTDIR)/etc/nicos-system
 	-ln -sf $(VOPT) -t /usr/bin $(ROOTDIR)/bin/*
+	@echo "============================================================="
+	@echo "Finished."
+	@echo "============================================================="
+
+install-gui: gui main-install-gui custom-install-gui
+
+main-install-gui:
+	$(INSTALL_ERR)
+	@echo "============================================================="
+	@echo "Installing only NICOS GUI to $(ROOTDIR)..."
+	@echo "============================================================="
+	install $(VOPT) -d $(ROOTDIR)/{bin,lib,scripts}
+	cp -pr $(VOPT) build/lib*/* $(ROOTDIR)/lib
+	cp -pr $(VOPT) build/scripts*/nicos-gui $(ROOTDIR)/bin
+	if [ -f $(INSTRDIR)/gui/defconfig.py ]; then \
+	  cp -p $(INSTRDIR)/gui/defconfig.py "$(ROOTDIR)/lib/nicos/gui"; fi
+	@echo "============================================================="
+	@echo "Installing custom modules..."
+	mkdir -p $(VOPT) $(ROOTDIR)/lib/nicos/$(INSTRUMENT)
+	cp -pr $(VOPT) $(INSTRDIR)/lib/* $(ROOTDIR)/lib/nicos/$(INSTRUMENT)
+	@echo "============================================================="
+	@echo "The GUI is now installed to $(ROOTDIR)."
+	@echo "Trying to create system-wide symbolic link..."
+	@echo "============================================================="
+	-ln -sf $(VOPT) -t /usr/bin $(ROOTDIR)/bin/nicos-gui
 	@echo "============================================================="
 	@echo "Finished."
 	@echo "============================================================="

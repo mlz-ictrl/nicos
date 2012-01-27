@@ -202,6 +202,10 @@ clean: clean_qt clean_nicos
 #################### NICOS-Libraries #####################
 nicosmodules: nicosclient/pythonbinding/cascadeclient.so nicoswidget/pythonbinding/cascadewidget.so
 
+nicosmodules-client: nicosclient/pythonbinding/cascadeclient.so
+
+nicosmodules-widget: nicoswidget/pythonbinding/cascadewidget.so
+
 nicosclient/libcascadeclient.a:
 	cd nicosclient && qmake && make
 

@@ -11,6 +11,20 @@ Start a basic system and experiment:
 Documentation: for release packages look in doc/build/html.
 
 
+Installing
+----------
+
+To install, you need to select or create a customization in custom/.
+
+If that exists, use
+
+  make install
+
+and/or
+
+  make install-gui
+
+
 Requirements
 ------------
 
