@@ -12,7 +12,7 @@ from nicos.sessions.simple import NoninteractiveSession
 
 parser = optparse.OptionParser()
 parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
-                  help='daemonize the poller processes')
+                  help='daemonize the elog process')
 opts, args = parser.parse_args()
 
 NoninteractiveSession.run('elog', 'Logbook', daemon=opts.daemon)
