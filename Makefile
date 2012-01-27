@@ -1,5 +1,7 @@
 .PHONY: all install clean inplace test main-install
 
+SHELL=/bin/bash
+
 RCC = pyrcc4
 PYTHON = /usr/bin/python
 
