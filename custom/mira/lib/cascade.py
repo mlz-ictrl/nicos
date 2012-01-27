@@ -94,7 +94,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         if self.slave:
             self._adevs['master'].reset()
         # reset parameters in case the server forgot them
-        self.printinfo('re-setting to %s mode' % self.mode.upper())
+        self.log.info('re-setting to %s mode' % self.mode.upper())
         self.doWriteMode(self.mode)
         self.doWritePreselection(self.preselection)
 
