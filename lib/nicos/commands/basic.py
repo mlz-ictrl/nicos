@@ -349,6 +349,8 @@ def ClearCache(*devnames):
     will clear cache information for devices "om" and "phi" and then reload the
     current setup.
     """
+    if not devnames:
+        raise UsageError('At least one device name is required')
     for devname in devnames:
         if isinstance(devname, Device):
             devname = devname.name
