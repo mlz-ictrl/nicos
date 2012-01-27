@@ -332,6 +332,7 @@ class CacheClient(BaseCacheClient):
         #self.log.debug('got %s=%s' % (key, value))
         if value is None or op == OP_TELLOLD:
             self._db.pop(key, None)
+            value = None
         else:
             value = cache_load(value)
             self._db[key] = (value, time, ttl and float(ttl))
@@ -346,12 +347,24 @@ class CacheClient(BaseCacheClient):
         pass
 
     def addCallback(self, dev, key, function):
+        """Add a callback to be called when the given device/subkey value is
+        updated.  There can be only one callback per subkey.
+
+        The callback is also called if the value is expired or deleted.
+        """
         self._callbacks[('%s/%s' % (dev, key)).lower()] = function
 
     def removeCallback(self, dev, key):
+        """Remove a callback for the given device/subkey, if present."""
         self._callbacks.pop(('%s/%s' % (dev, key)).lower(), None)
 
     def get(self, dev, key, default=None):
+        """Get a value from the local cache for the given device and subkey.
+
+        Since ``None`` can be a valid value for some cache entries, you can give
+        another value that is returned if the value is missing or expired.  A
+        singleton such as ``Ellipsis`` works well in these cases.
+        """
         self._startup_done.wait()
         dbkey = ('%s/%s' % (dev, key)).lower()
         entry = self._db.get(dbkey)
@@ -383,6 +396,10 @@ class CacheClient(BaseCacheClient):
         return (None, None, default)  # shouldn't happen
 
     def put(self, dev, key, value, time=None, ttl=None):
+        """Put a value for a given device and subkey.
+
+        The value is serialized by this method using `cache_dump()`.
+        """
         if ttl == 0:
             # no need to process immediately-expired values
             return
@@ -399,6 +416,12 @@ class CacheClient(BaseCacheClient):
         self._propagate((time, dbkey, OP_TELL, value))
 
     def put_raw(self, key, value, time=None, ttl=None):
+        """Put a key given by full name.
+
+        The instance's key prefix is *not* prepended to the key.  This enables
+        e.g. the session logger writing to ``logbook/message`` although the
+        prefix is ``nicos/``.
+        """
         if ttl == 0:
             # no need to process immediately-expired values
             return
@@ -410,16 +433,22 @@ class CacheClient(BaseCacheClient):
         #self.log.debug('putting %s=%s' % (dbkey, value))
         self._queue.put(msg)
 
-    def clear(self, devname):
+    def clear(self, dev):
+        """Clear all cache subkeys belonging to the given device."""
         time = currenttime()
+        devprefix = str(dev).lower() + '/'
         for dbkey in self._db.keys():
-            if dbkey.startswith(devname.lower() + '/'):
+            if dbkey.startswith(devprefix):
                 msg = '%s@%s/%s%s\r\n' % (time, self._prefix, dbkey, OP_TELL)
                 self._db.pop(dbkey, None)
                 self._queue.put(msg)
                 self._propagate((time, dbkey, OP_TELL, ''))
 
     def invalidate(self, dev, key):
+        """Locally invalidate device/subkey.  This does not touch the remote
+        cache, but will trigger re-initializing short-lived things like device
+        values and status from the hardware.
+        """
         dbkey = ('%s/%s' % (dev, key)).lower()
         self.log.debug('invalidating %s' % dbkey)
         self._db.pop(dbkey, None)
