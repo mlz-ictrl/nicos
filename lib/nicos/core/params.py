@@ -26,9 +26,11 @@
 
 __version__ = "$Revision$"
 
+import os
 import re
 import copy
 
+from nicos import session
 from nicos.core.errors import ProgrammingError
 
 
@@ -347,3 +349,6 @@ def none_or(conv):
         return conv(val)
     converter.__doc__ = 'None or %s' % convdoc(conv)
     return converter
+
+def control_path_relative(val=''):
+    return os.path.join(session.config.control_path, str(val))

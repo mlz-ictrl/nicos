@@ -219,7 +219,7 @@ class Handler(object):
         self.dir = directory
         self.logdir = path.join(directory, 'logbook')
         self.out.open(self.logdir, instr or 'NICOS', proposal)
-        self.log.info('Openend new output file in ' + directory)
+        self.log.info('Openend new output files in ' + self.logdir)
 
     def handle_newexperiment(self, time, data):
         proposal, title = data

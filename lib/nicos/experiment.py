@@ -34,8 +34,8 @@ from os import path
 from uuid import uuid1
 
 from nicos import session
-from nicos.core import listof, nonemptylistof, usermethod, Device, Measurable, \
-     Readable, Param, InvalidValueError
+from nicos.core import listof, nonemptylistof, control_path_relative, \
+     usermethod, Device, Measurable, Readable, Param, InvalidValueError
 from nicos.data import NeedsDatapath, Dataset
 from nicos.utils import ensureDirectory
 from nicos.utils.loggers import ELogHandler
@@ -101,8 +101,8 @@ class Experiment(Device):
         'remark':    Param('Current remark about experiment configuration',
                            type=str, settable=True, category='experiment'),
         'datapath':  Param('List of paths where data files should be stored',
-                           type=nonemptylistof(str), default=['.'],
-                           mandatory=True, settable=True,
+                           type=nonemptylistof(control_path_relative),
+                           default=['.'], mandatory=True, settable=True,
                            category='experiment'),
         'detlist':   Param('List of default detector device names',
                            type=listof(str), settable=True),
