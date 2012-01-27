@@ -14,7 +14,7 @@ gui: lib/nicos/gui/gui_rc.py
 	-make custom-gui
 
 lib/nicos/gui/gui_rc.py: resources/nicos-gui.qrc
-	$(RCC) -o lib/nicos/gui/gui_rc.py resources/nicos-gui.qrc
+	-$(RCC) -o lib/nicos/gui/gui_rc.py resources/nicos-gui.qrc
 
 clean:
 	rm -rf build
