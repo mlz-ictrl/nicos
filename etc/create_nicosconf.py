@@ -45,7 +45,10 @@ setups_path = %(setups)s
 services = %(services)s
 
 [environment]
-# Add additional environment variables here.
+# You can add directories to sys.path here...
 PYTHONPATH = %(pythonpath)s
+PAGER = cat
+# Define a TACO database host
 NETHOST = %(nethost)s
+# Add additional environment variables here.
 ''' % locals()
