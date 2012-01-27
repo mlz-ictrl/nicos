@@ -26,15 +26,18 @@
 
 __version__ = "$Revision$"
 
+import os
 import sys
 import threading
 from time import sleep
+from subprocess import Popen, PIPE
 
 import TACOStates
 from TACOClient import TACOError
 
 from nicos.core import status, tacodev, intrange, Param, Override, NicosError, \
      ProgrammingError, CommunicationError, LimitError, InvalidValueError
+from nicos.cache.utils import cache_dump, cache_load
 
 
 class TacoDevice(object):
@@ -354,12 +357,6 @@ class TacoDevice(object):
                     self.__lock.release()
 
 
-# XXX hack around segfaults, enable by renaming MTacoDevice to TacoDevice
-
-import os
-from subprocess import Popen, PIPE
-from nicos.cache.utils import cache_dump, cache_load
-
 class TacoStub(object):
     def __init__(self, mod, cls, dev):
         from nicos import session
@@ -387,7 +384,7 @@ class TacoStub(object):
         return method
 
 
-class MTacoDevice(TacoDevice):
+class ProxyTacoDevice(TacoDevice):
 
     def _create_client(self, devname=None, class_=None, resetok=None,
                        timeout=None):
@@ -398,3 +395,6 @@ class MTacoDevice(TacoDevice):
         mod = class_.__module__
         cls = class_.__name__
         return TacoStub(mod, cls, devname)
+
+# XXX hack around segfaults for all taco devices
+# TacoDevice = ProxyTacoDevice

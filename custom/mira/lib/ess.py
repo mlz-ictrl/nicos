@@ -32,11 +32,12 @@ from time import sleep
 
 from PowerSupply import CurrentControl
 
-from nicos.core import Param
-from nicos.taco.io import AnalogOutput, DigitalOutput
+from nicos.core import Param, Moveable
+from nicos.taco.core import ProxyTacoDevice
+from nicos.taco.io import DigitalOutput
 
 
-class ESSController(AnalogOutput):
+class ESSController(ProxyTacoDevice, Moveable):
 
     taco_class = CurrentControl
 
