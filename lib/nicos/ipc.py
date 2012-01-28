@@ -333,8 +333,7 @@ class IPCModBusTCP(IPCModBusTacoless):
             for i in range(self.commtries):
                 self.log.debug('waiting for response, try %d/%d' %
                                (i, self.commtries))
-                p = select.select([self._connection], [], [self._connection],
-                                  self.roundtime)
+                p = select.select([self._connection], [], [], self.roundtime)
                 if self._connection in p[0]:
                     data = self._connection.recv(20)  # more than enough!
                     if not data:

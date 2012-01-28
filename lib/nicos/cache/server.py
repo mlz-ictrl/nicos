@@ -290,10 +290,10 @@ class CacheWorker(object):
             # fileno is < 0 for UDP connections, where select isn't needed
             if self.connection and self.connection.fileno() > 0:
                 # wait for data with 1-second timeout
-                res = select.select([self.connection], [], [self.connection], 1)
-                if self.connection in res[2]:
-                    # connection is in error state
-                    break
+                try:
+                    res = select.select([self.connection], [], [], 1)
+                except select.error, err:
+                    self.log.warning('error in select', exc=err)
                 if self.connection not in res[0]:
                     # no data arrived, wait some more
                     continue

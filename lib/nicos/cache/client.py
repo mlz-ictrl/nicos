@@ -194,14 +194,9 @@ class BaseCacheClient(Device):
                 except:
                     pass
                 # try to read or write some data
-                res = select.select([self._socket], writelist, [self._socket],
+                res = select.select([self._socket], writelist, [],
                                     self._selecttimeout)
-                if res[2]:
-                    # handle error case: close socket and reopen
-                    self._disconnect('disconnect: socket in error state')
-                    data = ''
-                    break
-                elif res[1]:
+                if res[1]:
                     # write data
                     try:
                         self._socket.sendall(tosend)
