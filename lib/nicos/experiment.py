@@ -243,7 +243,27 @@ class Experiment(Device):
 
     @property
     def detectors(self):
-        return self._detlist
+        if self._detlist is not None:
+            return self._detlist
+        detlist = []
+        all_created = True
+        for detname in self.detlist:
+            try:
+                det = session.getDevice(detname)
+            except Exception:
+                self.log.warning('could not create %r detector device' %
+                                 detname, exc=1)
+                all_created = False
+            else:
+                if not isinstance(det, Measurable):
+                    self.log.warning('cannot use device %r as a '
+                                     'detector: it is not a Measurable' % det)
+                    all_created = False
+                else:
+                    detlist.append(det)
+        if all_created:
+            self._detlist = detlist
+        return detlist
 
     def setDetectors(self, detectors):
         dlist = []
@@ -256,23 +276,34 @@ class Experiment(Device):
         session.elog_event('detectors', dlist)
 
     def doUpdateDetlist(self, detectors):
-        detlist = []
-        for detname in detectors:
-            try:
-                det = session.getDevice(detname)
-            except Exception:
-                self.log.exception('could not create %r detector device' %
-                                   detname)
-            else:
-                if not isinstance(det, Measurable):
-                    raise InvalidValueError(self, 'cannot use device %r as a '
-                        'detector: it is not a Measurable' % det)
-                detlist.append(det)
-        self._detlist = detlist
+        # try to create detectors right now
+        self._params['detlist'] = detectors  # prevent infinite recursion
+        self._detlist = None
+        dummy = self.detectors
 
     @property
     def sampleenv(self):
-        return self._envlist
+        if self._envlist is not None:
+            return self._envlist
+        devlist = []
+        all_created = True
+        for devname in self.envlist:
+            try:
+                dev = session.getDevice(devname)
+            except Exception:
+                self.log.warning('could not create %r environment device' %
+                                 devname, exc=1)
+                all_created = False
+            else:
+                if not isinstance(dev, Readable):
+                    self.log.warning('cannot use device %r as '
+                                     'environment: it is not a Readable' % dev)
+                    all_created = False
+                else:
+                    devlist.append(dev)
+        if all_created:
+            self._envlist = devlist
+        return devlist
 
     def setEnvironment(self, devices):
         dlist = []
@@ -285,16 +316,7 @@ class Experiment(Device):
         session.elog_event('environment', dlist)
 
     def doUpdateEnvlist(self, devices):
-        devlist = []
-        for devname in devices:
-            try:
-                dev = session.getDevice(devname)
-            except Exception:
-                self.log.exception('could not create %r environment device' %
-                                   devname)
-            else:
-                if not isinstance(dev, Readable):
-                    raise InvalidValueError(self, 'cannot use device %r as '
-                        'environment: it is not a Readable' % dev)
-                devlist.append(dev)
-        self._envlist = devlist
+        self._params['envlist'] = devices  # prevent infinite recursion
+        self._envlist = None
+        # try to create env devices right now
+        dummy = self.sampleenv
