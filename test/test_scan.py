@@ -51,7 +51,7 @@ def test_scan():
     mm = session.getDevice('manual')
     mm.move(0)
 
-    session.experiment.detlist = [session.getDevice('det')]
+    session.experiment.setDetectors([session.getDevice('det')])
 
     try:
         # plain scan, with some extras: infostring, firstmove

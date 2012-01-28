@@ -273,13 +273,11 @@ class Experiment(Device):
             if det not in dlist:
                 dlist.append(det)
         self.detlist = dlist
+        dummy = self.detectors  # try to create them right now
         session.elog_event('detectors', dlist)
 
     def doUpdateDetlist(self, detectors):
-        # try to create detectors right now
-        self._params['detlist'] = detectors  # prevent infinite recursion
-        self._detlist = None
-        dummy = self.detectors
+        self._detlist = None  # clear list of actual devices
 
     @property
     def sampleenv(self):
@@ -313,10 +311,8 @@ class Experiment(Device):
             if dev not in dlist:
                 dlist.append(dev)
         self.envlist = dlist
+        dummy = self.sampleenv  # try to create them right now
         session.elog_event('environment', dlist)
 
     def doUpdateEnvlist(self, devices):
-        self._params['envlist'] = devices  # prevent infinite recursion
-        self._envlist = None
-        # try to create env devices right now
-        dummy = self.sampleenv
+        self._envlist = None  # clear list of actual devices
