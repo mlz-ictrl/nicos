@@ -423,7 +423,7 @@ class HistoryPanel(Panel):
 class ViewPlot(NicosPlot):
     def __init__(self, parent, window, view):
         self.view = view
-        self.hasSymbols = True
+        self.hasSymbols = False
         self.hasLines = True
         NicosPlot.__init__(self, parent, window, timeaxis=True)
 
@@ -456,7 +456,8 @@ class ViewPlot(NicosPlot):
         pen = QPen(self.curvecolor[i % self.numcolors])
         plotcurve = QwtPlotCurve(key)
         plotcurve.setPen(pen)
-        #plotcurve.setSymbol(self.symbol)
+        plotcurve.setSymbol(self.nosymbol)
+        plotcurve.setStyle(QwtPlotCurve.Lines)
         x, y, n = self.view.keydata[key]
         plotcurve.setData(x[:n], y[:n])
         self.addPlotCurve(plotcurve, replot)
