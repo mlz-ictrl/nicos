@@ -62,8 +62,9 @@ redbold.setFontWeight(QFont.Bold)
 
 # REs for hyperlinks
 
-script_re = re.compile(r'>>> \[([^ ]+) .*?\] -{20} (.*?)\n')
 command_re = re.compile(r'>>> \[([^ ]+) .*?\]  (.*?)\n')
+script_re = re.compile(r'>>> \[([^ ]+) .*?\] -{20} ?(.*?)\n')
+update_re = re.compile(r'UPDATE \[([^ ]+) .*?\] -{20} ?(.*?)\n')
 
 # time formatter
 
@@ -118,23 +119,36 @@ class OutputView(QTextBrowser):
         elif levelno <= OUTPUT:
             text = name + message[3]
         elif levelno == INPUT:
-            m = script_re.match(message[3])
-            if m:
-                fmt = QTextCharFormat()
-                fmt.setAnchor(True)
-                fmt.setAnchorHref('edit:' + m.group(2))
-                if m.group(1) != self._currentuser:
-                    fmt.setForeground(QBrush(QColor('#0000C0')))
-                fmt.setFontWeight(QFont.Bold)
-                return message[3], fmt
             m = command_re.match(message[3])
             if m:
                 fmt = QTextCharFormat()
+                fmt.setFontWeight(QFont.Bold)
                 fmt.setAnchor(True)
                 fmt.setAnchorHref('exec:' + m.group(2))
                 if m.group(1) != self._currentuser:
                     fmt.setForeground(QBrush(QColor('#0000C0')))
+                return message[3], fmt
+            m = script_re.match(message[3])
+            if m:
+                fmt = QTextCharFormat()
                 fmt.setFontWeight(QFont.Bold)
+                if m.group(2):
+                    fmt.setAnchor(True)
+                    fmt.setAnchorHref('edit:' + m.group(2))
+                if m.group(1) != self._currentuser:
+                    fmt.setForeground(QBrush(QColor('#0000C0')))
+                return message[3], fmt
+            m = update_re.match(message[3])
+            if m:
+                fmt = QTextCharFormat()
+                fmt.setFontWeight(QFont.Bold)
+                if m.group(2):
+                    fmt.setAnchor(True)
+                    fmt.setAnchorHref('edit:' + m.group(2))
+                if m.group(1) != self._currentuser:
+                    fmt.setForeground(QBrush(QColor('#006090')))
+                else:
+                    fmt.setForeground(QBrush(QColor('#00A000')))
                 return message[3], fmt
             return message[3], bold
         elif levelno <= WARNING:
