@@ -76,7 +76,10 @@ class TacoLoggerClient(BaseCacheClient):
 
     def _handle_msg(self, time, ttl, tsop, key, op, value):
         try:
-            self._window.emit(self._signal, ast.literal_eval(value) + '\n')
+            prio, message = ast.literal_eval(value).split('>', 1)
+            prio = int(prio[1:]) & 7
+            if prio <= 4:
+                self._window.emit(self._signal, message)
         except Exception:
             self.log.warning('strange message received: %r' % value)
 
@@ -97,7 +100,8 @@ if opts.daemon and opts.client:
 
 if opts.client:
     SingleDeviceSession.run('tacologger-client', TacoLoggerClient,
-                            {'prefix': 'tacolog/', 'server': opts.server})
+                            {'prefix': 'tacolog/', 'server': opts.server},
+                            pidfile=False)
 else:
     SingleDeviceSession.run('tacologger', TacoLoggerServer,
                             {'prefix': 'tacolog/', 'server': opts.server},
