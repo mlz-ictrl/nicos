@@ -75,10 +75,10 @@ class View(object):
                         y[i] = value
                         i += 1
                         ltime = vtime
-                x.resize((2*i,)); y.resize((2*i,))
+                x.resize((2*i or 100,)); y.resize((2*i or 100,))
                 self.keydata[key] = [x, y, i]
         else:
-            self.keydata = dict((key, [np.zeros(1000), np.zeros(1000), 0])
+            self.keydata = dict((key, [np.zeros(500), np.zeros(500), 0])
                                 for key in keys)
 
         self.listitem = None
@@ -93,8 +93,16 @@ class View(object):
             return
         # double array size if array is full
         if n == kd[0].shape[0]:
-            kd[0].resize((2*kd[0].shape[0],))
-            kd[1].resize((2*kd[0].shape[0],))
+            # we select a certain maximum # of points to avoid filling up memory
+            # and taking forever to update
+            if kd[0].shape[0] > 5000:
+                # don't add more points, make existing ones more sparse
+                kd[0][:n/2] = kd[0][1::2]
+                kd[1][:n/2] = kd[1][1::2]
+                n = kd[2] = n/2
+            else:
+                kd[0].resize((2*kd[0].shape[0],))
+                kd[1].resize((2*kd[1].shape[0],))
         # fill next entry
         kd[0][n] = time
         kd[1][n] = value
@@ -423,7 +431,7 @@ class HistoryPanel(Panel):
 class ViewPlot(NicosPlot):
     def __init__(self, parent, window, view):
         self.view = view
-        self.hasSymbols = True
+        self.hasSymbols = False
         self.hasLines = True
         NicosPlot.__init__(self, parent, window, timeaxis=True)
 
@@ -456,7 +464,8 @@ class ViewPlot(NicosPlot):
         pen = QPen(self.curvecolor[i % self.numcolors])
         plotcurve = QwtPlotCurve(key)
         plotcurve.setPen(pen)
-        #plotcurve.setSymbol(self.symbol)
+        plotcurve.setSymbol(self.nosymbol)
+        plotcurve.setStyle(QwtPlotCurve.Lines)
         x, y, n = self.view.keydata[key]
         plotcurve.setData(x[:n], y[:n])
         self.addPlotCurve(plotcurve, replot)

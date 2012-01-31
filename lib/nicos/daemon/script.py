@@ -40,7 +40,7 @@ from nicos.utils.loggers import INPUT
 from nicos.daemon.utils import format_exception_cut_frames, format_script, \
      fixup_script, update_linecache
 from nicos.daemon.pyctl import Controller, ControlStop
-from nicos.sessions.utils import NicosCompleter
+from nicos.sessions.utils import NicosCompleter, guessCorrectCommand
 
 # compile flag to activate new division
 CO_DIVISION = 0x2000
@@ -112,7 +112,7 @@ class ScriptRequest(Request):
             # in the interactive interpreter, so that expression
             # results are shown
             compiler = lambda src: \
-                compile(src, '<script>', 'single', CO_DIVISION)
+                compile(src + '\n', '<script>', 'single', CO_DIVISION)
             self.code = [session.commandHandler(self.text, compiler)]
             self.blocks = None
         elif sys.version_info < (2, 6):
@@ -259,6 +259,8 @@ class ExecutionController(Controller):
         self.current_script = None # currently executed script
         self.namespace = session.namespace
                                    # namespace in which scripts execute
+        self.session_ns = {'session': session}
+                                   # additional namespace for eval_expression()
         self.completer = NicosCompleter(self.namespace)
                                    # completer for the namespace
         self.watchexprs = set()    # watch expressions to evaluate
@@ -372,7 +374,7 @@ class ExecutionController(Controller):
 
     def eval_expression(self, expr):
         try:
-            return repr(eval(expr, self.namespace))
+            return repr(eval(expr, self.namespace, self.session_ns))
         except Exception, err:
             return '<cannot be evaluated: %s>' % err
 
@@ -484,7 +486,7 @@ class ExecutionController(Controller):
                     else:
                         session.log.info('Script stopped by %s' % (err.args[1],))
                     continue
-                except Exception:
+                except Exception, err:
                     # the topmost two frames are still in the
                     # daemon, so don't display them to the user
                     session.logUnhandledException(cut_frames=2)
@@ -497,6 +499,10 @@ class ExecutionController(Controller):
                         exception + '\n\nThe script was:\n\n' +
                         repr(self.current_script), 'error notification',
                         short='Exception: ' + exception.splitlines()[-1])
+                    if isinstance(err, NameError):
+                        guessCorrectCommand(self.current_script.text)
+                    elif isinstance(err, AttributeError):
+                        guessCorrectCommand(self.current_script.text, True)
         except Exception:
             self.log.exception('unhandled exception in script thread')
         finally:

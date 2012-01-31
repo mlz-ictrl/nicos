@@ -645,9 +645,3 @@ def LogAttach(description, paths, names=None):
     if names is None:
         names = [path.basename(f) for f in paths]
     session.elog_event('attachment', (description, paths, names))
-
-
-@usercommand
-def _GetDatapath():
-    """Return the name of the current data path."""
-    return session.experiment.datapath

@@ -27,7 +27,6 @@
 __version__ = "$Revision$"
 
 import os
-import re
 import pdb
 import sys
 import code
@@ -35,14 +34,13 @@ import time
 import signal
 import readline
 import traceback
-import exceptions
 
 from nicos import session, nicos_version
 from nicos.core import AccessError
 from nicos.utils import colorcode, formatExtendedStack
 from nicos.utils.loggers import INPUT, OUTPUT
 from nicos.sessions import Session
-from nicos.sessions.utils import NicosCompleter
+from nicos.sessions.utils import NicosCompleter, guessCorrectCommand
 
 
 class NicosInteractiveStop(BaseException):
@@ -131,10 +129,10 @@ class NicosInteractiveConsole(code.InteractiveConsole):
                 'An exception occurred in the executed script:\n\n' +
                 exception, 'error notification',
                 short='Exception: ' + exception.splitlines()[-1])
-            if exc_info[0] == exceptions.NameError:
-                self._guessCorrectCommand(source)
-            if exc_info[0] == exceptions.AttributeError:
-                self._guessCorrectCommand(source, attribute=True)
+            if exc_info[0] == NameError:
+                guessCorrectCommand(source)
+            if exc_info[0] == AttributeError:
+                guessCorrectCommand(source, attribute=True)
 
             return
         finally:
@@ -143,72 +141,6 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         if code.softspace(sys.stdout, 0):
             print
         #self.locals.clear()
-
-    def _guessCorrectCommand(self, source, attribute=False):
-        """Try to guess the command that was meant by *source*.
-
-        Will do a fuzzy match in all usercommands in the top level namespace and
-        tries to find attributes if *attribute* is true.
-        """
-        if source is None:
-            return
-
-        from nicos.utils.comparestrings import compare
-        try:
-            # extract the first dotted item on the line
-            match = re.match('[a-zA-Z_][a-zA-Z0-9_.]*', source)
-            if match is None:
-                return
-            object_parts = match.group(0).split('.')
-            if attribute and len(object_parts) < 2:
-                return
-
-            # compile a list of existing commands
-            allowed_keys = [x for x in self.session._exported_names
-                            if hasattr(self.session.namespace[x], 'is_usercommand')]
-            allowed_keys += __builtins__.keys()
-            allowed_keys += self.locals.keys()
-            allowed_keys += self.globals.keys()
-            # for attributes, use a list of existing attributes instead
-            if attribute:
-                obj = None
-                if self.globals.has_key(object_parts[0]):
-                    obj = self.globals[object_parts[0]]
-                if self.locals.has_key(object_parts[0]):
-                    obj = self.locals[object_parts[0]]
-                for i in range(1, len(object_parts)):
-                    try:
-                        obj = getattr(obj, object_parts[i])
-                    except AttributeError:
-                        base = '.'.join(object_parts[:i])
-                        poi = object_parts[i]
-                        allowed_keys = dir(obj)
-                        break
-                else:
-                    return  # whole object chain exists -- error comes from
-                            # somewhere else
-            else:
-                base = ''
-                poi = object_parts[0]
-
-            # compare all allowed keys against given
-            comp = {}
-
-            if attribute:
-                poi = object_parts[1]
-            else:
-                poi = object_parts[0]
-            for key in allowed_keys:
-                if key == poi:
-                    return  # the error probably occurred with another object
-                            # on the line
-                comp[key] = compare(poi, key)
-            comp = sorted(comp.items(), key=lambda t: t[1], reverse=True)
-            suggestions = [(base and base + '.' or '') + m[0]
-                           for m in comp[:3] if m[1] > 2]
-            self.session.log.info('Did you mean: %s' % ', '.join(suggestions))
-        except Exception:
-            pass
 
 
 class ConsoleSession(Session):

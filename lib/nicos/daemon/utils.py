@@ -77,7 +77,7 @@ def format_script(script, prompt='>>>'):
         else:
             start = prompt + '-'*20 + ' ' + script.name
         end = '-' * (16 + len(prompt)) + ' <<<'
-        return '%s\n%s%s <<<' % (start, script.text, end)
+        return '%s\n%s%s' % (start, script.text, end)
 
 
 def format_timestamp(prompt='<<<'):

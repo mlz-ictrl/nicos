@@ -127,8 +127,6 @@ class ConsolePanel(Panel):
         url = str(url.toString())
         if url.startswith('exec:'):
             # Direct execution is too dangerous. Just insert it in the editor.
-            #self.client.tell('queue', '', url[5:])
-            #self.mainwindow.action_start_time = time.time()
             if self.hasinput:
                 self.commandInput.setText(url[5:])
                 self.commandInput.setFocus()
