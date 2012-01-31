@@ -431,7 +431,7 @@ class ConnectionHandler(BaseRequestHandler):
     def eval(self, expr):
         """Evaluate and return an expression."""
         try:
-            self.log.info('evaluating expresson in script context\n%s' % expr)
+            self.log.debug('evaluating expresson in script context\n%s' % expr)
             retval = self.controller.eval_expression(expr)
         except Exception, err:
             self.log.exception('exception in eval command')

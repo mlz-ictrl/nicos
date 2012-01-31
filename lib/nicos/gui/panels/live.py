@@ -122,7 +122,7 @@ class LiveDataPanel(Panel):
 
     def on_client_connected(self):
         pass
-    #     datapath = self.client.eval('_GetDatapath()')
+    #     datapath = self.client.eval('session.experiment.datapath', [])
     #     caspath = path.join(datapath[0], 'cascade')
     #     if path.isdir(caspath):
     #         for fn in sorted(os.listdir(caspath)):
