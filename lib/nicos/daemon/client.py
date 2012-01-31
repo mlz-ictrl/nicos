@@ -36,7 +36,7 @@ import threading
 import numpy as np
 
 from nicos.daemon import NicosDaemon
-from nicos.daemon.utils import unserialize
+from nicos.daemon.utils import serialize, unserialize
 from nicos.daemon.handler import ACK, STX, NAK, LENGTH, RS
 
 BUFSIZE = 8192
@@ -67,7 +67,7 @@ class NicosClient(object):
         # must be overwritten
         raise NotImplementedError
 
-    def connect(self, conndata, password=None):
+    def connect(self, conndata, password=None, eventmask=None):
         if self.connected:
             raise RuntimeError('client already connected')
         self.disconnecting = False
@@ -102,6 +102,9 @@ class NicosClient(object):
             password = hashlib.sha1(password).hexdigest()
         if not self.tell(conndata['login'], password, conndata['display']):
             return
+
+        if eventmask:
+            self.tell('eventmask', serialize(eventmask))
 
         # connect to event port
         self.event_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

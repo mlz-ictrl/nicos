@@ -127,6 +127,7 @@ class ConnectionHandler(BaseRequestHandler):
 
     def __init__(self, request, client_address, server):
         self.event_queue = Queue()
+        self.event_mask = set()
         # bind often used daemon attributes to self
         self.daemon = server.daemon
         self.controller = server.daemon._controller
@@ -273,12 +274,15 @@ class ConnectionHandler(BaseRequestHandler):
         """
         self.log.info('event sender started')
         queue_get = self.event_queue.get
+        event_mask = self.event_mask
         send = sock.sendall
         while 1:
             item = queue_get()
             if item is stop_queue:
                 break
             event, data = item
+            if event in event_mask:
+                continue
             try:
                 # first, send length header and event name
                 send(LENGTH.pack(len(event) + len(data) + 1) + event + RS)
@@ -289,8 +293,8 @@ class ConnectionHandler(BaseRequestHandler):
                     # close sender on broken pipe
                     self.log.warning('broken pipe in event sender')
                     break
-                self.log.exception('exception in event sender; '
-                                   'event: %s, data: %s' % (event, repr(data)[:1000]))
+                self.log.exception('exception in event sender; event: %s, '
+                                   'data: %s' % (event, repr(data)[:1000]))
         self.log.debug('closing event connection')
         sock.close()
 
@@ -547,6 +551,13 @@ class ConnectionHandler(BaseRequestHandler):
                 self.write(STX, serialize(None))
 
     # -- Miscellaneous commands ------------------------------------------------
+
+    @command()
+    def eventmask(self, events):
+        """Disable sending of certain events to the client."""
+        events = unserialize(events)
+        self.event_mask.update(events)
+        self.write(ACK)
 
     @command()
     def transfer(self, content):
