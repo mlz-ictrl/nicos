@@ -265,8 +265,12 @@ def showTraceback(tb, parent, fontwidget):
     curframe = None
     for line in tb.splitlines():
         if line.startswith('        '):
-            name, v = line.split('=', 1)
-            curframe[2][name.strip()] = v.strip()
+            try:
+                name, v = line.split('=', 1)
+            except ValueError:
+                pass  # most probably the "^" line of a SyntaxError
+            else:
+                curframe[2][name.strip()] = v.strip()
         elif line.startswith('    '):
             curframe[1] = line.strip()
         elif line.startswith('  '):
