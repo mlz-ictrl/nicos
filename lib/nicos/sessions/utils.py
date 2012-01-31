@@ -27,6 +27,7 @@
 __version__ = "$Revision$"
 
 import os
+import re
 import time
 import socket
 import exceptions
@@ -144,3 +145,73 @@ def sessionInfo(id):
     host, timestamp = rest.split('-')
     return 'PID %s on host %s, started on %s' % (
         pid, host, time.asctime(time.localtime(int(timestamp))))
+
+
+# command guessing
+
+def guessCorrectCommand(source, attribute=False):
+    """Try to guess the command that was meant by *source*.
+
+    Will do a fuzzy match in all usercommands in the top level namespace and
+    tries to find attributes if *attribute* is true.
+    """
+    if source is None:
+        return
+
+    from nicos.utils.comparestrings import compare
+    try:
+        # extract the first dotted item on the line
+        match = re.match('[a-zA-Z_][a-zA-Z0-9_.]*', source)
+        if match is None:
+            return
+        object_parts = match.group(0).split('.')
+        if attribute and len(object_parts) < 2:
+            return
+
+        # compile a list of existing commands
+        allowed_keys = [x for x in session._exported_names
+                        if hasattr(session.namespace[x], 'is_usercommand')]
+        allowed_keys += __builtins__.keys()
+        allowed_keys += session.local_namespace.keys()
+        allowed_keys += session.namespace.keys()
+        # for attributes, use a list of existing attributes instead
+        if attribute:
+            obj = None
+            if session.namespace.has_key(object_parts[0]):
+                obj = session.namespace.globals[object_parts[0]]
+            if session.local_namespace.has_key(object_parts[0]):
+                obj = session.local_namespace.locals[object_parts[0]]
+            for i in range(1, len(object_parts)):
+                try:
+                    obj = getattr(obj, object_parts[i])
+                except AttributeError:
+                    base = '.'.join(object_parts[:i])
+                    poi = object_parts[i]
+                    allowed_keys = dir(obj)
+                    break
+            else:
+                return  # whole object chain exists -- error comes from
+                        # somewhere else
+        else:
+            base = ''
+            poi = object_parts[0]
+
+        # compare all allowed keys against given
+        comp = {}
+
+        if attribute:
+            poi = object_parts[1]
+        else:
+            poi = object_parts[0]
+        for key in allowed_keys:
+            if key == poi:
+                return  # the error probably occurred with another object
+                            # on the line
+            comp[key] = compare(poi, key)
+        comp = sorted(comp.items(), key=lambda t: t[1], reverse=True)
+        suggestions = [(base and base + '.' or '') + m[0]
+                       for m in comp[:3] if m[1] > 2]
+        if suggestions:
+            session.log.info('Did you mean: %s' % ', '.join(suggestions))
+    except Exception:
+        pass

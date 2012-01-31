@@ -40,7 +40,7 @@ from nicos.utils.loggers import INPUT
 from nicos.daemon.utils import format_exception_cut_frames, format_script, \
      fixup_script, update_linecache
 from nicos.daemon.pyctl import Controller, ControlStop
-from nicos.sessions.utils import NicosCompleter
+from nicos.sessions.utils import NicosCompleter, guessCorrectCommand
 
 # compile flag to activate new division
 CO_DIVISION = 0x2000
@@ -486,7 +486,7 @@ class ExecutionController(Controller):
                     else:
                         session.log.info('Script stopped by %s' % (err.args[1],))
                     continue
-                except Exception:
+                except Exception, err:
                     # the topmost two frames are still in the
                     # daemon, so don't display them to the user
                     session.logUnhandledException(cut_frames=2)
@@ -499,6 +499,10 @@ class ExecutionController(Controller):
                         exception + '\n\nThe script was:\n\n' +
                         repr(self.current_script), 'error notification',
                         short='Exception: ' + exception.splitlines()[-1])
+                    if isinstance(err, NameError):
+                        guessCorrectCommand(self.current_script.text)
+                    elif isinstance(err, AttributeError):
+                        guessCorrectCommand(self.current_script.text, True)
         except Exception:
             self.log.exception('unhandled exception in script thread')
         finally:
