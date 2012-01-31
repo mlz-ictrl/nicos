@@ -112,7 +112,7 @@ class ScriptRequest(Request):
             # in the interactive interpreter, so that expression
             # results are shown
             compiler = lambda src: \
-                compile(src, '<script>', 'single', CO_DIVISION)
+                compile(src + '\n', '<script>', 'single', CO_DIVISION)
             self.code = [session.commandHandler(self.text, compiler)]
             self.blocks = None
         elif sys.version_info < (2, 6):
