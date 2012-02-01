@@ -26,10 +26,7 @@
 
 __version__ = "$Revision$"
 
-from time import sleep, time as currenttime
-
-from nicos.core import status, intrange, oneof, anytype, Device, Param, \
-     Readable, Moveable, NicosError, ProgrammingError, TimeoutError, tacodev, usermethod
+from nicos.core import Param, tacodev, usermethod
 from nicos.generic.axis import Axis
 
 from IO import DigitalOutput
@@ -41,11 +38,11 @@ class ATT_Axis(Axis):
         'blockdevice1': Param('First i7000', type=tacodev, mandatory=True),
         'blockdevice2': Param('Second i7000', type=tacodev, mandatory=True),
         'blockdevice3': Param('Third i7000', type=tacodev, mandatory=True),
-        'windowsize': Param('Window size', default=11.5, unit='deg'),
-        'blockwidth': Param('Block width', default=15.12, unit='deg'),
-        'blockoffset': Param('Block offset', default=-7.7, unit='deg'),
+        'windowsize':   Param('Window size', default=11.5, unit='deg'),
+        'blockwidth':   Param('Block width', default=15.12, unit='deg'),
+        'blockoffset':  Param('Block offset', default=-7.7, unit='deg'),
     }
-    
+
     def doInit(self):
         Axis.doInit(self)
         if self._mode != 'simulation':
@@ -58,37 +55,36 @@ class ATT_Axis(Axis):
                 self._dev3.deviceOn()
             except Exception:
                 self.log.warning('could not switch on taco devices', exc=1)
-    
+
     def _duringMoveAction(self, position):
         self._move_blocks(position)
-        
+
     def _postMoveAction(self):
         self._move_blocks(self.read())
-        
+
     def doReset(self):
         Axis.doReset(self)
         self._move_blocks(self.read())
-        
+
     def _move_blocks(self, pos):
         # calculate new block positions
-        templist = [0,0,0]
-        uwl=pos+self.windowsize/2.0   
-        lwl=pos-self.windowsize/2.0   
-        mask=0
+        templist = [0, 0, 0]
+        uwl = pos + self.windowsize/2.0
+        lwl = pos - self.windowsize/2.0
         for j in range(18):
-            index=j
-            module=0
-            while index>7:
-                    index-=8
-                    module+=1
-            lbl=self.blockwidth*(8-j)+self.blockoffset
-            ubl=self.blockwidth*(9-j)+self.blockoffset
-            blockup=0
+            index = j
+            module = 0
+            while index > 7:
+                    index -= 8
+                    module += 1
+            lbl = self.blockwidth*(8-j) + self.blockoffset
+            ubl = self.blockwidth*(9-j) + self.blockoffset
+            blockup = 0
             if ubl >= lwl:  # block is not left to window
                 if lbl <= uwl:  # block is not right to window
-                    blockup=1
-            if blockup==1:
-                templist[module] +=(1 << (index)) 
+                    blockup = 1
+            if blockup == 1:
+                templist[module] += (1 << index)
         self._dev1.write(templist[0])
         self._dev2.write(templist[1])
         self._dev3.write(templist[2])
@@ -115,8 +111,8 @@ class ATT_Axis(Axis):
 
     @usermethod
     def printstatusinfo(self):
-        self.log.info('blocks up: %018b' % (self._dev1.read() +
-                                    self._dev2.read() << 8 +
-                                    self._dev3.read() << 16))
-
-    
+        blocks = bin(self._dev1.read() + self._dev2.read() << 8 +
+                     self._dev3.read() << 16)[2:]
+        # fill up to 18 chars
+        blocks = ' ' * (18 - len(blocks)) + blocks
+        self.log.info('blocks up: %s' % blocks)
