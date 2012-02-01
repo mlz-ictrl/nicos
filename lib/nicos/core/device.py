@@ -1046,9 +1046,12 @@ class Moveable(Readable):
         """
         if self._sim_active:
             if not hasattr(self, 'doTime'):
-                if 'speed' in self.parameters:
-                    time = abs(self._sim_value - self._sim_old_value) * \
-                           self.speed
+                if 'speed' in self.parameters and self.speed != 0:
+                    time = abs(self._sim_value - self._sim_old_value) / \
+                        self.speed
+                elif 'ramp' in self.parameters and self.speed != 0:
+                    time = abs(self._sim_value - self._sim_old_value) / \
+                        (self.ramp / 60.)
                 else:
                     time = 0
             else:
