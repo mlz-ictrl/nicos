@@ -140,7 +140,9 @@ class Axis(BaseAxis):
     def doRead(self):
         """Returns the current position from coder controller."""
         if self._errorstate:
-            raise self._errorstate
+            errorstate = self._errorstate
+            self._errorstate = None
+            raise errorstate
         # XXX read() or read(0)
         return self._adevs['coder'].read() - self.offset
 
@@ -184,7 +186,9 @@ class Axis(BaseAxis):
         # XXX add a timeout?
         waitForStatus(self, self.loopdelay, errorstates=())
         if self._errorstate:
-            raise self._errorstate
+            errorstate = self._errorstate
+            self._errorstate = None
+            raise errorstate
 
     def doWriteOffset(self, value):
         """Called on adjust(), overridden to forbid adjusting while moving."""
@@ -362,6 +366,7 @@ class Axis(BaseAxis):
                 elif maxtries > 0:
                     self.log.warning(str(self._errorstate))
                     self.log.debug('target not reached, retrying')
+                    self._errorstate = None
                     # target not reached, get the current position,
                     # sets the motor to this position and restart it
                     # _getReading is the 'real' value, may ask the coder again
