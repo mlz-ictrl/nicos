@@ -9,9 +9,10 @@ devices = dict(
                     p = 50,
                     i = 10,
                     d = 0,
-                    rampRate = 0.1,
+                    ramp = 6.0,
                     unit = 'K',
                     fmtstr = '%g',
+                   samplechannel = 'B',
                     sensor_a = 'cryo_a',
                     sensor_b = 'cryo_b',
                     sensor_c = None,
@@ -24,9 +25,10 @@ devices = dict(
                     p = 50,
                     i = 10,
                     d = 0,
-                    rampRate = 0.1,
+                    ramp = 6.0,
                     unit = 'K',
                     fmtstr = '%g',
+                   samplechannel = 'B',
                     sensor_a = 'cryo_c',
                     sensor_b = 'cryo_d',
                     sensor_c = None,
@@ -62,11 +64,11 @@ devices = dict(
                     tacodevice = '//toftofsrv/toftof/ccr/vacuum'),
 
     cryo_p = device('nicos.taco.AnalogInput',
-                    tacodevice = '//toftofsrv/toftof/ccr/p1'),
+                    tacodevice = '//toftofsrv/toftof/ccr/p2'),
 )
 
 startupcode = """
 T = cryo
-Ts = cryo_a
+Ts = cryo_b
 SetEnvironment(Ts, T)
 """
