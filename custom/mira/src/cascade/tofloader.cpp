@@ -31,6 +31,7 @@
 #include <vector>
 #include <string.h>
 #include <limits>
+#include <iomanip>
 #include "logger.h"
 #include "helper.h"
 #include "fit.h"
@@ -1277,8 +1278,8 @@ double TmpImage::GetDoubleMin(void) const { return m_dMin; }
 double TmpImage::GetDoubleMax(void) const { return m_dMax; }
 
 bool TmpImage::WriteXML(const char* pcFileName,
-						int iSampleDetector, int iWavelength,
-						int iLifetime, int iBeamMonitor) const
+						int iSampleDetector, double dWavelength,
+						double dLifetime, int iBeamMonitor) const
 {
 	std::ofstream ofstr(pcFileName);
 	if(!ofstr.is_open())
@@ -1298,8 +1299,8 @@ bool TmpImage::WriteXML(const char* pcFileName,
 	ofstr << "\n<measurement_data>\n";
 
 	ofstr << "<Sample_Detector>" << iSampleDetector << "</Sample_Detector>\n";
-	ofstr << "<wavelength>" << iWavelength << "</wavelength>\n";
-	ofstr << "<lifetime>" << iLifetime << "</lifetime>\n";
+	ofstr << "<wavelength>" << std::setprecision(2) << dWavelength << "</wavelength>\n";
+	ofstr << "<lifetime>" << std::setprecision(3) << dLifetime << "</lifetime>\n";
 	ofstr << "<beam_monitor>" << iBeamMonitor << "</beam_monitor>\n";
 	ofstr << "<resolution>" << iRes << "</resolution>\n";
 

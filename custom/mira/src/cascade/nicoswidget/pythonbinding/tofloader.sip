@@ -99,8 +99,8 @@ class TmpImage : BasicImage
 		void UpdateRange();
 		bool WriteXML(const char* pcFileName,
 					  int iSampleDetector=0,
-					  int iWavelength=0,
-					  int iLifetime=0,
+					  double iWavelength=0,
+					  double iLifetime=0,
 					  int iBeamMonitor=0) const;
 		void ConvertPAD(PadImage* pPad);
 

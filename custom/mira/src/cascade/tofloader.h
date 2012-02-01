@@ -211,8 +211,8 @@ class TmpImage : public BasicImage
 	// write XML representation of image
 	bool WriteXML(const char* pcFileName,
 				  int iSampleDetector=0,
-				  int iWavelength=0,
-				  int iLifetime=0,
+				  double dWavelength=0,
+				  double dLifetime=0,
 				  int iBeamMonitor=0) const;
 
 	// create TmpImage from PAD image
