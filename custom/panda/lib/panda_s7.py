@@ -152,28 +152,30 @@ class S7Motor(NicosMotor):
 
     def _printstatusinfo(self):
         bus = self._adevs['bus']
+        def m(s):
+            return '\033[7m'+s+'\033[0m'
         #define a little helper
         def f(value, nonzero, zero):
             return nonzero if value else zero
         b20 = bus.read('byte', 20); self.log.info('Byte 20 = ' + bin(b20))
-        self.log.info( 'Steuerspannung: \t%s'                %f(b20 & 0x01, 'an', 'aus'))
-        self.log.info( 'Not-Aus: \t%s'                       %f(b20 & 0x02, 'gedrueckt', 'Ok'))
+        self.log.info( 'Steuerspannung: \t%s'                %f(b20 & 0x01, 'an', m('aus')))
+        self.log.info( 'Not-Aus: \t%s'                       %f(b20 & 0x02, m('gedrueckt'), 'Ok'))
         self.log.info( 'Fernbedienung: \t%s'                 %f(b20 & 0x04, 'an', 'aus'))
-        self.log.info( 'Wartungsmodus: \t%s'                 %f(b20 & 0x08, 'an', 'aus'))
+        self.log.info( 'Wartungsmodus: \t%s'                 %f(b20 & 0x08, m('an'), 'aus'))
         self.log.info( 'Vor-Ortbedienung: \t%s'              %f(b20 & 0x10, 'an', 'aus'))
-        self.log.info( 'Sammelfehler: \t%s'                  %f(b20 & 0x20, 'an', 'aus'))
-        self.log.info( 'MTT (Ebene) dreht \t%s'              %f(b20 & 0x40, '!', 'nicht.'))
+        self.log.info( 'Sammelfehler: \t%s'                  %f(b20 & 0x20, m('an'), 'aus'))
+        self.log.info( 'MTT (Ebene) dreht \t%s'              %f(b20 & 0x40, m('!'), 'nicht.'))
         self.log.info( 'Motor ausgeschwenkt:\t%s'            %f(b20 & 0x80, 'Ja', 'Nein'))
 
         b21 = bus.read('byte', 21); self.log.info('Byte 21 = ' + bin(b21))
-        self.log.info( 'Mobilblockarm dreht \t%s'            %f(b21 & 0x01, '!', 'nicht.'))
+        self.log.info( 'Mobilblockarm dreht \t%s'            %f(b21 & 0x01, m('!'), 'nicht.'))
         self.log.info( '     Magnet: \t%s'                   %f(b21 & 0x02, 'an', 'aus'))
         self.log.info( '     Klinke cw: \t%s'                %f(b21 & 0x04, 'an', 'aus'))
         self.log.info( '     Klinke ccw: \t%s'               %f(b21 & 0x08, 'an', 'aus'))
         self.log.info( '     Endschalter cw: \t%s'           %f(b21 & 0x10, 'an', 'aus'))
         self.log.info( '     Endschalter ccw: \t%s'          %f(b21 & 0x20, 'an', 'aus'))
-        self.log.info( '     Notendschalter cw: \t%s'        %f(b21 & 0x40, 'an', 'aus'))
-        self.log.info( '     Notendschalter ccw: \t%s'       %f(b21 & 0x80, 'an', 'aus'))
+        self.log.info( '     Notendschalter cw: \t%s'        %f(b21 & 0x40, m('an'), 'aus'))
+        self.log.info( '     Notendschalter ccw: \t%s'       %f(b21 & 0x80, m('an'), 'aus'))
 
         b22 = bus.read('byte', 22); self.log.info('Byte 22 = ' + bin(b22))
         self.log.info( '        Referenz: \t%s'              %f(b22 & 0x01, 'an', 'aus'))
@@ -181,29 +183,29 @@ class S7Motor(NicosMotor):
         self.log.info( '    Endschalter Klinke cw: \t%s'     %f(b22 & 0x04, 'an', 'aus'))
         self.log.info( '    Endschalter Klinke ccw: \t%s'    %f(b22 & 0x08, 'an', 'aus'))
         self.log.info( '        Arm faehrt: \t%s'            %f(b22 & 0x10, 'Ja', 'Nein'))
-        self.log.info( 'Strahlenleck cw: \t%s'               %f(b22 & 0x20, '\033[1mJa\033[0m', 'Nein'))
-        self.log.info( 'Max MB-Wechsel cw: \t%s'             %f(b22 & 0x40, 'Ja', 'Nein'))
-        self.log.info( 'Min MB-Wechsel cw: \t%s'             %f(b22 & 0x80, 'Ja', 'Nein'))
+        self.log.info( 'Strahlenleck cw: \t%s'               %f(b22 & 0x20, m('Ja'), 'Nein'))
+        self.log.info( 'Max MB-Wechsel cw: \t%s'             %f(b22 & 0x40, m('Ja'), 'Nein'))
+        self.log.info( 'Min MB-Wechsel cw: \t%s'             %f(b22 & 0x80, m('Ja'), 'Nein'))
 
         b23 = bus.read('byte', 23); self.log.info('Byte 23 = ' + bin(b23))
-        self.log.info( 'MB vor Fenster cw:               %s' %f(b23 & 0x01, 'Ja', 'Nein'))
-        self.log.info( 'MB vor Fenster ccw:              %s' %f(b23 & 0x02, 'Ja', 'Nein'))
+        self.log.info( 'MB vor Fenster cw:               %s' %f(b23 & 0x01, m('Ja'), 'Nein'))
+        self.log.info( 'MB vor Fenster ccw:              %s' %f(b23 & 0x02, m('Ja'), 'Nein'))
         self.log.info( 'Max MB-Wechsel cw:               %s' %f(b23 & 0x04, 'Ja', 'Nein'))
         self.log.info( 'Min MB-Wechsel cw:               %s' %f(b23 & 0x08, 'Ja', 'Nein'))
-        self.log.info( 'Strahlenleck ccw:                %s' %f(b22 & 0x20, '\033[1mJa\033[0m', 'Nein'))
+        self.log.info( 'Strahlenleck ccw:                %s' %f(b22 & 0x20, m('Ja'), 'Nein'))
         self.log.info( 'Freigabe Bewegung intern:        %s' %f(b23 & 0x20, 'Ja', 'Nein'))
         self.log.info( 'Freigabe extern überbrückt:      %s' %f(b23 & 0x40, 'Ja', 'Nein'))
         self.log.info( 'Freigabe extern:                 %s' %f(b23 & 0x80, 'Ja', 'Nein'))
 
         b24 = bus.read('byte', 24); self.log.info('Byte 24 = ' + bin(b24))
         self.log.info( 'Endschalter MB-Ebene cw:         %s' %f(b24 & 0x01, 'Ja', 'Nein'))
-        self.log.info( 'NotEndschalter MB-Ebene cw:      %s' %f(b24 & 0x02, 'Ja', 'Nein'))
+        self.log.info( 'NotEndschalter MB-Ebene cw:      %s' %f(b24 & 0x02, m('Ja'), 'Nein'))
         self.log.info( 'Endschalter MB-Ebene ccw:        %s' %f(b24 & 0x04, 'Ja', 'Nein'))
-        self.log.info( 'NotEndschalter MB-Ebene ccw:     %s' %f(b24 & 0x08, 'Ja', 'Nein'))
+        self.log.info( 'NotEndschalter MB-Ebene ccw:     %s' %f(b24 & 0x08, m('Ja'), 'Nein'))
         self.log.info( 'Referenzschalter MB-Ebene:       %s' %f(b24 & 0x10, 'Ja', 'Nein'))
-        self.log.info( 'NC Fehler:                       %s' %f(b24 & 0x20, 'Ja', 'Nein'))
+        self.log.info( 'NC Fehler:                       %s' %f(b24 & 0x20, m('Ja'), 'Nein'))
         self.log.info( 'Sollwert erreicht:               %s' %f(b24 & 0x40, 'Ja', 'Nein'))
-        self.log.info( 'reserviert, offiziell ungenutzt: %s' %f(b24 & 0x80, '1', '0'))
+        self.log.info( 'reserviert, offiziell ungenutzt: %s' %f(b24 & 0x80, m('1'), '0'))
 
     def doStatus (self):
         """
@@ -236,7 +238,7 @@ class S7Motor(NicosMotor):
         # we have to distinguish between Wartungsmodus and normal operation
         if wm:  # Wartungsmodus
             if (b20 & ~0x40) != 0b00010001 or (b24 & 0b10111111) != 0 or (b23 & 0b00000011) != 0:
-                self.printwarning( self.name+' in Error state!, ignored due to Wartungsmodus!!!')
+                self.log.warning( self.name+' in Error state!, ignored due to Wartungsmodus!!!')
                 # continue checking....
         else:   # Normal operation
             #~ if ( b20 != 0b00010001 ) or (( b24 & 0b10111111 ) != 0) or (( b23 & 0b00010011 ) != 0) or (( b22 & 0b00100000) != 0):
