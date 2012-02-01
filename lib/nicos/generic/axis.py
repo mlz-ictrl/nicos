@@ -117,7 +117,6 @@ class Axis(BaseAxis):
 
         if self._posthread:
             self._posthread.join()
-            del self._posthread
             self._posthread = None
 
         self._target = target
