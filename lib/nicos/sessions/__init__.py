@@ -408,8 +408,18 @@ class Session(object):
                 if not isinstance(sysconfig[key], list):
                     raise ConfigurationError('sysconfig %s entry must be '
                                              'a list' % key)
-                setattr(self, key, [self.getDevice(name, devtype[0])
-                                    for name in value])
+                devs = []
+                for name in value:
+                    try:
+                        dev = self.getDevice(name, devtype[0])
+                    except Exception:
+                        if raise_failed:
+                            raise
+                        self.log.exception('%s device %r failed to create' %
+                                           (key, name))
+                    else:
+                        devs.append(dev)
+                setattr(self, key, devs)
             else:
                 if value is None:
                     dev = None
@@ -417,7 +427,14 @@ class Session(object):
                     raise ConfigurationError('sysconfig %s entry must be '
                                              'a device name' % key)
                 else:
-                    dev = self.getDevice(value, devtype)
+                    try:
+                        dev = self.getDevice(value, devtype)
+                    except Exception:
+                        if raise_failed:
+                            raise
+                        self.log.exception('%s device %r failed to create' %
+                                           (key, value))
+                        dev = None
                 setattr(self, key, dev)
 
         # create all other devices
