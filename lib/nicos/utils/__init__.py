@@ -278,7 +278,6 @@ field_re = re.compile('{{(?P<key>[^:#}]+)(?::(?P<default>[^#}]*))?'
 
 def expandTemplate(template, keywords, field_re=field_re):
     """Simple template field replacement engine."""
-    from nicos.core.errors import NicosError
     result = []
     current = 0
     missing = []
@@ -290,20 +289,13 @@ def expandTemplate(template, keywords, field_re=field_re):
             replacement = field.group('default')
             if replacement is None:
                 missing.append(field.groupdict())
-                replacement = 'x'
+                replacement = ''
             else:
                 defaulted.append(field.groupdict())
         result.append(replacement)
         current = field.end()
     result.append(template[current:])
-    if missing:
-        err = 'missing keyword argument(s):\n'
-        err += '%12s (%s) %-s\n' % ('keyword','default','Description')
-        for entry in missing:
-            err += '%12s (%s)\t%-s\n' % (entry['key'], entry['default'], entry['description'])
-        raise NicosError(err)
-    else:
-        return ''.join(result), defaulted
+    return ''.join(result), defaulted, missing
 
 
 # daemonizing processes

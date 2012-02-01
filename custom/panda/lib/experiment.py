@@ -36,7 +36,8 @@ import subprocess
 from os import path
 
 from nicos.core import Param, UsageError, NicosError
-from nicos.utils import disableDirectory, enableDirectory, ensureDirectory, expandTemplate
+from nicos.utils import disableDirectory, enableDirectory, ensureDirectory, \
+     expandTemplate
 from nicos.experiment import Experiment
 from nicos.utils.proposaldb import queryCycle
 from nicos.commands.basic import Run
@@ -48,8 +49,8 @@ class PandaExperiment(Experiment):
         'cycle': Param('Current reactor cycle', type=str, settable=True),
     }
 
-    def _expdir(self, suffix):
-        return '/data/exp/' + suffix
+    def _expdir(self, suffix, *parts):
+        return path.join('/data/exp', suffix, *parts)
 
     def new(self, proposal, title=None, **kwds):
         # panda-specific handling of proposal number
@@ -113,186 +114,216 @@ class PandaExperiment(Experiment):
             path.join(exp_datapath, 'data'),
             '/data/%s/cycle_%s' % (time.strftime('%Y'), self.cycle),
         ]
-        
+
         if proposal == 'service':
-            Run( 'start_service.py' )
+            Run('start_service.py')
         else:
             self._start_editor()
-            
+
     def _start_editor(self):
-        filelist=[k for k in os.listdir( path.join(self._expdir( 'current' ), 'scripts') ) if k.endswith('.py')]
+        """Open all existing script files in an editor."""
+        filelist = [fn for fn in os.listdir(self._expdir('current', 'scripts'))
+                    if fn.endswith('.py')]
         # sort filelist to have the start_*.py as the last file
-        for f in filelist:
-            if f.startswith('start_'):
-                filelist.remove(f)
-                filelist.append(f)
+        for fn in filelist:
+            if fn.startswith('start_'):
+                filelist.remove(fn)
+                filelist.append(fn)
+                break
         # block signals
         def sigblock():
             import signal
-            signal.signal( signal.SIGINT, signal.SIG_IGN) # block CTRL-C
-            os.chdir(path.join(self._expdir('current'), 'scripts'))
-        s=subprocess.Popen( 
-            ['scite']+filelist, 
-            close_fds=True, 	
-            stdin=subprocess.PIPE, 
-            stdout=os.tmpfile(), 
-            stderr=subprocess.STDOUT, 
+            signal.signal(signal.SIGINT, signal.SIG_IGN) # block CTRL-C
+            os.chdir(self._expdir('current', 'scripts'))
+        # start it and forget it
+        s = subprocess.Popen(['scite'] + filelist,
+            close_fds=True,
+            stdin=subprocess.PIPE,
+            stdout=os.tmpfile(),
+            stderr=subprocess.STDOUT,
             preexec_fn=sigblock
-        ) # start it and forget it
+        )
         def checker():
-            while None==s.returncode:
+            while s.returncode is None:
                 time.sleep(1)
                 s.poll()
-        thread=threading.Thread(target=checker,name='Scite Editor')	# somebody needs to check the return value, if the process ends
-        thread.setDaemon(True) # don't block on closing python if the editor is still running...
+        # something needs to check the return value, if the process ends
+        thread = threading.Thread(target=checker, name='Scite Editor')
+        # don't block on closing python if the editor is still running...
+        thread.setDaemon(True)
         thread.start()
 
     def _handleTemplates(self, proposal, kwargs):
         kwargs['proposal'] = proposal
-        filelist = os.listdir(self._expdir( 'template' ))
+        filelist = os.listdir(self._expdir('template'))
         try:
-            filelist.remove('start_{{proposal}}.py')	#and sort it (start_....py should be first!)
+            # and sort it (start_....py should be first!)
+            filelist.remove('start_{{proposal}}.py')
             filelist.insert(0, 'start_{{proposal}}.py')
         except Exception:
-            pass	# file not in templates, no need to sort towards the end.
+            pass # file not in templates, no need to sort towards the end.
         # second: loop through all the files
-        for files in filelist:
-            if not files.endswith(('.py','.m')) : # translate '.py'-files (and '.m' files (reading routines for matlab)
-                self.log.info('ignoring file %s' % files)
+        for fn in filelist:
+            # translate '.py' and '.m' files (reading routines for matlab)
+            if not fn.endswith(('.py','.m')):
+                self.log.debug('ignoring file %s' % fn)
                 continue
             try:
                 # translate filename first
-                newfile, _ = expandTemplate(files, kwargs)
-                self.log.debug('%s -> %s' % (files, newfile))
-                # now read and translate template if file does not already exist....
-                if path.isfile(path.join(self._expdir(proposal), 'scripts', newfile)):
-                    self.log.info('file %s already exists, not overwriting' % newfile)
+                newfn, _, _ = expandTemplate(fn, kwargs)
+                self.log.debug('%s -> %s' % (fn, newfn))
+                # now read and translate template if file does not already exist
+                if path.isfile(self._expdir(proposal, 'scripts', newfn)):
+                    self.log.info('file %s already exists, not overwriting'
+                                  % newfn)
                     continue
-                with open(path.join(self._expdir('template'), files)) as fp:
+                with open(self._expdir('template', fn)) as fp:
                     content = fp.read()
-                newcontent, defaulted = expandTemplate(content, kwargs)
+                newcontent, defaulted, missing = expandTemplate(content, kwargs)
+                if missing:
+                    self.log.info('missing keyword argument(s):\n')
+                    self.log.info('%12s (%s) %-s\n' %
+                                  ('keyword', 'default', 'description'))
+                    for entry in missing:
+                        self.log.info('%12s (%s)\t%-s\n' %
+                            (entry['key'], entry['default'], entry['description']))
+                    raise NicosError('some keywords are missing')
                 if defaulted:
-                    self.log.info('the following keyword argument(s) were taken from defaults:')
-                    self.log.info('%12s (%s) %-s' % ('keyword','default','Description'))
+                    self.log.info('the following keyword argument(s) were taken'
+                                  ' from defaults:')
+                    self.log.info('%12s (%s) %-s' %
+                                  ('keyword', 'default', 'description'))
                     for entry in defaulted:
-                        self.log.info('%12s (%s)\t%-s' % (entry['key'], entry['default'], entry['description']))
-                # check for startupfile and insert our own call to save all the values in the beginning
-                # therefore -> the startupfile needs to be the last one! (so all maybe missing keywords were found already...)
-                #~ if files=='start_{{proposal}}.py': # disabled by request of Astrid
-                #~ template="#~ NewExperiment( '"+pnops+"',\n\t#~ %s )\n"%(',\n\t#~ '.join(['%s=\'%s\''%(k,v) for k,v in kwargs.items()]))+template
-                # ok, both filename and filecontent are ok and translated -> save (if not already existing)
-                with open(path.join(self._expdir(proposal), 'scripts', newfile), 'w') as fp:
+                        self.log.info('%12s (%s)\t%-s' %
+                            (entry['key'], entry['default'], entry['description']))
+                # ok, both filename and filecontent are ok and translated ->
+                # save (if not already existing)
+                with open(self._expdir(proposal, 'scripts', newfn), 'w') as fp:
                     fp.write(newcontent)
-                    fp.flush()
             except Exception:
-                self.log.warning('could not translate template file %s' % files, exc=1)
+                self.log.warning('could not translate template file %s' % fn,
+                                 exc=1)
 
     def finish(self, receivers=None):
-        ''' zips all files in the current experiment-folder into a .tgz and sends them via mail to a given emailadress
-        @param receivers Comma-separated string of email adresses of receivers, or 'none' to only create the .tgz
-        '''
+        """Zip all files in the current experiment folder into a .tgz and send
+        them via mail to a given emailadress
+
+        :param receivers: comma-separated string of email adresses of receivers,
+            or 'none' to only create the .tgz
+        """
         import smtplib
         from email.mime.application import MIMEApplication
         from email.mime.text import MIMEText
         from email.mime.multipart import MIMEMultipart
-        
+
         # check parameters
-        if receivers==None:
-            raise NicosError('need an email adress to work...' )
-        if not receivers.lower() in ['none','stats'] and receivers.find('@') == -1:
+        if receivers is None:
+            raise NicosError('need an email address to work...' )
+        if receivers.lower() not in ['none', 'stats'] and '@' not in receivers:
             raise NicosError('need full email address (\'@\' missing!)')
         # checking done, make the file
-        propdir=self._expdir(self.proposal)
-        self.log.info('Making %s.tgz out of %s'%(self.proposal,propdir))
-        #~ subprocess.call( ('tar', 'zcf', propdir+'.tgz', '-C', propdir, '.' ), close_fds=True, stderr=subprocess.STDOUT )
+        propdir = self._expdir(self.proposal)
+        self.log.info('Making %s.tgz out of %s ' % (self.proposal, propdir))
         try:
-            subprocess.Popen( ('tar', 'zcf', propdir+'.tgz', '-C', propdir, '.' ), close_fds=True ).wait()
+            subprocess.Popen(['tar', 'zcf', propdir+'.tgz', '-C', propdir, '.'],
+                             close_fds=True).wait()
         except Exception:
-            pass
-        self.log.info('done')
-        #~ if receivers.lower()=='none' or pnops[0]!='p': return # zip, but dont mail...   # removed as requested by Astrid
-        if receivers.lower()=='none':
+            self.log.warning('failed')
+        else:
+            self.log.info('done')
+        if receivers.lower() == 'none':
             return # zip, but dont mail...
 
-        # figure out statistics: number of scans, first and last scannumber, min and max date/time
-        numscans=0L
-        firstscan=99999999
-        lastscan=0
-        from_time=2**63
-        to_time=0
-        scanfilepattern=re.compile('^%s_(\d{8,8})\\.dat$'%self.proposal)
-        for files in os.listdir( path.join(propdir, 'data' )):
-            m=scanfilepattern.findall( files )	# check if datafile and extract scan-number
+        # figure out statistics: number of scans, first and last scannumber, min
+        # and max date/time
+        numscans = 0
+        firstscan = 99999999
+        lastscan = 0
+        from_time = 2**63
+        to_time = 0
+        scanfilepattern = re.compile(r'%s_(\d{8})\.dat$' % self.proposal)
+        for fn in os.listdir(path.join(propdir, 'data')):
+            # check if datafile and extract scan-number
+            m = scanfilepattern.match(fn)
             if not m:
-                continue		# no match -> check next file
-            firstscan=min(firstscan,long(m[0]))
-            lastscan=max(lastscan,long(m[0]))
-            s=os.stat( path.join(propdir, 'data', files))
-            from_time=min( from_time, s.st_ctime ) # only evaluate creation time
-            to_time=max( to_time, s.st_ctime )
-            numscans+=1
+                continue   # no match -> check next file
+            firstscan = min(firstscan, int(m.group(0)))
+            lastscan = max(lastscan, int(m.group(0)))
+            s = os.stat(path.join(propdir, 'data', fn))
+            from_time = min(from_time, s.st_ctime) # only evaluate creation time
+            to_time = max(to_time, s.st_ctime)
+            numscans += 1
 
-        # now reformat some time information (for codes see http://docs.python.org/library/time.html#time.strftime )
-        from_date=time.strftime( '%a, %d. %b %Y', time.localtime( from_time ) )
-        to_date=time.strftime( '%a, %d. %b %Y', time.localtime( to_time ) )
+        # now reformat some time information (for codes see
+        # http://docs.python.org/library/time.html#time.strftime)
+        from_date = time.strftime('%a, %d. %b %Y', time.localtime(from_time))
+        to_date = time.strftime('%a, %d. %b %Y', time.localtime(to_time))
 
-        # read and translate mailbody-template
-        with open( path.join(self._expdir( 'template'),'mailtext.txt' ),'r') as fp:
+        # read and translate mailbody template
+        with open(self._expdir('template', 'mailtext.txt')) as fp:
             textfiletext = fp.read()
         textfiletext, _ = expandTemplate(textfiletext, {
-                'proposal': self.proposal,
-                'from_date':from_date,
-                'to_date':to_date, 
-                'firstscan':'%08d'%firstscan,
-                'lastscan':'%08d'%lastscan,
-                'numscans':'%d'%numscans})
-                
+            'proposal':  self.proposal,
+            'from_date': from_date,
+            'to_date':   to_date,
+            'firstscan': '%08d' % firstscan,
+            'lastscan':  '%08d' % lastscan,
+            'numscans':  str(numscans)})
+
         if receivers.lower() == 'stats':
             for line in textfiletext.splitlines():
                 self.log.info(line)
             return
-        
-        # now we would send the file, so prepare everything
-        mailserver='mailhost.frm2.tum.de'	# TODO: should be put someplace else (config)
 
-        # construct msg according to http://docs.python.org/library/email-examples.html#email-examples
-        receivers=', '.join( receivers.replace( ',', ' ' ).split() )
-        mailsender='PANDA@frm2.tum.de'
-        msg=MIMEMultipart()
-        msg['Subject'] = 'Your recent Experiment %s on PANDA from %s to %s'%(self.proposal, from_date, to_date)
+        # now we would send the file, so prepare everything
+        # TODO: should be put someplace else (config)
+        mailserver = 'mailhost.frm2.tum.de'
+
+        # construct msg according to
+        # http://docs.python.org/library/email-examples.html#email-examples
+        receiverlist = receivers.replace(',', ' ').split()
+        receivers = ', '.join(receiverlist)
+        mailsender = 'PANDA@frm2.tum.de'
+        msg = MIMEMultipart()
+        msg['Subject'] = 'Your recent Experiment %s on PANDA from %s to %s' % \
+            (self.proposal, from_date, to_date)
         msg['From'] = mailsender
         msg['To'] = receivers
-
-        msg.attach( MIMEText( textfiletext ) )
+        msg.attach(MIMEText(textfiletext))
 
         # now attach the tarfile
-        with open( propdir+'.tgz', 'rb' ) as fp:
-            tarfiledata=fp.read()
+        with open(propdir + '.tgz', 'rb') as fp:
+            tarfiledata = fp.read()
 
-        attachment=MIMEApplication( tarfiledata, 'x-gtar' )
-        attachment['Content-Disposition']='ATTACHMENT; filename="%s.tgz"'%self.proposal
-
-        msg.attach( attachment )
+        attachment = MIMEApplication(tarfiledata, 'x-gtar')
+        attachment['Content-Disposition'] = \
+            'ATTACHMENT; filename="%s.tgz"' % self.proposal
+        msg.attach(attachment)
 
         # now comes the final part: send the mail
-        mailer=smtplib.SMTP( mailserver )
-        #~ mailer.set_debuglevel(1)
-        self.log.info('Sending Data files via eMail to %s'%receivers)
-        mailer.sendmail( mailsender, receivers.replace( ',', ' ' ).split() + [ mailsender ], msg.as_string() )
+        mailer = smtplib.SMTP(mailserver)
+        if self.loglevel == 'debug':
+            mailer.set_debuglevel(1)
+        self.log.info('Sending data files via eMail to %s' % receivers)
+        mailer.sendmail(mailsender, receiverlist + [mailsender], msg.as_string())
         mailer.quit()
 
-        # now we are deleting the (old) datafiles (only the version in the user directory, we still have them in the cycle_../dir and in the tarfile)
-        #for files in os.listdir( _expdir( pnops ) ):
-        #       m=scanfilepattern.findall( files )	# check if datafile and extract scan-number
-        #       if not(m): continue		# no match -> check next file
-        #       NicmPrint(PM_STANDARD,'Would delete %s'%files) # not deleting yet, since we are still TESTING IT
-        #       #os.remove( _expdir( pnops, files ) )
+        # now we are deleting the (old) datafiles (only the version in the user
+        # directory, we still have them in the cycle_../dir and in the tarfile)
+
+        #for fn in os.listdir(self._expdir(self.proposal, 'data')):
+        #    m = scanfilepattern.match(fn)
+        #    if not m: continue   # no match -> check next file
+        #    self.log.info('would delete %s' % fn)
+        #    #os.remove(self._expdir(self.proposal, 'data', files))
 
         self.log.info('hiding tarfile')
         try:
-            os.rename(propdir + '.tgz', path.join(propdir, self.proposal + '.tgz'))
+            os.rename(propdir + '.tgz',
+                      path.join(propdir, self.proposal + '.tgz'))
         except Exception:
             self.log.warning('WARNING: moving of tarfile failed!', exc=1)
-            os.chmod(propdir+'.tgz' , 000) # at least withdraw the access rights....
+            os.chmod(propdir+'.tgz' , 000) # at least withdraw the access rights
 
+        # switch to service experiment
         self.new('service')
