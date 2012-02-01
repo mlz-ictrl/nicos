@@ -42,13 +42,19 @@ class MiraExperiment(Experiment):
             proposal = int(proposal)
         new_datapath = '/data/%s/%s' % (time.strftime('%Y'), proposal)
         self.datapath = [new_datapath]
+        if proposal == 0 and title is None:
+            title = 'Maintenance'
         Experiment.new(self, proposal, title)
-        self._fillProposal(proposal)
+        if proposal != 0:
+            self._fillProposal(proposal)
 
         ensureDirectory(path.join(new_datapath, 'scripts'))
         self.scriptdir = path.join(new_datapath, 'scripts')
 
-        self.log.info('New experiment %s started' % proposal)
+        if proposal != 0:
+            self.log.info('New experiment %s started' % proposal)
+        else:
+            self.log.info('Maintenance time started')
         self.log.info('Data directory set to %s' % new_datapath)
 
     def finish(self, **kwds):
@@ -56,12 +62,16 @@ class MiraExperiment(Experiment):
             try:
                 self.log.info('zipping experiment data, please wait...')
                 zipname = self.datapath[0].rstrip('/') + '.zip'
-                zf = zipfile.ZipFile(zipname, 'w')
+                zf = zipfile.ZipFile(zipname, 'w', zipfile.ZIP_DEFLATED, True)
+                nfiles = 0
                 try:
                     for root, dirs, files in os.walk(self.datapath[0]):
                         xroot = root[len(self.datapath[0]):].strip('/') + '/'
                         for fn in files:
                             zf.write(path.join(root, fn), xroot + fn)
+                            nfiles += 1
+                            if nfiles % 500 == 0:
+                                self.log.info('%5d files processed' % nfiles)
                 finally:
                     zf.close()
             except Exception:
