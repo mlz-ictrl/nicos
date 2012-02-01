@@ -290,12 +290,12 @@ def NewExperiment(proposal, title='', **parameters):
     session.experiment.new(proposal, title, **parameters)
 
 @usercommand
-def FinishExperiment(**kwargs):
+def FinishExperiment(*args, **kwargs):
     """Finish the current experiment.
 
     Which parameters are accepted depends on the individual instrument.
     """
-    session.experiment.finish(**kwargs)
+    session.experiment.finish(*args, **kwargs)
 
 @usercommand
 def AddUser(name, email=None, affiliation=None):

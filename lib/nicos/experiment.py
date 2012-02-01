@@ -35,7 +35,7 @@ from uuid import uuid1
 
 from nicos import session
 from nicos.core import listof, nonemptylistof, control_path_relative, \
-     usermethod, Device, Measurable, Readable, Param, InvalidValueError
+     usermethod, Device, Measurable, Readable, Param
 from nicos.data import NeedsDatapath, Dataset
 from nicos.utils import ensureDirectory
 from nicos.utils.loggers import ELogHandler
@@ -210,7 +210,7 @@ class Experiment(Device):
         self.log.info('User "%s" added' % self.users[-1])
 
     @usermethod
-    def finish(self, **kwargs):
+    def finish(self, *args, **kwargs):
         """Called by `.FinishExperiment`.  Does nothing by default."""
         pass
 
