@@ -28,16 +28,18 @@ switches attached to digital IOs of a Phytron motor controller.
 
 __version__ = "$Revision$"
 
+import threading
 from time import sleep
 
 from PowerSupply import CurrentControl
 
-from nicos.core import Param, Moveable
+from nicos.core import Moveable, HasLimits, Param, Override, waitForStatus, \
+     floatrange, listof, InvalidValueError
 from nicos.taco.core import ProxyTacoDevice
 from nicos.taco.io import DigitalOutput
 
 
-class ESSController(ProxyTacoDevice, Moveable):
+class ESSController(HasLimits, ProxyTacoDevice, Moveable):
 
     taco_class = CurrentControl
 
@@ -46,22 +48,17 @@ class ESSController(ProxyTacoDevice, Moveable):
         'minusswitch': (DigitalOutput, 'Switch to set for negative polarity'),
     }
 
-    # XXX switch to single "ramp" parameter
     parameters = {
-        'ramprate':  Param('Rate of ramping', type=float, default=60,
-                           unit='main/min', settable=True),
-        'rampdelay': Param('Time per ramping step', type=float, default=5,
-                           unit='s', settable=True),
+        'ramp':  Param('Rate of ramping', type=floatrange(1, 240), default=60,
+                       unit='main/min', settable=True),
     }
 
     def doInit(self):
         if self._mode != 'simulation':
             self._dev.setRamp(0)
+        self._thread = None
 
-    # XXX make it parallel moving!
-
-    def doStart(self, value):
-        delay = self.rampdelay
+    def _move_to(self, value):
         if value != 0:
             minus, plus = self._adevs['minusswitch'], self._adevs['plusswitch']
             # select which switch must be on and which off
@@ -69,7 +66,7 @@ class ESSController(ProxyTacoDevice, Moveable):
             other  = value < 0 and plus or minus
             # if the switch values are not correct, drive to zero and switch
             if switch.read() & 1 != 1:
-                self.doStart(0)
+                self._move_to(0)
                 other.start(0)
                 switch.start(1)
             # then, just continue ramping to the absolute value
@@ -77,19 +74,25 @@ class ESSController(ProxyTacoDevice, Moveable):
         currentval = self._taco_guard(self._dev.read)
         diff = value - currentval
         direction = diff > 0 and 1 or -1
-        stepwidth = self.ramprate / 60. * delay
+        stepwidth = 5
+        # half a second is the communication time
+        delay = (60 / self.ramp) * 5 - 0.5
         steps, fraction = divmod(abs(diff), stepwidth)
         for i in xrange(int(steps)):
             currentval += direction * stepwidth
             self._taco_guard(self._dev.write, currentval)
             sleep(delay)
         self._taco_guard(self._dev.write, value)
-        sleep(delay)
+        if value == 0 and abs(self._taco_guard(self._dev.read)) < 5:
+            self.adevs['plusswitch'].start(0)
+            self.adevs['minusswitch'].start(0)
 
-    def _off(self):
-        self.start(0)
-        self._adevs['minusswitch'].start(0)
-        self._adevs['plusswitch'].start(0)
+    def doStart(self, value):
+        if self._thread is not None:
+            self._thread.join()
+        self._thread = threading.Thread(target=self._move_to, args=(value,))
+        self._thread.setDaemon(True)
+        self._thread.start()
 
     def doRead(self):
         sign = +1
@@ -98,4 +101,59 @@ class ESSController(ProxyTacoDevice, Moveable):
         return sign * self._taco_guard(self._dev.read)
 
     def doWait(self):
-        pass  # all movement happens in doStart()
+        while self._thread and self._thread.isAlive():
+            self._thread.join(1)
+        waitForStatus(self, 0.5)
+
+
+class ESSField(HasLimits, Moveable):
+
+    attached_devices = {
+        'controller':  (Moveable, 'The controller'),
+    }
+
+    parameters = {
+        'calibration': Param('Coefficients for calibration polynomial: '
+                             '[a0, a1, a2, ...] calculates '
+                             'B(I) = a0 + a1*I + a2*I**2 + ... in mT',
+                             type=listof(float), settable=True,
+                             default=[0, 1.]),
+    }
+
+    parameter_overrides = {
+        'unit':  Override(mandatory=False, default='mT'),
+    }
+
+    def doRead(self):
+        # XXX read() or read(0)
+        I = self._adevs['controller'].read()
+        B = 0
+        for i, a_i in enumerate(self.calibration):
+            B += a_i * I**i
+        return B
+
+    def doStart(self, value):
+        def B(I):
+            Bv = 0
+            for i, a_i in enumerate(self.calibration):
+                Bv += a_i * I**i
+            return Bv
+        # find correct I value by approximation
+        for Iv in range(-250, 250):
+            B1, B2 = B(Iv), B(Iv + 1)
+            if B1 <= value <= B2 or B2 <= value <= B1:
+                break
+        else:
+            raise InvalidValueError(
+                self, 'cannot convert B = %.2f mT to current' % value)
+        I = Iv + (value - B1) / (B2 - B1)
+        self.log.debug('B1=%.2f, B2=%.2f, Iv=%d, setting current to %.2f'
+                       % (B1, B2, Iv, I))
+        assert abs(B(I) - value) < 0.1
+        self._adevs['controller'].start(I)
+
+    def doStatus(self):
+        return self._adevs['controller'].status()
+
+    def doWait(self):
+        self._adevs['controller'].wait()
