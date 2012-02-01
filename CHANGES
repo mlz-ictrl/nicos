@@ -69,6 +69,8 @@ Changelog for NICOS 2
   - Creating the standard detectors/envlist is now retried every time the
     attribute is accessed from the experiment.
 
+  - With option "-c", the NICOS console does not autocreate devices.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless

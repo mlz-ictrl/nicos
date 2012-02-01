@@ -277,7 +277,8 @@ class Session(object):
         """
         return self._setup_info.copy()
 
-    def loadSetup(self, setupnames, allow_special=False, raise_failed=False):
+    def loadSetup(self, setupnames, allow_special=False, raise_failed=False,
+                  autocreate_devices=None):
         """Load one or more setup modules given in *setupnames* and set up
         devices accordingly.
 
@@ -420,7 +421,9 @@ class Session(object):
                 setattr(self, key, dev)
 
         # create all other devices
-        if self.autocreate_devices:
+        if autocreate_devices is None:
+            autocreate_devices = self.autocreate_devices
+        if autocreate_devices:
             for devname, (_, devconfig) in sorted(devlist.iteritems()):
                 if devconfig.get('lowlevel', False):
                     continue
