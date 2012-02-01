@@ -75,8 +75,6 @@ class Axis(BaseAxis):
         self._errorstate = None
         self._posthread = None
         self._stoprequest = 0
-        if self._mode != 'simulation':
-            self._target = self._adevs['coder'].read() - self.offset
 
     def doReadUnit(self):
         return self._adevs['motor'].unit
