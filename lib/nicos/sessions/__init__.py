@@ -429,7 +429,7 @@ class Session(object):
                 except Exception:
                     if raise_failed:
                         raise
-                    self.log.exception('failed')
+                    self.log.exception('device %r failed to create' % devname)
                     failed_devs.append(devname)
 
         # execute the startup code
