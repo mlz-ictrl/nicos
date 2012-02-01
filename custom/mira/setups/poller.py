@@ -12,6 +12,8 @@ sysconfig = dict(
 
 devices = dict(
     Poller = device('nicos.poller.Poller',
+                    autosetup = True,
                     alwayspoll = [],
-                    loglevel = 'info'),
+                    loglevel = 'info',
+                    blacklist = ['psd']),
 )

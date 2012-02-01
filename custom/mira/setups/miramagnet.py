@@ -13,5 +13,6 @@ devices = dict(
                       tacodevice = '//magnet2/magnet/ess/current',
                       abslimits = (-250, 250),
                       plusswitch = 'I_plus',
-                      minusswitch = 'I_minus'),
+                      minusswitch = 'I_minus',
+                      fmtstr = '%.1f'),
 )

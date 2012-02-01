@@ -5,7 +5,7 @@ includes = ['base']
 devices = dict(
     Sample   = device('nicos.tas.TASSample'),
 
-    MonoIPC  = device('nicos.ipc.TacoModBus',
+    MonoIPC  = device('nicos.ipc.IPCModBusTaco',
                       tacodevice = 'mira/rs485/mgott',
                       lowlevel = True),
 
