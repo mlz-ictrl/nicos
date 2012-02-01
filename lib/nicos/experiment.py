@@ -174,12 +174,15 @@ class Experiment(Device):
             self.log.warning('unable to query proposal info', exc=1)
             return
         what = []
+        kwds = {}
         if info.get('title') and self.title == '':
             self.title = info['title']
             what.append('title')
+            kwds['title'] = info['title']
         if info.get('substance'):
             self.sample.samplename = info['substance']
             what.append('sample name')
+            kwds['sample'] = info['substance']
         if info.get('user'):
             email = info.get('user_email', '')
             self.addUser(info['user'], email, info.get('affiliation'))
@@ -193,9 +196,12 @@ class Experiment(Device):
             if proplist:
                 self.users = self.users + proplist
                 what.append('co-proposers')
+        if self.users:
+            kwds['users'] = ', '.join(self.users)
         if what:
             self.log.info('Filled in %s from proposal database' %
                            ', '.join(what))
+        return kwds
 
     @usermethod
     def addUser(self, name, email=None, affiliation=None):
@@ -205,7 +211,7 @@ class Experiment(Device):
         else:
             user = name
         if affiliation is not None:
-            user += ', ' + affiliation
+            user += ' (' + affiliation + ')'
         self.users = self.users + [user]
         self.log.info('User "%s" added' % self.users[-1])
 

@@ -94,7 +94,8 @@ class PandaExperiment(Experiment):
             except ValueError:
                 pass
             else:
-                self._fillProposal(propnumber)
+                new_kwds = self._fillProposal(propnumber)
+                kwds.update(new_kwds)
 
         # create new data path and expand templates
         exp_datapath = self._expdir(proposal)
