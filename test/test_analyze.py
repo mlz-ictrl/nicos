@@ -24,6 +24,11 @@
 
 """NICOS tests for nicos.commands.analyze."""
 
+try:
+    import scipy.odr as odrmod
+except ImportError:
+    odrmod = None
+
 from nicos import session
 from nicos.core import Value
 
@@ -72,6 +77,8 @@ def test_root_mean_square():
     assert 10.148 < result < 10.149
 
 def test_poly():
+    if not odrmod:
+        return
     generate_dataset()
     result1 = poly(1)
     assert len(result1) == 2 and len(result1[0]) == 2
@@ -84,6 +91,8 @@ def test_poly():
     assert result4 == result3
 
 def test_gauss():
+    if not odrmod:
+        return
     generate_dataset()
     result = gauss()
     assert len(result) == 2 and len(result[0]) == 4
