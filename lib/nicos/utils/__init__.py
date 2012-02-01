@@ -24,7 +24,7 @@
 
 """Utilities for the other methods."""
 
-__version__ = "$Revision$"
+__version__ = "2.0.0-69-gabb10bd"
 
 import os
 import re
@@ -281,17 +281,29 @@ def expandTemplate(template, keywords, field_re=field_re):
     from nicos.core.errors import NicosError
     result = []
     current = 0
+    missing = []
+    defaulted = []
     for field in field_re.finditer(template):
-        result.append(template[:current])
+        result.append(template[current:field.start()])
         replacement = keywords.get(field.group('key'))
         if replacement is None:
             replacement = field.group('default')
             if replacement is None:
-                raise NicosError('no value given for %r' % field.group('key'))
+                missing.append(field.groupdict())
+                replacement = 'x'
+            else:
+                defaulted.append(field.groupdict())
         result.append(replacement)
         current = field.end()
     result.append(template[current:])
-    return ''.join(result)
+    if missing:
+        err = 'missing keyword argument(s):\n'
+        err += '%12s (%s) %-s\n' % ('keyword','default','Description')
+        for entry in missing:
+            err += '%12s (%s)\t%-s\n' % (entry['key'], entry['default'], entry['description'])
+        raise NicosError(err)
+    else:
+        return ''.join(result), defaulted
 
 
 # daemonizing processes
