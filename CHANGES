@@ -71,6 +71,9 @@ Changelog for NICOS 2
 
   - With option "-c", the NICOS console does not autocreate devices.
 
+  - Add "dataroot" parameter for experiment device, which configures actual
+    data root path.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless

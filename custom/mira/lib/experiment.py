@@ -40,7 +40,7 @@ class MiraExperiment(Experiment):
     def new(self, proposal, title=None, **kwds):
         if not isinstance(proposal, (int, long)):
             proposal = int(proposal)
-        new_datapath = '/data/%s/%s' % (time.strftime('%Y'), proposal)
+        new_datapath = path.join(self.dataroot, time.strftime('%Y'), proposal)
         self.datapath = [new_datapath]
         if proposal == 0 and title is None:
             title = 'Maintenance'
@@ -50,6 +50,8 @@ class MiraExperiment(Experiment):
 
         ensureDirectory(path.join(new_datapath, 'scripts'))
         self.scriptdir = path.join(new_datapath, 'scripts')
+
+        self.proposaldir = new_datapath
 
         if proposal != 0:
             self.log.info('New experiment %s started' % proposal)
@@ -61,12 +63,12 @@ class MiraExperiment(Experiment):
         if kwds.get('zip', True):
             try:
                 self.log.info('zipping experiment data, please wait...')
-                zipname = self.datapath[0].rstrip('/') + '.zip'
+                zipname = self.proposaldir.rstrip('/') + '.zip'
                 zf = zipfile.ZipFile(zipname, 'w', zipfile.ZIP_DEFLATED, True)
                 nfiles = 0
                 try:
-                    for root, dirs, files in os.walk(self.datapath[0]):
-                        xroot = root[len(self.datapath[0]):].strip('/') + '/'
+                    for root, dirs, files in os.walk(self.proposaldir):
+                        xroot = root[len(self.proposaldir):].strip('/') + '/'
                         for fn in files:
                             zf.write(path.join(root, fn), xroot + fn)
                             nfiles += 1

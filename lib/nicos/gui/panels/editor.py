@@ -475,11 +475,7 @@ class EditorPanel(Panel):
         if not self.checkDirty():
             return
         if not self.filename:
-            datapath = self.client.eval('session.experiment.datapath', [])
-            if datapath:
-                initialdir = path.join(datapath[0], 'scripts')
-            else:
-                initialdir = ''
+            initialdir = self.client.eval('session.experiment.scriptdir', '')
         else:
             initialdir = path.dirname(self.filename)
         fn = QFileDialog.getOpenFileName(self, 'Open script', initialdir,
@@ -548,11 +544,7 @@ class EditorPanel(Panel):
         if self.filename:
             initialdir = path.dirname(self.filename)
         else:
-            datapath = self.client.eval('session.experiment.datapath', [])
-            if datapath:
-                initialdir = path.join(datapath[0], 'scripts')
-            else:
-                initialdir = ''
+            initialdir = self.client.eval('session.experiment.scriptdir', '')
         fn = str(QFileDialog.getSaveFileName(self, 'Save script', initialdir,
                                              'Script files (*.py)'))
         if fn == '':

@@ -75,10 +75,10 @@ class ELogPanel(Panel, DlgUtils):
         self.preview.reload()
 
     def on_client_connected(self):
-        datapath = self.client.eval('session.experiment.datapath', [])
-        if not datapath:
+        proposaldir = self.client.eval('session.experiment.proposaldir', None)
+        if not proposaldir:
             return
-        logfile = path.join(datapath[0], 'logbook', 'logbook.html')
+        logfile = path.join(proposaldir, 'logbook', 'logbook.html')
         self.preview.load(QUrl(logfile))  # XXX reload periodically?
 
     def on_page_unsupportedContent(self, reply):

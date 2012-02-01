@@ -19,7 +19,7 @@ devices = dict(
 
     Exp      = device('nicos.mira.experiment.MiraExperiment',
                       sample = 'Sample',
-                      datapath = ['/data/testdata'],
+                      dataroot = '/data',
                       propdb = 'useroffice@tacodb.taco.frm2:useroffice'),
 
     Sample   = device('nicos.experiment.Sample'),

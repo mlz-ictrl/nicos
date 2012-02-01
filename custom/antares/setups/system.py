@@ -14,7 +14,7 @@ devices = dict(
     Sample   = device('nicos.tas.TASSample'),
 
     Exp      = device('nicos.experiment.Experiment',
-                      datapath = ['/home/antares/nicos-core/data'],
+                      dataroot = '/home/antares/nicos-core/data',
                       sample = 'Sample', _propdb='useroffice@tacodb.taco.frm2:useroffice'),
 
     ANTARES  = device('nicos.instrument.Instrument', instrument='ANTARES'),

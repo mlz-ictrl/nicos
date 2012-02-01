@@ -98,6 +98,7 @@ class ResiExperiment(Experiment):
         os.symlink(proposal, self._expdir('current'))
 
         ensureDirectory(path.join(exp_datapath, 'scripts'))
+        self.proposaldir = exp_datapath
         self.scriptdir = path.join(exp_datapath, 'scripts')
 
         self._handleTemplates(proposal, kwds)

@@ -36,7 +36,7 @@ devices = dict(
     Sample   = device('nicos.tas.TASSample'),
 
     Exp      = device('nicos.experiment.Experiment',
-                      datapath = ['data'],
+                      dataroot = 'data',
                       sample = 'Sample'),
 
     filesink = device('nicos.data.AsciiDatafileSink',

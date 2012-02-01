@@ -19,7 +19,7 @@ devices = dict(
                     ),
     Exp      = device('nicos.panda.experiment.PandaExperiment',
                       sample = 'Sample',
-                      datapath = ['/data'],
+                      dataroot = '/data',
                       ),
     Sample   = device('nicos.tas.TASSample'),
     filesink = device('nicos.data.AsciiDatafileSink',

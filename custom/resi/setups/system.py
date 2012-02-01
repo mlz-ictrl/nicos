@@ -19,7 +19,7 @@ devices = dict(
 
     Exp      = device('nicos.resi.experiment.ResiExperiment',
                       sample = 'Sample',
-                      datapath = ['/tmp/data/testdata'],
+                      dataroot = '/tmp/data/testdata',
                       _propdb = 'useroffice@tacodb.taco.frm2:useroffice'),
 
     resiInstrument =device('nicos.instrument.Instrument',

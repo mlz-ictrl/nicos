@@ -100,17 +100,20 @@ class Experiment(Device):
                               type=str, settable=True, category='experiment'),
         'remark':    Param('Current remark about experiment configuration',
                            type=str, settable=True, category='experiment'),
+        'dataroot':  Param('Root data path under which all proposal specific '
+                           'paths are created', type=control_path_relative,
+                           default='.', mandatory=True),
+        'proposaldir':   Param('Directory for proposal specific files',
+                           settable=True, type=str),
+        'scriptdir': Param('Standard script directory',
+                           settable=True, type=str),
         'datapath':  Param('List of paths where data files should be stored',
-                           type=nonemptylistof(control_path_relative),
-                           default=['.'], mandatory=True, settable=True,
-                           category='experiment'),
+                           type=nonemptylistof(str), settable=True),
         'detlist':   Param('List of default detector device names',
                            type=listof(str), settable=True),
         'envlist':   Param('List of default environment device names to read '
                            'at every scan point', type=listof(str),
                            settable=True),
-        'scriptdir': Param('Standard script directory', type=str,
-                           default='.', settable=True),
         'elog':      Param('True if the electronig logbook should be enabled',
                            type=bool, default=True),
         'propdb':    Param('user@host:dbname credentials for proposal DB',
@@ -127,8 +130,8 @@ class Experiment(Device):
         self._last_datasets = []
         instname = session.instrument and session.instrument.instrument or ''
         if self.elog:
-            ensureDirectory(path.join(self.datapath[0], 'logbook'))
-            session.elog_event('directory', (self.datapath[0],
+            ensureDirectory(path.join(self.proposaldir, 'logbook'))
+            session.elog_event('directory', (self.proposaldir,
                                              instname, self.proposal))
             self._eloghandler = ELogHandler()
             # only enable in master mode, see below
@@ -136,7 +139,7 @@ class Experiment(Device):
             session.addLogHandler(self._eloghandler)
 
     @usermethod
-    def new(self, proposal, title=None, **kwds):
+    def new(self, proposal, title=None, localcontact=None, **kwds):
         """Called by `.NewExperiment`."""
         # Individual instruments should override this to change datapath
         # according to instrument policy, and maybe call _fillProposal
@@ -145,8 +148,7 @@ class Experiment(Device):
             proposal = str(proposal)
         self.proposal = proposal
         self.title = title or ''
-        if 'localcontact' in kwds:
-            self.localcontact = kwds['localcontact']
+        self.localcontact = localcontact or ''
         # reset everything else to defaults
         self.remark = ''
         self.users = []
@@ -224,16 +226,32 @@ class Experiment(Device):
         if remark:
             session.elog_event('remark', remark)
 
-    def doWriteDatapath(self, paths):
-        for datapath in paths:
-            if not path.isdir(datapath):
-                os.makedirs(datapath)
-        ensureDirectory(path.join(paths[0], 'logbook'))
-        instname = session.instrument and session.instrument.instrument or ''
-        session.elog_event('directory', (paths[0], instname, self.proposal))
+    def doReadDatapath(self):
+        # default for datapath is just all in one directory under dataroot
+        return [self.dataroot]
+
+    def doWriteDatapath(self, dirs):
+        for datadir in dirs:
+            if not path.isdir(datadir):
+                os.makedirs(datadir)
         for dev in session.devices.itervalues():
             if isinstance(dev, NeedsDatapath):
-                dev.datapath = paths
+                dev.datapath = dirs
+
+    def doReadProposaldir(self):
+        # default for proposal dir is just dataroot
+        return self.dataroot
+
+    def doWriteProposaldir(self, newdir):
+        if not self.elog:
+            return
+        ensureDirectory(path.join(newdir, 'logbook'))
+        instname = session.instrument and session.instrument.instrument or ''
+        session.elog_event('directory', (newdir, instname, self.proposal))
+
+    def doReadScriptdir(self):
+        # default for script dir is just dataroot
+        return self.dataroot
 
     def createDataset(self, scantype=None):
         dataset = Dataset()

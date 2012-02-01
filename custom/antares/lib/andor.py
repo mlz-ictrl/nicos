@@ -94,9 +94,6 @@ class AndorDetector(Measurable, NeedsDatapath):
         self._dev.DevCCDShutdown()
         self._dev.DevCCDInitialize()
 
-    def doReadDatapath(self):
-        return session.experiment.datapath
-
     def doUpdateDatapath(self, value):
         # always use only first data path
         self._datapath = path.join(value[0], 'ccd')

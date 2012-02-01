@@ -130,6 +130,9 @@ class NeedsDatapath(object):
                           default=['.'], settable=True),
     }
 
+    def doReadDatapath(self):
+        return session.experiment.datapath
+
 
 class DataSink(Device):
     """Base class for all data sinks.
@@ -450,9 +453,6 @@ class AsciiDatafileSink(DatafileSink):
     parameter_overrides = {
         'scantypes':      Override(default=['2D']),
     }
-
-    def doReadDatapath(self):
-        return session.experiment.datapath
 
     def doUpdateDatapath(self, value):
         self._path = value[0]

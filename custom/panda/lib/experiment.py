@@ -103,6 +103,8 @@ class PandaExperiment(Experiment):
         enableDirectory(exp_datapath)
         os.symlink(proposal, self._expdir('current'))
 
+        self.proposaldir = exp_datapath
+
         ensureDirectory(path.join(exp_datapath, 'scripts'))
         self.scriptdir = path.join(exp_datapath, 'scripts')
 
@@ -223,7 +225,7 @@ class PandaExperiment(Experiment):
         if receivers.lower() not in ['none', 'stats'] and '@' not in receivers:
             raise NicosError('need full email address (\'@\' missing!)')
         # checking done, make the file
-        propdir = self._expdir(self.proposal)
+        propdir = self.proposaldir
         self.log.info('Making %s.tgz out of %s ' % (self.proposal, propdir))
         try:
             subprocess.Popen(['tar', 'zcf', propdir+'.tgz', '-C', propdir, '.'],

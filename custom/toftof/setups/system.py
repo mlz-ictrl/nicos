@@ -15,7 +15,7 @@ devices = dict(
     Sample   = device('nicos.experiment.Sample'),
 
     Exp      = device('nicos.experiment.Experiment',
-                      datapath = ['/users/data'],
+                      dataroot = '/users/data',
                       sample = 'Sample',
                       elog = False),
 
