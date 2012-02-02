@@ -429,7 +429,11 @@ class Coder(NicosCoder):
         bus = self._adevs['bus']
         if self._mode != 'simulation':
             bus.ping(self.addr)
-            if self.confbyte != self.doReadConfbyte():
+            try:
+                actual_confbyte = self.doReadConfbyte()
+            except NicosError:
+                actual_confbyte = -1
+            if self.confbyte != actual_confbyte:
                 self.doWriteConfbyte(self.confbyte)
                 self.log.warning('Confbyte mismatch between setup and card, '
                                  'overriding card value to 0x%02x' %
@@ -447,15 +451,18 @@ class Coder(NicosCoder):
         byte = self._adevs['bus'].get(self.addr, 152)
         # XXX shouldn't be necessary, doUpdateConfbyte is called
         #self._type = self._getcodertype(byte)
-        #self._resolution = byte & 31
         return byte
 
     def doWriteConfbyte(self, byte):
         self._adevs['bus'].send(self.addr, 154, byte, 3)
 
     def doUpdateConfbyte(self, byte):
-        self._type = self._getcodertype(byte)
-        self._resolution = byte & 31
+        try:
+            self._type = self._getcodertype(byte)
+            self._resolution = byte & 31
+        except NicosError:
+            self._type = None
+            self._resolution = None
 
     @lazy_property
     def _hwtype(self):
@@ -537,7 +544,7 @@ class Coder(NicosCoder):
 
     def _endatclearalarm(self):
         """Clear alarm for a binary-endat encoder."""
-        if 'endat-protocol' not in self._type:
+        if self._type is not None and 'endat-protocol' not in self._type:
             return
         bus = self._adevs['bus']
         try:
