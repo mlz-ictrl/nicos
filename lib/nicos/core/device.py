@@ -381,7 +381,7 @@ class Device(object):
             if aname not in self._config:
                 raise ConfigurationError(
                     self, 'device misses device %r in configuration' % aname)
-            value = self._config[aname]
+            value = self._config.pop(aname)
             if value is None:
                 if isinstance(cls, list):
                     self._adevs[aname] = []
@@ -410,6 +410,9 @@ class Device(object):
                 dev._sdevs.add(self.name)
 
         self._cache = self._getCache()
+        lastconfig = None
+        if self._cache:
+            lastconfig = self._cache.get('_lastconfig_', self.name, None)
 
         def _init_param(param, paraminfo):
             param = param.lower()
@@ -429,7 +432,15 @@ class Device(object):
                         prefercache = paraminfo.prefercache
                         if prefercache is None:
                             prefercache = paraminfo.settable
-                        if prefercache:
+                        if lastconfig and lastconfig.get(param) != cfgvalue:
+                            self.log.warning(
+                                'value of %s from cache (%r) differs from '
+                                'configured value (%r), using configured '
+                                'since it was changed in the setup file' %
+                                (param, value, cfgvalue))
+                            value = cfgvalue
+                            self._cache.put(self, param, value)
+                        elif prefercache:
                             self.log.warning(
                                 'value of %s from cache (%r) differs from '
                                 'configured value (%r), using cached' %
@@ -437,7 +448,7 @@ class Device(object):
                         else:
                             self.log.warning(
                                 'value of %s from cache (%r) differs from '
-                                'configured value (%r), using the latter' %
+                                'configured value (%r), using configured' %
                                 (param, value, cfgvalue))
                             value = cfgvalue
                             self._cache.put(self, param, value)
@@ -482,6 +493,9 @@ class Device(object):
                     def updateparam(key, value, time, umethod=umethod):
                         umethod(value)
                     self._cache.addCallback(self, param, updateparam)
+
+        if self._cache:
+            self._cache.put('_lastconfig_', self.name, self._config)
 
         # call custom initialization
         if hasattr(self, 'doInit'):
