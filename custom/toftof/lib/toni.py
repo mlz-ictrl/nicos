@@ -191,10 +191,10 @@ class Ratemeter(Readable):
         finally:
             self._cachelock_release()
 
-class Vacuum(Readable) :
-    """
-    Toni vacuum gauge ITR90 read out system.
-    """
+
+class Vacuum(Readable):
+    """Toni vacuum gauge ITR90 read out system."""
+
     attached_devices = {
         'bus': (ModBus, 'Toni communication bus'),
     }
@@ -214,7 +214,7 @@ class Vacuum(Readable) :
     }
 
 #   @requires(level=ADMIN)
-    def doReset (self):
+    def doReset(self):
         self._adevs['bus'].communicate('P%1d=0' % (self.channel + 1),
                                        self.addr, expect_ok=True)
         sleep(1)
@@ -275,9 +275,7 @@ class Vacuum(Readable) :
 
 
 class LVPower(Readable):
-    """
-    Toni TOFTOF-type low-voltage power supplies.
-    """
+    """Toni TOFTOF-type low-voltage power supplies."""
 
     attached_devices = {
         'bus':  (ModBus, 'Toni communication bus'),
@@ -306,13 +304,12 @@ class LVPower(Readable):
 
     @requires(level=ADMIN)
     def doStart(self, target):
-        self._adevs['bus'].communicate('P%d' % (target == 'on'), self.addr, expect_ok=True)
+        self._adevs['bus'].communicate('P%d' % (target == 'on'),
+                                       self.addr, expect_ok=True)
 
 
 class DelayBox(Moveable):
-    """
-    Toni TOFTOF-type chopper-delay box.
-    """
+    """Toni TOFTOF-type programmable delay box."""
 
     attached_devices = {
         'bus':  (ModBus, 'Toni communication bus'),
