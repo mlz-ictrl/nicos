@@ -350,7 +350,13 @@ def ClearCache(*devnames):
     current setup.
     """
     if not devnames:
-        raise UsageError('At least one device name is required')
+        raise UsageError('At least one device name is required, use '
+                         'ClearCache(\'*\') to clear everything')
+    if devnames == ('*',):
+        session.cache.clear_all()
+        printinfo('cleared ALL cached information - you probably want to '
+                  'restart the session now')
+        return
     for devname in devnames:
         if isinstance(devname, Device):
             devname = devname.name

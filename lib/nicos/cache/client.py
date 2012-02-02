@@ -439,6 +439,15 @@ class CacheClient(BaseCacheClient):
                 self._queue.put(msg)
                 self._propagate((time, dbkey, OP_TELL, ''))
 
+    def clear_all(self):
+        """Clear all cache keys."""
+        time = currenttime()
+        for dbkey in self._db.keys():
+            msg = '%s@%s/%s%s\r\n' % (time, self._prefix, dbkey, OP_TELL)
+            self._db.pop(dbkey, None)
+            self._queue.put(msg)
+            self._propagate((time, dbkey, OP_TELL, ''))
+
     def invalidate(self, dev, key):
         """Locally invalidate device/subkey.  This does not touch the remote
         cache, but will trigger re-initializing short-lived things like device
