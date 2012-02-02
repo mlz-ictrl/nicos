@@ -24,7 +24,7 @@
 
 """Utilities for the other methods."""
 
-__version__ = "2.0.0-69-gabb10bd"
+__version__ = "$Revision$"
 
 import os
 import re
