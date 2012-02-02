@@ -330,7 +330,7 @@ class Monitor(BaseCacheClient):
                 self._warningswitchtime = currenttime()
 
     # called to handle an incoming protocol message
-    def _handle_msg(self, time, ttl, tsop, key, op, value):
+    def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         if op not in (OP_TELL, OP_TELLOLD):
             return
         try:

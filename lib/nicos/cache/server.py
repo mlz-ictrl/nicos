@@ -50,6 +50,8 @@ Setting a key (op '=')
 - ``time1`` is the UNIX timestamp of the value.
 - ``time2`` is the TTL (time to live) in seconds, after which the key expires.
 - Both are optional: time1 defaults to current time, ttl to no expiration.
+- Instead of ``time+ttl@``, ``time-expirationtime@`` is also supported.
+  TTL is then ``expirationtime - time``.
 - Without any value, the key is deleted.
 
 Examples::
@@ -65,8 +67,8 @@ Querying a single key (op '?')
 ------------------------------
 
 - When an ``@`` is present, the timestamp is returned with the reply.
-- With both ``time1-time2@``, a history query is made and several values can be
-  returned.
+- With ``time1-time2@`` or ``time1+timeinterval@``, a history query is made and
+  several values can be returned.
 - The value, if present, is ignored.
 
 Examples::
@@ -317,7 +319,7 @@ class CacheWorker(object):
             self.closedown()
             return
         # extract and clean up individual values
-        time, ttl, tsop, key, op, value = match.groups()
+        time, ttlop, ttl, tsop, key, op, value = match.groups()
         key = key.lower()
         value = value or None  # no value -> value gets deleted
         try:
@@ -328,7 +330,7 @@ class CacheWorker(object):
             ttl = float(ttl)
         except (TypeError, ValueError):
             ttl = None
-        if tsop == '-' and ttl:
+        if ttlop == '-' and ttl:
             ttl = ttl - time
 
         # dispatch operations

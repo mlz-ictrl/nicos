@@ -140,7 +140,7 @@ class BaseCacheClient(Device):
 
         self._process_data(data)
 
-    def _handle_msg(self, time, ttl, tsop, key, op, value):
+    def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         raise NotImplementedError
 
     def _process_data(self, data,
@@ -318,7 +318,7 @@ class CacheClient(BaseCacheClient):
                 self._master_expires = time + self._mastertimeout - 1
                 self.lock('master', self._mastertimeout)
 
-    def _handle_msg(self, time, ttl, tsop, key, op, value):
+    def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         if op not in (OP_TELL, OP_TELLOLD) or not key.startswith(self._prefix):
             return
         key = key[len(self._prefix)+1:]

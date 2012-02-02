@@ -74,7 +74,7 @@ class TacoLoggerClient(BaseCacheClient):
             pass
         self._stoprequest = True
 
-    def _handle_msg(self, time, ttl, tsop, key, op, value):
+    def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         try:
             prio, message = ast.literal_eval(value).split('>', 1)
             prio = int(prio[1:]) & 7

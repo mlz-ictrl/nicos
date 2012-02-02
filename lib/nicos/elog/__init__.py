@@ -51,7 +51,7 @@ class Logbook(BaseCacheClient):
 
         self._process_data(data)
 
-    def _handle_msg(self, time, ttl, tsop, key, op, value):
+    def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         if op != OP_TELL or not key.startswith(self._prefix):
             return
         key = key[len(self._prefix)+1:]

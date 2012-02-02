@@ -47,7 +47,7 @@ OP_LOCK = '$'
 msg_pattern = re.compile(r'''
     ^ (?:
       \s* (?P<time>\d+\.?\d*)?    # timestamp
-      \s* [+-]?                   # ttl operator
+      \s* (?P<ttlop>[+-]?)        # ttl operator
       \s* (?P<ttl>\d+\.?\d*)?     # ttl
       \s* (?P<tsop>@)             # timestamp mark
     )?
