@@ -3,7 +3,7 @@
 description = 'Monoturm, everything inside the Monochromator housing'
 
 #~ includes = ['system','panda_s7']
-includes = ['system']
+#~ includes = ['system']
  
  # 5,mfh,mgx,mtx,mtx,mth,mtt,-,mfv
 
@@ -18,7 +18,7 @@ devices = dict(
     mfh_step = device('nicos.ipc.Motor',
             bus = 'bus5',
             addr = 0x51,
-            slope = 1000,
+            slope = 900*24*2/360,       # 900:1 gear, 24 steps per rev, 36ßdeg per rev
             unit = 'deg',
             abslimits = (-400,400),
             zerosteps = 500000,
@@ -29,6 +29,7 @@ devices = dict(
             startdelay = 0,
             stopdelay = 0,
             ramptype = 1,
+            power=0,
             #~ current = 0.2,
     ),
     mfh_poti = device('nicos.ipc.Coder',
@@ -149,9 +150,9 @@ devices = dict(
     mth_step = device('nicos.ipc.Motor',
             bus = 'bus5',
             addr = 0x55,
-            slope = 8000,
+            slope = -8000,
             unit = 'deg',
-            abslimits = (-100,25),
+            abslimits = (-25,100),
             zerosteps = 800000,
             speed = 200,
             accel = 30,
@@ -162,17 +163,17 @@ devices = dict(
     mth_enc = device('nicos.ipc.Coder',
             bus = 'bus5',
             addr = 0x75,
-            slope = (2**26)/360.0,
-            zerosteps = 35200000,
+            slope = -(2**26)/360.0,
+            zerosteps = 52095568,
             confbyte = 154,
             unit = 'deg',
+            circular = -360, # map values to -180..0..180 degree
     ),
     mth = device('nicos.generic.Axis',
             motor = 'mth_step',
             coder = 'mth_enc',
             obs = [],
             precision = 0.01,
-            zerosteps = 0.0,
     ),
 
     #
@@ -184,6 +185,7 @@ devices = dict(
             zerosteps = 0,
             confbyte = 154,
             unit = 'deg',
+            circular = -360, # map values to -180..0..180 degree
     ),
     #~ mtt = device('nicos.generic.Axis',
             #~ motor = 'mtt_step',
@@ -196,14 +198,16 @@ devices = dict(
     ms1_step = device('nicos.ipc.Motor',
             bus = 'bus5',
             addr = 0x57,
-            slope = -200/3.0,
+            slope = -1600/3.0,
             unit = 'steps',
             abslimits = (0.0, 50.0),
             zerosteps = 500000,
             #~ refpos = 496587,
             #~ refswitch = 'low',
-            speed=80,
-            accel=30,
+            speed=10,
+            accel=1,
+            divider=4,
+            microstep=16,
     ),
     ms1 = device('nicos.generic.Axis',
             motor = 'ms1_step',
@@ -217,13 +221,14 @@ devices = dict(
     mfv_step = device('nicos.ipc.Motor',
             bus = 'bus5',
             addr = 0x58,
-            slope = 1000,
+            slope = 900*24*2/360,       # 900:1 gear, 24 steps per rev, 36ßdeg per rev
             unit = 'deg',
             abslimits = (-400,400),
             zerosteps = 500000,
             confbyte=8,
             speed=200,
             accel=80,
+            power=0,
             #~ current = 0.2,
     ),
     mfv_poti = device('nicos.ipc.Coder',

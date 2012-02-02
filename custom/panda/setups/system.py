@@ -8,7 +8,7 @@ sysconfig = dict(
     cache = 'pandasrv',
     instrument = 'panda',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink'],
+    datasinks = ['conssink', 'filesink', 'gracesink'],
     notifiers = [],
 )
 
@@ -20,11 +20,13 @@ devices = dict(
     Exp      = device('nicos.panda.experiment.PandaExperiment',
                       sample = 'Sample',
                       dataroot = '/data',
+                      propdb = 'useroffice@tacodb.taco.frm2:useroffice',
                       ),
     Sample   = device('nicos.tas.TASSample'),
     filesink = device('nicos.data.AsciiDatafileSink',
                       globalcounter = '/data/filecounter'),
     conssink = device('nicos.data.ConsoleSink'),
+    gracesink = device('nicos.data.GraceSink'),
 )
 
 startupcode='Exp.detectors.append(det)'

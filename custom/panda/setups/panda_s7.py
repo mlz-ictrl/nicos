@@ -2,7 +2,7 @@
 
 description = 'test setup for S7SPS on PANDA'
 
-includes = ['system']
+includes = ['monoturm']
 
 
 devices = dict(
