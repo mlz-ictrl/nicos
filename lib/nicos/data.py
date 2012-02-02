@@ -370,6 +370,11 @@ class GnuplotSink(DataSink):
     Needs the Gnuplot module.  Only active for console sessions.
     """
 
+    parameters = {
+        'activecounter': Param('Name of active counter to plot',
+                               type=none_or(str), settable=True),
+    }
+
     activeInSimulation = False
 
     def isActive(self, scantype):
@@ -418,7 +423,10 @@ class GnuplotSink(DataSink):
             for i, ys in enumerate(self._ydata):
                 if not ys:
                     continue
-                if dataset.yvalueinfo[i % self._nperstep].type != 'counter':
+                if self.activecounter:
+                    if self._ynames[i] != self.activecounter:
+                        continue
+                elif dataset.yvalueinfo[i % self._nperstep].type != 'counter':
                     continue
                 d = Gnuplot.Data(self._xdata[:len(ys)], ys, self._dydata[i],
                                  with_='errorlines', title=self._ynames[i])
