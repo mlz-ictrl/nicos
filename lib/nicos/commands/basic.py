@@ -462,23 +462,34 @@ def Run(filename):
 
 
 @usercommand
-def Simulate(filename, *devices):
-    """Run a script file in simulation mode.  If the file name is not absolute,
-    it is relative to the experiment script directory.
+def Simulate(what, *devices):
+    """Run code or a script file in simulation mode.  If the file name is not
+    absolute, it is relative to the experiment script directory.
 
-    Position statistics will be collected for the given list of devices::
+    For script files, position statistics will be collected for the given list
+    of devices::
 
         Simulate('test', T)
 
     will simulate the 'test.py' user script and print out minimum/maximum/
     last value of T during the run.
 
-    If the session is already in simulation mode, this is the same as `Run()`.
+    Example running code::
+
+        Simulate('move(mono, 1.55); read(mtt)')
     """
+    fn = _scriptfilename(what)
+    if not path.isfile(fn):
+        try:
+            compile(what + '\n', 'exec', 'exec')
+        except Exception:
+            raise NicosError('Argument is neither a script file nor valid code')
+        session.forkSimulation(what)
+        return
     if session.mode == 'simulation':
-        return _RunScript(filename, devices)
+        return _RunScript(what, devices)
     session.forkSimulation('_RunScript(%r, [%s])' %
-                           (filename, ', '.join(dev.name for dev in devices)))
+                           (what, ', '.join(dev.name for dev in devices)))
 
 
 @usercommand
