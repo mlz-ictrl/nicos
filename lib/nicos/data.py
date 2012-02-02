@@ -42,8 +42,8 @@ except ImportError:
     Gnuplot = None
 
 from nicos import session
-from nicos.core import listof, nonemptylistof, Device, Param, Override, \
-     ConfigurationError, ProgrammingError, NicosError
+from nicos.core import listof, nonemptylistof, none_or, Device, Param, \
+     Override, ConfigurationError, ProgrammingError, NicosError
 from nicos.utils import readFileCounter, updateFileCounter, lazy_property
 from nicos.commands.output import printinfo
 from nicos.sessions.daemon import DaemonSession
@@ -284,6 +284,11 @@ class GraceSink(DataSink):
     Needs the GracePlot module.  Only active for console sessions.
     """
 
+    parameters = {
+        'activecounter': Param('Name of active counter to plot',
+                               type=none_or(str), settable=True),
+    }
+
     activeInSimulation = False
 
     def isActive(self, scantype):
@@ -339,7 +344,10 @@ class GraceSink(DataSink):
             for i, ys in enumerate(self._ydata):
                 if not ys:
                     continue
-                if dataset.yvalueinfo[i % self._nperstep].type != 'counter':
+                if self.activecounter:
+                    if self._ynames[i] != self.activecounter:
+                        continue
+                elif dataset.yvalueinfo[i % self._nperstep].type != 'counter':
                     continue
                 s = GracePlot.Symbol(symbol=GracePlot.symbols.circle,
                                      fillcolor=color, color=color, size=0.4)

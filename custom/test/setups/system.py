@@ -28,7 +28,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = None,
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'liveplot'],
     notifiers = [],
 )
 
@@ -45,6 +45,8 @@ devices = dict(
     conssink = device('nicos.data.ConsoleSink'),
 
     daemonsink = device('nicos.data.DaemonSink'),
+
+    liveplot = device('nicos.data.GraceSink'),
 
     Space    = device('nicos.generic.FreeSpace',
                       path = 'data',
