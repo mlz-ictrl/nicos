@@ -103,15 +103,17 @@ class Axis(BaseAxis):
             return ok, 'motor cannot move there: ' + why
         return True, ''
 
-    def doStart(self, target, locked=False):
+    def doStart(self, target):
         """Starts the movement of the axis to target."""
         if self._checkTargetPosition(self.read(0), target, error=False):
             return
 
-        # TODO: stop the axis instead of raising an exception
         if self.status(0)[0] == status.BUSY:
-            raise NicosError(self, 'axis is moving now, please issue a stop '
-                             'command and try it again')
+            self.log.debug('need to stop axis first')
+            self.stop()
+            waitForStatus(self, errorstates=())
+            #raise NicosError(self, 'axis is moving now, please issue a stop '
+            #                 'command and try it again')
 
         if self._posthread:
             self._posthread.join()
@@ -137,10 +139,12 @@ class Axis(BaseAxis):
 
     def doRead(self):
         """Returns the current position from coder controller."""
-        if self._errorstate:
-            errorstate = self._errorstate
-            self._errorstate = None
-            raise errorstate
+        # TODO: decide whether to re-enable this
+        #if self._errorstate:
+        #    errorstate = self._errorstate
+        #    self._errorstate = None
+        #    raise errorstate
+
         # XXX read() or read(0)
         return self._adevs['coder'].read() - self.offset
 
@@ -239,15 +243,19 @@ class Axis(BaseAxis):
         if maxdiff <= 0:
             return True
         if diff > maxdiff:
-            return self._setErrorState(MoveError,
-                'drag error (primary coder): difference %f, maximum %f' %
+            # not calling _setErrorState here, since we don't want the error
+            # log message in all cases
+            self._errorstate = MoveError(
+                self, 'drag error (primary coder): difference %f, maximum %f' %
                 (diff, maxdiff))
+            return False
         for obs in self._adevs['obs']:
             diff = abs(self._adevs['motor'].read() - obs.read())
             if diff > maxdiff:
-                return self._setErrorState(MoveError,
-                    'drag error (%s): difference %f, maximum %f' %
+                self._errorstate = MoveError(
+                    self, 'drag error (%s): difference %f, maximum %f' %
                     (obs.name, diff, maxdiff))
+                return False
         return True
 
     def _checkMoveToTarget(self, target, pos):
@@ -333,7 +341,7 @@ class Axis(BaseAxis):
     def __positioning(self, target):
         moving = False
         offset = self.offset
-        maxtries = self.maxtries
+        tries = self.maxtries
         self._adevs['motor'].start(target + offset)
         moving = True
         devs = [self._adevs['motor'], self._adevs['coder']] + self._adevs['obs']
@@ -361,9 +369,12 @@ class Axis(BaseAxis):
                     self.log.debug('target reached, leaving positioning')
                     # target reached
                     moving = False
-                elif maxtries > 0:
-                    self.log.warning(str(self._errorstate))
-                    self.log.debug('target not reached, retrying')
+                elif tries > 0:
+                    if tries == 1:
+                        self.log.warning('last try: %s' % self._errorstate)
+                    else:
+                        self.log.debug('target not reached, retrying: %s' %
+                                       self._errorstate)
                     self._errorstate = None
                     # target not reached, get the current position,
                     # sets the motor to this position and restart it
@@ -372,7 +383,7 @@ class Axis(BaseAxis):
                     self._adevs['motor'].setPosition(self._getReading())
                     # XXX exception handling!
                     self._adevs['motor'].start(target + self.offset)
-                    maxtries -= 1
+                    tries -= 1
                 else:
                     self.log.debug('target not reached after max tries')
                     moving = False
@@ -381,7 +392,9 @@ class Axis(BaseAxis):
             elif not self._checkMoveToTarget(target, pos):
                 self._stoprequest = 1
             elif not self._checkDragerror():
-                self._stoprequest = 1
+                self.log.debug('stopping motor due to drag error')
+                self._adevs['motor'].stop()
+                # should now go into next try
             elif self._stoprequest == 0:
                 try:
                     self._duringMoveAction(pos)
