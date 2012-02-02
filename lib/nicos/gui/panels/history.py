@@ -245,6 +245,27 @@ class HistoryPanel(Panel):
             newdlg.customYTo.setEnabled(on)
             if on: newdlg.customYFrom.setFocus()
         newdlg.connect(newdlg.customY, SIGNAL('toggled(bool)'), callback)
+        newdlg.fromdate.setEnabled(False)
+        newdlg.interval.setEnabled(False)
+        newdlg.todate.setEnabled(False)
+        newdlg.frombox.setEnabled(False)
+        newdlg.tobox.setEnabled(False)
+        def callback2(on):
+            on = newdlg.simpleTime.isChecked()
+            newdlg.simpleTimeSpec.setEnabled(on)
+            newdlg.fromdate.setEnabled(not on)
+            newdlg.interval.setEnabled(not on)
+            newdlg.todate.setEnabled(not on)
+            newdlg.frombox.setEnabled(not on)
+            newdlg.tobox.setEnabled(not on)
+        newdlg.connect(newdlg.simpleTime, SIGNAL('toggled(bool)'), callback2)
+        newdlg.connect(newdlg.extTime, SIGNAL('toggled(bool)'), callback2)
+        simplehelptext = 'Enter a time interval with unit like this:\n\n' \
+            '30m   (12 minutes)\n' \
+            '12h   (12 hours)\n' \
+            '3d    (3 days)\n'
+        newdlg.connect(newdlg.simpleHelpButton, SIGNAL('clicked()'),
+                       lambda: self.showInfo(simplehelptext))
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return
@@ -256,20 +277,42 @@ class HistoryPanel(Panel):
         name = str(newdlg.namebox.text())
         if not name:
             name = str(newdlg.devices.text())
-        try:
-            interval = float(newdlg.interval.text())
-        except ValueError:
-            interval = 5.0
-        if newdlg.frombox.isChecked():
-            fromtime = time.mktime(time.localtime(
-                newdlg.fromdate.dateTime().toTime_t()))
-        else:
-            fromtime = None
-        if newdlg.tobox.isChecked():
-            totime = time.mktime(time.localtime(
-                newdlg.todate.dateTime().toTime_t()))
-        else:
+        if newdlg.simpleTime.isChecked():
+            intv = str(newdlg.simpleTimeSpec.text())
+            try:
+                if intv.endswith('s'):
+                    itime = float(intv[:-1])
+                    interval = 1
+                elif intv.endswith('m'):
+                    itime = float(intv[:-1]) * 60
+                    interval = 5
+                elif intv.endswith('h'):
+                    itime = float(intv[:-1]) * 3600
+                    interval = 10
+                elif intv.endswith('d'):
+                    itime = float(intv[:-1]) * 24 * 3600
+                    interval = 30
+                else:
+                    raise ValueError
+            except ValueError:
+                return self.showError(simplehelptext)
+            fromtime = time.time() - itime
             totime = None
+        else:
+            try:
+                interval = float(newdlg.interval.text())
+            except ValueError:
+                interval = 5.0
+            if newdlg.frombox.isChecked():
+                fromtime = time.mktime(time.localtime(
+                    newdlg.fromdate.dateTime().toTime_t()))
+            else:
+                fromtime = None
+            if newdlg.tobox.isChecked():
+                totime = time.mktime(time.localtime(
+                    newdlg.todate.dateTime().toTime_t()))
+            else:
+                totime = None
         if newdlg.customY.isChecked():
             try:
                 yfrom = float(str(newdlg.customYFrom.text()))

@@ -226,6 +226,15 @@
     <string>Lines</string>
    </property>
   </action>
+  <action name="actionEditView">
+   <property name="icon">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
+     <normaloff>:/editor</normaloff>:/editor</iconset>
+   </property>
+   <property name="text">
+    <string>Edit view</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

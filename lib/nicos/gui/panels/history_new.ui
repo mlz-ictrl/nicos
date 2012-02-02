@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>484</width>
-    <height>248</height>
+    <width>534</width>
+    <height>341</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,9 +16,6 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <property name="bottomMargin">
-      <number>6</number>
-     </property>
      <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
@@ -33,20 +30,6 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0" colspan="2">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Minimum time (seconds) between two values:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2" colspan="2">
-      <widget class="QLineEdit" name="interval">
-       <property name="text">
-        <string>5</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="1" colspan="3">
       <widget class="QLineEdit" name="namebox"/>
      </item>
@@ -56,7 +39,60 @@
      <item row="0" column="3">
       <widget class="QPushButton" name="helpButton">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Help</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QRadioButton" name="simpleTime">
+       <property name="text">
+        <string>Simple:</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Time selection</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1" colspan="2">
+      <widget class="QLineEdit" name="simpleTimeSpec"/>
+     </item>
+     <item row="4" column="0">
+      <widget class="QRadioButton" name="extTime">
+       <property name="text">
+        <string>Extended:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" colspan="3">
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="3">
+      <widget class="QPushButton" name="simpleHelpButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -69,29 +105,12 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <property name="bottomMargin">
+      <number>6</number>
+     </property>
      <item>
-      <widget class="QCheckBox" name="frombox">
-       <property name="text">
-        <string>From:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QDateTimeEdit" name="fromdate">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="displayFormat">
-        <string>yyyy-MM-dd HH:mm</string>
-       </property>
-       <property name="calendarPopup">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
+      <spacer name="horizontalSpacer_4">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -100,43 +119,101 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+         <width>30</width>
          <height>20</height>
         </size>
        </property>
       </spacer>
      </item>
      <item>
-      <widget class="QCheckBox" name="tobox">
-       <property name="text">
-        <string>To:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QDateTimeEdit" name="todate">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="displayFormat">
-        <string>yyyy-MM-dd HH:mm</string>
-       </property>
-       <property name="calendarPopup">
-        <bool>true</bool>
-       </property>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Minimum time (seconds) between two values:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="interval">
+         <property name="text">
+          <string>5</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QCheckBox" name="frombox">
+           <property name="text">
+            <string>From:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDateTimeEdit" name="fromdate">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="displayFormat">
+            <string>yyyy-MM-dd HH:mm</string>
+           </property>
+           <property name="calendarPopup">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="tobox">
+           <property name="text">
+            <string>To:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDateTimeEdit" name="todate">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="displayFormat">
+            <string>yyyy-MM-dd HH:mm</string>
+           </property>
+           <property name="calendarPopup">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>If &quot;To&quot; is not enabled, new values will be added to the plot as they are acquired by the system.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>If &quot;To&quot; is not enabled, new values will be added to the plot as they are acquired by the system.</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -202,7 +279,6 @@
   <tabstop>devices</tabstop>
   <tabstop>helpButton</tabstop>
   <tabstop>namebox</tabstop>
-  <tabstop>interval</tabstop>
   <tabstop>frombox</tabstop>
   <tabstop>fromdate</tabstop>
   <tabstop>tobox</tabstop>
