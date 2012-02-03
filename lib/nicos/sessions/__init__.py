@@ -299,7 +299,7 @@ class Session(object):
             if setupname in self.loaded_setups:
                 self.log.warning('setup %s is already loaded' % setupname)
                 setupnames.remove(setupname)
-            elif self._setup_info.get(setupname) is None:
+            elif self._setup_info.get(setupname, Ellipsis) is None:
                 raise ConfigurationError(
                     'Setup %s exists, but could not be read (see above)'
                     % setupname)
