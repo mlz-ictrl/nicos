@@ -152,7 +152,8 @@ class DeviceMeta(type):
             if not info.settable:
                 def setter(self, value, param=param):
                     raise ConfigurationError(
-                        self, 'cannot set the %s parameter' % param)
+                        self, 'the %s parameter can only be changed in the '
+                        'setup file' % param)
             else:
                 wmethod = getattr(newtype, 'doWrite' + param.title(), None)
                 umethod = getattr(newtype, 'doUpdate' + param.title(), None)
