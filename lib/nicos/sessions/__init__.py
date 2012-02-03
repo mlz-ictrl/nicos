@@ -297,7 +297,8 @@ class Session(object):
 
         for setupname in setupnames[:]:
             if setupname in self.loaded_setups:
-                self.log.warning('setup %s is already loaded' % setupname)
+                self.log.warning('setup %s is already loaded, use '
+                                 'NewSetup() to reload' % setupname)
                 setupnames.remove(setupname)
             elif self._setup_info.get(setupname, Ellipsis) is None:
                 raise ConfigurationError(
@@ -472,7 +473,8 @@ class Session(object):
                            list(self.explicit_setups))
             self.elog_event('setup', list(self.explicit_setups))
 
-        self.log.info('setup loaded')
+        if setupnames:
+            self.log.info('setups loaded: %s' % ', '.join(setupnames))
 
     def unloadSetup(self):
         """Unload the current setup.
