@@ -298,7 +298,8 @@ class Session(object):
         for setupname in setupnames[:]:
             if setupname in self.loaded_setups:
                 self.log.warning('setup %s is already loaded, use '
-                                 'NewSetup() to reload' % setupname)
+                                 'NewSetup() without arguments to reload' %
+                                 setupname)
                 setupnames.remove(setupname)
             elif self._setup_info.get(setupname, Ellipsis) is None:
                 raise ConfigurationError(
