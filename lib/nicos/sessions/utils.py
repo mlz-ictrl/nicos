@@ -203,10 +203,17 @@ def guessCorrectCommand(source, attribute=False):
             poi = object_parts[1]
         else:
             poi = object_parts[0]
+            if poi in session.configured_devices:
+                if poi in session.devices:
+                    session.log.info('Use CreateDevice(%r) to export the '
+                                     'device of this name' % str(poi))
+                else:
+                    session.log.info('Use CreateDevice(%r) to try creating the '
+                                     'device of this name' % str(poi))
         for key in allowed_keys:
             if key == poi:
                 return  # the error probably occurred with another object
-                            # on the line
+                        # on the line
             comp[key] = compare(poi, key)
         comp = sorted(comp.items(), key=lambda t: t[1], reverse=True)
         suggestions = [(base and base + '.' or '') + m[0]
