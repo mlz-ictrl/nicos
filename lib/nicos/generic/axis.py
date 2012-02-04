@@ -45,8 +45,6 @@ class Axis(BaseAxis):
                   'can be empty'),
     }
 
-    # TODO: add validation for new parameter values where needed
-
     parameter_overrides = {
         # XXX determine this from motor precision if not given
         'precision': Override(mandatory=True),
