@@ -1,0 +1,451 @@
+#!/usr/bin/env python
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#
+# *****************************************************************************
+
+"""Script to plot and fit NICOS data files."""
+
+__version__ = "$Revision$"
+
+import sys
+
+from numpy import array, linspace, sqrt, exp, log, pi, piecewise, argsort, \
+     concatenate
+
+try:
+    from scipy.optimize import leastsq
+except ImportError:
+    print 'please install scipy, fitting won\'t work...'
+
+import GracePlot
+
+
+def residuals(ps, f, xs, ys, dys=None):
+    """Calculate and return the residuals for a given function, parameters
+    and a given dataset.
+
+    @param ps  list of parameters to call f with
+    @param f   the model function
+    @param xs  the x values of the dataset
+    @param ys  the y values of the dataset
+    @param dys the dy values of the dataset (optional, used for weighting the
+               residuals)
+    """
+    if dys is not None and dys.min() > 0:
+        return (ys - f(ps, xs)) / dys
+    return ys - f(ps, xs)
+
+
+def getguess(xs, ys, func):
+    if func in [gausswlorentz, twogauss]:
+        guess = [0, 0, 0, 0, 0, 0]
+    else:
+        guess = [0, 0, 0, 0]
+
+    centerindex = ys.argmax()
+    guess[0] = xs[centerindex]       # center
+    guess[1] = ys[centerindex]       # amplitude
+    guess[3] = max(ys.min() - 1, 0)  # background
+
+    overhalf = xs[ys > guess[1]/2.]
+    guess[2] = abs((overhalf[0] - overhalf[-1]) / 1.8) or 0.1
+
+    if func == gausswlorentz:
+        guess[5] = guess[3]     # background
+        guess[3] = guess[2]     # gauss width
+        guess[4] = 3*guess[2]   # lorentz width
+        guess[2] = guess[1]/10  # lorentz amplitude
+    elif func == twogauss:
+        guess[5] = guess[1]*0.9       # amplitude #2
+        guess[4] = guess[0]+guess[2]  # center #2
+        guess[0] = guess[0]-guess[2]  # center #1
+        #~ guess[4]=-0.26
+        #~ guess[0]=-0.24
+        guess[2] /= 2.0               # width
+
+    print guess
+    return guess
+
+
+def gausswlorentz(ps, xs):
+    """Two peaks centered at the same pos: Lorentzian and Gaussian."""
+    center, ampg, ampl, widthg, widthl, back = ps
+    gauss = ampg * exp(-0.5 * (xs - center)**2/widthg**2)
+    lorentz = ampl / (1 + (xs - center)**2/widthl**2)
+    bose = 1.0 / (1 - exp(-xs * 11.605/1.37))
+    return back + gauss + \
+        piecewise(xs, [xs < 0, xs == 0, xs > 0],
+                  [lorentz/(bose + 1), lorentz, lorentz/bose])
+gausswlorentz.params = ['center', 'amplitudeGauss', 'amplitudeLorentz',
+                        'widthGauss', 'widthLorentz', 'background']
+
+def lorentz(ps, xs):
+    """Lorentzian peak function."""
+    center, amp, width, back = ps
+    return back + amp / (1 + (xs - center)**2/width**2)
+lorentz.params = ['center', 'amplitude', 'width', 'background']
+
+def gauss(ps, xs):
+    """Gauss peak function."""
+    center, amp, width, back = ps
+    return back + amp * exp(-0.5 * (xs-center)**2 / (width/(2*sqrt(2*log(2))))**2)
+gauss.params = ['center', 'amplitude', 'width', 'background']
+
+def twogauss(ps, xs):
+    """Two gauss peaks function with the same width."""
+    center1, amp1, width1, back, center2, amp2 = ps
+    gauss1 = amp1 * exp(-0.5 * (xs - center1)**2 / width1**2)
+    gauss2 = amp2 * exp(-0.5 * (xs - center2)**2 / width1**2)
+    return back + gauss1 + gauss2
+twogauss.params = ['center1', 'amplitude1', 'width1', 'background',
+                   'center2', 'amplitude2']
+
+
+fitfunlist = {
+    'gauss': gauss,
+    'lorentz': lorentz,
+    'l': lorentz,
+    'gwl': gausswlorentz,
+    'gaussgauss': twogauss,
+    'gg': twogauss
+}
+
+
+def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, fitfunction=gauss):
+    grpl('s%1d on' % cnum)
+    grpl('s%1d symbol %1d' % (cnum, cnum+1))
+    grpl('s%1d symbol size 0.3' % cnum)
+    grpl('s%1d symbol fill pattern 1' % cnum)
+    grpl('s%1d symbol color %1d' % (cnum, cnum+1))
+    grpl('g0.s%1d type xydy' % cnum)
+    grpl('s%1d line type 0' % cnum)
+    for i, point in enumerate(zip(xs, ys, dys)):
+        grpl('g0.s%1d point %g,%g' % (cnum, point[0], point[1]))
+        grpl('g0.s%1d.y1[%d] = %g' % (cnum, i, point[2]))
+    grpl('g0.s%1d legend "%s"' % (cnum, legend))
+
+    if fitflag:
+        ff = fitfunction
+        guess = getguess(xs, ys, ff)
+        ps = leastsq(residuals, guess, args=(ff, xs, ys, dys))[0]
+        chi2 = (residuals(ps, ff, xs, ys, dys)**2).sum() / (len(xs) - len(ps))
+        # estimate parameter errors
+        dps = array(ps)
+        for i in range(len(ps)):
+            pes = ps.copy()
+            step = 1e-3
+            tries = 0
+            while tries < 100:
+                pes[i] = ps[i] + step
+                a = (residuals(pes, ff, xs, ys, dys)**2).sum() \
+                    / (len(xs) - len(ps))
+                pes[i] = ps[i]
+                b = (residuals(pes, ff, xs, ys, dys)**2).sum() \
+                    / (len(xs) - len(ps))
+                pes[i] = ps[i] + step
+                a = min((residuals(pes, ff, xs, ys, dys)**2).sum() \
+                        / (len(xs) - len(ps)), a)
+                d = (a-b)/(step*step)
+                # stiffness of chisqr with respect to a change of parameter i by step
+                if a-b > 5:
+                    step *= 0.3
+                    #~ print '/',
+                elif a-b < 0.5:
+                    step *= 3
+                    #~ print '*',
+                else:
+                    break
+                tries += 1
+            # range of parameter change to change chisqr at max by 1
+            dps[i] = step * sqrt(1/(a-b))
+            #~ print ps[i],dps[i]
+        print ' result of least squares fit:'
+        print ' function %s' % ff.__name__
+        print ' reduced chisqr %.3f' % chi2
+        print '_____parameters______fitted value____estimated error'
+        for i in range(len(ps)):
+            if i == len(ps)-1:
+                fill = '_'
+            else:
+                fill = ' '
+            print '%20s%12.3f\t%7.3f' % \
+                (ff.params[i].center(20, fill), ps[i], dps[i])
+        if ff == gauss:
+            print '       area         %12.3f' % (ps[1] / sqrt(2*pi) / ps[2])
+
+        grpl('s1%1d on' % cnum)
+        grpl('s1%1d symbol 0' % cnum)
+        grpl('g0.s1%1d type xy' % cnum)
+        grpl('s1%1d line type 1' % cnum)
+        grpl('s1%1d line color %1d' % (cnum, cnum+1))
+        outstring = "Ctr: %6.3f, Amp.: %6.3f, FWHM: %6.3f, Area %6.3f" % \
+            (ps[0], ps[1], ps[2], ps[1] / sqrt(2*pi) / (ps[2]/2.3548))
+        grpl('g0.s1%1d legend "%s"' % (cnum, outstring))
+        fxs = linspace(xs[0], xs[-1], 100)
+        for x, y in zip(fxs, ff(ps, fxs)):
+            grpl('g0.s1%1d point %g,%g' % (cnum, x, y))
+
+
+def prepareplot(grpl, title, subtitle, xaxis, yaxis):
+    """Prepare axis and titles for a new plot."""
+    grpl('with g0;subtitle "%s"' % subtitle)
+    grpl('with g0;title "%s"' % title)
+    grpl('with g0;xaxis label "%s"' % xaxis)
+    grpl('with g0;yaxis label "%s"' % yaxis)
+    grpl('with g0;legend 0.15,0.85')
+    grpl('with g0;legend on')
+
+
+def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False):
+    """Read NICOS data file."""
+    try:
+        f = open(filename, 'r')
+    except:
+        f = open('/data/exp/current/data/'+filename, 'r')
+
+    line = f.readline()
+    createtime = line.strip()[-19:]
+    title = '%s %s' % (filename, createtime)
+    tasopmode = ''
+    scanconst = 0
+    subtitle = ''
+
+    while not line.startswith('### Scan data'):
+        if not line.startswith('###'):
+            name, value = line[1:].split(':', 1)
+            name = name.strip()
+            value = value.strip()
+            if name.endswith('_scanmode'):
+                tasopmode = value
+            elif name.endswith('_scanconstant'):
+                scanconst = float(value)
+            elif name == 'info':
+                subtitle = value
+        line = f.readline()
+
+    # now comes the two header lines
+    colnames = f.readline().split()[1:]
+    colunits = f.readline().split()[1:]
+    xcols = colnames.index(';')
+    ycols = len(colnames) - xcols - 1
+
+    # now comes the data
+    line = f.readline()
+    xvalues = []
+    yvalues = []
+    while not line.startswith('###'):
+        parts = line.split()
+        xvalues.append(map(float, parts[:xcols]))
+        yvalues.append(map(float, parts[xcols+1:]))
+        line = f.readline()
+    f.close()
+
+    # determine X column
+    if xcol is None:
+        if colnames[0] == 'h':
+            # HKL scan: determine first changing column
+            diffs = []
+            for i in range(4):
+                diffs.append(abs(xvalues[0][i] - xvalues[1][i]))
+            xcol = diffs.index(max(diffs))
+        else:
+            xcol = 0
+    elif isinstance(xcol, str):
+        xcol = colnames[:xcols].index(xcol)
+    else:
+        # 1-based xcols
+        xcol -= 1
+
+    # determine Y column
+    if ycol is None:
+        # XXX determine first detector?
+        ycol = 3
+    elif isinstance(ycol, str):
+        ycol = colnames[-ycols:].index(ycol) + xcols + 1
+    else:
+        # 1-based ycols
+        ycol -= 1
+
+    # search temperature
+    if 'sT' in colnames:
+        tcol = colnames.index('sT')
+    elif 'K' in colunits:
+        tcol = colunits.index('K')
+    else:
+        tcol = -1
+
+    # column for k_i, if correction needed
+    if 'mono' in colnames and mcorr:
+        kicol = colnames.index('mono')
+    else:
+        kicol = -1
+
+    xaxisname = '%s (%s)' % (colnames[xcol], colunits[xcol])
+    if normalize:
+        yaxisname = 'I (cts/Mon1e5)'
+    else:
+        yaxisname = '%s (%s)' % (colnames[xcols + 1 + ycol],
+                                 colunits[xcols + 1 + ycol])
+    legend = '%s %s %4.2f A-1' % (filename[-10:-4], tasopmode, scanconst)
+
+    xs, ys, dys = [], [], []
+    for xv, yv in zip(xvalues, yvalues):
+        xs.append(xv[xcol])
+        yval = yv[ycol]
+        if normalize:
+            scale = 1e5 / yv[2]
+        else:
+            scale = 1.0
+        if kicol > -1:
+            myki = xv[kicol]
+            fcorr = 0.0478*myki**3 - 0.4747*myki**2 + 1.6149*myki - 0.9704
+        else:
+            fcorr = 1.0
+        ys.append(yval * scale / fcorr)
+        # if data = 0 use 1 for errorbar calculation...
+        dys.append((1.0 if yval == 0 else sqrt(yval)) * scale / fcorr)
+
+    if tcol > -1:
+        temperature = sum(xv[tcol] for xv in xvalues) / len(xvalues)
+        if temperature > 100:  legend += ' T= %3.0f K' % temperature
+        elif temperature > 10: legend += ' T= %4.1f K' % temperature
+        elif temperature > 2:  legend += ' T= %5.2f K' % temperature
+        elif temperature > 1:  legend += ' T= %6.3f K' % temperature
+        else: legend += ' T= %3.0f mK' % (temperature * 1000)
+
+    xs = array(xs)
+    ys = array(ys)
+    dys = array(dys)
+    return (xs, ys, dys, title, subtitle, xaxisname, yaxisname, legend)
+
+
+# start normal code here
+numargs = len(sys.argv)
+if numargs < 3:
+   print 'usage: scanplot prefix filenumber,filenumber,... option... fitfunction'
+
+fileprefix = sys.argv[1]
+filelist = sys.argv[2].split(',')
+if len(filelist) < 1 or len(filelist) > 9:
+   print 'number of files must be in [1..9]'
+# default is plot only
+function = gauss
+fitflag = False
+normflag = False
+sumflag = False
+diffflag = False
+newxcol = None
+newycols = [None]
+mergeflag = False
+monitorcorrection = False
+
+for argu in sys.argv:
+    if argu[0:4] == 'xcol':
+        newxcol = argu.split('=')[1]
+        try:
+            newxcol = int(newxcol)
+        except:
+            pass
+    if argu[0:4] == 'ycol':
+        # add code for multicolumn for polarised mode
+        newycols = argu.split('=')[1].split(',') # get stringlist
+        for i in range(len(newycols)): # convert element-by-element to int
+            try:
+                newycols[i] = int(newycols[i])
+            except:
+                pass
+
+mergeflag = 'merge' in sys.argv
+fitflag   = 'fit' in sys.argv
+sumflag   = 'sum' in sys.argv
+diffflag  = 'diff' in sys.argv
+if sumflag + diffflag + mergeflag > 1:
+    print 'illegal option combination: diff / sum / merge'
+    sys.exit()
+normflag = 'norm' in sys.argv
+monitorcorrection = 'mcorr' in sys.argv
+
+for fitfunname in fitfunlist.keys():
+    if fitfunname in sys.argv:
+        function = fitfunlist[fitfunname]
+
+if diffflag:
+    if len(filelist) != 2:
+        print 'must have exactly two filenumbers to build difference plot'
+        sys.exit()
+if sumflag or mergeflag:
+    if len(filelist) < 2:
+        print 'must have at least two files to sum or merge'
+        sys.exit()
+
+pl = GracePlot.GracePlot().write
+
+# now plot all files:
+filecount = 0
+for filenumber in filelist:
+    for newycol in newycols:
+        filename = fileprefix + '_' + filenumber.zfill(8) + '.dat'
+        thedata = getdatafromfile(filename, newxcol, newycol, normflag,
+                                  monitorcorrection)
+        xs, ys, dys, title, subtitle, xaxis, yaxis, legend = thedata
+        if filecount == 0:
+            prepareplot(pl, title, subtitle, xaxis, yaxis)
+            if diffflag or mergeflag:
+                combined = [xs, ys, dys]
+            elif sumflag:
+                combined = [xs, ys, dys**2]
+        else:
+            if diffflag:
+                combined[1] = combined[1] - ys
+                combined[2] = sqrt(combined[2]**2 + dys**2)
+            elif sumflag:
+                combined[1] += ys
+                combined[2] += dys**2
+            elif mergeflag:
+                combined[0] = concatenate((combined[0], xs))
+                combined[1] = concatenate((combined[1], ys))
+                combined[2] = concatenate((combined[2], dys))
+
+        if not (sumflag or mergeflag):
+            curvename = legend
+            if len(newycols) > 1:
+                curvename = '%s <%s>' % (legend, yaxis)
+            plotcurve(pl, xs, ys, dys,
+                      filecount, curvename, fitflag, function)
+
+        filecount += 1
+
+if diffflag:
+    plotcurve(pl, combined[0], combined[1], combined[2],
+              filecount, 'difference', fitflag, function)
+if sumflag:
+    combined[2] = combined[2]**0.5
+    plotcurve(pl, combined[0], combined[1], combined[2],
+              filecount, 'summed data', fitflag, function)
+if mergeflag:
+    ix = argsort(combined[0])
+    plotcurve(pl, combined[0][ix], combined[1][ix], combined[2][ix],
+              filecount, 'merged data', fitflag, function)
+
+pl('autoscale')
+pl('redraw')
