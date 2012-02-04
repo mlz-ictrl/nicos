@@ -134,10 +134,8 @@ class PandaExperiment(Experiment):
                 filelist.remove(fn)
                 filelist.append(fn)
                 break
-        # block signals
-        def sigblock():
-            import signal
-            signal.signal(signal.SIGINT, signal.SIG_IGN) # block CTRL-C
+        def preexec():
+            os.setpgrp()  # create new process group -> doesn't get Ctrl-C
             os.chdir(self._expdir('current', 'scripts'))
         # start it and forget it
         s = subprocess.Popen(['scite'] + filelist,
@@ -145,7 +143,7 @@ class PandaExperiment(Experiment):
             stdin=subprocess.PIPE,
             stdout=os.tmpfile(),
             stderr=subprocess.STDOUT,
-            preexec_fn=sigblock
+            preexec_fn=preexec,
         )
         def checker():
             while s.returncode is None:

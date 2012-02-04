@@ -298,10 +298,11 @@ class GraceSink(DataSink):
 
     def beginDataset(self, dataset):
         try:
-            self._grpl = GracePlot.GracePlot()
+            filename = dataset.sinkinfo.get('filename', '')
+            filepath = dataset.sinkinfo.get('filepath', '')
+            self._grpl = GracePlot.GracePlot(workingdir=path.dirname(filepath))
             self._pl = self._grpl.curr_graph
             self._pl.clear()
-            filename = dataset.sinkinfo.get('filename', '')
             self._pl.title('scan %s started %s' % (filename,
                            time.strftime(TIMEFMT, dataset.started)))
             self._pl.subtitle(dataset.scaninfo)
@@ -516,6 +517,7 @@ class AsciiDatafileSink(DatafileSink):
         self._setROParam('lastfilenumber', self._counter)
         self._setROParam('lastpoint', 0)
         self._fullfname = path.join(self._path, self._fname)
+        dataset.sinkinfo['filepath'] = self._fullfname
         dataset.sinkinfo['filename'] = self._fname
         dataset.sinkinfo['number'] = self._counter
 
