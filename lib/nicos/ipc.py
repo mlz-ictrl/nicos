@@ -448,10 +448,7 @@ class Coder(NicosCoder):
         return self._adevs['bus'].get(self.addr, 151)
 
     def doReadConfbyte(self):
-        byte = self._adevs['bus'].get(self.addr, 152)
-        # XXX shouldn't be necessary, doUpdateConfbyte is called
-        #self._type = self._getcodertype(byte)
-        return byte
+        return self._adevs['bus'].get(self.addr, 152)
 
     def doWriteConfbyte(self, byte):
         self._adevs['bus'].send(self.addr, 154, byte, 3)
@@ -460,7 +457,7 @@ class Coder(NicosCoder):
         try:
             self._type = self._getcodertype(byte)
             self._resolution = byte & 31
-        except NicosError:
+        except Exception:
             self._type = None
             self._resolution = None
 
@@ -820,7 +817,6 @@ class Motor(NicosMotor):
             bus.send(self.addr, 35)
         else:
             bus.send(self.addr, 34)
-        # XXX handle limit switch touch (???)
         bus.send(self.addr, 46, abs(diff), 6)
 
     def doReset(self):

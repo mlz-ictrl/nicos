@@ -58,7 +58,6 @@ class Monitor(BaseCacheClient):
 
     # server and prefix parameters come from BaseCacheClient
     parameters = {
-        # XXX add more configurables: timeouts ...?
         'title':     Param('Title of status window', type=str,
                            default='Status'),
         'layout':    Param('Status monitor layout', type=listof(list),

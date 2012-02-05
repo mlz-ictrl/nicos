@@ -105,6 +105,7 @@ class ScriptStatusPanel(Panel):
 
         self.connect(client, SIGNAL('request'), self.on_client_request)
         self.connect(client, SIGNAL('processing'), self.on_client_processing)
+        self.connect(client, SIGNAL('blocked'), self.on_client_blocked)
         self.connect(client, SIGNAL('status'), self.on_client_status)
         self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
 
@@ -182,6 +183,10 @@ class ScriptStatusPanel(Panel):
         self.setScript(request['script'])
         self.current_request = request
         self.setCurrentLine(new_current_line)
+
+    def on_client_blocked(self, requests):
+        for reqno in requests:
+            self.script_queue.remove(reqno)
 
     def on_client_initstatus(self, state):
         self.setScript(state[1])

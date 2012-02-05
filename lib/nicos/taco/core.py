@@ -213,7 +213,6 @@ class TacoDevice(object):
                 self._raise_taco(err, 'Switching device %r on after '
                                  'reset failed' % devname)
 
-        # XXX: automatically wrap all TACO methods with _taco_guard?
         return dev
 
     def _taco_guard_log(self, function, *args):
@@ -321,7 +320,6 @@ class TacoDevice(object):
         elif code == 4024:
             # IO error
             cls = CommunicationError
-        # TODO: add more cases?
         msg = '[TACO %d] %s' % (err.errcode, err)
         if addmsg is not None:
             msg = addmsg + ': ' + msg
@@ -395,6 +393,3 @@ class ProxyTacoDevice(TacoDevice):
         mod = class_.__module__
         cls = class_.__name__
         return TacoStub(mod, cls, devname)
-
-# XXX hack around segfaults for all taco devices
-# TacoDevice = ProxyTacoDevice

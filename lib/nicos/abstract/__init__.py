@@ -115,7 +115,6 @@ class ImageStorage(Device, NeedsDatapath):
                         type=str, mandatory=True),
         'nametemplate': Param('Template for data file names',
                               type=str, default='%08d.dat', settable=True),
-        # XXX this is awkward with simulation mode
         'lastfilename': Param('File name of the last measurement',
                               type=str, settable=True),
         'lastfilenumber': Param('File number of the last measurement',

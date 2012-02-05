@@ -57,9 +57,6 @@ class Axis(TacoDevice, BaseAxis):
                            settable=True),
     }
 
-    # XXX the usermin/usermax resources of the Taco device are currently not
-    # used or queried at all by this class
-
     def doStart(self, target):
         self._taco_guard(self._dev.start, target + self.offset)
 

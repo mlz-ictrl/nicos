@@ -749,7 +749,6 @@ class Session(object):
             return self._loggers[name]
         logger = NicosLogger(name)
         logger.parent = self.log
-        # XXX does this need to be configurable?
         logger.setLevel(logging.DEBUG)
         self._loggers[name] = logger
         return logger

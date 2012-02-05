@@ -644,7 +644,7 @@ class FlatfileCacheDatabase(CacheDatabase):
                     fd.write('%s\t%s\t%s\n' %
                              (subkey, self._midnight, entry.value))
             fd.flush()
-        # XXX start compress action of old files here
+        # old files could be compressed here, but it is probably not worth it
 
     def _create_fd(self, category):
         """Open the by-date output file for the current day for a given
@@ -908,7 +908,6 @@ class CacheServer(Device):
             res = select.select(selectlist, [], [], 1)  # timeout 1 second
             if not res[0]:
                 continue  # nothing to read -> continue loop
-            # TODO: check address for tcp and udp, currently all are allowed....
             if self._serversocket in res[0] and not self._stoprequest:
                 # TCP connection came in
                 conn, addr = self._serversocket.accept()

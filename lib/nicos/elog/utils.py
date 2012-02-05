@@ -65,8 +65,6 @@ def formatMessage(message):
         text = '%s [%s] %s%s' % (levels[levelno], format_time(message[1]),
                                  name, message[3])
         cls = 'err'
-    #if message[4]:
-    #    # XXX handle traceback info
     return '<span class="%s">%s</span>' % (cls, escape(text))
 
 
