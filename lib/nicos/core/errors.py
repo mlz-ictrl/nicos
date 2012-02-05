@@ -124,7 +124,6 @@ class TimeoutError(NicosError):
     This is *not* a communication timeout; for that purpose `CommunicationError`
     should be used.
     """
-    # XXX generalize timeouts
     category = 'Timeout'
 
 class ComputationError(NicosError):

@@ -299,7 +299,7 @@ class LVPower(Readable):
     def doStatus(self):
         sval = self._adevs['bus'].communicate('S?', self.addr, expect_hex=2)
         tval = self._adevs['bus'].communicate('T?', self.addr, expect_hex=2)
-        # XXX
+        # XXX which status values are failure?
         return status.OK, 'status=%d, temperature=%d' % (sval, tval)
 
     @requires(level=ADMIN)
@@ -332,5 +332,5 @@ class DelayBox(Moveable):
                                        expect_ok=True)
 
     def doStatus(self):
-        # XXX
+        # XXX are there any status values?
         return status.OK, ''

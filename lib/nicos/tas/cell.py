@@ -431,7 +431,6 @@ class Cell(Device):
             kf = sqrt(kf)
             return kf
         else:
-            # XXX convert to meV?
             raise ComputationError('energy transfer of %s THz not possible '
                                    'with k_i = %s' % (ny, ki))
 
@@ -444,7 +443,6 @@ class Cell(Device):
             ki = sqrt(ki)
             return ki
         else:
-            # XXX convert to meV?
             raise ComputationError('energy transfer of %s THz not possible '
                                    'with k_f = %s' % (ny, kf))
 
@@ -467,7 +465,6 @@ class Cell(Device):
                 ki = sqrt(ki)
                 return ki
             else:
-                # XXX convert to meV?
                 raise ComputationError('energy transfer of %s THz not possible '
                                        'with phi = %s' % (ny, phi))
         except ComputationError, err:
@@ -487,7 +484,6 @@ class Cell(Device):
                 ki = sqrt(ki)
                 return ki
             else:
-                # XXX convert to meV?
                 raise ComputationError('energy transfer of %s THz not possible;'
                                        ' scattering triangle not closed' % ny)
         except ComputationError, err:
@@ -517,7 +513,6 @@ class Cell(Device):
                 alpha = arctan2(sqrt(1 - temp**2), temp) * s * R2D
                 return alpha
             else:
-                # XXX convert to meV?
                 raise ComputationError('energy transfer of %s THz not possible;'
                                        ' scattering triangle not closed' % ny)
         except ComputationError, err:
