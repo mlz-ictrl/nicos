@@ -77,6 +77,9 @@ Changelog for NICOS 2
   - When parameters in configuration are changed, they are now preferred on
     reload to the cached values.
 
+  - Temperature controller now respects ramping time for timeout, and allows
+    to choose not to raise on timing out.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless

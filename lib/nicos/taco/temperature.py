@@ -112,6 +112,8 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
                            unit='s', settable=True, category='general'),
         'timeout':   Param('Maximum time to wait for stable temperature',
                            unit='s', settable=True),
+        'timeoutaction': Param('What to do when a timeout occurs',
+                               type=oneof('continue', 'raise'), settable=True),
         'loopdelay': Param('Sleep time when waiting', unit='s', default=1,
                            settable=True),
     }
@@ -157,22 +159,22 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
         #         raise TimeoutError(self, 'temperature not reached in %s seconds'
         #                            % self.timeout)
         #     time.sleep(delay)
-        # XXX needs to take current ramp into account!
         tolerance = self.tolerance
         setpoint = self.target
-        window = self.window 
+        window = self.window
         timeout = self.timeout
-        self.log.debug('wait time =  %d' % (timeout))
-       if self.ramp != 0.0 :
-             timeout += 60 * abs(self.read() - setpoint) / self.ramp 
-        self.log.debug('wait time =  %d' % (timeout))
+        self.log.debug('wait time =  %d' % timeout)
+        if self.ramp != 0.:
+             timeout += 60 * abs(self.read() - setpoint) / self.ramp
+        self.log.debug('wait time =  %d' % timeout)
         firststart = started = time.time()
         channel = self._adevs['sensor_%s' % self.controlchannel.lower()]
         while 1:
             # XXX read() or read(0)
             value = channel.read()
             now = time.time()
-            self.log.debug('%7.0f current temperature %7.3f %s' % ((now - firststart), value, self.unit))
+            self.log.debug('%7.0f s: current temperature %7.3f %s' %
+                           ((now - firststart), value, self.unit))
         #   s = self.status()[0]
         #   if s == status.OK:
         #         return v
@@ -187,8 +189,12 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
             elif now > started + window:
                 return value
             if now - firststart > timeout:
-                raise TimeoutError(self, 'temperature not reached in %s seconds'
-                                   % timeout)
+                if self.timeoutaction == 'raise':
+                    raise TimeoutError(self, 'temperature not reached in '
+                                       '%s seconds' % timeout)
+                else:
+                    self.log.warning('temperature not reached in %s seconds, '
+                                     'continuing anyway' % timeout)
             time.sleep(delay)
 
     def doReset(self):
