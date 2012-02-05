@@ -38,7 +38,14 @@ class ManualMove(HasLimits, Moveable):
     you still want to record them in data files, status monitor etc.
     """
 
+    parameters = {
+        'default': Param('Default value when freshly initialized'),
+    }
+
     hardware_access = False
+
+    def doReadTarget(self):
+        return self.default
 
     def doStart(self, target):
         pass  # self.target has already been set to position
