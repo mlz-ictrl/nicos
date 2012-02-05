@@ -30,7 +30,7 @@ import os
 import sys
 import signal
 
-from nicos.core import AccessError
+from nicos.core import AccessError, ACCESS_LEVELS
 from nicos.sessions import Session
 from nicos.cache.client import DaemonCacheClient
 from nicos.utils.loggers import OUTPUT
@@ -138,6 +138,8 @@ class DaemonSession(NoninteractiveSession):
     def checkAccess(self, required):
         if 'level' in required:
             script = self.daemon_device.current_script()
-            if script and required['level'] <= script.userlevel:
-                raise AccessError('user level not sufficient')
+            rlevel = required['level']
+            if script and rlevel <= script.userlevel:
+                raise AccessError('user level not sufficient: %s access is '
+                    'required' % ACCESS_LEVELS.get(rlevel, str(rlevel)))
         return NoninteractiveSession.checkAccess(self, required)

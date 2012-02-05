@@ -438,7 +438,8 @@ def _RunScript(filename, statdevices):
         starttime = session.clock.time
         for dev in statdevices:
             if not isinstance(dev, Readable):
-                raise UsageError('unable to collect statistics on %r' % dev)
+                printwarning('unable to collect statistics on %r' % dev)
+                continue
             dev._sim_min = None
             dev._sim_max = None
     printinfo('running user script: ' + fn)
@@ -452,6 +453,8 @@ def _RunScript(filename, statdevices):
         printinfo('simulated minimum runtime: ' +
                   formatDuration(session.clock.time - starttime))
         for dev in statdevices:
+            if not isinstance(dev, Readable):
+                continue
             printinfo('%s: min %s, max %s, last %s' % (
                 dev.name, dev.format(dev._sim_min), dev.format(dev._sim_max),
                 dev.format(dev._sim_value)))

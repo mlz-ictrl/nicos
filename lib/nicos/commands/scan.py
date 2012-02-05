@@ -202,7 +202,7 @@ ADDSCANHELP1 = """
     Presets can be given using keyword arguments::
 
         scan(dev, ..., t=5)
-        scan(dev, ..., m1=1000)
+        scan(dev, ..., mon1=1000)
 
     An info string describing the scan can be given as a string argument::
 

@@ -303,7 +303,8 @@ class Session(object):
                 setupnames.remove(setupname)
             elif self._setup_info.get(setupname, Ellipsis) is None:
                 raise ConfigurationError(
-                    'Setup %s exists, but could not be read (see above)'
+                    'Setup %s exists, but could not be read (see above); '
+                    'please fix the file and try again'
                     % setupname)
             elif setupname not in self._setup_info:
                 raise ConfigurationError(
@@ -344,7 +345,8 @@ class Session(object):
             if info['group'] == 'special' and not allow_special:
                 raise ConfigurationError('Cannot load special setup %r' % name)
             if info['group'] == 'simulated' and self._mode != 'simulation':
-                raise ConfigurationError('Cannot load simulation setup %r' % name)
+                raise ConfigurationError('Cannot load simulation setup %r in '
+                                         'non-simulation mode' % name)
             for exclude in info['excludes']:
                 if exclude in self.loaded_setups:
                     raise ConfigurationError('Cannot load setup %r when setup '
@@ -638,9 +640,13 @@ class Session(object):
                 raise ConfigurationError(
                     'device %r not found in configuration' % dev)
         if not isinstance(dev, cls or Device):
+            def clsrep(cls):
+                if isinstance(cls, tuple):
+                    return ' ,'.join(clsrep(c) for c in cls)
+                return cls.__name__
             if isinstance(cls, tuple):
-                raise UsageError('dev must be one of %s' % (cls,))
-            raise UsageError('dev must be a %s' % (cls or Device).__name__)
+                raise UsageError('device must be one of %s' % clsrep(cls))
+            raise UsageError('device must be a %s' % (cls or Device).__name__)
         return dev
 
     def createDevice(self, devname, recreate=False, explicit=False):
@@ -651,8 +657,16 @@ class Session(object):
         created devices".
         """
         if self._failed_devices and devname in self._failed_devices:
-            raise NicosError('device already failed to create before')
+            raise NicosError('device already failed to create')
         if devname not in self.configured_devices:
+            found_in = []
+            for sname, info in self._setup_info.iteritems():
+                if devname in info['devices']:
+                    found_in.append(sname)
+            if found_in:
+                raise ConfigurationError('device %r not found in configuration,'
+                    ' but you can load one of these setups with AddSetup to '
+                    'create it: %s' % (devname, ', '.join(map(repr, found_in))))
             raise ConfigurationError('device %r not found in configuration'
                                      % devname)
         if devname in self.devices:
@@ -689,7 +703,8 @@ class Session(object):
     def destroyDevice(self, devname):
         """Shutdown a device and remove it from the list of created devices."""
         if devname not in self.devices:
-            raise UsageError('device %r not created' % devname)
+            self.log.warning('device %r not created' % devname)
+            return
         self.log.info('shutting down device %r...' % devname)
         dev = self.devices[devname]
         dev.shutdown()

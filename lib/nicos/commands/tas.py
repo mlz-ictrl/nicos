@@ -176,7 +176,7 @@ def Q(*args, **kwds):
             for i in range(nlen):
                 q[i] = args[0][i]
     elif len(args) > 4:
-        raise UsageError('1 to 4 components are allowed')
+        raise UsageError('1 to 4 Q/E components are allowed')
     else:
         for i in range(len(args)):
             q[i] = args[i]
@@ -244,7 +244,9 @@ def pos(*args):
     if not args:
         pos = instr._last_calpos
         if pos is None:
-            raise NicosError('no position previously stored by calpos()')
+            raise NicosError('pos() with no arguments moves to the last '
+                             'position calculated by calpos(), but no such '
+                             'position has been stored')
     elif len(args) == 1:
         assert isinstance(args[0], (tuple, _Q))
         pos = tuple(args[0]) + (instr.scanconstant,)

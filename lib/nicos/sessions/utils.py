@@ -57,12 +57,14 @@ class NicosNamespace(dict):
 
     def __setitem__(self, name, value):
         if name in self.__forbidden:
-            raise UsageError('%s cannot be assigned to' % name)
+            raise UsageError('%s cannot be assigned; it is either a command '
+                             'or a device' % name)
         dict.__setitem__(self, name, value)
 
     def __delitem__(self, name):
         if name in self.__forbidden:
-            raise UsageError('%s cannot be deleted' % name)
+            raise UsageError('%s cannot be deleted; it is either a command '
+                             'or a device' % name)
         dict.__delitem__(self, name)
 
 

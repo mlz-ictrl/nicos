@@ -37,6 +37,7 @@ from nicos.core.errors import TimeoutError, MoveError, PositionError
 GUEST = 0
 USER  = 10
 ADMIN = 20
+ACCESS_LEVELS = {0: 'guest', 10: 'user', 20: 'admin'}
 
 
 def multiStatus(devices, maxage=None):
