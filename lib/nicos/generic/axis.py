@@ -157,13 +157,12 @@ class Axis(BaseAxis):
             not self._adevs['obs']:
             # read the coder
             return self._adevs['coder'].read(0)
-        pos = 0
-        # XXX probably make this a parameter.... , could also be a par of the
-        # obs-device.... someone please decide!
+        # XXX probably make this a parameter, could also be a par of the
+        # obs-device... someone please decide!
         rounds = 100
-        for _ in range(rounds):
-            for o in self._adevs['obs']:
-                pos += o.doRead() / float(rounds * len(self._adevs['obs']))
+        obs = self._adevs['obs']
+        pos = sum(o.doRead() for _ in range(rounds) for o in obs)
+        pos /= float(rounds * len(obs))
         return pos
 
     def doReset(self):
@@ -329,7 +328,11 @@ class Axis(BaseAxis):
                     if self._stoprequest == 2 or self._errorstate:
                         break
             else:
-                self.__positioning(target)
+                try:
+                    self.__positioning(target)
+                except Exception, err:
+                    self._setErrorState(MoveError,
+                                        'error in positioning: %s' % err)
             try:
                 self._postMoveAction()
             except Exception, err:
@@ -374,12 +377,11 @@ class Axis(BaseAxis):
                         self.log.debug('target not reached, retrying: %s' %
                                        self._errorstate)
                     self._errorstate = None
-                    # target not reached, get the current position,
-                    # sets the motor to this position and restart it
-                    # _getReading is the 'real' value, may ask the coder again
-                    # (so could slow down!)
+                    # target not reached, get the current position, set the
+                    # motor to this position and restart it. _getReading is the
+                    # 'real' value, may ask the coder again (so could slow
+                    # down!)
                     self._adevs['motor'].setPosition(self._getReading())
-                    # XXX exception handling!
                     self._adevs['motor'].start(target + self.offset)
                     tries -= 1
                 else:
