@@ -327,17 +327,16 @@ class ConnectionHandler(BaseRequestHandler):
         """Mark the given request number (or all, if '*') so that it is not
         executed.
         """
-        # XXX: notify other clients
         if reqno == '*':
-            self.controller.blocked_reqs.update(
-                range(self.controller.reqno_work + 1,
-                      self.controller.reqno_latest + 1))
+            blocked = range(self.controller.reqno_work + 1,
+                            self.controller.reqno_latest + 1)
         else:
             reqno = int(reqno)
             if reqno <= self.controller.reqno_work:
                 self.write(NAK, 'script already executing')
                 return
-            self.controller.blocked_reqs.add(reqno)
+            blocked = [reqno]
+        self.controller.block_requests(blocked)
         self.write(ACK)
 
     @command(needcontrol=True, needscript=True)

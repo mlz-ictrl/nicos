@@ -179,6 +179,7 @@ class NicosDaemon(Device):
         'message': True,
         'request': True,
         'processing': True,
+        'blocked': True,
         'status': True,
         'watch': True,
         'cache': True,

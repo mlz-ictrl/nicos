@@ -328,6 +328,10 @@ class ExecutionController(Controller):
         # put the script on the queue (will not block)
         self.queue.put(request)
 
+    def block_requests(self, requests):
+        self.blocked_reqs.update(requests)
+        self.eventfunc('blocked', requests)
+
     def exec_script(self, code):
         exec code in self.namespace
 
