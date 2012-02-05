@@ -327,6 +327,10 @@ def SetMode(mode):
     """Set the execution mode.
 
     Valid modes are: """
+    if mode == 'sim':
+        mode = 'simulation'
+    elif mode == 'maint':
+        mode = 'maintenance'
     try:
         session.setMode(mode)
     except ModeError:
