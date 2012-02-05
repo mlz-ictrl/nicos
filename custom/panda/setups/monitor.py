@@ -1,33 +1,51 @@
 description = 'setup for the status monitor'
 group = 'special'
 
-_exp = [('Experiment', [[{'key': 'exp/proposal', 'name': 'Proposal'},
-                          {'key': 'exp/title', 'name': 'Title', 'istext': True, 'width':40},
-                          {'key': 'filesink/lastfilenumber', 'name': 'Last file number'}]])]
+expcolumn = [
+    ('Experiment', [
+        [{'key': 'exp/proposal', 'name': 'Proposal'},
+         {'key': 'exp/title', 'name': 'Title', 'istext': True, 'width': 40},
+         {'name': 'Current status', 'key': 'exp/action', 'width': 30,
+          'istext': True},
+         {'key': 'filesink/lastfilenumber', 'name': 'Last file number'}]
+    ])]
 
-_row1 = ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8']
+filters = ('Filters', [
+    ['Saph', 'Power', 'Shutter', 'ms1'],
+    [{'dev': 'befilter', 'name': 'Be'}, {'dev': 'befiltertemp', 'name': 'BeT'},
+     {'dev': 'beofilter', 'name': 'BeO'}, {'dev': 'pgfilter', 'name': 'PG'}],
+])
 
-_row2 = ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8']
+primary = ('Primary beam', [
+    [{'dev': 'mono', 'name': 'ki_soll'}, {'key': 'mono/focmode', 'name': 'Focus'},
+     {'dev': 'mth', 'name': 'mth (A1)'}, {'dev': 'mtt', 'name': 'mtt (A2)'}],
+])
 
-_row3 = ['p1',  'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8']
+sample = ('Sample stage', [
+    ['stx', 'sty', 'stz', 'sat'],
+    ['sgx', 'sgy', {'dev': 'sth', 'name': 'sth (A3)'},
+     {'dev': 'stt', 'name': 'stt (A4)'}],
+])
 
-_r=[{'key': 'exp/proposal', 'name': 'Proposal'},
-                          {'key': 'exp/title', 'name': 'Title', 'istext': True, 'width': 80},
-                          {'key': 'filesink/lastfilenumber', 'name': 'Last file number'}]
+analyzer = ('Analyzer', [
+    [{'dev': 'ana', 'name': 'kf_soll'}, {'key': 'ana/focmode', 'name': 'Focus'},
+     {'dev': 'ath', 'name': 'ath (A5)'}, {'dev': 'att', 'name': 'att (A6)'}],
+])
 
+collimation = ('Collimation and Lengths', [
+    ['ca1', 'ca2', 'ca3', 'ca4'],
+    [{'dev': 'lsm', 'name': 'Src->Mono'}, {'dev': 'lms', 'name': 'Mono->Samp'},
+     {'dev': 'lsa', 'name': 'Samp->Ana'}, {'dev': 'lad', 'name': 'Samp->Det'}],
+])
 
-_block1 = ('Motorrahmen Test', [_row1, _row2, _row3], 'testaxes')
-_block2 = ('Panda S7', [['s7coder','s7motor','mtt']], 'panda_s7')
+column1 = [filters, primary, sample, analyzer, collimation]
 
-_eblock = ('Experiment', [_r])
+detector = ('Detector', [
+    ['timer', 'mon1', 'mon2'],
+    ['det1', 'det2'],
+])
 
-_column1 = [
-    _eblock,
-    _block1,
-    _block2,
-    #_block1,
-    #_block3,
-]
+column2 = [detector]
 
 devices = dict(
     Monitor = device('nicos.monitor.fl.Monitor',
@@ -38,7 +56,7 @@ devices = dict(
                      font = 'Luxi Sans',
                      fontsize = 14,
                      valuefont = 'Luxi Mono',
-                     layout = [ [_column1 ] ],
+                     layout = [[expcolumn], [column1, column2]],
                      notifiers = [],
                      warnings = [])
 )
