@@ -8,7 +8,7 @@ sysconfig = dict(
     cache = 'pandasrv',
     instrument = 'panda',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'gracesink'],
+    datasinks = ['conssink', 'filesink', 'liveplot'],
     notifiers = [],
 )
 
@@ -26,7 +26,8 @@ devices = dict(
     filesink = device('nicos.data.AsciiDatafileSink',
                       globalcounter = '/data/filecounter'),
     conssink = device('nicos.data.ConsoleSink'),
-    gracesink = device('nicos.data.GraceSink'),
+    liveplot = device('nicos.data.GraceSink',
+                     activecounter='det2'),
 )
 
 startupcode='Exp.detectors.append(det)'
