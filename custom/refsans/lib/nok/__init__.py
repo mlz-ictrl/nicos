@@ -25,3 +25,4 @@
 __version__ = "$Revision$"
 
 from nicos.refsans.nok.coder import Coder
+from nicos.refsans.nok.axis import Axis
