@@ -18,4 +18,4 @@ devices = dict(
                         loglevel = 'info',
                         timeout = 0.5,
 			),
-)
+        )

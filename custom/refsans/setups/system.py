@@ -50,7 +50,7 @@ devices = dict(
 
     daemonsink = device('nicos.data.DaemonSink'),
 
-#    liveplot = device('nicos.data.GraceSink'),
+#   liveplot = device('nicos.data.GraceSink'),
 
     Space    = device('nicos.generic.FreeSpace',
                       path = 'data',
