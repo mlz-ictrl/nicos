@@ -140,7 +140,7 @@ main-install-gui:
 	@echo "============================================================="
 	-ln -sf $(VOPT) -t /usr/bin $(ROOTDIR)/bin/nicos-gui
 	@echo "============================================================="
-	@echo "Finished."
+	@echo "Finished, now running custom install..."
 	@echo "============================================================="
 
 release:
