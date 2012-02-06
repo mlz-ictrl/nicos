@@ -24,7 +24,7 @@
 
 import sys, glob
 
-sysuser, sysgroup, nethost, setups, services = sys.argv[1:6]
+sysuser, sysgroup, nethost, setups, services, addvars = sys.argv[1:7]
 
 services = services or 'cache,poller'
 
@@ -51,4 +51,5 @@ PAGER = cat
 # Define a TACO database host
 NETHOST = %(nethost)s
 # Add additional environment variables here.
+%(addvars)s
 ''' % locals()
