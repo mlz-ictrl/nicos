@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-"""Taco coder class for NICOS."""
+"""REFSANS NOK coder class for NICOS."""
 
 __version__ = "$Revision$"
 
@@ -40,7 +40,7 @@ class Coder(BaseCoder):
 
     attached_devices = {
         'port' : (AnalogInput, 'analog input device'),
-        'ref' : (AnalogInput, 'referencing analog input device'),
+        'ref'  : (AnalogInput, 'referencing analog input device'),
     }
 
     parameters = {
@@ -56,7 +56,7 @@ class Coder(BaseCoder):
                           type = float,
                           default = 17.0, # 8.0 * 2
                          ),
-        'corr'     : Param('Correction type',
+        'corr'    : Param('Correction type',
                           type = oneof('none', 'mul', 'table'),
                           default = 'mul',
                          ),
@@ -72,7 +72,7 @@ class Coder(BaseCoder):
                           type = float,
                           default = 0.0,
                          ),
-        'snr'    : Param('Serial number',
+        'snr'     : Param('Serial number',
                           type = int,
                           mandatory = True,
                          ),
@@ -96,35 +96,37 @@ class Coder(BaseCoder):
     def doSetPosition(self, target):
         self._taco_guard(self._dev.setpos, target)
 
-    avg     = 1
-    avgwait = 0.1
-
     def doInit(self) :
         pass
 
     def doGetPar (self,lable,Logging=True):
-        try:        val = getattr(self,lable)
-        except: 
-            try:    val = getattr(self,'_'+lable)
-            except: 
-                try:    val = getattr(self,'_cl_poti__'+lable)
-                except: raise Error('no such Parameter: >'+lable+'<')
-        try:    return float(val)
-        except: return val
-
-    #---------------------------------------------------------------------------
-    def doSetPar (self,lable,Value):
-        #print 'V',self.doGetPar(lable)
         try:        
-                    val = setattr(self,lable,Value)
+            val = getattr(self,lable)
         except: 
-            try:    val = setattr(self,'_'+lable,Value)
+            try:    
+                val = getattr(self,'_'+lable)
             except: 
-                try:    val = setattr(self,'_cl_poti__'+lable,Value)
-                except: raise Error('no such Parameter: >'+lable+'<')
-        #print 'N',self.doGetPar(lable)
+                try:    
+                    val = getattr(self,'_cl_poti__'+lable)
+                except: 
+                    raise Error('no such Parameter: >'+lable+'<')
+        try:    
+            return float(val)
+        except: 
+            return val
+
+    def doSetPar (self,lable,Value):
+        try:        
+            val = setattr(self,lable,Value)
+        except: 
+            try:    
+                val = setattr(self,'_'+lable,Value)
+            except: 
+                try:    
+                    val = setattr(self,'_cl_poti__'+lable,Value)
+                except: 
+                    raise Error('no such Parameter: >'+lable+'<')
         
-    #---------------------------------------------------------------------------
     def __formula(self, data, direction):
         """the only positon for calculation
         direction = True:  get the position for raw and ref
@@ -136,7 +138,10 @@ class Coder(BaseCoder):
         tmp = E * data[0] / data[1]
         lkorr = self.corr
         if lkorr == 'table':
-            lkorr = 'mul'
+            try:    
+                return self.korrtable[data[0]]
+            except: 
+                lkorr = 'mul'
         if direction: 
             if lkorr ==  'mul':     
                 tmp *= self.mul
@@ -147,78 +152,56 @@ class Coder(BaseCoder):
             elif lkorr ==  'mul': 
                 tmp = self.mul * data[0] #/E
             return (tmp, self.off + data[1])
-    #---------------------------------------------------------------------------
-    def correction(self, data):
-        return self.__formula(data, False)
-    #---------------------------------------------------------------------------
+    
     def doRead (self, typ='POS') :
-        """Plausibilitaet:
+        """
         1. ref must be in a given range (depend on ADC)
         2. RAWvalue must be in a given range (depend on NOK)
         """
-        
         self.log.debug(self, 'poti read')
-        Status = ''
         ref    = 0
         RAWValue = 0
-        lkorr = self.corr
-        # avg = int(self.avg) #ohne bedeutung!!!! 26.10.2009 15:09:30
-        # AVGref = cl_auto_avg(0.001)
-        # AVGraw = cl_auto_avg(0.001)
         self.log.debug(self, 'poti read enter while')
         while True:
             exit = True
-            # read ref      ----------------------------------------------------
             try:        
-                ref = 2.0 * self._adevs['ref'].read() # wegen der Resistoren
+                ref = 2.0 * self._adevs['ref'].read() # due to resistors
             except:     
                 try:    
-                    ref = float(self._adevs['ref'].read())*2.0 #wegen der Resistoren
+                    ref = 2.0 * self._adevs['ref'].read() # due to resistors
                 except: 
-                    self.log.warning(self,  'readerror REF 2. (1/2));') #18.06.2009 07:38:57
+                    self.log.error(self,  'readerror REF 2. (1/2));') 
                     exit = False
             try:        
-                RAWValue = float(self._adevs['port'].read()) #so lassen #Die Dose muss gehen
+                RAWValue = self._adevs['port'].read() # let it so the box must work 
             except: 
                 try:    
-                    RAWValue = float(self._adevs['port'].read()) #so lassen #Die Dose muss gehen
+                    RAWValue = self._adevs['port'].read() # let it so the box must work
                 except: 
-                    self.log.warning('readerror RAWVALUE 2. (2/2);') #18.06.2009 07:39:53
+                    self.log.error('readerror RAWVALUE 2. (2/2);') 
                     exit = False
             if exit:
                 break
-        self.log.debug(self, '%f %f', (RAWValue, ref))
+        self.log.debug(self, 'raw value = %f reference value = %f', (RAWValue, ref))
         # Range of RAWValue, if it is outside of expection, the cable may be broken
         # test range of ref lack of resolution 9.5 < ref > 10 clip!
         if abs(ref) >= self.refhigh :
-            self.log.warning(self,  'REFhigh; ')
+            self.log.error(self,  'Reference voltage to high : %f > %f' % (ref, self.refhigh))
         if   abs(ref) <  self.reflow:
-            self.log.warning(self, 'REFlow; ')
+            self.log.error(self, 'Reference voltage to low : %f < %f' % (ref, self.reflow))
         elif abs(ref) <  self.refwarn: 
-            self.log.warning(self, 'REFwarn; ')
+            self.log.warning(self, 'Reference voltage seems to be to low : %f < %f' % (ref, self.refwarn ))
 
         try:    
             Position = self.__formula([RAWValue, ref], True)
-            if lkorr ==  'tabelle':
-                try:    
-                    p = self.korrtable[Position]
-                    Position = p
-                except: 
-                    lkorr = 'mul'
+            self.log.debug(self, 'okay')
+            if 'OFF'       == typ.upper(): 
+                return {'off':-RAWValue/ref}
+            elif 'POS'       == typ.upper(): 
+                return Position
+            elif 'PARAMETER' == typ.upper(): 
+                return {'corr' : self.corr, 'off' : self.off, 'sensitivity' : self.sensitivity, 'mul' : self.mul, 'avg' : 'auto'}
+            else:                          
+                return {'corr' : self.corr, 'RAWValue' : RAWValue, 'ref' : ref, 'Position' : Position, 'Status' : Status}
         except: 
             self.log.error(self, 'calc.Error : %s' % (str(sys.exc_info()[1])))
-
-        # Summarize Result
-        if len(Status) == 0: 
-            self.log.debug(self, 'okay')
-
-        if 'OFF'       == typ.upper(): 
-            return {'off':-RAWValue/ref}
-        if 'POS'       == typ.upper(): 
-#            return {'Position':Position,'korr':lkorr}
-             return Position
-        if 'PARAMETER' == typ.upper(): 
-            return {'korr':lkorr,'off':self.__off,'Empfindlichkeit':self.Empfindlichkeit,'mul':self.__mul,'avg':'auto'}#self.avg}
-        else:                          
-            return {'korr':lkorr,'RAWValue':RAWValue,'ref':ref,'Position':Position,'Status':Status}
-
