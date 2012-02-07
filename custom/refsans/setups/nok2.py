@@ -1,0 +1,66 @@
+description = 'Nok2 setup'
+
+nethost = '//refsanssrv.refsans.frm2/'
+
+include = ['nok1']
+
+devices = dict(
+        n2portr = device('nicos.taco.io.AnalogInput',
+                        tacodevice = nethost + 'test/wb_a/1_1',
+                        lowlevel = True,
+                       ),
+        n2ports = device('nicos.taco.io.AnalogInput',
+                        tacodevice = nethost + 'test/wb_a/1_2',
+                        lowlevel = True,
+                       ),
+        n2obsr = device('nicos.refsans.nok.Coder',
+                      unit = 'mm',
+                      fmtstr = '%.3f',
+                      refhigh = 19.8,
+                      reflow = 18.0,
+                      refwarn = 17.0,
+                      corr = 'mul',
+                      mul = 0.996418,
+                      off = 9.169441,
+                      snr = 6512,
+                      length = 250,
+                      sensitivity = 3.858,
+                      port = 'n2portr',
+                      ref = 'n1ref',
+                      position = 'bottom',
+                      ),
+        n2obss = device('nicos.refsans.nok.Coder',
+                      unit = 'mm',
+                      fmtstr = '%.3f',
+                      refhigh = 19.8,
+                      reflow = 18.0,
+                      refwarn = 17.0,
+                      corr = 'mul',
+                      mul = 1.003096,
+                      off = -22.686241,
+                      snr = 6507,
+                      length = 250,
+                      sensitivity = 3.846,
+                      port = 'n2ports',
+                      ref = 'n1ref',
+                      position = 'bottom',
+                      ),
+#        nok1 = device('nicos.refsans.nok.Nok', 
+#                      unit = 'mm',
+#                      fmtstr = '%.5f',
+#                      bus = 'motorbus2',
+#                      motor = nethost + 'test/nok1/ngm',
+#                      encoder = nethost + 'test/nok1/nge',
+#                      refswitch = nethost + 'test/nok1/ngsref',
+#                      lowlimitswitch = [nethost + 'test/nok1/ngsll',],
+#                      highlimitswitch = [nethost + 'test/nok1/ngshl',],
+#                      #refpos = [-14.419, ],
+#                      refpos = [-14.729 ], #JFM07_06_2010
+#                      backlash = 2,
+#                      posinclination = 0,
+#                      neginclination = 0,
+#                     ),
+         )
+
+
+
