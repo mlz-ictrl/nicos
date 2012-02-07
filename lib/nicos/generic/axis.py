@@ -74,6 +74,14 @@ class Axis(BaseAxis):
         self._posthread = None
         self._stoprequest = 0
 
+    @property
+    def motor(self):
+        return self._adevs['motor']
+
+    @property
+    def coder(self):
+        return self._adevs['coder']
+
     def doReadUnit(self):
         return self._adevs['motor'].unit
 
@@ -145,6 +153,11 @@ class Axis(BaseAxis):
 
         # XXX read() or read(0)
         return self._adevs['coder'].read() - self.offset
+
+    def doPoll(self, i):
+        devs = [self._adevs['coder'], self._adevs['motor']] + self._adevs['obs']
+        for dev in devs:
+            dev.poll()
 
     def _getReading(self):
         """Find a good value from the observers, taking into account that they
@@ -345,7 +358,6 @@ class Axis(BaseAxis):
         tries = self.maxtries
         self._adevs['motor'].start(target + offset)
         moving = True
-        devs = [self._adevs['motor'], self._adevs['coder']] + self._adevs['obs']
         self._lastdiff = abs(target - self.read(0))
 
         while moving:
@@ -357,8 +369,8 @@ class Axis(BaseAxis):
             sleep(self.loopdelay)
             # poll accurate current values and status of child devices so that
             # we can use read() and status() subsequently
-            for dev in devs:
-                dev.poll()
+            self.poll()
+            # put value/status in cache
             pos = self._adevs['coder'].read() - self.offset
             if self._adevs['motor'].status()[0] != status.BUSY:
                 # motor stopped; check why
