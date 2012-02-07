@@ -32,8 +32,6 @@ from nicos.taco import AnalogInput
 
 class I7033Temp(AnalogInput):
 
-    taco_class = AnalogInput
-
     parameters = {
         'warnlevel': Param('temperature that should not be exceeded',
                            type=none_or(float), settable=True),
