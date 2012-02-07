@@ -268,7 +268,7 @@ class Experiment(Device):
     @property
     def detectors(self):
         if self._detlist is not None:
-            return self._detlist
+            return self._detlist[:]
         detlist = []
         all_created = True
         for detname in self.detlist:
@@ -287,7 +287,7 @@ class Experiment(Device):
                     detlist.append(det)
         if all_created:
             self._detlist = detlist
-        return detlist
+        return detlist[:]
 
     def setDetectors(self, detectors):
         dlist = []
@@ -306,7 +306,7 @@ class Experiment(Device):
     @property
     def sampleenv(self):
         if self._envlist is not None:
-            return self._envlist
+            return self._envlist[:]
         devlist = []
         all_created = True
         for devname in self.envlist:
@@ -325,7 +325,7 @@ class Experiment(Device):
                     devlist.append(dev)
         if all_created:
             self._envlist = devlist
-        return devlist
+        return devlist[:]
 
     def setEnvironment(self, devices):
         dlist = []
