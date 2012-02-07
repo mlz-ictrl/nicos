@@ -231,7 +231,7 @@ class Sm_Field(Fll_Vbox):
         Fll_Vbox.__init__(self, padding, padding, 0)
 
         wv, hv = measure(FL_COURIER, fontsize, '----')
-        wn, hn = measure(0, fontsize, name + 'Mq')
+        wn, hn = measure(0, fontsize - 2, name + 'Mq')
         width = max(wv, wn, width)
 
         nheight = int(hn + hn / 4 + 2)
@@ -239,10 +239,10 @@ class Sm_Field(Fll_Vbox):
         self._name = name
         self._namelabel = Fl_Box(0, 0, width, nheight, self._name)
         self._namelabel.box(FL_FLAT_BOX)
-        self._namelabel.labelsize(fontsize)
+        self._namelabel.labelsize(fontsize - 2)
         self.pack(self._namelabel)
 
-        vheight = int(hv + hv / 2 + 4)
+        vheight = int(hv + hv / 2 - 3)
 
         self._value = '----'
         self._valuelabel = Fl_Box(0, 0, width, vheight, self._value)
@@ -334,7 +334,7 @@ class Monitor(BaseMonitor):
         master.label(self.title)
 
         self._bgcolor = master.color()
-        self._fontsizebig = int(self._fontsize * 1.3)
+        self._fontsizebig = int(self._fontsize * 1.15)
 
         onechar = measure(FL_COURIER, self._fontsize, '0')[0]
         tiheight = self._fontsizebig + self._fontsize + 20
@@ -365,9 +365,9 @@ class Monitor(BaseMonitor):
 
         # now iterate through the layout and create the widgets to display it
         for superrow in self._layout:
-            boxlayout = Fll_Hbox(20, 10, 10)
+            boxlayout = Fll_Hbox(20, 0, 0)
             for column in superrow:
-                columnlayout = Fll_Vbox(20)
+                columnlayout = Fll_Vbox(15)
                 for block in column:
                     blocklayout = Fll_Hbox()
                     blocklayout.pack(Fll_Stretch())
@@ -377,7 +377,7 @@ class Monitor(BaseMonitor):
                         if row is None:
                             rowbox = Fl_Box(0, 0, 0, self._padding * 2)
                         else:
-                            rowbox = Sm_Row(self._padding)
+                            rowbox = Sm_Row(self._padding / 2)
                             for field in row:
                                 rowbox.pack(_create_field(field))
                             rowbox.end()
@@ -419,7 +419,10 @@ class Monitor(BaseMonitor):
     setLabelText = Fl_Box.copy_label
 
     def setLabelUnitText(self, label, text, unit):
-        label.copy_label(text + ' (%s)' % unit)
+        if unit:
+            label.copy_label(text + ' (%s)' % unit)
+        else:
+            label.copy_label(text)
 
     def setForeColor(self, label, fore):
         label.labelcolor(fore)
