@@ -44,6 +44,7 @@ devices = dict(
             coder = 'stt_enc',
             obs = [],
             precision = 0.05,
+            offset=-0.276,
             #~ rotary = True,
     ),
     
@@ -225,7 +226,7 @@ devices = dict(
             coder = 'stz_step',
             obs = [],
             precision = 0.1,
-            fmtstr='%.1f',
+            fmtstr = '%.3f',
     ),
     
     # eigth device is not used yet......

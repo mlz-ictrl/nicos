@@ -17,7 +17,8 @@ devices = dict(
                     psi = 'sth',
                     mono = 'mono',
                     ana = 'ana',
-                    scatteringsense = (-1, 1, -1)),
+                    scatteringsense = (-1, 1, -1),
+                    energytransferunit ='meV'),
 
     ki     = device('nicos.tas.Wavevector',
                     unit = 'A-1',
@@ -40,7 +41,7 @@ devices = dict(
                       reltheta = True,
                       focush = None,
                       focusv = None,
-                      abslimits = (0, 10),
+                      abslimits = (1, 10),
                       dvalue = 3.355),
 
     ana     = device('nicos.tas.Monochromator',
@@ -49,7 +50,7 @@ devices = dict(
                       twotheta = 'att',
                       focush = None,
                       focusv = None,
-                      abslimits = (0, 10),
+                      abslimits = (1, 10),
                       dvalue = 3.355),
 
 )

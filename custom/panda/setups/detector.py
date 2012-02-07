@@ -44,6 +44,7 @@ devices = dict(
                       timer  = 'timer',
                       monitors = ['mon1', 'mon2'],
                       counters = ['det1', 'det2'],
+                      #~ counters = ['det2'],
                       maxage = 1,
                       pollinterval = 0.5),
 )

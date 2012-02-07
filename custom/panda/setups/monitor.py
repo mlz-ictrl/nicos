@@ -4,15 +4,16 @@ group = 'special'
 expcolumn = [
     ('Experiment', [
         [{'key': 'exp/proposal', 'name': 'Proposal'},
-         {'key': 'exp/title', 'name': 'Title', 'istext': True, 'width': 40},
-         {'name': 'Current status', 'key': 'exp/action', 'width': 30,
+         {'key': 'exp/title', 'name': 'Title', 'istext': True, 'width': 20},
+         {'key': 'sample/samplename', 'name': 'Sample', 'istext': True, 'width': 15},
+         {'name': 'Current status', 'key': 'exp/action', 'width': 55,
           'istext': True},
-         {'key': 'filesink/lastfilenumber', 'name': 'Last file number'}]
+         {'key': 'filesink/lastfilenumber', 'name': 'Last file'}]
     ])]
 
 filters = ('Filters', [
     ['Saph', 'Power', 'Shutter', 'ms1'],
-    [{'dev': 'befilter', 'name': 'Be'}, {'dev': 'befiltertemp', 'name': 'BeT'},
+    [{'dev': 'befilter', 'name': 'Be'}, {'dev': 'tbefilter', 'name': 'BeT'},
      {'dev': 'beofilter', 'name': 'BeO'}, {'dev': 'pgfilter', 'name': 'PG'}],
 ])
 
@@ -29,23 +30,23 @@ sample = ('Sample stage', [
 
 analyzer = ('Analyzer', [
     [{'dev': 'ana', 'name': 'kf_soll'}, {'key': 'ana/focmode', 'name': 'Focus'},
-     {'dev': 'ath', 'name': 'ath (A5)'}, {'dev': 'att', 'name': 'att (A6)'}],
+     {'dev': 'ath', 'name': 'ath (A5)', 'unit': ''}, {'dev': 'att', 'name': 'att (A6)', 'unit': ''}],
 ])
 
 collimation = ('Collimation and Lengths', [
     ['ca1', 'ca2', 'ca3', 'ca4'],
-    [{'dev': 'lsm', 'name': 'Src->Mono'}, {'dev': 'lms', 'name': 'Mono->Samp'},
-     {'dev': 'lsa', 'name': 'Samp->Ana'}, {'dev': 'lad', 'name': 'Samp->Det'}],
+    [{'dev': 'lsm', 'name': 'Src->Mono', 'unit': ''}, {'dev': 'lms', 'name': 'Mono->Samp', 'unit': ''},
+     {'dev': 'lsa', 'name': 'Samp->Ana', 'unit': ''}, {'dev': 'lad', 'name': 'Samp->Det', 'unit': ''}],
 ])
 
-column1 = [filters, primary, sample, analyzer, collimation]
+column1 = [filters, primary, sample, analyzer]
 
 detector = ('Detector', [
-    ['timer', 'mon1', 'mon2'],
-    ['det1', 'det2'],
+    ['timer', {'dev':'mon1', 'format':'%d'}, {'dev':'mon2', 'format':'%d'}],
+    [{'dev':'det1', 'format': '%d'}, {'dev':'det2', 'format': '%d'}],
 ])
 
-column2 = [detector]
+column2 = [collimation, detector]
 
 devices = dict(
     Monitor = device('nicos.monitor.fl.Monitor',
