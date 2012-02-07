@@ -850,10 +850,10 @@ class Readable(Device):
         if hasattr(self, 'doStatus'):
             stval = self.doStatus()
             self._cache.put(self, 'status', stval, currenttime(), self.maxage)
-        rdval = self.doRead()
-        self._cache.put(self, 'value', rdval, currenttime(), self.maxage)
         if hasattr(self, 'doPoll'):
             self.doPoll(n)
+        rdval = self.doRead()
+        self._cache.put(self, 'value', rdval, currenttime(), self.maxage)
         return stval, rdval
 
     def _pollParam(self, name, with_ttl=0):
@@ -911,12 +911,16 @@ class Readable(Device):
 
         *fromtime* and *totime* can be UNIX timestamps to specify a limiting
         time window.
+
+        Default is to query the values of the last hour.
         """
         if not self._cache:
             raise ConfigurationError('no cache is configured for this setup')
         else:
             if fromtime is None:
-                fromtime = 0
+                fromtime = 3600
+            if fromtime < 0:
+                fromtime = currenttime() + fromtime
             if totime is None:
                 totime = currenttime()
             return self._cache.history(self, name, fromtime, totime)
