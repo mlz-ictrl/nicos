@@ -13,7 +13,7 @@ devices = dict(
                        ),
         n1obs = device('nicos.refsans.nok.Coder',
                       unit = 'mm',
-                      fmtstr = '%.1f',
+                      fmtstr = '%.3f',
                       refhigh = 19.8,
                       reflow = 18.0,
                       refwarn = 17.0,
