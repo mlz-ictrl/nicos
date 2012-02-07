@@ -144,7 +144,7 @@ def makeSessionId():
 def sessionInfo(id):
     """Return a string with information gathered from the session id."""
     pid, rest = id.split('@')
-    host, timestamp = rest.split('-')
+    host, timestamp = rest.rsplit('-', 1)
     return 'PID %s on host %s, started on %s' % (
         pid, host, time.asctime(time.localtime(int(timestamp))))
 
