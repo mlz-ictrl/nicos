@@ -237,12 +237,12 @@ class S7Motor(NicosMotor):
 
         # we have to distinguish between Wartungsmodus and normal operation
         if wm:  # Wartungsmodus
-            if (b20 & ~0x40) != 0b00010001 or (b24 & 0b10111111) != 0 or (b23 & 0b00000011) != 0:
+            if (b20 & ~0x40) != 0b00010001 or (b24 & 0b10111111) != 0:# or (b23 & 0b00000011) != 0:
                 self.log.warning( self.name+' in Error state!, ignored due to Wartungsmodus!!!')
                 # continue checking....
         else:   # Normal operation
             #~ if ( b20 != 0b00010001 ) or (( b24 & 0b10111111 ) != 0) or (( b23 & 0b00010011 ) != 0) or (( b22 & 0b00100000) != 0):
-            if (b20 & ~0x40) != 0b00010001 or (b24 & 0b10111111) != 0 or (b23 & 0b00000011) != 0:
+            if (b20 & ~0x40) != 0b00010001 or (b24 & 0b10111111) != 0:# or (b23 & 0b00000011) != 0:
                 self.log.debug('MTT in Error State, check with mtt._printstatusinfo() !')
                 return status.ERROR, 'MTT in Error State, check with mtt._printstatusinfo() !'
             #~ if (( b24 & 0b01000000 ) == 0 ):
@@ -298,6 +298,9 @@ class S7Motor(NicosMotor):
         bus = self._adevs['bus']
         self.log.debug('read: '+ self.fmtstr % (self.sign*bus.read('float', 4)) + ' %s'%self.unit)
         return self.sign*bus.read('float', 4)
+        
+    def doSetPosition( self, *args ):
+        pass
 
 
 class Panda_mtt(Axis):
