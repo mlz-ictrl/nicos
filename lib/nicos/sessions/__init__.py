@@ -540,12 +540,13 @@ class Session(object):
                 self.log.warning('unexport: name %r not in namespace' % name)
             return
         if name not in self._exported_names:
-            self.log.warning('unexport: name %r not exported by NICOS' % name)
+            if warn:
+                self.log.warning('unexport: name %r not exported by NICOS' % name)
         if isinstance(self.namespace, NicosNamespace):
             self.namespace.removeForbidden(name)
             self.local_namespace.removeForbidden(name)
         del self.namespace[name]
-        self._exported_names.remove(name)
+        self._exported_names.discard(name)
 
     def getExportedObjects(self):
         """Return an iterable of all objects exported to the NICOS namespace."""
