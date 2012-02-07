@@ -9,8 +9,6 @@ includes=[]
 modules=[]
 
 devices = dict(
-
-
     timer    = device('nicos.taco.FRMTimerChannel',
                       tacodevice = 'panda/frmctr/at',
                       lowlevel = True),
@@ -46,7 +44,7 @@ devices = dict(
                       counters = ['det1', 'det2'],
                       #~ counters = ['det2'],
                       maxage = 1,
-                      pollinterval = 0.5),
+                      pollinterval = 1),
 )
 
 startupcode = ''

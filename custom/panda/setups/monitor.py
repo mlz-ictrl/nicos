@@ -46,7 +46,13 @@ detector = ('Detector', [
     [{'dev':'det1', 'format': '%d'}, {'dev':'det2', 'format': '%d'}],
 ])
 
-column2 = [collimation, detector]
+lakeshore = ('LakeShore', [
+    ['TA', 'TB'],
+    [{'key': 't/setpoint', 'name': 'Setpoint'}, {'key': 't/p', 'name': 'P', 'width': 5},
+     {'key': 't/i', 'name': 'I', 'width': 5}, {'key': 't/d', 'name': 'D', 'width': 5}],
+])
+
+column2 = [collimation, detector, lakeshore]
 
 devices = dict(
     Monitor = device('nicos.monitor.fl.Monitor',

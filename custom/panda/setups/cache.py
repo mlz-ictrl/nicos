@@ -14,5 +14,5 @@ devices = dict(
     Server = device('nicos.cache.server.CacheServer',
                     db = 'DB2',
                     server = 'pandasrv',
-                    loglevel = 'debug'),
+                    loglevel = 'info'),
 )
