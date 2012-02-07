@@ -26,6 +26,7 @@
 
 __version__ = "$Revision$"
 
+import time
 import threading
 import __builtin__
 
@@ -286,6 +287,17 @@ def version(*devlist):
         versions = dev.version()
         dev.log.info('relevant versions for this device:')
         printTable(('module/component', 'version'), versions, printinfo)
+
+@usercommand
+def history(dev, key='value', fromtime=None, totime=None):
+    """Print history of a device parameter."""
+    hist = session.getDevice(dev, Device).history(key, fromtime, totime)
+    entries = []
+    ltime = time.localtime
+    ftime = time.strftime
+    for t, v in hist:
+        entries.append((ftime('%Y-%m-%d %H:%M:%S', ltime(t)), repr(v)))
+    printTable(('timestamp', 'value'), entries, printinfo)
 
 @usercommand
 def limits(*devlist):
