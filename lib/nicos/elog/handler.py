@@ -362,8 +362,8 @@ class Handler(object):
                         (scannumber, scannumber))
         # file link
         if scanfile:
-            relfile = path.relpath(path.join(
-                self.dir, dataset.sinkinfo.get('filename')), self.logdir)
+            relfile = path.relpath(dataset.sinkinfo.get('filepath'),
+                                   self.logdir)
             html.append('<td><a href="%s" type="text/plain">File</a></td>'
                         % relfile)
         else:
