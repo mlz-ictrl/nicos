@@ -298,8 +298,8 @@ class Axis(BaseAxis):
         This method returns False if not arrived at target, or True otherwise.
         """
         diff = abs(pos - target)
-        maxdiff = self.dragerror
-        if self.precision > 0 and diff >= self.precision:
+        prec = self.precision
+        if (prec > 0 and diff >= prec) or (prec == 0 and diff):
             if error:
                 # not calling _setErrorState here, since we don't want the error
                 # log message in all cases
@@ -307,6 +307,7 @@ class Axis(BaseAxis):
                     'precision error: difference %f, precision %f' %
                     (diff, self.precision))
             return False
+        maxdiff = self.dragerror
         for obs in self._adevs['obs']:
             diff = abs(target - obs.read())
             if maxdiff > 0 and diff > maxdiff:
@@ -369,9 +370,7 @@ class Axis(BaseAxis):
             sleep(self.loopdelay)
             # poll accurate current values and status of child devices so that
             # we can use read() and status() subsequently
-            self.poll()
-            # put value/status in cache
-            pos = self._adevs['coder'].read() - self.offset
+            st, pos = self.poll()
             if self._adevs['motor'].status()[0] != status.BUSY:
                 # motor stopped; check why
                 if self._stoprequest == 2:

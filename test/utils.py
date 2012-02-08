@@ -81,7 +81,6 @@ def assertNotAlmostEqual(first, second, places=7, msg=None):
               (msg or '%r == %r within %r places' % (first, second, places))
 
 
-
 class TestDevice(HasLimits, Moveable):
 
     def doInit(self):

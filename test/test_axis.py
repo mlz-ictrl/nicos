@@ -29,7 +29,7 @@ __version__ = "$Revision$"
 from time import sleep
 
 from nicos import session
-from nicos.core import status, NicosError, LimitError
+from nicos.core import status, LimitError
 from test.utils import raises, assertAlmostEqual
 
 
