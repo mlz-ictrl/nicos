@@ -446,7 +446,7 @@ def _RunScript(filename, statdevices):
     with open(fn, 'r') as fp:
         code = unicode(fp.read(), 'utf-8')
         compiled = compile(code + '\n', fn, 'exec', CO_DIVISION)
-        with _ScriptScope(fn, code):
+        with _ScriptScope(path.basename(fn), code):
             exec compiled in session.local_namespace, session.namespace
     printinfo('finished user script: ' + fn)
     if session.mode == 'simulation':
