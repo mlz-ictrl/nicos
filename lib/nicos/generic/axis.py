@@ -299,7 +299,7 @@ class Axis(BaseAxis):
         """
         diff = abs(pos - target)
         maxdiff = self.dragerror
-        if diff >= self.precision:
+        if self.precision > 0 and diff >= self.precision:
             if error:
                 # not calling _setErrorState here, since we don't want the error
                 # log message in all cases
