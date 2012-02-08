@@ -298,33 +298,34 @@ class GraceSink(DataSink):
 
     def beginDataset(self, dataset):
         try:
-            filename = dataset.sinkinfo.get('filename', '')
-            filepath = dataset.sinkinfo.get('filepath', '')
-            self._grpl = GracePlot.GracePlot(workingdir=path.dirname(filepath))
-            self._pl = self._grpl.curr_graph
-            self._pl.clear()
-            self._pl.title('scan %s started %s' % (filename,
-                           time.strftime(TIMEFMT, dataset.started)))
-            self._pl.subtitle(dataset.scaninfo)
-            self._pl.xaxis(label=GracePlot.Label(
-                '%s (%s)' % (dataset.xnames[dataset.xindex],
-                             dataset.xunits[dataset.xindex])))
-            try:
-                # XXX
-                self._pl.yaxis(label=GracePlot.Label(str(dataset.detlist[0])))
-            except IndexError:
-                # no detectors in current scan, cannot plot
-                self._grpl = None
-                return
-
-            self._xdata = []
-            self._nperstep = len(dataset.ynames)
-            self._ydata = [[] for _ in range(self._nperstep)]
-            self._dydata = [[] for _ in range(self._nperstep)]
-            self._ynames = dataset.ynames
+            self._openplot(dataset)
         except Exception:
             self.log.warning('could not create Grace plot', exc=1)
             self._grpl = None
+
+    def _openplot(self, dataset):
+        filename = dataset.sinkinfo.get('filename', '')
+        filepath = dataset.sinkinfo.get('filepath', '')
+        self._grpl = GracePlot.GracePlot(workingdir=path.dirname(filepath))
+        self._pl = self._grpl.curr_graph
+        self._pl.clear()
+        self._pl.title('scan %s started %s' % (filename,
+                       time.strftime(TIMEFMT, dataset.started)))
+        self._pl.subtitle(dataset.scaninfo)
+        self._pl.xaxis(label=GracePlot.Label(
+            '%s (%s)' % (dataset.xnames[dataset.xindex],
+                         dataset.xunits[dataset.xindex])))
+        if self.activecounter:
+            self._pl.yaxis(label=GracePlot.Label(self.activecounter))
+
+        self._xdata = []
+        self._nperstep = len(dataset.ynames)
+        self._ydata = [[] for _ in range(self._nperstep)]
+        self._dydata = [[] for _ in range(self._nperstep)]
+        self._ynames = dataset.ynames
+
+        for (xvalues, yvalues) in zip(dataset.xresults, dataset.yresults):
+            self.addPoint(dataset, xvalues, yvalues)
 
     def addPoint(self, dataset, xvalues, yvalues):
         if self._grpl is None:
@@ -360,9 +361,12 @@ class GraceSink(DataSink):
             self._pl.plot(data)
             self._pl.legend()
         except Exception:
-            self.log.warning('could not add point to Grace', exc=1)
-            # give up for this set
-            self._grpl = None
+            # try again or give up for this set
+            try:
+                self._openplot(dataset)
+            except Exception:
+                self.log.warning('could not add point to Grace', exc=1)
+                self._grpl = None
 
 
 class GnuplotSink(DataSink):
