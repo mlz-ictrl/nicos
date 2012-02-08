@@ -54,6 +54,8 @@ class Axis(BaseAxis):
     }
 
     parameters = {
+        'speed':  Param('Motor speed', unit='main/s', volatile=True,
+                        settable=True),
         'jitter': Param('Amount of position jitter allowed', unit='main',
                         type=floatrange(0.0, 10.0), settable=True),
     }
@@ -201,6 +203,12 @@ class Axis(BaseAxis):
             errorstate = self._errorstate
             self._errorstate = None
             raise errorstate
+
+    def doWriteSpeed(self, value):
+        self._adevs['motor'].speed = value
+
+    def doReadSpeed(self):
+        return self._adevs['motor'].speed
 
     def doWriteOffset(self, value):
         """Called on adjust(), overridden to forbid adjusting while moving."""
