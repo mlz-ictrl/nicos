@@ -49,6 +49,7 @@ class Beckhoff(Device):
     parameters = {
         'host': Param('Hostname or IP-Adress of Beckhoff device',
                           type=str, default='wechsler.panda.frm2', settable=True),
+        'addr': Param('ModBus unit address', type=int, default=0, settable=True),
     }
     def doInit(self):
         c = self.communicator()
@@ -72,7 +73,7 @@ class Beckhoff(Device):
                 #~ sock.setblocking(0)  # non blocking socket
                 # connection alive, try to send
                 while True:
-                    self.log.debug('Communicate: innermost loop')
+                    self.log.debug('Communicate: innermost loop, %r' % request)
                     sent = 0
                     while sent < len( request ):
                         self.log.debug('Communicate: sending request')
@@ -95,7 +96,7 @@ class Beckhoff(Device):
                         #~ data+=sock.recv( 500) # just some number bigger than 260
                     self.log.debug('Communicate: reading 7 bytes')
                     data = sock.recv(7) #get modbus-tcp specific header
-                    self.log.debug('Communicate: read 7 bytes')
+                    self.log.debug('Communicate: read 7 bytes, %r' % data)
                     try:
                         d = unpack('>HHHB',data) # transaction ID, protocol ID, numbytes, subunit
                     except Exception:
@@ -103,7 +104,7 @@ class Beckhoff(Device):
                         break
                     self.log.debug('Communicate: reading %d more bytes'%(d[2]-1))
                     data += sock.recv(d[2]-1)
-                    self.log.debug('Communicate: read %d more bytes'%(d[2]-1))
+                    self.log.debug('Communicate: read %d more bytes, %r'%(d[2]-1, data))
                     #~ s=''
                     #~ for i in request:
                         #~ s=s+':%02x'%ord(i)
@@ -132,28 +133,28 @@ class Beckhoff(Device):
         return', '.join(['0x%02x'%ord(s[i]) for i in range(len(s)) ])
 
     def ReadBitOutput( self, addr ):
-        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 1, addr, 1 ) # can read more than 1 bit !
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, self.addr, 1, addr, 1 ) # can read more than 1 bit !
         response = self.communicate( request )
         FOE, _, status = unpack('>BBB', response )
         if FOE == 1: return status
         raise Exception ('Returned function should be 1 but is 0x%02x!'%FOE)
 
     def ReadBitInput( self, addr ):
-        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 2, addr, 1 ) # can read more than 1 bit !
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, self.addr, 2, addr, 1 ) # can read more than 1 bit !
         response = self.communicate( request )
         FOE, _, status = unpack('>BBB', response )
         if FOE == 2: return status
         raise Exception ('Returned function should be 2 but is 0x%02x!'%FOE)
 
     def ReadWordOutput( self, addr ):
-        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 3, addr, 1 ) # can read more than 1 word !
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, self.addr, 3, addr, 1 ) # can read more than 1 word !
         response = self.communicate( request )
         FOE, _, status = unpack('>BBH', response )
         if FOE == 3: return status
         raise Exception ('Returned function should be 3 but is 0x%02x!'%FOE)
 
     def ReadWordInput( self, addr ):
-        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 4, addr, 1 ) # can read more than 1 word !
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, self.addr, 4, addr, 1 ) # can read more than 1 word !
         response = self.communicate( request )
         FOE, _, status = unpack('>BBH', response )
         if FOE == 4: return status
@@ -161,7 +162,7 @@ class Beckhoff(Device):
 
     def WriteBitOutput( self, addr, value ):
         value = 0xff00 if value else 0x0000 # only 0x0 or 0xff00 are allowed
-        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 5, addr, value ) # can write exactly 1 word !
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, self.addr, 5, addr, value ) # can write exactly 1 word !
         response = self.communicate( request )
         FOE, _, status = unpack('>BHH', response )
         if FOE == 5: return status
@@ -169,7 +170,7 @@ class Beckhoff(Device):
 
     def WriteWordOutput( self, addr, value ):
         assert( 0x0000 <= value <= 0xffff ) # value is exactly 16 bits unsigned!
-        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 6, addr, value ) # can write exactly 1 word !
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, self.addr, 6, addr, value ) # can write exactly 1 word !
         response = self.communicate( request )
         try:
             FOE, _, status = unpack('>BHH', response )
@@ -181,7 +182,7 @@ class Beckhoff(Device):
 
     def ReadBitsOutput( self, addr, num ):
         if num > 2000: raise ValueError('%d Bits are too much for ReadBitsOutput!'%num)
-        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 1, addr, num )
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, self.addr, 1, addr, num )
         response = self.communicate( request )
         m = (num+7)/8
         data = unpack('>BB%dB'%m, response )
@@ -192,7 +193,7 @@ class Beckhoff(Device):
 
     def ReadBitsInput( self, addr, num ):
         if num > 2000: raise ValueError('%d Bits are too much for ReadBitsInput!'%num)
-        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 2, addr, num )
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, self.addr, 2, addr, num )
         response = self.communicate( request )
         m = (num+7)/8
         data = unpack('>BB%dB'%m, response )
@@ -203,7 +204,7 @@ class Beckhoff(Device):
 
     def ReadWordsOutput( self, addr, num ):
         if num > 125: raise ValueError('%d Words are too much for ReadWordsOutput!'%num)
-        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 3, addr, num ) # can read more than 1 word !
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, self.addr, 3, addr, num ) # can read more than 1 word !
         response = self.communicate( request )
         data = unpack('>BB%dH'%num, response )
         FOE = data[0]
@@ -212,7 +213,7 @@ class Beckhoff(Device):
 
     def ReadWordsInput( self, addr, num ):
         if num > 125: raise ValueError('%d Words are too much for ReadWordsInput!'%num)
-        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, 0, 4, addr, num ) # can read more than 1 word !
+        request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, self.addr, 4, addr, num ) # can read more than 1 word !
         response = self.communicate( request )
         data = unpack('>BB%dH'%num, response )
         FOE = data[0]
@@ -230,7 +231,7 @@ class Beckhoff(Device):
                 b = 0
         data.append(b)
         m = len(data)
-        request = pack('>HHHBBHHB%dB'%m, random.getrandbits(16), 0, 7+m, 0, 15, addr, len(values), m, *data )
+        request = pack('>HHHBBHHB%dB'%m, random.getrandbits(16), 0, 7+m, self.addr, 15, addr, len(values), m, *data )
         response = self.communicate( request )
         #~ print dp(request), ' -> ', dp(response)
         FOE, addr, status = unpack('>BHH', response )
@@ -241,7 +242,7 @@ class Beckhoff(Device):
     def WriteWordsOutput( self, addr, values ):
         values = tuple([int(v) for v in values])
         m = len(values)
-        request = pack('>HHHBBH%dH'%m, random.getrandbits(16), 0, 4+2*m, 0, 16, addr, *values )
+        request = pack('>HHHBBH%dH'%m, random.getrandbits(16), 0, 4+2*m, self.addr, 16, addr, *values )
         response = self.communicate( request )
         try:
             data = unpack('>HHHBBHHB%dB'%m, response )
