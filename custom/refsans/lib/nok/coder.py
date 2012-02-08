@@ -30,9 +30,51 @@ import sys
 from Encoder import Encoder
 
 from nicos.core import Readable, Moveable, Override, status, oneofdict, \
-    oneof, Param
+    oneof, Param, status
 from nicos.abstract import Coder as BaseCoder
 from nicos.taco.io import AnalogInput
+
+class CoderReference(AnalogInput) :
+    """ NOK coder voltage reference """
+
+    parameters = {
+        'refhigh' : Param('High reference', 
+                          type = float,
+                          default = 19.8, # 2 * 9.9
+                          settable = False,
+                         ),
+        'refwarn' : Param('Reference warning',
+                          type = float,
+                          default = 18.0, # 9.0 * 2
+                          settable = False,
+                         ),
+        'reflow'  : Param('Low reference',
+                          type = float,
+                          default = 17.0, # 8.0 * 2
+                          settable = False,
+                         ),
+        }
+
+    def doRead(self) :
+        # Range of RAWValue, if it is outside of expection, the cable may be broken
+        # test range of ref lack of resolution 9.5 < ref > 10 clip!
+        ref = 2.0 * self._taco_guard(self._dev.read)
+        if abs(ref) >= self.refhigh :
+            self.log.error(self,  'Reference voltage to high : %f > %f' % (ref, self.refhigh))
+        if   abs(ref) <  self.reflow:
+            self.log.error(self, 'Reference voltage to low : %f < %f' % (ref, self.reflow))
+        elif abs(ref) <  self.refwarn: 
+            self.log.warning(self, 'Reference voltage seems to be to low : %f < %f' % (ref, self.refwarn))
+        return ref
+
+    def doStatus(self) :
+        ref = self._taco_guard(self._dev.read)
+        if abs(ref) >= self.refhigh :
+            return status.ERROR,  'Reference voltage to high : %f > %f' % (ref, self.refhigh)
+        if   abs(ref) <  self.reflow:
+            return status.ERROR, 'Reference voltage to low : %f < %f' % (ref, self.reflow)
+        elif abs(ref) <  self.refwarn: 
+            return status.ERROR, 'Reference voltage seems to be to low : %f < %f' % (ref, self.refwarn)
 
 class Coder(BaseCoder):
     """NOK coder implementation class.
@@ -40,22 +82,15 @@ class Coder(BaseCoder):
 
     attached_devices = {
         'port' : (AnalogInput, 'analog input device'),
-        'ref'  : (AnalogInput, 'referencing analog input device'),
+        'ref'  : (CoderReference, 'referencing analog input device'),
+    }
+
+    parameter_overrides = {
+        'fmtstr' : Override(default = '%.3f'),
+        'unit'   : Override(default = 'mm', mandatory = False),
     }
 
     parameters = {
-        'refhigh' : Param('High reference', 
-                          type = float,
-                          default = 19.8, # 2 * 9.9
-                         ),
-        'refwarn' : Param('Reference warning',
-                          type = float,
-                          default = 18.0, # 9.0 * 2
-                         ),
-        'reflow'  : Param('Low reference',
-                          type = float,
-                          default = 17.0, # 8.0 * 2
-                         ),
         'corr'    : Param('Correction type',
                           type = oneof('none', 'mul', 'table'),
                           default = 'mul',
@@ -74,19 +109,26 @@ class Coder(BaseCoder):
                          ),
         'snr'     : Param('Serial number',
                           type = int,
+                          settable = False,
                           mandatory = True,
                          ),
         'length'  : Param('Potionmeter length',
                           type = float,
-                          mandatory = True,
+                          settable = False,
+                          default = 250,
                          ),
         'sensitivity' : Param('Sensitivity',
                               type = float,
                               mandatory = True,
                              ),
+        'phys'        : Param('Physically connected and working?',
+                              type = bool,
+                              mandatory = False,
+                              default = True,
+                             ),
         'position' : Param('Position',
                            type = oneofdict({'top' : -1, 'bottom' : 1}),
-                           mandatory = True,
+                           mandatory = False,
                            default = 'bottom',
                           ),
     }
@@ -99,34 +141,6 @@ class Coder(BaseCoder):
     def doInit(self) :
         pass
 
-    def doGetPar (self,lable,Logging=True):
-        try:        
-            val = getattr(self,lable)
-        except: 
-            try:    
-                val = getattr(self,'_'+lable)
-            except: 
-                try:    
-                    val = getattr(self,'_cl_poti__'+lable)
-                except: 
-                    raise Error('no such Parameter: >'+lable+'<')
-        try:    
-            return float(val)
-        except: 
-            return val
-
-    def doSetPar (self,lable,Value):
-        try:        
-            val = setattr(self,lable,Value)
-        except: 
-            try:    
-                val = setattr(self,'_'+lable,Value)
-            except: 
-                try:    
-                    val = setattr(self,'_cl_poti__'+lable,Value)
-                except: 
-                    raise Error('no such Parameter: >'+lable+'<')
-        
     def __formula(self, data, direction):
         """the only positon for calculation
         direction = True:  get the position for raw and ref
@@ -152,6 +166,12 @@ class Coder(BaseCoder):
             elif lkorr ==  'mul': 
                 tmp = self.mul * data[0] #/E
             return (tmp, self.off + data[1])
+
+    def doStatus(self) :
+        if self.phys == True :
+            return status.OK, ''
+        else :
+            return status.ERROR, 'Physically not connected or other problems. Ask instrument responsible'
     
     def doRead (self, typ='POS') :
         """
@@ -165,10 +185,10 @@ class Coder(BaseCoder):
         while True:
             exit = True
             try:        
-                ref = 2.0 * self._adevs['ref'].read() # due to resistors
+                ref = self._adevs['ref'].read() # due to resistors
             except:     
                 try:    
-                    ref = 2.0 * self._adevs['ref'].read() # due to resistors
+                    ref = self._adevs['ref'].read() # due to resistors
                 except: 
                     self.log.error(self,  'readerror REF 2. (1/2));') 
                     exit = False
@@ -183,15 +203,6 @@ class Coder(BaseCoder):
             if exit:
                 break
         self.log.debug(self, 'raw value = %f reference value = %f', (RAWValue, ref))
-        # Range of RAWValue, if it is outside of expection, the cable may be broken
-        # test range of ref lack of resolution 9.5 < ref > 10 clip!
-        if abs(ref) >= self.refhigh :
-            self.log.error(self,  'Reference voltage to high : %f > %f' % (ref, self.refhigh))
-        if   abs(ref) <  self.reflow:
-            self.log.error(self, 'Reference voltage to low : %f < %f' % (ref, self.reflow))
-        elif abs(ref) <  self.refwarn: 
-            self.log.warning(self, 'Reference voltage seems to be to low : %f < %f' % (ref, self.refwarn ))
-
         try:    
             Position = self.__formula([RAWValue, ref], True)
             self.log.debug(self, 'okay')
