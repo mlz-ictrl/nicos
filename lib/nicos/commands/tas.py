@@ -26,7 +26,7 @@
 
 __version__ = "$Revision$"
 
-from numpy import ndarray
+from numpy import ndarray, arcsin, pi
 
 from nicos import session
 from nicos.core import Measurable, Moveable, Readable, UsageError, NicosError
@@ -35,6 +35,7 @@ from nicos.tas.spectro import TAS
 from nicos.commands import usercommand
 from nicos.commands.scan import _infostr, ADDSCANHELP2
 from nicos.commands.device import maw, read
+from nicos.commands.output import printinfo
 
 
 def _getQ(v, name):
@@ -273,3 +274,115 @@ def rp():
     if not isinstance(instr, TAS):
         raise NicosError('your instrument device is not a triple axis device')
     read(instr)
+
+
+@usercommand
+def acc_bragg(h, k, l, ny, sc=None):
+    """Check accidental Bragg scattering conditions for type A or type M at the
+    given spectrometer position.
+    """
+    instr = session.instrument
+    if sc is None:
+        sc = instr.scanconstant
+    res = instr._calpos([h, k, l, ny, sc], printout=False)
+    if res is None:
+        return
+    # type M spurion given if falls on lattice vector
+    hkl = tuple(instr._calhkl([res[1], res[1], res[2], res[3]]))
+    printinfo('calculated lattice vector for type M spurion condition: '
+              '[%.3f, %.3f, %.3f]' % hkl)
+    # type A spurion given if falls on lattice vector
+    hkl = tuple(instr._calhkl([res[0], res[0], res[2], res[3]]))
+    printinfo('calculated lattice vector for type A spurion condition: '
+              '[%.3f, %.3f, %.3f]' % hkl)
+    printinfo('if one of the two above lattice vectors correspond to a Bragg '
+              'peak, accidental Bragg scattering may occur')
+
+
+@usercommand
+def ho_spurions(kf=None, dEmin=0, dEmax=20):
+    """Calculation of elastic spurions due to higher order neutrons.
+
+    *kf* is the final wavevector to use for calculation.  *dEmin* and *dEmax*
+    are the minimum and maximum energy transfer to list.
+    """
+    instr = session.instrument
+    if kf is None:
+        kf = instr._adevs['ana'].read()
+    printinfo('calculation of potential weak spurions due to higher harmonic '
+              'ki / kf combinations')
+    printinfo('calculated for kf = %6.3f A-1' % kf)
+    spurlist = []
+    for nA in range(1, 6):
+        for nM in range(1, 6):
+            dE = (nA**2/float(nM)**2 - 1) * 2.0725 * kf**2
+            spurlist.append((dE, nM, nA))
+    spurlist.sort()
+    for item in spurlist:
+        if dEmin <= item[0] <= dEmax:
+            printinfo('potential spurion at energy transfer %6.3f meV for '
+                      '%d ki = %d kf ' % item)
+
+
+@usercommand
+def alu(ki=None, phi=None):
+    """Print powder ray positions of Al."""
+    alu_hkl = {'1,1,1': 2.3375,
+               '2,0,0': 2.0242,
+               '2,2,0': 1.4316,
+               '3,1,1': 1.2207,
+               '2,2,2': 1.1687,
+               '4,0,0': 1.0123}
+    powderrays(alu_hkl, ki, phi)
+
+
+@usercommand
+def copper(ki=None, phi=None):
+    """Print powder ray positions of Cu."""
+    cop_hkl = {'1,1,1': 2.0874,
+               '2,0,0': 1.8076,
+               '2,2,0': 1.2781,
+               '3,1,1': 1.0899,
+               '2,2,2': 1.0435,
+               '4,0,0': 0.9038}
+    powderrays(cop_hkl, ki, phi)
+
+
+def powderrays(dlist, ki=None, phi=None):
+    """Calculate powder ray positions."""
+    instr = session.instrument
+    if ki is None:
+        ki = instr._adevs['mono'].read()
+    lines1_list = {}
+    lines2_list = {}
+
+    for reflex, dvalue in dlist.items():
+        try:
+           twotheta = 2*arcsin(pi/ki/dvalue)*180/pi
+           if twotheta < 135:
+               lines1_list[reflex] = twotheta
+        except ValueError:
+           pass
+        try:
+           twotheta = 2*arcsin(pi/ki/2/dvalue)*180/pi
+           if twotheta < 135:
+               lines2_list[reflex] = twotheta
+        except ValueError:
+           pass
+
+    if phi is not None:
+       for my_line in lines1_list.keys():
+           if abs(lines1_list[my_line] - phi) < 2:
+              printinfo('warning: powder line: %s at %6.3f deg' %
+                        (my_line, lines1_list[my_line]))
+       for my_line in lines2_list.keys():
+           if abs(lines2_list[my_line] - phi) < 2:
+              printinfo('warning: powder line from 2ki: %s at %6.3f deg' %
+                        (my_line, lines2_list[my_line]))
+
+    printinfo('found powder lines for ki = %5.3f A-1:' % ki)
+    for my_line, angle in lines1_list.items():
+        printinfo(' %s at %7.3f deg' % (my_line, angle))
+    printinfo('found powder lines for 2ki = %5.3f A-1:' % (2 * ki))
+    for my_line, angle in lines2_list.items():
+        printinfo(' %s at %7.3f deg' % (my_line, angle))

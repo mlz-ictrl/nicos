@@ -201,7 +201,7 @@ class TAS(Instrument, Moveable):
                 ny *= THZ2MEV
         return [hkl[0], hkl[1], hkl[2], ny]
 
-    def _calpos(self, pos):
+    def _calpos(self, pos, printout=True):
         qh, qk, ql, ny, sc = pos
         ny = self._thz(ny)
         try:
@@ -209,8 +209,10 @@ class TAS(Instrument, Moveable):
                 [qh, qk, ql], ny, self.scanmode, sc,
                 self.scatteringsense[1], self.axiscoupling, self.psi360)
         except ComputationError, err:
-            self.log.warning('cannot calculation position: %s' % err)
+            self.log.warning('cannot calculate position: %s' % err)
             return
+        if not printout:
+            return angles
         for devname, value in zip(['mono', 'ana', 'phi', 'psi'], angles[:4]):
             dev = self._adevs[devname]
             if isinstance(dev, Monochromator):
@@ -230,6 +232,9 @@ class TAS(Instrument, Moveable):
             self.log.info('position allowed')
         else:
             self.log.warning('position not allowed: ' + why)
+
+    def _calhkl(self, angles):
+        return self._adevs['cell'].angle2hkl(angles, self.axiscoupling)
 
 
 class TASIndex(Moveable, AutoDevice):
