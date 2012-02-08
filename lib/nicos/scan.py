@@ -420,8 +420,8 @@ class ContinuousScan(Scan):
         except (StopScan, SkipPoint):
             return
         self.beginScan()
-        session.action('Scanning')
         original_speed = device.speed
+        session.beginActionScope('Continuous scan %s' % device)
         try:
             device.speed = self._speed
             device.move(self._endpos)
@@ -444,6 +444,7 @@ class ContinuousScan(Scan):
             for det in detlist:
                 det.stop()
         finally:
+            session.endActionScope()
             device.stop()
             device.speed = original_speed
             self.endScan()
