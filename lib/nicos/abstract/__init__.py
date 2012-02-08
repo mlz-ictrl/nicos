@@ -71,7 +71,7 @@ class Coder(HasPrecision, Readable):
         self.doSetPosition(pos)
 
     def doSetPosition(self, pos):
-        raise NotImplementedError
+        raise NotImplementedError('implement doSetPosition for concrete coders')
 
 
 class Motor(HasLimits, Moveable, Coder, HasPrecision):
@@ -174,11 +174,11 @@ class AsyncDetector(Measurable):
         """Action to run before starting measurement.  This should set the
         preset in the detector and start the measurement.
         """
-        raise NotImplementedError
+        raise NotImplementedError('implement _startAction')
 
     def _measurementComplete(self):
         """Ask the hardware if the measurement is complete."""
-        raise NotImplementedError
+        raise NotImplementedError('implement _measurementComplete')
 
     def _duringMeasureAction(self, elapsedtime):
         """Action to run during measurement."""
@@ -186,7 +186,7 @@ class AsyncDetector(Measurable):
 
     def _afterMeasureAction(self):
         """Action to run after measurement (e.g. saving the data)."""
-        raise NotImplementedError
+        raise NotImplementedError('implement _afterMeasureAction')
 
     def _measurementFailedAction(self, err):
         """Action to run when measurement failed."""

@@ -141,7 +141,7 @@ class BaseCacheClient(Device):
         self._process_data(data)
 
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
-        raise NotImplementedError
+        raise NotImplementedError('implement _handle_msg in subclasses')
 
     def _process_data(self, data,
                       lmatch=line_pattern.match, mmatch=msg_pattern.match):

@@ -57,7 +57,7 @@ class Notifier(Device):
     @usermethod
     def send(self, subject, body, what=None, short=None, important=True):
         """Send a notification."""
-        raise NotImplementedError
+        raise NotImplementedError('send() must be implemented in subclasses')
 
     @usermethod
     def sendConditionally(self, runtime, subject, body, what=None, short=None,
