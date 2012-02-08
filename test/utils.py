@@ -55,6 +55,31 @@ def assert_response(resp, contains=None, matches=None):
                 return True
         assert False, "Response does not match %r" % matches
 
+# from unittest.Testcase
+def assertAlmostEqual(first, second, places=7, msg=None):
+    """Fail if the two objects are unequal as determined by their
+       difference rounded to the given number of decimal places
+       (default 7) and comparing to zero.
+
+       Note that decimal places (from zero) are usually not the same
+       as significant digits (measured from the most signficant digit).
+    """
+    if round(abs(second - first), places) != 0:
+        assert False, \
+              (msg or '%r != %r within %r places' % (first, second, places))
+
+def assertNotAlmostEqual(first, second, places=7, msg=None):
+    """Fail if the two objects are equal as determined by their
+       difference rounded to the given number of decimal places
+       (default 7) and comparing to zero.
+
+       Note that decimal places (from zero) are usually not the same
+       as significant digits (measured from the most signficant digit).
+    """
+    if round(abs(second - first), places) == 0:
+        assert False, \
+              (msg or '%r == %r within %r places' % (first, second, places))
+
 
 class TestDevice(HasLimits, Moveable):
 

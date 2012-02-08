@@ -311,6 +311,10 @@ class CacheClient(BaseCacheClient):
         self._master_expires = 0
         self._mastertimeout = self._selecttimeout * 10
 
+    def _connect_action(self):
+        self._db.clear()
+        return BaseCacheClient._connect_action(self)
+
     def _wait_data(self):
         if self._ismaster:
             time = currenttime()
@@ -331,12 +335,11 @@ class CacheClient(BaseCacheClient):
         else:
             value = cache_load(value)
             self._db[key] = (value, time, ttl and float(ttl))
-        if key in self._callbacks:
-            if self._do_callbacks:
-                try:
-                    self._callbacks[key](key, value, time)
-                except Exception:
-                    self.log.warning('error in cache callback', exc=1)
+        if key in self._callbacks and self._do_callbacks:
+            try:
+                self._callbacks[key](key, value, time)
+            except Exception:
+                self.log.warning('error in cache callback', exc=1)
 
     def _propagate(self, args):
         pass

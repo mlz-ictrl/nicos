@@ -29,8 +29,8 @@ __version__ = "$Revision$"
 from time import sleep
 
 from nicos import session
-from nicos.core import status, NicosError, LimitError
-from test.utils import raises
+from nicos.core import status, LimitError
+from test.utils import raises, assertAlmostEqual
 
 
 def setup_module():
@@ -54,20 +54,20 @@ def test_params():
     assert axis2.abslimits == (-1, +1)
     # offset
     axis.maw(1)
-    assert axis.read() == 1
+    assertAlmostEqual(axis.read(), 1)
     axis.offset = 1
-    assert axis.read() == 0
+    assertAlmostEqual(axis.read(), 0)
     axis.offset = 0
 
 def test_movement():
     axis = session.getDevice('axis')
     # moving once
     axis.maw(1)
-    assert axis.read() == 1
+    assertAlmostEqual(axis.read(), 1)
     assert axis.status()[0] == status.OK
     # moving again
     axis.maw(2)
-    assert axis.read() == 2
+    assertAlmostEqual(axis.read(),2)
     assert axis.status()[0] == status.OK
     # moving out of limits?
     assert raises(LimitError, axis.move, 150)
@@ -87,7 +87,7 @@ def test_movement():
     try:
         axis.move(1)
         axis.wait()
-        assert axis.read() == 1
+        assertAlmostEqual(axis.read(), 1)
 
         axis.move(0)
         sleep(0.1)

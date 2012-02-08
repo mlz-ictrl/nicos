@@ -256,14 +256,14 @@ class Axis(BaseAxis):
             # not calling _setErrorState here, since we don't want the error
             # log message in all cases
             self._errorstate = MoveError(
-                self, 'drag error (primary coder): difference %f, maximum %f' %
+                self, 'drag error (primary coder): difference %.4g, maximum %.4g' %
                 (diff, maxdiff))
             return False
         for obs in self._adevs['obs']:
             diff = abs(self._adevs['motor'].read() - obs.read())
             if diff > maxdiff:
-                self._errorstate = MoveError(
-                    self, 'drag error (%s): difference %f, maximum %f' %
+                self._errorstate = PositionError(
+                    self, 'drag error (%s): difference %.4g, maximum %.4g' %
                     (obs.name, diff, maxdiff))
                 return False
         return True
@@ -288,7 +288,7 @@ class Axis(BaseAxis):
         self._lastdiff = min(delta_last, delta_curr)
         if not ok:
             return self._setErrorState(MoveError,
-                'not moving to target: last delta %f, current delta %f'
+                'not moving to target: last delta %.4g, current delta %.4g'
                 % (delta_last, delta_curr))
         return True
 
@@ -298,21 +298,22 @@ class Axis(BaseAxis):
         This method returns False if not arrived at target, or True otherwise.
         """
         diff = abs(pos - target)
-        maxdiff = self.dragerror
-        if diff >= self.precision:
+        prec = self.precision
+        if (prec > 0 and diff >= prec) or (prec == 0 and diff):
             if error:
                 # not calling _setErrorState here, since we don't want the error
                 # log message in all cases
-                self._errorstate = PositionError(self,
-                    'precision error: difference %f, precision %f' %
+                self._errorstate = MoveError(self,
+                    'precision error: difference %.4g, precision %.4g' %
                     (diff, self.precision))
             return False
+        maxdiff = self.dragerror
         for obs in self._adevs['obs']:
             diff = abs(target - obs.read())
             if maxdiff > 0 and diff > maxdiff:
                 if error:
                     self._errorstate = PositionError(self,
-                        'precision error (%s): difference %f, maximum %f' %
+                        'precision error (%s): difference %.4g, maximum %.4g' %
                         (obs, diff, maxdiff))
                 return False
         return True
@@ -369,9 +370,7 @@ class Axis(BaseAxis):
             sleep(self.loopdelay)
             # poll accurate current values and status of child devices so that
             # we can use read() and status() subsequently
-            self.poll()
-            # put value/status in cache
-            pos = self._adevs['coder'].read() - self.offset
+            st, pos = self.poll()
             if self._adevs['motor'].status()[0] != status.BUSY:
                 # motor stopped; check why
                 if self._stoprequest == 2:
@@ -399,7 +398,7 @@ class Axis(BaseAxis):
                 else:
                     self.log.debug('target not reached after max tries')
                     moving = False
-                    self._setErrorState(PositionError,
+                    self._setErrorState(MoveError,
                         'target not reached after %d tries' % self.maxtries)
             elif not self._checkMoveToTarget(target, pos):
                 self._stoprequest = 1

@@ -1,32 +1,33 @@
-description = 'Nok1 setup'
-
+NOK = 'NOK3'
+nok = NOK.lower()
 nethost = '//refsanssrv.refsans.frm2/'
 
+description = '%s setup' % (NOK)
+
 devices = dict(
-        n1port = device('nicos.taco.io.AnalogInput',
-                        tacodevice = nethost + 'test/wb_a/1_0',
-                        lowlevel = True,
+        nref1 = device('nicos.refsans.nok.CoderReference',
+                       description = 'Reference voltage device for the NOK coders',
+                       tacodevice = nethost + 'test/wb_a/1_6',
+                       lowlevel = True,
+                       refhigh = 19.8,
+                       reflow = 18.0,
+                       refwarn = 17.0,
                        ),
-        n1ref = device('nicos.taco.io.AnalogInput',
-                        tacodevice = nethost + 'test/wb_a/1_6',
-                        lowlevel = True,
-                       ),
-        n1obs = device('nicos.refsans.nok.Coder',
-                      unit = 'mm',
-                      fmtstr = '%.3f',
-                      refhigh = 19.8,
-                      reflow = 18.0,
-                      refwarn = 17.0,
-                      corr = 'mul',
-                      mul = 0.996393,
-                      off = -13.748035,
-                      snr = 6505,
-                      length = 250,
-                      sensitivity = 3.856,
-                      port = 'n1port',
-                      ref = 'n1ref',
-                      position = 'bottom',
-                      ),
+
+        nok1port = device('nicos.taco.io.AnalogInput',
+                          description = 'Voltage input of the NOK1 coder',
+                          tacodevice = nethost + 'test/wb_a/1_0',
+                          lowlevel = True,
+                         ),
+        nok1obs = device('nicos.refsans.nok.Coder',
+                         description = 'NOK1 potentiometer coder',
+                         mul = 0.996393,
+                         off = -13.748035,
+                         snr = 6505,
+                         sensitivity = 3.856,
+                         port = 'nok1port',
+                         ref = 'nref1',
+                        ),
 #        nok1 = device('nicos.refsans.nok.Nok', 
 #                      unit = 'mm',
 #                      fmtstr = '%.5f',
