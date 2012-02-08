@@ -147,6 +147,13 @@ def AddDetector(*detlist):
 
 
 @usercommand
+def ListDetectors():
+    """List the standard detectors."""
+    session.log.info('standard detectors are %s' %
+                     ', '.join(session.experiment.detlist))
+
+
+@usercommand
 def SetEnvironment(*devlist):
     """Select the device(s) to read out as "experiment environment" at every
     step of a scan.
@@ -167,4 +174,11 @@ def AddEnvironment(*devlist):
     existing = session.experiment.envlist
     session.experiment.setEnvironment(existing + list(devlist))
     session.log.info('standard environment is now: %s' %
+                     ', '.join(session.experiment.envlist))
+
+
+@usercommand
+def ListEnvironment():
+    """List the standard environment devices."""
+    session.log.info('standard environment is %s' %
                      ', '.join(session.experiment.envlist))

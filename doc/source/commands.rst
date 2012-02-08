@@ -112,6 +112,8 @@ Measuring commands
 .. autofunction:: SetEnvironment
 .. autofunction:: AddDetector
 .. autofunction:: AddEnvironment
+.. autofunction:: ListDetectors
+.. autofunction:: ListEnvironment
 
 Scanning commands
 -----------------
