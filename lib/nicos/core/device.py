@@ -846,12 +846,15 @@ class Readable(Device):
         """
         if self._sim_active:
             return (self.status(), self.read())
+        if hasattr(self, 'doPoll'):
+            try:
+                self.doPoll(n)
+            except Exception:
+                self.log.debug('error in doPoll', exc=1)
         stval = None
         if hasattr(self, 'doStatus'):
             stval = self.doStatus()
             self._cache.put(self, 'status', stval, currenttime(), self.maxage)
-        if hasattr(self, 'doPoll'):
-            self.doPoll(n)
         rdval = self.doRead()
         self._cache.put(self, 'value', rdval, currenttime(), self.maxage)
         return stval, rdval
