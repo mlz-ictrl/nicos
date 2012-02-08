@@ -153,3 +153,8 @@ one of your loaded setups.
 .. autofunction:: calpos
 .. autofunction:: pos
 .. autofunction:: rp
+
+.. autofunction:: alu
+.. autofunction:: copper
+.. autofunction:: ho_spurions
+.. autofunction:: acc_bragg
