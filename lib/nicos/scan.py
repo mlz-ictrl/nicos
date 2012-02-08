@@ -50,6 +50,8 @@ class Scan(object):
     Represents a general scan over some devices with a specified detector.
     """
 
+    shortdesc = None
+
     def __init__(self, devices, positions, firstmoves=None, multistep=None,
                  detlist=None, envlist=None, preset=None, scaninfo=None,
                  scantype=None):
@@ -228,8 +230,11 @@ class Scan(object):
                 ret.append(val)
         return ret
 
+    def shortDesc(self):
+        return 'Scan %s' % ', '.join(map(str, self._devices))
+
     def run(self):
-        session.beginActionScope('Scan')
+        session.beginActionScope(self.shortDesc())
         try:
             self._inner_run()
         finally:
@@ -308,6 +313,9 @@ class TimeScan(Scan):
         Scan.__init__(self, [], steps, firstmoves, multistep,
                       detlist, envlist, preset, scaninfo, scantype)
 
+    def shortDesc(self):
+        return 'Time scan'
+
     def readEnvironment(self, started, finished):
         ret = Scan.readEnvironment(self, started, finished)
         ret[0] = finished - self._started
@@ -380,6 +388,9 @@ class QScan(Scan):
         self._envlist[0:0] = [inst._adevs['mono'], inst._adevs['ana'],
                               inst._adevs['psi'], inst._adevs['phi']]
 
+    def shortDesc(self):
+        return 'Qscan'
+
     def beginScan(self):
         if len(self._positions) > 1:
             # determine first varying index as the plotting index
@@ -412,6 +423,9 @@ class ContinuousScan(Scan):
         Scan.__init__(self, [device], [], firstmoves, None, detlist, [],
                       None, scaninfo)
 
+    def shortDesc(self):
+        return 'Continuous scan %s' % self._devices[0]
+
     def run(self):
         device = self._devices[0]
         detlist = self._detlist
@@ -421,7 +435,7 @@ class ContinuousScan(Scan):
             return
         self.beginScan()
         original_speed = device.speed
-        session.beginActionScope('Continuous scan %s' % device)
+        session.beginActionScope(self.shortDesc())
         try:
             device.speed = self._speed
             device.move(self._endpos)
