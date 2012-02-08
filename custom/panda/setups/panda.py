@@ -39,8 +39,8 @@ devices = dict(
                       theta = 'mth',
                       twotheta = 'mtt',
                       reltheta = True,
-                      focush = None,
-                      focusv = None,
+                      focush = 'mfh',
+                      focusv = 'mfv',
                       abslimits = (1, 10),
                       dvalue = 3.355),
 
