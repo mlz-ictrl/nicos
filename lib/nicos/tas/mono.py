@@ -73,7 +73,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
 
     parameters = {
         'dvalue':   Param('d-value of the reflection used', unit='A',
-                          mandatory=True),
+                          mandatory=True, settable=True),
         'order':    Param('order of reflection to use', type=int, default=1,
                           settable=True),
         'reltheta': Param('true if theta position is relative to two-theta',
