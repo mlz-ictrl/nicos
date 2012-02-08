@@ -99,6 +99,8 @@ Device commands
 
 .. autofunction:: adjust
 
+.. autofunction:: history
+
 Measuring commands
 ------------------
 

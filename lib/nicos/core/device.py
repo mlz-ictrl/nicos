@@ -915,7 +915,7 @@ class Readable(Device):
         Default is to query the values of the last hour.
         """
         if not self._cache:
-            raise ConfigurationError('no cache is configured for this setup')
+            raise NicosError('no cache is configured for this setup')
         else:
             if fromtime is None:
                 fromtime = -3600
@@ -923,6 +923,8 @@ class Readable(Device):
                 fromtime = currenttime() + fromtime
             if totime is None:
                 totime = currenttime()
+            elif totime < 0:
+                totime = currenttime() + totime
             return self._cache.history(self, name, fromtime, totime)
 
     def info(self):

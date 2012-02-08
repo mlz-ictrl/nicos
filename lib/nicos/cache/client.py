@@ -474,7 +474,8 @@ class CacheClient(BaseCacheClient):
             time, value = msgmatch.group('time'), msgmatch.group('value')
             if time is None:
                 break  # it's the '###' value
-            ret.append((float(time), cache_load(value or 'None')))
+            if value:
+                ret.append((float(time), cache_load(value)))
         return ret
 
     def lock(self, key, ttl=None, unlock=False, sessionid=None):

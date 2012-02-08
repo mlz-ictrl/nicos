@@ -290,7 +290,31 @@ def version(*devlist):
 
 @usercommand
 def history(dev, key='value', fromtime=None, totime=None):
-    """Print history of a device parameter."""
+    """Print history of a device parameter.
+
+    The optional argument *key* selects a parameter of the device.  "value" is
+    the main value, and "status" is the device status.
+
+    *fromtime* and *totime* are UNIX timestamps, or negative numbers giving
+    **hours** in the past.  The default is to list history of the last hour for
+    "value" and "status", or from the last day for other parameters.  For
+    example:
+
+    >>> history(mth)              # show value of mth in the last hour
+    >>> history(mth, -48)         # show value of mth in the last two days
+    >>> history(mtt, 'offset')    # show offset of mth in the last day
+    """
+    # support calling history(dev, -3600)
+    if isinstance(key, (int, float)):
+        totime = fromtime
+        fromtime = key
+        key = 'value'
+    if key not in ('value', 'status') and fromtime is None:
+        fromtime = -24
+    if fromtime is not None:
+        fromtime *= 3600
+    if totime is not None:
+        totime *= 3600
     hist = session.getDevice(dev, Device).history(key, fromtime, totime)
     entries = []
     ltime = time.localtime
