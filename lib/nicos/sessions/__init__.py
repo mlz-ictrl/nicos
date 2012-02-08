@@ -500,7 +500,7 @@ class Session(object):
         self.configured_devices.clear()
         self.explicit_devices.clear()
         for name in list(self._exported_names):
-            self.unexport(name)
+            self.unexport(name, warn=False)
         if self.cache:
             self.cache.shutdown()
         self.cache = None

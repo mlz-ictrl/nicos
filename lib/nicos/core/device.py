@@ -918,7 +918,7 @@ class Readable(Device):
             raise ConfigurationError('no cache is configured for this setup')
         else:
             if fromtime is None:
-                fromtime = 3600
+                fromtime = -3600
             if fromtime < 0:
                 fromtime = currenttime() + fromtime
             if totime is None:
