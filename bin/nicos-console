@@ -11,11 +11,6 @@ import optparse
 from nicos.utils import nocolor
 from nicos.sessions.console import ConsoleSession
 
-# support calling via a symlink with the name of a setup
-symname = ''
-if path.basename(sys.argv[0]) != 'nicos-console':
-    symname = path.basename(sys.argv[0])
-
 parser = optparse.OptionParser()
 parser.add_option('-s', '--simulate', dest='simulate', action='store_true',
                   help='start in simulation mode')
@@ -30,4 +25,4 @@ if opts.nocolor:
 
 ConsoleSession.autocreate_devices = not opts.noautocreate
 
-ConsoleSession.run(args[0] if args else (symname or 'startup'), opts.simulate)
+ConsoleSession.run(args[0] if args else 'startup', opts.simulate)
