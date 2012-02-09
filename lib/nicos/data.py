@@ -224,6 +224,8 @@ class ConsoleSink(DataSink):
         printinfo('=' * 100)
         printinfo('Starting scan:      ' + (dataset.scaninfo or ''))
         for name, value in dataset.sinkinfo.iteritems():
+            if name == 'continuation':
+                continue
             printinfo('%-20s%s' % (name+':', value))
         printinfo('Started at:         ' +
                   time.strftime(TIMEFMT, dataset.started))

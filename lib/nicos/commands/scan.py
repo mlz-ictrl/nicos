@@ -325,9 +325,17 @@ def manualscan(*args, **kwargs):
 @usercommand
 def appendscan(numsteps=5, stepsize=None):
     """Go on *numsteps* steps from the end of the last scan."""
-    if not session.experiment._last_datasets:
+    dslist = session.experiment._last_datasets
+    if not dslist:
         raise NicosError('no last scan saved')
-    scan = session.experiment._last_datasets[-1]
+    contuids = []
+    i = len(dslist) - 1
+    while i >= 0:
+        contuids.append(dslist[i].uid)
+        if not dslist[i].sinkinfo.get('continuation'):
+            break
+        i -= 1
+    scan = dslist[i]
     if len(scan.devices) != 1:
         raise NicosError('cannot append to scan with more than one device')
     npos = len(scan.positions)
@@ -348,5 +356,5 @@ def appendscan(numsteps=5, stepsize=None):
     positions = [[startpos + i*stepsize] for i in range(numsteps)]
     s = Scan(scan.devices, positions, None, scan.multistep, scan.detlist,
              scan.envlist, scan.preset, '%d more steps of last scan' % numsteps)
-    s.dataset.sinkinfo['continuation'] = scan.uid
+    s.dataset.sinkinfo['continuation'] = ','.join(contuids)
     s.run()

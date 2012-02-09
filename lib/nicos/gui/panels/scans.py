@@ -265,11 +265,10 @@ class ScansPanel(Panel):
             if not self.data.bulk_adding:
                 self.openDataset(dataset.uid)
             self.no_openset = False
-        contuid = dataset.sinkinfo.get('continuation')
-        if contuid:
-            self.openDataset(contuid)
-            self._combine(COMBINE,
-                          map(self.data.uid2set.get, [contuid, dataset.uid]))
+        contuids = dataset.sinkinfo.get('continuation')
+        if contuids:
+            alluids = contuids.split(',') + [dataset.uid]
+            self._combine(COMBINE, map(self.data.uid2set.get, alluids))
 
     def on_data_pointsAdded(self, dataset):
         if dataset.uid in self.setplots:
