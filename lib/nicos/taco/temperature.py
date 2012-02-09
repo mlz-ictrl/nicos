@@ -195,6 +195,7 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
                 else:
                     self.log.warning('temperature not reached in %s seconds, '
                                      'continuing anyway' % timeout)
+                    return
             time.sleep(delay)
 
     def doReset(self):
