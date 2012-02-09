@@ -420,12 +420,12 @@ class _ScriptScope(object):
         self.code = code
     def __enter__(self):
         session.beginActionScope(self.filename)
-        if session.experiment:
+        if session.experiment and session.mode == 'master':
             session.experiment.scripts += [self.code]
         session.elog_event('scriptbegin', self.filename)
     def __exit__(self, *args):
         session.endActionScope()
-        if session.experiment:
+        if session.experiment and session.mode == 'master':
             session.experiment.scripts = session.experiment.scripts[:-1]
         session.elog_event('scriptend', self.filename)
 

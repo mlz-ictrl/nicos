@@ -134,7 +134,7 @@ class ScriptRequest(Request):
         # this is to allow the traceback module to report the script's
         # source code correctly
         update_linecache('<script>', self.text)
-        if session.experiment:
+        if session.experiment and session.mode == 'master':
             session.experiment.scripts += [self.text]
             self._exp_script_index = len(session.experiment.scripts) - 1
         if self.name:
@@ -146,7 +146,7 @@ class ScriptRequest(Request):
                 controller.start_exec(self.code[self.curblock],
                                       controller.namespace)
         finally:
-            if session.experiment:
+            if session.experiment and session.mode == 'master':
                 session.experiment.scripts = session.experiment.scripts[:-1]
             if self.name:
                 session.elog_event('scriptend', self.name)
@@ -179,7 +179,7 @@ class ScriptRequest(Request):
                                       'part of the code')
             # everything is ok, replace the script and the remaining blocks
             self.text = text
-            if session.experiment:
+            if session.experiment and session.mode == 'master':
                 scr = session.experiment.scripts
                 scr[self._exp_script_index] = self.text
                 session.experiment.scripts = scr
