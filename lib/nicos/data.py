@@ -506,11 +506,10 @@ class AsciiDatafileSink(DatafileSink):
         if not pstr:
             raise NicosError('Please initialize the experiment first using '
                              'the NewExperiment() command')
-        return '%s_%08d.dat' % (pstr, self._counter + 1)
+        return '%s_%08d.dat' % (pstr, self._counter)
 
     def prepareDataset(self, dataset):
         self._wrote_columninfo = False
-        self._fname = self.nextFileName()
         if self.lastfilenumber != self._counter:
             # inconsistent state -- better read the on-disk counter
             self._readCurrentCounter()
@@ -520,6 +519,7 @@ class AsciiDatafileSink(DatafileSink):
         else:
             updateFileCounter(path.join(self._path, 'filecounter'),
                               self._counter)
+        self._fname = self.nextFileName()
         self._setROParam('lastfilenumber', self._counter)
         self._setROParam('lastpoint', 0)
         self._fullfname = path.join(self._path, self._fname)
