@@ -41,6 +41,7 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 import numpy as np
 
 from nicos.data import Dataset
+from nicos.gui.data import DataProxy
 from nicos.gui.panels import Panel
 from nicos.gui.utils import loadUi, dialogFromUi, safeFilename, DlgPresets
 from nicos.gui.fitutils import has_odr, FitError, fit_gauss, fwhm_to_sigma, \
@@ -264,6 +265,11 @@ class ScansPanel(Panel):
             if not self.data.bulk_adding:
                 self.openDataset(dataset.uid)
             self.no_openset = False
+        contuid = dataset.sinkinfo.get('continuation')
+        if contuid:
+            self.openDataset(contuid)
+            self._combine(COMBINE,
+                          map(self.data.uid2set.get, [contuid, dataset.uid]))
 
     def on_data_pointsAdded(self, dataset):
         if dataset.uid in self.setplots:
@@ -423,7 +429,6 @@ class ScansPanel(Panel):
                 newitem.setFlags(Qt.NoItemFlags)
         if dlg.exec_() != QDialog.Accepted:
             return
-
         items = dlg.otherList.selectedItems()
         sets = [self.data.uid2set[current]]
         for item in items:
@@ -438,6 +443,9 @@ class ScansPanel(Panel):
             if rb.isChecked():
                 op = rop
                 break
+        self._combine(op, sets)
+
+    def _combine(self, op, sets):
         if op == TOGETHER:
             newset = Dataset()
             newset.name = combineattr(sets, 'name', sep=', ')
@@ -481,11 +489,11 @@ class ScansPanel(Panel):
             #newset.xunits = firstset.xunits
             for curves in zip(*(set.curves for set in sets)):
                 newcurve = curves[0].copy()
-                newdata = sum((curve.tolist() for curve in curves), [])
-                newdata.sort()
-                newcurve.setdata(newdata)
+                for attr in ('datax', 'datay', 'datady', 'datatime', 'datamon'):
+                    setattr(newcurve, attr, DataProxy(getattr(curve, attr)
+                                                      for curve in curves))
                 newset.curves.append(newcurve)
-            self.data.add_existing_dataset(newset)
+            self.data.add_existing_dataset(newset, [set.uid for set in sets])
             return
         if op == ADD:
             sep = ' + '
@@ -621,9 +629,10 @@ class DataSetPlot(NicosPlot):
                 legenditem.setText(newtext)
 
     def pointsAdded(self):
+        curve = None
         for curve, plotcurve in zip(self.dataset.curves, self.plotcurves):
             self.setCurveData(curve, plotcurve)
-        if len(curve.datax) == 1:
+        if curve and len(curve.datax) == 1:
             self.zoomer.setZoomBase(True)
         else:
             self.replot()

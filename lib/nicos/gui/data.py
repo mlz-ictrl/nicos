@@ -28,15 +28,27 @@ __version__ = "$Revision$"
 
 import copy
 import uuid
+from itertools import chain
+
+import numpy as np
 
 from PyQt4.QtCore import QObject, SIGNAL
 from PyQt4.QtGui import QApplication, QProgressDialog
 
-from nicos.gui.utils import unzip
-
 
 class DataError(Exception):
     pass
+
+
+class DataProxy(object):
+    def __init__(self, lists):
+        self.lists = list(lists)
+
+    def __array__(self, *typ):
+        return np.array(tuple(chain(*self.lists)), *typ)
+
+    def __len__(self):
+        return len(tuple(chain(*self.lists)))
 
 
 class Curve(object):
@@ -55,20 +67,6 @@ class Curve(object):
 
     def copy(self):
         return copy.copy(self)
-
-    def tolist(self):
-        # XXX doesn't handle time/mon
-        if self.dyindex != -1:
-            return zip(self.datax, self.datay, self.datady)
-        return zip(self.datax, self.datay)
-
-    def setdata(self, data):
-        # XXX doesn't handle time/mon
-        lists = unzip(data)
-        self.datax = lists[0]
-        self.datay = lists[1]
-        if len(lists) == 3:
-            self.datady = lists[2]
 
 
 class DataHandler(QObject):
