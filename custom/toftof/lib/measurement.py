@@ -93,6 +93,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         self._anglemap = tuple((i-1) for i in sorted(dmap, key=dmap.__getitem__))
         self._measuring = False
         self._devicelogs = {}
+        self._lastnosave = False
 
     def doSetPreset(self, **preset):
         self._adevs['counter'].setPreset(**preset)
@@ -107,8 +108,8 @@ class TofTofMeasurement(Measurable, ImageStorage):
         ctr = self._adevs['counter']
         ctr.stop()
         self.doSetPreset(**preset)
-        self._lasttitle = preset.get('info', '')
-        self._lastnosave = bool(preset.get('nosave', False))
+        self._curtitle = preset.get('info', '')
+        self._curnosave = bool(preset.get('nosave', False))
 
         try:
             rc = session.getDevice('rc')
@@ -199,7 +200,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         chwl, chspeed, chratio, chcrc, chst = self._adevs['chopper']._getparams()
         head = []
         head.append('File_Creation_Time: %s\n' % asctime())
-        head.append('Title: %s\n' % self._lasttitle)
+        head.append('Title: %s\n' % self._curtitle)
         head.append('ExperimentTitle: %s\n' % session.experiment.title)
         head.append('ProposalTitle: %s\n' % session.experiment.title)
         head.append('ProposalNr: %s\n' % session.experiment.proposal)
@@ -426,6 +427,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
                 fp.write(session.experiment.scripts[-1])
         self.log.info('Measurement %06d finished' % self.lastfilenumber)
         self._measuring = False
+        self._lastnosave = self._curnosave
         self._closeDeviceLogs()
         session.breakpoint(2)
 
