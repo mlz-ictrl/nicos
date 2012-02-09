@@ -78,7 +78,7 @@ def pretty1(value):
 def pretty2(value1, value2):
     try:
         ldiff = math.log10(abs(value2 - value1))
-        ncomma = 3 - int(ldiff)
+        ncomma = 2 - int(ldiff)
         return '%.*f - %.*f' % (ncomma, value1, ncomma, value2)
     except (ValueError, TypeError):
         return '%s - %s' % (value1, value2)

@@ -332,7 +332,15 @@ class Handler(object):
 
     def handle_scanend(self, time, dataset):
         names = '+'.join(dataset.xnames)
-        headers = ['Scan#'] + dataset.xnames + ['Plot', 'Data']
+        headers = ['Scan#']
+        for xc in zip(dataset.xnames, dataset.xunits):
+            headers.append('%s (%s)' % xc)
+        ycindex = []
+        for i, yc in enumerate(dataset.yvalueinfo):
+            if yc.type == 'info' and 'file' in yc.name:
+                ycindex.append(i)
+                headers.append(yc.name)
+        headers += ['Plot', 'Data']
         scannumber = dataset.sinkinfo.get('number', -1)
         scanfile = dataset.sinkinfo.get('filename', '')
         if scannumber >= 0:
@@ -348,8 +356,16 @@ class Handler(object):
                     html.append('<td>%s</td>' % pretty1(first))
                 else:
                     html.append('<td>%s</td>' % pretty2(first, last))
+            for i in ycindex:
+                first = path.splitext(path.basename(dataset.yresults[0][i]))[0]
+                last = path.splitext(path.basename(dataset.yresults[-1][i]))[0]
+                if first == last:
+                    html.append('<td>%s</td>' % escape(first))
+                else:
+                    html.append('<td>%s - %s</td>' %
+                                (escape(first), escape(last)))
         else:
-            html.extend(['<td></td>'] * len(dataset.xnames))
+            html.extend(['<td></td>'] * (len(dataset.xnames) + len(ycindex)))
         # plot link
         try:
             plotDataset(dataset, path.join(self.logdir, 'scan-%d' % scannumber))
