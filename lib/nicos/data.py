@@ -298,6 +298,8 @@ class GraceSink(DataSink):
 
     def beginDataset(self, dataset):
         try:
+            if dataset.sinkinfo.get('continuation'):
+                return
             self._openplot(dataset)
         except Exception:
             self.log.warning('could not create Grace plot', exc=1)

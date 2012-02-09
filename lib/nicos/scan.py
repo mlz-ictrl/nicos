@@ -78,6 +78,7 @@ class Scan(object):
         self._preset = self.dataset.preset = preset
         self.dataset.scaninfo = scaninfo
         self._sinks = self.dataset.sinks
+        self.dataset.sinkinfo = {}
         try:
             self._npoints = len(positions)  # can be zero if not known
         except TypeError:
@@ -96,14 +97,12 @@ class Scan(object):
         session.experiment._last_datasets.append(dataset)
         dataset.xresults = []
         dataset.yresults = []
-        dataset.sinkinfo = []
         dataset.xvalueinfo = sum((dev.valueInfo()
                                   for dev in self._devices + self._envlist), ())
         dataset.yvalueinfo = sum((det.valueInfo()
                                   for det in dataset.detlist), ())
         if self._multistep:
             dataset.yvalueinfo = dataset.yvalueinfo * self._mscount
-        dataset.sinkinfo = {}
         for sink in self._sinks:
             sink.prepareDataset(dataset)
         for sink in self._sinks:

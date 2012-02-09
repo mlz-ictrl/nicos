@@ -82,6 +82,8 @@ Changelog for NICOS 2
 
   - Added TAS commands to calculate powder rays and spurion positions.
 
+  - Added new "appendscan()" command to quickly append to the last scan.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless

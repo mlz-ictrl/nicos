@@ -27,7 +27,8 @@
 __version__ = "$Revision$"
 
 from nicos import session
-from nicos.core import Device, Measurable, Moveable, Readable, UsageError
+from nicos.core import Device, Measurable, Moveable, Readable, UsageError, \
+     NicosError
 from nicos.scan import Scan, TimeScan, ContinuousScan, ManualScan, TwoDimScan, \
      StopScan
 from nicos.commands import usercommand
@@ -319,3 +320,33 @@ def manualscan(*args, **kwargs):
     if getattr(session, '_manualscan', None):
         raise UsageError('cannot start manual scan within manual scan')
     return _ManualScan(args, kwargs)
+
+
+@usercommand
+def appendscan(numsteps=5, stepsize=None):
+    """Go on *numsteps* steps from the end of the last scan."""
+    if not session.experiment._last_datasets:
+        raise NicosError('no last scan saved')
+    scan = session.experiment._last_datasets[-1]
+    if len(scan.devices) != 1:
+        raise NicosError('cannot append to scan with more than one device')
+    npos = len(scan.positions)
+    if npos < 2:
+        raise NicosError('cannot append to scan with no positions')
+    pos1 = scan.positions[0][0]
+    pos2 = scan.positions[-1][0]
+    if not isinstance(pos1, (int, float)):
+        raise NicosError('cannot append to this scan')
+    if stepsize is None:
+        stepsize = (pos2 - pos1) / (npos - 1)
+    if numsteps > 0:
+        startpos = pos2 + stepsize
+    else:
+        stepsize = -stepsize
+        startpos = pos1 + stepsize
+        numsteps = abs(numsteps)
+    positions = [[startpos + i*stepsize] for i in range(numsteps)]
+    s = Scan(scan.devices, positions, None, scan.multistep, scan.detlist,
+             scan.envlist, scan.preset, '%d more steps of last scan' % numsteps)
+    s.dataset.sinkinfo['continuation'] = True
+    s.run()
