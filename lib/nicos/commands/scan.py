@@ -348,5 +348,5 @@ def appendscan(numsteps=5, stepsize=None):
     positions = [[startpos + i*stepsize] for i in range(numsteps)]
     s = Scan(scan.devices, positions, None, scan.multistep, scan.detlist,
              scan.envlist, scan.preset, '%d more steps of last scan' % numsteps)
-    s.dataset.sinkinfo['continuation'] = True
+    s.dataset.sinkinfo['continuation'] = scan.uid
     s.run()
