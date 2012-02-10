@@ -4,5 +4,5 @@ description = 'minimal NICOS startup setup'
 group = 'startup'
 
 sysconfig = dict(
-    cache = 'resi2',
+    cache = 'resi1',
 )

@@ -8,10 +8,10 @@ devices = dict(
                     storepath = '/tmp/data/cache',
                     maxcached = 20,
                     granularity = 3,
-                    loglevel = 'debug'),
+                    loglevel = 'warning'),
 
     Server = device('nicos.cache.server.CacheServer',
                     db = 'DB',
-                    server = 'resi2',
+                    server = 'resi1',
                     loglevel = 'info'),
 )
