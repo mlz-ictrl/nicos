@@ -125,13 +125,20 @@ class VirtualTimer(FRMTimerChannel):
     def doStart(self):
         if self.ismaster:
             self.__finish = False
-            threading.Thread(target=self.__thread).start()
+            thr = threading.Thread(target=self.__thread)
+            thr.setDaemon(True)
+            thr.start()
 
     def doIsCompleted(self):
         return self.__finish
 
     def __thread(self):
-        time.sleep(self.preselection)
+        finish_at = time.time() + self.preselection
+        while time.time() < finish_at and not self.__finish:
+            time.sleep(0.1)
+        self.__finish = True
+
+    def doStop(self):
         self.__finish = True
 
     def doStatus(self):
