@@ -35,8 +35,8 @@ default_profile_config = ('Default', [
             panel('nicos.gui.panels.watch.WatchPanel')),
         panel('nicos.gui.panels.console.ConsolePanel'),
         ),
-    window('Errors/warnings', 'errors', True,
-           panel('nicos.gui.panels.errors.ErrorPanel')),
+    window('Setup', 'setup', True,
+           panel('nicos.gui.panels.setup.SetupPanel')),
     window('Editor', 'editor', False,
            panel('nicos.gui.panels.editor.EditorPanel')),
     window('Live data', 'live', True,
@@ -45,6 +45,8 @@ default_profile_config = ('Default', [
            panel('nicos.gui.panels.scans.ScansPanel')),
     window('History', 'find', True,
            panel('nicos.gui.panels.history.HistoryPanel')),
+    window('Errors', 'errors', True,
+           panel('nicos.gui.panels.errors.ErrorPanel')),
     window('Logbook', 'table', True,
            panel('nicos.gui.panels.elog.ELogPanel')),
     ], [
@@ -54,5 +56,11 @@ default_profile_config = ('Default', [
         tool('Calculator',
              'nicos.gui.tools.calculator.CalculatorTool',
              mieze=MIEZE_settings),
+        tool('Neutron cross-sections',
+             'nicos.gui.tools.website.WebsiteTool',
+             url='http://www.ncnr.nist.gov/resources/n-lengths/'),
+        tool('Neutron activation',
+             'nicos.gui.tools.website.WebsiteTool',
+             url='http://www.wise-uranium.org/rnac.html'),
     ]
 )
