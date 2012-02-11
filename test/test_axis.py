@@ -85,9 +85,9 @@ def test_movement():
     motor = session.getDevice('motor')
     motor.speed = 0.5
     try:
-        axis.move(1)
+        axis.move(0.5)
         axis.wait()
-        assertAlmostEqual(axis.read(), 1)
+        assertAlmostEqual(axis.read(), 0.5)
 
         axis.move(0)
         sleep(0.1)
