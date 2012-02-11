@@ -34,9 +34,10 @@ from logging import WARNING
 
 from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, Qt, QVariant, \
      QStringList, QFileSystemWatcher
-from PyQt4.QtGui import QDialog, QPlainTextEdit, QHeaderView, \
+from PyQt4.QtGui import QDialog, QPlainTextEdit, QHeaderView, QHBoxLayout, \
      QTreeWidgetItem, QMessageBox, QTextCursor, QTextDocument, QPen, QColor, \
-     QFont, QAction, QPrintDialog, QPrinter, QFileDialog, QMenu, QToolBar
+     QFont, QAction, QPrintDialog, QPrinter, QFileDialog, QMenu, QToolBar, \
+     QFileSystemModel
 
 try:
     from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciPrinter
@@ -190,7 +191,10 @@ class EditorPanel(Panel):
             self.recentf_actions.append(action)
             self.menuRecent.addAction(action)
 
-        self.layout().addWidget(self.editor)
+        hlayout = QHBoxLayout(self)
+        hlayout.setContentsMargins(0, 0, 0, 0)
+        hlayout.addWidget(self.editor)
+        self.mainFrame.setLayout(hlayout)
         self.editor.setFrameStyle(0)
 
         self.fileSystemWatcher = QFileSystemWatcher(self)
@@ -203,6 +207,19 @@ class EditorPanel(Panel):
         self.simRanges.header().setResizeMode(QHeaderView.ResizeToContents)
         self.simPane.hide()
 
+        self.splitter.restoreState(self.splitterstate)
+        self.treeModel = QFileSystemModel()
+        idx = self.treeModel.setRootPath('/')
+        self.treeModel.setNameFilters(['*.py'])
+        self.treeModel.setNameFilterDisables(False)  # hide them
+        self.fileTree.setModel(self.treeModel)
+        self.fileTree.header().hideSection(1)
+        self.fileTree.header().hideSection(2)
+        self.fileTree.header().hideSection(3)
+        self.fileTree.header().hide()
+        self.fileTree.setRootIndex(idx)
+        self.actionShowScripts.setChecked(True)
+
         self.connect(self.actionUndo, SIGNAL('triggered()'), self.editor.undo)
         self.connect(self.actionRedo, SIGNAL('triggered()'), self.editor.redo)
         self.connect(self.actionCut, SIGNAL('triggered()'), self.editor.cut)
@@ -214,6 +231,10 @@ class EditorPanel(Panel):
         self.waiting_sim_result = False
         self.connect(self.client, SIGNAL('message'), self.on_client_message)
         self.connect(self.client, SIGNAL('simresult'), self.on_client_simresult)
+        if self.client.connected:
+            self.on_client_connected()
+        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
+        self.connect(self.client, SIGNAL('cache'), self.on_client_cache)
 
     def getMenus(self):
         menuFile = QMenu('&File', self)
@@ -223,6 +244,7 @@ class EditorPanel(Panel):
         menuFile.addAction(self.actionSave)
         menuFile.addAction(self.actionSaveAs)
         menuFile.addAction(self.actionReload)
+        menuFile.addAction(self.actionShowScripts)
         menuFile.addSeparator()
         menuFile.addAction(self.actionPrint)
 
@@ -302,9 +324,23 @@ class EditorPanel(Panel):
 
     def loadSettings(self, settings):
         self.recentf = list(settings.value('recentf').toStringList())
+        self.splitterstate = settings.value('splitter').toByteArray()
+
+    def saveSettings(self, settings):
+        settings.setValue('splitter', self.splitter.saveState())
 
     def requestClose(self):
         return self.checkDirty()
+
+    def on_client_connected(self):
+        initialdir = self.client.eval('session.experiment.scriptdir', '')
+        if initialdir:
+            idx = self.treeModel.setRootPath(initialdir)
+            self.fileTree.setRootIndex(idx)
+
+    def on_client_cache(self, (time, key, op, value)):
+        if key.endswith('/scriptdir'):
+            self.on_client_connected()
 
     def on_client_message(self, message):
         if message[-1] != '(sim) ':
@@ -330,6 +366,21 @@ class EditorPanel(Panel):
                 self.simRanges.addTopLevelItem(item)
 
         self.simPane.show()
+
+    def on_fileTree_doubleClicked(self, idx):
+        if not self.checkDirty():
+            return
+        fpath = self.treeModel.filePath(idx)
+        self.openFile(fpath)
+
+    def on_actionShowScripts_toggled(self, on):
+        if on:
+            self.scriptsPane.show()
+        else:
+            self.scriptsPane.hide()
+
+    def on_scriptsPane_visibilityChanged(self, visible):
+        self.actionShowScripts.setChecked(visible)
 
     @qtsig('')
     def on_actionPrint_triggered(self):
