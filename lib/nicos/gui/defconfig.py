@@ -52,6 +52,12 @@ default_profile_config = ('Default', [
             panel('nicos.gui.panels.live.LiveDataPanel')),
     ], [
         tool('Calculator',
-            'nicos.gui.tools.calculator.CalculatorTool'),
+             'nicos.gui.tools.calculator.CalculatorTool'),
+        tool('Neutron cross-sections',
+             'nicos.gui.tools.website.WebsiteTool',
+             url='http://www.ncnr.nist.gov/resources/n-lengths/'),
+        tool('Neutron activation',
+             'nicos.gui.tools.website.WebsiteTool',
+             url='http://www.wise-uranium.org/rnac.html'),
     ]
 )
