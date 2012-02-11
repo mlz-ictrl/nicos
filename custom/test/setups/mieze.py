@@ -1,4 +1,5 @@
 description = 'MIEZE test setup'
+group = 'optional'
 
 includes = ['startup']
 modules = ['nicos.mira.mieze']

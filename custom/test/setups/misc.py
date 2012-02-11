@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 description = 'miscellaneous devices'
+group = 'basic'
 
 includes = ['system']
 excludes = ['excluded']

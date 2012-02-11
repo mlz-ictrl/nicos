@@ -22,91 +22,103 @@
 #
 # *****************************************************************************
 
-"""NICOS GUI electronic logbook window."""
+"""NICOS GUI experiment setup window."""
 
 __version__ = "$Revision$"
 
 from os import path
 
-from PyQt4.QtCore import SIGNAL, Qt, QTimer, QUrl, pyqtSignature as qtsig
-from PyQt4.QtGui import QMainWindow, QTextEdit
+from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig, Qt
+from PyQt4.QtGui import QDialogButtonBox, QListWidgetItem
 
 from nicos.gui.panels import Panel
-from nicos.gui.utils import loadUi, DlgUtils, setBackgroundColor
+from nicos.gui.utils import loadUi, DlgUtils
 
 
-class ELogPanel(Panel, DlgUtils):
-    panelName = 'Electronic logbook'
+class SetupPanel(Panel, DlgUtils):
+    panelName = 'Experiment setup'
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        DlgUtils.__init__(self, 'Logbook')
-        loadUi(self, 'elog.ui', 'panels')
-        self.stacker.setCurrentIndex(0)
-
-        self.timer = QTimer(self)
-        self.timer.setSingleShot(True)
-        self.connect(self.timer, SIGNAL('timeout()'), self.on_timer_timeout)
+        DlgUtils.__init__(self, 'Setup')
+        loadUi(self, 'setup.ui', 'panels')
 
         if self.client.connected:
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
 
-        self.preview.page().setForwardUnsupportedContent(True)
-        self.connect(self.preview.page(),
-                     SIGNAL('unsupportedContent(QNetworkReply *)'),
-                     self.on_page_unsupportedContent)
-
-    def on_timer_timeout(self):
-        sig = SIGNAL('loadFinished(bool)')
-        frame = self.preview.page().mainFrame().childFrames()[1]
-        scrollval = frame.scrollBarValue(Qt.Vertical)
-        was_at_bottom = scrollval == frame.scrollBarMaximum(Qt.Vertical)
-        # restore current scrolling position in document on reload
-        def callback(new_size):
-            nframe = self.preview.page().mainFrame().childFrames()[1]
-            if was_at_bottom:
-                nframe.setScrollBarValue(Qt.Vertical,
-                                         nframe.scrollBarMaximum(Qt.Vertical))
-            else:
-                nframe.setScrollBarValue(Qt.Vertical, scrollval)
-            self.disconnect(self.preview, sig, callback)
-        self.connect(self.preview, sig, callback)
-        self.preview.reload()
-
     def on_client_connected(self):
-        proposaldir = self.client.eval('session.experiment.proposaldir', None)
-        if not proposaldir:
-            return
-        logfile = path.join(proposaldir, 'logbook', 'logbook.html')
-        self.preview.load(QUrl(logfile))  # XXX reload periodically?
+        self._setupinfo = self.client.eval('session.getSetupInfo()', None)
+        self.basicSetup.clear()
+        self.optSetups.clear()
+        keep = QListWidgetItem('<keep current>', self.basicSetup)
+        for name, info in self._setupinfo.items():
+            if info['group'] == 'basic':
+                QListWidgetItem(name, self.basicSetup)
+            elif info['group'] == 'optional':
+                item = QListWidgetItem(name, self.optSetups)
+                item.setFlags(Qt.ItemIsUserCheckable |
+                              Qt.ItemIsSelectable |
+                              Qt.ItemIsEnabled)
+                item.setCheckState(Qt.Unchecked)
+        self.basicSetup.setCurrentItem(keep)
 
-    def on_page_unsupportedContent(self, reply):
-        if reply.url().scheme() != 'file':
-            return
-        filename = str(reply.url().path())
-        if filename.endswith('.dat'):
-            content = open(filename).read()
-            window = QMainWindow(self)
-            window.resize(600, 800)
-            window.setWindowTitle(filename)
-            widget = QTextEdit(window)
-            widget.setFontFamily('monospace')
-            window.setCentralWidget(widget)
-            widget.setText(content)
-            window.show()
+    def on_basicSetup_itemClicked(self, item):
+        if item.text() != '<keep current>':
+            self.showSetupInfo(item.text())
 
-    def on_refreshLabel_linkActivated(self, link):
-        if link == 'refresh':
-            self.on_timer_timeout()
-        elif link == 'back':
-            self.preview.back()
-        elif link == 'forward':
-            self.preview.forward()
+    def on_optSetups_itemClicked(self, item):
+        self.showSetupInfo(item.text())
 
-    def setCustomStyle(self, font, back):
-        self.freeFormText.setFont(font)
-        setBackgroundColor(self.freeFormText, back)
+    def showSetupInfo(self, setup):
+        info = self._setupinfo[str(setup)]
+        devs = []
+        for devname, devconfig in info['devices'].iteritems():
+            if not devconfig[1].get('lowlevel'):
+                devs.append(devname)
+        devs = ', '.join(sorted(devs))
+        self.setupDescription.setText(
+            '<b>%s</b><br/>%s<br/><br/>'
+            'Devices: %s<br/>' % (setup, info['description'], devs))
+
+    def on_buttonBox_clicked(self, button):
+        if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
+            self.applyChanges()
+        else:
+            self.parentwindow.close()
+
+    def applyChanges(self):
+        code = ''
+        prop = str(self.proposalNum.text())
+        title = str(self.expTitle.text())
+        users = str(self.users.text())
+        local = str(self.localContact.text())
+        if prop:
+            args = {'proposal': prop}
+            if local:
+                args['localcontact'] = local
+            if title:
+                args['title'] = title
+            code = 'NewExperiment(%s)\n' % ', '.join('%s=%r' % i
+                                                     for i in args.items())
+            if users:
+                code += ''.join('AddUser(%r)\n' % user.strip()
+                                for user in users.split(','))
+            self.client.tell('queue', '', code)
+        setups = []
+        cmd = 'NewSetup'
+        basic = str(self.basicSetup.currentItem().text())
+        if basic == '<keep current>':
+            cmd = 'AddSetup'
+        else:
+            setups.append(basic)
+        for i in range(self.optSetups.count()):
+            item = self.optSetups.item(i)
+            if item.checkState() == Qt.Checked:
+                setups.append(str(item.text()))
+        if setups:
+            self.client.tell('queue', '',
+                             '%s(%s)\n' % (cmd, ', '.join(map(repr, setups))))
 
     @qtsig('')
     def on_newSample_clicked(self):

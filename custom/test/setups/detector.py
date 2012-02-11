@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 description = 'virtual detector'
+group = 'optional'
 
 includes = ['system']
 

@@ -1,6 +1,7 @@
 <RCC>
   <qresource>
     <file alias="simulate">icons/media-playback-start-2.png</file>
+    <file alias="setup">icons/preferences-system.png</file>
     <file alias="idleexc">icons/opexcl.png</file>
     <file alias="live">icons/applications-multimedia.png</file>
     <file alias="errors">icons/emblem-important.png</file>
