@@ -1,5 +1,7 @@
 description = 'MIEZE devices'
 
+includes = ['cascade']
+
 devices = dict(
     amp1     = device('nicos.mira.rfcircuit.GeneratorDevice',
                       tacodevice = '//mira4/mira/hp33220a_2/amp',
