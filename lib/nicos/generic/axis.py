@@ -373,7 +373,8 @@ class Axis(BaseAxis):
             # poll accurate current values and status of child devices so that
             # we can use read() and status() subsequently
             st, pos = self.poll()
-            if self._adevs['motor'].status()[0] != status.BUSY:
+            mstatus = self._adevs['motor'].status()[0]
+            if mstatus != status.BUSY:
                 # motor stopped; check why
                 if self._stoprequest == 2:
                     self.log.debug('stop requested, leaving positioning')
@@ -383,6 +384,14 @@ class Axis(BaseAxis):
                     self.log.debug('target reached, leaving positioning')
                     # target reached
                     moving = False
+                elif mstatus == status.ERROR:
+                    # motor in error state -> try resetting
+                    newstatus = self._adevs['motor'].reset()
+                    # if that failed, stop immediately
+                    if newstatus[0] == status.ERROR:
+                        moving = False
+                        self._setErrorState(MoveError,
+                            'motor in error state: %s' % newstatus[1])
                 elif tries > 0:
                     if tries == 1:
                         self.log.warning('last try: %s' % self._errorstate)
