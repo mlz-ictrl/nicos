@@ -202,11 +202,11 @@ def stop(*devlist):
     for dev in devlist:
         dev = session.getDevice(dev, (Moveable, Measurable))
         try:
-            status = dev.stop()
+            dev.stop()
         except NicosError:
             dev.log.exception('error stopping device')
         else:
-            dev.log.info('stopped, status is now %s' % _formatStatus(status))
+            dev.log.info('stopped')
 
 @usercommand
 def reset(*devlist):
