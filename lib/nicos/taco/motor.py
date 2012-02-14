@@ -44,6 +44,15 @@ class Motor(TacoDevice, BaseMotor):
         'abslimits':  Override(mandatory=False),
     }
 
+    def doReset(self):
+        # XXX do NOT call deviceReset as long as it does a reference drive
+        try:
+            self._taco_guard(self._dev.deviceInit)
+        except Exception:
+            pass
+        if self._taco_guard(self._dev.isDeviceOff):
+            self._taco_guard(self._dev.deviceOn)
+
     def doStart(self, target):
         self._taco_guard(self._dev.start, target)
 
