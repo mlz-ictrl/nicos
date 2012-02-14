@@ -40,7 +40,7 @@ from nicos.core import status, intrange, floatrange, oneofdict, oneof, none_or, 
      usermethod, Device, Readable, Moveable, Param, Override, HasPrecision, \
      HasLimits, NicosError, CommunicationError, ProgrammingError, \
      InvalidValueError, TimeoutError, MoveError, waitForStatus
-from nicos.utils import closeSocket, lazy_property, runAsync
+from nicos.utils import closeSocket, lazy_property
 from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.taco.core import TacoDevice
 
@@ -820,35 +820,27 @@ class Motor(NicosMotor):
         bus.send(self.addr, 46, abs(diff), 6)
 
     def doReset(self):
-        def rewind():
-            bus = self._adevs['bus']
-            # remember current state
-            actpos  = bus.get(self.addr, 130)
-            speed   = bus.get(self.addr, 128)
-            accel   = bus.get(self.addr, 129)
-            minstep = bus.get(self.addr, 132)
-            maxstep = bus.get(self.addr, 131)
-            bus.send(self.addr, 31)  # reset card
-            sleep(0.2)
-            # update state
-            bus.send(self.addr, 41, speed, 3)
-            bus.send(self.addr, 42, accel, 3)
-            bus.send(self.addr, 45, minstep, 6)
-            bus.send(self.addr, 44, maxstep, 6)
-            bus.send(self.addr, 43, actpos, 6)
-        @runAsync
-        def stopandrewind():
-            bus = self._adevs['bus']
+        bus = self._adevs['bus']
+        if self.status(0)[0] != status.OK:  # busy or error
             bus.send(self.addr, 33)  # stop
             try:
                 self.doWait()        # this might take a while, ignore errors
             except Exception:
                 pass
-            rewind()
-        if self.status(0)[0] != status.OK:  # busy or error
-            stopandrewind()
-        else:
-            rewind()
+        # remember current state
+        actpos  = bus.get(self.addr, 130)
+        speed   = bus.get(self.addr, 128)
+        accel   = bus.get(self.addr, 129)
+        minstep = bus.get(self.addr, 132)
+        maxstep = bus.get(self.addr, 131)
+        bus.send(self.addr, 31)  # reset card
+        sleep(0.2)
+        # update state
+        bus.send(self.addr, 41, speed, 3)
+        bus.send(self.addr, 42, accel, 3)
+        bus.send(self.addr, 45, minstep, 6)
+        bus.send(self.addr, 44, maxstep, 6)
+        bus.send(self.addr, 43, actpos, 6)
 
     def doWait(self):
         sleep(0.1)
