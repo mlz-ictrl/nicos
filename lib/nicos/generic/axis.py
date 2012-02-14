@@ -188,10 +188,7 @@ class Axis(BaseAxis):
 
     def doStop(self):
         """Stops the movement of the motor."""
-        if self.status(0)[0] == status.BUSY:
-            self._stoprequest = 1
-        else:
-            self._stoprequest = 0
+        self._stoprequest = 1
 
     def doWait(self):
         """Waits until the movement of the motor has stopped and
