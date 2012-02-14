@@ -27,6 +27,7 @@
 __version__ = "$Revision$"
 
 import time
+import Queue
 import threading
 import __builtin__
 
@@ -195,10 +196,23 @@ def stop(*devlist):
                    for devname in session.explicit_devices
                    if isinstance(session.devices[devname],
                                  (Moveable, Measurable))]
+        finished = []
+        def stopdev(dev):
+            try:
+                dev.stop()
+            except Exception:
+                dev.log.warning('error while stopping', exc=1)
+            finally:
+                finished.append(dev)
+        printinfo('stopping all devices...')
         for dev in devlist:
-            stopthread = threading.Thread(target=stop, args=(dev,))
+            stopthread = threading.Thread(target=stopdev, args=(dev,))
             stopthread.setDaemon(True)
             stopthread.start()
+        while len(finished) != len(devlist):
+            time.sleep(0.1)
+        printinfo('done')
+        return
     for dev in devlist:
         dev = session.getDevice(dev, (Moveable, Measurable))
         try:
