@@ -76,6 +76,7 @@ class Fit(object):
         self.parstart.append(start)
 
     def run(self, name, x, y, dy):
+        # XXX use curve_fit
         if ODR is None:
             # fitting not available
             return self.result(name, None, x, y, dy, None, None)

@@ -33,10 +33,12 @@ from time import sleep
 
 from PowerSupply import CurrentControl
 
+from nicos import session
 from nicos.core import Moveable, HasLimits, Param, Override, waitForStatus, \
-     floatrange, listof, InvalidValueError
+     floatrange, listof, InvalidValueError, usermethod
 from nicos.taco.core import ProxyTacoDevice
 from nicos.taco.io import DigitalOutput
+from nicos.utils.fitting import Fit
 
 
 class ESSController(HasLimits, ProxyTacoDevice, Moveable):
@@ -123,6 +125,39 @@ class ESSField(HasLimits, Moveable):
     parameter_overrides = {
         'unit':  Override(mandatory=False, default='mT'),
     }
+
+    @usermethod
+    def calibrate(self, *scannumbers):
+        scans = session.experiment._last_datasets
+        self.log.info('determining calibration from scans, please wait...')
+        Is = []
+        Bs = []
+        dBs = []
+        for scan in scans:
+            if scan.sinkinfo.get('number') not in scannumbers:
+                continue
+            if 'Bf' not in scan.ynames or 'I' not in scan.xnames:
+                self.log.info('%s is not a calibration scan'
+                              % scan.sinkinfo['number'])
+                continue
+            xindex = scan.xnames.index('I')
+            yindex = scan.ynames.index('Bz')
+            for xr, yr in zip(scan.xresults, scan.yresults):
+                Is.append(xr[xindex])
+                Bs.append(yr[yindex])
+                dBs.append(yr[yindex+1])
+        if not Is:
+            self.log.error('no calibration data found')
+            return
+        def model(v, x):
+            return sum(v[i]*x**i for i in range(4))
+        fit = Fit(model, ['a%d' % i for i in range(4)], [1] * 4)
+        res = fit.run('calibration', Is, Bs, dBs)
+        if res._failed:
+            self.log.warning('fit failed')
+            return
+        self.log.info('setting fit result: %s' % res._pars[1])
+        self.calibration = res._pars[1]
 
     def doRead(self):
         # XXX read() or read(0)
