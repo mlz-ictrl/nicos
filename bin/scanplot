@@ -35,30 +35,14 @@ while path.islink(thisfile):
 sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/../lib'))
 
 from numpy import array, linspace, sqrt, exp, log, pi, piecewise, argsort, \
-     concatenate
+     concatenate, ndarray, diagonal
 
 try:
-    from scipy.optimize import leastsq
+    from scipy.optimize import curve_fit
 except ImportError:
     print 'please install scipy, fitting won\'t work...'
 
 import GracePlot
-
-
-def residuals(ps, f, xs, ys, dys=None):
-    """Calculate and return the residuals for a given function, parameters
-    and a given dataset.
-
-    @param ps  list of parameters to call f with
-    @param f   the model function
-    @param xs  the x values of the dataset
-    @param ys  the y values of the dataset
-    @param dys the dy values of the dataset (optional, used for weighting the
-               residuals)
-    """
-    if dys is not None and dys.min() > 0:
-        return (ys - f(ps, xs)) / dys
-    return ys - f(ps, xs)
 
 
 def getguess(xs, ys, func):
@@ -88,13 +72,12 @@ def getguess(xs, ys, func):
         #~ guess[0]=-0.24
         guess[2] /= 2.0               # width
 
-    print guess
+    #print guess
     return guess
 
 
-def gausswlorentz(ps, xs):
+def gausswlorentz(xs, center, ampg, ampl, widthg, widthl, back):
     """Two peaks centered at the same pos: Lorentzian and Gaussian."""
-    center, ampg, ampl, widthg, widthl, back = ps
     gauss = ampg * exp(-0.5 * (xs - center)**2/widthg**2)
     lorentz = ampl / (1 + (xs - center)**2/widthl**2)
     bose = 1.0 / (1 - exp(-xs * 11.605/1.37))
@@ -104,21 +87,18 @@ def gausswlorentz(ps, xs):
 gausswlorentz.params = ['center', 'amplitudeGauss', 'amplitudeLorentz',
                         'widthGauss', 'widthLorentz', 'background']
 
-def lorentz(ps, xs):
+def lorentz(xs, center, amp, width, back):
     """Lorentzian peak function."""
-    center, amp, width, back = ps
     return back + amp / (1 + (xs - center)**2/width**2)
 lorentz.params = ['center', 'amplitude', 'width', 'background']
 
-def gauss(ps, xs):
+def gauss(xs, center, amp, width, back):
     """Gauss peak function."""
-    center, amp, width, back = ps
     return back + amp * exp(-0.5 * (xs-center)**2 / (width/(2*sqrt(2*log(2))))**2)
 gauss.params = ['center', 'amplitude', 'width', 'background']
 
-def twogauss(ps, xs):
+def twogauss(xs, center1, amp1, width1, back, center2, amp2):
     """Two gauss peaks function with the same width."""
-    center1, amp1, width1, back, center2, amp2 = ps
     gauss1 = amp1 * exp(-0.5 * (xs - center1)**2 / width1**2)
     gauss2 = amp2 * exp(-0.5 * (xs - center2)**2 / width1**2)
     return back + gauss1 + gauss2
@@ -136,7 +116,7 @@ fitfunlist = {
 }
 
 
-def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, fitfunction=gauss):
+def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, ff=gauss):
     grpl('s%1d on' % cnum)
     grpl('s%1d symbol %1d' % (cnum, cnum+1))
     grpl('s%1d symbol size 0.3' % cnum)
@@ -150,40 +130,22 @@ def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, fitfunction=gauss)
     grpl('g0.s%1d legend "%s"' % (cnum, legend))
 
     if fitflag:
-        ff = fitfunction
         guess = getguess(xs, ys, ff)
-        ps = leastsq(residuals, guess, args=(ff, xs, ys, dys))[0]
-        chi2 = (residuals(ps, ff, xs, ys, dys)**2).sum() / (len(xs) - len(ps))
-        # estimate parameter errors
-        dps = array(ps)
-        for i in range(len(ps)):
-            pes = ps.copy()
-            step = 1e-3
-            tries = 0
-            while tries < 100:
-                pes[i] = ps[i] + step
-                a = (residuals(pes, ff, xs, ys, dys)**2).sum() \
-                    / (len(xs) - len(ps))
-                pes[i] = ps[i]
-                b = (residuals(pes, ff, xs, ys, dys)**2).sum() \
-                    / (len(xs) - len(ps))
-                pes[i] = ps[i] + step
-                a = min((residuals(pes, ff, xs, ys, dys)**2).sum() \
-                        / (len(xs) - len(ps)), a)
-                d = (a-b)/(step*step)
-                # stiffness of chisqr with respect to a change of parameter i by step
-                if a-b > 5:
-                    step *= 0.3
-                    #~ print '/',
-                elif a-b < 0.5:
-                    step *= 3
-                    #~ print '*',
-                else:
-                    break
-                tries += 1
-            # range of parameter change to change chisqr at max by 1
-            dps[i] = step * sqrt(1/(a-b))
-            #~ print ps[i],dps[i]
+        try:
+            ndf = len(xs) - len(guess)
+            if dys is not None and dys.min() > 0:
+                ps, pcov = curve_fit(ff, xs, ys, guess, dys)
+                chi2 = (((ys - ff(xs, *ps)) / dys)**2).sum() / ndf
+            else:
+                ps, pcov = curve_fit(ff, xs, ys, guess)[0], None
+                chi2 = ((ys - ff(xs, *ps))**2).sum() / ndf
+        except RuntimeError, err:
+            print err
+            return
+        if isinstance(pcov, ndarray):
+            dps = sqrt(diagonal(pcov))
+        else:
+            dps = [0] * len(ps)
         print ' result of least squares fit:'
         print ' function %s' % ff.__name__
         print ' reduced chisqr %.3f' % chi2
@@ -196,7 +158,7 @@ def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, fitfunction=gauss)
             print '%20s%12.3f\t%7.3f' % \
                 (ff.params[i].center(20, fill), ps[i], dps[i])
         if ff == gauss:
-            print '       area         %12.3f' % (ps[1] / sqrt(2*pi) / ps[2])
+            print '       area         %12.3f' % abs(ps[1] / sqrt(2*pi) / ps[2])
 
         grpl('s1%1d on' % cnum)
         grpl('s1%1d symbol 0' % cnum)
@@ -207,7 +169,7 @@ def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, fitfunction=gauss)
             (ps[0], ps[1], ps[2], ps[1] / sqrt(2*pi) / (ps[2]/2.3548))
         grpl('g0.s1%1d legend "%s"' % (cnum, outstring))
         fxs = linspace(xs[0], xs[-1], 100)
-        for x, y in zip(fxs, ff(ps, fxs)):
+        for x, y in zip(fxs, ff(fxs, *ps)):
             grpl('g0.s1%1d point %g,%g' % (cnum, x, y))
 
 
@@ -347,12 +309,15 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
 # start normal code here
 numargs = len(sys.argv)
 if numargs < 3:
-   print 'usage: scanplot prefix filenumber,filenumber,... option... fitfunction'
+    print 'usage: scanplot prefix filenumber,filenumber,... option... fitfunction'
+    sys.exit(1)
 
 fileprefix = sys.argv[1]
 filelist = sys.argv[2].split(',')
+
 if len(filelist) < 1 or len(filelist) > 9:
-   print 'number of files must be in [1..9]'
+    print 'error: number of files must be in [1..9]'
+    sys.exit(1)
 # default is plot only
 function = gauss
 fitflag = False
@@ -386,7 +351,7 @@ sumflag   = 'sum' in sys.argv
 diffflag  = 'diff' in sys.argv
 if sumflag + diffflag + mergeflag > 1:
     print 'illegal option combination: diff / sum / merge'
-    sys.exit()
+    sys.exit(1)
 normflag = 'norm' in sys.argv
 monitorcorrection = 'mcorr' in sys.argv
 
@@ -397,11 +362,11 @@ for fitfunname in fitfunlist.keys():
 if diffflag:
     if len(filelist) != 2:
         print 'must have exactly two filenumbers to build difference plot'
-        sys.exit()
+        sys.exit(1)
 if sumflag or mergeflag:
     if len(filelist) < 2:
         print 'must have at least two files to sum or merge'
-        sys.exit()
+        sys.exit(1)
 
 pl = GracePlot.GracePlot().write
 
