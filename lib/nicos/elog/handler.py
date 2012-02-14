@@ -224,7 +224,10 @@ class Handler(object):
     def handle_newexperiment(self, time, data):
         proposal, title = data
         targetid = self.out.new_id()
-        text = 'Experiment %s: %s' % (escape(proposal), escape(title))
+        if title:
+            text = 'Experiment %s: %s' % (escape(proposal), escape(title))
+        else:
+            text = 'Experiment %s' % escape(proposal)
         self.out.timestamp(time)
         self.out.newstate('plain', '', '',
                           '<h1 id="%s">%s</h1>\n' % (targetid, text))
@@ -233,7 +236,8 @@ class Handler(object):
     def handle_setup(self, time, setupnames):
         self.out.timestamp(time)
         self.out.newstate('plain', '', '',
-            '<p class="setup">New setup: %s</p>\n' % setupnames)
+            '<p class="setup">New setup: %s</p>\n' %
+            escape(', '.join(setupnames)))
 
     def handle_entry(self, time, data):
         self.out.timestamp(time)
@@ -278,7 +282,7 @@ class Handler(object):
 
     def handle_detectors(self, time, dlist):
         self.out.timestamp(time)
-        text = 'New standard detectors: %s' % escape(str(dlist))
+        text = 'New standard detectors: %s' % escape(', '.join(dlist))
         targetid = self.out.new_id()
         self.out.toc_entry(2, text, targetid)
         self.out.newstate('plain', '', '',
@@ -286,7 +290,7 @@ class Handler(object):
 
     def handle_environment(self, time, dlist):
         self.out.timestamp(time)
-        text = 'New standard environment: %s' % escape(str(dlist))
+        text = 'New standard environment: %s' % escape(', '.join(dlist))
         targetid = self.out.new_id()
         self.out.toc_entry(2, text, targetid)
         self.out.newstate('plain', '', '',
@@ -342,7 +346,6 @@ class Handler(object):
                 headers.append(yc.name)
         headers += ['Plot', 'Data']
         scannumber = dataset.sinkinfo.get('number', -1)
-        scanfile = dataset.sinkinfo.get('filename', '')
         if scannumber >= 0:
             html = ['<tr id="scan%s">' % scannumber]
             html.append('<td class="scannum">%s</td>' % scannumber)
@@ -377,7 +380,7 @@ class Handler(object):
                         '<a href="scan-%d-log.svg">Log</a></td>' %
                         (scannumber, scannumber))
         # file link
-        if scanfile:
+        if dataset.sinkinfo.get('filepath'):
             relfile = path.relpath(dataset.sinkinfo.get('filepath'),
                                    self.logdir)
             html.append('<td><a href="%s" type="text/plain">File</a></td>'

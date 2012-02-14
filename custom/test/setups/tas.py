@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 description = 'test triple-axis setup'
+group = 'basic'
 
 includes = ['system']
 

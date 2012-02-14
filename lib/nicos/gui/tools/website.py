@@ -22,34 +22,27 @@
 #
 # *****************************************************************************
 
-description = 'virtual detector'
-group = 'optional'
+"""Browser GUI tool."""
 
-includes = ['system']
+__version__ = "$Revision$"
 
-devices = dict(
-    timer    = device('nicos.generic.VirtualTimer',
-                      lowlevel = True),
+from PyQt4.QtCore import SIGNAL, QUrl
+from PyQt4.QtGui import QDialog
 
-    mon1     = device('nicos.generic.VirtualCounter',
-                      lowlevel = True,
-                      type = 'monitor',
-                      countrate = 1000),
+from nicos.gui.utils import loadUi
 
-    ctr1     = device('nicos.generic.VirtualCounter',
-                      lowlevel = True,
-                      type = 'counter',
-                      countrate = 2000),
 
-    ctr2     = device('nicos.generic.VirtualCounter',
-                      lowlevel = True,
-                      type = 'counter',
-                      countrate = 120),
+class WebsiteTool(QDialog):
+    def __init__(self, parent=None, **settings):
+        QDialog.__init__(self, parent)
+        loadUi(self, 'website.ui', 'tools')
 
-    det      = device('nicos.taco.FRMDetector',
-                      timer = 'timer',
-                      monitors = ['mon1'],
-                      counters = ['ctr1', 'ctr2'],
-                      maxage = 3,
-                      pollinterval = 0.5),
-)
+        site = settings.get('url', '')
+        if site:
+            self.webView.load(QUrl(site))
+
+        self.connect(self.closeBtn, SIGNAL('clicked()'),
+                     self.doclose)
+
+    def doclose(self, *ignored):
+        self.close()
