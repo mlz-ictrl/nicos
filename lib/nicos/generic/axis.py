@@ -182,6 +182,10 @@ class Axis(BaseAxis):
 
     def doReset(self):
         """Resets the motor/coder controller."""
+        self._adevs['motor'].reset()
+        self._adevs['coder'].reset()
+        for obs in self._adevs['obs']:
+            obs.reset()
         if self.status(0)[0] != status.BUSY:
             self._errorstate = None
         self._adevs['motor'].setPosition(self._getReading())
