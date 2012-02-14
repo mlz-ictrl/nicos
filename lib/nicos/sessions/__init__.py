@@ -186,7 +186,8 @@ class Session(object):
                     cache._ismaster = True
                 if self.loaded_setups != set(['startup']):
                     cache.put(self, 'mastersetup', list(self.loaded_setups))
-                    cache.put(self, 'mastersetupexplicit', list(self.explicit_setups))
+                    cache.put(self, 'mastersetupexplicit',
+                              list(self.explicit_setups))
                     self.elog_event('setup', list(self.explicit_setups))
         elif mode in ['slave', 'maintenance']:
             # switching from master (or slave) to slave or to maintenance
@@ -197,6 +198,8 @@ class Session(object):
                 self.log.warning('Switching from slave to maintenance mode: '
                                  "I'll trust that you know what you're doing!")
         self._mode = mode
+        if self._master_handler:
+            self._master_handler.enable(mode == 'master')
         for dev in self.devices.itervalues():
             dev._setMode(mode)
         if mode == 'simulation':
@@ -754,8 +757,16 @@ class Session(object):
         log_path = path.join(self.config.control_path, 'log')
         self.log.addHandler(ColoredConsoleHandler())
         try:
-            self.log.addHandler(
-                NicosLogfileHandler(log_path, filenameprefix=prefix))
+            if prefix == 'nicos':
+                pidprefix = '%s-nicos' % os.getpid()
+                self.log.addHandler(NicosLogfileHandler(log_path, pidprefix))
+                # handler for master session only
+                self._master_handler = NicosLogfileHandler(log_path)
+                self._master_handler.disabled = True
+                self.log.addHandler(self._master_handler)
+            else:
+                self.log.addHandler(NicosLogfileHandler(log_path, prefix))
+                self._master_handler = None
         except IOError, err:
             self.log.error('cannot open log file: %s' % err)
 

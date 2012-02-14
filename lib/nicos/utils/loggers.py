@@ -230,6 +230,10 @@ class NicosLogfileHandler(BaseRotatingHandler):
         self.rollover_at = time.mktime((t[0], t[1], t[2], 0, 0, 0,
                                         t[6], t[7], t[8])) + SECONDS_PER_DAY
         self.setFormatter(NicosLogfileFormatter(LOGFMT, DATEFMT))
+        self.disabled = False
+
+    def filter(self, record):
+        return not self.disabled
 
     def emit(self, record):
         if record.levelno == ACTION or record.filename:
@@ -243,6 +247,17 @@ class NicosLogfileHandler(BaseRotatingHandler):
             FileHandler.emit(self, record)
         except Exception:
             self.handleError(record)
+
+    def enable(self, enabled):
+        if enabled:
+            self.disabled = False
+            self.stream.close()
+            if hasattr(self, 'encoding') and self.encoding:
+                self.stream = codecs.open(self.baseFilename, 'a', self.encoding)
+            else:
+                self.stream = open(self.baseFilename, 'a')
+        else:
+            self.disabled = True
 
     def doRollover(self):
         self.stream.close()

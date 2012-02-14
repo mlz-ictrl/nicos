@@ -77,6 +77,7 @@ class TestSession(Session):
         self.log.parent = None
         self.testhandler = TestLogHandler()
         self.log.addHandler(self.testhandler)
+        self._master_handler = None
 
 TestSession.config.user = None
 TestSession.config.group = None
