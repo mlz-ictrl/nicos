@@ -168,7 +168,7 @@ class Axis(BaseAxis):
         """
         # if coder != motor -> use coder (its more precise!)
         # if no observers, rely on coder (even if its == motor)
-        if self._adevs['coder'] == self._adevs['motor'] or \
+        if self._adevs['coder'] != self._adevs['motor'] or \
             not self._adevs['obs']:
             # read the coder
             return self._adevs['coder'].read(0)
