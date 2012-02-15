@@ -340,9 +340,9 @@ class TacoDevice(object):
             try:
                 return self._taco_guard(func, *args)
             except NicosError:
-                self.log.warning('%s failed; trying again' % what)
                 if tries <= 0:
                     raise
+                self.log.warning('%s failed; trying again' % what)
                 self.__lock.acquire()
                 try:
                     if self._dev.deviceState() == TACOStates.FAULT:
