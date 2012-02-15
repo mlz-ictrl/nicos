@@ -212,6 +212,7 @@ def guessCorrectCommand(source, attribute=False):
                 else:
                     session.log.info('Use CreateDevice(%r) to try creating the '
                                      'device of this name' % str(poi))
+                return
         for key in allowed_keys:
             if key == poi:
                 return  # the error probably occurred with another object
