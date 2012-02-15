@@ -26,8 +26,7 @@ devices = dict(
     filesink = device('nicos.data.AsciiDatafileSink',
                       globalcounter = '/data/filecounter'),
     conssink = device('nicos.data.ConsoleSink'),
-    liveplot = device('nicos.data.GraceSink',
-                     activecounter='det2'),
+    liveplot = device('nicos.data.GraceSink'),
 )
 
 startupcode='Exp.detectors.append(det)'
