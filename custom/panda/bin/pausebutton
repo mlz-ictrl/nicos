@@ -14,6 +14,7 @@ from time import asctime, sleep
 import fltk
 
 from nicos import session
+from nicos.core import status
 from nicos.cache.utils import OP_SUBSCRIBE
 from nicos.cache.client import BaseCacheClient
 from nicos.sessions.simple import SingleDeviceSession
@@ -34,7 +35,7 @@ class PauseButton(BaseCacheClient):
         self._button = fltk.Fl_Button(10, 10, 220, 180,
                                       "pause Det\nwhile counting")
         #~ self._button.type(fltk.FL_TOGGLE_BUTTON)
-        self._button.labelsize(36)
+        self._button.labelsize(30)
         self._button.align(fltk.FL_ALIGN_CENTER|fltk.FL_ALIGN_WRAP)
         self._button.labelcolor(fltk.FL_BLACK)
         self._button.labelfont(fltk.FL_HELVETICA_BOLD)
@@ -75,14 +76,27 @@ class PauseButton(BaseCacheClient):
         self._button.callback(self.pauseCB)
 
     def pauseCB(self,widget):
+        if self._device.status()[0] != status.BUSY:
+            self._button.label('Det not counting,\nwaiting...')
+            self._button.color(fltk.fl_rgb_color(150,150,150))
+            self._window.redraw()
+            while self._device.status()[0] != status.BUSY:
+                fltk.Fl.check()
+                sleep(1)
+        try:
+            self._device.pause()
+        except Exception:
+            self.log.warning('could not pause', exc=1)
         self._queue.put('pause/pause=%r\r\n' % asctime())
         self.makebuttonresume()
-        self._device.pause()
 
     def resumeCB(self,widget):
+        try:
+            self._device.resume()
+        except Exception:
+            self.log.warning('could not resume', exc=1)
         self._queue.put('pause/resume=%r\r\n' % asctime())
         self.makebuttonpause()
-        self._device.resume()
 
 
 parser = optparse.OptionParser()
