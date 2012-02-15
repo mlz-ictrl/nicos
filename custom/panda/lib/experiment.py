@@ -249,8 +249,8 @@ class PandaExperiment(Experiment):
             m = scanfilepattern.match(fn)
             if not m:
                 continue   # no match -> check next file
-            firstscan = min(firstscan, int(m.group(0)))
-            lastscan = max(lastscan, int(m.group(0)))
+            firstscan = min(firstscan, int(m.group(1)))
+            lastscan = max(lastscan, int(m.group(1)))
             s = os.stat(path.join(propdir, 'data', fn))
             from_time = min(from_time, s.st_ctime) # only evaluate creation time
             to_time = max(to_time, s.st_ctime)
@@ -264,7 +264,7 @@ class PandaExperiment(Experiment):
         # read and translate mailbody template
         with open(self._expdir('template', 'mailtext.txt')) as fp:
             textfiletext = fp.read()
-        textfiletext, _ = expandTemplate(textfiletext, {
+        textfiletext, _, _ = expandTemplate(textfiletext, {
             'proposal':  self.proposal,
             'from_date': from_date,
             'to_date':   to_date,
