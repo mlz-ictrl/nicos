@@ -260,15 +260,16 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         return dlambda
 
     def doWriteFocmode(self, value):
-        self.log.info('adjusting foci')
+        if value != 'manual':
+            self.log.info('moving foci to new values')
         self._movefoci()
 
     def doWriteHfocuspars(self, value):
-        self.log.info('adjusting foci')
+        self.log.info('moving foci to new values')
         self._movefoci()
 
     def doWriteVfocuspars(self, value):
-        self.log.info('adjusting foci')
+        self.log.info('moving foci to new values')
         self._movefoci()
 
     def doWriteUnit(self, value):
