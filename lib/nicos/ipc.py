@@ -916,6 +916,8 @@ class Motor(NicosMotor):
         # check error states last
         if state & 32 and state & 64:
             st = status.ERROR
+            msg=msg.replace('limit switch - active, limit switch + active',
+                'EMERGENCY STOP pressed or both limit switches broken')
         if state & 1024:
             st = status.ERROR
             msg += ', device overheated'
@@ -929,8 +931,8 @@ class Motor(NicosMotor):
             st = status.ERROR
             msg += ', hardware failure or device not reset after power-on'
 
-        # if it's moving, it's not in error state!
-        if state & 1:
+        # if it's moving, it's not in error state! (except if the emergency stop is active)
+        if state & 1 and ( state & 96 != 96 ):
             st = status.BUSY
             msg = ', moving' + msg
         self.log.debug('status is %d:%s' % (st, msg[2:]))
