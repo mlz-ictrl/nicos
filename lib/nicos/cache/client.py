@@ -129,14 +129,17 @@ class BaseCacheClient(Device):
         # send request for all keys and updates....
         # HACK: send a single request for a nonexisting key afterwards to
         # determine the end of data
-        self._socket.sendall('@%s/%s\r\n###%s\r\n@%s/%s\r\n' %
-            (self._prefix, OP_WILDCARD, OP_ASK, self._prefix, OP_SUBSCRIBE))
+        self._socket.sendall('@%s/%s\r\n###%s\r\n' %
+                             (self._prefix, OP_WILDCARD, OP_ASK))
 
         # read response
         data, n = '', 0
         while not data.endswith('###!\r\n') and n < 1000:
             data += self._socket.recv(BUFSIZE)
             n += 1
+
+        # send request for all updates
+        self._socket.sendall('@%s/%s\r\n' % (self._prefix, OP_SUBSCRIBE))
 
         self._process_data(data)
 
