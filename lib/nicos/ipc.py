@@ -491,8 +491,12 @@ class Coder(NicosCoder):
             (proto, coding, parity, byte & 31)
 
     def doReset(self):
-        self._adevs['bus'].send(self.addr, 153)
-        sleep(0.5)
+        try:
+            self._adevs['bus'].send(self.addr, 153)
+        except NicosError:
+            pass
+        else:
+            sleep(0.5)
 
     def _fromsteps(self, value):
         return float((value - self.zerosteps) / self.slope)
