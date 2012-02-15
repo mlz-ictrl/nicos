@@ -53,24 +53,17 @@ class FRMChannel(TacoDevice, Measurable):
         'preselection': Param('Preselection for this channel', settable=True),
     }
 
-    def doInit(self):
-        self.__stopMode = status.OK
-
     def doStart(self):
-        self.__stopMode = status.OK
         self._taco_guard(self._dev.start)
 
     def doPause(self):
         self._taco_guard(self._dev.stop)
-        self.__stopMode = status.BUSY
 
     def doResume(self):
         self._taco_guard(self._dev.resume)
-        self.__stopMode = status.OK
 
     def doStop(self):
         self._taco_guard(self._dev.stop)
-        self.__stopMode = status.OK
 
     def doRead(self):
         return self._taco_guard(self._dev.read)
@@ -80,15 +73,13 @@ class FRMChannel(TacoDevice, Measurable):
         if state == TACOStates.PRESELECTION_REACHED:
             return status.OK, 'preselection reached'
         elif state == TACOStates.STOPPED:
-            if self.__stopMode == status.OK:
-                return status.OK, 'idle'
-            else:
-                return status.BUSY, 'paused'
+            return status.OK, 'idle or paused'
         else:
             return status.BUSY, TACOStates.stateDescription(state)
 
     def doIsCompleted(self):
-        return self.doStatus()[0] == status.OK
+        state = self._taco_guard(self._dev.deviceState)
+        return state == TACOStates.PRESELECTION_REACHED
 
     def doReset(self):
         if self._taco_guard(self._dev.deviceState) != TACOStates.STOPPED:
