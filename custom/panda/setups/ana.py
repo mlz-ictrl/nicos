@@ -2,7 +2,7 @@
 
 description = 'Analyser'
 
-includes = ['system']
+includes = ['system', 'befilter']
  
  # ath,att,agx,--,--,aty,--, afh
 
@@ -12,16 +12,6 @@ devices = dict(
             loglevel='info',
             timeout=0.5,
     ),
-    
-    TBeFilter = device('nicos.panda.betemp.I7033Temp',
-            tacodevice='//pandasrv/panda/i7000/betemp',
-            warnlevel=80,
-            unit='K',
-    ),
-    
-    #~ TBeFilter = device('nicos.taco.AnalogInput',
-            #~ tacodevice='//pandasrv/panda/i7000/betemp',
-    #~ ),
     
     # ATT is first device and has 1 stepper, 0 poti, 1 coder
     att_step = device('nicos.ipc.Motor',
@@ -62,8 +52,8 @@ devices = dict(
             coder = 'att_enc',
             obs = [],
             precision = 0.05,
-            jitter=1,
-            maxtries=50
+            jitter = 0.5,
+            maxtries = 10,
     ),
     #~ att = device('nicos.generic.Axis',
             #~ motor = 'att_step',
@@ -114,7 +104,7 @@ devices = dict(
     agx_step = device('nicos.ipc.Motor',
             bus = 'bus1',
             addr = 0x53,
-            slope = 400,
+            slope = 3200,
             unit = 'deg',
             abslimits = (-5,5),
             zerosteps = 500000,
@@ -131,7 +121,7 @@ devices = dict(
             bus = 'bus1',
             addr = 0x73,
             slope = -2**13/1.0,
-            zerosteps = 15837398,
+            zerosteps = 16121227,
             confbyte = 153,
             unit = 'deg',
             circular = -4096,    # 12 bit (4096) for turns, times 2 deg per turn divided by 2 (+/-)
@@ -192,8 +182,8 @@ devices = dict(
             unit = 'deg',
             abslimits = (-5,340),
             zerosteps = 500000,
-            speed = 50,
-            accel = 20,
+            speed = 100,
+            accel = 15,
             microstep = 2,
             startdelay = 0,
             stopdelay = 0,

@@ -10,7 +10,7 @@ sysconfig = dict(
 devices = dict(
     Poller = device('nicos.poller.Poller',
                     autosetup = False,
-                    poll = ['lakeshore', 'detector'],
+                    poll = ['lakeshore', 'detector', 'befilter'],
                     alwayspoll = [],
                     neverpoll = []),
 )

@@ -31,7 +31,7 @@ devices = dict(
 		motor='s7motor',
 		obs=['mtt_enc'],
 		precision=0.01,
-		offset=0.3319,
+		offset = 0.2743,
 		),
 )
 
