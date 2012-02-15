@@ -313,7 +313,7 @@ class GraceSink(DataSink):
         self._grpl = GracePlot.GracePlot(workingdir=path.dirname(filepath))
         self._pl = self._grpl.curr_graph
         self._pl.clear()
-        self._pl.title('scan %s started %s' % (filename,
+        self._pl.title('scan %s\\nstarted %s' % (filename,
                        time.strftime(TIMEFMT, dataset.started)))
         self._pl.subtitle(dataset.scaninfo)
         self._pl.xaxis(label=GracePlot.Label(
