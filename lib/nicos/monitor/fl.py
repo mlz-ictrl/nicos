@@ -306,13 +306,14 @@ class Monitor(BaseMonitor):
     """Fltk specific implementation of instrument monitor."""
 
     def mainLoop(self):
-        while self._master.visible():
+        while True:#self._master.visible():
             Fl.check()
             sleep(0.1)
 
-    def closeGui(self):
+    def closeGui(self, *args):
         self._master.hide()
-        pass
+        import sys
+        sys.exit(0)
 
     def initColors(self):
         self._black = fl_rgb_color(0, 0, 0)
@@ -325,6 +326,7 @@ class Monitor(BaseMonitor):
 
     def initGui(self):
         master = self._master = Fll_LayoutWindow(1024, 800)
+        master.callback( self.closeGui )
 
         if self._geometry == 'fullscreen':
             master.fullscreen()
