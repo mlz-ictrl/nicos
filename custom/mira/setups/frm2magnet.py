@@ -1,4 +1,5 @@
 description = 'FRM II 7.5 T superconducting magnet'
+group = 'optional'
 
 devices = dict(
     B        = device('nicos.taco.CurrentSupply',

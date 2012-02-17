@@ -1,4 +1,5 @@
-description = 'LakeShore 340 cryo controller'
+description = 'LakeShore 340 cryo controller for CCR-5 cryostat'
+group = 'optional'
 
 devices = dict(
     T        = device('nicos.taco.TemperatureController',

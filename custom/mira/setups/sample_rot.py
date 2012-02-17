@@ -1,4 +1,5 @@
-description = 'Sample rotation motor'
+description = 'Sample stick rotation motor'
+group = 'optional'
 
 includes = ['base']
 

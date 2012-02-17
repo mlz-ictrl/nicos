@@ -1,4 +1,5 @@
 description = 'sample table'
+group = 'lowlevel'
 
 devices = dict(
     phi      = device('nicos.taco.HoveringAxis',

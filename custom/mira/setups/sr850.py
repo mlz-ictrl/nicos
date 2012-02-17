@@ -1,4 +1,5 @@
-description = 'Stanford SR-850 lock-in amplifier'
+description = 'Stanford SR-850 lock-in amplifier, for susceptibility measurements'
+group = 'optional'
 
 includes = ['base', 'lakeshore']
 

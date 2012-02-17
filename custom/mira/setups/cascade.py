@@ -1,4 +1,5 @@
-description = 'cascade psd detector'
+description = 'SANS mode with PSD detector'
+group = 'basic'
 
 includes = ['detector', 'mono2']
 

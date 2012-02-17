@@ -1,4 +1,5 @@
 description = 'system setup only'
+group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'mira1',

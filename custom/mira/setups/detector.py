@@ -1,4 +1,5 @@
 description = 'standard detector and counter card'
+group = 'lowlevel'
 
 includes = ['base']
 

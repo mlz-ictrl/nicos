@@ -1,4 +1,5 @@
 description = 'test beckhoff setup'
+group = 'hidden'
 
 devices = dict(
   bh1 = device('nicos.mira.beckhoff.BeckhoffDigitalOutput',

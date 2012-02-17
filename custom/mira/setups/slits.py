@@ -1,4 +1,5 @@
 description = 'Huber sample slits'
+group = 'lowlevel'
 
 devices = dict(
     ss1l       = device('nicos.taco.Motor',

@@ -1,4 +1,5 @@
 description = 'base setup for all instrument configurations'
+group = 'lowlevel'
 
 includes = ['system', 'slits', 'sample', 'reactor']
 

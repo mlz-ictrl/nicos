@@ -1,4 +1,5 @@
-description = 'Helios He polarizer system'
+description = 'Helios 3He analyzer system'
+group = 'optional'
 
 devices = dict(
     He_GF = device('nicos.taco.CurrentSupply',

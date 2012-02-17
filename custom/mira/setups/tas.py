@@ -1,4 +1,5 @@
 description = 'MIRA triple-axis setup'
+group = 'basic'
 
 includes = ['base', 'mono2', 'analyzer', 'detector']
 

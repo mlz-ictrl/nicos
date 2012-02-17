@@ -1,4 +1,5 @@
-description = 'MIRA electromagnet'
+description = 'MIRA 0.5 T electromagnet'
+group = 'optional'
 
 includes = ['base']
 

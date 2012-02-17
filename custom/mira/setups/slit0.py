@@ -1,10 +1,9 @@
 description = 'IPC slit after mono shielding'
+group = 'optional'
 
 devices = dict(
-#    ss0bus    = device('nicos.ipc.IPCModBusTaco',
-#                       lowlevel = True,
-#                       tacodevice = 'mira/rs485/blende'),
-    ss0bus    = device('nicos.ipc.IPCModBusSerial', port='/dev/ttyS1'),
+    ss0bus    = device('nicos.ipc.IPCModBusTCP',
+                       lowlevel = True),# port='/dev/ttyS1'),
 
     ss0l      = device('nicos.ipc.SlitAxis',
                        lowlevel = True,

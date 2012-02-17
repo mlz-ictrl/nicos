@@ -1,4 +1,5 @@
 description = 'reactor status devices'
+group = 'lowlevel'
 
 devices = dict(
     Power    = device('nicos.taco.AnalogInput',

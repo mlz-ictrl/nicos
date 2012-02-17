@@ -1,4 +1,5 @@
-description = 'MIEZE devices'
+description = 'MIEZE measurement setup'
+group = 'basic'
 
 includes = ['cascade']
 

@@ -1,4 +1,5 @@
 description = 'MIRA2 monochromator'
+group = 'lowlevel'
 
 includes = ['base']
 

@@ -1,4 +1,5 @@
-description = 'THM1176 gaussmeter'
+description = 'THM1176 gaussmeter probe for magnetic field measurements'
+group = 'optional'
 
 includes = ['base']
 
