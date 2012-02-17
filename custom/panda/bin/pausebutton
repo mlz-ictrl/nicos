@@ -31,6 +31,7 @@ class PauseButton(BaseCacheClient):
 
         # pos x,y, width, height
         self._window = fltk.Fl_Window(1280-240, 1024-200-64, 240, 200)
+        self._window.callback( self._stopCB )
         self._window.label('pause button')
         self._button = fltk.Fl_Button(10, 10, 220, 180,
                                       "pause Det\nwhile counting")
@@ -55,13 +56,19 @@ class PauseButton(BaseCacheClient):
         elif key == 'pause/resume':
             self.makebuttonpause()
 
+    def _stopCB( self, *args, **kwargs):
+        self._stoprequest = True
+
     def start(self):
         self._worker.start()
         self._window.show()
-        while self._window.visible():
+        #~ fltk.Fl.run()
+        while self._stoprequest != True:#self._window.visible():
             fltk.Fl.check()
-            sleep(0.1)
+            sleep(0.3)
         self._stoprequest = True
+        import sys
+        sys.exit(0)
 
     def makebuttonresume(self):
         self._button.color(fltk.fl_rgb_color(80,235,80))
@@ -82,7 +89,7 @@ class PauseButton(BaseCacheClient):
             self._window.redraw()
             while self._device.status()[0] != status.BUSY:
                 fltk.Fl.check()
-                sleep(1)
+                sleep(0.3)
         try:
             self._device.pause()
         except Exception:

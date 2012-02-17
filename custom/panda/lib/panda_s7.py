@@ -30,11 +30,17 @@ from time import sleep, time as currenttime
 
 from nicos.core import status, intrange, oneof, anytype, Device, Param, \
      Readable, Moveable, NicosError, ProgrammingError, TimeoutError
+from nicos.core.status import statuses
 from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.taco.core import TacoDevice
 from nicos.generic.axis import Axis
 
 from ProfibusDP import IO as ProfibusIO
+
+def _formatStatus(status):
+    const, message = status
+    const = statuses.get(const, str(const))
+    return const + (message and ': ' + message or '')
 
 
 class S7Bus(TacoDevice, Device):
@@ -117,6 +123,13 @@ class S7Motor(NicosMotor):
         'bus': (S7Bus, 'S7 communication bus'),
     }
 
+    _timeout_time = None
+    
+    def doReset( self ):
+        self.doStop()
+        self.doStop()
+        self.doStop()
+        
     def doStop (self):
         """
         stop the motor movement
@@ -128,21 +141,19 @@ class S7Motor(NicosMotor):
         bus.write(self.read()*self.sign, 'float', 8)  # Istwert als Sollwert schreiben
         bus.write(0, 'bit', 0, 3)            # hebe stopbit auf
         bus.write(1, 'bit', 0, 2)            # Start Sollwertfahrt (Sollwert=Istwert....)
-        sleep(0.1)
+        sleep(0.5)
         bus.write(0, 'bit', 0, 2)            # Startbit Sollwertfahrt aufheben
-
-    def doAbort (self):
-        bus = self._adevs['bus']
-        #bus.write( 0, 'bit', 0, 2 )
-        bus.write(1, 'bit', 0, 3)
+        sleep(0.5)
+        self._timeout_time = None
 
     def doWait(self):
-        waittime = 0
+        if self._timeout_time == None:
+            self._timeout_time = currenttime() + self.timeout
         while self._posreached() == False:
-            if waittime > self.timeout:
+            if currenttime() > self._timeout_time:
                 raise TimeoutError(self, 'maximum time for S7 motor movement reached, check hardware!')
             sleep(1)
-            waittime += 1
+        self._timeout_time = None
 
     def _gettarget(self):
         """
@@ -150,7 +161,7 @@ class S7Motor(NicosMotor):
         """
         return self._adevs['bus'].readback('float', 8)
 
-    def _printstatusinfo(self):
+    def printstatusinfo(self):
         bus = self._adevs['bus']
         def m(s):
             return '\033[7m'+s+'\033[0m'
@@ -206,10 +217,19 @@ class S7Motor(NicosMotor):
         self.log.info( 'NC Fehler:                       %s' %f(b24 & 0x20, m('Ja'), 'Nein'))
         self.log.info( 'Sollwert erreicht:               %s' %f(b24 & 0x40, 'Ja', 'Nein'))
         self.log.info( 'reserviert, offiziell ungenutzt: %s' %f(b24 & 0x80, m('1'), '0'))
+        
+    def doStatus( self ):
+        s=self._doStatus()
+        if self._timeout_time != None:
+            if currenttime() > self._timeout_time:
+                if s[0] != status.OK:
+                    return status.ERROR, 'Timeout reached, original status is %s'% _formatStatus(s)
+                self._timeout_time = None
+        return s
 
-    def doStatus (self):
+    def _doStatus (self):
         """
-        asks hardware and figurees out status
+        asks hardware and figures out status
         """
         bus = self._adevs['bus']
         # first get all needed statusbytes
@@ -276,6 +296,7 @@ class S7Motor(NicosMotor):
         if self.status()[0] == status.ERROR:
             raise NicosError(self, 'S7 motor in error state')
         self.log.debug('starting to '+self.fmtstr%position + ' %s'%self.unit )
+        self._timeout_time = currenttime()      # set timeouttime
         #sleep(0.2)
         #20091116 EF: round to 1 thousands, or SPS doesn't switch air off
         position = float(self.fmtstr % position) * self.sign
@@ -302,6 +323,9 @@ class S7Motor(NicosMotor):
     def doSetPosition( self, *args ):
         pass
 
+    def doTime( self, pos1, pos2 ):
+        return (abs( pos1 - pos2 ) *7   # 7 seconds per degree
+            +12*(int(abs( pos1 - pos2 ) / 11) + 1) # 12 seconds per mobilblock which come ever 11 degree plus one extra
 
 class Panda_mtt(Axis):
     """
