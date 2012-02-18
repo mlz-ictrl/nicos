@@ -62,13 +62,11 @@ class PauseButton(BaseCacheClient):
     def start(self):
         self._worker.start()
         self._window.show()
-        #~ fltk.Fl.run()
-        while self._stoprequest != True:#self._window.visible():
+        while not self._stoprequest:
             fltk.Fl.check()
             sleep(0.3)
         self._stoprequest = True
-        import sys
-        sys.exit(0)
+        sys.exit()
 
     def makebuttonresume(self):
         self._button.color(fltk.fl_rgb_color(80,235,80))
