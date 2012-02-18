@@ -44,7 +44,7 @@ def _formatStatus(status):
 
 
 class S7Bus(TacoDevice, Device):
-    """Abstract class for communication with S7 over Profibusetherserver"""
+    """Class for communication with S7 over Profibusetherserver."""
     taco_class = ProfibusIO
 
     def read(self, a_type, startbyte, offset=0):
@@ -55,7 +55,7 @@ class S7Bus(TacoDevice, Device):
         elif a_type == 'bit':
             return self._dev.readBit([startbyte, offset])
         else:
-            raise ProgrammingError( self, 'wrong data type for READ' )
+            raise ProgrammingError(self, 'wrong data type for READ')
 
     def readback(self, a_type, startbyte, offset=0):
         if a_type == 'float':
@@ -65,7 +65,7 @@ class S7Bus(TacoDevice, Device):
         elif a_type == 'bit':
             return self._dev.dpReadbackBit([startbyte, offset])
         else:
-            raise ProgrammingError( self, 'wrong data type for READBACK' )
+            raise ProgrammingError(self, 'wrong data type for READBACK')
 
     def write(self, value, a_type, startbyte, offset=0):
         if a_type == 'float':
@@ -75,11 +75,12 @@ class S7Bus(TacoDevice, Device):
         elif a_type == 'bit':
             self._dev.writeBit([startbyte, offset, value])
         else:
-            raise ProgrammingError( self, 'wrong data type for WRITE' )
+            raise ProgrammingError(self, 'wrong data type for WRITE')
+
 
 class S7Coder(NicosCoder):
     """
-    class for the angle readouts of mtt connected to the S7
+    Class for the angle readouts of mtt connected to the S7.
     """
     parameters = {
         'startbyte': Param('Adressoffset in S7-image (0 or 4)',
@@ -93,28 +94,25 @@ class S7Coder(NicosCoder):
     }
 
     def doRead( self ):
-        """
-        read the encoder value
-        """
-        return self._adevs['bus'].read('float', self.startbyte)*self.sign
+        """Read the encoder value."""
+        return self._adevs['bus'].read('float', self.startbyte) * self.sign
 
     def doStatus(self):
         if -140 < self.doRead() < -20:
-            return status.OK, 'Status Ok'
-        return status.ERROR, 'Value out of range, check coder!'
+            return status.OK, 'status ok'
+        return status.ERROR, 'value out of range, check coder!'
 
 
 class S7Motor(NicosMotor):
-    """
-    class for the control of the S7-Motor moving mtt
-    """
+    """Class for the control of the S7-Motor moving mtt."""
     parameters = {
-        'timeout'   : Param('Timeout in seconds for moving the motor or getting a reaction',
-                            type=intrange(1, 3601), default=360),
-        'sign'      : Param('Sign of moving direction Value',
-                            type=oneof(-1.0, 1.0 ), default=-1.0),
+        'timeout'   : Param('Timeout in seconds for moving the motor or getting'
+                            ' a reaction', type=intrange(1, 3601), default=360),
+        'sign'      : Param('Sign of moving direction value',
+                            type=oneof(-1.0, 1.0), default=-1.0),
         'precision' : Param('Precision of the device value',
-                            type=float, unit='main', settable=False, category='precisions', default=0.001),
+                            type=float, unit='main', settable=False,
+                            category='precisions', default=0.001),
         'fmtstr'    : Param('Format string for the device value',
                             type=str, default='%.3f', settable=False),
     }
@@ -124,16 +122,14 @@ class S7Motor(NicosMotor):
     }
 
     _timeout_time = None
-    
-    def doReset( self ):
+
+    def doReset(self):
         self.doStop()
         self.doStop()
         self.doStop()
-        
-    def doStop (self):
-        """
-        stop the motor movement
-        """
+
+    def doStop(self):
+        """Stop the motor movement."""
         self.log.debug('stopping...')
         bus = self._adevs['bus']
         bus.write(1, 'bit', 0, 3)      # Stopbit setzen
@@ -147,18 +143,17 @@ class S7Motor(NicosMotor):
         self._timeout_time = None
 
     def doWait(self):
-        if self._timeout_time == None:
+        if self._timeout_time is None:
             self._timeout_time = currenttime() + self.timeout
         while self._posreached() == False:
             if currenttime() > self._timeout_time:
-                raise TimeoutError(self, 'maximum time for S7 motor movement reached, check hardware!')
+                raise TimeoutError(self, 'maximum time for S7 motor movement '
+                                   'reached, check hardware!')
             sleep(1)
         self._timeout_time = None
 
     def _gettarget(self):
-        """
-        returns current target
-        """
+        """Returns current target."""
         return self._adevs['bus'].readback('float', 8)
 
     def printstatusinfo(self):
@@ -217,20 +212,19 @@ class S7Motor(NicosMotor):
         self.log.info( 'NC Fehler:                       %s' %f(b24 & 0x20, m('Ja'), 'Nein'))
         self.log.info( 'Sollwert erreicht:               %s' %f(b24 & 0x40, 'Ja', 'Nein'))
         self.log.info( 'reserviert, offiziell ungenutzt: %s' %f(b24 & 0x80, m('1'), '0'))
-        
-    def doStatus( self ):
-        s=self._doStatus()
-        if self._timeout_time != None:
+
+    def doStatus(self):
+        s = self._doStatus()
+        if self._timeout_time is not None:
             if currenttime() > self._timeout_time:
                 if s[0] != status.OK:
-                    return status.ERROR, 'Timeout reached, original status is %s'% _formatStatus(s)
+                    return status.ERROR, 'timeout reached, original status ' \
+                        'is %s' % _formatStatus(s)
                 self._timeout_time = None
         return s
 
-    def _doStatus (self):
-        """
-        asks hardware and figures out status
-        """
+    def _doStatus(self):
+        """Asks hardware and figures out status."""
         bus = self._adevs['bus']
         # first get all needed statusbytes
         b20 = bus.read('byte', 20)
@@ -276,9 +270,7 @@ class S7Motor(NicosMotor):
         return status.OK, 'idle'
 
     def _posreached(self):
-        """
-        helper to figure out if we reached our target position
-        """
+        """Helper to figure out if we reached our target position."""
         bus = self._adevs['bus']
         if abs(bus.read('float', 4) - bus.readback('float', 8)) <= 0.001:
             return True
@@ -288,9 +280,7 @@ class S7Motor(NicosMotor):
         sleep(0.1)
 
     def doStart(self,position):
-        """
-        start the motor movement
-        """
+        """Start the motor movement."""
         if self.status()[0] == status.BUSY:
             self.wait()
         if self.status()[0] == status.ERROR:
@@ -312,28 +302,27 @@ class S7Motor(NicosMotor):
         self._minisleep()
         bus.write(0, 'bit', 0, 2)            # Startbit Sollwertfahrt aufheben
 
-    def doRead (self):
-        """
-        read the incremental encoder
-        """
+    def doRead(self):
+        """Read the incremental encoder."""
         bus = self._adevs['bus']
-        self.log.debug('read: '+ self.fmtstr % (self.sign*bus.read('float', 4)) + ' %s'%self.unit)
+        self.log.debug('read: '+ self.fmtstr % (self.sign*bus.read('float', 4))
+                       + ' %s' % self.unit)
         return self.sign*bus.read('float', 4)
-        
-    def doSetPosition( self, *args ):
+
+    def doSetPosition(self, *args):
         pass
 
-    def doTime( self, pos1, pos2 ):
+    def doTime(self, pos1, pos2):
         return (abs( pos1 - pos2 ) *7   # 7 seconds per degree
-            +12*(int(abs( pos1 - pos2 ) / 11) + 1) # 12 seconds per mobilblock which come ever 11 degree plus one extra
+            + 12*(int(abs(pos1 - pos2) / 11) + 1))
+            # 12 seconds per mobilblock which come ever 11 degree plus one extra
+
 
 class Panda_mtt(Axis):
     """
-    class for the control of the S7-Motor moving mtt
+    Class for the control of the S7-Motor moving mtt.
     """
     parameters = {
-        'timeout':     Param('Timeout in seconds for moving the motor or getting a reaction',
-                             type=intrange(1, 3601), default=360),
         'sign':        Param('Sign of moving direction Value',
                              type=oneof(-1.0, 1.0), default=-1.0),
         'precision' :  Param('Precision of the device value', type=float,
