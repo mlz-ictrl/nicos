@@ -91,3 +91,9 @@ def waitForStatus(device, delay=0.3, timeout=None,
         else:
             break
     return st
+
+
+def formatStatus(st):
+    const, message = st
+    const = status.statuses.get(const, str(const))
+    return const + (message and ': ' + message or '')

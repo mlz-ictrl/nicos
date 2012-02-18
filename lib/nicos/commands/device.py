@@ -27,15 +27,13 @@
 __version__ = "$Revision$"
 
 import time
-import Queue
 import threading
 import __builtin__
 
 from nicos import session
 from nicos.utils import printTable
 from nicos.core import Device, Moveable, Measurable, Readable, HasOffset, \
-     HasLimits, NicosError, UsageError
-from nicos.core.status import statuses
+     HasLimits, NicosError, UsageError, formatStatus
 from nicos.commands import usercommand
 from nicos.commands.basic import sleep
 from nicos.commands.output import printinfo
@@ -161,11 +159,6 @@ def read(*devlist):
         else:
             dev.log.info('at %20s %-5s' % (dev.format(value), unit))
 
-def _formatStatus(status):
-    const, message = status
-    const = statuses.get(const, str(const))
-    return const + (message and ': ' + message or '')
-
 @usercommand
 def status(*devlist):
     """Read the status of one or more devices.
@@ -183,7 +176,7 @@ def status(*devlist):
         except NicosError:
             dev.log.exception('error reading status')
         else:
-            dev.log.info('status is %s' % _formatStatus(status))
+            dev.log.info('status is %s' % formatStatus(status))
 
 @usercommand
 def stop(*devlist):
@@ -228,7 +221,7 @@ def reset(*devlist):
     for dev in devlist:
         dev = session.getDevice(dev, Readable)
         status = dev.reset()
-        dev.log.info('reset done, status is now %s' % _formatStatus(status))
+        dev.log.info('reset done, status is now %s' % formatStatus(status))
 
 @usercommand
 def set(dev, parameter, value):

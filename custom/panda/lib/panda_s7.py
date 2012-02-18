@@ -29,18 +29,13 @@ __version__ = "$Revision$"
 from time import sleep, time as currenttime
 
 from nicos.core import status, intrange, oneof, anytype, Device, Param, \
-     Readable, Moveable, NicosError, ProgrammingError, TimeoutError
-from nicos.core.status import statuses
+     Readable, Moveable, NicosError, ProgrammingError, TimeoutError, \
+     formatStatus
 from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.taco.core import TacoDevice
 from nicos.generic.axis import Axis
 
 from ProfibusDP import IO as ProfibusIO
-
-def _formatStatus(status):
-    const, message = status
-    const = statuses.get(const, str(const))
-    return const + (message and ': ' + message or '')
 
 
 class S7Bus(TacoDevice, Device):
@@ -219,7 +214,7 @@ class S7Motor(NicosMotor):
             if currenttime() > self._timeout_time:
                 if s[0] != status.OK:
                     return status.ERROR, 'timeout reached, original status ' \
-                        'is %s' % _formatStatus(s)
+                        'is %s' % formatStatus(s)
                 self._timeout_time = None
         return s
 

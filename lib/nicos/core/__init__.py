@@ -39,5 +39,5 @@ from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \
      listof, nonemptylistof, tupleof, dictof, tacodev, anytype, \
      vec3, intrange, floatrange, oneof, oneofdict, none_or, \
      control_path_relative
-from nicos.core.utils import multiStatus, waitForStatus, GUEST, USER, ADMIN, \
-     ACCESS_LEVELS
+from nicos.core.utils import multiStatus, waitForStatus, formatStatus, \
+     GUEST, USER, ADMIN, ACCESS_LEVELS
