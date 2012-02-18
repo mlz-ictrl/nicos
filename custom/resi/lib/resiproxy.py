@@ -34,7 +34,7 @@ import sys
 sys.path.append('/home/pedersen/Eclispe_projects_git/singlecounter')
 sys.path.append('/home/pedersen/Eclispe_projects/nonius_new/app')
 from goniometer.position import PositionFromStorage
-from nicos.core.proxy import NicosProxy
+from nicos.utils.proxy import NicosProxy
 
 
 class ResiPositionProxy(NicosProxy):

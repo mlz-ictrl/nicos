@@ -18,57 +18,56 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
-''' A general nicos proxy superclass
 
-'''
+"""A general nicos proxy superclass."""
+
 
 class NicosProxy(object):
     """
-    general proxy class to add special behaviour to classes
-
-    see: http://code.activestate.com/recipes/252151-generalized-delegates-and-proxies/
+    General proxy class to add special behaviour to classes.  See
+    http://code.activestate.com/recipes/252151-generalized-delegates-and-proxies/
     """
 
     _obj = None
-    def __init__(self,obj):
+
+    def __init__(self, obj):
         super(NicosProxy, self).__init__(obj)
         self._obj = obj
 
-    def __getattr__(self,name):
-        return getattr(self.pos,name)
+    def __getattr__(self, name):
+        return getattr(self._obj, name)
 
-    def __setattr__(self,name,value):
+    def __setattr__(self, name, value):
         if name == '_obj':
-            self.__dict__[name]=value
+            self.__dict__[name] = value
         elif self._obj:
-            return setattr(self._obj,name,value)
+            return setattr(self._obj, name, value)
 
     def __repr__(self):
         return self._obj.__repr__()
 
 
-#Auxiliary getter function.
+# Auxiliary getter function.
 def getter(attrib):
-    return lambda self, *args, **kwargs: getattr(self._obj, attrib)(*args, **kwargs)
+    return lambda self, *args, **kwargs: \
+        getattr(self._obj, attrib)(*args, **kwargs)
 
 
 def ProxyFactory(obj, names, proxyclass=NicosProxy):
     """Factory function for Proxies that can delegate magic names."""
-    #Build class.
+    # Build class.
     cls = type("%sNicosProxy" % obj.__class__.__name__,
-               (proxyclass,),
-               {})
-    #Add magic names.
+               (proxyclass,), {})
+    # Add magic names.
     for name in names:
-        #Filter magic names.
+        # Filter magic names.
         if name.startswith("__") and name.endswith("__"):
             if hasattr(obj.__class__, name):
-                #Set attribute.
+                # Set attribute.
                 setattr(cls, name, getter(name))
-    #Return instance.
+    # Return instance.
     return cls(obj)
 
