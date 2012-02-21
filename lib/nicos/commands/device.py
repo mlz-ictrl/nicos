@@ -204,14 +204,13 @@ def stop(*devlist):
                 dev.log.warning('error while stopping', exc=1)
             finally:
                 finished.append(dev)
-        printinfo('stopping all devices...')
         for dev in devlist:
             stopthread = threading.Thread(target=stopdev, args=(dev,))
             stopthread.setDaemon(True)
             stopthread.start()
         while len(finished) != len(devlist):
             time.sleep(0.1)
-        printinfo('done')
+        printinfo('all devices stopped')
         return
     for dev in devlist:
         dev = session.getDevice(dev, (Moveable, Measurable))
