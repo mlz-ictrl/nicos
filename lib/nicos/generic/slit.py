@@ -210,9 +210,9 @@ class Slit(Moveable):
                    abs((t+b)/2.) > self._adevs['top'].precision:
                 self.log.warning('slit seems to be offcentered, but is '
                                   'set to "centered" mode')
-            return [l-r, t-b]
+            return [r-l, t-b]
         elif self.opmode == 'offcentered':
-            return [(l+r)/2, (t+b)/2, l-r, t-b]
+            return [(l+r)/2, (t+b)/2, r-l, t-b]
         else:
             return positions
 
