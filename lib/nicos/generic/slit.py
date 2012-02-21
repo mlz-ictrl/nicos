@@ -39,10 +39,10 @@ class Slit(Moveable):
     parameter:
 
     * '4blades' -- all four blades are controlled separately.  Values read from
-      the slit are lists in the order ``[right, left, bottom, top]``; for
+      the slit are lists in the order ``[left, right, bottom, top]``; for
       ``move()`` the same list of coordinates has to be supplied.
     * 'centered' -- only width and height are controlled; the slit is centered
-      at the zero value of the right-left and bottom-top coordinates.  Values
+      at the zero value of the left-right and bottom-top coordinates.  Values
       read and written are in the form ``[width, height]``.
     * 'offcentered' -- the center and width/height are controlled.  Values read
       and written are in the form ``[centerx, centery, width, height]``.
@@ -68,8 +68,8 @@ class Slit(Moveable):
     """
 
     attached_devices = {
-        'right':  (HasPrecision, 'Right blade'),
         'left':   (HasPrecision, 'Left blade'),
+        'right':  (HasPrecision, 'Right blade'),
         'bottom': (HasPrecision, 'Bottom blade'),
         'top':    (HasPrecision, 'Top blade'),
     }
@@ -78,7 +78,7 @@ class Slit(Moveable):
         'opmode': Param('Mode of operation for the slit',
                         type=oneof('4blades', 'centered', 'offcentered'),
                         settable=True),
-        'coordinates': Param('Coordinate convention for right/left and '
+        'coordinates': Param('Coordinate convention for left/right and '
                              'top/bottom blades', default='equal',
                              type=oneof('equal', 'opposite')),
     }
@@ -91,13 +91,14 @@ class Slit(Moveable):
     hardware_access = False
 
     def doInit(self):
-        self._axes = [self._adevs['right'], self._adevs['left'],
+        self._axes = [self._adevs['left'], self._adevs['right'],
                       self._adevs['bottom'], self._adevs['top']]
-        self._axnames = ['right', 'left', 'bottom', 'top']
+        self._axnames = ['left', 'right', 'bottom', 'top']
+
+        for name in self._axnames:
+            self.__dict__[name] = self._adevs[name]
 
         for name, cls in [
-            ('right', RightSlitAxis), ('left', LeftSlitAxis),
-            ('bottom', BottomSlitAxis), ('top', TopSlitAxis),
             ('centerx', CenterXSlitAxis), ('centery', CenterYSlitAxis),
             ('width', WidthSlitAxis), ('height', HeightSlitAxis)]:
             self.__dict__[name] = cls(self.name+'.'+name, slit=self,
@@ -107,7 +108,7 @@ class Slit(Moveable):
         if self.opmode == '4blades':
             if len(target) != 4:
                 raise InvalidValueError(self, 'arguments required for 4-blades '
-                                        'mode: [xmin, xmax, ymin, ymax]')
+                                        'mode: [left, right, bottom, top]')
             positions = list(target)
         elif self.opmode == 'centered':
             if len(target) != 2:
@@ -130,7 +131,7 @@ class Slit(Moveable):
     def _doIsAllowedPositions(self, positions):
         f = self.coordinates == 'opposite' and -1 or +1
         for ax, axname, pos in zip(self._axes, self._axnames, positions):
-            if axname in ('right', 'bottom'):
+            if axname in ('left', 'bottom'):
                 pos *= f
             ok, why = ax.isAllowed(pos)
             if not ok:
@@ -146,27 +147,27 @@ class Slit(Moveable):
 
     def _doStartPositions(self, positions):
         f = self.coordinates == 'opposite' and -1 or +1
-        tr, tl, tb, tt = positions
+        tl, tr, tb, tt = positions
         # determine which axes to move first, so that the blades can
         # not touch when one moves first
-        cr, cl, cb, ct = map(lambda d: d.read(0), self._axes)
-        cr *= f
+        cl, cr, cb, ct = map(lambda d: d.read(0), self._axes)
+        cl *= f
         cb *= f
-        ar, al, ab, at = self._axes
+        al, ar, ab, at = self._axes
         if tr < cr and tl < cl:
             # both move to smaller values, need to start right blade first
-            ar.move(tr * f)
+            al.move(tl * f)
             sleep(0.25)
-            al.move(tl)
+            ar.move(tr)
         elif tr > cr and tl > cl:
             # both move to larger values, need to start left blade first
-            al.move(tl)
+            ar.move(tr)
             sleep(0.25)
-            ar.move(tr * f)
+            al.move(tl * f)
         else:
             # don't care
-            al.move(tl)
-            ar.move(tr * f)
+            ar.move(tr)
+            al.move(tl * f)
         if tb < cb and tt < ct:
             ab.move(tb * f)
             sleep(0.25)
@@ -195,15 +196,15 @@ class Slit(Moveable):
 
     def _doReadPositions(self):
         # XXX read() or read(0)
-        cr, cl, cb, ct = map(lambda d: d.read(), self._axes)
+        cl, cr, cb, ct = map(lambda d: d.read(), self._axes)
         if self.coordinates == 'opposite':
             cr *= -1
             cb *= -1
-        return [cr, cl, cb, ct]
+        return [cl, cr, cb, ct]
 
     def doRead(self):
         positions = self._doReadPositions()
-        r, l, b, t = positions
+        l, r, b, t = positions
         if self.opmode == 'centered':
             if abs((l+r)/2.) > self._adevs['left'].precision or \
                    abs((t+b)/2.) > self._adevs['top'].precision:
@@ -225,8 +226,8 @@ class Slit(Moveable):
                    Value('%s.width' % self, unit=self.unit, fmtstr='%.2f'), \
                    Value('%s.height' % self, unit=self.unit, fmtstr='%.2f')
         else:
-            return Value('%s.right' % self, unit=self.unit, fmtstr='%.2f'), \
-                   Value('%s.left' % self, unit=self.unit, fmtstr='%.2f'), \
+            return Value('%s.left' % self, unit=self.unit, fmtstr='%.2f'), \
+                   Value('%s.right' % self, unit=self.unit, fmtstr='%.2f'), \
                    Value('%s.bottom' % self, unit=self.unit, fmtstr='%.2f'), \
                    Value('%s.top' % self, unit=self.unit, fmtstr='%.2f')
 
@@ -281,30 +282,6 @@ class SlitAxis(Moveable, AutoDevice):
     def doWait(self):
         self._adevs['slit'].wait()
 
-
-class RightSlitAxis(SlitAxis):
-    def _convertRead(self, positions):
-        return positions[0]
-    def _convertStart(self, target, current):
-        return (target, current[1], current[2], current[3])
-
-class LeftSlitAxis(SlitAxis):
-    def _convertRead(self, positions):
-        return positions[1]
-    def _convertStart(self, target, current):
-        return (current[0], target, current[2], current[3])
-
-class BottomSlitAxis(SlitAxis):
-    def _convertRead(self, positions):
-        return positions[2]
-    def _convertStart(self, target, current):
-        return (current[0], current[1], target, current[3])
-
-class TopSlitAxis(SlitAxis):
-    def _convertRead(self, positions):
-        return positions[3]
-    def _convertStart(self, target, current):
-        return (current[0], current[1], current[2], target)
 
 class CenterXSlitAxis(SlitAxis):
     def _convertRead(self, positions):
