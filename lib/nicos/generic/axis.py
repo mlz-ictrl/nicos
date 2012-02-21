@@ -183,7 +183,8 @@ class Axis(BaseAxis):
     def doReset(self):
         """Resets the motor/coder controller."""
         self._adevs['motor'].reset()
-        self._adevs['coder'].reset()
+        if self._adevs['motor'] != self._adevs['coder']:
+            self._adevs['coder'].reset()
         for obs in self._adevs['obs']:
             obs.reset()
         if self.status(0)[0] != status.BUSY:
@@ -377,7 +378,7 @@ class Axis(BaseAxis):
             # poll accurate current values and status of child devices so that
             # we can use read() and status() subsequently
             st, pos = self.poll()
-            mstatus = self._adevs['motor'].status()[0]
+            mstatus, mstatusinfo = self._adevs['motor'].status()
             if mstatus != status.BUSY:
                 # motor stopped; check why
                 if self._stoprequest == 2:
@@ -389,6 +390,8 @@ class Axis(BaseAxis):
                     # target reached
                     moving = False
                 elif mstatus == status.ERROR:
+                    self.log.debug('motor in error status (%s), trying reset' %
+                                   mstatusinfo)
                     # motor in error state -> try resetting
                     newstatus = self._adevs['motor'].reset()
                     # if that failed, stop immediately
