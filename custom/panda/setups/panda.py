@@ -1,6 +1,6 @@
 description = 'PANDA triple-axis setup'
 
-includes = ['sampletable', 'ana', 'detector','system','panda_s7', 'manual', 'power']
+includes = ['sampletable', 'ana', 'detector','system','panda_s7', 'manual']
 # monoturm is included by panda_s7
 
 #~ modules = ['nicos.commands.tas','nicos.panda.commands']

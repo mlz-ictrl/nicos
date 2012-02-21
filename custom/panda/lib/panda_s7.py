@@ -281,7 +281,7 @@ class S7Motor(NicosMotor):
         if self.status()[0] == status.ERROR:
             raise NicosError(self, 'S7 motor in error state')
         self.log.debug('starting to '+self.fmtstr%position + ' %s'%self.unit )
-        self._timeout_time = currenttime()      # set timeouttime
+        self._timeout_time = currenttime() + self.timeout     # set timeouttime
         #sleep(0.2)
         #20091116 EF: round to 1 thousands, or SPS doesn't switch air off
         position = float(self.fmtstr % position) * self.sign
