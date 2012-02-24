@@ -346,7 +346,6 @@ class Axis(BaseAxis):
                     positions.insert(0, (backlashpos, False))
                 else:
                     self.log.debug('cannot move to backlash position')
-                    print self.isAllowed(backlashpos)
         for (pos, precise) in positions:
             try:
                 self.__positioning(pos, precise)
