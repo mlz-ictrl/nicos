@@ -26,6 +26,7 @@
 
 __version__ = "$Revision$"
 
+import sys
 from time import sleep
 
 from fltk import Fl, Fl_Double_Window, Fl_Group, Fl_Widget, Fl_Box, \
@@ -306,13 +307,13 @@ class Monitor(BaseMonitor):
     """Fltk specific implementation of instrument monitor."""
 
     def mainLoop(self):
-        while self._master.visible():
+        while True:
             Fl.check()
             sleep(0.1)
 
-    def closeGui(self):
+    def closeGui(self, *args):
         self._master.hide()
-        pass
+        sys.exit()
 
     def initColors(self):
         self._black = fl_rgb_color(0, 0, 0)
@@ -325,6 +326,7 @@ class Monitor(BaseMonitor):
 
     def initGui(self):
         master = self._master = Fll_LayoutWindow(1024, 800)
+        master.callback( self.closeGui )
 
         if self._geometry == 'fullscreen':
             master.fullscreen()

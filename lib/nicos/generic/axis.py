@@ -133,7 +133,6 @@ class Axis(BaseAxis):
         if not self._posthread:
             self._posthread = threading.Thread(None, self.__positioningThread,
                                                'Positioning thread')
-            self.log.debug('start positioning thread')
             self._posthread.start()
 
     def doStatus(self):
@@ -183,7 +182,8 @@ class Axis(BaseAxis):
     def doReset(self):
         """Resets the motor/coder controller."""
         self._adevs['motor'].reset()
-        self._adevs['coder'].reset()
+        if self._adevs['motor'] != self._adevs['coder']:
+            self._adevs['coder'].reset()
         for obs in self._adevs['obs']:
             obs.reset()
         if self.status(0)[0] != status.BUSY:
@@ -329,43 +329,46 @@ class Axis(BaseAxis):
             self._preMoveAction()
         except Exception, err:
             self._setErrorState(MoveError, 'error in pre-move action: %s' % err)
-        else:
-            target = self._target
-            self._errorstate = None
-            if self.backlash:
-                backlash = self.backlash
-                lastpos = self.read(0)
-                # make sure not to move twice if coming from the side in the
-                # direction of the backlash
-                if backlash > 0 and lastpos < target + backlash:
-                    positions = [target + backlash, target]
-                elif backlash < 0 and lastpos > target + backlash:
-                    positions = [target + backlash, target]
+            return
+        target = self._target
+        self._errorstate = None
+        positions = [(target, True)]
+        if self.backlash:
+            backlash = self.backlash
+            lastpos = self.read(0)
+            # make sure not to move twice if coming from the side in the
+            # direction of the backlash
+            backlashpos = target + backlash
+            if (backlash > 0 and lastpos < backlashpos) or \
+               (backlash < 0 and lastpos > backlashpos):
+                # if backlash position is not allowed, just don't use it
+                if self.isAllowed(backlashpos)[0]:
+                    positions.insert(0, (backlashpos, False))
                 else:
-                    positions = [target]
-                for pos in positions:
-                    self.__positioning(pos)
-                    if self._stoprequest == 2 or self._errorstate:
-                        break
-            else:
-                try:
-                    self.__positioning(target)
-                except Exception, err:
-                    self._setErrorState(MoveError,
-                                        'error in positioning: %s' % err)
+                    self.log.debug('cannot move to backlash position')
+                    print self.isAllowed(backlashpos)
+        for (pos, precise) in positions:
             try:
-                self._postMoveAction()
+                self.__positioning(pos, precise)
             except Exception, err:
                 self._setErrorState(MoveError,
-                                    'error in post-move action: %s' % err)
+                                    'error in positioning: %s' % err)
+            if self._stoprequest == 2 or self._errorstate:
+                break
+        try:
+            self._postMoveAction()
+        except Exception, err:
+            self._setErrorState(MoveError,
+                                'error in post-move action: %s' % err)
 
-    def __positioning(self, target):
+    def __positioning(self, target, precise=True):
+        self.log.debug('start positioning, target is %s' % target)
         moving = False
         offset = self.offset
         tries = self.maxtries
+        self._lastdiff = abs(target - self.read(0))
         self._adevs['motor'].start(target + offset)
         moving = True
-        self._lastdiff = abs(target - self.read(0))
 
         while moving:
             if self._stoprequest == 1:
@@ -377,18 +380,24 @@ class Axis(BaseAxis):
             # poll accurate current values and status of child devices so that
             # we can use read() and status() subsequently
             st, pos = self.poll()
-            mstatus = self._adevs['motor'].status()[0]
+            mstatus, mstatusinfo = self._adevs['motor'].status()
             if mstatus != status.BUSY:
                 # motor stopped; check why
                 if self._stoprequest == 2:
                     self.log.debug('stop requested, leaving positioning')
                     # manual stop
                     moving = False
+                elif not precise and not self._errorstate:
+                    self.log.debug('target not reached, but precise '
+                                   'positioning not requested')
+                    moving = False
                 elif self._checkTargetPosition(target, pos):
                     self.log.debug('target reached, leaving positioning')
                     # target reached
                     moving = False
                 elif mstatus == status.ERROR:
+                    self.log.debug('motor in error status (%s), trying reset' %
+                                   mstatusinfo)
                     # motor in error state -> try resetting
                     newstatus = self._adevs['motor'].reset()
                     # if that failed, stop immediately

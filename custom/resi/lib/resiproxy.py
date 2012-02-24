@@ -18,26 +18,37 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""NICOS core APIs and classes."""
+"""
+Created on 30.05.2011
+
+@author: pedersen
+"""
 
 __version__ = "$Revision$"
 
-from nicos.core import status
-from nicos.core.errors import NicosError, ProgrammingError, \
-     ConfigurationError, UsageError, InvalidValueError, ModeError, \
-     PositionError, MoveError, LimitError, CommunicationError, \
-     HardwareError, TimeoutError, ComputationError, FixedError, \
-     CacheLockError, AccessError
-from nicos.core.device import Device, AutoDevice, Readable, Moveable, \
-     HasLimits, HasOffset, HasPrecision, Measurable, usermethod, \
-     requires
-from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \
-     listof, nonemptylistof, tupleof, dictof, tacodev, anytype, \
-     vec3, intrange, floatrange, oneof, oneofdict, none_or, \
-     control_path_relative
-from nicos.core.utils import multiStatus, waitForStatus, formatStatus, \
-     GUEST, USER, ADMIN, ACCESS_LEVELS
+import sys
+sys.path.append('/home/pedersen/Eclispe_projects_git/singlecounter')
+sys.path.append('/home/pedersen/Eclispe_projects/nonius_new/app')
+from goniometer.position import PositionFromStorage
+from nicos.utils.proxy import NicosProxy
+
+
+class ResiPositionProxy(NicosProxy):
+    """
+    proxy class to make  position objects really picklable
+
+    """
+    __hardware = None
+
+    @classmethod
+    def SetHardware(cls,hw):
+        ResiPositionProxy.__hardware = hw
+
+    def __getstate__(self):
+        return self._obj.storable()
+    def __setstate__(self,state):
+        self._obj = position.PositionFromStorage(ResiPositionProxy.__hardware, state)

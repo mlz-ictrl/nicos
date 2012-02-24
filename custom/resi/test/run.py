@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
@@ -22,22 +23,47 @@
 #
 # *****************************************************************************
 
-"""NICOS core APIs and classes."""
+import os
+import sys
+import shutil
+import signal
+import subprocess
+from os import path
 
-__version__ = "$Revision$"
+def cleanup(rootdir):
+    if path.exists(rootdir):
+        print 'Cleaning old test output dir...'
+        print '-' * 70
+        shutil.rmtree(rootdir)
+    os.mkdir(rootdir)
+    os.mkdir(rootdir + '/cache')
+    os.mkdir(rootdir + '/pid')
 
-from nicos.core import status
-from nicos.core.errors import NicosError, ProgrammingError, \
-     ConfigurationError, UsageError, InvalidValueError, ModeError, \
-     PositionError, MoveError, LimitError, CommunicationError, \
-     HardwareError, TimeoutError, ComputationError, FixedError, \
-     CacheLockError, AccessError
-from nicos.core.device import Device, AutoDevice, Readable, Moveable, \
-     HasLimits, HasOffset, HasPrecision, Measurable, usermethod, \
-     requires
-from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \
-     listof, nonemptylistof, tupleof, dictof, tacodev, anytype, \
-     vec3, intrange, floatrange, oneof, oneofdict, none_or, \
-     control_path_relative
-from nicos.core.utils import multiStatus, waitForStatus, formatStatus, \
-     GUEST, USER, ADMIN, ACCESS_LEVELS
+try:
+    import nose
+except ImportError:
+    print 'The "nose" package is required to run this test suite.'
+    sys.exit(1)
+
+rootdir = path.join(os.path.dirname(__file__), 'root')
+cleanup(rootdir)
+
+#print 'Starting test cache server...'
+#
+## start the cache server
+#os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..', 'lib')
+#cache = subprocess.Popen([sys.executable, path.join(rootdir, '..', 'cache.py')])
+#
+#print 'Cache PID = %s' % cache.pid
+#print '-' * 70
+print 'Running NICOS test suite...'
+print '-' * 70
+try:
+    nose.main()
+finally:
+    # kill the cache server
+    print '-' * 70
+#    print 'Killing cache server...'
+#    os.kill(cache.pid, signal.SIGTERM)
+#    os.waitpid(cache.pid, 0)
+#    print '-' * 70

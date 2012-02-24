@@ -1,7 +1,7 @@
 description = 'system setup only'
 
 sysconfig = dict(
-    cache = 'resi2',
+    cache = 'resi1',
     instrument = 'resiInstrument',
     experiment = 'Exp',
     notifiers = ['email'],

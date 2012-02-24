@@ -48,12 +48,12 @@ def test_slit():
            motor_left.doRead(),
            motor_bottom.doRead(),
            motor_top.doRead()]
-    assert motor_right.doRead() == 1
-    assert motor_left.doRead() == 2
+    assert motor_left.doRead() == 1
+    assert motor_right.doRead() == 2
     assert motor_bottom.doRead() == 3
     assert motor_top.doRead() == 4
-    assert slit.doRead() == [motor_right.doRead(),
-                             motor_left.doRead(),
+    assert slit.doRead() == [motor_left.doRead(),
+                             motor_right.doRead(),
                              motor_bottom.doRead(),
                              motor_top.doRead()]
 
@@ -71,15 +71,15 @@ def test_slit_opposite():
 
     s2.opmode = '4blades'
     s2.maw([1, 2, 3, 4])
-    assert motor_right.doRead() == -1
-    assert motor_left.doRead() == 2
+    assert motor_left.doRead() == -1
+    assert motor_right.doRead() == 2
     assert motor_bottom.doRead() == -3
     assert motor_top.doRead() == 4
 
     s2.opmode = 'offcentered'
     s2.maw([1, 2, 4, 6])
-    assert motor_right.doRead() == 1
-    assert motor_left.doRead() == 3
+    assert motor_left.doRead() == 1
+    assert motor_right.doRead() == 3
     assert motor_bottom.doRead() == 1
     assert motor_top.doRead() == 5
 
@@ -131,8 +131,8 @@ def test_slit_subaxes():
     assert slit.centery() == 1
     assert slit.width() == 4
     assert slit.height() == 4
-    assert slit.left() == 7
-    assert slit.right() == 3
+    assert slit.left() == 3
+    assert slit.right() == 7
     assert slit.bottom() == -1
     assert slit.top() == 3
 
@@ -145,11 +145,11 @@ def test_slit_subaxes():
     slit.height.maw(2)
     assert slit.read() == [0, 0, 2, 2]
 
-    slit.right.maw(-3)
-    assert slit.read() == [-1, 0, 4, 2]
-    slit.left.maw(3)
-    assert slit.read() == [0, 0, 6, 2]
+    slit.left.maw(-3)
+    assert slit.read(0) == [-1, 0, 4, 2]
+    slit.right.maw(3)
+    assert slit.read(0) == [0, 0, 6, 2]
     slit.bottom.maw(-3)
-    assert slit.read() == [0, -1, 6, 4]
+    assert slit.read(0) == [0, -1, 6, 4]
     slit.top.maw(3)
-    assert slit.read() == [0, 0, 6, 6]
+    assert slit.read(0) == [0, 0, 6, 6]
