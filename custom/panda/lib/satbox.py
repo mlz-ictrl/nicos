@@ -7,24 +7,26 @@ class SatBox(Moveable):
     }
 
     valuetype = int
+    widths = [1, 2, 5, 10, 20]
 
     def doRead(self):
-        # XXX ReadBitsInput(..., 10) does not return anything beyond the 8th bit
-        in1 = self._adevs['bus'].ReadBitsInput(0x1000, 8)
-        in2 = self._adevs['bus'].ReadBitsInput(0x1008, 2)
-        inx = in1 + in2
+        inx = self._adevs['bus'].ReadBitsOutput(0x1020, len(self.widths))
+        return sum([inx[i]*self.widths[i] for i in range(len(self.widths))])
+        
+        # currently the input bits dont work, since the magnetic field of the monoburg switches them all on
+        inx = self._adevs['bus'].ReadBitsInput(0x1000, 10)
         self.log.debug('position: %s' % inx)
         width = 0
-        widths = [1, 2, 5, 10, 20]
-        for i in range(5):
+        for i in range(len(self.widths)):
             if not inx[i*2]:
                 if inx[i*2+1]:
-                    width += widths[i]
+                    width += self.widths[i]
                 else:
                     self.log.warning('%d mm blade in inconsistent state' % widths[i])
         return width
 
     def doStatus(self):
+        return status.OK, ''
         in1 = self._adevs['bus'].ReadBitsInput(0x1000, 8)
         in2 = self._adevs['bus'].ReadBitsInput(0x1008, 2)
         inx = in1 + in2
@@ -34,26 +36,17 @@ class SatBox(Moveable):
                 return status.BUSY, '%d mm blade moving' % widths[i]
         return status.OK, ''
     
-    def doStart(self, pos):
-        which = [0] * 5
-        if pos > 38:
-            raise InvalidValueError(self, 'too thick')
-        if pos >= 20:
-            pos -= 20
-            which[4] = 1
-        if pos >= 10:
-            pos -= 10
-            which[3] = 1
-        if pos >= 5:
-            pos -= 5
-            which[2] = 1
-        if pos >= 2:
-            pos -= 2
-            which[1] = 1
-        if pos == 1:
-            which[0] = 1
-        elif pos != 0:
-            raise InvalidValueError(self, 'impossible: %d' % pos)
-        self.log.debug('setting which: %s' % which)
-        for i in which:
-            self._adevs['bus'].WriteBitOutput(0x1020 + i, which[i])
+    def doStart(self, rpos):
+        if rpos>sum(self.widths):
+            raise InvalidValueError(self, 'Value %d too big!, maximum is %d' % (rpos,sum(self.widths)))
+        which = [0] * len(self.widths)
+        pos=rpos
+        for i in range(len(self.widths)-1,-1,-1):
+            if pos>=self.widths[i]:
+                which[i]=1
+                pos-=self.widths[i]
+        if pos != 0:
+            self.log.warning('Value %d impossible, trying %d instead!'%(rpos,rpos+1))
+            return self.doStart( rpos+1)
+        self.log.debug('setting blades: %s' % [which[i]*self.widths[i] for i in range(len(which))])
+        self._adevs['bus'].WriteBitsOutput(0x1020, which)

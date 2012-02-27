@@ -189,7 +189,7 @@ class Beckhoff(Device):
         FOE = data[0]
         if FOE != 1:
             raise Exception ('Returned function should be 1 but is 0x%02x!'%FOE)
-        return [ (data[i/8 + 2] >> i) & 0x01 for i in range(num) ]
+        return [ (data[i/8 + 2] >> (i&7)) & 0x01 for i in range(num) ]
 
     def ReadBitsInput( self, addr, num ):
         if num > 2000: raise ValueError('%d Bits are too much for ReadBitsInput!'%num)
@@ -200,7 +200,7 @@ class Beckhoff(Device):
         FOE = data[0]
         if FOE != 2:
             raise Exception ('Returned function should be 2 but is 0x%02x!'%FOE)
-        return [ (data[i/8 + 2] >> i) & 0x01 for i in range(num) ]
+        return [ (data[i/8 + 2] >> (i&7)) & 0x01 for i in range(num) ]
 
     def ReadWordsOutput( self, addr, num ):
         if num > 125: raise ValueError('%d Words are too much for ReadWordsOutput!'%num)
