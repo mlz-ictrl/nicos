@@ -474,6 +474,7 @@ class Session(object):
         self.explicit_setups.extend(setupnames)
 
         if self.mode == 'master' and self.cache:
+            self.cache._ismaster = True
             self.cache.put(self, 'mastersetup', list(self.loaded_setups))
             self.cache.put(self, 'mastersetupexplicit',
                            list(self.explicit_setups))
@@ -580,18 +581,17 @@ class Session(object):
                 self.log.info('could not enter master mode; remaining slave')
             except:
                 self.log.warning('could not enter master mode', exc=True)
-            else:
-                if setup != 'startup' or not self.cache:
-                    return
-                # If we became master, the user didn't select a specific startup
-                # setup and a previous master setup was configured, re-use that.
-                setups = self.cache.get(self, 'mastersetupexplicit')
-                if not setups or setups == ['startup']:
-                    return
-                self.log.info('loading previously used master setups: ' +
-                              ', '.join(setups))
-                self.unloadSetup()
-                self.loadSetup(setups)
+            if setup != 'startup' or not self.cache:
+                return
+            # If we became master, the user didn't select a specific startup
+            # setup and a previous master setup was configured, re-use that.
+            setups = self.cache.get(self, 'mastersetupexplicit')
+            if not setups or setups == ['startup']:
+                return
+            self.log.info('loading previously used master setups: ' +
+                          ', '.join(setups))
+            self.unloadSetup()
+            self.loadSetup(setups)
 
     def commandHandler(self, command, compiler):
         """This method when the user executes a simple command.  It should
