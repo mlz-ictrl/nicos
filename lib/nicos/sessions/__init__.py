@@ -594,9 +594,9 @@ class Session(object):
             self.loadSetup(setups)
 
     def commandHandler(self, command, compiler):
-        """This method when the user executes a simple command.  It should
-        return a compiled code object that is then executed instead of the
-        command.
+        """This method is called when the user executes a simple command.  It
+        should return a compiled code object that is then executed instead of
+        the command.
         """
         if command.startswith('#'):
             return compiler('LogEntry(%r)' % command[1:].strip())
