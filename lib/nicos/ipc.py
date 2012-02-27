@@ -839,6 +839,9 @@ class Motor(NicosMotor):
         maxstep = bus.get(self.addr, 131)
         bus.send(self.addr, 31)  # reset card
         sleep(0.2)
+        if self._hwtype == 'triple':
+            # triple cards need a LONG time for resetting
+            sleep(2)
         # update state
         bus.send(self.addr, 41, speed, 3)
         bus.send(self.addr, 42, accel, 3)
