@@ -72,6 +72,7 @@ class Axis(BaseAxis):
                 raise ConfigurationError(self, 'different units for motor '
                                          'and observer %s' % ob)
 
+        self._hascoder = self._adevs['motor'] != self._adevs['coder']
         self._errorstate = None
         self._posthread = None
         self._stoprequest = 0
@@ -156,7 +157,10 @@ class Axis(BaseAxis):
         return self._adevs['coder'].read() - self.offset
 
     def doPoll(self, i):
-        devs = [self._adevs['coder'], self._adevs['motor']] + self._adevs['obs']
+        if self._hascoder:
+            devs = [self._adevs['coder'], self._adevs['motor']] + self._adevs['obs']
+        else:
+            devs = [self._adevs['motor']] + self._adevs['obs']
         for dev in devs:
             dev.poll()
 
@@ -167,8 +171,7 @@ class Axis(BaseAxis):
         """
         # if coder != motor -> use coder (its more precise!)
         # if no observers, rely on coder (even if its == motor)
-        if self._adevs['coder'] != self._adevs['motor'] or \
-            not self._adevs['obs']:
+        if self._hascoder or not self._adevs['obs']:
             # read the coder
             return self._adevs['coder'].read(0)
         # XXX probably make this a parameter, could also be a par of the
@@ -182,7 +185,7 @@ class Axis(BaseAxis):
     def doReset(self):
         """Resets the motor/coder controller."""
         self._adevs['motor'].reset()
-        if self._adevs['motor'] != self._adevs['coder']:
+        if self._hascoder:
             self._adevs['coder'].reset()
         for obs in self._adevs['obs']:
             obs.reset()
