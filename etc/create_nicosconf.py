@@ -29,21 +29,21 @@ sysuser, sysgroup, nethost, setups, services, addvars = sys.argv[1:7]
 services = services or 'cache,poller'
 try:
     tacobase = os.environ['DSHOME']
-except:
+except KeyError:
     tacobase = '/opt/taco'
 pythonpath = ':'.join(glob.glob(tacobase + '/lib*/python*/site-packages'))
-if not( pythonpath ): # set some working default, if the taco dir does not exist yet
-    print sys.stderr, ''' Warning: \n
+if not pythonpath:
+    # set some working default, if the taco dir does not exist yet
+    print sys.stderr, '''\
+Warning: There seems to be no TACO installed in %s,
+setting up a default anyway.
 
-                          There seems to be no TACO installed in %s,
-                          setting up a default anyway.
-
-                          If TACO is installed in a non-standard place,
-                          set DSHOME to point to this directory.
-                      ''' % tacobase
+If TACO is installed in a non-standard place,
+set DSHOME to point to this directory.''' % tacobase
     pyversion = sys.version_info
-    pythonpath=':'.join(['/opt/taco/%s/python%1d.%1d/site-packages'%
-                         (l, pyversion[0], pyversion[1] ) for l in ['lib','lib64']])
+    pythonpath = ':'.join('/opt/taco/%s/python%1d.%1d/site-packages' %
+                          (libdir, pyversion[0], pyversion[1])
+                          for libdir in ['lib', 'lib64'])
 
 print '''\
 [nicos]
