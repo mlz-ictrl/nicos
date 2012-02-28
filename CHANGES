@@ -84,6 +84,9 @@ Changelog for NICOS 2
 
   - Added new "appendscan()" command to quickly append to the last scan.
 
+  - Simplified TACO temperature classes: the temperature control device does
+    not have "sample" and "control" channel properties anymore.
+
 **Release 2.0.1**
 
   - In "ImageStorage", made sure the data file isn't overwritten unless
