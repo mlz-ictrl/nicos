@@ -1027,6 +1027,15 @@ class Moveable(Readable):
         if self._mode == 'slave':
             raise ModeError(self, 'start not possible in slave mode')
         if self.fixed:
+            # try to determine if we are already there
+            try:
+                # this may raise if the position values are not numbers
+                if abs(self.read() - pos) <= getattr(self, 'precision', 0):
+                    self.log.debug('device fixed; start() allowed since '
+                                   'already at desired position %s' % pos)
+                    return
+            except Exception:
+                pass
             raise FixedError(self, '%s; use release() to enable movement '
                              'again' % self.fixed)
         try:

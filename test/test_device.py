@@ -183,7 +183,8 @@ def test_methods():
     # fixing and releasing
     dev2.fix('blah')
     try:
-        assert raises(FixedError, dev2.move, 7)
+        dev2.move(7)  # allowed, since we are at 7 already
+        assert raises(FixedError, dev2.move, 9)
     finally:
         dev2.release()
     dev2.move(7)
