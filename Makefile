@@ -40,12 +40,12 @@ jenkinslintall:
 
 jenkinslint: PYFILESCHANGED:= $(shell git diff --name-only HEAD HEAD^ | grep ".py")
 jenkinslint:
-	if [ -n "$(PYFILESCHANGED)" ] ; then \
+	-if [ -n "$(PYFILESCHANGED)" ] ; then \
 		pylint --rcfile=./pylintrc  --files-output=y  $(PYFILESCHANGED) ; fi  
 
 changelint: PYFILESCHANGED:= $(shell git diff --name-only HEAD | grep ".py")
 changelint:
-	if [ -n "$(PYFILESCHANGED)" ] ; then \
+	-if [ -n "$(PYFILESCHANGED)" ] ; then \
 		pylint --rcfile=./pylintrc  $(PYFILESCHANGED) ; fi 
 
 check:
