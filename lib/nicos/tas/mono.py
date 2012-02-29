@@ -155,31 +155,31 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
 
         self._adevs['twotheta'].start(tt)
         self._adevs['theta'].start(th)
-        self._movefoci()
+        self._movefoci(self.focmode, self.hfocuspars, self.vfocuspars)
 
-    def _movefoci(self):
+    def _movefoci(self, focmode, hfocuspars, vfocuspars):
         lam = self._tolambda(self.target)  # get goalposition in basic unit
         focusv, focush = self._adevs['focusv'], self._adevs['focush']
-        if self.focmode == 'flat':
+        if focmode == 'flat':
             if focusv:
                 focusv.move(0)
             if focush:
                 focush.move(0)
-        elif self.focmode == 'horizontal':
+        elif focmode == 'horizontal':
             if focusv:
                 focusv.move(0)
             if focush:
-                focush.move(self._calfocus(lam, self.hfocuspars))
-        elif self.focmode == 'vertical':
+                focush.move(self._calfocus(lam, hfocuspars))
+        elif focmode == 'vertical':
             if focusv:
-                focusv.move(self._calfocus(lam, self.vfocuspars))
+                focusv.move(self._calfocus(lam, vfocuspars))
             if focush:
                 focush.move(0)
-        elif self.focmode == 'double':
+        elif focmode == 'double':
             if focusv:
-                focusv.move(self._calfocus(lam, self.vfocuspars))
+                focusv.move(self._calfocus(lam, vfocuspars))
             if focush:
-                focush.move(self._calfocus(lam, self.hfocuspars))
+                focush.move(self._calfocus(lam, hfocuspars))
         else:
             if self._focwarnings and (focusv or focush):
                 self.log.warning('focus is in manual mode')
@@ -262,15 +262,15 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
     def doWriteFocmode(self, value):
         if value != 'manual':
             self.log.info('moving foci to new values')
-        self._movefoci()
+        self._movefoci(value, self.hfocuspars, self.vfocuspars)
 
     def doWriteHfocuspars(self, value):
         self.log.info('moving foci to new values')
-        self._movefoci()
+        self._movefoci(self.focmode, value, self.vfocuspars)
 
     def doWriteVfocuspars(self, value):
         self.log.info('moving foci to new values')
-        self._movefoci()
+        self._movefoci(self.focmode, self.hfocuspars, value)
 
     def doWriteUnit(self, value):
         if self._cache:
