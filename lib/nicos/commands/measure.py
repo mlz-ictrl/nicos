@@ -35,14 +35,20 @@ from nicos.commands.output import printinfo
 
 
 def _count(detlist, preset):
+    """Low-level counting function.
+
+    The loop delay is configurable in the instrument object, and defaults to
+    0.025 seconds.
+    """
     # put detectors in a set and discard them when completed
     detset = set(detlist)
     for det in detlist:
         det.start(**preset)
     i = 0
+    delay = getattr(session.instrument, 'countloopdelay', 0.025)
     while True:
         # XXX implement pause logic
-        sleep(0.025)
+        sleep(delay)
         for det in list(detset):
             if det.isCompleted():
                 detset.discard(det)
