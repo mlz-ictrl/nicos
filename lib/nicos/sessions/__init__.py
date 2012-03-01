@@ -758,8 +758,8 @@ class Session(object):
         self.log.addHandler(ColoredConsoleHandler())
         try:
             if prefix == 'nicos':
-                pidprefix = '%s-nicos' % os.getpid()
-                self.log.addHandler(NicosLogfileHandler(log_path, pidprefix))
+                self.log.addHandler(NicosLogfileHandler(
+                    log_path, 'nicos', str(os.getpid())))
                 # handler for master session only
                 self._master_handler = NicosLogfileHandler(log_path)
                 self._master_handler.disabled = True

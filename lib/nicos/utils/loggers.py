@@ -31,6 +31,7 @@ import sys
 import time
 import codecs
 import traceback
+from os import path
 from logging import addLevelName, Manager, Logger, LogRecord, Formatter, \
      Handler, FileHandler, StreamHandler, DEBUG, INFO, WARNING, ERROR
 from logging.handlers import BaseRotatingHandler
@@ -216,14 +217,21 @@ class NicosLogfileHandler(BaseRotatingHandler):
     Logs to log files with a date stamp appended, and rollover on midnight.
     """
 
-    def __init__(self, directory, filenameprefix='nicos', dayfmt=DATESTAMP_FMT):
-        if not os.path.isdir(directory):
+    def __init__(self, directory, filenameprefix='nicos', filenamesuffix=None,
+                 dayfmt=DATESTAMP_FMT):
+        directory = path.join(directory, filenameprefix)
+        if not path.isdir(directory):
             os.makedirs(directory)
         self._filenameprefix = filenameprefix
-        self._pathnameprefix = os.path.join(directory, filenameprefix)
+        self._filenamesuffix = filenamesuffix
+        self._pathnameprefix = path.join(directory, filenameprefix)
         self._dayfmt = dayfmt
         # today's logfile name
-        basefn = self._pathnameprefix + '-' + time.strftime(dayfmt) + '.log'
+        if filenamesuffix:
+            basefn = self._pathnameprefix + '-' + time.strftime(dayfmt) + \
+                '-' + filenamesuffix + '.log'
+        else:
+            basefn = self._pathnameprefix + '-' + time.strftime(dayfmt) + '.log'
         BaseRotatingHandler.__init__(self, basefn, 'a')
         # determine time of first midnight from now on
         t = time.localtime()
@@ -261,8 +269,13 @@ class NicosLogfileHandler(BaseRotatingHandler):
 
     def doRollover(self):
         self.stream.close()
-        self.baseFilename = self._pathnameprefix + '-' + \
-                            time.strftime(self._dayfmt) + '.log'
+        if self._filenamesuffix:
+            self.baseFilename = '%s-%s-%s.log' % (
+                self._pathnameprefix, time.strftime(self._dayfmt),
+                self._filenamesuffix)
+        else:
+            self.baseFilename = self._pathnameprefix + '-' + \
+                time.strftime(self._dayfmt) + '.log'
         if hasattr(self, 'encoding') and self.encoding:
             self.stream = codecs.open(self.baseFilename, 'w', self.encoding)
         else:
@@ -270,7 +283,8 @@ class NicosLogfileHandler(BaseRotatingHandler):
         self.rollover_at += SECONDS_PER_DAY
 
     def changeDirectory(self, directory):
-        self._pathnameprefix = os.path.join(directory, self._filenameprefix)
+        directory = path.join(directory, self._filenameprefix)
+        self._pathnameprefix = path.join(directory, self._filenameprefix)
         self.doRollover()
         t = time.localtime()
         self.rollover_at = time.mktime((t[0], t[1], t[2], 0, 0, 0,
