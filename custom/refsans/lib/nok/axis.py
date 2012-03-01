@@ -33,14 +33,12 @@ from nicos.taco.io import DigitalInput
 class Axis(GenericAxis) :
     """ Refsans NOK Axis """
 
-
     attached_devices = {
-        'bus' : (IPCModBusTaco, 'IPC bus device'),
-        'sll' : (DigitalInput, 'Lower soft limit switch'),
-        'shl' : (DigitalInput, 'Upper soft limit switch'),
-        'sref' : (DigitalInput, 'Reference switch'),
+        'bus'  : (IPCModBusTaco, 'IPC bus device'),
+        'sll'  : (DigitalInput,  'Lower soft limit switch'),
+        'shl'  : (DigitalInput,  'Upper soft limit switch'),
+        'sref' : (DigitalInput,  'Reference switch'),
     }
-
 
     def doInit(self) :
         pass
