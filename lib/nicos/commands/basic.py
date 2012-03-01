@@ -323,6 +323,15 @@ def Remark(remark):
     session.experiment.remark = remark
 
 @usercommand
+def Remember(what):
+    """Add a message to remember at the next experiment change using
+    `FinishExperiment` or `NewExperiment`.
+    """
+    rtime = time.strftime('(%m/%d %H:%M) ')
+    session.experiment.remember += [rtime + what]
+    # XXX notify elog?
+
+@usercommand
 def SetMode(mode):
     """Set the execution mode.
 

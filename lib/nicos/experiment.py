@@ -120,6 +120,8 @@ class Experiment(Device):
                            type=str, default='', userparam=False),
         'scripts':   Param('Currently executed scripts',
                            type=listof(str), settable=True),
+        'remember':  Param('List of messages to remember for next experiment '
+                           'start', type=listof(str), settable=True),
     }
 
     attached_devices = {
@@ -155,6 +157,11 @@ class Experiment(Device):
         self.sample.reset()
         self.envlist = []
         #self.detlist = []
+        if self.remember:
+            self.log.warning('Please remember:')
+            for message in self.remember:
+                self.log.info(message)
+        self.remember = []
         for notifier in session.notifiers:
             notifier.reset()
         self._last_datasets = []
@@ -220,7 +227,10 @@ class Experiment(Device):
     @usermethod
     def finish(self, *args, **kwargs):
         """Called by `.FinishExperiment`.  Does nothing by default."""
-        pass
+        if self.remember:
+            self.log.warning('Please remember:')
+            for message in self.remember:
+                self.log.info(message)
 
     def doWriteRemark(self, remark):
         if remark:
