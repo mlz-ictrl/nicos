@@ -33,6 +33,8 @@ from nicos.core import status, HasOffset, Override, ConfigurationError, \
      CommunicationError, \
      NicosError, PositionError, MoveError, waitForStatus, floatrange, Param
 
+import TACOStates
+
 class Axis(GenericAxis) :
     """ Refsans NOK Axis """
 
@@ -51,9 +53,8 @@ class Axis(GenericAxis) :
                          ),
     }
 
-    def doInit(self) :
-        super(Axis, self).doInit()
-
+#    def doInit(self) :
+#        super(Axis, self).doInit()
    
     def _movestep1(self, units) :
         """ Checks the current position of the axis and decides what's to do.
@@ -103,3 +104,22 @@ class Axis(GenericAxis) :
             return self._adevs['motor'].deviceQueryResource('counter')
         except TACOError:
             raise CommunicationError(self, 'Could not read steps')
+
+    def printstatus(self, type = 'TACO') :
+        if (type.upper() == 'TACO') :
+            return self._adevs['motor']._dev.deviceStatus()
+        elif (type.upper() == 'HIGH') :
+            return self._adevs['shl'].read()
+        elif (type.upper() == 'LOW') :
+            return self._adevs['sll'].read()
+        elif (type.upper() == 'REF') :
+            return self._adevs['sref'].read()
+        state = self._adevs['motor']._dev.deviceState()
+        line = self._adevs['sref']._dev.deviceStatus()
+        if state in [TACOStates.DEVICE_NORMAL, TACOStates.ON] :
+             for i in ['sref', 'shl', 'shl'] :
+                 if self._adevs[i].read() :
+                      line += ' %s: 1' % (i.upper())
+        return line
+            
+            
