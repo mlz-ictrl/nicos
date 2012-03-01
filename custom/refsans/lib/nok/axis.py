@@ -29,6 +29,9 @@ from time import sleep
 from nicos.generic.axis import Axis as GenericAxis
 from nicos.ipc import IPCModBusTaco
 from nicos.taco.io import DigitalInput
+from nicos.core import status, HasOffset, Override, ConfigurationError, \
+     CommunicationError, \
+     NicosError, PositionError, MoveError, waitForStatus, floatrange, Param
 
 class Axis(GenericAxis) :
     """ Refsans NOK Axis """
@@ -40,8 +43,63 @@ class Axis(GenericAxis) :
         'sref' : (DigitalInput,  'Reference switch'),
     }
 
+    parameters = {
+        'refpoint'    : Param('Reference position ',
+                          type = float,
+                          default = 0.0,
+                          settable = True,
+                         ),
+    }
+
     def doInit(self) :
-        pass
+        super(Axis, self).doInit()
 
+   
+    def _movestep1(self, units) :
+        """ Checks the current position of the axis and decides what's to do.
+            If the new position is above the current it does nothing.
+            Otherwise it tries to move to a position below the desired position.
+            If this is not possibe it moves to the lower user limit.
+            @param units desired position
+        """
+        if self.read() <= unit:
+            self.log.debug('movestep1 returns 0 -> new pos is above or equal current %f' % (units))
+            return 0
+        else:
+            llimit = self.usermin
+            try :
+                if llimit > units or llimit > (units - self.backlash) :
+                    self.motorstart(llmit)
+                else:
+                    self.motorstart(units - self.backlash)
+            except TACOError, e:
+                return 1
+            return 0
 
+    def _movestep2(self, units) :
+        """
+           This function moves the axis to the given position
+           @param units 
+        """
+        self.motorstart(units)
+        # try :
+        #     self.motorstart(units)
+        # except TACOError, e:
+        #     return 1
+        return 0
+
+    def motorstart(self, units ):
+        self.log.debug('motorstart %f' % (units))
+        if self.__readonly:
+            self.log.error('motorstart %f BLOCKED' % (units))
+        else: 
+            self._adevs['motor'].start(units)
     
+    def readsteps(self) :
+        """
+           This method reads the current motor counter
+        """
+        try:
+            return self._adevs['motor'].deviceQueryResource('counter')
+        except TACOError:
+            raise CommunicationError(self, 'Could not read steps')
