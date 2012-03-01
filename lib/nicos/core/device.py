@@ -391,6 +391,10 @@ class Device(object):
                 continue
             if isinstance(cls, list):
                 cls = cls[0]
+                if not isinstance(value, list):
+                    raise ConfigurationError(
+                        self, '%r should be a list of device names, not %r'
+                        % (aname, value))
                 devlist = []
                 self._adevs[aname] = devlist
                 for i, devname in enumerate(value):
