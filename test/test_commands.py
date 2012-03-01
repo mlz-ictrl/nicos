@@ -25,7 +25,7 @@
 """NICOS commands tests."""
 
 from nicos import session
-from nicos.core import UsageError, LimitError, ModeError, FixedError
+from nicos.core import UsageError, LimitError, ModeError
 
 from nicos.commands.measure import count
 from nicos.commands.device import move, maw

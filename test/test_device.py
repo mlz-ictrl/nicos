@@ -28,7 +28,7 @@ __version__ = "$Revision$"
 
 from nicos import session
 from nicos.core import status, Device, Moveable, HasLimits, HasOffset, Param, \
-     ConfigurationError, ProgrammingError, LimitError, FixedError, UsageError, \
+     ConfigurationError, ProgrammingError, LimitError, UsageError, \
      InvalidValueError, AccessError, requires, usermethod, ADMIN
 
 from test.utils import raises
@@ -184,7 +184,7 @@ def test_methods():
     dev2.fix('blah')
     try:
         dev2.move(7)  # allowed, since we are at 7 already
-        assert raises(FixedError, dev2.move, 9)
+        assert session.testhandler.warns(dev2.move, 9)
     finally:
         dev2.release()
     dev2.move(7)

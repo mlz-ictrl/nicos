@@ -149,10 +149,6 @@ class ComputationError(NicosError):
     """
     category = 'Computation error'
 
-class FixedError(NicosError):
-    """Exception to be raised when moving a fixed device is attempted."""
-    category = 'Device fixed'
-
 class CacheLockError(NicosError):
     """Exception to be raised when a :term:`cache lock` cannot be acquired."""
     category = 'Cannot lock device in cache'

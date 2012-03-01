@@ -35,7 +35,7 @@ from nicos.core import status
 from nicos.core.params import Param, Override, Value, tupleof, floatrange, \
      anytype, none_or
 from nicos.core.errors import NicosError, ConfigurationError, \
-     ProgrammingError, UsageError, LimitError, FixedError, ModeError, \
+     ProgrammingError, UsageError, LimitError, ModeError, \
      CommunicationError, CacheLockError, InvalidValueError, AccessError
 from nicos.utils import loggers
 from nicos.utils import getVersions
@@ -1036,8 +1036,8 @@ class Moveable(Readable):
                     return
             except Exception:
                 pass
-            raise FixedError(self, '%s; use release() to enable movement '
-                             'again' % self.fixed)
+            self.log.warning('device fixed, not moving: %s' % self.fixed)
+            return
         try:
             pos = self.valuetype(pos)
         except (ValueError, TypeError), err:

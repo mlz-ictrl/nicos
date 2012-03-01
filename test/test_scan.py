@@ -25,7 +25,7 @@
 """NICOS tests for nicos.commands.scan and nicos.scan modules."""
 
 from nicos import session
-from nicos.core import UsageError, PositionError, CommunicationError, FixedError
+from nicos.core import UsageError, PositionError, CommunicationError
 from nicos.scan import ContinuousScan
 
 from nicos.commands.measure import count
@@ -169,15 +169,6 @@ def test_scan_errorhandling():
     scan(m, [0, 1], t)
     dataset = session.experiment._last_datasets[-1]
     assert dataset.xresults == [[0., None], [1., None]]
-
-    # fixed error: scan aborted
-    t._read_exception = None
-    t._start_exception = FixedError()
-    session.testhandler.enable_raising(False)
-    scan(t, [0, 1, 2, 3])
-    session.testhandler.enable_raising(True)
-    dataset = session.experiment._last_datasets[-1]
-    assert dataset.xresults == [[0]]
 
     # other errors: reraised
     t._start_exception = RuntimeError()

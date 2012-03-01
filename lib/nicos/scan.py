@@ -30,7 +30,7 @@ import time
 
 from nicos import session
 from nicos.tas import TAS
-from nicos.core import status, Readable, NicosError, LimitError, FixedError, \
+from nicos.core import status, Readable, NicosError, LimitError, \
      ModeError, InvalidValueError, PositionError, CommunicationError, \
      TimeoutError, ComputationError, MoveError, INFO_CATEGORIES
 from nicos.utils import Repeater
@@ -165,11 +165,9 @@ class Scan(object):
             else:
                 printwarning('Skipping data point', exc=1)
                 raise SkipPoint
-        elif isinstance(err, FixedError):
-            # if one of the devices can't be moved, the whole scan makes no
-            # sense anymore, but maybe the next scan doesn't move the device
-            printexception('Aborting current scan')
-            raise StopScan
+        # would also be possible:
+        # elif ...:
+        #     raise StopScan
         else:
             # consider all other errors to be fatal
             raise
