@@ -87,7 +87,10 @@ Changelog for NICOS 2
   - Fixed devices now don't raise an exception on moving, but only warn that
     they will not move.
 
-  - New command: "Remember()"
+  - New command: "Remember()".
+  
+  - Simplified TACO temperature classes: the temperature control device does
+    not have "sample" and "control" channel properties anymore.
 
 **Release 2.0.1**
 

@@ -40,61 +40,14 @@ class TemperatureSensor(TacoDevice, Readable):
     """TACO temperature sensor device."""
     taco_class = Temperature.Sensor
 
-    parameters = {
-        'sensortype': Param('Sensor type', type=str, default=None),
-        'curvename':  Param('Sensor calibration curve name',
-                            type=str, default=None),
-        'serno':      Param('Sensor serial number', type=str, default=None),
-    }
-
-    # from LakeShore 340 operating manual
-    sensor_types = {
-        '0': 'Special',
-        '1': 'Silicon Diode',
-        '2': 'GaAlAs Diode',
-        '3': 'Platinum 100 (250 Ohm)',
-        '4': 'Platinum 100 (500 Ohm)',
-        '5': 'Platinum 1000',
-        '6': 'Rhodium Iron',
-        '7': 'Carbon-Glass',
-        '8': 'Cernox',
-        '9': 'RuOx',
-        '10': 'Germanium',
-        '11': 'Capacitor',
-        '12': 'Thermocouple',
-    }
-
-    def doReadSensortype(self):
-        stype = self._taco_guard(self._dev.deviceQueryResource, 'sensortype')
-        return self.sensor_types.get(stype, stype)
-
-    def doReadCurvename(self):
-        return self._taco_guard(self._dev.deviceQueryResource, 'curvename')
-
-    def doReadSerno(self):
-        return self._taco_guard(self._dev.deviceQueryResource, 'serno')
-
 
 class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
     """TACO temperature controller device."""
     taco_class = Temperature.Controller
 
-    attached_devices = {
-        'sensor_a': (TemperatureSensor, 'First sensor'),
-        'sensor_b': (TemperatureSensor, 'Second sensor'),
-        'sensor_c': (TemperatureSensor, 'Third sensor'),
-        'sensor_d': (TemperatureSensor, 'Fourth sensor'),
-    }
-
     parameters = {
         'setpoint':  Param('Current temperature setpoint', unit='main',
                            category='general'),
-        'controlchannel': Param('Control channel (A-D)',
-                                type=oneof('A', 'B', 'C', 'D'),
-                                category='general', settable=True),
-        'samplechannel':  Param('Sample channel (A-D)',
-                                type=oneof('A', 'B', 'C', 'D'),
-                                category='general', settable=True),
         'mode':      Param('Control mode (manual, zone or openloop)',
                            type=oneof('manual', 'zone', 'openloop'),
                            settable=True),
@@ -110,18 +63,19 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
                            settable=True, category='general'),
         'window':    Param('Time window for checking stable temperature',
                            unit='s', settable=True, category='general'),
-        'timeout':   Param('Maximum time to wait for stable temperature',
-                           unit='s', settable=True),
-        'timeoutaction': Param('What to do when a timeout occurs',
-                               type=oneof('continue', 'raise'), settable=True),
         'loopdelay': Param('Sleep time when waiting', unit='s', default=1,
                            settable=True),
+        'timeout':   Param('Maximum time to wait for stable temperature',
+                           unit='s', settable=True),
+        'timeoutaction':  Param('What to do when a timeout occurs',
+                                type=oneof('continue', 'raise'), settable=True),
+        'controlchannel': Param('Control channel, possible values depend '
+                                'on the type of device',
+                                type=str, category='general', settable=True),
     }
 
     def doRead(self):
-        # XXX read or read(0)
-        return self._adevs['sensor_%s' % self.samplechannel.lower()].read() - \
-               self.offset
+        return self._taco_guard(self._dev.read) - self.offset
 
     def doStart(self, target):
         if self.status()[0] == status.BUSY:
@@ -168,10 +122,9 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
              timeout += 60 * abs(self.read() - setpoint) / self.ramp
         self.log.debug('wait time =  %d' % timeout)
         firststart = started = time.time()
-        channel = self._adevs['sensor_%s' % self.controlchannel.lower()]
         while 1:
             # XXX read() or read(0)
-            value = channel.read()
+            value = self.read()
             now = time.time()
             self.log.debug('%7.0f s: current temperature %7.3f %s' %
                            ((now - firststart), value, self.unit))
