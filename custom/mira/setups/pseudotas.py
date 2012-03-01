@@ -1,4 +1,6 @@
-includes = ['base', 'mono2', 'detector', 'analyzer']
+includes = ['base']
+
+modules = ['nicos.commands.tas']
 
 devices = dict(
     Sample = device('nicos.tas.TASSample'),
