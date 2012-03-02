@@ -75,6 +75,8 @@ class CoderReference(AnalogInput) :
             return status.ERROR, 'Reference voltage to low : %f < %f' % (ref, self.reflow)
         elif abs(ref) <  self.refwarn: 
             return status.ERROR, 'Reference voltage seems to be to low : %f < %f' % (ref, self.refwarn)
+        else:
+            return status.OK, ''
 
 class Coder(BaseCoder):
     """NOK coder implementation class.
@@ -122,9 +124,9 @@ class Coder(BaseCoder):
                               mandatory = True,
                              ),
         'phys'        : Param('Physically connected and working?',
-                              type = bool,
+                              type = str,
                               mandatory = False,
-                              default = True,
+                              default = 'OK',
                              ),
         'position' : Param('Position',
                            type = oneofdict({'top' : -1, 'bottom' : 1}),
@@ -136,7 +138,8 @@ class Coder(BaseCoder):
 #   valuetype = oneofdict({-1: 'top', 1: 'bottom'})
 
     def doSetPosition(self, target):
-        self._taco_guard(self._dev.setpos, target)
+        # self._taco_guard(self._dev.setpos, target)
+        pass
 
     def doInit(self) :
         pass
@@ -168,10 +171,10 @@ class Coder(BaseCoder):
             return (tmp, self.off + data[1])
 
     def doStatus(self) :
-        if self.phys == True :
+        if self.phys == 'OK' :
             return status.OK, ''
         else :
-            return status.ERROR, 'Physically not connected or other problems. Ask instrument responsible'
+            return status.ERROR, self.phys #'Physically not connected or other problems. Ask instrument responsible'
     
     def doRead (self, typ='POS') :
         """
