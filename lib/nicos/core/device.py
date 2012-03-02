@@ -848,7 +848,7 @@ class Readable(Device):
 
         .. automethod:: _pollParam
         """
-        if self._sim_active:
+        if self._sim_active or self._cache is None:
             return (self.status(), self.read())
         if hasattr(self, 'doPoll'):
             try:
