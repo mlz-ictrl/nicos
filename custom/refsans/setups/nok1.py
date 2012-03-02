@@ -53,6 +53,7 @@ devices = {
                                sref = nok + 'sref',
                                backlash = -2.0,
                                precision = 0.05,
+                               refpoint = -14.419,
                               ),
          }
 #        nok1 = device('nicos.refsans.nok.Nok', 
