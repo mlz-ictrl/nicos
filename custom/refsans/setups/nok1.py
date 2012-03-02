@@ -1,33 +1,60 @@
-NOK = 'NOK3'
+NOK = 'NOK1'
 nok = NOK.lower()
 nethost = '//refsanssrv.refsans.frm2/'
 
 description = '%s setup' % (NOK)
 
-devices = dict(
-        nref1 = device('nicos.refsans.nok.CoderReference',
-                       description = 'Reference voltage device for the NOK coders',
-                       tacodevice = nethost + 'test/wb_a/1_6',
-                       lowlevel = True,
-                       refhigh = 19.8,
-                       reflow = 18.0,
-                       refwarn = 17.0,
-                       ),
+includes = ['nokref', 'motorbus',]
 
-        nok1port = device('nicos.taco.io.AnalogInput',
-                          description = 'Voltage input of the NOK1 coder',
-                          tacodevice = nethost + 'test/wb_a/1_0',
-                          lowlevel = True,
-                         ),
-        nok1obs = device('nicos.refsans.nok.Coder',
-                         description = 'NOK1 potentiometer coder',
-                         mul = 0.996393,
-                         off = -13.748035,
-                         snr = 6505,
-                         sensitivity = 3.856,
-                         port = 'nok1port',
-                         ref = 'nref1',
-                        ),
+devices = {
+        nok + 'port' : device('nicos.taco.io.AnalogInput',
+                              description = 'Voltage input of the %s coder' % NOK,
+                              tacodevice = nethost + 'test/wb_a/1_0',
+                              lowlevel = True,
+                             ),
+        nok + 'obs' : device('nicos.refsans.nok.Coder',
+                             description = '%s potentiometer coder' % NOK,
+                             mul = 0.996393,
+                             off = -13.748035,
+                             snr = 6505,
+                             sensitivity = 3.856,
+                             port = nok + 'port',
+                             ref = 'nrefa1',
+                             lowlevel = True,
+                            ),
+        nok + 'motor' : device('nicos.taco.motor.Motor',
+                               description = 'Motor of the %s' % NOK,
+                               tacodevice = nethost + 'test/' + nok + '/mr',
+                               lowlevel = True,
+                              ),
+         nok + 'ssl' : device('nicos.taco.io.DigitalInput',
+                              description = 'low limit switch of %s' % NOK,
+                              tacodevice = nethost + 'test/' + nok + '/srll',
+                              lowlevel = True,
+                             ),
+         nok + 'shl' : device('nicos.taco.io.DigitalInput',
+                              description = 'high limit switch of %s' % NOK,
+                              tacodevice = nethost + 'test/' + nok + '/srhl',
+                              lowlevel = True,
+                             ),
+         nok + 'sref' : device('nicos.taco.io.DigitalInput',
+                               description = 'reference switch of %s' % NOK,
+                               tacodevice = nethost + 'test/' + nok + '/srref',
+                               lowlevel = True,
+                              ),
+         nok + 'axis' : device('nicos.refsans.nok.Axis',
+                               description = '%s Axis ' % NOK,
+                               motor = nok + 'motor', # TacoDevice('Motor', nethost + '')
+                               coder = nok + 'motor', 
+                               obs = [nok + 'obs', ],
+                               bus = 'motorbus2',
+                               sll = nok + 'ssl',
+                               shl = nok + 'shl',
+                               sref = nok + 'sref',
+                               backlash = -2.0,
+                               precision = 0.05,
+                              ),
+         }
 #        nok1 = device('nicos.refsans.nok.Nok', 
 #                      unit = 'mm',
 #                      fmtstr = '%.5f',
@@ -43,7 +70,4 @@ devices = dict(
 #                      posinclination = 0,
 #                      neginclination = 0,
 #                     ),
-         )
-
-
 
