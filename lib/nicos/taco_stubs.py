@@ -39,7 +39,9 @@ from nicos.core.errors import ProgrammingError
 
 class NICOSTACOStub(object):
     def __init__(self, devname):
-        raise ProgrammingError('trying to instantiate a stub TACO class')
+        raise ProgrammingError('trying to create a TACO client instance, but '
+                               'the TACO libraries cannot be found -- is the '
+                               'PYTHONPATH set correctly?')
 
 
 STUBS = dict(
