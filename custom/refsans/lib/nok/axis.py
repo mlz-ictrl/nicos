@@ -48,8 +48,7 @@ class Axis(GenericAxis) :
     parameters = {
         'refpoint'    : Param('Reference position ',
                           type = float,
-                          default = 0.0,
-                          settable = True,
+                          mandatory = True,
                          ),
     }
 
