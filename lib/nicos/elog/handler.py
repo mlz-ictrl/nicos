@@ -300,7 +300,7 @@ class Handler(object):
         self.out.timestamp(time)
         dev, old, new = data
         self.out.newstate('plain', '', '',
-            '<p class="offset"><b>Adjustment:</b>' +
+            '<p class="offset"><b>Adjustment:</b> ' +
             escape('Offset of %s changed from %s to %s' % (dev, old, new))
             + '</p>\n')
 
