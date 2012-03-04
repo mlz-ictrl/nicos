@@ -25,4 +25,4 @@
 description = 'REFSANS basic setup'
 # group = 'startup'
 
-includes = ['nok1', 'nok2', 'nok3', ]
+includes = ['nok1', 'nok2', 'nok3', 'nok4', 'b1', ]
