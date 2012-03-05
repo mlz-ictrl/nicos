@@ -36,12 +36,12 @@ from PowerSupply import CurrentControl
 from nicos import session
 from nicos.core import Moveable, HasLimits, Param, Override, waitForStatus, \
      floatrange, listof, InvalidValueError, usermethod
-from nicos.taco.core import ProxyTacoDevice
+from nicos.taco.core import TacoDevice
 from nicos.taco.io import DigitalOutput
 from nicos.utils.fitting import Fit
 
 
-class ESSController(HasLimits, ProxyTacoDevice, Moveable):
+class ESSController(HasLimits, TacoDevice, Moveable):
 
     taco_class = CurrentControl
 
@@ -59,8 +59,10 @@ class ESSController(HasLimits, ProxyTacoDevice, Moveable):
         if self._mode != 'simulation':
             self._dev.setRamp(0)
         self._thread = None
+        self._stopflag = 0
 
     def _move_to(self, value):
+        self._stopflag = 0
         if value != 0:
             minus, plus = self._adevs['minusswitch'], self._adevs['plusswitch']
             # select which switch must be on and which off
@@ -69,10 +71,12 @@ class ESSController(HasLimits, ProxyTacoDevice, Moveable):
             # if the switch values are not correct, drive to zero and switch
             if switch.read() & 1 != 1:
                 self._move_to(0)
+                self.log.debug('adjusting polarity switches')
                 other.start(0)
                 switch.start(1)
             # then, just continue ramping to the absolute value
             value = abs(value)
+        self.log.debug('ramping to %.2f A' % value)
         currentval = self._taco_guard(self._dev.read)
         diff = value - currentval
         direction = diff > 0 and 1 or -1
@@ -81,13 +85,20 @@ class ESSController(HasLimits, ProxyTacoDevice, Moveable):
         delay = (60 / self.ramp) * 5 - 0.5
         steps, fraction = divmod(abs(diff), stepwidth)
         for i in xrange(int(steps)):
+            if self._stopflag:
+                self.log.debug('got stop flag, quitting ramp')
+                return
             currentval += direction * stepwidth
+            self.log.debug('ramp step: %.2f A' % currentval)
             self._taco_guard(self._dev.write, currentval)
             sleep(delay)
+        self.log.debug('final step: %.2f A' % value)
         self._taco_guard(self._dev.write, value)
+        self.log.debug('done')
         if value == 0 and abs(self._taco_guard(self._dev.read)) < 5:
-            self.adevs['plusswitch'].start(0)
-            self.adevs['minusswitch'].start(0)
+            self.log.debug('switching off current')
+            self._adevs['plusswitch'].start(0)
+            self._adevs['minusswitch'].start(0)
 
     def doStart(self, value):
         if self._thread is not None:
@@ -106,6 +117,9 @@ class ESSController(HasLimits, ProxyTacoDevice, Moveable):
         while self._thread and self._thread.isAlive():
             self._thread.join(1)
         waitForStatus(self, 0.5)
+
+    def doStop(self):
+        self._stopflag = True
 
 
 class ESSField(HasLimits, Moveable):
