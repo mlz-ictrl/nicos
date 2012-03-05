@@ -261,9 +261,9 @@ class HoveringAxis(Axis):
         sleep(0.1)
         try:
             waitForStatus(self, 0.2)
+        finally:
             sleep(self.stopdelay)
             self._adevs['switch'].move(self.switchvalues[0])
-        finally:
             self._poll_thread = None
 
     def doWait(self):
