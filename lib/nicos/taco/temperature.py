@@ -128,14 +128,6 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
             now = time.time()
             self.log.debug('%7.0f s: current temperature %7.3f %s' %
                            ((now - firststart), value, self.unit))
-        #   s = self.status()[0]
-        #   if s == status.OK:
-        #         return v
-        #   elif s == status.ERROR:
-        #         raise CommunicationError(self, 'device in error state')
-        #   elif s == status.NOTREACHED:
-        #         raise TimeoutError(self, 'temperature not reached in %s seconds'
-        #                            % self.timeout)
             if abs(value - setpoint) > tolerance:
                 # start again
                 started = now
