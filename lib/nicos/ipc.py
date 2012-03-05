@@ -40,7 +40,7 @@ from nicos.core import status, intrange, floatrange, oneofdict, oneof, none_or, 
      usermethod, Device, Readable, Moveable, Param, Override, NicosError, \
      CommunicationError, ProgrammingError, InvalidValueError, TimeoutError, \
      waitForStatus
-from nicos.utils import closeSocket, lazy_property
+from nicos.utils import closeSocket, lazy_property, HardwareStub
 from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.taco.core import TacoDevice
 
@@ -235,7 +235,7 @@ class IPCModBusTacoless(IPCModBus):
     def _setMode(self, mode):
         IPCModBus._setMode(self, mode)
         if mode == 'simulation':
-            self._connection = None
+            self._connection = HardwareStub(self)
 
     def _comm(self, request, ping=False):
         if not ping:

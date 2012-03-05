@@ -37,6 +37,7 @@ from TACOClient import TACOError
 
 from nicos.core import status, tacodev, intrange, Param, Override, NicosError, \
      ProgrammingError, CommunicationError, LimitError, InvalidValueError
+from nicos.utils import HardwareStub
 from nicos.cache.utils import cache_dump, cache_load
 
 
@@ -119,6 +120,13 @@ class TacoDevice(object):
                                    + self.__class__.__name__)
         if self._mode != 'simulation':
             self._dev = self._create_client()
+
+    def _setMode(self, mode):
+        super(TacoDevice, self)._setMode(mode)
+        # remove the TACO device on entering simulation mode, to prevent
+        # accidental access to the hardware
+        if mode == 'simulation':
+            self._dev = HardwareStub(self)
 
     def doVersion(self):
         return [(self.tacodevice,

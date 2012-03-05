@@ -72,6 +72,20 @@ class Repeater(object):
         return self.object
 
 
+class HardwareStub(object):
+    """An object that denies all attribute access, used to prevent accidental
+    hardware access in simulation mode.
+    """
+
+    def __init__(self, dev):
+        self.dev = dev
+
+    def __getattr__(self, name):
+        from nicos.core import ProgrammingError
+        raise ProgrammingError(self.dev, 'accessing hardware method %s in '
+                               'simulation mode' % name)
+
+
 def _s(n):
     return int(n), (n != 1 and 's' or '')
 
