@@ -129,7 +129,9 @@ class FRMTimerChannel(FRMChannel):
             return 0
 
     def doSimulate(self, preset):
-        return [self.preselection]
+        if self.ismaster:
+            return [self.preselection]
+        return [0.0]
 
 
 class FRMCounterChannel(FRMChannel):
@@ -150,6 +152,11 @@ class FRMCounterChannel(FRMChannel):
     def valueInfo(self):
         return Value(self.name, unit='cts', errors='sqrt',
                      type=self.type, fmtstr='%d'),
+
+    def doSimulate(self, preset):
+        if self.ismaster:
+            return [int(self.preselection)]
+        return [0]
 
 
 class FRMDetector(Measurable):
