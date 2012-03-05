@@ -232,6 +232,11 @@ class IPCModBusTacoless(IPCModBus):
         except Exception:
             self.log.exception()
 
+    def _setMode(self, mode):
+        IPCModBus._setMode(self, mode)
+        if mode == 'simulation':
+            self._connection = None
+
     def _comm(self, request, ping=False):
         if not ping:
             request += crc_ipc(request)
