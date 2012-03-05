@@ -75,10 +75,7 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
     }
 
     def doRead(self):
-        if self._mode=='simulation':
-            return 0
-        else:
-            return self._taco_guard(self._dev.read) - self.offset
+        return self._taco_guard(self._dev.read) - self.offset
 
     def doStart(self, target):
         if self.status()[0] == status.BUSY:
