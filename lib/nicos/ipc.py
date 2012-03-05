@@ -32,14 +32,14 @@ __version__ = "$Revision$"
 import socket
 import select
 from time import sleep
-from threading import RLock, Thread
+from threading import RLock
 
 from RS485Client import RS485Client
 
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, none_or, \
-     usermethod, Device, Readable, Moveable, Param, Override, HasPrecision, \
-     HasLimits, NicosError, CommunicationError, ProgrammingError, \
-     InvalidValueError, TimeoutError, MoveError, waitForStatus
+     usermethod, Device, Readable, Moveable, Param, Override, NicosError, \
+     CommunicationError, ProgrammingError, InvalidValueError, TimeoutError, \
+     waitForStatus
 from nicos.utils import closeSocket, lazy_property
 from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.taco.core import TacoDevice
