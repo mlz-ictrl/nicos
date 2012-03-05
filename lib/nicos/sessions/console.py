@@ -249,7 +249,7 @@ class ConsoleSession(Session):
             return
         if pid == 0:
             # child process
-            signal.alarm(60)   # kill forcibly after 60 seconds
+            signal.alarm(600)   # kill forcibly after 10 minutes
             try:
                 self.log.manager.globalprefix = '(sim) '
                 self.setMode('simulation')

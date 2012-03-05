@@ -103,7 +103,7 @@ class DaemonSession(NoninteractiveSession):
             return
         if pid == 0:
             # child process
-            signal.alarm(60)   # kill forcibly after 60 seconds
+            signal.alarm(600)   # kill forcibly after 10 minutes
             pipesender = SimLogSender(wp, self)
             pipesender.begin()
             try:

@@ -24,7 +24,7 @@
 
 """NICOS temperature controller classes."""
 
-__version__ = "2.0.0-161-g4674e74"
+__version__ = "$Revision$"
 
 import time
 
@@ -75,7 +75,10 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
     }
 
     def doRead(self):
-        return self._taco_guard(self._dev.read) - self.offset
+        if self._mode=='simulation':
+            return 0
+        else:
+            return self._taco_guard(self._dev.read) - self.offset
 
     def doStart(self, target):
         if self.status()[0] == status.BUSY:

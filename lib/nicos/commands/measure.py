@@ -26,12 +26,12 @@
 
 __version__ = "$Revision$"
 
-from time import sleep
 
 from nicos import session
 from nicos.core import Measurable, UsageError
 from nicos.commands import usercommand
 from nicos.commands.output import printinfo
+from nicos.commands.basic import sleep
 
 
 def _count(detlist, preset):
@@ -46,23 +46,23 @@ def _count(detlist, preset):
         det.start(**preset)
     i = 0
     delay = getattr(session.instrument, 'countloopdelay', 0.025)
+    sleep(0.02)
     while True:
-        # XXX implement pause logic
-        sleep(delay)
-        for det in list(detset):
-            if det.isCompleted():
-                detset.discard(det)
-        if not detset:
-            # all detectors finished measuring
-            break
         i += 1
-        for det in detset:
+        for det in list(detset):
             try:
                 det.duringMeasureHook(i)
+                # XXX implement pause logic
+                if det.isCompleted():
+                    detset.discard(det)
             except:  # really ALL exceptions
                 for det in detset:
                     det.stop()
                 raise
+        if not detset:
+            # all detectors finished measuring
+            break
+        sleep(delay)
     for det in detlist:
         try:
             det.save()
