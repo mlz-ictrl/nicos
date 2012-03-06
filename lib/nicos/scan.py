@@ -34,7 +34,7 @@ from nicos.core import status, Readable, NicosError, LimitError, \
      ModeError, InvalidValueError, PositionError, CommunicationError, \
      TimeoutError, ComputationError, MoveError, INFO_CATEGORIES
 from nicos.utils import Repeater
-from nicos.commands.output import printwarning, printexception
+from nicos.commands.output import printwarning
 from nicos.commands.measure import _count
 
 
