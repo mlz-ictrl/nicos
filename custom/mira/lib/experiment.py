@@ -40,7 +40,7 @@ class MiraExperiment(Experiment):
     def new(self, proposal, title=None, **kwds):
         if not isinstance(proposal, (int, long)):
             proposal = int(proposal)
-        new_datapath = path.join(self.dataroot, time.strftime('%Y'), proposal)
+        new_datapath = path.join(self.dataroot, time.strftime('%Y'), str(proposal))
         self.datapath = [new_datapath]
         if proposal == 0 and title is None:
             title = 'Maintenance'
