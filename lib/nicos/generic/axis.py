@@ -342,8 +342,8 @@ class Axis(BaseAxis):
             # make sure not to move twice if coming from the side in the
             # direction of the backlash
             backlashpos = target + backlash
-            if (backlash > 0 and lastpos < backlashpos) or \
-               (backlash < 0 and lastpos > backlashpos):
+            if (backlash > 0 and lastpos < target) or \
+               (backlash < 0 and lastpos > target):
                 # if backlash position is not allowed, just don't use it
                 if self.isAllowed(backlashpos)[0]:
                     positions.insert(0, (backlashpos, False))
