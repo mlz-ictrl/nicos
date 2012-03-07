@@ -348,7 +348,15 @@ class Axis(BaseAxis):
                 if self.isAllowed(backlashpos)[0]:
                     positions.insert(0, (backlashpos, False))
                 else:
-                    self.log.debug('cannot move to backlash position')
+                    # at least try to move to limit
+                    if backlashpos > target:
+                        limit = self.userlimits[1]
+                    else:
+                        limit = self.userlimits[0]
+                    if self.isAllowed(limit)[0]:
+                        positions.insert(0, (limit, False))
+                    else:
+                        self.log.debug('cannot move to backlash position')
         for (pos, precise) in positions:
             try:
                 self.__positioning(pos, precise)
