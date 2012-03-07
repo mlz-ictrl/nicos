@@ -26,12 +26,12 @@
 
 __version__ = "$Revision$"
 
+from time import sleep
 
 from nicos import session
 from nicos.core import Measurable, UsageError
 from nicos.commands import usercommand
 from nicos.commands.output import printinfo
-from nicos.commands.basic import sleep
 
 
 def _count(detlist, preset):
