@@ -41,7 +41,7 @@ TIMECONSTANTS = sum(([k, 3*k] for k in range(1, 11)), [])
 
 class Amplifier(Measurable, TacoDevice):
     """
-    Stanford Research SR850 lock-in amplifier.
+    Stanford Research SR850/830 lock-in amplifier.
     """
 
     parameters = {
@@ -67,7 +67,7 @@ class Amplifier(Measurable, TacoDevice):
         if self._mode == 'simulation':
             return
         reply = self._taco_guard(self._dev.communicate, '*IDN?')
-        if not reply.startswith('Stanford_Research_Systems,SR850,s/n'):
+        if not reply.startswith('Stanford_Research_Systems,SR8'):
             raise CommunicationError('wrong identification: %r' % reply)
 
     def valueInfo(self):
