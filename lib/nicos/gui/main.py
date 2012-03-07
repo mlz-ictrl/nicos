@@ -36,11 +36,11 @@ from PyQt4.QtCore import Qt, QObject, QTimer, QSize, QVariant, QStringList, SIGN
 from PyQt4.QtCore import pyqtSignature as qtsig
 from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
      QLabel, QSystemTrayIcon, QStyle, QPixmap, QMenu, QIcon, QAction, \
-     QFontDialog, QColorDialog, QFont, QColor
+     QFontDialog, QColorDialog
 
 from nicos import __version__ as nicos_version
 from nicos.gui.data import DataHandler
-from nicos.gui.utils import DlgUtils, SettingGroup, \
+from nicos.gui.utils import DlgUtils, SettingGroup, loadBasicWindowSettings, \
      parseConnectionData, getXDisplay, dialogFromUi, loadUi, importString
 from nicos.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.gui.panels.console import ConsolePanel
@@ -228,17 +228,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
     def loadSettings(self, settings):
         # geometry and window appearance
-        geometry = settings.value('geometry').toByteArray()
-        self.restoreGeometry(geometry)
-        windowstate = settings.value('windowstate').toByteArray()
-        self.restoreState(windowstate)
-        self.splitstate = settings.value('splitstate').toList()
-        self.user_font = QFont(settings.value('font'))
-        color = QColor(settings.value('color'))
-        if color.isValid():
-            self.user_color = color
-        else:
-            self.user_color = QColor(Qt.white)
+        loadBasicWindowSettings(self, settings)
 
         self.autoconnect = settings.value('autoconnect').toBool()
 

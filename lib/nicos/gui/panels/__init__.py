@@ -29,10 +29,11 @@ from __future__ import with_statement
 __version__ = "$Revision$"
 
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, pyqtSignature as qtsig
-from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFont, QColor, \
-     QFontDialog, QColorDialog
+from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
+     QColorDialog
 
-from nicos.gui.utils import DlgUtils, SettingGroup, loadUi, importString
+from nicos.gui.utils import DlgUtils, SettingGroup, loadUi, importString, \
+     loadBasicWindowSettings
 from nicos.gui.config import hsplit, vsplit, panel
 
 
@@ -51,17 +52,7 @@ class AuxiliaryWindow(QMainWindow):
 
         self.sgroup = SettingGroup(config[0] + '-' + profile)
         with self.sgroup as settings:
-            geometry = settings.value('geometry').toByteArray()
-            self.restoreGeometry(geometry)
-            windowstate = settings.value('windowstate').toByteArray()
-            self.restoreState(windowstate)
-            self.splitstate = settings.value('splitstate').toList()
-            self.user_font = QFont(settings.value('font'))
-            color = QColor(settings.value('color'))
-            if color.isValid():
-                self.user_color = color
-            else:
-                self.user_color = QColor(Qt.white)
+            loadBasicWindowSettings(self, settings)
 
         self.setWindowTitle(config[0])
         createWindowItem(config[3], self, self.centralLayout)

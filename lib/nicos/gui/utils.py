@@ -38,7 +38,7 @@ from PyQt4 import uic
 from PyQt4.QtCore import Qt, QSettings, QVariant, QDateTime, QSize, SIGNAL
 from PyQt4.QtGui import QApplication, QDialog, QProgressDialog, QMessageBox, \
      QPushButton, QTreeWidgetItem, QPalette, QFont, QClipboard, QDialogButtonBox, \
-     QToolButton, QFileDialog, QLabel, QTextEdit, QWidget, QVBoxLayout
+     QToolButton, QFileDialog, QLabel, QTextEdit, QWidget, QVBoxLayout, QColor
 
 from nicos.daemon import DEFAULT_PORT
 
@@ -133,6 +133,19 @@ def dialogFromUi(parent, uiname, subdir=''):
     dlg = QDialog(parent)
     loadUi(dlg, uiname, subdir)
     return dlg
+
+def loadBasicWindowSettings(window, settings):
+    geometry = settings.value('geometry').toByteArray()
+    window.restoreGeometry(geometry)
+    windowstate = settings.value('windowstate').toByteArray()
+    window.restoreState(windowstate)
+    window.splitstate = settings.value('splitstate').toList()
+    window.user_font = QFont(settings.value('font'))
+    color = QColor(settings.value('color'))
+    if color.isValid():
+        window.user_color = color
+    else:
+        window.user_color = QColor(Qt.white)
 
 def enumerateWithProgress(seq, text, every=1, parent=None, total=None):
     total = total or len(seq)
