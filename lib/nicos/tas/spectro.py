@@ -302,3 +302,7 @@ class Wavevector(Moveable):
         self._adevs['tas'].scanmode = self.scanmode
         self._adevs['tas'].scanconstant = pos
         self._value = pos
+
+    def info(self):
+        # Do not add "ki" or "kf" pseudo-devices to scan files
+        return []
