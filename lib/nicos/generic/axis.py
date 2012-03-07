@@ -398,8 +398,8 @@ class Axis(BaseAxis):
                     # manual stop
                     moving = False
                 elif not precise and not self._errorstate:
-                    self.log.debug('target not reached, but precise '
-                                   'positioning not requested')
+                    self.log.debug('motor stopped and precise positioning '
+                                   'not requested')
                     moving = False
                 elif self._checkTargetPosition(target, pos):
                     self.log.debug('target reached, leaving positioning')
