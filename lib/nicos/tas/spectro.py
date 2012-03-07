@@ -276,6 +276,10 @@ class Wavevector(Moveable):
         'scanmode': Param('Scanmode to set', type=str, mandatory=True),
     }
 
+    parameter_overrides = {
+        'maxage':   Override(default=0),
+    }
+
     attached_devices = {
         'base': (Moveable, 'Device to move (mono or ana)'),
         'tas':  (TAS, 'The spectrometer for setting scanmode'),

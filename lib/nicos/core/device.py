@@ -710,14 +710,13 @@ class Readable(Device):
                               default='%.3f', settable=True),
         'unit':         Param('Unit of the device main value', type=str,
                               mandatory=True, settable=True),
-        'maxage':       Param('Maximum age of cached value and status (or None '
-                              'to cache them indefinitely)', unit='s',
-                              type=none_or(floatrange(0, 24*3600)),
-                              default=6.0, settable=True),
+        'maxage':       Param('Maximum age of cached value and status (zero to '
+                              'never use cached values, or None to cache them '
+                              'indefinitely)', unit='s', settable=True,
+                              type=none_or(floatrange(0, 24*3600)), default=6),
         'pollinterval': Param('Polling interval for value and status (or None '
-                              'to disable polling)', unit='s',
-                              type=none_or(floatrange(0.5, 24*3600)),
-                              default=5.0, settable=True),
+                              'to disable polling)', unit='s', settable=True,
+                              type=none_or(floatrange(0.5, 24*3600)), default=5),
     }
 
     def init(self):
