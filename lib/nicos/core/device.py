@@ -730,6 +730,16 @@ class Readable(Device):
         self._sim_max = None
         self._sim_preset = {}
 
+    def _sim_setValue(self, pos):
+        self._sim_old_value = self._sim_value
+        self._sim_value = pos
+        if self._sim_min is None:
+            self._sim_min = pos
+        self._sim_min = min(pos, self._sim_min)
+        if self._sim_max is None:
+            self._sim_max = pos
+        self._sim_max = max(pos, self._sim_max)
+
     def _setMode(self, mode):
         sim_active = mode == 'simulation' and self.hardware_access
         if sim_active:
@@ -1052,14 +1062,7 @@ class Moveable(Readable):
                              (self.format(pos), why))
         self._setROParam('target', pos)
         if self._sim_active:
-            self._sim_old_value = self._sim_value
-            self._sim_value = pos
-            if self._sim_min is None:
-                self._sim_min = pos
-            self._sim_min = min(pos, self._sim_min)
-            if self._sim_max is None:
-                self._sim_max = pos
-            self._sim_max = max(pos, self._sim_max)
+            self._sim_setValue(pos)
             self._sim_started = session.clock.time
             return
         if self._cache:

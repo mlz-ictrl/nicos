@@ -59,14 +59,7 @@ class Coder(HasPrecision, Readable):
             raise ModeError(self, 'setting new position not possible in '
                             'slave mode')
         elif self._sim_active:
-            self._sim_old_value = self._sim_value
-            self._sim_value = pos
-            if self._sim_min is None:
-                self._sim_min = pos
-            self._sim_min = min(pos, self._sim_min)
-            if self._sim_max is None:
-                self._sim_max = pos
-            self._sim_max = max(pos, self._sim_max)
+            self._sim_setValue(pos)
             return
         self.doSetPosition(pos)
 

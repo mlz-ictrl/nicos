@@ -77,23 +77,12 @@ class Axis(TacoDevice, BaseAxis):
 
         This operation is forbidden in slave mode, and does the right thing
         virtually in simulation mode.
-
-        .. method:: doSetPosition(pos)
-
-           This is called to actually set the new position in the hardware.
         """
         if self._mode == 'slave':
             raise ModeError(self, 'setting new position not possible in '
                             'slave mode')
         elif self._sim_active:
-            self._sim_old_value = self._sim_value
-            self._sim_value = pos
-            if self._sim_min is None:
-                self._sim_min = pos
-            self._sim_min = min(pos, self._sim_min)
-            if self._sim_max is None:
-                self._sim_max = pos
-            self._sim_max = max(pos, self._sim_max)
+            self._sim_setValue(pos)
             return
         self._taco_guard(self._dev.setpos, pos)
 
