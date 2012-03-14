@@ -1,7 +1,7 @@
 Changelog for NICOS 2
 =====================
 
-**Release 2.1.0**
+**Release 2.1.0 (2012-03-14)**
 
   - Introduced the "Measurable.duringMeasureHook()" and
     "Measurable.save()/doSave()" methods.
