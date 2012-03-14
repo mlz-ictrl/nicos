@@ -107,6 +107,9 @@ Changelog for NICOS 2
   - Fixed data file counting bug: when two sessions were writing data
     files, they could use the same counter and try to write the same file.
 
+  - The Axis now correctly resets the error state on multiple positioning
+    tries.
+
 **Release 2.0.0 (2012-01-11)**
 
   - Initial release.
