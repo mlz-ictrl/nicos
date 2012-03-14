@@ -25,7 +25,7 @@
 description = 'minimal NICOS startup setup'
 group = 'startup'
 
-includes = ['table']
+includes = ['table', 'detector', ]
 
 #'misc', 'detector']
 

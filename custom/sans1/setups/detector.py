@@ -22,33 +22,29 @@
 #
 # *****************************************************************************
 
-description = 'virtual detector'
+description = 'detector related devices'
 
 includes = ['system']
+# excludes = ['excluded']
+
+nethost= '//sans1srv.sans1.frm2/'
 
 devices = dict(
-    timer    = device('nicos.generic.VirtualTimer',
-                      lowlevel = True),
-
-    mon1     = device('nicos.generic.VirtualCounter',
-                      lowlevel = True,
-                      type = 'monitor',
-                      countrate = 1000),
-
-    ctr1     = device('nicos.generic.VirtualCounter',
-                      lowlevel = True,
-                      type = 'counter',
-                      countrate = 2000),
-
-    ctr2     = device('nicos.generic.VirtualCounter',
-                      lowlevel = True,
-                      type = 'counter',
-                      countrate = 120),
-
-    det      = device('nicos.taco.FRMDetector',
-                      timer = 'timer',
-                      monitors = ['mon1'],
-                      counters = ['ctr1', 'ctr2'],
-                      maxage = 3,
-                      pollinterval = 0.5),
+    hv_interlock = device('nicos.taco.DigitalInput',
+                          tacodevice = nethost + 'sans1/interlock/hv',
+                          ),
+    hv_discharge_mode = device('nicos.taco.DigitalInput',
+                               tacodevice = nethost + 'sans1/interlock/hv',
+                              ),
+    hv_discharge = device('nicos.taco.DigitalOutput',
+                          tacodevice = nethost + 'sans1/interlock/discharge',
+                         ),
+    hv = device('nicos.taco.VoltageSupply',
+                tacodevice = nethost + 'sans1/iseg/hv',
+                abslimits = [0, 1550],
+               ),
+    hv_current = device('nicos.taco.AnalogInput',
+                        tacodevice = nethost + 'sans1/iseg/hv-current',
+                       ),
 )
+
