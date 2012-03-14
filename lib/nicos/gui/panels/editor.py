@@ -370,7 +370,7 @@ class EditorPanel(Panel):
     def on_fileTree_doubleClicked(self, idx):
         if not self.checkDirty():
             return
-        fpath = self.treeModel.filePath(idx)
+        fpath = str(self.treeModel.filePath(idx))
         self.openFile(fpath)
 
     def on_actionShowScripts_toggled(self, on):

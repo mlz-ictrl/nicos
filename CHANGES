@@ -5,6 +5,9 @@ Changelog for NICOS 2
 
 **Release 2.1.1**
 
+  - Fixed a bug in simulation mode that would cause exceptions when
+    wait()ing for fixed devices.
+
 **Release 2.1.0 (2012-03-14)**
 
   - Introduced the "Measurable.duringMeasureHook()" and
