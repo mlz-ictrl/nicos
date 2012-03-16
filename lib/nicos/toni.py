@@ -274,7 +274,7 @@ class Vacuum(Readable):
             'P%1d=%d' % (self.channel + 1, value), self.addr, expect_ok=True)
 
 
-class LVPower(Readable):
+class LVPower(Moveable):
     """Toni TOFTOF-type low-voltage power supplies."""
 
     attached_devices = {
