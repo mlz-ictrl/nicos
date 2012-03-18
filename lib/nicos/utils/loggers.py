@@ -142,7 +142,7 @@ class NicosConsoleFormatter(Formatter):
         else:
             namefmt = '%(name)-10s: '
         if levelno == ACTION:
-            # special behvaior for ACTION messages: use them as terminal title
+            # special behavior for ACTION messages: use them as terminal title
             fmtstr = '\033]0;%s%%(message)s\007' % namefmt
         else:
             if levelno <= DEBUG:

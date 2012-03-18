@@ -30,6 +30,7 @@ __version__ = "$Revision$"
 
 import os
 import sys
+import time
 try:
     import json
 except ImportError:
@@ -43,7 +44,8 @@ from SocketServer import ThreadingMixIn
 from wsgiref.simple_server import WSGIServer
 
 from nicos import session
-from nicos.utils.loggers import NicosConsoleFormatter, DATEFMT
+from nicos.utils import formatExtendedTraceback
+from nicos.utils.loggers import DATEFMT, ACTION, INPUT, OUTPUT, DEBUG, WARNING
 
 QUIT_MESSAGE = 'Just close the browser window to quit the session.'
 
@@ -103,12 +105,31 @@ CONSOLE_PAGE = r"""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
         .prompt2 {
             color: #888;
         }
-        .output {
-            color: navy;
-        }
         .error {
-            color: #cc0000;
+            color: #c00;
             font-style: italic;
+        }
+        .black {
+            color: #005;
+        }
+        .red {
+            color: #c00;
+        }
+        .lightgray {
+            color: #aaa;
+        }
+        .darkgray {
+            color: #666;
+        }
+        .fuchsia {
+            color: #b0b;
+        }
+        .exc-text {
+            display: none;
+            color: #800;
+        }
+        .exc-line {
+            cursor: pointer;
         }
     </style>
 </head>
@@ -143,12 +164,72 @@ class FakeInput(object):
         return []
 
 
+class NicosWebFormatter(logging.Formatter):
+    """
+    A lightweight formatter for the interactive console, with optional
+    colored output.
+    """
+
+    def __init__(self, fmt=None, datefmt=None):
+        logging.Formatter.__init__(self, fmt, datefmt)
+        self._id = 0
+
+    def formatException(self, exc_info):
+        return formatExtendedTraceback(*exc_info)
+
+    def formatTime(self, record, datefmt=None):
+        return time.strftime(datefmt or DATEFMT,
+                             self.converter(record.created))
+
+    def span(self, cls, text):
+        return '<span class="%s">%s</span>' % (cls, escape(text))
+
+    def span_id(self, id, cls, text):
+        return '<span id="%s" class="%s">%s</span>' % (id, cls, escape(text))
+
+    def format(self, record):
+        levelno = record.levelno
+        if levelno == ACTION or levelno == INPUT:
+            return ''
+        if record.name == 'nicos':
+            namefmt = ''
+        else:
+            namefmt = '%(name)-10s: '
+        if levelno <= DEBUG:
+            cls = 'darkgray'
+            fmtstr = namefmt + '%(message)s'
+        elif levelno <= OUTPUT:
+            cls = 'black'
+            fmtstr = namefmt + '%(message)s'
+        elif levelno <= WARNING:
+            cls = 'fuchsia'
+            fmtstr = namefmt + '%(levelname)s: %(message)s'
+        else:
+            cls = 'red'
+            fmtstr = namefmt + '%(levelname)s: %(message)s'
+        if not getattr(record, 'nonl', False):
+            fmtstr += '\n'
+        datefmt = self.span('lightgray', '[%s] ' %
+                            self.formatTime(record, self.datefmt))
+        if record.exc_info:
+            eid = self._id
+            self._id += 1
+            ret = escape(record.filename) + datefmt + self.span_id(
+                'el-%d' % eid, cls + ' exc-line', fmtstr % record.__dict__)
+            ret += self.span_id('et-%d' % eid, 'exc-text',
+                                self.formatException(record.exc_info) + '\n')
+        else:
+            ret = escape(record.filename) + datefmt + \
+                self.span(cls, fmtstr % record.__dict__)
+        return ret
+
+
 class WebHandler(logging.Handler):
     """Log handler for transmitting log messages to the client."""
 
     def __init__(self, buf, lock):
         logging.Handler.__init__(self)
-        self.setFormatter(NicosConsoleFormatter(datefmt=DATEFMT))
+        self.setFormatter(NicosWebFormatter(datefmt=DATEFMT))
         self.buffer = buf
         self.lock = lock
 

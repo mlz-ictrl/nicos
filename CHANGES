@@ -3,6 +3,8 @@ Changelog for NICOS 2
 
 **Release 2.2.0**
 
+  - Improved the message display in the web interface.
+
 **Release 2.1.1**
 
   - Fixed a bug in simulation mode that would cause exceptions when
