@@ -168,6 +168,11 @@ class TofTofMeasurement(Measurable, ImageStorage):
             tel = int(round(tel/5.0e-8))
             ctr.delay = tel
 
+        # make sure to set the correct monitor input and number of time channels
+        # in the TACO server
+        ctr.timechannels = ctr.timechannels
+        ctr.monitorchannel = ctr.monitorchannel
+
         if 'm' in preset:
             self._last_mode = 'monitor'
             self._last_preset = preset['m']
