@@ -240,7 +240,7 @@ class Controller(TacoDevice, Readable):
             else:
                 r2 = 1.0
             if ch == 5:
-                if self.ratio > 1 and self.ratio < 9:
+                if self.ratio > 1 and self.ratio <= 8:
                     r2 *= self.ratio / (self.ratio - 1)
                 elif self.ratio > 8:
                     r2 *= self.ratio / 7.0
