@@ -29,8 +29,7 @@ __version__ = "$Revision$"
 import time
 
 from PyQt4.QtCore import QDateTime, SIGNAL
-from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtLog10ScaleEngine, \
-     QwtLinearScaleEngine
+from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtLog10ScaleEngine
 from PyQt4.QtGui import QDialog, QFont, QPen, QListWidgetItem, QToolBar, \
      QMenu, QStatusBar, QSizePolicy
 from PyQt4.QtCore import pyqtSignature as qtsig
@@ -425,13 +424,7 @@ class HistoryPanel(Panel):
 
     @qtsig('bool')
     def on_actionLogScale_toggled(self, on):
-        self.currentPlot.setAxisScaleEngine(QwtPlot.yLeft,
-                                            on and QwtLog10ScaleEngine()
-                                            or QwtLinearScaleEngine())
-        self.currentPlot.setAxisScaleEngine(QwtPlot.yRight,
-                                            on and QwtLog10ScaleEngine()
-                                            or QwtLinearScaleEngine())
-        self.currentPlot.replot()
+        self.currentPlot.setLogScale(on)
 
     @qtsig('bool')
     def on_actionLegend_toggled(self, on):

@@ -37,7 +37,7 @@ from PyQt4.QtGui import QPen, QPainter, QBrush, QPalette, QFont, QFileDialog, \
      QPrinter, QPrintDialog, QDialog, QImage
 from PyQt4.Qwt5 import Qwt, QwtPlot, QwtPlotItem, QwtPlotCurve, QwtPlotPicker, \
      QwtLog10ScaleEngine, QwtSymbol, QwtPlotZoomer, QwtPicker, QwtPlotGrid, \
-     QwtText, QwtLegend, QwtScaleDraw
+     QwtText, QwtLegend, QwtScaleDraw, QwtLinearScaleEngine
 
 try:
     from PyQt4.Qwt5.grace import GraceProcess
@@ -397,6 +397,15 @@ class NicosPlot(QwtPlot):
                 else:
                     newtext.setColor(Qt.darkGray)
                 legenditem.setText(newtext)
+
+    def setLogScale(self, on):
+        self.setAxisScaleEngine(QwtPlot.yLeft,
+                                on and QwtLog10ScaleEngine()
+                                or QwtLinearScaleEngine())
+        self.setAxisScaleEngine(QwtPlot.yRight,
+                                on and QwtLog10ScaleEngine()
+                                or QwtLinearScaleEngine())
+        self.replot()
 
     def on_legendClicked(self, item):
         self.setVisibility(item, not item.isVisible())

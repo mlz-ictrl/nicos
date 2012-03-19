@@ -32,7 +32,7 @@ from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, QPen, \
      QListWidgetItem, QSizePolicy, QPalette
 from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotItem, QwtText, QwtPicker, \
-     QwtLog10ScaleEngine, QwtLinearScaleEngine, QwtPlotPicker, QwtPlotMarker
+     QwtLog10ScaleEngine, QwtPlotPicker, QwtPlotMarker
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np
@@ -344,13 +344,7 @@ class ScansPanel(Panel):
 
     @qtsig('bool')
     def on_actionLogScale_toggled(self, on):
-        self.currentPlot.setAxisScaleEngine(QwtPlot.yLeft,
-                                            on and QwtLog10ScaleEngine()
-                                            or QwtLinearScaleEngine())
-        self.currentPlot.setAxisScaleEngine(QwtPlot.yRight,
-                                            on and QwtLog10ScaleEngine()
-                                            or QwtLinearScaleEngine())
-        self.currentPlot.replot()
+        self.currentPlot.setLogScale(on)
 
     @qtsig('bool')
     def on_actionNormalized_toggled(self, on):
