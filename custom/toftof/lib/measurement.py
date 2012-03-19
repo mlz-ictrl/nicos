@@ -82,7 +82,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         i = 0
         for i, line in enumerate(self._detinfo):
             if not line.startswith('#'):
-               break
+                break
         self._detinfolength = len(self._detinfo) - i
         dmap = {}
         for line in self._detinfo:
@@ -119,7 +119,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
             self.log.warning('could not check radial collimator', exc=1)
 
         self.log.debug('reading chopper parameters')
-        chwl, chspeed, chratio, chcrc, chst = self._adevs['chopper']._getparams()
+        chwl, chspeed, chratio, _, chst = self._adevs['chopper']._getparams()
         if chratio == 1:
             chratio2 = 1.0
         else:
