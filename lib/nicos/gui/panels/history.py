@@ -26,15 +26,13 @@
 
 __version__ = "$Revision$"
 
-import os
 import time
-import tempfile
 
-from PyQt4.QtCore import Qt, QDateTime, SIGNAL
+from PyQt4.QtCore import QDateTime, SIGNAL
 from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtLog10ScaleEngine, \
      QwtLinearScaleEngine
-from PyQt4.QtGui import QDialog, QFont, QPen, QListWidgetItem, QFileDialog, \
-     QPrintDialog, QPrinter, QToolBar, QMenu, QStatusBar, QSizePolicy, QImage
+from PyQt4.QtGui import QDialog, QFont, QPen, QListWidgetItem, QToolBar, \
+     QMenu, QStatusBar, QSizePolicy
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np
@@ -396,34 +394,15 @@ class HistoryPanel(Panel):
 
     @qtsig('')
     def on_actionPDF_triggered(self):
-        filename = str(QFileDialog.getSaveFileName(
-            self, 'Select file name', '', 'PDF files (*.pdf)'))
-        if filename == '':
-            return
-        if '.' not in filename:
-            filename += '.pdf'
-        printer = QPrinter()
-        printer.setOutputFormat(QPrinter.PdfFormat)
-        printer.setColorMode(QPrinter.Color)
-        printer.setOrientation(QPrinter.Landscape)
-        printer.setOutputFileName(filename)
-        printer.setCreator('NICOS')
-        color = self.currentPlot.canvasBackground()
-        self.currentPlot.setCanvasBackground(Qt.white)
-        self.currentPlot.print_(printer)
-        self.currentPlot.setCanvasBackground(color)
-        self.statusBar.showMessage('View successfully saved to %s.' % filename)
+        filename = self.currentPlot.savePlot()
+        if filename:
+            self.statusBar.showMessage('View successfully saved to %s.' %
+                                       filename)
 
     @qtsig('')
     def on_actionPrint_triggered(self):
-        printer = QPrinter(QPrinter.HighResolution)
-        printer.setColorMode(QPrinter.Color)
-        printer.setOrientation(QPrinter.Landscape)
-        printer.setOutputFileName('')
-        if QPrintDialog(printer, self).exec_() == QDialog.Accepted:
-            self.currentPlot.print_(printer)
-        self.statusBar.showMessage('View successfully printed to %s.' %
-                                   str(printer.printerName()))
+        if self.currentPlot.printPlot():
+            self.statusBar.showMessage('View successfully printed.')
 
     @qtsig('')
     def on_actionAttachElog_triggered(self):
@@ -435,14 +414,10 @@ class HistoryPanel(Panel):
             return
         descr = str(newdlg.description.text())
         fname = str(newdlg.filename.text())
-        img = QImage(800, 600, QImage.Format_RGB32)
-        img.fill(0xffffff)
-        self.currentPlot.print_(img)
-        h, pathname = tempfile.mkstemp('.png')
-        os.close(h)
-        img.save(pathname, 'png')
+        pathname = self.currentPlot.savePng()
+        remotefn = self.client.ask('transfer', open(pathname, 'rb').read())
         self.client.ask('eval', 'LogAttach(%r, [%r], [%r])' %
-                        (descr, pathname, fname))
+                        (descr, remotefn, fname))
 
     @qtsig('')
     def on_actionUnzoom_triggered(self):

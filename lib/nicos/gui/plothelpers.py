@@ -26,12 +26,15 @@
 
 __version__ = "$Revision$"
 
+import os
 import time
+import tempfile
 
 from numpy import asarray
 
 from PyQt4.QtCore import Qt, QRectF, QLine, QSize, SIGNAL
-from PyQt4.QtGui import QPen, QPainter, QBrush, QPalette, QFont
+from PyQt4.QtGui import QPen, QPainter, QBrush, QPalette, QFont, QFileDialog, \
+     QPrinter, QPrintDialog, QDialog, QImage
 from PyQt4.Qwt5 import Qwt, QwtPlot, QwtPlotItem, QwtPlotCurve, QwtPlotPicker, \
      QwtLog10ScaleEngine, QwtSymbol, QwtPlotZoomer, QwtPicker, QwtPlotGrid, \
      QwtText, QwtLegend, QwtScaleDraw
@@ -419,6 +422,44 @@ class NicosPlot(QwtPlot):
         self.plotcurves.append(plotcurve)
         if replot:
             self.zoomer.setZoomBase(True)
+
+    def savePlot(self):
+        filename = str(QFileDialog.getSaveFileName(
+            self, 'Select file name', '', 'PDF files (*.pdf)'))
+        if filename == '':
+            return None
+        if '.' not in filename:
+            filename += '.pdf'
+        printer = QPrinter()
+        printer.setOutputFormat(QPrinter.PdfFormat)
+        printer.setColorMode(QPrinter.Color)
+        printer.setOrientation(QPrinter.Landscape)
+        printer.setOutputFileName(filename)
+        printer.setCreator('NICOS plot')
+        color = self.canvasBackground()
+        self.setCanvasBackground(Qt.white)
+        self.print_(printer)
+        self.setCanvasBackground(color)
+        return filename
+
+    def printPlot(self):
+        printer = QPrinter(QPrinter.HighResolution)
+        printer.setColorMode(QPrinter.Color)
+        printer.setOrientation(QPrinter.Landscape)
+        printer.setOutputFileName('')
+        if QPrintDialog(printer, self).exec_() == QDialog.Accepted:
+            self.currentPlot.print_(printer)
+            return True
+        return False
+
+    def savePng(self):
+        img = QImage(800, 600, QImage.Format_RGB32)
+        img.fill(0xffffff)
+        self.print_(img)
+        h, pathname = tempfile.mkstemp('.png')
+        os.close(h)
+        img.save(pathname, 'png')
+        return pathname
 
 
 def cloneToGrace(plot, saveall="", pause=0.2):
