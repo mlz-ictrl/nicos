@@ -184,8 +184,8 @@ class NicosWebFormatter(logging.Formatter):
     def span(self, cls, text):
         return '<span class="%s">%s</span>' % (cls, escape(text))
 
-    def span_id(self, id, cls, text):
-        return '<span id="%s" class="%s">%s</span>' % (id, cls, escape(text))
+    def span_id(self, id_, cls, text):
+        return '<span id="%s" class="%s">%s</span>' % (id_, cls, escape(text))
 
     def format(self, record):
         levelno = record.levelno
