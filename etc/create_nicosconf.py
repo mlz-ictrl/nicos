@@ -34,7 +34,7 @@ except KeyError:
 pythonpath = ':'.join(glob.glob(tacobase + '/lib*/python*/site-packages'))
 if not pythonpath:
     # set some working default, if the taco dir does not exist yet
-    print sys.stderr, '''\
+    print >>sys.stderr, '''\
 Warning: There seems to be no TACO installed in %s,
 setting up a default anyway.
 
