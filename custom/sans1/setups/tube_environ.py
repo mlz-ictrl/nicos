@@ -110,7 +110,7 @@ devices = dict(
                      maxage = 120,
                    ),
     tub_v2 = device('nicos.taco.AnalogInput',
-                     tacodevice = nethost + 'sans1/tube/v1',
+                     tacodevice = nethost + 'sans1/tube/v2',
                      fmtstr = '%.3f',
                      pollinterval = 60,
                      maxage = 120,
