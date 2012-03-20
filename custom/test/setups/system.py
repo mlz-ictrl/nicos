@@ -39,8 +39,7 @@ devices = dict(
                       dataroot = 'data',
                       sample = 'Sample'),
 
-    filesink = device('nicos.data.AsciiDatafileSink',
-                      prefix = 'data'),
+    filesink = device('nicos.data.AsciiDatafileSink'),
 
     conssink = device('nicos.data.ConsoleSink'),
 
@@ -49,6 +48,6 @@ devices = dict(
     liveplot = device('nicos.data.GraceSink'),
 
     Space    = device('nicos.generic.FreeSpace',
-                      path = 'data',
+                      path = None,
                       minfree = 5),
 )

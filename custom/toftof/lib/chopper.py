@@ -32,7 +32,8 @@ from time import sleep, time as currenttime
 import IO
 
 from nicos.core import Readable, Moveable, HasLimits, Param, Override, \
-     NicosError, intrange, oneof, status, requires, ADMIN, waitForStatus
+     NicosError, intrange, oneof, status, requires, ADMIN, waitForStatus, \
+     listof
 from nicos.taco import TacoDevice
 
 from nicos.toftof import calculations as calc
@@ -59,6 +60,7 @@ class Controller(TacoDevice, Readable):
         'ratio':      Param('Frame-overlap ratio', type=int, userparam=False),
         'crc':        Param('Counter-rotating mode', type=int, userparam=False),
         'slittype':   Param('Slit type', type=int, userparam=False),
+        'phases':     Param('Current phases', type=listof(float), userparam=False),
         'changetime': Param('Time of last change', userparam=False),
     }
 
@@ -80,7 +82,7 @@ class Controller(TacoDevice, Readable):
             sleep(0.04)
 
     def doInit(self):
-        self._phases = [0, 0]
+        phases = [0, 0]
         try:
             if self._mode == 'simulation':
                 raise NicosError('not possible in simulation mode')
@@ -101,15 +103,16 @@ class Controller(TacoDevice, Readable):
             else:
                 self._setROParam('crc', 1)
             for ch in range(2, 8):
-                self._phases.append(
+                phases.append(
                     int(round(self._read(4048 + ch*100) / 466.0378)))
+            self._setROParam('phases', phases)
         except NicosError:
             self._setROParam('wavelength', 4.5)
             self._setROParam('speed', 0)
             self._setROParam('ratio', 1)
             self._setROParam('slittype', 0)
             self._setROParam('crc', 1)
-            self._phases = [0] * 8
+            self._setROParam('phases', [0] * 8)
             self.log.warning('could not read initial data from PMAC chopper '
                              'controller', exc=1)
 
@@ -143,12 +146,12 @@ class Controller(TacoDevice, Readable):
             assert value in [0, 1, 2]
             self._setROParam('slittype', value)
         # calculate new phases
-        self._phases = [0]
+        phases = [0]
         for ch in range(1, 8):
             phi = calc.phi(ch, self.speed, self.wavelength, self.crc,
                            self.slittype, self.ratio, self.ch5_90deg_offset)
             assert -180. <= phi <= 180.
-            self._phases.append(int(round(100.0 * phi)))
+            phases.append(int(round(100.0 * phi)))
         if self.crc == 0:
             r1 = 2
             r2 = -1.0
@@ -157,19 +160,20 @@ class Controller(TacoDevice, Readable):
             r2 = 1.0
         rr = self.ratio + 1
         self._write_multi(4073, 1, 4076, 0,  4074, self.speed,
-                          4075, self._phases[1], 4077, int(round(self.wavelength*1000.0)), 4070, 7)
+                          4075, phases[1], 4077, int(round(self.wavelength*1000.0)), 4070, 7)
         self._write_multi(4073, 2, 4076, r1, 4074, r2*self.speed,
-                          4075, self._phases[2], 4077, int(self.slittype + 1), 4070, 7)
+                          4075, phases[2], 4077, int(self.slittype + 1), 4070, 7)
         self._write_multi(4073, 3, 4076, 1,  4074, self.speed,
-                          4075, self._phases[3], 4077, int(self.crc + 1), 4070, 7)
+                          4075, phases[3], 4077, int(self.crc + 1), 4070, 7)
         self._write_multi(4073, 4, 4076, 1,  4074, self.speed,
-                          4075, self._phases[4], 4070, 7)
+                          4075, phases[4], 4070, 7)
         self._write_multi(4073, 5, 4076, rr, 4074, -1*self.speed,
-                          4075, self._phases[5], 4070, 7)
+                          4075, phases[5], 4070, 7)
         self._write_multi(4073, 6, 4076, 1,  4074, self.speed,
-                          4075, self._phases[6], 4070, 7)
+                          4075, phases[6], 4070, 7)
         self._write_multi(4073, 7, 4076, r1, 4074, r2*self.speed,
-                          4075, self._phases[7], 4070, 7)
+                          4075, phases[7], 4070, 7)
+        self._setROParam('phases', phases)
         self._setROParam('changetime', currenttime())
 
     def _stop(self):
@@ -239,29 +243,32 @@ class Controller(TacoDevice, Readable):
                 r2 = -1.0
             else:
                 r2 = 1.0
+            speed = self._read(4080 + ch) * r2
+            rat = 1.0
             if ch == 5:
                 if self.ratio > 1 and self.ratio <= 8:
-                    r2 *= self.ratio / (self.ratio - 1)
+                    rat = self.ratio / (self.ratio - 1.0)
                 elif self.ratio > 8:
-                    r2 *= self.ratio / 7.0
-            speed = self._read(4080 + ch) * r2
-            if abs(speed - self.speed) > self.speed_accuracy:
+                    rat = self.ratio / 7.0
+            nominal = self.speed / rat
+            maxdelta = self.speed_accuracy / rat
+            if abs(speed - nominal) > maxdelta:
                 if timedout:
                     stval = status.ERROR
                 else:
                     stval = status.BUSY
-                ret.append('ch %d: speed %s != nominal %s' %
-                           (ch, speed, self.speed))
+                ret.append('ch %d: speed %.2f != nominal %.2f' %
+                           (ch, speed, nominal))
         # read phases
         for ch in range(2, 8):
             phase = self._read(4100 + ch)
-            if abs(phase - self._phases[ch]) > self.phase_accuracy:
+            if abs(phase - self.phases[ch]) > self.phase_accuracy:
                 if timedout:
                     stval = status.ERROR
                 else:
                     stval = status.BUSY
                 ret.append('ch %d: phase %s != nominal %s' %
-                           (ch, phase, self._phases[ch]))
+                           (ch, phase, self.phases[ch]))
         return stval, ', '.join(ret) or 'normal'
 
     @requires(level=ADMIN)
@@ -270,11 +277,11 @@ class Controller(TacoDevice, Readable):
             angle -= 360
         while angle < -180.0:
             angle += 360
-        self._phases = [0, -26, 1, 19, 13, 1, -13, 62]
+        self._setROParam('phases', [0, -26, 1, 19, 13, 1, -13, 62])
         self._setROParam('speed', 0)
         for ch in range(1, 8):
             self._write_multi(4073, ch, 4076, 0, 4074, self.speed,
-                              4075, self._phases[ch] + angle, 4070, 7)
+                              4075, self.phases[ch] + angle, 4070, 7)
         self._setROParam('changetime', currenttime())
 
     @requires(level=ADMIN)
