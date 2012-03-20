@@ -277,7 +277,10 @@ class HistoryPanel(Panel):
         if newdlg.simpleTime.isChecked():
             intv = str(newdlg.simpleTimeSpec.text())
             try:
-                if intv.endswith('s'):
+                if not intv:
+                    itime = 0
+                    interval = 5
+                elif intv.endswith('s'):
                     itime = float(intv[:-1])
                     interval = 1
                 elif intv.endswith('m'):

@@ -145,7 +145,7 @@ def read(*devlist):
         dev = session.getDevice(dev, Readable)
         try:
             value = dev.read()
-        except NicosError:
+        except Exception:
             dev.log.exception('error reading device')
             continue
         unit = dev.unit
@@ -173,7 +173,7 @@ def status(*devlist):
         dev = session.getDevice(dev, Readable)
         try:
             status = dev.status()
-        except NicosError:
+        except Exception:
             dev.log.exception('error reading status')
         else:
             dev.log.info('status is %s' % formatStatus(status))
@@ -209,7 +209,7 @@ def stop(*devlist):
         dev = session.getDevice(dev, (Moveable, Measurable))
         try:
             dev.stop()
-        except NicosError:
+        except Exception:
             dev.log.exception('error stopping device')
         else:
             dev.log.info('stopped')

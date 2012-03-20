@@ -127,7 +127,8 @@ class Monitor(BaseMonitor):
             master.showFullScreen()
             QCursor.setPos(master.geometry().bottomRight())
         elif isinstance(self._geometry, tuple):
-            master.setGeometry(*self._geometry)
+            w, h, x, y = self._geometry
+            master.setGeometry(x, y, w, h)
 
         master.setWindowTitle(self.title)
         self._bgcolor = master.palette().color(QPalette.Window)

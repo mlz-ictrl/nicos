@@ -127,8 +127,14 @@ class Monitor(BaseCacheClient):
 
         if self._geometry and self._geometry != 'fullscreen':
             try:
-                self._geometry = map(int, re.match('(\d+)x(\d+)+(\d+)+(\d+)',
-                                                   self._geometry).groups())
+                m = re.match(r'(?:(\d+)x(\d+))?\+(\d+)+(\d+)', self._geometry)
+                w, h, x, y = m.groups()
+                if w is None:
+                    w = h = 0
+                else:
+                    w, h = int(w), int(h)
+                x, y = int(x), int(y)
+                self._geometry = (w, h, x, y)
             except Exception:
                 self.log.warning('invalid geometry %s' % self._geometry)
                 self._geometry = None
