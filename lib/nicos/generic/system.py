@@ -28,7 +28,8 @@ __version__ = "$Revision$"
 
 import os
 
-from nicos.core import Readable, Param, Override, status
+from nicos import session
+from nicos.core import Readable, Param, Override, status, none_or
 
 
 class FreeSpace(Readable):
@@ -42,8 +43,9 @@ class FreeSpace(Readable):
     """
 
     parameters = {
-        'path':     Param('The path to the filesystem mount point',
-                          type=str, mandatory=True),
+        'path':     Param('The path to the filesystem mount point (or None to '
+                          'check the experiment data directory',
+                          type=none_or(str), default=None),
         'minfree':  Param('Minimum free space for "ok" status',
                           unit='GiB', default=5, settable=True),
     }
@@ -55,7 +57,14 @@ class FreeSpace(Readable):
     }
 
     def doRead(self):
-        st = os.statvfs(self.path)
+        if self.path is None:
+            path = session.experiment.dataroot
+        else:
+            path = self.path
+        try:
+            st = os.statvfs(path)
+        except OSError, err:
+            raise NicosError(self, 'could not determine free space: %s' % err)
         return (st.f_bsize * st.f_bavail) / (1024 * 1024 * 1024.)
 
     def doStatus(self):
