@@ -35,15 +35,12 @@ _expcolumn = [
          {'name': 'Last file', 'key': 'filesink/lastfilenumber'}]]),
 ]
 
-_warnings = [
-    ('a1/value', '> 20', 'a1 value > 20'),
-]
-
 _axisblock = (
     'Axis devices',
     [['a1', 'm1', 'c1'],
      ['a2', 'm2']],
-    'misc')
+    'misc')  # this is the name of a setup that must be loaded in the
+             # NICOS master instance for this block to be displayed
 
 _detectorblock = (
     'Detector devices',
@@ -65,6 +62,10 @@ _rightcolumn = [
 
 _leftcolumn = [
     _otherblock,
+]
+
+_warnings = [
+    ('a1/value', '> 20', 'a1 value > 20'),
 ]
 
 devices = dict(

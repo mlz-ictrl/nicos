@@ -19,4 +19,9 @@ parser.add_option('-g', '--geometry', dest='geometry', type='string',
                   help='window geometry (WxH+X+Y)')
 opts, args = parser.parse_args()
 
-NoninteractiveSession.run('monitor', pidfile=False, start_args=[opts])
+if args:
+    setupname = 'monitor-' + args[0]
+else:
+    setupname = 'monitor'
+
+NoninteractiveSession.run(setupname, pidfile=False, start_args=[opts])
