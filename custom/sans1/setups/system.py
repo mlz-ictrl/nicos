@@ -36,17 +36,17 @@ devices = dict(
     Sample   = device('nicos.tas.TASSample'),
 
     Exp      = device('nicos.experiment.Experiment',
-                      dataroot = 'data',
+                      dataroot = '/localhome/data',
                       sample = 'Sample'),
 
     filesink = device('nicos.data.AsciiDatafileSink',
-                      prefix = 'data'),
+                      prefix = '/localhome/data'),
 
     conssink = device('nicos.data.ConsoleSink'),
 
     daemonsink = device('nicos.data.DaemonSink'),
 
     Space    = device('nicos.generic.FreeSpace',
-                      path = '/data',
+                      path = '/localhome/data',
                       minfree = 0.5),
 )

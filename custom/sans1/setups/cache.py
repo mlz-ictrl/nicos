@@ -27,7 +27,7 @@ group = 'special'
 
 devices = dict(
     DB     = device('nicos.cache.server.FlatfileCacheDatabase',
-                    storepath = '/data/cache',
+                    storepath = '/localhome/data/cache',
                     loglevel = 'info'),
 
     Server = device('nicos.cache.server.CacheServer',
