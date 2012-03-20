@@ -24,4 +24,5 @@ if args:
 else:
     setupname = 'monitor'
 
-NoninteractiveSession.run(setupname, pidfile=False, start_args=[opts])
+NoninteractiveSession.run(setupname, maindevname='Monitor',
+                          pidfile=False, start_args=[opts])
