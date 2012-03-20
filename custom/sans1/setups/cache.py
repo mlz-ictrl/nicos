@@ -32,6 +32,6 @@ devices = dict(
 
     Server = device('nicos.cache.server.CacheServer',
                     db = 'DB',
-                    server = 'localhost',
+                    server = 'sans1ctrl.sans1.frm2',
                     loglevel = 'info'),
 )

@@ -22,61 +22,101 @@
 #
 # *****************************************************************************
 
-description = 'setup for the status monitor'
+description = 'setup for the status monitor for SANS1'
 group = 'special'
 
-_expcolumn = [
-    ('Experiment', [
-        [{'name': 'Proposal', 'key': 'exp/proposal', 'width': 7},
-         {'name': 'Title', 'key': 'exp/title', 'width': 20,
-          'istext': True, 'maxlen': 20},
-         {'name': 'Current status', 'key': 'exp/action', 'width': 30,
-          'istext': True},
-         {'name': 'Last file', 'key': 'filesink/lastfilenumber'}]]),
-]
+_interfaceboxtop = (
+    'Interface Box (top)',
+    [
+        [
+            {'name' : 'Humidity',    'dev': 'tub_h1', 'min': 0, 'max': 30},
+            {'name' : 'Temperature', 'dev': 'tub_t6', 'max' : 30, },
+        ],
+    ],
+#
+# Only used if a master has this setup loaded, if missed it will be used 
+# unconditionally
+#
+#   'tube_environment',
+)
+
+_interfaceboxbottom = (
+    'Interface Box (bottom)',
+    [
+        [
+            {'name' : 'Humidity',    'dev': 'tub_h2', 'min': 0, 'max': 30},
+            {'name' : 'Temperature', 'dev': 'tub_t7', 'max' : 30,},
+        ],
+    ],
+#   'tube_environment',
+)
+
+_nim_voltage = (
+    'Voltage Detector NIM',
+    [
+        [
+            {'name' : '+', 'dev' : 'tub_v1',},
+            {'name' : '-', 'dev' : 'tub_v2',},
+        ],
+    ],
+#   'tube_environment',
+)
+
+_electronicsbox = (
+    'Temperature Electronics Box',
+    [
+         [
+             {'name' : 'left',   'dev' : 'tub_t1', 'max' : 40,},
+             {'name' : 'middle', 'dev' : 'tub_t2', 'max' : 40,},
+             {'name' : 'right',  'dev' : 'tub_t3', 'max' : 40,},
+         ],
+    ],
+#   'tube_environment',
+)
+
+_pressureblock = (
+    'Pressure',
+    [
+        [
+            {'name': 'P1', 'dev': 'tub_p1'},
+            {'name': 'P2', 'dev': 'tub_p2'},
+            {'name': 'P3', 'dev': 'tub_p3'},
+        ],
+    ],
+#   'tube_environment',
+)
 
 _warnings = [
-    ('a1/value', '> 20', 'a1 value > 20'),
+    ('tub_t1/value', '> 35', 'Temp in electronics box > 35'),
+    ('tub_t2/value', '> 35', 'Temp in electronics box > 35'),
+    ('tub_t3/value', '> 35', 'Temp in electronics box > 35'),
 ]
 
-_axisblock = (
-    'Axis devices',
-    [['a1', 'm1', 'c1'],
-     ['a2', 'm2']],
-    'misc')
-
-_detectorblock = (
-    'Detector devices',
-    [[{'name': 'timer', 'dev': 'timer'},
-      {'name': 'ctr1', 'dev': 'ctr1', 'min': 100, 'max': 500},
-      {'name': 'ctr2', 'dev': 'ctr2'}]],
-    'detector')
-
-_otherblock = (
-    'Other devices',
-    [[{'dev': 'slit', 'width': 20, 'name': 'Slit'}],
-     [{'dev': 'sw', 'width': 4, 'name': 'Switcher'}]],
-    'misc')
-
 _rightcolumn = [
-    _axisblock,
-    _detectorblock,
+    _nim_voltage,
+    _electronicsbox,
 ]
 
 _leftcolumn = [
-    _otherblock,
+    _pressureblock,
+    _interfaceboxtop,
+    _interfaceboxbottom,
 ]
 
 devices = dict(
     Monitor = device('nicos.monitor.qt.Monitor',
-                     title = 'NICOS status monitor',
+                     title = 'SANS1 status monitor',
                      loglevel = 'info',
-                     server = 'localhost:14869',
+                     server = 'sans1ctrl.sans1.frm2',
                      prefix = 'nicos/',
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
+                     fontsize = 16,
                      padding = 5,
-                     layout = [[_expcolumn], [_rightcolumn, _leftcolumn]],
+                     layout = [
+#                                  [_expcolumn], 
+                                  [_leftcolumn, _rightcolumn, ]
+                              ],
                      warnings = _warnings,
                      notifiers = [])
 )

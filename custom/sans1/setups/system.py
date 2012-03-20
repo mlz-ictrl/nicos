@@ -25,8 +25,8 @@
 description = 'system setup'
 
 sysconfig = dict(
-    cache = None,# 'localhost',
-    instrument = None,
+    cache = None, # 'sans1ctrl.sans1.frm2',
+    instrument = 'Instrument',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = [],
@@ -35,18 +35,21 @@ sysconfig = dict(
 devices = dict(
     Sample   = device('nicos.tas.TASSample'),
 
+    Instrument = device('nicos.instrument.Instrument',
+                        responsible = 'Dr. habil. Ralph Gilles',
+                       ),
+
     Exp      = device('nicos.experiment.Experiment',
                       dataroot = '/localhome/data',
                       sample = 'Sample'),
 
     filesink = device('nicos.data.AsciiDatafileSink',
-                      prefix = '/localhome/data'),
+                     ),
 
     conssink = device('nicos.data.ConsoleSink'),
 
     daemonsink = device('nicos.data.DaemonSink'),
 
     Space    = device('nicos.generic.FreeSpace',
-                      path = '/localhome/data',
                       minfree = 0.5),
 )
