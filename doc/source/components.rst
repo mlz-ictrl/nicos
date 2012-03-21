@@ -40,6 +40,9 @@ These programs are clients that don't provide shell functionality.
   This program implements a graphical status monitor that displays current
   values of the instrument status from the NICOS cache.
 
+``nicos-history``
+  This program plots values (e.g. temperatures) from the cache over time.
+
 
 **Daemons**
 

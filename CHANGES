@@ -3,6 +3,8 @@ Changelog for NICOS 2
 
 **Release 2.2.0**
 
+  - Added a new standalone history viewer that plots cache data.
+
   - Improved the message display in the web interface.
 
 **Release 2.1.1**
