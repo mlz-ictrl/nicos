@@ -26,21 +26,22 @@
 
 __version__ = "$Revision$"
 
+import sys
 import time
 
 from PyQt4.QtCore import QDateTime, Qt, SIGNAL
 from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtLog10ScaleEngine
 from PyQt4.QtGui import QDialog, QFont, QPen, QListWidgetItem, QToolBar, \
-     QMenu, QStatusBar, QSizePolicy, QMainWindow
+     QMenu, QStatusBar, QSizePolicy, QMainWindow, QApplication
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np
 
 from nicos.gui.panels import Panel
-from nicos.gui.utils import loadUi, dialogFromUi, safeFilename
+from nicos.gui.utils import loadUi, dialogFromUi, safeFilename, DlgUtils
 from nicos.gui.plothelpers import NicosPlot
 from nicos.cache.utils import cache_load
-from nicos.cache.client import BaseCacheClient
+from nicos.cache.client import CacheClient
 
 
 class View(object):
@@ -111,13 +112,6 @@ class BaseHistoryWindow(object):
     def __init__(self):
         loadUi(self, 'history.ui', 'panels')
 
-        self.statusBar = QStatusBar(self)
-        policy = self.statusBar.sizePolicy()
-        policy.setVerticalPolicy(QSizePolicy.Fixed)
-        self.statusBar.setSizePolicy(policy)
-        self.statusBar.setSizeGripEnabled(False)
-        self.layout().addWidget(self.statusBar)
-
         self.user_color = Qt.white
         self.user_font = QFont('monospace')
 
@@ -152,6 +146,15 @@ class BaseHistoryWindow(object):
         # since one can't change the current item if it's the only one
         self.on_viewList_currentItemChanged(item, None)
 
+    def newvalue_callback(self, (time, key, op, value)):
+        if key not in self.keyviews:
+            return
+        value = cache_load(value)
+        for view in self.keyviews[key]:
+            view.newValue(time, key, op, value)
+            if view.plot:
+                view.plot.pointsAdded(key)
+
     @qtsig('')
     def on_actionNew_triggered(self):
         helptext = 'Enter a comma-separated list of device names or ' \
@@ -185,7 +188,7 @@ class BaseHistoryWindow(object):
             newdlg.tobox.setEnabled(not on)
         newdlg.connect(newdlg.simpleTime, SIGNAL('toggled(bool)'), callback2)
         newdlg.connect(newdlg.extTime, SIGNAL('toggled(bool)'), callback2)
-        simplehelptext = 'Enter a time interval with unit like this:\n\n' \
+        simplehelptext = 'Please enter a time interval with unit like this:\n\n' \
             '30m   (12 minutes)\n' \
             '12h   (12 hours)\n' \
             '3d    (3 days)\n'
@@ -208,22 +211,32 @@ class BaseHistoryWindow(object):
                 if not intv:
                     itime = 0
                     interval = 5
+                elif intv.endswith('sec'):
+                    itime = float(intv[:-3])
+                    interval = 1
                 elif intv.endswith('s'):
                     itime = float(intv[:-1])
                     interval = 1
+                elif intv.endswith('min'):
+                    itime = float(intv[:-3]) * 60
+                    interval = 5
                 elif intv.endswith('m'):
                     itime = float(intv[:-1]) * 60
                     interval = 5
                 elif intv.endswith('h'):
                     itime = float(intv[:-1]) * 3600
                     interval = 10
+                elif intv.endswith('days'):
+                    itime = float(intv[:-4]) * 24 * 3600
+                    interval = 30
                 elif intv.endswith('d'):
                     itime = float(intv[:-1]) * 24 * 3600
                     interval = 30
                 else:
                     raise ValueError
             except ValueError:
-                return self.showError(simplehelptext)
+                self.showError(simplehelptext)
+                return self.on_actionNew_triggered()
             fromtime = time.time() - itime
             totime = None
         else:
@@ -245,11 +258,13 @@ class BaseHistoryWindow(object):
             try:
                 yfrom = float(str(newdlg.customYFrom.text()))
             except ValueError:
-                return self.showError('You have to input valid y axis limits.')
+                self.showError('You have to input valid y axis limits.')
+                return self.on_actionNew_triggered()
             try:
                 yto = float(str(newdlg.customYTo.text()))
             except ValueError:
-                return self.showError('You have to input valid y axis limits.')
+                self.showError('You have to input valid y axis limits.')
+                return self.on_actionNew_triggered()
         else:
             yfrom = yto = None
         view = View(name, keys, interval, fromtime, totime, yfrom, yto,
@@ -355,18 +370,6 @@ class BaseHistoryWindow(object):
         self.currentPlot.setLines(on)
 
 
-class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow):
-    def __init__(self, parent):
-        QMainWindow.__init__(self, parent)
-        BaseHistoryWindow.__init__(self)
-
-        # XXX remove AttachElog
-        # create menu and toolbar
-
-    def gethistory_callback(self, key, fromtime, totime):
-        return [] # self.ask(...)
-
-
 class HistoryPanel(Panel, BaseHistoryWindow):
     panelName = 'History viewer'
 
@@ -376,34 +379,18 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         Panel.__init__(self, parent, client)
         BaseHistoryWindow.__init__(self)
 
+        self.statusBar = QStatusBar(self)
+        policy = self.statusBar.sizePolicy()
+        policy.setVerticalPolicy(QSizePolicy.Fixed)
+        self.statusBar.setSizePolicy(policy)
+        self.statusBar.setSizeGripEnabled(False)
+        self.layout().addWidget(self.statusBar)
+
         self.user_color = parent.user_color
         self.user_font = parent.user_font
 
         self.splitter.restoreState(self.splitterstate)
-        self.connect(self.client, SIGNAL('cache'), self.on_client_cache)
-
-    def loadSettings(self, settings):
-        self.splitterstate = settings.value('splitter').toByteArray()
-
-    def saveSettings(self, settings):
-        settings.setValue('splitter', self.splitter.saveState())
-
-    def setCustomStyle(self, font, back):
-        self.user_font = font
-        self.user_color = back
-
-        for view in self.views:
-            if view.plot:
-                view.plot.setCanvasBackground(back)
-                view.plot.replot()
-
-        bold = QFont(font)
-        bold.setBold(True)
-        larger = QFont(font)
-        larger.setPointSize(font.pointSize() * 1.6)
-        for view in self.views:
-            if view.plot:
-                view.plot.setFonts(font, bold, larger)
+        self.connect(self.client, SIGNAL('cache'), self.newvalue_callback)
 
     def getMenus(self):
         menu = QMenu('&History viewer', self)
@@ -438,17 +425,31 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         bar.addAction(self.actionDeleteView)
         return [bar]
 
+    def loadSettings(self, settings):
+        self.splitterstate = settings.value('splitter').toByteArray()
+
+    def saveSettings(self, settings):
+        settings.setValue('splitter', self.splitter.saveState())
+
+    def setCustomStyle(self, font, back):
+        self.user_font = font
+        self.user_color = back
+
+        for view in self.views:
+            if view.plot:
+                view.plot.setCanvasBackground(back)
+                view.plot.replot()
+
+        bold = QFont(font)
+        bold.setBold(True)
+        larger = QFont(font)
+        larger.setPointSize(font.pointSize() * 1.6)
+        for view in self.views:
+            if view.plot:
+                view.plot.setFonts(font, bold, larger)
+
     def gethistory_callback(self, key, fromtime, totime):
         return self.client.ask('gethistory', key, str(fromtime), str(totime))
-
-    def on_client_cache(self, (time, key, op, value)):
-        if key not in self.keyviews:
-            return
-        value = cache_load(value)
-        for view in self.keyviews[key]:
-            view.newValue(time, key, op, value)
-            if view.plot:
-                view.plot.pointsAdded(key)
 
     @qtsig('')
     def on_actionAttachElog_triggered(self):
@@ -533,3 +534,77 @@ class ViewPlot(NicosPlot):
                 plotcurve.setSymbol(self.nosymbol)
         self.hasSymbols = on
         self.replot()
+
+
+class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
+    def __init__(self, app):
+        QMainWindow.__init__(self, None)
+        BaseHistoryWindow.__init__(self)
+        DlgUtils.__init__(self, 'History viewer')
+
+        self.app = app
+        self.setCentralWidget(self.splitter)
+        self.connect(self, SIGNAL('newvalue'), self.newvalue_callback)
+
+        for toolbar in self.getToolbars():
+            self.addToolBar(toolbar)
+        for menu in self.getMenus():
+            self.menuBar().addMenu(menu)
+        self.statusBar = QStatusBar(self)
+        self.setStatusBar(self.statusBar)
+
+    def getMenus(self):
+        menu = QMenu('&History viewer', self)
+        menu.addAction(self.actionNew)
+        menu.addSeparator()
+        menu.addAction(self.actionPDF)
+        menu.addAction(self.actionPrint)
+        menu.addSeparator()
+        menu.addAction(self.actionCloseView)
+        menu.addAction(self.actionDeleteView)
+        menu.addAction(self.actionResetView)
+        menu.addSeparator()
+        menu.addAction(self.actionLogScale)
+        menu.addAction(self.actionUnzoom)
+        menu.addAction(self.actionLegend)
+        menu.addAction(self.actionSymbols)
+        menu.addAction(self.actionLines)
+        menu.addSeparator()
+        menu.addAction(self.actionClose)
+        return [menu]
+
+    def getToolbars(self):
+        bar = QToolBar('History viewer')
+        bar.addAction(self.actionNew)
+        bar.addAction(self.actionPDF)
+        bar.addAction(self.actionPrint)
+        bar.addAction(self.actionClose)
+        bar.addSeparator()
+        bar.addAction(self.actionUnzoom)
+        bar.addAction(self.actionLogScale)
+        bar.addSeparator()
+        bar.addAction(self.actionResetView)
+        bar.addAction(self.actionDeleteView)
+        return [bar]
+
+    def gethistory_callback(self, key, fromtime, totime):
+        return self.app.history(None, key, fromtime, totime)
+
+
+class StandaloneHistoryApp(CacheClient):
+
+    def doInit(self):
+        self._qtapp = QApplication(sys.argv)
+        self._window = StandaloneHistoryWindow(self)
+        CacheClient.doInit(self)
+
+    def start(self):
+        self._window.show()
+        try:
+            self._qtapp.exec_()
+        except KeyboardInterrupt:
+            pass
+        self._stoprequest = True
+
+    def _propagate(self, data):
+        self._window.emit(SIGNAL('newvalue'), data)
