@@ -614,17 +614,22 @@ class FlatfileCacheDatabase(CacheDatabase):
                 return
             for fn in os.listdir(curdir):
                 cat = fn.replace('-', '/')
-                fd = open(path.join(curdir, fn), 'r+U')
-                db = {}
-                for line in fd:
-                    subkey, time, value = line.rstrip().split(None, 2)
-                    if value != '-':
-                        db[subkey] = Entry(float(time), None, value)
-                    elif subkey in db:
-                        db[subkey].expired = True
-                lock = threading.Lock()
-                self._cat[cat] = [fd, lock, db]
-                nkeys += len(db)
+                try:
+                    fd = open(path.join(curdir, fn), 'r+U')
+                    db = {}
+                    for line in fd:
+                        try:
+                            subkey, time, value = line.rstrip().split(None, 2)
+                            if value != '-':
+                                db[subkey] = Entry(float(time), None, value)
+                            elif subkey in db:
+                                db[subkey].expired = True
+                        except Exception:
+                            self.log.warning('could not interpret line from '
+                                'cache file: %r' % line, exc=1)
+                    lock = threading.Lock()
+                    self._cat[cat] = [fd, lock, db]
+                    nkeys += len(db)
         self.log.info('loaded %d keys from files' % nkeys)
 
     def _rollover(self):
