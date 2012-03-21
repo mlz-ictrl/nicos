@@ -28,10 +28,10 @@ __version__ = "$Revision$"
 
 import time
 
-from PyQt4.QtCore import QDateTime, SIGNAL
+from PyQt4.QtCore import QDateTime, Qt, SIGNAL
 from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtLog10ScaleEngine
 from PyQt4.QtGui import QDialog, QFont, QPen, QListWidgetItem, QToolBar, \
-     QMenu, QStatusBar, QSizePolicy
+     QMenu, QStatusBar, QSizePolicy, QMainWindow
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np
@@ -40,11 +40,12 @@ from nicos.gui.panels import Panel
 from nicos.gui.utils import loadUi, dialogFromUi, safeFilename
 from nicos.gui.plothelpers import NicosPlot
 from nicos.cache.utils import cache_load
+from nicos.cache.client import BaseCacheClient
 
 
 class View(object):
     def __init__(self, name, keys, interval, fromtime, totime,
-                 yfrom, yto, client):
+                 yfrom, yto, query_func):
         self.name = name
         self.keys = keys
         self.interval = interval
@@ -57,8 +58,7 @@ class View(object):
             self.keydata = {}
             totime = self.totime or time.time()
             for key in keys:
-                history = client.ask('gethistory', key,
-                                     str(self.fromtime), str(totime))
+                history = query_func(key, self.fromtime, totime)
                 if history is None:
                     print 'Error getting history.'
                     history = []
@@ -106,13 +106,9 @@ class View(object):
         kd[2] += 1
 
 
-class HistoryPanel(Panel):
-    panelName = 'History viewer'
+class BaseHistoryWindow(object):
 
-    # XXX save history views when closing?
-
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
+    def __init__(self):
         loadUi(self, 'history.ui', 'panels')
 
         self.statusBar = QStatusBar(self)
@@ -122,8 +118,8 @@ class HistoryPanel(Panel):
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
 
-        self.user_color = parent.user_color
-        self.user_font = parent.user_font
+        self.user_color = Qt.white
+        self.user_font = QFont('monospace')
 
         self.views = []
         # stack of views to display
@@ -133,33 +129,7 @@ class HistoryPanel(Panel):
         # current plot object
         self.currentPlot = None
 
-        self.splitter.restoreState(self.splitterstate)
-        self.connect(self.client, SIGNAL('cache'), self.on_client_cache)
-
         self.enablePlotActions(False)
-
-    def loadSettings(self, settings):
-        self.splitterstate = settings.value('splitter').toByteArray()
-
-    def saveSettings(self, settings):
-        settings.setValue('splitter', self.splitter.saveState())
-
-    def setCustomStyle(self, font, back):
-        self.user_font = font
-        self.user_color = back
-
-        for view in self.views:
-            if view.plot:
-                view.plot.setCanvasBackground(back)
-                view.plot.replot()
-
-        bold = QFont(font)
-        bold.setBold(True)
-        larger = QFont(font)
-        larger.setPointSize(font.pointSize() * 1.6)
-        for view in self.views:
-            if view.plot:
-                view.plot.setFonts(font, bold, larger)
 
     def enablePlotActions(self, on):
         for action in [
@@ -169,48 +139,6 @@ class HistoryPanel(Panel):
             self.actionSymbols, self.actionLines
             ]:
             action.setEnabled(on)
-
-    def getMenus(self):
-        menu = QMenu('&History viewer', self)
-        menu.addAction(self.actionNew)
-        menu.addSeparator()
-        menu.addAction(self.actionPDF)
-        menu.addAction(self.actionPrint)
-        menu.addAction(self.actionAttachElog)
-        menu.addSeparator()
-        menu.addAction(self.actionCloseView)
-        menu.addAction(self.actionDeleteView)
-        menu.addAction(self.actionResetView)
-        menu.addSeparator()
-        menu.addAction(self.actionLogScale)
-        menu.addAction(self.actionUnzoom)
-        menu.addAction(self.actionLegend)
-        menu.addAction(self.actionSymbols)
-        menu.addAction(self.actionLines)
-        menu.addSeparator()
-        return [menu]
-
-    def getToolbars(self):
-        bar = QToolBar('History viewer')
-        bar.addAction(self.actionNew)
-        bar.addAction(self.actionPDF)
-        bar.addAction(self.actionPrint)
-        bar.addSeparator()
-        bar.addAction(self.actionUnzoom)
-        bar.addAction(self.actionLogScale)
-        bar.addSeparator()
-        bar.addAction(self.actionResetView)
-        bar.addAction(self.actionDeleteView)
-        return [bar]
-
-    def on_client_cache(self, (time, key, op, value)):
-        if key not in self.keyviews:
-            return
-        value = cache_load(value)
-        for view in self.keyviews[key]:
-            view.newValue(time, key, op, value)
-            if view.plot:
-                view.plot.pointsAdded(key)
 
     def on_viewList_currentItemChanged(self, item, previous):
         if item is None:
@@ -325,7 +253,7 @@ class HistoryPanel(Panel):
         else:
             yfrom = yto = None
         view = View(name, keys, interval, fromtime, totime, yfrom, yto,
-                    self.client)
+                    self.gethistory_callback)
         self.views.append(view)
         view.listitem = QListWidgetItem(name, self.viewList)
         self.openView(view)
@@ -407,21 +335,6 @@ class HistoryPanel(Panel):
             self.statusBar.showMessage('View successfully printed.')
 
     @qtsig('')
-    def on_actionAttachElog_triggered(self):
-        newdlg = dialogFromUi(self, 'plot_attach.ui', 'panels')
-        newdlg.filename.setText(
-            safeFilename('history_%s.png' % self.currentPlot.view.name))
-        ret = newdlg.exec_()
-        if ret != QDialog.Accepted:
-            return
-        descr = str(newdlg.description.text())
-        fname = str(newdlg.filename.text())
-        pathname = self.currentPlot.savePng()
-        remotefn = self.client.ask('transfer', open(pathname, 'rb').read())
-        self.client.ask('eval', 'LogAttach(%r, [%r], [%r])' %
-                        (descr, remotefn, fname))
-
-    @qtsig('')
     def on_actionUnzoom_triggered(self):
         self.currentPlot.zoomer.zoom(0)
 
@@ -440,6 +353,117 @@ class HistoryPanel(Panel):
     @qtsig('bool')
     def on_actionLines_toggled(self, on):
         self.currentPlot.setLines(on)
+
+
+class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow):
+    def __init__(self, parent):
+        QMainWindow.__init__(self, parent)
+        BaseHistoryWindow.__init__(self)
+
+        # XXX remove AttachElog
+        # create menu and toolbar
+
+    def gethistory_callback(self, key, fromtime, totime):
+        return [] # self.ask(...)
+
+
+class HistoryPanel(Panel, BaseHistoryWindow):
+    panelName = 'History viewer'
+
+    # XXX save history views when closing?
+
+    def __init__(self, parent, client):
+        Panel.__init__(self, parent, client)
+        BaseHistoryWindow.__init__(self)
+
+        self.user_color = parent.user_color
+        self.user_font = parent.user_font
+
+        self.splitter.restoreState(self.splitterstate)
+        self.connect(self.client, SIGNAL('cache'), self.on_client_cache)
+
+    def loadSettings(self, settings):
+        self.splitterstate = settings.value('splitter').toByteArray()
+
+    def saveSettings(self, settings):
+        settings.setValue('splitter', self.splitter.saveState())
+
+    def setCustomStyle(self, font, back):
+        self.user_font = font
+        self.user_color = back
+
+        for view in self.views:
+            if view.plot:
+                view.plot.setCanvasBackground(back)
+                view.plot.replot()
+
+        bold = QFont(font)
+        bold.setBold(True)
+        larger = QFont(font)
+        larger.setPointSize(font.pointSize() * 1.6)
+        for view in self.views:
+            if view.plot:
+                view.plot.setFonts(font, bold, larger)
+
+    def getMenus(self):
+        menu = QMenu('&History viewer', self)
+        menu.addAction(self.actionNew)
+        menu.addSeparator()
+        menu.addAction(self.actionPDF)
+        menu.addAction(self.actionPrint)
+        menu.addAction(self.actionAttachElog)
+        menu.addSeparator()
+        menu.addAction(self.actionCloseView)
+        menu.addAction(self.actionDeleteView)
+        menu.addAction(self.actionResetView)
+        menu.addSeparator()
+        menu.addAction(self.actionLogScale)
+        menu.addAction(self.actionUnzoom)
+        menu.addAction(self.actionLegend)
+        menu.addAction(self.actionSymbols)
+        menu.addAction(self.actionLines)
+        menu.addSeparator()
+        return [menu]
+
+    def getToolbars(self):
+        bar = QToolBar('History viewer')
+        bar.addAction(self.actionNew)
+        bar.addAction(self.actionPDF)
+        bar.addAction(self.actionPrint)
+        bar.addSeparator()
+        bar.addAction(self.actionUnzoom)
+        bar.addAction(self.actionLogScale)
+        bar.addSeparator()
+        bar.addAction(self.actionResetView)
+        bar.addAction(self.actionDeleteView)
+        return [bar]
+
+    def gethistory_callback(self, key, fromtime, totime):
+        return self.client.ask('gethistory', key, str(fromtime), str(totime))
+
+    def on_client_cache(self, (time, key, op, value)):
+        if key not in self.keyviews:
+            return
+        value = cache_load(value)
+        for view in self.keyviews[key]:
+            view.newValue(time, key, op, value)
+            if view.plot:
+                view.plot.pointsAdded(key)
+
+    @qtsig('')
+    def on_actionAttachElog_triggered(self):
+        newdlg = dialogFromUi(self, 'plot_attach.ui', 'panels')
+        newdlg.filename.setText(
+            safeFilename('history_%s.png' % self.currentPlot.view.name))
+        ret = newdlg.exec_()
+        if ret != QDialog.Accepted:
+            return
+        descr = str(newdlg.description.text())
+        fname = str(newdlg.filename.text())
+        pathname = self.currentPlot.savePng()
+        remotefn = self.client.ask('transfer', open(pathname, 'rb').read())
+        self.client.ask('eval', 'LogAttach(%r, [%r], [%r])' %
+                        (descr, remotefn, fname))
 
 
 class ViewPlot(NicosPlot):
