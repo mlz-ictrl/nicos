@@ -471,6 +471,16 @@ def _RunScript(filename, statdevices):
 
 
 @usercommand
+def _RunCode(code):
+    if session.mode == 'simulation':
+        starttime = session.clock.time
+    exec code in session.namespace, session.local_namespace
+    if session.mode == 'simulation':
+        printinfo('simulated minimum runtime: ' +
+                  formatDuration(session.clock.time - starttime))
+
+
+@usercommand
 def Run(filename):
     """Run a script file given by file name.  If the file name is not absolute,
     it is relative to the experiment script directory.
@@ -501,7 +511,7 @@ def Simulate(what, *devices):
             compile(what + '\n', 'exec', 'exec')
         except Exception:
             raise NicosError('Argument is neither a script file nor valid code')
-        session.forkSimulation(what)
+        session.forkSimulation('_RunCode(%r)' % what)
         return
     if session.mode == 'simulation':
         return _RunScript(what, devices)
