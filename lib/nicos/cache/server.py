@@ -626,10 +626,12 @@ class FlatfileCacheDatabase(CacheDatabase):
                                 db[subkey].expired = True
                         except Exception:
                             self.log.warning('could not interpret line from '
-                                'cache file: %r' % line, exc=1)
+                                'cache file %s: %r' % (fn, line), exc=1)
                     lock = threading.Lock()
                     self._cat[cat] = [fd, lock, db]
                     nkeys += len(db)
+                except Exception:
+                    self.log.warning('could not read cache file %s' % fn, exc=1)
         self.log.info('loaded %d keys from files' % nkeys)
 
     def _rollover(self):
