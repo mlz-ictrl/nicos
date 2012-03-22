@@ -408,7 +408,8 @@ def Edit(filename):
     """Edit the script file given by file name.  If the file name is not
     absolute, it is relative to the experiment script directory.
 
-    The editor is given by the ``EDITOR`` environment variable.
+    The editor is given by the ``EDITOR`` environment variable, which can be
+    conveniently set in the nicos.conf file.
     """
     if 'EDITOR' not in os.environ:
         printerror('no EDITOR environment variable is set, cannot edit')
