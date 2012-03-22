@@ -3,6 +3,8 @@ Changelog for NICOS 2
 
 **Release 2.1.1**
 
+  - Fixed an elog bug that caused elog to quit on Unicode errors.
+
   - Fixed calling "gauss()" and "poly()" with column names.
 
   - Report simulated runtime for code run with "Simulate()".
