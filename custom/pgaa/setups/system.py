@@ -25,7 +25,7 @@
 description = 'system setup'
 
 sysconfig = dict(
-    cache = None, # 'sans1ctrl.sans1.frm2',
+    cache = None, # 'bunker.pgaa.frm2',
     instrument = 'Instrument',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
@@ -36,11 +36,11 @@ devices = dict(
     Sample   = device('nicos.experiment.Sample'),
 
     Instrument = device('nicos.instrument.Instrument',
-                        responsible = 'Dr. habil. Ralph Gilles',
+                        responsible = 'Dr. Petra Kudejova',
                        ),
 
     Exp      = device('nicos.experiment.Experiment',
-                      dataroot = '/localhome/data',
+                      dataroot = '/mnt/tequila/data/',
                       sample = 'Sample'),
 
     filesink = device('nicos.data.AsciiDatafileSink',

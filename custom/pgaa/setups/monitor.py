@@ -22,34 +22,43 @@
 #
 # *****************************************************************************
 
-description = 'system setup'
+description = 'setup for the status monitor for PGAA'
+group = 'special'
 
-sysconfig = dict(
-    cache = None, # 'sans1ctrl.sans1.frm2',
-    instrument = 'Instrument',
-    experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = [],
+_pressuresample = (
+    'Sample ',
+    [
+        [
+            {'name': 'Vacuum', 'dev': 'sample_p1'},
+        ],
+    ],
+#   '',
 )
 
+_warnings = [
+]
+
+_leftcolumn = [
+    _pressuresample,
+]
+
+_rightcolumn = [
+]
+
 devices = dict(
-    Sample   = device('nicos.experiment.Sample'),
-
-    Instrument = device('nicos.instrument.Instrument',
-                        responsible = 'Dr. habil. Ralph Gilles',
-                       ),
-
-    Exp      = device('nicos.experiment.Experiment',
-                      dataroot = '/localhome/data',
-                      sample = 'Sample'),
-
-    filesink = device('nicos.data.AsciiDatafileSink',
-                     ),
-
-    conssink = device('nicos.data.ConsoleSink'),
-
-    daemonsink = device('nicos.data.DaemonSink'),
-
-    Space    = device('nicos.generic.FreeSpace',
-                      minfree = 0.5),
+    Monitor = device('nicos.monitor.qt.Monitor',
+                     title = 'PGAA status monitor',
+                     loglevel = 'info',
+                     server = 'bunker.pgaa.frm2',
+                     prefix = 'nicos/',
+                     font = 'Luxi Sans',
+                     valuefont = 'Consolas',
+                     fontsize = 16,
+                     padding = 5,
+                     layout = [
+                                  [[_pressuresample,],]
+#                                  [_leftcolumn, _rightcolumn, ]
+                              ],
+                     warnings = _warnings,
+                     notifiers = [])
 )

@@ -25,7 +25,38 @@
 description = 'setup for the status monitor for SANS1'
 group = 'special'
 
+_pressuretube = (
+    'Pressure Tube',
+    [
+        [
+            {'name': 'Tube', 'dev': 'tub_p1'},
+            {'name': 'Nose', 'dev': 'tub_p2'},
+#            {'name': 'P3', 'dev': 'tub_p3'},
+        ],
+    ],
+#   'tube_environment',
+)
+
+_pressurecoll = (
+    'Pressure Collimation',
+    [
+        [
+            {'name' : 'Tube', 'dev' : 'coll_p1'},
+            {'name' : 'Nose', 'dev' : 'coll_p2'},
+            {'name' : 'Pump', 'dev' : 'coll_p2'},
+        ],
+    ],
+)
+
 _warnings = [
+]
+
+_leftcolumn = [
+    _pressuretube,
+]
+
+_rightcolumn = [
+    _pressurecoll,
 ]
 
 devices = dict(
@@ -39,7 +70,8 @@ devices = dict(
                      fontsize = 16,
                      padding = 5,
                      layout = [
-                                  []
+                                  [[_pressuretube,], [_pressurecoll,], ]
+#                                  [_leftcolumn, _rightcolumn, ]
                               ],
                      warnings = _warnings,
                      notifiers = [])

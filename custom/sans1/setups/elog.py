@@ -32,5 +32,5 @@ sysconfig = dict(
 devices = dict(
     Logbook = device('nicos.elog.Logbook',
                      prefix = 'logbook/',
-                     server = 'localhost:14869'),
+                     server = 'sans1ctrl.sans1.frm2:14869'),
 )

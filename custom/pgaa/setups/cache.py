@@ -22,34 +22,16 @@
 #
 # *****************************************************************************
 
-description = 'system setup'
-
-sysconfig = dict(
-    cache = None, # 'sans1ctrl.sans1.frm2',
-    instrument = 'Instrument',
-    experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = [],
-)
+description = 'setup for the cache server'
+group = 'special'
 
 devices = dict(
-    Sample   = device('nicos.experiment.Sample'),
+    DB     = device('nicos.cache.server.FlatfileCacheDatabase',
+                    storepath = '/mnt/tequila/data/nicos/cache',
+                    loglevel = 'info'),
 
-    Instrument = device('nicos.instrument.Instrument',
-                        responsible = 'Dr. habil. Ralph Gilles',
-                       ),
-
-    Exp      = device('nicos.experiment.Experiment',
-                      dataroot = '/localhome/data',
-                      sample = 'Sample'),
-
-    filesink = device('nicos.data.AsciiDatafileSink',
-                     ),
-
-    conssink = device('nicos.data.ConsoleSink'),
-
-    daemonsink = device('nicos.data.DaemonSink'),
-
-    Space    = device('nicos.generic.FreeSpace',
-                      minfree = 0.5),
+    Server = device('nicos.cache.server.CacheServer',
+                    db = 'DB',
+                    server = 'bunker.pgaa.frm2',
+                    loglevel = 'info'),
 )

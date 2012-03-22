@@ -22,34 +22,15 @@
 #
 # *****************************************************************************
 
-description = 'system setup'
+description = 'setup for the poller'
+group = 'special'
 
 sysconfig = dict(
-    cache = None, # 'sans1ctrl.sans1.frm2',
-    instrument = 'Instrument',
-    experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = [],
+    cache = 'bunker.pgaa.frm2'
 )
 
 devices = dict(
-    Sample   = device('nicos.experiment.Sample'),
-
-    Instrument = device('nicos.instrument.Instrument',
-                        responsible = 'Dr. habil. Ralph Gilles',
-                       ),
-
-    Exp      = device('nicos.experiment.Experiment',
-                      dataroot = '/localhome/data',
-                      sample = 'Sample'),
-
-    filesink = device('nicos.data.AsciiDatafileSink',
-                     ),
-
-    conssink = device('nicos.data.ConsoleSink'),
-
-    daemonsink = device('nicos.data.DaemonSink'),
-
-    Space    = device('nicos.generic.FreeSpace',
-                      minfree = 0.5),
+    Poller = device('nicos.poller.Poller',
+                    alwayspoll = ['pressure',],
+                    blacklist = ['tas']),
 )

@@ -22,34 +22,15 @@
 #
 # *****************************************************************************
 
-description = 'system setup'
+description = 'setup for the electronic logbook'
+group = 'special'
 
 sysconfig = dict(
-    cache = None, # 'sans1ctrl.sans1.frm2',
-    instrument = 'Instrument',
-    experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = [],
+    cache = None,
 )
 
 devices = dict(
-    Sample   = device('nicos.experiment.Sample'),
-
-    Instrument = device('nicos.instrument.Instrument',
-                        responsible = 'Dr. habil. Ralph Gilles',
-                       ),
-
-    Exp      = device('nicos.experiment.Experiment',
-                      dataroot = '/localhome/data',
-                      sample = 'Sample'),
-
-    filesink = device('nicos.data.AsciiDatafileSink',
-                     ),
-
-    conssink = device('nicos.data.ConsoleSink'),
-
-    daemonsink = device('nicos.data.DaemonSink'),
-
-    Space    = device('nicos.generic.FreeSpace',
-                      minfree = 0.5),
+    Logbook = device('nicos.elog.Logbook',
+                     prefix = 'logbook/',
+                     server = 'bunker.pgaa.frm2:14869'),
 )

@@ -22,34 +22,34 @@
 #
 # *****************************************************************************
 
-description = 'system setup'
+description = 'sample table devices'
 
-sysconfig = dict(
-    cache = None, # 'sans1ctrl.sans1.frm2',
-    instrument = 'Instrument',
-    experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = [],
-)
+# includes = ['system']
+# excludes = ['excluded']
+
+nethost= '//pgaasrv.pgaa.frm2/'
 
 devices = dict(
-    Sample   = device('nicos.experiment.Sample'),
-
-    Instrument = device('nicos.instrument.Instrument',
-                        responsible = 'Dr. habil. Ralph Gilles',
-                       ),
-
-    Exp      = device('nicos.experiment.Experiment',
-                      dataroot = '/localhome/data',
-                      sample = 'Sample'),
-
-    filesink = device('nicos.data.AsciiDatafileSink',
-                     ),
-
-    conssink = device('nicos.data.ConsoleSink'),
-
-    daemonsink = device('nicos.data.DaemonSink'),
-
-    Space    = device('nicos.generic.FreeSpace',
-                      minfree = 0.5),
+    e1    = device('nicos.taco.Coder',
+                   tacodevice = nethost + 'pgaa/phytronixe/e1',
+                   fmtstr = '%7.3f',
+                  ),
+    ellip = device('nicos.taco.DigitalInput',
+                   tacodevice = nethost + 'pgaa/phytronixe/ellip',
+                  ),
+    ftube = device('nicos.taco.DigitalInput',
+                   tacodevice = nethost + 'pgaa/phytronixe/ftube',
+                  ),
+    press1 = device('nicos.taco.DigitalInput',
+                    tacodevice = nethost + 'pgaa/phytronixe/press1',
+                   ),
+    press2 = device('nicos.taco.DigitalInput',
+                    tacodevice = nethost + 'pgaa/phytronixe/press2',
+                   ),
+    sample  = device('nicos.taco.motor.Motor',
+                     tacodevice = nethost + 'pgaa/phytronixe/sample',
+                     fmtstr = '%7.3f',
+                     abslimits = (-5, 356),
+                    ),
 )
+

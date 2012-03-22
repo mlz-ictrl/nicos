@@ -22,34 +22,18 @@
 #
 # *****************************************************************************
 
-description = 'system setup'
+description = 'Vacuum sensors of detector and collimation tube'
 
-sysconfig = dict(
-    cache = None, # 'sans1ctrl.sans1.frm2',
-    instrument = 'Instrument',
-    experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = [],
-)
+# includes = ['system']
+# excludes = ['excluded']
+
+nethost= '//pgaasrv.pgaa.frm2/'
 
 devices = dict(
-    Sample   = device('nicos.experiment.Sample'),
-
-    Instrument = device('nicos.instrument.Instrument',
-                        responsible = 'Dr. habil. Ralph Gilles',
-                       ),
-
-    Exp      = device('nicos.experiment.Experiment',
-                      dataroot = '/localhome/data',
-                      sample = 'Sample'),
-
-    filesink = device('nicos.data.AsciiDatafileSink',
-                     ),
-
-    conssink = device('nicos.data.ConsoleSink'),
-
-    daemonsink = device('nicos.data.DaemonSink'),
-
-    Space    = device('nicos.generic.FreeSpace',
-                      minfree = 0.5),
+    sample_p1 = device('nicos.taco.AnalogInput',
+                       tacodevice = nethost + 'pgaa/sample/vacuum',
+                       fmtstr = '%9.2E',
+                       pollinterval = 15,
+                       maxage = 60,
+                   ),
 )

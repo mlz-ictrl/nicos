@@ -22,34 +22,17 @@
 #
 # *****************************************************************************
 
-description = 'system setup'
+description = 'setup for the execution daemon'
+group = 'special'
 
-sysconfig = dict(
-    cache = None, # 'sans1ctrl.sans1.frm2',
-    instrument = 'Instrument',
-    experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = [],
-)
+import hashlib
 
 devices = dict(
-    Sample   = device('nicos.experiment.Sample'),
-
-    Instrument = device('nicos.instrument.Instrument',
-                        responsible = 'Dr. habil. Ralph Gilles',
-                       ),
-
-    Exp      = device('nicos.experiment.Experiment',
-                      dataroot = '/localhome/data',
-                      sample = 'Sample'),
-
-    filesink = device('nicos.data.AsciiDatafileSink',
-                     ),
-
-    conssink = device('nicos.data.ConsoleSink'),
-
-    daemonsink = device('nicos.data.DaemonSink'),
-
-    Space    = device('nicos.generic.FreeSpace',
-                      minfree = 0.5),
+    Daemon = device('nicos.daemon.NicosDaemon',
+                    server = 'bunker.pgaa.frm2',
+                    authmethod = 'list',
+                    passwd = [('guest', '', 0),
+                              ('user', hashlib.sha1('user').hexdigest(), 10),
+                              ('admin', hashlib.sha1('admin').hexdigest(), 20)],
+                    loglevel = 'debug'),
 )
