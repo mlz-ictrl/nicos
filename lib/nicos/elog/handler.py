@@ -54,6 +54,7 @@ FRAMESET = '''\
 PROLOG = '''\
 <html>
 <head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
 <style type="text/css">
 body      { font-family: 'Arial', 'Helvetica', sans-serif; }
 .remark   { font-weight: bold; }
@@ -158,6 +159,8 @@ class HtmlWriter(object):
 
     def emit(self, html):
         if self.fd:
+            if isinstance(html, unicode):
+                html = html.encode('utf-8')
             self.fd.write(html)
             self.fd.flush()
 
@@ -180,6 +183,8 @@ class HtmlWriter(object):
 
     def emit_toc(self, html):
         if self.fd_toc:
+            if isinstance(html, unicode):
+                html = html.encode('utf-8')
             self.fd_toc.write(html)
             self.fd_toc.flush()
 

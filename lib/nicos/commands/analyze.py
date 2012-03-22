@@ -44,37 +44,43 @@ def _getData(columns):
         raise NicosError('no latest dataset has been stored')
     dataset = session.experiment._last_datasets[-1]
 
+    # xcol/ycol are 1-indexed here
     if not columns:
-        xcol = 0
+        xcol = 1
         ycol = -1
     elif len(columns) == 1:
-        xcol, ycol = 0, columns[0] - 1
+        xcol, ycol = 1, columns[0]
     elif len(columns) == 2:
-        xcol, ycol = columns[0] - 1, columns[1] - 1
+        xcol, ycol = columns[0], columns[1]
     else:
         raise UsageError('you can give none, one or two columns names or numbers')
 
     if isinstance(xcol, str):
         try:
-            xcol = dataset.xnames.index(xcol)
+            xcol = dataset.xnames.index(xcol) + 1
         except ValueError:
             raise NicosError('no such X column name: %r' % xcol)
-    try:
-        xs = np.array([p[xcol] for p in dataset.xresults])
-    except IndexError:
-        raise NicosError('no such X column: %r' % xcol)
 
     if isinstance(ycol, str):
         try:
-            ycol = dataset.ynames.index(ycol)
+            ycol = dataset.ynames.index(ycol) + 1
         except ValueError:
             raise NicosError('no such Y column name: %r' % ycol)
     elif ycol < 0:
         try:
             ycol = [i for i in range(len(dataset.ynames))
-                    if dataset.yvalueinfo[i].type == 'counter'][0]
+                    if dataset.yvalueinfo[i].type == 'counter'][0] + 1
         except IndexError:
             raise NicosError('no Y column of type "counter"')
+
+    # now make them 0-indexed
+    xcol -= 1
+    ycol -= 1
+
+    try:
+        xs = np.array([p[xcol] for p in dataset.xresults])
+    except IndexError:
+        raise NicosError('no such X column: %r' % xcol)
     try:
         ys = np.array([p[ycol] for p in dataset.yresults])
     except IndexError:

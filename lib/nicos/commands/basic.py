@@ -438,6 +438,7 @@ class _ScriptScope(object):
             session.experiment.scripts = session.experiment.scripts[:-1]
         session.elog_event('scriptend', self.filename)
 
+
 @usercommand
 def _RunScript(filename, statdevices):
     fn = _scriptfilename(filename)
@@ -456,7 +457,7 @@ def _RunScript(filename, statdevices):
         code = unicode(fp.read(), 'utf-8')
         compiled = compile(code + '\n', fn, 'exec', CO_DIVISION)
         with _ScriptScope(path.basename(fn), code):
-            exec compiled in session.local_namespace, session.namespace
+            exec compiled in session.namespace, session.local_namespace
     printinfo('finished user script: ' + fn)
     if session.mode == 'simulation':
         printinfo('simulated minimum runtime: ' +
@@ -467,6 +468,16 @@ def _RunScript(filename, statdevices):
             printinfo('%s: min %s, max %s, last %s' % (
                 dev.name, dev.format(dev._sim_min), dev.format(dev._sim_max),
                 dev.format(dev._sim_value)))
+
+
+@usercommand
+def _RunCode(code):
+    if session.mode == 'simulation':
+        starttime = session.clock.time
+    exec code in session.namespace, session.local_namespace
+    if session.mode == 'simulation':
+        printinfo('simulated minimum runtime: ' +
+                  formatDuration(session.clock.time - starttime))
 
 
 @usercommand
@@ -500,7 +511,7 @@ def Simulate(what, *devices):
             compile(what + '\n', 'exec', 'exec')
         except Exception:
             raise NicosError('Argument is neither a script file nor valid code')
-        session.forkSimulation(what)
+        session.forkSimulation('_RunCode(%r)' % what)
         return
     if session.mode == 'simulation':
         return _RunScript(what, devices)

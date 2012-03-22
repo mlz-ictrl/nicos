@@ -58,13 +58,13 @@ class Logbook(BaseCacheClient):
             return
         key = key[len(self._prefix)+1:]
         time = time and float(time)
-        self.log.debug('got %s=%s' % (key, value))
+        self.log.debug('got %s=%r' % (key, value))
         if key in self._handler.handlers:
             value = cache_load(value)
             try:
                 self._handler.handlers[key](time, value)
             except Exception:
-                self.log.exception('Error in handler for: %s=%s' % (key, value))
+                self.log.exception('Error in handler for: %s=%r' % (key, value))
 
     def doShutdown(self):
         self._handler.close()
