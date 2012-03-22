@@ -3,10 +3,21 @@ Changelog for NICOS 2
 
 **Release 2.1.1**
 
+  - Fixed calling "gauss()" and "poly()" with column names.
+
+  - Report simulated runtime for code run with "Simulate()".
+
+  - Fixed namespaces used in "Run()", so that globals can be accessed from
+    functions defined in user scripts.
+
+  - Fixed simulating and timing devices with a ramp parameter.
+
+  - Made the cache robust against corrupted save files on disk.
+
+  - Fixed the "create_nicosconf" script when no TACO environment is found.
+
   - Fixed a bug in simulation mode that would cause exceptions when
     wait()ing for fixed devices.
-
-  - Fixed calling "gauss()" and "poly()" with column names.
 
 **Release 2.1.0 (2012-03-14)**
 
