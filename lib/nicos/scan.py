@@ -269,7 +269,7 @@ class Scan(object):
                             result.extend(_count(self._detlist, self._preset))
                     else:
                         session.action('Counting')
-                        result = list(_count(self._detlist, self._preset))
+                        result = _count(self._detlist, self._preset)
                     finished = time.time()
                     actualpos += self.readEnvironment(started, finished)
                     self.addPoint(actualpos, result)
@@ -357,10 +357,11 @@ class ManualScan(Scan):
                     result.extend(_count(self._detlist, preset))
             else:
                 session.action('Counting')
-                result = list(_count(self._detlist, preset))
+                result = _count(self._detlist, preset)
             finished = time.time()
             actualpos += self.readEnvironment(started, finished)
             self.addPoint(actualpos, result)
+            return result
         except SkipPoint:
             pass
         finally:

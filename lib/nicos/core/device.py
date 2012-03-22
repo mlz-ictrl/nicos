@@ -1089,7 +1089,7 @@ class Moveable(Readable):
                     self._sim_old_value is not None:
                     time = abs(self._sim_value - self._sim_old_value) / \
                         self.speed
-                elif 'ramp' in self.parameters and self.speed != 0 and \
+                elif 'ramp' in self.parameters and self.ramp != 0 and \
                     self._sim_old_value is not None:
                     time = abs(self._sim_value - self._sim_old_value) / \
                         (self.ramp / 60.)
