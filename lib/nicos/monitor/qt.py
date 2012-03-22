@@ -33,7 +33,7 @@ from time import time as currenttime, sleep
 from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
      QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, \
      QCursor, QStackedWidget
-from PyQt4.QtCore import QSize, Qt, SIGNAL
+from PyQt4.QtCore import QSize, QVariant, Qt, SIGNAL
 
 from nicos.monitor import Monitor as BaseMonitor
 from nicos.core.status import statuses
@@ -188,7 +188,7 @@ class Monitor(BaseMonitor):
             l.setAutoFillBackground(True)
             l.setLineWidth(2)
             l.setMinimumSize(QSize(onechar * (field['width'] + .5), 0))
-            l.setProperty('assignedField', field)
+            l.setProperty('assignedField', QVariant(field))
             field['valuelabel'] = l
 
             tmplayout = QHBoxLayout()
