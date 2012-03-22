@@ -1101,8 +1101,9 @@ class Output(Input, Moveable):
 class SlitMotor(NicosMotor):
     """Class for one axis of a IPC 4-wing slit.
 
-    Use this together with `nicos.generic.Axis` and `nicos.generic.Slit` to
-    create a 4-wing slit device.
+    Use this together with `nicos.generic.Axis` to create a single slit axis,
+    and combine four of them using `nicos.generic.Slit` to create a 4-wing slit
+    device.
     """
 
     parameters = {

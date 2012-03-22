@@ -36,7 +36,7 @@ Coders
 4-Wing Slits
 ------------
 
-.. autoclass:: SlitAxis()
+.. autoclass:: SlitMotor()
 
 Digital I/O
 -----------
