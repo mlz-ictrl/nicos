@@ -36,10 +36,10 @@ from threading import RLock
 
 from RS485Client import RS485Client
 
-from nicos.core import status, intrange, floatrange, oneofdict, oneof, none_or, \
-     usermethod, Device, Readable, Moveable, Param, Override, NicosError, \
-     CommunicationError, ProgrammingError, InvalidValueError, TimeoutError, \
-     waitForStatus
+from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
+     none_or, usermethod, Device, Readable, Moveable, Param, Override, \
+     NicosError, CommunicationError, ProgrammingError, InvalidValueError, \
+     TimeoutError, waitForStatus
 from nicos.utils import closeSocket, lazy_property, HardwareStub
 from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.taco.core import TacoDevice
@@ -856,7 +856,6 @@ class Motor(NicosMotor):
 
     def doWait(self):
         sleep(0.1)
-        # XXX is it ok to not react to error states?
         waitForStatus(self, 0.2, self.timeout, errorstates=())
 
     def doStop(self):
@@ -928,7 +927,7 @@ class Motor(NicosMotor):
         # check error states last
         if state & 32 and state & 64:
             st = status.ERROR
-            msg=msg.replace('limit switch - active, limit switch + active',
+            msg = msg.replace('limit switch - active, limit switch + active',
                 'EMERGENCY STOP pressed or both limit switches broken')
         if state & 1024:
             st = status.ERROR
@@ -943,8 +942,9 @@ class Motor(NicosMotor):
             st = status.ERROR
             msg += ', hardware failure or device not reset after power-on'
 
-        # if it's moving, it's not in error state! (except if the emergency stop is active)
-        if state & 1 and ( state & 96 != 96 ):
+        # if it's moving, it's not in error state! (except if the emergency stop
+        # is active)
+        if state & 1 and (state & 96 != 96):
             st = status.BUSY
             msg = ', moving' + msg
         self.log.debug('status is %d:%s' % (st, msg[2:]))
@@ -1133,8 +1133,6 @@ class SlitMotor(NicosMotor):
     def doVersion(self):
         return [('IPC slit axis', str(self._adevs['bus'].get(self.addr, 165)))]
 
-    # slope_new = 1/slope_old
-    # offset_new = -offset_old/slope_old
     def _tosteps(self, value):
         return int(float(value) * self.slope + self.zerosteps)
 
@@ -1187,4 +1185,3 @@ class SlitMotor(NicosMotor):
             return status.BUSY, 'moving'
         else:
             return status.ERROR, 'blocked'
-
