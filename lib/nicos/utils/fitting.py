@@ -26,15 +26,69 @@
 
 __version__ = "$Revision$"
 
-from numpy import array, power, linspace
+from numpy import array, power, linspace, isscalar, asarray, inf, diagonal, sqrt
 
 try:
-    from scipy.odr import RealData, Model, ODR
     from scipy.optimize import leastsq
 except ImportError:
-    ODR = None
+    leastsq = None
 
 from nicos.core import ProgrammingError
+
+
+def _general_function(params, xdata, ydata, function):
+    return function(xdata, *params) - ydata
+
+def _weighted_general_function(params, xdata, ydata, function, weights):
+    return weights * (function(xdata, *params) - ydata)
+
+def curve_fit(f, xdata, ydata, p0=None, sigma=None, **kw):
+    """This is scipy.optimize.curve_fit, which is only available in very recent
+    scipy.  It is overwritten below by the version from scipy if it exists
+    there.
+    """
+    if p0 is None or isscalar(p0):
+        # determine number of parameters by inspecting the function
+        import inspect
+        args, varargs, varkw, defaults = inspect.getargspec(f)
+        if len(args) < 2:
+            msg = "Unable to determine number of fit parameters."
+            raise ValueError(msg)
+        if p0 is None:
+            p0 = 1.0
+        p0 = [p0]*(len(args)-1)
+
+    args = (xdata, ydata, f)
+    if sigma is None:
+        func = _general_function
+    else:
+        func = _weighted_general_function
+        args += (1.0/asarray(sigma),)
+
+    # Remove full_output from kw, otherwise we're passing it in twice.
+    return_full = kw.pop('full_output', False)
+    res = leastsq(func, p0, args=args, full_output=1, **kw)
+    (popt, pcov, infodict, errmsg, ier) = res
+
+    if ier not in [1,2,3,4]:
+        msg = "Optimal parameters not found: " + errmsg
+        raise RuntimeError(msg)
+
+    if (len(ydata) > len(p0)) and pcov is not None:
+        s_sq = (func(popt, *args)**2).sum()/(len(ydata)-len(p0))
+        pcov = pcov * s_sq
+    else:
+        pcov = inf
+
+    if return_full:
+        return popt, pcov, infodict, errmsg, ier
+    else:
+        return popt, pcov
+
+try:
+    from scipy.optimize import curve_fit
+except ImportError:
+    pass
 
 
 class FitResult(object):
@@ -44,14 +98,9 @@ class FitResult(object):
     def __str__(self):
         if self._failed:
             return 'Fit %-20s failed' % self._name
-        elif self._method == 'ODR':
-            return 'Fit %-20s success (  ODR  ), chi2: %8.3g, params: %s' % (
-                self._name or '', self.chi2,
-                ', '.join('%s = %8.3g +/- %8.3g' % v for v in zip(*self._pars)))
-        else:
-            return 'Fit %-20s success (leastsq), chi2: %8.3g, params: %s' % (
-                self._name or '', self.chi2,
-                ', '.join('%s = %8.3g' % v[:2] for v in zip(*self._pars)))
+        return 'Fit %-20s success, chi2: %8.3g, params: %s' % (
+            self._name or '', self.chi2,
+            ', '.join('%s = %8.3g' % v[:2] for v in zip(*self._pars)))
 
     def __nonzero__(self):
         return not self._failed
@@ -76,8 +125,7 @@ class Fit(object):
         self.parstart.append(start)
 
     def run(self, name, x, y, dy):
-        # XXX use curve_fit
-        if ODR is None:
+        if leastsq is None:
             # fitting not available
             return self.result(name, None, x, y, dy, None, None)
         if len(x) < 2:
@@ -93,33 +141,12 @@ class Fit(object):
             yn.append(y[i])
             dyn.append(dy[i])
         xn, yn, dyn = array(xn), array(yn), array(dyn)
-        # try fitting with ODR
-        data = RealData(xn, yn, sy=dyn)
-        # fit with fixed x values
-        odr = ODR(data, Model(self.model), beta0=self.parstart,
-                  ifixx=array([0]*len(xn)), ifixb=self.ifixb)
-        out = odr.run()
-        if 1 <= out.info <= 3:
-            return self.result(name, 'ODR', xn, yn, dyn, out.beta, out.sd_beta)
-        else:
-            # if it doesn't converge, try leastsq (doesn't consider errors)
-            try:
-                if not self.allow_leastsq:
-                    raise TypeError
-                out = leastsq(lambda v: self.model(v, xn) - yn, self.parstart)
-            except TypeError:
-                return self.result(name, None, xn, yn, dyn, None, None)
-            if out[1] <= 4:
-                if isinstance(out[0], float):
-                    parerrors = [0]
-                    parvalues = [out[0]]
-                else:
-                    parerrors = [0]*len(out[0])
-                    parvalues = out[0]
-                return self.result(name, 'leastsq', xn, yn, dyn, parvalues,
-                                   parerrors=parerrors)
-            else:
-                return self.result(name, None, xn, yn, dyn, None, None)
+        try:
+            popt, pcov = curve_fit(self.model, xn, yn, self.parstart, dyn)
+        except RuntimeError:
+            return self.result(name, None, xn, yn, dyn, None, None)
+        parerrors = sqrt(diagonal(pcov))
+        return self.result(name, 'ODR', xn, yn, dyn, popt, parerrors)
 
     def result(self, name, method, x, y, dy, parvalues, parerrors):
         if method is None:
@@ -139,8 +166,8 @@ class Fit(object):
             else:
                 xmax = self.xmax
             dct['curve_x'] = linspace(xmin, xmax, 1000)
-            dct['curve_y'] = self.model(parvalues, dct['curve_x'])
+            dct['curve_y'] = self.model(dct['curve_x'], *parvalues)
             ndf = len(x) - len(parvalues)
-            residuals = self.model(parvalues, x) - y
+            residuals = self.model(x, *parvalues) - y
             dct['chi2'] = sum(power(residuals, 2) / power(dy, 2)) / ndf
         return FitResult(**dct)

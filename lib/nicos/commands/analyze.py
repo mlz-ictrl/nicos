@@ -199,7 +199,7 @@ def poly(n, *columns):
     where both *coefficients* and *coeff_errors* are tuples of *n+1* elements.
     """
     xs, ys, dys = _getData(columns)
-    def model(v, x):
+    def model(x, *v):
         return sum(v[i]*x**i for i in range(n+1))
     fit = Fit(model, ['a%d' % i for i in range(n+1)], [1] * (n+1))
     res = fit.run('poly', xs, ys, dys)
@@ -228,8 +228,8 @@ def gauss(*columns):
     """
     xs, ys, dys = _getData(columns)
     c = 2 * np.sqrt(2 * np.log(2))
-    def model(v, x):
-        return v[1] * np.exp(-0.5 * (x - v[0])**2 / (v[2] / c)**2) + v[3]
+    def model(x, x0, A, sigma, back):
+        return A * np.exp(-0.5 * (x - x0)**2 / (sigma / c)**2) + back
     fit = Fit(model, ['x0', 'A', 'sigma', 'B'],
               [0.5*(xs[0]+xs[-1]), ys.max(), (xs[1]-xs[0])*5, 0],
               allow_leastsq=False)
