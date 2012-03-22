@@ -104,8 +104,7 @@ def count(*detlist, **preset):
         if detectors:
             raise UsageError('cannot specify different detector list '
                              'in manual scan')
-        scan.step(**preset)
-        return
+        return scan.step(**preset)
     if not detectors:
         detectors = session.experiment.detectors
     return _count(detectors, preset)
