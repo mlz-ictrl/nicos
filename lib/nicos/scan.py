@@ -300,6 +300,7 @@ class TimeScan(Scan):
                  scantype=None):
         self._etime = ElapsedTime('etime', unit='s', fmtstr='%.1f')
         self._started = time.time()
+        self._numsteps = numsteps
         if envlist is None:
             envlist = list(session.experiment.sampleenv)
         envlist.insert(0, self._etime)
@@ -321,6 +322,22 @@ class TimeScan(Scan):
     def endScan(self):
         Scan.endScan(self)
         self._etime.shutdown()
+
+    def preparePoint(self, num, xvalues):
+        Scan.preparePoint(self, num, xvalues)
+        if session.mode == 'simulation':
+            self._sim_start = session.clock.time
+
+    def finishPoint(self):
+        Scan.finishPoint(self)
+        if session.mode == 'simulation':
+            if self._numsteps > 1:
+                session.log.info('skipping %d steps...' % (self._numsteps - 1))
+                duration = session.clock.time - self._sim_start
+                session.clock.tick(duration * (self._numsteps - 1))
+            elif self._numsteps < 0:
+                session.log.info('would scan indefinitely, skipping...')
+            raise StopScan
 
 
 class ManualScan(Scan):

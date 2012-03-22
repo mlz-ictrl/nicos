@@ -169,8 +169,6 @@ def timescan(numsteps, *args, **kwargs):
     scanstr = _infostr('timescan', (numsteps,) + args, kwargs)
     preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(args, kwargs, scanstr)
-    if session.mode == 'simulation':
-        numsteps = 1
     scan = TimeScan(numsteps, move, multistep, detlist, envlist, preset, scaninfo)
     scan.run()
 
