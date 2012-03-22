@@ -6,6 +6,8 @@ Changelog for NICOS 2
   - Fixed a bug in simulation mode that would cause exceptions when
     wait()ing for fixed devices.
 
+  - Fixed calling "gauss()" and "poly()" with column names.
+
 **Release 2.1.0 (2012-03-14)**
 
   - Introduced the "Measurable.duringMeasureHook()" and
