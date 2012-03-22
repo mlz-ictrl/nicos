@@ -438,6 +438,7 @@ class _ScriptScope(object):
             session.experiment.scripts = session.experiment.scripts[:-1]
         session.elog_event('scriptend', self.filename)
 
+
 @usercommand
 def _RunScript(filename, statdevices):
     fn = _scriptfilename(filename)
@@ -456,7 +457,7 @@ def _RunScript(filename, statdevices):
         code = unicode(fp.read(), 'utf-8')
         compiled = compile(code + '\n', fn, 'exec', CO_DIVISION)
         with _ScriptScope(path.basename(fn), code):
-            exec compiled in session.local_namespace, session.namespace
+            exec compiled in session.namespace, session.local_namespace
     printinfo('finished user script: ' + fn)
     if session.mode == 'simulation':
         printinfo('simulated minimum runtime: ' +
