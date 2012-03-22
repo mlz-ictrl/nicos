@@ -31,6 +31,6 @@ sysconfig = dict(
 
 devices = dict(
     Poller = device('nicos.poller.Poller',
-                    alwayspoll = ['tube_environ'],
+                    alwayspoll = ['tube_environ', 'pressure',],
                     blacklist = ['tas']),
 )

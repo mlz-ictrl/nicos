@@ -55,8 +55,8 @@ _nim_voltage = (
     'Voltage Detector NIM',
     [
         [
-            {'name' : '+', 'dev' : 'tub_v1',},
-            {'name' : '-', 'dev' : 'tub_v2',},
+            {'name' : '+', 'dev' : 'tub_v1', 'min' : 5.75, },
+            {'name' : '-', 'dev' : 'tub_v2', 'max' : -5.75, },
         ],
     ],
 #   'tube_environment',
@@ -74,22 +74,12 @@ _electronicsbox = (
 #   'tube_environment',
 )
 
-_pressureblock = (
-    'Pressure',
-    [
-        [
-            {'name': 'P1', 'dev': 'tub_p1'},
-            {'name': 'P2', 'dev': 'tub_p2'},
-            {'name': 'P3', 'dev': 'tub_p3'},
-        ],
-    ],
-#   'tube_environment',
-)
-
 _warnings = [
     ('tub_t1/value', '> 35', 'Temp in electronics box > 35'),
     ('tub_t2/value', '> 35', 'Temp in electronics box > 35'),
     ('tub_t3/value', '> 35', 'Temp in electronics box > 35'),
+    ('tub_v1/value', '< 5.75', 'NIM voltage (+) < 5.75'),
+    ('tub_v2/value', '> -5.75', 'NIM voltage (-) > -5.75'),
 ]
 
 _rightcolumn = [
@@ -98,14 +88,13 @@ _rightcolumn = [
 ]
 
 _leftcolumn = [
-    _pressureblock,
     _interfaceboxtop,
     _interfaceboxbottom,
 ]
 
 devices = dict(
     Monitor = device('nicos.monitor.qt.Monitor',
-                     title = 'SANS1 status monitor',
+                     title = 'SANS1 Detector electronics monitor',
                      loglevel = 'info',
                      server = 'sans1ctrl.sans1.frm2',
                      prefix = 'nicos/',
