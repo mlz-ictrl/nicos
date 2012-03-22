@@ -33,7 +33,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    Sample   = device('nicos.tas.TASSample'),
+    Sample   = device('nicos.experiment.Sample'),
 
     Instrument = device('nicos.instrument.Instrument',
                         responsible = 'Dr. habil. Ralph Gilles',
