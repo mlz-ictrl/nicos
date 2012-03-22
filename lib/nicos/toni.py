@@ -38,6 +38,11 @@ from nicos.taco.core import TacoDevice
 
 
 class ModBus(TacoDevice, Device):
+    """Communication device that implements the Toni protocol.
+
+    Toni devices communicate via an RS-485 bus, where each device has an address
+    assigned.
+    """
     taco_class = StringIO
 
     parameters = {
@@ -85,6 +90,7 @@ class ModBus(TacoDevice, Device):
 
 
 class Valve(Moveable):
+    """Control element for 8 valves."""
 
     attached_devices = {
         'bus':  (ModBus, 'Toni communication bus'),
@@ -143,6 +149,8 @@ class Valve(Moveable):
 
 
 class Leckmon(Readable):
+    """Water supply leak monitor."""
+
     attached_devices = {
         'bus': (ModBus, 'Toni communication bus'),
     }
@@ -156,9 +164,7 @@ class Leckmon(Readable):
 
 
 class Ratemeter(Readable):
-    """
-    Toni ratemeter inside a "crate".
-    """
+    """Toni ratemeter inside a "crate"."""
 
     attached_devices = {
         'bus': (ModBus, 'Toni communication bus'),
