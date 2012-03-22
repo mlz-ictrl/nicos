@@ -147,12 +147,6 @@ class Axis(BaseAxis):
 
     def doRead(self):
         """Returns the current position from coder controller."""
-        # TODO: decide whether to re-enable this
-        #if self._errorstate:
-        #    errorstate = self._errorstate
-        #    self._errorstate = None
-        #    raise errorstate
-
         # XXX read() or read(0)
         return self._adevs['coder'].read() - self.offset
 

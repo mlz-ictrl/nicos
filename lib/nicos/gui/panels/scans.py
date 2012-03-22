@@ -519,7 +519,7 @@ class DataSetPlot(NicosPlot):
             return ''
 
     def yaxisName(self):
-        return ''  # XXX determine good axis names
+        return ''
 
     def xaxisScale(self):
         if self.dataset.xrange:

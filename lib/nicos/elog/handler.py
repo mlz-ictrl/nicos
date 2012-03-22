@@ -394,7 +394,7 @@ class Handler(object):
                           + '</tr>', '</table>\n', ''.join(html))
 
 
-# TODO more ideas:
+# XXX more ideas:
 # - internal links -> reference scan numbers or attachments
 # - integrated latex $foo$ syntax
 # - show errors in messages (or at least summary: "1 error")

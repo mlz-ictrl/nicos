@@ -46,7 +46,7 @@ K = 1.99573
 class Cell(Device):
     """Cell object representing sample geometry."""
 
-    # XXX _angles_rec is in radians, _angles is in degrees
+    # Caution: _angles_rec is in radians, _angles is in degrees!
 
     parameters = {
         'lattice': Param('Lattice constants', type=vec3, settable=True,
@@ -321,7 +321,7 @@ class Cell(Device):
 
     def cal_Y(self, r1, r2, hkl):
         """Calculate angle between 1st orientation reflection and Q vector."""
-        # XXX doesn't use r1 or r2!
+        # this function doesn't use r1 or r2...
         try:
             crit = 0.000001
             hkl = self.hkl2Qlab(hkl[0], hkl[1], hkl[2])

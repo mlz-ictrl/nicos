@@ -329,7 +329,6 @@ def Remember(what):
     """
     rtime = time.strftime('(%m/%d %H:%M) ')
     session.experiment.remember += [rtime + what]
-    # XXX notify elog?
 
 @usercommand
 def SetMode(mode):

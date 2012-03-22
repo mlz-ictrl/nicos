@@ -45,7 +45,7 @@ class Motor(TacoDevice, BaseMotor):
     }
 
     def doReset(self):
-        # XXX do NOT call deviceReset as long as it does a reference drive
+        # do NOT call deviceReset as long as it does a reference drive
         try:
             self._taco_guard(self._dev.deviceInit)
         except Exception:

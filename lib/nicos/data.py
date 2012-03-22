@@ -405,7 +405,8 @@ class GnuplotSink(DataSink):
                 time.strftime(TIMEFMT, dataset.started)))
             self._gnpl.xlabel('%s (%s)' % (dataset.xnames[dataset.xindex],
                                            dataset.xunits[dataset.xindex]))
-            self._gnpl.ylabel(str(dataset.detlist[0])) # XXX
+            if self.activecounter:
+                self._gnpl.ylabel(self.activecounter)
 
             self._xdata = []
             self._nperstep = len(dataset.ynames)

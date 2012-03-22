@@ -60,7 +60,6 @@ class WatchPanel(Panel):
         self.on_client_watch(state[3])
 
     def on_client_watch(self, data):
-        # XXX implement name:group scheme
         values = data
         names = set()
         for name, val in values.iteritems():

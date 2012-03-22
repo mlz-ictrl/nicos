@@ -73,7 +73,6 @@ class Monitor(BaseMonitor):
             if isinstance(self._geometry, tuple):
                 master.geometry('%sx%s+%s+%s' % self._geometry)
             else:
-                # XXX fullscreen?
                 pass
         if not self.resizable:
             master.resizable(False, False)

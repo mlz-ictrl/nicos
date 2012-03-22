@@ -265,7 +265,6 @@ class Scan(object):
                         for i in range(self._mscount):
                             self.moveDevices(self._mswhere[i])
                             session.action('Counting (step %s)' % (i+1))
-                            # XXX handle errors in _count
                             result.extend(_count(self._detlist, self._preset))
                     else:
                         session.action('Counting')
