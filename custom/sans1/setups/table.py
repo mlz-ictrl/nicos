@@ -25,7 +25,6 @@
 description = 'sample table devices'
 
 includes = ['system']
-# excludes = ['excluded']
 
 nethost= '//sans1srv.sans1.frm2/'
 

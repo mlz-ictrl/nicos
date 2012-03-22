@@ -25,7 +25,6 @@
 description = 'Vacuum sensors of detector and collimation tube'
 
 # includes = ['system']
-# excludes = ['excluded']
 
 nethost= '//pgaasrv.pgaa.frm2/'
 

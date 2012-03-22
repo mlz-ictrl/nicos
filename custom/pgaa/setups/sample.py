@@ -25,7 +25,6 @@
 description = 'sample table devices'
 
 # includes = ['system']
-# excludes = ['excluded']
 
 nethost= '//pgaasrv.pgaa.frm2/'
 

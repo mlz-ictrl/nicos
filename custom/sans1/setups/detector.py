@@ -25,7 +25,6 @@
 description = 'detector related devices'
 
 includes = ['system', 'tube_environ']
-# excludes = ['excluded']
 
 nethost= '//sans1srv.sans1.frm2/'
 
