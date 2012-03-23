@@ -319,8 +319,8 @@ class TimeScan(Scan):
         return ret
 
     def endScan(self):
-        Scan.endScan(self)
         self._etime.shutdown()
+        Scan.endScan(self)
 
 
 class ManualScan(Scan):
@@ -339,8 +339,8 @@ class ManualScan(Scan):
         self.beginScan()
 
     def manualEnd(self):
-        self.endScan()
         session.endActionScope()
+        self.endScan()
 
     def step(self, **preset):
         preset = preset or self._preset

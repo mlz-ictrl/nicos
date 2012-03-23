@@ -140,6 +140,7 @@ def scan(dev, *args, **kwargs):
         _handleScanArgs(restargs, kwargs, scanstr)
     Scan(devs, values, move, multistep, detlist, envlist, preset, scaninfo).run()
 
+
 @usercommand
 def cscan(dev, *args, **kwargs):
     """Scan around center.
@@ -289,8 +290,11 @@ class _ManualScan(object):
             raise
 
     def __exit__(self, *exc):
-        self.scan.manualEnd()
-        session._manualscan = None
+        try:
+            # this can raise NicosInteractiveStop!
+            self.scan.manualEnd()
+        finally:
+            session._manualscan = None
         if exc and exc[0] is StopScan:
             return True
 
