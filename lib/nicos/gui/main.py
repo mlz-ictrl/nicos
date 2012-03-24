@@ -32,7 +32,8 @@ import time
 import subprocess
 import cPickle as pickle
 
-from PyQt4.QtCore import Qt, QObject, QTimer, QSize, QVariant, QStringList, SIGNAL
+from PyQt4.QtCore import Qt, QObject, QTimer, QSize, QVariant, QStringList, \
+     SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
      QLabel, QSystemTrayIcon, QStyle, QPixmap, QMenu, QIcon, QAction, \
@@ -42,6 +43,7 @@ from nicos import __version__ as nicos_version
 from nicos.gui.data import DataHandler
 from nicos.gui.utils import DlgUtils, SettingGroup, loadBasicWindowSettings, \
      parseConnectionData, getXDisplay, dialogFromUi, loadUi, importString
+from nicos.gui.config import window, panel
 from nicos.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.gui.panels.console import ConsolePanel
 from nicos.gui.settings import SettingsDialog
@@ -118,6 +120,15 @@ class MainWindow(QMainWindow, DlgUtils):
             if not curprofile or curprofile not in self.profiles:
                 curprofile = default_profile_uid
             self.curprofile = curprofile
+
+        # determine if there is an editor window type, because we would like to
+        # have a way to open files later
+        self.editor_wintype = None
+        for i, winconfig in enumerate(self.profiles[self.curprofile][1]):
+            if isinstance(winconfig, window) and \
+               isinstance(winconfig[3], panel) and \
+               winconfig[3][0] == 'nicos.gui.panels.editor.EditorPanel':
+                self.editor_wintype = i - 1
 
         # additional panels
         self.panels = []
@@ -196,6 +207,7 @@ class MainWindow(QMainWindow, DlgUtils):
         for panel in window.panels:
             panel.updateStatus(self.current_status)
         window.show()
+        return window
 
     def on_auxWindow_closed(self, window):
         self.windows[window.type].discard(window)
@@ -252,8 +264,12 @@ class MainWindow(QMainWindow, DlgUtils):
 
         auxstate = settings.value('auxwindows').toList()
         for wtype in [x.toInt()[0] for x in auxstate]:
-            self.createWindow(wtype)
-        # XXX restore e.g. last edited files
+            if wtype != self.editor_wintype:
+                self.createWindow(wtype)
+        editfiles = settings.value('editfiles', []).toStringList()
+        for fn in editfiles:
+            win = self.createWindow(self.editor_wintype)
+            win.panels[0].openFile(str(fn))
 
     def saveSettings(self, settings):
         settings.setValue('geometry', QVariant(self.saveGeometry()))
@@ -261,10 +277,15 @@ class MainWindow(QMainWindow, DlgUtils):
         settings.setValue('splitstate',
                           QVariant([sp.saveState() for sp in self.splitters]))
         auxstate = []
+        editfiles = []
         for wtype, windows in self.windows.iteritems():
-            for _ in windows:
+            for win in windows:
                 auxstate.append(wtype)
+                print wtype, self.editor_wintype
+                if wtype == self.editor_wintype:
+                    editfiles.append(win.panels[0].filename)
         settings.setValue('auxwindows', QVariant(auxstate))
+        settings.setValue('editfiles', QVariant(QStringList(editfiles)))
         settings.setValue('autoconnect', QVariant(self.client.connected))
         servers = sorted(set(map(str, self.servers)))
         settings.setValue('servers', QVariant(QStringList(servers)))

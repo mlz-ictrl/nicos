@@ -131,10 +131,10 @@ class ConsolePanel(Panel):
                 self.commandInput.setText(url[5:])
                 self.commandInput.setFocus()
         elif url.startswith('edit:'):
-            # XXX implement this (also check if file is already open)
-            # editor = self.on_actionUserEditor_triggered()
-            # editor.openFile(url[5:])
-            pass
+            if not self.mainwindow.editor_wintype:
+                return
+            win = self.mainwindow.createWindow(self.mainwindow.editor_wintype)
+            win.panels[0].openFile(url[5:])
         elif url.startswith('trace:'):
             showTraceback(url[6:], self, self.outView)
         else:
