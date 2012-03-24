@@ -32,7 +32,7 @@ from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 
 from PyQt4.QtCore import Qt, QRegExp
 from PyQt4.QtGui import QTextCharFormat, QBrush, QColor, QFont, QTextBrowser, \
-     QTextCursor
+     QTextCursor, QMainWindow, QTextEdit
 
 from nicos.utils.loggers import INPUT, OUTPUT, ACTION
 
@@ -77,7 +77,6 @@ class OutputView(QTextBrowser):
     def __init__(self, parent):
         QTextBrowser.__init__(self, parent)
         self._messages = []
-        self._inview = False
         self._actionlabel = None
         self._currentuser = None
 
@@ -87,7 +86,6 @@ class OutputView(QTextBrowser):
     def clear(self):
         QTextBrowser.clear(self)
         self._messages = []
-        self._inview = False
 
     def scrollToBottom(self):
         bar = self.verticalScrollBar()
@@ -217,18 +215,17 @@ class OutputView(QTextBrowser):
             newcurs = self.document().find(what, cursor)
         self.setTextCursor(newcurs)
 
-    # XXX needs to be fixed
-
-    def viewOnly(self, match):
-        newlines = []
-        for line in self._lines:
-            if match(line):
-                newlines.append(line)
-        self.setPlainText(''.join(newlines))
-        self.scrollToBottom()
-        self._inview = True
-
-    def viewAll(self):
-        if self._inview:
-            self.setPlainText(''.join(self._lines))
-            self._inview = False
+    def occur(self, what, regex=False):
+        if regex:
+            fltargs = QRegExp(what, Qt.CaseInsensitive),
+        else:
+            fltargs = what, Qt.CaseInsensitive
+        content = self.toPlainText().split('\n').filter(*fltargs).join('\n')
+        window = QMainWindow(self)
+        window.resize(600, 800)
+        window.setWindowTitle('Lines matching %r' % str(what))
+        widget = QTextEdit(window)
+        widget.setFont(self.font())
+        window.setCentralWidget(widget)
+        widget.setText(content)
+        window.show()

@@ -166,7 +166,6 @@ class ConsolePanel(Panel):
 
     @qtsig('')
     def on_grepClose_clicked(self):
-        self.outView.viewAll()
         self.grepPanel.setVisible(False)
         self.commandInput.setFocus()
         self.outView.scrollToBottom()
@@ -182,27 +181,14 @@ class ConsolePanel(Panel):
         st = str(self.grepText.text())
         if not st:
             return
-        if self.grepHideRest.isChecked():
-            if self.grepRegex.isChecked():
-                try:
-                    st = re.compile(st, re.I)
-                except Exception:
-                    QMessageBox.information(self, 'Error',
-                                            'Not a valid regex.')
-                    return
-                match = st.search
-            else:
-                match = lambda line: st in line
-            self.outView.viewOnly(match)
-        else:
-            self.outView.findNext(st, self.grepRegex.isChecked())
+        self.outView.findNext(st, self.grepRegex.isChecked())
 
-    @qtsig('bool')
-    def on_grepHideRest_clicked(self, ischecked):
-        if not ischecked:
-            self.outView.viewAll()
-        else:
-            self.on_grepSearch_clicked()
+    @qtsig('')
+    def on_grepOccur_clicked(self):
+        st = str(self.grepText.text())
+        if not st:
+            return
+        self.outView.occur(st, self.grepRegex.isChecked())
 
     def on_commandInput_textChanged(self, text):
         try:
