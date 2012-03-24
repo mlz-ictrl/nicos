@@ -51,16 +51,16 @@ class IsegHV(TacoDevice, HasLimits, Moveable):
         'unit':  Override(mandatory=False, default='V'),
     }
 
-    states = {'ON ': status.OK,
-              'OFF': status.ERROR,
-              'MAN': status.ERROR,
-              'ERR': status.ERROR,
-              'INH': status.ERROR,
-              'QUA': status.ERROR,
-              'L2H': status.BUSY,
-              'H2L': status.BUSY,
-              'LAS': status.BUSY,
-              'TRP': status.ERROR,}
+    states = {'ON ': (status.OK,    'on'),
+              'OFF': (status.ERROR, 'switched off'),
+              'MAN': (status.ERROR, 'switched to manual control'),
+              'ERR': (status.ERROR, 'maximum voltage or current exceeded'),
+              'INH': (status.ERROR, 'inhibit signal active'),
+              'QUA': (status.ERROR, 'quality of voltage not guaranteed'),
+              'L2H': (status.BUSY,  'ramping up'),
+              'H2L': (status.BUSY,  'ramping down'),
+              'LAS': (status.BUSY,  'look at status (?)'),
+              'TRP': (status.ERROR, 'current trip reached')}
 
     def doInit(self):
         if self._mode == 'simulation':
@@ -70,7 +70,8 @@ class IsegHV(TacoDevice, HasLimits, Moveable):
         if resp.count(';') != 3:
             # hash is "info" command; it returns a string in the form
             # "deviceid;version;Umax;Imax"
-            raise CommunicationError('communication problem with HV supply')
+            raise CommunicationError(self, 'communication problem with HV '
+                                     'supply: ident response %r' % resp)
         # set write delay to minimum (1ms)
         self._taco_guard(self._dev.communicate, 'W=001')
         # find out polarity
@@ -94,27 +95,27 @@ class IsegHV(TacoDevice, HasLimits, Moveable):
         resp = self._taco_guard(self._dev.communicate, 'G%d' % self.channel)
         # return message is the status
         if resp[:3] != ('S%d=' % self.channel):
-            raise NicosError('could not set voltage: %r' % resp)
+            raise NicosError(self, 'could not set voltage: %r' % resp)
         if resp[3:] not in self.states or \
                self.states[resp[3:]] not in (status.OK, status.BUSY):
             if resp[3:] == 'MAN':
-                raise NicosError('could not set voltage, voltage control '
+                raise NicosError(self, 'could not set voltage, voltage control '
                                 'switched to manual')
             elif resp[3:] == 'OFF':
-                raise NicosError('could not set voltage, device off')
-            raise NicosError('could not set voltage: error %r' % resp[3:])
+                raise NicosError(self, 'could not set voltage, device off')
+            raise NicosError(self, 'could not set voltage: error %r' % resp[3:])
 
     def doRead(self):
         resp = self._taco_guard(self._dev.communicate, 'U%d' % self.channel)
         if not resp or resp[0] not in '+-':
-            raise NicosError('invalid voltage readout %r' % resp)
+            raise NicosError(self, 'invalid voltage readout %r' % resp)
         return int(resp)
 
     def doStatus(self):
         resp = self._taco_guard(self._dev.communicate, 'S%d' % self.channel)
         if resp[:3] != ('S%d=' % self.channel):
-            raise NicosError('invalid status readout %r' % resp)
-        return self.states[resp[3:]], resp[3:]
+            raise NicosError(self, 'invalid status readout %r' % resp)
+        return self.states[resp[3:]]
 
     def doWait(self):
         while 1:
@@ -122,14 +123,14 @@ class IsegHV(TacoDevice, HasLimits, Moveable):
             if resp[3:] == 'ON ':
                 return
             elif resp[3:] not in ('L2H', 'H2L'):
-                raise NicosError('device in error status: %s' % resp[3:])
+                raise NicosError(self, 'device in error status: %s' % resp[3:])
 
     def _current(self):
         # return the current in Amperes
         resp = self._taco_guard(self._dev.communicate, 'I%d' % self.channel)
         # format is MMMM-E (mantissa/exponent)
         if len(resp) != 6:
-            raise CommunicationError('invalid current readout %r' % resp)
+            raise CommunicationError(self, 'invalid current readout %r' % resp)
         return float(resp[:4] + 'e' + resp[4:])
 
     def doReadRamp(self):
@@ -139,6 +140,11 @@ class IsegHV(TacoDevice, HasLimits, Moveable):
     def doWriteRamp(self, ramp):
         resp = self._taco_guard(self._dev.communicate,
                                 'V%d=%03d' % (self.channel, ramp))
-        # XXX check resp
-        self._taco_guard(self._dev.communicate, 'A%d=01' % self.channel)
+        if resp:
+            raise CommunicationError(self, 'could not write ramp, reply from '
+                                     'device: %r' % resp)
+        resp = self._taco_guard(self._dev.communicate, 'A%d=01' % self.channel)
+        if resp:
+            raise CommunicationError(self, 'could not save ramp, reply from '
+                                     'device: %r' % resp)
         self.log.info('ramp set to %d V/s and stored in EEPROM' % ramp)
