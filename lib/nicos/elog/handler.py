@@ -56,15 +56,63 @@ PROLOG = '''\
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <style type="text/css">
+.attach:before  { content: url('data:image/png;base64,\
+iVBORw0KGgoAAAANSUhEUgAAABEAAAAQCAYAAADwMZRfAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A\
+/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wDGQ8LEDaGmqMAAAFZSURBVDjL\
+jdMxSJVRGMbxnyAJhlKDIok0CSZNLeFiSoQQ0iZNEQ01hFtDW4PS0pBig6g4NHhpVtoEF6G7CLUU\
+BS25BLW4eAOz2/IIB/nu5R744Lznfd8/zznv89HZGsd7NPP9xQIuddjvKU7wB8/wBG8C+9IJaC7F\
+39EfRXcwhNnkXrQDPErRR/RgrbjOb4xgFY1WgHspPsRlvEq8ESXNqHyQfeUVTvEVvVhO4WLxRk3c\
+xuMqyEwOf2IgE2jibfLTiQ/Qnbp6CbibKfxAH16mYSn5+/iHPVzAdvKTZ4BbxYMNYD7xu+QnEn/G\
+Rawnrp0BruAo0oYLcy1nPxuF9SioBfC6vMbzHF6reOQb53yyknjnfOEmvlUApuLST/HJRgDrVSNd\
+idxyXW/hk91WxrpZjO1hoI2o6yt8soWudhZfxK+M8BgfMIixAPY7/VsHMYqrxVlXxt/drvE/nU9k\
+avdp7V4AAAAASUVORK5CYII='); margin-right: 10px; }
+.scriptbegin:before { content: url('data:image/png;base64,\
+iVBORw0KGgoAAAANSUhEUgAAABIAAAAQCAYAAAAbBi9cAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A\
+/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wDGQ8NHodkECIAAAElSURBVDjL\
+ndS7SgNRFIXhL4l4IWJsrMROEHwAIZXY2Sg2IuIrKGJnIxY+gfgKijZaWHgDrRQ7C28oiIK1xNiZ\
+QsfmBOJkJgnZcNjMYZ2fNevsmZz2qxO7GMNlR5uQLkxhNjz/VEGrmEe2weHecPAGp7jHAnYwAsuI\
+UMZnyipjIwAvgj7CFuaQh2/stfA6OZwFwG/od+irCiKsNYFkcBSD3GKgVhRhvQnoOAZ5QKFWkG0C\
+6MEhJgMggydM4ysuTnPUjYOYk2cMoW5sGjkaxntNRi8oYjQp0zRQIdzIK/bxhhmUcBLc/au0yV4J\
+fRPj+MBjLI6WHC3iHBO4jkESq+ooH9sfRCVlKIXw60DbWApfc6VGmOS2GPpVkqv+8DuIWlilEHpd\
+/QHNJVMPjyyp4QAAAABJRU5ErkJggg=='); margin-right: 10px; }
+.sample:before { content: url('data:image/png;base64,\
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A\
+/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wDGQ8SFKrr96IAAACcSURBVDjL\
+nZLNDYMwDIW/DlOuvaN2ECTO7RSZhBmYgwszdAZ+LkVIpJdGQpFrG56US+Ln98nxBeiRNQBP4I2h\
+qJwZKLwNWqACxt3dBkzA1dMg6SWQTBpJKmqA2w87b6CSpILcEL0kqzFIk6QyUl0k4YD5L0l9gqTL\
+5xGc6RH4AA/pV7wkd225gpK8WGaLxGWWSJaj5v2erEApPX4BzWqNI+7tFigAAAAASUVORK5CYII=\
+'); margin-right: 10px; }
+.setup:before { content: url('data:image/png;base64,\
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A\
+/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wDGQ8UFPyxUCQAAAEaSURBVDjL\
+ndI/L0RBFAXw365SaCj0OsLqSDQaYSMajUqlo/NFNL6ARK3Q0UhEs9GuikIkolBYf0Kw9mnuY/Ls\
+k42T3Mxk7rnnnpm5FT+YQD+ucYMRTOIWTT1gF228I4v1E4d/FfWhhi3MYyjO8lwl1nE84aqbyDI6\
+0bWDM2zgNBxkEZtlLgbxFqRGIXeQCIyGo1/Iklgv5FYTZ1mZg2l8BOGkkNtLxGtlAlMh0InYRz2K\
+20n3tTKB2eh8n5CzxPozjrCIGayUCe0UCvP9EbZjmPLzJo6LAvX4vrEgzYXthXCY4TEiw0WZk0qX\
+OcniKjkews1steRbU7S6cF6j0bAe0QjhVnTP30G1R4EXnMfUDuASd/6BpXjcb3wBMQZeIkiUnJMA\
+AAAASUVORK5CYII='); margin-right: 10px; }
+.environment:before { content: url('data:image/png;base64,\
+iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAYAAADJViUEAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A\
+/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wDGQ8jJT1o8CoAAAC/SURBVCjP\
+pZExCsJQDIa/tiKCi1uhJ+gFnBzFwSt0dGgHL9KLOdXZHqCDF+ggIq1LCs+YoGggPPjzfyHJg9dI\
+gSPQAmOQregpTpTANQAG9Y5SLzVYGEYrp3oxgSug+wDp7ISjMrr3wAHYytsbU1UAjRLvQKbWykQP\
+fSeMjrVz0Fr5HjEQKdPZgbWeYBwjd+Bce2PDNDjwm27BiQN7+m8RARs1SQPcDO8CWIfjz4BdYJgD\
+FwdeAnv5b3fnr+Mv+AkLPVjDfYckaQAAAABJRU5ErkJggg=='); margin-right: 10px; }
+.detectors:before { content: url('data:image/png;base64,\
+iVBORw0KGgoAAAANSUhEUgAAABkAAAAOCAYAAADaOrdAAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A\
+/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wDGQ8lEtOP8qMAAAGZSURBVDjL\
+ldQ7aFVBEAbgLz4K8YlgJCgIQcRCVAKaVlCwUbDTTgS7YGejldiIjQ80CsF0QWyiEotY2FiIKCgW\
+CpIiiqAQjaKpDNfca/MfWC73JDcDyzkzszv/PzM722NxWY012I1BbEcTLXzGU/zEPP5ZpqzCQVzH\
+rwStWx9wOUS6lm0Ywe8iULMGoLR/DdiSsi9lqAve7ML+CmvrAE5hrsPBGziHv22Bp3EajzoAv8e6\
+doAD+FJsns3/6/gf1zAfir8VEjOF7xk2VwCbkmIrfbiFY8lqGCsKAu3rYWJM4U1u4G38if9uLpEr\
+MSzgaA4NhNlE9JcYT7Ayk0vxN0J0a/TD+JQ9A1Wzq8NjxQ17F9sGnEkpyp7NYy+ORH9QlH84tgls\
+rIx70shWAHfhXvTx7DmfMjTwHSdin03WZ7GjIDyJ3vbm9+FJgjQwWgziHazP9PenT/14Hv83XM3/\
+HG6iZ7FZGcLHDk2eCtiFlHWm8C3k+wLHu536nbiIH0s8KdV6i5PYstz3a2Um9xDu59komU/jGvan\
+jLXyH3Wauf0/mhjGAAAAAElFTkSuQmCC'); margin-right: 10px; }
 body      { font-family: 'Arial', 'Helvetica', sans-serif; }
 .remark   { font-weight: bold; }
 .sample   { font-weight: bold; }
 .script   { font-weight: bold; }
-.attach:before  { content: url('data:image/png;base64,\
-iVBORw0KGgoAAAANSUhEUgAAAAcAAAAPAQMAAAASz0f9AAAAFXRFWHRDcmVhdGlvbiBUaW1lAAfT\
-AgsIESPfE/DqAAAAB3RJTUUH0wILCBE0icGWXQAAAAlwSFlzAAAK8AAACvABQqw0mAAAAAZQTFRF\
-////AAAAVcLTfgAAAB5JREFUeNpjkGFQAkJlIF4NhKvAcDXDZoYmBheGGgBQzQaaI6OKqAAAAABJ\
-RU5ErkJggg=='); margin-right: 10px; }
 .time     { font-size: small; float: right; background-color: #eee; }
 .msgblock { cursor: pointer; margin-left: 20px; }
 .msglabel { font-size: small; border: 1px solid #ccc;
@@ -81,6 +129,7 @@ table     { border-collapse: collapse; }
 td, th    { border: 1px solid #ccc; padding: 3px; }
 th        { text-align: left; }
 .scan     { width: 100%; }
+.head     { background-color: #eee; }
 .scannum  { font-weight: bold; }
 </style>
 <script type="text/javascript">
@@ -188,14 +237,16 @@ class HtmlWriter(object):
             self.fd_toc.write(html)
             self.fd_toc.flush()
 
-    def toc_entry(self, level, text, target):
+    def toc_entry(self, level, text, target, cls=None):
         html = ''
         if self.toc_level < level:
             html += '<ul class="toc">' * (level - self.toc_level)
         elif self.toc_level > level:
-            html += '</ul>' * (self.toc_level - level)
+            html += '</ul>' * (self.toc_level - level) + '\n'
         html += ('<li class="toc"><a href="content.html#%s" '
-                 'target="content">%s</a></li>' % (target, escape(text)))
+                 'target="content"%s>%s</a></li>\n' % (
+                     target, cls and ' class="%s"' % cls or '',
+                     escape(text)))
         self.emit_toc(html)
         self.toc_level = level
 
@@ -258,7 +309,7 @@ class Handler(object):
         targetid = self.out.new_id()
         self.out.timestamp(time)
         self.out.newstate('plain', '', '',
-            '<p id="%s" class="remark">%s</p>\n' % (targetid, escape(remark)))
+            '<h3 id="%s" class="remark">%s</h3>\n' % (targetid, escape(remark)))
         self.out.toc_entry(2, escape(remark), targetid)
 
     def handle_scriptbegin(self, time, data):
@@ -267,7 +318,7 @@ class Handler(object):
         text = 'Script started: %s' % escape(data)
         #self.out.toc_entry(2, text, targetid)
         self.out.newstate('plain', '', '',
-            '<p id="%s" class="script">%s</p>\n' % (targetid, text))
+            '<p id="%s" class="scriptbegin">%s</p>\n' % (targetid, text))
 
     def handle_scriptend(self, time, data):
         self.out.timestamp(time)
@@ -275,13 +326,13 @@ class Handler(object):
         text = 'Script finished: %s' % escape(data)
         #self.out.toc_entry(2, text, targetid)
         self.out.newstate('plain', '', '',
-            '<p id="%s" class="script">%s</p>\n' % (targetid, text))
+            '<p id="%s" class="scriptend">%s</p>\n' % (targetid, text))
 
     def handle_sample(self, time, data):
         self.out.timestamp(time)
         text = 'New sample: %s' % escape(data)
         targetid = self.out.new_id()
-        self.out.toc_entry(2, text, targetid)
+        self.out.toc_entry(2, text, targetid, 'sample')
         self.out.newstate('plain', '', '',
             '<p id="%s" class="sample">%s</p>\n' % (targetid, text))
 
@@ -289,7 +340,7 @@ class Handler(object):
         self.out.timestamp(time)
         text = 'New standard detectors: %s' % escape(', '.join(dlist))
         targetid = self.out.new_id()
-        self.out.toc_entry(2, text, targetid)
+        self.out.toc_entry(2, text, targetid, 'detectors')
         self.out.newstate('plain', '', '',
             '<p id="%s" class="detectors">%s</p>\n' % (targetid, text))
 
@@ -297,7 +348,7 @@ class Handler(object):
         self.out.timestamp(time)
         text = 'New standard environment: %s' % escape(', '.join(dlist))
         targetid = self.out.new_id()
-        self.out.toc_entry(2, text, targetid)
+        self.out.toc_entry(2, text, targetid, 'environment')
         self.out.newstate('plain', '', '',
             '<p id="%s" class="environment">%s</p>\n' % (targetid, text))
 
@@ -395,11 +446,12 @@ class Handler(object):
         html.append('</tr>')
         headers = ''.join('<th width="%d%%">%s</th>' %
                           (100/len(headers), escape(h)) for h in headers)
-        self.out.newstate('scan-' + names, '<table class="scan"><tr>' + headers
+        self.out.newstate('scan-' + names,
+                          '<table class="scan"><tr class="head">' + headers
                           + '</tr>', '</table>\n', ''.join(html))
 
 
-# XXX more ideas:
+# more ideas:
 # - internal links -> reference scan numbers or attachments
 # - integrated latex $foo$ syntax
 # - show errors in messages (or at least summary: "1 error")
