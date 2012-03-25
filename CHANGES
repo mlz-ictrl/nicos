@@ -10,6 +10,11 @@ Changelog for NICOS 2
 
   - Improved the message display in the web interface.
 
+  - Improved the ELog HTML styling.
+
+  - Added a "debug" keyword-only argument to "Simulate()" that prints a
+    traceback on exception.
+
 **Release 2.1.2**
 
   - Fixed not being able to run another manualscan after stopping a

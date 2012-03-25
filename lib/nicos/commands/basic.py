@@ -440,7 +440,7 @@ class _ScriptScope(object):
 
 
 @usercommand
-def _RunScript(filename, statdevices):
+def _RunScript(filename, statdevices, debug=False):
     fn = _scriptfilename(filename)
     if not path.isfile(fn) and os.access(fn, os.R_OK):
         raise UsageError('The file %r does not exist or is not readable' % fn)
@@ -457,7 +457,12 @@ def _RunScript(filename, statdevices):
         code = unicode(fp.read(), 'utf-8')
         compiled = compile(code + '\n', fn, 'exec', CO_DIVISION)
         with _ScriptScope(path.basename(fn), code):
-            exec compiled in session.namespace, session.local_namespace
+            try:
+                exec compiled in session.namespace, session.local_namespace
+            except Exception:
+                if debug:
+                    traceback.print_exc()
+                raise
     printinfo('finished user script: ' + fn)
     if session.mode == 'simulation':
         printinfo('simulated minimum runtime: ' +
@@ -471,10 +476,15 @@ def _RunScript(filename, statdevices):
 
 
 @usercommand
-def _RunCode(code):
+def _RunCode(code, debug=False):
     if session.mode == 'simulation':
         starttime = session.clock.time
-    exec code in session.namespace, session.local_namespace
+    try:
+        exec code in session.namespace, session.local_namespace
+    except Exception:
+        if debug:
+            traceback.print_exc()
+        raise
     if session.mode == 'simulation':
         printinfo('simulated minimum runtime: ' +
                   formatDuration(session.clock.time - starttime))
@@ -489,7 +499,7 @@ def Run(filename):
 
 
 @usercommand
-def Simulate(what, *devices):
+def Simulate(what, *devices, **kwargs):
     """Run code or a script file in simulation mode.  If the file name is not
     absolute, it is relative to the experiment script directory.
 
@@ -505,18 +515,19 @@ def Simulate(what, *devices):
 
         Simulate('move(mono, 1.55); read(mtt)')
     """
+    debug = bool(kwargs.get('debug', False))
     fn = _scriptfilename(what)
     if not path.isfile(fn):
         try:
             compile(what + '\n', 'exec', 'exec')
         except Exception:
             raise NicosError('Argument is neither a script file nor valid code')
-        session.forkSimulation('_RunCode(%r)' % what)
+        session.forkSimulation('_RunCode(%r, %s)' % (what, debug))
         return
     if session.mode == 'simulation':
         return _RunScript(what, devices)
-    session.forkSimulation('_RunScript(%r, [%s])' %
-                           (what, ', '.join(dev.name for dev in devices)))
+    session.forkSimulation('_RunScript(%r, [%s], %s)' %
+        (what, ', '.join(dev.name for dev in devices), debug))
 
 
 @usercommand
