@@ -66,6 +66,9 @@ class TofCounter(Measurable):
             Value('monitor', unit='cts', type='monitor'), \
             Value('total', unit='cts', type='counter')
 
+    def presetInfo(self):
+        return ['t', 'm']
+
     def doPreinit(self):
         if self._mode != 'simulation':
             self._counter = self._create_dev('//toftofsrv/toftof/tof/tofhistcntr')

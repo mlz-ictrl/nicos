@@ -74,6 +74,9 @@ class Amplifier(Measurable, TacoDevice):
         return Value('X', unit='V'), Value('Y', unit='V'), \
                Value('R', unit='V'), Value('Theta', unit='deg', type='counter')
 
+    def presetInfo(self):
+        return ['delay']
+
     def doSetPreset(self, **preset):
         self._delay = preset.get('delay', 0)
 

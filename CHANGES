@@ -3,6 +3,9 @@ Changelog for NICOS 2
 
 **Release 2.2.0**
 
+  - Added an API "Measurable.presetInfo()" that returns the accepted preset
+    keys; to check that given presets are actually used by the detector(s).
+
   - Added a new standalone history viewer that plots cache data.
 
   - Improved the message display in the web interface.

@@ -31,7 +31,7 @@ from time import sleep
 from nicos import session
 from nicos.core import Measurable, UsageError
 from nicos.commands import usercommand
-from nicos.commands.output import printinfo
+from nicos.commands.output import printinfo, printwarning
 
 
 def _count(detlist, preset):
@@ -107,6 +107,12 @@ def count(*detlist, **preset):
         return scan.step(**preset)
     if not detectors:
         detectors = session.experiment.detectors
+    names = set(preset)
+    for det in detectors:
+        names.difference_update(det.presetInfo())
+    if names:
+        printwarning('these preset keys were not recognized by any of the '
+                     'detectors: %s' % ', '.join(names))
     return _count(detectors, preset)
 
 
@@ -122,10 +128,15 @@ def preset(**preset):
         preset(m1=5000)   # sets a monitor preset of 5000 counts, for detectors
                           # that support monitor presets
     """
-    for detector in session.experiment.detectors:
-        detector.setPreset(**preset)
+    names = set(preset)
+    for det in session.experiment.detectors:
+        names.difference_update(det.presetInfo())
+        det.setPreset(**preset)
     printinfo('new preset: ' +
               ', '.join('%s=%s' % item for item in preset.iteritems()))
+    if names:
+        printwarning('these preset keys were not recognized by any of the '
+                     'detectors: %s' % ', '.join(names))
 
 
 @usercommand

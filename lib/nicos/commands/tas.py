@@ -92,7 +92,6 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
             else:
                 move.append((session.devices[key], value))
         else:
-            # XXX this silently accepts wrong keys; restrict the possible keys?
             preset[key] = value
     return preset, scaninfo, detlist, envlist, move, multistep, Q, dQ
 

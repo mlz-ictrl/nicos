@@ -1345,6 +1345,8 @@ class Measurable(Readable):
     * doResume()
     * doTime()
     * doSimulate()
+    * valueInfo()
+    * presetInfo()
     """
 
     parameter_overrides = {
@@ -1533,3 +1535,11 @@ class Measurable(Readable):
         additional info about the value type.
         """
         return Value(self.name, unit=self.unit),
+
+    def presetInfo(self):
+        """Return an iterable of preset keys accepted by this device.
+
+        The default implementation returns only a 't' (time) preset.  This must
+        be overridden by all measurables that support more presets.
+        """
+        return ('t',)

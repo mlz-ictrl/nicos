@@ -264,6 +264,8 @@ possible with the device:
 
    .. automethod:: valueInfo
 
+   .. automethod:: presetInfo
+
    .. method:: info()
 
       The default implementation of :meth:`Device.info` for Readables adds the

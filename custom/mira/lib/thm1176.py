@@ -131,6 +131,9 @@ class THM(Measurable):
                Value('Bz', unit='uT', errors='next'), \
                Value('dBz', unit='uT', type='error')
 
+    def presetInfo(self):
+        return []
+
     def _average(self, nvalues, output):
         # format: #6nnnnnnbbbbbbbb...
         assert output.startswith('#6')

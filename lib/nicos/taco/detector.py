@@ -172,13 +172,19 @@ class FRMDetector(Measurable):
 
     def doPreinit(self):
         self._counters = []
+        self._presetkeys = {}
 
         if self._adevs['timer'] is not None:
             self._counters.append(self._adevs['timer'])
-        for mdev in self._adevs['monitors']:
+            self._presetkeys['t'] = self._presetkeys['time'] = \
+                self._adevs['timer']
+        for i, mdev in enumerate(self._adevs['monitors']):
             self._counters.append(mdev)
-        for cdev in self._adevs['counters']:
+            self._presetkeys['mon%d' % (i+1)] = mdev
+        for i, cdev in enumerate(self._adevs['counters']):
             self._counters.append(cdev)
+            self._presetkeys['det%d' % (i+1)] = \
+                self._presetkeys['ctr%d' % (i+1)] = cdev
         self._getMasters()
 
     def doReadFmtstr(self):
@@ -199,17 +205,11 @@ class FRMDetector(Measurable):
             master.ismaster = False
             master.mode = 'normal'
         for name in preset:
-            if name == 't' or name == 'time':
-                dev = self._adevs['timer']
-            elif name.startswith('mon'):
-                dev = self._adevs['monitors'][int(name[3:])-1]
-            elif name.startswith('ctr') or name.startswith('det'):
-                dev = self._adevs['counters'][int(name[3:])-1]
-            else:
-                continue
-            dev.ismaster = True
-            dev.mode = 'preselection'
-            dev.preselection = preset[name]
+            if name in self._presetkeys:
+                dev = self._presetkeys[name]
+                dev.ismaster = True
+                dev.mode = 'preselection'
+                dev.preselection = preset[name]
         self._getMasters()
 
     def doStart(self, **preset):
@@ -258,3 +258,6 @@ class FRMDetector(Measurable):
 
     def valueInfo(self):
         return sum((ctr.valueInfo() for ctr in self._counters), ())
+
+    def presetInfo(self):
+        return set(self._presetkeys)

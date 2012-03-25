@@ -63,6 +63,13 @@ class Scan(object):
         if not detlist:
             printwarning('scanning without detector, use SetDetectors() '
                          'to select which detector(s) you want to use')
+        elif preset:
+            names = set(preset)
+            for det in detlist:
+                names.difference_update(det.presetInfo())
+            if names:
+                printwarning('these preset keys were not recognized by any of '
+                             'the detectors: %s' % ', '.join(names))
         if envlist is None:
             envlist = session.experiment.sampleenv
         self._firstmoves = firstmoves

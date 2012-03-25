@@ -109,6 +109,9 @@ class CascadeDetector(AsyncDetector, ImageStorage):
             return self._adevs['master'].valueInfo() + cvals
         return cvals
 
+    def presetInfo(self):
+        return ['t']
+
     def doUpdateDebugmsg(self, value):
         if self._mode != 'simulation':
             cascadeclient.GlobalConfig.SetLogLevel(value and 3 or 0)
