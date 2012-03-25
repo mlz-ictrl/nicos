@@ -46,7 +46,6 @@ class Axis(BaseAxis):
     }
 
     parameter_overrides = {
-        # XXX determine this from motor precision if not given
         'precision': Override(mandatory=True),
         # these are not mandatory for the axis: the motor should have them
         # defined anyway, and by default they are correct for the axis as well
@@ -54,10 +53,13 @@ class Axis(BaseAxis):
     }
 
     parameters = {
-        'speed':  Param('Motor speed', unit='main/s', volatile=True,
-                        settable=True),
-        'jitter': Param('Amount of position jitter allowed', unit='main',
-                        type=floatrange(0.0, 10.0), settable=True),
+        'speed':       Param('Motor speed', unit='main/s', volatile=True,
+                             settable=True),
+        'jitter':      Param('Amount of position jitter allowed', unit='main',
+                             type=floatrange(0.0, 10.0), settable=True),
+        'obsreadings': Param('Number of observer readings to average over '
+                             'when determining current position', type=int,
+                             default=100, settable=True),
     }
 
     def doInit(self):
@@ -168,13 +170,10 @@ class Axis(BaseAxis):
         if self._hascoder or not self._adevs['obs']:
             # read the coder
             return self._adevs['coder'].read(0)
-        # XXX probably make this a parameter, could also be a par of the
-        # obs-device... someone please decide!
-        rounds = 100
         obs = self._adevs['obs']
+        rounds = self.obsreadings
         pos = sum(o.doRead() for _ in range(rounds) for o in obs)
-        pos /= float(rounds * len(obs))
-        return pos
+        return pos / float(rounds * len(obs))
 
     def doReset(self):
         """Resets the motor/coder controller."""
