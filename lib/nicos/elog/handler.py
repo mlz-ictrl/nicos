@@ -109,7 +109,7 @@ MSzgaA4NhNlE9JcYT7Ayk0vxN0J0a/TD+JQ9A1Wzq8NjxQ17F9sGnEkpyp7NYy+ORH9QlH84tgls\
 rIx70shWAHfhXvTx7DmfMjTwHSdin03WZ7GjIDyJ3vbm9+FJgjQwWgziHazP9PenT/14Hv83XM3/\
 HG6iZ7FZGcLHDk2eCtiFlHWm8C3k+wLHu536nbiIH0s8KdV6i5PYstz3a2Um9xDu59komU/jGvan\
 jLXyH3Wauf0/mhjGAAAAAElFTkSuQmCC'); margin-right: 10px; }
-body      { font-family: 'Arial', 'Helvetica', sans-serif; }
+body      { font-family: 'Lucida Grande', 'Helvetica', 'Arial', sans-serif; }
 .remark   { font-weight: bold; }
 .sample   { font-weight: bold; }
 .script   { font-weight: bold; }
@@ -123,14 +123,19 @@ body      { font-family: 'Arial', 'Helvetica', sans-serif; }
 .messages .input { font-weight: bold; }
 .messages .warn  { color: #c000c0; }
 .messages .err   { font-weight: bold; color: #c00000; }
+ul.toc        { padding-left: 20px; list-style-type: square;
+                font-size: 90%; }
 body > ul.toc { padding-left: 0; }
-ul.toc        { padding-left: 25px; }
-table     { border-collapse: collapse; }
-td, th    { border: 1px solid #ccc; padding: 3px; }
-th        { text-align: left; }
-.scan     { width: 100%; }
-.head     { background-color: #eee; }
-.scannum  { font-weight: bold; }
+ul.toc li     { margin-bottom: 0.5em; }
+a             { text-decoration: none; color: #03c; }
+a:hover       { text-decoration: underline; color: #05f; }
+table         { border-collapse: collapse; }
+td, th        { border: 1px solid #ccc; padding: 3px; }
+th            { text-align: left; }
+.scan         { width: 100%; }
+.scannum      { font-weight: bold; }
+.showlinks    { font-size: small; }
+.contenthead  { letter-spacing: 0.15em; }
 </style>
 <script type="text/javascript">
 function hideshow(divel) {
@@ -165,11 +170,11 @@ function msghide() {
 '''
 
 PROLOG_TOC = '''\
-<p style="font-size: small">
+<p class="showlinks">
   <a href="javascript:parent.content.msgshow()">Show all messages</a><br>
   <a href="javascript:parent.content.msghide()">Hide all messages</a>
 </p>
-<p><b>Contents</b></p>
+<p class="contenthead">Contents</p>
 '''
 
 
