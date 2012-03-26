@@ -237,8 +237,7 @@ def gauss(*columns):
     def model(x, x0, A, sigma, back):
         return A * np.exp(-0.5 * (x - x0)**2 / (sigma / c)**2) + back
     fit = Fit(model, ['x0', 'A', 'sigma', 'B'],
-              [0.5*(xs[0]+xs[-1]), ys.max(), (xs[1]-xs[0])*5, 0],
-              allow_leastsq=False)
+              [0.5*(xs[0]+xs[-1]), ys.max(), (xs[1]-xs[0])*5, 0])
     res = fit.run('gauss', xs, ys, dys)
     if res._failed:
         return None, None
