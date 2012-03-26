@@ -29,7 +29,6 @@ __version__ = "$Revision$"
 import time
 
 from nicos import session
-from nicos.tas import TAS
 from nicos.core import status, Readable, NicosError, LimitError, \
      ModeError, InvalidValueError, PositionError, CommunicationError, \
      TimeoutError, ComputationError, MoveError, INFO_CATEGORIES
@@ -399,6 +398,7 @@ class QScan(Scan):
     def __init__(self, positions, firstmoves=None, multistep=None,
                  detlist=None, envlist=None, preset=None, scaninfo=None,
                  scantype=None):
+        from nicos.tas import TAS
         inst = session.instrument
         if not isinstance(inst, TAS):
             raise NicosError('cannot do a Q scan, your instrument device '
