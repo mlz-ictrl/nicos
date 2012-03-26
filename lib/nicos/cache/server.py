@@ -604,6 +604,7 @@ class FlatfileCacheDatabase(CacheDatabase):
 
     def doShutdown(self):
         self._stoprequest = True
+        self._cleaner.join()
 
     def initDatabase(self):
         # read the last entry for each key from disk
@@ -687,18 +688,17 @@ class FlatfileCacheDatabase(CacheDatabase):
         if entry.value is None:
             return [key + OP_TELLOLD + '\r\n']
         # check for expired keys
+        op = entry.expired and OP_TELLOLD or OP_TELL
         if entry.ttl:
-            op = entry.expired and OP_TELLOLD or OP_TELL
             if ts:
                 return ['%s+%s@%s%s%s\r\n' % (entry.time, entry.ttl,
                                               key, op, entry.value)]
             else:
                 return [key + op + entry.value + '\r\n']
         if ts:
-            return ['%s@%s%s%s\r\n' % (entry.time, key,
-                                       OP_TELL, entry.value)]
+            return ['%s@%s%s%s\r\n' % (entry.time, key, op, entry.value)]
         else:
-            return [key + OP_TELL + entry.value + '\r\n']
+            return [key + op + entry.value + '\r\n']
 
     def ask_wc(self, key, ts, time, ttl):
         ret = set()
@@ -713,8 +713,8 @@ class FlatfileCacheDatabase(CacheDatabase):
                     if entry.value is None:
                         continue
                     # check for expired keys
+                    op = entry.expired and OP_TELLOLD or OP_TELL
                     if entry.ttl:
-                        op = entry.expired and OP_TELLOLD or OP_TELL
                         if ts:
                             ret.add('%s+%s@%s%s%s\r\n' %
                                     (entry.time, entry.ttl, prefix+subkey,
@@ -723,9 +723,9 @@ class FlatfileCacheDatabase(CacheDatabase):
                             ret.add(prefix+subkey + op + entry.value + '\r\n')
                     elif ts:
                         ret.add('%s@%s%s%s\r\n' % (entry.time, prefix+subkey,
-                                                   OP_TELL, entry.value))
+                                                   op, entry.value))
                     else:
-                        ret.add(prefix+subkey + OP_TELL + entry.value + '\r\n')
+                        ret.add(prefix+subkey + op + entry.value + '\r\n')
         return ret
 
     def ask_hist(self, key, fromtime, totime):
@@ -761,8 +761,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         return ret
 
     def _clean(self):
-        while not self._stoprequest:
-            sleep(0.5)
+        def cleanonce(purge=False):
             with self._cat_lock:
                 for cat, (fd, lock, db) in self._cat.iteritems():
                     with lock:
@@ -770,7 +769,8 @@ class FlatfileCacheDatabase(CacheDatabase):
                             if not entry.value or entry.expired:
                                 continue
                             time = currenttime()
-                            if entry.ttl and entry.time + entry.ttl < time:
+                            if entry.ttl and (purge or
+                                              entry.time + entry.ttl < time):
                                 entry.expired = True
                                 for client in self._server._connected.values():
                                     client.update(cat + '/' + subkey,
@@ -778,6 +778,13 @@ class FlatfileCacheDatabase(CacheDatabase):
                                                   time, None)
                                 fd.write('%s\t%s\t-\n' % (subkey, time))
                                 fd.flush()
+        while not self._stoprequest:
+            sleep(0.5)
+            cleanonce()
+        # mark all entries with TTL as expired so that we do not load expired
+        # values as permanent on cache restart
+        self.log.debug('shutdown: cleaning remaining entries with ttl')
+        cleanonce(purge=True)
 
     def tell(self, key, value, time, ttl, from_client, fdupdate=True):
         if value is None:

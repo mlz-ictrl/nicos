@@ -8,6 +8,9 @@ Changelog for NICOS 2
 
   - Fixed error in "history()" when calling with actual timestamps.
 
+  - Fixed glitches in cache handling of expired values when restarting
+    the cache server.
+
 **Release 2.1.1 (2012-03-22)**
 
   - Fixed an elog bug that caused elog to quit on Unicode errors.
