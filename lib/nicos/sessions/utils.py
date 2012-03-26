@@ -30,6 +30,7 @@ import os
 import re
 import time
 import socket
+import readline
 import exceptions
 import rlcompleter
 
@@ -94,6 +95,11 @@ class NicosCompleter(rlcompleter.Completer):
     attr_hidden = set(['attached_devices', 'parameters', 'hardware_access',
                        'temporary', 'log', 'valuetype', 'mro'])
     global_hidden = set(dir(exceptions))
+    special = set(func + '(' for func in
+                  ['move', 'drive', 'maw', 'switch', 'wait', 'read',
+                   'status', 'stop', 'reset', 'set', 'get', 'fix',
+                   'release', 'adjust', 'version', 'history', 'limits',
+                   'resetlimits', 'listparams', 'listmethods'])
 
     def attr_matches(self, text):
         matches = rlcompleter.Completer.attr_matches(self, text)
@@ -102,6 +108,9 @@ class NicosCompleter(rlcompleter.Completer):
                                            or m[textlen:] in self.attr_hidden)]
 
     def global_matches(self, text):
+        line = readline.get_line_buffer()
+        if line[:len(line)-len(text)].strip() in self.special:
+            return [k for k in session.explicit_devices if k.startswith(text)]
         matches = rlcompleter.Completer.global_matches(self, text)
         return [m for m in matches if m[:-1] not in self.global_hidden]
 
