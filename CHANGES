@@ -18,6 +18,8 @@ Changelog for NICOS 2
   - Added "obsreadings" parameter to generic axis to use instead of the
     hardcoded 100 times when asking observers for the current value.
 
+  - Added "history()" method to Grace liveplot.
+
 **Release 2.1.2**
 
   - Fixed not being able to run another manualscan after stopping a
