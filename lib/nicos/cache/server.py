@@ -604,41 +604,59 @@ class FlatfileCacheDatabase(CacheDatabase):
 
     def doShutdown(self):
         self._stoprequest = True
+        self._cleaner.join()
+
+    def _read_one_storefile(self, filename):
+        fd = open(filename, 'r+U')
+        db = {}
+        for line in fd:
+            try:
+                subkey, time, value = line.rstrip().split(None, 2)
+                if value != '-':
+                    db[subkey] = Entry(float(time), None, value)
+                elif subkey in db:
+                    db[subkey].expired = True
+            except Exception:
+                self.log.warning('could not interpret line from '
+                    'cache file %s: %r' % (filename, line), exc=1)
+        return fd, db
 
     def initDatabase(self):
         # read the last entry for each key from disk
         nkeys = 0
+        do_rollover = False
+        # read entries from today if they exist
+        curdir = path.join(self._basepath, self._year, self._currday)
+        # else read from last day with cache entries by default (lastday must be
+        # a symlink to the last day directory)
+        if not path.isdir(curdir):
+            curdir = path.join(self._basepath, 'lastday')
+            # in this case, we need to create new cache files for today, so we
+            # perform a faux rollover immediately after reading the db
+            do_rollover = True
+        # and if that doesn't exist, give up
+        if not path.isdir(curdir):
+            return
         with self._cat_lock:
-            curdir = path.join(self._basepath, self._year, self._currday)
-            if not path.isdir(curdir):
-                return
             for fn in os.listdir(curdir):
                 cat = fn.replace('-', '/')
                 try:
-                    fd = open(path.join(curdir, fn), 'r+U')
-                    db = {}
-                    for line in fd:
-                        try:
-                            subkey, time, value = line.rstrip().split(None, 2)
-                            if value != '-':
-                                db[subkey] = Entry(float(time), None, value)
-                            elif subkey in db:
-                                db[subkey].expired = True
-                        except Exception:
-                            self.log.warning('could not interpret line from '
-                                'cache file %s: %r' % (fn, line), exc=1)
+                    fd, db = self._read_one_storefile(path.join(curdir, fn))
                     lock = threading.Lock()
                     self._cat[cat] = [fd, lock, db]
                     nkeys += len(db)
                 except Exception:
                     self.log.warning('could not read cache file %s' % fn, exc=1)
-        self.log.info('loaded %d keys from files' % nkeys)
+            if do_rollover:
+                self._rollover()
+        self.log.info('loaded %d keys from files in %s' % (nkeys, curdir))
 
     def _rollover(self):
+        """Must be called with self._cat_lock held."""
         self.log.debug('ROLLOVER started')
         ltime = localtime()
         # set the days and midnight time correctly
-        #prevday = self._currday
+        self._year = str(ltime[0])
         self._currday = '%02d-%02d' % ltime[1:3]
         self._midnight = mktime(ltime[:3] + (0,) * (8-3) + (ltime[8],))
         self._nextmidnight = self._midnight + 86400
@@ -650,6 +668,14 @@ class FlatfileCacheDatabase(CacheDatabase):
                 if entry.value:
                     fd.write('%s\t%s\t%s\n' % (subkey, entry.time, entry.value))
             fd.flush()
+        # set the 'lastday' symlink to the current day directory
+        try:
+            lname = path.join(self._basepath, 'lastday')
+            if path.lexists(lname):
+                os.unlink(lname)
+            os.symlink(path.join(self._year, self._currday), lname)
+        except Exception:
+            self.log.warning('error setting "lastday" symlink', exc=1)
         # old files could be compressed here, but it is probably not worth it
 
     def _create_fd(self, category):
@@ -686,18 +712,17 @@ class FlatfileCacheDatabase(CacheDatabase):
         if entry.value is None:
             return [key + OP_TELLOLD + '\r\n']
         # check for expired keys
+        op = entry.expired and OP_TELLOLD or OP_TELL
         if entry.ttl:
-            op = entry.expired and OP_TELLOLD or OP_TELL
             if ts:
                 return ['%s+%s@%s%s%s\r\n' % (entry.time, entry.ttl,
                                               key, op, entry.value)]
             else:
                 return [key + op + entry.value + '\r\n']
         if ts:
-            return ['%s@%s%s%s\r\n' % (entry.time, key,
-                                       OP_TELL, entry.value)]
+            return ['%s@%s%s%s\r\n' % (entry.time, key, op, entry.value)]
         else:
-            return [key + OP_TELL + entry.value + '\r\n']
+            return [key + op + entry.value + '\r\n']
 
     def ask_wc(self, key, ts, time, ttl):
         ret = set()
@@ -712,8 +737,8 @@ class FlatfileCacheDatabase(CacheDatabase):
                     if entry.value is None:
                         continue
                     # check for expired keys
+                    op = entry.expired and OP_TELLOLD or OP_TELL
                     if entry.ttl:
-                        op = entry.expired and OP_TELLOLD or OP_TELL
                         if ts:
                             ret.add('%s+%s@%s%s%s\r\n' %
                                     (entry.time, entry.ttl, prefix+subkey,
@@ -722,9 +747,9 @@ class FlatfileCacheDatabase(CacheDatabase):
                             ret.add(prefix+subkey + op + entry.value + '\r\n')
                     elif ts:
                         ret.add('%s@%s%s%s\r\n' % (entry.time, prefix+subkey,
-                                                   OP_TELL, entry.value))
+                                                   op, entry.value))
                     else:
-                        ret.add(prefix+subkey + OP_TELL + entry.value + '\r\n')
+                        ret.add(prefix+subkey + op + entry.value + '\r\n')
         return ret
 
     def _read_one_histfile(self, year, monthday, category, subkey):
@@ -772,8 +797,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         return ret
 
     def _clean(self):
-        while not self._stoprequest:
-            sleep(0.5)
+        def cleanonce(purge=False):
             with self._cat_lock:
                 for cat, (fd, lock, db) in self._cat.iteritems():
                     with lock:
@@ -781,7 +805,8 @@ class FlatfileCacheDatabase(CacheDatabase):
                             if not entry.value or entry.expired:
                                 continue
                             time = currenttime()
-                            if entry.ttl and entry.time + entry.ttl < time:
+                            if entry.ttl and (purge or
+                                              entry.time + entry.ttl < time):
                                 entry.expired = True
                                 for client in self._server._connected.values():
                                     client.update(cat + '/' + subkey,
@@ -789,6 +814,13 @@ class FlatfileCacheDatabase(CacheDatabase):
                                                   time, None)
                                 fd.write('%s\t%s\t-\n' % (subkey, time))
                                 fd.flush()
+        while not self._stoprequest:
+            sleep(0.5)
+            cleanonce()
+        # mark all entries with TTL as expired so that we do not load expired
+        # values as permanent on cache restart
+        self.log.debug('shutdown: cleaning remaining entries with ttl')
+        cleanonce(purge=True)
 
     def tell(self, key, value, time, ttl, from_client, fdupdate=True):
         if value is None:
