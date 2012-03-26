@@ -37,6 +37,7 @@ from nicos import session
 from nicos.core import listof, nonemptylistof, control_path_relative, \
      usermethod, Device, Measurable, Readable, Param
 from nicos.data import NeedsDatapath, Dataset
+from nicos.scan import DevStatistics
 from nicos.utils import ensureDirectory
 from nicos.utils.loggers import ELogHandler
 from nicos.utils.proposaldb import queryProposal
@@ -321,13 +322,18 @@ class Experiment(Device):
         all_created = True
         for devname in self.envlist:
             try:
-                dev = session.getDevice(devname)
+                if ':' in devname:
+                    devname, stat = devname.split(':')
+                    dev = session.getDevice(devname)
+                    dev = DevStatistics.subclasses[stat](dev)
+                else:
+                    dev = session.getDevice(devname)
             except Exception:
                 self.log.warning('could not create %r environment device' %
                                  devname, exc=1)
                 all_created = False
             else:
-                if not isinstance(dev, Readable):
+                if not isinstance(dev, (Readable, DevStatistics)):
                     self.log.warning('cannot use device %r as '
                                      'environment: it is not a Readable' % dev)
                     all_created = False
@@ -342,6 +348,8 @@ class Experiment(Device):
         for dev in devices:
             if isinstance(dev, Device):
                 dev = dev.name
+            elif isinstance(dev, DevStatistics):
+                dev = str(dev)
             if dev not in dlist:
                 dlist.append(dev)
         self.envlist = dlist

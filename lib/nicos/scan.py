@@ -29,8 +29,7 @@ __version__ = "$Revision$"
 import time
 
 from nicos import session
-from nicos.tas import TAS
-from nicos.core import status, Readable, NicosError, LimitError, \
+from nicos.core import status, Readable, Value, NicosError, LimitError, \
      ModeError, InvalidValueError, PositionError, CommunicationError, \
      TimeoutError, ComputationError, MoveError, INFO_CATEGORIES
 from nicos.utils import Repeater
@@ -220,11 +219,13 @@ class Scan(object):
         return ret
 
     def readEnvironment(self, start, finished):
-        # XXX take history mean, warn if values deviate too much?
         ret = []
         for dev in self._envlist:
             try:
-                val = dev.read(0)
+                if isinstance(dev, DevStatistics):
+                    val = dev.read(start, finished)
+                else:
+                    val = dev.read(0)
             except NicosError, err:
                 self.handleError('read', dev, None, err)
                 val = [None] * len(dev.valueInfo())
@@ -399,6 +400,7 @@ class QScan(Scan):
     def __init__(self, positions, firstmoves=None, multistep=None,
                  detlist=None, envlist=None, preset=None, scaninfo=None,
                  scantype=None):
+        from nicos.tas import TAS
         inst = session.instrument
         if not isinstance(inst, TAS):
             raise NicosError('cannot do a Q scan, your instrument device '
@@ -515,3 +517,69 @@ class TwoDimScan(Scan):
             for sink in self._sinks:
                 sink.addBreak(self.dataset)
         Scan.preparePoint(self, num, xvalues)
+
+
+class DevStatistics(object):
+    """Object to use in the environment list to get not only a single device
+    value, but statistics such as average, minimum or maximum over the time of
+    counting during a scan point.
+    """
+
+    statname = None
+
+    def __init__(self, dev):
+        self.dev = dev
+
+    def __str__(self):
+        return '%s:%s' % (self.dev, self.statname)
+
+    def read(self, fromtime, totime):
+        raise NotImplementedError('%s.read() must be implemented'
+                                  % self.__class__.__name__)
+
+    def valueInfo(self):
+        raise NotImplementedError('%s.valueInfo() must be implemented'
+                                  % self.__class__.__name__)
+
+
+class Average(DevStatistics):
+    """Collects the average of the device value."""
+
+    statname = 'avg'
+
+    def read(self, fromtime, totime):
+        hist = self.dev.history(fromtime=fromtime, totime=totime)
+        if not hist:
+            return '-'
+        avg = sum(v for (t, v) in hist) / len(hist)
+        return avg
+
+    def valueInfo(self):
+        return Value('%s:avg' % self.dev, unit=self.dev.unit,
+                     fmtstr=self.dev.fmtstr),
+
+
+class MinMax(DevStatistics):
+    """Collects the minimum and maximum of the device value."""
+
+    statname = 'minmax'
+
+    def read(self, fromtime, totime):
+        hist = self.dev.history(fromtime=fromtime, totime=totime)
+        if not hist:
+            return ['-', '-']
+        mini = min(v for (t, v) in hist)
+        maxi = max(v for (t, v) in hist)
+        return [mini, maxi]
+
+    def valueInfo(self):
+        return (Value('%s:min' % self.dev, unit=self.dev.unit,
+                      fmtstr=self.dev.fmtstr),
+                Value('%s:max' % self.dev, unit=self.dev.unit,
+                      fmtstr=self.dev.fmtstr))
+
+
+DevStatistics.subclasses = {
+    Average.statname: Average,
+    MinMax.statname:  MinMax,
+}

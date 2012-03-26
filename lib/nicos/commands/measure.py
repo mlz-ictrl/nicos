@@ -198,3 +198,15 @@ def ListEnvironment():
     """List the standard environment devices."""
     session.log.info('standard environment is %s' %
                      ', '.join(session.experiment.envlist))
+
+
+@usercommand
+def avg(dev):
+    from nicos.scan import Average
+    return Average(dev)
+
+
+@usercommand
+def minmax(dev):
+    from nicos.scan import MinMax
+    return MinMax(dev)
