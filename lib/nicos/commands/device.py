@@ -33,7 +33,7 @@ import __builtin__
 from nicos import session
 from nicos.utils import printTable
 from nicos.core import Device, Moveable, Measurable, Readable, HasOffset, \
-     HasLimits, NicosError, UsageError, formatStatus
+     HasLimits, UsageError, formatStatus
 from nicos.commands import usercommand
 from nicos.commands.basic import sleep
 from nicos.commands.output import printinfo
@@ -317,9 +317,9 @@ def history(dev, key='value', fromtime=None, totime=None):
         key = 'value'
     if key not in ('value', 'status') and fromtime is None:
         fromtime = -24
-    if fromtime is not None:
+    if fromtime is not None and fromtime < 0:
         fromtime *= 3600
-    if totime is not None:
+    if totime is not None and totime < 0:
         totime *= 3600
     hist = session.getDevice(dev, Device).history(key, fromtime, totime)
     entries = []

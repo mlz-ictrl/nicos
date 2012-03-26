@@ -6,6 +6,8 @@ Changelog for NICOS 2
   - Fixed not being able to run another manualscan after stopping a
     manualscan.
 
+  - Fixed error in "history()" when calling with actual timestamps.
+
 **Release 2.1.1 (2012-03-22)**
 
   - Fixed an elog bug that caused elog to quit on Unicode errors.
