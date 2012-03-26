@@ -252,8 +252,8 @@ class PandaExperiment(Experiment):
             firstscan = min(firstscan, int(m.group(1)))
             lastscan = max(lastscan, int(m.group(1)))
             s = os.stat(path.join(propdir, 'data', fn))
-            from_time = min(from_time, s.st_ctime) # only evaluate creation time
-            to_time = max(to_time, s.st_ctime)
+            from_time = min(from_time, s.st_mtime) # don't evaluate creation time
+            to_time = max(to_time, s.st_mtime)	# doesn't work over nfs as intended
             numscans += 1
 
         # now reformat some time information (for codes see
