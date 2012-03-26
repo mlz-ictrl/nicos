@@ -129,11 +129,8 @@ class Entry(object):
 # determine days of an interval between two timestamps
 
 def all_days(fromtime, totime):
-    cur = int(time())
-    ltfr = localtime(fromtime)
-    ltto = localtime(totime)
-    tmfr = int(mktime(ltfr[:3] + (0,) * 5 + (ltfr[8],)))
-    tmto = min(int(mktime(ltto[:3] + (0,) * 5 + (ltto[8],))), cur)
+    tmfr = int(fromtime)
+    tmto = int(min(time(), totime))
     for tmday in xrange(tmfr, tmto+1, 86400):
         lt = localtime(tmday)
         yield str(lt[0]), '%02d-%02d' % lt[1:3]

@@ -31,6 +31,9 @@ Changelog for NICOS 2
   - The cache now re-loads database keys from disk even if not restarted
     on the same day.
 
+  - Fixed problem with cache history query not returning all requested
+    values.
+
 **Release 2.1.1 (2012-03-22)**
 
   - Fixed an elog bug that caused elog to quit on Unicode errors.
