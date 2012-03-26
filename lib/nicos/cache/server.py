@@ -648,8 +648,7 @@ class FlatfileCacheDatabase(CacheDatabase):
             fd = self._cat[category][0] = self._create_fd(category)
             for subkey, entry in db.iteritems():
                 if entry.value:
-                    fd.write('%s\t%s\t%s\n' %
-                             (subkey, self._midnight, entry.value))
+                    fd.write('%s\t%s\t%s\n' % (subkey, entry.time, entry.value))
             fd.flush()
         # old files could be compressed here, but it is probably not worth it
 
@@ -728,6 +727,19 @@ class FlatfileCacheDatabase(CacheDatabase):
                         ret.add(prefix+subkey + OP_TELL + entry.value + '\r\n')
         return ret
 
+    def _read_one_histfile(self, year, monthday, category, subkey):
+        fn = path.join(self._basepath, year, monthday, category)
+        if not path.isfile(fn):
+            return
+        with open(fn, 'U') as fd:
+            for line in fd:
+                fsubkey, time, value = line.rstrip().split(None, 2)
+                if fsubkey == subkey:
+                    time = float(time)
+                    if value == '-':
+                        value = ''
+                    yield (time, value)
+
     def ask_hist(self, key, fromtime, totime):
         try:
             category, subkey = key.rsplit('/', 1)
@@ -742,22 +754,21 @@ class FlatfileCacheDatabase(CacheDatabase):
         else:
             days = all_days(fromtime, totime)
         ret = []
-        try:
-            for year, monthday in days:
-                fn = path.join(self._basepath, year, monthday, category)
-                if not path.isfile(fn):
-                    continue
-                with open(fn, 'U') as fd:
-                    for line in fd:
-                        fsubkey, time, value = line.rstrip().split(None, 2)
-                        if fsubkey == subkey:
-                            time = float(time)
-                            if value == '-':
-                                value = ''
-                            if fromtime <= time <= totime:
-                                ret.append('%s@%s=%s\r\n' % (time, key, value))
-        except Exception:
-            self.log.exception('error reading store files for history query')
+        # return the first value before the range too
+        inrange = False
+        for year, monthday in days:
+            try:
+                for time, value in self._read_one_histfile(year, monthday,
+                                                           category, subkey):
+                    if fromtime <= time <= totime:
+                        ret.append('%s@%s=%s\r\n' % (time, key, value))
+                        inrange = True
+                    elif not inrange and value:
+                        ret = ['%s@%s=%s\r\n' % (time, key, value)]
+            except Exception:
+                self.log.exception('error reading store file for history query')
+        if not inrange:
+            return []
         return ret
 
     def _clean(self):
