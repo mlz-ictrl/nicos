@@ -111,12 +111,12 @@ main-install:
 	cp -pr $(VOPT) $(INSTRDIR)/lib/* $(ROOTDIR)/lib/nicos/$(INSTRUMENT)
 	@echo "============================================================="
 	@echo "Installing setups (not overwriting existing files)..."
-	@cp -prn $(VOPT) $(INSTRDIR)/setups/* $(ROOTDIR)/setups || \
-		for ifile in $(INSTRDIR)/setups/* ; do \
-			if test $${ifile} -nt $(ROOTDIR)/setups/`basename $${ifile}` ; then \
-				cp -p $${ifile} $(ROOTDIR)/setups ; \
-			fi \
-		done
+	@for ifile in $(INSTRDIR)/setups/* ; do \
+		if [ ! -f $(ROOTDIR)/setups/`basename $${ifile}` ]; then \
+			echo $${ifile} '->' $(ROOTDIR)/setups; \
+			cp -p $(VOPT) $${ifile} $(ROOTDIR)/setups; \
+		fi \
+	done
 	@echo "============================================================="
 	@echo "Everything is now installed to $(ROOTDIR)."
 	@echo "Trying to create system-wide symbolic links..."
