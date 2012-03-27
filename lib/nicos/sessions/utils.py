@@ -99,7 +99,12 @@ class NicosCompleter(rlcompleter.Completer):
                   ['move', 'drive', 'maw', 'switch', 'wait', 'read',
                    'status', 'stop', 'reset', 'set', 'get', 'fix',
                    'release', 'adjust', 'version', 'history', 'limits',
-                   'resetlimits', 'listparams', 'listmethods'])
+                   'resetlimits', 'listparams', 'listmethods',
+                   'scan', 'cscan', 'contscan'])
+    special_readable = set(['read', 'status', 'reset', 'history'])
+    special_moveable = set(['move', 'drive', 'maw', 'switch', 'wait', 'stop',
+                            'fix', 'release', 'adjust', 'limits', 'resetlimits',
+                            'scan', 'cscan', 'contscan'])
 
     def attr_matches(self, text):
         matches = rlcompleter.Completer.attr_matches(self, text)
@@ -109,8 +114,17 @@ class NicosCompleter(rlcompleter.Completer):
 
     def global_matches(self, text):
         line = readline.get_line_buffer()
-        if line[:len(line)-len(text)].strip() in self.special:
-            return [k for k in session.explicit_devices if k.startswith(text)]
+        command = line[:len(line)-len(text)].strip()
+        if command in self.special:
+            from nicos.core import Device, Readable, Moveable
+            if command[:-1] in self.special_moveable:
+                cls = Moveable
+            elif command[:-1] in self.special_readable:
+                cls = Readable
+            else:
+                cls = Device
+            return [k for k in session.explicit_devices if
+                    k.startswith(text) and isinstance(session.devices[k], cls)]
         matches = rlcompleter.Completer.global_matches(self, text)
         return [m for m in matches if m[:-1] not in self.global_hidden]
 
