@@ -237,7 +237,7 @@ class GraceSink(DataSink):
             # Grace likes dates in Julian days, but we have to consider GMT
             # offset as well...
             lt = ltime(t)
-            ts.append(t // 86400 + 2440587 +
+            ts.append(t // 86400 + 2440587.5 +
                       lt[3]/24. + lt[4]/1440. + lt[5]/86400. + (t%1)/86400.)
             vs.append(v)
         if len(ts) < 2:
@@ -264,7 +264,8 @@ class GraceSink(DataSink):
         pl.grace().send_commands('world xmin %s' % (int(ts[1]*24)/24.))
         pl.grace().send_commands('world xmax %s' % (int(ts[-1]*24 + 1)/24.))
         l = GracePlot.Line(type=GracePlot.lines.solid)
-        d = GracePlot.Data(x=ts, y=vs, line=l)
+        s = GracePlot.Symbol(symbol=GracePlot.symbols.circle, size=0.3)
+        d = GracePlot.Data(x=ts, y=vs, line=l, symbol=s)
         d.x_format_string = '%r'  # the default %s cuts precision too much
         pl.plot([d], autoscale=False)
         pl.autoscale('y')
