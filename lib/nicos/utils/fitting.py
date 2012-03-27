@@ -108,14 +108,12 @@ class FitResult(object):
 
 class Fit(object):
     def __init__(self, model, parnames=None, parstart=None,
-                 xmin=None, xmax=None, allow_leastsq=True, ifixb=None):
+                 xmin=None, xmax=None):
         self.model = model
         self.parnames = parnames or []
         self.parstart = parstart or []
-        self.ifixb = ifixb
         self.xmin = xmin
         self.xmax = xmax
-        self.allow_leastsq = allow_leastsq
         if len(self.parnames) != len(self.parstart):
             raise ProgrammingError('number of param names must match number '
                                    'of starting values')

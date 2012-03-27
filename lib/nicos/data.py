@@ -45,7 +45,7 @@ from nicos import session
 from nicos.core import listof, nonemptylistof, none_or, Device, Param, \
      Override, ConfigurationError, ProgrammingError, NicosError
 from nicos.utils import readFileCounter, updateFileCounter, lazy_property
-from nicos.commands.output import printinfo
+from nicos.commands.output import printinfo, printwarning
 from nicos.sessions.daemon import DaemonSession
 from nicos.sessions.console import ConsoleSession
 
@@ -371,6 +371,57 @@ class GraceSink(DataSink):
             except Exception:
                 self.log.warning('could not add point to Grace', exc=1)
                 self._grpl = None
+
+    def history(self, dev, key='value', fromtime=None, totime=None):
+        """Plot history of the given key and time interval in a Grace window."""
+        if isinstance(key, (int, float)):
+            totime = fromtime
+            fromtime = key
+            key = 'value'
+        if key not in ('value', 'status') and fromtime is None:
+            fromtime = -24
+        if fromtime is not None and fromtime < 0:
+            fromtime *= 3600
+        if totime is not None and totime < 0:
+            totime *= 3600
+        dev = session.getDevice(dev, Device)
+        ts, vs = [], []
+        ltime = time.localtime
+        for t, v in dev.history(key, fromtime, totime):
+            # Grace likes dates in Julian days, but we have to consider GMT
+            # offset as well...
+            lt = ltime(t)
+            ts.append(t // 86400 + 2440587 +
+                      lt[3]/24. + lt[4]/1440. + lt[5]/86400.)
+            vs.append(v)
+        if len(ts) < 2:
+            printwarning('not enough values in history query')
+            return
+        grpl = GracePlot.GracePlot()
+        pl = grpl.curr_graph
+        pl.clear()
+        pl.title('history: %s.%s' % (dev, key))
+        if key == 'value':
+            unit = getattr(dev, 'unit', '')
+            pl.yaxis(label=GracePlot.Label(
+                dev.name + (unit and ' (%s)' % unit or '')))
+        else:
+            unit = dev.parameters[key].unit
+            pl.yaxis(label=GracePlot.Label(
+                '%s.%s%s' % (dev, key, unit and ' (%s)' % unit or '')))
+        xfmt = 'HMS'
+        if (ts[-1] - ts[1]) > 1:
+            xfmt = 'YYMMDDHMS'
+        pl.xaxis(label=GracePlot.Label('time'),
+                 tick=GracePlot.Tick(TickLabel=
+                                     GracePlot.TickLabel(format=xfmt)))
+        pl.grace().send_commands('world xmin %s' % (int(ts[1]*24)/24.))
+        pl.grace().send_commands('world xmax %s' % (int(ts[-1]*24 + 1)/24.))
+        l = GracePlot.Line(type=GracePlot.lines.solid)
+        d = GracePlot.Data(x=ts, y=vs, line=l)
+        pl.plot([d], autoscale=False)
+        pl.autoscale('y')
+        pl.autotick()
 
 
 class GnuplotSink(DataSink):

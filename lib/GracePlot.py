@@ -693,7 +693,7 @@ class GraceGraph:
             send('frame color %d' % color)
         if backgroundcolor is not None:
             send('frame background color %d' % backgroundcolor)
-            send('frame background pattern %d' % solid)
+            send('frame background pattern %d' % pattern)
         if backgroundpattern is not None:
             send('frame background pattern %d' % backgroundpattern)
 

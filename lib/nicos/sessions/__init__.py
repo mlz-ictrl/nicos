@@ -603,6 +603,9 @@ class Session(object):
         try:
             return compiler(command)
         except SyntaxError:
+            # shortcut for integrated help
+            if command.endswith('?') or command.startswith('?'):
+                return compiler('help(%s)' % command.strip('?'))
             # this could be a command extension to allow e.g. "read om",
             # disabled for now since it has too many ambiguities and will
             # confuse users
