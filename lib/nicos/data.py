@@ -44,7 +44,7 @@ except ImportError:
 from nicos import session
 from nicos.core import none_or, Device, Param, Override, ConfigurationError, \
      ProgrammingError, NicosError, DataSink, NeedsDatapath
-from nicos.utils import readFileCounter, updateFileCounter
+from nicos.utils import readFileCounter, updateFileCounter, parseDateString
 from nicos.commands.output import printinfo, printwarning
 from nicos.sessions.daemon import DaemonSession
 from nicos.sessions.console import ConsoleSession
@@ -220,16 +220,17 @@ class GraceSink(DataSink):
 
     def history(self, dev, key='value', fromtime=None, totime=None):
         """Plot history of the given key and time interval in a Grace window."""
+        if isinstance(key, str):
+            try:
+                key = parseDateString(key)
+            except ValueError:
+                pass
         if isinstance(key, (int, float)):
             totime = fromtime
             fromtime = key
             key = 'value'
         if key not in ('value', 'status') and fromtime is None:
             fromtime = -24
-        if fromtime is not None and fromtime < 0:
-            fromtime *= 3600
-        if totime is not None and totime < 0:
-            totime *= 3600
         dev = session.getDevice(dev, Device)
         ts, vs = [], []
         ltime = time.localtime

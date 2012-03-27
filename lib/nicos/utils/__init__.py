@@ -31,6 +31,7 @@ import re
 import grp
 import pwd
 import sys
+import time
 import errno
 import signal
 import socket
@@ -201,6 +202,37 @@ def runAsync(func):
         thr.setDaemon(True)
         thr.start()
     return inner
+
+
+def parseDateString(s, enddate=False):
+    """Parse a date/time string that can be formatted in different ways."""
+    # first, formats with explicit date and time
+    for fmt in ('%Y-%m-%d %H:%M:%S', '%y-%m-%d %H:%M:%S',
+                '%Y-%m-%d %H:%M', '%y-%m-%d %H:%M'):
+        try:
+            return time.mktime(time.strptime(s, fmt))
+        except ValueError:
+            pass
+    # formats with only date
+    for fmt in ('%Y-%m-%d', '%y-%m-%d'):
+        try:
+            ts = time.mktime(time.strptime(s, fmt))
+        except ValueError:
+            pass
+        else:
+            # if the date is the end of an interval, we want the interval
+            # to end at the next midnight
+            return enddate and ts + 86400 or ts
+    # formats with only time
+    for fmt in ('%H:%M:%S', '%H:%M'):
+        try:
+            parsed = time.strptime(s, fmt)
+        except ValueError:
+            pass
+        else:
+            ltime = time.localtime()
+            return time.mktime(ltime[:3] + parsed[3:6] + ltime[6:])
+    raise ValueError('the given string is not a date/time string')
 
 
 # read nicos.conf files

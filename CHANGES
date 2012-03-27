@@ -20,6 +20,9 @@ Changelog for NICOS 2
 
   - Added "history()" method to Grace liveplot.
 
+  - History-related commands and methods now accept strings as start and
+    end times, e.g. "2012-03-26 12:15".
+
 **Release 2.1.2**
 
   - Fixed not being able to run another manualscan after stopping a
