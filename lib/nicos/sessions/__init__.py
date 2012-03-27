@@ -34,7 +34,9 @@ __version__ = "$Revision$"
 import os
 import imp
 import sys
+import inspect
 import logging
+import __builtin__
 from os import path
 
 from nicos.core.data import DataSink
@@ -42,6 +44,7 @@ from nicos.core.device import Device
 from nicos.core.errors import NicosError, UsageError, ModeError, \
      ConfigurationError, AccessError
 from nicos.notify import Notifier
+from nicos.utils import formatDocstring
 from nicos.utils.loggers import initLoggers, NicosLogger, \
      ColoredConsoleHandler, NicosLogfileHandler
 from nicos.instrument import Instrument
@@ -617,6 +620,38 @@ class Session(object):
                     newcmd = parts[0] + '(' + ','.join(parts[1:]) + ')'
                     return compiler(newcmd)
             raise
+
+    def showHelp(self, obj=None):
+        """Show help for the given object.
+
+        Can be overwritten in a derived session to provide other means of
+        displaying help.
+        """
+        if obj is None:
+            from nicos.commands.basic import listcommands
+            listcommands()
+        elif isinstance(obj, Device):
+            self.log.info('%s is a device of class %s.' %
+                          (obj.name, obj.__class__.__name__))
+            if obj.description:
+                self.log.info('Device description: %s' % obj.description)
+            if obj.__class__.__doc__:
+                lines = obj.__class__.__doc__.strip().splitlines()
+                self.log.info('Device class description: ' + lines[0])
+                for line in lines[1:]:
+                    self.log.info(line)
+            from nicos.commands.device import listmethods, listparams
+            listmethods(obj)
+            listparams(obj)
+        elif not inspect.isfunction(obj):
+            __builtin__.help(obj)
+        else:
+            # for functions, print arguments and docstring
+            real_func = getattr(obj, 'real_func', obj)
+            argspec = inspect.formatargspec(*inspect.getargspec(real_func))
+            self.log.info('Usage: ' + real_func.__name__ + argspec)
+            for line in formatDocstring(real_func.__doc__ or '', '   '):
+                self.log.info(line)
 
     # -- Device control --------------------------------------------------------
 

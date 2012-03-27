@@ -40,7 +40,7 @@ from os import path
 from nicos import session
 from nicos.core import Device, AutoDevice, Readable, ModeError, NicosError, \
      UsageError
-from nicos.utils import formatDocstring, formatDuration, printTable
+from nicos.utils import formatDuration, printTable
 from nicos.notify import Mailer, SMSer
 from nicos.sessions import EXECUTIONMODES
 from nicos.commands import usercommand
@@ -59,31 +59,7 @@ def help(obj=None):
     For commands, the command help and usage will be shown.  For devices, the
     device help, parameters and special commands will be shown.
     """
-    if obj is None:
-        listcommands()
-    elif isinstance(obj, Device):
-        printinfo('%s is a device of class %s.' %
-                  (obj.name, obj.__class__.__name__))
-        if obj.description:
-            printinfo('Device description: %s' % obj.description)
-        if obj.__class__.__doc__:
-            lines = obj.__class__.__doc__.strip().splitlines()
-            printinfo('Device class description: ' + lines[0])
-            for line in lines[1:]:
-                printinfo(line)
-        from nicos.commands.device import listmethods, listparams
-        listmethods(obj)
-        listparams(obj)
-    elif not inspect.isfunction(obj):
-        __builtin__.help(obj)
-    else:
-        # for functions, print arguments and docstring
-        real_func = getattr(obj, 'real_func', obj)
-        argspec = inspect.formatargspec(*inspect.getargspec(real_func))
-        printinfo('Usage: ' + real_func.__name__ + argspec)
-        for line in formatDocstring(real_func.__doc__ or '', '   '):
-            printinfo(line)
-
+    session.showHelp(obj)
 
 __builtin__.__orig_dir = __builtin__.dir
 
