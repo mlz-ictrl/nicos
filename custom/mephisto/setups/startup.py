@@ -25,8 +25,7 @@
 description = 'minimal NICOS startup setup'
 group = 'startup'
 
-includes = ['blende1', 
+includes = ['blende1',
             'reactor',
             'system',
 ]
-
