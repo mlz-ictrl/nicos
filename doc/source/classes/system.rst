@@ -36,12 +36,14 @@ functionality of the specific instrument.  It is selected in setups using
 Data Sinks
 ----------
 
-.. module:: nicos.data
-
 These data sinks provide different ways of processing scan data.  They can be
 configured in setups like normal devices and selected in :ref:`sysconfig`.
 
+.. module:: nicos.core.data
+
 .. autoclass:: DataSink()
+
+.. module:: nicos.data
 
 .. autoclass:: ConsoleSink()
 .. autoclass:: AsciiDatafileSink()
