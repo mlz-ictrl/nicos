@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-"""Data handling classes for NICOS."""
+"""Data sink classes for NICOS."""
 
 __version__ = "$Revision$"
 
@@ -42,169 +42,15 @@ except ImportError:
     Gnuplot = None
 
 from nicos import session
-from nicos.core import listof, nonemptylistof, none_or, Device, Param, \
-     Override, ConfigurationError, ProgrammingError, NicosError
-from nicos.utils import readFileCounter, updateFileCounter, lazy_property
+from nicos.core import none_or, Device, Param, Override, ConfigurationError, \
+     ProgrammingError, NicosError, DataSink, NeedsDatapath
+from nicos.utils import readFileCounter, updateFileCounter
 from nicos.commands.output import printinfo, printwarning
 from nicos.sessions.daemon import DaemonSession
 from nicos.sessions.console import ConsoleSession
 
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
-
-
-class Dataset(object):
-    # unique id
-    uid = ''
-    # scan type
-    scantype = None
-    # start time
-    started = 0
-    # data sinks active for this data set
-    sinks = []
-    # devices to move
-    devices = []
-    # list of scan positions (can be empty if not known)
-    positions = []
-    # multi-steps for each scan point
-    multistep = []
-    # list of detectors for this dataset
-    detlist = []
-    # list of environment devices for this dataset
-    envlist = []
-    # preset dictionary of scan
-    preset = {}
-    # scan info
-    scaninfo = ''
-    # additional info from data sinks
-    sinkinfo = {}
-    # resulting x values (should coincide with positions)
-    xresults = []
-    # resulting y values at the positions
-    yresults = []
-    # index of the x value to use for plotting
-    xindex = 0
-    # current point number
-    curpoint = 0
-
-    # cached info for all sinks to use
-    xvalueinfo = []
-    xrange = None
-    yvalueinfo = []
-    yrange = None
-
-    # info derived from valueinfo
-    @lazy_property
-    def xnames(self):
-        return [v.name for v in self.xvalueinfo]
-    @lazy_property
-    def xunits(self):
-        return [v.unit for v in self.xvalueinfo]
-    @lazy_property
-    def ynames(self):
-        if self.multistep:
-            ret = []
-            mscount = len(self.multistep[0][1])
-            nyvalues = len(self.yvalueinfo) // mscount
-            for i in range(mscount):
-                addname = '_' + '_'.join('%s_%s' % (mse[0], mse[1][i])
-                                         for mse in self.multistep)
-                ret.extend(val.name + addname
-                           for val in self.yvalueinfo[:nyvalues])
-            return ret
-        return [v.name for v in self.yvalueinfo]
-    @lazy_property
-    def yunits(self):
-        return [v.unit for v in self.yvalueinfo]
-
-
-class NeedsDatapath(object):
-    """
-    A mixin interface that specifies that a device needs the current
-    datapath.
-    """
-
-    parameters = {
-        'datapath': Param('Do not set this, set the datapath on the '
-                          'experiment device', type=nonemptylistof(str),
-                          default=['.'], settable=True),
-    }
-
-    def doReadDatapath(self):
-        return session.experiment.datapath
-
-
-class DataSink(Device):
-    """Base class for all data sinks.
-
-    A DataSink is a configurable object that receives scan data.  All data
-    handling is done by sinks; e.g. displaying it on the console or saving to a
-    data file.
-    """
-
-    parameters = {
-        'scantypes': Param('Scan types for which the sink is active',
-                           type=listof(str), default=[]),
-    }
-
-    # Set to false in subclasses that e.g. write to the filesystem.
-    activeInSimulation = True
-
-    def isActive(self, scantype):
-        if session.mode == 'simulation' and not self.activeInSimulation:
-            return False
-        if scantype is not None and scantype not in self.scantypes:
-            return False
-        return True
-
-    def prepareDataset(self, dataset):
-        """Prepare for a new dataset.
-
-        Returns a list of info about the new dataset as ``(key, value)`` pairs.
-        A list of all these pairs is then passed to all sinks' `beginDataset()`
-        as the *sinkinfo* parameter.  This is meant for sinks that write files
-        to communicate the file name to sinks that write the info to the console
-        or display them otherwise.
-        """
-
-    def beginDataset(self, dataset):
-        """Begin a new dataset.
-
-        The dataset will contain x-values for all its *devices* (a list of
-        `Device` objects), measured at *positions* (a list of lists, or None if
-        the positions are not yet known).
-
-        The dataset will contain y-values measured by the *detlist* using the
-        given *preset* (a dictionary).
-
-        *userinfo* is an arbitrary string.  *sinkinfo* is a list of ``(key,
-        value)`` pairs as explained in `prepareDataset()`.
-        """
-
-    def addInfo(self, dataset, category, valuelist):
-        """Add additional information to the dataset.
-
-        This is meant to record e.g. device values at scan startup.  *valuelist*
-        is a sequence of tuples ``(device, key, value)``.
-        """
-
-    def addPoint(self, dataset, xvalues, yvalues):
-        """Add a point to the dataset.
-
-        *xvalues* is a list of values with the same length as the initial
-        *devices* list given to `beginDataset()`, and *yvalues* is a list of
-        values with the same length as the all of detlist's value lists.
-        """
-
-    def addBreak(self, dataset):
-        """Add a "break" to the dataset.
-
-        A break indicates a division in the data, e.g. between successive rows
-        of a 2-dimensional scan.
-        """
-
-    def endDataset(self, dataset):
-        """End the current dataset."""
 
 
 def safe_format(fmtstr, value):

@@ -37,7 +37,7 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np
 
-from nicos.data import Dataset
+from nicos.core import Dataset
 from nicos.gui.data import DataProxy
 from nicos.gui.panels import Panel
 from nicos.gui.utils import loadUi, dialogFromUi, safeFilename, DlgPresets

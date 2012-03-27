@@ -35,8 +35,8 @@ from uuid import uuid1
 
 from nicos import session
 from nicos.core import listof, nonemptylistof, control_path_relative, \
-     usermethod, Device, Measurable, Readable, Param
-from nicos.data import NeedsDatapath, Dataset
+     usermethod, Device, Measurable, Readable, Param, Dataset
+from nicos.data import NeedsDatapath
 from nicos.scan import DevStatistics
 from nicos.utils import ensureDirectory
 from nicos.utils.loggers import ELogHandler

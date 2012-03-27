@@ -37,6 +37,7 @@ import sys
 import logging
 from os import path
 
+from nicos.core.data import DataSink
 from nicos.core.device import Device
 from nicos.core.errors import NicosError, UsageError, ModeError, \
      ConfigurationError, AccessError
@@ -884,5 +885,4 @@ class Session(object):
 
 
 # must be imported after class definitions due to module interdependencies
-from nicos.data import DataSink
 from nicos.experiment import Experiment

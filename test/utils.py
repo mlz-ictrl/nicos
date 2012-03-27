@@ -29,8 +29,7 @@ __version__ = "$Revision$"
 import re
 from nose.tools import assert_raises
 
-from nicos.core import Moveable, HasLimits, status
-from nicos.data import DataSink
+from nicos.core import Moveable, HasLimits, DataSink, status
 
 
 def raises(exc, *args, **kwds):
