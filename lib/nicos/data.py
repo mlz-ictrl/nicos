@@ -238,7 +238,7 @@ class GraceSink(DataSink):
             # offset as well...
             lt = ltime(t)
             ts.append(t // 86400 + 2440587 +
-                      lt[3]/24. + lt[4]/1440. + lt[5]/86400.)
+                      lt[3]/24. + lt[4]/1440. + lt[5]/86400. + (t%1)/86400.)
             vs.append(v)
         if len(ts) < 2:
             printwarning('not enough values in history query')
