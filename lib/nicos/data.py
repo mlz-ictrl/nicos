@@ -265,6 +265,7 @@ class GraceSink(DataSink):
         pl.grace().send_commands('world xmax %s' % (int(ts[-1]*24 + 1)/24.))
         l = GracePlot.Line(type=GracePlot.lines.solid)
         d = GracePlot.Data(x=ts, y=vs, line=l)
+        d.x_format_string = '%r'  # the default %s cuts precision too much
         pl.plot([d], autoscale=False)
         pl.autoscale('y')
         pl.autotick()
