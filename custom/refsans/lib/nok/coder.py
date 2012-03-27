@@ -56,9 +56,7 @@ class CoderReference(AnalogInput) :
         }
 
     def doRead(self) :
-        # Range of RAWValue, if it is outside of expection, the cable may be broken
-        # test range of ref lack of resolution 9.5 < ref > 10 clip!
-        ref = 2.0 * self._taco_guard(self._dev.read)
+        ref = self._read()
         if abs(ref) >= self.refhigh :
             self.log.error(self,  'Reference voltage to high : %f > %f' % (ref, self.refhigh))
         if   abs(ref) <  self.reflow:
@@ -68,7 +66,7 @@ class CoderReference(AnalogInput) :
         return ref
 
     def doStatus(self) :
-        ref = self._taco_guard(self._dev.read)
+        ref = self._read()
         if abs(ref) >= self.refhigh :
             return status.ERROR,  'Reference voltage to high : %f > %f' % (ref, self.refhigh)
         if   abs(ref) <  self.reflow:
@@ -77,6 +75,12 @@ class CoderReference(AnalogInput) :
             return status.ERROR, 'Reference voltage seems to be to low : %f < %f' % (ref, self.refwarn)
         else:
             return status.OK, ''
+
+    def _read(self) :
+        # Range of RAWValue, if it is outside of expection, the cable may be broken
+        # test range of ref lack of resolution 9.5 < ref > 10 clip!
+        ref = 2.0 * self._taco_guard(self._dev.read)
+        return ref
 
 class Coder(BaseCoder):
     """NOK coder implementation class.
