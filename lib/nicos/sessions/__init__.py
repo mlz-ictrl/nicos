@@ -771,7 +771,7 @@ class Session(object):
             else:
                 self.log.addHandler(NicosLogfileHandler(log_path, prefix))
                 self._master_handler = None
-        except IOError, err:
+        except (IOError, OSError), err:
             self.log.error('cannot open log file: %s' % err)
 
     def getLogger(self, name):
