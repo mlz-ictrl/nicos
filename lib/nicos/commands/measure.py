@@ -202,11 +202,32 @@ def ListEnvironment():
 
 @usercommand
 def avg(dev):
+    """Create a statistics device that can be used in the sample environment in
+    order to calculate the average of a device over the whole scan point.
+
+    For example::
+
+        SetEnvironment(avg(T), minmax(T))
+
+    would record for every point in a scan the average and the minimum and
+    maximum of the device "T" over the counting period.
+    """
     from nicos.scan import Average
     return Average(dev)
 
 
 @usercommand
 def minmax(dev):
+    """Create a statistics device that can be used in the sample environment in
+    order to calculate the minimum and maximum of a device over the whole scan
+    point.
+
+    For example::
+
+        SetEnvironment(avg(T), minmax(T))
+
+    would record for every point in a scan the average and the minimum and
+    maximum of the device "T" over the counting period.
+    """
     from nicos.scan import MinMax
     return MinMax(dev)

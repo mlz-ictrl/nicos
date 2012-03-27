@@ -115,6 +115,8 @@ Measuring commands
 .. autofunction:: AddEnvironment
 .. autofunction:: ListDetectors
 .. autofunction:: ListEnvironment
+.. autofunction:: avg
+.. autofunction:: minmax
 
 Scanning commands
 -----------------
