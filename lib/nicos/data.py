@@ -43,7 +43,7 @@ except ImportError:
 
 from nicos import session
 from nicos.core import none_or, Device, Param, Override, ConfigurationError, \
-     ProgrammingError, NicosError, DataSink, NeedsDatapath
+     ProgrammingError, NicosError, DataSink, NeedsDatapath, usermethod
 from nicos.utils import readFileCounter, updateFileCounter, parseDateString
 from nicos.commands.output import printinfo, printwarning
 from nicos.sessions.daemon import DaemonSession
@@ -218,57 +218,122 @@ class GraceSink(DataSink):
                 self.log.warning('could not add point to Grace', exc=1)
                 self._grpl = None
 
+    @usermethod
     def history(self, dev, key='value', fromtime=None, totime=None):
-        """Plot history of the given key and time interval in a Grace window."""
+        """Plot history of the given key and time interval in a Grace window.
+        See the `history()` command for the meaning of the *key*, *fromtime* and
+        *totime* arguments.  Examples (for a GraceSink called "liveplot")::
+
+            liveplot.history(T, '12:00', '18:00')  # from 12-18 h today
+            liveplot.history(T, -6)                # last 6 hours
+            liveplot.history(T, 'setpoint', -72)   # setpoint in the last 3 days
+
+        Multiple devices can be given as a list::
+
+            liveplot.history([TA, TB, TC], -24)    # TA, TB, TC in the last 24 h
+        """
+        ltime = time.localtime
+        # if "key" is a string we have to determine if it's a parameter name or
+        # a date string; since valid date strings cannot be parameter names this
+        # is quite easy to do
         if isinstance(key, str):
             try:
                 key = parseDateString(key)
             except ValueError:
                 pass
+        # now either key is a valid parameter name or a number, which means a
+        # timestamp or number of hours back
         if isinstance(key, (int, float)):
             totime = fromtime
             fromtime = key
             key = 'value'
+        # the default is just -1 hour, which is fine for value and status, but
+        # probably not for other parameters
         if key not in ('value', 'status') and fromtime is None:
             fromtime = -24
-        dev = session.getDevice(dev, Device)
-        ts, vs = [], []
-        ltime = time.localtime
-        for t, v in dev.history(key, fromtime, totime):
-            # Grace likes dates in Julian days, but we have to consider GMT
-            # offset as well...
-            lt = ltime(t)
-            ts.append(t // 86400 + 2440587.5 +
-                      lt[3]/24. + lt[4]/1440. + lt[5]/86400. + (t%1)/86400.)
-            vs.append(v)
-        if len(ts) < 2:
-            printwarning('not enough values in history query')
-            return
+
+        # function to retrieve respective history for a single device
+        def get_one_history(dev):
+            dev = session.getDevice(dev, Device)
+            ts, vs = [], []
+            for t, v in dev.history(key, fromtime, totime):
+                # Grace likes dates in Julian days, but we have to consider GMT
+                # offset as well...
+                lt = ltime(t)
+                ts.append(t // 86400 + 2440587.5 +
+                          lt[3]/24. + lt[4]/1440. + lt[5]/86400. + (t%1)/86400.)
+                vs.append(v)
+            if len(ts) < 2:
+                printwarning('not enough values in history query for %s' % dev)
+                return None, None
+            return ts, vs
+
+        # determine plotting mode, exit early if there is no data to show
+        if isinstance(dev, list):
+            multi = True
+            ds, tss, vss = [], [], []
+            for dv in dev:
+                ts, vs = get_one_history(dv)
+                if ts is not None:
+                    ds.append(dv)
+                    tss.append(ts)
+                    vss.append(vs)
+            if not tss:
+                return
+        else:
+            multi = False
+            ts, vs = get_one_history(dev)
+            if ts is None:
+                return
+            ds, tss, vss = [dev], [ts], [vs]
+
+        # set up a new Grace window
         grpl = GracePlot.GracePlot()
         pl = grpl.curr_graph
         pl.clear()
-        pl.title('history: %s.%s' % (dev, key))
-        if key == 'value':
-            unit = getattr(dev, 'unit', '')
-            pl.yaxis(label=GracePlot.Label(
-                dev.name + (unit and ' (%s)' % unit or '')))
+
+        # set graph attributes depending on plotting mode
+        if multi:
+            pl.title('history query')
+            pl.yaxis(label=GracePlot.Label(key))
         else:
-            unit = dev.parameters[key].unit
-            pl.yaxis(label=GracePlot.Label(
-                '%s.%s%s' % (dev, key, unit and ' (%s)' % unit or '')))
+            pl.title('history: %s.%s' % (dev, key))
+            if key == 'value':
+                unit = getattr(dev, 'unit', '')
+                pl.yaxis(label=GracePlot.Label(
+                    dev.name + (unit and ' (%s)' % unit or '')))
+            else:
+                unit = dev.parameters[key].unit
+                pl.yaxis(label=GracePlot.Label(
+                    '%s.%s%s' % (dev, key, unit and ' (%s)' % unit or '')))
+
+        # select appropriate X format and scaling
+        minx = min(ts[1] for ts in tss)
+        maxx = max(ts[-1] for ts in tss)
         xfmt = 'HMS'
-        if (ts[-1] - ts[1]) > 1:
+        if maxx - minx > 1:
             xfmt = 'YYMMDDHMS'
         pl.xaxis(label=GracePlot.Label('time'),
                  tick=GracePlot.Tick(TickLabel=
                                      GracePlot.TickLabel(format=xfmt)))
-        pl.grace().send_commands('world xmin %s' % (int(ts[1]*24)/24.))
-        pl.grace().send_commands('world xmax %s' % (int(ts[-1]*24 + 1)/24.))
+        pl.grace().send_commands('world xmin %s' % (int(minx*24)/24.))
+        pl.grace().send_commands('world xmax %s' % (int(maxx*24 + 1)/24.))
+
+        # plot all datasets
         l = GracePlot.Line(type=GracePlot.lines.solid)
-        s = GracePlot.Symbol(symbol=GracePlot.symbols.circle, size=0.3)
-        d = GracePlot.Data(x=ts, y=vs, line=l, symbol=s)
-        d.x_format_string = '%r'  # the default %s cuts precision too much
-        pl.plot([d], autoscale=False)
+        datas = []
+        color = GracePlot.colors.black
+        for dv, ts, vs in zip(ds, tss, vss):
+            s = GracePlot.Symbol(symbol=GracePlot.symbols.circle, size=0.3,
+                                 color=color, fillcolor=color)
+            d = GracePlot.Data(x=ts, y=vs, line=l, symbol=s,
+                               legend='%s.%s' % (dv, key))
+            d.x_format_string = '%r'  # the default %s cuts precision too much
+            datas.append(d)
+            color += 1
+        pl.plot(datas, autoscale=False)
+        if multi:
+            pl.legend()
         pl.autoscale('y')
         pl.autotick()
 
