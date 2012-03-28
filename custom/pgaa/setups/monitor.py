@@ -29,13 +29,14 @@ _pressuresample = (
     'Sample ',
     [
         [
-            {'name': 'Vacuum', 'dev': 'sample_p1'},
+            {'name': 'Vacuum', 'dev': 'sample_p1', 'max' : 1},
         ],
     ],
 #   '',
 )
 
 _warnings = [
+#    ('sample_p1/value', '> 0.1', 'Vacuum in sample chamber is too high'),
 ]
 
 _leftcolumn = [

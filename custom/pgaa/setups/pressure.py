@@ -22,14 +22,18 @@
 #
 # *****************************************************************************
 
-description = 'Vacuum sensors of detector and collimation tube'
+description = 'Vacuum sensors of sample chamber'
+
+group = 'vacuum'
 
 # includes = ['system']
+includes = []
 
 nethost= '//pgaasrv.pgaa.frm2/'
 
 devices = dict(
     sample_p1 = device('nicos.taco.AnalogInput',
+                       description = 'vacuum sensor in sample chamber',
                        tacodevice = nethost + 'pgaa/sample/vacuum',
                        fmtstr = '%9.2E',
                        pollinterval = 15,
