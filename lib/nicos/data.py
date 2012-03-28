@@ -233,6 +233,8 @@ class GraceSink(DataSink):
             liveplot.history([TA, TB, TC], -24)    # TA, TB, TC in the last 24 h
         """
         ltime = time.localtime
+        tz = time.timezone
+        az = time.altzone
         # if "key" is a string we have to determine if it's a parameter name or
         # a date string; since valid date strings cannot be parameter names this
         # is quite easy to do
@@ -260,8 +262,7 @@ class GraceSink(DataSink):
                 # Grace likes dates in Julian days, but we have to consider GMT
                 # offset as well...
                 lt = ltime(t)
-                ts.append(t // 86400 + 2440587.5 +
-                          lt[3]/24. + lt[4]/1440. + lt[5]/86400. + (t%1)/86400.)
+                ts.append((t - (lt[8] and az or tz)) / 86400. + 2440587.5)
                 vs.append(v)
             if len(ts) < 2:
                 printwarning('not enough values in history query for %s' % dev)
