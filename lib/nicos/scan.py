@@ -549,9 +549,10 @@ class Average(DevStatistics):
 
     def read(self, fromtime, totime):
         hist = self.dev.history(fromtime=fromtime, totime=totime)
-        if not hist:
-            return '-'
-        avg = sum(v for (t, v) in hist) / len(hist)
+        if len(hist) < 2:
+            # if there is no history, read at least once
+            return self.dev.read(0)
+        avg = sum(v for (t, v) in hist[1:]) / (len(hist) - 1)
         return avg
 
     def valueInfo(self):
@@ -566,10 +567,14 @@ class MinMax(DevStatistics):
 
     def read(self, fromtime, totime):
         hist = self.dev.history(fromtime=fromtime, totime=totime)
-        if not hist:
-            return ['-', '-']
-        mini = min(v for (t, v) in hist)
-        maxi = max(v for (t, v) in hist)
+        if len(hist) < 2:
+            # if there is no history, read at least once
+            # XXX read() or read(0)
+            v = self.dev.read(0)
+            return [v, v]
+        real = hist[1:]
+        mini = min(v for (t, v) in real)
+        maxi = max(v for (t, v) in real)
         return [mini, maxi]
 
     def valueInfo(self):
