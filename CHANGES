@@ -17,6 +17,8 @@ Changelog for NICOS 2
   - Fixed problem with cache history query not returning all requested
     values.
 
+  - Fixed simulation mode not working with no cache configured.
+
 **Release 2.1.1 (2012-03-22)**
 
   - Fixed an elog bug that caused elog to quit on Unicode errors.

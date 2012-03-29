@@ -203,8 +203,9 @@ class Session(object):
         for dev in self.devices.itervalues():
             dev._setMode(mode)
         if mode == 'simulation':
-            cache.doShutdown()
-            self.cache = None
+            if cache:
+                cache.doShutdown()
+                self.cache = None
         self.log.info('switched to %s mode' % mode)
 
     def setSetupPath(self, path):
