@@ -25,7 +25,7 @@
 description = 'system setup'
 
 sysconfig = dict(
-    cache = None, # 'bunker.pgaa.frm2',
+    cache = 'bunker.pgaa.frm2',
     instrument = 'Instrument',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
