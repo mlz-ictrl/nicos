@@ -23,6 +23,8 @@ Changelog for NICOS 2
   - History-related commands and methods now accept strings as start and
     end times, e.g. "2012-03-26 12:15".
 
+  - Added a "logging_path" setting to nicos.conf.
+
 **Release 2.1.2**
 
   - Fixed not being able to run another manualscan after stopping a

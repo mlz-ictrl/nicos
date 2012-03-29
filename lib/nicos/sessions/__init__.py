@@ -84,7 +84,8 @@ class Session(object):
         user = None
         group = None
         control_path = path.join(path.dirname(__file__), '..', '..', '..')
-        setups_path = 'setups'
+        setups_path  = 'setups'
+        logging_path = 'log'
 
     log = None
     name = 'session'
@@ -794,7 +795,7 @@ class Session(object):
         self.log = NicosLogger('nicos')
         self.log.setLevel(logging.INFO)
         self.log.parent = None
-        log_path = path.join(self.config.control_path, 'log')
+        log_path = path.join(self.config.control_path, self.config.logging_path)
         self.log.addHandler(ColoredConsoleHandler())
         try:
             if prefix == 'nicos':

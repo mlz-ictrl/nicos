@@ -53,6 +53,8 @@ user = %(sysuser)s
 group = %(sysgroup)s
 # The path to the instrument setup files.
 setups_path = %(setups)s
+# You can set a custom path to the log files here.
+#logging_path = '/...'
 
 [services]
 # The list of daemons to start from the nicos-system init script.
