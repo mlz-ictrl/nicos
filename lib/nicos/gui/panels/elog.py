@@ -59,7 +59,11 @@ class ELogPanel(Panel, DlgUtils):
 
     def on_timer_timeout(self):
         sig = SIGNAL('loadFinished(bool)')
-        frame = self.preview.page().mainFrame().childFrames()[1]
+        try:
+            frame = self.preview.page().mainFrame().childFrames()[1]
+        except IndexError:
+            print 'No logbook seems to be loaded.'
+            return
         scrollval = frame.scrollBarValue(Qt.Vertical)
         was_at_bottom = scrollval == frame.scrollBarMaximum(Qt.Vertical)
         # restore current scrolling position in document on reload
@@ -79,7 +83,9 @@ class ELogPanel(Panel, DlgUtils):
         if not proposaldir:
             return
         logfile = path.join(proposaldir, 'logbook', 'logbook.html')
-        self.preview.load(QUrl(logfile))  # XXX reload periodically?
+        # XXX check for existence and put something in the window if it doesn't
+        # exist ("click here to check again")
+        self.preview.load(QUrl(logfile))
 
     def on_page_unsupportedContent(self, reply):
         if reply.url().scheme() != 'file':
