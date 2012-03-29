@@ -268,8 +268,10 @@ class MainWindow(QMainWindow, DlgUtils):
                 self.createWindow(wtype)
         editfiles = settings.value('editfiles', []).toStringList()
         for fn in editfiles:
-            win = self.createWindow(self.editor_wintype)
-            win.panels[0].openFile(str(fn))
+            fn = str(fn)
+            if fn:
+                win = self.createWindow(self.editor_wintype)
+                win.panels[0].openFile(fn)
 
     def saveSettings(self, settings):
         settings.setValue('geometry', QVariant(self.saveGeometry()))
