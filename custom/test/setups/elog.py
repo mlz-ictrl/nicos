@@ -31,5 +31,5 @@ group = 'special'
 devices = dict(
     Logbook = device('nicos.elog.Logbook',
                      prefix = 'logbook/',
-                     server = 'localhost:14869'),
+                     cache = 'localhost:14869'),
 )

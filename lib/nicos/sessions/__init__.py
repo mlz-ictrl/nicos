@@ -402,7 +402,7 @@ class Session(object):
 
         # initialize the cache connection
         if sysconfig.get('cache') and self._mode != 'simulation':
-            self.cache = self.cache_class('Cache', server=sysconfig['cache'],
+            self.cache = self.cache_class('Cache', cache=sysconfig['cache'],
                                           prefix='nicos/', lowlevel=True)
 
         # validate and attach sysconfig devices

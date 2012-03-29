@@ -105,12 +105,12 @@ class PauseButton(BaseCacheClient):
 
 
 parser = optparse.OptionParser()
-parser.add_option('-s', '--server', dest='server', action='store',
-                  help='cache server:port, default to localhost',
+parser.add_option('-c', '--cache', dest='cache', action='store',
+                  help='cache server:port, defaults to pandasrv',
                   default='pandasrv')
 opts, args = parser.parse_args()
 
 
 SingleDeviceSession.run('pausebutton', PauseButton,
-                        {'prefix': 'pause/', 'server': opts.server},
+                        {'prefix': 'pause/', 'cache': opts.cache},
                         pidfile=False)

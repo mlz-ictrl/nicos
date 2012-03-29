@@ -13,11 +13,11 @@ from nicos.sessions.simple import SingleDeviceSession
 from nicos.gui.panels.history import StandaloneHistoryApp
 
 parser = optparse.OptionParser()
-parser.add_option('-s', '--server', dest='server', action='store',
-                  help='cache server:port, default to localhost',
+parser.add_option('-c', '--cache', dest='cache', action='store',
+                  help='cache server:port, defaults to localhost',
                   default='localhost')
 opts, args = parser.parse_args()
 
 SingleDeviceSession.run('history', StandaloneHistoryApp,
-                        {'prefix': 'nicos/', 'server': opts.server},
+                        {'prefix': 'nicos/', 'cache': opts.cache},
                         pidfile=False)

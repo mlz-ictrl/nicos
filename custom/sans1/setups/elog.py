@@ -28,5 +28,5 @@ group = 'special'
 devices = dict(
     Logbook = device('nicos.elog.Logbook',
                      prefix = 'logbook/',
-                     server = 'sans1ctrl.sans1.frm2:14869'),
+                     cache = 'sans1ctrl.sans1.frm2:14869'),
 )

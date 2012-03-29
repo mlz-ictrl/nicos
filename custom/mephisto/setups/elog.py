@@ -32,5 +32,5 @@ sysconfig = dict(
 devices = dict(
     Logbook = device('nicos.elog.Logbook',
                      prefix = 'logbook/',
-                     server = 'mephisto17.office.frm2:14869'),
+                     cache = 'mephisto17.office.frm2:14869'),
 )

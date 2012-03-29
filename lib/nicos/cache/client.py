@@ -51,17 +51,17 @@ class BaseCacheClient(Device):
     """
 
     parameters = {
-        'server': Param('"host:port" of the cache instance to connect to',
+        'cache':  Param('"host:port" of the cache instance to connect to',
                         type=str, mandatory=True),
         'prefix': Param('Cache key prefix', type=str, mandatory=True),
     }
 
     def doInit(self):
         try:
-            host, port = self.server.split(':')
+            host, port = self.cache.split(':')
             port = int(port)
         except ValueError:
-            host, port = self.server, DEFAULT_CACHE_PORT
+            host, port = self.cache, DEFAULT_CACHE_PORT
         # this event is set as soon as:
         # * the connection is established and the connect_action is done, or
         # * the initial connection failed

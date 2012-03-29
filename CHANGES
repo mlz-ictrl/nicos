@@ -25,6 +25,8 @@ Changelog for NICOS 2
 
   - Added a "logging_path" setting to nicos.conf.
 
+  - Renamed "server" parameter of CacheClient to "cache".
+
 **Release 2.1.2**
 
   - Fixed not being able to run another manualscan after stopping a

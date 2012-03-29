@@ -4,5 +4,5 @@ group = 'special'
 devices = dict(
     Logbook = device('nicos.elog.Logbook',
                      prefix = 'logbook/',
-                     server = 'mira1:14869'),
+                     cache = 'mira1:14869'),
 )

@@ -85,12 +85,12 @@ class TacoLoggerClient(BaseCacheClient):
 
 
 parser = optparse.OptionParser()
-parser.add_option('-s', '--server', dest='server', action='store',
-                  help='cache server:port, default to localhost',
+parser.add_option('-c', '--cache', dest='cache', action='store',
+                  help='cache server:port, defaults to localhost',
                   default='localhost')
 parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
                   help='daemonize the  processes')
-parser.add_option('-c', '--client', dest='client', action='store_true',
+parser.add_option('-C', '--client', dest='client', action='store_true',
                   help='start the client interface')
 opts, args = parser.parse_args()
 
@@ -98,11 +98,11 @@ opts, args = parser.parse_args()
 if opts.daemon and opts.client:
     sys.exit('Error: --daemon and --client do not work together!')
 
-if opts.client:
-    SingleDeviceSession.run('tacologger-client', TacoLoggerClient,
-                            {'prefix': 'tacolog/', 'server': opts.server},
-                            pidfile=False)
-else:
+if opts.daemon:
     SingleDeviceSession.run('tacologger', TacoLoggerServer,
-                            {'prefix': 'tacolog/', 'server': opts.server},
+                            {'prefix': 'tacolog/', 'cache': opts.cache},
                             daemon=opts.daemon)
+else:
+    SingleDeviceSession.run('tacologger-client', TacoLoggerClient,
+                            {'prefix': 'tacolog/', 'cache': opts.cache},
+                            pidfile=False)
