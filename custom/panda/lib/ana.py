@@ -26,18 +26,21 @@
 
 __version__ = "$Revision$"
 
+from nicos import status
 from nicos.core import Param, tacodev, usermethod
 from nicos.generic.axis import Axis
 
 from IO import DigitalOutput
 
+from wechsler import Beckhoff
+
 
 class ATT_Axis(Axis):
+    attached_devices = {
+        'anablocks': (AnaBlocks,'AnaBlocks-device'),
+    }
 
     parameters = {
-        'blockdevice1': Param('First i7000', type=tacodev, mandatory=True),
-        'blockdevice2': Param('Second i7000', type=tacodev, mandatory=True),
-        'blockdevice3': Param('Third i7000', type=tacodev, mandatory=True),
         'windowsize':   Param('Window size', default=11.5, unit='deg'),
         'blockwidth':   Param('Block width', default=15.12, unit='deg'),
         'blockoffset':  Param('Block offset', default=-7.7, unit='deg'),
@@ -45,16 +48,6 @@ class ATT_Axis(Axis):
 
     def doInit(self):
         Axis.doInit(self)
-        if self._mode != 'simulation':
-            self._dev1 = DigitalOutput(self.blockdevice1)
-            self._dev2 = DigitalOutput(self.blockdevice2)
-            self._dev3 = DigitalOutput(self.blockdevice3)
-            try:
-                self._dev1.deviceOn()
-                self._dev2.deviceOn()
-                self._dev3.deviceOn()
-            except Exception:
-                self.log.warning('could not switch on taco devices', exc=1)
 
     def _duringMoveAction(self, position):
         self._move_blocks(position)
@@ -68,51 +61,109 @@ class ATT_Axis(Axis):
 
     def _move_blocks(self, pos):
         # calculate new block positions
-        templist = [0, 0, 0]
+        code=0
         uwl = pos + self.windowsize/2.0
         lwl = pos - self.windowsize/2.0
         for j in range(18):
-            index = j
-            module = 0
-            while index > 7:
-                    index -= 8
-                    module += 1
             lbl = self.blockwidth*(8-j) + self.blockoffset
             ubl = self.blockwidth*(9-j) + self.blockoffset
             blockup = 0
             if ubl >= lwl:  # block is not left to window
                 if lbl <= uwl:  # block is not right to window
                     blockup = 1
-            if blockup == 1:
-                templist[module] += (1 << index)
-        self._dev1.write(templist[0])
-        self._dev2.write(templist[1])
-        self._dev3.write(templist[2])
+            code+= blockup<< j
+        self._adevs['anablocks'].start( code )
 
     @usermethod
     def allblocksdown(self):
-        self._dev1.write(0)
-        self._dev2.write(0)
-        self._dev3.write(0)
+        self._adevs['anablocks'].start( 0 )
 
     @usermethod
     def doorblocksup(self):
-        self._dev1.write(63)
+        self._adevs['anablocks'].start( 63 )
 
     @usermethod
     def doorblocksdown(self):
-        self._dev1.write(0)
+        self._move_blocks( self.target )
 
     @usermethod
     def allblocksup(self):
-        self._dev1.write(255)
-        self._dev2.write(255)
-        self._dev3.write(3)
+        self._adevs['anablocks'].start( 0x3ffff )   # all 18 blocks up
 
     @usermethod
     def printstatusinfo(self):
-        blocks = bin(self._dev1.read() + self._dev2.read() << 8 +
-                     self._dev3.read() << 16)[2:]
+        blocks = bin( self._adevs['anablocks'].read() )[2:]
         # fill up to 18 chars
-        blocks = ' ' * (18 - len(blocks)) + blocks
+        blocks = '0' * (18 - len(blocks)) + blocks
         self.log.info('blocks up: %s' % blocks)
+
+class AnaBlocks( Moveable ):
+    attached_devices = {
+        'beckhoff': (Beckhoff,'X'),
+    }
+    parameters = {
+        'powertime':   Param('How long to power pushing down blocks', type=int, default=10, settable=True),
+    }
+
+    @property
+    def bhd(self):  # BeckHoffDevice
+        return self._adevs['beckhoff']
+
+    def doInit(self):
+        self.timer=None
+        # XXX TODO: init KL3202 channel 0 to 0..1.2KOhm or to read PT1000
+    
+        #~ self.bhd.WriteReg( 4, 31, 0x1235)   # enable user regs
+        #~ assert( self.bhd.ReadReg( 4, 31 ) == 0x1235 ) # make sure it has worked, or bail out early!
+
+        #~ self.bhd.WriteReg( 4, 32, self.bhd.ReadReg( 4, 32 ) | 4 ) # disable watchdog
+
+    # define a input helper
+    def input2(self, which ):
+        return ''.join( [ str(i) for i in self.bhd.ReadBitsInput( which, 2) ] )
+
+    def output2( self, where, what ):
+        if what in ['00', 0]:
+            self.bhd.WriteBitsOutput( where, [0,0])     # both coils off
+        elif what in ['01', 1]:
+            self.bhd.WriteBitsOutput( where, [0,1])     # move up
+        elif what in ['10', 2]:
+            self.bhd.WriteBitsOutput( where, [1,0])     # move down
+        elif what in ['11', 3]:
+            self.bhd.WriteBitsOutput( where, [1,1])     # both coils energized, AVOID THIS!
+    
+    def doRead( self ):
+        r=0
+        for i in range(18):
+            r+= self.bhd.ReadBitInput( i*2, 1)<<i
+        return r
+    
+    def doStatus( self ):
+        return status.OK, 'idle'
+    
+    def doStart( self, pattern ):
+        if self.timer:
+            try:
+                self.timer.cancel()
+            except:
+                pass
+            try:
+                self.timer.join(0.1)
+            except:
+                pass
+            self.timer=None
+        for i in range(18):
+            if (pattern >> i) &1:   # bit is set:
+                self.output2( 2*i, 1 )
+            else:
+                self.output2( 2*i, 0 )
+        if self.powertime>=1:
+            import threading
+            self.timer=threading.Timer( self.powertime, self.powersaver ).start()  # switch of down's after powertime seconds
+
+    def powersaver( self ):
+        for i in range(0,36,2):
+            if self.input2(i)=='01':
+                self.output2(i,0)
+        self.log.debug('Saving power')
+    
