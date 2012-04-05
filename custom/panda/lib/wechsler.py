@@ -289,6 +289,7 @@ class MonoWechsler( Device ):
         return self._adevs['beckhoff']
 
     def doInit(self):
+        self.bhd.WriteWordOutput( 0x1120, 0 ) # disable BK9100 Watchdog....
         # initialize DC-Motor device (KL2552)
         # Channel 1 is at baseaddr 4 and connects to the Lift
         self.bhd.WriteReg( 4, 31, 0x1235)   # enable user regs
@@ -494,11 +495,11 @@ class MonoWechsler( Device ):
         if r == '10': return False
         raise HWError('Taster Liftgreifer links offen defekt')
 
-    def MonoID3( self ):
+    def MagazinID3( self ):
         r = self.input2( 32 )
         if r == '01': return True
         if r == '10': return False
-        raise HWError('Taster MonoID3 defekt')
+        raise HWError('Taster MagazinID3 defekt')
 
     def Magazin_Klammer_geschlossen( self ):
         r = self.input2( 34 )
@@ -506,11 +507,11 @@ class MonoWechsler( Device ):
         if r == '10': return False
         raise HWError('Taster MagazinKlammer geschlossen defekt')
 
-    def MonoID2( self ):
+    def MagazinID2( self ):
         r = self.input2( 36 )
         if r == '01': return True
         if r == '10': return False
-        raise HWError('Taster MonoID2 defekt')
+        raise HWError('Taster MagazinID2 defekt')
 
     def unused1( self ):
         r = self.input2( 38 )
@@ -518,11 +519,11 @@ class MonoWechsler( Device ):
         if r == '10': return False
         raise HWError('Taster unused1 defekt')
 
-    def MonoID1( self ):
+    def MagazinID1( self ):
         r = self.input2( 40 )
         if r == '01': return True
         if r == '10': return False
-        raise HWError('Taster MonoID1 defekt')
+        raise HWError('Taster MagazinID1 defekt')
 
     def unused2( self ):
         r = self.input2( 42 )
@@ -542,11 +543,11 @@ class MonoWechsler( Device ):
         if r == '10': return False
         raise HWError('Taster Magazin:Referenzposition defekt')
 
-    def MonoID( self ):
+    def MagazinID( self ):
         try:
-            r = ( self.MonoID1() and '1' or '0')+( self.MonoID2() and '1' or '0')+( self.MonoID3() and '1' or '0')
+            r = ( self.MagazinID1() and '1' or '0')+( self.MagazinID2() and '1' or '0')+( self.MagazinID3() and '1' or '0')
         except Exception:
-            r = ( self.MonoID1() and '1' or '0')+( self.MonoID2() and '1' or '0')+( self.MonoID3() and '1' or '0')
+            r = ( self.MagazinID1() and '1' or '0')+( self.MagazinID2() and '1' or '0')+( self.MagazinID3() and '1' or '0')
         return r
 
     # Bremse invertiert !!!
@@ -775,7 +776,7 @@ class MonoWechsler( Device ):
         p.append( self.Monogreifer_101_Rechts() )
         p.append( self.Monogreifer_011_Links() )
         p.append( self.Monogreifer_011_Rechts() )
-        if not( self.MonoID() in self.positions ):
+        if not( self.MagazinID() in self.positions ):
             raise HWError( self, 'Unknown Magazin-Position !')
         if not( self.Lift_Parkposition() ):
             raise HWError( self, 'Lift nicht in Parkposition!')
@@ -827,7 +828,7 @@ class MonoWechsler( Device ):
 
     # robust higher level functions
     def MagazinSelect( self, pos ): # faehrt angeforderte Magazinposition an den Lift (pos in self.positions)
-        currentpos = self.positions.index( self.MonoID() )
+        currentpos = self.positions.index( self.MagazinID() )
         mpos = self.positions.index( pos )                              # make positions numeric.....
         if mpos > currentpos:
             self.Fahre( self.FahreMagazinMotor, lambda: not(self.Magazin_Referenzposition()), 3000, 6)
@@ -907,7 +908,7 @@ class MonoWechsler( Device ):
 
     def CheckMagazinSlotEmpty( self, slot ): # checks if the given slot in the magazin is empty
         if not( slot in self.positions ):
-            raise UsageError( self, 'Got Illegal MonoIdCode to check')
+            raise UsageError( self, 'Got Illegal MagazinIDCode to check')
         if slot == '111' and ( self.Monogreifer_111_Links() or self.Monogreifer_111_Rechts() ):
             raise HWError( self, 'Magazin for Position 111 is already occupied, please check!')
         if slot == '110' and ( self.Monogreifer_110_Links() or self.Monogreifer_110_Rechts() ):
@@ -919,7 +920,7 @@ class MonoWechsler( Device ):
 
     def CheckMagazinSlotUsed( self, slot ): # checks if the given slot in the magazin is used (contains a monoframe)
         if not( slot in self.positions ):
-            raise UsageError( self, 'Got Illegal MonoIdCode to check')
+            raise UsageError( self, 'Got Illegal MagazinIDCode to check')
         if slot == '111' and not( self.Monogreifer_111_Links() and self.Monogreifer_111_Rechts() ):
             raise HWError( self, 'Magazin for Position 111 is empty, please check!')
         if slot == '110' and not( self.Monogreifer_110_Links() and self.Monogreifer_110_Rechts() ):
@@ -932,7 +933,7 @@ class MonoWechsler( Device ):
 
     # here is the party going on!
     def Transfer_Mono_Magazin2Lift( self ):
-        liftslot = self.MonoID()
+        liftslot = self.MagazinID()
         if not( liftslot in self.positions ):
             raise HWError( self, 'Unknown Magazin-position above Lift, abort!')
         self.CheckMagazinSlotUsed( liftslot )   # Magazin should contain a mono
@@ -948,7 +949,7 @@ class MonoWechsler( Device ):
         self.CheckMagazinSlotEmpty( liftslot )   # Magazin should contain a mono
 
     def Transfer_Mono_Lift2Magazin( self ):
-        liftslot = self.MonoID()
+        liftslot = self.MagazinID()
         if not( liftslot in self.positions ):
             raise HWError( self, 'Unknown Magazin-position above Lift, abort!')
         self.CheckMagazinSlotEmpty( liftslot )
@@ -980,7 +981,7 @@ class MonoWechsler( Device ):
         # XXX TODO: activiate Mono specific stuff (mfv/mfh.....) and switch Monodeviceswitcher
 
     def Transfer_Mono_Monotisch2Lift( self ):
-        liftslot = self.MonoID()
+        liftslot = self.MagazinID()
         if not( liftslot in self.positions ):
             raise HWError( self, 'Unknown Magazin-position above Lift, abort!')
         self.CheckMagazinSlotEmpty( liftslot )
@@ -1061,8 +1062,8 @@ class MonoWechsler( Device ):
         self.log.info('Liftgreifer should be ' + (self.Lift_Druckluft() and 'open' or 'closed') +
                             ' and are ' + (self.Liftgreifer_offen() and 'open' or
                                 (self.Liftgreifer_geschlossen() and 'closed' or 'undetermined')) )
-        self.log.info('Magazin is at ' + self.MonoID() + ' which is assigned to ' +
-                            self.monos[ self.positions.index( self.MonoID() )] )
+        self.log.info('Magazin is at ' + self.MagazinID() + ' which is assigned to ' +
+                            self.monos[ self.positions.index( self.MagazinID() )] )
         self.log.info('Magazin_Klammer should be ' + (self.Magazin_Druckluft() and 'open' or 'closed') +
                             ' and are ' + (self.Magazin_Klammer_offen() and 'open' or
                                 (self.Magazin_Klammer_geschlossen() and 'closed' or 'undetermined')) )
