@@ -148,7 +148,8 @@ class Beckhoff(Device):
         raise Exception ('Returned function should be 2 but is 0x%02x!'%FOE)
 
     def ReadWordOutput( self, addr ):
-        addr=addr|0x800 # beckhoff special....
+        if addr<0x800:
+            addr=addr|0x800 # beckhoff special....
         request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, self.addr, 3, addr, 1 ) # can read more than 1 word !
         response = self.communicate( request )
         FOE, _, status = unpack('>BBH', response )
@@ -171,7 +172,8 @@ class Beckhoff(Device):
         raise Exception ('Returned function should be 5 but is 0x%02x!'%FOE)
 
     def WriteWordOutput( self, addr, value ):
-        addr=addr|0x800 # beckhoff special....
+        if addr<0x800:
+            addr=addr|0x800 # beckhoff special....
         assert( 0x0000 <= value <= 0xffff ) # value is exactly 16 bits unsigned!
         request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, self.addr, 6, addr, value ) # can write exactly 1 word !
         response = self.communicate( request )
@@ -206,7 +208,8 @@ class Beckhoff(Device):
         return [ (data[i/8 + 2] >> (i&7)) & 0x01 for i in range(num) ]
 
     def ReadWordsOutput( self, addr, num ):
-        addr=addr|0x800 # beckhoff special....
+        if addr<0x800:
+            addr=addr|0x800 # beckhoff special....
         if num > 125: raise ValueError('%d Words are too much for ReadWordsOutput!'%num)
         request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, self.addr, 3, addr, num ) # can read more than 1 word !
         response = self.communicate( request )
@@ -244,7 +247,8 @@ class Beckhoff(Device):
         return addr
 
     def WriteWordsOutput( self, addr, values ):
-        addr=addr|0x800 # beckhoff special....
+        if addr<0x800:
+            addr=addr|0x800 # beckhoff special....
         values = tuple([int(v) for v in values])
         m = len(values)
         request = pack('>HHHBBH%dH'%m, random.getrandbits(16), 0, 4+2*m, self.addr, 16, addr, *values )
