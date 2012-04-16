@@ -54,5 +54,68 @@ class RotAxis(Axis):
     
     @usermethod
     def reference( self ):
-        ''' TODO'''
-        pass
+        ''' references this axis by finding the reference switch and setting current position to refpos'''
+        if self.refpos == None:
+            self.log.error( 'Can\'t reference, no refpos specified!')
+            return
+        if not( -360.0<=self.refpos<=360.0 ):
+            raise ValueError(' Refpos needs to be a float within [-360.0 .. 360.0] ')
+        if self._mode not in ['master','maintenance']:
+            raise UsageError('Can\'t reference if not in master or maintenance mode!')
+        
+        oldpos=self.doRead()
+        m=self._adevs['motor']
+        def refsw():
+            return m.doStatus()[1].find('limit switch')>-1
+        self.log.info('Referencing: FAST Mode: find refswitch')
+        while m.doRead()<0:
+            m.setPosition( m.doRead() + self.wraparound )
+        m.doStart( m.doRead()-360 )
+        m.wait()
+        if not refsw():
+            self.log.error('Referencing: No refswitch found!!! Exiting')
+            return
+        tries=36
+        self.log.info('Referencing: FAST Mode: looking for a position without refswitch active')
+        while refsw() and tries>0:
+            self.log.debug('Another %d 10° slots left to try'%tries)
+            m.doStart( m.doRead() + 10 )
+            m.wait()
+            tries-=1
+        if tries==0:
+            self.log.error( 'Referencing: RefSwitch still active after 360°, exiting!')
+            self.doStart( oldpos )
+            self.wait()
+            self.poll()
+            return
+        # ok, now we are at a position where the refswitch is not active, now turn backward until it triggers to find a rough idea
+        oldspeed=m.speed
+        m.speed=oldspeed/4      # quarter speed for better accuracy
+        tries=7
+        self.log.info('Referencing: SLOW Mode: Now looking for refswitch going active')
+        while not(refsw()) and tries>0:
+            self.log.debug('Another %d 3° slots left to try'%tries)
+            m.doStart( m.doRead() - 3 )
+            m.wait()
+            tries-=1
+        m.stop()
+        m.speed=oldspeed
+        if tries==0:
+            self.log.error( 'Referencing: RefSwitch still not active after 360°, exiting!')
+            self.doStart( oldpos )
+            self.wait()
+            self.poll()
+            return
+        # ok, we are at refswitch, motor stopped as soon as it triggered
+        # => we are at refpos, communicate this to the motor
+        self.log.info('Found Refswitch at %.1f, should have been at %.1f...'%(self.doRead()%self.wraparound,self.refpos))
+        self.poll()
+        m.setPosition( self.refpos )
+        self.poll()
+        self.log.info('Referenced, moving to old position (%.2f)....'%oldpos)
+        self.doStart( oldpos )
+        self.wait()
+        self.poll()
+        
+
+
