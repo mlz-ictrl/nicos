@@ -189,7 +189,7 @@ class BaseHistoryWindow(object):
         newdlg.connect(newdlg.simpleTime, SIGNAL('toggled(bool)'), callback2)
         newdlg.connect(newdlg.extTime, SIGNAL('toggled(bool)'), callback2)
         simplehelptext = 'Please enter a time interval with unit like this:\n\n' \
-            '30m   (12 minutes)\n' \
+            '30m   (30 minutes)\n' \
             '12h   (12 hours)\n' \
             '3d    (3 days)\n'
         newdlg.connect(newdlg.simpleHelpButton, SIGNAL('clicked()'),
