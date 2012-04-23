@@ -378,7 +378,10 @@ class Monitor(BaseCacheClient):
                 if expired:
                     field['exptime'] = time
                 if field['item'] >= 0 and value is not None:
-                    fvalue = value[field['item']]
+                    try:
+                        fvalue = value[field['item']]
+                    except IndexError:
+                        fvalue = value  # XXX
                 else:
                     fvalue = value
                 if value is None:
