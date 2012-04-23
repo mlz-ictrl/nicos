@@ -16,11 +16,11 @@ parser = optparse.OptionParser()
 parser.add_option('-c', '--cache', dest='cache', action='store',
                   help='CACHE server:port, defaults to localhost:14869',
                   default='localhost')
-parser.add_option('-p', '--prefix', type='string', dest='prefix', action='store',
-                  help='PREFIX is the key prefix it will be added in front of the key, defaults to \'nicos/\'',
-                  default='nicos/')
+parser.add_option('-p', '--prefix', dest='prefix', action='store',
+                  help='PREFIX is the key prefix; it will be added in front '
+                  'of the key, defaults to \'nicos/\'', default='nicos/')
 opts, args = parser.parse_args()
 
 SingleDeviceSession.run('history', StandaloneHistoryApp,
-			{'prefix': opts.prefix, 'cache': opts.cache},
+                        {'prefix': opts.prefix, 'cache': opts.cache},
                         pidfile=False)

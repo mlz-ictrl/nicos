@@ -72,8 +72,8 @@ class BaseCacheClient(Device):
         self._socket = None
         self._secsocket = None
         self._sec_lock = threading.Lock()
-        self._prefix = self.prefix.strip('/') 
-        if len(self._prefix) > 0:
+        self._prefix = self.prefix.strip('/')
+        if self._prefix:
             self._prefix += '/'
         self._selecttimeout = 0.5  # seconds
         self._do_callbacks = True
