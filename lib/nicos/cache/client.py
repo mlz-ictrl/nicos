@@ -73,6 +73,8 @@ class BaseCacheClient(Device):
         self._secsocket = None
         self._sec_lock = threading.Lock()
         self._prefix = self.prefix.strip('/')
+        if self._prefix:
+            self._prefix += '/'
         self._selecttimeout = 0.5  # seconds
         self._do_callbacks = True
 
@@ -129,7 +131,7 @@ class BaseCacheClient(Device):
         # send request for all keys and updates....
         # HACK: send a single request for a nonexisting key afterwards to
         # determine the end of data
-        self._socket.sendall('@%s/%s\r\n###%s\r\n' %
+        self._socket.sendall('@%s%s\r\n###%s\r\n' %
                              (self._prefix, OP_WILDCARD, OP_ASK))
 
         # read response
@@ -139,7 +141,7 @@ class BaseCacheClient(Device):
             n += 1
 
         # send request for all updates
-        self._socket.sendall('@%s/%s\r\n' % (self._prefix, OP_SUBSCRIBE))
+        self._socket.sendall('@%s%s\r\n' % (self._prefix, OP_SUBSCRIBE))
 
         self._process_data(data)
 
@@ -328,7 +330,7 @@ class CacheClient(BaseCacheClient):
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         if op not in (OP_TELL, OP_TELLOLD) or not key.startswith(self._prefix):
             return
-        key = key[len(self._prefix)+1:]
+        key = key[len(self._prefix):]
         time = time and float(time)
         self._propagate((time, key, op, value))
         #self.log.debug('got %s=%s' % (key, value))
@@ -385,7 +387,7 @@ class CacheClient(BaseCacheClient):
         """
         if dev:
             key = ('%s/%s' % (dev, key)).lower()
-        tosend = '@%s/%s%s\r\n' % (self._prefix, key, OP_ASK)
+        tosend = '@%s%s%s\r\n' % (self._prefix, key, OP_ASK)
         for msgmatch in self._single_request(tosend):
             time, ttl, value = msgmatch.group('time'), msgmatch.group('ttl'), \
                                msgmatch.group('value')
@@ -410,7 +412,7 @@ class CacheClient(BaseCacheClient):
         dbkey = ('%s/%s' % (dev, key)).lower()
         self._db[dbkey] = (value, time, ttl)
         value = cache_dump(value)
-        msg = '%s%s@%s/%s%s%s\r\n' % (time, ttlstr, self._prefix, dbkey,
+        msg = '%s%s@%s%s%s%s\r\n' % (time, ttlstr, self._prefix, dbkey,
                                       OP_TELL, value)
         #self.log.debug('putting %s=%s' % (dbkey, value))
         self._queue.put(msg)
@@ -440,7 +442,7 @@ class CacheClient(BaseCacheClient):
         devprefix = str(dev).lower() + '/'
         for dbkey in self._db.keys():
             if dbkey.startswith(devprefix):
-                msg = '%s@%s/%s%s\r\n' % (time, self._prefix, dbkey, OP_TELL)
+                msg = '%s@%s%s%s\r\n' % (time, self._prefix, dbkey, OP_TELL)
                 self._db.pop(dbkey, None)
                 self._queue.put(msg)
                 self._propagate((time, dbkey, OP_TELL, ''))
@@ -449,7 +451,7 @@ class CacheClient(BaseCacheClient):
         """Clear all cache keys."""
         time = currenttime()
         for dbkey in self._db.keys():
-            msg = '%s@%s/%s%s\r\n' % (time, self._prefix, dbkey, OP_TELL)
+            msg = '%s@%s%s%s\r\n' % (time, self._prefix, dbkey, OP_TELL)
             self._db.pop(dbkey, None)
             self._queue.put(msg)
             self._propagate((time, dbkey, OP_TELL, ''))
@@ -469,7 +471,7 @@ class CacheClient(BaseCacheClient):
         """
         if dev:
             key = ('%s/%s' % (dev, key)).lower()
-        tosend = '%s-%s@%s/%s%s\r\n###?\r\n' % (fromtime, totime,
+        tosend = '%s-%s@%s%s%s\r\n###?\r\n' % (fromtime, totime,
                                                 self._prefix, key, OP_ASK)
         ret = []
         for msgmatch in self._single_request(tosend, '###!\r\n'):
@@ -483,7 +485,7 @@ class CacheClient(BaseCacheClient):
 
     def lock(self, key, ttl=None, unlock=False, sessionid=None):
         """Locking/unlocking: opens a separate connection."""
-        tosend = '%s/%s%s%s%s\r\n' % (
+        tosend = '%s%s%s%s%s\r\n' % (
             self._prefix, key.lower(), OP_LOCK,
             unlock and '-' or '+', sessionid or session.sessionid)
         if ttl is not None:
