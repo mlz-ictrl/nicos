@@ -815,8 +815,8 @@ class MonoWechsler( Device ):
         maw(mth,88.67)
         maw(mtt,-36.11)
         maw(mgx, 0)
-        maw(mtx, 0)
-        maw(mty, 0)
+        maw(mtx, -6)
+        maw(mty, 5)
         try:  #not all monos have foci
             maw(mfh,0); mfh.power = 0  # go to known good value and switch off
             maw(mfv,0); mfv.power = 0
@@ -1100,3 +1100,11 @@ class MonoWechsler( Device ):
         self.Fahre( self.FahreLiftMotor, lambda: self.Lift_Absetzposition() or self.Lift_Parkposition() or
                                                                         self.Lift_untere_Ablage() or self.Lift_obere_Ablage(),
                                                                         -5000, 600)  # this might take a while....
+    def init_Liftpos_hoch( self ):
+        if self.Lift_Absetzposition() or self.Lift_Parkposition() or self.Lift_untere_Ablage() or self.Lift_obere_Ablage():
+            return
+        # no luck, scan lift upwards!
+        # THIS IS DANGEROUS IF THE LIFT EVER HAPPEN TO GO BELOW THE LOWEST SWITCH !!!
+        self.Fahre( self.FahreLiftMotor, lambda: self.Lift_Absetzposition() or self.Lift_Parkposition() or
+                                                                        self.Lift_untere_Ablage() or self.Lift_obere_Ablage(),
+                                                                        5000, 600)  # this might take a while....

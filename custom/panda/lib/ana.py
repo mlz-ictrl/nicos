@@ -103,7 +103,7 @@ class AnaBlocks( Moveable ):
         old=self.doRead()
         for i in range(18):
             # try to be clever: only activate/deactivate bits which differ from current status....
-            if (pattern >> i) & 1 == (old >> i) & 1:
+            if (pattern >> i) & 1  and (old >> i) & 1:
                 continue        # skip equal bits
             if (pattern >> i) &1:   # bit is set:
                 self.log.debug('block %d is going up'%(i+1))
