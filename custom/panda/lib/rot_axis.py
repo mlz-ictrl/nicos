@@ -70,7 +70,10 @@ class RotAxis(Axis):
         self.log.info('Referencing: FAST Mode: find refswitch')
         while m.doRead()<0:
             m.setPosition( m.doRead() + self.wraparound )
-        m.doStart( m.doRead()-360 )
+        try:
+            m.doStart( m.doRead()-360 )
+        except NicosError, e:
+            pass        # if refswitch is already active, doStart gives an exception
         m.wait()
         if not refsw():
             self.log.error('Referencing: No refswitch found!!! Exiting')
