@@ -836,6 +836,7 @@ class Session(object):
         """
         if exc_info is None:
             exc_info = sys.exc_info()
+        self._lastUnhandled = exc_info
         if isinstance(exc_info[1], NicosError):
             if exc_info[1].device and exc_info[1].device.log:
                 exc_info[1].device.log.error(exc_info=exc_info)
@@ -850,7 +851,6 @@ class Session(object):
             self.log.error(msg, exc_info=exc_info)
         else:
             self.log.error(exc_info=exc_info)
-        self._lastUnhandled = exc_info
 
     def elog_event(self, eventtype, data):
         # NOTE: simulation mode is disconnected from cache, therefore no elog
