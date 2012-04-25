@@ -205,8 +205,17 @@ class Session(object):
         self._mode = mode
         if self._master_handler:
             self._master_handler.enable(mode == 'master')
-        for dev in self.devices.itervalues():
-            dev._setMode(mode)
+        # switch mode, taking care to switch "higher level" devices before
+        # "lower level" (because higher level devices may need attached devices
+        # still working in order to read out their last value)
+        devs = self.devices.values()
+        switched = set()
+        while devs:
+            for dev in devs[:]:
+                if dev._sdevs <= switched:
+                    switched.add(dev.name)
+                    dev._setMode(mode)
+                    devs.remove(dev)
         if mode == 'simulation':
             if cache:
                 cache.doShutdown()
