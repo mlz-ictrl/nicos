@@ -300,3 +300,56 @@ def checkoffset(dev, center, step, numsteps, *args, **kwargs):
         printinfo('adjusting offset of %s by %s %s' %
                   (dev, dev.format(diff), dev.unit))
         dev.offset += diff
+
+
+@usercommand
+def findpeaks(*columns, **kwds):
+    """Find peaks the data of the last scan.
+
+    Peaks are determined by the property that a data point is bigger than some
+    neighbors (by default 2) on every side.  Then a parabola is fitted to these
+    points, which gives a good approximation to the peak center position.
+
+    The return value is a list of possible X values of peaks.
+
+    The following keyword arguments are accepted:
+
+    * *npoints* -- number of neighbors (default 2) per side of peak to be
+      considered: if the scan is very fine, this must be increased
+    """
+    # parabola model
+    def model(x, b, s, c):
+        return b + s*(x-c)**2
+    xs, ys, dys = _getData(columns)
+    np = kwds.get('npoints', 2)
+    peaks = []
+    # peak has to be different from background
+    minpeakheight = (ys.max() - ys.min()) * 0.1 + ys.min()
+    for i in range(len(xs) - 2*np):
+        subys = ys[i:i+2*np+1]
+        subdys = dys[i:i+2*np+1]
+        # need a peak of at least minpeakheight
+        if subys.max() < minpeakheight:
+            continue
+        # peak must be bigger than sides - including errors!
+        miny = subys[np] - subdys[np]
+        if (subys[0] + subdys[0] > miny) or (subys[2*np] + subdys[2*np] > miny):
+            continue
+        # values must rise to peak and fall down
+        for v in range(np):
+            if subys[v] > subys[v+1] or subys[v+np] < subys[v+np+1]:
+                break
+        else:
+            # we (probably) have a peak
+            subxs = xs[i:i+2*np+1]
+            b = subys[np]
+            s = (subys[0] - subys[np])/(subxs[0] - subxs[np])**2
+            c = subxs[np]
+            fit = Fit(model, ['b', 's', 'c'], [b, s, c])
+            res = fit.run('findpeaks', subxs, subys, subdys)
+            if not res._failed:
+                peaks.append(res._pars[1][2])
+
+    return peaks
+
+findpeaks.__doc__ += COLHELP.replace('func(', 'gauss(')
