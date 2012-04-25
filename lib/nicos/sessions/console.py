@@ -106,7 +106,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
             return ''
         finally:
             sys.stdout.write(colorcode('reset'))
-            self.session._prompting = True
+            self.session._prompting = False
         return inp
 
     def runcode(self, codeobj, source=None):
