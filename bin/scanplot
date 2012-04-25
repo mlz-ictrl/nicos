@@ -260,6 +260,20 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
         # 1-based ycols
         ycol -= 1
 
+    # determine monitor column
+    if normalize:
+        candidates = []
+        for i, col in enumerate(colnames[-ycols:]):
+            if col.startswith('mon'):
+                total = sum(yvalues[j][i] for j in range(len(yvalues)))
+                candidates.append((total, i))
+        candidates.sort()
+        moncol = candidates[-1][1]
+        monname = colnames[-ycols:][moncol]
+    else:
+        moncol = -1
+        monname = ''
+
     # search temperature
     if 'sT' in colnames:
         tcol = colnames.index('sT')
@@ -276,7 +290,7 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
 
     xaxisname = '%s (%s)' % (colnames[xcol], colunits[xcol])
     if normalize:
-        yaxisname = 'I (cts/Mon1e5)'
+        yaxisname = 'I (cts/1e5%s)' % monname
     else:
         yaxisname = '%s (%s)' % (colnames[xcols + 1 + ycol],
                                  colunits[xcols + 1 + ycol])
@@ -287,7 +301,7 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
         xs.append(xv[xcol])
         yval = yv[ycol]
         if normalize:
-            scale = 1e5 / yv[2]
+            scale = 1e5 / yv[moncol]
         else:
             scale = 1.0
         if kicol > -1:
