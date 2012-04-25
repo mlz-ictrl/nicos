@@ -187,8 +187,8 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
     """Read NICOS data file."""
     try:
         f = open(filename, 'r')
-    except:
-        f = open('/data/exp/current/data/'+filename, 'r')
+    except IOError:
+        f = open('/data/exp/current/data/' + filename, 'r')
 
     line = f.readline()
     createtime = line.strip()[-19:]
@@ -372,7 +372,11 @@ pl = GracePlot.GracePlot().write
 
 # now plot all files:
 filecount = 0
+lastfilenumber = 0
 for filenumber in filelist:
+    if filenumber.startswith('-'):
+        filenumber = lastfilenumber[:-len(filenumber[1:])] + filenumber[1:]
+    lastfilenumber = filenumber
     for newycol in newycols:
         filename = fileprefix + '_' + filenumber.zfill(8) + '.dat'
         thedata = getdatafromfile(filename, newxcol, newycol, normflag,
