@@ -73,6 +73,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
             readline.read_history_file(self.histfile)
 
     def interact(self, banner=None):
+        signal.signal(signal.SIGINT, self.session.signalHandler)
         code.InteractiveConsole.interact(self, banner)
         readline.write_history_file(self.histfile)
 
@@ -97,10 +98,15 @@ class NicosInteractiveConsole(code.InteractiveConsole):
 
     def raw_input(self, prompt):
         sys.stdout.write(colorcode(self.session._pscolor))
+        self.session._prompting = True
         try:
             inp = raw_input(prompt)
+        except KeyboardInterrupt:
+            self.session.immediateStop()
+            return ''
         finally:
             sys.stdout.write(colorcode('reset'))
+            self.session._prompting = True
         return inp
 
     def runcode(self, codeobj, source=None):
@@ -109,8 +115,6 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         """
         # record starting time to decide whether to send notification
         start_time = time.time()
-        # enable session's Ctrl-C interrupt processing
-        signal.signal(signal.SIGINT, self.session.signalHandler)
         try:
             exec codeobj in self.globals, self.locals
         except NicosInteractiveStop:
@@ -135,9 +139,6 @@ class NicosInteractiveConsole(code.InteractiveConsole):
                 guessCorrectCommand(source, attribute=True)
 
             return
-        finally:
-            # enable own sigint handler again
-            signal.signal(signal.SIGINT, signal.default_int_handler)
         if code.softspace(sys.stdout, 0):
             print
         #self.locals.clear()
@@ -154,6 +155,8 @@ class ConsoleSession(Session):
         Session.__init__(self, appname)
         # prompt color
         self._pscolor = 'reset'
+        # showing prompt?
+        self._prompting = False
 
     def _initLogging(self):
         Session._initLogging(self)
@@ -207,6 +210,10 @@ class ConsoleSession(Session):
     def signalHandler(self, signum, frame):
         if self._in_sigint:  # ignore multiple Ctrl-C presses
             return
+        if self._prompting:
+            # shown while at prompt: always stop directly
+            self.log.info('== Keyboard interrupt (Ctrl-C) ==')
+            signal.default_int_handler(signum, frame)
         self._in_sigint = True
         try:
             self.log.info('== Keyboard interrupt (Ctrl-C) ==')
