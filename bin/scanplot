@@ -245,8 +245,15 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
 
     # determine Y column
     if ycol is None:
-        # XXX determine first detector?
-        ycol = 3
+        # determine detector: pick the "det" or "ctr" column with the
+        # most total counts
+        candidates = []
+        for i, col in enumerate(colnames[-ycols:]):
+            if col.startswith('det') or col.startswith('ctr'):
+                total = sum(yvalues[j][i] for j in range(len(yvalues)))
+                candidates.append((total, i))
+        candidates.sort()
+        ycol = candidates[-1][1]
     elif isinstance(ycol, str):
         ycol = colnames[-ycols:].index(ycol)
     else:
