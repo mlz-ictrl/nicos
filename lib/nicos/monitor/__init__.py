@@ -169,7 +169,7 @@ class Monitor(BaseCacheClient):
             except ValueError:
                 key, cond, desc = warning
                 setup = None
-            self._warnmap[self._prefix + '/' + key] = \
+            self._warnmap[self._prefix + key] = \
                 {'condition': cond, 'description': desc, 'setup': setup}
 
         self.initLayout()
@@ -249,7 +249,7 @@ class Monitor(BaseCacheClient):
             self._layout.append(columns)
 
     def updateKeymap(self, field):
-        prefix = self._prefix + '/'
+        prefix = self._prefix
         # store reference from key to field for updates
         def _ref(name, key):
             field[name] = key
@@ -349,7 +349,7 @@ class Monitor(BaseCacheClient):
 
         #self.log.debug('processing %s' % [time, ttl, key, op, value])
 
-        if key == self._prefix + '/session/mastersetup':
+        if key == self._prefix + 'session/mastersetup':
             self._setups = set(value)
             # reconfigure displayed blocks
             self.reconfigureBoxes()

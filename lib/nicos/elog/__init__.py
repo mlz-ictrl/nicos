@@ -56,9 +56,9 @@ class Logbook(BaseCacheClient):
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         if op != OP_TELL or not key.startswith(self._prefix):
             return
-        key = key[len(self._prefix)+1:]
+        key = key[len(self._prefix):]
         time = time and float(time)
-        self.log.debug('got %s=%r' % (key, value))
+        self.log.info('got %s=%r' % (key, value))
         if key in self._handler.handlers:
             value = cache_load(value)
             try:
