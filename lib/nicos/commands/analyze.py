@@ -362,4 +362,4 @@ def findpeaks(*columns, **kwds):
 
     return peaks
 
-findpeaks.__doc__ += COLHELP.replace('func(', 'gauss(')
+findpeaks.__doc__ += COLHELP.replace('func(', 'findpeaks(')
