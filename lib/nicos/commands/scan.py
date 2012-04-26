@@ -327,7 +327,10 @@ def manualscan(*args, **kwargs):
 
 @usercommand
 def appendscan(numsteps=5, stepsize=None):
-    """Go on *numsteps* steps from the end of the last scan."""
+    """Go on *numsteps* steps from the end of the last scan.
+
+    *numsteps* can also be negative to prepend scan points.
+    """
     dslist = session.experiment._last_datasets
     if not dslist:
         raise NicosError('no last scan saved')
@@ -338,6 +341,8 @@ def appendscan(numsteps=5, stepsize=None):
         if not dslist[i].sinkinfo.get('continuation'):
             break
         i -= 1
+    # XXX could use dslist[-1] to append to last appendscan, but then the
+    # numsteps < 0 case is broken
     scan = dslist[i]
     if len(scan.devices) != 1:
         raise NicosError('cannot append to scan with more than one device')
@@ -347,6 +352,7 @@ def appendscan(numsteps=5, stepsize=None):
     pos1 = scan.positions[0][0]
     pos2 = scan.positions[-1][0]
     if not isinstance(pos1, (int, float)):
+        # XXX implement for qscan
         raise NicosError('cannot append to this scan')
     if stepsize is None:
         stepsize = (pos2 - pos1) / (npos - 1)

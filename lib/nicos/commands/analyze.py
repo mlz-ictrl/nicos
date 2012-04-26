@@ -44,6 +44,16 @@ def _getData(columns):
         raise NicosError('no latest dataset has been stored')
     dataset = session.experiment._last_datasets[-1]
 
+    # append data from previous scans if this is a continuation
+    i = -1
+    xresults = dataset.xresults
+    yresults = dataset.yresults
+    while dataset.sinkinfo.get('continuation'):
+        i -= 1
+        dataset = session.experiment._last_datasets[i]
+        xresults = dataset.xresults + xresults
+        yresults = dataset.yresults + yresults
+
     # xcol/ycol are 1-indexed here
     if not columns:
         xcol = 1
@@ -78,11 +88,11 @@ def _getData(columns):
     ycol -= 1
 
     try:
-        xs = np.array([p[xcol] for p in dataset.xresults])
+        xs = np.array([p[xcol] for p in xresults])
     except IndexError:
         raise NicosError('no such X column: %r' % xcol)
     try:
-        ys = np.array([p[ycol] for p in dataset.yresults])
+        ys = np.array([p[ycol] for p in yresults])
     except IndexError:
         raise NicosError('no such Y column: %r' % ycol)
 
@@ -90,7 +100,7 @@ def _getData(columns):
         dys = np.sqrt(ys)
     elif dataset.yvalueinfo[ycol].errors == 'next':
         try:
-            dys = np.array([p[ycol+1] for p in dataset.yresults])
+            dys = np.array([p[ycol+1] for p in yresults])
         except IndexError:
             dys = np.array([1] * len(ys))
     else:
