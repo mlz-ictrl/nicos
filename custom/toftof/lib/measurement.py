@@ -284,9 +284,10 @@ class TofTofMeasurement(Measurable, ImageStorage):
         self._closeDeviceLogs()
         self._logstarttime = currenttime()
         i = 5001
-        for dev in [session.getDevice('ReactorPower'),
-                    session.getDevice('chDS')] + session.experiment.sampleenv:
+        for dev in ['ReactorPower', 'chDS'] + session.experiment.sampleenv:
             try:
+                if isinstance(dev, str):
+                    dev = session.getDevice(dev)
                 fn = self.lastfilename.replace('0000.raw', '%04d.raw' % i)
                 self._devicelogs[dev.name.lower()] = fp = open(fn, 'w')
                 fp.write('# File_Creation_Time: %s\n' %
