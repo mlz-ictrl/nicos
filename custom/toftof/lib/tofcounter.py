@@ -42,14 +42,14 @@ class TofCounter(Measurable):
     parameters = {
         'timechannels':   Param('Number of time channels per detector channel',
                                 type=intrange(1, 1025), settable=True,
-                                default=1024),
+                                default=1024, volatile=True,),
         'timeinterval':   Param('Time interval between pulses', type=float,
-                                settable=True),
+                                settable=True, volatile=True,),
         'delay':          Param('TOF frame delay', type=int,
-                                settable=True),
+                                settable=True, volatile=True,),
         'monitorchannel': Param('Channel number of the monitor counter',
                                 default=956,
-                                type=intrange(1, 1025), settable=True),
+                                type=intrange(1, 1025), settable=True,),
         'channelwidth':   Param('Channel width', volatile=True),
         'numinputs':      Param('Number of detector channels', type=int,
                                 volatile=True),
@@ -86,7 +86,12 @@ class TofCounter(Measurable):
             self._monitor.SetPreselectionUlong(int(preset['m']))
 
     def doStart(self, **preset):
+        # the deviceOn command on the server resets the delay time
+        # store the value
+        tmp = self.doReadDelay()
         self.doStop()
+        # and reset the value back
+        self.doWriteDelay(tmp)
         self.doSetPreset(**preset)
         self._counter.Start()
         self._timer.Start()
