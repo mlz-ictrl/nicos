@@ -159,13 +159,14 @@ bool FitSinus(int iSize, const unsigned int* pData,
 	ROOT::Minuit2::FunctionMinimum mini = (*pMinimize)(
 									GlobalConfig::GetMinuitMaxFcn(),
 									GlobalConfig::GetMinuitTolerance());
+
+	dPhase = mini.UserState().Value("phase");
+	dAmp = mini.UserState().Value("amp");
+	dOffs = mini.UserState().Value("offset");
+	//dScale = mini.UserState().Value("scale");
+
 	delete pMinimize;
 	pMinimize = 0;
-
-	dPhase = mini.Parameters().Vec()[0];
-	dAmp = mini.Parameters().Vec()[1];
-	dOffs = mini.Parameters().Vec()[2];
-	//dScale = mini.Parameters().Vec()[3];
 
 	// Phasen auf 0..2*Pi einschränken
 	dPhase = fmod(dPhase, 2.*M_PI);
@@ -355,14 +356,15 @@ bool FitGaussian(int iSizeX, int iSizeY,
 	ROOT::Minuit2::FunctionMinimum mini = (*pMinimize)(
 									GlobalConfig::GetMinuitMaxFcn(),
 									GlobalConfig::GetMinuitTolerance());
+
+	dAmp = mini.UserState().Value("amp");
+	dCenterX = mini.UserState().Value("center_x");
+	dCenterY = mini.UserState().Value("center_y");
+	dSpreadX = mini.UserState().Value("spread_x");
+	dSpreadY = mini.UserState().Value("spread_y");
+
 	delete pMinimize;
 	pMinimize = 0;
-
-	dAmp = mini.Parameters().Vec()[0];
-	dCenterX = mini.Parameters().Vec()[1];
-	dCenterY = mini.Parameters().Vec()[2];
-	dSpreadX = mini.Parameters().Vec()[3];
-	dSpreadY = mini.Parameters().Vec()[4];
 
 	if(!mini.IsValid())
 	{
