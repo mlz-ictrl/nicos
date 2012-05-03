@@ -82,8 +82,8 @@ class Sinus : public ROOT::Minuit2::FCNBase
 				double dAbweichung = m_pddy[i];
 
 				// prevent division by zero
-				if(fabs(dAbweichung) < std::numeric_limits<double>::epsilon())
-					dAbweichung = std::numeric_limits<double>::epsilon();
+				if(fabs(dAbweichung) < std::numeric_limits<double>::min())
+					dAbweichung = std::numeric_limits<double>::min();
 
 				double d = (m_pdy[i] - (damp*sin(double(i)*dscale +
 										dphase)+doffs)) / dAbweichung;
@@ -117,7 +117,7 @@ class Sinus : public ROOT::Minuit2::FCNBase
 			for(int i=0; i<iSize; ++i)
 			{
 				m_pdy[i] = T(pdy[i]);				// Value
-				m_pddy[i] = 1./sqrt(m_pdy[i]);		// Error
+				m_pddy[i] = sqrt(m_pdy[i]);			// Abs Error!
 			}
 		}
 };
@@ -132,7 +132,7 @@ bool FitSinus(int iSize, const unsigned int* pData,
 	fkt.SetValues(iSize, pData);
 
 	ROOT::Minuit2::MnUserParameters upar;
-	upar.Add("phase", M_PI, 0.1*M_PI);
+	upar.Add("phase", M_PI, M_PI);
 	upar.Add("amp", dAmp, 0.1*dAmp);
 	upar.Add("offset", dOffs, 0.1*dOffs);
 	//upar.Add("scale", 2.*M_PI/16., 0.1);		// don't fit this parameter
@@ -271,14 +271,14 @@ class Gaussian : public ROOT::Minuit2::FCNBase
 
 
 					// prevent division by zero
-					if(fabs(dSpread) < std::numeric_limits<double>::epsilon())
-						dSpread = std::numeric_limits<double>::epsilon();
+					if(fabs(dSpread) < std::numeric_limits<double>::min())
+						dSpread = std::numeric_limits<double>::min();
 
-					if(fabs(dSpreadX) < std::numeric_limits<double>::epsilon())
-						dSpreadX = std::numeric_limits<double>::epsilon();
+					if(fabs(dSpreadX) < std::numeric_limits<double>::min())
+						dSpreadX = std::numeric_limits<double>::min();
 
-					if(fabs(dSpreadY) < std::numeric_limits<double>::epsilon())
-						dSpreadY = std::numeric_limits<double>::epsilon();
+					if(fabs(dSpreadY) < std::numeric_limits<double>::min())
+						dSpreadY = std::numeric_limits<double>::min();
 
 					double d = dVal - dAmp *
 							   exp(-0.5*(dX-dCenterX)*(dX-dCenterX)/(dSpreadX*dSpreadX)) *
@@ -311,7 +311,7 @@ class Gaussian : public ROOT::Minuit2::FCNBase
 			for(int i=0; i<iW*iH; ++i)
 			{
 				m_pdata[i] = T(pdata[i]);
-				m_pspread[i] = 1./sqrt(pdata[i]);
+				m_pspread[i] = sqrt(pdata[i]);		// Abs. Error
 			}
 		}
 };

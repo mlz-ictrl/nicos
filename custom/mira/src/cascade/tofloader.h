@@ -122,6 +122,9 @@ class PadImage : public BasicImage
 		virtual double GetDoubleData(int iX, int iY) const;
 		virtual unsigned int GetIntData(int iX, int iY) const;
 
+		// set count
+		void SetData(int iX, int iY, unsigned int uiCnt);
+
 		// same as above, but return 0 if outside ROI (if ROI is used)
 		unsigned int GetDataInsideROI(int iX, int iY) const;
 

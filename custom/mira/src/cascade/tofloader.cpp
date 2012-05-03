@@ -1094,6 +1094,15 @@ unsigned int PadImage::GetIntData(int iX, int iY) const
 		return 0;
 }
 
+void PadImage::SetData(int iX, int iY, unsigned int uiCnt)
+{
+	if(m_puiDaten && iX>=0 && iX<GetPadConfig().GetImageWidth() &&
+					 iY>=0 && iY<GetPadConfig().GetImageHeight())
+	{
+		m_puiDaten[iY*GetPadConfig().GetImageWidth() + iX] = uiCnt;
+	}
+}
+
 unsigned int PadImage::GetCounts() const
 {
 	int iXStart, iXEnd, iYStart, iYEnd;
@@ -1162,22 +1171,51 @@ TmpImage PadImage::GetRoiImage() const
 
 void PadImage::GenerateRandomData()
 {
-	// TODO
+		for(int iY=0; iY<GetPadConfig().GetImageHeight(); ++iY)
+			for(int iX=0; iX<GetPadConfig().GetImageWidth(); ++iX)
+			{
+				double dX = iX,
+					   dY = iY,
+					   dCenterX = 0.5 * double(GetPadConfig().GetImageWidth()),
+					   dCenterY = 0.5 * double(GetPadConfig().GetImageHeight()),
+					   dSpreadX = sqrt(dCenterX),
+					   dSpreadY = sqrt(dCenterY);
+
+				double ddata = 1000. * exp(-0.5*(dX-dCenterX)*(dX-dCenterX)/(dSpreadX*dSpreadX))*
+									 exp(-0.5*(dY-dCenterY)*(dY-dCenterY)/(dSpreadY*dSpreadY));
+
+				SetData(iX, iY, (unsigned int)(ddata + 10.));
+			}
 }
 
 void TofImage::GenerateRandomData()
 {
-	// TODO
+	double dPhase = 0.;
+	double dOffs = 10.;
+	double dAmp = 100.;
 
 	for(int iTimeChannel=0; iTimeChannel<GetTofConfig().GetImagesPerFoil(); ++iTimeChannel)
 	{
-		double dt = 2.*M_PI*double(iTimeChannel) / double(GetTofConfig().GetImagesPerFoil());
-		unsigned int uiData = (unsigned int)(10.*sin(dt));
+		double dt = 1. + sin(dPhase + 2.*M_PI*double(iTimeChannel) / double(GetTofConfig().GetImagesPerFoil()));
 
-		for(int iFoil=0; iFoil<GetTofConfig().GetFoilCount(); ++iFoil)
-			for(int iY=0; iY<GetTofConfig().GetImageHeight(); ++iY)
-				for(int iX=0; iX<GetTofConfig().GetImageWidth(); ++iX)
-					SetData(iFoil, iTimeChannel, iX, iY, dt);
+		for(int iY=0; iY<GetTofConfig().GetImageHeight(); ++iY)
+			for(int iX=0; iX<GetTofConfig().GetImageWidth(); ++iX)
+			{
+				double dX = iX,
+					   dY = iY,
+					   dCenterX = 0.5 * double(GetTofConfig().GetImageWidth()),
+					   dCenterY = 0.5 * double(GetTofConfig().GetImageHeight()),
+					   dSpreadX = sqrt(dCenterX),
+					   dSpreadY = sqrt(dCenterY);
+
+				double ddata = dAmp * exp(-0.5*(dX-dCenterX)*(dX-dCenterX)/(dSpreadX*dSpreadX))*
+									 exp(-0.5*(dY-dCenterY)*(dY-dCenterY)/(dSpreadY*dSpreadY));
+
+				for(int iFoil=0; iFoil<GetTofConfig().GetFoilCount(); ++iFoil)
+				{
+					SetData(iFoil, iTimeChannel, iX, iY, (unsigned int)(ddata*dt + dOffs));
+				}
+			}
 	}
 
 }
@@ -1566,12 +1604,10 @@ bool TmpGraph::FitSinus(double &dPhase, double &dScale,
 	double dMaxVal=GetMax(), dMinVal=GetMin();
 	dOffs = dMinVal + (dMaxVal-dMinVal)/2.;		// Hints
 	dAmp = (dMaxVal-dMinVal)/2.;				// Hints
+	dPhase = 0.;
 
 	if(IsLowerThan(1))
-	{
-		dPhase=0.;
 		return false;
-	}
 
 	return ::FitSinus(m_iW, m_puiDaten, dPhase, /*dScale,*/ dAmp, dOffs);
 }

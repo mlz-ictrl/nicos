@@ -1079,7 +1079,6 @@ class MainWindow : public QMainWindow
 			pTof->GenerateRandomData();
 
 			//m_cascadewidget.UpdateGraph();
-
 			FileHasChanged();
 
 			UpdateLabels(false);
@@ -1097,6 +1096,7 @@ class MainWindow : public QMainWindow
 			pPad->GenerateRandomData();
 
 
+			m_cascadewidget.UpdateRange();
 			m_cascadewidget.UpdateGraph();
 			FileHasChanged();
 
