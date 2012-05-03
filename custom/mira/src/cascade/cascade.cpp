@@ -1069,6 +1069,44 @@ class MainWindow : public QMainWindow
 		{ m_cascadewidget.SetRoiDrawMode(ROI_DRAW_POLYGON); }
 		///////////////////////////////////////////////////////////////////
 
+
+		///////////////////////// Tool Menu Items /////////////////////////
+
+		void GenerateRandomTof()
+		{
+			m_cascadewidget.NewTof();
+			TofImage *pTof = m_cascadewidget.GetTof();
+			pTof->GenerateRandomData();
+
+			//m_cascadewidget.UpdateGraph();
+
+			FileHasChanged();
+
+			UpdateLabels(false);
+			UpdateSliders();
+			ShowMessage("TOF generated.");
+
+			viewOverview();
+			actionViewsOverview->setChecked(true);
+		}
+
+		void GenerateRandomPad()
+		{
+			m_cascadewidget.NewPad();
+			PadImage *pPad = m_cascadewidget.GetPad();
+			pPad->GenerateRandomData();
+
+
+			m_cascadewidget.UpdateGraph();
+			FileHasChanged();
+
+			UpdateLabels(false);
+			ShowMessage("PAD generated.");
+		}
+
+		//////////////////////////////////////////////////////////////////
+
+
 		///////////////////////// Help ///////////////////////////////////
 		void About()
 		{
@@ -1326,6 +1364,11 @@ class MainWindow : public QMainWindow
 						this);
 
 
+			// Tool Menu Items
+			QAction *actionGenerateRandomPad = new QAction("Generate Random &PAD", this);
+			QAction *actionGenerateRandomTof = new QAction("Generate Random &TOF", this);
+
+
 			// Help Menu Items
 			QAction *actionAbout = new QAction(
 						QIcon::fromTheme("help-about"),
@@ -1403,6 +1446,12 @@ class MainWindow : public QMainWindow
 			menuRoi->addSeparator();
 			menuRoi->addAction(actionClearRoi);
 			menubar->addAction(menuRoi->menuAction());
+
+			QMenu *menuTools = new QMenu(menubar);
+			menuTools->setTitle("&Tools");
+			menuTools->addAction(actionGenerateRandomPad);
+			menuTools->addAction(actionGenerateRandomTof);
+			menubar->addAction(menuTools->menuAction());
 
 			QMenu *menuHelp = new QMenu(menubar);
 			menuHelp->setTitle("&Help");
@@ -1616,6 +1665,12 @@ class MainWindow : public QMainWindow
 					this, SLOT(ServerConfig()));
 			connect(actionConfigFromServer, SIGNAL(triggered()),
 					this, SLOT(GetServerConfig()));
+
+			// Tools
+			connect(actionGenerateRandomPad, SIGNAL(triggered()),
+					this, SLOT(GenerateRandomPad()));
+			connect(actionGenerateRandomTof, SIGNAL(triggered()),
+					this, SLOT(GenerateRandomTof()));
 
 			// Help
 			connect(actionAbout, SIGNAL(triggered()),

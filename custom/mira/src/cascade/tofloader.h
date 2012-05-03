@@ -143,6 +143,8 @@ class PadImage : public BasicImage
 
 		// filter out everything except selected regions
 		TmpImage GetRoiImage() const;
+
+		void GenerateRandomData();
 };
 
 
@@ -321,6 +323,10 @@ class TofImage
 		unsigned int GetData(int iFoil, int iTimechannel, int iX, int iY) const;
 		unsigned int GetData(int iImage, int iX, int iY) const;
 
+		// set specific count value
+		void SetData(int iImage, int iX, int iY, unsigned int uiCnt);
+		void SetData(int iFoil, int iTc, int iX, int iY, unsigned int uiCnt);
+
 		// same as above, but return 0 if outside ROI (if ROI is used)
 		unsigned int GetDataInsideROI(int iFoil, int iTimechannel,
 									  int iX, int iY) const;
@@ -373,6 +379,8 @@ class TofImage
 
 		void AddFoils(int iBits, int iChannelBits, TmpImage *pImg) const;
 		//----------------------------------------------------------------------
+
+		void GenerateRandomData();
 };
 
 #endif

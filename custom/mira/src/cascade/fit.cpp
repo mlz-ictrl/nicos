@@ -132,9 +132,9 @@ bool FitSinus(int iSize, const unsigned int* pData,
 	fkt.SetValues(iSize, pData);
 
 	ROOT::Minuit2::MnUserParameters upar;
-	upar.Add("phase", M_PI, 0.01);
-	upar.Add("amp", dAmp, 1./sqrt(dAmp));
-	upar.Add("offset", dOffs, 1./sqrt(dOffs));
+	upar.Add("phase", M_PI, 0.1*M_PI);
+	upar.Add("amp", dAmp, 0.1*dAmp);
+	upar.Add("offset", dOffs, 0.1*dOffs);
 	//upar.Add("scale", 2.*M_PI/16., 0.1);		// don't fit this parameter
 
 	ROOT::Minuit2::MnApplication *pMinimize = 0;
@@ -328,11 +328,11 @@ bool FitGaussian(int iSizeX, int iSizeY,
 	fkt.SetValues(iSizeX, iSizeY, pData);
 
 	ROOT::Minuit2::MnUserParameters upar;
-	upar.Add("amp", dAmp, 1./sqrt(dAmp));
+	upar.Add("amp", dAmp, 0.1*dAmp);
 	upar.Add("center_x", dCenterX, dSpreadX);
 	upar.Add("center_y", dCenterY, dSpreadY);
-	upar.Add("spread_x", dSpreadX, 1.);
-	upar.Add("spread_y", dSpreadY, 1.);
+	upar.Add("spread_x", dSpreadX, 0.1*dSpreadX);
+	upar.Add("spread_y", dSpreadY, 0.1*dSpreadY);
 
 	ROOT::Minuit2::MnApplication *pMinimize = 0;
 

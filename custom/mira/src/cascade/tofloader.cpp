@@ -158,6 +158,32 @@ unsigned int TofImage::GetData(int iFoil, int iTimechannel,
 	}
 }
 
+void TofImage::SetData(int iImage, int iX, int iY, unsigned int uiCnt)
+{
+	if(m_puiDaten && iImage>=0 && iImage<GetTofConfig().GetImageCount() &&
+			iX>=0 && iX<GetTofConfig().GetImageWidth() &&
+			iY>=0 && iY<GetTofConfig().GetImageHeight())
+	{
+	   m_puiDaten[iImage*GetTofConfig().GetImageWidth()*
+							    GetTofConfig().GetImageHeight() +
+								iY*GetTofConfig().GetImageWidth() + iX] = uiCnt;
+	}
+
+}
+
+void TofImage::SetData(int iFoil, int iTc, int iX, int iY, unsigned int uiCnt)
+{
+	if(!GetTofConfig().GetPseudoCompression())
+	{
+		int iZ = GetTofConfig().GetFoilBegin(iFoil) + iTc;
+		SetData(iZ,iX,iY, uiCnt);
+	}
+	else
+	{
+		SetData(iFoil*GetTofConfig().GetImagesPerFoil()+iTc, iX, iY, uiCnt);
+	}
+}
+
 unsigned int TofImage::GetDataInsideROI(int iFoil, int iTimechannel,
 										int iX, int iY) const
 {
@@ -1131,7 +1157,30 @@ TmpImage PadImage::GetRoiImage() const
 }
 
 
+//------------------------------------------------------------------------------
+// random data generation
 
+void PadImage::GenerateRandomData()
+{
+	// TODO
+}
+
+void TofImage::GenerateRandomData()
+{
+	// TODO
+
+	for(int iTimeChannel=0; iTimeChannel<GetTofConfig().GetImagesPerFoil(); ++iTimeChannel)
+	{
+		double dt = 2.*M_PI*double(iTimeChannel) / double(GetTofConfig().GetImagesPerFoil());
+		unsigned int uiData = (unsigned int)(10.*sin(dt));
+
+		for(int iFoil=0; iFoil<GetTofConfig().GetFoilCount(); ++iFoil)
+			for(int iY=0; iY<GetTofConfig().GetImageHeight(); ++iY)
+				for(int iX=0; iX<GetTofConfig().GetImageWidth(); ++iX)
+					SetData(iFoil, iTimeChannel, iX, iY, dt);
+	}
+
+}
 
 
 //------------------------------------------------------------------------------
