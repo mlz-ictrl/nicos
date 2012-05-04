@@ -1179,25 +1179,31 @@ void PadImage::GenerateRandomData()
 					   dCenterX = 0.5 * double(GetPadConfig().GetImageWidth()),
 					   dCenterY = 0.5 * double(GetPadConfig().GetImageHeight()),
 					   dSpreadX = sqrt(dCenterX),
-					   dSpreadY = sqrt(dCenterY);
+					   dSpreadY = sqrt(dCenterY),
+					   dAmp = 10000.,
+					   dOffs = 10.;
 
-				double ddata = 1000. * exp(-0.5*(dX-dCenterX)*(dX-dCenterX)/(dSpreadX*dSpreadX))*
+				dX += randmp1()*dX*0.1;
+				dY += randmp1()*dY*0.1;
+				dCenterX += randmp1()*dCenterX*0.1;
+				dCenterY += randmp1()*dCenterY*0.1;
+				dSpreadX += randmp1()*dSpreadX*0.1;
+				dSpreadY += randmp1()*dSpreadY*0.1;
+				dAmp += randmp1()*dAmp*0.1;
+				dOffs += randmp1()*dOffs*0.1;
+
+				double ddata = dAmp * exp(-0.5*(dX-dCenterX)*(dX-dCenterX)/(dSpreadX*dSpreadX))*
 									 exp(-0.5*(dY-dCenterY)*(dY-dCenterY)/(dSpreadY*dSpreadY));
 
-				SetData(iX, iY, (unsigned int)(ddata + 10.));
+				SetData(iX, iY, (unsigned int)(ddata + dOffs));
 			}
 }
 
 void TofImage::GenerateRandomData()
 {
-	double dPhase = 0.;
-	double dOffs = 10.;
-	double dAmp = 100.;
-
+	double dPhase = rand01()*2.*M_PI;
 	for(int iTimeChannel=0; iTimeChannel<GetTofConfig().GetImagesPerFoil(); ++iTimeChannel)
 	{
-		double dt = 1. + sin(dPhase + 2.*M_PI*double(iTimeChannel) / double(GetTofConfig().GetImagesPerFoil()));
-
 		for(int iY=0; iY<GetTofConfig().GetImageHeight(); ++iY)
 			for(int iX=0; iX<GetTofConfig().GetImageWidth(); ++iX)
 			{
@@ -1208,16 +1214,34 @@ void TofImage::GenerateRandomData()
 					   dSpreadX = sqrt(dCenterX),
 					   dSpreadY = sqrt(dCenterY);
 
+				double dAmp = 100;
+
+				dX += randmp1()*dX*0.1;
+				dY += randmp1()*dY*0.1;
+				dCenterX += randmp1()*dCenterX*0.1;
+				dCenterY += randmp1()*dCenterY*0.1;
+				dSpreadX += randmp1()*dSpreadX*0.1;
+				dSpreadY += randmp1()*dSpreadY*0.1;
+
+				dAmp += randmp1()*dAmp*0.1;
+				
 				double ddata = dAmp * exp(-0.5*(dX-dCenterX)*(dX-dCenterX)/(dSpreadX*dSpreadX))*
 									 exp(-0.5*(dY-dCenterY)*(dY-dCenterY)/(dSpreadY*dSpreadY));
 
 				for(int iFoil=0; iFoil<GetTofConfig().GetFoilCount(); ++iFoil)
 				{
-					SetData(iFoil, iTimeChannel, iX, iY, (unsigned int)(ddata*dt + dOffs));
+					double dPhaseInc = 0.1 * double(iFoil)/double(GetTofConfig().GetFoilCount())*2.*M_PI;
+					double dt = 1. + sin((dPhase+dPhaseInc) + 2.*M_PI*double(iTimeChannel) / double(GetTofConfig().GetImagesPerFoil()));
+					
+					double dOffs = 10.;
+					dOffs += randmp1()*dOffs*0.1;
+					
+					double dData = ddata*dt + dOffs;
+					dData += randmp1()*dData*0.1;
+					SetData(iFoil, iTimeChannel, iX, iY, (unsigned int)(dData));
 				}
 			}
 	}
-
 }
 
 

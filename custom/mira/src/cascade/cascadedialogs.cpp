@@ -287,8 +287,9 @@ void GraphDlg::UpdateGraph(void)
 	char pcFit[256];
 	if(bFitValid)
 	{
-		sprintf(pcFit, "Fit: y = %.0f * sin(%.4f*x + %.4f) + %.0f",
-													dAmp, dFreq, dPhase, dOffs);
+		sprintf(pcFit, "Fit: y = %.0f * sin(%.4f*x + %.4f) + %.0f"
+					   "\nContrast: %.4f",
+						dAmp, dFreq, dPhase, dOffs, dAmp/dOffs);
 	}
 	else
 	{
@@ -382,12 +383,14 @@ void GraphDlg::Init(int iFolie)
 	m_curvefit.setPen(penfit);
 	m_curvefit.attach(qwtPlot);
 
+	/*
 	// Gesamtkurve
 	m_curvetotal.setRenderHint(QwtPlotItem::RenderAntialiased);
 	QPen pentotal = QPen(Qt::black);
 	pentotal.setWidth(2);
 	m_curvetotal.setPen(pentotal);
 	m_curvetotal.attach(qwtPlot);
+	*/
 }
 
 GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof) : QDialog(pParent),
@@ -399,7 +402,6 @@ GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof) : QDialog(pParent),
 													   m_pgrid(0)
 {
 	setupUi(this);
-
 	Init(0);
 	UpdateGraph();
 }
@@ -414,6 +416,7 @@ GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof, int iFolie)
 														  m_pgrid(0)
 {
 	setupUi(this);
+	Init(iFolie);
 	UpdateGraph();
 }
 
