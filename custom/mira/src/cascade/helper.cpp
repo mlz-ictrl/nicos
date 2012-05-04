@@ -25,6 +25,8 @@
 #include "globals.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include <locale>
 #include <string.h>
 #include <math.h>
@@ -173,4 +175,28 @@ double safe_log10_lowerrange(double d)
 		d = GlobalConfig::GetLogLowerRange();
 
 	return d;
+}
+
+//------------------------------------------------------------------------------
+
+static inline void init_rand()
+{
+	static bool s_bIsInited = false;
+	if(s_bIsInited)
+		return;
+		
+	srand(time(0));
+	s_bIsInited = true;
+}
+
+double rand01()
+{
+	init_rand();
+	return double(rand()) / double(RAND_MAX);
+}
+
+double randmp1()
+{
+	init_rand();
+	return (double(rand())-double(RAND_MAX)*0.5) / double(RAND_MAX);
 }

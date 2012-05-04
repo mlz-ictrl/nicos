@@ -110,4 +110,14 @@ void SetNumberGrouping(std::ostream& ostr);
 double safe_log10(double d);
 double safe_log10_lowerrange(double d);
 
+
+//------------------------------------------------------------------------------
+
+
+// random number between 0 and 1
+double rand01();
+// random number between -1 and 1
+double randmp1();
+
+
 #endif
