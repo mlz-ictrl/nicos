@@ -41,7 +41,7 @@ TIMECONSTANTS = sum(([k, 3*k] for k in range(1, 11)), [])
 
 class Amplifier(Measurable, TacoDevice):
     """
-    Stanford Research SR850/830 lock-in amplifier.
+    Stanford Research SR850 lock-in amplifier.
     """
 
     parameters = {
@@ -71,11 +71,10 @@ class Amplifier(Measurable, TacoDevice):
             raise CommunicationError('wrong identification: %r' % reply)
 
     def valueInfo(self):
-        return Value('X', unit='V'), Value('Y', unit='V'), \
-               Value('R', unit='V'), Value('Theta', unit='deg', type='counter')
-
-    def presetInfo(self):
-        return ['delay']
+        return Value('X', unit='V', fmtstr=self.fmtstr), \
+               Value('Y', unit='V', fmtstr=self.fmtstr), \
+               Value('R', unit='V', fmtstr=self.fmtstr), \
+               Value('Theta', unit='deg', type='counter', fmtstr=self.fmtstr)
 
     def doSetPreset(self, **preset):
         self._delay = preset.get('delay', 0)
