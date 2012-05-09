@@ -931,7 +931,8 @@ class Readable(Device):
         Default is to query the values of the last hour.
         """
         if not self._cache:
-            raise NicosError('no cache is configured for this setup')
+            # no cache is configured for this setup
+            return []
         else:
             if fromtime is None:
                 fromtime = -3600
