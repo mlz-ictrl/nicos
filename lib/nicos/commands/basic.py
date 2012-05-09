@@ -263,7 +263,7 @@ def NewExperiment(proposal, title='', localcontact='', **parameters):
     When configured, proposal information will be automatically filled in from
     the proposal database.
     """
-    session.experiment.new(proposal, title, **parameters)
+    session.experiment.new(proposal, title, localcontact, **parameters)
 
 @usercommand
 def FinishExperiment(*args, **kwargs):
