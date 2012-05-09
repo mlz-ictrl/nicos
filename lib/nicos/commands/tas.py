@@ -182,12 +182,20 @@ def Q(*args, **kwds):
             q[i] = args[i]
     if 'h' in kwds:
         q[0] = kwds['h']
+    elif 'H' in kwds:
+        q[0] = kwds['H']
     if 'k' in kwds:
         q[1] = kwds['k']
+    elif 'K' in kwds:
+        q[1] = kwds['K']
     if 'l' in kwds:
         q[2] = kwds['l']
+    if 'L' in kwds:
+        q[2] = kwds['L']
     if 'E' in kwds:
         q[3] = kwds['E']
+    elif 'e' in kwds:
+        q[3] = kwds['e']
     return q
 
 
