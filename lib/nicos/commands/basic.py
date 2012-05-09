@@ -493,7 +493,7 @@ def Simulate(what, *devices, **kwargs):
     """
     debug = bool(kwargs.get('debug', False))
     fn = _scriptfilename(what)
-    if not path.isfile(fn) and not fn.endswith('.py'):
+    if not path.isfile(fn) and not what.endswith('.py'):
         try:
             compile(what + '\n', 'exec', 'exec')
         except Exception:
