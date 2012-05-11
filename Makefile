@@ -80,6 +80,9 @@ else
   endif
 endif
 
+PYPLATFORM = $(shell $(PYTHON) -c 'import distutils.util as u; print u.get_platform()')
+PYVERSION  = $(shell $(PYTHON) -c 'import sys; print sys.version[0:3]')
+
 ifeq "$(V)" "1"
   VOPT = -v
 endif
@@ -93,13 +96,13 @@ main-install:
 	@echo "============================================================="
 	install $(VOPT) -d $(ROOTDIR)/{bin,doc,etc,lib,log,pid,setups,scripts}
 	rm -f $(VOPT) $(ROOTDIR)/lib/nicos/daemon/_pyctl.so
-	cp -pr $(VOPT) build/lib*/* $(ROOTDIR)/lib
+	cp -pr $(VOPT) build/lib.$(PYPLATFORM)-$(PYVERSION)/* $(ROOTDIR)/lib
 	cp -pr $(VOPT) pid/README $(ROOTDIR)/pid
 	chown $(SYSUSER):$(SYSGROUP) $(ROOTDIR)/pid
 	cp -pr $(VOPT) log/README $(ROOTDIR)/log
 	chown $(SYSUSER):$(SYSGROUP) $(ROOTDIR)/log
 	cp -pr $(VOPT) etc/nicos-system $(ROOTDIR)/etc
-	cp -pr $(VOPT) build/scripts*/* $(ROOTDIR)/bin
+	cp -pr $(VOPT) build/scripts-$(PYVERSION)/* $(ROOTDIR)/bin
 	-cp -pr $(VOPT) doc/build/html/* $(ROOTDIR)/doc
 	$(PYTHON) etc/create_nicosconf.py "$(SYSUSER)" "$(SYSGROUP)" "$(NETHOST)" \
 	  "$(ROOTDIR)/setups" "$(SERVICES)" "$(ENVIRONMENT)" > $(ROOTDIR)/nicos.conf
@@ -156,3 +159,10 @@ release:
 	make test
 	cd doc; rm -r build/html; make html
 	python setup.py sdist
+
+fixsmb:
+	chmod +x bin/*
+	chmod +x etc/create_nicosconf.py
+	chmod +x etc/nicos-system
+	chmod +x custom/panda/bin/pausebutton
+	chmod +x test/run.py
