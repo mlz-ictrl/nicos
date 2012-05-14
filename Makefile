@@ -38,15 +38,15 @@ lint:
 jenkinslintall:
 	-pylint --rcfile=./pylintrc --files-output=y lib/nicos/
 
-jenkinslint: PYFILESCHANGED:= $(shell git diff --name-only HEAD HEAD^ | grep ".py")
+jenkinslint: PYFILESCHANGED:= $(shell git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/.\t//' |grep ".py")
 jenkinslint:
-	-if [ -n "$(PYFILESCHANGED)" ] ; then \
-		pylint --rcfile=./pylintrc  --files-output=y  $(PYFILESCHANGED) ; fi  
+	-if [[ -n "$(PYFILESCHANGED)" ]] ; then \
+		pylint --rcfile=./pylintrc  --files-output=y  $(PYFILESCHANGED) ; else echo 'no python files changed' ; fi  
 
-changelint: PYFILESCHANGED:= $(shell git diff --name-only HEAD | grep ".py")
+changelint: PYFILESCHANGED:= $(shell git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/.\t//'  | grep ".py")
 changelint:
 	-if [ -n "$(PYFILESCHANGED)" ] ; then \
-		pylint --rcfile=./pylintrc  $(PYFILESCHANGED) ; fi 
+		pylint --rcfile=./pylintrc  $(PYFILESCHANGED) ; else echo 'no python files changed' ;fi
 
 check:
 	pyflakes lib/nicos custom/*/lib
