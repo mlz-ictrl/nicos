@@ -53,7 +53,7 @@ class PandaExperiment(Experiment):
     def _expdir(self, suffix, *parts):
         return path.join('/data/exp', suffix, *parts)
 
-    def new(self, proposal, title=None, **kwds):
+    def new(self, proposal, title=None, localcontact=None, **kwds):
         # panda-specific handling of proposal number
         if isinstance(proposal, int):
             proposal = 'p%s' % proposal
@@ -86,7 +86,7 @@ class PandaExperiment(Experiment):
         self.cycle = kwds['cycle']
 
         # checks are done, set the new experiment
-        Experiment.new(self, proposal, title)
+        Experiment.new(self, proposal, title, localcontact)
 
         # fill proposal info from database
         if proposal.startswith('p'):
