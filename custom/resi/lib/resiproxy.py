@@ -32,7 +32,7 @@ __version__ = "$Revision$"
 
 import sys
 sys.path.append('/home/pedersen/Eclispe_projects_git/singlecounter')
-sys.path.append('/home/pedersen/Eclispe_projects/nonius_new/app')
+sys.path.append('/usr/local/nonius_new/app')
 from goniometer.position import PositionFromStorage
 from nicos.utils.proxy import NicosProxy
 
