@@ -158,16 +158,16 @@ class ConsoleSession(Session):
         # showing prompt?
         self._prompting = False
 
-    def _initLogging(self):
-        Session._initLogging(self)
+    def _initLogging(self, prefix=None):
+        Session._initLogging(self, prefix)
         sys.displayhook = self._displayhook
 
     def _displayhook(self, value):
         if value is not None:
             self.log.log(OUTPUT, repr(value))
 
-    def loadSetup(self, setupnames, allow_special=False, raise_failed=False):
-        Session.loadSetup(self, setupnames, allow_special, raise_failed)
+    def loadSetup(self, setupnames, allow_special=False, raise_failed=False, autocreate_devices=None):
+        Session.loadSetup(self, setupnames, allow_special, raise_failed, autocreate_devices)
         self.resetPrompt()
 
     def setMode(self, mode):
