@@ -144,7 +144,7 @@ class Q(ndarray):
 _Q = Q
 
 @usercommand
-def Q(*args, **kwds):
+def Q(*args, **kwds): # pylint: disable=E0102
     """Create a Q-E vector that can be used for calculations.  Use:
 
     To create a Q vector (1, 0, 0) with energy transfer 0 or 5::
