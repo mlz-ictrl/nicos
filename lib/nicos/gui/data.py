@@ -103,26 +103,26 @@ class DataHandler(QObject):
         pd.setValue(1)
         pd.close()
 
-    def on_client_dataset(self, set):
-        self.sets.append(set)
-        self.uid2set[set.uid] = set
-        self.currentset = set
+    def on_client_dataset(self, dataset):
+        self.sets.append(dataset)
+        self.uid2set[dataset.uid] = dataset
+        self.currentset = dataset
         self.dependent = []
         # add some custom attributes of the dataset
-        set.invisible = False
-        set.name = str(set.sinkinfo.get('number', set.scaninfo)) # XXX
-        set.curves = self._init_curves(set)
-        for xvalues, yvalues in zip(set.xresults, set.yresults):
+        dataset.invisible = False
+        dataset.name = str(dataset.sinkinfo.get('number', dataset.scaninfo)) # XXX
+        dataset.curves = self._init_curves(dataset)
+        for xvalues, yvalues in zip(dataset.xresults, dataset.yresults):
             self._update_curves(xvalues, yvalues)
-        self.emit(SIGNAL('datasetAdded'), set)
+        self.emit(SIGNAL('datasetAdded'), dataset)
 
-    def add_existing_dataset(self, set, origins=()):
-        set.uid = str(uuid.uuid1())
-        self.sets.append(set)
-        self.uid2set[set.uid] = set
-        self.emit(SIGNAL('datasetAdded'), set)
+    def add_existing_dataset(self, dataset, origins=()):
+        dataset.uid = str(uuid.uuid1())
+        self.sets.append(dataset)
+        self.uid2set[dataset.uid] = dataset
+        self.emit(SIGNAL('datasetAdded'), dataset)
         if self.currentset.uid in origins:
-            self.dependent.append(set)
+            self.dependent.append(dataset)
 
     def on_client_datapoint(self, (xvalues, yvalues)):
         if not self.currentset:
@@ -134,11 +134,11 @@ class DataHandler(QObject):
         for depset in self.dependent:
             self.emit(SIGNAL('pointsAdded'), depset)
 
-    def _init_curves(self, set):
+    def _init_curves(self, dataset):
         curves = []
         timeindex = -1
         monindices = []
-        for i, (name, info) in enumerate(zip(set.ynames, set.yvalueinfo)):
+        for i, (name, info) in enumerate(zip(dataset.ynames, dataset.yvalueinfo)):
             if info.type in ('info', 'error'):
                 continue
             curve = Curve()
