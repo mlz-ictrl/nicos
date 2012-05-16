@@ -107,6 +107,9 @@ class VirtualCoder(Coder, HasOffset):
     def doStatus(self):
         return status.OK, ''
 
+    def doSetPosition(self, _pos):
+        pass
+
 
 class VirtualTimer(FRMTimerChannel):
     """A virtual timer channel for use together with `nicos.taco.Detector`."""
@@ -120,7 +123,7 @@ class VirtualTimer(FRMTimerChannel):
 
     def nothing(self):
         pass
-    doPreinit = doPause = doResume = doStop = doReset = nothing
+    doPreinit = doPause = doResume = doReset = nothing
 
     def doStart(self):
         if self.ismaster:
