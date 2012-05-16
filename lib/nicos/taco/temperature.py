@@ -119,7 +119,7 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
         timeout = self.timeout
         self.log.debug('wait time =  %d' % timeout)
         if self.ramp != 0.:
-             timeout += 60 * abs(self.read() - setpoint) / self.ramp
+            timeout += 60 * abs(self.read() - setpoint) / self.ramp
         self.log.debug('wait time =  %d' % timeout)
         firststart = started = time.time()
         while 1:
