@@ -365,27 +365,27 @@ def powderrays(dlist, ki=None, phi=None):
 
     for reflex, dvalue in dlist.items():
         try:
-           twotheta = 2*arcsin(pi/ki/dvalue)*180/pi
-           if twotheta < 135:
-               lines1_list[reflex] = twotheta
+            twotheta = 2 * arcsin(pi / ki / dvalue) * 180 / pi
+            if twotheta < 135:
+                lines1_list[reflex] = twotheta
         except ValueError:
-           pass
+            pass
         try:
-           twotheta = 2*arcsin(pi/ki/2/dvalue)*180/pi
-           if twotheta < 135:
-               lines2_list[reflex] = twotheta
+            twotheta = 2 * arcsin(pi / ki / 2 / dvalue) * 180 / pi
+            if twotheta < 135:
+                lines2_list[reflex] = twotheta
         except ValueError:
-           pass
+            pass
 
     if phi is not None:
-       for my_line in lines1_list.keys():
-           if abs(lines1_list[my_line] - phi) < 2:
-              printinfo('warning: powder line: %s at %6.3f deg' %
-                        (my_line, lines1_list[my_line]))
-       for my_line in lines2_list.keys():
-           if abs(lines2_list[my_line] - phi) < 2:
-              printinfo('warning: powder line from 2ki: %s at %6.3f deg' %
-                        (my_line, lines2_list[my_line]))
+        for my_line in lines1_list.keys():
+            if abs(lines1_list[my_line] - phi) < 2:
+                printinfo('warning: powder line: %s at %6.3f deg' %
+                          (my_line, lines1_list[my_line]))
+        for my_line in lines2_list.keys():
+            if abs(lines2_list[my_line] - phi) < 2:
+                printinfo('warning: powder line from 2ki: %s at %6.3f deg' %
+                          (my_line, lines2_list[my_line]))
 
     printinfo('found powder lines for ki = %5.3f A-1:' % ki)
     for my_line, angle in lines1_list.items():
