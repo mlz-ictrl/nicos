@@ -997,6 +997,14 @@ class Moveable(Readable):
     }
 
     # The type of the device value, used for typechecking in doStart().
+    @staticmethod
+    def valuetype(value):
+        """ The type of the device value, used for type checking in doStart().
+
+        This should be a static function as the real function is assigned externally
+        from functions defined in nicos.core.params, so no class instance need to be passed.
+        """
+        return (value)
     valuetype = anytype
 
     def __call__(self, pos=None):
