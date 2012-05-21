@@ -1073,45 +1073,45 @@ class Symbol:
         self.errorbar=errorbar
 
     def output(self,dataset):
-        list=[]
+        config=[]
         if self.type is not None:
-            list.append(dataset+" type %s" % self.type)
+            config.append(dataset+" type %s" % self.type)
         if self.symbol is not None:
-            list.append(dataset+" symbol %d" % self.symbol)
+            config.append(dataset+" symbol %d" % self.symbol)
         if self.size is not None:
-            list.append(dataset+" symbol size %f" % self.size)
+            config.append(dataset+" symbol size %f" % self.size)
         if self.color is not None:
-            list.append(dataset+" symbol color %d" % self.color)
+            config.append(dataset+" symbol color %d" % self.color)
         if self.pattern is not None:
-            list.append(dataset+" symbol pattern %d" % self.pattern)
+            config.append(dataset+" symbol pattern %d" % self.pattern)
         if self.filltype is not None:
-            list.append(dataset+" symbol fill type %d" % self.filltype)
+            config.append(dataset+" symbol fill type %d" % self.filltype)
         if self.fillrule is not None:
-            list.append(dataset+" symbol fill rule %d" % self.fillrule)
+            config.append(dataset+" symbol fill rule %d" % self.fillrule)
         if self.fillcolor is not None:
-            list.append(dataset+" symbol fill color %d" % self.fillcolor)
-            list.append(dataset+" symbol fill pattern 1")
+            config.append(dataset+" symbol fill color %d" % self.fillcolor)
+            config.append(dataset+" symbol fill pattern 1")
         if self.fillpattern is not None:
-            list.append(dataset+" symbol fill pattern %d" % self.fillpattern)
+            config.append(dataset+" symbol fill pattern %d" % self.fillpattern)
         if self.linewidth is not None:
-            list.append(dataset+" symbol linewidth %d" % self.linewidth)
+            config.append(dataset+" symbol linewidth %d" % self.linewidth)
         if self.linestyle is not None:
-            list.append(dataset+" symbol linestyle %d" % self.linestyle)
+            config.append(dataset+" symbol linestyle %d" % self.linestyle)
         if self.char is not None:
-            list.append(dataset+" symbol char %d" % self.char)
+            config.append(dataset+" symbol char %d" % self.char)
         if self.charfont is not None:
-            list.append(dataset+" symbol char font %d" % self.charfont)
+            config.append(dataset+" symbol char font %d" % self.charfont)
         if self.skip is not None:
-            list.append(dataset+" symbol skip %d" % self.skip)
+            config.append(dataset+" symbol skip %d" % self.skip)
 
         if self.annotation is not None:
-            list=list+ self.annotation.output(dataset)
+            config=config+ self.annotation.output(dataset)
 
         if self.errorbar is not None:
-            list=list+ self.errorbar.output(dataset)
+            config=config+ self.errorbar.output(dataset)
 
 
-        return list
+        return config
 class Line:
     """
     Best guesses for acceptable values:
@@ -1142,24 +1142,24 @@ class Line:
         self.dropline=dropline
 
     def output(self,dataset):
-        list=[]
+        config=[]
         if self.type is not None:
-            list.append(dataset+" line type %s" % self.type)
+            config.append(dataset+" line type %s" % self.type)
         if self.linestyle is not None:
-            list.append(dataset+" line linestyle %s" % self.linestyle)
+            config.append(dataset+" line linestyle %s" % self.linestyle)
         if self.linewidth is not None:
-            list.append(dataset+" line linewidth %s" % self.linewidth)
+            config.append(dataset+" line linewidth %s" % self.linewidth)
         if self.color is not None:
-            list.append(dataset+" line color %s" % self.color)
+            config.append(dataset+" line color %s" % self.color)
         if self.pattern is not None:
-            list.append(dataset+" line pattern %s" % self.pattern)
+            config.append(dataset+" line pattern %s" % self.pattern)
         if self.baseline is not None:
-            list.append(dataset+" baseline %s" % self.baseline)
+            config.append(dataset+" baseline %s" % self.baseline)
         if self.baselinetype is not None:
-            list.append(dataset+" baseline type %d" % self.baselinetype)
+            config.append(dataset+" baseline type %d" % self.baselinetype)
         if self.dropline is not None:
-            list.append(dataset+" dropline %s" % self.dropline)
-        return list
+            config.append(dataset+" dropline %s" % self.dropline)
+        return config
 
 class Label:
     """
@@ -1179,22 +1179,22 @@ class Label:
         self.place=place
 
     def output(self,axis):
-        list=[]
+        config=[]
         if self.label is not None:
-            list.append(axis+' label "%s"' % self.label)
+            config.append(axis+' label "%s"' % self.label)
         if self.layout is not None:
-            list.append(axis+' label layout %s' % self.layout)
+            config.append(axis+' label layout %s' % self.layout)
         if self.place is not None:
-            list.append(axis+' label place %s' % self.place)
+            config.append(axis+' label place %s' % self.place)
         if self.charsize is not None:
-            list.append(axis+' label char size %f' % self.charsize)
+            config.append(axis+' label char size %f' % self.charsize)
         if self.font is not None:
-            list.append(axis+' label font %d' % self.font)
+            config.append(axis+' label font %d' % self.font)
         if self.color is not None:
-            list.append(axis+' label color %d' % self.color)
+            config.append(axis+' label color %d' % self.color)
         if self.place is not None:
-            list.append(axis+' label place %s' % self.place)
-        return list
+            config.append(axis+' label place %s' % self.place)
+        return config
 
 class Bar:
     """
@@ -1210,15 +1210,17 @@ class Bar:
         self.linestyle=linestyle
         self.linewidth=linewidth
     def output(self,axis):
-        list=[]
-        list.append(axis+' bar %s' % self.onoff)
+        config=[]
+        config.append(axis+' bar %s' % self.onoff)
         if self.color is not None:
-            list.append(axis+' bar color %d' % self.color)
+            config.append(axis+' bar color %d' % self.color)
         if self.linestyle is not None:
-            list.append(axis+' bar linestyle %d' % self.linestyle)
+            config.append(axis+' bar linestyle %d' % self.linestyle)
         if self.linewidth is not None:
-            list.append(axis+' bar linewidth %f' % self.linewidth)
-        return list
+            config.append(axis+' bar linewidth %f' % self.linewidth)
+        return config
+
+
 class Tick:
     """
     Controls appearence of ticks on an axis.
@@ -1264,45 +1266,45 @@ class Tick:
         self.TickLabel=TickLabel
 
     def output(self,axis):
-        list=[]
-        list.append(axis+' tick %s' % self.onoff)
+        config=[]
+        config.append(axis+' tick %s' % self.onoff)
         if self.major is not None:
-            list.append(axis+' tick major %g' % self.major)
+            config.append(axis+' tick major %g' % self.major)
         if self.minorticks is not None:
-            list.append(axis+' tick minor ticks %d' % self.minorticks)
+            config.append(axis+' tick minor ticks %d' % self.minorticks)
         if self.inout is not None:
-            list.append(axis+' tick %s' % self.inout)
+            config.append(axis+' tick %s' % self.inout)
         if self.majorsize is not None:
-            list.append(axis+' tick major size %f' % self.majorsize)
+            config.append(axis+' tick major size %f' % self.majorsize)
         if self.majorcolor is not None:
-            list.append(axis+' tick major color %d' % self.majorcolor)
+            config.append(axis+' tick major color %d' % self.majorcolor)
         if self.majorlinewidth is not None:
-            list.append(axis+' tick major linewidth %f' % self.majorlinewidth)
+            config.append(axis+' tick major linewidth %f' % self.majorlinewidth)
         if self.majorlinestyle is not None:
-            list.append(axis+' tick major linestyle %d' % self.majorlinestyle)
+            config.append(axis+' tick major linestyle %d' % self.majorlinestyle)
         if self.majorgrid is not None:
-            list.append(axis+' tick major grid %s' % self.majorgrid)
+            config.append(axis+' tick major grid %s' % self.majorgrid)
         if self.minorcolor is not None:
-            list.append(axis+' tick minor color %d' % self.minorcolor)
+            config.append(axis+' tick minor color %d' % self.minorcolor)
         if self.minorlinewidth is not None:
-            list.append(axis+' tick minor linewidth %f' % self.minorlinewidth)
+            config.append(axis+' tick minor linewidth %f' % self.minorlinewidth)
         if self.minorlinestyle is not None:
-            list.append(axis+' tick minor linestyle %d' % self.minorlinestyle)
+            config.append(axis+' tick minor linestyle %d' % self.minorlinestyle)
         if self.minorgrid is not None:
-            list.append(axis+' tick minor grid %s' % self.minorgrid)
+            config.append(axis+' tick minor grid %s' % self.minorgrid)
         if self.minorsize is not None:
-            list.append(axis+' tick minor size %f' % self.minorsize)
+            config.append(axis+' tick minor size %f' % self.minorsize)
         if self.op is not None:
-            list.append(axis+' tick op %s' % self.op)
+            config.append(axis+' tick op %s' % self.op)
         if self.type is not None:
-            list.append(axis+' tick type %s' % self.type)
+            config.append(axis+' tick type %s' % self.type)
         if self.default is not None:
-            list.append(axis+' tick default %s' % self.default)
+            config.append(axis+' tick default %s' % self.default)
         if self.TickLabel is not None:
             for i in self.TickLabel.output(axis):
-                list.append(i)
+                config.append(i)
 
-        return list
+        return config
 
 
 class TickLabel:
@@ -1352,46 +1354,46 @@ class TickLabel:
         self.color=color
 
     def output(self,axis):
-        list=[]
-        list.append(axis+' ticklabel %s'% self.onoff)
+        config=[]
+        config.append(axis+' ticklabel %s'% self.onoff)
         if self.type is not None:
-            list.append(axis+' ticklabel type %s' % self.type)
+            config.append(axis+' ticklabel type %s' % self.type)
         if self.prec is not None:
-            list.append(axis+' ticklabel prec %d' % self.prec)
+            config.append(axis+' ticklabel prec %d' % self.prec)
         if self.format is not None:
-            list.append(axis+' ticklabel format %s' % self.format)
+            config.append(axis+' ticklabel format %s' % self.format)
         if self.append is not None:
-            list.append(axis+' ticklabel append "%s"' % self.append)
+            config.append(axis+' ticklabel append "%s"' % self.append)
         if self.prepend is not None:
-            list.append(axis+' ticklabel prepend "%s"' % self.prepend)
+            config.append(axis+' ticklabel prepend "%s"' % self.prepend)
         if self.angle is not None:
-            list.append(axis+' ticklabel angle %d' % self.angle)
+            config.append(axis+' ticklabel angle %d' % self.angle)
         if self.placeon is not None:
-            list.append(axis+' ticklabel place on %s' % self.placeon)
+            config.append(axis+' ticklabel place on %s' % self.placeon)
         if self.skip is not None:
-            list.append(axis+' ticklabel skip %d' % self.skip)
+            config.append(axis+' ticklabel skip %d' % self.skip)
         if self.stagger is not None:
-            list.append(axis+' ticklabel stagger %d' % self.stagger)
+            config.append(axis+' ticklabel stagger %d' % self.stagger)
         if self.op is not None:
-            list.append(axis+' ticklabel op %s' % self.op)
+            config.append(axis+' ticklabel op %s' % self.op)
         if self.sign is not None:
-            list.append(axis+' ticklabel sign %s' % self.sign)
+            config.append(axis+' ticklabel sign %s' % self.sign)
         if self.starttype is not None:
-            list.append(axis+' ticklabel start type %s' % self.starttype)
+            config.append(axis+' ticklabel start type %s' % self.starttype)
         if self.start is not None:
-            list.append(axis+' ticklabel start %f' % self.start)
+            config.append(axis+' ticklabel start %f' % self.start)
         if self.stoptype is not None:
-            list.append(axis+' ticklabel stop type %s' % self.stoptype)
+            config.append(axis+' ticklabel stop type %s' % self.stoptype)
         if self.stop is not None:
-            list.append(axis+' ticklabel stop %f' % self.stop)
+            config.append(axis+' ticklabel stop %f' % self.stop)
         if self.charsize is not None:
-            list.append(axis+' ticklabel char size %f' % self.charsize)
+            config.append(axis+' ticklabel char size %f' % self.charsize)
         if self.font is not None:
-            list.append(axis+' ticklabel font %d' % self.font)
+            config.append(axis+' ticklabel font %d' % self.font)
         if self.color is not None:
-            list.append(axis+' ticklabel color %d' % self.color)
+            config.append(axis+' ticklabel color %d' % self.color)
 
-        return list
+        return config
 
 class Annotation:
     def __init__(self,onoff=True,type=None,charsize=None,font=None,
@@ -1419,30 +1421,30 @@ class Annotation:
         self.offset=offset
 
     def output(self,dataset):
-        list=[]
-        list.append(dataset+' avalue %s' % self.onoff)
+        config=[]
+        config.append(dataset+' avalue %s' % self.onoff)
         if self.type is not None:
-            list.append(dataset+' avalue type %d' % self.type)
+            config.append(dataset+' avalue type %d' % self.type)
         if self.charsize is not None:
-            list.append(dataset+' avalue char size %f' % self.charsize)
+            config.append(dataset+' avalue char size %f' % self.charsize)
         if self.font is not None:
-            list.append(dataset+' avalue font %d' % self.font)
+            config.append(dataset+' avalue font %d' % self.font)
         if self.color is not None:
-            list.append(dataset+' avalue color %d' % self.color)
+            config.append(dataset+' avalue color %d' % self.color)
         if self.rot is not None:
-            list.append(dataset+' avalue rot %d' % self.rot)
+            config.append(dataset+' avalue rot %d' % self.rot)
         if self.format is not None:
-            list.append(dataset+' avalue format %s' % self.format)
+            config.append(dataset+' avalue format %s' % self.format)
         if self.prec is not None:
-            list.append(dataset+' avalue prec %d' % self.prec)
+            config.append(dataset+' avalue prec %d' % self.prec)
         if self.prepend is not None:
-            list.append(dataset+' avalue prepend "%s"' % self.prepend)
+            config.append(dataset+' avalue prepend "%s"' % self.prepend)
         if self.append is not None:
-            list.append(dataset+' avalue append "%s"' % self.append)
+            config.append(dataset+' avalue append "%s"' % self.append)
         if self.offset is not None:
-            list.append(dataset+' avalue offset %f , %f' %self.offset)
+            config.append(dataset+' avalue offset %f , %f' %self.offset)
 
-        return list
+        return config
 class Errorbar:
     """
     onoff turns the error bars on or off, by default if you make an errorbar, they are on.
@@ -1472,30 +1474,30 @@ class Errorbar:
         self.risercliplength=risercliplength
 
     def output(self,symbol):
-        list=[]
-        list.append('%s errorbar %s' % (symbol,self.onoff))
+        config=[]
+        config.append('%s errorbar %s' % (symbol,self.onoff))
         if self.place is not None:
-            list.append('%s errorbar place %s' %(symbol,self.place))
+            config.append('%s errorbar place %s' %(symbol,self.place))
         if self.color is not None:
-            list.append('%s errorbar color %d' %(symbol,self.color))
+            config.append('%s errorbar color %d' %(symbol,self.color))
         if self.pattern is not None:
-            list.append('%s errorbar pattern %d' %(symbol,self.pattern))
+            config.append('%s errorbar pattern %d' %(symbol,self.pattern))
         if self.size is not None:
-            list.append('%s errorbar size %f' %(symbol,self.size))
+            config.append('%s errorbar size %f' %(symbol,self.size))
         if self.linewidth is not None:
-            list.append('%s errorbar linewidth %f' %(symbol,self.linewidth))
+            config.append('%s errorbar linewidth %f' %(symbol,self.linewidth))
         if self.linestyle is not None:
-            list.append('%s errorbar linestyle %d' %(symbol,self.linestyle))
+            config.append('%s errorbar linestyle %d' %(symbol,self.linestyle))
         if self.riserlinewidth is not None:
-            list.append('%s errorbar riser linewidth %f' %(symbol,self.riserlinewidth))
+            config.append('%s errorbar riser linewidth %f' %(symbol,self.riserlinewidth))
         if self.riserlinestyle is not None:
-            list.append('%s errorbar riser linestyle %d' %(symbol,self.riserlinestyle))
+            config.append('%s errorbar riser linestyle %d' %(symbol,self.riserlinestyle))
         if self.riserclip is not None:
-            list.append('%s errorbar riser clip %s' %(symbol,self.riserclip))
+            config.append('%s errorbar riser clip %s' %(symbol,self.riserclip))
         if self.risercliplength is not None:
-            list.append('%s errorbar riser clip length %f' %(symbol,self.risercliplength))
+            config.append('%s errorbar riser clip length %f' %(symbol,self.risercliplength))
 
-        return list
+        return config
 
 if __name__=='__main__':
     import math
