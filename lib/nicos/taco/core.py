@@ -139,7 +139,7 @@ class TacoDevice(object):
         state = self._taco_guard(self._dev.deviceState)
         if state in (TACOStates.ON, TACOStates.DEVICE_NORMAL):
             return (status.OK, TACOStates.stateDescription(state))
-        elif state in (TACOStates.RAMP,TACOStates.STOPPING):
+        elif state in (TACOStates.RAMP, TACOStates.MOVING, TACOStates.STOPPING):
             return (status.BUSY, TACOStates.stateDescription(state))
         # rather status.UNKNOWN?
         return (status.ERROR, TACOStates.stateDescription(state))
