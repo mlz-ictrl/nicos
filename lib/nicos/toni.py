@@ -50,9 +50,9 @@ class ModBus(TacoDevice, Device):
         'source':   Param('Source address of host', type=int, default=0),
     }
 
-    def _crc(self, str):
-        crc = ord(str[0])
-        for i in str[1:]:
+    def _crc(self, value):
+        crc = ord(value[0])
+        for i in value[1:]:
             crc ^= ord(i)
         return '%02X' % crc
 
