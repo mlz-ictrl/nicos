@@ -91,7 +91,7 @@ class DeviceMeta(type):
     in the class with those defined in all base classes.
     """
 
-    def __new__(mcs, name, bases, attrs):
+    def __new__(mcs, name, bases, attrs): #@NoSelf
         if 'parameters' in attrs:
             for pinfo in attrs['parameters'].itervalues():
                 pinfo.classname = attrs['__module__'] + '.' + name
