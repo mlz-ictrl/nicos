@@ -1282,13 +1282,11 @@ class HasLimits(Moveable):
                               'userlimits (%s, %s)' %
                               ((self.format(curval),) + value))
 
-    def _AdjustLimitsToOffset(self,value,diff):
-        """ Adjust the user limits to the given offset
+    def _adjustLimitsToOffset(self, value, diff):
+        """Adjust the user limits to the given offset.
 
-        Used by the HasOffset mixin class to adjust the offset
-
-        @param value: The offset value
-        @param diff: The offset difference value
+        Used by the HasOffset mixin class to adjust the offset. *value* is the
+	offset value, *diff* the offset difference.
         """
         limits = self.userlimits
         self._new_offset = value
@@ -1321,7 +1319,7 @@ class HasOffset(object):
         old_offset = self.offset
         diff = value - old_offset
         if isinstance(self, HasLimits):
-            self._AdjustLimitsToOffset(value, diff)
+            self._adjustLimitsToOffset(value, diff)
         # Since offset changes directly change the device value, refresh
         # the cache instantly here
         if self._cache:
