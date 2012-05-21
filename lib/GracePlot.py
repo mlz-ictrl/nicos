@@ -658,7 +658,7 @@ class GraceGraph:
         if color is not None:
             commands.append('legend color %d' % color)
         if length is not None:
-             commands.append('legend length %d' % length)
+            commands.append('legend length %d' % length)
         if vgap is not None:
             commands.append('legend vgap %d' % vgap)
         if hgap is not None:
@@ -766,10 +766,10 @@ class GraceGraph:
     def plotxy(self,*xydatasets):
         # can take a shortcut, and use plotxy([x,y])
         datasets=[]
-        for set in xydatasets:
+        for testset in xydatasets:
             try:
-                self.x=set[0]
-                self.y=set[1]
+                self.x=testset[0]
+                self.y=testset[1]
             except:
                 raise IndexError,'xy data is in wrong form'
             datasets.append(Data(x=self.x,y=self.y))
@@ -1500,7 +1500,6 @@ class Errorbar:
         return config
 
 if __name__=='__main__':
-    import math
     a=GracePlot(width=8, height=6, auto_redraw=True)
     a.debug=False
     xvals=range(100)
