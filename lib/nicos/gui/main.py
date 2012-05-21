@@ -39,7 +39,7 @@ from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
      QLabel, QSystemTrayIcon, QStyle, QPixmap, QMenu, QIcon, QAction, \
      QFontDialog, QColorDialog
 
-from nicos import __version__ as nicos_version
+from nicos import nicos_version
 from nicos.gui.data import DataHandler
 from nicos.gui.utils import DlgUtils, SettingGroup, loadBasicWindowSettings, \
      parseConnectionData, getXDisplay, dialogFromUi, loadUi, importString
