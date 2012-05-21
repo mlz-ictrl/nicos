@@ -62,11 +62,11 @@ class Server(TCPServer):
     # serve_forever, shutdown and _handle_request_noblock are copied
     # from 2.6 SocketServer, 2.5 doesn't support shutdown
 
-    def serve_forever(self):
+    def serve_forever(self,timeout=1.0):
         self.__serving = True
         self.__is_shut_down.clear()
         while self.__serving:
-            r = select.select([self], [], [], 1.0)[0]
+            r = select.select([self], [], [], timeout)[0]
             if r:
                 self._handle_request_noblock()
         self.__is_shut_down.set()
