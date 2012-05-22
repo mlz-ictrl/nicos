@@ -30,7 +30,7 @@ import os
 
 from nicos import session
 from nicos.core import Readable, Param, Override, status, none_or
-
+from nicos.core.errors import NicosError
 
 class FreeSpace(Readable):
     """This is a readable device that returns the free space on a filesystem.
