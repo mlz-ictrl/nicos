@@ -999,12 +999,13 @@ class Moveable(Readable):
     # The type of the device value, used for typechecking in doStart().
     @staticmethod
     def valuetype(value):
-        """ The type of the device value, used for type checking in doStart().
+        """The type of the device value, used for type checking in doStart().
 
-        This should be a static function as the real function is assigned externally
-        from functions defined in nicos.core.params, so no class instance need to be passed.
+        This should be a static function as the real function is assigned
+        externally from functions defined in nicos.core.params, so no class
+        instance need to be passed.
         """
-        return (value)
+        return value
     valuetype = anytype
 
     def __call__(self, pos=None):
@@ -1122,18 +1123,20 @@ class Moveable(Readable):
             self._sim_old_value = self._sim_value
             return self._sim_value
         lastval = None
-        if hasattr(self, 'doWait'):
-            lastval = self.doWait()
-        # update device value in cache and return it
-        if lastval is not None:
-            # if doWait() returns something, assume it's the latest value
-            val = lastval
-        else:
-            # else, assume the device did move and the cache needs to be
-            # updated in most cases
-            val = self.doRead()  # not read(0), we already cache value below
-        if self._cache and self._mode != 'slave':
-            self._cache.put(self, 'value', val, currenttime(), self.maxage)
+        try:
+            if hasattr(self, 'doWait'):
+                lastval = self.doWait()
+        finally:
+            # update device value in cache and return it
+            if lastval is not None:
+                # if doWait() returns something, assume it's the latest value
+                val = lastval
+            else:
+                # else, assume the device did move and the cache needs to be
+                # updated in most cases
+                val = self.doRead()  # not read(0), we already cache value below
+            if self._cache and self._mode != 'slave':
+                self._cache.put(self, 'value', val, currenttime(), self.maxage)
         return val
 
     @usermethod
