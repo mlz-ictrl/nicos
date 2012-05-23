@@ -61,15 +61,15 @@ class Request(object):
     """
     reqno = None
 
-    def __init__(self, user=None):
-        self.user = user.name
-        self.userlevel = user.level
-
+    def __init__(self, user):
+        try:
+            self.user = user.name
+            self.userlevel = user.level
+        except AttributeError:
+            raise RequestError("No valid user object supplied")
     def serialize(self):
         return {'reqno': self.reqno, 'user': self.user}
 
-class TerminateRequest(Request):
-    """A script thread termination request."""
 
 class EmergencyStopRequest(Request):
     """An emergency stop request (while no script is running)."""
@@ -287,7 +287,7 @@ class ExecutionController(Controller):
             self.log.info('calling break function %r...' %
                           getattr(brfunc, '__name__', ''))
             try:
-                brfunc()
+                brfunc() #pylint: disable=E1102
             except Exception:
                 self.log.exception('break function raised error')
         # if arg is not None, stop immediately with given arg
@@ -303,7 +303,7 @@ class ExecutionController(Controller):
                 self.log.info('calling continue function %r...' %
                               getattr(contfunc, '__name__', ''))
                 try:
-                    contfunc()
+                    contfunc() #pylint: disable=E1102
                 except Exception:
                     self.log.exception('continue function raised error')
 
@@ -400,14 +400,6 @@ class ExecutionController(Controller):
             else:
                 self.log.info('ESF finished')
 
-    def stop_script_thread(self):
-        if not self.thread:
-            raise RuntimeError('no script thread started')
-        self.new_request(TerminateRequest())
-        self.thread.join()
-        self.thread = None
-        del self.estop_functions[:]
-
     def start_script_thread(self, *args):
         if self.thread:
             raise RuntimeError('script thread already started')
@@ -458,10 +450,7 @@ class ExecutionController(Controller):
                                   request.reqno)
                     continue
                 self.log.info('processing request %d' % request.reqno)
-                if isinstance(request, TerminateRequest):
-                    self.log.info('terminating script_thread')
-                    break
-                elif isinstance(request, EmergencyStopRequest):
+                if isinstance(request, EmergencyStopRequest):
                     self.log.warn('executing ESFs')
                     session.log.warn('Emergency stop requested by %s' %
                                      request.user)
