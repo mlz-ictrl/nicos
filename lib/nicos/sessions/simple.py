@@ -32,7 +32,7 @@ import signal
 from nicos import session
 from nicos.utils import daemonize, setuser, writePidfile, removePidfile
 from nicos.sessions import Session
-
+from nicos.core import NicosError
 
 class ScriptSession(Session):
     """
@@ -80,7 +80,11 @@ class NoninteractiveSession(Session):
 
     @classmethod
     def run(cls, appname, maindevname=None, setupname=None, pidfile=True,
-            daemon=False, start_args=[]):
+            daemon=False, start_args=None):
+
+        start_args = start_args if start_args is not  None else tuple()
+        # TODO Check if start_args is iterable and treat strings correctly,
+        # see http://docs.python.org/reference/expressions.html#calls
 
         if daemon:
             daemonize()

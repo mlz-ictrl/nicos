@@ -239,7 +239,8 @@ def convdoc(conv):
     return conv.__name__
 
 def listof(conv):
-    def converter(val=[]):
+    def converter(val=None):
+        val = val if val is not None else list()
         if not isinstance(val, list):
             raise ValueError('value needs to be a list')
         return map(conv, val)
@@ -271,7 +272,8 @@ def tupleof(*types):
     return converter
 
 def dictof(keyconv, valconv):
-    def converter(val={}):
+    def converter(val=None):
+        val = val if val is not None else dict()
         if not isinstance(val, dict):
             raise ValueError('value needs to be a dict')
         ret = {}
@@ -297,8 +299,9 @@ def anytype(val=None):
     """any value"""
     return val
 
-def vec3(val=[0,0,0]):
+def vec3(val=None):
     """a 3-vector"""
+    val = val if val is not  None else [0,0,0]
     ret = map(float, val)
     if len(ret) != 3:
         raise ValueError('value needs to be a 3-element vector')

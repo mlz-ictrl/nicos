@@ -62,10 +62,12 @@ class ErrorBarPlotCurve(QwtPlotCurve):
     Copied from Qwt examples and applied some fixes.
     """
 
-    def __init__(self, x=[], y=[], dx=None, dy=None,
+    def __init__(self, x=None, y=None, dx=None, dy=None,
                  curvePen=QPen(Qt.black, 1), curveStyle=QwtPlotCurve.Lines,
                  curveSymbol=QwtSymbol(), errorPen=QPen(Qt.NoPen),
                  errorCap=0, errorOnTop=False, title=None):
+        x = x if x is not None else []
+        y = y if y is not None else []
         if title is not None:
             QwtPlotCurve.__init__(self, title)
         else:
