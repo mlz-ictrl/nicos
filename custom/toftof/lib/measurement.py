@@ -388,7 +388,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
             np.savetxt(fp, counts, '%d')
             os.fsync(fp)
         try:
-            treated = counts.T[self._anglemap, :].astype('<I4')
+            treated = counts[self._anglemap, :].astype('<I4')
             ndet = treated.shape[0]
             session.updateLiveData('toftof', self.lastfilename, '<I4',
                                    1024, ndet, 1, meastime, buffer(treated))
