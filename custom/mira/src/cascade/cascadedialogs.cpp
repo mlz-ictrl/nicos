@@ -29,12 +29,15 @@
 
 #include <stdio.h>
 #include <sstream>
+#include <fstream>
+
 #include <QVariant>
 #include <QMenu>
 #include <QFileDialog>
 #include <QDir>
 #include <QtGui/QMessageBox>
-#include <fstream>
+#include <qprinter.h>
+#include <qprintdialog.h>
 
 
 // ************************* Server Command Dialog ********************
@@ -282,37 +285,44 @@ void GraphDlg::UpdateGraph(void)
 	delete[] pdy;
 
 
-	// Fit dieser Messpunkte
-	double dPhase, dFreq, dAmp, dOffs;
-	bool bFitValid = tmpGraph.FitSinus(dPhase, dFreq, dAmp, dOffs);
-
-	char pcFit[256];
-	if(bFitValid)
+	if(checkBoxDoFit->isChecked())
 	{
-		sprintf(pcFit, "Fit: y = %.0f * sin(%.4f*x + %.4f) + %.0f"
-					   "\nContrast: %.4f",
-						dAmp, dFreq, dPhase, dOffs, dAmp/dOffs);
+		// Fit dieser Messpunkte
+		double dPhase, dFreq, dAmp, dOffs;
+		bool bFitValid = tmpGraph.FitSinus(dPhase, dFreq, dAmp, dOffs);
+
+		char pcFit[256];
+		if(bFitValid)
+		{
+			sprintf(pcFit, "Fit: y = %.0f * sin(%.4f*x + %.4f) + %.0f"
+						"\nContrast: %.4f",
+							dAmp, dFreq, dPhase, dOffs, dAmp/dOffs);
+		}
+		else
+		{
+			sprintf(pcFit, "Fit: invalid!");
+			dAmp = dFreq = dPhase = dOffs = 0.;
+		}
+
+		labelFit->setText(pcFit);
+
+		const int FITPUNKTE=16;
+		pdx = new double[conf.GetImagesPerFoil()*FITPUNKTE];
+		pdy = new double[conf.GetImagesPerFoil()*FITPUNKTE];
+		for(int i=0; i<conf.GetImagesPerFoil()*FITPUNKTE; ++i)
+		{
+			double x = double(i)/double(FITPUNKTE);
+			pdx[i] = x;
+			pdy[i] = dAmp*sin(x*dFreq + dPhase) + dOffs;
+		}
+		m_curvefit.setData(pdx, pdy, conf.GetImagesPerFoil()*FITPUNKTE);
+		delete[] pdx;
+		delete[] pdy;
 	}
 	else
 	{
-		sprintf(pcFit, "Fit: invalid!");
-		dAmp = dFreq = dPhase = dOffs = 0.;
+		m_curvefit.setData(0,0,0);
 	}
-
-	labelFit->setText(pcFit);
-
-	const int FITPUNKTE=16;
-	pdx = new double[conf.GetImagesPerFoil()*FITPUNKTE];
-	pdy = new double[conf.GetImagesPerFoil()*FITPUNKTE];
-	for(int i=0; i<conf.GetImagesPerFoil()*FITPUNKTE; ++i)
-	{
-		double x = double(i)/double(FITPUNKTE);
-		pdx[i] = x;
-		pdy[i] = dAmp*sin(x*dFreq + dPhase) + dOffs;
-	}
-	m_curvefit.setData(pdx, pdy, conf.GetImagesPerFoil()*FITPUNKTE);
-	delete[] pdx;
-	delete[] pdy;
 
 	/*
 	// Gesamtkurve
@@ -336,9 +346,9 @@ void GraphDlg::UpdateGraph(void)
 }
 
 void GraphDlg::Foilchanged(int iVal)
-{
-	UpdateGraph();
-}
+{ UpdateGraph(); }
+void GraphDlg::checkBoxDoFitChanged(int state)
+{ UpdateGraph(); }
 
 void GraphDlg::Init(int iFolie)
 {
@@ -360,10 +370,12 @@ void GraphDlg::Init(int iFolie)
 	spinBoxFolie->setMaximum(conf.GetFoilCount());
 	spinBoxFolie->setValue(iFolie+1);
 
-	QwtLegend *m_plegend = new QwtLegend;
-	//m_plegend->setItemMode(QwtLegend::CheckableItem);
-	qwtPlot->insertLegend(m_plegend, QwtPlot::RightLegend);
+	//QwtLegend *m_plegend = new QwtLegend;
+	//qwtPlot->insertLegend(m_plegend, QwtPlot::RightLegend);
 
+	QObject::connect(btnPrint, SIGNAL(clicked()), this, SLOT(printPlot()));
+	QObject::connect(checkBoxDoFit, SIGNAL(stateChanged(int)), this,
+									SLOT(checkBoxDoFitChanged(int)));
 	QObject::connect(spinBoxFolie, SIGNAL(valueChanged(int)), this,
 								   SLOT(Foilchanged(int)));
 
@@ -373,6 +385,7 @@ void GraphDlg::Init(int iFolie)
 	sym.setPen(QColor(Qt::blue));
 	sym.setBrush(QColor(Qt::blue));
 	sym.setSize(5);
+	
 	m_curve.setSymbol(sym);
 	m_curve.setStyle(QwtPlotCurve::NoCurve);
 	m_curve.setRenderHint(QwtPlotItem::RenderAntialiased);
@@ -393,6 +406,15 @@ void GraphDlg::Init(int iFolie)
 	m_curvetotal.setPen(pentotal);
 	m_curvetotal.attach(qwtPlot);
 	*/
+}
+
+void GraphDlg::printPlot()
+{
+	QPrinter printer;
+	printer.setOrientation(QPrinter::Landscape);
+	QPrintDialog dialog(&printer);
+	if(dialog.exec())
+		qwtPlot->print(printer);
 }
 
 GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof) : QDialog(pParent),
@@ -1383,11 +1405,20 @@ void ConvertDlg::ConvertToBinary(const char* pcSrc, const char* pcDst)
 void ConvertDlg::Start()
 {
 	if(editSrc->text()=="")
+	{
 		QMessageBox::critical(0, "Error", "Please select a source directory.", QMessageBox::Ok);
+		return;
+	}
 	else if(editDst->text()=="")
+	{
 		QMessageBox::critical(0, "Error", "Please select a destination directory.", QMessageBox::Ok);
+		return;
+	}
 	else if(editSrc->text() == editDst->text())
+	{
 		QMessageBox::critical(0, "Error", "Please don't use the same directory as source and destination!", QMessageBox::Ok);
+		return;
+	}
 
 	QDir dir(editSrc->text());
 	dir.setFilter(QDir::Files | QDir::Hidden);

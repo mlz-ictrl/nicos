@@ -119,11 +119,12 @@ class GraphDlg : public QDialog, public Ui::GraphDlg
 		QwtPlotCurve m_curvefit, m_curvetotal;
 		QwtLegend *m_plegend;
 		QwtPlotGrid *m_pgrid;
-
 		void UpdateGraph(void);
 
 	protected slots:
 		void Foilchanged(int iVal);
+		void printPlot();
+		void checkBoxDoFitChanged(int state);
 
 	public:
 		GraphDlg(QWidget *pParent, TofImage* pTof);
