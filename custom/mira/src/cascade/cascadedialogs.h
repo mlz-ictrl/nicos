@@ -55,6 +55,7 @@
 #include "ui_integrationdlg.h"
 #include "ui_rangedlg.h"
 #include "ui_countsvsimagesdlg.h"
+#include "ui_convertdlg.h"
 
 #include "histogram_item.h"
 #include "bins.h"
@@ -403,6 +404,28 @@ class CountsVsImagesDlg : public QDialog, public Ui::CountsVsImagesDlg
 
 	public slots:
 		void UpdateGraph();
+};
+
+// *****************************************************************************
+
+
+// ************************* Convert Dialog ************************************
+
+class ConvertDlg : public QDialog, public Ui::ConvertDlg
+{
+	Q_OBJECT
+
+	protected:
+		static void ConvertToBinary(const char* pcSrc, const char* pcDst);
+
+	protected slots:
+		void SelectSrcDir();
+		void SelectDstDir();
+		void Start();
+
+	public:
+		ConvertDlg(QWidget *pParent);
+		virtual ~ConvertDlg();
 };
 
 // *****************************************************************************

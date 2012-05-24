@@ -1035,6 +1035,52 @@ int PadImage::LoadFile(const char *pcFileName)
 	return iRet;
 }
 
+int PadImage::LoadTextFile(const char* pcFileName)
+{
+	if(m_bExternalMem)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "Loader: This PAD uses external memory"
+				  " (line " << __LINE__ << ")!\n";
+	}
+	
+	int iRet = LOAD_SUCCESS;
+	
+	FILE *pf = fopen(pcFileName,"rt");
+	if(!pf)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Could not open file \"" << pcFileName << "\"."
+		<< "\n";
+		return LOAD_FAIL;
+	}
+	
+	for(int iY=0; iY<GetPadConfig().GetImageHeight(); ++iY)
+	{
+		for(int iX=0; iX<GetPadConfig().GetImageWidth(); ++iX)
+		{
+			if(feof(pf))
+			{
+				logger.SetCurLogLevel(LOGLEVEL_WARN);
+				logger << "Loader: Premature EOF (line " << __LINE__ << ")!\n";
+				iRet = LOAD_SIZE_MISMATCH;
+				break;
+			}
+			
+			unsigned int uiVal = 0;
+			fscanf(pf, "%d", &uiVal);
+
+			SetData(iX, iY, uiVal);
+		}
+		
+		if(iRet!=LOAD_SUCCESS)
+			break;
+	}
+	
+	fclose(pf);
+	UpdateRange();
+	return iRet;
+}
 
 void PadImage::Print(const char* pcOutFile)
 {

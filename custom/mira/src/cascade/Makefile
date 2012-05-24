@@ -28,15 +28,21 @@ all: cascade nicosmodules
 
 
 ###################### cascade-qt-client ################
-cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o globals.o parse.o roi.o fit.o gc.o plotter.o
-	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o config.o histogram_item.o client.o helper.o logger.o globals.o parse.o roi.o fit.o gc.o plotter.o
+cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o \
+	 config.o histogram_item.o client.o helper.o logger.o globals.o parse.o \
+	roi.o fit.o gc.o plotter.o
+	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o \
+		bins.o cascadewidget.o tofloader.o tofdata.o config.o \
+		histogram_item.o client.o helper.o logger.o globals.o \
+		parse.o roi.o fit.o gc.o plotter.o
 #########################################################
 
 
 
 
 ###################### CPP-Dateien ######################
-cascade.o: cascade.cpp cascade.moc cascadedialogs_moc.cpp cascadedialogs.moc bins.h parse.h ErrorBarPlotCurve.h tofdata.h cascadedialogs.h
+cascade.o: cascade.cpp cascade.moc cascadedialogs_moc.cpp cascadedialogs.moc \
+		bins.h parse.h ErrorBarPlotCurve.h tofdata.h cascadedialogs.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascade.o cascade.cpp
 
 cascadedialogs.o: cascadedialogs_moc.cpp cascadedialogs.h cascadedialogs.moc
@@ -91,7 +97,10 @@ gc.o: gc.cpp gc.h
 
 
 ############################ Dialogs ############################
-cascadedialogs.h: ui_calibrationdlg.h ui_sumdialog.h ui_serverdlg.h ui_servercfgdlg.h ui_graphdlg.h ui_commanddlg.h ui_roidlg.h ui_browsedlg.h ui_integrationdlg.h ui_rangedlg.h ui_countsvsimagesdlg.h
+cascadedialogs.h: ui_calibrationdlg.h ui_sumdialog.h ui_serverdlg.h \
+		  ui_servercfgdlg.h ui_graphdlg.h ui_commanddlg.h \
+		  ui_roidlg.h ui_browsedlg.h ui_integrationdlg.h \
+		  ui_rangedlg.h ui_countsvsimagesdlg.h ui_convertdlg.h
 
 ui_calibrationdlg.h: calibrationdlg.ui
 	uic calibrationdlg.ui > ui_calibrationdlg.h
@@ -125,6 +134,9 @@ ui_rangedlg.h: rangedlg.ui
 
 ui_countsvsimagesdlg.h:
 	uic countsvsimagesdlg.ui > ui_countsvsimagesdlg.h
+
+ui_convertdlg.h: convertdlg.ui
+	uic convertdlg.ui > ui_convertdlg.h
 #################################################################
 
 

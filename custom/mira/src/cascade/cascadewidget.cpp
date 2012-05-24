@@ -159,10 +159,16 @@ bool CascadeWidget::LoadFile(const char* pcFile)
 	return false;
 }
 
-bool CascadeWidget::LoadPadFile(const char* pcFile)
+bool CascadeWidget::LoadPadFile(const char* pcFile, bool bBinary)
 {
 	NewPad();
-	int iRet = m_pPad->LoadFile(pcFile);
+	
+	int iRet;
+	if(bBinary)
+		iRet= m_pPad->LoadFile(pcFile);
+	else
+		iRet= m_pPad->LoadTextFile(pcFile);
+	
 	if(iRet == LOAD_SIZE_MISMATCH)
 	{
 		long lSize = GetFileSize(pcFile);
@@ -180,6 +186,12 @@ bool CascadeWidget::LoadPadFile(const char* pcFile)
 	}
 	return iRet;
 }
+
+bool CascadeWidget::LoadPadFile(const char* pcFile)
+{ return LoadPadFile(pcFile, 1); }
+
+bool CascadeWidget::LoadPadFileTxt(const char* pcFile)
+{ return LoadPadFile(pcFile, 0); }
 
 bool CascadeWidget::LoadTofFile(const char* pcFile)
 {

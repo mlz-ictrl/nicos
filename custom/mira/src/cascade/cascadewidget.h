@@ -95,7 +95,9 @@ Q_OBJECT
 		bool LoadFile(const char* pcFile);
 
 		// load PAD from file
+		bool LoadPadFile(const char* pcFile, bool bBinary);
 		bool LoadPadFile(const char* pcFile);
+		bool LoadPadFileTxt(const char* pcFile);
 
 		// load TOF from file
 		bool LoadTofFile(const char* pcFile);

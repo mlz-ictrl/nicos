@@ -894,24 +894,29 @@ class MainWindow : public QMainWindow
 			m_cascadewidget.showBrowseDlg(m_strCurDir.toAscii().data());
 		}
 
-		void LoadPad()
+		void LoadPad(bool bBinary)
 		{
 			QString strFile = QFileDialog::getOpenFileName(this,
-									"Open PAD File","",
-									"PAD Files (*.pad *.PAD);;All Files (*)");
-
+														   "Open PAD File","",
+												  "PAD Files (*.pad *.PAD);;All Files (*)");
+			
 			if(strFile=="")
 				return;
-
+			
 			// set current directory
 			QDir dir(strFile);
 			dir.cdUp();
 			m_strCurDir = dir.absolutePath();
 
-			if(m_cascadewidget.LoadPadFile(strFile.toAscii().data()))
+			bool bOk;
+			if(bBinary)
+				bOk = m_cascadewidget.LoadPadFile(strFile.toAscii().data());
+			else
+				bOk = m_cascadewidget.LoadPadFileTxt(strFile.toAscii().data());
+			
+			if(bOk)
 			{
 				ServerDisconnect();
-
 				//m_cascadewidget.UpdateGraph();
 
 				FileHasChanged(strFile.toAscii().data());
@@ -920,6 +925,9 @@ class MainWindow : public QMainWindow
 				ShowMessage("PAD loaded.");
 			}
 		}
+
+		void LoadPad() { LoadPad(1); }
+		void LoadPadTxt() { LoadPad(0); }
 
 		void LoadTof()
 		{
@@ -1104,6 +1112,12 @@ class MainWindow : public QMainWindow
 			ShowMessage("PAD generated.");
 		}
 
+		void ConvertToBinary()
+		{
+			ConvertDlg dlg(this);
+			dlg.exec();
+		}
+
 		//////////////////////////////////////////////////////////////////
 
 
@@ -1244,6 +1258,10 @@ class MainWindow : public QMainWindow
 						QIcon::fromTheme("document-open"),
 						"Load &PAD File...",
 						this);
+			QAction *actionLoadPadTxt = new QAction(
+						QIcon::fromTheme("document-open"),
+						"Load PAD File (Text)...",
+						this);
 			actionLoadPad->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_P));
 
 			QAction *actionLoadTof = new QAction(
@@ -1367,6 +1385,7 @@ class MainWindow : public QMainWindow
 			// Tool Menu Items
 			QAction *actionGenerateRandomPad = new QAction("Generate Random &PAD", this);
 			QAction *actionGenerateRandomTof = new QAction("Generate Random &TOF", this);
+			QAction *actionConvertToBinary = new QAction("&Convert TOF/PAD Text Files To Binary...", this);
 
 
 			// Help Menu Items
@@ -1389,6 +1408,7 @@ class MainWindow : public QMainWindow
 			QMenu *menuFile = new QMenu(menubar);
 			menuFile->setTitle("&File");
 			menuFile->addAction(actionLoadPad);
+			menuFile->addAction(actionLoadPadTxt);
 			menuFile->addAction(actionLoadTof);
 			menuFile->addSeparator();
 			menuFile->addAction(actionBrowseFiles);
@@ -1451,6 +1471,8 @@ class MainWindow : public QMainWindow
 			menuTools->setTitle("&Tools");
 			menuTools->addAction(actionGenerateRandomPad);
 			menuTools->addAction(actionGenerateRandomTof);
+			menuTools->addSeparator();
+			menuTools->addAction(actionConvertToBinary);
 			menubar->addAction(menuTools->menuAction());
 
 			QMenu *menuHelp = new QMenu(menubar);
@@ -1633,8 +1655,9 @@ class MainWindow : public QMainWindow
 			connect(actionBrowseFiles, SIGNAL(triggered()),
 					this, SLOT(BrowseFiles()));
 			connect(actionLoadPad, SIGNAL(triggered()), this, SLOT(LoadPad()));
+			connect(actionLoadPadTxt, SIGNAL(triggered()), this, SLOT(LoadPadTxt()));
 			connect(actionLoadTof, SIGNAL(triggered()), this, SLOT(LoadTof()));
-			connect(actionSaveFile, SIGNAL(triggered()), this,SLOT(SaveFile()));
+			connect(actionSaveFile, SIGNAL(triggered()), this, SLOT(SaveFile()));
 			connect(actionWriteXML, SIGNAL(triggered()),
 					this, SLOT(WriteXML()));
 			connect(actionPrint, SIGNAL(triggered()),
@@ -1671,6 +1694,8 @@ class MainWindow : public QMainWindow
 					this, SLOT(GenerateRandomPad()));
 			connect(actionGenerateRandomTof, SIGNAL(triggered()),
 					this, SLOT(GenerateRandomTof()));
+			connect(actionConvertToBinary, SIGNAL(triggered()),
+					this, SLOT(ConvertToBinary()));
 
 			// Help
 			connect(actionAbout, SIGNAL(triggered()),

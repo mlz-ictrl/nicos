@@ -100,6 +100,7 @@ class PadImage : public BasicImage
 		int GetPadSize() const;
 
 		int LoadFile(const char *pcFileName);
+		int LoadTextFile(const char* pcFileName);
 		int SaveFile(const char *pcFileName);
 
 		// load PAD from memory
