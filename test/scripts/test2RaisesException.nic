@@ -1,0 +1,2 @@
+from nicos.core import NicosError
+raise NicosError

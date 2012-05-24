@@ -23,6 +23,10 @@
 #
 # *****************************************************************************
 
+import os
+import re
+from os import path
+
 from test.utils import raises
 from test.scriptSessionTest import ScriptSessionTest
 
@@ -38,3 +42,28 @@ def test_raise_simple():
     setup = 'startup'
     session = ScriptSessionTest('TestScriptSession')
     assert raises(Exception, session.run, setup, code)
+
+def assertRaises(exception, func, *args):
+    assert raises(exception, func, *args)
+
+def test_scripts():
+    '''test generator executing succesful scripts
+
+    All scripts not containing 'Raises' in their name are considered
+    'successful'.
+    '''
+    testscriptspath = path.join(path.dirname(__file__), 'scripts')
+    allscripts = []
+    matcher = re.compile('.*Raises(.*)\..*')
+    for root, _dirs, files in os.walk(testscriptspath):
+        allscripts += [path.join(root, f) for f in files]
+    session = ScriptSessionTest('TestScriptSession')
+    setup = 'startup'
+    for fn in allscripts:
+        with open(fn) as codefile:
+            code = codefile.read()
+        m = matcher.match(fn)
+        if m:
+            yield assertRaises, Exception, session.run, setup, code
+        else:
+            yield session.run, setup, code
