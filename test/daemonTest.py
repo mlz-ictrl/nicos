@@ -64,9 +64,9 @@ class TestDaemonSession(DaemonSession):
             self.log.error('cannot open log file: %s' % err)
 
 
-DaemonSession.config.user = None
-DaemonSession.config.group = None
-DaemonSession.config.control_path = \
+TestDaemonSession.config.user = None
+TestDaemonSession.config.group = None
+TestDaemonSession.config.control_path = \
     path.join(path.dirname(__file__), 'root')
 
 TestDaemonSession.run('daemon', 'Daemon')
