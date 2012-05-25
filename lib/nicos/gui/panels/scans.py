@@ -424,13 +424,13 @@ class ScansPanel(Panel):
             newset.xindex = sets[0].xindex
             # for together only, the number of curves and their columns
             # are irrelevant, just put all together
-            for set in sets:
-                for curve in set.curves:
+            for dataset in sets:
+                for curve in dataset.curves:
                     newcurve = curve.copy()
                     newcurve.description = (newcurve.description or '') + \
-                        ' (%s)' % set.name
+                        ' (%s)' % dataset.name
                     newset.curves.append(newcurve)
-            self.data.add_existing_dataset(newset, [set.uid for set in sets])
+            self.data.add_existing_dataset(newset, [dataset.uid for dataset in sets])
             return
         # else, need same axes, and same number and types of curves
 
@@ -438,11 +438,11 @@ class ScansPanel(Panel):
         nameprops = [firstset.xnames, firstset.xunits]
         curveprops = [(curve.description, curve.yindex)
                       for curve in firstset.curves]
-        for set in sets[1:]:
-            if [set.xnames, set.xunits] != nameprops:
+        for dataset in sets[1:]:
+            if [dataset.xnames, dataset.xunits] != nameprops:
                 return self.showError('Sets have different axes.')
             if [(curve.description, curve.yindex)
-                for curve in set.curves] != curveprops:
+                for curve in dataset.curves] != curveprops:
                 return self.showError('Sets have different curves.')
         if op == COMBINE:
             newset = Dataset()
@@ -454,13 +454,13 @@ class ScansPanel(Panel):
             #newset.xnames = firstset.xnames
             newset.xindex = firstset.xindex
             #newset.xunits = firstset.xunits
-            for curves in zip(*(set.curves for set in sets)):
+            for curves in zip(*(dataset.curves for dataset in sets)):
                 newcurve = curves[0].copy()
                 for attr in ('datax', 'datay', 'datady', 'datatime', 'datamon'):
                     setattr(newcurve, attr, DataProxy(getattr(curve, attr)
                                                       for curve in curves))
                 newset.curves.append(newcurve)
-            self.data.add_existing_dataset(newset, [set.uid for set in sets])
+            self.data.add_existing_dataset(newset, [dataset.uid for dataset in sets])
             return
         if op == ADD:
             sep = ' + '
@@ -477,7 +477,7 @@ class ScansPanel(Panel):
         #newset.xnames = firstset.xnames
         newset.xindex = firstset.xindex
         #newset.xunits = firstset.xunits
-        for curves in zip(*(set.curves for set in sets)):
+        for curves in zip(*(dataset.curves for dataset in sets)):
             newcurve = curves[0].copy()
             # CRUDE: don't care about the x values, operate by index
             for curve in curves[1:]:
