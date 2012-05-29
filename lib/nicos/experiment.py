@@ -94,6 +94,8 @@ class Experiment(Device):
                            category='experiment'),
         'proposal':  Param('Current proposal number or proposal string',
                            type=str, settable=True, category='experiment'),
+        # XXX: this results in unfriendly entries in the data file
+        # users : ['user a', 'user b']
         'users':     Param('User names and affiliations for the proposal',
                            type=listof(str), settable=True,
                            category='experiment'),
