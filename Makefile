@@ -1,4 +1,6 @@
-.PHONY: all install clean inplace test main-install
+.PHONY: all gui install clean inplace test lint jenkinslintall jenkinslint changelint \
+	check test-coverage install main-install install-gui main-install-gui release \
+	xfixsmb help custom-all custom-inplace custom-install custom-clean
 
 SHELL=/bin/bash
 
@@ -166,3 +168,22 @@ fixsmb:
 	chmod +x etc/nicos-system
 	chmod +x custom/panda/bin/pausebutton
 	chmod +x test/run.py
+
+help:
+	@echo "Important targets:"
+	@echo "  all           - build everything for installation except GUI"
+	@echo "  inplace       - build everything for running NICOS from here"
+	@echo "  gui           - build GUI"
+	@echo
+	@echo "  install       - install everything except GUI"
+	@echo "  install-gui   - install GUI"
+	@echo "    Customization autoselected for install: $(INSTRUMENT)"
+	@echo "    Use 'make INSTRUMENT=instname ...' to select a different one;"
+	@echo "    instname can also be test"
+	@echo
+	@echo "Development targets:"
+	@echo "  test          - run test suite"
+	@echo "  test-coverage - run test suite with coverage reporting"
+	@echo "  check         - check source with pyflakes"
+	@echo "  lint          - check source with pylint"
+	@echo "  release       - create tarball for official release"
