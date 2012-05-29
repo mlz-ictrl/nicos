@@ -214,6 +214,14 @@ class DeviceMeta(type):
 
         return newtype
 
+    def __instancecheck__(cls, inst):
+        from nicos.generic import DeviceProxy
+        if inst.__class__ == DeviceProxy and inst._initialized:
+            return isinstance(inst._obj, cls)
+        # does not work with Python 2.6!
+        #return type.__instancecheck__(cls, inst)
+        return issubclass(inst.__class__, cls)
+
 
 class Device(object):
     """
