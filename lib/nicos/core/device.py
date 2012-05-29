@@ -779,7 +779,8 @@ class Readable(Device):
             val = None
         elif maxage is not None:
             time, ttl, val = self._cache.get_explicit(self, name)
-            if val is not None and time + min(maxage, ttl) < currenttime():
+            if val is not None and \
+                time + min(maxage, ttl or 3600) < currenttime():
                 val = None
         else:
             val = self._cache.get(self, name)
