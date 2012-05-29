@@ -206,10 +206,9 @@ class DlgUtils(object):
             startdir = path.dirname(previous)
         else:
             startdir = '.'
-        fname = QFileDialog.getOpenFileName(self, text,
-                                            startdir, 'All files (*)')
-        if fname:
-            ctl.setText(fname)
+        fn = QFileDialog.getOpenFileName(self, text, startdir, 'All files (*)')
+        if fn:
+            ctl.setText(fn)
 
     def selectOutputFile(self, ctl, text='Choose an output filename'):
         previous = str(ctl.text())
@@ -217,10 +216,9 @@ class DlgUtils(object):
             startdir = path.dirname(previous)
         else:
             startdir = '.'
-        fname = QFileDialog.getSaveFileName(self, text,
-                                            startdir, 'All files (*)')
-        if fname:
-            ctl.setText(fname)
+        fn = QFileDialog.getSaveFileName(self, text, startdir, 'All files (*)')
+        if fn:
+            ctl.setText(fn)
 
     def selectDirectory(self, ctl, text='Choose a directory'):
         previous = str(ctl.text())

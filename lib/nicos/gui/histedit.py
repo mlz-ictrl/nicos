@@ -101,27 +101,23 @@ class HistoryLineEdit(QLineEdit):
             if self._current == -1:
                 self._current = len(self.history)
                 self._start_text = self.text()
-            prefix = str(self.text())[:self.cursorPosition()]
+            prefix = self.text()[:self.cursorPosition()]
             self.stepHistoryUntil(prefix, 'up')
 
         elif key_code == Qt.Key_PageDown:
             # go later with prefix
             if self._current == -1:
                 return
-            prefix = str(self.text())[:self.cursorPosition()]
+            prefix = self.text()[:self.cursorPosition()]
             self.stepHistoryUntil(prefix, 'down')
 
         elif key_code == Qt.Key_Return:
             # accept - add to history and do normal processing
             self._current = -1
-            try:
-                text = str(self.text())
-            except UnicodeError:
-                pass
-            else:
-                if text and (not self.history or self.history[-1] != text):
-                    # append to history, but only if it isn't equal to the last
-                    self.history.append(text)
+            text = self.text()
+            if text and (not self.history or self.history[-1] != text):
+                # append to history, but only if it isn't equal to the last
+                self.history.append(text)
             self._completer.setCompletionPrefix('')
             self._completer.setModel(QStringListModel([], self))
             QLineEdit.keyPressEvent(self, kev)
@@ -149,7 +145,7 @@ class HistoryLineEdit(QLineEdit):
         else:
             lookrange = xrange(self._current + 1, len(self.history))
         for i in lookrange:
-            if self.history[i].startswith(prefix):
+            if self.history[i].startsWith(prefix):
                 self._current = i
                 self.setText(self.history[i])
                 self.setCursorPosition(len(prefix))

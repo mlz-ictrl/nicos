@@ -27,6 +27,7 @@
 __version__ = "$Revision$"
 
 import os
+import sys
 import time
 import tempfile
 
@@ -435,8 +436,9 @@ class NicosPlot(QwtPlot):
             self.zoomer.setZoomBase(True)
 
     def savePlot(self):
-        filename = str(QFileDialog.getSaveFileName(
-            self, 'Select file name', '', 'PDF files (*.pdf)'))
+        filename = QFileDialog.getSaveFileName(
+            self, 'Select file name', '', 'PDF files (*.pdf)')
+        filename = unicode(filename).encode(sys.getfilesystemencoding())
         if filename == '':
             return None
         if '.' not in filename:

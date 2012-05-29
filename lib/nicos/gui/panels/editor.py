@@ -28,6 +28,7 @@ from __future__ import with_statement
 
 __version__ = "$Revision$"
 
+import sys
 import time
 from os import path
 from logging import WARNING
@@ -402,10 +403,7 @@ class EditorPanel(Panel):
                 getattr(self.editor, 'print')(printer)
 
     def validateScript(self):
-        try:
-            script = str(self.editor.text()) + '\n'
-        except UnicodeError:
-            return self.showError('Unicode error in script.')
+        script = str(self.editor.text().toUtf8()) + '\n'
         try:
             compile(script, 'script', 'exec')
         except SyntaxError, err:
@@ -533,7 +531,7 @@ class EditorPanel(Panel):
                                          'Script files (*.py)')
         if fn.isEmpty():
             return
-        self.openFile(str(fn))
+        self.openFile(unicode(fn).encode(sys.getfilesystemencoding()))
         self.addToRecentf(fn)
 
     @qtsig('')
@@ -596,8 +594,9 @@ class EditorPanel(Panel):
             initialdir = path.dirname(self.filename)
         else:
             initialdir = self.client.eval('session.experiment.scriptdir', '')
-        fn = str(QFileDialog.getSaveFileName(self, 'Save script', initialdir,
-                                             'Script files (*.py)'))
+        fn = QFileDialog.getSaveFileName(self, 'Save script', initialdir,
+                                         'Script files (*.py)')
+        fn = unicode(fn).encode(sys.getfilesystemencoding())
         if fn == '':
             return False
         if '.' not in fn:

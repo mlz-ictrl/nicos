@@ -28,7 +28,7 @@ from __future__ import with_statement
 
 __version__ = "$Revision$"
 
-import re
+import sys
 import time
 import codecs
 
@@ -154,7 +154,8 @@ class ConsolePanel(Panel):
         if fn.isEmpty():
             return
         try:
-            with codecs.open(str(fn), 'w', 'utf-8') as f:
+            fn = unicode(fn).encode(sys.getfilesystemencoding())
+            with codecs.open(fn, 'w', 'utf-8') as f:
                 f.write(unicode(self.outView.getOutputString()))
         except Exception, err:
             QMessageBox.warning(self, 'Error', 'Writing file failed: %s' % err)
@@ -192,7 +193,7 @@ class ConsolePanel(Panel):
 
     def on_commandInput_textChanged(self, text):
         try:
-            script = str(self.commandInput.text())
+            script = str(self.commandInput.text().toUtf8())
             if not script or script.strip().startswith('#'):
                 return
             compile(script+'\n', 'script', 'single')
@@ -202,7 +203,7 @@ class ConsolePanel(Panel):
             setForegroundColor(self.commandInput, QColor("#000000"))
 
     def on_commandInput_returnPressed(self):
-        script = str(self.commandInput.text())
+        script = str(self.commandInput.text().toUtf8())
         if not script:
             return
         if not script.strip().startswith('#'):
