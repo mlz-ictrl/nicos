@@ -152,6 +152,7 @@ class EditorPanel(Panel):
         if has_scintilla:
             self.editor = QsciScintilla(self)
             self.lexer = QsciLexerPython(self.editor)
+            self.editor.setUtf8(True)
             self.editor.setLexer(self.lexer)
             self.editor.setAutoIndent(True)
             self.editor.setEolMode(QsciScintilla.EolUnix)
@@ -404,6 +405,7 @@ class EditorPanel(Panel):
 
     def validateScript(self):
         script = str(self.editor.text().toUtf8()) + '\n'
+        print repr(script)
         try:
             compile(script, 'script', 'exec')
         except SyntaxError, err:
@@ -541,12 +543,13 @@ class EditorPanel(Panel):
         self.openFile(self.filename)
 
     def openRecentFile(self):
-        self.openFile(str(self.sender().text()))
+        fn = unicode(self.sender().text()).encode(sys.getfilesystemencoding())
+        self.openFile(fn)
 
     def openFile(self, fn):
         try:
             with open(fn) as f:
-                self.editor.setText(f.read())
+                self.editor.setText(f.read().decode('utf8'))
         except Exception, err:
             return self.showError('Opening file failed: %s' % err)
 
@@ -577,7 +580,7 @@ class EditorPanel(Panel):
             self.saving = True
             try:
                 with open(self.filename, 'w') as f:
-                    f.write(str(self.editor.text()))
+                    f.write(str(self.editor.text().toUtf8()))
             finally:
                 self.saving = False
         except Exception, err:

@@ -68,7 +68,7 @@ class ConsolePanel(Panel):
 
     def loadSettings(self, settings):
         self.hasinput = not settings.value('noinput').toBool()
-        self.cmdhistory = map(str, settings.value('cmdhistory').toStringList())
+        self.cmdhistory = list(settings.value('cmdhistory').toStringList())
 
     def saveSettings(self, settings):
         settings.setValue('noinput', not self.hasinput)
@@ -124,11 +124,11 @@ class ConsolePanel(Panel):
 
     def on_outView_anchorClicked(self, url):
         """Called when the user clicks a link in the out view."""
-        url = str(url.toString())
+        url = str(url.toString().toUtf8())
         if url.startswith('exec:'):
             # Direct execution is too dangerous. Just insert it in the editor.
             if self.hasinput:
-                self.commandInput.setText(url[5:])
+                self.commandInput.setText(url[5:].decode('utf8'))
                 self.commandInput.setFocus()
         elif url.startswith('edit:'):
             if not self.mainwindow.editor_wintype:

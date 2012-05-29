@@ -283,7 +283,6 @@ class MainWindow(QMainWindow, DlgUtils):
         for wtype, windows in self.windows.iteritems():
             for win in windows:
                 auxstate.append(wtype)
-                print wtype, self.editor_wintype
                 if wtype == self.editor_wintype:
                     editfiles.append(win.panels[0].filename)
         settings.setValue('auxwindows', QVariant(auxstate))
