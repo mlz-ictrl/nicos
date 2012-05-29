@@ -111,14 +111,14 @@ class ScriptRequest(Request):
             # if the script is a single line, compile it like a line
             # in the interactive interpreter, so that expression
             # results are shown
-            compiler = lambda src: \
-                compile(src + '\n', '<script>', 'single', CO_DIVISION)
+            compiler = lambda src: compile('# coding: utf-8\n' + src + '\n',
+                                           '<script>', 'single', CO_DIVISION)
             self.code = [session.commandHandler(self.text, compiler)]
             self.blocks = None
         elif sys.version_info < (2, 6):
             # Python < 2.6, no splitting possible
-            self.code = [compile(self.text + '\n', '<script>',
-                                 'exec', CO_DIVISION)]
+            self.code = [compile('# coding: utf-8\n' + self.text + '\n',
+                                 '<script>', 'exec', CO_DIVISION)]
             self.blocks = None
         else:
             # long script, and can compile AST: split into blocks
@@ -195,7 +195,7 @@ class ScriptRequest(Request):
     def _splitblocks(self, text):
         """Parse a script into multiple blocks."""
         codelist = []
-        mod = ast.parse(text + '\n', '<script>')
+        mod = ast.parse('# coding: utf-8\n' + text + '\n', '<script>')
         assert isinstance(mod, ast.Module)
         # construct an individual compilable unit for each block
         for toplevel in mod.body:

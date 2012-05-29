@@ -405,7 +405,6 @@ class EditorPanel(Panel):
 
     def validateScript(self):
         script = str(self.editor.text().toUtf8()) + '\n'
-        print repr(script)
         try:
             compile(script, 'script', 'exec')
         except SyntaxError, err:
