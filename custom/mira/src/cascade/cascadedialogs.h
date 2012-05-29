@@ -55,7 +55,7 @@
 #include "ui_integrationdlg.h"
 #include "ui_rangedlg.h"
 #include "ui_countsvsimagesdlg.h"
-#include "ui_convertdlg.h"
+#include "ui_batchdlg.h"
 
 #include "histogram_item.h"
 #include "bins.h"
@@ -410,14 +410,18 @@ class CountsVsImagesDlg : public QDialog, public Ui::CountsVsImagesDlg
 // *****************************************************************************
 
 
-// ************************* Convert Dialog ************************************
 
-class ConvertDlg : public QDialog, public Ui::ConvertDlg
+// ************************* Batch Job Dialog **********************************
+
+class BatchDlg : public QDialog, public Ui::BatchDlg
 {
 	Q_OBJECT
 
 	protected:
-		static void ConvertToBinary(const char* pcSrc, const char* pcDst);
+		CascadeWidget *m_pwidget;
+		
+		void ConvertToPDF(const char* pcSrc, const char* pcDst);
+		void ConvertToBinary(const char* pcSrc, const char* pcDst);
 
 	protected slots:
 		void SelectSrcDir();
@@ -425,8 +429,8 @@ class ConvertDlg : public QDialog, public Ui::ConvertDlg
 		void Start();
 
 	public:
-		ConvertDlg(QWidget *pParent);
-		virtual ~ConvertDlg();
+		BatchDlg(CascadeWidget *pParent);
+		virtual ~BatchDlg();
 };
 
 // *****************************************************************************

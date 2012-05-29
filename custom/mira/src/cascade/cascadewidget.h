@@ -139,6 +139,8 @@ Q_OBJECT
 
 		void SetAutoCountRange(bool bAuto);
 		void SetCountRange(double dMin, double dMax);
+		
+		bool ToPDF(const char* pcDst) const;
 
 	public slots:
 		// sum all foils and all time channels

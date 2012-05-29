@@ -192,7 +192,7 @@ bool FitSinus(int iSize, const unsigned int* pData,
 #else
 
 bool FitSinus(int iSize, const unsigned int* pData,
-			  double &dPhase, double &dScale,
+			  double &dPhase /*, double &dScale*/,
 			  double &dAmp, double &dOffs)
 {
 	logger.SetCurLogLevel(LOGLEVEL_ERR);

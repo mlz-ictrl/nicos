@@ -1354,20 +1354,111 @@ void CountsVsImagesDlg::DeleteFile()
 }
 
 
-// ******************* Convert Dialog ******************************************
 
-ConvertDlg::ConvertDlg(QWidget *pParent) : QDialog(pParent)
+// ******************* Batch Dialog ********************************************
+
+BatchDlg::BatchDlg(CascadeWidget *pParent) : QDialog(pParent),
+											m_pwidget(pParent)
 {
 	setupUi(this);
 	
+	comboWhat->addItem("Plot PAD/TOF to PDF");
+	comboWhat->addItem("Convert Text PAD/TOF to Binary");
+	
 	connect(btnSrc, SIGNAL(clicked()), this, SLOT(SelectSrcDir()));
 	connect(btnDst, SIGNAL(clicked()), this, SLOT(SelectDstDir()));
-	connect(btnConvert, SIGNAL(clicked()), this, SLOT(Start()));
+	connect(btnStart, SIGNAL(clicked()), this, SLOT(Start()));
 }
 
-ConvertDlg::~ConvertDlg() {}
+BatchDlg::~BatchDlg() {}
 
-void ConvertDlg::ConvertToBinary(const char* pcSrc, const char* pcDst)
+void BatchDlg::Start()
+{
+	if(editSrc->text()=="")
+	{
+		QMessageBox::critical(0, "Error", "Please select a source directory.", QMessageBox::Ok);
+		return;
+	}
+	else if(editDst->text()=="")
+	{
+		QMessageBox::critical(0, "Error", "Please select a destination directory.", QMessageBox::Ok);
+		return;
+	}
+
+	QDir dir(editSrc->text());
+	dir.setFilter(QDir::Files | QDir::Hidden);
+	
+	QStringList namefilters;
+	namefilters << "*.pad" << "*.tof" << "*.PAD" << "*.TOF";
+	dir.setNameFilters(namefilters);
+	
+	QFileInfoList filelist = dir.entryInfoList();
+
+	progressBar->setMinimum(0);
+	progressBar->setMaximum(filelist.size());
+	progressBar->setValue(0);
+	for(int iFile=0; iFile<filelist.size(); ++iFile)
+	{
+		QFileInfo fileinfo = filelist.at(iFile);
+		QString strDstFile = editDst->text() + "/" + fileinfo.fileName();
+
+		//std::cout << "Src: " << fileinfo.filePath().toAscii().data() << std::endl;
+		//std::cout << "Dst: " << strDstFile.toAscii().data() << std::endl;
+
+		switch(comboWhat->currentIndex())
+		{
+			case 0:	// convert to pdf
+				strDstFile += ".pdf";
+				ConvertToPDF(fileinfo.filePath().toAscii().data(), strDstFile.toAscii().data());
+				break;
+
+			case 1: // convert from text
+				if(editSrc->text() == editDst->text())
+				{
+					QMessageBox::critical(0, "Error", "Please don't use the same directory as source and destination!", QMessageBox::Ok);
+					return;
+				}
+				
+				ConvertToBinary(fileinfo.filePath().toAscii().data(), strDstFile.toAscii().data());
+				break;
+		}
+
+		progressBar->setValue(iFile+1);
+		progressBar->setFormat(QString("%p% - ") + fileinfo.fileName());
+	}
+	
+	progressBar->setFormat(QString("%p% - Batch Job Finished"));
+}
+
+void BatchDlg::SelectSrcDir()
+{
+	QString strDir = QFileDialog::getExistingDirectory(
+		this,
+		"Select Source Directory",
+		".",
+		QFileDialog::ShowDirsOnly);
+	
+	if(strDir == "")
+		return;
+	
+	editSrc->setText(strDir);
+}
+
+void BatchDlg::SelectDstDir()
+{
+	QString strDir = QFileDialog::getExistingDirectory(
+		this,
+		"Select Source Directory",
+		".",
+		QFileDialog::ShowDirsOnly);
+	
+	if(strDir == "")
+		return;
+	
+	editDst->setText(strDir);
+}
+
+void BatchDlg::ConvertToBinary(const char* pcSrc, const char* pcDst)
 {
 	std::ifstream ifstr(pcSrc);
 	std::ofstream ofstr(pcDst, std::ios_base::binary);
@@ -1402,76 +1493,27 @@ void ConvertDlg::ConvertToBinary(const char* pcSrc, const char* pcDst)
 	}
 }
 
-void ConvertDlg::Start()
+void BatchDlg::ConvertToPDF(const char* pcSrc, const char* pcDst)
 {
-	if(editSrc->text()=="")
+	std::string strSrcFileEnding = GetFileEnding(pcSrc);
+	
+	if(strSrcFileEnding=="PAD" || strSrcFileEnding=="pad")
+		m_pwidget->LoadPadFile(pcSrc);
+	else if(strSrcFileEnding=="TOF" || strSrcFileEnding=="tof")
+		m_pwidget->LoadTofFile(pcSrc);
+	else
 	{
-		QMessageBox::critical(0, "Error", "Please select a source directory.", QMessageBox::Ok);
-		return;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Conversion Dialog: Unable to identify type of file \"" << pcSrc
+				<< "\". Skipping.\n";
+		return;		
 	}
-	else if(editDst->text()=="")
+	
+	if(!m_pwidget->ToPDF(pcDst))
 	{
-		QMessageBox::critical(0, "Error", "Please select a destination directory.", QMessageBox::Ok);
-		return;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Conversion Dialog: Could not convert image to PDF \"" << pcDst
+				<< "\".\n";
 	}
-	else if(editSrc->text() == editDst->text())
-	{
-		QMessageBox::critical(0, "Error", "Please don't use the same directory as source and destination!", QMessageBox::Ok);
-		return;
-	}
-
-	QDir dir(editSrc->text());
-	dir.setFilter(QDir::Files | QDir::Hidden);
-	
-	QStringList namefilters;
-	namefilters << "*.pad" << "*.tof" << "*.PAD" << "*.TOF";
-	dir.setNameFilters(namefilters);
-	
-	QFileInfoList filelist = dir.entryInfoList();
-
-	progressBar->setMinimum(0);
-	progressBar->setMaximum(filelist.size());
-	progressBar->setValue(0);
-	for(int iFile=0; iFile<filelist.size(); ++iFile)
-	{
-		QFileInfo fileinfo = filelist.at(iFile);
-		QString strDstFile = editDst->text() + "/" + fileinfo.fileName();
-
-		//std::cout << "Src: " << fileinfo.filePath().toAscii().data() << std::endl;
-		//std::cout << "Dst: " << strDstFile.toAscii().data() << std::endl;
-
-		ConvertToBinary(fileinfo.filePath().toAscii().data(), strDstFile.toAscii().data());
-
-		progressBar->setValue(iFile+1);
-		progressBar->setFormat(QString("%p% - ") + fileinfo.fileName());
-	}
-}
-
-void ConvertDlg::SelectSrcDir()
-{
-	QString strDir = QFileDialog::getExistingDirectory(
-		this,
-		"Select Source Directory",
-		".",
-		QFileDialog::ShowDirsOnly);
-	
-	if(strDir == "")
-		return;
-	
-	editSrc->setText(strDir);
-}
-
-void ConvertDlg::SelectDstDir()
-{
-	QString strDir = QFileDialog::getExistingDirectory(
-		this,
-		"Select Source Directory",
-		".",
-		QFileDialog::ShowDirsOnly);
-	
-	if(strDir == "")
-		return;
-	
-	editDst->setText(strDir);
 }
 // *****************************************************************************

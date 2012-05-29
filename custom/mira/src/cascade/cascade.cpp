@@ -1112,12 +1112,11 @@ class MainWindow : public QMainWindow
 			ShowMessage("PAD generated.");
 		}
 
-		void ConvertToBinary()
+		void BatchJob()
 		{
-			ConvertDlg dlg(this);
+			BatchDlg dlg(&m_cascadewidget);
 			dlg.exec();
 		}
-
 		//////////////////////////////////////////////////////////////////
 
 
@@ -1385,8 +1384,7 @@ class MainWindow : public QMainWindow
 			// Tool Menu Items
 			QAction *actionGenerateRandomPad = new QAction("Generate Random &PAD", this);
 			QAction *actionGenerateRandomTof = new QAction("Generate Random &TOF", this);
-			QAction *actionConvertToBinary = new QAction("&Convert TOF/PAD Text Files To Binary...", this);
-
+			QAction *actionBatchJob = new QAction("Run &Batch Job...", this);
 
 			// Help Menu Items
 			QAction *actionAbout = new QAction(
@@ -1472,7 +1470,7 @@ class MainWindow : public QMainWindow
 			menuTools->addAction(actionGenerateRandomPad);
 			menuTools->addAction(actionGenerateRandomTof);
 			menuTools->addSeparator();
-			menuTools->addAction(actionConvertToBinary);
+			menuTools->addAction(actionBatchJob);
 			menubar->addAction(menuTools->menuAction());
 
 			QMenu *menuHelp = new QMenu(menubar);
@@ -1694,8 +1692,8 @@ class MainWindow : public QMainWindow
 					this, SLOT(GenerateRandomPad()));
 			connect(actionGenerateRandomTof, SIGNAL(triggered()),
 					this, SLOT(GenerateRandomTof()));
-			connect(actionConvertToBinary, SIGNAL(triggered()),
-					this, SLOT(ConvertToBinary()));
+			connect(actionBatchJob, SIGNAL(triggered()),
+					this, SLOT(BatchJob()));
 
 			// Help
 			connect(actionAbout, SIGNAL(triggered()),

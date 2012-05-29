@@ -29,6 +29,8 @@
 #include "helper.h"
 #include "logger.h"
 
+#include <QPrinter>
+
 #include <iostream>
 
 
@@ -952,4 +954,20 @@ void CascadeWidget::SetCountRange(double dMin, double dMax)
 	GetData2d().SetCountRange(dMin, dMax);
 	GetPlot()->ChangeRange();
 	UpdateGraph();
+}
+
+
+
+//------------------------------------------------------------------------------
+
+bool CascadeWidget::ToPDF(const char* pcDst) const
+{
+	QPrinter printer;
+	printer.setColorMode(QPrinter::Color);
+	printer.setOrientation(QPrinter::Landscape);
+	printer.setOutputFileName(QString(pcDst));
+	printer.setOutputFormat(QPrinter::PdfFormat);
+	
+	m_pPlot->print(printer);
+	return true;
 }
