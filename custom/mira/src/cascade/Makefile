@@ -14,8 +14,8 @@
 
 
 COMPILER	= gcc
-FLAGS		= -O2 -march=native -Wall -Wextra -D __CASCADE_QT_CLIENT__
-LIBS		= -lQtCore -lQtGui -lQtNetwork -lqwt -lMinuit2 -lgomp -lxml2 -lstdc++ -lm \
+FLAGS		= -O2 -march=native -Wall -Wextra -D __CASCADE_QT_CLIENT__ 
+LIBS		= -lQtCore -lQtGui -lQtNetwork -lqwt -lMinuit2 -lgomp -lxml2 -lstdc++ -lm  \
                   -L /usr/lib/qt4
 INCLUDES	= -I /usr/include/qwt -I /usr/include/qwt5 -I /usr/include/qt4 \
                   -I /usr/include/Qt -I /usr/include/QtCore -I /usr/include/QtGui \
@@ -100,7 +100,8 @@ gc.o: gc.cpp gc.h
 cascadedialogs.h: ui_calibrationdlg.h ui_sumdialog.h ui_serverdlg.h \
 		  ui_servercfgdlg.h ui_graphdlg.h ui_commanddlg.h \
 		  ui_roidlg.h ui_browsedlg.h ui_integrationdlg.h \
-		  ui_rangedlg.h ui_countsvsimagesdlg.h ui_convertdlg.h
+		  ui_rangedlg.h ui_countsvsimagesdlg.h \
+		  ui_batchdlg.h
 
 ui_calibrationdlg.h: calibrationdlg.ui
 	uic calibrationdlg.ui > ui_calibrationdlg.h
@@ -135,8 +136,8 @@ ui_rangedlg.h: rangedlg.ui
 ui_countsvsimagesdlg.h:
 	uic countsvsimagesdlg.ui > ui_countsvsimagesdlg.h
 
-ui_convertdlg.h: convertdlg.ui
-	uic convertdlg.ui > ui_convertdlg.h
+ui_batchdlg.h: batchdlg.ui
+	uic batchdlg.ui > ui_batchdlg.h
 #################################################################
 
 

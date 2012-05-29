@@ -467,7 +467,9 @@ void Plot::SetColorMap(bool bCyclic)
 void Plot::printPlot()
 {
 	QPrinter printer;
+	printer.setColorMode(QPrinter::Color);
 	printer.setOrientation(QPrinter::Landscape);
+	
 	QPrintDialog dialog(&printer);
 	if(dialog.exec())
 		print(printer);
