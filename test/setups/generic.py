@@ -68,4 +68,8 @@ devices = dict(
         values = [1., 3.],
         precision = 0.05,
     ),
+    px = device(
+        'nicos.generic.DeviceProxy',
+        proxy = '',
+    )
 )
