@@ -29,12 +29,15 @@ code via a C trace function.
 
 __version__ = "$Revision$"
 
+__all__ = ['STATUS_IDLEEXC', 'STATUS_IDLE', 'STATUS_RUNNING', 'STATUS_INBREAK',
+           'STATUS_STOPPING', 'LINENO_ALL', 'LINENO_TOPLEVEL', 'LINENO_NAME',
+           'Controller', 'ControlStop']
+
 import threading
 import traceback
 
 # re-exported
-from _pyctl import ControlStop
-from _pyctl import Controller as _Controller
+from nicos.daemon._pyctl import ControlStop, Controller as _Controller
 
 # defines from the C module
 STATUS_IDLEEXC  = -2  # nothing started, last script raised exception
