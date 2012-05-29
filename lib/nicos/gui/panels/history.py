@@ -237,7 +237,7 @@ class BaseHistoryWindow(object):
             except ValueError:
                 self.showError(simplehelptext)
                 return self.on_actionNew_triggered()
-            fromtime = time.time() - itime
+            fromtime = time.time() - abs(itime)
             totime = None
         else:
             try:
