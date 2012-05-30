@@ -1460,6 +1460,14 @@ void BatchDlg::SelectDstDir()
 
 void BatchDlg::ConvertToBinary(const char* pcSrc, const char* pcDst)
 {
+	bool bIsTof = 0;
+
+	// tof has a special ascii format: [# timechannel] [counts] [data] per line
+	std::string strSrcFileEnding = GetFileEnding(pcSrc);
+	if(strSrcFileEnding=="TOF" || strSrcFileEnding=="tof")
+		bIsTof = 1;
+	
+
 	std::ifstream ifstr(pcSrc);
 	std::ofstream ofstr(pcDst, std::ios_base::binary);
 
@@ -1481,15 +1489,62 @@ void BatchDlg::ConvertToBinary(const char* pcSrc, const char* pcDst)
 		return;
 	}
 
-	while(1)
+	if(bIsTof)					// two additional numbers per line in TOF
 	{
-		unsigned int uiVal;
-		ifstr >> uiVal;
-		
-		if(ifstr.eof())
-			break;
-		
-		ofstr.write((char*)&uiVal, sizeof(uiVal));
+		unsigned int uiTimeChannel = 0;
+		while(1)
+		{
+			std::string strLine;
+			std::getline(ifstr, strLine);
+			std::istringstream istrLine(strLine);
+
+			if(ifstr.eof())
+				break;			
+
+			unsigned int uiLineIdx = 0;
+			while(1)
+			{
+				unsigned int uiVal;
+				istrLine >> uiVal;
+
+				if(istrLine.eof())
+					break;
+
+				if(uiLineIdx==0)
+				{
+					//std::cout << "timechannel: " << uiVal << std::endl;
+					if(uiVal != uiTimeChannel+1)
+					{
+						logger.SetCurLogLevel(LOGLEVEL_WARN);
+						logger << "Conversion Dialog: Mismatch in TOF time channel index, "
+							   << "expected " << uiTimeChannel+1 << ", got " << uiVal << ".\n";
+					}
+				}
+				
+				if(uiLineIdx >= 2)
+					ofstr.write((char*)&uiVal, sizeof(uiVal));
+
+				++uiLineIdx;
+			}
+			++uiTimeChannel;
+		}
+
+		logger.SetCurLogLevel(LOGLEVEL_INFO);
+		logger << "Conversion Dialog: " << uiTimeChannel << " time channels in TOF "
+				<< "\"" << pcSrc << "\".\n";
+	}
+	else						// raw convert (e.g. PAD)
+	{
+		while(1)
+		{
+			unsigned int uiVal;
+			ifstr >> uiVal;
+
+			if(ifstr.eof())
+				break;
+
+			ofstr.write((char*)&uiVal, sizeof(uiVal));
+		}
 	}
 }
 
