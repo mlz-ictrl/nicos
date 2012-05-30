@@ -89,8 +89,9 @@ def maw(*dev_pos_list):
         dev.move(pos)
         devs.append(dev)
     for dev in devs:
-        dev.wait()
-        read(dev)
+        value = dev.wait()
+        if value:
+            dev.log.info('at %20s %s' % (dev.format(value), dev.unit))
 
 @usercommand
 def switch(*dev_pos_list):
