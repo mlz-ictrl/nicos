@@ -136,6 +136,30 @@ def fit_tc(xdata, ydata, yerr, (Tb, Ib), (Tc, Ic)):
     return out.beta, Tfine, tc_curve(out.beta, Tfine)
 
 
+def fit_linear(xdata, ydata, yerr, (x1, y1), (x2, y2)):
+    if not len(xdata):
+        raise FitError('No data in plot')
+    indices = (x1 <= xdata) & (xdata <= x2)
+    xfit = xdata[indices]
+    if len(xfit) == 0:
+        raise FitError('No data in selected range')
+    yfit = ydata[indices]
+    m0 = (y2-y1)/(x2-x1)
+    beta0 = [m0, y1-m0*x1]
+    model = Model(lambda beta, x: beta[0]*x + beta[1])
+    if yerr is not None and yerr.shape == 1:
+        dyfit = yerr[indices]
+        data = RealData(xfit, yfit, sy=dyfit)
+    else:
+        data = RealData(xfit, yfit)
+    odr = ODR(data, model, beta0, ifixx=array([0]*len(xfit)))
+    out = odr.run()
+    #if out.info & 0xFFFFFFFF >= 5:
+    #    raise FitError(', '.join(out.stopreason))
+    m, t = out.beta
+    return out.beta, [x1, x2], [m*x1+t, m*x2+t]
+
+
 def fit_arby(xdata, ydata, yerr, fcnstr, params, guesses, xlimits):
     xmin, xmax = xlimits
     if xmin is None:

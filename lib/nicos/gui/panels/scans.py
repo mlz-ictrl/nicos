@@ -31,8 +31,7 @@ import time
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, QPen, \
      QListWidgetItem, QSizePolicy, QPalette
-from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotItem, QwtText, QwtPicker, \
-     QwtLog10ScaleEngine, QwtPlotPicker, QwtPlotMarker
+from PyQt4.Qwt5 import QwtPlot, QwtPlotItem, QwtText, QwtLog10ScaleEngine
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np
@@ -41,8 +40,8 @@ from nicos.core import Dataset
 from nicos.gui.data import DataProxy
 from nicos.gui.panels import Panel
 from nicos.gui.utils import loadUi, dialogFromUi, safeFilename, DlgPresets
-from nicos.gui.fitutils import has_odr, FitError, fit_gauss, fwhm_to_sigma, \
-     fit_tc, fit_pseudo_voigt, fit_pearson_vii, fit_arby
+from nicos.gui.fitutils import fit_gauss, fwhm_to_sigma, fit_tc, \
+     fit_pseudo_voigt, fit_pearson_vii, fit_arby
 from nicos.gui.plothelpers import NicosPlot, ErrorBarPlotCurve, cloneToGrace
 
 
@@ -499,11 +498,6 @@ class ScansPanel(Panel):
 class DataSetPlot(NicosPlot):
     def __init__(self, parent, window, dataset):
         self.dataset = dataset
-        self.fits = 0
-        self.fittype = None
-        self.fitparams = None
-        self.fitstage = 0
-        self.fitPicker = None
         NicosPlot.__init__(self, parent, window)
 
     def titleString(self):
@@ -604,70 +598,7 @@ class DataSetPlot(NicosPlot):
         else:
             self.replot()
 
-    def fitGaussPeak(self):
-        self._beginFit('Gauss', ['Background', 'Peak', 'Half Maximum'])
-
-    def fitPseudoVoigtPeak(self):
-        self._beginFit('Pseudo-Voigt', ['Background', 'Peak', 'Half Maximum'])
-
-    def fitPearsonVIIPeak(self):
-        self._beginFit('PearsonVII', ['Background', 'Peak', 'Half Maximum'])
-
-    def fitTc(self):
-        self._beginFit('Tc', ['Background', 'Tc'])
-
-    def fitArby(self):
-        def callback():
-            dlg = dialogFromUi(self, 'fit_arby.ui', 'panels')
-            pr = DlgPresets('fit_arby',
-                [(dlg.function, ''), (dlg.fitparams, ''),
-                 (dlg.xfrom, ''), (dlg.xto, '')])
-            pr.load()
-            for name in sorted(arby_functions):
-                QListWidgetItem(name, dlg.oftenUsed)
-            def click_cb(item):
-                func, params = arby_functions[str(item.text())]
-                dlg.function.setText(func)
-                dlg.fitparams.setPlainText('\n'.join(
-                    p + ' = ' for p in params.split()))
-            dlg.connect(dlg.oftenUsed,
-                        SIGNAL('itemClicked(QListWidgetItem *)'), click_cb)
-            ret = dlg.exec_()
-            if ret != QDialog.Accepted:
-                return False
-            pr.save()
-            fcn = str(dlg.function.text())
-            try:
-                xmin = float(str(dlg.xfrom.text()))
-            except ValueError:
-                xmin = None
-            try:
-                xmax = float(str(dlg.xto.text()))
-            except ValueError:
-                xmax = None
-            if xmin is not None and xmax is not None and xmin > xmax:
-                xmax, xmin = xmin, xmax
-            params, values = [], []
-            for line in str(dlg.fitparams.toPlainText()).splitlines():
-                name_value = line.strip().split('=', 2)
-                if len(name_value) < 2:
-                    continue
-                params.append(name_value[0])
-                try:
-                    values.append(float(name_value[1]))
-                except ValueError:
-                    values.append(0)
-            self.fitvalues = [fcn, params, values, (xmin, xmax)]
-            return True
-        self._beginFit('Arbitrary', [], callback)
-
-    def _beginFit(self, fittype, fitparams, callback=None):
-        if self.fittype is not None:
-            return
-        if not has_odr:
-            return self.showError('scipy.odr is not available.')
-        if not self.plotcurves:
-            return self.showError('Plot must have a curve to be fitted.')
+    def selectCurve(self):
         visible_curves = [i for (i, _) in enumerate(self.dataset.curves)
                           if self.plotcurves[i].isVisible()]
         if len(visible_curves) > 1:
@@ -679,161 +610,129 @@ class DataSetPlot(NicosPlot):
             dlg.list.setCurrentRow(0)
             if dlg.exec_() != QDialog.Accepted:
                 return
-            self.fitcurve = visible_curves[dlg.list.currentRow()]
+            fitcurve = visible_curves[dlg.list.currentRow()]
         else:
-            self.fitcurve = visible_curves[0]
-        self.fitvalues = []
-        self.fitparams = fitparams
-        self.fittype = fittype
-        self.fitstage = 0
-        self.fitcallback = callback
-        if self.fitparams:
-            self.picker.active = False
-            self.zoomer.setEnabled(False)
+            fitcurve = visible_curves[0]
+        return self.plotcurves[fitcurve]
 
-            self.window.statusBar.showMessage('Fitting: Click on %s' %
-                                              fitparams[0])
-            self.fitPicker = QwtPlotPicker(
-                QwtPlot.xBottom, self.plotcurves[self.fitcurve].yAxis(),
-                QwtPicker.PointSelection | QwtPicker.ClickSelection,
-                QwtPlotPicker.CrossRubberBand,
-                QwtPicker.AlwaysOn, self.canvas())
-            self.connect(self.fitPicker,
-                         SIGNAL('selected(const QwtDoublePoint &)'),
-                         self.on_fitPicker_selected)
-        else:
-            self._finishFit()
+    def fitGaussPeak(self):
+        self._beginFit('Gauss', ['Background', 'Peak', 'Half Maximum'],
+                       self.gauss_callback)
 
-    def _finishFit(self):
+    def gauss_callback(self, args):
+        title = 'peak fit'
+        beta, x, y = fit_gauss(*args)
+        labelx = beta[2] + beta[3]/2
+        labely = beta[0] + beta[1]
+        interesting = [('Center', beta[2]),
+                       ('FWHM', beta[3] * fwhm_to_sigma),
+                       ('Ampl', beta[1]),
+                       ('Integr', beta[1]*beta[3]*np.sqrt(2*np.pi))]
+        linefrom = beta[2] - beta[3]*fwhm_to_sigma/2
+        lineto = beta[2] + beta[3]*fwhm_to_sigma/2
+        liney = beta[0] + beta[1]/2
+        return x, y, title, labelx, labely, interesting, \
+            (linefrom, lineto, liney)
+
+    def fitPseudoVoigtPeak(self):
+        self._beginFit('Pseudo-Voigt', ['Background', 'Peak', 'Half Maximum'],
+                       self.pv_callback)
+
+    def pv_callback(self, args):
+        title = 'peak fit (PV)'
+        beta, x, y = fit_pseudo_voigt(*args)
+        labelx = beta[2] + beta[3]/2
+        labely = beta[0] + beta[1]
+        eta = beta[4] % 1.0
+        integr = beta[1] * beta[3] * (
+            eta*np.pi + (1-eta)*np.sqrt(np.pi/np.log(2)))
+        interesting = [('Center', beta[2]), ('FWHM', beta[3]*2),
+                       ('Eta', eta), ('Integr', integr)]
+        linefrom = beta[2] - beta[3]
+        lineto = beta[2] + beta[3]
+        liney = beta[0] + beta[1]/2
+        return x, y, title, labelx, labely, interesting, \
+            (linefrom, lineto, liney)
+
+    def fitPearsonVIIPeak(self):
+        self._beginFit('PearsonVII', ['Background', 'Peak', 'Half Maximum'],
+                       self.pvii_callback)
+
+    def pvii_callback(self, args):
+        title = 'peak fit (PVII)'
+        beta, x, y = fit_pearson_vii(*args)
+        labelx = beta[2] + beta[3]/2
+        labely = beta[0] + beta[1]
+        interesting = [('Center', beta[2]), ('FWHM', beta[3]*2),
+                       ('m', beta[4])]
+        linefrom = beta[2] - beta[3]
+        lineto = beta[2] + beta[3]
+        liney = beta[0] + beta[1]/2
+        return x, y, title, labelx, labely, interesting, \
+            (linefrom, lineto, liney)
+
+    def fitTc(self):
+        self._beginFit('Tc', ['Background', 'Tc'], self.tc_callback)
+
+    def tc_callback(self, args):
+        title = 'Tc fit'
+        beta, x, y = fit_tc(*args)
+        labelx = beta[2]  # at Tc
+        labely = beta[0] + beta[1]  # at I_max
+        interesting = [('Tc', beta[2]), (u'α', beta[3])]
+        return x, y, title, labelx, labely, interesting, None
+
+    def fitArby(self):
+        self._beginFit('Arbitrary', [], self.arby_callback,
+                       self.arby_pick_callback)
+
+    def arby_callback(self, args):
+        title = 'fit'
+        beta, x, y = fit_arby(*args)
+        labelx = x[0]
+        labely = y.max()
+        interesting = zip(self.fitvalues[1], beta)
+        return x, y, title, labelx, labely, interesting, None
+
+    def arby_pick_callback(self):
+        dlg = dialogFromUi(self, 'fit_arby.ui', 'panels')
+        pr = DlgPresets('fit_arby',
+            [(dlg.function, ''), (dlg.fitparams, ''),
+             (dlg.xfrom, ''), (dlg.xto, '')])
+        pr.load()
+        for name in sorted(arby_functions):
+            QListWidgetItem(name, dlg.oftenUsed)
+        def click_cb(item):
+            func, params = arby_functions[str(item.text())]
+            dlg.function.setText(func)
+            dlg.fitparams.setPlainText('\n'.join(
+                p + ' = ' for p in params.split()))
+        dlg.connect(dlg.oftenUsed,
+                    SIGNAL('itemClicked(QListWidgetItem *)'), click_cb)
+        ret = dlg.exec_()
+        if ret != QDialog.Accepted:
+            return False
+        pr.save()
+        fcn = str(dlg.function.text())
         try:
-            if self.fitcallback:
-                if not self.fitcallback():
-                    raise FitError('Aborted.')
-            plotcurve = self.plotcurves[self.fitcurve]
-            args = [plotcurve._x, plotcurve._y, plotcurve._dy] + self.fitvalues
-            linefrom = lineto = liney = None
-            if self.fittype == 'Gauss':
-                title = 'peak fit'
-                beta, x, y = fit_gauss(*args)
-                labelx = beta[2] + beta[3]/2
-                labely = beta[0] + beta[1]
-                interesting = [('Center', beta[2]),
-                               ('FWHM', beta[3] * fwhm_to_sigma),
-                               ('Ampl', beta[1]),
-                               ('Integr', beta[1]*beta[3]*np.sqrt(2*np.pi))]
-                linefrom = beta[2] - beta[3]*fwhm_to_sigma/2
-                lineto = beta[2] + beta[3]*fwhm_to_sigma/2
-                liney = beta[0] + beta[1]/2
-            elif self.fittype == 'Pseudo-Voigt':
-                title = 'peak fit (PV)'
-                beta, x, y = fit_pseudo_voigt(*args)
-                labelx = beta[2] + beta[3]/2
-                labely = beta[0] + beta[1]
-                eta = beta[4] % 1.0
-                integr = beta[1] * beta[3] * (
-                    eta*np.pi + (1-eta)*np.sqrt(np.pi/np.log(2)))
-                interesting = [('Center', beta[2]), ('FWHM', beta[3]*2),
-                               ('Eta', eta), ('Integr', integr)]
-                linefrom = beta[2] - beta[3]
-                lineto = beta[2] + beta[3]
-                liney = beta[0] + beta[1]/2
-            elif self.fittype == 'PearsonVII':
-                title = 'peak fit (PVII)'
-                beta, x, y = fit_pearson_vii(*args)
-                labelx = beta[2] + beta[3]/2
-                labely = beta[0] + beta[1]
-                interesting = [('Center', beta[2]), ('FWHM', beta[3]*2),
-                               ('m', beta[4])]
-                linefrom = beta[2] - beta[3]
-                lineto = beta[2] + beta[3]
-                liney = beta[0] + beta[1]/2
-            elif self.fittype == 'Tc':
-                title = 'Tc fit'
-                beta, x, y = fit_tc(*args)
-                labelx = beta[2]  # at Tc
-                labely = beta[0] + beta[1]  # at I_max
-                interesting = [('Tc', beta[2]), (u'α', beta[3])]
-            elif self.fittype == 'Arbitrary':
-                title = 'fit'
-                beta, x, y = fit_arby(*args)
-                labelx = x[0]
-                labely = y.max()
-                interesting = zip(self.fitvalues[1], beta)
-        except FitError, err:
-            self.window.statusBar.showMessage('Fitting failed: %s.' % err)
-            if self.fitPicker:
-                self.fitPicker.setEnabled(False)
-                self.fitPicker = None
-            self.picker.active = True
-            self.zoomer.setEnabled(True)
-            self.fittype = None
-            return
-
-        color = [Qt.darkRed, Qt.darkMagenta, Qt.darkGreen,
-                 Qt.darkGray][self.fits % 4]
-
-        resultcurve = ErrorBarPlotCurve(title=title)
-        resultcurve.setYAxis(plotcurve.yAxis())
-        resultcurve.setRenderHint(QwtPlotItem.RenderAntialiased)
-        resultcurve.setStyle(QwtPlotCurve.Lines)
-        resultcurve.setPen(QPen(color, 2))
-        resultcurve.setData(x, y)
-        resultcurve.attach(self)
-
-        textmarker = QwtPlotMarker()
-        textmarker.setYAxis(plotcurve.yAxis())
-        textmarker.setLabel(QwtText(
-            '\n'.join('%s: %g' % i for i in interesting)))
-
-        # check that the given position is inside the viewport
-        halign = Qt.AlignRight
-        xi = self.axisScaleDiv(resultcurve.xAxis()).interval()
-        xmin, xmax = xi.minValue(), xi.maxValue()
-        extentx = self.canvasMap(QwtPlot.xBottom).invTransform(
-            textmarker.label().textSize().width())
-        if xmin < xmax:
-            if labelx < xmin:
-                labelx = xmin
-            elif labelx + extentx > xmax:
-                labelx = xmax
-                halign = Qt.AlignLeft
-        else:
-            if labelx > xmin:
-                labelx = xmin
-            elif labelx - extentx < xmax:
-                labelx = xmax
-                halign = Qt.AlignLeft
-
-        textmarker.setLabelAlignment(halign | Qt.AlignBottom)
-        textmarker.setValue(labelx, labely)
-        textmarker.attach(self)
-        resultcurve.dependent.append(textmarker)
-
-        if linefrom:
-            linemarker = QwtPlotCurve()
-            linemarker.setStyle(QwtPlotCurve.Lines)
-            linemarker.setPen(QPen(color, 1))
-            linemarker.setItemAttribute(QwtPlotItem.Legend, False)
-            linemarker.setData([linefrom, lineto], [liney, liney])
-            #linemarker.attach(self)
-            #resultcurve.dependent.append(linemarker)
-
-        self.replot()
-
-        if self.fitPicker:
-            self.fitPicker.setEnabled(False)
-            self.fitPicker = None
-        self.picker.active = True
-        self.zoomer.setEnabled(True)
-        self.fittype = None
-        self.fits += 1
-
-    def on_fitPicker_selected(self, point):
-        self.fitvalues.append((point.x(), point.y()))
-        self.fitstage += 1
-        if self.fitstage < len(self.fitparams):
-            paramname = self.fitparams[self.fitstage]
-            self.window.statusBar.showMessage('Fitting: Click on %s' %
-                                              paramname)
-        else:
-            self._finishFit()
+            xmin = float(str(dlg.xfrom.text()))
+        except ValueError:
+            xmin = None
+        try:
+            xmax = float(str(dlg.xto.text()))
+        except ValueError:
+            xmax = None
+        if xmin is not None and xmax is not None and xmin > xmax:
+            xmax, xmin = xmin, xmax
+        params, values = [], []
+        for line in str(dlg.fitparams.toPlainText()).splitlines():
+            name_value = line.strip().split('=', 2)
+            if len(name_value) < 2:
+                continue
+            params.append(name_value[0])
+            try:
+                values.append(float(name_value[1]))
+            except ValueError:
+                values.append(0)
+        self.fitvalues = [fcn, params, values, (xmin, xmax)]
+        return True
