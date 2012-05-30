@@ -235,6 +235,11 @@
     <string>Edit view</string>
    </property>
   </action>
+  <action name="actionLinearFit">
+   <property name="text">
+    <string>Linear fit</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

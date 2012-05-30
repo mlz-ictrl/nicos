@@ -39,6 +39,7 @@ import numpy as np
 
 from nicos.gui.panels import Panel
 from nicos.gui.utils import loadUi, dialogFromUi, safeFilename, DlgUtils
+from nicos.gui.fitutils import fit_linear
 from nicos.gui.plothelpers import NicosPlot
 from nicos.cache.utils import cache_load
 from nicos.cache.client import CacheClient
@@ -130,7 +131,7 @@ class BaseHistoryWindow(object):
             self.actionPDF, self.actionPrint, self.actionAttachElog,
             self.actionCloseView, self.actionDeleteView, self.actionResetView,
             self.actionUnzoom, self.actionLogScale, self.actionLegend,
-            self.actionSymbols, self.actionLines
+            self.actionSymbols, self.actionLines, self.actionLinearFit,
             ]:
             action.setEnabled(on)
 
@@ -369,6 +370,10 @@ class BaseHistoryWindow(object):
     def on_actionLines_toggled(self, on):
         self.currentPlot.setLines(on)
 
+    @qtsig('')
+    def on_actionLinearFit_triggered(self):
+        self.currentPlot.fitLinear()
+
 
 class HistoryPanel(Panel, BaseHistoryWindow):
     panelName = 'History viewer'
@@ -409,6 +414,7 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         menu.addAction(self.actionLegend)
         menu.addAction(self.actionSymbols)
         menu.addAction(self.actionLines)
+        menu.addAction(self.actionLinearFit)
         menu.addSeparator()
         return [menu]
 
@@ -535,6 +541,34 @@ class ViewPlot(NicosPlot):
         self.hasSymbols = on
         self.replot()
 
+    def selectCurve(self):
+        if len(self.view.keys) > 1:
+            dlg = dialogFromUi(self, 'selector.ui', 'panels')
+            dlg.setWindowTitle('Select curve to fit')
+            dlg.label.setText('Select a curve:')
+            for key in self.view.keys:
+                QListWidgetItem(key, dlg.list)
+            dlg.list.setCurrentRow(0)
+            if dlg.exec_() != QDialog.Accepted:
+                return
+            fitcurve = dlg.list.currentRow()
+        else:
+            fitcurve = 0
+        return self.plotcurves[fitcurve]
+
+    def fitLinear(self):
+        self._beginFit('Linear', ['First point', 'Second point'],
+                       self.linear_fit_callback)
+
+    def linear_fit_callback(self, args):
+        title = 'linear fit'
+        beta, x, y = fit_linear(*args)
+        x1, x2 = min(x), max(x)
+        labelx = x2
+        labely = beta[0]*x2 + beta[1]
+        interesting = [('Slope', beta[0])]
+        return x, y, title, labelx, labely, interesting, None
+
 
 class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
     def __init__(self, app):
@@ -569,6 +603,7 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
         menu.addAction(self.actionLegend)
         menu.addAction(self.actionSymbols)
         menu.addAction(self.actionLines)
+        menu.addAction(self.actionLinearFit)
         menu.addSeparator()
         menu.addAction(self.actionClose)
         return [menu]

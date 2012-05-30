@@ -39,12 +39,15 @@ from PyQt4.QtGui import QPen, QPainter, QBrush, QPalette, QFont, QFileDialog, \
 from PyQt4.Qwt5 import Qwt, QwtPlot, QwtPlotItem, QwtPlotCurve, QwtPlotPicker, \
      QwtLog10ScaleEngine, QwtSymbol, QwtPlotZoomer, QwtPicker, QwtPlotGrid, \
      QwtText, QwtLegend, QwtScaleDraw, QwtLinearScaleEngine, QwtScaleDiv, \
-     QwtDoubleInterval
+     QwtDoubleInterval, QwtPlotMarker
 
 try:
     from PyQt4.Qwt5.grace import GraceProcess
 except ImportError:
     GraceProcess = None
+
+from nicos.gui.utils import DlgUtils
+from nicos.gui.fitutils import has_odr, FitError
 
 
 class ActivePlotPicker(QwtPlotPicker):
@@ -309,15 +312,24 @@ class TimeScaleEngine(QwtLinearScaleEngine):
         return scalediv
 
 
-class NicosPlot(QwtPlot):
+
+class NicosPlot(QwtPlot, DlgUtils):
     def __init__(self, parent, window, timeaxis=False):
         QwtPlot.__init__(self, parent)
+        DlgUtils.__init__(self, 'Plot')
         self.window = window
         self.plotcurves = []
         self.normalized = False
         self.has_secondary = False
         self.show_all = False
         self.timeaxis = timeaxis
+
+        self.fits = 0
+        self.fittype = None
+        self.fitparams = None
+        self.fitstage = 0
+        self.fitPicker = None
+        self.fitcallbacks = [None, None]
 
         font = self.window.user_font
         bold = QFont(font)
@@ -548,6 +560,130 @@ class NicosPlot(QwtPlot):
         os.close(h)
         img.save(pathname, 'png')
         return pathname
+
+    def _beginFit(self, fittype, fitparams, fitcallback, pickcallback=None):
+        if self.fittype is not None:
+            return
+        if not has_odr:
+            return self.showError('scipy.odr is not available.')
+        if not self.plotcurves:
+            return self.showError('Plot must have a curve to be fitted.')
+        self.fitcurve = self.selectCurve()
+        self.fitvalues = []
+        self.fitparams = fitparams
+        self.fittype = fittype
+        self.fitstage = 0
+        self.fitcallbacks = [fitcallback, pickcallback]
+        if self.fitparams:
+            self.picker.active = False
+            self.zoomer.setEnabled(False)
+
+            self.window.statusBar.showMessage('Fitting: Click on %s' %
+                                              fitparams[0])
+            self.fitPicker = QwtPlotPicker(
+                QwtPlot.xBottom, self.fitcurve.yAxis(),
+                QwtPicker.PointSelection | QwtPicker.ClickSelection,
+                QwtPlotPicker.CrossRubberBand,
+                QwtPicker.AlwaysOn, self.canvas())
+            self.connect(self.fitPicker,
+                         SIGNAL('selected(const QwtDoublePoint &)'),
+                         self.on_fitPicker_selected)
+        else:
+            self._finishFit()
+
+    def _finishFit(self):
+        try:
+            if self.fitcallbacks[1]:
+                if not self.fitcallbacks[1]():
+                    raise FitError('Aborted.')
+            curve = self.fitcurve
+            if isinstance(curve, ErrorBarPlotCurve):
+                args = [curve._x, curve._y, curve._dy] + self.fitvalues
+            else:
+                d = curve.data()
+                args = [asarray(d.xData()), asarray(d.yData()), None] + \
+                    self.fitvalues
+            x, y, title, labelx, labely, interesting, lineinfo = \
+                self.fitcallbacks[0](args)
+        except FitError, err:
+            self.window.statusBar.showMessage('Fitting failed: %s.' % err)
+            if self.fitPicker:
+                self.fitPicker.setEnabled(False)
+                self.fitPicker = None
+            self.picker.active = True
+            self.zoomer.setEnabled(True)
+            self.fittype = None
+            return
+
+        color = [Qt.darkRed, Qt.darkMagenta, Qt.darkGreen,
+                 Qt.darkGray][self.fits % 4]
+
+        resultcurve = ErrorBarPlotCurve(title=title)
+        resultcurve.setYAxis(curve.yAxis())
+        resultcurve.setRenderHint(QwtPlotItem.RenderAntialiased)
+        resultcurve.setStyle(QwtPlotCurve.Lines)
+        resultcurve.setPen(QPen(color, 2))
+        resultcurve.setData(x, y)
+        resultcurve.attach(self)
+
+        textmarker = QwtPlotMarker()
+        textmarker.setYAxis(curve.yAxis())
+        textmarker.setLabel(QwtText(
+            '\n'.join('%s: %g' % i for i in interesting)))
+
+        # check that the given position is inside the viewport
+        halign = Qt.AlignRight
+        xi = self.axisScaleDiv(resultcurve.xAxis()).interval()
+        xmin, xmax = xi.minValue(), xi.maxValue()
+        extentx = self.canvasMap(QwtPlot.xBottom).invTransform(
+            textmarker.label().textSize().width())
+        if xmin < xmax:
+            if labelx < xmin:
+                labelx = xmin
+            elif labelx + extentx > xmax:
+                labelx = xmax
+                halign = Qt.AlignLeft
+        else:
+            if labelx > xmin:
+                labelx = xmin
+            elif labelx - extentx < xmax:
+                labelx = xmax
+                halign = Qt.AlignLeft
+
+        textmarker.setLabelAlignment(halign | Qt.AlignBottom)
+        textmarker.setValue(labelx, labely)
+        textmarker.attach(self)
+        resultcurve.dependent.append(textmarker)
+
+        if lineinfo:
+            linefrom, lineto, liney = lineinfo
+            linemarker = QwtPlotCurve()
+            linemarker.setStyle(QwtPlotCurve.Lines)
+            linemarker.setPen(QPen(color, 1))
+            linemarker.setItemAttribute(QwtPlotItem.Legend, False)
+            linemarker.setData([linefrom, lineto], [liney, liney])
+            #linemarker.attach(self)
+            #resultcurve.dependent.append(linemarker)
+
+        self.replot()
+
+        if self.fitPicker:
+            self.fitPicker.setEnabled(False)
+            self.fitPicker = None
+        self.picker.active = True
+        self.zoomer.setEnabled(True)
+        self.fittype = None
+        self.fits += 1
+
+    def on_fitPicker_selected(self, point):
+        self.fitvalues.append((point.x(), point.y()))
+        self.fitstage += 1
+        if self.fitstage < len(self.fitparams):
+            paramname = self.fitparams[self.fitstage]
+            self.window.statusBar.showMessage('Fitting: Click on %s' %
+                                              paramname)
+        else:
+            self._finishFit()
 
 
 def cloneToGrace(plot, saveall="", pause=0.2):
