@@ -214,6 +214,14 @@ class DeviceMeta(type):
 
         return newtype
 
+    def __instancecheck__(cls, inst):
+        from nicos.generic import DeviceProxy
+        if inst.__class__ == DeviceProxy and inst._initialized:
+            return isinstance(inst._obj, cls)
+        # does not work with Python 2.6!
+        #return type.__instancecheck__(cls, inst)
+        return issubclass(inst.__class__, cls)
+
 
 class Device(object):
     """
@@ -771,7 +779,8 @@ class Readable(Device):
             val = None
         elif maxage is not None:
             time, ttl, val = self._cache.get_explicit(self, name)
-            if val is not None and time + min(maxage, ttl) < currenttime():
+            if val is not None and \
+                time + min(maxage, ttl or 3600) < currenttime():
                 val = None
         else:
             val = self._cache.get(self, name)

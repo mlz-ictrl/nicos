@@ -166,7 +166,7 @@ class OutputView(QTextBrowser):
         textcursor = self.textCursor()
         textcursor.movePosition(QTextCursor.End)
         textcursor.setCharFormat(fmt or std)
-        textcursor.insertText(text)
+        textcursor.insertText(text.decode('utf8', 'replace'))
 
     def addMessage(self, message):
         bar = self.verticalScrollBar()

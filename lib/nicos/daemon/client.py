@@ -111,7 +111,7 @@ class NicosClient(object):
         try:
             self.event_socket.connect((conndata['host'], conndata['port']))
         except socket.error, err:
-            errno, msg = err.args
+            msg = err.args[1]
             self.signal('failed', 'Event connection failed: %s.' % msg, err)
             return
 

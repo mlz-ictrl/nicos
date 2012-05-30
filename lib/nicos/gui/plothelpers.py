@@ -27,6 +27,7 @@
 __version__ = "$Revision$"
 
 import os
+import sys
 import time
 import tempfile
 
@@ -37,7 +38,8 @@ from PyQt4.QtGui import QPen, QPainter, QBrush, QPalette, QFont, QFileDialog, \
      QPrinter, QPrintDialog, QDialog, QImage
 from PyQt4.Qwt5 import Qwt, QwtPlot, QwtPlotItem, QwtPlotCurve, QwtPlotPicker, \
      QwtLog10ScaleEngine, QwtSymbol, QwtPlotZoomer, QwtPicker, QwtPlotGrid, \
-     QwtText, QwtLegend, QwtScaleDraw, QwtLinearScaleEngine
+     QwtText, QwtLegend, QwtScaleDraw, QwtLinearScaleEngine, QwtScaleDiv, \
+     QwtDoubleInterval
 
 try:
     from PyQt4.Qwt5.grace import GraceProcess
@@ -235,6 +237,78 @@ class TimeScaleDraw(QwtScaleDraw):
         return QwtText(strf('%y-%m-%d\n%H:%M:%S', local(value)))
 
 
+def scalings(mintime, maxtime, minticks=3):
+    good = [1, 2, 5, 10, 30,                           # s
+            60, 2*60, 5*60, 10*60, 15*60, 30*60,       # m
+            3600, 2*3600, 3*3600, 6*3600, 12*3600,     # h
+            24*3600, 2*24*3600, 3*24*3600, 7*24*3600]  # d
+    divs = [5, 4, 5, 5, 6,
+            6, 4, 5, 5, 3, 6,
+            6, 4, 6, 6, 6,
+            6, 6, 6, 7]
+    upscaling = [1, 2, 5, 10]
+    downscaling = [1, 0.5, 0.2, 0.1]
+
+    # calculate maxticks, depends on 'good' values
+    maxticks = minticks
+    for i in range(len(good)-1):
+        if maxticks < minticks * good[i+1]/float(good[i]):
+            maxticks = minticks * good[i+1]/float(good[i])
+
+    # determine ticking range
+    length = maxtime - mintime
+    maxd = length / float(minticks)
+    mind = length / float(maxticks+1)
+
+    # scale to useful numbers
+    scale_ind = 0
+    scale_fact = 1
+    scale = 1
+    while maxd * scale < good[0]: # too small ticking, increase scaling
+        scale_ind += 1
+        if scale_ind >= len(upscaling):
+            scale_fact *= upscaling[-1]
+            scale_ind = 1
+        scale = scale_fact * upscaling[scale_ind]
+    scale_ind = 0
+    while mind * scale > good[-1]: # too big ticking, decrease scaling
+        scale_ind += 1
+        if scale_ind >= len(downscaling):
+            scale_fact *= downscaling[-1]
+            scale_ind = 1
+        scale = scale_fact * downscaling[scale_ind]
+
+    # find a good value for ticking
+    tickdist = 0
+    subticks = 0
+    for i, d in enumerate(good):
+        if mind * scale <= d <= maxd * scale:
+            tickdist = d / float(scale)
+            subticks = divs[i]
+
+    # check ticking
+    assert tickdist > 0
+
+    # calculate tick positions
+    minor, medium, major = [], [], []
+    for i in range(int(mintime/tickdist)-1, int(maxtime/tickdist)+1):
+        t = int(i+1) * tickdist
+        major.append(t)
+        for j in range(subticks):
+            minor.append(t + j*tickdist/subticks)
+    return minor, medium, major
+
+class TimeScaleEngine(QwtLinearScaleEngine):
+    def divideScale(self, x1, x2, maxmaj, maxmin, stepsize=0.):
+        interval = QwtDoubleInterval(x1, x2).normalized()
+        ticks = scalings(x1, x2)
+        #print ticks
+        scalediv = QwtScaleDiv(interval, *ticks)
+        if x1 > x2:
+            scalediv.invert()
+        return scalediv
+
+
 class NicosPlot(QwtPlot):
     def __init__(self, parent, window, timeaxis=False):
         QwtPlot.__init__(self, parent)
@@ -318,6 +392,7 @@ class NicosPlot(QwtPlot):
         self.has_secondary = False
         grid = QwtPlotGrid()
         grid.setPen(QPen(QBrush(Qt.lightGray), 1, Qt.DotLine))
+        grid.enableXMin(True)
         grid.attach(self)
 
         self.setTitle(self.titleString())
@@ -325,6 +400,7 @@ class NicosPlot(QwtPlot):
         xaxistext.setFont(self.labelfont)
         self.setAxisTitle(QwtPlot.xBottom, xaxistext)
         if self.timeaxis:
+            self.setAxisScaleEngine(QwtPlot.xBottom, TimeScaleEngine())
             self.setAxisScaleDraw(QwtPlot.xBottom, TimeScaleDraw())
         yaxisname = self.yaxisName()
         y2axisname = self.y2axisName()
@@ -435,8 +511,9 @@ class NicosPlot(QwtPlot):
             self.zoomer.setZoomBase(True)
 
     def savePlot(self):
-        filename = str(QFileDialog.getSaveFileName(
-            self, 'Select file name', '', 'PDF files (*.pdf)'))
+        filename = QFileDialog.getSaveFileName(
+            self, 'Select file name', '', 'PDF files (*.pdf)')
+        filename = unicode(filename).encode(sys.getfilesystemencoding())
         if filename == '':
             return None
         if '.' not in filename:

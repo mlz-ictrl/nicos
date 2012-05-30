@@ -28,6 +28,7 @@ from __future__ import with_statement
 
 __version__ = "$Revision$"
 
+import sys
 import time
 from os import path
 from logging import WARNING
@@ -151,6 +152,7 @@ class EditorPanel(Panel):
         if has_scintilla:
             self.editor = QsciScintilla(self)
             self.lexer = QsciLexerPython(self.editor)
+            self.editor.setUtf8(True)
             self.editor.setLexer(self.lexer)
             self.editor.setAutoIndent(True)
             self.editor.setEolMode(QsciScintilla.EolUnix)
@@ -402,10 +404,7 @@ class EditorPanel(Panel):
                 getattr(self.editor, 'print')(printer)
 
     def validateScript(self):
-        try:
-            script = str(self.editor.text()) + '\n'
-        except UnicodeError:
-            return self.showError('Unicode error in script.')
+        script = str(self.editor.text().toUtf8()) + '\n'
         try:
             compile(script, 'script', 'exec')
         except SyntaxError, err:
@@ -533,7 +532,7 @@ class EditorPanel(Panel):
                                          'Script files (*.py)')
         if fn.isEmpty():
             return
-        self.openFile(str(fn))
+        self.openFile(unicode(fn).encode(sys.getfilesystemencoding()))
         self.addToRecentf(fn)
 
     @qtsig('')
@@ -543,12 +542,13 @@ class EditorPanel(Panel):
         self.openFile(self.filename)
 
     def openRecentFile(self):
-        self.openFile(str(self.sender().text()))
+        fn = unicode(self.sender().text()).encode(sys.getfilesystemencoding())
+        self.openFile(fn)
 
     def openFile(self, fn):
         try:
             with open(fn) as f:
-                self.editor.setText(f.read())
+                self.editor.setText(f.read().decode('utf8'))
         except Exception, err:
             return self.showError('Opening file failed: %s' % err)
 
@@ -579,7 +579,7 @@ class EditorPanel(Panel):
             self.saving = True
             try:
                 with open(self.filename, 'w') as f:
-                    f.write(str(self.editor.text()))
+                    f.write(str(self.editor.text().toUtf8()))
             finally:
                 self.saving = False
         except Exception, err:
@@ -596,8 +596,9 @@ class EditorPanel(Panel):
             initialdir = path.dirname(self.filename)
         else:
             initialdir = self.client.eval('session.experiment.scriptdir', '')
-        fn = str(QFileDialog.getSaveFileName(self, 'Save script', initialdir,
-                                             'Script files (*.py)'))
+        fn = QFileDialog.getSaveFileName(self, 'Save script', initialdir,
+                                         'Script files (*.py)')
+        fn = unicode(fn).encode(sys.getfilesystemencoding())
         if fn == '':
             return False
         if '.' not in fn:

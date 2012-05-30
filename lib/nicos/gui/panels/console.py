@@ -28,7 +28,7 @@ from __future__ import with_statement
 
 __version__ = "$Revision$"
 
-import re
+import sys
 import time
 import codecs
 
@@ -68,7 +68,7 @@ class ConsolePanel(Panel):
 
     def loadSettings(self, settings):
         self.hasinput = not settings.value('noinput').toBool()
-        self.cmdhistory = map(str, settings.value('cmdhistory').toStringList())
+        self.cmdhistory = list(settings.value('cmdhistory').toStringList())
 
     def saveSettings(self, settings):
         settings.setValue('noinput', not self.hasinput)
@@ -124,11 +124,11 @@ class ConsolePanel(Panel):
 
     def on_outView_anchorClicked(self, url):
         """Called when the user clicks a link in the out view."""
-        url = str(url.toString())
+        url = str(url.toString().toUtf8())
         if url.startswith('exec:'):
             # Direct execution is too dangerous. Just insert it in the editor.
             if self.hasinput:
-                self.commandInput.setText(url[5:])
+                self.commandInput.setText(url[5:].decode('utf8'))
                 self.commandInput.setFocus()
         elif url.startswith('edit:'):
             if not self.mainwindow.editor_wintype:
@@ -154,7 +154,8 @@ class ConsolePanel(Panel):
         if fn.isEmpty():
             return
         try:
-            with codecs.open(str(fn), 'w', 'utf-8') as f:
+            fn = unicode(fn).encode(sys.getfilesystemencoding())
+            with codecs.open(fn, 'w', 'utf-8') as f:
                 f.write(unicode(self.outView.getOutputString()))
         except Exception, err:
             QMessageBox.warning(self, 'Error', 'Writing file failed: %s' % err)
@@ -192,7 +193,7 @@ class ConsolePanel(Panel):
 
     def on_commandInput_textChanged(self, text):
         try:
-            script = str(self.commandInput.text())
+            script = str(self.commandInput.text().toUtf8())
             if not script or script.strip().startswith('#'):
                 return
             compile(script+'\n', 'script', 'single')
@@ -202,7 +203,7 @@ class ConsolePanel(Panel):
             setForegroundColor(self.commandInput, QColor("#000000"))
 
     def on_commandInput_returnPressed(self):
-        script = str(self.commandInput.text())
+        script = str(self.commandInput.text().toUtf8())
         if not script:
             return
         if not script.strip().startswith('#'):

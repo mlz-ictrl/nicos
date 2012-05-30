@@ -52,6 +52,7 @@ class Authenticator(object):
             if self.method == 'none':
                 return User(username, ADMIN)
             elif self.method == 'list':
+                entry = None
                 for entry in self.passwd:
                     if entry[0] == username:
                         break
