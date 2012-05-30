@@ -1393,6 +1393,11 @@ void BatchDlg::Start()
 	dir.setNameFilters(namefilters);
 	
 	QFileInfoList filelist = dir.entryInfoList();
+	if(filelist.size() == 0)
+	{
+		QMessageBox::critical(0, "Error", "No PAD/TOF files found in source directory.", QMessageBox::Ok);
+		return;
+	}
 
 	progressBar->setMinimum(0);
 	progressBar->setMaximum(filelist.size());
@@ -1467,7 +1472,6 @@ void BatchDlg::ConvertToBinary(const char* pcSrc, const char* pcDst)
 	if(strSrcFileEnding=="TOF" || strSrcFileEnding=="tof")
 		bIsTof = 1;
 	
-
 	std::ifstream ifstr(pcSrc);
 	std::ofstream ofstr(pcDst, std::ios_base::binary);
 
@@ -1491,6 +1495,11 @@ void BatchDlg::ConvertToBinary(const char* pcSrc, const char* pcDst)
 
 	if(bIsTof)					// two additional numbers per line in TOF
 	{
+		std::string strDstCounts = pcDst;
+		strDstCounts += ".counts";
+		std::ofstream ofstrCounts(strDstCounts.c_str());
+		ofstrCounts << "# timechannel\tcounts\n";
+		
 		unsigned int uiTimeChannel = 0;
 		while(1)
 		{
@@ -1510,7 +1519,7 @@ void BatchDlg::ConvertToBinary(const char* pcSrc, const char* pcDst)
 				if(istrLine.eof())
 					break;
 
-				if(uiLineIdx==0)
+				if(uiLineIdx==0)		// time channel
 				{
 					//std::cout << "timechannel: " << uiVal << std::endl;
 					if(uiVal != uiTimeChannel+1)
@@ -1519,6 +1528,12 @@ void BatchDlg::ConvertToBinary(const char* pcSrc, const char* pcDst)
 						logger << "Conversion Dialog: Mismatch in TOF time channel index, "
 							   << "expected " << uiTimeChannel+1 << ", got " << uiVal << ".\n";
 					}
+
+					ofstrCounts << uiVal << "\t";
+				}
+				else if(uiLineIdx==1)	// counts
+				{
+					ofstrCounts << uiVal << "\n";
 				}
 				
 				if(uiLineIdx >= 2)
@@ -1532,6 +1547,8 @@ void BatchDlg::ConvertToBinary(const char* pcSrc, const char* pcDst)
 		logger.SetCurLogLevel(LOGLEVEL_INFO);
 		logger << "Conversion Dialog: " << uiTimeChannel << " time channels in TOF "
 				<< "\"" << pcSrc << "\".\n";
+
+		ofstrCounts.close();
 	}
 	else						// raw convert (e.g. PAD)
 	{
