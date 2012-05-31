@@ -47,10 +47,11 @@ from nicos.cache.client import CacheClient
 
 class View(object):
     def __init__(self, name, keys, interval, fromtime, totime,
-                 yfrom, yto, query_func):
+                 yfrom, yto, window, query_func):
         self.name = name
         self.keys = keys
         self.interval = interval
+        self.window = window
         self.fromtime = fromtime
         self.totime = totime
         self.yfrom = yfrom
@@ -70,11 +71,12 @@ class View(object):
                 i = 0
                 for vtime, value in history:
                     if value is not None and vtime > ltime + interval:
-                        x[i] = vtime
+                        x[i] = max(vtime, fromtime)
                         y[i] = value
                         i += 1
                         ltime = vtime
-                x.resize((2*i or 100,)); y.resize((2*i or 100,))
+                x.resize((2*i or 100,))
+                y.resize((2*i or 100,))
                 self.keydata[key] = [x, y, i]
         else:
             self.keydata = dict((key, [np.zeros(500), np.zeros(500), 0])
@@ -106,6 +108,17 @@ class View(object):
         kd[0][n] = time
         kd[1][n] = value
         kd[2] += 1
+        # check sliding window
+        if self.window:
+            i = -1
+            threshold = time - self.window
+            while kd[0][i+1] < threshold and i < n:
+                i += 1
+            if i >= 0:
+                # print 'sliding remove:', i+1
+                kd[0][0:n-i] = kd[0][i+1:n+1].copy()
+                kd[1][0:n-i] = kd[1][i+1:n+1].copy()
+                kd[2] -= i+1
 
 
 class BaseHistoryWindow(object):
@@ -158,6 +171,39 @@ class BaseHistoryWindow(object):
 
     @qtsig('')
     def on_actionNew_triggered(self):
+        def parseTimeSpec(intv):
+            if not intv:
+                itime = 0
+            elif intv.endswith('sec'):
+                itime = float(intv[:-3])
+            elif intv.endswith('s'):
+                itime = float(intv[:-1])
+            elif intv.endswith('min'):
+                itime = float(intv[:-3]) * 60
+            elif intv.endswith('m'):
+                itime = float(intv[:-1]) * 60
+            elif intv.endswith('h'):
+                itime = float(intv[:-1]) * 3600
+            elif intv.endswith('days'):
+                itime = float(intv[:-4]) * 24 * 3600
+            elif intv.endswith('d'):
+                itime = float(intv[:-1]) * 24 * 3600
+            elif intv.endswith('y'):
+                itime = float(intv[:-1]) * 24 * 3600 * 365
+            else:
+                raise ValueError
+            itime = abs(itime)
+            if itime >= 24 * 3600:
+                interval = 30
+            elif itime >= 6 * 3600:
+                interval = 10
+            elif itime >= 3 * 3600:
+                interval = 5
+            elif itime >= 1800:
+                interval = 2
+            else:
+                interval = 1
+            return itime, interval
         helptext = 'Enter a comma-separated list of device names or ' \
             'parameters (as "device.parameter").  Example:\n\n' \
             'T, T.setpoint\n\nshows the value of device T, and the value ' \
@@ -175,20 +221,30 @@ class BaseHistoryWindow(object):
             if on: newdlg.customYFrom.setFocus()
         newdlg.connect(newdlg.customY, SIGNAL('toggled(bool)'), callback)
         newdlg.fromdate.setEnabled(False)
-        newdlg.interval.setEnabled(False)
         newdlg.todate.setEnabled(False)
         newdlg.frombox.setEnabled(False)
         newdlg.tobox.setEnabled(False)
         def callback2(on):
             on = newdlg.simpleTime.isChecked()
             newdlg.simpleTimeSpec.setEnabled(on)
-            newdlg.fromdate.setEnabled(not on)
-            newdlg.interval.setEnabled(not on)
-            newdlg.todate.setEnabled(not on)
+            newdlg.slidingWindow.setEnabled(on)
             newdlg.frombox.setEnabled(not on)
+            newdlg.fromdate.setEnabled(not on and newdlg.frombox.isChecked())
             newdlg.tobox.setEnabled(not on)
+            newdlg.todate.setEnabled(not on and newdlg.tobox.isChecked())
         newdlg.connect(newdlg.simpleTime, SIGNAL('toggled(bool)'), callback2)
         newdlg.connect(newdlg.extTime, SIGNAL('toggled(bool)'), callback2)
+        newdlg.connect(newdlg.frombox, SIGNAL('toggled(bool)'), callback2)
+        newdlg.connect(newdlg.tobox, SIGNAL('toggled(bool)'), callback2)
+        def callback3(text):
+            try:
+                itime, interval = parseTimeSpec(str(text))
+            except Exception:
+                pass
+            else:
+                newdlg.interval.setText(str(interval))
+        newdlg.connect(newdlg.simpleTimeSpec,
+                       SIGNAL('textChanged(const QString&)'), callback3)
         simplehelptext = 'Please enter a time interval with unit like this:\n\n' \
             '30m   (30 minutes)\n' \
             '12h   (12 hours)\n' \
@@ -206,45 +262,19 @@ class BaseHistoryWindow(object):
         name = str(newdlg.namebox.text())
         if not name:
             name = str(newdlg.devices.text())
+        window = None
         if newdlg.simpleTime.isChecked():
             intv = str(newdlg.simpleTimeSpec.text())
             try:
-                if not intv:
-                    itime = 0
-                    interval = 5
-                elif intv.endswith('sec'):
-                    itime = float(intv[:-3])
-                    interval = 1
-                elif intv.endswith('s'):
-                    itime = float(intv[:-1])
-                    interval = 1
-                elif intv.endswith('min'):
-                    itime = float(intv[:-3]) * 60
-                    interval = 5
-                elif intv.endswith('m'):
-                    itime = float(intv[:-1]) * 60
-                    interval = 5
-                elif intv.endswith('h'):
-                    itime = float(intv[:-1]) * 3600
-                    interval = 10
-                elif intv.endswith('days'):
-                    itime = float(intv[:-4]) * 24 * 3600
-                    interval = 30
-                elif intv.endswith('d'):
-                    itime = float(intv[:-1]) * 24 * 3600
-                    interval = 30
-                else:
-                    raise ValueError
+                itime, _ = parseTimeSpec(intv)
             except ValueError:
                 self.showError(simplehelptext)
                 return self.on_actionNew_triggered()
-            fromtime = time.time() - abs(itime)
+            fromtime = time.time() - itime
             totime = None
+            if newdlg.slidingWindow.isChecked():
+                window = itime
         else:
-            try:
-                interval = float(newdlg.interval.text())
-            except ValueError:
-                interval = 5.0
             if newdlg.frombox.isChecked():
                 fromtime = time.mktime(time.localtime(
                     newdlg.fromdate.dateTime().toTime_t()))
@@ -255,6 +285,10 @@ class BaseHistoryWindow(object):
                     newdlg.todate.dateTime().toTime_t()))
             else:
                 totime = None
+        try:
+            interval = float(newdlg.interval.text())
+        except ValueError:
+            interval = 5.0
         if newdlg.customY.isChecked():
             try:
                 yfrom = float(str(newdlg.customYFrom.text()))
@@ -269,7 +303,7 @@ class BaseHistoryWindow(object):
         else:
             yfrom = yto = None
         view = View(name, keys, interval, fromtime, totime, yfrom, yto,
-                    self.gethistory_callback)
+                    window, self.gethistory_callback)
         self.views.append(view)
         view.listitem = QListWidgetItem(name, self.viewList)
         self.openView(view)
