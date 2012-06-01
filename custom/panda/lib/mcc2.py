@@ -90,13 +90,13 @@ class MCC2Coder(NicosCoder):
             if not self.comm('IVR').startswith('MCC'):
                 raise CommunicationError(self, 'No Response from Phytron, please check!')
             self.comm('XP39S1')
-    def doReadCoderBits(self):
+    def doReadCoderbits(self):
         return int(self.comm('XP35R'))
-    def doWriteCoderBits(self, value):
+    def doWriteCoderbits(self, value):
         return self.comm('XP35S%d' % int(value))
-    def doReadCoderType(self):
+    def doReadCodertype(self):
         return self.codertypes[int(self.comm('XP34R'))]
-    def doWriteCoderType(self, value):
+    def doWriteCodertype(self, value):
         return self.comm('XP34S%d' % self.codertypes.index(value))
     def doRead(self):
         return (float(self.comm('XP22R')) - self.zerosteps) / self.slope
@@ -186,9 +186,10 @@ class MCC2Motor(NicosMotor):
             return 0.1 * float(self.comm('XP40R'))
     def doWriteIdlecurrent(self, value):
         if self.linear:
-            return self.comm('XP40S%d' % max(0, min(25, round(value / 0.05))))
+            self.comm('XP40S%d' % max(0, min(25, round(value / 0.05))))
         else:
-            return self.comm('XP40S%d' % max(0, min(25, round(value / 0.1))))
+            self.comm('XP40S%d' % max(0, min(25, round(value / 0.1))))
+        return self.doReadIdlecurrent()
     def doReadMovecurrent(self):
         if self.linear:
             return 0.05 * float(self.comm('XP41R'))
@@ -196,9 +197,10 @@ class MCC2Motor(NicosMotor):
             return 0.1 * float(self.comm('XP41R'))
     def doWriteMovecurrent(self, value):
         if self.linear:
-            return self.comm('XP41S%d' % max(0, min(25, round(value / 0.05))))
+            self.comm('XP41S%d' % max(0, min(25, round(value / 0.05))))
         else:
-            return self.comm('XP41S%d' % max(0, min(25, round(value / 0.1))))
+            self.comm('XP41S%d' % max(0, min(25, round(value / 0.1))))
+        return self.doReadMovecurrent()
     def doReadRampcurrent(self):
         if self.linear:
             return 0.05 * float(self.comm('XP42R'))
@@ -206,9 +208,10 @@ class MCC2Motor(NicosMotor):
             return 0.1 * float(self.comm('XP42R'))
     def doWriteRampcurrent(self, value):
         if self.linear:
-            return self.comm('XP42S%d' % max(0, min(25, round(value / 0.05))))
+            self.comm('XP42S%d' % max(0, min(25, round(value / 0.05))))
         else:
-            return self.comm('XP42S%d' % max(0, min(25, round(value / 0.1))))
+            self.comm('XP42S%d' % max(0, min(25, round(value / 0.1))))
+        return self.doReadRampcurrent()
 
     def doRead(self):
         return float(self.comm('XP21R')) / (self.slope * self.microstep)
@@ -232,21 +235,25 @@ class MCC2Motor(NicosMotor):
             self.comm('XMA')
         else:
             self.comm('XMD')
+        return self.doReadPower()
 
     def doReadMicrostep(self):
         return int(self.comm('XP45R'))
-    def doWriteMicrotstep(self, value):
-        return self.comm('XP45S%d' % int(value))
+    def doWriteMicrostep(self, value):
+        self.comm('XP45S%d' % int(value))
+        return self.doReadMicrostep()
     def doReadSpeed(self):
         return float(self.comm('XP14R')) / float(self.microstep * self.slope)
     def doWriteSpeed(self, value):
         f = max(0, min(40000, value * self.slope * self.microstep))
         self.comm('XP14S%d' % int(f))
+        return self.doReadSpeed()
     def doReadAccel(self):
         return float(self.comm('XP15R')) / float(self.microstep * self.slope) ** 2
     def doWriteAccel(self, value):
         f = max(4000, min(500000, 4000 * round((value * (self.slope * self.microstep) ** 2) / 4000)))
         self.comm('XP15S%d' % int(f))
+        return self.doReadAccel()
 
     def doStart(self, pos):
         ''' go to a absolute stepperpostition'''
@@ -262,16 +269,8 @@ class MCC2Motor(NicosMotor):
 
     def doSetPosition(self, newpos):
         ''' set current position to given value'''
-        _temp = self.comm('XP20S%d XP21S%d XP19S%d' % ((int(newpos * self.slope * self.microstep),) * 3)) # set all counters
-
-
-    #~ def doStart( self, pos ):
-        #~ if self.getreg(8)!=0: # if we have a coder, set current position to coderposition
-            #~ self.communicate('R%(r1)dSR%(r9)d R%(r1)d/R%(r8)d R%(r2)dSXP22 R%(r2)d-R%(r1)d '\
-                  #~ 'XP20SR%(r2)d XP21SR%(r2)d XP19SR%(r2)d'%self._regmap)
-        #~ temp=self.communicate('XE%f'% pos )
-        #~ if temp==None:
-            #~ print 'Start command failed (missing ACK!)'
+        d = int(newpos * self.slope * self.microstep)
+        _temp = self.comm('XP20S%d XP21S%d XP19S%d' % (d, d, d)) # set all counters
 
     def doStatus(self): #XXX
         sui = self.comm('SUI')[ ['X', 'Y', 'Z', 'W'].index(self.channel) ]
