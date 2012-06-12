@@ -295,6 +295,17 @@ def tacodev(val=None):
         raise ValueError('%r is not a valid Taco device name' % val)
     return val
 
+tangodev_re = re.compile('^(tango:)?//[\w.-]+:[\d]+/[\w-]+/[\w-]+/[\w-]+$', re.I)
+
+def tangodev(val=None):
+    """a valid tango device"""
+    if val is None:
+        return ''
+    val = str(val)
+    if not tangodev_re.match(val):
+        raise ValueError('%r is not a valid Tango device name' % val)
+    return val
+
 def anytype(val=None):
     """any value"""
     return val

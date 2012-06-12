@@ -91,6 +91,10 @@ etc.), but also do more validation of the parameter.
 
    Converter that only accepts valid TACO device names.
 
+.. function:: tangodev
+
+   Converter that only accepts valid TANGO device names.
+
 .. function:: vec3
 
    Converter that only accepts 3-vectors (i.e. lists or tuples) of floats.

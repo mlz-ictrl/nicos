@@ -25,7 +25,7 @@
 """NICOS parameter utilities tests."""
 
 from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
-     tacodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, none_or
+     tacodev, tangodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, none_or
 
 from test.utils import raises
 
@@ -54,6 +54,11 @@ def test_param_converters():
     assert tacodev('test/custom/device') == 'test/custom/device'
     assert tacodev() == ''
     assert raises(ValueError, tacodev, 'test/device')
+	
+    print('TESTING TANGODEV')
+    assert tangodev('tango://host:123/test/custom/device') == 'tango://host:123/test/custom/device'
+    assert tangodev() == ''
+    assert raises(ValueError, tangodev, 'test/custom/device')
 
     assert anytype('foo') == 'foo'
 

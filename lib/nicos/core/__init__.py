@@ -36,7 +36,7 @@ from nicos.core.device import Device, AutoDevice, Readable, Moveable, \
      HasLimits, HasOffset, HasPrecision, Measurable, usermethod, \
      requires
 from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \
-     listof, nonemptylistof, tupleof, dictof, tacodev, anytype, \
+     listof, nonemptylistof, tupleof, dictof, tacodev, tangodev, anytype, \
      vec3, intrange, floatrange, oneof, oneofdict, none_or, \
      control_path_relative
 from nicos.core.data import Dataset, DataSink, NeedsDatapath
