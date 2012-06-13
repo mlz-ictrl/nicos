@@ -134,6 +134,25 @@ Response:
 
     key$otherclientid      # not locked by this client, request denied
     key$                   # unlocked successfully
+
+Key rewriting (op '~')
+----------------------
+
+The cache supports storing incoming keys under multiple prefixes (definition of
+prefix: for "nicos/dev/value" the key prefix is "nicos/dev").
+
+- ``key`` is the additional prefix.
+- ``value`` is either ``+prefix`` or ``-prefix`` (add or remove a rewrite).
+
+For example, after ::
+
+    nicos/t~nicos/tcryo
+
+all incoming keys with prefix "nicos/tcryo" will be set in the cache with prefix
+"nicos/tcryo" and "nicos/t" (and also written in the store files, if the cache
+is configured for that).
+
+Response: none.
 """
 
 from __future__ import with_statement
@@ -149,13 +168,12 @@ from os import path
 from time import time as currenttime, sleep, localtime, mktime
 from collections import deque
 
-
 from nicos import session
 from nicos.core import Device, Param, ConfigurationError, intrange
 from nicos.utils import loggers, closeSocket, ensureDirectory
 from nicos.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT, \
-     OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, OP_TELLOLD, OP_LOCK, Entry, \
-     all_days
+     OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, OP_TELLOLD, OP_LOCK, \
+     OP_REWRITE, Entry, all_days
 
 
 class CacheUDPConnection(object):
@@ -312,7 +330,7 @@ class CacheWorker(object):
         self.closedown()
 
     def _handle_line(self, line):
-        self.log.debug('handling line: %s' % line)
+        #self.log.debug('handling line: %s' % line)
         match = msg_pattern.match(line)
         if not match:
             # disconnect on trash lines (for now)
@@ -359,6 +377,8 @@ class CacheWorker(object):
             pass
         elif op == OP_LOCK:
             return self.db.lock(key, value, time, ttl)
+        elif op == OP_REWRITE:
+            self.db.rewrite(key, value)
 
     def is_active(self):
         return not self.stoprequest and self.receiver.isAlive()
@@ -396,7 +416,7 @@ class CacheWorker(object):
             if mykey in key:
                 if not time:
                     time = currenttime()
-                self.log.debug('sending update of %s to %s' % (key, value))
+                #self.log.debug('sending update of %s to %s' % (key, value))
                 if ttl is not None:
                     msg = '%s+%s@%s%s%s\r\n' % (time, ttl, key, op, value)
                 else:
@@ -405,7 +425,7 @@ class CacheWorker(object):
         # same for requested updates without timestamp
         for mykey in self.updates_on:
             if mykey in key:
-                self.log.debug('sending update of %s to %s' % (key, value))
+                #self.log.debug('sending update of %s to %s' % (key, value))
                 self.send_queue.put('%s%s%s\r\n' % (key, op, value))
         # no update neccessary, signal success
         return True
@@ -428,10 +448,24 @@ class CacheDatabase(Device):
                 'either MemoryCacheDatabase or FlatfileCacheDatabase')
         self._lock_lock = threading.Lock()
         self._locks = {}
+        self._rewrite_lock = threading.Lock()
+        self._rewrites = {}
+        self._inv_rewrites = {}
 
     def initDatabase(self):
         """Initialize the database from persistent store, if present."""
         pass
+
+    def rewrite(self, key, value):
+        """Rewrite handling."""
+        current = self._inv_rewrites.get(key)
+        with self._rewrite_lock:
+            if current is not None:
+                del self._rewrites[current]
+                del self._inv_rewrites[key]
+            if value:
+                self._rewrites[value] = key
+                self._inv_rewrites[key] = value
 
     def lock(self, key, value, time, ttl):
         """Lock handling code, common to both subclasses."""
@@ -537,19 +571,29 @@ class MemoryCacheDatabase(CacheDatabase):
             # deletes cannot have a TTL
             ttl = None
         send_update = True
-        with self._db_lock:
-            entries = self._db.setdefault(key, [])
-            if entries:
-                lastent = entries[-1]
-                if lastent.value == value and not lastent.ttl:
-                    # not a real update
-                    send_update = False
-            # never cache more than a single entry, memory fills up too fast
-            entries[:] = [Entry(time, ttl, value)]
-        if send_update:
-            for client in self._server._connected.values():
-                if client is not from_client and client.is_active():
-                    client.update(key, OP_TELL, value, time, ttl)
+        try:
+            category, subkey = key.rsplit('/', 1)
+        except ValueError:
+            category = 'nocat'
+            subkey = key
+        newcats = [category]
+        if category in self._rewrites:
+            newcats.append(self._rewrites[category])
+        for newcat in newcats:
+            key = newcat + '/' + subkey
+            with self._db_lock:
+                entries = self._db.setdefault(key, [])
+                if entries:
+                    lastent = entries[-1]
+                    if lastent.value == value and not lastent.ttl:
+                        # not a real update
+                        send_update = False
+                # never cache more than a single entry, memory fills up too fast
+                entries[:] = [Entry(time, ttl, value)]
+            if send_update:
+                for client in self._server._connected.values():
+                    if client is not from_client and client.is_active():
+                        client.update(key, OP_TELL, value, time, ttl)
 
 
 class MemoryCacheDatabaseWithHistory(CacheDatabase):
@@ -642,18 +686,28 @@ class MemoryCacheDatabaseWithHistory(CacheDatabase):
             ttl = None
         send_update = True
         with self._db_lock:
-            entries = self._db.setdefault(key, deque([Entry(None, None, None)],
-                                                     self.maxentries))
-            if entries:
-                lastent = entries[-1]
-                if lastent.value == value and not lastent.ttl:
-                    # not a real update
-                    send_update = False
-                entries.append(Entry(time, ttl, value))
-        if send_update:
-            for client in self._server._connected.values():
-                if client is not from_client and client.is_active():
-                    client.update(key, OP_TELL, value, time, ttl)
+            try:
+                category, subkey = key.rsplit('/', 1)
+            except ValueError:
+                category = 'nocat'
+                subkey = key
+            newcats = [category]
+            if category in self._rewrites:
+                newcats.append(self._rewrites[category])
+            for newcat in newcats:
+                key = newcat + '/' + subkey
+                queue = deque([Entry(None, None, None)], self.maxentries)
+                entries = self._db.setdefault(key, queue)
+                if entries:
+                    lastent = entries[-1]
+                    if lastent.value == value and not lastent.ttl:
+                        # not a real update
+                        send_update = False
+                    entries.append(Entry(time, ttl, value))
+            if send_update:
+                for client in self._server._connected.values():
+                    if client is not from_client and client.is_active():
+                        client.update(key, OP_TELL, value, time, ttl)
 
 
 class FlatfileCacheDatabase(CacheDatabase):
@@ -807,18 +861,13 @@ class FlatfileCacheDatabase(CacheDatabase):
             category = 'nocat'
             subkey = key
         with self._cat_lock:
-            #self.log.debug('cat ask: %s' % category)
-            #self.log.debug('categories ask: %s' % self._cat)
             if category not in self._cat:
                 return [key + OP_TELLOLD + '\r\n']
             _, lock, db = self._cat[category]
         with lock:
-            #self.log.debug('cat ask subkey: %s' % subkey)
-            #self.log.debug('db %s' % db)
             if subkey not in db:
                 return [key + OP_TELLOLD + '\r\n']
             entry = db[subkey]
-        #self.log.debug('ask entry: %s' % entry)
         # check for expired keys
         if entry.value is None:
             return [key + OP_TELLOLD + '\r\n']
@@ -883,7 +932,6 @@ class FlatfileCacheDatabase(CacheDatabase):
         except ValueError:
             category = 'nocat'
             subkey = key
-        #self.log.debug('ask_hist: %s' % category)
         if fromtime > totime:
             return []
         elif fromtime >= self._midnight:
@@ -948,29 +996,34 @@ class FlatfileCacheDatabase(CacheDatabase):
         except ValueError:
             category = 'nocat'
             subkey = key
-        with self._cat_lock:
-            if category not in self._cat:
-                self._cat[category] = [self._create_fd(category),
-                                       threading.Lock(), {}]
-            fd, lock, db = self._cat[category]
-        update = True
-        with lock:
-            if subkey in db:
-                entry = db[subkey]
-                if entry.value == value and not entry.expired:
-                    # existing entry with the same value: update the TTL
-                    # but don't write an update to the history file
-                    entry.time = time
-                    entry.ttl = ttl
-                    update = False
+        newcats = [category]
+        if category in self._rewrites:
+            newcats.append(self._rewrites[category])
+        for newcat in newcats:
+            with self._cat_lock:
+                if newcat not in self._cat:
+                    self._cat[newcat] = [self._create_fd(newcat),
+                                         threading.Lock(), {}]
+                fd, lock, db = self._cat[newcat]
+            update = True
+            with lock:
+                if subkey in db:
+                    entry = db[subkey]
+                    if entry.value == value and not entry.expired:
+                        # existing entry with the same value: update the TTL
+                        # but don't write an update to the history file
+                        entry.time = time
+                        entry.ttl = ttl
+                        update = False
+                if update:
+                    db[subkey] = Entry(time, ttl, value)
+                    fd.write('%s\t%s\t%s\n' % (subkey, time, value or '-'))
+                    fd.flush()
             if update:
-                db[subkey] = Entry(time, ttl, value)
-                fd.write('%s\t%s\t%s\n' % (subkey, time, value or '-'))
-                fd.flush()
-        if update:
-            for client in self._server._connected.values():
-                if client is not from_client:
-                    client.update(key, OP_TELL, value, time, None)
+                key = newcat + '/' + subkey
+                for client in self._server._connected.values():
+                    if client is not from_client:
+                        client.update(key, OP_TELL, value, time, None)
 
 
 class CacheServer(Device):

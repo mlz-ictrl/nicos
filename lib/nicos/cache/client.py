@@ -40,7 +40,7 @@ from nicos.core import Device, Param, CacheLockError, CacheError
 from nicos.utils import closeSocket
 from nicos.cache.utils import msg_pattern, line_pattern, cache_load, cache_dump, \
      DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, \
-     OP_LOCK
+     OP_LOCK, OP_REWRITE
 
 BUFSIZE = 81920
 
@@ -78,6 +78,8 @@ class BaseCacheClient(Device):
         self._selecttimeout = 0.5  # seconds
         self._do_callbacks = True
         self._disconnect_warnings = 0
+        # maps newprefix -> oldprefix without self._prefix prepended
+        self._inv_rewrites = {}
 
         self._stoprequest = False
         self._queue = Queue.Queue()
@@ -344,8 +346,13 @@ class CacheClient(BaseCacheClient):
         self._mastertimeout = self._selecttimeout * 10
 
     def _connect_action(self):
+        # clear the local database of possibly outdated values
         self._db.clear()
-        return BaseCacheClient._connect_action(self)
+        # get all current values from the cache
+        BaseCacheClient._connect_action(self)
+        # tell the server all our rewrites
+        for newprefix, oldprefix in self._inv_rewrites.iteritems():
+            self._queue.put('%s%s%s\r\n' % (newprefix, OP_REWRITE, oldprefix))
 
     def _wait_data(self):
         if self._ismaster:
@@ -399,6 +406,9 @@ class CacheClient(BaseCacheClient):
         dbkey = ('%s/%s' % (dev, key)).lower()
         entry = self._db.get(dbkey)
         if entry is None:
+            if str(dev) in self._inv_rewrites:
+                self.log.debug('%s not in cache, trying rewritten' % dbkey)
+                return self.get(self._inv_rewrites[str(dev)], key, default)
             self.log.debug('%s not in cache' % dbkey)
             return default
         value, time, ttl = entry
@@ -460,8 +470,18 @@ class CacheClient(BaseCacheClient):
         ttlstr = ttl and '+%s' % ttl or ''
         value = cache_dump(value)
         msg = '%s%s@%s%s%s\r\n' % (time, ttlstr, key, OP_TELL, value)
-        #self.log.debug('putting %s=%s' % (dbkey, value))
+        #self.log.debug('putting %s=%s' % (key, value))
         self._queue.put(msg)
+
+    def setRewrite(self, newprefix, oldprefix):
+        self._queue.put(self._prefix + newprefix + OP_REWRITE + \
+                        self._prefix + oldprefix + '\r\n')
+        self._inv_rewrites[newprefix] = oldprefix
+
+    def unsetRewrite(self, newprefix):
+        if newprefix in self._inv_rewrites:
+            del self._inv_rewrites[newprefix]
+            self._queue.put(self._prefix + newprefix + OP_REWRITE + '\r\n')
 
     def clear(self, dev):
         """Clear all cache subkeys belonging to the given device."""
