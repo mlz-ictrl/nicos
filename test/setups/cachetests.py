@@ -18,20 +18,21 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Tobias Weber <tobias.weber@frm2.tum.de>
 #
 # *****************************************************************************
 
-name = 'cache setup'
+name = 'test system setup'
+
+sysconfig = dict(
+    cache = 'localhost:14877',
+    datasinks = ['testsink'],
+    loglevel = 'debug',
+)
+
+
 
 devices = dict(
-    Server = device('nicos.cache.server.CacheServer',
-                    server = 'localhost:14877',
-                    db = 'DB',
-		    loglevel='debug'),
-
-    DB = device('nicos.cache.server.FlatfileCacheDatabase',
-                storepath = 'cache',
-		loglevel = 'debug'),
+    testsink = device('test.utils.TestSink'),
 
 )

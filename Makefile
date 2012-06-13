@@ -32,7 +32,7 @@ inplace:
 	-make custom-inplace
 
 test:
-	@$(PYTHON) test/run.py $(O)
+	@$(PYTHON) test/run.py -d $(O)
 
 lint:
 	-pylint --rcfile=./pylintrc lib/nicos/
@@ -54,7 +54,7 @@ check:
 	pyflakes lib/nicos custom/*/lib
 
 test-coverage:
-	@$(PYTHON) test/run.py --with-coverage --cover-package=nicos --cover-html $(O)
+	@$(PYTHON) test/run.py -d --with-coverage --cover-package=nicos --cover-html $(O)
 
 # get the instrument from the full hostname (mira1.mira.frm2 -> mira)
 INSTRUMENT = $(shell hostname -f | cut -d. -f2)

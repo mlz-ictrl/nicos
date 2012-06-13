@@ -49,6 +49,12 @@ class TestCacheSession(NoninteractiveSession):
             logging.Formatter('[CACHE] %(name)s: %(message)s'))
         self.log.addHandler(handler)
 
+        handler2 = logging.FileHandler(path.join(path.dirname(__file__), 'root','cacheserver.log'))
+        handler2.setLevel(logging.DEBUG)
+        handler2.setFormatter(
+            logging.Formatter('[CACHE] %(asctime)s %(name)s: %(message)s'))
+        self.log.addHandler(handler2)
+
 NoninteractiveSession.config.user = None
 NoninteractiveSession.config.group = None
 NoninteractiveSession.config.control_path = \

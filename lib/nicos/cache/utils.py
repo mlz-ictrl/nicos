@@ -30,7 +30,7 @@ __version__ = "$Revision$"
 import re
 import ast
 import cPickle as pickle
-from time import time, localtime, mktime
+from time import time, localtime
 from base64 import b64encode, b64decode
 
 

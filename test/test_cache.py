@@ -22,16 +22,45 @@
 #
 # *****************************************************************************
 
-name = 'cache setup'
+"""NICOS cache tests."""
 
-devices = dict(
-    Server = device('nicos.cache.server.CacheServer',
-                    server = 'localhost:14877',
-                    db = 'DB',
-		    loglevel='debug'),
+from nicos import session
+from time import sleep
 
-    DB = device('nicos.cache.server.FlatfileCacheDatabase',
-                storepath = 'cache',
-		loglevel = 'debug'),
+def setup_module():
+    session.loadSetup('cachetests')
+    session.setMode('master')
 
-)
+def teardown_module():
+    session.unloadSetup()
+
+
+def test_01write():
+    cc = session.cache
+    testval = 'test1'
+    key = 'value'
+    cc.put('testcache', key, testval)
+    cachedval_local = cc.get('testcache', key, None)
+    cachedval = cc.get_explicit('testcache', key, None)
+    sleep(5)
+    cachedval2 = cc.get_explicit('testcache', key, None)
+
+    assert cachedval_local == testval
+    assert cachedval[2] == testval
+    assert cachedval2[2] == testval
+
+def test_01write():
+    cc = session.cache
+    testval = 'test1'
+    key = 'value'
+    cc.put('testcache', key, testval)
+    cachedval_local = cc.get('testcache', key, None)
+    cachedval = cc.get_explicit('testcache', key, None)
+    sleep(5)
+    cachedval2 = cc.get_explicit('testcache', key, None)
+
+    print cachedval, cachedval2
+    assert cachedval_local == testval
+    assert cachedval[2] == testval
+    assert cachedval2[2] == testval
+

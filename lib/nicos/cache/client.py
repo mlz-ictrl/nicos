@@ -190,26 +190,28 @@ class BaseCacheClient(Device):
 
                 # determine if something needs to be sent
                 tosend = ''
-                writelist = []
-                try:
-                    # bunch a few messages together, but not unlimited
-                    for _ in range10:
-                        tosend += self._queue.get(False)
-                        writelist = [self._socket]
-                except:
-                    pass
+                writelist = [self._socket]
+                itemcount = 0
                 # try to read or write some data
                 res = select.select([self._socket], writelist, [],
                                     self._selecttimeout)
                 if res[1]:
-                    # write data
                     try:
-                        self._socket.sendall(tosend)
-                    except Exception:
-                        self._disconnect('disconnect: send failed')
+                        # bunch a few messages together, but not unlimited
+                        for _ in range10:
+                            tosend += self._queue.get(False)
+                            itemcount += 1
+                            writelist = [self._socket]
+                    except Queue.Empty:
+                        pass
+                    # write data
+                    ok = self.sendall(tosend)
+                    for _ in range(itemcount):
+                        self._queue.task_done()
+                    if not ok:
                         data = ''
                         break
-                elif res[0]:
+                if res[0]:
                     # got some data
                     try:
                         newdata = self._socket.recv(BUFSIZE)
@@ -224,21 +226,38 @@ class BaseCacheClient(Device):
         if self._socket:
             # send rest of data
             tosend = ''
+            itemcount = 0
             try:
                 while 1:
                     tosend += self._queue.get(False)
+                    itemcount += 1
             except Queue.Empty:
                 pass
-            try:
-                self._socket.sendall(tosend)
-            except Exception:
-                self._disconnect('disconnect: last send failed')
+            self.sendall(tosend)
+            for _ in range(itemcount):
+                self._queue.task_done()
 
         # end of while loop
         self._disconnect()
 
-    def _single_request(self, tosend, sentinel='\r\n', retry=2):
+    def sendall(self, tosend):
+        msglen = len(tosend)
+        totalsent = 0
+        while totalsent < msglen:
+            sent = self._socket.send(tosend[totalsent:])
+            if sent == 0:
+                self._disconnect('disconnect: send failed')
+                return False
+            totalsent = totalsent + sent
+        sleep(0.05) # give server a chance
+        return True
+
+
+    def _single_request(self, tosend, sentinel='\r\n', retry=2, sync=True):
         """Communicate over the secondary socket."""
+        self._startup_done.wait()
+        if sync:  # sync has to be false for lock request, as these occur during startup
+            self._queue.join()
         if not self._socket:
             return
         with self._sec_lock:
@@ -254,15 +273,16 @@ class BaseCacheClient(Device):
                     return
 
         try:
-            with self._sec_lock:
-                # write request
-                self._secsocket.sendall(tosend)
+            # write request
+            self._secsocket.sendall(tosend)
 
-                # read response
-                data, n = '', 0
-                while not data.endswith(sentinel) and n < 1000:
-                    data += self._secsocket.recv(BUFSIZE)
-                    n += 1
+            # read response
+            # do not hold a lock while recv ! (see:http://docs.python.org/howto/sockets.html#when-sockets-die)
+            # it will cause a very long and nasty hang while waiting for the socket to time-out
+            data, n = '', 0
+            while not data.endswith(sentinel) and n < 1000:
+                data += self._secsocket.recv(BUFSIZE)
+                n += 1
         except socket.error:
             # retry?
             if retry:
@@ -290,6 +310,7 @@ class BaseCacheClient(Device):
     # methods to make this client usable as the main device in a simple session
 
     def start(self, *args):
+        self._connect()
         self._worker.start()
 
     def wait(self):
@@ -385,6 +406,8 @@ class CacheClient(BaseCacheClient):
         """Get a value from the cache server, bypassing the local cache.  This
         is needed if the current update time and ttl is required.
         """
+        self._startup_done.wait()
+        self._queue.join()
         if dev:
             key = ('%s/%s' % (dev, key)).lower()
         tosend = '@%s%s%s\r\n' % (self._prefix, key, OP_ASK)
@@ -490,7 +513,7 @@ class CacheClient(BaseCacheClient):
             unlock and '-' or '+', sessionid or session.sessionid)
         if ttl is not None:
             tosend = ('+%s@' % ttl) + tosend
-        for msgmatch in self._single_request(tosend):
+        for msgmatch in self._single_request(tosend,sync = False):
             if msgmatch.group('value'):
                 raise CacheLockError(msgmatch.group('value'))
             return

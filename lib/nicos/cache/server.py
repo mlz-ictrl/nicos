@@ -701,13 +701,18 @@ class FlatfileCacheDatabase(CacheDatabase):
             category = 'nocat'
             subkey = key
         with self._cat_lock:
+            self.log.debug('cat ask: %s'%category)
+            self.log.debug('categories ask: %s'%self._cat)
             if category not in self._cat:
                 return [key + OP_TELLOLD + '\r\n']
             _, lock, db = self._cat[category]
         with lock:
+            self.log.debug('cat ask subkey: %s'%subkey)
+            self.log.debug('db %s'%db)
             if subkey not in db:
                 return [key + OP_TELLOLD + '\r\n']
             entry = db[subkey]
+        self.log.debug('ask entry: %s'%entry)
         # check for expired keys
         if entry.value is None:
             return [key + OP_TELLOLD + '\r\n']
@@ -772,6 +777,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         except ValueError:
             category = 'nocat'
             subkey = key
+        self.log.debug('ask_hist: %s'%category)
         if fromtime > totime:
             return []
         elif fromtime >= self._midnight:
