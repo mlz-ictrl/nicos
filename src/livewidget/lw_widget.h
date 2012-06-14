@@ -29,6 +29,9 @@
 #include "lw_controls.h"
 #include "lw_common.h"
 
+#define INSTR_NONE    0
+#define INSTR_TOFTOF  1
+
 
 class LWWidget : public QWidget
 {
@@ -36,6 +39,7 @@ class LWWidget : public QWidget
 
   private:
     bool m_bForceReinit;
+    int m_instr;
     void unload();
 
   protected:
@@ -48,6 +52,8 @@ class LWWidget : public QWidget
   public:
     LWWidget(QWidget *parent = NULL);
     virtual ~LWWidget();
+
+    void setInstrumentOption(const char *instr);
 
     LWPlot *plot() { return m_plot; }
 

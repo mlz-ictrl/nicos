@@ -33,6 +33,8 @@
 
 LWWidget::LWWidget(QWidget *parent) : QWidget(parent), m_data(NULL)
 {
+    m_instr = INSTR_NONE;
+
     m_plot = new LWPlot(this);
     setStandardColorMap(false, false);
 
@@ -47,6 +49,14 @@ LWWidget::LWWidget(QWidget *parent) : QWidget(parent), m_data(NULL)
 LWWidget::~LWWidget()
 {
     unload();
+}
+
+void LWWidget::setInstrumentOption(const char *instr)
+{
+    if (strcmp(instr, "toftof") == 0)
+        m_instr = INSTR_TOFTOF;
+    else
+        m_instr = INSTR_NONE;
 }
 
 void LWWidget::unload()

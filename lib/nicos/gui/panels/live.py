@@ -87,6 +87,10 @@ class LiveDataPanel(Panel):
                      SIGNAL('customContextMenuRequested(const QPoint&)'),
                      self.on_widget_customContextMenuRequested)
 
+    def setSettings(self, settings):
+        if 'instrument' in settings:
+            self.widget.setInstrumentOption(settings['instrument'])
+
     def loadSettings(self, settings):
         self.splitterstate = settings.value('splitter').toByteArray()
 

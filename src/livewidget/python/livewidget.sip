@@ -105,6 +105,8 @@ class LWWidget : QWidget
     LWWidget(QWidget *parent = NULL);
     virtual ~LWWidget();
 
+    void setInstrumentOption(const char *instr);
+
     LWPlot *plot();
 
     LWData *data();

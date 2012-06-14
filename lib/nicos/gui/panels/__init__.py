@@ -112,6 +112,9 @@ class Panel(QWidget, DlgUtils):
         with self.sgroup as settings:
             self.loadSettings(settings)
 
+    def setSettings(self, settings):
+        pass
+
     def loadSettings(self, settings):
         pass
 
@@ -138,6 +141,7 @@ def createWindowItem(item, window, container):
     if isinstance(item, panel):
         cls = importString(item[0])
         p = cls(window, window.client)
+        p.setSettings(item[1])
         window.panels.append(p)
         for toolbar in p.getToolbars():
             # this helps for serializing window state
