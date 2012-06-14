@@ -109,7 +109,6 @@ class TofTofMeasurement(Measurable, ImageStorage):
         ctr.stop()
         self.doSetPreset(**preset)
         self._curtitle = preset.get('info', '')
-        self._curnosave = bool(preset.get('nosave', False))
 
         try:
             rc = session.getDevice('rc')
@@ -187,7 +186,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
 
         # start new file
         self._newFile(increment=not self._lastnosave)
-        self._lastnosave = self._curnosave
+        self._lastnosave = bool(preset.get('nosave', False))
         self._startheader.append('FileName: %s\n' % self.lastfilename)
 
         # open individual device logfiles
