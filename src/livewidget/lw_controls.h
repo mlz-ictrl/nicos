@@ -51,6 +51,7 @@ class LWProfileWindow : public QMainWindow
   protected:
     QwtPlot *plot;
     QwtPlotCurve *curve;
+    QwtPlotZoomer *zoomer;
     double *data_x, *data_y;
 
   public:

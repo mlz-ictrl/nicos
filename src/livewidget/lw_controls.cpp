@@ -552,6 +552,7 @@ LWProfileWindow::LWProfileWindow(QWidget *parent) :
     curve = new QwtPlotCurve();
     curve->setRenderHint(QwtPlotCurve::RenderAntialiased);
     curve->attach(plot);
+    zoomer = new QwtPlotZoomer(plot->canvas());
     setCentralWidget(plot);
     setContentsMargins(5, 5, 5, 5);
     QFont plotfont(font());
@@ -588,5 +589,5 @@ void LWProfileWindow::update(LWData *data, double *px, double *py, int w, int b)
     }
     delete[] straight;
     curve->setData(QwtCPointerData(data_x, data_y, nbins));
-    plot->replot();
+    zoomer->setZoomBase(true);
 }
