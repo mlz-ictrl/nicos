@@ -187,6 +187,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
 
         # start new file
         self._newFile(increment=not self._lastnosave)
+        self._lastnosave = self._curnosave
         self._startheader.append('FileName: %s\n' % self.lastfilename)
 
         # open individual device logfiles
@@ -437,7 +438,6 @@ class TofTofMeasurement(Measurable, ImageStorage):
                 fp.write(session.experiment.scripts[-1])
         self.log.info('Measurement %06d finished' % self.lastfilenumber)
         self._measuring = False
-        self._lastnosave = self._curnosave
         self._closeDeviceLogs()
         session.breakpoint(2)
 
