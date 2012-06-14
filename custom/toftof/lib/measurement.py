@@ -393,9 +393,9 @@ class TofTofMeasurement(Measurable, ImageStorage):
             os.fsync(fp)
         try:
             treated = counts[self._anglemap, :].astype('<I4')
-            ndet = treated.shape[0]
+            ndet, ntime = treated.shape
             session.updateLiveData('toftof', self.lastfilename, '<I4',
-                                   1024, ndet, 1, meastime, buffer(treated))
+                                   ntime, ndet, 1, meastime, buffer(treated))
         except Exception:
             pass
         return timeleft, moncounts, counts, countsum, meastime, tempinfo
