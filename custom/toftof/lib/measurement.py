@@ -368,6 +368,10 @@ class TofTofMeasurement(Measurable, ImageStorage):
                 head.append('MinimumSampleTemperature: %10.4f K\n' % stats[2])
                 head.append('MaximumSampleTemperature: %10.4f K\n' % stats[3])
                 tempinfo.extend(stats)
+                if tdev.unit == 'degC':
+                    tempinfo[1] -= 273.15
+                    tempinfo[3] -= 273.15
+                    tempinfo[4] -= 273.15
                 tempinfo = tuple(tempinfo)
         # more info
         head.append('MonitorCounts: %d\n' % moncounts)
