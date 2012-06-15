@@ -25,37 +25,40 @@
 
 """New Cache reader/writer devices."""
 
-
-import time
-
 from nicos.generic.cache import CacheReader as NicosCacheReader, \
     CacheWriter as NicosCacheWriter
-from nicos.core import CommunicationError
+from nicos.core import CommunicationError, CacheError
 from time import time as currenttime
 
 
 class CacheReader( NicosCacheReader ):
     def doRead(self):
         if self._cache:
-            time, ttl, val = self._cache.get_explicit(self, 'value')
+            try:
+                time, ttl, val = self._cache.get_explicit(self, 'value')
+            except CacheError:
+                val = time = ttl = None
             if time and ttl:
-                if time+ttl>currenttime():
+                if time + ttl > currenttime():
                     return val
                 self.log.warning('Cache Value timed out, this should be considered as error!')
                 return val
-            else: 
+            else:
                 return val    # always valid
         raise CommunicationError(self, 'CacheReader value not in cache or no cache found')
 
 class CacheWriter( NicosCacheWriter ):
     def doRead(self):
         if self._cache:
-            time, ttl, val = self._cache.get_explicit(self, 'value')
+            try:
+                time, ttl, val = self._cache.get_explicit(self, 'value')
+            except CacheError:
+                val = time = ttl = None
             if time and ttl:
-                if time+ttl>currenttime():
+                if time + ttl > currenttime():
                     return val
                 self.log.warning('Cache Value timed out, this should be considered as error!')
                 return val
-            else: 
+            else:
                 return val    # always valid
         raise CommunicationError(self, 'CacheReader value not in cache or no cache found')

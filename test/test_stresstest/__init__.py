@@ -23,16 +23,50 @@
 #
 # *****************************************************************************
 
+import os
 import sys
-try:
-    import nose
-except ImportError:
-    print 'The "nose" package is required to run this test suite.'
-    sys.exit(1)
+import shutil
+import signal
+import subprocess
+from os import path
+rootdir = path.join(os.path.dirname(__file__), '..', 'root')
+cache = None
+
+def cleanup(rootdir):
+    if path.exists(rootdir):
+        print 'Cleaning old test output dir...'
+        print '-' * 70
+        shutil.rmtree(rootdir)
+    os.mkdir(rootdir)
+    os.mkdir(rootdir + '/cache')
+    os.mkdir(rootdir + '/pid')
+
+def startCache():
+    global cache # pylint: disable=W0603
+    print 'Starting test cache server...'
+
+    # start the cache server
+    os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..', 'lib')
+    cache = subprocess.Popen([sys.executable, path.join(rootdir, '..', 'cache.py')])
+
+    print 'Cache PID = %s' % cache.pid
+    print '-' * 70
+
+def killCache():
+    print '-' * 70
+    print 'Killing cache server...' , cache.pid
+    if cache.poll() is None:
+        cache.terminate()
+        cache.wait()
+    print '-' * 70
+
+def setupPackage():
+    cleanup(rootdir)
+    startCache()
+    print 'Running NICOS test suite...'
+    print '-' * 70
 
 
-try:
-    nose.main()
-finally:
+def teardownPackage():
     # kill the cache server
-    pass
+    killCache()

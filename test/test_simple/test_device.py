@@ -37,7 +37,6 @@ from test.utils import raises
 methods_called = set()
 
 def setup_module():
-    global axis
     session.loadSetup('device')
     methods_called.clear()
 
@@ -60,7 +59,7 @@ class Dev2(HasLimits, HasOffset, Moveable):
 
     def doInit(self):
         if self.failinit:
-            1/0
+            1/0 # pylint: disable=W0104
         self._val = 0
         methods_called.add('doInit')
 

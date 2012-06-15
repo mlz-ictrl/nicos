@@ -36,7 +36,8 @@ from nicos.core.params import Param, Override, Value, tupleof, floatrange, \
      anytype, none_or
 from nicos.core.errors import NicosError, ConfigurationError, \
      ProgrammingError, UsageError, LimitError, ModeError, \
-     CommunicationError, CacheLockError, InvalidValueError, AccessError
+     CommunicationError, CacheLockError, InvalidValueError, AccessError, \
+     CacheError
 from nicos.utils import loggers, getVersions, parseDateString
 
 
@@ -214,7 +215,7 @@ class DeviceMeta(type):
 
         return newtype
 
-    def __instancecheck__(cls, inst):
+    def __instancecheck__(cls, inst): # pylint: disable=C0203
         from nicos.generic import DeviceProxy
         if inst.__class__ == DeviceProxy and inst._initialized:
             return isinstance(inst._obj, cls)
@@ -778,7 +779,10 @@ class Readable(Device):
         if maxage == 0:
             val = None
         elif maxage is not None:
-            time, ttl, val = self._cache.get_explicit(self, name)
+            try:
+                time, ttl, val = self._cache.get_explicit(self, name)
+            except CacheError:
+                val = None
             if val is not None and \
                 time + min(maxage, ttl or 3600) < currenttime():
                 val = None
@@ -1306,7 +1310,7 @@ class HasLimits(Moveable):
         """Adjust the user limits to the given offset.
 
         Used by the HasOffset mixin class to adjust the offset. *value* is the
-	offset value, *diff* the offset difference.
+        offset value, *diff* the offset difference.
         """
         limits = self.userlimits
         self._new_offset = value

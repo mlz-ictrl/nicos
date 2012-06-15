@@ -36,7 +36,7 @@ import threading
 from time import sleep, time as currenttime
 
 from nicos import session
-from nicos.core import Device, Param, CacheLockError
+from nicos.core import Device, Param, CacheLockError, CacheError
 from nicos.utils import closeSocket
 from nicos.cache.utils import msg_pattern, line_pattern, cache_load, cache_dump, \
      DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, \
@@ -101,7 +101,7 @@ class BaseCacheClient(Device):
             self._socket.connect(self._address)
             self._connect_action()
         except Exception, err:
-            self._disconnect('unable to connect to %s:%s: %s' %
+            self._disconnect('unable to connect primary socket to %s:%s: %s' %
                              (self._address + (err,)))
         else:
             self.log.info('now connected to %s:%s' % self._address)
@@ -109,6 +109,7 @@ class BaseCacheClient(Device):
         self._do_callbacks = True
 
     def _disconnect(self, why=''):
+        self._startup_done.clear()
         if not self._socket:
             return
         if why:
@@ -122,7 +123,7 @@ class BaseCacheClient(Device):
                 self._secsocket = None
 
     def _wait_retry(self):
-        sleep(5)
+        sleep(1)
 
     def _wait_data(self):
         pass
@@ -253,10 +254,13 @@ class BaseCacheClient(Device):
     def _single_request(self, tosend, sentinel='\r\n', retry=2, sync=True):
         """Communicate over the secondary socket."""
         self._startup_done.wait()
+        if not self._socket:
+            self._disconnect('single request: no socket')
+            self._startup_done.wait()
+            if not self._socket:
+                raise CacheError('cache not connected')
         if sync:  # sync has to be false for lock requests, as these occur during startup
             self._queue.join()
-        if not self._socket:
-            return
         with self._sec_lock:
             if not self._secsocket:
                 try:
@@ -264,10 +268,11 @@ class BaseCacheClient(Device):
                                                     socket.SOCK_STREAM)
                     self._secsocket.connect(self._address)
                 except Exception, err:
-                    self.log.warning('unable to connect to %s:%s: %s' %
+                    self.log.warning('unable to connect secondary socket to %s:%s: %s' %
                                       (self._address + (err,)))
                     self._secsocket = None
-                    return
+                    self._disconnect('secondary socket: could not connect')
+                    raise CacheError('secondary socket could not be created')
 
         try:
             with self._sec_lock:
@@ -283,7 +288,7 @@ class BaseCacheClient(Device):
             # retry?
             if retry:
                 self._secsocket = None
-                for m in self._single_request(tosend, sentinel, retry-1):
+                for m in self._single_request(tosend, sentinel, retry - 1):
                     yield m
                 return
             raise

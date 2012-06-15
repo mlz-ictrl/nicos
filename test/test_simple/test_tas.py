@@ -33,4 +33,4 @@ def teardown_module():
 
 
 def test_tas():
-    tas = session.getDevice('Tas')
+    tas = session.getDevice('Tas') #pylint: disable=W0612

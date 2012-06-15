@@ -18,27 +18,33 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""NICOS core APIs and classes."""
+"""NICOS cache tests."""
 
-__version__ = "$Revision$"
+from nicos import session
+from time import sleep
 
-from nicos.core import status
-from nicos.core.errors import NicosError, ProgrammingError, \
-     ConfigurationError, UsageError, InvalidValueError, ModeError, \
-     PositionError, MoveError, LimitError, CommunicationError, \
-     HardwareError, TimeoutError, ComputationError, \
-     CacheLockError, AccessError, CacheError
-from nicos.core.device import Device, AutoDevice, Readable, Moveable, \
-     HasLimits, HasOffset, HasPrecision, Measurable, usermethod, \
-     requires
-from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \
-     listof, nonemptylistof, tupleof, dictof, tacodev, anytype, \
-     vec3, intrange, floatrange, oneof, oneofdict, none_or, \
-     control_path_relative
-from nicos.core.data import Dataset, DataSink, NeedsDatapath
-from nicos.core.utils import multiStatus, waitForStatus, formatStatus, \
-     GUEST, USER, ADMIN, ACCESS_LEVELS
+def setup_module():
+    session.loadSetup('cachetests')
+    session.setMode('master')
+
+def teardown_module():
+    session.unloadSetup()
+
+
+def test_01write():
+    cc = session.cache
+    testval = 'test1'
+    key = 'value'
+    cc.put('testcache', key, testval)
+    cachedval_local = cc.get('testcache', key, None)
+    cachedval = cc.get_explicit('testcache', key, None)
+    sleep(5)
+    cachedval2 = cc.get_explicit('testcache', key, None)
+
+    assert cachedval_local == testval
+    assert cachedval[2] == testval
+    assert cachedval2[2] == testval

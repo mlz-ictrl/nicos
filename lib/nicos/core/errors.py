@@ -155,3 +155,7 @@ class CacheLockError(NicosError):
     def __init__(self, locked_by):
         self.locked_by = locked_by
         NicosError.__init__(self, 'locked by ' + locked_by)
+
+class CacheError(NicosError):
+    """Exception raised on cache connection errors."""
+    category = 'Cannot connect to cache server'
