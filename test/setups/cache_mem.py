@@ -22,29 +22,14 @@
 #
 # *****************************************************************************
 
-"""NICOS cache tests."""
+name = 'cache setup'
 
-from nicos import session
-from time import sleep
+devices = dict(
+    Server = device('nicos.cache.server.CacheServer',
+                    server = 'localhost:14877',
+                    db = 'DB2',
+                    loglevel='debug'),
 
-def setup_module():
-    session.loadSetup('cachetests')
-    session.setMode('master')
-
-def teardown_module():
-    session.unloadSetup()
-
-
-def test_01write():
-    cc = session.cache
-    testval = 'test1'
-    key = 'value'
-    cc.put('testcache', key, testval)
-    cachedval_local = cc.get('testcache', key, None)
-    cachedval = cc.get_explicit('testcache', key, None)
-    sleep(5)
-    cachedval2 = cc.get_explicit('testcache', key, None)
-
-    assert cachedval_local == testval
-    assert cachedval[2] == testval
-    assert cachedval2[2] == testval
+    DB2 = device('nicos.cache.server.MemoryCacheDatabase',
+                 loglevel = 'debug'),
+)

@@ -32,6 +32,7 @@ import sys
 import shutil
 import subprocess
 from os import path
+from time import sleep
 
 from nose.tools import assert_raises
 
@@ -155,14 +156,14 @@ def cleanup():
     os.mkdir(rootdir + '/cache')
     os.mkdir(rootdir + '/pid')
 
-def startCache():
+def startCache(setup='cache'):
     global cache # pylint: disable=W0603
     print 'Starting test cache server...'
 
     # start the cache server
     os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..', 'lib')
     cache = subprocess.Popen([sys.executable,
-                              path.join(rootdir, '..', 'cache.py')])
+                              path.join(rootdir, '..', 'cache.py'), setup])
 
     print 'Cache PID = %s' % cache.pid
     print '-' * 70
@@ -174,4 +175,5 @@ def killCache(cache):
     if cache.poll() is None:
         cache.terminate()
         cache.wait()
+        sleep(1)
     print '-' * 70

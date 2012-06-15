@@ -28,6 +28,7 @@ __version__ = "$Revision$"
 
 import logging
 from os import path
+import sys
 
 from nicos.utils import loggers
 from nicos.sessions.simple import NoninteractiveSession
@@ -60,5 +61,9 @@ NoninteractiveSession.config.user = None
 NoninteractiveSession.config.group = None
 NoninteractiveSession.config.control_path = \
     path.join(path.dirname(__file__), 'root')
+try:
+    setup = sys.argv[1]
+except IndexError:
+    setup = 'cache'
 
-TestCacheSession.run('cache', 'Server')
+TestCacheSession.run(setup, 'Server')

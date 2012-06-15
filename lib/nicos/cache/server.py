@@ -147,9 +147,11 @@ import socket
 import threading
 from os import path
 from time import time as currenttime, sleep, localtime, mktime
+from collections import deque
+
 
 from nicos import session
-from nicos.core import Device, Param, ConfigurationError
+from nicos.core import Device, Param, ConfigurationError, intrange
 from nicos.utils import loggers, closeSocket, ensureDirectory
 from nicos.cache.utils import msg_pattern, line_pattern, DEFAULT_CACHE_PORT, \
      OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, OP_TELLOLD, OP_LOCK, Entry, \
@@ -544,6 +546,110 @@ class MemoryCacheDatabase(CacheDatabase):
                     send_update = False
             # never cache more than a single entry, memory fills up too fast
             entries[:] = [Entry(time, ttl, value)]
+        if send_update:
+            for client in self._server._connected.values():
+                if client is not from_client and client.is_active():
+                    client.update(key, OP_TELL, value, time, ttl)
+
+
+class MemoryCacheDatabaseWithHistory(CacheDatabase):
+    """
+    Central database of cache values, keeps everything in memory.
+    """
+    parameters = {
+        'maxentries': Param('Maximum history length',
+                            type=intrange(0, 100), default=10, settable=False),
+    }
+
+    def doInit(self):
+        self._db = {}
+        self._db_lock = threading.Lock()
+        CacheDatabase.doInit(self)
+
+    def ask(self, key, ts, time, ttl):
+        with self._db_lock:
+            if key not in self._db:
+                return [key + OP_TELLOLD + '\r\n']
+            lastent = self._db[key][-1]
+        # check for already removed keys
+        if lastent.value is None:
+            return [key + OP_TELLOLD + '\r\n']
+        # check for expired keys
+        if lastent.ttl:
+            remaining = lastent.time + lastent.ttl - currenttime()
+            op = remaining > 0 and OP_TELL or OP_TELLOLD
+            if ts:
+                return ['%s+%s@%s%s%s\r\n' % (lastent.time, lastent.ttl,
+                                              key, op, lastent.value)]
+            else:
+                return [key + op + lastent.value]
+        if ts:
+            return ['%s@%s%s%s\r\n' % (lastent.time, key,
+                                       OP_TELL, lastent.value)]
+        else:
+            return [key + OP_TELL + lastent.value + '\r\n']
+
+    def ask_wc(self, key, ts, time, ttl):
+        ret = set()
+        with self._db_lock:
+            # look for matching keys
+            for dbkey, entries in self._db.iteritems():
+                if key not in dbkey:
+                    continue
+                lastent = entries[-1]
+                # check for removed keys
+                if lastent.value is None:
+                    continue
+                # check for expired keys
+                if lastent.ttl:
+                    remaining = lastent.time + lastent.ttl - currenttime()
+                    op = remaining > 0 and OP_TELL or OP_TELLOLD
+                    if ts:
+                        ret.add('%s+%s@%s%s%s\r\n' % (lastent.time, lastent.ttl,
+                                                      dbkey, op, lastent.value))
+                    else:
+                        ret.add(dbkey + op + lastent.value + '\r\n')
+                elif ts:
+                    ret.add('%s@%s%s%s\r\n' % (lastent.time, dbkey,
+                                               OP_TELL, lastent.value))
+                else:
+                    ret.add(dbkey + OP_TELL + lastent.value + '\r\n')
+        return ret
+
+    def ask_hist(self, key, fromtime, totime):
+        if fromtime > totime:
+            return []
+        ret = []
+        # return the first value before the range too
+        inrange = False
+        try:
+            entries = self._db[key]
+            for entry in entries:
+                if fromtime <= entry.time <= totime:
+                    ret.append('%s@%s=%s\r\n' % (entry.time, key, entry.value))
+                    inrange = True
+                elif not inrange and entry.value:
+                    ret = ['%s@%s=%s\r\n' % (entry.time, key, entry.value)]
+        except Exception:
+            self.log.exception('error reading store for history query')
+        if not inrange:
+            return []
+        return ret
+
+    def tell(self, key, value, time, ttl, from_client):
+        if value is None:
+            # deletes cannot have a TTL
+            ttl = None
+        send_update = True
+        with self._db_lock:
+            entries = self._db.setdefault(key, deque([Entry(None, None, None)],
+                                                     self.maxentries))
+            if entries:
+                lastent = entries[-1]
+                if lastent.value == value and not lastent.ttl:
+                    # not a real update
+                    send_update = False
+                entries.append(Entry(time, ttl, value))
         if send_update:
             for client in self._server._connected.values():
                 if client is not from_client and client.is_active():

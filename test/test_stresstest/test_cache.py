@@ -39,7 +39,28 @@ def teardown_module():
     session.unloadSetup()
 
 
-def test_02write_with_dead_cache():
+def basicCacheTest(setup):
+    killCache(test_stresstest.cache)
+    test_stresstest.cache = startCache(setup)
+    sleep(2)
+    cc = session.cache
+    testval = 'test1'
+    key = 'value'
+    cc.put('testcache', key, testval)
+    cachedval_local = cc.get('testcache', key, None)
+    cachedval = cc.get_explicit('testcache', key, None)
+    sleep(5)
+    cachedval2 = cc.get_explicit('testcache', key, None)
+
+    print cachedval, cachedval2
+    assert cachedval_local == testval
+    assert cachedval[2] == testval
+    assert cachedval2[2] == testval
+
+def restartServerCacheTest(setup):
+    killCache(test_stresstest.cache)
+    test_stresstest.cache = startCache(setup)
+    sleep(2)
     cc = session.cache
     testval = 'test2'
     key = 'value'
@@ -48,7 +69,7 @@ def test_02write_with_dead_cache():
     cachedval_local = cc.get('testcache', key, None)
     assert raises(CacheError, cc.get_explicit,  'testcache', key, None)
     sleep(5)
-    test_stresstest.cache = startCache()
+    test_stresstest.cache = startCache(setup)
     sleep(1)
     cachedval2 = cc.get_explicit('testcache', key, None)
 
@@ -56,3 +77,8 @@ def test_02write_with_dead_cache():
     assert cachedval_local == testval
     assert cachedval2[2] == testval
 
+
+def test_03test_dbs():
+    for setup in ['cache', 'cache_mem', 'cache_mem_hist']:
+        for func in [basicCacheTest, restartServerCacheTest]:
+            yield func, setup
