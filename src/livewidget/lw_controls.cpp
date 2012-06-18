@@ -589,5 +589,7 @@ void LWProfileWindow::update(LWData *data, double *px, double *py, int w, int b)
     }
     delete[] straight;
     curve->setData(QwtCPointerData(data_x, data_y, nbins));
+    plot->setAxisAutoScale(QwtPlot::xBottom);
+    plot->setAxisAutoScale(QwtPlot::yLeft);
     zoomer->setZoomBase(true);
 }
