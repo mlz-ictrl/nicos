@@ -41,7 +41,7 @@ class TofCounter(Measurable):
 
     parameters = {
         'timechannels':   Param('Number of time channels per detector channel',
-                                type=intrange(1, 1025), settable=True,
+                                type=intrange(1, 4097), settable=True,
                                 default=1024, volatile=True,),
         'timeinterval':   Param('Time interval between pulses', type=float,
                                 settable=True, volatile=True,),
