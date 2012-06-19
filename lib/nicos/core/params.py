@@ -310,10 +310,10 @@ def vec3(val=None):
 def intrange(fr, to):
     def converter(val=fr):
         val = int(val)
-        if not fr <= val < to:
-            raise ValueError('value needs to fulfill %d <= x < %d' % (fr, to))
+        if not fr <= val <= to:
+            raise ValueError('value needs to fulfill %d <= x <= %d' % (fr, to))
         return val
-    converter.__doc__ = 'an integer in the range [%d, %d)' % (fr, to)
+    converter.__doc__ = 'an integer in the range [%d, %d]' % (fr, to)
     return converter
 
 def floatrange(fr, to):
