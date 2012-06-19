@@ -308,9 +308,10 @@ class TofTofMeasurement(Measurable, ImageStorage):
         devname = key.split('/')[0]
         if devname not in self._devicelogs:
             return  # shouldn't happen
-        self._devicelogs[devname].write(
+        if value :  # Sometimes it happens that there is no value coming from the cache
+            self._devicelogs[devname].write(
             '%10.2f  %s\n' % (time - self._logstarttime, value))
-        self._devicelogs[devname].flush()
+            self._devicelogs[devname].flush()
 
     def _closeDeviceLogs(self):
         # first clear the dictionary, then close files, so that the callback
