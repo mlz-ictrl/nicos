@@ -308,9 +308,9 @@ class TofTofMeasurement(Measurable, ImageStorage):
         devname = key.split('/')[0]
         if devname not in self._devicelogs:
             return  # shouldn't happen
-        if value :  # Sometimes it happens that there is no value coming from the cache
+        if value is not None:  # ignore expiration messages
             self._devicelogs[devname].write(
-            '%10.2f  %s\n' % (time - self._logstarttime, value))
+                '%10.2f  %s\n' % (time - self._logstarttime, value))
             self._devicelogs[devname].flush()
 
     def _closeDeviceLogs(self):
