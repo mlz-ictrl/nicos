@@ -310,6 +310,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
             return  # shouldn't happen
         self._devicelogs[devname].write(
             '%10.2f  %s\n' % (time - self._logstarttime, value))
+        self._devicelogs[devname].flush()
 
     def _closeDeviceLogs(self):
         # first clear the dictionary, then close files, so that the callback
