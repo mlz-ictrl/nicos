@@ -44,7 +44,7 @@ class Julabo(TacoDevice, HasLimits, Moveable):
                                  type=oneof('JulaboF32HD', 'HaakeDC50'),
                                  default='JulaboF32HD'),
         'intern_extern': Param('internal(0) or external(1) temperature sensor',
-                                type=intrange(0, 2), default=1),
+                                type=intrange(0, 1), default=1),
         'setpoint':  Param('setpoint', unit='main', type=float),
         'tolerance': Param('tolerance', unit='main', type=float, default=0.2,
                            settable=True),

@@ -62,7 +62,7 @@ def test_param_converters():
     assert raises(ValueError, vec3, [1, 0])
     assert raises(ValueError, vec3, ['x', 'y', 'z'])
 
-    assert intrange(0, 10)(5) == 5
+    assert intrange(0, 10)(10) == 10
     assert intrange(1, 3)() == 1
     assert raises(ValueError, intrange(0, 10), 15)
     assert raises(ValueError, intrange(0, 10), 'x')

@@ -55,7 +55,7 @@ class Amplifier(Measurable, TacoDevice):
                            settable=True, category='general'),
         'timeconstant': Param('Time constant of the low pass filter', type=int,
                               settable=True, category='general', unit='us'),
-        'reserve':      Param('Dynamic reserve', type=intrange(0, 6),
+        'reserve':      Param('Dynamic reserve', type=intrange(0, 5),
                               settable=True, category='general'),
         'measurements': Param('Number of measurements to average over',
                               type=int, default=100, settable=True),

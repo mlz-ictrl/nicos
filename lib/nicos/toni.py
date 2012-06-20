@@ -99,7 +99,7 @@ class Valve(Moveable):
     parameters = {
         'addr':     Param('Bus address of the valve control', type=int,
                           mandatory=True),
-        'channel':  Param('Channel of the valve', type=intrange(0, 8),
+        'channel':  Param('Channel of the valve', type=intrange(0, 7),
                           mandatory=True),
         'states':   Param('Names for the closed/open states', type=listof(str),
                           default=['off', 'on']),
@@ -171,7 +171,7 @@ class Ratemeter(Readable):
     }
 
     parameters = {
-        'addr': Param('Bus address of crate', type=intrange(0xf0, 0x100),
+        'addr': Param('Bus address of crate', type=intrange(0xF0, 0xFF),
                       mandatory=True),
     }
 
@@ -207,11 +207,11 @@ class Vacuum(Readable):
 
     parameters = {
         'addr':    Param('Bus address of the valve control',
-                         type=intrange(0xF0, 0x100), mandatory=True),
+                         type=intrange(0xF0, 0xFF), mandatory=True),
         'channel': Param('Channel of the vacuum gauge',
-                         type=intrange(0, 4), mandatory=True),
+                         type=intrange(0, 3), mandatory=True),
         'power' :  Param('True if the readout is switched on',
-                         type=intrange(0, 2), default=0, settable=True),
+                         type=intrange(0, 1), default=0, settable=True),
     }
 
     parameter_overrides = {
@@ -289,7 +289,7 @@ class LVPower(Moveable):
 
     parameters = {
         'addr':  Param('Bus address of the supply controller',
-                       type=intrange(0xf0, 0x100), mandatory=True),
+                       type=intrange(0xF0, 0xFF), mandatory=True),
     }
 
     parameter_overrides = {
@@ -323,7 +323,7 @@ class DelayBox(Moveable):
 
     parameters = {
         'addr':  Param('Bus address of the supply controller',
-                       type=intrange(0xf0, 0x100), mandatory=True),
+                       type=intrange(0xF0, 0xFF), mandatory=True),
     }
 
     parameter_overrides = {

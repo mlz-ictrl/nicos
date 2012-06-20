@@ -104,7 +104,7 @@ class RadialCollimator(Moveable):
 
     parameters = {
         'address':     Param('Address of the motor',
-                             type=intrange(1, 17), default=7),
+                             type=intrange(1, 16), default=7),
         'start_angle': Param('Start angle of oscillation',
                              type=float, default=1.0),
         'stop_angle':  Param('Stop angle of oscillation',

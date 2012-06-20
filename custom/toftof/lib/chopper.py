@@ -45,7 +45,7 @@ class Controller(TacoDevice, Readable):
     parameters = {
         'ch5_90deg_offset': Param('Whether chopper 5 is mounted the right way '
                                   '(= 0) or with 90deg offset (= 1)',
-                                  type=intrange(0, 2), mandatory=True),
+                                  type=intrange(0, 1), mandatory=True),
         'phase_accuracy': Param('Required accuracy of the chopper phases',
                                 settable=True, default=10), # XXX unit?
         'speed_accuracy': Param('Required accuracy of the chopper speeds',

@@ -42,9 +42,9 @@ class IsegHV(TacoDevice, HasLimits, Moveable):
 
     parameters = {
         'channel':  Param('Channel of the Iseg HV (1 = A, 2 = B)',
-                          type=intrange(1, 3), mandatory=True),
+                          type=intrange(1, 2), mandatory=True),
         'ramp':     Param('Voltage ramp', unit='main/s',
-                          type=intrange(1, 256), settable=True),
+                          type=intrange(1, 255), settable=True),
     }
 
     parameter_overrides = {

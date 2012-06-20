@@ -56,7 +56,7 @@ class MCC2Coder(NicosCoder):
         'channel'       : Param(' Channel of MCC2 to use (X or Y)',
                             type=oneof('X', 'Y'), default='Y'),
         'addr'          : Param(' address of MCC2 to use (0 to 15)',
-                            type=intrange(0, 16), default=0),
+                            type=intrange(0, 15), default=0),
         'slope'         : Param('coder units per degree of rotation',
                             type=float, default=1),
         'zerosteps'     : Param('coder steps at physical zero',
@@ -64,7 +64,7 @@ class MCC2Coder(NicosCoder):
         'codertype'     : Param('type of encoder',
                             type=oneof('none', 'incremental', 'ssi-binary', 'ssi-gray'), default='none'),
         'coderbits'     : Param('number of bits of ssi-encoder',
-                            type=intrange(0, 32), default=0),
+                            type=intrange(0, 31), default=0),
     }
     codertypes = ('none', 'incremental', 'ssi-binary', 'ssi-gray')
     @property   # XXX maybe lazy_property ???
@@ -121,7 +121,7 @@ class MCC2Motor(NicosMotor):
         'channel'       : Param(' Channel of MCC2 to use (X or Y)',
                             type=oneof('X', 'Y'), default='Y'),
         'addr'          : Param(' address of MCC2 to use (0 to 15)',
-                            type=intrange(0, 16), default=0),
+                            type=intrange(0, 15), default=0),
         'slope'         : Param('Full motor steps per physical unit',
                             type=float, default=1),
         'power'         : Param('Internal power stage switch', default='on',
@@ -134,7 +134,7 @@ class MCC2Motor(NicosMotor):
         'accel'         : Param('Motor acceleration in physical units', settable=True,
                             type=float),
         'microstep'     : Param('Microstepping mode', unit='steps', settable=True,
-                            type=intrange(1, 257)),
+                            type=intrange(1, 255)),
         'idlecurrent'   : Param('Current whenever Motor is Idle', unit='A', settable=True,
                             type=floatrange(0, 2.5)),
         'rampcurrent'   : Param('Current whenever Motor is Ramping', unit='A', settable=True,

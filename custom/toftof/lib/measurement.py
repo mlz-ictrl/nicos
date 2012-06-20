@@ -57,7 +57,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         'delay':            Param('Additional chopper delay', type=float,
                                   settable=True, default=0),
         'timechannels':     Param('Number of time channels', default=1024,
-                                  type=intrange(1, 4097), settable=True),
+                                  type=intrange(1, 4096), settable=True),
         'timeinterval':     Param('Time interval between pulses, or zero to '
                                   'auto-select', type=float, settable=True),
         'detinfofile':      Param('Path to the detector-info file',

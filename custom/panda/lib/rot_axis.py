@@ -28,7 +28,7 @@ __version__ = "$Revision$"
 
 #~ from time import sleep, time as currenttime
 
-from nicos.core import status, intrange, oneof, anytype, Device, Param, \
+from nicos.core import status, oneof, anytype, Device, Param, \
      Readable, Moveable, NicosError, ProgrammingError, TimeoutError, usermethod, none_or
 #~ from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.generic.axis import Axis

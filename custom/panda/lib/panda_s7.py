@@ -102,7 +102,7 @@ class S7Motor(NicosMotor):
     """Class for the control of the S7-Motor moving mtt."""
     parameters = {
         'timeout'   : Param('Timeout in seconds for moving the motor or getting'
-                            ' a reaction', type=intrange(1, 3601), default=360),
+                            ' a reaction', type=intrange(1, 3600), default=360),
         'sign'      : Param('Sign of moving direction value',
                             type=oneof(-1.0, 1.0), default=-1.0),
         'precision' : Param('Precision of the device value',
