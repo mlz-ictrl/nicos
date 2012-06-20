@@ -18,7 +18,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -45,21 +45,6 @@ def test_01write():
     sleep(5)
     cachedval2 = cc.get_explicit('testcache', key, None)
 
-    assert cachedval_local == testval
-    assert cachedval[2] == testval
-    assert cachedval2[2] == testval
-
-def test_01write():
-    cc = session.cache
-    testval = 'test1'
-    key = 'value'
-    cc.put('testcache', key, testval)
-    cachedval_local = cc.get('testcache', key, None)
-    cachedval = cc.get_explicit('testcache', key, None)
-    sleep(5)
-    cachedval2 = cc.get_explicit('testcache', key, None)
-
-    print cachedval, cachedval2
     assert cachedval_local == testval
     assert cachedval[2] == testval
     assert cachedval2[2] == testval

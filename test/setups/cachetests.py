@@ -18,11 +18,11 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Tobias Weber <tobias.weber@frm2.tum.de>
+#   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
 
-name = 'test system setup'
+name = 'setup for cache tests'
 
 sysconfig = dict(
     cache = 'localhost:14877',
@@ -30,9 +30,6 @@ sysconfig = dict(
     loglevel = 'debug',
 )
 
-
-
 devices = dict(
     testsink = device('test.utils.TestSink'),
-
 )
