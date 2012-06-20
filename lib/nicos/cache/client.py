@@ -246,15 +246,14 @@ class BaseCacheClient(Device):
             if sent == 0:
                 self._disconnect('disconnect: send failed')
                 return False
-            totalsent = totalsent + sent
+            totalsent += sent
         sleep(0.05) # give server a chance
         return True
-
 
     def _single_request(self, tosend, sentinel='\r\n', retry=2, sync=True):
         """Communicate over the secondary socket."""
         self._startup_done.wait()
-        if sync:  # sync has to be false for lock request, as these occur during startup
+        if sync:  # sync has to be false for lock requests, as these occur during startup
             self._queue.join()
         if not self._socket:
             return
@@ -275,8 +274,10 @@ class BaseCacheClient(Device):
             self._secsocket.sendall(tosend)
 
             # read response
-            # do not hold a lock while recv ! (see:http://docs.python.org/howto/sockets.html#when-sockets-die)
-            # it will cause a very long and nasty hang while waiting for the socket to time-out
+            # do not hold a lock during recv
+            # (see http://docs.python.org/howto/sockets.html#when-sockets-die);
+            # it will cause a very long and nasty hang while waiting for the
+            # socket to time-out
             data, n = '', 0
             while not data.endswith(sentinel) and n < 1000:
                 data += self._secsocket.recv(BUFSIZE)
@@ -511,7 +512,7 @@ class CacheClient(BaseCacheClient):
             unlock and '-' or '+', sessionid or session.sessionid)
         if ttl is not None:
             tosend = ('+%s@' % ttl) + tosend
-        for msgmatch in self._single_request(tosend,sync = False):
+        for msgmatch in self._single_request(tosend, sync=False):
             if msgmatch.group('value'):
                 raise CacheLockError(msgmatch.group('value'))
             return
