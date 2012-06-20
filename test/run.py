@@ -30,9 +30,4 @@ except ImportError:
     print 'The "nose" package is required to run this test suite.'
     sys.exit(1)
 
-
-try:
-    nose.main()
-finally:
-    # kill the cache server
-    pass
+nose.main()
