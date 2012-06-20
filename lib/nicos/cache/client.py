@@ -402,8 +402,6 @@ class CacheClient(BaseCacheClient):
         """Get a value from the cache server, bypassing the local cache.  This
         is needed if the current update time and ttl is required.
         """
-        self._startup_done.wait()
-        self._queue.join()
         if dev:
             key = ('%s/%s' % (dev, key)).lower()
         tosend = '@%s%s%s\r\n' % (self._prefix, key, OP_ASK)
