@@ -19,18 +19,22 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
 
-cache = None
+from test.utils import raises
+from test.scriptSessionTest import ScriptSessionTest
 
-from test.utils import cleanup, startCache, killCache
 
-def setupPackage():
-    global cache
-    cleanup()
-    cache = startCache()
+def test_simple():
+    code = 'print "Test"'
+    setup = 'startup'
+    session = ScriptSessionTest('TestScriptSession')
+    session.run(setup, code)
 
-def teardownPackage():
-    killCache(cache)
+def test_raise_simple():
+    code = 'raise Exception("testing")'
+    setup = 'startup'
+    session = ScriptSessionTest('TestScriptSession')
+    assert raises(Exception, session.run, setup, code)

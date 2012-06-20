@@ -26,10 +26,18 @@
 
 __version__ = "$Revision$"
 
+import os
 import re
+import sys
+import shutil
+import subprocess
+from os import path
+
 from nose.tools import assert_raises
 
 from nicos.core import Moveable, HasLimits, DataSink, status
+
+rootdir = path.join(os.path.dirname(__file__), 'root')
 
 
 def raises(exc, *args, **kwds):
@@ -136,3 +144,34 @@ class TestSink(DataSink):
 
     def endDataset(self, dataset):
         self._calls.append('endDataset')
+
+
+def cleanup():
+    if path.exists(rootdir):
+        print 'Cleaning old test output dir...'
+        print '-' * 70
+        shutil.rmtree(rootdir)
+    os.mkdir(rootdir)
+    os.mkdir(rootdir + '/cache')
+    os.mkdir(rootdir + '/pid')
+
+def startCache():
+    global cache # pylint: disable=W0603
+    print 'Starting test cache server...'
+
+    # start the cache server
+    os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..', 'lib')
+    cache = subprocess.Popen([sys.executable,
+                              path.join(rootdir, '..', 'cache.py')])
+
+    print 'Cache PID = %s' % cache.pid
+    print '-' * 70
+    return cache
+
+def killCache(cache):
+    print '-' * 70
+    print 'Killing cache server...' , cache.pid
+    if cache.poll() is None:
+        cache.terminate()
+        cache.wait()
+    print '-' * 70

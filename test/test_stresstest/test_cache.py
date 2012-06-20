@@ -26,9 +26,10 @@
 
 from nicos import session
 from time import sleep
-from . import killCache, startCache
-from test.utils import raises
 from nicos.cache.client import CacheError
+
+from test.utils import raises, killCache, startCache
+from test import test_stresstest
 
 def setup_module():
     session.loadSetup('cachetests')
@@ -42,12 +43,12 @@ def test_02write_with_dead_cache():
     cc = session.cache
     testval = 'test2'
     key = 'value'
-    killCache()
+    killCache(test_stresstest.cache)
     cc.put('testcache', key, testval)
     cachedval_local = cc.get('testcache', key, None)
     assert raises(CacheError, cc.get_explicit,  'testcache', key, None)
     sleep(5)
-    startCache()
+    test_stresstest.cache = startCache()
     sleep(1)
     cachedval2 = cc.get_explicit('testcache', key, None)
 
