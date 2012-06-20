@@ -188,20 +188,18 @@ class BaseCacheClient(Device):
                 # optionally do some action while waiting
                 self._wait_data()
 
-                # determine if something needs to be sent
-                tosend = ''
-                writelist = [self._socket]
-                itemcount = 0
                 # try to read or write some data
-                res = select.select([self._socket], writelist, [],
+                res = select.select([self._socket], [self._socket], [],
                                     self._selecttimeout)
                 if res[1]:
+                    # determine if something needs to be sent
+                    tosend = ''
+                    itemcount = 0
                     try:
                         # bunch a few messages together, but not unlimited
                         for _ in range10:
                             tosend += self._queue.get(False)
                             itemcount += 1
-                            writelist = [self._socket]
                     except Queue.Empty:
                         pass
                     # write data
