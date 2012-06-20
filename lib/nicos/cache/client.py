@@ -270,18 +270,15 @@ class BaseCacheClient(Device):
                     return
 
         try:
-            # write request
-            self._secsocket.sendall(tosend)
+            with self._sec_lock:
+                # write request
+                self._secsocket.sendall(tosend)
 
-            # read response
-            # do not hold a lock during recv
-            # (see http://docs.python.org/howto/sockets.html#when-sockets-die);
-            # it will cause a very long and nasty hang while waiting for the
-            # socket to time-out
-            data, n = '', 0
-            while not data.endswith(sentinel) and n < 1000:
-                data += self._secsocket.recv(BUFSIZE)
-                n += 1
+                # read response
+                data, n = '', 0
+                while not data.endswith(sentinel) and n < 1000:
+                    data += self._secsocket.recv(BUFSIZE)
+                    n += 1
         except socket.error:
             # retry?
             if retry:
