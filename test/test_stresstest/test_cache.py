@@ -48,6 +48,7 @@ def test_02write_with_dead_cache():
     assert raises(CacheError, cc.get_explicit,  'testcache', key, None)
     sleep(5)
     startCache()
+    sleep(1)
     cachedval2 = cc.get_explicit('testcache', key, None)
 
     print cachedval2
