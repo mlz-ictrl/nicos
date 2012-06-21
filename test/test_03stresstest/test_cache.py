@@ -29,7 +29,7 @@ from time import sleep
 from nicos.cache.client import CacheError
 
 from test.utils import raises, killCache, startCache
-from test import test_stresstest
+from test import test_03stresstest
 
 def setup_module():
     session.loadSetup('cachetests')
@@ -40,8 +40,8 @@ def teardown_module():
 
 
 def basicCacheTest(setup):
-    killCache(test_stresstest.cache)
-    test_stresstest.cache = startCache(setup)
+    killCache(test_03stresstest.cache)
+    test_03stresstest.cache = startCache(setup)
     sleep(2)
     cc = session.cache
     testval = 'test1'
@@ -58,18 +58,18 @@ def basicCacheTest(setup):
     assert cachedval2[2] == testval
 
 def restartServerCacheTest(setup):
-    killCache(test_stresstest.cache)
-    test_stresstest.cache = startCache(setup)
+    killCache(test_03stresstest.cache)
+    test_03stresstest.cache = startCache(setup)
     sleep(2)
     cc = session.cache
     testval = 'test2'
     key = 'value'
-    killCache(test_stresstest.cache)
+    killCache(test_03stresstest.cache)
     cc.put('testcache', key, testval)
     cachedval_local = cc.get('testcache', key, None)
     assert raises(CacheError, cc.get_explicit,  'testcache', key, None)
     sleep(5)
-    test_stresstest.cache = startCache(setup)
+    test_03stresstest.cache = startCache(setup)
     sleep(1)
     cachedval2 = cc.get_explicit('testcache', key, None)
 
