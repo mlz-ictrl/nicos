@@ -56,8 +56,8 @@ class LWControls : public QWidget
     double m_range_x[2];
     double m_range_y[2];
 
-    double m_histogram_x[256];
-    double m_histogram_y[256];
+    double m_histogram_x[257];
+    double m_histogram_y[257];
 
     double m_prof_x[2];
     double m_prof_y[2];
