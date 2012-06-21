@@ -256,11 +256,10 @@ void LWControls::dataUpdated(LWData *data)
     ctrSlider->setValue(256 * contrast);
     m_sliderupdating = false;
 
-    if (profWindow) {
+    if (profWindow)
         profWindow->update(m_widget->data(), m_prof_x, m_prof_y,
                            profileWidth->value(), profileBins->value(),
                            m_prof_type);
-    }
 }
 
 void LWControls::pickRange(const QwtDoubleRect &rect)
@@ -375,9 +374,8 @@ void LWControls::pickProfile()
 
 void LWControls::showProfWindow(const char *title)
 {
-    if (profWindow == NULL) {
+    if (profWindow == NULL)
         profWindow = new LWProfileWindow(this, m_widget);
-    }
     profWindow->update(m_widget->data(), m_prof_x, m_prof_y,
                        profileWidth->value(), profileBins->value(),
                        m_prof_type);
@@ -454,18 +452,16 @@ void LWControls::updateProfLineWidth(int w)
 void LWControls::updateProfWidth(int w)
 {
     updateProfLineWidth(w);
-    if (profWindow) {
+    if (profWindow)
         profWindow->update(m_widget->data(), m_prof_x, m_prof_y, w,
                            profileBins->value(), m_prof_type);
-    }
 }
 
 void LWControls::updateProfBins(int b)
 {
-    if (profWindow) {
+    if (profWindow)
         profWindow->update(m_widget->data(), m_prof_x, m_prof_y,
                            profileWidth->value(), b, m_prof_type);
-    }
 }
 
 void LWControls::setControls(LWCtrl which)

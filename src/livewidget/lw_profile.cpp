@@ -78,7 +78,8 @@ LWProfileWindow::LWProfileWindow(QWidget *parent, LWWidget *widget) :
     m_zoomer = new QwtPlotZoomer(m_plot->canvas());
     m_zoomer->setMousePattern(QwtPlotZoomer::MouseSelect3, Qt::NoButton);
     m_picker = new QwtPlotPicker(m_plot->canvas());
-    m_picker->setSelectionFlags(QwtPicker::PointSelection | QwtPicker::ClickSelection);
+    m_picker->setSelectionFlags(QwtPicker::PointSelection |
+                                QwtPicker::ClickSelection);
     m_picker->setMousePattern(QwtPicker::MouseSelect1, Qt::MiddleButton);
     QObject::connect(m_picker, SIGNAL(selected(const QwtDoublePoint &)),
                      this, SLOT(pickerSelected(const QwtDoublePoint &)));
@@ -96,7 +97,8 @@ LWProfileWindow::~LWProfileWindow()
 {
 }
 
-void LWProfileWindow::update(LWData *data, double *px, double *py, int w, int b, int type)
+void LWProfileWindow::update(LWData *data, double *px, double *py,
+                             int w, int b, int type)
 {
     if (m_data_x) {
         delete[] m_data_x;
@@ -126,6 +128,5 @@ void LWProfileWindow::update(LWData *data, double *px, double *py, int w, int b,
 
 void LWProfileWindow::pickerSelected(const QwtDoublePoint &point)
 {
-//    m_widget->emitProfilePointPicked(m_type, point.x(), point.y());
     emit m_widget->profilePointPicked(m_type, point.x(), point.y());
 }
