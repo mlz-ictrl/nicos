@@ -235,7 +235,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
     def show(self):
         QMainWindow.show(self)
-        if self.autoconnect:
+        if self.autoconnect and not self.client.connected:
             self.on_actionConnect_triggered(True)
 
     def loadSettings(self, settings):
@@ -533,6 +533,8 @@ def main(argv):
         cdata = parseConnectionData(argv[1])
         if cdata:
             mainwindow.setConnData(*cdata)
+            if len(argv) > 2:
+                mainwindow.client.connect(mainwindow.connectionData, argv[2])
     mainwindow.show()
 
     return app.exec_()
