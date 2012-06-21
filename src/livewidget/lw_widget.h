@@ -37,9 +37,12 @@ class LWWidget : public QWidget
 {
     Q_OBJECT
 
+    friend class LWProfileWindow;
+
   private:
     bool m_bForceReinit;
     int m_instr;
+    void *m_instr_data;
     void unload();
 
   protected:
@@ -79,6 +82,7 @@ class LWWidget : public QWidget
 
   signals:
     void dataUpdated(LWData *data);
+    void profilePointPicked(int type, double x, double y);
 };
 
 #endif

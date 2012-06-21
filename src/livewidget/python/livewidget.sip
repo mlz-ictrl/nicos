@@ -130,6 +130,7 @@ class LWWidget : QWidget
 
   signals:
     void dataUpdated(LWData *data);
+    void profilePointPicked(int type, double x, double y);
 };
 
 %UnitCode

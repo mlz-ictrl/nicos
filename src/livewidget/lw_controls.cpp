@@ -301,7 +301,8 @@ void LWControls::dataUpdated(LWData *data)
 
     if (profWindow) {
         profWindow->update(m_widget->data(), m_prof_x, m_prof_y,
-                           profileWidth->value(), profileBins->value());
+                           profileWidth->value(), profileBins->value(),
+                           m_prof_type);
     }
 }
 
@@ -418,10 +419,11 @@ void LWControls::pickProfile()
 void LWControls::showProfWindow(const char *title)
 {
     if (profWindow == NULL) {
-        profWindow = new LWProfileWindow(this);
+        profWindow = new LWProfileWindow(this, m_widget);
     }
     profWindow->update(m_widget->data(), m_prof_x, m_prof_y,
-                       profileWidth->value(), profileBins->value());
+                       profileWidth->value(), profileBins->value(),
+                       m_prof_type);
     profWindow->setWindowTitle(title);
     profWindow->show();
 }
@@ -438,6 +440,7 @@ void LWControls::createProfile(const QwtArray<QwtDoublePoint> &points)
     m_prof_y[0] = points[0].y();
     m_prof_x[1] = points[1].x();
     m_prof_y[1] = points[1].y();
+    m_prof_type = 2;
 
     profLine1->setVisible(true);
     profLine2->setVisible(true);
@@ -450,6 +453,7 @@ void LWControls::createYSum()
 {
     if (!m_widget->data())
         return;
+    m_prof_type = 1;
     m_prof_x[0] = 0;
     m_prof_x[1] = m_widget->data()->width();
     m_prof_y[0] = m_widget->data()->height() / 2;
@@ -462,6 +466,7 @@ void LWControls::createXSum()
 {
     if (!m_widget->data())
         return;
+    m_prof_type = 0;
     m_prof_y[0] = 0;
     m_prof_y[1] = m_widget->data()->height();
     m_prof_x[0] = m_widget->data()->width() / 2;
@@ -494,7 +499,7 @@ void LWControls::updateProfWidth(int w)
     updateProfLineWidth(w);
     if (profWindow) {
         profWindow->update(m_widget->data(), m_prof_x, m_prof_y, w,
-                           profileBins->value());
+                           profileBins->value(), m_prof_type);
     }
 }
 
@@ -502,7 +507,7 @@ void LWControls::updateProfBins(int b)
 {
     if (profWindow) {
         profWindow->update(m_widget->data(), m_prof_x, m_prof_y,
-                           profileWidth->value(), b);
+                           profileWidth->value(), b, m_prof_type);
     }
 }
 
@@ -545,21 +550,28 @@ void LWControls::setAxisNames(const char *xaxis, const char *yaxis)
 
 /** LWProfileWindow ***********************************************************/
 
-LWProfileWindow::LWProfileWindow(QWidget *parent) :
-    QMainWindow(parent), data_x(0), data_y(0)
+LWProfileWindow::LWProfileWindow(QWidget *parent, LWWidget *widget) :
+    QMainWindow(parent), m_data_x(0), m_data_y(0)
 {
-    plot = new QwtPlot(this);
-    curve = new QwtPlotCurve();
-    curve->setRenderHint(QwtPlotCurve::RenderAntialiased);
-    curve->attach(plot);
-    zoomer = new QwtPlotZoomer(plot->canvas());
-    setCentralWidget(plot);
+    m_widget = widget;
+    m_plot = new QwtPlot(this);
+    m_curve = new QwtPlotCurve();
+    m_curve->setRenderHint(QwtPlotCurve::RenderAntialiased);
+    m_curve->attach(m_plot);
+    m_zoomer = new QwtPlotZoomer(m_plot->canvas());
+    m_zoomer->setMousePattern(QwtPlotZoomer::MouseSelect3, Qt::NoButton);
+    m_picker = new QwtPlotPicker(m_plot->canvas());
+    m_picker->setSelectionFlags(QwtPicker::PointSelection | QwtPicker::ClickSelection);
+    m_picker->setMousePattern(QwtPicker::MouseSelect1, Qt::MiddleButton);
+    QObject::connect(m_picker, SIGNAL(selected(const QwtDoublePoint &)),
+                     this, SLOT(pickerSelected(const QwtDoublePoint &)));
+    setCentralWidget(m_plot);
     setContentsMargins(5, 5, 5, 5);
     QFont plotfont(font());
     plotfont.setPointSize(plotfont.pointSize() * 0.7);
-    plot->setAxisFont(QwtPlot::xBottom, plotfont);
-    plot->setAxisFont(QwtPlot::yLeft, plotfont);
-    plot->setCanvasBackground(Qt::white);
+    m_plot->setAxisFont(QwtPlot::xBottom, plotfont);
+    m_plot->setAxisFont(QwtPlot::yLeft, plotfont);
+    m_plot->setCanvasBackground(Qt::white);
     resize(800, 200);
 }
 
@@ -567,29 +579,36 @@ LWProfileWindow::~LWProfileWindow()
 {
 }
 
-void LWProfileWindow::update(LWData *data, double *px, double *py, int w, int b)
+void LWProfileWindow::update(LWData *data, double *px, double *py, int w, int b, int type)
 {
-    if (data_x) {
-        delete[] data_x;
-        data_x = 0;
-        delete[] data_y;
-        data_y = 0;
+    if (m_data_x) {
+        delete[] m_data_x;
+        m_data_x = 0;
+        delete[] m_data_y;
+        m_data_y = 0;
     }
     int len;
     double *straight = straightenLine(data, px[0], py[0], px[1], py[1], w, &len);
     int nbins = len / b;
-    data_x = new double[nbins];
-    data_y = new double[nbins];
+    m_data_x = new double[nbins];
+    m_data_y = new double[nbins];
     for (int i = 0; i < nbins; i++) {
-        data_x[i] = i*b;
-        data_y[i] = 0;
+        m_data_x[i] = i*b;
+        m_data_y[i] = 0;
         for (int j = 0; j < w; j++)
             for (int k = 0; k < b; k++)
-                data_y[i] += straight[len*j + (i*b + k)];
+                m_data_y[i] += straight[len*j + (i*b + k)];
     }
     delete[] straight;
-    curve->setData(QwtCPointerData(data_x, data_y, nbins));
-    plot->setAxisAutoScale(QwtPlot::xBottom);
-    plot->setAxisAutoScale(QwtPlot::yLeft);
-    zoomer->setZoomBase(true);
+    m_type = type;
+    m_curve->setData(QwtCPointerData(m_data_x, m_data_y, nbins));
+    m_plot->setAxisAutoScale(QwtPlot::xBottom);
+    m_plot->setAxisAutoScale(QwtPlot::yLeft);
+    m_zoomer->setZoomBase(true);
+}
+
+void LWProfileWindow::pickerSelected(const QwtDoublePoint &point)
+{
+//    m_widget->emitProfilePointPicked(m_type, point.x(), point.y());
+    emit m_widget->profilePointPicked(m_type, point.x(), point.y());
 }

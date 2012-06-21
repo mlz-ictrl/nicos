@@ -48,17 +48,23 @@ class LWProfileWindow : public QMainWindow
 {
     Q_OBJECT
 
-  protected:
-    QwtPlot *plot;
-    QwtPlotCurve *curve;
-    QwtPlotZoomer *zoomer;
-    double *data_x, *data_y;
+  private:
+    LWWidget *m_widget;
+    QwtPlot *m_plot;
+    QwtPlotCurve *m_curve;
+    QwtPlotZoomer *m_zoomer;
+    QwtPlotPicker *m_picker;
+    double *m_data_x, *m_data_y;
+    int m_type;
+
+  protected slots:
+    void pickerSelected(const QwtDoublePoint &point);
 
   public:
-    LWProfileWindow(QWidget *parent = NULL);
+    LWProfileWindow(QWidget *parent, LWWidget *widget);
     virtual ~LWProfileWindow();
 
-    void update(LWData *data, double *px, double *py, int width, int bins);
+    void update(LWData *data, double *px, double *py, int width, int bins, int type);
 };
 
 
@@ -82,6 +88,7 @@ class LWControls : public QWidget
 
     double m_prof_x[2];
     double m_prof_y[2];
+    int m_prof_type;
 
     void showProfWindow(const char *title);
 

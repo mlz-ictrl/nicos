@@ -86,8 +86,12 @@ class LiveDataPanel(Panel):
         self.connect(self.widget,
                      SIGNAL('customContextMenuRequested(const QPoint&)'),
                      self.on_widget_customContextMenuRequested)
+        self.connect(self.widget,
+                     SIGNAL('profilePointPicked(int, double, double)'),
+                     self.on_widget_profilePointPicked)
 
     def setSettings(self, settings):
+        self._instrument = settings.get('instrument', '')
         if 'instrument' in settings:
             self.widget.setInstrumentOption(settings['instrument'])
 
@@ -120,6 +124,11 @@ class LiveDataPanel(Panel):
 
     def on_widget_customContextMenuRequested(self, point):
         self.menu.popup(self.mapToGlobal(point))
+
+    def on_widget_profilePointPicked(self, type, x, y):
+        if self._instrument.lower() != 'toftof' or type != 0:
+            return
+        self.showInfo('Showing info for detector %d' % int(x))
 
     def on_client_connected(self):
         pass
