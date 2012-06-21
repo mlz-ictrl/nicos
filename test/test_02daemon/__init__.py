@@ -35,7 +35,7 @@ daemon = None
 
 def setup_package():
     cleanup()
-    global daemon
+    global daemon #pylint: disable=W0603
     os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..', 'lib')
     daemon = subprocess.Popen([sys.executable,
                                path.join(rootdir, '..', 'daemonTest.py')])
