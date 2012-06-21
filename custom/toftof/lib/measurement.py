@@ -87,12 +87,20 @@ class TofTofMeasurement(Measurable, ImageStorage):
             if not line.startswith('#'):
                 break
         self._detinfolength = len(self._detinfo) - i
-        dmap = {}
+        dmap = {}  # maps "Total" (ElNr) to 2theta
+        dinfo = [None]  # dinfo[EntryNr]
         for line in self._detinfo:
             if not line.startswith('#'):
                 ls = line.split()
                 if 'None' not in ls[13]:
                     dmap[int(ls[12])] = float(ls[5])
+                dinfo.append(
+                    map(int, ls[:5]) + [float(ls[5])] +
+                    map(int, ls[6:8]) + [float(ls[8])] +
+                    map(int, ls[9:13]) + [' '.join(ls[13:-2]).strip("'")] +
+                    map(int, ls[-2:])
+                )
+        self._detinfo_parsed = dinfo
         self._anglemap = tuple((i-1) for i in sorted(dmap, key=dmap.__getitem__))
         self._measuring = False
         self._devicelogs = {}

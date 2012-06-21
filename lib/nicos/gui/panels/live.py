@@ -30,8 +30,8 @@ __version__ = "$Revision$"
 
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
 from PyQt4.QtCore import pyqtSignature as qtsig
-from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, \
-     QMenu, QToolBar, QStatusBar, QSizePolicy, QListWidgetItem
+from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMainWindow, \
+     QMenu, QToolBar, QStatusBar, QSizePolicy, QListWidgetItem, QLabel
 
 from nicos.gui.utils import loadUi
 from nicos.gui.panels import Panel
@@ -128,7 +128,34 @@ class LiveDataPanel(Panel):
     def on_widget_profilePointPicked(self, type, x, y):
         if self._instrument.lower() != 'toftof' or type != 0:
             return
-        self.showInfo('Showing info for detector %d' % int(x))
+        if not hasattr(self, '_toftof_detinfo'):
+            info = self.client.eval('m._detinfo_parsed, m._anglemap', None)
+            if info is None:
+                return self.showError('Cannot retrieve detector info.')
+            self._toftof_detinfo, self._toftof_anglemap = info
+            self._toftof_inverse_anglemap = 0
+            self._toftof_infowindow = QMainWindow(self)
+            self._toftof_label = QLabel(self._toftof_infowindow)
+            self._toftof_infowindow.setCentralWidget(self._toftof_label)
+            self._toftof_infowindow.setContentsMargins(10, 10, 10, 10)
+        detnr = int(x - 0.5)
+        detentry = self._toftof_anglemap[detnr]
+        self._toftof_infowindow.show()
+        self._toftof_label.setTextFormat(Qt.RichText)
+        entrynames = ['EntryNr', 'Rack', 'Plate', 'Pos', 'RPos',
+                      '2Theta', 'CableNr', 'CableType', 'CableLen', 'CableEmpty',
+                      'Card', 'Chan', 'Total', 'DetName', 'BoxNr', 'BoxChan']
+        formats = ['%s', '%d', '%d', '%d', '%d', '%.3f', '%d', '%d', '%.2f',
+                   '%d', '%d', '%d', '%d', '%r', '%d', '%d']
+        empties = [1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0]
+        self._toftof_label.setText(
+            'Detector info:<br><table>' +
+            ''.join('<tr><td>%s</td><td></td><td>%s</td></tr>%s' %
+                    (name, format % value, '<tr></tr>' if empty else '')
+                    for (name, format, empty, value)
+                    in zip(entrynames, formats, empties,
+                           self._toftof_detinfo[detentry])) +
+            '</table>')
 
     def on_client_connected(self):
         pass
