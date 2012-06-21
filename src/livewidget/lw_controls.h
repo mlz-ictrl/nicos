@@ -27,45 +27,18 @@
 #include <QCheckBox>
 #include <QLabel>
 #include <QLayout>
-#include <QMainWindow>
 #include <QPushButton>
 #include <QSlider>
 #include <QSpinBox>
 
-#include "qwt_plot.h"
 #include "qwt_plot_curve.h"
-#include "qwt_plot_picker.h"
 
-class LWWidget;
-class LWControls;
+class LWProfileWindow;
 
 #include "lw_widget.h"
 #include "lw_histogram.h"
+#include "lw_profile.h"
 #include "lw_common.h"
-
-
-class LWProfileWindow : public QMainWindow
-{
-    Q_OBJECT
-
-  private:
-    LWWidget *m_widget;
-    QwtPlot *m_plot;
-    QwtPlotCurve *m_curve;
-    QwtPlotZoomer *m_zoomer;
-    QwtPlotPicker *m_picker;
-    double *m_data_x, *m_data_y;
-    int m_type;
-
-  protected slots:
-    void pickerSelected(const QwtDoublePoint &point);
-
-  public:
-    LWProfileWindow(QWidget *parent, LWWidget *widget);
-    virtual ~LWProfileWindow();
-
-    void update(LWData *data, double *px, double *py, int width, int bins, int type);
-};
 
 
 class LWControls : public QWidget

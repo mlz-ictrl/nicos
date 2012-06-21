@@ -25,6 +25,8 @@
 #ifndef LW_WIDGET_H
 #define LW_WIDGET_H
 
+class LWControls;
+
 #include "lw_plot.h"
 #include "lw_controls.h"
 #include "lw_common.h"
