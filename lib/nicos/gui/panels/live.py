@@ -255,7 +255,8 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
             self._infowindow.setCentralWidget(self._infolabel)
             self._infowindow.setContentsMargins(10, 10, 10, 10)
         detnr = int(point.x() + 0.5)
-        detentry = self._anglemap[detnr]
+        detentry = [entry for entry in self._detinfo[1:] if
+                    entry[12] == self._anglemap[detnr]+1][0]
         self.marker.setXValue(detnr)
         self.marker.setYValue(self._ys[detnr])
         self.plot.replot()
@@ -272,8 +273,7 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
             ''.join('<tr><td>%s</td><td></td><td>%s</td></tr>%s' %
                     (name, format % value, '<tr></tr>' if empty else '')
                     for (name, format, empty, value)
-                    in zip(entrynames, formats, empties,
-                           self._detinfo[detentry])) +
+                    in zip(entrynames, formats, empties, detentry)) +
             '</table>')
 
     def closeEvent(self, event):
