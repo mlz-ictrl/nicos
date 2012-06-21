@@ -191,3 +191,8 @@ void LWWidget::setControls(LWCtrl which)
 {
     m_controls->setControls(which);
 }
+
+int LWWidget::instrument()
+{
+    return m_instr;
+}

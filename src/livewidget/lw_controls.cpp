@@ -380,7 +380,8 @@ void LWControls::showProfWindow(const char *title)
                        profileWidth->value(), profileBins->value(),
                        m_prof_type);
     profWindow->setWindowTitle(title);
-    profWindow->show();
+    if (!m_widget->instrument() == INSTR_TOFTOF)
+        profWindow->show();
 }
 
 void LWControls::createProfile(const QwtArray<QwtDoublePoint> &points)

@@ -28,12 +28,15 @@ from __future__ import with_statement
 
 __version__ = "$Revision$"
 
+import struct
+
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
 from PyQt4.QtCore import pyqtSignature as qtsig
 from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMainWindow, \
-     QMenu, QToolBar, QStatusBar, QSizePolicy, QListWidgetItem, QLabel
+     QMenu, QToolBar, QStatusBar, QSizePolicy, QListWidgetItem, QLabel, QFont
+from PyQt4.Qwt5 import QwtPlot, QwtPlotPicker, QwtPlotZoomer, QwtPlotCurve
 
-from nicos.gui.utils import loadUi
+from nicos.gui.utils import loadUi, DlgUtils
 from nicos.gui.panels import Panel
 from nicos.gui.livewidget import LWWidget, LWData, Logscale, \
      MinimumMaximum, BrightnessContrast, Integrate, Histogram
@@ -87,13 +90,14 @@ class LiveDataPanel(Panel):
                      SIGNAL('customContextMenuRequested(const QPoint&)'),
                      self.on_widget_customContextMenuRequested)
         self.connect(self.widget,
-                     SIGNAL('profilePointPicked(int, double, double)'),
-                     self.on_widget_profilePointPicked)
+                     SIGNAL('profileUpdate(int, int, void*, void*)'),
+                     self.on_widget_profileUpdate)
+
+        self._toftof_profile = None
 
     def setSettings(self, settings):
         self._instrument = settings.get('instrument', '')
-        if 'instrument' in settings:
-            self.widget.setInstrumentOption(settings['instrument'])
+        self.widget.setInstrumentOption(self._instrument)
 
     def loadSettings(self, settings):
         self.splitterstate = settings.value('splitter').toByteArray()
@@ -125,37 +129,13 @@ class LiveDataPanel(Panel):
     def on_widget_customContextMenuRequested(self, point):
         self.menu.popup(self.mapToGlobal(point))
 
-    def on_widget_profilePointPicked(self, type, x, y):
-        if self._instrument.lower() != 'toftof' or type != 0:
+    def on_widget_profileUpdate(self, type, nbins, x, y):
+        if self._instrument != 'toftof':
             return
-        if not hasattr(self, '_toftof_detinfo'):
-            info = self.client.eval('m._detinfo_parsed, m._anglemap', None)
-            if info is None:
-                return self.showError('Cannot retrieve detector info.')
-            self._toftof_detinfo, self._toftof_anglemap = info
-            self._toftof_inverse_anglemap = 0
-            self._toftof_infowindow = QMainWindow(self)
-            self._toftof_label = QLabel(self._toftof_infowindow)
-            self._toftof_infowindow.setCentralWidget(self._toftof_label)
-            self._toftof_infowindow.setContentsMargins(10, 10, 10, 10)
-        detnr = int(x - 0.5)
-        detentry = self._toftof_anglemap[detnr]
-        self._toftof_infowindow.show()
-        self._toftof_label.setTextFormat(Qt.RichText)
-        entrynames = ['EntryNr', 'Rack', 'Plate', 'Pos', 'RPos',
-                      '2Theta', 'CableNr', 'CableType', 'CableLen', 'CableEmpty',
-                      'Card', 'Chan', 'Total', 'DetName', 'BoxNr', 'BoxChan']
-        formats = ['%s', '%d', '%d', '%d', '%d', '%.3f', '%d', '%d', '%.2f',
-                   '%d', '%d', '%d', '%d', '%r', '%d', '%d']
-        empties = [1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0]
-        self._toftof_label.setText(
-            'Detector info:<br><table>' +
-            ''.join('<tr><td>%s</td><td></td><td>%s</td></tr>%s' %
-                    (name, format % value, '<tr></tr>' if empty else '')
-                    for (name, format, empty, value)
-                    in zip(entrynames, formats, empties,
-                           self._toftof_detinfo[detentry])) +
-            '</table>')
+        if self._toftof_profile is None:
+            self._toftof_profile = ToftofProfileWindow(self)
+        self._toftof_profile.update(type, nbins, x, y)
+        self._toftof_profile.show()
 
     def on_client_connected(self):
         pass
@@ -206,4 +186,80 @@ class LiveDataPanel(Panel):
         with self.sgroup as settings:
             settings.setValue('geometry', QVariant(self.saveGeometry()))
         event.accept()
+        if self._toftof_profile:
+            self._toftof_profile.close()
         self.emit(SIGNAL('closed'), self)
+
+
+class ToftofProfileWindow(QMainWindow, DlgUtils):
+    def __init__(self, parent):
+        QMainWindow.__init__(self, parent)
+        self.panel = parent
+        self.plot = QwtPlot(self)
+        self.curve = QwtPlotCurve()
+        self.curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
+        self.curve.attach(self.plot)
+        self.zoomer = QwtPlotZoomer(self.plot.canvas())
+        self.zoomer.setMousePattern(QwtPlotZoomer.MouseSelect3,
+                                    Qt.NoButton)
+        self.picker = QwtPlotPicker(self.plot.canvas())
+        self.picker.setSelectionFlags(QwtPlotPicker.PointSelection |
+                                      QwtPlotPicker.ClickSelection)
+        self.picker.setMousePattern(QwtPlotPicker.MouseSelect1,
+                                    Qt.MiddleButton)
+        self.connect(self.picker, SIGNAL('selected(const QwtDoublePoint&)'),
+                     self.pickerSelected)
+        self.setCentralWidget(self.plot)
+        self.setContentsMargins(5, 5, 5, 5)
+        plotfont = QFont(self.font())
+        plotfont.setPointSize(plotfont.pointSize() * 0.7)
+        self.plot.setAxisFont(QwtPlot.xBottom, plotfont)
+        self.plot.setAxisFont(QwtPlot.yLeft, plotfont)
+        self.plot.setCanvasBackground(Qt.white)
+        self.resize(800, 200)
+
+        self._detinfo = None
+        self._anglemap = None
+        self._infowindow = None
+        self._infolabel = None
+
+    def update(self, type, nbins, x, y):
+        x.setsize(8 * nbins)
+        y.setsize(8 * nbins)
+        xs = struct.unpack('d' * nbins, x)
+        ys = struct.unpack('d' * nbins, y)
+        self.curve.setData(xs, ys)
+        self.plot.setAxisAutoScale(QwtPlot.xBottom)
+        self.plot.setAxisAutoScale(QwtPlot.yLeft)
+        self.zoomer.setZoomBase(True)
+
+    def pickerSelected(self, point):
+        if self._detinfo is None:
+            info = self.panel.client.eval('m._detinfo_parsed, m._anglemap', None)
+            if info is None:
+                return self.showError('Cannot retrieve detector info.')
+            self._detinfo, self._anglemap = info
+            self._inverse_anglemap = 0
+            self._infowindow = QMainWindow(self)
+            self._infolabel = QLabel(self._infowindow)
+            self._infolabel.setTextFormat(Qt.RichText)
+            self._infowindow.setCentralWidget(self._infolabel)
+            self._infowindow.setContentsMargins(10, 10, 10, 10)
+        detnr = int(point.x() - 0.5)
+        detentry = self._anglemap[detnr]
+        self._infowindow.show()
+        entrynames = [
+            'EntryNr', 'Rack', 'Plate', 'Pos', 'RPos',
+            '2Theta', 'CableNr', 'CableType', 'CableLen', 'CableEmpty',
+            'Card', 'Chan', 'Total', 'DetName', 'BoxNr', 'BoxChan']
+        formats = ['%s', '%d', '%d', '%d', '%d', '%.3f', '%d', '%d', '%.2f',
+                   '%d', '%d', '%d', '%d', '%r', '%d', '%d']
+        empties = [1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0]
+        self._infolabel.setText(
+            'Detector info:<br><table>' +
+            ''.join('<tr><td>%s</td><td></td><td>%s</td></tr>%s' %
+                    (name, format % value, '<tr></tr>' if empty else '')
+                    for (name, format, empty, value)
+                    in zip(entrynames, formats, empties,
+                           self._detinfo[detentry])) +
+            '</table>')

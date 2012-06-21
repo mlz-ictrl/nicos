@@ -59,6 +59,7 @@ class LWWidget : public QWidget
     virtual ~LWWidget();
 
     void setInstrumentOption(const char *instr);
+    int instrument();
 
     LWPlot *plot() { return m_plot; }
 
@@ -85,6 +86,7 @@ class LWWidget : public QWidget
   signals:
     void dataUpdated(LWData *data);
     void profilePointPicked(int type, double x, double y);
+    void profileUpdate(int type, int nbins, void *dx, void *dy);
 };
 
 #endif

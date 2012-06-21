@@ -106,6 +106,7 @@ class LWWidget : QWidget
     virtual ~LWWidget();
 
     void setInstrumentOption(const char *instr);
+    int instrument();
 
     LWPlot *plot();
 
@@ -131,6 +132,7 @@ class LWWidget : QWidget
   signals:
     void dataUpdated(LWData *data);
     void profilePointPicked(int type, double x, double y);
+    void profileUpdate(int type, int nbins, void *dx, void *dy);
 };
 
 %UnitCode

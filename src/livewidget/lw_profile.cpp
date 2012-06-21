@@ -124,6 +124,7 @@ void LWProfileWindow::update(LWData *data, double *px, double *py,
     m_plot->setAxisAutoScale(QwtPlot::xBottom);
     m_plot->setAxisAutoScale(QwtPlot::yLeft);
     m_zoomer->setZoomBase(true);
+    emit m_widget->profileUpdate(m_type, nbins, m_data_x, m_data_y);
 }
 
 void LWProfileWindow::pickerSelected(const QwtDoublePoint &point)
