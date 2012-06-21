@@ -23,25 +23,15 @@
 #
 # *****************************************************************************
 
-import os
-import sys
-import signal
-import subprocess
-from os import path
+cache = None
 
-from test.utils import cleanup, rootdir
+from test.utils import startCache, killCache, cleanup
 
-daemon = None
-
-def setup_package():
+def setupPackage():
+    global cache #pylint: disable=W0603
     cleanup()
-    global daemon
-    os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..', 'lib')
-    daemon = subprocess.Popen([sys.executable,
-                               path.join(rootdir, '..', 'daemonTest.py')])
+    cache = startCache()
 
-def teardown_package():
-    print 'Killing daemon server...'
-    os.kill(daemon.pid, signal.SIGTERM)
-    os.waitpid(daemon.pid, 0)
-    print '-' * 70
+def teardownPackage():
+    # kill the cache server
+    killCache(cache)
