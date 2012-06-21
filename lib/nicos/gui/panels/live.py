@@ -31,10 +31,12 @@ __version__ = "$Revision$"
 import struct
 
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
-from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSignature as qtsig, QSize
 from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMainWindow, \
-     QMenu, QToolBar, QStatusBar, QSizePolicy, QListWidgetItem, QLabel, QFont
-from PyQt4.Qwt5 import QwtPlot, QwtPlotPicker, QwtPlotZoomer, QwtPlotCurve
+     QMenu, QToolBar, QStatusBar, QSizePolicy, QListWidgetItem, QLabel, QFont, \
+     QBrush, QPen
+from PyQt4.Qwt5 import QwtPlot, QwtPlotPicker, QwtPlotZoomer, QwtPlotCurve, \
+     QwtPlotMarker, QwtSymbol
 
 from nicos.gui.utils import loadUi, DlgUtils
 from nicos.gui.panels import Panel
@@ -199,6 +201,11 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
         self.curve = QwtPlotCurve()
         self.curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
         self.curve.attach(self.plot)
+        self.marker = QwtPlotMarker()
+        self.marker.attach(self.plot)
+        self.markerpen = QPen(Qt.red)
+        self.marker.setSymbol(QwtSymbol(QwtSymbol.Ellipse, QBrush(),
+                                        self.markerpen, QSize(7, 7)))
         self.zoomer = QwtPlotZoomer(self.plot.canvas())
         self.zoomer.setMousePattern(QwtPlotZoomer.MouseSelect3,
                                     Qt.NoButton)
@@ -222,12 +229,15 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
         self._anglemap = None
         self._infowindow = None
         self._infolabel = None
+        self._xs = self._ys = None
 
     def update(self, type, nbins, x, y):
         x.setsize(8 * nbins)
         y.setsize(8 * nbins)
         xs = struct.unpack('d' * nbins, x)
         ys = struct.unpack('d' * nbins, y)
+        self._xs = xs
+        self._ys = ys
         self.curve.setData(xs, ys)
         self.plot.setAxisAutoScale(QwtPlot.xBottom)
         self.plot.setAxisAutoScale(QwtPlot.yLeft)
@@ -245,8 +255,11 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
             self._infolabel.setTextFormat(Qt.RichText)
             self._infowindow.setCentralWidget(self._infolabel)
             self._infowindow.setContentsMargins(10, 10, 10, 10)
-        detnr = int(point.x() - 0.5)
+        detnr = int(point.x() + 0.5)
         detentry = self._anglemap[detnr]
+        self.marker.setXValue(detnr)
+        self.marker.setYValue(self._ys[detnr])
+        self.plot.replot()
         self._infowindow.show()
         entrynames = [
             'EntryNr', 'Rack', 'Plate', 'Pos', 'RPos',
