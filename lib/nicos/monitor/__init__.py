@@ -257,7 +257,8 @@ class Monitor(BaseCacheClient):
         if field['dev']:
             _ref('key', prefix + field['dev'].lower() + '/value')
             _ref('statuskey', prefix + field['dev'].lower() + '/status')
-            _ref('unitkey', prefix + field['dev'].lower() + '/unit')
+            if field['unit'] == '':  # explicit unit has preference
+                _ref('unitkey', prefix + field['dev'].lower() + '/unit')
             if field['format'] == '%s':  # explicit format has preference
                 _ref('formatkey', prefix + field['dev'].lower() + '/fmtstr')
         else:
@@ -404,6 +405,11 @@ class Monitor(BaseCacheClient):
                     field['status'] = value
             elif key == field['unitkey']:
                 if value is not None:
+                    if field['item'] >= 0:
+                        try:
+                            value = value.split()[field['item']]
+                        except IndexError:
+                            pass
                     field['unit'] = value
                     self.setLabelUnitText(field['namelabel'],
                                           field['name'], value)
