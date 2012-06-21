@@ -106,6 +106,9 @@ class LiveDataPanel(Panel):
 
     def saveSettings(self, settings):
         settings.setValue('splitter', self.splitter.saveState())
+        settings.setValue('geometry', QVariant(self.saveGeometry()))
+        if self._toftof_profile:
+            self._toftof_profile.close()
 
     def getMenus(self):
         self.menu = menu = QMenu('&Live data', self)
@@ -184,14 +187,6 @@ class LiveDataPanel(Panel):
         if QPrintDialog(printer, self).exec_() == QDialog.Accepted:
             self.widget.plot().print_(printer)
 
-    def closeEvent(self, event):
-        with self.sgroup as settings:
-            settings.setValue('geometry', QVariant(self.saveGeometry()))
-        event.accept()
-        if self._toftof_profile:
-            self._toftof_profile.close()
-        self.emit(SIGNAL('closed'), self)
-
 
 class ToftofProfileWindow(QMainWindow, DlgUtils):
     def __init__(self, parent):
@@ -242,6 +237,10 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
         self.plot.setAxisAutoScale(QwtPlot.xBottom)
         self.plot.setAxisAutoScale(QwtPlot.yLeft)
         self.zoomer.setZoomBase(True)
+        if type == 0:
+            self.setWindowTitle('Single detector view (time-channel integrated)')
+        elif type == 1:
+            self.setWindowTitle('Time channel view (detector integrated)')
 
     def pickerSelected(self, point):
         if self._detinfo is None:
@@ -276,3 +275,7 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
                     in zip(entrynames, formats, empties,
                            self._detinfo[detentry])) +
             '</table>')
+
+    def closeEvent(self, event):
+        if self._infowindow:
+            self._infowindow.close()
