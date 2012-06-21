@@ -191,6 +191,7 @@ class LiveDataPanel(Panel):
 class ToftofProfileWindow(QMainWindow, DlgUtils):
     def __init__(self, parent):
         QMainWindow.__init__(self, parent)
+        DlgUtils.__init__(self, 'Live data')
         self.panel = parent
         self.plot = QwtPlot(self)
         self.curve = QwtPlotCurve()
@@ -225,6 +226,7 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
         self._infowindow = None
         self._infolabel = None
         self._xs = self._ys = None
+        self._type = None
 
     def update(self, type, nbins, x, y):
         x.setsize(8 * nbins)
@@ -237,12 +239,15 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
         self.plot.setAxisAutoScale(QwtPlot.xBottom)
         self.plot.setAxisAutoScale(QwtPlot.yLeft)
         self.zoomer.setZoomBase(True)
+        self._type = type
         if type == 0:
             self.setWindowTitle('Single detector view (time-channel integrated)')
         elif type == 1:
             self.setWindowTitle('Time channel view (detector integrated)')
 
     def pickerSelected(self, point):
+        if self._type != 0:
+            return
         if self._detinfo is None:
             info = self.panel.client.eval('m._detinfo_parsed, m._anglemap', None)
             if info is None:
@@ -255,8 +260,8 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
             self._infowindow.setCentralWidget(self._infolabel)
             self._infowindow.setContentsMargins(10, 10, 10, 10)
         detnr = int(point.x() + 0.5)
-        detentry = [entry for entry in self._detinfo[1:] if
-                    entry[12] == self._anglemap[detnr]+1][0]
+        detentry = [entry for entry in self._detinfo[1:]
+                    if entry[12] == self._anglemap[detnr]+1][0]
         self.marker.setXValue(detnr)
         self.marker.setYValue(self._ys[detnr])
         self.plot.replot()
