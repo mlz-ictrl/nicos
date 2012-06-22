@@ -29,12 +29,13 @@ from __future__ import with_statement
 __version__ = "$Revision$"
 
 import struct
+from math import sin, radians, pi
 
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
 from PyQt4.QtCore import pyqtSignature as qtsig, QSize
 from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMainWindow, \
      QMenu, QToolBar, QStatusBar, QSizePolicy, QListWidgetItem, QLabel, QFont, \
-     QBrush, QPen
+     QBrush, QPen, QComboBox, QVBoxLayout, QHBoxLayout, QFrame
 from PyQt4.Qwt5 import QwtPlot, QwtPlotPicker, QwtPlotZoomer, QwtPlotCurve, \
      QwtPlotMarker, QwtSymbol
 
@@ -193,7 +194,9 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
         QMainWindow.__init__(self, parent)
         DlgUtils.__init__(self, 'Live data')
         self.panel = parent
+        layout1 = QVBoxLayout()
         self.plot = QwtPlot(self)
+        layout1.addWidget(self.plot)
         self.curve = QwtPlotCurve()
         self.curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
         self.curve.attach(self.plot)
@@ -212,7 +215,23 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
                                     Qt.MiddleButton)
         self.connect(self.picker, SIGNAL('selected(const QwtDoublePoint&)'),
                      self.pickerSelected)
-        self.setCentralWidget(self.plot)
+        layout2 = QHBoxLayout()
+        layout2.addWidget(QLabel('Scale:', self))
+        self.scale = QComboBox(self)
+        self.scale.addItems(['Single detectors, sorted by angle',
+                             'Scattering angle 2theta (deg)',
+                             'Q value (A-1)'])
+        self.connect(self.scale, SIGNAL('currentIndexChanged(int)'),
+                     self.scaleChanged)
+        layout2.addWidget(self.scale)
+        layout2.addStretch()
+        self.scaleframe = QFrame(self)
+        self.scaleframe.setLayout(layout2)
+        self.scaleframe.setVisible(False)
+        layout1.addWidget(self.scaleframe)
+        mainframe = QFrame(self)
+        mainframe.setLayout(layout1)
+        self.setCentralWidget(mainframe)
         self.setContentsMargins(5, 5, 5, 5)
         plotfont = QFont(self.font())
         plotfont.setPointSize(plotfont.pointSize() * 0.7)
@@ -228,11 +247,51 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
         self._xs = self._ys = None
         self._type = None
 
+    def _retrieve_detinfo(self):
+        if self._detinfo is None:
+            info = self.panel.client.eval('m._detinfo_parsed, m._anglemap', None)
+            if info is None:
+                return self.showError('Cannot retrieve detector info.')
+            self._lambda = self.panel.client.eval('chWL()', None)
+            self._detinfo, self._anglemap = info
+            self._inverse_anglemap = 0
+            self._infowindow = QMainWindow(self)
+            self._infolabel = QLabel(self._infowindow)
+            self._infolabel.setTextFormat(Qt.RichText)
+            self._infowindow.setCentralWidget(self._infolabel)
+            self._infowindow.setContentsMargins(10, 10, 10, 10)
+            self._inv_anglemap = [
+                [entry for entry in self._detinfo[1:]
+                 if entry[12] == self._anglemap[detnr]+1][0]
+                for detnr in range(len(self._xs))
+            ]
+
+    def scaleChanged(self, scale):
+        self.update(self._type, self._orig_nbins, self._orig_x, self._orig_y)
+
     def update(self, type, nbins, x, y):
+        self._orig_x = x
+        self._orig_y = y
+        self._orig_nbins = nbins
         x.setsize(8 * nbins)
         y.setsize(8 * nbins)
         xs = struct.unpack('d' * nbins, x)
         ys = struct.unpack('d' * nbins, y)
+        if type == 0:
+            if self.scale.currentIndex() == 0:
+                xs = xs
+            elif self.scale.currentIndex() == 1:
+                self._retrieve_detinfo()
+                xs = [self._inv_anglemap[int(xi)][5] for xi in xs]
+            else:
+                self._retrieve_detinfo()
+                if self._lambda is None:
+                    self.showError('Could not determine wavelength.')
+                    self.scale.setCurrentIndex(1)
+                    return
+                xs = [4*pi/self._lambda*
+                      sin(radians(self._inv_anglemap[int(xi)][5]/2.))
+                      for xi in xs]
         self._xs = xs
         self._ys = ys
         self.curve.setData(xs, ys)
@@ -242,28 +301,21 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
         self._type = type
         if type == 0:
             self.setWindowTitle('Single detector view (time-channel integrated)')
+            self.scaleframe.setVisible(True)
         elif type == 1:
             self.setWindowTitle('Time channel view (detector integrated)')
+            self.scaleframe.setVisible(False)
+        else:
+            self.scaleframe.setVisible(False)
 
     def pickerSelected(self, point):
         if self._type != 0:
             return
-        if self._detinfo is None:
-            info = self.panel.client.eval('m._detinfo_parsed, m._anglemap', None)
-            if info is None:
-                return self.showError('Cannot retrieve detector info.')
-            self._detinfo, self._anglemap = info
-            self._inverse_anglemap = 0
-            self._infowindow = QMainWindow(self)
-            self._infolabel = QLabel(self._infowindow)
-            self._infolabel.setTextFormat(Qt.RichText)
-            self._infowindow.setCentralWidget(self._infolabel)
-            self._infowindow.setContentsMargins(10, 10, 10, 10)
-        detnr = int(point.x() + 0.5)
-        detentry = [entry for entry in self._detinfo[1:]
-                    if entry[12] == self._anglemap[detnr]+1][0]
-        self.marker.setXValue(detnr)
-        self.marker.setYValue(self._ys[detnr])
+        self._retrieve_detinfo()
+        index = self.curve.closestPoint(self.picker.transform(point))[0]
+        detentry = self._inv_anglemap[index]
+        self.marker.setXValue(self._xs[index])
+        self.marker.setYValue(self._ys[index])
         self.plot.replot()
         self._infowindow.show()
         entrynames = [
