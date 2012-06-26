@@ -27,10 +27,10 @@
 
 __version__ = "$Revision$"
 
-import time
+from time import time as currenttime, sleep
 
 from nicos.core import status, Readable, Moveable, HasLimits, Param, \
-     CommunicationError, TimeoutError
+     CommunicationError, TimeoutError, CacheError
 
 
 class CacheReader(Readable):
@@ -49,7 +49,17 @@ class CacheReader(Readable):
     """
 
     def doRead(self):
-        raise CommunicationError(self, 'CacheReader value not in cache')
+        if self._cache:
+            try:
+                time, ttl, val = self._cache.get_explicit(self, 'value')
+            except CacheError:
+                val = time = ttl = None
+            if time and ttl and time + ttl < currenttime():
+                self.log.warning('value timed out in cache, this should be '
+                                 'considered as an error!')
+            return val
+        raise CommunicationError(self, 'CacheReader value not in cache or '
+                                 'no cache found')
 
     def doStatus(self):
         return status.UNKNOWN, 'no status found in cache'
@@ -82,7 +92,17 @@ class CacheWriter(HasLimits, Moveable):
     }
 
     def doRead(self):
-        raise CommunicationError(self, 'CacheWriter value not in cache')
+        if self._cache:
+            try:
+                time, ttl, val = self._cache.get_explicit(self, 'value')
+            except CacheError:
+                val = time = ttl = None
+            if time and ttl and time + ttl < currenttime():
+                self.log.warning('value timed out in cache, this should be '
+                                 'considered as an error!')
+            return val
+        raise CommunicationError(self, 'CacheWriter value not in cache or '
+                                 'no cache found')
 
     def doStatus(self):
         return status.OK, 'no status found in cache'
@@ -101,7 +121,7 @@ class CacheWriter(HasLimits, Moveable):
         while len(values) < 5 or \
               max(values) > (self._goal + self.tolerance*0.5) or \
               min(values) < (self._goal - self.tolerance*0.5):
-            time.sleep(self.loopdelay)
+            sleep(self.loopdelay)
             waited += self.loopdelay
             values = [self.read()] + values[:histlen]
             self.log.debug('waiting: %s s, values are %s' % (waited, values))
