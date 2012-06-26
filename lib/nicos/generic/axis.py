@@ -62,7 +62,7 @@ class Axis(BaseAxis):
                              default=100, settable=True),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         # Check that motor and unit have the same unit
         if self._adevs['coder'].unit != self._adevs['motor'].unit:
             raise ConfigurationError(self, 'different units for motor and coder'

@@ -145,7 +145,7 @@ class Coder(BaseCoder):
         # self._taco_guard(self._dev.setpos, target)
         pass
 
-    def doInit(self) :
+    def doInit(self, mode) :
         pass
 
     def __formula(self, data, direction):

@@ -44,9 +44,9 @@ class G5100A(Moveable):
     }
     # timeout is 5 seconds by kernel default
 
-    def doPreinit(self):
+    def doPreinit(self, mode):
         self._io = None
-        if self._mode != 'simulation':
+        if mode != 'simulation':
             self.doReset()
 
     def doReset(self):

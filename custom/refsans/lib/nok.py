@@ -813,7 +813,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         return res
         
     #---------------------------------------------------------------------------
-    def doInit (self,startstyle=''):
+    def doInit (self, mode, startstyle=''):
         """ 
         constructor. Creates a complete NOK object the names of the used devices must 
         follow the convention, otherwise it breaks.
@@ -853,7 +853,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             
         #***********************************************************************
         self.no('_Nok__','motor','','_axes')
-        cl_do_get.doInit(self,self.__doget_help,'_axes')
+        cl_do_get.doInit(self,mode,self.__doget_help,'_axes')
         dauer.read('no do_get',Zeitmessung)
         #***********************************************************************
         dauer.read('Geometrie laden',Zeitmessung)
@@ -1795,7 +1795,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         if Debug: print 'ready'
     #---------------------------------------------------------------------------
     def doadjustment (self):
-        self.doInit()
+        self.doInit(self._mode)
         try:    return self.masktable
         except: return {}
     #---------------------------------------------------------------------------

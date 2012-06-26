@@ -45,8 +45,8 @@ class Shutter(NamedDigitalInput):
                         type=tacodev, mandatory=True),
     }
 
-    def doInit(self):
-        if self._mode != 'simulation':
+    def doInit(self, mode):
+        if mode != 'simulation':
             self._outdev = self._create_client(self.output, IO.DigitalOutput)
 
     @usermethod

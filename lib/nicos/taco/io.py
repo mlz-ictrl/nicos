@@ -101,7 +101,7 @@ class PartialDigitalInput(NamedDigitalInput):
         'bitwidth': Param('Number of bits', type=int, default=1),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         self._mask = ((1 << self.bitwidth) - 1) << self.startbit
 
     def doRead(self):
@@ -134,7 +134,7 @@ class NamedDigitalOutput(DigitalOutput):
                          type=dictof(int, str)),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         self._reverse = dict((v, k) for (k, v) in self.mapping.iteritems())
 
     def doStart(self, target):
@@ -156,8 +156,8 @@ class PartialDigitalOutput(NamedDigitalOutput):
         'bitwidth': Param('Number of bits', type=int, default=1),
     }
 
-    def doInit(self):
-        NamedDigitalOutput.doInit(self)
+    def doInit(self, mode):
+        NamedDigitalOutput.doInit(self, mode)
         self._max = (1 << self.bitwidth) - 1
 
     def doRead(self):
@@ -189,7 +189,7 @@ class BitsDigitalOutput(DigitalOutput):
         'bitwidth': Param('Number of bits', type=int, default=1),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         self._max = (1 << self.bitwidth) - 1
 
     def doReadFmtstr(self):

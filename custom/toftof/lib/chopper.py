@@ -81,10 +81,10 @@ class Controller(TacoDevice, Readable):
         while self._read(4070) != 0:
             sleep(0.04)
 
-    def doInit(self):
+    def doInit(self, mode):
         phases = [0, 0]
         try:
-            if self._mode == 'simulation':
+            if mode == 'simulation':
                 raise NicosError('not possible in simulation mode')
             wavelength = self._read(4181) / 1000.0
             if wavelength == 0.0:

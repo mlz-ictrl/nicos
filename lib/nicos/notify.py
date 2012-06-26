@@ -85,7 +85,7 @@ class Jabberer(Notifier):
                            settable=True),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         self._jid = xmpp.protocol.JID(self.jid)
         self._client = xmpp.Client(self._jid.getDomain(), debug=[])
         self._client.connect()

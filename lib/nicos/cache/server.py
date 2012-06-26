@@ -421,7 +421,7 @@ class CacheUDPWorker(CacheWorker):
 
 class CacheDatabase(Device):
 
-    def doInit(self):
+    def doInit(self, mode):
         if self.__class__ is CacheDatabase:
             raise ConfigurationError(
                 'CacheDatabase is an abstract class, use '
@@ -474,10 +474,10 @@ class MemoryCacheDatabase(CacheDatabase):
     Central database of cache values, keeps everything in memory.
     """
 
-    def doInit(self):
+    def doInit(self, mode):
         self._db = {}
         self._db_lock = threading.Lock()
-        CacheDatabase.doInit(self)
+        CacheDatabase.doInit(self, mode)
 
     def ask(self, key, ts, time, ttl):
         with self._db_lock:
@@ -561,10 +561,10 @@ class MemoryCacheDatabaseWithHistory(CacheDatabase):
                             type=intrange(0, 100), default=10, settable=False),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         self._db = {}
         self._db_lock = threading.Lock()
-        CacheDatabase.doInit(self)
+        CacheDatabase.doInit(self, mode)
 
     def ask(self, key, ts, time, ttl):
         with self._db_lock:
@@ -691,10 +691,10 @@ class FlatfileCacheDatabase(CacheDatabase):
                            type=str, mandatory=True),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         self._cat = {}
         self._cat_lock = threading.Lock()
-        CacheDatabase.doInit(self)
+        CacheDatabase.doInit(self, mode)
 
         self._basepath = path.join(session.config.control_path, self.storepath)
         ltime = localtime()
@@ -987,7 +987,7 @@ class CacheServer(Device):
         'db': (CacheDatabase, 'The cache database instance'),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         self._stoprequest = False
         self._boundto = None
         self._serversocket = None

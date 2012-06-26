@@ -52,8 +52,8 @@ class Axis(GenericAxis) :
                          ),
     }
 
-#    def doInit(self) :
-#        super(Axis, self).doInit()
+#    def doInit(self, mode) :
+#        super(Axis, self).doInit(mode)
    
     def _movestep1(self, units) :
         """ Checks the current position of the axis and decides what's to do.

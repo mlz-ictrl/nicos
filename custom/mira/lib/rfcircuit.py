@@ -83,7 +83,7 @@ class RFCurrent(HasLimits, Moveable):
         'unit':  Override(mandatory=False),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         self._runthread = True
 
     def doShutdown(self):

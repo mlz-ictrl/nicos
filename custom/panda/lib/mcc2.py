@@ -85,8 +85,8 @@ class MCC2Coder(NicosCoder):
         raise CommunicationError(self, 'Response timed out')
 
 
-    def doInit(self):
-        if self._mode != 'simulation':
+    def doInit(self, mode):
+        if mode != 'simulation':
             if not self.comm('IVR').startswith('MCC'):
                 raise CommunicationError(self, 'No Response from Phytron, please check!')
             self.comm('XP39S1')
@@ -165,8 +165,8 @@ class MCC2Motor(NicosMotor):
         raise CommunicationError(self, 'Response timed out')
 
 
-    def doInit(self):
-        if self._mode != 'simulation':
+    def doInit(self, mode):
+        if mode != 'simulation':
             if not self.comm('IVR').startswith('MCC'):
                 raise CommunicationError(self, 'No Response from Phytron, please check!')
             self.comm('XP1S1')  # linear mode

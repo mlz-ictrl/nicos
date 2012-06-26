@@ -52,7 +52,7 @@ class Julabo(TacoDevice, HasLimits, Moveable):
                            default=600, settable=True),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         # set default values
         self._stime = 0
 

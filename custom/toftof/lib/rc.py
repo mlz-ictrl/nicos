@@ -80,7 +80,7 @@ class ModBusDriverHP(TacoDevice, Device):
                 sleep(0.01)
                 return "ok"
 
-    def doInit (self):
+    def doInit(self, mode):
         self._huberCmds = [
             ["acc","alias","conf","def","dec","ecl","ect","edev","edir","eres","est","esh","ffast","vfast","fref",
              "vref","frun","vrun","gden","gn","gnum","gz","macc","mdec","mdir","mdl","rofs","nofs","update"],
@@ -119,7 +119,7 @@ class RadialCollimator(Moveable):
 
     valuetype = oneofdict({1: 'on', 0: 'off'})
 
-    def doInit(self):
+    def doInit(self, mode):
         self._stime = 0
 
     def doStart(self, target):

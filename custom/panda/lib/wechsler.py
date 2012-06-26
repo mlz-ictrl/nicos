@@ -51,7 +51,7 @@ class Beckhoff(Device):
                           type=str, default='wechsler.panda.frm2', settable=True),
         'addr': Param('ModBus unit address', type=int, default=0, settable=True),
     }
-    def doInit(self):
+    def doInit(self, mode):
         c = self.communicator()
         c.next()
         self._communicate = c.send
@@ -301,7 +301,7 @@ class MonoWechsler( Device ):
     def bhd(self):  # BeckHoffDevice
         return self._adevs['beckhoff']
 
-    def doInit(self):
+    def doInit(self, mode):
         self.bhd.WriteWordOutput( 0x1120, 0 ) # disable BK9100 Watchdog....
         # initialize DC-Motor device (KL2552)
         # Channel 1 is at baseaddr 4 and connects to the Lift

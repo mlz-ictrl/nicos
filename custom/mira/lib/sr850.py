@@ -63,8 +63,8 @@ class Amplifier(Measurable, TacoDevice):
 
     taco_class = StringIO
 
-    def doInit(self):
-        if self._mode == 'simulation':
+    def doInit(self, mode):
+        if mode == 'simulation':
             return
         reply = self._taco_guard(self._dev.communicate, '*IDN?')
         if not reply.startswith('Stanford_Research_Systems,SR8'):

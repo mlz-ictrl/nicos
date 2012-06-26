@@ -99,7 +99,7 @@ class KL320xTemp( Readable ):
             self.log.error('unknown unit! cannot switch!')
             raise Exception('unknown unit! cannot switch!')
 
-    def doInit( self ):
+    def doInit( self, mode ):
         if 3201<=self.bhd.ReadReg( self.addr, 8 )<=3204:     # This code only works for KL3201..4
             self.doWriteUnit( self.unit ) #update hardware about our unit and set scaling
         else:

@@ -190,7 +190,7 @@ class NicosDaemon(Device):
         'simresult': True,
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         self._stoprequest = False
         # the controller represents the internal script execution machinery
         self._controller = ExecutionController(self.log, self.emit_event,

@@ -118,10 +118,10 @@ class VirtualTimer(FRMTimerChannel):
         'tacodevice': Param('(not used)', type=tacodev, default=None),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         self.__finish = False
 
-    def nothing(self):
+    def nothing(self, *args):
         pass
     doPreinit = doPause = doResume = doReset = nothing
 
@@ -182,7 +182,7 @@ class VirtualCounter(FRMCounterChannel):
         'tacodevice': Param('(not used)', type=tacodev, default=None),
     }
 
-    def nothing(self):
+    def nothing(self, *args):
         pass
     doPreinit = doInit = doStart = doPause = doResume = doStop = doWait = \
                 doReset = nothing

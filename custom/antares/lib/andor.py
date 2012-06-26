@@ -73,12 +73,12 @@ class AndorDetector(Measurable, NeedsDatapath):
         'pollinterval': Override(default=0)
     }
 
-    def doPreinit(self):
-        if self._mode != 'simulation':
+    def doPreinit(self, mode):
+        if mode != 'simulation':
             self._dev = TacoDevice.TacoDevice(self.tacodevice)
             self._dev.timeout(60)
 
-    def doInit(self):
+    def doInit(self, mode):
         self._dev.DevCCDInitialize()
         self._last_preset = self.preselection
         self._measure = threading.Event()

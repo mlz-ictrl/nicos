@@ -57,7 +57,7 @@ class MiezeMaster(Moveable):
         'fmtstr': Override(default='%s'),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         self._started_devs = []
 
     def doRead(self):

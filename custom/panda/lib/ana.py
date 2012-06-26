@@ -48,7 +48,7 @@ class AnaBlocks( Moveable ):
     def bhd(self):  # BeckHoffDevice
         return self._adevs['beckhoff']
 
-    def doInit(self):
+    def doInit(self, mode):
         self._timer=None
         # disable beckhoff watchdog
         self.bhd.WriteWordOutput(0x1120,0)
@@ -135,8 +135,8 @@ class ATT_Axis(Axis):
         'blockoffset':  Param('Block offset', default=-7.7, unit='deg'),
     }
 
-    def doInit(self):
-        Axis.doInit(self)
+    def doInit(self, mode):
+        Axis.doInit(self, mode)
 
     def _duringMoveAction(self, position):
         self._move_blocks(position)

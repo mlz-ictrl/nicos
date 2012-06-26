@@ -22,8 +22,8 @@ from nicos.sessions.simple import SingleDeviceSession
 
 class PauseButton(BaseCacheClient):
 
-    def doInit(self):
-        BaseCacheClient.doInit(self)
+    def doInit(self, mode):
+        BaseCacheClient.doInit(self, mode)
         session.loadSetup('detector')
         session.setMode('maintenance')
         self._device = session.getDevice('det')

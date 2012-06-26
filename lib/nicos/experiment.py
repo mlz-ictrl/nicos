@@ -131,7 +131,7 @@ class Experiment(Device):
         'sample': (Sample, 'The device object representing the sample'),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         self._last_datasets = []
         instname = session.instrument and session.instrument.instrument or ''
         if self.elog:

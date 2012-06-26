@@ -24,8 +24,8 @@ class TacoLoggerServer(BaseCacheClient):
     cache server under the tacolog/msg key.
     """
 
-    def doInit(self):
-        BaseCacheClient.doInit(self)
+    def doInit(self, mode):
+        BaseCacheClient.doInit(self, mode)
         self._syslogsock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self._syslogsock.bind(('', 14514))
         self._selecttimeout = 0.1  # we don't expect to receive anything

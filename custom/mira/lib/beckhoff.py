@@ -45,9 +45,9 @@ class BeckhoffDigitalOutput(DigitalOutput):
                           mandatory=True),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         # switch off watchdog, important before doing any write access
-        if self._mode != 'simulation':
+        if mode != 'simulation':
             self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
 
     def doRead(self):

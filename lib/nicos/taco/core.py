@@ -111,14 +111,14 @@ class TacoDevice(object):
     # TACO device instance
     _dev = None
 
-    def doPreinit(self):
+    def doPreinit(self, mode):
         self.__lock = threading.Lock()
         if self.loglevel == 'debug':
             self._taco_guard = self._taco_guard_log
         if self.taco_class is None:
             raise ProgrammingError('missing taco_class attribute in class '
                                    + self.__class__.__name__)
-        if self._mode != 'simulation':
+        if mode != 'simulation':
             self._dev = self._create_client()
 
     def _setMode(self, mode):

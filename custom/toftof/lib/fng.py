@@ -90,5 +90,5 @@ class FocussingNeutronGuide(Slit):
 
     hardware_access = False
 
-    def doInit(self):
-        Slit.doInit(self)
+    def doInit(self, mode):
+        Slit.doInit(self, mode)

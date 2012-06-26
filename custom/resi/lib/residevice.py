@@ -76,7 +76,7 @@ class ResiDevice(Moveable):
     '''
     name = None
 
-    def doPreinit(self):
+    def doPreinit(self, mode):
         '''
         Constructor
         '''

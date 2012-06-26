@@ -231,7 +231,7 @@ class HoveringAxis(Axis):
                               type=tupleof(anytype, anytype), default=(0, 1)),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         self._poll_thread = None
 
     def doStart(self, target):

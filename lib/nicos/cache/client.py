@@ -56,7 +56,7 @@ class BaseCacheClient(Device):
         'prefix': Param('Cache key prefix', type=str, mandatory=True),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         try:
             host, port = self.cache.split(':')
             port = int(port)
@@ -327,8 +327,8 @@ class CacheClient(BaseCacheClient):
 
     temporary = True
 
-    def doInit(self):
-        BaseCacheClient.doInit(self)
+    def doInit(self, mode):
+        BaseCacheClient.doInit(self, mode)
         self._db = {}
         self._callbacks = {}
 

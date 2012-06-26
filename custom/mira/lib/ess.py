@@ -55,8 +55,8 @@ class ESSController(HasLimits, TacoDevice, Moveable):
                        unit='main/min', settable=True),
     }
 
-    def doInit(self):
-        if self._mode != 'simulation':
+    def doInit(self, mode):
+        if mode != 'simulation':
             self._dev.setRamp(0)
         self._thread = None
         self._stopflag = 0

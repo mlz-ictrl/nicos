@@ -187,7 +187,7 @@ class AsyncDetector(Measurable):
 
     # end hooks
 
-    def doInit(self):
+    def doInit(self, mode):
         self._measure = threading.Event()
         self._processed = threading.Event()
         self._processed.set()

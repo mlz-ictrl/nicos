@@ -90,7 +90,7 @@ class Slit(Moveable):
 
     hardware_access = False
 
-    def doInit(self):
+    def doInit(self, mode):
         self._axes = [self._adevs['left'], self._adevs['right'],
                       self._adevs['bottom'], self._adevs['top']]
         self._axnames = ['left', 'right', 'bottom', 'top']

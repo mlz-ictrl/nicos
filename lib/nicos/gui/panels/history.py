@@ -662,10 +662,10 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
 
 class StandaloneHistoryApp(CacheClient):
 
-    def doInit(self):
+    def doInit(self, mode):
         self._qtapp = QApplication(sys.argv)
         self._window = StandaloneHistoryWindow(self)
-        CacheClient.doInit(self)
+        CacheClient.doInit(self, mode)
 
     def start(self):
         self._window.show()

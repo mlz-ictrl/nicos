@@ -358,7 +358,7 @@ class Device(object):
 
         .. XXX expand parameter init procedure
 
-        .. method:: doPreinit()
+        .. method:: doPreinit(mode)
 
            This method, if present, is called before parameters are initialized
            (except for parameters that have the ``preinit`` property set to
@@ -368,17 +368,16 @@ class Device(object):
            for the various ``doRead...()`` methods of other parameters that read
            the current parameter value from the hardware.
 
-        .. method:: doInit()
+        .. method:: doInit(mode)
 
            This method, if present, is called after all parameters have been
            initialized.  It is the correct place to set up additional
            attributes, or to perform initial (read-only!) communication with the
            hardware.
 
-        .. note:: Currently, ``doPreinit()`` and ``doInit()`` are called
-           regardless of the current execution mode.  This means that if one of
-           these methods does hardware access, it needs to be done only if
-           ``self._mode != 'simulation'``.
+        .. note:: ``doPreinit()`` and ``doInit()`` are called regardless of the
+           current execution mode.  This means that if one of these methods does
+           hardware access, it must be done only if ``mode != 'simulation'``.
         """
         # validate and create attached devices
         for aname, entry in sorted(self.attached_devices.iteritems()):
@@ -486,7 +485,7 @@ class Device(object):
                 later.append((param, paraminfo))
 
         if hasattr(self, 'doPreinit'):
-            self.doPreinit()
+            self.doPreinit(self._mode)
 
         for param, paraminfo in later:
             _init_param(param, paraminfo)
@@ -512,7 +511,7 @@ class Device(object):
 
         # call custom initialization
         if hasattr(self, 'doInit'):
-            self.doInit()
+            self.doInit(self._mode)
 
     def _getCache(self):
         """Indirection needed by the Cache client itself."""

@@ -170,7 +170,7 @@ class FRMDetector(Measurable):
 
     hardware_access = False
 
-    def doPreinit(self):
+    def doPreinit(self, mode):
         self._counters = []
         self._presetkeys = {}
 

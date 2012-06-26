@@ -111,7 +111,7 @@ class Valve(Moveable):
         'unit':     Override(mandatory=False),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         if len(self.states) != 2:
             raise ConfigurationError(self, 'Valve states must be a list of '
                                      'two strings for closed/open state')

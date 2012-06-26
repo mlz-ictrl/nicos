@@ -38,8 +38,8 @@ class GasValve(NamedDigitalOutput):
                           type=float, unit='s', default=600),
     }
 
-    def doInit(self):
-        NamedDigitalOutput.doInit(self)
+    def doInit(self, mode):
+        NamedDigitalOutput.doInit(self, mode)
         self._timer = None
 
     def doStart(self, target):

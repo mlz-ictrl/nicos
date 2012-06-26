@@ -62,8 +62,8 @@ class IsegHV(TacoDevice, HasLimits, Moveable):
               'LAS': (status.BUSY,  'look at status (?)'),
               'TRP': (status.ERROR, 'current trip reached')}
 
-    def doInit(self):
-        if self._mode == 'simulation':
+    def doInit(self, mode):
+        if mode == 'simulation':
             self._polarity = +1
             return
         resp = self._taco_guard(self._dev.communicate, '#')

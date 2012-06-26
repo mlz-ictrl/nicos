@@ -68,7 +68,7 @@ class Switcher(Moveable):
 
     hardware_access = False
 
-    def doInit(self):
+    def doInit(self, mode):
         states = self.states
         values = self.values
         if len(states) != len(values):
@@ -125,7 +125,7 @@ class ReadonlySwitcher(Readable):
 
     hardware_access = False
 
-    def doInit(self):
+    def doInit(self, mode):
         states = self.states
         values = self.values
         if len(states) != len(values):

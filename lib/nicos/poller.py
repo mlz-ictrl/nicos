@@ -59,7 +59,7 @@ class Poller(Device):
                             type=listof(str)),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         self._stoprequest = False
         self._workers = []
         self._creation_lock = threading.Lock()

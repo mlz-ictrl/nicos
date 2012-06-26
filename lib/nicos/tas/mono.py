@@ -99,7 +99,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         'fmtstr': Override(default='%.3f'),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         # warnings about manual focus
         self._focwarnings = 3
 

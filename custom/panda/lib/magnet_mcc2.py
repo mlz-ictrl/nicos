@@ -68,10 +68,10 @@ class MCC2Motor(NicosMotor):
 
     _dev=None
     
-    def doInit(self):
-        #~ NicosMotor.doInit(self)
+    def doInit(self, mode):
+        #~ NicosMotor.doInit(self, mode)
         self._lock=threading.Lock()
-        if self._mode != 'simulation':
+        if mode != 'simulation':
             self._dev = StringIO( self.tacodevice )
             try:
                 self._dev.deviceOn()

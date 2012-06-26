@@ -224,7 +224,7 @@ class IPCModBusTacoless(IPCModBus):
                            type=float, default=0.1, settable=True),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         self._lock = RLock()
         self._connection = None
         try:
@@ -430,9 +430,9 @@ class Coder(NicosCoder):
         'bus': (IPCModBus, 'The communication bus'),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         bus = self._adevs['bus']
-        if self._mode != 'simulation':
+        if mode != 'simulation':
             bus.ping(self.addr)
             try:
                 actual_confbyte = self.doReadConfbyte()
@@ -614,9 +614,9 @@ class Motor(NicosMotor):
         'bus': (IPCModBus, 'The communication bus'),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         bus = self._adevs['bus']
-        if self._mode != 'simulation':
+        if mode != 'simulation':
             bus.ping(self.addr)
             if self._hwtype == 'single':
                 if self.confbyte != self.doReadConfbyte():
@@ -1053,7 +1053,7 @@ class Input(Readable):
         'bus': (IPCModBus, 'The communication bus'),
     }
 
-    def doInit(self):
+    def doInit(self, mode):
         self._mask = ((1 << (self.last - self.first + 1)) - 1) << self.first
 
     def doRead(self):
@@ -1127,8 +1127,9 @@ class SlitMotor(NicosMotor):
         'bus': (IPCModBus, 'The communication bus'),
     }
 
-    def doInit(self):
-        self._adevs['bus'].ping(self.addr)
+    def doInit(self, mode):
+        if mode != 'simulation':
+            self._adevs['bus'].ping(self.addr)
 
     def doVersion(self):
         return [('IPC slit axis', str(self._adevs['bus'].get(self.addr, 165)))]

@@ -47,9 +47,9 @@ class THM(Measurable):
     }
     # timeout is 5 seconds by kernel default
 
-    def doInit(self):
+    def doInit(self, mode):
         self._io = None
-        if self._mode != 'simulation':
+        if mode != 'simulation':
             self.doReset()
 
     def doReadFmtstr(self):

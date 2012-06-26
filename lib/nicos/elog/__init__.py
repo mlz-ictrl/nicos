@@ -32,8 +32,8 @@ from nicos.cache.client import BaseCacheClient
 
 
 class Logbook(BaseCacheClient):
-    def doInit(self):
-        BaseCacheClient.doInit(self)
+    def doInit(self, mode):
+        BaseCacheClient.doInit(self, mode)
         # this is run in the main thread
         self._handler = Handler(self.log)
 

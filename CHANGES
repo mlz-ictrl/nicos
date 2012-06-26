@@ -3,6 +3,9 @@ Changelog for NICOS 2
 
 **Release 2.2.0**
 
+  - Added a "mode" parameter to "doInit()" and "doPreinit()" so that
+    device implementers remember to check for simulation mode.
+
   - Added an API "Measurable.presetInfo()" that returns the accepted preset
     keys; to check that given presets are actually used by the detector(s).
 

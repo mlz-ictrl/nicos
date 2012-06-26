@@ -72,15 +72,15 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         'fmtstr':   Override(default='roi %s, total %s, file %s'),
     }
 
-    def doPreinit(self):
-        if self._mode != 'simulation':
+    def doPreinit(self, mode):
+        if mode != 'simulation':
             self._client = cascadeclient.NicosClient()
             self._padimg = cascadeclient.PadImage()
             self.doReset()
 
-    def doInit(self):
+    def doInit(self, mode):
         self._last_preset = self.preselection
-        AsyncDetector.doInit(self)
+        AsyncDetector.doInit(self, mode)
 
         # self._tres is set by doUpdateMode
         self._xres, self._yres = (128, 128)

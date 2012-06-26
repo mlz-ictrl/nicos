@@ -91,7 +91,7 @@ def assertNotAlmostEqual(first, second, places=7, msg=None):
 
 class TestDevice(HasLimits, Moveable):
 
-    def doInit(self):
+    def doInit(self, mode):
         self._value = 0
         self._start_exception = None
         self._read_exception = None
@@ -118,7 +118,7 @@ class TestDevice(HasLimits, Moveable):
 
 class TestSink(DataSink):
 
-    def doInit(self):
+    def doInit(self, mode):
         self.clear()
 
     def clear(self):

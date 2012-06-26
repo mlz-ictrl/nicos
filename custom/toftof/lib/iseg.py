@@ -82,8 +82,8 @@ class IsegHV(HasLimits, Moveable):
                 raise CommunicationError(self, 'invalid response %r' % ret)
         return ret
 
-    def doInit(self):
-        if self._mode == 'simulation':
+    def doInit(self, mode):
+        if mode == 'simulation':
             self._polarity = +1
             return
         resp = self._comm('#')

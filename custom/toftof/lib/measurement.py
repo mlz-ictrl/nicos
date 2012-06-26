@@ -79,7 +79,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
     def presetInfo(self):
         return ['info', 't', 'm', 'nosave']
 
-    def doInit(self):
+    def doInit(self, mode):
         with open(self.detinfofile, 'U') as fp:
             self._detinfo = list(fp)
         i = 0
