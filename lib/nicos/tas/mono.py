@@ -73,20 +73,23 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
 
     parameters = {
         'dvalue':   Param('d-value of the reflection used', unit='A',
-                          mandatory=True, settable=True),
+                          mandatory=True, settable=True, category='instrument'),
         'order':    Param('order of reflection to use', type=int, default=1,
-                          settable=True),
+                          settable=True, category='instrument'),
         'reltheta': Param('true if theta position is relative to two-theta',
-                          type=bool, default=False),
+                          type=bool, default=False, category='instrument'),
         # XXX explanation?
         'sidechange': Param('', type=int, default=False),
         'focmode':  Param('focussing mode', default='manual', settable=True,
                           type=oneof('manual', 'flat', 'horizontal',
-                                     'vertical', 'double')),
+                                     'vertical', 'double'),
+                          category='instrument'),
         'hfocuspars': Param('horizontal focus polynomial coefficients',
-                            type=listof(float), default=[0.], settable=True),
+                            type=listof(float), default=[0.], settable=True,
+                            category='instrument'),
         'vfocuspars': Param('vertical focus polynomial coefficients',
-                            type=listof(float), default=[0.], settable=True),
+                            type=listof(float), default=[0.], settable=True,
+                            category='instrument'),
         'warninterval': Param('interval between warnings about theta/two-theta '
                               'mismatch', unit='s', default=5),
         'scatteringsense': Param('default scattering sense when not used '
