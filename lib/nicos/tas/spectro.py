@@ -211,7 +211,7 @@ class TAS(Instrument, Moveable):
                 [qh, qk, ql], ny, self.scanmode, sc,
                 self.scatteringsense[1], self.axiscoupling, self.psi360)
         except ComputationError, err:
-            self.log.warning('cannot calculate position: %s' % err)
+            self.log.error('cannot calculate position: %s' % err)
             return
         if not printout:
             return angles
