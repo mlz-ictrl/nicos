@@ -77,6 +77,7 @@ class BaseCacheClient(Device):
             self._prefix += '/'
         self._selecttimeout = 0.5  # seconds
         self._do_callbacks = True
+        self._disconnect_warnings = 0
 
         self._stoprequest = False
         self._queue = Queue.Queue()
@@ -101,10 +102,11 @@ class BaseCacheClient(Device):
             self._socket.connect(self._address)
             self._connect_action()
         except Exception, err:
-            self._disconnect('unable to connect primary socket to %s:%s: %s' %
+            self._disconnect('unable to connect to %s:%s: %s' %
                              (self._address + (err,)))
         else:
             self.log.info('now connected to %s:%s' % self._address)
+            self._disconnect_warnings = 0
         self._startup_done.set()
         self._do_callbacks = True
 
@@ -113,7 +115,9 @@ class BaseCacheClient(Device):
         if not self._socket:
             return
         if why:
-            self.log.warning(why)
+            if self._disconnect_warnings % 10 == 0:
+                self.log.warning(why)
+            self._disconnect_warnings += 1
         closeSocket(self._socket)
         self._socket = None
         # close secondary socket
