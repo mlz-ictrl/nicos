@@ -59,14 +59,11 @@ def basicCacheTest(name, setup):
         killCache(cache)
 
 def restartServerCacheTest(name, setup):
-    cache = startCache(setup)
-    try:
-        sleep(2)
-        cc = session.cache
-        testval = 'test2'
-        key = 'value'
-    finally:
-        killCache(cache)
+    #cache = startCache(setup)
+    cc = session.cache
+    testval = 'test2'
+    key = 'value'
+    #killCache(cache)
     cc.put('testcache', key, testval)
     cachedval_local = cc.get('testcache', key, None)
     assert raises(CacheError, cc.get_explicit,  'testcache', key, None)

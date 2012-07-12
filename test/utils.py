@@ -34,10 +34,13 @@ import shutil
 import socket
 import subprocess
 from os import path
+from logging import ERROR, WARNING
 
 from nose.tools import assert_raises
 
 from nicos.core import Moveable, HasLimits, DataSink, status
+from nicos.sessions import Session
+from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
 
 rootdir = path.join(os.path.dirname(__file__), 'root')
 
@@ -88,6 +91,57 @@ def assertNotAlmostEqual(first, second, places=7, msg=None):
     if round(abs(second - first), places) == 0:
         assert False, \
               (msg or '%r == %r within %r places' % (first, second, places))
+
+
+
+class ErrorLogged(Exception):
+    """Raised when an error is logged by NICOS."""
+
+
+class TestLogHandler(ColoredConsoleHandler):
+    def __init__(self):
+        ColoredConsoleHandler.__init__(self)
+        self._warnings = []
+        self._raising = True
+
+    def emit(self, record):
+        if record.levelno >= ERROR and self._raising:
+            if record.exc_info:
+                # raise the original exception
+                raise record.exc_info[1], None, record.exc_info[2]
+            else:
+                raise ErrorLogged(record.message)
+        elif record.levelno >= WARNING:
+            self._warnings.append(record)
+        ColoredConsoleHandler.emit(self, record)
+
+    def enable_raising(self, raising):
+        self._raising = raising
+
+    def warns(self, func, *args, **kwds):
+        plen = len(self._warnings)
+        func(*args, **kwds)
+        return len(self._warnings) == plen + 1
+
+
+class TestSession(Session):
+    autocreate_devices = False
+
+    def __init__(self, appname):
+        Session.__init__(self, appname)
+        self._mode = 'master'
+        self.setSetupPath(path.join(path.dirname(__file__), 'setups'))
+
+    def createRootLogger(self, prefix='nicos'):
+        self.log = NicosLogger('nicos')
+        self.log.parent = None
+        self.testhandler = TestLogHandler()
+        self.log.addHandler(self.testhandler)
+        self._master_handler = None
+
+TestSession.config.user = None
+TestSession.config.group = None
+TestSession.config.control_path = rootdir
 
 
 class TestDevice(HasLimits, Moveable):
@@ -150,8 +204,6 @@ class TestSink(DataSink):
 
 def cleanup():
     if path.exists(rootdir):
-        print 'Cleaning old test output dir...'
-        print '-' * 70
         shutil.rmtree(rootdir)
     os.mkdir(rootdir)
     os.mkdir(rootdir + '/cache')
@@ -159,7 +211,7 @@ def cleanup():
 
 def startCache(setup='cache', wait=5):
     global cache # pylint: disable=W0603
-    print >>sys.stderr, ' [Starting cache...',
+    sys.stderr.write(' [cache start... ')
 
     # start the cache server
     os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..', 'lib')
@@ -178,12 +230,12 @@ def startCache(setup='cache', wait=5):
                 break
         else:
             raise Exception('cache failed to start within %s sec' % wait)
-    print >>sys.stderr, 'PID = %s] ' % cache.pid
+    sys.stderr.write('%s ok] ')
     return cache
 
 def killCache(cache):
-    print >>sys.stderr, ' [Killing cache' , cache.pid, '...',
+    sys.stderr.write(' [cache kill %s... ' % cache.pid)
     if cache.poll() is None:
         cache.terminate()
         cache.wait()
-    print >>sys.stderr, 'done] '
+    sys.stderr.write('ok] ')

@@ -33,8 +33,7 @@ from nicos.commands.scan import scan
 from nicos.commands.output import printdebug, printinfo, printwarning, \
      printerror, printexception
 
-from test import ErrorLogged
-from test.utils import raises
+from test.utils import ErrorLogged, raises
 
 
 def setup_module():

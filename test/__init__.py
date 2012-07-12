@@ -26,63 +26,14 @@
 
 __version__ = "$Revision$"
 
-from os import path
-from logging import ERROR, WARNING
+import sys
 
 from nicos import session
-from nicos.sessions import Session
-from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
 
+from test.utils import TestSession, cleanup
 
-class ErrorLogged(Exception):
-    """Raised when an error is logged by NICOS."""
-
-
-class TestLogHandler(ColoredConsoleHandler):
-    def __init__(self):
-        ColoredConsoleHandler.__init__(self)
-        self._warnings = []
-        self._raising = True
-
-    def emit(self, record):
-        if record.levelno >= ERROR and self._raising:
-            if record.exc_info:
-                # raise the original exception
-                raise record.exc_info[1], None, record.exc_info[2]
-            else:
-                raise ErrorLogged(record.message)
-        elif record.levelno >= WARNING:
-            self._warnings.append(record)
-        ColoredConsoleHandler.emit(self, record)
-
-    def enable_raising(self, raising):
-        self._raising = raising
-
-    def warns(self, func, *args, **kwds):
-        plen = len(self._warnings)
-        func(*args, **kwds)
-        return len(self._warnings) == plen + 1
-
-
-class TestSession(Session):
-    autocreate_devices = False
-
-    def __init__(self, appname):
-        Session.__init__(self, appname)
-        self._mode = 'master'
-        self.setSetupPath(path.join(path.dirname(__file__), 'setups'))
-
-    def createRootLogger(self, prefix='nicos'):
-        self.log = NicosLogger('nicos')
-        self.log.parent = None
-        self.testhandler = TestLogHandler()
-        self.log.addHandler(self.testhandler)
-        self._master_handler = None
-
-TestSession.config.user = None
-TestSession.config.group = None
-TestSession.config.control_path = path.join(path.dirname(__file__), 'root')
-
-
-session.__class__ = TestSession
-session.__init__('test')
+def setup_package():
+    print >> sys.stderr, 'Setting up test package, cleaning old test dir...'
+    session.__class__ = TestSession
+    session.__init__('test')
+    cleanup()
