@@ -47,11 +47,7 @@ def assertRaises(exception, func, *args):
     assert raises(exception, func, *args)
 
 def test_scripts():
-    '''test generator executing succesful scripts
-
-    All scripts not containing 'Raises' in their name are considered
-    'successful'.
-    '''
+    # test generator executing scripts
     testscriptspath = path.join(path.dirname(__file__), 'scripts')
     allscripts = []
     matcher = re.compile('.*Raises(.*)\..*')

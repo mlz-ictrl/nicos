@@ -39,9 +39,10 @@ def setup_package():
     os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..', 'lib')
     daemon = subprocess.Popen([sys.executable,
                                path.join(rootdir, '..', 'daemonTest.py')])
+    print >>sys.stderr, ' [Daemon PID = %s] ' % daemon.pid
 
 def teardown_package():
-    print 'Killing daemon server...'
+    print >>sys.stderr, ' [Killing daemon server...',
     os.kill(daemon.pid, signal.SIGTERM)
     os.waitpid(daemon.pid, 0)
-    print '-' * 70
+    print >>sys.stderr, 'done] '

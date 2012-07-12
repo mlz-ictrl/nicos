@@ -29,7 +29,6 @@ from time import sleep
 from nicos.cache.client import CacheError
 
 from test.utils import raises, killCache, startCache
-from test import test_03stresstest
 
 def setup_module():
     session.loadSetup('cachetests')
@@ -39,46 +38,52 @@ def teardown_module():
     session.unloadSetup()
 
 
-def basicCacheTest(setup):
-    killCache(test_03stresstest.cache)
-    test_03stresstest.cache = startCache(setup)
-    sleep(2)
-    cc = session.cache
-    testval = 'test1'
-    key = 'value'
-    cc.put('testcache', key, testval)
-    cachedval_local = cc.get('testcache', key, None)
-    cachedval = cc.get_explicit('testcache', key, None)
-    sleep(5)
-    cachedval2 = cc.get_explicit('testcache', key, None)
+def basicCacheTest(name, setup):
+    cache = startCache(setup)
+    try:
+        sleep(2)
+        cc = session.cache
+        testval = 'test1'
+        key = 'value'
+        cc.put('testcache', key, testval)
+        cachedval_local = cc.get('testcache', key, None)
+        cachedval = cc.get_explicit('testcache', key, None)
+        sleep(5)
+        cachedval2 = cc.get_explicit('testcache', key, None)
 
-    print cachedval, cachedval2
-    assert cachedval_local == testval
-    assert cachedval[2] == testval
-    assert cachedval2[2] == testval
+        print cachedval, cachedval2
+        assert cachedval_local == testval
+        assert cachedval[2] == testval
+        assert cachedval2[2] == testval
+    finally:
+        killCache(cache)
 
-def restartServerCacheTest(setup):
-    killCache(test_03stresstest.cache)
-    test_03stresstest.cache = startCache(setup)
-    sleep(2)
-    cc = session.cache
-    testval = 'test2'
-    key = 'value'
-    killCache(test_03stresstest.cache)
+def restartServerCacheTest(name, setup):
+    cache = startCache(setup)
+    try:
+        sleep(2)
+        cc = session.cache
+        testval = 'test2'
+        key = 'value'
+    finally:
+        killCache(cache)
     cc.put('testcache', key, testval)
     cachedval_local = cc.get('testcache', key, None)
     assert raises(CacheError, cc.get_explicit,  'testcache', key, None)
-    sleep(5)
-    test_03stresstest.cache = startCache(setup)
     sleep(1)
-    cachedval2 = cc.get_explicit('testcache', key, None)
+    cache = startCache(setup)
+    try:
+        sleep(1)
+        cachedval2 = cc.get_explicit('testcache', key, None)
 
-    print cachedval2
-    assert cachedval_local == testval
-    assert cachedval2[2] == testval
+        print cachedval2
+        assert cachedval_local == testval
+        assert cachedval2[2] == testval
+    finally:
+        killCache(cache)
 
 
-def test_03test_dbs():
+def test_different_dbs():
     for setup in ['cache', 'cache_mem', 'cache_mem_hist']:
         for func in [basicCacheTest, restartServerCacheTest]:
-            yield func, setup
+            yield func, func.__name__, setup

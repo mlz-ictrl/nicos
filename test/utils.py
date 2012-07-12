@@ -29,10 +29,11 @@ __version__ = "$Revision$"
 import os
 import re
 import sys
+import time
 import shutil
+import socket
 import subprocess
 from os import path
-from time import sleep
 
 from nose.tools import assert_raises
 
@@ -156,24 +157,33 @@ def cleanup():
     os.mkdir(rootdir + '/cache')
     os.mkdir(rootdir + '/pid')
 
-def startCache(setup='cache'):
+def startCache(setup='cache', wait=5):
     global cache # pylint: disable=W0603
-    print 'Starting test cache server...'
+    print >>sys.stderr, ' [Starting cache...',
 
     # start the cache server
     os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..', 'lib')
     cache = subprocess.Popen([sys.executable,
                               path.join(rootdir, '..', 'cache.py'), setup])
-
-    print 'Cache PID = %s' % cache.pid
-    print '-' * 70
+    if wait:
+        start = time.time()
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        while time.time() < start + wait:
+            try:
+                s.connect(('localhost', 14877))
+            except socket.error:
+                time.sleep(0.2)
+            else:
+                s.close()
+                break
+        else:
+            raise Exception('cache failed to start within %s sec' % wait)
+    print >>sys.stderr, 'PID = %s] ' % cache.pid
     return cache
 
 def killCache(cache):
-    print '-' * 70
-    print 'Killing cache server...' , cache.pid
+    print >>sys.stderr, ' [Killing cache' , cache.pid, '...',
     if cache.poll() is None:
         cache.terminate()
         cache.wait()
-        sleep(1)
-    print '-' * 70
+    print >>sys.stderr, 'done] '

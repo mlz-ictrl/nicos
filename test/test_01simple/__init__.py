@@ -27,10 +27,10 @@ cache = None
 
 from test.utils import cleanup, startCache, killCache
 
-def setupPackage():
+def setup_package():
     global cache #pylint: disable=W0603
     cleanup()
     cache = startCache()
 
-def teardownPackage():
+def teardown_package():
     killCache(cache)

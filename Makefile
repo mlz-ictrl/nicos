@@ -32,7 +32,7 @@ inplace:
 	-make custom-inplace
 
 test:
-	@$(PYTHON) test/run.py -d $(O)
+	@$(PYTHON) `which nosetests` -d $(O)
 
 lint:
 	-pylint --rcfile=./pylintrc lib/nicos/
@@ -54,7 +54,7 @@ check:
 	pyflakes lib/nicos custom/*/lib
 
 test-coverage:
-	@$(PYTHON) test/run.py -d --with-coverage --cover-package=nicos --cover-html $(O)
+	@$(PYTHON) `which nosetests` -d --with-coverage --cover-package=nicos --cover-html $(O)
 
 # get the instrument from the full hostname (mira1.mira.frm2 -> mira)
 INSTRUMENT = $(shell hostname -f | cut -d. -f2)
@@ -167,7 +167,6 @@ fixsmb:
 	chmod +x etc/create_nicosconf.py
 	chmod +x etc/nicos-system
 	chmod +x custom/panda/bin/pausebutton
-	chmod +x test/run.py
 
 help:
 	@echo "Important targets:"
