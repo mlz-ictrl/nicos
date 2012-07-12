@@ -32,6 +32,9 @@ inplace:
 	-make custom-inplace
 
 test:
+	@$(PYTHON) `which nosetests` -e test_stresstest -d $(O)
+
+testall:
 	@$(PYTHON) `which nosetests` -d $(O)
 
 lint:

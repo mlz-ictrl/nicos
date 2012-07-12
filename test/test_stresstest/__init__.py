@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
@@ -23,26 +22,7 @@
 #
 # *****************************************************************************
 
-import os
-import sys
-import signal
-import subprocess
-from os import path
+from test.utils import cleanup
 
-from test.utils import cleanup, rootdir
-
-daemon = None
-
-def setup_package():
+def setupPackage():
     cleanup()
-    global daemon #pylint: disable=W0603
-    os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..', 'lib')
-    daemon = subprocess.Popen([sys.executable,
-                               path.join(rootdir, '..', 'daemonTest.py')])
-    print >>sys.stderr, ' [Daemon PID = %s] ' % daemon.pid
-
-def teardown_package():
-    print >>sys.stderr, ' [Killing daemon server...',
-    os.kill(daemon.pid, signal.SIGTERM)
-    os.waitpid(daemon.pid, 0)
-    print >>sys.stderr, 'done] '

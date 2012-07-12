@@ -71,11 +71,13 @@ devices = dict(
                       dvalue = 3.325),
 
     t_mth    = device('nicos.generic.VirtualMotor',
+                      curvalue = 10,
                       unit = 'deg',
                       abslimits = (-180, 180),
                       jitter = 0.02),
 
     t_mtt    = device('nicos.generic.VirtualMotor',
+                      curvalue = 20,
                       unit = 'deg',
                       abslimits = (-180, 180)),
 
@@ -90,11 +92,13 @@ devices = dict(
                       dvalue = 3.325),
 
     t_ath    = device('nicos.generic.VirtualMotor',
+                      curvalue = 10,
                       unit = 'deg',
                       abslimits = (-180, 180),
                       jitter = 0.02),
 
     t_att    = device('nicos.generic.VirtualMotor',
+                      curvalue = -20,
                       unit = 'deg',
                       abslimits = (-180, 180)),
 

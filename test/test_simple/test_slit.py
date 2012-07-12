@@ -100,7 +100,7 @@ def test_slit_opmodes():
     assert slit.read() == [8, 10, 4, 7]
 
     slit.opmode = 'centered'
-    assert slit.read() == [2, 3]
+    assert session.testhandler.warns(slit.read)
     slit.maw([0, 0])
     assert raises(InvalidValueError, slit.doStart, [800, 0, 0, 0])
     assert raises(LimitError, slit.start, [-2, 0])

@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-22 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -28,28 +28,28 @@ includes = ['system']
 
 devices = dict(
     dev1 = device(
-        'test.test_01simple.test_device.Dev1',
+        'test.test_simple.test_device.Dev1',
     ),
     dev2_1 = device(
-        'test.test_01simple.test_device.Dev2',
+        'test.test_simple.test_device.Dev2',
         attached = 'dev1',
         param2 = 1,
         unit = 'mm',
         abslimits = (0, 10),
     ),
     dev2_2 = device(
-        'test.test_01simple.test_device.Dev2',
+        'test.test_simple.test_device.Dev2',
         unit = 'mm',
     ),
     dev2_3 = device(
-        'test.test_01simple.test_device.Dev2',
+        'test.test_simple.test_device.Dev2',
         attached = 'dev1',
         param2 = 1,
         unit = 'mm',
         abslimits = (0, 10),
     ),
     dev2_4 = device(
-        'test.test_01simple.test_device.Dev2',
+        'test.test_simple.test_device.Dev2',
         failinit = True,
         attached = 'dev1',
         param2 = 1,
