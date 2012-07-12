@@ -40,7 +40,7 @@ from nicos.experiment import Sample
 D2R = pi/180
 R2D = 180/pi
 # conversion from THz to A^-2
-K = 1.99573
+K = 1.9958584
 
 
 class Cell(Device):

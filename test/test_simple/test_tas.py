@@ -18,19 +18,121 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Tobias Weber <tobias.weber@frm2.tum.de>
+#   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
 
 from nicos import session
+from nicos.core import UsageError, LimitError
+from nicos.commands.tas import qscan, qcscan, Q, calpos, pos, rp, \
+     acc_bragg, ho_spurions, alu, copper
+
+from test.utils import raises, assertAlmostEqual, ErrorLogged
 
 def setup_module():
-    session.loadSetup('system')
+    session.loadSetup('scanning')
     session.setMode('master')
+    sample = session.getDevice('sample')
+    sample.lattice = [2.77, 2.77, 2.77]
+    sample.angles = [90, 90, 90]
+    sample.orient1 = [1, 0, 0]
+    sample.orient2 = [0, 1, 1]
 
 def teardown_module():
     session.unloadSetup()
 
 
-def test_tas():
-    tas = session.getDevice('Tas') #pylint: disable=W0612
+def assertPos(pos1, pos2):
+    for v1, v2 in zip(pos1, pos2):
+        assertAlmostEqual(v1, v2, 3)
+
+def test_tas_device():
+    tas = session.getDevice('Tas')
+    mono = session.getDevice('t_mono')
+    ana = session.getDevice('t_ana')
+    phi = session.getDevice('t_phi')
+    psi = session.getDevice('t_psi')
+
+    mono(1)
+    ana(2)
+    tas.energytransferunit = 'meV'
+    assertAlmostEqual(tas()[3], -6.216, 3)
+    tas.energytransferunit = 'THz'
+    assertAlmostEqual(tas()[3], -1.503, 3)
+
+    tas.scanmode = 'CKF'
+    tas.scanconstant = 2.662
+
+    tas([1, 0, 0, 1])
+
+    assertAlmostEqual(ana(), 2.662, 3)
+    assertAlmostEqual(mono(), 3.014, 3)
+    assertAlmostEqual(phi(), -46.6, 1)
+    assertAlmostEqual(psi(), 105.1, 1)
+    assertPos(tas(), [1, 0, 0, 1])
+
+    assert raises(LimitError, tas, [5, 0, 0, 0])
+
+def test_Q_object():
+    assert all(Q() == Q(0, 0, 0, 0))
+    assert all(Q(1) == Q(1, 0, 0, 0))
+    assert all(Q(1, 1) == Q(1, 1, 0, 0))
+    assert all(Q(1, 1, 1) == Q(1, 1, 1, 0))
+    q1 = Q(1, 2, 3, 4)
+    for q2 in [
+        Q(Q(1, 4, 3, 0), k=2, e=4),
+        Q(1, 2, 3, e=4),
+        Q(h=1, k=2, l=3, e=4),
+        Q(H=1, K=2, L=3, E=4)
+    ]:
+        assert all(q2 == q1)
+    assert raises(UsageError, Q, 1, 2, 3, 4, 5)
+    assert repr(Q()) == '[ 0.  0.  0.  0.]'
+
+def test_qscan():
+    mot = session.getDevice('motor2')
+    man = session.getDevice('manual')
+    qscan((1, 0, 0), Q(0, 0, 0, 0.1), 10, mot, 'scaninfo', t=1)
+    qscan((0, 0, 0), (0, 0, 0), 10, 2.5, kf=2.662,
+          h=1, k=1, l=1, e=0, dH=0, dk=0, dl=0, dE=.1)
+    qcscan((1, 0, 0), Q(0, 0, 0, 0.1), 5, manual=[1, 2])
+
+    assert raises(UsageError, qscan, 1, 1, 1)
+    assert raises(UsageError, qscan, (1, 0, 0, 0, 0), (0, 0, 0), 10)
+    assert raises(UsageError, qscan, (1, 0, 0), (0, 0, 0), 10)
+    assert raises(UsageError, qcscan, (1, 0, 0), (0, 0, 0), 10)
+
+def test_tas_commands():
+    tas = session.getDevice('Tas')
+    tas.scanmode = 'CKI'
+    tas.scanconstant = 1.57
+
+    # calpos()/pos()
+    for args in [
+        (0.5, 0.5, 0.5),
+        (0.5, 0.5, 0.5, 0),
+        (0.5, 0.5, 0.5, 0, 1.57),
+        ((0.5, 0.5, 0.5, 0),),
+        (Q(0.5, 0.5, 0.5, 0),),
+        (Q(0.5, 0.5, 0.5, 0), 1.57)
+    ]:
+        calpos(*args)
+        pos()
+        assertPos(tas(), [0.5, 0.5, 0.5, 0])
+        pos(*args)
+        assertPos(tas(), [0.5, 0.5, 0.5, 0])
+
+    assert raises(ErrorLogged, calpos, 1, 0, 0, 1)
+    pos()  # still goes to last successful calpos()
+    assertPos(tas(), [0.5, 0.5, 0.5, 0])
+    rp()  # just check that it works
+
+    assert raises(UsageError, calpos, 1, 0, 0, 0, 0, 0)
+    assert raises(UsageError, pos, 1, 0, 0, 0, 0, 0)
+
+def test_helper_commands():
+    # just check that they are working
+    acc_bragg(1, 0, 0, 0)
+    ho_spurions()
+    alu(phi=50)
+    copper(phi=50)

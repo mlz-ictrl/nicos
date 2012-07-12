@@ -37,7 +37,7 @@ from nicos.instrument import Instrument
 SCANMODES = ['CKI', 'CKF', 'CPHI', 'CPSI', 'DIFF']
 
 ENERGYTRANSFERUNITS = ['meV', 'THz']
-THZ2MEV = 4.136
+THZ2MEV = 4.1356675
 
 
 class TAS(Instrument, Moveable):

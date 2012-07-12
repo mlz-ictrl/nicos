@@ -66,21 +66,21 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
         else:
             raise UsageError('unsupported qscan argument: %r' % arg)
     for key, value in kwargs.iteritems():
-        if key == 'h':
+        if key == 'h' or key == 'H':
             Q[0] = value
-        elif key == 'k':
+        elif key == 'k' or key == 'K':
             Q[1] = value
-        elif key == 'l':
+        elif key == 'l' or key == 'L':
             Q[2] = value
-        elif key == 'E':
+        elif key == 'E' or key == 'e':
             Q[3] = value
-        elif key == 'dh':
+        elif key == 'dh' or key == 'dH':
             dQ[0] = value
-        elif key == 'dk':
+        elif key == 'dk' or key == 'dK':
             dQ[1] = value
-        elif key == 'dl':
+        elif key == 'dl' or key == 'dL':
             dQ[2] = value
-        elif key == 'dE':
+        elif key == 'dE' or key == 'de':
             dQ[3] = value
         elif key in session.devices and \
                  isinstance(session.devices[key], Moveable):
@@ -165,9 +165,9 @@ def Q(*args, **kwds): # pylint: disable=E0102
     """
     q = _Q(4)
     q[:] = 0.
-    if not args:
+    if not args and not kwds:
         return q
-    elif len(args) == 1:
+    if len(args) == 1:
         try:
             nlen = len(args[0])
         except TypeError:

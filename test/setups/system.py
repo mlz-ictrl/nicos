@@ -50,15 +50,15 @@ devices = dict(
     t_phi    = device('nicos.generic.VirtualMotor',
                       abslimits = (-180, 180),
                       initval = 0,
-                      speed = 1,
+                      speed = 0,
                       jitter = 0.01,
                       unit = 'deg'),
 
     t_psi    = device('nicos.generic.VirtualMotor',
                       abslimits = (0, 360),
                       initval = 0,
-                      speed = 2,
-                      jitter = 0.05,
+                      speed = 0,
+                      jitter = 0.01,
                       unit = 'deg'),
 
     t_mono   = device('nicos.tas.Monochromator',
