@@ -42,7 +42,7 @@ from os import path
 from nicos.core.data import DataSink
 from nicos.core.device import Device
 from nicos.core.errors import NicosError, UsageError, ModeError, \
-     ConfigurationError, AccessError
+     ConfigurationError, AccessError, CacheError
 from nicos.notify import Notifier
 from nicos.utils import formatDocstring
 from nicos.utils.loggers import initLoggers, NicosLogger, \
@@ -194,11 +194,14 @@ class Session(object):
                     cache.put(self, 'mastersetupexplicit',
                               list(self.explicit_setups))
                     self.elog_event('setup', list(self.explicit_setups))
-        elif mode in ['slave', 'maintenance']:
+        else:
             # switching from master (or slave) to slave or to maintenance
             if cache and cache._ismaster:
                 cache._ismaster = False
-                cache.unlock('master')
+                try:
+                    cache.unlock('master')
+                except CacheError:
+                    self.log.warning('could not release master lock')
             elif mode == 'maintenance':
                 self.log.warning('Switching from slave to maintenance mode: '
                                  "I'll trust that you know what you're doing!")

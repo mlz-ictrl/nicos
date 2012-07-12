@@ -22,16 +22,24 @@
 #
 # *****************************************************************************
 
-cache = None
+"""Tests for simulation mode."""
 
 from nicos import session
+from nicos.commands.scan import scan
 
-from test.utils import startCache, killCache
 
-def setup_package():
-    global cache #pylint: disable=W0603
-    cache = startCache()
+def setup_module():
+    session.loadSetup('scanning')
+    session.setMode('simulation')
 
-def teardown_package():
-    session.shutdown()
-    killCache(cache)
+def teardown_module():
+    session.__dict__.clear()
+    session.__init__('nicos')
+
+
+def test_simmode():
+    m = session.getDevice('motor')
+    scan(m, 0, 1, 5, 0., 'test scan')
+    assert m._sim_min == 0
+    assert m._sim_max == 4
+    assert m._sim_value == 4
