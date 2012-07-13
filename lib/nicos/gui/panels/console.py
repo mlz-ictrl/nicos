@@ -34,12 +34,13 @@ import codecs
 
 from PyQt4.QtCore import QVariant, QStringList, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
-from PyQt4.QtGui import QDialog, QFileDialog, QMessageBox, QMenu, \
-     QColor, QPrinter, QPrintDialog, QAbstractPrintDialog
+from PyQt4.QtGui import QDialog, QFileDialog, QMessageBox, QMenu, QStyle, \
+     QColor, QPrinter, QPrintDialog, QAbstractPrintDialog, QDialogButtonBox, \
+     QPushButton
 
 from nicos.gui.panels import Panel
 from nicos.gui.utils import loadUi, setBackgroundColor, setForegroundColor, \
-     chunks, enumerateWithProgress, showTraceback
+     chunks, enumerateWithProgress, showTraceback, dialogFromUi
 
 
 class ConsolePanel(Panel):
@@ -214,13 +215,38 @@ class ConsolePanel(Panel):
                     self, 'Command', 'Syntax error in command: %s' % err.msg)
                 self.commandInput.setCursorPosition(err.offset)
                 return
+        action = 'queue'
         if self.current_status != 'idle':
-            if QMessageBox.question(
-                self, 'Queue?', 'A script is currently running, do you want '
-                'to queue this command?',
-                QMessageBox.Yes | QMessageBox.No, QMessageBox.No) \
-                == QMessageBox.No:
+            qwindow = dialogFromUi(self, 'question.ui', 'panels')
+            qwindow.questionText.setText('A script is currently running.  What '
+                                         'do you want to do?')
+            icon = qwindow.style().standardIcon
+            qwindow.iconLabel.setPixmap(
+                icon(QStyle.SP_MessageBoxQuestion).pixmap(32, 32))
+            b0 = QPushButton(icon(QStyle.SP_DialogCancelButton), 'Cancel')
+            b1 = QPushButton(icon(QStyle.SP_DialogOkButton), 'Queue script')
+            b2 = QPushButton(icon(QStyle.SP_MessageBoxWarning), 'Execute now!')
+            qwindow.buttonBox.addButton(b0, QDialogButtonBox.ApplyRole)
+            qwindow.buttonBox.addButton(b1, QDialogButtonBox.ApplyRole)
+            qwindow.buttonBox.addButton(b2, QDialogButtonBox.ApplyRole)
+            qwindow.buttonBox.setFocus()
+            result = [0]
+            def pushed(btn):
+                if btn is b1:
+                    result[0] = 1
+                elif btn is b2:
+                    result[0] = 2
+                qwindow.accept()
+            self.connect(qwindow.buttonBox, SIGNAL('clicked(QAbstractButton*)'),
+                         pushed)
+            qwindow.exec_()
+            if result[0] == 0:
                 return
-        self.client.tell('queue', '', script)
-        self.mainwindow.action_start_time = time.time()
+            elif result[0] == 2:
+                action = 'execute'
+        if action == 'queue':
+            self.client.tell('queue', '', script)
+            self.mainwindow.action_start_time = time.time()
+        else:
+            self.client.tell('exec', script)
         self.commandInput.setText('')

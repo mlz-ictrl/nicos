@@ -130,7 +130,6 @@ class ScriptStatusPanel(Panel):
         menu.addAction(self.actionStop)
         menu.addSeparator()
         menu.addAction(self.actionEmergencyStop)
-        menu.addAction(self.actionRunCommand)
         return [menu]
 
     def updateStatus(self, status, exception=False):
@@ -140,7 +139,6 @@ class ScriptStatusPanel(Panel):
         self.actionContinue.setVisible(status == 'interrupted')
         self.actionStop.setEnabled(isconnected and status != 'idle')
         self.actionEmergencyStop.setEnabled(isconnected)
-        self.actionRunCommand.setEnabled(isconnected)
         if status == 'interrupted':
             self.statusLabel.setText('Script is interrupted.')
             self.statusLabel.show()
@@ -218,16 +216,6 @@ class ScriptStatusPanel(Panel):
     def on_actionEmergencyStop_triggered(self):
         self.client.tell('emergency')
         self.mainwindow.action_start_time = time.time()
-
-    @qtsig('')
-    def on_actionRunCommand_triggered(self):
-        command, ok = QInputDialog.getText(
-            self, 'Run command', 'Warning: In most cases it is advisable to at '
-            'least break the script before using this function!\n'
-            'Command to run in script namespace:')
-        if not ok:
-            return
-        self.client.tell('exec', str(command))
 
     @qtsig('')
     def on_clearQueue_clicked(self):

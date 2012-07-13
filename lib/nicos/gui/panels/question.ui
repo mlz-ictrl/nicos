@@ -36,7 +36,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="errorText">
+      <widget class="QLabel" name="questionText">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -44,7 +44,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>&lt;Error description&gt;</string>
+        <string>Question</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -59,7 +59,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::NoButton</set>
      </property>
      <property name="centerButtons">
       <bool>false</bool>

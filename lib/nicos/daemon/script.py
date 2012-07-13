@@ -106,7 +106,7 @@ class ScriptRequest(Request):
             return self.name + ':\n' + self.text
         return self.text
 
-    def parse(self):
+    def parse(self, splitblocks=True):
         if '\n' not in self.text:
             # if the script is a single line, compile it like a line
             # in the interactive interpreter, so that expression
@@ -115,7 +115,7 @@ class ScriptRequest(Request):
                                            '<script>', 'single', CO_DIVISION)
             self.code = [session.commandHandler(self.text, compiler)]
             self.blocks = None
-        elif sys.version_info < (2, 6):
+        elif sys.version_info < (2, 6) or not splitblocks:
             # Python < 2.6, no splitting possible
             self.code = [compile('# coding: utf-8\n' + self.text + '\n',
                                  '<script>', 'exec', CO_DIVISION)]
@@ -332,8 +332,11 @@ class ExecutionController(Controller):
         self.blocked_reqs.update(requests)
         self.eventfunc('blocked', requests)
 
-    def exec_script(self, code):
-        exec code in self.namespace
+    def exec_script(self, code, user):
+        temp_request = ScriptRequest(code, None, user)
+        temp_request.parse(splitblocks=False)
+        session.log.log(INPUT, format_script(temp_request, '---'))
+        exec temp_request.code[0] in self.namespace
 
     def simulate_script(self, code, name):
         session.forkSimulation(code, wait=False)

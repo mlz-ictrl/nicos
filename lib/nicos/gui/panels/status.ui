@@ -142,11 +142,6 @@
     <string>&amp;Emergency Stop</string>
    </property>
   </action>
-  <action name="actionRunCommand">
-   <property name="text">
-    <string>&amp;Run Command...</string>
-   </property>
-  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>
