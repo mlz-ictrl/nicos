@@ -489,6 +489,12 @@ class MainWindow(QMainWindow, DlgUtils):
             self.connectionData['host'] = host
             self.connectionData['port'] = port
             self.servers.append('%s:%s' % (host, port))
+        if authdlg.saveDefault.isChecked():
+            with self.sgroup as settings:
+                settings.setValue('host', QVariant(self.connectionData['host']))
+                settings.setValue('port', QVariant(self.connectionData['port']))
+                settings.setValue('login',
+                                  QVariant(self.connectionData['login']))
         self.connectionData['login'] = str(authdlg.userName.text())
         passwd = str(authdlg.password.text())
         self.client.connect(self.connectionData, passwd)

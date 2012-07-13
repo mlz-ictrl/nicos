@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>338</width>
-    <height>159</height>
+    <height>190</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,16 +23,6 @@
    <property name="horizontalSpacing">
     <number>10</number>
    </property>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>&amp;User name:</string>
-     </property>
-     <property name="buddy">
-      <cstring>userName</cstring>
-     </property>
-    </widget>
-   </item>
    <item row="4" column="1">
     <widget class="QLineEdit" name="userName">
      <property name="font">
@@ -50,29 +40,6 @@
      </property>
      <property name="buddy">
       <cstring>password</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="1">
-    <widget class="QLineEdit" name="password">
-     <property name="inputMask">
-      <string/>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="echoMode">
-      <enum>QLineEdit::Password</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="0" colspan="2">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
@@ -118,6 +85,16 @@
      </property>
     </spacer>
    </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>&amp;User name:</string>
+     </property>
+     <property name="buddy">
+      <cstring>userName</cstring>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="1">
     <widget class="QComboBox" name="serverAddr">
      <property name="font">
@@ -131,12 +108,61 @@
      </property>
     </widget>
    </item>
+   <item row="5" column="1">
+    <widget class="QLineEdit" name="password">
+     <property name="inputMask">
+      <string/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="echoMode">
+      <enum>QLineEdit::Password</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0" colspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QCheckBox" name="saveDefault">
+       <property name="text">
+        <string>Save as default</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>userName</tabstop>
   <tabstop>password</tabstop>
+  <tabstop>saveDefault</tabstop>
   <tabstop>buttonBox</tabstop>
+  <tabstop>serverAddr</tabstop>
  </tabstops>
  <resources/>
  <connections>
