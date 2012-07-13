@@ -229,7 +229,7 @@ class Experiment(Device):
 
     @usermethod
     def finish(self, *args, **kwargs):
-        """Called by `.FinishExperiment`.  Does nothing by default."""
+        """Called by `.FinishExperiment`."""
         if self.remember:
             self.log.warning('Please remember:')
             for message in self.remember:

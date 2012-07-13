@@ -24,12 +24,19 @@
 
 """NICOS commands tests."""
 
+from __future__ import with_statement
+
 from nicos import session
 from nicos.core import UsageError, LimitError, ModeError
 
 from nicos.commands.measure import count
 from nicos.commands.device import move, maw
 from nicos.commands.scan import scan
+from nicos.commands.basic import help, dir, listcommands, sleep, \
+     NewSetup, AddSetup, RemoveSetup, ListSetups, \
+     CreateDevice, DestroyDevice, CreateAllDevices, \
+     NewExperiment, FinishExperiment, AddUser, NewSample, \
+     Remark, Remember, SetMode, ClearCache, UserInfo
 from nicos.commands.output import printdebug, printinfo, printwarning, \
      printerror, printexception
 
@@ -37,7 +44,7 @@ from test.utils import ErrorLogged, raises
 
 
 def setup_module():
-    session.loadSetup('scanning')
+    session.loadSetup('axis')
     session.setMode('master')
 
 def teardown_module():
@@ -53,6 +60,62 @@ def test_output_commands():
         assert session.testhandler.warns(printwarning, 'warn!', exc=1)
     assert raises(ErrorLogged, printerror, 'error!')
     assert raises(ZeroDivisionError, printexception, 'exception!')
+
+def test_basic_commands():
+    dev = session.getDevice('motor')
+
+    help(help)
+    listcommands()
+
+    d = dir(dev)
+    assert 'start' in d
+    assert 'doStart' not in d
+    assert '_get_from_cache' not in d
+
+    sleep(0.1)
+
+    ListSetups()
+    NewSetup('axis')
+    AddSetup('slit')
+    assert 'slit' in session.configured_devices  # not autocreated
+    RemoveSetup('slit')
+    assert 'slit' not in session.configured_devices
+    assert session.testhandler.warns(RemoveSetup, 'blah')
+
+    assert 'motor' not in session.devices
+    CreateDevice('motor')
+    assert 'motor' in session.devices
+    DestroyDevice('motor')
+    assert 'motor' not in session.devices
+    CreateAllDevices()
+    assert 'motor' in session.devices
+    assert 'motor' in session.explicit_devices
+    assert 'coder' in session.devices
+    assert 'coder' not in session.explicit_devices
+
+    exp = session.getDevice('Exp')
+
+    NewExperiment(1234, 'Test experiment', 'L. Contact')
+    assert exp.proposal == '1234'
+    assert exp.title == 'Test experiment'
+    AddUser('F. X. User', 'user@example.com')
+    assert 'F. X. User' in exp.users[0]
+    NewSample('MnSi', lattice=[4.58]*3, angles=[90]*3)
+    FinishExperiment()
+
+    Remark('hi')
+    assert exp.remark == 'hi'
+    Remember('blah')
+    assert 'blah' in exp.remember[0]
+
+    SetMode('slave')
+    SetMode('master')
+    assert raises(UsageError, SetMode, 'blah')
+
+    ClearCache('motor')
+
+    with UserInfo('userinfo'):
+        assert 'userinfo' == session._actionStack[-1]
 
 def test_device_commands():
     motor = session.getDevice('motor')

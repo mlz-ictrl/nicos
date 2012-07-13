@@ -38,6 +38,7 @@ devices = dict(
         'nicos.generic.VirtualCoder',
         motor = 'motor',
         unit = 'mm',
+        lowlevel = True,
     ),
 
     axis = device(
