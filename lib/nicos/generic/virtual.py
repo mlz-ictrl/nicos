@@ -50,7 +50,8 @@ class VirtualMotor(Motor, HasOffset):
         pos = float(pos) + self.offset
         self.curstatus = (status.BUSY, 'virtual moving')
         if self.speed != 0:
-            thread = threading.Thread(target=self.__moving, args=(pos,))
+            thread = threading.Thread(target=self.__moving, args=(pos,),
+                                      name='virtual motor %s' % self)
             thread.setDaemon(True)
             thread.start()
         else:
@@ -69,7 +70,10 @@ class VirtualMotor(Motor, HasOffset):
             time.sleep(0.1)
 
     def doStop(self):
-        self._stop = True
+        if self.speed != 0:
+            self._stop = True
+        else:
+            self.curstatus = (status.OK, 'idle')
 
     def doSetPosition(self, pos):
         self.curvalue = pos + self.offset
