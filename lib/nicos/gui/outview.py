@@ -206,7 +206,6 @@ class OutputView(QTextBrowser):
         return self.toPlainText()
 
     def findNext(self, what, regex=False):
-        self.viewAll()
         cursor = self.textCursor()
         if regex:
             rx = QRegExp(what, Qt.CaseInsensitive)
