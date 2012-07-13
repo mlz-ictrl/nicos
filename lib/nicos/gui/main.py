@@ -465,8 +465,9 @@ class MainWindow(QMainWindow, DlgUtils):
             self.client.disconnect()
             return
 
-        addr = '%s:%s' % (self.connectionData['host'],
-                          self.connectionData['port'])
+        addr = self.connectionData['host']
+        if self.connectionData['port'] != 1301:
+            addr += ':%s' % self.connectionData['port']
 
         self.actionConnect.setChecked(False)  # gets set by connection event
         authdlg = dialogFromUi(self, 'auth.ui')
