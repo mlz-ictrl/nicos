@@ -466,7 +466,7 @@ class MainWindow(QMainWindow, DlgUtils):
             return
 
         addr = self.connectionData['host']
-        if self.connectionData['port'] != 1301:
+        if self.connectionData['port'] != DEFAULT_PORT:
             addr += ':%s' % self.connectionData['port']
 
         self.actionConnect.setChecked(False)  # gets set by connection event
