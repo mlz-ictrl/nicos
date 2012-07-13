@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 from nicos import session
-from nicos.core import UsageError, LimitError
+from nicos.core import UsageError, LimitError, ConfigurationError
 from nicos.commands.tas import qscan, qcscan, Q, calpos, pos, rp, \
      acc_bragg, ho_spurions, alu, copper
 
@@ -52,26 +52,76 @@ def test_tas_device():
     ana = session.getDevice('t_ana')
     phi = session.getDevice('t_phi')
     psi = session.getDevice('t_psi')
-
-    mono(1)
-    ana(2)
-    tas.energytransferunit = 'meV'
-    assertAlmostEqual(tas()[3], -6.216, 3)
-    tas.energytransferunit = 'THz'
-    assertAlmostEqual(tas()[3], -1.503, 3)
+    ki = session.getDevice('t_ki')
+    kf = session.getDevice('t_kf')
 
     tas.scanmode = 'CKF'
     tas.scanconstant = 2.662
 
+    # test the correct driving of motors
     tas([1, 0, 0, 1])
-
     assertAlmostEqual(ana(), 2.662, 3)
     assertAlmostEqual(mono(), 3.014, 3)
     assertAlmostEqual(phi(), -46.6, 1)
     assertAlmostEqual(psi(), 105.1, 1)
     assertPos(tas(), [1, 0, 0, 1])
 
+    # cannot go to position out of scattering triangle
     assert raises(LimitError, tas, [5, 0, 0, 0])
+    # cannot go to position out of scattering plane
+    assert raises(LimitError, tas, [1, 2, 1, 0])
+    # cannot go beyond motor limits
+    old_limits = psi.userlimits
+    psi.userlimits = (0, 50)
+    assert raises(LimitError, tas, [1, 0, 0, 1])
+    psi.userlimits = old_limits
+
+    # test scattering sense
+    tas.scatteringsense = [-1, 1, -1]
+    tas([1, 0, 0, 1])
+    assertAlmostEqual(phi(), 46.6, 1)  # now with "+" sign
+    assert raises(ConfigurationError, setattr, tas, 'scatteringsense', [2, 0, 2])
+
+    # test energytransferunit
+    mono(1)
+    ana(2)
+    tas.energytransferunit = 'meV'
+    assertAlmostEqual(tas()[3], -6.216, 3)
+    tas.energytransferunit = 'THz'
+    assertAlmostEqual(tas()[3], -1.503, 3)
+    assert raises(ConfigurationError, setattr, tas, 'energytransferunit', 'A-1')
+
+    # test scanmode
+    tas.scanmode = 'CKI'
+    tas.scanconstant = 2.662
+    tas([1, 0, 0, 1])
+    assertAlmostEqual(mono(), 2.662, 3)
+    tas.scanmode = 'CKF'
+    tas([1, 0, 0, 1])
+    assertAlmostEqual(ana(), 2.662, 3)
+    tas.scanmode = 'DIFF'
+    tas.scanconstant = 2.5
+    ana(2.5)
+    tas([1, 0, 0, 0])
+    assertAlmostEqual(ana(), 2.5, 3)
+    assertAlmostEqual(mono(), 2.5, 3)
+    assertPos(tas(), [1, 0, 0, 0])
+    # XXX shouldn't this result in an error?
+    # assert raises(tas, [1, 0, 0, 1])
+    assert raises(ConfigurationError, setattr, tas, 'scanmode', 'BLAH')
+
+
+    # test sub-devices and wavevector devices
+    kf(2.662)
+    tas([1, 0, 0, 1])
+    assertAlmostEqual(ki(), 3.014, 3)
+    assertAlmostEqual(kf(), 2.662, 3)
+    assertAlmostEqual(tas.h(), 1, 3)
+    assertAlmostEqual(tas.k(), 0, 3)
+    assertAlmostEqual(tas.l(), 0, 3)
+    assertAlmostEqual(tas.E(), 1, 3)
+    tas.h.maw(1.5)
+    assertAlmostEqual(tas.h(), 1.5, 3)
 
 def test_Q_object():
     assert all(Q() == Q(0, 0, 0, 0))
@@ -91,9 +141,8 @@ def test_Q_object():
 
 def test_qscan():
     mot = session.getDevice('motor2')
-    man = session.getDevice('manual')
     qscan((1, 0, 0), Q(0, 0, 0, 0.1), 10, mot, 'scaninfo', t=1)
-    qscan((0, 0, 0), (0, 0, 0), 10, 2.5, kf=2.662,
+    qscan((0, 0, 0), (0, 0, 0), 10, 2.5, t_kf=2.662, manual=1,
           h=1, k=1, l=1, e=0, dH=0, dk=0, dl=0, dE=.1)
     qcscan((1, 0, 0), Q(0, 0, 0, 0.1), 5, manual=[1, 2])
 

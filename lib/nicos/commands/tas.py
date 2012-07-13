@@ -26,7 +26,9 @@
 
 __version__ = "$Revision$"
 
-from numpy import ndarray, arcsin, pi
+from math import asin, pi
+
+from numpy import ndarray
 
 from nicos import session
 from nicos.core import Measurable, Moveable, Readable, UsageError, NicosError
@@ -365,13 +367,13 @@ def powderrays(dlist, ki=None, phi=None):
 
     for reflex, dvalue in dlist.items():
         try:
-            twotheta = 2 * arcsin(pi / ki / dvalue) * 180 / pi
+            twotheta = 2 * asin(pi / ki / dvalue) * 180 / pi
             if twotheta < 135:
                 lines1_list[reflex] = twotheta
         except ValueError:
             pass
         try:
-            twotheta = 2 * arcsin(pi / ki / 2 / dvalue) * 180 / pi
+            twotheta = 2 * asin(pi / ki / 2 / dvalue) * 180 / pi
             if twotheta < 135:
                 lines2_list[reflex] = twotheta
         except ValueError:

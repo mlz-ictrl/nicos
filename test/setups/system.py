@@ -102,6 +102,18 @@ devices = dict(
                       unit = 'deg',
                       abslimits = (-180, 180)),
 
+    t_ki     = device('nicos.tas.Wavevector',
+                      unit = 'A-1',
+                      base = 't_mono',
+                      tas = 'Tas',
+                      scanmode = 'CKI'),
+
+    t_kf     = device('nicos.tas.Wavevector',
+                      unit = 'A-1',
+                      base = 't_ana',
+                      tas = 'Tas',
+                      scanmode = 'CKF'),
+
     Tas      = device('nicos.tas.TAS',
                       cell = 'sample',
                       mono = 't_mono',
