@@ -316,7 +316,7 @@ class Monitor(BaseMonitor):
         def emitresize():
             sleep(1)
             self._master.emit(SIGNAL('resizeToMinimum'))
-        threading.Thread(target=emitresize).start()
+        threading.Thread(target=emitresize, name='emitresize').start()
 
     # special feature: mouse-over status bar text
 

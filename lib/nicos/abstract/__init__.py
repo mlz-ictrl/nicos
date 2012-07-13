@@ -192,7 +192,8 @@ class AsyncDetector(Measurable):
         self._processed = threading.Event()
         self._processed.set()
         if self._mode != 'simulation':
-            self._thread = threading.Thread(target=self._thread_entry)
+            self._thread = threading.Thread(target=self._thread_entry,
+                                            name='AsyncDetector %s' % self)
             self._thread.setDaemon(True)
             self._thread.start()
 

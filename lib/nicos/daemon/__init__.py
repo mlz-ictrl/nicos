@@ -91,8 +91,9 @@ class Server(TCPServer):
         """Process a "request", that is, a client connection."""
         # mostly copied from ThreadingMixIn but without the import,
         # which causes threading issues because of the import lock
-        t = threading.Thread(target = self.process_request_thread,
-                             args = (request, client_address))
+        t = threading.Thread(target=self.process_request_thread,
+                             args=(request, client_address),
+                             name='request handler')
         t.setDaemon(True)
         t.start()
 
@@ -122,7 +123,8 @@ class Server(TCPServer):
         self.daemon.log.debug('event connection from %s for handler #%d' %
                                (host, handler.ident))
         event_thread = threading.Thread(target=handler.event_sender,
-                                        args=(request,))
+                                        args=(request,),
+                                        name='event_sender %d' % handler.ident)
         event_thread.setDaemon(True)
         event_thread.start()
         del self.pending_clients[host]
@@ -212,7 +214,8 @@ class NicosDaemon(Device):
         Server.allow_reuse_address = self.reuseaddress
         self._server = Server(self, (host, port), ConnectionHandler)
 
-        self._watch_worker = threading.Thread(target=self._watch_entry)
+        self._watch_worker = threading.Thread(target=self._watch_entry,
+                                              name='daemon watch monitor')
         self._watch_worker.setDaemon(True)
         self._watch_worker.start()
 
@@ -246,7 +249,8 @@ class NicosDaemon(Device):
                        (nicos_version, self.server))
         # startup the script thread
         self._controller.start_script_thread()
-        self._worker = threading.Thread(target=self._server.serve_forever)
+        self._worker = threading.Thread(target=self._server.serve_forever,
+                                        name='daemon server')
         self._worker.start()
 
     def wait(self):

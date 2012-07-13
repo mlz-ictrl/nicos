@@ -132,7 +132,8 @@ class VirtualTimer(FRMTimerChannel):
     def doStart(self):
         if self.ismaster:
             self.__finish = False
-            thr = threading.Thread(target=self.__thread)
+            thr = threading.Thread(target=self.__thread,
+                                   name='virtual timer %s' % self)
             thr.setDaemon(True)
             thr.start()
 

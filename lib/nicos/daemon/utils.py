@@ -195,7 +195,8 @@ class SimLogReceiver(Thread):
     """
 
     def __init__(self, fileno, daemon):
-        Thread.__init__(self, target=self._thread, args=(fileno, daemon))
+        Thread.__init__(self, target=self._thread, args=(fileno, daemon),
+                        name='SimLogReceiver')
 
     def _thread(self, fileno, daemon):
         while True:

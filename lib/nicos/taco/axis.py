@@ -242,7 +242,8 @@ class HoveringAxis(Axis):
         self._adevs['switch'].move(self.switchvalues[1])
         sleep(self.startdelay)
         Axis.doStart(self, target)
-        self._poll_thread = threading.Thread(target=self._pollthread)
+        self._poll_thread = threading.Thread(target=self._pollthread,
+                                             name='%s polling thread' % self)
         self._poll_thread.setDaemon(True)
         self._poll_thread.start()
 

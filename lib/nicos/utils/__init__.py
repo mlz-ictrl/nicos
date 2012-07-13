@@ -198,7 +198,8 @@ def bitDescription(bits, *descriptions):
 
 def runAsync(func):
     def inner(*args, **kwargs):
-        thr = threading.Thread(target=func, args=args, kwargs=kwargs)
+        thr = threading.Thread(target=func, args=args, kwargs=kwargs,
+                               name='runAsync %s' % func)
         thr.setDaemon(True)
         thr.start()
     return inner

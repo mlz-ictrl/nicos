@@ -159,7 +159,7 @@ class Monitor(BaseCacheClient):
         self._warningswitchtime = 0
 
         # start a thread checking for modification of the setup file
-        checker = threading.Thread(target=self._checker)
+        checker = threading.Thread(target=self._checker, name='refresh checker')
         checker.setDaemon(True)
         checker.start()
 

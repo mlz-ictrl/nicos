@@ -704,7 +704,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         self._nextmidnight = self._midnight + 86400
 
         self._stoprequest = False
-        self._cleaner = threading.Thread(target=self._clean)
+        self._cleaner = threading.Thread(target=self._clean, name='cleaner')
         self._cleaner.setDaemon(True)
         self._cleaner.start()
 
@@ -997,7 +997,8 @@ class CacheServer(Device):
 
     def start(self):
         self._adevs['db'].initDatabase()
-        self._worker = threading.Thread(target=self._worker_thread)
+        self._worker = threading.Thread(target=self._worker_thread,
+                                        name='server')
         self._worker.start()
 
     def _worker_thread(self):
