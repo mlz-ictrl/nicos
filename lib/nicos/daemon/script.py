@@ -393,7 +393,12 @@ class ExecutionController(Controller):
         self.estop_functions.append((func, args))
         return len(self.estop_functions)
 
-    def exec_estop_functions(self):
+    def execute_estop(self, user):
+        self.log.warn('emergency stop caught, executing ESFs')
+        session.log.warn('Emergency stop requested by %s' % user)
+        # block all pending scripts
+        self.block_requests(range(self.reqno_work + 1, self.reqno_latest + 1))
+        # now execute emergency stop functions
         for (func, args) in self.estop_functions:
             try:
                 self.log.info('executing ESF: %s%s' % (func, args))
@@ -454,10 +459,7 @@ class ExecutionController(Controller):
                     continue
                 self.log.info('processing request %d' % request.reqno)
                 if isinstance(request, EmergencyStopRequest):
-                    self.log.warn('executing ESFs')
-                    session.log.warn('Emergency stop requested by %s' %
-                                     request.user)
-                    self.exec_estop_functions()
+                    self.execute_estop(request.user)
                     continue
                 elif not isinstance(request, ScriptRequest):
                     self.log.error('unknown request: %s' % request)
@@ -475,10 +477,7 @@ class ExecutionController(Controller):
                     self.current_script.execute(self)
                 except ControlStop, err:
                     if err.args[0] == 'emergency stop':
-                        self.log.warn('emergency stop caught, executing ESFs')
-                        session.log.warn('Emergency stop requested by %s' %
-                                         err.args[1])
-                        self.exec_estop_functions()
+                        self.execute_estop(err.args[1])
                     else:
                         session.log.info('Script stopped by %s' % (err.args[1],))
                     continue
