@@ -76,6 +76,10 @@ def pretty1(value):
 
 
 def pretty2(value1, value2):
+    if value1 != 0 and abs(value2 - value1)/value1 < 0.00001:
+        return '%.3f' % value2
+    if value2 != 0 and abs(value2 - value1)/value2 < 0.00001:
+        return '%.3f' % value1
     try:
         ldiff = math.log10(abs(value2 - value1))
         ncomma = 2 - int(ldiff)
