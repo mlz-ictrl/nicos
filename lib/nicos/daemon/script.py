@@ -470,6 +470,8 @@ class ExecutionController(Controller):
                     self.current_script = request
                     self.current_script.parse()
                 except Exception:
+                    # remove from script queue
+                    self.eventfunc('blocked', [self.current_script.reqno])
                     session.logUnhandledException(cut_frames=1)
                     continue
                 # record starting time to decide whether to send notification
