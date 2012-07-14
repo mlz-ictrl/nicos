@@ -30,6 +30,15 @@ __version__ = "$Revision$"
 def usercommand(func):
     """Decorator that marks a function as a user command."""
     func.is_usercommand = True
+    func.is_hidden = False
+    return func
+
+def hiddenusercommand(func):
+    """Decorator that marks a function as a user command that should not be
+    displayed by the online help.
+    """
+    func.is_usercommand = True
+    func.is_hidden = True
     return func
 
 
@@ -71,6 +80,7 @@ def usercommandWrapper(func):
         #    # for other errors, print them a friendly fashion
         #    printexception()
     wrapped.is_usercommand = True
+    wrapped.is_hidden = func.is_hidden
     # store a reference to the original function, so that help() can find
     # out the argument specification by looking at it
     wrapped.real_func = getattr(func, 'real_func', func)

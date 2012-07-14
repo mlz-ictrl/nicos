@@ -34,7 +34,7 @@ from nicos import session
 from nicos.utils import printTable, parseDateString
 from nicos.core import Device, Moveable, Measurable, Readable, HasOffset, \
      HasLimits, UsageError, formatStatus
-from nicos.commands import usercommand
+from nicos.commands import usercommand, hiddenusercommand
 from nicos.commands.basic import sleep
 from nicos.commands.output import printinfo
 
@@ -64,7 +64,7 @@ def move(*dev_pos_list):
         dev.log.info('moving to', dev.format(pos), dev.unit)
         dev.move(pos)
 
-@usercommand
+@hiddenusercommand
 def drive(*dev_pos_list):
     """Move one or more devices to a new position.  Same as `move()`.
 
@@ -93,7 +93,7 @@ def maw(*dev_pos_list):
         if value:
             dev.log.info('at %20s %s' % (dev.format(value), dev.unit))
 
-@usercommand
+@hiddenusercommand
 def switch(*dev_pos_list):
     """Move one or more devices to a new position and wait until motion
     of all devices is completed.  Same as `maw()`.

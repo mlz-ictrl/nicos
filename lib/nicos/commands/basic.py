@@ -78,6 +78,8 @@ def listcommands():
     items = []
     for obj in session.getExportedObjects():
         if hasattr(obj, 'is_usercommand'):
+            if obj.is_hidden:
+                continue
             real_func = getattr(obj, 'real_func', obj)
             argspec = inspect.formatargspec(*inspect.getargspec(real_func))
             docstring = real_func.__doc__ or ' '
