@@ -3,6 +3,9 @@ Changelog for NICOS 2
 
 **Release 2.2.0**
 
+  - Added graphical help system to the GUI client.  Improved quality of
+    docstrings of most commands.
+
   - Added a "mode" parameter to "doInit()" and "doPreinit()" so that
     device implementers remember to check for simulation mode.
 
