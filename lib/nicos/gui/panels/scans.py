@@ -749,6 +749,7 @@ class DataSetPlot(NicosPlot):
         visible_curves = [i for (i, _) in enumerate(self.dataset.curves)
                           if self.plotcurves[i].isVisible()]
         if len(visible_curves) != 1:
+            self.window.statusBar.showMessage('A single curve is required.')
             return
         self.fitcurve = self.plotcurves[visible_curves[0]]
         p = self.picker.trackerPosition()
