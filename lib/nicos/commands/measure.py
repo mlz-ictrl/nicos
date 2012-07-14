@@ -176,8 +176,9 @@ def ListDetectors():
 @usercommand
 @helparglist('[dev, ...]')
 def SetEnvironment(*devlist):
-    """Select the device(s) to read out as "experiment environment" at every
-    step of a scan.
+    """Select the device(s) to read during scans as "experiment environment".
+
+    Experiment environment devices are read out at every step of a scan.
 
     Examples::
 
@@ -208,8 +209,11 @@ def ListEnvironment():
 
 @usercommand
 def avg(dev):
-    """Create a statistics device that can be used in the sample environment in
-    order to calculate the average of a device over the whole scan point.
+    """Create a "statistics device" that calculates the scan-point average.
+
+    This pseudo-device can be used in the sample environment in order to
+    calculate the average of a device over the whole scan point, as opposed to
+    the value at the end of the scan point.
 
     For example::
 
@@ -224,9 +228,10 @@ def avg(dev):
 
 @usercommand
 def minmax(dev):
-    """Create a statistics device that can be used in the sample environment in
-    order to calculate the minimum and maximum of a device over the whole scan
-    point.
+    """Create a "statistics device" that calculates the scan-point min/maximum.
+
+    This pseudo-device can be used in the sample environment in order to
+    calculate the minimum and maximum of a device over the whole scan point.
 
     For example::
 

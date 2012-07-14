@@ -55,7 +55,7 @@ def _devposlist(dev_pos_list, cls):
 @usercommand
 @helparglist('dev, pos, ...')
 def move(*dev_pos_list):
-    """Move one or more devices to a new position.
+    """Start moving one or more devices to a new position.
 
     This can be used with multiple devices like this::
 
@@ -79,10 +79,10 @@ def drive(*dev_pos_list):
 @usercommand
 @helparglist('dev, pos, ...')
 def maw(*dev_pos_list):
-    """Move one or more devices to a new position and wait until motion
-    of all devices is completed.
+    """Move one or more devices to a new position and wait for them.
 
-    This can be used with multiple devices like this::
+    The command does not return until motion of all devices is completed.  It
+    can be used with multiple devices like this::
 
         maw(dev1, pos1, dev2, pos2, ...)
     """
@@ -111,9 +111,10 @@ def switch(*dev_pos_list):
 @usercommand
 @helparglist('dev, ...')
 def wait(*devlist):
-    """Wait until motion of one or more devices is complete, or device is
-    out of "busy" status.  A time in seconds can also be used to wait the
-    given number of seconds.
+    """Wait until motion/action of one or more devices is complete.
+
+    Usually, "wait" returns when the device is out of "busy" status.  A time in
+    seconds can also be used to wait the given number of seconds.
 
     Example::
 

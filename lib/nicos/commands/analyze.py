@@ -264,8 +264,9 @@ gauss.__doc__ += COLHELP.replace('func(', 'gauss(')
 @usercommand
 @helparglist('dev, center, step, numsteps, ...')
 def center(dev, center, step, numsteps, *args, **kwargs):
-    """Move the given device to the maximum of a Gaussian fit through a scan
-    around center with the given parameters.
+    """Move the given device to the maximum of a Gaussian fit through a scan.
+
+    The scan is performed around *center* with the given parameters.
 
     This supports all arguments and keyword arguments that `cscan()` supports,
     and additionally a keyword "ycol" that gives the Y column of the dataset to
@@ -291,8 +292,11 @@ def center(dev, center, step, numsteps, *args, **kwargs):
 @usercommand
 @helparglist('dev, center, step, numsteps, ...')
 def checkoffset(dev, center, step, numsteps, *args, **kwargs):
-    """Readjust offset of the given device, so that the center of the given
-    scan coincides with the center of a Gaussian fit.
+    """Readjust offset of the given device to the center of a scan.
+
+    The adjustment is done so that afterwards, the given *center* coincides with
+    the center of a Gaussian fit through the scan performed with the given
+    stepsize and number of steps.
 
     This supports all arguments and keyword arguments that `cscan()` supports,
     and additionally a keyword "ycol" that gives the Y column of the dataset to

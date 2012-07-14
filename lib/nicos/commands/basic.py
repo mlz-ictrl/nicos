@@ -256,8 +256,9 @@ def DestroyDevice(*devnames):
 
 @usercommand
 def CreateAllDevices():
-    """Create all devices in the current setup that are not marked as
-    lowlevel devices.
+    """Try to create all possible devices in the current setup.
+
+    Devices that are marked as lowlevel will not be automatically created.
 
     This is useful when a setup failed to load many devices, and another attempt
     should be made.
@@ -321,15 +322,22 @@ def NewSample(name, **parameters):
 
 @usercommand
 def Remark(remark):
-    """Change the remark about instrument configuration saved to the
-    data files.
+    """Change the data file remark about instrument configuration.
+
+    The current "remark" is saved in the data file, so you can use it to record
+    sections of an experiment or changes to instrumental setup that are not
+    otherwise visible in the NICOS devices.
     """
     session.experiment.remark = remark
 
 @usercommand
 def Remember(what):
-    """Add a message to remember at the next experiment change using
-    `FinishExperiment` or `NewExperiment`.
+    """Add a message to remember at the next experiment change.
+
+    When `FinishExperiment` or `NewExperiment` is next called, all messages
+    given during the current experiment using Remember() will be displayed.
+    This is intended for the instrument responsible to remember undoing
+    temporary setup changes and the like.
     """
     rtime = time.strftime('(%m/%d %H:%M) ')
     session.experiment.remember += [rtime + what]
@@ -409,8 +417,10 @@ def _scriptfilename(filename):
 
 @usercommand
 def Edit(filename):
-    """Edit the script file given by file name.  If the file name is not
-    absolute, it is relative to the experiment script directory.
+    """Edit the script file given by file name.
+
+    If the file name is not absolute, it is relative to the experiment script
+    directory.
 
     The editor is given by the ``EDITOR`` environment variable, which can be
     conveniently set in the nicos.conf file.
@@ -497,8 +507,10 @@ def _RunCode(code, debug=False):
 
 @usercommand
 def Run(filename):
-    """Run a script file given by file name.  If the file name is not absolute,
-    it is relative to the experiment script directory.
+    """Run a script file given by file name.
+
+    If the file name is not absolute, it is relative to the experiment script
+    directory.
     """
     _RunScript(filename, ())
 
@@ -506,8 +518,10 @@ def Run(filename):
 @usercommand
 @helparglist('filename_or_code, ...')
 def Simulate(what, *devices, **kwargs):
-    """Run code or a script file in simulation mode.  If the file name is not
-    absolute, it is relative to the experiment script directory.
+    """Run code or a script file in simulation mode.
+
+    If the file name is not absolute, it is relative to the experiment script
+    directory.
 
     For script files, position statistics will be collected for the given list
     of devices::
@@ -539,8 +553,10 @@ def Simulate(what, *devices, **kwargs):
 @usercommand
 @helparglist('[subject, ]bodytext')
 def Notify(*args):
-    """Send a message via email and/or SMS to the receivers selected by
-    `SetMailReceivers()` and `SetSMSReceivers()`.  Usage is one of these two::
+    """Send a message via email and/or SMS.
+
+    The receivers of the message can be selected by `SetMailReceivers()` and
+    `SetSMSReceivers()`.  Usage is one of these two::
 
         Notify('some text')
         Notify('subject', 'some text')
@@ -559,8 +575,10 @@ def Notify(*args):
 @usercommand
 @helparglist('email, ...')
 def SetMailReceivers(*emails):
-    """Set a list of email addresses that will be notified on unhandled errors,
-    and when the `Notify()` command is used.
+    """Set a list of email addresses for notifications.
+
+    These addresses will be notified on unhandled errors, and when the
+    `Notify()` command is used.
     """
     for notifier in session.notifiers:
         if isinstance(notifier, Mailer):
@@ -576,8 +594,10 @@ def SetMailReceivers(*emails):
 @usercommand
 @helparglist('phonenumber, ...')
 def SetSMSReceivers(*numbers):
-    """Set a list of mobile phone numbers that will be notified on unhandled
-    errors, and when the `Notify()` command is used.
+    """Set a list of mobile phone numbers for notifications.
+
+    These numbers will be notified on unhandled errors, and when the `Notify()`
+    command is used.
 
     Note that all those phone numbers have to be registered with the IT
     department before they can be used.
