@@ -268,7 +268,7 @@ class ExecutionController(Controller):
         self.estop_functions = []  # functions to run on emergency stop
         self.thread = None         # thread executing scripts
         self.reqno_latest = 0      # number of the last queued request
-        self.reqno_working = 0     # number of the last executing request
+        self.reqno_work = 0        # number of the last executing request
         self.blocked_reqs = set()  # set of blocked request numbers
         # only one user or admin can issue non-read-only commands
         self.controlling_user = None

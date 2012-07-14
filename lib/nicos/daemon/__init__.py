@@ -132,7 +132,9 @@ class Server(TCPServer):
         return False
 
     def server_close(self):
-        """Close the server and its socket."""
+        """Close the server socket and all client sockets."""
+        for handler in self.handlers.values():
+            closeSocket(handler.sock)
         closeSocket(self.socket)
 
     def register_handler(self, handler, host):

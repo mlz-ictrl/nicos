@@ -74,8 +74,12 @@ class NicosInteractiveConsole(code.InteractiveConsole):
 
     def interact(self, banner=None):
         signal.signal(signal.SIGINT, self.session.signalHandler)
+        signal.signal(signal.SIGTERM, self.sigtermHandler)
         code.InteractiveConsole.interact(self, banner)
         readline.write_history_file(self.histfile)
+
+    def sigtermHandler(self, *args):
+        raise SystemExit
 
     def runsource(self, source, filename='<input>', symbol='single'):
         """Mostly copied from code.InteractiveInterpreter, but added the
@@ -285,11 +289,12 @@ class ConsoleSession(Session):
         session.handleInitialSetup(setup, simulate)
 
         # Fire up an interactive console.
-        session.console()
-
-        # After the console is finished, cleanup.
-        session.log.info('shutting down...')
-        session.shutdown()
+        try:
+            session.console()
+        finally:
+            # After the console is finished, cleanup.
+            session.log.info('shutting down...')
+            session.shutdown()
 
     def checkAccess(self, required):
         # for now, we have no way of knowing who the user is, so we cannot

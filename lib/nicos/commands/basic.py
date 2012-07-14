@@ -207,6 +207,15 @@ def ListSetups():
     items.sort()
     printTable(('name', 'description', 'devices'), items, printinfo)
 
+@usercommand
+def _Restart():
+    """Restart the NICOS process."""
+    import atexit, signal
+    @atexit.register
+    def reload():
+        os.execv(sys.executable, [sys.executable] + sys.argv)
+    os.kill(os.getpid(), signal.SIGTERM)
+
 #@usercommand
 def Keep(name, obj):
     """Export the given *obj* into the NICOS namespace under the *name*.
