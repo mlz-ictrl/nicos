@@ -75,11 +75,3 @@ def usercommandWrapper(func):
     # out the argument specification by looking at it
     wrapped.real_func = getattr(func, 'real_func', func)
     return wrapped
-
-
-def importAllCommands(module):
-    mod = __import__(module, None, None, ['*'])
-    for name, command in mod.__dict__.iteritems():
-        if getattr(command, 'is_usercommand', False) or \
-           getattr(command, 'is_userobject', False):
-            globals()[name] = command
