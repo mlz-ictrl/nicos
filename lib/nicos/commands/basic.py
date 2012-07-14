@@ -164,6 +164,9 @@ def AddSetup(*setupnames):
 
     will load the "gaussmeter" setup in addition to the current setups.
     """
+    if not setupnames:
+        ListSetups()
+        return
     session.readSetups()
     session.startMultiCreate()
     try:
