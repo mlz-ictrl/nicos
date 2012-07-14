@@ -197,7 +197,7 @@ def ListSetups():
     items.sort()
     printTable(('name', 'description', 'devices'), items, printinfo)
 
-@usercommand
+#@usercommand
 def Keep(name, obj):
     """Export the given *obj* into the NICOS namespace under the *name*.
 

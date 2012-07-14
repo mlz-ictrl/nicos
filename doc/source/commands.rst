@@ -73,7 +73,7 @@ Miscellaneous commands
 ----------------------
 
 .. autofunction:: sleep
-.. autofunction:: Keep
+.. .. autofunction:: Keep
 .. autofunction:: ClearCache
 .. autofunction:: UserInfo
 .. autofunction:: SaveSimulationSetup
