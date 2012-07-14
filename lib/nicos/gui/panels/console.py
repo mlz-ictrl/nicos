@@ -208,8 +208,7 @@ class ConsolePanel(Panel):
         if not script:
             return
         sscript = script.strip()
-        if not (sscript.startswith('#') or sscript.startswith('?') or
-                sscript.endswith('?')):
+        if not (sscript.startswith(('#', '?', '.')) or sscript.endswith('?')):
             try:
                 compile(script+'\n', 'script', 'single')
             except SyntaxError, err:

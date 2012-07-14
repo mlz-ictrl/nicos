@@ -627,12 +627,20 @@ class Session(object):
             # this could be a command extension to allow e.g. "read om",
             # disabled for now since it has too many ambiguities and will
             # confuse users
-            if 0 and '\n' not in command:
-                parts = command.split()
-                if parts[0] in self._exported_names and \
-                  hasattr(self.namespace[parts[0]], 'is_usercommand'):
-                    newcmd = parts[0] + '(' + ','.join(parts[1:]) + ')'
-                    return compiler(newcmd)
+            if command.startswith('.'):
+                parts = command[1:].split()
+                base = parts[0]
+                if base in self._exported_names:
+                    if hasattr(self.namespace[base], 'is_usercommand'):
+                        return compiler(base + '(' + ','.join(parts[1:]) + ')')
+                    elif isinstance(self.namespace[base], Device):
+                        if len(parts) == 1:
+                            return compiler('read(%s)' % base)
+                        elif len(parts) == 2:
+                            return compiler('maw(%s, %s)' % (base, parts[1]))
+                self.log.error('unrecognized short command: %r - ignoring'
+                                % command[1:])
+                return compiler('pass')
             raise
 
     def showHelp(self, obj=None):
