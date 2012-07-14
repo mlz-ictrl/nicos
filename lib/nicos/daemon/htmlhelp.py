@@ -54,7 +54,7 @@ from nicos.utils import formatDocstring
 
 STYLE = '''
 body    { font-family: 'Helvetica', 'Arial', sans-serif;
-          font-size: 12pt; }
+          font-size: 12pt; line-height: 120%; }
 pre, tt { font-family: 'Consolas', 'Dejavu Sans Mono', monotype;
           font-size: 11pt; }
 a       { text-decoration: none; color: #03c; }
@@ -119,8 +119,8 @@ class HelpGenerator(object):
                 argspec = '(%s)' % real_func.help_arglist
             else:
                 argspec = inspect.formatargspec(*inspect.getargspec(real_func))
-            signature = '<tt><a href="cmd:%s">%s</a>' % ((real_func.__name__,)*2) + \
-                escape(argspec) + '</tt>'
+            signature = '<tt><a href="cmd:%s">%s</a></tt><small>' % \
+                ((real_func.__name__,)*2) + escape(argspec) + '</small>'
             docstring = escape(real_func.__doc__ or ' ').splitlines()[0]
             cmds.append('<tr><td>%s</td><td>%s</td></tr>' %
                         (signature, docstring))
@@ -128,7 +128,7 @@ class HelpGenerator(object):
         ret.append(self.gen_heading('NICOS commands', 'commands'))
         ret.append('<p>These commands are currently available.</p>')
         ret.append('<table width="100%">'
-                   '<tr><th>Name</th><th>Description</th></tr>')
+                   '<tr><th>Name</th><th>Short description</th></tr>')
         ret.extend(cmds)
         ret.append('</table>')
         ret.append(self.gen_heading('Devices', 'devices'))
@@ -244,7 +244,8 @@ class HelpGenerator(object):
             finally:
                 sys.stdout = old_stdout
             ret = self.strio.getvalue()
-        return '<pre>' + escape(ret) + '</pre>'
+        return self.gen_heading('Python help on %r' % obj) + \
+            '<pre>' + escape(ret) + '</pre>'
 
     def generate(self, obj):
         if obj is None:

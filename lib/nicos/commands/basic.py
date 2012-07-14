@@ -154,6 +154,8 @@ def NewSetup(*setupnames):
     Without arguments, the current setups are reloaded.  Example:
 
     >>> NewSetup()
+
+    You can use `ListSetups()` to find out which setups are available.
     """
     current_mode = session.mode
     # reload current setups if none given
@@ -185,6 +187,8 @@ def AddSetup(*setupnames):
     >>> AddSetup('gaussmeter')
 
     will load the "gaussmeter" setup in addition to the current setups.
+
+    You can use `ListSetups()` to find out which setups are available.
     """
     if not setupnames:
         ListSetups()
