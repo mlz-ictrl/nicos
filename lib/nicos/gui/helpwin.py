@@ -40,35 +40,42 @@ class HelpWindow(QMainWindow):
         loadUi(self, 'helpwin.ui')
         self.client = client
         self.history = []
+        self._next_scrollpos = None
 
     def showHelp(self, data):
         pseudourl, html = data
+        if self._next_scrollpos is None:
+            self.history.append((str(self.webView.url().toString()),
+                                 self.webView.page().mainFrame().scrollPosition()))
+            if len(self.history) > 100:
+                self.history = self.history[-100:]
         self.webView.setHtml(html, QUrl(pseudourl))
         self.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
+        if self._next_scrollpos is not None:
+            self.webView.page().mainFrame().setScrollPosition(self._next_scrollpos)
+            self._next_scrollpos = None
         self.show()
 
     def on_webView_linkClicked(self, url):
         if url.toString().startsWith('#'):
             frame = self.webView.page().mainFrame()
+            self.history.append((str(self.webView.url().toString()),
+                                 frame.scrollPosition()))
             el = frame.findFirstElement(url.toString())
             frame.setScrollPosition(el.geometry().topLeft())
         else:
             target = str(url.toString())
             self.client.eval('session.showHelp(%r)' % target, None)
 
-    def on_webView_urlChanged(self, url):
-        self.history.append(str(url.toString()))
-        if len(self.history) > 100:
-            self.history = self.history[-100:]
-
     @qtsig('')
     def on_backBtn_clicked(self):
-        if len(self.history) < 2:
+        if not self.history:
             return
-        target = self.history[-2]
+        target, scrollpos = self.history[-1]
         if not target or target == 'about:blank':
             return
-        del self.history[-2:]
+        del self.history[-1]
+        self._next_scrollpos = scrollpos
         self.client.eval('session.showHelp(%r)' % target, None)
 
     @qtsig('')

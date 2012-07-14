@@ -121,11 +121,15 @@ class HelpGenerator(object):
                         (signature, docstring))
         cmds.sort()
         ret.append(self.gen_heading('NICOS commands', 'commands'))
+        ret.append('<p>These commands are currently available.</p>')
         ret.append('<table width="100%">'
                    '<tr><th>Name</th><th>Description</th></tr>')
         ret.extend(cmds)
         ret.append('</table>')
         ret.append(self.gen_heading('Devices', 'devices'))
+        ret.append('<p>These are the currently loaded high-level devices.  Use '
+                   '<a href="cmd:AddSetup">AddSetup()</a> or the "Setup" '
+                   'window to add more devices.</p>')
         ret.append('<table width="100%">'
                    '<tr><th>Name</th><th>Type</th><th>Description</th></tr>')
         for devname in sorted(session.explicit_devices):
