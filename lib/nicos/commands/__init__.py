@@ -41,6 +41,15 @@ def hiddenusercommand(func):
     func.is_hidden = True
     return func
 
+def helparglist(args):
+    """Decorator that supplies a custom argument list to be displayed by
+    the online help.
+    """
+    def deco(func):
+        func.help_arglist = args
+        return func
+    return deco
+
 
 import sys
 from functools import wraps
@@ -80,7 +89,6 @@ def usercommandWrapper(func):
         #    # for other errors, print them a friendly fashion
         #    printexception()
     wrapped.is_usercommand = True
-    wrapped.is_hidden = func.is_hidden
     # store a reference to the original function, so that help() can find
     # out the argument specification by looking at it
     wrapped.real_func = getattr(func, 'real_func', func)

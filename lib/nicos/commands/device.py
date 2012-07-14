@@ -34,7 +34,7 @@ from nicos import session
 from nicos.utils import printTable, parseDateString
 from nicos.core import Device, Moveable, Measurable, Readable, HasOffset, \
      HasLimits, UsageError, formatStatus
-from nicos.commands import usercommand, hiddenusercommand
+from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.basic import sleep
 from nicos.commands.output import printinfo
 
@@ -53,6 +53,7 @@ def _devposlist(dev_pos_list, cls):
     return zip(devlist, poslist)
 
 @usercommand
+@helparglist('dev, pos, ...')
 def move(*dev_pos_list):
     """Move one or more devices to a new position.
 
@@ -65,6 +66,7 @@ def move(*dev_pos_list):
         dev.move(pos)
 
 @hiddenusercommand
+@helparglist('dev, pos, ...')
 def drive(*dev_pos_list):
     """Move one or more devices to a new position.  Same as `move()`.
 
@@ -75,6 +77,7 @@ def drive(*dev_pos_list):
     return move(*dev_pos_list)
 
 @usercommand
+@helparglist('dev, pos, ...')
 def maw(*dev_pos_list):
     """Move one or more devices to a new position and wait until motion
     of all devices is completed.
@@ -94,6 +97,7 @@ def maw(*dev_pos_list):
             dev.log.info('at %20s %s' % (dev.format(value), dev.unit))
 
 @hiddenusercommand
+@helparglist('dev, pos, ...')
 def switch(*dev_pos_list):
     """Move one or more devices to a new position and wait until motion
     of all devices is completed.  Same as `maw()`.
@@ -105,6 +109,7 @@ def switch(*dev_pos_list):
     maw(*dev_pos_list)
 
 @usercommand
+@helparglist('dev, ...')
 def wait(*devlist):
     """Wait until motion of one or more devices is complete, or device is
     out of "busy" status.  A time in seconds can also be used to wait the
@@ -132,6 +137,7 @@ def wait(*devlist):
             dev.log.info('at %20s %s' % (dev.format(value), dev.unit))
 
 @usercommand
+@helparglist('[dev, ...]')
 def read(*devlist):
     """Read the position (or value) of one or more devices.
 
@@ -161,6 +167,7 @@ def read(*devlist):
             dev.log.info('at %20s %-5s' % (dev.format(value), unit))
 
 @usercommand
+@helparglist('[dev, ...]')
 def status(*devlist):
     """Read the status of one or more devices.
 
@@ -181,6 +188,7 @@ def status(*devlist):
             dev.log.info('status is %s' % formatStatus(status))
 
 @usercommand
+@helparglist('[dev, ...]')
 def stop(*devlist):
     """Stop one or more devices.
 
@@ -218,6 +226,7 @@ def stop(*devlist):
             dev.log.info('stopped')
 
 @usercommand
+@helparglist('dev, ...')
 def reset(*devlist):
     """Reset the given device(s)."""
     for dev in devlist:
@@ -238,6 +247,7 @@ def get(dev, parameter):
     dev.log.info('parameter %s is %s' % (parameter, value))
 
 @usercommand
+@helparglist('dev[, reason]')
 def fix(dev, reason=''):
     """Fix a device, i.e. prevent movement until `release()` is called.
 
@@ -251,6 +261,7 @@ def fix(dev, reason=''):
     dev.log.info(reason and 'now fixed: ' + reason or 'now fixed')
 
 @usercommand
+@helparglist('dev, ...')
 def release(*devlist):
     """Release one or more devices, i.e. undo the effect of `fix()`."""
     if not devlist:
@@ -261,6 +272,7 @@ def release(*devlist):
         dev.log.info('released')
 
 @usercommand
+@helparglist('dev, value[, newvalue]')
 def adjust(dev, value, newvalue=None):
     """Adjust the offset of the device.
 
@@ -289,6 +301,7 @@ def adjust(dev, value, newvalue=None):
                  (dev.format(value), dev.unit, dev.offset))
 
 @usercommand
+@helparglist('dev, ...')
 def version(*devlist):
     """List version info of the device(s)."""
     for dev in devlist:
@@ -298,6 +311,7 @@ def version(*devlist):
         printTable(('module/component', 'version'), versions, printinfo)
 
 @usercommand
+@helparglist('dev[, key][, fromtime]')
 def history(dev, key='value', fromtime=None, totime=None):
     """Print history of a device parameter.
 
@@ -334,6 +348,7 @@ def history(dev, key='value', fromtime=None, totime=None):
     printTable(('timestamp', 'value'), entries, printinfo)
 
 @usercommand
+@helparglist('dev, ...')
 def limits(*devlist):
     """Print the limits of the device(s)."""
     for dev in devlist:
@@ -364,6 +379,7 @@ def limits(*devlist):
                        dev.unit))
 
 @usercommand
+@helparglist('dev, ...')
 def resetlimits(*devlist):
     """Reset the user limits for the device(s) to the absolute limits."""
     if not devlist:
@@ -430,6 +446,7 @@ def listmethods(dev):
     printTable(('method', 'from class', 'description'), items, printinfo)
 
 @usercommand
+@helparglist('parameter, ...')
 def listallparams(*names):
     """List the given parameters for all existing devices that have them.
 

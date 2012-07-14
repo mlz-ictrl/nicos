@@ -662,7 +662,10 @@ class Session(object):
         else:
             # for functions, print arguments and docstring
             real_func = getattr(obj, 'real_func', obj)
-            argspec = inspect.formatargspec(*inspect.getargspec(real_func))
+            if hasattr(real_func, 'help_arglist'):
+                argspec = '(%s)' % real_func.help_arglist
+            else:
+                argspec = inspect.formatargspec(*inspect.getargspec(real_func))
             self.log.info('Usage: ' + real_func.__name__ + argspec)
             for line in formatDocstring(real_func.__doc__ or '', '   '):
                 self.log.info(line)

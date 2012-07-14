@@ -31,7 +31,7 @@ from nicos.core import Device, Measurable, Moveable, Readable, UsageError, \
      NicosError
 from nicos.scan import Scan, TimeScan, ContinuousScan, ManualScan, TwoDimScan, \
      StopScan
-from nicos.commands import usercommand
+from nicos.commands import usercommand, helparglist
 
 
 def _fixType(dev, args, mkpos):
@@ -118,6 +118,7 @@ def _infostr(fn, args, kwargs):
 
 
 @usercommand
+@helparglist('dev, [start, step, numsteps | listofpoints], ...')
 def scan(dev, *args, **kwargs):
     """Scan over device(s) and count detector(s).
 
@@ -141,6 +142,7 @@ def scan(dev, *args, **kwargs):
 
 
 @usercommand
+@helparglist('dev, center, step, numperside, ...')
 def cscan(dev, *args, **kwargs):
     """Scan around center.
 
@@ -161,6 +163,7 @@ def cscan(dev, *args, **kwargs):
 
 
 @usercommand
+@helparglist('numsteps, ...')
 def timescan(numsteps, *args, **kwargs):
     """Count a number of times without moving devices.
 
@@ -174,6 +177,8 @@ def timescan(numsteps, *args, **kwargs):
 
 
 @usercommand
+@helparglist('dev1, start1, step1, numsteps1, dev2, start2, step2, '
+             'numsteps2, ...')
 def twodscan(dev1, start1, step1, numsteps1,
              dev2, start2, step2, numsteps2,
              *args, **kwargs):
@@ -243,6 +248,7 @@ twodscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'twodscan(dev1, ')
 
 
 @usercommand
+@helparglist('dev, start, end[, speed], ...')
 def contscan(dev, start, end, speed=None, *args, **kwargs):
     """Scan a device continuously with low speed.
 
@@ -296,6 +302,7 @@ class _ManualScan(object):
             return True
 
 @usercommand
+@helparglist('...')
 def manualscan(*args, **kwargs):
     """"Manual" scan where no devices are moved automatically.
 

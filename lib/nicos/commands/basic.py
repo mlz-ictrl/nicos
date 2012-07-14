@@ -43,7 +43,7 @@ from nicos.core import Device, AutoDevice, Readable, ModeError, NicosError, \
 from nicos.utils import formatDuration, printTable
 from nicos.notify import Mailer, SMSer
 from nicos.sessions import EXECUTIONMODES
-from nicos.commands import usercommand
+from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printinfo, printwarning, printerror, \
      printexception
 
@@ -53,6 +53,7 @@ CO_DIVISION = 0x2000
 # -- help and introspection ----------------------------------------------------
 
 @usercommand
+@helparglist('[object]')
 def help(obj=None):
     """Show help for a command, for a device or for any other object.
 
@@ -64,6 +65,7 @@ def help(obj=None):
 __builtin__.__orig_dir = __builtin__.dir
 
 @usercommand
+@helparglist('[object]')
 def dir(obj=None):
     """Show all public attributes for the given object."""
     if obj is None:
@@ -78,10 +80,13 @@ def listcommands():
     items = []
     for obj in session.getExportedObjects():
         if hasattr(obj, 'is_usercommand'):
-            if obj.is_hidden:
-                continue
             real_func = getattr(obj, 'real_func', obj)
-            argspec = inspect.formatargspec(*inspect.getargspec(real_func))
+            if real_func.is_hidden:
+                continue
+            if hasattr(real_func, 'help_arglist'):
+                argspec = '(%s)' % real_func.help_arglist
+            else:
+                argspec = inspect.formatargspec(*inspect.getargspec(real_func))
             docstring = real_func.__doc__ or ' '
             signature = real_func.__name__ + argspec
             if len(signature) > 50:
@@ -116,6 +121,7 @@ def sleep(secs):
 # -- other basic commands ------------------------------------------------------
 
 @usercommand
+@helparglist('[setup, ...]')
 def NewSetup(*setupnames):
     """Load the given setups instead of the current one.
     Without arguments, the current setups are reloaded.
@@ -148,6 +154,7 @@ def NewSetup(*setupnames):
         SetMode('master')
 
 @usercommand
+@helparglist('setup, ...')
 def AddSetup(*setupnames):
     """Load the given setups additional to the current one.
 
@@ -165,6 +172,7 @@ def AddSetup(*setupnames):
         session.endMultiCreate()
 
 @usercommand
+@helparglist('setup, ...')
 def RemoveSetup(*setupnames):
     """Remove the given setups from the currently loaded ones.
 
@@ -209,6 +217,7 @@ def Keep(name, obj):
     session.export(name, obj)
 
 @usercommand
+@helparglist('devname, ...')
 def CreateDevice(*devnames):
     """Create all given devices.
 
@@ -220,6 +229,7 @@ def CreateDevice(*devnames):
         session.createDevice(devname, explicit=True)
 
 @usercommand
+@helparglist('devname, ...')
 def DestroyDevice(*devnames):
     """Destroy all given devices.
 
@@ -253,6 +263,7 @@ def CreateAllDevices():
         session.endMultiCreate()
 
 @usercommand
+@helparglist('proposal, title, localcontact, ...')
 def NewExperiment(proposal, title='', localcontact='', **parameters):
     """Start a new experiment with the given proposal number and title.
 
@@ -268,6 +279,7 @@ def NewExperiment(proposal, title='', localcontact='', **parameters):
     session.experiment.new(proposal, title, localcontact, **parameters)
 
 @usercommand
+@helparglist('...')
 def FinishExperiment(*args, **kwargs):
     """Finish the current experiment.
 
@@ -276,11 +288,13 @@ def FinishExperiment(*args, **kwargs):
     session.experiment.finish(*args, **kwargs)
 
 @usercommand
+@helparglist('name, email[, affiliation]')
 def AddUser(name, email=None, affiliation=None):
     """Add a new user to the experiment."""
     session.experiment.addUser(name, email, affiliation)
 
 @usercommand
+@helparglist('name, ...')
 def NewSample(name, **parameters):
     """Start a new sample with the given sample name.
 
@@ -326,6 +340,7 @@ SetMode.__doc__ += ', '.join(EXECUTIONMODES)
 
 
 @usercommand
+@helparglist('dev, ...')
 def ClearCache(*devnames):
     """Clear all cached information for the given device(s).
 
@@ -363,14 +378,14 @@ class _Scope(object):
         session.endActionScope()
 
 @usercommand
-def UserInfo(name):
+def UserInfo(info):
     """Return an object for use in "with" that adds status information.
     It can be used like this::
 
         with UserInfo('Qscan around (1,1,0)'):
             qscan(...)
     """
-    return _Scope(name)
+    return _Scope(info)
 
 
 def _scriptfilename(filename):
@@ -477,6 +492,7 @@ def Run(filename):
 
 
 @usercommand
+@helparglist('filename_or_code, ...')
 def Simulate(what, *devices, **kwargs):
     """Run code or a script file in simulation mode.  If the file name is not
     absolute, it is relative to the experiment script directory.
@@ -509,6 +525,7 @@ def Simulate(what, *devices, **kwargs):
 
 
 @usercommand
+@helparglist('[subject, ]bodytext')
 def Notify(*args):
     """Send a message via email and/or SMS to the receivers selected by
     `SetMailReceivers()` and `SetSMSReceivers()`.  Usage is one of these two::
@@ -528,6 +545,7 @@ def Notify(*args):
 
 
 @usercommand
+@helparglist('email, ...')
 def SetMailReceivers(*emails):
     """Set a list of email addresses that will be notified on unhandled errors,
     and when the `Notify()` command is used.
@@ -544,6 +562,7 @@ def SetMailReceivers(*emails):
 
 
 @usercommand
+@helparglist('phonenumber, ...')
 def SetSMSReceivers(*numbers):
     """Set a list of mobile phone numbers that will be notified on unhandled
     errors, and when the `Notify()` command is used.
@@ -563,6 +582,7 @@ def SetSMSReceivers(*numbers):
 
 
 @usercommand
+@helparglist('filename, name')
 def SaveSimulationSetup(filename, name=None):
     """Save the whole current setup as a file usable in simulation mode."""
     if path.isfile(filename):
@@ -659,6 +679,7 @@ def LogEntry(entry):
 
 
 @usercommand
+@helparglist('description, paths[, names]')
 def LogAttach(description, paths, names=None):
     """Attach one or more files to the electronic logbook.
 

@@ -27,30 +27,35 @@
 __version__ = "$Revision$"
 
 from nicos import session
-from nicos.commands import usercommand, hiddenusercommand
+from nicos.commands import usercommand, hiddenusercommand, helparglist
 
 
 @hiddenusercommand
+@helparglist('message, ...')
 def printdebug(*msgs, **kwds):
     """Print a debug message."""
     session.log.debug(*msgs, **kwds)
 
 @usercommand
+@helparglist('message, ...')
 def printinfo(*msgs, **kwds):
     """Print a message."""
     session.log.info(*msgs, **kwds)
 
 @usercommand
+@helparglist('message, ...')
 def printwarning(*msgs, **kwds):
     """Print a warning message."""
     session.log.warning(*msgs, **kwds)
 
 @usercommand
+@helparglist('message, ...')
 def printerror(*msgs):
     """Print an error message."""
     session.log.error(*msgs)
 
 @hiddenusercommand
+@helparglist('message, ...')
 def printexception(*msgs):
     """Print an error message, and add info about the last exception."""
     session.log.exception(*msgs)

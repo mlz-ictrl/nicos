@@ -33,7 +33,7 @@ import numpy as np
 from nicos import session
 from nicos.core import NicosError, UsageError
 from nicos.utils.fitting import Fit
-from nicos.commands import usercommand
+from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import cscan
 from nicos.commands.device import maw
 from nicos.commands.output import printinfo, printwarning
@@ -125,6 +125,7 @@ COLHELP = """
 """
 
 @usercommand
+@helparglist('[[xcol, ]ycol]')
 def center_of_mass(*columns):
     """Calculate the center of mass x-coordinate of the last scan."""
     xs, ys, _ = _getData(columns)
@@ -135,6 +136,7 @@ center_of_mass.__doc__ += COLHELP.replace('func(', 'center_of_mass(')
 
 
 @usercommand
+@helparglist('[[xcol, ]ycol]')
 def fwhm(*columns):
     """Calculate an estimate of full width at half maximum.
 
@@ -194,6 +196,7 @@ fwhm.__doc__ += COLHELP.replace('func(', 'fwhm(')
 
 
 @usercommand
+@helparglist('[ycol]')
 def root_mean_square(col=None):
     """Calculate the root-mean-square of the last scan.
 
@@ -205,6 +208,7 @@ def root_mean_square(col=None):
 
 
 @usercommand
+@helparglist('n, [[xcol, ]ycol]')
 def poly(n, *columns):
     """Fit a polynomial of degree *n* through the last scan.
 
@@ -227,6 +231,7 @@ poly.__doc__ += COLHELP.replace('func(', 'poly(2, ')
 
 
 @usercommand
+@helparglist('[[xcol, ]ycol]')
 def gauss(*columns):
     """Fit a Gaussian through the data of the last scan.
 
@@ -257,6 +262,7 @@ gauss.__doc__ += COLHELP.replace('func(', 'gauss(')
 
 
 @usercommand
+@helparglist('dev, center, step, numsteps, ...')
 def center(dev, center, step, numsteps, *args, **kwargs):
     """Move the given device to the maximum of a Gaussian fit through a scan
     around center with the given parameters.
@@ -283,6 +289,7 @@ def center(dev, center, step, numsteps, *args, **kwargs):
 
 
 @usercommand
+@helparglist('dev, center, step, numsteps, ...')
 def checkoffset(dev, center, step, numsteps, *args, **kwargs):
     """Readjust offset of the given device, so that the center of the given
     scan coincides with the center of a Gaussian fit.
@@ -313,6 +320,7 @@ def checkoffset(dev, center, step, numsteps, *args, **kwargs):
 
 
 @usercommand
+@helparglist('[[xcol, ]ycol][, npoints=n]')
 def findpeaks(*columns, **kwds):
     """Find peaks the data of the last scan.
 

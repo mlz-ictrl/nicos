@@ -34,7 +34,7 @@ from nicos import session
 from nicos.core import Measurable, Moveable, Readable, UsageError, NicosError
 from nicos.scan import QScan
 from nicos.tas.spectro import TAS
-from nicos.commands import usercommand
+from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import _infostr, ADDSCANHELP2
 from nicos.commands.device import maw, read
 from nicos.commands.output import printinfo
@@ -99,6 +99,7 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
 
 
 @usercommand
+@helparglist('Q, dQ, numsteps, ...')
 def qscan(Q, dQ, numsteps, *args, **kwargs):
     """Single-sided Q scan.
 
@@ -118,6 +119,7 @@ def qscan(Q, dQ, numsteps, *args, **kwargs):
 
 
 @usercommand
+@helparglist('Q, dQ, numperside, ...')
 def qcscan(Q, dQ, numperside, *args, **kwargs):
     """Centered Q scan.
 
@@ -146,6 +148,7 @@ class Q(ndarray):
 _Q = Q
 
 @usercommand
+@helparglist('[h, k, l, E]')
 def Q(*args, **kwds): # pylint: disable=E0102
     """Create a Q-E vector that can be used for calculations.  Use:
 
@@ -202,6 +205,7 @@ def Q(*args, **kwds): # pylint: disable=E0102
 
 
 @usercommand
+@helparglist('h, k, l, E[, SC]')
 def calpos(*args):
     """Calculate instrument position for a given (Q, E) position.
 
@@ -237,6 +241,7 @@ def calpos(*args):
 
 
 @usercommand
+@helparglist('[h, k, l, E[, SC]]')
 def pos(*args):
     """Move the instrument to a given (Q, E) position, or without arguments
     to the last position calculated with `calpos()`.  Examples:
@@ -286,6 +291,7 @@ def rp():
 
 
 @usercommand
+@helparglist('h, k, l, E[, SC]')
 def acc_bragg(h, k, l, ny, sc=None):
     """Check accidental Bragg scattering conditions for type A or type M at the
     given spectrometer position.
@@ -309,6 +315,7 @@ def acc_bragg(h, k, l, ny, sc=None):
 
 
 @usercommand
+@helparglist('[kf[, dEmin, dEmax]]')
 def ho_spurions(kf=None, dEmin=0, dEmax=20):
     """Calculation of elastic spurions due to higher order neutrons.
 
@@ -334,6 +341,7 @@ def ho_spurions(kf=None, dEmin=0, dEmax=20):
 
 
 @usercommand
+@helparglist('[ki, phi]')
 def alu(ki=None, phi=None):
     """Print powder ray positions of Al."""
     alu_hkl = {'1,1,1': 2.3375,
@@ -346,6 +354,7 @@ def alu(ki=None, phi=None):
 
 
 @usercommand
+@helparglist('[ki, phi]')
 def copper(ki=None, phi=None):
     """Print powder ray positions of Cu."""
     cop_hkl = {'1,1,1': 2.0874,

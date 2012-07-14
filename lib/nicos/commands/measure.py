@@ -30,7 +30,7 @@ from time import sleep
 
 from nicos import session
 from nicos.core import Measurable, UsageError
-from nicos.commands import usercommand
+from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printinfo, printwarning
 
 
@@ -72,6 +72,7 @@ def _count(detlist, preset):
 
 
 @usercommand
+@helparglist('...')
 def count(*detlist, **preset):
     """Perform a single counting.
 
@@ -117,6 +118,7 @@ def count(*detlist, **preset):
 
 
 @usercommand
+@helparglist('...')
 def preset(**preset):
     """Set a new default preset for the currently selected detectors.
 
@@ -140,6 +142,7 @@ def preset(**preset):
 
 
 @usercommand
+@helparglist('det, ...')
 def SetDetectors(*detlist):
     """Select the detector device(s) to read out when calling scan() or count().
 
@@ -154,6 +157,7 @@ def SetDetectors(*detlist):
 
 
 @usercommand
+@helparglist('det, ...')
 def AddDetector(*detlist):
     """Add the specified detector device(s) to the standard detectors."""
     existing = session.experiment.detlist
@@ -170,6 +174,7 @@ def ListDetectors():
 
 
 @usercommand
+@helparglist('[dev, ...]')
 def SetEnvironment(*devlist):
     """Select the device(s) to read out as "experiment environment" at every
     step of a scan.
@@ -185,6 +190,7 @@ def SetEnvironment(*devlist):
 
 
 @usercommand
+@helparglist('dev, ...')
 def AddEnvironment(*devlist):
     """Add the specified environment device(s) to the standard environment."""
     existing = session.experiment.envlist
