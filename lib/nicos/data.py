@@ -46,7 +46,6 @@ from nicos.core import none_or, Device, Param, Override, ConfigurationError, \
      ProgrammingError, NicosError, DataSink, NeedsDatapath, usermethod
 from nicos.utils import readFileCounter, updateFileCounter, parseDateString
 from nicos.commands.output import printinfo, printwarning
-from nicos.sessions.daemon import DaemonSession
 from nicos.sessions.console import ConsoleSession
 
 
@@ -115,6 +114,7 @@ class DaemonSink(DataSink):
     activeInSimulation = False
 
     def isActive(self, scantype):
+        from nicos.sessions.daemon import DaemonSession
         if not isinstance(session, DaemonSession):
             return False
         return DataSink.isActive(self, scantype)
