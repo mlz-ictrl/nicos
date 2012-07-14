@@ -30,7 +30,7 @@ import time
 
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, QPen, \
-     QListWidgetItem, QSizePolicy, QPalette
+     QListWidgetItem, QSizePolicy, QPalette, QKeySequence, QShortcut
 from PyQt4.Qwt5 import QwtPlot, QwtPlotItem, QwtText, QwtLog10ScaleEngine
 from PyQt4.QtCore import pyqtSignature as qtsig
 
@@ -87,6 +87,9 @@ class ScansPanel(Panel):
         self.statusBar.setSizePolicy(policy)
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
+
+        quickfit = QShortcut(QKeySequence("G"), self)
+        self.connect(quickfit, SIGNAL('activated()'), self.on_quickfit)
 
         self.user_color = parent.user_color
         self.user_font = parent.user_font
@@ -378,6 +381,11 @@ class ScansPanel(Panel):
     @qtsig('')
     def on_actionFitArby_triggered(self):
         self.currentPlot.fitArby()
+
+    def on_quickfit(self):
+        if not self.currentPlot or not self.currentPlot.underMouse():
+            return
+        self.currentPlot.fitQuick()
 
     @qtsig('')
     def on_actionCombine_triggered(self):
@@ -736,3 +744,18 @@ class DataSetPlot(NicosPlot):
                 values.append(0)
         self.fitvalues = [fcn, params, values, (xmin, xmax)]
         return True
+
+    def fitQuick(self):
+        visible_curves = [i for (i, _) in enumerate(self.dataset.curves)
+                          if self.plotcurves[i].isVisible()]
+        if len(visible_curves) != 1:
+            return
+        self.fitcurve = self.plotcurves[visible_curves[0]]
+        p = self.picker.trackerPosition()
+        px = self.invTransform(QwtPlot.xBottom, p.x())
+        py = self.invTransform(QwtPlot.yLeft, p.y())
+        self.fitvalues = [(0, 0), (px, py), (px*0.95, py/2.)]
+        self.fitparams = ['Background', 'Peak', 'Half Maximum']
+        self.fittype = 'Gauss'
+        self.fitcallbacks = [self.gauss_callback, None]
+        self._finishFit()
