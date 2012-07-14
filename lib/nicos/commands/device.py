@@ -57,9 +57,12 @@ def _devposlist(dev_pos_list, cls):
 def move(*dev_pos_list):
     """Start moving one or more devices to a new position.
 
-    This can be used with multiple devices like this::
+    This can be used with multiple devices.  Examples:
 
-        move(dev1, pos1, dev2, pos2, ...)
+    >>> move(dev, pos)                 # start one device
+    >>> move(dev1, pos1, dev2, pos2)   # start two devices in parallel
+    ...
+    >>> wait(dev, dev1, dev2)          # now wait for all of them
     """
     for dev, pos in _devposlist(dev_pos_list, Moveable):
         dev.log.info('moving to', dev.format(pos), dev.unit)
@@ -68,12 +71,7 @@ def move(*dev_pos_list):
 @hiddenusercommand
 @helparglist('dev, pos, ...')
 def drive(*dev_pos_list):
-    """Move one or more devices to a new position.  Same as `move()`.
-
-    This can be used with multiple devices like this::
-
-        drive(dev1, pos1, dev2, pos2, ...)
-    """
+    """Move one or more devices to a new position.  Same as `move()`."""
     return move(*dev_pos_list)
 
 @usercommand
@@ -82,9 +80,10 @@ def maw(*dev_pos_list):
     """Move one or more devices to a new position and wait for them.
 
     The command does not return until motion of all devices is completed.  It
-    can be used with multiple devices like this::
+    can be used with multiple devices.  Examples:
 
-        maw(dev1, pos1, dev2, pos2, ...)
+    >>> maw(dev, pos)                  # move a device to a new position
+    >>> maw(dev1, pos1, dev2, pos2)    # move two devices in parallel
     """
     devs = []
     for dev, pos in _devposlist(dev_pos_list, Moveable):
@@ -100,12 +99,7 @@ def maw(*dev_pos_list):
 @helparglist('dev, pos, ...')
 def switch(*dev_pos_list):
     """Move one or more devices to a new position and wait until motion
-    of all devices is completed.  Same as `maw()`.
-
-    This can be used with multiple devices like this::
-
-        switch(dev1, pos1, dev2, pos2, ...)
-    """
+    of all devices is completed.  Same as `maw()`."""
     maw(*dev_pos_list)
 
 @usercommand
@@ -116,11 +110,10 @@ def wait(*devlist):
     Usually, "wait" returns when the device is out of "busy" status.  A time in
     seconds can also be used to wait the given number of seconds.
 
-    Example::
+    Examples:
 
-        wait(T, 60)
-
-    waits for the T device, and then another 60 seconds.
+    >>> wait(T, B)    # wait for T and B devices
+    >>> wait(T, 60)   # wait for T device, and then another 60 seconds
     """
     if not devlist:
         devlist = [session.devices[devname]
@@ -143,6 +136,12 @@ def read(*devlist):
     """Read the position (or value) of one or more devices.
 
     If no device is given, read all readable devices.
+
+    Examples:
+
+    >>> read()        # read all devices
+    >>> read(T)       # read the T device
+    >>> read(T, B)    # read the T and B devices
     """
     if not devlist:
         devlist = [session.devices[devname]
@@ -173,6 +172,12 @@ def status(*devlist):
     """Read the status of one or more devices.
 
     If no device is given, read the status of all readable devices.
+
+    Examples:
+
+    >>> status()        # display status of all devices
+    >>> status(T)       # status of the T device
+    >>> status(T, B)    # status of the T and B devices
     """
     if not devlist:
         devlist = [session.devices[devname]
@@ -194,6 +199,12 @@ def stop(*devlist):
     """Stop one or more devices.
 
     If no device is given, stop all stoppable devices in parallel.
+
+    Examples:
+
+    >>> stop(phi)       # stop the phi device
+    >>> stop(phi, psi)  # stop the phi and psi devices
+    >>> stop()          # stop all devices
     """
     if not devlist:
         devlist = [session.devices[devname]
@@ -229,7 +240,17 @@ def stop(*devlist):
 @usercommand
 @helparglist('dev, ...')
 def reset(*devlist):
-    """Reset the given device(s)."""
+    """Reset the given device(s).
+
+    This can restore communication with the device, re-set a positioning fault
+    or make a reference drive (only for devices where this cannot lead to
+    crashes, such as slits).
+
+    Examples:
+
+    >>> reset(ss1)        # reset a single device
+    >>> reset(ss1, ss2)   # reset multiple devices
+    """
     for dev in devlist:
         dev = session.getDevice(dev, Readable)
         status = dev.reset()
@@ -237,13 +258,29 @@ def reset(*devlist):
 
 @usercommand
 def set(dev, parameter, value):
-    """Set a the parameter of the device to a new value."""
+    """Set a the parameter of the device to a new value.
+
+    The following commands are equivalent:
+
+    >>> set(phi, 'speed', 50)
+
+    >>> phi.speed = 50
+    """
     session.getDevice(dev).setPar(parameter, value)
     dev.log.info('%s set to %r' % (parameter, value))
 
 @usercommand
 def get(dev, parameter):
-    """Return the value of a parameter of the device."""
+    """Return the value of a parameter of the device.
+
+    A parameter value can also be read using attribute syntax,
+    i.e. ``dev.param``.
+
+    Examples:
+
+    >>> get(phi, 'speed')
+    >>> print phi.speed
+    """
     value = getattr(session.getDevice(dev), parameter)
     dev.log.info('parameter %s is %s' % (parameter, value))
 
@@ -253,9 +290,9 @@ def fix(dev, reason=''):
     """Fix a device, i.e. prevent movement until `release()` is called.
 
     You can give a reason that is displayed when movement is attempted.
-    Example::
+    Example:
 
-        fix(phi, 'will drive into the wall')
+    >>> fix(phi, 'will drive into the wall')
     """
     dev = session.getDevice(dev, Moveable)
     dev.fix(reason)
@@ -264,7 +301,12 @@ def fix(dev, reason=''):
 @usercommand
 @helparglist('dev, ...')
 def release(*devlist):
-    """Release one or more devices, i.e. undo the effect of `fix()`."""
+    """Release one or more devices, i.e. undo the effect of `fix()`.
+
+    Example:
+
+    >>> release(phi)
+    """
     if not devlist:
         raise UsageError('at least one device argument is required')
     for dev in devlist:
@@ -351,7 +393,16 @@ def history(dev, key='value', fromtime=None, totime=None):
 @usercommand
 @helparglist('dev, ...')
 def limits(*devlist):
-    """Print the limits of the device(s)."""
+    """Print the limits of the device(s).
+
+    These are the absolute limits (``dev.abslimits``) and user limits
+    (``dev.userlimits``).  The absolute limits cannot be set by the user and
+    the user limits obviously cannot go beyond them.
+
+    Example:
+
+    >>> limits(phi)    # shows the absolute and user limits of phi
+    """
     for dev in devlist:
         try:
             dev = session.getDevice(dev, HasLimits)
@@ -382,7 +433,18 @@ def limits(*devlist):
 @usercommand
 @helparglist('dev, ...')
 def resetlimits(*devlist):
-    """Reset the user limits for the device(s) to the absolute limits."""
+    """Reset the user limits for the device(s) to the absolute limits.
+
+    The following commands are **not** equivalent:
+
+    >>> resetlimits(phi)
+
+    >>> phi.userlimits = phi.abslimits
+
+    because the user limits are given in terms of the "logical" value,
+    i.e. taking the device's offset into account, while the absolute limits are
+    given in terms of the "physical" value.
+    """
     if not devlist:
         devlist = [session.devices[devname]
                    for devname in session.explicit_devices
@@ -406,7 +468,12 @@ def resetlimits(*devlist):
 
 @usercommand
 def listparams(dev):
-    """List all parameters of the device."""
+    """List all parameters of the device.
+
+    Example:
+
+    >>> listparams(phi)
+    """
     dev = session.getDevice(dev, Device)
     dev.log.info('Device parameters:')
     devunit = getattr(dev, 'unit', '')
@@ -430,7 +497,12 @@ def listparams(dev):
 
 @usercommand
 def listmethods(dev):
-    """List user-callable methods for the device."""
+    """List user-callable methods for the device.
+
+    Example:
+
+    >>> listmethods(phi)
+    """
     dev = session.getDevice(dev, Device)
     items = []
     listed = __builtin__.set()
@@ -451,9 +523,9 @@ def listmethods(dev):
 def listallparams(*names):
     """List the given parameters for all existing devices that have them.
 
-    Example::
+    Example:
 
-        listallparams('offset')
+    >>> listallparams('offset')
 
     lists the offset for all devices with an "offset" parameter.
     """
@@ -471,7 +543,12 @@ def listallparams(*names):
 
 @usercommand
 def listdevices():
-    """List all currently created devices."""
+    """List all currently created devices.
+
+    Example:
+
+    >>> listdevices()
+    """
     printinfo('All created devices:')
     items = []
     for devname in sorted(session.explicit_devices):

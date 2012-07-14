@@ -122,13 +122,13 @@ def _infostr(fn, args, kwargs):
 def scan(dev, *args, **kwargs):
     """Scan over device(s) and count detector(s).
 
-    The general syntax is either to give start, step and number of steps::
+    The general syntax is either to give start, step and number of steps:
 
-        scan(dev, 0, 1, 11)   # scans from 0 to 10 in steps of 1.
+    >>> scan(dev, 0, 1, 11)   # scans from 0 to 10 in steps of 1.
 
-    or a list of positions to scan::
+    or a list of positions to scan:
 
-        scan(dev, [0, 1, 2, 3, 7, 8, 9])  # scans at the given positions.
+    >>> scan(dev, [0, 1, 2, 3, 7, 8, 9])  # scans at the given positions.
 
     """
     def mkpos(starts, steps, numsteps):
@@ -146,9 +146,9 @@ def scan(dev, *args, **kwargs):
 def cscan(dev, *args, **kwargs):
     """Scan around center.
 
-    The general syntax is to give center, step and number of steps per side::
+    The general syntax is to give center, step and number of steps per side:
 
-        cscan(dev, 0, 1, 5)   # scans from -5 to 5 in steps of 1.
+    >>> cscan(dev, 0, 1, 5)   # scans from -5 to 5 in steps of 1.
 
     The total number of steps is (2 * numperside) + 1.
     """
@@ -167,7 +167,12 @@ def cscan(dev, *args, **kwargs):
 def timescan(numsteps, *args, **kwargs):
     """Count a number of times without moving devices.
 
-    "numsteps" can be -1 to scan for unlimited steps (break to quit).
+    "numsteps" can be -1 to scan for unlimited steps (break using Ctrl-C or the
+    GUI to quit).
+
+    Example:
+
+    >>> timescan(500, t=10)
     """
     scanstr = _infostr('timescan', (numsteps,) + args, kwargs)
     preset, scaninfo, detlist, envlist, move, multistep = \
@@ -183,6 +188,10 @@ def twodscan(dev1, start1, step1, numsteps1,
              dev2, start2, step2, numsteps2,
              *args, **kwargs):
     """Two-dimensional scan of two devices.
+
+    Example:
+
+    >>> twodscan(phi, 0, 1, 10, psi, 0, 2, 10, t=1)
     """
     scanstr = _infostr('twodscan',
                        (dev1, start1, step1, numsteps1,
@@ -197,45 +206,45 @@ def twodscan(dev1, start1, step1, numsteps1,
 
 ADDSCANHELP1 = """
     The device can also be a list of devices that should be moved for each step.
-    In this case, the start and stepwidth also have to be lists::
+    In this case, the start and stepwidth also have to be lists:
 
-        scan([dev1, dev2], [0, 0], [0.5, 1], 10)
+    >>> scan([dev1, dev2], [0, 0], [0.5, 1], 10)
 
-    This also works for the second basic syntax::
+    This also works for the second basic syntax:
 
-        scan([dev1, dev2], [[0, 1, 2, 3], [0, 2, 4, 6]])
+    >>> scan([dev1, dev2], [[0, 1, 2, 3], [0, 2, 4, 6]])
 
-    Presets can be given using keyword arguments::
+    Presets can be given using keyword arguments:
 
-        scan(dev, ..., t=5)
-        scan(dev, ..., mon1=1000)
+    >>> scan(dev, ..., t=5)
+    >>> scan(dev, ..., mon1=1000)
 
-    An info string describing the scan can be given as a string argument::
+    An info string describing the scan can be given as a string argument:
 
-        scan(dev, ..., 'peak search', ...)
+    >>> scan(dev, ..., 'peak search', ...)
 """
 
 ADDSCANHELP2 = """
     By default, the detectors are those selected by `SetDetectors()`.  They can
-    be replaced by a custom set of detectors by giving them as arguments::
+    be replaced by a custom set of detectors by giving them as arguments:
 
-        scan(dev, ..., det1, det2)
+    >>> scan(dev, ..., det1, det2)
 
     Other devices that should be recorded at every point (so-called environment
     devices) are by default those selected by `SetEnvironment()`.  They can also
-    be overridden by giving them as arguments::
+    be overridden by giving them as arguments:
 
-        scan(dev, ..., T1, T2)
+    >>> scan(dev, ..., T1, T2)
 
     Any devices can be moved to different positions *before* the scan starts.
-    This is done by giving them as keyword arguments::
+    This is done by giving them as keyword arguments:
 
-        scan(dev, ..., ki=1.55)
+    >>> scan(dev, ..., ki=1.55)
 
     A similar syntax can be used to count multiple times per scan point, with
-    one or more devices at different positions::
+    one or more devices at different positions:
 
-        scan(dev, ..., pol=['up', 'down'])
+    >>> scan(dev, ..., pol=['up', 'down'])
 
     will measure twice at every point: once with *pol* moved to 'up', once with
     *pol* moved to 'down'.
@@ -253,12 +262,20 @@ def contscan(dev, start, end, speed=None, *args, **kwargs):
     """Scan a device continuously with low speed.
 
     If the "speed" is not explicitly given, it is set to 1/5 of the normal speed
-    of the device.
+    of the device.  This is very useful for peak searches.
+
+    Example:
+
+    >>> contscan(phi, 0, 10)
+
+    The phi device will move continuously from 0 to 10, with reduced speed.  The
+    detectors are read out every second, and each delta between count values is
+    one scan point.
 
     By default, the detectors are those selected by SetDetectors().  They can be
-    replaced by a custom set of detectors by giving them as arguments::
+    replaced by a custom set of detectors by giving them as arguments:
 
-        contscan(dev, ..., det1, det2)
+    >>> contscan(dev, ..., det1, det2)
     """
     dev = session.getDevice(dev, Moveable)
     if 'speed' not in dev.parameters:
@@ -337,6 +354,14 @@ def appendscan(numsteps=5, stepsize=None):
     """Go on *numsteps* steps from the end of the last scan.
 
     *numsteps* can also be negative to prepend scan points.
+
+    Examples:
+
+    >>> appendscan(5)     # append 5 more points to last scan
+    >>> appendscan(-5)    # append 5 more points to beginning of last scan
+
+    The scan data will be plotted into the same live plot, if possible, but will
+    be saved into a separate data file.
     """
     dslist = session.experiment._last_datasets
     if not dslist:

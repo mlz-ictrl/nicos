@@ -62,11 +62,15 @@ a:hover { text-decoration: underline; color: #05f; }
 table   { border-collapse: collapse; }
 td, th  { border: 1px solid #ccc; padding: 3px; }
 th      { text-align: left; }
-pre.literal-block
-        { background-color: #eee; padding: 2px;
+pre.literal-block, pre.doctest-block
+        { background-color: #efe; padding: 3px;
           border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
 .menu   { text-align: right; }
-.usage  { font-weight: bold; }
+.usage, .devdesc
+        { font-weight: bold; padding: 3px 0; background-color: #eef;
+          border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
+.usage tt
+        { font-size: 13pt; }
 '''
 
 
@@ -101,6 +105,7 @@ class HelpGenerator(object):
         ret = ['<p class="menu">'
                '<a href="#commands">Commands</a>&nbsp;&nbsp;|&nbsp;&nbsp;'
                '<a href="#devices">Devices</a></p>']
+        ret.append('<p>Welcome to the NICOS interactive help!</p>')
         cmds = []
         for obj in session.getExportedObjects():
             if not hasattr(obj, 'is_usercommand'):
@@ -130,13 +135,19 @@ class HelpGenerator(object):
         ret.append('<p>These are the currently loaded high-level devices.  Use '
                    '<a href="cmd:AddSetup">AddSetup()</a> or the "Setup" '
                    'window to add more devices.</p>')
-        ret.append('<table width="100%">'
-                   '<tr><th>Name</th><th>Type</th><th>Description</th></tr>')
+        ret.append('<table width="100%"><tr><th>Name</th><th>Type</th>'
+                   '<th>From setup</th><th>Description</th></tr>')
+        setupinfo = session.getSetupInfo()
+        devsetups = {}
+        for sname, info in setupinfo.iteritems():
+            for devname in info['devices']:
+                devsetups[devname] = sname
         for devname in sorted(session.explicit_devices):
             dev = session.devices[devname]
             ret.append('<tr><td><tt><a href="dev:%s">%s</a></tt></td>'
-                       '<td>%s</td><td>%s</td>' %
-                       (dev, dev, dev.__class__.__name__, escape(dev.description)))
+                       '<td>%s</td><td>%s</td><td>%s</td>' %
+                       (dev, dev, dev.__class__.__name__,
+                        devsetups.get(devname, ''), escape(dev.description)))
         ret.append('</table>')
         return ''.join(ret)
 
@@ -147,7 +158,7 @@ class HelpGenerator(object):
             argspec = '(%s)' % real_func.help_arglist
         else:
             argspec = inspect.formatargspec(*inspect.getargspec(real_func))
-        ret.append(self.gen_heading('Help on %s command' % real_func.__name__))
+        ret.append(self.gen_heading('Help on the %s command' % real_func.__name__))
         ret.append('<p class="usage">Usage: <tt>' +
                    escape(real_func.__name__ + argspec) +
                    '</tt></p>')
@@ -157,7 +168,7 @@ class HelpGenerator(object):
 
     def gen_devhelp(self, dev):
         ret = []
-        ret.append(self.gen_heading('Help on %s device' % dev))
+        ret.append(self.gen_heading('Help on the %s device' % dev))
         ret.append('<p class="devcls">%s is a device of class %s.</p>' %
                    (dev.name, dev.__class__.__name__))
         if dev.description:

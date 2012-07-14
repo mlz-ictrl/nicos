@@ -39,19 +39,38 @@ def printdebug(*msgs, **kwds):
 @usercommand
 @helparglist('message, ...')
 def printinfo(*msgs, **kwds):
-    """Print a message."""
+    """Print a message.
+
+    This function is equivalent to the standard Python "print" statement.
+    """
     session.log.info(*msgs, **kwds)
 
 @usercommand
 @helparglist('message, ...')
 def printwarning(*msgs, **kwds):
-    """Print a warning message."""
+    """Print a warning message.
+
+    In the output history, the message will be highlighted as a warning and
+    therefore be more visible than normal "info" messages.
+
+    Example:
+
+    >>> printwarning('count rate < 1000 Hz')
+    """
     session.log.warning(*msgs, **kwds)
 
 @usercommand
 @helparglist('message, ...')
 def printerror(*msgs):
-    """Print an error message."""
+    """Print an error message.
+
+    In the output history, the message will be highlighted as an error (usually
+    in red and bold) and therefore be very visible.
+
+    Example:
+
+    >>> printerror('scan failed, repeating this run')
+    """
     session.log.error(*msgs)
 
 @hiddenusercommand

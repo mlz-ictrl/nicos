@@ -101,10 +101,18 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
 @usercommand
 @helparglist('Q, dQ, numsteps, ...')
 def qscan(Q, dQ, numsteps, *args, **kwargs):
-    """Single-sided Q scan.
+    """Perform a single-sided Q scan.
 
     The *Q* and *dQ* arguments can be lists of 3 or 4 components, or a `Q`
     object.
+
+    Example:
+
+    >>> qscan((1, 0, 0, 0), (0, 0, 0, 0.1), 11, kf=1.55, mon1=100000)
+
+    will perform an energy scan at (100) from 0 to 1 meV (or THz, depending on
+    the instrument setting) with the given constant kf and the given monitor
+    counts per point.
     """
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
     scanstr = _infostr('qscan', (Q, dQ, numsteps) + args, kwargs)
@@ -121,10 +129,17 @@ def qscan(Q, dQ, numsteps, *args, **kwargs):
 @usercommand
 @helparglist('Q, dQ, numperside, ...')
 def qcscan(Q, dQ, numperside, *args, **kwargs):
-    """Centered Q scan.
+    """Perform a centered Q scan.
 
     The *Q* and *dQ* arguments can be lists of 3 or 4 components, or a `Q`
     object.
+
+    Example:
+
+    >>> qcscan((1, 0, 0, 1), (0.001, 0, 0, 0), 20, mon1=1000)
+
+    will perform a longitudinal scan around (100) with the given monitor counts
+    per point.
     """
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
     scanstr = _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
@@ -150,23 +165,25 @@ _Q = Q
 @usercommand
 @helparglist('[h, k, l, E]')
 def Q(*args, **kwds): # pylint: disable=E0102
-    """Create a Q-E vector that can be used for calculations.  Use:
+    """A Q-E vector object that can be used for calculations.
 
-    To create a Q vector (1, 0, 0) with energy transfer 0 or 5::
+    Use as follows:
 
-        q = Q(1)
-        q = Q(1, 0, 0)
-        q = Q(1, 0, 0, 5)
-        q = Q(h=1, E=5)
+    To create a Q vector (1, 0, 0) with energy transfer 0 or 5:
 
-    To create a Q vector from another Q vector, adjusting one or more entries::
+    >>> q = Q(1)
+    >>> q = Q(1, 0, 0)
+    >>> q = Q(1, 0, 0, 5)
+    >>> q = Q(h=1, E=5)
 
-        q2 = Q(q, h=2, k=1)
-        q2 = Q(q, E=0)
+    To create a Q vector from another Q vector, adjusting one or more entries:
 
-    You can then use the Q-E vectors in scanning commands::
+    >>> q2 = Q(q, h=2, k=1)
+    >>> q2 = Q(q, E=0)
 
-        qscan(q, q2, 5, t=10)
+    You can then use the Q-E vectors in scanning commands:
+
+    >>> qscan(q, q2, 5, t=10)
     """
     q = _Q(4)
     q[:] = 0.
@@ -243,8 +260,10 @@ def calpos(*args):
 @usercommand
 @helparglist('[h, k, l, E[, SC]]')
 def pos(*args):
-    """Move the instrument to a given (Q, E) position, or without arguments
-    to the last position calculated with `calpos()`.  Examples:
+    """Move the instrument to a given (Q, E), or the last `calpos()` position.
+
+    Without arguments, moves to the last position sucessfully calculated with
+    `calpos()`.  Examples:
 
     >>> pos()                       # last calpos() position
     >>> pos(1, 0, 0)                # H, K, L
@@ -283,7 +302,12 @@ def pos(*args):
 
 @usercommand
 def rp():
-    """Read the current (Q, E) position."""
+    """Read the current (Q, E) position.
+
+    Example:
+
+    >>> rp()
+    """
     instr = session.instrument
     if not isinstance(instr, TAS):
         raise NicosError('your instrument device is not a triple axis device')
@@ -293,8 +317,9 @@ def rp():
 @usercommand
 @helparglist('h, k, l, E[, SC]')
 def acc_bragg(h, k, l, ny, sc=None):
-    """Check accidental Bragg scattering conditions for type A or type M at the
-    given spectrometer position.
+    """Check accidental Bragg scattering conditions for type A or type M.
+
+    Accidental Bragg scattering is checked at the given spectrometer position.
     """
     instr = session.instrument
     if sc is None:

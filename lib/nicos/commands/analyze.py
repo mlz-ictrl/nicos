@@ -113,15 +113,15 @@ COLHELP = """
     The data columns to use can be given by the arguments: either only the Y
     column, or both X and Y columns.  If they are not given, then the default X
     column is the first, and the default Y column is the first column of type
-    "counter".  Examples::
+    "counter".  Examples:
 
-        func()     # use first X column and first counter Y column
-        func(2)    # use first X column and second Y column
-        func(2, 3) # use second X column and third Y column
+    >>> func()     # use first X column and first counter Y column
+    >>> func(2)    # use first X column and second Y column
+    >>> func(2, 3) # use second X column and third Y column
 
-    It is also possible to give columns by name, for example::
+    It is also possible to give columns by name, for example:
 
-        func('om', 'ctr1')
+    >>> func('om', 'ctr1')
 """
 
 @usercommand

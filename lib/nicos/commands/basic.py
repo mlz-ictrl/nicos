@@ -42,8 +42,7 @@ from nicos.core import Device, AutoDevice, Readable, ModeError, NicosError, \
      UsageError
 from nicos.utils import formatDuration, printTable
 from nicos.notify import Mailer, SMSer
-from nicos.sessions import EXECUTIONMODES
-from nicos.commands import usercommand, helparglist
+from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.output import printinfo, printwarning, printerror, \
      printexception
 
@@ -59,12 +58,21 @@ def help(obj=None):
 
     For commands, the command help and usage will be shown.  For devices, the
     device help, parameters and special commands will be shown.
+
+    Examples:
+
+    >>> help()            # show list of commands
+    >>> help(det)         # show help on the "det" device
+    >>> help(move)        # show help on the "move" command
+
+    If the given object is not a special NICOS object, the standard Python help
+    is invoked.
     """
     session.showHelp(obj)
 
 __builtin__.__orig_dir = __builtin__.dir
 
-@usercommand
+@hiddenusercommand
 @helparglist('[object]')
 def dir(obj=None):
     """Show all public attributes for the given object."""
@@ -75,7 +83,12 @@ def dir(obj=None):
 
 @usercommand
 def listcommands():
-    """List all available commands."""
+    """List all available commands.
+
+    Example:
+
+    >>> listcommands()
+    """
     printinfo('Available commands:')
     items = []
     for obj in session.getExportedObjects():
@@ -101,7 +114,13 @@ def sleep(secs):
     """Sleep for a given number of seconds.
 
     This is different from Python's `time.sleep()` in that it allows breaking
-    and stopping the sleep, and supports simulation mode.
+    and stopping the sleep, and supports simulation mode.  Fractional values are
+    supported.
+
+    Examples:
+
+    >>> sleep(10)     # sleep for 10 seconds
+    >>> sleep(0.5)    # sleep for half a second
     """
     if session.mode == 'simulation':
         session.clock.tick(secs)
@@ -124,14 +143,17 @@ def sleep(secs):
 @helparglist('[setup, ...]')
 def NewSetup(*setupnames):
     """Load the given setups instead of the current one.
-    Without arguments, the current setups are reloaded.
 
-    Example::
+    Example:
 
-        NewSetup('tas', 'psd')
+    >>> NewSetup('tas', 'psd')
 
     will clear the current setup and load the "tas" and "psd" setups at the
     same time.
+
+    Without arguments, the current setups are reloaded.  Example:
+
+    >>> NewSetup()
     """
     current_mode = session.mode
     # reload current setups if none given
@@ -158,9 +180,9 @@ def NewSetup(*setupnames):
 def AddSetup(*setupnames):
     """Load the given setups additional to the current one.
 
-    Example::
+    Example:
 
-        AddSetup('gaussmeter')
+    >>> AddSetup('gaussmeter')
 
     will load the "gaussmeter" setup in addition to the current setups.
     """
@@ -179,9 +201,9 @@ def AddSetup(*setupnames):
 def RemoveSetup(*setupnames):
     """Remove the given setups from the currently loaded ones.
 
-    Example::
+    Example:
 
-        RemoveSetup('gaussmeter')
+    >>> RemoveSetup('gaussmeter')
 
     will re-load all current setups except for "gaussmeter".
     """
@@ -199,7 +221,12 @@ def RemoveSetup(*setupnames):
 
 @usercommand
 def ListSetups():
-    """Print a list of all known setups."""
+    """Print a list of all known setups.
+
+    Example:
+
+    >>> ListSetups()
+    """
     printinfo('Available setups:')
     items = []
     for name, info in session.getSetupInfo().iteritems():
@@ -212,14 +239,14 @@ def ListSetups():
 
 @usercommand
 def _Restart():
-    """Restart the NICOS process."""
+    """Restart the NICOS process.  Use with caution."""
     import atexit, signal
     @atexit.register
     def reload():
         os.execv(sys.executable, [sys.executable] + sys.argv)
     os.kill(os.getpid(), signal.SIGTERM)
 
-#@usercommand
+@hiddenusercommand
 def Keep(name, obj):
     """Export the given *obj* into the NICOS namespace under the *name*.
 
@@ -233,9 +260,13 @@ def Keep(name, obj):
 def CreateDevice(*devnames):
     """Create all given devices.
 
-    Example::
+    Examples:
 
-        CreateDevice('stx', 'sty', 'stz')
+    >>> CreateDevice('det')                 # create "det" device
+    >>> CreateDevice('stx', 'sty', 'stz')   # create all of "stx", "sty", "stz"
+
+    CreateDevice can also be used to make lowlevel devices accessible in the
+    user namespace.
     """
     for devname in devnames:
         session.createDevice(devname, explicit=True)
@@ -245,10 +276,14 @@ def CreateDevice(*devnames):
 def DestroyDevice(*devnames):
     """Destroy all given devices.
 
-    Example::
+    "Destroy" means that the device is unloaded and will be unavailable until it
+    is created again using `CreateDevice`.  Examples:
 
-        DestroyDevice('stx', 'sty', 'stz')
+    >>> DestroyDevice(stx)         # destroy "stx" device
+    >>> DestroyDevice(stx, sty)    # destroy two devices by name
     """
+    if not devnames:
+        raise UsageError('At least one device is required')
     for devname in devnames:
         if isinstance(devname, Device):
             devname = devname.name
@@ -258,10 +293,12 @@ def DestroyDevice(*devnames):
 def CreateAllDevices():
     """Try to create all possible devices in the current setup.
 
-    Devices that are marked as lowlevel will not be automatically created.
-
     This is useful when a setup failed to load many devices, and another attempt
-    should be made.
+    should be made.  Example:
+
+    >>> CreateAllDevices()
+
+    Note: Devices that are marked as lowlevel will not be automatically created.
     """
     session.startMultiCreate()
     try:
@@ -280,7 +317,7 @@ def CreateAllDevices():
 def NewExperiment(proposal, title='', localcontact='', **parameters):
     """Start a new experiment with the given proposal number and title.
 
-    You can also give a argument for the local contact.  Users can be added
+    You should also give a argument for the local contact.  Users can be added
     with `AddUser`.  Example:
 
     >>> NewExperiment(5401, 'Dynamics of H2O', 'L. Ocal Contact')
@@ -289,6 +326,7 @@ def NewExperiment(proposal, title='', localcontact='', **parameters):
     When configured, proposal information will be automatically filled in from
     the proposal database.
     """
+    # XXX adding users with a separate command is considered awkward
     session.experiment.new(proposal, title, localcontact, **parameters)
 
 @usercommand
@@ -303,7 +341,12 @@ def FinishExperiment(*args, **kwargs):
 @usercommand
 @helparglist('name, email[, affiliation]')
 def AddUser(name, email=None, affiliation=None):
-    """Add a new user to the experiment."""
+    """Add a new user to the experiment.
+
+    Example:
+
+    >>> AddUser('F. User', 'friendlyuser@frm2.tum.de', 'FRM II')
+    """
     session.experiment.addUser(name, email, affiliation)
 
 @usercommand
@@ -311,10 +354,15 @@ def AddUser(name, email=None, affiliation=None):
 def NewSample(name, **parameters):
     """Start a new sample with the given sample name.
 
-    Which other parameters can be given depends on the parameters of the sample
-    object.  For example, for TAS samples, the following command is valid::
+    Example:
 
-        NewSample('Cr', lattice=[2.88, 2.88, 2.88], angles=[90, 90, 90])
+    >>> NewSample('D2O')
+
+    Other parameters can be given, depending on the parameters of the sample
+    object.  For example, for triple-axis spectrometers, the following command
+    is valid:
+
+    >>> NewSample('Cr', lattice=[2.88, 2.88, 2.88], angles=[90, 90, 90])
     """
     session.experiment.sample.samplename = name
     for param, value in parameters.iteritems():
@@ -327,6 +375,14 @@ def Remark(remark):
     The current "remark" is saved in the data file, so you can use it to record
     sections of an experiment or changes to instrumental setup that are not
     otherwise visible in the NICOS devices.
+
+    The change of the remark is also prominently put as a heading in the
+    electronic logbook.
+
+    Examples:
+
+    >>> Remark('plexiglass in beam')      # replace remark
+    >>> Remark('')                        # remove current remark
     """
     session.experiment.remark = remark
 
@@ -338,6 +394,10 @@ def Remember(what):
     given during the current experiment using Remember() will be displayed.
     This is intended for the instrument responsible to remember undoing
     temporary setup changes and the like.
+
+    Example:
+
+    >>> Remember('reset translation offset to zero')
     """
     rtime = time.strftime('(%m/%d %H:%M) ')
     session.experiment.remember += [rtime + what]
@@ -346,7 +406,30 @@ def Remember(what):
 def SetMode(mode):
     """Set the execution mode.
 
-    Valid modes are: """
+    Valid modes are 'master', 'slave', 'simulation' and 'maintenance'.
+
+    * 'master' mode is for normal operation.  Only one copy of the instrument
+      software can be in master mode at the same time.
+
+    * 'slave' mode is for secondary copies of the software.  They can only read
+      the instrument status, but not move devices or set parameters.
+
+    * 'simulation' mode is for complete simulation of the instrument.  When
+      switching to simulation mode, the current state of the instrument is taken
+      as the basis of the simulation.  No hardware communication is possible in
+      simulation mode.
+
+      It is not possible to switch back: use the `Simulate()` command for doing
+      one-off simulations.
+
+    * 'maintenance' mode is for instrument scientists only.
+
+    Example:
+
+    >>> SetMode('slave')    # e.g. to let another master take over
+    ...
+    >>> SetMode('master')   # switch back to master in this copy
+    """
     if mode == 'sim':
         mode = 'simulation'
     elif mode == 'maint':
@@ -356,8 +439,6 @@ def SetMode(mode):
     except ModeError:
         printexception()
 
-SetMode.__doc__ += ', '.join(EXECUTIONMODES)
-
 
 @usercommand
 @helparglist('dev, ...')
@@ -366,10 +447,10 @@ def ClearCache(*devnames):
 
     This can be used when a device has been reconfigured in the setup and all
     parameters should be read from the setup file on the next loading of the
-    setup.  Example::
+    setup.  Example:
 
-        ClearCache('om', 'phi')
-        NewSetup()
+    >>> ClearCache('om', 'phi')
+    >>> NewSetup()
 
     will clear cache information for devices "om" and "phi" and then reload the
     current setup.
@@ -400,10 +481,14 @@ class _Scope(object):
 @usercommand
 def UserInfo(info):
     """Return an object for use in "with" that adds status information.
-    It can be used like this::
 
-        with UserInfo('Qscan around (1,1,0)'):
-            qscan(...)
+    Example use:
+
+    >>> with UserInfo('Qscan around (1,1,0)'):
+    ...     qscan(...)
+
+    During the execution of the "with" block, the info 'Qscan around (1,1,0)'
+    will be displayed in the "current status" of the instrument.
     """
     return _Scope(info)
 
@@ -421,6 +506,11 @@ def Edit(filename):
 
     If the file name is not absolute, it is relative to the experiment script
     directory.
+
+    Examples:
+
+    >>> Edit('night_16jul')       # edit file in the current script dir
+    >>> Edit('/data/scripts/maint/vanadium')     # edit by complete filename
 
     The editor is given by the ``EDITOR`` environment variable, which can be
     conveniently set in the nicos.conf file.
@@ -511,6 +601,11 @@ def Run(filename):
 
     If the file name is not absolute, it is relative to the experiment script
     directory.
+
+    Examples:
+
+    >>> Run('night_16jul')              # run file in the current script dir
+    >>> Run('/data/scripts/maint/vanadium')     # run with complete filename
     """
     _RunScript(filename, ())
 
@@ -524,16 +619,16 @@ def Simulate(what, *devices, **kwargs):
     directory.
 
     For script files, position statistics will be collected for the given list
-    of devices::
+    of devices:
 
-        Simulate('test', T)
+    >>> Simulate('testscript', T)
 
     will simulate the 'test.py' user script and print out minimum/maximum/
     last value of T during the run.
 
-    Example running code::
+    Example with running code directly:
 
-        Simulate('move(mono, 1.55); read(mtt)')
+    >>> Simulate('move(mono, 1.55); read(mtt)')
     """
     debug = bool(kwargs.get('debug', False))
     fn = _scriptfilename(what)
@@ -556,10 +651,10 @@ def Notify(*args):
     """Send a message via email and/or SMS.
 
     The receivers of the message can be selected by `SetMailReceivers()` and
-    `SetSMSReceivers()`.  Usage is one of these two::
+    `SetSMSReceivers()`.  Usage is one of these two:
 
-        Notify('some text')
-        Notify('subject', 'some text')
+    >>> Notify('some text')
+    >>> Notify('subject', 'some text')
     """
     if len(args) == 1:
         # use first line of text as subject
@@ -579,6 +674,10 @@ def SetMailReceivers(*emails):
 
     These addresses will be notified on unhandled errors, and when the
     `Notify()` command is used.
+
+    Example:
+
+    >>> SetMailReceivers('user@example.com', 'responsible@frm2.tum.de')
     """
     for notifier in session.notifiers:
         if isinstance(notifier, Mailer):
@@ -601,6 +700,10 @@ def SetSMSReceivers(*numbers):
 
     Note that all those phone numbers have to be registered with the IT
     department before they can be used.
+
+    Example:
+
+    >>> SetSMSReceivers('01712345678')
     """
     for notifier in session.notifiers:
         if isinstance(notifier, SMSer):
@@ -719,10 +822,13 @@ def LogAttach(description, paths, names=None):
     logbook daemon runs (i.e. on a common network share).  They will be renamed
     using the given *names*, if given, otherwise the current names are used.
 
-    Examples::
+    Examples:
 
-        LogAttach('quick fit of peak', '/tmp/peakfit.png', 'peak_100.png')
-        LogAttach('calibrations', ['/tmp/cal1.dat', '/tmp/cal2.dat'])
+    >>> LogAttach('quick fit of peak', '/tmp/peakfit.png', 'peak_100.png')
+    >>> LogAttach('calibrations', ['/tmp/cal1.dat', '/tmp/cal2.dat'])
+
+    In the NICOS GUI, the respective dialog can be used to easily add files to
+    the logbook.
     """
     if isinstance(paths, basestring):
         paths = [paths]

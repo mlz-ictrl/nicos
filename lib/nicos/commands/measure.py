@@ -72,22 +72,23 @@ def _count(detlist, preset):
 
 
 @usercommand
-@helparglist('...')
+@helparglist('[detectors], [presets]')
 def count(*detlist, **preset):
     """Perform a single counting.
 
     With preset arguments, this preset is used instead of the default preset.
 
     With detector devices as arguments, these detectors are used instead of the
-    default detectors set with SetDetectors().
+    default detectors set with `SetDetectors()`.
 
-    Within a manual scan, perform the count as one step of the manual scan.
+    Examples:
 
-    Examples::
+    >>> count()             # count once with the default preset and detectors
+    >>> count(t=10)         # count once with time preset of 10 seconds
+    >>> count(psd, t=10)    # count 10 seconds with the psd detector
 
-        count()             # count once with the default preset and detectors
-        count(t=10)         # count once with time preset of 10 seconds
-        count(psd, t=10)    # count 10 seconds with the psd detector
+    Within a manual scan, this command is also used to perform the count as one
+    step of the manual scan.
     """
     detectors = []
     for det in detlist:
@@ -118,16 +119,17 @@ def count(*detlist, **preset):
 
 
 @usercommand
-@helparglist('...')
+@helparglist('presets...')
 def preset(**preset):
     """Set a new default preset for the currently selected detectors.
 
-    The arguments that are accepted depend on the detectors.
+    The arguments that are accepted depend on the detectors.  The current
+    detectors are selected using `SetDetectors()`.
 
-    Examples::
+    Examples:
 
-        preset(t=10)      # sets a time preset of 5 seconds
-        preset(m1=5000)   # sets a monitor preset of 5000 counts, for detectors
+    >>> preset(t=10)      # sets a time preset of 5 seconds
+    >>> preset(m1=5000)   # sets a monitor preset of 5000 counts, for detectors
                           # that support monitor presets
     """
     names = set(preset)
@@ -146,10 +148,10 @@ def preset(**preset):
 def SetDetectors(*detlist):
     """Select the detector device(s) to read out when calling scan() or count().
 
-    Examples::
+    Examples:
 
-        SetDetectors(det)       # to use the "det" detector
-        SetDetectors(det, psd)  # to use both the "det" and "psd" detectors
+    >>> SetDetectors(det)       # to use the "det" detector
+    >>> SetDetectors(det, psd)  # to use both the "det" and "psd" detectors
     """
     session.experiment.setDetectors(detlist)
     session.log.info('standard detectors are now: %s' %
@@ -159,7 +161,12 @@ def SetDetectors(*detlist):
 @usercommand
 @helparglist('det, ...')
 def AddDetector(*detlist):
-    """Add the specified detector device(s) to the standard detectors."""
+    """Add the specified detector device(s) to the standard detectors.
+
+    Example:
+
+    >>> AddDetector(psd)    # count also with the "psd" detector
+    """
     existing = session.experiment.detlist
     session.experiment.setDetectors(existing + list(detlist))
     session.log.info('standard detectors are now: %s' %
@@ -180,10 +187,10 @@ def SetEnvironment(*devlist):
 
     Experiment environment devices are read out at every step of a scan.
 
-    Examples::
+    Examples:
 
-        SetEnvironment(T, B)   # to read out T and B devices
-        SetEnvironment()       # to read out no additional devices
+    >>> SetEnvironment(T, B)   # to read out T and B devices
+    >>> SetEnvironment()       # to read out no additional devices
     """
     session.experiment.setEnvironment(devlist)
     session.log.info('standard environment is now: %s' %
@@ -193,7 +200,12 @@ def SetEnvironment(*devlist):
 @usercommand
 @helparglist('dev, ...')
 def AddEnvironment(*devlist):
-    """Add the specified environment device(s) to the standard environment."""
+    """Add the specified environment device(s) to the standard environment.
+
+    Example:
+
+    >>> AddEnvironment(T)   # also read out T device
+    """
     existing = session.experiment.envlist
     session.experiment.setEnvironment(existing + list(devlist))
     session.log.info('standard environment is now: %s' %
@@ -215,9 +227,9 @@ def avg(dev):
     calculate the average of a device over the whole scan point, as opposed to
     the value at the end of the scan point.
 
-    For example::
+    For example:
 
-        SetEnvironment(avg(T), minmax(T))
+    >>> SetEnvironment(avg(T), minmax(T))
 
     would record for every point in a scan the average and the minimum and
     maximum of the device "T" over the counting period.
@@ -233,9 +245,9 @@ def minmax(dev):
     This pseudo-device can be used in the sample environment in order to
     calculate the minimum and maximum of a device over the whole scan point.
 
-    For example::
+    For example:
 
-        SetEnvironment(avg(T), minmax(T))
+    >>> SetEnvironment(avg(T), minmax(T))
 
     would record for every point in a scan the average and the minimum and
     maximum of the device "T" over the counting period.
