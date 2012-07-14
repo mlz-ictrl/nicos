@@ -54,6 +54,8 @@
     <property name="title">
      <string>&amp;Help</string>
     </property>
+    <addaction name="actionNicosHelp"/>
+    <addaction name="separator"/>
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
    </widget>
@@ -164,6 +166,11 @@
   <action name="actionAboutQt">
    <property name="text">
     <string>About Qt...</string>
+   </property>
+  </action>
+  <action name="actionNicosHelp">
+   <property name="text">
+    <string>NICOS help</string>
    </property>
   </action>
  </widget>

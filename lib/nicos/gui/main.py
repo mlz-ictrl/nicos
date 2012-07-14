@@ -460,6 +460,10 @@ class MainWindow(QMainWindow, DlgUtils):
             self.activateWindow()
 
     @qtsig('')
+    def on_actionNicosHelp_triggered(self):
+        self.client.eval('session.showHelp("index")', None)
+
+    @qtsig('')
     def on_actionAbout_triggered(self):
         QMessageBox.information(
             self, 'About this application', 'NICOS GUI client version %s, '
