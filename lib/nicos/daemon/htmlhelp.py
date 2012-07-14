@@ -163,7 +163,44 @@ class HelpGenerator(object):
             clsdoc = '\n'.join(formatDocstring(dev.__class__.__doc__))
             ret.append('<p class="clsdesc">Device class description:</p>' +
                        '<blockquote>' + self.gen_markup(clsdoc) + '</blockquote>')
-        # XXX list methods and parameters
+        ret.append('<h4>Device methods</h4>')
+        ret.append('<table width="100%"><tr><th>Method</th><th>From class</th>'
+                   '<th>Description</th></tr>')
+        listed = set()
+        def _list(cls):
+            if cls in listed: return
+            listed.add(cls)
+            for name, (args, doc) in sorted(cls.commands.iteritems()):
+                ret.append('<tr><td><tt>%s</tt></td><td>%s</td><td>%s</td></tr>' %
+                           (escape(dev.name + '.' + name + args), cls.__name__,
+                            escape(doc)))
+            for base in cls.__bases__:
+                if issubclass(base, Device):
+                    _list(base)
+        _list(dev.__class__)
+        ret.append('</table>')
+        ret.append('<h4>Device parameters</h4>')
+        ret.append('<table width="100%"><tr><th>Name</th><th>Current value</th>'
+                   '<th>Unit</th><th>Settable?</th><th>Description</th></tr>')
+        devunit = getattr(dev, 'unit', '')
+        for name, info in sorted(dev.parameters.iteritems()):
+            if not info.userparam:
+                continue
+            try:
+                value = getattr(dev, name)
+            except Exception:
+                value = '<could not get value>'
+            unit = (info.unit or '').replace('main', devunit)
+            vstr = repr(value)
+            if len(vstr) > 50:
+                vstr = vstr[:47] + '...'
+            settable = info.settable and 'yes' or 'no'
+            name = dev.name + '.' + name
+            ret.append('<tr><td><tt>%s</tt></td><td>%s</td><td>%s</td>'
+                       '<td>%s</td><td>%s</td></tr>' %
+                       (name, escape(vstr), escape(unit), settable,
+                        escape(info.description)))
+        ret.append('</table>')
         return ''.join(ret)
 
     def gen_helptarget(self, target):
