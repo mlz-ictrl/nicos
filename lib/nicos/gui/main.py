@@ -46,6 +46,7 @@ from nicos.gui.utils import DlgUtils, SettingGroup, loadBasicWindowSettings, \
 from nicos.gui.config import window, panel
 from nicos.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.gui.panels.console import ConsolePanel
+from nicos.gui.helpwin import HelpWindow
 from nicos.gui.settings import SettingsDialog
 from nicos.cache.utils import cache_load
 from nicos.daemon import NicosDaemon, DEFAULT_PORT
@@ -101,6 +102,7 @@ class MainWindow(QMainWindow, DlgUtils):
         self.connect(self.client, SIGNAL('disconnected'),
                      self.on_client_disconnected)
         self.connect(self.client, SIGNAL('status'), self.on_client_status)
+        self.connect(self.client, SIGNAL('showhelp'), self.on_client_showhelp)
 
         # data handling setup
         self.data = DataHandler(self.client)
@@ -192,6 +194,9 @@ class MainWindow(QMainWindow, DlgUtils):
         self.statusLabel.setMargin(5)
         self.statusLabel.setMinimumSize(QSize(30, 10))
         self.toolBarMain.addWidget(self.statusLabel)
+
+        # help window
+        self.helpWindow = None
 
         # create initial state
         self.setStatus('disconnected')
@@ -317,6 +322,9 @@ class MainWindow(QMainWindow, DlgUtils):
                     event.ignore()
                     return
 
+        if self.helpWindow:
+            self.helpWindow.close()
+
         if self.client.connected:
             self.client.disconnect()
 
@@ -437,6 +445,11 @@ class MainWindow(QMainWindow, DlgUtils):
 
     def on_client_disconnected(self):
         self.setStatus('disconnected')
+
+    def on_client_showhelp(self, data):
+        if self.helpWindow is None:
+            self.helpWindow = HelpWindow(self, self.client)
+        self.helpWindow.showHelp(data)
 
     def on_client_cache(self, (time, key, op, value)):
         if key == 'session/mastersetupexplicit':

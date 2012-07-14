@@ -192,6 +192,7 @@ class NicosDaemon(Device):
         'liveparams': True,
         'livedata': False,
         'simresult': True,
+        'showhelp': True,
     }
 
     def doInit(self, mode):

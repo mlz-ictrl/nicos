@@ -36,6 +36,7 @@ from nicos.cache.client import DaemonCacheClient
 from nicos.utils.loggers import OUTPUT
 from nicos.sessions.utils import LoggingStdout
 from nicos.sessions.simple import NoninteractiveSession
+from nicos.daemon.htmlhelp import HelpGenerator
 
 
 class DaemonSession(NoninteractiveSession):
@@ -90,6 +91,7 @@ class DaemonSession(NoninteractiveSession):
         self.auto_modules = Session.auto_modules
 
         self._exported_names.clear()
+        self._helper = HelpGenerator()
 
     def forkSimulation(self, code, wait=True):
         from nicos.daemon.utils import SimLogSender, SimLogReceiver
@@ -143,3 +145,16 @@ class DaemonSession(NoninteractiveSession):
                 raise AccessError('user level not sufficient: %s access is '
                     'required' % ACCESS_LEVELS.get(rlevel, str(rlevel)))
         return NoninteractiveSession.checkAccess(self, required)
+
+    def showHelp(self, obj=None):
+        try:
+            data = self._helper.generate(obj)
+        except ValueError:
+            self.log.info('Sorry, no help exists for %r.' % obj)
+            return
+        except Exception:
+            self.log.warning('Could not generate the help for %r' % obj, exc=1)
+            return
+        if not isinstance(obj, str):
+            self.log.info('Showing help in the client\'s help window...')
+        self.emitfunc('showhelp', data)
