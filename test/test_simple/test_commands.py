@@ -95,11 +95,11 @@ def test_basic_commands():
 
     exp = session.getDevice('Exp')
 
-    NewExperiment(1234, 'Test experiment', 'L. Contact')
+    NewExperiment(1234, 'Test experiment', 'L. Contact', '1. User')
     assert exp.proposal == '1234'
     assert exp.title == 'Test experiment'
     AddUser('F. X. User', 'user@example.com')
-    assert 'F. X. User' in exp.users[0]
+    assert 'F. X. User <user@example.com>' in exp.users
     NewSample('MnSi', lattice=[4.58]*3, angles=[90]*3)
     FinishExperiment()
 
