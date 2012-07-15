@@ -369,8 +369,6 @@ class Axis(BaseAxis):
         moving = False
         offset = self.offset
         tries = self.maxtries
-        self.log.info('reading')
-        #import pdb; pdb.set_trace()
         self._lastdiff = abs(target - self.read(0))
         self._adevs['motor'].start(target + offset)
         moving = True
@@ -384,7 +382,6 @@ class Axis(BaseAxis):
             sleep(self.loopdelay)
             # poll accurate current values and status of child devices so that
             # we can use read() and status() subsequently
-            #import pdb; pdb.set_trace()
             st, pos = self.poll()
             mstatus, mstatusinfo = self._adevs['motor'].status()
             if mstatus != status.BUSY:
