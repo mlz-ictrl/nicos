@@ -36,9 +36,11 @@ from PyQt4.QtGui import QDialog, QPixmap, QTreeWidgetItem, QDoubleValidator
 from nicos.gui.utils import loadUi, DlgPresets
 
 
-M_N = 1.6749e-27
-H   = 6.6261e-34
+M_N = 1.6749274e-27
+H   = 6.6260696e-34
+K_B = 1.3806488e-23
 PI  = 3.1415926
+MEV = 1.6021766e-22
 
 def tofloat(ctl):
     try:
@@ -50,6 +52,8 @@ prefactor = M_N**2 / (PI * H**2)
 
 bragg_fields = ['Lambda', '2Theta', 'N', 'D', 'Q', 'SampleDet']
 bragg_convs  = [1e-10, PI/180, 1, 1e-10, 1e10, 1]
+
+neutron_fields = ['L', 'K', 'E', 'Ny', 'T']
 
 
 class CalculatorTool(QDialog):
@@ -83,6 +87,10 @@ class CalculatorTool(QDialog):
             for setting in self._miezesettings:
                 self.mztimeTable.addTopLevelItem(QTreeWidgetItem([setting, '']))
 
+        for fld in neutron_fields:
+            self.connect(getattr(self, 'prop' + fld),
+                         SIGNAL('textEdited(const QString &)'), self.n_calc)
+
         self.presets = DlgPresets('nicoscalctool', [
             (self.tabWidget, 0),
             (self.mzwavelengthInput, '10'), (self.mzdistanceInput, '100'),
@@ -91,9 +99,13 @@ class CalculatorTool(QDialog):
             (self.chkLambda, 1), (self.chk2Theta, 0), (self.chkN, 1),
             (self.chkD, 1), (self.chkQ, 0), (self.chkSampleDet, 1),
             (self.inputSampleDet, '0'),
+            (self.propL, '1.8'), (self.propK, '3.4907'),
+            (self.propE, '25.2482'), (self.propNy, '6.1050'),
+            (self.propT, '292.9934'),
             ])
         self.presets.load()
         self.braggcalc()
+        self.n_calc('')
 
         dblval = QDoubleValidator(self)
         for fld in bragg_fields:
@@ -173,6 +185,33 @@ class CalculatorTool(QDialog):
                 self.distance.setText('%.2f' % dd)
             else:
                 self.distance.setText('')
+
+    def n_calc(self, text):
+        try:
+            if self.sender() is self.propK:
+                lam = 2*PI/float(text)
+            elif self.sender() is self.propE:
+                lam = H/math.sqrt(2*M_N*float(text)*MEV) * 1e10
+            elif self.sender() is self.propNy:
+                lam = math.sqrt(H/(2*M_N*float(text)*1e12)) * 1e10
+            elif self.sender() is self.propT:
+                lam = H/math.sqrt(2*M_N*K_B*float(text)) * 1e10
+            else:
+                lam = float(self.propL.text())
+            if self.sender() is not self.propL:
+                self.propL.setText('%.4f' % lam)
+            if self.sender() is not self.propK:
+                self.propK.setText('%.4f' % (2*PI/lam))
+            if self.sender() is not self.propE:
+                self.propE.setText('%.4f' % (H**2/(2*M_N*lam**2*1e-20)/MEV))
+            if self.sender() is not self.propNy:
+                self.propNy.setText('%.4f' % (H/(2*M_N*lam**2*1e-20)/1e12))
+            if self.sender() is not self.propT:
+                self.propT.setText('%.4f' % (H**2/(2*M_N*K_B*lam**2*1e-20)))
+        except Exception, err:
+            self.propError.setText('Error: %s' % err)
+        else:
+            self.propError.setText('')
 
     def mzcalc(self, *ignored):
         L_s = tofloat(self.mzdistanceInput) * 1e-2  # in cm
