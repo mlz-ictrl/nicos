@@ -36,43 +36,43 @@ class NoDevice(object):
         self.name = name
 
     def __getattr__(self, name):
-        raise ConfigurationError('proxy %r does not point to any device' % self.name)
+        raise ConfigurationError('alias %r does not point to any device' % self.name)
 
     def __setattr__(self, name, value):
         if name != 'name':
-            raise ConfigurationError('proxy %r does not point to any device' % self.name)
+            raise ConfigurationError('alias %r does not point to any device' % self.name)
         object.__setattr__(self, name, value)
 
 
-class DeviceProxy(Device):
+class DeviceAlias(Device):
     """
-    Generic "proxy" device that can point all access to any other NICOS device.
+    Generic "alias" device that can point all access to any other NICOS device.
 
-    The device that should be accessed is set using the "proxy" parameter, which
-    can be configured and changed at runtime.  For example, with a DeviceProxy
+    The device that should be accessed is set using the "alias" parameter, which
+    can be configured and changed at runtime.  For example, with a DeviceAlias
     instance *T*::
 
-        T.proxy = Tcryo
+        T.alias = Tcryo
         read(T)   # will read Tcryo
-        T.proxy = Toven
+        T.alias = Toven
         read(T)   # will read Toven
 
     This allows to call e.g. the sample temperature by the same name in all
     sample environment setups, but behind the scenes implement it using
     different actual hardware devices.
 
-    If the "proxy" parameter is empty, the proxy points to a special "NoDevice"
+    If the "alias" parameter is empty, the alias points to a special "NoDevice"
     object that raises a :exc:`ConfigurationError` on every access.
     """
 
     parameters = {
-        'proxy':  Param('Device to proxy', type=str, settable=True),
+        'alias':  Param('Device to alias', type=str, settable=True),
     }
 
-    _ownattrs = ['_obj', '_mode', 'proxy']
+    _ownattrs = ['_obj', '_mode', 'alias']
     _initialized = False
 
-    def doUpdateProxy(self, devname):
+    def doUpdateAlias(self, devname):
         if not devname:
             self._obj = NoDevice(str(self))
         else:
@@ -100,13 +100,13 @@ class DeviceProxy(Device):
             return getattr(self._obj, name)
 
     def __setattr__(self, name, value):
-        if name in DeviceProxy._ownattrs or not self._initialized:
+        if name in DeviceAlias._ownattrs or not self._initialized:
             object.__setattr__(self, name, value)
         else:
             setattr(self._obj, name, value)
 
     def __delattr__(self, name):
-        if name in DeviceProxy._ownattrs or not self._initialized:
+        if name in DeviceAlias._ownattrs or not self._initialized:
             object.__delattr__(self, name)
         else:
             delattr(self._obj, name)
@@ -136,4 +136,4 @@ for name in [
         '__truediv__', '__xor__', 'next',
     ]:
     if hasattr(Device, name):
-        setattr(DeviceProxy, name, make_method(name))
+        setattr(DeviceAlias, name, make_method(name))

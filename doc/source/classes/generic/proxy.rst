@@ -1,6 +1,6 @@
-Proxy class
+Alias class
 ===========
 
-.. module:: nicos.generic.proxy
+.. module:: nicos.generic.alias
 
-.. autoclass:: DeviceProxy()
+.. autoclass:: DeviceAlias()

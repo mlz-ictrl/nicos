@@ -18,5 +18,5 @@ valid entries for the class name in a setup file.
    manual
    cache
    system
-   proxy
+   alias
    virtual

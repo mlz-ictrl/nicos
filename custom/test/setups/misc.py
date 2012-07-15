@@ -70,8 +70,8 @@ devices = dict(
                       values = [1, 0],
                       precision = 0),
 
-    ap       = device('nicos.generic.DeviceProxy',
-                      proxy = 'a1'),
+    ap       = device('nicos.generic.DeviceAlias',
+                      alias = 'a1'),
 
     sxl      = device('nicos.generic.VirtualMotor',
                       abslimits = (-20, 40),

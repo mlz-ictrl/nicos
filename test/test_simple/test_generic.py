@@ -29,7 +29,7 @@ __version__ = "$Revision$"
 from nicos import session
 from nicos.core import PositionError, NicosError, LimitError, UsageError, \
      ConfigurationError, status
-from nicos.generic.proxy import NoDevice
+from nicos.generic.alias import NoDevice
 from nicos.commands.device import read
 from test.utils import raises
 
@@ -99,8 +99,8 @@ def test_switcher():
 
     assert rsw.status() == v3.status()
 
-def test_proxy():
-    px = session.getDevice('px', object)
+def test_alias():
+    px = session.getDevice('alias', object)
 
     # first, proxy without target
     assert isinstance(px._obj, NoDevice)
