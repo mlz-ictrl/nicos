@@ -866,20 +866,28 @@ class Readable(Device):
            The *n* parameter can be used to perform the polling less frequently
            than the polling of value and status.
 
+           If doPoll returns a (status, value) tuple, they are used instead of
+           calling doStatus and doRead again.
+
         .. automethod:: _pollParam
         """
         if self._sim_active or self._cache is None:
             return (self.status(), self.read())
+        ret = None
         if hasattr(self, 'doPoll'):
             try:
-                self.doPoll(n)
+                ret = self.doPoll(n)
             except Exception:
                 self.log.debug('error in doPoll', exc=1)
+        if ret is not None:
+            self._cache.put(self, 'status', ret[0], currenttime(), self.maxage)
+            self._cache.put(self, 'value', ret[1], currenttime(), self.maxage)
+            return ret[0], ret[1]
         stval = None
         if hasattr(self, 'doStatus'):
-            stval = self.doStatus()
+            stval = self.doStatus(0)
             self._cache.put(self, 'status', stval, currenttime(), self.maxage)
-        rdval = self.doRead()
+        rdval = self.doRead(0)
         self._cache.put(self, 'value', rdval, currenttime(), self.maxage)
         return stval, rdval
 
