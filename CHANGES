@@ -3,6 +3,8 @@ Changelog for NICOS 2
 
 **Release 2.2.0**
 
+  - Added basic TANGO devices.
+
   - Added a "DeviceAlias" object that can be used to refer with one name
     to different actual devices.
 
