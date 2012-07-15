@@ -85,9 +85,8 @@ class Switcher(Moveable):
         self._adevs['moveable'].start(target)
         self._adevs['moveable'].wait()
 
-    def doRead(self):
-        # XXX read() or read(0)
-        pos = self._adevs['moveable'].read()
+    def doRead(self, maxage=0):
+        pos = self._adevs['moveable'].read(maxage)
         prec = self.precision
         for name, value in self._switchlist.iteritems():
             if prec:
@@ -99,9 +98,8 @@ class Switcher(Moveable):
         raise PositionError(self, 'unknown position of %s' %
                             self._adevs['moveable'])
 
-    def doStatus(self):
-        # XXX status() or status(0)
-        return self._adevs['moveable'].status()
+    def doStatus(self, maxage=0):
+        return self._adevs['moveable'].status(maxage)
 
 
 class ReadonlySwitcher(Readable):
@@ -133,9 +131,8 @@ class ReadonlySwitcher(Readable):
                                      'of equal length')
         self._switchlist = dict(zip(states, values))
 
-    def doRead(self):
-        # XXX read() or read(0)
-        pos = self._adevs['readable'].read()
+    def doRead(self, maxage=0):
+        pos = self._adevs['readable'].read(maxage)
         prec = self.precision
         for name, value in self._switchlist.iteritems():
             if prec:
@@ -147,6 +144,5 @@ class ReadonlySwitcher(Readable):
         raise PositionError(self, 'unknown position of %s' %
                             self._adevs['readable'])
 
-    def doStatus(self):
-        # XXX status() or status(0)
-        return self._adevs['readable'].status()
+    def doStatus(self, maxage=0):
+        return self._adevs['readable'].status(maxage)

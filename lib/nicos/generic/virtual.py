@@ -55,14 +55,14 @@ class VirtualMotor(Motor, HasOffset):
             thread.setDaemon(True)
             thread.start()
         else:
-            self.log.debug('moving to %s' % pos)
+            self.log.info('moving to %s' % pos)
             self.curvalue = pos + self.jitter * (0.5 - random.random())
             self.curstatus = (status.OK, 'idle')
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return self.curvalue - self.offset
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         return self.curstatus
 
     def doWait(self):
@@ -86,12 +86,12 @@ class VirtualMotor(Motor, HasOffset):
         incr = delta < 0 and -incr or incr
         for _ in range(steps):
             if self._stop:
-                self.log.debug('thread stopped')
+                self.log.info('thread stopped')
                 self.curstatus = (status.OK, 'idle')
                 self._stop = False
                 return
             time.sleep(0.2)
-            self.log.debug('thread moving to %s' % (self.curvalue + incr))
+            self.log.info('thread moving to %s' % (self.curvalue + incr))
             self.curvalue += incr
         self.curvalue = pos
         self.curstatus = (status.OK, 'idle')
@@ -104,11 +104,11 @@ class VirtualCoder(Coder, HasOffset):
         'motor': (Readable, 'Motor to read out to get coder value')
     }
 
-    def doRead(self):
-        val = self._adevs['motor'] and self._adevs['motor'].read(0) or 0
+    def doRead(self, maxage=0):
+        val = self._adevs['motor'] and self._adevs['motor'].read(maxage) or 0
         return val - self.offset
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         return status.OK, ''
 
     def doSetPosition(self, _pos):
@@ -149,10 +149,10 @@ class VirtualTimer(FRMTimerChannel):
     def doStop(self):
         self.__finish = True
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         return status.OK, ''
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         if self.ismaster:
             return self.preselection
         return random.randint(0, 1000)
@@ -192,10 +192,10 @@ class VirtualCounter(FRMCounterChannel):
     doPreinit = doInit = doStart = doPause = doResume = doStop = doWait = \
                 doReset = nothing
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         return status.OK, ''
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         if self.ismaster:
             return self.preselection
         return random.randint(0, self.countrate)

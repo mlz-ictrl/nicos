@@ -132,10 +132,10 @@ class TacoDevice(object):
         return [(self.tacodevice,
                  self._taco_guard(self._dev.deviceVersion))]
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return self._taco_guard(self._dev.read)
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         state = self._taco_guard(self._dev.deviceState)
         if state in (TACOStates.ON, TACOStates.DEVICE_NORMAL):
             return (status.OK, TACOStates.stateDescription(state))

@@ -138,19 +138,18 @@ class Axis(BaseAxis):
                                                'Positioning thread')
             self._posthread.start()
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         """Returns the status of the motor controller."""
         if self._errorstate:
             return (status.ERROR, str(self._errorstate))
         elif self._posthread and self._posthread.isAlive():
             return (status.BUSY, 'moving')
         else:
-            return self._adevs['motor'].status(0)
+            return self._adevs['motor'].status(maxage)
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         """Returns the current position from coder controller."""
-        # XXX read() or read(0)
-        return self._adevs['coder'].read() - self.offset
+        return self._adevs['coder'].read(maxage) - self.offset
 
     def doPoll(self, i):
         if self._hascoder:
@@ -159,6 +158,7 @@ class Axis(BaseAxis):
             devs = [self._adevs['motor']] + self._adevs['obs']
         for dev in devs:
             dev.poll()
+        return self.doStatus(None), self.doRead(None)
 
     def _getReading(self):
         """Find a good value from the observers, taking into account that they
@@ -195,7 +195,7 @@ class Axis(BaseAxis):
         the target position has been reached.
         """
         # XXX add a timeout?
-        waitForStatus(self, self.loopdelay, errorstates=())
+        waitForStatus(self, 2 * self.loopdelay, errorstates=())
         if self._errorstate:
             errorstate = self._errorstate
             self._errorstate = None
@@ -369,6 +369,8 @@ class Axis(BaseAxis):
         moving = False
         offset = self.offset
         tries = self.maxtries
+        self.log.info('reading')
+        #import pdb; pdb.set_trace()
         self._lastdiff = abs(target - self.read(0))
         self._adevs['motor'].start(target + offset)
         moving = True
@@ -382,6 +384,7 @@ class Axis(BaseAxis):
             sleep(self.loopdelay)
             # poll accurate current values and status of child devices so that
             # we can use read() and status() subsequently
+            #import pdb; pdb.set_trace()
             st, pos = self.poll()
             mstatus, mstatusinfo = self._adevs['motor'].status()
             if mstatus != status.BUSY:

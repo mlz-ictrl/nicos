@@ -775,20 +775,16 @@ class Readable(Device):
         """
         if not self._cache:
             return func()
-        if maxage == 0:
-            val = None
-        elif maxage is not None:
-            try:
-                time, ttl, val = self._cache.get_explicit(self, name)
-            except CacheError:
+        if 1:#self.hardware_access:
+            if maxage == 0:
                 val = None
-            if val is not None and \
-                time + min(maxage, ttl or 3600) < currenttime():
-                val = None
+            else:
+                val = self._cache.get(self, name,
+                    mintime=currenttime()-maxage if maxage is not None else 0)
         else:
-            val = self._cache.get(self, name)
+            val = None
         if val is None:
-            val = func()
+            val = func(self.maxage if maxage is None else maxage)
             self._cache.put(self, name, val, currenttime(), self.maxage)
         return val
 
@@ -1154,7 +1150,7 @@ class Moveable(Readable):
             else:
                 # else, assume the device did move and the cache needs to be
                 # updated in most cases
-                val = self.doRead()  # not read(0), we already cache value below
+                val = self.doRead(0)  # not read(0), we already cache value below
             if self._cache and self._mode != 'slave':
                 self._cache.put(self, 'value', val, currenttime(), self.maxage)
         return val

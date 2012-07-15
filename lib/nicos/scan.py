@@ -292,9 +292,9 @@ class Scan(object):
 
 class ElapsedTime(Readable):
     temporary = True
-    def doRead(self):
+    def doRead(self, maxage=0):
         return 0
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         return status.OK, ''
 
 class TimeScan(Scan):

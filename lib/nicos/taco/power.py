@@ -63,7 +63,7 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
     def doWriteRamp(self, value):
         self._taco_guard(self._dev.setRamp, value)
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return self._taco_multitry('read', 2, self._dev.read) - self.offset
 
     def doStart(self, value, fromvarcheck=False):
@@ -84,7 +84,7 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
     def doStop(self):
         self._taco_guard(self._dev.stop)
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         # XXX put voltage in status information?
         state = self._taco_guard(self._dev.deviceState)
         if state == TACOStates.DEVICE_NORMAL:

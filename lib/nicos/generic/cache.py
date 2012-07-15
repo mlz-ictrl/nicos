@@ -48,7 +48,7 @@ class CacheReader(Readable):
     *devname* is the NICOS device name configured in the setup.
     """
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         if self._cache:
             try:
                 time, ttl, val = self._cache.get_explicit(self, 'value')
@@ -61,7 +61,7 @@ class CacheReader(Readable):
         raise CommunicationError(self, 'CacheReader value not in cache or '
                                  'no cache found')
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         return status.UNKNOWN, 'no status found in cache'
 
 
@@ -91,7 +91,7 @@ class CacheWriter(HasLimits, Moveable):
                            unit='s', default=1.0, settable=True),
     }
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         if self._cache:
             try:
                 time, ttl, val = self._cache.get_explicit(self, 'value')
@@ -104,7 +104,7 @@ class CacheWriter(HasLimits, Moveable):
         raise CommunicationError(self, 'CacheWriter value not in cache or '
                                  'no cache found')
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         return status.OK, 'no status found in cache'
 
     def doStart(self, pos):

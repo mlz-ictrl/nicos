@@ -194,16 +194,15 @@ class Slit(Moveable):
         for ax in self._axes:
             ax.stop()
 
-    def _doReadPositions(self):
-        # XXX read() or read(0)
-        cl, cr, cb, ct = map(lambda d: d.read(), self._axes)
+    def _doReadPositions(self, maxage):
+        cl, cr, cb, ct = map(lambda d: d.read(maxage), self._axes)
         if self.coordinates == 'opposite':
             cr *= -1
             cb *= -1
         return [cl, cr, cb, ct]
 
-    def doRead(self):
-        positions = self._doReadPositions()
+    def doRead(self, maxage=0):
+        positions = self._doReadPositions(maxage)
         l, r, b, t = positions
         if self.opmode == 'centered':
             if abs((l+r)/2.) > self._adevs['left'].precision or \
@@ -231,9 +230,8 @@ class Slit(Moveable):
                    Value('%s.bottom' % self, unit=self.unit, fmtstr='%.2f'), \
                    Value('%s.top' % self, unit=self.unit, fmtstr='%.2f')
 
-    def doStatus(self):
-        # XXX status() or status(0)
-        svalues = map(lambda d: d.status(), self._axes)
+    def doStatus(self, maxage=0):
+        svalues = map(lambda d: d.status(maxage), self._axes)
         return max(s[0] for s in svalues), 'axis status: ' + \
                ', '.join('%s=%s' % (n, s[1])
                          for (s, n) in zip(svalues, self._axnames))
@@ -264,18 +262,17 @@ class SlitAxis(Moveable, AutoDevice):
 
     hardware_access = False
 
-    def doRead(self):
-        # XXX read() or read(0)
-        positions = self._adevs['slit']._doReadPositions()
+    def doRead(self, maxage):
+        positions = self._adevs['slit']._doReadPositions(maxage)
         return self._convertRead(positions)
 
     def doStart(self, target):
-        currentpos = self._adevs['slit']._doReadPositions()
+        currentpos = self._adevs['slit']._doReadPositions(0.1)
         positions = self._convertStart(target, currentpos)
         self._adevs['slit']._doStartPositions(positions)
 
     def doIsAllowed(self, target):
-        currentpos = self._adevs['slit']._doReadPositions()
+        currentpos = self._adevs['slit']._doReadPositions(0.1)
         positions = self._convertStart(target, currentpos)
         return self._adevs['slit']._doIsAllowedPositions(positions)
 

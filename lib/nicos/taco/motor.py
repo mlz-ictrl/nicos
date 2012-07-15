@@ -62,7 +62,7 @@ class Motor(TacoDevice, BaseMotor):
     def doSetPosition(self, target):
         self._taco_guard(self._dev.setpos, target)
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         state = self._taco_guard(self._dev.deviceState)
         if state == TACOStates.DEVICE_NORMAL:
             return status.OK, 'idle'

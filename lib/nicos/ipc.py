@@ -523,7 +523,7 @@ class Coder(NicosCoder):
         self.log.debug('value is %d steps' % value)
         return value
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         # make sure to ask hardware, don't use cached value of steps
         steps = self.doReadSteps()
         self._params['steps'] = steps
@@ -540,7 +540,7 @@ class Coder(NicosCoder):
         self.log.debug('position is ' + self.format(pos))
         return pos
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         if self._lasterror:
             return status.ERROR, self._lasterror
         return status.OK, ''
@@ -865,7 +865,7 @@ class Motor(NicosMotor):
             self._adevs['bus'].send(self.addr, 33)
         sleep(0.2)
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         value = self._adevs['bus'].get(self.addr, 130)
         self._params['steps'] = value  # save last valid position in cache
         if self._cache:
@@ -894,7 +894,7 @@ class Motor(NicosMotor):
         elif value in [1, 'on']:
             self._adevs['bus'].send(self.addr, 54)
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         state = self._adevs['bus'].get(self.addr, 134)
         st = status.OK
 
@@ -1010,10 +1010,10 @@ class IPCRelay(Moveable):
     def doStart(self, target):
         self._adevs['stepper'].relay = target
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return self._adevs['stepper'].relay
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         return status.OK, 'relay is %s' % self._adevs['stepper'].relay
 
 
@@ -1031,10 +1031,10 @@ class IPCInhibit(Readable):
         'stepper': (Motor, 'The stepper card whose inhibit is read out'),
     }
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return 'on' if self._adevs['stepper'].inhibit else 'off'
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         return status.OK, 'inhibit is ' + self.doRead()
 
 
@@ -1056,12 +1056,12 @@ class Input(Readable):
     def doInit(self, mode):
         self._mask = ((1 << (self.last - self.first + 1)) - 1) << self.first
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         high = self._adevs['bus'].get(self.addr, 181)
         low  = self._adevs['bus'].get(self.addr, 180)
         return ((high + low) & self._mask) >> self.first
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         return status.OK, ''
 
 
@@ -1076,11 +1076,11 @@ class Output(Input, Moveable):
         version = self._adevs['bus'].get(self.addr, 194)
         return [('IPC digital output card', str(version))]
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         ioval = self._adevs['bus'].get(self.addr, 191)
         return (ioval & self._mask) >> self.first
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         st = self._adevs['bus'].get(self.addr, 195)
         if st == 1:
             return status.ERROR, 'power stage overheat'
@@ -1140,7 +1140,7 @@ class SlitMotor(NicosMotor):
     def _fromsteps(self, value):
         return float((value - self.zerosteps) / self.slope)
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         steps = self._adevs['bus'].get(self.addr, self.side + 166)
         if steps == 9999:
             raise NicosError(self, 'could not read, please reset')
@@ -1177,7 +1177,7 @@ class SlitMotor(NicosMotor):
     def doSetPosition(self, pos):
         pass
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         temp = self._adevs['bus'].get(self.addr, 164)
         temp = (temp >> (2*self.side)) & 3
         if temp == 1:

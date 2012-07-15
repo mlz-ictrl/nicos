@@ -86,7 +86,7 @@ class NamedDigitalInput(DigitalInput):
                          type=dictof(int, str)),
     }
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         value = self._taco_guard(self._dev.read)
         return self.mapping.get(value, value)
 
@@ -104,7 +104,7 @@ class PartialDigitalInput(NamedDigitalInput):
     def doInit(self, mode):
         self._mask = ((1 << self.bitwidth) - 1) << self.startbit
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         value = self._taco_guard(self._dev.read) & self._mask
         return self.mapping.get(value, value)
 
@@ -141,7 +141,7 @@ class NamedDigitalOutput(DigitalOutput):
         value = self._reverse.get(target, target)
         self._taco_guard(self._dev.write, value)
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         value = self._taco_guard(self._dev.read)
         return self.mapping.get(value, value)
 
@@ -160,7 +160,7 @@ class PartialDigitalOutput(NamedDigitalOutput):
         NamedDigitalOutput.doInit(self, mode)
         self._max = (1 << self.bitwidth) - 1
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         value = int(self._taco_guard(self._dev.read))
         value = (value >> self.startbit) & self._max
         return self.mapping.get(value, value)
@@ -195,7 +195,7 @@ class BitsDigitalOutput(DigitalOutput):
     def doReadFmtstr(self):
         return '{ ' + ' '.join(['%s'] * self.bitwidth) + ' }'
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         # extract the relevant bit range from the device value
         value = (self._taco_guard(self._dev.read) >> self.startbit) & self._max
         # convert to a list of single bits (big-endian: the first bit is the 1)
@@ -236,11 +236,10 @@ class MultiDigitalOutput(Moveable):
         for dev in self._adevs['outputs']:
             dev.start(target)
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         values = []
-        # XXX read() or read(0)
         for dev in self._adevs['outputs']:
-            values.append(dev.read())
+            values.append(dev.read(maxage))
         if len(set(values)) != 1:
             devnames = [dev.name for dev in self._adevs['outputs']]
             raise NicosError(self,

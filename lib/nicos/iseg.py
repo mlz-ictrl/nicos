@@ -105,13 +105,13 @@ class IsegHV(TacoDevice, HasLimits, Moveable):
                 raise NicosError(self, 'could not set voltage, device off')
             raise NicosError(self, 'could not set voltage: error %r' % resp[3:])
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         resp = self._taco_guard(self._dev.communicate, 'U%d' % self.channel)
         if not resp or resp[0] not in '+-':
             raise NicosError(self, 'invalid voltage readout %r' % resp)
         return int(resp)
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         resp = self._taco_guard(self._dev.communicate, 'S%d' % self.channel)
         if resp[:3] != ('S%d=' % self.channel):
             raise NicosError(self, 'invalid status readout %r' % resp)

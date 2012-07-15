@@ -152,7 +152,7 @@ class TestDevice(HasLimits, Moveable):
         self._read_exception = None
         self._status_exception = None
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         if self._read_exception:
             raise self._read_exception
         return self._value
@@ -165,7 +165,7 @@ class TestDevice(HasLimits, Moveable):
     def doWait(self):
         return self._value
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         if self._status_exception:
             raise self._status_exception
         return status.OK, 'fine'

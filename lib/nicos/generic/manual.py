@@ -50,10 +50,10 @@ class ManualMove(HasLimits, Moveable):
     def doStart(self, target):
         pass  # self.target has already been set to position
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return self.target
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         return status.OK, ''
 
 
@@ -93,10 +93,10 @@ class ManualSwitch(Moveable):
     def doStart(self, target):
         pass
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         if self.target in self.states:
             return self.target
         raise PositionError(self, 'device is in an unknown state')
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         return status.OK, ''

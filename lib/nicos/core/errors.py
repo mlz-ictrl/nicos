@@ -39,7 +39,7 @@ class NicosError(Exception):
     argument, which is then used to display the error to the user as coming from
     this device.  For example::
 
-       def doRead(self):
+       def doRead(self, maxage=0):
            if not self._ready:
                raise NicosError(self, 'device is not ready')
 

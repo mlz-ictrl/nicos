@@ -64,7 +64,7 @@ class Axis(TacoDevice, BaseAxis):
         # XXX add a timeout?
         waitForStatus(self, 0.3)
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return self._taco_guard(self._dev.read) - self.offset
 
     def doReset(self):
@@ -86,7 +86,7 @@ class Axis(TacoDevice, BaseAxis):
             return
         self._taco_guard(self._dev.setpos, pos)
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         state = self._taco_guard(self._dev.deviceState)
         if state in (TACOStates.DEVICE_NORMAL, TACOStates.STOPPED):
             return status.OK, 'idle'
@@ -260,7 +260,7 @@ class HoveringAxis(Axis):
         if self._poll_thread:
             self._poll_thread.join()
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         state = self._taco_guard(self._dev.deviceState)
         if state in (TACOStates.DEVICE_NORMAL, TACOStates.STOPPED,
                      TACOStates.TRIPPED):

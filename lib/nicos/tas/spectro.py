@@ -153,9 +153,9 @@ class TAS(Instrument, Moveable):
         #self.log.info('position hkl: (%7.4f %7.4f %7.4f) E: %7.4f %s' %
         #               (h, k, l, ny, self.energytransferunit))
 
-    def doStatus(self):
-        return multiStatus((name, self._adevs[name]) for name in
-                           ['mono', 'ana', 'phi', 'psi'])
+    def doStatus(self, maxage=0):
+        return multiStatus(((name, self._adevs[name]) for name in
+                            ['mono', 'ana', 'phi', 'psi']), maxage)
 
     def doWriteScatteringsense(self, val):
         for v in val:
@@ -184,21 +184,22 @@ class TAS(Instrument, Moveable):
             Value('l', unit='rlu', fmtstr='%.4f'), \
             Value('E', unit=self.energytransferunit, fmtstr='%.4f')
 
-    def doRead(self):
-        # XXX read() or read(0)
+    def doRead(self, maxage=0):
         mono, ana, phi, psi = self._adevs['mono'], self._adevs['ana'], \
                               self._adevs['phi'], self._adevs['psi']
         # read out position
+        monovalue = mono._readInvAng(maxage)
         if self.scanmode == 'DIFF':
             hkl = self._adevs['cell'].angle2hkl(
-                [mono._readInvAng(), mono._readInvAng(), phi.read(), psi.read()],
+                [monovalue, monovalue, phi.read(maxage), psi.read(maxage)],
                 self.axiscoupling)
             ny = 0
         else:
+            anavalue = ana._readInvAng(maxage)
             hkl = self._adevs['cell'].angle2hkl(
-                [mono._readInvAng(), ana._readInvAng(), phi.read(), psi.read()],
+                [monovalue, anavalue, phi.read(maxage), psi.read(maxage)],
                 self.axiscoupling)
-            ny = self._adevs['cell'].cal_ny(mono._readInvAng(), ana._readInvAng())
+            ny = self._adevs['cell'].cal_ny(monovalue, anavalue)
             if self.energytransferunit == 'meV':
                 ny *= THZ2MEV
         return [hkl[0], hkl[1], hkl[2], ny]
@@ -254,13 +255,11 @@ class TASIndex(Moveable, AutoDevice):
 
     hardware_access = False
 
-    def doRead(self):
-        # XXX read() or read(0)
-        return self._adevs['tas'].read()[self.index]
+    def doRead(self, maxage=0):
+        return self._adevs['tas'].read(maxage)[self.index]
 
     def doStart(self, pos):
-        # XXX read() or read(0)
-        current = list(self._adevs['tas'].read())
+        current = list(self._adevs['tas'].read(0.5))
         current[self.index] = pos
         self._adevs['tas'].start(current)
 
@@ -292,10 +291,9 @@ class Wavevector(Moveable):
     def doInit(self, mode):
         self._value = None
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         if self._value is None:
-            # XXX read() or read(0)
-            self._value = self._adevs['base']._readInvAng()
+            self._value = self._adevs['base']._readInvAng(maxage)
         return self._value
 
     def doStart(self, pos):

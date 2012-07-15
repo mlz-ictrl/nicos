@@ -63,7 +63,7 @@ class Dev2(HasLimits, HasOffset, Moveable):
         self._val = 0
         methods_called.add('doInit')
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return self._val
 
     def doIsAllowed(self, pos):
@@ -82,7 +82,7 @@ class Dev2(HasLimits, HasOffset, Moveable):
     def doWait(self):
         methods_called.add('doWait')
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         return status.BUSY, 'busy'
 
     def doReset(self):

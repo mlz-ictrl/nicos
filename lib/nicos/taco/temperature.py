@@ -74,7 +74,7 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
                                 type=str, category='general', settable=True),
     }
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return self._taco_guard(self._dev.read) - self.offset
 
     def doStart(self, target):
@@ -87,7 +87,7 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
     def doStop(self):
         self._taco_guard(self._dev.stop)
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         state = self._taco_guard(self._dev.deviceState)
         if state == TACOStates.MOVING:
             return (status.BUSY, 'moving')
@@ -123,7 +123,6 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
         self.log.debug('wait time =  %d' % timeout)
         firststart = started = time.time()
         while 1:
-            # XXX read() or read(0)
             value = self.read()
             now = time.time()
             self.log.debug('%7.0f s: current temperature %7.3f %s' %

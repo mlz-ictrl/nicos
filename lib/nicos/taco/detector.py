@@ -65,10 +65,10 @@ class FRMChannel(TacoDevice, Measurable):
     def doStop(self):
         self._taco_guard(self._dev.stop)
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return self._taco_guard(self._dev.read)
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         state = self._taco_guard(self._dev.deviceState)
         if state == TACOStates.PRESELECTION_REACHED:
             return status.OK, 'preselection reached'
@@ -142,7 +142,7 @@ class FRMCounterChannel(FRMChannel):
                       type=oneof('monitor', 'counter'), mandatory=True),
     }
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         # convert long to int if it fits
         return int(self._taco_guard(self._dev.read))
 
@@ -234,12 +234,12 @@ class FRMDetector(Measurable):
         for master in self._masters:
             master.stop()
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return sum((ctr.read() for ctr in self._counters), [])
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         for master in self._masters:
-            masterstatus = master.status(0)
+            masterstatus = master.status(maxage)
             if masterstatus[0] == status.BUSY:
                 return masterstatus
         return status.OK, 'idle'

@@ -127,12 +127,12 @@ class Valve(Moveable):
         msg = '%s=%02x' % (value and 'O' or 'C', 1 << self.channel)
         self._adevs['bus'].communicate(msg, self.addr, expect_ok=True)
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         self.doWait()
         ret = self._adevs['bus'].communicate('R?', self.addr, expect_hex=2)
         return self.states[bool(ret & (1 << self.channel))]
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         self.doWait()
         ret = self._adevs['bus'].communicate('I?', self.addr, expect_hex=2)
         if ret == 0:
@@ -159,7 +159,7 @@ class Leckmon(Readable):
         'addr': Param('Bus address of monitor', type=int, mandatory=True),
     }
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return self._adevs['bus'].communicate('S?', self.addr)
 
 
@@ -175,7 +175,7 @@ class Ratemeter(Readable):
                       mandatory=True),
     }
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         bus = self._adevs['bus']
         self._cachelock_acquire()
         try:
@@ -228,7 +228,7 @@ class Vacuum(Readable):
                                        self.addr, expect_ok=True)
         sleep(0.1)
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         resp = self._adevs['bus'].communicate('R%1d?' % (self.channel + 1),
                                               self.addr, expect_hex=8)
         pressure, config = resp >> 16, (resp >> 8) & 0xFF
@@ -259,7 +259,7 @@ class Vacuum(Readable):
         else:
             return 'mbar'
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         resp = self._adevs['bus'].communicate('R%1d?' % (self.channel + 1),
                                               self.addr, expect_hex=8)
         state = resp & 0xFF
@@ -298,11 +298,11 @@ class LVPower(Moveable):
 
     valuetype = oneofdict({1: 'on', 0: 'off'})
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         sval = self._adevs['bus'].communicate('S?', self.addr, expect_hex=2)
         return 'on' if sval >> 7 else 'off'
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         sval = self._adevs['bus'].communicate('S?', self.addr, expect_hex=2)
         tval = self._adevs['bus'].communicate('T?', self.addr, expect_hex=2)
         # XXX which status values are failure?
@@ -330,13 +330,13 @@ class DelayBox(Moveable):
         'fmtstr':  Override(default='%d'),
     }
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return self._adevs['bus'].communicate('D?', self.addr, expect_hex=4)
 
     def doStart(self, target):
         self._adevs['bus'].communicate('D=%04X' % target, self.addr,
                                        expect_ok=True)
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         # XXX are there any status values?
         return status.OK, ''

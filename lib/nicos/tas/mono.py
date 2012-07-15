@@ -124,9 +124,9 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
             if self._adevs[drive]:
                 self._movelist.append(self._adevs[drive])
 
-    def doStatus(self):
-        return multiStatus((name, self._adevs[name]) for name in
-                           ['theta', 'twotheta', 'focush', 'focusv'])
+    def doStatus(self, maxage=0):
+        return multiStatus(((name, self._adevs[name]) for name in
+                            ['theta', 'twotheta', 'focush', 'focusv']), maxage)
 
     def doStop(self):
         for device in self._movelist:
@@ -209,10 +209,9 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                 ttdev, ttdev.format(ttvalue)) + why
         return True, ''
 
-    def doRead(self):
-        # XXX read() or read(0)
-        tt = self._scatsense * self._adevs['twotheta'].read()
-        th = self._adevs['theta'].read()
+    def doRead(self, maxage=0):
+        tt = self._scatsense * self._adevs['twotheta'].read(maxage)
+        th = self._adevs['theta'].read(maxage)
         # analyser scattering side
         th -= 90 * self.sidechange * (1 - self._scatsense)
         th *= self._scatsense  # make it positive
@@ -240,8 +239,8 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
     def _startInvAng(self, pos):
         return self.start(self._fromlambda(2*pi/pos))
 
-    def _readInvAng(self):
-        return 2*pi/self._tolambda(self.read())
+    def _readInvAng(self, maxage=0):
+        return 2*pi/self._tolambda(self.read(maxage))
 
     def doReadPrecision(self):
         if not hasattr(self, '_scatsense'):

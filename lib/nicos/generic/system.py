@@ -56,7 +56,7 @@ class FreeSpace(Readable):
         'maxage':       Override(default=330),
     }
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         if self.path is None:
             path = session.experiment.dataroot
         else:
@@ -67,7 +67,7 @@ class FreeSpace(Readable):
             raise NicosError(self, 'could not determine free space: %s' % err)
         return (st.f_bsize * st.f_bavail) / (1024 * 1024 * 1024.)
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         free = self.read()
         if free < self.minfree:
             return status.ERROR, 'free space %.2f GiB below %.2f GiB' \
