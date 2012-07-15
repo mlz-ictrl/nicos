@@ -168,21 +168,21 @@ class TangoDevice(object):
             dev.getDeviceState()
         except RuntimeError, err:
             self._raise_tango(err, 'Could not connect to device %r; make sure '
-                             'the device server is running' % devname)
+                              'the device server is running' % devname)
 
         try:
             if timeout != 0:
                 dev.setClientTimeout(int(timeout*1000))
         except RuntimeError, err:
             self.log.warning('Setting TANGO network timeout failed: '
-                              '[TANGO] %s' % (err))
+                             '[TANGO] %s' % (err))
 
         try:
             if dev.getDeviceState() == TANGOState.OFF:
                 dev.on()
         except RuntimeError, err:
             self.log.warning('Switching TANGO device %r on failed: '
-                              '[TANGO] %s' % (devname, err))
+                             '[TANGO] %s' % (devname, err))
             try:
                 if dev.getDeviceState() == TANGOState.FAULT:
                     if resetok:
@@ -190,9 +190,8 @@ class TangoDevice(object):
                 dev.on()
             except RuntimeError, err:
                 self._raise_tango(err, 'Switching device %r on after '
-                                 'reset failed' % devname)
+                                  'reset failed' % devname)
 
-        # XXX: automatically wrap all TANGO methods with _tango_guard?
         return dev
 
     def _tango_guard_log(self, function, *args):

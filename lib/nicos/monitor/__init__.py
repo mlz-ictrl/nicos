@@ -382,7 +382,7 @@ class Monitor(BaseCacheClient):
                     try:
                         fvalue = value[field['item']]
                     except IndexError:
-                        fvalue = value  # XXX
+                        fvalue = value
                 else:
                     fvalue = value
                 if value is None:

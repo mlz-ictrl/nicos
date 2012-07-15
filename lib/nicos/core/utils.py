@@ -82,7 +82,6 @@ def waitForStatus(device, delay=0.3, timeout=None,
             if timeout is not None and currenttime() - started > timeout:
                 raise TimeoutError(device, 'waiting timed out (timeout %.1f s)'
                                    % timeout)
-            # XXX add a breakpoint here?
         elif st[0] in errorstates:
             if st[0] == status.NOTREACHED:
                 raise PositionError(device, st[1])

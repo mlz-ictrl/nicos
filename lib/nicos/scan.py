@@ -203,7 +203,6 @@ class Scan(object):
                 self.handleError('wait', dev, val, err)
 
     def readPosition(self):
-        # XXX read() or read(0)
         # using read() assumes all devices have updated cached value on wait()
         ret = []
         for dev in self._devices:
@@ -569,8 +568,7 @@ class MinMax(DevStatistics):
         hist = self.dev.history(fromtime=fromtime, totime=totime)
         if len(hist) < 2:
             # if there is no history, read at least once
-            # XXX read() or read(0)
-            v = self.dev.read(0)
+            v = self.dev.read(1.0)
             return [v, v]
         real = hist[1:]
         mini = min(v for (t, v) in real)

@@ -394,7 +394,7 @@ def appendscan(numsteps=5, stepsize=None):
         stepsize = -stepsize
         startpos = pos1 + stepsize
         numsteps = abs(numsteps)
-    positions = [[startpos + i*stepsize] for i in range(numsteps)]
+    positions = [[startpos + j*stepsize] for j in range(numsteps)]
     s = Scan(scan.devices, positions, None, scan.multistep, scan.detlist,
              scan.envlist, scan.preset, '%d more steps of last scan' % numsteps)
     s.dataset.sinkinfo['continuation'] = ','.join(contuids)
