@@ -351,7 +351,7 @@ class CacheClient(BaseCacheClient):
         BaseCacheClient._connect_action(self)
         # tell the server all our rewrites
         for newprefix, oldprefix in self._inv_rewrites.iteritems():
-            self._queue.put('%s%s%s\n' % (newprefix, OP_REWRITE, oldprefix))
+            self._queue.put(newprefix + OP_REWRITE + oldprefix + '\n')
 
     def _wait_data(self):
         if self._ismaster:

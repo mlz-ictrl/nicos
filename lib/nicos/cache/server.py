@@ -423,7 +423,7 @@ class CacheWorker(object):
         for mykey in self.updates_on:
             if mykey in key:
                 #self.log.debug('sending update of %s to %s' % (key, value))
-                self.send_queue.put('%s%s%s\n' % (key, op, value))
+                self.send_queue.put(key + op + value + '\n')
         # no update neccessary, signal success
         return True
 
@@ -476,28 +476,28 @@ class CacheDatabase(Device):
                     # still locked by different client, deny (tell the client
                     # the current client_id though)
                     self.log.debug('lock request %s=%s, but still locked by %s'
-                                    % (key, client_id, entry.value))
-                    return '%s%s%s\n' % (key, OP_LOCK, entry.value)
+                                   % (key, client_id, entry.value))
+                    return key + OP_LOCK + entry.value + '\n'
                 else:
                     # not locked, expired or locked by same client, overwrite
                     ttl = ttl or 1800  # set a maximum time to live
                     self.log.debug('lock request %s=%s ttl %s, accepted' %
-                                    (key, client_id, ttl))
+                                   (key, client_id, ttl))
                     self._locks[key] = Entry(time, ttl, client_id)
-                    return '%s%s\n' % (key, OP_LOCK)
+                    return key + OP_LOCK + '\n'
             # want to unlock?
             elif req == '-':
                 if entry and entry.value != client_id:
                     # locked by different client, deny
-                    self.log.debug('unlock request %s=%s, but locked by %s'
-                                    % (key, client_id, entry.value))
-                    return '%s%s%s\n' % (key, OP_LOCK, entry.value)
+                    self.log.debug('unlock request %s=%s, but locked by %s' %
+                                   (key, client_id, entry.value))
+                    return key + OP_LOCK + entry.value + '\n'
                 else:
                     # unlocked or locked by same client, allow
-                    self.log.debug('unlock request %s=%s, accepted'
-                                    % (key, client_id))
+                    self.log.debug('unlock request %s=%s, accepted' %
+                                   (key, client_id))
                     self._locks.pop(key, None)
-                    return '%s%s\n' % (key, OP_LOCK)
+                    return key + OP_LOCK + '\n'
 
 
 class MemoryCacheDatabase(CacheDatabase):
@@ -528,8 +528,7 @@ class MemoryCacheDatabase(CacheDatabase):
             else:
                 return [key + op + lastent.value]
         if ts:
-            return ['%s@%s%s%s\n' % (lastent.time, key,
-                                     OP_TELL, lastent.value)]
+            return ['%s@%s%s%s\n' % (lastent.time, key, OP_TELL, lastent.value)]
         else:
             return [key + OP_TELL + lastent.value + '\n']
 
@@ -904,7 +903,7 @@ class FlatfileCacheDatabase(CacheDatabase):
                             ret.add(prefix+subkey + op + entry.value + '\n')
                     elif ts:
                         ret.add('%s@%s%s%s\n' % (entry.time, prefix+subkey,
-                                                   op, entry.value))
+                                                 op, entry.value))
                     else:
                         ret.add(prefix+subkey + op + entry.value + '\n')
         return ret
