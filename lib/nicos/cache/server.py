@@ -592,7 +592,7 @@ class MemoryCacheDatabase(CacheDatabase):
                         client.update(key, OP_TELL, value, time, ttl)
 
 
-class MemoryCacheDatabaseWithHistory(CacheDatabase):
+class MemoryCacheDatabaseWithHistory(MemoryCacheDatabase):
     """
     Central database of cache values, keeps everything in memory.
     """
@@ -600,61 +600,6 @@ class MemoryCacheDatabaseWithHistory(CacheDatabase):
         'maxentries': Param('Maximum history length',
                             type=intrange(0, 100), default=10, settable=False),
     }
-
-    def doInit(self, mode):
-        self._db = {}
-        self._db_lock = threading.Lock()
-        CacheDatabase.doInit(self, mode)
-
-    def ask(self, key, ts, time, ttl):
-        with self._db_lock:
-            if key not in self._db:
-                return [key + OP_TELLOLD + '\n']
-            lastent = self._db[key][-1]
-        # check for already removed keys
-        if lastent.value is None:
-            return [key + OP_TELLOLD + '\n']
-        # check for expired keys
-        if lastent.ttl:
-            remaining = lastent.time + lastent.ttl - currenttime()
-            op = remaining > 0 and OP_TELL or OP_TELLOLD
-            if ts:
-                return ['%s+%s@%s%s%s\n' % (lastent.time, lastent.ttl,
-                                            key, op, lastent.value)]
-            else:
-                return [key + op + lastent.value]
-        if ts:
-            return ['%s@%s%s%s\n' % (lastent.time, key,
-                                     OP_TELL, lastent.value)]
-        else:
-            return [key + OP_TELL + lastent.value + '\n']
-
-    def ask_wc(self, key, ts, time, ttl):
-        ret = set()
-        with self._db_lock:
-            # look for matching keys
-            for dbkey, entries in self._db.iteritems():
-                if key not in dbkey:
-                    continue
-                lastent = entries[-1]
-                # check for removed keys
-                if lastent.value is None:
-                    continue
-                # check for expired keys
-                if lastent.ttl:
-                    remaining = lastent.time + lastent.ttl - currenttime()
-                    op = remaining > 0 and OP_TELL or OP_TELLOLD
-                    if ts:
-                        ret.add('%s+%s@%s%s%s\n' % (lastent.time, lastent.ttl,
-                                                    dbkey, op, lastent.value))
-                    else:
-                        ret.add(dbkey + op + lastent.value + '\n')
-                elif ts:
-                    ret.add('%s@%s%s%s\n' % (lastent.time, dbkey,
-                                             OP_TELL, lastent.value))
-                else:
-                    ret.add(dbkey + OP_TELL + lastent.value + '\n')
-        return ret
 
     def ask_hist(self, key, fromtime, totime):
         if fromtime > totime:
@@ -681,25 +626,24 @@ class MemoryCacheDatabaseWithHistory(CacheDatabase):
             # deletes cannot have a TTL
             ttl = None
         send_update = True
-        with self._db_lock:
-            try:
-                category, subkey = key.rsplit('/', 1)
-            except ValueError:
-                category = 'nocat'
-                subkey = key
-            newcats = [category]
-            if category in self._rewrites:
-                newcats.append(self._rewrites[category])
-            for newcat in newcats:
-                key = newcat + '/' + subkey
+        try:
+            category, subkey = key.rsplit('/', 1)
+        except ValueError:
+            category = 'nocat'
+            subkey = key
+        newcats = [category]
+        if category in self._rewrites:
+            newcats.append(self._rewrites[category])
+        for newcat in newcats:
+            key = newcat + '/' + subkey
+            with self._db_lock:
                 queue = deque([Entry(None, None, None)], self.maxentries)
                 entries = self._db.setdefault(key, queue)
-                if entries:
-                    lastent = entries[-1]
-                    if lastent.value == value and not lastent.ttl:
-                        # not a real update
-                        send_update = False
-                    entries.append(Entry(time, ttl, value))
+                lastent = entries[-1]
+                if lastent.value == value and not lastent.ttl:
+                    # not a real update
+                    send_update = False
+                entries.append(Entry(time, ttl, value))
             if send_update:
                 for client in self._server._connected.values():
                     if client is not from_client and client.is_active():
