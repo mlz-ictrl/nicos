@@ -38,7 +38,10 @@ default_profile_config = ('Default', [
     window('Setup', 'setup', True,
            panel('nicos.gui.panels.setup.SetupPanel')),
     window('Editor', 'editor', False,
-           panel('nicos.gui.panels.editor.EditorPanel')),
+           panel('nicos.gui.panels.editor.EditorPanel',
+                 tools = [
+                     tool('Scan', 'nicos.gui.tools.scan.ScanTool')
+                 ])),
     window('Live data', 'live', True,
            panel('nicos.mira.gui.live.LiveDataPanel')),
     window('Scans', 'plotter', True,
@@ -62,5 +65,8 @@ default_profile_config = ('Default', [
         tool('Neutron activation',
              'nicos.gui.tools.website.WebsiteTool',
              url='http://www.wise-uranium.org/rnac.html'),
+        tool('MIRA Wiki',
+             'nicos.gui.tools.website.WebsiteTool',
+             url='http://mira2.mira.frm2:8080/'),
     ]
 )
