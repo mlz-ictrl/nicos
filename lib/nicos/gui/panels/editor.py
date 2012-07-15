@@ -30,6 +30,7 @@ __version__ = "$Revision$"
 
 import sys
 import time
+import subprocess
 from os import path
 from logging import WARNING
 
@@ -49,9 +50,7 @@ else:
 
 from nicos.gui.panels import Panel
 from nicos.gui.utils import showToolText, loadUi, showTraceback, \
-     formatDuration, formatEndtime, setBackgroundColor
-# XXX integrate tools
-#from nicos.gui.toolsupport import editor_tools, HasTools
+     formatDuration, formatEndtime, setBackgroundColor, importString
 
 COMMENT_STR = '##'
 
@@ -238,6 +237,9 @@ class EditorPanel(Panel):
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
         self.connect(self.client, SIGNAL('cache'), self.on_client_cache)
 
+    def setSettings(self, settings):
+        self.toolconfig = settings.get('tools', '')
+
     def getMenus(self):
         menuFile = QMenu('&File', self)
         menuFile.addAction(self.actionNew)
@@ -271,7 +273,33 @@ class EditorPanel(Panel):
         menuScript.addSeparator()
         menuScript.addAction(self.actionGet)
 
-        return [menuFile, menuEdit, menuScript]
+        ret = [menuFile, menuEdit, menuScript]
+        if self.toolconfig:
+            menuTools = QMenu('&Tools', self)
+            for i, tconfig in enumerate(self.toolconfig):
+                action = QAction(tconfig[0], self)
+                menuTools.addAction(action)
+                def tool_callback(on, i=i):
+                    self.runTool(i)
+                self.connect(action, SIGNAL('triggered(bool)'), tool_callback)
+            ret.append(menuTools)
+
+        return ret
+
+    def runTool(self, ttype):
+        tconfig = self.toolconfig[ttype]
+        try:
+            # either it's a class name
+            toolclass = importString(tconfig[1])
+        except ImportError:
+            raise
+            # or it's a system command
+            subprocess.Popen(tconfig[1], shell=True)
+        else:
+            dialog = toolclass(self, **tconfig[2])
+            self.connect(dialog, SIGNAL('addCode'), self.editor.append)
+            dialog.setWindowModality(Qt.NonModal)
+            dialog.show()
 
     def getToolbars(self):
         bar = QToolBar('Editor')

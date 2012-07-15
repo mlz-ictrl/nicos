@@ -39,7 +39,10 @@ default_profile_config = ('Default', [
         window('Setup', 'setup', True,
             panel('nicos.gui.panels.setup.SetupPanel')),
         window('Editor', 'editor', False,
-            panel('nicos.gui.panels.editor.EditorPanel')),
+            panel('nicos.gui.panels.editor.EditorPanel',
+                  tools = [
+                      tool('Scan', 'nicos.gui.tools.scan.ScanTool')
+                  ])),
         window('Scans', 'plotter', True,
             panel('nicos.gui.panels.scans.ScansPanel')),
         window('History', 'find', True,
