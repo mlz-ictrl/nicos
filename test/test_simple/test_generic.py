@@ -126,6 +126,6 @@ def test_alias():
     assert v1.speed == 5.1
 
     # check cache key rewriting
-    sleep(0.05)
+    sleep(0.15)
     assert session.cache.get(px, 'speed') == 5.1
     assert session.cache.get_explicit(px, 'speed')[2] == 5.1

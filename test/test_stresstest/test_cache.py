@@ -46,7 +46,7 @@ def basicCacheTest(name, setup):
         testval = 'test1'
         key = 'value'
         cc.put('testcache', key, testval)
-        sleep(0.05)
+        sleep(0.15)
         cachedval_local = cc.get('testcache', key, None)
         cachedval = cc.get_explicit('testcache', key, None)
         cachedval2 = cc.get_explicit('testcache', key, None)

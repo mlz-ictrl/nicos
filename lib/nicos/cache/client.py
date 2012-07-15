@@ -75,7 +75,7 @@ class BaseCacheClient(Device):
         self._prefix = self.prefix.strip('/')
         if self._prefix:
             self._prefix += '/'
-        self._selecttimeout = 0.5  # seconds
+        self._selecttimeout = 0.1  # seconds
         self._do_callbacks = True
         self._disconnect_warnings = 0
         # maps newprefix -> oldprefix without self._prefix prepended
@@ -196,8 +196,16 @@ class BaseCacheClient(Device):
                 # optionally do some action while waiting
                 self._wait_data()
 
-                # try to read or write some data
-                res = select.select([self._socket], [self._socket], [],
+                if self._queue.empty():
+                    # NOTE: the queue.empty() check is not 100% reliable, but
+                    # that is not important here: all we care is about not
+                    # having the select always return immediately for writing
+                    writelist = []
+                else:
+                    writelist = [self._socket]
+
+                # read or write some data
+                res = select.select([self._socket], writelist, [],
                                     self._selecttimeout)
                 if res[1]:
                     # determine if something needs to be sent

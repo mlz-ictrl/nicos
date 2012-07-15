@@ -42,7 +42,7 @@ def test_01write():
     testval = 'test1'
     key = 'value'
     cc.put('testcache', key, testval)
-    sleep(0.05)  # give cache time to process
+    sleep(0.15)  # give cache time to process
     cachedval_local = cc.get('testcache', key, None)
     cachedval = cc.get_explicit('testcache', key, None)
 
@@ -55,7 +55,7 @@ def test_02setRewrite():
     testval = 'test2'
     key = 'value'
     cc.put('testcache', key, testval)
-    sleep(0.05)  # give cache time to process
+    sleep(0.15)  # give cache time to process
     cachedval1_local = cc.get('testcache', key, None)
     cachedvalrw_local = cc.get('testrewrite', key, None)
     cachedval1 = cc.get_explicit('testcache', key, None)
@@ -72,7 +72,7 @@ def test_03unsetRewrite():
     key = 'value'
     testvalold = cc.get_explicit('testrewrite', key, Ellipsis)
     cc.put('testcache', key, testval)
-    sleep(0.05)  # give cache time to process
+    sleep(0.15)  # give cache time to process
     cachedval1 = cc.get('testcache', key, None)
     cachedval_rw = cc.get('testrewrite', key, None)
     cachedval2 = cc.get_explicit('testrewrite', key, Ellipsis)
@@ -89,14 +89,14 @@ def test_04writeToRewritten():
     testval3 = 'testwrite3'
     key = 'value'
     cc.put('testcache', key, testval1)
-    sleep(0.05)  # give cache time to process
+    sleep(0.15)  # give cache time to process
     cachedval1 =  cc.get_explicit('testcache', key, Ellipsis)
     cc.put('testrewrite2', key, testval2)
-    sleep(0.05)  # give cache time to process
+    sleep(0.15)  # give cache time to process
     cachedval2 = cc.get_explicit('testrewrite2', key, Ellipsis)
     cc.setRewrite('testcache', 'testrewrite3')
     cc.put('testrewrite3', key, testval3)
-    sleep(0.05)  # give cache time to process
+    sleep(0.15)  # give cache time to process
     cachedval5 = cc.get_explicit('testrewrite3', key, Ellipsis)
     cachedval6 = cc.get_explicit('testcache', key, Ellipsis)
 
