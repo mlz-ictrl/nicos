@@ -811,11 +811,13 @@ class Readable(Device):
     def read(self, maxage=None):
         """Read the (possibly cached) main value of the device.
 
-        .. method:: doRead()
+        .. method:: doRead(maxage=0)
 
            This method must be implemented to read the actual device value from
            the device.  It is only called if the last cached value is out of
            date, or no cache is available.
+
+           The *maxage* parameter should be given to read() calls of subdevices.
         """
         if self._sim_active:
             return self._sim_value
@@ -828,7 +830,7 @@ class Readable(Device):
         The status is a tuple of one of the integer constants defined in the
         :mod:`nicos.core.status` module, and textual extended info.
 
-        .. method:: doStatus()
+        .. method:: doStatus(maxage=0)
 
            This method can be implemented to get actual device status from the
            device.  It is only called if the last cached value is out of
@@ -836,6 +838,9 @@ class Readable(Device):
 
            If no ``doStatus()`` is implemented, ``status()`` returns
            ``status.UNKNOWN``.
+
+           The *maxage* parameter should be given to status() calls of
+           subdevices.
         """
         if self._sim_active:
             return (status.OK, 'simulated ok')

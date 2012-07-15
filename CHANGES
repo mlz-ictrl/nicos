@@ -3,6 +3,9 @@ Changelog for NICOS 2
 
 **Release 2.2.0**
 
+  - Added "maxage" parameter to "doRead()" and "doStatus()" methods,
+    which can be given to subdevices.
+
   - Added basic TANGO devices.
 
   - Added a "DeviceAlias" object that can be used to refer with one name
