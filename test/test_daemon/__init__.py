@@ -54,7 +54,7 @@ def setup_package():
             s.close()
             break
     else:
-        raise Exception('cache failed to start within %s sec' % wait)
+        raise Exception('daemon failed to start within %s sec' % wait)
     sys.stderr.write(' [daemon start... %s] ' % daemon.pid)
 
 def teardown_package():
