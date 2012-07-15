@@ -100,6 +100,7 @@ class BaseCacheClient(Device):
         self._do_callbacks = False
         self._startup_done.clear()
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._socket.settimeout(5)
         try:
             self.log.debug('connecting to %s:%s' % self._address)
             self._socket.connect(self._address)
@@ -210,12 +211,13 @@ class BaseCacheClient(Device):
                     except Queue.Empty:
                         pass
                     # write data
-                    ok = self.sendall(tosend)
-                    for _ in range(itemcount):
-                        self._queue.task_done()
-                    if not ok:
+                    try:
+                        self._socket.sendall(tosend)
+                    except socket.error:
                         data = ''
                         break
+                    for _ in range(itemcount):
+                        self._queue.task_done()
                 if res[0]:
                     # got some data
                     try:
@@ -238,24 +240,12 @@ class BaseCacheClient(Device):
                     itemcount += 1
             except Queue.Empty:
                 pass
-            self.sendall(tosend)
+            self._socket.sendall(tosend)
             for _ in range(itemcount):
                 self._queue.task_done()
 
         # end of while loop
         self._disconnect()
-
-    def sendall(self, tosend):
-        msglen = len(tosend)
-        totalsent = 0
-        while totalsent < msglen:
-            sent = self._socket.send(tosend[totalsent:])
-            if sent == 0:
-                self._disconnect('disconnect: send failed')
-                return False
-            totalsent += sent
-        sleep(0.05) # give server a chance
-        return True
 
     def _single_request(self, tosend, sentinel='\n', retry=2, sync=True):
         """Communicate over the secondary socket."""
@@ -372,7 +362,7 @@ class CacheClient(BaseCacheClient):
             value = None
         else:
             value = cache_load(value)
-            self._db[key] = (value, time, ttl and float(ttl))
+            self._db[key] = (value, time)
         if key in self._callbacks and self._do_callbacks:
             try:
                 self._callbacks[key](key, value, time)
@@ -394,7 +384,7 @@ class CacheClient(BaseCacheClient):
         """Remove a callback for the given device/subkey, if present."""
         self._callbacks.pop(('%s/%s' % (dev, key)).lower(), None)
 
-    def get(self, dev, key, default=None):
+    def get(self, dev, key, default=None, mintime=None):
         """Get a value from the local cache for the given device and subkey.
 
         Since ``None`` can be a valid value for some cache entries, you can give
@@ -407,14 +397,18 @@ class CacheClient(BaseCacheClient):
         if entry is None:
             if str(dev) in self._inv_rewrites:
                 self.log.debug('%s not in cache, trying rewritten' % dbkey)
-                return self.get(self._inv_rewrites[str(dev)], key, default)
+                return self.get(self._inv_rewrites[str(dev)],
+                                key, default, mintime)
             self.log.debug('%s not in cache' % dbkey)
             return default
-        value, time, ttl = entry
-        if ttl and time + ttl < currenttime():
-            self.log.debug('%s timed out' % dbkey)
-            del self._db[dbkey]
-            return default
+        value, time = entry
+        if mintime and time < mintime:
+            try:
+                time, ttl, value = self.get_explicit(dev, key, default)
+            except CacheError:
+                return default
+            if value is not default and time < mintime:
+                return default
         return value
 
     def get_explicit(self, dev, key, default=None):
@@ -446,7 +440,7 @@ class CacheClient(BaseCacheClient):
             time = currenttime()
         ttlstr = ttl and '+%s' % ttl or ''
         dbkey = ('%s/%s' % (dev, key)).lower()
-        self._db[dbkey] = (value, time, ttl)
+        self._db[dbkey] = (value, time)
         value = cache_dump(value)
         msg = '%s%s@%s%s%s%s\n' % (time, ttlstr, self._prefix, dbkey,
                                    OP_TELL, value)
