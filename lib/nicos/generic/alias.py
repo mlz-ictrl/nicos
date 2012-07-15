@@ -75,8 +75,12 @@ class DeviceAlias(Device):
     def doUpdateAlias(self, devname):
         if not devname:
             self._obj = NoDevice(str(self))
+            if self._cache:
+                self._cache.unsetRewrite(str(self))
         else:
             self._obj = session.getDevice(devname)
+            if self._cache:
+                self._cache.setRewrite(str(self), devname)
 
     def __init__(self, name , **config):
         self._obj = None
