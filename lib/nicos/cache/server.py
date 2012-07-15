@@ -34,10 +34,10 @@ Cache protocol documentation
 * The protocol is line-based.  The basic syntax for a line (requests and
   responses) is ::
 
-    [time1] [+|-] [time2] [@] key op [value] crlf
+    [time1] [+|-] [time2] [@] key op [value] newline
 
   The ``op`` is one character and decides the basic meaning of the request or
-  response.
+  response.  The ``newline`` can be LF or CRLF.
 
 * Keys are hierarchic, with levels separated by an arbitrary number of slashes.
 
@@ -212,9 +212,6 @@ class CacheUDPConnection(object):
         while data:
             # find rightmost \n within first self.maxsize bytes
             p = data[:self.maxsize].rfind('\n')
-            # if not found, retry with \r
-            if p == -1:
-                p = data[:self.maxsize].rfind('\r')
             if p == -1:
                 # line too long. cross your fingers and split SOMEWHERE
                 p = self.maxsize - 1
@@ -418,15 +415,15 @@ class CacheWorker(object):
                     time = currenttime()
                 #self.log.debug('sending update of %s to %s' % (key, value))
                 if ttl is not None:
-                    msg = '%s+%s@%s%s%s\r\n' % (time, ttl, key, op, value)
+                    msg = '%s+%s@%s%s%s\n' % (time, ttl, key, op, value)
                 else:
-                    msg = '%s@%s%s%s\r\n' % (time, key, op, value)
+                    msg = '%s@%s%s%s\n' % (time, key, op, value)
                 self.send_queue.put(msg)
         # same for requested updates without timestamp
         for mykey in self.updates_on:
             if mykey in key:
                 #self.log.debug('sending update of %s to %s' % (key, value))
-                self.send_queue.put('%s%s%s\r\n' % (key, op, value))
+                self.send_queue.put('%s%s%s\n' % (key, op, value))
         # no update neccessary, signal success
         return True
 
@@ -480,27 +477,27 @@ class CacheDatabase(Device):
                     # the current client_id though)
                     self.log.debug('lock request %s=%s, but still locked by %s'
                                     % (key, client_id, entry.value))
-                    return '%s%s%s\r\n' % (key, OP_LOCK, entry.value)
+                    return '%s%s%s\n' % (key, OP_LOCK, entry.value)
                 else:
                     # not locked, expired or locked by same client, overwrite
                     ttl = ttl or 1800  # set a maximum time to live
                     self.log.debug('lock request %s=%s ttl %s, accepted' %
                                     (key, client_id, ttl))
                     self._locks[key] = Entry(time, ttl, client_id)
-                    return '%s%s\r\n' % (key, OP_LOCK)
+                    return '%s%s\n' % (key, OP_LOCK)
             # want to unlock?
             elif req == '-':
                 if entry and entry.value != client_id:
                     # locked by different client, deny
                     self.log.debug('unlock request %s=%s, but locked by %s'
                                     % (key, client_id, entry.value))
-                    return '%s%s%s\r\n' % (key, OP_LOCK, entry.value)
+                    return '%s%s%s\n' % (key, OP_LOCK, entry.value)
                 else:
                     # unlocked or locked by same client, allow
                     self.log.debug('unlock request %s=%s, accepted'
                                     % (key, client_id))
                     self._locks.pop(key, None)
-                    return '%s%s\r\n' % (key, OP_LOCK)
+                    return '%s%s\n' % (key, OP_LOCK)
 
 
 class MemoryCacheDatabase(CacheDatabase):
@@ -516,25 +513,25 @@ class MemoryCacheDatabase(CacheDatabase):
     def ask(self, key, ts, time, ttl):
         with self._db_lock:
             if key not in self._db:
-                return [key + OP_TELLOLD + '\r\n']
+                return [key + OP_TELLOLD + '\n']
             lastent = self._db[key][-1]
         # check for already removed keys
         if lastent.value is None:
-            return [key + OP_TELLOLD + '\r\n']
+            return [key + OP_TELLOLD + '\n']
         # check for expired keys
         if lastent.ttl:
             remaining = lastent.time + lastent.ttl - currenttime()
             op = remaining > 0 and OP_TELL or OP_TELLOLD
             if ts:
-                return ['%s+%s@%s%s%s\r\n' % (lastent.time, lastent.ttl,
-                                              key, op, lastent.value)]
+                return ['%s+%s@%s%s%s\n' % (lastent.time, lastent.ttl,
+                                            key, op, lastent.value)]
             else:
                 return [key + op + lastent.value]
         if ts:
-            return ['%s@%s%s%s\r\n' % (lastent.time, key,
-                                       OP_TELL, lastent.value)]
+            return ['%s@%s%s%s\n' % (lastent.time, key,
+                                     OP_TELL, lastent.value)]
         else:
-            return [key + OP_TELL + lastent.value + '\r\n']
+            return [key + OP_TELL + lastent.value + '\n']
 
     def ask_wc(self, key, ts, time, ttl):
         ret = set()
@@ -552,15 +549,15 @@ class MemoryCacheDatabase(CacheDatabase):
                     remaining = lastent.time + lastent.ttl - currenttime()
                     op = remaining > 0 and OP_TELL or OP_TELLOLD
                     if ts:
-                        ret.add('%s+%s@%s%s%s\r\n' % (lastent.time, lastent.ttl,
-                                                      dbkey, op, lastent.value))
+                        ret.add('%s+%s@%s%s%s\n' % (lastent.time, lastent.ttl,
+                                                    dbkey, op, lastent.value))
                     else:
-                        ret.add(dbkey + op + lastent.value + '\r\n')
+                        ret.add(dbkey + op + lastent.value + '\n')
                 elif ts:
-                    ret.add('%s@%s%s%s\r\n' % (lastent.time, dbkey,
-                                               OP_TELL, lastent.value))
+                    ret.add('%s@%s%s%s\n' % (lastent.time, dbkey,
+                                             OP_TELL, lastent.value))
                 else:
-                    ret.add(dbkey + OP_TELL + lastent.value + '\r\n')
+                    ret.add(dbkey + OP_TELL + lastent.value + '\n')
         return ret
 
     def ask_hist(self, key, fromtime, totime):
@@ -613,25 +610,25 @@ class MemoryCacheDatabaseWithHistory(CacheDatabase):
     def ask(self, key, ts, time, ttl):
         with self._db_lock:
             if key not in self._db:
-                return [key + OP_TELLOLD + '\r\n']
+                return [key + OP_TELLOLD + '\n']
             lastent = self._db[key][-1]
         # check for already removed keys
         if lastent.value is None:
-            return [key + OP_TELLOLD + '\r\n']
+            return [key + OP_TELLOLD + '\n']
         # check for expired keys
         if lastent.ttl:
             remaining = lastent.time + lastent.ttl - currenttime()
             op = remaining > 0 and OP_TELL or OP_TELLOLD
             if ts:
-                return ['%s+%s@%s%s%s\r\n' % (lastent.time, lastent.ttl,
-                                              key, op, lastent.value)]
+                return ['%s+%s@%s%s%s\n' % (lastent.time, lastent.ttl,
+                                            key, op, lastent.value)]
             else:
                 return [key + op + lastent.value]
         if ts:
-            return ['%s@%s%s%s\r\n' % (lastent.time, key,
-                                       OP_TELL, lastent.value)]
+            return ['%s@%s%s%s\n' % (lastent.time, key,
+                                     OP_TELL, lastent.value)]
         else:
-            return [key + OP_TELL + lastent.value + '\r\n']
+            return [key + OP_TELL + lastent.value + '\n']
 
     def ask_wc(self, key, ts, time, ttl):
         ret = set()
@@ -649,15 +646,15 @@ class MemoryCacheDatabaseWithHistory(CacheDatabase):
                     remaining = lastent.time + lastent.ttl - currenttime()
                     op = remaining > 0 and OP_TELL or OP_TELLOLD
                     if ts:
-                        ret.add('%s+%s@%s%s%s\r\n' % (lastent.time, lastent.ttl,
-                                                      dbkey, op, lastent.value))
+                        ret.add('%s+%s@%s%s%s\n' % (lastent.time, lastent.ttl,
+                                                    dbkey, op, lastent.value))
                     else:
-                        ret.add(dbkey + op + lastent.value + '\r\n')
+                        ret.add(dbkey + op + lastent.value + '\n')
                 elif ts:
-                    ret.add('%s@%s%s%s\r\n' % (lastent.time, dbkey,
-                                               OP_TELL, lastent.value))
+                    ret.add('%s@%s%s%s\n' % (lastent.time, dbkey,
+                                             OP_TELL, lastent.value))
                 else:
-                    ret.add(dbkey + OP_TELL + lastent.value + '\r\n')
+                    ret.add(dbkey + OP_TELL + lastent.value + '\n')
         return ret
 
     def ask_hist(self, key, fromtime, totime):
@@ -670,10 +667,10 @@ class MemoryCacheDatabaseWithHistory(CacheDatabase):
             entries = self._db[key]
             for entry in entries:
                 if fromtime <= entry.time <= totime:
-                    ret.append('%s@%s=%s\r\n' % (entry.time, key, entry.value))
+                    ret.append('%s@%s=%s\n' % (entry.time, key, entry.value))
                     inrange = True
                 elif not inrange and entry.value:
-                    ret = ['%s@%s=%s\r\n' % (entry.time, key, entry.value)]
+                    ret = ['%s@%s=%s\n' % (entry.time, key, entry.value)]
         except Exception:
             self.log.exception('error reading store for history query')
         if not inrange:
@@ -862,27 +859,27 @@ class FlatfileCacheDatabase(CacheDatabase):
             subkey = key
         with self._cat_lock:
             if category not in self._cat:
-                return [key + OP_TELLOLD + '\r\n']
+                return [key + OP_TELLOLD + '\n']
             _, lock, db = self._cat[category]
         with lock:
             if subkey not in db:
-                return [key + OP_TELLOLD + '\r\n']
+                return [key + OP_TELLOLD + '\n']
             entry = db[subkey]
         # check for expired keys
         if entry.value is None:
-            return [key + OP_TELLOLD + '\r\n']
+            return [key + OP_TELLOLD + '\n']
         # check for expired keys
         op = entry.expired and OP_TELLOLD or OP_TELL
         if entry.ttl:
             if ts:
-                return ['%s+%s@%s%s%s\r\n' % (entry.time, entry.ttl,
-                                              key, op, entry.value)]
+                return ['%s+%s@%s%s%s\n' % (entry.time, entry.ttl,
+                                            key, op, entry.value)]
             else:
-                return [key + op + entry.value + '\r\n']
+                return [key + op + entry.value + '\n']
         if ts:
-            return ['%s@%s%s%s\r\n' % (entry.time, key, op, entry.value)]
+            return ['%s@%s%s%s\n' % (entry.time, key, op, entry.value)]
         else:
-            return [key + op + entry.value + '\r\n']
+            return [key + op + entry.value + '\n']
 
     def ask_wc(self, key, ts, time, ttl):
         ret = set()
@@ -900,16 +897,16 @@ class FlatfileCacheDatabase(CacheDatabase):
                     op = entry.expired and OP_TELLOLD or OP_TELL
                     if entry.ttl:
                         if ts:
-                            ret.add('%s+%s@%s%s%s\r\n' %
+                            ret.add('%s+%s@%s%s%s\n' %
                                     (entry.time, entry.ttl, prefix+subkey,
                                      op, entry.value))
                         else:
-                            ret.add(prefix+subkey + op + entry.value + '\r\n')
+                            ret.add(prefix+subkey + op + entry.value + '\n')
                     elif ts:
-                        ret.add('%s@%s%s%s\r\n' % (entry.time, prefix+subkey,
+                        ret.add('%s@%s%s%s\n' % (entry.time, prefix+subkey,
                                                    op, entry.value))
                     else:
-                        ret.add(prefix+subkey + op + entry.value + '\r\n')
+                        ret.add(prefix+subkey + op + entry.value + '\n')
         return ret
 
     def _read_one_histfile(self, year, monthday, category, subkey):
@@ -946,10 +943,10 @@ class FlatfileCacheDatabase(CacheDatabase):
                 for time, value in self._read_one_histfile(year, monthday,
                                                            category, subkey):
                     if fromtime <= time <= totime:
-                        ret.append('%s@%s=%s\r\n' % (time, key, value))
+                        ret.append('%s@%s=%s\n' % (time, key, value))
                         inrange = True
                     elif not inrange and value:
-                        ret = ['%s@%s=%s\r\n' % (time, key, value)]
+                        ret = ['%s@%s=%s\n' % (time, key, value)]
             except Exception:
                 self.log.exception('error reading store file for history query')
         if not inrange:

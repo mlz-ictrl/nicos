@@ -48,7 +48,7 @@ class PauseButton(BaseCacheClient):
 
     def _connect_action(self):
         # send request for all updates...
-        self._socket.sendall('@%s/%s\r\n' % (self._prefix, OP_SUBSCRIBE))
+        self._socket.sendall('@%s/%s\n' % (self._prefix, OP_SUBSCRIBE))
 
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         if key == 'pause/pause':
@@ -92,7 +92,7 @@ class PauseButton(BaseCacheClient):
             self._device.pause()
         except Exception:
             self.log.warning('could not pause', exc=1)
-        self._queue.put('pause/pause=%r\r\n' % asctime())
+        self._queue.put('pause/pause=%r\n' % asctime())
         self.makebuttonresume()
 
     def resumeCB(self,widget):
@@ -100,7 +100,7 @@ class PauseButton(BaseCacheClient):
             self._device.resume()
         except Exception:
             self.log.warning('could not resume', exc=1)
-        self._queue.put('pause/resume=%r\r\n' % asctime())
+        self._queue.put('pause/resume=%r\n' % asctime())
         self.makebuttonpause()
 
 

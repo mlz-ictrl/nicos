@@ -39,17 +39,17 @@ class Logbook(BaseCacheClient):
 
     def _connect_action(self):
         # request current directory for the handler to start up correctly
-        self._socket.sendall('logbook/directory%s\r\n###%s\r\n' %
+        self._socket.sendall('logbook/directory%s\n###%s\n' %
                              (OP_ASK, OP_ASK))
 
         # read response
         data, n = '', 0
-        while not data.endswith('###!\r\n') and n < 1000:
+        while not data.endswith('###!\n') and n < 1000:
             data += self._socket.recv(8192)
             n += 1
 
         # send request for all relevant updates
-        self._socket.sendall('@logbook/%s\r\n' % OP_SUBSCRIBE)
+        self._socket.sendall('@logbook/%s\n' % OP_SUBSCRIBE)
 
         self._process_data(data)
 

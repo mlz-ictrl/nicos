@@ -42,7 +42,7 @@ class TacoLoggerServer(BaseCacheClient):
         while r:
             msg, addr = self._syslogsock.recvfrom(1024)
             #self.log.info('server: message: %s' % msg)
-            self._queue.put('tacolog/msg=%r\r\n' % msg)
+            self._queue.put('tacolog/msg=%r\n' % msg)
             r, _, _ = select.select([self._syslogsock], [], [], 0.1)
 
 

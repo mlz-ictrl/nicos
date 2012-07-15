@@ -139,17 +139,17 @@ class BaseCacheClient(Device):
         # send request for all keys and updates....
         # HACK: send a single request for a nonexisting key afterwards to
         # determine the end of data
-        self._socket.sendall('@%s%s\r\n###%s\r\n' %
+        self._socket.sendall('@%s%s\n###%s\n' %
                              (self._prefix, OP_WILDCARD, OP_ASK))
 
         # read response
         data, n = '', 0
-        while not data.endswith('###!\r\n') and n < 1000:
+        while not data.endswith('###!\n') and n < 1000:
             data += self._socket.recv(BUFSIZE)
             n += 1
 
         # send request for all updates
-        self._socket.sendall('@%s%s\r\n' % (self._prefix, OP_SUBSCRIBE))
+        self._socket.sendall('@%s%s\n' % (self._prefix, OP_SUBSCRIBE))
 
         self._process_data(data)
 
@@ -190,8 +190,7 @@ class BaseCacheClient(Device):
             data = process(data)
 
             # wait for a whole line of data to arrive
-            while ('\r' not in data) and ('\n' not in data) and \
-                      not self._stoprequest:
+            while '\n' not in data and not self._stoprequest:
 
                 # optionally do some action while waiting
                 self._wait_data()
@@ -258,7 +257,7 @@ class BaseCacheClient(Device):
         sleep(0.05) # give server a chance
         return True
 
-    def _single_request(self, tosend, sentinel='\r\n', retry=2, sync=True):
+    def _single_request(self, tosend, sentinel='\n', retry=2, sync=True):
         """Communicate over the secondary socket."""
         self._startup_done.wait()
         if not self._socket:
@@ -352,7 +351,7 @@ class CacheClient(BaseCacheClient):
         BaseCacheClient._connect_action(self)
         # tell the server all our rewrites
         for newprefix, oldprefix in self._inv_rewrites.iteritems():
-            self._queue.put('%s%s%s\r\n' % (newprefix, OP_REWRITE, oldprefix))
+            self._queue.put('%s%s%s\n' % (newprefix, OP_REWRITE, oldprefix))
 
     def _wait_data(self):
         if self._ismaster:
@@ -424,7 +423,7 @@ class CacheClient(BaseCacheClient):
         """
         if dev:
             key = ('%s/%s' % (dev, key)).lower()
-        tosend = '@%s%s%s\r\n' % (self._prefix, key, OP_ASK)
+        tosend = '@%s%s%s\n' % (self._prefix, key, OP_ASK)
         for msgmatch in self._single_request(tosend):
             time, ttl, value = msgmatch.group('time'), msgmatch.group('ttl'), \
                                msgmatch.group('value')
@@ -449,8 +448,8 @@ class CacheClient(BaseCacheClient):
         dbkey = ('%s/%s' % (dev, key)).lower()
         self._db[dbkey] = (value, time, ttl)
         value = cache_dump(value)
-        msg = '%s%s@%s%s%s%s\r\n' % (time, ttlstr, self._prefix, dbkey,
-                                      OP_TELL, value)
+        msg = '%s%s@%s%s%s%s\n' % (time, ttlstr, self._prefix, dbkey,
+                                   OP_TELL, value)
         #self.log.debug('putting %s=%s' % (dbkey, value))
         self._queue.put(msg)
         self._propagate((time, dbkey, OP_TELL, value))
@@ -469,19 +468,19 @@ class CacheClient(BaseCacheClient):
             time = currenttime()
         ttlstr = ttl and '+%s' % ttl or ''
         value = cache_dump(value)
-        msg = '%s%s@%s%s%s\r\n' % (time, ttlstr, key, OP_TELL, value)
+        msg = '%s%s@%s%s%s\n' % (time, ttlstr, key, OP_TELL, value)
         #self.log.debug('putting %s=%s' % (key, value))
         self._queue.put(msg)
 
     def setRewrite(self, newprefix, oldprefix):
         self._queue.put(self._prefix + newprefix + OP_REWRITE + \
-                        self._prefix + oldprefix + '\r\n')
+                        self._prefix + oldprefix + '\n')
         self._inv_rewrites[newprefix] = oldprefix
 
     def unsetRewrite(self, newprefix):
         if newprefix in self._inv_rewrites:
             del self._inv_rewrites[newprefix]
-            self._queue.put(self._prefix + newprefix + OP_REWRITE + '\r\n')
+            self._queue.put(self._prefix + newprefix + OP_REWRITE + '\n')
 
     def clear(self, dev):
         """Clear all cache subkeys belonging to the given device."""
@@ -489,7 +488,7 @@ class CacheClient(BaseCacheClient):
         devprefix = str(dev).lower() + '/'
         for dbkey in self._db.keys():
             if dbkey.startswith(devprefix):
-                msg = '%s@%s%s%s\r\n' % (time, self._prefix, dbkey, OP_TELL)
+                msg = '%s@%s%s%s\n' % (time, self._prefix, dbkey, OP_TELL)
                 self._db.pop(dbkey, None)
                 self._queue.put(msg)
                 self._propagate((time, dbkey, OP_TELL, ''))
@@ -498,7 +497,7 @@ class CacheClient(BaseCacheClient):
         """Clear all cache keys."""
         time = currenttime()
         for dbkey in self._db.keys():
-            msg = '%s@%s%s%s\r\n' % (time, self._prefix, dbkey, OP_TELL)
+            msg = '%s@%s%s%s\n' % (time, self._prefix, dbkey, OP_TELL)
             self._db.pop(dbkey, None)
             self._queue.put(msg)
             self._propagate((time, dbkey, OP_TELL, ''))
@@ -518,10 +517,10 @@ class CacheClient(BaseCacheClient):
         """
         if dev:
             key = ('%s/%s' % (dev, key)).lower()
-        tosend = '%s-%s@%s%s%s\r\n###?\r\n' % (fromtime, totime,
-                                                self._prefix, key, OP_ASK)
+        tosend = '%s-%s@%s%s%s\n###?\n' % (fromtime, totime,
+                                           self._prefix, key, OP_ASK)
         ret = []
-        for msgmatch in self._single_request(tosend, '###!\r\n'):
+        for msgmatch in self._single_request(tosend, '###!\n'):
             # process data
             time, value = msgmatch.group('time'), msgmatch.group('value')
             if time is None:
@@ -532,7 +531,7 @@ class CacheClient(BaseCacheClient):
 
     def lock(self, key, ttl=None, unlock=False, sessionid=None):
         """Locking/unlocking: opens a separate connection."""
-        tosend = '%s%s%s%s%s\r\n' % (
+        tosend = '%s%s%s%s%s\n' % (
             self._prefix, key.lower(), OP_LOCK,
             unlock and '-' or '+', sessionid or session.sessionid)
         if ttl is not None:

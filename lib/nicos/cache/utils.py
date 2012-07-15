@@ -47,18 +47,18 @@ OP_REWRITE = '~'
 # regular expression matching a cache protocol message
 msg_pattern = re.compile(r'''
     ^ (?:
-      \s* (?P<time>\d+\.?\d*)?    # timestamp
-      \s* (?P<ttlop>[+-]?)        # ttl operator
-      \s* (?P<ttl>\d+\.?\d*(?:[eE][+-]?\d+)?)?     # ttl
-      \s* (?P<tsop>@)             # timestamp mark
+      \s* (?P<time>\d+\.?\d*)?                   # timestamp
+      \s* (?P<ttlop>[+-]?)                       # ttl operator
+      \s* (?P<ttl>\d+\.?\d*(?:[eE][+-]?\d+)?)?   # ttl
+      \s* (?P<tsop>@)                            # timestamp mark
     )?
-    \s* (?P<key>[^=!?:*$]*?)      # key
-    \s* (?P<op>[=!?:*$~])         # operator
-    \s* (?P<value>[^\r\n]*?)      # value
+    \s* (?P<key>[^=!?:*$]*?)                     # key
+    \s* (?P<op>[=!?:*$~])                        # operator
+    \s* (?P<value>[^\r\n]*?)                     # value
     \s* $
     ''', re.X)
 
-line_pattern = re.compile(r'([^\r\n]*)(\r\n|\r|\n)')
+line_pattern = re.compile(r'([^\r\n]*)\r?\n')
 
 
 # PyON -- "Python object notation"
