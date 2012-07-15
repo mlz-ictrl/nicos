@@ -111,8 +111,8 @@ def test_alias():
     # trying to access as device raises UsageError
     assert raises(UsageError, read, px)
     # but stringification is still the name of the alias object
-    assert str(px) == 'px'
-    assert 'px' in repr(px)
+    assert str(px) == 'alias'
+    assert 'alias' in repr(px)
 
     # now set the alias to some object
     v1 = session.getDevice('v1')
@@ -122,3 +122,7 @@ def test_alias():
     # check attribute access
     px.speed = 5.1
     assert v1.speed == 5.1
+
+    # check cache key rewriting
+    assert session.cache.get(px, 'speed') == 5.1
+    assert session.cache.get_explicit(px, 'speed')[2] == 5.1
