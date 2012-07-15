@@ -24,7 +24,9 @@
 
 import os
 import sys
+import time
 import signal
+import socket
 import subprocess
 from os import path
 
@@ -37,11 +39,26 @@ def setup_package():
     global daemon #pylint: disable=W0603
     os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..', 'lib')
     daemon = subprocess.Popen([sys.executable,
-                               path.join(rootdir, '..', 'daemonTest.py')])
-    print >>sys.stderr, ' [Daemon PID = %s] ' % daemon.pid
+                               path.join(rootdir, '..', 'daemon.py')])
+    start = time.time()
+    wait = 5
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    while time.time() < start + wait:
+        try:
+            s.connect(('localhost', 14874))
+        except socket.error:
+            time.sleep(0.2)
+        else:
+            s.send('\x03\x00\x00\x00\x07guest\x1e\x1e\x03\x00\x00\x00\x04quit')
+            time.sleep(0.1)
+            s.close()
+            break
+    else:
+        raise Exception('cache failed to start within %s sec' % wait)
+    sys.stderr.write(' [daemon start... %s] ' % daemon.pid)
 
 def teardown_package():
-    print >>sys.stderr, ' [Killing daemon server...',
+    sys.stderr.write(' [daemon kill %s...' % daemon.pid)
     os.kill(daemon.pid, signal.SIGTERM)
     os.waitpid(daemon.pid, 0)
-    print >>sys.stderr, 'done] '
+    sys.stderr.write(' done] ')

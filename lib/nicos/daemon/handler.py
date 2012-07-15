@@ -176,7 +176,7 @@ class ConnectionHandler(BaseRequestHandler):
             length, = LENGTH.unpack(start[1:])
             buf = ''
             while len(buf) < length:
-                read = self.sock.recv(READ_BUFSIZE)
+                read = self.sock.recv(min(READ_BUFSIZE, length-len(buf)))
                 if not read:
                     self.log.error('read: connection broken')
                     raise CloseConnection

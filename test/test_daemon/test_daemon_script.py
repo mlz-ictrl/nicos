@@ -23,10 +23,9 @@
 # *****************************************************************************
 
 from nicos.daemon.script import RequestError,Request
-from test.utils import raises
-def setup_module():
-    pass
 
-def test_requestRaisesRequestExceptionOnMissingUser():
+from test.utils import raises
+
+def test_request_object():
     assert raises(RequestError, Request, None)
 

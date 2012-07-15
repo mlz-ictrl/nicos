@@ -29,7 +29,7 @@ import hashlib
 
 devices = dict(
     Daemon = device('nicos.daemon.NicosDaemon',
-                    server = 'localhost',
+                    server = 'localhost:14874',
                     authmethod = 'list',
                     passwd = [('guest', '', 0),
                               ('user', hashlib.sha1('user').hexdigest(), 10),
