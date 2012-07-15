@@ -69,7 +69,7 @@ class CalculatorTool(QDialog):
 
         self._miezesettings = settings.get('mieze', [])
         if not self._miezesettings:
-            self.tabWidget.removeTab(2)
+            self.tabWidget.removeTab(1)
         else:
             self.connect(self.mzwavelengthInput,
                          SIGNAL('textChanged(const QString &)'), self.mzcalc)
