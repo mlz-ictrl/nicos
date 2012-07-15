@@ -93,7 +93,7 @@ class MCC2Motor(NicosMotor):
         pos=int(pos*self.slope)
         temp=self._communicate('YE%d'% pos )
 
-    def doStatus( self ):
+    def doStatus( self, maxage=0 ):
         ''' find status of motor'''
         temp=self._communicate( 'SH' )
         if temp[0]=='N': return status.BUSY,''       # busy
@@ -103,7 +103,7 @@ class MCC2Motor(NicosMotor):
         ''' send the stop command '''
         temp=self._communicate('YS')
 
-    def doRead( self ):
+    def doRead( self, maxage=0 ):
         '''read the current stepper position'''
         temp=self._communicate('YP19R')      # read parameter 19
         return float( temp ) / self.slope

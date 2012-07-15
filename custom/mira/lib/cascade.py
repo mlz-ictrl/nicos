@@ -127,10 +127,9 @@ class CascadeDetector(AsyncDetector, ImageStorage):
             if reply != 'OKAY':
                 self._raise_reply('could not stop measurement', reply)
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         if self.slave:
-            # XXX read() or read(0)
-            return self._adevs['master'].read() + self.lastcounts + \
+            return self._adevs['master'].read(maxage) + self.lastcounts + \
                 [self.lastfilename]
         return self.lastcounts + [self.lastfilename]
 

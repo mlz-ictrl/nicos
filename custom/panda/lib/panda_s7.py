@@ -88,12 +88,12 @@ class S7Coder(NicosCoder):
         'bus': (S7Bus, 'S7 communication bus'),
     }
 
-    def doRead( self ):
+    def doRead( self, maxage=0 ):
         """Read the encoder value."""
         return self._adevs['bus'].read('float', self.startbyte) * self.sign
 
-    def doStatus(self):
-        if -140 < self.doRead() < -20:
+    def doStatus(self, maxage=0):
+        if -140 < self.doRead(maxage) < -20:
             return status.OK, 'status ok'
         return status.ERROR, 'value out of range, check coder!'
 
@@ -208,7 +208,7 @@ class S7Motor(NicosMotor):
         self.log.info( 'Sollwert erreicht:               %s' %f(b24 & 0x40, 'Ja', 'Nein'))
         self.log.info( 'reserviert, offiziell ungenutzt: %s' %f(b24 & 0x80, m('1'), '0'))
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         s = self._doStatus()
         if self._timeout_time is not None:
             if currenttime() > self._timeout_time:
@@ -297,7 +297,7 @@ class S7Motor(NicosMotor):
         self._minisleep()
         bus.write(0, 'bit', 0, 2)            # Startbit Sollwertfahrt aufheben
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         """Read the incremental encoder."""
         bus = self._adevs['bus']
         self.log.debug('read: '+ self.fmtstr % (self.sign*bus.read('float', 4))

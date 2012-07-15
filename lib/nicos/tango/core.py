@@ -109,7 +109,7 @@ class TangoDevice(object):
         if mode != 'simulation':
             self._dev = self._create_client()
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         state = self._tango_guard(self._dev.getDeviceState)
         statusStr = self._dev.getDeviceStatus()
         if state == TANGOState.ON:

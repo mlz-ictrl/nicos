@@ -46,7 +46,7 @@ class AnalogInput(FRM2Device, Readable):
 
     tango_class = AnalogInputClient
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return self._tango_guard(self._dev.value)
 
 
@@ -63,7 +63,7 @@ class AnalogOutput(FRM2Device,  HasLimits, Moveable):
 
     tango_class = AnalogOutputClient
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return self._tango_guard(self._dev.value)
 
     def doStart(self,  value):
@@ -87,7 +87,7 @@ class DigitalInput(FRM2Device, Readable):
 
     tango_class = DigitalInputClient
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return self._tango_guard(self._dev.value)
 
 
@@ -99,7 +99,7 @@ class NamedDigitalInput(DigitalInput):
                          type=dictof(int, str)),
     }
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         value = DigitalInput.doRead(self)
         return self.mapping.get(value, value)
 
@@ -117,8 +117,8 @@ class PartialDigitalInput(NamedDigitalInput):
     def doInit(self):
         self._mask = ((1 << self.bitwidth) - 1) << self.startbit
 
-    def doRead(self):
-        value = DigitalInput.doRead(self) & self._mask
+    def doRead(self, maxage=0):
+        value = DigitalInput.doRead(self, maxage) & self._mask
         return self.mapping.get(value, value)
 
 
@@ -154,8 +154,8 @@ class NamedDigitalOutput(DigitalOutput):
         value = self._reverse.get(target, target)
         DigitalOutput.doStart(self, value)
 
-    def doRead(self):
-        value = DigitalOutput.doRead(self)
+    def doRead(self, maxage=0):
+        value = DigitalOutput.doRead(self, maxage)
         return self.mapping.get(value, value)
 
 
@@ -173,8 +173,8 @@ class PartialDigitalOutput(NamedDigitalOutput):
         NamedDigitalOutput.doInit(self)
         self._max = (1 << self.bitwidth) - 1
 
-    def doRead(self):
-        value = int( DigitalOutput.doRead(self))
+    def doRead(self, maxage=0):
+        value = int(DigitalOutput.doRead(self, maxage))
         value = (value >> self.startbit) & self._max
         return self.mapping.get(value, value)
 
@@ -208,9 +208,9 @@ class BitsDigitalOutput(DigitalOutput):
     def doReadFmtstr(self):
         return '{ ' + ' '.join(['%s'] * self.bitwidth) + ' }'
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         # extract the relevant bit range from the device value
-        value = (DigitalOutput.doRead(self) >> self.startbit) & self._max
+        value = (DigitalOutput.doRead(self, maxage) >> self.startbit) & self._max
         # convert to a list of single bits (big-endian: the first bit is the 1)
         bits = []
         while value:
@@ -249,11 +249,10 @@ class MultiDigitalOutput(Moveable):
         for dev in self._adevs['outputs']:
             dev.start(target)
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         values = []
-        # XXX read() or read(0)
         for dev in self._adevs['outputs']:
-            values.append(dev.read())
+            values.append(dev.read(maxage))
         if len(set(values)) != 1:
             devnames = [dev.name for dev in self._adevs['outputs']]
             raise NicosError(self,

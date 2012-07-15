@@ -73,7 +73,7 @@ class Detector(FRM2Device,  Measurable):
     def doReadSize(self):
         return self._tango_guard(self._dev.detectorSize)
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return self._tango_guard(self._dev.value)
 
     @usermethod

@@ -105,13 +105,13 @@ class KL320xTemp( Readable ):
         else:
             raiseException('Sorry, addr must be wrong, there is no KL320x there! please correct')
             
-    def doRead( self ):
+    def doRead( self, maxage=0 ):
         v=self.bhd.ReadWordInput( self.addr+1 )
         self.log.debug( 'Raw value is %d (0x%04x)'%(v,v))
         return float( v )*0.1
 
-    def doStatus(self):
-        t = self.doRead()
+    def doStatus(self, maxage=0):
+        t = self.doRead(maxage)
         if self.warnlevel and t > self.warnlevel and self.unit=='K':
             return (status.ERROR, 'filter temperature (%4.1f K) too high' % t)
         v= self.bhd.ReadWordInput( self.addr )
@@ -138,14 +138,14 @@ class I7033Temp(AnalogInput):
     def doReadUnit(self):
         return 'K'
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         r = self._taco_guard(self._dev.read)
         t = self._temperature(r)
         if self.unit == 'K':
             return t
         return r
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         t = self._temperature(self._taco_guard(self._dev.read))
         if self.warnlevel and t > self.warnlevel:
             return (status.ERROR, 'filter temperature (%6.1f K) too high' % t)

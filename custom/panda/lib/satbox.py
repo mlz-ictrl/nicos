@@ -9,7 +9,7 @@ class SatBox(Moveable):
     valuetype = int
     widths = [1, 2, 5, 10, 20]
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         inx = self._adevs['bus'].ReadBitsOutput(0x1020, len(self.widths))
         return sum([inx[i]*self.widths[i] for i in range(len(self.widths))])
         
@@ -25,7 +25,7 @@ class SatBox(Moveable):
                     self.log.warning('%d mm blade in inconsistent state' % widths[i])
         return width
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         return status.OK, ''
         in1 = self._adevs['bus'].ReadBitsInput(0x1000, 8)
         in2 = self._adevs['bus'].ReadBitsInput(0x1008, 2)

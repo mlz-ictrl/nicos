@@ -35,8 +35,8 @@ class DigitalOutput(Moveable):
     """
 
     attached_devices = {
-        'write':   	(DigitalOutput, 'TACO digital output device'),
-        'feedback':   	(DigitalInput, 'TACO digital input device (feedback)'),
+        'write':    (DigitalOutput, 'TACO digital output device'),
+        'feedback': (DigitalInput, 'TACO digital input device (feedback)'),
     }
 
     parameter_overrides = {
@@ -48,6 +48,6 @@ class DigitalOutput(Moveable):
         if (self.read() != target) :
             self._adevs['write'].start(1)
 
-    def doRead(self):
-        return self._adevs['feedback'].read()
+    def doRead(self, maxage=0):
+        return self._adevs['feedback'].read(maxage)
 

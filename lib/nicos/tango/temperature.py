@@ -64,10 +64,8 @@ class TemperatureController(AnalogOutput, HasLimits, HasOffset, Moveable):
 
     tango_class = TemperatureControllerClient
 
-    def doRead(self):
-        # XXX read or read(0)
-        return AnalogOutput.doRead(self)- \
-               self.offset
+    def doRead(self, maxage=0):
+        return AnalogOutput.doRead(self, maxage) - self.offset
 
     def doStart(self, target):
         if self.status()[0] == status.BUSY:
@@ -78,7 +76,7 @@ class TemperatureController(AnalogOutput, HasLimits, HasOffset, Moveable):
     def doStop(self):
         self._tango_guard(self._dev.abort)
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         state = self._tango_guard(self._dev.getDeviceState)
         if state == TANGOState.MOVING:
             return (status.BUSY, 'moving')
@@ -97,8 +95,7 @@ class TemperatureController(AnalogOutput, HasLimits, HasOffset, Moveable):
         firststart = started = time.time()
 
         while 1:
-            # XXX read() or read(0)
-            value = AnalogOutput .doRead(self)
+            value = AnalogOutput.doRead(self)
             self.log.debug('current temperature %7.3f %s' % (value, self.unit))
             now = time.time()
             if abs(value - setpoint) > tolerance:

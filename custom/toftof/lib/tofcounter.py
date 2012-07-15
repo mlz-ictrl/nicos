@@ -102,7 +102,7 @@ class TofCounter(Measurable):
         self._timer.DevOn()
         self._monitor.DevOn()
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         state = ''.join(map(chr, self._counter.DevStatus()))
         if state == 'counting':
             return status.BUSY, 'counting'
@@ -115,7 +115,7 @@ class TofCounter(Measurable):
         # DevStatus "counting"
         return self._counter.DevStatus() != [99,111,117,110,116,105,110,103]
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         arr = self._counter.ReadULongArray()
         return [self._timer.ReadDouble(), self._monitor.ReadULong(), sum(arr[2:])]
 

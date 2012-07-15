@@ -32,7 +32,7 @@ from time import time as currenttime
 
 
 class CacheReader( NicosCacheReader ):
-    def doRead(self):
+    def doRead(self, maxage=0):
         if self._cache:
             try:
                 time, ttl, val = self._cache.get_explicit(self, 'value')
@@ -48,7 +48,7 @@ class CacheReader( NicosCacheReader ):
         raise CommunicationError(self, 'CacheReader value not in cache or no cache found')
 
 class CacheWriter( NicosCacheWriter ):
-    def doRead(self):
+    def doRead(self, maxage=0):
         if self._cache:
             try:
                 time, ttl, val = self._cache.get_explicit(self, 'value')

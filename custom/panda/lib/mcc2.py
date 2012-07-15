@@ -98,7 +98,7 @@ class MCC2Coder(NicosCoder):
         return self.codertypes[int(self.comm('XP34R'))]
     def doWriteCodertype(self, value):
         return self.comm('XP34S%d' % self.codertypes.index(value))
-    def doRead(self):
+    def doRead(self, maxage=0):
         return (float(self.comm('XP22R')) - self.zerosteps) / self.slope
     def doSetPosition(self,pos):
         return NicosCoder.doSetPosition(self, pos) # will raise NotImplementedError
@@ -213,7 +213,7 @@ class MCC2Motor(NicosMotor):
             self.comm('XP42S%d' % max(0, min(25, round(value / 0.1))))
         return self.doReadRampcurrent()
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return float(self.comm('XP21R')) / (self.slope * self.microstep)
     @usermethod
     def store(self):
@@ -272,7 +272,7 @@ class MCC2Motor(NicosMotor):
         d = int(newpos * self.slope * self.microstep)
         _temp = self.comm('XP20S%d XP21S%d XP19S%d' % (d, d, d)) # set all counters
 
-    def doStatus(self): #XXX
+    def doStatus(self, maxage=0): #XXX
         sui = self.comm('SUI')[ ['X', 'Y', 'Z', 'W'].index(self.channel) ]
         t = self._readSE()
         sl = ['Overcurrent', 'Undervoltage', 'Overtemperature', 'Driver enabled',

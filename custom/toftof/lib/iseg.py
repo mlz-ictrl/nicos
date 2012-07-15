@@ -123,10 +123,10 @@ class IsegHV(HasLimits, Moveable):
                 raise NicosError('could not set voltage, device off')
             raise NicosError('could not set voltage: error %r' % resp[3:])
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return self._comm('U%d' % self.channel, isint=True)
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         resp = self._comm('S%d' % self.channel)
         if resp[:3] != ('S%d=' % self.channel):
             raise NicosError('invalid status readout %r' % resp)

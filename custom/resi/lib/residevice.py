@@ -91,7 +91,7 @@ class ResiDevice(Moveable):
         ResiPositionProxy.SetHardware(self._hardware)
         #self.loglevel='debug'
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return ResiPositionProxy(self._hardware.GetPosition())
 
     def doMove(self, *kw, **args):

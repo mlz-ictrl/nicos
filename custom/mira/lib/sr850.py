@@ -86,7 +86,7 @@ class Amplifier(Measurable, TacoDevice):
     def doIsCompleted(self):
         return (time() > self._started + self._delay)
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         xs, ys = [], []
         N = self.measurements
         for i in range(N):

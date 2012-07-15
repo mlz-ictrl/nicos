@@ -59,7 +59,7 @@ class HePolarizer(TacoDevice, Moveable):
             raise UsageError(self, "value must be 'up' or 'down'")
         self.current = value
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return self.current
 
     def doReadUnit(self):

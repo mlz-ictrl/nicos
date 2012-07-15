@@ -50,7 +50,7 @@ class BeckhoffDigitalOutput(DigitalOutput):
         if mode != 'simulation':
             self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return tuple(self._taco_guard(self._dev.readCoils, (0,
                                       self.startoffset, self.bitwidth)))
 

@@ -57,10 +57,10 @@ class VarianPump(TacoDevice, Readable):
             raise CommunicationError(self, 'invalid response %r' % resp)
         return resp[5:]
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return float(self._communicate(224))
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         stcode = int(self._communicate(205))
         errorcode = int(self._communicate(206))
         frequency = self._communicate(226)

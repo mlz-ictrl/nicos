@@ -84,7 +84,7 @@ class Julabo(TacoDevice, HasLimits, Moveable):
         self._stime = time()
         sleep(1)
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         # return current temperature
         if self.thermostat_type == "JulaboF32HD":
             if self.intern_extern == 0:
@@ -100,7 +100,7 @@ class Julabo(TacoDevice, HasLimits, Moveable):
         if self.thermostat_type == "JulaboF32HD":
             self._write("out_mode_05 0")
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         if abs(self.read() - self.setpoint) > self.tolerance:
             return status.BUSY, 'ramping'
         return status.OK, 'idle'

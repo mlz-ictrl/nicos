@@ -107,7 +107,7 @@ class AndorDetector(Measurable, NeedsDatapath):
     def doShutdown(self):
         self._dev.DevCCDShutdown()
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         st = self._dev.DevCCDAcqStatus() & 0xFFFFFFFF
         self.log.debug('acq status is %d' % st)
         if st == 0:
@@ -143,7 +143,7 @@ class AndorDetector(Measurable, NeedsDatapath):
     def doStop(self):
         pass # not available?
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return (self.lastfilename,)
 
     def doReadPreselection(self):

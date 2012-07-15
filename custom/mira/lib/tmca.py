@@ -57,10 +57,10 @@ class Channel(TacoDevice, Measurable):
     def doStop(self):
         self._taco_guard(self._admin.stop)
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return map(int, self._taco_guard(self._dev.read))
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         state = self._taco_guard(self._admin.deviceState)
         if state == TACOStates.STOPPED:
             return status.OK, 'stopped'

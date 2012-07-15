@@ -79,10 +79,10 @@ class AnaBlocks( Moveable ):
     def myread( self ):
         return ''.join([ '1' if self.bhd.ReadBitOutput( i ) else '0' for i in range(34,-2,-2) ])
         
-    def doRead( self ):
+    def doRead( self, maxage=0 ):
         return int(eval( '0b'+self.myread() ))
     
-    def doStatus( self ):
+    def doStatus( self, maxage=0 ):
         r=''
         for i in range(0,36,2):
             j= self.bhd.ReadBitOutput(i)+2*self.bhd.ReadBitOutput(i+1)

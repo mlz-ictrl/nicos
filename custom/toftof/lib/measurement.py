@@ -453,7 +453,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         self._closeDeviceLogs()
         session.breakpoint(2)
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return [self.lastfilename]
 
     def doIsCompleted(self):

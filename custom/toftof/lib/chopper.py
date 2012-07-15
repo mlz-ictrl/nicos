@@ -196,7 +196,7 @@ class Controller(TacoDevice, Readable):
     def doReadResolution(self):
         return calc.Eres1(self.wavelength, self.speed)
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         """Read average speed from all choppers."""
         speeds = self._readspeeds()
         speed = 0.0
@@ -226,7 +226,7 @@ class Controller(TacoDevice, Readable):
             self._setROParam('speed', 0)
         self._setROParam('changetime', currenttime())
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         errstates = {0: 'inactive', 1: 'cal', 2: 'com', 8: 'estop'}
         ret = []
         stval = status.OK
@@ -319,11 +319,11 @@ class SpeedReadout(Readable):
         'unit': Override(mandatory=False, default='rpm'),
     }
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return map(lambda v: v / 279.618375,
                    self._adevs['chopper']._readspeeds_actual())
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         return status.OK, 'no status info'
 
 
@@ -332,13 +332,13 @@ class PropertyChanger(Moveable):
         'chopper': (Controller, 'Chopper controller'),
     }
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         return status.OK, 'no status info'
 
     def doWait(self):
         waitForStatus(self._adevs['chopper'])
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return getattr(self._adevs['chopper'], self._prop)
 
     def doStart(self, target):

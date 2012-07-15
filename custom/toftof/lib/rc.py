@@ -159,7 +159,7 @@ class RadialCollimator(Moveable):
         self.log.info('note: radial collimator does not use stop() anymore, '
                       'use move(%s, "off")' % self)
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         try:
             ret = self._adevs['bus'].write("?s%d" % (self.address,))
         except NicosError:
@@ -176,7 +176,7 @@ class RadialCollimator(Moveable):
         else:
             return (status.UNKNOWN, 'unknown')
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         try:
             ret = self._adevs['bus'].write("?p%d" % (self.address,))
             return float(ret[ret.find(":")+1:-1])

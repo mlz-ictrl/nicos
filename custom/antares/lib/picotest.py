@@ -65,7 +65,7 @@ class G5100A(Moveable):
             os.close(self._io)
             self._io = None
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         #self._query('*IDN?')
         return status.OK, 'idle'
 
@@ -100,7 +100,7 @@ class G5100A(Moveable):
         if status != '0':
             raise CommunicationError(self, 'error in command!')
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         return float(self._query('FREQ?'))
 
     def doStart(self, value):

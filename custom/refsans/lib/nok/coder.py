@@ -55,7 +55,7 @@ class CoderReference(AnalogInput) :
                          ),
         }
 
-    def doRead(self) :
+    def doRead(self, maxage=0) :
         ref = self._read()
         if abs(ref) >= self.refhigh :
             self.log.error(self,  'Reference voltage to high : %f > %f' % (ref, self.refhigh))
@@ -65,7 +65,7 @@ class CoderReference(AnalogInput) :
             self.log.warning(self, 'Reference voltage seems to be to low : %f < %f' % (ref, self.refwarn))
         return ref
 
-    def doStatus(self) :
+    def doStatus(self, maxage=0) :
         ref = self._read()
         if abs(ref) >= self.refhigh :
             return status.ERROR,  'Reference voltage to high : %f > %f' % (ref, self.refhigh)
@@ -174,7 +174,7 @@ class Coder(BaseCoder):
                 tmp = self.mul * data[0] #/E
             return (tmp, self.off + data[1])
 
-    def doStatus(self) :
+    def doStatus(self, maxage=0) :
         if self.phys == 'OK' :
             return status.OK, ''
         else :

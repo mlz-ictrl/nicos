@@ -262,7 +262,7 @@ class SlitAxis(Moveable, AutoDevice):
 
     hardware_access = False
 
-    def doRead(self, maxage):
+    def doRead(self, maxage=0):
         positions = self._adevs['slit']._doReadPositions(maxage)
         return self._convertRead(positions)
 

@@ -60,7 +60,7 @@ class MiezeMaster(Moveable):
     def doInit(self, mode):
         self._started_devs = []
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         if self.tuning == '':
             return '<no tuning selected>'
         return [self.curtable[self.setting]['_name_'], 0.0]
@@ -99,8 +99,9 @@ class MiezeMaster(Moveable):
         for dev in self._started_devs:
             dev.wait()
 
-    def doStatus(self):
-        return multiStatus((dev.name, dev) for dev in self._started_devs)
+    def doStatus(self, maxage=0):
+        return multiStatus(((dev.name, dev) for dev in self._started_devs),
+                           maxage)
 
     def doWriteTuning(self, value):
         if value not in self.tunetables:

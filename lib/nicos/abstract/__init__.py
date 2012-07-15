@@ -208,7 +208,7 @@ class AsyncDetector(Measurable):
         else:
             self._measure.set()
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         st = self._devStatus()
         if st is not None:
             return st

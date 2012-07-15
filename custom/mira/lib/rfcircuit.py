@@ -102,11 +102,10 @@ class RFCurrent(HasLimits, Moveable):
     def doStart(self, target):
         pass
 
-    def doRead(self):
-        # XXX read() or read(0)
-        return self._adevs['readout'].read()
+    def doRead(self, maxage=0):
+        return self._adevs['readout'].read(maxage)
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         return status.OK, ''
 
     def _rfcontrol(self):

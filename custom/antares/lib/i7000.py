@@ -39,11 +39,11 @@ class Output(Moveable, TacoDevice):
         'address': Param('Address of unit', type=int, mandatory=True),
     }
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         #self._query('*IDN?')
         return status.OK, 'idle'
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         res = self._taco_guard(self._dev.communicate, '$%02X6' % self.address)
         return int(res[3:5], 16) | (int(res[5:7], 16) << 8)
 

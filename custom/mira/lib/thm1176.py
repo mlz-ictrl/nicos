@@ -72,7 +72,7 @@ class THM(Measurable):
             os.close(self._io)
             self._io = None
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         #self._query('*IDN?')
         return status.OK, 'idle'
 
@@ -148,7 +148,7 @@ class THM(Measurable):
         stdev = (stdev / (nvalues - 1))**0.5
         return average, stdev
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         n = self.measurements
         xs = self._query('MEASURE:ARRAY:X? %d,,5' % n)
         ys = self._query('FETCH:ARRAY:Y? %d,5' % n)

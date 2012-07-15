@@ -107,7 +107,7 @@ class ESSController(HasLimits, TacoDevice, Moveable):
         self._thread.setDaemon(True)
         self._thread.start()
 
-    def doRead(self):
+    def doRead(self, maxage=0):
         sign = +1
         if self._adevs['minusswitch'].read() & 1:
             sign = -1
@@ -173,9 +173,8 @@ class ESSField(HasLimits, Moveable):
         self.log.info('setting fit result: %s' % res._pars[1])
         self.calibration = res._pars[1]
 
-    def doRead(self):
-        # XXX read() or read(0)
-        I = self._adevs['controller'].read()
+    def doRead(self, maxage=0):
+        I = self._adevs['controller'].read(maxage)
         B = 0
         for i, a_i in enumerate(self.calibration):
             B += a_i * I**i
@@ -201,8 +200,8 @@ class ESSField(HasLimits, Moveable):
         assert abs(B(I) - value) < 0.1
         self._adevs['controller'].start(I)
 
-    def doStatus(self):
-        return self._adevs['controller'].status()
+    def doStatus(self, maxage=0):
+        return self._adevs['controller'].status(maxage)
 
     def doWait(self):
         self._adevs['controller'].wait()
