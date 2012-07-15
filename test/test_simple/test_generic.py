@@ -104,19 +104,19 @@ def test_alias():
 
     # first, proxy without target
     assert isinstance(px._obj, NoDevice)
-    assert px.proxy == ''
+    assert px.alias == ''
     # attribute accesses raise ConfigurationError
     assert raises(ConfigurationError, getattr, px, 'read')
     assert raises(ConfigurationError, setattr, px, 'speed', 0)
     # trying to access as device raises UsageError
     assert raises(UsageError, read, px)
-    # but stringification is still the name of the proxy object
+    # but stringification is still the name of the alias object
     assert str(px) == 'px'
     assert 'px' in repr(px)
 
-    # now set the proxy to some object
+    # now set the alias to some object
     v1 = session.getDevice('v1')
-    px.proxy = v1
+    px.alias = v1
     # check delegation of methods etc.
     assert v1.read() == px.read()
     # check attribute access
