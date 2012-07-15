@@ -31,11 +31,16 @@ inplace:
 	cp build/lib*/nicos/daemon/*.so lib/nicos/daemon
 	-make custom-inplace
 
+T = test
+
 test:
-	@$(PYTHON) `which nosetests` -e test_stresstest -d $(O)
+	@$(PYTHON) `which nosetests` $(T) -e test_stresstest -d $(O)
 
 testall:
-	@$(PYTHON) `which nosetests` -d $(O)
+	@$(PYTHON) `which nosetests` $(T) -d $(O)
+
+test-coverage:
+	@$(PYTHON) `which nosetests` $(T) -d --with-coverage --cover-package=nicos --cover-html $(O)
 
 lint:
 	-pylint --rcfile=./pylintrc lib/nicos/
@@ -55,9 +60,6 @@ changelint:
 
 check:
 	pyflakes lib/nicos custom/*/lib
-
-test-coverage:
-	@$(PYTHON) `which nosetests` -d --with-coverage --cover-package=nicos --cover-html $(O)
 
 # get the instrument from the full hostname (mira1.mira.frm2 -> mira)
 INSTRUMENT = $(shell hostname -f | cut -d. -f2)
