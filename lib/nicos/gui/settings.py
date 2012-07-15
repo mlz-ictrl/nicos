@@ -49,8 +49,8 @@ class SettingsDialog(QDialog, DlgUtils):
 
         genitem = QTreeWidgetItem(self.settingsTree, ['General'], -2)
         QTreeWidgetItem(self.settingsTree, ['Connection data'], -1)
-        self.pitem = QTreeWidgetItem(self.settingsTree, ['Layout profiles'], 0)
-        self.pitem.setExpanded(True)
+        #self.pitem = QTreeWidgetItem(self.settingsTree, ['Layout profiles'], 0)
+        #self.pitem.setExpanded(True)
         self.settingsTree.setCurrentItem(genitem)
         self.stacker.setCurrentIndex(0)
 
@@ -68,10 +68,10 @@ class SettingsDialog(QDialog, DlgUtils):
         self.display.setText(main.connectionData['display'])
 
         # profiles page
-        for (uid, (name, wconfig, tconfig)) in self.local_profiles.iteritems():
-            QTreeWidgetItem(self.pitem, [name], 1).setData(0, 32, uid)
-            QListWidgetItem(name, self.profileList).setData(32, uid)
-            self.profileCombo.addItem(name)
+        #for (uid, (name, wconfig, tconfig)) in self.local_profiles.iteritems():
+        #    QTreeWidgetItem(self.pitem, [name], 1).setData(0, 32, uid)
+        #    QListWidgetItem(name, self.profileList).setData(32, uid)
+        #    self.profileCombo.addItem(name)
 
     def saveSettings(self):
         self.main.connectionData['host'] = str(self.host.currentText())
@@ -97,6 +97,9 @@ class SettingsDialog(QDialog, DlgUtils):
             self.main.trayIcon.show()
         else:
             self.main.trayIcon.hide()
+
+    def on_settingsTree_itemClicked(self, item, column):
+        self.on_settingsTree_itemActivated(item, column)
 
     def on_settingsTree_itemActivated(self, item, column):
         if self.stacker.count() > 3:
