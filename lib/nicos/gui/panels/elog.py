@@ -27,6 +27,7 @@
 __version__ = "$Revision$"
 
 from os import path
+from cgi import escape
 
 from PyQt4.QtCore import SIGNAL, Qt, QTimer, QUrl, pyqtSignature as qtsig
 from PyQt4.QtGui import QMainWindow, QTextEdit
@@ -63,6 +64,7 @@ class ELogPanel(Panel, DlgUtils):
             frame = self.preview.page().mainFrame().childFrames()[1]
         except IndexError:
             print 'No logbook seems to be loaded.'
+            self.on_client_connected()
             return
         scrollval = frame.scrollBarValue(Qt.Vertical)
         was_at_bottom = scrollval == frame.scrollBarMaximum(Qt.Vertical)
@@ -83,9 +85,14 @@ class ELogPanel(Panel, DlgUtils):
         if not proposaldir:
             return
         logfile = path.join(proposaldir, 'logbook', 'logbook.html')
-        # XXX check for existence and put something in the window if it doesn't
-        # exist ("click here to check again")
-        self.preview.load(QUrl(logfile))
+        if path.isfile(logfile):
+            self.preview.load(QUrl(logfile))
+        else:
+            self.preview.setHtml(
+                '<style>body { font-family: sans-serif; }</style>'
+                '<p><b>The logbook HTML file does not seem to exist.</b></p>'
+                '<p>Please check that the file is created at %s and click '
+                '"refresh" above.' % escape(path.normpath(logfile)))
 
     def on_page_unsupportedContent(self, reply):
         if reply.url().scheme() != 'file':

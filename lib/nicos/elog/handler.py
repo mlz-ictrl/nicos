@@ -110,6 +110,8 @@ rIx70shWAHfhXvTx7DmfMjTwHSdin03WZ7GjIDyJ3vbm9+FJgjQwWgziHazP9PenT/14Hv83XM3/\
 HG6iZ7FZGcLHDk2eCtiFlHWm8C3k+wLHu536nbiIH0s8KdV6i5PYstz3a2Um9xDu59komU/jGvan\
 jLXyH3Wauf0/mhjGAAAAAElFTkSuQmCC'); margin-right: 10px; }
 body      { font-family: 'Lucida Grande', 'Helvetica', 'Arial', sans-serif; }
+pre, tt   { font-family: 'Dejavu Sans Mono', 'Bitstream Vera Sans Mono',
+                         'Consolas', 'Menlo', monospace; }
 .remark   { font-weight: bold; }
 .sample   { font-weight: bold; }
 .script   { font-weight: bold; }
@@ -118,7 +120,7 @@ body      { font-family: 'Lucida Grande', 'Helvetica', 'Arial', sans-serif; }
 .msglabel { font-size: small; border: 1px solid #ccc;
             background-color: #eee; }
 .messages { display: none; margin: 0; border: 1px solid #ccc;
-            background-color: #eee; }
+            background-color: #eee; font-size: 10pt; }
 .messages .debug { color: #666; }
 .messages .input { font-weight: bold; }
 .messages .warn  { color: #c000c0; }
