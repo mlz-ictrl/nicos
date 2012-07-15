@@ -12,7 +12,7 @@ class SatBox(Moveable):
     def doRead(self, maxage=0):
         inx = self._adevs['bus'].ReadBitsOutput(0x1020, len(self.widths))
         return sum([inx[i]*self.widths[i] for i in range(len(self.widths))])
-        
+
         # currently the input bits dont work, since the magnetic field of the monoburg switches them all on
         inx = self._adevs['bus'].ReadBitsInput(0x1000, 10)
         self.log.debug('position: %s' % inx)
@@ -35,7 +35,7 @@ class SatBox(Moveable):
             if inx[i*2] and inx[i*2+1]:
                 return status.BUSY, '%d mm blade moving' % widths[i]
         return status.OK, ''
-    
+
     def doStart(self, rpos):
         if rpos>sum(self.widths):
             raise InvalidValueError(self, 'Value %d too big!, maximum is %d' % (rpos,sum(self.widths)))

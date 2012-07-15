@@ -18,7 +18,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
+#   Jens KrÃ¼ger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -54,7 +54,7 @@ class Axis(GenericAxis) :
 
 #    def doInit(self, mode) :
 #        super(Axis, self).doInit(mode)
-   
+
     def _movestep1(self, units) :
         """ Checks the current position of the axis and decides what's to do.
             If the new position is above the current it does nothing.
@@ -79,7 +79,7 @@ class Axis(GenericAxis) :
     def _movestep2(self, units) :
         """
            This function moves the axis to the given position
-           @param units 
+           @param units
         """
         self.motorstart(units)
         # try :
@@ -92,9 +92,9 @@ class Axis(GenericAxis) :
         self.log.debug('motorstart %f' % (units))
         if self.__readonly:
             self.log.error('motorstart %f BLOCKED' % (units))
-        else: 
+        else:
             self._adevs['motor'].start(units)
-    
+
     def readsteps(self) :
         """
            This method reads the current motor counter
@@ -120,5 +120,3 @@ class Axis(GenericAxis) :
                  if self._adevs[i].read() :
                       line += ' %s: 1' % (i.upper())
         return line
-            
-            

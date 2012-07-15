@@ -27,7 +27,7 @@
 __version__ = "$Revision$"
 
 from nicos.core import Moveable, Override
-from nicos.taco import DigitalInput, DigitalOutput 
+from nicos.taco import DigitalInput, DigitalOutput
 
 class DigitalOutput(Moveable):
     """Class for CCR box switches.
@@ -50,4 +50,3 @@ class DigitalOutput(Moveable):
 
     def doRead(self, maxage=0):
         return self._adevs['feedback'].read(maxage)
-

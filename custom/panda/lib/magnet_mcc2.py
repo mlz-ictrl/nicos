@@ -63,11 +63,11 @@ class MCC2Motor(NicosMotor):
                             type=intrange(0,15), default=0),
         'slope'         : Param('stepper units per degree of rotation',
                             type=float, default=1),
-        
+
     }
 
     _dev=None
-    
+
     def doInit(self, mode):
         #~ NicosMotor.doInit(self, mode)
         self._lock=threading.Lock()
@@ -98,7 +98,7 @@ class MCC2Motor(NicosMotor):
         temp=self._communicate( 'SH' )
         if temp[0]=='N': return status.BUSY,''       # busy
         return status.OK,''        # idle
-        
+
     def doStop( self ):
         ''' send the stop command '''
         temp=self._communicate('YS')
@@ -107,7 +107,7 @@ class MCC2Motor(NicosMotor):
         '''read the current stepper position'''
         temp=self._communicate('YP19R')      # read parameter 19
         return float( temp ) / self.slope
-        
+
     def doSetPosition( self, newpos ):
         ''' set current position to given value'''
         temp=self._communicate('YP19S%d'%int(newpos*self.slope))
@@ -128,4 +128,3 @@ class MCC2Motor(NicosMotor):
                     return temp[1:]
                 raise CommunicationError('Response timed out')
             raise KeyError('Serial Port not initialized!')
-        

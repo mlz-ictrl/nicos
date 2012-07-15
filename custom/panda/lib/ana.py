@@ -53,7 +53,7 @@ class AnaBlocks( Moveable ):
         # disable beckhoff watchdog
         self.bhd.WriteWordOutput(0x1120,0)
         # XXX TODO: init KL3202 channel 0 to 0..1.2KOhm or to read PT1000
-    
+
         #~ self.bhd.WriteReg( 4, 31, 0x1235)   # enable user regs
         #~ assert( self.bhd.ReadReg( 4, 31 ) == 0x1235 ) # make sure it has worked, or bail out early!
 
@@ -75,20 +75,20 @@ class AnaBlocks( Moveable ):
             self.bhd.WriteBitsOutput( where, [1,0])     # move up
         elif what in ['11', 3]:
             self.bhd.WriteBitsOutput( where, [1,1])     # both coils energized, AVOID THIS!
-    
+
     def myread( self ):
         return ''.join([ '1' if self.bhd.ReadBitOutput( i ) else '0' for i in range(34,-2,-2) ])
-        
+
     def doRead( self, maxage=0 ):
         return int(eval( '0b'+self.myread() ))
-    
+
     def doStatus( self, maxage=0 ):
         r=''
         for i in range(0,36,2):
             j= self.bhd.ReadBitOutput(i)+2*self.bhd.ReadBitOutput(i+1)
             r= ['_','1','0','X' ][j] + r
         return status.OK, 'idle: ' + r
-    
+
     def doStart( self, pattern ):
         if self._timer:
             try:
@@ -123,7 +123,7 @@ class AnaBlocks( Moveable ):
                 self.log.debug('Save Power in AnaBlock %d'%(i/2+1))
                 self.output2(i,0)
         #~ self.log.debug('Saved power')
-    
+
 class ATT_Axis(Axis):
     attached_devices = {
         'anablocks': (AnaBlocks,'AnaBlocks-device'),
@@ -185,4 +185,3 @@ class ATT_Axis(Axis):
         # fill up to 18 chars
         blocks = '0' * (18 - len(blocks)) + blocks
         self.log.info('blocks up: %s' % blocks)
-

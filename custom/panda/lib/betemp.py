@@ -36,7 +36,7 @@ class KL320xTemp( Readable ):
     attached_devices = {
         'beckhoff': (Beckhoff,'X'),
     }
-    
+
     parameters = {
         'warnlevel': Param('temperature that should not be exceeded',
                            type=none_or(float), settable=True),
@@ -55,7 +55,7 @@ class KL320xTemp( Readable ):
     @property
     def bhd( self ):  # BeckHoffDevice
         return self._adevs['beckhoff']
-    
+
     def _switch_to_K( self ):
         self.log.debug('Switching to K')
         self.bhd.WriteReg( self.addr, 31, 0x1235 )     # activate writing of the other regs
@@ -104,7 +104,7 @@ class KL320xTemp( Readable ):
             self.doWriteUnit( self.unit ) #update hardware about our unit and set scaling
         else:
             raiseException('Sorry, addr must be wrong, there is no KL320x there! please correct')
-            
+
     def doRead( self, maxage=0 ):
         v=self.bhd.ReadWordInput( self.addr+1 )
         self.log.debug( 'Raw value is %d (0x%04x)'%(v,v))

@@ -78,7 +78,7 @@ _column2 = [
      'lakeshore'),
     ('FRM Magnet', [[{'dev': 'B'}],
                     [{'dev': 'Tm1', 'max': 4.1}, {'dev': 'Tm2', 'max': 4.1},
-                     {'dev': 'Tm3', 'max': 4.9}, {'dev': 'Tm4', 'max': 4.5}, 
+                     {'dev': 'Tm3', 'max': 4.9}, {'dev': 'Tm4', 'max': 4.5},
                      {'dev': 'Tm8', 'max': 4.1}]], 'frm2magnet'),
 ]
 

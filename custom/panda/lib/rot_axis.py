@@ -37,7 +37,7 @@ from nicos.generic.axis import Axis
 class RotAxis(Axis):
     ''' special class for ratary axis which is on the same physical position every 360 deg,
     but should only move/rotate in one direction. other direction is either forbidden or used for referencing.'''
-    
+
     parameters = {
         'refpos'   : Param('reference position',
                             type=none_or(float), default=None),
@@ -51,7 +51,7 @@ class RotAxis(Axis):
             d.setPosition( d.read() - self.wraparound )
             self.poll()
         return Axis.doStart( self, target )
-    
+
     @usermethod
     def reference( self ):
         ''' references this axis by finding the reference switch and setting current position to refpos'''
@@ -62,7 +62,7 @@ class RotAxis(Axis):
             raise ValueError(' Refpos needs to be a float within [-360.0 .. 360.0] ')
         if self._mode not in ['master','maintenance']:
             raise UsageError('Can\'t reference if not in master or maintenance mode!')
-        
+
         oldpos=self.doRead()
         m=self._adevs['motor']
         def refsw():
@@ -119,6 +119,3 @@ class RotAxis(Axis):
         self.doStart( oldpos )
         self.wait()
         self.poll()
-        
-
-

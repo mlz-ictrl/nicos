@@ -49,7 +49,7 @@ class FocussingNeutronGuide(Slit):
       ``move()`` the same list of coordinates has to be supplied.
     * 'centered' -- only width and height are controlled; the slit is centered
       at the zero value of the left-right and bottom-top coordinates.  Values
-      read and written are in the form ``[width, height]``.(disabled at the 
+      read and written are in the form ``[width, height]``.(disabled at the
       moment)
     * 'offcentered' -- the center and width/height are controlled.  Values read
       and written are in the form ``[centerx, centery, width, height]``.

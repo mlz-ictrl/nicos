@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: iso-8859-15 -*-
 # *****************************************************************************
 # Module:
@@ -108,7 +107,7 @@ ctrl_reset.py
  nok4 'adev': {'bus' : ['motorbus2','motorbus'},
 
 stop motor.motor.stop stop geht ansich, aber nur eine Ebene wie mache ich das?
- proof Target: @8 movto 4, shoud be at 6###  
+ proof Target: @8 movto 4, shoud be at 6###
 logging
 simulation, emulation
 move testen gleichzeitig
@@ -183,8 +182,8 @@ Lfake       = fake
 
 LL_ESCAPE = 2 #0.5
 
-#IPCSMS = True 
-IPCSMS = False 
+#IPCSMS = True
+IPCSMS = False
 
 if IPCSMS:
     from IPCSMS_lld import cl_CONT_IPCSMS
@@ -217,7 +216,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                     'flags':       'status of all switches',\
                     'diary':       'only the string for Line',\
                    }
-    
+
 
     typelist = {
         "bus": HWGeneric
@@ -283,7 +282,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         __Debug = LDeveloping
         __readonly = Lreadonly
         __startstyle = startstyle
-        
+
         def __init__(self,upper,index):
             #def __init__(self, sbus, smot, senc, ssll, sshl, ssref) :
             """
@@ -296,7 +295,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             sSref devname of Reference-Switch
             """
             Debug = self.__Debug #and False
-            
+
             self.name = '%s_%d'%(upper.name,index) #for no
             self.upper = upper
             self.recursive_break = 0
@@ -307,7 +306,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             indexname = ['r','s']
             if False: #Debug:
                 try:
-                    #if Debug: 
+                    #if Debug:
                     print 'new','test/'+upper.name+'/'+'m'+indexname[index],
                     #print sp+':','test/'+upper.name+'/'+indexname[index]+subparts[sp]
                     self.motor     = Motor.Motor(    'test/'+upper.name+'/'+'m'+indexname[index])
@@ -329,9 +328,9 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 except:
                     old = True
                     if Debug: print 'formal<'
-            
+
             if True: #old:
-                #if Debug: 
+                #if Debug:
                 print 'old',upper.motor[index],
                 self.motor     = Motor.Motor(upper.motor[index])
                 self.enc       = Encoder.Encoder(upper.encoder[index])
@@ -413,7 +412,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             line = 'COM:motorread'
             if True:
                     while True:
-                        try:    
+                        try:
                                 val = self.motor.read()
                                 return float(val) #MP kurz und gut 27.06.2011 08:49:51 ja, besser!
                         except:
@@ -423,7 +422,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
               while True:
                   try:
                       f = self.motor.read() #MP from enc to motor 25.02.2011 09:11:48
-                      try: 
+                      try:
                           f = float(f)
                           if line != 'COM:motorread': self.ll_log(line,True)
                           return f  #MP 25.03.2011 14:20:09 hier knallt es warum?
@@ -582,7 +581,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
 
         def setpos (self, pos) :
             """
-            Sets the position of motor and encoder to a given value without 
+            Sets the position of motor and encoder to a given value without
             moving the axis
             @param pos
             """
@@ -594,7 +593,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 if self.__readonly: self.ll_log('setpos BLOCKED',True)
                 else:               self.motor.setpos(pos)
                 #!!! self.enc.setPosition(pos) #!!!
-            except TACOError : 
+            except TACOError :
                 #!!!
                 self.ll_log("Could not really set the position.")
                 CommunicationError("Could not really set the position.")
@@ -640,7 +639,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             """
             wait until the moving of the axis has stopped
             """
-            #print 'enter wait 0.25' 
+            #print 'enter wait 0.25'
             time.sleep(0.25)
             #self.yes.enter_wait()
             self.enter_wait()
@@ -663,7 +662,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                         pass #MP 21.11.2011 07:58:50 self.motor.deviceReset()
                     except TACOError :
                         continue
-                time.sleep(0.1)	
+                time.sleep(0.1)
             #self.yes.exit_wait()
             self.exit_wait()
 
@@ -691,7 +690,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 print "Low limit switch : ", self.sll.read()
                 print "High limit switch : ", self.shl.read()
                 print "Reference switch : ", self.sref.read()
-            except TACOError :	
+            except TACOError :
                 print "Could not get the status"
 
         #-----------------------------------------------------------------------
@@ -739,13 +738,13 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
               else:
                 self.recursive_break += 1
                 if    ort == 'status':res = self.state() #recursive infinite!
-                elif  ort == 'read': 
+                elif  ort == 'read':
                                       self.state() #to catch FAULT
                                       res = float(self.read())  #recursive infinite!
                 else:                 res = None
                 self.recursive_break = 0
                 return res
-            
+
         #-----------------------------------------------------------------------
         def serverlock (self):
             """this metode of parts waits until deviceOFF sleep(10*60) deviceON
@@ -785,10 +784,10 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             self.upper.ll_log(line,True)
             self.upper.news_spread(line)
             #-------------------------------------------------------------------
-            
+
         #-----------------------------------------------------------------------
         def ll_log (self,line,screen=False):self.upper.ll_log(self.name+'>'+line,screen)
-        
+
         #-----------------------------------------------------------------------
         #-----------------------------------------------------------------------
 
@@ -811,11 +810,11 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             res['beamtoleranz'] = self.beamtoleranz
         except: pass
         return res
-        
+
     #---------------------------------------------------------------------------
     def doInit (self, mode, startstyle=''):
-        """ 
-        constructor. Creates a complete NOK object the names of the used devices must 
+        """
+        constructor. Creates a complete NOK object the names of the used devices must
         follow the convention, otherwise it breaks.
         @param nbr number of the NOK
         @param prefix prefix of the TACO device name
@@ -850,7 +849,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                     try:    _axis.MOTORctrl.proof_controller(),
                     except: 'proof_controller fail',
             self._axes.append(_axis)
-            
+
         #***********************************************************************
         self.no('_Nok__','motor','','_axes')
         cl_do_get.doInit(self,mode,self.__doget_help,'_axes')
@@ -954,7 +953,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             dauer.read('numeric',Zeitmessung)
             #try:    dic = self.doget(['simple','read'],SSO(startstyle,'show')) # proof Poti
             try:    dic = self.do_get(['simple','read'],SSO(startstyle,'show')) # proof Poti
-            except: 
+            except:
                 print
                 dic = {'simple':'fatal doget fail proof: positon, Encoder, resources'}
             numeric = None
@@ -1078,11 +1077,11 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                     #if type(usemask) == type(''):
                     if usemask == True:usemask = self.mask
                     if Debug: print usemask,self.mask
-                    reactor = hight + self.masktable[usemask][0] - (self.width - a_pos[0]) / 2.0 
-                    sample  = hight + self.masktable[usemask][1] + (self.width - a_pos[0]) / 2.0 
+                    reactor = hight + self.masktable[usemask][0] - (self.width - a_pos[0]) / 2.0
+                    sample  = hight + self.masktable[usemask][1] + (self.width - a_pos[0]) / 2.0
                     #else:
-                    #    reactor = hight + self.maskoffset[0] - (self.width - a_pos[0]) / 2.0 
-                    #    sample  = hight + self.maskoffset[1] + (self.width - a_pos[0]) / 2.0 
+                    #    reactor = hight + self.maskoffset[0] - (self.width - a_pos[0]) / 2.0
+                    #    sample  = hight + self.maskoffset[1] + (self.width - a_pos[0]) / 2.0
                     self.ll_log('print H:%s R:%s S:%s U:%s '%(str(hight),str(reactor),str(sample),str(a_pos)),True)
                     #hight --
                     a_pos= [reactor, sample]
@@ -1120,7 +1119,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         if Debug: print 'and Wait'
         self.doWait()
         akt_pos = self.__achsread()
-        for i in range(len(self._axes)): 
+        for i in range(len(self._axes)):
             if float(akt_pos[i]) > a_pos[i]:
                 self.ll_log('move suspischus'+str(i)+' '+str(akt_pos)+' '+str(a_pos)+' '+str(self.status()),True)
                 if self.__readonly: print 'pass'
@@ -1137,7 +1136,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         if True:
           if Debug: print 'and Wait'
           self.doWait()
-          for i in range(len(self._axes)): 
+          for i in range(len(self._axes)):
             if (float(akt_pos[i]) - a_pos[i]) > 0.00125:
                 self.ll_log('move unreached'+str(i)+' '+str(akt_pos)+' '+str(a_pos)+' '+str(self.status()),True)
         #-----------------------------------------------------------------------
@@ -1150,7 +1149,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         for axis in self._axes:axis.wait()
         time.sleep(0.5) #26.10.2009 14:31:51 tribute to poti
         return self.exit_wait()
-        
+
     #---------------------------------------------------------------------------
     def doStop (self):
         #self.ll_log('sorry no stop!!!',True)
@@ -1172,14 +1171,14 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
           l = ''
           for axis in self._axes:
             try:   S = axis.motor.deviceStatus() #status()
-            except: 
+            except:
                 notausgang -= 1
                 if Debug: print 'status notausgang -= 1'
             l += S+' '
             if S == 'moving':
                 movement = True
                 try:    axis.motor.stop()
-                except: 
+                except:
                     notausgang -= 1
                     if Debug: print 'STOP notausgang -= 1'
                 time.sleep(0.2)
@@ -1198,7 +1197,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
     #---------------------------------------------------------------------------
     def doDump (self,log=False):
        """Prelimanary. do not use this funcion, untill you know wath you are doing"""
-       """every dump-function should write Parameters from the controller 
+       """every dump-function should write Parameters from the controller
        with can be changed by user or change in a file to get a backup
        this is only usefull for parts how has so values eg not for the chopper
        ofcours istrument does it for all parts from instrument.inf"""
@@ -1242,7 +1241,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                         self.doStart(pos)
                         self.wait()
                         setattr(self, name, value)
-                    except: 
+                    except:
                         self.ll_log("could not move to"+str(pos),Debug)
                         self.__NicmPrint("could not move to"+str(pos))
                 except :
@@ -1362,7 +1361,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
     def __achsmove(self,pos):
         """keine masken"""
         self.doStart(pos,False)
-        
+
     #---------------------------------------------------------------------------
     def doReset (self,use_encoder=True):
         """
@@ -1384,7 +1383,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         #-----------------------------------------------------------------------
         def equ (a,b):
             if type(b) != type([]): b = [b] #() lokal
-            if len(b) == 1: 
+            if len(b) == 1:
                #raise 'equ aufblasen' #MP 01.03.2010 21:50:55
                b = list(b[0] for n in range(len(a)))
             if len(a) != len(b):
@@ -1472,7 +1471,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         #    for a in range(len(Data)): res.append(Data[a]['Position'])
         #    return res
         #-----------------------------------------------------------------------
-        
+
         #-----------------------------------------------------------------------
         Debug = self.__Debug #and False
         self.ll_log('***************',False)
@@ -1501,7 +1500,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         SWon       = list(1 for n in range(naxes))
         trys     = 1  #scale for somwath under ref depens on negES-usermin
         jumppoints = [[],[]]
-        #QAD die kleiner inlination gilt für beide  
+        #QAD die kleiner inlination gilt für beide
         inclination = min([abs(self.posinclination),abs(self.neginclination)])
         #-----------------------------------------------------------------------
         #proof resources
@@ -1522,11 +1521,11 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         #-----------------------------------------------------------------------
         try:    self.ll_log('Backlash'+str(self.doGetPar('backlash')),True)
         except: self.ll_log('Backlash no',True)
-        
+
         if speedswitch: self.ll_log('switching of speed: '+str(self.param),True)
         else:           self.ll_log('no switching of speed, speed is'+str(self.doGetPar('speed')))
         self.ll_log('accel is'+str(self.doGetPar('accel')))
-        
+
         #-----------------------------------------------------------------------
         ### todo clear number of readings! make use of do_get
         if True or Debug:
@@ -1548,7 +1547,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 self.ll_log('moving, please try later (no Stop avilabl jet) '+str(temp),True)
                 return 'moving, please try later (no Stop avilabl jet) '
             #if Debug: print 'creating points to move'
-                
+
             truePosold=self.__achsread() #hier hat alles angefangen
         truePos=truePosold
 
@@ -1562,7 +1561,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 ' maxPos:'+str(maxPos)+\
                 ' refPoint:'+str(refPoint)+\
                 ' END',Debug)
-        
+
         restWay = mul(sub(maxPos,minPos),2)
         self.ll_log(' restWay:'+str(restWay),True)
         #for count in range(len(self._axes)):restWay.append(maxPos[count]-minPos[count])
@@ -1584,7 +1583,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                     if speedswitch: self.doSetPar('speed',self.param['goodspeed'])
                     return 'prufen maxWay: i give up'
                 self.ll_log('prufen maxWay: ok',True)
-                
+
                 get = self.do_get(['status','achse'])
                 self.ll_log('setpos(maxPos)'+str(get['achse'])+' '+str(get['status']),Debug)
                 #for count,axis in enumerate(self._axes): axis.motor.setpos(maxPos[count])
@@ -1593,7 +1592,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 restWay=sub(restWay,aktPOS)
                 truePos=sub(truePos,aktPOS)
                 self.ll_log(str(aktPOS)+' '+' truePos: '+str(truePos),Debug)
-                
+
                 self.ll_log('moving to close to minPos',True)
                 print 'aktSW',aktSW,'aktPOS',aktPOS,'minPos',minPos,'somewhat',somewhat
                 if not runtimetest:
@@ -1699,13 +1698,13 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             else:
                 for count,axis in enumerate(self._axes): axis.setpos(refPoint[count])  #.motor
             self.ll_log('%d/%d ref reached'%(a+1,len(jumppoints)),True)
-        
+
         if speedswitch: self.doSetPar('speed',self.param['goodspeed'])
         self.ll_log('reset final move to Zero started',True)
         if not runtimetest:
             self.__achsmove(Zero)
             self.wait()
-        
+
         #format leading ' '
         try:    Fehlpos = ' Fehlpos:'+format(sub(truePosold,truePos))
         except: Fehlpos = ' Fehlpos: no access'
@@ -1726,7 +1725,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             self.ll_log('****************',False)
             print get
             raise Error(line)
-        
+
     #---------------------------------------------------------------------------
     #Resettools with poti used in doClear
     #---------------------------------------------------------------------------
@@ -1764,10 +1763,10 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         if Debug: print 'Data geathering'
         if Debug: print Label,axes
         get = self.do_get(['encoder_pos','simple'])
-        
+
         if   'fail'  in get['simple']:pass
         elif 'ready' != get['simple']:raise Error('moving deny setpos')
-        
+
         if 'encoder' in Label:
             try:
                 poti = get['encoder_pos']
@@ -1803,8 +1802,8 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
     #def  __NicmPrint(code,str)
     def  __NicmPrint(str):
         try:
-            NicmPrint       = ip.user_ns['NicmPrint'] 
-            PM_STANDARD     = ip.user_ns['PM_STANDARD'] 
+            NicmPrint       = ip.user_ns['NicmPrint']
+            PM_STANDARD     = ip.user_ns['PM_STANDARD']
         except:
             pass
             #import __main__
