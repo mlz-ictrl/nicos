@@ -328,11 +328,12 @@ class CacheClient(BaseCacheClient):
         self._db = {}
         self._callbacks = {}
 
-        self._worker.start()
         # the execution master lock needs to be refreshed every now and then
         self._ismaster = False
         self._master_expires = 0
         self._mastertimeout = self._selecttimeout * 10
+
+        self._worker.start()
 
     def _connect_action(self):
         # clear the local database of possibly outdated values
