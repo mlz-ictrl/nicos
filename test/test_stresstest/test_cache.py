@@ -41,14 +41,14 @@ def teardown_module():
 def basicCacheTest(name, setup):
     cache = startCache(setup)
     try:
-        sleep(2)
+        sleep(1)
         cc = session.cache
         testval = 'test1'
         key = 'value'
         cc.put('testcache', key, testval)
+        sleep(0.05)
         cachedval_local = cc.get('testcache', key, None)
         cachedval = cc.get_explicit('testcache', key, None)
-        sleep(5)
         cachedval2 = cc.get_explicit('testcache', key, None)
 
         print cachedval, cachedval2
