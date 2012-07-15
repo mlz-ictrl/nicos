@@ -94,11 +94,8 @@ class Experiment(Device):
                            category='experiment'),
         'proposal':  Param('Current proposal number or proposal string',
                            type=str, settable=True, category='experiment'),
-        # XXX: this results in unfriendly entries in the data file
-        # users : ['user a', 'user b']
-        'users':     Param('User names and affiliations for the proposal',
-                           type=listof(str), settable=True,
-                           category='experiment'),
+        'users':     Param('User names and emails for the proposal',
+                           type=str, settable=True, category='experiment'),
         'localcontact': Param('Local contact for current experiment',
                               type=str, settable=True, category='experiment'),
         'remark':    Param('Current remark about experiment configuration',
@@ -144,7 +141,7 @@ class Experiment(Device):
             session.addLogHandler(self._eloghandler)
 
     @usermethod
-    def new(self, proposal, title=None, localcontact=None, **kwds):
+    def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
         """Called by `.NewExperiment`."""
         # Individual instruments should override this to change datapath
         # according to instrument policy, and maybe call _fillProposal
@@ -156,7 +153,7 @@ class Experiment(Device):
         self.localcontact = localcontact or ''
         # reset everything else to defaults
         self.remark = ''
-        self.users = []
+        self.users = str(user or '')
         self.sample.reset()
         self.envlist = []
         #self.detlist = []
@@ -224,8 +221,11 @@ class Experiment(Device):
             user = name
         if affiliation is not None:
             user += ' (' + affiliation + ')'
-        self.users = self.users + [user]
-        self.log.info('User "%s" added' % self.users[-1])
+        if not self.users:
+            self.users = user
+        else:
+            self.users = self.users + ', ' + user
+        self.log.info('User "%s" added' % user)
 
     @usermethod
     def finish(self, *args, **kwargs):

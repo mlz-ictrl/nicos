@@ -53,7 +53,7 @@ class PandaExperiment(Experiment):
     def _expdir(self, suffix, *parts):
         return path.join('/data/exp', suffix, *parts)
 
-    def new(self, proposal, title=None, localcontact=None, **kwds):
+    def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
         # panda-specific handling of proposal number
         if isinstance(proposal, int):
             proposal = 'p%s' % proposal
@@ -84,6 +84,7 @@ class PandaExperiment(Experiment):
                 self.log.error('cannot query reactor cycle, please give a '
                                 '"cycle" keyword to this function')
         self.cycle = kwds['cycle']
+        kwds['user'] = user
 
         # checks are done, set the new experiment
         Experiment.new(self, proposal, title, localcontact)

@@ -3,6 +3,9 @@ Changelog for NICOS 2
 
 **Release 2.2.0**
 
+  - Changed "users" parameter of the experiment device to a simple string,
+    and it is now possible to add users directly in "NewExperiment()".
+
   - Added "maxage" parameter to "doRead()" and "doStatus()" methods,
     which can be given to subdevices.
 

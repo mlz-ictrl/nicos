@@ -318,20 +318,18 @@ def CreateAllDevices():
 
 @usercommand
 @helparglist('proposal, title, localcontact, ...')
-def NewExperiment(proposal, title='', localcontact='', **parameters):
+def NewExperiment(proposal, title='', localcontact='', user='', **parameters):
     """Start a new experiment with the given proposal number and title.
 
-    You should also give a argument for the local contact.  Users can be added
-    with `AddUser`.  Example:
+    You should also give a argument for the local contact and the primary user.
+    More users can be added later with `AddUser`.  Example:
 
-    >>> NewExperiment(5401, 'Dynamics of H2O', 'L. Ocal Contact')
-    >>> AddUser('F. User', 'friendlyuser@frm2.tum.de')
+    >>> NewExperiment(5401, 'Spin waves', 'L. Contact', 'F. User <user@abc.de>')
 
     When configured, proposal information will be automatically filled in from
     the proposal database.
     """
-    # XXX adding users with a separate command is considered awkward
-    session.experiment.new(proposal, title, localcontact, **parameters)
+    session.experiment.new(proposal, title, localcontact, user, **parameters)
 
 @usercommand
 @helparglist('...')
