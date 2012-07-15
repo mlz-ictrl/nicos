@@ -37,12 +37,13 @@ class Detector(FRM2Device,  Measurable):
     tango_class = DetectorClient
 
     parameters = {
-        'syncmode':         Param('Synchronisation mode', settable=True,
-                           type=str, category='general',  volatile=True),
-        'syncvalue':         Param('Synchronisation mode dependend configuration value', settable=True,
-                           type=float, category='general',  volatile=True),
-        'size':         Param('Detector size', settable=False,
-                           type=list, category='general',  volatile=True),
+        'syncmode':  Param('Synchronisation mode', settable=True,
+                           type=str, category='general', volatile=True),
+        'syncvalue': Param('Synchronisation mode dependend configuration value',
+                           settable=True, type=float, category='general',
+                           volatile=True),
+        'size':      Param('Detector size', settable=False,
+                           type=list, category='general', volatile=True),
     }
 
     def doStart(self):
@@ -78,23 +79,3 @@ class Detector(FRM2Device,  Measurable):
     @usermethod
     def clear(self):
         self._tango_guard(self._dev.clear)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -53,7 +53,8 @@ class TangoDevice(object):
 
     * `.doVersion` (returns TANGO device version)
     * `.doPreinit` (creates the TANGO device from the `tangodevice` parameter)
-    * `.doStatus` (returns status.OK for ON, BUSY for MOVING and RUNNING, ERROR for FAULT and ALARM, UNKNOWN otherwise)
+    * `.doStatus` (returns status.OK for ON, BUSY for MOVING and RUNNING,
+      ERROR for FAULT and ALARM, UNKNOWN otherwise)
     * `.doReset` (resets the TANGO device)
 
     You can however override them and provide your own specialized
@@ -300,4 +301,3 @@ class TangoDevice(object):
                     pass
                 finally:
                     self.__lock.release()
-

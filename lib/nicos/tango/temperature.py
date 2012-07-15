@@ -40,7 +40,8 @@ from nicos.tango.io import AnalogInput,  AnalogOutput
 from nicos.core import status, Param, Readable, Moveable, HasOffset, \
      HasLimits, TimeoutError, NicosError
 
-# BaseTemperatureSensorClient has currently no defined TANGO interface (represented as AI at the moment)
+# BaseTemperatureSensorClient has currently no defined TANGO interface
+# (represented as AI at the moment)
 #class BaseTemperatureSensorClient(BaseInputClient):
 #    pass
 
