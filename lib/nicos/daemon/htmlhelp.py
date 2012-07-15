@@ -79,9 +79,10 @@ class HelpGenerator(object):
     def __init__(self):
         self.header = '<style type="text/css">%s</style>' % STYLE
         self.footer = ''
-        self.strio = StringIO()
+        self.strin = StringIO()
+        self.strout = StringIO()
         self.lock = threading.Lock()
-        self.helper = pydoc.Helper(output=self.strio)
+        self.helper = pydoc.Helper(input=self.strin, output=self.strout)
         self._specialtopics = set(self.helper.topics)
         self._specialtopics.update(self.helper.symbols)
         self._specialtopics.update(self.helper.keywords)
@@ -236,14 +237,14 @@ class HelpGenerator(object):
         # unfortunately the Helper does not output all into its assigned output
         # object, so we need to redirect sys.stdout as well...
         with self.lock:
-            self.strio.truncate(0)
+            self.strout.truncate(0)
             old_stdout = sys.stdout
-            sys.stdout = self.strio
+            sys.stdout = self.strout
             try:
                 self.helper.help(obj)
             finally:
                 sys.stdout = old_stdout
-            ret = self.strio.getvalue()
+            ret = self.strout.getvalue()
         return self.gen_heading('Python help on %r' % obj) + \
             '<pre>' + escape(ret) + '</pre>'
 
