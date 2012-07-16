@@ -84,10 +84,12 @@ class TacoLoggerClient(BaseCacheClient):
             self.log.warning('strange message received: %r' % value)
 
 
+default_cache = os.environ.get('TACOLOGGER_CACHE', 'localhost')
+
 parser = optparse.OptionParser()
 parser.add_option('-c', '--cache', dest='cache', action='store',
-                  help='cache server:port, defaults to localhost',
-                  default='localhost')
+                  help='cache server:port, defaults to %s' % default_cache,
+                  default=default_cache)
 parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
                   help='daemonize the  processes')
 parser.add_option('-C', '--client', dest='client', action='store_true',
