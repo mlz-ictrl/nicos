@@ -919,7 +919,7 @@ class FlatfileCacheDatabase(CacheDatabase):
             cleanonce()
         # mark all entries with TTL as expired so that we do not load expired
         # values as permanent on cache restart
-        self.log.info('shutdown: cleaning remaining entries with ttl')
+        self.log.debug('shutdown: cleaning remaining entries with ttl')
         cleanonce(purge=True)
 
     def tell(self, key, value, time, ttl, from_client, fdupdate=True):
@@ -1014,23 +1014,23 @@ class CacheServer(Device):
                 serversocket.bind((socket.gethostbyname(host), port))
                 if proto == 'tcp':
                     serversocket.listen(50) # max waiting connections....
-                return serversocket
+                return serversocket, (host, port)
             except Exception:
                 serversocket.close()
-                return None             # failed, return None as indicator
+                return None, (host, port)     # failed, return None as indicator
 
         # now try to bind to one, include 'MUST WORK' standalone names
         for server in [self.server, socket.getfqdn(), socket.gethostname()]:
             self.log.debug('trying to bind to ' + server)
-            self._serversocket = bind_to(server)
+            self._serversocket, self._boundto = bind_to(server)
             if self._serversocket:
                 self._boundto = server
                 break             # we had success: exit this loop
 
         # bind UDP broadcast socket
-        self._serversocket_udp = bind_to('', 'udp')
+        self._serversocket_udp = bind_to('', 'udp')[0]
         if self._serversocket_udp:
-            self.log.info('udp-bound to broadcast')
+            self.log.info('UDP bound to broadcast')
 
         if not self._serversocket and not self._serversocket_udp:
             self._stoprequest = True
@@ -1038,9 +1038,9 @@ class CacheServer(Device):
             return
 
         if not self._boundto:
-            self.log.warning('starting main-loop only bound to UDP broadcast')
+            self.log.warning('starting main loop only bound to UDP broadcast')
         else:
-            self.log.info('starting main-loop bound to %s' % self._boundto)
+            self.log.info('TCP bound to %s:%s' % self._boundto)
         # now enter main serving loop
         while not self._stoprequest:
             # loop through connections, first to remove dead ones,
