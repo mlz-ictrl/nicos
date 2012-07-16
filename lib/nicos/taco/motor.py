@@ -30,7 +30,7 @@ __version__ = "$Revision$"
 from Motor import Motor as TACOMotor
 import TACOStates
 
-from nicos.core import status, waitForStatus, Override
+from nicos.core import status, waitForStatus, Param, Override, oneof
 from nicos.abstract import Motor as BaseMotor
 from nicos.taco.core import TacoDevice
 
@@ -40,14 +40,23 @@ class Motor(TacoDevice, BaseMotor):
 
     taco_class = TACOMotor
 
+    parameters = {
+        # do not call deviceReset by default as it does a reference drive
+        'resetcall':  Param('What TACO method to call on reset (deviceInit or '
+                            'deviceReset)', settable=True, default='deviceInit',
+                            type=oneof('deviceInit', 'deviceReset')),
+    }
+
     parameter_overrides = {
         'abslimits':  Override(mandatory=False),
     }
 
     def doReset(self):
-        # do NOT call deviceReset as long as it does a reference drive
         try:
-            self._taco_guard(self._dev.deviceInit)
+            if self.resetcall == 'deviceReset':
+                self._taco_guard(self._dev.deviceReset)
+            else:
+                self._taco_guard(self._dev.deviceInit)
         except Exception:
             pass
         if self._taco_guard(self._dev.isDeviceOff):
