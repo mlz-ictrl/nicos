@@ -338,8 +338,8 @@ class CacheClient(BaseCacheClient):
 
         # the execution master lock needs to be refreshed every now and then
         self._ismaster = False
-        self._master_expires = 0
-        self._mastertimeout = self._selecttimeout * 10
+        self._master_expires = 0.
+        self._mastertimeout = 5.
 
         self._worker.start()
 
