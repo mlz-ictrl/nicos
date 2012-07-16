@@ -26,9 +26,7 @@
 
 __version__ = "$Revision$"
 
-from os import path
-
-from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig, Qt
+from PyQt4.QtCore import SIGNAL, Qt
 from PyQt4.QtGui import QDialogButtonBox, QListWidgetItem
 
 from nicos.gui.panels import Panel
@@ -99,11 +97,10 @@ class SetupPanel(Panel, DlgUtils):
                 args['localcontact'] = local
             if title:
                 args['title'] = title
+            if users:
+                args['user'] = users
             code = 'NewExperiment(%s)\n' % ', '.join('%s=%r' % i
                                                      for i in args.items())
-            if users:
-                code += ''.join('AddUser(%r)\n' % user.strip()
-                                for user in users.split(','))
             self.client.tell('queue', '', code)
         setups = []
         cmd = 'NewSetup'
