@@ -286,7 +286,7 @@ class Cell(Device):
         except Exception, err:
             raise ComputationError('%s when transforming Qlab -> hkl' % err)
 
-    def angle2Qcart(self, angles, coupled):
+    def angle2Qcart(self, angles, coupled=False):
         """Calculate Q cartesian from instrument [ki, kf, phi, psi]."""
         try:
             ki, kf, phi, psi = angles
@@ -307,12 +307,12 @@ class Cell(Device):
             raise ComputationError('%s when transforming angles -> Q cartesian'
                                    % err)
 
-    def angle2hkl(self, angles, coupled):
+    def angle2hkl(self, angles, coupled=False):
         """Calculate hkl Miller indices from instrument [ki, kf, phi, psi]."""
         mat_inv = inv(self._matrix)
         return dot(mat_inv, self.angle2Qcart(angles, coupled))
 
-    def angle2Qlab(self, angles, coupled):
+    def angle2Qlab(self, angles, coupled=False):
         """Calculate Qlab from instrument [ki, kf, phi, psi]."""
         result = dot(self.angle2Qcart(angles, coupled), self._matrix_cardan)
         if abs(result[2]) > 0.001:
@@ -406,13 +406,13 @@ class Cell(Device):
             raise ComputationError('%s when calculating angle between vectors'
                                    % err)
 
-    def cal_phi(self, q, ki, kf, s):
+    def cal_phi(self, q, ki, kf, sense):
         """Return the sample scattering angle."""
         try:
             qabs = norm(q)
             temp = (ki**2 + kf**2 - qabs**2) / (2.0 * ki * kf)
             if -1 <= temp <= 1:
-                phi = arctan2(sqrt(1 - temp**2), temp) * s * R2D
+                phi = arctan2(sqrt(1 - temp**2), temp) * sense * R2D
                 return phi
             else:
                 raise ComputationError('scattering triangle not closed when '
@@ -502,7 +502,7 @@ class Cell(Device):
             psi -= 360
         return psi
 
-    def cal_alpha1(self, Qlab, ny, ki, s):
+    def cal_alpha1(self, Qlab, ny, ki, sense):
         """Calculate the angle alpha (ki, Q) for given Qlab vector, energy
         transfer, incoming wavevector and scattering sense (sample).
         """
@@ -510,7 +510,7 @@ class Cell(Device):
             Qabs = norm(Qlab)
             temp = (Qabs**2 + K * ny) / (2 * Qabs * ki)
             if -1 <= temp < 1:
-                alpha = arctan2(sqrt(1 - temp**2), temp) * s * R2D
+                alpha = arctan2(sqrt(1 - temp**2), temp) * sense * R2D
                 return alpha
             else:
                 raise ComputationError('energy transfer of %s THz not possible;'
@@ -537,19 +537,19 @@ class Cell(Device):
         """
         return (ki**2 - kf**2) / K
 
-    def cal_theta(self, Ei_f, Qhkl, s):
+    def cal_theta(self, Ei_f, Qhkl, sense):
         """Calculate theta for given incoming and outgoing wavevector, hkl and
         scattering sense.
         """
         d = self.cal_dvalue_rec(Qhkl)
         temp = pi / d / Ei_f
         if temp < 1:
-            theta = arcsin(temp) * s * R2D
+            theta = arcsin(temp) * sense * R2D
             return theta
         else:
             raise ComputationError("arcsin > 1 when calculating theta")
 
-    def cal_angles(self, Qhkl, ny, SM, SC, s, coupled, psi360=True):
+    def cal_angles(self, Qhkl, ny, SM, SC, sense, coupled=False, psi360=True):
         """
         Calculate instrument angles for given HKL and energy transfer, for
         a specific scan mode, scan constant and scattering sense.
@@ -579,15 +579,15 @@ class Cell(Device):
             if SM in ['CKI', 'DIFF']:
                 ki = SC
                 kf = self.cal_kf(ny, ki)
-                phi = self.cal_phi(Qlab, ki, kf, s)
-                alpha = self.cal_alpha1(Qlab, ny, ki, s)
+                phi = self.cal_phi(Qlab, ki, kf, sense)
+                alpha = self.cal_alpha1(Qlab, ny, ki, sense)
                 psi = self.cal_psi(Y, alpha)
 
             elif SM == 'CKF':
                 kf = SC
                 ki = self.cal_ki1(ny, kf)
-                phi = self.cal_phi(Qlab, ki, kf, s)
-                alpha = self.cal_alpha1(Qlab, ny, ki, s)
+                phi = self.cal_phi(Qlab, ki, kf, sense)
+                alpha = self.cal_alpha1(Qlab, ny, ki, sense)
                 psi = self.cal_psi(Y, alpha)
 
             elif SM == 'CPSI':
@@ -629,6 +629,8 @@ class Cell(Device):
         except Exception, err:
             raise ComputationError('%s when calculating angles for hkl' % err)
 
+    hkl2angle = cal_angles
+
     def _test(self):
         def TQscan(Qh, Qk, Ql, ny, dQh, dQk, dQl, dny, numsteps, SM, SC, sense):
             Qhkl = array([Qh, Qk, Ql], float)
@@ -651,13 +653,13 @@ class Cell(Device):
         self.orient1 = [1, 1, 0]
         self.orient2 = [-1, 1, 0]
         self.psi0 = -0.0
-        s = 1
+        sense = 1
         print '## CKI'
-        TQscan(1,   1, 0, 1,  0.005, 0.005, 0, 0,   21, 'CKI',  2.662, s)
+        TQscan(1,   1, 0, 1,  0.005, 0.005, 0, 0,   21, 'CKI',  2.662, sense)
         print '## CKF'
-        TQscan(1,   1, 0, 1,  0.005, 0.005, 0, 0,   21, 'CKF',  2.662, s)
+        TQscan(1,   1, 0, 1,  0.005, 0.005, 0, 0,   21, 'CKF',  2.662, sense)
         print '## CPHI'
-        TQscan(1.5, 1, 0, 5,  0,     0,     0, 0.1, 21, 'CPHI', 30,    s)
+        TQscan(1.5, 1, 0, 5,  0,     0,     0, 0.1, 21, 'CPHI', 30,    sense)
 
 
 class TASSample(Sample, Cell):
