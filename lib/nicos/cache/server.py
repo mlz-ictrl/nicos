@@ -753,7 +753,7 @@ class FlatfileCacheDatabase(CacheDatabase):
 
     def _rollover(self):
         """Must be called with self._cat_lock held."""
-        self.log.debug('ROLLOVER started')
+        self.log.info('midnight passed, data file rollover started')
         ltime = localtime()
         # set the days and midnight time correctly
         self._year = str(ltime[0])
@@ -919,7 +919,7 @@ class FlatfileCacheDatabase(CacheDatabase):
             cleanonce()
         # mark all entries with TTL as expired so that we do not load expired
         # values as permanent on cache restart
-        self.log.debug('shutdown: cleaning remaining entries with ttl')
+        self.log.info('shutdown: cleaning remaining entries with ttl')
         cleanonce(purge=True)
 
     def tell(self, key, value, time, ttl, from_client, fdupdate=True):
