@@ -90,6 +90,7 @@ class Poller(Device):
                 interval = 3600
             errcount = 0
             i = 0
+            stval, rdval = None, None
             while not self._stoprequest:
                 i += 1
                 try:
