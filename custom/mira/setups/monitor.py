@@ -53,8 +53,10 @@ _column1 = [
     ], 'mieze'),
 #    ('X-Z table axes', [[{'dev': 'mx'}, {'dev': 'my'}]], 'gauss'),
     ('TAS', [
-        [{'dev': 'mira', 'name': 'H', 'item': 0, 'format': '%.3f', 'unit': ' '}, {'dev': 'mira', 'name': 'K', 'item': 1, 'format': '%.3f', 'unit': ' '},
-         {'dev': 'mira', 'name': 'L', 'item': 2, 'format': '%.3f', 'unit': ' '}, {'dev': 'mira', 'name': 'E', 'item': 3, 'format': '%.3f', 'unit': ' '}],
+        [{'dev': 'mira', 'name': 'H', 'item': 0, 'format': '%.3f', 'unit': ' '},
+         {'dev': 'mira', 'name': 'K', 'item': 1, 'format': '%.3f', 'unit': ' '},
+         {'dev': 'mira', 'name': 'L', 'item': 2, 'format': '%.3f', 'unit': ' '},
+         {'dev': 'mira', 'name': 'E', 'item': 3, 'format': '%.3f', 'unit': ' '}],
         [{'key': 'mira/scanmode', 'name': 'Mode'},
          {'dev': 'mono', 'name': 'ki'}, {'dev': 'ana', 'name': 'kf'}, {'key': 'mira/energytransferunit', 'name': 'Unit'},],
     ], 'tas'),
@@ -110,11 +112,9 @@ _column3 = [
 ]
 
 _warnings = [
-    ('psdgas/value', '== "empty"', 'Change detector counting gas'),
-    ('TBe/value', '> 70', 'Check Be filter temperature'),
-    ('sixfold/value', '== "closed"', 'Six-fold shutter closed'),
-#    ('freq3/value', '> 9', 'freq3 under frequency', 'mieze'),
-#    ('freq4/value', '< 10', 'freq4 under frequency'),
+#    ('psdgas/value', '== "empty"', 'Change detector counting gas'),
+#    ('TBe/value', '> 70', 'Check Be filter temperature'),
+#    ('sixfold/value', '== "closed"', 'Six-fold shutter closed'),
 ]
 
 devices = dict(
