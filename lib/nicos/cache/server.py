@@ -1024,7 +1024,6 @@ class CacheServer(Device):
             self.log.debug('trying to bind to ' + server)
             self._serversocket, self._boundto = bind_to(server)
             if self._serversocket:
-                self._boundto = server
                 break             # we had success: exit this loop
 
         # bind UDP broadcast socket
