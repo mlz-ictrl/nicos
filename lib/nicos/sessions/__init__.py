@@ -542,7 +542,10 @@ class Session(object):
         """Shut down the session: unload the setup and give up master mode."""
         if self._mode == 'master' and self.cache:
             self.cache._ismaster = False
-            self.cache.unlock('master')
+            try:
+                self.cache.unlock('master')
+            except CacheError:
+                self.log.warning('could not release master lock', exc=1)
         self.unloadSetup()
 
     def export(self, name, obj):

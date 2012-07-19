@@ -36,24 +36,30 @@ _expcolumn = [
 ]
 
 _axisblock = (
-    'Axis devices',
-    [['a1', 'm1', 'c1'],
-     ['a2', 'm2']],
-    'misc')  # this is the name of a setup that must be loaded in the
-             # NICOS master instance for this block to be displayed
+    'Axes',
+    [['mth', 'mtt'],
+     ['psi', 'phi'],
+     ['ath', 'att']],
+    'tas')  # this is the name of a setup that must be loaded in the
+            # NICOS master instance for this block to be displayed
 
 _detectorblock = (
-    'Detector devices',
+    'Detector',
     [[{'name': 'timer', 'dev': 'timer'},
       {'name': 'ctr1', 'dev': 'ctr1', 'min': 100, 'max': 500},
       {'name': 'ctr2', 'dev': 'ctr2'}]],
     'detector')
 
-_otherblock = (
-    'Other devices',
-    [[{'dev': 'slit', 'width': 20, 'name': 'Slit'}],
-     [{'dev': 'sw', 'width': 4, 'name': 'Switcher'}]],
-    'misc')
+_tasblock = (
+    'Triple-axis',
+    [[{'dev': 'tas', 'name': 'H', 'item': 0, 'format': '%.3f', 'unit': ' '},
+      {'dev': 'tas', 'name': 'K', 'item': 1, 'format': '%.3f', 'unit': ' '},
+      {'dev': 'tas', 'name': 'L', 'item': 2, 'format': '%.3f', 'unit': ' '},
+      {'dev': 'tas', 'name': 'E', 'item': 3, 'format': '%.3f', 'unit': ' '}],
+     [{'key': 'tas/scanmode', 'name': 'Mode'},
+      {'dev': 'mono', 'name': 'ki'}, {'dev': 'ana', 'name': 'kf'},
+      {'key': 'tas/energytransferunit', 'name': 'Unit'},],
+    ], 'tas')
 
 _rightcolumn = [
     _axisblock,
@@ -61,11 +67,10 @@ _rightcolumn = [
 ]
 
 _leftcolumn = [
-    _otherblock,
+    _tasblock,
 ]
 
 _warnings = [
-    ('a1/value', '> 20', 'a1 value > 20'),
 ]
 
 devices = dict(
