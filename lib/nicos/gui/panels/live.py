@@ -297,6 +297,7 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
         self.curve.setData(xs, ys)
         self.plot.setAxisAutoScale(QwtPlot.xBottom)
         self.plot.setAxisAutoScale(QwtPlot.yLeft)
+        self.marker.setVisible(False)
         self.zoomer.setZoomBase(True)
         self._type = type
         if type == 0:
@@ -313,18 +314,22 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
             return
         self._retrieve_detinfo()
         index = self.curve.closestPoint(self.picker.transform(point))[0]
-        detentry = self._inv_anglemap[index]
+        detentry = self._inv_anglemap[index][:]
+        detentry.append(self._xs[index])
+        detentry.append(self._ys[index])
         self.marker.setXValue(self._xs[index])
         self.marker.setYValue(self._ys[index])
+        self.marker.setVisible(True)
         self.plot.replot()
         self._infowindow.show()
         entrynames = [
             'EntryNr', 'Rack', 'Plate', 'Pos', 'RPos',
             '2Theta', 'CableNr', 'CableType', 'CableLen', 'CableEmpty',
-            'Card', 'Chan', 'Total', 'DetName', 'BoxNr', 'BoxChan']
+            'Card', 'Chan', 'Total', 'DetName', 'BoxNr', 'BoxChan',
+            'XValue', 'Counts']
         formats = ['%s', '%d', '%d', '%d', '%d', '%.3f', '%d', '%d', '%.2f',
-                   '%d', '%d', '%d', '%d', '%r', '%d', '%d']
-        empties = [1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0]
+                   '%d', '%d', '%d', '%d', '%r', '%d', '%d', '%s', '%d']
+        empties = [1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0]
         self._infolabel.setText(
             'Detector info:<br><table>' +
             ''.join('<tr><td>%s</td><td></td><td>%s</td></tr>%s' %
