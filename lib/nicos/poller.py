@@ -69,7 +69,7 @@ class Poller(Device):
         while currenttime() < te:
             if self._stoprequest:
                 return
-            sleep(5)
+            sleep(1)
 
     def _worker_thread(self, devname, event):
         state = ['unused']
