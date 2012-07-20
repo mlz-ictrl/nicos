@@ -27,18 +27,49 @@
 #include "lw_controls.h"
 
 
+static double *integrate_x(LWData *data)
+{
+    int h = data->height();
+    double *dest = new double[h*data->width()];
+    for (int x = 0; x < data->width(); x++) {
+        for (int y = 0; y < h; y++)
+            dest[h*x+y] = data->value(x, y);
+    }
+    return dest;
+}
+
+static double *integrate_y(LWData *data)
+{
+    int w = data->width();
+    double *dest = new double[w*data->height()];
+    for (int y = 0; y < data->height(); y++) {
+        for (int x = 0; x < w; x++)
+            dest[w*y+x] = data->value(x, y);
+    }
+    return dest;
+}
+
 /* Uses the "rotation by area mapping" as implemented by leptonica.com */
 
 static double *straightenLine(LWData *data, int x1, int y1, int x2, int y2,
                               int lw, int *npixels)
 {
+    if (x1 == 0 && x2 == data->width() && lw == data->height()) {
+        *npixels = data->width();
+        return integrate_y(data);
+    }
+    if (y1 == 0 && y2 == data->height() && lw == data->width()) {
+        *npixels = data->height();
+        return integrate_x(data);
+    }
+
     double angle = - atan2(y2 - y1, x2 - x1);
     double len = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
     int width = *npixels = (int)(len + 0.5);
     int height = lw;
     double *dest = new double[width * height];
     data_t xpm, ypm, xp, yp, xf, yf;
-    double v00, v01, v10, v11;
+    data_t v00, v01, v10, v11;
 
     double sina = 16. * sin(angle);
     double cosa = 16. * cos(angle);
@@ -56,11 +87,11 @@ static double *straightenLine(LWData *data, int x1, int y1, int x2, int y2,
             yf = ypm & 0xF;
 
             // area weighting
-            v00 = (16. - xf) * (16. - yf) * data->value(xp, yp);
-            v10 = xf * (16. - yf) * data->value(xp + 1, yp);
-            v01 = (16. - xf) * yf * data->value(xp, yp + 1);
-            v11 = xf * yf * data->value(xp + 1, yp + 1);
-            dest[y * width + x] = (v00 + v01 + v10 + v11 + 128.) / 256.;
+            v00 = (16 - xf) * (16 - yf) * (long)data->value(xp, yp);
+            v10 = xf * (16 - yf) * (long)data->value(xp + 1, yp);
+            v01 = (16 - xf) * yf * (long)data->value(xp, yp + 1);
+            v11 = xf * yf * (long)data->value(xp + 1, yp + 1);
+            dest[y * width + x] = (v00 + v01 + v10 + v11 + 128) / 256;
         }
     }
     return dest;
