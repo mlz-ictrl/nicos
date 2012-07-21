@@ -329,7 +329,8 @@ class ScansPanel(Panel):
         descr = str(newdlg.description.text())
         fname = str(newdlg.filename.text())
         pathname = self.currentPlot.savePng()
-        remotefn = self.client.ask('transfer', open(pathname, 'rb').read())
+        remotefn = self.client.ask('transfer',
+                        open(pathname, 'rb').read().encode('base64'))
         self.client.ask('eval', 'LogAttach(%r, [%r], [%r])' %
                         (descr, remotefn, fname))
 

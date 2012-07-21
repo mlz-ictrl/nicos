@@ -384,7 +384,7 @@ class MainWindow(QMainWindow, DlgUtils):
     def on_client_error(self, problem, exc=None):
         if exc is not None:
             print 'Exception:', exc
-        problem = time.strftime('[%m-%d %H:%M:%S] ' + problem)
+        problem = time.strftime('[%m-%d %H:%M:%S] ') + problem
         if self.errorWindow is None:
             self.errorWindow = QDialog(self)
             def reset_errorWindow():

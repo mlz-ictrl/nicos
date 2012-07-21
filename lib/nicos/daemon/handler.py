@@ -560,9 +560,9 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command()
     def transfer(self, content):
-        """Transfer a file to the server."""
+        """Transfer a file to the server, encoded in base64."""
         fd, filename = tempfile.mkstemp(prefix='nicos')
-        os.write(fd, content)
+        os.write(fd, content.decode('base64'))
         self.write(STX, serialize(filename))
 
     @command(needcontrol=True)

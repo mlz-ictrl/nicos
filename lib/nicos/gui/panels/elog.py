@@ -164,7 +164,8 @@ class ELogPanel(Panel, DlgUtils):
             newname = path.basename(fname)
         desc = str(self.fileDesc.text())
         filecontent = open(fname, 'rb').read()
-        remotefn = self.client.ask('transfer', filecontent)
+        # file content may contain \x1e characters; encode to base64
+        remotefn = self.client.ask('transfer', filecontent.encode('base64'))
         self.client.ask('eval', 'LogAttach(%r, [%r], [%r])' %
                         (desc, remotefn, newname))
         self.fileName.setFocus()
