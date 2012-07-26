@@ -286,7 +286,7 @@ class Experiment(Device):
         all_created = True
         for detname in self.detlist:
             try:
-                det = session.getDevice(detname)
+                det = session.getDevice(detname, source=self)
             except Exception:
                 self.log.warning('could not create %r detector device' %
                                  detname, exc=1)
@@ -326,10 +326,10 @@ class Experiment(Device):
             try:
                 if ':' in devname:
                     devname, stat = devname.split(':')
-                    dev = session.getDevice(devname)
+                    dev = session.getDevice(devname, source=self)
                     dev = DevStatistics.subclasses[stat](dev)
                 else:
-                    dev = session.getDevice(devname)
+                    dev = session.getDevice(devname, source=self)
             except Exception:
                 self.log.warning('could not create %r environment device' %
                                  devname, exc=1)

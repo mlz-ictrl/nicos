@@ -695,7 +695,7 @@ class Session(object):
         """Mark the end of a multi-create."""
         self._failed_devices = None
 
-    def getDevice(self, dev, cls=None):
+    def getDevice(self, dev, cls=None, source=None):
         """Return a device *dev* from the current setup.
 
         If *dev* is a string, the corresponding device will be looked up or
@@ -710,16 +710,17 @@ class Session(object):
             elif dev in self.configured_devices:
                 dev = self.createDevice(dev)
             else:
-                raise ConfigurationError(
+                raise ConfigurationError(source,
                     'device %r not found in configuration' % dev)
         if not isinstance(dev, cls or Device):
             def clsrep(cls):
                 if isinstance(cls, tuple):
-                    return ' ,'.join(clsrep(c) for c in cls)
+                    return ', '.join(clsrep(c) for c in cls)
                 return cls.__name__
             if isinstance(cls, tuple):
-                raise UsageError('device must be one of %s' % clsrep(cls))
-            raise UsageError('device must be a %s' % (cls or Device).__name__)
+                raise UsageError(source, 'device must be one of %s' % clsrep(cls))
+            raise UsageError(source,
+                             'device must be a %s' % (cls or Device).__name__)
         return dev
 
     def createDevice(self, devname, recreate=False, explicit=False):
