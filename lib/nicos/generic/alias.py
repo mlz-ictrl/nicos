@@ -27,7 +27,7 @@
 __version__ = "$Revision$"
 
 from nicos import session
-from nicos.core import Device, Param, ConfigurationError
+from nicos.core import Device, Param, ConfigurationError, none_or
 
 
 class NoDevice(object):
@@ -66,7 +66,7 @@ class DeviceAlias(Device):
     """
 
     parameters = {
-        'alias':  Param('Device to alias', type=str, settable=True),
+        'alias':  Param('Device to alias', type=none_or(str), settable=True),
     }
 
     _ownattrs = ['_obj', '_mode', 'alias']
