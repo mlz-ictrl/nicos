@@ -632,6 +632,8 @@ class Session(object):
             # confuse users
             if command.startswith('.'):
                 parts = command[1:].split()
+                if not parts:
+                    return compiler('read()')
                 base = parts[0]
                 if base in self._exported_names:
                     if hasattr(self.namespace[base], 'is_usercommand'):
