@@ -372,12 +372,14 @@ class Axis(BaseAxis):
         self._lastdiff = abs(target - self.read(0))
         self._adevs['motor'].start(target + offset)
         moving = True
+        stoptries = 0
 
         while moving:
             if self._stoprequest == 1:
                 self.log.debug('stopping motor')
                 self._adevs['motor'].stop()
                 self._stoprequest = 2
+                stoptries = 10
                 continue
             sleep(self.loopdelay)
             # poll accurate current values and status of child devices so that
@@ -442,3 +444,10 @@ class Axis(BaseAxis):
                     self._setErrorState(MoveError,
                                         'error in during-move action: %s' % err)
                     self._stoprequest = 1
+            elif self._stoprequest == 2:
+                # motor should stop, but does not want to?
+                stoptries -= 1
+                if stoptries < 0:
+                    self._setErrorState(MoveError,
+                        'motor did not stop after stop request, aborting')
+                    moving = False
