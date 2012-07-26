@@ -26,15 +26,12 @@
 
 from __future__ import with_statement
 
-from nicos import session
 from nicos.core import UsageError
 
 from nicos.commands.utility import RangeListByStep, RangeListByCount, RangeListLog, \
-     floatrange
-from nicos.commands.output import printdebug, printinfo, printwarning, \
-     printerror, printexception
+     floatrange, RangeListGeneral
 
-from test.utils import ErrorLogged, raises, assertAlmostEqual
+from test.utils import raises, assertAlmostEqual
 
 import numpy
 
@@ -43,7 +40,7 @@ def setup_module():
 def teardown_module():
     pass
 
-def test_list_commands():
+def test_rangelistbystep():
     # start/stop/step
     l1 = RangeListByStep(1, 2, 0.5)
     assert len(l1) == 3
@@ -85,6 +82,7 @@ def test_list_commands():
     assert raises(UsageError, RangeListByStep, 1 , 2, -0.5)
     assert raises(UsageError, RangeListByStep, 1 , 2, 0)
 
+def test_rangelistbycounts():
     # start/stop/num
     l2 = RangeListByCount(1, 2, 3)
     assert len(l2) == 3
@@ -103,6 +101,7 @@ def test_list_commands():
     assert l2a[0] == 0.
     assert l2a[-1] == 3.
 
+def test_floatrange():
     l4 = floatrange(1, 2, step=0.5)
     assert len(l4) == 3
     assert l4[0] == 1.
@@ -117,6 +116,7 @@ def test_list_commands():
     assert type(l4[0]) == numpy.float64
     assert type(l4[-1]) == numpy.float64
 
+def test_rangelistlog():
     l3 = RangeListLog(1., 2., 3)
     print l3
     assert len (l3) == 3
@@ -137,3 +137,10 @@ def test_list_commands():
     assertAlmostEqual(l3b[-1], 2., 5)
 
     assert raises(UsageError, RangeListLog, -1, 2, 10)
+
+def test_rangelistgeneral():
+    l1 = RangeListGeneral(1,2,5)
+    assert len(l1) == 5
+    l2 = RangeListGeneral(1, 2, 10, lambda (x): 1/x)
+    assert len(l2) == 10
+    assert numpy.allclose(l2, [1.0, 1.05882352941, 1.125, 1.2, 1.28571428571, 1.38461538462, 1.5, 1.63636363636, 1.8, 2.0])
