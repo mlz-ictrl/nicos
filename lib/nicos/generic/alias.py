@@ -27,7 +27,7 @@
 __version__ = "$Revision$"
 
 from nicos import session
-from nicos.core import Device, Param, ConfigurationError, none_or
+from nicos.core import Device, Param, ConfigurationError, NicosError, none_or
 
 
 class NoDevice(object):
@@ -78,7 +78,10 @@ class DeviceAlias(Device):
             if self._cache:
                 self._cache.unsetRewrite(str(self))
         else:
-            self._obj = session.getDevice(devname)
+            newdev = session.getDevice(devname, (Device, DeviceAlias))
+            if newdev is self:
+                raise NicosError(self, 'cannot set alias pointing to itself')
+            self._obj = newdev
             if self._cache:
                 self._cache.setRewrite(str(self), devname)
 
