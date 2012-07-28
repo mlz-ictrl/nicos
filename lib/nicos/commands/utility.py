@@ -23,21 +23,22 @@
 #
 # *****************************************************************************
 
-"""Module for utility user commands.
+"""
+Module for utility user commands.
 
-    This module contains utility functions that are of general
-    interesst for user scripts, e.g different list generators
-    and other helper functions.
+This module contains utility functions that are of general interesst for user
+scripts, e.g different list generators and other helper functions.
 """
 
 from __future__ import with_statement
 
-
-
 import math
+
 import numpy
+
 from nicos.core import UsageError
 from nicos.commands import usercommand, helparglist
+
 
 def RangeListByStep(start, end=None, inc=None):
     """Generate a list of points within [from;to]
@@ -77,11 +78,12 @@ def RangeListByStep(start, end=None, inc=None):
 
     return res
 
+
 def RangeListByCount(start, end=None, num=2):
-    """Generate a list of points within [from;to] with num points
+    """Generate a list of points within [from;to] with num points.
 
      A range function, that gives evenly spaced points.
-     Uses simply the numpy.linspace function
+     Uses simply the numpy.linspace function.
 
      usage example:
      l1 = RangeList(1,2,3)
@@ -92,22 +94,27 @@ def RangeListByCount(start, end=None, num=2):
         end , start = start, 0.0
     return numpy.linspace(start, end, num)
 
+
 @usercommand
-@helparglist('start, end, [step | num]')
+@helparglist('start, end, [step | num=n]')
 def floatrange(start, end, step=None, **kw):
-    """ Generate a linear range of values
+    """Generate a linear range of values.
 
-    Generate a linear range of values from start to end,
-    with either a specified step width or number of values
+    Generate a linear range of values from *start* to *end*, with either a
+    specified step width or number of values.
 
-    start, end are the start- and end values
-    step is the stpewidth and shall always be positive
-    num is the number of values desired
+    *start* and *end* are the start and end values and always included.  *step*
+    is the stpewidth and should always be positive; *num* is the number of
+    values desired.
 
     Examples:
-    floatrange(1,2,step = 0.1) = [1, 1.1, 1.2 ... 1.9, 2.0]
-    floatrange(2,1,step = 0.1) = [2, 1.9, 1.8 ... 1.1, 1.0]
-    floatrange(1,2,num = 3) = [1, 1.5, 2]
+
+    >>> floatrange(1, 2, step=0.1)
+    [1.0, 1.1, 1.2 ... 1.9, 2.0]
+    >>> floatrange(2, 1, step=0.1)
+    [2.0, 1.9, 1.8 ... 1.1, 1.0]
+    >>> floatrange(1, 2, num=3)
+    [1.0, 1.5, 2.0]
     """
     start = float(start)
     end = float(end)
@@ -127,17 +134,17 @@ def floatrange(start, end, step=None, **kw):
             raise UsageError('The number of steps should be greater than 1.')
         return RangeListByCount(start, end, num)
 
+
 @usercommand
 def RangeListLog(start, end, num=10):
-    """ Generate a log spaced list with specified number of steps
+    """ Generate a log spaced list with specified number of steps.
 
     Example:
-        l3 = RangeListLog(1., 2., 3)
-        l3 is [1.0, 1.4142135623730949, 2.0]
+
+    >>> RangeListLog(1., 2., 3)
+    [1.0, 1.4142135623730949, 2.0]
     """
     if start < 0 or end < 0:
         raise UsageError('Log spacing is only defined for positive values')
 
-
-    res = numpy.logspace(math.log10(start), math.log10(end), num)
-    return res
+    return numpy.logspace(math.log10(start), math.log10(end), num)
