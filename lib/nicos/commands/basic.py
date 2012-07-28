@@ -246,7 +246,7 @@ def _Restart():
     """Restart the NICOS process.  Use with caution."""
     import atexit, signal
     @atexit.register
-    def reload():#pylint: disable=W0622,w0612
+    def restart_nicos():
         os.execv(sys.executable, [sys.executable] + sys.argv)
     os.kill(os.getpid(), signal.SIGTERM)
 
