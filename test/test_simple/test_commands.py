@@ -32,7 +32,8 @@ from nicos.core import UsageError, LimitError, ModeError
 from nicos.commands.measure import count
 from nicos.commands.device import move, maw
 from nicos.commands.scan import scan
-from nicos.commands.basic import help, dir, listcommands, sleep, \
+from nicos.commands.basic import help, dir #pylint: disable=W0622
+from nicos.commands.basic import listcommands, sleep, \
      NewSetup, AddSetup, RemoveSetup, ListSetups, \
      CreateDevice, DestroyDevice, CreateAllDevices, \
      NewExperiment, FinishExperiment, AddUser, NewSample, \
@@ -41,7 +42,6 @@ from nicos.commands.output import printdebug, printinfo, printwarning, \
      printerror, printexception
 
 from test.utils import ErrorLogged, raises
-
 
 def setup_module():
     session.loadSetup('axis')

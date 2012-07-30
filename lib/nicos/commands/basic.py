@@ -53,7 +53,7 @@ CO_DIVISION = 0x2000
 
 @usercommand
 @helparglist('[object]')
-def help(obj=None):
+def help(obj=None): #pylint: disable=W0622
     """Show help for a command, for a device or for any other object.
 
     For commands, the command help and usage will be shown.  For devices, the
@@ -74,7 +74,7 @@ __builtin__.__orig_dir = __builtin__.dir
 
 @hiddenusercommand
 @helparglist('[object]')
-def dir(obj=None):
+def dir(obj=None): #pylint: disable=W0622
     """Show all public attributes for the given object."""
     if obj is None:
         return sorted(sys._getframe(2).f_locals)
@@ -246,7 +246,7 @@ def _Restart():
     """Restart the NICOS process.  Use with caution."""
     import atexit, signal
     @atexit.register
-    def reload():
+    def restart_nicos():
         os.execv(sys.executable, [sys.executable] + sys.argv)
     os.kill(os.getpid(), signal.SIGTERM)
 
