@@ -26,7 +26,7 @@
 """
 Module for utility user commands.
 
-This module contains utility functions that are of general interesst for user
+This module contains utility functions that are of general interest for user
 scripts, e.g different list generators and other helper functions.
 """
 
@@ -137,7 +137,7 @@ def floatrange(start, end, step=None, **kw):
 
 @usercommand
 def RangeListLog(start, end, num=10):
-    """ Generate a log spaced list with specified number of steps.
+    """Generate a log spaced list with specified number of steps.
 
     Example:
 
@@ -151,31 +151,30 @@ def RangeListLog(start, end, num=10):
 
 
 def identity(x):
-    ''' Identity function '''
+    """Identity function."""
     return x
 
 @usercommand
-def RangeListGeneral(start, end, num=10, func = identity, funcinv = None):
-    ''' Generate a list spaced evenly in arbitrary functions
+def RangeListGeneral(start, end, num=10, func=identity, funcinv=None):
+    """Generate a list spaced evenly in arbitrary functions.
 
-    func: a function taking one argument for the values should be spaced evenly,
-          can also be a lambda function.
-    funcinv: the inverse function to func, can be omitted if identical to func
+    *func* is a function taking one argument for the values should be spaced
+    evenly, can also be a lambda function.  *funcinv* is the inverse function
+    to *func*, can be omitted if identical to *func*.
 
-    his function does less error checking  and will raise an error on wrong
+    This function does less error checking and will raise an error on wrong
     input values (e.g. outside the domain of the used function)
 
-
     Examples:
-     evenly spaced points on a sine
-     x=RangeListGeneral(0,math.pi/2,5,math.sin,math.asin)
-         [0.0 0.252680255142 0.523598775598 0.848062078981 1.57079632679]
-     evenly spaced in 1/x:
-     x=RangeListGeneral(1,100,10,lambda(x):1/x)
-        [1.0 1.12359550562 1.28205128205 1.49253731343 1.78571428571
-         2.22222222222 2.94117647059 4.34782608696 8.33333333333 100.0]
 
-    '''
+    >>> RangeListGeneral(0, math.pi/2, 5, math.sin, math.asin)
+    # evenly spaced points on a sine
+    [0.0 0.252680255142 0.523598775598 0.848062078981 1.57079632679]
+    >>> RangeListGeneral(1, 100, 10, lambda x: 1/x)
+    # evenly spaced in 1/x
+    [1.0 1.12359550562 1.28205128205 1.49253731343 1.78571428571
+     2.22222222222 2.94117647059 4.34782608696 8.33333333333 100.0]
+    """
     start = float(start)
     end = float(end)
     try:
@@ -185,7 +184,6 @@ def RangeListGeneral(start, end, num=10, func = identity, funcinv = None):
         if funcinv is None:
             funcinv = func
         ufuncinv = numpy.frompyfunc(funcinv,1,1)
-        res = ufuncinv(res).astype(numpy.float64)
-        return res
+        return ufuncinv(res).astype(numpy.float64)
     except Exception, e:
         raise RuntimeError(str(e))
