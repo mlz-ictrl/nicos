@@ -68,5 +68,8 @@ default_profile_config = ('Default', [
         tool('MIRA Wiki',
              'nicos.gui.tools.website.WebsiteTool',
              url='http://mira2.mira.frm2:8080/'),
+        tool('Phone database',
+             'nicos.gui.tools.website.WebsiteTool',
+             url='http://www.frm2.tum.de/intern/funktionen/phonedb/index.html'),
     ]
 )
