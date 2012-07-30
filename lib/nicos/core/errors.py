@@ -60,9 +60,12 @@ class NicosError(Exception):
     def __init__(self, *args, **kwds):
         # store the originating device on the exception
         args = list(args)
-        if args and args[0] and not isinstance(args[0], basestring):
-            self.device = args[0]
-            args[0] = '[%s] ' % args[0].name
+        if args:
+            if args[0] is None:
+                del args[0]
+            elif not isinstance(args[0], basestring):
+                self.device = args[0]
+                args[0] = '[%s] ' % args[0].name
         if kwds and kwds.has_key('wikicode'):
             self.wikiinfo = kwds['wikicode']
             args.append('\nAdditional information: %s%d' %
