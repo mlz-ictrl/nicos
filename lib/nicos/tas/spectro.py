@@ -216,16 +216,17 @@ class TAS(Instrument, Moveable):
             return
         if not printout:
             return angles
+        ok, why = True, ''
         for devname, value in zip(['mono', 'ana', 'phi', 'psi'], angles[:4]):
             dev = self._adevs[devname]
             if isinstance(dev, Monochromator):
-                ok, why = dev._allowedInvAng(value)
+                devok, devwhy = dev._allowedInvAng(value)
             else:
-                ok, why = dev.isAllowed(value)
-            if not ok:
-                why = 'target position %s %s outside limits for %s: %s' % \
-                    (dev.format(value), dev.unit, dev, why)
-                break
+                devok, devwhy = dev.isAllowed(value)
+            if not devok:
+                ok = False
+                why += 'target position %s %s outside limits for %s: %s -- ' % \
+                    (dev.format(value), dev.unit, dev, devwhy)
         self._last_calpos = pos
         self.log.info('ki:            %8.3f A-1' % angles[0])
         self.log.info('kf:            %8.3f A-1' % angles[1])
@@ -234,7 +235,7 @@ class TAS(Instrument, Moveable):
         if ok:
             self.log.info('position allowed')
         else:
-            self.log.warning('position not allowed: ' + why)
+            self.log.warning('position not allowed: ' + why[:-4])
 
     def _calhkl(self, angles):
         return self._adevs['cell'].angle2hkl(angles, self.axiscoupling)
