@@ -31,4 +31,19 @@ devices = dict(
                       pollinterval = 30,
                       maxage = 60,
                       tacodevice = '//tacodb/frm2/shutter/sixfold'),
+
+    ColdSrc  = device('nicos.taco.AnalogInput',
+                      tacodevice = '//tacodb/frm2/coldsource/temp',
+                      pollinterval = 30,
+                      maxage = 120),
+
+    FAK40Cap = device('nicos.taco.AnalogInput',
+                      tacodevice = '//tacodb/frm2/fak40/capacity',
+                      pollinterval = 30,
+                      maxage = 120),
+
+    FAK40P   = device('nicos.taco.AnalogInput',
+                      tacodevice = '//tacodb/frm2/fak40/pressure',
+                      pollinterval = 30,
+                      maxage = 120),
 )

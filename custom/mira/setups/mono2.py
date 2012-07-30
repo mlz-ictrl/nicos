@@ -1,7 +1,7 @@
 description = 'MIRA2 monochromator'
 group = 'lowlevel'
 
-includes = ['base']
+includes = ['base', 'mslit2']
 
 devices = dict(
     m2tt     = device('nicos.taco.HoveringAxis',
@@ -52,7 +52,8 @@ devices = dict(
     PBe      = device('nicos.mira.varian.VarianPump',
                       description = 'Be filter pressure',
                       tacodevice = 'mira/network/rs10_3',
-                      fmtstr = '%.2g'),
+                      fmtstr = '%.2g',
+                      unit = 'mbar'),
     TBe      = device('nicos.taco.TemperatureSensor',
                       description = 'Sensor D: Be filter temperature',
                       tacodevice = 'mira/ls340/d',

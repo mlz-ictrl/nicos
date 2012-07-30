@@ -2,9 +2,8 @@ description = 'IPC slit inside mono1 shielding'
 group = 'optional'
 
 devices = dict(
-    ms1bus    = device('nicos.ipc.IPCModBusTCP',
-                       host = 'mirars7.mira.frm2',
-                       port = 4001,
+    ms1bus    = device('nicos.ipc.IPCModBusTacoSerial',
+                       tacodevice = 'mira/network/rs7_1',
                        lowlevel = True),
 
     ms1_l_mot = device('nicos.ipc.SlitMotor',

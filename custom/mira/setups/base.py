@@ -39,7 +39,7 @@ devices = dict(
                        addr = 241,
                        channel = 3,
                        states = ['in', 'out']),
-    slit0     = device('nicos.mira.toni.Valve',
+    ms2pos    = device('nicos.mira.toni.Valve',
                        bus = 'MonoToni',
                        addr = 241,
                        channel = 5,
@@ -49,6 +49,12 @@ devices = dict(
                        tacodevice = 'mira/io/in_unused',
                        output = 'mira/io/closeshutter',
                        mapping = {0: 'closed', 1: 'open'}),
+
+    Cooling   = device('nicos.taco.NamedDigitalInput',
+                       mapping = {0: 'refill', 1: 'okay'},
+                       pollinterval = 10,
+                       maxage = 30,
+                       tacodevice = 'mira/io/cooling'),
 
     # LeckToni  = device('nicos.mira.toni.ModBus',
     #                    tacodevice = 'mira/rs232/lecktoni',

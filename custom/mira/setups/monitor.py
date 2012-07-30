@@ -23,13 +23,15 @@ _column1 = [
          {'dev': 'MonHV', 'name': 'Mon HV', 'min': 490, 'width': 5},
          {'dev': 'DetHV', 'name': 'Det HV', 'min': 840, 'width': 5}],
         ],
-     'detector'),
+     '!cascade'),
     ('Cascade', [
         [{'key': 'psd/lastcounts', 'name': 'ROI', 'item': 0, 'width': 9},
          {'key': 'psd/lastcounts', 'name': 'Total', 'item': 1, 'width': 9},
          {'key': 'psd/lastfilenumber', 'name': 'Last image'}],
-        [{'dev': 'PSDGas', 'name': 'Gas', 'min': 'okay'},
-         {'dev': 'PSDHV', 'name': 'HV', 'max': -2800, 'width': 6},
+        ['timer', 'mon1', 'mon2'],
+        [{'dev': 'MonHV', 'name': 'Mon HV', 'min': 490, 'width': 5},
+         {'dev': 'PSDGas', 'name': 'Gas', 'min': 'okay', 'width': 6},
+         {'dev': 'PSDHV', 'name': 'HV', 'max': -2800, 'width': 5},
          {'dev': 'dtx', 'name': 'dtx'},
          ]
         ],
@@ -40,16 +42,13 @@ _column1 = [
         ],
      'helios'),
     ('MIEZE', [
-        [{'dev': 'freq1', 'name': 'freq1'}, {'dev': 'freq2', 'name': 'freq2'}],
-        [{'dev': 'amp1', 'name': 'amp1'},   {'dev': 'amp2', 'name': 'amp2'}],
-        [{'dev': 'fp1', 'name': 'FP 1'},    {'dev': 'fp2', 'name': 'FP 2'}],
-        [{'dev': 'rp1', 'name': 'RP 1'},    {'dev': 'rp2', 'name': 'RP 2'}],
-        '---',
-        [{'dev': 'dc1', 'name': 'DC 1'},    {'dev': 'dc2', 'name': 'DC 2'}],
-        '---',
-        [{'dev': 'freq3', 'name': 'freq3'}, {'dev': 'freq4', 'name': 'freq4'}],
-        [{'dev': 'amp3', 'name': 'amp3'},   {'dev': 'amp4', 'name': 'amp4'}],
-        [{'dev': 'Crane', 'min': 10, 'width': 7}],
+        [{'dev': 'mieze', 'item': 0, 'name': 'Setting', 'istext': True},
+         {'dev': 'mieze', 'item': 1, 'name': 'Fourier time', 'unit': 'ps'},
+         {'key': 'mieze/tuning', 'name': 'Tuning', 'istext': True}],
+        ['freq1', 'amp1', 'coilamp1'],
+        ['freq2', 'amp2', 'coilamp2'],
+        ['fp1', 'fp2', {'dev': 'rp1', 'max': 20}, {'dev': 'rp2', 'max': 20}],
+        ['dc1', 'dc2', 'freq3', 'amp3'],
     ], 'mieze'),
 #    ('X-Z table axes', [[{'dev': 'mx'}, {'dev': 'my'}]], 'gauss'),
     ('TAS', [
@@ -80,7 +79,7 @@ _column2 = [
      'lakeshore'),
     ('FRM Magnet', [[{'dev': 'B'}],
                     [{'dev': 'Tm1', 'max': 4.1}, {'dev': 'Tm2', 'max': 4.1},
-                     {'dev': 'Tm3', 'max': 4.9}, {'dev': 'Tm4', 'max': 4.5},
+                     {'dev': 'Tm3', 'max': 4.9}, {'dev': 'Tm4', 'max': 4.5}, 
                      {'dev': 'Tm8', 'max': 4.1}]], 'frm2magnet'),
 ]
 
@@ -98,16 +97,19 @@ _column3 = [
                 {'dev': 'flip2', 'name': 'Flip', 'width': 4}],
                [{'dev': 'lamfilter', 'name': 'Be', 'width': 4},
                 {'dev': 'TBe', 'name': 'Be Temp', 'width': 6, 'max': 65},
-                {'dev': 'PBe', 'name': 'Be P', 'width': 7, 'max': 1e-5}],
-               [{'dev': 'slit0', 'name': 'Mono slit 2'}],
+                {'dev': 'PBe', 'name': 'Be P', 'width': 7, 'max': 1e-5, 'min': 1e-8}],
+               [{'dev': 'ms2pos', 'name': 'Pos', 'width': 4, 'max': 'in'},
+                {'dev': 'ms2', 'name': 'Mono slit 2', 'width': 20, 'istext': True}],
               ],
      'mono2'),
     ('Analyzer', [[{'dev': 'ath'}, {'dev': 'att'}, {'dev': 'adr'}]],
      'analyzer'),
-    ('Reactor', [
+    ('Environment', [
         [{'dev': 'Power', 'name': 'Power', 'min': 19, 'format': '%d', 'width': 7},
          {'dev': 'Sixfold', 'name': '6-fold', 'min': 'open', 'width': 7},
          {'dev': 'NL6', 'name': 'NL6', 'min': 'open', 'width': 7}],
+        [{'dev': 'Cooling', 'max': 'okay', 'width': 7},
+         {'dev': 'Crane', 'min': 10, 'width': 7}],
     ], 'reactor'),
 ]
 
@@ -129,7 +131,7 @@ devices = dict(
 
     Monitor = device('nicos.monitor.qt.Monitor',
                      title = 'MIRA Status monitor',
-                     loglevel = 'debug',
+                     loglevel = 'info',
                      cache = 'mira1:14869',
                      prefix = 'nicos/',
                      font = 'Luxi Sans',
