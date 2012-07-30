@@ -257,10 +257,8 @@ class BaseCacheClient(Device):
 
     def _single_request(self, tosend, sentinel='\n', retry=2, sync=True):
         """Communicate over the secondary socket."""
-        self._startup_done.wait()
         if not self._socket:
             self._disconnect('single request: no socket')
-            self._startup_done.wait()
             if not self._socket:
                 raise CacheError('cache not connected')
         if sync:  # sync has to be false for lock requests, as these occur during startup
