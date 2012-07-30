@@ -34,6 +34,7 @@ import select
 from time import sleep
 from threading import RLock
 
+from IO import StringIO
 from RS485Client import RS485Client
 
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
@@ -210,10 +211,11 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
         return self._taco_multitry('ping', self.maxtries, self._dev.Ping, addr)
 
 
-class IPCModBusTacoless(IPCModBus):
+class IPCModBusRS232(IPCModBus):
     """Base class for IPC connections not using the RS485 TACO server.
 
-    This is an abstract class; use one of `IPCModBusTCP` or `IPCModBusSerial`.
+    This is an abstract class; use one of `IPCModBusTacoSerial`,
+    `IPCModBusTCP` or `IPCModBusSerial`.
     """
 
     parameters = {
@@ -310,7 +312,32 @@ class IPCModBusTacoless(IPCModBus):
         return self.send(addr, cmd, param, length, maxtries)
 
 
-class IPCModBusTCP(IPCModBusTacoless):
+class IPCModBusTacoSerial(TacoDevice, IPCModBusRS232):
+    taco_class = StringIO
+
+    def _transmit(self, request, last_try=False):
+        response = ''
+        self.log.debug('sending %r' % request)
+        self._dev.write(request)
+        for i in range(self.commtries):
+            sleep(self.roundtime)
+            try:
+                data = self._dev.read()
+            except Exception:
+                data = ''
+            self.log.debug('received %r' % data)
+            if not data:
+                continue
+            response += data
+            if response[-1] in (EOT, DC1, DC2, DC3, ACK, NAK):
+                return response
+        raise CommunicationError(self, 'no response')
+
+    def doReset(self):
+        TacoDevice.doReset(self)
+
+
+class IPCModBusTCP(IPCModBusRS232):
     """IPC protocol communication bus over network to serial adapter
     using TCP connection.
     """
@@ -358,7 +385,7 @@ class IPCModBusTCP(IPCModBusTacoless):
             return response
 
 
-class IPCModBusSerial(IPCModBusTacoless):
+class IPCModBusSerial(IPCModBusRS232):
     """IPC protocol communication directly over serial line."""
 
     parameters = {
