@@ -19,10 +19,11 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""Tests for cache key rewriting."""
+"""Tests for the cache."""
 
 from time import sleep
 
@@ -36,6 +37,15 @@ def setup_module():
 def teardown_module():
     session.unloadSetup()
 
+
+def test_float_literals():
+    cc = session.cache
+    for fv in [float('+inf'), float('-inf'), float('nan')]:
+        cc.put('testcache', 'fval', fv)
+        sleep(0.25)
+        fvc = cc.get_explicit('testcache', 'fval')[2]
+        assert repr(fvc) == repr(fv)   # cannot compare fvc == fv, since
+                                       # nan is not equal to itself
 
 def test_01write():
     cc = session.cache

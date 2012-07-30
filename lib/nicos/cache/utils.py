@@ -28,8 +28,9 @@
 __version__ = "$Revision$"
 
 import re
-import ast
 import cPickle as pickle
+from ast import parse, Str, Num, Tuple, List, Dict, BinOp, UnaryOp, \
+     Add, Sub, USub, Name, Call
 from time import time, localtime
 from base64 import b64encode, b64decode
 
@@ -98,14 +99,54 @@ def cache_dump(obj):
             raise ValueError('unserializable object: %r (%s)' % (obj, err))
     return ''.join(res)
 
+_safe_names = {'None': None, 'True': True, 'False': False,
+               'inf': float('inf'), 'nan': float('nan')}
+
+def ast_eval(node):
+    # copied from Python 2.7 ast.py, but added support for float inf/-inf/nan
+    def _convert(node):
+        if isinstance(node, Str):
+            return node.s
+        elif isinstance(node, Num):
+            return node.n
+        elif isinstance(node, Tuple):
+            return tuple(map(_convert, node.elts))
+        elif isinstance(node, List):
+            return list(map(_convert, node.elts))
+        elif isinstance(node, Dict):
+            return dict((_convert(k), _convert(v)) for k, v
+                        in zip(node.keys, node.values))
+        elif isinstance(node, Name):
+            if node.id in _safe_names:
+                return _safe_names[node.id]
+        elif isinstance(node, UnaryOp) and \
+             isinstance(node.op, USub) and \
+             isinstance(node.operand, Name) and \
+             node.operand.id in _safe_names:
+            return -_safe_names[node.operand.id]
+        elif isinstance(node, BinOp) and \
+             isinstance(node.op, (Add, Sub)) and \
+             isinstance(node.right, Num) and \
+             isinstance(node.right.n, complex) and \
+             isinstance(node.left, Num) and \
+             isinstance(node.left.n, (int, long, float)):
+            left = node.left.n
+            right = node.right.n
+            if isinstance(node.op, Add):
+                return left + right
+            else:
+                return left - right
+        raise ValueError('malformed literal string')
+    return _convert(node)
+
 def cache_load(entry):
     try:
         # parsing with 'eval' always gives an ast.Expression node
-        expr = ast.parse(entry, mode='eval').body
-        if isinstance(expr, ast.Call) and expr.func.id == 'cache_unpickle':
-            return pickle.loads(b64decode(ast.literal_eval(expr.args[0])))
+        expr = parse(entry, mode='eval').body
+        if isinstance(expr, Call) and expr.func.id == 'cache_unpickle':
+            return pickle.loads(b64decode(ast_eval(expr.args[0])))
         else:
-            return ast.literal_eval(expr)
+            return ast_eval(expr)
     except Exception, err:
         raise ValueError('corrupt cache entry: %r (%s)' % (entry, err))
 
