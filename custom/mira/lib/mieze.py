@@ -62,8 +62,9 @@ class MiezeMaster(Moveable):
 
     def doRead(self, maxage=0):
         if self.tuning == '':
-            return '<no tuning selected>'
-        return [self.curtable[self.setting]['_name_'], 0.0]
+            return ['<no tuning selected>', 0.0]
+        return [self.curtable[self.setting]['_name_'],
+                self.curtable[self.setting]['_tau_']]
 
     def valueInfo(self):
         return Value('mieze', fmtstr='%s'), Value('tau', fmtstr='%.2f', unit='ps')
@@ -175,6 +176,7 @@ class MiezeMaster(Moveable):
                 raise
             index = len(table)
             table.append({'_name_': name})
+            table.append({'_tau_': 0})
         for devname, devvalue in values.iteritems():
             table[index][devname] = devvalue
         self.curtable = table
