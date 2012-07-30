@@ -46,14 +46,16 @@ class VirtualMotor(Motor, HasOffset):
                            settable=True, default=(status.OK, 'idle')),
     }
 
+    _thread = None
+
     def doStart(self, pos):
         pos = float(pos) + self.offset
         self.curstatus = (status.BUSY, 'virtual moving')
         if self.speed != 0:
-            thread = threading.Thread(target=self.__moving, args=(pos,),
-                                      name='virtual motor %s' % self)
-            thread.setDaemon(True)
-            thread.start()
+            self._thread = threading.Thread(target=self.__moving, args=(pos,),
+                                            name='virtual motor %s' % self)
+            self._thread.setDaemon(True)
+            self._thread.start()
         else:
             self.log.debug('moving to %s' % pos)
             self.curvalue = pos + self.jitter * (0.5 - random.random())
@@ -70,7 +72,8 @@ class VirtualMotor(Motor, HasOffset):
             time.sleep(0.1)
 
     def doStop(self):
-        if self.speed != 0:
+        if self.speed != 0 and \
+           self._thread is not None and self._thread.isAlive():
             self._stop = True
         else:
             self.curstatus = (status.OK, 'idle')
