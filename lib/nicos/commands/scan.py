@@ -278,7 +278,7 @@ def contscan(dev, start, end, speed=None, *args, **kwargs):
     >>> contscan(dev, ..., det1, det2)
     """
     dev = session.getDevice(dev, Moveable)
-    if 'speed' not in dev.parameters:
+    if not hasattr(dev, 'speed'):
         raise UsageError('continuous scan device must have a speed parameter')
     scanstr = _infostr('contscan', (dev, start, end, speed) + args, kwargs)
     preset, scaninfo, detlist, envlist, move, multistep = \
