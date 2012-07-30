@@ -53,7 +53,7 @@ prefactor = M_N**2 / (PI * H**2)
 bragg_fields = ['Lambda', '2Theta', 'N', 'D', 'Q', 'SampleDet']
 bragg_convs  = [1e-10, PI/180, 1, 1e-10, 1e10, 1]
 
-neutron_fields = ['L', 'K', 'E', 'Ny', 'T']
+neutron_fields = ['L', 'K', 'E', 'Ny', 'T', 'V']
 
 
 class CalculatorTool(QDialog):
@@ -101,7 +101,7 @@ class CalculatorTool(QDialog):
             (self.inputSampleDet, '0'),
             (self.propL, '1.8'), (self.propK, '3.4907'),
             (self.propE, '25.2482'), (self.propNy, '6.1050'),
-            (self.propT, '292.9934'),
+            (self.propT, '292.9934'), (self.propV, '2197.80'),
             ])
         self.presets.load()
         self.braggcalc()
@@ -196,6 +196,8 @@ class CalculatorTool(QDialog):
                 lam = math.sqrt(H/(2*M_N*float(text)*1e12)) * 1e10
             elif self.sender() is self.propT:
                 lam = H/math.sqrt(2*M_N*K_B*float(text)) * 1e10
+            elif self.sender() is self.propV:
+                lam = H/M_N/float(text)* 1e10
             else:
                 lam = float(self.propL.text())
             if self.sender() is not self.propL:
@@ -208,6 +210,8 @@ class CalculatorTool(QDialog):
                 self.propNy.setText('%.4f' % (H/(2*M_N*lam**2*1e-20)/1e12))
             if self.sender() is not self.propT:
                 self.propT.setText('%.4f' % (H**2/(2*M_N*K_B*lam**2*1e-20)))
+            if self.sender() is not self.propV:
+                self.propV.setText('%.2f' % (H/M_N/(lam*1e-10)))
         except Exception, err:
             self.propError.setText('Error: %s' % err)
         else:
