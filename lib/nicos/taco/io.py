@@ -193,7 +193,7 @@ class BitsDigitalOutput(DigitalOutput):
         self._max = (1 << self.bitwidth) - 1
 
     def doReadFmtstr(self):
-        return '{ ' + ' '.join(['%s'] * self.bitwidth) + ' }'
+        return '[ ' + ', '.join(['%s'] * self.bitwidth) + ' ]'
 
     def doRead(self, maxage=0):
         # extract the relevant bit range from the device value
