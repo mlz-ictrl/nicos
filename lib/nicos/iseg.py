@@ -97,7 +97,7 @@ class IsegHV(TacoDevice, HasLimits, Moveable):
         if resp[:3] != ('S%d=' % self.channel):
             raise NicosError(self, 'could not set voltage: %r' % resp)
         if resp[3:] not in self.states or \
-               self.states[resp[3:]] not in (status.OK, status.BUSY):
+               self.states[resp[3:]][0] not in (status.OK, status.BUSY):
             if resp[3:] == 'MAN':
                 raise NicosError(self, 'could not set voltage, voltage control '
                                 'switched to manual')
