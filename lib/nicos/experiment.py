@@ -203,10 +203,10 @@ class Experiment(Device):
                 if coproposer:
                     proplist.append(coproposer)
             if proplist:
-                self.users = self.users + proplist
+                self.users = self.users + ', ' + ', '.join(proplist)
                 what.append('co-proposers')
         if self.users:
-            kwds['users'] = ', '.join(self.users)
+            kwds['users'] = self.users
         if what:
             self.log.info('Filled in %s from proposal database' %
                            ', '.join(what))
