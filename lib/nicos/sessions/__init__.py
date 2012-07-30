@@ -655,8 +655,8 @@ class Session(object):
         displaying help.
         """
         if obj is None:
-            from nicos.commands.basic import listcommands
-            listcommands()
+            from nicos.commands.basic import ListCommands
+            ListCommands()
         elif isinstance(obj, Device):
             self.log.info('%s is a device of class %s.' %
                           (obj.name, obj.__class__.__name__))
@@ -667,9 +667,9 @@ class Session(object):
                 self.log.info('Device class description: ' + lines[0])
                 for line in lines[1:]:
                     self.log.info(line)
-            from nicos.commands.device import listmethods, listparams
-            listmethods(obj)
-            listparams(obj)
+            from nicos.commands.device import ListMethods, ListParams
+            ListMethods(obj)
+            ListParams(obj)
         elif not inspect.isfunction(obj):
             __builtin__.help(obj)
         else:

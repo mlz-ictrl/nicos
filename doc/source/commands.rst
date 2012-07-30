@@ -5,11 +5,11 @@ Getting help
 ------------
 
 .. autofunction:: nicos.commands.basic.help
-.. autofunction:: nicos.commands.basic.listcommands
-.. autofunction:: nicos.commands.device.listdevices
-.. autofunction:: nicos.commands.device.listparams
-.. autofunction:: nicos.commands.device.listmethods
-.. autofunction:: nicos.commands.device.listallparams
+.. autofunction:: nicos.commands.basic.ListCommands
+.. autofunction:: nicos.commands.device.ListDevices
+.. autofunction:: nicos.commands.device.ListParams
+.. autofunction:: nicos.commands.device.ListMethods
+.. autofunction:: nicos.commands.device.ListAllParams
 .. autofunction:: nicos.commands.device.version
 
 Output commands

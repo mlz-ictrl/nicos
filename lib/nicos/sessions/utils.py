@@ -99,7 +99,7 @@ class NicosCompleter(rlcompleter.Completer):
                   ['move', 'drive', 'maw', 'switch', 'wait', 'read',
                    'status', 'stop', 'reset', 'set', 'get', 'fix',
                    'release', 'adjust', 'version', 'history', 'limits',
-                   'resetlimits', 'listparams', 'listmethods',
+                   'resetlimits', 'ListParams', 'ListMethods',
                    'scan', 'cscan', 'contscan'])
     special_readable = set(['read', 'status', 'reset', 'history'])
     special_moveable = set(['move', 'drive', 'maw', 'switch', 'wait', 'stop',

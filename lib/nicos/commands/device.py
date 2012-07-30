@@ -467,12 +467,12 @@ def resetlimits(*devlist):
                             dev.format(dev.userlimits[1]), dev.unit))
 
 @usercommand
-def listparams(dev):
+def ListParams(dev):
     """List all parameters of the device.
 
     Example:
 
-    >>> listparams(phi)
+    >>> ListParams(phi)
     """
     dev = session.getDevice(dev, Device)
     dev.log.info('Device parameters:')
@@ -496,12 +496,12 @@ def listparams(dev):
                items, printinfo)
 
 @usercommand
-def listmethods(dev):
+def ListMethods(dev):
     """List user-callable methods for the device.
 
     Example:
 
-    >>> listmethods(phi)
+    >>> ListMethods(phi)
     """
     dev = session.getDevice(dev, Device)
     items = []
@@ -518,14 +518,17 @@ def listmethods(dev):
     dev.log.info('Device methods:')
     printTable(('method', 'from class', 'description'), items, printinfo)
 
+
+# XXX rename to "getall()" or similar?
+
 @usercommand
 @helparglist('parameter, ...')
-def listallparams(*names):
+def ListAllParams(*names):
     """List the given parameters for all existing devices that have them.
 
     Example:
 
-    >>> listallparams('offset')
+    >>> ListAllParams('offset')
 
     lists the offset for all devices with an "offset" parameter.
     """
@@ -542,12 +545,12 @@ def listallparams(*names):
     printTable(('device',) + names, items, printinfo)
 
 @usercommand
-def listdevices():
+def ListDevices():
     """List all currently created devices.
 
     Example:
 
-    >>> listdevices()
+    >>> ListDevices()
     """
     printinfo('All created devices:')
     items = []

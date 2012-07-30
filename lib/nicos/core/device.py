@@ -308,7 +308,7 @@ class Device(object):
         if name not in dir(self.__class__) and name[0] != '_' and \
                not name.startswith('print'):
             raise UsageError(self, 'device has no parameter %s, use '
-                             'listparams(%s) to show all' % (name, self))
+                             'ListParams(%s) to show all' % (name, self))
         else:
             object.__setattr__(self, name, value)
 
@@ -333,14 +333,14 @@ class Device(object):
         """Get a parameter of the device."""
         if name.lower() not in self.parameters:
             raise UsageError(self, 'device has no parameter %s, use '
-                             'listparams(%s) to show all' % (name, self))
+                             'ListParams(%s) to show all' % (name, self))
         return getattr(self, name.lower())
 
     def setPar(self, name, value):
         """Set a parameter of the device to a new value."""
         if name.lower() not in self.parameters:
             raise UsageError(self, 'device has no parameter %s, use '
-                             'listparams(%s) to show all' % (name, self))
+                             'ListParams(%s) to show all' % (name, self))
         setattr(self, name.lower(), value)
 
     def doUpdateLoglevel(self, value):

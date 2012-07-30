@@ -82,12 +82,12 @@ def dir(obj=None): #pylint: disable=W0622
             if not name.startswith(('_', 'do'))]
 
 @usercommand
-def listcommands():
+def ListCommands():
     """List all available commands.
 
     Example:
 
-    >>> listcommands()
+    >>> ListCommands()
     """
     printinfo('Available commands:')
     items = []

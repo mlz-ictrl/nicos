@@ -33,7 +33,7 @@ from nicos.commands.measure import count
 from nicos.commands.device import move, maw
 from nicos.commands.scan import scan
 from nicos.commands.basic import help, dir #pylint: disable=W0622
-from nicos.commands.basic import listcommands, sleep, \
+from nicos.commands.basic import ListCommands, sleep, \
      NewSetup, AddSetup, RemoveSetup, ListSetups, \
      CreateDevice, DestroyDevice, CreateAllDevices, \
      NewExperiment, FinishExperiment, AddUser, NewSample, \
@@ -65,7 +65,7 @@ def test_basic_commands():
     dev = session.getDevice('motor')
 
     help(help)
-    listcommands()
+    ListCommands()
 
     d = dir(dev)
     assert 'start' in d
