@@ -211,12 +211,8 @@ class GraceSink(DataSink):
             self._pl.plot(data)
             self._pl.legend()
         except Exception:
-            # try again or give up for this set
-            try:
-                self._openplot(dataset)
-            except Exception:
-                self.log.warning('could not add point to Grace', exc=1)
-                self._grpl = None
+            self.log.warning('could not add point to Grace', exc=1)
+            self._grpl = None
 
     @usermethod
     def history(self, dev, key='value', fromtime=None, totime=None):
