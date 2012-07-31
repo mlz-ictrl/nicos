@@ -107,3 +107,6 @@ class ResiDevice(Moveable):
         info.append(('sample', 'cell', self._hardware.cell))
         return info
 
+    def doStop(self):
+        self._hardware.hw.Abort()
+        self._hardware.Finish()
