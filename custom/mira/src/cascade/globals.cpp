@@ -214,8 +214,8 @@ int GlobalConfig::iContrastBlockSize[2] = {1, 2};
 double GlobalConfig::LOG_LOWER_RANGE = -0.5;
 
 // Defaults used in ROOT::Minuit2::MnApplication::operator()
-double GlobalConfig::dMinuitTolerance = 0.1;
-unsigned int GlobalConfig::uiMinuitMaxFcn = 0;
+double GlobalConfig::dMinuitTolerance = 0.01;
+unsigned int GlobalConfig::uiMinuitMaxFcn = 1000;
 int GlobalConfig::iMinuitAlgo = MINUIT_MIGRAD;
 unsigned int GlobalConfig::uiMinuitStrategy = 2;
 
