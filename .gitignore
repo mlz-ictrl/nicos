@@ -57,6 +57,8 @@ src/livewidget/python/Makefile
 src/livewidget/python/lw_*.cpp
 src/livewidget/python/lw_*.h
 
+.cproject
 .project
-.settings/
 .pydevproject
+.settings/
+

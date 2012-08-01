@@ -545,8 +545,8 @@ TmpImage TofImage::GetPhaseGraph(int iFolie, bool bInDeg) const
 		{
 			TmpGraph tmpGraph = GetGraph(iX, iX+XSIZE, iY, iY+YSIZE, iFolie);
 
-			double dPhase, dFreq, dAmp, dOffs;
-			bool bFitValid = tmpGraph.FitSinus(dPhase, dFreq, dAmp, dOffs);
+			double dFreq, dPhase, dAmp, dOffs;
+			bool bFitValid = tmpGraph.FitSinus(dFreq, dPhase, dAmp, dOffs);
 
 			if(!bFitValid || dPhase!=dPhase)
 				dPhase = 0.;
@@ -595,8 +595,8 @@ TmpImage TofImage::GetContrastGraph(int iFoil) const
 		{
 			TmpGraph tmpGraph = GetGraph(iX, iX+XSIZE, iY, iY+YSIZE, iFoil);
 
-			double dPhase, dFreq, dAmp, dOffs;
-			bool bFitValid = tmpGraph.FitSinus(dPhase, dFreq, dAmp, dOffs);
+			double dFreq, dPhase, dAmp, dOffs;
+			bool bFitValid = tmpGraph.FitSinus(dFreq, dPhase, dAmp, dOffs);
 
 			double dContrast = fabs(dAmp/dOffs);
 			if(!bFitValid || dContrast!=dContrast)
@@ -1663,21 +1663,49 @@ bool TmpGraph::IsLowerThan(int iTotal) const
 	return iSum < iTotal;
 }
 
-bool TmpGraph::FitSinus(double &dPhase, double &dScale,
-						double &dAmp, double &dOffs) const
+bool TmpGraph::FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOffs,
+						double &dPhase_err, double &dAmp_err, double &dOffs_err) const
 {
 	if(m_iW<=0) return false;
 
-	// Scale-Parameter fix
-	dScale = 2.*M_PI/double(m_iW);
-
-	double dMaxVal=GetMax(), dMinVal=GetMin();
-	dOffs = dMinVal + (dMaxVal-dMinVal)/2.;		// Hints
-	dAmp = (dMaxVal-dMinVal)/2.;				// Hints
-	dPhase = 0.;
+	// Freq fix
+	dFreq = 2.*M_PI/double(m_iW);
 
 	if(IsLowerThan(1))
 		return false;
 
-	return ::FitSinus(m_iW, m_puiDaten, dPhase, /*dScale,*/ dAmp, dOffs);
+	return ::FitSinus(m_iW, m_puiDaten, dFreq,
+					  dPhase, dAmp, dOffs,
+					  dPhase_err, dAmp_err, dOffs_err);
+}
+
+bool TmpGraph::FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOffs) const
+{
+	double dPhase_err, dAmp_err, dOffs_err;
+
+	return FitSinus(dFreq, dPhase, dAmp, dOffs,
+					dPhase_err, dAmp_err, dOffs_err);
+}
+
+bool TmpGraph::GetContrast(double &dContrast, double &dPhase,
+							double &dContrast_err, double &dPhase_err) const
+{
+	double dFreq;
+	double dAmp, dOffs;
+	double dAmp_err, dOffs_err;
+	
+	if(!FitSinus(dFreq, dPhase, dAmp, dOffs, dPhase_err, dAmp_err, dOffs_err))
+		return false;
+
+	dContrast = dAmp / dOffs;
+	dContrast_err = sqrt((1/dOffs*dAmp_err)*(1/dOffs*dAmp_err)
+					+ (-dAmp/(dOffs*dOffs)*dOffs_err)*(-dAmp/(dOffs*dOffs)*dOffs_err));
+
+	return true;
+}
+
+bool TmpGraph::GetContrast(double &dContrast, double &dPhase) const
+{
+	double dContrast_err, dPhase_err;
+	return GetContrast(dContrast, dPhase, dContrast_err, dPhase_err);
 }
