@@ -124,8 +124,13 @@ class TmpGraph
 		TmpGraph();
 		virtual ~TmpGraph();
 
-		bool FitSinus(double &dPhase, double &dScale,
-					  double &dAmp, double &dOffs) const;
+		bool FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOffs,
+				double &dPhase_err, double &dAmp_err, double &dOffs_err) const;
+		//bool FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOffs) const;
+		
+		bool GetContrast(double &dContrast, double &dPhase,
+				    double &dContrast_err, double &dPhase_err) const;
+		//bool GetContrast(double &dContrast, double &dPhase) const;
 
 		unsigned int GetData(int iX) const;
 		int GetWidth() const;

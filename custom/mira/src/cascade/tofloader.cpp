@@ -1688,7 +1688,7 @@ bool TmpGraph::FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOf
 }
 
 bool TmpGraph::GetContrast(double &dContrast, double &dPhase,
-							double &dContrast_err, double &dPhase_err)
+							double &dContrast_err, double &dPhase_err) const
 {
 	double dFreq;
 	double dAmp, dOffs;
@@ -1704,7 +1704,7 @@ bool TmpGraph::GetContrast(double &dContrast, double &dPhase,
 	return true;
 }
 
-bool TmpGraph::GetContrast(double &dContrast, double &dPhase)
+bool TmpGraph::GetContrast(double &dContrast, double &dPhase) const
 {
 	double dContrast_err, dPhase_err;
 	return GetContrast(dContrast, dPhase, dContrast_err, dPhase_err);
