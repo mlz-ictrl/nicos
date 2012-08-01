@@ -38,6 +38,33 @@
 
 #include <limits>
 #include <math.h>
+#include <algorithm>
+
+
+inline static ROOT::Minuit2::MnApplication* make_minimizer(ROOT::Minuit2::FCNBase &fkt,
+														   ROOT::Minuit2::MnUserParameters& upar)
+{
+	ROOT::Minuit2::MnApplication *pMinimize;
+
+	unsigned int uiStrategy = GlobalConfig::GetMinuitStrategy();
+	switch(GlobalConfig::GetMinuitAlgo())
+	{
+		case MINUIT_SIMPLEX:
+			pMinimize = new ROOT::Minuit2::MnSimplex(fkt, upar, uiStrategy);
+			break;
+
+		case MINUIT_MINIMIZE:
+			pMinimize = new ROOT::Minuit2::MnMinimize(fkt, upar, uiStrategy);
+			break;
+
+		default:
+		case MINUIT_MIGRAD:
+			pMinimize = new ROOT::Minuit2::MnMigrad(fkt, upar, uiStrategy);
+			break;
+	}
+
+	return pMinimize;
+}
 
 
 //------------------------------------------------------------------------------
@@ -53,8 +80,11 @@ class Sinus : public ROOT::Minuit2::FCNBase
  		double *m_pddy;			// deviations
 		int m_iNum;				// number of values
 
+		double m_dfreq;
+
 	public:
-		Sinus() : m_pdy(0), m_pddy(0), m_iNum(0)
+		Sinus(double dFreq) : m_pdy(0), m_pddy(0), m_iNum(0),
+								m_dfreq(dFreq)
 		{}
 
 		void Clear(void)
@@ -71,10 +101,7 @@ class Sinus : public ROOT::Minuit2::FCNBase
 			double dphase = params[0];
 			double damp = params[1];
 			double doffs = params[2];
-			double dscale = 2.*M_PI/double(m_iNum);
-
-			// force non-negative amplitude parameter
-			if(damp<0.) return std::numeric_limits<double>::max();
+			double dfreq = m_dfreq; // = 2.*M_PI/double(m_iNum);
 
 			double dchi2 = 0.;
 			for(int i=0; i<m_iNum; ++i)
@@ -85,7 +112,7 @@ class Sinus : public ROOT::Minuit2::FCNBase
 				if(fabs(dAbweichung) < std::numeric_limits<double>::min())
 					dAbweichung = std::numeric_limits<double>::min();
 
-				double d = (m_pdy[i] - (damp*sin(double(i)*dscale +
+				double d = (m_pdy[i] - (damp*sin(double(i)*dfreq +
 										dphase)+doffs)) / dAbweichung;
 				dchi2 += d*d;
 			}
@@ -123,50 +150,88 @@ class Sinus : public ROOT::Minuit2::FCNBase
 };
 
 bool FitSinus(int iSize, const unsigned int* pData,
-			  double &dPhase, /*double &dScale,*/
-			  double &dAmp, double &dOffs)
+			  double dFreq,
+			  double &dPhase, double &dAmp, double &dOffs,
+			  double &dPhase_err, double &dAmp_err, double &dOffs_err)
 {
 	if(iSize<=0) return false;
 
-	Sinus fkt;
-	fkt.SetValues(iSize, pData);
+	unsigned int iMax = *std::max_element(pData, pData+iSize),
+				 iMin = *std::min_element(pData, pData+iSize);
 
-	ROOT::Minuit2::MnUserParameters upar;
-	upar.Add("phase", M_PI, M_PI);
-	upar.Add("amp", dAmp, 0.1*dAmp);
-	upar.Add("offset", dOffs, 0.1*dOffs);
-	//upar.Add("scale", 2.*M_PI/16., 0.1);		// don't fit this parameter
-
-	ROOT::Minuit2::MnApplication *pMinimize = 0;
-
-	unsigned int uiStrategy = GlobalConfig::GetMinuitStrategy();
-	switch(GlobalConfig::GetMinuitAlgo())
+	if(iMax==iMin)
 	{
-		case MINUIT_SIMPLEX:
-			pMinimize = new ROOT::Minuit2::MnSimplex(fkt, upar, uiStrategy);
-			break;
-
-		case MINUIT_MINIMIZE:
-			pMinimize = new ROOT::Minuit2::MnMinimize(fkt, upar, uiStrategy);
-			break;
-
-		default:
-		case MINUIT_MIGRAD:
-			pMinimize = new ROOT::Minuit2::MnMigrad(fkt, upar, uiStrategy);
-			break;
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Fitter: Invalid data for sinus fit." << "\n";
+		return false;
 	}
 
+	dAmp = 0.5 * (iMax-iMin);
+	dPhase = 0.;
+	dOffs = double(iMin) + dAmp;
+	
+
+	Sinus fkt(dFreq);
+	fkt.SetValues(iSize, pData);
+
+	// step 1: limited fit
+	ROOT::Minuit2::MnUserParameters upar;
+	upar.Add("phase", dPhase, M_PI);
+	upar.Add("amp", dAmp, 0.1*dAmp);
+	upar.Add("offs", dOffs, 0.1*dOffs);
+
+	upar.SetLimits("phase", -M_PI, M_PI);
+	upar.SetLimits("amp", 0., double(iMax));
+	upar.SetLimits("offs", double(iMin), double(iMax));
+
+	
+	ROOT::Minuit2::MnApplication *pMinimize = make_minimizer(fkt, upar);
+	{
+		ROOT::Minuit2::FunctionMinimum mini = (*pMinimize)(
+										GlobalConfig::GetMinuitMaxFcn(),
+										GlobalConfig::GetMinuitTolerance());
+
+		upar.SetValue("phase", mini.UserState().Value("phase"));
+		upar.SetError("phase", mini.UserState().Error("phase"));		
+
+		upar.SetValue("amp", mini.UserState().Value("amp"));
+		upar.SetError("amp", mini.UserState().Error("amp"));
+
+		upar.SetValue("offs", mini.UserState().Value("offs"));
+		upar.SetError("offs", mini.UserState().Error("offs"));
+	}
+	
+	delete pMinimize;
+
+
+	// step 2: free fit
+	upar.RemoveLimits("amp");
+	upar.RemoveLimits("offs");
+	upar.RemoveLimits("phase");
+	
+	pMinimize = make_minimizer(fkt, upar);
+	
 	ROOT::Minuit2::FunctionMinimum mini = (*pMinimize)(
 									GlobalConfig::GetMinuitMaxFcn(),
 									GlobalConfig::GetMinuitTolerance());
 
 	dPhase = mini.UserState().Value("phase");
 	dAmp = mini.UserState().Value("amp");
-	dOffs = mini.UserState().Value("offset");
-	//dScale = mini.UserState().Value("scale");
+	dOffs = mini.UserState().Value("offs");
+
+	dPhase_err = mini.UserState().Error("phase");
+	dAmp_err = mini.UserState().Error("amp");
+	dOffs_err = mini.UserState().Error("offs");
 
 	delete pMinimize;
-	pMinimize = 0;
+
+	
+	
+	if(dAmp<0.)
+	{
+		dAmp = -dAmp;
+		dPhase += M_PI;
+	}
 
 	// Phasen auf 0..2*Pi einschränken
 	dPhase = fmod(dPhase, 2.*M_PI);
@@ -192,8 +257,9 @@ bool FitSinus(int iSize, const unsigned int* pData,
 #else
 
 bool FitSinus(int iSize, const unsigned int* pData,
-			  double &dPhase /*, double &dScale*/,
-			  double &dAmp, double &dOffs)
+			  double dFreq,
+			  double &dPhase, double &dAmp, double &dOffs,
+			  double &dPhase_err, double &dAmp_err, double &dOffs_err)
 {
 	logger.SetCurLogLevel(LOGLEVEL_ERR);
 	logger << "Fitter: Not compiled with minuit." << "\n";
@@ -201,6 +267,17 @@ bool FitSinus(int iSize, const unsigned int* pData,
 }
 
 #endif //USE_MINUIT
+
+bool FitSinus(int iSize, const unsigned int* pData,
+			  double dFreq,
+			  double &dPhase, double &dAmp, double &dOffs)
+{
+	double dPhase_err_dummy, dAmp_err_dummy, dOffs_err_dummy;
+	return FitSinus(iSize, pData,
+					dFreq,
+					dPhase, dAmp, dOffs,
+					dPhase_err_dummy, dAmp_err_dummy, dOffs_err_dummy);
+}
 
 
 
@@ -334,25 +411,7 @@ bool FitGaussian(int iSizeX, int iSizeY,
 	upar.Add("spread_x", dSpreadX, 0.1*dSpreadX);
 	upar.Add("spread_y", dSpreadY, 0.1*dSpreadY);
 
-	ROOT::Minuit2::MnApplication *pMinimize = 0;
-
-	unsigned int uiStrategy = GlobalConfig::GetMinuitStrategy();
-	switch(GlobalConfig::GetMinuitAlgo())
-	{
-		case MINUIT_SIMPLEX:
-			pMinimize = new ROOT::Minuit2::MnSimplex(fkt, upar, uiStrategy);
-			break;
-
-		case MINUIT_MINIMIZE:
-			pMinimize = new ROOT::Minuit2::MnMinimize(fkt, upar, uiStrategy);
-			break;
-
-		default:
-		case MINUIT_MIGRAD:
-			pMinimize = new ROOT::Minuit2::MnMigrad(fkt, upar, uiStrategy);
-			break;
-	}
-
+	ROOT::Minuit2::MnApplication *pMinimize = make_minimizer(fkt, upar);
 	ROOT::Minuit2::FunctionMinimum mini = (*pMinimize)(
 									GlobalConfig::GetMinuitMaxFcn(),
 									GlobalConfig::GetMinuitTolerance());

@@ -267,8 +267,13 @@ class TmpGraph
 
 	// fit a sinus function to the data points
 	// return value: fit successful?
-	bool FitSinus(double &dPhase, double &dScale,
-				  double &dAmp, double &dOffs) const;
+	bool FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOffs,
+				  double &dPhase_err, double &dAmp_err, double &dOffs_err) const;
+	bool FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOffs) const;
+
+	bool GetContrast(double &dContrast, double &dPhase,
+					double &dContrast_err, double &dPhase_err);
+	bool GetContrast(double &dContrast, double &dPhase);
 
 	//--------------------------------------------------------------------------
 	// getter

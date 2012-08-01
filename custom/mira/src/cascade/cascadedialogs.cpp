@@ -289,7 +289,7 @@ void GraphDlg::UpdateGraph(void)
 	{
 		// Fit dieser Messpunkte
 		double dPhase, dFreq, dAmp, dOffs;
-		bool bFitValid = tmpGraph.FitSinus(dPhase, dFreq, dAmp, dOffs);
+		bool bFitValid = tmpGraph.FitSinus(dFreq, dPhase, dAmp, dOffs);
 
 		char pcFit[256];
 		if(bFitValid)
