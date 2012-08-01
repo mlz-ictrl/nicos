@@ -145,11 +145,18 @@ unsigned int TofImage::GetData(int iFoil, int iTimechannel,
 	{
 		int iZ = GetTofConfig().GetFoilBegin(iFoil) + iTimechannel;
 
-		if(iTimechannel!=0)
-			return GetData(iZ,iX,iY);
+		if(GetTofConfig().GetSumFirstAndLast())
+		{
+			if(iTimechannel!=0)
+				return GetData(iZ,iX,iY);
+			else
+				return GetData(iZ,iX,iY)+
+					   GetData(iZ+GetTofConfig().GetImagesPerFoil(), iX, iY);
+		}
 		else
-			return GetData(iZ,iX,iY)+
-				   GetData(iZ+GetTofConfig().GetImagesPerFoil(), iX, iY);
+		{
+			return GetData(iZ,iX,iY);
+		}
 	}
 	else
 	{
@@ -176,7 +183,7 @@ void TofImage::SetData(int iFoil, int iTc, int iX, int iY, unsigned int uiCnt)
 	if(!GetTofConfig().GetPseudoCompression())
 	{
 		int iZ = GetTofConfig().GetFoilBegin(iFoil) + iTc;
-		SetData(iZ,iX,iY, uiCnt);
+		SetData(iZ, iX, iY, uiCnt);
 	}
 	else
 	{
@@ -406,7 +413,7 @@ TmpImage TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY,
 TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 						    int iFoil) const
 {
-	TmpGraph graph;
+	TmpGraph graph(&GetTofConfig());
 
 	GetTofConfig().CheckTofArguments(&iStartX,&iEndX,&iStartY,&iEndY,&iFoil);
 
@@ -441,8 +448,7 @@ TmpGraph TofImage::GetGraph(int iFoil) const
 TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 								 double dPhaseShift) const
 {
-	TmpGraph graph;
-
+	TmpGraph graph(&GetTofConfig());
 	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY);
 
 	graph.m_iW = GetTofConfig().GetImagesPerFoil();
@@ -1043,9 +1049,9 @@ int PadImage::LoadTextFile(const char* pcFileName)
 		logger << "Loader: This PAD uses external memory"
 				  " (line " << __LINE__ << ")!\n";
 	}
-	
+
 	int iRet = LOAD_SUCCESS;
-	
+
 	FILE *pf = fopen(pcFileName,"rt");
 	if(!pf)
 	{
@@ -1054,7 +1060,7 @@ int PadImage::LoadTextFile(const char* pcFileName)
 		<< "\n";
 		return LOAD_FAIL;
 	}
-	
+
 	for(int iY=0; iY<GetPadConfig().GetImageHeight(); ++iY)
 	{
 		for(int iX=0; iX<GetPadConfig().GetImageWidth(); ++iX)
@@ -1066,17 +1072,17 @@ int PadImage::LoadTextFile(const char* pcFileName)
 				iRet = LOAD_SIZE_MISMATCH;
 				break;
 			}
-			
+
 			unsigned int uiVal = 0;
 			fscanf(pf, "%d", &uiVal);
 
 			SetData(iX, iY, uiVal);
 		}
-		
+
 		if(iRet!=LOAD_SUCCESS)
 			break;
 	}
-	
+
 	fclose(pf);
 	UpdateRange();
 	return iRet;
@@ -1270,7 +1276,7 @@ void TofImage::GenerateRandomData()
 				dSpreadY += randmp1()*dSpreadY*0.1;
 
 				dAmp += randmp1()*dAmp*0.1;
-				
+
 				double ddata = dAmp * exp(-0.5*(dX-dCenterX)*(dX-dCenterX)/(dSpreadX*dSpreadX))*
 									 exp(-0.5*(dY-dCenterY)*(dY-dCenterY)/(dSpreadY*dSpreadY));
 
@@ -1278,10 +1284,10 @@ void TofImage::GenerateRandomData()
 				{
 					double dPhaseInc = 0.1 * double(iFoil)/double(GetTofConfig().GetFoilCount())*2.*M_PI;
 					double dt = 1. + sin((dPhase+dPhaseInc) + 2.*M_PI*double(iTimeChannel) / double(GetTofConfig().GetImagesPerFoil()));
-					
+
 					double dOffs = 10.;
 					dOffs += randmp1()*dOffs*0.1;
-					
+
 					double dData = ddata*dt + dOffs;
 					dData += randmp1()*dData*0.1;
 					SetData(iFoil, iTimeChannel, iX, iY, (unsigned int)(dData));
@@ -1546,7 +1552,7 @@ TmpGraph TmpImage::GetRadialIntegration(double dAngleInc, double dRadInc,
 						   + (double(GetHeight())/2.)*(double(GetHeight())/2.));
 	const int iSteps = int(dMaxRad / dRadInc);
 
-	TmpGraph graph;
+	TmpGraph graph/*(&m_TofConfig)*/;
 	graph.m_iW = iSteps;
 	graph.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*iSteps);
 	memset(graph.m_puiDaten, 0, iSteps*sizeof(int));
@@ -1598,8 +1604,14 @@ TmpGraph TmpImage::GetRadialIntegration(double dAngleInc, double dRadInc,
 //------------------------------------------------------------------------------
 // TmpGraph
 
-TmpGraph::TmpGraph() : m_iW(0), m_puiDaten(0)
-{}
+TmpGraph::TmpGraph(const TofConfig* pTofConf) :
+			m_iW(0), m_puiDaten(0)
+{
+	if(pTofConf)
+		m_TofConfig = *pTofConf;
+	else
+		m_TofConfig = GlobalConfig::GetTofConfig();
+}
 
 TmpGraph::~TmpGraph()
 {
@@ -1619,6 +1631,7 @@ TmpGraph& TmpGraph::operator=(const TmpGraph& tmp)
 {
 	m_iW = tmp.m_iW;
 	m_puiDaten = tmp.m_puiDaten;
+	m_TofConfig = tmp.m_TofConfig;
 	gc.acquire(m_puiDaten);
 
 	return *this;
@@ -1667,9 +1680,10 @@ bool TmpGraph::FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOf
 						double &dPhase_err, double &dAmp_err, double &dOffs_err) const
 {
 	if(m_iW<=0) return false;
+	double dNumOsc = m_TofConfig.GetNumOscillations();
 
 	// Freq fix
-	dFreq = 2.*M_PI/double(m_iW);
+	dFreq = dNumOsc * 2.*M_PI/double(m_iW);
 
 	if(IsLowerThan(1))
 		return false;
@@ -1693,7 +1707,7 @@ bool TmpGraph::GetContrast(double &dContrast, double &dPhase,
 	double dFreq;
 	double dAmp, dOffs;
 	double dAmp_err, dOffs_err;
-	
+
 	if(!FitSinus(dFreq, dPhase, dAmp, dOffs, dPhase_err, dAmp_err, dOffs_err))
 		return false;
 

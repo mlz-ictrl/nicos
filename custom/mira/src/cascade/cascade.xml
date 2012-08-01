@@ -3,36 +3,24 @@
 <!-- Konfigurationsdatei vom Cascade-Client -->
 
 <cascade_config>
-<!--
-	<tof_file>
-		<image_count> 256 </image_count>
-		<foil_count> 4  </foil_count>
-		<images_per_foil> 64 </images_per_foil>
-		<image_height> 128 </image_height>
-		<image_width> 128 </image_width>
-
-		<foil_1_start> 0  </foil_1_start>
-		<foil_2_start> 100 </foil_2_start>
-		<foil_3_start> 200 </foil_3_start>
-		<foil_4_start> 300 </foil_4_start>
-
-		<pseudo_compression> 1 </pseudo_compression>
-	</tof_file>
--->
-
         <tof_file>
-                <image_count> 128 </image_count>
-                <foil_count> 1  </foil_count>
+                <image_count> 768 </image_count>
+                <foil_count> 6  </foil_count>
                 <images_per_foil> 128 </images_per_foil>
                 <image_height> 128 </image_height>
                 <image_width> 128 </image_width>
 
                 <foil_1_start> 0  </foil_1_start>
-                <foil_2_start> 32 </foil_2_start>
-                <foil_3_start> 128 </foil_3_start>
-                <foil_4_start> 160 </foil_4_start>
+                <foil_2_start> 128 </foil_2_start>
+                <foil_3_start> 256 </foil_3_start>
+                <foil_4_start> 384 </foil_4_start>
+                <foil_5_start> 512 </foil_5_start>
+                <foil_6_start> 640 </foil_6_start>
 
-		<pseudo_compression> 1 </pseudo_compression>
+		        <pseudo_compression> 0 </pseudo_compression>
+                <sum_first_and_last> 0 </sum_first_and_last>
+
+                <number_of_oscillations> 1.0 </number_of_oscillations>
         </tof_file>
 
 	<graphs>
@@ -78,7 +66,7 @@
 
 		<!-- one of: migrad, simplex, minimize -->
 		<algo> migrad </algo>
-		<strategy> 1 </strategy>
+		<strategy> 2 </strategy>
 	</minuit>
 
 </cascade_config>

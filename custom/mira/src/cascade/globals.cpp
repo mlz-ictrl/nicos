@@ -28,6 +28,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <iostream>
 
 //------------------------------------------------------------------------------
 // PAD config
@@ -67,10 +68,12 @@ TofConfig::TofConfig() : PadConfig()
 	FOIL_COUNT = 6;
 	vecFoilBegin.resize(FOIL_COUNT);
 
-	IMAGES_PER_FOIL = 8;
-	IMAGE_COUNT = 192;
+	IMAGES_PER_FOIL = 128;
+	IMAGE_COUNT = 768;
 
 	USE_PSEUDO_COMPRESSION = 1;
+	SUM_FIRST_AND_LAST = 0;
+	NUM_OSC = 1.;
 }
 
 TofConfig::TofConfig(const TofConfig& conf) : PadConfig(conf)
@@ -89,6 +92,8 @@ const TofConfig& TofConfig::operator=(const TofConfig& conf)
 	IMAGE_COUNT = conf.IMAGE_COUNT;
 
 	USE_PSEUDO_COMPRESSION = conf.USE_PSEUDO_COMPRESSION;
+	SUM_FIRST_AND_LAST = conf.SUM_FIRST_AND_LAST;
+	NUM_OSC = conf.NUM_OSC;
 
 	return *this;
 }
@@ -96,9 +101,9 @@ const TofConfig& TofConfig::operator=(const TofConfig& conf)
 int TofConfig::GetFoilCount() const { return FOIL_COUNT; }
 int TofConfig::GetImagesPerFoil() const { return IMAGES_PER_FOIL; }
 int TofConfig::GetImageCount() const { return IMAGE_COUNT; }
-
-bool TofConfig::GetPseudoCompression() const
-{ return USE_PSEUDO_COMPRESSION; }
+bool TofConfig::GetPseudoCompression() const { return USE_PSEUDO_COMPRESSION; }
+bool TofConfig::GetSumFirstAndLast() const { return SUM_FIRST_AND_LAST; }
+double TofConfig::GetNumOscillations() const { return NUM_OSC; }
 
 int TofConfig::GetFoilBegin(int iFoil) const
 {
@@ -139,6 +144,9 @@ void TofConfig::SetImageCount(int iImgCount)
 { IMAGE_COUNT = iImgCount; }
 void TofConfig::SetPseudoCompression(bool bSet)
 { USE_PSEUDO_COMPRESSION = bSet; }
+void TofConfig::SetSumFirstAndLast(bool bSet)
+{ SUM_FIRST_AND_LAST = bSet; }
+void TofConfig::SetNumOscillations(double dVal) { NUM_OSC = dVal; }
 
 
 
@@ -209,7 +217,7 @@ double GlobalConfig::LOG_LOWER_RANGE = -0.5;
 double GlobalConfig::dMinuitTolerance = 0.1;
 unsigned int GlobalConfig::uiMinuitMaxFcn = 0;
 int GlobalConfig::iMinuitAlgo = MINUIT_MIGRAD;
-unsigned int GlobalConfig::uiMinuitStrategy = 1;
+unsigned int GlobalConfig::uiMinuitStrategy = 2;
 
 void GlobalConfig::Init()
 {
@@ -241,6 +249,12 @@ void GlobalConfig::Init()
 	s_config.USE_PSEUDO_COMPRESSION = Config::GetSingleton()->QueryInt(
 				"/cascade_config/tof_file/pseudo_compression",
 				s_config.USE_PSEUDO_COMPRESSION);
+	s_config.SUM_FIRST_AND_LAST = Config::GetSingleton()->QueryInt(
+				"/cascade_config/tof_file/sum_first_and_last",
+				s_config.SUM_FIRST_AND_LAST);
+	s_config.NUM_OSC = Config::GetSingleton()->QueryDouble(
+				"/cascade_config/tof_file/number_of_oscillations",
+				s_config.NUM_OSC);
 
 	s_config.vecFoilBegin.resize(s_config.FOIL_COUNT);
 	for(int i=0; i<s_config.FOIL_COUNT; ++i)
@@ -301,8 +315,7 @@ void GlobalConfig::Init()
 }
 
 void GlobalConfig::Deinit()
-{
-}
+{}
 
 // ***************************** Getter & Setter *******************************
 double GlobalConfig::GetLogLowerRange() { return LOG_LOWER_RANGE; }

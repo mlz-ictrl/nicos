@@ -121,7 +121,7 @@ class TmpGraph
 #include "../../tofloader.h"
 %End
 	public:
-		TmpGraph();
+		TmpGraph(const TofConfig* pTofConf=0);
 		virtual ~TmpGraph();
 
 		bool FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOffs,
