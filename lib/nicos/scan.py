@@ -69,8 +69,9 @@ class Scan(object):
             if names:
                 printwarning('these preset keys were not recognized by any of '
                              'the detectors: %s' % ', '.join(names))
-        if envlist is None:
-            envlist = session.experiment.sampleenv
+        allenvlist = session.experiment.sampleenv
+        if envlist is not None:
+            allenvlist.extend(dev for dev in envlist if dev not in allenvlist)
         self._firstmoves = firstmoves
         self._multistep = self.dataset.multistep = multistep
         if self._multistep:
@@ -80,7 +81,7 @@ class Scan(object):
         self._devices = self.dataset.devices = devices
         self._positions = self.dataset.positions = positions
         self._detlist = self.dataset.detlist = detlist
-        self._envlist = self.dataset.envlist = envlist
+        self._envlist = self.dataset.envlist = allenvlist
         self._preset = self.dataset.preset = preset
         self.dataset.scaninfo = scaninfo
         self._sinks = self.dataset.sinks
@@ -307,15 +308,13 @@ class TimeScan(Scan):
         self._etime = ElapsedTime('etime', unit='s', fmtstr='%.1f')
         self._started = time.time()
         self._numsteps = numsteps
-        if envlist is None:
-            envlist = list(session.experiment.sampleenv)
-        envlist.insert(0, self._etime)
         if numsteps < 0:
             steps = Repeater([])
         else:
             steps = [[]] * numsteps
         Scan.__init__(self, [], steps, firstmoves, multistep,
                       detlist, envlist, preset, scaninfo, scantype)
+        self._envlist.insert(0, self._etime)
 
     def shortDesc(self):
         return 'Time scan'
