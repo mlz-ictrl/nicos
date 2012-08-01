@@ -260,11 +260,9 @@ class MiezeManualScan(ManualScan):
     def __init__(self, settings, firstmoves=None, multistep=None, detlist=None,
                  envlist=None, preset=None, scaninfo=None, scantype=None):
         self.miezedev = session.getDevice('mieze', MiezeMaster)
-        if envlist is None:
-            envlist = session.experiment.sampleenv
-        envlist.append(self.miezedev)
         ManualScan.__init__(self, firstmoves, multistep, detlist, envlist,
                             preset, scaninfo, scantype)
+        self._envlist.append(self.miezedev)
         if settings is not None:
             if settings == '*' or settings == -1:
                 self.settings = [sett['_name_']
