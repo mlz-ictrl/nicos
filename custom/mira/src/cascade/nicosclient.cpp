@@ -113,7 +113,7 @@ bool NicosClient::contrast(const QByteArray& arr, int iFoil,
 	if(iPad == IS_NONE) return 0;
 	bool bTof = (iPad == IS_TOF);
 
-	if(!IsSizeCorrect(arr, bTof))
+	if(!IsSizeCorrect(arr, !bTof))
 		return false;
 
 	bool bOk = true;
@@ -150,7 +150,7 @@ bool NicosClient::contrast(const QByteArray& arr, int iFoil,
 	if(iPad == IS_NONE) return 0;
 	bool bTof = (iPad == IS_TOF);
 
-	if(!IsSizeCorrect(arr, bTof))
+	if(!IsSizeCorrect(arr, !bTof))
 		return false;
 
 	bool bOk = true;

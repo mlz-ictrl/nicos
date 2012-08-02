@@ -67,7 +67,7 @@ TofConfig::TofConfig() : PadConfig()
 	// defaults
 	SetFoilCount(6);
 
-	IMAGES_PER_FOIL = 128;
+	IMAGES_PER_FOIL = 16;
 	IMAGE_COUNT = 128;
 
 	USE_PSEUDO_COMPRESSION = 0;
