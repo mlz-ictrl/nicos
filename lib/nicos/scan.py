@@ -69,9 +69,13 @@ class Scan(object):
             if names:
                 printwarning('these preset keys were not recognized by any of '
                              'the detectors: %s' % ', '.join(names))
-        allenvlist = session.experiment.sampleenv
-        if envlist is not None:
-            allenvlist.extend(dev for dev in envlist if dev not in allenvlist)
+        if envlist == []:
+            # special value [] to suppress all envlist devices
+            allenvlist = []
+        else:
+            allenvlist = session.experiment.sampleenv
+            if envlist is not None:
+                allenvlist.extend(dev for dev in envlist if dev not in allenvlist)
         self._firstmoves = firstmoves
         self._multistep = self.dataset.multistep = multistep
         if self._multistep:
