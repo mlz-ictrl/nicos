@@ -34,8 +34,8 @@ while path.islink(thisfile):
     thisfile = path.join(path.dirname(thisfile), os.readlink(thisfile))
 sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/../lib'))
 
-from numpy import array, linspace, sqrt, exp, log, pi, piecewise, argsort, \
-     concatenate, ndarray, diagonal
+from numpy import array, linspace, sqrt, exp, log, log10, pi, piecewise, \
+     argsort, concatenate, ndarray, diagonal
 
 try:
     from scipy.optimize import curve_fit
@@ -122,11 +122,29 @@ def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, ff=gauss):
     grpl('s%1d symbol size 0.3' % cnum)
     grpl('s%1d symbol fill pattern 1' % cnum)
     grpl('s%1d symbol color %1d' % (cnum, cnum+1))
-    grpl('g0.s%1d type xydy' % cnum)
+    grpl('g0.s%1d type xydydy' % cnum)
     grpl('s%1d line type 0' % cnum)
-    for i, point in enumerate(zip(xs, ys, dys)):
-        grpl('g0.s%1d point %g,%g' % (cnum, point[0], point[1]))
-        grpl('g0.s%1d.y1[%d] = %g' % (cnum, i, point[2]))
+    i = 0
+    for point in zip(xs, ys, dys):
+        x, y, dy = point
+        dy1 = dy2 = dy
+        if logflag:
+            if y <= 0:
+                continue
+            if y - dy <= 0:
+                dy1 = 0
+            else:
+                dy1 = abs(log10(y - dy) - log10(y))
+            dy2 = abs(log10(y + dy) - log10(y))
+            y = log10(y)
+        if ymin is not None and y < ymin: continue
+        if ymax is not None and y > ymax: continue
+        if xmin is not None and x < xmin: continue
+        if xmax is not None and x > xmax: continue
+        grpl('g0.s%1d point %g,%g' % (cnum, x, y))
+        grpl('g0.s%1d.y1[%d] = %g' % (cnum, i, dy1))
+        grpl('g0.s%1d.y2[%d] = %g' % (cnum, i, dy2))
+        i += 1
     grpl('g0.s%1d legend "%s"' % (cnum, legend))
 
     if fitflag:
@@ -155,7 +173,7 @@ def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, ff=gauss):
                 fill = '_'
             else:
                 fill = ' '
-            print '%20s%12.3f\t%7.3f' % \
+            print '%20s%12.4f\t%7.4f' % \
                 (ff.params[i].center(20, fill), ps[i], dps[i])
         if ff == gauss:
             print '       area         %12.3f' % abs(ps[1] / sqrt(2*pi) / ps[2])
@@ -165,8 +183,8 @@ def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, ff=gauss):
         grpl('g0.s1%1d type xy' % cnum)
         grpl('s1%1d line type 1' % cnum)
         grpl('s1%1d line color %1d' % (cnum, cnum+1))
-        outstring = "Ctr: %6.3f, Amp.: %6.3f, FWHM: %6.3f, Area %6.3f" % \
-            (ps[0], ps[1], ps[2], ps[1] / sqrt(2*pi) / (ps[2]/2.3548))
+        outstring = "Ctr: %6.4f, Amp.: %6.3f, FWHM: %6.4f, Area %6.3f" % \
+            (ps[0], ps[1], ps[2], ps[1] / sqrt(2*pi) / (ps[2]/2.3548))	# XXX fix wrong Area calculation
         grpl('g0.s1%1d legend "%s"' % (cnum, outstring))
         fxs = linspace(xs[0], xs[-1], 100)
         for x, y in zip(fxs, ff(fxs, *ps)):
@@ -354,6 +372,10 @@ newxcol = None
 newycols = [None]
 mergeflag = False
 monitorcorrection = False
+ymin = None
+ymax = None
+xmin = None
+xmax = None
 
 for argu in sys.argv:
     if argu[0:4] == 'xcol':
@@ -370,7 +392,30 @@ for argu in sys.argv:
                 newycols[i] = int(newycols[i])
             except:
                 pass
+    if argu[0:4] == 'xlim':
+        newxlims = argu.split('=')[1]
+        if ',' in newxlims:
+            xmin, xmax = map(float, newxlims.split(','))
+        else:
+            xmin = 0
+            xmax = float(newxlims)
+    if argu[0:4] == 'xmax':
+        xmax = float(argu.split('=')[1])
+    if argu[0:4] == 'xmin':
+        xmin = float(argu.split('=')[1])
+    if argu[0:4] == 'ylim':
+        newylims = argu.split('=')[1]
+        if ',' in newylims:
+            ymin, ymax = map(float, newylims.split(','))
+        else:
+            ymin = 0
+            ymax = float(newylims)
+    if argu[0:4] == 'ymax':
+        ymax = float(argu.split('=')[1])
+    if argu[0:4] == 'ymin':
+        ymin = float(argu.split('=')[1])
 
+logflag   = 'log' in sys.argv
 mergeflag = 'merge' in sys.argv
 fitflag   = 'fit' in sys.argv
 sumflag   = 'sum' in sys.argv

@@ -46,6 +46,8 @@ class RotAxis(Axis):
     }
 
     def doStart( self, target ):
+        if self._checkTargetPosition(self.read(0), target, error=False):
+            return
         if target<self.read():
             d=self._adevs['motor']
             d.setPosition( d.read() - self.wraparound )
