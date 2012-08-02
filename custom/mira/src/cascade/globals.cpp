@@ -65,8 +65,7 @@ void PadConfig::SetImageHeight(int iImgHeight) { IMAGE_HEIGHT = iImgHeight; }
 TofConfig::TofConfig() : PadConfig()
 {
 	// defaults
-	FOIL_COUNT = 6;
-	vecFoilBegin.resize(FOIL_COUNT);
+	SetFoilCount(6);
 
 	IMAGES_PER_FOIL = 128;
 	IMAGE_COUNT = 128;
