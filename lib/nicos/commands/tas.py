@@ -33,7 +33,7 @@ from numpy import ndarray
 from nicos import session
 from nicos.core import Measurable, Moveable, Readable, UsageError, NicosError
 from nicos.scan import QScan
-from nicos.tas.spectro import TAS
+from nicos.tas.spectro import TAS, THZ2MEV
 from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import _infostr, ADDSCANHELP2
 from nicos.commands.device import maw, read
@@ -429,3 +429,68 @@ def powderrays(dlist, ki=None, phi=None):
     printinfo('found powder lines for 2ki = %5.3f A-1:' % (2 * ki))
     for my_line, angle in lines2_list.items():
         printinfo(' %s at %7.3f deg' % (my_line, angle))
+
+
+def _create_resmat(args):
+    from nicos.tas.rescalc import resmat
+
+    instr = session.instrument
+    cell = instr._adevs['cell']
+
+    if not args:
+        pos = instr.read(0)
+    elif len(args) == 4:
+        pos = args
+    elif len(args) == 3:
+        pos = args + (0.,)
+    elif len(args) == 1 and isinstance(args[0], _Q):
+        pos = args[0]
+    else:
+        raise UsageError('unsupported arguments')
+
+    pars = {
+        'dm': instr._adevs['mono'].dvalue,
+        'da': instr._adevs['ana'].dvalue,
+        'sm': instr.scatteringsense[0],
+        'ss': instr.scatteringsense[1],
+        'sa': instr.scatteringsense[2],
+        'k': instr.scanconstant,
+        'kfix': 1 if instr.scanmode == 'CKI' else 2,
+        'as': cell.lattice[0],
+        'bs': cell.lattice[1],
+        'cs': cell.lattice[2],
+        'aa': cell.angles[0],
+        'bb': cell.angles[1],
+        'cc': cell.angles[2],
+        'ax': cell.orient1[0],
+        'ay': cell.orient1[1],
+        'az': cell.orient1[2],
+        'bx': cell.orient2[0],
+        'by': cell.orient2[1],
+        'bz': cell.orient2[2],
+        'qx': pos[0],
+        'qy': pos[1],
+        'qz': pos[2],
+        'en': pos[3] if instr.energytransferunit == 'meV' else pos[3] * THZ2MEV,
+    }
+
+    return resmat(**pars)
+
+@usercommand
+def rescal(*args):
+    print _create_resmat(args)
+
+@usercommand
+def resplot(*args):
+    from nicos.tas.rescalc import plot_ellipsoid
+    resmat = _create_resmat(args)
+    printinfo('plotting resolution in separate window, please wait...')
+    plot_ellipsoid(resmat)
+
+@usercommand
+def resscan(*args):
+    qe, dqe, np = args
+    from nicos.tas.rescalc import plot_scan
+    resmat = _create_resmat(qe)
+    printinfo('plotting scan resolution in separate window, please wait...')
+    plot_scan(resmat, qe, dqe, np)
