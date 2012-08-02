@@ -293,7 +293,8 @@ class ConsoleSession(Session):
             session.console()
         finally:
             # After the console is finished, cleanup.
-            session.log.info('shutting down...')
+            if session.mode != 'simulation':
+                session.log.info('shutting down...')
             session.shutdown()
 
     def checkAccess(self, required):
