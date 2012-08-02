@@ -64,8 +64,12 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                               settable=True, type=float),
         'lastcounts': Param('Counts of the last measurement',
                             type=listof(int), settable=True),
+        'lastcontrast': Param('Contrast of the last measurement',
+                              type=listof(float), settable=True),
         'monchannel': Param('Monitor channel to read from master detector',
-                            type=int, settable=True)
+                            type=int, settable=True),
+        'fitfoil':    Param('Foil for contrast fitting', type=int, default=0,
+                            settable=True),
     }
 
     parameter_overrides = {
@@ -103,8 +107,18 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                        errors='sqrt', active=self.roi != (-1, -1, -1, -1),
                        fmtstr='%d'),
                  Value(self.name + '.total', unit='cts', type='counter',
-                       errors='sqrt', fmtstr='%d'), \
-                 Value(self.name + '.file', type='info', fmtstr='%s'))
+                       errors='sqrt', fmtstr='%d'))
+        if self.mode == 'tof':
+            cvals = cvals + (
+                 Value(self.name + '.c_roi', unit='', type='counter',
+                       errors='next', fmtstr='%.4f'),
+                 Value(self.name + '.dc_roi', unit='', type='error',
+                       fmtstr = '%.4f'),
+                 Value(self.name + '.c_tot', unit='', type='counter',
+                       errors='next', fmtstr='%.4f'),
+                 Value(self.name + '.dc_tot', unit='', type='error',
+                       fmtstr = '%.4f'))
+        cvals = cvals + (Value(self.name + '.file', type='info', fmtstr='%s'),)
         if self.slave:
             return self._adevs['master'].valueInfo() + cvals
         return cvals
@@ -128,10 +142,13 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                 self._raise_reply('could not stop measurement', reply)
 
     def doRead(self, maxage=0):
+        if self.mode == 'tof':
+            myvalues = self.lastcounts + self.lastcontrast + [self.lastfilename]
+        else:
+            myvalues = self.lastcounts + [self.lastfilename]
         if self.slave:
-            return self._adevs['master'].read(maxage) + self.lastcounts + \
-                [self.lastfilename]
-        return self.lastcounts + [self.lastfilename]
+            return self._adevs['master'].read(maxage) + myvalues
+        return myvalues
 
     def _getconfig(self):
         cfg = self._client.communicate('CMD_getconfig_cdr')
@@ -143,7 +160,8 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         return self._getconfig()['mode']
 
     def doWriteMode(self, value):
-        reply = self._client.communicate('CMD_config_cdr mode=%s' % value)
+        reply = self._client.communicate('CMD_config_cdr mode=%s tres=%d' %
+            (value, 128 if value == 'tof' else 1))
         if reply != 'OKAY':
             self._raise_reply('could not set mode', reply)
 
@@ -232,16 +250,27 @@ class CascadeDetector(AsyncDetector, ImageStorage):
             self._tres, elapsedtime, buf)
         # determine total and roi counts
         total = self._client.counts(data)
-        #ar = np.ndarray(buffer=buf, shape=self._datashape,
-        #                order='F', dtype='<I4')
-        #total = int(long(ar.sum()))
+        ctotal, dctotal = 0., 0.
+        if self.mode == 'tof':
+            fret = self._client.contrast(data, self.fitfoil)
+            if fret[0]:
+                ctotal = fret[1]
+                dctotal = fret[3]
         if self.roi != (-1, -1, -1, -1):
             x1, y1, x2, y2 = self.roi
             #roi = int(long(ar[x1:x2, y1:y2].sum()))
             roi = self._client.counts(data, x1, x2, y1, y2)
+            croi, dcroi = 0., 0.
+            if self.mode == 'tof':
+                fret = self._client.contrast(data, self.fitfoil, x1, x2, y1, y2)
+                if fret[0]:
+                    croi = fret[1]
+                    dcroi = fret[3]
         else:
             roi = total
+            croi, dcroi = ctotal, dctotal
         self.lastcounts = [roi, total]
+        self.lastcontrast = [croi, dcroi, ctotal, dctotal]
         return buf
 
     def _writeXml(self, buf):
