@@ -412,6 +412,8 @@ class QScan(Scan):
                       scaninfo, scantype)
         self._envlist[0:0] = [inst._adevs['mono'], inst._adevs['ana'],
                               inst._adevs['psi'], inst._adevs['phi']]
+        if inst in self._envlist:
+            self._envlist.remove(inst)
 
     def shortDesc(self):
         return 'Qscan'
