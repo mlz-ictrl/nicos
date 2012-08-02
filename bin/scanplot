@@ -34,8 +34,8 @@ while path.islink(thisfile):
     thisfile = path.join(path.dirname(thisfile), os.readlink(thisfile))
 sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/../lib'))
 
-from numpy import array, linspace, sqrt, exp, log, log10, pi, piecewise, argsort, \
-     concatenate, ndarray, diagonal
+from numpy import array, linspace, sqrt, exp, log, log10, pi, piecewise, \
+     argsort, concatenate, ndarray, diagonal
 
 try:
     from scipy.optimize import curve_fit
@@ -139,6 +139,8 @@ def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, ff=gauss):
             y = log10(y)
         if ymin is not None and y < ymin: continue
         if ymax is not None and y > ymax: continue
+        if xmin is not None and x < xmin: continue
+        if xmax is not None and x > xmax: continue
         grpl('g0.s%1d point %g,%g' % (cnum, x, y))
         grpl('g0.s%1d.y1[%d] = %g' % (cnum, i, dy1))
         grpl('g0.s%1d.y2[%d] = %g' % (cnum, i, dy2))
@@ -372,6 +374,8 @@ mergeflag = False
 monitorcorrection = False
 ymin = None
 ymax = None
+xmin = None
+xmax = None
 
 for argu in sys.argv:
     if argu[0:4] == 'xcol':
@@ -388,6 +392,17 @@ for argu in sys.argv:
                 newycols[i] = int(newycols[i])
             except:
                 pass
+    if argu[0:4] == 'xlim':
+        newxlims = argu.split('=')[1]
+        if ',' in newxlims:
+            xmin, xmax = map(float, newxlims.split(','))
+        else:
+            xmin = 0
+            xmax = float(newxlims)
+    if argu[0:4] == 'xmax':
+        xmax = float(argu.split('=')[1])
+    if argu[0:4] == 'xmin':
+        xmin = float(argu.split('=')[1])
     if argu[0:4] == 'ylim':
         newylims = argu.split('=')[1]
         if ',' in newylims:
