@@ -78,7 +78,7 @@ class TmpImage : BasicImage
 #include "../../tofloader.h"
 %End
 	public:
-		TmpImage();
+		TmpImage(const TofConfig* pTofConf=0);
 		TmpImage(const TmpImage& tmp);
 		virtual ~TmpImage();
 

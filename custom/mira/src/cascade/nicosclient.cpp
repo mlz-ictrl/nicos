@@ -74,12 +74,6 @@ unsigned int NicosClient::counts(const QByteArray& arr)
 	}
 	else
 	{
-		//-----------------------------------------------
-		// REMOVE THIS AGAIN AFTER TEST
-		std::cerr << "TOF debug test." << std::endl;
-		return 0;
-		//-----------------------------------------------
-
 		m_tof.SetExternalMem((unsigned int*)(arr.data()+4));
 		return m_tof.GetCounts();
 	}
@@ -104,15 +98,81 @@ unsigned int NicosClient::counts(const QByteArray& arr, int iStartX, int iEndX,
 	}
 	else
 	{
-		//-----------------------------------------------
-		// REMOVE THIS AGAIN AFTER TEST
-		std::cerr << "TOF debug test." << std::endl;
-		return 0;
-		//-----------------------------------------------
-
 		m_tof.SetExternalMem((unsigned int*)(arr.data()+4));
 		return m_tof.GetCounts(iStartX, iEndX, iStartY, iEndY);
 	}
+}
+
+bool NicosClient::contrast(const QByteArray& arr, int iFoil,
+							double *pC, double *pPhase,
+							double *pC_err, double *pPhase_err)
+{
+	if(arr.size()<4) return 0;
+
+	int iPad = IsPad(arr.data());
+	if(iPad == IS_NONE) return 0;
+	bool bTof = (iPad == IS_TOF);
+
+	if(!IsSizeCorrect(arr, bTof))
+		return false;
+
+	bool bOk = true;
+
+	if(bTof)
+	{
+		m_tof.SetExternalMem((unsigned int*)(arr.data()+4));
+		TmpGraph graph = m_tof.GetGraph(iFoil);
+
+		if(pC_err && pPhase_err)
+			bOk = graph.GetContrast(*pC, *pPhase, *pC_err, *pPhase_err);
+		else
+			bOk = graph.GetContrast(*pC, *pPhase);
+	}
+	else
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Cannot calculate MIEZE contrast/phase for PAD image.\n";
+		return false;
+	}
+
+	return bOk;
+}
+
+bool NicosClient::contrast(const QByteArray& arr, int iFoil,
+							int iStartX, int iEndX,
+							int iStartY, int iEndY,
+							double *pC, double *pPhase,
+							double *pC_err, double *pPhase_err)
+{
+	if(arr.size()<4) return 0;
+
+	int iPad = IsPad(arr.data());
+	if(iPad == IS_NONE) return 0;
+	bool bTof = (iPad == IS_TOF);
+
+	if(!IsSizeCorrect(arr, bTof))
+		return false;
+
+	bool bOk = true;
+
+	if(bTof)
+	{
+		m_tof.SetExternalMem((unsigned int*)(arr.data()+4));
+		TmpGraph graph = m_tof.GetGraph(iStartX, iEndX, iStartY, iEndY, iFoil);
+
+		if(pC_err && pPhase_err)
+			bOk = graph.GetContrast(*pC, *pPhase, *pC_err, *pPhase_err);
+		else
+			bOk = graph.GetContrast(*pC, *pPhase);
+	}
+	else
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Cannot calculate MIEZE contrast/phase for PAD image.\n";
+		return false;
+	}
+
+	return bOk;
 }
 
 bool NicosClient::IsSizeCorrect(const QByteArray& arr, bool bPad)

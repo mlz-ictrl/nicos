@@ -380,7 +380,7 @@ unsigned int TofImage::GetCounts(int iStartX, int iEndX,
 TmpImage TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY,
 						  int iFolie, int iZ) const
 {
-	TmpImage img;
+	TmpImage img(&m_config);
 
 	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY,
 								     &iFolie, &iZ);
@@ -483,7 +483,7 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 
 TmpImage TofImage::GetOverview(bool bOnlyInRoi) const
 {
-	TmpImage img;
+	TmpImage img(&m_config);
 
 	img.Clear();
 	img.m_iW = GetTofConfig().GetImageWidth();
@@ -519,7 +519,7 @@ TmpImage TofImage::GetOverview(bool bOnlyInRoi) const
 
 TmpImage TofImage::GetPhaseGraph(int iFolie, bool bInDeg) const
 {
-	TmpImage img;
+	TmpImage img(&m_config);
 
 	int iStartX = 0,
 		iStartY = 0,
@@ -569,7 +569,7 @@ TmpImage TofImage::GetPhaseGraph(int iFolie, bool bInDeg) const
 
 TmpImage TofImage::GetContrastGraph(int iFoil) const
 {
-	TmpImage img;
+	TmpImage img(&m_config);
 
 	int iStartX = 0,
 		iStartY = 0,
@@ -618,7 +618,7 @@ TmpImage TofImage::GetContrastGraph(int iFoil) const
 
 TmpImage TofImage::AddFoils(const bool *pbKanaele) const
 {
-	TmpImage img;
+	TmpImage img(&m_config);
 
 	unsigned int uiAusgabe[GetTofConfig().GetImageHeight()]
 						  [GetTofConfig().GetImageWidth()];
@@ -725,7 +725,7 @@ void TofImage::AddFoils(int iBits, int iZeitKanaeleBits, TmpImage *pImg) const
 
 TmpImage TofImage::AddPhases(const bool *pbFolien) const
 {
-	TmpImage img;
+	TmpImage img(&m_config);
 
 	img.Clear();
 	img.m_iW = GetTofConfig().GetImageWidth();
@@ -761,7 +761,7 @@ TmpImage TofImage::AddPhases(const bool *pbFolien) const
 
 TmpImage TofImage::AddContrasts(const bool *pbFolien) const
 {
-	TmpImage img;
+	TmpImage img(&m_config);
 
 	img.Clear();
 	img.m_iW = GetTofConfig().GetImageWidth();
@@ -1299,11 +1299,17 @@ void TofImage::GenerateRandomData()
 
 //------------------------------------------------------------------------------
 // TmpImage
-TmpImage::TmpImage() : m_iW(GlobalConfig::GetTofConfig().GetImageWidth()),
-					   m_iH(GlobalConfig::GetTofConfig().GetImageHeight()),
-					   m_puiDaten(NULL), m_pdDaten(NULL),
-					   m_dMin(0), m_dMax(0)
-{}
+TmpImage::TmpImage(const TofConfig* pTofConf) :
+						m_iW(GlobalConfig::GetTofConfig().GetImageWidth()),
+						m_iH(GlobalConfig::GetTofConfig().GetImageHeight()),
+						m_puiDaten(NULL), m_pdDaten(NULL),
+						m_dMin(0), m_dMax(0)
+{
+	if(pTofConf)
+		m_TofConfig = *pTofConf;
+	else
+		m_TofConfig = GlobalConfig::GetTofConfig();
+}
 
 TmpImage::TmpImage(const TmpImage& tmp)
 {
@@ -1318,6 +1324,7 @@ TmpImage& TmpImage::operator=(const TmpImage& tmp)
 	m_dMax = tmp.m_dMax;
 	m_puiDaten = tmp.m_puiDaten;
 	m_pdDaten = tmp.m_pdDaten;
+	m_TofConfig = tmp.m_TofConfig;
 
 	gc.acquire(m_puiDaten);
 	gc.acquire(m_pdDaten);
@@ -1552,7 +1559,7 @@ TmpGraph TmpImage::GetRadialIntegration(double dAngleInc, double dRadInc,
 						   + (double(GetHeight())/2.)*(double(GetHeight())/2.));
 	const int iSteps = int(dMaxRad / dRadInc);
 
-	TmpGraph graph/*(&m_TofConfig)*/;
+	TmpGraph graph(&m_TofConfig);
 	graph.m_iW = iSteps;
 	graph.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*iSteps);
 	memset(graph.m_puiDaten, 0, iSteps*sizeof(int));

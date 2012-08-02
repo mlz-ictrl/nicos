@@ -182,12 +182,14 @@ class TmpImage : public BasicImage
 	// position of maximum
 	Vec2d<int> m_vecMax;
 
+	TofConfig m_TofConfig;
+
 	const Vec2d<int>& GetMaxCoord() const;
 
   public:
 	// create EMPTY TmpImage without allocating any memory etc.
 	// (which is done externally)
-	TmpImage();
+	TmpImage(const TofConfig* pTofConf=0);
 
 	// create TmpImage from other TmpImage; does NOT allocate memory
 	TmpImage(const TmpImage& tmp);
