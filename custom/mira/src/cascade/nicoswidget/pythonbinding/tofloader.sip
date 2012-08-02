@@ -78,7 +78,7 @@ class TmpImage : BasicImage
 #include "../../tofloader.h"
 %End
 	public:
-		TmpImage();
+		TmpImage(const TofConfig* pTofConf=0);
 		TmpImage(const TmpImage& tmp);
 		virtual ~TmpImage();
 
@@ -121,7 +121,7 @@ class TmpGraph
 #include "../../tofloader.h"
 %End
 	public:
-		TmpGraph();
+		TmpGraph(const TofConfig* pTofConf=0);
 		virtual ~TmpGraph();
 
 		bool FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOffs,

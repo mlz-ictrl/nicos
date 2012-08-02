@@ -101,6 +101,9 @@ class TofConfig : public PadConfig
 		std::vector<int> vecFoilBegin;
 
 		bool USE_PSEUDO_COMPRESSION;
+		bool SUM_FIRST_AND_LAST;
+
+		double NUM_OSC;
 
 	public:
 		TofConfig();
@@ -115,6 +118,8 @@ class TofConfig : public PadConfig
 		int GetImageCount() const;			// TOTAL images in TOF
 		int GetFoilBegin(int iFoil) const;
 		bool GetPseudoCompression() const;
+		bool GetSumFirstAndLast() const;
+		double GetNumOscillations() const;
 
 		//----------------------------------------------------------------------
 		// setter
@@ -123,6 +128,8 @@ class TofConfig : public PadConfig
 		void SetImageCount(int iImgCount);	// TOTAL images in TOF
 		void SetFoilBegin(int iFoil, int iOffs);
 		void SetPseudoCompression(bool bSet);
+		void SetSumFirstAndLast(bool bSet);
+		void SetNumOscillations(double dVal);
 
 		// check & correct argument ranges
 		void CheckTofArguments(int* piStartX, int* piEndX,

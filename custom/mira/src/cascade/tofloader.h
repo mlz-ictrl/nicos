@@ -182,12 +182,14 @@ class TmpImage : public BasicImage
 	// position of maximum
 	Vec2d<int> m_vecMax;
 
+	TofConfig m_TofConfig;
+
 	const Vec2d<int>& GetMaxCoord() const;
 
   public:
 	// create EMPTY TmpImage without allocating any memory etc.
 	// (which is done externally)
-	TmpImage();
+	TmpImage(const TofConfig* pTofConf=0);
 
 	// create TmpImage from other TmpImage; does NOT allocate memory
 	TmpImage(const TmpImage& tmp);
@@ -256,9 +258,11 @@ class TmpGraph
 	// pointer to data array
 	unsigned int* m_puiDaten;
 
+	TofConfig m_TofConfig;
+
   public:
 	// create empty graph (does not allocate memory)
-	TmpGraph();
+	TmpGraph(const TofConfig* pTofConf=0);
 	virtual ~TmpGraph();
 
 	// create TmpGraph from other TmpGraph; does NOT allocate memory
@@ -368,9 +372,8 @@ class TofImage
 
 		TmpGraph GetGraph(int iFoil) const;
 
-		// TODO
 		TmpGraph GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
-							   double dPhaseShift) const;
+							   double dPhaseShift=0.) const;
 
 		// get overview image (summing all individual images in TOF)
 		TmpImage GetOverview(bool bOnlyInRoi=false) const;

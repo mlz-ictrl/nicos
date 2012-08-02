@@ -43,6 +43,8 @@ class TofConfig : PadConfig
 		int GetImageCount() const;
 		int GetFoilBegin(int iFoil) const;
 		bool GetPseudoCompression() const;
+		bool GetSumFirstAndLast() const;
+		double GetNumOscillations() const;		
 
 		//----------------------------------------------------------------------
 		// setter
@@ -63,6 +65,11 @@ class TofConfig : PadConfig
 		//        counts in first time are split between first and last channels
 		// true: the opposite of both points
 		void SetPseudoCompression(bool bSet);
+
+		void SetSumFirstAndLast(bool bSet);
+
+		// for frequency of MIEZE sine fit
+		void SetNumOscillations(double dVal);		
 };
 
 
