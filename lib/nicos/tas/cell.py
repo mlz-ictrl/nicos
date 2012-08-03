@@ -369,7 +369,7 @@ class Cell(Device):
         return self._metric(self._lattice, self._angles * D2R)
 
     def metric_tensor_rec(self):
-        """Return the metric tensor in real space for the lattice."""
+        """Return the metric tensor in reciprocal space for the lattice."""
         return self._metric(self._lattice_rec, self._angles_rec)
 
     def cal_vec_angle(self, h1, k1, l1, h2, k2, l2):

@@ -69,9 +69,13 @@ class Scan(object):
             if names:
                 printwarning('these preset keys were not recognized by any of '
                              'the detectors: %s' % ', '.join(names))
-        allenvlist = session.experiment.sampleenv
-        if envlist is not None:
-            allenvlist.extend(dev for dev in envlist if dev not in allenvlist)
+        if envlist == []:
+            # special value [] to suppress all envlist devices
+            allenvlist = []
+        else:
+            allenvlist = session.experiment.sampleenv
+            if envlist is not None:
+                allenvlist.extend(dev for dev in envlist if dev not in allenvlist)
         self._firstmoves = firstmoves
         self._multistep = self.dataset.multistep = multistep
         if self._multistep:
@@ -408,6 +412,8 @@ class QScan(Scan):
                       scaninfo, scantype)
         self._envlist[0:0] = [inst._adevs['mono'], inst._adevs['ana'],
                               inst._adevs['psi'], inst._adevs['phi']]
+        if inst in self._envlist:
+            self._envlist.remove(inst)
 
     def shortDesc(self):
         return 'Qscan'
@@ -476,9 +482,12 @@ class ContinuousScan(Scan):
                 self.dataset.curpoint += 1
                 self.addPoint([devpos], diff)
                 last = read
-            for det in detlist:
-                det.stop()
         finally:
+            for det in detlist:
+                try:
+                    det.stop()
+                except Exception, err:
+                    session.log.warning('could not stop %s' % det, exc=1)
             session.endActionScope()
             device.stop()
             device.speed = original_speed

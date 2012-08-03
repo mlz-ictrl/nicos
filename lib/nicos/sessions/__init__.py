@@ -627,9 +627,7 @@ class Session(object):
             # shortcut for integrated help
             if command.endswith('?') or command.startswith('?'):
                 return compiler('help(%s)' % command.strip('?'))
-            # this could be a command extension to allow e.g. "read om",
-            # disabled for now since it has too many ambiguities and will
-            # confuse users
+            # shortcut for calling commands/devices without parens
             if command.startswith('.'):
                 parts = command[1:].split()
                 if not parts:
@@ -646,6 +644,9 @@ class Session(object):
                 self.log.error('unrecognized short command: %r - ignoring'
                                 % command[1:])
                 return compiler('pass')
+            # shortcut for simulation mode
+            if command.startswith(':'):
+                return compiler('Simulate(%r)' % command[1:].rstrip())
             raise
 
     def showHelp(self, obj=None):

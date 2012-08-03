@@ -899,10 +899,10 @@ class MainWindow : public QMainWindow
 			QString strFile = QFileDialog::getOpenFileName(this,
 														   "Open PAD File","",
 												  "PAD Files (*.pad *.PAD);;All Files (*)");
-			
+
 			if(strFile=="")
 				return;
-			
+
 			// set current directory
 			QDir dir(strFile);
 			dir.cdUp();
@@ -913,7 +913,7 @@ class MainWindow : public QMainWindow
 				bOk = m_cascadewidget.LoadPadFile(strFile.toAscii().data());
 			else
 				bOk = m_cascadewidget.LoadPadFileTxt(strFile.toAscii().data());
-			
+
 			if(bOk)
 			{
 				ServerDisconnect();

@@ -65,15 +65,14 @@ void PadConfig::SetImageHeight(int iImgHeight) { IMAGE_HEIGHT = iImgHeight; }
 TofConfig::TofConfig() : PadConfig()
 {
 	// defaults
-	FOIL_COUNT = 6;
-	vecFoilBegin.resize(FOIL_COUNT);
+	SetFoilCount(6);
 
-	IMAGES_PER_FOIL = 128;
-	IMAGE_COUNT = 768;
+	IMAGES_PER_FOIL = 16;
+	IMAGE_COUNT = 128;
 
-	USE_PSEUDO_COMPRESSION = 1;
+	USE_PSEUDO_COMPRESSION = 0;
 	SUM_FIRST_AND_LAST = 0;
-	NUM_OSC = 1.;
+	NUM_OSC = 2.;
 }
 
 TofConfig::TofConfig(const TofConfig& conf) : PadConfig(conf)
@@ -127,9 +126,17 @@ void TofConfig::SetFoilCount(int iNumFoils)
 	FOIL_COUNT = iNumFoils;
 	vecFoilBegin.resize(iNumFoils);
 
+	/*
 	// halbvernünftige Default-Werte setzen
 	for(int i=0; i<iNumFoils; ++i)
 		vecFoilBegin[i] = GetNextPowerOfTwo(IMAGES_PER_FOIL)*i;
+	*/
+	vecFoilBegin[0] = 0;
+	vecFoilBegin[1] = 16;
+	vecFoilBegin[2] = 32;
+	vecFoilBegin[3] = 64;
+	vecFoilBegin[4] = 80;
+	vecFoilBegin[5] = 96;
 }
 
 void TofConfig::SetFoilBegin(int iFoil, int iOffs)

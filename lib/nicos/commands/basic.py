@@ -560,7 +560,14 @@ def _RunScript(filename, statdevices, debug=False):
             dev._sim_min = None
             dev._sim_max = None
     printinfo('running user script: ' + fn)
-    with open(fn, 'r') as fp:
+    try:
+        fp = open(fn, 'r')
+    except Exception, e:
+        if session.mode == 'simulation':
+            session.log.exception()
+            return
+        raise NicosError('cannot open script %r: %s' % (filename, e))
+    with fp:
         code = unicode(fp.read(), 'utf-8')
         compiled = compile(code + '\n', fn, 'exec', CO_DIVISION)
         with _ScriptScope(path.basename(fn), code):
