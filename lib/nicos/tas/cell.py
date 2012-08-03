@@ -279,12 +279,15 @@ class Cell(Device):
             matcardan_inv = inv(self._matrix_cardan)
             mat_inv = inv(self._matrix)
             result = dot(Qlab, matcardan_inv)
-            hkl = dot(mat_inv, result)
-            return hkl
+            return dot(mat_inv, result)
         except ComputationError, err:
             raise
         except Exception, err:
             raise ComputationError('%s when transforming Qlab -> hkl' % err)
+
+    def Qcart2hkl(self, Qcart):
+        mat_inv = inv(self._matrix)
+        return dot(mat_inv, Qcart)
 
     def angle2Qcart(self, angles, coupled=False):
         """Calculate Q cartesian from instrument [ki, kf, phi, psi]."""
