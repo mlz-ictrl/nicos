@@ -482,9 +482,12 @@ class ContinuousScan(Scan):
                 self.dataset.curpoint += 1
                 self.addPoint([devpos], diff)
                 last = read
-            for det in detlist:
-                det.stop()
         finally:
+            for det in detlist:
+                try:
+                    det.stop()
+                except Exception, err:
+                    session.log.warning('could not stop %s' % det, exc=1)
             session.endActionScope()
             device.stop()
             device.speed = original_speed

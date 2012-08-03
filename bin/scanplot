@@ -188,6 +188,8 @@ def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, ff=gauss):
         grpl('g0.s1%1d legend "%s"' % (cnum, outstring))
         fxs = linspace(xs[0], xs[-1], 100)
         for x, y in zip(fxs, ff(fxs, *ps)):
+            if logflag:
+                y = log10(y)
             grpl('g0.s1%1d point %g,%g' % (cnum, x, y))
 
 
@@ -206,7 +208,7 @@ def try_float(x):
     except ValueError:
         return 0
 
-def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False):
+def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False, xcolhint=None):
     """Read NICOS data file."""
     try:
         f = open(filename, 'r')
@@ -254,10 +256,16 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
     if xcol is None:
         if colnames[0] == 'h':
             # HKL scan: determine first changing column
-            diffs = []
-            for i in range(4):
-                diffs.append(abs(xvalues[0][i] - xvalues[1][i]))
-            xcol = diffs.index(max(diffs))
+            if len(xvalues) < 2
+                if xcolhint is not None:
+                    xcol = xcolhint
+                else:
+                    xcol = 0
+            else:
+                diffs = []
+                for i in range(4):
+                    diffs.append(abs(xvalues[0][i] - xvalues[1][i]))
+                xcol = diffs.index(max(diffs))
         else:
             xcol = 0
     elif isinstance(xcol, str):
@@ -347,7 +355,7 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
     xs = array(xs)
     ys = array(ys)
     dys = array(dys)
-    return (xs, ys, dys, title, subtitle, xaxisname, yaxisname, legend)
+    return (xs, ys, dys, title, subtitle, xaxisname, yaxisname, legend, xcol)
 
 
 # start normal code here
@@ -444,6 +452,7 @@ pl = GracePlot.GracePlot().write
 # now plot all files:
 filecount = 0
 lastfilenumber = 0
+xcolhint = None
 for filenumber in filelist:
     if filenumber.startswith('-'):
         filenumber = lastfilenumber[:-len(filenumber[1:])] + filenumber[1:]
@@ -451,8 +460,8 @@ for filenumber in filelist:
     for newycol in newycols:
         filename = fileprefix + '_' + filenumber.zfill(8) + '.dat'
         thedata = getdatafromfile(filename, newxcol, newycol, normflag,
-                                  monitorcorrection)
-        xs, ys, dys, title, subtitle, xaxis, yaxis, legend = thedata
+                                  monitorcorrection, xcolhint)
+        xs, ys, dys, title, subtitle, xaxis, yaxis, legend, xcolhint = thedata
         if filecount == 0:
             prepareplot(pl, title, subtitle, xaxis, yaxis)
             if diffflag or mergeflag:
