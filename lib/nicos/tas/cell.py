@@ -34,7 +34,7 @@ from numpy import arccos, arcsin, arctan2, cos, sin, pi, sqrt, \
 from numpy.linalg import inv, norm
 
 from nicos.core import Device, Param, ComputationError, ConfigurationError, \
-     vec3
+     vec3, anytype
 from nicos.experiment import Sample
 
 D2R = pi/180
@@ -64,6 +64,8 @@ class Cell(Device):
         #                          '-1 parallel -x, 2 parallel y, '
         #                          '-2 parallel -y.',
         #                          type=int, default=1, settable=True),
+        'spacegroup': Param('Space group of the sample', settable=True,
+                            type=anytype),
     }
 
     def _reinit(self):

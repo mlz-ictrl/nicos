@@ -31,9 +31,10 @@ import time
 
 from numpy import array, linspace, sqrt, delete, sin, cos, arctan2, mat
 
-from nicos.core import ComputationError
+from nicos.core import ComputationError, NicosError
 from nicos.tas.mono import Monochromator
 from nicos.tas.spectro import THZ2MEV
+from nicos.tas.spacegroups import get_spacegroup, can_reflect
 
 
 def pylab_key_handler(event):
@@ -145,7 +146,7 @@ class SpaceMap(object):
                 limited.append(hkl)
         return allowed, limited
 
-    def generate_hkls(self, offset=None, origin=False):
+    def generate_hkls(self, offset=None, origin=False, sgroup=True):
         if offset is None:
             offset = array([0, 0, 0])
         else:
@@ -153,11 +154,21 @@ class SpaceMap(object):
         o1 = array(self.cell.orient1)
         o2 = array(self.cell.orient2)
         hkls = []
+        sg = None
+        try:
+            if sgroup:
+                sg = get_spacegroup(self.cell.spacegroup)
+        except NicosError:
+            pass
         for i in range(-10, 11):
             for j in range(-10, 11):
-                if i == j == 0 and not origin:
+                base = i*o1 + j*o2
+                if i == j == 0:
+                    if not origin:
+                        continue
+                elif sgroup and not can_reflect(sg, *base):
                     continue
-                hkls.append(i*o1 + j*o2 + offset)
+                hkls.append(base + offset)
         return self.check_hkls(hkls)
 
     def format_coord(self, x, y):
