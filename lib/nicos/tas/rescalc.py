@@ -995,34 +995,36 @@ Resolution Info:
         R0P, MP = GaussInt(2, R0, B)
         #print R0P, MP
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
-        x, y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
+        xy_x, xy_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 
         # slice through Qx,Qy plane
         MP = A[0:2,0:2]
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
-        xslice, yslice = ellipse_coords(hwhm_xp, hwhm_yp, theta)
+        xys_x, xys_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 
         #----- 2. Qx, W plane
         R0P, MP = GaussInt(1, R0, B)
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
-        xxq, yxq = ellipse_coords(hwhm_xp, hwhm_yp, theta)
+        xw_x, xw_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 
         # slice through Qx,W plane
         MP = [[A[0,0], A[0,3]], [A[3,0], A[3,3]]]
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
-        xxqsclice, yxqslice = ellipse_coords(hwhm_xp, hwhm_yp, theta)
+        xws_x, xws_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 
         #----- 3. Qy, W plane
         R0P, MP = GaussInt(0, R0, B)
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
-        xyq, yyq = ellipse_coords(hwhm_xp, hwhm_yp, theta)
+        yw_x, yw_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 
         # slice through Qy,W plane
         MP = [[A[1,1], A[1,3]], [A[3,1], A[3,3]]]
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
-        xyqsclice, yyqslice = ellipse_coords(hwhm_xp, hwhm_yp, theta)
+        yws_x, yws_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 
-        return x, y, xslice, yslice, xxq, yxq, xxqsclice, yxqslice, xyq, yyq, xyqsclice, yyqslice
+        return xy_x, xy_y, xys_x, xys_y, \
+            xw_x, xw_y, xws_x, xws_y, \
+            yw_x, yw_y, yws_x, yws_y
 
 
 def rc_int(index, r0, m):

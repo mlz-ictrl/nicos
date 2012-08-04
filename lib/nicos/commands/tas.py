@@ -564,7 +564,7 @@ def resscan(*hkles, **kwds):
 
 @usercommand
 @helparglist('...')
-def hklplot(**kw):
+def hklplot(**kwds):
     """Plot a representation of the scattering plane with accessible Q space.
 
     Keyword arguments that can be given:
@@ -577,4 +577,5 @@ def hklplot(**kw):
       nuclear Bragg point
     """
     from nicos.tas.plotting import SpaceMap
-    SpaceMap(session.instrument).plot_map(**kw)
+    resmat = _create_resmat((), kwds)
+    SpaceMap(session.instrument, resmat, **kwds).plot_map()

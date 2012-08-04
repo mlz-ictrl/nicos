@@ -29,10 +29,11 @@ Plotting tools for triple-axis spectrometers.
 import os
 import time
 
-from numpy import array, linspace, sqrt, delete
+from numpy import array, linspace, sqrt, delete, sin, cos, arctan2, mat
 
 from nicos.core import ComputationError
 from nicos.tas.mono import Monochromator
+from nicos.tas.spectro import THZ2MEV
 
 
 def pylab_key_handler(event):
@@ -64,9 +65,31 @@ def pylab_key_handler(event):
 
 class SpaceMap(object):
 
-    def __init__(self, tas):
+    def __init__(self, tas, resmat, E=0, ki=None, kf=None, hkl=None, scan=None,
+                 **kwds):
         self.tas = tas
         self.cell = tas._adevs['cell']
+        self.resmat = resmat
+
+        self.taus = []
+        for kwd in kwds:
+            if kwd.startswith('tau'):
+                self.taus.append(kwds[kwd])
+
+        mode = self.tas.scanmode
+        const = self.tas.scanconstant
+        if ki is not None:
+            mode = 'CKI'
+            const = ki
+        if kf is not None:
+            mode = 'CKF'
+            const = kf
+        self.E = E
+        self.ny = self.tas._thz(E)
+        self.mode = mode
+        self.const = const
+        self.hkl = hkl
+        self.scan = scan
 
     def plot_hkl(self, hkl, label=None, **props):
         import pylab
@@ -93,19 +116,19 @@ class SpaceMap(object):
                 pylab.text(x, y-0.2, label, size='x-small',
                            horizontalalignment='center', verticalalignment='top')
 
-    def check_hkls(self, hkls, E0, mode, const):
+    def check_hkls(self, hkls):
         allowed = []
         limited = []
         for hkl in hkls:
             if len(hkl) == 4:
                 hkl, E = list(hkl[:3]), hkl[3]
             else:
-                hkl, E = list(hkl), E0
+                hkl, E = list(hkl), self.E
             ny = self.tas._thz(E)
             try:
-                angles = self.cell.cal_angles(hkl, ny, mode, const,
-                                     self.tas.scatteringsense[1],
-                                     self.tas.axiscoupling, self.tas.psi360)
+                angles = self.cell.cal_angles(hkl, ny, self.mode, self.const,
+                    self.tas.scatteringsense[1],
+                    self.tas.axiscoupling, self.tas.psi360)
             except ComputationError:
                 continue
             for devname, value in zip(['mono', 'ana', 'phi', 'psi'], angles[:4]):
@@ -122,7 +145,7 @@ class SpaceMap(object):
                 limited.append(hkl)
         return allowed, limited
 
-    def generate_hkls(self, E, mode, const, offset=None, origin=False):
+    def generate_hkls(self, offset=None, origin=False):
         if offset is None:
             offset = array([0, 0, 0])
         else:
@@ -135,33 +158,46 @@ class SpaceMap(object):
                 if i == j == 0 and not origin:
                     continue
                 hkls.append(i*o1 + j*o2 + offset)
-        return self.check_hkls(hkls, E, mode, const)
+        return self.check_hkls(hkls)
 
     def format_coord(self, x, y):
         h, k, l = self.cell.Qcart2hkl(array([x, y, 0]))
         return '( %.4f  %.4f  %.4f )  Q = %.4f A-1     ' % \
             (h, k, l, sqrt(x**2 + y**2))
 
-    def plot_map(self, E=0, ki=None, kf=None, hkl=None, scan=None, **kwds):
+    def plot_ellipsoid(self, hkl, x, y):
+        import pylab
+        # plot resolution ellipsoid in x-y plane
+        self.resmat.sethklen(hkl[0], hkl[1], hkl[2], self.ny*THZ2MEV)
+        xs1, ys1, xs2, ys2 = self.resmat.resellipse()[:4]
+        # ellipse coordinate system is x || Q, y _|_ Q, so we need to find the
+        # correct rotation matrix to project that onto the cartesian plane
+        alpha = arctan2(y, x)
+        matrix = mat([[cos(alpha), -sin(alpha)], [sin(alpha), cos(alpha)]])
+        xs1, ys1 = array(matrix.dot(array([xs1, ys1])))
+        xs2, ys2 = array(matrix.dot(array([xs2, ys2])))
+        pylab.fill(xs1 + x, ys1 + y, color='blue', alpha=0.5)
+        pylab.plot(xs2 + x, ys2 + y, color='green')
+
+    def display_hkl(self, x, y, textobj):
+        hkl = self.cell.Qcart2hkl(array([x, y, 0]))
+        try:
+            angles = self.cell.cal_angles(hkl, self.ny, self.mode, self.const,
+                self.tas.scatteringsense[1], self.tas.axiscoupling,
+                self.tas.psi360)
+        except Exception:
+            return
+        text = 'hkl = (%.4f %.4f %.4f) E = %.4f %s: %s = %.4f deg;  %s = %.4f deg' % \
+            (hkl[0], hkl[1], hkl[2], self.E, self.tas.energytransferunit,
+             self.tas._adevs['phi'], angles[2], self.tas._adevs['psi'], angles[3])
+        textobj.set_text(text)
+        return hkl
+
+    def plot_map(self):
         import pylab
 
-        taus = []
-        for kwd in kwds:
-            if kwd.startswith('tau'):
-                taus.append(kwds[kwd])
-
-        mode = self.tas.scanmode
-        const = self.tas.scanconstant
-        if ki is not None:
-            mode = 'CKI'
-            const = ki
-        if kf is not None:
-            mode = 'CKF'
-            const = kf
-        ny = self.tas._thz(E)
-
         # compile a list of reflexes allowed by current spectro config
-        allowed, limited = self.generate_hkls(E, mode, const)
+        allowed, limited = self.generate_hkls()
 
         # calculate limits of movement from limits of phi and psi
         lim1, lim2, lim3, lim4 = [], [], [], []
@@ -169,12 +205,12 @@ class SpaceMap(object):
         psimin, psimax = psi.userlimits
         phimin, phimax = phi.userlimits
         coupling = self.tas.axiscoupling
-        if mode == 'CKI':
-            ki = const
-            kf = self.cell.cal_kf(ny, ki)
+        if self.mode == 'CKI':
+            ki = self.const
+            kf = self.cell.cal_kf(self.ny, ki)
         else:
-            kf = const
-            ki = self.cell.cal_ki1(ny, kf)
+            kf = self.const
+            ki = self.cell.cal_ki1(self.ny, kf)
         for phival in linspace(phi.usermin, phi.usermax, 100):
             xy1 = self.cell.angle2Qcart([ki, kf, phival, psimin], coupling)
             xy2 = self.cell.angle2Qcart([ki, kf, phival, psimax], coupling)
@@ -199,24 +235,17 @@ class SpaceMap(object):
         pylab.connect('key_press_event', pylab_key_handler)
         def click_handler(event):
             if not event.inaxes: return
-            hkl = self.cell.Qcart2hkl(array([event.xdata, event.ydata, 0]))
-            try:
-                angles = self.cell.cal_angles(hkl, ny, mode, const,
-                    self.tas.scatteringsense[1], self.tas.axiscoupling,
-                    self.tas.psi360)
-            except Exception:
-                return
-            text = 'hkl = (%.4f %.4f %.4f) E = %.4f %s: %s = %.4f deg;  %s = %.4f deg' % \
-                (hkl[0], hkl[1], hkl[2], E, self.tas.energytransferunit,
-                 self.tas._adevs['phi'], angles[2], self.tas._adevs['psi'], angles[3])
-            self.clicktext.set_text(text)
-            pylab.gcf().canvas.draw()
+            canvas = pylab.gcf().canvas
+            if canvas.toolbar.mode: return
+            hkl = self.display_hkl(event.xdata, event.ydata, self.clicktext)
+            self.plot_ellipsoid(hkl, event.xdata, event.ydata)
+            canvas.draw()
         pylab.connect('button_release_event', click_handler)
         # monkey-patch formatting coordinates in the status bar
         pylab.gca().format_coord = self.format_coord
 
         pylab.title('Available reciprocal space for %s %.3f \\AA$^{-1}$, E = %.3f %s'
-                    % (mode, const, E, self.tas.energytransferunit))
+                    % (self.mode, self.const, self.E, self.tas.energytransferunit))
         pylab.xlabel('$Q_1$ (\\AA$^{-1}$)')
         pylab.ylabel('$Q_2$ (\\AA$^{-1}$)')
         pylab.grid(color='0.5', zorder=-2)
@@ -233,17 +262,17 @@ class SpaceMap(object):
         # plot Bragg indices allowed by scattering plane, but limited by devices
         self.plot_hkls(limited, color='red')
         # plot user-supplied point
-        if hkl is not None:
-            self.plot_hkl(hkl, color='#009900', edgecolor='black', linewidth=0.5)
+        if self.hkl is not None:
+            self.plot_hkl(self.hkl, color='#009900', edgecolor='black', linewidth=0.5)
         # plot user-supplied propagation vectors
-        for tau in taus:
+        for tau in self.taus:
             tau = array(tau)
-            allowed1, limited = self.generate_hkls(E, mode, const, tau, origin=True)
-            allowed2, limited = self.generate_hkls(E, mode, const, -tau, origin=True)
+            allowed1, limited = self.generate_hkls(tau, origin=True)
+            allowed2, limited = self.generate_hkls(-tau, origin=True)
             self.plot_hkls(allowed1 + allowed2, color='#550055', s=3, marker='s')
         # plot user-supplied scan points
-        if scan is not None:
-            allowed, limited = self.check_hkls(scan, E, mode, const)
+        if self.scan is not None:
+            allowed, limited = self.check_hkls(self.scan)
             self.plot_hkls(allowed, color='#009900', s=2)
             self.plot_hkls(limited, color='red', s=2)
 
@@ -294,8 +323,8 @@ $\beta_{1\rightarrow4}$:  & %(beta1)i-Mono-%(beta2)i-Sample-%(beta3)i-Ana-%(beta
     pylab.subplot(222)
     pylab.xlabel(r'Q$_x$ (\AA$^{-1}$)')
     pylab.ylabel('Energy (meV)')
-    pylab.plot(xxq,yxq)
-    pylab.plot(xxqslice,yxqslice)
+    pylab.plot(xxq, yxq)
+    pylab.plot(xxqslice, yxqslice)
 
     ax2 = pylab.gca()
     text  = r"""\noindent\underline{Sample Parameters:}\newline
