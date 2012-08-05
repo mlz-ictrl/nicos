@@ -202,31 +202,43 @@ class HtmlWriter(object):
             self.close()
         open(path.join(directory, 'logbook.html'), 'w').write(
             FRAMESET % (instr, proposal))
-        self.fd = open(path.join(directory, 'content.html'), 'a+b')
+        self.fd = open(path.join(directory, 'content.html'), 'r+b')
         self.fd.seek(0, 2)
         if self.fd.tell() == 0:
             self.fd.write(PROLOG)
             self.fd.flush()
-        self.fd_toc = open(path.join(directory, 'toc.html'), 'a+b')
+        self.fd_toc = open(path.join(directory, 'toc.html'), 'r+b')
         self.fd_toc.seek(0, 2)
         if self.fd_toc.tell() == 0:
             self.fd_toc.write(PROLOG + PROLOG_TOC)
             self.fd_toc.flush()
 
-    def emit(self, html):
+    def emit(self, html, suffix=''):
         if self.fd:
-            if isinstance(html, unicode):
-                html = html.encode('utf-8')
             self.fd.write(html)
-            self.fd.flush()
+            # write suffix now, but place file pointer so that it's overwritten
+            # on subsequent writes in the same state -- this way we can
+            # guarantee that tags don't stay open
+            if suffix:
+                self.fd.write(suffix)
+                self.fd.flush()
+                self.fd.seek(-len(suffix), 2)
+            else:
+                self.fd.flush()
 
     def newstate(self, state, prefix, suffix, html):
         if state != self.curstate:
             self.endstate()
+            if isinstance(suffix, unicode):
+                suffix = suffix.encode('utf-8')
+            if isinstance(prefix, unicode):
+                prefix = prefix.encode('utf-8')
             self.statesuffix = suffix
             self.curstate = state
             self.emit(prefix)
-        self.emit(html)
+        if isinstance(html, unicode):
+            html = html.encode('utf-8')
+        self.emit(html, self.statesuffix)
 
     def timestamp(self, time):
         self.newstate('plain', '', '', '<span class="time">%s</span>' %
