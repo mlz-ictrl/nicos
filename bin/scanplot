@@ -128,6 +128,8 @@ def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, ff=gauss):
     for point in zip(xs, ys, dys):
         x, y, dy = point
         dy1 = dy2 = dy
+        if cascade is not None:
+            y += cnum * cascade
         if logflag:
             if y <= 0:
                 continue
@@ -190,6 +192,8 @@ def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, ff=gauss):
         for x, y in zip(fxs, ff(fxs, *ps)):
             if logflag:
                 y = log10(y)
+            if cascade is not None:
+                y += cnum * cascade
             grpl('g0.s1%1d point %g,%g' % (cnum, x, y))
 
 
@@ -256,11 +260,8 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
     if xcol is None:
         if colnames[0] == 'h':
             # HKL scan: determine first changing column
-            if len(xvalues) < 2
-                if xcolhint is not None:
-                    xcol = xcolhint
-                else:
-                    xcol = 0
+            if len(xvalues) < 2 and xcolhint is not None:
+                xcol = xcolhint
             else:
                 diffs = []
                 for i in range(4):
@@ -384,6 +385,7 @@ ymin = None
 ymax = None
 xmin = None
 xmax = None
+cascade = None
 
 for argu in sys.argv:
     if argu[0:4] == 'xcol':
@@ -422,6 +424,8 @@ for argu in sys.argv:
         ymax = float(argu.split('=')[1])
     if argu[0:4] == 'ymin':
         ymin = float(argu.split('=')[1])
+    if argu[0:7] == 'cascade':
+        cascade = float(argu.split('=')[1])
 
 logflag   = 'log' in sys.argv
 mergeflag = 'merge' in sys.argv
@@ -462,6 +466,8 @@ for filenumber in filelist:
         thedata = getdatafromfile(filename, newxcol, newycol, normflag,
                                   monitorcorrection, xcolhint)
         xs, ys, dys, title, subtitle, xaxis, yaxis, legend, xcolhint = thedata
+        if logflag:
+            yaxis = 'log ' + yaxis
         if filecount == 0:
             prepareplot(pl, title, subtitle, xaxis, yaxis)
             if diffflag or mergeflag:
