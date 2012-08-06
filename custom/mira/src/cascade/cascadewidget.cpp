@@ -305,6 +305,7 @@ void CascadeWidget::UpdateLabels()
 		{
 			case MODE_SLIDES:
 			case MODE_SUMS:
+			case MODE_OVERVIEW:
 				m_pPlot->axisWidget(QwtPlot::yRight)->setTitle(
 									m_bLog?"Counts 10^":"Counts");
 				break;
@@ -355,6 +356,11 @@ void CascadeWidget::UpdateGraph()
 		{
 			m_pTmpImg->Clear();
 			*m_pTmpImg = m_pTof->GetContrastGraph(m_iFolie);
+		}
+		else if(m_iMode==MODE_OVERVIEW)
+		{
+			m_pTmpImg->Clear();
+			*m_pTmpImg = GetTof()->GetOverview();
 		}
 
 		m_pTmpImg->UpdateRange();
@@ -434,7 +440,7 @@ void CascadeWidget::UpdateRange()
 void CascadeWidget::viewOverview()
 {
 	if(!IsTofLoaded()) return;
-	SetMode(MODE_SUMS);
+	SetMode(MODE_OVERVIEW);
 
 	m_pTmpImg->Clear();
 	*m_pTmpImg = GetTof()->GetOverview();
@@ -581,6 +587,7 @@ void CascadeWidget::SumDlgSlot(const bool *pbKanaele, int iMode)
 	{
 		case MODE_SLIDES:
 		case MODE_SUMS:
+		case MODE_OVERVIEW:
 			viewFoilSums(pbKanaele);
 			break;
 
@@ -616,6 +623,7 @@ void CascadeWidget::showSumDlg()
 	{
 		case MODE_SLIDES:
 		case MODE_SUMS:
+		case MODE_OVERVIEW:
 			if(!pSummenDlgSlides)
 			{
 				pSummenDlgSlides = new SumDlg(this);

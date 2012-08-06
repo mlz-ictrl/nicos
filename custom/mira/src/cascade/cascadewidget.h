@@ -39,6 +39,8 @@
 #define MODE_PHASESUMS		5
 #define MODE_CONTRASTSUMS	6
 
+#define MODE_OVERVIEW	10
+
 
 class CascadeWidget : public QWidget
 {
@@ -140,7 +142,7 @@ Q_OBJECT
 
 		void SetAutoCountRange(bool bAuto);
 		void SetCountRange(double dMin, double dMax);
-		
+
 		bool ToPDF(const char* pcDst) const;
 
 	public slots:

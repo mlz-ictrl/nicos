@@ -162,6 +162,8 @@ class GlobalConfig
 		static int iMinuitAlgo;
 		static unsigned int uiMinuitStrategy;
 
+		static bool bGuessConfig;
+
 	public:
 		// iLen in Ints, nicht Bytes
 		static bool GuessConfigFromSize(bool bPseudoCompressed, int iLen,
