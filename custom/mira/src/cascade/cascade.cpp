@@ -420,8 +420,10 @@ class MainWindow : public QMainWindow
 				FileHasChanged();
 
 				//ShowMessage("TOF loaded from Server.");
-				viewOverview();
-				actionViewsOverview->setChecked(true);
+
+				m_cascadewidget.UpdateGraph();
+				//viewOverview();
+				//actionViewsOverview->setChecked(true);
 			}
 			////////////////////////////////////////////////////////////////////
 			// Fehler
@@ -603,7 +605,7 @@ class MainWindow : public QMainWindow
 			UpdateLabels(false);
 
 			char pcKanal[128];
-			sprintf(pcKanal,"Time Channel (%0d):",
+			sprintf(pcKanal,"Time Channel (%0.2d):",
 					m_cascadewidget.GetTimechannel()+1);
 			labelZeitkanal->setText(pcKanal);
 		}

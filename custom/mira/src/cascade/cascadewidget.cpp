@@ -164,13 +164,13 @@ bool CascadeWidget::LoadFile(const char* pcFile)
 bool CascadeWidget::LoadPadFile(const char* pcFile, bool bBinary)
 {
 	NewPad();
-	
+
 	int iRet;
 	if(bBinary)
 		iRet= m_pPad->LoadFile(pcFile);
 	else
 		iRet= m_pPad->LoadTextFile(pcFile);
-	
+
 	if(iRet == LOAD_SIZE_MISMATCH)
 	{
 		long lSize = GetFileSize(pcFile);
@@ -338,6 +338,7 @@ void CascadeWidget::UpdateGraph()
 	{
 		if(m_iMode==MODE_SLIDES)
 		{
+			m_pTmpImg->Clear();
 			*m_pTmpImg = m_pTof->GetROI(0,
 							 m_pTof->GetTofConfig().GetImageWidth(), 0,
 							 m_pTof->GetTofConfig().GetImageHeight(),
@@ -359,7 +360,9 @@ void CascadeWidget::UpdateGraph()
 	if(IsPadLoaded() || IsTofLoaded())
 	{
 		m_pPlot->SetData(&m_data2d);	// !!
-		m_pPlot->replot();
+
+		RedrawRoi();
+		//m_pPlot->replot();
 	}
 	UpdateLabels();
 }
@@ -967,7 +970,7 @@ bool CascadeWidget::ToPDF(const char* pcDst) const
 	printer.setOrientation(QPrinter::Landscape);
 	printer.setOutputFileName(QString(pcDst));
 	printer.setOutputFormat(QPrinter::PdfFormat);
-	
+
 	m_pPlot->print(printer);
 	return true;
 }

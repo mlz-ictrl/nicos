@@ -81,13 +81,27 @@ bool TcpClient::connecttohost(const char* pcAddr, int iPort)
 		logger << "Client: " << pcAddr << " could not be resolved.\n";
 		return false;
 	}
-	QHostAddress address = info.addresses().first();
-	/*QHostAddress address = QHostAddress(QString(pcAddr))*/
+	m_addr = info.addresses().first();
+	m_iPort = iPort;
 
 	// Verbinden
-	m_socket.connectToHost(address, quint16(iPort));
+	m_socket.connectToHost(m_addr, quint16(m_iPort));
+	bool bConnected = m_socket.waitForConnected(WAIT_DELAY);
+	return bConnected;
+}
+
+bool TcpClient::reconnect()
+{
+	disconnect();
+
+	m_socket.connectToHost(m_addr, quint16(m_iPort));
 	bool bConnected = m_socket.waitForConnected(WAIT_DELAY);
 
+	if(!bConnected)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Client: Connection could not be reestablished.\n";
+	}
 	return bConnected;
 }
 
@@ -267,13 +281,17 @@ const QByteArray& TcpClient::recvmsg(void)
 void TcpClient::connected()
 {
 	logger.SetCurLogLevel(LOGLEVEL_INFO);
-	logger << "Client: Connected to server.\n";
+	logger << "Client: Connected to server "
+		   << m_addr.toString().toAscii().data()
+		   << " at port " << m_iPort << ".\n";
 }
 
 void TcpClient::disconnected()
 {
 	logger.SetCurLogLevel(LOGLEVEL_INFO);
-	logger << "Client: Disconnected from server.\n";
+	logger << "Client: Disconnected from server "
+		   << m_addr.toString().toAscii().data()
+		   << " at port " << m_iPort << ".\n";
 }
 
 void TcpClient::readReady()
@@ -297,6 +315,9 @@ void TcpClient::readReady()
 		{
 			m_bBeginOfMessage = true;
 			m_iExpectedMsgLength = m_iCurMsgLength = 0;
+
+			logger.SetCurLogLevel(LOGLEVEL_WARN);
+			logger << "Client: Message timeout reached.\n";
 		}
 	}
 
@@ -308,7 +329,18 @@ void TcpClient::readReady()
 
 		// Länge der zu erwartenden Nachricht lesen
 		m_iExpectedMsgLength = m_iCurMsgLength = 0;
-		read((char*)&m_iExpectedMsgLength, 4);
+		if(read((char*)&m_iExpectedMsgLength, 4)==0)
+			return;
+
+		if(m_iExpectedMsgLength==0)
+		{
+			logger.SetCurLogLevel(LOGLEVEL_WARN);
+			logger << "Client: Server sent message length 0. "
+				   << "Trying to reset connection.\n";
+
+			reconnect();
+			return;
+		}
 
 		// Nachricht läuft
 		m_bBeginOfMessage = false;
@@ -338,21 +370,24 @@ void TcpClient::readReady()
 
 		int iTimeElapsed = m_timer.elapsed();
 
-		// Fertige Nachricht emittieren
-		emit MessageSignal(m_byCurMsg.data(), m_byCurMsg.size());
+		// nur senden, falls nicht leer
+		if(m_iCurMsgLength > 0)
+		{
+			emit MessageSignal(m_byCurMsg.data(), m_byCurMsg.size());
 
-		logger.green(true);
-		logger.SetCurLogLevel(LOGLEVEL_INFO);
-		logger << "[from server] length: " << m_iCurMsgLength
-			   << ", time: " << iTimeElapsed << "ms, total: "
-			   << m_timer.elapsed() << "ms, data: "
-			   << m_byCurMsg.data()
-			   << "\n";
-		logger.normal();
+			logger.green(true);
+			logger.SetCurLogLevel(LOGLEVEL_INFO);
+			logger << "[from server] length: " << m_iCurMsgLength
+				   << ", time: " << iTimeElapsed << "ms, total: "
+				   << m_timer.elapsed() << "ms, data: "
+				   << m_byCurMsg.data()
+				   << "\n";
+			logger.normal();
 
-		// Ende der Nachricht, neue beginnt
-		m_bBeginOfMessage = true;
-		m_iExpectedMsgLength = m_iCurMsgLength = 0;
+			// Ende der Nachricht, neue beginnt
+			m_bBeginOfMessage = true;
+			m_iExpectedMsgLength = m_iCurMsgLength = 0;
+		}
 	}
 }
 ////////////////////////////////////////////////////////////////
