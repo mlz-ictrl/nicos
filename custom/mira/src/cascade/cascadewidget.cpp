@@ -66,6 +66,7 @@ CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 CascadeWidget::~CascadeWidget()
 {
 	Unload();
+	//if(m_pPlot) delete m_pPlot;
 }
 
 TofImage* CascadeWidget::GetTof() { return m_pTof; }
@@ -346,10 +347,12 @@ void CascadeWidget::UpdateGraph()
 		}
 		else if(m_iMode==MODE_PHASES)
 		{
+			m_pTmpImg->Clear();
 			*m_pTmpImg = m_pTof->GetPhaseGraph(m_iFolie);
 		}
 		else if(m_iMode==MODE_CONTRASTS)
 		{
+			m_pTmpImg->Clear();
 			*m_pTmpImg = m_pTof->GetContrastGraph(m_iFolie);
 		}
 
@@ -432,6 +435,7 @@ void CascadeWidget::viewOverview()
 	if(!IsTofLoaded()) return;
 	SetMode(MODE_SUMS);
 
+	m_pTmpImg->Clear();
 	*m_pTmpImg = GetTof()->GetOverview();
 	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
@@ -477,6 +481,7 @@ void CascadeWidget::viewContrasts()
 void CascadeWidget::viewFoilSums(const bool* pbKanaele)
 {
 	SetMode(MODE_SUMS);
+	m_pTmpImg->Clear();
 	*m_pTmpImg = GetTof()->AddFoils(pbKanaele);
 	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
@@ -487,6 +492,7 @@ void CascadeWidget::viewFoilSums(const bool* pbKanaele)
 void CascadeWidget::viewPhaseSums(const bool* pbFolien)
 {
 	SetMode(MODE_PHASESUMS);
+	m_pTmpImg->Clear();
 	*m_pTmpImg = GetTof()->AddPhases(pbFolien);
 	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
@@ -497,6 +503,7 @@ void CascadeWidget::viewPhaseSums(const bool* pbFolien)
 void CascadeWidget::viewContrastSums(const bool* pbFolien)
 {
 	SetMode(MODE_CONTRASTSUMS);
+	m_pTmpImg->Clear();
 	*m_pTmpImg = GetTof()->AddContrasts(pbFolien);
 	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
