@@ -55,6 +55,7 @@
 #include "ui_integrationdlg.h"
 #include "ui_rangedlg.h"
 #include "ui_countsvsimagesdlg.h"
+#include "ui_contrastsvsimagesdlg.h"
 #include "ui_batchdlg.h"
 
 #include "histogram_item.h"
@@ -378,7 +379,7 @@ class RangeDlg : public QDialog, public Ui::RangeDlg
 
 
 
-// ************************* Range Dialog **************************************
+// ************************* Counts vs. Images Dialog **************************
 
 class CountsVsImagesDlg : public QDialog, public Ui::CountsVsImagesDlg
 {
@@ -395,6 +396,40 @@ class CountsVsImagesDlg : public QDialog, public Ui::CountsVsImagesDlg
 	public:
 		CountsVsImagesDlg(CascadeWidget *pParent);
 		virtual ~CountsVsImagesDlg();
+
+	protected slots:
+		void LoadRoi();
+		void SetRoiUseCurrent(bool bCur);
+		void AddFile();
+		void DeleteFile();
+		void RoiGroupToggled();
+
+	public slots:
+		void UpdateGraph();
+};
+
+// *****************************************************************************
+
+
+
+
+// ************************* Contrasts vs. Images Dialog ***********************
+
+class ContrastsVsImagesDlg : public QDialog, public Ui::ContrastsVsImagesDlg
+{
+	Q_OBJECT
+
+	protected:
+		CascadeWidget *m_pwidget;
+
+		ErrorBarPlotCurve m_curve;
+		QwtPlotGrid *m_pgrid;
+		QwtPlotZoomer *m_pzoomer;
+		QwtPlotPanner *m_ppanner;
+
+	public:
+		ContrastsVsImagesDlg(CascadeWidget *pParent);
+		virtual ~ContrastsVsImagesDlg();
 
 	protected slots:
 		void LoadRoi();

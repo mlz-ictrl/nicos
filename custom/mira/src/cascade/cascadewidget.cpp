@@ -47,7 +47,8 @@ CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 												 m_pbrowsedlg(0),
 												 m_pintdlg(0),
 												 m_pRangeDlg(0),
-												 m_pCountsVsImagesDlg(0)
+												 m_pCountsVsImagesDlg(0),
+												 m_pContrastsVsImagesDlg(0)
 {
 	m_pPlot = new Plot(this);
 
@@ -751,6 +752,15 @@ void CascadeWidget::showCountsVsImagesDlg()
 	m_pCountsVsImagesDlg->activateWindow();
 }
 
+void CascadeWidget::showContrastsVsImagesDlg()
+{
+	if(!m_pContrastsVsImagesDlg)
+		m_pContrastsVsImagesDlg = new ContrastsVsImagesDlg(this);
+
+	m_pContrastsVsImagesDlg->show();
+	m_pContrastsVsImagesDlg->raise();
+	m_pContrastsVsImagesDlg->activateWindow();
+}
 //------------------------------------------------------------------------------
 
 

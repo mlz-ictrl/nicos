@@ -68,6 +68,7 @@ Q_OBJECT
 		IntegrationDlg* m_pintdlg;
 		RangeDlg* m_pRangeDlg;
 		CountsVsImagesDlg* m_pCountsVsImagesDlg;
+		ContrastsVsImagesDlg* m_pContrastsVsImagesDlg;
 
 		//----------------------------------------------------------------------
 		// ROI curves for qwt
@@ -163,6 +164,7 @@ Q_OBJECT
 		void showIntegrationDlg();
 		void showRangeDlg();
 		void showCountsVsImagesDlg();
+		void showContrastsVsImagesDlg();
 		///////////////////////////////////////
 
 		void SetLog10(bool bLog10);

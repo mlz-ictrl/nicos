@@ -1360,6 +1360,9 @@ class MainWindow : public QMainWindow
 			QAction *actionCountsVsImages = new QAction(
 						"&Counts vs. Images...",
 						this);
+			QAction *actionContrastsVsImages = new QAction(
+						"C&ontrasts vs. Images...",
+						this);			
 
 
 			// ROI Menu Items
@@ -1454,6 +1457,7 @@ class MainWindow : public QMainWindow
 			menuTofGraph->addAction(actionCalibration);
 			menuTofGraph->addSeparator();
 			menuTofGraph->addAction(actionGraph);
+			menuTofGraph->addAction(actionContrastsVsImages);
 			menuTofGraph->addAction(actionSummen);
 			menubar->addAction(menuTofGraph->menuAction());
 
@@ -1715,6 +1719,8 @@ class MainWindow : public QMainWindow
 					this, SLOT(showIntegrationDialog()));
 			connect(actionCountsVsImages, SIGNAL(triggered()),
 					&m_cascadewidget, SLOT(showCountsVsImagesDlg()));
+			connect(actionContrastsVsImages, SIGNAL(triggered()),
+					&m_cascadewidget, SLOT(showContrastsVsImagesDlg()));
 
 			// Timer
 			connect(&m_statustimer, SIGNAL(timeout()),

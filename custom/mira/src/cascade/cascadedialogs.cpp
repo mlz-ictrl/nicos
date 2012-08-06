@@ -1172,7 +1172,7 @@ CountsVsImagesDlg::CountsVsImagesDlg(CascadeWidget *pParent)
 
 	plot->setAutoReplot(false);
 	plot->setCanvasBackground(QColor(255,255,255));
-	plot->axisWidget(QwtPlot::xBottom)->setTitle("Images");
+	plot->axisWidget(QwtPlot::xBottom)->setTitle("Image");
 	plot->axisWidget(QwtPlot::yLeft)->setTitle("Counts");
 
 
@@ -1359,6 +1359,217 @@ void CountsVsImagesDlg::DeleteFile()
 
 	UpdateGraph();
 }
+
+
+
+
+
+// ********************* Contrasts vs Images ***********************************
+
+ContrastsVsImagesDlg::ContrastsVsImagesDlg(CascadeWidget *pParent)
+				 : QDialog(pParent), m_pwidget(pParent),
+				   m_pgrid(0), m_ppanner(0)
+{
+	setupUi(this);
+
+	listTofs->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+	plot->setAutoReplot(false);
+	plot->setCanvasBackground(QColor(255,255,255));
+	plot->axisWidget(QwtPlot::xBottom)->setTitle("Image");
+	plot->axisWidget(QwtPlot::yLeft)->setTitle("Contrast");
+
+
+	m_pzoomer = new QwtPlotZoomer(plot->canvas());
+
+	m_pzoomer->setSelectionFlags(QwtPicker::RectSelection |
+								 QwtPicker::DragSelection);
+
+	m_pzoomer->setMousePattern(QwtEventPattern::MouseSelect2,Qt::RightButton,
+							   Qt::ControlModifier);
+	m_pzoomer->setMousePattern(QwtEventPattern::MouseSelect3,Qt::RightButton);
+
+	QColor c(Qt::darkBlue);
+	m_pzoomer->setRubberBandPen(c);
+	m_pzoomer->setTrackerPen(c);
+
+
+	m_ppanner = new QwtPlotPanner(plot->canvas());
+	m_ppanner->setMouseButton(Qt::MidButton);
+
+
+	m_pgrid = new QwtPlotGrid;
+	m_pgrid->enableXMin(true);
+	m_pgrid->enableYMin(true);
+	m_pgrid->setMajPen(QPen(Qt::black, 0, Qt::DotLine));
+	m_pgrid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
+	m_pgrid->attach(plot);
+
+	QwtSymbol sym;
+	sym.setStyle(QwtSymbol::Ellipse);
+	sym.setPen(QColor(Qt::blue));
+	sym.setBrush(QColor(Qt::blue));
+	sym.setSize(5);
+
+	m_curve.setRenderHint(QwtPlotItem::RenderAntialiased);
+	QPen penfit = QPen(Qt::red);
+	m_curve.setPen(penfit);
+	m_curve.setSymbol(sym);
+	m_curve.attach(plot);
+
+	connect(btnAdd, SIGNAL(clicked()), this, SLOT(AddFile()));
+	connect(btnDelete, SIGNAL(clicked()), this, SLOT(DeleteFile()));
+	connect(btnRoiLoad, SIGNAL(clicked()), this, SLOT(LoadRoi()));
+	connect(btnRoiCurrent, SIGNAL(toggled(bool)),
+			this, SLOT(SetRoiUseCurrent(bool)));
+	connect(groupRoi, SIGNAL(toggled(bool)), this, SLOT(RoiGroupToggled()));
+}
+
+ContrastsVsImagesDlg::~ContrastsVsImagesDlg()
+{
+	if(m_pgrid) delete m_pgrid;
+	if(m_pzoomer) delete m_pzoomer;
+	if(m_ppanner) delete m_ppanner;
+}
+
+void ContrastsVsImagesDlg::UpdateGraph()
+{
+	bool bUseRoi = groupRoi->isChecked();
+	bool bUseCurRoi = btnRoiCurrent->isChecked();
+	QString strRoiFile = editRoi->text();
+
+	TofImage tof;
+
+	if(bUseRoi)
+	{
+		Roi &roi = tof.GetRoi();
+		tof.UseRoi(true);
+
+		if(bUseCurRoi)
+		{
+			Roi *pRoi = m_pwidget->GetCurRoi();
+			if(pRoi==0)
+			{
+				logger.SetCurLogLevel(LOGLEVEL_ERR);
+				logger << "Contrasts Dialog: No current ROI available.\n";
+
+				tof.UseRoi(false);
+			}
+			else
+			{
+				// copy current roi
+				roi = *pRoi;
+			}
+		}
+		else // load roi from file
+		{
+			if(!roi.Load(strRoiFile.toAscii().data()))
+			{
+				logger.SetCurLogLevel(LOGLEVEL_ERR);
+				logger << "Contrasts Dialog: Could not load ROI \""
+					   << strRoiFile.toAscii().data() << "\".\n";
+
+				tof.UseRoi(false);
+			}
+		}
+	}
+
+	const int iTofCnt = listTofs->count();
+
+	double *pdx = new double[iTofCnt];
+	double *pdy = new double[iTofCnt];
+	double *pdy_err = new double[iTofCnt];
+
+	double dMax = 0., dMin=1.;
+	for(int iItem=0; iItem<iTofCnt; ++iItem)
+	{
+		QListWidgetItem* pItem = listTofs->item(iItem);
+
+		if(!tof.LoadFile(pItem->text().toAscii().data()))
+		{
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Contrasts Dialog: Could not load \""
+				   << pItem->text().toAscii().data() << "\".\n";
+			continue;
+		}
+
+		TmpGraph graph = tof.GetGraph(0);
+		double dC, dC_err, dPh, dPh_err;
+		bool bOk = graph.GetContrast(dC, dPh, dC_err, dPh_err);
+		
+		dMax = max(dMax, dC+dC_err);
+		dMin = min(dMin, dC-dC_err);
+
+		pdx[iItem] = iItem;
+		pdy[iItem] = dC;
+		pdy_err[iItem] = dC_err;
+	}
+
+	m_curve.setData(pdx, pdy, pdy_err, iTofCnt);
+
+	delete[] pdx;
+	delete[] pdy;
+
+	plot->setAxisScale(QwtPlot::yLeft, dMin, dMax);
+	plot->setAxisScale(QwtPlot::xBottom, 0, iTofCnt);
+	m_pzoomer->setZoomBase();
+
+	plot->replot();
+}
+
+void ContrastsVsImagesDlg::RoiGroupToggled()
+{
+	UpdateGraph();
+}
+
+void ContrastsVsImagesDlg::LoadRoi()
+{
+	QString strFile = QFileDialog::getOpenFileName(this,
+							"Open ROI File","",
+							"ROI Files (*.roi *.roi);;XML Files (*.xml *.XML);;"
+							"All Files (*)");
+
+	editRoi->setText(strFile);
+	UpdateGraph();
+}
+
+void ContrastsVsImagesDlg::SetRoiUseCurrent(bool bCur)
+{
+	editRoi->setEnabled(!bCur);
+	btnRoiLoad->setEnabled(!bCur);
+
+	UpdateGraph();
+}
+
+void ContrastsVsImagesDlg::AddFile()
+{
+	QStringList pads = QFileDialog::getOpenFileNames(this, "TOF files", "",
+							"TOF Files (*.tof *.TOF);;All Files (*)");
+
+	listTofs->addItems(pads);
+	UpdateGraph();
+}
+
+void ContrastsVsImagesDlg::DeleteFile()
+{
+	QList<QListWidgetItem*> items = listTofs->selectedItems();
+
+	// nothing specific selected -> clear all
+	if(items.size() == 0)
+		listTofs->clear();
+
+	for(int i=0; i<items.size(); ++i)
+	{
+		if(items[i])
+		{
+			delete items[i];
+			items[i] = 0;
+		}
+	}
+
+	UpdateGraph();
+}
+
 
 
 
