@@ -288,15 +288,22 @@ void GraphDlg::UpdateGraph(void)
 	if(checkBoxDoFit->isChecked())
 	{
 		// Fit dieser Messpunkte
-		double dPhase, dFreq, dAmp, dOffs;
-		bool bFitValid = tmpGraph.FitSinus(dFreq, dPhase, dAmp, dOffs);
+		double dFreq, dPhase, dAmp, dOffs;
+		double dPhase_err, dAmp_err, dOffs_err;
+		bool bFitValid = tmpGraph.FitSinus(dFreq, dPhase, dAmp, dOffs,
+											dPhase_err, dAmp_err, dOffs_err);
+
+		double dContrast = dAmp/dOffs;
+		double dContrast_err =
+			sqrt((1/dOffs*dAmp_err)*(1/dOffs*dAmp_err)
+			+ (-dAmp/(dOffs*dOffs)*dOffs_err)*(-dAmp/(dOffs*dOffs)*dOffs_err));
 
 		char pcFit[256];
 		if(bFitValid)
 		{
-			sprintf(pcFit, "Fit: y = %.0f * sin(%.4f*x + %.4f) + %.0f"
-						"\nContrast: %.4f",
-							dAmp, dFreq, dPhase, dOffs, dAmp/dOffs);
+			sprintf(pcFit, "Contrast: %g +- %g\nPhase: %g +- %g",
+							dContrast, dContrast_err,
+							dPhase, dPhase_err);
 		}
 		else
 		{
@@ -385,7 +392,7 @@ void GraphDlg::Init(int iFolie)
 	sym.setPen(QColor(Qt::blue));
 	sym.setBrush(QColor(Qt::blue));
 	sym.setSize(5);
-	
+
 	m_curve.setSymbol(sym);
 	m_curve.setStyle(QwtPlotCurve::NoCurve);
 	m_curve.setRenderHint(QwtPlotItem::RenderAntialiased);
@@ -1361,10 +1368,10 @@ BatchDlg::BatchDlg(CascadeWidget *pParent) : QDialog(pParent),
 											m_pwidget(pParent)
 {
 	setupUi(this);
-	
+
 	comboWhat->addItem("Plot PAD/TOF to PDF");
 	comboWhat->addItem("Convert Text PAD/TOF to Binary");
-	
+
 	connect(btnSrc, SIGNAL(clicked()), this, SLOT(SelectSrcDir()));
 	connect(btnDst, SIGNAL(clicked()), this, SLOT(SelectDstDir()));
 	connect(btnStart, SIGNAL(clicked()), this, SLOT(Start()));
@@ -1387,11 +1394,11 @@ void BatchDlg::Start()
 
 	QDir dir(editSrc->text());
 	dir.setFilter(QDir::Files | QDir::Hidden);
-	
+
 	QStringList namefilters;
 	namefilters << "*.pad" << "*.tof" << "*.PAD" << "*.TOF";
 	dir.setNameFilters(namefilters);
-	
+
 	QFileInfoList filelist = dir.entryInfoList();
 	if(filelist.size() == 0)
 	{
@@ -1423,7 +1430,7 @@ void BatchDlg::Start()
 					QMessageBox::critical(0, "Error", "Please don't use the same directory as source and destination!", QMessageBox::Ok);
 					return;
 				}
-				
+
 				ConvertToBinary(fileinfo.filePath().toAscii().data(), strDstFile.toAscii().data());
 				break;
 		}
@@ -1431,7 +1438,7 @@ void BatchDlg::Start()
 		progressBar->setValue(iFile+1);
 		progressBar->setFormat(QString("%p% - ") + fileinfo.fileName());
 	}
-	
+
 	progressBar->setFormat(QString("%p% - Batch Job Finished"));
 }
 
@@ -1442,10 +1449,10 @@ void BatchDlg::SelectSrcDir()
 		"Select Source Directory",
 		".",
 		QFileDialog::ShowDirsOnly);
-	
+
 	if(strDir == "")
 		return;
-	
+
 	editSrc->setText(strDir);
 }
 
@@ -1456,10 +1463,10 @@ void BatchDlg::SelectDstDir()
 		"Select Source Directory",
 		".",
 		QFileDialog::ShowDirsOnly);
-	
+
 	if(strDir == "")
 		return;
-	
+
 	editDst->setText(strDir);
 }
 
@@ -1471,7 +1478,7 @@ void BatchDlg::ConvertToBinary(const char* pcSrc, const char* pcDst)
 	std::string strSrcFileEnding = GetFileEnding(pcSrc);
 	if(strSrcFileEnding=="TOF" || strSrcFileEnding=="tof")
 		bIsTof = 1;
-	
+
 	std::ifstream ifstr(pcSrc);
 	std::ofstream ofstr(pcDst, std::ios_base::binary);
 
@@ -1499,7 +1506,7 @@ void BatchDlg::ConvertToBinary(const char* pcSrc, const char* pcDst)
 		strDstCounts += ".counts";
 		std::ofstream ofstrCounts(strDstCounts.c_str());
 		ofstrCounts << "# timechannel\tcounts\n";
-		
+
 		unsigned int uiTimeChannel = 0;
 		while(1)
 		{
@@ -1508,7 +1515,7 @@ void BatchDlg::ConvertToBinary(const char* pcSrc, const char* pcDst)
 			std::istringstream istrLine(strLine);
 
 			if(ifstr.eof())
-				break;			
+				break;
 
 			unsigned int uiLineIdx = 0;
 			while(1)
@@ -1535,7 +1542,7 @@ void BatchDlg::ConvertToBinary(const char* pcSrc, const char* pcDst)
 				{
 					ofstrCounts << uiVal << "\n";
 				}
-				
+
 				if(uiLineIdx >= 2)
 					ofstr.write((char*)&uiVal, sizeof(uiVal));
 
@@ -1568,7 +1575,7 @@ void BatchDlg::ConvertToBinary(const char* pcSrc, const char* pcDst)
 void BatchDlg::ConvertToPDF(const char* pcSrc, const char* pcDst)
 {
 	std::string strSrcFileEnding = GetFileEnding(pcSrc);
-	
+
 	if(strSrcFileEnding=="PAD" || strSrcFileEnding=="pad")
 		m_pwidget->LoadPadFile(pcSrc);
 	else if(strSrcFileEnding=="TOF" || strSrcFileEnding=="tof")
@@ -1578,9 +1585,9 @@ void BatchDlg::ConvertToPDF(const char* pcSrc, const char* pcDst)
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
 		logger << "Conversion Dialog: Unable to identify type of file \"" << pcSrc
 				<< "\". Skipping.\n";
-		return;		
+		return;
 	}
-	
+
 	if(!m_pwidget->ToPDF(pcDst))
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
