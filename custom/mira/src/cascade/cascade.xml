@@ -19,14 +19,14 @@
 
 	        <pseudo_compression> 0 </pseudo_compression>
             <sum_first_and_last> 0 </sum_first_and_last>
-            <number_of_oscillations> 1.0 </number_of_oscillations>
+            <number_of_oscillations> 2.0 </number_of_oscillations>
         </tof_file>
 
 	<graphs>
 		<phase_block_size_x> 1 </phase_block_size_x>
 		<phase_block_size_y> 2 </phase_block_size_y>
 
-		<contrast_block_size_x> 1 </contrast_block_size_x>
+		<contrast_block_size_x> 2 </contrast_block_size_x>
 		<contrast_block_size_y> 2 </contrast_block_size_y>
 
 		<bin_count> 100  </bin_count>
@@ -65,7 +65,7 @@
 
 		<!-- one of: migrad, simplex, minimize -->
 		<algo> migrad </algo>
-		<strategy> 2 </strategy>
+		<strategy> 1 </strategy>
 	</minuit>
 
 </cascade_config>

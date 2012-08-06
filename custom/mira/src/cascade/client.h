@@ -42,6 +42,9 @@ Q_OBJECT
 		bool m_bBlocking;
 		QTcpSocket m_socket;
 
+		QHostAddress m_addr;
+		int m_iPort;
+
 		const QByteArray m_byEmpty;
 		/////////////// gegenwärtige Nachricht //////////////////////
 		QByteArray m_byCurMsg;
@@ -64,6 +67,7 @@ Q_OBJECT
 
 		// connect to server pcAddr at port iPort
 		bool connecttohost(const char* pcAddr, int iPort);
+		bool reconnect();
 		void disconnect();
 		bool isconnected() const;
 

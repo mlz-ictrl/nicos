@@ -31,12 +31,9 @@ neutrons.instruments.tas.tasres from the neutrons Python package, compiled by
 Marc Janoschek.
 """
 
-import os
-import time
-
 from numpy import pi, radians, degrees, sin, cos, tan, arcsin, arccos, \
      arctan2, abs, sqrt, real, matrix, diag, cross, dot, array, arange, \
-     zeros, concatenate, reshape, delete, ceil, floor
+     zeros, concatenate, reshape, delete
 from numpy.linalg import inv, det, eig, norm
 
 
@@ -998,34 +995,36 @@ Resolution Info:
         R0P, MP = GaussInt(2, R0, B)
         #print R0P, MP
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
-        x, y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
+        xy_x, xy_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 
         # slice through Qx,Qy plane
         MP = A[0:2,0:2]
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
-        xslice, yslice = ellipse_coords(hwhm_xp, hwhm_yp, theta)
+        xys_x, xys_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 
         #----- 2. Qx, W plane
         R0P, MP = GaussInt(1, R0, B)
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
-        xxq, yxq = ellipse_coords(hwhm_xp, hwhm_yp, theta)
+        xw_x, xw_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 
         # slice through Qx,W plane
         MP = [[A[0,0], A[0,3]], [A[3,0], A[3,3]]]
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
-        xxqsclice, yxqslice = ellipse_coords(hwhm_xp, hwhm_yp, theta)
+        xws_x, xws_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 
         #----- 3. Qy, W plane
         R0P, MP = GaussInt(0, R0, B)
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
-        xyq, yyq = ellipse_coords(hwhm_xp, hwhm_yp, theta)
+        yw_x, yw_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 
         # slice through Qy,W plane
         MP = [[A[1,1], A[1,3]], [A[3,1], A[3,3]]]
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
-        xyqsclice, yyqslice = ellipse_coords(hwhm_xp, hwhm_yp, theta)
+        yws_x, yws_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 
-        return x, y, xslice, yslice, xxq, yxq, xxqsclice, yxqslice, xyq, yyq, xyqsclice, yyqslice
+        return xy_x, xy_y, xys_x, xys_y, \
+            xw_x, xw_y, xws_x, xws_y, \
+            yw_x, yw_y, yws_x, yws_y
 
 
 def rc_int(index, r0, m):
@@ -1108,268 +1107,3 @@ def ellipse_coords(a, b, phi):
     y = x*s+y*c+y0
     x = th
     return x, y
-
-
-def pylab_key_handler(event):
-    import pylab
-    if event.key == 'p':
-        # write temporary file in tmp directory of system
-        filename = '/tmp/tas%s.ps' % time.strftime('%j%H%M')
-        pylab.savefig(filename, dpi=72, facecolor='w', edgecolor='w',
-                      orientation='landscape', papertype='a4')
-        #self.pylab.close()
-        print
-        res = os.system('lp %s' % filename)
-        if res == 0:
-            print 'Successfully sent file %s to the printer!' % filename
-        else:
-            print 'Error on sending file %s to the printer!' % filename
-
-    elif event.key == 'e':
-        # create more or less unique filename
-        filename = '/tmp/tas%s.pdf' % time.strftime('%j%H%M')
-        pylab.savefig(filename, dpi=72, facecolor='w', edgecolor='w',
-                      orientation='landscape', papertype='a4')
-        #self.pylab.close()
-        print 'Successfully exported file %s!' % filename
-
-    elif event.key == 'q':
-        pylab.close()
-
-
-def plot_ellipsoid(resmat):
-    import pylab
-
-    x, y, xslice, yslice, xxq, yxq, xxqslice, yxqslice, xyq, yyq, xyqslice, yyqslice = \
-        resmat.resellipse()
-
-    pylab.figure(4)
-    pylab.close()
-
-    pylab.ion()
-    pylab.figure(4, figsize=(8.5, 6), dpi=120, facecolor='1.0')
-    pylab.rc('text', usetex=True)
-    pylab.rc('text.latex',
-             preamble='\\usepackage{amsmath}\\usepackage{helvet}\\usepackage{sfmath}')
-    pylab.subplots_adjust(left=0.11, bottom=0.08, right=0.97, top=0.81,
-                          wspace=0.25, hspace=0.27)
-    # register event handler to pylab
-    pylab.connect('key_press_event', pylab_key_handler)
-
-    pylab.subplot(221)
-    pylab.xlabel(r'Q$_x$ (\AA$^{-1}$)')
-    pylab.ylabel(r'Q$_y$ (\AA$^{-1}$)')
-    pylab.plot(x,y)
-    pylab.plot(xslice,yslice)
-
-    ax1 = pylab.gca()
-    text  = r"""\noindent\underline{Spectrometer Setup:}\newline
-\begin{tabular}{ll}
-d-spacings: & $d_M=%(dm)1.4f$\,\AA~~~$d_A=%(da)1.4f$\,\AA \\
-mosaic:     & $\eta_M=%(etam)3.1f'$~~~$\eta_S=%(etas)3.1f'$~~~$\eta_A=%(etaa)3.1f'$ \\
-s-sense:    & $s_M=%(sm)i$~~~$s_S=%(ss)i$~~~$s_A=%(sa)i$ \\
-$\alpha_{1\rightarrow4}$: & %(alpha1)i-Mono-%(alpha2)i-Sample-%(alpha3)i-Ana-%(alpha4)i (hor. coll.) \\
-$\beta_{1\rightarrow4}$:  & %(beta1)i-Mono-%(beta2)i-Sample-%(beta3)i-Ana-%(beta4)i   (vert. coll.) \\
-\end{tabular}
-""" % resmat.par
-    t1 = pylab.text(-0.25, 1.57, text.replace('\n', ''),
-                    horizontalalignment='left', verticalalignment='top',
-                    transform=ax1.transAxes)
-    t1.set_size(10)
-
-    pylab.subplot(222)
-    pylab.xlabel(r'Q$_x$ (\AA$^{-1}$)')
-    pylab.ylabel('Energy (meV)')
-    pylab.plot(xxq,yxq)
-    pylab.plot(xxqslice,yxqslice)
-
-    ax2 = pylab.gca()
-    text  = r"""\noindent\underline{Sample Parameters:}\newline
-\begin{tabular}{llllll}
-$a$ (\AA) & $b$ (\AA) & $c$ (\AA) & $\alpha$ ($^{\circ}$) & $\beta$ ($^{\circ}$) & $\gamma$ ($^{\circ}$) \\
-%(as)2.3f & %(bs)2.3f & %(cs)2.3f & %(aa)3.1f & %(bb)3.1f & %(cc)3.1f \\
-\end{tabular}\newline """ % resmat.par
-    if resmat.par['kfix'] == 1:
-        text += r'fixed incident energy $k_i=%2.4f$\,\AA$^{-1}$ ($\equiv %4.2f$\,meV)\newline ' % \
-            (resmat.par['k'], resmat.par['k']**2*2.07)
-    else:
-        text += r'fixed final energy $k_f=%2.4f$\,\AA$^{-1}$ ($\equiv %4.2f$\,meV)\newline ' % \
-            (resmat.par['k'], resmat.par['k']**2*2.07)
-    text += r'position: qh = %1.3f qk = %1.3f ql = %1.3f (r.l.u.) en = %2.3f (meV)\newline ' % \
-        (resmat.par['qx'], resmat.par['qy'], resmat.par['qz'], resmat.par['en'])
-    text += r'modulus of scattering vector $Q = %2.5f$\,\AA$^{-1}$' % resmat.q0
-    t2 = pylab.text(-0.25, 1.57, text.replace('\n', ' '),
-                    horizontalalignment='left', verticalalignment='top',
-                    transform=ax2.transAxes)
-    t2.set_size(10)
-
-    pylab.subplot(223)
-    pylab.xlabel(r'Q$_y$ (\AA$^{-1}$)')
-    pylab.ylabel(r'Energy (meV)')
-    pylab.plot(xyq,yyq)
-    pylab.plot(xyqslice,yyqslice)
-
-    pylab.subplot(224)
-    ax3 = pylab.gca()
-    pylab.axis('off')
-    pylab.rc('text', usetex=True)
-    text  = r'\noindent\underline{\textbf{Resolution Info:}}\newline ' + \
-        r'Resolution Volume: $R_0 = %7.5g$ (\AA$^{-3}$\,meV)\newline\newline ' % resmat.R0
-    mat = resmat.NP.tolist()
-    text += r'Resolution Matrix (in frame $Q_x$, $Q_y$, $Q_z$, $E$):\newline '
-    text += (r'$M = \left(\begin{array}{rrrr} %5.2f & %5.2f & %5.2f & %5.2f\\ ' \
-             r'%5.2f & %5.2f & %5.2f & %5.2f\\ %5.2f & %5.2f & %5.2f & %5.2f\\ ' \
-             r'%5.2f & %5.2f & %5.2f & %5.2f \end{array}\right)$\newline\newline\newline ') \
-             % (mat[0][0], mat[0][1], mat[0][2], mat[0][3],
-                mat[1][0], mat[1][1], mat[1][2], mat[1][3],
-                mat[2][0], mat[2][1], mat[2][2], mat[2][3],
-                mat[3][0], mat[3][1], mat[3][2], mat[3][3])
-    text += r'Bragg width:\newline '
-    text += r'\begin{tabular}{lllll} '
-    text += r'$Q_x$ (\AA$^{-1}$) & $Q_y$ (\AA$^{-1}$) & $Q_z$ (\AA$^{-1}$) & Vanadium & dE (meV) \\ '
-    bragw = tuple(resmat.calcBragg())
-    text += r'%1.5f & %1.5f & %1.5f & %1.5f & %1.5f \\ ' % bragw[:5]
-    text += '\end{tabular}'
-    t3 = pylab.text(-0.13, 1.0, text,
-                    horizontalalignment='left', verticalalignment='top',
-                    transform=ax3.transAxes)
-    t3.set_size(10)
-
-def plot_scan(resmat, q, dq, np):
-    import pylab
-
-    qh = float(q[0])
-    qk = float(q[1])
-    ql = float(q[2])
-    en = float(q[3])
-    dqh = float(dq[0])
-    dqk = float(dq[1])
-    dql = float(dq[2])
-    den = float(dq[3])
-
-    #calculate scan
-    n = np
-    np = float(np)
-    h = arange(qh-dqh*floor(np/2), qh+dqh*ceil(np/2), dqh)
-    k = arange(qk-dqk*floor(np/2), qk+dqk*ceil(np/2), dqk)
-    l = arange(ql-dql*floor(np/2), ql+dql*ceil(np/2), dql)
-    e = arange(en-den*floor(np/2), en+den*ceil(np/2), den)
-
-    if dqh == 0.0:
-        h = zeros(n)+qh
-    if dqk == 0.0:
-        k = zeros(n)+qk
-    if dql == 0.0:
-        l = zeros(n)+ql
-    if den == 0.0:
-        e = zeros(n)+en
-
-    pylab.figure(4)
-    pylab.close()
-
-    pylab.ion()
-    pylab.figure(4, figsize=(8.5, 6), dpi=120, facecolor='1.0')
-    pylab.rc('text', usetex=True)
-    pylab.rc('text.latex',
-             preamble='\\usepackage{amsmath}\\usepackage{helvet}\\usepackage{sfmath}')
-    pylab.subplots_adjust(left=0.11, bottom=0.08, right=0.97, top=0.96,
-                          wspace=0.25, hspace=0.39)
-    # register event handler to pylab
-    pylab.connect('key_press_event', pylab_key_handler)
-
-    elliplist = []
-    errors = []
-    #print '\n=> Simulating scan:\n'
-    #print 'h    k    l    en'
-    #print '-----------------'
-    for i in range(n):
-        resmat.sethklen(h[i], k[i], l[i], e[i])
-        #print self.resmat.ERROR
-        if not resmat.ERROR:
-            #print '%+1.4f %+1.4f %+1.4f %+1.4f' %  (h[i], k[i], l[i], e[i])
-            elliplist.append(resmat.resellipse())
-        else:
-            print '%+1.4f %+1.4f %+1.4f %+1.4f => scattering triangle did not ' \
-                'close for this point => excluded from simulation' %  (h[i], k[i], l[i], e[i])
-            errors.append(i)
-
-    # remove points for that scattering triangle did not close
-    h = delete(h, errors)
-    k = delete(k, errors)
-    l = delete(l, errors)
-    e = delete(e, errors)
-
-    if den == 0.0: # q-scans plot energies as y axis
-        q = 0.0
-        if dqh != 0.0:
-            q = h
-        elif dqk != 0.0:
-            q = k
-        elif dql != 0.0:
-            q = l
-
-        pylab.subplot(311)
-        pylab.xlabel(r'$Q_x$ (\AA$^{-1}$)')
-        pylab.ylabel(r'$Q_y$ (\AA$^{-1}$)')
-        for i in range(len(elliplist)):
-            x, y, xslice, yslice = elliplist[i][0:4]
-            x += q[i]
-            xslice += q[i]
-
-            pylab.plot(x, y, 'b')
-            pylab.plot(xslice, yslice, 'g')
-
-        pylab.subplot(312)
-        pylab.xlabel(r'$Q_y$ (\AA$^{-1}$)')
-        pylab.ylabel(r'Energy (meV)')
-        for i in range(len(elliplist)):
-            xyq, yyq, xyqslice, yyqslice = elliplist[i][8:12]
-            xyq += q[i]
-            xyqslice += q[i]
-
-            pylab.plot(xyq, yyq, 'b')
-            pylab.plot(xyqslice, yyqslice, 'g')
-
-        pylab.subplot(313)
-        pylab.xlabel(r'$Q_x$ (\AA$^{-1}$)')
-        pylab.ylabel('Energy (meV)')
-        for i in range(len(elliplist)):
-            xxq, yxq, xxqslice, yxqslice = elliplist[i][4:8]
-            xxq += q[i]
-            xxqslice += q[i]
-            pylab.plot(xxq, yxq, 'b')
-            pylab.plot(xxqslice, yxqslice, 'g')
-
-    else: # energy scans plot energies as x-axis
-        pylab.subplot(311)
-        pylab.xlabel(r'$Q_x$ (\AA$^{-1}$)/Energy (meV)')
-        pylab.ylabel(r'$Q_y$ (\AA$^{-1}$)')
-        for i in range(len(elliplist)):
-            x, y, xslice, yslice = elliplist[i][0:4]
-            x += e[i]
-            xslice += e[i]
-
-            pylab.plot(x,y, 'b')
-            pylab.plot(xslice,yslice, 'g')
-
-        pylab.subplot(312)
-        pylab.ylabel(r'$Q_y$ (\AA$^{-1}$)')
-        pylab.xlabel(r'Energy (meV)')
-        for i in range(len(elliplist)):
-            xyq, yyq, xyqslice, yyqslice = elliplist[i][8:12]
-            yyq += e[i]
-            yyqslice += e[i]
-
-            pylab.plot(yyq,xyq, 'b')
-            pylab.plot(yyqslice,xyqslice, 'g')
-
-        pylab.subplot(313)
-        pylab.ylabel(r'$Q_x$ (\AA$^{-1}$)')
-        pylab.xlabel('Energy (meV)')
-        for i in range(len(elliplist)):
-            xxq, yxq, xxqslice, yxqslice = elliplist[i][4:8]
-            yxq += e[i]
-            yxqslice += e[i]
-
-            pylab.plot(yxq,xxq, 'b')
-            pylab.plot(yxqslice,xxqslice, 'g')

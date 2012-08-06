@@ -66,6 +66,7 @@ CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 CascadeWidget::~CascadeWidget()
 {
 	Unload();
+	//if(m_pPlot) delete m_pPlot;
 }
 
 TofImage* CascadeWidget::GetTof() { return m_pTof; }
@@ -164,13 +165,13 @@ bool CascadeWidget::LoadFile(const char* pcFile)
 bool CascadeWidget::LoadPadFile(const char* pcFile, bool bBinary)
 {
 	NewPad();
-	
+
 	int iRet;
 	if(bBinary)
 		iRet= m_pPad->LoadFile(pcFile);
 	else
 		iRet= m_pPad->LoadTextFile(pcFile);
-	
+
 	if(iRet == LOAD_SIZE_MISMATCH)
 	{
 		long lSize = GetFileSize(pcFile);
@@ -338,6 +339,7 @@ void CascadeWidget::UpdateGraph()
 	{
 		if(m_iMode==MODE_SLIDES)
 		{
+			m_pTmpImg->Clear();
 			*m_pTmpImg = m_pTof->GetROI(0,
 							 m_pTof->GetTofConfig().GetImageWidth(), 0,
 							 m_pTof->GetTofConfig().GetImageHeight(),
@@ -345,10 +347,12 @@ void CascadeWidget::UpdateGraph()
 		}
 		else if(m_iMode==MODE_PHASES)
 		{
+			m_pTmpImg->Clear();
 			*m_pTmpImg = m_pTof->GetPhaseGraph(m_iFolie);
 		}
 		else if(m_iMode==MODE_CONTRASTS)
 		{
+			m_pTmpImg->Clear();
 			*m_pTmpImg = m_pTof->GetContrastGraph(m_iFolie);
 		}
 
@@ -359,7 +363,9 @@ void CascadeWidget::UpdateGraph()
 	if(IsPadLoaded() || IsTofLoaded())
 	{
 		m_pPlot->SetData(&m_data2d);	// !!
-		m_pPlot->replot();
+
+		RedrawRoi();
+		//m_pPlot->replot();
 	}
 	UpdateLabels();
 }
@@ -429,6 +435,7 @@ void CascadeWidget::viewOverview()
 	if(!IsTofLoaded()) return;
 	SetMode(MODE_SUMS);
 
+	m_pTmpImg->Clear();
 	*m_pTmpImg = GetTof()->GetOverview();
 	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
@@ -474,6 +481,7 @@ void CascadeWidget::viewContrasts()
 void CascadeWidget::viewFoilSums(const bool* pbKanaele)
 {
 	SetMode(MODE_SUMS);
+	m_pTmpImg->Clear();
 	*m_pTmpImg = GetTof()->AddFoils(pbKanaele);
 	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
@@ -484,6 +492,7 @@ void CascadeWidget::viewFoilSums(const bool* pbKanaele)
 void CascadeWidget::viewPhaseSums(const bool* pbFolien)
 {
 	SetMode(MODE_PHASESUMS);
+	m_pTmpImg->Clear();
 	*m_pTmpImg = GetTof()->AddPhases(pbFolien);
 	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
@@ -494,6 +503,7 @@ void CascadeWidget::viewPhaseSums(const bool* pbFolien)
 void CascadeWidget::viewContrastSums(const bool* pbFolien)
 {
 	SetMode(MODE_CONTRASTSUMS);
+	m_pTmpImg->Clear();
 	*m_pTmpImg = GetTof()->AddContrasts(pbFolien);
 	m_data2d.SetImage((BasicImage**)&m_pTmpImg);
 
@@ -967,7 +977,7 @@ bool CascadeWidget::ToPDF(const char* pcDst) const
 	printer.setOrientation(QPrinter::Landscape);
 	printer.setOutputFileName(QString(pcDst));
 	printer.setOutputFormat(QPrinter::PdfFormat);
-	
+
 	m_pPlot->print(printer);
 	return true;
 }

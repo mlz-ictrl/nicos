@@ -34,7 +34,7 @@ from numpy import arccos, arcsin, arctan2, cos, sin, pi, sqrt, \
 from numpy.linalg import inv, norm
 
 from nicos.core import Device, Param, ComputationError, ConfigurationError, \
-     vec3
+     vec3, anytype
 from nicos.experiment import Sample
 
 D2R = pi/180
@@ -64,6 +64,8 @@ class Cell(Device):
         #                          '-1 parallel -x, 2 parallel y, '
         #                          '-2 parallel -y.',
         #                          type=int, default=1, settable=True),
+        'spacegroup': Param('Space group of the sample', settable=True,
+                            type=anytype),
     }
 
     def _reinit(self):
@@ -279,12 +281,15 @@ class Cell(Device):
             matcardan_inv = inv(self._matrix_cardan)
             mat_inv = inv(self._matrix)
             result = dot(Qlab, matcardan_inv)
-            hkl = dot(mat_inv, result)
-            return hkl
+            return dot(mat_inv, result)
         except ComputationError, err:
             raise
         except Exception, err:
             raise ComputationError('%s when transforming Qlab -> hkl' % err)
+
+    def Qcart2hkl(self, Qcart):
+        mat_inv = inv(self._matrix)
+        return dot(mat_inv, Qcart)
 
     def angle2Qcart(self, angles, coupled=False):
         """Calculate Q cartesian from instrument [ki, kf, phi, psi]."""

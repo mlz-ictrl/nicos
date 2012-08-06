@@ -34,7 +34,7 @@ from nicos import session
 from nicos.core import Measurable, Moveable, Readable, UsageError, NicosError
 from nicos.scan import QScan
 from nicos.tas.spectro import TAS, THZ2MEV
-from nicos.commands import usercommand, helparglist
+from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.scan import _infostr, ADDSCANHELP2
 from nicos.commands.device import maw, read
 from nicos.commands.output import printinfo
@@ -113,17 +113,29 @@ def qscan(Q, dQ, numsteps, *args, **kwargs):
     will perform an energy scan at (100) from 0 to 1 meV (or THz, depending on
     the instrument setting) with the given constant kf and the given monitor
     counts per point.
+
+    The special "plot" parameter can be given to plot the scan instead of
+    running it:
+
+    * plot='res'  -- plot resolution ellipsoid along scan
+    * plot='hkl'  -- plot position of scan points in scattering plane
     """
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
     scanstr = _infostr('qscan', (Q, dQ, numsteps) + args, kwargs)
+    plotval = kwargs.pop('plot', None)
     preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
             _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
     if all(v == 0 for v in dQ) and numsteps > 1:
         raise UsageError('scanning with zero step width')
     values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
                for i in range(numsteps)]
-    scan = QScan(values, move, multistep, detlist, envlist, preset, scaninfo)
-    scan.run()
+    if plotval == 'res':
+        resscan(*(p[0] for p in values), kf=kwargs.get('kf'), ki=kwargs.get('ki'))
+    elif plotval == 'hkl':
+        hklplot(scan=[p[0] for p in values], kf=kwargs.get('kf'), ki=kwargs.get('ki'))
+    else:
+        scan = QScan(values, move, multistep, detlist, envlist, preset, scaninfo)
+        scan.run()
 
 
 @usercommand
@@ -140,17 +152,29 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
 
     will perform a longitudinal scan around (100) with the given monitor counts
     per point.
+
+    The special "plot" parameter can be given to plot the scan instead of
+    running it:
+
+    * plot='res'  -- plot resolution ellipsoid along scan
+    * plot='hkl'  -- plot position of scan points in scattering plane
     """
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
     scanstr = _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
+    plotval = kwargs.pop('plot', None)
     preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
             _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
     if all(v == 0 for v in dQ) and numperside > 0:
         raise UsageError('scanning with zero step width')
     values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
                for i in range(-numperside, numperside+1)]
-    scan = QScan(values, move, multistep, detlist, envlist, preset, scaninfo)
-    scan.run()
+    if plotval == 'res':
+        resscan()
+    elif plotval == 'hkl':
+        hklplot(scan=[p[0] for p in values], kf=kwargs.get('kf'), ki=kwargs.get('ki'))
+    else:
+        scan = QScan(values, move, multistep, detlist, envlist, preset, scaninfo)
+        scan.run()
 
 qscan.__doc__  += ADDSCANHELP2.replace('scan(dev, ', 'qscan(Q, dQ, ')
 qcscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'qcscan(Q, dQ, ')
@@ -431,7 +455,7 @@ def powderrays(dlist, ki=None, phi=None):
         printinfo(' %s at %7.3f deg' % (my_line, angle))
 
 
-def _create_resmat(args):
+def _create_resmat(args, kwds):
     from nicos.tas.rescalc import resmat
 
     instr = session.instrument
@@ -448,14 +472,24 @@ def _create_resmat(args):
     else:
         raise UsageError('unsupported arguments')
 
+    if 'kf' in kwds and kwds['kf'] is not None:
+        const = kwds['kf']
+        mode = 'CKF'
+    elif 'ki' in kwds and kwds['ki'] is not None:
+        const = kwds['ki']
+        mode = 'CKI'
+    else:
+        const = instr.scanconstant
+        mode = instr.scanmode
+
     pars = {
         'dm': instr._adevs['mono'].dvalue,
         'da': instr._adevs['ana'].dvalue,
         'sm': instr.scatteringsense[0],
         'ss': instr.scatteringsense[1],
         'sa': instr.scatteringsense[2],
-        'k': instr.scanconstant,
-        'kfix': 1 if instr.scanmode == 'CKI' else 2,
+        'k': const,
+        'kfix': 1 if mode == 'CKI' else 2,
         'as': cell.lattice[0],
         'bs': cell.lattice[1],
         'cs': cell.lattice[2],
@@ -476,21 +510,72 @@ def _create_resmat(args):
 
     return resmat(**pars)
 
-@usercommand
-def rescal(*args):
-    print _create_resmat(args)
 
 @usercommand
-def resplot(*args):
-    from nicos.tas.rescalc import plot_ellipsoid
-    resmat = _create_resmat(args)
+@helparglist('[h, k, l[, E]] [, ki|kf=const]')
+def rescal(*args, **kwds):
+    """Calculate and print resolution at the current or the given Q/E point.
+
+    Example:
+
+    >>> rescal()           # display resolution at current Q/E point
+    >>> rescal(1, 1, 0)    # display resolution at the given point
+    >>> rescal(1, 1, 0, 5, kf=2.662)  # at the given point with const kf = 2.662
+
+    Obviously, several sample and spectrometer parameters must be set correctly
+    for the resolution calculation to work.
+    """
+    print _create_resmat(args, kwds)
+
+
+@usercommand
+@helparglist('[h, k, l[, E]] [, ki|kf=const]')
+def resplot(*args, **kwds):
+    """Calculate and plot resolution at the current or the given Q/E point.
+
+    Example:
+
+    >>> resplot()           # plot resolution at current Q/E point
+    >>> resplot(1, 1, 0)    # plot resolution at the given point
+    >>> resplot(1, 1, 0, 5, kf=2.662) # at the given point with const kf = 2.662
+
+    Obviously, several sample and spectrometer parameters must be set correctly
+    for the resolution calculation to work.
+    """
+    from nicos.tas.plotting import plot_ellipsoid
+    resmat = _create_resmat(args, kwds)
     printinfo('plotting resolution in separate window, please wait...')
     plot_ellipsoid(resmat)
 
-@usercommand
-def resscan(*args):
-    qe, dqe, np = args
-    from nicos.tas.rescalc import plot_scan
-    resmat = _create_resmat(qe)
+
+@hiddenusercommand
+@helparglist('hkle1, hkle2, ...')
+def resscan(*hkles, **kwds):
+    """Calculate and plot resolution at every given point.
+
+    This is usually used via the `qscan()` and `qcscan()` commands with the
+    plot='res' parameter.
+    """
+    from nicos.tas.plotting import plot_scan
+    resmat = _create_resmat(hkles[0], kwds)
     printinfo('plotting scan resolution in separate window, please wait...')
-    plot_scan(resmat, qe, dqe, np)
+    plot_scan(resmat, hkles)
+
+
+@usercommand
+@helparglist('...')
+def hklplot(**kwds):
+    """Plot a representation of the scattering plane with accessible Q space.
+
+    Keyword arguments that can be given:
+
+    * E -- energy transfer to calculate for
+    * ki -- ki for constant-ki mode (default is current spectrometer setup)
+    * kf -- kf for constant-kf mode
+    * hkl -- a (h, k, l) tuple to plot
+    * tauX -- a propagation vector as a (dh, dk, dl) tuple to plot from every
+      nuclear Bragg point
+    """
+    from nicos.tas.plotting import SpaceMap
+    resmat = _create_resmat((), kwds)
+    SpaceMap(session.instrument, resmat, **kwds).plot_map()
