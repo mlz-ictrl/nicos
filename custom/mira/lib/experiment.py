@@ -37,7 +37,7 @@ from nicos.experiment import Experiment
 
 class MiraExperiment(Experiment):
 
-    def new(self, proposal, title=None, **kwds):
+    def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
         if not isinstance(proposal, (int, long)):
             proposal = int(proposal)
         new_datapath = path.join(self.dataroot, time.strftime('%Y'), str(proposal))
