@@ -47,7 +47,8 @@ CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 												 m_pbrowsedlg(0),
 												 m_pintdlg(0),
 												 m_pRangeDlg(0),
-												 m_pCountsVsImagesDlg(0)
+												 m_pCountsVsImagesDlg(0),
+												 m_pContrastsVsImagesDlg(0)
 {
 	m_pPlot = new Plot(this);
 
@@ -304,6 +305,7 @@ void CascadeWidget::UpdateLabels()
 		{
 			case MODE_SLIDES:
 			case MODE_SUMS:
+			case MODE_OVERVIEW:
 				m_pPlot->axisWidget(QwtPlot::yRight)->setTitle(
 									m_bLog?"Counts 10^":"Counts");
 				break;
@@ -354,6 +356,11 @@ void CascadeWidget::UpdateGraph()
 		{
 			m_pTmpImg->Clear();
 			*m_pTmpImg = m_pTof->GetContrastGraph(m_iFolie);
+		}
+		else if(m_iMode==MODE_OVERVIEW)
+		{
+			m_pTmpImg->Clear();
+			*m_pTmpImg = GetTof()->GetOverview();
 		}
 
 		m_pTmpImg->UpdateRange();
@@ -433,7 +440,7 @@ void CascadeWidget::UpdateRange()
 void CascadeWidget::viewOverview()
 {
 	if(!IsTofLoaded()) return;
-	SetMode(MODE_SUMS);
+	SetMode(MODE_OVERVIEW);
 
 	m_pTmpImg->Clear();
 	*m_pTmpImg = GetTof()->GetOverview();
@@ -580,6 +587,7 @@ void CascadeWidget::SumDlgSlot(const bool *pbKanaele, int iMode)
 	{
 		case MODE_SLIDES:
 		case MODE_SUMS:
+		case MODE_OVERVIEW:
 			viewFoilSums(pbKanaele);
 			break;
 
@@ -615,6 +623,7 @@ void CascadeWidget::showSumDlg()
 	{
 		case MODE_SLIDES:
 		case MODE_SUMS:
+		case MODE_OVERVIEW:
 			if(!pSummenDlgSlides)
 			{
 				pSummenDlgSlides = new SumDlg(this);
@@ -751,6 +760,15 @@ void CascadeWidget::showCountsVsImagesDlg()
 	m_pCountsVsImagesDlg->activateWindow();
 }
 
+void CascadeWidget::showContrastsVsImagesDlg()
+{
+	if(!m_pContrastsVsImagesDlg)
+		m_pContrastsVsImagesDlg = new ContrastsVsImagesDlg(this);
+
+	m_pContrastsVsImagesDlg->show();
+	m_pContrastsVsImagesDlg->raise();
+	m_pContrastsVsImagesDlg->activateWindow();
+}
 //------------------------------------------------------------------------------
 
 

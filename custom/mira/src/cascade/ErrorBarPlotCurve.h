@@ -45,7 +45,7 @@ class ErrorBarPlotCurve : public QwtPlotCurve
 		}
 
 	public:
-		ErrorBarPlotCurve(const char* pcName) : QwtPlotCurve(pcName),
+		ErrorBarPlotCurve(const char* pcName=0) : QwtPlotCurve(pcName),
 												m_pddy(NULL), m_iLen(0)
 		{
 			//setPen(QPen(QColor(Qt::black), 1));
@@ -71,6 +71,19 @@ class ErrorBarPlotCurve : public QwtPlotCurve
 
 			for(int i=0; i<iLen; ++i)
 				m_pddy[i] = sqrt(pdy[i]);
+		}
+
+		virtual void setData(const double *pdx, const double *pdy,
+							const double *pdy_err, int iLen)
+		{
+			Clear();
+			QwtPlotCurve::setData(pdx, pdy, iLen);
+
+			m_iLen=iLen;
+			m_pddy = new double[iLen];
+
+			for(int i=0; i<iLen; ++i)
+				m_pddy[i] = pdy_err[i];	
 		}
 
 		virtual void draw(QPainter *painter, const QwtScaleMap& xMap,

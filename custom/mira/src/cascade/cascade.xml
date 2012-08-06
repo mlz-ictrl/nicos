@@ -4,22 +4,24 @@
 
 <cascade_config>
         <tof_file>
-                <image_count> 128 </image_count>
-                <foil_count> 6  </foil_count>
-                <images_per_foil> 16 </images_per_foil>
-                <image_height> 128 </image_height>
-                <image_width> 128 </image_width>
+            <image_count> 128 </image_count>
+            <foil_count> 6  </foil_count>
+            <images_per_foil> 16 </images_per_foil>
+            <image_height> 128 </image_height>
+            <image_width> 128 </image_width>
 
-                <foil_1_start> 0  </foil_1_start>
-                <foil_2_start> 16 </foil_2_start>
-                <foil_3_start> 32 </foil_3_start>
-                <foil_4_start> 64 </foil_4_start>
-                <foil_5_start> 80 </foil_5_start>
-                <foil_6_start> 96 </foil_6_start>
+            <foil_1_start> 0  </foil_1_start>
+            <foil_2_start> 16 </foil_2_start>
+            <foil_3_start> 32 </foil_3_start>
+            <foil_4_start> 64 </foil_4_start>
+            <foil_5_start> 80 </foil_5_start>
+            <foil_6_start> 96 </foil_6_start>
 
-	        <pseudo_compression> 0 </pseudo_compression>
+	    <pseudo_compression> 0 </pseudo_compression>
             <sum_first_and_last> 0 </sum_first_and_last>
             <number_of_oscillations> 2.0 </number_of_oscillations>
+
+            <guess_file_config> 0 </guess_file_config>
         </tof_file>
 
 	<graphs>
@@ -57,6 +59,9 @@
 		<log_to_file> 0 </log_to_file>
 		<file> cascade.log </file>
 		<repeat_duplicate_logs> 0 </repeat_duplicate_logs>
+
+		<!-- write temporary data files, e.g. data for plots -->
+		<dump_files> 1 </dump_files>
 	</log>
 
 	<minuit>

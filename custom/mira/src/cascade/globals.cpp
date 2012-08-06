@@ -226,6 +226,10 @@ unsigned int GlobalConfig::uiMinuitMaxFcn = 1000;
 int GlobalConfig::iMinuitAlgo = MINUIT_MIGRAD;
 unsigned int GlobalConfig::uiMinuitStrategy = 2;
 
+bool GlobalConfig::bGuessConfig = 1;
+bool GlobalConfig::bDumpFiles = 0;
+
+
 void GlobalConfig::Init()
 {
 #ifdef __BIG_ENDIAN__
@@ -242,6 +246,9 @@ void GlobalConfig::Init()
 
 // Cascade-Qt-Client lädt Einstellungen über XML-Datei
 #ifdef __CASCADE_QT_CLIENT__
+	bGuessConfig = (bool)Config::GetSingleton()->QueryInt(
+				"/cascade_config/tof_file/guess_file_config", bGuessConfig);
+
 	s_config.IMAGE_COUNT = Config::GetSingleton()->QueryInt(
 				"/cascade_config/tof_file/image_count", s_config.IMAGE_COUNT);
 	s_config.FOIL_COUNT = Config::GetSingleton()->QueryInt(
@@ -310,6 +317,9 @@ void GlobalConfig::Init()
 		logger << "Globals: Unknown algorithm: \"" << strAlgo << "\".\n";
 	}
 
+	bDumpFiles = (bool)Config::GetSingleton()->QueryInt(
+				"/cascade_config/log/dump_files", bDumpFiles);	
+
 #else	// Nicos-Client holt Einstellungen von Detektor
 
 	// Defaults setzen
@@ -333,6 +343,7 @@ int GlobalConfig::GetMinuitAlgo() { return iMinuitAlgo; }
 unsigned int GlobalConfig::GetMinuitStrategy() { return uiMinuitStrategy; }
 
 TofConfig& GlobalConfig::GetTofConfig() { return s_config;}
+bool GlobalConfig::GetDumpFiles() { return bDumpFiles; }
 
 void GlobalConfig::SetMinuitMaxFnc(unsigned int uiMaxFcn)
 { uiMinuitMaxFcn = uiMaxFcn; }
@@ -351,6 +362,18 @@ void GlobalConfig::SetRepeatLogs(bool bRepeat)
 bool GlobalConfig::GuessConfigFromSize(bool bPseudoCompressed, int iLen,
 											bool bIsTof, bool bFirstCall)
 {
+	if(!bGuessConfig)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Please configure the loader correctly using either"
+				  " GlobalConfig or the config file."
+			   << " Alternatively you can enable \"guess_file_config\" in "
+				  "the config file for testing."
+			   << "\n";
+
+		return false;
+	}
+
 	if(bFirstCall)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_WARN);

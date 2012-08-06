@@ -162,6 +162,9 @@ class GlobalConfig
 		static int iMinuitAlgo;
 		static unsigned int uiMinuitStrategy;
 
+		static bool bGuessConfig;
+		static bool bDumpFiles;
+
 	public:
 		// iLen in Ints, nicht Bytes
 		static bool GuessConfigFromSize(bool bPseudoCompressed, int iLen,
@@ -178,6 +181,8 @@ class GlobalConfig
 		static unsigned int GetMinuitStrategy();
 
 		static TofConfig& GetTofConfig();
+
+		static bool GetDumpFiles();
 		//----------------------------------------------------------------------
 
 		//----------------------------------------------------------------------

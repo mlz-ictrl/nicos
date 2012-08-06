@@ -214,6 +214,7 @@ class MainWindow : public QMainWindow
 				{
 					case MODE_SLIDES:
 					case MODE_SUMS:
+					case MODE_OVERVIEW:
 						sliderZeitkanaele->setEnabled(true);
 						labelZeitkanal->setEnabled(true);
 						break;
@@ -239,6 +240,10 @@ class MainWindow : public QMainWindow
 						break;
 					case MODE_SUMS:
 						ShowMessage("Showing Sums.");
+						break;
+
+					case MODE_OVERVIEW:
+						ShowMessage("Showing Overview.");
 						break;
 
 					case MODE_PHASES:
@@ -284,6 +289,7 @@ class MainWindow : public QMainWindow
 			if(pcFile)
 			{
 				ShowTitleMessage(pcFile);
+				actionViewsOverview->setChecked(true);
 			}
 		}
 
@@ -421,9 +427,10 @@ class MainWindow : public QMainWindow
 
 				//ShowMessage("TOF loaded from Server.");
 
-				m_cascadewidget.UpdateGraph();
 				//viewOverview();
 				//actionViewsOverview->setChecked(true);
+
+				m_cascadewidget.UpdateGraph();
 			}
 			////////////////////////////////////////////////////////////////////
 			// Fehler
@@ -533,6 +540,7 @@ class MainWindow : public QMainWindow
 			{
 				case MODE_SLIDES:
 				case MODE_SUMS:
+				case MODE_OVERVIEW:
 					actionViewsSlides->setChecked(true);
 					break;
 
@@ -556,6 +564,7 @@ class MainWindow : public QMainWindow
 
 			switch(m_cascadewidget.GetMode())
 			{
+				case MODE_OVERVIEW:
 				case MODE_SUMS:
 					actionViewsSlides->setChecked(true);
 					m_cascadewidget.SetMode(MODE_SLIDES);
@@ -586,6 +595,7 @@ class MainWindow : public QMainWindow
 
 			switch(m_cascadewidget.GetMode())
 			{
+				case MODE_OVERVIEW:
 				case MODE_SUMS:
 					actionViewsSlides->setChecked(true);
 					m_cascadewidget.SetMode(MODE_SLIDES);
@@ -958,7 +968,7 @@ class MainWindow : public QMainWindow
 				ShowMessage("TOF loaded.");
 
 				//viewOverview();
-				actionViewsOverview->setChecked(true);
+				//actionViewsOverview->setChecked(true);
 			}
 		}
 
@@ -1360,6 +1370,9 @@ class MainWindow : public QMainWindow
 			QAction *actionCountsVsImages = new QAction(
 						"&Counts vs. Images...",
 						this);
+			QAction *actionContrastsVsImages = new QAction(
+						"C&ontrasts vs. Images...",
+						this);
 
 
 			// ROI Menu Items
@@ -1454,6 +1467,7 @@ class MainWindow : public QMainWindow
 			menuTofGraph->addAction(actionCalibration);
 			menuTofGraph->addSeparator();
 			menuTofGraph->addAction(actionGraph);
+			menuTofGraph->addAction(actionContrastsVsImages);
 			menuTofGraph->addAction(actionSummen);
 			menubar->addAction(menuTofGraph->menuAction());
 
@@ -1715,6 +1729,8 @@ class MainWindow : public QMainWindow
 					this, SLOT(showIntegrationDialog()));
 			connect(actionCountsVsImages, SIGNAL(triggered()),
 					&m_cascadewidget, SLOT(showCountsVsImagesDlg()));
+			connect(actionContrastsVsImages, SIGNAL(triggered()),
+					&m_cascadewidget, SLOT(showContrastsVsImagesDlg()));
 
 			// Timer
 			connect(&m_statustimer, SIGNAL(timeout()),
