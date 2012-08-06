@@ -163,6 +163,7 @@ class GlobalConfig
 		static unsigned int uiMinuitStrategy;
 
 		static bool bGuessConfig;
+		static bool bDumpFiles;
 
 	public:
 		// iLen in Ints, nicht Bytes
@@ -180,6 +181,8 @@ class GlobalConfig
 		static unsigned int GetMinuitStrategy();
 
 		static TofConfig& GetTofConfig();
+
+		static bool GetDumpFiles();
 		//----------------------------------------------------------------------
 
 		//----------------------------------------------------------------------

@@ -227,6 +227,7 @@ int GlobalConfig::iMinuitAlgo = MINUIT_MIGRAD;
 unsigned int GlobalConfig::uiMinuitStrategy = 2;
 
 bool GlobalConfig::bGuessConfig = 1;
+bool GlobalConfig::bDumpFiles = 0;
 
 
 void GlobalConfig::Init()
@@ -316,6 +317,9 @@ void GlobalConfig::Init()
 		logger << "Globals: Unknown algorithm: \"" << strAlgo << "\".\n";
 	}
 
+	bDumpFiles = (bool)Config::GetSingleton()->QueryInt(
+				"/cascade_config/log/dump_files", bDumpFiles);	
+
 #else	// Nicos-Client holt Einstellungen von Detektor
 
 	// Defaults setzen
@@ -339,6 +343,7 @@ int GlobalConfig::GetMinuitAlgo() { return iMinuitAlgo; }
 unsigned int GlobalConfig::GetMinuitStrategy() { return uiMinuitStrategy; }
 
 TofConfig& GlobalConfig::GetTofConfig() { return s_config;}
+bool GlobalConfig::GetDumpFiles() { return bDumpFiles; }
 
 void GlobalConfig::SetMinuitMaxFnc(unsigned int uiMaxFcn)
 { uiMinuitMaxFcn = uiMaxFcn; }

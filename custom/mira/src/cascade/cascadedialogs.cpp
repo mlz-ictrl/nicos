@@ -1417,6 +1417,8 @@ ContrastsVsImagesDlg::ContrastsVsImagesDlg(CascadeWidget *pParent)
 	m_curve.setSymbol(sym);
 	m_curve.attach(plot);
 
+	plot->setAxisScale(QwtPlot::yLeft, 0., 1.);
+
 	connect(btnAdd, SIGNAL(clicked()), this, SLOT(AddFile()));
 	connect(btnDelete, SIGNAL(clicked()), this, SLOT(DeleteFile()));
 	connect(btnRoiLoad, SIGNAL(clicked()), this, SLOT(LoadRoi()));
@@ -1434,6 +1436,9 @@ ContrastsVsImagesDlg::~ContrastsVsImagesDlg()
 
 void ContrastsVsImagesDlg::UpdateGraph()
 {
+	// write a .dat file
+	bool bDumpData = GlobalConfig::GetDumpFiles();	
+	
 	bool bUseRoi = groupRoi->isChecked();
 	bool bUseCurRoi = btnRoiCurrent->isChecked();
 	QString strRoiFile = editRoi->text();
@@ -1480,10 +1485,24 @@ void ContrastsVsImagesDlg::UpdateGraph()
 	double *pdy = new double[iTofCnt];
 	double *pdy_err = new double[iTofCnt];
 
+	int iFoilCount = tof.GetTofConfig().GetFoilCount();
+
+	progressBar->setMaximum(iTofCnt*iFoilCount);
+	progressBar->setValue(0);
+
+	std::ofstream *ofstr = 0;
+	if(bDumpData)
+	{
+		ofstr = new std::ofstream("contrasts.dat");
+		(*ofstr) << std::scientific;
+		(*ofstr) << "# contrast\tcontrast error\tphase\tphase error\n";
+	}
+
 	double dMax = 0., dMin=1.;
 	for(int iItem=0; iItem<iTofCnt; ++iItem)
 	{
 		QListWidgetItem* pItem = listTofs->item(iItem);
+		progressBar->setFormat(QString("%p% - ") + pItem->text());
 
 		if(!tof.LoadFile(pItem->text().toAscii().data()))
 		{
@@ -1493,9 +1512,28 @@ void ContrastsVsImagesDlg::UpdateGraph()
 			continue;
 		}
 
-		TmpGraph graph = tof.GetGraph(0);
-		double dC, dC_err, dPh, dPh_err;
-		bool bOk = graph.GetContrast(dC, dPh, dC_err, dPh_err);
+		double dC=0., dC_err=0., dPh=0., dPh_err=0.;
+
+		for(int iFoil=0; iFoil<iFoilCount; ++iFoil)
+		{
+			double dC_tmp, dC_err_tmp, dPh_tmp, dPh_err_tmp;
+			
+			TmpGraph graph = tof.GetGraph(iFoil);
+			bool bOk = graph.GetContrast(dC_tmp, dPh_tmp,
+										dC_err_tmp, dPh_err_tmp);
+
+			dC += dC_tmp;
+			dC_err += dC_err_tmp;
+			dPh += dPh_tmp;
+			dPh_err += dPh_err_tmp;
+
+			progressBar->setValue(iItem*iFoilCount + iFoil + 1);
+		}
+
+		dC /= double(iFoilCount);
+		dC_err /= double(iFoilCount);
+		dPh /= double(iFoilCount);
+		dPh_err /= double(iFoilCount);
 		
 		dMax = max(dMax, dC+dC_err);
 		dMin = min(dMin, dC-dC_err);
@@ -1503,6 +1541,13 @@ void ContrastsVsImagesDlg::UpdateGraph()
 		pdx[iItem] = iItem;
 		pdy[iItem] = dC;
 		pdy_err[iItem] = dC_err;
+
+		if(bDumpData)
+		{
+			(*ofstr) << dC << "\t" << dC_err
+					 << "\t" << dPh << "\t" << dPh_err;
+			(*ofstr) << "\n";
+		}		
 	}
 
 	m_curve.setData(pdx, pdy, pdy_err, iTofCnt);
@@ -1510,11 +1555,18 @@ void ContrastsVsImagesDlg::UpdateGraph()
 	delete[] pdx;
 	delete[] pdy;
 
-	plot->setAxisScale(QwtPlot::yLeft, dMin, dMax);
+	//plot->setAxisScale(QwtPlot::yLeft, dMin, dMax);
 	plot->setAxisScale(QwtPlot::xBottom, 0, iTofCnt);
 	m_pzoomer->setZoomBase();
 
 	plot->replot();
+
+	if(bDumpData)
+	{
+		ofstr->flush();
+		ofstr->close();
+		delete ofstr;
+	}
 }
 
 void ContrastsVsImagesDlg::RoiGroupToggled()
