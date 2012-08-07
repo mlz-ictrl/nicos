@@ -438,6 +438,9 @@ class ContrastsVsImagesDlg : public QDialog, public Ui::ContrastsVsImagesDlg
 		void DeleteFile();
 		void RoiGroupToggled();
 
+		void AddFile_underground();
+		void DeleteFile_underground();		
+
 	public slots:
 		void UpdateGraph();
 };

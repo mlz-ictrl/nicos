@@ -499,6 +499,12 @@ ContrastsVsImagesDlg::ContrastsVsImagesDlg(CascadeWidget *pParent)
 	connect(groupRoi, SIGNAL(toggled(bool)), this, SLOT(RoiGroupToggled()));
 
 	connect(btnRefresh, SIGNAL(clicked()), this, SLOT(UpdateGraph()));
+
+	connect(btnAdd_underground, SIGNAL(clicked()),
+			this, SLOT(AddFile_underground()));
+	connect(btnDelete_underground, SIGNAL(clicked()),
+			this, SLOT(DeleteFile_underground()));
+	connect(check_underground, SIGNAL(toggled(bool)), this, SLOT(UpdateGraph()));
 }
 
 ContrastsVsImagesDlg::~ContrastsVsImagesDlg()
@@ -514,6 +520,16 @@ void ContrastsVsImagesDlg::UpdateGraph()
 	if(iTofCnt == 0)
 		return;
 
+	bool bUnderground = (check_underground->checkState()==Qt::Checked);
+	double dUnderground = spinBox_underground->value();
+	if(bUnderground && listTofs_underground->count()!=iTofCnt)
+	{
+		bUnderground = false;
+		QMessageBox::warning(0, "Warning",
+					"Underground file count has to match TOF file count.\n"
+					"Ignoring underground.", QMessageBox::Ok);
+	}
+
 	// write a .dat file
 	bool bDumpData = GlobalConfig::GetDumpFiles();
 
@@ -522,6 +538,7 @@ void ContrastsVsImagesDlg::UpdateGraph()
 	QString strRoiFile = editRoi->text();
 
 	TofImage tof;
+	TofImage tof_underground;
 
 	if(bUseRoi)
 	{
@@ -596,6 +613,10 @@ void ContrastsVsImagesDlg::UpdateGraph()
 	for(int iItem=0; iItem<iTofCnt; ++iItem)
 	{
 		QListWidgetItem* pItem = listTofs->item(iItem);
+		QListWidgetItem* pItem_underground = 0;
+		if(bUnderground)
+			pItem_underground = listTofs_underground->item(iItem);
+		
 		progressBar->setFormat(QString("%p% - ") + pItem->text());
 
 		if(!tof.LoadFile(pItem->text().toAscii().data()))
@@ -604,6 +625,20 @@ void ContrastsVsImagesDlg::UpdateGraph()
 			logger << "Contrasts Dialog: Could not load \""
 				   << pItem->text().toAscii().data() << "\".\n";
 			continue;
+		}
+
+		if(bUnderground)
+		{
+			if(!tof_underground.LoadFile(pItem_underground->text().toAscii().data()))
+			{
+				logger.SetCurLogLevel(LOGLEVEL_ERR);
+				logger << "Contrasts Dialog: Could not load \""
+						<< pItem->text().toAscii().data() << "\".\n";
+			}
+			else
+			{
+				tof.Subtract(tof_underground, dUnderground);
+			}
 		}
 
 		double dC=0., dC_err=0., dPh=0., dPh_err=0.;
@@ -737,4 +772,33 @@ void ContrastsVsImagesDlg::DeleteFile()
 	}
 
 	UpdateGraph();
+}
+
+void ContrastsVsImagesDlg::AddFile_underground()
+{
+	QStringList tofs = QFileDialog::getOpenFileNames(this, "TOF files", "",
+							"TOF Files (*.tof *.TOF);;All Files (*)");
+
+	listTofs_underground->addItems(tofs);
+	//UpdateGraph();
+}
+
+void ContrastsVsImagesDlg::DeleteFile_underground()
+{
+	QList<QListWidgetItem*> items = listTofs_underground->selectedItems();
+
+	// nothing specific selected -> clear all
+	if(items.size() == 0)
+		listTofs_underground->clear();
+
+	for(int i=0; i<items.size(); ++i)
+	{
+		if(items[i])
+		{
+			delete items[i];
+			items[i] = 0;
+		}
+	}
+
+	//UpdateGraph();
 }
