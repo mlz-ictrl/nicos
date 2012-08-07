@@ -115,13 +115,20 @@ fitfunlist = {
     'gg': twogauss
 }
 
+colormap = {0: 1,  1: 2,  2: 3,  3: 4,   4: 6,   5: 8, 6: 9,
+            7: 10, 8: 11, 9: 12, 10: 13, 11: 14, 12: 15}
 
 def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, ff=gauss):
     grpl('s%1d on' % cnum)
     grpl('s%1d symbol %1d' % (cnum, cnum+1))
     grpl('s%1d symbol size 0.3' % cnum)
     grpl('s%1d symbol fill pattern 1' % cnum)
-    grpl('s%1d symbol color %1d' % (cnum, cnum+1))
+    # avoid color #5 (yellow) and #7 (light grey)
+    colornum = colormap[cnum]
+    grpl('s%1d symbol fill color %1d' % (cnum, colornum))
+    grpl('s%1d symbol color %1d' % (cnum, colornum))
+    grpl('s%1d line color %1d' % (cnum, colornum))
+    grpl('s%1d errorbar color %1d' % (cnum, colornum))
     grpl('g0.s%1d type xydydy' % cnum)
     grpl('s%1d line type 0' % cnum)
     i = 0
@@ -184,7 +191,7 @@ def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, ff=gauss):
         grpl('s1%1d symbol 0' % cnum)
         grpl('g0.s1%1d type xy' % cnum)
         grpl('s1%1d line type 1' % cnum)
-        grpl('s1%1d line color %1d' % (cnum, cnum+1))
+        grpl('s1%1d line color %1d' % (cnum, colornum))
         outstring = "Ctr: %6.4f, Amp.: %6.3f, FWHM: %6.4f, Area %6.3f" % \
             (ps[0], ps[1], ps[2], ps[1] / sqrt(2*pi) / (ps[2]/2.3548))	# XXX fix wrong Area calculation
         grpl('g0.s1%1d legend "%s"' % (cnum, outstring))
