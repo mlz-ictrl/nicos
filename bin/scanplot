@@ -508,11 +508,11 @@ if diffflag:
 if sumflag:
     combined[2] = combined[2]**0.5
     plotcurve(pl, combined[0], combined[1], combined[2],
-              filecount, 'summed data', fitflag, function)
+              0, 'summed data', fitflag, function)
 if mergeflag:
     ix = argsort(combined[0])
     plotcurve(pl, combined[0][ix], combined[1][ix], combined[2][ix],
-              filecount, 'merged data', fitflag, function)
+              0, 'merged data', fitflag, function)
 
 pl('autoscale')
 pl('redraw')
