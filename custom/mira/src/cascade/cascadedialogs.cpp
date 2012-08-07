@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <sstream>
 #include <fstream>
+#include <algorithm>
 
 #include <QVariant>
 #include <QMenu>
@@ -281,6 +282,9 @@ void GraphDlg::UpdateGraph(void)
 		pdy[i]=tmpGraph.GetData(i);
 	}
 	m_curve.setData(pdx,pdy,tmpGraph.GetWidth());
+
+	double dymax = *std::max_element(pdy, pdy+tmpGraph.GetWidth());
+
 	delete[] pdx;
 	delete[] pdy;
 
@@ -349,6 +353,7 @@ void GraphDlg::UpdateGraph(void)
 	delete[] pdy;
 	*/
 
+	qwtPlot->setAxisScale(QwtPlot::yLeft, 0., dymax);
 	qwtPlot->replot();
 }
 
@@ -1437,8 +1442,8 @@ ContrastsVsImagesDlg::~ContrastsVsImagesDlg()
 void ContrastsVsImagesDlg::UpdateGraph()
 {
 	// write a .dat file
-	bool bDumpData = GlobalConfig::GetDumpFiles();	
-	
+	bool bDumpData = GlobalConfig::GetDumpFiles();
+
 	bool bUseRoi = groupRoi->isChecked();
 	bool bUseCurRoi = btnRoiCurrent->isChecked();
 	QString strRoiFile = editRoi->text();
@@ -1495,10 +1500,27 @@ void ContrastsVsImagesDlg::UpdateGraph()
 	{
 		ofstr = new std::ofstream("contrasts.dat");
 		(*ofstr) << std::scientific;
-		(*ofstr) << "# contrast\tcontrast error\tphase\tphase error\n";
+		(*ofstr) << "# contrast\tcontrast error\tphase\tphase error";
+
+		for(int iFoil=0; iFoil<iFoilCount; ++iFoil)
+		{
+			(*ofstr) << "\tcontrast [" << iFoil << "]";
+			(*ofstr) << "\tcontrast error [" << iFoil << "]";
+			(*ofstr) << "\tphase [" << iFoil << "]";
+			(*ofstr) << "\tphase error [" << iFoil << "]";
+			(*ofstr) << "\tcounts [" << iFoil << "]";
+		}
+
+		(*ofstr) << "\n";
 	}
 
 	double dMax = 0., dMin=1.;
+
+	double *pC = new double[iFoilCount];
+	double *pC_err = new double[iFoilCount];
+	double *pPh = new double[iFoilCount];
+	double *pPh_err = new double[iFoilCount];
+
 	for(int iItem=0; iItem<iTofCnt; ++iItem)
 	{
 		QListWidgetItem* pItem = listTofs->item(iItem);
@@ -1516,16 +1538,14 @@ void ContrastsVsImagesDlg::UpdateGraph()
 
 		for(int iFoil=0; iFoil<iFoilCount; ++iFoil)
 		{
-			double dC_tmp, dC_err_tmp, dPh_tmp, dPh_err_tmp;
-			
 			TmpGraph graph = tof.GetGraph(iFoil);
-			bool bOk = graph.GetContrast(dC_tmp, dPh_tmp,
-										dC_err_tmp, dPh_err_tmp);
+			bool bOk = graph.GetContrast(pC[iFoil], pPh[iFoil],
+										pC_err[iFoil], pPh_err[iFoil]);
 
-			dC += dC_tmp;
-			dC_err += dC_err_tmp;
-			dPh += dPh_tmp;
-			dPh_err += dPh_err_tmp;
+			dC += pC[iFoil];
+			dC_err += pC_err[iFoil];
+			dPh += pPh[iFoil];
+			dPh_err += pPh_err[iFoil];
 
 			progressBar->setValue(iItem*iFoilCount + iFoil + 1);
 		}
@@ -1534,7 +1554,7 @@ void ContrastsVsImagesDlg::UpdateGraph()
 		dC_err /= double(iFoilCount);
 		dPh /= double(iFoilCount);
 		dPh_err /= double(iFoilCount);
-		
+
 		dMax = max(dMax, dC+dC_err);
 		dMin = min(dMin, dC-dC_err);
 
@@ -1546,9 +1566,24 @@ void ContrastsVsImagesDlg::UpdateGraph()
 		{
 			(*ofstr) << dC << "\t" << dC_err
 					 << "\t" << dPh << "\t" << dPh_err;
+
+			for(int iFoil=0; iFoil<iFoilCount; ++iFoil)
+			{
+				(*ofstr) << "\t" << pC[iFoil];
+				(*ofstr) << "\t" << pC_err[iFoil];
+				(*ofstr) << "\t" << pPh[iFoil];
+				(*ofstr) << "\t" << pPh_err[iFoil];
+				(*ofstr) << "\t" << tof.GetCounts(iFoil);
+			}
+
 			(*ofstr) << "\n";
-		}		
+		}
 	}
+
+	delete[] pC;
+	delete[] pC_err;
+	delete[] pPh;
+	delete[] pPh_err;
 
 	m_curve.setData(pdx, pdy, pdy_err, iTofCnt);
 

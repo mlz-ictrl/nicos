@@ -355,6 +355,7 @@ class TofImage
 
 		// total number of counts (inside ROI, if used)
 		unsigned int GetCounts() const;
+		unsigned int GetCounts(int iFoil) const;
 
 		// old style GetCounts, ignoring main roi
 		unsigned int GetCounts(int iStartX, int iEndX,
@@ -377,6 +378,8 @@ class TofImage
 
 		// get overview image (summing all individual images in TOF)
 		TmpImage GetOverview(bool bOnlyInRoi=false) const;
+
+		TmpImage GetFoil(int iFoil, bool bOnlyInRoi=false) const;
 
 		// phase image
 		TmpImage GetPhaseGraph(int iFoil, bool bInDeg=true) const;

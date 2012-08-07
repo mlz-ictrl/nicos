@@ -360,6 +360,49 @@ unsigned int TofImage::GetCounts() const
 	return uiCnt;
 }
 
+unsigned int TofImage::GetCounts(int iFoil) const
+{
+	int iXStart, iXEnd, iYStart, iYEnd;
+
+	if(m_bUseRoi)
+	{
+		BoundingRect rect = m_roi.GetBoundingRect();
+		iXStart = rect.bottomleft[0];
+		iYStart = rect.bottomleft[1];
+		iXEnd = rect.topright[0];
+		iYEnd = rect.topright[1];
+	}
+	else
+	{
+		iXStart = 0;
+		iYStart = 0;
+		iXEnd = GetTofConfig().GetImageWidth();
+		iYEnd = GetTofConfig().GetImageHeight();
+	}
+
+	TmpImage img = GetFoil(iFoil, m_bUseRoi);
+
+	unsigned int uiCnt = 0;
+	for(int iY=iYStart; iY<iYEnd; ++iY)
+		for(int iX=iXStart; iX<iXEnd; ++iX)
+		{
+			if(m_bUseRoi)
+			{
+				//if(m_roi.IsInside(iX,iY))
+				//	uiCnt += img.GetData(iX, iY);
+
+				double dFractionInRoi = m_roi.HowMuchInside(iX, iY);
+				uiCnt += double(img.GetData(iX, iY)) * dFractionInRoi;
+			}
+			else
+			{
+				uiCnt += img.GetData(iX, iY);
+			}
+		}
+
+	return uiCnt;
+}
+
 unsigned int TofImage::GetCounts(int iStartX, int iEndX,
 								 int iStartY, int iEndY) const
 {
@@ -513,6 +556,41 @@ TmpImage TofImage::GetOverview(bool bOnlyInRoi) const
 						img.m_puiDaten[iY*GetTofConfig().GetImageWidth()+iX] +=
 											GetData(iFolie,iZ0,iX,iY);
 				}
+
+	return img;
+}
+
+TmpImage TofImage::GetFoil(int iFoil, bool bOnlyInRoi) const
+{
+	TmpImage img(&m_config);
+
+	img.Clear();
+	img.m_iW = GetTofConfig().GetImageWidth();
+	img.m_iH = GetTofConfig().GetImageHeight();
+
+	img.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*
+										   GetTofConfig().GetImageWidth()*
+										   GetTofConfig().GetImageHeight());
+	if(img.m_puiDaten==NULL)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Could not allocate memory (line "
+			   << __LINE__ << ")!\n";
+		return img;
+	}
+	memset(img.m_puiDaten,0,sizeof(int)*img.m_iW*img.m_iH);
+
+	for(int iZ0=0; iZ0<GetTofConfig().GetImagesPerFoil(); ++iZ0)
+		for(int iY=0; iY<GetTofConfig().GetImageHeight(); ++iY)
+			for(int iX=0; iX<GetTofConfig().GetImageWidth(); ++iX)
+			{
+				if(bOnlyInRoi)
+					img.m_puiDaten[iY*GetTofConfig().GetImageWidth()+iX] +=
+										GetDataInsideROI(iFoil,iZ0,iX,iY);
+				else
+					img.m_puiDaten[iY*GetTofConfig().GetImageWidth()+iX] +=
+										GetData(iFoil,iZ0,iX,iY);
+			}
 
 	return img;
 }
@@ -1280,10 +1358,12 @@ void TofImage::GenerateRandomData()
 				double ddata = dAmp * exp(-0.5*(dX-dCenterX)*(dX-dCenterX)/(dSpreadX*dSpreadX))*
 									 exp(-0.5*(dY-dCenterY)*(dY-dCenterY)/(dSpreadY*dSpreadY));
 
+				double dNumOsc = GetTofConfig().GetNumOscillations();
+
 				for(int iFoil=0; iFoil<GetTofConfig().GetFoilCount(); ++iFoil)
 				{
 					double dPhaseInc = 0.1 * double(iFoil)/double(GetTofConfig().GetFoilCount())*2.*M_PI;
-					double dt = 1. + sin((dPhase+dPhaseInc) + 2.*M_PI*double(iTimeChannel) / double(GetTofConfig().GetImagesPerFoil()));
+					double dt = 1. + sin((dPhase+dPhaseInc) + 2.*M_PI*double(iTimeChannel)*dNumOsc / double(GetTofConfig().GetImagesPerFoil()));
 
 					double dOffs = 10.;
 					dOffs += randmp1()*dOffs*0.1;
