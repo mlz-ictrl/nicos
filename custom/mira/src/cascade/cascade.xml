@@ -65,8 +65,8 @@
 	</log>
 
 	<minuit>
-		<maxfcn> 1000 </maxfcn>
-		<tolerance> 0.01 </tolerance>
+		<maxfcn> 0 </maxfcn>
+		<tolerance> 0.1 </tolerance>
 
 		<!-- one of: migrad, simplex, minimize -->
 		<algo> migrad </algo>

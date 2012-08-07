@@ -14,7 +14,7 @@
 
 
 COMPILER	= gcc
-FLAGS		= -O2 -march=native -Wall -Wextra -D __CASCADE_QT_CLIENT__ 
+FLAGS		= -O2 -march=native -Wall -Wextra -D __CASCADE_QT_CLIENT__
 LIBS		= -lQtCore -lQtGui -lQtNetwork -lqwt -lMinuit2 -lgomp -lxml2 -lstdc++ -lm  \
                   -L /usr/lib/qt4
 INCLUDES	= -I /usr/include/qwt -I /usr/include/qwt5 -I /usr/include/qt4 \
@@ -45,7 +45,8 @@ cascade.o: cascade.cpp cascade.moc cascadedialogs_moc.cpp cascadedialogs.moc \
 		bins.h parse.h ErrorBarPlotCurve.h tofdata.h cascadedialogs.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascade.o cascade.cpp
 
-cascadedialogs.o: cascadedialogs_moc.cpp cascadedialogs.h cascadedialogs.moc
+cascadedialogs.o: cascadedialogs_moc.cpp cascadedialogs.h cascadedialogs.moc \
+	cascadedialogs_tof.cpp cascadedialogs_pad.cpp cascadedialogs_server.cpp
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascadedialogs.o cascadedialogs_moc.cpp
 
 bins.o: bins.cpp bins.h

@@ -289,6 +289,8 @@ class TmpGraph
 
 	// is sum of data points < iTotal?
 	bool IsLowerThan(int iTotal) const;
+
+	unsigned int Sum(void) const;
 };
 
 
@@ -396,6 +398,9 @@ class TofImage
 		//----------------------------------------------------------------------
 
 		void GenerateRandomData();
+
+		// subtract another tof from this
+		void Subtract(const TofImage& tof, double dTimes=1.);
 };
 
 #endif

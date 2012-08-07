@@ -454,7 +454,7 @@ class BatchDlg : public QDialog, public Ui::BatchDlg
 
 	protected:
 		CascadeWidget *m_pwidget;
-		
+
 		void ConvertToPDF(const char* pcSrc, const char* pcDst);
 		void ConvertToBinary(const char* pcSrc, const char* pcDst);
 

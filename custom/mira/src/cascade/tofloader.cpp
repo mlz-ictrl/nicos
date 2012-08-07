@@ -870,8 +870,25 @@ TmpImage TofImage::AddContrasts(const bool *pbFolien) const
 	return img;
 }
 
+void TofImage::Subtract(const TofImage& tof, double dTimes)
+{
+	for(int iFoil=0; iFoil<GetTofConfig().GetFoilCount(); ++iFoil)
+		for(int iTc=0; iTc<GetTofConfig().GetImagesPerFoil(); ++iTc)
+			for(int iY=0; iY<GetTofConfig().GetImageHeight(); ++iY)
+				for(int iX=0; iX<GetTofConfig().GetImageWidth(); ++iX)
+				{
+					unsigned int uiCntThis = GetData(iFoil, iTc, iX, iY);
+					unsigned int uiCntOther =
+						(unsigned int)
+						(double(tof.GetData(iFoil, iTc, iX, iY)) * dTimes);
 
+					unsigned int uiCnt = 0;
+					if(uiCntThis > uiCntOther)
+						uiCnt = uiCntThis-uiCntOther;
 
+					SetData(iFoil, iTc, iX, iY, uiCnt);
+				}
+}
 
 
 
@@ -1763,7 +1780,7 @@ bool TmpGraph::IsLowerThan(int iTotal) const
 	return iSum < iTotal;
 }
 
-bool TmpGraph::FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOffs,
+bool TmpGraph::FitSinus(double &dFreq, double &dPhase, double &dAmp, double &dOffs,
 						double &dPhase_err, double &dAmp_err, double &dOffs_err) const
 {
 	if(m_iW<=0) return false;
@@ -1809,4 +1826,14 @@ bool TmpGraph::GetContrast(double &dContrast, double &dPhase) const
 {
 	double dContrast_err, dPhase_err;
 	return GetContrast(dContrast, dPhase, dContrast_err, dPhase_err);
+}
+
+unsigned int TmpGraph::Sum(void) const
+{
+	unsigned int uiSum = 0;
+
+	for(int i=0; i<m_iW; ++i)
+		uiSum += GetData(i);
+
+	return uiSum;
 }

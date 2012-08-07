@@ -435,6 +435,7 @@ GraphDlg::~GraphDlg()
 
 
 
+
 // ********************* Contrasts vs Images ***********************************
 
 ContrastsVsImagesDlg::ContrastsVsImagesDlg(CascadeWidget *pParent)
@@ -496,6 +497,8 @@ ContrastsVsImagesDlg::ContrastsVsImagesDlg(CascadeWidget *pParent)
 	connect(btnRoiCurrent, SIGNAL(toggled(bool)),
 			this, SLOT(SetRoiUseCurrent(bool)));
 	connect(groupRoi, SIGNAL(toggled(bool)), this, SLOT(RoiGroupToggled()));
+
+	connect(btnRefresh, SIGNAL(clicked()), this, SLOT(UpdateGraph()));
 }
 
 ContrastsVsImagesDlg::~ContrastsVsImagesDlg()
@@ -507,6 +510,10 @@ ContrastsVsImagesDlg::~ContrastsVsImagesDlg()
 
 void ContrastsVsImagesDlg::UpdateGraph()
 {
+	const int iTofCnt = listTofs->count();
+	if(iTofCnt == 0)
+		return;
+
 	// write a .dat file
 	bool bDumpData = GlobalConfig::GetDumpFiles();
 
@@ -550,8 +557,6 @@ void ContrastsVsImagesDlg::UpdateGraph()
 		}
 	}
 
-	const int iTofCnt = listTofs->count();
-
 	double *pdx = new double[iTofCnt];
 	double *pdy = new double[iTofCnt];
 	double *pdy_err = new double[iTofCnt];
@@ -586,6 +591,7 @@ void ContrastsVsImagesDlg::UpdateGraph()
 	double *pC_err = new double[iFoilCount];
 	double *pPh = new double[iFoilCount];
 	double *pPh_err = new double[iFoilCount];
+	unsigned int *puiCnt = new unsigned int[iFoilCount];
 
 	for(int iItem=0; iItem<iTofCnt; ++iItem)
 	{
@@ -604,9 +610,13 @@ void ContrastsVsImagesDlg::UpdateGraph()
 
 		for(int iFoil=0; iFoil<iFoilCount; ++iFoil)
 		{
+			pC[iFoil] = pPh[iFoil] = pC_err[iFoil] = pPh_err[iFoil] = 0.;
+
 			TmpGraph graph = tof.GetGraph(iFoil);
 			bool bOk = graph.GetContrast(pC[iFoil], pPh[iFoil],
 										pC_err[iFoil], pPh_err[iFoil]);
+
+			puiCnt[iFoil] = graph.Sum();
 
 			dC += pC[iFoil];
 			dC_err += pC_err[iFoil];
@@ -639,13 +649,14 @@ void ContrastsVsImagesDlg::UpdateGraph()
 				(*ofstr) << "\t" << pC_err[iFoil];
 				(*ofstr) << "\t" << pPh[iFoil];
 				(*ofstr) << "\t" << pPh_err[iFoil];
-				(*ofstr) << "\t" << tof.GetCounts(iFoil);
+				(*ofstr) << "\t" << puiCnt[iFoil];
 			}
 
 			(*ofstr) << "\n";
 		}
 	}
 
+	delete[] puiCnt;
 	delete[] pC;
 	delete[] pC_err;
 	delete[] pPh;
@@ -672,7 +683,12 @@ void ContrastsVsImagesDlg::UpdateGraph()
 
 void ContrastsVsImagesDlg::RoiGroupToggled()
 {
-	UpdateGraph();
+	bool bUseRoi = groupRoi->isChecked();
+	bool bUseCurRoi = btnRoiCurrent->isChecked();
+	QString strRoiFile = editRoi->text();
+
+	if(bUseRoi && (bUseCurRoi || editRoi->text()!=""))
+		UpdateGraph();
 }
 
 void ContrastsVsImagesDlg::LoadRoi()
@@ -696,10 +712,10 @@ void ContrastsVsImagesDlg::SetRoiUseCurrent(bool bCur)
 
 void ContrastsVsImagesDlg::AddFile()
 {
-	QStringList pads = QFileDialog::getOpenFileNames(this, "TOF files", "",
+	QStringList tofs = QFileDialog::getOpenFileNames(this, "TOF files", "",
 							"TOF Files (*.tof *.TOF);;All Files (*)");
 
-	listTofs->addItems(pads);
+	listTofs->addItems(tofs);
 	UpdateGraph();
 }
 
