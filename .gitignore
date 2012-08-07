@@ -50,6 +50,7 @@ custom/mira/src/cascade/nicosclient/Makefile
 custom/mira/src/cascade/nicosclient/pythonbinding/Makefile
 custom/mira/src/cascade/nicoswidget/Makefile
 custom/mira/src/cascade/nicoswidget/pythonbinding/Makefile
+custom/mira/src/cascade/contrasts.dat
 
 src/livewidget/livewidget
 src/livewidget/Makefile
