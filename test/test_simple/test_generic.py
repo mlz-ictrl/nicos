@@ -26,13 +26,10 @@
 
 __version__ = "$Revision$"
 
-from time import sleep
 
 from nicos import session
-from nicos.core import PositionError, NicosError, LimitError, UsageError, \
+from nicos.core import PositionError, NicosError, LimitError, \
      ConfigurationError, status
-from nicos.generic.alias import NoDevice
-from nicos.commands.device import read
 from test.utils import raises
 
 
@@ -100,32 +97,3 @@ def test_switcher():
     assert rsw.read(0) == 'right'
 
     assert rsw.status() == v3.status()
-
-def test_alias():
-    px = session.getDevice('alias', object)
-
-    # first, proxy without target
-    assert isinstance(px._obj, NoDevice)
-    assert px.alias == ''
-    # attribute accesses raise ConfigurationError
-    assert raises(ConfigurationError, getattr, px, 'read')
-    assert raises(ConfigurationError, setattr, px, 'speed', 0)
-    # trying to access as device raises UsageError
-    assert raises(UsageError, read, px)
-    # but stringification is still the name of the alias object
-    assert str(px) == 'alias'
-    assert 'alias' in repr(px)
-
-    # now set the alias to some object
-    v1 = session.getDevice('v1')
-    px.alias = v1
-    # check delegation of methods etc.
-    assert v1.read() == px.read()
-    # check attribute access
-    px.speed = 5.1
-    assert v1.speed == 5.1
-
-    # check cache key rewriting
-    sleep(0.15)
-    assert session.cache.get(px, 'speed') == 5.1
-    assert session.cache.get_explicit(px, 'speed')[2] == 5.1

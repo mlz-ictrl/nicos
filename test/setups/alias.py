@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
-name = 'test_generic setup'
+name = 'test_alias setup'
 
-includes = ['system']
+includes = ['system', 'slit']
 
 devices = dict(
     v1 = device(
@@ -33,43 +33,12 @@ devices = dict(
         unit = 'mm',
         speed = 1.5
     ),
-    v2 = device(
-        'nicos.generic.ManualSwitch',
-        states = ['up', 'down'],
-    ),
-    v3 = device(
-        'nicos.generic.VirtualMotor',
-        abslimits = (0, 10),
-        unit = 'mm',
-        speed = 0,
-    ),
-    m1 = device(
-        'nicos.generic.ManualSwitch',
-        states = ['up', 'down']
-    ),
-    sw = device(
-        'nicos.generic.Switcher',
-        moveable = 'v3',
-        states = ['left', 'right', 'outside'],
-        values = [1., 3., 1000.],
-        precision = 0.05,
-    ),
-    broken_sw = device(
-        'nicos.generic.Switcher',
-        states = ['0', '10', '20'],
-        values = [0, 10],
-        precision = 0,
-        moveable = 'v3'
-    ),
-    rsw = device(
-        'nicos.generic.ReadonlySwitcher',
-        readable = 'v3',
-        states = ['left', 'right'],
-        values = [1., 3.],
-        precision = 0.05,
-    ),
     aliasDev = device(
         'nicos.generic.DeviceAlias',
         alias = '',
+    ),
+    aliasDev2 = device(
+        'nicos.generic.DeviceAlias',
+        alias = 'slit',
     )
 )

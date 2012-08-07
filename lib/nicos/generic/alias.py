@@ -27,8 +27,9 @@
 __version__ = "$Revision$"
 
 from nicos import session
-from nicos.core import Device, Param, ConfigurationError, NicosError, none_or
+from nicos.core import Device, Param, Value, ConfigurationError, NicosError, none_or
 
+import re
 
 class NoDevice(object):
 
@@ -95,6 +96,20 @@ class DeviceAlias(Device):
             self._obj = newdev
             if self._cache:
                 self._cache.setRewrite(str(self), devname)
+
+    def valueInfo(self):
+        origValueInfo = self._obj.valueInfo()
+        allValueInfo = list()
+        for valueInfo in origValueInfo:
+            if '.' in valueInfo.name:
+                #replace part before first dot with alias name
+                aliasedName = re.sub(r'(^[^.]+)', self.name, valueInfo.name)
+            else:
+                aliasedName = self.name
+            aliasedInfo = Value(aliasedName, type=valueInfo.type, errors=valueInfo.errors, unit=valueInfo.unit,
+                 fmtstr=valueInfo.fmtstr, active=valueInfo.active)
+            allValueInfo.append(aliasedInfo)
+        return tuple(allValueInfo)
 
     def __init__(self, name , **config):
         self._obj = None
