@@ -166,7 +166,7 @@ class SpaceMap(object):
                 if i == j == 0:
                     if not origin:
                         continue
-                elif sgroup and not can_reflect(sg, *base):
+                elif sg and not can_reflect(sg, *base):
                     continue
                 hkls.append(base + offset)
         return self.check_hkls(hkls)

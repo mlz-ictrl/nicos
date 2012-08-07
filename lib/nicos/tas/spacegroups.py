@@ -42,7 +42,7 @@ def get_spacegroup(sg):
     try:
         return sg_by_num[sg]
     except KeyError:
-        raise NicosError('space group %d, setting %d not found' % sg)
+        raise NicosError('space group setting %s not found' % (sg,))
 
 def check_refcond(n, h, k, l):
     """Check reflection condition *n* against h, k, l.
