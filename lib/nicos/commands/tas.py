@@ -169,7 +169,7 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
     values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
                for i in range(-numperside, numperside+1)]
     if plotval == 'res':
-        resscan()
+        resscan(*(p[0] for p in values), kf=kwargs.get('kf'), ki=kwargs.get('ki'))
     elif plotval == 'hkl':
         hklplot(scan=[p[0] for p in values], kf=kwargs.get('kf'), ki=kwargs.get('ki'))
     else:
