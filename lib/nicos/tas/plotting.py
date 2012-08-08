@@ -29,7 +29,7 @@ Plotting tools for triple-axis spectrometers.
 import os
 import time
 
-from numpy import array, linspace, sqrt, delete, sin, cos, arctan2, mat
+from numpy import array, linspace, sqrt, delete, sin, cos, arctan2, mat, cross
 
 from nicos.core import ComputationError, NicosError
 from nicos.tas.mono import Monochromator
@@ -233,6 +233,10 @@ class SpaceMap(object):
             lim3.append(xy1[:2])
             lim4.append(xy2[:2])
 
+        # directions of axes
+        dir1 = self.cell.orient1
+        dir2 = cross(self.cell.cal_zone(), self.cell.orient1)
+
         # set up pylab figure (XXX share with rescalc)
         pylab.ion()
         pylab.figure(3, figsize=(7, 7), dpi=120, facecolor='1.0')
@@ -258,8 +262,8 @@ class SpaceMap(object):
 
         pylab.title('Available reciprocal space for %s %.3f \\AA$^{-1}$, E = %.3f %s'
                     % (self.mode, self.const, self.E, self.tas.energytransferunit))
-        pylab.xlabel('$Q_1$ (\\AA$^{-1}$)')
-        pylab.ylabel('$Q_2$ (\\AA$^{-1}$)')
+        pylab.xlabel('$Q_1$ (\\AA$^{-1}$) $\\rightarrow$ ( %d %d %d )' % tuple(dir1))
+        pylab.ylabel('$Q_2$ (\\AA$^{-1}$) $\\rightarrow$ ( %d %d %d )' % tuple(dir2))
         pylab.grid(color='0.5', zorder=-2)
         pylab.tight_layout()
         pylab.subplots_adjust(bottom=0.1)
