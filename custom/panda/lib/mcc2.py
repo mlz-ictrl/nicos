@@ -89,7 +89,8 @@ class MCC2Coder(NicosCoder):
         if mode != 'simulation':
             if not self.comm('IVR').startswith('MCC'):
                 raise CommunicationError(self, 'No Response from Phytron, please check!')
-            self.comm('XP39S1')
+    def doReset( self ):
+        self.comm('XP39S1')
     def doReadCoderbits(self):
         return int(self.comm('XP35R'))
     def doWriteCoderbits(self, value):
@@ -169,13 +170,14 @@ class MCC2Motor(NicosMotor):
         if mode != 'simulation':
             if not self.comm('IVR').startswith('MCC'):
                 raise CommunicationError(self, 'No Response from Phytron, please check!')
-            self.comm('XP1S1')  # linear mode
-            self.comm('XP2S1')  # steps
-            self.comm('XP3S1')  # unity slope
-            self.comm('XP4S20') # lowest frequency which is Ok whithout ramp
-            self.comm('XP17S2') # ramping uses boostcurrent
-            self.comm('XP25S0') # no backlash correction, this is done in the axis code
-            self.comm('XP27S0') # Limit switches are openers (normally closed=n.c.)
+    def doReset( self ):
+        self.comm('XP1S1')  # linear mode
+        self.comm('XP2S1')  # steps
+        self.comm('XP3S1')  # unity slope
+        self.comm('XP4S20') # lowest frequency which is Ok whithout ramp
+        self.comm('XP17S2') # ramping uses boostcurrent
+        self.comm('XP25S0') # no backlash correction, this is done in the axis code
+        self.comm('XP27S0') # Limit switches are openers (normally closed=n.c.)
     @lazy_property
     def doReadLinear(self):
         return int(self.comm('XP48R')) == 1
