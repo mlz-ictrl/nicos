@@ -205,8 +205,16 @@ class BaseCacheClient(Device):
                     writelist = [self._socket]
 
                 # read or write some data
-                res = select.select([self._socket], writelist, [],
-                                    self._selecttimeout)
+                while 1:
+                    try:
+                        res = select.select([self._socket], writelist, [],
+                                            self._selecttimeout)
+                    except select.error, e:
+                        if e[0] == 4: # EINTR
+                            continue
+                        raise
+                    break
+
                 if res[1]:
                     # determine if something needs to be sent
                     tosend = ''
