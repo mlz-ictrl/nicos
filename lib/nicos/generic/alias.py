@@ -78,8 +78,18 @@ class DeviceAlias(Device):
             if self._cache:
                 self._cache.unsetRewrite(str(self))
         else:
-            newdev = session.getDevice(devname, (Device, DeviceAlias),
-                                       source=self)
+            try:
+                newdev = session.getDevice(devname, (Device, DeviceAlias),
+                                           source=self)
+            except NicosError:
+                if not self._initialized:
+                    # should not raise an error, otherwise the device cannot
+                    # be created at all
+                    self.log.warning('could not find aliased device %s, pointing '
+                                     'to nothing for now' % devname)
+                    newdev = None
+                else:
+                    raise
             if newdev is self:
                 raise NicosError(self, 'cannot set alias pointing to itself')
             self._obj = newdev
