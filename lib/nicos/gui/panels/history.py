@@ -353,8 +353,10 @@ class BaseHistoryWindow(object):
     @qtsig('')
     def on_actionResetView_triggered(self):
         view = self.viewStack.pop()
+        hassym = view.plot.hasSymbols
         view.plot = None
         self.openView(view)
+        view.plot.setSymbols(hassym)
 
     @qtsig('')
     def on_actionDeleteView_triggered(self):
