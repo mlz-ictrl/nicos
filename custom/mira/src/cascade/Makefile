@@ -30,11 +30,11 @@ all: cascade nicosmodules
 ###################### cascade-qt-client ################
 cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o \
 	 config.o histogram_item.o client.o helper.o logger.o globals.o parse.o \
-	roi.o fit.o gc.o plotter.o
+	roi.o fit.o gc.o plotter.o padloader.o
 	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o \
 		bins.o cascadewidget.o tofloader.o tofdata.o config.o \
 		histogram_item.o client.o helper.o logger.o globals.o \
-		parse.o roi.o fit.o gc.o plotter.o
+		parse.o roi.o fit.o gc.o plotter.o padloader.o
 #########################################################
 
 
@@ -58,8 +58,11 @@ cascadewidget.o: cascadewidget_moc.cpp cascadewidget.h cascadewidget.moc
 plotter.o: plotter_moc.cpp plotter.cpp plotter.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o plotter.o plotter_moc.cpp
 
-tofloader.o: tofloader.cpp tofloader.h
+tofloader.o: tofloader.cpp tofloader.h tofloader_image.cpp tofloader_graph.cpp
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o tofloader.o tofloader.cpp
+
+padloader.o: padloader.cpp padloader.h
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o padloader.o padloader.cpp
 
 tofdata.o: tofdata.cpp tofdata.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o tofdata.o tofdata.cpp

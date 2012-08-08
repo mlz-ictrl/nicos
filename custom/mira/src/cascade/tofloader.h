@@ -20,136 +20,20 @@
 //   Tobias Weber <tweber@frm2.tum.de>
 //
 // *****************************************************************************
-// Klassen zum Laden und Verarbeiten von Tof- & Pad-Dateien
+// Klassen zum Laden und Verarbeiten von Tof-Dateien
 
 #ifndef __TOFLOADER__
 #define __TOFLOADER__
 
 #include "globals.h"
 #include "roi.h"
+#include "basicimage.h"
+#include "padloader.h"
 
 class TmpImage;
 class TmpGraph;
 class TofImage;
 class PadImage;
-
-/*
- * minimal interface for images
- */
-class BasicImage
-{
-	public:
-		virtual int GetWidth() const = 0;
-		virtual int GetHeight() const = 0;
-
-		virtual double GetDoubleData(int iX, int iY) const = 0;
-		virtual unsigned int GetIntData(int iX, int iY) const = 0;
-
-		virtual int GetIntMin() const = 0;
-		virtual int GetIntMax() const = 0;
-		virtual double GetDoubleMin() const = 0;
-		virtual double GetDoubleMax() const = 0;
-};
-
-
-/*
- * PAD
- * container representing a PAD image
- * (corresponds to the "IMAGE" measurement type in the server & HardwareLib)
- */
-class PadImage : public BasicImage
-{
-	friend class TmpImage;
-
-	protected:
-		// actual data
-		unsigned int *m_puiDaten;
-
-		// lower & upper bound values
-		int m_iMin, m_iMax;
-
-		// PAD data stored in external memory which needs no management,
-		// i.e. allocation & freeing?
-		bool m_bExternalMem;
-
-		PadConfig m_config;
-
-		Roi m_roi;
-		bool m_bUseRoi;
-
-		// clean up
-		void Clear(void);
-
-	public:
-		// create PAD from file (or empty PAD otherwise)
-		PadImage(const char *pcFileName=NULL, bool bExternalMem=false,
-				 const PadConfig* conf=0);
-
-		// create PAD from other PAD
-		PadImage(const PadImage& pad);
-
-		virtual ~PadImage();
-
-		virtual int GetWidth() const;
-		virtual int GetHeight() const;
-
-		// set pointer to external memory (if bExternalMem==true)
-		void SetExternalMem(void* pvDaten);
-
-		// size (in ints) of PAD image
-		int GetPadSize() const;
-
-		int LoadFile(const char *pcFileName);
-		int LoadTextFile(const char* pcFileName);
-		int SaveFile(const char *pcFileName);
-
-		// load PAD from memory
-		// strBufLen: # of bytes
-		int LoadMem(const char *strBuf, unsigned int strBufLen);
-
-		// calculate lower & upper bound values
-		void UpdateRange();
-
-		virtual int GetIntMin() const;
-		virtual int GetIntMax() const;
-		virtual double GetDoubleMin() const;
-		virtual double GetDoubleMax() const;
-
-		// print PAD as text
-		void Print(const char* pcOutFile=NULL);
-
-		// get specific point
-		virtual unsigned int GetData(int iX, int iY) const;
-		virtual double GetDoubleData(int iX, int iY) const;
-		virtual unsigned int GetIntData(int iX, int iY) const;
-
-		// set count
-		void SetData(int iX, int iY, unsigned int uiCnt);
-
-		// same as above, but return 0 if outside ROI (if ROI is used)
-		unsigned int GetDataInsideROI(int iX, int iY) const;
-
-		// get pointer to internal memory
-		unsigned int* GetRawData(void);
-
-		// total number of counts (inside ROI, if used)
-		unsigned int GetCounts() const;
-
-		// old style GetCounts, ignoring main roi
-		unsigned int GetCounts(int iStartX, int iEndX,
-							   int iStartY, int iEndY) const;
-
-		const PadConfig& GetPadConfig() const;
-
-		Roi& GetRoi();
-		void UseRoi(bool bUseRoi=true);
-		bool GetUseRoi() const;
-
-		// filter out everything except selected regions
-		TmpImage GetRoiImage() const;
-
-		void GenerateRandomData();
-};
 
 
 //==============================================================================
@@ -279,6 +163,8 @@ class TmpGraph
 					double &dContrast_err, double &dPhase_err) const;
 	bool GetContrast(double &dContrast, double &dPhase) const;
 
+	bool Save(const char* pcFile) const;
+
 	//--------------------------------------------------------------------------
 	// getter
 	unsigned int GetData(int iX) const;
@@ -376,8 +262,10 @@ class TofImage
 
 		TmpGraph GetGraph(int iFoil) const;
 
+		// phase-shifted addition of all foils
 		TmpGraph GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
-							   double dPhaseShift=0.) const;
+							   const double* pPhases=0) const;
+		TmpGraph GetTotalGraph(const double* pPhases=0) const;
 
 		// get overview image (summing all individual images in TOF)
 		TmpImage GetOverview(bool bOnlyInRoi=false) const;

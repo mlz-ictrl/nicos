@@ -427,6 +427,12 @@ class ContrastsVsImagesDlg : public QDialog, public Ui::ContrastsVsImagesDlg
 		QwtPlotZoomer *m_pzoomer;
 		QwtPlotPanner *m_ppanner;
 
+		void CalcPhaseCorrected();
+		void Calc();
+		void Calc(int iFoil);
+
+		void SetRoi(TofImage& tof);
+
 	public:
 		ContrastsVsImagesDlg(CascadeWidget *pParent);
 		virtual ~ContrastsVsImagesDlg();

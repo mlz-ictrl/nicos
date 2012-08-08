@@ -491,6 +491,9 @@ ContrastsVsImagesDlg::ContrastsVsImagesDlg(CascadeWidget *pParent)
 
 	plot->setAxisScale(QwtPlot::yLeft, 0., 1.);
 
+	spinFoil->setMinimum(1);
+	spinFoil->setMaximum(GlobalConfig::GetTofConfig().GetFoilCount());
+
 	connect(btnAdd, SIGNAL(clicked()), this, SLOT(AddFile()));
 	connect(btnDelete, SIGNAL(clicked()), this, SLOT(DeleteFile()));
 	connect(btnRoiLoad, SIGNAL(clicked()), this, SLOT(LoadRoi()));
@@ -505,6 +508,11 @@ ContrastsVsImagesDlg::ContrastsVsImagesDlg(CascadeWidget *pParent)
 	connect(btnDelete_underground, SIGNAL(clicked()),
 			this, SLOT(DeleteFile_underground()));
 	connect(check_underground, SIGNAL(toggled(bool)), this, SLOT(UpdateGraph()));
+
+	connect(radioButtonFoilMean, SIGNAL(toggled(bool)), this, SLOT(UpdateGraph()));
+	//connect(radioButtonFoil, SIGNAL(toggled(bool)), this, SLOT(UpdateGraph()));
+
+	connect(spinFoil, SIGNAL(valueChanged(int)), this, SLOT(UpdateGraph()));
 }
 
 ContrastsVsImagesDlg::~ContrastsVsImagesDlg()
@@ -514,31 +522,12 @@ ContrastsVsImagesDlg::~ContrastsVsImagesDlg()
 	if(m_ppanner) delete m_ppanner;
 }
 
-void ContrastsVsImagesDlg::UpdateGraph()
+
+void ContrastsVsImagesDlg::SetRoi(TofImage& tof)
 {
-	const int iTofCnt = listTofs->count();
-	if(iTofCnt == 0)
-		return;
-
-	bool bUnderground = (check_underground->checkState()==Qt::Checked);
-	double dUnderground = spinBox_underground->value();
-	if(bUnderground && listTofs_underground->count()!=iTofCnt)
-	{
-		bUnderground = false;
-		QMessageBox::warning(0, "Warning",
-					"Underground file count has to match TOF file count.\n"
-					"Ignoring underground.", QMessageBox::Ok);
-	}
-
-	// write a .dat file
-	bool bDumpData = GlobalConfig::GetDumpFiles();
-
 	bool bUseRoi = groupRoi->isChecked();
 	bool bUseCurRoi = btnRoiCurrent->isChecked();
 	QString strRoiFile = editRoi->text();
-
-	TofImage tof;
-	TofImage tof_underground;
 
 	if(bUseRoi)
 	{
@@ -573,6 +562,158 @@ void ContrastsVsImagesDlg::UpdateGraph()
 			}
 		}
 	}
+}
+
+void ContrastsVsImagesDlg::CalcPhaseCorrected()
+{
+	const int iTofCnt = listTofs->count();
+	if(iTofCnt == 0)
+		return;
+
+	bool bUnderground = (check_underground->checkState()==Qt::Checked);
+	double dUnderground = spinBox_underground->value();
+	if(bUnderground && listTofs_underground->count()!=iTofCnt)
+	{
+		bUnderground = false;
+		QMessageBox::warning(0, "Warning",
+					"Underground file count has to match TOF file count.\n"
+					"Ignoring underground.", QMessageBox::Ok);
+	}
+
+	// write a .dat file
+	bool bDumpData = GlobalConfig::GetDumpFiles();
+
+	TofImage tof;
+	TofImage tof_underground;
+
+	SetRoi(tof);
+
+	double *pdx = new double[iTofCnt];
+	double *pdy = new double[iTofCnt];
+	double *pdy_err = new double[iTofCnt];
+
+	int iFoilCount = tof.GetTofConfig().GetFoilCount();
+
+	progressBar->setMaximum(iTofCnt);
+	progressBar->setValue(0);
+
+	std::ofstream *ofstr = 0;
+	if(bDumpData)
+	{
+		ofstr = new std::ofstream("contrasts.dat");
+		(*ofstr) << std::scientific;
+		(*ofstr) << "# contrast\tcontrast error\tphase\tphase error\tcounts\n";
+	}
+
+	double dMax = 0., dMin=1.;
+
+	for(int iItem=0; iItem<iTofCnt; ++iItem)
+	{
+		QListWidgetItem* pItem = listTofs->item(iItem);
+		QListWidgetItem* pItem_underground = 0;
+		if(bUnderground)
+			pItem_underground = listTofs_underground->item(iItem);
+
+		progressBar->setFormat(QString("%p% - ") + pItem->text());
+
+		if(!tof.LoadFile(pItem->text().toAscii().data()))
+		{
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Contrasts Dialog: Could not load \""
+				   << pItem->text().toAscii().data() << "\".\n";
+			continue;
+		}
+
+		if(bUnderground)
+		{
+			if(!tof_underground.LoadFile(pItem_underground->text().toAscii().data()))
+			{
+				logger.SetCurLogLevel(LOGLEVEL_ERR);
+				logger << "Contrasts Dialog: Could not load \""
+						<< pItem->text().toAscii().data() << "\".\n";
+			}
+			else
+			{
+				tof.Subtract(tof_underground, dUnderground);
+			}
+		}
+
+		double dC=0., dC_err=0., dPh=0., dPh_err=0.;
+		unsigned int uiTotalCnt=0;
+
+		TmpGraph graph = tof.GetTotalGraph();
+		graph.Save("tmp.txt");
+
+		bool bOk = graph.GetContrast(dC, dPh, dC_err, dPh_err);
+		uiTotalCnt = graph.Sum();
+		if(!bOk)
+		{
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Contrasts Dialog: Values for \""
+					<< pItem->text().toAscii().data() << "\" invalid.\n";
+		}
+
+		progressBar->setValue(iItem + 1);
+
+		dMax = max(dMax, dC+dC_err);
+		dMin = min(dMin, dC-dC_err);
+
+		pdx[iItem] = iItem;
+		pdy[iItem] = dC;
+		pdy_err[iItem] = dC_err;
+
+		if(bDumpData)
+		{
+			(*ofstr) << dC << "\t" << dC_err
+					 << "\t" << dPh << "\t" << dPh_err
+					 << "\t" << uiTotalCnt;
+
+			(*ofstr) << "\n";
+		}
+	}
+
+	m_curve.setData(pdx, pdy, pdy_err, iTofCnt);
+
+	delete[] pdx;
+	delete[] pdy;
+
+	//plot->setAxisScale(QwtPlot::yLeft, dMin, dMax);
+	plot->setAxisScale(QwtPlot::xBottom, 0, iTofCnt);
+	m_pzoomer->setZoomBase();
+
+	plot->replot();
+
+	if(bDumpData)
+	{
+		ofstr->flush();
+		ofstr->close();
+		delete ofstr;
+	}
+}
+
+void ContrastsVsImagesDlg::Calc()
+{
+	const int iTofCnt = listTofs->count();
+	if(iTofCnt == 0)
+		return;
+
+	bool bUnderground = (check_underground->checkState()==Qt::Checked);
+	double dUnderground = spinBox_underground->value();
+	if(bUnderground && listTofs_underground->count()!=iTofCnt)
+	{
+		bUnderground = false;
+		QMessageBox::warning(0, "Warning",
+					"Underground file count has to match TOF file count.\n"
+					"Ignoring underground.", QMessageBox::Ok);
+	}
+
+	// write a .dat file
+	bool bDumpData = GlobalConfig::GetDumpFiles();
+
+	TofImage tof;
+	TofImage tof_underground;
+
+	SetRoi(tof);
 
 	double *pdx = new double[iTofCnt];
 	double *pdy = new double[iTofCnt];
@@ -730,6 +871,143 @@ void ContrastsVsImagesDlg::UpdateGraph()
 		ofstr->close();
 		delete ofstr;
 	}
+}
+
+void ContrastsVsImagesDlg::Calc(int iFoil)
+{
+	const int iTofCnt = listTofs->count();
+	if(iTofCnt == 0)
+		return;
+
+	bool bUnderground = (check_underground->checkState()==Qt::Checked);
+	double dUnderground = spinBox_underground->value();
+	if(bUnderground && listTofs_underground->count()!=iTofCnt)
+	{
+		bUnderground = false;
+		QMessageBox::warning(0, "Warning",
+					"Underground file count has to match TOF file count.\n"
+					"Ignoring underground.", QMessageBox::Ok);
+	}
+
+	// write a .dat file
+	bool bDumpData = GlobalConfig::GetDumpFiles();
+
+	TofImage tof;
+	TofImage tof_underground;
+
+	SetRoi(tof);
+
+	double *pdx = new double[iTofCnt];
+	double *pdy = new double[iTofCnt];
+	double *pdy_err = new double[iTofCnt];
+
+	int iFoilCount = tof.GetTofConfig().GetFoilCount();
+
+	progressBar->setMaximum(iTofCnt);
+	progressBar->setValue(0);
+
+	std::ofstream *ofstr = 0;
+	if(bDumpData)
+	{
+		ofstr = new std::ofstream("contrasts.dat");
+		(*ofstr) << std::scientific;
+		(*ofstr) << "# contrast\tcontrast error\tphase\tphase error\tcounts\n";
+	}
+
+	double dMax = 0., dMin=1.;
+
+	for(int iItem=0; iItem<iTofCnt; ++iItem)
+	{
+		QListWidgetItem* pItem = listTofs->item(iItem);
+		QListWidgetItem* pItem_underground = 0;
+		if(bUnderground)
+			pItem_underground = listTofs_underground->item(iItem);
+
+		progressBar->setFormat(QString("%p% - ") + pItem->text());
+
+		if(!tof.LoadFile(pItem->text().toAscii().data()))
+		{
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Contrasts Dialog: Could not load \""
+				   << pItem->text().toAscii().data() << "\".\n";
+			continue;
+		}
+
+		if(bUnderground)
+		{
+			if(!tof_underground.LoadFile(pItem_underground->text().toAscii().data()))
+			{
+				logger.SetCurLogLevel(LOGLEVEL_ERR);
+				logger << "Contrasts Dialog: Could not load \""
+						<< pItem->text().toAscii().data() << "\".\n";
+			}
+			else
+			{
+				tof.Subtract(tof_underground, dUnderground);
+			}
+		}
+
+		double dC=0., dC_err=0., dPh=0., dPh_err=0.;
+		unsigned int uiTotalCnt=0;
+
+		TmpGraph graph = tof.GetGraph(iFoil);
+
+		bool bOk = graph.GetContrast(dC, dPh, dC_err, dPh_err);
+		uiTotalCnt = graph.Sum();
+		if(!bOk)
+		{
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Contrasts Dialog: Values for \""
+					<< pItem->text().toAscii().data() << "\" invalid.\n";
+		}
+
+		progressBar->setValue(iItem + 1);
+
+		dMax = max(dMax, dC+dC_err);
+		dMin = min(dMin, dC-dC_err);
+
+		pdx[iItem] = iItem;
+		pdy[iItem] = dC;
+		pdy_err[iItem] = dC_err;
+
+		if(bDumpData)
+		{
+			(*ofstr) << dC << "\t" << dC_err
+					 << "\t" << dPh << "\t" << dPh_err
+					 << "\t" << uiTotalCnt;
+
+			(*ofstr) << "\n";
+		}
+	}
+
+	m_curve.setData(pdx, pdy, pdy_err, iTofCnt);
+
+	delete[] pdx;
+	delete[] pdy;
+
+	//plot->setAxisScale(QwtPlot::yLeft, dMin, dMax);
+	plot->setAxisScale(QwtPlot::xBottom, 0, iTofCnt);
+	m_pzoomer->setZoomBase();
+
+	plot->replot();
+
+	if(bDumpData)
+	{
+		ofstr->flush();
+		ofstr->close();
+		delete ofstr;
+	}
+}
+
+void ContrastsVsImagesDlg::UpdateGraph()
+{
+	if(radioButtonFoilMean->isChecked())
+		Calc();
+	else if(radioButtonFoil->isChecked())
+		Calc(spinFoil->value()-1);
+
+	//CalcPhaseCorrected();
+
 }
 
 void ContrastsVsImagesDlg::RoiGroupToggled()
