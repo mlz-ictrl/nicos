@@ -63,7 +63,7 @@ class NicosClient : public TcpClient
 					  int iStartX, int iEndX,
 					  int iStartY, int iEndY,
 					  double *pC, double *pPhase,
-					  double *pC_err=0, double *pPhase_err=0);		
+					  double *pC_err=0, double *pPhase_err=0);
 };
 
 #endif

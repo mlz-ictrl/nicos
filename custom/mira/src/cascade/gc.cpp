@@ -60,8 +60,32 @@ void Gc::gc()
 	}
 }
 
-void* Gc::malloc(unsigned int uiSize)
+void Gc::sanity_check() const
 {
+	if(memsize() > 1024*1024*512)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "gc: More than 512 MiB total memory allocated. "
+					"Is this intended?\n";
+
+		logger << "gc: Current memory usage:\n";
+		print();
+	}
+}
+
+void* Gc::malloc(unsigned int uiSize, const char *pcDesc)
+{
+	sanity_check();
+
+	if(uiSize > 1024*1024*100)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "gc: Requested over 100 MiB at once";
+		if(pcDesc)
+			logger << " by \"" << pcDesc << "\"";
+		logger << ".\n";
+	}
+
 	void* pv = ::malloc(uiSize);
 
 	if(pv==0)
@@ -76,6 +100,10 @@ void* Gc::malloc(unsigned int uiSize)
 	Gc_info gci;
 	gci.iLen = uiSize;
 	++gci.iRefs;
+
+	if(pcDesc)
+		gci.strDesc = pcDesc;
+
 	m_map.insert(t_map::value_type(pv, gci));
 
 	return pv;
@@ -139,6 +167,7 @@ void Gc::print() const
 		logger << "gc: Clean.\n";
 	}
 
+	unsigned int uiMem = 0;
 	for(t_map::const_iterator iter=m_map.begin(); iter!=m_map.end(); ++iter)
 	{
 		void *pv = (*iter).first;
@@ -146,10 +175,28 @@ void Gc::print() const
 
 		logger.SetCurLogLevel(LOGLEVEL_INFO);
 		logger << "gc: mem=" << std::hex << pv
-			   << ", len=" << std::dec << info.iLen
+			   << ", len=" << std::dec << info.iLen << "B"
 			   << ", refs=" << info.iRefs
+			   << ", what=\"" << info.strDesc << "\""
 			   << ".\n";
+
+		uiMem += info.iLen;
 	}
+
+	logger << "gc: " << uiMem << " bytes of total memory in use.\n";
+}
+
+unsigned int Gc::memsize() const
+{
+	unsigned int uiMem = 0;
+
+	for(t_map::const_iterator iter=m_map.begin(); iter!=m_map.end(); ++iter)
+	{
+		const Gc_info& info = (*iter).second;
+		uiMem += info.iLen;
+	}
+
+	return uiMem;
 }
 
 Gc gc;

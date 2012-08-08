@@ -120,12 +120,12 @@ class GraphDlg : public QDialog, public Ui::GraphDlg
 		QwtPlotCurve m_curvefit, m_curvetotal;
 		QwtLegend *m_plegend;
 		QwtPlotGrid *m_pgrid;
-		void UpdateGraph(void);
 
 	protected slots:
 		void Foilchanged(int iVal);
 		void printPlot();
 		void checkBoxDoFitChanged(int state);
+		void UpdateGraph(void);
 
 	public:
 		GraphDlg(QWidget *pParent, TofImage* pTof);
@@ -439,7 +439,7 @@ class ContrastsVsImagesDlg : public QDialog, public Ui::ContrastsVsImagesDlg
 		void RoiGroupToggled();
 
 		void AddFile_underground();
-		void DeleteFile_underground();		
+		void DeleteFile_underground();
 
 	public slots:
 		void UpdateGraph();

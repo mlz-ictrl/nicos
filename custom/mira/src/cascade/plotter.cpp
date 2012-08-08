@@ -288,7 +288,7 @@ QwtText MainZoomer::trackerText(const QwtDoublePoint &pos) const
 
 	const MainRasterData& rasterdata = (const MainRasterData&)m_pData->data();
 
-	str += "\nCount: ";
+	str += "\nValue: ";
 
 	std::ostringstream ostr;
 	SetNumberGrouping(ostr);
@@ -469,7 +469,7 @@ void Plot::printPlot()
 	QPrinter printer;
 	printer.setColorMode(QPrinter::Color);
 	printer.setOrientation(QPrinter::Landscape);
-	
+
 	QPrintDialog dialog(&printer);
 	if(dialog.exec())
 		print(printer);

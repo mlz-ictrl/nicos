@@ -221,12 +221,12 @@ int GlobalConfig::iContrastBlockSize[2] = {1, 2};
 double GlobalConfig::LOG_LOWER_RANGE = -0.5;
 
 // Defaults used in ROOT::Minuit2::MnApplication::operator()
-double GlobalConfig::dMinuitTolerance = 0.01;
-unsigned int GlobalConfig::uiMinuitMaxFcn = 1000;
+double GlobalConfig::dMinuitTolerance = 0.1;
+unsigned int GlobalConfig::uiMinuitMaxFcn = 0;
 int GlobalConfig::iMinuitAlgo = MINUIT_MIGRAD;
-unsigned int GlobalConfig::uiMinuitStrategy = 2;
+unsigned int GlobalConfig::uiMinuitStrategy = 1;
 
-bool GlobalConfig::bGuessConfig = 1;
+bool GlobalConfig::bGuessConfig = 0;
 bool GlobalConfig::bDumpFiles = 0;
 
 
@@ -318,7 +318,7 @@ void GlobalConfig::Init()
 	}
 
 	bDumpFiles = (bool)Config::GetSingleton()->QueryInt(
-				"/cascade_config/log/dump_files", bDumpFiles);	
+				"/cascade_config/log/dump_files", bDumpFiles);
 
 #else	// Nicos-Client holt Einstellungen von Detektor
 

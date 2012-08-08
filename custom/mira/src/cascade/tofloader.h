@@ -351,6 +351,7 @@ class TofImage
 		unsigned int* GetRawData(void) const;
 
 		int LoadFile(const char *pcFileName);
+		int SaveFile(const char *pcFileName);
 
 		// strBufLen: # bytes
 		int LoadMem(const char *strBuf, unsigned int strBufLen);

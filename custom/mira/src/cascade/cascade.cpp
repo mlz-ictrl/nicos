@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include <limits>
 #include <string.h>
+#include <exception>
 
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
@@ -615,7 +616,7 @@ class MainWindow : public QMainWindow
 			UpdateLabels(false);
 
 			char pcKanal[128];
-			sprintf(pcKanal,"Time Channel (%0.2d):",
+			sprintf(pcKanal,"Time Channel (%.2d):",
 					m_cascadewidget.GetTimechannel()+1);
 			labelZeitkanal->setText(pcKanal);
 		}
@@ -987,7 +988,13 @@ class MainWindow : public QMainWindow
 			}
 			if(m_cascadewidget.IsTofLoaded())
 			{
-				// TODO
+				QString strFile = QFileDialog::getSaveFileName(this,
+									"Save as TOF File", "",
+									"TOF Files (*.tof *.TOF);;All Files (*)");
+				if(strFile=="")
+					return;
+
+				m_cascadewidget.GetTof()->SaveFile(strFile.toAscii().data());
 			}
 		}
 
@@ -1782,107 +1789,116 @@ int MainWindow::AUTOFETCH_POLL_TIME = 250;
 
 int main(int argc, char **argv)
 {
-	QApplication a(argc, argv);
-
-	setlocale(LC_ALL, "C");
-	QLocale::setDefault(QLocale::English);
-
-	bool bConfigOk;
-	// Konfigurationssingleton erzeugen
-	const char pcConfigFile[] = "./cascade.xml";
-	if(!Config::GetSingleton()->Load(pcConfigFile))
+	int iRet = -1;
+	try
 	{
-		char pcMsg[512];
-		sprintf(pcMsg, "Configuration file \"%s\" could not be found.\n"
-					   "Using default configuration.", pcConfigFile);
-		QMessageBox::warning(0, "Warning", pcMsg, QMessageBox::Ok);
+		QApplication a(argc, argv);
 
-		bConfigOk = false;
-	}
-	else
-	{
-		bConfigOk = true;
-	}
+		setlocale(LC_ALL, "C");
+		QLocale::setDefault(QLocale::English);
 
-	// Konfigurationseinstellungen laden
-	GlobalConfig::Init();
-
-	int iLogToFile = Config::GetSingleton()->QueryInt(
-						"/cascade_config/log/log_to_file", 0);
-	if(iLogToFile)
-	{
-		std::string strLogFile =
-			Config::GetSingleton()->QueryString("/cascade_config/log/file",
-												"cascade.log");
-		logger.Init(strLogFile.c_str());
-	}
-
-	if(bConfigOk)
-	{
-		logger.SetCurLogLevel(LOGLEVEL_INFO);
-		logger << "Main: Using configuration in \"" << pcConfigFile << "\".\n";
-	}
-	else
-	{
-		logger.SetCurLogLevel(LOGLEVEL_WARN);
-		logger << "Main: Using default configuration.\n";
-	}
-
-	int iLogLevel = Config::GetSingleton()->QueryInt(
-						"/cascade_config/log/level", LOGLEVEL_INFO);
-	GlobalConfig::SetLogLevel(iLogLevel);
-
-	bool bRepeatLogs = Config::GetSingleton()->QueryInt(
-						"/cascade_config/log/repeat_duplicate_logs", 1);
-	GlobalConfig::SetRepeatLogs(bRepeatLogs);
-
-	int iWinW = Config::GetSingleton()->QueryInt(
-						"/cascade_config/main_window/width", WIN_W);
-	int iWinH = Config::GetSingleton()->QueryInt(
-						"/cascade_config/main_window/height", WIN_H);
-
-	MainWindow::NUM_BINS = Config::GetSingleton()->QueryInt(
-						"/cascade_config/graphs/bin_count",
-						MainWindow::NUM_BINS);
-	MainWindow::SERVER_STATUS_POLL_TIME = Config::GetSingleton()->QueryInt(
-						"/cascade_config/server/status_poll_time",
-						MainWindow::SERVER_STATUS_POLL_TIME);
-
-	MainWindow::AUTOFETCH_POLL_TIME	= Config::GetSingleton()->QueryInt(
-						"/cascade_config/server/autofetch_poll_time",
-						MainWindow::AUTOFETCH_POLL_TIME);
-
-	MainWindow mainWindow;
-	mainWindow.resize(iWinW, iWinH);
-	mainWindow.show();
-
-	// user wants to open file/dir
-	if(argc>1)
-	{
-		QString strArg = argv[1];
-		strArg = strArg.trimmed();
-
-		// check if a directory of that name exists
-		QDir dir(strArg);
-		if(dir.exists())
+		bool bConfigOk;
+		// Konfigurationssingleton erzeugen
+		const char pcConfigFile[] = "./cascade.xml";
+		if(!Config::GetSingleton()->Load(pcConfigFile))
 		{
-			mainWindow.m_strCurDir = strArg;
-			mainWindow.BrowseFiles();
+			char pcMsg[512];
+			sprintf(pcMsg, "Configuration file \"%s\" could not be found.\n"
+						   "Using default configuration.", pcConfigFile);
+			QMessageBox::warning(0, "Warning", pcMsg, QMessageBox::Ok);
+
+			bConfigOk = false;
 		}
 		else
 		{
-			// check if a file of that name exists
-			QFile file(strArg);
-			if(file.exists())
-				mainWindow.m_cascadewidget.LoadFile(strArg.toAscii().data());
+			bConfigOk = true;
 		}
+
+		// Konfigurationseinstellungen laden
+		GlobalConfig::Init();
+
+		int iLogToFile = Config::GetSingleton()->QueryInt(
+							"/cascade_config/log/log_to_file", 0);
+		if(iLogToFile)
+		{
+			std::string strLogFile =
+				Config::GetSingleton()->QueryString("/cascade_config/log/file",
+													"cascade.log");
+			logger.Init(strLogFile.c_str());
+		}
+
+		if(bConfigOk)
+		{
+			logger.SetCurLogLevel(LOGLEVEL_INFO);
+			logger << "Main: Using configuration in \"" << pcConfigFile << "\".\n";
+		}
+		else
+		{
+			logger.SetCurLogLevel(LOGLEVEL_WARN);
+			logger << "Main: Using default configuration.\n";
+		}
+
+		int iLogLevel = Config::GetSingleton()->QueryInt(
+							"/cascade_config/log/level", LOGLEVEL_INFO);
+		GlobalConfig::SetLogLevel(iLogLevel);
+
+		bool bRepeatLogs = Config::GetSingleton()->QueryInt(
+							"/cascade_config/log/repeat_duplicate_logs", 1);
+		GlobalConfig::SetRepeatLogs(bRepeatLogs);
+
+		int iWinW = Config::GetSingleton()->QueryInt(
+							"/cascade_config/main_window/width", WIN_W);
+		int iWinH = Config::GetSingleton()->QueryInt(
+							"/cascade_config/main_window/height", WIN_H);
+
+		MainWindow::NUM_BINS = Config::GetSingleton()->QueryInt(
+							"/cascade_config/graphs/bin_count",
+							MainWindow::NUM_BINS);
+		MainWindow::SERVER_STATUS_POLL_TIME = Config::GetSingleton()->QueryInt(
+							"/cascade_config/server/status_poll_time",
+							MainWindow::SERVER_STATUS_POLL_TIME);
+
+		MainWindow::AUTOFETCH_POLL_TIME	= Config::GetSingleton()->QueryInt(
+							"/cascade_config/server/autofetch_poll_time",
+							MainWindow::AUTOFETCH_POLL_TIME);
+
+		MainWindow mainWindow;
+		mainWindow.resize(iWinW, iWinH);
+		mainWindow.show();
+
+		// user wants to open file/dir
+		if(argc>1)
+		{
+			QString strArg = argv[1];
+			strArg = strArg.trimmed();
+
+			// check if a directory of that name exists
+			QDir dir(strArg);
+			if(dir.exists())
+			{
+				mainWindow.m_strCurDir = strArg;
+				mainWindow.BrowseFiles();
+			}
+			else
+			{
+				// check if a file of that name exists
+				QFile file(strArg);
+				if(file.exists())
+					mainWindow.m_cascadewidget.LoadFile(strArg.toAscii().data());
+			}
+		}
+
+		iRet = a.exec();
+
+		// aufräumen
+		GlobalConfig::Deinit();
+		Config::ClearSingleton();
+	}
+	catch(std::exception& ex)
+	{
+		std::cerr << "\n*** GURU MEDITATION ***: " << ex.what() << std::endl;
 	}
 
-	int iRet = a.exec();
-
-	// aufräumen
-	GlobalConfig::Deinit();
-	Config::ClearSingleton();
 	return iRet;
 }
 

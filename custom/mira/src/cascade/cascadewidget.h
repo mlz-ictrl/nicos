@@ -65,6 +65,7 @@ Q_OBJECT
 		int m_iFolie, m_iZeitkanal;
 		bool m_bLog;
 
+		//GraphDlg* m_pGraphDlg;
 		RoiDlg* m_proidlg;
 		BrowseDlg* m_pbrowsedlg;
 		IntegrationDlg* m_pintdlg;

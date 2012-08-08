@@ -22,6 +22,7 @@
 // *****************************************************************************
 
 #include <map>
+#include <string>
 
 #ifndef __CASC_GC__
 #define __CASC_GC__
@@ -30,6 +31,7 @@ struct Gc_info
 {
 	unsigned int iLen;
 	unsigned int iRefs;
+	std::string strDesc;
 
 	Gc_info();
 };
@@ -54,7 +56,7 @@ class Gc
 		void gc();
 
 		// allocate mem
-		void* malloc(unsigned int uiSize);
+		void* malloc(unsigned int uiSize, const char* pcDesc=0);
 
 		// add a mem reference
 		bool acquire(void* pv);
@@ -62,6 +64,10 @@ class Gc
 		// release a mem reference
 		bool release(void* pv);
 
+		// total memory allocated
+		unsigned int memsize() const;
+
+		void sanity_check() const;
 		void print() const;
 };
 

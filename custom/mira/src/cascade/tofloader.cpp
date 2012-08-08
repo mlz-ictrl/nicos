@@ -63,7 +63,7 @@ TofImage::TofImage(const char *pcFileName,
 	if(!m_bExternalMem)
 	{
 		int iSize = GetTofSize();
-		m_puiDaten = new unsigned int[iSize];
+		m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*iSize, "tof_image");
 		if(m_puiDaten==NULL)
 		{
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -121,7 +121,7 @@ void TofImage::Clear(void)
 {
 	if(m_puiDaten && !m_bExternalMem)
 	{
-		delete[] m_puiDaten;
+		gc.release(m_puiDaten);
 		m_puiDaten=NULL;
 	}
 }
@@ -317,6 +317,34 @@ int TofImage::LoadFile(const char *pcFileName)
 	return iRet;
 }
 
+int TofImage::SaveFile(const char *pcFileName)
+{
+	FILE *pf = fopen(pcFileName, "wb");
+	if(!pf)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Could not open file \"" << pcFileName
+			   << "\" for writing."
+			   << "\n";
+		return SAVE_FAIL;
+	}
+
+	unsigned int uiLen = fwrite(m_puiDaten, sizeof(unsigned int),
+								GetTofSize(), pf);
+
+	int iRet = SAVE_SUCCESS;
+	if(uiLen != GetTofSize())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Could not write file \"" << pcFileName << "\"."
+			   << "\n";
+		iRet = SAVE_FAIL;
+	}
+
+	fclose(pf);
+	return iRet;
+}
+
 unsigned int TofImage::GetCounts() const
 {
 	int iXStart, iXEnd, iYStart, iYEnd;
@@ -434,7 +462,8 @@ TmpImage TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY,
 	img.Clear();
 	img.m_iW = iBildBreite;
 	img.m_iH = iBildHoehe;
-	img.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*iBildHoehe*iBildBreite);
+	img.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*iBildHoehe*iBildBreite,
+												"tof_image -> roi");
 
 	unsigned int *puiWave = img.m_puiDaten;
 	if(puiWave==NULL)
@@ -461,8 +490,9 @@ TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 	GetTofConfig().CheckTofArguments(&iStartX,&iEndX,&iStartY,&iEndY,&iFoil);
 
 	graph.m_iW = GetTofConfig().GetImagesPerFoil();
-	graph.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)
-										* GetTofConfig().GetImagesPerFoil());
+	graph.m_puiDaten = (unsigned int*)gc.malloc(
+							sizeof(int) * GetTofConfig().GetImagesPerFoil(),
+							"tof_image -> graph");
 	unsigned int *puiWave = graph.m_puiDaten;
 
 	for(int iZ0=0; iZ0<GetTofConfig().GetImagesPerFoil(); ++iZ0)
@@ -495,8 +525,9 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY);
 
 	graph.m_iW = GetTofConfig().GetImagesPerFoil();
-	graph.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)
-										* GetTofConfig().GetImagesPerFoil());
+	graph.m_puiDaten = (unsigned int*)gc.malloc(
+							sizeof(int) * GetTofConfig().GetImagesPerFoil(),
+							"tof_image -> total graph");
 	unsigned int *puiWave = graph.m_puiDaten;
 
 	// Zeitkanäle
@@ -534,7 +565,8 @@ TmpImage TofImage::GetOverview(bool bOnlyInRoi) const
 
 	img.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*
 										   GetTofConfig().GetImageWidth()*
-										   GetTofConfig().GetImageHeight());
+										   GetTofConfig().GetImageHeight(),
+										   "tof_image -> overview");
 	if(img.m_puiDaten==NULL)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -570,7 +602,8 @@ TmpImage TofImage::GetFoil(int iFoil, bool bOnlyInRoi) const
 
 	img.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*
 										   GetTofConfig().GetImageWidth()*
-										   GetTofConfig().GetImageHeight());
+										   GetTofConfig().GetImageHeight(),
+										   "tof_image -> foil");
 	if(img.m_puiDaten==NULL)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -613,8 +646,9 @@ TmpImage TofImage::GetPhaseGraph(int iFolie, bool bInDeg) const
 	const int XSIZE = GlobalConfig::iPhaseBlockSize[0],
 			  YSIZE = GlobalConfig::iPhaseBlockSize[1];
 
-	double *pdWave = (double*)gc.malloc(sizeof(double)*(img.m_iW+XSIZE)
-													  *(img.m_iH+YSIZE));
+	double *pdWave = (double*)gc.malloc(
+							sizeof(double)*(img.m_iW+XSIZE) *(img.m_iH+YSIZE),
+							"tof_image -> phase graph");
 	if(pdWave==NULL)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -663,8 +697,9 @@ TmpImage TofImage::GetContrastGraph(int iFoil) const
 	const int XSIZE = GlobalConfig::iContrastBlockSize[0],
 			  YSIZE = GlobalConfig::iContrastBlockSize[1];
 
-	img.m_pdDaten = (double*)gc.malloc(sizeof(double) * (img.m_iW+XSIZE)
-													  * (img.m_iH+YSIZE));
+	img.m_pdDaten = (double*)gc.malloc(
+						sizeof(double) * (img.m_iW+XSIZE) * (img.m_iH+YSIZE),
+						"tof_image -> contrast graph");
 	double *pdWave = img.m_pdDaten;
 	if(pdWave==NULL)
 	{
@@ -708,7 +743,8 @@ TmpImage TofImage::AddFoils(const bool *pbKanaele) const
 	img.m_iH = GetTofConfig().GetImageHeight();
 	img.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)
 										*GetTofConfig().GetImageWidth()
-										*GetTofConfig().GetImageHeight());
+										*GetTofConfig().GetImageHeight(),
+								"tof_image -> foil sum");
 
 	unsigned int *puiWave = img.m_puiDaten;
 	if(puiWave==NULL)
@@ -771,7 +807,8 @@ void TofImage::AddFoils(int iBits, int iZeitKanaeleBits, TmpImage *pImg) const
 	pImg->m_iH = GetTofConfig().GetImageHeight();
 	pImg->m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)
 										*GetTofConfig().GetImageWidth()
-										*GetTofConfig().GetImageHeight());
+										*GetTofConfig().GetImageHeight(),
+										"tof_image -> foil sum");
 
 	unsigned int *puiWave = pImg->m_puiDaten;
 	if(puiWave==NULL)
@@ -810,7 +847,8 @@ TmpImage TofImage::AddPhases(const bool *pbFolien) const
 	img.m_iH = GetTofConfig().GetImageHeight();
 	img.m_pdDaten = (double*)gc.malloc(sizeof(double)
 											*GetTofConfig().GetImageWidth()
-											*GetTofConfig().GetImageHeight());
+											*GetTofConfig().GetImageHeight(),
+											"tof_image -> phase sum");
 
 	double *pdWave = img.m_pdDaten;
 	if(pdWave==NULL)
@@ -846,7 +884,8 @@ TmpImage TofImage::AddContrasts(const bool *pbFolien) const
 	img.m_iH = GetTofConfig().GetImageHeight();
 	img.m_pdDaten = (double*)gc.malloc(sizeof(double)
 											*GetTofConfig().GetImageWidth()
-											*GetTofConfig().GetImageHeight());
+											*GetTofConfig().GetImageHeight(),
+											"tof_image -> contrast sum");
 
 	double *pdWave = img.m_pdDaten;
 	if(pdWave==NULL)
@@ -913,7 +952,8 @@ PadImage::PadImage(const char *pcFileName, bool bExternalMem,
 
 	if(!m_bExternalMem)
 	{
-		m_puiDaten = new unsigned int[GetPadSize()];
+		m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*GetPadSize(),
+												"pad_image");
 		if(m_puiDaten==NULL)
 		{
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -939,7 +979,7 @@ PadImage::PadImage(const PadImage& pad) : m_bExternalMem(false)
 	m_bUseRoi = pad.m_bUseRoi;
 	m_roi = pad.m_roi;
 
-	m_puiDaten = new unsigned int[GetPadSize()];
+	m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*GetPadSize(), "pad_image");
 	if(m_puiDaten == NULL)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -960,7 +1000,7 @@ void PadImage::Clear()
 {
 	if(m_puiDaten && !m_bExternalMem)
 	{
-		delete[] m_puiDaten;
+		gc.release(m_puiDaten);
 		m_puiDaten=0;
 	}
 }
@@ -1303,7 +1343,8 @@ TmpImage PadImage::GetRoiImage() const
 
 	img.m_iW = GetWidth();
 	img.m_iH = GetHeight();
-	img.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*img.m_iW*img.m_iH);
+	img.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*img.m_iW*img.m_iH,
+										"pad_image -> roi");
 
 	for(int iY=0; iY<img.m_iH; ++iY)
 		for(int iX=0; iX<img.m_iW; ++iX)
@@ -1613,7 +1654,8 @@ void TmpImage::ConvertPAD(PadImage* pPad)
 	m_dMin = pPad->m_iMin;
 	m_dMax = pPad->m_iMax;
 
-	m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*m_iW*m_iH);
+	m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*m_iW*m_iH,
+										"pad_image -> tmp_image");
 	if(m_puiDaten==NULL)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -1658,7 +1700,8 @@ TmpGraph TmpImage::GetRadialIntegration(double dAngleInc, double dRadInc,
 
 	TmpGraph graph(&m_TofConfig);
 	graph.m_iW = iSteps;
-	graph.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*iSteps);
+	graph.m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*iSteps,
+										"tmp_image -> integration");
 	memset(graph.m_puiDaten, 0, iSteps*sizeof(int));
 
 	unsigned int uiTotalCnts = 0;
