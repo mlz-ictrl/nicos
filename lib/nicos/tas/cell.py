@@ -691,3 +691,4 @@ class TASSample(Sample, Cell):
         self.orient1 = [1, 0, 0]
         self.orient2 = [0, 1, 0]
         self.psi0    = 0.0
+        self.spacegroup = 1  # primitive triclinic, all reflexes allowed
