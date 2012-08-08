@@ -155,11 +155,8 @@ class SpaceMap(object):
         o2 = array(self.cell.orient2)
         hkls = []
         sg = None
-        try:
-            if sgroup:
-                sg = get_spacegroup(self.cell.spacegroup)
-        except NicosError:
-            pass
+        if sgroup:
+            sg = get_spacegroup(self.cell.spacegroup)
         for i in range(-10, 11):
             for j in range(-10, 11):
                 base = i*o1 + j*o2

@@ -36,6 +36,7 @@ from numpy.linalg import inv, norm
 from nicos.core import Device, Param, ComputationError, ConfigurationError, \
      vec3, anytype
 from nicos.experiment import Sample
+from nicos.tas.spacegroups import get_spacegroup
 
 D2R = pi/180
 R2D = 180/pi
@@ -125,6 +126,11 @@ class Cell(Device):
         if val not in [1, -1, 2, -2]:
             raise ConfigurationError('valid values for coordinatesystem: '
                                      '+/-1 and +/-2')
+
+    def doWriteSpacegroup(self, val):
+        if get_spacegroup(val) is None:
+            self.log.warning('space group %r not recognized; will be ignored '
+                '(valid values are: num, (num, setting) or "HMsym")' % val)
 
     def lattice_real(self):
         return [self._lattice, self._angles]
