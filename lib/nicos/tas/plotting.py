@@ -291,6 +291,10 @@ class SpaceMap(object):
         current_pos = self.tas.read()
         if abs(current_pos[3] - self.E) < 0.01:
             self.plot_hkls([current_pos[:3]], color='#990033', marker='x')
+        # plot last calpos() result
+        calpos = self.tas._last_calpos
+        if calpos is not None and abs(calpos[3] - self.E) < 0.01:
+            self.plot_hkls([calpos[:3]], color='#006600', marker='*')
 
         # plot limits of phi/psi
         for v in lim1, lim2, lim3, lim4:
