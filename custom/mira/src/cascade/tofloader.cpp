@@ -1819,6 +1819,9 @@ bool TmpGraph::GetContrast(double &dContrast, double &dPhase,
 	dContrast_err = sqrt((1/dOffs*dAmp_err)*(1/dOffs*dAmp_err)
 					+ (-dAmp/(dOffs*dOffs)*dOffs_err)*(-dAmp/(dOffs*dOffs)*dOffs_err));
 
+	if(dContrast!=dContrast)
+		return false;
+
 	return true;
 }
 

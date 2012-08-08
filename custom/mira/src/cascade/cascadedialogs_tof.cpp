@@ -281,7 +281,7 @@ void GraphDlg::UpdateGraph(void)
 		}
 		else
 		{
-			sprintf(pcFit, "Fit: invalid!");
+			sprintf(pcFit, "Fit invalid!");
 			dAmp = dFreq = dPhase = dOffs = 0.;
 		}
 
@@ -616,7 +616,7 @@ void ContrastsVsImagesDlg::UpdateGraph()
 		QListWidgetItem* pItem_underground = 0;
 		if(bUnderground)
 			pItem_underground = listTofs_underground->item(iItem);
-		
+
 		progressBar->setFormat(QString("%p% - ") + pItem->text());
 
 		if(!tof.LoadFile(pItem->text().toAscii().data()))
@@ -642,29 +642,45 @@ void ContrastsVsImagesDlg::UpdateGraph()
 		}
 
 		double dC=0., dC_err=0., dPh=0., dPh_err=0.;
+		unsigned int uiTotalCnt=0;
 
 		for(int iFoil=0; iFoil<iFoilCount; ++iFoil)
 		{
 			pC[iFoil] = pPh[iFoil] = pC_err[iFoil] = pPh_err[iFoil] = 0.;
+			puiCnt[iFoil] = 0;
 
 			TmpGraph graph = tof.GetGraph(iFoil);
 			bool bOk = graph.GetContrast(pC[iFoil], pPh[iFoil],
 										pC_err[iFoil], pPh_err[iFoil]);
 
-			puiCnt[iFoil] = graph.Sum();
+			if(bOk)
+			{
+				puiCnt[iFoil] = graph.Sum();
+				uiTotalCnt += puiCnt[iFoil];
 
-			dC += pC[iFoil];
-			dC_err += pC_err[iFoil];
-			dPh += pPh[iFoil];
-			dPh_err += pPh_err[iFoil];
+				dC += pC[iFoil] * double(puiCnt[iFoil]);
+				dC_err += pC_err[iFoil] * double(puiCnt[iFoil]);
+				dPh += pPh[iFoil] * double(puiCnt[iFoil]);
+				dPh_err += pPh_err[iFoil] * double(puiCnt[iFoil]);
+			}
+			else
+			{
+				logger.SetCurLogLevel(LOGLEVEL_ERR);
+				logger << "Contrasts Dialog: Values for \""
+						<< pItem->text().toAscii().data() << "\", "
+						<< "foil " << iFoil+1 << " invalid.\n";
+			}
 
 			progressBar->setValue(iItem*iFoilCount + iFoil + 1);
 		}
 
-		dC /= double(iFoilCount);
-		dC_err /= double(iFoilCount);
-		dPh /= double(iFoilCount);
-		dPh_err /= double(iFoilCount);
+		if(uiTotalCnt)
+		{
+			dC /= double(uiTotalCnt);
+			dC_err /= double(uiTotalCnt);
+			dPh /= double(uiTotalCnt);
+			dPh_err /= double(uiTotalCnt);
+		}
 
 		dMax = max(dMax, dC+dC_err);
 		dMin = min(dMin, dC-dC_err);
