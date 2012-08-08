@@ -34,12 +34,15 @@ inplace:
 T = test
 
 test:
+	@NOSE=`which nosetests`; if [ -z "$$NOSE" ]; then echo "nose is required to run the test suite"; exit 1; fi
 	@$(PYTHON) `which nosetests` $(T) -e test_stresstest -d $(O)
 
 testall:
+	@NOSE=`which nosetests`; if [ -z "$$NOSE" ]; then echo "nose is required to run the test suite"; exit 1; fi
 	@$(PYTHON) `which nosetests` $(T) -d $(O)
 
 test-coverage:
+	@NOSE=`which nosetests`; if [ -z "$$NOSE" ]; then echo "nose is required to run the test suite"; exit 1; fi
 	@$(PYTHON) `which nosetests` $(T) -d --with-coverage --cover-package=nicos --cover-html $(O)
 
 lint:
