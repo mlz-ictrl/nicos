@@ -402,9 +402,9 @@ class CacheClient(BaseCacheClient):
         dbkey = ('%s/%s' % (dev, key)).lower()
         entry = self._db.get(dbkey)
         if entry is None:
-            if str(dev) in self._inv_rewrites:
+            if str(dev).lower() in self._inv_rewrites:
                 self.log.debug('%s not in cache, trying rewritten' % dbkey)
-                return self.get(self._inv_rewrites[str(dev)],
+                return self.get(self._inv_rewrites[str(dev).lower()],
                                 key, default, mintime)
             self.log.debug('%s not in cache' % dbkey)
             return default
@@ -474,11 +474,14 @@ class CacheClient(BaseCacheClient):
         self._queue.put(msg)
 
     def setRewrite(self, newprefix, oldprefix):
+        oldprefix = oldprefix.lower()
+        newprefix = newprefix.lower()
         self._queue.put(self._prefix + newprefix + OP_REWRITE + \
                         self._prefix + oldprefix + '\n')
         self._inv_rewrites[newprefix] = oldprefix
 
     def unsetRewrite(self, newprefix):
+        newprefix = newprefix.lower()
         if newprefix in self._inv_rewrites:
             del self._inv_rewrites[newprefix]
             self._queue.put(self._prefix + newprefix + OP_REWRITE + '\n')

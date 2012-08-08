@@ -455,6 +455,7 @@ class CacheDatabase(Device):
 
     def rewrite(self, key, value):
         """Rewrite handling."""
+        value = value.lower()
         current = self._inv_rewrites.get(key)
         with self._rewrite_lock:
             if current is not None:
