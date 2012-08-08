@@ -74,6 +74,8 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
     parameters = {
         'dvalue':   Param('d-value of the reflection used', unit='A',
                           mandatory=True, settable=True, category='instrument'),
+        'mosaic':   Param('mosaicity of the crystal', unit='deg', default=0.5,
+                          settable=True, category='instrument'),
         'order':    Param('order of reflection to use', type=int, default=1,
                           settable=True, category='instrument'),
         'reltheta': Param('true if theta position is relative to two-theta',

@@ -684,6 +684,10 @@ class TASSample(Sample, Cell):
     device.
     """
 
+    parameters = {
+        'mosaic': Param('Sample mosaic', settable=True, default=0.5, unit='deg'),
+    }
+
     def reset(self):
         Sample.reset(self)
         self.lattice = [2*pi, 2*pi, 2*pi]
@@ -692,3 +696,4 @@ class TASSample(Sample, Cell):
         self.orient2 = [0, 1, 0]
         self.psi0    = 0.0
         self.spacegroup = 1  # primitive triclinic, all reflexes allowed
+        self.mosaic  = 0.5
