@@ -4,7 +4,7 @@
 class BasicImage
 {
 %TypeHeaderCode
-#include "../../tofloader.h"
+#include "../../basicimage.h"
 %End
 
 	public:
@@ -26,7 +26,7 @@ class BasicImage
 class PadImage : BasicImage
 {
 %TypeHeaderCode
-#include "../../tofloader.h"
+#include "../../padloader.h"
 %End
 	public:
 		PadImage(const char *pcFileName=NULL,
@@ -127,7 +127,7 @@ class TmpGraph
 		bool FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOffs,
 				double &dPhase_err, double &dAmp_err, double &dOffs_err) const;
 		//bool FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOffs) const;
-		
+
 		bool GetContrast(double &dContrast, double &dPhase,
 				    double &dContrast_err, double &dPhase_err) const;
 		//bool GetContrast(double &dContrast, double &dPhase) const;
@@ -176,7 +176,7 @@ class TofImage
 		TmpImage GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil, int iTimechannel) const;
 		TmpGraph GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil) const;
 		TmpGraph GetGraph(int iFoil) const;
-		TmpGraph GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, double dPhaseShift) const;
+		TmpGraph GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, const double * pdPhases) const;
 		TmpImage GetOverview(bool bOnlyInRoi=false) const;
 		TmpImage GetPhaseGraph(int iFoil, bool bInDeg=true) const;
 		TmpImage GetContrastGraph(int iFoil) const;
