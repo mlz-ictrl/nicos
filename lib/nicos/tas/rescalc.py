@@ -230,83 +230,42 @@ class unitcell(object):
         return degrees(arcsin(Q*lam/4/pi))
 
 
-dummy_config = """\
-   1.000    % =0 for circular source, =1 for rectangular source
-  13.500    % width/diameter of the source (cm)
-   9.000    % height/diameter of the source (cm)
-   0.000    % =0 No Guide, =1 for Guide
-   7.900    % horizontal guide divergence (minutes/Angs)
-  10.000    % vertical guide divergence (minutes/Angs) ???
-   1.000    % =0 for cylindrical sample, =1 for cuboid sample
-   0.500    % sample width/diameter perp. to Q (cm)
-   0.500    % sample width/diameter along Q (cm)
-   0.500    % sample height (cm)
-   1.000    % =0 for circular detector, =1 for rectangular detector
-   2.500    % width/diameter of the detector (cm)
-  10.000    % height/diameter of the detector (cm)
-   0.200    % thickness of monochromator (cm)
-  23.100    % width of monochromator (cm)
-  19.800    % height of monochromator (cm)
-   0.200    % thickness of analyser (cm)
-  17.000    % width of analyser (cm)
-  15.000    % height of analyser (cm)
- 780.000    % distance between source and monochromator (cm)
- 210.000    % distance between monochromator and sample (cm)
-  94.000    % distance between sample and analyser (cm)
-  94.000    % distance between analyser and detector (cm)
-   1.392    % horizontal curvature of monochromator 1/radius (cm-1)
-   0.163    % vertical curvature of monochromator (cm-1)
-   1.710    % horizontal curvature of analyser (cm-1)
-   0.563    % vertical curvature of analyser (cm-1)
- 100.000    % distance monochromator-monitor
-   4.000    % width monitor
-  10.000    % height monitor
-"""
+# instrumental setup description
+CFGNAMES = [
+    "=0 for circular source, =1 for rectangular source",
+    "width/diameter of the source (cm)",
+    "height/diameter of the source (cm)",
+    "=0 no Guide, =1 for Guide",
+    "horizontal guide divergence (minutes/Angs)",
+    "vertical guide divergence (minutes/Angs)",
+    "=0 for cylindrical sample, =1 for cuboid sample",
+    "sample width/diameter perp. to Q (cm)",
+    "sample width/diameter along Q (cm)",
+    "sample height (cm)",
+    "=0 for circular detector, =1 for rectangular detector",
+    "width/diameter of the detector (cm)",
+    "height/diameter of the detector (cm)",
+    "thickness of monochromator (cm)",
+    "width of monochromator (cm)",
+    "height of monochromator (cm)",
+    "thickness of analyser (cm)",
+    "width of analyser (cm)",
+    "height of analyser (cm)",
+    "distance between source and monochromator (cm)",
+    "distance between monochromator and sample (cm)",
+    "distance between sample and analyser (cm)",
+    "distance between analyser and detector (cm)",
+    "horizontal curvature of monochromator 1/radius (cm-1)",
+    "vertical curvature of monochromator (cm-1)",
+    "horizontal curvature of analyser (cm-1)",
+    "vertical curvature of analyser (cm-1)",
+    "distance monochromator-monitor",
+    "width monitor",
+    "height monitor"
+]
 
-dummy_par = """\
-   3.355    %DM
-   3.355    %DA
-  25.000    %ETAM
-  25.000    %ETAA
-  30.000    %ETAS
-   1.000    %SM
-  -1.000    %SS
-   1.000    %SA
-   1.570    %K \AA-1
-   2.0      %KFIX ?
- 600.000    %ALPHA1
- 600.000    %ALPHA2
- 600.000    %ALPHA3
- 600.000    %ALPHA4
- 600.000    %BETA1
- 600.000    %BETA2
- 600.000    %BETA3
- 600.000    %BETA4
-  6.2832    %AS
-  6.2832    %BS
-  6.2832    %CS
-  90.000    %AA
-  90.000    %BB
-  90.000    %CC
-   1.000    %AX
-   0.000    %AY
-   0.000    %AZ
-   0.000    %BX
-   1.000    %BY
-   0.000    %BZ
-   0.000    %QX
-   0.000    %QY
-   0.000    %QZ
-   0.000    %EN
-   0.000    %dqx (step of scan in qx to calculate phonon width)
-   0.000    %dqy (  "             qy  ...)
-   0.000    %dqz (  "             qz  ...)
-  -0.020    %de  (  "             en  ...)
-  40.000    %gh  (gradient) ?
-  40.000    %gk ?
-   0.000    %gl ?
-   1.000    %gmod (slope meV/A-1) ?
-"""
+MEV2AA2 = 0.48259642  # hbar**2/(2 * m_n)
+MIN2RAD = 1/60. * pi/180.
 
 
 class resmat(object):
@@ -320,74 +279,20 @@ class resmat(object):
     rescal MATLAB tools.
     """
 
-    def __init__(self, **par):
-        # experimental setup
-        self.par = {}
-        pars = dummy_par.splitlines()
-        for line in pars:
-            parts = line.split()
-            self.par[parts[1][1:].lower()] = float(parts[0])
-        self.par.update(par)
-        # instrument definition (lengths and so on defining a specific instrument)
-        self.cfg = []
-        lines = dummy_config.splitlines()
-        for line in lines:
-            self.cfg.append(float(line.split()[0]))
+    def __init__(self, cfg, par):
+        # instrument definition (lengths etc. defining a specific instrument)
+        self.cfg = list(cfg)
+        # experimental setup (plus easily changed instrument things)
+        self.par = par.copy()
 
-        # instrumental setup description
-        self.cfgnames = [
-            "=0 for circular source, =1 for rectangular source",
-            "width/diameter of the source (cm)",
-            "height/diameter of the source (cm)",
-            "=0 No Guide, =1 for Guide",
-            "horizontal guide divergence (minutes/Angs)",
-            "vertical guide divergence (minutes/Angs)",
-            "=0 for cylindrical sample, =1 for cuboid sample",
-            "sample width/diameter perp. to Q (cm)",
-            "sample width/diameter along Q (cm)",
-            "sample height (cm)",
-            "=0 for circular detector, =1 for rectangular detector",
-            "width/diameter of the detector (cm)",
-            "height/diameter of the detector (cm)",
-            "thickness of monochromator (cm)",
-            "width of monochromator (cm)",
-            "height of monochromator (cm)",
-            "thickness of analyser (cm)",
-            "width of analyser (cm)",
-            "height of analyser (cm)",
-            "distance between source and monochromator (cm)",
-            "distance between monochromator and sample (cm)",
-            "distance between sample and analyser (cm)",
-            "distance between analyser and detector (cm)",
-            "horizontal curvature of monochromator 1/radius (cm-1)",
-            "vertical curvature of monochromator (cm-1)",
-            "horizontal curvature of analyser (cm-1)",
-            "vertical curvature of analyser (cm-1)",
-            "distance monochromator-monitor",
-            "width monitor",
-            "height monitor"
-        ]
-
-        # conversion factors and so on
-        # energy pre-multiplier-f*w
-        # where f=0.48 for meV to ang-2 - and q0 which is the wavevector
-        # transfer in ang-1, are passed over.
-        self.f = 0.4826
-        self.mon_flag = 1
-
-        # ERROR
-        self.ERROR = 0 #is 0 if calculations are fine and 1 if there was a problem
-        self.ERRORMSG = ''
+        # a string message or None if calculations are fine
+        self.ERROR = None
 
         # magnitude of scattering vector
         #----- calculate q0
         #-----input a, b, c; alpha, beta, gamma; qx, qy, qz
-        self.unitc = unitcell(self.par['as'],
-                              self.par['bs'],
-                              self.par['cs'],
-                              self.par['aa'],
-                              self.par['bb'],
-                              self.par['cc'])
+        self.unitc = unitcell(self.par['as'], self.par['bs'], self.par['cs'],
+                              self.par['aa'], self.par['bb'], self.par['cc'])
         self.q0 = self.unitc.QCartMag(self.par['qx'], self.par['qy'], self.par['qz'])
         self.Q2c = self.unitc.Q2c
 
@@ -410,31 +315,30 @@ class resmat(object):
 
         #----- INPUT SPECTROMETER PARAMETERS.
         q0 = self.q0
-        f = self.f
-        pit = 0.0002908882   # This is a conversion from minutes of arc to radians.
 
-        dm = self.par['dm']            # monochromator d-spacing in Angs.
-        da = self.par['da']            # analyser d-spacing in Angs.
-        etam = self.par['etam']*pit    # monochromator mosaic [converted from mins->rads]
-        etamp = etam                   # vertical mosaic of the monochromator.
-        etaa = self.par['etaa']*pit    # analyser mosaic.
-        etaap = etaa                   # vertical mosaic spread of the analyser.
-        etas = self.par['etas']*pit    # sample mosaic.
-        etasp = etas                   # vertical mosaic spread of the sample.
-        sm = self.par['sm']            # scattering sense of monochromator [left = +1,right = -1]
-        ss = self.par['ss']            # scattering sense of sample [left = +1,right = -1]
-        sa = self.par['sa']            # scattering sense of analyser [left = +1,right = -1]
-        kfix = self.par['k']           # fixed momentum component in ang-1.
-        fx = self.par['kfix']          # fx = 1 for fixed incident and 2 for scattered wavevector.
-        alf0 = self.par['alpha1']*pit  # horizontal pre-monochromator collimation.
-        alf1 = self.par['alpha2']*pit  # horizontal pre-sample collimation.
-        alf2 = self.par['alpha3']*pit  # horizontal post-sample collimation.
-        alf3 = self.par['alpha4']*pit  # horizontal post-analyser collimation.
-        bet0 = self.par['beta1']*pit   # vertical pre-monochromator collimation.
-        bet1 = self.par['beta2']*pit   # vertical pre-sample collimation.
-        bet2 = self.par['beta3']*pit   # vertical post-sample collimation.
-        bet3 = self.par['beta4']*pit   # vertical post-analyser collimation.
-        w = self.par['en']             # energy transfer.
+        dm = self.par['dm']               # monochromator d-spacing in Angs
+        da = self.par['da']               # analyser d-spacing in Angs
+        etam = self.par['etam']*MIN2RAD   # monochromator mosaic
+        etamp = etam                      # vertical mosaic spread of the monochromator
+        etaa = self.par['etaa']*MIN2RAD   # analyser mosaic
+        etaap = etaa                      # vertical mosaic spread of the analyser
+        etas = self.par['etas']*MIN2RAD   # sample mosaic
+        etasp = etas                      # vertical mosaic spread of the sample
+        sm = self.par['sm']               # scattering sense of monochromator [left = +1,right = -1]
+        ss = self.par['ss']               # scattering sense of sample [left = +1,right = -1]
+        sa = self.par['sa']               # scattering sense of analyser [left = +1,right = -1]
+        kfix = self.par['k']              # fixed momentum component in ang-1
+        fx = self.par['kfix']             # fx = 1 for fixed incident and 2 for scattered wavevector
+        # collimation: all input angles are in minutes of arc
+        alf0 = self.par['alpha1']*MIN2RAD # horizontal pre-monochromator
+        alf1 = self.par['alpha2']*MIN2RAD # horizontal pre-sample
+        alf2 = self.par['alpha3']*MIN2RAD # horizontal post-sample
+        alf3 = self.par['alpha4']*MIN2RAD # horizontal post-analyser
+        bet0 = self.par['beta1']*MIN2RAD  # vertical pre-monochromator
+        bet1 = self.par['beta2']*MIN2RAD  # vertical pre-sample
+        bet2 = self.par['beta3']*MIN2RAD  # vertical post-sample
+        bet3 = self.par['beta4']*MIN2RAD  # vertical post-analyser
+        w = self.par['en']                # energy transfer in meV
 
         # _____________________Instrument Parameters________________________________________
 
@@ -488,16 +392,15 @@ class resmat(object):
         # transfer in ang-1, are passed over.
 
         # Calculate ki and kf, thetam and thetaa
-        ki = abs(sqrt(kfix**2+(fx-1)*f*w))  # kinematical equations.
-        kf = abs(sqrt(kfix**2-(2-fx)*f*w))
+        ki = abs(sqrt(kfix**2+(fx-1) * MEV2AA2 * w))  # kinematical equations.
+        kf = abs(sqrt(kfix**2-(2-fx) * MEV2AA2 * w))
 
         # Test if scattering triangle is closed
 
-        cos_2theta = (ki**2+kf**2-q0**2)/(2*ki*kf)
-        #print cos_2theta
+        cos_2theta = (ki**2 + kf**2 - q0**2)/(2*ki*kf)
+        # print cos_2theta
         if (cos_2theta > 1 or cos_2theta < -1):
-            self.ERROR = 1
-            self.ERRORMESSAGE = 'Scattering Triangle does not close'
+            self.ERROR = 'scattering triangle not closed'
             return
 
         thetaa = sa*arcsin(pi/(da*kf))      # theta angles for analyser
@@ -510,12 +413,11 @@ class resmat(object):
         # First check for incident guide
 
         if flag_guide == 1:
-            alf0_guide = pit*2*pi*guide_h/ki
-            bet0 = pit*2*pi*guide_v/ki
+            alf0_guide = MIN2RAD*2*pi*guide_h/ki
+            bet0 = MIN2RAD*2*pi*guide_v/ki
 
             if alf0_guide <= alf0:
-                alf0 = alf0_guide  #take into account collimator in the guide
-
+                alf0 = alf0_guide  # take into account collimator in the guide
 
         G = matrix(zeros((8,8)))
         G[0,0] = 1/alf0**2    # horizontal and vertical collimation matrix. The 4 Soller collimators
@@ -529,7 +431,7 @@ class resmat(object):
 
         F = matrix(zeros((4,4)))
         F[0,0] = 1/etam**2    # monochromator and analyser mosaic matrix. horizontal and vertical mosaic
-        F[1,1] = 1/etamp**2    # spreads for monochromator and analyzer crystals
+        F[1,1] = 1/etamp**2   # spreads for monochromator and analyzer crystals
         F[2,2] = 1/etaa**2
         F[3,3] = 1/etaap**2
 
@@ -542,7 +444,7 @@ class resmat(object):
         C[1,3] = -C[1,2]              # thetam = -arcsin(Tm/2ki))epsilonm; Tm(Ta) = 2Pi/dm(da) mono and ana scattering vectors
         C[3,6] = 1/(2*sin(thetaa))    # thetaa = scattering angle of analyzer
         C[3,7] = -C[3,6]              # thetaa = -arcsin(Ta/2kf))epsilona
-                                    # epsilonm/a = 1 if sample scattering direction opposite do mono/ana scattering dir, -1 otherwise
+                                      # epsilonm/a = 1 if sample scattering direction opposite do mono/ana scattering dir, -1 otherwise
         A = matrix(zeros((6,8)))
         A[0,0] = ki/(tan(thetam)*2)
         A[0,1] = -A[0,0]
@@ -564,8 +466,8 @@ class resmat(object):
         B[1,4] = B[0,3]
         B[2,2] = 1.
         B[2,5] = -1.
-        B[3,0] = 2*ki/f
-        B[3,3] = -2*kf/f
+        B[3,0] = 2*ki/MEV2AA2
+        B[3,3] = -2*kf/MEV2AA2
 
         # Now include the spatial effects.
 
@@ -758,10 +660,9 @@ class resmat(object):
         #------ END OF ZHELUDEV's CORRECTION
         #----- Final error check
         if NP.imag.all() == 0:
-            self.ERROR = 0
+            self.ERROR = None
         else:
-            self.ERROR = 1
-            self.ERRORMESSAGE = 'Problem with matrix calculation!'
+            self.ERROR = 'problem with matrix calculation'
             return
 
         self.R0 = abs(R0)
@@ -815,7 +716,7 @@ Resolution Info:
 ================
 """ % info
         if self.ERROR:
-            p2 = 'ERROR: ' + self.ERRORMESSAGE
+            p2 = 'ERROR: ' + self.ERROR
         else:
             p2 = """\
 => Resolution Volume: R0 = %(R0)3.3f A-3*meV

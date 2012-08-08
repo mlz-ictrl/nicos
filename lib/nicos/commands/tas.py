@@ -482,7 +482,10 @@ def _create_resmat(args, kwds):
         const = instr.scanconstant
         mode = instr.scanmode
 
-    pars = {
+    cfg = instr._getResolutionParameters()
+
+    collimation = instr._getCollimation()
+    par = {
         'dm': instr._adevs['mono'].dvalue,
         'da': instr._adevs['ana'].dvalue,
         'sm': instr.scatteringsense[0],
@@ -491,6 +494,14 @@ def _create_resmat(args, kwds):
         'etam': instr._adevs['mono'].mosaic * 60,
         'etas': cell.mosaic * 60,
         'etaa': instr._adevs['ana'].mosaic * 60,
+        'alpha1': collimation[0],  # in minutes
+        'alpha2': collimation[1],
+        'alpha3': collimation[2],
+        'alpha4': collimation[3],
+        'beta1': collimation[4],
+        'beta2': collimation[5],
+        'beta3': collimation[6],
+        'beta4': collimation[7],
         'k': const,
         'kfix': 1 if mode == 'CKI' else 2,
         'as': cell.lattice[0],
@@ -511,7 +522,7 @@ def _create_resmat(args, kwds):
         'en': pos[3] if instr.energytransferunit == 'meV' else pos[3] * THZ2MEV,
     }
 
-    return resmat(**pars)
+    return resmat(cfg, par)
 
 
 @usercommand

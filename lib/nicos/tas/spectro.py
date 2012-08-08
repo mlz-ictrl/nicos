@@ -240,6 +240,57 @@ class TAS(Instrument, Moveable):
     def _calhkl(self, angles):
         return self._adevs['cell'].angle2hkl(angles, self.axiscoupling)
 
+    def _getCollimation(self):
+        """Return current Soller collimator acceptance angles in minutes of arc.
+        Order of the returned list must be alpha1-alpha4 then beta1-beta4.  If
+        not installed, use '6000'.
+
+        Must be overridden for instruments with collimation support.
+        """
+        return [6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000]
+
+    def _getResolutionParameters(self):
+        """Return a list of 30 parameters used for resolution calculation."""
+        return [
+            0,   # circular (0) or rectangular (1) source
+            5,   # width of source / diameter (cm)
+            5,   # height of source / diameter (cm)
+            0,   # no guide (0) or guide (1)
+            1,   # horizontal guide divergence (min/AA)
+            1,   # vertical guide divergence (min/AA)
+
+            1,   # cylindrical (0) or cuboid (1) sample
+            1,   # sample width / diameter perp. to Q (cm)
+            1,   # sample width / diameter along Q (cm)
+            1,   # sample height (cm)
+
+            1,   # circular (0) or rectangular (1) detector
+            2.5, # width / diameter of the detector (cm)
+            10,  # height / diameter of the detector (cm)
+
+            0.2, # thickness of monochromator (cm)
+            20,  # width of monochromator (cm)
+            20,  # height of monochromator (cm)
+
+            0.2, # thickness of analyzer (cm)
+            15,  # width of analyzer (cm)
+            15,  # height of analyzer (cm)
+
+            200, # distance source - monochromator (cm)
+            200, # distance monochromator - sample (cm)
+            100, # distance sample - analyzer (cm)
+            100, # distance analyzer - detector (cm)
+
+            0,   # horizontal curvature of monochromator (1/cm)
+            0,   # vertical curvature of monochromator (1/cm)
+            0,   # horizontal curvature of analyzer (1/cm)
+            0,   # vertical curvature of analyzer (1/cm)
+
+            100, # distance monochromator - monitor (cm)
+            4,   # width of monitor (cm)
+            10,  # height of monitor (cm)
+        ]
+
 
 class TASIndex(Moveable, AutoDevice):
     """
