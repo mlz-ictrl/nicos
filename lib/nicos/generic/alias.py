@@ -98,18 +98,18 @@ class DeviceAlias(Device):
                 self._cache.setRewrite(str(self), devname)
 
     def valueInfo(self):
-        origValueInfo = self._obj.valueInfo()
-        allValueInfo = list()
-        for valueInfo in origValueInfo:
-            if '.' in valueInfo.name:
-                #replace part before first dot with alias name
-                aliasedName = re.sub(r'(^[^.]+)', self.name, valueInfo.name)
+        # override to replace name of the aliased device with the alias' name
+        new_info = []
+        for v in self._obj.valueInfo():
+            if '.' in v.name:
+                # replace part before first dot with alias name
+                new_name = re.sub(r'(^[^.]+)', self.name, v.name)
             else:
-                aliasedName = self.name
-            aliasedInfo = Value(aliasedName, type=valueInfo.type, errors=valueInfo.errors, unit=valueInfo.unit,
-                 fmtstr=valueInfo.fmtstr, active=valueInfo.active)
-            allValueInfo.append(aliasedInfo)
-        return tuple(allValueInfo)
+                new_name = self.name
+            new_v = v.copy()
+            new_v.name = new_name
+            new_info.append(new_v)
+        return tuple(new_info)
 
     def __init__(self, name , **config):
         self._obj = None

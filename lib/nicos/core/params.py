@@ -228,6 +228,10 @@ class Value(object):
     def __repr__(self):
         return 'value %r' % self.name
 
+    def copy(self):
+        return Value(self.name, self.type, self.errors, self.unit,
+                     self.fmtstr, self.active)
+
 
 # parameter conversion functions
 

@@ -42,7 +42,6 @@ def teardown_module():
     session.unloadSetup()
 
 
-
 def test_alias_nodev():
     px = session.getDevice('aliasDev', object)
 
@@ -74,9 +73,8 @@ def test_alias_dev():
     assert session.cache.get_explicit(px, 'speed')[2] == 5.1
 
 def test_alias_valueinfo():
-    px = session.getDevice('aliasDev', object)
     # check the value info replacement
-    # now set the alias to some object
+    px = session.getDevice('aliasDev', object)
     v1 = session.getDevice('v1')
     px.alias = v1
     vistr = str(px.valueInfo())
@@ -84,11 +82,8 @@ def test_alias_valueinfo():
     assert 'aliasDev' == px.valueInfo()[0].name
 
 def test_alias_valueinfo2():
-    '''check with multiple values
-       check setting from config '''
+    # check with multiple values, check setting from config
     py = session.getDevice('aliasDev2', object)
     # check the value info replacement
-    # now set the alias to some object
     vistr = str(py.valueInfo())
     assert 'aliasDev2.' in vistr
-
