@@ -287,6 +287,10 @@ class SpaceMap(object):
             allowed, limited = self.check_hkls(self.scan)
             self.plot_hkls(allowed, color='#009900', s=2)
             self.plot_hkls(limited, color='red', s=2)
+        # plot current spectrometer position
+        current_pos = self.tas.read()
+        if abs(current_pos[3] - self.E) < 0.01:
+            self.plot_hkls([current_pos[:3]], color='#990033', marker='x')
 
         # plot limits of phi/psi
         for v in lim1, lim2, lim3, lim4:
