@@ -140,10 +140,10 @@ class Axis(BaseAxis):
 
     def doStatus(self, maxage=0):
         """Returns the status of the motor controller."""
-        if self._errorstate:
-            return (status.ERROR, str(self._errorstate))
-        elif self._posthread and self._posthread.isAlive():
+        if self._posthread and self._posthread.isAlive():
             return (status.BUSY, 'moving')
+        elif self._errorstate:
+            return (status.ERROR, str(self._errorstate))
         else:
             return self._adevs['motor'].status(maxage)
 
