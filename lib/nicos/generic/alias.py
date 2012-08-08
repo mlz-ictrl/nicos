@@ -100,14 +100,11 @@ class DeviceAlias(Device):
     def valueInfo(self):
         # override to replace name of the aliased device with the alias' name
         new_info = []
+        rx = r'^%s\b' % re.escape(self._obj.name)
         for v in self._obj.valueInfo():
-            if '.' in v.name:
-                # replace part before first dot with alias name
-                new_name = re.sub(r'(^[^.]+)', self.name, v.name)
-            else:
-                new_name = self.name
             new_v = v.copy()
-            new_v.name = new_name
+            # replace dev name, if at start of value name, with alias name
+            new_v.name = re.sub(rx, self.name, v.name)
             new_info.append(new_v)
         return tuple(new_info)
 
