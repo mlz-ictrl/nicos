@@ -68,7 +68,8 @@ class Heinzinger(TacoDevice, HasLimits, Moveable):
         time.sleep(0.2)
 
     def doRead(self, maxage=0):
-        cval = float(self._taco_guard(self._dev.communicate, 'MEASURE:CURRENT?'))
+        cval = float(self._taco_multitry('read', 3,
+                         self._dev.communicate, 'MEASURE:CURRENT?'))
         return cval * 80. / self._calibvalue
 
     def doStatus(self, maxage=0):
@@ -79,6 +80,16 @@ class Heinzinger(TacoDevice, HasLimits, Moveable):
 
     def doStart(self, value):
         self._taco_guard(self._dev.writeLine, 'CURR %f' % value)
-        time.sleep(0.5)
-        if abs(self.doRead() - value) > value*self.variance + 0.2:
-            raise NicosError(self, 'power supply failed to set current value')
+        time.sleep(1.5)
+        newval = self.read(0)
+        if abs(newval - value) > value*self.variance + 0.2:
+            self.log.warning('failed to set new current of %.3f A (readout %.3f A); '
+                             'trying again' % (value, newval))
+            # first set nominal current to zero
+            self._taco_guard(self._dev.writeLine, 'CURR 0')
+            time.sleep(2)
+            # now set desired current
+            self._taco_guard(self._dev.writeLine, 'CURR %f' % value)
+            time.sleep(1.5)
+            if abs(self.doRead() - value) > value*self.variance + 0.2:
+                raise NicosError(self, 'power supply failed to set current value')
