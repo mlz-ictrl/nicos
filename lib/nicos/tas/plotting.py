@@ -196,8 +196,11 @@ class SpaceMap(object):
             angles = self.cell.cal_angles(hkl, self.ny, self.mode, self.const,
                 self.tas.scatteringsense[1], self.tas.axiscoupling,
                 self.tas.psi360)
-        except Exception:
-            return
+        except Exception, err:
+            text = 'hkl = (%.4f %.4f %.4f) E = %.4f %s: impossible position: %s' % \
+                (hkl[0], hkl[1], hkl[2], self.E, self.tas.energytransferunit, err)
+            textobj.set_text(text)
+            return None
         text = 'hkl = (%.4f %.4f %.4f) E = %.4f %s: %s = %.4f deg;  %s = %.4f deg' % \
             (hkl[0], hkl[1], hkl[2], self.E, self.tas.energytransferunit,
              self.tas._adevs['phi'], angles[2], self.tas._adevs['psi'], angles[3])
@@ -249,7 +252,8 @@ class SpaceMap(object):
             canvas = pylab.gcf().canvas
             if canvas.toolbar.mode: return
             hkl = self.display_hkl(event.xdata, event.ydata, self.clicktext)
-            self.plot_ellipsoid(hkl, event.xdata, event.ydata)
+            if hkl is not None:
+                self.plot_ellipsoid(hkl, event.xdata, event.ydata)
             canvas.draw()
         pylab.connect('button_release_event', click_handler)
         # monkey-patch formatting coordinates in the status bar
