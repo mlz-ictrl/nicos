@@ -62,6 +62,8 @@ class Coder(HasPrecision, Readable):
             self._sim_setValue(pos)
             return
         self.doSetPosition(pos)
+        if self._cache:
+            self._cache.invalidate(self, 'value')
 
     def doSetPosition(self, pos):
         raise NotImplementedError('implement doSetPosition for concrete coders')
