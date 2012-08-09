@@ -153,7 +153,7 @@ class GraceSink(DataSink):
             self.log.warning('could not create Grace plot', exc=1)
             self._grpl = None
 
-    def _openplot(self, dataset):
+    def _openplot(self, dataset, secondchance=False):
         filename = dataset.sinkinfo.get('filename', '')
         filepath = dataset.sinkinfo.get('filepath', '')
         self._grpl = GracePlot.GracePlot(workingdir=path.dirname(filepath))
@@ -175,9 +175,9 @@ class GraceSink(DataSink):
         self._ynames = dataset.ynames
 
         for (xvalues, yvalues) in zip(dataset.xresults, dataset.yresults):
-            self.addPoint(dataset, xvalues, yvalues)
+            self.addPoint(dataset, xvalues, yvalues, secondchance=secondchance)
 
-    def addPoint(self, dataset, xvalues, yvalues):
+    def addPoint(self, dataset, xvalues, yvalues, secondchance=False):
         if self._grpl is None:
             return
         try:
@@ -211,8 +211,16 @@ class GraceSink(DataSink):
             self._pl.plot(data)
             self._pl.legend()
         except Exception:
-            self.log.warning('could not add point to Grace', exc=1)
-            self._grpl = None
+            # try again or give up for this set
+            if secondchance:
+                self.log.warning('could not add point to Grace', exc=1)
+                self._grpl = None
+                return
+            try:
+                self._openplot(dataset, secondchance=True)
+            except Exception:
+                self.log.warning('could not add point to Grace', exc=1)
+                self._grpl = None
 
     @usermethod
     def history(self, dev, key='value', fromtime=None, totime=None):
