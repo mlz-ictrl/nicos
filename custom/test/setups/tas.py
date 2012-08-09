@@ -44,11 +44,16 @@ devices = dict(
                       phi = 'phi',
                       psi = 'psi',
                       mono = 'mono',
-                      ana = 'ana'),
+                      ana = 'ana',
+                      alpha = None),
 
     phi      = device('nicos.generic.VirtualMotor',
                       abslimits = (-180, 180),
                       initval = 0,
+                      unit = 'deg'),
+
+    alpha    = device('nicos.generic.VirtualMotor',
+                      abslimits = (0, 50),
                       unit = 'deg'),
 
     psi      = device('nicos.generic.VirtualMotor',

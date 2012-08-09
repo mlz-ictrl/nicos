@@ -48,11 +48,12 @@ class TAS(Instrument, Moveable):
     """
 
     attached_devices = {
-        'cell': (Cell, 'Unit cell object to calculate angles'),
-        'mono': (Monochromator, 'Monochromator device'),
-        'ana':  (Monochromator, 'Analysator device'),
-        'phi':  (Moveable, 'Sample scattering angle'),
-        'psi':  (Moveable, 'Sample rocking angle'),
+        'cell':  (Cell, 'Unit cell object to calculate angles'),
+        'mono':  (Monochromator, 'Monochromator device'),
+        'ana':   (Monochromator, 'Analysator device'),
+        'phi':   (Moveable, 'Sample scattering angle'),
+        'psi':   (Moveable, 'Sample rocking angle'),
+        'alpha': (Moveable, 'Device moved to "alpha" angle between ki and Q'),
     }
 
     parameters = {
@@ -112,8 +113,10 @@ class TAS(Instrument, Moveable):
         except ComputationError, err:
             return False, str(err)
         # check limits for the individual axes
-        for devname, value in zip(['mono', 'ana', 'phi', 'psi'], angles[:4]):
+        for devname, value in zip(['mono', 'ana', 'phi', 'psi', 'alpha'], angles):
             dev = self._adevs[devname]
+            if dev is None:
+                continue
             if isinstance(dev, Monochromator):
                 ok, why = dev._allowedInvAng(value)
             else:
@@ -129,12 +132,14 @@ class TAS(Instrument, Moveable):
         angles = self._adevs['cell'].cal_angles(
             [qh, qk, ql], ny, self.scanmode, self.scanconstant,
             self.scatteringsense[1], self.axiscoupling, self.psi360)
-        mono, ana, phi, psi = self._adevs['mono'], self._adevs['ana'], \
-                              self._adevs['phi'], self._adevs['psi']
+        mono, ana, phi, psi, alpha = self._adevs['mono'], self._adevs['ana'], \
+            self._adevs['phi'], self._adevs['psi'], self._adevs['alpha']
         self.log.debug('moving phi/stt to %s' % angles[2])
         phi.start(angles[2])
         self.log.debug('moving psi/sth to %s' % angles[3])
         psi.start(angles[3])
+        self.log.debug('moving alpha to %s' % angles[4])
+        alpha.start(angles[4])
         self.log.debug('moving mono to %s' % angles[0])
         mono._startInvAng(angles[0])
         if self.scanmode != 'DIFF':
@@ -145,6 +150,7 @@ class TAS(Instrument, Moveable):
             ana.wait()
         phi.wait()
         psi.wait()
+        alpha.wait()
         #h, k, l, ny = self.read(0)
         # make sure index members read the latest value
         for index in (self.h, self.k, self.l, self.E):
@@ -153,7 +159,7 @@ class TAS(Instrument, Moveable):
 
     def doStatus(self, maxage=0):
         return multiStatus(((name, self._adevs[name]) for name in
-                            ['mono', 'ana', 'phi', 'psi']), maxage)
+                            ['mono', 'ana', 'phi', 'psi', 'alpha']), maxage)
 
     def doWriteScatteringsense(self, val):
         for v in val:
@@ -215,8 +221,10 @@ class TAS(Instrument, Moveable):
         if not printout:
             return angles
         ok, why = True, ''
-        for devname, value in zip(['mono', 'ana', 'phi', 'psi'], angles[:4]):
+        for devname, value in zip(['mono', 'ana', 'phi', 'psi', 'alpha'], angles):
             dev = self._adevs[devname]
+            if dev is None:
+                continue
             if isinstance(dev, Monochromator):
                 devok, devwhy = dev._allowedInvAng(value)
             else:
@@ -230,6 +238,8 @@ class TAS(Instrument, Moveable):
         self.log.info('kf:            %8.3f A-1' % angles[1])
         self.log.info('2theta sample: %8.3f deg' % angles[2])
         self.log.info('theta sample:  %8.3f deg' % angles[3])
+        if self._adevs['alpha'] is not None:
+            self.log.info('alpha:         %8.3f deg' % angles[4])
         if ok:
             self.log.info('position allowed')
         else:

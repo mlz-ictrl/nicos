@@ -135,8 +135,10 @@ class SpaceMap(object):
                     self.tas.axiscoupling, self.tas.psi360)
             except ComputationError:
                 continue
-            for devname, value in zip(['mono', 'ana', 'phi', 'psi'], angles[:4]):
+            for devname, value in zip(['mono', 'ana', 'phi', 'psi', 'alpha'], angles):
                 dev = self.tas._adevs[devname]
+                if dev is None:
+                    continue
                 if isinstance(dev, Monochromator):
                     ok, devwhy = dev._allowedInvAng(value)
                 else:
