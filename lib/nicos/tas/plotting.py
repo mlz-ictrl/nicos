@@ -265,7 +265,8 @@ class SpaceMap(object):
         pylab.xlabel('$Q_1$ (\\AA$^{-1}$) $\\rightarrow$ ( %d %d %d )' % tuple(dir1))
         pylab.ylabel('$Q_2$ (\\AA$^{-1}$) $\\rightarrow$ ( %d %d %d )' % tuple(dir2))
         pylab.grid(color='0.5', zorder=-2)
-        pylab.tight_layout()
+        if hasattr(pylab, 'tight_layout'):
+            pylab.tight_layout()
         pylab.subplots_adjust(bottom=0.1)
 
         self.clicktext = pylab.text(0.5, 0.01, '(click to show angles)', size='small',
