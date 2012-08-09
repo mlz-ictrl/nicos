@@ -129,7 +129,8 @@ class TmpGraph
 		//bool FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOffs) const;
 
 		bool GetContrast(double &dContrast, double &dPhase,
-				    double &dContrast_err, double &dPhase_err) const;
+				    double &dContrast_err, double &dPhase_err,
+				    const TmpGraph* punderground=0, double dMult_ug=0) const;
 		//bool GetContrast(double &dContrast, double &dPhase) const;
 
 		unsigned int GetData(int iX) const;

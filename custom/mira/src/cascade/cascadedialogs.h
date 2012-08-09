@@ -433,6 +433,8 @@ class ContrastsVsImagesDlg : public QDialog, public Ui::ContrastsVsImagesDlg
 
 		void SetRoi(TofImage& tof);
 
+		bool CheckUndergroundCount() const;
+
 	public:
 		ContrastsVsImagesDlg(CascadeWidget *pParent);
 		virtual ~ContrastsVsImagesDlg();

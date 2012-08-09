@@ -571,28 +571,26 @@ void ContrastsVsImagesDlg::CalcPhaseCorrected()
 		return;
 
 	bool bUnderground = (check_underground->checkState()==Qt::Checked);
+	bool bSingleUnderground = false;
 	double dUnderground = spinBox_underground->value();
-	if(bUnderground && listTofs_underground->count()!=iTofCnt)
-	{
-		bUnderground = false;
-		QMessageBox::warning(0, "Warning",
-					"Underground file count has to match TOF file count.\n"
-					"Ignoring underground.", QMessageBox::Ok);
-	}
+	if(bUnderground)
+		bUnderground = CheckUndergroundCount();
+	if(listTofs_underground->count() == 1)
+		bSingleUnderground = true;
 
 	// write a .dat file
 	bool bDumpData = GlobalConfig::GetDumpFiles();
 
 	TofImage tof;
 	TofImage tof_underground;
+	TmpGraph graph_underground;
 
 	SetRoi(tof);
+	SetRoi(tof_underground);
 
 	double *pdx = new double[iTofCnt];
 	double *pdy = new double[iTofCnt];
 	double *pdy_err = new double[iTofCnt];
-
-	int iFoilCount = tof.GetTofConfig().GetFoilCount();
 
 	progressBar->setMaximum(iTofCnt);
 	progressBar->setValue(0);
@@ -607,6 +605,7 @@ void ContrastsVsImagesDlg::CalcPhaseCorrected()
 
 	double dMax = 0., dMin=1.;
 
+	bool bDontLoadNextUnderground = false;
 	for(int iItem=0; iItem<iTofCnt; ++iItem)
 	{
 		QListWidgetItem* pItem = listTofs->item(iItem);
@@ -624,7 +623,7 @@ void ContrastsVsImagesDlg::CalcPhaseCorrected()
 			continue;
 		}
 
-		if(bUnderground)
+		if(bUnderground && !bDontLoadNextUnderground)
 		{
 			if(!tof_underground.LoadFile(pItem_underground->text().toAscii().data()))
 			{
@@ -632,11 +631,11 @@ void ContrastsVsImagesDlg::CalcPhaseCorrected()
 				logger << "Contrasts Dialog: Could not load \""
 						<< pItem->text().toAscii().data() << "\".\n";
 			}
-			else
-			{
-				tof.Subtract(tof_underground, dUnderground);
-			}
+
+			if(bSingleUnderground)
+				bDontLoadNextUnderground = true;
 		}
+		//tof.Subtract(tof_underground, dUnderground);
 
 		double dC=0., dC_err=0., dPh=0., dPh_err=0.;
 		unsigned int uiTotalCnt=0;
@@ -644,7 +643,11 @@ void ContrastsVsImagesDlg::CalcPhaseCorrected()
 		TmpGraph graph = tof.GetTotalGraph();
 		graph.Save("tmp.txt");
 
-		bool bOk = graph.GetContrast(dC, dPh, dC_err, dPh_err);
+		if(bUnderground)
+			graph_underground = tof_underground.GetTotalGraph();
+
+		bool bOk = graph.GetContrast(dC, dPh, dC_err, dPh_err,
+							bUnderground?&graph_underground:0, dUnderground);
 		uiTotalCnt = graph.Sum();
 		if(!bOk)
 		{
@@ -691,6 +694,21 @@ void ContrastsVsImagesDlg::CalcPhaseCorrected()
 	}
 }
 
+bool ContrastsVsImagesDlg::CheckUndergroundCount() const
+{
+	if(!(listTofs_underground->count() == listTofs->count()
+			|| listTofs_underground->count() == 1))
+	{
+		QMessageBox::warning(0, "Warning",
+				"Underground file count has to either match TOF file count or be 1.\n"
+				"Ignoring underground.", QMessageBox::Ok);
+
+		return false;
+	}
+
+	return true;
+}
+
 void ContrastsVsImagesDlg::Calc()
 {
 	const int iTofCnt = listTofs->count();
@@ -698,22 +716,22 @@ void ContrastsVsImagesDlg::Calc()
 		return;
 
 	bool bUnderground = (check_underground->checkState()==Qt::Checked);
+	bool bSingleUnderground = false;
 	double dUnderground = spinBox_underground->value();
-	if(bUnderground && listTofs_underground->count()!=iTofCnt)
-	{
-		bUnderground = false;
-		QMessageBox::warning(0, "Warning",
-					"Underground file count has to match TOF file count.\n"
-					"Ignoring underground.", QMessageBox::Ok);
-	}
+	if(bUnderground)
+		bUnderground = CheckUndergroundCount();
+	if(listTofs_underground->count() == 1)
+		bSingleUnderground = true;
 
 	// write a .dat file
 	bool bDumpData = GlobalConfig::GetDumpFiles();
 
 	TofImage tof;
 	TofImage tof_underground;
+	TmpGraph graph_underground;
 
 	SetRoi(tof);
+	SetRoi(tof_underground);
 
 	double *pdx = new double[iTofCnt];
 	double *pdy = new double[iTofCnt];
@@ -743,7 +761,7 @@ void ContrastsVsImagesDlg::Calc()
 		(*ofstr) << "\n";
 	}
 
-	double dMax = 0., dMin=1.;
+	double dMax=0., dMin=1.;
 
 	double *pC = new double[iFoilCount];
 	double *pC_err = new double[iFoilCount];
@@ -751,6 +769,7 @@ void ContrastsVsImagesDlg::Calc()
 	double *pPh_err = new double[iFoilCount];
 	unsigned int *puiCnt = new unsigned int[iFoilCount];
 
+	bool bDontLoadNextUnderground = false;
 	for(int iItem=0; iItem<iTofCnt; ++iItem)
 	{
 		QListWidgetItem* pItem = listTofs->item(iItem);
@@ -768,7 +787,7 @@ void ContrastsVsImagesDlg::Calc()
 			continue;
 		}
 
-		if(bUnderground)
+		if(bUnderground && !bDontLoadNextUnderground)
 		{
 			if(!tof_underground.LoadFile(pItem_underground->text().toAscii().data()))
 			{
@@ -776,10 +795,9 @@ void ContrastsVsImagesDlg::Calc()
 				logger << "Contrasts Dialog: Could not load \""
 						<< pItem->text().toAscii().data() << "\".\n";
 			}
-			else
-			{
-				tof.Subtract(tof_underground, dUnderground);
-			}
+
+			if(bSingleUnderground)
+				bDontLoadNextUnderground = true;
 		}
 
 		double dC=0., dC_err=0., dPh=0., dPh_err=0.;
@@ -791,8 +809,13 @@ void ContrastsVsImagesDlg::Calc()
 			puiCnt[iFoil] = 0;
 
 			TmpGraph graph = tof.GetGraph(iFoil);
+
+			if(bUnderground)
+				graph_underground = tof_underground.GetGraph(iFoil);
+
 			bool bOk = graph.GetContrast(pC[iFoil], pPh[iFoil],
-										pC_err[iFoil], pPh_err[iFoil]);
+										pC_err[iFoil], pPh_err[iFoil],
+							bUnderground?&graph_underground:0, dUnderground);
 
 			if(bOk)
 			{
@@ -880,28 +903,26 @@ void ContrastsVsImagesDlg::Calc(int iFoil)
 		return;
 
 	bool bUnderground = (check_underground->checkState()==Qt::Checked);
+	bool bSingleUnderground = false;
 	double dUnderground = spinBox_underground->value();
-	if(bUnderground && listTofs_underground->count()!=iTofCnt)
-	{
-		bUnderground = false;
-		QMessageBox::warning(0, "Warning",
-					"Underground file count has to match TOF file count.\n"
-					"Ignoring underground.", QMessageBox::Ok);
-	}
+	if(bUnderground)
+		bUnderground = CheckUndergroundCount();
+	if(listTofs_underground->count() == 1)
+		bSingleUnderground = true;
 
 	// write a .dat file
 	bool bDumpData = GlobalConfig::GetDumpFiles();
 
 	TofImage tof;
 	TofImage tof_underground;
+	TmpGraph graph_underground;
 
 	SetRoi(tof);
+	SetRoi(tof_underground);
 
 	double *pdx = new double[iTofCnt];
 	double *pdy = new double[iTofCnt];
 	double *pdy_err = new double[iTofCnt];
-
-	int iFoilCount = tof.GetTofConfig().GetFoilCount();
 
 	progressBar->setMaximum(iTofCnt);
 	progressBar->setValue(0);
@@ -916,6 +937,7 @@ void ContrastsVsImagesDlg::Calc(int iFoil)
 
 	double dMax = 0., dMin=1.;
 
+	bool bDontLoadNextUnderground = false;
 	for(int iItem=0; iItem<iTofCnt; ++iItem)
 	{
 		QListWidgetItem* pItem = listTofs->item(iItem);
@@ -933,7 +955,7 @@ void ContrastsVsImagesDlg::Calc(int iFoil)
 			continue;
 		}
 
-		if(bUnderground)
+		if(bUnderground && !bDontLoadNextUnderground)
 		{
 			if(!tof_underground.LoadFile(pItem_underground->text().toAscii().data()))
 			{
@@ -941,10 +963,9 @@ void ContrastsVsImagesDlg::Calc(int iFoil)
 				logger << "Contrasts Dialog: Could not load \""
 						<< pItem->text().toAscii().data() << "\".\n";
 			}
-			else
-			{
-				tof.Subtract(tof_underground, dUnderground);
-			}
+
+			if(bSingleUnderground)
+				bDontLoadNextUnderground = true;
 		}
 
 		double dC=0., dC_err=0., dPh=0., dPh_err=0.;
@@ -952,7 +973,11 @@ void ContrastsVsImagesDlg::Calc(int iFoil)
 
 		TmpGraph graph = tof.GetGraph(iFoil);
 
-		bool bOk = graph.GetContrast(dC, dPh, dC_err, dPh_err);
+		if(bUnderground)
+			graph_underground = tof_underground.GetGraph(iFoil);
+
+		bool bOk = graph.GetContrast(dC, dPh, dC_err, dPh_err,
+							bUnderground?&graph_underground:0, dUnderground);
 		uiTotalCnt = graph.Sum();
 		if(!bOk)
 		{

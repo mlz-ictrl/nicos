@@ -119,7 +119,8 @@ bool TmpGraph::FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOf
 }
 
 bool TmpGraph::GetContrast(double &dContrast, double &dPhase,
-							double &dContrast_err, double &dPhase_err) const
+							double &dContrast_err, double &dPhase_err,
+							const TmpGraph* punderground, double dMult_ug) const
 {
 	double dFreq;
 	double dAmp, dOffs;
@@ -128,12 +129,46 @@ bool TmpGraph::GetContrast(double &dContrast, double &dPhase,
 	if(!FitSinus(dFreq, dPhase, dAmp, dOffs, dPhase_err, dAmp_err, dOffs_err))
 		return false;
 
-	dContrast = dAmp / dOffs;
-	dContrast_err = sqrt((1/dOffs*dAmp_err)*(1/dOffs*dAmp_err)
-					+ (-dAmp/(dOffs*dOffs)*dOffs_err)*(-dAmp/(dOffs*dOffs)*dOffs_err));
 
-	if(dContrast!=dContrast)
-		return false;
+	if(!punderground)
+	{
+		dContrast = dAmp / dOffs;
+		dContrast_err = sqrt((1/dOffs*dAmp_err)*(1/dOffs*dAmp_err)
+						+ (-dAmp/(dOffs*dOffs)*dOffs_err)*(-dAmp/(dOffs*dOffs)*dOffs_err));
+
+		if(dContrast!=dContrast)
+			return false;
+	}
+	else
+	{
+		double dFreq_ug;
+		double dAmp_ug, dOffs_ug;
+		double dAmp_err_ug, dOffs_err_ug;
+		double dPhase_ug, dPhase_err_ug;
+
+		if(!punderground->FitSinus(dFreq_ug, dPhase_ug, dAmp_ug, dOffs_ug,
+									dPhase_err_ug, dAmp_err_ug, dOffs_err_ug))
+			return false;
+
+		dContrast = (dAmp - dMult_ug*dAmp_ug) / (dOffs - dMult_ug*dOffs_ug);
+
+		double A = dAmp;
+		double O = dOffs;
+		double Au = dAmp_ug;
+		double Ou = dOffs_ug;
+
+		double dA = dAmp_err;
+		double dO = dOffs_err;
+		double dAu = dAmp_err_ug;
+		double dOu = dOffs_err_ug;
+
+		double m = dMult_ug;
+
+		dContrast_err = sqrt(pow(dA/(O-m*Ou), 2.) +
+						pow(-(m*dAu)/(O-m*Ou), 2.) +
+						pow(-dO*(A-m*Au)/((O-m*Ou)*(O-m*Ou)), 2.) +
+						pow(-dOu*(m*m*Au - m*A)/((O-m*Ou)*(O-m*Ou)), 2.));
+	}
 
 	return true;
 }
