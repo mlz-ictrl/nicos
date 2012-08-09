@@ -138,8 +138,9 @@ class TAS(Instrument, Moveable):
         phi.start(angles[2])
         self.log.debug('moving psi/sth to %s' % angles[3])
         psi.start(angles[3])
-        self.log.debug('moving alpha to %s' % angles[4])
-        alpha.start(angles[4])
+        if alpha is not None:
+            self.log.debug('moving alpha to %s' % angles[4])
+            alpha.start(angles[4])
         self.log.debug('moving mono to %s' % angles[0])
         mono._startInvAng(angles[0])
         if self.scanmode != 'DIFF':
@@ -150,8 +151,8 @@ class TAS(Instrument, Moveable):
             ana.wait()
         phi.wait()
         psi.wait()
-        alpha.wait()
-        #h, k, l, ny = self.read(0)
+        if alpha is not None:
+            alpha.wait()
         # make sure index members read the latest value
         for index in (self.h, self.k, self.l, self.E):
             if index._cache:
