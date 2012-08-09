@@ -589,6 +589,23 @@ def hklplot(**kwds):
     * hkl -- a (h, k, l) tuple to plot
     * tauX -- a propagation vector as a (dh, dk, dl) tuple to plot from every
       nuclear Bragg point
+
+    Examples:
+
+    # plot current available reciprocal space and nuclear Bragg peaks
+    >>> hklplot()
+
+    # plot the same, but at E = 1 (meV or THz)
+    >>> hklplot(E=1)
+
+    # plot the same, but at kf = 1.3 and E = 2
+    >>> hklplot(kf=1.3, E=1)
+
+    # also plot (1, 0.5, 0)
+    >>> hklplot(hkl=(1, 0.5, 0))
+
+    # also plot magnetic satellites tau1 and tau2 from each nuclear Bragg peak
+    >>> hklplot(tau1=(0.28, 0.28, 0), tau2=(0.28, -0.28, 0))
     """
     from nicos.tas.plotting import SpaceMap
     resmat = _create_resmat((), kwds)
