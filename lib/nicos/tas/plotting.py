@@ -104,17 +104,20 @@ class SpaceMap(object):
 
     def plot_hkls(self, hkls, labels=None, **props):
         import pylab
-        xs, ys = [], []
-        for hkl in hkls:
+        xs, ys, indices = [], [], []
+        for i, hkl in enumerate(hkls):
             x, y, z = self.cell.hkl2Qcart(*hkl[:3])
             if abs(z) > 0.0001:
                 continue
             xs.append(x)
             ys.append(y)
+            indices.append(i)
+        if not xs:
+            return
         pylab.scatter(xs, ys, **props)
         if labels is not None:
-            for label, x, y in zip(labels, xs, ys):
-                pylab.text(x, y-0.2, label, size='x-small',
+            for i, x, y in zip(indices, xs, ys):
+                pylab.text(x, y-0.2, labels[i], size='x-small',
                            horizontalalignment='center', verticalalignment='top')
 
     def check_hkls(self, hkls):
