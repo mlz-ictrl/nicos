@@ -3,6 +3,12 @@ Changelog for NICOS 2
 
 **Release 2.2.0**
 
+  - Added "resplot" and "hklplot" commands for TAS instruments, which are
+    interactive resolution calculation and reciprocal space map helpers.
+
+  - Added "alpha" attached-device to triple-axis instrument that is moved
+    to the angle between ki and Q whenever the TAS is moved.
+
   - Changed "users" parameter of the experiment device to a simple string,
     and it is now possible to add users directly in "NewExperiment()".
 
