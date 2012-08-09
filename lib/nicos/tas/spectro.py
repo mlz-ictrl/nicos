@@ -150,8 +150,6 @@ class TAS(Instrument, Moveable):
         for index in (self.h, self.k, self.l, self.E):
             if index._cache:
                 index._cache.invalidate(index, 'value')
-        #self.log.info('position hkl: (%7.4f %7.4f %7.4f) E: %7.4f %s' %
-        #               (h, k, l, ny, self.energytransferunit))
 
     def doStatus(self, maxage=0):
         return multiStatus(((name, self._adevs[name]) for name in
@@ -247,7 +245,12 @@ class TAS(Instrument, Moveable):
 
         Must be overridden for instruments with collimation support.
         """
-        return [6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000]
+        try:
+            a1, a2, a3, a4, b1, b2, b3, b4 = map(int, self.collimation.split())
+        except Exception:
+            return [6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000]
+        else:
+            return [a1, a2, a3, a4, b1, b2, b3, b4]
 
     def _getResolutionParameters(self):
         """Return a list of 30 parameters used for resolution calculation."""
