@@ -191,15 +191,15 @@ class HtmlWriter(object):
         self.idstart = strftime('%Y%m%d%H%M%S')
 
     def close(self):
-        self.endstate()
-        self.fd.close()
-        self.fd_toc.write('</ul>' * self.toc_level)
-        self.fd_toc.close()
+        if self.fd:
+            self.endstate()
+            self.fd.close()
+            self.fd_toc.write('</ul>' * self.toc_level)
+            self.fd_toc.close()
         self.toc_level = 0
 
     def open(self, directory, instr, proposal):
-        if self.fd:
-            self.close()
+        self.close()
         open(path.join(directory, 'logbook.html'), 'w').write(
             FRAMESET % (instr, proposal))
         self.fd = open(path.join(directory, 'content.html'), 'r+b')
