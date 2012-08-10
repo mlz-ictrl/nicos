@@ -55,6 +55,8 @@ Q_OBJECT
 		QTime m_timer;
 		/////////////////////////////////////////////////////////////
 
+		int m_iLargestAllowedMsgSize;	// -1 to disable
+
 		// internal methods which read and send raw data in disregard of the
 		// protocol
 		int read(char* pcData, int iLen);

@@ -291,7 +291,8 @@ BrowseDlg::BrowseDlg(CascadeWidget *pParent, const char* pcDir)
 
 	connect(btnBrowse, SIGNAL(clicked()),
 			this, SLOT(SelectDir()));
-	connect(listFiles, SIGNAL(itemSelectionChanged()),
+	connect(listFiles,
+			SIGNAL(currentItemChanged( QListWidgetItem *, QListWidgetItem *)),
 			this, SLOT(SelectedFile()));
 
 	SetDir(QString(pcDir));

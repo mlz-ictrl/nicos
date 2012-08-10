@@ -170,6 +170,7 @@ bool TmpGraph::GetContrast(double &dContrast, double &dPhase,
 						pow(-dOu*(m*m*Au - m*A)/((O-m*Ou)*(O-m*Ou)), 2.));
 	}
 
+	if(dContrast < 0.) dContrast=0.;
 	return true;
 }
 

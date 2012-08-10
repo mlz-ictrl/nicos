@@ -57,6 +57,8 @@
 		<use_message_timeout> 0 </use_message_timeout>
 		<message_timeout> 10000 </message_timeout>
 
+        <message_size_limit> 104857600  </message_size_limit>
+
 		<autofetch_use> 1 </autofetch_use>
 		<autofetch_poll_time> 1000 </autofetch_poll_time>
 	</server>

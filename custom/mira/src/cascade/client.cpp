@@ -47,8 +47,12 @@ TcpClient::TcpClient(QObject *pParent, bool bBlocking)
 	if(bUseMessageTimeout)
 		m_iMessageTimeout = Config::GetSingleton()
 					->QueryInt("/cascade_config/server/message_timeout", 10000);
+
+	m_iLargestAllowedMsgSize = Config::GetSingleton()
+					->QueryInt("/cascade_config/server/message_size_limit", -1);
 #else	// Nicos-Client
 	m_iMessageTimeout = 5000;
+	m_iLargestAllowedMsgSize = 100 * 1024*1024;
 #endif
 
 	connect(&m_socket, SIGNAL(connected()), this, SLOT(connected()));
@@ -153,7 +157,7 @@ bool TcpClient::write(const char* pcBuf, int iSize, bool bIsBinary)
 	{
 		logger.green(false);
 		logger.SetCurLogLevel(LOGLEVEL_INFO);
-		logger << "[to server] length: " << iSize << ", data: "
+		logger << "[to server] length: " << iSize << "B, data: "
 			   << pcBuf << "\n";
 		logger.normal();
 	}
@@ -238,12 +242,22 @@ const QByteArray& TcpClient::recvmsg(void)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
 		logger << "Client: Invalid message length: " << iExpectedMsgLength
-			   << "\n";
+			   << "B.\n";
 		return m_byEmpty;
 	}
 
 	QByteArray& arrMsg = m_byCurMsg;
 	arrMsg.resize(iExpectedMsgLength);
+
+	if(m_iLargestAllowedMsgSize > 0 &&
+			iExpectedMsgLength > m_iLargestAllowedMsgSize)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Client: Message size limit exceeded. "
+				<< "Server sent: " << iExpectedMsgLength << "B, "
+				<< "limit is: " << m_iLargestAllowedMsgSize << "B.\n";
+		return m_byEmpty;
+	}
 
 	while(m_socket.bytesAvailable() < iExpectedMsgLength)
 	{
@@ -267,7 +281,7 @@ const QByteArray& TcpClient::recvmsg(void)
 
 	logger.green(true);
 	logger.SetCurLogLevel(LOGLEVEL_INFO);
-	logger << "[from server] length: " << iExpectedMsgLength
+	logger << "[from server] length: " << iExpectedMsgLength << "B"
 		   << ", time: " << iTimeElapsed << "ms, data: " << arrMsg.data()
 		   << "\n";
 	logger.normal();
@@ -342,6 +356,18 @@ void TcpClient::readReady()
 			return;
 		}
 
+		if(m_iLargestAllowedMsgSize > 0 &&
+				m_iExpectedMsgLength > m_iLargestAllowedMsgSize)
+		{
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Client: Message size limit exceeded. Reconnecting. "
+					<< "Trying to reset connection.\n";
+
+			reconnect();
+			return;
+		}
+
+
 		// Nachricht läuft
 		m_bBeginOfMessage = false;
 		m_timer.start();
@@ -364,7 +390,7 @@ void TcpClient::readReady()
 			logger.SetCurLogLevel(LOGLEVEL_WARN);
 			logger << "Client: Got too much data; expected: "
 				   << m_iExpectedMsgLength
-				   << ", received: " << m_iCurMsgLength
+				   << "B, received: " << m_iCurMsgLength << "B."
 				   << "\n";
 		}
 
@@ -377,7 +403,7 @@ void TcpClient::readReady()
 
 			logger.green(true);
 			logger.SetCurLogLevel(LOGLEVEL_INFO);
-			logger << "[from server] length: " << m_iCurMsgLength
+			logger << "[from server] length: " << m_iCurMsgLength << "B"
 				   << ", time: " << iTimeElapsed << "ms, total: "
 				   << m_timer.elapsed() << "ms, data: "
 				   << m_byCurMsg.data()
