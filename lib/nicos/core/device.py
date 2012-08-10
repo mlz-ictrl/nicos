@@ -735,6 +735,7 @@ class Readable(Device):
         self._sim_value = 0   # XXX how to configure a useful default?
         self._sim_min = None
         self._sim_max = None
+        self._sim_started = None
         self._sim_preset = {}
 
     def _sim_setValue(self, pos):
@@ -1137,7 +1138,9 @@ class Moveable(Readable):
                 except Exception:
                     self.log.warning('could not time movement', exc=1)
                     time = 0
-            session.clock.wait(self._sim_started + time)
+            if self._sim_started is not None:
+                session.clock.wait(self._sim_started + time)
+                self._sim_started = None
             self._sim_old_value = self._sim_value
             return self._sim_value
         lastval = None
