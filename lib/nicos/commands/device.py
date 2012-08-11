@@ -285,6 +285,29 @@ def get(dev, parameter):
     dev.log.info('parameter %s is %s' % (parameter, value))
 
 @usercommand
+@helparglist('parameter, ...')
+def getall(*names):
+    """List the given parameters for all existing devices that have them.
+
+    Example:
+
+    >>> getall('offset')
+
+    lists the offset for all devices with an "offset" parameter.
+    """
+    items = []
+    for name, dev in session.devices.iteritems():
+        pvalues = []
+        for param in names:
+            if param in dev.parameters:
+                pvalues.append(repr(getattr(dev, param)))
+            else:
+                pvalues.append(None)
+        if any(v is not None for v in pvalues):
+            items.append([name] + map(str, pvalues))
+    printTable(('device',) + names, items, printinfo)
+
+@usercommand
 @helparglist('dev[, reason]')
 def fix(dev, reason=''):
     """Fix a device, i.e. prevent movement until `release()` is called.
@@ -517,32 +540,6 @@ def ListMethods(dev):
     _list(dev.__class__)
     dev.log.info('Device methods:')
     printTable(('method', 'from class', 'description'), items, printinfo)
-
-
-# XXX rename to "getall()" or similar?
-
-@usercommand
-@helparglist('parameter, ...')
-def ListAllParams(*names):
-    """List the given parameters for all existing devices that have them.
-
-    Example:
-
-    >>> ListAllParams('offset')
-
-    lists the offset for all devices with an "offset" parameter.
-    """
-    items = []
-    for name, dev in session.devices.iteritems():
-        pvalues = []
-        for param in names:
-            if param in dev.parameters:
-                pvalues.append(repr(getattr(dev, param)))
-            else:
-                pvalues.append(None)
-        if any(v is not None for v in pvalues):
-            items.append([name] + map(str, pvalues))
-    printTable(('device',) + names, items, printinfo)
 
 @usercommand
 def ListDevices():
