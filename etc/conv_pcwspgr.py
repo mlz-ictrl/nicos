@@ -1,4 +1,5 @@
-f = open('PCWSPGR.DAT')
+f = open('PCWSPGR.DAT')     # from PowderCell
+g = open('nph-list_table')  # from www.cryst.ehu.es
 
 sg_by_num = {}
 sg_by_hm  = {}
@@ -21,6 +22,17 @@ for line in f:
         else:
             sg_by_hm[sp_hm] = spnum, spvar
         sg_by_num[spnum, spvar] = conditions
+
+for line in g:
+    line = line.strip()
+    if not line or line.startswith('#') or line.startswith('231'):
+        continue
+    nr, hm = line.split()
+    nr = int(nr)
+    if hm in sg_by_hm:
+        assert sg_by_hm[hm][0] == nr
+    else:
+        sg_by_hm[hm] = (nr, 1)
 
 print 'sg_by_num = {'
 for k in sorted(sg_by_num):
