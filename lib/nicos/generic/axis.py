@@ -117,6 +117,7 @@ class Axis(BaseAxis):
     def doStart(self, target):
         """Starts the movement of the axis to target."""
         if self._checkTargetPosition(self.read(0), target, error=False):
+            self.log.debug('not moving, already at %.4f within precision' % target)
             return
 
         if self.status(0)[0] == status.BUSY:
