@@ -13,7 +13,7 @@ print "Running sip..."
 os.system(" ".join([config.sip_bin, "-t", "Qwt_5_2_0", "-c", ".", "-b", build_file, "-I", config.pyqt_sip_dir, pyqt_sip_flags, "cascadewidget.sip"]))
 
 print "Generating makefile..."
-makefile = pyqtconfig.QtGuiModuleMakefile(configuration=config, build_file=build_file)
+makefile = pyqtconfig.QtGuiModuleMakefile(configuration=config, build_file=build_file, debug=0)
 
 makefile.extra_include_dirs = ["/usr/include/qwt", "/usr/include/qwt5", ".."]
 makefile.extra_libs = ["cascadewidget", "Minuit2", "gomp", "QtNetwork", "qwt", "xml++-2.6"]

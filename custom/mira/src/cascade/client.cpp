@@ -55,6 +55,9 @@ TcpClient::TcpClient(QObject *pParent, bool bBlocking)
 	m_iLargestAllowedMsgSize = 100 * 1024*1024;
 #endif
 
+
+	connect(&m_socket, SIGNAL(error(QAbstractSocket::SocketError)),
+			this, SLOT(socketError(QAbstractSocket::SocketError)));
 	connect(&m_socket, SIGNAL(connected()), this, SLOT(connected()));
 	connect(&m_socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
 	if(!m_bBlocking)
@@ -119,6 +122,19 @@ bool TcpClient::isconnected() const
 {
 	return (m_socket.state()==QAbstractSocket::ConnectedState);
 }
+
+bool TcpClient::checkReady() const
+{
+	bool bReady = m_socket.isValid();
+
+	if(!bReady)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Client: Socket is invalid.\n";
+	}
+
+	return bReady;
+}
 ////////////////////////////////////////////////////////////////
 
 
@@ -145,6 +161,9 @@ bool TcpClient::sendmsg(const char *pcMsg)
 
 bool TcpClient::write(const char* pcBuf, int iSize, bool bIsBinary)
 {
+	if(!checkReady())
+		return false;
+
 	if(m_socket.write(pcBuf, iSize)==-1)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -207,6 +226,9 @@ bool TcpClient::sendfile(const char* pcFileName)
 ///////////////////////// lesen ////////////////////////////////
 int TcpClient::read(char* pcData, int iLen)
 {
+	if(!checkReady())
+		return 0;
+
 	int iLenRead = m_socket.read(pcData, iLen);
 	if(iLenRead<0)
 	{
@@ -227,6 +249,9 @@ const QByteArray& TcpClient::recvmsg(void)
 		return m_byEmpty;
 	}
 
+	if(!checkReady())
+		return m_byEmpty;
+
 	m_timer.start();
 	if(!m_socket.waitForReadyRead(WAIT_DELAY))
 	{
@@ -245,9 +270,6 @@ const QByteArray& TcpClient::recvmsg(void)
 			   << "B.\n";
 		return m_byEmpty;
 	}
-
-	QByteArray& arrMsg = m_byCurMsg;
-	arrMsg.resize(iExpectedMsgLength);
 
 	if(m_iLargestAllowedMsgSize > 0 &&
 			iExpectedMsgLength > m_iLargestAllowedMsgSize)
@@ -268,6 +290,9 @@ const QByteArray& TcpClient::recvmsg(void)
 			return m_byEmpty;
 		}
 	}
+
+	QByteArray& arrMsg = m_byCurMsg;
+	arrMsg.resize(iExpectedMsgLength);
 
 	int iRead = read(arrMsg.data(), iExpectedMsgLength);
 	if(iRead!=iExpectedMsgLength)
@@ -294,6 +319,9 @@ const QByteArray& TcpClient::recvmsg(void)
 ///////////////////////////// Slots ////////////////////////////
 void TcpClient::connected()
 {
+	m_bBeginOfMessage = true;
+	m_iExpectedMsgLength = m_iCurMsgLength = 0;
+
 	logger.SetCurLogLevel(LOGLEVEL_INFO);
 	logger << "Client: Connected to server "
 		   << m_addr.toString().toAscii().data()
@@ -308,6 +336,14 @@ void TcpClient::disconnected()
 		   << " at port " << m_iPort << ".\n";
 }
 
+void TcpClient::socketError(QAbstractSocket::SocketError socketError)
+{
+	logger.SetCurLogLevel(LOGLEVEL_ERR);
+	logger << "Client: Socket error " << socketError << " occurred: "
+			<< m_socket.errorString().toAscii().data() << ".";
+	logger << "\n";
+}
+
 void TcpClient::readReady()
 {
 	// nur für nichtblockierenden Client erlauben
@@ -317,6 +353,9 @@ void TcpClient::readReady()
 		logger << "Client: readReady not allowed in blocking mode.\n";
 		return;
 	}
+
+	if(!checkReady())
+		return;
 
 	int iSize = m_socket.bytesAvailable();
 	if(iSize==0) return;
@@ -360,13 +399,12 @@ void TcpClient::readReady()
 				m_iExpectedMsgLength > m_iLargestAllowedMsgSize)
 		{
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
-			logger << "Client: Message size limit exceeded. Reconnecting. "
+			logger << "Client: Message size limit exceeded. "
 					<< "Trying to reset connection.\n";
 
 			reconnect();
 			return;
 		}
-
 
 		// Nachricht läuft
 		m_bBeginOfMessage = false;

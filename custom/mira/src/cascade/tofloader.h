@@ -175,7 +175,7 @@ class TmpGraph
 	//--------------------------------------------------------------------------
 
 	// is sum of data points < iTotal?
-	bool IsLowerThan(int iTotal) const;
+	bool IsLowerThan(unsigned int iTotal) const;
 
 	unsigned int Sum(void) const;
 };

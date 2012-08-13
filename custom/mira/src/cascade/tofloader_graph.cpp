@@ -84,9 +84,9 @@ int TmpGraph::GetMax() const
 	return uiMax;
 }
 
-bool TmpGraph::IsLowerThan(int iTotal) const
+bool TmpGraph::IsLowerThan(unsigned int iTotal) const
 {
-	int iSum=0;
+	unsigned int iSum=0;
 	for(int i=0; i<m_iW; ++i)
 		iSum += GetData(i);
 
@@ -96,14 +96,15 @@ bool TmpGraph::IsLowerThan(int iTotal) const
 bool TmpGraph::FitSinus(double &dFreq, double &dPhase, double &dAmp, double &dOffs,
 						double &dPhase_err, double &dAmp_err, double &dOffs_err) const
 {
-	if(m_iW<=0) return false;
+	dFreq = dPhase = dAmp = dOffs = dPhase_err = dAmp_err = dOffs_err = 0.;
+
+	if(m_iW<=0 || IsLowerThan(GlobalConfig::GetMinCountsToFit()))
+		return false;
+
 	double dNumOsc = m_TofConfig.GetNumOscillations();
 
 	// Freq fix
 	dFreq = dNumOsc * 2.*M_PI/double(m_iW);
-
-	if(IsLowerThan(1))
-		return false;
 
 	return ::FitSinus(m_iW, m_puiDaten, dFreq,
 					  dPhase, dAmp, dOffs,
@@ -122,9 +123,12 @@ bool TmpGraph::GetContrast(double &dContrast, double &dPhase,
 							double &dContrast_err, double &dPhase_err,
 							const TmpGraph* punderground, double dMult_ug) const
 {
-	double dFreq;
-	double dAmp, dOffs;
-	double dAmp_err, dOffs_err;
+	dContrast = dContrast_err = 0.;
+	dPhase = dPhase_err = 0.;
+
+	double dFreq = 0.;
+	double dAmp = 0., dOffs = 0.;
+	double dAmp_err = 0., dOffs_err = 0.;
 
 	if(!FitSinus(dFreq, dPhase, dAmp, dOffs, dPhase_err, dAmp_err, dOffs_err))
 		return false;

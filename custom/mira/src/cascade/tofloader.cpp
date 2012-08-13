@@ -200,11 +200,11 @@ unsigned int TofImage::GetDataInsideROI(int iFoil, int iTimechannel,
 	if(m_bUseRoi)
 	{
 		// only continue if point is in ROI
-		//if(!m_roi.IsInside(iX, iY))
-		//	return 0;
+		if(!m_roi.IsInside(iX, iY))
+			return 0;
 
-		double dFractionInRoi = m_roi.HowMuchInside(iX, iY);
-		return double(GetData(iFoil, iTimechannel, iX, iY)) * dFractionInRoi;
+		//double dFractionInRoi = m_roi.HowMuchInside(iX, iY);
+		//return double(GetData(iFoil, iTimechannel, iX, iY)) * dFractionInRoi;
 	}
 
 	return GetData(iFoil, iTimechannel, iX, iY);
@@ -215,11 +215,11 @@ unsigned int TofImage::GetDataInsideROI(int iImage, int iX, int iY) const
 	if(m_bUseRoi)
 	{
 		// only continue if point is in ROI
-		//if(!m_roi.IsInside(iX, iY))
-		//	return 0;
+		if(!m_roi.IsInside(iX, iY))
+			return 0;
 
-		double dFractionInRoi = m_roi.HowMuchInside(iX, iY);
-		return double(GetData(iImage, iX, iY)) * dFractionInRoi;
+		//double dFractionInRoi = m_roi.HowMuchInside(iX, iY);
+		//return double(GetData(iImage, iX, iY)) * dFractionInRoi;
 	}
 
 	return GetData(iImage, iX, iY);
@@ -376,11 +376,11 @@ unsigned int TofImage::GetCounts() const
 		{
 			if(m_bUseRoi)
 			{
-				//if(m_roi.IsInside(iX,iY))
-				//	uiCnt += img.GetData(iX, iY);
+				if(m_roi.IsInside(iX,iY))
+					uiCnt += img.GetData(iX, iY);
 
-				double dFractionInRoi = m_roi.HowMuchInside(iX, iY);
-				uiCnt += double(img.GetData(iX, iY)) * dFractionInRoi;
+				//double dFractionInRoi = m_roi.HowMuchInside(iX, iY);
+				//uiCnt += double(img.GetData(iX, iY)) * dFractionInRoi;
 			}
 			else
 			{
@@ -419,11 +419,11 @@ unsigned int TofImage::GetCounts(int iFoil) const
 		{
 			if(m_bUseRoi)
 			{
-				//if(m_roi.IsInside(iX,iY))
-				//	uiCnt += img.GetData(iX, iY);
+				if(m_roi.IsInside(iX,iY))
+					uiCnt += img.GetData(iX, iY);
 
-				double dFractionInRoi = m_roi.HowMuchInside(iX, iY);
-				uiCnt += double(img.GetData(iX, iY)) * dFractionInRoi;
+				//double dFractionInRoi = m_roi.HowMuchInside(iX, iY);
+				//uiCnt += double(img.GetData(iX, iY)) * dFractionInRoi;
 			}
 			else
 			{
@@ -688,6 +688,7 @@ TmpImage TofImage::GetPhaseGraph(int iFolie, bool bInDeg) const
 	for(int iY=iStartY; iY<iEndY; iY+=YSIZE)
 		for(int iX=iStartX; iX<iEndX; iX+=XSIZE)
 		{
+			//std::cout << "x=" << iX << ", y=" << iY << std::endl;
 			TmpGraph tmpGraph = GetGraph(iX, iX+XSIZE, iY, iY+YSIZE, iFolie);
 
 			double dFreq, dPhase, dAmp, dOffs;

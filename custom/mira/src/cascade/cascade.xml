@@ -80,6 +80,8 @@
 		<!-- one of: migrad, simplex, minimize -->
 		<algo> migrad </algo>
 		<strategy> 1 </strategy>
+
+        <min_counts> 50  </min_counts>
 	</minuit>
 
 </cascade_config>

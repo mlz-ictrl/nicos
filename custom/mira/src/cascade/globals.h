@@ -165,6 +165,8 @@ class GlobalConfig
 		static int iMinuitAlgo;
 		static unsigned int uiMinuitStrategy;
 
+		static unsigned int uiMinCountsToFit;
+
 		static bool bGuessConfig;
 		static bool bDumpFiles;
 
@@ -182,6 +184,7 @@ class GlobalConfig
 		static double GetMinuitTolerance();
 		static int GetMinuitAlgo();
 		static unsigned int GetMinuitStrategy();
+		static unsigned int GetMinCountsToFit();
 
 		static TofConfig& GetTofConfig();
 
@@ -194,6 +197,7 @@ class GlobalConfig
 		static void SetMinuitTolerance(double dTolerance);
 		static void SetMinuitAlgo(int iAlgo);
 		static void SetMinuitStrategy(unsigned int iStrategy);
+		static void SetMinCountsToFit(unsigned int iMinCts);
 		//----------------------------------------------------------------------
 
 		static void SetLogLevel(int iLevel);

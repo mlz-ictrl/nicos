@@ -63,6 +63,8 @@ Q_OBJECT
 		bool write(const char* pcBuf, int iSize, bool bIsBinary=false);
 		bool sendfile(const char* pcFileName);
 
+		bool checkReady() const;
+
 	public:
 		TcpClient(QObject *pParent=0, bool bBlocking=true);
 		virtual ~TcpClient();
@@ -93,6 +95,7 @@ Q_OBJECT
 
 		// only for NONblocking client
 		void readReady();
+		void socketError(QAbstractSocket::SocketError socketError);
 };
 
 #endif

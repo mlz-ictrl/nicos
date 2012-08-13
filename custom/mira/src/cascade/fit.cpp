@@ -42,24 +42,27 @@
 
 
 inline static ROOT::Minuit2::MnApplication* make_minimizer(ROOT::Minuit2::FCNBase &fkt,
-														   ROOT::Minuit2::MnUserParameters& upar)
+														   ROOT::Minuit2::MnUserParameters& upar,
+														   int iStrategy=-1)
 {
-	ROOT::Minuit2::MnApplication *pMinimize;
+	ROOT::Minuit2::MnApplication *pMinimize = 0;
 
-	unsigned int uiStrategy = GlobalConfig::GetMinuitStrategy();
+	if(iStrategy < 0)
+		iStrategy = GlobalConfig::GetMinuitStrategy();
+
 	switch(GlobalConfig::GetMinuitAlgo())
 	{
 		case MINUIT_SIMPLEX:
-			pMinimize = new ROOT::Minuit2::MnSimplex(fkt, upar, uiStrategy);
+			pMinimize = new ROOT::Minuit2::MnSimplex(fkt, upar, iStrategy);
 			break;
 
 		case MINUIT_MINIMIZE:
-			pMinimize = new ROOT::Minuit2::MnMinimize(fkt, upar, uiStrategy);
+			pMinimize = new ROOT::Minuit2::MnMinimize(fkt, upar, iStrategy);
 			break;
 
 		default:
 		case MINUIT_MIGRAD:
-			pMinimize = new ROOT::Minuit2::MnMigrad(fkt, upar, uiStrategy);
+			pMinimize = new ROOT::Minuit2::MnMigrad(fkt, upar, iStrategy);
 			break;
 	}
 
@@ -143,8 +146,8 @@ class Sinus : public ROOT::Minuit2::FCNBase
 
 			for(int i=0; i<iSize; ++i)
 			{
-				m_pdy[i] = T(pdy[i]);				// Value
-				m_pddy[i] = sqrt(m_pdy[i]);			// Abs Error!
+				m_pdy[i] = double(pdy[i]);				// Value
+				m_pddy[i] = sqrt(m_pdy[i]);				// Abs Error!
 			}
 		}
 };
@@ -169,7 +172,7 @@ bool FitSinus(int iSize, const unsigned int* pData,
 	dAmp = 0.5 * (iMax-iMin);
 	dPhase = 0.;
 	dOffs = double(iMin) + dAmp;
-	
+
 
 	Sinus fkt(dFreq);
 	fkt.SetValues(iSize, pData);
@@ -184,15 +187,15 @@ bool FitSinus(int iSize, const unsigned int* pData,
 	upar.SetLimits("amp", 0., double(iMax));
 	upar.SetLimits("offs", double(iMin), double(iMax));
 
-	
-	ROOT::Minuit2::MnApplication *pMinimize = make_minimizer(fkt, upar);
+
+	ROOT::Minuit2::MnApplication *pMinimize = make_minimizer(fkt, upar, 0);
 	{
 		ROOT::Minuit2::FunctionMinimum mini = (*pMinimize)(
 										GlobalConfig::GetMinuitMaxFcn(),
 										GlobalConfig::GetMinuitTolerance());
 
 		upar.SetValue("phase", mini.UserState().Value("phase"));
-		upar.SetError("phase", mini.UserState().Error("phase"));		
+		upar.SetError("phase", mini.UserState().Error("phase"));
 
 		upar.SetValue("amp", mini.UserState().Value("amp"));
 		upar.SetError("amp", mini.UserState().Error("amp"));
@@ -200,7 +203,7 @@ bool FitSinus(int iSize, const unsigned int* pData,
 		upar.SetValue("offs", mini.UserState().Value("offs"));
 		upar.SetError("offs", mini.UserState().Error("offs"));
 	}
-	
+
 	delete pMinimize;
 
 
@@ -208,9 +211,9 @@ bool FitSinus(int iSize, const unsigned int* pData,
 	upar.RemoveLimits("amp");
 	upar.RemoveLimits("offs");
 	upar.RemoveLimits("phase");
-	
+
 	pMinimize = make_minimizer(fkt, upar);
-	
+
 	ROOT::Minuit2::FunctionMinimum mini = (*pMinimize)(
 									GlobalConfig::GetMinuitMaxFcn(),
 									GlobalConfig::GetMinuitTolerance());
@@ -225,8 +228,8 @@ bool FitSinus(int iSize, const unsigned int* pData,
 
 	delete pMinimize;
 
-	
-	
+
+
 	if(dAmp<0.)
 	{
 		dAmp = -dAmp;

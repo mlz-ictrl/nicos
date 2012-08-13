@@ -237,6 +237,7 @@ double GlobalConfig::dMinuitTolerance = 0.1;
 unsigned int GlobalConfig::uiMinuitMaxFcn = 0;
 int GlobalConfig::iMinuitAlgo = MINUIT_MIGRAD;
 unsigned int GlobalConfig::uiMinuitStrategy = 1;
+unsigned int GlobalConfig::uiMinCountsToFit = 50;
 
 bool GlobalConfig::bGuessConfig = 0;
 bool GlobalConfig::bDumpFiles = 0;
@@ -317,6 +318,8 @@ void GlobalConfig::Init()
 				"/cascade_config/minuit/maxfcn", uiMinuitMaxFcn);
 	uiMinuitStrategy = (unsigned int)Config::GetSingleton()->QueryInt(
 				"/cascade_config/minuit/strategy", uiMinuitStrategy);
+	uiMinCountsToFit = (unsigned int)Config::GetSingleton()->QueryInt(
+				"/cascade_config/minuit/min_counts", uiMinCountsToFit);
 
 	std::string strAlgo =
 		Config::GetSingleton()->QueryString("/cascade_config/minuit/algo",
@@ -357,6 +360,7 @@ unsigned int GlobalConfig::GetMinuitMaxFcn() { return uiMinuitMaxFcn; }
 double GlobalConfig::GetMinuitTolerance() { return dMinuitTolerance; }
 int GlobalConfig::GetMinuitAlgo() { return iMinuitAlgo; }
 unsigned int GlobalConfig::GetMinuitStrategy() { return uiMinuitStrategy; }
+unsigned int GlobalConfig::GetMinCountsToFit() { return uiMinCountsToFit; }
 
 TofConfig& GlobalConfig::GetTofConfig() { return s_config;}
 bool GlobalConfig::GetDumpFiles() { return bDumpFiles; }
@@ -369,6 +373,8 @@ void GlobalConfig::SetMinuitAlgo(int iAlgo)
 { iMinuitAlgo = iAlgo; }
 void GlobalConfig::SetMinuitStrategy(unsigned int uiStrategy)
 { uiMinuitStrategy = uiStrategy; }
+void GlobalConfig::SetMinCountsToFit(unsigned int uiCts)
+{ uiMinCountsToFit = uiCts; }
 void GlobalConfig::SetLogLevel(int iLevel)
 { logger.SetLogLevel(iLevel); }
 void GlobalConfig::SetRepeatLogs(bool bRepeat)
