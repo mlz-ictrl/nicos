@@ -288,4 +288,4 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         if not reply:
             raise CommunicationError(self,
                 message + ': empty reply (reset device to reconnect)')
-        raise CommunicationError(self, message + ': ' + reply[4:])
+        raise CommunicationError(self, message + ': ' + str(reply[4:]))
