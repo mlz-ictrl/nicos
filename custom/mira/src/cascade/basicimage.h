@@ -24,6 +24,8 @@
 #ifndef __BASICIMAGE__
 #define __BASICIMAGE__
 
+#include "roi.h"
+
 /*
  * minimal interface for images
  */
@@ -40,6 +42,15 @@ class BasicImage
 		virtual int GetIntMax() const = 0;
 		virtual double GetDoubleMin() const = 0;
 		virtual double GetDoubleMax() const = 0;
+};
+
+class Countable
+{
+	public:
+		virtual unsigned int GetCounts() const = 0;
+		virtual Roi& GetRoi() = 0;
+		virtual void UseRoi(bool bUseRoi=true) = 0;
+		virtual bool GetUseRoi() const = 0;
 };
 
 #endif

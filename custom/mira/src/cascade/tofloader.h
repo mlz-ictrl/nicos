@@ -188,7 +188,7 @@ class TmpGraph
  * container representing a TOF image
  * (corresponds to the "TOF" measurement type in the server & HardwareLib)
  */
-class TofImage
+class TofImage : public Countable
 {
 	protected:
 		// pointer to data array (format depends on compression used)
@@ -206,9 +206,9 @@ class TofImage
 	public:
 		const TofConfig& GetTofConfig() const;
 
-		Roi& GetRoi();
-		void UseRoi(bool bUseRoi=true);
-		bool GetUseRoi() const;
+		virtual Roi& GetRoi();
+		virtual void UseRoi(bool bUseRoi=true);
+		virtual bool GetUseRoi() const;
 
 		TofImage(const char *pcFileName=NULL,
 				 bool bExternalMem=false, const TofConfig* conf=0);
@@ -244,7 +244,7 @@ class TofImage
 		int LoadMem(const char *strBuf, unsigned int strBufLen);
 
 		// total number of counts (inside ROI, if used)
-		unsigned int GetCounts() const;
+		virtual unsigned int GetCounts() const;
 		unsigned int GetCounts(int iFoil) const;
 
 		// old style GetCounts, ignoring main roi

@@ -24,6 +24,7 @@
 #include "fit.h"
 #include "logger.h"
 #include "globals.h"
+#include "gc.h"
 
 #ifdef USE_MINUIT
 	#include <Minuit2/FCNBase.h>
@@ -92,8 +93,8 @@ class Sinus : public ROOT::Minuit2::FCNBase
 
 		void Clear(void)
 		{
-			if(m_pddy) { delete[] m_pddy; m_pddy=NULL; }
-			if(m_pdy) { delete[] m_pdy; m_pdy=NULL; }
+			if(m_pddy) { gc.release(m_pddy); m_pddy=NULL; }
+			if(m_pdy) { gc.release(m_pdy); m_pdy=NULL; }
 			m_iNum=0;
 		}
 
@@ -141,8 +142,8 @@ class Sinus : public ROOT::Minuit2::FCNBase
 		{
 			Clear();
 			m_iNum = iSize;
-			m_pdy = new double[iSize];
-			m_pddy = new double[iSize];
+			m_pdy = (double*)gc.malloc(sizeof(double)*iSize, "fit_msin_y");
+			m_pddy = (double*)gc.malloc(sizeof(double)*iSize, "fit_msin_dy");
 
 			for(int i=0; i<iSize; ++i)
 			{
@@ -305,8 +306,8 @@ class Gaussian : public ROOT::Minuit2::FCNBase
 
 		void Clear(void)
 		{
-			if(m_pdata) { delete[] m_pdata; m_pdata=NULL; }
-			if(m_pspread) { delete[] m_pspread; m_pspread=NULL; }
+			if(m_pdata) { gc.release(m_pdata); m_pdata=NULL; }
+			if(m_pspread) { gc.release(m_pspread); m_pspread=NULL; }
 			m_iW=m_iH=0;
 		}
 
@@ -385,12 +386,12 @@ class Gaussian : public ROOT::Minuit2::FCNBase
 			Clear();
 			m_iW = iW;
 			m_iH = iH;
-			m_pdata = new double[iW*iH];
-			m_pspread = new double[iW*iH];
+			m_pdata = (double*)gc.malloc(sizeof(double)*iW*iH, "fit_gauss_y");
+			m_pspread = (double*)gc.malloc(sizeof(double)*iW*iH, "fit_gauss_dy");
 
 			for(int i=0; i<iW*iH; ++i)
 			{
-				m_pdata[i] = T(pdata[i]);
+				m_pdata[i] = double(pdata[i]);
 				m_pspread[i] = sqrt(pdata[i]);		// Abs. Error
 			}
 		}

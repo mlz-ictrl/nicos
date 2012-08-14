@@ -28,6 +28,7 @@
 #include "config.h"
 #include "helper.h"
 #include "logger.h"
+#include "globals.h"
 
 #define WAIT_DELAY 5000
 
@@ -67,6 +68,17 @@ TcpClient::TcpClient(QObject *pParent, bool bBlocking)
 	logger << "Client: Set to "
 		   << (m_bBlocking? "blocking" : "non-blocking")
 		   << " mode." << "\n";
+
+
+	// reserve max possible size (TOF image) + some padding
+	int iImgCnt = GlobalConfig::GetTofConfig().GetImageCount();
+	int iW = GlobalConfig::GetTofConfig().GetImageWidth();
+	int iH = GlobalConfig::GetTofConfig().GetImageHeight();
+	int iLargestMsgSize = iImgCnt*iW*iH*sizeof(int) + 4096;
+	m_byCurMsg.reserve(iLargestMsgSize);
+
+	//if(m_iLargestAllowedMsgSize < 0)
+	//	m_iLargestAllowedMsgSize = iLargestMsgSize;
 
 }
 
@@ -307,7 +319,8 @@ const QByteArray& TcpClient::recvmsg(void)
 	logger.green(true);
 	logger.SetCurLogLevel(LOGLEVEL_INFO);
 	logger << "[from server] length: " << iExpectedMsgLength << "B"
-		   << ", time: " << iTimeElapsed << "ms, data: " << arrMsg.data()
+		   << ", time: " << iTimeElapsed << "ms, data: "
+		   << (arrMsg.size()<512 ? arrMsg.data() : "<skipped>")
 		   << "\n";
 	logger.normal();
 
@@ -444,7 +457,7 @@ void TcpClient::readReady()
 			logger << "[from server] length: " << m_iCurMsgLength << "B"
 				   << ", time: " << iTimeElapsed << "ms, total: "
 				   << m_timer.elapsed() << "ms, data: "
-				   << m_byCurMsg.data()
+				   << (m_byCurMsg.size()<512 ? m_byCurMsg.data() : "<skipped>")
 				   << "\n";
 			logger.normal();
 

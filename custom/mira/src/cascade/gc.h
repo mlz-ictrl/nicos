@@ -30,7 +30,7 @@
 struct Gc_info
 {
 	unsigned int iLen;
-	unsigned int iRefs;
+	int iRefs;
 	std::string strDesc;
 
 	Gc_info();

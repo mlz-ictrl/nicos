@@ -23,7 +23,7 @@ class BasicImage
 //
 // PAD images
 //
-class PadImage : BasicImage
+class PadImage : BasicImage, Countable
 {
 %TypeHeaderCode
 #include "../../padloader.h"
@@ -54,7 +54,7 @@ class PadImage : BasicImage
 		// same as above, but return 0 if outside ROI (if ROI is used)
 		unsigned int GetDataInsideROI(int iX, int iY) const;
 
-		unsigned int GetCounts() const;
+		vitual unsigned int GetCounts() const;
 		unsigned int GetCounts(int iStartX, int iEndX,
 							   int iStartY, int iEndY) const;
 
@@ -142,7 +142,7 @@ class TmpGraph
 //
 // TOF images
 //
-class TofImage
+class TofImage : Countable
 {
 %TypeHeaderCode
 #include "../../tofloader.h"
@@ -170,7 +170,7 @@ class TofImage
 		// strBufLen specifies number of bytes
 		int LoadMem(const char *strBuf, unsigned int strBufLen);
 
-		unsigned int GetCounts() const;
+		virtual unsigned int GetCounts() const;
 		unsigned int GetCounts(int iStartX, int iEndX,
 							   int iStartY, int iEndY) const;
 

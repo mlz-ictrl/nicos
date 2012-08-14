@@ -142,17 +142,17 @@ bool Gc::release(void* pv)
 	t_map::iterator iter = m_map.find(pv);
 	if(iter == m_map.end())
 	{
-		//logger.SetCurLogLevel(LOGLEVEL_WARN);
-		//logger << "gc: Tried to release unreferenced mem.\n";
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "gc: Tried to release unreferenced mem.\n";
 
 		return false;
 	}
 
 	--(*iter).second.iRefs;
-	if((*iter).second.iRefs == 0)
+	if((*iter).second.iRefs <= 0)
 	{
 		if((*iter).first)
-			free((*iter).first);
+			::free((*iter).first);
 
 		m_map.erase(iter);
 	}

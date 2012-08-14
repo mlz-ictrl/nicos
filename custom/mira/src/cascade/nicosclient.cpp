@@ -26,6 +26,7 @@
 #include "nicosclient.h"
 #include "helper.h"
 #include "logger.h"
+//#include "gc.h"
 
 #define IS_PAD	1
 #define IS_TOF	0
@@ -50,21 +51,87 @@ const QByteArray& NicosClient::communicate(const char* pcMsg)
 
 	m_mutex.lock();
 	if(!sendmsg(pcMsg))
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "nicosclient: Could not send message to server.\n";
 		return m_byEmpty;
+	}
 
 	const QByteArray& arr = recvmsg();
+
+	if(arr.size()<4)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "nicosclient: Server response too short.\n";
+	}
+
 	return arr;
 }
 
-unsigned int NicosClient::counts(const QByteArray& arr)
+bool NicosClient::communicate_and_save(const char* pcMsg, const char* pcDstFile,
+										bool bSaveMsgPrefix)
 {
+	cleanup<QMutex> _cleanup(m_mutex, &QMutex::unlock);
+
+	m_mutex.lock();
+	if(!sendmsg(pcMsg))
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "nicosclient: Could not send message to server.\n";
+		return false;
+	}
+
+	const QByteArray& arr = recvmsg();
+	if(arr.size()<4)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "nicosclient: Server response too short.\n";
+		return false;
+	}
+
+	FILE *pf = fopen(pcDstFile, "wb");
+	if(!pf)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "nicosclient: Cannot open file \"" << pcDstFile << "\".\n";
+
+		return false;
+	}
+
+	unsigned int uiSize = arr.size();
+	const char* pData = arr.data();
+	if(!bSaveMsgPrefix)
+	{
+		uiSize -= 4;
+		pData += 4;
+	}
+
+
+	if(fwrite(pData, 1, uiSize, pf) != uiSize)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "nicosclient: Wrong number of bytes written to \""
+				<< pcDstFile << "\".\n";
+	}
+
+	fflush(pf);
+	fclose(pf);
+
+	return true;
+}
+
+unsigned int NicosClient::counts(const QByteArray* parr)
+{
+	if(!parr) return 0;
+	const QByteArray& arr = *parr;
+
 	if(arr.size()<4) return 0;
 
 	int iPad = IsPad(arr.data());
 	if(iPad == IS_NONE) return 0;
 	bool bPad = (iPad == IS_PAD);
 
-	if(!IsSizeCorrect(arr, bPad))
+	if(!IsSizeCorrect(&arr, bPad))
 		return 0;
 
 	if(bPad)
@@ -79,16 +146,19 @@ unsigned int NicosClient::counts(const QByteArray& arr)
 	}
 }
 
-unsigned int NicosClient::counts(const QByteArray& arr, int iStartX, int iEndX,
+unsigned int NicosClient::counts(const QByteArray* parr, int iStartX, int iEndX,
 								 int iStartY, int iEndY)
 {
+	if(!parr) return 0;
+	const QByteArray& arr = *parr;
+
 	if(arr.size()<4) return 0;
 
 	int iPad = IsPad(arr.data());
 	if(iPad == IS_NONE) return 0;
 	bool bPad = (iPad == IS_PAD);
 
-	if(!IsSizeCorrect(arr, bPad))
+	if(!IsSizeCorrect(&arr, bPad))
 		return 0;
 
 	if(bPad)
@@ -103,17 +173,20 @@ unsigned int NicosClient::counts(const QByteArray& arr, int iStartX, int iEndX,
 	}
 }
 
-bool NicosClient::contrast(const QByteArray& arr, int iFoil,
+bool NicosClient::contrast(const QByteArray* parr, int iFoil,
 							double *pC, double *pPhase,
 							double *pC_err, double *pPhase_err)
 {
+	if(!parr) return 0;
+	const QByteArray& arr = *parr;
+
 	if(arr.size()<4) return 0;
 
 	int iPad = IsPad(arr.data());
 	if(iPad == IS_NONE) return 0;
 	bool bTof = (iPad == IS_TOF);
 
-	if(!IsSizeCorrect(arr, !bTof))
+	if(!IsSizeCorrect(&arr, !bTof))
 		return false;
 
 	bool bOk = true;
@@ -131,26 +204,30 @@ bool NicosClient::contrast(const QByteArray& arr, int iFoil,
 	else
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
-		logger << "Cannot calculate MIEZE contrast/phase for PAD image.\n";
+		logger << "nicosclient: Cannot calculate MIEZE contrast/phase for PAD image.\n";
 		return false;
 	}
 
+	//gc.print();
 	return bOk;
 }
 
-bool NicosClient::contrast(const QByteArray& arr, int iFoil,
+bool NicosClient::contrast(const QByteArray* parr, int iFoil,
 							int iStartX, int iEndX,
 							int iStartY, int iEndY,
 							double *pC, double *pPhase,
 							double *pC_err, double *pPhase_err)
 {
+	if(!parr) return 0;
+	const QByteArray& arr = *parr;
+
 	if(arr.size()<4) return 0;
 
 	int iPad = IsPad(arr.data());
 	if(iPad == IS_NONE) return 0;
 	bool bTof = (iPad == IS_TOF);
 
-	if(!IsSizeCorrect(arr, !bTof))
+	if(!IsSizeCorrect(&arr, !bTof))
 		return false;
 
 	bool bOk = true;
@@ -168,22 +245,26 @@ bool NicosClient::contrast(const QByteArray& arr, int iFoil,
 	else
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
-		logger << "Cannot calculate MIEZE contrast/phase for PAD image.\n";
+		logger << "nicosclient: Cannot calculate MIEZE contrast/phase for PAD image.\n";
 		return false;
 	}
 
+	//gc.print();
 	return bOk;
 }
 
-bool NicosClient::IsSizeCorrect(const QByteArray& arr, bool bPad)
+bool NicosClient::IsSizeCorrect(const QByteArray* parr, bool bPad)
 {
+	if(!parr) return 0;
+	const QByteArray& arr = *parr;
+
 	bool bOk = true;
 	if(bPad)
 	{
 		if(m_pad.GetPadSize()*4 != arr.size()-4)
 		{
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
-			logger << "NicosClient.counts: buffer size (" << arr.size()-4
+			logger << "nicosclient: buffer size (" << arr.size()-4
 				   << " bytes) != expected PAD size (" << m_pad.GetPadSize()*4
 				   << " bytes)." << "\n";
 			bOk = false;
@@ -194,7 +275,7 @@ bool NicosClient::IsSizeCorrect(const QByteArray& arr, bool bPad)
 		if(m_tof.GetTofSize()*4 != arr.size()-4)
 		{
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
-			logger << "NicosClient.counts: buffer size (" << arr.size()-4
+			logger << "nicosclient: buffer size (" << arr.size()-4
 				   << " bytes) != expected TOF size (" << m_tof.GetTofSize()*4
 				   << " bytes)." << "\n";
 			bOk = false;

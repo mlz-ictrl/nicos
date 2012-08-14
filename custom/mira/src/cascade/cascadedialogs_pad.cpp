@@ -286,16 +286,23 @@ CountsVsImagesDlg::~CountsVsImagesDlg()
 
 void CountsVsImagesDlg::UpdateGraph()
 {
+	const int iPadCnt = listPads->count();
+	if(iPadCnt == 0)
+		return;
+
 	bool bUseRoi = groupRoi->isChecked();
 	bool bUseCurRoi = btnRoiCurrent->isChecked();
 	QString strRoiFile = editRoi->text();
 
 	PadImage pad;
+	TofImage tof;
 
 	if(bUseRoi)
 	{
 		Roi &roi = pad.GetRoi();
+		Roi &roi_tof = tof.GetRoi();
 		pad.UseRoi(true);
+		tof.UseRoi(true);
 
 		if(bUseCurRoi)
 		{
@@ -306,11 +313,13 @@ void CountsVsImagesDlg::UpdateGraph()
 				logger << "Counts Dialog: No current ROI available.\n";
 
 				pad.UseRoi(false);
+				tof.UseRoi(false);
 			}
 			else
 			{
 				// copy current roi
 				roi = *pRoi;
+				roi_tof = *pRoi;
 			}
 		}
 		else // load roi from file
@@ -322,21 +331,53 @@ void CountsVsImagesDlg::UpdateGraph()
 					   << strRoiFile.toAscii().data() << "\".\n";
 
 				pad.UseRoi(false);
+				tof.UseRoi(false);
+			}
+			else
+			{
+				roi_tof = roi;
 			}
 		}
 	}
 
-	const int iPadCnt = listPads->count();
-
 	double *pdx = new double[iPadCnt];
 	double *pdy = new double[iPadCnt];
+
+	progressBar->setMaximum(iPadCnt);
+	progressBar->setValue(0);
 
 	unsigned int uiMax = 0;
 	for(int iItem=0; iItem<iPadCnt; ++iItem)
 	{
-		QListWidgetItem* pItem = listPads->item(iItem);
+		pdx[iItem] = iItem;
+		pdy[iItem] = 0;
 
-		if(!pad.LoadFile(pItem->text().toAscii().data()))
+		QListWidgetItem* pItem = listPads->item(iItem);
+		const char* pcFile = pItem->text().toAscii().data();
+
+		progressBar->setFormat(QString("%p% - ") + pItem->text());
+
+		Countable* pcnt = 0;
+		int iLoadStatus = 0;
+		if(strcasecmp(GetFileEnding(pcFile).c_str(), "tof")==0)
+		{
+			iLoadStatus = tof.LoadFile(pcFile);
+			pcnt = &tof;
+		}
+		else if(strcasecmp(GetFileEnding(pcFile).c_str(), "pad")==0)
+		{
+			iLoadStatus = pad.LoadFile(pcFile);
+			pcnt = &pad;
+		}
+		else
+		{
+			logger.SetCurLogLevel(LOGLEVEL_WARN);
+			logger << "Counts Dialog: Invalid file extension in \""
+				   << pcFile << "\". Ignoring. \n";
+			continue;
+		}
+
+		if(!iLoadStatus)
 		{
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
 			logger << "Counts Dialog: Could not load \""
@@ -344,11 +385,13 @@ void CountsVsImagesDlg::UpdateGraph()
 			continue;
 		}
 
-		unsigned int uiCnts = pad.GetCounts();
+		unsigned int uiCnts = pcnt->GetCounts();
 		uiMax = max(uiMax, uiCnts);
 
-		pdx[iItem] = iItem;
+		//pdx[iItem] = iItem;
 		pdy[iItem] = uiCnts;
+
+		progressBar->setValue(iItem + 1);
 	}
 
 	m_curve.setData(pdx, pdy, iPadCnt);
@@ -365,7 +408,12 @@ void CountsVsImagesDlg::UpdateGraph()
 
 void CountsVsImagesDlg::RoiGroupToggled()
 {
-	UpdateGraph();
+	bool bUseRoi = groupRoi->isChecked();
+	bool bUseCurRoi = btnRoiCurrent->isChecked();
+	QString strRoiFile = editRoi->text();
+
+	if(bUseRoi && (bUseCurRoi || editRoi->text()!=""))
+		UpdateGraph();
 }
 
 void CountsVsImagesDlg::LoadRoi()
@@ -389,8 +437,8 @@ void CountsVsImagesDlg::SetRoiUseCurrent(bool bCur)
 
 void CountsVsImagesDlg::AddFile()
 {
-	QStringList pads = QFileDialog::getOpenFileNames(this, "PAD files", "",
-							"PAD Files (*.pad *.PAD);;All Files (*)");
+	QStringList pads = QFileDialog::getOpenFileNames(this, "PAD/TOF files", "",
+							"PAD/TOF Files (*.pad *.PAD *.tof *.TOF);;All Files (*)");
 
 	listPads->addItems(pads);
 	UpdateGraph();

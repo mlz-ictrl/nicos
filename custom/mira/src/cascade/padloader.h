@@ -37,7 +37,7 @@ class TmpImage;
  * container representing a PAD image
  * (corresponds to the "IMAGE" measurement type in the server & HardwareLib)
  */
-class PadImage : public BasicImage
+class PadImage : public BasicImage, public Countable
 {
 	friend class TmpImage;
 
@@ -113,7 +113,7 @@ class PadImage : public BasicImage
 		unsigned int* GetRawData(void);
 
 		// total number of counts (inside ROI, if used)
-		unsigned int GetCounts() const;
+		virtual unsigned int GetCounts() const;
 
 		// old style GetCounts, ignoring main roi
 		unsigned int GetCounts(int iStartX, int iEndX,
@@ -121,9 +121,9 @@ class PadImage : public BasicImage
 
 		const PadConfig& GetPadConfig() const;
 
-		Roi& GetRoi();
-		void UseRoi(bool bUseRoi=true);
-		bool GetUseRoi() const;
+		virtual Roi& GetRoi();
+		virtual void UseRoi(bool bUseRoi=true);
+		virtual bool GetUseRoi() const;
 
 		// filter out everything except selected regions
 		TmpImage GetRoiImage() const;

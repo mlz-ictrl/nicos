@@ -33,7 +33,7 @@
 class NicosClient : public TcpClient
 {
 	private:
-		bool IsSizeCorrect(const QByteArray& arr, bool bPad);
+		bool IsSizeCorrect(const QByteArray* arr, bool bPad);
 		int IsPad(const char* pcBuf);
 
 	protected:
@@ -48,18 +48,23 @@ class NicosClient : public TcpClient
 		// send a message to server and receive corresponding answer
 		const QByteArray& communicate(const char* pcMsg);
 
+		// same as communicate, only saves result to
+		// a file instead of returning it
+		bool communicate_and_save(const char* pcMsg, const char* pcDstFile,
+								  bool bSaveMsgPrefix=false);
+
 		// get total counts in TOF or PAD
-		unsigned int counts(const QByteArray& arr);
+		unsigned int counts(const QByteArray* arr);
 
 		// get total counts inside ROI in TOF or PAD
-		unsigned int counts(const QByteArray& arr, int iStartX, int iEndX,
+		unsigned int counts(const QByteArray* arr, int iStartX, int iEndX,
 							int iStartY, int iEndY);
 
-		bool contrast(const QByteArray& arr, int iFoil,
+		bool contrast(const QByteArray* arr, int iFoil,
 					  double *pC, double *pPhase,
 					  double *pC_err=0, double *pPhase_err=0);
 
-		bool contrast(const QByteArray& arr, int iFoil,
+		bool contrast(const QByteArray* arr, int iFoil,
 					  int iStartX, int iEndX,
 					  int iStartY, int iEndY,
 					  double *pC, double *pPhase,
