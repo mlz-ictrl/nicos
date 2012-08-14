@@ -126,7 +126,7 @@ class ConnectionHandler(BaseRequestHandler):
     """
 
     def __init__(self, request, client_address, server):
-        self.event_queue = Queue()
+        self.event_queue = Queue(50)
         self.event_mask = set()
         # bind often used daemon attributes to self
         self.daemon = server.daemon

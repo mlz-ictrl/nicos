@@ -29,6 +29,7 @@ from __future__ import with_statement
 __version__ = "$Revision$"
 
 import time
+import Queue
 import select
 import socket
 import weakref
@@ -244,7 +245,10 @@ class NicosDaemon(Device):
         if self.daemon_events[event]:
             data = serialize(data)
         for handler in self._server.handlers.values():
-            handler.event_queue.put((event, data))
+            try:
+                handler.event_queue.put((event, data))
+            except Queue.Full:
+                self.log.warning('handler %s: event queue full' % handler.ident)
 
     def start(self):
         """Start the daemon's server."""
