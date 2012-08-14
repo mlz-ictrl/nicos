@@ -72,7 +72,11 @@ class PandaExperiment(Experiment):
                                   exc=1)
         else:
             if old_proposal.startswith('p'):
-                disableDirectory(self._expdir(old_proposal))
+                try:
+                    disableDirectory(self._expdir(old_proposal))
+                except Exception:
+                    self.log.warning('could not remove permissions for old '
+                                     'experiment directory', exc=1)
             os.unlink(self._expdir('current'))
 
         # query new cycle
