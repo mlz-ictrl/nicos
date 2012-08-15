@@ -39,6 +39,8 @@ import logging
 import __builtin__
 from os import path
 
+import numpy
+
 from nicos.core.data import DataSink
 from nicos.core.device import Device
 from nicos.core.errors import NicosError, UsageError, ModeError, \
@@ -148,10 +150,19 @@ class Session(object):
         # set up logging interface
         self._initLogging()
 
+        # set up initial namespace
+        self._initNamespace()
+
     def setNamespace(self, ns):
         """Set the namespace to export commands and devices into."""
         self.namespace = ns
         self._exported_names = set()
+
+    def _initNamespace(self):
+        for name in [
+            'pi', 'sqrt', 'sin', 'cos', 'tan', 'arcsin', 'arccos', 'arctan',
+            'exp', 'log', 'radians', 'degrees', 'ceil', 'floor', 'sqrt']:
+            self.namespace[name] = getattr(numpy, name)
 
     @property
     def mode(self):
