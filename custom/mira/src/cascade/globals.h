@@ -28,7 +28,11 @@
 
 // use minuit for fits?
 #define USE_MINUIT
-// #define USE_BOOST
+
+#ifdef __CASCADE_QT_CLIENT__
+	#define USE_FFTW
+	// #define USE_BOOST
+#endif
 
 #define LOAD_SUCCESS		 1
 #define LOAD_FAIL			 0

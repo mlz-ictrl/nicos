@@ -1170,6 +1170,10 @@ class MainWindow : public QMainWindow
 			strAbout += QString("\n") + QString("Uses Minuit 2\t\thttp://root.cern.ch");
 			#endif
 
+			#ifdef USE_FFTW
+			strAbout += QString("\n") + QString("Uses FFTW 3\t\thttp://www.fftw.org");
+			#endif			
+
 			#ifdef USE_BOOST
 			strAbout += QString("\n") + QString("Uses Boost\t\thttp://www.boost.org");
 			#endif

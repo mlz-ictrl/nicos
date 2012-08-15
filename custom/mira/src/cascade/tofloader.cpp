@@ -36,6 +36,7 @@
 #include "helper.h"
 #include "fit.h"
 #include "gc.h"
+#include "fourier.h"
 
 #include "tofloader_graph.cpp"
 #include "tofloader_image.cpp"
@@ -550,34 +551,35 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 	memset(puiData, 0, sizeof(int)*iNumTc);
 
 
+	double *pDataFoil = new double[iNumTc];
+	double *pDataFoilShifted = new double[iNumTc];
+	double *pDataSum = new double[iNumTc];
+	
+	memset(pDataSum, 0, sizeof(double)*iNumTc);
+
 	for(int iFoil=0; iFoil<GetTofConfig().GetFoilCount();++iFoil)
 	{
-		double dPhase = 0.;
-		// if pPhases==0 use internal configuration in TofConfig
-		if(pPhases)
-			dPhase = pPhases[iFoil];
-		else
-			dPhase = GetTofConfig().GetFoilPhase(iFoil);
-
 		for(int iTc=0; iTc<iNumTc; ++iTc)
 		{
-			double dOldPhase = double(iTc+0.5)/dNumTc * 2.*M_PI * dNumOsc;
-			double dNewPhase = dOldPhase + 2.*M_PI-dPhase;
-
-			dNewPhase = fmod(dNewPhase, 2.*M_PI * dNumOsc);
-
-			int iNewTc = int(dNewPhase / (2.*M_PI*dNumOsc) * dNumTc);
-
-			//std::cout << iTc << " -> " << iNewTc << " -- " << dPhase <<  std::endl;
-
-			if(iNewTc < 0) iNewTc = 0;
-			if(iNewTc >= iNumTc) iNewTc = iNumTc-1;
-
+			pDataFoil[iTc] = 0.;
 			for(int iY=iStartY; iY<iEndY; ++iY)
 				for(int iX=iStartX; iX<iEndX; ++iX)
-					puiData[iNewTc] += GetDataInsideROI(iFoil, iTc, iX, iY);
+					pDataFoil[iTc] += GetDataInsideROI(iFoil, iTc, iX, iY);
 		}
+		
+		shift_sin(iNumTc, dNumOsc, pDataFoil, pDataFoilShifted, pPhases[iFoil]);
+
+		// sum all foils
+		for(int iTc=0; iTc<iNumTc; ++iTc)
+			pDataSum[iTc] += pDataFoil[iTc];
 	}
+
+	delete[] pDataSum;
+	delete[] pDataFoilShifted;
+	delete[] pDataFoil;
+
+	for(int iTc=0; iTc<iNumTc; ++iTc)
+		puiData[iTc] = (unsigned int)(pDataSum[iTc]);
 
 	return graph;
 }

@@ -20,6 +20,42 @@ class BasicImage
 		virtual double GetDoubleMax() const = 0;
 };
 
+class Roi
+{
+%TypeHeaderCode
+#include "../../roi.h"
+%End
+
+	public:
+		Roi();
+		Roi(const Roi& roi);
+
+		virtual ~Roi();
+
+		// is point (dX, dY) inside roi?
+		bool IsInside(double dX, double dY) const;
+
+		// what fraction (0.0 .. 1.0) of pixel (iX, iY) is inside roi?
+		double HowMuchInside(int iX, int iY) const;
+
+		bool Load(const char* pcFile);
+		bool Save(const char* pcFile);
+};
+
+class Countable
+{
+%TypeHeaderCode
+#include "../../basicimage.h"
+%End
+
+	public:
+		virtual unsigned int GetCounts() const = 0;
+		virtual Roi& GetRoi() = 0;
+		virtual void UseRoi(bool bUseRoi=true) = 0;
+		virtual bool GetUseRoi() const = 0;
+};
+
+
 //
 // PAD images
 //
@@ -54,7 +90,7 @@ class PadImage : BasicImage, Countable
 		// same as above, but return 0 if outside ROI (if ROI is used)
 		unsigned int GetDataInsideROI(int iX, int iY) const;
 
-		vitual unsigned int GetCounts() const;
+		virtual unsigned int GetCounts() const;
 		unsigned int GetCounts(int iStartX, int iEndX,
 							   int iStartY, int iEndY) const;
 

@@ -15,8 +15,9 @@
 
 COMPILER	= gcc
 FLAGS		= -O2 -march=native -Wall -Wextra -D __CASCADE_QT_CLIENT__
-LIBS		= -lQtCore -lQtGui -lQtNetwork -lqwt -lMinuit2 -lgomp -lxml2 -lstdc++ -lm  \
-                  -L /usr/lib/qt4
+LIBS		= -lQtCore -lQtGui -lQtNetwork -lqwt -lMinuit2 -lgomp -lxml2 \
+		   -lstdc++ -lm -lfftw3 \
+		   -L /usr/lib/qt4
 INCLUDES	= -I /usr/include/qwt -I /usr/include/qwt5 -I /usr/include/qt4 \
                   -I /usr/include/Qt -I /usr/include/QtCore -I /usr/include/QtGui \
                   -I /usr/include/qt4/Qt -I /usr/include/qt4/QtCore -I /usr/include/qt4/QtGui \
@@ -30,11 +31,11 @@ all: cascade nicosmodules
 ###################### cascade-qt-client ################
 cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o \
 	 config.o histogram_item.o client.o helper.o logger.o globals.o parse.o \
-	roi.o fit.o gc.o plotter.o padloader.o
+	roi.o fit.o gc.o plotter.o padloader.o fourier.o
 	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o \
 		bins.o cascadewidget.o tofloader.o tofdata.o config.o \
 		histogram_item.o client.o helper.o logger.o globals.o \
-		parse.o roi.o fit.o gc.o plotter.o padloader.o
+		parse.o roi.o fit.o gc.o plotter.o padloader.o fourier.o
 #########################################################
 
 
@@ -66,6 +67,9 @@ padloader.o: padloader.cpp padloader.h
 
 tofdata.o: tofdata.cpp tofdata.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o tofdata.o tofdata.cpp
+
+fourier.o: fourier.cpp fourier.h
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o fourier.o fourier.cpp
 
 config.o: config.cpp config.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o config.o config.cpp
