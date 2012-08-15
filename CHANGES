@@ -3,6 +3,8 @@ Changelog for NICOS 2
 
 **Release 2.2.0**
 
+  - Added basic mathematical functions and constants in the default namespace.
+
   - Added "resplot" and "hklplot" commands for TAS instruments, which are
     interactive resolution calculation and reciprocal space map helpers.
 
