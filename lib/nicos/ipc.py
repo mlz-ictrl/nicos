@@ -1076,6 +1076,11 @@ class Input(Readable):
                        mandatory=True),
     }
 
+    parameter_overrides = {
+        'unit':  Override(mandatory=False, default=''),
+        'fmtstr': Override(default='%d'),
+    }
+
     attached_devices = {
         'bus': (IPCModBus, 'The communication bus'),
     }
@@ -1084,7 +1089,7 @@ class Input(Readable):
         self._mask = ((1 << (self.last - self.first + 1)) - 1) << self.first
 
     def doRead(self, maxage=0):
-        high = self._adevs['bus'].get(self.addr, 181)
+        high = self._adevs['bus'].get(self.addr, 181) << 8
         low  = self._adevs['bus'].get(self.addr, 180)
         return ((high + low) & self._mask) >> self.first
 
