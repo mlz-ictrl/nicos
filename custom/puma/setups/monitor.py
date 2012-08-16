@@ -33,17 +33,25 @@ analyzer = ('Analyzer', [
      {'dev': 'ath', 'name': 'ath (A5)', 'unit': ''}, {'dev': 'att', 'name': 'att (A6)', 'unit': ''}],
 ])
 
+column1 = [
+#    filters,
+    primary,
+    sample,
+    analyzer,
+]
+
 collimation = ('Collimation and Lengths', [
     ['ca1', 'ca2', 'ca3', 'ca4'],
     [{'dev': 'lsm', 'name': 'Src->Mono', 'unit': ''}, {'dev': 'lms', 'name': 'Mono->Samp', 'unit': ''},
      {'dev': 'lsa', 'name': 'Samp->Ana', 'unit': ''}, {'dev': 'lad', 'name': 'Samp->Det', 'unit': ''}],
 ])
 
-column1 = [filters, primary, sample, analyzer]
-
 detector = ('Detector', [
     ['timer', {'dev':'mon1', 'format':'%d'}, {'dev':'mon2', 'format':'%d'}],
-    [{'dev':'det1', 'format': '%d'}, {'dev':'det2', 'format': '%d'}],
+    [{'dev':'det1', 'format': '%d'}, {'dev':'det2', 'format': '%d'},
+     {'dev':'det3', 'format': '%d'}],
+    [{'dev':'det4', 'format': '%d'}, {'dev':'det5', 'format': '%d'}],
+
 ])
 
 lakeshore = ('LakeShore', [
@@ -52,7 +60,11 @@ lakeshore = ('LakeShore', [
      {'key': 't/i', 'name': 'I', 'width': 5}, {'key': 't/d', 'name': 'D', 'width': 5}],
 ])
 
-column2 = [collimation, detector, lakeshore]
+column2 = [
+#    collimation,
+    detector,
+    lakeshore,
+]
 
 devices = dict(
     Monitor = device('nicos.monitor.qt.Monitor',
