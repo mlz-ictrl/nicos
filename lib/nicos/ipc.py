@@ -1196,8 +1196,7 @@ class SlitMotor(NicosMotor):
            self.doStatus()[0] != status.ERROR:
             return
         self.log.info('blade is blocked or not initialized, moving to reset '
-                      'position %s %s' %
-                      (self.format(self.resetpos), self.unit))
+                      'position %s' % self.format(self.resetpos, unit=True))
         steps = self._tosteps(self.resetpos)
         self._adevs['bus'].send(self.addr, self.side+160, steps, 4)
         sleep(0.3)

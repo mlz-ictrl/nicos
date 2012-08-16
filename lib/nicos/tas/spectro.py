@@ -122,8 +122,8 @@ class TAS(Instrument, Moveable):
             else:
                 ok, why = dev.isAllowed(value)
             if not ok:
-                return ok, 'target position %s %s outside limits for %s: %s' % \
-                       (dev.format(value), dev.unit, dev, why)
+                return ok, 'target position %s outside limits for %s: %s' % \
+                       (dev.format(value, unit=True), dev, why)
         return True, ''
 
     def doStart(self, pos):
@@ -232,8 +232,8 @@ class TAS(Instrument, Moveable):
                 devok, devwhy = dev.isAllowed(value)
             if not devok:
                 ok = False
-                why += 'target position %s %s outside limits for %s: %s -- ' % \
-                    (dev.format(value), dev.unit, dev, devwhy)
+                why += 'target position %s outside limits for %s: %s -- ' % \
+                    (dev.format(value, unit=True), dev, devwhy)
         self._last_calpos = pos
         self.log.info('ki:            %8.3f A-1' % angles[0])
         self.log.info('kf:            %8.3f A-1' % angles[1])

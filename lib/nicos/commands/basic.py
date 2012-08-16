@@ -584,9 +584,9 @@ def _RunScript(filename, statdevices, debug=False):
         for dev in statdevices:
             if not isinstance(dev, Readable):
                 continue
-            printinfo('%s: min %s, max %s, last %s' % (
+            printinfo('%s: min %s, max %s, last %s %s' % (
                 dev.name, dev.format(dev._sim_min), dev.format(dev._sim_max),
-                dev.format(dev._sim_value)))
+                dev.format(dev._sim_value), dev.unit))
 
 
 @usercommand

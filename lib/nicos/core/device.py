@@ -924,10 +924,10 @@ class Readable(Device):
             self.doReset()
         return self.status(0)
 
-    def format(self, value):
+    def format(self, value, unit=False):
         """Format a value from :meth:`read` into a human-readable string.
 
-        The device unit is not included.
+        The device unit is not included unless *unit* is true.
 
         This is done using Python string formatting (the ``%`` operator) with
         the :attr:`fmtstr` parameter value as the format string.
@@ -935,9 +935,12 @@ class Readable(Device):
         if isinstance(value, list):
             value = tuple(value)
         try:
-            return self.fmtstr % value
+            ret = self.fmtstr % value
         except (TypeError, ValueError):
-            return str(value)
+            ret = str(value)
+        if unit and self.unit:
+            return ret + ' ' + self.unit
+        return ret
 
     def history(self, name='value', fromtime=None, totime=None):
         """Return a history of the parameter *name* (can also be ``'value'`` or
@@ -975,7 +978,7 @@ class Readable(Device):
         """Automatically add device main value and status (if not OK)."""
         try:
             val = self.read()
-            yield ('general', 'value', self.format(val) + ' ' + self.unit)
+            yield ('general', 'value', self.format(val, unit=True))
         except Exception, err:
             self.log.warning('error reading device for info()', exc=err)
             yield ('general', 'value', 'Error: %s' % err)
@@ -1096,7 +1099,7 @@ class Moveable(Readable):
         ok, why = self.isAllowed(pos)
         if not ok:
             raise LimitError(self, 'moving to %s is not allowed: %s' %
-                             (self.format(pos), why))
+                             (self.format(pos, unit=True), why))
         self._setROParam('target', pos)
         if self._sim_active:
             self._sim_setValue(pos)
@@ -1312,7 +1315,7 @@ class HasLimits(Moveable):
         if not value[0] <= curval <= value[1]:
             self.log.warning('current device value (%s) not within new '
                               'userlimits (%s, %s)' %
-                              ((self.format(curval),) + value))
+                              ((self.format(curval, unit=True),) + value))
 
     def _adjustLimitsToOffset(self, value, diff):
         """Adjust the user limits to the given offset.

@@ -208,7 +208,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         ok, why = ttdev.isAllowed(ttvalue)
         if not ok:
             return ok, '[%s] moving to %s, ' % (
-                ttdev, ttdev.format(ttvalue)) + why
+                ttdev, ttdev.format(ttvalue, unit=True)) + why
         return True, ''
 
     def doRead(self, maxage=0):

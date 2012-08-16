@@ -65,7 +65,7 @@ def move(*dev_pos_list):
     >>> wait(dev, dev1, dev2)          # now wait for all of them
     """
     for dev, pos in _devposlist(dev_pos_list, Moveable):
-        dev.log.info('moving to', dev.format(pos), dev.unit)
+        dev.log.info('moving to', dev.format(pos, unit=True))
         dev.move(pos)
 
 @hiddenusercommand
@@ -87,7 +87,7 @@ def maw(*dev_pos_list):
     """
     devs = []
     for dev, pos in _devposlist(dev_pos_list, Moveable):
-        dev.log.info('moving to', dev.format(pos), dev.unit)
+        dev.log.info('moving to', dev.format(pos, unit=True))
         dev.move(pos)
         devs.append(dev)
     for dev in devs:
@@ -363,8 +363,8 @@ def adjust(dev, value, newvalue=None):
     else:
         diff = value - newvalue
     dev.offset += diff
-    dev.log.info('adjusted to %s %s, new offset is %.3f' %
-                 (dev.format(value), dev.unit, dev.offset))
+    dev.log.info('adjusted to %s, new offset is %.3f' %
+                 (dev.format(value, unit=True), dev.offset))
 
 @usercommand
 @helparglist('dev, ...')
