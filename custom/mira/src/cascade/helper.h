@@ -46,6 +46,31 @@ template<class T> class cleanup
 
 };
 
+
+// deletes an object when going out of scope
+template<class T> class autodeleter
+{
+protected:
+	T *m_t;
+	bool m_bIsArray;
+
+public:
+	autodeleter(T* t, bool bIsArray=false) : m_t(t), m_bIsArray(bIsArray)
+	{}
+
+	~autodeleter()
+	{
+		if(m_t)
+		{
+			if(m_bIsArray)
+				delete[] m_t;
+			else
+				delete m_t;
+			m_t = 0;
+		}
+	}
+};
+
 //------------------------------------------------------------------------------
 
 // file size

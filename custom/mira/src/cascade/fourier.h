@@ -24,12 +24,25 @@
 #ifndef __FOURIER__
 #define __FOURIER__
 
-bool fft(int iSize, const double* pRealIn, const double *pImagIn,
-							double *pRealOut, double *pImagOut);
-bool ifft(int iSize, const double* pRealIn, const double *pImagIn,
-							double *pRealOut, double *pImagOut);
+class Fourier
+{
+	protected:
+		unsigned int m_iSize;
+		void *m_pIn, *m_pOut;
+		void *m_pPlan, *m_pPlan_inv;
 
-// shift a sine given in pDatIn by dPhase
-bool shift_sin(int iSize, double dNumOsc, const double* pDatIn,
-				double *pDataOut, double dPhase);
+	public:
+		Fourier(unsigned int iSize);
+		virtual ~Fourier();
+
+		bool fft(const double* pRealIn, const double *pImagIn,
+									double *pRealOut, double *pImagOut);
+		bool ifft(const double* pRealIn, const double *pImagIn,
+									double *pRealOut, double *pImagOut);
+
+		// shift a sine given in pDatIn by dPhase
+		bool shift_sin(double dNumOsc, const double* pDatIn,
+						double *pDataOut, double dPhase);
+};
+
 #endif

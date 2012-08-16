@@ -557,6 +557,8 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 	
 	memset(pDataSum, 0, sizeof(double)*iNumTc);
 
+	Fourier fourier(iNumTc);
+
 	for(int iFoil=0; iFoil<GetTofConfig().GetFoilCount();++iFoil)
 	{
 		for(int iTc=0; iTc<iNumTc; ++iTc)
@@ -567,7 +569,7 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 					pDataFoil[iTc] += GetDataInsideROI(iFoil, iTc, iX, iY);
 		}
 		
-		shift_sin(iNumTc, dNumOsc, pDataFoil, pDataFoilShifted, pPhases[iFoil]);
+		fourier.shift_sin(dNumOsc, pDataFoil, pDataFoilShifted, pPhases[iFoil]);
 
 		// sum all foils
 		for(int iTc=0; iTc<iNumTc; ++iTc)
