@@ -7,16 +7,16 @@ from scipy.fftpack import *
 import matplotlib.pyplot as plt
 
 samples = 64
-omega = 2       # num_osc
+omega = 1       # num_osc
 
-amp = 5
-offs = 7
+amp = 2
+offs = 5
+phase = 0
 shift = np.pi
 
 k = np.linspace(0, samples-1, samples)
 t = np.linspace(0, 2.*np.pi, samples)
-y = amp*np.sin(omega*t) + offs
-
+y = amp*np.sin(omega*t + phase) + offs
 #print 'y = ' + str(y)
 
 shift_samples = shift/(2.*np.pi) * samples
@@ -36,25 +36,24 @@ y_ifft = ifft(y_fft_shift)
 #print 'Re(y_ifft) = ' + str(np.real(y_ifft))
 #print 'offs = ' + str(y_fft_shift[0]/samples)
 
+#print np.angle(y_fft[omega]) + np.pi/2 - 0.5/samples * 2.*np.pi
+
 
 plt.figure()
-
 plt.plot(t, y, 'o-', label='original')
 plt.plot(t, np.real(y_ifft), 'o-', label='shifted')
-    
 plt.grid(True)
 plt.legend(loc='best')
 
-
+plt.figure()
+plt.plot(t, np.real(y_fft), 'o-', label='fft, real, original')
+plt.plot(t, np.real(y_fft_shift), 'o-', label='fft, real, shifted')
+plt.grid(True)
+plt.legend(loc='best')
 
 plt.figure()
-
-plt.plot(t, np.real(y_fft), 'o-', label='fft, real, original')
-#plt.plot(t, np.imag(y_fft), 'o-', label='fft, imag, original')
-
-plt.plot(t, np.real(y_fft_shift), 'o-', label='fft, real, shifted')
-#plt.plot(t, np.imag(y_fft_shift), 'o-', label='fft, imag, shifted')
-
+plt.plot(t, np.imag(y_fft), 'o-', label='fft, imag, original')
+plt.plot(t, np.imag(y_fft_shift), 'o-', label='fft, imag, shifted')
 plt.grid(True)
 plt.legend(loc='best')
 

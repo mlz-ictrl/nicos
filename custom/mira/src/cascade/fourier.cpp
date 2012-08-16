@@ -241,7 +241,13 @@ bool Fourier::get_contrast(double dNumOsc, const double* pDatIn,
 	//std::cout << "offs = " << dOffs << std::endl;
 
 	dC = dAmp/dOffs;
-	dPh = 0.;	// TODO
+	dPh = atan2(dImag, dReal) + M_PI/2.;
+
+	// half of first bin
+	//dPh += - 0.5/dNumOsc * 2.*M_PI;
+
+	if(dPh<0.)
+		dPh += 2.*M_PI;
 
 	return true;
 }

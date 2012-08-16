@@ -662,6 +662,7 @@ TmpImage TofImage::GetFoil(int iFoil, bool bOnlyInRoi) const
 TmpImage TofImage::GetPhaseGraph(int iFolie, bool bInDeg) const
 {
 	TmpImage img(&m_config);
+	bool bUseFourierMethod = GlobalConfig::GetUseFFT();
 
 	int iStartX = 0,
 		iStartY = 0,
@@ -689,17 +690,46 @@ TmpImage TofImage::GetPhaseGraph(int iFolie, bool bInDeg) const
 	}
 	img.m_pdDaten = pdWave;
 
+	int iTc = GetTofConfig().GetImagesPerFoil();
+	double dNumOsc = GetTofConfig().GetNumOscillations();
+
+	Fourier *pFourier = 0;
+	double *dIn = 0;
+	if(bUseFourierMethod)
+	{
+		dIn = new double[iTc];
+		pFourier = new Fourier(iTc);
+	}	
+
 	for(int iY=iStartY; iY<iEndY; iY+=YSIZE)
 		for(int iX=iStartX; iX<iEndX; iX+=XSIZE)
 		{
 			//std::cout << "x=" << iX << ", y=" << iY << std::endl;
 			TmpGraph tmpGraph = GetGraph(iX, iX+XSIZE, iY, iY+YSIZE, iFolie);
+			double dPhase = 0.;
 
-			double dFreq, dPhase, dAmp, dOffs;
-			bool bFitValid = tmpGraph.FitSinus(dFreq, dPhase, dAmp, dOffs);
+			if(bUseFourierMethod)
+			{
+				if(!tmpGraph.IsLowerThan(GlobalConfig::GetMinCountsToFit()))
+				{
+					for(int i=0; i<iTc; ++i)
+						dIn[i] = tmpGraph.GetData(i);
 
-			if(!bFitValid || dPhase!=dPhase)
-				dPhase = 0.;
+					double dContrast;
+					pFourier->get_contrast(dNumOsc, dIn, dContrast, dPhase);
+
+					//if(dContrast > 1.) dContrast = 0.;
+					if(dContrast != dContrast) dContrast = 0.;
+				}
+			}
+			else
+			{
+				double dFreq, dAmp, dOffs;
+				bool bFitValid = tmpGraph.FitSinus(dFreq, dPhase, dAmp, dOffs);
+
+				if(!bFitValid || dPhase!=dPhase)
+					dPhase = 0.;
+			}
 
 			if(bInDeg) dPhase = dPhase*180./M_PI;
 
@@ -707,6 +737,12 @@ TmpImage TofImage::GetPhaseGraph(int iFolie, bool bInDeg) const
 				for(int j=0; j<XSIZE; ++j)
 					pdWave[(iY-iStartY+i)*img.m_iW+(iX-iStartX+j)] = dPhase;
 		}
+
+	if(bUseFourierMethod)
+	{
+		delete[] dIn;
+		delete pFourier;
+	}
 
 	return img;
 }
@@ -769,13 +805,8 @@ TmpImage TofImage::GetContrastGraph(int iFoil) const
 
 					pFourier->get_contrast(dNumOsc, dIn, dContrast, dPhase);
 				
-					if(dContrast > 1.) dContrast = 0.;
+					//if(dContrast > 1.) dContrast = 0.;
 					if(dContrast != dContrast) dContrast = 0.;
-				}
-				else
-				{
-					dContrast = 0.;
-					dPhase = 0.;
 				}
 			}
 			else

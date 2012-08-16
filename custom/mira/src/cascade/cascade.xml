@@ -33,10 +33,10 @@
 
 	<graphs>
 		<phase_block_size_x> 1 </phase_block_size_x>
-		<phase_block_size_y> 2 </phase_block_size_y>
+		<phase_block_size_y> 1 </phase_block_size_y>
 
-		<contrast_block_size_x> 2 </contrast_block_size_x>
-		<contrast_block_size_y> 2 </contrast_block_size_y>
+		<contrast_block_size_x> 1 </contrast_block_size_x>
+		<contrast_block_size_y> 1 </contrast_block_size_y>
 
 		<bin_count> 100  </bin_count>
 		<log_lower_range> -1.0 </log_lower_range>
@@ -82,7 +82,7 @@
 		<strategy> 1 </strategy>
 
 		<use_fft_method_instead> 1 </use_fft_method_instead>
-	        <min_counts> 50  </min_counts>
+	        <min_counts> 25  </min_counts>
 	</minuit>
 
 </cascade_config>
