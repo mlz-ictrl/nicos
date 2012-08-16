@@ -1,106 +1,93 @@
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Georg Brandl <georg.brandl@frm2.tum.de>
+#
+# *****************************************************************************
 
-from nicos.core import Moveable, Readable, Param, status, NicosError, waitForStatus
+"""Class for PUMA attenuator consisting of different filter thicknesses."""
+
+__version__ = "$Revision$"
 
 import time
+
+from nicos.core import Moveable, Readable, status, NicosError, PositionError
+
 
 class Attenuator(Moveable):
 
     attached_devices = {
-        'io_status':    (Readable, 'readout for the status'),
-        'io_set':       (Moveable, 'output to set'),
-        'io_press':     (Readable, '...'),
+        'io_status':  (Readable, 'readout for the current status'),
+        'io_set':     (Moveable, 'output to set new value'),
+        'io_press':   (Readable, 'input for air pressure (not used)'),
     }
-
-    #parameters = {
-    #   'timeout':  Param('Timeout', unit='s', default=10),
-    #}
 
     def doInit(self, mode):
         self._filterlist = [1, 2, 5, 10, 20]
-        self._filmax = sum(self._filterlist)
 
-        if mode == 'simulation':
+    def doStart(self, position):
+        # already there?
+        if position == self.read(0):
             return
+        # if self.io_press == 0:
+        #     raise NicosError('no air pressure; cannot move attenuator')
+        # calculate bit pattern to set
+        bits = 0
+        for i, thick in enumerate(self._filterlist[::-1]):
+            if position > thick:
+                bits += 1 << i
+                position -= thick
+        self._adevs['io_set'].move(bits)
+        time.sleep(3)
+        # check that all filters have arrived
+        if self.doStatus()[0] != status.OK:
+            raise NicosError('attenuator returned wrong position')
+        # print note if desired position is not available
+        if position > 0:
+            self.log.info('requested filter combination not possible; switched '
+                'to %s thickness' % self.format(self.doRead(), unit=True))
+
+    def doReset(self):
         stat1 = self._adevs['io_status'].doRead()
         stat2 = 0
         for i in range(0, 5):
-            stat2 += (((stat1 >> (2*i+1)) &1) << i)
+            stat2 += ((stat1 >> (2*i + 1)) & 1) << i
         self._adevs['io_set'].move(stat2)
-        self.log.debug("device status read from hardware: %s" % stat1)
-        self.log.debug("device status sent to hardware: %s" % stat2)
-
-    def doStart(self, position):
-        try:
-            actpos = position
-            if position == self.read(0):
-                return
-            if position > self._filmax:
-                self.log.info('exceeding maximum filter thickness; switch to maximum %d %s'
-                              % (self._filmax, self.unit))
-                position = self._filmax
-              
-            if self.doStatus()[0] == status.ERROR:
-                raise NicosError('inconsistence of attenuator status, check device!')
- 
-#                if self.io_press == 0:
-#                    msg = 'no air pressure; cannot move attenuator'
-#                    raise DeviceUndefinedError(msg)
-            result = 0
-            temp = 0
-            for i in range (4, -1, -1):
-                temp = (position - position % self._filterlist[i])
-                if temp > 0:
-                    result += 2**i
-                    position -= self._filterlist[i]
-
-                self.log.debug("position: %d, temp: %d result: %d, filterlist[i]: %d" \
-                     % (position, temp, result, self._filterlist[i]))
-            self._adevs['io_set'].move(result)
-            time.sleep(3)
-
-            if self.doStatus()[0] != status.OK:
-                raise NicosError('attenuator returned wrong position')
-
-            if self.read(0) < actpos:
-                self.log.info('requested filter combination not possible; switched to %r %s thickness:' \
-                              % (self.doRead(), self.unit))
-        finally:
-            self.log.info('new attenuation: %s %s' % (self.read(), self.unit))
+        self.log.info('device status read from hardware: %s' % stat1)
+        self.log.info('device status sent to hardware: %s' % stat2)
 
     def doRead(self, maxage=0):
-        if self.doStatus()[0] == status.OK:
-            result = 0
-            fil = 0
-            readvalue = self._adevs['io_status'].doRead()
-            for i in range(0, 5):
-                fil = (readvalue >> (i*2+1)) & 1
-                self.log.debug("filterstatus of %d: %d" % (i, fil))
-                if fil == 1:
-                    result += self._filterlist[i]
-            return result
-        else:
-            raise NicosError('device undefined; check it!')
-
-    def doReset(self):
-        self.start(0)
+        if self.doStatus()[0] != status.OK:
+            raise PositionError('device undefined; check it!')
+        readvalue = self._adevs['io_status'].read(0.2)
+        return sum(self._filterlist[i] for i in range(0, 5)
+                   if (readvalue >> (i*2+1)) & 1)
 
     def doStatus(self, maxage=0):
-        stat1 = self._adevs['io_set'].doRead()
-        checkstatus = self._checkstatus()
-        stat2 = checkstatus[0] + checkstatus[1]
-        stat3 = checkstatus[0]
-        if (abs(stat1 - stat3) == 0) and stat2 == 31:
-            return (status.OK, 'idle')
-        else:
-            return (status.ERROR, 'device undefined, please check')
-  
-    def _checkstatus(self):
-        stat1 = self._adevs['io_status'].doRead()
+        stat1 = self._adevs['io_status'].read(maxage)
         stat2 = 0
         stat3 = 0
         for i in range(5):
-            stat2 += (((stat1 >> (2*i+1)) &1) << i)
-            stat3 += (((stat1 >> (2*i)) &1) << i)
-#            if self.debug == 1:
-#                print "%d,  %d,     %d" %(stat1, stat2, stat3)
-        return (stat2, stat3)
+            stat2 += ((stat1 >> (2*i+1)) & 1) << i
+            stat3 += ((stat1 >> (2*i)) & 1) << i
+        if (abs(stat1 - stat3) == 0) and stat2 + stat3 == 31:
+            return (status.OK, 'idle')
+        else:
+            return (status.ERROR, 'position undefined, please check')
