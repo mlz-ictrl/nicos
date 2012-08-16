@@ -714,6 +714,7 @@ TmpImage TofImage::GetPhaseGraph(int iFolie, bool bInDeg) const
 TmpImage TofImage::GetContrastGraph(int iFoil) const
 {
 	TmpImage img(&m_config);
+	bool bUseFourierMethod = GlobalConfig::GetUseFFT();
 
 	int iStartX = 0,
 		iStartY = 0,
@@ -741,22 +742,62 @@ TmpImage TofImage::GetContrastGraph(int iFoil) const
 		return img;
 	}
 
+	int iTc = GetTofConfig().GetImagesPerFoil();
+	double dNumOsc = GetTofConfig().GetNumOscillations();
+	
+	Fourier *pFourier = 0;
+	double *dIn = 0;
+	if(bUseFourierMethod)
+	{
+		dIn = new double[iTc];
+		pFourier = new Fourier(iTc);
+	}
+
 	for(int iY=iStartY; iY<iEndY; iY+=YSIZE)
 		for(int iX=iStartX; iX<iEndX; iX+=XSIZE)
 		{
 			TmpGraph tmpGraph = GetGraph(iX, iX+XSIZE, iY, iY+YSIZE, iFoil);
+			double dContrast = 0.;
+			double dPhase = 0.;
 
-			double dFreq, dPhase, dAmp, dOffs;
-			bool bFitValid = tmpGraph.FitSinus(dFreq, dPhase, dAmp, dOffs);
+			if(bUseFourierMethod)
+			{
+				if(!tmpGraph.IsLowerThan(GlobalConfig::GetMinCountsToFit()))
+				{
+					for(int i=0; i<iTc; ++i)
+						dIn[i] = tmpGraph.GetData(i);
 
-			double dContrast = fabs(dAmp/dOffs);
-			if(!bFitValid || dContrast!=dContrast)
-				dContrast = 0.;
+					pFourier->get_contrast(dNumOsc, dIn, dContrast, dPhase);
+				
+					if(dContrast > 1.) dContrast = 0.;
+					if(dContrast != dContrast) dContrast = 0.;
+				}
+				else
+				{
+					dContrast = 0.;
+					dPhase = 0.;
+				}
+			}
+			else
+			{
+				double dFreq, dPhase, dAmp, dOffs;
+				bool bFitValid = tmpGraph.FitSinus(dFreq, dPhase, dAmp, dOffs);
 
+				dContrast = fabs(dAmp/dOffs);
+				if(!bFitValid || dContrast!=dContrast)
+					dContrast = 0.;
+			}
+			
 			for(int i=0; i<YSIZE; ++i)
 				for(int j=0; j<XSIZE; ++j)
 					pdWave[(iY-iStartY+i)*img.m_iW+(iX-iStartX+j)]=dContrast;
 		}
+
+	if(bUseFourierMethod)
+	{
+		delete[] dIn;
+		delete pFourier;
+	}
 
 	return img;
 }

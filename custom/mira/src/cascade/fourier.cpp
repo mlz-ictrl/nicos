@@ -68,6 +68,9 @@ Fourier::~Fourier()
 	fftw_destroy_plan(*(fftw_plan*)m_pPlan);
 	fftw_destroy_plan(*(fftw_plan*)m_pPlan_inv);
 
+	gc.release(m_pPlan);
+	gc.release(m_pPlan_inv);
+
 	fftw_free(m_pIn);
 	fftw_free(m_pOut);
 }
@@ -149,7 +152,6 @@ bool Fourier::ifft(const double* pRealIn, const double *pImagIn,
 
 #endif	// USE_FFTW
 
-
 bool Fourier::shift_sin(double dNumOsc, const double* pDatIn,
 				double *pDataOut, double dPhase)
 {
@@ -173,14 +175,17 @@ bool Fourier::shift_sin(double dNumOsc, const double* pDatIn,
 	if(!fft(pDatIn, pZero, pDatFFT_real, pDatFFT_imag))
 		return false;
 
+	// filter out everything not concerning the sine with iNumOsc oscillations
 	for(unsigned int i=0; i<iSize; ++i)
 	{
-		if(i==iNumOsc) continue;
+		if(i==iNumOsc || i==0)
+			continue;
 
 		pDatFFT_real[i] = 0.;
 		pDatFFT_imag[i] = 0.;		
 	}
 
+	// amp & phase
 	std::complex<double> c(pDatFFT_real[iNumOsc], pDatFFT_imag[iNumOsc]);
 	c *= 2.;
 	double dMult = -2.*M_PI/dSize * dShiftSamples;
@@ -189,9 +194,13 @@ bool Fourier::shift_sin(double dNumOsc, const double* pDatIn,
 	pDatFFT_real[iNumOsc] = c.real();
 	pDatFFT_imag[iNumOsc] = c.imag();
 
+	// offset
+	pDatFFT_imag[0] = 0.;
+
 
 	if(!ifft(pDatFFT_real, pDatFFT_imag, pDataOut, pZero))
 		return false;
+
 
 	// normalization
 	for(unsigned int i=0; i<iSize; ++i)
@@ -201,11 +210,47 @@ bool Fourier::shift_sin(double dNumOsc, const double* pDatIn,
 	return true;
 }
 
+bool Fourier::get_contrast(double dNumOsc, const double* pDatIn,
+						   double& dC, double& dPh)
+{
+	unsigned int iSize = m_iSize;
+	const double dSize = double(iSize);
+	const int iNumOsc = int(dNumOsc);
+	dNumOsc = double(iNumOsc);			// consider only full oscillations
+
+	double *pZero = new double[iSize];
+	memset(pZero, 0, sizeof(double)*iSize);
+
+	double *pDatFFT_real = new double[iSize];
+	double *pDatFFT_imag = new double[iSize];
+
+	autodeleter<double> _a0(pZero, true);
+	autodeleter<double> _a1(pDatFFT_real, true);
+	autodeleter<double> _a2(pDatFFT_imag, true);
+
+	if(!fft(pDatIn, pZero, pDatFFT_real, pDatFFT_imag))
+		return false;
+
+	double dReal = 2.*pDatFFT_real[iNumOsc]/double(m_iSize);
+	double dImag = 2.*pDatFFT_imag[iNumOsc]/double(m_iSize);
+
+	double dAmp = sqrt(dReal*dReal + dImag*dImag);
+	double dOffs = pDatFFT_real[0] / double(m_iSize);
+
+	//std::cout << "amp = " << dAmp << std::endl;
+	//std::cout << "offs = " << dOffs << std::endl;
+
+	dC = dAmp/dOffs;
+	dPh = 0.;	// TODO
+
+	return true;
+}
+
 
 /*
 // Test
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 int main()
 {
@@ -215,14 +260,22 @@ int main()
 	double dIn[N];
 	double dOut[N];
 
-	for(int i=0; i<N; ++i)
-		dIn[i] = sin(2.* double(i+0.5)/double(N) * 2.*M_PI);
+	double dAmp = 2.333;
+	double dOffs = 5.123;
 
-	fourier.shift_sin(2., dIn, dOut, M_PI);
+	for(int i=0; i<N; ++i)
+		dIn[i] = dAmp*sin(2.* double(i+0.5)/double(N) * 2.*M_PI) + dOffs;
+
+	fourier.shift_sin(2., dIn, dOut, M_PI/4.);
 
 	for(int i=0; i<N; ++i)
 		std::cout << dOut[i] << " ";
 	std::cout << std::endl;
+
+
+	double dC, dPh;
+	fourier.get_contrast(2., dIn, dC, dPh);
+	std::cout << "contrast = " << dC << std::endl;
 	
 	return 0;
 }

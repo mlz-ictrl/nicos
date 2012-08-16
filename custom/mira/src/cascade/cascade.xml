@@ -81,7 +81,8 @@
 		<algo> migrad </algo>
 		<strategy> 1 </strategy>
 
-        <min_counts> 50  </min_counts>
+		<use_fft_method_instead> 1 </use_fft_method_instead>
+	        <min_counts> 50  </min_counts>
 	</minuit>
 
 </cascade_config>

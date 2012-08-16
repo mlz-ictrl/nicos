@@ -43,6 +43,9 @@ class Fourier
 		// shift a sine given in pDatIn by dPhase
 		bool shift_sin(double dNumOsc, const double* pDatIn,
 						double *pDataOut, double dPhase);
+
+		bool get_contrast(double dNumOsc, const double* pDatIn,
+						  double& dC, double& dPh);
 };
 
 #endif
