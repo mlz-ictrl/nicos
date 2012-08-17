@@ -261,7 +261,7 @@ class ExecutionController(Controller):
                                    # namespace in which scripts execute
         self.session_ns = {'session': session}
                                    # additional namespace for eval_expression()
-        self.completer = NicosCompleter(self.namespace)
+        self.completer = NicosCompleter(self.namespace, session.local_namespace)
                                    # completer for the namespace
         self.watchexprs = set()    # watch expressions to evaluate
         self.watchlock = Lock()    # lock for watch expression list modification
