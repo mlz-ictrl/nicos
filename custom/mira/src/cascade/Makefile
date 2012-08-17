@@ -111,44 +111,44 @@ cascadedialogs.h: ui_calibrationdlg.h ui_sumdialog.h ui_serverdlg.h \
 		  ui_rangedlg.h ui_countsvsimagesdlg.h \
 		  ui_contrastsvsimagesdlg.h ui_batchdlg.h
 
-ui_calibrationdlg.h: calibrationdlg.ui
-	uic calibrationdlg.ui > ui_calibrationdlg.h
+ui_calibrationdlg.h: ui/calibrationdlg.ui
+	uic ui/calibrationdlg.ui > ui_calibrationdlg.h
 
-ui_sumdialog.h: sumdialog.ui
-	uic sumdialog.ui > ui_sumdialog.h
+ui_sumdialog.h: ui/sumdialog.ui
+	uic ui/sumdialog.ui > ui_sumdialog.h
 
-ui_serverdlg.h: serverdlg.ui
-	uic serverdlg.ui > ui_serverdlg.h
+ui_serverdlg.h: ui/serverdlg.ui
+	uic ui/serverdlg.ui > ui_serverdlg.h
 
-ui_servercfgdlg.h: servercfgdlg.ui
-	uic servercfgdlg.ui > ui_servercfgdlg.h
+ui_servercfgdlg.h: ui/servercfgdlg.ui
+	uic ui/servercfgdlg.ui > ui_servercfgdlg.h
 
-ui_graphdlg.h: graphdlg.ui
-	uic graphdlg.ui > ui_graphdlg.h
+ui_graphdlg.h: ui/graphdlg.ui
+	uic ui/graphdlg.ui > ui_graphdlg.h
 
-ui_commanddlg.h: commanddlg.ui
-	uic commanddlg.ui > ui_commanddlg.h
+ui_commanddlg.h: ui/commanddlg.ui
+	uic ui/commanddlg.ui > ui_commanddlg.h
 
-ui_roidlg.h: roidlg.ui
-	uic roidlg.ui > ui_roidlg.h
+ui_roidlg.h: ui/roidlg.ui
+	uic ui/roidlg.ui > ui_roidlg.h
 
-ui_browsedlg.h: browsedlg.ui
-	uic browsedlg.ui > ui_browsedlg.h
+ui_browsedlg.h: ui/browsedlg.ui
+	uic ui/browsedlg.ui > ui_browsedlg.h
 
-ui_integrationdlg.h: integrationdlg.ui
-	uic integrationdlg.ui > ui_integrationdlg.h
+ui_integrationdlg.h: ui/integrationdlg.ui
+	uic ui/integrationdlg.ui > ui_integrationdlg.h
 
-ui_rangedlg.h: rangedlg.ui
-	uic rangedlg.ui > ui_rangedlg.h
+ui_rangedlg.h: ui/rangedlg.ui
+	uic ui/rangedlg.ui > ui_rangedlg.h
 
-ui_countsvsimagesdlg.h:
-	uic countsvsimagesdlg.ui > ui_countsvsimagesdlg.h
+ui_countsvsimagesdlg.h: ui/countsvsimagesdlg.ui
+	uic ui/countsvsimagesdlg.ui > ui_countsvsimagesdlg.h
 
-ui_contrastsvsimagesdlg.h:
-	uic contrastsvsimagesdlg.ui > ui_contrastsvsimagesdlg.h
+ui_contrastsvsimagesdlg.h: ui/contrastsvsimagesdlg.ui
+	uic ui/contrastsvsimagesdlg.ui > ui_contrastsvsimagesdlg.h
 
-ui_batchdlg.h: batchdlg.ui
-	uic batchdlg.ui > ui_batchdlg.h
+ui_batchdlg.h: ui/batchdlg.ui
+	uic ui/batchdlg.ui > ui_batchdlg.h
 #################################################################
 
 
