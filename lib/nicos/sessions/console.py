@@ -63,7 +63,9 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         self.globals = globals
         self.locals = locals
         readline.parse_and_bind('tab: complete')
-        readline.set_completer(NicosCompleter(self.globals).complete)
+        readline.parse_and_bind('"\\e[5~": history-search-backward')
+        readline.parse_and_bind('"\\e[6~": history-search-forward')
+        readline.set_completer(NicosCompleter(self.globals, self.locals).complete)
         readline.set_history_length(10000)
         self.histfile = os.path.expanduser('~/.nicoshistory')
         # once compiled, the interactive console uses this flag for all
