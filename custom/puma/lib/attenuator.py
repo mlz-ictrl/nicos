@@ -47,8 +47,8 @@ class Attenuator(Moveable):
         # already there?
         if position == self.read(0):
             return
-        # if self.io_press == 0:
-        #     raise MoveError('no air pressure; cannot move attenuator')
+        # if self._adevs['io_press'].read() == 0:
+        #     raise MoveError(self, 'no air pressure; cannot move attenuator')
         # calculate bit pattern to set
         bits = 0
         for i, thick in enumerate(self._filterlist[::-1]):
@@ -59,7 +59,7 @@ class Attenuator(Moveable):
         time.sleep(3)
         # check that all filters have arrived
         if self.doStatus()[0] != status.OK:
-            raise PositionError('attenuator returned wrong position')
+            raise PositionError(self, 'attenuator returned wrong position')
         # print note if desired position is not available
         if position > 0:
             self.log.info('requested filter combination not possible; switched '
@@ -76,7 +76,7 @@ class Attenuator(Moveable):
 
     def doRead(self, maxage=0):
         if self.doStatus()[0] != status.OK:
-            raise PositionError('device undefined; check it!')
+            raise PositionError(self, 'device undefined; check it!')
         readvalue = self._adevs['io_status'].read(0.2)
         return sum(self._filterlist[i] for i in range(0, 5)
                    if (readvalue >> (i*2+1)) & 1)
