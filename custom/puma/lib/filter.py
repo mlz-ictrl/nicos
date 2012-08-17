@@ -28,7 +28,7 @@
 __version__ = "$Revision$"
 
 from nicos.core import Moveable, Readable, Param, PositionError, oneof, \
-     status, waitForStatus
+     status, waitForStatus, Override
 
 
 class PumaFilter(Moveable):
@@ -57,6 +57,10 @@ class PumaFilter(Moveable):
         'justpos':   Param('...', mandatory=True),
     }
 
+    parameter_overrides = {
+        'unit':      Override(mandatory=False, default='')
+    }
+
     valuetype = oneof('in', 'out')
 
     def doStart(self, position):
@@ -70,7 +74,7 @@ class PumaFilter(Moveable):
         if abs(motorpos - self.justpos) > 0.5:
             motorpos = motor.maw(0)
 
-        self._adevs['io_set'].start(position)
+        self._adevs['io_set'].start(1 if position == 'in' else 0)
         if self.wait() != position:
             raise PositionError(self, 'device returned wrong position')
 
