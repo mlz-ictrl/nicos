@@ -2,16 +2,10 @@
 
 description = 'Sample table'
 
-includes = ['system', 'motorbus1', 'motorbus2', 'motorbus4', 'motorbus5']
- 
+includes = ['system',
+            'motorbus1', 'motorbus2', 'motorbus4', 'motorbus5', 'motorbus11']
 
 devices = dict(
-    motorbus11 = device('nicos.ipc.IPCModBusTaco',
-                        tacodevice ='puma/rs485/st',
-                        timeout = 0.5,
-                        description = 'motor bus for sample table only',
-                        ),
- 
     st_phi = device('nicos.ipc.Motor',
                     bus = 'motorbus4',
                     addr = 53,
