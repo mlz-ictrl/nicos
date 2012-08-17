@@ -49,7 +49,8 @@ def setup_package():
         except socket.error:
             time.sleep(0.2)
         else:
-            s.send('\x03\x00\x00\x00\x07guest\x1e\x1e\x03\x00\x00\x00\x04quit')
+            s.send(('\x42' * 16) + # ident
+                   '\x03\x00\x00\x00\x07guest\x1e\x1e\x03\x00\x00\x00\x04quit')
             time.sleep(0.1)
             s.close()
             break
