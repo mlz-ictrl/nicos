@@ -26,10 +26,11 @@
 
 __version__ = "$Revision$"
 
-from nicos import session
-from nicos.core import Device, Param, Value, ConfigurationError, NicosError, none_or
-
 import re
+
+from nicos import session
+from nicos.core import Device, Param, ConfigurationError, NicosError, none_or
+
 
 class NoDevice(object):
 
@@ -67,7 +68,9 @@ class DeviceAlias(Device):
     """
 
     parameters = {
-        'alias':  Param('Device to alias', type=none_or(str), settable=True),
+        'alias':    Param('Device to alias', type=none_or(str), settable=True),
+        'devclass': Param('Class name that the aliased device must be an '
+                          'instance of', type=str, default='nicos.core.Device'),
     }
 
     _ownattrs = ['_obj', '_mode', 'alias']
@@ -80,7 +83,7 @@ class DeviceAlias(Device):
                 self._cache.unsetRewrite(str(self))
         else:
             try:
-                newdev = session.getDevice(devname, (Device, DeviceAlias),
+                newdev = session.getDevice(devname, (self._cls, DeviceAlias),
                                            source=self)
             except NicosError:
                 if not self._initialized:
@@ -108,8 +111,17 @@ class DeviceAlias(Device):
             new_info.append(new_v)
         return tuple(new_info)
 
-    def __init__(self, name , **config):
+    def __init__(self, name, **config):
         self._obj = None
+        devclass = config.get('devclass', 'nicos.core.Device')
+        try:
+            modname, clsname = devclass.rsplit('.', 1)
+            self._cls = getattr(__import__(modname, None, None, [clsname]),
+                                clsname)
+        except Exception:
+            self.log.warning('could not import class %r; using Device as the '
+                             'alias devclass', exc=1)
+            self._cls = Device
         Device.__init__(self, name, **config)
         self._initialized = True
 

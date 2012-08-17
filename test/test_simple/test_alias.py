@@ -48,11 +48,10 @@ def test_alias_nodev():
     # first, proxy without target
     assert isinstance(px._obj, NoDevice)
     assert px.alias == ''
-    # attribute accesses raise ConfigurationError
+    # accesses raise ConfigurationError
     assert raises(ConfigurationError, getattr, px, 'read')
     assert raises(ConfigurationError, setattr, px, 'speed', 0)
-    # trying to access as device raises UsageError
-    assert raises(UsageError, read, px)
+    assert raises(ConfigurationError, read, px)
     # but stringification is still the name of the alias object
     assert str(px) == 'aliasDev'
     assert 'aliasDev' in repr(px)
@@ -68,9 +67,12 @@ def test_alias_dev():
     px.speed = 5.1
     assert v1.speed == 5.1
     # check cache key rewriting
-    sleep(0.15)
+    sleep(0.5)
     assert session.cache.get(px, 'speed') == 5.1
     assert session.cache.get_explicit(px, 'speed')[2] == 5.1
+    # check type restriction by devclass parameter
+    slit = session.getDevice('slit')
+    assert raises(UsageError, setattr, px, 'alias', slit)
 
 def test_alias_valueinfo():
     # check the value info replacement
