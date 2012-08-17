@@ -18,6 +18,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
+#   Klaudia Hradil <klaudia.hradil@frm2.tum.de>
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
@@ -28,7 +29,7 @@ __version__ = "$Revision$"
 
 import time
 
-from nicos.core import Moveable, Readable, status, NicosError, PositionError
+from nicos.core import Moveable, Readable, status, PositionError
 
 
 class Attenuator(Moveable):
@@ -47,7 +48,7 @@ class Attenuator(Moveable):
         if position == self.read(0):
             return
         # if self.io_press == 0:
-        #     raise NicosError('no air pressure; cannot move attenuator')
+        #     raise MoveError('no air pressure; cannot move attenuator')
         # calculate bit pattern to set
         bits = 0
         for i, thick in enumerate(self._filterlist[::-1]):
@@ -58,7 +59,7 @@ class Attenuator(Moveable):
         time.sleep(3)
         # check that all filters have arrived
         if self.doStatus()[0] != status.OK:
-            raise NicosError('attenuator returned wrong position')
+            raise PositionError('attenuator returned wrong position')
         # print note if desired position is not available
         if position > 0:
             self.log.info('requested filter combination not possible; switched '
