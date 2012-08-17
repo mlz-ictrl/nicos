@@ -94,6 +94,10 @@ class PadImage : BasicImage, Countable
 		unsigned int GetCounts(int iStartX, int iEndX,
 							   int iStartY, int iEndY) const;
 
+		virtual Roi& GetRoi();
+		virtual void UseRoi(bool bUseRoi=true);
+		virtual bool GetUseRoi() const;							   
+
 		const PadConfig& GetPadConfig() const;
 
 		virtual int GetIntMin() const;
@@ -209,6 +213,9 @@ class TofImage : Countable
 		virtual unsigned int GetCounts() const;
 		unsigned int GetCounts(int iStartX, int iEndX,
 							   int iStartY, int iEndY) const;
+		virtual Roi& GetRoi();
+		virtual void UseRoi(bool bUseRoi=true);
+		virtual bool GetUseRoi() const;							   
 
 		TmpImage GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil, int iTimechannel) const;
 		TmpGraph GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil) const;

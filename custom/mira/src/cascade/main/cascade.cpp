@@ -1142,7 +1142,7 @@ class MainWindow : public QMainWindow
 		///////////////////////// Help ///////////////////////////////////
 		void About()
 		{
-			QString strAbout = "Cascade Viewer written by Tobias Weber.";
+			QString strAbout = "Cascade Viewer written by Tobias Weber, 2010-2012.";
 			strAbout += "\n";
 
 			#if defined(__DATE__) && defined(__TIME__)
