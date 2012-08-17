@@ -192,7 +192,7 @@ static std::complex<double> idft_coeff(int k,
 	{
 		std::complex<double> f(pReal[j], pImag[j]);
 
-		double dv = -2.*M_PI*double(j)*double(k)/double(n);
+		double dv = 2.*M_PI*double(j)*double(k)/double(n);
 		t += f * (cos(dv) + imag*sin(dv));
 	}
 
