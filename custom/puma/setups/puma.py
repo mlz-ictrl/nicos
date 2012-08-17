@@ -1,6 +1,7 @@
 description = 'PANDA triple-axis setup'
 
-includes = ['virtualtas', 'sampletable', 'power', 'detector']
+includes = ['virtualtas', 'sampletable', 'analyser', 'power', 'detector',
+            'lengths']
 
 modules = ['nicos.commands.tas']
 
@@ -46,9 +47,10 @@ devices = dict(
 
     ana     = device('nicos.tas.Monochromator',
                       unit = 'A-1',
-                      theta = 'ath',
+                      theta = 'ath_raw',
                       twotheta = 'att',
-                      focush = None,
+                      reltheta = -1,
+                      focush = 'afh',
                       focusv = None,
                       abslimits = (1, 5),
                       dvalue = 3.355),
