@@ -508,6 +508,7 @@ ContrastsVsImagesDlg::ContrastsVsImagesDlg(CascadeWidget *pParent)
 	connect(btnDelete_underground, SIGNAL(clicked()),
 			this, SLOT(DeleteFile_underground()));
 	connect(check_underground, SIGNAL(toggled(bool)), this, SLOT(UpdateGraph()));
+	connect(check_phasecorrect, SIGNAL(toggled(bool)), this, SLOT(UpdateGraph()));
 
 	connect(radioButtonFoilMean, SIGNAL(toggled(bool)), this, SLOT(UpdateGraph()));
 	//connect(radioButtonFoil, SIGNAL(toggled(bool)), this, SLOT(UpdateGraph()));
@@ -1027,9 +1028,16 @@ void ContrastsVsImagesDlg::Calc(int iFoil)
 void ContrastsVsImagesDlg::UpdateGraph()
 {
 	if(radioButtonFoilMean->isChecked())
-		CalcPhaseCorrected();
+	{
+		if(check_phasecorrect->isChecked())
+			CalcPhaseCorrected();
+		else
+			Calc();
+	}
 	else if(radioButtonFoil->isChecked())
+	{
 		Calc(spinFoil->value()-1);
+	}
 }
 
 void ContrastsVsImagesDlg::RoiGroupToggled()
