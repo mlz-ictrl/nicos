@@ -24,9 +24,9 @@
 #ifndef __CASCADE_WIDGET__
 #define __CASCADE_WIDGET__
 
-#include "tofdata.h"
-#include "cascadedialogs.h"
-#include "plotter.h"
+#include "../plot/tofdata.h"
+#include "../dialogs/cascadedialogs.h"
+#include "../plot/plotter.h"
 
 #include <QtGui/QWidget>
 

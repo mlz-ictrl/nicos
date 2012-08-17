@@ -22,10 +22,10 @@
 // *****************************************************************************
 // Cascade sub dialogs
 
-#include "cascadedialogs.h"
-#include "cascadewidget.h"
-#include "helper.h"
-#include "logger.h"
+#include "../dialogs/cascadedialogs.h"
+#include "../main/cascadewidget.h"
+#include "../aux/helper.h"
+#include "../aux/logger.h"
 
 #include <stdio.h>
 #include <sstream>

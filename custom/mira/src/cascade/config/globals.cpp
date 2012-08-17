@@ -21,10 +21,10 @@
 //
 // *****************************************************************************
 
-#include "globals.h"
-#include "logger.h"
-#include "helper.h"
-#include "config.h"
+#include "../config/globals.h"
+#include "../config/config.h"
+#include "../aux/logger.h"
+#include "../aux/helper.h"
 
 #include <string.h>
 #include <stdio.h>

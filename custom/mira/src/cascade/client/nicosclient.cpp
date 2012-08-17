@@ -24,9 +24,9 @@
 #include <string.h>
 
 #include "nicosclient.h"
-#include "helper.h"
-#include "logger.h"
-//#include "gc.h"
+#include "../aux/helper.h"
+#include "../aux/logger.h"
+//#include "../aux/gc.h"
 
 #define IS_PAD	1
 #define IS_TOF	0

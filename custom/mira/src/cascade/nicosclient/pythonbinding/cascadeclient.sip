@@ -10,7 +10,7 @@
 class TcpClient : QObject
 {
 %TypeHeaderCode
-#include "../../client.h"
+#include "../../client/client.h"
 %End
 
 	public:
@@ -29,7 +29,7 @@ class TcpClient : QObject
 class NicosClient : TcpClient
 {
 %TypeHeaderCode
-#include "../../nicosclient.h"
+#include "../../client/nicosclient.h"
 %End
 
 	public:

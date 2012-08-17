@@ -60,21 +60,21 @@
 #include <QtCore/QLine>
 #include <QtGui/QMessageBox>
 
-#include "globals.h"
-#include "tofloader.h"
-#include "tofdata.h"
-#include "bins.h"
-#include "config.h"
-#include "client.h"
-#include "parse.h"
-#include "cascadewidget.h"
-#include "logger.h"
-#include "helper.h"
-#include "gc.h"
+#include "../config/globals.h"
+#include "../loader/tofloader.h"
+#include "../plot/tofdata.h"
+#include "../plot/bins.h"
+#include "../config/config.h"
+#include "../client/client.h"
+#include "../aux/parse.h"
+#include "../main/cascadewidget.h"
+#include "../aux/logger.h"
+#include "../aux/helper.h"
+#include "../aux/gc.h"
 
-#include "ErrorBarPlotCurve.h"
-#include "histogram_item.h"
-#include "cascadedialogs.h"
+#include "../plot/ErrorBarPlotCurve.h"
+#include "../plot/histogram_item.h"
+#include "../dialogs/cascadedialogs.h"
 
 #ifdef DATA_COMPRESSED
 	#include "decompress.h"

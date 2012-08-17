@@ -26,7 +26,7 @@
 #include <math.h>
 #include <string.h>
 #include "logger.h"
-#include "globals.h"
+#include "../config/globals.h"
 #include "gc.h"
 #include "helper.h"
 

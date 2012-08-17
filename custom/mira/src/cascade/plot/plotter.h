@@ -35,7 +35,7 @@
 #include <qwt_color_map.h>
 #include <qwt_symbol.h>
 
-#include "roi.h"
+#include "../aux/roi.h"
 #include "tofdata.h"
 
 

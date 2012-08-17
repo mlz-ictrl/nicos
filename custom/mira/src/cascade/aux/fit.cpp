@@ -23,7 +23,7 @@
 
 #include "fit.h"
 #include "logger.h"
-#include "globals.h"
+#include "../config/globals.h"
 #include "gc.h"
 
 #ifdef USE_MINUIT

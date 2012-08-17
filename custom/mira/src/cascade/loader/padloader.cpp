@@ -32,9 +32,10 @@
 #include <string.h>
 #include <limits>
 #include <iomanip>
-#include "logger.h"
-#include "helper.h"
-#include "gc.h"
+
+#include "../aux/logger.h"
+#include "../aux/helper.h"
+#include "../aux/gc.h"
 
 
 PadImage::PadImage(const char *pcFileName, bool bExternalMem,

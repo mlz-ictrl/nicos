@@ -25,8 +25,8 @@
 #ifndef __TOFLOADER__
 #define __TOFLOADER__
 
-#include "globals.h"
-#include "roi.h"
+#include "../config/globals.h"
+#include "../aux/roi.h"
 #include "basicimage.h"
 #include "padloader.h"
 
