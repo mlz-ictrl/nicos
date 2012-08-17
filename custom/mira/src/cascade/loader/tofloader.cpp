@@ -554,6 +554,7 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY)
 
 	// get phases for each foil
 	double *pPhases = new double[iNumFoils];
+	autodeleter<double> _a0(pPhases, 1);
 
 	for(int iFoil=0; iFoil<iNumFoils; ++iFoil)
 	{
@@ -570,7 +571,12 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY)
 	double *pDataFoil = new double[iNumTc];
 	double *pDataFoilShifted = new double[iNumTc];
 	double *pDataSum = new double[iNumTc];
-	
+
+	autodeleter<double> _a1(pDataFoil, 1);
+	autodeleter<double> _a2(pDataFoilShifted, 1);
+	autodeleter<double> _a3(pDataSum, 1);
+
+
 	memset(pDataSum, 0, sizeof(double)*iNumTc);
 
 	Fourier fourier(iNumTc);
@@ -595,11 +601,6 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY)
 
 	for(int iTc=0; iTc<iNumTc; ++iTc)
 		puiData[iTc] = (unsigned int)(pDataSum[iTc]);
-
-	delete[] pDataSum;
-	delete[] pDataFoilShifted;
-	delete[] pDataFoil;
-	delete[] pPhases;
 
 	return graph;
 }
@@ -717,7 +718,7 @@ TmpImage TofImage::GetPhaseGraph(int iFolie, bool bInDeg) const
 	{
 		dIn = new double[iTc];
 		pFourier = new Fourier(iTc);
-	}	
+	}
 
 	for(int iY=iStartY; iY<iEndY; iY+=YSIZE)
 		for(int iX=iStartX; iX<iEndX; iX+=XSIZE)
@@ -798,7 +799,7 @@ TmpImage TofImage::GetContrastGraph(int iFoil) const
 
 	int iTc = GetTofConfig().GetImagesPerFoil();
 	double dNumOsc = GetTofConfig().GetNumOscillations();
-	
+
 	Fourier *pFourier = 0;
 	double *dIn = 0;
 	if(bUseFourierMethod)
@@ -822,7 +823,7 @@ TmpImage TofImage::GetContrastGraph(int iFoil) const
 						dIn[i] = tmpGraph.GetData(i);
 
 					pFourier->get_contrast(dNumOsc, dIn, dContrast, dPhase);
-				
+
 					//if(dContrast > 1.) dContrast = 0.;
 					if(dContrast != dContrast) dContrast = 0.;
 				}
@@ -836,7 +837,7 @@ TmpImage TofImage::GetContrastGraph(int iFoil) const
 				if(!bFitValid || dContrast!=dContrast)
 					dContrast = 0.;
 			}
-			
+
 			for(int i=0; i<YSIZE; ++i)
 				for(int j=0; j<XSIZE; ++j)
 					pdWave[(iY-iStartY+i)*img.m_iW+(iX-iStartX+j)]=dContrast;

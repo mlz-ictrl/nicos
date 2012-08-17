@@ -47,7 +47,7 @@ Fourier::Fourier(unsigned int iSize) : m_iSize(iSize)
 
 	fftw_plan* pPlan = (fftw_plan*) m_pPlan;
 	fftw_plan* pPlan_inv = (fftw_plan*) m_pPlan_inv;
-	
+
 	*pPlan = fftw_plan_dft_1d(iSize,
 								(fftw_complex*)m_pIn, (fftw_complex*)m_pOut,
 								FFTW_FORWARD, FFTW_MEASURE);
@@ -79,10 +79,10 @@ bool Fourier::fft(const double* pRealIn, const double *pImagIn,
 					double *pRealOut, double *pImagOut)
 {
 	fftw_plan* pPlan = (fftw_plan*) m_pPlan;
-	
+
 	fftw_complex* pIn = (fftw_complex*)m_pIn;
 	fftw_complex* pOut = (fftw_complex*)m_pOut;
-	
+
 	for(unsigned int i=0; i<m_iSize; ++i)
 	{
 		pIn[i][0] = pRealIn[i];
@@ -90,8 +90,8 @@ bool Fourier::fft(const double* pRealIn, const double *pImagIn,
 
 		pOut[i][0] = 0.;
 		pOut[i][1] = 0.;
-	}	
-	
+	}
+
 	fftw_execute(*pPlan);
 
 	for(unsigned int i=0; i<m_iSize; ++i)
@@ -107,7 +107,7 @@ bool Fourier::ifft(const double* pRealIn, const double *pImagIn,
 					double *pRealOut, double *pImagOut)
 {
 	fftw_plan* pPlan_inv = (fftw_plan*) m_pPlan_inv;
-	
+
 	fftw_complex* pIn = (fftw_complex*)m_pIn;
 	fftw_complex* pOut = (fftw_complex*)m_pOut;
 
@@ -135,20 +135,98 @@ bool Fourier::ifft(const double* pRealIn, const double *pImagIn,
 
 Fourier::Fourier(unsigned int iSize) : m_iSize(iSize)
 {
-	logger.SetCurLogLevel(LOGLEVEL_ERR);
-	logger << "Fourier: Not compiled with fftw.\n";
+	static bool bWarningShown = false;
+
+	if(!bWarningShown)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "Fourier: Not compiled with fftw, using some "
+				  "not-nearly-as-cool standard dft calculations instead.\n";
+
+		bWarningShown = true;
+	}
 }
 
 Fourier::~Fourier()
 {}
 
-bool Fourier::fft(const double* pRealIn, const double *pImagIn,
-					double *pRealOut, double *pImagOut)
-{ return false; }
+// dft formulas from here:
+// http://www.fftw.org/fftw3_doc/The-1d-Discrete-Fourier-Transform-_0028DFT_0029.html#The-1d-Discrete-Fourier-Transform-_0028DFT_0029
+static std::complex<double> dft_coeff(int k,
+								const double *pReal, const double *pImag,
+								unsigned int n)
+{
+	std::complex<double> imag(0., 1.);
 
-bool Fourier::ifft(const double* pRealIn, const double *pImagIn,
+	std::complex<double> f(0.,0.);
+	for(unsigned int j=0; j<n; ++j)
+	{
+		std::complex<double> t(pReal[j], pImag[j]);
+		
+		double dv = -2.*M_PI*double(j)*double(k)/double(n);
+		f += t * (cos(dv) + imag*sin(dv));
+	}
+
+	return f;
+}
+
+static void dft(const double *pRealIn, const double *pImagIn,
+				double *pRealOut, double *pImagOut, unsigned int n)
+{
+	for(unsigned int k=0; k<n; ++k)
+	{
+		std::complex<double> f = dft_coeff(k, pRealIn, pImagIn, n);
+		pRealOut[k] = f.real();
+		pImagOut[k] = f.imag();
+	}
+}
+
+static std::complex<double> idft_coeff(int k,
+								const double *pReal, const double *pImag,
+								unsigned int n)
+{
+	std::complex<double> imag(0., 1.);
+
+	std::complex<double> t(0.,0.);
+	for(unsigned int j=0; j<n; ++j)
+	{
+		std::complex<double> f(pReal[j], pImag[j]);
+
+		double dv = -2.*M_PI*double(j)*double(k)/double(n);
+		t += f * (cos(dv) + imag*sin(dv));
+	}
+
+	return t;
+}
+
+static void idft(const double *pRealIn, const double *pImagIn,
+				double *pRealOut, double *pImagOut, unsigned int n)
+{
+	for(unsigned int k=0; k<n; ++k)
+	{
+		std::complex<double> t = idft_coeff(k, pRealIn, pImagIn, n);
+		pRealOut[k] = t.real();
+		pImagOut[k] = t.imag();
+	}
+}
+
+bool Fourier::fft(const double *pRealIn, const double *pImagIn,
 					double *pRealOut, double *pImagOut)
-{ return false; }
+{
+	// if we don't have the fftw available, use dft instead
+	dft(pRealIn, pImagIn, pRealOut, pImagOut, m_iSize);
+
+	return true;
+}
+
+bool Fourier::ifft(const double *pRealIn, const double *pImagIn,
+					double *pRealOut, double *pImagOut)
+{
+	// if we don't have the fftw available, use dft instead
+	idft(pRealIn, pImagIn, pRealOut, pImagOut, m_iSize);
+
+	return true;	
+}
 
 #endif	// USE_FFTW
 
@@ -159,7 +237,7 @@ bool Fourier::shift_sin(double dNumOsc, const double* pDatIn,
 	const double dSize = double(iSize);
 	const int iNumOsc = int(dNumOsc);
 	dNumOsc = double(iNumOsc);			// consider only full oscillations
-	
+
 	double dShiftSamples = dPhase/(2.*M_PI) * dSize;
 
 	double *pZero = new double[iSize];
@@ -182,7 +260,7 @@ bool Fourier::shift_sin(double dNumOsc, const double* pDatIn,
 			continue;
 
 		pDatFFT_real[i] = 0.;
-		pDatFFT_imag[i] = 0.;		
+		pDatFFT_imag[i] = 0.;
 	}
 
 	// amp & phase
@@ -263,7 +341,7 @@ int main()
 {
 	const int N = 64;
 	Fourier fourier(N);
-	
+
 	double dIn[N];
 	double dOut[N];
 
@@ -283,7 +361,7 @@ int main()
 	double dC, dPh;
 	fourier.get_contrast(2., dIn, dC, dPh);
 	std::cout << "contrast = " << dC << std::endl;
-	
+
 	return 0;
 }
 */

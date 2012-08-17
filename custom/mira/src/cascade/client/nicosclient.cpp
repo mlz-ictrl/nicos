@@ -194,7 +194,12 @@ bool NicosClient::contrast(const QByteArray* parr, int iFoil,
 	if(bTof)
 	{
 		m_tof.SetExternalMem((unsigned int*)(arr.data()+4));
-		TmpGraph graph = m_tof.GetGraph(iFoil);
+
+		TmpGraph graph;
+		if(iFoil<0)
+			graph = m_tof.GetTotalGraph();
+		else
+			graph = m_tof.GetGraph(iFoil);
 
 		if(pC_err && pPhase_err)
 			bOk = graph.GetContrast(*pC, *pPhase, *pC_err, *pPhase_err);
@@ -235,7 +240,12 @@ bool NicosClient::contrast(const QByteArray* parr, int iFoil,
 	if(bTof)
 	{
 		m_tof.SetExternalMem((unsigned int*)(arr.data()+4));
-		TmpGraph graph = m_tof.GetGraph(iStartX, iEndX, iStartY, iEndY, iFoil);
+
+		TmpGraph graph;
+		if(iFoil<0)
+			graph = m_tof.GetTotalGraph(iStartX, iEndX, iStartY, iEndY);
+		else
+			graph = m_tof.GetGraph(iStartX, iEndX, iStartY, iEndY, iFoil);
 
 		if(pC_err && pPhase_err)
 			bOk = graph.GetContrast(*pC, *pPhase, *pC_err, *pPhase_err);
