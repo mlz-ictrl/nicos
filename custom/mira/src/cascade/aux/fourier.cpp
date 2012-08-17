@@ -206,7 +206,8 @@ bool Fourier::shift_sin(double dNumOsc, const double* pDatIn,
 	for(unsigned int i=0; i<iSize; ++i)
 		pDataOut[i] /= double(iSize);
 
-
+	//save_dat("in.dat", pDatIn, iSize);
+	//save_dat("out.dat", pDataOut, iSize);
 	return true;
 }
 

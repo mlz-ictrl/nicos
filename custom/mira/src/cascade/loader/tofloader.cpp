@@ -523,22 +523,22 @@ TmpGraph TofImage::GetGraph(int iFoil) const
 	return GetGraph(iStartX, iEndX, iStartY, iEndY, iFoil);
 }
 
-TmpGraph TofImage::GetTotalGraph(const double* pPhases) const
+TmpGraph TofImage::GetTotalGraph() const
 {
 	int iStartX = 0,
 		iStartY = 0,
 		iEndX = GetTofConfig().GetImageWidth(),
 		iEndY = GetTofConfig().GetImageHeight();
 
-	return GetTotalGraph(iStartX, iEndX, iStartY, iEndY, pPhases);
+	return GetTotalGraph(iStartX, iEndX, iStartY, iEndY);
 }
 
-TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
-								 const double* pPhases) const
+TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY) const
 {
 	const double dNumOsc = GetTofConfig().GetNumOscillations();
 	const int iNumTc = GetTofConfig().GetImagesPerFoil();
 	const double dNumTc = double(iNumTc);
+	const int iNumFoils = GetTofConfig().GetFoilCount();
 
 	TmpGraph graph(&GetTofConfig());
 	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY);
@@ -552,6 +552,21 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 	memset(puiData, 0, sizeof(int)*iNumTc);
 
 
+	// get phases for each foil
+	double *pPhases = new double[iNumFoils];
+
+	for(int iFoil=0; iFoil<iNumFoils; ++iFoil)
+	{
+		TmpGraph graphFoil = GetGraph(iFoil);
+
+		double dFreq, dPhase, dAmp, dOffs;
+		graphFoil.FitSinus(dFreq, dPhase, dAmp, dOffs);
+
+		pPhases[iFoil] = dPhase;
+	}
+
+
+	// add all foils with correct phase-shifting
 	double *pDataFoil = new double[iNumTc];
 	double *pDataFoilShifted = new double[iNumTc];
 	double *pDataSum = new double[iNumTc];
@@ -560,7 +575,7 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 
 	Fourier fourier(iNumTc);
 
-	for(int iFoil=0; iFoil<GetTofConfig().GetFoilCount();++iFoil)
+	for(int iFoil=0; iFoil<GetTofConfig().GetFoilCount(); ++iFoil)
 	{
 		for(int iTc=0; iTc<iNumTc; ++iTc)
 		{
@@ -569,20 +584,22 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 				for(int iX=iStartX; iX<iEndX; ++iX)
 					pDataFoil[iTc] += GetDataInsideROI(iFoil, iTc, iX, iY);
 		}
-		
+
+		//std::cout << "phase foil " << iFoil << ": " << pPhases[iFoil] << std::endl;
 		fourier.shift_sin(dNumOsc, pDataFoil, pDataFoilShifted, pPhases[iFoil]);
 
 		// sum all foils
 		for(int iTc=0; iTc<iNumTc; ++iTc)
-			pDataSum[iTc] += pDataFoil[iTc];
+			pDataSum[iTc] += pDataFoilShifted[iTc];
 	}
+
+	for(int iTc=0; iTc<iNumTc; ++iTc)
+		puiData[iTc] = (unsigned int)(pDataSum[iTc]);
 
 	delete[] pDataSum;
 	delete[] pDataFoilShifted;
 	delete[] pDataFoil;
-
-	for(int iTc=0; iTc<iNumTc; ++iTc)
-		puiData[iTc] = (unsigned int)(pDataSum[iTc]);
+	delete[] pPhases;
 
 	return graph;
 }

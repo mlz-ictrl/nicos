@@ -213,8 +213,8 @@ class TofImage : Countable
 		TmpImage GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil, int iTimechannel) const;
 		TmpGraph GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil) const;
 		TmpGraph GetGraph(int iFoil) const;
-		TmpGraph GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, const double * pdPhases) const;
-		TmpGraph GetTotalGraph(const double* pPhases) const;
+		TmpGraph GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY) const;
+		TmpGraph GetTotalGraph() const;
 		TmpImage GetOverview(bool bOnlyInRoi=false) const;
 		TmpImage GetPhaseGraph(int iFoil, bool bInDeg=true) const;
 		TmpImage GetContrastGraph(int iFoil) const;

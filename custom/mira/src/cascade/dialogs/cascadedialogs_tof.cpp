@@ -641,7 +641,7 @@ void ContrastsVsImagesDlg::CalcPhaseCorrected()
 		unsigned int uiTotalCnt=0;
 
 		TmpGraph graph = tof.GetTotalGraph();
-		graph.Save("tmp.txt");
+ 		//graph.Save("tmp.txt");
 
 		if(bUnderground)
 			graph_underground = tof_underground.GetTotalGraph();
@@ -1027,12 +1027,9 @@ void ContrastsVsImagesDlg::Calc(int iFoil)
 void ContrastsVsImagesDlg::UpdateGraph()
 {
 	if(radioButtonFoilMean->isChecked())
-		Calc();
+		CalcPhaseCorrected();
 	else if(radioButtonFoil->isChecked())
 		Calc(spinFoil->value()-1);
-
-	//CalcPhaseCorrected();
-
 }
 
 void ContrastsVsImagesDlg::RoiGroupToggled()

@@ -27,6 +27,8 @@
 
 #include <string>
 #include <ostream>
+#include <fstream>
+#include <sstream>
 
 //------------------------------------------------------------------------------
 
@@ -144,5 +146,32 @@ double rand01();
 // random number between -1 and 1
 double randmp1();
 
+
+//------------------------------------------------------------------------------
+
+
+template<typename T> void save_dat(const char* pcFile,
+									const T* pDataOut, unsigned int iSize)
+{
+	static unsigned int uiCnt = 0;
+	std::ostringstream ostr;
+	
+	if(pcFile==0)
+	{
+		ostr << "tmp_" << uiCnt++ << ".dat";
+		pcFile = ostr.str().c_str();
+	}
+
+	std::ofstream ofstr(pcFile);
+	if(!ofstr.is_open())
+		return;
+
+	for(unsigned int i=0; i<iSize; ++i)
+	{
+		ofstr << i << "\t" << pDataOut[i] << "\n";
+	}
+
+	ofstr.close();
+}
 
 #endif

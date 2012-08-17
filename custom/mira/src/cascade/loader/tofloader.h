@@ -264,9 +264,8 @@ class TofImage : public Countable
 		TmpGraph GetGraph(int iFoil) const;
 
 		// phase-shifted addition of all foils
-		TmpGraph GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY,
-							   const double* pPhases=0) const;
-		TmpGraph GetTotalGraph(const double* pPhases=0) const;
+		TmpGraph GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY) const;
+		TmpGraph GetTotalGraph() const;
 
 		// get overview image (summing all individual images in TOF)
 		TmpImage GetOverview(bool bOnlyInRoi=false) const;
