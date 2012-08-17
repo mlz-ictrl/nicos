@@ -21,16 +21,15 @@
 //
 // *****************************************************************************
 
-#include "cascadewidget.h"
-#include "tofloader.h"
-#include "tofdata.h"
-#include "cascadedialogs.h"
-#include "bins.h"
-#include "helper.h"
-#include "logger.h"
+#include "../main/cascadewidget.h"
+#include "../loader/tofloader.h"
+#include "../plot/tofdata.h"
+#include "../plot/bins.h"
+#include "../dialogs/cascadedialogs.h"
+#include "../aux/helper.h"
+#include "../aux/logger.h"
 
 #include <QPrinter>
-
 #include <iostream>
 
 

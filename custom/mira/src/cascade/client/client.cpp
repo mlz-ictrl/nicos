@@ -25,10 +25,10 @@
 
 #include "client.h"
 #include <stdlib.h>
-#include "config.h"
-#include "helper.h"
-#include "logger.h"
-#include "globals.h"
+#include "../config/config.h"
+#include "../config/globals.h"
+#include "../aux/helper.h"
+#include "../aux/logger.h"
 
 #define WAIT_DELAY 5000
 

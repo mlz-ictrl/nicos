@@ -27,8 +27,8 @@
 #include <QtCore/QMutex>
 
 #include "client.h"
-#include "globals.h"
-#include "tofloader.h"
+#include "../config/globals.h"
+#include "../loader/tofloader.h"
 
 class NicosClient : public TcpClient
 {

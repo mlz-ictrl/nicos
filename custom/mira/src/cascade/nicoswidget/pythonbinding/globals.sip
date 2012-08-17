@@ -4,7 +4,7 @@
 class PadConfig
 {
 %TypeHeaderCode
-#include "../../globals.h"
+#include "../../config/globals.h"
 %End
 
 	public:
@@ -29,7 +29,7 @@ class PadConfig
 class TofConfig : PadConfig
 {
 %TypeHeaderCode
-#include "../../globals.h"
+#include "../../config/globals.h"
 %End
 
 	public:
@@ -81,7 +81,7 @@ class TofConfig : PadConfig
 class GlobalConfig
 {
 %TypeHeaderCode
-#include "../../globals.h"
+#include "../../config/globals.h"
 %End
 
 	public:

@@ -27,8 +27,8 @@
 
 #include <qwt_plot_spectrogram.h>
 
-#include "globals.h"
-#include "tofloader.h"
+#include "../config/globals.h"
+#include "../loader/tofloader.h"
 
 /*
  * base class for PadData & TofData

@@ -25,7 +25,7 @@
 //
 
 #include "plotter.h"
-#include "helper.h"
+#include "../aux/helper.h"
 
 #include <sstream>
 #include <qprinter.h>

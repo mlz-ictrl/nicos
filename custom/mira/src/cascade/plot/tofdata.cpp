@@ -25,8 +25,9 @@
 #include <limits>
 #include <math.h>
 #include <iostream>
+
 #include "tofdata.h"
-#include "helper.h"
+#include "../aux/helper.h"
 
 MainRasterData::MainRasterData(const QwtDoubleRect& rect)
 				: QwtRasterData(rect), m_bLog(1),

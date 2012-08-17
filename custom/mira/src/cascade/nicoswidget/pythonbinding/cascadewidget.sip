@@ -15,7 +15,7 @@
 class GraphDlg : QDialog
 {
 %TypeHeaderCode
-#include "../../cascadedialogs.h"
+#include "../../dialogs/cascadedialogs.h"
 %End
 	public:
 		GraphDlg(QWidget *pParent, TofImage* pTof);
@@ -28,7 +28,7 @@ class GraphDlg : QDialog
 class MainRasterData : QwtRasterData
 {
 %TypeHeaderCode
-#include "../../tofdata.h"
+#include "../../plot/tofdata.h"
 %End
 
 	public:
@@ -66,7 +66,7 @@ class MainRasterData : QwtRasterData
 class Plot : QwtPlot
 {
 %TypeHeaderCode
-#include "../../plotter.h"
+#include "../../plot/plotter.h"
 %End
 	public:
 		void ChangeRange();
@@ -89,7 +89,7 @@ class Plot : QwtPlot
 class CascadeWidget : QWidget
 {
 %TypeHeaderCode
-#include "../../cascadewidget.h"
+#include "../../main/cascadewidget.h"
 %End
 
 	public:

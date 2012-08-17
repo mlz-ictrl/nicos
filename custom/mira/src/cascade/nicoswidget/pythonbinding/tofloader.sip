@@ -4,7 +4,7 @@
 class BasicImage
 {
 %TypeHeaderCode
-#include "../../basicimage.h"
+#include "../../loader/basicimage.h"
 %End
 
 	public:
@@ -23,7 +23,7 @@ class BasicImage
 class Roi
 {
 %TypeHeaderCode
-#include "../../roi.h"
+#include "../../aux/roi.h"
 %End
 
 	public:
@@ -45,7 +45,7 @@ class Roi
 class Countable
 {
 %TypeHeaderCode
-#include "../../basicimage.h"
+#include "../../loader/basicimage.h"
 %End
 
 	public:
@@ -62,7 +62,7 @@ class Countable
 class PadImage : BasicImage, Countable
 {
 %TypeHeaderCode
-#include "../../padloader.h"
+#include "../../loader/padloader.h"
 %End
 	public:
 		PadImage(const char *pcFileName=NULL,
@@ -111,7 +111,7 @@ class PadImage : BasicImage, Countable
 class TmpImage : BasicImage
 {
 %TypeHeaderCode
-#include "../../tofloader.h"
+#include "../../loader/tofloader.h"
 %End
 	public:
 		TmpImage(const TofConfig* pTofConf=0);
@@ -154,7 +154,7 @@ class TmpImage : BasicImage
 class TmpGraph
 {
 %TypeHeaderCode
-#include "../../tofloader.h"
+#include "../../loader/tofloader.h"
 %End
 	public:
 		TmpGraph(const TofConfig* pTofConf=0);
@@ -181,7 +181,7 @@ class TmpGraph
 class TofImage : Countable
 {
 %TypeHeaderCode
-#include "../../tofloader.h"
+#include "../../loader/tofloader.h"
 %End
 	public:
 		TofImage(const char *pcFileName=NULL,

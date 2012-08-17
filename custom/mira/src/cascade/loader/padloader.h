@@ -25,9 +25,9 @@
 #ifndef __PADLOADER__
 #define __PADLOADER__
 
-#include "globals.h"
+#include "../config/globals.h"
 #include "basicimage.h"
-#include "roi.h"
+#include "../aux/roi.h"
 #include "tofloader.h"
 
 class TmpImage;

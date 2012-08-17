@@ -28,10 +28,10 @@
 
 #include "roi.h"
 #include "helper.h"
-#include "config.h"
 #include "logger.h"
 #include "mat2d.h"
 #include "pnpoly.h"
+#include "../config/config.h"
 
 //------------------------------------------------------------------------------
 // Bounding Rectangle

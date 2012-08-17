@@ -33,8 +33,8 @@
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 
-#include "logger.h"
-#include "helper.h"
+#include "../aux/logger.h"
+#include "../aux/helper.h"
 
 #if !defined(LIBXML_XPATH_ENABLED) || !defined(LIBXML_SAX1_ENABLED)
 	#error "Fehler: libxml mit XPath benötigt."

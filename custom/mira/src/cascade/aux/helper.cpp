@@ -22,7 +22,7 @@
 // *****************************************************************************
 
 #include "helper.h"
-#include "globals.h"
+#include "../config/globals.h"
 
 #include <stdio.h>
 #include <stdlib.h>
