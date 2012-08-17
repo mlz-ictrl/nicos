@@ -17,14 +17,7 @@
             <foil_5_start> 80 </foil_5_start>
             <foil_6_start> 96 </foil_6_start>
 
-            <foil_1_phase_shift> 3.82 </foil_1_phase_shift> 
-            <foil_2_phase_shift> 2.11 </foil_2_phase_shift> 
-            <foil_3_phase_shift> 1.14 </foil_3_phase_shift> 
-            <foil_4_phase_shift> 4.50 </foil_4_phase_shift> 
-            <foil_5_phase_shift> 5.90 </foil_5_phase_shift> 
-            <foil_6_phase_shift> 0.90 </foil_6_phase_shift> 
-
-	        <pseudo_compression> 0 </pseudo_compression>
+            <pseudo_compression> 0 </pseudo_compression>
             <sum_first_and_last> 0 </sum_first_and_last>
             <number_of_oscillations> 2.0 </number_of_oscillations>
 

@@ -1178,6 +1178,10 @@ class MainWindow : public QMainWindow
 			strAbout += QString("\n") + QString("Uses Boost\t\thttp://www.boost.org");
 			#endif
 
+			#ifdef USE_XML
+			strAbout += QString("\n") + QString("Uses libxml 2\t\thttp://xmlsoft.org");
+			#endif
+
 			strAbout += "\n\n";
 			strAbout += "This program is free software; you can redistribute it and/or modify it under\n"
 						"the terms of the GNU General Public License as published by the Free Software\n"

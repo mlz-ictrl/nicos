@@ -86,7 +86,6 @@ const TofConfig& TofConfig::operator=(const TofConfig& conf)
 
 	FOIL_COUNT = conf.FOIL_COUNT;
 	vecFoilBegin = conf.vecFoilBegin;
-	vecFoilPhase = conf.vecFoilPhase;
 
 	IMAGES_PER_FOIL = conf.IMAGES_PER_FOIL;
 	IMAGE_COUNT = conf.IMAGE_COUNT;
@@ -111,12 +110,6 @@ int TofConfig::GetFoilBegin(int iFoil) const
 	return vecFoilBegin[iFoil];
 }
 
-double TofConfig::GetFoilPhase(int iFoil) const
-{
-	if(iFoil<0 || iFoil>=FOIL_COUNT) return -1;
-	return vecFoilPhase[iFoil];
-}
-
 static inline int GetNextPowerOfTwo(int iNum)
 {
 	int i=0;
@@ -132,7 +125,6 @@ void TofConfig::SetFoilCount(int iNumFoils)
 {
 	FOIL_COUNT = iNumFoils;
 	vecFoilBegin.resize(iNumFoils);
-	vecFoilPhase.resize(iNumFoils);
 
 	const int iBegins[] = {0, 16, 32, 64, 80, 96};
 
@@ -149,12 +141,6 @@ void TofConfig::SetFoilBegin(int iFoil, int iOffs)
 {
 	if(iFoil<0 || iFoil>=FOIL_COUNT) return;
 	vecFoilBegin[iFoil] = iOffs;
-}
-
-void TofConfig::SetFoilPhase(int iFoil, double dPhase)
-{
-	if(iFoil<0 || iFoil>=FOIL_COUNT) return;
-	vecFoilPhase[iFoil] = dPhase;
 }
 
 void TofConfig::SetImagesPerFoil(int iNumImagesPerFoil)
@@ -285,16 +271,12 @@ void GlobalConfig::Init()
 				s_config.NUM_OSC);
 
 	s_config.vecFoilBegin.resize(s_config.FOIL_COUNT);
-	s_config.vecFoilPhase.resize(s_config.FOIL_COUNT);
 	for(int i=0; i<s_config.FOIL_COUNT; ++i)
 	{
 		char pcStr[256];
 		sprintf(pcStr, "/cascade_config/tof_file/foil_%d_start", i+1);
 		s_config.vecFoilBegin[i] = (Config::GetSingleton()->QueryInt(
 				pcStr, s_config.IMAGES_PER_FOIL*2*i));
-
-		sprintf(pcStr, "/cascade_config/tof_file/foil_%d_phase_shift", i+1);
-		s_config.vecFoilPhase[i] = Config::GetSingleton()->QueryDouble(pcStr, 0.);
 	}
 
 	iPhaseBlockSize[0] = Config::GetSingleton()->QueryInt(

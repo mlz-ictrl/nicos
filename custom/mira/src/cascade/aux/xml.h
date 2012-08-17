@@ -20,46 +20,40 @@
 //   Tobias Weber <tweber@frm2.tum.de>
 //
 // *****************************************************************************
-// (singleton) class for reading xml files
 
-#include "config.h"
+#ifndef __CASCADE_XML__
+#define __CASCADE_XML__
 
-#include <iostream>
-#include <stdlib.h>
-#include <string.h>
+#include <string>
 
-#include "../aux/logger.h"
-#include "../aux/helper.h"
-
-Config::Config() {}
-Config::~Config() {}
-
-//////////////////////////////// Singleton-Zeug ////////////////////////////////
-Config *Config::s_pConfig = 0;
-
-Config* Config::GetSingleton()
+/*
+ * class for reading xml files
+ */
+class Xml
 {
-	if(!s_pConfig) s_pConfig = new Config();
-	return s_pConfig;
-}
+	private:
+		static int s_iInstances;
+		static void StartXml();
+		static void StopXml();		
+	
+	protected:
+		void *m_pxmldoc;
+		void *m_ppathcontext;
+		void Clear();
 
-void Config::ClearSingleton()
-{
-	if(s_pConfig)
-	{
-		delete s_pConfig;
-		s_pConfig = 0;
-	}
-}
-////////////////////////////////////////////////////////////////////////////////
+	public:
+		Xml();
+		virtual ~Xml();
+		
+		// Load a XML file
+		bool Load(const char* pcFile);
 
-/*int main(void)
-{
-	Config::GetSingleton()->Load("./cascade.xml");
-	std::cout << Config::GetSingleton()->QueryInt(
-	 					"/cascade_config/tof_loader/image_width") << std::endl;
-	std::cout << Config::GetSingleton()->QueryInt(
-	 					"/cascade_config/tof_loader/image_height") << std::endl;
-	Config::ClearSingleton();
-	return 0;
-}*/
+		//----------------------------------------------------------------------
+		// Query values in a given xpath
+		int QueryInt(const char* pcXpath, int iDefault=0, bool* pOK=0);
+		double QueryDouble(const char* pcXpath, double dDefault=0., bool* pOK=0);
+		std::string QueryString(const char* pcXpath, const char* pcDefault, bool* pOK=0);
+		//----------------------------------------------------------------------
+};
+
+#endif

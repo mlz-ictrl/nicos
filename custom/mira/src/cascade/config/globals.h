@@ -32,6 +32,7 @@
 #ifdef __CASCADE_QT_CLIENT__
 	#define USE_FFTW
 	//#define USE_BOOST
+	#define USE_XML
 #endif
 
 #define LOAD_SUCCESS		 1
@@ -103,7 +104,6 @@ class TofConfig : public PadConfig
 
 		// vector of indices marking the beginning of the individual foils
 		std::vector<int> vecFoilBegin;
-		std::vector<double> vecFoilPhase;
 
 		bool USE_PSEUDO_COMPRESSION;
 		bool SUM_FIRST_AND_LAST;
@@ -122,7 +122,6 @@ class TofConfig : public PadConfig
 		int GetImagesPerFoil() const;
 		int GetImageCount() const;			// TOTAL images in TOF
 		int GetFoilBegin(int iFoil) const;
-		double GetFoilPhase(int iFoil) const;
 		bool GetPseudoCompression() const;
 		bool GetSumFirstAndLast() const;
 		double GetNumOscillations() const;
@@ -133,7 +132,6 @@ class TofConfig : public PadConfig
 		void SetImagesPerFoil(int iNumImagesPerFoil);
 		void SetImageCount(int iImgCount);	// TOTAL images in TOF
 		void SetFoilBegin(int iFoil, int iOffs);
-		void SetFoilPhase(int iFoil, double dPhase);
 		void SetPseudoCompression(bool bSet);
 		void SetSumFirstAndLast(bool bSet);
 		void SetNumOscillations(double dVal);

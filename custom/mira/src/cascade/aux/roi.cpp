@@ -31,7 +31,11 @@
 #include "logger.h"
 #include "mat2d.h"
 #include "pnpoly.h"
-#include "../config/config.h"
+#include "../config/globals.h"
+
+#ifdef USE_XML
+	#include "xml.h"
+#endif
 
 //------------------------------------------------------------------------------
 // Bounding Rectangle
@@ -1111,9 +1115,10 @@ BoundingRect Roi::GetBoundingRect() const
 
 bool Roi::Load(const char* pcFile)
 {
+#ifdef USE_XML
 	clear();
 
-	Config xml;
+	Xml xml;
 	if(!xml.Load(pcFile))
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -1181,6 +1186,15 @@ bool Roi::Load(const char* pcFile)
 		add(pElem);
 	}
 	return true;
+
+#else	// !USE_XML
+
+	logger.SetCurLogLevel(LOGLEVEL_ERR);
+	logger << "Fourier: Not compiled with libxml.\n";
+
+	return false;
+
+#endif  // USE_XML
 }
 
 bool Roi::Save(const char* pcFile)

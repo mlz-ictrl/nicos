@@ -32,10 +32,11 @@ all: cascade nicosmodules
 
 ###################### cascade-qt-client ################
 cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o \
-	 config.o histogram_item.o client.o helper.o logger.o globals.o parse.o \
+	 config.o xml.o histogram_item.o client.o helper.o logger.o globals.o parse.o \
 	roi.o fit.o gc.o plotter.o padloader.o fourier.o
 	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o \
 		bins.o cascadewidget.o tofloader.o tofdata.o config.o \
+		xml.o \
 		histogram_item.o client.o helper.o logger.o globals.o \
 		parse.o roi.o fit.o gc.o plotter.o padloader.o fourier.o
 #########################################################
@@ -75,6 +76,9 @@ fourier.o: aux/fourier.cpp aux/fourier.h
 
 config.o: config/config.cpp config/config.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o config.o config/config.cpp
+
+xml.o: aux/xml.cpp aux/xml.h
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o xml.o aux/xml.cpp
 
 histogram_item.o: plot/histogram_item.cpp plot/histogram_item.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o histogram_item.o plot/histogram_item.cpp

@@ -26,33 +26,19 @@
 
 #include <string>
 
+#include "../aux/xml.h"
+
 /*
- * (Singleton) class for reading xml configuration files
+ * (Singleton) class for reading xml files
  */
-class Config
+class Config : public Xml
 {
 	private:
 		static Config *s_pConfig;
-		static int s_iInstances;
-
-	protected:
-		void *m_pxmldoc;
-		void *m_ppathcontext;
-		void Clear();
 
 	public:
 		Config();
 		virtual ~Config();
-
-		// Load a XML file
-		bool Load(const char* pcFile);
-
-		//----------------------------------------------------------------------
-		// Query values in a given xpath
-		int QueryInt(const char* pcXpath, int iDefault=0, bool* pOK=0);
-		double QueryDouble(const char* pcXpath, double dDefault=0., bool* pOK=0);
-		std::string QueryString(const char* pcXpath, const char* pcDefault, bool* pOK=0);
-		//----------------------------------------------------------------------
 
 		// get pointer to singleton instance of this class
 		static Config* GetSingleton();
