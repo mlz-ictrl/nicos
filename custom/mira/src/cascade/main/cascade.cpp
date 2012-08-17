@@ -119,7 +119,7 @@ class MainWindow : public QMainWindow
 
 		void Unload()
 		{
-			m_cascadewidget.SetMode(MODE_SLIDES);
+			//m_cascadewidget.SetMode(MODE_SLIDES);
 			m_cascadewidget.Unload();
 		}
 
@@ -290,7 +290,7 @@ class MainWindow : public QMainWindow
 			if(pcFile)
 			{
 				ShowTitleMessage(pcFile);
-				actionViewsOverview->setChecked(true);
+				//actionViewsOverview->setChecked(true);
 			}
 		}
 

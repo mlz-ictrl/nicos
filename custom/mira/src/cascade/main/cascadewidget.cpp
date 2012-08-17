@@ -216,7 +216,8 @@ bool CascadeWidget::LoadTofFile(const char* pcFile)
 
 	if(iRet)
 	{
-		viewOverview();
+		//viewOverview();
+		UpdateGraph();
 		emit FileHasChanged(pcFile);
 	}
 	return iRet;
@@ -264,7 +265,8 @@ bool CascadeWidget::LoadTofMem(const char* pcMem, unsigned int uiLen)
 
 	if(iRet)
 	{
-		viewOverview();
+		//viewOverview();
+		UpdateGraph();
 		emit FileHasChanged("<memfile>");
 	}
 	return iRet;

@@ -135,16 +135,18 @@ bool Fourier::ifft(const double* pRealIn, const double *pImagIn,
 
 Fourier::Fourier(unsigned int iSize) : m_iSize(iSize)
 {
+	/*
 	static bool bWarningShown = false;
 
 	if(!bWarningShown)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_WARN);
 		logger << "Fourier: Not compiled with fftw, using some "
-				  "not-nearly-as-cool standard dft calculations instead.\n";
-
+				  "not-nearly-as-cool (or fast) standard dft "
+				  "calculations instead.\n";
 		bWarningShown = true;
 	}
+	*/
 }
 
 Fourier::~Fourier()
