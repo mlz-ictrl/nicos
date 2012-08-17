@@ -108,6 +108,9 @@ class DaemonSession(NoninteractiveSession):
             signal.alarm(600)   # kill forcibly after 10 minutes
             pipesender = SimLogSender(wp, self)
             pipesender.begin()
+            # remove all pending client handlers (the threads are dead anyway,
+            # but we have to stop putting events into their queues)
+            self.daemon_device.clear_handlers()
             try:
                 self.log.manager.globalprefix = '(sim) '
                 self.addLogHandler(pipesender)

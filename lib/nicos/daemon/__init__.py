@@ -246,9 +246,13 @@ class NicosDaemon(Device):
             data = serialize(data)
         for handler in self._server.handlers.values():
             try:
-                handler.event_queue.put((event, data))
+                handler.event_queue.put((event, data), False)
             except Queue.Full:
                 self.log.warning('handler %s: event queue full' % handler.ident)
+
+    def clear_handlers(self):
+        """Remove all handlers."""
+        self._server.handlers.clear()
 
     def start(self):
         """Start the daemon's server."""
