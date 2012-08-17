@@ -1,8 +1,9 @@
 #  -*- coding: utf-8 -*-
 
-description = 'single detector'
+description = 'PUMA single detector'
+group = 'lowlevel'
 
-group = 'internal'
+includes = ['motorbus1', 'motorbus6']
 
 devices = dict(
     timer    = device('nicos.taco.FRMTimerChannel',
@@ -57,6 +58,34 @@ devices = dict(
                       counters = ['det1', 'det2', 'det3', 'det4', 'det5'],
                       maxage = 1,
                       pollinterval = 1),
-)
 
-startupcode = ''
+
+    st_sld = device('nicos.ipc.Motor',
+                    bus = 'motorbus6',
+                    addr = 93,
+                    slope = 4500,
+                    unit = 'mm',
+                    abslimits = (-0.1, 70.1),
+                    zerosteps = 500000,
+                    lowlevel = True,
+                    ),
+    co_sld = device('nicos.ipc.Coder',
+                    bus = 'motorbus1',
+                    addr = 158,
+                    slope = 37,
+                    zerosteps = 68,
+                    unit = 'mm',
+                    lowlevel = True,
+                    ),
+    ds1    = device('nicos.generic.Axis',
+                    description = 'slit of detector opening',
+                    motor = 'st_sld',
+                    coder = 'co_sld',
+                    obs = [],
+                    precision = 0.2,
+                    offset = 0,
+                    fmtstr = '%.2f',
+                    maxtries = 7,
+                    ),
+
+)
