@@ -15,9 +15,11 @@
 
 COMPILER	= gcc
 FLAGS		= -O2 -march=native -Wall -Wextra -D __CASCADE_QT_CLIENT__
+
 LIBS		= -lQtCore -lQtGui -lQtNetwork -lqwt -lMinuit2 -lgomp -lxml2 \
 		   -lstdc++ -lm -lfftw3 \
 		   -L /usr/lib/qt4
+
 INCLUDES	= -I /usr/include/qwt -I /usr/include/qwt5 -I /usr/include/qt4 \
                   -I /usr/include/Qt -I /usr/include/QtCore -I /usr/include/QtGui \
                   -I /usr/include/qt4/Qt -I /usr/include/qt4/QtCore -I /usr/include/qt4/QtGui \
