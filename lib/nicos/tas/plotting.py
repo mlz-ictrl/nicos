@@ -191,6 +191,7 @@ class SpaceMap(object):
         xs2, ys2 = array(matrix.dot(array([xs2, ys2])))
         pylab.fill(xs1 + x, ys1 + y, color='blue', alpha=0.5)
         pylab.plot(xs2 + x, ys2 + y, color='green')
+        plot_ellipsoid(self.resmat, 'Resolution at selected HKL point')
 
     def display_hkl(self, x, y, textobj):
         hkl = self.cell.Qcart2hkl(array([x, y, 0]))
@@ -242,13 +243,15 @@ class SpaceMap(object):
         dir1 = self.cell.orient1
         dir2 = cross(self.cell.cal_zone(), self.cell.orient1)
 
-        # set up pylab figure (XXX share with rescalc)
+        # set up pylab figure
         pylab.ion()
-        pylab.figure(3, figsize=(7, 7), dpi=120, facecolor='1.0')
+        pylab.figure('Reciprocal space visualization', figsize=(7, 7), dpi=120,
+                     facecolor='1.0')
         pylab.clf()
         pylab.rc('text', usetex=True)
         pylab.rc('text.latex',
             preamble=r'\usepackage{amsmath}\usepackage{helvet}\usepackage{sfmath}')
+
         ax = pylab.subplot(111, aspect='equal')
         ax.set_axisbelow(True)  # draw grid lines below plotted points
         # register event handler to pylab
@@ -312,14 +315,14 @@ class SpaceMap(object):
             pylab.plot(v[:,0], v[:,1], color='0.7', zorder=-1)
 
 
-def plot_ellipsoid(resmat):
+def plot_ellipsoid(resmat, fignum='Resolution calculation'):
     import pylab
 
     x, y, xslice, yslice, xxq, yxq, xxqslice, yxqslice, xyq, yyq, xyqslice, yyqslice = \
         resmat.resellipse()
 
     pylab.ion()
-    pylab.figure(4, figsize=(8.5, 6), dpi=120, facecolor='1.0')
+    pylab.figure(fignum, figsize=(8.5, 6), dpi=120, facecolor='1.0')
     pylab.clf()
     pylab.rc('text', usetex=True)
     pylab.rc('text.latex',
