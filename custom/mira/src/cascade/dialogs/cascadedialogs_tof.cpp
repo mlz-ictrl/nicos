@@ -277,9 +277,9 @@ void GraphDlg::UpdateGraph(void)
 		char pcFit[256];
 		if(bFitValid)
 		{
-			sprintf(pcFit, "Contrast: %g +- %g\nPhase: %g +- %g",
+			sprintf(pcFit, "Contrast: %g +- %g\nPhase: %g deg +- %g deg",
 							dContrast, dContrast_err,
-							dPhase, dPhase_err);
+							dPhase/M_PI*180., dPhase_err/M_PI*180.);
 		}
 		else
 		{
@@ -349,9 +349,9 @@ void GraphDlg::UpdateGraph(void)
 		char pcFit[256];
 		if(bFitValid)
 		{
-			sprintf(pcFit, "Contrast: %g +- %g\nPhase: %g +- %g",
+			sprintf(pcFit, "Contrast: %g +- %g\nPhase: %g deg +- %g deg",
 							dContrast, dContrast_err,
-							dPhase, dPhase_err);
+							dPhase/M_PI*180., dPhase_err/M_PI*180.);
 		}
 		else
 		{
@@ -427,22 +427,8 @@ void GraphDlg::Init(int iFolie)
 	m_curve.setSymbol(sym);
 	m_curve.setStyle(QwtPlotCurve::NoCurve);
 	m_curve.setRenderHint(QwtPlotItem::RenderAntialiased);
-	m_curve.setPen(QPen(Qt::blue));
+	m_curve.setErrorPen(QPen(Qt::blue));
 	m_curve.attach(qwtPlot);
-
-	
-	// Gesamtpunkte
-	QwtSymbol symtotal;
-	symtotal.setStyle(QwtSymbol::Ellipse);
-	symtotal.setPen(QColor(Qt::black));
-	symtotal.setBrush(QColor(Qt::black));
-	symtotal.setSize(5);
-	
-	m_curvetotalpoints.setSymbol(symtotal);
-	m_curvetotalpoints.setStyle(QwtPlotCurve::NoCurve);
-	m_curvetotalpoints.setRenderHint(QwtPlotItem::RenderAntialiased);
-	m_curvetotalpoints.setPen(QPen(Qt::black));
-	m_curvetotalpoints.attach(qwtPlot);
 
 	
 
@@ -451,6 +437,21 @@ void GraphDlg::Init(int iFolie)
 	QPen penfit = QPen(Qt::red);
 	m_curvefit.setPen(penfit);
 	m_curvefit.attach(qwtPlot);
+
+
+
+	// Gesamtpunkte
+	QwtSymbol symtotal;
+	symtotal.setStyle(QwtSymbol::Ellipse);
+	symtotal.setPen(QColor(Qt::black));
+	symtotal.setBrush(QColor(Qt::black));
+	symtotal.setSize(5);
+
+	m_curvetotalpoints.setSymbol(symtotal);
+	m_curvetotalpoints.setStyle(QwtPlotCurve::NoCurve);
+	m_curvetotalpoints.setRenderHint(QwtPlotItem::RenderAntialiased);
+	m_curvetotalpoints.setErrorPen(QPen(Qt::black));
+	m_curvetotalpoints.attach(qwtPlot);	
 
 
 	// Gesamtkurve
@@ -489,8 +490,8 @@ GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof, int iFolie)
 														  m_pTofImg(pTof),
 														  m_curve("Foil"),
 														  m_curvetotalpoints("Total"),
-														  m_curvefit("Fit"),
-														  m_curvetotal("Total"),
+														  m_curvefit("Foil fit"),
+														  m_curvetotal("Total fit"),
 														  m_plegend(0),
 														  m_pgrid(0)
 {

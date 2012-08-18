@@ -56,6 +56,12 @@ class ErrorBarPlotCurve : public QwtPlotCurve
 			m_errorCap = 5;
 		}
 
+		void setErrorPen(const QPen& pen)
+		{
+			m_errorPen = pen;
+			QwtPlotCurve::setPen(pen);
+		}
+
 		virtual ~ErrorBarPlotCurve()
 		{
 			Clear();
