@@ -31,7 +31,7 @@ import time
 
 from numpy import array, linspace, sqrt, delete, sin, cos, arctan2, mat, cross
 
-from nicos.core import ComputationError, NicosError
+from nicos.core import ComputationError
 from nicos.tas.mono import Monochromator
 from nicos.tas.spectro import THZ2MEV
 from nicos.tas.spacegroups import get_spacegroup, can_reflect
