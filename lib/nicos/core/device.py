@@ -36,8 +36,7 @@ from nicos.core.params import Param, Override, Value, tupleof, floatrange, \
      anytype, none_or
 from nicos.core.errors import NicosError, ConfigurationError, \
      ProgrammingError, UsageError, LimitError, ModeError, \
-     CommunicationError, CacheLockError, InvalidValueError, AccessError, \
-     CacheError
+     CommunicationError, CacheLockError, InvalidValueError, AccessError
 from nicos.utils import loggers, getVersions, parseDateString
 
 

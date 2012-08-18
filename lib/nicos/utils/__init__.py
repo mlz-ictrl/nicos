@@ -233,6 +233,20 @@ def parseDateString(s, enddate=False):
         else:
             ltime = time.localtime()
             return time.mktime(ltime[:3] + parsed[3:6] + ltime[6:])
+    # formats like "1 day" etc.
+    rex = re.compile(r'^\s*(\d+(?:.\d+)?)\s*(\w+)\s*$')
+    units = [
+        (1, 'seconds', 'second', 'sec', 's'),
+        (60, 'minutes', 'minute', 'min', 'm'),
+        (3600, 'hours', 'hour', 'h'),
+        (3600*24, 'days', 'day', 'd'),
+        (3600*24*7, 'weeks', 'week', 'w'),
+    ]
+    m = rex.match(s)
+    if m is not None:
+        for u in units:
+            if m.group(2) in u[1:]:
+                return time.time() - float(m.group(1)) * u[0]
     raise ValueError('the given string is not a date/time string')
 
 
