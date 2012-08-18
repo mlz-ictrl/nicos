@@ -73,8 +73,8 @@ class View(object):
                     if value is not None and vtime > ltime + interval:
                         x[i] = max(vtime, fromtime)
                         y[i] = value
+                        ltime = x[i]
                         i += 1
-                        ltime = vtime
                 x.resize((2*i or 100,))
                 y.resize((2*i or 100,))
                 self.keydata[key] = [x, y, i]
@@ -113,6 +113,9 @@ class View(object):
             i = -1
             threshold = time - self.window
             while kd[0][i+1] < threshold and i < n:
+                if kd[0][i+2] > threshold:
+                    kd[0][i+1] = threshold
+                    break
                 i += 1
             if i >= 0:
                 # print 'sliding remove:', i+1
