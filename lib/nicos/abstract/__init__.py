@@ -91,7 +91,8 @@ class Axis(HasLimits, HasOffset, HasPrecision, Moveable):
                            default=3, settable=True),
         'loopdelay': Param('The sleep time when checking the movement',
                            unit='s', default=0.3, settable=True),
-        'backlash':  Param('The maximum allowed backlash', unit='main',
+        'backlash':  Param('The backlash for the axis: if positive, always '
+                           'approach from positive values', unit='main',
                            settable=True),
     }
 
