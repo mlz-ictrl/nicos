@@ -204,6 +204,7 @@ class MainWindow(QMainWindow, DlgUtils):
     def createWindow(self, wtype):
         wconfig = self.profiles[self.curprofile][1][wtype+1]
         if wconfig[2] and self.windows.get(wtype):
+            iter(self.windows[wtype]).next().activateWindow()
             return
         window = AuxiliaryWindow(self, wtype, wconfig, self.curprofile)
         window.setWindowIcon(QIcon(':/' + wconfig[1]))
