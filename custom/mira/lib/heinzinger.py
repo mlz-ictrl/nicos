@@ -93,3 +93,33 @@ class Heinzinger(TacoDevice, HasLimits, Moveable):
             time.sleep(1.5)
             if abs(self.doRead() - value) > value*self.variance + 0.2:
                 raise NicosError(self, 'power supply failed to set current value')
+
+
+class HeinzingerViaHPE(TacoDevice, HasLimits, Moveable):
+    """
+    Device object for a Heinzinger PTN3p power supply via external input HPE3631.
+    """
+    taco_class = StringIO
+
+    parameter_overrides = {
+        'unit':  Override(mandatory=False, default='A'),
+    }
+
+    def doInit(self, mode):
+        idn = self._taco_guard(self._dev.communicate, '*IDN?')
+        if 'HEWLETT-PACKARD' not in idn:
+            raise CommunicationError(self, 'strange model for HPE: %r' % idn)
+
+    def doRead(self, maxage=0):
+        self._taco_guard(self._dev.writeLine, 'INSTRUMENT:NSELECT 2')
+        time.sleep(1)
+        return float(self._taco_guard(self._dev.communicate, 'VOLT?')) * 8.
+
+    def doStatus(self, maxage=0):
+        return status.OK, 'idle'
+
+    def doStart(self, value):
+        self._taco_guard(self._dev.writeLine, 'INSTRUMENT:NSELECT 2')
+        time.sleep(1)
+        self._taco_guard(self._dev.writeLine, 'VOLT %f' % (value / 8.))
+

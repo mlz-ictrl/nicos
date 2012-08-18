@@ -69,6 +69,7 @@ class LiveDataPanel(Panel):
         self.rangeFrom = QDoubleSpinBox(self)
         self.rangeTo = QDoubleSpinBox(self)
         for ctrl in [self.rangeFrom, self.rangeTo]:
+            ctrl.setRange(0, 100000000)
             ctrl.setEnabled(False)
             ctrl.setMaximumWidth(90)
             ctrl.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,
@@ -193,15 +194,23 @@ class LiveDataPanel(Panel):
                 self._no_direct_display = False
                 if self._format == 'pad':
                     self.widget.LoadPadMem(self._last_data, 128*128*4)
+                    cts = self.widget.GetPad().GetCounts()
+                    self.statusBar.showMessage('total: %s' % cts)
                 elif self._format == 'tof':
                     self.widget.LoadTofMem(self._last_data, 128*128*128*4)
+                    cts = self.widget.GetTof().GetCounts()
+                    self.statusBar.showMessage('total: %s' % cts)
                 self.updateRange()
         else:
             self._no_direct_display = True
             if fformat == 'pad':
                 self.widget.LoadPadFile(fname)
+                cts = self.widget.GetPad().GetCounts()
+                self.statusBar.showMessage('total: %s' % cts)
             elif fformat == 'tof':
                 self.widget.LoadTofFile(fname)
+                cts = self.widget.GetTof().GetCounts()
+                self.statusBar.showMessage('total: %s' % cts)
             self.updateRange()
 
     def on_fileList_currentItemChanged(self, item, previous):
