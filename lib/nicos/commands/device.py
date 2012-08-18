@@ -456,16 +456,16 @@ def limits(*devlist):
 @usercommand
 @helparglist('dev, ...')
 def resetlimits(*devlist):
-    """Reset the user limits for the device(s) to the absolute limits.
+    """Reset the user limits for the device(s) to the allowed maximum range.
 
-    The following commands are **not** equivalent:
+    The following commands are **not** necessarily equivalent:
 
     >>> resetlimits(phi)
 
     >>> phi.userlimits = phi.abslimits
 
-    because the user limits are given in terms of the "logical" value,
-    i.e. taking the device's offset into account, while the absolute limits are
+    because the user limits are given in terms of the "logical" value, i.e.
+    taking the device's offset into account, while the absolute limits are
     given in terms of the "physical" value.
     """
     if not devlist:

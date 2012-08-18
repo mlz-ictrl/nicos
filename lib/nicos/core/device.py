@@ -1310,8 +1310,8 @@ class HasLimits(Moveable):
     def doWriteUserlimits(self, value):
         self._checkLimits(value)
         if isinstance(self, HasOffset) and hasattr(self, '_new_offset'):
-            # when changing the userlimits are adjusted so that the value
-            # stays within them, but only after the new offset is applied
+            # when changing the offset, the userlimits are adjusted so that the
+            # value stays within them, but only after the new offset is applied
             return
         curval = self.read(0)
         if not value[0] <= curval <= value[1]:
