@@ -232,10 +232,10 @@ unsigned int* TofImage::GetRawData(void) const
 	return m_puiDaten;
 }
 
-int TofImage::LoadMem(const char *strBuf, unsigned int strBufLen)
+int TofImage::LoadMem(const char *strBuf, unsigned int istrBufLen)
 {
 	const unsigned int *puiBuf = (unsigned int *)strBuf;
-	unsigned int uiBufLen = strBufLen / 4;
+	unsigned int uiBufLen = istrBufLen / 4;
 
 	if(m_bExternalMem)
 	{

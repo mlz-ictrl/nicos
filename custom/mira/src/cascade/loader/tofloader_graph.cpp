@@ -217,4 +217,5 @@ bool TmpGraph::Save(const char* pcFile) const
 	}
 
 	ofstr.close();
+	return true;
 }

@@ -258,7 +258,7 @@ bool Fourier::shift_sin(double dNumOsc, const double* pDatIn,
 	// filter out everything not concerning the sine with iNumOsc oscillations
 	for(unsigned int i=0; i<iSize; ++i)
 	{
-		if(i==iNumOsc || i==0)
+		if(int(i)==iNumOsc || i==0)
 			continue;
 
 		pDatFFT_real[i] = 0.;
