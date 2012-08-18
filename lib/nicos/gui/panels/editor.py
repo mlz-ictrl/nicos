@@ -39,7 +39,7 @@ from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, Qt, QVariant, \
 from PyQt4.QtGui import QDialog, QPlainTextEdit, QHeaderView, QHBoxLayout, \
      QTreeWidgetItem, QMessageBox, QTextCursor, QTextDocument, QPen, QColor, \
      QFont, QAction, QPrintDialog, QPrinter, QFileDialog, QMenu, QToolBar, \
-     QFileSystemModel
+     QFileSystemModel, QTabWidget
 
 try:
     from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciPrinter
@@ -105,12 +105,6 @@ class QScintillaCompatible(QPlainTextEdit):
     def isModified(self):
         return self.document().isModified()
 
-    def markerAdd(self, line, marker):
-        pass
-
-    def markerDeleteAll(self):
-        pass
-
 
 if has_scintilla:
     class Printer(QsciPrinter):
@@ -147,42 +141,15 @@ class EditorPanel(Panel):
         loadUi(self, 'editor.ui', 'panels')
 
         self.window = parent
+        self.custom_font = None
+        self.custom_back = None
 
-        if has_scintilla:
-            self.editor = QsciScintilla(self)
-            self.lexer = QsciLexerPython(self.editor)
-            self.editor.setUtf8(True)
-            self.editor.setLexer(self.lexer)
-            self.editor.setAutoIndent(True)
-            self.editor.setEolMode(QsciScintilla.EolUnix)
-            self.editor.setIndentationsUseTabs(False)
-            self.editor.setIndentationGuides(True)
-            self.editor.setTabIndents(True)
-            self.editor.setBackspaceUnindents(True)
-            self.editor.setTabWidth(4)
-            self.editor.setIndentationWidth(0)
-            self.editor.setBraceMatching(QsciScintilla.SloppyBraceMatch)
-            self.editor.setFolding(QsciScintilla.PlainFoldStyle)
-            self.editor.setIndentationGuidesForegroundColor(QColor("#CCC"))
-            self.editor.setWrapMode(QsciScintilla.WrapCharacter)
-            # markers for errors/problems (higher numbers have precedence)
-            self.editor.markerDefine(QsciScintilla.RightTriangle, 1)
-            self.editor.setMarkerBackgroundColor(QColor("yellow"), 1)
-            self.editor.markerDefine(QsciScintilla.Circle, 2)
-            self.editor.setMarkerBackgroundColor(QColor("red"), 2)
-        else:
-            self.editor = QScintillaCompatible(self)
-            self.lexer = None
+        if not has_scintilla:
             self.actionComment.setEnabled(False)
             self.actionUncomment.setEnabled(False)
 
         self.current_status = None
         self.recentf_actions = []
-        self.filename = ''
-        self.setFilename('', force=True)
-        self.window.setWindowTitle('New[*] - %s editor' %
-                                   self.mainwindow.instrument)
-        self.window.setWindowModified(False)
         self.searchdlg = None
         self.menuRecent = QMenu('Recent files')
 
@@ -192,16 +159,25 @@ class EditorPanel(Panel):
             self.recentf_actions.append(action)
             self.menuRecent.addAction(action)
 
+        self.tabber = QTabWidget(self)
+        self.tabber.setTabsClosable(True)
+        self.tabber.setDocumentMode(True)
+        self.connect(self.tabber, SIGNAL('currentChanged(int)'),
+                     self.on_tabber_currentChanged)
+        self.connect(self.tabber, SIGNAL('tabCloseRequested(int)'),
+                     self.on_tabber_tabCloseRequested)
+
         hlayout = QHBoxLayout(self)
         hlayout.setContentsMargins(0, 0, 0, 0)
-        hlayout.addWidget(self.editor)
+        hlayout.addWidget(self.tabber)
         self.mainFrame.setLayout(hlayout)
-        self.editor.setFrameStyle(0)
 
-        self.fileSystemWatcher = QFileSystemWatcher(self)
-        self.connect(self.fileSystemWatcher,
-                     SIGNAL('fileChanged(const QString &)'),
-                     self.on_fileSystemWatcher_fileChanged)
+        self.editors = []    # tab index -> editor
+        self.lexers = {}     # editor -> lexer
+        self.filenames = {}  # editor -> filename
+        self.watchers = {}   # editor -> QFileSystemWatcher
+        self.currentEditor = None
+
         self.saving = False  # True while saving
         self.warnWidget.hide()
 
@@ -221,14 +197,6 @@ class EditorPanel(Panel):
         self.fileTree.setRootIndex(idx)
         self.actionShowScripts.setChecked(True)
 
-        self.connect(self.actionUndo, SIGNAL('triggered()'), self.editor.undo)
-        self.connect(self.actionRedo, SIGNAL('triggered()'), self.editor.redo)
-        self.connect(self.actionCut, SIGNAL('triggered()'), self.editor.cut)
-        self.connect(self.actionCopy, SIGNAL('triggered()'), self.editor.copy)
-        self.connect(self.actionPaste, SIGNAL('triggered()'), self.editor.paste)
-        self.connect(self.editor, SIGNAL('modificationChanged(bool)'),
-                     self.setDirty)
-
         self.waiting_sim_result = False
         self.connect(self.client, SIGNAL('message'), self.on_client_message)
         self.connect(self.client, SIGNAL('simresult'), self.on_client_simresult)
@@ -236,6 +204,12 @@ class EditorPanel(Panel):
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
         self.connect(self.client, SIGNAL('cache'), self.on_client_cache)
+
+        if self.openfiles:
+            for fn in self.openfiles:
+                self.openFile(str(fn), quiet=True)
+        else:
+            self.newFile()
 
     def setSettings(self, settings):
         self.toolconfig = settings.get('tools', '')
@@ -297,7 +271,7 @@ class EditorPanel(Panel):
             subprocess.Popen(tconfig[1], shell=True)
         else:
             dialog = toolclass(self, **tconfig[2])
-            self.connect(dialog, SIGNAL('addCode'), self.editor.append)
+            self.connect(dialog, SIGNAL('addCode'), self.currentEditor.append)
             dialog.setWindowModality(Qt.NonModal)
             dialog.show()
 
@@ -330,37 +304,126 @@ class EditorPanel(Panel):
         self.current_status = status
 
     def setCustomStyle(self, font, back):
-        if has_scintilla:
-            self.lexer.setDefaultFont(font)
-            for i in range(16):
-                self.lexer.setFont(font, i)
-            # make keywords bold
-            bold = QFont(font)
-            bold.setBold(True)
-            self.lexer.setFont(bold, 5)
-        else:
-            self.editor.setFont(font)
+        self.custom_font = font
+        self.custom_back = back
         self.simOutView.setFont(font)
         self.simOutViewErrors.setFont(font)
+        for editor in self.editors:
+            self._updateStyle(editor, self.lexers[editor])
+
+    def _updateStyle(self, editor, lexer):
+        if self.custom_font is None:
+            return
+        bold = QFont(self.custom_font)
+        bold.setBold(True)
         if has_scintilla:
-            self.lexer.setPaper(back)
+            lexer.setDefaultFont(self.custom_font)
+            for i in range(16):
+                lexer.setFont(self.custom_font, i)
+            # make keywords bold
+            lexer.setFont(bold, 5)
         else:
-            setBackgroundColor(self.editor, back)
+            editor.setFont(self.custom_font)
+        if has_scintilla:
+            lexer.setPaper(self.custom_back)
+        else:
+            setBackgroundColor(editor, self.custom_back)
+
+    def enableFileActions(self, on):
+        for action in [
+            self.actionSave, self.actionSaveAs, self.actionReload,
+            self.actionPrint, self.actionUndo, self.actionRedo, self.actionCut,
+            self.actionCopy, self.actionPaste, self.actionFind, self.actionRun,
+            self.actionSimulate, self.actionUpdate
+        ]:
+            action.setEnabled(on)
+        for action in [self.actionComment, self.actionUncomment]:
+            action.setEnabled(on and has_scintilla)
+
+    def on_tabber_currentChanged(self, index):
+        self.enableFileActions(index >= 0)
+        if index == -1:
+            self.currentEditor = None
+            self.window.setWindowTitle('%s editor' % self.mainwindow.instrument)
+            return
+        editor = self.editors[index]
+        fn = self.filenames[editor]
+        if fn:
+            self.window.setWindowTitle('%s[*] - %s editor' %
+                                       (fn, self.mainwindow.instrument))
+        else:
+            self.window.setWindowTitle('New[*] - %s editor' %
+                                       self.mainwindow.instrument)
+        self.window.setWindowModified(editor.isModified())
+        self.actionSave.setEnabled(editor.isModified())
+        self.actionUndo.setEnabled(editor.isModified())
+        self.currentEditor = editor
+
+    def on_tabber_tabCloseRequested(self, index):
+        editor = self.editors[index]
+        self._close(editor)
+
+    def _close(self, editor):
+        if not self.checkDirty(editor):
+            return
+        index = self.editors.index(editor)
+        del self.editors[index]
+        del self.lexers[editor]
+        del self.filenames[editor]
+        del self.watchers[editor]
+        self.tabber.removeTab(index)
 
     def setDirty(self, dirty):
-        self.actionSave.setEnabled(dirty)
-        self.actionUndo.setEnabled(dirty)
-        self.window.setWindowModified(dirty)
+        if self.sender() is self.currentEditor:
+            self.actionSave.setEnabled(dirty)
+            self.actionUndo.setEnabled(dirty)
+            self.window.setWindowModified(dirty)
+            index = self.tabber.currentIndex()
+            tt = str(self.tabber.tabText(index)).rstrip('*')
+            self.tabber.setTabText(index, tt + (dirty and '*' or ''))
 
     def loadSettings(self, settings):
         self.recentf = list(settings.value('recentf').toStringList())
         self.splitterstate = settings.value('splitter').toByteArray()
+        self.openfiles = list(settings.value('openfiles').toStringList())
 
     def saveSettings(self, settings):
         settings.setValue('splitter', self.splitter.saveState())
+        settings.setValue('openfiles', QVariant(QStringList(
+            [self.filenames[e] for e in self.editors if self.filenames[e]]
+        )))
 
     def requestClose(self):
-        return self.checkDirty()
+        for editor in self.editors:
+            if not self.checkDirty(editor):
+                return False
+        return True
+
+    def createEditor(self):
+        if has_scintilla:
+            editor = QsciScintilla(self)
+            lexer = QsciLexerPython(editor)
+            editor.setUtf8(True)
+            editor.setLexer(lexer)
+            editor.setAutoIndent(True)
+            editor.setEolMode(QsciScintilla.EolUnix)
+            editor.setIndentationsUseTabs(False)
+            editor.setIndentationGuides(True)
+            editor.setTabIndents(True)
+            editor.setBackspaceUnindents(True)
+            editor.setTabWidth(4)
+            editor.setIndentationWidth(0)
+            editor.setBraceMatching(QsciScintilla.SloppyBraceMatch)
+            editor.setFolding(QsciScintilla.PlainFoldStyle)
+            editor.setIndentationGuidesForegroundColor(QColor("#CCC"))
+            editor.setWrapMode(QsciScintilla.WrapCharacter)
+        else:
+            editor = QScintillaCompatible(self)
+            lexer = None
+        editor.setFrameStyle(0)
+        self.connect(editor, SIGNAL('modificationChanged(bool)'), self.setDirty)
+        self._updateStyle(editor, lexer)
+        return editor, lexer
 
     def on_client_connected(self):
         initialdir = self.client.eval('session.experiment.scriptdir', '')
@@ -398,9 +461,11 @@ class EditorPanel(Panel):
         self.simPane.show()
 
     def on_fileTree_doubleClicked(self, idx):
-        if not self.checkDirty():
-            return
         fpath = str(self.treeModel.filePath(idx))
+        for i, editor in enumerate(self.editors):
+            if self.filenames[editor] == fpath:
+                self.tabber.setCurrentIndex(i)
+                return
         self.openFile(fpath)
 
     def on_actionShowScripts_toggled(self, on):
@@ -417,27 +482,27 @@ class EditorPanel(Panel):
         if has_scintilla:
             printer = Printer()
             printer.setOutputFileName('')
-            printer.setDocName(self.filename)
+            printer.setDocName(self.filenames[self.currentEditor])
             #printer.setFullPage(True)
             if QPrintDialog(printer, self).exec_() == QDialog.Accepted:
                 bgcolor = self.lexer.paper(0)
                 # printer prints background color too, so set it to white
                 self.lexer.setPaper(Qt.white)
-                printer.printRange(self.editor)
+                printer.printRange(self.currentEditor)
                 self.lexer.setPaper(bgcolor)
         else:
             printer = QPrinter()
             printer.setOutputFileName('')
             if QPrintDialog(printer, self).exec_() == QDialog.Accepted:
-                getattr(self.editor, 'print')(printer)
+                getattr(self.currentEditor, 'print')(printer)
 
     def validateScript(self):
-        script = str(self.editor.text().toUtf8()) + '\n'
+        script = str(self.currentEditor.text().toUtf8()) + '\n'
         try:
             compile(script, 'script', 'exec')
         except SyntaxError, err:
             self.showError('Syntax error in script: %s' % err)
-            self.editor.setCursorPosition(err.lineno - 1, err.offset)
+            self.currentEditor.setCursorPosition(err.lineno - 1, err.offset)
             return
         return script
 
@@ -449,14 +514,14 @@ class EditorPanel(Panel):
                                     'want to queue this script?', True):
                 return
         if script is not None:
-            self.client.tell('queue', self.filename, script)
+            self.client.tell('queue', self.filenames[self.currentEditor], script)
 
     @qtsig('')
     def on_actionSimulate_triggered(self):
         script = self.validateScript()
         if script is None:
             return
-        self.client.tell('simulate', self.filename, script)
+        self.client.tell('simulate', self.filenames[self.currentEditor], script)
         self.waiting_sim_result = True
         self.clearSimPane()
         self.simPane.show()
@@ -469,9 +534,8 @@ class EditorPanel(Panel):
 
     @qtsig('')
     def on_actionGet_triggered(self):
-        if not self.checkDirty():
-            return
-        self.editor.setText(self.client.ask('getscript'))
+        editor = self.newFile()
+        editor.setText(self.client.ask('getscript'))
 
     def clearSimPane(self):
         self.simOutView.clear()
@@ -480,82 +544,82 @@ class EditorPanel(Panel):
         self.simTotalTime.setText('')
         self.simFinished.setText('')
 
-    def on_simPane_visibilityChanged(self, visible):
-        if not visible:
-            self.editor.markerDeleteAll()
-
     def on_simErrorsOnly_toggled(self, on):
         self.simOutStack.setCurrentIndex(on)
 
-    def checkDirty(self):
-        if not self.editor.isModified():
+    def checkDirty(self, editor):
+        if not editor.isModified():
             return True
-        if self.filename:
-            message = 'Save changes in %s before continuing?' % self.filename
+        if self.filenames[editor]:
+            message = 'Save changes in %s before continuing?' % self.filenames[editor]
         else:
             message = 'Save new file before continuing?'
         rc = QMessageBox.question(
             self, 'User Editor', message,
             QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
         if rc == QMessageBox.Save:
-            return self.on_actionSave_triggered()
+            return self.saveFile(editor)
         elif rc == QMessageBox.Discard:
             return True
         else:
             return False
 
-    def setFilename(self, newfn, force=False):
-        oldfn = self.filename
-        self.filename = newfn
-        if oldfn == newfn and not force:
-            return
-        if oldfn:
-            self.fileSystemWatcher.removePath(oldfn)
-        if newfn:
-            self.actionReload.setEnabled(True)
-            self.fileSystemWatcher.addPath(newfn)
-            self.window.setWindowTitle('%s[*] - %s editor' %
-                                       (newfn, self.mainwindow.instrument))
-        else:
-            self.actionReload.setEnabled(False)
-            self.window.setWindowTitle('New[*] - %s editor' %
-                                       self.mainwindow.instrument)
-
     def on_fileSystemWatcher_fileChanged(self, filename):
         if self.saving:
             return
-        if self.editor.isModified():
+        for editor, watcher in self.watchers.iteritems():
+            if watcher is self.sender():
+                break
+        else:
+            return
+        if editor.isModified():
             # warn the user
             self.warnText.setText(
-                'The file has changed on disk, but has also been edited'
+                'The file %r has changed on disk, but has also been edited'
                 ' here.\nPlease use either File-Reload to load the'
-                ' version on disk or File-Save to save this version.')
+                ' version on disk or File-Save to save this version.'
+                % self.filenames[editor])
             self.warnWidget.show()
         else:
             # reload without asking
-            self.openFile(self.filename)
+            try:
+                with open(self.filenames[editor]) as f:
+                    text = f.read().decode('utf8')
+            except Exception:
+                return
+            editor.setText(text)
+            editor.setModified(False)
         # re-add the filename to the watcher if it was deleted
         # (happens for programs that do delete-write on save)
-        if self.fileSystemWatcher.files().isEmpty():
-            self.fileSystemWatcher.addPath(self.filename)
+        if watcher.files().isEmpty():
+            watcher.addPath(self.filenames[editor])
 
     @qtsig('')
     def on_actionNew_triggered(self):
-        if not self.checkDirty():
-            return
-        self.editor.clear()
-        self.editor.setModified(False)
-        self.setFilename('')
+        self.newFile()
+
+    def newFile(self):
+        editor, lexer = self.createEditor()
+        editor.setModified(False)
+        self.editors.append(editor)
+        self.lexers[editor] = lexer
+        self.filenames[editor] = ''
+        self.watchers[editor] = QFileSystemWatcher(self)
+        self.connect(self.watchers[editor],
+                     SIGNAL('fileChanged(const QString &)'),
+                     self.on_fileSystemWatcher_fileChanged)
+        self.tabber.addTab(editor, '(New script)')
+        self.tabber.setCurrentWidget(editor)
         self.clearSimPane()
+        editor.setFocus()
+        return editor
 
     @qtsig('')
     def on_actionOpen_triggered(self):
-        if not self.checkDirty():
-            return
-        if not self.filename:
-            initialdir = self.client.eval('session.experiment.scriptdir', '')
+        if self.currentEditor is not None and self.filenames[self.currentEditor]:
+            initialdir = path.dirname(self.filenames[self.currentEditor])
         else:
-            initialdir = path.dirname(self.filename)
+            initialdir = self.client.eval('session.experiment.scriptdir', '')
         fn = QFileDialog.getOpenFileName(self, 'Open script', initialdir,
                                          'Script files (*.py)')
         if fn.isEmpty():
@@ -565,24 +629,53 @@ class EditorPanel(Panel):
 
     @qtsig('')
     def on_actionReload_triggered(self):
-        if not self.checkDirty():
+        fn = self.filenames[self.currentEditor]
+        if not fn:
             return
-        self.openFile(self.filename)
+        if not self.checkDirty(self.currentEditor):
+            return
+        try:
+            with open(fn) as f:
+                text = f.read().decode('utf8')
+        except Exception, err:
+            return self.showError('Opening file failed: %s' % err)
+        self.editor.setText(text)
+        self.clearSimPane()
 
     def openRecentFile(self):
         fn = unicode(self.sender().text()).encode(sys.getfilesystemencoding())
         self.openFile(fn)
 
-    def openFile(self, fn):
+    def openFile(self, fn, quiet=False):
         try:
             with open(fn) as f:
-                self.editor.setText(f.read().decode('utf8'))
+                text = f.read().decode('utf8')
         except Exception, err:
+            if quiet:
+                return
             return self.showError('Opening file failed: %s' % err)
 
-        self.editor.setModified(False)
-        self.setFilename(fn)
+        editor, lexer = self.createEditor()
+        editor.setText(text)
+        editor.setModified(False)
+
+        # replace tab if it's a single new file
+        if len(self.editors) == 1 and not self.filenames[self.editors[0]] and \
+            not self.editors[0].isModified():
+            self._close(self.editors[0])
+
+        self.editors.append(editor)
+        self.lexers[editor] = lexer
+        self.filenames[editor] = fn
+        self.watchers[editor] = QFileSystemWatcher(self)
+        self.connect(self.watchers[editor],
+                     SIGNAL('fileChanged(const QString &)'),
+                     self.on_fileSystemWatcher_fileChanged)
+        self.watchers[editor].addPath(fn)
+        self.tabber.addTab(editor, path.basename(fn))
+        self.tabber.setCurrentWidget(editor)
         self.clearSimPane()
+        editor.setFocus()
 
     def addToRecentf(self, fn):
         new_action = QAction(fn, self)
@@ -600,28 +693,34 @@ class EditorPanel(Panel):
 
     @qtsig('')
     def on_actionSave_triggered(self):
-        if not self.filename:
-            return self.on_actionSaveAs_triggered()
+        self.saveFile(self.currentEditor)
+
+    @qtsig('')
+    def on_actionSaveAs_triggered(self):
+        self.saveFileAs(self.currentEditor)
+
+    def saveFile(self, editor):
+        if not self.filenames[editor]:
+            return self.saveFileAs(editor)
 
         try:
             self.saving = True
             try:
-                with open(self.filename, 'w') as f:
-                    f.write(str(self.editor.text().toUtf8()))
+                with open(self.filenames[editor], 'w') as f:
+                    f.write(str(editor.text().toUtf8()))
             finally:
                 self.saving = False
         except Exception, err:
             self.showError('Writing file failed: %s' % err)
             return False
 
-        self.editor.setModified(False)
-        self.setFilename(self.filename)  # now add to file system watcher
+        self.watchers[editor].addPath(self.filenames[editor])
+        editor.setModified(False)
         return True
 
-    @qtsig('')
-    def on_actionSaveAs_triggered(self):
-        if self.filename:
-            initialdir = path.dirname(self.filename)
+    def saveFileAs(self, editor):
+        if self.filenames[editor]:
+            initialdir = path.dirname(self.filenames[editor])
         else:
             initialdir = self.client.eval('session.experiment.scriptdir', '')
         fn = QFileDialog.getSaveFileName(self, 'Save script', initialdir,
@@ -631,65 +730,87 @@ class EditorPanel(Panel):
             return False
         if '.' not in fn:
             fn += '.py'
-        self.setFilename(fn)
         self.addToRecentf(fn)
-        return self.on_actionSave_triggered()
+        self.watchers[editor].removePath(self.filenames[editor])
+        self.filenames[editor] = fn
+        self.tabber.setTabText(self.editors.index(editor), path.basename(fn))
+        return self.saveFile(editor)
 
     @qtsig('')
     def on_actionFind_triggered(self):
         if not self.searchdlg:
-            self.searchdlg = SearchDialog(self, self.editor)
+            self.searchdlg = SearchDialog(self, self.currentEditor)
         self.searchdlg.found = False
         self.searchdlg.show()
 
     @qtsig('')
+    def on_actionUndo_triggered(self):
+        self.currentEditor.undo()
+
+    @qtsig('')
+    def on_actionRedo_triggered(self):
+        self.currentEditor.redo()
+
+    @qtsig('')
+    def on_actionCut_triggered(self):
+        self.currentEditor.cut()
+
+    @qtsig('')
+    def on_actionCopy_triggered(self):
+        self.currentEditor.copy()
+
+    @qtsig('')
+    def on_actionPaste_triggered(self):
+        self.currentEditor.paste()
+
+    @qtsig('')
     def on_actionComment_triggered(self):
-        if self.editor.hasSelectedText():
+        if self.currentEditor.hasSelectedText():
             # comment selection
 
             # get the selection boundaries
-            lineFrom, _, lineTo, indexTo = self.editor.getSelection()
+            lineFrom, _, lineTo, indexTo = self.currentEditor.getSelection()
             if indexTo == 0:
                 endLine = lineTo - 1
             else:
                 endLine = lineTo
 
-            self.editor.beginUndoAction()
+            self.currentEditor.beginUndoAction()
             # iterate over the lines
             for line in range(lineFrom, endLine+1):
-                self.editor.insertAt(COMMENT_STR, line, 0)
+                self.currentEditor.insertAt(COMMENT_STR, line, 0)
             # change the selection accordingly
-            self.editor.setSelection(lineFrom, 0, endLine+1, 0)
-            self.editor.endUndoAction()
+            self.currentEditor.setSelection(lineFrom, 0, endLine+1, 0)
+            self.currentEditor.endUndoAction()
         else:
             # comment line
-            line, _ = self.editor.getCursorPosition()
-            self.editor.beginUndoAction()
-            self.editor.insertAt(COMMENT_STR, line, 0)
-            self.editor.endUndoAction()
+            line, _ = self.currentEditor.getCursorPosition()
+            self.currentEditor.beginUndoAction()
+            self.currentEditor.insertAt(COMMENT_STR, line, 0)
+            self.currentEditor.endUndoAction()
 
     @qtsig('')
     def on_actionUncomment_triggered(self):
-        if self.editor.hasSelectedText():
+        if self.currentEditor.hasSelectedText():
             # uncomment selection
 
             # get the selection boundaries
-            lineFrom, indexFrom, lineTo, indexTo = self.editor.getSelection()
+            lineFrom, indexFrom, lineTo, indexTo = self.currentEditor.getSelection()
             if indexTo == 0:
                 endLine = lineTo - 1
             else:
                 endLine = lineTo
 
-            self.editor.beginUndoAction()
+            self.currentEditor.beginUndoAction()
             # iterate over the lines
             for line in range(lineFrom, endLine+1):
                 # check if line starts with our comment string (i.e. was commented
                 # by our comment...() slots
-                if not self.editor.text(line).startsWith(COMMENT_STR):
+                if not self.currentEditor.text(line).startsWith(COMMENT_STR):
                     continue
 
-                self.editor.setSelection(line, 0, line, len(COMMENT_STR))
-                self.editor.removeSelectedText()
+                self.currentEditor.setSelection(line, 0, line, len(COMMENT_STR))
+                self.currentEditor.removeSelectedText()
 
                 # adjust selection start
                 if line == lineFrom:
@@ -704,22 +825,22 @@ class EditorPanel(Panel):
                         indexTo = 0
 
             # change the selection accordingly
-            self.editor.setSelection(lineFrom, indexFrom, lineTo, indexTo)
-            self.editor.endUndoAction()
+            self.currentEditor.setSelection(lineFrom, indexFrom, lineTo, indexTo)
+            self.currentEditor.endUndoAction()
         else:
             # uncomment line
-            line, _ = self.editor.getCursorPosition()
+            line, _ = self.currentEditor.getCursorPosition()
 
             # check if line starts with our comment string (i.e. was commented
             # by our comment...() slots
-            if not self.editor.text(line).startsWith(COMMENT_STR):
+            if not self.currentEditor.text(line).startsWith(COMMENT_STR):
                 return
 
             # now remove the comment string
-            self.editor.beginUndoAction()
-            self.editor.setSelection(line, 0, line, len(COMMENT_STR))
-            self.editor.removeSelectedText()
-            self.editor.endUndoAction()
+            self.currentEditor.beginUndoAction()
+            self.currentEditor.setSelection(line, 0, line, len(COMMENT_STR))
+            self.currentEditor.removeSelectedText()
+            self.currentEditor.endUndoAction()
 
     def on_simOutView_anchorClicked(self, url):
         url = str(url.toString())
