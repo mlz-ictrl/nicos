@@ -47,8 +47,9 @@ from nicos.cache.client import CacheClient
 
 class View(object):
     def __init__(self, name, keys, interval, fromtime, totime,
-                 yfrom, yto, window, query_func):
+                 yfrom, yto, window, dlginfo, query_func):
         self.name = name
+        self.dlginfo = dlginfo
         self.keys = keys
         self.interval = interval
         self.window = window
@@ -126,40 +127,55 @@ class View(object):
 
 class NewViewDialog(QDialog, DlgUtils):
 
-    def __init__(self, parent):
+    def __init__(self, parent, info=None):
         QDialog.__init__(self, parent)
         DlgUtils.__init__(self, 'History viewer')
         loadUi(self, 'history_new.ui', 'panels')
 
-        helptext = 'Enter a comma-separated list of device names or ' \
-            'parameters (as "device.parameter").  Example:\n\n' \
-            'T, T.setpoint\n\nshows the value of device T, and the value ' \
-            'of the T.setpoint parameter.'
         self.fromdate.setDateTime(QDateTime.currentDateTime())
         self.todate.setDateTime(QDateTime.currentDateTime())
-        self.connect(self.helpButton, SIGNAL('clicked()'),
-                       lambda: self.showInfo(helptext))
-        self.customYFrom.setEnabled(False)
-        self.customYTo.setEnabled(False)
+
         self.connect(self.customY, SIGNAL('toggled(bool)'), self.toggleCustomY)
-        self.fromdate.setEnabled(False)
-        self.todate.setEnabled(False)
-        self.frombox.setEnabled(False)
-        self.tobox.setEnabled(False)
+        self.toggleCustomY(False)
+
         self.connect(self.simpleTime, SIGNAL('toggled(bool)'), self.toggleSimpleExt)
         self.connect(self.extTime, SIGNAL('toggled(bool)'), self.toggleSimpleExt)
         self.connect(self.frombox, SIGNAL('toggled(bool)'), self.toggleSimpleExt)
         self.connect(self.tobox, SIGNAL('toggled(bool)'), self.toggleSimpleExt)
+        self.toggleSimpleExt(True)
+
         self.connect(self.simpleTimeSpec,
                      SIGNAL('textChanged(const QString&)'), self.setIntervalFromSimple)
-        self.connect(self.simpleHelpButton, SIGNAL('clicked()'),
-                     self.showSimpleHelp)
+
+        self.connect(self.helpButton, SIGNAL('clicked()'), self.showDeviceHelp)
+        self.connect(self.simpleHelpButton, SIGNAL('clicked()'), self.showSimpleHelp)
+
+        if info is not None:
+            self.devices.setText(info['devices'])
+            self.namebox.setText(info['name'])
+            self.simpleTime.setChecked(info['simpleTime'])
+            self.simpleTimeSpec.setText(info['simpleTimeSpec'])
+            self.slidingWindow.setChecked(info['slidingWindow'])
+            self.frombox.setChecked(info['frombox'])
+            self.tobox.setChecked(info['tobox'])
+            self.fromdate.setDateTime(QDateTime.fromTime_t(info['fromdate']))
+            self.todate.setDateTime(QDateTime.fromTime_t(info['todate']))
+            self.interval.setText(info['interval'])
+            self.customY.setChecked(info['customY'])
+            self.customYFrom.setText(info['customYFrom'])
+            self.customYTo.setText(info['customYTo'])
 
     def showSimpleHelp(self):
         self.showInfo('Please enter a time interval with unit like this:\n\n'
             '30m   (30 minutes)\n'
             '12h   (12 hours)\n'
             '3d    (3 days)\n')
+
+    def showDeviceHelp(self):
+        self.showInfo('Enter a comma-separated list of device names or '
+            'parameters (as "device.parameter").  Example:\n\n'
+            'T, T.setpoint\n\nshows the value of device T, and the value '
+            'of the T.setpoint parameter.')
 
     def toggleCustomY(self, on):
         self.customYFrom.setEnabled(on)
@@ -187,11 +203,39 @@ class NewViewDialog(QDialog, DlgUtils):
     def accept(self):
         if self.simpleTime.isChecked():
             try:
-                itime, _ = parseTimeSpec(str(self.simpleTimeSpec.text()))
+                parseTimeSpec(str(self.simpleTimeSpec.text()))
             except ValueError:
                 self.showSimpleHelp()
                 return
+        if self.customY.isChecked():
+            try:
+                float(str(self.customYFrom.text()))
+            except ValueError:
+                self.showError('You have to input valid y axis limits.')
+                return
+            try:
+                float(str(self.customYTo.text()))
+            except ValueError:
+                self.showError('You have to input valid y axis limits.')
+                return
         return QDialog.accept(self)
+
+    def infoDict(self):
+        return dict(
+            devices = str(self.devices.text()),
+            name = str(self.namebox.text()),
+            simpleTime = self.simpleTime.isChecked(),
+            simpleTimeSpec = str(self.simpleTimeSpec.text()),
+            slidingWindow = self.slidingWindow.isChecked(),
+            frombox = self.frombox.isChecked(),
+            tobox = self.tobox.isChecked(),
+            fromdate = self.fromdate.dateTime().toTime_t(),
+            todate = self.todate.dateTime().toTime_t(),
+            interval = str(self.interval.text()),
+            customY = self.customY.isChecked(),
+            customYFrom = str(self.customYFrom.text()),
+            customYTo = str(self.customYTo.text()),
+        )
 
 
 class BaseHistoryWindow(object):
@@ -243,61 +287,58 @@ class BaseHistoryWindow(object):
             if view.plot:
                 view.plot.pointsAdded(key)
 
-    def _createViewFromDialog(self, newdlg):
+    def _createViewFromDialog(self, info):
         parts = [part.strip().lower().replace('.', '/')
-                 for part in str(newdlg.devices.text()).split(',')]
+                 for part in info['devices'].split(',')]
         if not parts:
             return
         keys = [part if '/' in part else part + '/value' for part in parts]
-        name = str(newdlg.namebox.text())
+        name = info['name']
         if not name:
-            name = str(newdlg.devices.text())
+            name = info['devices']
+            if info['simpleTime']:
+                name += ' (%s)' % info['simpleTimeSpec']
         window = None
-        if newdlg.simpleTime.isChecked():
-            intv = str(newdlg.simpleTimeSpec.text())
+        if info['simpleTime']:
             try:
-                itime, _ = parseTimeSpec(intv)
+                itime, _ = parseTimeSpec(info['simpleTimeSpec'])
             except ValueError:
                 return
             fromtime = time.time() - itime
             totime = None
-            if newdlg.slidingWindow.isChecked():
+            if info['slidingWindow']:
                 window = itime
         else:
-            if newdlg.frombox.isChecked():
-                fromtime = time.mktime(time.localtime(
-                    newdlg.fromdate.dateTime().toTime_t()))
+            if info['frombox']:
+                fromtime = time.mktime(time.localtime(info['fromdate']))
             else:
                 fromtime = None
-            if newdlg.tobox.isChecked():
-                totime = time.mktime(time.localtime(
-                    newdlg.todate.dateTime().toTime_t()))
+            if info['tobox']:
+                totime = time.mktime(time.localtime(info['todate']))
             else:
                 totime = None
         try:
-            interval = float(newdlg.interval.text())
+            interval = float(info['interval'])
         except ValueError:
             interval = 5.0
-        if newdlg.customY.isChecked():
+        if info['customY']:
             try:
-                yfrom = float(str(newdlg.customYFrom.text()))
+                yfrom = float(info['customYFrom'])
             except ValueError:
-                self.showError('You have to input valid y axis limits.')
-                return self.on_actionNew_triggered()
+                return
             try:
-                yto = float(str(newdlg.customYTo.text()))
+                yto = float(info['customYTo'])
             except ValueError:
-                self.showError('You have to input valid y axis limits.')
-                return self.on_actionNew_triggered()
+                return
         else:
             yfrom = yto = None
         view = View(name, keys, interval, fromtime, totime, yfrom, yto,
-                    window, self.gethistory_callback)
+                    window, info, self.gethistory_callback)
         self.views.append(view)
-        view.listitem = QListWidgetItem(name, self.viewList)
+        view.listitem = QListWidgetItem(view.name, self.viewList)
         self.openView(view)
-        if totime is None:
-            for key in keys:
+        if view.totime is None:
+            for key in view.keys:
                 self.keyviews.setdefault(key, []).append(view)
 
     @qtsig('')
@@ -306,7 +347,7 @@ class BaseHistoryWindow(object):
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return
-        self._createViewFromDialog(newdlg)
+        self._createViewFromDialog(newdlg.infoDict())
 
     def openView(self, view):
         if not view.plot:
@@ -340,9 +381,16 @@ class BaseHistoryWindow(object):
 
     @qtsig('')
     def on_actionEditView_triggered(self):
-        view = self.viewStack.pop()
+        view = self.viewStack[-1]
+        newdlg = NewViewDialog(self, view.dlginfo)
+        newdlg.setWindowTitle('Edit history view')
+        ret = newdlg.exec_()
+        if ret != QDialog.Accepted:
+            return
+        self.viewStack.pop()
         self.clearView(view)
         self.setCurrentView(None)
+        self._createViewFromDialog(newdlg.infoDict())
 
     @qtsig('')
     def on_actionCloseView_triggered(self):
@@ -447,7 +495,7 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         menu.addAction(self.actionPrint)
         menu.addAction(self.actionAttachElog)
         menu.addSeparator()
-        #menu.addAction(self.actionEditView)
+        menu.addAction(self.actionEditView)
         menu.addAction(self.actionCloseView)
         menu.addAction(self.actionDeleteView)
         menu.addAction(self.actionResetView)
@@ -464,13 +512,13 @@ class HistoryPanel(Panel, BaseHistoryWindow):
     def getToolbars(self):
         bar = QToolBar('History viewer')
         bar.addAction(self.actionNew)
+        bar.addAction(self.actionEditView)
         bar.addAction(self.actionPDF)
         bar.addAction(self.actionPrint)
         bar.addSeparator()
         bar.addAction(self.actionUnzoom)
         bar.addAction(self.actionLogScale)
         bar.addSeparator()
-        #bar.addAction(self.actionEditView)
         bar.addAction(self.actionResetView)
         bar.addAction(self.actionDeleteView)
         return [bar]
@@ -639,7 +687,7 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
         menu.addAction(self.actionPDF)
         menu.addAction(self.actionPrint)
         menu.addSeparator()
-        #menu.addAction(self.actionEditView)
+        menu.addAction(self.actionEditView)
         menu.addAction(self.actionCloseView)
         menu.addAction(self.actionDeleteView)
         menu.addAction(self.actionResetView)
@@ -657,6 +705,7 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
     def getToolbars(self):
         bar = QToolBar('History viewer')
         bar.addAction(self.actionNew)
+        bar.addAction(self.actionEditView)
         bar.addAction(self.actionPDF)
         bar.addAction(self.actionPrint)
         bar.addAction(self.actionClose)
@@ -664,7 +713,6 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
         bar.addAction(self.actionUnzoom)
         bar.addAction(self.actionLogScale)
         bar.addSeparator()
-        #bar.addAction(self.actionEditView)
         bar.addAction(self.actionResetView)
         bar.addAction(self.actionDeleteView)
         return [bar]
