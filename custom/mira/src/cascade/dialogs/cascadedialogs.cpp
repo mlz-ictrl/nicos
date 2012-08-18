@@ -26,6 +26,7 @@
 #include "../main/cascadewidget.h"
 #include "../aux/helper.h"
 #include "../aux/logger.h"
+#include "../aux/gc.h"
 
 #include <stdio.h>
 #include <sstream>
@@ -39,8 +40,6 @@
 #include <QtGui/QMessageBox>
 #include <qprinter.h>
 #include <qprintdialog.h>
-
-
 
 #include "cascadedialogs_pad.cpp"
 #include "cascadedialogs_tof.cpp"
@@ -653,4 +652,56 @@ void BatchDlg::ConvertToPDF(const char* pcSrc, const char* pcDst)
 				<< "\".\n";
 	}
 }
+// *****************************************************************************
+
+
+
+
+// ************************* *GC-Dialog ****************************************
+
+GcDlg::GcDlg(QWidget *pParent) : QDialog(pParent)
+{
+	setupUi(this);
+
+	Update();
+}
+
+GcDlg::~GcDlg() {}
+
+void GcDlg::Update()
+{
+	std::vector<Gc_info> vecGc = gc.get_elems();
+	unsigned int iNumElems = vecGc.size();
+
+	table->setColumnCount(4);
+	table->setRowCount(iNumElems);
+	
+	for(unsigned int iElem=0; iElem<iNumElems; ++iElem)
+	{
+		const Gc_info& info = vecGc[iElem];
+
+		QTableWidgetItem *pItemName =
+				new QTableWidgetItem(QString(info.strDesc.c_str()));
+		QTableWidgetItem *pItemAddr =
+				new QTableWidgetItem(QString("%1")
+					.arg((unsigned long)info.pvMem, 0, 16));
+		QTableWidgetItem *pItemSize =
+				new QTableWidgetItem(QString(get_byte_str(info.iLen).c_str()));
+		QTableWidgetItem *pItemRefs =
+				new QTableWidgetItem(QString("%1").arg(info.iRefs));
+
+		table->setItem(iElem, 0, pItemName);
+		table->setItem(iElem, 1, pItemAddr);
+		table->setItem(iElem, 2, pItemSize);
+		table->setItem(iElem, 3, pItemRefs);
+	}
+
+
+	// total mem
+	unsigned int iTotal = gc.memsize();
+	QString strTotal = QString(get_byte_str(iTotal).c_str())
+						+ QString(" of total objects in use.");
+	labelTotal->setText(strTotal);
+}
+
 // *****************************************************************************

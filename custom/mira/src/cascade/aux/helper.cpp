@@ -31,6 +31,7 @@
 #include <string.h>
 #include <math.h>
 #include <limits>
+#include <iomanip>
 
 // file size
 long GetFileSize(FILE* pf)
@@ -120,6 +121,29 @@ void trim(char* pcStr)
 	}
 }
 
+std::string get_byte_str(unsigned int iSize)
+{
+	double dSize = 0.;
+	std::string strUnit = " B";
+	
+	
+	if(iSize > 1024*1024)
+	{
+		dSize = double(iSize)/(1024.*1024.);
+		strUnit = " MB";
+	}
+	else if(iSize > 1024)
+	{
+		dSize = double(iSize)/1024.;
+		strUnit = " kB";
+	}
+
+	std::ostringstream ostr;
+	ostr << std::fixed << std::setprecision(2);
+	
+	ostr << dSize << strUnit;
+	return ostr.str();
+}
 
 //------------------------------------------------------------------------------
 

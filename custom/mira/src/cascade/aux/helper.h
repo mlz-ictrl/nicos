@@ -92,6 +92,7 @@ std::string GetFileEnding(const char* pcFileName);
 void trim(char* pcStr);
 std::string trim(const std::string& str);
 
+std::string get_byte_str(unsigned int iSize);
 
 //------------------------------------------------------------------------------
 

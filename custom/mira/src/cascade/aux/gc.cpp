@@ -98,6 +98,7 @@ void* Gc::malloc(unsigned int uiSize, const char *pcDesc)
 	}
 
 	Gc_info gci;
+	gci.pvMem = pv;
 	gci.iLen = uiSize;
 	++gci.iRefs;
 
@@ -197,6 +198,19 @@ unsigned int Gc::memsize() const
 	}
 
 	return uiMem;
+}
+
+
+std::vector<Gc_info> Gc::get_elems() const
+{
+	std::vector<Gc_info> vecRet;
+	vecRet.reserve(m_map.size());
+	
+	t_map::const_iterator iter;
+	for(iter=m_map.begin(); iter!=m_map.end(); ++iter)
+		vecRet.push_back((*iter).second);
+		
+	return vecRet;
 }
 
 Gc gc;

@@ -116,7 +116,8 @@ dialogs/cascadedialogs.h: ui/ui_calibrationdlg.h ui/ui_sumdialog.h \
 		  ui/ui_servercfgdlg.h ui/ui_graphdlg.h ui/ui_commanddlg.h \
 		  ui/ui_roidlg.h ui/ui_browsedlg.h ui/ui_integrationdlg.h \
 		  ui/ui_rangedlg.h ui/ui_countsvsimagesdlg.h \
-		  ui/ui_contrastsvsimagesdlg.h ui/ui_batchdlg.h
+		  ui/ui_contrastsvsimagesdlg.h ui/ui_batchdlg.h \
+		  ui/ui_gcdlg.h
 
 ui/ui_calibrationdlg.h: ui/calibrationdlg.ui
 	uic ui/calibrationdlg.ui > ui/ui_calibrationdlg.h
@@ -156,6 +157,9 @@ ui/ui_contrastsvsimagesdlg.h: ui/contrastsvsimagesdlg.ui
 
 ui/ui_batchdlg.h: ui/batchdlg.ui
 	uic ui/batchdlg.ui > ui/ui_batchdlg.h
+
+ui/ui_gcdlg.h: ui/gcdlg.ui
+	uic ui/gcdlg.ui > ui/ui_gcdlg.h
 #################################################################
 
 

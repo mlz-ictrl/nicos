@@ -22,6 +22,7 @@
 // *****************************************************************************
 
 #include <map>
+#include <vector>
 #include <string>
 
 #ifndef __CASC_GC__
@@ -29,6 +30,7 @@
 
 struct Gc_info
 {
+	void *pvMem;
 	unsigned int iLen;
 	int iRefs;
 	std::string strDesc;
@@ -69,6 +71,8 @@ class Gc
 
 		void sanity_check() const;
 		void print() const;
+		
+		std::vector<Gc_info> get_elems() const;
 };
 
 extern Gc gc;

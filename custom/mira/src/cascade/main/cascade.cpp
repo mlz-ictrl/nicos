@@ -901,6 +901,12 @@ class MainWindow : public QMainWindow
 			gc.print();
 		}
 
+		void ShowMemUsage()
+		{
+			GcDlg gcdlg(this);
+			gcdlg.exec();
+		}
+
 		void BrowseFiles()
 		{
 			ServerDisconnect();
@@ -1312,6 +1318,10 @@ class MainWindow : public QMainWindow
 						QIcon::fromTheme("user-trash-full"),
 						"Garbage Collection",
 						this);
+			QAction *actionMem = new QAction(
+						QIcon::fromTheme("utilities-system-monitor"),
+						"Show Memory Usage...",
+						this);			
 			QAction *actionExit = new QAction(
 						QIcon::fromTheme("application-exit"),
 						"&Exit",
@@ -1446,7 +1456,6 @@ class MainWindow : public QMainWindow
 			menuFile->addSeparator();
 			menuFile->addAction(actionPrint);
 			menuFile->addSeparator();
-			menuFile->addAction(actionGc);
 			menuFile->addAction(actionExit);
 			menubar->addAction(menuFile->menuAction());
 
@@ -1497,11 +1506,14 @@ class MainWindow : public QMainWindow
 			menubar->addAction(menuRoi->menuAction());
 
 			QMenu *menuTools = new QMenu(menubar);
-			menuTools->setTitle("&Tools");
+			menuTools->setTitle("T&ools");
 			menuTools->addAction(actionGenerateRandomPad);
 			menuTools->addAction(actionGenerateRandomTof);
 			menuTools->addSeparator();
 			menuTools->addAction(actionBatchJob);
+			menuTools->addSeparator();
+			menuTools->addAction(actionGc);
+			menuTools->addAction(actionMem);
 			menubar->addAction(menuTools->menuAction());
 
 			QMenu *menuHelp = new QMenu(menubar);
@@ -1691,8 +1703,6 @@ class MainWindow : public QMainWindow
 					this, SLOT(WriteXML()));
 			connect(actionPrint, SIGNAL(triggered()),
 					m_cascadewidget.GetPlot(), SLOT(printPlot()));
-			connect(actionGc, SIGNAL(triggered()),
-					this, SLOT(GarbageCollect()));
 
 			// Plot
 			connect(actionCountRange, SIGNAL(triggered()),
@@ -1725,6 +1735,12 @@ class MainWindow : public QMainWindow
 					this, SLOT(GenerateRandomTof()));
 			connect(actionBatchJob, SIGNAL(triggered()),
 					this, SLOT(BatchJob()));
+
+			connect(actionGc, SIGNAL(triggered()),
+					this, SLOT(GarbageCollect()));
+			connect(actionMem, SIGNAL(triggered()),
+					this, SLOT(ShowMemUsage()));
+			
 
 			// Help
 			connect(actionAbout, SIGNAL(triggered()),

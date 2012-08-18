@@ -57,6 +57,7 @@
 #include "../ui/ui_countsvsimagesdlg.h"
 #include "../ui/ui_contrastsvsimagesdlg.h"
 #include "../ui/ui_batchdlg.h"
+#include "../ui/ui_gcdlg.h"
 
 #include "../plot/histogram_item.h"
 #include "../plot/bins.h"
@@ -480,5 +481,18 @@ class BatchDlg : public QDialog, public Ui::BatchDlg
 };
 
 // *****************************************************************************
+
+class GcDlg : public QDialog, public Ui::GcDlg
+{
+	Q_OBJECT
+
+	protected:
+
+	public:
+		GcDlg(QWidget *pParent);
+		virtual ~GcDlg();
+
+		void Update();
+};
 
 #endif
