@@ -132,7 +132,11 @@ unsigned int NicosClient::counts(const QByteArray* parr)
 	bool bPad = (iPad == IS_PAD);
 
 	if(!IsSizeCorrect(&arr, bPad))
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "nicosclient: Wrong TOF/PAD size.\n";
 		return 0;
+	}
 
 	if(bPad)
 	{
@@ -159,7 +163,11 @@ unsigned int NicosClient::counts(const QByteArray* parr, int iStartX, int iEndX,
 	bool bPad = (iPad == IS_PAD);
 
 	if(!IsSizeCorrect(&arr, bPad))
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "nicosclient: Wrong TOF/PAD size.\n";
 		return 0;
+	}
 
 	if(bPad)
 	{
@@ -187,7 +195,11 @@ bool NicosClient::contrast(const QByteArray* parr, int iFoil,
 	bool bTof = (iPad == IS_TOF);
 
 	if(!IsSizeCorrect(&arr, !bTof))
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "nicosclient: Wrong TOF/PAD size.\n";		
 		return false;
+	}
 
 	bool bOk = true;
 
@@ -233,7 +245,11 @@ bool NicosClient::contrast(const QByteArray* parr, int iFoil,
 	bool bTof = (iPad == IS_TOF);
 
 	if(!IsSizeCorrect(&arr, !bTof))
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "nicosclient: Wrong TOF/PAD size.\n";
 		return false;
+	}
 
 	bool bOk = true;
 

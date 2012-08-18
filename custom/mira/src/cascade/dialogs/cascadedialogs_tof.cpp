@@ -248,8 +248,8 @@ void GraphDlg::UpdateGraph(void)
 	double *pdy = new double[tmpGraph.GetWidth()];
 	for(int i=0; i<tmpGraph.GetWidth(); ++i)
 	{
-		pdx[i]=i;
-		pdy[i]=tmpGraph.GetData(i);
+		pdx[i] = i;
+		pdy[i] = tmpGraph.GetData(i);
 	}
 	m_curve.setData(pdx,pdy,tmpGraph.GetWidth());
 
@@ -259,6 +259,8 @@ void GraphDlg::UpdateGraph(void)
 	delete[] pdy;
 
 
+	const int FITPUNKTE = 32;
+
 	if(checkBoxDoFit->isChecked())
 	{
 		// Fit dieser Messpunkte
@@ -267,10 +269,10 @@ void GraphDlg::UpdateGraph(void)
 		bool bFitValid = tmpGraph.FitSinus(dFreq, dPhase, dAmp, dOffs,
 											dPhase_err, dAmp_err, dOffs_err);
 
-		double dContrast = dAmp/dOffs;
-		double dContrast_err =
-			sqrt((1/dOffs*dAmp_err)*(1/dOffs*dAmp_err)
-			+ (-dAmp/(dOffs*dOffs)*dOffs_err)*(-dAmp/(dOffs*dOffs)*dOffs_err));
+		double dContrast = 0., dContrast_err = 0.;
+		if(!TmpGraph::CalcContrast(dAmp, dOffs, dAmp_err, dOffs_err,
+					dContrast, dContrast_err))
+			bFitValid = false;
 
 		char pcFit[256];
 		if(bFitValid)
@@ -287,7 +289,6 @@ void GraphDlg::UpdateGraph(void)
 
 		labelFit->setText(pcFit);
 
-		const int FITPUNKTE=16;
 		pdx = new double[conf.GetImagesPerFoil()*FITPUNKTE];
 		pdy = new double[conf.GetImagesPerFoil()*FITPUNKTE];
 		for(int i=0; i<conf.GetImagesPerFoil()*FITPUNKTE; ++i)
@@ -297,40 +298,92 @@ void GraphDlg::UpdateGraph(void)
 			pdy[i] = dAmp*sin(x*dFreq + dPhase) + dOffs;
 		}
 		m_curvefit.setData(pdx, pdy, conf.GetImagesPerFoil()*FITPUNKTE);
+
 		delete[] pdx;
 		delete[] pdy;
 	}
 	else
 	{
+		labelFit->setText("");
 		m_curvefit.setData(0,0,0);
 	}
 
-	/*
+
+
 	// Gesamtkurve
-	TmpGraph tmpGraphtotal;
-	m_pTofImg->GetTotalGraph(spinBoxROIx1->value(),spinBoxROIx2->value(),
-		spinBoxROIy1->value(),spinBoxROIy2->value(),spinBoxPhase->value(),
-		&tmpGraphtotal);
-	pdx = new double[tmpGraphtotal.GetWidth()];
-	pdy = new double[tmpGraphtotal.GetWidth()];
-	for(int i=0; i<tmpGraphtotal.GetWidth(); ++i)
+	if(checkBoxTotal->isChecked())
 	{
-		pdx[i]=i;
-		pdy[i]=tmpGraphtotal.GetData(i);
+		TmpGraph tmpGraphtotal = m_pTofImg->GetTotalGraph();
+		
+		
+		pdx = new double[tmpGraphtotal.GetWidth()];
+		pdy = new double[tmpGraphtotal.GetWidth()];
+		for(int i=0; i<tmpGraphtotal.GetWidth(); ++i)
+		{
+			pdx[i] = i;
+			pdy[i] = tmpGraphtotal.GetData(i);
+		}
+		m_curvetotalpoints.setData(pdx,pdy,tmpGraphtotal.GetWidth());
+
+		double dymax_total = *std::max_element(pdy,
+									pdy + tmpGraphtotal.GetWidth());
+		dymax = std::max(dymax, dymax_total);		
+
+		delete[] pdx;
+		delete[] pdy;
+
+		
+		
+	
+
+		double dFreq, dPhase, dAmp, dOffs;
+		double dPhase_err, dAmp_err, dOffs_err;
+		bool bFitValid = tmpGraphtotal.FitSinus(dFreq, dPhase, dAmp, dOffs,
+											dPhase_err, dAmp_err, dOffs_err);
+
+		double dContrast = 0., dContrast_err = 0.;
+		if(!TmpGraph::CalcContrast(dAmp, dOffs, dAmp_err, dOffs_err,
+					 dContrast, dContrast_err))
+			bFitValid = false;
+
+		char pcFit[256];
+		if(bFitValid)
+		{
+			sprintf(pcFit, "Contrast: %g +- %g\nPhase: %g +- %g",
+							dContrast, dContrast_err,
+							dPhase, dPhase_err);
+		}
+		else
+		{
+			sprintf(pcFit, "Fit invalid!");
+			dAmp = dFreq = dPhase = dOffs = 0.;
+		}
+
+		labelTotal->setText(pcFit);
+				
+		pdx = new double[conf.GetImagesPerFoil()*FITPUNKTE];
+		pdy = new double[conf.GetImagesPerFoil()*FITPUNKTE];
+		for(int i=0; i<conf.GetImagesPerFoil()*FITPUNKTE; ++i)
+		{
+			double x = double(i)/double(FITPUNKTE);
+			pdx[i] = x;
+			pdy[i] = dAmp*sin(x*dFreq + dPhase) + dOffs;
+		}
+		m_curvetotal.setData(pdx, pdy, conf.GetImagesPerFoil()*FITPUNKTE);
+
+		delete[] pdx;
+		delete[] pdy;
 	}
-	m_curvetotal.setData(pdx,pdy,tmpGraphtotal.GetWidth());
-	delete[] pdx;
-	delete[] pdy;
-	*/
+	else
+	{
+		labelTotal->setText("");
+		m_curvetotal.setData(0,0,0);
+		m_curvetotalpoints.setData(0,0,0);
+	}
 
 	qwtPlot->setAxisScale(QwtPlot::yLeft, 0., dymax);
 	qwtPlot->replot();
 }
-
-void GraphDlg::Foilchanged(int iVal)
-{ UpdateGraph(); }
-void GraphDlg::checkBoxDoFitChanged(int state)
-{ UpdateGraph(); }
 
 void GraphDlg::Init(int iFolie)
 {
@@ -352,15 +405,18 @@ void GraphDlg::Init(int iFolie)
 	spinBoxFolie->setMaximum(conf.GetFoilCount());
 	spinBoxFolie->setValue(iFolie+1);
 
-	//QwtLegend *m_plegend = new QwtLegend;
-	//qwtPlot->insertLegend(m_plegend, QwtPlot::RightLegend);
+	QwtLegend *m_plegend = new QwtLegend;
+	qwtPlot->insertLegend(m_plegend, QwtPlot::RightLegend);
 
 	QObject::connect(btnPrint, SIGNAL(clicked()), this, SLOT(printPlot()));
 	QObject::connect(checkBoxDoFit, SIGNAL(stateChanged(int)), this,
-									SLOT(checkBoxDoFitChanged(int)));
+									SLOT(UpdateGraph()));
+	QObject::connect(checkBoxTotal, SIGNAL(stateChanged(int)), this,
+									SLOT(UpdateGraph()));	
 	QObject::connect(spinBoxFolie, SIGNAL(valueChanged(int)), this,
-								   SLOT(Foilchanged(int)));
+								   SLOT(UpdateGraph()));
 
+	
 	// Kurve für Messpunkte für eine Folie
 	QwtSymbol sym;
 	sym.setStyle(QwtSymbol::Ellipse);
@@ -374,20 +430,35 @@ void GraphDlg::Init(int iFolie)
 	m_curve.setPen(QPen(Qt::blue));
 	m_curve.attach(qwtPlot);
 
+	
+	// Gesamtpunkte
+	QwtSymbol symtotal;
+	symtotal.setStyle(QwtSymbol::Ellipse);
+	symtotal.setPen(QColor(Qt::black));
+	symtotal.setBrush(QColor(Qt::black));
+	symtotal.setSize(5);
+	
+	m_curvetotalpoints.setSymbol(symtotal);
+	m_curvetotalpoints.setStyle(QwtPlotCurve::NoCurve);
+	m_curvetotalpoints.setRenderHint(QwtPlotItem::RenderAntialiased);
+	m_curvetotalpoints.setPen(QPen(Qt::black));
+	m_curvetotalpoints.attach(qwtPlot);
+
+	
+
 	// Kurve für Fits
 	m_curvefit.setRenderHint(QwtPlotItem::RenderAntialiased);
 	QPen penfit = QPen(Qt::red);
 	m_curvefit.setPen(penfit);
 	m_curvefit.attach(qwtPlot);
 
-	/*
+
 	// Gesamtkurve
 	m_curvetotal.setRenderHint(QwtPlotItem::RenderAntialiased);
 	QPen pentotal = QPen(Qt::black);
 	pentotal.setWidth(2);
 	m_curvetotal.setPen(pentotal);
 	m_curvetotal.attach(qwtPlot);
-	*/
 }
 
 void GraphDlg::printPlot()
@@ -402,8 +473,9 @@ void GraphDlg::printPlot()
 GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof) : QDialog(pParent),
 													   m_pTofImg(pTof),
 													   m_curve("Foil"),
-													   m_curvefit("Fit"),
-													   m_curvetotal("Total"),
+													   m_curvetotalpoints("Total"),
+													   m_curvefit("Foil fit"),
+													   m_curvetotal("Total fit"),
 													   m_plegend(0),
 													   m_pgrid(0)
 {
@@ -416,6 +488,7 @@ GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof, int iFolie)
 														: QDialog(pParent),
 														  m_pTofImg(pTof),
 														  m_curve("Foil"),
+														  m_curvetotalpoints("Total"),
 														  m_curvefit("Fit"),
 														  m_curvetotal("Total"),
 														  m_plegend(0),

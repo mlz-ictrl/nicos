@@ -119,6 +119,19 @@ bool TmpGraph::FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOf
 					dPhase_err, dAmp_err, dOffs_err);
 }
 
+bool TmpGraph::CalcContrast(double dAmp, double dOffs,
+						double dAmp_err, double dOffs_err,
+						double &dContrast, double &dContrast_err)
+{
+	dContrast = dAmp / dOffs;
+	dContrast_err = sqrt((1/dOffs*dAmp_err)*(1/dOffs*dAmp_err)
+					+ (-dAmp/(dOffs*dOffs)*dOffs_err)*(-dAmp/(dOffs*dOffs)*dOffs_err));
+
+	if(dContrast != dContrast)
+		return false;
+	return true;
+}
+
 bool TmpGraph::GetContrast(double &dContrast, double &dPhase,
 							double &dContrast_err, double &dPhase_err,
 							const TmpGraph* punderground, double dMult_ug) const
@@ -136,11 +149,8 @@ bool TmpGraph::GetContrast(double &dContrast, double &dPhase,
 
 	if(!punderground)
 	{
-		dContrast = dAmp / dOffs;
-		dContrast_err = sqrt((1/dOffs*dAmp_err)*(1/dOffs*dAmp_err)
-						+ (-dAmp/(dOffs*dOffs)*dOffs_err)*(-dAmp/(dOffs*dOffs)*dOffs_err));
-
-		if(dContrast!=dContrast)
+		if(!CalcContrast(dAmp, dOffs, dAmp_err, dOffs_err,
+					 dContrast, dContrast_err))
 			return false;
 	}
 	else

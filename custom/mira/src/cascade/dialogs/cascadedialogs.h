@@ -117,15 +117,13 @@ class GraphDlg : public QDialog, public Ui::GraphDlg
 
 	protected:
 		TofImage *m_pTofImg;
-		ErrorBarPlotCurve m_curve;
+		ErrorBarPlotCurve m_curve, m_curvetotalpoints;
 		QwtPlotCurve m_curvefit, m_curvetotal;
 		QwtLegend *m_plegend;
 		QwtPlotGrid *m_pgrid;
 
 	protected slots:
-		void Foilchanged(int iVal);
 		void printPlot();
-		void checkBoxDoFitChanged(int state);
 		void UpdateGraph(void);
 
 	public:

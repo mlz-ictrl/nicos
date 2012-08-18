@@ -164,6 +164,10 @@ class TmpGraph
 					const TmpGraph* punderground=0, double dMult_ug=0) const;
 	bool GetContrast(double &dContrast, double &dPhase) const;
 
+	static bool CalcContrast(double dAmp, double dOffs,
+						double dAmp_err, double dOffs_err,
+						double &dContrast, double &dContrast_err);
+
 	bool Save(const char* pcFile) const;
 
 	//--------------------------------------------------------------------------

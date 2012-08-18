@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>480</height>
+    <width>654</width>
+    <height>495</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,7 +34,7 @@
         <item row="0" column="1">
          <widget class="QLabel" name="label_5">
           <property name="text">
-           <string>Foil:</string>
+           <string>Fit for foil:</string>
           </property>
          </widget>
         </item>
@@ -50,7 +50,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Fit: </string>
+           <string/>
           </property>
           <property name="textFormat">
            <enum>Qt::PlainText</enum>
@@ -63,20 +63,44 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="5">
+        <item row="0" column="7">
          <widget class="QPushButton" name="btnPrint">
           <property name="text">
            <string>Print</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="4">
+        <item row="0" column="5">
          <widget class="QCheckBox" name="checkBoxDoFit">
           <property name="text">
-           <string>Do Fit</string>
+           <string>Do fit</string>
           </property>
           <property name="checked">
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QLabel" name="labelTotal">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="5">
+         <widget class="QCheckBox" name="checkBoxTotal">
+          <property name="text">
+           <string>Do total fit</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Total fit:</string>
           </property>
          </widget>
         </item>
