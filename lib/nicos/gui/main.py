@@ -103,6 +103,7 @@ class MainWindow(QMainWindow, DlgUtils):
                      self.on_client_disconnected)
         self.connect(self.client, SIGNAL('status'), self.on_client_status)
         self.connect(self.client, SIGNAL('showhelp'), self.on_client_showhelp)
+        self.connect(self.client, SIGNAL('clientexec'), self.on_client_clientexec)
 
         # data handling setup
         self.data = DataHandler(self.client)
@@ -442,6 +443,18 @@ class MainWindow(QMainWindow, DlgUtils):
         if self.helpWindow is None:
             self.helpWindow = HelpWindow(self, self.client)
         self.helpWindow.showHelp(data)
+
+    def on_client_clientexec(self, data):
+        # currently used for client-side plot using matplotlib; data is
+        # (funcname, args, ...)
+        plot_func_path = data[0]
+        try:
+            modname, funcname = plot_func_path.rsplit('.', 1)
+            func = getattr(__import__(modname, None, None, [funcname]),
+                           funcname)
+            func(*data[1:])
+        except Exception, err:
+            print 'Error during clientexec:', err
 
     def on_client_cache(self, (time, key, op, value)):
         if key == 'session/mastersetupexplicit':

@@ -961,6 +961,10 @@ class Session(object):
                 raise AccessError('requires %s mode' % required['mode'])
         return True
 
+    def clientExec(self, func, args):
+        """Execute a function client-side."""
+        raise NotImplementedError('clientExec is missing for this session')
+
 
 # must be imported after class definitions due to module interdependencies
 from nicos.experiment import Experiment

@@ -315,3 +315,7 @@ class ConsoleSession(Session):
                          'cancel: ' % code) != code:
                 raise AccessError('passcode not correct')
         return Session.checkAccess(self, required)
+
+    def clientExec(self, func, args):
+        # the client is the console itself -- just execute it
+        func(*args)

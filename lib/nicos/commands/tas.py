@@ -33,7 +33,9 @@ from numpy import ndarray
 from nicos import session
 from nicos.core import Measurable, Moveable, Readable, UsageError, NicosError
 from nicos.scan import QScan
+from nicos.tas.rescalc import resmat
 from nicos.tas.spectro import TAS, THZ2MEV
+from nicos.tas.plotting import plot_hklmap, plot_resatpoint, plot_resscan
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.scan import _infostr, ADDSCANHELP2
 from nicos.commands.device import maw, read
@@ -455,9 +457,7 @@ def powderrays(dlist, ki=None, phi=None):
         printinfo(' %s at %7.3f deg' % (my_line, angle))
 
 
-def _create_resmat(args, kwds):
-    from nicos.tas.rescalc import resmat
-
+def _resmat_args(args, kwds):
     instr = session.instrument
     cell = instr._adevs['cell']
 
@@ -522,7 +522,7 @@ def _create_resmat(args, kwds):
         'en': pos[3] if instr.energytransferunit == 'meV' else pos[3] * THZ2MEV,
     }
 
-    return resmat(cfg, par)
+    return cfg, par
 
 
 @usercommand
@@ -539,7 +539,8 @@ def rescal(*args, **kwds):
     Obviously, several sample and spectrometer parameters must be set correctly
     for the resolution calculation to work.
     """
-    print _create_resmat(args, kwds)
+    for line in str(resmat(*_resmat_args(args, kwds))).splitlines():
+        printinfo(line)
 
 
 @usercommand
@@ -556,10 +557,9 @@ def resplot(*args, **kwds):
     Obviously, several sample and spectrometer parameters must be set correctly
     for the resolution calculation to work.
     """
-    from nicos.tas.plotting import plot_ellipsoid
-    resmat = _create_resmat(args, kwds)
+    cfg, par = _resmat_args(args, kwds)
     printinfo('plotting resolution in separate window, please wait...')
-    plot_ellipsoid(resmat)
+    session.clientExec(plot_resatpoint, (cfg, par))
 
 
 @hiddenusercommand
@@ -570,10 +570,11 @@ def resscan(*hkles, **kwds):
     This is usually used via the `qscan()` and `qcscan()` commands with the
     plot='res' parameter.
     """
-    from nicos.tas.plotting import plot_scan
-    resmat = _create_resmat(hkles[0], kwds)
+    if not hkles:
+        raise UsageError('use qscan(..., plot="res") to plot scan resolution')
+    cfg, par = _resmat_args(hkles[0], kwds)
     printinfo('plotting scan resolution in separate window, please wait...')
-    plot_scan(resmat, hkles)
+    session.clientExec(plot_resscan, (cfg, par, hkles))
 
 
 @usercommand
@@ -607,6 +608,23 @@ def hklplot(**kwds):
     # also plot magnetic satellites tau1 and tau2 from each nuclear Bragg peak
     >>> hklplot(tau1=(0.28, 0.28, 0), tau2=(0.28, -0.28, 0))
     """
-    from nicos.tas.plotting import SpaceMap
-    resmat = _create_resmat((), kwds)
-    SpaceMap(session.instrument, resmat, **kwds).plot_map()
+    cfg, par = _resmat_args((), kwds)
+    tas = session.instrument
+    tasinfo = {
+        'actpos': tas.read(),
+        'calpos': tas._last_calpos,
+        'philim': tas._adevs['phi'].userlimits,
+        'psilim': tas._adevs['psi'].userlimits,
+        'monolim': tas._adevs['mono'].userlimits,
+        'analim': tas._adevs['ana'].userlimits,
+        'alphalim': tas._adevs['alpha'] and tas._adevs['alpha'].userlimits,
+        'phiname': tas._adevs['phi'].name,
+        'psiname': tas._adevs['psi'].name,
+    }
+    for p in ['scanmode', 'scanconstant', 'energytransferunit',
+              'scatteringsense', 'axiscoupling', 'psi360']:
+        tasinfo[p] = getattr(tas, p)
+    for p in ['lattice', 'angles', 'orient1', 'orient2',
+              'psi0', 'spacegroup']:
+        tasinfo[p] = getattr(tas._adevs['cell'], p)
+    session.clientExec(plot_hklmap, (cfg, par, tasinfo, kwds))

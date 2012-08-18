@@ -44,30 +44,18 @@ R2D = 180/pi
 K = 1.9958584
 
 
-class Cell(Device):
-    """Cell object representing sample geometry."""
+class CellBase(object):
+    """Unit cell operations without NICOS interface."""
 
     # Caution: _angles_rec is in radians, _angles is in degrees!
 
-    parameters = {
-        'lattice': Param('Lattice constants', type=vec3, settable=True,
-                         default=[2*pi, 2*pi, 2*pi], unit='A',
-                         category='sample'),
-        'angles':  Param('Lattice angles', type=vec3, settable=True,
-                         default=[90, 90, 90], unit='deg', category='sample'),
-        'orient1': Param('First orientation reflex', type=vec3,
-                         default=[1, 0, 0], settable=True, category='sample'),
-        'orient2': Param('Second orientation reflex', type=vec3,
-                         default=[0, 1, 0], settable=True, category='sample'),
-        'psi0':    Param('Zero position of psi axis', settable=True,
-                         unit='deg', category='sample'),
-        #'coordinatesystem': Param('Coordinate system for k_i: 1 parallel x, '
-        #                          '-1 parallel -x, 2 parallel y, '
-        #                          '-2 parallel -y.',
-        #                          type=int, default=1, settable=True),
-        'spacegroup': Param('Space group of the sample', settable=True,
-                            type=anytype),
-    }
+    def _setall(self, lattice, angles, orient1, orient2, psi0):
+        self._lattice = array(lattice, float)
+        self._angles = array(angles, float)
+        self._orient1 = array(orient1, float)
+        self._orient2 = array(orient2, float)
+        self._psi0 = psi0
+        self._reinit()
 
     def _reinit(self):
         try:
@@ -101,36 +89,6 @@ class Cell(Device):
         self.log.info('psi0:             %4.3f' % (self._psi0 * R2D))
         self.log.info('cardan matrix:    \n%s' % self._matrix_cardan)
         self.log.info('hkl2Qcart matrix: \n%s' % self._matrix)
-
-    def doUpdateLattice(self, val):
-        self._lattice = array(val, float)
-        self._reinit()
-
-    def doUpdateAngles(self, val):
-        self._angles = array(val, float)
-        self._reinit()
-
-    def doUpdateOrient1(self, val):
-        self._orient1 = array(val, float)
-        self._reinit()
-
-    def doUpdateOrient2(self, val):
-        self._orient2 = array(val, float)
-        self._reinit()
-
-    def doUpdatePsi0(self, val):
-        self._psi0 = val
-        self._reinit()
-
-    def doWriteCoordinatesystem(self, val):
-        if val not in [1, -1, 2, -2]:
-            raise ConfigurationError('valid values for coordinatesystem: '
-                                     '+/-1 and +/-2')
-
-    def doWriteSpacegroup(self, val):
-        if get_spacegroup(val) is None:
-            self.log.warning('space group %r not recognized; will be ignored '
-                '(valid values are: num, (num, setting) or "HMsym")' % val)
 
     def lattice_real(self):
         return [self._lattice, self._angles]
@@ -671,6 +629,60 @@ class Cell(Device):
         TQscan(1,   1, 0, 1,  0.005, 0.005, 0, 0,   21, 'CKF',  2.662, sense)
         print '## CPHI'
         TQscan(1.5, 1, 0, 5,  0,     0,     0, 0.1, 21, 'CPHI', 30,    sense)
+
+
+class Cell(Device, CellBase):
+    """Cell object representing sample geometry."""
+
+    parameters = {
+        'lattice': Param('Lattice constants', type=vec3, settable=True,
+                         default=[2*pi, 2*pi, 2*pi], unit='A',
+                         category='sample'),
+        'angles':  Param('Lattice angles', type=vec3, settable=True,
+                         default=[90, 90, 90], unit='deg', category='sample'),
+        'orient1': Param('First orientation reflex', type=vec3,
+                         default=[1, 0, 0], settable=True, category='sample'),
+        'orient2': Param('Second orientation reflex', type=vec3,
+                         default=[0, 1, 0], settable=True, category='sample'),
+        'psi0':    Param('Zero position of psi axis', settable=True,
+                         unit='deg', category='sample'),
+        #'coordinatesystem': Param('Coordinate system for k_i: 1 parallel x, '
+        #                          '-1 parallel -x, 2 parallel y, '
+        #                          '-2 parallel -y.',
+        #                          type=int, default=1, settable=True),
+        'spacegroup': Param('Space group of the sample', settable=True,
+                            type=anytype),
+    }
+
+    def doUpdateLattice(self, val):
+        self._lattice = array(val, float)
+        self._reinit()
+
+    def doUpdateAngles(self, val):
+        self._angles = array(val, float)
+        self._reinit()
+
+    def doUpdateOrient1(self, val):
+        self._orient1 = array(val, float)
+        self._reinit()
+
+    def doUpdateOrient2(self, val):
+        self._orient2 = array(val, float)
+        self._reinit()
+
+    def doUpdatePsi0(self, val):
+        self._psi0 = val
+        self._reinit()
+
+    #def doWriteCoordinatesystem(self, val):
+    #    if val not in [1, -1, 2, -2]:
+    #        raise ConfigurationError('valid values for coordinatesystem: '
+    #                                 '+/-1 and +/-2')
+
+    def doWriteSpacegroup(self, val):
+        if get_spacegroup(val) is None:
+            self.log.warning('space group %r not recognized; will be ignored '
+                '(valid values are: num, (num, setting) or "HMsym")' % val)
 
 
 class TASSample(Sample, Cell):

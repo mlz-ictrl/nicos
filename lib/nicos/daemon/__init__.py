@@ -199,6 +199,7 @@ class NicosDaemon(Device):
         'livedata': False,
         'simresult': True,
         'showhelp': True,
+        'clientexec': True,
     }
 
     def doInit(self, mode):

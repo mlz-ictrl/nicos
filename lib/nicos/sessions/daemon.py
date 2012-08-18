@@ -161,3 +161,8 @@ class DaemonSession(NoninteractiveSession):
         if not isinstance(obj, str):
             self.log.info('Showing help in the client\'s help window...')
         self.emitfunc('showhelp', data)
+
+    def clientExec(self, func, args):
+        """Execute a function client-side."""
+        self.emitfunc('clientexec',
+                      ('%s.%s' % (func.__module__, func.__name__),) + args)
