@@ -306,6 +306,7 @@ class BrowseDlg : public QDialog, public Ui::BrowseDlg
 		virtual ~BrowseDlg();
 
 		void SetDir(const QString& strDir, bool bForce=false);
+		const QString& GetLastDir() const { return m_strLastDir; }
 };
 
 // *****************************************************************************

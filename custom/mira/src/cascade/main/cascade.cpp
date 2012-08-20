@@ -29,9 +29,6 @@
 // Dies hat nichts mit der "Pseudokompression" zu tun!
 //#define DATA_COMPRESSED
 
-#define WIN_W 900
-#define WIN_H 675
-
 #include <iostream>
 #include <stdlib.h>
 #include <limits>
@@ -59,6 +56,7 @@
 #include <QtGui/QDialog>
 #include <QtCore/QLine>
 #include <QtGui/QMessageBox>
+#include <QtCore/QSettings>
 
 #include "../config/globals.h"
 #include "../loader/tofloader.h"
@@ -916,8 +914,8 @@ class MainWindow : public QMainWindow
 		void LoadPad(bool bBinary)
 		{
 			QString strFile = QFileDialog::getOpenFileName(this,
-														   "Open PAD File","",
-												  "PAD Files (*.pad *.PAD);;All Files (*)");
+											"Open PAD File",m_strCurDir,
+											"PAD Files (*.pad *.PAD);;All Files (*)");
 
 			if(strFile=="")
 				return;
@@ -951,7 +949,7 @@ class MainWindow : public QMainWindow
 		void LoadTof()
 		{
 			QString strFile = QFileDialog::getOpenFileName(
-								this, "Open TOF File","",
+								this, "Open TOF File", m_strCurDir,
 								"TOF Files (*.tof *.TOF);;All Files (*)");
 
 			if(strFile=="")
@@ -1178,7 +1176,7 @@ class MainWindow : public QMainWindow
 
 			#ifdef USE_FFTW
 			strAbout += QString("\n") + QString("Uses FFTW 3\t\thttp://www.fftw.org");
-			#endif			
+			#endif
 
 			#ifdef USE_BOOST
 			strAbout += QString("\n") + QString("Uses Boost\t\thttp://www.boost.org");
@@ -1219,14 +1217,10 @@ class MainWindow : public QMainWindow
 			  m_client(this, false), m_statustimer(this), m_autofetchtimer(this),
 			  statusbar(NULL)
 		{
+			m_strTitle = "Cascade Viewer";
+			setWindowTitle(m_strTitle.c_str());
+
 			m_cascadewidget.SetLog10(true);
-
-
-			m_strTitle = Config::GetSingleton()->QueryString(
-							"/cascade_config/main_window/title",
-							"Cascade Viewer");
-			setWindowTitle(QString(m_strTitle.c_str()).simplified());
-
 
 			QWidget *pCentralWidget = new QWidget(this);
 			setCentralWidget(pCentralWidget);
@@ -1321,7 +1315,7 @@ class MainWindow : public QMainWindow
 			QAction *actionMem = new QAction(
 						QIcon::fromTheme("utilities-system-monitor"),
 						"Show Memory Usage...",
-						this);			
+						this);
 			QAction *actionExit = new QAction(
 						QIcon::fromTheme("application-exit"),
 						"&Exit",
@@ -1527,6 +1521,20 @@ class MainWindow : public QMainWindow
 
 
 			//------------------------------------------------------------------
+			// Directory Toolbar
+			QToolBar *pDirToolbar = new QToolBar("File Toolbar", this);
+
+			QAction *btnBrowse = new QAction(
+										QIcon::fromTheme("system-file-manager"),
+										QString("Browse Files..."),
+										pDirToolbar);
+			pDirToolbar->addAction(btnBrowse);
+
+			addToolBar(pDirToolbar);
+			//------------------------------------------------------------------
+
+
+			//------------------------------------------------------------------
 			// Plot Toolbar
 			QToolBar *toolBar = new QToolBar("Plot Toolbar",this);
 
@@ -1645,12 +1653,6 @@ class MainWindow : public QMainWindow
 
 
 			//------------------------------------------------------------------
-			// Directory Toolbar
-
-			//------------------------------------------------------------------
-
-
-			//------------------------------------------------------------------
 			// Status Bar
 			statusbar = new QStatusBar(this);
 			pStatusMsg = new QLabel(this);
@@ -1745,7 +1747,7 @@ class MainWindow : public QMainWindow
 					this, SLOT(GarbageCollect()));
 			connect(actionMem, SIGNAL(triggered()),
 					this, SLOT(ShowMemUsage()));
-			
+
 
 			// Help
 			connect(actionAbout, SIGNAL(triggered()),
@@ -1778,6 +1780,11 @@ class MainWindow : public QMainWindow
 			// Server Message
 			connect(&m_client, SIGNAL(MessageSignal(const char*, int)),
 					this, SLOT(ServerMessageSlot(const char*, int)));
+
+
+
+			// Dir Toolbar
+			connect(btnBrowse, SIGNAL(triggered()), this, SLOT(BrowseFiles()));
 
 
 			// ROI
@@ -1822,6 +1829,7 @@ int main(int argc, char **argv)
 	try
 	{
 		QApplication a(argc, argv);
+		QSettings settings("tobis_stuff", "cascade_viewer");
 
 		setlocale(LC_ALL, "C");
 		QLocale::setDefault(QLocale::English);
@@ -1846,16 +1854,6 @@ int main(int argc, char **argv)
 		// Konfigurationseinstellungen laden
 		GlobalConfig::Init();
 
-		int iLogToFile = Config::GetSingleton()->QueryInt(
-							"/cascade_config/log/log_to_file", 0);
-		if(iLogToFile)
-		{
-			std::string strLogFile =
-				Config::GetSingleton()->QueryString("/cascade_config/log/file",
-													"cascade.log");
-			logger.Init(strLogFile.c_str());
-		}
-
 		if(bConfigOk)
 		{
 			logger.SetCurLogLevel(LOGLEVEL_INFO);
@@ -1867,22 +1865,10 @@ int main(int argc, char **argv)
 			logger << "Main: Using default configuration.\n";
 		}
 
-		int iLogLevel = Config::GetSingleton()->QueryInt(
-							"/cascade_config/log/level", LOGLEVEL_INFO);
-		GlobalConfig::SetLogLevel(iLogLevel);
-
-		bool bRepeatLogs = Config::GetSingleton()->QueryInt(
-							"/cascade_config/log/repeat_duplicate_logs", 1);
-		GlobalConfig::SetRepeatLogs(bRepeatLogs);
-
-		int iWinW = Config::GetSingleton()->QueryInt(
-							"/cascade_config/main_window/width", WIN_W);
-		int iWinH = Config::GetSingleton()->QueryInt(
-							"/cascade_config/main_window/height", WIN_H);
-
 		MainWindow::NUM_BINS = Config::GetSingleton()->QueryInt(
 							"/cascade_config/graphs/bin_count",
 							MainWindow::NUM_BINS);
+
 		MainWindow::SERVER_STATUS_POLL_TIME = Config::GetSingleton()->QueryInt(
 							"/cascade_config/server/status_poll_time",
 							MainWindow::SERVER_STATUS_POLL_TIME);
@@ -1892,13 +1878,18 @@ int main(int argc, char **argv)
 							MainWindow::AUTOFETCH_POLL_TIME);
 
 		MainWindow mainWindow;
-		mainWindow.resize(iWinW, iWinH);
+		mainWindow.resize(900,700);
+		mainWindow.restoreGeometry(settings.value("main/geo").toByteArray());
 		mainWindow.show();
+
 
 		QString strBaseDir = GlobalConfig::GetExpConfig().GetBaseDir().c_str();
 		QDir dirBase(strBaseDir);
 		if(dirBase.exists())
 			mainWindow.m_strCurDir = strBaseDir;
+
+		mainWindow.m_strCurDir = settings.value("dirs/last_dir",
+										mainWindow.m_strCurDir).toString();
 
 		// user wants to open file/dir
 		if(argc>1)
@@ -1923,6 +1914,13 @@ int main(int argc, char **argv)
 		}
 
 		iRet = a.exec();
+
+		// save settings
+		QString strLastDir = mainWindow.m_cascadewidget.GetLastDir();
+		if(strLastDir == "")
+			strLastDir = mainWindow.m_strCurDir;
+		settings.setValue("dirs/last_dir", strLastDir);
+		settings.setValue("main/geo", mainWindow.saveGeometry());
 
 		// aufräumen
 		GlobalConfig::Deinit();

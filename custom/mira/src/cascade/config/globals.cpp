@@ -279,8 +279,34 @@ void GlobalConfig::Init()
 
 	Deinit();
 
+
 // Cascade-Qt-Client lädt Einstellungen über XML-Datei
 #ifdef __CASCADE_QT_CLIENT__
+
+	//--------------------------------------------------------------------------
+	// logger
+	int iLogToFile = Config::GetSingleton()->QueryInt(
+						"/cascade_config/log/log_to_file", 0);
+	if(iLogToFile)
+	{
+		std::string strLogFile =
+			Config::GetSingleton()->QueryString("/cascade_config/log/file",
+												"cascade.log");
+		logger.Init(strLogFile.c_str());
+	}
+
+	int iLogLevel = Config::GetSingleton()->QueryInt(
+						"/cascade_config/log/level", LOGLEVEL_INFO);
+	SetLogLevel(iLogLevel);
+
+	bool bRepeatLogs = Config::GetSingleton()->QueryInt(
+						"/cascade_config/log/repeat_duplicate_logs", 1);
+	SetRepeatLogs(bRepeatLogs);
+	//--------------------------------------------------------------------------
+
+
+	//--------------------------------------------------------------------------
+	// TOF / PAD stuff
 	bGuessConfig = (bool)Config::GetSingleton()->QueryInt(
 				"/cascade_config/tof_file/guess_file_config", bGuessConfig);
 
@@ -313,7 +339,11 @@ void GlobalConfig::Init()
 		s_config.vecFoilBegin[i] = (Config::GetSingleton()->QueryInt(
 				pcStr, s_config.IMAGES_PER_FOIL*2*i));
 	}
+	//--------------------------------------------------------------------------
 
+
+	//--------------------------------------------------------------------------
+	// graphs
 	iPhaseBlockSize[0] = Config::GetSingleton()->QueryInt(
 				"/cascade_config/graphs/phase_block_size_x",
 				iPhaseBlockSize[0]);
@@ -329,7 +359,11 @@ void GlobalConfig::Init()
 
 	LOG_LOWER_RANGE = Config::GetSingleton()->QueryDouble(
 				"/cascade_config/graphs/log_lower_range", LOG_LOWER_RANGE);
+	//--------------------------------------------------------------------------
 
+
+	//--------------------------------------------------------------------------
+	// fitter
 	dMinuitTolerance = Config::GetSingleton()->QueryDouble(
 				"/cascade_config/minuit/tolerance", dMinuitTolerance);
 	uiMinuitMaxFcn = (unsigned int)Config::GetSingleton()->QueryInt(
@@ -360,11 +394,18 @@ void GlobalConfig::Init()
 	bDumpFiles = (bool)Config::GetSingleton()->QueryInt(
 				"/cascade_config/log/dump_files", bDumpFiles);
 
+	//--------------------------------------------------------------------------
+
+
+	//--------------------------------------------------------------------------
+	// initial directory
+
 	s_expconfig.SetBaseDir(Config::GetSingleton()->
 					QueryString("/cascade_config/dirs/exp_base_dir", "."));
 	s_expconfig.SetNumExp(Config::GetSingleton()->QueryInt(
 				"/cascade_config/dirs/proposal_num", 0));
-	
+	//--------------------------------------------------------------------------
+
 #else	// Nicos-Client holt Einstellungen von Detektor
 
 	// Defaults setzen

@@ -40,12 +40,6 @@
 		<log_lower_range> -1.0 </log_lower_range>
 	</graphs>
 
-	<main_window>
-		<width> 900 </width>
-		<height> 700 </height>
-		<title> Cascade Viewer </title>
-	</main_window>
-
 	<server>
 		<address> miracascade.mira.frm2 </address>
 		<port> 1234 </port>

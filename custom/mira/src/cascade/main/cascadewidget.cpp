@@ -1000,3 +1000,13 @@ bool CascadeWidget::ToPDF(const char* pcDst) const
 	m_pPlot->print(printer);
 	return true;
 }
+
+const QString& CascadeWidget::GetLastDir() const
+{
+	static const QString strCur = "";
+
+	if(!m_pbrowsedlg)
+		return strCur;
+
+	return m_pbrowsedlg->GetLastDir();
+}
