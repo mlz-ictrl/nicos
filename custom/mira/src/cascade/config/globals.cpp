@@ -29,6 +29,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <iostream>
+#include <time.h>
 
 //------------------------------------------------------------------------------
 // PAD config
@@ -207,12 +208,47 @@ void TofConfig::CheckTofArguments(int* piStartX, int* piEndX, int* piStartY,
 	}
 }
 
+//------------------------------------------------------------------------------
+// exp config
 
+ExpConfig::ExpConfig() : m_strBaseDir("."), m_iNumExp(0), m_iYear(-1)
+{}
+
+void ExpConfig::SetBaseDir(const std::string& strDir) { m_strBaseDir = strDir; }
+
+std::string ExpConfig::GetBaseDir()
+{
+	std::string strRet = m_strBaseDir;
+
+	if(m_iYear < 0) SetCurYear();
+
+	std::ostringstream ostrYear;
+	std::ostringstream ostrNumExp;
+
+	ostrYear << m_iYear;
+	ostrNumExp << m_iNumExp;
+
+	find_and_replace(strRet, "${year}", ostrYear.str());
+	find_and_replace(strRet, "${proposal_num}", ostrNumExp.str());
+
+	//std::cout << strRet << std::endl;
+	return strRet;
+}
+
+void ExpConfig::SetCurYear()
+{
+	time_t t;
+	time(&t);
+	tm* ptm = localtime(&t);
+
+	m_iYear = 1900 + ptm->tm_year;
+}
 
 //------------------------------------------------------------------------------
 // global config
 
 TofConfig GlobalConfig::s_config = TofConfig();
+ExpConfig GlobalConfig::s_expconfig = ExpConfig();
 
 int GlobalConfig::iPhaseBlockSize[2] = {1, 2};
 int GlobalConfig::iContrastBlockSize[2] = {1, 2};
@@ -228,7 +264,6 @@ bool GlobalConfig::bUseFFT = 0;
 
 bool GlobalConfig::bGuessConfig = 0;
 bool GlobalConfig::bDumpFiles = 0;
-
 
 void GlobalConfig::Init()
 {
@@ -325,6 +360,11 @@ void GlobalConfig::Init()
 	bDumpFiles = (bool)Config::GetSingleton()->QueryInt(
 				"/cascade_config/log/dump_files", bDumpFiles);
 
+	s_expconfig.SetBaseDir(Config::GetSingleton()->
+					QueryString("/cascade_config/dirs/exp_base_dir", "."));
+	s_expconfig.SetNumExp(Config::GetSingleton()->QueryInt(
+				"/cascade_config/dirs/proposal_num", 0));
+	
 #else	// Nicos-Client holt Einstellungen von Detektor
 
 	// Defaults setzen
@@ -350,6 +390,7 @@ unsigned int GlobalConfig::GetMinCountsToFit() { return uiMinCountsToFit; }
 bool GlobalConfig::GetUseFFT() { return bUseFFT; }
 
 TofConfig& GlobalConfig::GetTofConfig() { return s_config;}
+ExpConfig& GlobalConfig::GetExpConfig() { return s_expconfig; }
 bool GlobalConfig::GetDumpFiles() { return bDumpFiles; }
 
 void GlobalConfig::SetMinuitMaxFnc(unsigned int uiMaxFcn)

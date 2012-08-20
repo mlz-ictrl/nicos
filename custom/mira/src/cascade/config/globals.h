@@ -25,6 +25,7 @@
 #define __GLOBALS__
 
 #include <vector>
+#include <string>
 
 // use minuit for fits?
 #define USE_MINUIT
@@ -142,6 +143,27 @@ class TofConfig : public PadConfig
 							   int* piFoil=0, int* piTimechannel=0) const;
 };
 
+class ExpConfig
+{
+	protected:
+		std::string m_strBaseDir;
+		int m_iNumExp;
+		int m_iYear;
+
+	public:
+		ExpConfig();
+		
+		std::string GetBaseDir();
+		void SetBaseDir(const std::string& strDir);
+		
+		void SetNumExp(int iExp) { m_iNumExp = iExp; }
+		int GetNumExp() const { return m_iNumExp; }
+
+		void SetCurYear();
+		void SetYear(int iYear) { m_iYear = iYear; }
+		int GetYear() const { return m_iYear; }
+};
+
 /*
  * global, static configuration class
  * used to configure layout of TOF & PAD formats etc. before first use of
@@ -153,6 +175,7 @@ class GlobalConfig
 
 	protected:
 		static TofConfig s_config;
+		static ExpConfig s_expconfig;
 
 		// width & height of blocks used for calculation phase or
 		// constrast images
@@ -191,6 +214,7 @@ class GlobalConfig
 		static bool GetUseFFT();
 
 		static TofConfig& GetTofConfig();
+		static ExpConfig& GetExpConfig();
 
 		static bool GetDumpFiles();
 		//----------------------------------------------------------------------

@@ -145,6 +145,16 @@ std::string get_byte_str(unsigned int iSize)
 	return ostr.str();
 }
 
+void find_and_replace(std::string& str1, const std::string& str_old,
+						const std::string& str_new)
+{
+	std::size_t pos = str1.find(str_old);
+	if(pos==std::string::npos)
+		return;
+
+	str1.replace(pos, str_old.length(), str_new);
+}
+
 //------------------------------------------------------------------------------
 
 

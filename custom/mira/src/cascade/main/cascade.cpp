@@ -1641,6 +1641,11 @@ class MainWindow : public QMainWindow
 
 
 			addToolBar(pRoiToolbar);
+			//------------------------------------------------------------------
+
+
+			//------------------------------------------------------------------
+			// Directory Toolbar
 
 			//------------------------------------------------------------------
 
@@ -1889,6 +1894,11 @@ int main(int argc, char **argv)
 		MainWindow mainWindow;
 		mainWindow.resize(iWinW, iWinH);
 		mainWindow.show();
+
+		QString strBaseDir = GlobalConfig::GetExpConfig().GetBaseDir().c_str();
+		QDir dirBase(strBaseDir);
+		if(dirBase.exists())
+			mainWindow.m_strCurDir = strBaseDir;
 
 		// user wants to open file/dir
 		if(argc>1)

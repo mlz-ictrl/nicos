@@ -94,6 +94,9 @@ std::string trim(const std::string& str);
 
 std::string get_byte_str(unsigned int iSize);
 
+void find_and_replace(std::string& str1, const std::string& str_old,
+					  const std::string& str_new);
+
 //------------------------------------------------------------------------------
 
 

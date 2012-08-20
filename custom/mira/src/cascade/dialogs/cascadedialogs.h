@@ -295,6 +295,7 @@ class BrowseDlg : public QDialog, public Ui::BrowseDlg
 
 	protected:
 		CascadeWidget *m_pwidget;
+		QString m_strLastDir;
 
 	protected slots:
 		void SelectDir();
@@ -304,7 +305,7 @@ class BrowseDlg : public QDialog, public Ui::BrowseDlg
 		BrowseDlg(CascadeWidget *pParent, const char* pcDir=".");
 		virtual ~BrowseDlg();
 
-		void SetDir(const QString& strDir);
+		void SetDir(const QString& strDir, bool bForce=false);
 };
 
 // *****************************************************************************

@@ -284,7 +284,7 @@ void RoiDlg::Deinit()
 // ******************* Browse Dialog *******************************************
 
 BrowseDlg::BrowseDlg(CascadeWidget *pParent, const char* pcDir)
-			: QDialog(pParent), m_pwidget(pParent)
+			: QDialog(pParent), m_pwidget(pParent), m_strLastDir("")
 {
 	setupUi(this);
 
@@ -300,8 +300,14 @@ BrowseDlg::BrowseDlg(CascadeWidget *pParent, const char* pcDir)
 BrowseDlg::~BrowseDlg()
 {}
 
-void BrowseDlg::SetDir(const QString& strDir)
+void BrowseDlg::SetDir(const QString& _strDir, bool bForce)
 {
+	QString strDir = _strDir;
+	//std::cout << strDir.toAscii().data() << std::endl;
+	
+	if(!bForce && m_strLastDir!=QString("") && m_strLastDir!=QString("."))
+		strDir = m_strLastDir;
+	
 	listFiles->clear();
 	labDir->setText(strDir);
 
@@ -319,6 +325,8 @@ void BrowseDlg::SetDir(const QString& strDir)
 		QFileInfo fileinfo = filelist.at(iFile);
 		new QListWidgetItem(fileinfo.fileName(), listFiles);
 	}
+
+	m_strLastDir = strDir;
 }
 
 void BrowseDlg::SelectDir()
@@ -326,13 +334,13 @@ void BrowseDlg::SelectDir()
 	QString strDir = QFileDialog::getExistingDirectory(
 				this,
 				"Select Directory",
-				".",
+				m_strLastDir,
 				QFileDialog::ShowDirsOnly);
 
 	if(strDir == "")
 		return;
 
-	SetDir(strDir);
+	SetDir(strDir, true);
 }
 
 void BrowseDlg::SelectedFile()

@@ -24,6 +24,11 @@
             <guess_file_config> 0 </guess_file_config>
         </tof_file>
 
+	<dirs>
+		<exp_base_dir> /data/${year}/${proposal_num}/cascade/ </exp_base_dir>
+		<proposal_num> 5259 </proposal_num>
+	</dirs>
+
 	<graphs>
 		<phase_block_size_x> 1 </phase_block_size_x>
 		<phase_block_size_y> 1 </phase_block_size_y>
