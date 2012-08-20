@@ -24,6 +24,41 @@
 #ifndef __FOURIER__
 #define __FOURIER__
 
+#include <complex>
+
+
+//------------------------------------------------------------------------------
+// standard dft
+std::complex<double> dft_coeff(int k,
+								const double *pReal, const double *pImag,
+								unsigned int n);
+void dft(const double *pRealIn, const double *pImagIn,
+				double *pRealOut, double *pImagOut, unsigned int n);
+
+std::complex<double> idft_coeff(int k,
+								const double *pReal, const double *pImag,
+								unsigned int n);
+void idft(const double *pRealIn, const double *pImagIn,
+				double *pRealOut, double *pImagOut, unsigned int n);
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+// algorithms
+// perform a zero-order phase correction;
+// for a description (albeit in the context of NMR) see e.g. here:
+// http://www-keeler.ch.cam.ac.uk/lectures/Irvine/chapter4.pdf
+template<typename T>
+std::complex<T> phase_correction_0(const std::complex<T>& c, double dPhase)
+{
+	std::complex<T> cRet = c * std::complex<double>(cos(-dPhase), sin(-dPhase));
+	return cRet;
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+// fft using fftw
 class Fourier
 {
 	protected:
@@ -47,5 +82,6 @@ class Fourier
 		bool get_contrast(double dNumOsc, const double* pDatIn,
 						  double& dC, double& dPh);
 };
+//------------------------------------------------------------------------------
 
 #endif

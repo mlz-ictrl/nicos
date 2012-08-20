@@ -556,6 +556,9 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY)
 	double *pPhases = new double[iNumFoils];
 	autodeleter<double> _a0(pPhases, 1);
 
+	double dMeanPhase = 0.;
+	double dTotalCounts = 0.;
+
 	for(int iFoil=0; iFoil<iNumFoils; ++iFoil)
 	{
 		TmpGraph graphFoil = GetGraph(iFoil);
@@ -564,7 +567,14 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY)
 		graphFoil.FitSinus(dFreq, dPhase, dAmp, dOffs);
 
 		pPhases[iFoil] = dPhase;
+
+		// count-weighted phase sum
+		dMeanPhase += dPhase * double(graphFoil.Sum());
+		dTotalCounts += double(graphFoil.Sum());
 	}
+
+	dMeanPhase /= dTotalCounts;
+	dMeanPhase = fmod(dMeanPhase, 2.*M_PI);
 
 
 	// add all foils with correct phase-shifting
@@ -592,7 +602,9 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY)
 		}
 
 		//std::cout << "phase foil " << iFoil << ": " << pPhases[iFoil] << std::endl;
-		fourier.shift_sin(dNumOsc, pDataFoil, pDataFoilShifted, pPhases[iFoil]);
+
+		// shift to mean phase
+		fourier.shift_sin(dNumOsc, pDataFoil, pDataFoilShifted, pPhases[iFoil]-dMeanPhase);
 
 		// sum all foils
 		for(int iTc=0; iTc<iNumTc; ++iTc)
