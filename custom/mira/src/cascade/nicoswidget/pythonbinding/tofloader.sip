@@ -50,6 +50,8 @@ class Countable
 
 	public:
 		virtual unsigned int GetCounts() const = 0;
+		virtual unsigned int GetCountsSubtractBackground() const = 0;
+
 		virtual Roi& GetRoi() = 0;
 		virtual void UseRoi(bool bUseRoi=true) = 0;
 		virtual bool GetUseRoi() const = 0;
@@ -91,12 +93,13 @@ class PadImage : BasicImage, Countable
 		unsigned int GetDataInsideROI(int iX, int iY) const;
 
 		virtual unsigned int GetCounts() const;
+		virtual unsigned int GetCountsSubtractBackground() const;
 		unsigned int GetCounts(int iStartX, int iEndX,
 							   int iStartY, int iEndY) const;
 
 		virtual Roi& GetRoi();
 		virtual void UseRoi(bool bUseRoi=true);
-		virtual bool GetUseRoi() const;							   
+		virtual bool GetUseRoi() const;
 
 		const PadConfig& GetPadConfig() const;
 
@@ -211,11 +214,12 @@ class TofImage : Countable
 		int LoadMem(const char *strBuf, unsigned int strBufLen);
 
 		virtual unsigned int GetCounts() const;
+		virtual unsigned int GetCountsSubtractBackground() const;
 		unsigned int GetCounts(int iStartX, int iEndX,
 							   int iStartY, int iEndY) const;
 		virtual Roi& GetRoi();
 		virtual void UseRoi(bool bUseRoi=true);
-		virtual bool GetUseRoi() const;							   
+		virtual bool GetUseRoi() const;
 
 		TmpImage GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil, int iTimechannel) const;
 		TmpGraph GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil) const;

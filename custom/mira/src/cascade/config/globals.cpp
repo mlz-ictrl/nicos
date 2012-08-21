@@ -103,7 +103,7 @@ void TofConfig::CheckNumOscillations()
 {
 	if(NUM_OSC < 0.)
 		NUM_OSC = -NUM_OSC;
-	
+
 	double dNumOscInt = floor(NUM_OSC);
 	if(!float_equal<double>(NUM_OSC, dNumOscInt))
 	{
@@ -281,6 +281,8 @@ bool GlobalConfig::bUseFFT = 0;
 bool GlobalConfig::bGuessConfig = 0;
 bool GlobalConfig::bDumpFiles = 0;
 
+std::string GlobalConfig::m_strCurDir;
+
 void GlobalConfig::Init()
 {
 #ifdef __BIG_ENDIAN__
@@ -451,6 +453,8 @@ TofConfig& GlobalConfig::GetTofConfig() { return s_config;}
 ExpConfig& GlobalConfig::GetExpConfig() { return s_expconfig; }
 bool GlobalConfig::GetDumpFiles() { return bDumpFiles; }
 
+const std::string& GlobalConfig::GetCurDir() { return m_strCurDir; }
+
 void GlobalConfig::SetMinuitMaxFnc(unsigned int uiMaxFcn)
 { uiMinuitMaxFcn = uiMaxFcn; }
 void GlobalConfig::SetMinuitTolerance(double dTolerance)
@@ -467,6 +471,8 @@ void GlobalConfig::SetLogLevel(int iLevel)
 { logger.SetLogLevel(iLevel); }
 void GlobalConfig::SetRepeatLogs(bool bRepeat)
 { logger.SetRepeatLogs(bRepeat); }
+
+void GlobalConfig::SetCurDir(const std::string& strDir) { m_strCurDir = strDir; }
 // *****************************************************************************
 
 bool GlobalConfig::GuessConfigFromSize(bool bPseudoCompressed, int iLen,

@@ -393,6 +393,55 @@ unsigned int TofImage::GetCounts() const
 	return uiCnt;
 }
 
+unsigned int TofImage::GetCountsSubtractBackground() const
+{
+	int iXEnd = GetTofConfig().GetImageWidth();
+	int iYEnd = GetTofConfig().GetImageHeight();
+
+	TmpImage img = GetOverview();
+
+	unsigned int uiCnt = 0;
+	unsigned int uiCntOutsideRoi = 0;
+
+	double dTotalAreaInRoi = 0.;
+	double dTotalAreaNotInRoi = 0.;
+
+	for(int iY=0; iY<iYEnd; ++iY)
+		for(int iX=0; iX<iXEnd; ++iX)
+		{
+			double dAreaInRoi, dAreaNotInRoi;
+
+			if(m_roi.IsInside(iX, iY))
+			{
+				uiCnt += img.GetData(iX, iY);
+				dAreaInRoi = 1.;
+				dAreaNotInRoi = 0.;
+			}
+			else
+			{
+				uiCntOutsideRoi += img.GetData(iX, iY);
+				dAreaInRoi = 0.;
+				dAreaNotInRoi = 1.;
+			}
+
+			dTotalAreaInRoi += dAreaInRoi;
+			dTotalAreaNotInRoi += dAreaNotInRoi;
+		}
+
+	if(float_equal<double>(dTotalAreaNotInRoi, 0.))
+	{
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "Loader: Area outside ROI is 0.\n";
+	}
+	else
+	{
+		uiCnt -= (unsigned int)
+				(double(uiCntOutsideRoi)/dTotalAreaNotInRoi*dTotalAreaInRoi);
+	}
+
+	return uiCnt;
+}
+
 unsigned int TofImage::GetCounts(int iFoil) const
 {
 	int iXStart, iXEnd, iYStart, iYEnd;

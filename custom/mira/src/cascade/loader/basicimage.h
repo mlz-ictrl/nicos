@@ -48,6 +48,8 @@ class Countable
 {
 	public:
 		virtual unsigned int GetCounts() const = 0;
+		virtual unsigned int GetCountsSubtractBackground() const = 0;
+
 		virtual Roi& GetRoi() = 0;
 		virtual void UseRoi(bool bUseRoi=true) = 0;
 		virtual bool GetUseRoi() const = 0;

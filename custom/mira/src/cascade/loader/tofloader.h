@@ -249,6 +249,7 @@ class TofImage : public Countable
 
 		// total number of counts (inside ROI, if used)
 		virtual unsigned int GetCounts() const;
+		virtual unsigned int GetCountsSubtractBackground() const;
 		unsigned int GetCounts(int iFoil) const;
 
 		// old style GetCounts, ignoring main roi

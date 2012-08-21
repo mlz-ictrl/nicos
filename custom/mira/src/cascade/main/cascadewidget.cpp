@@ -672,10 +672,13 @@ void CascadeWidget::showSumDlg()
 
 void CascadeWidget::showBrowseDlg(const char* pcDir)
 {
+	if(pcDir)
+		GlobalConfig::SetCurDir(pcDir);
+
 	if(!m_pbrowsedlg)
 		m_pbrowsedlg = new BrowseDlg(this);
-
-	m_pbrowsedlg->SetDir(QString(pcDir));
+	else
+		m_pbrowsedlg->SetDir();
 
 	QPoint pt = mapToGlobal(pos());
 	m_pbrowsedlg->move(pt.x()+width(),pt.y());
@@ -999,14 +1002,4 @@ bool CascadeWidget::ToPDF(const char* pcDst) const
 
 	m_pPlot->print(printer);
 	return true;
-}
-
-const QString& CascadeWidget::GetLastDir() const
-{
-	static const QString strCur = "";
-
-	if(!m_pbrowsedlg)
-		return strCur;
-
-	return m_pbrowsedlg->GetLastDir();
 }

@@ -146,8 +146,6 @@ Q_OBJECT
 
 		bool ToPDF(const char* pcDst) const;
 
-		const QString& GetLastDir() const;
-
 	public slots:
 		// sum all foils and all time channels
 		void viewOverview();
@@ -165,7 +163,7 @@ Q_OBJECT
 		void showGraphDlg();
 		void showSumDlg();
 		void showRoiDlg();
-		void showBrowseDlg(const char* pcDir=".");
+		void showBrowseDlg(const char* pcDir=0);
 		void showIntegrationDlg();
 		void showRangeDlg();
 		void showCountsVsImagesDlg();

@@ -107,13 +107,17 @@ class PadImage : public BasicImage, public Countable
 		void SetData(int iX, int iY, unsigned int uiCnt);
 
 		// same as above, but return 0 if outside ROI (if ROI is used)
-		unsigned int GetDataInsideROI(int iX, int iY) const;
+		unsigned int GetDataInsideROI(int iX, int iY,
+										double *dArea=0) const;
+		unsigned int GetDataOutsideROI(int iX, int iY,
+										double *dArea=0) const;
 
 		// get pointer to internal memory
 		unsigned int* GetRawData(void);
 
 		// total number of counts (inside ROI, if used)
 		virtual unsigned int GetCounts() const;
+		virtual unsigned int GetCountsSubtractBackground() const;
 
 		// old style GetCounts, ignoring main roi
 		unsigned int GetCounts(int iStartX, int iEndX,

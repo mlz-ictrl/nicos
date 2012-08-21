@@ -178,12 +178,13 @@ bool FitSinus(int iSize, const unsigned int* pData,
 	// hints
 	const double *pReal = fkt.GetValues();
 	double dNumOsc = dFreq/(2.*M_PI/double(iSize));
-	
+
 	std::complex<double> c = dft_coeff<double>(int(dNumOsc), pReal, 0, iSize);
 	dPhase = atan2(c.imag(), c.real()) + M_PI/2.;
+	dPhase = fmod(dPhase, 2.*M_PI);
 	if(dPhase<0.)
 		dPhase += 2.*M_PI;
-	
+
 	dAmp = 0.5 * (iMax-iMin);
 	dOffs = double(iMin) + dAmp;
 
@@ -194,11 +195,11 @@ bool FitSinus(int iSize, const unsigned int* pData,
 
 	// step 1: limited fit
 	ROOT::Minuit2::MnUserParameters upar;
-	upar.Add("phase", dPhase, M_PI);
+	upar.Add("phase", dPhase, dPhase*0.1);
 	upar.Add("amp", dAmp, 0.1*dAmp);
 	upar.Add("offs", dOffs, 0.1*dOffs);
 
-	upar.SetLimits("phase", -M_PI, M_PI);
+	upar.SetLimits("phase", 0., 2.*M_PI);
 	upar.SetLimits("amp", 0., double(iMax));
 	upar.SetLimits("offs", double(iMin), double(iMax));
 
@@ -273,7 +274,7 @@ bool FitSinus(int iSize, const unsigned int* pData,
 	/*std::cout << "fit: dPhase=" << dPhase
 			  << ", dAmp=" << dAmp
 			  << ", dOffs=" << dOffs << std::endl;*/
-	
+
 	return true;
 }
 

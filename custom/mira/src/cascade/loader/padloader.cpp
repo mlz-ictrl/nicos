@@ -356,7 +356,8 @@ unsigned int PadImage::GetData(int iX, int iY) const
 	return GetIntData(iX, iY);
 }
 
-unsigned int PadImage::GetDataInsideROI(int iX, int iY) const
+unsigned int PadImage::GetDataInsideROI(int iX, int iY,
+										double *dArea) const
 {
 	if(m_bUseRoi)
 	{
@@ -365,7 +366,28 @@ unsigned int PadImage::GetDataInsideROI(int iX, int iY) const
 		//	return 0;
 
 		double dFractionInRoi = m_roi.HowMuchInside(iX, iY);
+		if(dArea)
+			*dArea = dFractionInRoi;
+
 		return GetDoubleData(iX, iY) * dFractionInRoi;
+	}
+	return GetData(iX, iY);
+}
+
+unsigned int PadImage::GetDataOutsideROI(int iX, int iY,
+										double *dArea) const
+{
+	if(m_bUseRoi)
+	{
+		// only continue if point is not in ROI
+		//if(m_roi.IsInside(iX, iY))
+		//	return 0;
+
+		double dFractionNotInRoi = 1.-m_roi.HowMuchInside(iX, iY);
+		if(dArea)
+			*dArea = dFractionNotInRoi;
+
+		return GetDoubleData(iX, iY) * dFractionNotInRoi;
 	}
 	return GetData(iX, iY);
 }
@@ -420,6 +442,43 @@ unsigned int PadImage::GetCounts() const
 	for(int iY=iYStart; iY<iYEnd; ++iY)
 		for(int iX=iXStart; iX<iXEnd; ++iX)
 			uiCnt += GetDataInsideROI(iX, iY);
+
+	return uiCnt;
+}
+
+unsigned int PadImage::GetCountsSubtractBackground() const
+{
+	int iXEnd = GetPadConfig().GetImageWidth();
+	int iYEnd = GetPadConfig().GetImageHeight();
+
+	unsigned int uiCnt = 0;
+	unsigned int uiCntOutsideRoi = 0;
+
+	double dTotalAreaInRoi = 0.;
+	double dTotalAreaNotInRoi = 0.;
+
+	for(int iY=0; iY<iYEnd; ++iY)
+		for(int iX=0; iX<iXEnd; ++iX)
+		{
+			double dAreaInRoi, dAreaNotInRoi;
+
+			uiCnt += GetDataInsideROI(iX, iY, &dAreaInRoi);
+			uiCntOutsideRoi += GetDataOutsideROI(iX, iY, &dAreaNotInRoi);
+
+			dTotalAreaInRoi += dAreaInRoi;
+			dTotalAreaNotInRoi += dAreaNotInRoi;
+		}
+
+	if(float_equal<double>(dTotalAreaNotInRoi, 0.))
+	{
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "Loader: Area outside ROI is 0.\n";
+	}
+	else
+	{
+		uiCnt -= (unsigned int)
+				(double(uiCntOutsideRoi)/dTotalAreaNotInRoi*dTotalAreaInRoi);
+	}
 
 	return uiCnt;
 }

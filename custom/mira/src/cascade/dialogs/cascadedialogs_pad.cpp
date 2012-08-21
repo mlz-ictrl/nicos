@@ -275,6 +275,7 @@ CountsVsImagesDlg::CountsVsImagesDlg(CascadeWidget *pParent)
 	connect(btnRoiCurrent, SIGNAL(toggled(bool)),
 			this, SLOT(SetRoiUseCurrent(bool)));
 	connect(groupRoi, SIGNAL(toggled(bool)), this, SLOT(RoiGroupToggled()));
+	connect(checkCorrect, SIGNAL(toggled(bool)), this, SLOT(UpdateGraph()));
 }
 
 CountsVsImagesDlg::~CountsVsImagesDlg()
@@ -296,6 +297,16 @@ void CountsVsImagesDlg::UpdateGraph()
 
 	PadImage pad;
 	TofImage tof;
+
+	// write a .dat file
+	bool bDumpData = GlobalConfig::GetDumpFiles();
+	std::ofstream *ofstr = 0;
+	if(bDumpData)
+	{
+		ofstr = new std::ofstream("counts.dat");
+		(*ofstr) << std::scientific;
+		(*ofstr) << "# file\tcounts\n";
+	}
 
 	if(bUseRoi)
 	{
@@ -385,13 +396,26 @@ void CountsVsImagesDlg::UpdateGraph()
 			continue;
 		}
 
-		unsigned int uiCnts = pcnt->GetCounts();
+
+		unsigned int uiCnts = 0;
+
+		if(checkCorrect->isChecked())
+			uiCnts = pcnt->GetCountsSubtractBackground();
+		else
+			uiCnts = pcnt->GetCounts();
+
 		uiMax = max(uiMax, uiCnts);
 
 		//pdx[iItem] = iItem;
 		pdy[iItem] = uiCnts;
 
 		progressBar->setValue(iItem + 1);
+
+		if(bDumpData)
+		{
+			(*ofstr) << iItem << "\t" << uiCnts;
+			(*ofstr) << "\n";
+		}
 	}
 
 	m_curve.setData(pdx, pdy, iPadCnt);
@@ -404,6 +428,13 @@ void CountsVsImagesDlg::UpdateGraph()
 	m_pzoomer->setZoomBase();
 
 	plot->replot();
+
+	if(bDumpData)
+	{
+		ofstr->flush();
+		ofstr->close();
+		delete ofstr;
+	}
 }
 
 void CountsVsImagesDlg::RoiGroupToggled()
@@ -412,7 +443,7 @@ void CountsVsImagesDlg::RoiGroupToggled()
 	bool bUseCurRoi = btnRoiCurrent->isChecked();
 	QString strRoiFile = editRoi->text();
 
-	if(bUseRoi && (bUseCurRoi || editRoi->text()!=""))
+	if((bUseRoi && (bUseCurRoi || editRoi->text()!="")) || !bUseRoi)
 		UpdateGraph();
 }
 
@@ -437,8 +468,11 @@ void CountsVsImagesDlg::SetRoiUseCurrent(bool bCur)
 
 void CountsVsImagesDlg::AddFile()
 {
-	QStringList pads = QFileDialog::getOpenFileNames(this, "PAD/TOF files", "",
-							"PAD/TOF Files (*.pad *.PAD *.tof *.TOF);;All Files (*)");
+	QString strDir(GlobalConfig::GetCurDir().c_str());
+
+	QStringList pads = QFileDialog::getOpenFileNames(
+					this, "PAD/TOF files", strDir,
+					"PAD/TOF Files (*.pad *.PAD *.tof *.TOF);;All Files (*)");
 
 	listPads->addItems(pads);
 	UpdateGraph();

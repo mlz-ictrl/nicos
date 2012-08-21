@@ -93,9 +93,6 @@ class MainWindow : public QMainWindow
 		static int SERVER_STATUS_POLL_TIME;
 		static int AUTOFETCH_POLL_TIME;
 
-		// working dir
-		QString m_strCurDir;
-
 	protected:
 		CascadeWidget m_cascadewidget;
 
@@ -908,13 +905,16 @@ class MainWindow : public QMainWindow
 		void BrowseFiles()
 		{
 			ServerDisconnect();
-			m_cascadewidget.showBrowseDlg(m_strCurDir.toAscii().data());
+			m_cascadewidget.showBrowseDlg();
 		}
 
 		void LoadPad(bool bBinary)
 		{
+			QString strCurDir(GlobalConfig::GetCurDir().c_str());
+
 			QString strFile = QFileDialog::getOpenFileName(this,
-											"Open PAD File",m_strCurDir,
+											"Open PAD File",
+											QString(strCurDir),
 											"PAD Files (*.pad *.PAD);;All Files (*)");
 
 			if(strFile=="")
@@ -923,7 +923,7 @@ class MainWindow : public QMainWindow
 			// set current directory
 			QDir dir(strFile);
 			dir.cdUp();
-			m_strCurDir = dir.absolutePath();
+			GlobalConfig::SetCurDir(dir.absolutePath().toAscii().data());
 
 			bool bOk;
 			if(bBinary)
@@ -948,8 +948,10 @@ class MainWindow : public QMainWindow
 
 		void LoadTof()
 		{
+			QString strCurDir(GlobalConfig::GetCurDir().c_str());
+
 			QString strFile = QFileDialog::getOpenFileName(
-								this, "Open TOF File", m_strCurDir,
+								this, "Open TOF File", strCurDir,
 								"TOF Files (*.tof *.TOF);;All Files (*)");
 
 			if(strFile=="")
@@ -958,7 +960,7 @@ class MainWindow : public QMainWindow
 			// set current directory
 			QDir dir(strFile);
 			dir.cdUp();
-			m_strCurDir = dir.absolutePath();
+			GlobalConfig::SetCurDir(dir.absolutePath().toAscii().data());
 
 			if(m_cascadewidget.LoadTofFile(strFile.toAscii().data()))
 			{
@@ -1886,10 +1888,12 @@ int main(int argc, char **argv)
 		QString strBaseDir = GlobalConfig::GetExpConfig().GetBaseDir().c_str();
 		QDir dirBase(strBaseDir);
 		if(dirBase.exists())
-			mainWindow.m_strCurDir = strBaseDir;
+			GlobalConfig::SetCurDir(strBaseDir.toAscii().data());
 
-		mainWindow.m_strCurDir = settings.value("dirs/last_dir",
-										mainWindow.m_strCurDir).toString();
+		QString strDir = settings.value("dirs/last_dir",
+								QString(GlobalConfig::GetCurDir().c_str()))
+									.toString();
+		GlobalConfig::SetCurDir(strDir.toAscii().data());
 
 		// user wants to open file/dir
 		if(argc>1)
@@ -1901,7 +1905,7 @@ int main(int argc, char **argv)
 			QDir dir(strArg);
 			if(dir.exists())
 			{
-				mainWindow.m_strCurDir = strArg;
+				GlobalConfig::SetCurDir(strArg.toAscii().data());
 				mainWindow.BrowseFiles();
 			}
 			else
@@ -1916,9 +1920,7 @@ int main(int argc, char **argv)
 		iRet = a.exec();
 
 		// save settings
-		QString strLastDir = mainWindow.m_cascadewidget.GetLastDir();
-		if(strLastDir == "")
-			strLastDir = mainWindow.m_strCurDir;
+		QString strLastDir(GlobalConfig::GetCurDir().c_str());
 		settings.setValue("dirs/last_dir", strLastDir);
 		settings.setValue("main/geo", mainWindow.saveGeometry());
 

@@ -154,10 +154,10 @@ class ExpConfig
 
 	public:
 		ExpConfig();
-		
+
 		std::string GetBaseDir();
 		void SetBaseDir(const std::string& strDir);
-		
+
 		void SetNumExp(int iExp) { m_iNumExp = iExp; }
 		int GetNumExp() const { return m_iNumExp; }
 
@@ -198,6 +198,8 @@ class GlobalConfig
 		static bool bGuessConfig;
 		static bool bDumpFiles;
 
+		static std::string m_strCurDir;
+
 	public:
 		// iLen in Ints, nicht Bytes
 		static bool GuessConfigFromSize(bool bPseudoCompressed, int iLen,
@@ -215,6 +217,8 @@ class GlobalConfig
 		static unsigned int GetMinCountsToFit();
 		static bool GetUseFFT();
 
+		static const std::string& GetCurDir();
+
 		static TofConfig& GetTofConfig();
 		static ExpConfig& GetExpConfig();
 
@@ -229,6 +233,8 @@ class GlobalConfig
 		static void SetMinuitStrategy(unsigned int iStrategy);
 		static void SetMinCountsToFit(unsigned int iMinCts);
 		static void SetUseFFT(bool bUse);
+
+		static void SetCurDir(const std::string& strDir);
 		//----------------------------------------------------------------------
 
 		static void SetLogLevel(int iLevel);

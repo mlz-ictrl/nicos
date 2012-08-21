@@ -314,8 +314,8 @@ void GraphDlg::UpdateGraph(void)
 	if(checkBoxTotal->isChecked())
 	{
 		TmpGraph tmpGraphtotal = m_pTofImg->GetTotalGraph();
-		
-		
+
+
 		pdx = new double[tmpGraphtotal.GetWidth()];
 		pdy = new double[tmpGraphtotal.GetWidth()];
 		for(int i=0; i<tmpGraphtotal.GetWidth(); ++i)
@@ -327,14 +327,14 @@ void GraphDlg::UpdateGraph(void)
 
 		double dymax_total = *std::max_element(pdy,
 									pdy + tmpGraphtotal.GetWidth());
-		dymax = std::max(dymax, dymax_total);		
+		dymax = std::max(dymax, dymax_total);
 
 		delete[] pdx;
 		delete[] pdy;
 
-		
-		
-	
+
+
+
 
 		double dFreq, dPhase, dAmp, dOffs;
 		double dPhase_err, dAmp_err, dOffs_err;
@@ -360,7 +360,7 @@ void GraphDlg::UpdateGraph(void)
 		}
 
 		labelTotal->setText(pcFit);
-				
+
 		pdx = new double[conf.GetImagesPerFoil()*FITPUNKTE];
 		pdy = new double[conf.GetImagesPerFoil()*FITPUNKTE];
 		for(int i=0; i<conf.GetImagesPerFoil()*FITPUNKTE; ++i)
@@ -412,11 +412,11 @@ void GraphDlg::Init(int iFolie)
 	QObject::connect(checkBoxDoFit, SIGNAL(stateChanged(int)), this,
 									SLOT(UpdateGraph()));
 	QObject::connect(checkBoxTotal, SIGNAL(stateChanged(int)), this,
-									SLOT(UpdateGraph()));	
+									SLOT(UpdateGraph()));
 	QObject::connect(spinBoxFolie, SIGNAL(valueChanged(int)), this,
 								   SLOT(UpdateGraph()));
 
-	
+
 	// Kurve für Messpunkte für eine Folie
 	QwtSymbol sym;
 	sym.setStyle(QwtSymbol::Ellipse);
@@ -430,7 +430,7 @@ void GraphDlg::Init(int iFolie)
 	m_curve.setErrorPen(QPen(Qt::blue));
 	m_curve.attach(qwtPlot);
 
-	
+
 
 	// Kurve für Fits
 	m_curvefit.setRenderHint(QwtPlotItem::RenderAntialiased);
@@ -451,7 +451,7 @@ void GraphDlg::Init(int iFolie)
 	m_curvetotalpoints.setStyle(QwtPlotCurve::NoCurve);
 	m_curvetotalpoints.setRenderHint(QwtPlotItem::RenderAntialiased);
 	m_curvetotalpoints.setErrorPen(QPen(Qt::black));
-	m_curvetotalpoints.attach(qwtPlot);	
+	m_curvetotalpoints.attach(qwtPlot);
 
 
 	// Gesamtkurve
@@ -1145,7 +1145,10 @@ void ContrastsVsImagesDlg::SetRoiUseCurrent(bool bCur)
 
 void ContrastsVsImagesDlg::AddFile()
 {
-	QStringList tofs = QFileDialog::getOpenFileNames(this, "TOF files", "",
+	QString strDir(GlobalConfig::GetCurDir().c_str());
+
+	QStringList tofs = QFileDialog::getOpenFileNames(
+							this, "TOF files", strDir,
 							"TOF Files (*.tof *.TOF);;All Files (*)");
 
 	listTofs->addItems(tofs);
@@ -1174,7 +1177,10 @@ void ContrastsVsImagesDlg::DeleteFile()
 
 void ContrastsVsImagesDlg::AddFile_underground()
 {
-	QStringList tofs = QFileDialog::getOpenFileNames(this, "TOF files", "",
+	QString strDir(GlobalConfig::GetCurDir().c_str());
+
+	QStringList tofs = QFileDialog::getOpenFileNames(
+							this, "TOF files", strDir,
 							"TOF Files (*.tof *.TOF);;All Files (*)");
 
 	listTofs_underground->addItems(tofs);
