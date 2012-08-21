@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <time.h>
+#include <math.h>
 
 //------------------------------------------------------------------------------
 // PAD config
@@ -98,6 +99,20 @@ const TofConfig& TofConfig::operator=(const TofConfig& conf)
 	return *this;
 }
 
+void TofConfig::CheckNumOscillations()
+{
+	if(NUM_OSC < 0.)
+		NUM_OSC = -NUM_OSC;
+	
+	double dNumOscInt = floor(NUM_OSC);
+	if(!float_equal<double>(NUM_OSC, dNumOscInt))
+	{
+		logger.SetCurLogLevel(LOGLEVEL_WARN);
+		logger << "Globals: Number of oscillations have to be integer for "
+				 "fourier calculations to work.\n";
+	}
+}
+
 int TofConfig::GetFoilCount() const { return FOIL_COUNT; }
 int TofConfig::GetImagesPerFoil() const { return IMAGES_PER_FOIL; }
 int TofConfig::GetImageCount() const { return IMAGE_COUNT; }
@@ -152,7 +167,8 @@ void TofConfig::SetPseudoCompression(bool bSet)
 { USE_PSEUDO_COMPRESSION = bSet; }
 void TofConfig::SetSumFirstAndLast(bool bSet)
 { SUM_FIRST_AND_LAST = bSet; }
-void TofConfig::SetNumOscillations(double dVal) { NUM_OSC = dVal; }
+void TofConfig::SetNumOscillations(double dVal)
+{ NUM_OSC = dVal; CheckNumOscillations(); }
 
 
 
@@ -330,6 +346,7 @@ void GlobalConfig::Init()
 	s_config.NUM_OSC = Config::GetSingleton()->QueryDouble(
 				"/cascade_config/tof_file/number_of_oscillations",
 				s_config.NUM_OSC);
+	s_config.CheckNumOscillations();
 
 	s_config.vecFoilBegin.resize(s_config.FOIL_COUNT);
 	for(int i=0; i<s_config.FOIL_COUNT; ++i)

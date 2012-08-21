@@ -21,10 +21,11 @@
 //
 // *****************************************************************************
 
+#include "../config/globals.h"
 #include "fit.h"
 #include "logger.h"
-#include "../config/globals.h"
 #include "gc.h"
+#include "fourier.h"
 
 #ifdef USE_MINUIT
 	#include <Minuit2/FCNBase.h>
@@ -170,13 +171,26 @@ bool FitSinus(int iSize, const unsigned int* pData,
 		return false;
 	}
 
-	dAmp = 0.5 * (iMax-iMin);
-	dPhase = 0.;
-	dOffs = double(iMin) + dAmp;
-
-
 	Sinus fkt(dFreq);
 	fkt.SetValues(iSize, pData);
+
+
+	// hints
+	const double *pReal = fkt.GetValues();
+	double dNumOsc = dFreq/(2.*M_PI/double(iSize));
+	
+	std::complex<double> c = dft_coeff<double>(int(dNumOsc), pReal, 0, iSize);
+	dPhase = atan2(c.imag(), c.real()) + M_PI/2.;
+	if(dPhase<0.)
+		dPhase += 2.*M_PI;
+	
+	dAmp = 0.5 * (iMax-iMin);
+	dOffs = double(iMin) + dAmp;
+
+	/*std::cout << "fitter hints: dPhase=" << dPhase
+			  << ", dAmp=" << dAmp
+			  << ", dOffs=" << dOffs << std::endl;*/
+
 
 	// step 1: limited fit
 	ROOT::Minuit2::MnUserParameters upar;
@@ -255,6 +269,11 @@ bool FitSinus(int iSize, const unsigned int* pData,
 		logger << "Fitter: Incorrect sinus fit." << "\n";
 		return false;
 	}
+
+	/*std::cout << "fit: dPhase=" << dPhase
+			  << ", dAmp=" << dAmp
+			  << ", dOffs=" << dOffs << std::endl;*/
+	
 	return true;
 }
 

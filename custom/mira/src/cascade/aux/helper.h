@@ -29,6 +29,7 @@
 #include <ostream>
 #include <fstream>
 #include <sstream>
+#include <limits>
 
 //------------------------------------------------------------------------------
 
@@ -128,6 +129,17 @@ template<class T> T max(const T& t1, const T& t2)
 	if(t1>t2)
 		return t1;
 	return t2;
+}
+
+template<typename T> bool float_equal(T t1, T t2)
+{
+	T tdiff = t2-t1;
+	if(tdiff < T(0))
+		tdiff = -tdiff;
+	
+	if(tdiff < std::numeric_limits<T>::epsilon())
+		return true;
+	return false;
 }
 
 //------------------------------------------------------------------------------

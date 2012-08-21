@@ -35,70 +35,6 @@
 
 
 //------------------------------------------------------------------------------
-// standard dft
-// dft formulas from here:
-// http://www.fftw.org/fftw3_doc/The-1d-Discrete-Fourier-Transform-_0028DFT_0029.html#The-1d-Discrete-Fourier-Transform-_0028DFT_0029
-std::complex<double> dft_coeff(int k,
-								const double *pReal, const double *pImag,
-								unsigned int n)
-{
-	std::complex<double> imag(0., 1.);
-
-	std::complex<double> f(0.,0.);
-	for(unsigned int j=0; j<n; ++j)
-	{
-		std::complex<double> t(pReal[j], pImag[j]);
-
-		double dv = -2.*M_PI*double(j)*double(k)/double(n);
-		f += t * (cos(dv) + imag*sin(dv));
-	}
-
-	return f;
-}
-
-void dft(const double *pRealIn, const double *pImagIn,
-				double *pRealOut, double *pImagOut, unsigned int n)
-{
-	for(unsigned int k=0; k<n; ++k)
-	{
-		std::complex<double> f = dft_coeff(k, pRealIn, pImagIn, n);
-		pRealOut[k] = f.real();
-		pImagOut[k] = f.imag();
-	}
-}
-
-std::complex<double> idft_coeff(int k,
-								const double *pReal, const double *pImag,
-								unsigned int n)
-{
-	std::complex<double> imag(0., 1.);
-
-	std::complex<double> t(0.,0.);
-	for(unsigned int j=0; j<n; ++j)
-	{
-		std::complex<double> f(pReal[j], pImag[j]);
-
-		double dv = 2.*M_PI*double(j)*double(k)/double(n);
-		t += f * (cos(dv) + imag*sin(dv));
-	}
-
-	return t;
-}
-
-void idft(const double *pRealIn, const double *pImagIn,
-				double *pRealOut, double *pImagOut, unsigned int n)
-{
-	for(unsigned int k=0; k<n; ++k)
-	{
-		std::complex<double> t = idft_coeff(k, pRealIn, pImagIn, n);
-		pRealOut[k] = t.real();
-		pImagOut[k] = t.imag();
-	}
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
 // fft using fftw
 #ifdef USE_FFTW
 
@@ -221,7 +157,7 @@ bool Fourier::fft(const double *pRealIn, const double *pImagIn,
 					double *pRealOut, double *pImagOut)
 {
 	// if we don't have the fftw available, use dft instead
-	dft(pRealIn, pImagIn, pRealOut, pImagOut, m_iSize);
+	dft<double>(pRealIn, pImagIn, pRealOut, pImagOut, m_iSize);
 
 	return true;
 }
@@ -230,7 +166,7 @@ bool Fourier::ifft(const double *pRealIn, const double *pImagIn,
 					double *pRealOut, double *pImagOut)
 {
 	// if we don't have the fftw available, use dft instead
-	idft(pRealIn, pImagIn, pRealOut, pImagOut, m_iSize);
+	idft<double>(pRealIn, pImagIn, pRealOut, pImagOut, m_iSize);
 
 	return true;	
 }

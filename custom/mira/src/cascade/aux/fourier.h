@@ -29,17 +29,69 @@
 
 //------------------------------------------------------------------------------
 // standard dft
-std::complex<double> dft_coeff(int k,
-								const double *pReal, const double *pImag,
-								unsigned int n);
-void dft(const double *pRealIn, const double *pImagIn,
-				double *pRealOut, double *pImagOut, unsigned int n);
+// dft formulas from here:
+// http://www.fftw.org/fftw3_doc/The-1d-Discrete-Fourier-Transform-_0028DFT_0029.html#The-1d-Discrete-Fourier-Transform-_0028DFT_0029
+template<typename T>
+std::complex<T> dft_coeff(int k,
+					const T *pReal, const T *pImag,
+					unsigned int n)
+{
+	std::complex<T> imag(0., 1.);
 
-std::complex<double> idft_coeff(int k,
-								const double *pReal, const double *pImag,
-								unsigned int n);
-void idft(const double *pRealIn, const double *pImagIn,
-				double *pRealOut, double *pImagOut, unsigned int n);
+	std::complex<T> f(0.,0.);
+	for(unsigned int j=0; j<n; ++j)
+	{
+		std::complex<T> t(pReal?pReal[j]:T(0), pImag?pImag[j]:T(0));
+
+		T dv = -2.*M_PI*T(j)*T(k)/T(n);
+		f += t * (cos(dv) + imag*sin(dv));
+	}
+
+	return f;
+}
+
+template<typename T>
+void dft(const T *pRealIn, const T *pImagIn,
+			   T *pRealOut, T *pImagOut, unsigned int n)
+{
+	for(unsigned int k=0; k<n; ++k)
+	{
+		std::complex<T> f = dft_coeff<T>(k, pRealIn, pImagIn, n);
+		pRealOut[k] = f.real();
+		pImagOut[k] = f.imag();
+	}
+}
+
+template<typename T>
+std::complex<T> idft_coeff(int k,
+					const T *pReal, const T *pImag,
+					unsigned int n)
+{
+	std::complex<T> imag(0., 1.);
+
+	std::complex<T> t(0.,0.);
+	for(unsigned int j=0; j<n; ++j)
+	{
+		std::complex<T> f(pReal?pReal[j]:T(0), pImag?pImag[j]:T(0));
+
+		T dv = 2.*M_PI*T(j)*T(k)/T(n);
+		t += f * (cos(dv) + imag*sin(dv));
+	}
+
+	return t;
+}
+
+template<typename T>
+void idft(const T *pRealIn, const T *pImagIn,
+				T *pRealOut, T *pImagOut, unsigned int n)
+{
+	for(unsigned int k=0; k<n; ++k)
+	{
+		std::complex<T> t = idft_coeff<T>(k, pRealIn, pImagIn, n);
+		pRealOut[k] = t.real();
+		pImagOut[k] = t.imag();
+	}
+}
 //------------------------------------------------------------------------------
 
 
@@ -51,8 +103,16 @@ void idft(const double *pRealIn, const double *pImagIn,
 template<typename T>
 std::complex<T> phase_correction_0(const std::complex<T>& c, double dPhase)
 {
-	std::complex<T> cRet = c * std::complex<double>(cos(-dPhase), sin(-dPhase));
-	return cRet;
+	return c * std::complex<double>(cos(-dPhase), sin(-dPhase));
+}
+
+// perform a first-order phase correction:
+// dPhase = dPhaseOffs + x*dPhaseSlope
+template<typename T>
+std::complex<T> phase_correction_1(const std::complex<T>& c,
+								double dPhaseOffs, double dPhaseSlope, double x)
+{
+	return phase_correction_0(c, dPhaseOffs + x*dPhaseSlope);
 }
 //------------------------------------------------------------------------------
 
@@ -76,6 +136,10 @@ class Fourier
 									double *pRealOut, double *pImagOut);
 
 		// shift a sine given in pDatIn by dPhase
+		// we cannot phase shift a sine directly in the time domain due to
+		// binning constraints; but in the frequency domain the phase is
+		// a continuous variable which we can arbitrarily change and transform
+		// back into the time domain to get a shifted rebinning
 		bool shift_sin(double dNumOsc, const double* pDatIn,
 						double *pDataOut, double dPhase);
 

@@ -111,6 +111,8 @@ class TofConfig : public PadConfig
 
 		double NUM_OSC;
 
+		void CheckNumOscillations();
+
 	public:
 		TofConfig();
 		TofConfig(const TofConfig& conf);
