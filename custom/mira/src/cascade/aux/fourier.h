@@ -101,18 +101,18 @@ void idft(const T *pRealIn, const T *pImagIn,
 // for a description (albeit in the context of NMR) see e.g. here:
 // http://www-keeler.ch.cam.ac.uk/lectures/Irvine/chapter4.pdf
 template<typename T>
-std::complex<T> phase_correction_0(const std::complex<T>& c, double dPhase)
+std::complex<T> phase_correction_0(const std::complex<T>& c, T dPhase)
 {
-	return c * std::complex<double>(cos(-dPhase), sin(-dPhase));
+	return c * std::complex<T>(cos(-dPhase), sin(-dPhase));
 }
 
 // perform a first-order phase correction:
 // dPhase = dPhaseOffs + x*dPhaseSlope
 template<typename T>
 std::complex<T> phase_correction_1(const std::complex<T>& c,
-								double dPhaseOffs, double dPhaseSlope, double x)
+								T dPhaseOffs, T dPhaseSlope, T x)
 {
-	return phase_correction_0(c, dPhaseOffs + x*dPhaseSlope);
+	return phase_correction_0<T>(c, dPhaseOffs + x*dPhaseSlope);
 }
 //------------------------------------------------------------------------------
 
@@ -138,8 +138,8 @@ class Fourier
 		// shift a sine given in pDatIn by dPhase
 		// we cannot phase shift a sine directly in the time domain due to
 		// binning constraints; but in the frequency domain the phase is
-		// a continuous variable which we can arbitrarily change and transform
-		// back into the time domain to get a shifted rebinning
+		// a continuous variable which we can arbitrarily change and then
+		// transform the data back into the time domain to get a shifted rebinning
 		bool shift_sin(double dNumOsc, const double* pDatIn,
 						double *pDataOut, double dPhase);
 
