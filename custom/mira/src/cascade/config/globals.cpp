@@ -276,7 +276,9 @@ unsigned int GlobalConfig::uiMinuitMaxFcn = 0;
 int GlobalConfig::iMinuitAlgo = MINUIT_MIGRAD;
 unsigned int GlobalConfig::uiMinuitStrategy = 1;
 unsigned int GlobalConfig::uiMinCountsToFit = 50;
+
 bool GlobalConfig::bUseFFT = 0;
+int GlobalConfig::iShiftMethod = /*SHIFT_SINE_ONLY*/ SHIFT_ZERO_ORDER;
 
 bool GlobalConfig::bGuessConfig = 0;
 bool GlobalConfig::bDumpFiles = 0;
@@ -393,7 +395,9 @@ void GlobalConfig::Init()
 				"/cascade_config/minuit/min_counts", uiMinCountsToFit);
 
 	bUseFFT = (Config::GetSingleton()->QueryInt(
-				"/cascade_config/minuit/use_fft_method_instead", bUseFFT) != 0);
+				"/cascade_config/fourier/use_fft_method_instead", bUseFFT) != 0);
+	iShiftMethod = Config::GetSingleton()->QueryInt(
+				"/cascade_config/fourier/phase_correction", iShiftMethod);
 
 	std::string strAlgo =
 		Config::GetSingleton()->QueryString("/cascade_config/minuit/algo",
@@ -447,7 +451,9 @@ double GlobalConfig::GetMinuitTolerance() { return dMinuitTolerance; }
 int GlobalConfig::GetMinuitAlgo() { return iMinuitAlgo; }
 unsigned int GlobalConfig::GetMinuitStrategy() { return uiMinuitStrategy; }
 unsigned int GlobalConfig::GetMinCountsToFit() { return uiMinCountsToFit; }
+
 bool GlobalConfig::GetUseFFT() { return bUseFFT; }
+int GlobalConfig::GetShiftMethod() { return iShiftMethod; }
 
 TofConfig& GlobalConfig::GetTofConfig() { return s_config;}
 ExpConfig& GlobalConfig::GetExpConfig() { return s_expconfig; }
@@ -465,8 +471,12 @@ void GlobalConfig::SetMinuitStrategy(unsigned int uiStrategy)
 { uiMinuitStrategy = uiStrategy; }
 void GlobalConfig::SetMinCountsToFit(unsigned int uiCts)
 { uiMinCountsToFit = uiCts; }
+
 void GlobalConfig::SetUseFFT(bool bUse)
 { bUseFFT = bUse; }
+void GlobalConfig::SetShiftMethod(int iMethod)
+{ iShiftMethod = iMethod; }
+
 void GlobalConfig::SetLogLevel(int iLevel)
 { logger.SetLogLevel(iLevel); }
 void GlobalConfig::SetRepeatLogs(bool bRepeat)

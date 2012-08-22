@@ -212,7 +212,7 @@ bool Fourier::shift_sin(double dNumOsc, const double* pDatIn,
 	// since the signal is real we can take the first half of the fft data
 	// and multiply by two.
 	c *= 2.;
-	c = phase_correction_0<double>(c, dPhase);
+	c = ::phase_correction_0<double>(c, dPhase);
 
 	pDatFFT_real[iNumOsc] = c.real();
 	pDatFFT_imag[iNumOsc] = c.imag();
@@ -233,6 +233,111 @@ bool Fourier::shift_sin(double dNumOsc, const double* pDatIn,
 	//save_dat("out.dat", pDataOut, iSize);
 	return true;
 }
+
+bool Fourier::phase_correction_0(double dNumOsc, const double* pDatIn,
+				double *pDataOut, double dPhase)
+{
+	unsigned int iSize = m_iSize;
+	const double dSize = double(iSize);
+	const int iNumOsc = int(dNumOsc);
+	dNumOsc = double(iNumOsc);			// consider only full oscillations
+
+	double *pZero = new double[iSize];
+	memset(pZero, 0, sizeof(double)*iSize);
+
+	double *pDatFFT_real = new double[iSize];
+	double *pDatFFT_imag = new double[iSize];
+
+	autodeleter<double> _a0(pZero, true);
+	autodeleter<double> _a1(pDatFFT_real, true);
+	autodeleter<double> _a2(pDatFFT_imag, true);
+
+	if(!fft(pDatIn, pZero, pDatFFT_real, pDatFFT_imag))
+		return false;
+
+	for(unsigned int i=1; i<iSize; ++i)
+	{
+		std::complex<double> c(pDatFFT_real[i], pDatFFT_imag[i]);
+		if(i<iSize/2)
+		{
+			c *= 2.;
+			c = ::phase_correction_0<double>(c, dPhase);
+		}
+		else
+		{
+			// not neaded in real input data
+			c = std::complex<double>(0., 0.);
+		}
+
+		pDatFFT_real[i] = c.real();
+		pDatFFT_imag[i] = c.imag();
+	}
+
+	if(!ifft(pDatFFT_real, pDatFFT_imag, pDataOut, pZero))
+		return false;
+
+	// normalization
+	for(unsigned int i=0; i<iSize; ++i)
+		pDataOut[i] /= double(iSize);
+
+	//save_dat("in.dat", pDatIn, iSize);
+	//save_dat("out.dat", pDataOut, iSize);
+	return true;
+}
+
+bool Fourier::phase_correction_1(double dNumOsc, const double* pDatIn,
+				double *pDataOut, double dPhaseOffs, double dPhaseSlope)
+{
+	unsigned int iSize = m_iSize;
+	const double dSize = double(iSize);
+	const int iNumOsc = int(dNumOsc);
+	dNumOsc = double(iNumOsc);			// consider only full oscillations
+
+	double *pZero = new double[iSize];
+	memset(pZero, 0, sizeof(double)*iSize);
+
+	double *pDatFFT_real = new double[iSize];
+	double *pDatFFT_imag = new double[iSize];
+
+	autodeleter<double> _a0(pZero, true);
+	autodeleter<double> _a1(pDatFFT_real, true);
+	autodeleter<double> _a2(pDatFFT_imag, true);
+
+	if(!fft(pDatIn, pZero, pDatFFT_real, pDatFFT_imag))
+		return false;
+
+	for(unsigned int i=1; i<iSize; ++i)
+	{	
+		std::complex<double> c(pDatFFT_real[i], pDatFFT_imag[i]);
+		if(i<iSize/2)
+		{
+			double dX = double(i)/double(iSize);
+			
+			c *= 2.;
+			c = ::phase_correction_1<double>(c, dPhaseOffs, dPhaseSlope, dX);
+		}
+		else
+		{
+			// not neaded in real input data
+			c = std::complex<double>(0., 0.);
+		}
+
+		pDatFFT_real[i] = c.real();
+		pDatFFT_imag[i] = c.imag();
+	}
+
+	if(!ifft(pDatFFT_real, pDatFFT_imag, pDataOut, pZero))
+		return false;
+
+	// normalization
+	for(unsigned int i=0; i<iSize; ++i)
+		pDataOut[i] /= double(iSize);
+
+	//save_dat("in.dat", pDatIn, iSize);
+	//save_dat("out.dat", pDataOut, iSize);
+	return true;
+}
+
 
 bool Fourier::get_contrast(double dNumOsc, const double* pDatIn,
 						   double& dC, double& dPh)

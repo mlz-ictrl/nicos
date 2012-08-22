@@ -240,6 +240,10 @@ void GraphDlg::UpdateGraph(void)
 {
 	const TofConfig& conf = GlobalConfig::GetTofConfig();
 
+	int iShiftMethod = comboShiftMethod->currentIndex();
+	iShiftMethod -= 1;		// to match internal indices
+	GlobalConfig::SetShiftMethod(iShiftMethod);
+
 	// Messpunkte für eine Folie
 	TmpGraph tmpGraph;
 	tmpGraph = m_pTofImg->GetGraph(spinBoxFolie->value()-1);
@@ -408,14 +412,16 @@ void GraphDlg::Init(int iFolie)
 	QwtLegend *m_plegend = new QwtLegend;
 	qwtPlot->insertLegend(m_plegend, QwtPlot::RightLegend);
 
-	QObject::connect(btnPrint, SIGNAL(clicked()), this, SLOT(printPlot()));
-	QObject::connect(checkBoxDoFit, SIGNAL(stateChanged(int)), this,
-									SLOT(UpdateGraph()));
-	QObject::connect(checkBoxTotal, SIGNAL(stateChanged(int)), this,
-									SLOT(UpdateGraph()));
-	QObject::connect(spinBoxFolie, SIGNAL(valueChanged(int)), this,
-								   SLOT(UpdateGraph()));
-
+	QObject::connect(btnPrint, SIGNAL(clicked()),
+					this, SLOT(printPlot()));
+	QObject::connect(checkBoxDoFit, SIGNAL(stateChanged(int)),
+					this, SLOT(UpdateGraph()));
+	QObject::connect(checkBoxTotal, SIGNAL(stateChanged(int)),
+					this, SLOT(UpdateGraph()));
+	QObject::connect(spinBoxFolie, SIGNAL(valueChanged(int)),
+					this, SLOT(UpdateGraph()));
+	QObject::connect(comboShiftMethod, SIGNAL(currentIndexChanged (int)),
+					this, SLOT(UpdateGraph()));
 
 	// Kurve für Messpunkte für eine Folie
 	QwtSymbol sym;
@@ -460,6 +466,10 @@ void GraphDlg::Init(int iFolie)
 	pentotal.setWidth(2);
 	m_curvetotal.setPen(pentotal);
 	m_curvetotal.attach(qwtPlot);
+
+
+	int iShiftMethod = GlobalConfig::GetShiftMethod() + 1;	// to match internal indices
+	comboShiftMethod->setCurrentIndex(iShiftMethod);
 }
 
 void GraphDlg::printPlot()

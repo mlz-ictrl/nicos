@@ -143,6 +143,12 @@ class Fourier
 		bool shift_sin(double dNumOsc, const double* pDatIn,
 						double *pDataOut, double dPhase);
 
+		bool phase_correction_0(double dNumOsc, const double* pDatIn,
+						double *pDataOut, double dPhase);
+
+		bool phase_correction_1(double dNumOsc, const double* pDatIn,
+						double *pDataOut, double dPhaseOffs, double dPhaseSlope);
+
 		bool get_contrast(double dNumOsc, const double* pDatIn,
 						  double& dC, double& dPh);
 };

@@ -7,36 +7,31 @@ from scipy.fftpack import *
 import matplotlib.pyplot as plt
 
 samples = 64
-omega = 1       # num_osc
+omega = 2       # num_osc
 
 amp = 2
 offs = 5
-phase = 0
-shift = np.pi+1.
+phase = np.pi/2
+shift = np.pi/2 + 1.
 
 k = np.linspace(0, samples-1, samples)
 t = np.linspace(0, 2.*np.pi, samples)
 y = amp*np.sin(omega*t + phase) + offs
-#print 'y = ' + str(y)
-
-shift_samples = shift/(2.*np.pi) * samples
 
 y_fft = fft(y)
 #y_fft_shift = y_fft * np.exp(-1j * 2.*np.pi*k/samples * shift_samples)
 
 y_fft_shift = np.zeros(samples, dtype=np.dtype(complex))
-y_fft_shift[omega] = y_fft[omega]*2
-y_fft_shift[omega] *= np.exp(-1j * 2.*np.pi/samples * shift_samples)
+y_fft_shift = y_fft*2
+y_fft_shift[samples/2 : ] = 0
+y_fft_shift[omega] *= np.exp(-1j * shift)
 
 # offset
-y_fft_shift[0] = np.real(y_fft[0])
+y_fft_shift[0] = y_fft[0]
 
 y_ifft = ifft(y_fft_shift)
 
-#print 'Re(y_ifft) = ' + str(np.real(y_ifft))
-#print 'offs = ' + str(y_fft_shift[0]/samples)
 
-#print np.angle(y_fft[omega]) + np.pi/2 - 0.5/samples * 2.*np.pi
 
 
 plt.figure()

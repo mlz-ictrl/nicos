@@ -51,6 +51,10 @@
 	#define NULL	0
 #endif
 
+#define SHIFT_SINE_ONLY		-1
+#define SHIFT_ZERO_ORDER	0
+#define SHIFT_FIRST_ORDER	1
+
 class GlobalConfig;
 
 /*
@@ -193,7 +197,9 @@ class GlobalConfig
 		static unsigned int uiMinuitStrategy;
 
 		static unsigned int uiMinCountsToFit;
+		
 		static bool bUseFFT;
+		static int iShiftMethod;
 
 		static bool bGuessConfig;
 		static bool bDumpFiles;
@@ -215,7 +221,9 @@ class GlobalConfig
 		static int GetMinuitAlgo();
 		static unsigned int GetMinuitStrategy();
 		static unsigned int GetMinCountsToFit();
+		
 		static bool GetUseFFT();
+		static int GetShiftMethod();
 
 		static const std::string& GetCurDir();
 
@@ -232,7 +240,9 @@ class GlobalConfig
 		static void SetMinuitAlgo(int iAlgo);
 		static void SetMinuitStrategy(unsigned int iStrategy);
 		static void SetMinCountsToFit(unsigned int iMinCts);
+		
 		static void SetUseFFT(bool bUse);
+		static void SetShiftMethod(int iMethod);
 
 		static void SetCurDir(const std::string& strDir);
 		//----------------------------------------------------------------------

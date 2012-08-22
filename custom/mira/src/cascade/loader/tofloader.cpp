@@ -653,7 +653,25 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY)
 		//std::cout << "phase foil " << iFoil << ": " << pPhases[iFoil] << std::endl;
 
 		// shift to mean phase
-		fourier.shift_sin(dNumOsc, pDataFoil, pDataFoilShifted, pPhases[iFoil]-dMeanPhase);
+
+		const int iShiftMethod = GlobalConfig::GetShiftMethod();
+		if(iShiftMethod == SHIFT_SINE_ONLY)
+		{
+			fourier.shift_sin(dNumOsc,
+							pDataFoil, pDataFoilShifted,
+							pPhases[iFoil]-dMeanPhase);
+		}
+		else if(iShiftMethod == SHIFT_ZERO_ORDER)
+		{
+			fourier.phase_correction_0(dNumOsc,
+								   pDataFoil, pDataFoilShifted,
+								   pPhases[iFoil]-dMeanPhase);
+		}
+		else
+		{
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Loader: Unknown phase-correction method selected.\n";
+		}
 
 		// sum all foils
 		for(int iTc=0; iTc<iNumTc; ++iTc)

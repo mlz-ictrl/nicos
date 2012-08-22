@@ -106,9 +106,11 @@ bool TmpGraph::FitSinus(double &dFreq, double &dPhase, double &dAmp, double &dOf
 	// Freq fix
 	dFreq = dNumOsc * 2.*M_PI/double(m_iW);
 
-	return ::FitSinus(m_iW, m_puiDaten, dFreq,
-					  dPhase, dAmp, dOffs,
-					  dPhase_err, dAmp_err, dOffs_err);
+	bool bFitOk = ::FitSinus(m_iW, m_puiDaten, dFreq,
+							dPhase, dAmp, dOffs,
+							dPhase_err, dAmp_err, dOffs_err);
+
+	return bFitOk;
 }
 
 bool TmpGraph::FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOffs) const
@@ -128,7 +130,10 @@ bool TmpGraph::CalcContrast(double dAmp, double dOffs,
 					+ (-dAmp/(dOffs*dOffs)*dOffs_err)*(-dAmp/(dOffs*dOffs)*dOffs_err));
 
 	if(dContrast != dContrast)
+	{
+		dContrast = 0.;
 		return false;
+	}
 	return true;
 }
 
@@ -145,7 +150,6 @@ bool TmpGraph::GetContrast(double &dContrast, double &dPhase,
 
 	if(!FitSinus(dFreq, dPhase, dAmp, dOffs, dPhase_err, dAmp_err, dOffs_err))
 		return false;
-
 
 	if(!punderground)
 	{
@@ -184,7 +188,13 @@ bool TmpGraph::GetContrast(double &dContrast, double &dPhase,
 						pow(-dOu*(m*m*Au - m*A)/((O-m*Ou)*(O-m*Ou)), 2.));
 	}
 
-	if(dContrast < 0.) dContrast=0.;
+	//if(dContrast < 0.) dContrast=0.;
+	if(dContrast != dContrast)
+	{
+		dContrast = 0.;
+		return false;
+	}
+	
 	return true;
 }
 

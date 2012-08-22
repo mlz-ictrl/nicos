@@ -87,6 +87,13 @@
           </property>
          </widget>
         </item>
+        <item row="1" column="1">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Total fit:</string>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="5">
          <widget class="QCheckBox" name="checkBoxTotal">
           <property name="text">
@@ -97,11 +104,18 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Total fit:</string>
-          </property>
+        <item row="1" column="7">
+         <widget class="QComboBox" name="comboShiftMethod">
+          <item>
+           <property name="text">
+            <string>Sine only</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Zero order</string>
+           </property>
+          </item>
          </widget>
         </item>
        </layout>
