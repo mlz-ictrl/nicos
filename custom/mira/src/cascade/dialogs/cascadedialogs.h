@@ -304,6 +304,7 @@ class BrowseDlg : public QDialog, public Ui::BrowseDlg
 		BrowseDlg(CascadeWidget *pParent);
 		virtual ~BrowseDlg();
 
+	public slots:
 		void SetDir();
 };
 

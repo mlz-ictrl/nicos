@@ -293,6 +293,8 @@ BrowseDlg::BrowseDlg(CascadeWidget *pParent)
 	connect(listFiles,
 			SIGNAL(currentItemChanged( QListWidgetItem *, QListWidgetItem *)),
 			this, SLOT(SelectedFile()));
+	connect(btnRefresh, SIGNAL(clicked()),
+			this, SLOT(SetDir()));
 
 	SetDir();
 }
