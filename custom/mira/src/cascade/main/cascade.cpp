@@ -1599,8 +1599,8 @@ class MainWindow : public QMainWindow
 			QActionGroup *pRoiActionGroup = new QActionGroup(pRoiToolbar);
 			pRoiActionGroup->setExclusive(true);
 
-			QAction *pZoom = new QAction(QIcon::fromTheme("zoom-in"),
-										 QString("Zoom"),
+			QAction *pZoom = new QAction(QIcon::fromTheme("input-mouse"),
+										 QString("Normal Mode"),
 										 pRoiToolbar);
 			pZoom->setCheckable(true);
 			pZoom->setChecked(true);
@@ -1649,6 +1649,7 @@ class MainWindow : public QMainWindow
 			pRoiActionGroup->addAction(pPolygon);
 			pRoiToolbar->addAction(pPolygon);
 
+			pRoiToolbar->addAction(actionClearRoi);
 
 			addToolBar(pRoiToolbar);
 			//------------------------------------------------------------------

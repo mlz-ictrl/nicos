@@ -77,12 +77,15 @@ Plot* CascadeWidget::GetPlot() { return m_pPlot; }
 
 void CascadeWidget::Unload()
 {
+	MainPicker* pPicker = (MainPicker*)GetPlot()->GetRoiPicker();
+	pPicker->SetCurRoi(0);
+	ClearRoiVector();
+
 	if(m_pPad) { delete m_pPad; m_pPad=NULL; }
 	if(m_pTof) { delete m_pTof; m_pTof=NULL; }
 	if(m_pTmpImg) { delete m_pTmpImg; m_pTmpImg=NULL; }
 
 	m_data2d.clearData();
-	ClearRoiVector();
 }
 
 void* CascadeWidget::NewPad()
@@ -722,6 +725,8 @@ void CascadeWidget::showRoiDlg()
 	}
 
 	Roi *pRoi = GetCurRoi();
+	if(!pRoi) return;
+
 	bool bUseRoi = IsRoiInUse();
 
 	if(!m_proidlg)
@@ -740,6 +745,7 @@ void CascadeWidget::showRoiDlg()
 void CascadeWidget::RoiDlgAccepted(QAbstractButton* pBtn)
 {
 	Roi *pRoi = GetCurRoi();
+	if(!pRoi) return;
 
 	// "OK" or "Apply" clicked?
 	if(m_proidlg->buttonBox->standardButton(pBtn) == QDialogButtonBox::Apply ||
@@ -788,6 +794,8 @@ bool CascadeWidget::LoadRoi(const char* pcFile)
 	}
 
 	Roi *pRoi = GetCurRoi();
+	if(!pRoi) return false;
+
 	int iRet = pRoi->Load(pcFile);
 
 	UseRoi(true);
@@ -807,6 +815,8 @@ bool CascadeWidget::SaveRoi(const char* pcFile)
 	}
 
 	Roi *pRoi = GetCurRoi();
+	if(!pRoi) return false;
+
 	return pRoi->Save(pcFile);
 }
 
@@ -852,6 +862,8 @@ void CascadeWidget::UpdateRoiVector()
 		return;
 
 	Roi *pRoi = GetCurRoi();
+	if(!pRoi) return;
+
 	ClearRoiVector();
 
 	for(int i=0; i<pRoi->GetNumElements(); ++i)
@@ -959,6 +971,8 @@ void CascadeWidget::SetRoiDrawMode(int iMode)
 		UseRoi(true);
 
 		Roi *pRoi = GetCurRoi();
+		if(!pRoi) return;
+
 		pPicker->SetCurRoi(pRoi);
 		pPicker->SetRoiDrawMode(iMode);
 

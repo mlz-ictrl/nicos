@@ -14,7 +14,7 @@
 
 
 COMPILER	= gcc
-FLAGS		= -O2 -march=native -Wall -Wextra -D __CASCADE_QT_CLIENT__
+FLAGS		= -O2 -march=native -Wall -Wextra -D __CASCADE_QT_CLIENT__ -DNDEBUG
 
 LIBS		= -lQtCore -lQtGui -lQtNetwork -lqwt -lMinuit2 -lgomp -lxml2 \
 		   -lstdc++ -lm -lfftw3 \

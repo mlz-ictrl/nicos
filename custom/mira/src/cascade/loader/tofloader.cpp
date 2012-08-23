@@ -537,7 +537,7 @@ TmpImage TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY,
 }
 
 TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
-						    int iFoil) const
+						    int iFoil, bool bIgnoreRoi) const
 {
 	TmpGraph graph(&GetTofConfig());
 
@@ -554,7 +554,12 @@ TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 		unsigned int uiSummedVal=0;
 		for(int iY=iStartY; iY<iEndY; ++iY)
 			for(int iX=iStartX; iX<iEndX; ++iX)
-				uiSummedVal += GetDataInsideROI(iFoil, iZ0, iX, iY);
+			{
+				if(bIgnoreRoi)
+					uiSummedVal += GetData(iFoil, iZ0, iX, iY);
+				else
+					uiSummedVal += GetDataInsideROI(iFoil, iZ0, iX, iY);
+			}
 
 		puiWave[iZ0]=uiSummedVal;
 	}
@@ -803,7 +808,8 @@ TmpImage TofImage::GetPhaseGraph(int iFolie, bool bInDeg) const
 		for(int iX=iStartX; iX<iEndX; iX+=XSIZE)
 		{
 			//std::cout << "x=" << iX << ", y=" << iY << std::endl;
-			TmpGraph tmpGraph = GetGraph(iX, iX+XSIZE, iY, iY+YSIZE, iFolie);
+			TmpGraph tmpGraph = GetGraph(iX, iX+XSIZE, iY, iY+YSIZE,
+										iFolie, true);
 			double dPhase = 0.;
 
 			if(bUseFourierMethod)
@@ -890,7 +896,8 @@ TmpImage TofImage::GetContrastGraph(int iFoil) const
 	for(int iY=iStartY; iY<iEndY; iY+=YSIZE)
 		for(int iX=iStartX; iX<iEndX; iX+=XSIZE)
 		{
-			TmpGraph tmpGraph = GetGraph(iX, iX+XSIZE, iY, iY+YSIZE, iFoil);
+			TmpGraph tmpGraph = GetGraph(iX, iX+XSIZE, iY, iY+YSIZE,
+										iFoil, true);
 			double dContrast = 0.;
 			double dPhase = 0.;
 

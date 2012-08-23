@@ -197,7 +197,7 @@ class GlobalConfig
 		static unsigned int uiMinuitStrategy;
 
 		static unsigned int uiMinCountsToFit;
-		
+
 		static bool bUseFFT;
 		static int iShiftMethod;
 
@@ -221,7 +221,7 @@ class GlobalConfig
 		static int GetMinuitAlgo();
 		static unsigned int GetMinuitStrategy();
 		static unsigned int GetMinCountsToFit();
-		
+
 		static bool GetUseFFT();
 		static int GetShiftMethod();
 
@@ -240,7 +240,7 @@ class GlobalConfig
 		static void SetMinuitAlgo(int iAlgo);
 		static void SetMinuitStrategy(unsigned int iStrategy);
 		static void SetMinCountsToFit(unsigned int iMinCts);
-		
+
 		static void SetUseFFT(bool bUse);
 		static void SetShiftMethod(int iMethod);
 

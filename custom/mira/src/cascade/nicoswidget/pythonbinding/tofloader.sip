@@ -222,7 +222,7 @@ class TofImage : Countable
 		virtual bool GetUseRoi() const;
 
 		TmpImage GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil, int iTimechannel) const;
-		TmpGraph GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil) const;
+		TmpGraph GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil, bool bIgnoreRoi=false) const;
 		TmpGraph GetGraph(int iFoil) const;
 		TmpGraph GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY) const;
 		TmpGraph GetTotalGraph() const;

@@ -264,7 +264,7 @@ class TofImage : public Countable
 
 		// get graph for counts vs. time channels
 		TmpGraph GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
-						  int iFoil) const;
+						  int iFoil, bool bIgnoreRoi=false) const;
 
 		TmpGraph GetGraph(int iFoil) const;
 
