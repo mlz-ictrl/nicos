@@ -95,4 +95,8 @@ class GlobalConfig
 
 		// Repeat duplicate logs?
 		static void SetRepeatLogs(bool bRepeat);
+
+		// phase correction method: -1: shift sine only; 0: zero-order
+		static int GetShiftMethod();
+		static void SetShiftMethod(int iMethod);
 };
