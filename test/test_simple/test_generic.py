@@ -97,3 +97,11 @@ def test_switcher():
     assert rsw.read(0) == 'right'
 
     assert rsw.status() == v3.status()
+
+def test_paramdev():
+    v1 = session.getDevice('v1')
+    pd = session.getDevice('paramdev')
+
+    assert pd() == v1.speed
+    pd.maw(1)
+    assert v1.speed == 1

@@ -29,6 +29,7 @@ __version__ = "$Revision$"
 from nicos.generic.axis import Axis
 from nicos.generic.manual import ManualMove, ManualSwitch
 from nicos.generic.alias import DeviceAlias, NoDevice
+from nicos.generic.paramdev import ParamDevice
 from nicos.generic.slit import Slit
 from nicos.generic.switcher import Switcher, ReadonlySwitcher
 from nicos.generic.system import FreeSpace

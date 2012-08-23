@@ -74,6 +74,10 @@ devices = dict(
                       alias = 'a1',
                       devclass = 'nicos.core.Moveable'),
 
+    a1speed  = device('nicos.generic.ParamDevice',
+                      device = 'a1',
+                      parameter = 'speed'),
+
     sxl      = device('nicos.generic.VirtualMotor',
                       abslimits = (-20, 40),
                       unit = 'mm'),

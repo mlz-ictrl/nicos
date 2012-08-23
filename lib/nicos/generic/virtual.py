@@ -30,7 +30,8 @@ import time
 import random
 import threading
 
-from nicos.core import status, tacodev, tupleof, Readable, HasOffset, Param
+from nicos.core import status, Readable, HasOffset, Param, tacodev, tupleof, \
+     floatrange
 from nicos.abstract import Motor, Coder
 from nicos.taco.detector import FRMTimerChannel, FRMCounterChannel
 
@@ -39,7 +40,8 @@ class VirtualMotor(Motor, HasOffset):
     """A virtual motor that can be set to move in finite time using a thread."""
 
     parameters = {
-        'speed':     Param('Virtual speed of the device', settable=True),
+        'speed':     Param('Virtual speed of the device', settable=True,
+                           type=floatrange(0, 1e6)),
         'jitter':    Param('Jitter of the read value', default=0),
         'curvalue':  Param('Current value', settable=True),
         'curstatus': Param('Current status', type=tupleof(int, str),

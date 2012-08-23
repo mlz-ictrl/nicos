@@ -71,5 +71,10 @@ devices = dict(
     aliasDev = device(
         'nicos.generic.DeviceAlias',
         alias = '',
+    ),
+    paramdev = device(
+        'nicos.generic.ParamDevice',
+        device = 'v1',
+        parameter = 'speed',
     )
 )
