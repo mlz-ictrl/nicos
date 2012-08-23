@@ -287,6 +287,7 @@ BrowseDlg::BrowseDlg(CascadeWidget *pParent)
 			: QDialog(pParent), m_pwidget(pParent)
 {
 	setupUi(this);
+	progressBar->setVisible(false);
 
 	connect(btnBrowse, SIGNAL(clicked()),
 			this, SLOT(SelectDir()));
@@ -303,7 +304,7 @@ BrowseDlg::~BrowseDlg()
 {}
 
 void BrowseDlg::SetDir()
-{
+{	
 	QString strDir(GlobalConfig::GetCurDir().c_str());
 
 	listFiles->clear();
@@ -318,11 +319,19 @@ void BrowseDlg::SetDir()
 
 	QFileInfoList filelist = dir.entryInfoList();
 
+	progressBar->setValue(0);
+	progressBar->setMaximum(filelist.size());
+	progressBar->setVisible(true);
+
 	for(int iFile=0; iFile<filelist.size(); ++iFile)
 	{
 		QFileInfo fileinfo = filelist.at(iFile);
 		new QListWidgetItem(fileinfo.fileName(), listFiles);
+
+		progressBar->setValue(iFile+1);
 	}
+
+	progressBar->setVisible(false);
 }
 
 void BrowseDlg::SelectDir()
