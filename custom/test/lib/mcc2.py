@@ -30,14 +30,11 @@ from time import sleep
 
 from IO import StringIO
 
-from nicos.taco.core import TacoDevice
-
-
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
      usermethod, Device, Param, CommunicationError, TimeoutError
-from nicos.utils import lazy_property
 from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
-from nicos.taco import TacoDevice
+from nicos.taco.core import TacoDevice
+
 
 class TacoSerial(TacoDevice, Device):
     taco_class = StringIO
@@ -45,6 +42,7 @@ class TacoSerial(TacoDevice, Device):
         return self._taco_guard(self._dev.communicate, msg)
         # return self._taco_multitry('communicate', 3,
         #                            self._dev.communicate, msg)
+
 
 class MCC2Base(object):
     """Base class for devices communicating using the Phytron protocol."""
@@ -234,19 +232,19 @@ class MCC2Motor(MCC2Base, NicosMotor):
         return self.doReadMicrostep()
 
     def doReadSpeed(self):
-        return float(self._comm('XP14R')) / float(self.microstep * self.slope)
+        return float(self._comm('XP14R')) / float(self.microstep * abs(self.slope))
 
     def doWriteSpeed(self, value):
-        f = max(0, min(40000, value * self.slope * self.microstep))
+        f = max(0, min(40000, value * abs(self.slope) * self.microstep))
         self._comm('XP14S%d' % int(f))
         return self.doReadSpeed()
 
     def doReadAccel(self):
-        return float(self._comm('XP15R')) / float(self.microstep * self.slope) ** 2
+        return float(self._comm('XP15R')) / float(self.microstep * abs(self.slope)) ** 2
 
     def doWriteAccel(self, value):
         f = max(4000, min(500000, 4000 * round((value *
-            (self.slope * self.microstep) ** 2) / 4000)))
+            (abs(self.slope) * self.microstep) ** 2) / 4000)))
         self._comm('XP15S%d' % int(f))
         return self.doReadAccel()
 
