@@ -71,7 +71,8 @@ devices = dict(
                       precision = 0),
 
     ap       = device('nicos.generic.DeviceAlias',
-                      alias = 'a1'),
+                      alias = 'a1',
+                      devclass = 'nicos.core.Moveable'),
 
     sxl      = device('nicos.generic.VirtualMotor',
                       abslimits = (-20, 40),

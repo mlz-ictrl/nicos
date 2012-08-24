@@ -36,6 +36,7 @@ devices = dict(
     aliasDev = device(
         'nicos.generic.DeviceAlias',
         alias = '',
+        devclass = 'nicos.generic.VirtualMotor',
     ),
     aliasDev2 = device(
         'nicos.generic.DeviceAlias',

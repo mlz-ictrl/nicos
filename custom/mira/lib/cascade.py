@@ -258,7 +258,6 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                 dctotal = fret[3]
         if self.roi != (-1, -1, -1, -1):
             x1, y1, x2, y2 = self.roi
-            #roi = int(long(ar[x1:x2, y1:y2].sum()))
             roi = self._client.counts(data, x1, x2, y1, y2)
             croi, dcroi = 0., 0.
             if self.mode == 'tof':
@@ -288,4 +287,4 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         if not reply:
             raise CommunicationError(self,
                 message + ': empty reply (reset device to reconnect)')
-        raise CommunicationError(self, message + ': ' + reply[4:])
+        raise CommunicationError(self, message + ': ' + str(reply[4:]))

@@ -13,7 +13,7 @@ print "Running sip..."
 os.system(" ".join([config.sip_bin, "-c", ".", "-b", build_file, "-I", config.pyqt_sip_dir, pyqt_sip_flags, "cascadeclient.sip"]))
 
 print "Generating makefile..."
-makefile = pyqtconfig.QtGuiModuleMakefile(configuration=config, build_file=build_file)
+makefile = pyqtconfig.QtGuiModuleMakefile(configuration=config, build_file=build_file, debug=0)
 
 makefile.extra_libs = ["cascadeclient", "QtNetwork", "Minuit2", "gomp", "xml++-2.6"]
 makefile.extra_lib_dirs = [".."]

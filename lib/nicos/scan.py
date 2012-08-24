@@ -467,7 +467,7 @@ class ContinuousScan(Scan):
             device.speed = self._speed
             device.move(self._endpos)
             preset = max(abs(self._endpos - self._startpos) /
-                         self._speed * 5, 3600)
+                         (self._speed or 0.1) * 5, 3600)
             for det in detlist:
                 det.start(t=preset)
             last = sum((det.read() for det in detlist), [])

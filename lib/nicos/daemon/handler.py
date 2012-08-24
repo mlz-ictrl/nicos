@@ -125,14 +125,14 @@ class ConnectionHandler(BaseRequestHandler):
     done while the constructor runs, i.e. the `__init__` method calls `handle`.
     """
 
-    def __init__(self, request, client_address, server):
-        self.event_queue = Queue()
+    def __init__(self, request, client_address, client_id, server):
+        self.event_queue = Queue(100)
         self.event_mask = set()
         # bind often used daemon attributes to self
         self.daemon = server.daemon
         self.controller = server.daemon._controller
         # register self as a new handler
-        server.register_handler(self, client_address[0])
+        server.register_handler(self, client_address[0], client_id)
         self.sock = request
         self.log = LoggerWrapper(self.daemon.log,
                                  '[handler #%d] ' % self.ident)
@@ -144,7 +144,7 @@ class ConnectionHandler(BaseRequestHandler):
         except CloseConnection:
             # in case the client hasn't opened the event connection, stop
             # waiting for it
-            server.pending_clients.pop(client_address[0], None)
+            server.pending_clients.pop((client_address[0], client_id), None)
         except Exception:
             self.log.exception('unhandled exception')
         self.event_queue.put(stop_queue)

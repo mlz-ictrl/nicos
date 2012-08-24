@@ -31,7 +31,8 @@ import threading
 from time import sleep
 
 from nicos.core import status, HasOffset, Override, ConfigurationError, \
-     NicosError, PositionError, MoveError, waitForStatus, floatrange, Param
+     NicosError, PositionError, MoveError, waitForStatus, floatrange, \
+     Param, usermethod
 from nicos.abstract import Axis as BaseAxis, Motor, Coder
 
 
@@ -117,6 +118,7 @@ class Axis(BaseAxis):
     def doStart(self, target):
         """Starts the movement of the axis to target."""
         if self._checkTargetPosition(self.read(0), target, error=False):
+            self.log.debug('not moving, already at %.4f within precision' % target)
             return
 
         if self.status(0)[0] == status.BUSY:
@@ -185,6 +187,25 @@ class Axis(BaseAxis):
         if self.status(0)[0] != status.BUSY:
             self._errorstate = None
         self._adevs['motor'].setPosition(self._getReading())
+        if not self._hascoder:
+            self.log.info('reset done; use %s.reference() to do a reference '
+                          'drive' % self)
+
+    @usermethod
+    def reference(self, force=False):
+        """Do a reference drive, if the motor supports it."""
+        if self.fixed:
+            self.log.error('device fixed, not referencing: %s' % self.fixed)
+            return
+        if self._hascoder and not force:
+            self.log.warning('this is an encoded axis; use '
+                             '%s.reference(True) to force reference drive'
+                             % self)
+        motor = self._adevs['motor']
+        if hasattr(motor, 'reference'):
+            motor.reference()
+        else:
+            self.log.error('motor %s does not have a reference routine' % motor)
 
     def doStop(self):
         """Stops the movement of the motor."""

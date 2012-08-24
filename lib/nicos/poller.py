@@ -88,6 +88,8 @@ class Poller(Device):
             active = interval is not None
             if interval is None:
                 interval = 3600
+            # try to avoid polling the same hardware device too often
+            maxage = 0 if dev.hardware_access else dev.maxage / 2.
             errcount = 0
             i = 0
             stval, rdval = None, None
@@ -95,7 +97,7 @@ class Poller(Device):
                 i += 1
                 try:
                     if active:
-                        stval, rdval = dev.poll(i)
+                        stval, rdval = dev.poll(i, maxage=maxage)
                         self.log.debug('%-10s status = %-25s, value = %s' %
                                        (dev, stval, rdval))
                 except Exception, err:

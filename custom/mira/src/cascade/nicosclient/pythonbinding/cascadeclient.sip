@@ -10,14 +10,14 @@
 class TcpClient : QObject
 {
 %TypeHeaderCode
-#include "../../client.h"
+#include "../../client/client.h"
 %End
 
 	public:
 		TcpClient(QObject* pParent, bool bBlocking);		// bBlocking: use blocking or non-blocking client
 		bool connecttohost(const char* pcAddr, int iPort);	// connect to TCP host pcAddr on port iPort
-		void disconnect();					// disconnect
-		bool isconnected() const;				// are we connected?
+		void disconnect();									// disconnect
+		bool isconnected() const;							// are we connected?
 
 		bool sendmsg(const char* pcMsg);			// send message to server
 		const QByteArray& recvmsg();				// get message from server
@@ -29,14 +29,20 @@ class TcpClient : QObject
 class NicosClient : TcpClient
 {
 %TypeHeaderCode
-#include "../../nicosclient.h"
+#include "../../client/nicosclient.h"
 %End
 
 	public:
+		NicosClient();
+		virtual ~NicosClient();
+
 		// calls sendmsg & recvmsg
 		const QByteArray& communicate(const char* pcMsg);
 
-
+		// same as communicate, only saves result to
+		// a file instead of returning it
+		bool communicate_and_save(const char* pcMsg, const char* pcDstFile,
+								  bool bSaveMsgPrefix=false);
 
 		/////////////////////////////////////////////////////////////
 		// !!
@@ -45,19 +51,20 @@ class NicosClient : TcpClient
 		//
 
 		// total counts
-		unsigned int counts(const QByteArray& arr);
+		unsigned int counts(const QByteArray* arr);
 
 		// counts inside ROI
-		unsigned int counts(const QByteArray& arr, int iStartX, int iEndX, int iStartY, int iEndY);
+		unsigned int counts(const QByteArray* arr, int iStartX, int iEndX, int iStartY, int iEndY);
 
-		bool contrast(const QByteArray& arr, int iFoil,
+		bool contrast(const QByteArray* arr, int iFoil,
 					  double *pC, double *pPhase,
 					  double *pC_err=0, double *pPhase_err=0);
 
-		bool contrast(const QByteArray& arr, int iFoil,
+		bool contrast(const QByteArray* arr, int iFoil,
 					  int iStartX, int iEndX,
 					  int iStartY, int iEndY,
 					  double *pC, double *pPhase,
 					  double *pC_err=0, double *pPhase_err=0);
+
 		/////////////////////////////////////////////////////////////
 };

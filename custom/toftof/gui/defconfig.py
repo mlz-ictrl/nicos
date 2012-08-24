@@ -38,7 +38,7 @@ default_profile_config = ('Default', [
             ),
         window('Errors/warnings', 'errors', True,
             panel('nicos.gui.panels.errors.ErrorPanel')),
-        window('Editor', 'editor', False,
+        window('Editor', 'editor', True,
             panel('nicos.gui.panels.editor.EditorPanel')),
         window('History', 'find', True,
             panel('nicos.gui.panels.history.HistoryPanel')),

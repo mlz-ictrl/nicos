@@ -48,11 +48,12 @@ class TAS(Instrument, Moveable):
     """
 
     attached_devices = {
-        'cell': (Cell, 'Unit cell object to calculate angles'),
-        'mono': (Monochromator, 'Monochromator device'),
-        'ana':  (Monochromator, 'Analysator device'),
-        'phi':  (Moveable, 'Sample scattering angle'),
-        'psi':  (Moveable, 'Sample rocking angle'),
+        'cell':  (Cell, 'Unit cell object to calculate angles'),
+        'mono':  (Monochromator, 'Monochromator device'),
+        'ana':   (Monochromator, 'Analysator device'),
+        'phi':   (Moveable, 'Sample scattering angle'),
+        'psi':   (Moveable, 'Sample rocking angle'),
+        'alpha': (Moveable, 'Device moved to "alpha" angle between ki and Q'),
     }
 
     parameters = {
@@ -112,15 +113,17 @@ class TAS(Instrument, Moveable):
         except ComputationError, err:
             return False, str(err)
         # check limits for the individual axes
-        for devname, value in zip(['mono', 'ana', 'phi', 'psi'], angles[:4]):
+        for devname, value in zip(['mono', 'ana', 'phi', 'psi', 'alpha'], angles):
             dev = self._adevs[devname]
+            if dev is None:
+                continue
             if isinstance(dev, Monochromator):
                 ok, why = dev._allowedInvAng(value)
             else:
                 ok, why = dev.isAllowed(value)
             if not ok:
-                return ok, 'target position %s %s outside limits for %s: %s' % \
-                       (dev.format(value), dev.unit, dev, why)
+                return ok, 'target position %s outside limits for %s: %s' % \
+                       (dev.format(value, unit=True), dev, why)
         return True, ''
 
     def doStart(self, pos):
@@ -129,12 +132,15 @@ class TAS(Instrument, Moveable):
         angles = self._adevs['cell'].cal_angles(
             [qh, qk, ql], ny, self.scanmode, self.scanconstant,
             self.scatteringsense[1], self.axiscoupling, self.psi360)
-        mono, ana, phi, psi = self._adevs['mono'], self._adevs['ana'], \
-                              self._adevs['phi'], self._adevs['psi']
+        mono, ana, phi, psi, alpha = self._adevs['mono'], self._adevs['ana'], \
+            self._adevs['phi'], self._adevs['psi'], self._adevs['alpha']
         self.log.debug('moving phi/stt to %s' % angles[2])
         phi.start(angles[2])
         self.log.debug('moving psi/sth to %s' % angles[3])
         psi.start(angles[3])
+        if alpha is not None:
+            self.log.debug('moving alpha to %s' % angles[4])
+            alpha.start(angles[4])
         self.log.debug('moving mono to %s' % angles[0])
         mono._startInvAng(angles[0])
         if self.scanmode != 'DIFF':
@@ -145,17 +151,16 @@ class TAS(Instrument, Moveable):
             ana.wait()
         phi.wait()
         psi.wait()
-        #h, k, l, ny = self.read(0)
+        if alpha is not None:
+            alpha.wait()
         # make sure index members read the latest value
         for index in (self.h, self.k, self.l, self.E):
             if index._cache:
                 index._cache.invalidate(index, 'value')
-        #self.log.info('position hkl: (%7.4f %7.4f %7.4f) E: %7.4f %s' %
-        #               (h, k, l, ny, self.energytransferunit))
 
     def doStatus(self, maxage=0):
         return multiStatus(((name, self._adevs[name]) for name in
-                            ['mono', 'ana', 'phi', 'psi']), maxage)
+                            ['mono', 'ana', 'phi', 'psi', 'alpha']), maxage)
 
     def doWriteScatteringsense(self, val):
         for v in val:
@@ -217,21 +222,25 @@ class TAS(Instrument, Moveable):
         if not printout:
             return angles
         ok, why = True, ''
-        for devname, value in zip(['mono', 'ana', 'phi', 'psi'], angles[:4]):
+        for devname, value in zip(['mono', 'ana', 'phi', 'psi', 'alpha'], angles):
             dev = self._adevs[devname]
+            if dev is None:
+                continue
             if isinstance(dev, Monochromator):
                 devok, devwhy = dev._allowedInvAng(value)
             else:
                 devok, devwhy = dev.isAllowed(value)
             if not devok:
                 ok = False
-                why += 'target position %s %s outside limits for %s: %s -- ' % \
-                    (dev.format(value), dev.unit, dev, devwhy)
+                why += 'target position %s outside limits for %s: %s -- ' % \
+                    (dev.format(value, unit=True), dev, devwhy)
         self._last_calpos = pos
         self.log.info('ki:            %8.3f A-1' % angles[0])
         self.log.info('kf:            %8.3f A-1' % angles[1])
         self.log.info('2theta sample: %8.3f deg' % angles[2])
         self.log.info('theta sample:  %8.3f deg' % angles[3])
+        if self._adevs['alpha'] is not None:
+            self.log.info('alpha:         %8.3f deg' % angles[4])
         if ok:
             self.log.info('position allowed')
         else:
@@ -239,6 +248,62 @@ class TAS(Instrument, Moveable):
 
     def _calhkl(self, angles):
         return self._adevs['cell'].angle2hkl(angles, self.axiscoupling)
+
+    def _getCollimation(self):
+        """Return current Soller collimator acceptance angles in minutes of arc.
+        Order of the returned list must be alpha1-alpha4 then beta1-beta4.  If
+        not installed, use '6000'.
+
+        Must be overridden for instruments with collimation support.
+        """
+        try:
+            a1, a2, a3, a4, b1, b2, b3, b4 = map(int, self.collimation.split())
+        except Exception:
+            return [6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000]
+        else:
+            return [a1, a2, a3, a4, b1, b2, b3, b4]
+
+    def _getResolutionParameters(self):
+        """Return a list of 30 parameters used for resolution calculation."""
+        return [
+            0,   # circular (0) or rectangular (1) source
+            5,   # width of source / diameter (cm)
+            5,   # height of source / diameter (cm)
+            0,   # no guide (0) or guide (1)
+            1,   # horizontal guide divergence (min/AA)
+            1,   # vertical guide divergence (min/AA)
+
+            1,   # cylindrical (0) or cuboid (1) sample
+            1,   # sample width / diameter perp. to Q (cm)
+            1,   # sample width / diameter along Q (cm)
+            1,   # sample height (cm)
+
+            1,   # circular (0) or rectangular (1) detector
+            2.5, # width / diameter of the detector (cm)
+            10,  # height / diameter of the detector (cm)
+
+            0.2, # thickness of monochromator (cm)
+            20,  # width of monochromator (cm)
+            20,  # height of monochromator (cm)
+
+            0.2, # thickness of analyzer (cm)
+            15,  # width of analyzer (cm)
+            15,  # height of analyzer (cm)
+
+            200, # distance source - monochromator (cm)
+            200, # distance monochromator - sample (cm)
+            100, # distance sample - analyzer (cm)
+            100, # distance analyzer - detector (cm)
+
+            0,   # horizontal curvature of monochromator (1/cm)
+            0,   # vertical curvature of monochromator (1/cm)
+            0,   # horizontal curvature of analyzer (1/cm)
+            0,   # vertical curvature of analyzer (1/cm)
+
+            100, # distance monochromator - monitor (cm)
+            4,   # width of monitor (cm)
+            10,  # height of monitor (cm)
+        ]
 
 
 class TASIndex(Moveable, AutoDevice):

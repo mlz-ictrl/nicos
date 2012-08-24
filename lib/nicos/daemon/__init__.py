@@ -29,6 +29,7 @@ from __future__ import with_statement
 __version__ = "$Revision$"
 
 import time
+import Queue
 import select
 import socket
 import weakref
@@ -76,9 +77,10 @@ class Server(TCPServer):
             request, client_address = self.get_request()
         except socket.error:
             return
-        if self.verify_request(request, client_address):
+        client_id = self.verify_request(request, client_address)
+        if client_id is not None:
             try:
-                self.process_request(request, client_address)
+                self.process_request(request, client_address, client_id)
             except Exception:
                 self.handle_error(request, client_address)
                 self.close_request(request)
@@ -87,39 +89,43 @@ class Server(TCPServer):
         self.__serving = False
         self.__is_shut_down.wait()
 
-    def process_request(self, request, client_address):
+    def process_request(self, request, client_address, client_id):
         """Process a "request", that is, a client connection."""
         # mostly copied from ThreadingMixIn but without the import,
         # which causes threading issues because of the import lock
         t = threading.Thread(target=self.process_request_thread,
-                             args=(request, client_address),
+                             args=(request, client_address, client_id),
                              name='request handler')
         t.setDaemon(True)
         t.start()
 
-    def process_request_thread(self, request, client_address):
+    def process_request_thread(self, request, client_address, client_id):
         """Thread to process the client connection, calls the Handler."""
         try:
             # this call instantiates the RequestHandler class
-            self.finish_request(request, client_address)
+            self.finish_request(request, client_address, client_id)
             self.close_request(request)
         except Exception:
             self.handle_error(request, client_address)
             self.close_request(request)
+
+    def finish_request(self, request, client_address, client_id):
+        self.RequestHandlerClass(request, client_address, client_id, self)
 
     def verify_request(self, request, client_address):
         """Called on a new connection.  If we have a connection from that
         host that lacks an event connection, use this.
         """
         host = client_address[0]
-        if host not in self.pending_clients:
-            self.pending_clients[host] = None
-            return True
-        # this is an event connection: start event sender thread on the handler
-        # wait until the handler is registered
-        while self.pending_clients[host] is None:
+        clid = request.recv(16)
+        if (host, clid) not in self.pending_clients:
+            self.pending_clients[host, clid] = None
+            return clid
+        # this should be an event connection: start event sender thread on the
+        # handler, but wait until the handler is registered
+        while self.pending_clients[host, clid] is None:
             time.sleep(0.2)
-        handler = self.pending_clients[host]
+        handler = self.pending_clients[host, clid]
         self.daemon.log.debug('event connection from %s for handler #%d' %
                                (host, handler.ident))
         event_thread = threading.Thread(target=handler.event_sender,
@@ -127,9 +133,9 @@ class Server(TCPServer):
                                         name='event_sender %d' % handler.ident)
         event_thread.setDaemon(True)
         event_thread.start()
-        del self.pending_clients[host]
+        del self.pending_clients[host, clid]
         # don't call the usual handler
-        return False
+        return None
 
     def server_close(self):
         """Close the server socket and all client sockets."""
@@ -137,10 +143,10 @@ class Server(TCPServer):
             closeSocket(handler.sock)
         closeSocket(self.socket)
 
-    def register_handler(self, handler, host):
+    def register_handler(self, handler, host, client_id):
         """Give each handler a unique ID."""
         with self.handler_ident_lock:
-            self.pending_clients[host] = handler
+            self.pending_clients[host, client_id] = handler
             self.handler_ident += 1
             handler.ident = self.handler_ident
             self.handlers[threading._get_ident()] = handler
@@ -193,6 +199,7 @@ class NicosDaemon(Device):
         'livedata': False,
         'simresult': True,
         'showhelp': True,
+        'clientexec': True,
     }
 
     def doInit(self, mode):
@@ -244,7 +251,14 @@ class NicosDaemon(Device):
         if self.daemon_events[event]:
             data = serialize(data)
         for handler in self._server.handlers.values():
-            handler.event_queue.put((event, data))
+            try:
+                handler.event_queue.put((event, data), False)
+            except Queue.Full:
+                self.log.warning('handler %s: event queue full' % handler.ident)
+
+    def clear_handlers(self):
+        """Remove all handlers."""
+        self._server.handlers.clear()
 
     def start(self):
         """Start the daemon's server."""

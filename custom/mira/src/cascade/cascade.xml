@@ -17,29 +17,28 @@
             <foil_5_start> 80 </foil_5_start>
             <foil_6_start> 96 </foil_6_start>
 
-	    <pseudo_compression> 0 </pseudo_compression>
+            <pseudo_compression> 0 </pseudo_compression>
             <sum_first_and_last> 0 </sum_first_and_last>
             <number_of_oscillations> 2.0 </number_of_oscillations>
 
             <guess_file_config> 0 </guess_file_config>
         </tof_file>
 
+	<dirs>
+		<exp_base_dir> /data/${year}/${proposal_num}/cascade/ </exp_base_dir>
+		<proposal_num> 5259 </proposal_num>
+	</dirs>
+
 	<graphs>
 		<phase_block_size_x> 1 </phase_block_size_x>
-		<phase_block_size_y> 2 </phase_block_size_y>
+		<phase_block_size_y> 1 </phase_block_size_y>
 
-		<contrast_block_size_x> 2 </contrast_block_size_x>
-		<contrast_block_size_y> 2 </contrast_block_size_y>
+		<contrast_block_size_x> 1 </contrast_block_size_x>
+		<contrast_block_size_y> 1 </contrast_block_size_y>
 
 		<bin_count> 100  </bin_count>
 		<log_lower_range> -1.0 </log_lower_range>
 	</graphs>
-
-	<main_window>
-		<width> 900 </width>
-		<height> 700 </height>
-		<title> Cascade Viewer </title>
-	</main_window>
 
 	<server>
 		<address> miracascade.mira.frm2 </address>
@@ -49,6 +48,8 @@
 
 		<use_message_timeout> 0 </use_message_timeout>
 		<message_timeout> 10000 </message_timeout>
+
+        <message_size_limit> 104857600  </message_size_limit>
 
 		<autofetch_use> 1 </autofetch_use>
 		<autofetch_poll_time> 1000 </autofetch_poll_time>
@@ -71,6 +72,15 @@
 		<!-- one of: migrad, simplex, minimize -->
 		<algo> migrad </algo>
 		<strategy> 1 </strategy>
+
+	    <min_counts> 25  </min_counts>
 	</minuit>
+
+	<fourier>
+		<use_fft_method_instead> 1 </use_fft_method_instead>
+
+		<!-- -1: shift only sine, 0: zero-order correction, 1: first-order correction -->
+		<phase_correction> 0 </phase_correction>
+	</fourier>
 
 </cascade_config>

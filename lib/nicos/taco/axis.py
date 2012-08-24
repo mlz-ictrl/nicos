@@ -123,7 +123,7 @@ class Axis(TacoDevice, BaseAxis):
         self._taco_guard(client.deviceOn)
         self.setPosition(self.refpos)
         self.log.info('reference drive complete, position is now ' +
-                      self.format(self.read(0)))
+                      self.format(self.read(0), unit=True))
 
     def _reset_phytron(self):
         motor = self._getMotor()

@@ -749,14 +749,39 @@ class DataSetPlot(NicosPlot):
     def fitQuick(self):
         visible_curves = [i for (i, _) in enumerate(self.dataset.curves)
                           if self.plotcurves[i].isVisible()]
-        if len(visible_curves) != 1:
-            self.window.statusBar.showMessage('A single curve is required.')
-            return
-        self.fitcurve = self.plotcurves[visible_curves[0]]
         p = self.picker.trackerPosition()
-        px = self.invTransform(QwtPlot.xBottom, p.x())
-        py = self.invTransform(QwtPlot.yLeft, p.y())
-        self.fitvalues = [(0, 0), (px, py), (px*0.95, py/2.)]
+        whichcurve = None
+        whichindex = None
+        mindist = None
+        for i in visible_curves:
+            index, dist = self.plotcurves[i].closestPoint(p)
+            if mindist is None or dist < mindist:
+                whichcurve = i
+                whichindex = index
+                mindist = dist
+        self.fitcurve = self.plotcurves[whichcurve]
+        data = self.fitcurve.data()
+        # try to find good starting parameters
+        peakx, peaky = data.x(whichindex), data.y(whichindex)
+        # use either left or right end of curve as background
+        leftx, lefty = data.x(0), data.y(0)
+        rightx, righty = data.x(data.size()-1), data.y(data.size()-1)
+        if abs(peakx - leftx) > abs(peakx - rightx):
+            direction = -1
+            backx, backy = leftx, lefty
+        else:
+            direction = 1
+            backx, backy = rightx, righty
+        i = whichindex
+        while i > 0:
+            if data.y(i) < (peaky - backy) / 2.:
+                break
+            i += direction
+        if i != whichindex:
+            fwhmx = data.x(i)
+        else:
+            fwhmx = (peakx + backx) / 2.
+        self.fitvalues = [(backx, backy), (peakx, peaky), (fwhmx, peaky/2.)]
         self.fitparams = ['Background', 'Peak', 'Half Maximum']
         self.fittype = 'Gauss'
         self.fitcallbacks = [self.gauss_callback, None]

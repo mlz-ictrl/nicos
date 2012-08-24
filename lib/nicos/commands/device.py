@@ -65,7 +65,7 @@ def move(*dev_pos_list):
     >>> wait(dev, dev1, dev2)          # now wait for all of them
     """
     for dev, pos in _devposlist(dev_pos_list, Moveable):
-        dev.log.info('moving to', dev.format(pos), dev.unit)
+        dev.log.info('moving to', dev.format(pos, unit=True))
         dev.move(pos)
 
 @hiddenusercommand
@@ -87,7 +87,7 @@ def maw(*dev_pos_list):
     """
     devs = []
     for dev, pos in _devposlist(dev_pos_list, Moveable):
-        dev.log.info('moving to', dev.format(pos), dev.unit)
+        dev.log.info('moving to', dev.format(pos, unit=True))
         dev.move(pos)
         devs.append(dev)
     for dev in devs:
@@ -285,6 +285,29 @@ def get(dev, parameter):
     dev.log.info('parameter %s is %s' % (parameter, value))
 
 @usercommand
+@helparglist('parameter, ...')
+def getall(*names):
+    """List the given parameters for all existing devices that have them.
+
+    Example:
+
+    >>> getall('offset')
+
+    lists the offset for all devices with an "offset" parameter.
+    """
+    items = []
+    for name, dev in session.devices.iteritems():
+        pvalues = []
+        for param in names:
+            if param in dev.parameters:
+                pvalues.append(repr(getattr(dev, param)))
+            else:
+                pvalues.append(None)
+        if any(v is not None for v in pvalues):
+            items.append([name] + map(str, pvalues))
+    printTable(('device',) + names, items, printinfo)
+
+@usercommand
 @helparglist('dev[, reason]')
 def fix(dev, reason=''):
     """Fix a device, i.e. prevent movement until `release()` is called.
@@ -340,8 +363,8 @@ def adjust(dev, value, newvalue=None):
     else:
         diff = value - newvalue
     dev.offset += diff
-    dev.log.info('adjusted to %s %s, new offset is %.3f' %
-                 (dev.format(value), dev.unit, dev.offset))
+    dev.log.info('adjusted to %s, new offset is %.3f' %
+                 (dev.format(value, unit=True), dev.offset))
 
 @usercommand
 @helparglist('dev, ...')
@@ -361,14 +384,24 @@ def history(dev, key='value', fromtime=None, totime=None):
     The optional argument *key* selects a parameter of the device.  "value" is
     the main value, and "status" is the device status.
 
-    *fromtime* and *totime* are UNIX timestamps, or negative numbers giving
-    **hours** in the past.  The default is to list history of the last hour for
-    "value" and "status", or from the last day for other parameters.  For
-    example:
+    *fromtime* and *totime* are eithernumbers giving **hours** in the past, or
+    otherwise strings with a time specification (see below).  The default is to
+    list history of the last hour for "value" and "status", or from the last day
+    for other parameters.  For example:
 
     >>> history(mth)              # show value of mth in the last hour
-    >>> history(mth, -48)         # show value of mth in the last two days
+    >>> history(mth, 48)          # show value of mth in the last two days
     >>> history(mtt, 'offset')    # show offset of mth in the last day
+
+    Examples for time specification:
+
+    >>> history(mth, '1 day')                  # allowed: d/day/days
+    >>> history(mth, 'offset', '1 week')       # allowed: w/week/weeks
+    >>> history(mth, 'speed', '30 minutes')    # allowed: m/min/minutes
+
+    >>> history(mth, 'speed', '2012-05-04 14:00')    # from that date/time on
+    >>> history(mth, 'speed', '14:00', '17:00')      # between 14h and 17h today
+    >>> history(mth, 'speed', '2012-05-04', '2012-05-08')  # between two days
     """
     # support calling history(dev, -3600)
     if isinstance(key, str):
@@ -376,12 +409,19 @@ def history(dev, key='value', fromtime=None, totime=None):
             key = parseDateString(key)
         except ValueError:
             pass
-    if isinstance(key, (int, float)):
+    if isinstance(key, (int, long, float)):
         totime = fromtime
         fromtime = key
         key = 'value'
     if key not in ('value', 'status') and fromtime is None:
         fromtime = -24
+    # don't allow positive numbers, as they are interpreted as Unix timestamps
+    # by Device.history(), which is not very user-friendly
+    if isinstance(fromtime, (int, long, float)) and fromtime > 0:
+        fromtime = -fromtime
+    if isinstance(totime, (int, long, float)) and totime > 0:
+        totime = -totime
+    # history() already accepts strings as fromtime and totime arguments
     hist = session.getDevice(dev, Device).history(key, fromtime, totime)
     entries = []
     ltime = time.localtime
@@ -433,16 +473,16 @@ def limits(*devlist):
 @usercommand
 @helparglist('dev, ...')
 def resetlimits(*devlist):
-    """Reset the user limits for the device(s) to the absolute limits.
+    """Reset the user limits for the device(s) to the allowed maximum range.
 
-    The following commands are **not** equivalent:
+    The following commands are **not** necessarily equivalent:
 
     >>> resetlimits(phi)
 
     >>> phi.userlimits = phi.abslimits
 
-    because the user limits are given in terms of the "logical" value,
-    i.e. taking the device's offset into account, while the absolute limits are
+    because the user limits are given in terms of the "logical" value, i.e.
+    taking the device's offset into account, while the absolute limits are
     given in terms of the "physical" value.
     """
     if not devlist:
@@ -517,32 +557,6 @@ def ListMethods(dev):
     _list(dev.__class__)
     dev.log.info('Device methods:')
     printTable(('method', 'from class', 'description'), items, printinfo)
-
-
-# XXX rename to "getall()" or similar?
-
-@usercommand
-@helparglist('parameter, ...')
-def ListAllParams(*names):
-    """List the given parameters for all existing devices that have them.
-
-    Example:
-
-    >>> ListAllParams('offset')
-
-    lists the offset for all devices with an "offset" parameter.
-    """
-    items = []
-    for name, dev in session.devices.iteritems():
-        pvalues = []
-        for param in names:
-            if param in dev.parameters:
-                pvalues.append(repr(getattr(dev, param)))
-            else:
-                pvalues.append(None)
-        if any(v is not None for v in pvalues):
-            items.append([name] + map(str, pvalues))
-    printTable(('device',) + names, items, printinfo)
 
 @usercommand
 def ListDevices():

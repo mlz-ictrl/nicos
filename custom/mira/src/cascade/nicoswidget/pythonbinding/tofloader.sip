@@ -4,7 +4,7 @@
 class BasicImage
 {
 %TypeHeaderCode
-#include "../../tofloader.h"
+#include "../../loader/basicimage.h"
 %End
 
 	public:
@@ -20,13 +20,51 @@ class BasicImage
 		virtual double GetDoubleMax() const = 0;
 };
 
+class Roi
+{
+%TypeHeaderCode
+#include "../../aux/roi.h"
+%End
+
+	public:
+		Roi();
+		Roi(const Roi& roi);
+
+		virtual ~Roi();
+
+		// is point (dX, dY) inside roi?
+		bool IsInside(double dX, double dY) const;
+
+		// what fraction (0.0 .. 1.0) of pixel (iX, iY) is inside roi?
+		double HowMuchInside(int iX, int iY) const;
+
+		bool Load(const char* pcFile);
+		bool Save(const char* pcFile);
+};
+
+class Countable
+{
+%TypeHeaderCode
+#include "../../loader/basicimage.h"
+%End
+
+	public:
+		virtual unsigned int GetCounts() const = 0;
+		virtual unsigned int GetCountsSubtractBackground() const = 0;
+
+		virtual Roi& GetRoi() = 0;
+		virtual void UseRoi(bool bUseRoi=true) = 0;
+		virtual bool GetUseRoi() const = 0;
+};
+
+
 //
 // PAD images
 //
-class PadImage : BasicImage
+class PadImage : BasicImage, Countable
 {
 %TypeHeaderCode
-#include "../../tofloader.h"
+#include "../../loader/padloader.h"
 %End
 	public:
 		PadImage(const char *pcFileName=NULL,
@@ -54,9 +92,14 @@ class PadImage : BasicImage
 		// same as above, but return 0 if outside ROI (if ROI is used)
 		unsigned int GetDataInsideROI(int iX, int iY) const;
 
-		unsigned int GetCounts() const;
+		virtual unsigned int GetCounts() const;
+		virtual unsigned int GetCountsSubtractBackground() const;
 		unsigned int GetCounts(int iStartX, int iEndX,
 							   int iStartY, int iEndY) const;
+
+		virtual Roi& GetRoi();
+		virtual void UseRoi(bool bUseRoi=true);
+		virtual bool GetUseRoi() const;
 
 		const PadConfig& GetPadConfig() const;
 
@@ -75,7 +118,7 @@ class PadImage : BasicImage
 class TmpImage : BasicImage
 {
 %TypeHeaderCode
-#include "../../tofloader.h"
+#include "../../loader/tofloader.h"
 %End
 	public:
 		TmpImage(const TofConfig* pTofConf=0);
@@ -118,7 +161,7 @@ class TmpImage : BasicImage
 class TmpGraph
 {
 %TypeHeaderCode
-#include "../../tofloader.h"
+#include "../../loader/tofloader.h"
 %End
 	public:
 		TmpGraph(const TofConfig* pTofConf=0);
@@ -127,9 +170,10 @@ class TmpGraph
 		bool FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOffs,
 				double &dPhase_err, double &dAmp_err, double &dOffs_err) const;
 		//bool FitSinus(double& dFreq, double &dPhase, double &dAmp, double &dOffs) const;
-		
+
 		bool GetContrast(double &dContrast, double &dPhase,
-				    double &dContrast_err, double &dPhase_err) const;
+				    double &dContrast_err, double &dPhase_err,
+				    const TmpGraph* punderground=0, double dMult_ug=0) const;
 		//bool GetContrast(double &dContrast, double &dPhase) const;
 
 		unsigned int GetData(int iX) const;
@@ -141,10 +185,10 @@ class TmpGraph
 //
 // TOF images
 //
-class TofImage
+class TofImage : Countable
 {
 %TypeHeaderCode
-#include "../../tofloader.h"
+#include "../../loader/tofloader.h"
 %End
 	public:
 		TofImage(const char *pcFileName=NULL,
@@ -169,14 +213,19 @@ class TofImage
 		// strBufLen specifies number of bytes
 		int LoadMem(const char *strBuf, unsigned int strBufLen);
 
-		unsigned int GetCounts() const;
+		virtual unsigned int GetCounts() const;
+		virtual unsigned int GetCountsSubtractBackground() const;
 		unsigned int GetCounts(int iStartX, int iEndX,
 							   int iStartY, int iEndY) const;
+		virtual Roi& GetRoi();
+		virtual void UseRoi(bool bUseRoi=true);
+		virtual bool GetUseRoi() const;
 
 		TmpImage GetROI(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil, int iTimechannel) const;
-		TmpGraph GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil) const;
+		TmpGraph GetGraph(int iStartX, int iEndX, int iStartY, int iEndY, int iFoil, bool bIgnoreRoi=false) const;
 		TmpGraph GetGraph(int iFoil) const;
-		TmpGraph GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY, double dPhaseShift) const;
+		TmpGraph GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY) const;
+		TmpGraph GetTotalGraph() const;
 		TmpImage GetOverview(bool bOnlyInRoi=false) const;
 		TmpImage GetPhaseGraph(int iFoil, bool bInDeg=true) const;
 		TmpImage GetContrastGraph(int iFoil) const;

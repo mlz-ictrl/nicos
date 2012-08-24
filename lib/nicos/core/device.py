@@ -36,8 +36,7 @@ from nicos.core.params import Param, Override, Value, tupleof, floatrange, \
      anytype, none_or
 from nicos.core.errors import NicosError, ConfigurationError, \
      ProgrammingError, UsageError, LimitError, ModeError, \
-     CommunicationError, CacheLockError, InvalidValueError, AccessError, \
-     CacheError
+     CommunicationError, CacheLockError, InvalidValueError, AccessError
 from nicos.utils import loggers, getVersions, parseDateString
 
 
@@ -216,8 +215,10 @@ class DeviceMeta(type):
         return newtype
 
     def __instancecheck__(cls, inst): # pylint: disable=C0203
-        from nicos.generic import DeviceAlias
+        from nicos.generic import DeviceAlias, NoDevice
         if inst.__class__ == DeviceAlias and inst._initialized:
+            if isinstance(inst._obj, NoDevice):
+                return issubclass(inst._cls, cls)
             return isinstance(inst._obj, cls)
         # does not work with Python 2.6!
         #return type.__instancecheck__(cls, inst)
@@ -735,6 +736,7 @@ class Readable(Device):
         self._sim_value = 0   # XXX how to configure a useful default?
         self._sim_min = None
         self._sim_max = None
+        self._sim_started = None
         self._sim_preset = {}
 
     def _sim_setValue(self, pos):
@@ -852,7 +854,7 @@ class Readable(Device):
             return value
         return (status.UNKNOWN, 'doStatus not implemented')
 
-    def poll(self, n=0):
+    def poll(self, n=0, maxage=0):
         """Get status and value directly from the device and put both values
         into the cache.  For continuous polling, *n* should increase by one with
         every call to *poll*.
@@ -883,9 +885,9 @@ class Readable(Device):
             return ret[0], ret[1]
         stval = None
         if hasattr(self, 'doStatus'):
-            stval = self.doStatus(0)
+            stval = self.doStatus(maxage)
             self._cache.put(self, 'status', stval, currenttime(), self.maxage)
-        rdval = self.doRead(0)
+        rdval = self.doRead(maxage)
         self._cache.put(self, 'value', rdval, currenttime(), self.maxage)
         return stval, rdval
 
@@ -923,10 +925,10 @@ class Readable(Device):
             self.doReset()
         return self.status(0)
 
-    def format(self, value):
+    def format(self, value, unit=False):
         """Format a value from :meth:`read` into a human-readable string.
 
-        The device unit is not included.
+        The device unit is not included unless *unit* is true.
 
         This is done using Python string formatting (the ``%`` operator) with
         the :attr:`fmtstr` parameter value as the format string.
@@ -934,9 +936,12 @@ class Readable(Device):
         if isinstance(value, list):
             value = tuple(value)
         try:
-            return self.fmtstr % value
+            ret = self.fmtstr % value
         except (TypeError, ValueError):
-            return str(value)
+            ret = str(value)
+        if unit and self.unit:
+            return ret + ' ' + self.unit
+        return ret
 
     def history(self, name='value', fromtime=None, totime=None):
         """Return a history of the parameter *name* (can also be ``'value'`` or
@@ -974,7 +979,7 @@ class Readable(Device):
         """Automatically add device main value and status (if not OK)."""
         try:
             val = self.read()
-            yield ('general', 'value', self.format(val) + ' ' + self.unit)
+            yield ('general', 'value', self.format(val, unit=True))
         except Exception, err:
             self.log.warning('error reading device for info()', exc=err)
             yield ('general', 'value', 'Error: %s' % err)
@@ -1095,7 +1100,7 @@ class Moveable(Readable):
         ok, why = self.isAllowed(pos)
         if not ok:
             raise LimitError(self, 'moving to %s is not allowed: %s' %
-                             (self.format(pos), why))
+                             (self.format(pos, unit=True), why))
         self._setROParam('target', pos)
         if self._sim_active:
             self._sim_setValue(pos)
@@ -1137,7 +1142,9 @@ class Moveable(Readable):
                 except Exception:
                     self.log.warning('could not time movement', exc=1)
                     time = 0
-            session.clock.wait(self._sim_started + time)
+            if self._sim_started is not None:
+                session.clock.wait(self._sim_started + time)
+                self._sim_started = None
             self._sim_old_value = self._sim_value
             return self._sim_value
         lastval = None
@@ -1302,14 +1309,14 @@ class HasLimits(Moveable):
     def doWriteUserlimits(self, value):
         self._checkLimits(value)
         if isinstance(self, HasOffset) and hasattr(self, '_new_offset'):
-            # when changing the userlimits are adjusted so that the value
-            # stays within them, but only after the new offset is applied
+            # when changing the offset, the userlimits are adjusted so that the
+            # value stays within them, but only after the new offset is applied
             return
         curval = self.read(0)
         if not value[0] <= curval <= value[1]:
             self.log.warning('current device value (%s) not within new '
                               'userlimits (%s, %s)' %
-                              ((self.format(curval),) + value))
+                              ((self.format(curval, unit=True),) + value))
 
     def _adjustLimitsToOffset(self, value, diff):
         """Adjust the user limits to the given offset.

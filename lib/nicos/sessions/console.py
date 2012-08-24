@@ -43,6 +43,14 @@ from nicos.sessions import Session
 from nicos.sessions.utils import NicosCompleter, guessCorrectCommand
 
 
+DEFAULT_BINDINGS = '''\
+tab: complete
+"\\e[5~": history-search-backward
+"\\e[6~": history-search-forward
+"\\e[1;3D": backward-word
+"\\e[1;3C": forward-word
+'''
+
 class NicosInteractiveStop(BaseException):
     """
     This exception is raised when the user requests a stop.
@@ -62,8 +70,9 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         code.InteractiveConsole.__init__(self, globals)
         self.globals = globals
         self.locals = locals
-        readline.parse_and_bind('tab: complete')
-        readline.set_completer(NicosCompleter(self.globals).complete)
+        for line in DEFAULT_BINDINGS.splitlines():
+            readline.parse_and_bind(line)
+        readline.set_completer(NicosCompleter(self.globals, self.locals).complete)
         readline.set_history_length(10000)
         self.histfile = os.path.expanduser('~/.nicoshistory')
         # once compiled, the interactive console uses this flag for all
@@ -306,3 +315,7 @@ class ConsoleSession(Session):
                          'cancel: ' % code) != code:
                 raise AccessError('passcode not correct')
         return Session.checkAccess(self, required)
+
+    def clientExec(self, func, args):
+        # the client is the console itself -- just execute it
+        func(*args)

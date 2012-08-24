@@ -30,7 +30,7 @@ __version__ = "$Revision$"
 from Motor import Motor as TACOMotor
 import TACOStates
 
-from nicos.core import status, waitForStatus, Param, Override, oneof
+from nicos.core import status, waitForStatus, Param, Override, oneof, usermethod
 from nicos.abstract import Motor as BaseMotor
 from nicos.taco.core import TacoDevice
 
@@ -61,6 +61,11 @@ class Motor(TacoDevice, BaseMotor):
             pass
         if self._taco_guard(self._dev.isDeviceOff):
             self._taco_guard(self._dev.deviceOn)
+
+    @usermethod
+    def reference(self):
+        self._taco_guard(self._dev.deviceReset)
+        self.doWait()
 
     def doStart(self, target):
         self._taco_guard(self._dev.start, target)

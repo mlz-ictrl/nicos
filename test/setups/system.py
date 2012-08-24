@@ -120,5 +120,6 @@ devices = dict(
                       phi = 't_phi',
                       psi = 't_psi',
                       ana = 't_ana',
+                      alpha = None,
                       instrument = 'Tas'),
 )

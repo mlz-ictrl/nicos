@@ -62,6 +62,8 @@ class Coder(HasPrecision, Readable):
             self._sim_setValue(pos)
             return
         self.doSetPosition(pos)
+        if self._cache:
+            self._cache.invalidate(self, 'value')
 
     def doSetPosition(self, pos):
         raise NotImplementedError('implement doSetPosition for concrete coders')
@@ -83,14 +85,16 @@ class Axis(HasLimits, HasOffset, HasPrecision, Moveable):
     """Base class for all axes."""
 
     parameters = {
-        'dragerror': Param('The so called \'Schleppfehler\' of the axis',
-                           unit='main', default=1, settable=True),
+        'dragerror': Param('Maximum deviation of motor and coder when read out '
+                           'during a positioning step', unit='main', default=1,
+                           settable=True),
         'maxtries':  Param('Number of tries to reach the target', type=int,
                            default=3, settable=True),
         'loopdelay': Param('The sleep time when checking the movement',
                            unit='s', default=0.3, settable=True),
-        'backlash':  Param('The maximum allowed backlash', unit='main',
-                           settable=True),
+        'backlash':  Param('The backlash for the axis: if positive/negative, '
+                           'always approach from positive/negative values',
+                           unit='main', default=0, settable=True),
     }
 
     parameter_overrides = {

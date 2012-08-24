@@ -31,8 +31,9 @@ import time
 
 from numpy import array, linspace, sqrt, delete, sin, cos, arctan2, mat, cross
 
-from nicos.core import ComputationError, NicosError
-from nicos.tas.mono import Monochromator
+from nicos.core import ComputationError
+from nicos.tas.cell import CellBase
+from nicos.tas.rescalc import resmat as resmat_class
 from nicos.tas.spectro import THZ2MEV
 from nicos.tas.spacegroups import get_spacegroup, can_reflect
 
@@ -44,8 +45,6 @@ def pylab_key_handler(event):
         filename = '/tmp/tas%s.ps' % time.strftime('%j%H%M')
         pylab.savefig(filename, dpi=72, facecolor='w', edgecolor='w',
                       orientation='landscape', papertype='a4')
-        #self.pylab.close()
-        print
         res = os.system('lp %s' % filename)
         if res == 0:
             print 'Successfully sent file %s to the printer!' % filename
@@ -57,7 +56,6 @@ def pylab_key_handler(event):
         filename = '/tmp/tas%s.pdf' % time.strftime('%j%H%M')
         pylab.savefig(filename, dpi=72, facecolor='w', edgecolor='w',
                       orientation='landscape', papertype='a4')
-        #self.pylab.close()
         print 'Successfully exported file %s!' % filename
 
     elif event.key == 'q':
@@ -66,19 +64,22 @@ def pylab_key_handler(event):
 
 class SpaceMap(object):
 
-    def __init__(self, tas, resmat, E=0, ki=None, kf=None, hkl=None, scan=None,
-                 **kwds):
-        self.tas = tas
-        self.cell = tas._adevs['cell']
+    def __init__(self, resmat, tasinfo, E=0, ki=None, kf=None, hkl=None,
+                 scan=None, **kwds):
         self.resmat = resmat
+        self.tasinfo = tasinfo
+        self.cell = CellBase()
+        self.cell._setall(tasinfo['lattice'], tasinfo['angles'],
+                          tasinfo['orient1'], tasinfo['orient2'],
+                          tasinfo['psi0'])
 
         self.taus = []
         for kwd in kwds:
             if kwd.startswith('tau'):
                 self.taus.append(kwds[kwd])
 
-        mode = self.tas.scanmode
-        const = self.tas.scanconstant
+        mode = self.tasinfo['scanmode']
+        const = self.tasinfo['scanconstant']
         if ki is not None:
             mode = 'CKI'
             const = ki
@@ -86,11 +87,16 @@ class SpaceMap(object):
             mode = 'CKF'
             const = kf
         self.E = E
-        self.ny = self.tas._thz(E)
+        self.ny = self._thz(E)
         self.mode = mode
         self.const = const
         self.hkl = hkl
         self.scan = scan
+
+    def _thz(self, E):
+        if self.tasinfo['energytransferunit'] == 'meV':
+            return E / THZ2MEV
+        return E
 
     def plot_hkl(self, hkl, label=None, **props):
         import pylab
@@ -104,17 +110,20 @@ class SpaceMap(object):
 
     def plot_hkls(self, hkls, labels=None, **props):
         import pylab
-        xs, ys = [], []
-        for hkl in hkls:
+        xs, ys, indices = [], [], []
+        for i, hkl in enumerate(hkls):
             x, y, z = self.cell.hkl2Qcart(*hkl[:3])
             if abs(z) > 0.0001:
                 continue
             xs.append(x)
             ys.append(y)
+            indices.append(i)
+        if not xs:
+            return
         pylab.scatter(xs, ys, **props)
         if labels is not None:
-            for label, x, y in zip(labels, xs, ys):
-                pylab.text(x, y-0.2, label, size='x-small',
+            for i, x, y in zip(indices, xs, ys):
+                pylab.text(x, y-0.2, labels[i], size='x-small',
                            horizontalalignment='center', verticalalignment='top')
 
     def check_hkls(self, hkls):
@@ -125,20 +134,18 @@ class SpaceMap(object):
                 hkl, E = list(hkl[:3]), hkl[3]
             else:
                 hkl, E = list(hkl), self.E
-            ny = self.tas._thz(E)
+            ny = self._thz(E)
             try:
                 angles = self.cell.cal_angles(hkl, ny, self.mode, self.const,
-                    self.tas.scatteringsense[1],
-                    self.tas.axiscoupling, self.tas.psi360)
+                    self.tasinfo['scatteringsense'][1],
+                    self.tasinfo['axiscoupling'], self.tasinfo['psi360'])
             except ComputationError:
                 continue
-            for devname, value in zip(['mono', 'ana', 'phi', 'psi'], angles[:4]):
-                dev = self.tas._adevs[devname]
-                if isinstance(dev, Monochromator):
-                    ok, devwhy = dev._allowedInvAng(value)
-                else:
-                    ok, devwhy = dev.isAllowed(value)
-                if not ok:
+            ok = True
+            for devname, value in zip(['mono', 'ana', 'phi', 'psi', 'alpha'], angles):
+                lim = self.tasinfo[devname + 'lim']
+                if lim is not None and not lim[0] <= value <= lim[1]:
+                    ok = False
                     break
             if ok:
                 allowed.append(hkl)
@@ -151,12 +158,12 @@ class SpaceMap(object):
             offset = array([0, 0, 0])
         else:
             offset = array(offset)
-        o1 = array(self.cell.orient1)
-        o2 = array(self.cell.orient2)
+        o1 = array(self.cell._orient1)
+        o2 = array(self.cell._orient2)
         hkls = []
         sg = None
         if sgroup:
-            sg = get_spacegroup(self.cell.spacegroup)
+            sg = get_spacegroup(self.tasinfo['spacegroup'])
         for i in range(-10, 11):
             for j in range(-10, 11):
                 base = i*o1 + j*o2
@@ -186,21 +193,23 @@ class SpaceMap(object):
         xs2, ys2 = array(matrix.dot(array([xs2, ys2])))
         pylab.fill(xs1 + x, ys1 + y, color='blue', alpha=0.5)
         pylab.plot(xs2 + x, ys2 + y, color='green')
+        plot_resatpoint(None, None, 'Resolution at selected HKL point',
+                        resmat=self.resmat)
 
     def display_hkl(self, x, y, textobj):
         hkl = self.cell.Qcart2hkl(array([x, y, 0]))
         try:
             angles = self.cell.cal_angles(hkl, self.ny, self.mode, self.const,
-                self.tas.scatteringsense[1], self.tas.axiscoupling,
-                self.tas.psi360)
+                self.tasinfo['scatteringsense'][1], self.tasinfo['axiscoupling'],
+                self.tasinfo['psi360'])
         except Exception, err:
             text = 'hkl = (%.4f %.4f %.4f) E = %.4f %s: impossible position: %s' % \
-                (hkl[0], hkl[1], hkl[2], self.E, self.tas.energytransferunit, err)
+                (hkl[0], hkl[1], hkl[2], self.E, self.tasinfo['energytransferunit'], err)
             textobj.set_text(text)
             return None
         text = 'hkl = (%.4f %.4f %.4f) E = %.4f %s: %s = %.4f deg;  %s = %.4f deg' % \
-            (hkl[0], hkl[1], hkl[2], self.E, self.tas.energytransferunit,
-             self.tas._adevs['phi'], angles[2], self.tas._adevs['psi'], angles[3])
+            (hkl[0], hkl[1], hkl[2], self.E, self.tasinfo['energytransferunit'],
+             self.tasinfo['phiname'], angles[2], self.tasinfo['psiname'], angles[3])
         textobj.set_text(text)
         return hkl
 
@@ -212,38 +221,39 @@ class SpaceMap(object):
 
         # calculate limits of movement from limits of phi and psi
         lim1, lim2, lim3, lim4 = [], [], [], []
-        psi, phi = self.tas._adevs['psi'], self.tas._adevs['phi']
-        psimin, psimax = psi.userlimits
-        phimin, phimax = phi.userlimits
-        coupling = self.tas.axiscoupling
+        psimin, psimax = self.tasinfo['psilim']
+        phimin, phimax = self.tasinfo['philim']
+        coupling = self.tasinfo['axiscoupling']
         if self.mode == 'CKI':
             ki = self.const
             kf = self.cell.cal_kf(self.ny, ki)
         else:
             kf = self.const
             ki = self.cell.cal_ki1(self.ny, kf)
-        for phival in linspace(phi.usermin, phi.usermax, 100):
+        for phival in linspace(phimin, phimax, 100):
             xy1 = self.cell.angle2Qcart([ki, kf, phival, psimin], coupling)
             xy2 = self.cell.angle2Qcart([ki, kf, phival, psimax], coupling)
             lim1.append(xy1[:2])
             lim2.append(xy2[:2])
-        for psival in linspace(psi.usermin, psi.usermax, 100):
+        for psival in linspace(psimin, psimax, 100):
             xy1 = self.cell.angle2Qcart([ki, kf, phimin, psival], coupling)
             xy2 = self.cell.angle2Qcart([ki, kf, phimax, psival], coupling)
             lim3.append(xy1[:2])
             lim4.append(xy2[:2])
 
         # directions of axes
-        dir1 = self.cell.orient1
-        dir2 = cross(self.cell.cal_zone(), self.cell.orient1)
+        dir1 = self.cell._orient1
+        dir2 = cross(self.cell.cal_zone(), self.cell._orient1)
 
-        # set up pylab figure (XXX share with rescalc)
+        # set up pylab figure
         pylab.ion()
-        pylab.figure(3, figsize=(7, 7), dpi=120, facecolor='1.0')
+        pylab.figure('Reciprocal space visualization', figsize=(7, 7), dpi=120,
+                     facecolor='1.0')
         pylab.clf()
         pylab.rc('text', usetex=True)
         pylab.rc('text.latex',
             preamble=r'\usepackage{amsmath}\usepackage{helvet}\usepackage{sfmath}')
+
         ax = pylab.subplot(111, aspect='equal')
         ax.set_axisbelow(True)  # draw grid lines below plotted points
         # register event handler to pylab
@@ -261,11 +271,12 @@ class SpaceMap(object):
         pylab.gca().format_coord = self.format_coord
 
         pylab.title('Available reciprocal space for %s %.3f \\AA$^{-1}$, E = %.3f %s'
-                    % (self.mode, self.const, self.E, self.tas.energytransferunit))
+                    % (self.mode, self.const, self.E, self.tasinfo['energytransferunit']))
         pylab.xlabel('$Q_1$ (\\AA$^{-1}$) $\\rightarrow$ ( %d %d %d )' % tuple(dir1))
         pylab.ylabel('$Q_2$ (\\AA$^{-1}$) $\\rightarrow$ ( %d %d %d )' % tuple(dir2))
         pylab.grid(color='0.5', zorder=-2)
-        pylab.tight_layout()
+        if hasattr(pylab, 'tight_layout'):
+            pylab.tight_layout()
         pylab.subplots_adjust(bottom=0.1)
 
         self.clicktext = pylab.text(0.5, 0.01, '(click to show angles)', size='small',
@@ -292,11 +303,11 @@ class SpaceMap(object):
             self.plot_hkls(allowed, color='#009900', s=2)
             self.plot_hkls(limited, color='red', s=2)
         # plot current spectrometer position
-        current_pos = self.tas.read()
+        current_pos = self.tasinfo['actpos']
         if abs(current_pos[3] - self.E) < 0.01:
             self.plot_hkls([current_pos[:3]], color='#990033', marker='x')
         # plot last calpos() result
-        calpos = self.tas._last_calpos
+        calpos = self.tasinfo['calpos']
         if calpos is not None and abs(calpos[3] - self.E) < 0.01:
             self.plot_hkls([calpos[:3]], color='#006600', marker='*')
 
@@ -306,14 +317,22 @@ class SpaceMap(object):
             pylab.plot(v[:,0], v[:,1], color='0.7', zorder=-1)
 
 
-def plot_ellipsoid(resmat):
+def plot_hklmap(cfg, par, tasinfo, kwds):
+    resmat = resmat_class(cfg, par)
+    SpaceMap(resmat, tasinfo, **kwds).plot_map()
+
+
+def plot_resatpoint(cfg, par, fignum='Resolution calculation', resmat=None):
     import pylab
+
+    if resmat is None:
+        resmat = resmat_class(cfg, par)
 
     x, y, xslice, yslice, xxq, yxq, xxqslice, yxqslice, xyq, yyq, xyqslice, yyqslice = \
         resmat.resellipse()
 
     pylab.ion()
-    pylab.figure(4, figsize=(8.5, 6), dpi=120, facecolor='1.0')
+    pylab.figure(fignum, figsize=(8.5, 6), dpi=120, facecolor='1.0')
     pylab.clf()
     pylab.rc('text', usetex=True)
     pylab.rc('text.latex',
@@ -403,8 +422,11 @@ $a$ (\AA) & $b$ (\AA) & $c$ (\AA) & $\alpha$ ($^{\circ}$) & $\beta$ ($^{\circ}$)
     t3.set_size(10)
 
 
-def plot_scan(resmat, hkles):
+def plot_resscan(cfg, par, hkles, fignum='Scan resolution', resmat=None):
     import pylab
+
+    if resmat is None:
+        resmat = resmat_class(cfg, par)
 
     n = len(hkles)
     h, k, l, e = array(hkles).T

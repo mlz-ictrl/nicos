@@ -30,9 +30,11 @@ import os
 import re
 import time
 import socket
+import keyword
 import readline
 import exceptions
 import rlcompleter
+import __builtin__
 
 from nicos import session
 from nicos.core.errors import UsageError
@@ -106,13 +108,62 @@ class NicosCompleter(rlcompleter.Completer):
                             'fix', 'release', 'adjust', 'limits', 'resetlimits',
                             'scan', 'cscan', 'contscan'])
 
+    def __init__(self, namespace1, namespace2):
+        self.namespace = namespace1
+        self.namespace2 = namespace2
+        self.use_main_ns = False
+
     def attr_matches(self, text):
-        matches = rlcompleter.Completer.attr_matches(self, text)
+        """Compute matches when text contains a dot.
+
+        Assuming the text is of the form NAME.NAME....[NAME], and is
+        evaluatable in self.namespace, it will be evaluated and its attributes
+        (as revealed by dir()) are used as possible completions.  (For class
+        instances, class members are also considered.)
+        """
+        from nicos.generic import DeviceAlias
+
+        m = re.match(r"(\w+(\.\w+)*)\.(\w*)", text)
+        if not m:
+            return []
+        expr, attr = m.group(1, 3)
+        try:
+            thisobject = eval(expr, self.namespace)
+        except Exception:
+            try:
+                thisobject = eval(expr, self.namespace2)
+            except Exception:
+                return []
+
+        # get the content of the object, except __builtins__
+        words = dir(thisobject)
+        if isinstance(thisobject, DeviceAlias):
+            words.extend(dir(thisobject._obj))
+
+        if '__builtins__' in words:
+            words.remove('__builtins__')
+
+        if hasattr(thisobject, '__class__'):
+            words.append('__class__')
+            words.extend(rlcompleter.get_class_members(thisobject.__class__))
+
+        matches = []
+        n = len(attr)
+        for word in words:
+            if word[:n] == attr and hasattr(thisobject, word):
+                val = getattr(thisobject, word)
+                word = self._callable_postfix(val, '%s.%s' % (expr, word))
+                matches.append(word)
         textlen = len(text)
         return [m for m in matches if not (m[textlen:].startswith(('_', 'do'))
                                            or m[textlen:] in self.attr_hidden)]
 
     def global_matches(self, text):
+        """Compute matches when text is a simple name.
+
+        Return a list of all keywords, built-in functions and names currently
+        defined in self.namespace that match.
+        """
         line = readline.get_line_buffer()
         command = line[:len(line)-len(text)].strip()
         if command in self.special:
@@ -125,7 +176,15 @@ class NicosCompleter(rlcompleter.Completer):
                 cls = Device
             return [k for k in session.explicit_devices if
                     k.startswith(text) and isinstance(session.devices[k], cls)]
-        matches = rlcompleter.Completer.global_matches(self, text)
+        matches = []
+        n = len(text)
+        for word in keyword.kwlist:
+            if word[:n] == text:
+                matches.append(word)
+        for nspace in [__builtin__.__dict__, self.namespace, self.namespace2]:
+            for word, val in nspace.items():
+                if word[:n] == text and word != '__builtins__':
+                    matches.append(self._callable_postfix(val, word))
         return [m for m in matches if m[:-1] not in self.global_hidden]
 
     def get_matches(self, text):

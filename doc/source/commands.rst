@@ -9,7 +9,6 @@ Getting help
 .. autofunction:: nicos.commands.device.ListDevices
 .. autofunction:: nicos.commands.device.ListParams
 .. autofunction:: nicos.commands.device.ListMethods
-.. autofunction:: nicos.commands.device.ListAllParams
 .. autofunction:: nicos.commands.device.version
 
 Output commands
@@ -101,6 +100,8 @@ Device commands
 .. autofunction:: adjust
 
 .. autofunction:: history
+
+.. autofunction:: getall
 
 Measuring commands
 ------------------

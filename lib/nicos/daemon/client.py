@@ -28,7 +28,9 @@ from __future__ import with_statement
 
 __version__ = "$Revision$"
 
+import os
 import ast
+import time
 import socket
 import hashlib
 import threading
@@ -62,6 +64,8 @@ class NicosClient(object):
         self.disconnecting = False
         self.version = None
         self.gzip = False
+        self.client_id = hashlib.md5('%s%s' % (time.time(),
+                                               os.getpid())).digest()
 
     def signal(self, name, *args):
         # must be overwritten
@@ -82,6 +86,9 @@ class NicosClient(object):
         except Exception, err:
             self.signal('failed', 'Server connection failed: %s.' % err, err)
             return
+
+        # write client identification: we are a new client
+        self.socket.sendall(self.client_id)
 
         # read banner
         try:
@@ -114,6 +121,9 @@ class NicosClient(object):
             msg = err.args[1]
             self.signal('failed', 'Event connection failed: %s.' % msg, err)
             return
+
+        # write client id to ensure we get registered as event connection
+        self.event_socket.sendall(self.client_id)
 
         # start event handler
         self.event_thread = threading.Thread(target=self.event_handler,

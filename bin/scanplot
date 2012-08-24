@@ -228,7 +228,7 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
 
     line = f.readline()
     createtime = line.strip()[-19:]
-    title = '%s %s' % (filename, createtime)
+    title = '%s %s' % (path.basename(filename), createtime)
     tasopmode = ''
     scanconst = 0
     subtitle = ''
@@ -246,20 +246,29 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
                 subtitle = value
         line = f.readline()
 
-    # now comes the two header lines
+    # now come the two header lines
     colnames = f.readline().split()[1:]
     colunits = f.readline().split()[1:]
-    xcols = colnames.index(';')
-    ycols = len(colnames) - xcols - 1
+
+    # check file format: does it have ';' separated xcols and ycols?
+    try:
+        ystart = colnames.index(';')
+    except ValueError:
+        ystart = 0
+    else:
+        # remove semicolon
+        del colnames[ystart]
+        del colunits[ystart]
 
     # now comes the data
     line = f.readline()
-    xvalues = []
-    yvalues = []
+    values = []
     while line and not line.startswith('###'):
         parts = line.split()
-        xvalues.append(map(try_float, parts[:xcols]))
-        yvalues.append(map(try_float, parts[xcols+1:]))
+        if ystart > 0:
+            values.append(map(try_float, parts[:ystart] + parts[ystart+1:]))
+        else:
+            values.append(map(try_float, parts))
         line = f.readline()
     f.close()
 
@@ -267,19 +276,22 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
     if xcol is None:
         if colnames[0] == 'h':
             # HKL scan: determine first changing column
-            if len(xvalues) < 2 and xcolhint is not None:
+            if len(values) < 2 and xcolhint is not None:
                 xcol = xcolhint
             else:
                 diffs = []
                 for i in range(4):
-                    diffs.append(abs(xvalues[0][i] - xvalues[1][i]))
+                    diffs.append(abs(values[0][i] - values[1][i]))
                 xcol = diffs.index(max(diffs))
         else:
             xcol = 0
     elif isinstance(xcol, str):
-        xcol = colnames[:xcols].index(xcol)
+        try:
+            xcol = colnames.index(xcol)
+        except ValueError:
+            raise ValueError('X column %r not found' % xcol)
     else:
-        # 1-based xcols
+        # 1-based xcols as number
         xcol -= 1
 
     # determine Y column
@@ -287,28 +299,33 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
         # determine detector: pick the "det" or "ctr" column with the
         # most total counts
         candidates = []
-        for i, col in enumerate(colnames[-ycols:]):
+        for i, col in enumerate(colnames[ystart:]):
             if col.startswith('det') or col.startswith('ctr'):
-                total = sum(yvalues[j][i] for j in range(len(yvalues)))
+                total = sum(values[j][i] for j in range(len(values)))
                 candidates.append((total, i))
         candidates.sort()
+        if not candidates:
+            raise ValueError('no Y column found in file')
         ycol = candidates[-1][1]
     elif isinstance(ycol, str):
-        ycol = colnames[-ycols:].index(ycol)
+        try:
+            ycol = colnames[ystart:].index(ycol) + ystart
+        except ValueError:
+            raise ValueError('Y column %r not found' % ycol)
     else:
-        # 1-based ycols
-        ycol -= 1
+        # 1-based ycols: ycol=1 becomes cols[ystart], ycol=2 becomes cols[ystart]
+        ycol += ystart - 1
 
     # determine monitor column
     if normalize:
         candidates = []
-        for i, col in enumerate(colnames[-ycols:]):
+        for i, col in enumerate(colnames[ystart:]):
             if col.startswith('mon'):
-                total = sum(yvalues[j][i] for j in range(len(yvalues)))
+                total = sum(values[j][i] for j in range(len(values)))
                 candidates.append((total, i))
         candidates.sort()
         moncol = candidates[-1][1]
-        monname = colnames[-ycols:][moncol]
+        monname = colnames[moncol]
     else:
         moncol = -1
         monname = ''
@@ -331,20 +348,19 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
     if normalize:
         yaxisname = 'I (cts/1e5%s)' % monname
     else:
-        yaxisname = '%s (%s)' % (colnames[xcols + 1 + ycol],
-                                 colunits[xcols + 1 + ycol])
+        yaxisname = '%s (%s)' % (colnames[ycol], colunits[ycol])
     legend = '%s %s %4.2f A-1' % (filename[-10:-4], tasopmode, scanconst)
 
     xs, ys, dys = [], [], []
-    for xv, yv in zip(xvalues, yvalues):
-        xs.append(xv[xcol])
-        yval = yv[ycol]
+    for v in values:
+        xs.append(v[xcol])
+        yval = v[ycol]
         if normalize:
-            scale = 1e5 / yv[moncol]
+            scale = 1e5 / v[moncol]
         else:
             scale = 1.0
         if kicol > -1:
-            myki = xv[kicol]
+            myki = v[kicol]
             fcorr = 0.0478*myki**3 - 0.4747*myki**2 + 1.6149*myki - 0.9704
         else:
             fcorr = 1.0
@@ -353,7 +369,7 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
         dys.append((1.0 if yval == 0 else sqrt(yval)) * scale / fcorr)
 
     if tcol > -1:
-        temperature = sum(xv[tcol] for xv in xvalues) / len(xvalues)
+        temperature = sum(v[tcol] for v in values) / len(values)
         if temperature > 100:  legend += ' T= %3.0f K' % temperature
         elif temperature > 10: legend += ' T= %4.1f K' % temperature
         elif temperature > 2:  legend += ' T= %5.2f K' % temperature
@@ -394,45 +410,45 @@ xmin = None
 xmax = None
 cascade = None
 
-for argu in sys.argv:
-    if argu[0:4] == 'xcol':
-        newxcol = argu.split('=')[1]
+for arg in sys.argv:
+    if arg[0:4] == 'xcol':
+        newxcol = arg.split('=')[1]
         try:
             newxcol = int(newxcol)
         except:
             pass
-    if argu[0:4] == 'ycol':
+    if arg[0:4] == 'ycol':
         # add code for multicolumn for polarised mode
-        newycols = argu.split('=')[1].split(',') # get stringlist
+        newycols = arg.split('=')[1].split(',') # get stringlist
         for i in range(len(newycols)): # convert element-by-element to int
             try:
                 newycols[i] = int(newycols[i])
             except:
                 pass
-    if argu[0:4] == 'xlim':
-        newxlims = argu.split('=')[1]
+    if arg[0:4] == 'xlim':
+        newxlims = arg.split('=')[1]
         if ',' in newxlims:
             xmin, xmax = map(float, newxlims.split(','))
         else:
             xmin = 0
             xmax = float(newxlims)
-    if argu[0:4] == 'xmax':
-        xmax = float(argu.split('=')[1])
-    if argu[0:4] == 'xmin':
-        xmin = float(argu.split('=')[1])
-    if argu[0:4] == 'ylim':
-        newylims = argu.split('=')[1]
+    if arg[0:4] == 'xmax':
+        xmax = float(arg.split('=')[1])
+    if arg[0:4] == 'xmin':
+        xmin = float(arg.split('=')[1])
+    if arg[0:4] == 'ylim':
+        newylims = arg.split('=')[1]
         if ',' in newylims:
             ymin, ymax = map(float, newylims.split(','))
         else:
             ymin = 0
             ymax = float(newylims)
-    if argu[0:4] == 'ymax':
-        ymax = float(argu.split('=')[1])
-    if argu[0:4] == 'ymin':
-        ymin = float(argu.split('=')[1])
-    if argu[0:7] == 'cascade':
-        cascade = float(argu.split('=')[1])
+    if arg[0:4] == 'ymax':
+        ymax = float(arg.split('=')[1])
+    if arg[0:4] == 'ymin':
+        ymin = float(arg.split('=')[1])
+    if arg[0:7] == 'cascade':
+        cascade = float(arg.split('=')[1])
 
 logflag   = 'log' in sys.argv
 mergeflag = 'merge' in sys.argv
@@ -470,8 +486,12 @@ for filenumber in filelist:
     lastfilenumber = filenumber
     for newycol in newycols:
         filename = fileprefix + '_' + filenumber.zfill(8) + '.dat'
-        thedata = getdatafromfile(filename, newxcol, newycol, normflag,
-                                  monitorcorrection, xcolhint)
+        try:
+            thedata = getdatafromfile(filename, newxcol, newycol, normflag,
+                                      monitorcorrection, xcolhint)
+        except Exception, err:
+            print 'Could not read data file %r: %s' % (filename, err)
+            sys.exit(1)
         xs, ys, dys, title, subtitle, xaxis, yaxis, legend, xcolhint = thedata
         if logflag:
             yaxis = 'log ' + yaxis

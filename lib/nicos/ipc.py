@@ -1076,6 +1076,11 @@ class Input(Readable):
                        mandatory=True),
     }
 
+    parameter_overrides = {
+        'unit':  Override(mandatory=False, default=''),
+        'fmtstr': Override(default='%d'),
+    }
+
     attached_devices = {
         'bus': (IPCModBus, 'The communication bus'),
     }
@@ -1084,7 +1089,7 @@ class Input(Readable):
         self._mask = ((1 << (self.last - self.first + 1)) - 1) << self.first
 
     def doRead(self, maxage=0):
-        high = self._adevs['bus'].get(self.addr, 181)
+        high = self._adevs['bus'].get(self.addr, 181) << 8
         low  = self._adevs['bus'].get(self.addr, 180)
         return ((high + low) & self._mask) >> self.first
 
@@ -1191,8 +1196,7 @@ class SlitMotor(NicosMotor):
            self.doStatus()[0] != status.ERROR:
             return
         self.log.info('blade is blocked or not initialized, moving to reset '
-                      'position %s %s' %
-                      (self.format(self.resetpos), self.unit))
+                      'position %s' % self.format(self.resetpos, unit=True))
         steps = self._tosteps(self.resetpos)
         self._adevs['bus'].send(self.addr, self.side+160, steps, 4)
         sleep(0.3)

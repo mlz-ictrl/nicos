@@ -316,10 +316,8 @@ def checkoffset(dev, center, step, numsteps, *args, **kwargs):
                      'offset unchanged')
     else:
         diff = params[0] - center
-        printinfo('center of Gaussian fit at %s %s' %
-                  (dev.format(params[0]), dev.unit))
-        printinfo('adjusting offset of %s by %s %s' %
-                  (dev, dev.format(diff), dev.unit))
+        printinfo('center of Gaussian fit at %s' % dev.format(params[0], True))
+        printinfo('adjusting offset of %s by %s' % (dev, dev.format(diff, True)))
         dev.offset += diff
 
 

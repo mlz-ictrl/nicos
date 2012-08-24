@@ -103,6 +103,7 @@ class MainWindow(QMainWindow, DlgUtils):
                      self.on_client_disconnected)
         self.connect(self.client, SIGNAL('status'), self.on_client_status)
         self.connect(self.client, SIGNAL('showhelp'), self.on_client_showhelp)
+        self.connect(self.client, SIGNAL('clientexec'), self.on_client_clientexec)
 
         # data handling setup
         self.data = DataHandler(self.client)
@@ -124,7 +125,7 @@ class MainWindow(QMainWindow, DlgUtils):
             self.curprofile = curprofile
 
         # determine if there is an editor window type, because we would like to
-        # have a way to open files later
+        # have a way to open files from a console panel later
         self.editor_wintype = None
         for i, winconfig in enumerate(self.profiles[self.curprofile][1]):
             if isinstance(winconfig, window) and \
@@ -203,7 +204,10 @@ class MainWindow(QMainWindow, DlgUtils):
 
     def createWindow(self, wtype):
         wconfig = self.profiles[self.curprofile][1][wtype+1]
-        if wconfig[2] and self.windows.get(wtype):
+        #if wconfig[2] and self.windows.get(wtype):  # we don't support
+                                                     # multi-instance anymore
+        if self.windows.get(wtype):
+            iter(self.windows[wtype]).next().activateWindow()
             return
         window = AuxiliaryWindow(self, wtype, wconfig, self.curprofile)
         window.setWindowIcon(QIcon(':/' + wconfig[1]))
@@ -269,14 +273,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
         auxstate = settings.value('auxwindows').toList()
         for wtype in [x.toInt()[0] for x in auxstate]:
-            if wtype != self.editor_wintype:
-                self.createWindow(wtype)
-        editfiles = settings.value('editfiles', []).toStringList()
-        for fn in editfiles:
-            fn = str(fn)
-            if fn:
-                win = self.createWindow(self.editor_wintype)
-                win.panels[0].openFile(fn)
+            self.createWindow(wtype)
 
     def saveSettings(self, settings):
         settings.setValue('geometry', QVariant(self.saveGeometry()))
@@ -284,14 +281,10 @@ class MainWindow(QMainWindow, DlgUtils):
         settings.setValue('splitstate',
                           QVariant([sp.saveState() for sp in self.splitters]))
         auxstate = []
-        editfiles = []
         for wtype, windows in self.windows.iteritems():
             for win in windows:
                 auxstate.append(wtype)
-                if wtype == self.editor_wintype:
-                    editfiles.append(win.panels[0].filename)
         settings.setValue('auxwindows', QVariant(auxstate))
-        settings.setValue('editfiles', QVariant(QStringList(editfiles)))
         settings.setValue('autoconnect', QVariant(self.client.connected))
         servers = sorted(set(map(str, self.servers)))
         settings.setValue('servers', QVariant(QStringList(servers)))
@@ -450,6 +443,18 @@ class MainWindow(QMainWindow, DlgUtils):
         if self.helpWindow is None:
             self.helpWindow = HelpWindow(self, self.client)
         self.helpWindow.showHelp(data)
+
+    def on_client_clientexec(self, data):
+        # currently used for client-side plot using matplotlib; data is
+        # (funcname, args, ...)
+        plot_func_path = data[0]
+        try:
+            modname, funcname = plot_func_path.rsplit('.', 1)
+            func = getattr(__import__(modname, None, None, [funcname]),
+                           funcname)
+            func(*data[1:])
+        except Exception, err:
+            print 'Error during clientexec:', err
 
     def on_client_cache(self, (time, key, op, value)):
         if key == 'session/mastersetupexplicit':
