@@ -81,7 +81,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         'reltheta': Param('true if theta position is relative to two-theta',
                           type=bool, default=False, category='instrument'),
         # XXX explanation?
-        'sidechange': Param('', type=int, default=False),
+        'sidechange': Param('', type=int, default=False, userparam=False),
         'focmode':  Param('focussing mode', default='manual', settable=True,
                           type=oneof('manual', 'flat', 'horizontal',
                                      'vertical', 'double'),
