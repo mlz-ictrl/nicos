@@ -17,6 +17,7 @@ devices = dict(
                     psi = 'sth',
                     mono = 'mono',
                     ana = 'ana',
+                    alpha = None,
                     scatteringsense = (-1, 1, -1),
                     energytransferunit ='meV'),
 

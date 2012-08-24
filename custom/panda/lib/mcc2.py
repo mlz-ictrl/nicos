@@ -245,15 +245,15 @@ class MCC2Motor(NicosMotor):
         self.comm('XP45S%d' % int(value))
         return self.doReadMicrostep()
     def doReadSpeed(self):
-        return float(self.comm('XP14R')) / float(self.microstep * self.slope)
+        return float(self.comm('XP14R')) / float(self.microstep * abs( self.slope ))
     def doWriteSpeed(self, value):
-        f = max(0, min(40000, value * self.slope * self.microstep))
+        f = max(0, min(40000, value * abs( self.slope ) * self.microstep))
         self.comm('XP14S%d' % int(f))
         return self.doReadSpeed()
     def doReadAccel(self):
-        return float(self.comm('XP15R')) / float(self.microstep * self.slope) ** 2
+        return float(self.comm('XP15R')) / float(self.microstep * abs( self.slope )) ** 2
     def doWriteAccel(self, value):
-        f = max(4000, min(500000, 4000 * round((value * (self.slope * self.microstep) ** 2) / 4000)))
+        f = max(4000, min(500000, 4000 * round((value * (abs(self.slope) * self.microstep) ** 2) / 4000)))
         self.comm('XP15S%d' % int(f))
         return self.doReadAccel()
 
@@ -310,4 +310,4 @@ class MCC2Motor(NicosMotor):
             timeleft -= 0.1
             if timeleft <= 0:
                 self.doStop()
-                raise TimeoutError(self, " didn't stop within 900s, somethings wrong!")
+                raise TimeoutError(self, " didn't stop within 900s, something is wrong!")
