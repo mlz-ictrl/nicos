@@ -194,6 +194,9 @@ class Axis(BaseAxis):
     @usermethod
     def reference(self, force=False):
         """Do a reference drive, if the motor supports it."""
+        if self.fixed:
+            self.log.error('device fixed, not referencing: %s' % self.fixed)
+            return
         if self._hascoder and not force:
             self.log.warning('this is an encoded axis; use '
                              '%s.reference(True) to force reference drive'
