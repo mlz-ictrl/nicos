@@ -195,7 +195,7 @@ bool FitSinus(int iSize, const unsigned int* pData,
 
 	// step 1: limited fit
 	ROOT::Minuit2::MnUserParameters upar;
-	upar.Add("phase", dPhase, dPhase*0.1);
+	upar.Add("phase", dPhase, M_PI*0.1);
 	upar.Add("amp", dAmp, 0.1*dAmp);
 	upar.Add("offs", dOffs, 0.1*dOffs);
 
