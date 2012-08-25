@@ -534,8 +534,10 @@ class EditorPanel(Panel):
 
     @qtsig('')
     def on_actionGet_triggered(self):
-        editor = self.newFile()
-        editor.setText(self.client.ask('getscript'))
+        script = self.client.ask('getscript')
+        if script is not None:
+            editor = self.newFile()
+            editor.setText(script)
 
     def clearSimPane(self):
         self.simOutView.clear()
