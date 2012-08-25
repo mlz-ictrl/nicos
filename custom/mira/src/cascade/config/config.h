@@ -28,8 +28,8 @@
 
 #include "../aux/xml.h"
 
-/*
- * (Singleton) class for reading xml files
+/**
+ * \brief (Singleton) class for reading xml files
  */
 class Config : public Xml
 {
@@ -40,7 +40,7 @@ class Config : public Xml
 		Config();
 		virtual ~Config();
 
-		// get pointer to singleton instance of this class
+		/// get pointer to singleton instance of this class
 		static Config* GetSingleton();
 		static void ClearSingleton();
 };

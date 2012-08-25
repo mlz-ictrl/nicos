@@ -694,10 +694,14 @@ class EditorPanel(Panel):
     @qtsig('')
     def on_actionSave_triggered(self):
         self.saveFile(self.currentEditor)
-
+        self.window.setWindowTitle('%s[*] - %s editor' %
+            (self.filenames[self.currentEditor], self.mainwindow.instrument))
+ 
     @qtsig('')
     def on_actionSaveAs_triggered(self):
         self.saveFileAs(self.currentEditor)
+        self.window.setWindowTitle('%s[*] - %s editor' %
+            (self.filenames[self.currentEditor], self.mainwindow.instrument))
 
     def saveFile(self, editor):
         if not self.filenames[editor]:

@@ -198,8 +198,11 @@ class ScansPanel(Panel):
         for dataset in self.data.sets:
             if dataset.invisible:
                 continue
-            shortname = '%s (%s)' % (dataset.name,
-                                     dataset.xnames[dataset.xindex])
+            try:
+                xname = ' (%s)' % dataset.xnames[dataset.xindex]
+            except IndexError:
+                xname = ''
+            shortname = dataset.name + xname
             item = QListWidgetItem(shortname, self.datasetList)
             item.setData(32, dataset.uid)
             self.setitems[dataset.uid] = item

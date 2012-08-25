@@ -30,11 +30,12 @@
 #include <fstream>
 #include <sstream>
 #include <limits>
+#include <algorithm>
 
 //------------------------------------------------------------------------------
 
-/*
- * cleanup class
+/**
+ * \brief cleanup class
  * which automatically calls a deinit method when going out of scope
  */
 template<class T> class cleanup
@@ -50,7 +51,7 @@ template<class T> class cleanup
 };
 
 
-// deletes an object when going out of scope
+/// deletes an object when going out of scope
 template<class T> class autodeleter
 {
 protected:
@@ -76,7 +77,7 @@ public:
 
 //------------------------------------------------------------------------------
 
-// file size
+/// file size
 long GetFileSize(FILE* pf);
 long GetFileSize(const char* pcFileName);
 
@@ -89,7 +90,7 @@ std::string GetFileEnding(const char* pcFileName);
 //------------------------------------------------------------------------------
 
 
-// remove whitespaces at the beginning and the end of a string
+/// remove whitespaces at the beginning and the end of a string
 void trim(char* pcStr);
 std::string trim(const std::string& str);
 
@@ -101,35 +102,12 @@ void find_and_replace(std::string& str1, const std::string& str_old,
 //------------------------------------------------------------------------------
 
 
-// convert big endian to little endian and vice versa
+/// convert big endian to little endian and vice versa
 unsigned int endian_swap(unsigned int ui);
 
 
 //------------------------------------------------------------------------------
 
-
-// swap values
-template<class T> void swap(T& t1, T& t2)
-{
-	T tmp = t1;
-	t1 = t2;
-	t2 = tmp;
-}
-
-
-template<class T> T min(const T& t1, const T& t2)
-{
-	if(t1<=t2)
-		return t1;
-	return t2;
-}
-
-template<class T> T max(const T& t1, const T& t2)
-{
-	if(t1>t2)
-		return t1;
-	return t2;
-}
 
 template<typename T> bool float_equal(T t1, T t2)
 {
@@ -144,7 +122,7 @@ template<typename T> bool float_equal(T t1, T t2)
 
 //------------------------------------------------------------------------------
 
-// group numbers, e.g.: 123 456 789
+/// group numbers, e.g.: 123 456 789
 void SetNumberGrouping(std::ostream& ostr);
 
 
@@ -157,9 +135,9 @@ double safe_log10_lowerrange(double d);
 //------------------------------------------------------------------------------
 
 
-// random number between 0 and 1
+/// random number between 0 and 1
 double rand01();
-// random number between -1 and 1
+/// random number between -1 and 1
 double randmp1();
 
 

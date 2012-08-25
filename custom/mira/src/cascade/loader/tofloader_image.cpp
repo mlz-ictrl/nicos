@@ -144,8 +144,8 @@ void TmpImage::UpdateRange()
 					m_vecMax[1] = iY;
 				}
 
-				m_dMin = min(m_dMin, double(uiVal));
-				m_dMax = max(m_dMax, double(uiVal));
+				m_dMin = std::min(m_dMin, double(uiVal));
+				m_dMax = std::max(m_dMax, double(uiVal));
 			}
 			else if(m_pdDaten)
 			{
@@ -157,8 +157,8 @@ void TmpImage::UpdateRange()
 					m_vecMax[1] = iY;
 				}
 
-				m_dMin = min(m_dMin, dVal);
-				m_dMax = max(m_dMax, dVal);
+				m_dMin = std::min(m_dMin, dVal);
+				m_dMax = std::max(m_dMax, dVal);
 			}
 		}
 	}
@@ -273,7 +273,7 @@ bool TmpImage::FitGaussian(double &dAmp,
 	return false;
 }
 
-// TODO: do a better version of this method!
+/// \todo do a better version of this method!
 TmpGraph TmpImage::GetRadialIntegration(double dAngleInc, double dRadInc,
 										const Vec2d<double>& vecCenter,
 										bool bAngMean) const

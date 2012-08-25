@@ -26,32 +26,45 @@
 
 #include "../aux/roi.h"
 
-/*
- * minimal interface for images
+/**
+ * \brief minimal interface for images
  */
 class BasicImage
 {
 	public:
+		/// get image width
 		virtual int GetWidth() const = 0;
+		/// get image height
 		virtual int GetHeight() const = 0;
 
+		/// get pixel as double
 		virtual double GetDoubleData(int iX, int iY) const = 0;
+
+		/// get pixel as int
 		virtual unsigned int GetIntData(int iX, int iY) const = 0;
 
+		/// minimum value as integer
 		virtual int GetIntMin() const = 0;
+		/// maximum value as integer
 		virtual int GetIntMax() const = 0;
+		/// minimum value as double
 		virtual double GetDoubleMin() const = 0;
+		/// maximum value as double
 		virtual double GetDoubleMax() const = 0;
 };
 
 class Countable
 {
 	public:
+		/// get total counts (in roi if set)
 		virtual unsigned int GetCounts() const = 0;
+		/// get total counts subtracting counts outside the roi (area-weighted)
 		virtual unsigned int GetCountsSubtractBackground() const = 0;
 
 		virtual Roi& GetRoi() = 0;
+		/// enable/disable roi
 		virtual void UseRoi(bool bUseRoi=true) = 0;
+		/// \return is roi in use?
 		virtual bool GetUseRoi() const = 0;
 };
 

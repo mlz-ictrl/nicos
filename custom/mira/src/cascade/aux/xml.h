@@ -26,8 +26,8 @@
 
 #include <string>
 
-/*
- * class for reading xml files
+/**
+ * \brief class for reading xml files
  */
 class Xml
 {
@@ -45,11 +45,11 @@ class Xml
 		Xml();
 		virtual ~Xml();
 		
-		// Load a XML file
+		/// Load a XML file
 		bool Load(const char* pcFile);
 
 		//----------------------------------------------------------------------
-		// Query values in a given xpath
+		/// Query values in a given xpath
 		int QueryInt(const char* pcXpath, int iDefault=0, bool* pOK=0);
 		double QueryDouble(const char* pcXpath, double dDefault=0., bool* pOK=0);
 		std::string QueryString(const char* pcXpath, const char* pcDefault, bool* pOK=0);

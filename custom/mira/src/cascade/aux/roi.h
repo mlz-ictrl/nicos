@@ -41,7 +41,9 @@ struct BoundingRect
 };
 
 
-// base class for roi elements (rectangle, circle, ...)
+/**
+ * \brief base class for roi elements (rectangle, circle, ...)
+ */
 class RoiElement
 {
 	protected:
@@ -55,19 +57,19 @@ class RoiElement
 		virtual RoiElement* copy() const = 0;
 
 
-		// get name of element
+		/// get name of element
 		virtual std::string GetName() const = 0;
 
 
-		// is point (dX, dY) inside roi element?
+		/// is point (dX, dY) inside roi element?
 		virtual bool IsInside(double dX, double dY) const = 0;
 
-		// what fraction (0.0 .. 1.0) of pixel (iX, iY) is inside roi element?
+		/// what fraction (0.0 .. 1.0) of pixel (iX, iY) is inside roi element?
 		virtual double HowMuchInside(int iX, int iY) const;
 
 
 		//----------------------------------------------------------------------
-		// vertices of element (interpolated for circles)
+		/// vertices of element (interpolated for circles)
 		virtual int GetVertexCount() const = 0;
 		virtual Vec2d<double> GetVertex(int i) const = 0;
 		//----------------------------------------------------------------------
@@ -75,23 +77,23 @@ class RoiElement
 
 		//----------------------------------------------------------------------
 		// parameters
-		// how many parameters does the element have?
+		/// how many parameters does the element have?
 		virtual int GetParamCount() const = 0;
 
-		// get name of a parameter
+		/// get name of a parameter
 		virtual std::string GetParamName(int iParam) const = 0;
 
-		// get value of a parameter
+		/// get value of a parameter
 		virtual double GetParam(int iParam) const = 0;
 
-		// set value of a parameter
+		/// set value of a parameter
 		virtual void SetParam(int iParam, double dVal) = 0;
 		//----------------------------------------------------------------------
 
-		// bounding rect for the element's current parameters
+		/// bounding rect for the element's current parameters
 		virtual const BoundingRect& GetBoundingRect() const;
 
-		// is point (iX, iY) inside elementzy
+		/// is point (iX, iY) inside elementzy
 		virtual bool IsInBoundingRect(double dX, double dY) const;
 };
 
@@ -292,14 +294,14 @@ class Roi
 
 		virtual ~Roi();
 
-		// add element, return position of element
+		/// add element, return position of element
 		int add(RoiElement* elem);
 		void clear();
 
-		// is point (dX, dY) inside roi?
+		/// is point (dX, dY) inside roi?
 		bool IsInside(double dX, double dY) const;
 
-		// what fraction (0.0 .. 1.0) of pixel (iX, iY) is inside roi?
+		/// what fraction (0.0 .. 1.0) of pixel (iX, iY) is inside roi?
 		double HowMuchInside(int iX, int iY) const;
 
 		RoiElement& GetElement(int iElement);
@@ -307,7 +309,7 @@ class Roi
 		void DeleteElement(int iElement);
 		int GetNumElements() const;
 
-		// get total bounding rectangle of all elements
+		/// get total bounding rectangle of all elements
 		BoundingRect GetBoundingRect() const;
 
 		bool Load(const char* pcFile);

@@ -21,14 +21,15 @@
 //
 // *****************************************************************************
 
-/*
- * drawing of error bars
- * based on the following python code:
- * http://pyqwt.sourceforge.net/examples/ErrorBarDemo.py.html
- */
 #ifndef __ERROR_BARS__
 #define __ERROR_BARS__
 
+/**
+ * \brief drawing of error bars
+ * 
+ * based on the following python code:
+ * http://pyqwt.sourceforge.net/examples/ErrorBarDemo.py.html
+ */
 class ErrorBarPlotCurve : public QwtPlotCurve
 {
 	protected:

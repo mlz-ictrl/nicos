@@ -32,24 +32,24 @@
 
 class TmpImage;
 
-/*
- * PAD
- * container representing a PAD image
- * (corresponds to the "IMAGE" measurement type in the server & HardwareLib)
+/**
+ * \brief container representing a PAD image
+ * 
+ * corresponds to the "IMAGE" measurement type in the server & HardwareLib
  */
 class PadImage : public BasicImage, public Countable
 {
 	friend class TmpImage;
 
 	protected:
-		// actual data
+		/// actual data
 		unsigned int *m_puiDaten;
 
-		// lower & upper bound values
+		/// lower & upper bound values
 		int m_iMin, m_iMax;
 
-		// PAD data stored in external memory which needs no management,
-		// i.e. allocation & freeing?
+		/// PAD data stored in external memory which needs no management,
+		/// i.e. allocation & freeing?
 		bool m_bExternalMem;
 
 		PadConfig m_config;
@@ -57,15 +57,15 @@ class PadImage : public BasicImage, public Countable
 		Roi m_roi;
 		bool m_bUseRoi;
 
-		// clean up
+		/// clean up
 		void Clear(void);
 
 	public:
-		// create PAD from file (or empty PAD otherwise)
+		/// create PAD from file (or empty PAD otherwise)
 		PadImage(const char *pcFileName=NULL, bool bExternalMem=false,
 				 const PadConfig* conf=0);
 
-		// create PAD from other PAD
+		/// create PAD from other PAD
 		PadImage(const PadImage& pad);
 
 		virtual ~PadImage();
@@ -73,21 +73,21 @@ class PadImage : public BasicImage, public Countable
 		virtual int GetWidth() const;
 		virtual int GetHeight() const;
 
-		// set pointer to external memory (if bExternalMem==true)
+		/// set pointer to external memory (if bExternalMem==true)
 		void SetExternalMem(void* pvDaten);
 
-		// size (in ints) of PAD image
+		/// size (in ints) of PAD image
 		int GetPadSize() const;
 
 		int LoadFile(const char *pcFileName);
 		int LoadTextFile(const char* pcFileName);
 		int SaveFile(const char *pcFileName);
 
-		// load PAD from memory
-		// strBufLen: # of bytes
+		/// load PAD from memory
+		/// \param strBufLen: # of bytes
 		int LoadMem(const char *strBuf, unsigned int strBufLen);
 
-		// calculate lower & upper bound values
+		/// calculate lower & upper bound values
 		void UpdateRange();
 
 		virtual int GetIntMin() const;
@@ -95,31 +95,31 @@ class PadImage : public BasicImage, public Countable
 		virtual double GetDoubleMin() const;
 		virtual double GetDoubleMax() const;
 
-		// print PAD as text
+		/// print PAD as text
 		void Print(const char* pcOutFile=NULL);
 
-		// get specific point
+		/// get specific point
 		virtual unsigned int GetData(int iX, int iY) const;
 		virtual double GetDoubleData(int iX, int iY) const;
 		virtual unsigned int GetIntData(int iX, int iY) const;
 
-		// set count
+		/// set count
 		void SetData(int iX, int iY, unsigned int uiCnt);
 
-		// same as above, but return 0 if outside ROI (if ROI is used)
+		/// same as above, but return 0 if outside ROI (if ROI is used)
 		unsigned int GetDataInsideROI(int iX, int iY,
 										double *dArea=0) const;
 		unsigned int GetDataOutsideROI(int iX, int iY,
 										double *dArea=0) const;
 
-		// get pointer to internal memory
+		/// get pointer to internal memory
 		unsigned int* GetRawData(void);
 
-		// total number of counts (inside ROI, if used)
+		/// total number of counts (inside ROI, if used)
 		virtual unsigned int GetCounts() const;
 		virtual unsigned int GetCountsSubtractBackground() const;
 
-		// old style GetCounts, ignoring main roi
+		/// old style GetCounts, ignoring main roi
 		unsigned int GetCounts(int iStartX, int iEndX,
 							   int iStartY, int iEndY) const;
 
@@ -129,11 +129,10 @@ class PadImage : public BasicImage, public Countable
 		virtual void UseRoi(bool bUseRoi=true);
 		virtual bool GetUseRoi() const;
 
-		// filter out everything except selected regions
+		/// filter out everything except selected regions
 		TmpImage GetRoiImage() const;
 
 		void GenerateRandomData();
 };
 
 #endif
-

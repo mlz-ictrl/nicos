@@ -436,7 +436,7 @@ void GlobalConfig::Init()
 	for(int i=0; i<s_config.FOIL_COUNT; ++i)
 		s_config.vecFoilBegin[i] = (s_config.IMAGES_PER_FOIL*2*i); /*default*/
 
-	// TODO: richtige Einstellungen holen oder mit den Setter-Funktionen setzen
+	/// \todo richtige Einstellungen holen oder mit den Setter-Funktionen setzen
 #endif
 }
 

@@ -28,9 +28,8 @@
 #include <string>
 #include <map>
 
-/*
- * ArgumentMap
- * parse simple strings of the type "status=1 error=0" and sort them into a map
+/**
+ * \brief parse simple strings of the type "status=1 error=0" and sort them into a map
  */
 class ArgumentMap
 {
@@ -42,31 +41,31 @@ class ArgumentMap
 
 		virtual ~ArgumentMap();
 
-		// parse pcStr and add all "key=value" pairs to map
+		/// parse pcStr and add all "key=value" pairs to map
 		void add(const char* pcStr);
 
-		// get cstring value corresponding to key pcKey
-		// if pcKey isn't found, return NULL
+		/// get cstring value corresponding to key pcKey
+		/// if pcKey isn't found, return NULL
 		const char* QueryString(const char* pcKey) const;
 
-		// get string value corresponding to key pcKey
-		// if pcKey isn't found, use strDefault
-		// return a pair with a bool indicating if the key was found and the value
+		/// get string value corresponding to key pcKey
+		/// if pcKey isn't found, use strDefault
+		/// return a pair with a bool indicating if the key was found and the value
 		std::pair<bool, std::string> QueryString(const char* pcKey,
 						 const std::string& strDefault) const;
 
 
-		// get int value corresponding to key pcKey
-		// if pcKey isn't found, use iDefault
-		// return a pair with a bool indicating if the key was found and the value
+		/// get int value corresponding to key pcKey
+		/// if pcKey isn't found, use iDefault
+		/// return a pair with a bool indicating if the key was found and the value
 		std::pair<bool, int> QueryInt(const char* pcKey, int iDefault=0) const;
 
-		// get double value corresponding to key pcKey
-		// if pcKey isn't found, use dDefault
-		// return a pair with a bool indicating if the key was found and the value
+		/// get double value corresponding to key pcKey
+		/// if pcKey isn't found, use dDefault
+		/// return a pair with a bool indicating if the key was found and the value
 		std::pair<bool, double>  QueryDouble(const char* pcKey, double dDefault=0.) const;
 
-		// dump map contents for debugging
+		/// dump map contents for debugging
 		void dump() const;
 };
 #endif

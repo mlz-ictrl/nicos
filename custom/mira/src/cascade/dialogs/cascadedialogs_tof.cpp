@@ -743,8 +743,8 @@ void ContrastsVsImagesDlg::CalcPhaseCorrected()
 
 		progressBar->setValue(iItem + 1);
 
-		dMax = max(dMax, dC+dC_err);
-		dMin = min(dMin, dC-dC_err);
+		dMax = std::max(dMax, dC+dC_err);
+		dMin = std::min(dMin, dC-dC_err);
 
 		pdx[iItem] = iItem;
 		pdy[iItem] = dC;
@@ -931,8 +931,8 @@ void ContrastsVsImagesDlg::Calc()
 			dPh_err /= double(uiTotalCnt);
 		}
 
-		dMax = max(dMax, dC+dC_err);
-		dMin = min(dMin, dC-dC_err);
+		dMax = std::max(dMax, dC+dC_err);
+		dMin = std::min(dMin, dC-dC_err);
 
 		pdx[iItem] = iItem;
 		pdy[iItem] = dC;
@@ -1073,8 +1073,8 @@ void ContrastsVsImagesDlg::Calc(int iFoil)
 
 		progressBar->setValue(iItem + 1);
 
-		dMax = max(dMax, dC+dC_err);
-		dMin = min(dMin, dC-dC_err);
+		dMax = std::max(dMax, dC+dC_err);
+		dMin = std::min(dMin, dC-dC_err);
 
 		pdx[iItem] = iItem;
 		pdy[iItem] = dC;

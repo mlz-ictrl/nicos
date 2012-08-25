@@ -25,19 +25,19 @@
 #ifndef __CASCADE_FITTER__
 #define __CASCADE_FITTER__
 
-// sinus with fixed frequency
+/// sinus with fixed frequency
 bool FitSinus(int iSize, const unsigned int* pData,
 			  double dFreq, double &dPhase,
 			  double &dAmp, double &dOffs,
 			  double &dPhase_err, double &dAmp_err, double &dOffs_err);
 
-// ignoring errors
+/// ignoring errors
 bool FitSinus(int iSize, const unsigned int* pData,
 			  double dFreq, double &dPhase,
 			  double &dAmp, double &dOffs);
 
 
-// 2d gaussian
+/// 2d gaussian
 bool FitGaussian(int iSizeX, int iSizeY,
 				 const unsigned int* pData,
 				 double &dAmp,
