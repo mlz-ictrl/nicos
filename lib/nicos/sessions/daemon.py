@@ -105,7 +105,8 @@ class DaemonSession(NoninteractiveSession):
             return
         if pid == 0:
             # child process
-            signal.alarm(600)   # kill forcibly after 10 minutes
+            self._manualscan = None  # allow simulating manualscans
+            signal.alarm(600)        # kill forcibly after 10 minutes
             pipesender = SimLogSender(wp, self)
             pipesender.begin()
             # remove all pending client handlers (the threads are dead anyway,

@@ -269,7 +269,8 @@ class ConsoleSession(Session):
             return
         if pid == 0:
             # child process
-            signal.alarm(600)   # kill forcibly after 10 minutes
+            self._manualscan = None  # allow simulating manualscans
+            signal.alarm(600)        # kill forcibly after 10 minutes
             try:
                 self.log.manager.globalprefix = '(sim) '
                 self.setMode('simulation')

@@ -345,7 +345,7 @@ def manualscan(*args, **kwargs):
     preset) or ``count(presets...)`` whenever you want to measure a point.
     """
     if getattr(session, '_manualscan', None):
-        raise UsageError('cannot start manual scan within manual scan')
+        raise NicosError('cannot start manual scan within manual scan')
     return _ManualScan(args, kwargs)
 
 
