@@ -513,8 +513,9 @@ class EditorPanel(Panel):
             if not self.askQuestion('A script is currently running, do you '
                                     'want to queue this script?', True):
                 return
-        if script is not None:
-            self.client.tell('queue', self.filenames[self.currentEditor], script)
+        if script is None:
+            return
+        self.client.tell('queue', self.filenames[self.currentEditor], script)
 
     @qtsig('')
     def on_actionSimulate_triggered(self):
@@ -553,7 +554,8 @@ class EditorPanel(Panel):
         if not editor.isModified():
             return True
         if self.filenames[editor]:
-            message = 'Save changes in %s before continuing?' % self.filenames[editor]
+            message = 'Save changes in %s before continuing?' % \
+                self.filenames[editor]
         else:
             message = 'Save new file before continuing?'
         rc = QMessageBox.question(
