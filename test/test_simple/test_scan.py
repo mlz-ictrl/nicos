@@ -25,7 +25,7 @@
 """NICOS tests for nicos.commands.scan and nicos.scan modules."""
 
 from nicos import session
-from nicos.core import UsageError, PositionError, CommunicationError
+from nicos.core import UsageError, PositionError, CommunicationError, NicosError
 from nicos.scan import ContinuousScan
 
 from nicos.commands.measure import count
@@ -220,7 +220,7 @@ def test_manualscan():
             m.move(i)
             m.wait()
             count()
-        assert raises(UsageError, manualscan)
+        assert raises(NicosError, manualscan)
     # with multistep
     with manualscan(m, c, ctr, 'manscan', manual=[0, 1]):
         for i in range(3):
