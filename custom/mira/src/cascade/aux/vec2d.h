@@ -27,8 +27,8 @@
 #include <iostream>
 #include <math.h>
 
-/*
- * 2D vectors
+/**
+ * \brief a simple class for calculating with 2d vectors
  */
 template<class T> class Vec2d
 {
@@ -123,7 +123,7 @@ template<class T> Vec2d<T> operator-(const Vec2d<T>& vec0, const Vec2d<T>& vec1)
 	return vecRet;
 }
 
-// scale
+/// scale
 template<class T> Vec2d<T> operator*(const T& t, const Vec2d<T>& vec)
 {
 	Vec2d<T> vecRet;
@@ -137,7 +137,7 @@ template<class T> Vec2d<T> operator*(const Vec2d<T>& vec, const T& t)
 	return operator*(t, vec);
 }
 
-// inner product
+/// inner product
 template<class T> T operator*(const Vec2d<T>& vec0, const Vec2d<T>& vec1)
 {
 	return vec0[0]*vec1[0] + vec0[1]*vec1[1];

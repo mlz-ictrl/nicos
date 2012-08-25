@@ -45,18 +45,18 @@ class NicosClient : public TcpClient
 		NicosClient();
 		virtual ~NicosClient();
 
-		// send a message to server and receive corresponding answer
+		/// send a message to server and receive corresponding answer
 		const QByteArray& communicate(const char* pcMsg);
 
-		// same as communicate, only saves result to
-		// a file instead of returning it
+		/// same as communicate, only saves result to
+		/// a file instead of returning it
 		bool communicate_and_save(const char* pcMsg, const char* pcDstFile,
 								  bool bSaveMsgPrefix=false);
 
-		// get total counts in TOF or PAD
+		/// get total counts in TOF or PAD
 		unsigned int counts(const QByteArray* arr);
 
-		// get total counts inside ROI in TOF or PAD
+		/// get total counts inside ROI in TOF or PAD
 		unsigned int counts(const QByteArray* arr, int iStartX, int iEndX,
 							int iStartY, int iEndY);
 

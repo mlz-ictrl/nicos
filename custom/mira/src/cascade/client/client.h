@@ -31,7 +31,7 @@
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
 
-/*
+/**
  * TCP client usable in blocking and non-blocking mode
  * msg protocol: 4 Bytes (int): size of message followed by message
  */
@@ -55,7 +55,8 @@ Q_OBJECT
 		QTime m_timer;
 		/////////////////////////////////////////////////////////////
 
-		int m_iLargestAllowedMsgSize;	// -1 to disable
+		/// -1 to disable
+		int m_iLargestAllowedMsgSize;
 
 		// internal methods which read and send raw data in disregard of the
 		// protocol
@@ -69,31 +70,31 @@ Q_OBJECT
 		TcpClient(QObject *pParent=0, bool bBlocking=true);
 		virtual ~TcpClient();
 
-		// connect to server pcAddr at port iPort
+		/// connect to server pcAddr at port iPort
 		bool connecttohost(const char* pcAddr, int iPort);
 		bool reconnect();
 		void disconnect();
 		bool isconnected() const;
 
-		// send a message to the server
+		/// send a message to the server
 		bool sendmsg(const char* pcMsg);
 
-		// only for blocking client
+		/// only for blocking client
 		const QByteArray& recvmsg(void);
 
-		// negative values disable timeout
+		/// negative values disable timeout
 		void SetTimeout(int iTimeout);
 
 	signals:
-		// this signal is emitted by the nonblocking client
-		// if a complete message is available
+		/// this signal is emitted by the nonblocking client
+		/// if a complete message is available
 		void MessageSignal(const char* pcBuf, int iLen);
 
 	protected slots:
 		void connected();
 		void disconnected();
 
-		// only for NONblocking client
+		/// only for NONblocking client
 		void readReady();
 		void socketError(QAbstractSocket::SocketError socketError);
 };

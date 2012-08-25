@@ -57,15 +57,15 @@
 
 class GlobalConfig;
 
-/*
- * configuration of PAD class
+/**
+ * \brief configuration of PadImage
  */
 class PadConfig
 {
 	friend class GlobalConfig;
 
 	protected:
-		// width & height of PAD and TOF images
+		/// width & height of PAD and TOF images
 		int IMAGE_WIDTH;
 		int IMAGE_HEIGHT;
 
@@ -85,29 +85,29 @@ class PadConfig
 		void SetImageWidth(int iImgWidth);
 		void SetImageHeight(int iImgHeight);
 
-		// check & correct argument ranges
+		/// check & correct argument ranges
 		void CheckPadArguments(int* piStartX, int* piEndX,
 									  int* piStartY, int* piEndY) const;
 };
 
-/*
- * configuration of TOF class
+/**
+ * \brief configuration of TofImage
  */
 class TofConfig : public PadConfig
 {
 	friend class GlobalConfig;
 
 	protected:
-		// how many foils in TOF images
+		/// how many foils in TOF images
 		int FOIL_COUNT;
 
-		// how many time channels per foil in TOF?
+		/// how many time channels per foil in TOF?
 		int IMAGES_PER_FOIL;
 
-		// total image count in TOF
+		/// total image count in TOF
 		int IMAGE_COUNT;
 
-		// vector of indices marking the beginning of the individual foils
+		/// vector of indices marking the beginning of the individual foils
 		std::vector<int> vecFoilBegin;
 
 		bool USE_PSEUDO_COMPRESSION;
@@ -127,7 +127,8 @@ class TofConfig : public PadConfig
 		// getter
 		int GetFoilCount() const;
 		int GetImagesPerFoil() const;
-		int GetImageCount() const;			// TOTAL images in TOF
+		/// TOTAL images in TOF
+		int GetImageCount() const;
 		int GetFoilBegin(int iFoil) const;
 		bool GetPseudoCompression() const;
 		bool GetSumFirstAndLast() const;
@@ -137,13 +138,14 @@ class TofConfig : public PadConfig
 		// setter
 		void SetFoilCount(int iNumFoils);
 		void SetImagesPerFoil(int iNumImagesPerFoil);
-		void SetImageCount(int iImgCount);	// TOTAL images in TOF
+		/// TOTAL images in TOF
+		void SetImageCount(int iImgCount);
 		void SetFoilBegin(int iFoil, int iOffs);
 		void SetPseudoCompression(bool bSet);
 		void SetSumFirstAndLast(bool bSet);
 		void SetNumOscillations(double dVal);
 
-		// check & correct argument ranges
+		/// check & correct argument ranges
 		void CheckTofArguments(int* piStartX, int* piEndX,
 							   int* piStartY, int* piEndY,
 							   int* piFoil=0, int* piTimechannel=0) const;
@@ -170,8 +172,9 @@ class ExpConfig
 		int GetYear() const { return m_iYear; }
 };
 
-/*
- * global, static configuration class
+/**
+ * \brief global, static configuration class
+ * 
  * used to configure layout of TOF & PAD formats etc. before first use of
  * these classes
  */
@@ -207,7 +210,7 @@ class GlobalConfig
 		static std::string m_strCurDir;
 
 	public:
-		// iLen in Ints, nicht Bytes
+		/// \param iLen in Ints, nicht Bytes
 		static bool GuessConfigFromSize(bool bPseudoCompressed, int iLen,
 										bool bIsTof, bool bFirstCall=true);
 		static void Init();

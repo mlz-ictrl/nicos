@@ -106,7 +106,7 @@ void IntegrationDlg::UpdateGraph()
 	const double dRadInc = 1.;
 	const double dAngInc = 0.01;
 
-	// TODO: Use beam center!
+	/// \todo Use beam center!
 	Vec2d<double> vecCenter;
 	vecCenter[0] = doubleSpinBoxX->value();
 	vecCenter[1] = doubleSpinBoxY->value();
@@ -119,7 +119,7 @@ void IntegrationDlg::UpdateGraph()
 
 	double dMax = 1.;
 	for(int i=0; i<tmpGraph.GetWidth(); ++i)
-		dMax = max(dMax, double(tmpGraph.GetData(i)));
+		dMax = std::max(dMax, double(tmpGraph.GetData(i)));
 
 	for(int i=0; i<tmpGraph.GetWidth(); ++i)
 	{
@@ -404,7 +404,7 @@ void CountsVsImagesDlg::UpdateGraph()
 		else
 			uiCnts = pcnt->GetCounts();
 
-		uiMax = max(uiMax, uiCnts);
+		uiMax = std::max(uiMax, uiCnts);
 
 		//pdx[iItem] = iItem;
 		pdy[iItem] = uiCnts;

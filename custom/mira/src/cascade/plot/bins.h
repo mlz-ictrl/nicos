@@ -40,11 +40,11 @@ class Bins
 	public:
 		Bins(int iNumBins, double dMin, double dMax);
 		
-		// Zähler des Bins, in dem dWert liegt, erhöhen
+		/// Zähler des Bins, in dem dWert liegt, erhöhen
 		void Inc(double dWert);
 		double GetMaxVal() const;
 		
-		// in Qwt-kompatibles Format umwandeln
+		/// in Qwt-kompatibles Format umwandeln
 		const QwtArray<QwtDoubleInterval>& GetIntervals() const;
 		const QwtArray<double>& GetValues() const;
 };

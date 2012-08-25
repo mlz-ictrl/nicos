@@ -50,11 +50,11 @@ void BoundingRect::SetInvalidBounds()
 
 void BoundingRect::AddVertex(const Vec2d<double>& vertex)
 {
-	bottomleft[0] = min(bottomleft[0], vertex[0]);
-	bottomleft[1] = min(bottomleft[1], vertex[1]);
+	bottomleft[0] = std::min(bottomleft[0], vertex[0]);
+	bottomleft[1] = std::min(bottomleft[1], vertex[1]);
 
-	topright[0] = max(topright[0], vertex[0]);
-	topright[1] = max(topright[1], vertex[1]);
+	topright[0] = std::max(topright[0], vertex[0]);
+	topright[1] = std::max(topright[1], vertex[1]);
 }
 
 
@@ -98,9 +98,9 @@ bool RoiElement::IsInBoundingRect(double dX, double dY) const
 	return false;
 }
 
-// TODO: directly calculate fraction inside roi element
-//       in the respective child classes; this general
-//       method is horribly inefficient
+/// \todo directly calculate fraction inside roi element
+///       in the respective child classes; this general
+///       method is horribly inefficient
 double RoiElement::HowMuchInside(int iX, int iY) const
 {
 	const double dInc = 0.2;
@@ -126,9 +126,9 @@ RoiRect::RoiRect(const Vec2d<double>& bottomleft,
 		: m_bottomleft(bottomleft), m_topright(topright), m_dAngle(dAngle)
 {
 	if(m_bottomleft[0] > m_topright[0])
-		swap(m_bottomleft[0], m_topright[0]);
+		std::swap(m_bottomleft[0], m_topright[0]);
 	if(m_bottomleft[1] > m_topright[1])
-		swap(m_bottomleft[1], m_topright[1]);
+		std::swap(m_bottomleft[1], m_topright[1]);
 
 	CalculateBoundingRect();
 }
@@ -532,7 +532,7 @@ RoiCircleRing::RoiCircleRing(const Vec2d<double>& vecCenter,
 	if(m_dOuterRadius < 0.) m_dOuterRadius = -m_dOuterRadius;
 
 	if(m_dOuterRadius < m_dInnerRadius)
-		swap(m_dOuterRadius, m_dInnerRadius);
+		std::swap(m_dOuterRadius, m_dInnerRadius);
 
 	CalculateBoundingRect();
 }
@@ -842,7 +842,7 @@ Vec2d<double> RoiCircleSegment::GetVertex(int i) const
 
 void RoiCircleSegment::CalculateBoundingRect()
 {
-	// TODO!!
+	/// \todo
 	RoiCircleRing::CalculateBoundingRect();
 }
 

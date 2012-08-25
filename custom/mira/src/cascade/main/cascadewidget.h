@@ -58,7 +58,7 @@ Q_OBJECT
 		TofImage *m_pTof;
 		TmpImage *m_pTmpImg;
 
-		// Image Container
+		/// Image Container
 		MainRasterData m_data2d;
 
 		int m_iMode;
@@ -74,7 +74,7 @@ Q_OBJECT
 		ContrastsVsImagesDlg* m_pContrastsVsImagesDlg;
 
 		//----------------------------------------------------------------------
-		// ROI curves for qwt
+		/// ROI curves for qwt
 		std::vector<QwtPlotCurve*> m_vecRoiCurves;
 		void UpdateRoiVector();
 		void ClearRoiVector();
@@ -95,28 +95,29 @@ Q_OBJECT
 		void* NewPad();
 		void* NewTof();
 
-		// load PAD or TOF from file
+		/// load PAD or TOF from file
 		bool LoadFile(const char* pcFile);
 
-		// load PAD from file
+		/// load PAD from file
 		bool LoadPadFile(const char* pcFile, bool bBinary);
 		bool LoadPadFile(const char* pcFile);
 		bool LoadPadFileTxt(const char* pcFile);
 
-		// load TOF from file
+		/// load TOF from file
 		bool LoadTofFile(const char* pcFile);
 
-		// load PAD from memory
+		/// load PAD from memory
 		bool LoadPadMem(const char* pcMem, unsigned int iLen);
 
-		// load TOF from memory
+		/// load TOF from memory
 		bool LoadTofMem(const char* pcMem, unsigned int iLen);
 
-		// get total counts of currently loaded PAD or TOF
+		/// get total counts of currently loaded PAD or TOF
 		unsigned int GetCounts() const;
 
-		// loading/saving of ROI elements
+		/// loading of ROI elements
 		bool LoadRoi(const char* pcFile);
+		/// saving of ROI elements
 		bool SaveRoi(const char* pcFile);
 
 		void ForceReinit();
@@ -147,9 +148,9 @@ Q_OBJECT
 		bool ToPDF(const char* pcDst) const;
 
 	public slots:
-		// sum all foils and all time channels
+		/// sum all foils and all time channels
 		void viewOverview();
-		// show single foil
+		/// show single foil
 		void viewSlides();
 		void viewPhases();
 		void viewContrasts();
@@ -184,13 +185,13 @@ Q_OBJECT
 		void RoiDlgAccepted(QAbstractButton*);
 		void RoiHasChanged();
 
-		// internal loopback method for the FileHasChanged signal
+		/// internal loopback method for the FileHasChanged signal
 		void _FileHasChanged(const char* pcFileName);
 
 	signals:
 		void SumDlgSignal(const bool* pbKanaele, int iMode);
 
-		// emitted, when the file or its parameters (e.g. ROI) have changed
+		/// emitted, when the file or its parameters (e.g. ROI) have changed
 		void FileHasChanged(const char* pcFileName=0);
 };
 

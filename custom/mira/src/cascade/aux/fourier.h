@@ -31,6 +31,15 @@
 // standard dft
 // dft formulas from here:
 // http://www.fftw.org/fftw3_doc/The-1d-Discrete-Fourier-Transform-_0028DFT_0029.html#The-1d-Discrete-Fourier-Transform-_0028DFT_0029
+
+/**
+ * calculate one coefficient of the dft
+ * \param k coefficient number
+ * \param pReal real input data
+ * \param pImag imaginary input data
+ * \param n size of data arrays
+ * \return fourier coefficient
+ */
 template<typename T>
 std::complex<T> dft_coeff(int k,
 					const T *pReal, const T *pImag,
@@ -50,6 +59,14 @@ std::complex<T> dft_coeff(int k,
 	return f;
 }
 
+/**
+ * calculate the discrete fourier transform
+ * \param pRealIn real input data
+ * \param pImagIn imaginary input data
+ * \param pRealOut real output data
+ * \param pImagOut imaginary output data
+ * \param n size of data arrays
+ */
 template<typename T>
 void dft(const T *pRealIn, const T *pImagIn,
 			   T *pRealOut, T *pImagOut, unsigned int n)
@@ -62,6 +79,14 @@ void dft(const T *pRealIn, const T *pImagIn,
 	}
 }
 
+/**
+ * calculate one coefficient of the inverse dft
+ * \param k coefficient number
+ * \param pReal real input data
+ * \param pImag imaginary input data
+ * \param n size of data arrays
+ * \return fourier coefficient
+ */
 template<typename T>
 std::complex<T> idft_coeff(int k,
 					const T *pReal, const T *pImag,
@@ -81,6 +106,14 @@ std::complex<T> idft_coeff(int k,
 	return t;
 }
 
+/**
+ * calculate the inverse discrete fourier transform
+ * \param pRealIn real input data
+ * \param pImagIn imaginary input data
+ * \param pRealOut real output data
+ * \param pImagOut imaginary output data
+ * \param n size of data arrays
+ */
 template<typename T>
 void idft(const T *pRealIn, const T *pImagIn,
 				T *pRealOut, T *pImagOut, unsigned int n)
@@ -97,17 +130,21 @@ void idft(const T *pRealIn, const T *pImagIn,
 
 //------------------------------------------------------------------------------
 // algorithms
-// perform a zero-order phase correction;
-// for a description (albeit in the context of NMR) see e.g. here:
-// http://www-keeler.ch.cam.ac.uk/lectures/Irvine/chapter4.pdf
+/**
+ * perform a zero-order phase correction;
+ * for a description (albeit in the context of NMR) see e.g. here:
+ * http://www-keeler.ch.cam.ac.uk/lectures/Irvine/chapter4.pdf
+ */
 template<typename T>
 std::complex<T> phase_correction_0(const std::complex<T>& c, T dPhase)
 {
 	return c * std::complex<T>(cos(-dPhase), sin(-dPhase));
 }
 
-// perform a first-order phase correction:
-// dPhase = dPhaseOffs + x*dPhaseSlope
+/**
+ * perform a first-order phase correction:
+ * dPhase = dPhaseOffs + x*dPhaseSlope
+ */
 template<typename T>
 std::complex<T> phase_correction_1(const std::complex<T>& c,
 								T dPhaseOffs, T dPhaseSlope, T x)
@@ -118,7 +155,9 @@ std::complex<T> phase_correction_1(const std::complex<T>& c,
 
 
 //------------------------------------------------------------------------------
-// fft using fftw
+/**
+ * \brief fft using fftw
+ */
 class Fourier
 {
 	protected:
@@ -127,6 +166,7 @@ class Fourier
 		void *m_pPlan, *m_pPlan_inv;
 
 	public:
+		/// \param iSize size of data arrays
 		Fourier(unsigned int iSize);
 		virtual ~Fourier();
 
@@ -135,20 +175,25 @@ class Fourier
 		bool ifft(const double* pRealIn, const double *pImagIn,
 									double *pRealOut, double *pImagOut);
 
-		// shift a sine given in pDatIn by dPhase
-		// we cannot phase shift a sine directly in the time domain due to
-		// binning constraints; but in the frequency domain the phase is
-		// a continuous variable which we can arbitrarily change and then
-		// transform the data back into the time domain to get a shifted rebinning
+		/// same as phase_correction_0 only with one frequency shifted and
+		/// all others filtered out
 		bool shift_sin(double dNumOsc, const double* pDatIn,
 						double *pDataOut, double dPhase);
 
+		/**
+		 * shift a sine given in pDatIn by dPhase
+		 * we cannot phase shift a sine directly in the time domain due to
+		 * binning constraints; but in the frequency domain the phase is
+		 * a continuous variable which we can arbitrarily change and then
+		 * transform the data back into the time domain to get a shifted rebinning
+		 */
 		bool phase_correction_0(double dNumOsc, const double* pDatIn,
 						double *pDataOut, double dPhase);
 
 		bool phase_correction_1(double dNumOsc, const double* pDatIn,
 						double *pDataOut, double dPhaseOffs, double dPhaseSlope);
 
+		/// calculate MIEZE contrast & phase
 		bool get_contrast(double dNumOsc, const double* pDatIn,
 						  double& dC, double& dPh);
 };

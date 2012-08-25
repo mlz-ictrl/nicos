@@ -30,19 +30,19 @@
 #include "../config/globals.h"
 #include "../loader/tofloader.h"
 
-/*
- * base class for PadData & TofData
+/**
+ * \brief base class for PadData & TofData
  */
 class MainRasterData : public QwtRasterData
 {
 	protected:
-		// log10?
+		/// log10?
 		bool m_bLog;
 		bool m_bPhaseData;
 
-		// has to be a pointer to a pointer since qwt copies
-		// these objects and clearData() wouldn't invalidate
-		// the pointer in the copies
+		/// has to be a pointer to a pointer since qwt copies
+		/// these objects and clearData() wouldn't invalidate
+		/// the pointer in the copies
 		BasicImage** m_pImg;
 
 		bool m_bAutoRange;
@@ -61,14 +61,15 @@ class MainRasterData : public QwtRasterData
 		void SetImage(BasicImage** pImg);
 		BasicImage* GetImage();
 
-		void SetPhaseData(bool bPhaseData);	// wegen Achsen-Range
+		/// due to axis range
+		void SetPhaseData(bool bPhaseData);
 		void clearData();
 
 		virtual QwtRasterData *copy() const;
 		virtual QwtDoubleInterval range() const;
 		virtual double value(double x, double y) const;
 
-		// get (nonlog) raw value without regard to m_bLog
+		/// get (nonlog) raw value without regard to m_bLog
 		double GetValueRaw(int x, int y) const;
 
 		int GetWidth() const;

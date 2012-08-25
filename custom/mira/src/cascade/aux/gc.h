@@ -38,8 +38,8 @@ struct Gc_info
 	Gc_info();
 };
 
-/*
- * Garbage Collector
+/**
+ * \brief Garbage Collector
  */
 class Gc
 {
@@ -47,26 +47,26 @@ class Gc
 		typedef std::map<void*, Gc_info> t_map;
 		t_map m_map;
 
-		// clean everything
+		/// clean everything
 		void kill();
 
 	public:
 		Gc();
 		virtual ~Gc();
 
-		// release unreferenced mem
+		/// release unreferenced mem
 		void gc();
 
-		// allocate mem
+		/// allocate mem
 		void* malloc(unsigned int uiSize, const char* pcDesc=0);
 
-		// add a mem reference
+		/// add a mem reference
 		bool acquire(void* pv);
 
-		// release a mem reference
+		/// release a mem reference
 		bool release(void* pv);
 
-		// total memory allocated
+		/// total memory allocated
 		unsigned int memsize() const;
 
 		void sanity_check() const;

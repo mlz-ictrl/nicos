@@ -27,14 +27,14 @@
 #include <iostream>
 #include "vec2d.h"
 
-/*
- * 2D matrices
+/**
+ * \brief a simple class for calculating with 2d matrices
  */
 template<class T> class Mat2d
 {
 	protected:
-		// ( 00 01 )
-		// ( 10 11 )
+		/// ( 00 01 )
+		/// ( 10 11 )
 		T m_elem[2][2];
 
 	public:
@@ -85,7 +85,7 @@ template<class T> class Mat2d
 			return m_elem[0][0]*m_elem[1][1] - m_elem[0][1]*m_elem[1][0];
 		}
 
-		// see: http://mathworld.wolfram.com/MatrixInverse.html
+		/// see: http://mathworld.wolfram.com/MatrixInverse.html
 		Mat2d<T> inverse() const
 		{
 			Mat2d<T> matRet;
@@ -160,7 +160,7 @@ template<class T> Mat2d<T> operator-(const Mat2d<T>& mat0, const Mat2d<T>& mat1)
 	return matRet;
 }
 
-// scale
+/// scale
 template<class T> Mat2d<T> operator*(const T& t, const Mat2d<T>& mat)
 {
 	Mat2d<T> matRet;
@@ -171,7 +171,7 @@ template<class T> Mat2d<T> operator*(const T& t, const Mat2d<T>& mat)
 	return matRet;
 }
 
-// matrix multiplication
+/// matrix multiplication
 template<class T> Mat2d<T> operator*(const Mat2d<T>& mat0, const Mat2d<T>& mat1)
 {
 	Mat2d<T> matRet;
@@ -184,7 +184,7 @@ template<class T> Mat2d<T> operator*(const Mat2d<T>& mat0, const Mat2d<T>& mat1)
 	return matRet;
 }
 
-// matrix vector multiplication
+/// matrix vector multiplication
 template<class T> Vec2d<T> operator*(const Mat2d<T>& mat, const Vec2d<T>& vec)
 {
 	Vec2d<T> vecRet;

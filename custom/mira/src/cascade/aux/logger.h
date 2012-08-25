@@ -65,17 +65,17 @@ class Logger
 		void purple(bool bBold=false);
 		void normal();
 
-		// the loglevel which controls output
+		/// the loglevel which controls output
 		void SetLogLevel(int iLevel);
 		int GetLogLevel() const;
 
-		// the loglevel for logs using operator <<
+		/// the loglevel for logs using operator <<
 		void SetCurLogLevel(int iLevel);
 		int GetCurLogLevel() const;
 
 		void SetRepeatLogs(bool bRepeat);
 
-		// pcFile==0 => use stderr
+		/// pcFile==0 => use stderr
 		void Init(const char* pcFile=0);
 
 		template<class T> friend Logger& operator<< (Logger& log, const T& t);

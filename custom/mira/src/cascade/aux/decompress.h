@@ -28,7 +28,7 @@
 #include <zlib.h>
 #include "logger.h"
 
-// wrapper for zlib's uncompress function
+/// wrapper for zlib's uncompress function
 bool zlib_decompress(const char* pcIn, int iLenIn, char* pcOut, int& iLenOut)
 {
 	uLong ulLenOut = iLenOut;
