@@ -258,7 +258,10 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
     else:
         # remove semicolon
         del colnames[ystart]
-        del colunits[ystart]
+        try:
+            del colunits[ystart]
+        except IndexError:
+            pass
 
     # now comes the data
     line = f.readline()
@@ -344,11 +347,17 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
     else:
         kicol = -1
 
-    xaxisname = '%s (%s)' % (colnames[xcol], colunits[xcol])
+    try:
+        xaxisname = '%s (%s)' % (colnames[xcol], colunits[xcol])
+    except IndexError:
+        xaxisname = colnames[xcol]
     if normalize:
         yaxisname = 'I (cts/1e5%s)' % monname
     else:
-        yaxisname = '%s (%s)' % (colnames[ycol], colunits[ycol])
+        try:
+            yaxisname = '%s (%s)' % (colnames[ycol], colunits[ycol])
+        except IndexError:
+            yaxisname = colnames[ycol]
     legend = '%s %s %4.2f A-1' % (filename[-10:-4], tasopmode, scanconst)
 
     xs, ys, dys = [], [], []
