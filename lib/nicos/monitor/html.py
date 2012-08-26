@@ -38,8 +38,10 @@ HEAD = '''\
 <head>
 <meta http-equiv="refresh" content="%(intv)s">
 <style type="text/css">
-body { background-color: #cccccc; font-family: '%(ff)s', sans-serif; font-size: %(fs)spx; }
+body { background-color: #cccccc;
+       font-family: '%(ff)s', sans-serif; font-size: %(fs)spx; }
 table { font-family: inherit; font-size: 100%%; }
+.center { text-align: center; }
 .time { text-align: center; font-size: %(fst)s; }
 .timelabel { margin: 0.1em; padding: 0.2em; }
 .column { display: inline-block; vertical-align: middle; }
@@ -51,7 +53,7 @@ table { font-family: inherit; font-size: 100%%; }
 .field td  { text-align: center; }
 .value { font-family: '%(ffm)s', monospace;
          padding: .15em; border: 2px inset #cccccc; }
-.istext { font-family: '%(ff)s', sans-serif !important; font-weight: normal; }
+.istext { font-family: '%(ff)s', sans-serif !important; }
 .unit   { color: #888888; }
 .warnings { margin-top: 1em; background-color: red; font-size: 120%%; }
 </style>
@@ -125,13 +127,14 @@ class Monitor(BaseMonitor):
         )
         add(HEAD % style)
 
-        add('<div class="time">')
+        add('<table class="layout">'
+            '<tr><td><div class="time">')
         self._timelabel = Label('timelabel')
         add(self._timelabel)
-        add('</div>\n<table class="layout">')
+        add('</div></td></tr>\n')
 
         for superrow in self._layout:
-            add('<tr><td>\n')
+            add('<tr><td class="center">\n')
             for column in superrow:
                 add('  <table class="column"><tr><td>')
                 for block in column:
@@ -144,7 +147,7 @@ class Monitor(BaseMonitor):
                         if row is None:
                             blk.add('<tr></tr>')
                         else:
-                            blk.add('<tr><td style="text-align: center">')
+                            blk.add('<tr><td class="center">')
                             for field in row:
                                 blk.add('\n      <table class="field"><tr><td>')
                                 flabel = Label('name', field['width'],
