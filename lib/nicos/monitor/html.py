@@ -42,6 +42,7 @@ body { background-color: #cccccc; font-family: '%(ff)s', sans-serif; font-size: 
 table { font-family: inherit; font-size: 100%%; }
 .time { text-align: center; font-size: %(fst)s; }
 .timelabel { margin: 0.1em; padding: 0.2em; }
+.column { display: inline-block; vertical-align: middle; }
 .blockhead { font-size: %(fsb)spx; text-align: center; font-weight: bold; }
 .block { border: 2px outset #cccccc; padding: .5em; margin: .3em; }
 .blocktable { width: 100%%; }
@@ -130,9 +131,9 @@ class Monitor(BaseMonitor):
         add('</div>\n<table class="layout">')
 
         for superrow in self._layout:
-            add('<tr>')
+            add('<tr><td>\n')
             for column in superrow:
-                add('<td>\n  <table class="column"><tr><td>')
+                add('  <table class="column"><tr><td>')
                 for block in column:
                     blk = Block()
                     blk.add('<div class="block">')
@@ -164,8 +165,8 @@ class Monitor(BaseMonitor):
                     if block[0]['only']:
                         self._onlymap.setdefault(block[0]['only'],
                                                  []).append(blk)
-                add('</td></tr></table>\n</td>')
-            add('</tr>')
+                add('</td></tr></table>\n')
+            add('</td></tr>')
         add('</table>\n')
         self._warnlabel = Label('warnings')
         add(self._warnlabel)
