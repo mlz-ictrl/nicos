@@ -321,9 +321,14 @@ class Monitor(BaseCacheClient):
 
             # set the background color: determined by the value's up-to-dateness
 
-            if value is None or \
-                (field['expired'] and time - field['exptime'] > 0.7):
+            if value is None:
                 self.setBackColor(vlabel, self._gray)
+            elif field['expired']:
+                if time - field['exptime'] > 0.7:
+                    self.setBackColor(vlabel, self._gray)
+                else:
+                    self.setBackColor(vlabel, self._black)
+                    newwatch.add(field)
             else:
                 self.setBackColor(vlabel, self._black)
         self._watch = newwatch
