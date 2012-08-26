@@ -190,11 +190,12 @@ class Monitor(BaseCacheClient):
         setupname = session.explicit_setups[0] + '.py'
         fn = path.join(session.getSetupPath(), setupname)
         if not path.isfile(fn):
-            self.log.info('setup watcher could not find %s' % setupname)
+            self.log.warning('setup watcher could not find %s' % setupname)
             return
         mtime = path.getmtime(fn)
         while True:
             if path.getmtime(fn) != mtime:
+                self.log.info('setup file changed; restarting monitor process')
                 os.execv(sys.executable, [sys.executable] + sys.argv)
                 return
             time.sleep(1)
