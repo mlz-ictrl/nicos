@@ -30,6 +30,7 @@ import sys
 import time
 import traceback
 import __builtin__
+from os import path
 from Queue import Queue
 from threading import Lock, Event, Thread
 
@@ -139,7 +140,7 @@ class ScriptRequest(Request):
             self._exp_script_index = len(session.experiment.scripts) - 1
         if self.name:
             session.elog_event('scriptbegin', self.name)
-            session.beginActionScope(self.name)
+            session.beginActionScope(path.basename(self.name))
         try:
             while self.curblock < len(self.code) - 1:
                 self._run.wait()
@@ -147,7 +148,8 @@ class ScriptRequest(Request):
                 controller.start_exec(self.code[self.curblock],
                                       controller.namespace)
         finally:
-            session.endActionScope()
+            if self.name:
+                session.endActionScope()
             if session.experiment and session.mode == 'master':
                 session.experiment.scripts = session.experiment.scripts[:-1]
             if self.name:
