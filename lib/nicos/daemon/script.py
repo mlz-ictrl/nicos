@@ -282,7 +282,9 @@ class ExecutionController(Controller):
         self.set_observer(self._observer)
 
     def _observer(self, status, lineno):
-        self.eventfunc('status', (status, lineno))
+        # subtract 1 from lineno since the compilation steps adds a comment
+        # line with coding info, which is not present in the original script
+        self.eventfunc('status', (status, lineno - 1))
 
     def _breakfunc(self, frame, arg):
         self.log.info('script interrupted in %s' % self.current_location())
