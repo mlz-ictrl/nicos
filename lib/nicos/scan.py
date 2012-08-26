@@ -489,7 +489,7 @@ class ContinuousScan(Scan):
             for det in detlist:
                 try:
                     det.stop()
-                except Exception, err:
+                except Exception:
                     session.log.warning('could not stop %s' % det, exc=1)
             session.endActionScope()
             device.stop()
