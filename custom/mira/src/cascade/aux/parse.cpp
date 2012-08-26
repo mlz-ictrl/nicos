@@ -26,14 +26,7 @@
 #include <iostream>
 #include "helper.h"
 #include "logger.h"
-
-#ifdef USE_BOOST
-	#include <boost/xpressive/xpressive.hpp>
-	#include <boost/xpressive/regex_actions.hpp>
-	using namespace boost::xpressive;
-#else
-	#include <sstream>
-#endif
+#include <sstream>
 
 
 ArgumentMap::ArgumentMap(const char* pcStr)
@@ -49,21 +42,6 @@ ArgumentMap::~ArgumentMap()
 void ArgumentMap::add(const char* pcStr)
 {
 	std::string str = trim(std::string(pcStr));
-
-#ifdef USE_BOOST // use cooler boost version or plain old manual version?
-
-	// diese sregex-Ausdrücke basieren auf dem Beispiel zu
-	// "Semantic Actions and User-Defined Assertions"
-	// aus der xpressive-Dokumentation:
-	// http://www.boost.org/doc/libs/1_46_1/doc/html/xpressive/user_s_guide.html
-	sregex keyvalue = ((s1 = +_w) >>
-					   *_s >> "=" >> *_s >>
-					   (s2 = +_w))
-					  [ref(m_mapArgs)[s1] = as<std::string>(s2)];
-	regex_match(str, sregex(keyvalue >> *(+_s >> keyvalue)));
-
-#else
-
 	std::istringstream istr(str);
 
 	while(!istr.eof())
@@ -92,8 +70,6 @@ void ArgumentMap::add(const char* pcStr)
 		//			<< "\", Rechts: \"" << strRechts << "\""
 		//			<< std::endl;
 	}
-
-#endif //USE_BOOST
 }
 //----------------------------------------------------------------------
 

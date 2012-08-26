@@ -315,14 +315,15 @@ class MainWindow : public QMainWindow
 					if(!GlobalConfig::GuessConfigFromSize(0,(iLen-4)/4,
 																		false))
 					{
-						char pcMsg[256];
-						sprintf(pcMsg, "Dimension mismatch in PAD data!\n"
-								"Client expected: %d bytes\n"
-								"Server sent: %d bytes",
-								(int)sizeof(int)*
+						QString strMsg("Dimension mismatch in PAD data!\n"
+								"Client expected: %1 bytes\n"
+								"Server sent: %2 bytes");
+
+						strMsg = strMsg.arg((int)sizeof(int)*
 								conf.GetImageHeight()*
-								conf.GetImageWidth(), iLen-4);
-						QMessageBox::critical(0, "Cascade - Server", pcMsg,
+								conf.GetImageWidth()).arg(iLen-4);
+						
+						QMessageBox::critical(0, "Cascade - Server", strMsg,
 															QMessageBox::Ok);
 						return;
 					}
@@ -384,12 +385,13 @@ class MainWindow : public QMainWindow
 						GetTofConfig().GetPseudoCompression(),
 								(iLen-4)/4, true))
 					{
-						char pcMsg[256];
-						sprintf(pcMsg, "Dimension mismatch in TOF data!\n"
-									   "Client expected: %d bytes\n"
-									   "Server sent: %d bytes",
-									   iExpectedSize, iLen-4);
-						QMessageBox::critical(0, "Cascade - Server", pcMsg,
+						QString strMsg("Dimension mismatch in TOF data!\n"
+									   "Client expected: %1 bytes\n"
+									   "Server sent: %2 bytes");
+
+						strMsg = strMsg.arg(iExpectedSize).arg(iLen-4);
+						
+						QMessageBox::critical(0, "Cascade - Server", strMsg,
 												QMessageBox::Ok);
 						return;
 					}
@@ -579,9 +581,9 @@ class MainWindow : public QMainWindow
 			m_cascadewidget.UpdateGraph();
 			UpdateLabels(false);
 
-			char pcFolie[128];
-			sprintf(pcFolie,"Foil (%0d):",m_cascadewidget.GetFoil()+1);
-			labelFolie->setText(pcFolie);
+			QString strFoil("Foil (%1):");
+			strFoil = strFoil.arg(m_cascadewidget.GetFoil()+1);
+			labelFolie->setText(strFoil);
 		}
 
 		// Callback vom Kanal-Slider
@@ -610,10 +612,9 @@ class MainWindow : public QMainWindow
 			m_cascadewidget.UpdateGraph();
 			UpdateLabels(false);
 
-			char pcKanal[128];
-			sprintf(pcKanal,"Time Channel (%.2d):",
-					m_cascadewidget.GetTimechannel()+1);
-			labelZeitkanal->setText(pcKanal);
+			QString strTC("Time Channel (%1):");
+			strTC = strTC.arg(m_cascadewidget.GetTimechannel()+1);
+			labelZeitkanal->setText(strTC);
 		}
 
 		void SetLog10(bool bLog)
@@ -757,12 +758,13 @@ class MainWindow : public QMainWindow
 						SrvDlg.editAddress->text().toAscii().data(),
 						SrvDlg.editPort->text().toInt()))
 				{
-					char pcBuf[512];
-					sprintf(pcBuf, "Could not connect to server\n"
-								   "\"%s\"\nat port %d.",
-								   SrvDlg.editAddress->text().toAscii().data(),
-								   SrvDlg.editPort->text().toInt());
-					QMessageBox::critical(0, "Error", pcBuf, QMessageBox::Ok);
+					QString strBuf("Could not connect to server\n"
+								   "\"%1\"\nat port %2.");
+					strBuf = strBuf.arg(SrvDlg.editAddress->text()).
+									arg(SrvDlg.editPort->text()).
+									arg(SrvDlg.editPort->text());
+					
+					QMessageBox::critical(0, "Error", strBuf, QMessageBox::Ok);
 					return;
 				}
 
@@ -1180,10 +1182,6 @@ class MainWindow : public QMainWindow
 			strAbout += QString("\n") + QString("Uses FFTW 3\t\thttp://www.fftw.org");
 			#endif
 
-			#ifdef USE_BOOST
-			strAbout += QString("\n") + QString("Uses Boost\t\thttp://www.boost.org");
-			#endif
-
 			#ifdef USE_XML
 			strAbout += QString("\n") + QString("Uses libxml 2\t\thttp://xmlsoft.org");
 			#endif
@@ -1243,6 +1241,7 @@ class MainWindow : public QMainWindow
 			sliderFolien->setMinimum(0);
 			sliderFolien->setValue(0);
 			labelFolie->setText("Foil:");
+			labelFolie->setMinimumWidth(100);
 			//ChangeFolie(0);
 			pLayoutBL->addWidget(sliderFolien, 0, 1, 1, 1);
 
@@ -1255,6 +1254,7 @@ class MainWindow : public QMainWindow
 
 			sliderZeitkanaele->setValue(0);
 			labelZeitkanal->setText("Time Channel:");
+			labelZeitkanal->setMinimumWidth(100);
 			//ChangeZeitkanal(0);
 			UpdateSliders();
 
@@ -1842,10 +1842,11 @@ int main(int argc, char **argv)
 		const char pcConfigFile[] = "./cascade.xml";
 		if(!Config::GetSingleton()->Load(pcConfigFile))
 		{
-			char pcMsg[512];
-			sprintf(pcMsg, "Configuration file \"%s\" could not be found.\n"
-						   "Using default configuration.", pcConfigFile);
-			QMessageBox::warning(0, "Warning", pcMsg, QMessageBox::Ok);
+			QString strMsg("Configuration file \"%1\" could not be found.\n"
+						   "Using default configuration.");
+			strMsg = strMsg.arg(pcConfigFile);
+			
+			QMessageBox::warning(0, "Warning", strMsg, QMessageBox::Ok);
 
 			bConfigOk = false;
 		}

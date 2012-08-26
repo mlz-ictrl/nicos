@@ -32,7 +32,6 @@
 
 #ifdef __CASCADE_QT_CLIENT__
 	#define USE_FFTW
-	//#define USE_BOOST
 	#define USE_XML
 #endif
 
