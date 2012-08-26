@@ -132,7 +132,10 @@ class Scan(object):
         session.elog_event('scanbegin', dataset)
 
     def preparePoint(self, num, xvalues):
-        session.beginActionScope('Point %d/%d' % (num, self._npoints))
+        if self._npoints == 0:
+            session.beginActionScope('Point %d' % num)
+        else:
+            session.beginActionScope('Point %d/%d' % (num, self._npoints))
         self.dataset.curpoint = num
 
     def addPoint(self, xvalues, yvalues):
