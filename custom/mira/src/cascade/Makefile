@@ -34,11 +34,12 @@ all: cascade nicosmodules
 cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o \
 	 config.o xml.o histogram_item.o client.o helper.o logger.o globals.o parse.o \
 	roi.o fit.o gc.o plotter.o padloader.o fourier.o
-	$(COMPILER) $(FLAGS) $(LIBS) -o cascade cascade.o cascadedialogs.o \
+	$(COMPILER) $(FLAGS) -o cascade cascade.o cascadedialogs.o \
 		bins.o cascadewidget.o tofloader.o tofdata.o config.o \
 		xml.o \
 		histogram_item.o client.o helper.o logger.o globals.o \
-		parse.o roi.o fit.o gc.o plotter.o padloader.o fourier.o
+		parse.o roi.o fit.o gc.o plotter.o padloader.o fourier.o \
+		${LIBS}
 #########################################################
 
 
