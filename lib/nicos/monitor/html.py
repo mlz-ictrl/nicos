@@ -36,6 +36,7 @@ from nicos.monitor import Monitor as BaseMonitor
 HEAD = '''\
 <html>
 <head>
+<meta http-equiv="refresh" content="%(intv)s">
 <style type="text/css">
 body { background-color: #cccccc; font-family: '%(ff)s', sans-serif; font-size: %(fs)spx; }
 table { font-family: inherit; font-size: 100%%; }
@@ -118,22 +119,23 @@ class Monitor(BaseMonitor):
             fst = self._fontsize + self._fontsizebig,
             fsb = self._fontsizebig,
             ff = self.font,
-            ffm = self.valuefont or self.font
+            ffm = self.valuefont or self.font,
+            intv = self.interval,
         )
         add(HEAD % style)
 
         add('<div class="time">')
         self._timelabel = Label('timelabel')
         add(self._timelabel)
-        add('</div>\n<table>')
+        add('</div>\n<table class="layout">')
 
         for superrow in self._layout:
-            add('<tr><td>')
+            add('<tr>')
             for column in superrow:
-                add('\n  <table><tr>')
+                add('<td>\n  <table class="column"><tr><td>')
                 for block in column:
                     blk = Block()
-                    blk.add('<td><div class="block">')
+                    blk.add('<div class="block">')
                     blk.add('<div class="blockhead">%s</div>' %
                             escape(block[0]['name']))
                     blk.add('\n    <table class="blocktable">')
@@ -141,7 +143,7 @@ class Monitor(BaseMonitor):
                         if row is None:
                             blk.add('<tr></tr>')
                         else:
-                            blk.add('<tr><td>')
+                            blk.add('<tr><td style="text-align: center">')
                             for field in row:
                                 blk.add('\n      <table class="field"><tr><td>')
                                 flabel = Label('name', field['width'],
@@ -157,13 +159,13 @@ class Monitor(BaseMonitor):
                                 blk.add('</td></tr></table> ')
                                 self.updateKeymap(field)
                             blk.add('\n    </td></tr>')
-                    blk.add('</table>\n  </div></td>')
+                    blk.add('</table>\n  </div>')
                     add(blk)
                     if block[0]['only']:
                         self._onlymap.setdefault(block[0]['only'],
                                                  []).append(blk)
-                add('</tr></table>\n')
-            add('</td></tr>')
+                add('</td></tr></table>\n</td>')
+            add('</tr>')
         add('</table>\n')
         self._warnlabel = Label('warnings')
         add(self._warnlabel)
