@@ -139,6 +139,7 @@ class ScriptRequest(Request):
             self._exp_script_index = len(session.experiment.scripts) - 1
         if self.name:
             session.elog_event('scriptbegin', self.name)
+            session.beginActionScope(self.name)
         try:
             while self.curblock < len(self.code) - 1:
                 self._run.wait()
@@ -146,6 +147,7 @@ class ScriptRequest(Request):
                 controller.start_exec(self.code[self.curblock],
                                       controller.namespace)
         finally:
+            session.endActionScope()
             if session.experiment and session.mode == 'master':
                 session.experiment.scripts = session.experiment.scripts[:-1]
             if self.name:
