@@ -45,10 +45,24 @@ class MonitorWindow(QMainWindow):
             self.close()
         return QMainWindow.keyPressEvent(self, event)
 
-class SensitiveLabel(QLabel):
+class SMLabel(QLabel):
+    """A label with default event handlers for setting text and colors."""
+    def __init__(self, text, parent):
+        QLabel.__init__(self, text, parent)
+        self.connect(self, SIGNAL('settext'), self.setText)
+        self.connect(self, SIGNAL('setcolors'), self.setColors)
+    def setColors(self, fore, back):
+        pal = self.palette()
+        if fore is not None:
+            pal.setColor(QPalette.WindowText, fore)
+        if back is not None:
+            pal.setColor(QPalette.Window, back)
+        self.setPalette(pal)
+
+class SensitiveLabel(SMLabel):
     """A label that calls back when entered/left by the mouse."""
     def __init__(self, text, parent, enter, leave):
-        QLabel.__init__(self, text, parent)
+        SMLabel.__init__(self, text, parent)
         self._enter = enter
         self._leave = leave
     def enterEvent(self, event):
@@ -148,7 +162,7 @@ class Monitor(BaseMonitor):
         # first the timeframe:
         masterframe = QFrame(master)
         masterlayout = QVBoxLayout()
-        self._timelabel = QLabel('', master)
+        self._timelabel = SMLabel('', master)
         self._timelabel.setFont(timefont)
         self.setForeColor(self._timelabel, self._gray)
         self._timelabel.setAutoFillBackground(True)
@@ -166,7 +180,7 @@ class Monitor(BaseMonitor):
         def _create_field(groupframe, field):
             fieldlayout = QVBoxLayout()
             # now put describing label and view label into subframe
-            l = QLabel(' ' + escape(field['name']) + ' ', groupframe)
+            l = SMLabel(' ' + escape(field['name']) + ' ', groupframe)
             if field['unit']:
                 self.setLabelUnitText(l, field['name'], field['unit'])
             l.setFont(labelfont)
@@ -277,27 +291,21 @@ class Monitor(BaseMonitor):
         master.statusBar().addWidget(self._statuslabel)
         self._statustimer = None
 
-    setLabelText = QLabel.setText
+    def setLabelText(self, label, text):
+        label.emit(SIGNAL('settext'), text)
 
     def setLabelUnitText(self, label, text, unit):
-        label.setText(escape(text) +
-                      ' <font color="#888888">%s</font> ' % escape(unit))
+        label.emit(SIGNAL('settext'), escape(text) +
+                   ' <font color="#888888">%s</font> ' % escape(unit))
 
     def setForeColor(self, label, fore):
-        pal = label.palette()
-        pal.setColor(QPalette.WindowText, fore)
-        label.setPalette(pal)
+        label.emit(SIGNAL('setcolors'), fore, None)
 
     def setBackColor(self, label, back):
-        pal = label.palette()
-        pal.setColor(QPalette.Window, back)
-        label.setPalette(pal)
+        label.emit(SIGNAL('setcolors'), None, back)
 
     def setBothColors(self, label, fore, back):
-        pal = label.palette()
-        pal.setColor(QPalette.WindowText, fore)
-        pal.setColor(QPalette.Window, back)
-        label.setPalette(pal)
+        label.emit(SIGNAL('setcolors'), fore, back)
 
     def switchWarnPanel(self, off=False):
         if self._stacker.currentIndex() == 1 or off:
