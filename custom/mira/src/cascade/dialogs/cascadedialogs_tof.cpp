@@ -136,9 +136,11 @@ SumDlg::SumDlg(QWidget *pParent) : QDialog(pParent)
 	for(int iFolie=0; iFolie<conf.GetFoilCount(); ++iFolie)
 	{
 		m_pTreeItemsFolien[iFolie] = new QTreeWidgetItem(treeWidget);
-		char pcName[256];
-		sprintf(pcName, "Foil %d", iFolie+1);
-		m_pTreeItemsFolien[iFolie]->setText(0, pcName);
+		
+		QString strName;
+		strName = "Foil %1";
+		strName = strName.arg(iFolie+1);
+		m_pTreeItemsFolien[iFolie]->setText(0, strName);
 		m_pTreeItemsFolien[iFolie]->setCheckState(0, Qt::Unchecked);
 
 		for(int iKanal=0; iKanal<conf.GetImagesPerFoil(); ++iKanal)
@@ -147,9 +149,11 @@ SumDlg::SumDlg(QWidget *pParent) : QDialog(pParent)
 								new QTreeWidgetItem(m_pTreeItemsFolien[iFolie]);
 			m_pTreeItems[iFolie*conf.GetImagesPerFoil() + iKanal]
 											->setCheckState(0, Qt::Unchecked);
-			sprintf(pcName, "Time Channel %d", iKanal+1);
+
+			strName = "Time Channel %1";
+			strName = strName.arg(iKanal+1);
 			m_pTreeItems[iFolie*conf.GetImagesPerFoil() + iKanal]
-														->setText(0, pcName);
+														->setText(0, strName);
 		}
 	}
 
@@ -212,9 +216,10 @@ SumDlgNoChannels::SumDlgNoChannels(QWidget *pParent) : QDialog(pParent)
 	for(int iFolie=0; iFolie<conf.GetFoilCount(); ++iFolie)
 	{
 		m_pTreeItemsFolien[iFolie] = new QTreeWidgetItem(treeWidget);
-		char pcName[256];
-		sprintf(pcName, "Foil %d", iFolie+1);
-		m_pTreeItemsFolien[iFolie]->setText(0, pcName);
+		
+		QString strName("Foil %1");
+		strName = strName.arg(iFolie+1);
+		m_pTreeItemsFolien[iFolie]->setText(0, strName);
 		m_pTreeItemsFolien[iFolie]->setCheckState(0, Qt::Unchecked);
 	}
 
@@ -278,20 +283,20 @@ void GraphDlg::UpdateGraph(void)
 					dContrast, dContrast_err))
 			bFitValid = false;
 
-		char pcFit[256];
+		QString strFit;
 		if(bFitValid)
 		{
-			sprintf(pcFit, "Contrast: %g +- %g\nPhase: %g deg +- %g deg",
-							dContrast, dContrast_err,
-							dPhase/M_PI*180., dPhase_err/M_PI*180.);
+			strFit = QString("Contrast: %1 +- %2\nPhase: %3 deg +- %4 deg").
+						arg(dContrast).arg(dContrast_err).
+						arg(dPhase/M_PI*180.).arg(dPhase_err/M_PI*180.);
 		}
 		else
 		{
-			sprintf(pcFit, "Fit invalid!");
+			strFit = "Fit invalid!";
 			dAmp = dFreq = dPhase = dOffs = 0.;
 		}
 
-		labelFit->setText(pcFit);
+		labelFit->setText(strFit);
 
 		pdx = new double[conf.GetImagesPerFoil()*FITPUNKTE];
 		pdy = new double[conf.GetImagesPerFoil()*FITPUNKTE];
@@ -350,20 +355,20 @@ void GraphDlg::UpdateGraph(void)
 					 dContrast, dContrast_err))
 			bFitValid = false;
 
-		char pcFit[256];
+		QString strFit;
 		if(bFitValid)
 		{
-			sprintf(pcFit, "Contrast: %g +- %g\nPhase: %g deg +- %g deg",
-							dContrast, dContrast_err,
-							dPhase/M_PI*180., dPhase_err/M_PI*180.);
+			strFit = QString("Contrast: %1 +- %2\nPhase: %3 deg +- %4 deg").
+						arg(dContrast).arg(dContrast_err).
+						arg(dPhase/M_PI*180.).arg(dPhase_err/M_PI*180.);
 		}
 		else
 		{
-			sprintf(pcFit, "Fit invalid!");
+			strFit = "Fit invalid!";
 			dAmp = dFreq = dPhase = dOffs = 0.;
 		}
 
-		labelTotal->setText(pcFit);
+		labelTotal->setText(strFit);
 
 		pdx = new double[conf.GetImagesPerFoil()*FITPUNKTE];
 		pdy = new double[conf.GetImagesPerFoil()*FITPUNKTE];
