@@ -364,6 +364,12 @@ class CacheClient(BaseCacheClient):
             if time > self._master_expires:
                 self._master_expires = time + self._mastertimeout - 1
                 self.lock('master', self._mastertimeout)
+                self.put('session', 'master', session.sessionid,
+                         ttl=self._mastertimeout)
+
+    def _unlock_master(self):
+        self.unlock('master')
+        self.put('session', 'master', '')
 
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         if op not in (OP_TELL, OP_TELLOLD) or not key.startswith(self._prefix):

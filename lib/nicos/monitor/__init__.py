@@ -149,6 +149,8 @@ class Monitor(BaseCacheClient):
         self._onlymap = {}
         # remembers loaded setups
         self._setups = set()
+        # master active?
+        self._masteractive = False
         # maps warning keys
         self._warnmap = {}
         # current warnings
@@ -282,8 +284,9 @@ class Monitor(BaseCacheClient):
     # called while waiting for data
     def _wait_data(self):
         # update current time
-        self.setLabelText(self._timelabel, '%s (%s)' %
-                          (self.title, strftime('%d.%m.%Y %H:%M:%S')))
+        self.setLabelText(self._timelabel, '%s (%s)%s' %
+                          (self.title, strftime('%d.%m.%Y %H:%M:%S'),
+                           '' if self._masteractive else ', no master active'))
 
         # adjust the colors of status displays
         newwatch = set()
@@ -357,6 +360,9 @@ class Monitor(BaseCacheClient):
             pass
 
         #self.log.debug('processing %s' % [time, ttl, key, op, value])
+
+        if key == self._prefix + 'session/master':
+            self._masteractive = value and op != OP_TELLOLD
 
         if key == self._prefix + 'session/mastersetup':
             self._setups = set(value)

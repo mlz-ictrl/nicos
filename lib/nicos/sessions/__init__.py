@@ -210,7 +210,7 @@ class Session(object):
             if cache and cache._ismaster:
                 cache._ismaster = False
                 try:
-                    cache.unlock('master')
+                    cache._unlock_master()
                 except CacheError:
                     self.log.warning('could not release master lock')
             elif mode == 'maintenance':
@@ -554,7 +554,7 @@ class Session(object):
         if self._mode == 'master' and self.cache:
             self.cache._ismaster = False
             try:
-                self.cache.unlock('master')
+                self.cache._unlock_master()
             except CacheError:
                 self.log.warning('could not release master lock', exc=1)
         self.unloadSetup()
