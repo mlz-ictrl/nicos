@@ -39,6 +39,7 @@ Requirements
   - MySQLdb (optional, for proposal DB query)
   - python-xmpp (optional, for Jabber notifications)
   - pyserial (optional, for TACO-less serial line communication)
+  - matplotlib (optional, for resolution plots)
 
 * For the GUI:
   - PyQt4
