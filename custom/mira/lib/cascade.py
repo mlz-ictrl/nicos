@@ -59,7 +59,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         'mode':     Param('Data acquisition mode (tof or image)',
                           type=oneof('tof', 'image'), settable=True),
         'slave':    Param('Slave mode: start together with master device',
-                          type=bool),
+                          type=bool, settable=True),
         'preselection': Param('Current preselection', unit='s',
                               settable=True, type=float),
         'lastcounts': Param('Counts of the last measurement',
