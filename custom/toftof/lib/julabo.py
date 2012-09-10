@@ -98,7 +98,7 @@ class Julabo(TacoDevice, HasLimits, Moveable):
     def doStop(self):
         # stop ramp/step immediately
         if self.thermostat_type == "JulaboF32HD":
-            self._write("out_mode_05 0")
+            self._write("out_sp_00 %s" % read())
 
     def doStatus(self, maxage=0):
         if abs(self.read() - self.setpoint) > self.tolerance:
