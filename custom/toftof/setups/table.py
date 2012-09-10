@@ -41,6 +41,7 @@ devices = dict(
                    std_speed = 120,
                    ref_speed = 100,
                    timeout = 120,
+#		   pollinterval = 5,
                    unit = 'deg',
                    fmtstr = '%g'),
 )

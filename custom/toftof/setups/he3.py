@@ -1,9 +1,11 @@
 description = 'He 3 insert and gas handling'
 includes = ['system']
 
+nethost="cryo1.toftof.frm2"
+
 devices = dict(
     he3 = device('nicos.taco.temperature.TemperatureController',
-                 tacodevice = '//cryo4/cryo/ls370/control',
+                 tacodevice = '//%s/cryo/ls370/control' % (nethost, ),
                  userlimits = (0, 300),
                  abslimits = (0, 300),
                  p = 50,
@@ -18,12 +20,12 @@ devices = dict(
                  sensor_d = None),
 
     sensor_a = device('nicos.taco.temperature.TemperatureSensor',
-                 tacodevice = '//cryo4/cryo/ls370/sensora',
+                 tacodevice = '//%s/cryo/ls370/sensora' % (nethost, ),
                  unit = 'K',
                  fmtstr = '%g'),
 
     sensor_b = device('nicos.taco.temperature.TemperatureSensor',
-                 tacodevice = '//cryo4/cryo/ls370/sensorb',
+                 tacodevice = '//%s/cryo/ls370/sensorb' % (nethost, ),
                  unit = 'K',
                  fmtstr = '%g'),
 )

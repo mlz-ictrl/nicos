@@ -20,8 +20,8 @@ devices = dict(
 
     cryo_tube = device('nicos.taco.temperature.TemperatureController',
                     tacodevice = '//toftofsrv/toftof/ls1/control',
-                    userlimits = (0, 400),
-                    abslimits = (0, 400),
+                    userlimits = (0, 600),
+                    abslimits = (0, 600),
                     p = 50,
                     i = 10,
                     d = 0,

@@ -17,10 +17,11 @@ devices = dict(
     Exp      = device('nicos.experiment.Experiment',
                       dataroot = '/users/data',
                       sample = 'Sample',
+                      localcontact = 'M. Mustermann',
                       elog = False),
 
     filesink = device('nicos.data.AsciiDatafileSink',
-                      prefix = 'data'),
+                      prefix = '/users/data'),
 
     conssink = device('nicos.data.ConsoleSink'),
 

@@ -1,8 +1,10 @@
 includes = ['system']
 
+nethost = '//toftofsrv.toftof.frm2/'
+
 devices = dict(
     lvbus = device('nicos.toftof.toni.ModBus',
-                   tacodevice = 'toftof/rs232/ifpowersupply',
+                   tacodevice = nethost + 'toftof/rs232/ifpowersupply',
                    lowlevel = True),
     lv0   = device('nicos.toftof.toni.LVPower',
                    bus = 'lvbus',
@@ -46,7 +48,7 @@ devices = dict(
                    maxage = 12),
 
     hvbus = device('nicos.toftof.toni.ModBus',
-                   tacodevice = 'toftof/rs232/ifpowersupply',
+                   tacodevice = nethost + 'toftof/rs232/ifpowersupply',
                    lowlevel = True),
 #    hv0   = device('nicos.toftof.iseg.IsegHV',
 #                   bus = 'hvbus',
