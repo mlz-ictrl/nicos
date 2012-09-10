@@ -26,8 +26,8 @@
 
 __version__ = "$Revision$"
 
-from PyQt4.QtCore import QUrl, pyqtSignature as qtsig
 from PyQt4.QtGui import QMainWindow
+from PyQt4.QtCore import QUrl, pyqtSignature as qtsig
 from PyQt4.QtWebKit import QWebPage
 
 from nicos.gui.utils import loadUi

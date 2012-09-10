@@ -30,9 +30,9 @@ import re
 import time
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 
-from PyQt4.QtCore import Qt, QRegExp
 from PyQt4.QtGui import QTextCharFormat, QBrush, QColor, QFont, QTextBrowser, \
      QTextCursor, QMainWindow, QTextEdit
+from PyQt4.QtCore import Qt, QRegExp
 
 from nicos.utils.loggers import INPUT, OUTPUT, ACTION
 

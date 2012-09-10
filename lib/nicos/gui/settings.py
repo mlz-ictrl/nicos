@@ -30,9 +30,9 @@ __version__ = "$Revision$"
 
 import uuid
 
-from PyQt4.QtCore import Qt, QVariant
 from PyQt4.QtGui import QDialog, QIntValidator, QTreeWidgetItem, QInputDialog, \
      QWidget, QListWidgetItem
+from PyQt4.QtCore import Qt, QVariant
 
 from nicos.gui.utils import loadUi, DlgUtils
 

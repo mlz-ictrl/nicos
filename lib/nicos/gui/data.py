@@ -32,8 +32,8 @@ from itertools import chain
 
 import numpy as np
 
-from PyQt4.QtCore import QObject, SIGNAL
 from PyQt4.QtGui import QApplication, QProgressDialog
+from PyQt4.QtCore import QObject, SIGNAL
 
 
 class DataError(Exception):

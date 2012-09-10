@@ -34,9 +34,9 @@ import tempfile
 
 from numpy import asarray
 
-from PyQt4.QtCore import Qt, QRectF, QLine, QSize, SIGNAL
 from PyQt4.QtGui import QPen, QPainter, QBrush, QPalette, QFont, QFileDialog, \
      QPrinter, QPrintDialog, QDialog, QImage
+from PyQt4.QtCore import Qt, QRectF, QLine, QSize, SIGNAL
 from PyQt4.Qwt5 import Qwt, QwtPlot, QwtPlotItem, QwtPlotCurve, QwtPlotPicker, \
      QwtLog10ScaleEngine, QwtSymbol, QwtPlotZoomer, QwtPicker, QwtPlotGrid, \
      QwtText, QwtLegend, QwtScaleDraw, QwtLinearScaleEngine, QwtScaleDiv, \

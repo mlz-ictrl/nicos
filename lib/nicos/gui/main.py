@@ -32,12 +32,12 @@ import time
 import subprocess
 import cPickle as pickle
 
-from PyQt4.QtCore import Qt, QObject, QTimer, QSize, QVariant, QStringList, \
-     SIGNAL
-from PyQt4.QtCore import pyqtSignature as qtsig
 from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
      QLabel, QSystemTrayIcon, QStyle, QPixmap, QMenu, QIcon, QAction, \
      QFontDialog, QColorDialog
+from PyQt4.QtCore import Qt, QObject, QTimer, QSize, QVariant, QStringList, \
+     SIGNAL
+from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos import nicos_version
 from nicos.gui.data import DataHandler

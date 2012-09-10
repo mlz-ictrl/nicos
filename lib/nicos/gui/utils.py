@@ -35,10 +35,10 @@ from os import path
 from itertools import islice, chain
 
 from PyQt4 import uic
-from PyQt4.QtCore import Qt, QSettings, QVariant, QDateTime, QSize, SIGNAL
 from PyQt4.QtGui import QApplication, QDialog, QProgressDialog, QMessageBox, \
      QPushButton, QTreeWidgetItem, QPalette, QFont, QClipboard, QDialogButtonBox, \
      QToolButton, QFileDialog, QLabel, QTextEdit, QWidget, QVBoxLayout, QColor
+from PyQt4.QtCore import Qt, QSettings, QVariant, QDateTime, QSize, SIGNAL
 
 from nicos.daemon import DEFAULT_PORT
 
