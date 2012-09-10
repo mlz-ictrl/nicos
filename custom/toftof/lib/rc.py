@@ -66,6 +66,7 @@ class ModBusDriverHP(TacoDevice, Device):
             else:
                 raise ProgrammingError(self, 'unknown command: %s' % (istr2,))
         maxtry = self.maxtries
+        self.log.debug('bus write : %s' % (istr,))
         while 1:
             if hcmd[0] == 3:
                 ret = self._taco_guard(self._dev.communicate, istr)
@@ -77,7 +78,7 @@ class ModBusDriverHP(TacoDevice, Device):
                 return ret
             else:
                 self._taco_guard(self._dev.writeLine, istr)
-                sleep(0.01)
+                sleep(0.1)
                 return "ok"
 
     def doInit(self, mode):
@@ -153,7 +154,8 @@ class RadialCollimator(Moveable):
         else:
             #self._adevs['bus'].write("osc%d:0" % (self.address,))
             #sleep(0.1)
-            bus.write("q")
+            #bus.write("q%d" % (self.address,))
+            bus.write("q" % ())
 
     def doStop(self):
         self.log.info('note: radial collimator does not use stop() anymore, '
@@ -166,13 +168,13 @@ class RadialCollimator(Moveable):
             raise CommunicationError(self, 'could not get the status of the '
                                      'motor axis of the radial collimator')
         val = int(ret[ret.find(":")+1:-1])
-#       print '%d, 0x%04x' % (val, val)
-        if (val & 0x100) == 0x100:   # Oscillation active
-            return (status.BUSY, 'oscillating')
+        self.log.debug('%d, 0x%04x' % (val, val))
+        if (val & 0x001) == 0x001: # Controller passive
+            return (status.OK, 'stopped')
         elif (val & 0x040) == 0x040: # Program execution active
             return (status.BUSY, 'oscillating')
-        elif (val & 0x001) == 0x001: # Controller passive
-            return (status.OK, 'stopped')
+        elif (val & 0x100) == 0x100:   # Oscillation active
+            return (status.BUSY, 'oscillating')
         else:
             return (status.UNKNOWN, 'unknown')
 
