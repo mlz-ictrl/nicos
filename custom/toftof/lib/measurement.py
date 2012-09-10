@@ -217,7 +217,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         head = []
         head.append('File_Creation_Time: %s\n' % asctime())
         head.append('Title: %s\n' % self._curtitle)
-        head.append('ExperimentTitle: %s\n' % session.experiment.title)
+        head.append('ExperimentTitle: %s\n' % session.experiment.sample.samplename)
         head.append('ProposalTitle: %s\n' % session.experiment.title)
         head.append('ProposalNr: %s\n' % session.experiment.proposal)
         head.append('ExperimentTeam: %s\n' % ', '.join(session.experiment.users))
@@ -267,7 +267,8 @@ class TofTofMeasurement(Measurable, ImageStorage):
         head.append('Chopper_CRC: %s\n' % chcrc)
         head.append('Chopper_SlitType: %s\n' % chst)
         head.append('Chopper_Delay: %s\n' % chdelay)
-        for i in range(4):
+#       for i in range(4):
+        for i in range(0):
             try:
                 value = session.getDevice('vac%d' % i).read()
             except NicosError:
