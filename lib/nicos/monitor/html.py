@@ -57,6 +57,7 @@ table { font-family: inherit; font-size: 100%%; }
 .unit   { color: #888888; }
 .warnings { margin-top: 1em; background-color: red; font-size: 120%%; }
 </style>
+<title>%(title)s</title>
 </head>
 <body>
 '''
@@ -117,15 +118,16 @@ class Monitor(BaseMonitor):
 
         add = self._content.append
 
-        style = dict(
+        headprops = dict(
             fs = self._fontsize,
             fst = self._fontsize + self._fontsizebig,
             fsb = self._fontsizebig,
             ff = self.font,
             ffm = self.valuefont or self.font,
             intv = self.interval,
+            title = escape(self.title),   # TODO: add more info here?
         )
-        add(HEAD % style)
+        add(HEAD % headprops)
 
         add('<table class="layout">'
             '<tr><td><div class="time">')
