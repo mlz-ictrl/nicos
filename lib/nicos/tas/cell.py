@@ -581,16 +581,12 @@ class CellBase(object):
             psi -= self._psi0
             if coupled:
                 psi -= phi
-                if psi < -180:
-                    psi += 360
-                if psi > 180:
-                    psi -= 360
-            if psi360:
-                if psi < 0:
-                    psi += 360
-                # can that happen?
-                elif psi > 360:
-                    psi -= 360
+            while psi < -180:
+                psi += 360
+            while psi > 180:
+                psi -= 360
+            if psi360 and psi < 0:
+                psi += 360
 
             return [ki, kf, phi, psi, alpha]
         except ComputationError, err:
