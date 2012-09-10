@@ -63,7 +63,7 @@ devices = dict(
 
     mono     = device('nicos.tas.Monochromator',
                       unit = 'A-1',
-                      dvalue = 2.88,
+                      dvalue = 3.355,
                       theta = 'mth',
                       twotheta = 'mtt',
                       focush = None,
