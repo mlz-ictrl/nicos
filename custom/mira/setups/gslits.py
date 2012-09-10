@@ -85,9 +85,8 @@ devices = dict(
     #                    maxage = 10),
 
 
-    gs2bus    = device('nicos.ipc.IPCModBusTCP',
-                       host = 'mirars7.mira.frm2',
-                       port = 4001,
+    gs2bus    = device('nicos.ipc.IPCModBusTacoSerial',
+                       tacodevice = 'mira/network/rsneu_1',
                        lowlevel = True),
 
     gs2_l_mot = device('nicos.ipc.SlitMotor',

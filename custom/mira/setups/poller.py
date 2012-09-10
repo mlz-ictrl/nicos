@@ -13,6 +13,7 @@ devices = dict(
     Poller = device('nicos.poller.Poller',
                     autosetup = True,
                     alwayspoll = [],
+                    neverpoll = ['mslit2'],
                     loglevel = 'info',
                     blacklist = ['psd']),
 )

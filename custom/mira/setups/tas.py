@@ -16,7 +16,10 @@ devices = dict(
                     psi = 'om',
                     mono = 'mono',
                     ana = 'ana',
-                    scatteringsense = (-1, 1, -1)),
+                    alpha = None,
+                    scatteringsense = (-1, 1, -1),
+                    axiscoupling = False,
+                    psi360 = False),
 
     vom    = device('nicos.generic.VirtualMotor',
                     abslimits = (-360, 360),

@@ -28,8 +28,8 @@ devices = dict(
                     tacodevice = 'mira/io/psdgas'),
 
     dtx    = device('nicos.taco.Axis',
-                    tacodevice = 'mira/axis/dtx',
-                    abslimits = (0, 1500),
+                    tacodevice = 'mira/axis/dty',
+                    abslimits = (0, 250),
                     pollinterval = 5,
                     maxage = 10),
 

@@ -12,7 +12,7 @@ devices = dict(
                       stopdelay = 3,
                       backlash = 1,
                       speed = 0.25,
-                      switch = 'air_mono',
+                      switch = 'air_mono_ana',
                       switchvalues = (0, 1),
                       fmtstr = '%.2f'),
 

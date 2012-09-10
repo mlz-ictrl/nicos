@@ -15,9 +15,7 @@ _expcolumn = [
          {'name': 'Last file', 'key': 'filesink/lastfilenumber'}]]),
 ]
 
-_column3 = [
-    ('Analyzer', [[{'dev': 'ath'}, {'dev': 'att'}, {'dev': 'adr'}]],
-     'analyzer'),
+_column1 = [
     ('Detector', [
         ['timer', 'mon1', 'mon2'],
         '---',
@@ -53,7 +51,15 @@ _column3 = [
         ['fp1', 'fp2', {'dev': 'rp1', 'max': 20}, {'dev': 'rp2', 'max': 20}],
         ['dc1', 'dc2', 'freq3', {'dev': 'amp3', 'min': 4.999, 'max': 5.001}],
     ], 'mieze'),
-#    ('X-Z table axes', [[{'dev': 'mx'}, {'dev': 'my'}]], 'gauss'),
+]
+
+_column2 = [
+    ('Sample', [[{'dev': 'om'}, {'dev': 'srot'}, {'dev': 'phi'},],
+                [{'dev': 'stx'}, {'dev': 'sty'}, {'dev': 'stz'}],
+                [{'dev': 'sgx'}, {'dev': 'sgy'}]],
+     'sample'),
+    ('Analyzer', [[{'dev': 'ath'}, {'dev': 'att'}, {'dev': 'adr'}]],
+     'analyzer'),
     ('TAS', [
         [{'dev': 'mira', 'name': 'H', 'item': 0, 'format': '%.3f', 'unit': ' '},
          {'dev': 'mira', 'name': 'K', 'item': 1, 'format': '%.3f', 'unit': ' '},
@@ -62,32 +68,9 @@ _column3 = [
         [{'key': 'mira/scanmode', 'name': 'Mode'},
          {'dev': 'mono', 'name': 'ki'}, {'dev': 'ana', 'name': 'kf'}, {'key': 'mira/energytransferunit', 'name': 'Unit'},],
     ], 'tas'),
-    ('MIRA Magnet', [[{'dev': 'I', 'name': 'I'}]], 'miramagnet'),
 ]
 
-_column2 = [
-    ('Slits', [[{'dev': 'ss1', 'name': 'Sample slit 1', 'width': 24, 'istext': True}],
-               [{'dev': 'ss2', 'name': 'Sample slit 2', 'width': 24, 'istext': True}]],
-     'slits'),
-    ('Sample', [[{'dev': 'om'}, {'dev': 'srot'}, {'dev': 'phi'},],
-                [{'dev': 'stx'}, {'dev': 'sty'}, {'dev': 'stz'}],
-                [{'dev': 'sgx'}, {'dev': 'sgy'}]],
-     'sample'),
-    ('Sample environment', [
-        [{'key': 't/setpoint', 'name': 'Setpoint', 'unitkey': 't/unit'},
-         {'dev': 'TA', 'name': 'Sample'}, 'TB', 'TC'],
-        [{'key': 't/p', 'name': 'P'}, {'key': 't/i', 'name': 'I'},
-         {'key': 't/d', 'name': 'D'}, {'dev': 'Pcryo', 'name': 'p'}],
-        ],
-     'lakeshore'),
-    ('FRM Magnet', [[{'dev': 'B'}],
-                    [{'dev': 'Tm1', 'max': 4.1}, {'dev': 'Tm2', 'max': 4.1},
-                     {'dev': 'Tm3', 'max': 4.9}, {'dev': 'Tm4', 'max': 4.5}, 
-                     {'dev': 'Tm8', 'max': 4.1}]], 'frm2magnet'),
-    ('TTi', [['dct1', 'dct2'], ['dct3', 'dct4']], 'tti'),
-]
-
-_column1 = [
+_column3 = [
     ('MIRA1', [[{'dev': 'FOL', 'name': 'FOL', 'width': 4},
                 {'dev': 'flip1', 'name': 'Flip', 'width': 4}],
                ['mth', 'mtt'],
@@ -115,6 +98,25 @@ _column1 = [
     ], 'reactor'),
 ]
 
+_column4 = [
+    ('Slits', [[{'dev': 'ss1', 'name': 'Sample slit 1', 'width': 24, 'istext': True}],
+               [{'dev': 'ss2', 'name': 'Sample slit 2', 'width': 24, 'istext': True}]],
+     'slits'),
+    ('Sample environment', [
+        [{'key': 't/setpoint', 'name': 'Setpoint', 'unitkey': 't/unit'},
+         {'dev': 'TA', 'name': 'Sample'}, 'TB', 'TC'],
+        [{'key': 't/p', 'name': 'P'}, {'key': 't/i', 'name': 'I'},
+         {'key': 't/d', 'name': 'D'}, {'dev': 'Pcryo', 'name': 'p'}],
+        ],
+     'lakeshore'),
+    ('MIRA Magnet', [[{'dev': 'I', 'name': 'I'}]], 'miramagnet'),
+    ('FRM Magnet', [[{'dev': 'B'}],
+                    [{'dev': 'Tm1', 'max': 4.1}, {'dev': 'Tm2', 'max': 4.1},
+                     {'dev': 'Tm3', 'max': 4.9}, {'dev': 'Tm4', 'max': 4.5}, 
+                     {'dev': 'Tm8', 'max': 4.1}]], 'frm2magnet'),
+    ('TTi', [['dct1', 'dct2']], 'tti'),
+]
+
 _warnings = [
 #    ('psdgas/value', '== "empty"', 'Change detector counting gas'),
 #    ('TBe/value', '> 70', 'Check Be filter temperature'),
@@ -122,25 +124,17 @@ _warnings = [
 ]
 
 devices = dict(
-    email    = device('nicos.notify.Mailer',
-                      sender = 'nicos@mira1',
-                      receivers = ['rgeorgii@frm2.tum.de'],
-                      subject = 'MIRA'),
-
-    smser    = device('nicos.notify.SMSer',
-                      server = 'triton.admin.frm2',
-                      receivers = ['01719251564']),
-
-    Monitor = device('nicos.monitor.qt.Monitor',
+    Monitor = device('nicos.monitor.html.Monitor',
                      title = 'MIRA Status monitor',
+                     filename = '/miracontrol/status.html',
+                     interval = 10,
                      loglevel = 'info',
                      cache = 'mira1:14869',
                      prefix = 'nicos/',
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
-                     fontsize = 12,
-                     padding = 5,
-                     layout = [[_expcolumn], [_column1, _column2, _column3]],
+                     fontsize = 17,
+                     layout = [[_expcolumn], [_column1, _column2, _column3, _column4]],
                      warnings = _warnings,
-                     notifiers = ['smser', 'email'])
+                     notifiers = [])
 )
