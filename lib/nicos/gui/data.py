@@ -66,7 +66,7 @@ class Curve(object):
                     [], [], [], [], []
 
     def copy(self):
-        return copy.copy(self)
+        return copy.deepcopy(self)
 
 
 class DataHandler(QObject):
