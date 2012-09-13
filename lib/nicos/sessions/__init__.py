@@ -52,10 +52,7 @@ from nicos.utils.loggers import initLoggers, NicosLogger, \
 from nicos.instrument import Instrument
 from nicos.cache.client import CacheClient, CacheLockError
 from nicos.sessions.utils import makeSessionId, sessionInfo, \
-     NicosNamespace, SimClock
-
-
-EXECUTIONMODES = ['master', 'slave', 'simulation', 'maintenance']
+     NicosNamespace, SimClock, EXECUTIONMODES
 
 
 class Session(object):

@@ -40,6 +40,9 @@ from nicos import session
 from nicos.core.errors import UsageError
 
 
+EXECUTIONMODES = ['master', 'slave', 'simulation', 'maintenance']
+
+
 class NicosNamespace(dict):
     """
     A dict subclass that has a list of identifiers that cannot be set, except
@@ -97,16 +100,16 @@ class NicosCompleter(rlcompleter.Completer):
     attr_hidden = set(['attached_devices', 'parameters', 'hardware_access',
                        'temporary', 'log', 'valuetype', 'mro'])
     global_hidden = set(dir(exceptions))
-    special = set(func + '(' for func in
-                  ['move', 'drive', 'maw', 'switch', 'wait', 'read',
-                   'status', 'stop', 'reset', 'set', 'get', 'fix',
-                   'release', 'adjust', 'version', 'history', 'limits',
-                   'resetlimits', 'ListParams', 'ListMethods',
-                   'scan', 'cscan', 'contscan'])
+    special_device = set(['move', 'drive', 'maw', 'switch', 'wait', 'read',
+                         'status', 'stop', 'reset', 'set', 'get', 'fix',
+                         'release', 'adjust', 'version', 'history', 'limits',
+                         'resetlimits', 'ListParams', 'ListMethods',
+                         'scan', 'cscan', 'contscan'])
     special_readable = set(['read', 'status', 'reset', 'history'])
     special_moveable = set(['move', 'drive', 'maw', 'switch', 'wait', 'stop',
                             'fix', 'release', 'adjust', 'limits', 'resetlimits',
                             'scan', 'cscan', 'contscan'])
+    special_setups = set(['NewSetup', 'AddSetup', 'RemoveSetup'])
 
     def __init__(self, namespace1, namespace2):
         self.namespace = namespace1
@@ -123,10 +126,10 @@ class NicosCompleter(rlcompleter.Completer):
         """
         from nicos.generic import DeviceAlias
 
-        m = re.match(r"(\w+(\.\w+)*)\.(\w*)", text)
-        if not m:
+        match = re.match(r"(\w+(\.\w+)*)\.(\w*)", text)
+        if not match:
             return []
-        expr, attr = m.group(1, 3)
+        expr, attr = match.group(1, 3)
         try:
             thisobject = eval(expr, self.namespace)
         except Exception:
@@ -165,17 +168,38 @@ class NicosCompleter(rlcompleter.Completer):
         defined in self.namespace that match.
         """
         line = readline.get_line_buffer()
-        command = line[:len(line)-len(text)].strip()
-        if command in self.special:
-            from nicos.core import Device, Readable, Moveable
-            if command[:-1] in self.special_moveable:
-                cls = Moveable
-            elif command[:-1] in self.special_readable:
-                cls = Readable
-            else:
-                cls = Device
-            return [k for k in session.explicit_devices if
-                    k.startswith(text) and isinstance(session.devices[k], cls)]
+        if '(' in line:
+            command = line[:line.index('(')].lstrip()
+            if command in self.special_device:
+                from nicos.core import Device, Readable, Moveable
+                if command in self.special_moveable:
+                    cls = Moveable
+                elif command in self.special_readable:
+                    cls = Readable
+                else:
+                    cls = Device
+                return [k for k in session.explicit_devices if
+                        k.startswith(text) and
+                        isinstance(session.devices[k], cls)]
+            elif command in self.special_setups:
+                all_setups = [name for (name, info) in session._setup_info.iteritems()
+                              if info['group'] in ('base', 'optional', '')]
+                if command == 'NewSetup':
+                    candidates = all_setups
+                elif command == 'AddSetup':
+                    candidates = [setup for setup in all_setups
+                                  if setup not in session.explicit_setups]
+                else:
+                    candidates = session.explicit_setups
+                candidates = map(repr, candidates)
+                if line.endswith('('):
+                    return candidates
+                return [c[1:-1] for c in candidates if c[1:].startswith(text)]
+            elif command == 'SetMode':
+                candidates = map(repr, EXECUTIONMODES)
+                if line.endswith('('):
+                    return candidates
+                return [c[1:-1] for c in candidates if c[1:].startswith(text)]
         matches = []
         n = len(text)
         for word in keyword.kwlist:
