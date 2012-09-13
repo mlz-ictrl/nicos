@@ -28,6 +28,7 @@ Plotting tools for triple-axis spectrometers.
 
 import os
 import time
+from fractions import gcd
 
 from numpy import array, linspace, sqrt, delete, sin, cos, arctan2, mat, cross
 
@@ -244,6 +245,16 @@ class SpaceMap(object):
         # directions of axes
         dir1 = self.cell._orient1
         dir2 = cross(self.cell.cal_zone(), self.cell._orient1)
+        # normalize second direction to smallest length
+        comp = [c for c in dir2 if c > 0]
+        if len(comp) == 1:
+            f = comp
+        elif len(comp) == 2:
+            f = gcd(comp[0], comp[1])
+        else:
+            f = min(gcd(comp[0], comp[1]), gcd(comp[1], comp[2]),
+                    gcd(comp[0], comp[2]))
+        dir2 /= f
 
         # set up pylab figure
         pylab.ion()
