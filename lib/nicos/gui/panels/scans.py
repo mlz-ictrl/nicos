@@ -489,7 +489,7 @@ class ScansPanel(Panel):
         newset.xindex = firstset.xindex
         #newset.xunits = firstset.xunits
         for curves in zip(*(dataset.curves for dataset in sets)):
-            newcurve = curves[0].copy()
+            newcurve = curves[0].deepcopy()
             # CRUDE: don't care about the x values, operate by index
             for curve in curves[1:]:
                 for i in range(len(newcurve.datay)):

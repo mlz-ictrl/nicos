@@ -66,6 +66,9 @@ class Curve(object):
                     [], [], [], [], []
 
     def copy(self):
+        return copy.copy(self)
+
+    def deepcopy(self):
         return copy.deepcopy(self)
 
 
