@@ -216,6 +216,10 @@ class Session(object):
         self._mode = mode
         if self._master_handler:
             self._master_handler.enable(mode == 'master')
+        # deactivate synchronized queue mode on the cache client to avoid lockups
+        # after forking in simulation mode
+        if mode == 'simulation' and cache:
+            cache._sync = False
         # switch mode, taking care to switch "higher level" devices before
         # "lower level" (because higher level devices may need attached devices
         # still working in order to read out their last value)

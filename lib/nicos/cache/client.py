@@ -83,6 +83,8 @@ class BaseCacheClient(Device):
 
         self._stoprequest = False
         self._queue = Queue.Queue()
+        self._sync = True  # must be set to False on forking, since no thread
+                           # can signal task_done anymore
 
         # create worker thread, but do not start yet, leave that to subclasses
         self._worker = threading.Thread(target=self._worker_thread,
@@ -269,7 +271,8 @@ class BaseCacheClient(Device):
             self._disconnect('single request: no socket')
             if not self._socket:
                 raise CacheError('cache not connected')
-        if sync:  # sync has to be false for lock requests, as these occur during startup
+        if sync and self._sync:
+            # sync has to be false for lock requests, as these occur during startup
             self._queue.join()
         with self._sec_lock:
             if not self._secsocket:
