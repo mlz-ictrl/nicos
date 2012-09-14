@@ -294,9 +294,10 @@ class Monitor(BaseMonitor):
     def setLabelText(self, label, text):
         label.emit(SIGNAL('settext'), text)
 
-    def setLabelUnitText(self, label, text, unit):
-        label.emit(SIGNAL('settext'), escape(text) +
-                   ' <font color="#888888">%s</font> ' % escape(unit))
+    def setLabelUnitText(self, label, text, unit, fixed=''):
+        label.emit(SIGNAL('settext'), escape(text) + ' <font color="#888888">%s'
+                   '</font><font color="#0000ff">%s</font> ' %
+                   (escape(unit), fixed))
 
     def setForeColor(self, label, fore):
         label.emit(SIGNAL('setcolors'), fore, None)

@@ -200,9 +200,10 @@ class Monitor(BaseMonitor):
 
         master.show_all()
 
-    def setLabelUnitText(self, label, text, unit):
+    def setLabelUnitText(self, label, text, unit, fixed=''):
         label.set_markup(escape(text) + ' <span foreground="#888888">%s'
-                         '</span> ' % escape(unit))
+                         '</span><span foreground="#0000ff">%s</span> ' %
+                         (escape(unit), fixed))
 
     def setForeColor(self, label, fore):
         label.modify_fg(gtk.STATE_NORMAL, fore)

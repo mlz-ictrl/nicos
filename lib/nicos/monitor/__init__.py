@@ -105,7 +105,7 @@ class Monitor(BaseCacheClient):
     def setLabelText(self, label, text):
         raise NotImplementedError
 
-    def setLabelUnitText(self, label, text, unit):
+    def setLabelUnitText(self, label, text, unit, fixed=''):
         raise NotImplementedError
 
     def setForeColor(self, label, color):
@@ -218,9 +218,10 @@ class Monitor(BaseCacheClient):
             'min': None, 'max': None, 'unit': '', 'item': -1, 'format': '%s',
             # current values
             'value': None, 'strvalue': None, 'expired': 0, 'status': None,
-            'changetime': 0, 'exptime': 0,
+            'changetime': 0, 'exptime': 0, 'fixed': '',
             # key names
             'key': '', 'statuskey': '', 'unitkey': '', 'formatkey': '',
+            'fixedkey': '',
         }
 
         # convert configured layout to internal structure
@@ -262,6 +263,7 @@ class Monitor(BaseCacheClient):
         if field['dev']:
             _ref('key', prefix + field['dev'].lower() + '/value')
             _ref('statuskey', prefix + field['dev'].lower() + '/status')
+            _ref('fixedkey', prefix + field['dev'].lower() + '/fixed')
             if field['unit'] == '':  # explicit unit has preference
                 _ref('unitkey', prefix + field['dev'].lower() + '/unit')
             if field['format'] == '%s':  # explicit format has preference
@@ -270,6 +272,8 @@ class Monitor(BaseCacheClient):
             _ref('key', prefix + field['key'])
             if field['statuskey']:
                 _ref('statuskey', prefix + field['statuskey'])
+            if field['fixedkey']:
+                _ref('fixedkey', prefix + field['dev'].lower() + '/fixed')
             if field['unitkey']:
                 _ref('unitkey', prefix + field['unitkey'])
             if field['formatkey']:
@@ -426,7 +430,7 @@ class Monitor(BaseCacheClient):
                             pass
                     field['unit'] = value
                     self.setLabelUnitText(field['namelabel'],
-                                          field['name'], value)
+                                          field['name'], value, field['fixed'])
             elif key == field['formatkey']:
                 if value is not None:
                     field['format'] = value
@@ -438,6 +442,10 @@ class Monitor(BaseCacheClient):
                                           fvalue)
                     except Exception:
                         self.setLabelText(field['valuelabel'], str(fvalue))
+            elif key == field['fixedkey']:
+                field['fixed'] = ' (F)' if value else ''
+                self.setLabelUnitText(field['namelabel'], field['name'],
+                                      field['unit'], field['fixed'])
 
     def _process_warnings(self, key, info, value):
         if info['setup']:

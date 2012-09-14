@@ -420,9 +420,9 @@ class Monitor(BaseMonitor):
 
     setLabelText = Fl_Box.copy_label
 
-    def setLabelUnitText(self, label, text, unit):
+    def setLabelUnitText(self, label, text, unit, fixed=''):
         if unit:
-            label.copy_label(text + ' (%s)' % unit)
+            label.copy_label(text + ' (%s)%s' % (unit, fixed))
         else:
             label.copy_label(text)
 

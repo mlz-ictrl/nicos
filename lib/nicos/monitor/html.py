@@ -180,8 +180,9 @@ class Monitor(BaseMonitor):
     def setLabelText(self, label, text):
         label.text = escape(text) or '&nbsp;'
 
-    def setLabelUnitText(self, label, text, unit):
-        label.text = escape(text) + ' <span class="unit">%s</span> ' % escape(unit)
+    def setLabelUnitText(self, label, text, unit, fixed):
+        label.text = escape(text) + ' <span class="unit">%s</span><span ' \
+            'class="fixed">%s</span> ' % (escape(unit), fixed)
 
     def setForeColor(self, label, fore):
         label.fore = fore

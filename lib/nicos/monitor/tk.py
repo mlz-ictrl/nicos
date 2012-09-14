@@ -162,8 +162,8 @@ class Monitor(BaseMonitor):
     def setLabelText(self, label, text):
         label._var.set(text)
 
-    def setLabelUnitText(self, label, text, unit):
-        label._var.set(text + ' (%s)' % unit)
+    def setLabelUnitText(self, label, text, unit, fixed=''):
+        label._var.set(text + ' (%s)%s' % (unit, fixed))
 
     def setForeColor(self, label, color):
         label.config(fg=color)
