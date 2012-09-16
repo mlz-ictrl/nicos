@@ -37,9 +37,10 @@ from nicos.tas.rescalc import resmat
 from nicos.tas.spectro import TAS, THZ2MEV
 from nicos.tas.plotting import plot_hklmap, plot_resatpoint, plot_resscan
 from nicos.commands import usercommand, hiddenusercommand, helparglist
-from nicos.commands.scan import _infostr, ADDSCANHELP2
+from nicos.commands.scan import _infostr, ADDSCANHELP2, cscan
 from nicos.commands.device import maw, read
-from nicos.commands.output import printinfo
+from nicos.commands.output import printinfo, printwarning
+from nicos.commands.analyze import gauss
 
 
 def _getQ(v, name):
@@ -628,3 +629,46 @@ def hklplot(**kwds):
               'psi0', 'spacegroup']:
         tasinfo[p] = getattr(tas._adevs['cell'], p)
     session.clientExec(plot_hklmap, (cfg, par, tasinfo, kwds))
+
+
+@usercommand
+@helparglist('(h, k, l), step, numsteps, ...')
+def checkalign(hkl, step, numsteps, *args, **kwargs):
+    """Readjust Sample psi0 to the fitted center of a sample rocking scan.
+
+    An additional a keyword "ycol" gives the Y column of the dataset to use for
+    the Gaussian fit (see the help for `gauss()` for the meaning of this
+    parameter).
+
+    Examples:
+
+    >>> checkalign((1, 1, 0), 0.05, 20)
+    >>> checkalign((1, 1, 0), 0.05, 20, ycol='ctr2')
+    """
+    tas = session.instrument
+    ycol = kwargs.pop('ycol', -1)
+    target = tuple(hkl) + (0,)
+    tas.maw(target)
+    psi = tas._adevs['psi']
+    center = tas._calpos(target + (tas.scanconstant,), printout=False)[3]
+    cscan(psi, center, step, numsteps, 'align check', *args, **kwargs)
+    params, _ = gauss(ycol)
+    # do not allow moving outside of the scanned region
+    minvalue = center - step*numsteps
+    maxvalue = center + step*numsteps
+    if params is None:
+        printwarning('Gaussian fit failed, psi0 unchanged')
+    elif not minvalue <= params[0] <= maxvalue:
+        printwarning('Gaussian fit resulted in center outside scanning area, '
+                     'offset unchanged')
+    else:
+        diff = center - params[0] # NOTE: this is the other way around compared
+                                  # to checkoffset
+        printinfo('center of Gaussian fit at %s' % psi.format(params[0], True))
+        if abs(diff) < 0.05:
+            printinfo('alignment ok within 0.05 degrees, not changing psi0')
+            return
+        sample = tas._adevs['cell']
+        printwarning('adjusting %s.psi0 by %s' % (sample,
+                                                  psi.format(diff, True)))
+        sample.psi0 += diff

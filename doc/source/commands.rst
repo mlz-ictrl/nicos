@@ -163,6 +163,7 @@ one of your loaded setups.
 .. autofunction:: calpos
 .. autofunction:: pos
 .. autofunction:: rp
+.. autofunction:: checkalign
 
 .. autofunction:: alu
 .. autofunction:: copper

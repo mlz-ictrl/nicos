@@ -7,6 +7,8 @@ Changelog for NICOS 2
 
   - Changed cache store file format to retain info if the key will expire.
     This fixes cache startup behavior even after unclean shutdowns.
+  
+  - Added "checkalign" command for TAS instruments.
 
   - Added HTML version of NICOS monitor.
 
