@@ -68,21 +68,20 @@ def formatMessage(message):
     return '<span class="%s">%s</span>' % (cls, escape(text))
 
 
-def pretty1(value):
+def pretty1(fmtstr, value):
     try:
-        return '%.3f' % value
+        return fmtstr % value
     except (ValueError, TypeError):
-        return value
+        return str(value)
 
 
-def pretty2(value1, value2):
-    if value1 != 0 and abs(value2 - value1)/value1 < 0.00001:
-        return '%.3f' % value2
-    if value2 != 0 and abs(value2 - value1)/value2 < 0.00001:
-        return '%.3f' % value1
-    try:
-        ldiff = math.log10(abs(value2 - value1))
-        ncomma = 2 - int(ldiff)
-        return '%.*f - %.*f' % (ncomma, value1, ncomma, value2)
-    except (ValueError, TypeError):
-        return '%s - %s' % (value1, value2)
+def pretty2(fmtstr, value1, value2):
+    fmt1 = pretty1(fmtstr, value1)
+    fmt2 = pretty1(fmtstr, value2)
+    if fmt1 == fmt2:
+        return fmt1
+    if value1 != 0 and abs((value2 - value1)/value1) < 0.00001:
+        return fmt2
+    if value2 != 0 and abs((value2 - value1)/value2) < 0.00001:
+        return fmt1
+    return '%s - %s' % (fmt1, fmt2)

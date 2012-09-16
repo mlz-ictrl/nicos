@@ -64,6 +64,8 @@ class Dataset(object):
     xindex = 0
     # current point number
     curpoint = 0
+    # number of xvalues belonging to environment devices
+    envvalues = 0
 
     # cached info for all sinks to use
     xvalueinfo = []

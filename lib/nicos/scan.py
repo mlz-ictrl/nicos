@@ -108,8 +108,10 @@ class Scan(object):
         session.experiment._last_datasets.append(dataset)
         dataset.xresults = []
         dataset.yresults = []
-        dataset.xvalueinfo = sum((dev.valueInfo()
-                                  for dev in self._devices + self._envlist), ())
+        devinfo = sum((dev.valueInfo() for dev in self._devices), ())
+        envinfo = sum((dev.valueInfo() for dev in self._envlist), ())
+        dataset.xvalueinfo = devinfo + envinfo
+        dataset.envvalues = len(envinfo)
         dataset.yvalueinfo = sum((det.valueInfo()
                                   for det in dataset.detlist), ())
         if self._multistep:

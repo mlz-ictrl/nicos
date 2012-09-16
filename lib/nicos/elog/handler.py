@@ -411,7 +411,7 @@ class Handler(object):
 
     def handle_scanend(self, time, dataset):
         names = '+'.join(dataset.xnames)
-        headers = ['Scan#']
+        headers = ['Scan#', 'Points']
         for xc in zip(dataset.xnames, dataset.xunits):
             headers.append('%s (%s)' % xc)
         ycindex = []
@@ -426,14 +426,21 @@ class Handler(object):
             html.append('<td class="scannum">%s</td>' % scannumber)
         else:
             html = ['<tr>', '<td>-</td>']
+        npoints = len(dataset.xresults)
+        html.append('<td>%s</td>' % npoints)
         if dataset.xresults:
             for i in range(len(dataset.xnames)):
-                first = dataset.xresults[0][i]
-                last = dataset.xresults[-1][i]
-                if first == last:
-                    html.append('<td>%s</td>' % pretty1(first))
+                if i < len(dataset.xnames) - dataset.envvalues:
+                    first = dataset.xresults[0][i]
+                    last = dataset.xresults[-1][i]
                 else:
-                    html.append('<td>%s</td>' % pretty2(first, last))
+                    first = min(dataset.xresults[j][i] for j in range(npoints))
+                    last = max(dataset.xresults[j][i] for j in range(npoints))
+                fmtstr = dataset.xvalueinfo[i].fmtstr
+                if first == last:
+                    html.append('<td>%s</td>' % pretty1(fmtstr, first))
+                else:
+                    html.append('<td>%s</td>' % pretty2(fmtstr, first, last))
             for i in ycindex:
                 first = path.splitext(path.basename(dataset.yresults[0][i]))[0]
                 last = path.splitext(path.basename(dataset.yresults[-1][i]))[0]
