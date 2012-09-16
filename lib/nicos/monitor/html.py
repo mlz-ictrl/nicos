@@ -55,6 +55,7 @@ table { font-family: inherit; font-size: 100%%; }
          padding: .15em; border: 2px inset #cccccc; }
 .istext { font-family: '%(ff)s', sans-serif !important; }
 .unit   { color: #888888; }
+.fixed  { color: #0000ff; }
 .warnings { margin-top: 1em; background-color: red; font-size: 120%%; }
 </style>
 <title>%(title)s</title>
