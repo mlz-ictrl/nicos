@@ -1273,6 +1273,12 @@ void ContrastsVsImagesDlg::LoadList()
 	listTofs->addItems(lstDat);
 
 
+	
+	bool bUnderground = false;
+	double dUnderground = xml.QueryDouble("/files/underground_multiplier", 1., &bUnderground);
+	if(!bUnderground) dUnderground = 1.;
+	spinBox_underground->setValue(dUnderground);
+	
 	QStringList lstBck;
 	listTofs_underground->clear();
 
@@ -1333,6 +1339,10 @@ void ContrastsVsImagesDlg::SaveList()
 	}
 
 	ofstr << "\n";
+	ofstr << "\t<underground_multiplier> "
+		  << spinBox_underground->value()
+		  << " </underground_multiplier>";
+	ofstr << "\n";
 
 	for(int iFile=0; iFile<listTofs_underground->count(); ++iFile)
 	{
@@ -1340,7 +1350,7 @@ void ContrastsVsImagesDlg::SaveList()
 		ofstr << "\t<underground_file_" << iFile << "> "
 			  << strBckFile
 			  << " </underground_file_" << iFile << ">\n";
-	}	
+	}
 	
 	ofstr << "\n</files>\n";
 }
