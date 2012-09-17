@@ -27,6 +27,7 @@
 #include "../aux/helper.h"
 #include "../aux/logger.h"
 #include "../aux/gc.h"
+#include "../config/globals.h"
 
 #include <stdio.h>
 #include <sstream>

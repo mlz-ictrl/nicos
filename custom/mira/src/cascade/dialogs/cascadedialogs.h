@@ -404,6 +404,9 @@ class CountsVsImagesDlg : public QDialog, public Ui::CountsVsImagesDlg
 		void DeleteFile();
 		void RoiGroupToggled();
 
+		void LoadList();
+		void SaveList();		
+
 	public slots:
 		void UpdateGraph();
 };
@@ -448,6 +451,9 @@ class ContrastsVsImagesDlg : public QDialog, public Ui::ContrastsVsImagesDlg
 
 		void AddFile_underground();
 		void DeleteFile_underground();
+
+		void LoadList();
+		void SaveList();
 
 	public slots:
 		void UpdateGraph();

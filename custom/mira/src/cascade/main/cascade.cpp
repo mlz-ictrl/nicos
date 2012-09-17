@@ -1055,7 +1055,7 @@ class MainWindow : public QMainWindow
 
 			QString strFile = QFileDialog::getOpenFileName(this,
 							"Open ROI File","",
-							"ROI Files (*.roi *.roi);;XML Files (*.xml *.XML);;"
+							"ROI Files (*.roi *.ROI);;XML Files (*.xml *.XML);;"
 							"All Files (*)");
 			if(strFile!="" && m_cascadewidget.LoadRoi(strFile.toAscii().data()))
 			{

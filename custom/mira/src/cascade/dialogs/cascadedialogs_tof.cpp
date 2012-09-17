@@ -603,6 +603,10 @@ ContrastsVsImagesDlg::ContrastsVsImagesDlg(CascadeWidget *pParent)
 	//connect(radioButtonFoil, SIGNAL(toggled(bool)), this, SLOT(UpdateGraph()));
 
 	connect(spinFoil, SIGNAL(valueChanged(int)), this, SLOT(UpdateGraph()));
+
+	connect(btnLoad, SIGNAL(clicked()), this, SLOT(LoadList()));
+	connect(btnSave, SIGNAL(clicked()), this, SLOT(SaveList()));
+	
 }
 
 ContrastsVsImagesDlg::~ContrastsVsImagesDlg()
@@ -1220,4 +1224,123 @@ void ContrastsVsImagesDlg::DeleteFile_underground()
 	}
 
 	//UpdateGraph();
+}
+
+
+#ifdef USE_XML
+	#include "../aux/xml.h"
+#endif
+
+void ContrastsVsImagesDlg::LoadList()
+{
+#ifdef USE_XML
+	QString strFile = QFileDialog::getOpenFileName(this,
+									"Open List File",
+									"",
+									"LST Files (*.lst *.LST);;XML Files (*.xml *.XML);;"
+									"All Files (*)");
+	if(strFile=="")
+		return;
+
+	Xml xml;
+	if(!xml.Load(strFile.toAscii().data()))
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Contrasts Dialog: Cannot load \""
+				<< strFile.toAscii().data() << "\".\n";
+
+		return;
+	}
+
+	QStringList lstDat;
+	listTofs->clear();
+
+	for(unsigned int iElem=0; true; ++iElem)
+	{
+		std::ostringstream ostr;
+		ostr << "/files/data_file_" << iElem;
+
+		std::string strQuery = ostr.str();
+
+		bool bOK=false;
+		std::string strDatFile = xml.QueryString(strQuery.c_str(), "", &bOK);
+		if(!bOK)
+			break;
+
+		lstDat << strDatFile.c_str();
+	}
+
+	listTofs->addItems(lstDat);
+
+
+	QStringList lstBck;
+	listTofs_underground->clear();
+
+	for(unsigned int iElem=0; true; ++iElem)
+	{
+		std::ostringstream ostr;
+		ostr << "/files/underground_file_" << iElem;
+
+		std::string strQuery = ostr.str();
+
+		bool bOK=false;
+		std::string strDatFile = xml.QueryString(strQuery.c_str(), "", &bOK);
+		if(!bOK)
+			break;
+
+		lstBck << strDatFile.c_str();
+	}
+
+	listTofs_underground->addItems(lstBck);
+
+	UpdateGraph();
+
+#else	// !USE_XML
+
+	logger.SetCurLogLevel(LOGLEVEL_ERR);
+	logger << "Fourier: Not compiled with libxml.\n";
+	
+#endif  // USE_XML
+}
+
+void ContrastsVsImagesDlg::SaveList()
+{
+	QString strFile = QFileDialog::getSaveFileName(this,
+						"Save List File", "",
+						"LST Files (*.lst *.LST);;XML Files (*.xml *.XML);;"
+						"All Files (*)");
+	if(strFile=="")
+		return;
+
+	std::ofstream ofstr(strFile.toAscii().data());
+	if(!ofstr.is_open())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Contrasts Dialog: Cannot open \""
+				<< strFile.toAscii().data() << "\".";
+		return;
+	}
+
+	ofstr << "<?xml version=\"1.0\"?>\n\n";
+	ofstr << "<files>\n\n";
+
+	for(int iFile=0; iFile<listTofs->count(); ++iFile)
+	{
+		std::string strDatFile = listTofs->item(iFile)->text().toAscii().data();
+		ofstr << "\t<data_file_" << iFile << "> "
+			  << strDatFile
+			  << " </data_file_" << iFile << ">\n";
+	}
+
+	ofstr << "\n";
+
+	for(int iFile=0; iFile<listTofs_underground->count(); ++iFile)
+	{
+		std::string strBckFile = listTofs_underground->item(iFile)->text().toAscii().data();
+		ofstr << "\t<underground_file_" << iFile << "> "
+			  << strBckFile
+			  << " </underground_file_" << iFile << ">\n";
+	}	
+	
+	ofstr << "\n</files>\n";
 }

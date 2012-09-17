@@ -276,6 +276,9 @@ CountsVsImagesDlg::CountsVsImagesDlg(CascadeWidget *pParent)
 			this, SLOT(SetRoiUseCurrent(bool)));
 	connect(groupRoi, SIGNAL(toggled(bool)), this, SLOT(RoiGroupToggled()));
 	connect(checkCorrect, SIGNAL(toggled(bool)), this, SLOT(UpdateGraph()));
+
+	connect(btnLoad, SIGNAL(clicked()), this, SLOT(LoadList()));
+	connect(btnSave, SIGNAL(clicked()), this, SLOT(SaveList()));	
 }
 
 CountsVsImagesDlg::~CountsVsImagesDlg()
@@ -496,4 +499,91 @@ void CountsVsImagesDlg::DeleteFile()
 	}
 
 	UpdateGraph();
+}
+
+#ifdef USE_XML
+	#include "../aux/xml.h"
+#endif
+
+void CountsVsImagesDlg::LoadList()
+{
+#ifdef USE_XML
+	QString strFile = QFileDialog::getOpenFileName(this,
+									"Open List File",
+									"",
+									"LST Files (*.lst *.LST);;XML Files (*.xml *.XML);;"
+									"All Files (*)");
+	if(strFile=="")
+		return;
+
+	Xml xml;
+	if(!xml.Load(strFile.toAscii().data()))
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Counts Dialog: Cannot load \""
+				<< strFile.toAscii().data() << "\".\n";
+
+		return;
+	}
+
+	QStringList lstDat;
+	listPads->clear();
+
+	for(unsigned int iElem=0; true; ++iElem)
+	{
+		std::ostringstream ostr;
+		ostr << "/files/data_file_" << iElem;
+
+		std::string strQuery = ostr.str();
+
+		bool bOK=false;
+		std::string strDatFile = xml.QueryString(strQuery.c_str(), "", &bOK);
+		if(!bOK)
+			break;
+
+		lstDat << strDatFile.c_str();
+	}
+
+	listPads->addItems(lstDat);
+	UpdateGraph();
+
+
+#else	// !USE_XML
+
+	logger.SetCurLogLevel(LOGLEVEL_ERR);
+	logger << "Fourier: Not compiled with libxml.\n";
+
+#endif  // USE_XML
+}
+
+void CountsVsImagesDlg::SaveList()
+{
+	QString strFile = QFileDialog::getSaveFileName(this,
+						"Save List File", "",
+						"LST Files (*.lst *.LST);;XML Files (*.xml *.XML);;"
+						"All Files (*)");
+	if(strFile=="")
+		return;
+
+	std::ofstream ofstr(strFile.toAscii().data());
+	if(!ofstr.is_open())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Counts Dialog: Cannot open \""
+				<< strFile.toAscii().data() << "\".";
+		return;
+	}
+
+	ofstr << "<?xml version=\"1.0\"?>\n\n";
+	ofstr << "<files>\n\n";
+
+	for(int iFile=0; iFile<listPads->count(); ++iFile)
+	{
+		std::string strDatFile = listPads->item(iFile)->text().toAscii().data();
+		ofstr << "\t<data_file_" << iFile << "> "
+			  << strDatFile
+			  << " </data_file_" << iFile << ">\n";
+	}
+
+	ofstr << "\n</files>\n";
 }
