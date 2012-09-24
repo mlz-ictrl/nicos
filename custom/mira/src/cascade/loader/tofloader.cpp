@@ -435,8 +435,13 @@ unsigned int TofImage::GetCountsSubtractBackground() const
 	}
 	else
 	{
-		uiCnt -= (unsigned int)
+		unsigned int uiToSubtract = (unsigned int)
 				(double(uiCntOutsideRoi)/dTotalAreaNotInRoi*dTotalAreaInRoi);
+
+		if(uiToSubtract > uiCnt)
+			uiCnt = 0;
+		else
+			uiCnt -= uiToSubtract;				
 	}
 
 	return uiCnt;
