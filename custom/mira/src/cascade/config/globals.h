@@ -27,6 +27,9 @@
 #include <vector>
 #include <string>
 
+
+#define CASCADE_VIEVER_VERSION "0.5"
+
 // use minuit for fits?
 #define USE_MINUIT
 
