@@ -49,7 +49,8 @@ TofImage::TofImage(const char *pcFileName,
 				   bool bExternalMem, const TofConfig* conf)
 		: m_puiDaten(0),
 		  m_bExternalMem(bExternalMem),
-		  m_bUseRoi(false)
+		  m_bUseRoi(false),
+		  m_bOk(false)
 {
 	if(conf)	// use given config
 		m_config = *conf;
@@ -78,13 +79,15 @@ TofImage::TofImage(const char *pcFileName,
 		}
 
 		if(pcFileName)
-			LoadFile(pcFileName);
+			m_bOk = (LoadFile(pcFileName) == LOAD_SUCCESS);
 		else
 			memset(m_puiDaten,0,iSize*sizeof(int));
 	}
 }
 
 TofImage::~TofImage() { Clear(); }
+
+bool TofImage::IsOk() const { return m_bOk; }
 
 void TofImage::UseRoi(bool bUseRoi) { m_bUseRoi = bUseRoi; }
 Roi& TofImage::GetRoi() { return m_roi; }
@@ -1188,4 +1191,38 @@ void TofImage::GenerateRandomData()
 				}
 			}
 	}
+}
+
+bool TofImage::SaveAsDat(const char* pcDat) const
+{
+	for(int iFoil=0; iFoil<GetTofConfig().GetFoilCount(); ++iFoil)
+	{
+		std::ostringstream ostrDat;
+		ostrDat << pcDat << ".foil" << iFoil;
+		
+		std::ofstream ofstr(ostrDat.str().c_str());
+		if(!ofstr.is_open())
+			return false;
+
+		ofstr << "# type: array_3d\n";
+		ofstr << "# subtype: tobisown\n";
+		ofstr << "# xlabel: x pixels\n";
+		ofstr << "# ylabel: y pixels\n";
+		ofstr << "# zlabel: time channels\n";
+		
+		for(int iY=0; iY<GetTofConfig().GetImageHeight(); ++iY)
+		{
+			for(int iX=0; iX<GetTofConfig().GetImageWidth(); ++iX)
+			{
+				for(int iTc=0; iTc<GetTofConfig().GetImagesPerFoil(); ++iTc)
+				{
+					ofstr << GetData(iFoil, iTc, iX, iY) << " ";
+				}
+				ofstr << "\n";
+			}
+			ofstr << "\n";
+		}
+	}
+
+	return true;
 }
