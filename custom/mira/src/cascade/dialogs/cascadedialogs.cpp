@@ -508,7 +508,7 @@ void BatchDlg::Start()
 				break;
 		
 			case 2: // convert to dat
-				ConvertToDat(fileinfo.filePath().toAscii().data(), strDstFile.toAscii().data());
+				ConvertToDat(fileinfo.filePath().toAscii().data(), (strDstFile + QString(".dat")).toAscii().data());
 				break;
 		}
 
