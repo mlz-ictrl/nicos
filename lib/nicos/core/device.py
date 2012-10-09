@@ -1108,6 +1108,7 @@ class Moveable(Readable):
             return
         if self._cache:
             self._cache.invalidate(self, 'value')
+            self._cache.invalidate(self, 'status')
         self.doStart(pos)
 
     move = start
@@ -1195,6 +1196,7 @@ class Moveable(Readable):
             self.doStop()
         if self._cache:
             self._cache.invalidate(self, 'value')
+            self._cache.invalidate(self, 'status')
 
     @usermethod
     def fix(self, reason=''):
