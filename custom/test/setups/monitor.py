@@ -25,50 +25,47 @@
 description = 'setup for the status monitor'
 group = 'special'
 
-_expcolumn = [
-    ('Experiment', [
-        [{'name': 'Proposal', 'key': 'exp/proposal', 'width': 7},
-         {'name': 'Title', 'key': 'exp/title', 'width': 20,
-          'istext': True, 'maxlen': 20},
-         {'name': 'Current status', 'key': 'exp/action', 'width': 30,
-          'istext': True},
-         {'name': 'Last file', 'key': 'filesink/lastfilenumber'}]]),
-]
+Row = Column = Block = BlockRow = lambda *args: args
 
-_axisblock = (
+_expcolumn = Column(
+    Block('Experiment',
+          [BlockRow({'name': 'Proposal', 'key': 'exp/proposal', 'width': 7},
+                   {'name': 'Title', 'key': 'exp/title', 'width': 20,
+                    'istext': True, 'maxlen': 20},
+                    {'name': 'Current status', 'key': 'exp/action', 'width': 30,
+                    'istext': True},
+                    {'name': 'Last file', 'key': 'filesink/lastfilenumber'})]),
+)
+
+_axisblock = Block(
     'Axes',
-    [['mth', 'mtt'],
-     ['psi', 'phi'],
-     ['ath', 'att']],
+    [BlockRow('mth', 'mtt'),
+     BlockRow('psi', 'phi'),
+     BlockRow('ath', 'att')],
     'tas')  # this is the name of a setup that must be loaded in the
             # NICOS master instance for this block to be displayed
 
-_detectorblock = (
+_detectorblock = Block(
     'Detector',
-    [[{'name': 'timer', 'dev': 'timer'},
+    [BlockRow({'name': 'timer', 'dev': 'timer'},
       {'name': 'ctr1', 'dev': 'ctr1', 'min': 100, 'max': 500},
-      {'name': 'ctr2', 'dev': 'ctr2'}]],
+      {'name': 'ctr2', 'dev': 'ctr2'})],
     'detector')
 
-_tasblock = (
+_tasblock = Block(
     'Triple-axis',
-    [[{'dev': 'tas', 'name': 'H', 'item': 0, 'format': '%.3f', 'unit': ' '},
-      {'dev': 'tas', 'name': 'K', 'item': 1, 'format': '%.3f', 'unit': ' '},
-      {'dev': 'tas', 'name': 'L', 'item': 2, 'format': '%.3f', 'unit': ' '},
-      {'dev': 'tas', 'name': 'E', 'item': 3, 'format': '%.3f', 'unit': ' '}],
-     [{'key': 'tas/scanmode', 'name': 'Mode'},
-      {'dev': 'mono', 'name': 'ki'}, {'dev': 'ana', 'name': 'kf'},
-      {'key': 'tas/energytransferunit', 'name': 'Unit'},],
+    [BlockRow({'dev': 'tas', 'name': 'H', 'item': 0, 'format': '%.3f', 'unit': ' '},
+              {'dev': 'tas', 'name': 'K', 'item': 1, 'format': '%.3f', 'unit': ' '},
+              {'dev': 'tas', 'name': 'L', 'item': 2, 'format': '%.3f', 'unit': ' '},
+              {'dev': 'tas', 'name': 'E', 'item': 3, 'format': '%.3f', 'unit': ' '}),
+     BlockRow({'key': 'tas/scanmode', 'name': 'Mode'},
+              {'dev': 'mono', 'name': 'ki'}, {'dev': 'ana', 'name': 'kf'},
+              {'key': 'tas/energytransferunit', 'name': 'Unit'}),
     ], 'tas')
 
-_rightcolumn = [
-    _axisblock,
-    _detectorblock,
-]
+_rightcolumn = Column(_axisblock, _detectorblock)
 
-_leftcolumn = [
-    _tasblock,
-]
+_leftcolumn = Column(_tasblock)
 
 _warnings = [
 ]
@@ -82,7 +79,7 @@ devices = dict(
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
                      padding = 5,
-                     layout = [[_expcolumn], [_rightcolumn, _leftcolumn]],
+                     layout = [Row(_expcolumn), Row(_rightcolumn, _leftcolumn)],
                      warnings = _warnings,
                      notifiers = [])
 )
