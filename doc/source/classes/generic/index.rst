@@ -18,5 +18,6 @@ valid entries for the class name in a setup file.
    manual
    cache
    system
+   paramdev
    alias
    virtual
