@@ -144,12 +144,12 @@ class ImageStorage(Device, NeedsDatapath):
                                       self._getFilename(self._counter))
         self.lastfilenumber = self._counter
 
-    def _writeFile(self, content, exists_ok=False):
+    def _writeFile(self, content, exists_ok=False, writer=file.write):
         if path.isfile(self.lastfilename) and not exists_ok:
             raise ProgrammingError(self, 'data file %r already exists' %
                                    self.lastfilename)
         with open(self.lastfilename, 'w') as fp:
-            fp.write(content)
+            writer(fp, content)
 
 
 class AsyncDetector(Measurable):

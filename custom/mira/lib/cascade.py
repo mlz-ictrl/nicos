@@ -33,7 +33,7 @@ from time import sleep
 from nicos import session
 from nicos.tas import Monochromator
 from nicos.core import status, tupleof, listof, oneof, Param, Override, Value, \
-     CommunicationError, Readable
+     CommunicationError, Readable, INFO_CATEGORIES
 from nicos.mira import cascadeclient
 from nicos.abstract import ImageStorage, AsyncDetector
 from nicos.taco.detector import FRMDetector
@@ -227,7 +227,19 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         # get final data including all events from detector
         buf = self._readLiveData(self._last_preset, self.lastfilename)
         # and write into measurement file
-        self._writeFile(buf)
+        def writer(fp, buf):
+            # write main data
+            fp.write(buf)
+            # write separator
+            fp.write('\n# begin instrument status\n')
+            # write device info() results
+            for _, device in sorted(session.devices.iteritems()):
+                if device.lowlevel:
+                    continue
+                for _, key, value in device.info():
+                    fp.write('%s_%s : %s\n' % (device, key, value))
+            fp.write('# end instrument status\n')
+        self._writeFile(buf, writer=writer)
         # also write as XML file
         if self.mode == 'image':
             try:
