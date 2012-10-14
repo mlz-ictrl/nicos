@@ -78,6 +78,13 @@ setup contains a few devices that show basic usage of the NICOS system.  Call
 get a list of devices that can be manipulated.  You can also call ``help(dev)``
 to get help for an individual device.
 
+A more involved combination of programs is started automatically by ::
+
+  bin/nicos-demo
+
+This starts the cache, poller, electronic logbook, and daemon services, and also
+starts the graphical interface and a status monitor.
+
 .. You can continue with :ref:`the first steps <firststeps>` from here.
 
 
