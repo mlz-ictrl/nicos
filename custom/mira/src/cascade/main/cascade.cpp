@@ -315,6 +315,8 @@ class MainWindow : public QMainWindow
 					if(!GlobalConfig::GuessConfigFromSize(0,(iLen-4)/4,
 																		false))
 					{
+						static bool bMsgShown = false;
+						
 						QString strMsg("Dimension mismatch in PAD data!\n"
 								"Client expected: %1 bytes\n"
 								"Server sent: %2 bytes");
@@ -322,9 +324,18 @@ class MainWindow : public QMainWindow
 						strMsg = strMsg.arg((int)sizeof(int)*
 								conf.GetImageHeight()*
 								conf.GetImageWidth()).arg(iLen-4);
-						
-						QMessageBox::critical(0, "Cascade - Server", strMsg,
+
+						if(!bMsgShown)
+						{
+							QMessageBox::critical(0, "Cascade - Server", strMsg,
 															QMessageBox::Ok);
+
+							bMsgShown = true;
+						}
+
+						strMsg.replace("\n", ", ");
+						logger.SetCurLogLevel(LOGLEVEL_ERR);
+						logger << "Main: " << strMsg.toAscii().data() << ".\n";
 						return;
 					}
 				}
@@ -385,14 +396,24 @@ class MainWindow : public QMainWindow
 						GetTofConfig().GetPseudoCompression(),
 								(iLen-4)/4, true))
 					{
+						static bool bMsgShown = false;
+						
 						QString strMsg("Dimension mismatch in TOF data!\n"
 									   "Client expected: %1 bytes\n"
 									   "Server sent: %2 bytes");
 
 						strMsg = strMsg.arg(iExpectedSize).arg(iLen-4);
-						
-						QMessageBox::critical(0, "Cascade - Server", strMsg,
+
+						if(!bMsgShown)
+						{
+							QMessageBox::critical(0, "Cascade - Server", strMsg,
 												QMessageBox::Ok);
+
+							bMsgShown = true;
+						}
+
+						strMsg.replace("\n", ", ");
+						logger << "Main: " << strMsg.toAscii().data() << ".\n";
 						return;
 					}
 				}
@@ -1153,6 +1174,10 @@ class MainWindow : public QMainWindow
 			QString strAbout = "Cascade Viewer written by Tobias Weber, 2010-2012.";
 			strAbout += "\n";
 
+			#if defined(CASCADE_VIEVER_VERSION)
+			strAbout += "\nVersion: " + QString(CASCADE_VIEVER_VERSION);
+			#endif
+
 			#if defined(__DATE__) && defined(__TIME__)
 			strAbout += QString("\n") + QString("Build time: ") +
 						QString(__DATE__) + QString(" ") + QString(__TIME__);
@@ -1828,6 +1853,9 @@ int MainWindow::AUTOFETCH_POLL_TIME = 250;
 
 int main(int argc, char **argv)
 {
+	logger.SetCurLogLevel(LOGLEVEL_INFO);
+	logger << "This is Cascade Viewer " << CASCADE_VIEVER_VERSION << ".\n\n";
+	
 	int iRet = -1;
 	try
 	{

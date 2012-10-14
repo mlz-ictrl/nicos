@@ -443,6 +443,7 @@ BatchDlg::BatchDlg(CascadeWidget *pParent) : QDialog(pParent),
 
 	comboWhat->addItem("Plot PAD/TOF to PDF");
 	comboWhat->addItem("Convert Text PAD/TOF to Binary");
+	comboWhat->addItem("Convert PAD/TOF to DAT Format");
 
 	connect(btnSrc, SIGNAL(clicked()), this, SLOT(SelectSrcDir()));
 	connect(btnDst, SIGNAL(clicked()), this, SLOT(SelectDstDir()));
@@ -504,6 +505,10 @@ void BatchDlg::Start()
 				}
 
 				ConvertToBinary(fileinfo.filePath().toAscii().data(), strDstFile.toAscii().data());
+				break;
+		
+			case 2: // convert to dat
+				ConvertToDat(fileinfo.filePath().toAscii().data(), (strDstFile + QString(".dat")).toAscii().data());
 				break;
 		}
 
@@ -642,6 +647,59 @@ void BatchDlg::ConvertToBinary(const char* pcSrc, const char* pcDst)
 			ofstr.write((char*)&uiVal, sizeof(uiVal));
 		}
 	}
+}
+
+void BatchDlg::ConvertToDat(const char* pcSrc, const char* pcDst)
+{
+	bool bIsTof = 0;
+
+	std::string strSrcFileEnding = GetFileEnding(pcSrc);
+	if(strSrcFileEnding=="TOF" || strSrcFileEnding=="tof")
+		bIsTof = 1;
+
+	TofImage *pTof = 0;
+	PadImage *pPad = 0;
+
+	bool bWritten = false;
+
+	if(bIsTof)	// TOF
+	{
+		pTof = new TofImage(pcSrc);
+		if(!pTof->IsOk())
+		{
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Conversion Dialog: Unable to open tof file \"" << pcSrc
+				<< "\" for reading.\n";
+		}
+		else
+		{
+			bWritten = pTof->SaveAsDat(pcDst);
+		}
+	}
+	else		// PAD
+	{
+		pPad = new PadImage(pcSrc);
+		if(!pPad->IsOk())
+		{
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Conversion Dialog: Unable to open pad file \"" << pcSrc
+				<< "\" for reading.\n";
+		}
+		else
+		{
+			bWritten = pPad->SaveAsDat(pcDst);
+		}
+	}
+
+	if(!bWritten)
+	{
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Conversion Dialog: No data written to \"" << pcDst
+				<< "\".\n";
+	}
+
+	if(pTof) delete pTof;
+	if(pPad) delete pPad;
 }
 
 void BatchDlg::ConvertToPDF(const char* pcSrc, const char* pcDst)

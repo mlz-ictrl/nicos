@@ -43,7 +43,8 @@ PadImage::PadImage(const char *pcFileName, bool bExternalMem,
 		: m_puiDaten(0),
 		  m_iMin(0), m_iMax(0),
 		  m_bExternalMem(bExternalMem),
-		  m_bUseRoi(false)
+		  m_bUseRoi(false),
+		  m_bOk(false)
 {
 	if(conf)
 		m_config = *conf;
@@ -68,7 +69,7 @@ PadImage::PadImage(const char *pcFileName, bool bExternalMem,
 		}
 
 		if(pcFileName)
-			LoadFile(pcFileName);
+			m_bOk = (LoadFile(pcFileName) == LOAD_SUCCESS);
 		else
 			memset(m_puiDaten,0,GetPadSize()*sizeof(int));
 	}
@@ -84,6 +85,8 @@ PadImage::PadImage(const PadImage& pad) : m_bExternalMem(false)
 	m_bUseRoi = pad.m_bUseRoi;
 	m_roi = pad.m_roi;
 
+	m_bOk = pad.IsOk();
+
 	m_puiDaten = (unsigned int*)gc.malloc(sizeof(int)*GetPadSize(), "pad_image");
 	if(m_puiDaten == NULL)
 	{
@@ -98,6 +101,8 @@ PadImage::PadImage(const PadImage& pad) : m_bExternalMem(false)
 	else
 		memset(pad.m_puiDaten, 0, sizeof(int)*GetPadSize());
 }
+
+bool PadImage::IsOk() const { return m_bOk; }
 
 PadImage::~PadImage() { Clear(); }
 
@@ -524,30 +529,53 @@ TmpImage PadImage::GetRoiImage() const
 
 void PadImage::GenerateRandomData()
 {
-		for(int iY=0; iY<GetPadConfig().GetImageHeight(); ++iY)
-			for(int iX=0; iX<GetPadConfig().GetImageWidth(); ++iX)
-			{
-				double dX = iX,
-					   dY = iY,
-					   dCenterX = 0.5 * double(GetPadConfig().GetImageWidth()),
-					   dCenterY = 0.5 * double(GetPadConfig().GetImageHeight()),
-					   dSpreadX = sqrt(dCenterX),
-					   dSpreadY = sqrt(dCenterY),
-					   dAmp = 10000.,
-					   dOffs = 10.;
+	for(int iY=0; iY<GetPadConfig().GetImageHeight(); ++iY)
+		for(int iX=0; iX<GetPadConfig().GetImageWidth(); ++iX)
+		{
+			double dX = iX,
+					dY = iY,
+					dCenterX = 0.5 * double(GetPadConfig().GetImageWidth()),
+					dCenterY = 0.5 * double(GetPadConfig().GetImageHeight()),
+					dSpreadX = sqrt(dCenterX),
+					dSpreadY = sqrt(dCenterY),
+					dAmp = 10000.,
+					dOffs = 10.;
 
-				dX += randmp1()*dX*0.1;
-				dY += randmp1()*dY*0.1;
-				dCenterX += randmp1()*dCenterX*0.1;
-				dCenterY += randmp1()*dCenterY*0.1;
-				dSpreadX += randmp1()*dSpreadX*0.1;
-				dSpreadY += randmp1()*dSpreadY*0.1;
-				dAmp += randmp1()*dAmp*0.1;
-				dOffs += randmp1()*dOffs*0.1;
+			dX += randmp1()*dX*0.1;
+			dY += randmp1()*dY*0.1;
+			dCenterX += randmp1()*dCenterX*0.1;
+			dCenterY += randmp1()*dCenterY*0.1;
+			dSpreadX += randmp1()*dSpreadX*0.1;
+			dSpreadY += randmp1()*dSpreadY*0.1;
+			dAmp += randmp1()*dAmp*0.1;
+			dOffs += randmp1()*dOffs*0.1;
 
-				double ddata = dAmp * exp(-0.5*(dX-dCenterX)*(dX-dCenterX)/(dSpreadX*dSpreadX))*
-									 exp(-0.5*(dY-dCenterY)*(dY-dCenterY)/(dSpreadY*dSpreadY));
+			double ddata = dAmp * exp(-0.5*(dX-dCenterX)*(dX-dCenterX)/(dSpreadX*dSpreadX))*
+									exp(-0.5*(dY-dCenterY)*(dY-dCenterY)/(dSpreadY*dSpreadY));
 
-				SetData(iX, iY, (unsigned int)(ddata + dOffs));
-			}
+			SetData(iX, iY, (unsigned int)(ddata + dOffs));
+		}
+}
+
+bool PadImage::SaveAsDat(const char* pcDat) const
+{
+	std::ofstream ofstr(pcDat);
+	if(!ofstr.is_open())
+		return false;
+
+	ofstr << "# type: array_2d\n";
+	ofstr << "# subtype: tobisown\n";
+	ofstr << "# xlabel: x pixels\n";
+	ofstr << "# ylabel: y pixels\n";
+	ofstr << "# zlabel: counts\n";
+
+	for(int iY=0; iY<GetPadConfig().GetImageHeight(); ++iY)
+	{
+		for(int iX=0; iX<GetPadConfig().GetImageWidth(); ++iX)
+			ofstr << GetData(iX, iY) << " ";
+		ofstr << "\n";
+	}
+
+	ofstr.close();
+	return true;
 }

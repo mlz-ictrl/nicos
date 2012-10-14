@@ -206,6 +206,7 @@ class TofImage : public Countable
 
 		Roi m_roi;
 		bool m_bUseRoi;
+		bool m_bOk;
 
 	public:
 		const TofConfig& GetTofConfig() const;
@@ -296,6 +297,10 @@ class TofImage : public Countable
 
 		/// subtract another tof from this
 		void Subtract(const TofImage& tof, double dTimes=1.);
+
+		bool IsOk() const;
+
+		bool SaveAsDat(const char* pcDat) const;
 };
 
 #endif

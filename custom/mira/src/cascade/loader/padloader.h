@@ -57,6 +57,8 @@ class PadImage : public BasicImage, public Countable
 		Roi m_roi;
 		bool m_bUseRoi;
 
+		bool m_bOk;
+
 		/// clean up
 		void Clear(void);
 
@@ -133,6 +135,10 @@ class PadImage : public BasicImage, public Countable
 		TmpImage GetRoiImage() const;
 
 		void GenerateRandomData();
+
+		bool IsOk() const;
+		
+		bool SaveAsDat(const char* pcDat) const;
 };
 
 #endif

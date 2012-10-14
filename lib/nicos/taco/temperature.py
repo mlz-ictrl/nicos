@@ -85,7 +85,10 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
         self._pollParam('setpoint', 100)
 
     def doStop(self):
-        self._taco_guard(self._dev.stop)
+        # NOTE: TACO stop sets the setpoint to the current temperature,
+        # regardless of ramp
+        if self.ramp and self.status(0)[0] == status.BUSY:
+            self._taco_guard(self._dev.stop)
 
     def doStatus(self, maxage=0):
         state = self._taco_guard(self._dev.deviceState)
