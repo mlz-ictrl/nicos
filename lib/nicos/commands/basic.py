@@ -443,6 +443,18 @@ def SetMode(mode):
 
 
 @usercommand
+def sync():
+    """Synchronize simulation copy with master copy.
+
+    This will fetch the current configuration of the actual instrument and apply
+    it to the simulated devices in the current NICOS instance.  Example:
+
+    >>> sync()
+    """
+    session.simulationSync()
+
+
+@usercommand
 @helparglist('dev, ...')
 def ClearCache(*devnames):
     """Clear all cached information for the given device(s).

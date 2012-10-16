@@ -50,7 +50,7 @@ from nicos.utils import formatDocstring
 from nicos.utils.loggers import initLoggers, NicosLogger, \
      ColoredConsoleHandler, NicosLogfileHandler
 from nicos.instrument import Instrument
-from nicos.cache.client import CacheClient, CacheLockError
+from nicos.cache.client import CacheClient, CacheLockError, SyncCacheClient
 from nicos.sessions.utils import makeSessionId, sessionInfo, \
      NicosNamespace, SimClock, EXECUTIONMODES
 
@@ -112,6 +112,8 @@ class Session(object):
         self.excluded_setups = set()
         # contains all explicitly loaded setups
         self.explicit_setups = []
+        # current "sysconfig" dictionary resulting from setup files
+        self.current_sysconfig = {}
         # path to setup files
         self._setup_path = path.join(self.config.control_path,
                                      self.config.setups_path)
@@ -236,6 +238,34 @@ class Session(object):
                 cache.doShutdown()
                 self.cache = None
         self.log.info('switched to %s mode' % mode)
+
+    def simulationSync(self):
+        """Synchronize device values and parameters from current cached values.
+        """
+        if self._mode != 'simulation':
+            raise NicosError('must be in simulation mode')
+        if not self.current_sysconfig.get('cache'):
+            raise NicosError('no cache is configured')
+        client = SyncCacheClient('Syncer', cache=self.current_sysconfig['cache'],
+                                 prefix='nicos/', lowlevel=True)
+        try:
+            db = client.get_values()
+        finally:
+            client.doShutdown()
+        for key, value in db.iteritems():
+            if key.count('/') != 1:
+                continue
+            dev, param = key.split('/')
+            if dev not in self.devices:
+                continue
+            dev = self.devices[dev]
+            if param == 'value':
+                dev._sim_value = value
+                dev._sim_min = dev._sim_max = dev._sim_old_value = None
+            # "status" is ignored: simulated devices are always "OK"
+            elif param in dev.parameters:
+                dev._params[param] = value
+        self.log.info('synchronization complete')
 
     def setSetupPath(self, path):
         """Set the path to the setup files.
@@ -502,6 +532,8 @@ class Session(object):
             self.log.error(', '.join(failed_devs))
 
         self.explicit_setups.extend(setupnames)
+
+        self.current_sysconfig = sysconfig
 
         if self.mode == 'master' and self.cache:
             self.cache._ismaster = True

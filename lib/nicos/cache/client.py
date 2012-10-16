@@ -573,3 +573,44 @@ class CacheClient(BaseCacheClient):
 class DaemonCacheClient(CacheClient):
     def _propagate(self, args):
         session.emitfunc('cache', args)
+
+
+class SyncCacheClient(BaseCacheClient):
+
+    temporary = True
+
+    def doInit(self, mode):
+        self._db = {}
+        BaseCacheClient.doInit(self, mode)
+
+    def get_values(self):
+        # connect, get data, disconnect
+        self._worker.start()
+        self._worker.join()
+        return self._db
+
+    def _connect_action(self):
+        # like for BaseCacheClient, but without request for updates
+        self._socket.sendall('@%s%s\n###%s\n' %
+                             (self._prefix, OP_WILDCARD, OP_ASK))
+
+        # read response
+        data, n = '', 0
+        while not data.endswith('###!\n') and n < 1000:
+            data += self._socket.recv(BUFSIZE)
+            n += 1
+
+        self._process_data(data)
+
+        # stop immediately after reading data
+        self._stoprequest = True
+
+    def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
+        if op not in (OP_TELL, OP_TELLOLD) or not key.startswith(self._prefix):
+            return
+        key = key[len(self._prefix):]
+        if value is None:
+            self._db.pop(key, None)
+        else:
+            # even with TELLOLD; an old value is better than no value
+            self._db[key] = cache_load(value)
