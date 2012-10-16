@@ -183,7 +183,7 @@ class NicosCompleter(rlcompleter.Completer):
                         isinstance(session.devices[k], cls)]
             elif command in self.special_setups:
                 all_setups = [name for (name, info) in session._setup_info.iteritems()
-                              if info['group'] in ('base', 'optional', '')]
+                              if info['group'] in ('basic', 'optional', '')]
                 if command == 'NewSetup':
                     candidates = all_setups
                 elif command == 'AddSetup':
