@@ -710,17 +710,60 @@ class FlatfileCacheDatabase(CacheDatabase):
 
     def _read_one_storefile(self, filename):
         fd = open(filename, 'r+U')
+        # read file format identification
+        firstline = fd.readline()
+        if firstline.startswith('# NICOS cache store file v2'):
+            return self._read_one_storefile_v2(filename, fd)
+        # v1 has no comment; go back to first line for reading
+        fd.seek(0, os.SEEK_SET)
+        return self._convert_storefile(filename, fd)
+
+    def _read_one_storefile_v2(self, filename, fd):
         db = {}
         for line in fd:
             try:
-                subkey, time, value = line.rstrip().split(None, 2)
-                if value != '-':
+                subkey, time, hasttl, value = line.rstrip().split(None, 3)
+                if hasttl == '+':
+                    # the value is valid indefinitely, so we can use it
                     db[subkey] = Entry(float(time), None, value)
-                elif subkey in db:
+                elif value != '-':
+                    # the value is not valid indefinitely, add it but mark as expired
+                    db[subkey] = Entry(float(time), None, value)
+                    db[subkey].expired = True
+                elif subkey in db:  # implied: value == '-'
+                    # the value is already present, but now explicitly invalidated
+                    # => mark it as expired
                     db[subkey].expired = True
             except Exception:
                 self.log.warning('could not interpret line from '
                     'cache file %s: %r' % (filename, line), exc=1)
+        return fd, db
+
+    def _convert_storefile(self, filename, fd):
+        # read whole content and write back in new format
+        self.log.info('converting store file %s to new format' % filename)
+        content = fd.read()
+        fd.seek(0, os.SEEK_SET)
+        fd.write('# NICOS cache store file v2\n')
+        db = {}
+        for line in content.splitlines():
+            try:
+                subkey, time, value = line.rstrip().split(None, 2)
+                if value != '-':
+                    db[subkey] = Entry(float(time), None, value)
+                elif subkey in db:  # implied: value == '-'
+                    db[subkey].expired = True
+            except Exception:
+                self.log.warning('could not interpret line from '
+                    'cache file %s: %r' % (filename, line), exc=1)
+            else:
+                # mark all entries as not expiring, mirroring old behavior
+                if value == '-':
+                    fd.write('%s\t%s\t-\t-\n' % (subkey, time))
+                else:
+                    fd.write('%s\t%s\t+\t%s\n' % (subkey, time, value))
+        # we should have written more than was in the file before, but make sure
+        fd.truncate()
         return fd, db
 
     def initDatabase(self):
@@ -768,7 +811,9 @@ class FlatfileCacheDatabase(CacheDatabase):
             fd = self._cat[category][0] = self._create_fd(category)
             for subkey, entry in db.iteritems():
                 if entry.value:
-                    fd.write('%s\t%s\t%s\n' % (subkey, entry.time, entry.value))
+                    fd.write('%s\t%s\t%s\t%s\n' % (subkey, entry.time,
+                                                   (entry.ttl or entry.expired) and '-' or '+',
+                                                   entry.value))
             fd.flush()
         # set the 'lastday' symlink to the current day directory
         try:
@@ -789,6 +834,10 @@ class FlatfileCacheDatabase(CacheDatabase):
         ensureDirectory(bydate)
         filename = path.join(bydate, category)
         fd = open(filename, 'a+')
+        fd.seek(0, os.SEEK_END)
+        # write version identification, but only for empty files
+        if fd.tell() == 0:
+            fd.write('# NICOS cache store file v2\n')
         bycat = path.join(self._basepath, category, self._year)
         ensureDirectory(bycat)
         linkname = path.join(bycat, self._currday)
@@ -859,10 +908,17 @@ class FlatfileCacheDatabase(CacheDatabase):
         if not path.isfile(fn):
             return
         with open(fn, 'U') as fd:
+            firstline = fd.readline()
+            nsplit = 2
+            if firstline.startswith('# NICOS cache store file v2'):
+                nsplit = 3
+            else:
+                fd.seek(0, os.SEEK_SET)
             for line in fd:
-                fsubkey, time, value = line.rstrip().split(None, 2)
-                if fsubkey == subkey:
-                    time = float(time)
+                fields = line.rstrip().split(None, nsplit)
+                if fields[0] == subkey:
+                    time = float(fields[1])
+                    value = fields[-1]
                     if value == '-':
                         value = ''
                     yield (time, value)
@@ -899,7 +955,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         return ret
 
     def _clean(self):
-        def cleanonce(purge=False):
+        def cleanonce():
             with self._cat_lock:
                 for cat, (fd, lock, db) in self._cat.iteritems():
                     with lock:
@@ -907,22 +963,17 @@ class FlatfileCacheDatabase(CacheDatabase):
                             if not entry.value or entry.expired:
                                 continue
                             time = currenttime()
-                            if entry.ttl and (purge or
-                                              entry.time + entry.ttl < time):
+                            if entry.ttl and (entry.time + entry.ttl < time):
                                 entry.expired = True
                                 for client in self._server._connected.values():
                                     client.update(cat + '/' + subkey,
                                                   OP_TELLOLD, entry.value,
                                                   time, None)
-                                fd.write('%s\t%s\t-\n' % (subkey, time))
+                                fd.write('%s\t%s\t-\t-\n' % (subkey, time))
                                 fd.flush()
         while not self._stoprequest:
             sleep(0.5)
             cleanonce()
-        # mark all entries with TTL as expired so that we do not load expired
-        # values as permanent on cache restart
-        self.log.debug('shutdown: cleaning remaining entries with ttl')
-        cleanonce(purge=True)
 
     def tell(self, key, value, time, ttl, from_client, fdupdate=True):
         if value is None:
@@ -959,7 +1010,10 @@ class FlatfileCacheDatabase(CacheDatabase):
                         update = False
                 if update:
                     db[subkey] = Entry(time, ttl, value)
-                    fd.write('%s\t%s\t%s\n' % (subkey, time, value or '-'))
+                    fd.write('%s\t%s\t%s\t%s\n' % (
+                        subkey, time,
+                        ttl and '-' or (value and '+' or '-'),
+                        value or '-'))
                     fd.flush()
             if update:
                 key = newcat + '/' + subkey
