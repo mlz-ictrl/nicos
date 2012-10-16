@@ -252,6 +252,10 @@ class Session(object):
             db = client.get_values()
         finally:
             client.doShutdown()
+        setups = db.get('session/mastersetupexplicit')
+        if setups is not None and set(setups) != set(self.explicit_setups):
+            self.unloadSetup()
+            self.loadSetup(setups)
         for key, value in db.iteritems():
             if key.count('/') != 1:
                 continue
