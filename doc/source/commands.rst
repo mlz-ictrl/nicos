@@ -57,14 +57,19 @@ Script-related commands
 Do not use these commands from the GUI client, rather use its editor which
 provides Run and Simulate commands.
 
-.. autofunction:: Edit
-.. autofunction:: Run
-.. autofunction:: Simulate
+.. autofunction:: edit
+.. autofunction:: run
+
+Simulation mode commands
+------------------------
+
+.. autofunction:: sim
+.. autofunction:: sync
 
 Notification commands
 ---------------------
 
-.. autofunction:: Notify
+.. autofunction:: notify
 .. autofunction:: SetMailReceivers
 .. autofunction:: SetSMSReceivers
 

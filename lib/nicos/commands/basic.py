@@ -421,7 +421,7 @@ def SetMode(mode):
       as the basis of the simulation.  No hardware communication is possible in
       simulation mode.
 
-      It is not possible to switch back: use the `Simulate()` command for doing
+      It is not possible to switch back: use the `sim()` command for doing
       one-off simulations.
 
     * 'maintenance' mode is for instrument scientists only.
@@ -515,7 +515,7 @@ def _scriptfilename(filename):
 
 
 @usercommand
-def Edit(filename):
+def edit(filename):
     """Edit the script file given by file name.
 
     If the file name is not absolute, it is relative to the experiment script
@@ -523,8 +523,8 @@ def Edit(filename):
 
     Examples:
 
-    >>> Edit('night_16jul')       # edit file in the current script dir
-    >>> Edit('/data/scripts/maint/vanadium')     # edit by complete filename
+    >>> edit('night_16jul')       # edit file in the current script dir
+    >>> edit('/data/scripts/maint/vanadium')     # edit by complete filename
 
     The editor is given by the ``EDITOR`` environment variable, which can be
     conveniently set in the nicos.conf file.
@@ -537,9 +537,11 @@ def Edit(filename):
     os.system('$EDITOR "%s"' % fn)
     reply = raw_input('<R>un or <S>imulate the script? ')
     if reply.upper() == 'R':
-        Run(filename)
+        run(filename)
     elif reply.upper() == 'S':
-        Simulate(filename)
+        sim(filename)
+
+Edit = edit
 
 
 class _ScriptScope(object):
@@ -617,7 +619,7 @@ def _RunCode(code, debug=False):
 
 
 @usercommand
-def Run(filename):
+def run(filename):
     """Run a script file given by file name.
 
     If the file name is not absolute, it is relative to the experiment script
@@ -625,15 +627,17 @@ def Run(filename):
 
     Examples:
 
-    >>> Run('night_16jul')              # run file in the current script dir
-    >>> Run('/data/scripts/maint/vanadium')     # run with complete filename
+    >>> run('night_16jul')              # run file in the current script dir
+    >>> run('/data/scripts/maint/vanadium')     # run with complete filename
     """
     _RunScript(filename, ())
+
+Run = run
 
 
 @usercommand
 @helparglist('filename_or_code, ...')
-def Simulate(what, *devices, **kwargs):
+def sim(what, *devices, **kwargs):
     """Run code or a script file in simulation mode.
 
     If the file name is not absolute, it is relative to the experiment script
@@ -642,14 +646,14 @@ def Simulate(what, *devices, **kwargs):
     For script files, position statistics will be collected for the given list
     of devices:
 
-    >>> Simulate('testscript', T)
+    >>> sim('testscript', T)
 
     will simulate the 'test.py' user script and print out minimum/maximum/
     last value of T during the run.
 
     Example with running code directly:
 
-    >>> Simulate('move(mono, 1.55); read(mtt)')
+    >>> sim('move(mono, 1.55); read(mtt)')
     """
     debug = bool(kwargs.get('debug', False))
     fn = _scriptfilename(what)
@@ -665,17 +669,19 @@ def Simulate(what, *devices, **kwargs):
     session.forkSimulation('_RunScript(%r, [%s], %s)' %
         (what, ', '.join(dev.name for dev in devices), debug))
 
+Simulate = sim
+
 
 @usercommand
 @helparglist('[subject, ]bodytext')
-def Notify(*args):
+def notify(*args):
     """Send a message via email and/or SMS.
 
     The receivers of the message can be selected by `SetMailReceivers()` and
     `SetSMSReceivers()`.  Usage is one of these two:
 
-    >>> Notify('some text')
-    >>> Notify('subject', 'some text')
+    >>> notify('some text')
+    >>> notify('subject', 'some text')
     """
     if len(args) == 1:
         # use first line of text as subject
@@ -686,6 +692,8 @@ def Notify(*args):
         session.notify(subject, text, important=False)
     else:
         raise UsageError("Usage: Notify('text') or Notify('subject', 'text')")
+
+Notify = notify
 
 
 @usercommand
