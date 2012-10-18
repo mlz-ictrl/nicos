@@ -270,8 +270,9 @@ class NicosCmdClient(NicosClient):
                 question += ' [%s] ' % default
             else:
                 question += ' '
+            self.out.write('\r\x1b[K')
             try:
-                ans = raw_input('\r' + question)
+                ans = raw_input('\r' + colorize('bold', question))
             except (KeyboardInterrupt, EOFError):
                 ans = ''
             if not ans:
@@ -393,6 +394,22 @@ class NicosCmdClient(NicosClient):
             try:
                 cmd = raw_input(self.prompt)
             except KeyboardInterrupt:
+                if self.status == 'running':
+                    self.put('== Keyboard interrupt ==', 'bold')
+                    self.put('Please enter how to proceed:')
+                    self.put('<I> ignore this interrupt')
+                    self.put('<H> stop after current step')
+                    #self.put('<L> stop after current scan')
+                    self.put('<S> immediate stop')
+                    res = self.ask_question('Your choice [I/H/S] --->').upper()[:1]
+                    if res == 'I':
+                        continue
+                    elif res == 'H':
+                        self.command('stop', '')
+                    elif res == 'L':
+                        self.put('<L> is not implemented...')
+                    else:
+                        self.command('stop!', '')
                 continue
             except EOFError:
                 self.command('quit', '')
