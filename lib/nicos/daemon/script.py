@@ -73,7 +73,7 @@ class Request(object):
 
 
 class EmergencyStopRequest(Request):
-    """An emergency stop request (while no script is running)."""
+    """An immediate stop request (while no script is running)."""
 
 
 class ScriptError(Exception):
@@ -401,7 +401,7 @@ class ExecutionController(Controller):
 
     def execute_estop(self, user):
         self.log.warn('emergency stop caught, executing ESFs')
-        session.log.warn('Emergency stop requested by %s' % user)
+        session.log.warn('Immediate stop requested by %s' % user)
         # block all pending scripts
         self.block_requests(range(self.reqno_work + 1, self.reqno_latest + 1))
         # now execute emergency stop functions

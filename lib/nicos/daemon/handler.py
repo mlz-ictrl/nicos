@@ -395,14 +395,14 @@ class ConnectionHandler(BaseRequestHandler):
         """Stop the script unconditionally and run emergency stop functions."""
         if self.controller.status in (STATUS_IDLE, STATUS_IDLEEXC):
             # only execute emergency stop functions
-            self.log.warning('emergency stop without script running')
+            self.log.warning('immediate stop without script running')
             self.controller.new_request(EmergencyStopRequest(self.user))
             self.write(ACK)
             return
         elif self.controller.status == STATUS_STOPPING:
             self.write(ACK)
             return
-        self.log.warning('emergency stop request in %s' %
+        self.log.warning('immediate stop request in %s' %
                          self.controller.current_location(True))
         if self.controller.status == STATUS_RUNNING:
             self.controller.set_stop(('emergency stop', self.user.name))

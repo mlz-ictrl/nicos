@@ -139,7 +139,7 @@
      <normaloff>:/emergency</normaloff>:/emergency</iconset>
    </property>
    <property name="text">
-    <string>&amp;Emergency Stop</string>
+    <string>&amp;Immediate Stop</string>
    </property>
   </action>
  </widget>
