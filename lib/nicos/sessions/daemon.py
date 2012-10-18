@@ -160,7 +160,7 @@ class DaemonSession(NoninteractiveSession):
             self.log.warning('Could not generate the help for %r' % obj, exc=1)
             return
         if not isinstance(obj, str):
-            self.log.info('Showing help in the client\'s help window...')
+            self.log.info('Showing help in the client...')
         self.emitfunc('showhelp', data)
 
     def clientExec(self, func, args):

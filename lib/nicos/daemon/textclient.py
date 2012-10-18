@@ -38,6 +38,8 @@ import struct
 import getpass
 import termios
 import readline
+import tempfile
+import subprocess
 import ConfigParser
 import ctypes, ctypes.util
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
@@ -45,7 +47,7 @@ from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 from nicos.daemon import DEFAULT_PORT
 from nicos.daemon.pyctl import STATUS_INBREAK, STATUS_IDLE, STATUS_IDLEEXC
 from nicos.daemon.client import NicosClient
-from nicos.utils import colorize
+from nicos.utils import colorize, which
 from nicos.utils.loggers import ACTION, OUTPUT, INPUT
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
@@ -99,6 +101,7 @@ class NicosCmdClient(NicosClient):
         if os.path.isfile(self.histfile):
             readline.read_history_file(self.histfile)
         self._completions = []
+        self._browser = None
 
     def complete_filename(self, fn, text):
         globs = glob.glob(fn + '*')
@@ -151,49 +154,72 @@ class NicosCmdClient(NicosClient):
         self.signal('status', status)
 
     def signal(self, type, *args):
-        if type == 'error':
-            self.put('# ERROR: ' + args[0], 'red')
-        elif type == 'failed':
-            self.put('# ERROR: ' + args[0], 'red')
-        elif type == 'connected':
-            self.put('# Connected to %s:%s as %s.' %
-                     (self.host, self.port, self.conndata['login']), 'bold')
-            self.initial_update()
-        elif type == 'disconnected':
-            self.put('# Disconnected from server.', 'bold')
-            self.set_status('disconnected')
-        elif type == 'processing':
-            script = args[0].get('script')
-            if script is None:
-                return
-            script = script.splitlines() or ['']
-            if script != self.current_script:
-                self.current_script = script
-        elif type == 'status':
-            status, line = args[0]
-            if status == STATUS_IDLE:
-                self.set_status('idle')
-            elif status == STATUS_IDLEEXC:
-                self.set_status('idle', exception=True)
-            elif status != STATUS_INBREAK:
-                self.set_status('running')
-            else:
-                self.set_status('interrupted')
-            if line != self.current_line:
-                #text = self.current_script[self.current_line-1]
-                #self.put('now executing line %r' % text.strip(), 'darkgray')
-                self.current_line = line
-        elif type == 'message':
-            self.put_message(args[0])
-        elif type == 'clientexec':
-            plot_func_path = args[0][0]
-            try:
-                modname, funcname = plot_func_path.rsplit('.', 1)
-                func = getattr(__import__(modname, None, None, [funcname]),
-                               funcname)
-                func(*args[0][1:])
-            except Exception, err:
-                self.put('# ERROR during "clientexec": %s' % err, 'red')
+        try:
+            if type == 'error':
+                self.put('# ERROR: ' + args[0], 'red')
+            elif type == 'failed':
+                self.put('# ERROR: ' + args[0], 'red')
+            elif type == 'connected':
+                self.put('# Connected to %s:%s as %s.' %
+                         (self.host, self.port, self.conndata['login']), 'bold')
+                self.initial_update()
+            elif type == 'disconnected':
+                self.put('# Disconnected from server.', 'bold')
+                self.set_status('disconnected')
+            elif type == 'processing':
+                script = args[0].get('script')
+                if script is None:
+                    return
+                script = script.splitlines() or ['']
+                if script != self.current_script:
+                    self.current_script = script
+            elif type == 'status':
+                status, line = args[0]
+                if status == STATUS_IDLE:
+                    self.set_status('idle')
+                elif status == STATUS_IDLEEXC:
+                    self.set_status('idle', exception=True)
+                elif status != STATUS_INBREAK:
+                    self.set_status('running')
+                else:
+                    self.set_status('interrupted')
+                if line != self.current_line:
+                    #text = self.current_script[self.current_line-1]
+                    #self.put('now executing line %r' % text.strip(), 'darkgray')
+                    self.current_line = line
+            elif type == 'message':
+                self.put_message(args[0])
+            elif type == 'clientexec':
+                plot_func_path = args[0][0]
+                try:
+                    modname, funcname = plot_func_path.rsplit('.', 1)
+                    func = getattr(__import__(modname, None, None, [funcname]),
+                                   funcname)
+                    func(*args[0][1:])
+                except Exception, err:
+                    self.put('# ERROR during "clientexec": %s' % err, 'red')
+            elif type == 'showhelp':
+                html = args[0][1]
+                fd, fn = tempfile.mkstemp('.html')
+                os.write(fd, html)
+                os.close(fd)
+                if self._browser is None:
+                    if which('links'):
+                        self._browser = 'links'
+                    elif which('w3m'):
+                        self._browser = 'w3m'
+                    else:
+                        self.put('# ERROR: no text browser available. '
+                                 'Install links or w3m.')
+                        return
+                width = str(self.tsize[0])
+                self.out.write('\r\x1b[K\n')
+                if self._browser == 'links':
+                    subprocess.Popen(['links', '-dump', '-width', width, fn]).wait()
+                else:
+                    subprocess.Popen(['w3m', '-dump', '-cols', width, fn]).wait()
+        except Exception, e:
+            self.put('# ERROR in event handler: %s.' % e, 'red')
 
     psmap = {'idle': 'idle',
              'running': 'busy',
