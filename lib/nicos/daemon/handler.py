@@ -411,7 +411,7 @@ class ConnectionHandler(BaseRequestHandler):
 
     # -- Asynchronous script interaction ---------------------------------------
 
-    @command(needcontrol=True, needscript=True, name='exec')
+    @command(needcontrol=True, name='exec')
     def exec_(self, cmd):
         """Execute a Python statement in the context of the running script."""
         if self.controller.status == STATUS_STOPPING:

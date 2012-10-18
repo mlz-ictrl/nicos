@@ -29,20 +29,22 @@ from __future__ import with_statement
 __version__ = "$Revision$"
 
 import os
+import re
+import sys
 import glob
 import time
+import fcntl
+import struct
 import getpass
-import optparse
+import termios
 import ConfigParser
+import ctypes, ctypes.util
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 
-import urwid
-import urwid.escape
-import urwid.raw_display
-import urwid.curses_display
-
+from nicos.daemon import DEFAULT_PORT
 from nicos.daemon.pyctl import STATUS_INBREAK, STATUS_IDLE, STATUS_IDLEEXC
 from nicos.daemon.client import NicosClient
+from nicos.utils import colorize
 from nicos.utils.loggers import ACTION, OUTPUT, INPUT
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
@@ -51,111 +53,77 @@ levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
 def format_time(timeval):
     return time.strftime('[%Y-%m-%d %H:%M:%S]', time.localtime(timeval))
 
+def terminal_size():
+    h, w, hp, wp = struct.unpack('HHHH',
+        fcntl.ioctl(0, termios.TIOCGWINSZ,
+        struct.pack('HHHH', 0, 0, 0, 0)))
+    return w, h
 
-def focus_item(text):
-    return urwid.AttrWrap(urwid.Text(text.rstrip()), None, 'focus')
+def parse_connection_data(s):
+    res = re.match(r"(?:(\w+)@)?([\w.]+)(?::(\d+))?", s)
+    if res is None:
+        return None
+    return res.group(1) or 'guest', res.group(2), \
+           int(res.group(3) or DEFAULT_PORT)
 
-
-class GroupBox(urwid.WidgetWrap):
-    def __init__(self, w, caption):
-        """Draw a line around w, with a caption."""
-
-        utf8decode = lambda s: s.decode('utf-8') # urwid.escape.utf8decode
-        tline = urwid.Divider(utf8decode("─"))
-        bline = urwid.Divider(utf8decode("─"))
-        lline = urwid.SolidFill(utf8decode("│"))
-        rline = urwid.SolidFill(utf8decode("│"))
-        tlcorner = urwid.Text(utf8decode("┌"))
-        trcorner = urwid.Text(utf8decode("┐"))
-        blcorner = urwid.Text(utf8decode("└"))
-        brcorner = urwid.Text(utf8decode("┘"))
-        captext = urwid.Text(' ' + caption + ' ')
-        top = urwid.Columns([('fixed', 1, tlcorner),
-                             tline,
-                             ('fixed', len(caption) + 2, captext),
-                             ('fixed', 10, tline),
-                             ('fixed', 1, trcorner)])
-        middle = urwid.Columns([('fixed', 1, lline), w, ('fixed', 1, rline)],
-                               box_columns=[0, 2], focus_column=1)
-        bottom = urwid.Columns([('fixed', 1, blcorner),
-                                bline, ('fixed', 1, brcorner)])
-        pile = urwid.Pile([('flow', top), middle, ('flow', bottom)],
-                          focus_item=1)
-        urwid.WidgetWrap.__init__(self, pile)
+# unfortunately we need a few functions not exported by Python's readline module
+librl = ctypes.cdll[ctypes.util.find_library('readline')]
 
 
 class NicosCmdClient(NicosClient):
 
-    def __init__(self, conndata):
+    def __init__(self, conndata, tsize):
         NicosClient.__init__(self)
         self.conndata = conndata
-        self.current_script = ''
+        self.current_script = ['']
         self.current_line = -1
+        self.tsize = tsize
+        self.out = sys.stdout
+        self.shorthost = conndata['host'].split('.')[0]
+        self.set_prompt('disconnected')
+        self.in_question = False
 
-        # history handling
-        self._history = []
-        self._hist_start_text = ''
-        self._hist_current = -1
-        # completion handling
+        # completion handling (BROKEN)
         self._completions = []
         self._compindex = -1
 
-        self.scriptitems = urwid.SimpleListWalker([])
-        self.outputitems = urwid.SimpleListWalker([])
-
-        self.title = urwid.AttrWrap(urwid.Text('NICOS - disconnected',
-                                               align='center'), 'header')
-        self.status = urwid.AttrWrap(urwid.Text(''), 'status')
-        self.firstline = urwid.Columns([self.status])
-        self.err = urwid.AttrWrap(urwid.Text(''), 'footer')
-        self.input = urwid.AttrWrap(urwid.Edit('>>> '), 'input', 'focus')
-        self.inputfiller = urwid.Filler(self.input)
-
-        self.scriptbox = urwid.AttrWrap(urwid.ListBox(self.scriptitems), None)
-        self.outputbox = urwid.ListBox(self.outputitems)
-
-        self.pile = urwid.Pile([
-            ('weight', 2, urwid.Frame(GroupBox(self.scriptbox, 'Script'),
-                                      self.firstline)),
-            ('weight', 3, GroupBox(self.outputbox, 'Output')),
-            ('fixed', 1, self.inputfiller),
-        ], focus_item=2)
-        self.top = urwid.Frame(self.pile, self.title, self.err)
-
-    def refresh(self):
-        self.ui.draw_screen(self.size, self.top.render(self.size, focus=True))
+    def put(self, s, c=None):
+        # put a line of text
+        if c:
+            s = colorize(c, s)
+        self.out.write('\r\x1b[K%s\n' % s)
+        librl.rl_forced_update_display()
+        self.out.flush()
 
     def initial_update(self):
         allstatus = self.ask('getstatus')
         if allstatus is None:
             return
         status, script, output, watch, setups = allstatus
-        for msg in output:
-            self.add_message(msg)
+        for msg in output[-self.tsize[1]:]:
+            self.put_message(msg)
         self.signal('processing', {'script': script})
         self.signal('status', status)
 
     def signal(self, type, *args):
         if type == 'error':
-            self.err.set_text('ERROR: ' + args[0])
+            self.put('# ERROR: ' + args[0], 'red')
         elif type == 'failed':
-            self.err.set_text('ERROR: ' + args[0])
+            self.put('# ERROR: ' + args[0], 'red')
         elif type == 'connected':
-            self.title.set_text('NICOS - connected to %s:%s as %s' %
-                                (self.host, self.port, self.conndata['login']))
+            self.put('# Connected to %s:%s as %s.' %
+                     (self.host, self.port, self.conndata['login']), 'bold')
             self.initial_update()
         elif type == 'disconnected':
-            self.title.set_text('NICOS - disconnected')
-            self.status.set_text('')
+            self.put('# Disconnected from server.', 'bold')
+            self.set_status('disconnected')
         elif type == 'processing':
             script = args[0].get('script')
             if script is None:
                 return
+            script = script.splitlines() or ['']
             if script != self.current_script:
-                self.scriptitems[:] = [focus_item('   ' + line)
-                                       for line in script.splitlines()]
                 self.current_script = script
-                self.current_line = -1
         elif type == 'status':
             status, line = args[0]
             if status == STATUS_IDLE:
@@ -167,98 +135,112 @@ class NicosCmdClient(NicosClient):
             else:
                 self.set_status('interrupted')
             if line != self.current_line:
-                try:
-                    if self.current_line != -1:
-                        text = self.scriptitems[self.current_line-1].get_text()[0]
-                        self.scriptitems[self.current_line-1].set_text(
-                            '   ' + text[3:])
-                    if 0 < line <= len(self.scriptitems):
-                        text = self.scriptitems[line-1].get_text()[0]
-                        self.scriptitems[line-1].set_text('-> ' + text[3:])
-                except IndexError:
-                    pass
+                #text = self.current_script[self.current_line-1]
+                #self.put('now executing line %r' % text.strip(), 'darkgray')
                 self.current_line = line
         elif type == 'message':
-            self.add_message(args[0])
-        self.refresh()
+            self.put_message(args[0])
+        elif type == 'clientexec':
+            plot_func_path = args[0][0]
+            try:
+                modname, funcname = plot_func_path.rsplit('.', 1)
+                func = getattr(__import__(modname, None, None, [funcname]),
+                               funcname)
+                func(*args[0][1:])
+            except Exception, err:
+                self.put('# ERROR during "clientexec": %s' % err, 'red')
 
-    def add_message(self, msg):
+
+    psmap = {'idle': 'idle',
+             'running': 'busy',
+             'interrupted': 'break',
+             'disconnected': 'disconnected'
+    }
+    pcmap = {'idle': 'blue',
+             'running': 'fuchsia',
+             'interrupted': 'red',
+             'disconnected': 'darkgray'}
+
+    def set_prompt(self, status):
+        self.prompt = colorize(self.pcmap[status],
+            '\r' + self.shorthost + '[%s] >>> ' % self.psmap[status])
+
+    def put_message(self, msg):
         if msg[0] == 'nicos':
             namefmt = ''
         else:
             namefmt = '%-10s: ' % msg[0]
         timefmt = format_time(msg[1])
-        if msg[2] == ACTION:
-            # ignore
-            newtext = ''
+        levelno = msg[2]
+        if levelno == ACTION:
+            self.out.write('\033]0;%s%s\007' % (namefmt, msg[3].rstrip()))
+            return
         else:
-            if msg[2] <= OUTPUT:
-                newtext = namefmt + msg[3]
-            elif msg[2] == INPUT:
-                # do not display input again
-                newtext = msg[3]
+            if levelno <= DEBUG:
+                newtext = colorize('darkgray', namefmt + msg[3].rstrip())
+            if levelno <= OUTPUT:
+                newtext = namefmt + msg[3].rstrip()
+            elif levelno == INPUT:
+                newtext = colorize('bold', msg[3].rstrip())
+            elif levelno <= WARNING:
+                newtext = colorize('fuchsia', timefmt + ' ' + namefmt +
+                                   levels[levelno] + ': ' + msg[3].rstrip())
             else:
-                newtext = timefmt + ' ' + namefmt + levels[msg[2]] + ': ' + msg[3]
-        if newtext:
-            self.outputitems.append(focus_item(newtext))
-            self.outputbox.set_focus(len(self.outputitems)-1)
-            self.outputbox.make_cursor_visible(self.size)
+                newtext = colorize('red', timefmt + ' ' + namefmt +
+                                   levels[levelno] + ': ' + msg[3].rstrip())
+        self.put(newtext)
 
     def ask_question(self, question, yesno=False, default='', passwd=False):
-        if yesno:
-            question += ' [y/n] '
-        elif default:
-            question += ' [%s] ' % default
-        else:
-            question += ' '
-        self.input.set_caption(question)
-        self.input.set_edit_text('')
-        self.refresh()
+        self.in_question = True
         try:
-            while 1:
-                if not passwd:
-                    self.refresh()
-                keys = self.ui.get_input()
-                for k in keys:
-                    if yesno:
-                        if k in 'yn':
-                            return k
-                    else:
-                        if k == 'enter':
-                            text = self.input.get_edit_text() or default
-                            self.input.set_edit_text('')
-                            return text
-                        else:
-                            self.inputfiller.keypress(self.size, k)
+            if yesno:
+                question += ' [y/n] '
+            elif default:
+                question += ' [%s] ' % default
+            else:
+                question += ' '
+            ans = raw_input('\r' + question)
+            if not ans:
+                ans = default
+            if yesno:
+                if ans.startswith(('y', 'Y')):
+                    return 'y'
+                return 'n'
+            return ans
         finally:
-            self.input.set_caption('>>> ')
+            self.in_question = False
+            librl.rl_set_prompt(self.prompt)
 
     def help(self):
-        self.err.set_text('Meta-commands: /break, /cont, /stop, /stop!, '
-                          '/reload, /exec <cmd>,\n/e(dit) <filename>, '
-                          '/r(un) <filename>, /update <filename>, '
-                          '/connect, /disconnect, /q(uit)')
+        self.put('# Meta-commands: /break, /cont, /stop, /stop!, '
+                 '/reload, /e(dit) <filename>, '
+                 '/r(un) <filename>, /update <filename>, '
+                 '/connect, /disconnect, /q(uit)', 'turquoise')
 
     def command(self, cmd, arg):
         if cmd == 'cmd':
-            self.tell('queue', '', arg)
+            if self.status != 'idle':
+                if self.ask_question('A script is already running, execute anyway?',
+                                     yesno=True, default='y') == 'y':
+                    self.tell('exec', arg)
+            else:
+                self.tell('queue', '', arg)
         elif cmd in ('r', 'run'):
             try:
                 code = open(arg).read()
             except Exception, e:
-                self.err.set_text('Unable to open file: %s' % e)
+                self.put('# ERROR: Unable to open file: %s' % e, 'red')
                 return
             self.tell('queue', arg, code)
         elif cmd == 'update':
             try:
                 code = open(arg).read()
             except Exception, e:
-                self.err.set_text('Unable to open file: %s' % e)
+                self.put('# ERROR: Unable to open file: %s' % e, 'red')
                 return
             self.tell('update', code)
         elif cmd in ('e', 'edit'):
             ret = os.system('$EDITOR ' + arg)
-            self.ui.clear()
             if ret == 0:
                 if self.ask_question('Run file?', yesno=True) == 'y':
                     return self.command('run', arg)
@@ -279,7 +261,7 @@ class NicosCmdClient(NicosClient):
                 self.disconnect()
         elif cmd == 'connect':
             if self.connected:
-                self.err.set_text('Already connected!')
+                self.put('# ERROR: Already connected. Use /disconnect.', 'red')
             else:
                 hostport = '%s:%s' % (self.conndata['host'],
                                       self.conndata['port'])
@@ -288,13 +270,15 @@ class NicosCmdClient(NicosClient):
                     host, port = server.split(':', 1)
                     port = int(port)
                 except ValueError:
-                    pass
+                    host = server
+                    port = DEFAULT_PORT
                 self.conndata['host'] = host
                 self.conndata['port'] = port
                 user = self.ask_question('User name?', default=self.conndata['login'])
                 self.conndata['login'] = user
                 passwd = self.ask_question('Password?', passwd=True)
                 self.conndata['passwd'] = passwd
+                self.shorthost = self.conndata['host'].split('.')[0]
                 self.connect(self.conndata)
         elif cmd in ('q', 'quit'):
             self.disconnect()
@@ -302,42 +286,7 @@ class NicosCmdClient(NicosClient):
         elif cmd in ('h', 'help'):
             self.help()
         else:
-            self.err.set_text('Unknown command: %s' % cmd)
-
-    def _histkey(self, key):
-        if key == 'up':
-            # go earlier
-            if self._hist_current == -1:
-                self._hist_start_text = self.input.get_edit_text()
-                self._hist_current = len(self._history)
-            self._histstep(-1)
-        elif key == 'down':
-            # go later
-            if self._hist_current == -1:
-                return
-            self._histstep(1)
-        elif key == 'enter':
-            # accept - add to history and do normal processing
-            self._hist_current = -1
-            text = str(self.input.get_edit_text())
-            if text and (not self._history or self._history[-1] != text):
-                # append to history, but only if it isn't equal to the last one
-                self._history.append(text)
-
-    def _histstep(self, num):
-        self._hist_current += num
-        if self._hist_current <= -1:
-            # no further
-            self._hist_current = 0
-            return
-        if self._hist_current >= len(self._history):
-            # back to start
-            self._hist_current = -1
-            self.input.set_edit_text(self._hist_start_text)
-            self.input.set_edit_pos(len(self._hist_start_text))
-            return
-        self.input.set_edit_text(self._history[self._hist_current])
-        self.input.set_edit_pos(len(self._history[self._hist_current]))
+            self.put('# ERROR: Unknown command %r.' % cmd, 'red')
 
     def _completefn(self, text):
         if self._completions:
@@ -366,82 +315,42 @@ class NicosCmdClient(NicosClient):
             self.input.set_edit_pos(len(newtext))
 
     def set_status(self, status, exception=False):
-        self.status.set_text('Status: ' + status)
-        self.status.set_attr(status)
+        self.status = status
+        self.set_prompt(status)
+        if not self.in_question:
+            librl.rl_set_prompt(self.prompt)
+        librl.rl_forced_update_display()
 
     def run(self):
-        self.size = self.ui.get_cols_rows()
         self.help()
         self.connect(self.conndata)
 
-        focus = 2
         while 1:
-            self.refresh()
             try:
-                keys = self.ui.get_input()
+                cmd = raw_input(self.prompt)
             except KeyboardInterrupt:
-                self.input.set_edit_text('')
                 continue
-            for k in keys:
-                if k == 'window resize':
-                    self.size = self.ui.get_cols_rows()
-                elif k == 'enter':
-                    self._histkey('enter')
-                    cmd = self.input.get_edit_text()
-                    self.input.set_edit_text('')
-                    self.err.set_text('')
-                    if cmd.startswith('/'):
-                        args = cmd[1:].split(None, 1) + ['','']
-                        ret = self.command(args[0], args[1])
-                        if ret is not None:
-                            return ret
-                    elif not cmd:
-                        pass
-                    else:
-                        self.command('cmd', cmd)
-                elif k == 'tab':
-                    text = self.input.get_edit_text()
-                    if text.startswith('/e') or \
-                       text.startswith('/r') or \
-                       text.startswith('/update'):
-                        # if /edit, /run or /update are there, complete filename
-                        self._completefn(text)
-                    else:
-                        # else tab through the three main widgets
-                        focus = (focus + 1) % 3
-                    self.pile.set_focus(focus)
-                elif k in ('up', 'down'):
-                    if self.pile.get_focus() == self.inputfiller:
-                        # if in command input, step in history
-                        self._histkey(k)
-                    else:
-                        # else, scroll through the items
-                        self.top.keypress(self.size, k)
-                elif k == 'ctrl d':
-                    if not self.input.get_edit_text():
-                        return self.command('quit', '')
-                else:
-                    self._completions = []
-                    self.top.keypress(self.size, k)
+            except EOFError:
+                self.command('quit', '')
+                self.out.write('\n')
+                return
+            if cmd.startswith('/'):
+                args = cmd[1:].split(None, 1) + ['','']
+                ret = self.command(args[0], args[1])
+                if ret is not None:
+                    return ret
+            elif not cmd:
+                pass
+            else:
+                self.command('cmd', cmd)
 
     def main(self):
-        self.ui = urwid.raw_display.Screen()
-        self.ui.register_palette([
-            ('header', 'light blue', 'black', ('bold', 'underline')),
-            ('footer', 'dark red', 'default', ()),
-            ('status', 'light cyan', 'black', ('bold',)),
-            ('input', 'white', 'black', ()),
-            ('focus',  'yellow', 'dark blue', ('bold',)),
-            ('running', 'white', 'dark green', ()),
-            ('interrupted', 'white', 'dark red', ()),
-            ('idle', 'white', 'light gray', ()),
-        ])
-        return self.ui.run_wrapper(self.run)
+        self.run()
 
 
 def main(argv):
-    parser = optparse.OptionParser(usage='''\
-%prog [options]
+    help = '''\
+Usage: %s user@server:port
 
 Defaults can be given in ~/.nicos-cmd, like this:
 
@@ -449,48 +358,51 @@ Defaults can be given in ~/.nicos-cmd, like this:
 server=localhost:1301
 user=admin
 passwd=secret
-''')
-    parser.add_option('-s', '--server', dest='server', metavar='host:port',
-                      help='server host/port to connect to')
-    parser.add_option('-u', '--user', dest='user',
-                      help='username to connect with')
+'''
 
-    options, args = parser.parse_args(argv)
+    server = None
+    user = None
+    passwd = None
+
+    if argv[1:]:
+        cd = parse_connection_data(argv[1])
+        server = '%s:%s' % cd[1:3]
+        user = cd[0]
 
     config = ConfigParser.RawConfigParser()
     config.read([os.path.expanduser('~/.nicos-cmd')])
     cfgserver = False
-    if options.server is None:
+    if server is None:
         if config.has_option('connect', 'server'):
             cfgserver = True
-            options.server = config.get('connect', 'server')
+            server = config.get('connect', 'server')
         else:
-            parser.error('server option must be given if not in config file')
-    if options.user is None:
+            print help % argv[0]
+            return 1
+    if user is None:
         if cfgserver and config.has_option('connect', 'user'):
-            options.user = config.get('connect', 'user')
+            user = config.get('connect', 'user')
         else:
-            options.user = raw_input('User name: ')
+            user = raw_input('User name: ')
 
     if cfgserver and config.has_option('connect', 'passwd'):
         passwd = config.get('connect', 'passwd')
     else:
-        passwd = getpass.getpass('Password for %s on %s: ' %
-                                 (options.user, options.server))
+        passwd = getpass.getpass('Password for %s on %s: ' % (user, server))
 
     try:
-        host, port = options.server.split(':', 1)
+        host, port = server.split(':', 1)
     except ValueError:
-        host = options.server
-        port = 1301
+        host = server
+        port = DEFAULT_PORT
     conndata = {
         'host': host,
         'port': int(port),
         'display': '',
-        'login': options.user,
-        'gzip': False,
+        'login': user,
         'passwd': passwd,
     }
 
-    client = NicosCmdClient(conndata)
+    tsize = terminal_size()
+    client = NicosCmdClient(conndata, tsize)
     return client.main()

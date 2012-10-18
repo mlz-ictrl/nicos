@@ -50,10 +50,6 @@ Requirements
   - PyQwt (optional, for liveplot display)
   - scipy (optional, for fitting)
 
-.. * For the client-server text UI:   (which doesn't currently work)
-
-  - urwid
-
 
 Configure and build in-place for experimenting
 ----------------------------------------------

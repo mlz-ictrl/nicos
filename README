@@ -47,9 +47,6 @@ Requirements
   - PyQwt (optional, for liveplot display)
   - scipy (optional, for fitting)
 
-* For the daemon text UI:
-  - urwid
-  
 * For the status monitor: one of
   - PyQt4
   - PyGTK
