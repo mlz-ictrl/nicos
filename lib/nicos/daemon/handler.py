@@ -71,10 +71,12 @@ def command(needcontrol=False, needscript=None, name=None):
     parameters can be set to avoid boilerplate in the handler functions.
     """
     def deco(func):
-        nargs = func.func_code.co_argcount - 1
+        nargsmax = func.func_code.co_argcount - 1
+        nargsmin = nargsmax - len(func.func_defaults or ())
         def wrapper(self, args):
-            if len(args) != nargs:
+            if not nargsmin <= len(args) <= nargsmax:
                 self.write(NAK, 'invalid number of arguments')
+                return
             if needcontrol:
                 if not self.check_control():
                     self.write(NAK, 'you do not have control of the session')
@@ -451,9 +453,9 @@ class ConnectionHandler(BaseRequestHandler):
             self.write(ACK)
 
     @command()
-    def complete(self, prefix):
+    def complete(self, prefix, line=None):
         """Get completions for the given prefix."""
-        matches = sorted(set(self.controller.completer.get_matches(prefix)))
+        matches = sorted(set(self.controller.completer.get_matches(prefix, line)))
         self.write(STX, serialize(matches))
 
     # -- Runtime information commands ------------------------------------------

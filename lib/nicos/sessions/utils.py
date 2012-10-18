@@ -161,13 +161,14 @@ class NicosCompleter(rlcompleter.Completer):
         return [m for m in matches if not (m[textlen:].startswith(('_', 'do'))
                                            or m[textlen:] in self.attr_hidden)]
 
-    def global_matches(self, text):
+    def global_matches(self, text, line=None):
         """Compute matches when text is a simple name.
 
         Return a list of all keywords, built-in functions and names currently
         defined in self.namespace that match.
         """
-        line = readline.get_line_buffer()
+        if line is None:
+            line = readline.get_line_buffer()
         if '(' in line:
             command = line[:line.index('(')].lstrip()
             if command in self.special_device:
@@ -211,11 +212,11 @@ class NicosCompleter(rlcompleter.Completer):
                     matches.append(self._callable_postfix(val, word))
         return [m for m in matches if m[:-1] not in self.global_hidden]
 
-    def get_matches(self, text):
+    def get_matches(self, text, line=None):
         if '.' in text:
             return self.attr_matches(text)
         else:
-            return self.global_matches(text)
+            return self.global_matches(text, line)
 
 
 class LoggingStdout(object):

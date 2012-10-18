@@ -37,6 +37,7 @@ import fcntl
 import struct
 import getpass
 import termios
+import readline
 import ConfigParser
 import ctypes, ctypes.util
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
@@ -69,6 +70,14 @@ def parse_connection_data(s):
 # unfortunately we need a few functions not exported by Python's readline module
 librl = ctypes.cdll[ctypes.util.find_library('readline')]
 
+DEFAULT_BINDINGS = '''\
+tab: complete
+"\\e[5~": history-search-backward
+"\\e[6~": history-search-forward
+"\\e[1;3D": backward-word
+"\\e[1;3C": forward-word
+'''
+
 
 class NicosCmdClient(NicosClient):
 
@@ -82,10 +91,46 @@ class NicosCmdClient(NicosClient):
         self.shorthost = conndata['host'].split('.')[0]
         self.set_prompt('disconnected')
         self.in_question = False
-
-        # completion handling (BROKEN)
+        for line in DEFAULT_BINDINGS.splitlines():
+            readline.parse_and_bind(line)
+        readline.set_completer(self.completer)
+        readline.set_history_length(10000)
+        self.histfile = os.path.expanduser('~/.nicoshistory')
+        if os.path.isfile(self.histfile):
+            readline.read_history_file(self.histfile)
         self._completions = []
-        self._compindex = -1
+
+    def complete_filename(self, fn, text):
+        globs = glob.glob(fn + '*')
+        return [(f + ('/' if os.path.isdir(f) else ''))[len(fn)-len(text):]
+                for f in globs]
+
+    def completer(self, text, state):
+        if state == 0:
+            line = readline.get_line_buffer()
+            if line.startswith('/'):
+                parts = line[1:].split()
+                if len(parts) < 2 and not line.endswith(' '):
+                    self._completions = [cmd for cmd in self.commands
+                                         if cmd.startswith(text)]
+                else:
+                    if parts[0] in ('r', 'run', 'e', 'edit', 'update'):
+                        try:
+                            fn = parts[1]
+                        except IndexError:
+                            fn = ''
+                        self._completions = self.complete_filename(fn, text)
+                    else:
+                        self._completions = []
+            else:
+                try:
+                    self._completions = self.ask('complete', text, line)
+                except Exception:
+                    self._completions = []
+        try:
+            return self._completions[state]
+        except IndexError:
+            return None
 
     def put(self, s, c=None):
         # put a line of text
@@ -150,7 +195,6 @@ class NicosCmdClient(NicosClient):
             except Exception, err:
                 self.put('# ERROR during "clientexec": %s' % err, 'red')
 
-
     psmap = {'idle': 'idle',
              'running': 'busy',
              'interrupted': 'break',
@@ -182,13 +226,14 @@ class NicosCmdClient(NicosClient):
                 newtext = namefmt + msg[3].rstrip()
             elif levelno == INPUT:
                 newtext = colorize('bold', msg[3].rstrip())
+                #return
             elif levelno <= WARNING:
                 newtext = colorize('fuchsia', timefmt + ' ' + namefmt +
                                    levels[levelno] + ': ' + msg[3].rstrip())
             else:
                 newtext = colorize('red', timefmt + ' ' + namefmt +
                                    levels[levelno] + ': ' + msg[3].rstrip())
-        self.put(newtext)
+        self.put(msg[5] + newtext)
 
     def ask_question(self, question, yesno=False, default='', passwd=False):
         self.in_question = True
@@ -199,7 +244,10 @@ class NicosCmdClient(NicosClient):
                 question += ' [%s] ' % default
             else:
                 question += ' '
-            ans = raw_input('\r' + question)
+            try:
+                ans = raw_input('\r' + question)
+            except (KeyboardInterrupt, EOFError):
+                ans = ''
             if not ans:
                 ans = default
             if yesno:
@@ -217,6 +265,10 @@ class NicosCmdClient(NicosClient):
                  '/r(un) <filename>, /update <filename>, '
                  '/connect, /disconnect, /q(uit)', 'turquoise')
 
+    commands = ['queue', 'run', 'edit', 'update', 'break', 'cont',
+                'stop', 'stop!', 'exec', 'disconnect', 'connect',
+                'quit', 'help', 'history']
+
     def command(self, cmd, arg):
         if cmd == 'cmd':
             if self.status != 'idle':
@@ -225,13 +277,20 @@ class NicosCmdClient(NicosClient):
                     self.tell('exec', arg)
             else:
                 self.tell('queue', '', arg)
+        elif cmd == 'queue':
+            self.tell('queue', '', arg)
         elif cmd in ('r', 'run'):
             try:
                 code = open(arg).read()
             except Exception, e:
                 self.put('# ERROR: Unable to open file: %s' % e, 'red')
                 return
-            self.tell('queue', arg, code)
+            if self.status != 'idle':
+                if self.ask_question('A script is already running, queue script?',
+                                     yesno=True, default='y') == 'y':
+                    self.tell('queue', arg, code)
+            else:
+                self.tell('queue', arg, code)
         elif cmd == 'update':
             try:
                 code = open(arg).read()
@@ -285,34 +344,13 @@ class NicosCmdClient(NicosClient):
             return 0   # exit
         elif cmd in ('h', 'help'):
             self.help()
+        elif cmd in ('hist', 'history'):
+            allstatus = self.ask('getstatus')
+            for msg in allstatus[2]:
+                self.put_message(msg)
+            self.put('# End of all messages.', 'bold')
         else:
             self.put('# ERROR: Unknown command %r.' % cmd, 'red')
-
-    def _completefn(self, text):
-        if self._completions:
-            self._compindex = (self._compindex + 1) % len(self._completions)
-            newtext = self._completions[self._compindex]
-        else:
-            try:
-                cmd, fn = text.split(None, 1)
-            except ValueError:
-                return
-            newtext = ''
-            globs = glob.glob(fn + '*')
-            if len(globs) == 1:
-                newtext = cmd + ' ' + globs[0]
-                if os.path.isdir(globs[0]):
-                    newtext += '/'
-            else:
-                prefix = os.path.commonprefix(globs)
-                if prefix:
-                    newtext = cmd + ' ' + prefix
-                self._completions = [
-                    '%s %s%s' % (cmd, g, (os.path.isdir(g) and '/' or ''))
-                    for g in globs]
-        if newtext:
-            self.input.set_edit_text(newtext)
-            self.input.set_edit_pos(len(newtext))
 
     def set_status(self, status, exception=False):
         self.status = status
@@ -346,6 +384,7 @@ class NicosCmdClient(NicosClient):
 
     def main(self):
         self.run()
+        readline.write_history_file(self.histfile)
 
 
 def main(argv):
@@ -388,7 +427,11 @@ passwd=secret
     if cfgserver and config.has_option('connect', 'passwd'):
         passwd = config.get('connect', 'passwd')
     else:
-        passwd = getpass.getpass('Password for %s on %s: ' % (user, server))
+        try:
+            passwd = getpass.getpass('Password for %s on %s: ' % (user, server))
+        except EOFError:
+            print '\nCancelled.'
+            return 1
 
     try:
         host, port = server.split(':', 1)
@@ -398,7 +441,7 @@ passwd=secret
     conndata = {
         'host': host,
         'port': int(port),
-        'display': '',
+        'display': os.getenv('DISPLAY'),
         'login': user,
         'passwd': passwd,
     }
