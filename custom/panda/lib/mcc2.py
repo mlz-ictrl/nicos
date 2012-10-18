@@ -58,13 +58,13 @@ class MCC2Coder(NicosCoder):
         'addr'          : Param(' address of MCC2 to use (0 to 15)',
                             type=intrange(0, 15), default=0),
         'slope'         : Param('coder units per degree of rotation',
-                            type=float, default=1),
+                            type=float, default=1,settable=True),
         'zerosteps'     : Param('coder steps at physical zero',
-                            type=int, default=0),
+                            type=int, default=0,settable=True),
         'codertype'     : Param('type of encoder',
-                            type=oneof('none', 'incremental', 'ssi-binary', 'ssi-gray'), default='none'),
+                            type=oneof('none', 'incremental', 'ssi-binary', 'ssi-gray'), default='none',settable=True),
         'coderbits'     : Param('number of bits of ssi-encoder',
-                            type=intrange(0, 31), default=0),
+                            type=intrange(0, 31), default=0,settable=True),
     }
     codertypes = ('none', 'incremental', 'ssi-binary', 'ssi-gray')
     @property   # XXX maybe lazy_property ???
@@ -102,7 +102,8 @@ class MCC2Coder(NicosCoder):
     def doRead(self, maxage=0):
         return (float(self.comm('XP22R')) - self.zerosteps) / self.slope
     def doSetPosition(self,pos):
-        return NicosCoder.doSetPosition(self, pos) # will raise NotImplementedError
+        self.comm('XP22S%d'%int(float(pos)*self.slope+self.zerosteps))
+        return self.doRead()#NicosCoder.doSetPosition(self, pos) # will raise NotImplementedError
     @usermethod
     def store(self):
         return self.comm('SA')
