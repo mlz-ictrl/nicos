@@ -236,10 +236,11 @@ def ListSetups():
     for name, info in session.getSetupInfo().iteritems():
         if info['group'] == 'special':
             continue
-        items.append((name, info['description'],
+        items.append((name, name in session.loaded_setups and 'yes' or '',
+                      info['description'],
                       ', '.join(sorted(info['devices']))))
     items.sort()
-    printTable(('name', 'description', 'devices'), items, printinfo)
+    printTable(('name', 'loaded', 'description', 'devices'), items, printinfo)
 
 @usercommand
 def _Restart():
