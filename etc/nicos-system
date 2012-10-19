@@ -86,7 +86,11 @@ def read_pidfile(name, wait=0):
     pid = int(pid)
     try:
         params = open('/proc/%d/cmdline' % pid, 'r').read().split('\0')
-        if not params[1].endswith(name):   # not our process?
+        if '-' in name:
+            procname, instname = name.split('-')
+            if not params[1].endswith(procname) and instname in params[2:]:
+                raise ValueError
+        elif not params[1].endswith(name):   # not our process?
             raise ValueError
         return pid
     except Exception:
@@ -103,7 +107,12 @@ def start_daemon(name):
     if previous_pid:
         print 'already running? (pid = %d)' % previous_pid
         return
-    os.system('%s -d' % path.join(root_path, 'bin', 'nicos-%s' % name))
+    try:
+        procname, instname = name.split('-')
+    except:
+        procname, instname = name, ''
+    executable = path.join(root_path, 'bin', 'nicos-%s' % procname)
+    os.system('%s %s -d' % (executable, instname))
     pid = read_pidfile(name, wait=20)
     if not pid:
         print 'failed'
