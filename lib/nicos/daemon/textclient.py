@@ -93,7 +93,7 @@ class NicosCmdClient(NicosClient):
         self.tsize = terminal_size()
         self.out = sys.stdout
         self.browser = None
-        self.shorthost = conndata['host'].split('.')[0]
+        self.instrument = conndata['host'].split('.')[0]
         self.in_question = False
         self.in_editing = False
         self.scriptdir = '.'
@@ -114,7 +114,7 @@ class NicosCmdClient(NicosClient):
 
     def set_prompt(self, status):
         self.prompt = '\x01' + colorize(self.pcmap[status],
-            '\r\x1b[K\x02# ' + self.shorthost + '[%s] >> \x01' % status) + '\x02'
+            '\r\x1b[K\x02# ' + self.instrument + '[%s] >> \x01' % status) + '\x02'
 
     def set_status(self, status):
         self.status = status
@@ -178,6 +178,9 @@ class NicosCmdClient(NicosClient):
         self.signal('processing', {'script': script})
         self.signal('status', status)
         self.scriptdir = self.eval('session.experiment.scriptdir', '.')
+        self.instrument = self.eval('session.instrument.instrument',
+                                    self.instrument)
+        self.set_status(self.status)
 
     def signal(self, type, *args):
         try:
@@ -315,7 +318,7 @@ class NicosCmdClient(NicosClient):
         if not self.conndata['passwd'] or ask_all:
             passwd = self.ask_question('Password?', passwd=True)
             self.conndata['passwd'] = passwd
-        self.shorthost = self.conndata['host'].split('.')[0]
+        self.instrument = self.conndata['host'].split('.')[0]
         self.connect(self.conndata)
 
     def help(self, arg):
