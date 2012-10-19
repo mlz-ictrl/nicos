@@ -206,8 +206,10 @@ class NicosCmdClient(NicosClient):
             elif type == 'failed':
                 self.put_error(args[0])
             elif type == 'connected':
-                self.put_client('Connected to %s:%s as %s.' %
-                                (self.host, self.port, self.conndata['login']))
+                self.put_client(
+                    'Connected to %s:%s as %s. '
+                    'Replaying output (enter "/log" to see more)...' %
+                    (self.host, self.port, self.conndata['login']))
                 self.initial_update()
             elif type == 'disconnected':
                 self.put_client('Disconnected from server.')
@@ -248,7 +250,8 @@ class NicosCmdClient(NicosClient):
                         'session.experiment.scriptdir', '.')
             elif type == 'simresult':
                 timing = args[0][0]
-                self.put_client('Simulated minimum runtime: %s (finishes approximately %s).' %
+                self.put_client('Simulated minimum runtime: %s '
+                                '(finishes approximately %s).' %
                                 (formatDuration(timing), formatEndtime(timing)))
             elif type == 'mode':
                 self.current_mode = args[0]
@@ -329,7 +332,8 @@ class NicosCmdClient(NicosClient):
             self.conndata['host'] = host
             self.conndata['port'] = port
         if not self.conndata['login'] or ask_all:
-            user = self.ask_question('User name?', default=self.conndata['login'])
+            user = self.ask_question('User name?',
+                                     default=self.conndata['login'])
             self.conndata['login'] = user
         if not self.conndata['passwd'] or ask_all:
             passwd = self.ask_question('Password?', passwd=True)
@@ -419,7 +423,7 @@ class NicosCmdClient(NicosClient):
         if cmd == 'cmd':
             if self.status in ('running', 'interrupted'):
                 reply = self.ask_question('A script is already running, '
-                                          'execute anyway? [y/n/q]', default='y')
+                    'execute anyway? [y/n/q]', default='y')
                 reply = reply.lower()[:1]
                 if reply == 'y':
                     self.tell('exec', arg)
@@ -441,8 +445,8 @@ class NicosCmdClient(NicosClient):
                 self.put_error('Unable to open file: %s.' % e)
                 return
             if self.status in ('running', 'interrupted'):
-                if self.ask_question('A script is already running, queue script?',
-                                     yesno=True, default='y') == 'y':
+                if self.ask_question('A script is already running, '
+                    'queue script?', yesno=True, default='y') == 'y':
                     self.tell('queue', fpath, code)
             else:
                 self.tell('queue', fpath, code)
@@ -535,7 +539,8 @@ class NicosCmdClient(NicosClient):
             else:
                 n = None
             allstatus = self.ask('getstatus')
-            self.put_client('Printing %s previous messages.' % (-n if n else 'all'))
+            self.put_client('Printing %s previous messages.' %
+                            (-n if n else 'all'))
             for msg in allstatus[2][n:]:
                 self.put_message(msg)
             self.put_client('End of messages.')
