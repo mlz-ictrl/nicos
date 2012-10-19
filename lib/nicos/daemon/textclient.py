@@ -582,19 +582,36 @@ or in ~/.nicos-cmd, like this:
 def main(argv):
     server = user = passwd = ''
 
+    # a connection "profile" can be given by invoking this executable
+    # under a different name (via symlink)
+    configsection = 'connect'
+    if not argv[0].endswith('nicos-client'):
+        configsection = path.basename(argv[0])
+
+    # or by "+profile" on the command line (other arguments are
+    # interpreted as a connection data string)
     if argv[1:]:
-        cd = parse_connection_data(argv[1])
-        server = '%s:%s' % cd[1:3]
-        user = cd[0]
+        if argv[1].startswith('+'):
+            configsection = argv[1][1:]
+        else:
+            cd = parse_connection_data(argv[1])
+            server = '%s:%s' % cd[1:3]
+            user = cd[0]
 
     config = ConfigParser.RawConfigParser()
     config.read([path.expanduser('~/.nicos-cmd')])
-    if not server and config.has_option('connect', 'server'):
-        server = config.get('connect', 'server')
-    if not user and config.has_option('connect', 'user'):
-        user = config.get('connect', 'user')
-    if config.has_option('connect', 'passwd'):
-        passwd = config.get('connect', 'passwd')
+
+    # check for profile name (given by argv0 or command line)
+    # if not present, fall back to default
+    if not config.has_section(configsection):
+        configsection = 'connect'
+
+    if not server and config.has_option(configsection, 'server'):
+        server = config.get(configsection, 'server')
+    if not user and config.has_option(configsection, 'user'):
+        user = config.get(configsection, 'user')
+    if config.has_option(configsection, 'passwd'):
+        passwd = config.get(configsection, 'passwd')
     try:
         host, port = server.split(':', 1)
     except ValueError:
