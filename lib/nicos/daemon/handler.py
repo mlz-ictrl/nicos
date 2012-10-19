@@ -422,11 +422,9 @@ class ConnectionHandler(BaseRequestHandler):
         try:
             self.log.info('executing command in script context\n%s' % cmd)
             self.controller.exec_script(cmd, self.user)
-        except Exception, err:
-            self.log.exception('exception in exec command')
-            self.write(NAK, 'exception raised while executing cmd: %s' % err)
-        else:
-            self.write(ACK)
+        except Exception:
+            session.logUnhandledException(cut_frames=0)
+        self.write(ACK)
 
     @command()
     def eval(self, expr):
