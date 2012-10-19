@@ -599,6 +599,7 @@ class NicosCmdClient(NicosClient):
 
 def main(argv):
     server = user = passwd = via = ''
+    viacommand = 'sleep 10'
 
     # a connection "profile" can be given by invoking this executable
     # under a different name (via symlink)
@@ -634,6 +635,8 @@ def main(argv):
         passwd = config.get(configsection, 'passwd')
     if not via and config.has_option(configsection, 'via'):
         via = config.get(configsection, 'via')
+    if config.has_option(configsection, 'viacommand'):
+        viacommand = config.get(configsection, 'viacommand')
     try:
         host, port = server.split(':', 1)
     except ValueError:
@@ -650,8 +653,8 @@ def main(argv):
     if via:
         nport = random.randint(10000, 20000)
         os.execvp('sh', ['sh', '-c',
-            'ssh -f -L "%s:%s:%s" "%s" sleep 10; %s "%s@localhost:%s"' %
-            (nport, host, port, via, argv[0], user, nport)])
+            'ssh -f -L "%s:%s:%s" "%s" %s; %s "%s@localhost:%s"' %
+            (nport, host, port, via, viacommand, argv[0], user, nport)])
 
     client = NicosCmdClient(conndata)
     return client.main()
