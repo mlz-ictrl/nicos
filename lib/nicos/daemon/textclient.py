@@ -83,12 +83,12 @@ tab: complete
 
 class NicosCmdClient(NicosClient):
 
-    def __init__(self, conndata, tsize):
+    def __init__(self, conndata):
         NicosClient.__init__(self)
         self.conndata = conndata
         self.current_script = ['']
         self.current_line = -1
-        self.tsize = tsize
+        self.tsize = terminal_size()
         self.out = sys.stdout
         self.shorthost = conndata['host'].split('.')[0]
         self.in_question = False
@@ -134,6 +134,8 @@ class NicosCmdClient(NicosClient):
         self.put('# ' + s, 'bold')
 
     def ask_question(self, question, yesno=False, default='', passwd=False):
+        if passwd:
+            return getpass.getpass(colorize('bold', question + ' '))
         self.in_question = True
         try:
             if yesno:
@@ -517,6 +519,5 @@ passwd=secret
         'passwd': passwd,
     }
 
-    tsize = terminal_size()
-    client = NicosCmdClient(conndata, tsize)
+    client = NicosCmdClient(conndata)
     return client.main()
