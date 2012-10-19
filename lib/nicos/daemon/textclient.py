@@ -108,7 +108,7 @@ class NicosCmdClient(NicosClient):
 
     def set_prompt(self, status):
         self.prompt = colorize(self.pcmap[status],
-            '\r\x1b[K' + self.shorthost + '[%s] >>> ' % status)
+            '\r\x1b[K' + self.shorthost + '[%s] >> ' % status)
 
     def set_status(self, status, exception=False):
         self.status = status
@@ -146,10 +146,10 @@ class NicosCmdClient(NicosClient):
                 question += ' '
             try:
                 ans = raw_input('\r\x1b[K' + colorize('bold', question))
+                if not ans:
+                    ans = default
             except (KeyboardInterrupt, EOFError):
                 ans = ''
-            if not ans:
-                ans = default
             if yesno:
                 if ans.startswith(('y', 'Y')):
                     return 'y'
@@ -254,7 +254,7 @@ class NicosCmdClient(NicosClient):
         timefmt = format_time(msg[1])
         levelno = msg[2]
         if levelno == ACTION:
-            self.out.write('\033]0;%s%s\007' % (namefmt, msg[3].rstrip()))
+            self.out.write('\033]0;NICOS %s%s\007' % (namefmt, msg[3].rstrip()))
             return
         else:
             if levelno <= DEBUG:
@@ -272,11 +272,45 @@ class NicosCmdClient(NicosClient):
                                    levels[levelno] + ': ' + msg[3].rstrip())
         self.put(msg[5] + newtext)
 
+    def ask_connect(self, ask_all=True):
+        hostport = '%s:%s' % (self.conndata['host'],
+                              self.conndata['port'])
+        if hostport in (':', ':1301') or ask_all:
+            default = '' if hostport in (':', ':1301') else hostport
+            server = self.ask_question('Server host:port?', default=default)
+            if not server:
+                return
+            try:
+                host, port = server.split(':', 1)
+                port = int(port)
+            except ValueError:
+                host = server
+                port = DEFAULT_PORT
+            self.conndata['host'] = host
+            self.conndata['port'] = port
+        if not self.conndata['login'] or ask_all:
+            user = self.ask_question('User name?', default=self.conndata['login'])
+            self.conndata['login'] = user
+        if not self.conndata['passwd'] or ask_all:
+            passwd = self.ask_question('Password?', passwd=True)
+            self.conndata['passwd'] = passwd
+        self.shorthost = self.conndata['host'].split('.')[0]
+        self.connect(self.conndata)
+
     def help(self):
-        self.put('# Meta-commands: /break, /cont, /stop, /stop!, '
-                 '/reload, /e(dit) <filename>, '
-                 '/r(un) <filename>, /update <filename>, '
-                 '/connect, /disconnect, /q(uit)', 'turquoise')
+        for line in '''\
+Meta-commands: /break, /cont, /stop, /stop!, /reload, /e(dit) <filename>,
+/r(un) <filename>, /update <filename>, /connect, /disconnect, /q(uit)
+
+Connection defaults can be given on the command-line, e.g.
+  nicos-client user@server:port
+or in ~/.nicos-cmd, like this:
+  [connect]
+  server=localhost:1301
+  user=admin
+  passwd=secret
+'''.splitlines():
+            self.put('# ' + line, 'turquoise')
 
     commands = ['queue', 'run', 'edit', 'update', 'break', 'cont',
                 'stop', 'stop!', 'exec', 'disconnect', 'connect',
@@ -378,23 +412,7 @@ class NicosCmdClient(NicosClient):
             if self.connected:
                 self.put_error('Already connected. Use /disconnect first.')
             else:
-                hostport = '%s:%s' % (self.conndata['host'],
-                                      self.conndata['port'])
-                server = self.ask_question('Server host:port?', default=hostport)
-                try:
-                    host, port = server.split(':', 1)
-                    port = int(port)
-                except ValueError:
-                    host = server
-                    port = DEFAULT_PORT
-                self.conndata['host'] = host
-                self.conndata['port'] = port
-                user = self.ask_question('User name?', default=self.conndata['login'])
-                self.conndata['login'] = user
-                passwd = self.ask_question('Password?', passwd=True)
-                self.conndata['passwd'] = passwd
-                self.shorthost = self.conndata['host'].split('.')[0]
-                self.connect(self.conndata)
+                self.ask_connect(ask_all=(arg != 'init'))
         elif cmd in ('q', 'quit'):
             if self.connected:
                 self.disconnect()
@@ -416,7 +434,7 @@ class NicosCmdClient(NicosClient):
 
     def run(self):
         self.help()
-        self.connect(self.conndata)
+        self.command('connect', 'init')
 
         while 1:
             try:
@@ -461,20 +479,7 @@ class NicosCmdClient(NicosClient):
 
 
 def main(argv):
-    help = '''\
-Usage: %s user@server:port
-
-Defaults can be given in ~/.nicos-cmd, like this:
-
-[connect]
-server=localhost:1301
-user=admin
-passwd=secret
-'''
-
-    server = None
-    user = None
-    passwd = None
+    server = user = passwd = ''
 
     if argv[1:]:
         cd = parse_connection_data(argv[1])
@@ -483,29 +488,12 @@ passwd=secret
 
     config = ConfigParser.RawConfigParser()
     config.read([os.path.expanduser('~/.nicos-cmd')])
-    cfgserver = False
-    if server is None:
-        if config.has_option('connect', 'server'):
-            cfgserver = True
-            server = config.get('connect', 'server')
-        else:
-            print help % argv[0]
-            return 1
-    if user is None:
-        if cfgserver and config.has_option('connect', 'user'):
-            user = config.get('connect', 'user')
-        else:
-            user = raw_input('User name: ')
-
-    if cfgserver and config.has_option('connect', 'passwd'):
+    if not server and config.has_option('connect', 'server'):
+        server = config.get('connect', 'server')
+    if not user is None and config.has_option('connect', 'user'):
+        user = config.get('connect', 'user')
+    if config.has_option('connect', 'passwd'):
         passwd = config.get('connect', 'passwd')
-    else:
-        try:
-            passwd = getpass.getpass('Password for %s on %s: ' % (user, server))
-        except EOFError:
-            print '\nCancelled.'
-            return 1
-
     try:
         host, port = server.split(':', 1)
     except ValueError:
