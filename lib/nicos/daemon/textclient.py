@@ -110,11 +110,22 @@ class NicosCmdClient(NicosClient):
         self.completions = []
 
         self.current_status_const = None
+        self.current_mode = 'master'
         self.set_status('disconnected')
 
+    stcolmap = {'idle': 'blue',
+                'running': 'fuchsia',
+                'interrupted': 'red',
+                'disconnected': 'darkgray'}
+    modemap =  {'master': '',
+                'slave':  'slave,',
+                'simulation': 'simmode,',
+                'maintenance': 'maintenance,'}
+
     def set_prompt(self, status):
-        self.prompt = '\x01' + colorize(self.pcmap[status],
-            '\r\x1b[K\x02# ' + self.instrument + '[%s] >> \x01' % status) + '\x02'
+        self.prompt = '\x01' + colorize(self.stcolmap[status],
+            '\r\x1b[K\x02# ' + self.instrument + '[%s%s] >> \x01' %
+            (self.modemap[self.current_mode], status)) + '\x02'
 
     def set_status(self, status):
         self.status = status
@@ -181,6 +192,7 @@ class NicosCmdClient(NicosClient):
         self.scriptdir = self.eval('session.experiment.scriptdir', '.')
         self.instrument = self.eval('session.instrument.instrument',
                                     self.instrument)
+        self.current_mode = self.eval('session.mode', 'master')
         self.set_status(self.status)
 
     def signal(self, type, *args):
@@ -195,6 +207,7 @@ class NicosCmdClient(NicosClient):
                 self.initial_update()
             elif type == 'disconnected':
                 self.put_client('Disconnected from server.')
+                self.current_mode = 'master'
                 self.set_status('disconnected')
             elif type == 'processing':
                 script = args[0].get('script')
@@ -233,6 +246,9 @@ class NicosCmdClient(NicosClient):
                 timing = args[0][0]
                 self.put_client('Simulated minimum runtime: %s (finishes approximately %s).' %
                                 (formatDuration(timing), formatEndtime(timing)))
+            elif type == 'mode':
+                self.current_mode = args[0]
+                self.set_status(self.status)
         except Exception, e:
             self.put_error('In event handler: %s.' % e)
 
@@ -265,11 +281,6 @@ class NicosCmdClient(NicosClient):
             subprocess.Popen(['links', '-dump', '-width', width, fn]).wait()
         else:
             subprocess.Popen(['w3m', '-dump', '-cols', width, fn]).wait()
-
-    pcmap = {'idle': 'blue',
-             'running': 'fuchsia',
-             'interrupted': 'red',
-             'disconnected': 'darkgray'}
 
     def put_message(self, msg):
         if msg[0] == 'nicos':

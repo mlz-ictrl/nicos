@@ -192,6 +192,7 @@ class NicosDaemon(Device):
         'blocked': True,
         'status': True,
         'watch': True,
+        'mode': True,
         'cache': True,
         'dataset': True,
         'datapoint': True,

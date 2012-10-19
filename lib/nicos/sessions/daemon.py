@@ -131,6 +131,10 @@ class DaemonSession(NoninteractiveSession):
             except OSError:
                 self.log.exception('Error waiting for simulation process')
 
+    def setMode(self, mode):
+        NoninteractiveSession.setMode(self, mode)
+        self.emitfunc('mode', mode)
+
     def updateLiveData(self, tag, filename, dtype, nx, ny, nt, time, data):
         self.emitfunc('liveparams', (tag, filename, dtype, nx, ny, nt, time))
         self.emitfunc('livedata', data)
