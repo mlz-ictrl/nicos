@@ -299,7 +299,7 @@ class NicosCmdClient(NicosClient):
 
     def help(self, arg):
         for line in '''\
-Meta-commands: /st(atus), /break, /cont(inue), /stop, /history,
+Meta-commands: /st(atus), /break, /cont(inue), /stop, /log,
 /e(dit) <file>, /r(un) <file>, /update <file>, /connect, /disconnect, /q(uit),
 
 Connection defaults can be given on the command-line, e.g.
@@ -314,7 +314,7 @@ or in ~/.nicos-cmd, like this:
 
     commands = ['queue', 'run', 'edit', 'update', 'break', 'continue',
                 'stop', 'status' 'exec', 'disconnect', 'connect',
-                'quit', 'help', 'history']
+                'quit', 'help', 'log']
 
     def print_status(self):
         if self.status in ('running', 'interrupted'):
@@ -396,7 +396,7 @@ or in ~/.nicos-cmd, like this:
             try:
                 code = open(arg).read()
             except Exception, e:
-                self.put_error('Unable to open file %r.' % e)
+                self.put_error('Unable to open file: %s.' % e)
                 return
             if self.status in ('running', 'interrupted'):
                 if self.ask_question('A script is already running, queue script?',
@@ -411,7 +411,7 @@ or in ~/.nicos-cmd, like this:
             try:
                 code = open(arg).read()
             except Exception, e:
-                self.put_error('Unable to open file %r.' % e)
+                self.put_error('Unable to open file: %s.' % e)
                 return
             self.tell('update', code)
         elif cmd in ('e', 'edit'):
@@ -422,7 +422,8 @@ or in ~/.nicos-cmd, like this:
                 os.putenv('EDITOR', 'vi')
             ret = os.system('$EDITOR ' + arg)
             if ret == 0:
-                if self.ask_question('Run file?', yesno=True) == 'y':
+                if os.path.exists(arg) and \
+                    self.ask_question('Run file?', yesno=True) == 'y':
                     return self.command('run', arg)
         elif cmd == 'break':
             self.tell('break')
@@ -449,7 +450,7 @@ or in ~/.nicos-cmd, like this:
             return 0   # exit
         elif cmd in ('h', 'help'):
             self.help(arg)
-        elif cmd in ('hist', 'history'):
+        elif cmd == 'log':
             if arg:
                 n = -int(arg)
             else:
