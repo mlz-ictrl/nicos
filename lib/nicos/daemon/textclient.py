@@ -88,6 +88,7 @@ class NicosCmdClient(NicosClient):
         self.conndata = conndata
         self.current_script = ['']
         self.current_line = -1
+        self.current_filename = None
         self.tsize = terminal_size()
         self.out = sys.stdout
         self.shorthost = conndata['host'].split('.')[0]
@@ -187,6 +188,7 @@ class NicosCmdClient(NicosClient):
                 script = args[0].get('script')
                 if script is None:
                     return
+                self.current_filename = args[0].get('name')
                 script = script.splitlines() or ['']
                 if script != self.current_script:
                     self.current_script = script
@@ -382,9 +384,14 @@ or in ~/.nicos-cmd, like this:
     def command(self, cmd, arg):
         if cmd == 'cmd':
             if self.status in ('running', 'interrupted'):
-                if self.ask_question('A script is already running, execute anyway?',
-                                     yesno=True, default='y') == 'y':
+                reply = self.ask_question('A script is already running, '
+                                          'execute anyway? [y/n/q]', default='y')
+                reply = reply.lower()[:1]
+                if reply == 'y':
                     self.tell('exec', arg)
+                elif reply == 'q':
+                    self.tell('queue', '', arg)
+                    self.put_client('Command queued.')
             else:
                 self.tell('queue', '', arg)
         elif cmd == 'queue':
