@@ -109,7 +109,6 @@ class NicosCmdClient(NicosClient):
             readline.read_history_file(self.histfile)
         self.completions = []
 
-        self.current_status_const = None
         self.current_mode = 'master'
         self.set_status('disconnected')
 
@@ -219,14 +218,14 @@ class NicosCmdClient(NicosClient):
                     self.current_script = script
             elif type == 'status':
                 status, line = args[0]
-                if status != self.current_status_const:
-                    self.current_status_const = status
-                    if status == STATUS_IDLE or status == STATUS_IDLEEXC:
-                        self.set_status('idle')
-                    elif status != STATUS_INBREAK:
-                        self.set_status('running')
-                    else:
-                        self.set_status('interrupted')
+                if status == STATUS_IDLE or status == STATUS_IDLEEXC:
+                    new_status = 'idle'
+                elif status != STATUS_INBREAK:
+                    new_status = 'running'
+                else:
+                    new_status = 'interrupted'
+                if status != self.status:
+                    self.set_status(new_status)
                 if line != self.current_line:
                     self.current_line = line
             elif type == 'message':
