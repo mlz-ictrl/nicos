@@ -299,7 +299,7 @@ class NicosCmdClient(NicosClient):
 
     def help(self, arg):
         for line in '''\
-Meta-commands: /st(atus), /break, /cont(inue), /stop, /log,
+Meta-commands: /w(here), /break, /cont(inue), /stop, /log,
 /e(dit) <file>, /r(un) <file>, /update <file>, /connect, /disconnect, /q(uit),
 
 Connection defaults can be given on the command-line, e.g.
@@ -313,7 +313,7 @@ or in ~/.nicos-cmd, like this:
             self.put('# ' + line, 'turquoise')
 
     commands = ['queue', 'run', 'edit', 'update', 'break', 'continue',
-                'stop', 'status' 'exec', 'disconnect', 'connect',
+                'stop', 'where' 'exec', 'disconnect', 'connect',
                 'quit', 'help', 'log']
 
     def print_status(self):
@@ -460,7 +460,7 @@ or in ~/.nicos-cmd, like this:
             for msg in allstatus[2][n:]:
                 self.put_message(msg)
             self.put_client('End of messages.')
-        elif cmd in ('st', 'status'):
+        elif cmd in ('w', 'where'):
             self.print_status()
         else:
             self.put_error('Unknown command %r.' % cmd)
