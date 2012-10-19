@@ -91,6 +91,7 @@ class NicosCmdClient(NicosClient):
         self.current_script = ['']
         self.current_line = -1
         self.current_filename = ''
+        self.edit_filename = ''
         self.tsize = terminal_size()
         self.out = sys.stdout
         self.browser = None
@@ -437,6 +438,13 @@ class NicosCmdClient(NicosClient):
             self.tell('queue', '', arg)
         elif cmd in ('r', 'run'):
             if not arg:
+                if self.edit_filename:
+                    reply = self.ask_question('Run last edited file %r?' %
+                                path.basename(self.edit_filename),
+                                yesno=True, default='y')
+                    if reply == 'y':
+                        self.command('run', self.edit_filename)
+                        return
                 self.put_error('Need a file name as argument.')
                 return
             fpath = path.join(self.scriptdir, arg)
@@ -498,17 +506,24 @@ class NicosCmdClient(NicosClient):
                     self.put_message(msg)
                 self.message_queue = []
             if ret == 0 and path.isfile(fpath):
+                self.edit_filename = fpath
                 if self.status == 'running':
                     if fpath == self.current_filename:
                         if self.ask_question('Update running script?',
                                              yesno=True) == 'y':
                             return self.command('update', fpath)
                     else:
-                        if self.ask_question('Queue file?', yesno=True) == 'y':
+                        reply = self.ask_question('Queue or simulate file? [q/s/n]').lower()
+                        if reply == 'q':
                             return self.command('run', fpath)
+                        elif reply == 's':
+                            return self.command('sim', fpath)
                 else:
-                    if self.ask_question('Run file?', yesno=True) == 'y':
+                    reply = self.ask_question('Run or simulate file? [r/s/n]').lower()
+                    if reply == 'r':
                         return self.command('run', fpath)
+                    elif reply == 's':
+                        return self.command('sim', fpath)
         elif cmd == 'break':
             self.tell('break')
         elif cmd in ('cont', 'continue'):
