@@ -15,4 +15,9 @@ parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
                   help='daemonize the daemon process')
 opts, args = parser.parse_args()
 
-DaemonSession.run('daemon', 'Daemon', daemon=opts.daemon)
+if args:
+    setupname = 'daemon-' + args[0]
+else:
+    setupname = 'daemon'
+
+DaemonSession.run(setupname, 'Daemon', daemon=opts.daemon)

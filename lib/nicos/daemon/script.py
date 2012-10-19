@@ -254,10 +254,11 @@ class ExecutionController(Controller):
     working of the Controller object and the trace function.
     """
 
-    def __init__(self, log, eventfunc, startupsetup):
+    def __init__(self, log, eventfunc, startupsetup, simmode):
         self.log = log             # daemon logger object
         self.eventfunc = eventfunc # event emitting callback
         self.setup = startupsetup  # first setup on start
+        self.simmode = simmode     # start in simulation mode?
         self.in_startup = True     # True while startup code is executed
         self.queue = Queue()       # user scripts get put here
         self.current_script = None # currently executed script
@@ -447,7 +448,8 @@ class ExecutionController(Controller):
             self.namespace.clear()
             self.namespace['__builtins__'] = __builtin__.__dict__
             setup_code = ('from nicos import session; '
-                          'session.handleInitialSetup(%r, False)' % self.setup)
+                          'session.handleInitialSetup(%r, %s)' %
+                          (self.setup, self.simmode))
             for _ in range(2):
                 # this is to allow the traceback module to report the script's
                 # source code correctly
@@ -459,7 +461,8 @@ class ExecutionController(Controller):
                     session.log.warning('Error loading previous setups, '
                                         'loading startup setup', exc=1)
                     setup_code = ('from nicos import session; '
-                        'session.handleInitialSetup("startup", False)')
+                        'session.handleInitialSetup("startup", %s)'
+                        % self.simmode)
                 else:
                     break
             else:

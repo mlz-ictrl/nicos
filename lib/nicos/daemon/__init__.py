@@ -180,7 +180,9 @@ class NicosDaemon(Device):
         'authmethod':     Param('Authentication method',
                                 type=oneof('none', 'list', 'pam')),
         'passwd':         Param('User/password list for authmethod "list"',
-                                type=listof(tupleof(str, str, int)))
+                                type=listof(tupleof(str, str, int))),
+        'simmode':        Param('Whether to always start in simulation mode',
+                                type=bool),
     }
 
     # key: event name
@@ -207,7 +209,7 @@ class NicosDaemon(Device):
         self._stoprequest = False
         # the controller represents the internal script execution machinery
         self._controller = ExecutionController(self.log, self.emit_event,
-                                               'startup')
+                                               'startup', self.simmode)
         # to authenticate users
         self._auth = Authenticator(self)
         # log messages emitted so far
