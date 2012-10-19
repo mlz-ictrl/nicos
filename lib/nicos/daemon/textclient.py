@@ -106,40 +106,19 @@ class NicosCmdClient(NicosClient):
         self.set_status('disconnected')
         self._browser = None
 
-    def complete_filename(self, fn, text):
-        globs = glob.glob(fn + '*')
-        return [(f + ('/' if os.path.isdir(f) else ''))[len(fn)-len(text):]
-                for f in globs]
+    def set_prompt(self, status):
+        self.prompt = colorize(self.pcmap[status],
+            '\r\x1b[K' + self.shorthost + '[%s] >>> ' % status)
 
-    def completer(self, text, state):
-        if state == 0:
-            line = readline.get_line_buffer()
-            if line.startswith('/'):
-                parts = line[1:].split()
-                if len(parts) < 2 and not line.endswith(' '):
-                    self._completions = [cmd for cmd in self.commands
-                                         if cmd.startswith(text)]
-                else:
-                    if parts[0] in ('r', 'run', 'e', 'edit', 'update'):
-                        try:
-                            fn = parts[1]
-                        except IndexError:
-                            fn = ''
-                        self._completions = self.complete_filename(fn, text)
-                    else:
-                        self._completions = []
-            else:
-                try:
-                    self._completions = self.ask('complete', text, line)
-                except Exception:
-                    self._completions = []
-        try:
-            return self._completions[state]
-        except IndexError:
-            return None
+    def set_status(self, status, exception=False):
+        self.status = status
+        self.set_prompt(status)
+        if not self.in_question:
+            librl.rl_set_prompt(self.prompt)
+        librl.rl_forced_update_display()
 
     def put(self, s, c=None):
-        # put a line of text
+        # put a line of output, preserving the prompt afterwards
         if c:
             s = colorize(c, s)
         self.out.write('\r\x1b[K%s\n' % s)
@@ -147,10 +126,36 @@ class NicosCmdClient(NicosClient):
         self.out.flush()
 
     def put_error(self, s):
+        # put a client error message
         self.put('# ERROR: ' + s, 'red')
 
     def put_client(self, s):
+        # put a client info message
         self.put('# ' + s, 'bold')
+
+    def ask_question(self, question, yesno=False, default='', passwd=False):
+        self.in_question = True
+        try:
+            if yesno:
+                question += ' [y/n] '
+            elif default:
+                question += ' [%s] ' % default
+            else:
+                question += ' '
+            try:
+                ans = raw_input('\r\x1b[K' + colorize('bold', question))
+            except (KeyboardInterrupt, EOFError):
+                ans = ''
+            if not ans:
+                ans = default
+            if yesno:
+                if ans.startswith(('y', 'Y')):
+                    return 'y'
+                return 'n'
+            return ans
+        finally:
+            self.in_question = False
+            librl.rl_set_prompt(self.prompt)
 
     def initial_update(self):
         allstatus = self.ask('getstatus')
@@ -198,45 +203,46 @@ class NicosCmdClient(NicosClient):
             elif type == 'message':
                 self.put_message(args[0])
             elif type == 'clientexec':
-                plot_func_path = args[0][0]
-                try:
-                    modname, funcname = plot_func_path.rsplit('.', 1)
-                    func = getattr(__import__(modname, None, None, [funcname]),
-                                   funcname)
-                    func(*args[0][1:])
-                except Exception, err:
-                    self.put_error('During "clientexec": %s.' % err)
+                self.clientexec(args[0])
             elif type == 'showhelp':
-                html = args[0][1]
-                fd, fn = tempfile.mkstemp('.html')
-                os.write(fd, html)
-                os.close(fd)
-                if self._browser is None:
-                    if which('links'):
-                        self._browser = 'links'
-                    elif which('w3m'):
-                        self._browser = 'w3m'
-                    else:
-                        self.put_error('No text browser available. '
-                                       'Install links or w3m.')
-                        return
-                width = str(self.tsize[0])
-                self.out.write('\r\x1b[K\n')
-                if self._browser == 'links':
-                    subprocess.Popen(['links', '-dump', '-width', width, fn]).wait()
-                else:
-                    subprocess.Popen(['w3m', '-dump', '-cols', width, fn]).wait()
+                self.showhelp(args[0][1])
         except Exception, e:
             self.put_error('In event handler: %s.' % e)
+
+    def clientexec(self, what):
+        plot_func_path = what[0]
+        try:
+            modname, funcname = plot_func_path.rsplit('.', 1)
+            func = getattr(__import__(modname, None, None, [funcname]),
+                           funcname)
+            func(*what[1:])
+        except Exception, err:
+            self.put_error('During "clientexec": %s.' % err)
+
+    def showhelp(self, html):
+        fd, fn = tempfile.mkstemp('.html')
+        os.write(fd, html)
+        os.close(fd)
+        if self._browser is None:
+            if which('links'):
+                self._browser = 'links'
+            elif which('w3m'):
+                self._browser = 'w3m'
+            else:
+                self.put_error('No text browser available. '
+                               'Install links or w3m.')
+                return
+        width = str(self.tsize[0])
+        self.out.write('\r\x1b[K\n')
+        if self._browser == 'links':
+            subprocess.Popen(['links', '-dump', '-width', width, fn]).wait()
+        else:
+            subprocess.Popen(['w3m', '-dump', '-cols', width, fn]).wait()
 
     pcmap = {'idle': 'blue',
              'running': 'fuchsia',
              'interrupted': 'red',
              'disconnected': 'darkgray'}
-
-    def set_prompt(self, status):
-        self.prompt = colorize(self.pcmap[status],
-            '\r\x1b[K' + self.shorthost + '[%s] >>> ' % status)
 
     def put_message(self, msg):
         if msg[0] == 'nicos':
@@ -264,30 +270,6 @@ class NicosCmdClient(NicosClient):
                                    levels[levelno] + ': ' + msg[3].rstrip())
         self.put(msg[5] + newtext)
 
-    def ask_question(self, question, yesno=False, default='', passwd=False):
-        self.in_question = True
-        try:
-            if yesno:
-                question += ' [y/n] '
-            elif default:
-                question += ' [%s] ' % default
-            else:
-                question += ' '
-            try:
-                ans = raw_input('\r\x1b[K' + colorize('bold', question))
-            except (KeyboardInterrupt, EOFError):
-                ans = ''
-            if not ans:
-                ans = default
-            if yesno:
-                if ans.startswith(('y', 'Y')):
-                    return 'y'
-                return 'n'
-            return ans
-        finally:
-            self.in_question = False
-            librl.rl_set_prompt(self.prompt)
-
     def help(self):
         self.put('# Meta-commands: /break, /cont, /stop, /stop!, '
                  '/reload, /e(dit) <filename>, '
@@ -297,6 +279,40 @@ class NicosCmdClient(NicosClient):
     commands = ['queue', 'run', 'edit', 'update', 'break', 'cont',
                 'stop', 'stop!', 'exec', 'disconnect', 'connect',
                 'quit', 'help', 'history']
+
+    def complete_filename(self, fn, text):
+        globs = glob.glob(fn + '*')
+        return [(f + ('/' if os.path.isdir(f) else ''))[len(fn)-len(text):]
+                for f in globs]
+
+    def completer(self, text, state):
+        if state == 0:
+            line = readline.get_line_buffer()
+            if line.startswith('/'):
+                # client command: complete either command or filename
+                parts = line[1:].split()
+                if len(parts) < 2 and not line.endswith(' '):
+                    self._completions = [cmd for cmd in self.commands
+                                         if cmd.startswith(text)]
+                else:
+                    if parts[0] in ('r', 'run', 'e', 'edit', 'update'):
+                        try:
+                            fn = parts[1]
+                        except IndexError:
+                            fn = ''
+                        self._completions = self.complete_filename(fn, text)
+                    else:
+                        self._completions = []
+            else:
+                # server command: ask daemon to complete for us
+                try:
+                    self._completions = self.ask('complete', text, line)
+                except Exception:
+                    self._completions = []
+        try:
+            return self._completions[state]
+        except IndexError:
+            return None
 
     def command(self, cmd, arg):
         if cmd == 'cmd':
@@ -395,13 +411,6 @@ class NicosCmdClient(NicosClient):
             self.put_client('End of messages.')
         else:
             self.put_error('Unknown command %r.' % cmd)
-
-    def set_status(self, status, exception=False):
-        self.status = status
-        self.set_prompt(status)
-        if not self.in_question:
-            librl.rl_set_prompt(self.prompt)
-        librl.rl_forced_update_display()
 
     def run(self):
         self.help()
