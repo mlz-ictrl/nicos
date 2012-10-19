@@ -591,20 +591,20 @@ def main(argv):
     if not argv[0].endswith('nicos-client'):
         configsection = path.basename(argv[0])
 
-    # or by "+profile" on the command line (other arguments are
+    config = ConfigParser.RawConfigParser()
+    config.read([path.expanduser('~/.nicos-cmd')])
+
+    # or by "profile" on the command line (other arguments are
     # interpreted as a connection data string)
     if argv[1:]:
-        if argv[1].startswith('+'):
-            configsection = argv[1][1:]
+        if config.has_section(argv[1]):
+            configsection = argv[1]
         else:
             cd = parse_connection_data(argv[1])
             server = '%s:%s' % cd[1:3]
             user = cd[0]
-        if argv[3:] and argv[2].startswith('via'):
+        if argv[3:] and argv[2] == 'via':
             via = argv[3]
-
-    config = ConfigParser.RawConfigParser()
-    config.read([path.expanduser('~/.nicos-cmd')])
 
     # check for profile name (given by argv0 or command line)
     # if not present, fall back to default
