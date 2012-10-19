@@ -188,7 +188,7 @@ class NicosCmdClient(NicosClient):
             self.put_message(msg)
         self.put_client('Loaded setups: %s.' % ', '.join(setups))
         if not self.tip_shown:
-            self.put('# Enter /help for help with the client commands.',
+            self.put('# Enter "/help" for help with the client commands.',
                      'turquoise')
             self.tip_shown = True
         self.signal('processing', {'script': script})
@@ -338,20 +338,13 @@ class NicosCmdClient(NicosClient):
         self.connect(self.conndata)
 
     def help(self, arg):
-        for line in '''\
-Meta-commands: /w(here), /log, /break, /cont(inue), /stop,
-/e(dit) <file>, /r(un) <file>, /sim(ulate) <file>, /update <file>,
-/connect, /disconnect, /q(uit).
-
-Connection defaults can be given on the command-line, e.g.
-  nicos-client user@server:port
-or in ~/.nicos-cmd, like this:
-  [connect]
-  server=localhost:1301
-  user=admin
-  passwd=secret
-'''.splitlines():
-            self.put('# ' + line, 'turquoise')
+        if not arg:
+            arg = 'main'
+        if arg not in HELP:
+            arg = 'main'
+        helptext = HELP[arg]
+        for line in helptext.splitlines():
+            self.put('# ' + line)
 
     commands = ['queue', 'run', 'simulate', 'edit', 'update', 'break',
                 'continue', 'stop', 'where' 'exec', 'disconnect', 'connect',
@@ -631,3 +624,44 @@ def main(argv):
 
     client = NicosCmdClient(conndata)
     return client.main()
+
+# help texts
+
+HELP = {
+    'main': '''\
+This is the NICOS command-line client.  You can enter all NICOS commands
+at the command line; enter "help()" for an overview of NICOS commands
+and devices.
+
+This client supports "meta-commands" beginning with a slash:
+  /w(here)    -- print current script and location in it
+  /log (n)    -- print more past output, n lines or everything
+  /break      -- pause script after next scan step or script command
+  /cont(inue) -- continue interrupted script
+  /s(top)     -- stop script (you will be prompted how abruptly)
+  /q(uit)     -- quit only this client (NICOS will continue running)
+
+  /e(dit) <file>      -- edit a script file
+  /r(un) <file>       -- run a script file
+  /sim(ulate) <file>  -- simulate a script file
+  /update <file>      -- update running script
+
+  /disconnect  -- disconnect from NICOS daemon
+  /connect     -- connect to a NICOS daemon
+Command parts in parenteses can be omitted.
+
+All output prefixed with "#" comes from the client.
+
+To learn how to pre-set your connection parameters, enter "/help connect".
+''',
+    'connect': '''\
+Connection defaults can be given on the command-line, e.g.
+  nicos-client user@server:port
+
+or in ~/.nicos-cmd, like this:
+  [connect]
+  server = localhost:1301
+  user = admin
+  passwd = secret
+'''
+}
