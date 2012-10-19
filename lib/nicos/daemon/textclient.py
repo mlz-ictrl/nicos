@@ -134,6 +134,7 @@ class NicosCmdClient(NicosClient):
         self.put('# ' + s, 'bold')
 
     def ask_question(self, question, yesno=False, default='', passwd=False):
+        question = '# ' + question
         if passwd:
             return getpass.getpass(colorize('bold', question + ' '))
         self.in_question = True
@@ -297,10 +298,10 @@ class NicosCmdClient(NicosClient):
         self.shorthost = self.conndata['host'].split('.')[0]
         self.connect(self.conndata)
 
-    def help(self):
+    def help(self, arg):
         for line in '''\
-Meta-commands: /break, /cont, /stop, /stop!, /reload, /e(dit) <filename>,
-/r(un) <filename>, /update <filename>, /connect, /disconnect, /q(uit)
+Meta-commands: /break, /cont(inue), /stop, /history, /script,
+/e(dit) <file>, /r(un) <file>, /update <file>, /connect, /disconnect, /q(uit),
 
 Connection defaults can be given on the command-line, e.g.
   nicos-client user@server:port
@@ -312,8 +313,8 @@ or in ~/.nicos-cmd, like this:
 '''.splitlines():
             self.put('# ' + line, 'turquoise')
 
-    commands = ['queue', 'run', 'edit', 'update', 'break', 'cont',
-                'stop', 'stop!', 'exec', 'disconnect', 'connect',
+    commands = ['queue', 'run', 'edit', 'update', 'break', 'continue',
+                'stop', 'script' 'exec', 'disconnect', 'connect',
                 'quit', 'help', 'history']
 
     def complete_filename(self, fn, text):
@@ -349,6 +350,23 @@ or in ~/.nicos-cmd, like this:
             return self._completions[state]
         except IndexError:
             return None
+
+    def stop_query(self, how):
+        self.put_client('== %s ==' % how)
+        self.put('# Please enter how to proceed:')
+        self.put('# <I> ignore this interrupt')
+        self.put('# <H> stop after current step')
+        self.put('# <L> stop after current scan')
+        self.put('# <S> immediate stop')
+        res = self.ask_question('Your choice [I/H/L/S] --->').upper()[:1]
+        if res == 'I':
+            return
+        elif res == 'H':
+            self.tell('stop', '2')
+        elif res == 'L':
+            self.tell('stop', '1')
+        else:
+            self.tell('emergency')
 
     def command(self, cmd, arg):
         if cmd == 'cmd':
@@ -397,15 +415,13 @@ or in ~/.nicos-cmd, like this:
                 self.refresh()
         elif cmd == 'break':
             self.tell('break')
-        elif cmd == 'cont':
+        elif cmd in ('cont', 'continue'):
             self.tell('continue')
         elif cmd == 'stop':
-            if arg not in ('', '1', '2'):
-                self.put_error('Invalid stop level %r.' % arg)
-                return
-            self.tell('stop', arg)
-        elif cmd == 'stop!':
-            self.tell('emergency')
+            if self.status == 'running':
+                self.stop_query('Stop request')
+            else:
+                self.tell('emergency')
         elif cmd == 'exec':
             self.tell('exec', arg)
         elif cmd == 'disconnect':
@@ -421,7 +437,7 @@ or in ~/.nicos-cmd, like this:
                 self.disconnect()
             return 0   # exit
         elif cmd in ('h', 'help'):
-            self.help()
+            self.help(arg)
         elif cmd in ('hist', 'history'):
             if arg:
                 n = -int(arg)
@@ -436,7 +452,7 @@ or in ~/.nicos-cmd, like this:
             self.put_error('Unknown command %r.' % cmd)
 
     def run(self):
-        self.help()
+        self.help('')
         self.command('connect', 'init')
 
         while 1:
@@ -444,21 +460,7 @@ or in ~/.nicos-cmd, like this:
                 cmd = raw_input(self.prompt)
             except KeyboardInterrupt:
                 if self.status == 'running':
-                    self.put('== Keyboard interrupt ==', 'bold')
-                    self.put('Please enter how to proceed:')
-                    self.put('<I> ignore this interrupt')
-                    self.put('<H> stop after current step')
-                    self.put('<L> stop after current scan')
-                    self.put('<S> immediate stop')
-                    res = self.ask_question('Your choice [I/H/S] --->').upper()[:1]
-                    if res == 'I':
-                        continue
-                    elif res == 'H':
-                        self.command('stop', '2')
-                    elif res == 'L':
-                        self.command('stop', '1')
-                    else:
-                        self.command('stop!', '')
+                    self.stop_query('Keyboard interrupt')
                 continue
             except EOFError:
                 self.command('quit', '')
