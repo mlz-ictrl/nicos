@@ -17,6 +17,9 @@ parser.add_option('-p', '--padding', dest='padding', type='int',
                   help='base padding')
 parser.add_option('-g', '--geometry', dest='geometry', type='string',
                   help='window geometry (WxH+X+Y)')
+parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
+                  help='daemonize the monitor process (only useful '
+                       'for non-GUI versions')
 opts, args = parser.parse_args()
 
 if args:
@@ -25,4 +28,5 @@ else:
     setupname = 'monitor'
 
 NoninteractiveSession.run(setupname, maindevname='Monitor',
-                          pidfile=False, start_args=[opts])
+                          start_args=[opts],
+                          pidfile=opts.daemon, daemon=opts.daemon)

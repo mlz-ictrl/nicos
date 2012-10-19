@@ -147,9 +147,9 @@ elif action == 'status':
     for name in daemons:
         pid = read_pidfile(name)
         if pid:
-            print '%-10s: running (pid = %s)' % (name, pid)
+            print '%-12s: running (pid = %s)' % (name, pid)
         else:
-            print '%-10s: dead' % name
+            print '%-12s: dead' % name
             exitstatus = 1
     sys.exit(exitstatus)
 
