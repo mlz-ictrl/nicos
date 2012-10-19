@@ -103,6 +103,9 @@ def formatDuration(secs):
                                        _s((secs % 86400) // 3600))
     return est
 
+def formatEndtime(secs):
+    return time.strftime('%A, %H:%M', time.localtime(time.time() + secs))
+
 
 def formatDocstring(s, indentation=''):
     """Format a docstring into lines for display on the console."""

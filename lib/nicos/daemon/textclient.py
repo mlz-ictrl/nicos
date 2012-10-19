@@ -48,7 +48,7 @@ from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 from nicos.daemon import DEFAULT_PORT
 from nicos.daemon.pyctl import STATUS_INBREAK, STATUS_IDLE, STATUS_IDLEEXC
 from nicos.daemon.client import NicosClient
-from nicos.utils import colorize, which
+from nicos.utils import colorize, which, formatDuration, formatEndtime
 from nicos.utils.loggers import ACTION, OUTPUT, INPUT
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
@@ -225,6 +225,10 @@ class NicosCmdClient(NicosClient):
                 if args[0][1].endswith('/scriptdir'):
                     self.scriptdir = self.eval(
                         'session.experiment.scriptdir', '.')
+            elif type == 'simresult':
+                timing = args[0][0]
+                self.put_client('Simulated minimum runtime: %s (finishes approximately %s).' %
+                                (formatDuration(timing), formatEndtime(timing)))
         except Exception, e:
             self.put_error('In event handler: %s.' % e)
 
@@ -316,8 +320,9 @@ class NicosCmdClient(NicosClient):
 
     def help(self, arg):
         for line in '''\
-Meta-commands: /w(here), /break, /cont(inue), /stop, /log,
-/e(dit) <file>, /r(un) <file>, /update <file>, /connect, /disconnect, /q(uit),
+Meta-commands: /w(here), /log, /break, /cont(inue), /stop,
+/e(dit) <file>, /r(un) <file>, /sim(ulate) <file>, /update <file>,
+/connect, /disconnect, /q(uit).
 
 Connection defaults can be given on the command-line, e.g.
   nicos-client user@server:port
@@ -329,8 +334,8 @@ or in ~/.nicos-cmd, like this:
 '''.splitlines():
             self.put('# ' + line, 'turquoise')
 
-    commands = ['queue', 'run', 'edit', 'update', 'break', 'continue',
-                'stop', 'where' 'exec', 'disconnect', 'connect',
+    commands = ['queue', 'run', 'simulate', 'edit', 'update', 'break',
+                'continue', 'stop', 'where' 'exec', 'disconnect', 'connect',
                 'quit', 'help', 'log']
 
     def print_where(self):
@@ -361,7 +366,8 @@ or in ~/.nicos-cmd, like this:
                     self.completions = [cmd for cmd in self.commands
                                         if cmd.startswith(text)]
                 else:
-                    if parts[0] in ('r', 'run', 'e', 'edit', 'update'):
+                    if parts[0] in ('r', 'run', 'e', 'edit',
+                                    'update', 'sim', 'simulate'):
                         try:
                             fn = parts[1]
                         except IndexError:
@@ -442,6 +448,20 @@ or in ~/.nicos-cmd, like this:
                 self.put_error('Unable to open file: %s.' % e)
                 return
             self.tell('update', code)
+        elif cmd in ('sim', 'simulate'):
+            if not arg:
+                self.put_error('Need a file name or code as argument.')
+                return
+            fpath = path.join(self.scriptdir, arg)
+            if path.isfile(fpath):
+                try:
+                    code = open(fpath).read()
+                except Exception, e:
+                    self.put_error('Unable to open file: %s.' % e)
+                    return
+                self.tell('simulate', fpath, code)
+            else:
+                self.tell('simulate', '', arg)
         elif cmd in ('e', 'edit'):
             if not arg:
                 if path.isfile(self.current_filename):
