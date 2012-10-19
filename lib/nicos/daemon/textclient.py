@@ -108,7 +108,7 @@ class NicosCmdClient(NicosClient):
 
     def set_prompt(self, status):
         self.prompt = colorize(self.pcmap[status],
-            '\r\x1b[K' + self.shorthost + '[%s] >> ' % status)
+            '\r\x1b[K# ' + self.shorthost + '[%s] >> ' % status)
 
     def set_status(self, status, exception=False):
         self.status = status
@@ -201,7 +201,6 @@ class NicosCmdClient(NicosClient):
                 else:
                     self.set_status('interrupted')
                 if line != self.current_line:
-                    #text = self.current_script[self.current_line-1]
                     self.current_line = line
             elif type == 'message':
                 self.put_message(args[0])
@@ -300,7 +299,7 @@ class NicosCmdClient(NicosClient):
 
     def help(self, arg):
         for line in '''\
-Meta-commands: /break, /cont(inue), /stop, /history, /script,
+Meta-commands: /st(atus), /break, /cont(inue), /stop, /history,
 /e(dit) <file>, /r(un) <file>, /update <file>, /connect, /disconnect, /q(uit),
 
 Connection defaults can be given on the command-line, e.g.
@@ -314,8 +313,20 @@ or in ~/.nicos-cmd, like this:
             self.put('# ' + line, 'turquoise')
 
     commands = ['queue', 'run', 'edit', 'update', 'break', 'continue',
-                'stop', 'script' 'exec', 'disconnect', 'connect',
+                'stop', 'status' 'exec', 'disconnect', 'connect',
                 'quit', 'help', 'history']
+
+    def print_status(self):
+        if self.status in ('running', 'interrupted'):
+            self.put_client('Printing current script.')
+            for i, line in enumerate(self.current_script):
+                if i+1 == self.current_line:
+                    self.put(colorize('darkgreen', '---> ' + line))
+                else:
+                    self.put('     ' + line)
+            self.put_client('End of script.')
+        else:
+            self.put_client('No script is running.')
 
     def complete_filename(self, fn, text):
         globs = glob.glob(fn + '*')
@@ -407,12 +418,12 @@ or in ~/.nicos-cmd, like this:
             if not arg:
                self.put_error('Need a file name as argument.')
                return
+            if not os.getenv('EDITOR'):
+                os.putenv('EDITOR', 'vi')
             ret = os.system('$EDITOR ' + arg)
             if ret == 0:
                 if self.ask_question('Run file?', yesno=True) == 'y':
                     return self.command('run', arg)
-            else:
-                self.refresh()
         elif cmd == 'break':
             self.tell('break')
         elif cmd in ('cont', 'continue'):
@@ -448,6 +459,8 @@ or in ~/.nicos-cmd, like this:
             for msg in allstatus[2][n:]:
                 self.put_message(msg)
             self.put_client('End of messages.')
+        elif cmd in ('st', 'status'):
+            self.print_status()
         else:
             self.put_error('Unknown command %r.' % cmd)
 
