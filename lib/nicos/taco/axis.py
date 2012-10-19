@@ -92,7 +92,7 @@ class Axis(TacoDevice, BaseAxis):
             return status.OK, 'idle'
         elif state in (TACOStates.MOVING, TACOStates.STOP_REQUESTED):
             return status.BUSY, 'moving'
-        elif state == TACOStates.INIT:
+        elif state in (TACOStates.INIT, TACOStates.RESETTING):
             return status.BUSY, 'referencing'
         elif state == TACOStates.ALARM:
             return status.NOTREACHED, 'position not reached'
@@ -118,7 +118,8 @@ class Axis(TacoDevice, BaseAxis):
         client = self._getMotor()
         self.log.info('referencing the axis, please wait...')
         self._taco_guard(client.deviceReset)
-        while self._taco_guard(client.deviceState) == TACOStates.INIT:
+        while self._taco_guard(client.deviceState) \
+                                  in (TACOStates.INIT, TACOStates.RESETTING):
             sleep(0.3)
         self._taco_guard(client.deviceOn)
         self.setPosition(self.refpos)
