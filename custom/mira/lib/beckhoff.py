@@ -29,7 +29,7 @@ __version__ = "$Revision$"
 from Modbus import Modbus
 
 from nicos.core import Param
-from nicos.taco.io import DigitalOutput
+from nicos.taco.io import DigitalOutput, NamedDigitalOutput
 
 
 class BeckhoffDigitalOutput(DigitalOutput):
@@ -68,4 +68,30 @@ class BeckhoffDigitalOutput(DigitalOutput):
         return True, ''
 
     def doReadFmtstr(self):
-        return '{ ' + ' '.join(['%s'] * self.bitwidth) + ' }'
+        return '[' + ', '.join(['%s'] * self.bitwidth) + ']'
+
+
+class BeckhoffNamedDigitalOutput(NamedDigitalOutput):
+    taco_class = Modbus
+
+    parameters = {
+        'startoffset': Param('Starting offset of digital output values',
+                             type=int, mandatory=True),
+#        'bitwidth': Param('Number of bits to switch', type=int,
+#                          mandatory=True),
+    }
+
+    def doInit(self, mode):
+        # switch off watchdog, important before doing any write access
+        if mode != 'simulation':
+            self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
+        NamedDigitalOutput.doInit(self, mode)
+
+    def doRead(self, maxage=0):
+        value = self._taco_guard(self._dev.readCoils, (0, self.startoffset, 1))[0]
+        return self.mapping.get(value, value)
+
+    def doStart(self, value):
+        value = self._reverse.get(target, target)
+        self._taco_guard(self._dev.writeMultipleCoils, (0,
+                         self.startoffset) + (value,))
