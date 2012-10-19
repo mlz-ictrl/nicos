@@ -108,8 +108,8 @@ class NicosCmdClient(NicosClient):
         self._browser = None
 
     def set_prompt(self, status):
-        self.prompt = colorize(self.pcmap[status],
-            '\r\x1b[K# ' + self.shorthost + '[%s] >> ' % status)
+        self.prompt = '\x01' + colorize(self.pcmap[status],
+            '\r\x1b[K\x02# ' + self.shorthost + '[%s] >> \x01' % status) + '\x02'
 
     def set_status(self, status, exception=False):
         self.status = status
@@ -147,7 +147,8 @@ class NicosCmdClient(NicosClient):
             else:
                 question += ' '
             try:
-                ans = raw_input('\r\x1b[K' + colorize('bold', question))
+                ans = raw_input('\x01\r\x1b[K' + colorize('bold',\
+                                    '\x02' + question + '\x01') + '\x02')
                 if not ans:
                     ans = default
             except (KeyboardInterrupt, EOFError):
