@@ -34,6 +34,7 @@ import sys
 import glob
 import time
 import fcntl
+import random
 import struct
 import getpass
 import termios
@@ -582,7 +583,7 @@ class NicosCmdClient(NicosClient):
 
 
 def main(argv):
-    server = user = passwd = ''
+    server = user = passwd = via = ''
 
     # a connection "profile" can be given by invoking this executable
     # under a different name (via symlink)
@@ -599,6 +600,8 @@ def main(argv):
             cd = parse_connection_data(argv[1])
             server = '%s:%s' % cd[1:3]
             user = cd[0]
+        if argv[3:] and argv[2].startswith('via'):
+            via = argv[3]
 
     config = ConfigParser.RawConfigParser()
     config.read([path.expanduser('~/.nicos-cmd')])
@@ -614,6 +617,8 @@ def main(argv):
         user = config.get(configsection, 'user')
     if config.has_option(configsection, 'passwd'):
         passwd = config.get(configsection, 'passwd')
+    if not via and config.has_option(configsection, 'via'):
+        via = config.get(configsection, 'via')
     try:
         host, port = server.split(':', 1)
     except ValueError:
@@ -626,6 +631,12 @@ def main(argv):
         'login': user,
         'passwd': passwd,
     }
+
+    if via:
+        nport = random.randint(10000, 20000)
+        os.execvp('sh', ['sh', '-c',
+            'ssh -f -L "%s:%s:%s" "%s" sleep 10; %s "%s@localhost:%s"' %
+            (nport, host, port, via, argv[0], user, nport)])
 
     client = NicosCmdClient(conndata)
     return client.main()
