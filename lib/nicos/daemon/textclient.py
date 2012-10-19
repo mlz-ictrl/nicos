@@ -89,13 +89,15 @@ class NicosCmdClient(NicosClient):
         self.conndata = conndata
         self.current_script = ['']
         self.current_line = -1
-        self.current_filename = None
+        self.current_filename = ''
         self.tsize = terminal_size()
         self.out = sys.stdout
         self.browser = None
         self.shorthost = conndata['host'].split('.')[0]
         self.in_question = False
+        self.in_editing = False
         self.scriptdir = '.'
+        self.message_queue = []
 
         # set up readline
         for line in DEFAULT_BINDINGS.splitlines():
@@ -107,18 +109,20 @@ class NicosCmdClient(NicosClient):
             readline.read_history_file(self.histfile)
         self.completions = []
 
+        self.current_status_const = None
         self.set_status('disconnected')
 
     def set_prompt(self, status):
         self.prompt = '\x01' + colorize(self.pcmap[status],
             '\r\x1b[K\x02# ' + self.shorthost + '[%s] >> \x01' % status) + '\x02'
 
-    def set_status(self, status, exception=False):
+    def set_status(self, status):
         self.status = status
         self.set_prompt(status)
         if not self.in_question:
             librl.rl_set_prompt(self.prompt)
-        librl.rl_forced_update_display()
+        if not self.in_editing:
+            librl.rl_forced_update_display()
 
     def put(self, s, c=None):
         # put a line of output, preserving the prompt afterwards
@@ -192,24 +196,27 @@ class NicosCmdClient(NicosClient):
                 script = args[0].get('script')
                 if script is None:
                     return
-                self.current_filename = args[0].get('name')
+                self.current_filename = args[0].get('name', '')
                 script = script.splitlines() or ['']
                 if script != self.current_script:
                     self.current_script = script
             elif type == 'status':
                 status, line = args[0]
-                if status == STATUS_IDLE:
-                    self.set_status('idle')
-                elif status == STATUS_IDLEEXC:
-                    self.set_status('idle', exception=True)
-                elif status != STATUS_INBREAK:
-                    self.set_status('running')
-                else:
-                    self.set_status('interrupted')
+                if status != self.current_status_const:
+                    self.current_status_const = status
+                    if status == STATUS_IDLE or status == STATUS_IDLEEXC:
+                        self.set_status('idle')
+                    elif status != STATUS_INBREAK:
+                        self.set_status('running')
+                    else:
+                        self.set_status('interrupted')
                 if line != self.current_line:
                     self.current_line = line
             elif type == 'message':
-                self.put_message(args[0])
+                if self.in_editing:
+                    self.message_queue.append(args[0])
+                else:
+                    self.put_message(args[0])
             elif type == 'clientexec':
                 self.clientexec(args[0])
             elif type == 'showhelp':
@@ -445,7 +452,14 @@ or in ~/.nicos-cmd, like this:
             fpath = path.join(self.scriptdir, arg)
             if not os.getenv('EDITOR'):
                 os.putenv('EDITOR', 'vi')
-            ret = os.system('$EDITOR "' + fpath + '"')
+            self.in_editing = True
+            try:
+                ret = os.system('$EDITOR "' + fpath + '"')
+            finally:
+                self.in_editing = False
+                for msg in self.message_queue:
+                    self.put_message(msg)
+                self.message_queue = []
             if ret == 0 and path.isfile(fpath):
                 if self.status == 'running':
                     if fpath == self.current_filename:
