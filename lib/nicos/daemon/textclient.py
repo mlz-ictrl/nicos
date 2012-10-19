@@ -221,11 +221,6 @@ class NicosCmdClient(NicosClient):
         except Exception, e:
             self.put('# ERROR in event handler: %s.' % e, 'red')
 
-    psmap = {'idle': 'idle',
-             'running': 'busy',
-             'interrupted': 'break',
-             'disconnected': 'disconnected'
-    }
     pcmap = {'idle': 'blue',
              'running': 'fuchsia',
              'interrupted': 'red',
@@ -233,7 +228,7 @@ class NicosCmdClient(NicosClient):
 
     def set_prompt(self, status):
         self.prompt = colorize(self.pcmap[status],
-            '\r' + self.shorthost + '[%s] >>> ' % self.psmap[status])
+            '\r\x1b[K' + self.shorthost + '[%s] >>> ' % status)
 
     def put_message(self, msg):
         if msg[0] == 'nicos':
@@ -270,9 +265,8 @@ class NicosCmdClient(NicosClient):
                 question += ' [%s] ' % default
             else:
                 question += ' '
-            self.out.write('\r\x1b[K')
             try:
-                ans = raw_input('\r' + colorize('bold', question))
+                ans = raw_input('\r\x1b[K' + colorize('bold', question))
             except (KeyboardInterrupt, EOFError):
                 ans = ''
             if not ans:
