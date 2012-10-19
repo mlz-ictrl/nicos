@@ -98,6 +98,7 @@ class NicosCmdClient(NicosClient):
         self.in_editing = False
         self.scriptdir = '.'
         self.message_queue = []
+        self.tip_shown = False
 
         # set up readline
         for line in DEFAULT_BINDINGS.splitlines():
@@ -186,6 +187,10 @@ class NicosCmdClient(NicosClient):
         for msg in output[-self.tsize[1]:]:
             self.put_message(msg)
         self.put_client('Loaded setups: %s.' % ', '.join(setups))
+        if not self.tip_shown:
+            self.put('# Enter /help for help with the client commands.',
+                     'turquoise')
+            self.tip_shown = True
         self.signal('processing', {'script': script})
         self.signal('status', status)
         self.scriptdir = self.eval('session.experiment.scriptdir', '.')
@@ -547,7 +552,6 @@ or in ~/.nicos-cmd, like this:
             self.put_error('Unknown command %r.' % cmd)
 
     def run(self):
-        self.help('')
         self.command('connect', 'init')
 
         while 1:
