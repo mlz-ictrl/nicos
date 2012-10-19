@@ -65,11 +65,11 @@ def terminal_size():
     return w, h
 
 def parse_connection_data(s):
-    res = re.match(r"(?:(\w+)@)?([\w.]+)(?::(\d+))?", s)
+    res = re.match(r"(?:(\w+)(?::([^@]*))?@)?([\w.]+)(?::(\d+))?", s)
     if res is None:
         return None
-    return res.group(1) or 'guest', res.group(2), \
-           int(res.group(3) or DEFAULT_PORT)
+    return res.group(1) or 'guest', res.group(2) or '', \
+        res.group(3), int(res.group(4) or DEFAULT_PORT)
 
 # unfortunately we need a few functions not exported by Python's readline module
 librl = ctypes.cdll[ctypes.util.find_library('readline')]
@@ -617,8 +617,9 @@ def main(argv):
             configsection = argv[1]
         else:
             cd = parse_connection_data(argv[1])
-            server = '%s:%s' % cd[1:3]
+            server = '%s:%s' % cd[2:4]
             user = cd[0]
+            passwd = cd[1]
         if argv[3:] and argv[2] == 'via':
             via = argv[3]
 
@@ -631,7 +632,7 @@ def main(argv):
         server = config.get(configsection, 'server')
     if not user and config.has_option(configsection, 'user'):
         user = config.get(configsection, 'user')
-    if config.has_option(configsection, 'passwd'):
+    if not passwd and config.has_option(configsection, 'passwd'):
         passwd = config.get(configsection, 'passwd')
     if not via and config.has_option(configsection, 'via'):
         via = config.get(configsection, 'via')
@@ -653,8 +654,8 @@ def main(argv):
     if via:
         nport = random.randint(10000, 20000)
         os.execvp('sh', ['sh', '-c',
-            'ssh -f -L "%s:%s:%s" "%s" %s; %s "%s@localhost:%s"' %
-            (nport, host, port, via, viacommand, argv[0], user, nport)])
+            'ssh -f -L "%s:%s:%s" "%s" %s; %s "%s:%s@localhost:%s"' %
+            (nport, host, port, via, viacommand, argv[0], user, passwd, nport)])
 
     client = NicosCmdClient(conndata)
     return client.main()
