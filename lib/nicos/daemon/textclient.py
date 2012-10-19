@@ -414,6 +414,9 @@ or in ~/.nicos-cmd, like this:
                 self.tell('queue', arg, code)
         elif cmd == 'update':
             if not arg:
+                if os.path.isfile(self.current_filename):
+                    arg = self.current_filename
+            if not arg:
                 self.put_error('Need a file name as argument.')
                 return
             try:
@@ -424,15 +427,26 @@ or in ~/.nicos-cmd, like this:
             self.tell('update', code)
         elif cmd in ('e', 'edit'):
             if not arg:
+                if os.path.isfile(self.current_filename):
+                    arg = self.current_filename
+            if not arg:
                self.put_error('Need a file name as argument.')
                return
             if not os.getenv('EDITOR'):
                 os.putenv('EDITOR', 'vi')
             ret = os.system('$EDITOR ' + arg)
-            if ret == 0:
-                if os.path.exists(arg) and \
-                    self.ask_question('Run file?', yesno=True) == 'y':
-                    return self.command('run', arg)
+            if ret == 0 and os.path.exists(arg):
+                if self.status == 'running':
+                    if arg == self.current_filename:
+                        if self.ask_question('Update running script?',
+                                             yesno=True) == 'y':
+                            return self.command('update', arg)
+                    else:
+                        if self.ask_question('Queue file?', yesno=True) == 'y':
+                            return self.command('run', arg)
+                else:
+                    if self.ask_question('Run file?', yesno=True) == 'y':
+                        return self.command('run', arg)
         elif cmd == 'break':
             self.tell('break')
         elif cmd in ('cont', 'continue'):
