@@ -146,6 +146,12 @@ class NicosCmdClient(NicosClient):
         librl.rl_forced_update_display()
         self.out.flush()
 
+    def put_error(self, s):
+        self.put('# ERROR: ' + s, 'red')
+
+    def put_client(self, s):
+        self.put('# ' + s, 'bold')
+
     def initial_update(self):
         allstatus = self.ask('getstatus')
         if allstatus is None:
@@ -159,15 +165,15 @@ class NicosCmdClient(NicosClient):
     def signal(self, type, *args):
         try:
             if type == 'error':
-                self.put('# ERROR: ' + args[0], 'red')
+                self.put_error(args[0])
             elif type == 'failed':
-                self.put('# ERROR: ' + args[0], 'red')
+                self.put_error(args[0])
             elif type == 'connected':
-                self.put('# Connected to %s:%s as %s.' %
-                         (self.host, self.port, self.conndata['login']), 'bold')
+                self.put_client('Connected to %s:%s as %s.' %
+                                (self.host, self.port, self.conndata['login']))
                 self.initial_update()
             elif type == 'disconnected':
-                self.put('# Disconnected from server.', 'bold')
+                self.put_client('Disconnected from server.')
                 self.set_status('disconnected')
             elif type == 'processing':
                 script = args[0].get('script')
@@ -188,7 +194,6 @@ class NicosCmdClient(NicosClient):
                     self.set_status('interrupted')
                 if line != self.current_line:
                     #text = self.current_script[self.current_line-1]
-                    #self.put('now executing line %r' % text.strip(), 'darkgray')
                     self.current_line = line
             elif type == 'message':
                 self.put_message(args[0])
@@ -200,7 +205,7 @@ class NicosCmdClient(NicosClient):
                                    funcname)
                     func(*args[0][1:])
                 except Exception, err:
-                    self.put('# ERROR during "clientexec": %s' % err, 'red')
+                    self.put_error('During "clientexec": %s.' % err)
             elif type == 'showhelp':
                 html = args[0][1]
                 fd, fn = tempfile.mkstemp('.html')
@@ -212,8 +217,8 @@ class NicosCmdClient(NicosClient):
                     elif which('w3m'):
                         self._browser = 'w3m'
                     else:
-                        self.put('# ERROR: no text browser available. '
-                                 'Install links or w3m.')
+                        self.put_error('No text browser available. '
+                                       'Install links or w3m.')
                         return
                 width = str(self.tsize[0])
                 self.out.write('\r\x1b[K\n')
@@ -222,7 +227,7 @@ class NicosCmdClient(NicosClient):
                 else:
                     subprocess.Popen(['w3m', '-dump', '-cols', width, fn]).wait()
         except Exception, e:
-            self.put('# ERROR in event handler: %s.' % e, 'red')
+            self.put_error('In event handler: %s.' % e)
 
     pcmap = {'idle': 'blue',
              'running': 'fuchsia',
@@ -249,10 +254,10 @@ class NicosCmdClient(NicosClient):
             if levelno <= OUTPUT:
                 newtext = namefmt + msg[3].rstrip()
             elif levelno == INPUT:
-                newtext = colorize('bold', msg[3].rstrip())
+                newtext = colorize('darkgreen', msg[3].rstrip())
                 #return
             elif levelno <= WARNING:
-                newtext = colorize('fuchsia', timefmt + ' ' + namefmt +
+                newtext = colorize('purple', timefmt + ' ' + namefmt +
                                    levels[levelno] + ': ' + msg[3].rstrip())
             else:
                 newtext = colorize('red', timefmt + ' ' + namefmt +
@@ -304,10 +309,13 @@ class NicosCmdClient(NicosClient):
         elif cmd == 'queue':
             self.tell('queue', '', arg)
         elif cmd in ('r', 'run'):
+            if not arg:
+                self.put_error('Need a file name as argument.')
+                return
             try:
                 code = open(arg).read()
             except Exception, e:
-                self.put('# ERROR: Unable to open file: %s' % e, 'red')
+                self.put_error('Unable to open file %r.' % e)
                 return
             if self.status in ('running', 'interrupted'):
                 if self.ask_question('A script is already running, queue script?',
@@ -316,13 +324,19 @@ class NicosCmdClient(NicosClient):
             else:
                 self.tell('queue', arg, code)
         elif cmd == 'update':
+            if not arg:
+                self.put_error('Need a file name as argument.')
+                return
             try:
                 code = open(arg).read()
             except Exception, e:
-                self.put('# ERROR: Unable to open file: %s' % e, 'red')
+                self.put_error('Unable to open file %r.' % e)
                 return
             self.tell('update', code)
         elif cmd in ('e', 'edit'):
+            if not arg:
+               self.put_error('Need a file name as argument.')
+               return
             ret = os.system('$EDITOR ' + arg)
             if ret == 0:
                 if self.ask_question('Run file?', yesno=True) == 'y':
@@ -344,7 +358,7 @@ class NicosCmdClient(NicosClient):
                 self.disconnect()
         elif cmd == 'connect':
             if self.connected:
-                self.put('# ERROR: Already connected. Use /disconnect.', 'red')
+                self.put_error('Already connected. Use /disconnect first.')
             else:
                 hostport = '%s:%s' % (self.conndata['host'],
                                       self.conndata['port'])
@@ -370,12 +384,17 @@ class NicosCmdClient(NicosClient):
         elif cmd in ('h', 'help'):
             self.help()
         elif cmd in ('hist', 'history'):
+            if arg:
+                n = -int(arg)
+            else:
+                n = None
             allstatus = self.ask('getstatus')
-            for msg in allstatus[2]:
+            self.put_client('Printing %s previous messages.' % (-n if n else 'all'))
+            for msg in allstatus[2][n:]:
                 self.put_message(msg)
-            self.put('# End of all messages.', 'bold')
+            self.put_client('End of messages.')
         else:
-            self.put('# ERROR: Unknown command %r.' % cmd, 'red')
+            self.put_error('Unknown command %r.' % cmd)
 
     def set_status(self, status, exception=False):
         self.status = status
