@@ -1,0 +1,169 @@
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Georg Brandl <georg.brandl@frm2.tum.de>
+#
+# *****************************************************************************
+
+"""TACO specific commands for NICOS."""
+
+__version__ = "$Revision$"
+
+import os
+import subprocess
+
+from nicos import session
+from nicos.core import Measurable, Moveable, Readable, UsageError, NicosError
+from nicos.commands import usercommand, hiddenusercommand, helparglist
+from nicos.commands.output import printinfo
+from nicos.utils import printTable
+
+from nicos.taco.core import TacoDevice
+
+import TACOClient
+import TACOStates as st
+import TACOCommands as cmds
+
+def _client(dev):
+    if isinstance(dev, TacoDevice):
+        return dev._dev
+    return TACOClient.Client(dev)
+
+@usercommand
+def TacoRes(dev):
+    """List all resources for the given TACO device."""
+    cl = _client(dev)
+    items = []
+    for res, info in sorted(cl.deviceQueryResourceInfo().iteritems()):
+        try:
+            rv = cl.deviceQueryResource(res)
+        except Exception:
+            rv = '<n/a>'
+        items.append((res, info['info'], rv))
+    printinfo('TACO resources for %s:' % cl.deviceName())
+    printTable(('name', 'info', 'value'), items, printinfo)
+
+
+def _list_devices(server):
+    subp = subprocess.Popen('/opt/taco/bin/db_devicelist -n %s' % server,
+                            shell=True, stdout=subprocess.PIPE)
+    out = subp.communicate()[0]
+    for line in out.splitlines():
+        if line.startswith('\t'):
+            yield line.strip()
+
+bold = red = blue = darkgray = darkgreen = lambda x: x
+
+typemap = {
+    ('IOStringIO', 'RS232StringIO'): 1,
+    ('IOAnalogOutput', 'MotorMotor'): 1,
+    ('Modbus', 'RS485'): 1,
+    ('EncoderEncoder', 'IOAnalogInput'): 0,
+    ('IOAnalogOutput', 'TemperatureController'): 1,
+    ('IOAnalogInput', 'TemperatureSensor'): 1,
+}
+
+typedisplay = {
+    'EncoderEncoder': 'Encoder',
+    'IOAnalogInput': 'AnalogInput',
+    'IOAnalogOutput': 'AnalogOutput',
+    'IOCounter': 'Counter',
+    'IODigitalInput': 'DigitalInput',
+    'IODigitalOutput': 'DigitalOutput',
+    'IOStringIO': 'StringIO',
+    'IOTimer': 'Timer',
+    'PowerSupplyCurrentControl': 'PowerSupply',
+    'RS232StringIO': 'RS232',
+    'RS485': 'RS485',
+    'MotorMotor': 'Motor',
+    'TemperatureController': 'TempCtrl',
+    'TemperatureSensor': 'TempSens',
+}
+
+@usercommand
+def TacoStatus(server=''):
+    """List all TACO devices and check their status."""
+    def check_IOCounter(dev, client, state):
+        return state in [st.COUNTING, st.STOPPED]
+    def check_IOTimer(dev, client, state):
+        return state in [st.STARTED, st.STOPPED, st.PRESELECTION_REACHED]
+    def check_MotorMotor(dev, client, state):
+        return state in [st.DEVICE_NORMAL, st.MOVING]
+    def check_RS485(dev, client, state):
+        return state == st.ON
+    def check_TemperatureController(dev, client, state):
+        return state in [st.PRESELECTION_REACHED, st.MOVING, st.DEVICE_NORMAL, st.UNDEFINED]
+    def check_TMCSAdmin(dev, client, state):
+        return state in [st.STARTED, st.STOPPED]
+    def check_PowerSupplyCurrentControl(dev, client, state):
+        try:
+            client.execute(cmds.READ_DOUBLE)
+        except TACOClient.TACOError, err:
+            return 'not readable: %s' % err
+        else:
+            return True
+    def check_IOAnalogInput(dev, client, state):
+        try:
+            client.execute(cmds.READ_DOUBLE)
+        except TACOClient.TACOError, err:
+            return 'not readable: %s' % err
+        else:
+            return True
+
+    if server == '':
+        server = os.getenv('NETHOST')
+    printinfo('Checking TACO devices on %s...' % bold(server))
+    for dev in sorted(_list_devices(server)):
+        dev = '//%s/%s' % (server, dev)
+        try:
+            client = TACOClient.Client(dev)
+            state = client.deviceState()
+            status = st.stateDescription(state)
+        except TACOClient.TACOError, err:
+            ok = False
+            disp = '-' * 15
+            errmsg = err.args[0]
+            if errmsg == 'Device has not been fully imported yet, ' \
+                         '(hint: start the device server)':
+                errmsg = 'Server not started'
+            status = '*** ' + errmsg
+        else:
+            types = client.deviceTypes()
+            if tuple(types) in typemap:
+                type = types[typemap[tuple(types)]]
+            else:
+                type = types and types[-1] or '???'
+            disp = typedisplay.get(type, type)
+            if not disp:
+                disp = '/'.join(types)
+
+            checker = locals().get('check_' + type, None)
+            if checker:
+                ok = checker(dev, client, state)
+                if isinstance(ok, str):
+                    status = ok
+                    ok = False
+            else:
+                ok = state == st.DEVICE_NORMAL
+
+        print '%s %s %s %s' % (darkgray('[' + disp.ljust(15) + ']'),
+                               blue(dev.ljust(35)),
+                               ok and darkgreen('  ok:') or red('FAIL:'),
+                               ok and status or bold(status))

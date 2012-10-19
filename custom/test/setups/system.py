@@ -32,6 +32,8 @@ sysconfig = dict(
     notifiers = [],
 )
 
+modules = ['nicos.commands.taco']
+
 devices = dict(
     Sample   = device('nicos.tas.TASSample'),
 
