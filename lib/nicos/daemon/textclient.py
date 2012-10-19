@@ -175,6 +175,7 @@ class NicosCmdClient(NicosClient):
         status, script, output, watch, setups = allstatus
         for msg in output[-self.tsize[1]:]:
             self.put_message(msg)
+        self.put_client('Loaded setups: %s.' % ', '.join(setups))
         self.signal('processing', {'script': script})
         self.signal('status', status)
         self.scriptdir = self.eval('session.experiment.scriptdir', '.')
