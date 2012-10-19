@@ -1,7 +1,7 @@
 description = 'MIEZE measurement setup'
 group = 'basic'
 
-includes = ['cascade']
+includes = ['cascade', 'relay']
 modules = ['nicos.mira.mieze']
 
 devices = dict(
@@ -109,10 +109,4 @@ devices = dict(
                        startoffset = 32,
                        bitwidth = 32),
 
-    relay1    = device('nicos.taco.NamedDigitalOutput',
-                       tacodevice = 'mira/io/relay1',
-                       mapping = {0: 'off', 1: 'on'}),
-    relay2    = device('nicos.taco.NamedDigitalOutput',
-                       tacodevice = 'mira/io/relay2',
-                       mapping = {0: 'off', 1: 'on'}),
 )

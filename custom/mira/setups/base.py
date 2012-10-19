@@ -46,7 +46,8 @@ devices = dict(
                        states = ['out', 'in']),
 
     Shutter   = device('nicos.mira.shutter.Shutter',
-                       tacodevice = 'mira/io/in_unused',
+                       tacodevice = 'mira/io/shutteropen',
+                       pollinterval = 1,
                        output = 'mira/io/closeshutter',
                        mapping = {0: 'closed', 1: 'open'}),
 

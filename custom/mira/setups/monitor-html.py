@@ -15,7 +15,9 @@ _expcolumn = [
          {'name': 'Last file', 'key': 'filesink/lastfilenumber'}]]),
 ]
 
-_column1 = [
+_column3 = [
+    ('Analyzer', [[{'dev': 'ath'}, {'dev': 'att'}, {'dev': 'adr'}]],
+     'analyzer'),
     ('Detector', [
         ['timer', 'mon1', 'mon2'],
         '---',
@@ -51,15 +53,7 @@ _column1 = [
         ['fp1', 'fp2', {'dev': 'rp1', 'max': 20}, {'dev': 'rp2', 'max': 20}],
         ['dc1', 'dc2', 'freq3', {'dev': 'amp3', 'min': 4.999, 'max': 5.001}],
     ], 'mieze'),
-]
-
-_column2 = [
-    ('Sample', [[{'dev': 'om'}, {'dev': 'srot'}, {'dev': 'phi'},],
-                [{'dev': 'stx'}, {'dev': 'sty'}, {'dev': 'stz'}],
-                [{'dev': 'sgx'}, {'dev': 'sgy'}]],
-     'sample'),
-    ('Analyzer', [[{'dev': 'ath'}, {'dev': 'att'}, {'dev': 'adr'}]],
-     'analyzer'),
+#    ('X-Z table axes', [[{'dev': 'mx'}, {'dev': 'my'}]], 'gauss'),
     ('TAS', [
         [{'dev': 'mira', 'name': 'H', 'item': 0, 'format': '%.3f', 'unit': ' '},
          {'dev': 'mira', 'name': 'K', 'item': 1, 'format': '%.3f', 'unit': ' '},
@@ -68,9 +62,33 @@ _column2 = [
         [{'key': 'mira/scanmode', 'name': 'Mode'},
          {'dev': 'mono', 'name': 'ki'}, {'dev': 'ana', 'name': 'kf'}, {'key': 'mira/energytransferunit', 'name': 'Unit'},],
     ], 'tas'),
+    ('MIRA Magnet', [[{'dev': 'I', 'name': 'I'}]], 'miramagnet'),
 ]
 
-_column3 = [
+_column2 = [
+    ('Slits', [[{'dev': 'ss1', 'name': 'Sample slit 1', 'width': 24, 'istext': True}],
+               [{'dev': 'ss2', 'name': 'Sample slit 2', 'width': 24, 'istext': True}]],
+     'slits'),
+    ('Sample', [[{'dev': 'om'}, {'dev': 'srot'}, {'dev': 'phi'},],
+                [{'dev': 'stx'}, {'dev': 'sty'}, {'dev': 'stz'}],
+                [{'dev': 'sgx'}, {'dev': 'sgy'}]],
+     'sample'),
+    ('Sample environment', [
+        [{'key': 't/setpoint', 'name': 'Setpoint', 'unitkey': 't/unit'},
+         {'dev': 'TA', 'name': 'Sample'}, 'TB', 'TC'],
+        [{'key': 't/p', 'name': 'P'}, {'key': 't/i', 'name': 'I'},
+         {'key': 't/d', 'name': 'D'}, {'dev': 'Pcryo', 'name': 'p'}],
+        ],
+     'lakeshore'),
+    ('FRM Magnet', [[{'dev': 'B'}],
+                    [{'dev': 'Tm1', 'max': 4.1}, {'dev': 'Tm2', 'max': 4.1},
+                     {'dev': 'Tm3', 'max': 4.9}, {'dev': 'Tm4', 'max': 4.5}, 
+                     {'dev': 'Tm8', 'max': 4.1}]], 'frm2magnet'),
+    ('TTi', [['dct1', 'dct2'], ['dct3', 'dct4']], 'tti'),
+    ('Relays', [['relay1', 'relay2']], 'relay'),
+]
+
+_column1 = [
     ('MIRA1', [[{'dev': 'FOL', 'name': 'FOL', 'width': 4},
                 {'dev': 'flip1', 'name': 'Flip', 'width': 4}],
                ['mth', 'mtt'],
@@ -93,35 +111,14 @@ _column3 = [
         [{'dev': 'Power', 'name': 'Power', 'min': 19, 'format': '%.1f', 'width': 7},
          {'dev': 'Sixfold', 'name': '6-fold', 'min': 'open', 'width': 7},
          {'dev': 'NL6', 'name': 'NL6', 'min': 'open', 'width': 7}],
-        [{'dev': 'Cooling', 'max': 'okay', 'width': 7},
+        [{'dev': 'Shutter', 'min': 'open', 'width': 7},
+         {'dev': 'Cooling', 'max': 'okay', 'width': 7},
          {'dev': 'Crane', 'min': 10, 'width': 7}],
     ], 'reactor'),
 ]
 
-_column4 = [
-    ('Slits', [[{'dev': 'ss1', 'name': 'Sample slit 1', 'width': 24, 'istext': True}],
-               [{'dev': 'ss2', 'name': 'Sample slit 2', 'width': 24, 'istext': True}]],
-     'slits'),
-    ('Sample environment', [
-        [{'key': 't/setpoint', 'name': 'Setpoint', 'unitkey': 't/unit'},
-         {'dev': 'TA', 'name': 'Sample'}, 'TB', 'TC'],
-        [{'key': 't/p', 'name': 'P'}, {'key': 't/i', 'name': 'I'},
-         {'key': 't/d', 'name': 'D'}, {'dev': 'Pcryo', 'name': 'p'}],
-        ],
-     'lakeshore'),
-    ('MIRA Magnet', [[{'dev': 'I', 'name': 'I'}]], 'miramagnet'),
-    ('FRM Magnet', [[{'dev': 'B'}],
-                    [{'dev': 'Tm1', 'max': 4.1}, {'dev': 'Tm2', 'max': 4.1},
-                     {'dev': 'Tm3', 'max': 4.9}, {'dev': 'Tm4', 'max': 4.5}, 
-                     {'dev': 'Tm8', 'max': 4.1}]], 'frm2magnet'),
-    ('TTi', [['dct1', 'dct2']], 'tti'),
-]
+_column4 = []
 
-_warnings = [
-#    ('psdgas/value', '== "empty"', 'Change detector counting gas'),
-#    ('TBe/value', '> 70', 'Check Be filter temperature'),
-#    ('sixfold/value', '== "closed"', 'Six-fold shutter closed'),
-]
 
 devices = dict(
     Monitor = device('nicos.monitor.html.Monitor',
@@ -135,6 +132,6 @@ devices = dict(
                      valuefont = 'Consolas',
                      fontsize = 17,
                      layout = [[_expcolumn], [_column1, _column2, _column3, _column4]],
-                     warnings = _warnings,
+                     warnings = [],
                      notifiers = [])
 )

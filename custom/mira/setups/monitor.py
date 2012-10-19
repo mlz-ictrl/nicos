@@ -85,6 +85,7 @@ _column2 = [
                      {'dev': 'Tm3', 'max': 4.9}, {'dev': 'Tm4', 'max': 4.5}, 
                      {'dev': 'Tm8', 'max': 4.1}]], 'frm2magnet'),
     ('TTi', [['dct1', 'dct2'], ['dct3', 'dct4']], 'tti'),
+    ('Relays', [['relay1', 'relay2']], 'relay'),
 ]
 
 _column1 = [
@@ -110,7 +111,8 @@ _column1 = [
         [{'dev': 'Power', 'name': 'Power', 'min': 19, 'format': '%.1f', 'width': 7},
          {'dev': 'Sixfold', 'name': '6-fold', 'min': 'open', 'width': 7},
          {'dev': 'NL6', 'name': 'NL6', 'min': 'open', 'width': 7}],
-        [{'dev': 'Cooling', 'max': 'okay', 'width': 7},
+        [{'dev': 'Shutter', 'min': 'open', 'width': 7},
+         {'dev': 'Cooling', 'max': 'okay', 'width': 7},
          {'dev': 'Crane', 'min': 10, 'width': 7}],
     ], 'reactor'),
 ]
