@@ -353,7 +353,7 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command(needcontrol=True, needscript=True, name='break')
     def break_(self):
-        """Interrupt the current script."""
+        """Interrupt the current script at the next breakpoint."""
         if self.controller.status == STATUS_STOPPING:
             self.write(NAK, 'script is already stopping')
         elif self.controller.status == STATUS_INBREAK:
@@ -377,17 +377,21 @@ class ConnectionHandler(BaseRequestHandler):
             self.write(ACK)
 
     @command(needcontrol=True, needscript=True)
-    def stop(self):
+    def stop(self, level=None):
         """Abort the interrupted script."""
+        if level is None:
+            level = 2  # which means after scan step, the default
+        else:
+            level = int(level)
         if self.controller.status == STATUS_STOPPING:
             self.write(ACK)
         elif self.controller.status == STATUS_RUNNING:
             self.log.info('script stop request while running')
-            self.controller.set_break(('stop', self.user.name))
+            self.controller.set_break((level, self.user.name))
             self.write(ACK)
         else:
             self.log.info('script stop request while in break')
-            self.controller.set_continue(('stop', self.user.name))
+            self.controller.set_continue((level, self.user.name))
             self.write(ACK)
 
     @command(needcontrol=True)

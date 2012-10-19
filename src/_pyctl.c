@@ -129,8 +129,8 @@ trace_function(CtlrObject *self, PyFrameObject *frame, int what, PyObject *arg)
     case REQ_RUN:
         return 0;
     case REQ_BREAK:
-        /* always break if frame filename is <break> */
-        if (strcmp(PyString_AS_STRING(frame->f_code->co_filename), "<break>") != 0) {
+        /* always break if frame filename starts with <break> */
+        if (strncmp(PyString_AS_STRING(frame->f_code->co_filename), "<break>", 7) != 0) {
             if (self->break_only_in_toplevel && frame != self->toplevelframe) {
                 /* keep the break request, but wait until in toplevel */
                 return 0;

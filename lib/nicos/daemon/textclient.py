@@ -400,7 +400,10 @@ or in ~/.nicos-cmd, like this:
         elif cmd == 'cont':
             self.tell('continue')
         elif cmd == 'stop':
-            self.tell('stop')
+            if arg not in ('', '1', '2'):
+                self.put_error('Invalid stop level %r.' % arg)
+                return
+            self.tell('stop', arg)
         elif cmd == 'stop!':
             self.tell('emergency')
         elif cmd == 'exec':
@@ -445,15 +448,15 @@ or in ~/.nicos-cmd, like this:
                     self.put('Please enter how to proceed:')
                     self.put('<I> ignore this interrupt')
                     self.put('<H> stop after current step')
-                    #self.put('<L> stop after current scan')
+                    self.put('<L> stop after current scan')
                     self.put('<S> immediate stop')
                     res = self.ask_question('Your choice [I/H/S] --->').upper()[:1]
                     if res == 'I':
                         continue
                     elif res == 'H':
-                        self.command('stop', '')
+                        self.command('stop', '2')
                     elif res == 'L':
-                        self.put('<L> is not implemented...')
+                        self.command('stop', '1')
                     else:
                         self.command('stop!', '')
                 continue
@@ -490,7 +493,7 @@ def main(argv):
     config.read([os.path.expanduser('~/.nicos-cmd')])
     if not server and config.has_option('connect', 'server'):
         server = config.get('connect', 'server')
-    if not user is None and config.has_option('connect', 'user'):
+    if not user and config.has_option('connect', 'user'):
         user = config.get('connect', 'user')
     if config.has_option('connect', 'passwd'):
         passwd = config.get('connect', 'passwd')

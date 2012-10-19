@@ -50,9 +50,10 @@ class DaemonSession(NoninteractiveSession):
     cache_class = DaemonCacheClient
 
     # to set a point where the "break" command can break, it suffices to execute
-    # some piece of code in a frame with the filename "<break>"; this object is
-    # such a piece of code
-    _bpcode = compile("pass", "<break>", "exec")
+    # some piece of code in a frame with the filename starting with "<break>";
+    # these objects are such a piece of code (the number designates the level)
+    _bpcode = [None, compile("pass", "<break>1", "exec"),
+               compile("pass", "<break>2", "exec")]
 
     def _initLogging(self):
         NoninteractiveSession._initLogging(self)
@@ -135,7 +136,7 @@ class DaemonSession(NoninteractiveSession):
         self.emitfunc('livedata', data)
 
     def breakpoint(self, level):
-        exec self._bpcode
+        exec self._bpcode[level]
 
     def clearExperiment(self):
         # reset cached messages

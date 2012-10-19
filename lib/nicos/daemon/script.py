@@ -300,6 +300,18 @@ class ExecutionController(Controller):
         if arg is not None:
             self.set_continue(arg)
         flag = self.wait_for_continue()
+        # check desired stop level
+        if isinstance(flag, tuple):
+            fn = frame.f_code.co_filename
+            if fn.startswith('<break>'):
+                bplevel = int(fn[7:])
+            else:
+                bplevel = 1
+            reqlevel = flag[0]
+            if reqlevel < bplevel:
+                # not a real break; re-set breakpoint
+                self.set_break(flag)
+                flag = None
         if flag:
             self.log.info('interrupted script stopped: %s' % (flag,))
             self.set_stop(flag)
