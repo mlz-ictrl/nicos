@@ -91,8 +91,9 @@ class NicosCmdClient(NicosClient):
         self.tsize = tsize
         self.out = sys.stdout
         self.shorthost = conndata['host'].split('.')[0]
-        self.set_prompt('disconnected')
         self.in_question = False
+
+        # set up readline
         for line in DEFAULT_BINDINGS.splitlines():
             readline.parse_and_bind(line)
         readline.set_completer(self.completer)
@@ -101,6 +102,8 @@ class NicosCmdClient(NicosClient):
         if os.path.isfile(self.histfile):
             readline.read_history_file(self.histfile)
         self._completions = []
+
+        self.set_status('disconnected')
         self._browser = None
 
     def complete_filename(self, fn, text):
@@ -292,7 +295,7 @@ class NicosCmdClient(NicosClient):
 
     def command(self, cmd, arg):
         if cmd == 'cmd':
-            if self.status != 'idle':
+            if self.status in ('running', 'interrupted'):
                 if self.ask_question('A script is already running, execute anyway?',
                                      yesno=True, default='y') == 'y':
                     self.tell('exec', arg)
@@ -306,7 +309,7 @@ class NicosCmdClient(NicosClient):
             except Exception, e:
                 self.put('# ERROR: Unable to open file: %s' % e, 'red')
                 return
-            if self.status != 'idle':
+            if self.status in ('running', 'interrupted'):
                 if self.ask_question('A script is already running, queue script?',
                                      yesno=True, default='y') == 'y':
                     self.tell('queue', arg, code)
@@ -361,7 +364,8 @@ class NicosCmdClient(NicosClient):
                 self.shorthost = self.conndata['host'].split('.')[0]
                 self.connect(self.conndata)
         elif cmd in ('q', 'quit'):
-            self.disconnect()
+            if self.connected:
+                self.disconnect()
             return 0   # exit
         elif cmd in ('h', 'help'):
             self.help()
@@ -420,8 +424,10 @@ class NicosCmdClient(NicosClient):
                 self.command('cmd', cmd)
 
     def main(self):
-        self.run()
-        readline.write_history_file(self.histfile)
+        try:
+            self.run()
+        finally:
+            readline.write_history_file(self.histfile)
 
 
 def main(argv):
@@ -478,7 +484,7 @@ passwd=secret
     conndata = {
         'host': host,
         'port': int(port),
-        'display': os.getenv('DISPLAY'),
+        'display': os.getenv('DISPLAY') or '',
         'login': user,
         'passwd': passwd,
     }
