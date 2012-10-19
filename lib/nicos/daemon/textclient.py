@@ -42,6 +42,7 @@ import tempfile
 import subprocess
 import ConfigParser
 import ctypes, ctypes.util
+from os import path
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 
 from nicos.daemon import DEFAULT_PORT
@@ -91,21 +92,22 @@ class NicosCmdClient(NicosClient):
         self.current_filename = None
         self.tsize = terminal_size()
         self.out = sys.stdout
+        self.browser = None
         self.shorthost = conndata['host'].split('.')[0]
         self.in_question = False
+        self.scriptdir = '.'
 
         # set up readline
         for line in DEFAULT_BINDINGS.splitlines():
             readline.parse_and_bind(line)
         readline.set_completer(self.completer)
         readline.set_history_length(10000)
-        self.histfile = os.path.expanduser('~/.nicoshistory')
-        if os.path.isfile(self.histfile):
+        self.histfile = path.expanduser('~/.nicoshistory')
+        if path.isfile(self.histfile):
             readline.read_history_file(self.histfile)
-        self._completions = []
+        self.completions = []
 
         self.set_status('disconnected')
-        self._browser = None
 
     def set_prompt(self, status):
         self.prompt = '\x01' + colorize(self.pcmap[status],
@@ -171,6 +173,7 @@ class NicosCmdClient(NicosClient):
             self.put_message(msg)
         self.signal('processing', {'script': script})
         self.signal('status', status)
+        self.scriptdir = self.eval('session.experiment.scriptdir', '.')
 
     def signal(self, type, *args):
         try:
@@ -211,6 +214,10 @@ class NicosCmdClient(NicosClient):
                 self.clientexec(args[0])
             elif type == 'showhelp':
                 self.showhelp(args[0][1])
+            elif type == 'cache':
+                if args[0][1].endswith('/scriptdir'):
+                    self.scriptdir = self.eval(
+                        'session.experiment.scriptdir', '.')
         except Exception, e:
             self.put_error('In event handler: %s.' % e)
 
@@ -228,18 +235,18 @@ class NicosCmdClient(NicosClient):
         fd, fn = tempfile.mkstemp('.html')
         os.write(fd, html)
         os.close(fd)
-        if self._browser is None:
+        if self.browser is None:
             if which('links'):
-                self._browser = 'links'
+                self.browser = 'links'
             elif which('w3m'):
-                self._browser = 'w3m'
+                self.browser = 'w3m'
             else:
                 self.put_error('No text browser available. '
                                'Install links or w3m.')
                 return
         width = str(self.tsize[0])
         self.out.write('\r\x1b[K\n')
-        if self._browser == 'links':
+        if self.browser == 'links':
             subprocess.Popen(['links', '-dump', '-width', width, fn]).wait()
         else:
             subprocess.Popen(['w3m', '-dump', '-cols', width, fn]).wait()
@@ -319,7 +326,7 @@ or in ~/.nicos-cmd, like this:
                 'stop', 'where' 'exec', 'disconnect', 'connect',
                 'quit', 'help', 'log']
 
-    def print_status(self):
+    def print_where(self):
         if self.status in ('running', 'interrupted'):
             self.put_client('Printing current script.')
             for i, line in enumerate(self.current_script):
@@ -332,8 +339,9 @@ or in ~/.nicos-cmd, like this:
             self.put_client('No script is running.')
 
     def complete_filename(self, fn, text):
-        globs = glob.glob(fn + '*')
-        return [(f + ('/' if os.path.isdir(f) else ''))[len(fn)-len(text):]
+        initpath = path.join(self.scriptdir, fn)
+        globs = glob.glob(initpath + '*.py')
+        return [(f + ('/' if path.isdir(f) else ''))[len(initpath)-len(text):]
                 for f in globs]
 
     def completer(self, text, state):
@@ -343,25 +351,25 @@ or in ~/.nicos-cmd, like this:
                 # client command: complete either command or filename
                 parts = line[1:].split()
                 if len(parts) < 2 and not line.endswith(' '):
-                    self._completions = [cmd for cmd in self.commands
-                                         if cmd.startswith(text)]
+                    self.completions = [cmd for cmd in self.commands
+                                        if cmd.startswith(text)]
                 else:
                     if parts[0] in ('r', 'run', 'e', 'edit', 'update'):
                         try:
                             fn = parts[1]
                         except IndexError:
                             fn = ''
-                        self._completions = self.complete_filename(fn, text)
+                        self.completions = self.complete_filename(fn, text)
                     else:
-                        self._completions = []
+                        self.completions = []
             else:
                 # server command: ask daemon to complete for us
                 try:
-                    self._completions = self.ask('complete', text, line)
+                    self.completions = self.ask('complete', text, line)
                 except Exception:
-                    self._completions = []
+                    self.completions = []
         try:
-            return self._completions[state]
+            return self.completions[state]
         except IndexError:
             return None
 
@@ -401,57 +409,60 @@ or in ~/.nicos-cmd, like this:
             if not arg:
                 self.put_error('Need a file name as argument.')
                 return
+            fpath = path.join(self.scriptdir, arg)
             try:
-                code = open(arg).read()
+                code = open(fpath).read()
             except Exception, e:
                 self.put_error('Unable to open file: %s.' % e)
                 return
             if self.status in ('running', 'interrupted'):
                 if self.ask_question('A script is already running, queue script?',
                                      yesno=True, default='y') == 'y':
-                    self.tell('queue', arg, code)
+                    self.tell('queue', fpath, code)
             else:
-                self.tell('queue', arg, code)
+                self.tell('queue', fpath, code)
         elif cmd == 'update':
             if not arg:
-                if os.path.isfile(self.current_filename):
+                if path.isfile(self.current_filename):
                     arg = self.current_filename
             if not arg:
                 self.put_error('Need a file name as argument.')
                 return
+            fpath = path.join(self.scriptdir, arg)
             try:
-                code = open(arg).read()
+                code = open(fpath).read()
             except Exception, e:
                 self.put_error('Unable to open file: %s.' % e)
                 return
             self.tell('update', code)
         elif cmd in ('e', 'edit'):
             if not arg:
-                if os.path.isfile(self.current_filename):
+                if path.isfile(self.current_filename):
                     arg = self.current_filename
             if not arg:
                self.put_error('Need a file name as argument.')
                return
+            fpath = path.join(self.scriptdir, arg)
             if not os.getenv('EDITOR'):
                 os.putenv('EDITOR', 'vi')
-            ret = os.system('$EDITOR ' + arg)
-            if ret == 0 and os.path.exists(arg):
+            ret = os.system('$EDITOR "' + fpath + '"')
+            if ret == 0 and path.isfile(fpath):
                 if self.status == 'running':
-                    if arg == self.current_filename:
+                    if fpath == self.current_filename:
                         if self.ask_question('Update running script?',
                                              yesno=True) == 'y':
-                            return self.command('update', arg)
+                            return self.command('update', fpath)
                     else:
                         if self.ask_question('Queue file?', yesno=True) == 'y':
-                            return self.command('run', arg)
+                            return self.command('run', fpath)
                 else:
                     if self.ask_question('Run file?', yesno=True) == 'y':
-                        return self.command('run', arg)
+                        return self.command('run', fpath)
         elif cmd == 'break':
             self.tell('break')
         elif cmd in ('cont', 'continue'):
             self.tell('continue')
-        elif cmd == 'stop':
+        elif cmd in ('s', 'stop'):
             if self.status == 'running':
                 self.stop_query('Stop request')
             else:
@@ -483,7 +494,7 @@ or in ~/.nicos-cmd, like this:
                 self.put_message(msg)
             self.put_client('End of messages.')
         elif cmd in ('w', 'where'):
-            self.print_status()
+            self.print_where()
         else:
             self.put_error('Unknown command %r.' % cmd)
 
@@ -506,6 +517,7 @@ or in ~/.nicos-cmd, like this:
                 args = cmd[1:].split(None, 1) + ['','']
                 ret = self.command(args[0], args[1])
                 if ret is not None:
+                    self.out.write('\n')
                     return ret
             elif not cmd:
                 pass
@@ -528,7 +540,7 @@ def main(argv):
         user = cd[0]
 
     config = ConfigParser.RawConfigParser()
-    config.read([os.path.expanduser('~/.nicos-cmd')])
+    config.read([path.expanduser('~/.nicos-cmd')])
     if not server and config.has_option('connect', 'server'):
         server = config.get('connect', 'server')
     if not user and config.has_option('connect', 'user'):
