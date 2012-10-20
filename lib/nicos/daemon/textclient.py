@@ -338,11 +338,12 @@ class NicosCmdClient(NicosClient):
                     self.pending_requests[data['reqno']] = data
                 self.set_status(self.status)
             elif type == 'blocked':
-                for reqno in data:
-                    self.pending_requests.pop(reqno, None)
-                self.put_client('%d script(s) or command(s) removed from '
-                                'queue.' % len(data))
-                self.show_pending()
+                removed = filter(None,
+                    (self.pending_requests.pop(reqno, None) for reqno in data))
+                if removed:
+                    self.put_client('%d script(s) or command(s) removed from '
+                                    'queue.' % len(removed))
+                    self.show_pending()
                 self.set_status(self.status)
             elif type == 'dataset':
                 self.last_dataset = data
