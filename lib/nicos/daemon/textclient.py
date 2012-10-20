@@ -214,11 +214,12 @@ class NicosCmdClient(NicosClient):
         status, script, output, watch, setups, reqqueue = state[:6]
         for msg in output[-self.tsize[1]:]:
             self.put_message(msg)
-        self.put_client('Loaded setups: %s.' % ', '.join(setups))
         if not self.tip_shown:
-            self.put('# Enter "/help" for help with the client commands.',
-                     'turquoise')
+            self.put_client('Loaded setups: %s. Enter "/help" for help with '
+                            'the client commands.' % ', '.join(setups))
             self.tip_shown = True
+        else:
+            self.put_client('Loaded setups: %s.' % ', '.join(setups))
         self.signal('processing', {'script': script, 'reqno': 0})
         self.signal('status', status)
         self.scriptdir = self.eval('session.experiment.scriptdir', '.')
