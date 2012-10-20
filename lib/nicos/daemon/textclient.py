@@ -56,10 +56,13 @@ from nicos.utils.loggers import ACTION, OUTPUT, INPUT
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
           ERROR: 'ERROR', FATAL: 'FATAL'}
 
-# introduce the readline C library to our program
+# introduce the readline C library to our program (we will use Python's
+# binding module where possible, but otherwise call the readline functions
+# directly via ctypes)
 librl = ctypes.cdll[ctypes.util.find_library('readline')]
 rl_vcpfunc_t = ctypes.CFUNCTYPE(None, ctypes.c_char_p)
 
+# some useful default readline keybindings
 DEFAULT_BINDINGS = '''\
 tab: complete
 "\\e[5~": history-search-backward
@@ -87,26 +90,42 @@ class NicosCmdClient(NicosClient):
 
     def __init__(self, conndata, plot_on=False):
         NicosClient.__init__(self)
+        # connection data as a dictionary
         self.conndata = conndata
+        # whether to suppress printing history and other info on connection
         self.quiet_connect = False
+        # various state variables
+        self.in_question = False
+        self.in_editing = False
+        self.tip_shown = False
+        # current script, line within it and filename of script
         self.current_script = ['']
         self.current_line = -1
         self.current_filename = ''
-        self.edit_filename = ''
-        self.tsize = terminalSize()
-        self.out = sys.stdout
-        self.browser = None
-        self.instrument = conndata['host'].split('.')[0]
-        self.in_question = False
-        self.in_editing = False
-        self.scriptdir = '.'
-        self.message_queue = []
+        # pending requests (i.e. scripts) in the daemon
         self.pending_requests = {}
-        self.tip_shown = False
+        # filename of last edited script
+        self.edit_filename = ''
+        # instrument name from NICOS, pre-filled with server name
+        self.instrument = conndata['host'].split('.')[0]
+        # script directory from NICOS
+        self.scriptdir = '.'
+        # execution mode of the NICOS session
+        self.current_mode = 'master'
+        # messages queueing up while the editor is running
+        self.message_queue = []
+        # plotting support
         self.grace = GracePlotter(None) if GracePlot else None
         self.grace_on = plot_on
         self.last_dataset = None
+        # whether we have initiated a simulation lately
         self.simulating = False
+        # detected text-mode browser for help display
+        self.browser = None
+        # used for determining how much history to print by default
+        self.tsize = terminalSize()
+        # output stream to print to
+        self.out = sys.stdout
 
         # set up readline
         for line in DEFAULT_BINDINGS.splitlines():
@@ -118,7 +137,7 @@ class NicosCmdClient(NicosClient):
             readline.read_history_file(self.histfile)
         self.completions = []
 
-        self.current_mode = 'master'
+        # pre-set prompt to sane default
         self.set_status('disconnected')
 
     def readline(self, prompt, add_history=True):
@@ -160,36 +179,38 @@ class NicosCmdClient(NicosClient):
                 'simulation': 'simmode,',
                 'maintenance': 'maintenance,'}
 
-    def set_prompt(self, status):
+    def set_status(self, status):
+        """Update the current execution status, and set a new prompt."""
+        self.status = status
         pending = ' (%d pending)' % len(self.pending_requests) \
             if self.pending_requests else ''
+        # \x01/\x02 are markers recognized by readline as "here come"
+        # zero-width control characters; ESC[K means "clear whole line"
         self.prompt = '\x01' + colorize(self.stcolmap[status],
             '\r\x1b[K\x02# ' + self.instrument + '[%s%s]%s >> \x01' %
             (self.modemap[self.current_mode], status, pending)) + '\x02'
 
-    def set_status(self, status):
-        self.status = status
-        self.set_prompt(status)
-
     def put(self, s, c=None):
-        # put a line of output, preserving the prompt afterwards
+        """Put a line of output, preserving the prompt afterwards."""
         if c:
             s = colorize(c, s)
         self.out.write('\r\x1b[K%s\n' % s)
         self.out.flush()
 
     def put_error(self, s):
-        # put a client error message
+        """Put a client error message."""
         self.put('# ERROR: ' + s, 'red')
 
     def put_client(self, s):
-        # put a client info message
+        """Put a client info message."""
         self.put('# ' + s, 'bold')
 
     def ask_passwd(self, question):
+        """Prompt user for a password."""
         return getpass.getpass(colorize('bold', '# %s ' % question))
 
     def ask_question(self, question, chars='', default='', on_intr=''):
+        """Prompt user for input to a question."""
         if chars:
             question += ' (%s)' % ('/'.join(chars.upper()))
         if default:
@@ -216,6 +237,7 @@ class NicosCmdClient(NicosClient):
             librl.rl_set_prompt(self.prompt)
 
     def initial_update(self):
+        """Called after connection is established."""
         # request current full status
         state = self.ask('getstatus')
         if state is None:
@@ -387,8 +409,8 @@ class NicosCmdClient(NicosClient):
                         (formatDuration(timing), formatEndtime(timing)))
                     dnwidth = max(map(len, devinfo))
                     for devname, (_, dmin, dmax) in sorted(devinfo.iteritems()):
-                        self.put_client('  %-*s: %10s  <->  %-10s' %
-                                        (dnwidth, devname, dmin, dmax))
+                        self.put('#   %-*s: %10s  <->  %-10s' %
+                                 (dnwidth, devname, dmin, dmax))
                 self.simulating = False
             elif type == 'mode':
                 self.current_mode = data
