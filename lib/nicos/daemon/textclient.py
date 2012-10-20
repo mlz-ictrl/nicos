@@ -215,8 +215,6 @@ class NicosCmdClient(NicosClient):
             librl.rl_set_prompt(self.prompt)
 
     def initial_update(self):
-        # disable sending events with potentially large data we don't handle
-        self.tell('eventmask', ('liveparams', 'livedata', 'watch'))
         # request current full status
         state = self.ask('getstatus')
         if state is None:
@@ -416,7 +414,9 @@ class NicosCmdClient(NicosClient):
             passwd = self.ask_passwd('Password?')
             self.conndata['passwd'] = passwd
         self.instrument = self.conndata['host'].split('.')[0]
-        self.connect(self.conndata)
+        # disable sending events with potentially large data we don't handle
+        self.connect(self.conndata,
+                     eventmask=('liveparams', 'livedata', 'watch'))
 
     def help(self, arg):
         """Implements the "/help" command."""
