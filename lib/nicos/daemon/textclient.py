@@ -178,30 +178,30 @@ class NicosCmdClient(NicosClient):
         # put a client info message
         self.put('# ' + s, 'bold')
 
-    def ask_question(self, question, yesno=False, default='', passwd=False):
-        question = '# ' + question
-        if passwd:
-            return getpass.getpass(colorize('bold', question + ' '))
+    def ask_passwd(self, question):
+        return getpass.getpass(colorize('bold', '# %s ' % question))
+
+    def ask_question(self, question, chars='', default='', on_intr=''):
+        if chars:
+            question += ' (%s)' % ('/'.join(chars.upper()))
+        if default:
+            question += ' [%s]' % default
         self.in_question = True
         try:
-            if yesno:
-                question += ' [y/n] '
-            elif default:
-                question += ' [%s] ' % default
-            else:
-                question += ' '
             try:
                 ans = self.readline('\x01\r\x1b[K' + colorize('bold',\
-                                    '\x02' + question + '\x01') + '\x02',
+                                    '\x02# ' + question + ' \x01') + '\x02',
                                     add_history=False)
-                if not ans:
-                    ans = default
             except (KeyboardInterrupt, EOFError):
-                ans = ''
-            if yesno:
-                if ans.startswith(('y', 'Y')):
-                    return 'y'
-                return 'n'
+                return on_intr
+            if chars:
+                ans = ans.lower()
+                for char in chars:
+                    if ans.startswith(char):
+                        return char
+                return default
+            if not ans:
+                ans = default
             return ans
         finally:
             self.in_question = False
@@ -388,7 +388,7 @@ class NicosCmdClient(NicosClient):
                                      default=self.conndata['login'])
             self.conndata['login'] = user
         if not self.conndata['passwd'] or ask_all:
-            passwd = self.ask_question('Password?', passwd=True)
+            passwd = self.ask_passwd('Password?')
             self.conndata['passwd'] = passwd
         self.instrument = self.conndata['host'].split('.')[0]
         self.connect(self.conndata)
@@ -431,13 +431,13 @@ class NicosCmdClient(NicosClient):
         if self.status == 'running':
             if fpath == self.current_filename:
                 # current script edited: most likely we want to update it
-                if self.ask_question('Update running script?',
-                                     yesno=True) == 'y':
+                if self.ask_question('Update running script?', chars='yn',
+                                     default='n') == 'y':
                     return self.command('update', fpath)
             else:
                 # another script edited: updating will likely fail
-                reply = self.ask_question('Queue or simulate file? '
-                                          '[q/s/n]').lower()
+                reply = self.ask_question('Queue or simulate file?',
+                                          chars='qsn')
                 if reply == 'q':
                     # this will automatically queue
                     return self.command('run', fpath)
@@ -445,7 +445,7 @@ class NicosCmdClient(NicosClient):
                     return self.command('sim', fpath)
         else:
             # no script is running at the moment: offer to run it
-            reply = self.ask_question('Run or simulate file? [r/s/n]').lower()
+            reply = self.ask_question('Run or simulate file?', chars='rsn')
             if reply == 'r':
                 return self.command('run', fpath)
             elif reply == 's':
@@ -490,7 +490,7 @@ class NicosCmdClient(NicosClient):
         self.put('# <H> stop after current step')
         self.put('# <L> stop after current scan')
         self.put('# <S> immediate stop')
-        res = self.ask_question('Your choice [I/H/L/S] --->').upper()[:1]
+        res = self.ask_question('Your choice?', chars='ihls').upper()
         if res == 'I':
             return
         elif res == 'H':
@@ -507,9 +507,8 @@ class NicosCmdClient(NicosClient):
         if cmd == 'cmd':
             if self.status in ('running', 'interrupted'):
                 reply = self.ask_question('A script is already running, '
-                    'execute anyway? [y/n/q]', default='y')
-                reply = reply.lower()[:1]
-                if reply == 'y':
+                    'queue or execute anyway?', chars='qxn')
+                if reply == 'x':
                     self.tell('exec', arg)
                 elif reply == 'q':
                     self.tell('queue', '', arg)
@@ -521,7 +520,7 @@ class NicosCmdClient(NicosClient):
                 if self.edit_filename:
                     reply = self.ask_question('Run last edited file %r?' %
                                 path.basename(self.edit_filename),
-                                yesno=True, default='y')
+                                chars='yn', default='y')
                     if reply == 'y':
                         self.command('run', self.edit_filename)
                         return
@@ -535,7 +534,7 @@ class NicosCmdClient(NicosClient):
                 return
             if self.status in ('running', 'interrupted'):
                 if self.ask_question('A script is already running, '
-                    'queue script?', yesno=True, default='y') == 'y':
+                    'queue script?', chars='yn', default='y') == 'y':
                     self.tell('queue', fpath, code)
             else:
                 self.tell('queue', fpath, code)
