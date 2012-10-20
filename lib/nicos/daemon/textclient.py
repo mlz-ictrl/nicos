@@ -33,6 +33,7 @@ import sys
 import glob
 import random
 import select
+import signal
 import getpass
 import readline
 import tempfile
@@ -825,6 +826,9 @@ def main(argv):
         'login': user,
         'passwd': passwd,
     }
+
+    # don't interrupt event thread's system calls
+    signal.siginterrupt(signal.SIGINT, False)
 
     client = NicosCmdClient(conndata, plot)
     return client.main()
