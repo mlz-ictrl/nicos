@@ -106,6 +106,7 @@ class NicosCmdClient(NicosClient):
         self.grace = GracePlotter(None) if GracePlot else None
         self.grace_on = plot_on
         self.last_dataset = None
+        self.simulating = False
 
         # set up readline
         for line in DEFAULT_BINDINGS.splitlines():
@@ -284,6 +285,8 @@ class NicosCmdClient(NicosClient):
 
     def put_message(self, msg):
         """Handles the "message" signal."""
+        if msg[5] == '(sim) ' and not self.simulating:
+            return
         if msg[0] == 'nicos':
             namefmt = ''
         else:
@@ -377,10 +380,16 @@ class NicosCmdClient(NicosClient):
             elif type == 'showhelp':
                 self.showhelp(data[1])
             elif type == 'simresult':
-                timing = data[0]
-                self.put_client('Simulated minimum runtime: %s '
-                                '(finishes approximately %s).' %
-                                (formatDuration(timing), formatEndtime(timing)))
+                if self.simulating:
+                    timing, devinfo = data
+                    self.put_client('Simulated minimum runtime: %s '
+                        '(finishes approximately %s). Device ranges:' %
+                        (formatDuration(timing), formatEndtime(timing)))
+                    dnwidth = max(map(len, devinfo))
+                    for devname, (_, dmin, dmax) in sorted(devinfo.iteritems()):
+                        self.put_client('  %-*s: %10s  <->  %-10s' %
+                                        (dnwidth, devname, dmin, dmax))
+                self.simulating = False
             elif type == 'mode':
                 self.current_mode = data
                 self.set_status(self.status)
@@ -626,8 +635,10 @@ class NicosCmdClient(NicosClient):
                 except Exception, e:
                     self.put_error('Unable to open file: %s.' % e)
                     return
+                self.simulating = True
                 self.tell('simulate', fpath, code)
             else:
+                self.simulating = True
                 self.tell('simulate', '', arg)
         elif cmd in ('e', 'edit'):
             self.edit_file(arg)
