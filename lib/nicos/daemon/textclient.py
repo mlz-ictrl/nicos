@@ -483,7 +483,7 @@ class NicosCmdClient(NicosClient):
             self.put_client('No scripts or commands are pending.')
             return
         self.put_client('Showing pending scripts or commands. '
-                        'Use "/block number" to remove.')
+                        'Use "/cancel number" to remove.')
         for reqno, script in sorted(self.pending_requests.iteritems()):
             if 'name' in script and script['name']:
                 short = script['name']
@@ -593,7 +593,7 @@ class NicosCmdClient(NicosClient):
                 self.tell('emergency')
         elif cmd == 'pending':
             self.show_pending()
-        elif cmd == 'block':
+        elif cmd == 'cancel':
             if arg != '*':
                 # this catches an empty arg as well
                 try:
@@ -675,7 +675,7 @@ class NicosCmdClient(NicosClient):
 
     commands = ['run', 'simulate', 'edit', 'update', 'break',
                 'continue', 'stop', 'where', 'disconnect', 'connect',
-                'quit', 'help', 'log', 'pending', 'block', 'plot']
+                'quit', 'help', 'log', 'pending', 'cancel', 'plot']
 
     def completer(self, text, state):
         """Try to complete the command line.  Called by readline."""
@@ -846,7 +846,7 @@ This client supports "meta-commands" beginning with a slash:
   /s(top)             -- stop script (you will be prompted how abruptly)
 
   /pending            -- show the currently pending commands
-  /block n            -- block a pending command by number
+  /cancel n           -- cancel a pending command by number
 
   /plot on/off/ctr    -- switch live plotting on, off, or only plot the
                          given counter name
