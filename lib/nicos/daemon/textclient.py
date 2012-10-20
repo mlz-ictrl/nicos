@@ -190,6 +190,7 @@ class NicosCmdClient(NicosClient):
         self.set_status(self.status)
 
     def clientexec(self, what):
+        """Handles the "clientexec" signal."""
         plot_func_path = what[0]
         try:
             modname, funcname = plot_func_path.rsplit('.', 1)
@@ -200,6 +201,11 @@ class NicosCmdClient(NicosClient):
             self.put_error('During "clientexec": %s.' % err)
 
     def showhelp(self, html):
+        """Handles the "showhelp" signal.
+
+        As we already get HTML, we try to get hold of a text-mode browser
+        and let it dump the HTML as text.  Then we print that to the user.
+        """
         fd, fn = tempfile.mkstemp('.html')
         os.write(fd, html)
         os.close(fd)
@@ -220,6 +226,7 @@ class NicosCmdClient(NicosClient):
             subprocess.Popen(['w3m', '-dump', '-cols', width, fn]).wait()
 
     def put_message(self, msg):
+        """Handles the "message" signal."""
         if msg[0] == 'nicos':
             namefmt = ''
         else:
@@ -346,6 +353,7 @@ class NicosCmdClient(NicosClient):
         self.connect(self.conndata)
 
     def help(self, arg):
+        """Implements the "/help" command."""
         if not arg:
             arg = 'main'
         if arg not in HELP:
@@ -403,6 +411,7 @@ class NicosCmdClient(NicosClient):
                 return self.command('sim', fpath)
 
     def print_where(self):
+        """Implements the "/where" command."""
         if self.status in ('running', 'interrupted'):
             self.put_client('Printing current script.')
             for i, line in enumerate(self.current_script):
@@ -433,6 +442,7 @@ class NicosCmdClient(NicosClient):
         self.put_client('End of pending list.')
 
     def stop_query(self, how):
+        """Called on Ctrl-C (if running) or when "/stop" is entered."""
         self.put_client('== %s ==' % how)
         self.put('# Please enter how to proceed:')
         self.put('# <I> ignore this interrupt')
@@ -443,13 +453,16 @@ class NicosCmdClient(NicosClient):
         if res == 'I':
             return
         elif res == 'H':
+            # Stoplevel 2 is "everywhere possible"
             self.tell('stop', '2')
         elif res == 'L':
+            # Stoplevel 1 is "everywhere in script, or after a scan"
             self.tell('stop', '1')
         else:
             self.tell('emergency')
 
     def command(self, cmd, arg):
+        """Called when a "/foo" command is entered at the prompt."""
         if cmd == 'cmd':
             if self.status in ('running', 'interrupted'):
                 reply = self.ask_question('A script is already running, '
@@ -462,8 +475,6 @@ class NicosCmdClient(NicosClient):
                     self.put_client('Command queued.')
             else:
                 self.tell('queue', '', arg)
-        elif cmd == 'queue':
-            self.tell('queue', '', arg)
         elif cmd in ('r', 'run'):
             if not arg:
                 if self.edit_filename:
@@ -613,6 +624,7 @@ class NicosCmdClient(NicosClient):
             return None
 
     def run(self):
+        """Connect and then run the main read-send-print loop."""
         self.command('connect', 'init')
 
         while 1:
