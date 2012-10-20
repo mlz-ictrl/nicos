@@ -126,32 +126,12 @@ class DaemonSink(DataSink):
         session.emitfunc('datapoint', (xvalues, yvalues))
 
 
-class GraceSink(DataSink):
-    """A DataSink that plots datasets in the Grace plotting program.
+class GracePlotter(object):
+    """Proxy for plotting NICOS datasets with Grace."""
 
-    Needs the GracePlot module.  Only active for console sessions.
-    """
-
-    parameters = {
-        'activecounter': Param('Name of active counter to plot',
-                               type=none_or(str), settable=True),
-    }
-
-    activeInSimulation = False
-
-    def isActive(self, scantype):
-        if not GracePlot or not isinstance(session, ConsoleSession):
-            return False
-        return DataSink.isActive(self, scantype)
-
-    def beginDataset(self, dataset):
-        try:
-            if dataset.sinkinfo.get('continuation'):
-                return
-            self._openplot(dataset)
-        except Exception:
-            self.log.warning('could not create Grace plot', exc=1)
-            self._grpl = None
+    def __init__(self, activecounter):
+        self._grpl = None
+        self.activecounter = activecounter
 
     def _openplot(self, dataset, secondchance=False):
         filename = dataset.sinkinfo.get('filename', '')
@@ -176,6 +156,16 @@ class GraceSink(DataSink):
 
         for (xvalues, yvalues) in zip(dataset.xresults, dataset.yresults):
             self.addPoint(dataset, xvalues, yvalues, secondchance=secondchance)
+
+    def beginDataset(self, dataset):
+        try:
+            if dataset.sinkinfo.get('continuation'):
+                return
+            self._openplot(dataset)
+            return True
+        except Exception:
+            self._grpl = None
+            return False
 
     def addPoint(self, dataset, xvalues, yvalues, secondchance=False):
         if self._grpl is None:
@@ -210,17 +200,50 @@ class GraceSink(DataSink):
                 color += 1
             self._pl.plot(data)
             self._pl.legend()
+            return True
         except Exception:
             # try again or give up for this set
             if secondchance:
-                self.log.warning('could not add point to Grace', exc=1)
-                self._grpl = None
-                return
+                return False
             try:
                 self._openplot(dataset, secondchance=True)
             except Exception:
-                self.log.warning('could not add point to Grace', exc=1)
                 self._grpl = None
+                return False
+
+
+class GraceSink(DataSink):
+    """A DataSink that plots datasets in the Grace plotting program.
+
+    Needs the GracePlot module.  Only active for console sessions.
+    """
+
+    parameters = {
+        'activecounter': Param('Name of active counter to plot',
+                               type=none_or(str), settable=True),
+    }
+
+    activeInSimulation = False
+
+    def doInit(self, mode):
+        self._plotter = GracePlotter(self.activecounter)
+
+    def isActive(self, scantype):
+        if not GracePlot or not isinstance(session, ConsoleSession):
+            return False
+        return DataSink.isActive(self, scantype)
+
+    def doUpdateActivecounter(self, val):
+        if hasattr(self, '_plotter'):
+            self._plotter.activecounter = val
+
+    def beginDataset(self, dataset):
+        if not self._plotter.beginDataset(dataset):
+            self.log.warning('could not create Grace plot')
+
+    def addPoint(self, dataset, xvalues, yvalues):
+        if not self._plotter.addPoint(dataset, xvalues, yvalues):
+            self.log.warning('could not add point to Grace')
 
     @usermethod
     def history(self, dev, key='value', fromtime=None, totime=None):
