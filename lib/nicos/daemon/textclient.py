@@ -722,13 +722,11 @@ class NicosCmdClient(NicosClient):
                 continue
             except EOFError:
                 self.command('quit', '')
-                self.out.write('\n')
                 return
             if cmd.startswith('/'):
                 args = cmd[1:].split(None, 1) + ['','']
                 ret = self.command(args[0], args[1])
                 if ret is not None:
-                    self.out.write('\n')
                     return ret
             elif not cmd:
                 pass
