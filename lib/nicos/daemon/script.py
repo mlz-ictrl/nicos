@@ -449,7 +449,11 @@ class ExecutionController(Controller):
         self.log.debug('script_thread (re)started')
         try:
             self.in_startup = True
+            # we have to clear the namespace since the Daemon object and related
+            # startup objects are still in there
             self.namespace.clear()
+            # but afterwards we have to automatically import objects again
+            session.initNamespace()
             self.namespace['__builtins__'] = __builtin__.__dict__
             setup_code = ('from nicos import session; '
                           'session.handleInitialSetup(%r, %s)' %

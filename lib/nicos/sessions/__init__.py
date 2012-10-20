@@ -150,18 +150,22 @@ class Session(object):
         self._initLogging()
 
         # set up initial namespace
-        self._initNamespace()
+        self.initNamespace()
 
     def setNamespace(self, ns):
         """Set the namespace to export commands and devices into."""
         self.namespace = ns
         self._exported_names = set()
 
-    def _initNamespace(self):
+    def initNamespace(self):
+        # add some useful mathematical functions
         for name in [
             'pi', 'sqrt', 'sin', 'cos', 'tan', 'arcsin', 'arccos', 'arctan',
             'exp', 'log', 'radians', 'degrees', 'ceil', 'floor', 'sqrt']:
             self.namespace[name] = getattr(numpy, name)
+        # remove interactive Python interpreter stuff
+        for name in ['credits', 'copyright', 'license', 'exit', 'quit']:
+            __builtin__.__dict__.pop(name, None)
 
     @property
     def mode(self):
