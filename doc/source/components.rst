@@ -31,6 +31,8 @@ NICOS system and execute commands.
   GUI uses `Qt <http://qt.nokia.com>`_ for the basic functionality, and `Qwt
   <http://qwt.sf.net/>`_ for the data plotting and analysis windows.
 
+``nicos-client``
+  This is a text based client for the server-client execution shell.
 
 **Other clients**
 
