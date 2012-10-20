@@ -693,10 +693,15 @@ To learn how to pre-set your connection parameters, enter "/help connect".
 Connection defaults can be given on the command-line, e.g.
   nicos-client user@server:port
 
+A SSH tunnel can be automatically set up for you with the following
+syntax:
+  nicos-client user@server:port via sshuser@host
+
 or in ~/.nicos-cmd, like this:
   [connect]
   server = localhost:1301
   user = admin
   passwd = secret
+  via = root@instrumenthost
 '''
 }
