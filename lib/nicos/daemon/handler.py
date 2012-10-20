@@ -46,6 +46,8 @@ from nicos.daemon.script import EmergencyStopRequest, ScriptRequest, \
      ScriptError, RequestError
 
 
+PROTO_VERSION = 0
+
 READ_BUFSIZE = 4096
 
 # one-byte responses without length
@@ -232,6 +234,7 @@ class ConnectionHandler(BaseRequestHandler):
         self.write(STX, serialize(dict(
             daemon_version = nicos_version,
             plain_pw = self.daemon._auth.needs_plain_pw(),
+            protocol_version = PROTO_VERSION,
         )))
 
         # read login credentials

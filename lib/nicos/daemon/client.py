@@ -39,7 +39,7 @@ import numpy as np
 
 from nicos.daemon import NicosDaemon
 from nicos.daemon.utils import serialize, unserialize
-from nicos.daemon.handler import ACK, STX, NAK, LENGTH, RS
+from nicos.daemon.handler import ACK, STX, NAK, LENGTH, RS, PROTO_VERSION
 
 BUFSIZE = 8192
 TIMEOUT = 30.0
@@ -98,6 +98,10 @@ class NicosClient(object):
             banner = unserialize(data)
             if 'daemon_version' not in banner:
                 raise ProtocolError('daemon version missing from response')
+            daemon_proto = banner.get('protocol_version', 0)
+            if daemon_proto != PROTO_VERSION:
+                raise ProtocolError('daemon uses protocol %d, but we expect %d'
+                                    % (daemon_proto, PROTO_VERSION))
         except Exception, err:
             self.signal('failed', 'Server handshake failed: %s.' % err)
             return
