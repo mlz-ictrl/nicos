@@ -498,6 +498,38 @@ class NicosCmdClient(NicosClient):
             self.put('# %s  %s' % (colorize('blue', '%4d' % reqno), short))
         self.put_client('End of pending list.')
 
+    def switch_plot(self, arg):
+        if not arg:
+            if self.grace_on:
+                if self.grace.activecounter:
+                    self.put_client('Plotting is switched on (only '
+                                    'counter %s).' %
+                                    self.grace.activecounter)
+                else:
+                    self.put_client('Plotting is switched on.')
+            elif self.grace:
+                self.put_client('Plotting is switched off.')
+            else:
+                self.put_client('Plotting is unavailable.')
+        elif arg == 'on':
+            if not self.grace:
+                self.put_error('Plotting is unavailable.')
+                return
+            self.grace_on = True
+            self.grace.activecounter = None
+            self.put_client('Plotting now switched on.')
+        elif arg == 'off':
+            self.grace_on = False
+            self.put_client('Plotting now switched off.')
+        else:
+            if not self.grace:
+                self.put_error('Plotting is unavailable.')
+                return
+            self.grace_on = True
+            self.grace.activecounter = arg
+            self.put_client('Plotting now switched on (for counter %s).'
+                            % arg)
+
     def stop_query(self, how):
         """Called on Ctrl-C (if running) or when "/stop" is entered."""
         self.put_client('== %s ==' % how)
@@ -607,36 +639,7 @@ class NicosCmdClient(NicosClient):
                     return
             self.tell('unqueue', str(arg))
         elif cmd == 'plot':
-            if not arg:
-                if self.grace_on:
-                    if self.grace.activecounter:
-                        self.put_client('Plotting is switched on (only '
-                                        'counter %s).' %
-                                        self.grace.activecounter)
-                    else:
-                        self.put_client('Plotting is switched on.')
-                elif self.grace:
-                    self.put_client('Plotting is switched off.')
-                else:
-                    self.put_client('Plotting is unavailable.')
-            elif arg == 'on':
-                if not self.grace:
-                    self.put_error('Plotting is unavailable.')
-                    return
-                self.grace_on = True
-                self.grace.activecounter = None
-                self.put_client('Plotting now switched on.')
-            elif arg == 'off':
-                self.grace_on = False
-                self.put_client('Plotting now switched off.')
-            else:
-                if not self.grace:
-                    self.put_error('Plotting is unavailable.')
-                    return
-                self.grace_on = True
-                self.grace.activecounter = arg
-                self.put_client('Plotting now switched on (for counter %s).'
-                                % arg)
+            self.switch_plot(arg)
         elif cmd == 'disconnect':
             if self.connected:
                 self.disconnect()
