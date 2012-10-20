@@ -32,6 +32,7 @@ import os
 import sys
 import glob
 import random
+import select
 import getpass
 import readline
 import tempfile
@@ -52,9 +53,9 @@ from nicos.utils.loggers import ACTION, OUTPUT, INPUT
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
           ERROR: 'ERROR', FATAL: 'FATAL'}
 
-
-# unfortunately we need a few functions not exported by Python's readline module
+# introduce the readline C library to our program
 librl = ctypes.cdll[ctypes.util.find_library('readline')]
+rl_vcpfunc_t = ctypes.CFUNCTYPE(None, ctypes.c_char_p)
 
 DEFAULT_BINDINGS = '''\
 tab: complete
@@ -63,6 +64,20 @@ tab: complete
 "\\e[1;3D": backward-word
 "\\e[1;3C": forward-word
 '''
+
+# yay, global state!
+readline_result = Ellipsis
+
+@rl_vcpfunc_t
+def finish_callback(result):
+    """A callback for readline() below that records the final line
+    in a global variable.  (For some reason making this a method
+    of NicosCmdClient fails.)
+    """
+    global readline_result
+    librl.rl_callback_handler_remove()
+    # NULL pointer gives None, which means EOF
+    readline_result = result
 
 
 class NicosCmdClient(NicosClient):
@@ -98,6 +113,36 @@ class NicosCmdClient(NicosClient):
         self.current_mode = 'master'
         self.set_status('disconnected')
 
+    def readline(self, prompt, add_history=True):
+        """Read a line from the user.
+
+        This function basically reimplements the readline module's
+        readline_until_enter_or_signal C function, with the addition
+        that we set new prompts and update the display periodically.
+
+        Thanks to ctypes this is possible without a custom C module.
+        """
+        global readline_result
+        librl.rl_callback_handler_install(prompt, finish_callback)
+        readline_result = Ellipsis
+        while readline_result is Ellipsis:
+            if not self.in_question:
+                # question has an alternate prompt that never changes
+                librl.rl_set_prompt(self.prompt)
+            librl.rl_forced_update_display()
+            res = select.select([sys.stdin], [], [], 0.01)
+            if res[0]:
+                librl.rl_callback_read_char()
+        if readline_result:
+            # add to history, but only if requested and not the same as the
+            # previous history entry
+            if add_history and readline.get_history_item(
+                readline.get_current_history_length() - 1) != readline_result:
+                librl.add_history(readline_result)
+        elif readline_result is None:
+            raise EOFError
+        return readline_result
+
     stcolmap = {'idle': 'blue',
                 'running': 'fuchsia',
                 'interrupted': 'red',
@@ -110,7 +155,6 @@ class NicosCmdClient(NicosClient):
     def set_prompt(self, status):
         pending = ' (%d pending)' % len(self.pending_requests) \
             if self.pending_requests else ''
-        pending = ''
         self.prompt = '\x01' + colorize(self.stcolmap[status],
             '\r\x1b[K\x02# ' + self.instrument + '[%s%s]%s >> \x01' %
             (self.modemap[self.current_mode], status, pending)) + '\x02'
@@ -118,17 +162,12 @@ class NicosCmdClient(NicosClient):
     def set_status(self, status):
         self.status = status
         self.set_prompt(status)
-        if not self.in_question:
-            librl.rl_set_prompt(self.prompt)
-        if not self.in_editing:
-            librl.rl_forced_update_display()
 
     def put(self, s, c=None):
         # put a line of output, preserving the prompt afterwards
         if c:
             s = colorize(c, s)
         self.out.write('\r\x1b[K%s\n' % s)
-        librl.rl_forced_update_display()
         self.out.flush()
 
     def put_error(self, s):
@@ -152,8 +191,9 @@ class NicosCmdClient(NicosClient):
             else:
                 question += ' '
             try:
-                ans = raw_input('\x01\r\x1b[K' + colorize('bold',\
-                                    '\x02' + question + '\x01') + '\x02')
+                ans = self.readline('\x01\r\x1b[K' + colorize('bold',\
+                                    '\x02' + question + '\x01') + '\x02',
+                                    add_history=False)
                 if not ans:
                     ans = default
             except (KeyboardInterrupt, EOFError):
@@ -438,7 +478,7 @@ class NicosCmdClient(NicosClient):
                     short = lines[0]
                 else:
                     short = lines[0] + ' ...'
-            self.put('# %s  %s' % (colorize('darkblue', '%4d' % reqno), short))
+            self.put('# %s  %s' % (colorize('blue', '%4d' % reqno), short))
         self.put_client('End of pending list.')
 
     def stop_query(self, how):
@@ -629,7 +669,7 @@ class NicosCmdClient(NicosClient):
 
         while 1:
             try:
-                cmd = raw_input(self.prompt)
+                cmd = self.readline(self.prompt)
             except KeyboardInterrupt:
                 if self.status == 'running':
                     self.stop_query('Keyboard interrupt')
