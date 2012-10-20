@@ -670,9 +670,13 @@ class NicosCmdClient(NicosClient):
         """Try to complete a script filename."""
         # script filenames are relative to the current scriptdir!
         initpath = path.join(self.scriptdir, fn)
-        globs = glob.glob(initpath + '*.py')
-        return [(f + ('/' if path.isdir(f) else ''))[len(initpath)-len(text):]
-                for f in globs]
+        candidates = []
+        for f in glob.glob(initpath + '*'):
+            if path.isdir(f):
+                candidates.append(f[len(initpath)-len(text):] + '/')
+            elif path.isfile(f) and f.endswith('.py'):
+                candidates.append(f[len(initpath)-len(text):])
+        return candidates
 
     commands = ['run', 'simulate', 'edit', 'update', 'break',
                 'continue', 'stop', 'where', 'disconnect', 'connect',
