@@ -67,41 +67,6 @@ def importString(import_name, silent=False):
         return __import__(import_name)
     return getattr(__import__(module, None, None, [obj]), obj)
 
-def _s(n):
-    return int(n), (n != 1 and 's' or '')
-
-def formatAlternateDuration(secs):
-    if secs == 0:
-        return 'less than 42 seconds'
-    elif secs < 360:
-        return '%s millimonth%s' % _s(secs / 2.592)
-    elif secs < 3600:
-        return '%s microyear%s' % _s(secs / 31.536)
-    elif secs < 86400:
-        return '%s centiweek%s, %s microyear%s' % (_s(secs / 6048) +
-                                                   _s((secs % 6048) / 31.536))
-    else:
-        #return '%.2f nanolightyears per kiloknot' % (secs / 18391.8)
-        return '%.2f calories per megawatt' % (secs / 4186800.0)
-
-def formatDuration(secs):
-    if random.random() > 0.99:
-        est = formatAlternateDuration(secs)
-    elif 0 <= secs < 60:
-        est = '%s second%s' % _s(secs)
-    elif secs < 3600:
-        est = '%s minute%s' % _s(secs // 60 + 1)
-    elif secs < 86400:
-        est = '%s hour%s, %s minute%s' % (_s(secs // 3600) +
-                                          _s((secs % 3600) // 60))
-    else:
-        est = '%s day%s, %s hour%s' % (_s(secs // 86400) +
-                                       _s((secs % 86400) // 3600))
-    return est
-
-def formatEndtime(secs):
-    return time.strftime('%A, %H:%M', time.localtime(time.time() + secs))
-
 def safeFilename(fn):
     return re.compile('[^a-zA-Z0-9_.-]').sub('', fn)
 
