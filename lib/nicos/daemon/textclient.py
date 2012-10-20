@@ -33,7 +33,6 @@ import sys
 import glob
 import random
 import getpass
-import termios
 import readline
 import tempfile
 import subprocess
@@ -607,7 +606,7 @@ def main(argv):
         if config.has_section(argv[1]):
             configsection = argv[1]
         else:
-            cd = parseConnectionString(argv[1])
+            cd = parseConnectionString(argv[1], DEFAULT_PORT)
             server = '%s:%s' % cd[2:4]
             user = cd[0]
             passwd = cd[1]

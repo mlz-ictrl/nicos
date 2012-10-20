@@ -37,9 +37,10 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 import numpy as np
 
 from nicos.core import Dataset
+from nicos.utils import safeFilename
 from nicos.gui.data import DataProxy
 from nicos.gui.panels import Panel
-from nicos.gui.utils import loadUi, dialogFromUi, safeFilename, DlgPresets
+from nicos.gui.utils import loadUi, dialogFromUi, DlgPresets
 from nicos.gui.fitutils import fit_gauss, fwhm_to_sigma, fit_tc, \
      fit_pseudo_voigt, fit_pearson_vii, fit_arby
 from nicos.gui.plothelpers import NicosPlot, ErrorBarPlotCurve, cloneToGrace

@@ -48,10 +48,10 @@ except (ImportError, RuntimeError):
 else:
     has_scintilla = True
 
-from nicos.utils import formatDuration, formatEndtime
+from nicos.utils import formatDuration, formatEndtime, importString
 from nicos.gui.panels import Panel
 from nicos.gui.utils import showToolText, loadUi, showTraceback, \
-     setBackgroundColor, importString
+     setBackgroundColor
 
 COMMENT_STR = '##'
 

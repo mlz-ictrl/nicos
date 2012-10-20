@@ -27,20 +27,14 @@
 __version__ = "$Revision$"
 
 import os
-import re
-import time
-import random
 import socket
 from os import path
-from itertools import islice, chain
 
 from PyQt4 import uic
 from PyQt4.QtGui import QApplication, QDialog, QProgressDialog, QMessageBox, \
      QPushButton, QTreeWidgetItem, QPalette, QFont, QClipboard, QDialogButtonBox, \
      QToolButton, QFileDialog, QLabel, QTextEdit, QWidget, QVBoxLayout, QColor
 from PyQt4.QtCore import Qt, QSettings, QVariant, QDateTime, QSize, SIGNAL
-
-from nicos.daemon import DEFAULT_PORT
 
 
 def getXDisplay():
@@ -51,36 +45,6 @@ def getXDisplay():
     else:
         return lhost + os.environ.get('DISPLAY', ':0')
 
-def chunks(iterable, size):
-    sourceiter = iter(iterable)
-    while True:
-        chunkiter = islice(sourceiter, size)
-        yield chain([chunkiter.next()], chunkiter)
-
-def importString(import_name, silent=False):
-    """Imports an object based on a string."""
-    if ':' in import_name:
-        module, obj = import_name.split(':', 1)
-    elif '.' in import_name:
-        module, obj = import_name.rsplit('.', 1)
-    else:
-        return __import__(import_name)
-    return getattr(__import__(module, None, None, [obj]), obj)
-
-def safeFilename(fn):
-    return re.compile('[^a-zA-Z0-9_.-]').sub('', fn)
-
-def unzip(data):
-    if not data:
-        return []
-    n = len(data[0])
-    res = [[] for i in range(n)]
-    for row in data:
-        for i in range(n):
-            res[i].append(row[i])
-    return res
-
-# -- UI tools ------------------------------------------------------------------
 
 uipath = path.dirname(__file__)
 
@@ -91,6 +55,7 @@ def dialogFromUi(parent, uiname, subdir=''):
     dlg = QDialog(parent)
     loadUi(dlg, uiname, subdir)
     return dlg
+
 
 def loadBasicWindowSettings(window, settings):
     geometry = settings.value('geometry').toByteArray()
@@ -104,6 +69,7 @@ def loadBasicWindowSettings(window, settings):
         window.user_color = color
     else:
         window.user_color = QColor(Qt.white)
+
 
 def enumerateWithProgress(seq, text, every=1, parent=None, total=None):
     total = total or len(seq)
@@ -129,11 +95,13 @@ def showToolText(toolbar, action):
     if isinstance(widget, QToolButton):
         widget.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
 
+
 def setBackgroundColor(widget, color):
     palette = widget.palette()
     palette.setColor(QPalette.Base, color)
     widget.setBackgroundRole(QPalette.Base)
     widget.setPalette(palette)
+
 
 def setForegroundColor(widget, color):
     palette = widget.palette()

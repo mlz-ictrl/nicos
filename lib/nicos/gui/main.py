@@ -40,10 +40,10 @@ from PyQt4.QtCore import Qt, QObject, QTimer, QSize, QVariant, QStringList, \
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos import nicos_version
-from nicos.utils import parseConnectionString
+from nicos.utils import parseConnectionString, importString
 from nicos.gui.data import DataHandler
 from nicos.gui.utils import DlgUtils, SettingGroup, loadBasicWindowSettings, \
-     getXDisplay, dialogFromUi, loadUi, importString
+     getXDisplay, dialogFromUi, loadUi
 from nicos.gui.config import window, panel
 from nicos.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.gui.panels.console import ConsolePanel
@@ -560,7 +560,7 @@ def main(argv):
     mainwindow = MainWindow()
 
     if len(argv) > 1:
-        cdata = parseConnectionString(argv[1])
+        cdata = parseConnectionString(argv[1], DEFAULT_PORT)
         if cdata:
             mainwindow.setConnData(*cdata)
             if len(argv) > 2:

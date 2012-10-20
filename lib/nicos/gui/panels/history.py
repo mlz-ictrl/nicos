@@ -37,8 +37,9 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np
 
+from nicos.utils import safeFilename
 from nicos.gui.panels import Panel
-from nicos.gui.utils import loadUi, dialogFromUi, safeFilename, DlgUtils
+from nicos.gui.utils import loadUi, dialogFromUi, DlgUtils
 from nicos.gui.fitutils import fit_linear
 from nicos.gui.plothelpers import NicosPlot
 from nicos.cache.utils import cache_load

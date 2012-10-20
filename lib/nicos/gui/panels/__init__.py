@@ -32,8 +32,9 @@ from PyQt4.QtCore import Qt, QVariant, SIGNAL, pyqtSignature as qtsig
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
      QColorDialog
 
-from nicos.gui.utils import DlgUtils, SettingGroup, loadUi, importString, \
-     loadBasicWindowSettings
+from nicos.utils import importString
+from nicos.gui.utils import DlgUtils, SettingGroup, loadUi, \
+    loadBasicWindowSettings
 from nicos.gui.config import hsplit, vsplit, panel
 
 

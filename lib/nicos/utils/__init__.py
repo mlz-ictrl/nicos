@@ -40,6 +40,7 @@ import threading
 import traceback
 import ConfigParser
 from os import path
+from itertools import islice, chain
 
 
 class lazy_property(object):
@@ -255,20 +256,44 @@ def parseDateString(s, enddate=False):
 
 def terminalSize():
     """Try to find the terminal size as (cols, rows)."""
-    import struct, fcntl
+    import struct, fcntl, termios
     h, w, hp, wp = struct.unpack('HHHH',
         fcntl.ioctl(0, termios.TIOCGWINSZ,
         struct.pack('HHHH', 0, 0, 0, 0)))
     return w, h
 
 
-def parseConnectionString(s):
+def parseConnectionString(s, defport):
     """Parse a string in the format 'user:pass@host:port"."""
     res = re.match(r"(?:(\w+)(?::([^@]*))?@)?([\w.]+)(?::(\d+))?", s)
     if res is None:
         return None
     return res.group(1) or 'guest', res.group(2) or '', \
-        res.group(3), int(res.group(4) or DEFAULT_PORT)
+        res.group(3), int(res.group(4) or defport)
+
+
+def chunks(iterable, size):
+    """Split an iterable in chunks."""
+    sourceiter = iter(iterable)
+    while True:
+        chunkiter = islice(sourceiter, size)
+        yield chain([chunkiter.next()], chunkiter)
+
+
+def importString(import_name, silent=False):
+    """Imports an object based on a string."""
+    if ':' in import_name:
+        module, obj = import_name.split(':', 1)
+    elif '.' in import_name:
+        module, obj = import_name.rsplit('.', 1)
+    else:
+        return __import__(import_name)
+    return getattr(__import__(module, None, None, [obj]), obj)
+
+
+def safeFilename(fn):
+    """Make a filename "safe", i.e. remove everything except alphanumerics."""
+    return re.compile('[^a-zA-Z0-9_.-]').sub('', fn)
 
 
 # read nicos.conf files
