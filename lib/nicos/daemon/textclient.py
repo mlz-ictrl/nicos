@@ -83,7 +83,7 @@ def finish_callback(result):
 
 class NicosCmdClient(NicosClient):
 
-    def __init__(self, conndata):
+    def __init__(self, conndata, plot_on=False):
         NicosClient.__init__(self)
         self.conndata = conndata
         self.current_script = ['']
@@ -101,6 +101,7 @@ class NicosCmdClient(NicosClient):
         self.pending_requests = {}
         self.tip_shown = False
         self.grace = GracePlotter(None) if GracePlot else None
+        self.grace_on = plot_on
         self.last_dataset = None
 
         # set up readline
@@ -343,14 +344,15 @@ class NicosCmdClient(NicosClient):
                 self.show_pending()
                 self.set_status(self.status)
             elif type == 'dataset':
-                if self.grace:
+                self.last_dataset = data
+                if self.grace_on:
                     self.grace.beginDataset(data)
-                    self.last_dataset = data
             elif type == 'datapoint':
-                if self.grace and self.last_dataset:
+                if self.last_dataset:
                     self.last_dataset.xresults.append(data[0])
                     self.last_dataset.yresults.append(data[1])
-                    self.grace.addPoint(self.last_dataset, *data)
+                    if self.grace_on:
+                        self.grace.addPoint(self.last_dataset, *data)
             elif type == 'connected':
                 self.put_client(
                     'Connected to %s:%s as %s. '
@@ -602,6 +604,37 @@ class NicosCmdClient(NicosClient):
                                    '(see "/pending") or "*" to clear all.')
                     return
             self.tell('unqueue', str(arg))
+        elif cmd == 'plot':
+            if not arg:
+                if self.grace_on:
+                    if self.grace.activecounter:
+                        self.put_client('Plotting is switched on (only '
+                                        'counter %s).' %
+                                        self.grace.activecounter)
+                    else:
+                        self.put_client('Plotting is switched on.')
+                elif self.grace:
+                    self.put_client('Plotting is switched off.')
+                else:
+                    self.put_client('Plotting is unavailable.')
+            elif arg == 'on':
+                if not self.grace:
+                    self.put_error('Plotting is unavailable.')
+                    return
+                self.grace_on = True
+                self.grace.activecounter = None
+                self.put_client('Plotting now switched on.')
+            elif arg == 'off':
+                self.grace_on = False
+                self.put_client('Plotting now switched off.')
+            else:
+                if not self.grace:
+                    self.put_error('Plotting is unavailable.')
+                    return
+                self.grace_on = True
+                self.grace.activecounter = arg
+                self.put_client('Plotting now switched on (for counter %s).'
+                                % arg)
         elif cmd == 'disconnect':
             if self.connected:
                 self.disconnect()
@@ -642,7 +675,7 @@ class NicosCmdClient(NicosClient):
 
     commands = ['run', 'simulate', 'edit', 'update', 'break',
                 'continue', 'stop', 'where', 'disconnect', 'connect',
-                'quit', 'help', 'log', 'pending', 'block']
+                'quit', 'help', 'log', 'pending', 'block', 'plot']
 
     def completer(self, text, state):
         """Try to complete the command line.  Called by readline."""
@@ -711,6 +744,7 @@ class NicosCmdClient(NicosClient):
 
 def main(argv):
     server = user = passwd = via = ''
+    plot = False
 
     # to automatically close an SSH tunnel, we execute something on the remote
     # server that takes long enough for the client to connect to the daemon;
@@ -728,6 +762,10 @@ def main(argv):
 
     config = ConfigParser.RawConfigParser()
     config.read([path.expanduser('~/.nicos-client')])
+
+    if '-p' in argv:
+        plot = True
+        argv.remove('-p')
 
     # ... or by "profile" on the command line (other arguments are
     # interpreted as a connection data string)
@@ -759,6 +797,8 @@ def main(argv):
         via = config.get(configsection, 'via')
     if config.has_option(configsection, 'viacommand'):
         viacommand = config.get(configsection, 'viacommand')
+    if config.has_option(configsection, 'plot'):
+        plot = config.getboolean(configsection, 'plot')
 
     # split server in host:port components
     try:
@@ -786,7 +826,7 @@ def main(argv):
         'passwd': passwd,
     }
 
-    client = NicosCmdClient(conndata)
+    client = NicosCmdClient(conndata, plot)
     return client.main()
 
 # help texts
@@ -799,22 +839,26 @@ and devices.
 
 This client supports "meta-commands" beginning with a slash:
 
-  /w(here)    -- print current script and location in it
-  /log (n)    -- print more past output, n lines or everything
-  /break      -- pause script after next scan step or script command
-  /cont(inue) -- continue interrupted script
-  /s(top)     -- stop script (you will be prompted how abruptly)
-  /q(uit)     -- quit only this client (NICOS will continue running)
-  /pending    -- show the currently pending commands
-  /block n    -- block a pending command by number
+  /w(here)            -- print current script and location in it
+  /log (n)            -- print more past output, n lines or everything
+  /break              -- pause script after next scan step or script command
+  /cont(inue)         -- continue interrupted script
+  /s(top)             -- stop script (you will be prompted how abruptly)
+
+  /pending            -- show the currently pending commands
+  /block n            -- block a pending command by number
+
+  /plot on/off/ctr    -- switch live plotting on, off, or only plot the
+                         given counter name
 
   /e(dit) <file>      -- edit a script file
   /r(un) <file>       -- run a script file
   /sim(ulate) <file>  -- simulate a script file
   /update <file>      -- update running script
 
-  /disconnect  -- disconnect from NICOS daemon
-  /connect     -- connect to a NICOS daemon
+  /disconnect         -- disconnect from NICOS daemon
+  /connect            -- connect to a NICOS daemon
+  /q(uit)             -- quit only this client (NICOS will continue running)
 
 Command parts in parenteses can be omitted.
 
@@ -825,10 +869,10 @@ To learn how to pre-set your connection parameters, enter "/help connect".
     'connect': '''\
 Connection defaults can be given on the command-line, e.g.
 
-  nicos-client user@server:port
+  nicos-client [-p] user@server:port
 
-A SSH tunnel can be automatically set up for you with the following
-syntax:
+The -p flag switches on plotting.  A SSH tunnel can be automatically set up
+for you with the following syntax:
 
   nicos-client user@server:port via sshuser@host
 
@@ -839,6 +883,7 @@ or in a ~/.nicos-client file, like this:
   user = admin
   passwd = secret
   via = root@instrumenthost
+  plot = on
 
 "Profiles" can be created in the config file with sections named other
 than "connect". For example, if a section "tas" exists with entries
