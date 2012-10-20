@@ -257,9 +257,12 @@ def parseDateString(s, enddate=False):
 def terminalSize():
     """Try to find the terminal size as (cols, rows)."""
     import struct, fcntl, termios
-    h, w, hp, wp = struct.unpack('HHHH',
-        fcntl.ioctl(0, termios.TIOCGWINSZ,
-        struct.pack('HHHH', 0, 0, 0, 0)))
+    try:
+        h, w, hp, wp = struct.unpack('HHHH',
+            fcntl.ioctl(0, termios.TIOCGWINSZ,
+                        struct.pack('HHHH', 0, 0, 0, 0)))
+    except IOError:
+        return 80, 25
     return w, h
 
 

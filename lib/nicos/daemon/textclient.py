@@ -31,6 +31,7 @@ __version__ = "$Revision$"
 import os
 import sys
 import glob
+import time
 import random
 import select
 import signal
@@ -667,6 +668,10 @@ class NicosCmdClient(NicosClient):
             self.put_client('End of messages.')
         elif cmd in ('w', 'where'):
             self.print_where()
+        elif cmd == 'wait':
+            time.sleep(0.2)
+            while self.status != 'idle':
+                time.sleep(0.2)
         else:
             self.put_error('Unknown command %r.' % cmd)
 
