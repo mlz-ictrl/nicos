@@ -40,9 +40,10 @@ from PyQt4.QtCore import Qt, QObject, QTimer, QSize, QVariant, QStringList, \
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos import nicos_version
+from nicos.utils import parseConnectionString
 from nicos.gui.data import DataHandler
 from nicos.gui.utils import DlgUtils, SettingGroup, loadBasicWindowSettings, \
-     parseConnectionData, getXDisplay, dialogFromUi, loadUi, importString
+     getXDisplay, dialogFromUi, loadUi, importString
 from nicos.gui.config import window, panel
 from nicos.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.gui.panels.console import ConsolePanel
@@ -234,7 +235,7 @@ class MainWindow(QMainWindow, DlgUtils):
             dialog.setWindowModality(Qt.NonModal)
             dialog.show()
 
-    def setConnData(self, login, host, port):
+    def setConnData(self, login, passwd, host, port):
         self.connectionData['login'] = login
         self.connectionData['host'] = host
         self.connectionData['port'] = port
@@ -559,7 +560,7 @@ def main(argv):
     mainwindow = MainWindow()
 
     if len(argv) > 1:
-        cdata = parseConnectionData(argv[1])
+        cdata = parseConnectionString(argv[1])
         if cdata:
             mainwindow.setConnData(*cdata)
             if len(argv) > 2:

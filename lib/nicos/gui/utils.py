@@ -43,13 +43,6 @@ from PyQt4.QtCore import Qt, QSettings, QVariant, QDateTime, QSize, SIGNAL
 from nicos.daemon import DEFAULT_PORT
 
 
-def parseConnectionData(s):
-    res = re.match(r"(?:(\w+)@)?([\w.]+)(?::(\d+))?", s)
-    if res is None:
-        return None
-    return res.group(1) or 'guest', res.group(2), \
-           int(res.group(3) or DEFAULT_PORT)
-
 def getXDisplay():
     try:
         lhost = socket.getfqdn(socket.gethostbyaddr(socket.gethostname())[0])

@@ -253,6 +253,24 @@ def parseDateString(s, enddate=False):
     raise ValueError('the given string is not a date/time string')
 
 
+def terminalSize():
+    """Try to find the terminal size as (cols, rows)."""
+    import struct, fcntl
+    h, w, hp, wp = struct.unpack('HHHH',
+        fcntl.ioctl(0, termios.TIOCGWINSZ,
+        struct.pack('HHHH', 0, 0, 0, 0)))
+    return w, h
+
+
+def parseConnectionString(s):
+    """Parse a string in the format 'user:pass@host:port"."""
+    res = re.match(r"(?:(\w+)(?::([^@]*))?@)?([\w.]+)(?::(\d+))?", s)
+    if res is None:
+        return None
+    return res.group(1) or 'guest', res.group(2) or '', \
+        res.group(3), int(res.group(4) or DEFAULT_PORT)
+
+
 # read nicos.conf files
 
 class NicosConfigParser(ConfigParser.SafeConfigParser):

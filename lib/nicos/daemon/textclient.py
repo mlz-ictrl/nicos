@@ -29,13 +29,9 @@ from __future__ import with_statement
 __version__ = "$Revision$"
 
 import os
-import re
 import sys
 import glob
-import time
-import fcntl
 import random
-import struct
 import getpass
 import termios
 import readline
@@ -44,32 +40,19 @@ import subprocess
 import ConfigParser
 import ctypes, ctypes.util
 from os import path
+from time import strftime, localtime
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 
 from nicos.daemon import DEFAULT_PORT
 from nicos.daemon.pyctl import STATUS_INBREAK, STATUS_IDLE, STATUS_IDLEEXC
 from nicos.daemon.client import NicosClient
-from nicos.utils import colorize, which, formatDuration, formatEndtime
+from nicos.utils import colorize, which, formatDuration, formatEndtime, \
+    terminalSize, parseConnectionString
 from nicos.utils.loggers import ACTION, OUTPUT, INPUT
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
           ERROR: 'ERROR', FATAL: 'FATAL'}
 
-def format_time(timeval):
-    return time.strftime('[%Y-%m-%d %H:%M:%S]', time.localtime(timeval))
-
-def terminal_size():
-    h, w, hp, wp = struct.unpack('HHHH',
-        fcntl.ioctl(0, termios.TIOCGWINSZ,
-        struct.pack('HHHH', 0, 0, 0, 0)))
-    return w, h
-
-def parse_connection_data(s):
-    res = re.match(r"(?:(\w+)(?::([^@]*))?@)?([\w.]+)(?::(\d+))?", s)
-    if res is None:
-        return None
-    return res.group(1) or 'guest', res.group(2) or '', \
-        res.group(3), int(res.group(4) or DEFAULT_PORT)
 
 # unfortunately we need a few functions not exported by Python's readline module
 librl = ctypes.cdll[ctypes.util.find_library('readline')]
@@ -92,7 +75,7 @@ class NicosCmdClient(NicosClient):
         self.current_line = -1
         self.current_filename = ''
         self.edit_filename = ''
-        self.tsize = terminal_size()
+        self.tsize = terminalSize()
         self.out = sys.stdout
         self.browser = None
         self.instrument = conndata['host'].split('.')[0]
@@ -296,7 +279,7 @@ class NicosCmdClient(NicosClient):
             namefmt = ''
         else:
             namefmt = '%-10s: ' % msg[0]
-        timefmt = format_time(msg[1])
+        timefmt = strftime('[%Y-%m-%d %H:%M:%S]', localtime(msg[1]))
         levelno = msg[2]
         if levelno == ACTION:
             self.out.write('\033]0;NICOS %s%s\007' % (namefmt, msg[3].rstrip()))
@@ -591,6 +574,7 @@ class NicosCmdClient(NicosClient):
                 self.command('cmd', cmd)
 
     def main(self):
+        """Main entry point.  Make sure we save the readline history."""
         try:
             self.run()
         finally:
@@ -599,10 +583,17 @@ class NicosCmdClient(NicosClient):
 
 def main(argv):
     server = user = passwd = via = ''
+
+    # to automatically close an SSH tunnel, we execute something on the remote
+    # server that takes long enough for the client to connect to the daemon;
+    # SSH then keeps the session open until the tunnel is unused, i.e. the
+    # client has disconnected -- normally, "sleep" should be available as a
+    # dummy remote command, but e.g. on erebos.frm2.tum.de it isn't, so we
+    # allow configuring this (but only in the config file, not on the cmdline)
     viacommand = 'sleep 10'
 
     # a connection "profile" can be given by invoking this executable
-    # under a different name (via symlink)
+    # under a different name (via symlink) ...
     configsection = 'connect'
     if not argv[0].endswith('nicos-client'):
         configsection = path.basename(argv[0])
@@ -610,13 +601,13 @@ def main(argv):
     config = ConfigParser.RawConfigParser()
     config.read([path.expanduser('~/.nicos-client')])
 
-    # or by "profile" on the command line (other arguments are
+    # ... or by "profile" on the command line (other arguments are
     # interpreted as a connection data string)
     if argv[1:]:
         if config.has_section(argv[1]):
             configsection = argv[1]
         else:
-            cd = parse_connection_data(argv[1])
+            cd = parseConnectionString(argv[1])
             server = '%s:%s' % cd[2:4]
             user = cd[0]
             passwd = cd[1]
@@ -725,5 +716,7 @@ than "connect". For example, if a section "tas" exists with entries
 command line
 
   nicos-client tas
+
+or by a symlink to "nicos-client" called "tas".
 '''
 }
