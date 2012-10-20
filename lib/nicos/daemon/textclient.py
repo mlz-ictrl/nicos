@@ -43,6 +43,7 @@ from os import path
 from time import strftime, localtime
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 
+from nicos.data import GracePlot, GracePlotter
 from nicos.daemon import DEFAULT_PORT
 from nicos.daemon.pyctl import STATUS_INBREAK, STATUS_IDLE, STATUS_IDLEEXC
 from nicos.daemon.client import NicosClient
@@ -99,6 +100,8 @@ class NicosCmdClient(NicosClient):
         self.message_queue = []
         self.pending_requests = {}
         self.tip_shown = False
+        self.grace = GracePlotter(None) if GracePlot else None
+        self.last_dataset = None
 
         # set up readline
         for line in DEFAULT_BINDINGS.splitlines():
@@ -339,6 +342,15 @@ class NicosCmdClient(NicosClient):
                                 'queue.' % len(data))
                 self.show_pending()
                 self.set_status(self.status)
+            elif type == 'dataset':
+                if self.grace:
+                    self.grace.beginDataset(data)
+                    self.last_dataset = data
+            elif type == 'datapoint':
+                if self.grace and self.last_dataset:
+                    self.last_dataset.xresults.append(data[0])
+                    self.last_dataset.yresults.append(data[1])
+                    self.grace.addPoint(self.last_dataset, *data)
             elif type == 'connected':
                 self.put_client(
                     'Connected to %s:%s as %s. '
