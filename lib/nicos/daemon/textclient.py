@@ -215,6 +215,9 @@ class NicosCmdClient(NicosClient):
             librl.rl_set_prompt(self.prompt)
 
     def initial_update(self):
+        # disable sending events with potentially large data we don't handle
+        self.tell('eventmask', ('liveparams', 'livedata', 'watch'))
+        # request current full status
         state = self.ask('getstatus')
         if state is None:
             return
@@ -558,7 +561,9 @@ class NicosCmdClient(NicosClient):
 
     def command(self, cmd, arg):
         """Called when a "/foo" command is entered at the prompt."""
+        # try to order elif cases by frequency
         if cmd == 'cmd':
+            # this is not usually entered as "/cmd foo", but only "foo"
             if self.status in ('running', 'interrupted'):
                 reply = self.ask_question('A script is already running, '
                     'queue or execute anyway?', chars='qxn')
@@ -571,6 +576,8 @@ class NicosCmdClient(NicosClient):
                 self.tell('queue', '', arg)
         elif cmd in ('r', 'run'):
             if not arg:
+                # since we remember the last edited file, we can offer
+                # running it here
                 if self.edit_filename:
                     reply = self.ask_question('Run last edited file %r?' %
                                 path.basename(self.edit_filename),
@@ -594,6 +601,7 @@ class NicosCmdClient(NicosClient):
                 self.tell('queue', fpath, code)
         elif cmd == 'update':
             if not arg:
+                # always take the current filename, if it still exists
                 if path.isfile(self.current_filename):
                     arg = self.current_filename
             if not arg:
@@ -611,7 +619,8 @@ class NicosCmdClient(NicosClient):
                 self.put_error('Need a file name or code as argument.')
                 return
             fpath = path.join(self.scriptdir, arg)
-            if path.isfile(fpath):
+            # detect whether we have a filename or potential Python code
+            if path.isfile(fpath) or fpath.endswith('.py'):
                 try:
                     code = open(fpath).read()
                 except Exception, e:
@@ -657,14 +666,16 @@ class NicosCmdClient(NicosClient):
         elif cmd in ('q', 'quit'):
             if self.connected:
                 self.disconnect()
-            return 0   # exit
+            return 0   # i.e. exit with success
         elif cmd in ('h', 'help'):
             self.help(arg)
         elif cmd == 'log':
             if arg:
                 n = -int(arg)
             else:
-                n = None
+                n = None  # as a slice index, this means "unlimited"
+            # this can take a while to transfer, but we don't want to cache
+            # messages in this client just for this command
             state = self.ask('getstatus')
             self.put_client('Printing %s previous messages.' %
                             (-n if n else 'all'))
@@ -674,22 +685,28 @@ class NicosCmdClient(NicosClient):
         elif cmd in ('w', 'where'):
             self.print_where()
         elif cmd == 'wait':
+            # this command is mainly meant for testing and scripting purposes
             time.sleep(0.2)
             while self.status != 'idle':
                 time.sleep(0.2)
         else:
             self.put_error('Unknown command %r.' % cmd)
 
-    def complete_filename(self, fn, text):
+    def complete_filename(self, fn, word):
         """Try to complete a script filename."""
-        # script filenames are relative to the current scriptdir!
+        # script filenames are relative to the current scriptdir; nevertheless
+        # the user can override this by giving an absolute path to the script
         initpath = path.join(self.scriptdir, fn)
         candidates = []
+        # omit the part already on the line, but not what readline considers the
+        # current "word"
+        omit = len(initpath) - len(word)
+        # complete directories and .py script files
         for f in glob.glob(initpath + '*'):
             if path.isdir(f):
-                candidates.append(f[len(initpath)-len(text):] + '/')
+                candidates.append(f[omit:] + '/')
             elif path.isfile(f) and f.endswith('.py'):
-                candidates.append(f[len(initpath)-len(text):])
+                candidates.append(f[omit:])
         return candidates
 
     commands = ['run', 'simulate', 'edit', 'update', 'break',
@@ -699,6 +716,7 @@ class NicosCmdClient(NicosClient):
     def completer(self, text, state):
         """Try to complete the command line.  Called by readline."""
         if state == 0:
+            # we got a a new bit of text to complete...
             line = readline.get_line_buffer()
             if line.startswith('/'):
                 # client command: complete either command or filename
@@ -728,13 +746,15 @@ class NicosCmdClient(NicosClient):
             return None
 
     def handle(self, cmd):
+        """Handle a command line."""
+        # dispatch either as a client command...
         if cmd.startswith('/'):
             args = cmd[1:].split(None, 1) + ['','']
             return self.command(args[0], args[1])
-        elif not cmd:
-            pass
-        else:
+        elif cmd:
+            # or as "normal" Python code to execute
             return self.command('cmd', cmd)
+        # an empty line is ignored
 
     def main(self):
         """Connect and then run the main read-send-print loop."""
@@ -744,6 +764,7 @@ class NicosCmdClient(NicosClient):
                 try:
                     cmd = self.readline(self.prompt)
                 except KeyboardInterrupt:
+                    # offer the user a choice of ways of stopping
                     if self.status == 'running':
                         self.stop_query('Keyboard interrupt')
                     continue
