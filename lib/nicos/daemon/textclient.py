@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-"""Simple command-line client for the NICOS daemon."""
+"""Command-line client for the NICOS daemon."""
 
 from __future__ import with_statement
 
@@ -140,6 +140,8 @@ class NicosCmdClient(NicosClient):
         # pre-set prompt to sane default
         self.set_status('disconnected')
 
+    # -- low-level terminal input/output routines
+
     def readline(self, prompt, add_history=True):
         """Read a line from the user.
 
@@ -170,40 +172,18 @@ class NicosCmdClient(NicosClient):
             raise EOFError
         return readline_result
 
-    stcolmap = {'idle': 'blue',
-                'running': 'fuchsia',
-                'interrupted': 'red',
-                'disconnected': 'darkgray'}
-    modemap =  {'master': '',
-                'slave':  'slave,',
-                'simulation': 'simmode,',
-                'maintenance': 'maintenance,'}
-
-    def set_status(self, status):
-        """Update the current execution status, and set a new prompt."""
-        self.status = status
-        pending = ' (%d pending)' % len(self.pending_requests) \
-            if self.pending_requests else ''
-        # \x01/\x02 are markers recognized by readline as "here come"
-        # zero-width control characters; ESC[K means "clear whole line"
-        self.prompt = '\x01' + colorize(self.stcolmap[status],
-            '\r\x1b[K\x02# ' + self.instrument + '[%s%s]%s >> \x01' %
-            (self.modemap[self.current_mode], status, pending)) + '\x02'
-
-    def put(self, s, c=None):
+    def put(self, string):
         """Put a line of output, preserving the prompt afterwards."""
-        if c:
-            s = colorize(c, s)
-        self.out.write('\r\x1b[K%s\n' % s)
+        self.out.write('\r\x1b[K%s\n' % string)
         self.out.flush()
 
-    def put_error(self, s):
+    def put_error(self, string):
         """Put a client error message."""
-        self.put('# ERROR: ' + s, 'red')
+        self.put(colorize('red', '# ERROR: ' + string))
 
-    def put_client(self, s):
+    def put_client(self, string):
         """Put a client info message."""
-        self.put('# ' + s, 'bold')
+        self.put(colorize('bold', '# ' + string))
 
     def ask_passwd(self, question):
         """Prompt user for a password."""
@@ -211,6 +191,7 @@ class NicosCmdClient(NicosClient):
 
     def ask_question(self, question, chars='', default='', on_intr=''):
         """Prompt user for input to a question."""
+        # add hints of what can be entered
         if chars:
             question += ' (%s)' % ('/'.join(chars.upper()))
         if default:
@@ -218,12 +199,15 @@ class NicosCmdClient(NicosClient):
         self.in_question = True
         try:
             try:
+                # see set_status() for an explanation of the special chars here
                 ans = self.readline('\x01\r\x1b[K' + colorize('bold',\
                                     '\x02# ' + question + ' \x01') + '\x02',
                                     add_history=False)
             except (KeyboardInterrupt, EOFError):
                 return on_intr
             if chars:
+                # we accept any string; if it's beginning with one of the chars,
+                # that is the result, otherwise it's the default value
                 ans = ans.lower()
                 for char in chars:
                     if ans.startswith(char):
@@ -234,7 +218,8 @@ class NicosCmdClient(NicosClient):
             return ans
         finally:
             self.in_question = False
-            librl.rl_set_prompt(self.prompt)
+
+    # -- event (signal) handlers
 
     def initial_update(self):
         """Called after connection is established."""
@@ -269,6 +254,26 @@ class NicosCmdClient(NicosClient):
             self.pending_requests[req['reqno']] = req
         self.set_status(self.status)
 
+    stcolmap = {'idle': 'blue',
+                'running': 'fuchsia',
+                'interrupted': 'red',
+                'disconnected': 'darkgray'}
+    modemap =  {'master': '',
+                'slave':  'slave,',
+                'simulation': 'simmode,',
+                'maintenance': 'maintenance,'}
+
+    def set_status(self, status):
+        """Update the current execution status, and set a new prompt."""
+        self.status = status
+        pending = ' (%d pending)' % len(self.pending_requests) \
+            if self.pending_requests else ''
+        # \x01/\x02 are markers recognized by readline as "here come"
+        # zero-width control characters; ESC[K means "clear whole line"
+        self.prompt = '\x01' + colorize(self.stcolmap[status],
+            '\r\x1b[K\x02# ' + self.instrument + '[%s%s]%s >> \x01' %
+            (self.modemap[self.current_mode], status, pending)) + '\x02'
+
     def clientexec(self, what):
         """Handles the "clientexec" signal."""
         plot_func_path = what[0]
@@ -286,9 +291,11 @@ class NicosCmdClient(NicosClient):
         As we already get HTML, we try to get hold of a text-mode browser
         and let it dump the HTML as text.  Then we print that to the user.
         """
+        # write HTML to a temporary file
         fd, fn = tempfile.mkstemp('.html')
         os.write(fd, html)
         os.close(fd)
+        # check for a text browser to convert to text only
         if self.browser is None:
             if which('links'):
                 self.browser = 'links'
@@ -298,12 +305,18 @@ class NicosCmdClient(NicosClient):
                 self.put_error('No text browser available. '
                                'Install links or w3m.')
                 return
+        # run HTML through text browser
         width = str(self.tsize[0])
         self.out.write('\r\x1b[K\n')
         if self.browser == 'links':
             subprocess.Popen(['links', '-dump', '-width', width, fn]).wait()
         else:
             subprocess.Popen(['w3m', '-dump', '-cols', width, fn]).wait()
+        # remove tempfile
+        try:
+            os.unlink(fn)
+        except Exception:
+            pass
 
     def put_message(self, msg):
         """Handles the "message" signal."""
@@ -420,6 +433,8 @@ class NicosCmdClient(NicosClient):
             # and we ignore all other signals
         except Exception, e:
             self.put_error('In event handler: %s.' % e)
+
+    # -- command handlers
 
     def ask_connect(self, ask_all=True):
         hostport = '%s:%s' % (self.conndata['host'],
@@ -732,6 +747,8 @@ class NicosCmdClient(NicosClient):
         else:
             self.put_error('Unknown command %r.' % cmd)
 
+    # -- command-line completion support
+
     def complete_filename(self, fn, word):
         """Try to complete a script filename."""
         # script filenames are relative to the current scriptdir; nevertheless
@@ -785,6 +802,8 @@ class NicosCmdClient(NicosClient):
         except IndexError:
             return None
 
+    # -- main loop
+
     def handle(self, cmd):
         """Handle a command line."""
         # dispatch either as a client command...
@@ -823,6 +842,74 @@ class NicosCmdClient(NicosClient):
         self.handle(command)
         self.command('quit', '')
         return 0
+
+
+# help texts
+
+HELP = {
+    'main': '''\
+This is the NICOS command-line client.  You can enter all NICOS commands
+at the command line; enter "help()" for an overview of NICOS commands
+and devices.
+
+This client supports "meta-commands" beginning with a slash:
+
+  /w(here)            -- print current script and location in it
+  /log (n)            -- print more past output, n lines or everything
+  /break              -- pause script after next scan step or script command
+  /cont(inue)         -- continue interrupted script
+  /s(top)             -- stop script (you will be prompted how abruptly)
+
+  /pending            -- show the currently pending commands
+  /cancel n           -- cancel a pending command by number
+
+  /plot on/off/ctr    -- switch live plotting on, off, or only plot the
+                         given counter name
+
+  /e(dit) <file>      -- edit a script file
+  /r(un) <file>       -- run a script file
+  /sim(ulate) <file>  -- simulate a script file
+  /update <file>      -- update running script
+
+  /disconnect         -- disconnect from NICOS daemon
+  /connect            -- connect to a NICOS daemon
+  /q(uit)             -- quit only this client (NICOS will continue running)
+
+Command parts in parenteses can be omitted.
+
+All output prefixed with "#" comes from the client.
+
+To learn how to pre-set your connection parameters, enter "/help connect".
+''',
+    'connect': '''\
+Connection defaults can be given on the command-line, e.g.
+
+  nicos-client [-p] user@server:port
+
+The -p flag switches on plotting.  A SSH tunnel can be automatically set up
+for you with the following syntax:
+
+  nicos-client user@server:port via sshuser@host
+
+or in a ~/.nicos-client file, like this:
+
+  [connect]
+  server = localhost:1301
+  user = admin
+  passwd = secret
+  via = root@instrumenthost
+  plot = on
+
+"Profiles" can be created in the config file with sections named other
+than "connect". For example, if a section "tas" exists with entries
+"server", "user" etc., these parameters can be used by calling the
+command line
+
+  nicos-client tas
+
+or by a symlink to "nicos-client" called "tas".
+'''
+}
 
 
 def main(argv):
@@ -925,70 +1012,3 @@ def main(argv):
         return client.main_with_command(command)
     else:
         return client.main()
-
-# help texts
-
-HELP = {
-    'main': '''\
-This is the NICOS command-line client.  You can enter all NICOS commands
-at the command line; enter "help()" for an overview of NICOS commands
-and devices.
-
-This client supports "meta-commands" beginning with a slash:
-
-  /w(here)            -- print current script and location in it
-  /log (n)            -- print more past output, n lines or everything
-  /break              -- pause script after next scan step or script command
-  /cont(inue)         -- continue interrupted script
-  /s(top)             -- stop script (you will be prompted how abruptly)
-
-  /pending            -- show the currently pending commands
-  /cancel n           -- cancel a pending command by number
-
-  /plot on/off/ctr    -- switch live plotting on, off, or only plot the
-                         given counter name
-
-  /e(dit) <file>      -- edit a script file
-  /r(un) <file>       -- run a script file
-  /sim(ulate) <file>  -- simulate a script file
-  /update <file>      -- update running script
-
-  /disconnect         -- disconnect from NICOS daemon
-  /connect            -- connect to a NICOS daemon
-  /q(uit)             -- quit only this client (NICOS will continue running)
-
-Command parts in parenteses can be omitted.
-
-All output prefixed with "#" comes from the client.
-
-To learn how to pre-set your connection parameters, enter "/help connect".
-''',
-    'connect': '''\
-Connection defaults can be given on the command-line, e.g.
-
-  nicos-client [-p] user@server:port
-
-The -p flag switches on plotting.  A SSH tunnel can be automatically set up
-for you with the following syntax:
-
-  nicos-client user@server:port via sshuser@host
-
-or in a ~/.nicos-client file, like this:
-
-  [connect]
-  server = localhost:1301
-  user = admin
-  passwd = secret
-  via = root@instrumenthost
-  plot = on
-
-"Profiles" can be created in the config file with sections named other
-than "connect". For example, if a section "tas" exists with entries
-"server", "user" etc., these parameters can be used by calling the
-command line
-
-  nicos-client tas
-
-or by a symlink to "nicos-client" called "tas".
-'''
-}
