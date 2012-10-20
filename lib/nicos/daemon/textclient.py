@@ -82,6 +82,7 @@ class NicosCmdClient(NicosClient):
         self.in_editing = False
         self.scriptdir = '.'
         self.message_queue = []
+        self.pending_requests = {}
         self.tip_shown = False
 
         # set up readline
@@ -107,9 +108,12 @@ class NicosCmdClient(NicosClient):
                 'maintenance': 'maintenance,'}
 
     def set_prompt(self, status):
+        pending = ' (%d pending)' % len(self.pending_requests) \
+            if self.pending_requests else ''
+        pending = ''
         self.prompt = '\x01' + colorize(self.stcolmap[status],
-            '\r\x1b[K\x02# ' + self.instrument + '[%s%s] >> \x01' %
-            (self.modemap[self.current_mode], status)) + '\x02'
+            '\r\x1b[K\x02# ' + self.instrument + '[%s%s]%s >> \x01' %
+            (self.modemap[self.current_mode], status, pending)) + '\x02'
 
     def set_status(self, status):
         self.status = status
@@ -164,10 +168,10 @@ class NicosCmdClient(NicosClient):
             librl.rl_set_prompt(self.prompt)
 
     def initial_update(self):
-        allstatus = self.ask('getstatus')
-        if allstatus is None:
+        state = self.ask('getstatus')
+        if state is None:
             return
-        status, script, output, watch, setups = allstatus
+        status, script, output, watch, setups, reqqueue = state[:6]
         for msg in output[-self.tsize[1]:]:
             self.put_message(msg)
         self.put_client('Loaded setups: %s.' % ', '.join(setups))
@@ -175,73 +179,15 @@ class NicosCmdClient(NicosClient):
             self.put('# Enter "/help" for help with the client commands.',
                      'turquoise')
             self.tip_shown = True
-        self.signal('processing', {'script': script})
+        self.signal('processing', {'script': script, 'reqno': 0})
         self.signal('status', status)
         self.scriptdir = self.eval('session.experiment.scriptdir', '.')
         self.instrument = self.eval('session.instrument.instrument',
                                     self.instrument)
         self.current_mode = self.eval('session.mode', 'master')
+        for req in reqqueue:
+            self.pending_requests[req['reqno']] = req
         self.set_status(self.status)
-
-    def signal(self, type, *args):
-        try:
-            if type == 'error':
-                self.put_error(args[0])
-            elif type == 'failed':
-                self.put_error(args[0])
-            elif type == 'connected':
-                self.put_client(
-                    'Connected to %s:%s as %s. '
-                    'Replaying output (enter "/log" to see more)...' %
-                    (self.host, self.port, self.conndata['login']))
-                self.initial_update()
-            elif type == 'disconnected':
-                self.put_client('Disconnected from server.')
-                self.current_mode = 'master'
-                self.set_status('disconnected')
-            elif type == 'processing':
-                script = args[0].get('script')
-                if script is None:
-                    return
-                self.current_filename = args[0].get('name', '')
-                script = script.splitlines() or ['']
-                if script != self.current_script:
-                    self.current_script = script
-            elif type == 'status':
-                status, line = args[0]
-                if status == STATUS_IDLE or status == STATUS_IDLEEXC:
-                    new_status = 'idle'
-                elif status != STATUS_INBREAK:
-                    new_status = 'running'
-                else:
-                    new_status = 'interrupted'
-                if status != self.status:
-                    self.set_status(new_status)
-                if line != self.current_line:
-                    self.current_line = line
-            elif type == 'message':
-                if self.in_editing:
-                    self.message_queue.append(args[0])
-                else:
-                    self.put_message(args[0])
-            elif type == 'clientexec':
-                self.clientexec(args[0])
-            elif type == 'showhelp':
-                self.showhelp(args[0][1])
-            elif type == 'cache':
-                if args[0][1].endswith('/scriptdir'):
-                    self.scriptdir = self.eval(
-                        'session.experiment.scriptdir', '.')
-            elif type == 'simresult':
-                timing = args[0][0]
-                self.put_client('Simulated minimum runtime: %s '
-                                '(finishes approximately %s).' %
-                                (formatDuration(timing), formatEndtime(timing)))
-            elif type == 'mode':
-                self.current_mode = args[0]
-                self.set_status(self.status)
-        except Exception, e:
-            self.put_error('In event handler: %s.' % e)
 
     def clientexec(self, what):
         plot_func_path = what[0]
@@ -299,6 +245,80 @@ class NicosCmdClient(NicosClient):
                                    levels[levelno] + ': ' + msg[3].rstrip())
         self.put(msg[5] + newtext)
 
+    def signal(self, type, data=None, exc=None):
+        """Handles any kind of signal/event sent by the daemon."""
+        try:
+            # try to order the elifs by frequency
+            if type == 'message':
+                if self.in_editing:
+                    self.message_queue.append(data)
+                else:
+                    self.put_message(data)
+            elif type == 'status':
+                status, line = data
+                if status == STATUS_IDLE or status == STATUS_IDLEEXC:
+                    new_status = 'idle'
+                elif status != STATUS_INBREAK:
+                    new_status = 'running'
+                else:
+                    new_status = 'interrupted'
+                if status != self.status:
+                    self.set_status(new_status)
+                if line != self.current_line:
+                    self.current_line = line
+            elif type == 'cache':
+                if data[1].endswith('/scriptdir'):
+                    self.scriptdir = self.eval(
+                        'session.experiment.scriptdir', '.')
+            elif type == 'processing':
+                script = data.get('script')
+                if script is None:
+                    return
+                self.current_filename = data.get('name', '')
+                script = script.splitlines() or ['']
+                if script != self.current_script:
+                    self.current_script = script
+                self.pending_requests.pop(data['reqno'], None)
+                self.set_status(self.status)
+            elif type == 'request':
+                if 'script' in data:
+                    self.pending_requests[data['reqno']] = data
+                self.set_status(self.status)
+            elif type == 'blocked':
+                for reqno in data:
+                    self.pending_requests.pop(reqno, None)
+                self.put_client('%d script(s) or command(s) removed from '
+                                'queue.' % len(data))
+                self.show_pending()
+                self.set_status(self.status)
+            elif type == 'connected':
+                self.put_client(
+                    'Connected to %s:%s as %s. '
+                    'Replaying output (enter "/log" to see more)...' %
+                    (self.host, self.port, self.conndata['login']))
+                self.initial_update()
+            elif type == 'disconnected':
+                self.put_client('Disconnected from server.')
+                self.current_mode = 'master'
+                self.set_status('disconnected')
+            elif type == 'clientexec':
+                self.clientexec(data)
+            elif type == 'showhelp':
+                self.showhelp(data[1])
+            elif type == 'simresult':
+                timing = data[0]
+                self.put_client('Simulated minimum runtime: %s '
+                                '(finishes approximately %s).' %
+                                (formatDuration(timing), formatEndtime(timing)))
+            elif type == 'mode':
+                self.current_mode = data
+                self.set_status(self.status)
+            elif type in ('error', 'failed', 'broken'):
+                self.put_error(data)
+            # and we ignore all other signals
+        except Exception, e:
+            self.put_error('In event handler: %s.' % e)
+
     def ask_connect(self, ask_all=True):
         hostport = '%s:%s' % (self.conndata['host'],
                               self.conndata['port'])
@@ -334,9 +354,53 @@ class NicosCmdClient(NicosClient):
         for line in helptext.splitlines():
             self.put('# ' + line)
 
-    commands = ['queue', 'run', 'simulate', 'edit', 'update', 'break',
-                'continue', 'stop', 'where' 'exec', 'disconnect', 'connect',
-                'quit', 'help', 'log']
+    def edit_file(self, arg):
+        """Implements the "/edit" command."""
+        if not arg:
+            if path.isfile(self.current_filename):
+                arg = self.current_filename
+        if not arg:
+           self.put_error('Need a file name as argument.')
+           return
+        fpath = path.join(self.scriptdir, arg)
+        if not os.getenv('EDITOR'):
+            os.putenv('EDITOR', 'vi')
+        self.in_editing = True
+        try:
+            ret = os.system('$EDITOR "' + fpath + '"')
+        finally:
+            self.in_editing = False
+            for msg in self.message_queue:
+                self.put_message(msg)
+            self.message_queue = []
+        if ret != 0 or not path.isfile(fpath):
+            return
+        # if the editor exited successfully (and the file exists) we try to be
+        # smart about offering the user a choice of running, simulating or
+        # updating the current script
+        self.edit_filename = fpath
+        if self.status == 'running':
+            if fpath == self.current_filename:
+                # current script edited: most likely we want to update it
+                if self.ask_question('Update running script?',
+                                     yesno=True) == 'y':
+                    return self.command('update', fpath)
+            else:
+                # another script edited: updating will likely fail
+                reply = self.ask_question('Queue or simulate file? '
+                                          '[q/s/n]').lower()
+                if reply == 'q':
+                    # this will automatically queue
+                    return self.command('run', fpath)
+                elif reply == 's':
+                    return self.command('sim', fpath)
+        else:
+            # no script is running at the moment: offer to run it
+            reply = self.ask_question('Run or simulate file? [r/s/n]').lower()
+            if reply == 'r':
+                return self.command('run', fpath)
+            elif reply == 's':
+                return self.command('sim', fpath)
 
     def print_where(self):
         if self.status in ('running', 'interrupted'):
@@ -350,41 +414,23 @@ class NicosCmdClient(NicosClient):
         else:
             self.put_client('No script is running.')
 
-    def complete_filename(self, fn, text):
-        initpath = path.join(self.scriptdir, fn)
-        globs = glob.glob(initpath + '*.py')
-        return [(f + ('/' if path.isdir(f) else ''))[len(initpath)-len(text):]
-                for f in globs]
-
-    def completer(self, text, state):
-        if state == 0:
-            line = readline.get_line_buffer()
-            if line.startswith('/'):
-                # client command: complete either command or filename
-                parts = line[1:].split()
-                if len(parts) < 2 and not line.endswith(' '):
-                    self.completions = [cmd for cmd in self.commands
-                                        if cmd.startswith(text)]
-                else:
-                    if parts[0] in ('r', 'run', 'e', 'edit',
-                                    'update', 'sim', 'simulate'):
-                        try:
-                            fn = parts[1]
-                        except IndexError:
-                            fn = ''
-                        self.completions = self.complete_filename(fn, text)
-                    else:
-                        self.completions = []
+    def show_pending(self):
+        if not self.pending_requests:
+            self.put_client('No scripts or commands are pending.')
+            return
+        self.put_client('Showing pending scripts or commands. '
+                        'Use "/block number" to remove.')
+        for reqno, script in sorted(self.pending_requests.iteritems()):
+            if 'name' in script and script['name']:
+                short = script['name']
             else:
-                # server command: ask daemon to complete for us
-                try:
-                    self.completions = self.ask('complete', text, line)
-                except Exception:
-                    self.completions = []
-        try:
-            return self.completions[state]
-        except IndexError:
-            return None
+                lines = script['script'].splitlines()
+                if len(lines) == 1:
+                    short = lines[0]
+                else:
+                    short = lines[0] + ' ...'
+            self.put('# %s  %s' % (colorize('darkblue', '%4d' % reqno), short))
+        self.put_client('End of pending list.')
 
     def stop_query(self, how):
         self.put_client('== %s ==' % how)
@@ -470,42 +516,7 @@ class NicosCmdClient(NicosClient):
             else:
                 self.tell('simulate', '', arg)
         elif cmd in ('e', 'edit'):
-            if not arg:
-                if path.isfile(self.current_filename):
-                    arg = self.current_filename
-            if not arg:
-               self.put_error('Need a file name as argument.')
-               return
-            fpath = path.join(self.scriptdir, arg)
-            if not os.getenv('EDITOR'):
-                os.putenv('EDITOR', 'vi')
-            self.in_editing = True
-            try:
-                ret = os.system('$EDITOR "' + fpath + '"')
-            finally:
-                self.in_editing = False
-                for msg in self.message_queue:
-                    self.put_message(msg)
-                self.message_queue = []
-            if ret == 0 and path.isfile(fpath):
-                self.edit_filename = fpath
-                if self.status == 'running':
-                    if fpath == self.current_filename:
-                        if self.ask_question('Update running script?',
-                                             yesno=True) == 'y':
-                            return self.command('update', fpath)
-                    else:
-                        reply = self.ask_question('Queue or simulate file? [q/s/n]').lower()
-                        if reply == 'q':
-                            return self.command('run', fpath)
-                        elif reply == 's':
-                            return self.command('sim', fpath)
-                else:
-                    reply = self.ask_question('Run or simulate file? [r/s/n]').lower()
-                    if reply == 'r':
-                        return self.command('run', fpath)
-                    elif reply == 's':
-                        return self.command('sim', fpath)
+            self.edit_file(arg)
         elif cmd == 'break':
             self.tell('break')
         elif cmd in ('cont', 'continue'):
@@ -515,8 +526,19 @@ class NicosCmdClient(NicosClient):
                 self.stop_query('Stop request')
             else:
                 self.tell('emergency')
-        elif cmd == 'exec':
-            self.tell('exec', arg)
+        elif cmd == 'pending':
+            self.show_pending()
+        elif cmd == 'block':
+            if arg != '*':
+                # this catches an empty arg as well
+                try:
+                    arg = int(arg)
+                    self.pending_requests[arg]
+                except (ValueError, KeyError):
+                    self.put_error('Need a pending request number '
+                                   '(see "/pending") or "*" to clear all.')
+                    return
+            self.tell('unqueue', str(arg))
         elif cmd == 'disconnect':
             if self.connected:
                 self.disconnect()
@@ -536,16 +558,59 @@ class NicosCmdClient(NicosClient):
                 n = -int(arg)
             else:
                 n = None
-            allstatus = self.ask('getstatus')
+            state = self.ask('getstatus')
             self.put_client('Printing %s previous messages.' %
                             (-n if n else 'all'))
-            for msg in allstatus[2][n:]:
+            for msg in state[2][n:]:
                 self.put_message(msg)
             self.put_client('End of messages.')
         elif cmd in ('w', 'where'):
             self.print_where()
         else:
             self.put_error('Unknown command %r.' % cmd)
+
+    def complete_filename(self, fn, text):
+        """Try to complete a script filename."""
+        # script filenames are relative to the current scriptdir!
+        initpath = path.join(self.scriptdir, fn)
+        globs = glob.glob(initpath + '*.py')
+        return [(f + ('/' if path.isdir(f) else ''))[len(initpath)-len(text):]
+                for f in globs]
+
+    commands = ['run', 'simulate', 'edit', 'update', 'break',
+                'continue', 'stop', 'where', 'disconnect', 'connect',
+                'quit', 'help', 'log', 'pending', 'block']
+
+    def completer(self, text, state):
+        """Try to complete the command line.  Called by readline."""
+        if state == 0:
+            line = readline.get_line_buffer()
+            if line.startswith('/'):
+                # client command: complete either command or filename
+                parts = line[1:].split()
+                if len(parts) < 2 and not line.endswith(' '):
+                    self.completions = [cmd for cmd in self.commands
+                                        if cmd.startswith(text)]
+                else:
+                    if parts[0] in ('r', 'run', 'e', 'edit',
+                                    'update', 'sim', 'simulate'):
+                        try:
+                            fn = parts[1]
+                        except IndexError:
+                            fn = ''
+                        self.completions = self.complete_filename(fn, text)
+                    else:
+                        self.completions = []
+            else:
+                # server command: ask daemon to complete for us
+                try:
+                    self.completions = self.ask('complete', text, line)
+                except Exception:
+                    self.completions = []
+        try:
+            return self.completions[state]
+        except IndexError:
+            return None
 
     def run(self):
         self.command('connect', 'init')
@@ -676,6 +741,8 @@ This client supports "meta-commands" beginning with a slash:
   /cont(inue) -- continue interrupted script
   /s(top)     -- stop script (you will be prompted how abruptly)
   /q(uit)     -- quit only this client (NICOS will continue running)
+  /pending    -- show the currently pending commands
+  /block n    -- block a pending command by number
 
   /e(dit) <file>      -- edit a script file
   /r(un) <file>       -- run a script file

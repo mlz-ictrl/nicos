@@ -191,6 +191,7 @@ class ScriptStatusPanel(Panel):
         self.current_request['script'] = state[1]
         self.current_request['reqno'] = None
         self.on_client_status(state[0])
+        # XXX: add all requests from state[5] to request queue
 
     def on_client_status(self, data):
         status, line = data

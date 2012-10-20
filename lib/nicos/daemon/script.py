@@ -351,6 +351,10 @@ class ExecutionController(Controller):
         self.blocked_reqs.update(requests)
         self.eventfunc('blocked', requests)
 
+    def get_queue(self):
+        return [req.serialize() for req in self.queue.queue if
+                req.reqno not in self.blocked_reqs]
+
     def exec_script(self, code, user):
         temp_request = ScriptRequest(code, None, user)
         temp_request.parse(splitblocks=False)

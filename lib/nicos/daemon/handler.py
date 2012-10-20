@@ -474,12 +474,14 @@ class ConnectionHandler(BaseRequestHandler):
     def getstatus(self):
         """Return all important status info."""
         current_script = self.controller.current_script
+        request_queue = self.controller.get_queue()
         self.write(STX, serialize(
                 ((self.controller.status, self.controller.lineno),
                  current_script and current_script.text or '',
                  self.daemon._messages,
                  self.controller.eval_watch_expressions(),
                  session.explicit_setups,
+                 request_queue,
                  )))
 
     @command()
