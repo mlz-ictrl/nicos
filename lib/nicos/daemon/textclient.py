@@ -608,7 +608,7 @@ def main(argv):
         configsection = path.basename(argv[0])
 
     config = ConfigParser.RawConfigParser()
-    config.read([path.expanduser('~/.nicos-cmd')])
+    config.read([path.expanduser('~/.nicos-client')])
 
     # or by "profile" on the command line (other arguments are
     # interpreted as a connection data string)
@@ -623,11 +623,13 @@ def main(argv):
         if argv[3:] and argv[2] == 'via':
             via = argv[3]
 
-    # check for profile name as a config section (given by argv0 or command line)
-    # if not present, fall back to default
+    # check for profile name as a config section (given by argv0 or on the
+    # command line); if not present, fall back to default
     if not config.has_section(configsection):
         configsection = 'connect'
 
+    # take all connection parameters from the config file if not defined
+    # on the command line
     if not server and config.has_option(configsection, 'server'):
         server = config.get(configsection, 'server')
     if not user and config.has_option(configsection, 'user'):
@@ -638,24 +640,32 @@ def main(argv):
         via = config.get(configsection, 'via')
     if config.has_option(configsection, 'viacommand'):
         viacommand = config.get(configsection, 'viacommand')
+
+    # split server in host:port components
     try:
         host, port = server.split(':', 1)
+        port = int(port)
     except ValueError:
         host = server
         port = DEFAULT_PORT
+
+    # if SSH tunneling is requested, stop here and re-exec after tunnel is
+    # set up and running
+    if via:
+        # use a random (hopefully free) high numbered port on our side
+        nport = random.randint(10000, 20000)
+        os.execvp('sh', ['sh', '-c',
+            'ssh -f -L "%s:%s:%s" "%s" %s && %s "%s:%s@localhost:%s"' %
+            (nport, host, port, via, viacommand, argv[0], user, passwd, nport)])
+
+    # this is the connection data format used by nicos.daemon.client
     conndata = {
         'host': host,
-        'port': int(port),
+        'port': port,
         'display': os.getenv('DISPLAY') or '',
         'login': user,
         'passwd': passwd,
     }
-
-    if via:
-        nport = random.randint(10000, 20000)
-        os.execvp('sh', ['sh', '-c',
-            'ssh -f -L "%s:%s:%s" "%s" %s; %s "%s:%s@localhost:%s"' %
-            (nport, host, port, via, viacommand, argv[0], user, passwd, nport)])
 
     client = NicosCmdClient(conndata)
     return client.main()
@@ -701,7 +711,7 @@ syntax:
 
   nicos-client user@server:port via sshuser@host
 
-or in ~/.nicos-cmd, like this:
+or in a ~/.nicos-client file, like this:
 
   [connect]
   server = localhost:1301
