@@ -88,6 +88,7 @@ class NicosCmdClient(NicosClient):
     def __init__(self, conndata, plot_on=False):
         NicosClient.__init__(self)
         self.conndata = conndata
+        self.quiet_connect = False
         self.current_script = ['']
         self.current_line = -1
         self.current_filename = ''
@@ -218,14 +219,22 @@ class NicosCmdClient(NicosClient):
         if state is None:
             return
         status, script, output, watch, setups, reqqueue = state[:6]
-        for msg in output[-self.tsize[1]:]:
-            self.put_message(msg)
-        if not self.tip_shown:
-            self.put_client('Loaded setups: %s. Enter "/help" for help with '
-                            'the client commands.' % ', '.join(setups))
-            self.tip_shown = True
+        if not self.quiet_connect:
+            self.put_client(
+                'Connected to %s:%s as %s. '
+                'Replaying output (enter "/log" to see more)...' %
+                (self.host, self.port, self.conndata['login']))
+            for msg in output[-self.tsize[1]:]:
+                self.put_message(msg)
+            if not self.tip_shown:
+                self.put_client('Loaded setups: %s. Enter "/help" for help '
+                                'with the client commands.' % ', '.join(setups))
+                self.tip_shown = True
+            else:
+                self.put_client('Loaded setups: %s.' % ', '.join(setups))
         else:
-            self.put_client('Loaded setups: %s.' % ', '.join(setups))
+            self.put_client('Connected to %s:%s as %s. ' %
+                            (self.host, self.port, self.conndata['login']))
         self.signal('processing', {'script': script, 'reqno': 0})
         self.signal('status', status)
         self.scriptdir = self.eval('session.experiment.scriptdir', '.')
@@ -357,10 +366,6 @@ class NicosCmdClient(NicosClient):
                     if self.grace_on:
                         self.grace.addPoint(self.last_dataset, *data)
             elif type == 'connected':
-                self.put_client(
-                    'Connected to %s:%s as %s. '
-                    'Replaying output (enter "/log" to see more)...' %
-                    (self.host, self.port, self.conndata['login']))
                 self.initial_update()
             elif type == 'disconnected':
                 self.put_client('Disconnected from server.')
@@ -722,40 +727,45 @@ class NicosCmdClient(NicosClient):
         except IndexError:
             return None
 
-    def run(self):
-        """Connect and then run the main read-send-print loop."""
-        self.command('connect', 'init')
-
-        while 1:
-            try:
-                cmd = self.readline(self.prompt)
-            except KeyboardInterrupt:
-                if self.status == 'running':
-                    self.stop_query('Keyboard interrupt')
-                continue
-            except EOFError:
-                self.command('quit', '')
-                return
-            if cmd.startswith('/'):
-                args = cmd[1:].split(None, 1) + ['','']
-                ret = self.command(args[0], args[1])
-                if ret is not None:
-                    return ret
-            elif not cmd:
-                pass
-            else:
-                self.command('cmd', cmd)
+    def handle(self, cmd):
+        if cmd.startswith('/'):
+            args = cmd[1:].split(None, 1) + ['','']
+            return self.command(args[0], args[1])
+        elif not cmd:
+            pass
+        else:
+            return self.command('cmd', cmd)
 
     def main(self):
-        """Main entry point.  Make sure we save the readline history."""
+        """Connect and then run the main read-send-print loop."""
         try:
-            self.run()
+            self.command('connect', 'init')
+            while 1:
+                try:
+                    cmd = self.readline(self.prompt)
+                except KeyboardInterrupt:
+                    if self.status == 'running':
+                        self.stop_query('Keyboard interrupt')
+                    continue
+                except EOFError:
+                    self.command('quit', '')
+                    return 0
+                ret = self.handle(cmd)
+                if ret is not None:
+                    return ret
         finally:
             readline.write_history_file(self.histfile)
 
+    def main_with_command(self, command):
+        self.quiet_connect = True
+        self.command('connect', 'init')
+        self.handle(command)
+        self.command('quit', '')
+        return 0
+
 
 def main(argv):
-    server = user = passwd = via = ''
+    server = user = passwd = via = command = ''
     plot = False
 
     # to automatically close an SSH tunnel, we execute something on the remote
@@ -775,9 +785,17 @@ def main(argv):
     config = ConfigParser.RawConfigParser()
     config.read([path.expanduser('~/.nicos-client')])
 
+    # check for plotting switch
     if '-p' in argv:
         plot = True
         argv.remove('-p')
+
+    # check for "command to run" switch
+    if '-c' in argv:
+        n = argv.index('-c')
+        if len(argv) >= n:
+            command = argv[n+1]
+        del argv[n:n+2]
 
     # ... or by "profile" on the command line (other arguments are
     # interpreted as a connection data string)
@@ -842,7 +860,10 @@ def main(argv):
     signal.siginterrupt(signal.SIGINT, False)
 
     client = NicosCmdClient(conndata, plot)
-    return client.main()
+    if command:
+        return client.main_with_command(command)
+    else:
+        return client.main()
 
 # help texts
 
