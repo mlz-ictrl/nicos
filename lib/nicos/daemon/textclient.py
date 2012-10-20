@@ -623,7 +623,7 @@ def main(argv):
         if argv[3:] and argv[2] == 'via':
             via = argv[3]
 
-    # check for profile name (given by argv0 or command line)
+    # check for profile name as a config section (given by argv0 or command line)
     # if not present, fall back to default
     if not config.has_section(configsection):
         configsection = 'connect'
@@ -669,6 +669,7 @@ at the command line; enter "help()" for an overview of NICOS commands
 and devices.
 
 This client supports "meta-commands" beginning with a slash:
+
   /w(here)    -- print current script and location in it
   /log (n)    -- print more past output, n lines or everything
   /break      -- pause script after next scan step or script command
@@ -683,6 +684,7 @@ This client supports "meta-commands" beginning with a slash:
 
   /disconnect  -- disconnect from NICOS daemon
   /connect     -- connect to a NICOS daemon
+
 Command parts in parenteses can be omitted.
 
 All output prefixed with "#" comes from the client.
@@ -691,17 +693,27 @@ To learn how to pre-set your connection parameters, enter "/help connect".
 ''',
     'connect': '''\
 Connection defaults can be given on the command-line, e.g.
+
   nicos-client user@server:port
 
 A SSH tunnel can be automatically set up for you with the following
 syntax:
+
   nicos-client user@server:port via sshuser@host
 
 or in ~/.nicos-cmd, like this:
+
   [connect]
   server = localhost:1301
   user = admin
   passwd = secret
   via = root@instrumenthost
+
+"Profiles" can be created in the config file with sections named other
+than "connect". For example, if a section "tas" exists with entries
+"server", "user" etc., these parameters can be used by calling the
+command line
+
+  nicos-client tas
 '''
 }
