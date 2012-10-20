@@ -689,6 +689,13 @@ class NicosCmdClient(NicosClient):
             time.sleep(0.2)
             while self.status != 'idle':
                 time.sleep(0.2)
+        elif cmd == 'trace':
+            trace = self.ask('gettrace')
+            self.put_client('Current stacktrace of script execution:')
+            for line in trace.splitlines():
+                if line:
+                    self.put('# ' + line)
+            self.put_client('End of stacktrace.')
         else:
             self.put_error('Unknown command %r.' % cmd)
 

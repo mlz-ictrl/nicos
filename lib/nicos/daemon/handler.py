@@ -498,6 +498,11 @@ class ConnectionHandler(BaseRequestHandler):
         history = session.cache.history('', key, float(fromtime), float(totime))
         self.write(STX, serialize(history))
 
+    @command()
+    def gettrace(self):
+        """Return current execution status as a stacktrace."""
+        self.write(STX, serialize(self.controller.current_location(True)))
+
     # -- Watch expression commands ---------------------------------------------
 
     @command(needcontrol=True)
