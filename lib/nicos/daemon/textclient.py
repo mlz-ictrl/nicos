@@ -759,6 +759,9 @@ class NicosCmdClient(NicosClient):
                 if line:
                     self.put('# ' + line)
             self.put_client('End of stacktrace.')
+        elif cmd == 'DEBUG':
+            import pdb
+            pdb.set_trace()
         else:
             self.put_error('Unknown command %r.' % cmd)
 
