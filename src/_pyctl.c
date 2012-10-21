@@ -4,7 +4,7 @@
  *
  * Control the execution of Python code via a C trace function.
  *
- * :copyright: 2008-2011 by Georg Brandl.
+ * :copyright: 2008-2012 by Georg Brandl.
  * :license: BSD license.
  */
 
@@ -36,6 +36,7 @@ typedef struct {
 #define REQ_RUN      0      /* no request, keep running */
 #define REQ_BREAK    1      /* break at next possible location */
 #define REQ_STOP     2      /* stop execution immediately */
+#define REQ_DEBUG    3      /* start pdb session */
 
 /* Status constants */
 #define STATUS_IDLEEXC  -2  /* nothing started, last script raised exception */
@@ -158,6 +159,17 @@ trace_function(CtlrObject *self, PyFrameObject *frame, int what, PyObject *arg)
         }
         if (!ret)
             return -1;
+        return 0;
+    case REQ_DEBUG:
+        if (self->status == STATUS_RUNNING && PyCallable_Check(self->requestarg)) {
+            /* the requestarg should be the set_trace() function of a Pdb instance */
+            ret = PyObject_CallFunctionObjArgs(self->requestarg, self->currentframe, NULL);
+            /* NOTE: if the debugger set_trace succeeded, our trace function will be
+               inactive until someone calls reset_trace() */
+            if (ret < 0)
+                PyErr_Clear();
+            self->request = REQ_RUN;
+        }
         return 0;
     case REQ_STOP:
         if (self->status != STATUS_STOPPING) {
@@ -336,6 +348,27 @@ ctlr_set_stop(CtlrObject *self, PyObject *arg)
 }
 
 static PyObject *
+ctlr_set_debug(CtlrObject *self, PyObject *arg)
+{
+    if (!self->started) {
+        PyErr_SetString(ControllerError, "Controller not started");
+        return NULL;
+    }
+    Py_CLEAR(self->requestarg);
+    self->requestarg = arg;
+    Py_INCREF(self->requestarg);
+    self->request = REQ_DEBUG;
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+ctlr_reset_trace(CtlrObject *self, PyObject *unused)
+{
+    PyEval_SetTrace((Py_tracefunc)trace_function, (PyObject *)self);
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 ctlr_set_observer(CtlrObject *self, PyObject *arg)
 {
     if (!PyCallable_Check(arg)) {
@@ -353,6 +386,8 @@ static PyMethodDef ctlr_methods[] = {
     {"start_exec", (PyCFunction)ctlr_start_exec, METH_VARARGS, NULL},
     {"set_break", (PyCFunction)ctlr_set_break, METH_O, NULL},
     {"set_stop", (PyCFunction)ctlr_set_stop, METH_O, NULL},
+    {"set_debug", (PyCFunction)ctlr_set_debug, METH_O, NULL},
+    {"reset_trace", (PyCFunction)ctlr_reset_trace, METH_NOARGS, NULL},
     {"set_observer", (PyCFunction)ctlr_set_observer, METH_O, NULL},
     {NULL},
 };

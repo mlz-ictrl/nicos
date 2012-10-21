@@ -122,6 +122,8 @@ class NicosCmdClient(NicosClient):
         self.simulating = False
         # whether a stop is pending
         self.stop_pending = False
+        # whether we are in debugging mode
+        self.debug_mode = False
         # detected text-mode browser for help display
         self.browser = None
         # used for determining how much history to print by default
@@ -202,7 +204,7 @@ class NicosCmdClient(NicosClient):
         try:
             try:
                 # see set_status() for an explanation of the special chars here
-                ans = self.readline('\x01\r\x1b[K' + colorize('bold',\
+                ans = self.readline('\x01\r\x1b[K' + colorize('bold',
                                     '\x02# ' + question + ' \x01') + '\x02',
                                     add_history=False)
             except (KeyboardInterrupt, EOFError):
@@ -416,6 +418,7 @@ class NicosCmdClient(NicosClient):
             elif type == 'disconnected':
                 self.put_client('Disconnected from server.')
                 self.current_mode = 'master'
+                self.debug_mode = False
                 self.set_status('disconnected')
             elif type == 'clientexec':
                 self.clientexec(data)
@@ -435,6 +438,12 @@ class NicosCmdClient(NicosClient):
             elif type == 'mode':
                 self.current_mode = data
                 self.set_status(self.status)
+            elif type == 'debugging':
+                if self.debug_mode and data is False:
+                    # only react if we initiated debug mode
+                    self.debug_mode = False
+                    # send Ctrl-C to get out of debug REPL immediately
+                    os.kill(os.getpid(), signal.SIGINT)
             elif type in ('error', 'failed', 'broken'):
                 self.put_error(data)
             # and we ignore all other signals
@@ -591,6 +600,20 @@ class NicosCmdClient(NicosClient):
             self.grace.activecounter = arg
             self.put_client('Plotting now switched on (for counter %s).'
                             % arg)
+
+    def debug_repl(self):
+        """Called to handle remote debugging via Rpdb."""
+        self.in_question = True  # suppress prompt changes
+        try:
+            while self.debug_mode:
+                try:
+                    cmd = self.readline('\x01\r\x1b[K' + colorize('darkred',
+                                        '\x02# (Rpdb) \x01') + '\x02') + '\n'
+                except (EOFError, KeyboardInterrupt):
+                    cmd = ''
+                self.tell('debuginput', cmd)
+        finally:
+            self.in_question = False
 
     def stop_query(self, how):
         """Called on Ctrl-C (if running) or when "/stop" is entered."""
@@ -759,9 +782,13 @@ class NicosCmdClient(NicosClient):
                 if line:
                     self.put('# ' + line)
             self.put_client('End of stacktrace.')
-        elif cmd == 'DEBUG':
+        elif cmd == 'debugclient':
             import pdb
             pdb.set_trace()
+        elif cmd == 'debugscript':
+            self.tell('debug')
+            self.debug_mode = True
+            self.debug_repl()
         else:
             self.put_error('Unknown command %r.' % cmd)
 

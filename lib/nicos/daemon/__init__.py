@@ -203,6 +203,7 @@ class NicosDaemon(Device):
         'simresult': True,
         'showhelp': True,
         'clientexec': True,
+        'debugging': True,
     }
 
     def doInit(self, mode):

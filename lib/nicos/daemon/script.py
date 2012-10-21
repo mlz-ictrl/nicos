@@ -41,6 +41,7 @@ from nicos.utils.loggers import INPUT
 from nicos.daemon.utils import format_exception_cut_frames, format_script, \
      fixup_script, update_linecache
 from nicos.daemon.pyctl import Controller, ControlStop
+from nicos.daemon.debugger import Rpdb
 from nicos.sessions.utils import NicosCompleter, guessCorrectCommand
 
 # compile flag to activate new division
@@ -275,6 +276,7 @@ class ExecutionController(Controller):
         self.reqno_latest = 0      # number of the last queued request
         self.reqno_work = 0        # number of the last executing request
         self.blocked_reqs = set()  # set of blocked request numbers
+        self.debugger = None       # currently running debugger (Rpdb)
         # only one user or admin can issue non-read-only commands
         self.controlling_user = None
         # functions to execute when script goes in break and continues
@@ -407,6 +409,21 @@ class ExecutionController(Controller):
             return repr(eval(expr, self.namespace, self.session_ns))
         except Exception, err:
             return '<cannot be evaluated: %s>' % err
+
+    def debug_start(self):
+        self.debugger = Rpdb(self.debug_end)
+        self.set_debug(self.debugger.set_trace)
+        self.eventfunc('debugging', True)
+
+    def debug_input(self, line):
+        if self.debugger:
+            self.debugger.stdin.put(line)
+
+    def debug_end(self):
+        self.debugger = None
+        self.eventfunc('debugging', False)
+        # set our own trace function again (Pdb replaced it)
+        self.reset_trace()
 
     def add_estop_function(self, func, args):
         if not callable(func):
