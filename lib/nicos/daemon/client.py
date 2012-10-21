@@ -228,6 +228,12 @@ class NicosClient(object):
                 msg = 'Connection to server timed out.'
             elif isinstance(err, socket.error):
                 msg = 'Server connection broken: %s.' % err.args[1]
+            # we cannot handle this without breaking connection, since
+            # it generally means that the response is not yet received;
+            # and to carry on means that we receive the pending response
+            # "in reply" to one of the next commands
+            elif isinstance(err, KeyboardInterrupt):
+                msg = 'Server communication interrupted by user.'
             else:
                 msg = 'Exception occurred: %s.' % err
             self.signal('broken', msg, err)
@@ -269,7 +275,7 @@ class NicosClient(object):
                 if ret != ACK:
                     raise ErrorResponse(data)
                 return True
-        except Exception, err:
+        except (Exception, KeyboardInterrupt), err:
             return self.handle_error(err)
 
     def ask(self, *command, **kwds):
@@ -284,7 +290,7 @@ class NicosClient(object):
                 if ret != STX:
                     raise ErrorResponse(data)
                 return unserialize(data)
-        except Exception, err:
+        except (Exception, KeyboardInterrupt), err:
             return self.handle_error(err)
 
     def eval(self, expr, default):
@@ -295,7 +301,7 @@ class NicosClient(object):
             return default
         try:
             return ast.literal_eval(result)
-        except Exception, err:
+        except (Exception, KeyboardInterrupt), err:
             print '!!! error evaluating eval() result', err
             return default
 
@@ -309,5 +315,5 @@ class NicosClient(object):
                 if ret != STX:
                     raise ErrorResponse(data)
                 return unserialize(data)
-        except Exception, err:
+        except (Exception, KeyboardInterrupt), err:
             return self.handle_error(err)

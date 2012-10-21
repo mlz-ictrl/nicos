@@ -736,6 +736,8 @@ class NicosCmdClient(NicosClient):
             # this can take a while to transfer, but we don't want to cache
             # messages in this client just for this command
             state = self.ask('getstatus')
+            if state is None:
+                return
             self.put_client('Printing %s previous messages.' %
                             (-n if n else 'all'))
             for msg in state[2][n:]:
@@ -750,6 +752,8 @@ class NicosCmdClient(NicosClient):
                 time.sleep(0.2)
         elif cmd == 'trace':
             trace = self.ask('gettrace')
+            if trace is None:
+                return
             self.put_client('Current stacktrace of script execution:')
             for line in trace.splitlines():
                 if line:
@@ -805,7 +809,7 @@ class NicosCmdClient(NicosClient):
             else:
                 # server command: ask daemon to complete for us
                 try:
-                    self.completions = self.ask('complete', text, line)
+                    self.completions = self.ask('complete', text, line) or []
                 except Exception:
                     self.completions = []
         try:
