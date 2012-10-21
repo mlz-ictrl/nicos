@@ -419,8 +419,6 @@ class ExecutionController(Controller):
     def execute_estop(self, user):
         self.log.warn('emergency stop caught, executing ESFs')
         session.log.warn('Immediate stop requested by %s' % user)
-        # block all pending scripts
-        self.block_requests(range(self.reqno_work + 1, self.reqno_latest + 1))
         # now execute emergency stop functions
         for (func, args) in self.estop_functions:
             try:
@@ -508,6 +506,9 @@ class ExecutionController(Controller):
                 try:
                     self.current_script.execute(self)
                 except ControlStop, err:
+                    # block all pending scripts
+                    self.block_requests(range(self.reqno_work + 1,
+                                              self.reqno_latest + 1))
                     if err.args[0] == 'emergency stop':
                         self.execute_estop(err.args[1])
                     else:
