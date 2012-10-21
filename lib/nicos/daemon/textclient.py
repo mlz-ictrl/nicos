@@ -120,6 +120,8 @@ class NicosCmdClient(NicosClient):
         self.last_dataset = None
         # whether we have initiated a simulation lately
         self.simulating = False
+        # whether a stop is pending
+        self.stop_pending = False
         # detected text-mode browser for help display
         self.browser = None
         # used for determining how much history to print by default
@@ -266,8 +268,12 @@ class NicosCmdClient(NicosClient):
     def set_status(self, status):
         """Update the current execution status, and set a new prompt."""
         self.status = status
-        pending = ' (%d pending)' % len(self.pending_requests) \
-            if self.pending_requests else ''
+        if self.stop_pending:
+            pending = ' (stop pending)'
+        elif self.pending_requests:
+            pending = ' (%d pending)' % len(self.pending_requests)
+        else:
+            pending = ''
         # \x01/\x02 are markers recognized by readline as "here come"
         # zero-width control characters; ESC[K means "clear whole line"
         self.prompt = '\x01' + colorize(self.stcolmap[status],
@@ -360,6 +366,7 @@ class NicosCmdClient(NicosClient):
                 status, line = data
                 if status == STATUS_IDLE or status == STATUS_IDLEEXC:
                     new_status = 'idle'
+                    self.stop_pending = False
                 elif status != STATUS_INBREAK:
                     new_status = 'running'
                 else:
@@ -599,9 +606,13 @@ class NicosCmdClient(NicosClient):
         elif res == 'H':
             # Stoplevel 2 is "everywhere possible"
             self.tell('stop', '2')
+            self.stop_pending = True
+            self.set_status(self.status)
         elif res == 'L':
             # Stoplevel 1 is "everywhere in script, or after a scan"
             self.tell('stop', '1')
+            self.stop_pending = True
+            self.set_status(self.status)
         else:
             self.tell('emergency')
 
