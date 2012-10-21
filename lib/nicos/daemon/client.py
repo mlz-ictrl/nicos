@@ -132,6 +132,7 @@ class NicosClient(object):
         # start event handler
         self.event_thread = threading.Thread(target=self.event_handler,
                                              name='event handler thread')
+        self.event_thread.setDaemon(True)
         self.event_thread.start()
 
         self.connected = True
