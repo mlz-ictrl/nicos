@@ -31,6 +31,7 @@ import time
 import traceback
 import __builtin__
 from os import path
+from bdb import BdbQuit
 from Queue import Queue
 from threading import Lock, Event, Thread
 
@@ -543,6 +544,9 @@ class ExecutionController(Controller):
                         self.execute_estop(err.args[1])
                     else:
                         session.log.info('Script stopped by %s' % (err.args[1],))
+                    continue
+                except BdbQuit, err:
+                    session.log.error('Script stopped through debugger')
                     continue
                 except Exception, err:
                     # the topmost two frames are still in the
