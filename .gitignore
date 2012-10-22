@@ -9,6 +9,7 @@ pylint_*.txt
 MANIFEST
 nicos.conf
 
+data/*.py
 data/*.dat
 data/filecounter
 data/cache/*
