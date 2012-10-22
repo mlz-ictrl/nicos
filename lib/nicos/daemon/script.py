@@ -29,7 +29,6 @@ __version__ = "$Revision$"
 import sys
 import time
 import traceback
-import __builtin__
 from os import path
 from bdb import BdbQuit
 from Queue import Queue
@@ -39,6 +38,7 @@ import ast
 
 from nicos import session
 from nicos.utils.loggers import INPUT
+from nicos.daemon.user import system_user
 from nicos.daemon.utils import format_exception_cut_frames, format_script, \
      fixup_script, update_linecache
 from nicos.daemon.pyctl import Controller, ControlStop
@@ -63,13 +63,14 @@ class Request(object):
     identified and ignored.
     """
     reqno = None
+    quiet = False
 
     def __init__(self, user):
         try:
             self.user = user.name
             self.userlevel = user.level
         except AttributeError:
-            raise RequestError("No valid user object supplied")
+            raise RequestError('No valid user object supplied')
     def serialize(self):
         return {'reqno': self.reqno, 'user': self.user}
 
@@ -89,12 +90,13 @@ class ScriptRequest(Request):
     can be done with the script: execute it, and update it.
     """
 
-    def __init__(self, text, name=None, user=None):
+    def __init__(self, text, name=None, user=None, quiet=False):
         Request.__init__(self, user)
         self._run = Event()
         self._run.set()
 
         self.name = name
+        self.quiet = quiet
         # replace bare except clauses in the code with "except Exception"
         # so that ControlStop is not caught
         self.text = fixup_script(text)
@@ -261,7 +263,6 @@ class ExecutionController(Controller):
         self.eventfunc = eventfunc # event emitting callback
         self.setup = startupsetup  # first setup on start
         self.simmode = simmode     # start in simulation mode?
-        self.in_startup = True     # True while startup code is executed
         self.queue = Queue()       # user scripts get put here
         self.current_script = None # currently executed script
         self.namespace = session.namespace
@@ -284,6 +285,15 @@ class ExecutionController(Controller):
         self.breakfuncs = (None, None)
         Controller.__init__(self, break_only_in_filename='<script>')
         self.set_observer(self._observer)
+
+    setup_code = ('from nicos import session\n'
+                  'try:\n'
+                  '    session.handleInitialSetup(%r, %s)\n'
+                  'except:\n'
+                  '    session.log.warning("Error loading previous setups, '
+                  'loading startup setup", exc=1)\n'
+                  '    session.handleInitialSetup("startup", %s)\n'
+                  'del session\n')
 
     def _observer(self, status, lineno):
         # subtract 1 from lineno since the compilation steps adds a comment
@@ -340,16 +350,15 @@ class ExecutionController(Controller):
             return traceback.format_stack(frame, 1)[0].strip()[5:]. \
                    replace('\n    ', ': ')
 
-    def new_request(self, request):
+    def new_request(self, request, notify=True):
         assert isinstance(request, Request)
-        if self.in_startup:
-            raise RequestError('NICOS setup not finished')
         request.reqno = self.reqno_latest + 1
         self.reqno_latest += 1
         # first send the notification, otherwise the request could be processed
         # (resulting in a "processing" event) before the "request" event is
         # even sent
-        self.eventfunc('request', request.serialize())
+        if notify:
+            self.eventfunc('request', request.serialize())
         # put the script on the queue (will not block)
         self.queue.put(request)
 
@@ -480,36 +489,13 @@ class ExecutionController(Controller):
         """
         self.log.debug('script_thread (re)started')
         try:
-            self.in_startup = True
-            # we have to clear the namespace since the Daemon object and related
-            # startup objects are still in there
-            self.namespace.clear()
-            # but afterwards we have to automatically import objects again
-            session.initNamespace()
-            self.namespace['__builtins__'] = __builtin__.__dict__
-            setup_code = ('from nicos import session; '
-                          'session.handleInitialSetup(%r, %s)' %
-                          (self.setup, self.simmode))
-            for _ in range(2):
-                # this is to allow the traceback module to report the script's
-                # source code correctly
-                update_linecache('<setup>', setup_code)
-                try:
-                    code = compile(setup_code, '<setup>', 'exec')
-                    exec code in {}
-                except Exception:
-                    session.log.warning('Error loading previous setups, '
-                                        'loading startup setup', exc=1)
-                    setup_code = ('from nicos import session; '
-                        'session.handleInitialSetup("startup", %s)'
-                        % self.simmode)
-                else:
-                    break
-            else:
-                self.log.warning('error in setup, terminating script_thread')
-                self.thread = None
-                return
-            self.in_startup = False
+            # generate startup code that sets up initial NICOS devices
+            setup_code = self.setup_code % (self.setup, self.simmode,
+                                            self.simmode)
+            # and put it in the queue as the first request
+            request = ScriptRequest(setup_code, 'setting up NICOS',
+                                    system_user, quiet=True)
+            self.new_request(request, notify=False)
 
             while 1:
                 # get a script (or other request) from the queue

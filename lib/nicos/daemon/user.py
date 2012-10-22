@@ -34,6 +34,8 @@ class User(object):
         self.name = username
         self.level = accesslevel
 
+system_user = User('system', ADMIN)
+
 
 class AuthenticationError(Exception):
     pass

@@ -29,6 +29,7 @@ __version__ = "$Revision$"
 import os
 import sys
 import signal
+import __builtin__
 
 from nicos.core import AccessError, ACCESS_LEVELS
 from nicos.sessions import Session
@@ -87,6 +88,13 @@ class DaemonSession(NoninteractiveSession):
         self.user_modules.clear()
         self.loaded_setups.clear()
         del self.explicit_setups[:]
+
+        # we have to clear the namespace since the Daemon object and related
+        # startup objects are still in there
+        self.namespace.clear()
+        # but afterwards we have to automatically import objects again
+        self.namespace['__builtins__'] = __builtin__.__dict__
+        self.initNamespace()
 
         # load all default modules from now on
         self.auto_modules = Session.auto_modules
