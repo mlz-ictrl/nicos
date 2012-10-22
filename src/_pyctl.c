@@ -163,11 +163,15 @@ trace_function(CtlrObject *self, PyFrameObject *frame, int what, PyObject *arg)
     case REQ_DEBUG:
         if (self->status == STATUS_RUNNING && PyCallable_Check(self->requestarg)) {
             /* the requestarg should be the set_trace() function of a Pdb instance */
-            ret = PyObject_CallFunctionObjArgs(self->requestarg, self->currentframe, NULL);
+            ret = PyObject_CallFunctionObjArgs(self->requestarg, self->currentframe,
+                                               self->toplevelframe, NULL);
             /* NOTE: if the debugger set_trace succeeded, our trace function will be
                inactive until someone calls reset_trace() */
-            if (ret < 0)
+            if (ret == NULL) {
+                PyErr_WriteUnraisable(NULL);
                 PyErr_Clear();
+            }
+            Py_DECREF(ret);
             self->request = REQ_RUN;
         }
         return 0;
@@ -288,13 +292,14 @@ static PyObject *
 ctlr_start_exec(CtlrObject *self, PyObject *args)
 {
     PyObject *ret;
-    PyObject *code = NULL, *globals = NULL, *locals = NULL;
+    PyObject *code = NULL, *globals = NULL, *locals = NULL, *debugarg = NULL;
 
     if (self->started) {
         PyErr_SetString(ControllerError, "Controller already started");
         return NULL;
     }
-    if (!PyArg_ParseTuple(args, "OO|O:start_exec", &code, &globals, &locals))
+    if (!PyArg_ParseTuple(args, "OO|OO:start_exec", &code, &globals, &locals,
+                                                    &debugarg))
         return NULL;
     if (!PyCode_Check(code)) {
         PyErr_SetString(PyExc_TypeError, "start_exec needs a code object");
@@ -304,7 +309,7 @@ ctlr_start_exec(CtlrObject *self, PyObject *args)
         PyErr_SetString(PyExc_TypeError, "globals must be a dict");
         return NULL;
     }
-    if (locals) {
+    if (locals && locals != Py_None) {
         if (!PyDict_Check(locals)) {
             PyErr_SetString(PyExc_TypeError, "locals must be a dict");
             return NULL;
@@ -313,6 +318,11 @@ ctlr_start_exec(CtlrObject *self, PyObject *args)
         locals = globals;
     }
     prepare(self);
+    if (debugarg && debugarg != Py_None) {
+        self->request = REQ_DEBUG;
+        self->requestarg = debugarg;
+        Py_INCREF(self->requestarg);
+    }
     PyEval_SetTrace((Py_tracefunc)trace_function, (PyObject *)self);
     ret = PyEval_EvalCode((PyCodeObject *)code, globals, locals);
     reset(self, ret == NULL);

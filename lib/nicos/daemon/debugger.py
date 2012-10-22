@@ -28,6 +28,7 @@ A remote debugger for the NICOS daemon.
 
 __version__ = "$Revision$"
 
+import sys
 from pdb import Pdb
 from Queue import Queue
 
@@ -44,13 +45,25 @@ class Rpdb(Pdb):
     # use self.stdin.read(), not readline
     use_rawinput = False
 
-    def __init__(self, callback):
+    def __init__(self, endcallback):
         Pdb.__init__(self)
-        self._callback = callback
+        self._endcallback = endcallback
         # do not display any prompt
         self.prompt = ''
         # get input lines from our fake input stream
         self.stdin = FakeStdin()
+
+    def set_trace(self, frame, limitframe):
+        # Overridden to not set the trace function in frames below "limitframe"
+        if frame is None:
+            frame = sys._getframe().f_back
+        self.reset()
+        while frame is not limitframe:
+            frame.f_trace = self.trace_dispatch
+            self.botframe = frame
+            frame = frame.f_back
+        self.set_step()
+        sys.settrace(self.trace_dispatch)
         # notify user
         self.stdout.write('remote debugging session started')
 
@@ -58,7 +71,7 @@ class Rpdb(Pdb):
         # notify user
         self.stdout.write('remote debugging session finished')
         # call back to script thread
-        self._callback()
+        self._endcallback()
 
     # these two methods end tracing, i.e. use sys.settrace(None), upon which we
     # want to a) notify the clients about and b) re-set our own trace function

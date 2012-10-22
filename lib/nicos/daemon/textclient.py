@@ -427,6 +427,7 @@ class NicosCmdClient(NicosClient):
                 self.put_client('Disconnected from server.')
                 self.current_mode = 'master'
                 self.debug_mode = False
+                self.pending_requests.clear()
                 self.set_status('disconnected')
             elif type == 'clientexec':
                 self.clientexec(data)
@@ -793,8 +794,8 @@ class NicosCmdClient(NicosClient):
         elif cmd == 'debugclient':
             import pdb
             pdb.set_trace()
-        elif cmd == 'debugscript':
-            self.tell('debug')
+        elif cmd == 'debug':
+            self.tell('debug', arg)
         else:
             self.put_error('Unknown command %r.' % cmd)
 
@@ -968,9 +969,18 @@ or by a symlink to "nicos-client" called "tas".
     'debug': '''\
 There are several debugging commands built into the client:
 
+While a script is running:
+
   /trace              -- show current stacktrace of script
-  /debugscript        -- put running script into debug mode (pdb);
+  /debug              -- put running script into debug mode (pdb);
                          exit using the "c" (continue) command
+
+With no script running:
+
+  /debug code         -- execute some code under remote pdb
+
+At any time:
+
   /debugclient        -- drop into a pdb shell to debug the client:
                          exit using the "c" command
 '''

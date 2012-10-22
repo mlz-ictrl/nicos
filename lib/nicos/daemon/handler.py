@@ -38,7 +38,6 @@ from SocketServer import BaseRequestHandler
 
 from nicos import session, nicos_version
 from nicos.core import ADMIN
-from nicos.daemon import debugger
 from nicos.daemon.user import AuthenticationError
 from nicos.daemon.utils import LoggerWrapper, serialize, unserialize
 from nicos.daemon.pyctl import STATUS_IDLE, STATUS_IDLEEXC, STATUS_RUNNING, \
@@ -566,10 +565,21 @@ class ConnectionHandler(BaseRequestHandler):
 
     # -- Miscellaneous commands ------------------------------------------------
 
-    @command(needcontrol=True, needscript=True)
-    def debug(self):
+    @command(needcontrol=True)
+    def debug(self, code=''):
         """Start a pdb session in the script thread context."""
-        self.controller.debug_start()
+        if self.controller.status in (STATUS_IDLE, STATUS_IDLEEXC):
+            if not code:
+                self.write(NAK, 'no piece of code to debug given')
+                return
+            req = ScriptRequest(code, '', self.user)
+            self.controller.debug_start(req)
+        else:
+            if code:
+                self.write(NAK, 'code to debug given, but a script is '
+                           'already running')
+                return
+            self.controller.debug_running()
         self.write(ACK)
 
     @command(needcontrol=True, needscript=True)

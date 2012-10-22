@@ -90,13 +90,16 @@ class ScriptRequest(Request):
     can be done with the script: execute it, and update it.
     """
 
-    def __init__(self, text, name=None, user=None, quiet=False):
+    def __init__(self, text, name=None, user=None, quiet=False, settrace=None):
         Request.__init__(self, user)
         self._run = Event()
         self._run.set()
 
         self.name = name
         self.quiet = quiet
+        # if not None, this is a set_trace function that's called first thing
+        # by the controller, to immediately enter remote debugging
+        self.settrace = settrace
         # replace bare except clauses in the code with "except Exception"
         # so that ControlStop is not caught
         self.text = fixup_script(text)
@@ -150,7 +153,8 @@ class ScriptRequest(Request):
                 self._run.wait()
                 self.curblock += 1
                 controller.start_exec(self.code[self.curblock],
-                                      controller.namespace)
+                                      controller.namespace,
+                                      None, self.settrace)
         finally:
             if self.name:
                 session.endActionScope()
@@ -425,14 +429,24 @@ class ExecutionController(Controller):
         except Exception, err:
             return '<cannot be evaluated: %s>' % err
 
-    def debug_start(self):
-        # remote debugging support: set_debug() calls the given set_trace
-        # during the next call to the controller's C trace function, and
-        # then the debugger takes over; we then wait for debugger commands
-        # from the client and feed them to the Rpdb stdin queue
+    def debug_start(self, request):
+        # remote debugging support: tell the Controller that we want the
+        # debugger called immediately; we then wait for debugger commands from
+        # the client and feed them to the Rpdb stdin queue
+        self.debugger = Rpdb(self.debug_end)
+        request.settrace = self.debugger.set_trace
+        self.new_request(request)
+        # let clients know we're debugging and expect commands via debug_input
+        self.eventfunc('debugging', True)
+
+    def debug_running(self):
+        # remote debugging support of running script: set_debug() calls the
+        # given set_trace during the next call to the controller's C trace
+        # function, and then the debugger takes over; we then wait for debugger
+        # commands from the client and feed them to the Rpdb stdin queue
         self.debugger = Rpdb(self.debug_end)
         self.set_debug(self.debugger.set_trace)
-        # let clients know we're debugging
+        # let clients know we're debugging and expect commands via debug_input
         self.eventfunc('debugging', True)
 
     def debug_input(self, line):
@@ -441,8 +455,8 @@ class ExecutionController(Controller):
             self.debugger.stdin.put(line)
 
     def debug_end(self, tracing=True):
-        # this is called when a command such as "continue" or "quit" is
-        # entered in the debugger, which means that debugging is finished
+        # this is called by the debugger when a command such as "continue" or
+        # "quit" is entered, which means that debugging is finished
         self.debugger = None
         self.eventfunc('debugging', False)
         # set our own trace function again (Pdb replaced it)
