@@ -247,10 +247,12 @@ class NicosCmdClient(NicosClient):
                 self.put_message(msg)
             if not self.tip_shown:
                 self.put_client('Loaded setups: %s. Enter "/help" for help '
-                                'with the client commands.' % ', '.join(setups))
+                                'with the client commands.' %
+                                (', '.join(setups) or '(none)'))
                 self.tip_shown = True
             else:
-                self.put_client('Loaded setups: %s.' % ', '.join(setups))
+                self.put_client('Loaded setups: %s.' %
+                                (', '.join(setups) or '(none)'))
         else:
             self.put_client('Connected to %s:%s as %s. ' %
                             (self.host, self.port, self.conndata['login']))
@@ -926,13 +928,14 @@ This client supports "meta-commands" beginning with a slash:
 
   /disconnect         -- disconnect from NICOS daemon
   /connect            -- connect to a NICOS daemon
-  /q(uit)             -- quit only this client (NICOS will continue running)
+  /q(uit)             -- quit this client (NICOS will continue running)
 
 Command parts in parenteses can be omitted.
 
 All output prefixed with "#" comes from the client.
 
 To learn how to pre-set your connection parameters, enter "/help connect".
+To learn about debugging commands, enter "/help debug".
 ''',
     'connect': '''\
 Connection defaults can be given on the command-line, e.g.
@@ -961,6 +964,15 @@ command line
   nicos-client tas
 
 or by a symlink to "nicos-client" called "tas".
+''',
+    'debug': '''\
+There are several debugging commands built into the client:
+
+  /trace              -- show current stacktrace of script
+  /debugscript        -- put running script into debug mode (pdb);
+                         exit using the "c" (continue) command
+  /debugclient        -- drop into a pdb shell to debug the client:
+                         exit using the "c" command
 '''
 }
 
