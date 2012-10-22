@@ -74,8 +74,7 @@ tab: complete
 # yay, global state!
 readline_result = Ellipsis
 
-@rl_vcpfunc_t
-def finish_callback(result):
+def readline_finish_callback(result):
     """A callback for readline() below that records the final line
     in a global variable.  (For some reason making this a method
     of NicosCmdClient fails.)
@@ -84,6 +83,11 @@ def finish_callback(result):
     librl.rl_callback_handler_remove()
     # NULL pointer gives None, which means EOF
     readline_result = result
+
+c_readline_finish_callback = rl_vcpfunc_t(readline_finish_callback)
+
+class StateChange(Exception):
+    """Raised by readline when changing to/from debugger state."""
 
 
 class NicosCmdClient(NicosClient):
@@ -156,7 +160,7 @@ class NicosCmdClient(NicosClient):
         Thanks to ctypes this is possible without a custom C module.
         """
         global readline_result
-        librl.rl_callback_handler_install(prompt, finish_callback)
+        librl.rl_callback_handler_install(prompt, c_readline_finish_callback)
         readline_result = Ellipsis
         while readline_result is Ellipsis:
             if not self.in_question:
@@ -174,6 +178,8 @@ class NicosCmdClient(NicosClient):
                 librl.add_history(readline_result)
         elif readline_result is None:
             raise EOFError
+        elif readline_result is False:
+            raise StateChange
         return readline_result
 
     def put(self, string):
@@ -439,11 +445,8 @@ class NicosCmdClient(NicosClient):
                 self.current_mode = data
                 self.set_status(self.status)
             elif type == 'debugging':
-                if self.debug_mode and data is False:
-                    # only react if we initiated debug mode
-                    self.debug_mode = False
-                    # send Ctrl-C to get out of debug REPL immediately
-                    os.kill(os.getpid(), signal.SIGINT)
+                self.debug_mode = data
+                readline_finish_callback(False)
             elif type in ('error', 'failed', 'broken'):
                 self.put_error(data)
             # and we ignore all other signals
@@ -611,6 +614,9 @@ class NicosCmdClient(NicosClient):
                                         '\x02# (Rpdb) \x01') + '\x02') + '\n'
                 except (EOFError, KeyboardInterrupt):
                     cmd = ''
+                except StateChange:
+                    if not self.debug_mode:
+                        return
                 self.tell('debuginput', cmd)
         finally:
             self.in_question = False
@@ -787,8 +793,6 @@ class NicosCmdClient(NicosClient):
             pdb.set_trace()
         elif cmd == 'debugscript':
             self.tell('debug')
-            self.debug_mode = True
-            self.debug_repl()
         else:
             self.put_error('Unknown command %r.' % cmd)
 
@@ -875,6 +879,10 @@ class NicosCmdClient(NicosClient):
                 except EOFError:
                     self.command('quit', '')
                     return 0
+                except StateChange:
+                    if self.debug_mode:
+                        self.debug_repl()
+                    continue
                 ret = self.handle(cmd)
                 if ret is not None:
                     return ret
