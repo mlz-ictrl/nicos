@@ -38,9 +38,10 @@ from PyQt4.QtGui import QDialog, QFileDialog, QMessageBox, QMenu, QStyle, \
      QColor, QPrinter, QPrintDialog, QAbstractPrintDialog, QDialogButtonBox, \
      QPushButton
 
+from nicos.utils import chunks
 from nicos.gui.panels import Panel
 from nicos.gui.utils import loadUi, setBackgroundColor, setForegroundColor, \
-     chunks, enumerateWithProgress, showTraceback, dialogFromUi
+     enumerateWithProgress, showTraceback, dialogFromUi
 
 
 class ConsolePanel(Panel):
