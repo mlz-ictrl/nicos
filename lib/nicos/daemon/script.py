@@ -306,14 +306,17 @@ class ExecutionController(Controller):
         # check desired stop level
         if isinstance(flag, tuple):
             fn = frame.f_code.co_filename
+            # '<break>n' means stoplevel n
             if fn.startswith('<break>'):
                 bplevel = int(fn[7:])
             else:
                 bplevel = 1
             reqlevel = flag[0]
             if reqlevel < bplevel:
-                # not a real break; re-set breakpoint
+                # not a desired break; re-set breakpoint to check again at the
+                # next call to breakpoint()
                 self.set_break(flag)
+                # continue execution
                 flag = None
         if flag:
             self.log.info('interrupted script stopped: %s' % (flag,))
@@ -358,6 +361,8 @@ class ExecutionController(Controller):
                 req.reqno not in self.blocked_reqs]
 
     def exec_script(self, code, user):
+        # execute code in the script namespace (this is called not from
+        # the script thread, but from a handle thread)
         temp_request = ScriptRequest(code, None, user)
         temp_request.parse(splitblocks=False)
         session.log.log(INPUT, format_script(temp_request, '---'))
@@ -411,15 +416,23 @@ class ExecutionController(Controller):
             return '<cannot be evaluated: %s>' % err
 
     def debug_start(self):
+        # remote debugging support: set_debug() calls the given set_trace
+        # during the next call to the controller's C trace function, and
+        # then the debugger takes over; we then wait for debugger commands
+        # from the client and feed them to the Rpdb stdin queue
         self.debugger = Rpdb(self.debug_end)
         self.set_debug(self.debugger.set_trace)
+        # let clients know we're debugging
         self.eventfunc('debugging', True)
 
     def debug_input(self, line):
+        # some debugger commands arrived from a client
         if self.debugger:
             self.debugger.stdin.put(line)
 
     def debug_end(self):
+        # this is called when a command such as "continue" or "quit" is
+        # entered in the debugger, which means that debugging is finished
         self.debugger = None
         self.eventfunc('debugging', False)
         # set our own trace function again (Pdb replaced it)
