@@ -383,13 +383,14 @@ def ho_spurions(kf=None, dEmin=0, dEmax=20):
     spurlist = []
     for nA in range(1, 6):
         for nM in range(1, 6):
-            dE = (nA**2/float(nM)**2 - 1) * 2.0725 * kf**2
-            spurlist.append((dE, nM, nA))
+            if nA != nM:
+                dE = (nA**2/float(nM)**2 - 1) * 2.0725 * kf**2
+                spurlist.append((dE, nM, nA, nA**2-nM**2, nM**2))
     spurlist.sort()
     for item in spurlist:
         if dEmin <= item[0] <= dEmax:
             printinfo('potential spurion at energy transfer %6.3f meV for '
-                      '%d ki = %d kf ' % item)
+                      '%d ki = %d kf (E = %d/%d Ef)' % item)
 
 
 @usercommand
