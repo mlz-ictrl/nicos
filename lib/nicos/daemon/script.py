@@ -431,13 +431,16 @@ class ExecutionController(Controller):
         if self.debugger:
             self.debugger.stdin.put(line)
 
-    def debug_end(self):
+    def debug_end(self, tracing=True):
         # this is called when a command such as "continue" or "quit" is
         # entered in the debugger, which means that debugging is finished
         self.debugger = None
         self.eventfunc('debugging', False)
         # set our own trace function again (Pdb replaced it)
-        self.reset_trace()
+        if tracing:
+            self.reset_trace()
+        else:
+            sys.settrace(None)
 
     def add_estop_function(self, func, args):
         if not callable(func):
@@ -544,10 +547,8 @@ class ExecutionController(Controller):
                         self.execute_estop(err.args[1])
                     else:
                         session.log.info('Script stopped by %s' % (err.args[1],))
-                    continue
                 except BdbQuit, err:
                     session.log.error('Script stopped through debugger')
-                    continue
                 except Exception, err:
                     # the topmost two frames are still in the
                     # daemon, so don't display them to the user
@@ -565,6 +566,8 @@ class ExecutionController(Controller):
                         guessCorrectCommand(self.current_script.text)
                     elif isinstance(err, AttributeError):
                         guessCorrectCommand(self.current_script.text, True)
+                if self.debugger:
+                    self.debug_end(tracing=False)
         except Exception:
             self.log.exception('unhandled exception in script thread')
         finally:
