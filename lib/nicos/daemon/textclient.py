@@ -32,6 +32,7 @@ import os
 import sys
 import glob
 import time
+import Queue
 import random
 import select
 import signal
@@ -44,6 +45,7 @@ import ctypes, ctypes.util
 from os import path
 from time import strftime, localtime
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
+from threading import Thread
 
 from nicos.data import GracePlot, GracePlotter
 from nicos.daemon import DEFAULT_PORT
@@ -144,6 +146,12 @@ class NicosCmdClient(NicosClient):
         if path.isfile(self.histfile):
             readline.read_history_file(self.histfile)
         self.completions = []
+
+        # set up clientexec (plotting) thread
+        self.clientexec_queue = Queue.Queue()
+        self.clientexec_thread = Thread(target=self.clientexec_thread_entry)
+        self.clientexec_thread.setDaemon(True)
+        self.clientexec_thread.start()
 
         # pre-set prompt to sane default
         self.set_status('disconnected')
@@ -297,7 +305,7 @@ class NicosCmdClient(NicosClient):
             modname, funcname = plot_func_path.rsplit('.', 1)
             func = getattr(__import__(modname, None, None, [funcname]),
                            funcname)
-            func(*what[1:])
+            self.clientexec_queue.put((func, what[1:]))
         except Exception, err:
             self.put_error('During "clientexec": %s.' % err)
 
@@ -455,6 +463,29 @@ class NicosCmdClient(NicosClient):
             # and we ignore all other signals
         except Exception, e:
             self.put_error('In event handler: %s.' % e)
+
+    # -- clientexec (plotting) thread
+
+    def clientexec_thread_entry(self, empty=Queue.Empty):
+        """This thread executes "clientexec" (i.e. plotting) requests and runs
+        the matplotlib event loop in the meantime.
+        """
+        # do a blocking get for the first item -- if we don't do any plotting,
+        # we don't need to import pylab and run the event loop at all
+        item = self.clientexec_queue.get()
+        # run the plotting function
+        item[0](*item[1])
+        # now it's safe to import pylab here
+        import pylab
+        # from now on, we do non-blocking gets, so that the mpl event loop can
+        # run while waiting for a new item to appear on the queue
+        while 1:
+            try:
+                item = self.clientexec_queue.get(False)
+            except empty:
+                pylab.pause(0.1)  # runs the GUI event loop for 0.1 sec
+            else:
+                item[0](*item[1])
 
     # -- command handlers
 
