@@ -1,12 +1,25 @@
-/*
- * _pyctl module
- * ~~~~~~~~~~~~~
+/*******************************************************************************
+ * NICOS-NG, the Networked Instrument Control System of the FRM-II
+ * Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
  *
- * Control the execution of Python code via a C trace function.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  *
- * :copyright: 2008-2012 by Georg Brandl.
- * :license: BSD license.
- */
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * Module authors:
+ *   Georg Brandl <georg.brandl@frm2.tum.de>
+ *
+ ******************************************************************************/
 
 #include <Python.h>
 #include <frameobject.h>     /* These are not included by Python.h */
@@ -16,7 +29,7 @@
 
 typedef struct {
     PyObject_HEAD
-    int started;                  /* execution started? */ 
+    int started;                  /* execution started? */
     int request;                  /* request for break/stop, see REQ_FOO */
     int status;                   /* current status, see STATUS_FOO */
     int lineno;                   /* current line number */
@@ -63,7 +76,7 @@ set_status(CtlrObject *self, int status)
 {
     if (self->status == status)
         return;
-    self->status = status; 
+    self->status = status;
     if (self->observer) {
         /* ignore all errors when calling the observer */
         PyObject *e1, *e2, *e3;
@@ -79,7 +92,7 @@ set_lineno(CtlrObject *self, int lineno)
 {
     if (self->lineno == lineno)
         return;
-    self->lineno = lineno; 
+    self->lineno = lineno;
     if (self->observer) {
         /* ignore all errors when calling the observer */
         PyObject *e1, *e2, *e3;
@@ -106,7 +119,6 @@ trace_function(CtlrObject *self, PyFrameObject *frame, int what, PyObject *arg)
         self->toplevelframe = frame;
         Py_INCREF(self->toplevelframe);
     }
-    
 
     if (frame != self->currentframe) {
         Py_XDECREF(self->currentframe);
