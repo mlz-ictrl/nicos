@@ -45,8 +45,9 @@ class NICOSTACOStub(object):
 
 
 STUBS = dict(
-    TACOClient = ['exception TACOError'],
+    TACOClient = ['class Client', 'exception TACOError'],
     TACOStates = [],
+    TACOCommands = [],
     DEVERRORS = [],
     IOCommon = ['MODE_NORMAL=0', 'MODE_RATEMETER=1', 'MODE_PRESELECTION=2'],
     IO = ['class AnalogInput', 'class AnalogOutput', 'class DigitalInput',
