@@ -9,7 +9,7 @@ devices = dict(
     Poller = device('nicos.poller.Poller',
                     autosetup = False,  # important! do not poll everything
                     poll = ['chopper', 'reactor', 'vacuum', 'voltage'] +
-                           ['he3', 'htf', 'ls', 'biofurnace', 'cryo_ccr', ],
+                           ['he3', 'htf', 'ls', 'biofurnace', 'cryo_ccr', 'pressure'],
                     alwayspoll = [],
                     blacklist = []),
 )
