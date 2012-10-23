@@ -75,6 +75,7 @@ class DaemonSession(NoninteractiveSession):
 
         # add an object to be used by DaemonSink objects
         self.emitfunc = daemondev.emit_event
+        self.emitfunc_private = daemondev.emit_event_private
 
         # call stop() upon emergency stop
         from nicos.commands.device import stop
@@ -173,10 +174,10 @@ class DaemonSession(NoninteractiveSession):
             self.log.warning('Could not generate the help for %r' % obj, exc=1)
             return
         if not isinstance(obj, str):
-            self.log.info('Showing help in the client...')
-        self.emitfunc('showhelp', data)
+            self.log.info('Showing help in the calling client...')
+        self.emitfunc_private('showhelp', data)
 
     def clientExec(self, func, args):
         """Execute a function client-side."""
-        self.emitfunc('clientexec',
-                      ('%s.%s' % (func.__module__, func.__name__),) + args)
+        self.emitfunc_private('clientexec', ('%s.%s' %
+            (func.__module__, func.__name__),) + args)

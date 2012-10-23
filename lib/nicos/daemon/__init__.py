@@ -260,6 +260,17 @@ class NicosDaemon(Device):
             except Queue.Full:
                 self.log.warning('handler %s: event queue full' % handler.ident)
 
+    def emit_event_private(self, event, data):
+        """Emit an event to only the calling handler."""
+        if self.daemon_events[event]:
+            data = serialize(data)
+        handler = self._controller.get_current_handler()
+        if handler:
+            try:
+                handler.event_queue.put((event, data), False)
+            except Queue.Full:
+                self.log.warning('handler %s: event queue full' % handler.ident)
+
     def clear_handlers(self):
         """Remove all handlers."""
         self._server.handlers.clear()

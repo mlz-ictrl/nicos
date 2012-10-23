@@ -28,6 +28,7 @@ __version__ = "$Revision$"
 
 import sys
 import time
+import weakref
 import traceback
 from os import path
 from bdb import BdbQuit
@@ -90,7 +91,8 @@ class ScriptRequest(Request):
     can be done with the script: execute it, and update it.
     """
 
-    def __init__(self, text, name=None, user=None, quiet=False, settrace=None):
+    def __init__(self, text, name=None, user=None, quiet=False,
+                 settrace=None, handler=None):
         Request.__init__(self, user)
         self._run = Event()
         self._run.set()
@@ -100,6 +102,8 @@ class ScriptRequest(Request):
         # if not None, this is a set_trace function that's called first thing
         # by the controller, to immediately enter remote debugging
         self.settrace = settrace
+        # a weakref to the handler of origin for this request
+        self.handler = weakref.ref(handler) if handler else None
         # replace bare except clauses in the code with "except Exception"
         # so that ControlStop is not caught
         self.text = fixup_script(text)
@@ -283,6 +287,7 @@ class ExecutionController(Controller):
         self.reqno_work = 0        # number of the last executing request
         self.blocked_reqs = set()  # set of blocked request numbers
         self.debugger = None       # currently running debugger (Rpdb)
+        self.last_handler = None   # handler of current exec/eval
         # only one user or admin can issue non-read-only commands
         self.controlling_user = None
         # functions to execute when script goes in break and continues
@@ -374,13 +379,35 @@ class ExecutionController(Controller):
         return [req.serialize() for req in self.queue.queue if
                 req.reqno not in self.blocked_reqs]
 
-    def exec_script(self, code, user):
+    def get_current_handler(self):
+        # both of these attributes are weakrefs, so we have to call them to get
+        # either the handler or None
+        if self.last_handler:
+            return self.last_handler()
+        elif self.current_script and self.current_script.handler:
+            return self.current_script.handler()
+        return None
+
+    def exec_script(self, code, user, handler):
         # execute code in the script namespace (this is called not from
         # the script thread, but from a handle thread)
         temp_request = ScriptRequest(code, None, user)
         temp_request.parse(splitblocks=False)
         session.log.log(INPUT, format_script(temp_request, '---'))
-        exec temp_request.code[0] in self.namespace
+        self.last_handler = weakref.ref(handler)
+        try:
+            exec temp_request.code[0] in self.namespace
+        finally:
+            self.last_handler = None
+
+    def eval_expression(self, expr, handler):
+        self.last_handler = weakref.ref(handler)
+        try:
+            return repr(eval(expr, self.namespace, self.session_ns))
+        except Exception, err:
+            return '<cannot be evaluated: %s>' % err
+        finally:
+            self.last_handler = None
 
     def simulate_script(self, code, name):
         session.forkSimulation(code, wait=False)
@@ -422,12 +449,6 @@ class ExecutionController(Controller):
             except Exception, err:
                 ret[val] = '<cannot be evaluated: %s>' % err
         return ret
-
-    def eval_expression(self, expr):
-        try:
-            return repr(eval(expr, self.namespace, self.session_ns))
-        except Exception, err:
-            return '<cannot be evaluated: %s>' % err
 
     def debug_start(self, request):
         # remote debugging support: tell the Controller that we want the

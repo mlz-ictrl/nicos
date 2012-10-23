@@ -319,7 +319,8 @@ class ConnectionHandler(BaseRequestHandler):
         if not name:
             name = None
         try:
-            self.controller.new_request(ScriptRequest(code, name, self.user))
+            self.controller.new_request(ScriptRequest(code, name, self.user,
+                                                      handler=self))
         except RequestError, err:
             self.write(NAK, str(err))
             return
@@ -426,9 +427,9 @@ class ConnectionHandler(BaseRequestHandler):
         if self.controller.status == STATUS_STOPPING:
             self.write(NAK, 'script is stopping')
             return
+        self.log.debug('executing command in script context\n%s' % cmd)
         try:
-            self.log.info('executing command in script context\n%s' % cmd)
-            self.controller.exec_script(cmd, self.user)
+            self.controller.exec_script(cmd, self.user, self)
         except Exception:
             session.logUnhandledException(cut_frames=0)
         self.write(ACK)
@@ -436,9 +437,9 @@ class ConnectionHandler(BaseRequestHandler):
     @command()
     def eval(self, expr):
         """Evaluate and return an expression."""
+        self.log.debug('evaluating expresson in script context\n%s' % expr)
         try:
-            self.log.debug('evaluating expresson in script context\n%s' % expr)
-            retval = self.controller.eval_expression(expr)
+            retval = self.controller.eval_expression(expr, self)
         except Exception, err:
             self.log.exception('exception in eval command')
             self.write(NAK, 'exception raised while evaluating: %s' % err)
@@ -448,8 +449,8 @@ class ConnectionHandler(BaseRequestHandler):
     @command(needcontrol=True)
     def simulate(self, name, code):
         """Simulate a named script by forking into simulation mode."""
+        self.log.debug('running simulation\n%s' % code)
         try:
-            self.log.info('running simulation\n%s' % code)
             self.controller.simulate_script(code, name or None)
         except Exception, err:
             self.log.exception('exception in simulate command')
@@ -572,7 +573,7 @@ class ConnectionHandler(BaseRequestHandler):
             if not code:
                 self.write(NAK, 'no piece of code to debug given')
                 return
-            req = ScriptRequest(code, '', self.user)
+            req = ScriptRequest(code, '', self.user, handler=self)
             self.controller.debug_start(req)
         else:
             if code:
