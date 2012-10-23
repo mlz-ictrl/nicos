@@ -193,11 +193,6 @@ trace_function(CtlrObject *self, PyFrameObject *frame, int what, PyObject *arg)
             PyErr_SetObject(ControlStop, self->requestarg);
             return -1;
         }
-        /*
-        if (strcmp(PyString_AS_STRING(frame->f_code->co_name), "__del__") == 0)
-            / don't raise exceptions in destructors /
-            return 0;
-        */
         /* fallthrough */
     default:
         return 0;
