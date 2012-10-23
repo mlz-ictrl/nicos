@@ -65,6 +65,9 @@ class Poller(Device):
         self._creation_lock = threading.Lock()
 
     def _long_sleep(self, interval):
+        # a sleep interruptible by stoprequest (otherwise, when we quit the
+        # poller, processes with failed devices will stay around until the
+        # recreate interval is expired, which can be a long time)
         te = currenttime() + interval
         while currenttime() < te:
             if self._stoprequest:
@@ -75,15 +78,24 @@ class Poller(Device):
         state = ['unused']
 
         def reconfigure(key, value, time):
+            # cache valuechange callback
+            # if the target changes, assume that the state will be 'moving'
+            # and shorten the poll interval
             if key.endswith('target'):
                 state[0] = 'nowmoving'
+            # if the pollinterval changes, update it on the next occasion
             elif key.endswith('pollinterval'):
                 state[0] = 'newinterval'
+            # wake up sleeper
             event.set()
 
         def poll_loop(dev):
+            # the wait between pollings is controlled by an Event, so that
+            # events from other threads (e.g. quit or cache updates) can
+            # trigger a wakeup
             wait_event = event.wait
             clear_event = event.clear
+            # get the initial interval
             interval = dev.pollinterval
             active = interval is not None
             if interval is None:
@@ -112,19 +124,27 @@ class Poller(Device):
                     if errcount > 0:
                         interval = dev.pollinterval
                         errcount = 0
+                # state change?
                 if state[0] == 'nowmoving':
+                    # if the device is moving, use a fixed small interval for
+                    # polling, no matter what the parameters say
                     interval = 1.0
                     state[0] = 'moving'
                 elif state[0] == 'moving':
+                    # check for end of moving: if the device is idle or error,
+                    # revert to normal polling interval
                     if stval and stval[0] != status.BUSY:
                         state[0] = 'normal'
                         interval = dev.pollinterval
+                # poll interval changed
                 elif state[0] == 'newinterval':
                     interval = dev.pollinterval
                     active = interval is not None
                     if interval is None:
                         interval = 3600
                     state[0] = 'normal'
+                # now wait until either the poll interval is elapsed, or
+                # something interesting happens
                 wait_event(interval)
                 clear_event()
 
@@ -133,11 +153,14 @@ class Poller(Device):
         while not self._stoprequest:
             if dev is None:
                 try:
+                    # device creation should be serialized due to the many
+                    # global state updates in the session object
                     with self._creation_lock:
                         dev = session.getDevice(devname)
                     if not isinstance(dev, Readable):
                         self.log.debug('%s is not a readable' % dev)
                         return
+                    # keep track of some parameters via cache callback
                     session.cache.addCallback(dev, 'target', reconfigure)
                     session.cache.addCallback(dev, 'pollinterval', reconfigure)
                     state[0] = 'normal'
@@ -145,12 +168,19 @@ class Poller(Device):
                     self.log.warning('error creating %s, trying again in '
                                      '%d sec' % (devname, waittime), exc=err)
                     self._long_sleep(waittime)
+                    # use exponential back-off for the waittime; in the worst
+                    # case wait 10 minutes between attempts
+                    # (XXX could we have some way of knowing if another NICOS
+                    # session creates and instance of this device, and in that
+                    # case retry immediately?)
                     waittime = min(waittime*2, 600)
                     continue
             self.log.info('starting polling loop for %s' % dev)
             try:
                 poll_loop(dev)
             except Exception:
+                # should not happen (all exception-prone paths are protected
+                # above), but if it does, the device will not be polled anymore
                 self.log.exception('error in polling loop')
 
     def start(self, setup=None):
@@ -231,12 +261,25 @@ class Poller(Device):
                     ''.join(traceback.format_stack(frame))))
 
     def _start_master(self):
+        # the poller consists of two types of processes: one master process
+        # that spawns and waits for the children (and restarts them in case
+        # of unintended termination, e.g. by segfault); and N slave processes
+        # (one for each setup loaded) that do the actual polling
+
         self._childpids = {}
         self._children = {}
 
         if not self._cache:
             raise ConfigurationError('the poller needs a cache configured')
 
+        # by default, the polled devices always reflects the loaded setups
+        # in the current NICOS master, but it can be configured to only
+        # poll specific setups if loaded, or always:
+        #
+        # * self.poll: poll if loaded by master
+        # * self.alwayspoll: always poll
+        # * self.neverpoll: never poll, even if loaded
+        #
         mastersetups = set(self._cache.get(session, 'mastersetup') or [])
         if self.autosetup:
             self._setups = mastersetups
@@ -253,6 +296,7 @@ class Poller(Device):
         for setup in self._setups:
             self._start_child(setup)
 
+        # listen for changes in master setups if we depend on them
         if self.autosetup or self.poll:
             self._cache.addCallback(session, 'mastersetup', self._reconfigure)
 
