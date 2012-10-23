@@ -827,6 +827,8 @@ class NicosCmdClient(NicosClient):
             pdb.set_trace()
         elif cmd == 'debug':
             self.tell('debug', arg)
+        elif cmd == 'eval':
+            self.put('-> %r' % (self.eval(arg, '<?>'),))
         else:
             self.put_error('Unknown command %r.' % cmd)
 
@@ -1012,6 +1014,8 @@ With no script running:
 
 At any time:
 
+  /eval expr          -- evaluate expression in script namespace and
+                         print the result
   /debugclient        -- drop into a pdb shell to debug the client:
                          exit using the "c" command
 '''
