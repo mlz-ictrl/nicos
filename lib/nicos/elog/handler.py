@@ -198,16 +198,21 @@ class HtmlWriter(object):
             self.fd_toc.close()
         self.toc_level = 0
 
+    def create_or_open(self, filename):
+        if not path.isfile(filename):
+            open(filename, 'wb').close()
+        return open(filename, 'r+b')
+
     def open(self, directory, instr, proposal):
         self.close()
         open(path.join(directory, 'logbook.html'), 'w').write(
             FRAMESET % (instr, proposal))
-        self.fd = open(path.join(directory, 'content.html'), 'r+b')
+        self.fd = self.create_or_open(path.join(directory, 'content.html'))
         self.fd.seek(0, 2)
         if self.fd.tell() == 0:
             self.fd.write(PROLOG)
             self.fd.flush()
-        self.fd_toc = open(path.join(directory, 'toc.html'), 'r+b')
+        self.fd_toc = self.create_or_open(path.join(directory, 'toc.html'))
         self.fd_toc.seek(0, 2)
         if self.fd_toc.tell() == 0:
             self.fd_toc.write(PROLOG + PROLOG_TOC)
