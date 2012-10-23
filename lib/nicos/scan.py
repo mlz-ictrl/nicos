@@ -248,10 +248,14 @@ class Scan(object):
         return 'Scan %s' % ', '.join(map(str, self._devices))
 
     def run(self):
+        if getattr(session, '_currentscan', None):
+            raise NicosError('cannot start scan while another scan is running')
+        session._currentscan = self
         session.beginActionScope(self.shortDesc())
         try:
             self._inner_run()
         finally:
+            session._currentscan = None
             session.endActionScope()
 
     def _inner_run(self):
