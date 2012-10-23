@@ -32,6 +32,7 @@ import os
 import sys
 import glob
 import time
+import errno
 import Queue
 import random
 import select
@@ -175,7 +176,16 @@ class NicosCmdClient(NicosClient):
                 # question has an alternate prompt that never changes
                 librl.rl_set_prompt(self.prompt)
             librl.rl_forced_update_display()
-            res = select.select([sys.stdin], [], [], 0.01)
+            try:
+                res = select.select([sys.stdin], [], [], 0.01)
+            except select.error, e:
+                if e.args[0] == errno.EINTR:
+                    continue
+                librl.rl_callback_handler_remove()
+                raise
+            except:
+                librl.rl_callback_handler_remove()
+                raise
             if res[0]:
                 librl.rl_callback_read_char()
         if readline_result:
