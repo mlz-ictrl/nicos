@@ -44,6 +44,25 @@
 
 
 //------------------------------------------------------------------------------
+typedef bool (Fourier::*t_corrfkt)(double, const double*, double *, double);
+
+static t_corrfkt get_correction_fkt(int iShiftMeth)
+{
+	if(iShiftMeth == SHIFT_SINE_ONLY)
+		return &Fourier::shift_sin;
+	else if(iShiftMeth == SHIFT_ZERO_ORDER)
+		return &Fourier::phase_correction_0;
+	else
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "Loader: Unknown phase-correction method selected.\n";
+	}
+	return 0;
+}
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 // TOF
 TofImage::TofImage(const char *pcFileName,
 				   bool bExternalMem, const TofConfig* conf)
@@ -86,6 +105,31 @@ TofImage::TofImage(const char *pcFileName,
 }
 
 TofImage::~TofImage() { Clear(); }
+
+TofImage* TofImage::copy() const
+{
+	TofImage *pTof = new TofImage(0, false, &m_config);
+	
+	pTof->m_bExternalMem = false;
+	//pTof->m_config = m_config;
+	pTof->m_roi = m_roi;
+	pTof->m_bUseRoi = m_bUseRoi;
+	pTof->m_bOk = m_bOk;
+
+	/*
+	for(int iFoil=0; iFoil<GetTofConfig().GetFoilCount(); ++iFoil)
+		for(int iTc0=0; iTc<GetTofConfig().GetImagesPerFoil(); ++iTc)
+			for(int iX=0; iX<GetTofConfig().GetImageWidth(); ++iX)
+				for(int iY=0; iY<GetTofConfig().GetImageHeight(); ++iY)
+				{
+					unsigned int uiData = GetData(iFoil, iTc, iX, iY);
+					pTof->SetData(iFoil, iTc, iX, iY, uiData);
+				}
+	*/
+
+	memcpy(pTof->m_puiDaten, m_puiDaten, sizeof(int)*GetTofSize());
+	return pTof;
+}
 
 bool TofImage::IsOk() const { return m_bOk; }
 
@@ -544,11 +588,76 @@ TmpImage TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY,
 	return img;
 }
 
+
 TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 						    int iFoil, bool bIgnoreRoi) const
 {
-	TmpGraph graph(&GetTofConfig());
+	const int iShiftMethod = GlobalConfig::GetShiftMethod();
+	const double dNumOsc = GetTofConfig().GetNumOscillations();
+	const int iNumTc = GetTofConfig().GetImagesPerFoil();
+	const double dNumTc = double(iNumTc);
+	const int iNumFoils = GetTofConfig().GetFoilCount();
+	const int iLenX = GetTofConfig().GetImageWidth();
+	const int iLenY = GetTofConfig().GetImageHeight();
+	const double dLenX = double(iLenX);
+	const double dLenY = double(iLenY);
+	
+	const TofImage *pTof = this;
 
+	//--------------------------------------------------------------------------
+	// TODO: read from config
+	const bool bPathLengthCorrection = false;		// disabled for now
+	const double dDetLenX = 0.2;	// 20 cm
+	const double dDetLenY = 0.2;	// 20 cm
+	const double dMiddleX = 0.1;
+	const double dMiddleY = 0.1;
+	const double Ls = 0.9;
+	const double v_n = 824.;
+	const double dOmegaM = 10000.;
+	//--------------------------------------------------------------------------
+
+	bool (Fourier::*corr)(double, const double*, double *, double);
+	corr = &Fourier::shift_sin;
+	
+	if(bPathLengthCorrection)
+	{
+		pTof = this->copy();
+
+		double *pTc = new double[iNumTc];
+		double *pTcShifted = new double[iNumTc];
+
+		Fourier fourier(iNumTc);
+		t_corrfkt corr = get_correction_fkt(iShiftMethod);
+
+		// phase-correct each pixel in the region
+		for(int iY=iStartY; iY<iEndY; ++iY)
+			for(int iX=iStartX; iX<iEndX; ++iX)
+			{
+				for(int iTc=0; iTc<iNumTc; ++iTc)
+					pTc[iTc] = double(pTof->GetData(iFoil, iTc, iX, iY));
+
+				double dX = dDetLenX*(double(iX)+0.5)/dLenX - dMiddleX;
+				double dY = dDetLenY*(double(iY)+0.5)/dLenY - dMiddleY;
+
+				double dPathDiff = sqrt(dX*dX + dY*dY + Ls*Ls) - Ls;
+				double dTimeDiff = dPathDiff / v_n;
+				double dPhaseDiff = dOmegaM * dTimeDiff;
+				dPhaseDiff = fmod(dPhaseDiff, 2.*M_PI);
+
+				(fourier.*corr)(dNumOsc, pTc, pTcShifted, -dPhaseDiff);
+
+				// write rebinned timechannel data
+				for(int iTc=0; iTc<iNumTc; ++iTc)
+					const_cast<TofImage*>(pTof)->SetData(iFoil, iTc, iX, iY,
+												(unsigned int)pTcShifted[iTc]);
+			}
+
+		delete[] pTc;
+		delete[] pTcShifted;
+	}
+
+
+	TmpGraph graph(&GetTofConfig());
 	GetTofConfig().CheckTofArguments(&iStartX,&iEndX,&iStartY,&iEndY,&iFoil);
 
 	graph.m_iW = GetTofConfig().GetImagesPerFoil();
@@ -564,12 +673,18 @@ TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 			for(int iX=iStartX; iX<iEndX; ++iX)
 			{
 				if(bIgnoreRoi)
-					uiSummedVal += GetData(iFoil, iZ0, iX, iY);
+					uiSummedVal += pTof->GetData(iFoil, iZ0, iX, iY);
 				else
-					uiSummedVal += GetDataInsideROI(iFoil, iZ0, iX, iY);
+					uiSummedVal += pTof->GetDataInsideROI(iFoil, iZ0, iX, iY);
 			}
 
 		puiWave[iZ0]=uiSummedVal;
+	}
+
+	if(bPathLengthCorrection)
+	{
+		delete pTof;
+		pTof = 0;
 	}
 
 	return graph;
@@ -597,6 +712,9 @@ TmpGraph TofImage::GetTotalGraph() const
 
 TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY) const
 {
+	const int iShiftMethod = GlobalConfig::GetShiftMethod();
+	t_corrfkt corr = get_correction_fkt(iShiftMethod);
+	
 	const double dNumOsc = GetTofConfig().GetNumOscillations();
 	const int iNumTc = GetTofConfig().GetImagesPerFoil();
 	const double dNumTc = double(iNumTc);
@@ -666,25 +784,8 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY)
 		//std::cout << "phase foil " << iFoil << ": " << pPhases[iFoil] << std::endl;
 
 		// shift to mean phase
-
-		const int iShiftMethod = GlobalConfig::GetShiftMethod();
-		if(iShiftMethod == SHIFT_SINE_ONLY)
-		{
-			fourier.shift_sin(dNumOsc,
-							pDataFoil, pDataFoilShifted,
-							pPhases[iFoil]-dMeanPhase);
-		}
-		else if(iShiftMethod == SHIFT_ZERO_ORDER)
-		{
-			fourier.phase_correction_0(dNumOsc,
-								   pDataFoil, pDataFoilShifted,
-								   pPhases[iFoil]-dMeanPhase);
-		}
-		else
-		{
-			logger.SetCurLogLevel(LOGLEVEL_ERR);
-			logger << "Loader: Unknown phase-correction method selected.\n";
-		}
+		(fourier.*corr)(dNumOsc, pDataFoil, pDataFoilShifted,
+						pPhases[iFoil]-dMeanPhase);
 
 		// sum all foils
 		for(int iTc=0; iTc<iNumTc; ++iTc)

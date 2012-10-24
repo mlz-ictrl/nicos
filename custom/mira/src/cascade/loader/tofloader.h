@@ -220,6 +220,8 @@ class TofImage : public Countable
 
 		virtual ~TofImage();
 
+		TofImage *copy() const;
+
 		/// set pointer to external memory (if bExternalMem==true)
 		void SetExternalMem(void* pvDaten);
 
