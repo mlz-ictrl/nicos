@@ -132,9 +132,13 @@ def sleep(secs):
     printinfo('sleeping for %.1f seconds...' % secs)
     if fraction:
         intervals.append(fraction)
-    for interval in intervals:
-        session.breakpoint(2) # allow break and continue here
-        time.sleep(interval)
+    session.beginActionScope('Sleeping')
+    try:
+        for interval in intervals:
+            session.breakpoint(2) # allow break and continue here
+            time.sleep(interval)
+    finally:
+        session.endActionScope()
 
 
 # -- other basic commands ------------------------------------------------------

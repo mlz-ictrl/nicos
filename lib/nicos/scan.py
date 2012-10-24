@@ -96,12 +96,15 @@ class Scan(object):
             self._npoints = 0
 
     def prepareScan(self, positions):
-        session.action('Moving to start')
-        # the move-before devices
-        if self._firstmoves:
-            self.moveDevices(self._firstmoves)
-        # the scanned-over devices
-        self.moveTo(positions)
+        session.beginActionScope('%s (moving to start)' % self.shortDesc())
+        try:
+            # the move-before devices
+            if self._firstmoves:
+                self.moveDevices(self._firstmoves)
+            # the scanned-over devices
+            self.moveTo(positions)
+        finally:
+            session.endActionScope()
 
     def beginScan(self):
         dataset = self.dataset
@@ -132,6 +135,7 @@ class Scan(object):
             for sink in self._sinks:
                 sink.addInfo(dataset, catinfo, bycategory[catname])
         session.elog_event('scanbegin', dataset)
+        session.beginActionScope(self.shortDesc())
 
     def preparePoint(self, num, xvalues):
         if self._npoints == 0:
@@ -151,6 +155,7 @@ class Scan(object):
         session.breakpoint(2)
 
     def endScan(self):
+        session.endActionScope()
         for sink in self._sinks:
             sink.endDataset(self.dataset)
         session.elog_event('scanend', self.dataset)
@@ -245,18 +250,19 @@ class Scan(object):
         return ret
 
     def shortDesc(self):
-        return 'Scan %s' % ', '.join(map(str, self._devices))
+        if 'number' in self.dataset.sinkinfo:
+            return 'Scan %s #%s' % (','.join(map(str, self._devices)),
+                                    self.dataset.sinkinfo['number'])
+        return 'Scan %s' % ','.join(map(str, self._devices))
 
     def run(self):
         if getattr(session, '_currentscan', None):
             raise NicosError('cannot start scan while another scan is running')
         session._currentscan = self
-        session.beginActionScope(self.shortDesc())
         try:
             self._inner_run()
         finally:
             session._currentscan = None
-            session.endActionScope()
 
     def _inner_run(self):
         # move all devices to starting position before starting scan
@@ -274,7 +280,6 @@ class Scan(object):
                 self.preparePoint(i+1, position)
                 try:
                     if position:
-                        session.action('Positioning')
                         if i != 0:
                             self.moveTo(position)
                         elif not can_measure:
@@ -285,10 +290,8 @@ class Scan(object):
                         result = []
                         for i in range(self._mscount):
                             self.moveDevices(self._mswhere[i])
-                            session.action('Counting (step %s)' % (i+1))
                             result.extend(_count(self._detlist, self._preset))
                     else:
-                        session.action('Counting')
                         result = _count(self._detlist, self._preset)
                     finished = time.time()
                     actualpos += self.readEnvironment(started, finished)
@@ -330,6 +333,8 @@ class TimeScan(Scan):
         self._envlist.insert(0, self._etime)
 
     def shortDesc(self):
+        if 'number' in self.dataset.sinkinfo:
+            return 'Time scan #%s' % self.dataset.sinkinfo['number']
         return 'Time scan'
 
     def readEnvironment(self, started, finished):
@@ -388,10 +393,8 @@ class ManualScan(Scan):
                 result = []
                 for i in range(self._mscount):
                     self.moveDevices(self._mswhere[i])
-                    session.action('Counting (step %s)' % (i+1))
                     result.extend(_count(self._detlist, preset))
             else:
-                session.action('Counting')
                 result = _count(self._detlist, preset)
             finished = time.time()
             actualpos += self.readEnvironment(started, finished)
@@ -425,7 +428,14 @@ class QScan(Scan):
             self._envlist.remove(inst)
 
     def shortDesc(self):
-        return 'Qscan'
+        comps = []
+        for i in range(4):
+            if self._positions[0][0][i] != self._positions[1][0][i]:
+                comps.append('HKLE'[i])
+        if 'number' in self.dataset.sinkinfo:
+            return 'Scan %s #%s' % (','.join(comps) or 'Q',
+                                    self.dataset.sinkinfo['number'])
+        return 'Scan %s' % (','.join(comps) or 'Q')
 
     def beginScan(self):
         if len(self._positions) > 1:
@@ -460,6 +470,9 @@ class ContinuousScan(Scan):
                       None, scaninfo)
 
     def shortDesc(self):
+        if 'number' in self.dataset.sinkinfo:
+            return 'Continuous scan %s #%s' % (self._devices[0],
+                                               self.dataset.sinkinfo['number'])
         return 'Continuous scan %s' % self._devices[0]
 
     def run(self):

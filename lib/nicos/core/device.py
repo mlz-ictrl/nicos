@@ -1151,7 +1151,11 @@ class Moveable(Readable):
         lastval = None
         try:
             if hasattr(self, 'doWait'):
-                lastval = self.doWait()
+                session.beginActionScope('Waiting: %s' % self)
+                try:
+                    lastval = self.doWait()
+                finally:
+                    session.endActionScope()
         finally:
             # update device value in cache and return it
             if lastval is not None:

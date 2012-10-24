@@ -47,27 +47,31 @@ def _count(detlist, preset):
     i = 0
     delay = getattr(session.instrument, 'countloopdelay', 0.025)
     sleep(0.02)
-    while True:
-        i += 1
-        for det in list(detset):
+    session.beginActionScope('Counting')
+    try:
+        while True:
+            i += 1
+            for det in list(detset):
+                try:
+                    det.duringMeasureHook(i)
+                    # XXX implement pause logic
+                    if det.isCompleted():
+                        detset.discard(det)
+                except:  # really ALL exceptions
+                    for det in detset:
+                        det.stop()
+                    raise
+            if not detset:
+                # all detectors finished measuring
+                break
+            sleep(delay)
+        for det in detlist:
             try:
-                det.duringMeasureHook(i)
-                # XXX implement pause logic
-                if det.isCompleted():
-                    detset.discard(det)
-            except:  # really ALL exceptions
-                for det in detset:
-                    det.stop()
-                raise
-        if not detset:
-            # all detectors finished measuring
-            break
-        sleep(delay)
-    for det in detlist:
-        try:
-            det.save()
-        except Exception:
-            det.log.exception('error saving measurement data')
+                det.save()
+            except Exception:
+                det.log.exception('error saving measurement data')
+    finally:
+        session.endActionScope()
     return sum((det.read() for det in detlist), [])
 
 
