@@ -133,7 +133,7 @@ class GracePlotter(object):
         self._grpl = None
         self.activecounter = activecounter
 
-    def _openplot(self, dataset, secondchance=False):
+    def openPlot(self, dataset, secondchance=False):
         filename = dataset.sinkinfo.get('filename', '')
         filepath = dataset.sinkinfo.get('filepath', '')
         self._grpl = GracePlot.GracePlot(workingdir=path.dirname(filepath))
@@ -161,7 +161,7 @@ class GracePlotter(object):
         try:
             if dataset.sinkinfo.get('continuation'):
                 return
-            self._openplot(dataset)
+            self.openPlot(dataset)
             return True
         except Exception:
             self._grpl = None
@@ -206,7 +206,7 @@ class GracePlotter(object):
             if secondchance:
                 return False
             try:
-                self._openplot(dataset, secondchance=True)
+                self.openPlot(dataset, secondchance=True)
             except Exception:
                 self._grpl = None
                 return False

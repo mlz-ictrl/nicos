@@ -635,6 +635,8 @@ class NicosCmdClient(NicosClient):
                 return
             self.grace_on = True
             self.grace.activecounter = None
+            if self.last_dataset:
+                self.grace.openPlot(self.last_dataset)
             self.put_client('Plotting now switched on.')
         elif arg == 'off':
             self.grace_on = False
@@ -645,6 +647,8 @@ class NicosCmdClient(NicosClient):
                 return
             self.grace_on = True
             self.grace.activecounter = arg
+            if self.last_dataset:
+                self.grace.openPlot(self.last_dataset)
             self.put_client('Plotting now switched on (for counter %s).'
                             % arg)
 
