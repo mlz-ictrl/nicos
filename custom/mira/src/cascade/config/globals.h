@@ -174,6 +174,48 @@ class ExpConfig
 		int GetYear() const { return m_iYear; }
 };
 
+class InstrumentConfig
+{
+	friend class GlobalConfig;
+	
+	protected:
+		bool m_bUsePathLenCorr;
+		
+		double m_dDetectorLenX;
+		double m_dDetectorLenY;
+		double m_dDetectorCenterX;
+		double m_dDetectorCenterY;
+
+		double m_dLs;
+		double m_dLam;
+		double m_dOmegaM;
+
+	public:
+		InstrumentConfig();
+
+		bool GetUsePathLenCorr() const { return m_bUsePathLenCorr; }
+		
+		double GetDetLenX() { return m_dDetectorLenX; }
+		double GetDetLenY() { return m_dDetectorLenY; }
+		double GetDetCenterX() { return m_dDetectorCenterX; }
+		double GetDetCenterY() { return m_dDetectorCenterY; }
+		
+		double GetLs() const { return m_dLs; }
+		
+		double GetLam() const { return m_dLam; }
+		double GetV() const
+		{
+			// v = h/m * 1/lam
+			// h, m: rounded CODATA 2006 values
+			const double h_over_m = 3.9560e-07;
+			return h_over_m / m_dLam;
+		}
+		
+		void SetOmegaM(double dOmegaM) { m_dOmegaM = dOmegaM; }
+		double GetOmegaM() const { return m_dOmegaM; }
+};
+
+
 /**
  * \brief global, static configuration class
  * 
@@ -187,6 +229,7 @@ class GlobalConfig
 	protected:
 		static TofConfig s_config;
 		static ExpConfig s_expconfig;
+		static InstrumentConfig s_instrconfig;
 
 		// width & height of blocks used for calculation phase or
 		// constrast images
@@ -234,6 +277,7 @@ class GlobalConfig
 
 		static TofConfig& GetTofConfig();
 		static ExpConfig& GetExpConfig();
+		static InstrumentConfig& GetInstrConfig();
 
 		static bool GetDumpFiles();
 		//----------------------------------------------------------------------

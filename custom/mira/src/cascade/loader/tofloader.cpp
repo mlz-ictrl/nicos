@@ -605,15 +605,16 @@ TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 	const TofImage *pTof = this;
 
 	//--------------------------------------------------------------------------
-	// TODO: read from config
-	const bool bPathLengthCorrection = false;		// disabled for now
-	const double dDetLenX = 0.2;	// 20 cm
-	const double dDetLenY = 0.2;	// 20 cm
-	const double dMiddleX = 0.1;
-	const double dMiddleY = 0.1;
-	const double Ls = 0.9;
-	const double v_n = 824.;
-	const double dOmegaM = 10000.;
+	InstrumentConfig& instr = GlobalConfig::GetInstrConfig();
+	
+	const bool bPathLengthCorrection = instr.GetUsePathLenCorr();
+	const double dDetLenX = instr.GetDetLenX();
+	const double dDetLenY = instr.GetDetLenY();
+	const double dMiddleX = instr.GetDetCenterX();
+	const double dMiddleY = instr.GetDetCenterY();
+	const double Ls = instr.GetLs();
+	const double v_n = instr.GetV();
+	const double dOmegaM = instr.GetOmegaM();
 	//--------------------------------------------------------------------------
 
 	bool (Fourier::*corr)(double, const double*, double *, double);

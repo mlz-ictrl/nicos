@@ -261,10 +261,22 @@ void ExpConfig::SetCurYear()
 }
 
 //------------------------------------------------------------------------------
+// instrument config
+
+InstrumentConfig::InstrumentConfig()
+		: m_bUsePathLenCorr(false),
+		  m_dDetectorLenX(0.2), m_dDetectorLenY(0.2),
+		  m_dDetectorCenterX(0.1), m_dDetectorCenterY(0.1),
+		  m_dLs(0.9), m_dLam(4.8), m_dOmegaM(10000.)
+{}
+
+
+//------------------------------------------------------------------------------
 // global config
 
 TofConfig GlobalConfig::s_config = TofConfig();
 ExpConfig GlobalConfig::s_expconfig = ExpConfig();
+InstrumentConfig GlobalConfig::s_instrconfig = InstrumentConfig();
 
 int GlobalConfig::iPhaseBlockSize[2] = {1, 2};
 int GlobalConfig::iContrastBlockSize[2] = {1, 2};
@@ -417,9 +429,40 @@ void GlobalConfig::Init()
 	bDumpFiles = (bool)Config::GetSingleton()->QueryInt(
 				"/cascade_config/log/dump_files", bDumpFiles);
 
+	
 	//--------------------------------------------------------------------------
 
+	s_instrconfig.m_bUsePathLenCorr = Config::GetSingleton()->QueryInt(
+					"/cascade_config/instrument/use_path_length_correction",
+					s_instrconfig.m_bUsePathLenCorr);
 
+	s_instrconfig.m_dDetectorLenX = Config::GetSingleton()->QueryDouble(
+					"/cascade_config/instrument/detector_length_x",
+					s_instrconfig.m_dDetectorLenX);
+	s_instrconfig.m_dDetectorLenY = Config::GetSingleton()->QueryDouble(
+					"/cascade_config/instrument/detector_length_y",
+					s_instrconfig.m_dDetectorLenY);
+
+	s_instrconfig.m_dDetectorCenterX = Config::GetSingleton()->QueryDouble(
+					"/cascade_config/instrument/detector_center_x",
+					s_instrconfig.m_dDetectorCenterX);
+	s_instrconfig.m_dDetectorCenterY = Config::GetSingleton()->QueryDouble(
+					"/cascade_config/instrument/detector_center_y",
+					s_instrconfig.m_dDetectorCenterY);
+
+	s_instrconfig.m_dLs = Config::GetSingleton()->QueryDouble(
+									"/cascade_config/instrument/Ls",
+									s_instrconfig.m_dLs);
+
+	s_instrconfig.m_dLam = Config::GetSingleton()->QueryDouble(
+									"/cascade_config/instrument/lambda",
+									s_instrconfig.m_dLam);
+	
+	s_instrconfig.m_dOmegaM = Config::GetSingleton()->QueryDouble(
+									"/cascade_config/instrument/omega_M",
+									s_instrconfig.m_dOmegaM);
+
+	
 	//--------------------------------------------------------------------------
 	// initial directory
 
@@ -457,6 +500,7 @@ int GlobalConfig::GetShiftMethod() { return iShiftMethod; }
 
 TofConfig& GlobalConfig::GetTofConfig() { return s_config;}
 ExpConfig& GlobalConfig::GetExpConfig() { return s_expconfig; }
+InstrumentConfig& GlobalConfig::GetInstrConfig() { return s_instrconfig; }
 bool GlobalConfig::GetDumpFiles() { return bDumpFiles; }
 
 const std::string& GlobalConfig::GetCurDir() { return m_strCurDir; }
