@@ -363,7 +363,9 @@ class NicosCmdClient(NicosClient):
         timefmt = strftime('[%Y-%m-%d %H:%M:%S]', localtime(msg[1]))
         levelno = msg[2]
         if levelno == ACTION:
-            self.out.write('\033]0;NICOS %s%s\007' % (namefmt, msg[3].rstrip()))
+            action = namefmt + msg[3].rstrip()
+            self.out.write('\033]0;NICOS%s\007' %
+                           (action and ' (%s)' % action or ''))
             return
         else:
             if levelno <= DEBUG:
