@@ -29,8 +29,8 @@ __version__ = "$Revision$"
 from nicos import session
 from nicos.core import Device, Measurable, Moveable, Readable, UsageError, \
      NicosError
-from nicos.scan import Scan, TimeScan, ContinuousScan, ManualScan, TwoDimScan, \
-     StopScan
+from nicos.scan import Scan, SweepScan, ContinuousScan, ManualScan, \
+     TwoDimScan, StopScan
 from nicos.commands import usercommand, helparglist
 
 
@@ -177,7 +177,31 @@ def timescan(numsteps, *args, **kwargs):
     scanstr = _infostr('timescan', (numsteps,) + args, kwargs)
     preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(args, kwargs, scanstr)
-    scan = TimeScan(numsteps, move, multistep, detlist, envlist, preset, scaninfo)
+    scan = SweepScan([], [], numsteps, move, multistep, detlist, envlist,
+                     preset, scaninfo)
+    scan.run()
+
+
+@usercommand
+@helparglist('dev, start, end, numsteps, ...')
+def sweep(dev, start, end, *args, **kwargs):
+    """Do a sweep of *dev* from *start* to *end*, repeating the count as often
+    as possible in between.
+
+    Example:
+
+    >>> sweep(T, 10, 100, t=10)
+
+    will move T to 10, then start moving it to 100 and count for 10 seconds as
+    long as T is still moving.
+    """
+    # XXX: the SweepScan supports a) max #steps and b) multiple devices, but we
+    # don't offer that in this simplified interface until it's actually needed
+    scanstr = _infostr('sweep', (dev, start, end,) + args, kwargs)
+    preset, scaninfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(args, kwargs, scanstr)
+    scan = SweepScan([dev], [(start, end)], -1, move, multistep, detlist,
+                     envlist, preset, scaninfo)
     scan.run()
 
 
@@ -253,6 +277,7 @@ ADDSCANHELP2 = """
 scan.__doc__     += ADDSCANHELP1 + ADDSCANHELP2
 cscan.__doc__    += (ADDSCANHELP1 + ADDSCANHELP2).replace('scan(', 'cscan(')
 timescan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'timescan(5, ')
+sweep.__doc__    += ADDSCANHELP2.replace('scan(dev, ', 'sweep(dev, ')
 twodscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'twodscan(dev1, ')
 
 
@@ -268,9 +293,9 @@ def contscan(dev, start, end, speed=None, *args, **kwargs):
 
     >>> contscan(phi, 0, 10)
 
-    The phi device will move continuously from 0 to 10, with reduced speed.  The
-    detectors are read out every second, and each delta between count values is
-    one scan point.
+    The phi device will move continuously from 0 to 10, with reduced speed.  In
+    contrast to a `sweep`, the detectors are read out every second, and each
+    delta between count values is one scan point, so that no counts are lost.
 
     By default, the detectors are those selected by SetDetectors().  They can be
     replaced by a custom set of detectors by giving them as arguments:

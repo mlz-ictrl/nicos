@@ -132,7 +132,9 @@ Scanning commands
 .. autofunction:: scan
 .. autofunction:: cscan
 .. autofunction:: timescan
+.. autofunction:: sweep
 .. autofunction:: contscan
+
 .. autofunction:: manualscan
 
 On-line analysis commands

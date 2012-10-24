@@ -197,7 +197,7 @@ class Scan(object):
         """Move scan devices to *position*, a list of positions."""
         return self.moveDevices(zip(self._devices, position))
 
-    def moveDevices(self, where):
+    def moveDevices(self, where, wait=True):
         """Move to *where*, which is a list of (dev, position) tuples.
         On errors, call handleError, which decides when the scan may continue.
         """
@@ -211,6 +211,8 @@ class Scan(object):
                 self.handleError('move', dev, val, err)
             else:
                 waitdevs.append((dev, val))
+        if not wait:
+            return
         for dev, val in waitdevs:
             try:
                 dev.wait()
@@ -313,33 +315,56 @@ class ElapsedTime(Readable):
     def doStatus(self, maxage=0):
         return status.OK, ''
 
-class TimeScan(Scan):
+
+class SweepScan(Scan):
     """
-    Special scan class for time scans with elapsed time counter.
+    Special scan class for "sweeps" (i.e., start device(s) and scan until they
+    arrive at their targets.)  The number of steps, if > 0, is a maximum of
+    steps, after which the scan will stop.
+
+    If no devices are given, acts as a "time scan", i.e. just counts the given
+    number of steps (or indefinitely) with an elapsed time counter.
     """
 
-    def __init__(self, numsteps, firstmoves=None, multistep=None,
-                 detlist=None, envlist=None, preset=None, scaninfo=None,
-                 scantype=None):
+    def __init__(self, devices, startend, numsteps, firstmoves=None,
+                 multistep=None, detlist=None, envlist=None, preset=None,
+                 scaninfo=None, scantype=None):
         self._etime = ElapsedTime('etime', unit='s', fmtstr='%.1f')
         self._started = time.time()
         self._numsteps = numsteps
+        self._sweepdevices = devices
         if numsteps < 0:
             steps = Repeater([])
         else:
             steps = [[]] * numsteps
+        # start for sweep devices are "firstmoves"
+        self._sweeptargets = []
+        for dev, (start, end) in zip(devices, startend):
+            firstmoves.append((dev, start))
+            self._sweeptargets.append((dev, end))
         Scan.__init__(self, [], steps, firstmoves, multistep,
                       detlist, envlist, preset, scaninfo, scantype)
-        self._envlist.insert(0, self._etime)
+        if not devices:
+            self._envlist.insert(0, self._etime)
+        else:
+            for dev in devices[::-1]:
+                if dev in self._envlist:
+                    self._envlist.remove(dev)
+                self._envlist.insert(0, dev)
 
     def shortDesc(self):
+        if not self._sweepdevices:
+            type = 'Time scan'
+        else:
+            type = 'Sweep %s' % ','.join(map(str, self._sweepdevices))
         if 'number' in self.dataset.sinkinfo:
-            return 'Time scan #%s' % self.dataset.sinkinfo['number']
-        return 'Time scan'
+            return '%s #%s' % (type, self.dataset.sinkinfo['number'])
+        return type
 
     def readEnvironment(self, started, finished):
         ret = Scan.readEnvironment(self, started, finished)
-        ret[0] = finished - self._started
+        if not self._sweepdevices:
+            ret[0] = finished - self._started
         return ret
 
     def endScan(self):
@@ -347,12 +372,21 @@ class TimeScan(Scan):
         Scan.endScan(self)
 
     def preparePoint(self, num, xvalues):
+        if num == 1:
+            try:
+                self.moveDevices(self._sweeptargets, wait=False)
+            except SkipPoint:
+                raise StopScan
         Scan.preparePoint(self, num, xvalues)
         if session.mode == 'simulation':
             self._sim_start = session.clock.time
 
     def finishPoint(self):
         Scan.finishPoint(self)
+        if self._sweepdevices:
+            if not any(dev.status()[0] == status.BUSY
+                       for dev in self._sweepdevices):
+                raise StopScan
         if session.mode == 'simulation':
             if self._numsteps > 1:
                 session.log.info('skipping %d steps...' % (self._numsteps - 1))
