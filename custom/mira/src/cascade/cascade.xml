@@ -24,6 +24,20 @@
             <guess_file_config> 0 </guess_file_config>
         </tof_file>
 
+	<instrument>
+		<use_path_length_correction> 0 </use_path_length_correction>
+
+		<detector_length_x> 0.2 </detector_length_x>
+		<detector_length_y> 0.2 </detector_length_y>
+		<detector_center_x> 0.1 </detector_center_x>
+		<detector_center_y> 0.1 </detector_center_y>
+
+		<Ls> 0.9 </Ls>
+
+		<lambda> 4.8 </lambda>
+		<omega_M> 10000 </omega_M>
+	</instrument>
+
 	<dirs>
 		<exp_base_dir> /data/${year}/${proposal_num}/cascade/ </exp_base_dir>
 		<proposal_num> 5259 </proposal_num>
