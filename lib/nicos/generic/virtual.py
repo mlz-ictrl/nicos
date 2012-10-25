@@ -29,9 +29,10 @@ __version__ = "$Revision$"
 import time
 import random
 import threading
+from math import exp
 
-from nicos.core import status, Readable, HasOffset, Param, tacodev, tupleof, \
-     floatrange
+from nicos.core import status, Readable, HasOffset, Param, Override, tacodev, \
+     tupleof, floatrange
 from nicos.abstract import Motor, Coder
 from nicos.taco.detector import FRMTimerChannel, FRMCounterChannel
 
@@ -52,19 +53,24 @@ class VirtualMotor(Motor, HasOffset):
 
     def doStart(self, pos):
         pos = float(pos) + self.offset
-        self.curstatus = (status.BUSY, 'virtual moving')
         if self.speed != 0:
+            if self._thread:
+                self.stop()
+                self._thread.join()
+            self.curstatus = (status.BUSY, 'virtual moving')
             self._thread = threading.Thread(target=self.__moving, args=(pos,),
                                             name='virtual motor %s' % self)
             self._thread.setDaemon(True)
             self._thread.start()
         else:
+            self.curstatus = (status.BUSY, 'virtual moving')
             self.log.debug('moving to %s' % pos)
-            self.curvalue = pos + self.jitter * (0.5 - random.random())
+            self.curvalue = pos
             self.curstatus = (status.OK, 'idle')
 
     def doRead(self, maxage=0):
-        return self.curvalue - self.offset
+        return (self.curvalue - self.offset) + \
+            self.jitter * (0.5 - random.random())
 
     def doStatus(self, maxage=0):
         return self.curstatus
@@ -83,23 +89,34 @@ class VirtualMotor(Motor, HasOffset):
     def doSetPosition(self, pos):
         self.curvalue = pos + self.offset
 
+    def _step(self, start, end, elapsed):
+        delta = end - start
+        sign = +1 if delta > 0 else -1
+        value = start + sign * self.speed * elapsed
+        vdelta = value - start
+        if abs(vdelta) > abs(delta):
+            return end
+        return value
+
     def __moving(self, pos):
-        self._stop = False
-        incr = 0.2 * self.speed
-        delta = pos - self.curvalue + self.offset
-        steps = int(abs(delta) / incr)
-        incr = delta < 0 and -incr or incr
-        for _ in range(steps):
-            if self._stop:
-                self.log.debug('thread stopped')
-                self.curstatus = (status.OK, 'idle')
-                self._stop = False
-                return
-            time.sleep(0.2)
-            self.log.debug('thread moving to %s' % (self.curvalue + incr))
-            self.curvalue += incr
-        self.curvalue = pos
-        self.curstatus = (status.OK, 'idle')
+        try:
+            self._stop = False
+            start = self.curvalue
+            started = time.time()
+            while 1:
+                value = self._step(start, pos, time.time() - started)
+                if self._stop:
+                    self.log.debug('thread stopped')
+                    return
+                time.sleep(0.2)
+                self.log.debug('thread moving to %s' % value)
+                self.curvalue = value
+                if value == pos:
+                    return
+        finally:
+            self._stop = False
+            self.curstatus = (status.OK, 'idle')
+            self._thread = None
 
 
 class VirtualCoder(Coder, HasOffset):
@@ -228,3 +245,37 @@ class VirtualCounter(FRMCounterChannel):
 
     def doReadUnit(self):
         return 'counts'
+
+
+class VirtualTemperature(VirtualMotor):
+    """A virtual temperature regulation device."""
+
+    parameters = {
+        'tolerance': Param('Tolerance for wait()', default=1, settable=True,
+                           unit='main'),
+        'setpoint':  Param('Last setpoint', settable=True, unit='main'),
+    }
+
+    parameter_overrides = {
+        'unit':      Override(mandatory=False, default='K'),
+        'jitter':    Override(default=0.1),
+    }
+
+    def doStart(self, pos):
+        self.setpoint = pos
+        VirtualMotor.doStart(self, pos)
+
+    def doWait(self):
+        while self.curstatus[0] == status.BUSY:
+            if abs(self.read(0) - self.setpoint) < self.tolerance:
+                break
+            time.sleep(0.1)
+
+    def _step(self, start, end, elapsed):
+        # calculate an exponential approximation to the setpoint with a time
+        # constant given by self.speed
+        gamma = self.speed/10
+        cval = end + (start - end) * exp(-gamma*elapsed)
+        if abs(cval - end) < self.jitter:
+            return end
+        return cval

@@ -43,9 +43,6 @@ _axisblock = Block(
     [BlockRow('mth', 'mtt'),
      BlockRow('psi', 'phi'),
      BlockRow('ath', 'att'),
-     BlockRow(Field(dev='psi', plot='motors', plotinterval=300, min=0, max=360),
-              Field(dev='phi', plot='motors', plotinterval=300),
-              ),
     ],
     'tas')  # this is the name of a setup that must be loaded in the
             # NICOS master instance for this block to be displayed
@@ -71,9 +68,16 @@ _tasblock = Block(
     ],
     'tas')
 
+_tempblock = Block(
+    'Temperature',
+    [BlockRow(Field(dev='T'), Field(key='t/setpoint')),
+     BlockRow(Field(dev='T', plot='T', interval=300),
+              Field(key='t/setpoint', name='SetP', plot='T', interval=300))],
+    'temperature')
+
 _rightcolumn = Column(_axisblock, _detectorblock)
 
-_leftcolumn = Column(_tasblock)
+_leftcolumn = Column(_tasblock, _tempblock)
 
 
 devices = dict(

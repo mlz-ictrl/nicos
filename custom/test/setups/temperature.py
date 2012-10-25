@@ -22,7 +22,14 @@
 #
 # *****************************************************************************
 
-description = 'minimal NICOS startup setup'
-group = 'startup'
+description = 'virtual temperature device'
+group = 'basic'
 
-includes = ['tas', 'detector', 'temperature']
+includes = ['system']
+
+devices = dict(
+    T        = device('nicos.generic.VirtualTemperature',
+                      abslimits = (0, 300),
+                      speed = 5,
+                      unit = 'K'),
+)
