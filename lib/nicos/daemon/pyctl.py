@@ -36,8 +36,16 @@ __all__ = ['STATUS_IDLEEXC', 'STATUS_IDLE', 'STATUS_RUNNING', 'STATUS_INBREAK',
 import threading
 import traceback
 
-# re-exported
-from nicos.daemon._pyctl import ControlStop, Controller as _Controller
+# re-exported from the C module
+try:
+    from nicos.daemon._pyctl import ControlStop, Controller as _Controller
+except ImportError:
+    ControlStop = BaseException
+    class _Controller(object):
+        def __init__(self, *args, **kwds):
+            raise ImportError('Please compile the _pyctl C module. '
+                              '(When running from the source directory, '
+                              'try "make inplace".)')
 
 # defines from the C module
 STATUS_IDLEEXC  = -2  # nothing started, last script raised exception
