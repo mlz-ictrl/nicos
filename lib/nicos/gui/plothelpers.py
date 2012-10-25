@@ -237,8 +237,16 @@ class ErrorBarPlotCurve(QwtPlotCurve):
 
 
 class TimeScaleDraw(QwtScaleDraw):
+    def __init__(self, showdate=True, showsecs=True):
+        QwtScaleDraw.__init__(self)
+        self.fmtstring = '%y-%m-%d\n%H:%M:%S'
+        if not showdate:
+            self.fmtstring = self.fmtstring[9:]
+        if not showsecs:
+            self.fmtstring = self.fmtstring[:-3]
+
     def label(self, value, strf=time.strftime, local=time.localtime):
-        return QwtText(strf('%y-%m-%d\n%H:%M:%S', local(value)))
+        return QwtText(strf(self.fmtstring, local(value)))
 
 
 class TimeScaleEngine(QwtLinearScaleEngine):

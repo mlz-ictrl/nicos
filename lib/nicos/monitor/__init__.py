@@ -117,6 +117,9 @@ class Monitor(BaseCacheClient):
     def setBothColors(self, label, fore, back):
         raise NotImplementedError
 
+    def updatePlot(self, field):
+        raise NotImplementedError
+
     def start(self, options):
         self.log.info('monitor starting up, creating main window')
 
@@ -216,9 +219,11 @@ class Monitor(BaseCacheClient):
             # display/init properties
             'name': '', 'dev': '', 'width': 8, 'istext': False, 'maxlen': None,
             'min': None, 'max': None, 'unit': '', 'item': -1, 'format': '%s',
+            'plot': None,
             # current values
             'value': None, 'strvalue': None, 'expired': 0, 'status': None,
             'changetime': 0, 'exptime': 0, 'fixed': '',
+            'plotx': [], 'ploty': [],
             # key names
             'key': '', 'statuskey': '', 'unitkey': '', 'formatkey': '',
             'fixedkey': '',
@@ -306,6 +311,9 @@ class Monitor(BaseCacheClient):
                 self.setBackColor(field['namelabel'], self._red)
             else:
                 self.setBackColor(field['namelabel'], self._bgcolor)
+
+            if not vlabel:
+                continue
 
             # set the foreground color: determined by the status
 
@@ -415,7 +423,13 @@ class Monitor(BaseCacheClient):
                     field['changetime'] = time
                 field['strvalue'] = strvalue
                 field['value'] = value
-                self.setLabelText(field['valuelabel'], strvalue[:field['maxlen']])
+                if field['plot']:
+                    field['plotx'].append(time)
+                    field['ploty'].append(value)
+                    self.updatePlot(field)
+                else:
+                    self.setLabelText(field['valuelabel'],
+                                      strvalue[:field['maxlen']])
             elif key == field['statuskey']:
                 if value is not None:
                     if field['status'] != value:
@@ -431,7 +445,7 @@ class Monitor(BaseCacheClient):
                     field['unit'] = value
                     self.setLabelUnitText(field['namelabel'],
                                           field['name'], value, field['fixed'])
-            elif key == field['formatkey']:
+            elif key == field['formatkey'] and not field['plot']:
                 if value is not None:
                     field['format'] = value
                 if field['value'] is not None and field['item'] < 0:

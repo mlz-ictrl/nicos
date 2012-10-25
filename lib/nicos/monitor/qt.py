@@ -32,8 +32,14 @@ from time import time as currenttime, sleep
 
 from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
      QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, \
-     QCursor, QStackedWidget
+     QCursor, QStackedWidget, QPen, QBrush
 from PyQt4.QtCore import QSize, QVariant, Qt, SIGNAL
+
+try:
+    from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid
+    from nicos.gui.plothelpers import TimeScaleEngine, TimeScaleDraw
+except (ImportError, RuntimeError):
+    QwtPlot = None
 
 from nicos.monitor import Monitor as BaseMonitor
 from nicos.core.status import statuses
@@ -69,6 +75,53 @@ class SensitiveLabel(SMLabel):
         self._enter(self, event)
     def leaveEvent(self, event):
         self._leave(self, event)
+
+if QwtPlot:
+    class SMPlot(QwtPlot):
+        def __init__(self, parent, depth, minv=None, maxv=None):
+            QwtPlot.__init__(self, parent)
+            self.depth = depth
+            self.minv = minv
+            self.maxv = maxv
+            self.setAxisScaleEngine(QwtPlot.xBottom, TimeScaleEngine())
+            showdate = depth > 24*3600
+            showsecs = depth < 300
+            self.setAxisScaleDraw(QwtPlot.xBottom,
+                TimeScaleDraw(showdate=showdate, showsecs=showsecs))
+            self.connect(self, SIGNAL('updateplot'), self.updateplot)
+            grid = QwtPlotGrid()
+            grid.setPen(QPen(QBrush(Qt.gray), 1, Qt.DotLine))
+            grid.attach(self)
+            self.mincurve = self.maxcurve = None
+            if self.minv is not None:
+                self.mincurve = QwtPlotCurve()
+                self.mincurve.setItemAttribute(QwtPlotCurve.AutoScale, 0)
+                self.mincurve.attach(self)
+            if self.maxv is not None:
+                self.maxcurve = QwtPlotCurve()
+                self.maxcurve.setItemAttribute(QwtPlotCurve.AutoScale, 0)
+                self.maxcurve.attach(self)
+        def addcurve(self):
+            curve = QwtPlotCurve()
+            curve.setPen(QPen(Qt.red, 2))
+            curve.attach(self)
+            curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
+            return curve
+        def updateplot(self, field, curve):
+            ll = len(field['plotx'])
+            i = 0
+            limit = currenttime() - self.depth
+            while i < ll and field['plotx'][i] < limit:
+                i += 1
+            xx = field['plotx'] = field['plotx'][i:]
+            yy = field['ploty'] = field['ploty'][i:]
+            curve.setData(xx, yy)
+            if self.mincurve:
+                self.mincurve.setData([xx[0], xx[-1]], [self.minv, self.minv])
+            if self.maxcurve:
+                self.maxcurve.setData([xx[0], xx[-1]], [self.maxv, self.maxv])
+            self.replot()
+
 
 class BlockBox(QFrame):
     """Provide the equivalent of a Tk LabelFrame: a group box that has a
@@ -190,20 +243,26 @@ class Monitor(BaseMonitor):
             field['namelabel'] = l
             fieldlayout.addWidget(l)
 
-            l = SensitiveLabel('----', groupframe,
-                               self._label_entered, self._label_left)
-            if field['istext']:
-                l.setFont(labelfont)
+            if field['plot'] and QwtPlot:
+                l = SMPlot(groupframe, field['plot'], field['min'], field['max'])
+                field['valuelabel'] = None
+                field['plotcurve'] = l.addcurve()
             else:
-                l.setFont(valuefont)
-                l.setAlignment(Qt.AlignHCenter)
-            l.setFrameShape(QFrame.Panel)
-            l.setFrameShadow(QFrame.Sunken)
-            l.setAutoFillBackground(True)
-            l.setLineWidth(2)
-            l.setMinimumSize(QSize(onechar * (field['width'] + .5), 0))
-            l.setProperty('assignedField', QVariant(field))
-            field['valuelabel'] = l
+                field['plot'] = None
+                l = SensitiveLabel('----', groupframe,
+                                   self._label_entered, self._label_left)
+                if field['istext']:
+                    l.setFont(labelfont)
+                else:
+                    l.setFont(valuefont)
+                    l.setAlignment(Qt.AlignHCenter)
+                l.setFrameShape(QFrame.Panel)
+                l.setFrameShadow(QFrame.Sunken)
+                l.setAutoFillBackground(True)
+                l.setLineWidth(2)
+                l.setMinimumSize(QSize(onechar * (field['width'] + .5), 0))
+                l.setProperty('assignedField', QVariant(field))
+                field['valuelabel'] = l
 
             tmplayout = QHBoxLayout()
             tmplayout.addStretch()
@@ -307,6 +366,10 @@ class Monitor(BaseMonitor):
 
     def setBothColors(self, label, fore, back):
         label.emit(SIGNAL('setcolors'), fore, back)
+
+    def updatePlot(self, field):
+        curve = field['plotcurve']
+        curve.plot().emit(SIGNAL('updateplot'), field, curve)
 
     def switchWarnPanel(self, off=False):
         if self._stacker.currentIndex() == 1 or off:

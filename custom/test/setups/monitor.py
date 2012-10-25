@@ -41,7 +41,8 @@ _axisblock = Block(
     'Axes',
     [BlockRow('mth', 'mtt'),
      BlockRow('psi', 'phi'),
-     BlockRow('ath', 'att')],
+     BlockRow('ath', 'att'),
+     BlockRow({'dev': 'psi', 'plot': 300, 'min': 0, 'max': 360})],
     'tas')  # this is the name of a setup that must be loaded in the
             # NICOS master instance for this block to be displayed
 
@@ -49,7 +50,8 @@ _detectorblock = Block(
     'Detector',
     [BlockRow({'name': 'timer', 'dev': 'timer'},
       {'name': 'ctr1', 'dev': 'ctr1', 'min': 100, 'max': 500},
-      {'name': 'ctr2', 'dev': 'ctr2'})],
+      {'name': 'ctr2', 'dev': 'ctr2'}),
+      ],
     'detector')
 
 _tasblock = Block(
