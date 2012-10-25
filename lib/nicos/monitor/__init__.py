@@ -36,7 +36,7 @@ from os import path
 from time import sleep, strftime, time as currenttime
 
 from nicos import session
-from nicos.core import listof, Param
+from nicos.core import listof, Param, Override
 from nicos.core.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
 from nicos.notify import Notifier
 from nicos.cache.utils import OP_TELL, OP_TELLOLD, cache_load
@@ -62,8 +62,7 @@ class Monitor(BaseCacheClient):
                            default='Status'),
         'layout':    Param('Status monitor layout', type=listof(list),
                            mandatory=True),
-        'warnings':  Param('List of warning conditions', type=listof(list),
-                           mandatory=True),
+        'warnings':  Param('List of warning conditions', type=listof(list)),
         'font':      Param('Font name for the window', type=str,
                            default='Luxi Sans'),
         'valuefont': Param('Font name for the value displays', type=str),
@@ -75,6 +74,10 @@ class Monitor(BaseCacheClient):
                            settable=True),
         'resizable': Param('Whether the window is resizable', type=bool,
                            default=True),
+    }
+
+    parameter_overrides = {
+        'prefix':    Override(mandatory=False, default='nicos/'),
     }
 
     attached_devices = {
@@ -218,7 +221,7 @@ class Monitor(BaseCacheClient):
         field_defaults = {
             # display/init properties
             'name': '', 'dev': '', 'width': 8, 'istext': False, 'maxlen': None,
-            'min': None, 'max': None, 'unit': '', 'item': -1, 'format': '%s',
+            'min': None, 'max': None, 'unit': ' ', 'item': -1, 'format': '%s',
             'plot': None,
             # current values
             'value': None, 'strvalue': None, 'expired': 0, 'status': None,
@@ -269,7 +272,7 @@ class Monitor(BaseCacheClient):
             _ref('key', prefix + field['dev'].lower() + '/value')
             _ref('statuskey', prefix + field['dev'].lower() + '/status')
             _ref('fixedkey', prefix + field['dev'].lower() + '/fixed')
-            if field['unit'] == '':  # explicit unit has preference
+            if field['unit'] == ' ':  # explicit unit has preference
                 _ref('unitkey', prefix + field['dev'].lower() + '/unit')
             if field['format'] == '%s':  # explicit format has preference
                 _ref('formatkey', prefix + field['dev'].lower() + '/fmtstr')

@@ -26,15 +26,16 @@ description = 'setup for the status monitor'
 group = 'special'
 
 Row = Column = Block = BlockRow = lambda *args: args
+Field = lambda *args, **kwds: args or kwds
 
 _expcolumn = Column(
-    Block('Experiment',
-          [BlockRow({'name': 'Proposal', 'key': 'exp/proposal', 'width': 7},
-                   {'name': 'Title', 'key': 'exp/title', 'width': 20,
-                    'istext': True, 'maxlen': 20},
-                    {'name': 'Current status', 'key': 'exp/action', 'width': 30,
-                    'istext': True},
-                    {'name': 'Last file', 'key': 'filesink/lastfilenumber'})]),
+    Block('Experiment', [
+        BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
+                 Field(name='Title',    key='exp/title',    width=20,
+                       istext=True, maxlen=20),
+                 Field(name='Current status', key='exp/action', width=30,
+                       istext=True),
+                 Field(name='Last file', key='filesink/lastfilenumber'))]),
 )
 
 _axisblock = Block(
@@ -42,46 +43,45 @@ _axisblock = Block(
     [BlockRow('mth', 'mtt'),
      BlockRow('psi', 'phi'),
      BlockRow('ath', 'att'),
-     BlockRow({'dev': 'psi', 'plot': 300, 'min': 0, 'max': 360})],
+     BlockRow(Field(dev='psi', plot=300, min=0, max=360)),
+    ],
     'tas')  # this is the name of a setup that must be loaded in the
             # NICOS master instance for this block to be displayed
 
 _detectorblock = Block(
     'Detector',
-    [BlockRow({'name': 'timer', 'dev': 'timer'},
-      {'name': 'ctr1', 'dev': 'ctr1', 'min': 100, 'max': 500},
-      {'name': 'ctr2', 'dev': 'ctr2'}),
-      ],
+    [BlockRow(Field(name='timer', dev='timer'),
+              Field(name='ctr1',  dev='ctr1', min=100, max=500),
+              Field(name='ctr2',  dev='ctr2')),
+    ],
     'detector')
 
 _tasblock = Block(
     'Triple-axis',
-    [BlockRow({'dev': 'tas', 'name': 'H', 'item': 0, 'format': '%.3f', 'unit': ' '},
-              {'dev': 'tas', 'name': 'K', 'item': 1, 'format': '%.3f', 'unit': ' '},
-              {'dev': 'tas', 'name': 'L', 'item': 2, 'format': '%.3f', 'unit': ' '},
-              {'dev': 'tas', 'name': 'E', 'item': 3, 'format': '%.3f', 'unit': ' '}),
-     BlockRow({'key': 'tas/scanmode', 'name': 'Mode'},
-              {'dev': 'mono', 'name': 'ki'}, {'dev': 'ana', 'name': 'kf'},
-              {'key': 'tas/energytransferunit', 'name': 'Unit'}),
-    ], 'tas')
+    [BlockRow(Field(dev='tas', item=0, name='H', format='%.3f', unit=''),
+              Field(dev='tas', item=1, name='K', format='%.3f', unit=''),
+              Field(dev='tas', item=2, name='L', format='%.3f', unit=''),
+              Field(dev='tas', item=3, name='E', format='%.3f', unit='')),
+     BlockRow(Field(key='tas/scanmode', name='Mode'),
+              Field(dev='mono', name='ki'),
+              Field(dev='ana', name='kf'),
+              Field(key='tas/energytransferunit', name='Unit')),
+    ],
+    'tas')
 
 _rightcolumn = Column(_axisblock, _detectorblock)
 
 _leftcolumn = Column(_tasblock)
 
-_warnings = [
-]
 
 devices = dict(
     Monitor = device('nicos.monitor.qt.Monitor',
                      title = 'NICOS status monitor',
                      loglevel = 'info',
                      cache = 'localhost:14869',
-                     prefix = 'nicos/',
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
                      padding = 5,
                      layout = [Row(_expcolumn), Row(_rightcolumn, _leftcolumn)],
-                     warnings = _warnings,
                      notifiers = [])
 )

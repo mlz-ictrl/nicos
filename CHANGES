@@ -3,11 +3,13 @@ Changelog for NICOS 2
 
 **Release 2.2.0**
 
+  - The Qt status monitor can now plot values versus time.
+
   - Added back text-based client for the daemon.
 
   - Changed cache store file format to retain info if the key will expire.
     This fixes cache startup behavior even after unclean shutdowns.
-  
+
   - Added "checkalign" command for TAS instruments.
 
   - Added HTML version of NICOS monitor.
