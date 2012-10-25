@@ -63,4 +63,4 @@ src/livewidget/python/lw_*.h
 .project
 .pydevproject
 .settings/
-
+TAGS
