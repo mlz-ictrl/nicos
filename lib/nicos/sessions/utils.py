@@ -37,7 +37,7 @@ import rlcompleter
 import __builtin__
 
 from nicos import session
-from nicos.core.errors import UsageError
+from nicos.core import Device, UsageError
 
 
 EXECUTIONMODES = ['master', 'slave', 'simulation', 'maintenance']
@@ -115,6 +115,11 @@ class NicosCompleter(rlcompleter.Completer):
         self.namespace = namespace1
         self.namespace2 = namespace2
         self.use_main_ns = False
+
+    def _callable_postfix(self, val, word):
+        if callable(val) and not isinstance(val, Device):
+            word += '('
+        return word
 
     def attr_matches(self, text):
         """Compute matches when text contains a dot.
