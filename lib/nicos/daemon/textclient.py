@@ -844,7 +844,7 @@ class NicosCmdClient(NicosClient):
         elif cmd == 'debug':
             self.tell('debug', arg)
         elif cmd == 'eval':
-            self.put('-> %r' % (self.eval(arg, '<?>'),))
+            self.put('-> %r' % (self.eval(arg),))
         else:
             self.put_error('Unknown command %r.' % cmd)
 
