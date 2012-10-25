@@ -42,6 +42,10 @@ Glossary
       Using the :func:`.fix` user command, a device is locked for further "move"
       commands.  :func:`.release` releases the fix.
 
+   master
+      The NICOS session that is currently in master mode (see :term:`execution
+      mode`).
+
    session
       Each instance of a program that creates NICOS objects (and possibly allows
       the user to execute commands on them) is called a session.

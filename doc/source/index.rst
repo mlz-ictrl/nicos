@@ -17,6 +17,7 @@ Documentation contents:
    components
    setups
    commands
+   monitor
    classes/index
    sessionapi
    deviceapi
