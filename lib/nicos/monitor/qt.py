@@ -36,7 +36,7 @@ from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
 from PyQt4.QtCore import QSize, QVariant, Qt, SIGNAL
 
 try:
-    from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid
+    from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend
     from nicos.gui.plothelpers import TimeScaleEngine, TimeScaleDraw
 except (ImportError, RuntimeError):
     QwtPlot = None
@@ -78,39 +78,64 @@ class SensitiveLabel(SMLabel):
 
 if QwtPlot:
     class SMPlot(QwtPlot):
-        def __init__(self, parent, depth, minv=None, maxv=None):
+        colors = [Qt.red, Qt.green, Qt.blue, Qt.magenta, Qt.cyan, Qt.darkGray]
+        def __init__(self, parent, interval, minv=None, maxv=None):
             QwtPlot.__init__(self, parent)
-            self.depth = depth
+            self.ncurves = 0
+            self.interval = interval
             self.minv = minv
             self.maxv = maxv
+
             self.setAxisScaleEngine(QwtPlot.xBottom, TimeScaleEngine())
-            showdate = depth > 24*3600
-            showsecs = depth < 300
+            showdate = interval > 24*3600
+            showsecs = interval < 300
             self.setAxisScaleDraw(QwtPlot.xBottom,
                 TimeScaleDraw(showdate=showdate, showsecs=showsecs))
-            self.connect(self, SIGNAL('updateplot'), self.updateplot)
+            self.setAxisLabelAlignment(QwtPlot.xBottom,
+                                       Qt.AlignBottom | Qt.AlignLeft)
+            self.setAxisLabelRotation(QwtPlot.xBottom, -45)
+
             grid = QwtPlotGrid()
             grid.setPen(QPen(QBrush(Qt.gray), 1, Qt.DotLine))
             grid.attach(self)
+
+            self.legend = QwtLegend(self)
+            self.legend.setMidLineWidth(100)
+            self.insertLegend(self.legend, QwtPlot.TopLegend)
+
             self.mincurve = self.maxcurve = None
             if self.minv is not None:
                 self.mincurve = QwtPlotCurve()
                 self.mincurve.setItemAttribute(QwtPlotCurve.AutoScale, 0)
+                self.mincurve.setItemAttribute(QwtPlotCurve.Legend, 0)
                 self.mincurve.attach(self)
             if self.maxv is not None:
                 self.maxcurve = QwtPlotCurve()
                 self.maxcurve.setItemAttribute(QwtPlotCurve.AutoScale, 0)
+                self.maxcurve.setItemAttribute(QwtPlotCurve.Legend, 0)
                 self.maxcurve.attach(self)
-        def addcurve(self):
-            curve = QwtPlotCurve()
-            curve.setPen(QPen(Qt.red, 2))
+
+            self.connect(self, SIGNAL('updateplot'), self.updateplot)
+
+        def setFont(self, font):
+            QwtPlot.setFont(self, font)
+            self.legend.setFont(font)
+            self.setAxisFont(QwtPlot.yLeft, font)
+            self.setAxisFont(QwtPlot.xBottom, font)
+
+        def addcurve(self, title):
+            curve = QwtPlotCurve(title)
+            curve.setPen(QPen(self.colors[self.ncurves % 6], 2))
+            self.ncurves += 1
             curve.attach(self)
             curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
+            self.legend.find(curve).setIdentifierWidth(30)
             return curve
+
         def updateplot(self, field, curve):
             ll = len(field['plotx'])
             i = 0
-            limit = currenttime() - self.depth
+            limit = currenttime() - self.interval
             while i < ll and field['plotx'][i] < limit:
                 i += 1
             xx = field['plotx'] = field['plotx'][i:]
@@ -230,47 +255,58 @@ class Monitor(BaseMonitor):
         displayframe = QFrame(self._stacker)
         self._stacker.addWidget(displayframe)
 
+        self._plots = {}
+
         def _create_field(groupframe, field):
+            self.updateKeymap(field)
+
             fieldlayout = QVBoxLayout()
-            # now put describing label and view label into subframe
-            l = SMLabel(' ' + escape(field['name']) + ' ', groupframe)
-            if field['unit']:
-                self.setLabelUnitText(l, field['name'], field['unit'])
-            l.setFont(labelfont)
-            l.setAlignment(Qt.AlignHCenter)
-            l.setAutoFillBackground(True)
-            l.setTextFormat(Qt.RichText)
-            field['namelabel'] = l
-            fieldlayout.addWidget(l)
 
             if field['plot'] and QwtPlot:
-                l = SMPlot(groupframe, field['plot'], field['min'], field['max'])
-                field['valuelabel'] = None
-                field['plotcurve'] = l.addcurve()
+                w = self._plots.get(field['plot'])
+                if w:
+                    field['plotcurve'] = w.addcurve(field['name'])
+                    return
+                w = SMPlot(groupframe, field['plotinterval'],
+                           field['min'], field['max'])
+                self._plots[field['plot']] = w
+                w.setFont(labelfont)
+                field['plotcurve'] = w.addcurve(field['name'])
             else:
+                # deactivate plot if QwtPlot unavailable
                 field['plot'] = None
-                l = SensitiveLabel('----', groupframe,
+                # now put describing label and view label into subframe
+                nl = SMLabel(' ' + escape(field['name']) + ' ', groupframe)
+                if field['unit']:
+                    self.setLabelUnitText(nl, field['name'], field['unit'])
+                nl.setFont(labelfont)
+                nl.setAlignment(Qt.AlignHCenter)
+                nl.setAutoFillBackground(True)
+                nl.setTextFormat(Qt.RichText)
+                field['namelabel'] = nl
+                fieldlayout.addWidget(nl)
+
+                w = SensitiveLabel('----', groupframe,
                                    self._label_entered, self._label_left)
                 if field['istext']:
-                    l.setFont(labelfont)
+                    w.setFont(labelfont)
                 else:
-                    l.setFont(valuefont)
-                    l.setAlignment(Qt.AlignHCenter)
-                l.setFrameShape(QFrame.Panel)
-                l.setFrameShadow(QFrame.Sunken)
-                l.setAutoFillBackground(True)
-                l.setLineWidth(2)
-                l.setMinimumSize(QSize(onechar * (field['width'] + .5), 0))
-                l.setProperty('assignedField', QVariant(field))
-                field['valuelabel'] = l
+                    w.setFont(valuefont)
+                    w.setAlignment(Qt.AlignHCenter)
+                w.setFrameShape(QFrame.Panel)
+                w.setFrameShadow(QFrame.Sunken)
+                w.setAutoFillBackground(True)
+                w.setLineWidth(2)
+                w.setMinimumSize(QSize(onechar * (field['width'] + .5), 0))
+                w.setProperty('assignedField', QVariant(field))
+                field['valuelabel'] = w
 
             tmplayout = QHBoxLayout()
             tmplayout.addStretch()
-            tmplayout.addWidget(l)
+            tmplayout.addWidget(w)
             tmplayout.addStretch()
             fieldlayout.addLayout(tmplayout)
 
-            self.updateKeymap(field)
             return fieldlayout
 
         # now iterate through the layout and create the widgets to display it
@@ -300,8 +336,9 @@ class Monitor(BaseMonitor):
                             rowlayout.addSpacing(self._padding)
                             for field in row:
                                 fieldframe = _create_field(blockbox, field)
-                                rowlayout.addLayout(fieldframe)
-                                rowlayout.addSpacing(self._padding)
+                                if fieldframe:
+                                    rowlayout.addLayout(fieldframe)
+                                    rowlayout.addSpacing(self._padding)
                             rowlayout.addStretch()
                             blocklayout.addLayout(rowlayout)
                     if block[0]['only']:

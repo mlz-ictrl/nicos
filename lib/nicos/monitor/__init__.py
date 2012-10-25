@@ -222,14 +222,16 @@ class Monitor(BaseCacheClient):
             # display/init properties
             'name': '', 'dev': '', 'width': 8, 'istext': False, 'maxlen': None,
             'min': None, 'max': None, 'unit': ' ', 'item': -1, 'format': '%s',
-            'plot': None,
+            'plot': None, 'plotinterval': 3600,
             # current values
             'value': None, 'strvalue': None, 'expired': 0, 'status': None,
             'changetime': 0, 'exptime': 0, 'fixed': '',
-            'plotx': [], 'ploty': [],
+            'plotx': None, 'ploty': None,
             # key names
             'key': '', 'statuskey': '', 'unitkey': '', 'formatkey': '',
             'fixedkey': '',
+            # widgets
+            'namelabel': None, 'valuelabel': None, 'plotcurve': None,
         }
 
         # convert configured layout to internal structure
@@ -252,6 +254,9 @@ class Monitor(BaseCacheClient):
                             field.update(fielddesc)
                             if not field['name']:
                                 field['name'] = field['dev']
+                            if field['plot']:
+                                field['plotx'] = []
+                                field['ploty'] = []
                             fields.append(field)
                         rows.append(fields)
                     block = ({'name': blockdesc[0], 'visible': True,
@@ -304,6 +309,9 @@ class Monitor(BaseCacheClient):
         newwatch = set()
         for field in self._watch:
             vlabel, status = field['valuelabel'], field['status']
+            if not vlabel:
+                continue
+
             value = field['value']
 
             # set name label background color: determined by the value limits
@@ -314,9 +322,6 @@ class Monitor(BaseCacheClient):
                 self.setBackColor(field['namelabel'], self._red)
             else:
                 self.setBackColor(field['namelabel'], self._bgcolor)
-
-            if not vlabel:
-                continue
 
             # set the foreground color: determined by the status
 
@@ -438,7 +443,7 @@ class Monitor(BaseCacheClient):
                     if field['status'] != value:
                         field['changetime'] = time
                     field['status'] = value
-            elif key == field['unitkey']:
+            elif key == field['unitkey'] and not field['plot']:
                 if value is not None:
                     if field['item'] >= 0:
                         try:
@@ -459,7 +464,7 @@ class Monitor(BaseCacheClient):
                                           fvalue)
                     except Exception:
                         self.setLabelText(field['valuelabel'], str(fvalue))
-            elif key == field['fixedkey']:
+            elif key == field['fixedkey'] and not field['plot']:
                 field['fixed'] = ' (F)' if value else ''
                 self.setLabelUnitText(field['namelabel'], field['name'],
                                       field['unit'], field['fixed'])

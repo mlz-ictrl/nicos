@@ -43,7 +43,9 @@ _axisblock = Block(
     [BlockRow('mth', 'mtt'),
      BlockRow('psi', 'phi'),
      BlockRow('ath', 'att'),
-     BlockRow(Field(dev='psi', plot=300, min=0, max=360)),
+     BlockRow(Field(dev='psi', plot='motors', plotinterval=300, min=0, max=360),
+              Field(dev='phi', plot='motors', plotinterval=300),
+              ),
     ],
     'tas')  # this is the name of a setup that must be loaded in the
             # NICOS master instance for this block to be displayed

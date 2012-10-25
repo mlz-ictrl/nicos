@@ -145,13 +145,20 @@ The recognized keys are:
   the devices' format string does not apply), see the "Triple Axis" block above.
 
 * ``plot`` -- if set, the value is not displayed as a number, but as a plot.
-  This currently only works in the Qt backend.  The value for ``plot`` must be a
-  number of seconds, which specifies how far back in time the plot X axis will
-  go.  For example, ::
+  This currently only works in the Qt backend.
 
-    Field('BeTemp', plot=7200)
+  The value for this key is an identifier for the plot.  Multiple values can be
+  plotted in the same plot if they have the same identifier.
 
-  will plot the ``BeTemp`` device's value for the last 2 hours.
+* ``plotinterval`` -- a number of seconds, which specifies how far back in time the
+  plot X axis will go (default is 1 hour).  For example, ::
+
+    ...
+    Field('TA', plot='temps', plotinterval=7200),
+    Field('TB', plot='temps', plotinterval=7200),
+    ...
+
+  will plot the ``TA`` and ``TB`` device values for the last 2 hours.
 
 
 Backends
