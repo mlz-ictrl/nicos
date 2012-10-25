@@ -260,13 +260,16 @@ class Session(object):
         if setups is not None and set(setups) != set(self.explicit_setups):
             self.unloadSetup()
             self.loadSetup(setups)
+        # cache keys are always lowercase, while device names can be mixed,
+        # so we build a map once to get fast lookup
+        lowerdevs = dict((d.name.lower(), d) for d in self.devices.itervalues())
         for key, value in db.iteritems():
             if key.count('/') != 1:
                 continue
             dev, param = key.split('/')
-            if dev not in self.devices:
+            if dev not in lowerdevs:
                 continue
-            dev = self.devices[dev]
+            dev = lowerdevs[dev]
             if param == 'value':
                 dev._sim_value = value
                 dev._sim_min = dev._sim_max = dev._sim_old_value = None
