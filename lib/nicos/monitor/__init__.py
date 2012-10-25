@@ -257,6 +257,7 @@ class Monitor(BaseCacheClient):
                             if field['plot']:
                                 field['plotx'] = []
                                 field['ploty'] = []
+                            field['key'] = field['key'].lower()
                             fields.append(field)
                         rows.append(fields)
                     block = ({'name': blockdesc[0], 'visible': True,
