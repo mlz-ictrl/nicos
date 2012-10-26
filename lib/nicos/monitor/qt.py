@@ -36,7 +36,8 @@ from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
 from PyQt4.QtCore import QSize, QVariant, Qt, SIGNAL
 
 try:
-    from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend
+    from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend, \
+         QwtPlotZoomer
     from nicos.gui.plothelpers import TimeScaleEngine, TimeScaleDraw
 except (ImportError, RuntimeError):
     QwtPlot = None
@@ -86,6 +87,10 @@ if QwtPlot:
             self.minv = minv
             self.maxv = maxv
 
+            # appearance setup
+            self.setCanvasBackground(Qt.white)
+
+            # axes setup
             self.setAxisScaleEngine(QwtPlot.xBottom, TimeScaleEngine())
             showdate = interval > 24*3600
             showsecs = interval < 300
@@ -95,14 +100,17 @@ if QwtPlot:
                                        Qt.AlignBottom | Qt.AlignLeft)
             self.setAxisLabelRotation(QwtPlot.xBottom, -45)
 
+            # subcomponents: grid, legend, zoomer
             grid = QwtPlotGrid()
             grid.setPen(QPen(QBrush(Qt.gray), 1, Qt.DotLine))
             grid.attach(self)
-
             self.legend = QwtLegend(self)
             self.legend.setMidLineWidth(100)
             self.insertLegend(self.legend, QwtPlot.TopLegend)
+            self.zoomer = QwtPlotZoomer(QwtPlot.xBottom, QwtPlot.yLeft,
+                                        self.canvas())
 
+            # additional curves setup
             self.mincurve = self.maxcurve = None
             if self.minv is not None:
                 self.mincurve = QwtPlotCurve()
