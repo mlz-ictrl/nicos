@@ -29,7 +29,7 @@ __version__ = "$Revision$"
 from nicos import session
 from nicos.core import status, Device, Moveable, HasLimits, HasOffset, Param, \
      ConfigurationError, ProgrammingError, LimitError, UsageError, \
-     InvalidValueError, AccessError, requires, usermethod, ADMIN
+     AccessError, requires, usermethod, ADMIN
 
 from test.utils import raises
 
@@ -195,7 +195,7 @@ def test_methods():
     assert 'status' in keys
     # loglevel
     dev2.loglevel = 'info'
-    assert raises(InvalidValueError, setattr, dev2, 'loglevel', 'xxx')
+    assert raises(ConfigurationError, setattr, dev2, 'loglevel', 'xxx')
     # test version() method
     assert ('testversion', 1.0) in dev2.version()
 

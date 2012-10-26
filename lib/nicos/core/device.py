@@ -33,7 +33,7 @@ from time import time as currenttime, sleep
 from nicos import session
 from nicos.core import status
 from nicos.core.params import Param, Override, Value, tupleof, floatrange, \
-     anytype, none_or
+     oneof, anytype, none_or
 from nicos.core.errors import NicosError, ConfigurationError, \
      ProgrammingError, UsageError, LimitError, ModeError, \
      CommunicationError, CacheLockError, InvalidValueError, AccessError
@@ -252,7 +252,10 @@ class Device(object):
                              settable=True),
         'lowlevel':    Param('Whether the device is not interesting to users',
                              type=bool, default=False, userparam=False),
-        'loglevel':    Param('The logging level of the device', type=str,
+         # Pseudo levels 'input', 'output', and 'action' not included
+        'loglevel':    Param('The logging level of the device', 
+                             type=oneof(str, 'debug', 'info', 'warning', 
+                                             'error',),
                              default='info', settable=True, preinit=True),
     }
 
@@ -345,9 +348,6 @@ class Device(object):
         setattr(self, name.lower(), value)
 
     def doUpdateLoglevel(self, value):
-        if value not in loggers.loglevels:
-            raise InvalidValueError(self, 'loglevel must be one of %s' %
-                ', '.join(map(repr, loggers.loglevels.keys())))
         self.log.setLevel(loggers.loglevels[value])
 
     def init(self):
