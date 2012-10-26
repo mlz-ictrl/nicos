@@ -27,7 +27,20 @@
 __version__ = "$Revision$"
 
 from cgi import escape
-from time import sleep
+from time import sleep, time as currenttime
+from datetime import datetime
+from cStringIO import StringIO
+
+try:
+    import matplotlib
+    matplotlib.use('agg')
+    import matplotlib.pyplot as mpl
+    import matplotlib.dates as mpldate
+except ImportError:
+    matplotlib = None
+else:
+    matplotlib.rc('figure', facecolor='#cccccc')
+    matplotlib.rc('font', family='Helvetica')
 
 from nicos.core import Param
 from nicos.monitor import Monitor as BaseMonitor
@@ -87,6 +100,57 @@ class Label(object):
                 'background-color: %s">%s</div>' %
                 (self.cls, self.fore, self.width, self.back, self.text))
 
+class Plot(object):
+    def __init__(self, interval, width, height):
+        self.interval = interval
+        self.width = width
+        self.height = height
+        self.data = []
+        self.figure = mpl.figure(figsize=(width/11., height/11.))
+        ax = self.figure.gca()
+        ax.grid()
+        ax.xaxis.set_major_locator(mpldate.AutoDateLocator())
+        fmt = '%m-%d %H:%M:%S'
+        if interval < 24*3600:
+            fmt = fmt[6:]
+        if interval > 300:
+            fmt = fmt[:-3]
+        ax.xaxis.set_major_formatter(mpldate.DateFormatter(fmt))
+        self.curves = []
+    def addcurve(self, name):
+        self.curves.append(self.figure.gca().plot([], [], lw=2, label=name)[0])
+        self.data.append([[], [], []])
+        self.figure.gca().legend(loc=2, prop={'size': 'small'}).draw_frame(0)
+        return len(self.curves) - 1
+    def updatevalues(self, curve, x, y):
+        ts, dt, yy = self.data[curve]
+        ts.append(x)
+        dt.append(datetime.fromtimestamp(x))
+        yy.append(y)
+        i = 0
+        ll = len(ts)
+        limit = currenttime() - self.interval
+        while i < ll and ts[i] < limit:
+            i += 1
+        self.data[curve] = [ts[i:], dt[i:], yy[i:]]
+    def __str__(self):
+        for (d, c) in zip(self.data, self.curves):
+            c.set_data(d[1], d[2])
+        ax = self.figure.gca()
+        ax.relim()
+        ax.autoscale_view()
+        try:
+            mpl.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha='right')
+        except Exception:
+            # no data yet in plot
+            return ''
+        self.figure.tight_layout()
+        io = StringIO()
+        self.figure.savefig(io, format='svg', facecolor=(0,0,0,0))
+        return ('<img src="data:image/svg+xml;base64,%s" '
+                'style="width: %sex; height: %sex">' % (
+                    io.getvalue().encode('base64'), self.width, self.height))
+
 
 class Monitor(BaseMonitor):
     """HTML specific implementation of instrument monitor."""
@@ -99,7 +163,8 @@ class Monitor(BaseMonitor):
     def mainLoop(self):
         while not self._stoprequest:
             sleep(self.interval)
-            open(self.filename, 'w').write(''.join(map(str, self._content)))
+            content = ''.join(map(str, self._content))
+            open(self.filename, 'w').write(content)
             self.log.debug('wrote status to %r' % self.filename)
 
     def closeGui(self):
@@ -136,6 +201,8 @@ class Monitor(BaseMonitor):
         add(self._timelabel)
         add('</div></td></tr>\n')
 
+        self._plots = {}
+
         for superrow in self._layout:
             add('<tr><td class="center">\n')
             for column in superrow:
@@ -152,22 +219,31 @@ class Monitor(BaseMonitor):
                         else:
                             blk.add('<tr><td class="center">')
                             for field in row:
-                                blk.add('\n      <table class="field"><tr><td>')
-                                flabel = Label('name', field['width'],
-                                               escape(field['name']))
-                                field['namelabel'] = flabel
-                                blk.add(flabel)
-                                blk.add('</td></tr><tr><td>')
-
-                                # deactivate plots for now
-                                field['plot'] = None
-
-                                cls = 'value'
-                                if field['istext']: cls += ' istext'
-                                field['valuelabel'] = Label(cls)
-                                blk.add(field['valuelabel'])
-                                blk.add('</td></tr></table> ')
                                 self.updateKeymap(field)
+                                blk.add('\n      <table class="field"><tr><td>')
+                                if field['plot'] and matplotlib:
+                                    p = self._plots.get(field['plot'])
+                                    if not p:
+                                        p = Plot(field['plotinterval'],
+                                                 field['width'], field['height'])
+                                        self._plots[field['plot']] = p
+                                        blk.add(p)
+                                    field['plotcurve'] = p.addcurve(field['name'])
+                                else:
+                                    # deactivate plots if unavailable
+                                    field['plot'] = None
+                                    # create name label
+                                    flabel = Label('name', field['width'],
+                                                   escape(field['name']))
+                                    field['namelabel'] = flabel
+                                    blk.add(flabel)
+                                    blk.add('</td></tr><tr><td>')
+                                    # create value label
+                                    cls = 'value'
+                                    if field['istext']: cls += ' istext'
+                                    field['valuelabel'] = Label(cls)
+                                    blk.add(field['valuelabel'])
+                                blk.add('</td></tr></table> ')
                             blk.add('\n    </td></tr>')
                     blk.add('</table>\n  </div>')
                     add(blk)
@@ -197,6 +273,9 @@ class Monitor(BaseMonitor):
     def setBothColors(self, label, fore, back):
         label.fore = fore
         label.back = back
+
+    def updatePlot(self, field, x, y):
+        self._plots[field['plot']].updatevalues(field['plotcurve'], x, y)
 
     def switchWarnPanel(self, off=False):
         pass

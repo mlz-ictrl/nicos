@@ -414,7 +414,9 @@ class Monitor(BaseMonitor):
     def setBothColors(self, label, fore, back):
         label.emit(SIGNAL('setcolors'), fore, back)
 
-    def updatePlot(self, field):
+    def updatePlot(self, field, x, y):
+        field['plotx'].append(x)
+        field['ploty'].append(y)
         curve = field['plotcurve']
         curve.plot().emit(SIGNAL('updateplot'), field, curve)
 

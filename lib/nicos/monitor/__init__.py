@@ -433,9 +433,7 @@ class Monitor(BaseCacheClient):
                 field['strvalue'] = strvalue
                 field['value'] = value
                 if field['plot']:
-                    field['plotx'].append(time)
-                    field['ploty'].append(value)
-                    self.updatePlot(field)
+                    self.updatePlot(field, time, value)
                 else:
                     self.setLabelText(field['valuelabel'],
                                       strvalue[:field['maxlen']])
