@@ -576,7 +576,7 @@ class NicosCmdClient(NicosClient):
                                           chars='qsn')
                 if reply == 'q':
                     # this will automatically queue
-                    return self.command('run', fpath)
+                    return self.command('run!', fpath)
                 elif reply == 's':
                     return self.command('sim', fpath)
         else:
@@ -710,7 +710,7 @@ class NicosCmdClient(NicosClient):
                     self.put_client('Command queued.')
             else:
                 self.tell('queue', '', arg)
-        elif cmd in ('r', 'run'):
+        elif cmd in ('r', 'run', 'run!'):
             if not arg:
                 # since we remember the last edited file, we can offer
                 # running it here
@@ -729,7 +729,7 @@ class NicosCmdClient(NicosClient):
             except Exception, e:
                 self.put_error('Unable to open file: %s.' % e)
                 return
-            if self.status in ('running', 'interrupted'):
+            if self.status in ('running', 'interrupted') and cmd != 'run!':
                 if self.ask_question('A script is already running, '
                     'queue script?', chars='yn', default='y') == 'y':
                     self.tell('queue', fpath, code)
