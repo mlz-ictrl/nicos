@@ -78,7 +78,7 @@ class SensitiveLabel(SMLabel):
 
 if QwtPlot:
     class SMPlot(QwtPlot):
-        colors = [Qt.red, Qt.green, Qt.blue, Qt.magenta, Qt.cyan, Qt.darkGray]
+        colors = [Qt.red, Qt.darkGreen, Qt.blue, Qt.magenta, Qt.cyan, Qt.darkGray]
         def __init__(self, parent, interval, minv=None, maxv=None):
             QwtPlot.__init__(self, parent)
             self.ncurves = 0
