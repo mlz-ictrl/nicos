@@ -800,7 +800,9 @@ class NicosCmdClient(NicosClient):
             if self.connected:
                 self.put_error('Already connected. Use /disconnect first.')
             else:
-                self.ask_connect(ask_all=(arg != 'init'))
+                self.ask_connect()
+        elif cmd == 'reconnect':
+            self.ask_connect(ask_all=False)
         elif cmd in ('q', 'quit'):
             if self.connected:
                 self.disconnect()
@@ -867,8 +869,8 @@ class NicosCmdClient(NicosClient):
                 candidates.append(f[omit:])
         return candidates
 
-    commands = ['run', 'simulate', 'edit', 'update', 'break',
-                'continue', 'stop', 'where', 'disconnect', 'connect',
+    commands = ['run', 'simulate', 'edit', 'update', 'break', 'continue',
+                'stop', 'where', 'disconnect', 'connect', 'reconnect',
                 'quit', 'help', 'log', 'pending', 'cancel', 'plot']
 
     def completer(self, text, state):
@@ -919,7 +921,7 @@ class NicosCmdClient(NicosClient):
     def main(self):
         """Connect and then run the main read-send-print loop."""
         try:
-            self.command('connect', 'init')
+            self.command('reconnect', '')
             while 1:
                 try:
                     cmd = self.readline(self.prompt)
@@ -943,7 +945,7 @@ class NicosCmdClient(NicosClient):
 
     def main_with_command(self, command):
         self.quiet_connect = True
-        self.command('connect', 'init')
+        self.command('reconnect', '')
         self.handle(command)
         self.command('quit', '')
         return 0
@@ -978,6 +980,7 @@ This client supports "meta-commands" beginning with a slash:
 
   /disconnect         -- disconnect from NICOS daemon
   /connect            -- connect to a NICOS daemon
+  /reconnect          -- reconnect to NICOS daemon last used
   /q(uit)             -- quit this client (NICOS will continue running)
 
 Command parts in parenteses can be omitted.
