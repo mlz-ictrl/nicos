@@ -99,7 +99,16 @@ class NicosCompleter(rlcompleter.Completer):
 
     attr_hidden = set(['attached_devices', 'parameters', 'hardware_access',
                        'temporary', 'log', 'valuetype', 'mro'])
-    global_hidden = set(dir(exceptions))
+    global_hidden = set(dir(exceptions)) | set(['basestring', 'buffer',
+                        'bytearray', 'bytes', 'callable', 'classmethod',
+                        'coerce', 'cmp', 'compile', 'delattr', 'eval',
+                        'execfile', 'filter', 'frozenset', 'getattr',
+                        'globals', 'hasattr', 'hash', 'id', 'input', 'intern',
+                        'isinstance', 'issubclass', 'iter', 'locals', 'long',
+                        'map', 'memoryview', 'property', 'raw_input', 'reduce',
+                        'reload', 'setattr', 'slice', 'staticmethod', 'super',
+                        'unichr', 'unicode', 'type', 'vars', 'xrange'])
+    hidden_keyword = set(['assert', 'class', 'del', 'exec', 'yield'])
     special_device = set(['move', 'drive', 'maw', 'switch', 'wait', 'read',
                          'status', 'stop', 'reset', 'set', 'get', 'fix',
                          'release', 'adjust', 'version', 'history', 'limits',
@@ -209,7 +218,7 @@ class NicosCompleter(rlcompleter.Completer):
         matches = []
         n = len(text)
         for word in keyword.kwlist:
-            if word[:n] == text:
+            if word[:n] == text and word not in self.hidden_keyword:
                 matches.append(word)
         for nspace in [__builtin__.__dict__, self.namespace, self.namespace2]:
             for word, val in nspace.items():
