@@ -150,6 +150,12 @@ The recognized keys are:
   The value for this key is an identifier for the plot.  Multiple values can be
   plotted in the same plot if they have the same identifier.
 
+  The ``width`` property can be given for plots too, in the same unit as for
+  other values (characters).
+
+* ``height`` -- controls the minimum height of the plotting widget, as a number
+  of characters.
+
 * ``plotinterval`` -- a number of seconds, which specifies how far back in time the
   plot X axis will go (default is 1 hour).  For example, ::
 

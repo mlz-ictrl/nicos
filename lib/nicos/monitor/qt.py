@@ -271,6 +271,8 @@ class Monitor(BaseMonitor):
                            field['min'], field['max'])
                 self._plots[field['plot']] = w
                 w.setFont(labelfont)
+                w.setMinimumSize(QSize(onechar * (field['width'] + .5),
+                                       onechar * (field['height'] + .5)))
                 field['plotcurve'] = w.addcurve(field['name'])
             else:
                 # deactivate plot if QwtPlot unavailable

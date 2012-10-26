@@ -222,7 +222,7 @@ class Monitor(BaseCacheClient):
             # display/init properties
             'name': '', 'dev': '', 'width': 8, 'istext': False, 'maxlen': None,
             'min': None, 'max': None, 'unit': ' ', 'item': -1, 'format': '%s',
-            'plot': None, 'plotinterval': 3600,
+            'plot': None, 'plotinterval': 3600, 'height': 8,
             # current values
             'value': None, 'strvalue': None, 'expired': 0, 'status': None,
             'changetime': 0, 'exptime': 0, 'fixed': '',
