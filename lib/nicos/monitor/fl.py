@@ -359,6 +359,9 @@ class Monitor(BaseMonitor):
             field['namelabel'] = fieldwidget._namelabel
             field['valuelabel'] = fieldwidget._valuelabel
 
+            # deactivate all plots
+            field['plot'] = None
+
             # store reference from key to field for updates
             self.updateKeymap(field)
             return fieldwidget
@@ -421,7 +424,7 @@ class Monitor(BaseMonitor):
     setLabelText = Fl_Box.copy_label
 
     def setLabelUnitText(self, label, text, unit, fixed=''):
-        if unit:
+        if unit.strip():
             label.copy_label(text + ' (%s)%s' % (unit, fixed))
         else:
             label.copy_label(text)

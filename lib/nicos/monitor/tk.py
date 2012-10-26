@@ -128,6 +128,9 @@ class Monitor(BaseMonitor):
 
             field['valuelabel'] = l
 
+            # deactivate all plots
+            field['plot'] = None
+
             self.updateKeymap(field)
 
         # now iterate through the layout and create the widgets to display it
@@ -163,7 +166,10 @@ class Monitor(BaseMonitor):
         label._var.set(text)
 
     def setLabelUnitText(self, label, text, unit, fixed=''):
-        label._var.set(text + ' (%s)%s' % (unit, fixed))
+        if unit.strip():
+            label._var.set(text + ' (%s)%s' % (unit, fixed))
+        else:
+            label._var.set(text)
 
     def setForeColor(self, label, color):
         label.config(fg=color)

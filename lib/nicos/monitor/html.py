@@ -159,6 +159,9 @@ class Monitor(BaseMonitor):
                                 blk.add(flabel)
                                 blk.add('</td></tr><tr><td>')
 
+                                # deactivate plots for now
+                                field['plot'] = None
+
                                 cls = 'value'
                                 if field['istext']: cls += ' istext'
                                 field['valuelabel'] = Label(cls)

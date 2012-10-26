@@ -140,6 +140,9 @@ class Monitor(BaseMonitor):
             tmplayout.pack_start(gtk.Label())
             fieldlayout.pack_start(tmplayout)
 
+            # deactivate all plots
+            field['plot'] = None
+
             self.updateKeymap(field)
             return fieldlayout
 
