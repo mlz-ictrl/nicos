@@ -34,13 +34,11 @@ from cStringIO import StringIO
 try:
     import matplotlib
     matplotlib.use('agg')
+    matplotlib.rc('font', family='Helvetica')
     import matplotlib.pyplot as mpl
     import matplotlib.dates as mpldate
 except ImportError:
     matplotlib = None
-else:
-    matplotlib.rc('figure', facecolor='#cccccc')
-    matplotlib.rc('font', family='Helvetica')
 
 from nicos.core import Param
 from nicos.monitor import Monitor as BaseMonitor
@@ -132,9 +130,12 @@ class Plot(object):
         limit = currenttime() - self.interval
         while i < ll and ts[i] < limit:
             i += 1
-        self.data[curve] = [ts[i:], dt[i:], yy[i:]]
+        self.data[curve][:] = [ts[i:], dt[i:], yy[i:]]
     def __str__(self):
-        for (d, c) in zip(self.data, self.curves):
+        for (i, d, c) in zip(range(len(self.data)), self.data, self.curves):
+            # add a point "current value" at "right now" to avoid curves not
+            # updating if the value doesn't change
+            self.updatevalues(i, currenttime(), d[2][-1])
             c.set_data(d[1], d[2])
         ax = self.figure.gca()
         ax.relim()
@@ -157,7 +158,7 @@ class Monitor(BaseMonitor):
 
     parameters = {
         'filename': Param('Filename for HTML output', type=str, mandatory=True),
-        'interval': Param('Interval for writing file', default=1),
+        'interval': Param('Interval for writing file', default=5),
     }
 
     def mainLoop(self):

@@ -72,7 +72,8 @@ _tempblock = Block(
     'Temperature',
     [BlockRow(Field(dev='T'), Field(key='t/setpoint', name='Setpoint')),
      BlockRow(Field(dev='T', plot='T', interval=300, width=50, height=40),
-              Field(key='t/setpoint', name='SetP', plot='T', interval=300))],
+              Field(key='t/setpoint', name='SetP', plot='T', interval=300))
+    ],
     'temperature')
 
 _rightcolumn = Column(_axisblock, _detectorblock)
@@ -84,6 +85,7 @@ devices = dict(
                      title = 'NICOS status monitor',
                      filename = 'data/status.html',
                      loglevel = 'info',
+                     interval = 3,
                      cache = 'localhost:14869',
                      prefix = 'nicos/',
                      font = 'Helvetica',

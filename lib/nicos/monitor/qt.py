@@ -33,7 +33,7 @@ from time import time as currenttime, sleep
 from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
      QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, \
      QCursor, QStackedWidget, QPen, QBrush
-from PyQt4.QtCore import QSize, QVariant, Qt, SIGNAL
+from PyQt4.QtCore import QSize, QVariant, QTimer, Qt, SIGNAL
 
 try:
     from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend, \
@@ -86,6 +86,7 @@ if QwtPlot:
             self.interval = interval
             self.minv = minv
             self.maxv = maxv
+            self.ctimers = {}
 
             # appearance setup
             self.setCanvasBackground(Qt.white)
@@ -131,13 +132,22 @@ if QwtPlot:
             self.setAxisFont(QwtPlot.yLeft, font)
             self.setAxisFont(QwtPlot.xBottom, font)
 
-        def addcurve(self, title):
+        def addcurve(self, field, title):
             curve = QwtPlotCurve(title)
             curve.setPen(QPen(self.colors[self.ncurves % 6], 2))
             self.ncurves += 1
             curve.attach(self)
             curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
             self.legend.find(curve).setIdentifierWidth(30)
+            self.ctimers[curve] = QTimer()
+            self.ctimers[curve].setSingleShot(True)
+            # record the current value at least every 5 seconds, to avoid curves
+            # not updating if the value doesn't change
+            def update():
+                field['plotx'].append(currenttime())
+                field['ploty'].append(field['ploty'][-1])
+                self.emit(SIGNAL('updateplot'), field, curve)
+            self.connect(self.ctimers[curve], SIGNAL('timeout()'), update)
             return curve
 
         def updateplot(self, field, curve):
@@ -154,6 +164,7 @@ if QwtPlot:
             if self.maxcurve:
                 self.maxcurve.setData([xx[0], xx[-1]], [self.maxv, self.maxv])
             self.replot()
+            self.ctimers[curve].start(5000)
 
 
 class BlockBox(QFrame):
@@ -273,7 +284,7 @@ class Monitor(BaseMonitor):
             if field['plot'] and QwtPlot:
                 w = self._plots.get(field['plot'])
                 if w:
-                    field['plotcurve'] = w.addcurve(field['name'])
+                    field['plotcurve'] = w.addcurve(field, field['name'])
                     return
                 w = SMPlot(groupframe, field['plotinterval'],
                            field['min'], field['max'])
@@ -281,7 +292,7 @@ class Monitor(BaseMonitor):
                 w.setFont(labelfont)
                 w.setMinimumSize(QSize(onechar * (field['width'] + .5),
                                        onechar * (field['height'] + .5)))
-                field['plotcurve'] = w.addcurve(field['name'])
+                field['plotcurve'] = w.addcurve(field, field['name'])
             else:
                 # deactivate plot if QwtPlot unavailable
                 field['plot'] = None
