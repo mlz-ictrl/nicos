@@ -408,18 +408,27 @@ def appendscan(numsteps=5, stepsize=None):
         raise NicosError('cannot append to scan with no positions')
     pos1 = scan.positions[0][0]
     pos2 = scan.positions[-1][0]
-    if not isinstance(pos1, (int, float)):
-        # XXX implement for qscan
-        raise NicosError('cannot append to this scan')
-    if stepsize is None:
-        stepsize = (pos2 - pos1) / (npos - 1)
-    if numsteps > 0:
-        startpos = pos2 + stepsize
-    else:
-        stepsize = -stepsize
-        startpos = pos1 + stepsize
+    if isinstance(pos1, tuple):
+        stepsizes = tuple((b - a) / (npos - 1) for (a, b) in zip(pos1, pos2))
+        if numsteps > 0:
+            positions = [[tuple(b + j*s for (b, s) in zip(pos2, stepsizes))]
+                         for j in range(1, numsteps+1)]
+        else:
+            positions = [[tuple(a - j*s for (a, s) in zip(pos1, stepsizes))]
+                         for j in range(1, -numsteps+1)]
         numsteps = abs(numsteps)
-    positions = [[startpos + j*stepsize] for j in range(numsteps)]
+    elif isinstance(pos1, (int, float)):
+        if stepsize is None:
+            stepsize = (pos2 - pos1) / (npos - 1)
+        if numsteps > 0:
+            startpos = pos2 + stepsize
+        else:
+            stepsize = -stepsize
+            startpos = pos1 + stepsize
+        numsteps = abs(numsteps)
+        positions = [[startpos + j*stepsize] for j in range(numsteps)]
+    else:
+        raise NicosError('cannot append to this scan')
     s = Scan(scan.devices, positions, None, scan.multistep, scan.detlist,
              scan.envlist, scan.preset, '%d more steps of last scan' % numsteps)
     s.dataset.sinkinfo['continuation'] = ','.join(contuids)

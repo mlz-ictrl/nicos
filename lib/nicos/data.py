@@ -160,7 +160,7 @@ class GracePlotter(object):
     def beginDataset(self, dataset):
         try:
             if dataset.sinkinfo.get('continuation'):
-                return
+                return True
             self.openPlot(dataset)
             return True
         except Exception:

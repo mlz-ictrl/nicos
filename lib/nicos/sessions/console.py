@@ -136,7 +136,6 @@ class NicosInteractiveConsole(code.InteractiveConsole):
             # "immediate stop" chosen
             session.immediateStop()
         except Exception:
-            #raise
             exc_info = sys.exc_info()
             self.session.logUnhandledException(exc_info)
             # also send a notification if configured
