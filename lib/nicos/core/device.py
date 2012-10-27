@@ -253,9 +253,8 @@ class Device(object):
         'lowlevel':    Param('Whether the device is not interesting to users',
                              type=bool, default=False, userparam=False),
          # Pseudo levels 'input', 'output', and 'action' not included
-        'loglevel':    Param('The logging level of the device', 
-                             type=oneof(str, 'debug', 'info', 'warning', 
-                                             'error',),
+        'loglevel':    Param('The logging level of the device',
+                             type=oneof('debug', 'info', 'warning', 'error'),
                              default='info', settable=True, preinit=True),
     }
 
