@@ -107,6 +107,7 @@ Device commands
 .. autofunction:: history
 
 .. autofunction:: getall
+.. autofunction:: setall
 
 Measuring commands
 ------------------

@@ -266,8 +266,10 @@ def set(dev, parameter, value):
 
     >>> phi.speed = 50
     """
-    session.getDevice(dev).setPar(parameter, value)
-    dev.log.info('%s set to %r' % (parameter, value))
+    dev = session.getDevice(dev)
+    prevalue = getattr(dev, parameter)
+    setattr(dev, parameter, value)
+    dev.log.info('%s set to %r (was %r)' % (parameter, value, prevalue))
 
 @usercommand
 def get(dev, parameter):
@@ -306,6 +308,23 @@ def getall(*names):
         if any(v is not None for v in pvalues):
             items.append([name] + map(str, pvalues))
     printTable(('device',) + names, items, printinfo)
+
+@usercommand
+def setall(param, value):
+    """Set the given parameter to the given value for all devices that have it.
+
+    Example:
+
+    >>> setall('offset', 0)
+
+    set the offset for all devices to zero.
+    """
+    for name, dev in session.devices.iteritems():
+        if param not in dev.parameters:
+            continue
+        prevalue = getattr(dev, param)
+        setattr(dev, param, value)
+        dev.log.info('%s set to %r (was %r)' % (param, value, prevalue))
 
 @usercommand
 @helparglist('dev[, reason]')
