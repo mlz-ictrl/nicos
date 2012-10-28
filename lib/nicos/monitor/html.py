@@ -31,7 +31,7 @@ __version__ = "$Revision$"
 from cgi import escape
 from time import sleep, time as currenttime
 from datetime import datetime
-from threading import Lock
+from threading import RLock
 from cStringIO import StringIO
 
 try:
@@ -107,7 +107,7 @@ class Plot(object):
         self.width = width
         self.height = height
         self.data = []
-        self.lock = Lock()
+        self.lock = RLock()
         self.figure = mpl.figure(figsize=(width/11., height/11.))
         ax = self.figure.gca()
         ax.grid()
@@ -173,9 +173,14 @@ class Monitor(BaseMonitor):
     def mainLoop(self):
         while not self._stoprequest:
             sleep(self.interval)
-            content = ''.join(map(str, self._content))
-            open(self.filename, 'w').write(content)
-            self.log.debug('wrote status to %r' % self.filename)
+            try:
+                content = ''.join(map(str, self._content))
+                open(self.filename, 'w').write(content)
+            except Exception:
+                self.log.error('could not write status to %r'
+                               % self.filename, exc=1)
+            else:
+                self.log.debug('wrote status to %r' % self.filename)
 
     def closeGui(self):
         pass
