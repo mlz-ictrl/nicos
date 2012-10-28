@@ -24,11 +24,14 @@
 
 """Instrument monitor that generates an HTML page."""
 
+from __future__ import with_statement
+
 __version__ = "$Revision$"
 
 from cgi import escape
 from time import sleep, time as currenttime
 from datetime import datetime
+from threading import Lock
 from cStringIO import StringIO
 
 try:
@@ -104,6 +107,7 @@ class Plot(object):
         self.width = width
         self.height = height
         self.data = []
+        self.lock = Lock()
         self.figure = mpl.figure(figsize=(width/11., height/11.))
         ax = self.figure.gca()
         ax.grid()
@@ -121,22 +125,27 @@ class Plot(object):
         self.figure.gca().legend(loc=2, prop={'size': 'small'}).draw_frame(0)
         return len(self.curves) - 1
     def updatevalues(self, curve, x, y):
-        ts, dt, yy = self.data[curve]
-        ts.append(x)
-        dt.append(datetime.fromtimestamp(x))
-        yy.append(y)
-        i = 0
-        ll = len(ts)
-        limit = currenttime() - self.interval
-        while i < ll and ts[i] < limit:
-            i += 1
-        self.data[curve][:] = [ts[i:], dt[i:], yy[i:]]
+        # we have to guard modifications to self.data, since otherwise the
+        # __str__ method below may see inconsistent X and Y lists, which will
+        # cause matplotlib to raise exceptions
+        with self.lock:
+            ts, dt, yy = self.data[curve]
+            ts.append(x)
+            dt.append(datetime.fromtimestamp(x))
+            yy.append(y)
+            i = 0
+            ll = len(ts)
+            limit = currenttime() - self.interval
+            while i < ll and ts[i] < limit:
+                i += 1
+            self.data[curve][:] = [ts[i:], dt[i:], yy[i:]]
     def __str__(self):
-        for (i, d, c) in zip(range(len(self.data)), self.data, self.curves):
-            # add a point "current value" at "right now" to avoid curves not
-            # updating if the value doesn't change
-            self.updatevalues(i, currenttime(), d[2][-1])
-            c.set_data(d[1], d[2])
+        with self.lock:
+            for i, (d, c) in enumerate(zip(self.data, self.curves)):
+                # add a point "current value" at "right now" to avoid curves
+                # not updating if the value doesn't change
+                self.updatevalues(i, currenttime(), d[2][-1])
+                c.set_data(d[1], d[2])
         ax = self.figure.gca()
         ax.relim()
         ax.autoscale_view()
