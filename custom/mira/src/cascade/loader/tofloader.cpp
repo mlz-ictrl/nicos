@@ -630,15 +630,25 @@ TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 
 	//--------------------------------------------------------------------------
 	InstrumentConfig& instr = GlobalConfig::GetInstrConfig();
-	
+
+	// get global config
 	const bool bPathLengthCorrection = instr.GetUsePathLenCorr();
-	const double dDetLenX = instr.GetDetLenX();
-	const double dDetLenY = instr.GetDetLenY();
-	const double dMiddleX = instr.GetDetCenterX();
-	const double dMiddleY = instr.GetDetCenterY();
-	const double Ls = instr.GetLs();
-	const double v_n = instr.GetV();
-	const double dOmegaM = instr.GetOmegaM();
+	double dDetLenX = instr.GetDetLenX();
+	double dDetLenY = instr.GetDetLenY();
+	double dMiddleX = instr.GetDetCenterX();
+	double dMiddleY = instr.GetDetCenterY();
+	double Ls = instr.GetLs();
+	double dv_n = instr.GetV();
+	double dOmegaM = instr.GetOmegaM();
+
+	// see if the TOF file has local config overrides
+	m_cascconf.GetValAs<double>("x-tof-detlen-x", dDetLenX);
+	m_cascconf.GetValAs<double>("x-tof-detlen-y", dDetLenY);
+	m_cascconf.GetValAs<double>("x-tof-detmid-x", dMiddleX);
+	m_cascconf.GetValAs<double>("x-tof-detmid-y", dMiddleY);
+	m_cascconf.GetValAs<double>("x-tof-Ls", Ls);
+	m_cascconf.GetValAs<double>("x-tof-vn", dv_n);
+	m_cascconf.GetValAs<double>("x-tof-omegaM", dOmegaM);
 	//--------------------------------------------------------------------------
 
 	bool (Fourier::*corr)(double, const double*, double *, double);
@@ -665,8 +675,8 @@ TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 				double dY = dDetLenY*(double(iY)+0.5)/dLenY - dMiddleY;
 
 				double dPathDiff = sqrt(dX*dX + dY*dY + Ls*Ls) - Ls;
-				double dTimeDiff = dPathDiff / v_n;
-				double dPhaseDiff = dOmegaM * dTimeDiff;
+				double dTimeDiff = dPathDiff / dv_n;
+				double dPhaseDiff = -dOmegaM * dTimeDiff;
 				dPhaseDiff = fmod(dPhaseDiff, 2.*M_PI);
 
 				(fourier.*corr)(dNumOsc, pTc, pTcShifted, -dPhaseDiff);

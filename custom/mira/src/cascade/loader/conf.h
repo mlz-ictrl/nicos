@@ -46,16 +46,19 @@ class CascConf
 
 		std::string GetVal(const std::string& strKey, bool *pbHasKey=0) const;
 
-		template<class T> T GetValAs(const std::string& strKey, bool *pbHasKey=0) const
+		template<class T> void GetValAs(const std::string& strKey, T& tVal,
+										bool *pbHasKey=0) const
 		{
-			std::string strVal = GetVal(strKey, pbHasKey);
+			bool bHasKey = false;
+			std::string strVal = GetVal(strKey, &bHasKey);
 
-			T tVal;
-			
-			std::istringstream istr(strVal);
-			istr >> tVal;
+			if(bHasKey)
+			{
+				std::istringstream istr(strVal);
+				istr >> tVal;
+			}
 
-			return tVal;
+			if(pbHasKey) *pbHasKey = bHasKey;
 		}
 };
 
