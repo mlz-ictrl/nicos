@@ -117,10 +117,10 @@ class Param(object):
         txt = 'Parameter: '
         txt += self.description or ''
         txt += '\n'
-        if isinstance(self.type, type(listof)):
-            txt += '\n    * Type: ' + (self.type.__doc__ or '')
-        else:
+        if isinstance(self.type, type):
             txt += '\n    * Type: ' + self.type.__name__
+        else:
+            txt += '\n    * Type: ' + (self.type.__doc__ or '')
         txt += '\n    * Default value: ``' + repr(self.default) + '``'
         if self.unit is not None:
             if self.unit == 'main':
@@ -238,55 +238,145 @@ class Value(object):
 _notset = object()
 
 def convdoc(conv):
-    if isinstance(conv, type(convdoc)):
-        return conv.__doc__ or ''
-    return conv.__name__
+    if isinstance(conv, type):
+        return conv.__name__
+    return conv.__doc__ or ''
 
-def listof(conv):
-    def converter(val=None):
+class listof():
+    
+    def __init__(self, conv):
+        self.__doc__ = 'a list of %s' % convdoc(conv)
+        self.conv = conv
+
+    def __call__(self, val=None):
         val = val if val is not None else list()
         if not isinstance(val, list):
             raise ValueError('value needs to be a list')
-        return map(conv, val)
-    converter.__doc__ = 'a list of %s' % convdoc(conv)
-    return converter
+        return map(self.conv, val)
 
-def nonemptylistof(conv):
-    def converter(val=None):
+class nonemptylistof():
+
+    def __init__(self, conv):
+        self.__doc__ = 'a non-empty list of %s' % convdoc(conv)
+        self.conv = conv
+
+    def __call__(self, val=None):
         if val is None:
-            return [conv()]
+            return [self.conv()]
         if not isinstance(val, list):
             raise ValueError('value needs to be a nonempty list')
         if not val:
             raise ValueError('value needs to be a nonempty list')
-        return map(conv, val)
-    converter.__doc__ = 'a non-empty list of %s' % convdoc(conv)
-    return converter
+        return map(self.conv, val)
 
-def tupleof(*types):
-    if not types:
-        raise ProgrammingError('tupleof() needs some types as arguments')
-    def converter(val=None):
+class tupleof():
+
+    def __init__(self, *types):
+        if not types:
+            raise ProgrammingError('tupleof() needs some types as arguments')
+        self.__doc__ = 'a tuple of (' + ', '.join(map(convdoc, types)) + ')'
+        self.types = types
+
+    def __call__(self, val=None):
         if val is None:
-            return tuple(type() for type in types)
-        if not isinstance(val, (list, tuple)) or not len(types) == len(val):
-            raise ValueError('value needs to be a %d-tuple' % len(types))
-        return tuple(t(v) for (t, v) in zip(types, val))
-    converter.__doc__ = 'a tuple of (' + ', '.join(map(convdoc, types)) + ')'
-    return converter
+            return tuple(type() for type in self.types)
+        if not isinstance(val, (list, tuple)) or not len(self.types) == len(val):
+            raise ValueError('value needs to be a %d-tuple' % len(self.types))
+        return tuple(t(v) for (t, v) in zip(self.types, val))
 
-def dictof(keyconv, valconv):
-    def converter(val=None):
+class dictof():
+
+    def __init__(self, keyconv, valconv):
+        self.__doc__ = 'a dict of %s keys and %s values' % \
+                        (convdoc(keyconv), convdoc(valconv))
+        self.keyconv = keyconv
+        self.valconv = valconv
+
+    def __call__(self, val=None):
         val = val if val is not None else dict()
         if not isinstance(val, dict):
             raise ValueError('value needs to be a dict')
         ret = {}
         for k, v in val.iteritems():
-            ret[keyconv(k)] = valconv(v)
+            ret[self.keyconv(k)] = self.valconv(v)
         return ret
-    converter.__doc__ = 'a dict of %s keys and %s values' % \
-                        (convdoc(keyconv), convdoc(valconv))
-    return converter
+
+class intrange():
+   
+    def __init__(self, fr, to):
+        fr = int(fr)
+        to = int(to)
+        if not fr <= to:
+            raise ValueError('intrange must fulfill from <= to, given was [%f, %f]' % (fr, to))
+        self.__doc__ = 'an integer in the range [%d, %d]' % (fr, to)
+        self.fr = fr
+        self.to = to
+
+    def __call__(self, val=None):
+        if val is None:
+            return self.fr
+        val = int(val)
+        if not self.fr <= val <= self.to:
+            raise ValueError('value needs to fulfill %d <= x <= %d' % (self.fr, self.to))
+        return val
+
+class floatrange():
+
+    def __init__(self, fr, to):
+        fr = float(fr)
+        to = float(to)
+        if not fr <= to:
+            raise ValueError('floatrange must fulfill from <= to, given was [%f, %f]' % (fr, to))
+        self.__doc__ = 'a float in the range [%f, %f]' % (fr, to)
+        self.fr = fr
+        self.to = to
+
+    def __call__(self, val=None):
+        if val is None:
+            return self.fr
+        val = float(val)
+        if not self.fr <= val <= self.to:
+            raise ValueError('value needs to fulfill %d <= x <= %d' % (self.fr, self.to))
+        return val
+
+class oneof():
+
+    def __init__(self, *vals):
+        self.__doc__ = 'one of ' + ', '.join(map(repr, vals))
+        self.vals = vals
+
+    def __call__(self, val=None):
+        if val is None:
+            return self.vals[0]
+        if val not in self.vals:
+            raise ValueError('invalid value: %s, must be one of %s' %
+                                 (val, ', '.join(map(repr, self.vals))))
+        return val
+
+class oneofdict():
+
+    def __init__(self, vals):
+        self.__doc__ = 'one of ' + ', '.join(map(repr, vals.values()))
+        self.vals = vals
+
+    def __call__(self, val=None):
+        if val in self.vals.keys():
+            val = self.vals[val]
+        elif val not in self.vals.values():
+            raise ValueError('invalid value: %s, must be one of %s' %
+                             (val, ', '.join(map(repr, self.vals.values()))))
+        return val
+
+class none_or():
+    
+    def __init__(self, conv):
+        self.__doc__ = 'None or %s' % convdoc(conv)
+        self.conv = conv
+
+    def __call__(self, val=None):
+        if val is None:
+            return None
+        return self.conv(val)
 
 tacodev_re = re.compile(r'^(//[\w.-]+/)?[\w-]+/[\w-]+/[\w-]+$', re.I)
 
@@ -310,6 +400,9 @@ def tangodev(val=None):
         raise ValueError('%r is not a valid Tango device name' % val)
     return val
 
+def control_path_relative(val=''):
+    return os.path.join(session.config.control_path, str(val))
+
 def anytype(val=None):
     """any value"""
     return val
@@ -322,51 +415,3 @@ def vec3(val=None):
         raise ValueError('value needs to be a 3-element vector')
     return ret
 
-def intrange(fr, to):
-    def converter(val=fr):
-        val = int(val)
-        if not fr <= val <= to:
-            raise ValueError('value needs to fulfill %d <= x <= %d' % (fr, to))
-        return val
-    converter.__doc__ = 'an integer in the range [%d, %d]' % (fr, to)
-    return converter
-
-def floatrange(fr, to):
-    def converter(val=fr):
-        val = float(val)
-        if not fr <= val <= to:
-            raise ValueError('value needs to fulfill %d <= x <= %d' % (fr, to))
-        return val
-    converter.__doc__ = 'a float in the range [%f, %f]' % (fr, to)
-    return converter
-
-def oneof(*vals):
-    def converter(val=vals[0]):
-        if val not in vals:
-            raise ValueError('invalid value: %s, must be one of %s' %
-                             (val, ', '.join(map(repr, vals))))
-        return val
-    converter.__doc__ = 'one of ' + ', '.join(map(repr, vals))
-    return converter
-
-def oneofdict(vals):
-    def converter(val=None):
-        if val in vals.keys():
-            val = vals[val]
-        elif val not in vals.values():
-            raise ValueError('invalid value: %s, must be one of %s' %
-                             (val, ', '.join(map(repr, vals.values()))))
-        return val
-    converter.__doc__ = 'one of ' + ', '.join(map(repr, vals.values()))
-    return converter
-
-def none_or(conv):
-    def converter(val=None):
-        if val is None:
-            return None
-        return conv(val)
-    converter.__doc__ = 'None or %s' % convdoc(conv)
-    return converter
-
-def control_path_relative(val=''):
-    return os.path.join(session.config.control_path, str(val))
