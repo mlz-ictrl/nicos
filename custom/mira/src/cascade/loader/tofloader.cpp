@@ -295,10 +295,17 @@ int TofImage::LoadMem(const char *strBuf, unsigned int istrBufLen)
 
 	if(uiBufLen!=(unsigned int)iSize)
 	{
-		logger.SetCurLogLevel(LOGLEVEL_ERR);
-		logger << "Loader: Buffer size (" << uiBufLen << " ints) != TOF size ("
-			   << iSize << " ints)." << "\n";
-		return LOAD_SIZE_MISMATCH;
+		if(uiBufLen < (unsigned int)iSize)
+		{
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Loader: Buffer size (" << uiBufLen << " ints) != TOF size ("
+				<< iSize << " ints)." << "\n";
+			return LOAD_SIZE_MISMATCH;
+		}
+		else	// additional data is config
+		{
+			m_cascconf.Load(puiBuf + iSize);
+		}
 	}
 
 	memcpy(m_puiDaten, puiBuf, sizeof(int)*iSize);
@@ -333,15 +340,24 @@ int TofImage::LoadFile(const char *pcFileName)
 		return LOAD_FAIL;
 	}
 
+	bool bHasConf = false;
+
 	unsigned int uiFileSize = GetFileSize(pf);
 	if(uiFileSize != iSize*sizeof(int))
 	{
-		logger.SetCurLogLevel(LOGLEVEL_ERR);
-		logger << "Loader: TOF file size (" << uiFileSize << " bytes) "
-			   << "!= expected size (" << iSize*sizeof(int)
-			   << " bytes).\n";
+		if(uiFileSize < iSize*sizeof(int))
+		{
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Loader: TOF file size (" << uiFileSize << " bytes) "
+				<< "!= expected size (" << iSize*sizeof(int)
+				<< " bytes).\n";
 
-		iRet = LOAD_SIZE_MISMATCH;
+			iRet = LOAD_SIZE_MISMATCH;
+		}
+		else	// additional data is config
+		{
+			bHasConf = true;
+		}
 	}
 
 	unsigned int uiBufLen = fread(m_puiDaten, sizeof(unsigned int), iSize, pf);
@@ -359,8 +375,16 @@ int TofImage::LoadFile(const char *pcFileName)
 		iRet = LOAD_SIZE_MISMATCH;
 	}
 
+	if(bHasConf)
+	{
+		m_cascconf.Load(pf, uiFileSize - iSize*sizeof(int));
+	}
+
 	fclose(pf);
 
+	// load overlay config from optional external file
+	m_cascconf.Load(pcFileName, ".conf");
+	
 // falls PowerPC, ints von little zu big endian konvertieren
 #ifdef __BIG_ENDIAN__
 	for(int i=0; i<iExpectedSize; ++i)

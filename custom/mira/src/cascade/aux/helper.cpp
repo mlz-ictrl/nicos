@@ -155,6 +155,34 @@ void find_and_replace(std::string& str1, const std::string& str_old,
 	str1.replace(pos, str_old.length(), str_new);
 }
 
+
+std::pair<std::string, std::string>
+split(const std::string& str, const std::string& splitter)
+{
+	std::string::const_iterator iter =
+	std::search(str.begin(), str.end(),
+				splitter.begin(), splitter.end());
+	
+	std::string strFirst, strLast;
+	
+	if(iter != str.end())
+	{
+		strFirst = str.substr(0, iter-str.begin());
+		strLast = str.substr(iter-str.begin()+splitter.length(),
+							 std::string::npos);
+	}
+	else
+	{
+		strFirst = str;
+		strLast = "";
+	}
+
+	strFirst = trim(strFirst);
+	strLast = trim(strLast);
+	
+	return std::pair<std::string, std::string>(strFirst, strLast);
+}
+
 //------------------------------------------------------------------------------
 
 

@@ -171,12 +171,21 @@ int PadImage::LoadMem(const char *strBuf, unsigned int strBufLen)
 	if(uiBufLen!=(unsigned int)GetPadConfig().GetImageHeight()*
 							   GetPadConfig().GetImageWidth())
 	{
-		logger.SetCurLogLevel(LOGLEVEL_ERR);
-		logger << "Loader: Buffer size (" << uiBufLen << " ints) != PAD size ("
-			   << GetPadConfig().GetImageHeight()*
-			      GetPadConfig().GetImageWidth()
-			   << " ints)." << "\n";
-		return LOAD_SIZE_MISMATCH;
+		if(uiBufLen < (unsigned int)GetPadConfig().GetImageHeight()*
+			GetPadConfig().GetImageWidth())
+		{
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Loader: Buffer size (" << uiBufLen << " ints) != PAD size ("
+				<< GetPadConfig().GetImageHeight()*
+					GetPadConfig().GetImageWidth()
+				<< " ints)." << "\n";
+			return LOAD_SIZE_MISMATCH;
+		}
+		else	// additional data is config
+		{
+			m_cascconf.Load(puiBuf + GetPadConfig().GetImageHeight()*
+										GetPadConfig().GetImageWidth());
+		}
 	}
 
 	memcpy(m_puiDaten, puiBuf, sizeof(int)*GetPadConfig().GetImageHeight()*
@@ -242,18 +251,28 @@ int PadImage::LoadFile(const char *pcFileName)
 		return LOAD_FAIL;
 	}
 
+	bool bHasConf = false;
+
 	unsigned int uiExpectedSize = GetPadConfig().GetImageHeight()*
 								  GetPadConfig().GetImageWidth();
 
 	unsigned int uiFileSize = GetFileSize(pf);
 	if(uiFileSize != uiExpectedSize*sizeof(int))
 	{
-		logger.SetCurLogLevel(LOGLEVEL_ERR);
-		logger << "Loader: PAD file size (" << uiFileSize << " bytes) "
-			   << "!= expected size (" << uiExpectedSize*sizeof(int)
-			   << " bytes).\n";
+		if(uiFileSize < uiExpectedSize*sizeof(int))
+		{
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Loader: PAD file size (" << uiFileSize << " bytes) "
+				<< "!= expected size (" << uiExpectedSize*sizeof(int)
+				<< " bytes).\n";
 
-		iRet = LOAD_SIZE_MISMATCH;
+			iRet = LOAD_SIZE_MISMATCH;
+		}
+		else	// additional data is config
+		{
+			bHasConf = true;
+		}
+		
 	}
 
 	unsigned int uiBufLen = fread(m_puiDaten, sizeof(int), uiExpectedSize, pf);
@@ -273,7 +292,18 @@ int PadImage::LoadFile(const char *pcFileName)
 
 		iRet = LOAD_SIZE_MISMATCH;
 	}
+
+	if(bHasConf)
+	{
+		m_cascconf.Load(pf, uiFileSize - GetPadConfig().GetImageHeight()*
+							GetPadConfig().GetImageWidth()*sizeof(int));
+	}
+	
 	fclose(pf);
+
+	// load overlay config from optional external file
+	m_cascconf.Load(pcFileName, ".conf");
+
 
 // falls PowerPC, ints von little zu big endian konvertieren
 #ifdef __BIG_ENDIAN__

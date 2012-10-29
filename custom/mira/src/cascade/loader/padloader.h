@@ -29,6 +29,7 @@
 #include "basicimage.h"
 #include "../aux/roi.h"
 #include "tofloader.h"
+#include "conf.h"
 
 class TmpImage;
 
@@ -58,6 +59,8 @@ class PadImage : public BasicImage, public Countable
 		bool m_bUseRoi;
 
 		bool m_bOk;
+
+		CascConf m_cascconf;
 
 		/// clean up
 		void Clear(void);

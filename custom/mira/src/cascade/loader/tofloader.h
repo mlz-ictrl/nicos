@@ -29,6 +29,7 @@
 #include "../aux/roi.h"
 #include "basicimage.h"
 #include "padloader.h"
+#include "conf.h"
 
 class TmpImage;
 class TmpGraph;
@@ -207,6 +208,8 @@ class TofImage : public Countable
 		Roi m_roi;
 		bool m_bUseRoi;
 		bool m_bOk;
+
+		CascConf m_cascconf;
 
 	public:
 		const TofConfig& GetTofConfig() const;

@@ -83,6 +83,9 @@ long GetFileSize(const char* pcFileName);
 
 std::string GetFileEnding(const char* pcFileName);
 
+std::pair<std::string, std::string>
+split(const std::string& str, const std::string& splitter);
+
 //------------------------------------------------------------------------------
 
 
