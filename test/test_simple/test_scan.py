@@ -205,9 +205,8 @@ def test_contscan():
     assert all(0 <= res[0] <= 2 for res in dataset.xresults)
     # no speed parameter
     assert raises(UsageError, contscan, mm, 0, 2)
-    # preset, envlist, multistep not allowed
+    # preset and multistep not allowed
     assert raises(UsageError, contscan, m, 0, 2, 2, t=1)
-    assert raises(UsageError, contscan, m, 0, 2, 2, mm)
     assert raises(UsageError, contscan, m, 0, 2, 2, manual=[0, 1])
 
 def test_manualscan():
