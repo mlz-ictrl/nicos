@@ -193,7 +193,8 @@ def sweep(dev, start, end, *args, **kwargs):
     >>> sweep(T, 10, 100, t=10)
 
     will move T to 10, then start moving it to 100 and count for 10 seconds as
-    long as T is still moving.
+    long as T is still moving.  *start* can be None to start moving towards the
+    *end* immediately without moving to a starting value first.
     """
     # XXX: the SweepScan supports a) max #steps and b) multiple devices, but we
     # don't offer that in this simplified interface until it's actually needed

@@ -338,9 +338,11 @@ class SweepScan(Scan):
         else:
             steps = [[]] * numsteps
         # start for sweep devices are "firstmoves"
+        firstmoves = []
         self._sweeptargets = []
         for dev, (start, end) in zip(devices, startend):
-            firstmoves.append((dev, start))
+            if start is not None:
+                firstmoves.append((dev, start))
             self._sweeptargets.append((dev, end))
         Scan.__init__(self, [], steps, firstmoves, multistep,
                       detlist, envlist, preset, scaninfo, scantype)
