@@ -311,11 +311,10 @@ def contscan(dev, start, end, speed=None, *args, **kwargs):
             _handleScanArgs(args, kwargs, scanstr)
     if preset:
         raise UsageError('preset not supported in continuous scan')
-    if envlist:
-        raise UsageError('environment devices not supported in continuous scan')
     if multistep:
         raise UsageError('multi-step not supported in continuous scan')
-    scan = ContinuousScan(dev, start, end, speed, move, detlist, scaninfo)
+    scan = ContinuousScan(dev, start, end, speed, move, detlist, envlist,
+                          scaninfo)
     scan.run()
 
 

@@ -432,8 +432,7 @@ class ManualScan(Scan):
                     result.extend(_count(self._detlist, preset))
             else:
                 result = _count(self._detlist, preset)
-            finished = currenttime()
-            actualpos += self.readEnvironment(started, finished)
+            actualpos += self.readEnvironment(started, currenttime())
             self.addPoint(actualpos, result)
             return result
         except SkipPoint:
@@ -494,7 +493,7 @@ class ContinuousScan(Scan):
     DELTA = 1.0
 
     def __init__(self, device, start, end, speed, firstmoves=None, detlist=None,
-                 scaninfo=None):
+                 envlist=None, scaninfo=None):
         self._startpos = start
         self._endpos = end
         if speed is None:
@@ -502,7 +501,7 @@ class ContinuousScan(Scan):
         else:
             self._speed = speed
 
-        Scan.__init__(self, [device], [], firstmoves, None, detlist, [],
+        Scan.__init__(self, [device], [], firstmoves, None, detlist, envlist,
                       None, scaninfo)
 
     def shortDesc(self):
@@ -524,6 +523,7 @@ class ContinuousScan(Scan):
         try:
             device.speed = self._speed
             device.move(self._endpos)
+            starttime = currenttime()
             preset = max(abs(self._endpos - self._startpos) /
                          (self._speed or 0.1) * 5, 3600)
             for det in detlist:
@@ -534,11 +534,14 @@ class ContinuousScan(Scan):
                 session.breakpoint(2)
                 devpos = device.read(0)
                 read = sum((det.read() for det in detlist), [])
+                actualpos = [devpos] + self.readEnvironment(starttime,
+                                                            currenttime())
+                starttime = currenttime()
                 diff = [read[i] - last[i]
                         if isinstance(read[i], (int, long, float)) else read[i]
                         for i in range(len(read))]
                 self.dataset.curpoint += 1
-                self.addPoint([devpos], diff)
+                self.addPoint(actualpos, diff)
                 last = read
         finally:
             for det in detlist:
