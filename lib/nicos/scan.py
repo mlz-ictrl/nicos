@@ -26,7 +26,7 @@
 
 __version__ = "$Revision$"
 
-import time
+from time import sleep, time as currenttime
 
 from nicos import session
 from nicos.core import status, Readable, Value, NicosError, LimitError, \
@@ -286,7 +286,7 @@ class Scan(object):
                             self.moveTo(position)
                         elif not can_measure:
                             continue
-                    started = time.time()
+                    started = currenttime()
                     actualpos = self.readPosition()
                     if self._multistep:
                         result = []
@@ -295,7 +295,7 @@ class Scan(object):
                             result.extend(_count(self._detlist, self._preset))
                     else:
                         result = _count(self._detlist, self._preset)
-                    finished = time.time()
+                    finished = currenttime()
                     actualpos += self.readEnvironment(started, finished)
                     self.addPoint(actualpos, result)
                 except SkipPoint:
@@ -330,7 +330,7 @@ class SweepScan(Scan):
                  multistep=None, detlist=None, envlist=None, preset=None,
                  scaninfo=None, scantype=None):
         self._etime = ElapsedTime('etime', unit='s', fmtstr='%.1f')
-        self._started = time.time()
+        self._started = currenttime()
         self._numsteps = numsteps
         self._sweepdevices = devices
         if numsteps < 0:
@@ -423,7 +423,7 @@ class ManualScan(Scan):
         self._curpoint += 1
         self.preparePoint(self._curpoint, [])
         try:
-            started = time.time()
+            started = currenttime()
             actualpos = self.readPosition()
             if self._multistep:
                 result = []
@@ -432,7 +432,7 @@ class ManualScan(Scan):
                     result.extend(_count(self._detlist, preset))
             else:
                 result = _count(self._detlist, preset)
-            finished = time.time()
+            finished = currenttime()
             actualpos += self.readEnvironment(started, finished)
             self.addPoint(actualpos, result)
             return result
@@ -530,7 +530,7 @@ class ContinuousScan(Scan):
                 det.start(t=preset)
             last = sum((det.read() for det in detlist), [])
             while device.status(0)[0] == status.BUSY:
-                time.sleep(self.DELTA)
+                sleep(self.DELTA)
                 session.breakpoint(2)
                 devpos = device.read(0)
                 read = sum((det.read() for det in detlist), [])
