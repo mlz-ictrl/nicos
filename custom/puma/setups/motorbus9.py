@@ -2,7 +2,7 @@ description = 'Motor bus 9'
 group = 'lowlevel'
 
 devices = dict(
-    motorbus9 = device('nicos.ipc.IPCModBusTaco',
+    motorbus9 = device('nicos.vendor.ipc.IPCModBusTaco',
                        tacodevice = 'puma/rs485/3',
                        timeout = 0.5,
                        ),

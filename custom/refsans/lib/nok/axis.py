@@ -27,7 +27,7 @@ __version__ = "$Revision$"
 from time import sleep
 
 from nicos.generic.axis import Axis as GenericAxis
-from nicos.ipc import IPCModBusTaco
+from nicos.vendor.ipc import IPCModBusTaco
 from nicos.taco.io import DigitalInput
 from nicos.core import status, HasOffset, Override, ConfigurationError, \
      CommunicationError, \

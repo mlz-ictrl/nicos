@@ -22,7 +22,6 @@
 #
 # *****************************************************************************
 
-"""Legacy import module."""
+"""Device classes for vendor-specific hardware devices."""
 
-from nicos.vendor.toni import ModBus, Valve, Leckmon, Ratemeter, Vacuum, \
-     LVPower, DelayBox
+__version__ = "$Revision$"

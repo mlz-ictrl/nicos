@@ -7,14 +7,14 @@ includes = ['system']
  # sth,stt,sgx,sgy,stx,sty,stz,--
 
 devices = dict(
-    bus2 = device('nicos.ipc.IPCModBusTaco',
+    bus2 = device('nicos.vendor.ipc.IPCModBusTaco',
             tacodevice='//pandasrv/panda/moxa/port2',
             loglevel='info',
             timeout=0.5,
     ),
     
     # STT is first device and has 1 stepper, 0 poti, 1 coder
-    stt_step = device('nicos.ipc.Motor',
+    stt_step = device('nicos.vendor.ipc.Motor',
             bus = 'bus2',
             addr = 0x51,                # 0x5.. = stepper, 0x6.. = poti, 0x7.. = coder ; .. = channel
             slope = 2000,
@@ -31,7 +31,7 @@ devices = dict(
             lowlevel = True,
             #~ current = 2.0,
     ),
-    stt_enc = device('nicos.ipc.Coder',
+    stt_enc = device('nicos.vendor.ipc.Coder',
             bus = 'bus2',
             addr = 0x71,
             slope = -2**20/360.0,
@@ -50,7 +50,7 @@ devices = dict(
     ),
     
     # STH is second device and has 1 stepper, 0 poti, 1 coder
-    sth_step = device('nicos.ipc.Motor',
+    sth_step = device('nicos.vendor.ipc.Motor',
             bus = 'bus2',
             addr = 0x52,
             slope = 2000,
@@ -66,7 +66,7 @@ devices = dict(
             lowlevel = True,
             #~ current = 2.0,
     ),
-    sth_enc = device('nicos.ipc.Coder',
+    sth_enc = device('nicos.vendor.ipc.Coder',
             bus = 'bus2',
             addr = 0x72,
             slope = -2**20/360.0,
@@ -84,7 +84,7 @@ devices = dict(
     ),
     
     # SGX is third device and has 1 stepper, 0 poti, 1 coder
-    sgx_step = device('nicos.ipc.Motor',
+    sgx_step = device('nicos.vendor.ipc.Motor',
             bus = 'bus2',
             addr = 0x53,
             slope = -3200,
@@ -100,7 +100,7 @@ devices = dict(
             lowlevel = True,
             #~ current = 2.0,
     ),
-    sgx_enc = device('nicos.ipc.Coder',
+    sgx_enc = device('nicos.vendor.ipc.Coder',
             bus = 'bus2',
             addr = 0x73,
             slope = -2**13/1.0,
@@ -119,7 +119,7 @@ devices = dict(
     ),
     
     # SGY is fourth device and has 1 stepper, 0 poti, 1 coder
-    sgy_step = device('nicos.ipc.Motor',
+    sgy_step = device('nicos.vendor.ipc.Motor',
             bus = 'bus2',
             addr = 0x54,
             slope = 3200,
@@ -135,7 +135,7 @@ devices = dict(
             lowlevel = True,
             #~ current = 2.0,
     ),
-    sgy_enc = device('nicos.ipc.Coder',
+    sgy_enc = device('nicos.vendor.ipc.Coder',
             bus = 'bus2',
             addr = 0x74,
             slope = 2**13/1.0,
@@ -155,7 +155,7 @@ devices = dict(
     
     
     # STX is fith device and has 1 stepper, 1 poti, 0 coder
-    stx_step = device('nicos.ipc.Motor',
+    stx_step = device('nicos.vendor.ipc.Motor',
             bus = 'bus2',
             addr = 0x55,
             slope = 12800,
@@ -169,7 +169,7 @@ devices = dict(
             #~ divider = 4,
             #~ current = 1.5,
     ),
-    stx_poti = device('nicos.ipc.Coder',
+    stx_poti = device('nicos.vendor.ipc.Coder',
             bus = 'bus2',
             addr = 0x65,
             slope = 79.75,
@@ -186,7 +186,7 @@ devices = dict(
     ),
     
     # STY is sixth device and has 1 stepper, 1 poti, 0 coder
-    sty_step = device('nicos.ipc.Motor',
+    sty_step = device('nicos.vendor.ipc.Motor',
             bus = 'bus2',
             addr = 0x56,
             slope = 12800,
@@ -200,7 +200,7 @@ devices = dict(
             #~ divider = 4,
             #~ current = 1.5,
     ),
-    sty_poti = device('nicos.ipc.Coder',
+    sty_poti = device('nicos.vendor.ipc.Coder',
             bus = 'bus2',
             addr = 0x66,
             slope = 79.65,
@@ -217,7 +217,7 @@ devices = dict(
     ),
     
     # STZ is seventh device and has 1 stepper, 0 poti, 0 coder
-    stz_step = device('nicos.ipc.Motor',
+    stz_step = device('nicos.vendor.ipc.Motor',
             bus = 'bus2',
             addr = 0x57,
             slope = 20000,

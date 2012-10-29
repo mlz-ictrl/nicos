@@ -1,7 +1,7 @@
 IPC Göttingen classes
 =====================
 
-.. module:: nicos.ipc
+.. module:: nicos.vendor.ipc
 
 These classes are for communication with hardware by the Institut für
 Physikalische Chemie, Göttingen.

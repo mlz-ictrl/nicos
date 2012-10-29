@@ -5,21 +5,21 @@ description = 'PG filter'
 includes = ['system', 'motorbus6', 'motorbus8']
 
 devices = dict(
-    fpg_sw    = device('nicos.ipc.Input',
+    fpg_sw    = device('nicos.vendor.ipc.Input',
                        bus = 'motorbus8',
                        addr = 103,
                        first = 14,
                        last = 15,
                        lowlevel = True,
                        ),
-    fpg_set   = device('nicos.ipc.Output',
+    fpg_set   = device('nicos.vendor.ipc.Output',
                        bus = 'motorbus8',
                        addr = 114,
                        first = 2,
                        last = 2,
                        lowlevel = True,
                        ),
-    fpg_press = device('nicos.ipc.Input',
+    fpg_press = device('nicos.vendor.ipc.Input',
                        bus = 'motorbus8',
                        addr = 103,
                        first = 11,
@@ -27,7 +27,7 @@ devices = dict(
                        lowlevel = True,
                        ),
 
-    st_hof    = device('nicos.ipc.Motor',
+    st_hof    = device('nicos.vendor.ipc.Motor',
                        bus = 'motorbus6',
                        addr = 91,
                        slope = -359.57,

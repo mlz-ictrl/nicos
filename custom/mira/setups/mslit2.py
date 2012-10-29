@@ -4,14 +4,14 @@ group = 'optional'
 
 
 devices = dict(
-    ms2bus    = device('nicos.ipc.IPCModBusTacoSerial',
+    ms2bus    = device('nicos.vendor.ipc.IPCModBusTacoSerial',
                        tacodevice = 'mira/network/rs8_4',
                        lowlevel = True),
 
     # NOTE: this slit is mounted upside-down -- therefore the
     # left/right/top/bottom axis sides are switched
 
-    ms2_l_mot = device('nicos.ipc.SlitMotor',
+    ms2_l_mot = device('nicos.vendor.ipc.SlitMotor',
                        lowlevel = True,
                        bus = 'ms2bus',
                        addr = 0x88,
@@ -20,7 +20,7 @@ devices = dict(
                        zerosteps = 1150,
                        resetpos = -20,
                        abslimits = (-32, 13)),
-    ms2_r_mot = device('nicos.ipc.SlitMotor',
+    ms2_r_mot = device('nicos.vendor.ipc.SlitMotor',
                        lowlevel = True,
                        bus = 'ms2bus',
                        addr = 0x88,
@@ -29,7 +29,7 @@ devices = dict(
                        zerosteps = 1170,
                        resetpos = 20,
                        abslimits = (-13, 32)),
-    ms2_b_mot = device('nicos.ipc.SlitMotor',
+    ms2_b_mot = device('nicos.vendor.ipc.SlitMotor',
                        lowlevel = True,
                        bus = 'ms2bus',
                        addr = 0x88,
@@ -38,7 +38,7 @@ devices = dict(
                        zerosteps = 780,
                        resetpos = -45,
                        abslimits = (-70, 19)),
-    ms2_t_mot = device('nicos.ipc.SlitMotor',
+    ms2_t_mot = device('nicos.vendor.ipc.SlitMotor',
                        lowlevel = True,
                        bus = 'ms2bus',
                        addr = 0x88,

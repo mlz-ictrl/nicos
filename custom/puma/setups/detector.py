@@ -60,7 +60,7 @@ devices = dict(
                       pollinterval = 1),
 
 
-    st_sld = device('nicos.ipc.Motor',
+    st_sld = device('nicos.vendor.ipc.Motor',
                     bus = 'motorbus6',
                     addr = 93,
                     slope = 4500,
@@ -69,7 +69,7 @@ devices = dict(
                     zerosteps = 500000,
                     lowlevel = True,
                     ),
-    co_sld = device('nicos.ipc.Coder',
+    co_sld = device('nicos.vendor.ipc.Coder',
                     bus = 'motorbus1',
                     addr = 158,
                     slope = 37,
