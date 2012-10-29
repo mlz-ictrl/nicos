@@ -119,6 +119,7 @@ int PadImage::GetWidth() const { return GetPadConfig().GetImageWidth(); }
 int PadImage::GetHeight() const { return GetPadConfig().GetImageHeight(); }
 int PadImage::GetPadSize() const { return GetHeight()*GetWidth(); }
 const PadConfig& PadImage::GetPadConfig() const { return m_config; }
+const CascConf& PadImage::GetLocalConfig() const { return m_cascconf; }
 
 void PadImage::SetExternalMem(void* pvDaten)
 {

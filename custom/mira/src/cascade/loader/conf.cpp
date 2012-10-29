@@ -86,7 +86,7 @@ bool CascConf::Load(const char* pcCascFile, const char* pcConfEnding)
 
 std::string CascConf::GetVal(const std::string& strKey, bool *pbHasKey) const
 {
-	std::map<std::string,std::string>::const_iterator iter = m_map.find(strKey);
+	t_constiter iter = m_map.find(strKey);
 
 	if(iter == m_map.end())
 	{
@@ -96,4 +96,16 @@ std::string CascConf::GetVal(const std::string& strKey, bool *pbHasKey) const
 
 	if(pbHasKey) *pbHasKey = true;
 	return (*iter).second;
+}
+
+
+std::ostream& operator<<(std::ostream& ostr, const CascConf& conf)
+{
+	for(CascConf::t_constiter iter=conf.m_map.begin();
+		iter!=conf.m_map.end(); ++iter)
+	{
+		ostr << "key=\"" << (*iter).first << "\", value=\"" << (*iter).second << "\"\n";
+	}
+
+	return ostr;
 }

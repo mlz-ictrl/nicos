@@ -33,7 +33,11 @@
 class CascConf
 {
 	protected:
-		std::map<std::string, std::string> m_map;
+		typedef std::map<std::string, std::string> t_map;
+		typedef t_map::iterator t_iter;
+		typedef t_map::const_iterator t_constiter;
+		
+		t_map m_map;
 
 	public:
 		CascConf();
@@ -60,6 +64,10 @@ class CascConf
 
 			if(pbHasKey) *pbHasKey = bHasKey;
 		}
+
+		friend std::ostream& operator<<(std::ostream& ostr, const CascConf& conf);
 };
+
+std::ostream& operator<<(std::ostream& ostr, const CascConf& conf);
 
 #endif

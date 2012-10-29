@@ -1165,6 +1165,50 @@ class MainWindow : public QMainWindow
 			BatchDlg dlg(&m_cascadewidget);
 			dlg.exec();
 		}
+
+		void PrintLocalConf()
+		{
+			const CascConf* pConf = 0;
+			std::string strFileType;
+			
+			if(m_cascadewidget.IsTofLoaded())
+			{
+				strFileType = "TOF";
+				
+				const TofImage* pTof = m_cascadewidget.GetTof();
+				pConf = &pTof->GetLocalConfig();
+			}
+			else if(m_cascadewidget.IsPadLoaded())
+			{
+				strFileType = "PAD";
+				
+				const PadImage* pPad = m_cascadewidget.GetPad();
+				pConf = &pPad->GetLocalConfig();
+			}
+
+			if(pConf)
+			{
+				std::ostringstream ostr;
+				ostr << (*pConf);
+
+				std::string str = ostr.str();
+				
+				logger.SetCurLogLevel(LOGLEVEL_INFO);
+				if(str != "")
+				{
+					logger << "--------------------------------------------------------------------------------\n";
+					logger << "Local configuration for " << strFileType << " file\n";
+					logger << ostr.str();
+					logger << "--------------------------------------------------------------------------------\n";
+				}
+				else
+					logger << "<no local configuration available>\n";
+			}
+			else
+			{
+				logger << "<no file loaded>\n";
+			}
+		}
 		//////////////////////////////////////////////////////////////////
 
 
@@ -1447,6 +1491,8 @@ class MainWindow : public QMainWindow
 			QAction *actionGenerateRandomTof = new QAction("Generate Random &TOF", this);
 			QAction *actionBatchJob = new QAction("Run &Batch Job...", this);
 
+			QAction *actionPrintLocalConf = new QAction("Print Local TOF/PAD configuration", this);
+
 			// Help Menu Items
 			QAction *actionAbout = new QAction(
 						QIcon::fromTheme("help-about"),
@@ -1532,6 +1578,8 @@ class MainWindow : public QMainWindow
 			menuTools->addAction(actionGenerateRandomTof);
 			menuTools->addSeparator();
 			menuTools->addAction(actionBatchJob);
+			menuTools->addSeparator();
+			menuTools->addAction(actionPrintLocalConf);
 			menuTools->addSeparator();
 			menuTools->addAction(actionGc);
 			menuTools->addAction(actionMem);
@@ -1770,6 +1818,8 @@ class MainWindow : public QMainWindow
 					this, SLOT(GenerateRandomTof()));
 			connect(actionBatchJob, SIGNAL(triggered()),
 					this, SLOT(BatchJob()));
+			connect(actionPrintLocalConf, SIGNAL(triggered()),
+					this, SLOT(PrintLocalConf()));
 
 			connect(actionGc, SIGNAL(triggered()),
 					this, SLOT(GarbageCollect()));

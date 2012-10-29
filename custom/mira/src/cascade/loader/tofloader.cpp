@@ -137,6 +137,7 @@ void TofImage::UseRoi(bool bUseRoi) { m_bUseRoi = bUseRoi; }
 Roi& TofImage::GetRoi() { return m_roi; }
 bool TofImage::GetUseRoi() const { return m_bUseRoi; };
 const TofConfig& TofImage::GetTofConfig() const { return m_config; }
+const CascConf& TofImage::GetLocalConfig() const { return m_cascconf; }
 
 void TofImage::SetExternalMem(void* pvDaten)
 {

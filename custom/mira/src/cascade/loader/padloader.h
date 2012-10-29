@@ -129,6 +129,7 @@ class PadImage : public BasicImage, public Countable
 							   int iStartY, int iEndY) const;
 
 		const PadConfig& GetPadConfig() const;
+		const CascConf& GetLocalConfig() const;
 
 		virtual Roi& GetRoi();
 		virtual void UseRoi(bool bUseRoi=true);

@@ -213,6 +213,7 @@ class TofImage : public Countable
 
 	public:
 		const TofConfig& GetTofConfig() const;
+		const CascConf& GetLocalConfig() const;
 
 		virtual Roi& GetRoi();
 		virtual void UseRoi(bool bUseRoi=true);
