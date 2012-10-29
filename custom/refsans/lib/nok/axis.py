@@ -24,16 +24,14 @@
 
 __version__ = "$Revision$"
 
-from time import sleep
-
 from nicos.generic.axis import Axis as GenericAxis
 from nicos.vendor.ipc import IPCModBusTaco
 from nicos.taco.io import DigitalInput
-from nicos.core import status, HasOffset, Override, ConfigurationError, \
-     CommunicationError, \
-     NicosError, PositionError, MoveError, waitForStatus, floatrange, Param
+from nicos.core import CommunicationError, Param
 
+from TACOClient import TACOError
 import TACOStates
+
 
 class Axis(GenericAxis) :
     """ Refsans NOK Axis """
@@ -62,17 +60,17 @@ class Axis(GenericAxis) :
             If this is not possibe it moves to the lower user limit.
             @param units desired position
         """
-        if self.read() <= unit:
+        if self.read() <= units:
             self.log.debug('movestep1 returns 0 -> new pos is above or equal current %f' % (units))
             return 0
         else:
             llimit = self.usermin
             try :
                 if llimit > units or llimit > (units - self.backlash) :
-                    self.motorstart(llmit)
+                    self.motorstart(llimit)
                 else:
                     self.motorstart(units - self.backlash)
-            except TACOError, e:
+            except TACOError:
                 return 1
             return 0
 
