@@ -242,8 +242,8 @@ def convdoc(conv):
         return conv.__name__
     return conv.__doc__ or ''
 
-class listof():
-    
+class listof(object):
+
     def __init__(self, conv):
         self.__doc__ = 'a list of %s' % convdoc(conv)
         self.conv = conv
@@ -254,7 +254,7 @@ class listof():
             raise ValueError('value needs to be a list')
         return map(self.conv, val)
 
-class nonemptylistof():
+class nonemptylistof(object):
 
     def __init__(self, conv):
         self.__doc__ = 'a non-empty list of %s' % convdoc(conv)
@@ -269,7 +269,7 @@ class nonemptylistof():
             raise ValueError('value needs to be a nonempty list')
         return map(self.conv, val)
 
-class tupleof():
+class tupleof(object):
 
     def __init__(self, *types):
         if not types:
@@ -284,7 +284,7 @@ class tupleof():
             raise ValueError('value needs to be a %d-tuple' % len(self.types))
         return tuple(t(v) for (t, v) in zip(self.types, val))
 
-class dictof():
+class dictof(object):
 
     def __init__(self, keyconv, valconv):
         self.__doc__ = 'a dict of %s keys and %s values' % \
@@ -301,8 +301,8 @@ class dictof():
             ret[self.keyconv(k)] = self.valconv(v)
         return ret
 
-class intrange():
-   
+class intrange(object):
+
     def __init__(self, fr, to):
         fr = int(fr)
         to = int(to)
@@ -320,7 +320,7 @@ class intrange():
             raise ValueError('value needs to fulfill %d <= x <= %d' % (self.fr, self.to))
         return val
 
-class floatrange():
+class floatrange(object):
 
     def __init__(self, fr, to):
         fr = float(fr)
@@ -339,7 +339,7 @@ class floatrange():
             raise ValueError('value needs to fulfill %d <= x <= %d' % (self.fr, self.to))
         return val
 
-class oneof():
+class oneof(object):
 
     def __init__(self, *vals):
         self.__doc__ = 'one of ' + ', '.join(map(repr, vals))
@@ -353,7 +353,7 @@ class oneof():
                                  (val, ', '.join(map(repr, self.vals))))
         return val
 
-class oneofdict():
+class oneofdict(object):
 
     def __init__(self, vals):
         self.__doc__ = 'one of ' + ', '.join(map(repr, vals.values()))
@@ -367,8 +367,8 @@ class oneofdict():
                              (val, ', '.join(map(repr, self.vals.values()))))
         return val
 
-class none_or():
-    
+class none_or(object):
+
     def __init__(self, conv):
         self.__doc__ = 'None or %s' % convdoc(conv)
         self.conv = conv
@@ -414,4 +414,3 @@ def vec3(val=None):
     if len(ret) != 3:
         raise ValueError('value needs to be a 3-element vector')
     return ret
-
