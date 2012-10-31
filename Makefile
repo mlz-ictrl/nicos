@@ -131,6 +131,12 @@ main-install:
 		fi \
 	done
 	@echo "============================================================="
+	@echo "Installing FRM II specific setups (overwriting existing files)... !"
+	@for ifile in custom/frm2/setups/* ; do \
+		echo $${ifile} '->' $(ROOTDIR)/setups; \
+		cp -p $(VOPT) $${ifile} $(ROOTDIR)/setups; \
+	done
+	@echo "============================================================="
 	@echo "Everything is now installed to $(ROOTDIR)."
 	@echo "Trying to create system-wide symbolic links..."
 	@echo "============================================================="

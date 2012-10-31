@@ -30,7 +30,7 @@ from nicos.core import Moveable, Override
 from nicos.devices.taco import DigitalInput, DigitalOutput
 
 class DigitalOutput(Moveable):
-    """Class for CCR box switches.
+    """Class for CCR box switches (gas/vacuum).
 
     """
 
