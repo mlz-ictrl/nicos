@@ -40,6 +40,7 @@ Requirements
   - python-xmpp (optional, for Jabber notifications)
   - pyserial (optional, for TACO-less serial line communication)
   - matplotlib (optional, for resolution plots)
+  - gnuplot (optional, for plots in the electronig logbook)
 
 * For the GUI:
   - PyQt4
