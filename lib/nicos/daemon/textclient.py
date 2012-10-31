@@ -148,6 +148,9 @@ class NicosCmdClient(NicosClient):
             readline.read_history_file(self.histfile)
         self.completions = []
 
+        # set up "wakeup" pipe to notify readline of ourput and changed prompt
+        self.wakeup_pipe_r, self.wakeup_pipe_w = os.pipe()
+
         # set up clientexec (plotting) thread
         self.clientexec_queue = Queue.Queue()
         self.clientexec_thread = Thread(target=self.clientexec_thread_entry)
@@ -172,12 +175,8 @@ class NicosCmdClient(NicosClient):
         librl.rl_callback_handler_install(prompt, c_readline_finish_callback)
         readline_result = Ellipsis
         while readline_result is Ellipsis:
-            if not self.in_question:
-                # question has an alternate prompt that never changes
-                librl.rl_set_prompt(self.prompt)
-            librl.rl_forced_update_display()
             try:
-                res = select.select([sys.stdin], [], [], 0.01)
+                res = select.select([sys.stdin, self.wakeup_pipe_r], [], [], 1)[0]
             except select.error, e:
                 if e.args[0] == errno.EINTR:
                     continue
@@ -186,8 +185,14 @@ class NicosCmdClient(NicosClient):
             except:
                 librl.rl_callback_handler_remove()
                 raise
-            if res[0]:
+            if sys.stdin in res:
                 librl.rl_callback_read_char()
+            if self.wakeup_pipe_r in res:
+                os.read(self.wakeup_pipe_r, 1)
+                if not self.in_question:
+                    # question has an alternate prompt that never changes
+                    librl.rl_set_prompt(self.prompt)
+                librl.rl_forced_update_display()
         if readline_result:
             # add to history, but only if requested and not the same as the
             # previous history entry
@@ -204,6 +209,7 @@ class NicosCmdClient(NicosClient):
         """Put a line of output, preserving the prompt afterwards."""
         self.out.write('\r\x1b[K%s\n' % string)
         self.out.flush()
+        os.write(self.wakeup_pipe_w, ' ')
 
     def put_error(self, string):
         """Put a client error message."""
@@ -307,6 +313,7 @@ class NicosCmdClient(NicosClient):
         self.prompt = '\x01' + colorize(self.stcolmap[status],
             '\r\x1b[K\x02# ' + self.instrument + '[%s%s]%s >> \x01' %
             (self.modemap[self.current_mode], status, pending)) + '\x02'
+        os.write(self.wakeup_pipe_w, ' ')
 
     def clientexec(self, what):
         """Handles the "clientexec" signal."""
