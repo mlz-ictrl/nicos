@@ -295,7 +295,9 @@ class Monitor(BaseMonitor):
                 field['plotcurve'] = w.addcurve(field, field['name'])
             else:
                 # deactivate plot if QwtPlot unavailable
-                field['plot'] = None
+                if field['plot']:
+                    self.log.warning('cannot create plots, Qwt5 unavailable')
+                    field['plot'] = None
                 # now put describing label and view label into subframe
                 nl = SMLabel(' ' + escape(field['name']) + ' ', groupframe)
                 if field['unit']:
