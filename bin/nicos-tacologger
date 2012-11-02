@@ -13,8 +13,8 @@ import select
 import socket
 import optparse
 
-from nicos.cache.client import BaseCacheClient
-from nicos.sessions.simple import SingleDeviceSession
+from nicos.devices.cacheclient import BaseCacheClient
+from nicos.core.sessions.simple import SingleDeviceSession
 
 
 class TacoLoggerServer(BaseCacheClient):
@@ -56,7 +56,7 @@ class TacoLoggerClient(BaseCacheClient):
     def start(self):
         from PyQt4.QtCore import SIGNAL
         from PyQt4.QtGui import QApplication, QMainWindow, QTextBrowser, QFont
-        from nicos.gui.outview import OutputView
+        from nicos.clients.gui.outview import OutputView
         self._qtapp = QApplication(['qtapp'])
         self._window = QMainWindow()
         self._window.setWindowTitle('TACO error log')

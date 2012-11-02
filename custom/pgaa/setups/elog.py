@@ -26,7 +26,7 @@ description = 'setup for the electronic logbook'
 group = 'special'
 
 devices = dict(
-    Logbook = device('nicos.elog.Logbook',
+    Logbook = device('services.elog.Logbook',
                      prefix = 'logbook/',
                      cache = 'bunker.pgaa.frm2:14869'),
 )

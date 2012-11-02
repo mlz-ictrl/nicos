@@ -34,7 +34,7 @@ import IO
 from nicos.core import Readable, Moveable, HasLimits, Param, Override, \
      NicosError, intrange, oneof, status, requires, ADMIN, waitForStatus, \
      listof
-from nicos.taco import TacoDevice
+from nicos.devices.taco import TacoDevice
 
 from nicos.toftof import calculations as calc
 

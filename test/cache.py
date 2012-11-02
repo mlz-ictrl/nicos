@@ -31,7 +31,7 @@ from os import path
 import sys
 
 from nicos.utils import loggers
-from nicos.sessions.simple import NoninteractiveSession
+from nicos.core.sessions.simple import NoninteractiveSession
 
 
 class TestCacheSession(NoninteractiveSession):

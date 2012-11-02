@@ -13,20 +13,20 @@ sysconfig = dict(
 )
 
 devices = dict(
-    panda = device('nicos.instrument.Instrument',
+    panda = device('devices.instrument.Instrument',
                     instrument='Panda',
                     responsible='R.esponsible R@espons.ible',
                     ),
-    Exp      = device('nicos.panda.experiment.PandaExperiment',
+    Exp      = device('panda.experiment.PandaExperiment',
                       sample = 'Sample',
                       dataroot = '/data',
                       propdb = 'useroffice@tacodb.taco.frm2:useroffice',
                       ),
-    Sample   = device('nicos.tas.TASSample'),
-    filesink = device('nicos.data.AsciiDatafileSink',
+    Sample   = device('devices.tas.TASSample'),
+    filesink = device('devices.datasinks.AsciiDatafileSink',
                       globalcounter = '/data/filecounter'),
-    conssink = device('nicos.data.ConsoleSink'),
-    liveplot = device('nicos.data.GraceSink'),
+    conssink = device('devices.datasinks.ConsoleSink'),
+    liveplot = device('devices.datasinks.GraceSink'),
 )
 
 startupcode='Exp.detectors.append(det)'

@@ -28,52 +28,52 @@ includes = ['system']
 
 devices = dict(
     v1 = device(
-        'nicos.generic.VirtualMotor',
+        'nicos.devices.generic.VirtualMotor',
         abslimits = (0, 5),
         unit = 'mm',
         speed = 1.5
     ),
     v2 = device(
-        'nicos.generic.ManualSwitch',
+        'nicos.devices.generic.ManualSwitch',
         states = ['up', 'down'],
     ),
     v3 = device(
-        'nicos.generic.VirtualMotor',
+        'nicos.devices.generic.VirtualMotor',
         abslimits = (0, 10),
         unit = 'mm',
         speed = 0,
     ),
     m1 = device(
-        'nicos.generic.ManualSwitch',
+        'nicos.devices.generic.ManualSwitch',
         states = ['up', 'down']
     ),
     sw = device(
-        'nicos.generic.Switcher',
+        'nicos.devices.generic.Switcher',
         moveable = 'v3',
         states = ['left', 'right', 'outside'],
         values = [1., 3., 1000.],
         precision = 0.05,
     ),
     broken_sw = device(
-        'nicos.generic.Switcher',
+        'nicos.devices.generic.Switcher',
         states = ['0', '10', '20'],
         values = [0, 10],
         precision = 0,
         moveable = 'v3'
     ),
     rsw = device(
-        'nicos.generic.ReadonlySwitcher',
+        'nicos.devices.generic.ReadonlySwitcher',
         readable = 'v3',
         states = ['left', 'right'],
         values = [1., 3.],
         precision = 0.05,
     ),
     aliasDev = device(
-        'nicos.generic.DeviceAlias',
+        'nicos.devices.generic.DeviceAlias',
         alias = '',
     ),
     paramdev = device(
-        'nicos.generic.ParamDevice',
+        'nicos.devices.generic.ParamDevice',
         device = 'v1',
         parameter = 'speed',
     )

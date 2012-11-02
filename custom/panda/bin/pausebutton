@@ -15,9 +15,9 @@ import fltk
 
 from nicos import session
 from nicos.core import status
-from nicos.cache.utils import OP_SUBSCRIBE
-from nicos.cache.client import BaseCacheClient
-from nicos.sessions.simple import SingleDeviceSession
+from nicos.protocols.cache import OP_SUBSCRIBE
+from nicos.devices.cacheclient import BaseCacheClient
+from nicos.core.sessions.simple import SingleDeviceSession
 
 
 class PauseButton(BaseCacheClient):

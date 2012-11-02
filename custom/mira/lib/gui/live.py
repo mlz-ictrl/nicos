@@ -37,8 +37,8 @@ from PyQt4.QtGui import QStatusBar, QFileDialog, QPrinter, QPrintDialog, \
      QDialog, QMenu, QToolBar, QSizePolicy, QListWidgetItem, \
      QDoubleSpinBox, QLabel
 
-from nicos.gui.utils import loadUi
-from nicos.gui.panels import Panel
+from nicos.clients.gui.utils import loadUi
+from nicos.clients.gui.panels import Panel
 
 from nicos.mira.gui.cascadewidget import CascadeWidget, TmpImage
 

@@ -67,21 +67,21 @@ The parameters are given as keyword arguments.  Here are some example
 ``devices`` entries::
 
    devices = dict(
-       p   = device('nicos.taco.AnalogInput',
+       p   = device('nicos.devices.taco.AnalogInput',
                      tacodevice = 'mira/ccr/pressure',
                      unit = 'bar'),
 
-       mth_motor = device('nicos.taco.Motor',
+       mth_motor = device('nicos.devices.taco.Motor',
                      tacodevice = 'mira/motor/mth',
                      lowlevel = True,
                      unit = 'deg'),
 
-       mth_coder = device('nicos.taco.Coder',
+       mth_coder = device('nicos.devices.taco.Coder',
                      tacodevice = 'mira/coder/mth',
                      lowlevel = True,
                      unit = 'deg'),
 
-       mth = device('nicos.generic.Axis',
+       mth = device('nicos.devices.generic.Axis',
                    motor = 'mth_motor',
                    coder = 'mth_coder',
                    abslimits = (0, 100),
@@ -119,7 +119,7 @@ The possible entries for the ``sysconfig`` dictionary are:
 
    The name of the instrument device, defined somewhere in a ``devices``
    dictionary.  The class for this device must be
-   :class:`nicos.instrument.Instrument` or an instrument-specific subclass.
+   :class:`nicos.devices.instrument.Instrument` or an instrument-specific subclass.
 
    See :ref:`principles`.
 
@@ -127,7 +127,7 @@ The possible entries for the ``sysconfig`` dictionary are:
 
    The name of the experiment "device", defined somewhere in a ``devices``
    dictionary.  The class for this device must be
-   :class:`nicos.experiment.Experiment` or an instrument-specific subclass.
+   :class:`nicos.devices.experiment.Experiment` or an instrument-specific subclass.
 
    See :ref:`principles`.
 
@@ -135,7 +135,7 @@ The possible entries for the ``sysconfig`` dictionary are:
 
    A list of names of "data sinks", i.e. special devices that process measured
    data.  These devices must be defined somewhere in a ``devices`` dictionary
-   and be of class :class:`nicos.data.DataSink` or a subclass.
+   and be of class :class:`nicos.devices.datasinks.DataSink` or a subclass.
 
    See also :ref:`datahandling`.
 
@@ -144,6 +144,6 @@ The possible entries for the ``sysconfig`` dictionary are:
    A list of names of "notifiers", i.e. special devices that can notify the user
    or instrument responsibles via various channels (e.g. email).  These devices
    must be defined somewhere in a ``devices`` dictionary and be of class
-   :class:`nicos.notify.Notifier` or a subclass.
+   :class:`nicos.devices.notifiers.Notifier` or a subclass.
 
    See also :ref:`advanced`.

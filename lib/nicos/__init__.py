@@ -69,7 +69,7 @@ try:
     # raise a C++ exception.
     import TACOClient
 except ImportError:
-    from nicos import taco_stubs
+    from nicos.devices import taco_stubs
     taco_stubs.generate()
     # Now we must be able to do this:
     import TACOClient

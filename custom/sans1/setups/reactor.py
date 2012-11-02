@@ -3,7 +3,7 @@ description = 'FRM-II reactor information'
 nethost = '//tacodb.taco.frm2/'
 
 devices = dict(
-        power = device('nicos.taco.io.AnalogInput',
+        power = device('devices.taco.io.AnalogInput',
                        description = 'FRM II reactor power',
                        tacodevice = nethost + 'frm2/reactor/power',
                        tacotimeout = 0.5,

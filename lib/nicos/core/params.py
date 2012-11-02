@@ -392,7 +392,7 @@ def tacodev(val=None):
         raise ValueError('%r is not a valid Taco device name' % val)
     return val
 
-tangodev_re = re.compile('^(tango:)?//[\w.-]+:[\d]+/[\w-]+/[\w-]+/[\w-]+$', re.I)
+tangodev_re = re.compile(r'^(tango:)?//[\w.-]+:[\d]+/[\w-]+/[\w-]+/[\w-]+$', re.I)
 
 def tangodev(val=None):
     """a valid tango device"""

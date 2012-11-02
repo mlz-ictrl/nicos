@@ -1,7 +1,7 @@
 description = 'reactor status devices'
 
 devices = dict(
-    Power    = device('nicos.taco.AnalogInput',
+    Power    = device('devices.taco.AnalogInput',
                       description = 'FRM II reactor power',
                       tacodevice = '//tacodb/frm2/reactor/power',
                       tacotimeout = 0.5,

@@ -35,21 +35,21 @@ sysconfig = dict(
 modules = ['nicos.commands.taco']
 
 devices = dict(
-    Sample   = device('nicos.tas.TASSample'),
+    Sample   = device('devices.tas.TASSample'),
 
-    Exp      = device('nicos.experiment.Experiment',
+    Exp      = device('devices.experiment.Experiment',
                       dataroot = 'data',
                       sample = 'Sample'),
 
-    filesink = device('nicos.data.AsciiDatafileSink'),
+    filesink = device('devices.datasinks.AsciiDatafileSink'),
 
-    conssink = device('nicos.data.ConsoleSink'),
+    conssink = device('devices.datasinks.ConsoleSink'),
 
-    daemonsink = device('nicos.data.DaemonSink'),
+    daemonsink = device('devices.datasinks.DaemonSink'),
 
-    liveplot = device('nicos.data.GraceSink'),
+    liveplot = device('devices.datasinks.GraceSink'),
 
-    Space    = device('nicos.generic.FreeSpace',
+    Space    = device('devices.generic.FreeSpace',
                       path = None,
                       minfree = 5),
 )

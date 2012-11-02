@@ -27,7 +27,7 @@
 __version__ = "$Revision$"
 
 from nicos.core import Moveable, Override
-from nicos.taco import DigitalInput, DigitalOutput
+from nicos.devices.taco import DigitalInput, DigitalOutput
 
 class DigitalOutput(Moveable):
     """Class for CCR box switches.

@@ -33,7 +33,7 @@ from IO import StringIO
 
 from nicos.core import status, intrange, oneof, Device, Moveable, \
      Param, HasLimits, NicosError, CommunicationError
-from nicos.taco.core import TacoDevice
+from nicos.devices.taco.core import TacoDevice
 
 
 class Julabo(TacoDevice, HasLimits, Moveable):

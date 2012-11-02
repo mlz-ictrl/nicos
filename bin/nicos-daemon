@@ -8,7 +8,7 @@ while path.islink(thisfile):
 sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/../lib'))
 
 import optparse
-from nicos.sessions.daemon import DaemonSession
+from nicos.services.daemon.session import DaemonSession
 
 parser = optparse.OptionParser()
 parser.add_option('-d', '--daemon', dest='daemon', action='store_true',

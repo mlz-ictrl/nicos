@@ -29,7 +29,7 @@ __version__ = "$Revision$"
 import IO
 
 from nicos.core import Moveable, Param, status
-from nicos.taco import TacoDevice
+from nicos.devices.taco import TacoDevice
 
 
 class Output(Moveable, TacoDevice):

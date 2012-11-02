@@ -30,7 +30,7 @@ from IO import StringIO
 
 from nicos.core import status, Readable, Override, CommunicationError
 from nicos.utils import bitDescription
-from nicos.taco.core import TacoDevice
+from nicos.devices.taco.core import TacoDevice
 
 
 def addcrc(msg):

@@ -32,7 +32,7 @@ import zipfile
 from os import path
 
 from nicos.utils import ensureDirectory
-from nicos.experiment import Experiment
+from nicos.devices.experiment import Experiment
 
 
 class MiraExperiment(Experiment):

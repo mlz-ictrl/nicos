@@ -25,7 +25,7 @@
 
 """New Cache reader/writer devices."""
 
-from nicos.generic.cache import CacheReader as NicosCacheReader, \
+from nicos.devices.generic.cache import CacheReader as NicosCacheReader, \
     CacheWriter as NicosCacheWriter
 from nicos.core import CommunicationError, CacheError
 from time import time as currenttime

@@ -1,7 +1,7 @@
 Manual moveable classes
 =======================
 
-.. module:: nicos.generic.manual
+.. module:: nicos.devices.generic.manual
 
 .. autoclass:: ManualMove()
 

@@ -2,7 +2,7 @@ description = 'Julabo bio furnace'
 includes = ['system']
 
 devices = dict(
-    bio = device('nicos.toftof.julabo.Julabo',
+    bio = device('toftof.julabo.Julabo',
                  tacodevice = '//toftofsrv/toftof/rs232/ifbiofurnace',
                  intern_extern = 0,
                  userlimits = (-40, 160),

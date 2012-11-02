@@ -41,7 +41,7 @@ from nicos import session
 from nicos.core import Device, AutoDevice, Readable, ModeError, NicosError, \
      UsageError
 from nicos.utils import formatDuration, printTable
-from nicos.notify import Mailer, SMSer
+from nicos.devices.notifiers import Mailer, SMSer
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.output import printinfo, printwarning, printerror, \
      printexception

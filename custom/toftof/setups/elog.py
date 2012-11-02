@@ -6,7 +6,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    Logbook = device('nicos.elog.Logbook',
+    Logbook = device('services.elog.Logbook',
                      prefix = 'logbook/',
                      cache = 'cpci1.toftof.frm2:14869'),
 )

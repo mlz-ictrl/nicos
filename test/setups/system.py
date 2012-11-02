@@ -35,11 +35,12 @@ modules = ['nicos.commands.tas']
 
 
 devices = dict(
-    sample   = device('nicos.tas.TASSample'),
+    sample   = device('devices.tas.TASSample'),
 
     testsink = device('test.utils.TestSink'),
 
-    Exp      = device('nicos.experiment.Experiment',
+    # test that both nicos.(...) and (...) work
+    Exp      = device('nicos.devices.experiment.Experiment',
                       sample = 'sample',
                       loglevel = 'info',
                       dataroot = '../root/data',
@@ -47,21 +48,21 @@ devices = dict(
                       elog = False,
                       lowlevel = False),
 
-    t_phi    = device('nicos.generic.VirtualMotor',
+    t_phi    = device('devices.generic.VirtualMotor',
                       abslimits = (-180, 180),
                       initval = 0,
                       speed = 0,
                       jitter = 0.01,
                       unit = 'deg'),
 
-    t_psi    = device('nicos.generic.VirtualMotor',
+    t_psi    = device('devices.generic.VirtualMotor',
                       abslimits = (0, 360),
                       initval = 0,
                       speed = 0,
                       jitter = 0.01,
                       unit = 'deg'),
 
-    t_mono   = device('nicos.tas.Monochromator',
+    t_mono   = device('devices.tas.Monochromator',
                       unit = 'A-1',
                       theta = 't_mth',
                       twotheta = 't_mtt',
@@ -70,18 +71,18 @@ devices = dict(
                       abslimits = (0, 10),
                       dvalue = 3.325),
 
-    t_mth    = device('nicos.generic.VirtualMotor',
+    t_mth    = device('devices.generic.VirtualMotor',
                       curvalue = 10,
                       unit = 'deg',
                       abslimits = (-180, 180),
                       jitter = 0.02),
 
-    t_mtt    = device('nicos.generic.VirtualMotor',
+    t_mtt    = device('devices.generic.VirtualMotor',
                       curvalue = 20,
                       unit = 'deg',
                       abslimits = (-180, 180)),
 
-    t_ana    = device('nicos.tas.Monochromator',
+    t_ana    = device('devices.tas.Monochromator',
                       unit = 'A-1',
                       theta = 't_ath',
                       twotheta = 't_att',
@@ -91,30 +92,30 @@ devices = dict(
                       abslimits = (0, 10),
                       dvalue = 3.325),
 
-    t_ath    = device('nicos.generic.VirtualMotor',
+    t_ath    = device('devices.generic.VirtualMotor',
                       curvalue = 10,
                       unit = 'deg',
                       abslimits = (-180, 180),
                       jitter = 0.02),
 
-    t_att    = device('nicos.generic.VirtualMotor',
+    t_att    = device('devices.generic.VirtualMotor',
                       curvalue = -20,
                       unit = 'deg',
                       abslimits = (-180, 180)),
 
-    t_ki     = device('nicos.tas.Wavevector',
+    t_ki     = device('devices.tas.Wavevector',
                       unit = 'A-1',
                       base = 't_mono',
                       tas = 'Tas',
                       scanmode = 'CKI'),
 
-    t_kf     = device('nicos.tas.Wavevector',
+    t_kf     = device('devices.tas.Wavevector',
                       unit = 'A-1',
                       base = 't_ana',
                       tas = 'Tas',
                       scanmode = 'CKF'),
 
-    Tas      = device('nicos.tas.TAS',
+    Tas      = device('devices.tas.TAS',
                       cell = 'sample',
                       mono = 't_mono',
                       phi = 't_phi',

@@ -31,7 +31,7 @@ Created on 06.06.2011
 __version__ = "$Revision$"
 
 #from nicos import session
-#from nicos.scan import Scan, TimeScan, ContinuousScan, ManualScan
+#from nicos.core.scan import Scan, TimeScan, ContinuousScan, ManualScan
 #from nicos.core import Device, Measurable, Moveable, Readable
 from nicos.core import UsageError
 from nicos.commands import usercommand

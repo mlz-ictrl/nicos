@@ -8,12 +8,12 @@ includes = []
 
 devices = dict(
             
-        wut = device('nicos.panda.wechsler.Beckhoff',
+        wut = device('panda.wechsler.Beckhoff',
                 host='sat-box.panda.frm2',
         		addr=1,
                 lowlevel=True,
                 ),
-        sat = device('nicos.panda.satbox.SatBox',
+        sat = device('panda.satbox.SatBox',
                 bus='wut',
                 fmtstr='%d',
                 unit='mm'),

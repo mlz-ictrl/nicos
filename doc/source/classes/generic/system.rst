@@ -1,6 +1,6 @@
 System related devices
 ======================
 
-.. module:: nicos.generic.system
+.. module:: nicos.devices.generic.system
 
 .. autoclass:: FreeSpace()

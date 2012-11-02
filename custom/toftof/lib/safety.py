@@ -30,7 +30,7 @@ __version__ = "$Revision$"
 from time import sleep
 
 from nicos.core import Readable, Moveable, Override, status, oneofdict
-from nicos.taco import DigitalInput, DigitalOutput
+from nicos.devices.taco import DigitalInput, DigitalOutput
 
 try:
     bin

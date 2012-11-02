@@ -10,18 +10,18 @@ sysconfig = dict(
 )
 
 devices = dict(
-    outp    = device('nicos.antares.i7000.Output',
+    outp    = device('antares.i7000.Output',
                      tacodevice='//localhost/test/rs232/dev0',
                      address=2,
                      fmtstr='0x%x'),
-    shutter = device('nicos.generic.Switcher',
+    shutter = device('devices.generic.Switcher',
                      moveable='outp',
                      states=['open', 'closed'],
                      values=[1, 0],
                      precision=0),
-    freq    = device('nicos.antares.picotest.G5100A',
+    freq    = device('antares.picotest.G5100A',
                      device='/dev/usbtmc0',
                      unit='Hz', abslimits=(0, 1000000)),
-    det     = device('nicos.antares.andor.AndorDetector',
+    det     = device('antares.andor.AndorDetector',
                      tacodevice='//localhost/test/andor/dev0'),
 )

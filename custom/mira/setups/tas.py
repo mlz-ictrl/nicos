@@ -6,9 +6,9 @@ includes = ['base', 'mono2', 'analyzer', 'detector']
 modules = ['nicos.commands.tas']
 
 devices = dict(
-    Sample = device('nicos.tas.TASSample'),
+    Sample = device('devices.tas.TASSample'),
 
-    mira   = device('nicos.tas.TAS',
+    mira   = device('devices.tas.TAS',
                     instrument = 'MIRA',
                     responsible = 'Robert Georgii <robert.georgii@frm2.tum.de>',
                     cell = 'Sample',
@@ -21,18 +21,18 @@ devices = dict(
                     axiscoupling = False,
                     psi360 = False),
 
-    vom    = device('nicos.generic.VirtualMotor',
+    vom    = device('devices.generic.VirtualMotor',
                     abslimits = (-360, 360),
                     unit = 'deg'),
 
-    ki     = device('nicos.tas.Wavevector',
+    ki     = device('devices.tas.Wavevector',
                     unit = 'A-1',
                     base = 'mono',
                     tas = 'mira',
                     scanmode = 'CKI',
                     abslimits = (0, 10)),
 
-    kf     = device('nicos.tas.Wavevector',
+    kf     = device('devices.tas.Wavevector',
                     unit = 'A-1',
                     base = 'ana',
                     tas = 'mira',

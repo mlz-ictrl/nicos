@@ -4,13 +4,13 @@ group = 'optional'
 includes = ['base']
 
 devices = dict(
-    I_plus   = device('nicos.taco.DigitalOutput',
+    I_plus   = device('devices.taco.DigitalOutput',
                       tacodevice = '//magnet2/magnet/switch/on',
                       lowlevel=True),
-    I_minus  = device('nicos.taco.DigitalOutput',
+    I_minus  = device('devices.taco.DigitalOutput',
                       tacodevice = '//magnet2/magnet/switch/pol',
                       lowlevel=True),
-    I        = device('nicos.mira.ess.ESSController',
+    I        = device('mira.ess.ESSController',
                       description = 'magnet current',
                       tacodevice = '//magnet2/magnet/ess/current',
                       abslimits = (-250, 250),

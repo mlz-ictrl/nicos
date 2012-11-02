@@ -12,7 +12,7 @@ includes = [
 ]
 
 devices = dict(
-    m = device('nicos.toftof.measurement.TofTofMeasurement',
+    m = device('toftof.measurement.TofTofMeasurement',
                detinfofile = '/users/data/detinfo.dat',
                timechannels = 4096,
                chopper = 'ch',

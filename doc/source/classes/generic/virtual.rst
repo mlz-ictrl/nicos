@@ -6,7 +6,7 @@ testing purposes.
 
 .. note:: If you need a "manual move" device, see :doc:`manual`.
 
-.. module:: nicos.generic.virtual
+.. module:: nicos.devices.generic.virtual
 
 .. autoclass:: VirtualMotor()
 .. autoclass:: VirtualCoder()

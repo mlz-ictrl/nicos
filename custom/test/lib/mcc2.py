@@ -32,8 +32,8 @@ from IO import StringIO
 
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
      usermethod, Device, Param, CommunicationError, TimeoutError
-from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
-from nicos.taco.core import TacoDevice
+from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
+from nicos.devices.taco.core import TacoDevice
 
 
 class TacoSerial(TacoDevice, Device):

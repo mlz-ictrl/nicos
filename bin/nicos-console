@@ -9,7 +9,7 @@ sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/../lib'))
 
 import optparse
 from nicos.utils import nocolor
-from nicos.sessions.console import ConsoleSession
+from nicos.core.sessions.console import ConsoleSession
 
 parser = optparse.OptionParser()
 parser.add_option('-s', '--simulate', dest='simulate', action='store_true',

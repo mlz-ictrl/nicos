@@ -30,7 +30,7 @@ import logging
 from os import path
 
 from nicos.utils import loggers
-from nicos.sessions.daemon import DaemonSession
+from nicos.services.daemon.session import DaemonSession
 import os
 
 class TestDaemonSession(DaemonSession):

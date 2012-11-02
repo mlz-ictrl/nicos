@@ -1,6 +1,6 @@
 Taco base class
 ---------------
 
-.. module:: nicos.taco.core
+.. module:: nicos.devices.taco.core
 
 .. autoclass:: TacoDevice()

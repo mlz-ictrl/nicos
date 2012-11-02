@@ -26,7 +26,8 @@
 
 from nicos import session
 from time import sleep
-from nicos.cache.client import CacheError
+
+from nicos.devices.cacheclient import CacheError
 
 from test.utils import raises, killCache, startCache
 

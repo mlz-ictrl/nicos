@@ -1,9 +1,9 @@
 includes = ['system']#, 'lakeshore', 'cascade', 'detector']
 
 devices = dict(
-    Sample   = device('nicos.tas.TASSample'),
+    Sample   = device('devices.tas.TASSample'),
 
-    resi     = device('nicos.resi.residevice.ResiDevice',
+    resi     = device('resi.residevice.ResiDevice',
                       unit = 'special'
                       ),
 )

@@ -9,8 +9,8 @@ sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/../lib'))
 
 import optparse
 
-from nicos.sessions.simple import SingleDeviceSession
-from nicos.gui.panels.history import StandaloneHistoryApp
+from nicos.core.sessions.simple import SingleDeviceSession
+from nicos.clients.gui.panels.history import StandaloneHistoryApp
 
 parser = optparse.OptionParser()
 parser.add_option('-c', '--cache', dest='cache', action='store',

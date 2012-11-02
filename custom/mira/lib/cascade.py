@@ -31,12 +31,12 @@ from math import pi
 from time import sleep
 
 from nicos import session
-from nicos.tas import Monochromator
+from nicos.devices.tas import Monochromator
 from nicos.core import status, tupleof, listof, oneof, Param, Override, Value, \
      CommunicationError, Readable, INFO_CATEGORIES
 from nicos.mira import cascadeclient
-from nicos.abstract import ImageStorage, AsyncDetector
-from nicos.taco.detector import FRMDetector
+from nicos.devices.abstract import ImageStorage, AsyncDetector
+from nicos.devices.taco.detector import FRMDetector
 
 
 class CascadeDetector(AsyncDetector, ImageStorage):

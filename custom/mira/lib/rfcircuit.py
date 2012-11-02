@@ -31,7 +31,7 @@ from time import sleep
 
 from nicos.core import status, oneof, HasLimits, Moveable, Readable, Param, \
      Override
-from nicos.taco.io import AnalogOutput
+from nicos.devices.taco.io import AnalogOutput
 
 
 class GeneratorDevice(AnalogOutput):

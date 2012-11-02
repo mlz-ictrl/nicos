@@ -2,7 +2,7 @@ description = 'FRM-II cryo box with two LakeShore controllers'
 includes = ['system']
 
 devices = dict(
-    cryo   = device('nicos.taco.temperature.TemperatureController',
+    cryo   = device('devices.taco.temperature.TemperatureController',
                     tacodevice = '//toftofsrv/toftof/ls2/control',
                     userlimits = (0, 600),
                     abslimits = (0, 600),
@@ -18,7 +18,7 @@ devices = dict(
                     sensor_c = None,
                     sensor_d = None),
 
-    cryo_tube = device('nicos.taco.temperature.TemperatureController',
+    cryo_tube = device('devices.taco.temperature.TemperatureController',
                     tacodevice = '//toftofsrv/toftof/ls1/control',
                     userlimits = (0, 600),
                     abslimits = (0, 600),
@@ -34,36 +34,36 @@ devices = dict(
                     sensor_c = None,
                     sensor_d = None),
 
-    cryo_a = device('nicos.taco.TemperatureSensor',
+    cryo_a = device('devices.taco.TemperatureSensor',
                     tacodevice = '//toftofsrv/toftof/ls2/sensora',
                     unit = 'K',
                     fmtstr = '%g'),
 
-    cryo_b = device('nicos.taco.TemperatureSensor',
+    cryo_b = device('devices.taco.TemperatureSensor',
                     tacodevice = '//toftofsrv/toftof/ls2/sensorb',
                     unit = 'K',
                     fmtstr = '%g'),
 
-    cryo_c = device('nicos.taco.TemperatureSensor',
+    cryo_c = device('devices.taco.TemperatureSensor',
                     tacodevice = '//toftofsrv/toftof/ls1/sensora',
                     unit = 'K',
                     fmtstr = '%g'),
 
-    cryo_d = device('nicos.taco.TemperatureSensor',
+    cryo_d = device('devices.taco.TemperatureSensor',
                     tacodevice = '//toftofsrv/toftof/ls1/sensorb',
                     unit = 'K',
                     fmtstr = '%g'),
 
-    cryo_machine = device('nicos.taco.DigitalOutput',
+    cryo_machine = device('devices.taco.DigitalOutput',
                     tacodevice = '//toftofsrv/toftof/ccr/compressor'),
 
-    cryo_g = device('nicos.taco.DigitalOutput',
+    cryo_g = device('devices.taco.DigitalOutput',
                     tacodevice = '//toftofsrv/toftof/ccr/gas'),
 
-    cryo_v = device('nicos.taco.DigitalOutput',
+    cryo_v = device('devices.taco.DigitalOutput',
                     tacodevice = '//toftofsrv/toftof/ccr/vacuum'),
 
-    cryo_p = device('nicos.taco.AnalogInput',
+    cryo_p = device('devices.taco.AnalogInput',
                     tacodevice = '//toftofsrv/toftof/ccr/p2'),
 )
 

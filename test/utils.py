@@ -39,7 +39,7 @@ from logging import ERROR, WARNING
 from nose.tools import assert_raises
 
 from nicos.core import Moveable, HasLimits, DataSink, status
-from nicos.sessions import Session
+from nicos.core.sessions import Session
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
 
 rootdir = path.join(os.path.dirname(__file__), 'root')

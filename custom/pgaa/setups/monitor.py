@@ -47,7 +47,7 @@ _rightcolumn = [
 ]
 
 devices = dict(
-    Monitor = device('nicos.monitor.qt.Monitor',
+    Monitor = device('services.monitor.qt.Monitor',
                      title = 'PGAA status monitor',
                      loglevel = 'info',
                      cache = 'bunker.pgaa.frm2',

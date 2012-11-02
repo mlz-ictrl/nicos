@@ -29,20 +29,20 @@ includes = ['system', 'tube_environ']
 nethost= '//sans1srv.sans1.frm2/'
 
 devices = dict(
-    hv_interlock = device('nicos.taco.DigitalInput',
+    hv_interlock = device('devices.taco.DigitalInput',
                           tacodevice = nethost + 'sans1/interlock/hv',
                           ),
-    hv_discharge_mode = device('nicos.taco.DigitalInput',
+    hv_discharge_mode = device('devices.taco.DigitalInput',
                                tacodevice = nethost + 'sans1/interlock/hv',
                               ),
-    hv_discharge = device('nicos.taco.DigitalOutput',
+    hv_discharge = device('devices.taco.DigitalOutput',
                           tacodevice = nethost + 'sans1/interlock/discharge',
                          ),
-    hv = device('nicos.taco.VoltageSupply',
+    hv = device('devices.taco.VoltageSupply',
                 tacodevice = nethost + 'sans1/iseg/hv',
                 abslimits = [0, 1550],
                ),
-    hv_current = device('nicos.taco.AnalogInput',
+    hv_current = device('devices.taco.AnalogInput',
                         tacodevice = nethost + 'sans1/iseg/hv-current',
                        ),
 )

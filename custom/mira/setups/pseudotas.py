@@ -3,9 +3,9 @@ includes = ['base']
 modules = ['nicos.commands.tas']
 
 devices = dict(
-    Sample = device('nicos.tas.TASSample'),
+    Sample = device('devices.tas.TASSample'),
 
-    mira   = device('nicos.tas.TAS',
+    mira   = device('devices.tas.TAS',
                     instrument = 'MIRA',
                     responsible = 'Robert Georgii <robert.georgii@frm2.tum.de>',
                     axiscoupling = False,
@@ -17,7 +17,7 @@ devices = dict(
                     ana = 'ana',
                     scatteringsense = (-1, 1, -1)),
 
-    mono   = device('nicos.tas.Monochromator',
+    mono   = device('devices.tas.Monochromator',
                     unit = 'A-1',
                     theta = 'vmth',
                     twotheta = 'vmtt',
@@ -26,7 +26,7 @@ devices = dict(
                     abslimits = (0, 10),
                     dvalue = 3.325),
 
-    ana    = device('nicos.tas.Monochromator',
+    ana    = device('devices.tas.Monochromator',
                     unit = 'A-1',
                     theta = 'vath',
                     twotheta = 'vatt',
@@ -35,30 +35,30 @@ devices = dict(
                     abslimits = (0, 10),
                     dvalue = 3.325),
 
-    vmth   = device('nicos.generic.VirtualMotor',
+    vmth   = device('devices.generic.VirtualMotor',
                     unit = 'deg',
                     abslimits = (-360, 360)),
 
-    vmtt   = device('nicos.generic.VirtualMotor',
+    vmtt   = device('devices.generic.VirtualMotor',
                     unit = 'deg',
                     abslimits = (-360, 360)),
 
-    vath   = device('nicos.generic.VirtualMotor',
+    vath   = device('devices.generic.VirtualMotor',
                     unit = 'deg',
                     abslimits = (-360, 360)),
 
-    vatt   = device('nicos.generic.VirtualMotor',
+    vatt   = device('devices.generic.VirtualMotor',
                     unit = 'deg',
                     abslimits = (-360, 360)),
 
-    ki     = device('nicos.tas.Wavevector',
+    ki     = device('devices.tas.Wavevector',
                     unit = 'A-1',
                     base = 'mono',
                     tas = 'mira',
                     scanmode = 'CKI',
                     abslimits = (0, 10)),
 
-    kf     = device('nicos.tas.Wavevector',
+    kf     = device('devices.tas.Wavevector',
                     unit = 'A-1',
                     base = 'ana',
                     tas = 'mira',

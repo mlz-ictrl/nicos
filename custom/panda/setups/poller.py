@@ -8,7 +8,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    Poller = device('nicos.poller.Poller',
+    Poller = device('services.poller.Poller',
                     autosetup = False,
                     poll = ['lakeshore', 'detector', 'befilter'],
                     alwayspoll = [],

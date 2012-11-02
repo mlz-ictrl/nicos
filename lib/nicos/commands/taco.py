@@ -35,7 +35,7 @@ from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.output import printinfo
 from nicos.utils import printTable
 
-from nicos.taco.core import TacoDevice
+from nicos.devices.taco.core import TacoDevice
 
 import TACOClient
 import TACOStates as st

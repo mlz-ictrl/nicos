@@ -1,7 +1,7 @@
 Devices communicating via cache
 ===============================
 
-.. module:: nicos.generic.cache
+.. module:: nicos.devices.generic.cache
 
 .. autoclass:: CacheReader()
 

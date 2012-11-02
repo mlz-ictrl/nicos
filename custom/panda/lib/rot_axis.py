@@ -30,8 +30,8 @@ __version__ = "$Revision$"
 
 from nicos.core import status, oneof, anytype, Device, Param, \
      Readable, Moveable, NicosError, ProgrammingError, TimeoutError, usermethod, none_or
-#~ from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
-from nicos.generic.axis import Axis
+#~ from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
+from nicos.devices.generic.axis import Axis
 
 
 class RotAxis(Axis):

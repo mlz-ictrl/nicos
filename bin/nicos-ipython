@@ -9,7 +9,7 @@ sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/../lib'))
 
 import optparse
 from nicos import nicos_version
-from nicos.sessions.console import ConsoleSession
+from nicos.core.sessions.console import ConsoleSession
 
 try:
     sepindex = sys.argv.index('--')

@@ -36,8 +36,8 @@ from PowerSupply import CurrentControl
 from nicos import session
 from nicos.core import Moveable, HasLimits, Param, Override, waitForStatus, \
      floatrange, listof, InvalidValueError, usermethod
-from nicos.taco.core import TacoDevice
-from nicos.taco.io import DigitalOutput
+from nicos.devices.taco.core import TacoDevice
+from nicos.devices.taco.io import DigitalOutput
 from nicos.utils.fitting import Fit
 
 

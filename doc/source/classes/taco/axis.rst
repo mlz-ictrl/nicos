@@ -1,15 +1,15 @@
 Taco axis-related classes
 =========================
 
-.. module:: nicos.taco.motor
+.. module:: nicos.devices.taco.motor
 
 .. autoclass:: Motor()
 
-.. module:: nicos.taco.coder
+.. module:: nicos.devices.taco.coder
 
 .. autoclass:: Coder()
 
-.. module:: nicos.taco.axis
+.. module:: nicos.devices.taco.axis
 
 .. autoclass:: Axis()
 

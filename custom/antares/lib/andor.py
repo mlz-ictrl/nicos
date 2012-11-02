@@ -37,7 +37,7 @@ import TacoDevice
 
 from nicos import session
 from nicos.core import status, tupleof, Measurable, Param, Override, Value
-from nicos.data import NeedsDatapath
+from nicos.devices.datasinks import NeedsDatapath
 from nicos.utils import readFileCounter, updateFileCounter
 
 

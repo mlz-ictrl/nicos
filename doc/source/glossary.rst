@@ -51,8 +51,8 @@ Glossary
       the user to execute commands on them) is called a session.
 
    session object
-      A singleton instance of a subclass of :class:`nicos.sessions.Session` that
-      collects all important information from a :term:`session`.
+      A singleton instance of a subclass of :class:`nicos.core.sessions.Session`
+      that collects all important information from a :term:`session`.
 
    setup
       A NICOS setup is a collection of configuration data (mostly configuration

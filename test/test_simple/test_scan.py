@@ -22,11 +22,11 @@
 #
 # *****************************************************************************
 
-"""NICOS tests for nicos.commands.scan and nicos.scan modules."""
+"""NICOS tests for nicos.commands.scan and nicos.core.scan modules."""
 
 from nicos import session
 from nicos.core import UsageError, PositionError, CommunicationError, NicosError
-from nicos.scan import ContinuousScan
+from nicos.core.scan import ContinuousScan
 
 from nicos.commands.measure import count
 from nicos.commands.scan import scan, cscan, timescan, twodscan, contscan, \

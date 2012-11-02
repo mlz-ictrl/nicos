@@ -6,9 +6,9 @@ includes = ['virtualtas', 'sampletable', 'analyser', 'power', 'detector',
 modules = ['nicos.commands.tas']
 
 devices = dict(
-    Sample = device('nicos.tas.TASSample'),
+    Sample = device('devices.tas.TASSample'),
 
-    puma   = device('nicos.tas.TAS',
+    puma   = device('devices.tas.TAS',
                     instrument = 'PUMA',
                     responsible = 'O. Sobolev',
                     cell = 'Sample',
@@ -21,21 +21,21 @@ devices = dict(
                     energytransferunit = 'meV',
                     axiscoupling = True),
 
-    ki     = device('nicos.tas.Wavevector',
+    ki     = device('devices.tas.Wavevector',
                     unit = 'A-1',
                     base = 'mono',
                     tas = 'puma',
                     scanmode = 'CKI',
                     abslimits = (1, 5)),
 
-    kf     = device('nicos.tas.Wavevector',
+    kf     = device('devices.tas.Wavevector',
                     unit = 'A-1',
                     base = 'ana',
                     tas = 'puma',
                     scanmode = 'CKF',
                     abslimits = (1, 5)),
 
-    mono     = device('nicos.tas.Monochromator',
+    mono     = device('devices.tas.Monochromator',
                       unit = 'A-1',
                       theta = 'mth',
                       twotheta = 'mtt',
@@ -45,7 +45,7 @@ devices = dict(
                       abslimits = (1, 5),
                       dvalue = 3.355),
 
-    ana     = device('nicos.tas.Monochromator',
+    ana     = device('devices.tas.Monochromator',
                       unit = 'A-1',
                       theta = 'ath_raw',
                       twotheta = 'att',

@@ -33,7 +33,7 @@ from IO import StringIO
 
 from nicos.core import status, intrange, oneofdict, Device, Moveable, \
      Param, NicosError, CommunicationError, ProgrammingError
-from nicos.taco.core import TacoDevice
+from nicos.devices.taco.core import TacoDevice
 
 
 class ModBusDriverHP(TacoDevice, Device):

@@ -78,7 +78,7 @@ A very simple setup file for the monitor could look like this::
   )
 
   devices = dict(
-      Monitor = device('nicos.monitor.qt.Monitor',
+      Monitor = device('nicos.services.monitor.qt.Monitor',
                        title = 'NICOS status monitor',
                        cache = 'localhost:14869',
                        layout = [Row(expcolumn), Row(devcolumn)],
@@ -171,14 +171,14 @@ Backends
 --------
 
 In the example setup above, the Monitor device is confiugred with the class
-``nicos.monitor.qt.Monitor``.  This selects the Qt backend, which displays the
+``nicos.services.monitor.qt.Monitor``.  This selects the Qt backend, which displays the
 monitor as a window using the Qt GUI toolkit.  Other backends exist:
 
-* ``nicos.monitor.gtk.Monitor`` -- GUI monitor using Gtk
+* ``nicos.services.monitor.gtk.Monitor`` -- GUI monitor using Gtk
 
-* ``nicos.monitor.tk.Monitor`` -- GUI monitor using Tkinter (not recommended)
+* ``nicos.services.monitor.tk.Monitor`` -- GUI monitor using Tkinter (not recommended)
 
-* ``nicos.monitor.html.Monitor`` -- writing a HTML file periodically.  You have
+* ``nicos.services.monitor.html.Monitor`` -- writing a HTML file periodically.  You have
   to configure two additional parameters:
 
   - ``filename``: the filename for the HTML file

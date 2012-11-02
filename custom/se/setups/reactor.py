@@ -2,7 +2,7 @@ description = 'reactor power readout'
 includes = ['system']
 
 devices = dict(
-    ReactorPower = device('nicos.taco.io.AnalogInput',
+    ReactorPower = device('devices.taco.io.AnalogInput',
                           tacodevice = '//tacodb.taco.frm2/frm2/reactor/power',
                           description = 'The FRM II reactor power',
                           fmtstr = '%5.1f',

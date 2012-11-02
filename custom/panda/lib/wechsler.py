@@ -38,7 +38,7 @@ from struct import pack, unpack
 
 #~ from nicos.core import status
 from nicos.core import oneof, usermethod, Device, Param, NicosError, UsageError
-#from nicos.taco.core import TacoDevice
+#from nicos.devices.taco.core import TacoDevice
 
 
 class HWError(NicosError):

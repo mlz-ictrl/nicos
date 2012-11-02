@@ -4,7 +4,7 @@ includes = ['system']
 nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(
-    oven = device('nicos.taco.TemperatureController',
+    oven = device('devices.taco.TemperatureController',
                   tacodevice = '//%s/toftof/htf/control' % (nethost, ),
                   userlimits = (0, 2000),
                   abslimits = (0, 2000),

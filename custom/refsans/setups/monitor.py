@@ -68,7 +68,7 @@ _leftcolumn = [
 ]
 
 devices = dict(
-    Monitor = device('nicos.monitor.qt.Monitor',
+    Monitor = device('services.monitor.qt.Monitor',
                      title = 'NICOS status monitor',
                      loglevel = 'info',
                      cache = 'localhost:14869',

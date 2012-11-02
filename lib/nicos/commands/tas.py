@@ -32,10 +32,10 @@ from numpy import ndarray
 
 from nicos import session
 from nicos.core import Measurable, Moveable, Readable, UsageError, NicosError
-from nicos.scan import QScan
-from nicos.tas.rescalc import resmat
-from nicos.tas.spectro import TAS, THZ2MEV
-from nicos.tas.plotting import plot_hklmap, plot_resatpoint, plot_resscan
+from nicos.core.scan import QScan
+from nicos.devices.tas.rescalc import resmat
+from nicos.devices.tas.spectro import TAS, THZ2MEV
+from nicos.devices.tas.plotting import plot_hklmap, plot_resatpoint, plot_resscan
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.scan import _infostr, ADDSCANHELP2, cscan
 from nicos.commands.device import maw, read

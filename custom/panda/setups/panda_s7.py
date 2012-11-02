@@ -6,25 +6,25 @@ includes = ['monoturm']
 
 
 devices = dict(
-	s7bus=device('nicos.panda.panda_s7.S7Bus',
+	s7bus=device('panda.panda_s7.S7Bus',
 		tacodevice='panda/dp/5',
 		lowlevel=True,
 		),
-	s7coder=device('nicos.panda.panda_s7.S7Coder',
+	s7coder=device('panda.panda_s7.S7Coder',
 		bus='s7bus',
 		startbyte=4,	# 0 is endat-coder, 4 is incremental band
 		unit='deg',
 		abslimits=(-132, -20),
                 lowlevel = True,
 		),
-	s7motor=device('nicos.panda.panda_s7.S7Motor',
-	#~ mtt=device('nicos.panda.panda_s7.S7Motor',
+	s7motor=device('panda.panda_s7.S7Motor',
+	#~ mtt=device('panda.panda_s7.S7Motor',
 		bus='s7bus',
 		unit='deg',
 		abslimits=(-132, -20),
                 lowlevel = True,
 		),
-	mtt=device('nicos.generic.Axis',
+	mtt=device('devices.generic.Axis',
 		unit='deg',
 		abslimits=(-132, -20),
 		coder='s7coder',
@@ -36,7 +36,7 @@ devices = dict(
 )
 
 
-#devices['a2'] = device('nicos.axis.Axis', motor='s2', coder='c2', precision=
+#devices['a2'] = device('axis.Axis', motor='s2', coder='c2', precision=
 
 #startupcode='''
 #SetMode('maintenance')  # automagically switch to maintenance (master) modus

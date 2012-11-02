@@ -31,8 +31,8 @@ from Encoder import Encoder
 
 from nicos.core import Readable, Moveable, Override, status, oneofdict, \
     oneof, Param, status
-from nicos.abstract import Coder as BaseCoder
-from nicos.taco.io import AnalogInput
+from nicos.devices.abstract import Coder as BaseCoder
+from nicos.devices.taco.io import AnalogInput
 
 class CoderReference(AnalogInput) :
     """ NOK coder voltage reference """

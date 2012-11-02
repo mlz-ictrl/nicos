@@ -12,13 +12,13 @@ all:
 	$(PYTHON) etc/set_version.py build/lib*
 	-make custom-all
 
-gui: lib/nicos/gui/gui_rc.py
+gui: lib/nicos/clients/gui/gui_rc.py
 	$(PYTHON) setup.py build -e "/usr/bin/env python"
 	$(PYTHON) etc/set_version.py build/lib*
 	-make custom-gui
 
-lib/nicos/gui/gui_rc.py: resources/nicos-gui.qrc
-	-$(RCC) -o lib/nicos/gui/gui_rc.py resources/nicos-gui.qrc
+lib/nicos/clients/gui/gui_rc.py: resources/nicos-gui.qrc
+	-$(RCC) -o lib/nicos/clients/gui/gui_rc.py resources/nicos-gui.qrc
 
 clean:
 	rm -rf build
@@ -28,7 +28,7 @@ clean:
 inplace:
 	rm -rf build
 	$(PYTHON) setup.py build_ext
-	cp build/lib*/nicos/daemon/*.so lib/nicos/daemon
+	cp build/lib*/nicos/services/daemon/*.so lib/nicos/services/daemon
 	-make custom-inplace
 
 T = test
@@ -105,7 +105,7 @@ main-install:
 	@echo "Installing NICOS to $(ROOTDIR)..."
 	@echo "============================================================="
 	install $(VOPT) -d $(ROOTDIR)/{bin,doc,etc,lib,log,pid,setups,scripts}
-	rm -f $(VOPT) $(ROOTDIR)/lib/nicos/daemon/_pyctl.so
+	rm -f $(VOPT) $(ROOTDIR)/lib/nicos/services/daemon/_pyctl.so
 	cp -pr $(VOPT) build/lib.$(PYPLATFORM)-$(PYVERSION)/* $(ROOTDIR)/lib
 	cp -pr $(VOPT) pid/README $(ROOTDIR)/pid
 	chown $(SYSUSER):$(SYSGROUP) $(ROOTDIR)/pid
@@ -117,7 +117,7 @@ main-install:
 	$(PYTHON) etc/create_nicosconf.py "$(SYSUSER)" "$(SYSGROUP)" "$(NETHOST)" \
 	  "$(ROOTDIR)/setups" "$(SERVICES)" "$(ENVIRONMENT)" > $(ROOTDIR)/nicos.conf
 	if [ -f $(INSTRDIR)/gui/defconfig.py ]; then \
-	  cp -p $(INSTRDIR)/gui/defconfig.py "$(ROOTDIR)/lib/nicos/gui"; fi
+	  cp -p $(INSTRDIR)/gui/defconfig.py "$(ROOTDIR)/lib/nicos/clients/gui"; fi
 	@echo "============================================================="
 	@echo "Installing custom modules..."
 	mkdir -p $(VOPT) $(ROOTDIR)/lib/nicos/$(INSTRUMENT)
@@ -151,7 +151,7 @@ main-install-gui:
 	cp -pr $(VOPT) build/lib*/* $(ROOTDIR)/lib
 	cp -pr $(VOPT) build/scripts*/nicos-gui $(ROOTDIR)/bin
 	if [ -f $(INSTRDIR)/gui/defconfig.py ]; then \
-	  cp -p $(INSTRDIR)/gui/defconfig.py "$(ROOTDIR)/lib/nicos/gui"; fi
+	  cp -p $(INSTRDIR)/gui/defconfig.py "$(ROOTDIR)/lib/nicos/clients/gui"; fi
 	@echo "============================================================="
 	@echo "Installing custom modules..."
 	mkdir -p $(VOPT) $(ROOTDIR)/lib/nicos/$(INSTRUMENT)

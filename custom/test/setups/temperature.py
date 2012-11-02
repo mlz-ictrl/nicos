@@ -28,7 +28,7 @@ group = 'basic'
 includes = ['system']
 
 devices = dict(
-    T        = device('nicos.generic.VirtualTemperature',
+    T        = device('devices.generic.VirtualTemperature',
                       abslimits = (0, 300),
                       speed = 5,
                       unit = 'K'),

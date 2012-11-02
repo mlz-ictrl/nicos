@@ -11,21 +11,21 @@ sysconfig = dict(
 )
 
 devices = dict(
-    Sample   = device('nicos.tas.TASSample'),
+    Sample   = device('devices.tas.TASSample'),
 
-    Exp      = device('nicos.experiment.Experiment',
+    Exp      = device('devices.experiment.Experiment',
                       dataroot = '/home/antares/nicos-core/data',
                       sample = 'Sample', _propdb='useroffice@tacodb.taco.frm2:useroffice'),
 
-    ANTARES  = device('nicos.instrument.Instrument', instrument='ANTARES'),
+    ANTARES  = device('devices.instrument.Instrument', instrument='ANTARES'),
 
-    filesink = device('nicos.data.AsciiDatafileSink',
+    filesink = device('devices.datasinks.AsciiDatafileSink',
                       prefix = 'data'),
 
-    conssink = device('nicos.data.ConsoleSink'),
-    daemonsink = device('nicos.data.DaemonSink'),
+    conssink = device('devices.datasinks.ConsoleSink'),
+    daemonsink = device('devices.datasinks.DaemonSink'),
 
-    Space    = device('nicos.data.FreeSpace',
+    Space    = device('devices.datasinks.FreeSpace',
                       path = '/',
                       minfree = 5),
 )

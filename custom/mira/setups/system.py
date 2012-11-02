@@ -10,31 +10,31 @@ sysconfig = dict(
 )
 
 devices = dict(
-    email    = device('nicos.notify.Mailer',
+    email    = device('devices.notifiers.Mailer',
                       sender = 'nicos@mira1',
                       copies = ['rgeorgii@frm2.tum.de'],
                       subject = 'MIRA'),
 
-    smser    = device('nicos.notify.SMSer',
+    smser    = device('devices.notifiers.SMSer',
                       server = 'triton.admin.frm2'),
 
-    Exp      = device('nicos.mira.experiment.MiraExperiment',
+    Exp      = device('mira.experiment.MiraExperiment',
                       sample = 'Sample',
                       dataroot = '/data',
                       propdb = 'useroffice@tacodb.taco.frm2:useroffice'),
 
-    Sample   = device('nicos.experiment.Sample'),
+    Sample   = device('devices.experiment.Sample'),
 
-    mira     = device('nicos.instrument.Instrument',
+    mira     = device('devices.instrument.Instrument',
                       instrument = 'MIRA',
                       responsible = 'Robert Georgii <robert.georgii@frm2.tum.de>'),
 
-    filesink = device('nicos.data.AsciiDatafileSink',
+    filesink = device('devices.datasinks.AsciiDatafileSink',
                       semicolon = False),
 
-    conssink = device('nicos.data.ConsoleSink'),
+    conssink = device('devices.datasinks.ConsoleSink'),
 
-    dmnsink  = device('nicos.data.DaemonSink'),
+    dmnsink  = device('devices.datasinks.DaemonSink'),
 
-    gracesink= device('nicos.data.GraceSink'),
+    gracesink= device('devices.datasinks.GraceSink'),
 )

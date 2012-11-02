@@ -27,7 +27,7 @@
 __version__ = "$Revision$"
 
 from nicos.core import Param, Override, status, none_or, oneof, Readable
-from nicos.taco import AnalogInput
+from nicos.devices.taco import AnalogInput
 
 from nicos.panda.wechsler import Beckhoff
 

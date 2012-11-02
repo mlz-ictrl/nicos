@@ -31,9 +31,9 @@ from time import sleep, time as currenttime
 from nicos.core import status, intrange, oneof, anytype, Device, Param, \
      Readable, Moveable, NicosError, ProgrammingError, TimeoutError, \
      formatStatus
-from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
-from nicos.taco.core import TacoDevice
-from nicos.generic.axis import Axis
+from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
+from nicos.devices.taco.core import TacoDevice
+from nicos.devices.generic.axis import Axis
 
 from ProfibusDP import IO as ProfibusIO
 

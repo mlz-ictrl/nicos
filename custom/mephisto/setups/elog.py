@@ -30,7 +30,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    Logbook = device('nicos.elog.Logbook',
+    Logbook = device('services.elog.Logbook',
                      prefix = 'logbook/',
                      cache = 'mephisto17.office.frm2:14869'),
 )

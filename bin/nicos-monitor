@@ -8,7 +8,7 @@ while path.islink(thisfile):
 sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/../lib'))
 
 import optparse
-from nicos.sessions.simple import NoninteractiveSession
+from nicos.core.sessions.simple import NoninteractiveSession
 
 parser = optparse.OptionParser()
 parser.add_option('-s', '--fontsize', dest='fontsize', type='int',

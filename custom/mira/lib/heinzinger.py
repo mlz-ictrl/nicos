@@ -32,7 +32,7 @@ from IO import StringIO
 
 from nicos.core import status, Moveable, HasLimits, Override, NicosError, Param, \
     CommunicationError
-from nicos.taco.core import TacoDevice
+from nicos.devices.taco.core import TacoDevice
 
 
 class Heinzinger(TacoDevice, HasLimits, Moveable):

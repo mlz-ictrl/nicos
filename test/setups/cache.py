@@ -25,12 +25,12 @@
 name = 'cache setup'
 
 devices = dict(
-    Server = device('nicos.cache.server.CacheServer',
+    Server = device('services.cache.server.CacheServer',
                     server = 'localhost:14877',
                     db = 'DB',
                     loglevel='debug'),
 
-    DB = device('nicos.cache.server.FlatfileCacheDatabase',
+    DB = device('services.cache.server.FlatfileCacheDatabase',
                 storepath = 'cache',
                 loglevel = 'debug'),
 )

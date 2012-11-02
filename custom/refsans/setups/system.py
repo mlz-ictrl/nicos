@@ -33,26 +33,26 @@ sysconfig = dict(
 )
 
 devices = dict(
-    REFSANS   = device('nicos.instrument.Instrument',
+    REFSANS   = device('devices.instrument.Instrument',
                       instrument = 'REFSANS'),
 
-    Sample   = device('nicos.experiment.Sample'),
+    Sample   = device('devices.experiment.Sample'),
 
-    Exp      = device('nicos.experiment.Experiment',
+    Exp      = device('devices.experiment.Experiment',
                       dataroot = '/users/data',
                       sample = 'Sample',
                       elog = False),
 
-    filesink = device('nicos.data.AsciiDatafileSink',
+    filesink = device('devices.datasinks.AsciiDatafileSink',
                       prefix = 'data'),
 
-    conssink = device('nicos.data.ConsoleSink'),
+    conssink = device('devices.datasinks.ConsoleSink'),
 
-    daemonsink = device('nicos.data.DaemonSink'),
+    daemonsink = device('devices.datasinks.DaemonSink'),
 
-#   liveplot = device('nicos.data.GraceSink'),
+#   liveplot = device('devices.datasinks.GraceSink'),
 
-    Space    = device('nicos.generic.FreeSpace',
+    Space    = device('devices.generic.FreeSpace',
                       path = 'data',
                       minfree = 5),
 )

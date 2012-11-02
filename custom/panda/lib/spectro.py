@@ -25,7 +25,7 @@
 """Custom TAS instrument class for PANDA."""
 
 from nicos import session
-from nicos.tas.spectro import TAS
+from nicos.devices.tas.spectro import TAS
 
 
 class PANDA(TAS):

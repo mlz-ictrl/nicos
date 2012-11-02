@@ -31,7 +31,6 @@ import re
 import grp
 import pwd
 import sys
-import time
 import errno
 import signal
 import socket
@@ -40,6 +39,7 @@ import threading
 import traceback
 import ConfigParser
 from os import path
+from time import time as currenttime, strftime, strptime, localtime, mktime
 from itertools import islice, chain
 
 
@@ -105,7 +105,7 @@ def formatDuration(secs):
     return est
 
 def formatEndtime(secs):
-    return time.strftime('%A, %H:%M', time.localtime(time.time() + secs))
+    return strftime('%A, %H:%M', localtime(currenttime() + secs))
 
 
 def formatDocstring(s, indentation=''):
@@ -215,13 +215,13 @@ def parseDateString(s, enddate=False):
     for fmt in ('%Y-%m-%d %H:%M:%S', '%y-%m-%d %H:%M:%S',
                 '%Y-%m-%d %H:%M', '%y-%m-%d %H:%M'):
         try:
-            return time.mktime(time.strptime(s, fmt))
+            return mktime(strptime(s, fmt))
         except ValueError:
             pass
     # formats with only date
     for fmt in ('%Y-%m-%d', '%y-%m-%d'):
         try:
-            ts = time.mktime(time.strptime(s, fmt))
+            ts = mktime(strptime(s, fmt))
         except ValueError:
             pass
         else:
@@ -231,12 +231,12 @@ def parseDateString(s, enddate=False):
     # formats with only time
     for fmt in ('%H:%M:%S', '%H:%M'):
         try:
-            parsed = time.strptime(s, fmt)
+            parsed = strptime(s, fmt)
         except ValueError:
             pass
         else:
-            ltime = time.localtime()
-            return time.mktime(ltime[:3] + parsed[3:6] + ltime[6:])
+            ltime = localtime()
+            return mktime(ltime[:3] + parsed[3:6] + ltime[6:])
     # formats like "1 day" etc.
     rex = re.compile(r'^\s*(\d+(?:.\d+)?)\s*(\w+)\s*$')
     units = [
@@ -250,7 +250,7 @@ def parseDateString(s, enddate=False):
     if m is not None:
         for u in units:
             if m.group(2) in u[1:]:
-                return time.time() - float(m.group(1)) * u[0]
+                return currenttime() - float(m.group(1)) * u[0]
     raise ValueError('the given string is not a date/time string')
 
 
@@ -318,7 +318,7 @@ def readConfig():
                 sys.path[:0] = value.split(':')
             else:
                 os.environ[name] = value
-    from nicos.sessions import Session
+    from nicos.core.sessions import Session
     if cfg.has_section('nicos'):
         for option in cfg.options('nicos'):
             setattr(Session.config, option, cfg.get('nicos', option))
@@ -341,12 +341,12 @@ def writeFile(filename, lines):
         fp.close()
 
 def writePidfile(appname):
-    from nicos.sessions import Session
+    from nicos.core.sessions import Session
     filename = os.path.join(Session.config.control_path, 'pid', appname+'.pid')
     writeFile(filename, [str(os.getpid())])
 
 def removePidfile(appname):
-    from nicos.sessions import Session
+    from nicos.core.sessions import Session
     filename = os.path.join(Session.config.control_path, 'pid', appname+'.pid')
     try:
         os.unlink(filename)
@@ -441,7 +441,7 @@ def daemonize():
         print >> sys.stderr, 'fork #2 failed:', err
 
     # now I am a daemon!
-    from nicos.sessions import Session
+    from nicos.core.sessions import Session
 
     # switch user
     user, group = Session.config.user, Session.config.group
@@ -471,7 +471,7 @@ def setuser():
     if os.geteuid() != 0:
         return
     # switch user
-    from nicos.sessions import Session
+    from nicos.core.sessions import Session
     user, group = Session.config.user, Session.config.group
     if group:
         group = grp.getgrnam(group).gr_gid
@@ -664,3 +664,13 @@ def updateFileCounter(counterpath, value):
     if not path.isdir(path.dirname(counterpath)):
         os.makedirs(path.dirname(counterpath))
     writeFile(counterpath, [str(value)])
+
+
+# determine days of an interval between two timestamps
+
+def allDays(fromtime, totime):
+    tmfr = int(fromtime)
+    tmto = int(min(currenttime(), totime))
+    for tmday in xrange(tmfr, tmto+1, 86400):
+        lt = localtime(tmday)
+        yield str(lt[0]), '%02d-%02d' % lt[1:3]

@@ -34,7 +34,7 @@ import TacoDevice
 from nicos.core import Measurable, Param, Value, intrange, status
 
 
-# This is not a nicos.taco.TacoDevice subclass because it needs to use the
+# This is not a nicos.devices.taco.TacoDevice subclass because it needs to use the
 # generic and outdated TacoDevice client library
 
 class TofCounter(Measurable):

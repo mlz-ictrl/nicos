@@ -1,20 +1,20 @@
 description = 'analyzer table'
 
 devices = dict(
-#    ath      = device('nicos.taco.Axis',
+#    ath      = device('devices.taco.Axis',
 #                      description = 'analyzer theta',
 #                      tacodevice = 'mira/axis/ath',
 #                      abslimits = (90 - 90, 90 + 90),
 #                      fmtstr = '%.3f',
 #                      offset = 90.0),
 
-    ath_co   = device('nicos.taco.Coder', tacodevice='mira/encoder/ath', lowlevel = True),
-    ath_mo   = device('nicos.taco.Motor', tacodevice='mira/motor/ath', abslimits = (0, 180), lowlevel = True),
-    ath      = device('nicos.generic.Axis', coder = 'ath_co', motor = 'ath_mo', obs = [], precision = 0.005,
+    ath_co   = device('devices.taco.Coder', tacodevice='mira/encoder/ath', lowlevel = True),
+    ath_mo   = device('devices.taco.Motor', tacodevice='mira/motor/ath', abslimits = (0, 180), lowlevel = True),
+    ath      = device('devices.generic.Axis', coder = 'ath_co', motor = 'ath_mo', obs = [], precision = 0.005,
                       ),
 
 
-    att      = device('nicos.taco.HoveringAxis',
+    att      = device('devices.taco.HoveringAxis',
                       description = 'analyzer two-theta',
                       tacodevice = 'mira/axis/att',
                       abslimits = (-90 - 135, -90 + 135),
@@ -24,17 +24,17 @@ devices = dict(
                       switchvalues = (0, 1),
                       fmtstr = '%.3f'),
 
-#    att      = device('nicos.taco.Axis',
+#    att      = device('devices.taco.Axis',
 #                      description = 'analyzer two-theta',
 #                      tacodevice = 'mira/axis/att',
 #                      abslimits = (-90 - 135, -90 + 135),
 #                      fmtstr = '%.2f',
 #                      offset = -90.0),
-    vatt     = device('nicos.generic.VirtualMotor',
+    vatt     = device('devices.generic.VirtualMotor',
                       abslimits = (-180, 180),
                       unit = 'deg'),
 
-    ana      = device('nicos.tas.Monochromator',
+    ana      = device('devices.tas.Monochromator',
                       unit = 'A-1',
                       theta = 'ath',
                       twotheta = 'att',
@@ -44,7 +44,7 @@ devices = dict(
                       dvalue = 3.355,
                       scatteringsense = -1),
 
-#    adr      = device('nicos.taco.Axis',
+#    adr      = device('devices.taco.Axis',
 #                      description = 'analyzer detector rotation',
 #                      tacodevice = 'mira/axis/adr',
 #                      abslimits = (-180, 180),

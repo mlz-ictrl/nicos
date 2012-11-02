@@ -29,7 +29,7 @@ group = 'special'
 # also a cache configured.
 
 devices = dict(
-    Logbook = device('nicos.elog.Logbook',
+    Logbook = device('services.elog.Logbook',
                      prefix = 'logbook/',
                      cache = 'localhost:14869'),
 )

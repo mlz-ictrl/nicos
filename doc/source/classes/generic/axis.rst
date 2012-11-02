@@ -1,6 +1,6 @@
 Axis class
 ==========
 
-.. module:: nicos.generic.axis
+.. module:: nicos.devices.generic.axis
 
 .. autoclass:: Axis()

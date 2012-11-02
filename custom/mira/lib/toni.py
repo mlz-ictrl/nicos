@@ -24,5 +24,5 @@
 
 """Legacy import module."""
 
-from nicos.vendor.toni import ModBus, Valve, Leckmon, Ratemeter, Vacuum, \
+from nicos.devices.vendor.toni import ModBus, Valve, Leckmon, Ratemeter, Vacuum, \
      LVPower, DelayBox

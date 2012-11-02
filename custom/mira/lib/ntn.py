@@ -31,7 +31,7 @@ import time
 from IO import StringIO
 
 from nicos.core import status, Moveable, HasLimits, Override, NicosError, Param
-from nicos.taco.core import TacoDevice
+from nicos.devices.taco.core import TacoDevice
 
 
 class FUG(TacoDevice, HasLimits, Moveable):

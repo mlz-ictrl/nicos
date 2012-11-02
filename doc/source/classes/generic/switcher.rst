@@ -1,7 +1,7 @@
 Switcher classes
 ================
 
-.. module:: nicos.generic.switcher
+.. module:: nicos.devices.generic.switcher
 
 .. autoclass:: Switcher()
 

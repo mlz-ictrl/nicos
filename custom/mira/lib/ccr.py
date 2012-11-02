@@ -29,7 +29,7 @@ __version__ = "$Revision$"
 from threading import Timer
 
 from nicos.core import Param
-from nicos.taco import NamedDigitalOutput
+from nicos.devices.taco import NamedDigitalOutput
 
 
 class GasValve(NamedDigitalOutput):

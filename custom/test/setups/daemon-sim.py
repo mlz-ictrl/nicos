@@ -28,7 +28,7 @@ group = 'special'
 import hashlib
 
 devices = dict(
-    Daemon = device('nicos.daemon.NicosDaemon',
+    Daemon = device('services.daemon.NicosDaemon',
                     server = 'localhost:1302',
                     simmode = True,
                     authmethod = 'list',

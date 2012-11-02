@@ -1,6 +1,6 @@
 Slit class
 ==========
 
-.. module:: nicos.generic.slit
+.. module:: nicos.devices.generic.slit
 
 .. autoclass:: Slit()

@@ -4,7 +4,7 @@ group = 'optional'
 includes = ['base']
 
 devices = dict(
-    srot   = device('nicos.taco.Motor',
+    srot   = device('devices.taco.Motor',
                     tacodevice = 'mira/newportmc/motor',
                     abslimits = (-180, 180),
                     )

@@ -238,7 +238,7 @@ def avg(dev):
     would record for every point in a scan the average and the minimum and
     maximum of the device "T" over the counting period.
     """
-    from nicos.scan import Average
+    from nicos.core.scan import Average
     return Average(dev)
 
 
@@ -256,5 +256,5 @@ def minmax(dev):
     would record for every point in a scan the average and the minimum and
     maximum of the device "T" over the counting period.
     """
-    from nicos.scan import MinMax
+    from nicos.core.scan import MinMax
     return MinMax(dev)

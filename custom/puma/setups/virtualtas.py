@@ -2,35 +2,35 @@ description = 'test triple-axis setup'
 group = 'basic'
 
 devices = dict(
-#    phi      = device('nicos.generic.VirtualMotor',
+#    phi      = device('devices.generic.VirtualMotor',
 #                      abslimits = (-180, 180),
 #                      initval = 0,
 #                      unit = 'deg'),
 
-#    psi      = device('nicos.generic.VirtualMotor',
+#    psi      = device('devices.generic.VirtualMotor',
 #                      abslimits = (0, 360),
 #                      initval = 0,
 #                      unit = 'deg'),
 
-    mth      = device('nicos.generic.VirtualMotor',
+    mth      = device('devices.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       precision = 0.05,
                       initval = 45),
 
-    mtt      = device('nicos.generic.VirtualMotor',
+    mtt      = device('devices.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       precision = 0.05,
                       initval = 90),
 
-#    ath      = device('nicos.generic.VirtualMotor',
+#    ath      = device('devices.generic.VirtualMotor',
 #                      unit = 'deg',
 #                      abslimits = (-180, 180),
 #                      precision = 0.05,
 #                      initval = 35),
 
-#    att      = device('nicos.generic.VirtualMotor',
+#    att      = device('devices.generic.VirtualMotor',
 #                      unit = 'deg',
 #                      abslimits = (-180, 180),
 #                      precision = 0.05,

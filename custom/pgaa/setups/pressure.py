@@ -32,7 +32,7 @@ includes = []
 nethost= '//pgaasrv.pgaa.frm2/'
 
 devices = dict(
-    sample_p1 = device('nicos.taco.AnalogInput',
+    sample_p1 = device('devices.taco.AnalogInput',
                        description = 'vacuum sensor in sample chamber',
                        tacodevice = nethost + 'pgaa/sample/vacuum',
                        fmtstr = '%9.2E',

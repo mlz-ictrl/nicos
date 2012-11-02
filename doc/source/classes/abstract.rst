@@ -8,7 +8,7 @@ deriving custom device classes from them.  They extend the base classes in
 concrete.
 
 
-.. module:: nicos.abstract
+.. module:: nicos.devices.abstract
 
 Axis-related classes
 --------------------

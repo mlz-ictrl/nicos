@@ -31,7 +31,7 @@ import time
 import IO
 
 from nicos.core import usermethod, tacodev, Param, ModeError
-from nicos.taco.io import NamedDigitalInput
+from nicos.devices.taco.io import NamedDigitalInput
 
 
 class Shutter(NamedDigitalInput):

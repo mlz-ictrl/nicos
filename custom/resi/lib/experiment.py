@@ -34,7 +34,7 @@ from os import path
 
 from nicos.core import Param, UsageError
 from nicos.utils import disableDirectory, enableDirectory, ensureDirectory
-from nicos.experiment import Experiment
+from nicos.devices.experiment import Experiment
 from nicos.utils.proposaldb import queryCycle
 
 

@@ -7,14 +7,14 @@ includes = ['system']
  # sth,stt,sgx,sgy,stx,sty,stz,--
 
 devices = dict(
-    bus2 = device('nicos.vendor.ipc.IPCModBusTaco',
+    bus2 = device('devices.vendor.ipc.IPCModBusTaco',
             tacodevice='//pandasrv/panda/moxa/port2',
             loglevel='info',
             timeout=0.5,
     ),
     
     # STT is first device and has 1 stepper, 0 poti, 1 coder
-    stt_step = device('nicos.vendor.ipc.Motor',
+    stt_step = device('devices.vendor.ipc.Motor',
             bus = 'bus2',
             addr = 0x51,                # 0x5.. = stepper, 0x6.. = poti, 0x7.. = coder ; .. = channel
             slope = 2000,
@@ -31,7 +31,7 @@ devices = dict(
             lowlevel = True,
             #~ current = 2.0,
     ),
-    stt_enc = device('nicos.vendor.ipc.Coder',
+    stt_enc = device('devices.vendor.ipc.Coder',
             bus = 'bus2',
             addr = 0x71,
             slope = -2**20/360.0,
@@ -41,7 +41,7 @@ devices = dict(
             circular = -360, # map values to -180..0..180 degree
             lowlevel = True,
     ),
-    stt = device('nicos.generic.Axis',
+    stt = device('devices.generic.Axis',
             motor = 'stt_step',
             coder = 'stt_enc',
             obs = [],
@@ -50,7 +50,7 @@ devices = dict(
     ),
     
     # STH is second device and has 1 stepper, 0 poti, 1 coder
-    sth_step = device('nicos.vendor.ipc.Motor',
+    sth_step = device('devices.vendor.ipc.Motor',
             bus = 'bus2',
             addr = 0x52,
             slope = 2000,
@@ -66,7 +66,7 @@ devices = dict(
             lowlevel = True,
             #~ current = 2.0,
     ),
-    sth_enc = device('nicos.vendor.ipc.Coder',
+    sth_enc = device('devices.vendor.ipc.Coder',
             bus = 'bus2',
             addr = 0x72,
             slope = -2**20/360.0,
@@ -76,7 +76,7 @@ devices = dict(
             circular = 360, # map values to -180..0..180 degree
             lowlevel = True,
     ),
-    sth = device('nicos.generic.Axis',
+    sth = device('devices.generic.Axis',
             motor = 'sth_step',
             coder = 'sth_enc',
             obs = [],
@@ -84,7 +84,7 @@ devices = dict(
     ),
     
     # SGX is third device and has 1 stepper, 0 poti, 1 coder
-    sgx_step = device('nicos.vendor.ipc.Motor',
+    sgx_step = device('devices.vendor.ipc.Motor',
             bus = 'bus2',
             addr = 0x53,
             slope = -3200,
@@ -100,7 +100,7 @@ devices = dict(
             lowlevel = True,
             #~ current = 2.0,
     ),
-    sgx_enc = device('nicos.vendor.ipc.Coder',
+    sgx_enc = device('devices.vendor.ipc.Coder',
             bus = 'bus2',
             addr = 0x73,
             slope = -2**13/1.0,
@@ -110,7 +110,7 @@ devices = dict(
             circular = -4096,    # 12 bit (4096) for turns, times 2 deg per turn divided by 2 (+/-)
             lowlevel = True,
     ),
-    sgx = device('nicos.generic.Axis',
+    sgx = device('devices.generic.Axis',
             motor = 'sgx_step',
             coder = 'sgx_enc',
             obs = [],
@@ -119,7 +119,7 @@ devices = dict(
     ),
     
     # SGY is fourth device and has 1 stepper, 0 poti, 1 coder
-    sgy_step = device('nicos.vendor.ipc.Motor',
+    sgy_step = device('devices.vendor.ipc.Motor',
             bus = 'bus2',
             addr = 0x54,
             slope = 3200,
@@ -135,7 +135,7 @@ devices = dict(
             lowlevel = True,
             #~ current = 2.0,
     ),
-    sgy_enc = device('nicos.vendor.ipc.Coder',
+    sgy_enc = device('devices.vendor.ipc.Coder',
             bus = 'bus2',
             addr = 0x74,
             slope = 2**13/1.0,
@@ -145,7 +145,7 @@ devices = dict(
             circular = -4096,    # 12 bit (4096) for turns, times 2 deg per turn divided by 2 (+/-)
             lowlevel = True,
     ),
-    sgy = device('nicos.generic.Axis',
+    sgy = device('devices.generic.Axis',
             motor = 'sgy_step',
             coder = 'sgy_enc',
             obs = [],
@@ -155,7 +155,7 @@ devices = dict(
     
     
     # STX is fith device and has 1 stepper, 1 poti, 0 coder
-    stx_step = device('nicos.vendor.ipc.Motor',
+    stx_step = device('devices.vendor.ipc.Motor',
             bus = 'bus2',
             addr = 0x55,
             slope = 12800,
@@ -169,7 +169,7 @@ devices = dict(
             #~ divider = 4,
             #~ current = 1.5,
     ),
-    stx_poti = device('nicos.vendor.ipc.Coder',
+    stx_poti = device('devices.vendor.ipc.Coder',
             bus = 'bus2',
             addr = 0x65,
             slope = 79.75,
@@ -177,7 +177,7 @@ devices = dict(
             unit = 'mm',
             lowlevel = True,
     ),
-    stx = device('nicos.generic.Axis',
+    stx = device('devices.generic.Axis',
             motor = 'stx_step',
             coder = 'stx_step',
             obs = ['stx_poti'],
@@ -186,7 +186,7 @@ devices = dict(
     ),
     
     # STY is sixth device and has 1 stepper, 1 poti, 0 coder
-    sty_step = device('nicos.vendor.ipc.Motor',
+    sty_step = device('devices.vendor.ipc.Motor',
             bus = 'bus2',
             addr = 0x56,
             slope = 12800,
@@ -200,7 +200,7 @@ devices = dict(
             #~ divider = 4,
             #~ current = 1.5,
     ),
-    sty_poti = device('nicos.vendor.ipc.Coder',
+    sty_poti = device('devices.vendor.ipc.Coder',
             bus = 'bus2',
             addr = 0x66,
             slope = 79.65,
@@ -208,7 +208,7 @@ devices = dict(
             unit = 'mm',
             lowlevel = True,
     ),
-    sty = device('nicos.generic.Axis',
+    sty = device('devices.generic.Axis',
             motor = 'sty_step',
             coder = 'sty_step',
             obs = ['sty_poti'],
@@ -217,7 +217,7 @@ devices = dict(
     ),
     
     # STZ is seventh device and has 1 stepper, 0 poti, 0 coder
-    stz_step = device('nicos.vendor.ipc.Motor',
+    stz_step = device('devices.vendor.ipc.Motor',
             bus = 'bus2',
             addr = 0x57,
             slope = 20000,
@@ -232,7 +232,7 @@ devices = dict(
             #~ current = 1.5,
     ),
 
-    stz = device('nicos.generic.Axis',
+    stz = device('devices.generic.Axis',
             motor = 'stz_step',
             coder = 'stz_step',
             obs = [],

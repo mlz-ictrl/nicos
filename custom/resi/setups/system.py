@@ -9,28 +9,28 @@ sysconfig = dict(
 )
 
 devices = dict(
-    email    = device('nicos.notify.Mailer',
+    email    = device('devices.notifiers.Mailer',
                       sender = 'resi@resi2',
                       copies = ['bjoern.pedersen@frm2.tum.de'],
                       subject = 'RESI'),
 
-    #smser    = device('nicos.notify.SMSer',
+    #smser    = device('devices.notifiers.SMSer',
     #                  server='triton.admin.frm2'),
 
-    Exp      = device('nicos.resi.experiment.ResiExperiment',
+    Exp      = device('resi.experiment.ResiExperiment',
                       sample = 'Sample',
                       dataroot = '/tmp/data/testdata',
                       _propdb = 'useroffice@tacodb.taco.frm2:useroffice'),
 
-    resiInstrument =device('nicos.instrument.Instrument',
+    resiInstrument =device('devices.instrument.Instrument',
                        instrument= 'RESI',
                         responsible ='BP'   ),
 
-    filesink = device('nicos.data.AsciiDatafileSink'),
+    filesink = device('devices.datasinks.AsciiDatafileSink'),
 
-    conssink = device('nicos.data.ConsoleSink'),
+    conssink = device('devices.datasinks.ConsoleSink'),
 
-    dmnsink  = device('nicos.data.DaemonSink'),
+    dmnsink  = device('devices.datasinks.DaemonSink'),
 
-   # gracesink= device('nicos.data.GraceSink'),
+   # gracesink= device('devices.datasinks.GraceSink'),
 )

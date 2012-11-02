@@ -4,7 +4,7 @@ group = 'optional'
 includes = ['base']
 
 devices = dict(
-    Bf  = device('nicos.mira.thm1176.THM',
+    Bf  = device('mira.thm1176.THM',
                  device = '/dev/usbtmc_THM1176'),
 )
 

@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from nicos.daemon.script import RequestError,Request
+from nicos.services.daemon.script import RequestError, Request
 
 from test.utils import raises
 

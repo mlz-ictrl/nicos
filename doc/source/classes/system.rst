@@ -8,7 +8,7 @@ subclasses.
 Experiment
 ----------
 
-.. module:: nicos.experiment
+.. module:: nicos.devices.experiment
 
 The experiment device collects all configuration pertaining to the current
 experiment -- i.e. proposal information, sample, current configuration of
@@ -24,7 +24,7 @@ The experiment device is selected in setups using :ref:`sysconfig`.
 Instrument
 ----------
 
-.. module:: nicos.instrument
+.. module:: nicos.devices.instrument
 
 Each setup requires an instrument device, giving basic information and
 functionality of the specific instrument.  It is selected in setups using
@@ -43,7 +43,7 @@ configured in setups like normal devices and selected in :ref:`sysconfig`.
 
 .. autoclass:: DataSink()
 
-.. module:: nicos.data
+.. module:: nicos.devices.datasinks
 
 .. autoclass:: ConsoleSink()
 .. autoclass:: AsciiDatafileSink()
@@ -55,7 +55,7 @@ configured in setups like normal devices and selected in :ref:`sysconfig`.
 Notifiers
 ---------
 
-.. module:: nicos.notify
+.. module:: nicos.devices.notifiers
 
 These devices provide a way to notify user or instrument responsible.  For
 example, in case of unhandled exceptions a notification is always sent if the

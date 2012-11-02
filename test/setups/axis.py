@@ -28,21 +28,21 @@ includes = ['system']
 
 devices = dict(
     motor = device(
-        'nicos.generic.VirtualMotor',
+        'nicos.devices.generic.VirtualMotor',
         unit = 'mm',
         initval = 0,
         abslimits = (-100, 100),
     ),
 
     coder = device(
-        'nicos.generic.VirtualCoder',
+        'nicos.devices.generic.VirtualCoder',
         motor = 'motor',
         unit = 'mm',
         lowlevel = True,
     ),
 
     axis = device(
-        'nicos.generic.Axis',
+        'nicos.devices.generic.Axis',
         motor = 'motor',
         coder = 'coder',
         obs = [],
@@ -53,7 +53,7 @@ devices = dict(
     ),
 
     limit_axis = device(
-        'nicos.generic.Axis',
+        'nicos.devices.generic.Axis',
         motor = 'motor',
         coder = 'coder',
         obs = [],
@@ -62,7 +62,7 @@ devices = dict(
     ),
 
     backlash_axis = device(
-        'nicos.generic.Axis',
+        'nicos.devices.generic.Axis',
         motor = 'motor',
         coder = 'coder',
         obs = None,
@@ -73,13 +73,13 @@ devices = dict(
     ),
 
     coder2 = device(
-        'nicos.generic.VirtualCoder',
+        'nicos.devices.generic.VirtualCoder',
         motor = 'motor',
         unit = 'mm',
     ),
 
     obs_axis = device(
-        'nicos.generic.Axis',
+        'nicos.devices.generic.Axis',
         motor = 'motor',
         coder = 'coder',
         obs = ['coder2'],

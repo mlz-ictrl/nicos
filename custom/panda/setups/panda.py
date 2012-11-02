@@ -7,9 +7,9 @@ includes = ['sampletable', 'ana', 'detector','system','panda_s7', 'manual']
 modules = ['nicos.commands.tas']
 
 devices = dict(
-    Sample = device('nicos.tas.TASSample'),
+    Sample = device('devices.tas.TASSample'),
 
-    panda = device('nicos.tas.TAS',
+    panda = device('devices.tas.TAS',
                     instrument = 'PANDA',
                     responsible = 'Astrid Schneidewind <astrid.schneidewind@frm2.tum.de>',
                     cell = 'Sample',
@@ -21,21 +21,21 @@ devices = dict(
                     scatteringsense = (-1, 1, -1),
                     energytransferunit ='meV'),
 
-    ki     = device('nicos.tas.Wavevector',
+    ki     = device('devices.tas.Wavevector',
                     unit = 'A-1',
                     base = 'mono',
                     tas = 'panda',
                     scanmode = 'CKI',
                     abslimits = (1, 10)),
 
-    kf     = device('nicos.tas.Wavevector',
+    kf     = device('devices.tas.Wavevector',
                     unit = 'A-1',
                     base = 'ana',
                     tas = 'panda',
                     scanmode = 'CKF',
                     abslimits = (1, 10)),
 
-    mono     = device('nicos.tas.Monochromator',
+    mono     = device('devices.tas.Monochromator',
                       unit = 'A-1',
                       theta = 'mth',
                       twotheta = 'mtt',
@@ -45,7 +45,7 @@ devices = dict(
                       abslimits = (1, 10),
                       dvalue = 3.355),
 
-    ana     = device('nicos.tas.Monochromator',
+    ana     = device('devices.tas.Monochromator',
                       unit = 'A-1',
                       theta = 'ath',
                       twotheta = 'att',

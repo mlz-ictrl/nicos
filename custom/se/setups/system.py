@@ -9,32 +9,32 @@ sysconfig = dict(
 )
 
 devices = dict(
-    SE   = device('nicos.instrument.Instrument',
+    SE   = device('devices.instrument.Instrument',
                       instrument = 'SE'),
 
-    Sample   = device('nicos.experiment.Sample'),
+    Sample   = device('devices.experiment.Sample'),
 
-    Exp      = device('nicos.experiment.Experiment',
+    Exp      = device('devices.experiment.Experiment',
                       dataroot = '/users/data',
                       sample = 'Sample',
                       elog = False),
 
-    filesink = device('nicos.data.AsciiDatafileSink',
+    filesink = device('devices.datasinks.AsciiDatafileSink',
                       prefix = 'data'),
 
-    conssink = device('nicos.data.ConsoleSink'),
+    conssink = device('devices.datasinks.ConsoleSink'),
 
-    daemonsink = device('nicos.data.DaemonSink'),
+    daemonsink = device('devices.datasinks.DaemonSink'),
 
-    emailer  = device('nicos.notify.Mailer',
+    emailer  = device('devices.notifiers.Mailer',
                       sender = 'nicos@tasgroup2.taco.frm2',
                       copies = [],
                       subject = 'SE'),
 
-    smser    = device('nicos.notify.SMSer',
+    smser    = device('devices.notifiers.SMSer',
                       server = 'triton.admin.frm2'),
 
-    Space    = device('nicos.generic.FreeSpace',
+    Space    = device('devices.generic.FreeSpace',
                       description = 'The free space on the data storage', 
                       path = '/',
                       minfree = 5),

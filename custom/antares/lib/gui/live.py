@@ -36,9 +36,9 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 from PyQt4.QtGui import QLabel, QVBoxLayout, QPrinter, QPrintDialog, QDialog, \
      QMenu, QToolBar
 
-from nicos.gui.utils import loadUi
-from nicos.gui.panels import Panel
-from nicos.gui.livewidget import LWWidget, LWData
+from nicos.clients.gui.utils import loadUi
+from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.livewidget import LWWidget, LWData
 
 DATATYPES = frozenset(('<I4', '<i4', '>I4', '>i4', '<I2', '<i2', '>I2', '>i2',
                        'I1', 'i1', 'f8', 'f4'))

@@ -26,26 +26,26 @@
 
 __version__ = "$Revision$"
 
-from nicos.gui.config import hsplit, vsplit, window, panel, tool
+from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool
 
 default_profile_uid = '07139e62-d244-11e0-b94b-00199991c245'
 default_profile_config = ('Default', [
         vsplit(
             hsplit(
-                panel('nicos.gui.panels.status.ScriptStatusPanel'),
-                panel('nicos.gui.panels.watch.WatchPanel')),
-                panel('nicos.gui.panels.console.ConsolePanel'),
+                panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
+                panel('nicos.clients.gui.panels.watch.WatchPanel')),
+                panel('nicos.clients.gui.panels.console.ConsolePanel'),
             ),
         window('Errors/warnings', 'errors', True,
-            panel('nicos.gui.panels.errors.ErrorPanel')),
+            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
         window('Editor', 'editor', True,
-            panel('nicos.gui.panels.editor.EditorPanel')),
+            panel('nicos.clients.gui.panels.editor.EditorPanel')),
         window('History', 'find', True,
-            panel('nicos.gui.panels.history.HistoryPanel')),
+            panel('nicos.clients.gui.panels.history.HistoryPanel')),
         window('Live data', 'live', True,
-            panel('nicos.gui.panels.live.LiveDataPanel')),
+            panel('nicos.clients.gui.panels.live.LiveDataPanel')),
     ], [
         tool('Calculator',
-            'nicos.gui.tools.calculator.CalculatorTool'),
+            'nicos.clients.gui.tools.calculator.CalculatorTool'),
     ]
 )

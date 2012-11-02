@@ -100,8 +100,8 @@ possible with the device:
       type), and a string describing the purpose of the device.  For example::
 
          attached_devices = {
-             'motor': (nicos.abstract.Motor, 'The motor to move'),
-             'coder': (nicos.abstract.Coder, 'The coder for reading position'),
+             'motor': (nicos.devices.abstract.Motor, 'The motor to move'),
+             'coder': (nicos.devices.abstract.Coder, 'The coder for reading position'),
          }
 
       The actual attached devices for a specific instance (given in the

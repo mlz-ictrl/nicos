@@ -4,7 +4,7 @@ includes = ['system']
 nethost = 'ccr17.toftof.frm2'
 
 devices = dict(
-    cryo   = device('nicos.taco.temperature.TemperatureController',
+    cryo   = device('devices.taco.temperature.TemperatureController',
                     tacodevice = '//%s/ccr/ls336/control2' % (nethost, ),
                     userlimits = (0, 600),
                     abslimits = (0, 600),
@@ -20,7 +20,7 @@ devices = dict(
                     sensor_c = None,
                     sensor_d = None),
 
-    cryo_tube = device('nicos.taco.temperature.TemperatureController',
+    cryo_tube = device('devices.taco.temperature.TemperatureController',
                     tacodevice = '//%s/ccr/ls336/control1' % (nethost, ),
                     userlimits = (0, 400),
                     abslimits = (0, 400),
@@ -36,54 +36,54 @@ devices = dict(
                     sensor_c = None,
                     sensor_d = None),
 
-    cryo_a = device('nicos.taco.TemperatureSensor',
+    cryo_a = device('devices.taco.TemperatureSensor',
                     tacodevice = '//%s/ccr/ls336/sensora' % (nethost, ),
                     unit = 'K',
                     fmtstr = '%g'),
 
-    cryo_b = device('nicos.taco.TemperatureSensor',
+    cryo_b = device('devices.taco.TemperatureSensor',
                     tacodevice = '//%s/ccr/ls336/sensorb' % (nethost, ),
                     unit = 'K',
                     fmtstr = '%g'),
 
-    cryo_c = device('nicos.taco.TemperatureSensor',
+    cryo_c = device('devices.taco.TemperatureSensor',
                     tacodevice = '//%s/ccr/ls336/sensorc' % (nethost, ),
                     unit = 'K',
                     fmtstr = '%g'),
 
-    cryo_d = device('nicos.taco.TemperatureSensor',
+    cryo_d = device('devices.taco.TemperatureSensor',
                     tacodevice = '//%s/ccr/ls336/sensord' % (nethost, ),
                     unit = 'K',
                     fmtstr = '%g'),
 
-    cryo_machine = device('nicos.taco.DigitalOutput',
+    cryo_machine = device('devices.taco.DigitalOutput',
                     tacodevice = '//%s/ccr/plc/on' % (nethost, )),
 
-    cryo_gs = device('nicos.taco.DigitalOutput',
+    cryo_gs = device('devices.taco.DigitalOutput',
                     lowlevel = True,
                     tacodevice = '//%s/ccr/plc/gas' % (nethost, )),
 
-    cryo_gr = device('nicos.taco.DigitalInput',
+    cryo_gr = device('devices.taco.DigitalInput',
                     lowlevel = True,
                     tacodevice = '//%s/ccr/plc/fbgas' % (nethost, )),
 
-    cryo_g = device('nicos.toftof.ccr.DigitalOutput',
+    cryo_g = device('toftof.ccr.DigitalOutput',
                     write = 'cryo_gs',
                     feedback = 'cryo_gr',),
 
-    cryo_vs = device('nicos.taco.DigitalOutput',
+    cryo_vs = device('devices.taco.DigitalOutput',
                     lowlevel = True,
                     tacodevice = '//%s/ccr/plc/vacuum' % (nethost, )),
 
-    cryo_vr= device('nicos.taco.DigitalInput',
+    cryo_vr= device('devices.taco.DigitalInput',
                     lowlevel = True,
                     tacodevice = '//%s/ccr/plc/fbvacuum' % (nethost, )),
 
-    cryo_v = device('nicos.toftof.ccr.DigitalOutput',
+    cryo_v = device('toftof.ccr.DigitalOutput',
                     write = 'cryo_vs',
                     feedback = 'cryo_vr',), 
 
-    cryo_p = device('nicos.taco.AnalogInput',
+    cryo_p = device('devices.taco.AnalogInput',
                     tacodevice = '//%s/ccr/plc/p1' % (nethost, )),
 )
 

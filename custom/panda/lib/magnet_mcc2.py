@@ -30,15 +30,15 @@ from time import sleep, time as currenttime
 
 from IO import StringIO
 
-from nicos.taco.core import TacoDevice
+from nicos.devices.taco.core import TacoDevice
 
 import threading
 
 from nicos.core import status, intrange, oneof, anytype, Device, Param, \
      Readable, Moveable, NicosError, ProgrammingError, TimeoutError, \
      formatStatus, tacodev, CommunicationError
-from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
-from nicos.generic.axis import Axis
+from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
+from nicos.devices.generic.axis import Axis
 
 import nicos.status as status
 

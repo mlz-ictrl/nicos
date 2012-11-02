@@ -81,7 +81,7 @@ _rightcolumn = Column(_axisblock, _detectorblock)
 _leftcolumn = Column(_tasblock, _tempblock)
 
 devices = dict(
-    Monitor = device('nicos.monitor.html.Monitor',
+    Monitor = device('services.monitor.html.Monitor',
                      title = 'NICOS status monitor',
                      filename = 'data/status.html',
                      loglevel = 'info',

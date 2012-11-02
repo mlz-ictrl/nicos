@@ -1,7 +1,7 @@
 Session API reference
 =====================
 
-.. module:: nicos.sessions
+.. module:: nicos.core.sessions
 
 The "NICOS session" object is a singleton instance that provides all global
 operations to any shell or daemon that uses NICOS devices.  Its functions
@@ -94,22 +94,22 @@ include the management of
    .. attribute:: instrument
 
       The instrument device configured for the current setup.  An instance of (a
-      subclass of) `nicos.instrument.Instrument`.
+      subclass of) `nicos.devices.instrument.Instrument`.
 
    .. attribute:: experiment
 
       The experiment device configured for the current setup.  An instance of (a
-      subclass of) `nicos.experiment.Experiment`.
+      subclass of) `nicos.devices.experiment.Experiment`.
 
    .. attribute:: notifiers
 
       The notifier devices configured for the current setup.  A list of
-      instances of `nicos.notify.Notifier`.
+      instances of `nicos.devices.notifiers.Notifier`.
 
    .. attribute:: datasinks
 
       The data sinks configured for the current setup.  A list of instances of
-      `nicos.data.DataSink`.
+      `nicos.devices.datasinks.DataSink`.
 
 
    **Notification support**

@@ -24,9 +24,9 @@
 
 __version__ = "$Revision$"
 
-from nicos.generic.axis import Axis as GenericAxis
-from nicos.vendor.ipc import IPCModBusTaco
-from nicos.taco.io import DigitalInput
+from nicos.devices.generic.axis import Axis as GenericAxis
+from nicos.devices.vendor.ipc import IPCModBusTaco
+from nicos.devices.taco.io import DigitalInput
 from nicos.core import CommunicationError, Param
 
 from TACOClient import TACOError

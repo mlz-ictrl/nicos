@@ -2,7 +2,7 @@ description = 'reactor status devices'
 group = 'lowlevel'
 
 devices = dict(
-    Power    = device('nicos.taco.AnalogInput',
+    Power    = device('devices.taco.AnalogInput',
                       description = 'FRM II reactor power',
                       tacodevice = '//tacodb/frm2/reactor/power',
                       tacotimeout = 0.5,
@@ -11,38 +11,38 @@ devices = dict(
                       fmtstr = '%.1f',
                       unit = 'MW'),
 
-    Crane    = device('nicos.taco.AnalogInput',
+    Crane    = device('devices.taco.AnalogInput',
                       tacodevice = '//tacodb/frm2/smc10/pos',
                       tacotimeout = 0.5,
                       pollinterval = 5,
                       maxage = 30,
                       unit = 'm'),
 
-    NL6      = device('nicos.taco.NamedDigitalInput',
+    NL6      = device('devices.taco.NamedDigitalInput',
                       description = 'NL6 shutter status',
                       mapping = {0: 'closed', 1: 'open'},
                       pollinterval = 30,
                       maxage = 60,
                       tacodevice = '//tacodb/frm2/shutter/nl6'),
 
-    Sixfold  = device('nicos.taco.NamedDigitalInput',
+    Sixfold  = device('devices.taco.NamedDigitalInput',
                       description = 'Sixfold shutter status',
                       mapping = {0: 'closed', 1: 'open'},
                       pollinterval = 30,
                       maxage = 60,
                       tacodevice = '//tacodb/frm2/shutter/sixfold'),
 
-    ColdSrc  = device('nicos.taco.AnalogInput',
+    ColdSrc  = device('devices.taco.AnalogInput',
                       tacodevice = '//tacodb/frm2/coldsource/temp',
                       pollinterval = 30,
                       maxage = 120),
 
-    FAK40Cap = device('nicos.taco.AnalogInput',
+    FAK40Cap = device('devices.taco.AnalogInput',
                       tacodevice = '//tacodb/frm2/fak40/capacity',
                       pollinterval = 30,
                       maxage = 120),
 
-    FAK40P   = device('nicos.taco.AnalogInput',
+    FAK40P   = device('devices.taco.AnalogInput',
                       tacodevice = '//tacodb/frm2/fak40/pressure',
                       pollinterval = 30,
                       maxage = 120),

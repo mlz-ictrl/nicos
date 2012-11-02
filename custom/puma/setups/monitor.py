@@ -67,7 +67,7 @@ column2 = [
 ]
 
 devices = dict(
-    Monitor = device('nicos.monitor.qt.Monitor',
+    Monitor = device('services.monitor.qt.Monitor',
                      title = 'PUMA status monitor',
                      loglevel = 'info',
                      cache = 'pumahw.puma.frm2',

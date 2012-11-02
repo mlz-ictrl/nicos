@@ -29,31 +29,31 @@ includes = ['system']
 devices = dict(
 
     m_left = device(
-        'nicos.generic.VirtualMotor',
+        'nicos.devices.generic.VirtualMotor',
         unit = 'mm',
         abslimits = (-10, 20),
     ),
 
     m_right = device(
-        'nicos.generic.VirtualMotor',
+        'nicos.devices.generic.VirtualMotor',
         unit = 'mm',
         abslimits = (-20, 10),
     ),
 
     m_bottom = device(
-        'nicos.generic.VirtualMotor',
+        'nicos.devices.generic.VirtualMotor',
         unit = 'mm',
         abslimits = (-20, 10),
     ),
 
     m_top = device(
-        'nicos.generic.VirtualMotor',
+        'nicos.devices.generic.VirtualMotor',
         unit = 'mm',
         abslimits = (-10, 20),
     ),
 
     slit = device(
-        'nicos.generic.Slit',
+        'nicos.devices.generic.Slit',
         left = 'm_left',
         right = 'm_right',
         bottom = 'm_bottom',
@@ -61,7 +61,7 @@ devices = dict(
     ),
 
     slit2 = device(
-        'nicos.generic.Slit',
+        'nicos.devices.generic.Slit',
         left = 'm_left',
         right = 'm_right',
         bottom = 'm_bottom',

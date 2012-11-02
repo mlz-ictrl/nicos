@@ -8,13 +8,13 @@ includes = ['system']
 
 devices = dict(
             
-        beckhoffdevice = device('nicos.panda.wechsler.Beckhoff',
+        beckhoffdevice = device('panda.wechsler.Beckhoff',
                 host='wechsler.panda.frm2',
                 lowlevel=True,
                 loglevel='info',
                 ),
         
-    wechsler = device('nicos.panda.wechsler.MonoWechsler',
+    wechsler = device('panda.wechsler.MonoWechsler',
             beckhoff = 'beckhoffdevice',
             loglevel='info',
             ),

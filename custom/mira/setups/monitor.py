@@ -124,16 +124,16 @@ _warnings = [
 ]
 
 devices = dict(
-    email    = device('nicos.notify.Mailer',
+    email    = device('devices.notifiers.Mailer',
                       sender = 'nicos@mira1',
                       receivers = ['rgeorgii@frm2.tum.de'],
                       subject = 'MIRA'),
 
-    smser    = device('nicos.notify.SMSer',
+    smser    = device('devices.notifiers.SMSer',
                       server = 'triton.admin.frm2',
                       receivers = ['01719251564']),
 
-    Monitor = device('nicos.monitor.qt.Monitor',
+    Monitor = device('services.monitor.qt.Monitor',
                      title = 'MIRA Status monitor',
                      loglevel = 'info',
                      cache = 'mira1:14869',

@@ -24,4 +24,4 @@
 
 """Legacy import module."""
 
-from nicos.vendor.iseg import IsegHV
+from nicos.devices.vendor.iseg import IsegHV

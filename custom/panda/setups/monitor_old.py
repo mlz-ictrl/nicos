@@ -30,7 +30,7 @@ _column1 = [
 ]
 
 devices = dict(
-    Monitor = device('nicos.monitor.fl.Monitor',
+    Monitor = device('services.monitor.fl.Monitor',
                      title = 'PANDA status monitor',
                      loglevel = 'info',
                      cache = 'pandasrv.panda.frm2',

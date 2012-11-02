@@ -28,7 +28,7 @@ __version__ = "$Revision$"
 
 from nicos import status
 from nicos.core import Param, tacodev, usermethod, Moveable
-from nicos.generic.axis import Axis
+from nicos.devices.generic.axis import Axis
 
 from IO import DigitalOutput
 

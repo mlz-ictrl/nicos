@@ -30,14 +30,14 @@ from time import sleep
 
 from IO import StringIO
 
-from nicos.taco.core import TacoDevice
+from nicos.devices.taco.core import TacoDevice
 
 
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
      usermethod, Device, Param, CommunicationError, TimeoutError
 from nicos.utils import lazy_property
-from nicos.abstract import Motor as NicosMotor, Coder as NicosCoder
-from nicos.taco import TacoDevice
+from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
+from nicos.devices.taco import TacoDevice
 
 class TacoSerial(TacoDevice, Device):
     taco_class = StringIO

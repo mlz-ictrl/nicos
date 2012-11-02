@@ -1,6 +1,6 @@
 Parameter device
 ================
 
-.. module:: nicos.generic.paramdev
+.. module:: nicos.devices.generic.paramdev
 
 .. autoclass:: ParamDevice()

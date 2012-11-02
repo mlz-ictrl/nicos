@@ -219,7 +219,7 @@ class DeviceMeta(type):
         return newtype
 
     def __instancecheck__(cls, inst): # pylint: disable=C0203
-        from nicos.generic import DeviceAlias, NoDevice
+        from nicos.devices.generic import DeviceAlias, NoDevice
         if inst.__class__ == DeviceAlias and inst._initialized:
             if isinstance(inst._obj, NoDevice):
                 return issubclass(inst._cls, cls)

@@ -28,14 +28,14 @@ includes = ['axis', 'detector']
 
 devices = dict(
     motor2 = device(
-        'nicos.generic.VirtualMotor',
+        'nicos.devices.generic.VirtualMotor',
         unit = 'deg',
         initval = 0,
         abslimits = (0, 5),
     ),
 
     manual = device(
-        'nicos.generic.ManualMove',
+        'nicos.devices.generic.ManualMove',
         unit = 'mm',
         abslimits = (-5, 5),
     ),

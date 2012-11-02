@@ -39,7 +39,7 @@ from os import path
 from nicos.core import Param, UsageError, NicosError
 from nicos.utils import disableDirectory, enableDirectory, ensureDirectory, \
      expandTemplate
-from nicos.experiment import Experiment
+from nicos.devices.experiment import Experiment
 from nicos.utils.proposaldb import queryCycle
 from nicos.commands.basic import Run
 

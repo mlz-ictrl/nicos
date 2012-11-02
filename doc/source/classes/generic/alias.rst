@@ -1,6 +1,6 @@
 Alias class
 ===========
 
-.. module:: nicos.generic.alias
+.. module:: nicos.devices.generic.alias
 
 .. autoclass:: DeviceAlias()

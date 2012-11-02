@@ -30,7 +30,7 @@ import TMCS
 import TACOStates
 
 from nicos.core import status, tacodev, Measurable, Param
-from nicos.taco.core import TacoDevice
+from nicos.devices.taco.core import TacoDevice
 
 
 class Channel(TacoDevice, Measurable):

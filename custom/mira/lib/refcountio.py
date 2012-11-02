@@ -1,5 +1,5 @@
 
-from nicos.taco import DigitalOutput
+from nicos.devices.taco import DigitalOutput
 
 class RefcountDigitalOutput(DigitalOutput):
     def doInit(self, mode):

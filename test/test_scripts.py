@@ -28,7 +28,7 @@ import logging
 from os import path
 
 from nicos.utils import loggers
-from nicos.sessions.simple import ScriptSession
+from nicos.core.sessions.simple import ScriptSession
 
 from test.utils import raises
 

@@ -33,23 +33,23 @@ sysconfig = dict(
 )
 
 devices = dict(
-    Sample   = device('nicos.experiment.Sample'),
+    Sample   = device('devices.experiment.Sample'),
 
-    Instrument = device('nicos.instrument.Instrument',
+    Instrument = device('devices.instrument.Instrument',
                         responsible = 'Dr. Petra Kudejova',
                        ),
 
-    Exp      = device('nicos.experiment.Experiment',
+    Exp      = device('devices.experiment.Experiment',
                       dataroot = '/mnt/tequila/data/',
                       sample = 'Sample'),
 
-    filesink = device('nicos.data.AsciiDatafileSink',
+    filesink = device('devices.datasinks.AsciiDatafileSink',
                      ),
 
-    conssink = device('nicos.data.ConsoleSink'),
+    conssink = device('devices.datasinks.ConsoleSink'),
 
-    daemonsink = device('nicos.data.DaemonSink'),
+    daemonsink = device('devices.datasinks.DaemonSink'),
 
-    Space    = device('nicos.generic.FreeSpace',
+    Space    = device('devices.generic.FreeSpace',
                       minfree = 0.5),
 )
