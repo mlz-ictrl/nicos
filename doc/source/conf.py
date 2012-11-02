@@ -20,25 +20,30 @@ pygments_style = 'emacs'
 
 html_title = 'NICOS documentation'
 html_show_sourcelink = False
+
+_dark  = '#0b2c47'
+_light = '#175791'
+
 html_theme_options = {'sidebarbgcolor': '#EDF1F3',
                       'relbarbgcolor': '#DBDEDE',
                       'relbartextcolor': 'black',
-                      'relbarlinkcolor': '#004682',
+                      'relbarlinkcolor': _dark,
                       'bgcolor': 'white',
                       'footerbgcolor': 'white',
                       'bodyfont': 'Arial, sans-serif',
                       'headfont': 'Arial, sans-serif',
                       'headbgcolor': 'white',
-                      'headtextcolor': '#004682',
+                      'headtextcolor': _dark,
                       'headlinkcolor': 'white',
-                      'linkcolor': '#0072BD',
-                      'visitedlinkcolor': '#0072BD',
+                      'linkcolor': _light,
+                      'visitedlinkcolor': _light,
                       'sidebartextcolor': 'black',
-                      'sidebarlinkcolor': '#0072BD',
+                      'sidebarlinkcolor': _dark,
                       'footertextcolor': 'black',
                       'stickysidebar': True,
                       'codebgcolor': '#F5F7F6',
                       }
+html_static_path = ['_static']
 
 latex_documents = [
   ('index', 'NICOS.tex', u'NICOS v2 Documentation',
