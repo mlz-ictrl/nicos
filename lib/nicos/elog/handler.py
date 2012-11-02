@@ -480,6 +480,8 @@ class Handler(object):
         self.out.newstate('scan-' + names,
                           '<table class="scan"><tr class="head">' + headers
                           + '</tr>', '</table>\n', ''.join(html))
+        if scannumber >= 0 and scannumber % 100 in (0, 50):
+            self.out.toc_entry(3, 'Scan %d' % scannumber, 'scan%s' % scannumber)
 
 
 # more ideas:
