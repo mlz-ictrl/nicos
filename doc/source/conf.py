@@ -154,10 +154,10 @@ class DeviceDocumenter(ClassDocumenter):
             if n == 0:
                 self.add_line('**Parameters**', '<autodoc>')
                 self.add_line('', '<autodoc>')
-            if isinstance(info.type, type(listof)):
-                ptype = info.type.__doc__ or '?'
-            else:
+            if isinstance(info.type, type):
                 ptype = info.type.__name__
+            else:
+                ptype = info.type.__doc__ or '?'
             addinfo = [ptype]
             if info.settable: addinfo.append('settable at runtime')
             if info.mandatory: addinfo.append('mandatory in setup')
