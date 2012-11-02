@@ -55,7 +55,7 @@ Parameter definition
 The :mod:`nicos.core.params` module defines various helpers that are used when
 writing device classes.  They are re-exported in :mod:`nicos.core`.
 
-.. autoclass:: Param(description, type=float, default=_notset, mandatory=False, settable=False, volatile=False, unit=None, category=None, preinit=False, prefercache=None, userparam=True)
+.. autoclass:: Param(description, type=float, default=_notset, mandatory=False, settable=False, volatile=False, unit=None, category=None, preinit=False, prefercache=None, userparam=True, chatty=False)
 
 .. autoclass:: Override(**keywords)
 

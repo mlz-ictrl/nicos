@@ -60,7 +60,8 @@ def test_alias_dev():
     px = session.getDevice('aliasDev', object)
     # now set the alias to some object
     v1 = session.getDevice('v1')
-    px.alias = v1
+    # "alias" is a chatty property, so it should emit something when changed
+    assert session.testhandler.emits_message(setattr, px, 'alias', v1)
     # check delegation of methods etc.
     assert v1.read() == px.read()
     # check attribute access

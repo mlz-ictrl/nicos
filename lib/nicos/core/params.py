@@ -94,7 +94,7 @@ class Param(object):
     def __init__(self, description, type=float, default=_notset,
                  mandatory=False, settable=False, volatile=False,
                  unit=None, category=None, preinit=False, prefercache=None,
-                 userparam=True):
+                 userparam=True, chatty=False):
         self.type = type
         if default is self._notset:
             default = type()
@@ -108,6 +108,7 @@ class Param(object):
         self.preinit = preinit
         self.prefercache = prefercache
         self.userparam = userparam
+        self.chatty = chatty
         self.classname = None  # filled by DeviceMeta
 
     def __repr__(self):
@@ -143,6 +144,8 @@ class Param(object):
             txt += '\n    * Prefer value from cache: %s' % self.prefercache
         if not self.userparam:
             txt += '\n    * Not shown to user'
+        if self.chatty:
+            txt += '\n    * Will print a message when changed'
         return txt
 
 

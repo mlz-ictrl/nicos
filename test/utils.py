@@ -103,6 +103,7 @@ class TestLogHandler(ColoredConsoleHandler):
         ColoredConsoleHandler.__init__(self)
         self._warnings = []
         self._raising = True
+        self._messages = 0
 
     def emit(self, record):
         if record.levelno >= ERROR and self._raising:
@@ -113,6 +114,8 @@ class TestLogHandler(ColoredConsoleHandler):
                 raise ErrorLogged(record.message)
         elif record.levelno >= WARNING:
             self._warnings.append(record)
+        else:
+            self._messages += 1
         ColoredConsoleHandler.emit(self, record)
 
     def enable_raising(self, raising):
@@ -122,6 +125,11 @@ class TestLogHandler(ColoredConsoleHandler):
         plen = len(self._warnings)
         func(*args, **kwds)
         return len(self._warnings) == plen + 1
+
+    def emits_message(self, func, *args, **kwds):
+        before = self._messages
+        func(*args, **kwds)
+        return self._messages > before
 
 
 class TestSession(Session):

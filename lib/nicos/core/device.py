@@ -157,7 +157,7 @@ class DeviceMeta(type):
                 wmethod = getattr(newtype, 'doWrite' + param.title(), None)
                 umethod = getattr(newtype, 'doUpdate' + param.title(), None)
                 def setter(self, value, param=param, wmethod=wmethod,
-                           umethod=umethod):
+                           umethod=umethod, chatty=info.chatty):
                     pconv = self.parameters[param].type
                     try:
                         value = pconv(value)
@@ -180,6 +180,10 @@ class DeviceMeta(type):
                             value = rv
                     if umethod:
                         umethod(self, value)
+                    if chatty:
+                        oldvalue = getattr(self, param)
+                        self.log.info('%s set to %r (was %r)' % (param, value,
+                                                                 oldvalue))
                     self._params[param] = value
                     if self._cache:
                         self._cache.put(self, param, value)

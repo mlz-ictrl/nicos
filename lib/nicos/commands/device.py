@@ -269,7 +269,8 @@ def set(dev, parameter, value):
     dev = session.getDevice(dev)
     prevalue = getattr(dev, parameter)
     setattr(dev, parameter, value)
-    dev.log.info('%s set to %r (was %r)' % (parameter, value, prevalue))
+    if not dev.parameters[parameter].chatty:  # if yes, we already got a message
+        dev.log.info('%s set to %r (was %r)' % (parameter, value, prevalue))
 
 @usercommand
 def get(dev, parameter):

@@ -68,7 +68,8 @@ class DeviceAlias(Device):
     """
 
     parameters = {
-        'alias':    Param('Device to alias', type=none_or(str), settable=True),
+        'alias':    Param('Device to alias', type=none_or(str), settable=True,
+                          chatty=True),
         'devclass': Param('Class name that the aliased device must be an '
                           'instance of', type=str, default='nicos.core.Device'),
     }
