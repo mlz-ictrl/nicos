@@ -3,7 +3,9 @@ Changelog for NICOS 2
 
 **Release 2.2.0**
 
-  - The Qt status monitor can now plot values versus time.
+  - Added "sweep" scan command.
+
+  - The Qt and HTML status monitors can now plot values versus time.
 
   - Added back text-based client for the daemon.
 
