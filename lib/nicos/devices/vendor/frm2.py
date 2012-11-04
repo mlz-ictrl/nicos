@@ -18,7 +18,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -26,12 +26,13 @@
 
 __version__ = "$Revision$"
 
-from nicos.core import Moveable, Override
+from nicos.core import Moveable, Override, status
 from nicos.devices.taco import DigitalInput, DigitalOutput
 
-class DigitalOutput(Moveable):
-    """Class for CCR box switches (gas/vacuum).
 
+class CCRSwitch(Moveable):
+    """
+    Class for CCR box switches (gas/vacuum).
     """
 
     attached_devices = {
@@ -45,8 +46,11 @@ class DigitalOutput(Moveable):
     }
 
     def doStart(self, target):
-        if (self.read() != target) :
+        if self.read(0) != target:
             self._adevs['write'].start(1)
+
+    def doStatus(self, maxage):
+        return status.OK, ''
 
     def doRead(self, maxage=0):
         return self._adevs['feedback'].read(maxage)

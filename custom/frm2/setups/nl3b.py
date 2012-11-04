@@ -7,10 +7,11 @@ includes = ['guidehall']
 nethost = 'tacodb.taco.frm2'
 
 devices = dict(
-    NL3b     = device('nicos.taco.NamedDigitalInput',
+    NL3b     = device('devices.taco.NamedDigitalInput',
                       description = 'NL3b shutter status',
                       mapping = {0: 'closed', 1: 'open'},
                       pollinterval = 60,
                       maxage = 120,
-                      tacodevice = '//%1/frm2/shutter/nl3b' % (nethost, ),
+                      tacodevice = '//%s/frm2/shutter/nl3b' % (nethost, ),
+                     ),
 )

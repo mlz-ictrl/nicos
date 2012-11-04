@@ -5,19 +5,21 @@ group = 'lowlevel'
 nethost = 'tacodb.taco.frm2'
 
 devices = dict(
-    Sixfold  = device('nicos.taco.NamedDigitalInput',
+    Sixfold  = device('devices.taco.NamedDigitalInput',
                       description = 'Sixfold shutter status',
                       mapping = {0: 'closed', 1: 'open'},
                       pollinterval = 60,
                       maxage = 120,
-                      tacodevice = '//%s/frm2/shutter/sixfold' % (nethost, )),
+                      tacodevice = '//%s/frm2/shutter/sixfold' % (nethost, )
+                     ),
 
-    Crane    = device('nicos.taco.AnalogInput',
+    Crane    = device('devices.taco.AnalogInput',
                       description = 'The position of the crane in the guide '
                                     'hall West from Western end',
-                      tacodevice = '//%s/frm2/smc10/pos', % (nethost, ),
+                      tacodevice = '//%s/frm2/smc10/pos' % (nethost, ),
                       tacotimeout = 0.5,
                       pollinterval = 5,
                       maxage = 30,
-                      unit = 'm'),
+                      unit = 'm'
+                     ),
 )

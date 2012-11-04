@@ -1,14 +1,16 @@
-descripion = 'Sample environment temperature aliases'
+description = 'Sample environment aliases for temperature control'
 
 includes = []
 
 devices = dict(
 
-    T = device('nicos.generic.DeviceAlias',
-               description = 'Alias to the currently used sample temperature controlling device',
-               alias = '',
-              ),
-    Ts = device('nicos.generic.DeviceAlias',
-               desription = 'Alias to the currently used sample temperature reading device',
-              ),
+    T  = device('devices.generic.DeviceAlias',
+                description = 'Currently used sample temperature controlling device',
+                alias = '',
+               ),
+
+    Ts = device('devices.generic.DeviceAlias',
+                description = 'Currently used sample temperature reading device',
+                alias = '',
+               ),
 )

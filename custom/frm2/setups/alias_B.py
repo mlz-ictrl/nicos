@@ -1,11 +1,11 @@
-descripion = 'Sample environment magnet aliases'
+description = 'Sample environment alias for magnetic field'
 
 includes = []
 
 devices = dict(
 
-    B = device('nicos.generic.DeviceAlias',
-               description = 'Alias to the currently used magnetic field controlling device',
+    B = device('devices.generic.DeviceAlias',
+               description = 'Currently used magnetic field controlling device',
                alias = '',
               ),
 )
