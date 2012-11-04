@@ -3,6 +3,12 @@ Changelog for NICOS 2
 
 **Release 2.2.0**
 
+  - Restructured the "nicos" Python package layout.  Custom libraries
+    will have to be adapted.
+
+  - Added common FRM-II sample environment and reactor setups.  They are
+    installed by default for FRM-II instruments.
+
   - Added "sweep" scan command.
 
   - The Qt and HTML status monitors can now plot values versus time.
