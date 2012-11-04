@@ -17,7 +17,7 @@ devices = dict(
                         unit = '',
                         lowlevel = True),
     air_mono   = device('devices.taco.DigitalOutput',
-                        tacodevice = 'mira/phytronio/air_mono_2',
+                        tacodevice = 'mira/phytronio/air_mono',
                         lowlevel = True),
 
     air_sample_ana = device('devices.taco.MultiDigitalOutput',
@@ -25,7 +25,7 @@ devices = dict(
                         unit = '',
                         lowlevel = True),
     air_sample = device('mira.refcountio.RefcountDigitalOutput',
-                        tacodevice = 'mira/phytronio/air_sample_2',
+                        tacodevice = 'mira/phytronio/air_sample',
                         lowlevel = True),
 
     air_ana    = device('mira.refcountio.RefcountDigitalOutput',

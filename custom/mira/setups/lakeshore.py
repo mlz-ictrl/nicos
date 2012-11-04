@@ -1,6 +1,8 @@
 description = 'LakeShore 340 cryo controller for CCR-5 cryostat'
 group = 'optional'
 
+modules = ['nicos.mira.commands']
+
 devices = dict(
     T        = device('devices.taco.TemperatureController',
                       tacodevice = 'mira/ls340/control',
@@ -25,16 +27,16 @@ devices = dict(
                       maxage = 2),
     Pcryo    = device('devices.taco.AnalogInput',
                       description = 'Cryo sample tube pressure',
-                      tacodevice = 'mira/ccr/p1',
+                      tacodevice = 'mira/ccr0/p1',
                       fmtstr = '%.3f'),
     Cryo     = device('devices.taco.NamedDigitalOutput',
                       mapping = {0: 'off', 1: 'on'},
-                      tacodevice = 'mira/ccr/pump',),
+                      tacodevice = 'mira/ccr0/pump',),
     CryoGas  = device('mira.ccr.GasValve',
                       mapping = {0: 'off', 1: 'on'},
-                      tacodevice = 'mira/ccr/gas',
+                      tacodevice = 'mira/ccr0/gas',
                       timeout = 600),
     CryoVac  = device('devices.taco.NamedDigitalOutput',
                       mapping = {0: 'off', 1: 'on'},
-                      tacodevice = 'mira/ccr/vacuum'),
+                      tacodevice = 'mira/ccr0/vacuum'),
 )

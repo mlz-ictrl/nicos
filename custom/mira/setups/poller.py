@@ -10,7 +10,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    Poller = device('services.poller.Poller',
+    Poller = device('devices.poller.Poller',
                     autosetup = True,
                     alwayspoll = [],
                     neverpoll = ['mslit2'],

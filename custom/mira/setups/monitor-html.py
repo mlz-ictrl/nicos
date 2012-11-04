@@ -117,11 +117,17 @@ _column1 = [
     ], 'reactor'),
 ]
 
-_column4 = []
+_column4 = [
+    ('Temperature plots', [
+         [{'dev': 'TA', 'plotinterval': 12*3600, 'plot': 'T', 'width': 100, 'height': 40},
+          {'dev': 'TB', 'plot': 'T'}, {'dev': 'TC', 'plot': 'T'},
+          {'dev': 'TBe', 'name': 'Filter', 'plot': 'T'}]
+    ]),
+]
 
 
 devices = dict(
-    Monitor = device('services.monitor.html.Monitor',
+    Monitor = device('devices.monitor.html.Monitor',
                      title = 'MIRA Status monitor',
                      filename = '/miracontrol/status.html',
                      interval = 10,
@@ -131,7 +137,7 @@ devices = dict(
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
                      fontsize = 17,
-                     layout = [[_expcolumn], [_column1, _column2, _column3, _column4]],
+                     layout = [[_expcolumn], [_column1, _column2, _column3], [_column4]],
                      warnings = [],
                      notifiers = [])
 )

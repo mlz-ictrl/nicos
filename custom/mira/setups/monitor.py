@@ -63,6 +63,13 @@ _column3 = [
          {'dev': 'mono', 'name': 'ki'}, {'dev': 'ana', 'name': 'kf'}, {'key': 'mira/energytransferunit', 'name': 'Unit'},],
     ], 'tas'),
     ('MIRA Magnet', [[{'dev': 'I', 'name': 'I'}]], 'miramagnet'),
+    ('FRM Magnet', [[{'dev': 'B'}],
+                    [{'dev': 'Tm1', 'max': 4.1}, {'dev': 'Tm2', 'max': 4.1},
+                     {'dev': 'Tm3', 'max': 4.9}, {'dev': 'Tm4', 'max': 4.5},
+                     {'dev': 'Tm8', 'max': 4.1}]], 'frm2magnet'),
+    ('Temp. plot', [[{'dev': 'TA', 'plot': 'Temps', 'width': 40},
+                     {'dev': 'TB', 'plot': 'Temps'},
+                     {'dev': 'TC', 'plot': 'Temps'}]], 'lakeshore'),
 ]
 
 _column2 = [
@@ -80,10 +87,6 @@ _column2 = [
          {'key': 't/d', 'name': 'D'}, {'dev': 'Pcryo', 'name': 'p'}],
         ],
      'lakeshore'),
-    ('FRM Magnet', [[{'dev': 'B'}],
-                    [{'dev': 'Tm1', 'max': 4.1}, {'dev': 'Tm2', 'max': 4.1},
-                     {'dev': 'Tm3', 'max': 4.9}, {'dev': 'Tm4', 'max': 4.5}, 
-                     {'dev': 'Tm8', 'max': 4.1}]], 'frm2magnet'),
     ('TTi', [['dct1', 'dct2'], ['dct3', 'dct4']], 'tti'),
     ('Relays', [['relay1', 'relay2']], 'relay'),
 ]
