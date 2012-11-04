@@ -130,12 +130,14 @@ main-install:
 			cp -p $(VOPT) $${ifile} $(ROOTDIR)/setups; \
 		fi \
 	done
-	@echo "============================================================="
-	@echo "Installing FRM II specific setups (overwriting existing files)... !"
-	@for ifile in custom/frm2/setups/* ; do \
-		echo $${ifile} '->' $(ROOTDIR)/setups; \
-		cp -p $(VOPT) $${ifile} $(ROOTDIR)/setups; \
-	done
+	@if [ "$(FRM2)" = 1 ]; then \
+		echo "============================================================="; \
+		echo "Installing FRM II specific setups (overwriting existing files!)..."; \
+		for ifile in custom/frm2/setups/* ; do \
+			echo $${ifile} '->' $(ROOTDIR)/setups; \
+			cp -p $(VOPT) $${ifile} $(ROOTDIR)/setups; \
+		done; \
+	fi
 	@echo "============================================================="
 	@echo "Everything is now installed to $(ROOTDIR)."
 	@echo "Trying to create system-wide symbolic links..."
