@@ -48,8 +48,12 @@ test-coverage:
 lint:
 	-pylint --rcfile=./pylintrc lib/nicos/
 
+jenkinslintall: CUSTOMPYFILES = $(shell find custom/ -name \*.py)
 jenkinslintall:
-	-pylint --rcfile=./pylintrc --files-output=y lib/nicos/ custom/*/lib/
+	-pylint --rcfile=./pylintrc --files-output=y lib/nicos/
+	-if [[ -n "$(CUSTOMPYFILES)" ]] ; then \
+	                       pylint --rcfile=./pylintrc  --files-output=y  $(CUSTOMPYFILES) ; else echo 'no custom python files' ; fi
+
 
 jenkinslint: PYFILESCHANGED:= $(shell git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/.\t//' |grep ".py")
 jenkinslint:
