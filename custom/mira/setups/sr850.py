@@ -1,7 +1,7 @@
 description = 'Stanford SR-850 lock-in amplifier, for susceptibility measurements'
 group = 'optional'
 
-includes = ['base', 'lakeshore']
+includes = ['base', 'ccr5']
 
 devices = dict(
     M = device('mira.sr850.Amplifier',
