@@ -479,3 +479,8 @@ void Plot::replot()
 {
 	QwtPlot::replot();
 }
+
+//#ifdef __MOC_EXTERN_BUILD__
+//	// Qt-Metaobjekte
+//	#include "plotter.moc"
+//#endif

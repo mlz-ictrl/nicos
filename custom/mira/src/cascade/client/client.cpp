@@ -470,3 +470,10 @@ void TcpClient::readReady()
 ////////////////////////////////////////////////////////////////
 
 void TcpClient::SetTimeout(int iTimeout) { m_iMessageTimeout = iTimeout; }
+
+
+//#ifdef __MOC_EXTERN_BUILD__
+//	// Qt-Metaobjekte
+//	#include "client.moc"
+//#endif
+

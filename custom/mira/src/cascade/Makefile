@@ -23,8 +23,10 @@ LIBS		= -lQtCore -lQtGui -lQtNetwork -lMinuit2 -lgomp -lxml2 \
 INCLUDES	= -I /usr/include/qwt -I /usr/include/qwt5 -I /usr/include/qt4 \
                   -I /usr/include/Qt -I /usr/include/QtCore -I /usr/include/QtGui \
                   -I /usr/include/qt4/Qt -I /usr/include/qt4/QtCore -I /usr/include/qt4/QtGui \
-                  -I /usr/include/libxml2 -I /usr/include/qwt-qt4
+                  -I /usr/include/libxml2 -I /usr/include/qwt-qt4 \
+		  -I ui
 
+do_moc		= 1
 
 all: cascade nicosmodules
 
@@ -123,82 +125,32 @@ dialogs/cascadedialogs.h: ui/ui_calibrationdlg.h ui/ui_sumdialog.h \
 		  ui/ui_contrastsvsimagesdlg.h ui/ui_batchdlg.h \
 		  ui/ui_gcdlg.h
 
-ui/ui_calibrationdlg.h: ui/calibrationdlg.ui
-	uic ui/calibrationdlg.ui > ui/ui_calibrationdlg.h
-
-ui/ui_sumdialog.h: ui/sumdialog.ui
-	uic ui/sumdialog.ui > ui/ui_sumdialog.h
-
-ui/ui_serverdlg.h: ui/serverdlg.ui
-	uic ui/serverdlg.ui > ui/ui_serverdlg.h
-
-ui/ui_servercfgdlg.h: ui/servercfgdlg.ui
-	uic ui/servercfgdlg.ui > ui/ui_servercfgdlg.h
-
-ui/ui_graphdlg.h: ui/graphdlg.ui
-	uic ui/graphdlg.ui > ui/ui_graphdlg.h
-
-ui/ui_commanddlg.h: ui/commanddlg.ui
-	uic ui/commanddlg.ui > ui/ui_commanddlg.h
-
-ui/ui_roidlg.h: ui/roidlg.ui
-	uic ui/roidlg.ui > ui/ui_roidlg.h
-
-ui/ui_browsedlg.h: ui/browsedlg.ui
-	uic ui/browsedlg.ui > ui/ui_browsedlg.h
-
-ui/ui_integrationdlg.h: ui/integrationdlg.ui
-	uic ui/integrationdlg.ui > ui/ui_integrationdlg.h
-
-ui/ui_rangedlg.h: ui/rangedlg.ui
-	uic ui/rangedlg.ui > ui/ui_rangedlg.h
-
-ui/ui_countsvsimagesdlg.h: ui/countsvsimagesdlg.ui
-	uic ui/countsvsimagesdlg.ui > ui/ui_countsvsimagesdlg.h
-
-ui/ui_contrastsvsimagesdlg.h: ui/contrastsvsimagesdlg.ui
-	uic ui/contrastsvsimagesdlg.ui > ui/ui_contrastsvsimagesdlg.h
-
-ui/ui_batchdlg.h: ui/batchdlg.ui
-	uic ui/batchdlg.ui > ui/ui_batchdlg.h
-
-ui/ui_gcdlg.h: ui/gcdlg.ui
-	uic ui/gcdlg.ui > ui/ui_gcdlg.h
+ui/ui_calibrationdlg.h ui/ui_sumdialog.h \
+       		 ui/ui_serverdlg.h \
+                 ui/ui_servercfgdlg.h ui/ui_graphdlg.h ui/ui_commanddlg.h \
+                 ui/ui_roidlg.h ui/ui_browsedlg.h ui/ui_integrationdlg.h \
+                 ui/ui_rangedlg.h ui/ui_countsvsimagesdlg.h \
+                 ui/ui_contrastsvsimagesdlg.h ui/ui_batchdlg.h \
+                 ui/ui_gcdlg.h:
+	./build_ui.sh
 #################################################################
 
 
 
 ###################### MOC-Dateien ######################
-main/cascade.moc:
-	moc main/cascade.cpp -o main/cascade.moc
 
+main/cascade.moc main/cascadewidget.moc plot/plotter.moc dialogs/cascadedialogs.moc client/client.moc:
+	./build_moc.sh
 
 main/cascadewidget_moc.cpp: main/cascadewidget.cpp main/cascadewidget.moc
 	cat main/cascadewidget.cpp main/cascadewidget.moc > main/cascadewidget_moc.cpp
-
-main/cascadewidget.moc:
-	moc main/cascadewidget.h -o main/cascadewidget.moc
-
-
 plot/plotter_moc.cpp: plot/plotter.cpp plot/plotter.moc
 	cat plot/plotter.cpp plot/plotter.moc > plot/plotter_moc.cpp
-
-plot/plotter.moc:
-	moc plot/plotter.h -o plot/plotter.moc
-
-
 dialogs/cascadedialogs_moc.cpp: dialogs/cascadedialogs.cpp dialogs/cascadedialogs.moc
 	cat dialogs/cascadedialogs.cpp dialogs/cascadedialogs.moc > dialogs/cascadedialogs_moc.cpp
-
-dialogs/cascadedialogs.moc:
-	moc dialogs/cascadedialogs.h -o dialogs/cascadedialogs.moc
-
-
 client/client_moc.cpp: client/client.cpp client/client.moc
 	cat client/client.cpp client/client.moc > client/client_moc.cpp
 
-client/client.moc:
-	moc client/client.h -o client/client.moc
 #########################################################
 
 
@@ -252,11 +204,13 @@ nicosmodules-client: nicosclient/pythonbinding/cascadeclient.so
 
 nicosmodules-widget: nicoswidget/pythonbinding/cascadewidget.so
 
+
 nicosclient/libcascadeclient.a:
 	cd nicosclient && qmake && make
 
 nicosclient/pythonbinding/cascadeclient.so: nicosclient/pythonbinding/cascadeclient.sip nicosclient/libcascadeclient.a
 	cd nicosclient/pythonbinding && python configure.py && make
+
 
 nicoswidget/libcascadewidget.a:
 	-cd nicoswidget && qmake && make

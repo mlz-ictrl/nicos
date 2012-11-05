@@ -778,3 +778,9 @@ void GcDlg::Update()
 }
 
 // *****************************************************************************
+
+
+//#ifdef __MOC_EXTERN_BUILD__
+//	// Qt-Metaobjekte
+//	#include "cascadedialogs.moc"
+//#endif

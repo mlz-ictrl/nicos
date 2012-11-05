@@ -1017,3 +1017,9 @@ bool CascadeWidget::ToPDF(const char* pcDst) const
 	m_pPlot->print(printer);
 	return true;
 }
+
+//#ifdef __MOC_EXTERN_BUILD__
+//	// Qt-Metaobjekte
+//	#include "cascadewidget.moc"
+//#endif
+
