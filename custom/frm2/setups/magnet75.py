@@ -27,7 +27,7 @@ descriptions = ['',
 
 for i in range(1, 9):
     devices['m7T5_T%d' % i] = device('devices.taco.TemperatureSensor',
-                                     description = '7.5T magnet temperature sensor % (%s)' % (i, descriptions[i]),
+                                     description = '7.5T magnet temperature sensor %d (%s)' % (i, descriptions[i]),
                                      tacodevice = '//%s/magnet/ls218/sens%d' % (nethost, i),
                                      pollinterval = 30,
                                      unit = 'K',
