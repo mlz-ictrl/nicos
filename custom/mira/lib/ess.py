@@ -131,13 +131,14 @@ class ESSField(HasLimits, Moveable):
     parameters = {
         'calibration': Param('Coefficients for calibration polynomial: '
                              '[a0, a1, a2, ...] calculates '
-                             'B(I) = a0 + a1*I + a2*I**2 + ... in mT',
+                             'B(I) = a0 + a1*I + a2*I**2 + ... in T',
                              type=listof(float), settable=True,
                              default=[0, 1.]),
     }
 
     parameter_overrides = {
-        'unit':  Override(mandatory=False, default='mT'),
+        'unit':   Override(mandatory=False, default='T'),
+        'fmtstr': Override(default='%.4f'),
     }
 
     @usermethod
@@ -193,9 +194,9 @@ class ESSField(HasLimits, Moveable):
                 break
         else:
             raise InvalidValueError(
-                self, 'cannot convert B = %.2f mT to current' % value)
+                self, 'cannot convert B = %.4f T to current' % value)
         I = Iv + (value - B1) / (B2 - B1)
-        self.log.debug('B1=%.2f, B2=%.2f, Iv=%d, setting current to %.2f'
+        self.log.debug('B1=%.4f, B2=%.4f, Iv=%d, setting current to %.2f'
                        % (B1, B2, Iv, I))
         assert abs(B(I) - value) < 0.1
         self._adevs['controller'].start(I)
