@@ -1,5 +1,6 @@
 description = 'FRM-II FAK40 information (cooling water system)'
 
+group = 'lowlevel'
 nethost = 'tacodb.taco.frm2'
 
 devices = dict(

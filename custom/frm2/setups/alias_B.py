@@ -1,11 +1,10 @@
 description = 'Sample environment alias for magnetic field'
 
+group = 'lowlevel'
 includes = []
 
 devices = dict(
 
     B = device('devices.generic.DeviceAlias',
-               description = 'Currently used magnetic field controlling device',
-               alias = '',
-              ),
+               description = 'Current magnetic field controller'),
 )

@@ -1,16 +1,13 @@
 description = 'Sample environment aliases for temperature control'
 
+group = 'lowlevel'
 includes = []
 
 devices = dict(
 
     T  = device('devices.generic.DeviceAlias',
-                description = 'Currently used sample temperature controlling device',
-                alias = '',
-               ),
+                description = 'Current sample temperature controller'),
 
     Ts = device('devices.generic.DeviceAlias',
-                description = 'Currently used sample temperature reading device',
-                alias = '',
-               ),
+                description = 'Current sample temperature sensor'),
 )
