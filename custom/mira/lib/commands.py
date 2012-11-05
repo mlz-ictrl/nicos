@@ -36,9 +36,9 @@ from nicos.commands.device import move, read
 
 @usercommand
 def FlushCryo():
-    CryoGas = session.getDevice('CryoGas')
-    CryoVac = session.getDevice('CryoGas')
-    Pcryo = session.getDevice('CryoGas')
+    CryoGas = session.getDevice('ccr5_gas_switch')
+    CryoVac = session.getDevice('ccr5_vacuum_switch')
+    Pcryo = session.getDevice('ccr5_p1')
     move(CryoGas, 'on')
     while Pcryo.read() < 995:
         time.sleep(1)
@@ -55,9 +55,9 @@ def FlushCryo():
 
 @usercommand
 def SetCryoGas(target):
-    CryoGas = session.getDevice('CryoGas')
-    CryoVac = session.getDevice('CryoGas')
-    Pcryo = session.getDevice('CryoGas')
+    CryoGas = session.getDevice('ccr5_gas_switch')
+    CryoVac = session.getDevice('ccr5_vacuum_switch')
+    Pcryo = session.getDevice('ccr5_p1')
     move(CryoGas,'on')
     while Pcryo.read() < target:
         time.sleep(0.01)
@@ -65,9 +65,9 @@ def SetCryoGas(target):
 
 @usercommand
 def SetCryoVac(target):
-    CryoGas = session.getDevice('CryoGas')
-    CryoVac = session.getDevice('CryoGas')
-    Pcryo = session.getDevice('CryoGas')
+    CryoGas = session.getDevice('ccr5_gas_switch')
+    CryoVac = session.getDevice('ccr5_vacuum_switch')
+    Pcryo = session.getDevice('ccr5_p1')
     move(CryoVac,'on')
     while Pcryo.read() > target:
         time.sleep(0.01)
