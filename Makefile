@@ -49,7 +49,7 @@ lint:
 	-pylint --rcfile=./pylintrc lib/nicos/
 
 jenkinslintall:
-	-pylint --rcfile=./pylintrc --files-output=y lib/nicos/
+	-pylint --rcfile=./pylintrc --files-output=y lib/nicos/ custom/*/lib/
 
 jenkinslint: PYFILESCHANGED:= $(shell git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/.\t//' |grep ".py")
 jenkinslint:
