@@ -1,4 +1,4 @@
-description = 'FRM II 7.5 T superconducting magnet'
+description = 'FRM-II 7.5 T superconducting magnet'
 
 group = 'optional'
 
