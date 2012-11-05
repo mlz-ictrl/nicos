@@ -1,7 +1,7 @@
 description = 'MIRA 0.5 T electromagnet'
 group = 'optional'
 
-includes = ['base']
+includes = ['base', 'alias_B']
 
 devices = dict(
     I_plus   = device('devices.taco.DigitalOutput',
@@ -17,4 +17,13 @@ devices = dict(
                       plusswitch = 'I_plus',
                       minusswitch = 'I_minus',
                       fmtstr = '%.1f'),
+    B_mira   = device('mira.ess.ESSField',
+                      controller = 'I',
+                      description = 'MIRA magnetic field',
+                      abslimits = (-0.5, 0.5),
+                      unit = 'T'),
 )
+
+startupcode = '''
+B.alias = B_mira
+'''
