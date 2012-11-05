@@ -228,17 +228,23 @@ def RemoveSetup(*setupnames):
     NewSetup(*current)
 
 @usercommand
-def ListSetups():
-    """Print a list of all known setups.
+def ListSetups(all=False):
+    """Print a list of setups.
 
     Example:
 
     >>> ListSetups()
+
+    To list also low-level and simulation setups:
+
+    >>> ListSetups(True)
     """
     printinfo('Available setups:')
     items = []
     for name, info in session.getSetupInfo().iteritems():
         if info['group'] == 'special':
+            continue
+        if info['group'] in ('simulated', 'lowlevel') and not all:
             continue
         items.append((name, name in session.loaded_setups and 'yes' or '',
                       info['description'],

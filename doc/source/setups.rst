@@ -22,9 +22,23 @@ A setup file can consist of the following entries, all of which are optional:
    A string describing the setup in more detail than the file name.
 
 ``group``
-   A string giving the group of the setup (meaning to be decided later).
+   A string giving the group of the setup.  The following groups are
+   recognized:
 
-   .. XXX "simulated" and "special" are already used
+   * ``basic`` means a basic setup for the instrument, of which only one should
+     be loaded (e.g. "twoaxis" or "threeaxis").  These setups can be presented
+     to the user.
+   * ``optional`` means an optional setup, of which as many as needed can be
+     loaded.  These setups can be presented to the user for multiple selection.
+     This is the default.
+   * ``lowlevel`` means a low-level setup, which will be included by others,
+     but should not be presented to users.
+
+   * ``special`` means that the setup is not a setup of instrument devices,
+     but configures e.g. a NICOS service.  For each service, there is one
+     special setup (e.g. "cache", "poller", "daemon").
+
+   * ``simulated`` means that this setup was written by `SaveSimulationSetup`.
 
 ``includes``
    A list of names of setups that this one requires to be loaded.  Using this

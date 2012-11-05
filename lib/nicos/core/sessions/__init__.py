@@ -55,6 +55,11 @@ from nicos.core.sessions.utils import makeSessionId, sessionInfo, \
      NicosNamespace, SimClock, EXECUTIONMODES
 
 
+SETUP_GROUPS = set([
+    'basic', 'optional', 'lowlevel', 'simulated', 'special'
+])
+
+
 class Session(object):
     """The Session class provides all low-level routines needed for NICOS
     operations and keeps the global state: devices, configuration, loggers.
@@ -321,7 +326,7 @@ class Session(object):
                 continue
             info = {
                 'description': ns.get('description', modname),
-                'group': ns.get('group', 'base'),
+                'group': ns.get('group', 'optional'),
                 'sysconfig': ns.get('sysconfig', {}),
                 'includes': ns.get('includes', []),
                 'excludes': ns.get('excludes', []),
@@ -330,6 +335,9 @@ class Session(object):
                 'startupcode': ns.get('startupcode', ''),
                 'extended': ns.get('extended', {}),
             }
+            if info['group'] not in SETUP_GROUPS:
+                self.log.warning('Setup %s has an invalid group (valid groups '
+                    'are: %s)' % (modname, ', '.join(SETUP_GROUPS)))
             self._setup_info[modname] = info
         # check if all includes exist
         for name, info in self._setup_info.iteritems():
