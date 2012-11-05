@@ -64,7 +64,7 @@ class DeviceAlias(Device):
     different actual hardware devices.
 
     If the "alias" parameter is empty, the alias points to a special "NoDevice"
-    object that raises a :exc:`ConfigurationError` on every access.
+    object that raises a `ConfigurationError` on every access.
     """
 
     parameters = {
