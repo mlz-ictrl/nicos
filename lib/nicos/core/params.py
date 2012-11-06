@@ -287,6 +287,17 @@ class tupleof(object):
             raise ValueError('value needs to be a %d-tuple' % len(self.types))
         return tuple(t(v) for (t, v) in zip(self.types, val))
 
+def limits(val=None):
+    """ a tuple of lower and upper limit """
+    val = val if val is not None else (0, 0)
+    if not isinstance(val, (list, tuple)) or len(val) != 2:
+        raise ValueError('value must be a list or tuple and have 2 elements')
+    ll = float(val[0])
+    ul = float(val[1])
+    if not ll <= ul:
+        raise ValueError('upper limit must be greater then lower limit')
+    return (ll, ul)
+
 class dictof(object):
 
     def __init__(self, keyconv, valconv):

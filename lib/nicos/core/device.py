@@ -33,7 +33,7 @@ from time import time as currenttime, sleep
 from nicos import session
 from nicos.core import status
 from nicos.core.params import Param, Override, Value, tupleof, floatrange, \
-     oneof, anytype, none_or
+     oneof, anytype, none_or, limits
 from nicos.core.errors import NicosError, ConfigurationError, \
      ProgrammingError, UsageError, LimitError, ModeError, \
      CommunicationError, CacheLockError, InvalidValueError, AccessError
@@ -1226,9 +1226,9 @@ class HasLimits(Moveable):
 
     parameters = {
         'userlimits': Param('User defined limits of device value', unit='main',
-                            type=tupleof(float, float), settable=True),
+                            type=limits, settable=True),
         'abslimits':  Param('Absolute limits of device value', unit='main',
-                            type=tupleof(float, float), mandatory=True),
+                            type=limits, mandatory=True),
     }
 
     def init(self):
@@ -1237,9 +1237,6 @@ class HasLimits(Moveable):
             offset = self.offset
         else:
             offset = 0
-        if self.abslimits[0] > self.abslimits[1]:
-            raise ConfigurationError(self, 'absolute minimum (%s) above the '
-                                     'absolute maximum (%s)' % self.abslimits)
         if self.userlimits[0] + offset < self.abslimits[0]:
             self.log.warning('user minimum (%s) below absolute minimum (%s), '
                              'please check and re-set limits' %

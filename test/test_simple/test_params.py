@@ -25,10 +25,10 @@
 """NICOS parameter utilities tests."""
 
 from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
-     tacodev, tangodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, none_or
+     tacodev, tangodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
+     none_or, limits
 
 from test.utils import raises
-
 
 def test_param_converters():
     assert listof(int)([0., 1, '2']) == [0, 1, 2]
@@ -42,6 +42,7 @@ def test_param_converters():
 
     assert tupleof(int, str, float)((1.0, 1.0, 1.0)) == (1, '1.0', 1.0)
     assert tupleof(int, str, float)() == (0, '', 0.0)
+    assert tupleof(float, float)() == (0.0, 0.0)
     assert raises(ValueError, tupleof(int, str), ('a', 'b'))
     assert raises(ValueError, tupleof(int, str), ('a',))
     assert raises(ValueError, tupleof(int, str), 'x')
@@ -91,3 +92,14 @@ def test_param_converters():
     assert none_or(int)(None) == None
     assert none_or(int)(5.0) == 5
     assert raises(ValueError, none_or(int), 'x')
+
+    assert limits((-10, 10)) == (-10, 10)
+    assert limits((0, 0)) == (0, 0)
+    assert limits() == (0, 0)
+    assert limits([-10, 10]) == (-10, 10)
+    assert raises(ValueError, limits, (1,))
+    assert raises(ValueError, limits, 1)
+    assert raises(ValueError, limits, (10, 10, 10))
+    assert raises(TypeError, limits, 1, 1)
+    assert raises(ValueError, limits, (10, -10))
+    assert raises(ValueError, limits, ('a', 'b'))
