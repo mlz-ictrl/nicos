@@ -127,7 +127,7 @@ _column4 = [
 
 
 devices = dict(
-    Monitor = device('devices.monitor.html.Monitor',
+    Monitor = device('services.monitor.html.Monitor',
                      title = 'MIRA Status monitor',
                      filename = '/miracontrol/status.html',
                      interval = 10,
