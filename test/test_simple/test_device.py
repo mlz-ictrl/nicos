@@ -210,6 +210,8 @@ def test_limits():
     # individual getters/setters
     dev2.usermin, dev2.usermax = dev2.absmin + 1, dev2.absmax - 1
     assert (dev2.usermin, dev2.usermax) == (1, 9)
+    assert raises(ConfigurationError, setattr, dev2, 'usermin', dev2.absmin - 1)
+    assert raises(ConfigurationError, setattr, dev2, 'usermax', dev2.usermin - 0.5)
     # checking limit setting
     assert raises(ConfigurationError, setattr, dev2, 'userlimits', (5, 4))
     assert raises(ConfigurationError, setattr, dev2, 'userlimits', (-1, 1))
