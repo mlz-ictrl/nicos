@@ -765,9 +765,9 @@ class Readable(Device):
         self._sim_active = sim_active
         Device._setMode(self, mode)
 
-    def __call__(self, value=None):
+    def __call__(self, *values):
         """Allow dev() as shortcut for read."""
-        if value is not None:
+        if values:
             # give a nicer error message than "TypeError: takes 1 argument"
             raise UsageError(self, 'not a moveable device')
         return self.read()
@@ -1034,10 +1034,14 @@ class Moveable(Readable):
         return value
     valuetype = anytype
 
-    def __call__(self, pos=None):
+    def __call__(self, *pos):
         """Allow dev() and dev(newpos) as shortcuts for read and start."""
-        if pos is None:
+        if not pos:
             return self.read()
+        # allow tuple values to be spelled as individual items,
+        # e.g. slit(1, 2, 3, 4) instead of slit((1, 2, 3, 4))
+        if len(pos) == 1:
+            return self.start(pos[0])
         return self.start(pos)
 
     @usermethod
