@@ -261,7 +261,7 @@ bool Fourier::phase_correction_0(double dNumOsc, const double* pDatIn,
 		if(i<iSize/2)
 		{
 			c *= 2.;
-			c = ::phase_correction_0<double>(c, dPhase);
+			c = ::phase_correction_0<double>(c, dPhase*double(i));
 		}
 		else
 		{
@@ -314,7 +314,8 @@ bool Fourier::phase_correction_1(double dNumOsc, const double* pDatIn,
 			double dX = double(i)/double(iSize);
 			
 			c *= 2.;
-			c = ::phase_correction_1<double>(c, dPhaseOffs, dPhaseSlope, dX);
+			c = ::phase_correction_1<double>(c, dPhaseOffs*double(i), 
+								dPhaseSlope*double(i), dX);
 		}
 		else
 		{
