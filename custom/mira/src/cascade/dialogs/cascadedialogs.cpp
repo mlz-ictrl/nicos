@@ -50,7 +50,7 @@
 
 // ************************* Roi-Dlg *******************************************
 RoiDlg::RoiDlg(CascadeWidget *pParent) : QDialog(pParent),
-										 m_pwidget(pParent), m_pRoi(0)
+										 m_pwidget(pParent), m_pRoi(0), m_iCurrentItem(0)
 {
 	setupUi(this);
 
@@ -779,8 +779,9 @@ void GcDlg::Update()
 
 // *****************************************************************************
 
-
-//#ifdef __MOC_EXTERN_BUILD__
+/*
+#ifdef __MOC_EXTERN_BUILD__
 //	// Qt-Metaobjekte
-//	#include "cascadedialogs.moc"
-//#endif
+	#include "cascadedialogs.moc"
+#endif
+*/

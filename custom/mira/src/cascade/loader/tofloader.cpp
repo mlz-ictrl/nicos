@@ -391,6 +391,14 @@ int TofImage::LoadFile(const char *pcFileName)
 	for(int i=0; i<iExpectedSize; ++i)
 		m_puiDaten[i] = endian_swap(m_puiDaten[i]);
 #endif
+
+	if(AreaPhaseCorrect())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_INFO);
+		logger << "Loader: Using area phase correction for file \"" << pcFileName
+			   << "\"." << "\n";
+	}
+
 	return iRet;
 }
 
@@ -613,9 +621,7 @@ TmpImage TofImage::GetROI(int iStartX, int iEndX, int iStartY, int iEndY,
 	return img;
 }
 
-
-TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
-						    int iFoil, bool bIgnoreRoi) const
+bool TofImage::AreaPhaseCorrect()
 {
 	const int iShiftMethod = GlobalConfig::GetShiftMethod();
 	const double dNumOsc = GetTofConfig().GetNumOscillations();
@@ -626,14 +632,13 @@ TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 	const int iLenY = GetTofConfig().GetImageHeight();
 	const double dLenX = double(iLenX);
 	const double dLenY = double(iLenY);
-	
-	const TofImage *pTof = this;
+
+	TofImage *pTof = this;
 
 	//--------------------------------------------------------------------------
 	InstrumentConfig& instr = GlobalConfig::GetInstrConfig();
 
 	// get global config
-	const bool bPathLengthCorrection = instr.GetUsePathLenCorr();
 	double dDetLenX = instr.GetDetLenX();
 	double dDetLenY = instr.GetDetLenY();
 	double dMiddleX = instr.GetDetCenterX();
@@ -642,7 +647,10 @@ TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 	double dv_n = instr.GetV();
 	double dOmegaM = instr.GetOmegaM();
 
+	int  iUseCorr = 0;
+
 	// see if the TOF file has local config overrides
+	m_cascconf.GetValAs<int>("x-use-pathlen-corr", iUseCorr);
 	m_cascconf.GetValAs<double>("x-tof-detlen-x", dDetLenX);
 	m_cascconf.GetValAs<double>("x-tof-detlen-y", dDetLenY);
 	m_cascconf.GetValAs<double>("x-tof-detmid-x", dMiddleX);
@@ -650,24 +658,35 @@ TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 	m_cascconf.GetValAs<double>("x-tof-Ls", Ls);
 	m_cascconf.GetValAs<double>("x-tof-vn", dv_n);
 	m_cascconf.GetValAs<double>("x-tof-omegaM", dOmegaM);
+
+	if(!iUseCorr)
+		return false;
+
+	/*
+	std::cout << "x-tof-detlen-x = " << dDetLenX << std::endl;
+	std::cout << "x-tof-detlen-y = " << dDetLenY << std::endl;
+	std::cout << "x-tof-detmid-x = " << dMiddleX << std::endl;
+	std::cout << "x-tof-detmid-y = " << dMiddleY << std::endl;
+	std::cout << "x-tof-Ls = " << Ls << std::endl;
+	std::cout << "x-tof-vn = " << dv_n << std::endl;
+	std::cout << "x-tof-omegaM = " << dOmegaM << std::endl;
+	*/
 	//--------------------------------------------------------------------------
 
-	bool (Fourier::*corr)(double, const double*, double *, double);
-	corr = &Fourier::shift_sin;
-	
-	if(bPathLengthCorrection)
+	t_corrfkt corr = get_correction_fkt(iShiftMethod);
+	//corr = &Fourier::shift_sin;
+
+	double *pTc = new double[iNumTc];
+	double *pTcShifted = new double[iNumTc];
+
+	Fourier fourier(iNumTc);
+
+	for(int iFoil=0; iFoil<iNumFoils; ++iFoil)
 	{
-		pTof = this->copy();
+		//pTof->SaveAsDat("/tmp/before.tof.dat", iFoil);
 
-		double *pTc = new double[iNumTc];
-		double *pTcShifted = new double[iNumTc];
-
-		Fourier fourier(iNumTc);
-		t_corrfkt corr = get_correction_fkt(iShiftMethod);
-
-		// phase-correct each pixel in the region
-		for(int iY=iStartY; iY<iEndY; ++iY)
-			for(int iX=iStartX; iX<iEndX; ++iX)
+		for(int iY=0; iY<iLenY; ++iY)
+			for(int iX=0; iX<iLenX; ++iX)
 			{
 				for(int iTc=0; iTc<iNumTc; ++iTc)
 					pTc[iTc] = double(pTof->GetData(iFoil, iTc, iX, iY));
@@ -680,18 +699,55 @@ TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 				double dPhaseDiff = -dOmegaM * dTimeDiff;
 				dPhaseDiff = fmod(dPhaseDiff, 2.*M_PI);
 
-				(fourier.*corr)(dNumOsc, pTc, pTcShifted, -dPhaseDiff);
+				(fourier.*corr)(dNumOsc, pTc, pTcShifted, dPhaseDiff);
+
+				/*
+				double dSumBefore = sum(pTc, pTc+iNumTc);
+				double dSumAfter = sum(pTcShifted, pTcShifted+iNumTc);
+
+				if(int(dSumBefore) != int(dSumAfter))
+				{
+					std::cout << int(dSumBefore) << " ";
+					std::cout << int(dSumAfter) << std::endl;
+				}
+				*/
 
 				// write rebinned timechannel data
 				for(int iTc=0; iTc<iNumTc; ++iTc)
-					const_cast<TofImage*>(pTof)->SetData(iFoil, iTc, iX, iY,
-												(unsigned int)pTcShifted[iTc]);
+				{
+					if(pTcShifted[iTc] < 0)
+					{
+						/*
+						logger.SetCurLogLevel(LOGLEVEL_WARN);
+						logger << "Loader: Shift in foil " << iFoil
+									<< ", timechannel " << iTc
+									<< ", pixel " << iX << ", " << iY
+									<< " is incorrect (possibly due to bad statistics).\n";
+						*/
+						pTcShifted[iTc] = 0.;
+					}
+
+					pTof->SetData(iFoil, iTc, iX, iY, (unsigned int)pTcShifted[iTc]);
+				}
 			}
 
-		delete[] pTc;
-		delete[] pTcShifted;
+		//pTof->SaveAsDat("/tmp/after.tof.dat", iFoil);
 	}
 
+	delete[] pTc;
+	delete[] pTcShifted;
+
+	return true;
+}
+
+TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
+						    int iFoil, bool bIgnoreRoi) const
+{
+	const int iNumTc = GetTofConfig().GetImagesPerFoil();
+	const int iLenX = GetTofConfig().GetImageWidth();
+	const int iLenY = GetTofConfig().GetImageHeight();
+	
+	const TofImage *pTof = this;
 
 	TmpGraph graph(&GetTofConfig());
 	GetTofConfig().CheckTofArguments(&iStartX,&iEndX,&iStartY,&iEndY,&iFoil);
@@ -715,12 +771,6 @@ TmpGraph TofImage::GetGraph(int iStartX, int iEndX, int iStartY, int iEndY,
 			}
 
 		puiWave[iZ0]=uiSummedVal;
-	}
-
-	if(bPathLengthCorrection)
-	{
-		delete pTof;
-		pTof = 0;
 	}
 
 	return graph;
@@ -791,6 +841,7 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY)
 
 	dMeanPhase /= dTotalCounts;
 	dMeanPhase = fmod(dMeanPhase, 2.*M_PI);
+	//std::cout << "mean phase: " << dMeanPhase << std::endl;
 
 
 	// add all foils with correct phase-shifting
@@ -809,6 +860,8 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY)
 
 	for(int iFoil=0; iFoil<GetTofConfig().GetFoilCount(); ++iFoil)
 	{
+		//std::cout << "phase for foil " << iFoil << ": " << pPhases[iFoil] << std::endl;
+
 		for(int iTc=0; iTc<iNumTc; ++iTc)
 		{
 			pDataFoil[iTc] = 0.;
@@ -816,8 +869,6 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY)
 				for(int iX=iStartX; iX<iEndX; ++iX)
 					pDataFoil[iTc] += GetDataInsideROI(iFoil, iTc, iX, iY);
 		}
-
-		//std::cout << "phase foil " << iFoil << ": " << pPhases[iFoil] << std::endl;
 
 		// shift to mean phase
 		(fourier.*corr)(dNumOsc, pDataFoil, pDataFoilShifted,
@@ -1330,10 +1381,21 @@ void TofImage::GenerateRandomData()
 	}
 }
 
-bool TofImage::SaveAsDat(const char* pcDat) const
+bool TofImage::SaveAsDat(const char* pcDat, int iSelFoil) const
 {
+	const int iNumTcs = GetTofConfig().GetImagesPerFoil();
+	const int iNumXs = GetTofConfig().GetImageWidth();
+	const int iNumYs = GetTofConfig().GetImageHeight();
+
+	bool bOnlyOneFoil = false;
+	if(iSelFoil >= 0)
+		bOnlyOneFoil = true;
+
 	for(int iFoil=0; iFoil<GetTofConfig().GetFoilCount(); ++iFoil)
 	{
+		if(bOnlyOneFoil)
+			iFoil = iSelFoil;
+
 		std::ostringstream ostrDat;
 		ostrDat << pcDat << ".foil" << iFoil;
 		
@@ -1341,24 +1403,37 @@ bool TofImage::SaveAsDat(const char* pcDat) const
 		if(!ofstr.is_open())
 			return false;
 
-		ofstr << "# type: array_3d\n";
-		ofstr << "# subtype: tobisown\n";
+		ofstr << "# type: array_3d(" << iNumXs << ", " << iNumYs << ", " << iNumTcs << ")\n";
+		//ofstr << "# subtype: tobisown\n";
 		ofstr << "# xlabel: x pixels\n";
 		ofstr << "# ylabel: y pixels\n";
 		ofstr << "# zlabel: time channels\n";
-		
-		for(int iY=0; iY<GetTofConfig().GetImageHeight(); ++iY)
+		ofstr << "# xylimits: " << " 1 "  <<  iNumXs << " 1 " << iNumYs << " 1 " << iNumTcs << "\n";
+
+		for(int iBlock=0; iBlock<3; ++iBlock)
 		{
-			for(int iX=0; iX<GetTofConfig().GetImageWidth(); ++iX)
+			for(int iY=0; iY<iNumYs; ++iY)
 			{
-				for(int iTc=0; iTc<GetTofConfig().GetImagesPerFoil(); ++iTc)
+				for(int iTc=0; iTc<iNumTcs; ++iTc)
 				{
-					ofstr << GetData(iFoil, iTc, iX, iY) << " ";
+					for(int iX=0; iX<iNumXs; ++iX)
+					{
+						double dVal = GetData(iFoil, iTc, iX, iY);
+						double dErr = (dVal==0. ? 0. : sqrt(dVal));
+						switch(iBlock)
+						{
+							case 0: case 2: ofstr << dVal << " "; break;
+							case 1: ofstr << dErr << " "; break;
+						}
+					}
+					ofstr << "\n";
 				}
-				ofstr << "\n";
+				//ofstr << "\n";
 			}
-			ofstr << "\n";
 		}
+
+		if(bOnlyOneFoil)
+			break;
 	}
 
 	return true;

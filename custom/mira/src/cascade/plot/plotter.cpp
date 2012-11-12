@@ -443,7 +443,7 @@ void Plot::SetColorMap(bool bCyclic)
 {
 	if(m_pSpectrogram==NULL) return;
 
-	if(bCyclic)	// Für Phasen
+	if(bCyclic)	// F��r Phasen
 	{
 		QwtLinearColorMap colorMap(Qt::blue, Qt::blue);
 		colorMap.addColorStop(0.0, Qt::blue);
@@ -480,7 +480,9 @@ void Plot::replot()
 	QwtPlot::replot();
 }
 
-//#ifdef __MOC_EXTERN_BUILD__
+/*
+#ifdef __MOC_EXTERN_BUILD__
 //	// Qt-Metaobjekte
-//	#include "plotter.moc"
-//#endif
+	#include "plotter.moc"
+#endif
+*/

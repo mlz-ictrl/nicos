@@ -1166,6 +1166,16 @@ class MainWindow : public QMainWindow
 			dlg.exec();
 		}
 
+		void AreaPhaseCorrect()
+		{
+			if(!m_cascadewidget.IsTofLoaded())
+				return;
+
+			TofImage* pTof = m_cascadewidget.GetTof();
+			if(pTof->AreaPhaseCorrect())
+				m_cascadewidget.UpdateGraph();
+		}
+
 		void PrintLocalConf()
 		{
 			const CascConf* pConf = 0;
@@ -1491,7 +1501,8 @@ class MainWindow : public QMainWindow
 			QAction *actionGenerateRandomTof = new QAction("Generate Random &TOF", this);
 			QAction *actionBatchJob = new QAction("Run &Batch Job...", this);
 
-			QAction *actionPrintLocalConf = new QAction("Print Local TOF/PAD configuration", this);
+			QAction *actionPrintLocalConf = new QAction("Print Local TOF/PAD Configuration", this);
+			QAction *actionAreaPhaseCorrect = new QAction("Area-Phase Correction", this);
 
 			// Help Menu Items
 			QAction *actionAbout = new QAction(
@@ -1580,6 +1591,7 @@ class MainWindow : public QMainWindow
 			menuTools->addAction(actionBatchJob);
 			menuTools->addSeparator();
 			menuTools->addAction(actionPrintLocalConf);
+			//menuTools->addAction(actionAreaPhaseCorrect);
 			menuTools->addSeparator();
 			menuTools->addAction(actionGc);
 			menuTools->addAction(actionMem);
@@ -1820,6 +1832,8 @@ class MainWindow : public QMainWindow
 					this, SLOT(BatchJob()));
 			connect(actionPrintLocalConf, SIGNAL(triggered()),
 					this, SLOT(PrintLocalConf()));
+			connect(actionAreaPhaseCorrect, SIGNAL(triggered()),
+					this, SLOT(AreaPhaseCorrect()));
 
 			connect(actionGc, SIGNAL(triggered()),
 					this, SLOT(GarbageCollect()));

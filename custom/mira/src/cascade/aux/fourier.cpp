@@ -265,7 +265,7 @@ bool Fourier::phase_correction_0(double dNumOsc, const double* pDatIn,
 		}
 		else
 		{
-			// not neaded in real input data
+			// not needed in real input data
 			c = std::complex<double>(0., 0.);
 		}
 
@@ -307,7 +307,7 @@ bool Fourier::phase_correction_1(double dNumOsc, const double* pDatIn,
 		return false;
 
 	for(unsigned int i=1; i<iSize; ++i)
-	{	
+	{
 		std::complex<double> c(pDatFFT_real[i], pDatFFT_imag[i]);
 		if(i<iSize/2)
 		{
@@ -318,7 +318,7 @@ bool Fourier::phase_correction_1(double dNumOsc, const double* pDatIn,
 		}
 		else
 		{
-			// not neaded in real input data
+			// not needed in real input data
 			c = std::complex<double>(0., 0.);
 		}
 

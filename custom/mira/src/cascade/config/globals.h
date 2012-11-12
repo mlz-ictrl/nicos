@@ -179,8 +179,6 @@ class InstrumentConfig
 	friend class GlobalConfig;
 	
 	protected:
-		bool m_bUsePathLenCorr;
-		
 		double m_dDetectorLenX;
 		double m_dDetectorLenY;
 		double m_dDetectorCenterX;
@@ -193,8 +191,6 @@ class InstrumentConfig
 	public:
 		InstrumentConfig();
 
-		bool GetUsePathLenCorr() const { return m_bUsePathLenCorr; }
-		
 		double GetDetLenX() { return m_dDetectorLenX; }
 		double GetDetLenY() { return m_dDetectorLenY; }
 		double GetDetCenterX() { return m_dDetectorCenterX; }

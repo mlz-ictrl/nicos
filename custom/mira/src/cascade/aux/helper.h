@@ -171,4 +171,16 @@ template<typename T> void save_dat(const char* pcFile,
 	ofstr.close();
 }
 
+//------------------------------------------------------------------------------
+
+template<typename T> T sum(const T* first, const T* last)
+{
+	T tsum = 0;
+
+	for(const T* pt=first; pt!=last; ++pt)
+		tsum += *pt;
+
+	return tsum;
+}
+
 #endif

@@ -1018,8 +1018,9 @@ bool CascadeWidget::ToPDF(const char* pcDst) const
 	return true;
 }
 
-//#ifdef __MOC_EXTERN_BUILD__
+/*
+#ifdef __MOC_EXTERN_BUILD__
 //	// Qt-Metaobjekte
-//	#include "cascadewidget.moc"
-//#endif
-
+	#include "cascadewidget.moc"
+#endif
+*/

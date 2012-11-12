@@ -61,7 +61,7 @@ CalibrationDlg::~CalibrationDlg()
 
 
 
-// ************************* Summierungs-Dialog mit Zeitkanälen ****************
+// ************************* Summierungs-Dialog mit Zeitkan��len ****************
 void SumDlg::ShowIt()
 {
 	const TofConfig& conf = GlobalConfig::GetTofConfig();
@@ -174,7 +174,7 @@ void SumDlg::SetMode(int iMode) { m_iMode = iMode; }
 // *****************************************************************************
 
 
-// ************************* Summierungs-Dialog ohne Zeitkanäle ****************
+// ************************* Summierungs-Dialog ohne Zeitkan��le ****************
 void SumDlgNoChannels::ShowIt()
 {
 	const TofConfig& conf = GlobalConfig::GetTofConfig();
@@ -240,7 +240,7 @@ void SumDlgNoChannels::SetMode(int iMode) { m_iMode = iMode; }
 
 
 
-// ************************* Zeug für Graph-Dialog *****************************
+// ************************* Zeug f��r Graph-Dialog *****************************
 void GraphDlg::UpdateGraph(void)
 {
 	const TofConfig& conf = GlobalConfig::GetTofConfig();
@@ -249,7 +249,7 @@ void GraphDlg::UpdateGraph(void)
 	iShiftMethod -= 1;		// to match internal indices
 	GlobalConfig::SetShiftMethod(iShiftMethod);
 
-	// Messpunkte für eine Folie
+	// Messpunkte f��r eine Folie
 	TmpGraph tmpGraph;
 	tmpGraph = m_pTofImg->GetGraph(spinBoxFolie->value()-1);
 
@@ -428,7 +428,7 @@ void GraphDlg::Init(int iFolie)
 	QObject::connect(comboShiftMethod, SIGNAL(currentIndexChanged (int)),
 					this, SLOT(UpdateGraph()));
 
-	// Kurve für Messpunkte für eine Folie
+	// Kurve f��r Messpunkte f��r eine Folie
 	QwtSymbol sym;
 	sym.setStyle(QwtSymbol::Ellipse);
 	sym.setPen(QColor(Qt::blue));
@@ -443,7 +443,7 @@ void GraphDlg::Init(int iFolie)
 
 
 
-	// Kurve für Fits
+	// Kurve f��r Fits
 	m_curvefit.setRenderHint(QwtPlotItem::RenderAntialiased);
 	QPen penfit = QPen(Qt::red);
 	m_curvefit.setPen(penfit);
@@ -497,7 +497,7 @@ GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof) : QDialog(pParent),
 {
 	setupUi(this);
 	Init(0);
-	UpdateGraph();
+	//UpdateGraph();
 }
 
 GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof, int iFolie)
@@ -512,7 +512,7 @@ GraphDlg::GraphDlg(QWidget *pParent, TofImage* pTof, int iFolie)
 {
 	setupUi(this);
 	Init(iFolie);
-	UpdateGraph();
+	//UpdateGraph();
 }
 
 GraphDlg::~GraphDlg()

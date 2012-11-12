@@ -264,8 +264,7 @@ void ExpConfig::SetCurYear()
 // instrument config
 
 InstrumentConfig::InstrumentConfig()
-		: m_bUsePathLenCorr(false),
-		  m_dDetectorLenX(0.2), m_dDetectorLenY(0.2),
+		: m_dDetectorLenX(0.2), m_dDetectorLenY(0.2),
 		  m_dDetectorCenterX(0.1), m_dDetectorCenterY(0.1),
 		  m_dLs(0.9), m_dLam(4.8), m_dOmegaM(10000.)
 {}
@@ -312,7 +311,7 @@ void GlobalConfig::Init()
 	Deinit();
 
 
-// Cascade-Qt-Client lädt Einstellungen über XML-Datei
+// Cascade-Qt-Client l��dt Einstellungen ��ber XML-Datei
 #ifdef __CASCADE_QT_CLIENT__
 
 	//--------------------------------------------------------------------------
@@ -431,10 +430,6 @@ void GlobalConfig::Init()
 
 	
 	//--------------------------------------------------------------------------
-
-	s_instrconfig.m_bUsePathLenCorr = Config::GetSingleton()->QueryInt(
-					"/cascade_config/instrument/use_path_length_correction",
-					s_instrconfig.m_bUsePathLenCorr);
 
 	s_instrconfig.m_dDetectorLenX = Config::GetSingleton()->QueryDouble(
 					"/cascade_config/instrument/detector_length_x",

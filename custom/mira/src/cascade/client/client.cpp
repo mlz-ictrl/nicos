@@ -21,7 +21,7 @@
 //
 // *****************************************************************************
 // blockierend und nichtblockierend nutzbarer TCP-Client
-// "Protokoll": 4 Bytes (int) = Größe der Nachricht; Nachricht
+// "Protokoll": 4 Bytes (int) = Gr����e der Nachricht; Nachricht
 
 #include "client.h"
 #include <stdlib.h>
@@ -36,7 +36,9 @@ TcpClient::TcpClient(QObject *pParent, bool bBlocking)
 								: QObject(pParent),
 								  m_bBlocking(bBlocking),
 								  m_socket(pParent),
+								  m_iPort(0),
 								  m_bBeginOfMessage(1),
+								  m_iExpectedMsgLength(0),
 								  m_iCurMsgLength(0)
 {
 	m_iMessageTimeout = -1;	// "-1" bedeutet: Timeout nicht benutzen
@@ -92,7 +94,7 @@ bool TcpClient::connecttohost(const char* pcAddr, int iPort)
 {
 	disconnect();
 
-	// Namen auflösen
+	// Namen aufl��sen
 	QHostInfo info = QHostInfo::fromName(pcAddr);
 	if(info.addresses().isEmpty())
 	{
@@ -151,7 +153,7 @@ bool TcpClient::checkReady() const
 
 
 /////////////////////////// schreiben //////////////////////////
-// Nachrichten mit Längen-Int vorne senden
+// Nachrichten mit L��ngen-Int vorne senden
 bool TcpClient::sendmsg(const char *pcMsg)
 {
 	if(!isconnected())
@@ -163,11 +165,11 @@ bool TcpClient::sendmsg(const char *pcMsg)
 
 	int iLen = strlen(pcMsg);
 
-	// Länge der folgenden Nachricht übertragen
+	// L��nge der folgenden Nachricht ��bertragen
 	if(!write((char*)&iLen, 4, true))
 		return false;
 
-	// Nachricht übertragen
+	// Nachricht ��bertragen
 	return write(pcMsg, iLen, false);
 }
 
@@ -253,7 +255,7 @@ int TcpClient::read(char* pcData, int iLen)
 
 const QByteArray& TcpClient::recvmsg(void)
 {
-	// nur für blockierenden Client erlauben
+	// nur f��r blockierenden Client erlauben
 	if(!m_bBlocking)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -359,7 +361,7 @@ void TcpClient::socketError(QAbstractSocket::SocketError socketError)
 
 void TcpClient::readReady()
 {
-	// nur für nichtblockierenden Client erlauben
+	// nur f��r nichtblockierenden Client erlauben
 	if(m_bBlocking)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -387,13 +389,13 @@ void TcpClient::readReady()
 		}
 	}
 
-	// Am Anfang einer Nachricht kommt ein Int, der deren Größe angibt
+	// Am Anfang einer Nachricht kommt ein Int, der deren Gr����e angibt
 	if(m_bBeginOfMessage)
 	{
 		if(iSize < 4) return;
 		iSize -= 4;
 
-		// Länge der zu erwartenden Nachricht lesen
+		// L��nge der zu erwartenden Nachricht lesen
 		m_iExpectedMsgLength = m_iCurMsgLength = 0;
 		if(read((char*)&m_iExpectedMsgLength, 4)==0)
 			return;
@@ -419,7 +421,7 @@ void TcpClient::readReady()
 			return;
 		}
 
-		// Nachricht läuft
+		// Nachricht l��uft
 		m_bBeginOfMessage = false;
 		m_timer.start();
 
@@ -433,7 +435,7 @@ void TcpClient::readReady()
 	int iLenRead = read(pcBuf, iSize);
 	m_iCurMsgLength += iLenRead;
 
-	// Ende der gegenwärtigen Nachricht erreicht?
+	// Ende der gegenw��rtigen Nachricht erreicht?
 	if(m_iCurMsgLength>=m_iExpectedMsgLength)
 	{
 		if(m_iCurMsgLength > m_iExpectedMsgLength)
@@ -471,9 +473,9 @@ void TcpClient::readReady()
 
 void TcpClient::SetTimeout(int iTimeout) { m_iMessageTimeout = iTimeout; }
 
-
-//#ifdef __MOC_EXTERN_BUILD__
+/*
+#ifdef __MOC_EXTERN_BUILD__
 //	// Qt-Metaobjekte
-//	#include "client.moc"
-//#endif
-
+	#include "client.moc"
+#endif
+*/
