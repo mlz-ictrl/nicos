@@ -165,6 +165,12 @@ class Fourier
 		void *m_pIn, *m_pOut;
 		void *m_pPlan, *m_pPlan_inv;
 
+		void init_buffers();
+		void deinit_buffers();
+
+		double *m_pBufRealIn, *m_pBufRealOut;
+		double *m_pBufImgIn, *m_pBufImgOut;
+
 	public:
 		/// \param iSize size of data arrays
 		Fourier(unsigned int iSize);

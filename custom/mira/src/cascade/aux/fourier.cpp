@@ -34,6 +34,23 @@
 #endif
 
 
+void Fourier::init_buffers()
+{
+	m_pBufRealIn = new double[m_iSize];
+	m_pBufRealOut = new double[m_iSize];
+	m_pBufImgIn = new double[m_iSize];
+	m_pBufImgOut = new double[m_iSize];
+}
+
+void Fourier::deinit_buffers()
+{
+	if(m_pBufRealIn) delete[] m_pBufRealIn;
+	if(m_pBufRealOut) delete[] m_pBufRealOut;
+	if(m_pBufImgIn) delete[] m_pBufImgIn;
+	if(m_pBufImgOut) delete[] m_pBufImgOut;
+}
+
+
 //------------------------------------------------------------------------------
 // fft using fftw
 #ifdef USE_FFTW
@@ -62,10 +79,14 @@ Fourier::Fourier(unsigned int iSize) : m_iSize(iSize)
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
 		logger << "Fourier: Could not create plan.\n";
 	}
+
+	init_buffers();
 }
 
 Fourier::~Fourier()
 {
+	deinit_buffers();
+
 	fftw_destroy_plan(*(fftw_plan*)m_pPlan);
 	fftw_destroy_plan(*(fftw_plan*)m_pPlan_inv);
 
@@ -148,10 +169,14 @@ Fourier::Fourier(unsigned int iSize) : m_iSize(iSize)
 		bWarningShown = true;
 	}
 	*/
+
+	init_buffers();
 }
 
 Fourier::~Fourier()
-{}
+{
+	deinit_buffers();
+}
 
 bool Fourier::fft(const double *pRealIn, const double *pImagIn,
 					double *pRealOut, double *pImagOut)
@@ -183,17 +208,9 @@ bool Fourier::shift_sin(double dNumOsc, const double* pDatIn,
 
 	//double dShiftSamples = dPhase/(2.*M_PI) * dSize;
 
-	double *pZero = new double[iSize];
-	memset(pZero, 0, sizeof(double)*iSize);
+	memset(m_pBufImgIn, 0, sizeof(double)*iSize);
 
-	double *pDatFFT_real = new double[iSize];
-	double *pDatFFT_imag = new double[iSize];
-
-	autodeleter<double> _a0(pZero, true);
-	autodeleter<double> _a1(pDatFFT_real, true);
-	autodeleter<double> _a2(pDatFFT_imag, true);
-
-	if(!fft(pDatIn, pZero, pDatFFT_real, pDatFFT_imag))
+	if(!fft(pDatIn, m_pBufImgIn, m_pBufRealOut, m_pBufImgOut))
 		return false;
 
 	// filter out everything not concerning the sine with iNumOsc oscillations
@@ -202,26 +219,26 @@ bool Fourier::shift_sin(double dNumOsc, const double* pDatIn,
 		if(int(i)==iNumOsc || i==0)
 			continue;
 
-		pDatFFT_real[i] = 0.;
-		pDatFFT_imag[i] = 0.;
+		m_pBufRealOut[i] = 0.;
+		m_pBufImgOut[i] = 0.;
 	}
 
 	// amp & phase
-	std::complex<double> c(pDatFFT_real[iNumOsc], pDatFFT_imag[iNumOsc]);
+	std::complex<double> c(m_pBufRealOut[iNumOsc], m_pBufImgOut[iNumOsc]);
 
 	// since the signal is real we can take the first half of the fft data
 	// and multiply by two.
 	c *= 2.;
 	c = ::phase_correction_0<double>(c, dPhase);
 
-	pDatFFT_real[iNumOsc] = c.real();
-	pDatFFT_imag[iNumOsc] = c.imag();
+	m_pBufRealOut[iNumOsc] = c.real();
+	m_pBufImgOut[iNumOsc] = c.imag();
 
 	// offset
-	pDatFFT_imag[0] = 0.;
+	m_pBufImgOut[0] = 0.;
 
 
-	if(!ifft(pDatFFT_real, pDatFFT_imag, pDataOut, pZero))
+	if(!ifft(m_pBufRealOut, m_pBufImgOut, pDataOut, m_pBufImgIn))
 		return false;
 
 
@@ -239,29 +256,24 @@ bool Fourier::phase_correction_0(double dNumOsc, const double* pDatIn,
 {
 	unsigned int iSize = m_iSize;
 	const double dSize = double(iSize);
-	const int iNumOsc = int(dNumOsc);
-	dNumOsc = double(iNumOsc);			// consider only full oscillations
+	//const int iNumOsc = int(dNumOsc);
+	//dNumOsc = double(iNumOsc);			// consider only full oscillations
 
-	double *pZero = new double[iSize];
-	memset(pZero, 0, sizeof(double)*iSize);
+	memset(m_pBufImgIn, 0, sizeof(double)*iSize);
 
-	double *pDatFFT_real = new double[iSize];
-	double *pDatFFT_imag = new double[iSize];
-
-	autodeleter<double> _a0(pZero, true);
-	autodeleter<double> _a1(pDatFFT_real, true);
-	autodeleter<double> _a2(pDatFFT_imag, true);
-
-	if(!fft(pDatIn, pZero, pDatFFT_real, pDatFFT_imag))
+	if(!fft(pDatIn, m_pBufImgIn, m_pBufRealOut, m_pBufImgOut))
 		return false;
 
 	for(unsigned int i=1; i<iSize; ++i)
 	{
-		std::complex<double> c(pDatFFT_real[i], pDatFFT_imag[i]);
+		std::complex<double> c(m_pBufRealOut[i], m_pBufImgOut[i]);
 		if(i<iSize/2)
 		{
 			c *= 2.;
-			c = ::phase_correction_0<double>(c, dPhase*double(i));
+
+			// 2pi corresponds to the full range
+			// if we see dNumOsc oscillations, 2pi corresponds to dNumOsc full ranges!
+			c = ::phase_correction_0<double>(c, dPhase*double(i)/dNumOsc);
 		}
 		else
 		{
@@ -269,11 +281,11 @@ bool Fourier::phase_correction_0(double dNumOsc, const double* pDatIn,
 			c = std::complex<double>(0., 0.);
 		}
 
-		pDatFFT_real[i] = c.real();
-		pDatFFT_imag[i] = c.imag();
+		m_pBufRealOut[i] = c.real();
+		m_pBufImgOut[i] = c.imag();
 	}
 
-	if(!ifft(pDatFFT_real, pDatFFT_imag, pDataOut, pZero))
+	if(!ifft(m_pBufRealOut, m_pBufImgOut, pDataOut, m_pBufImgIn))
 		return false;
 
 	// normalization
@@ -290,32 +302,24 @@ bool Fourier::phase_correction_1(double dNumOsc, const double* pDatIn,
 {
 	unsigned int iSize = m_iSize;
 	const double dSize = double(iSize);
-	const int iNumOsc = int(dNumOsc);
-	dNumOsc = double(iNumOsc);			// consider only full oscillations
+	//const int iNumOsc = int(dNumOsc);
+	//dNumOsc = double(iNumOsc);			// consider only full oscillations
 
-	double *pZero = new double[iSize];
-	memset(pZero, 0, sizeof(double)*iSize);
+	memset(m_pBufImgIn, 0, sizeof(double)*iSize);
 
-	double *pDatFFT_real = new double[iSize];
-	double *pDatFFT_imag = new double[iSize];
-
-	autodeleter<double> _a0(pZero, true);
-	autodeleter<double> _a1(pDatFFT_real, true);
-	autodeleter<double> _a2(pDatFFT_imag, true);
-
-	if(!fft(pDatIn, pZero, pDatFFT_real, pDatFFT_imag))
+	if(!fft(pDatIn, m_pBufImgIn, m_pBufRealOut, m_pBufImgOut))
 		return false;
 
 	for(unsigned int i=1; i<iSize; ++i)
 	{
-		std::complex<double> c(pDatFFT_real[i], pDatFFT_imag[i]);
+		std::complex<double> c(m_pBufRealOut[i], m_pBufImgOut[i]);
 		if(i<iSize/2)
 		{
 			double dX = double(i)/double(iSize);
 			
 			c *= 2.;
-			c = ::phase_correction_1<double>(c, dPhaseOffs*double(i), 
-								dPhaseSlope*double(i), dX);
+			c = ::phase_correction_1<double>(c, dPhaseOffs*double(i)/dNumOsc,
+								dPhaseSlope*double(i)/dNumOsc, dX);
 		}
 		else
 		{
@@ -323,11 +327,11 @@ bool Fourier::phase_correction_1(double dNumOsc, const double* pDatIn,
 			c = std::complex<double>(0., 0.);
 		}
 
-		pDatFFT_real[i] = c.real();
-		pDatFFT_imag[i] = c.imag();
+		m_pBufRealOut[i] = c.real();
+		m_pBufImgOut[i] = c.imag();
 	}
 
-	if(!ifft(pDatFFT_real, pDatFFT_imag, pDataOut, pZero))
+	if(!ifft(m_pBufRealOut, m_pBufImgOut, pDataOut, m_pBufImgIn))
 		return false;
 
 	// normalization
@@ -348,24 +352,16 @@ bool Fourier::get_contrast(double dNumOsc, const double* pDatIn,
 	const int iNumOsc = int(dNumOsc);
 	dNumOsc = double(iNumOsc);			// consider only full oscillations
 
-	double *pZero = new double[iSize];
-	memset(pZero, 0, sizeof(double)*iSize);
+	memset(m_pBufImgIn, 0, sizeof(double)*iSize);
 
-	double *pDatFFT_real = new double[iSize];
-	double *pDatFFT_imag = new double[iSize];
-
-	autodeleter<double> _a0(pZero, true);
-	autodeleter<double> _a1(pDatFFT_real, true);
-	autodeleter<double> _a2(pDatFFT_imag, true);
-
-	if(!fft(pDatIn, pZero, pDatFFT_real, pDatFFT_imag))
+	if(!fft(pDatIn, m_pBufImgIn, m_pBufRealOut, m_pBufImgOut))
 		return false;
 
-	double dReal = 2.*pDatFFT_real[iNumOsc]/double(m_iSize);
-	double dImag = 2.*pDatFFT_imag[iNumOsc]/double(m_iSize);
+	double dReal = 2.*m_pBufRealOut[iNumOsc]/double(m_iSize);
+	double dImag = 2.*m_pBufImgOut[iNumOsc]/double(m_iSize);
 
 	double dAmp = sqrt(dReal*dReal + dImag*dImag);
-	double dOffs = pDatFFT_real[0] / double(m_iSize);
+	double dOffs = m_pBufRealOut[0] / double(m_iSize);
 
 	//std::cout << "amp = " << dAmp << std::endl;
 	//std::cout << "offs = " << dOffs << std::endl;
