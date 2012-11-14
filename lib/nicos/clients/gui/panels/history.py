@@ -28,11 +28,12 @@ __version__ = "$Revision$"
 
 import sys
 import time
+import cPickle as pickle
 
 from PyQt4.QtCore import QDateTime, Qt, SIGNAL
 from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtLog10ScaleEngine
 from PyQt4.QtGui import QDialog, QFont, QPen, QListWidgetItem, QToolBar, \
-     QMenu, QStatusBar, QSizePolicy, QMainWindow, QApplication
+     QMenu, QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np
@@ -241,6 +242,8 @@ class NewViewDialog(QDialog, DlgUtils):
 
 class BaseHistoryWindow(object):
 
+    hasPresets = False
+
     def __init__(self):
         loadUi(self, 'history.ui', 'panels')
 
@@ -348,7 +351,10 @@ class BaseHistoryWindow(object):
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return
-        self._createViewFromDialog(newdlg.infoDict())
+        info = newdlg.infoDict()
+        self._createViewFromDialog(info)
+        if newdlg.savePreset.isChecked() and self.hasPresets:
+            self.presetdict[str(info['name'])] = pickle.dumps(info)
 
     def openView(self, view):
         if not view.plot:
@@ -469,9 +475,11 @@ class BaseHistoryWindow(object):
 class HistoryPanel(Panel, BaseHistoryWindow):
     panelName = 'History viewer'
 
-    # XXX save history views when closing?
+    hasPresets = True
 
     def __init__(self, parent, client):
+        self.presetdict = {}
+
         Panel.__init__(self, parent, client)
         BaseHistoryWindow.__init__(self)
 
@@ -508,7 +516,26 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         menu.addAction(self.actionLines)
         menu.addAction(self.actionLinearFit)
         menu.addSeparator()
-        return [menu]
+        pmenu = QMenu('&Presets', self)
+        delmenu = QMenu('Delete', self)
+        for preset, info in self.presetdict.iteritems():
+            paction = QAction(preset, self)
+            pdelaction = QAction(preset, self)
+            info = pickle.loads(str(info.toString()))
+            def launchpreset(on, info=info):
+                self._createViewFromDialog(info)
+            def delpreset(on, name=preset, pact=paction, pdelact=pdelaction):
+                pmenu.removeAction(pact)
+                delmenu.removeAction(pdelact)
+                self.presetdict.pop(name, None)
+            self.connect(paction, SIGNAL('triggered(bool)'), launchpreset)
+            pmenu.addAction(paction)
+            self.connect(pdelaction, SIGNAL('triggered(bool)'), delpreset)
+            delmenu.addAction(pdelaction)
+        if self.presetdict:
+            pmenu.addSeparator()
+            pmenu.addMenu(delmenu)
+        return [menu, pmenu]
 
     def getToolbars(self):
         bar = QToolBar('History viewer')
@@ -526,9 +553,11 @@ class HistoryPanel(Panel, BaseHistoryWindow):
 
     def loadSettings(self, settings):
         self.splitterstate = settings.value('splitter').toByteArray()
+        self.presetdict = settings.value('presets').toMap()
 
     def saveSettings(self, settings):
         settings.setValue('splitter', self.splitter.saveState())
+        settings.setValue('presets', self.presetdict)
 
     def setCustomStyle(self, font, back):
         self.user_font = font
@@ -665,6 +694,7 @@ class ViewPlot(NicosPlot):
 
 
 class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
+
     def __init__(self, app):
         QMainWindow.__init__(self, None)
         BaseHistoryWindow.__init__(self)

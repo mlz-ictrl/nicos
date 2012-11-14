@@ -113,7 +113,7 @@ class DataHandler(QObject):
         self.dependent = []
         # add some custom attributes of the dataset
         dataset.invisible = False
-        dataset.name = str(dataset.sinkinfo.get('number', dataset.scaninfo)) # XXX
+        dataset.name = str(dataset.sinkinfo.get('number', dataset.scaninfo))
         dataset.curves = self._init_curves(dataset)
         for xvalues, yvalues in zip(dataset.xresults, dataset.yresults):
             self._update_curves(xvalues, yvalues)
