@@ -447,10 +447,14 @@ def daemonize():
     user, group = Session.config.user, Session.config.group
     if group:
         group = grp.getgrnam(group).gr_gid
-        os.setegid(group)
+        # use setegid to be later able to recover root rights if previously given
+        # use setgid to irreversibly destroy root rights
+        os.setgid(group)
     if Session.config.user:
         user = pwd.getpwnam(user).pw_uid
-        os.seteuid(user)
+        # use seteuid to be later able to recover root rights if previously given
+        # use setuid to irreversibly destroy root rights
+        os.setuid(user)
         if 'HOME' in os.environ:
             os.environ['HOME'] = pwd.getpwuid(user).pw_dir
 
