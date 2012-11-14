@@ -30,6 +30,7 @@ from nicos.services.elog.handler import Handler
 from nicos.protocols.cache import OP_TELL, OP_ASK, OP_SUBSCRIBE, cache_load
 from nicos.devices.cacheclient import BaseCacheClient
 
+
 class Logbook(BaseCacheClient):
     def doInit(self, mode):
         BaseCacheClient.doInit(self, mode)
