@@ -92,10 +92,10 @@ class MCC2Coder(MCC2Base, NicosCoder):
                            settable=True, type=float, default=1),
         'zerosteps': Param('Coder steps at physical zero',
                            settable=True, type=int, default=0),
-        'codertype': Param('Type of encoder',
+        'codertype': Param('Type of encoder', settable=True,
                            type=oneof(*codertypes), default='none'),
         'coderbits': Param('Number of bits of SSI encoder',
-                           type=intrange(0, 31), default=0),
+                           type=intrange(0, 31), default=0, settable=True),
     }
 
     def doReset(self):
@@ -120,7 +120,7 @@ class MCC2Coder(MCC2Base, NicosCoder):
         return status.OK, 'no status readout'
 
     def doSetPosition(self, pos):
-        return NicosCoder.doSetPosition(self, pos) # will raise NotImplementedError
+        self._comm('XP22S%d' % int(float(pos)*self.slope + self.zerosteps))
 
 
 class MCC2Motor(MCC2Base, NicosMotor):
@@ -128,7 +128,7 @@ class MCC2Motor(MCC2Base, NicosMotor):
 
     parameters = {
         'slope'      : Param('Full motor steps per physical unit',
-                             type=float, default=1),
+                             type=float, default=1, settable=True),
         'power'      : Param('Internal power stage switch', default='on',
                              type=oneofdict({0: 'off', 1: 'on'}), settable=True,
                              volatile=True),
