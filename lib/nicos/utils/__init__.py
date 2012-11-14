@@ -42,6 +42,7 @@ from os import path
 from time import time as currenttime, strftime, strptime, localtime, mktime
 from itertools import islice, chain
 
+from nicos import session
 
 class lazy_property(object):
     """A property that calculates its value only once."""
@@ -361,27 +362,53 @@ def ensureDirectory(dirname):
         os.makedirs(dirname)
 
 def disableDirectory(startdir):
-    """Traverse a directory tree and remove access rights."""
+    """Traverse a directory tree and remove access rights.
+    returns True if there were some errors and False if everything went OK"""
     # handle files first, then subdirs and then work on the current dir
     assert path.isdir(startdir)
+    failflag = False
     for child in os.listdir(startdir):
         full = path.join(startdir, child)
         if path.isdir(full):
-            disableDirectory(full)
+            failflag |= disableDirectory(full)
         else:
-            os.chmod(full, 0)
-    os.chmod(startdir, 0)
+            try:
+                os.chmod(full, 0)
+            except OSError:
+                failflag = True
+    try:
+        os.chmod(startdir, 0)
+    except OSError:
+        failflag = True
+        session.log.warning('Disabling failed for %r' % startdir)
+    if failflag:
+        session.log.debug('Disabling failed for some files, please check access rights manually')
+    return failflag
+    # maybe logging is better done in the caller of disableDirectory
 
 def enableDirectory(startdir):
-    """Traverse a directory tree and grant access rights."""
+    """Traverse a directory tree and grant access rights.
+    returns True if there were some errors and False if everything went OK"""
     assert path.isdir(startdir)
-    os.chmod(startdir, 0755)  # drwxr-xr-x
+    failflag = False
+    try:
+        os.chmod(startdir, 0755)  # drwxr-xr-x
+    except OSError:
+        session.log.warning('Enabling failed for %r' % startdir)
+        failflag = True
     for child in os.listdir(startdir):
         full = path.join(startdir, child)
         if path.isdir(full):
-            enableDirectory(full)
+            failflag |= enableDirectory(full)
         else:
-            os.chmod(full, 0644)  # drw-r--r--
+            try:
+                os.chmod(full, 0644)  # -rw-r--r--
+            except OSError:
+                failflag = True
+    if failflag:
+        session.log.debug('Enabling failed for some files, please check accesss rights manually')
+    return failflag
+    # maybe logging is better done in the caller of enableDirectory
 
 field_re = re.compile('{{(?P<key>[^:#}]+)(?::(?P<default>[^#}]*))?'
                       '(?:#(?P<description>[^}]+))?}}')
