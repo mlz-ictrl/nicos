@@ -87,6 +87,9 @@ class Param(object):
 
     - *userparam*: whether this parameter should be shown to the user
       (default is True).
+
+    - *chatty*: wether changes of the parameter should produce a message 
+      (default is False).
     """
 
     _notset = object()
