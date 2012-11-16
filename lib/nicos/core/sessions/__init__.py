@@ -41,6 +41,7 @@ from os import path
 
 import numpy
 
+from nicos.core.spm import SPMHandler
 from nicos.core.data import DataSink
 from nicos.core.device import Device
 from nicos.core.errors import NicosError, UsageError, ModeError, \
@@ -90,6 +91,7 @@ class Session(object):
         control_path = path.join(path.dirname(__file__), '..', '..', '..', '..')
         setups_path  = 'setups'
         logging_path = 'log'
+        simple_mode = False
 
     log = None
     name = 'session'
@@ -143,6 +145,10 @@ class Session(object):
         self.clock = SimClock()
         # traceback of last unhandled exception
         self._lastUnhandled = None
+        # SPM mode or not?
+        self._spmode = False
+        self._spmhandler = SPMHandler(self)
+        self.setSPMode(self.config.simple_mode)
 
         # sysconfig devices
         self.cache = None
@@ -247,6 +253,10 @@ class Session(object):
                 cache.doShutdown()
                 self.cache = None
         self.log.info('switched to %s mode' % mode)
+
+    def setSPMode(self, on):
+        """Switch simple parameter mode on or off."""
+        self._spmode = on
 
     def simulationSync(self):
         """Synchronize device values and parameters from current cached values.
@@ -692,6 +702,11 @@ class Session(object):
         """
         if command.startswith('#'):
             return compiler('LogEntry(%r)' % command[1:].strip())
+        if self._spmode:
+            try:
+                return self._spmhandler.handle(command, compiler)
+            except Exception:
+                self.log.error('Error during SPM command handler', exc=1)
         try:
             return compiler(command)
         except SyntaxError:
@@ -700,21 +715,7 @@ class Session(object):
                 return compiler('help(%s)' % command.strip('?'))
             # shortcut for calling commands/devices without parens
             if command.startswith('.'):
-                parts = command[1:].split()
-                if not parts:
-                    return compiler('read()')
-                base = parts[0]
-                if base in self._exported_names:
-                    if hasattr(self.namespace[base], 'is_usercommand'):
-                        return compiler(base + '(' + ','.join(parts[1:]) + ')')
-                    elif isinstance(self.namespace[base], Device):
-                        if len(parts) == 1:
-                            return compiler('read(%s)' % base)
-                        elif len(parts) == 2:
-                            return compiler('maw(%s, %s)' % (base, parts[1]))
-                self.log.error('unrecognized short command: %r - ignoring'
-                                % command[1:])
-                return compiler('pass')
+                return self._spmhandler.handle(command[1:], compiler)
             # shortcut for simulation mode
             if command.startswith(':'):
                 return compiler('Simulate(%r)' % command[1:].rstrip())

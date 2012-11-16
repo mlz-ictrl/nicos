@@ -29,6 +29,7 @@ __version__ = "$Revision$"
 from nicos import session
 from nicos.core import Device, Measurable, Moveable, Readable, UsageError, \
      NicosError
+from nicos.core.spm import spmsyntax, Dev, Bare
 from nicos.core.scan import Scan, SweepScan, ContinuousScan, ManualScan, \
      TwoDimScan, StopScan
 from nicos.commands import usercommand, helparglist
@@ -119,6 +120,7 @@ def _infostr(fn, args, kwargs):
 
 @usercommand
 @helparglist('dev, [start, step, numsteps | listofpoints], ...')
+@spmsyntax(Dev(Moveable), Bare, Bare, Bare)
 def scan(dev, *args, **kwargs):
     """Scan over device(s) and count detector(s).
 
@@ -143,6 +145,7 @@ def scan(dev, *args, **kwargs):
 
 @usercommand
 @helparglist('dev, center, step, numperside, ...')
+@spmsyntax(Dev(Moveable), Bare, Bare, Bare)
 def cscan(dev, *args, **kwargs):
     """Scan around center.
 
@@ -164,6 +167,7 @@ def cscan(dev, *args, **kwargs):
 
 @usercommand
 @helparglist('numsteps, ...')
+@spmsyntax(Bare)
 def timescan(numsteps, *args, **kwargs):
     """Count a number of times without moving devices.
 
@@ -184,6 +188,7 @@ def timescan(numsteps, *args, **kwargs):
 
 @usercommand
 @helparglist('dev, start, end, numsteps, ...')
+@spmsyntax(Dev(Moveable), Bare, Bare, Bare)
 def sweep(dev, start, end, *args, **kwargs):
     """Do a sweep of *dev* from *start* to *end*, repeating the count as often
     as possible in between.
@@ -209,6 +214,7 @@ def sweep(dev, start, end, *args, **kwargs):
 @usercommand
 @helparglist('dev1, start1, step1, numsteps1, dev2, start2, step2, '
              'numsteps2, ...')
+@spmsyntax(Dev(Moveable), Bare, Bare, Bare, Dev(Moveable), Bare, Bare, Bare)
 def twodscan(dev1, start1, step1, numsteps1,
              dev2, start2, step2, numsteps2,
              *args, **kwargs):
@@ -284,6 +290,7 @@ twodscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'twodscan(dev1, ')
 
 @usercommand
 @helparglist('dev, start, end[, speed], ...')
+@spmsyntax(Dev(Moveable), Bare, Bare, speed=Bare)
 def contscan(dev, start, end, speed=None, *args, **kwargs):
     """Scan a device continuously with low speed.
 

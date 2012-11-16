@@ -34,6 +34,7 @@ from nicos import session
 from nicos.utils import printTable, parseDateString
 from nicos.core import Device, Moveable, Measurable, Readable, HasOffset, \
      HasLimits, UsageError, formatStatus
+from nicos.core.spm import spmsyntax, AnyDev, Dev, Bare, String, Multi
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.basic import sleep
 from nicos.commands.output import printinfo
@@ -54,6 +55,7 @@ def _devposlist(dev_pos_list, cls):
 
 @usercommand
 @helparglist('dev, pos, ...')
+@spmsyntax(Multi(Dev(Moveable), Bare))
 def move(*dev_pos_list):
     """Start moving one or more devices to a new position.
 
@@ -70,12 +72,14 @@ def move(*dev_pos_list):
 
 @hiddenusercommand
 @helparglist('dev, pos, ...')
+@spmsyntax(Multi(Dev(Moveable), Bare))
 def drive(*dev_pos_list):
     """Move one or more devices to a new position.  Same as `move()`."""
     return move(*dev_pos_list)
 
 @usercommand
 @helparglist('dev, pos, ...')
+@spmsyntax(Multi(Dev(Moveable), Bare))
 def maw(*dev_pos_list):
     """Move one or more devices to a new position and wait for them.
 
@@ -97,6 +101,7 @@ def maw(*dev_pos_list):
 
 @hiddenusercommand
 @helparglist('dev, pos, ...')
+@spmsyntax(Multi(Dev(Moveable), Bare))
 def switch(*dev_pos_list):
     """Move one or more devices to a new position and wait until motion
     of all devices is completed.  Same as `maw()`."""
@@ -104,6 +109,7 @@ def switch(*dev_pos_list):
 
 @usercommand
 @helparglist('dev, ...')
+@spmsyntax(Multi(Dev((Moveable, Measurable))))
 def wait(*devlist):
     """Wait until motion/action of one or more devices is complete.
 
@@ -132,6 +138,7 @@ def wait(*devlist):
 
 @usercommand
 @helparglist('[dev, ...]')
+@spmsyntax(Multi(Dev(Readable)))
 def read(*devlist):
     """Read the position (or value) of one or more devices.
 
@@ -168,6 +175,7 @@ def read(*devlist):
 
 @usercommand
 @helparglist('[dev, ...]')
+@spmsyntax(Multi(Dev(Readable)))
 def status(*devlist):
     """Read the status of one or more devices.
 
@@ -195,6 +203,7 @@ def status(*devlist):
 
 @usercommand
 @helparglist('[dev, ...]')
+@spmsyntax(Multi(Dev((Moveable, Measurable))))
 def stop(*devlist):
     """Stop one or more devices.
 
@@ -239,6 +248,7 @@ def stop(*devlist):
 
 @usercommand
 @helparglist('dev, ...')
+@spmsyntax(Multi(Dev(Readable)))
 def reset(*devlist):
     """Reset the given device(s).
 
@@ -257,6 +267,7 @@ def reset(*devlist):
         dev.log.info('reset done, status is now %s' % formatStatus(status))
 
 @usercommand
+@spmsyntax(AnyDev, String, Bare)
 def set(dev, parameter, value):
     """Set a the parameter of the device to a new value.
 
@@ -274,6 +285,7 @@ def set(dev, parameter, value):
                      (parameter, getattr(dev, parameter), prevalue))
 
 @usercommand
+@spmsyntax(AnyDev, String)
 def get(dev, parameter):
     """Return the value of a parameter of the device.
 
@@ -290,6 +302,7 @@ def get(dev, parameter):
 
 @usercommand
 @helparglist('parameter, ...')
+@spmsyntax(Multi(String))
 def getall(*names):
     """List the given parameters for all existing devices that have them.
 
@@ -312,6 +325,7 @@ def getall(*names):
     printTable(('device',) + names, items, printinfo)
 
 @usercommand
+@spmsyntax(String, Bare)
 def setall(param, value):
     """Set the given parameter to the given value for all devices that have it.
 
@@ -330,6 +344,7 @@ def setall(param, value):
 
 @usercommand
 @helparglist('dev[, reason]')
+@spmsyntax(Dev(Moveable), reason=String)
 def fix(dev, reason=''):
     """Fix a device, i.e. prevent movement until `release()` is called.
 
@@ -344,6 +359,7 @@ def fix(dev, reason=''):
 
 @usercommand
 @helparglist('dev, ...')
+@spmsyntax(Multi(Dev(Moveable)))
 def release(*devlist):
     """Release one or more devices, i.e. undo the effect of `fix()`.
 
@@ -360,6 +376,7 @@ def release(*devlist):
 
 @usercommand
 @helparglist('dev, value[, newvalue]')
+@spmsyntax(Dev(HasOffset), Bare)
 def adjust(dev, value, newvalue=None):
     """Adjust the offset of the device.
 
@@ -389,6 +406,7 @@ def adjust(dev, value, newvalue=None):
 
 @usercommand
 @helparglist('dev, ...')
+@spmsyntax(Multi(AnyDev))
 def version(*devlist):
     """List version info of the device(s)."""
     for dev in devlist:
@@ -399,6 +417,7 @@ def version(*devlist):
 
 @usercommand
 @helparglist('dev[, key][, fromtime]')
+@spmsyntax(AnyDev, String)
 def history(dev, key='value', fromtime=None, totime=None):
     """Print history of a device parameter.
 
@@ -453,6 +472,7 @@ def history(dev, key='value', fromtime=None, totime=None):
 
 @usercommand
 @helparglist('dev, ...')
+@spmsyntax(Multi(Dev(HasLimits)))
 def limits(*devlist):
     """Print the limits of the device(s).
 
@@ -493,6 +513,7 @@ def limits(*devlist):
 
 @usercommand
 @helparglist('dev, ...')
+@spmsyntax(Multi(Dev(HasLimits)))
 def resetlimits(*devlist):
     """Reset the user limits for the device(s) to the allowed maximum range.
 
@@ -528,6 +549,7 @@ def resetlimits(*devlist):
                             dev.format(dev.userlimits[1]), dev.unit))
 
 @usercommand
+@spmsyntax(AnyDev)
 def ListParams(dev):
     """List all parameters of the device.
 
@@ -557,6 +579,7 @@ def ListParams(dev):
                items, printinfo)
 
 @usercommand
+@spmsyntax(AnyDev)
 def ListMethods(dev):
     """List user-callable methods for the device.
 
@@ -580,6 +603,7 @@ def ListMethods(dev):
     printTable(('method', 'from class', 'description'), items, printinfo)
 
 @usercommand
+@spmsyntax()
 def ListDevices():
     """List all currently created devices.
 

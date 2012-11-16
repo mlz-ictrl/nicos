@@ -40,6 +40,7 @@ from os import path
 from nicos import session
 from nicos.core import Device, AutoDevice, Readable, ModeError, NicosError, \
      UsageError
+from nicos.core.spm import spmsyntax, AnyDev, Bare, Bool, Num, Multi
 from nicos.utils import formatDuration, printTable
 from nicos.devices.notifiers import Mailer, SMSer
 from nicos.commands import usercommand, hiddenusercommand, helparglist
@@ -110,6 +111,7 @@ def ListCommands():
     printTable(('name', 'description'), items, printinfo)
 
 @usercommand
+@spmsyntax(Num)
 def sleep(secs):
     """Sleep for a given number of seconds.
 
@@ -228,6 +230,7 @@ def RemoveSetup(*setupnames):
     NewSetup(*current)
 
 @usercommand
+@spmsyntax(all=Bool)
 def ListSetups(all=False):
     """Print a list of setups.
 
@@ -454,6 +457,16 @@ def SetMode(mode):
 
 
 @usercommand
+@spmsyntax(Bool)
+def SetSPM(enable):
+    """Enable or disable Simple Parameter Mode.  Example:
+
+    >>> SetSPM(1)
+    """
+    session.setSPMode(enable)
+
+
+@usercommand
 def sync():
     """Synchronize simulation copy with master copy.
 
@@ -467,6 +480,7 @@ def sync():
 
 @usercommand
 @helparglist('dev, ...')
+@spmsyntax(Multi(AnyDev))
 def ClearCache(*devnames):
     """Clear all cached information for the given device(s).
 

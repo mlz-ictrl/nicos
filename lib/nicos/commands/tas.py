@@ -32,6 +32,7 @@ from numpy import ndarray
 
 from nicos import session
 from nicos.core import Measurable, Moveable, Readable, UsageError, NicosError
+from nicos.core.spm import spmsyntax, Bare
 from nicos.core.scan import QScan
 from nicos.devices.tas.rescalc import resmat
 from nicos.devices.tas.spectro import TAS, THZ2MEV
@@ -103,6 +104,7 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
 
 @usercommand
 @helparglist('Q, dQ, numsteps, ...')
+@spmsyntax(Bare, Bare, Bare)
 def qscan(Q, dQ, numsteps, *args, **kwargs):
     """Perform a single-sided Q scan.
 
@@ -143,6 +145,7 @@ def qscan(Q, dQ, numsteps, *args, **kwargs):
 
 @usercommand
 @helparglist('Q, dQ, numperside, ...')
+@spmsyntax(Bare, Bare, Bare)
 def qcscan(Q, dQ, numperside, *args, **kwargs):
     """Perform a centered Q scan.
 

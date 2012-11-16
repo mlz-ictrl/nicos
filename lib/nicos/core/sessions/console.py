@@ -72,7 +72,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         self.locals = locals
         for line in DEFAULT_BINDINGS.splitlines():
             readline.parse_and_bind(line)
-        readline.set_completer(NicosCompleter(self.globals, self.locals).complete)
+        readline.set_completer(session.completefn)
         readline.set_history_length(10000)
         self.histfile = os.path.expanduser('~/.nicoshistory')
         # once compiled, the interactive console uses this flag for all
@@ -164,11 +164,15 @@ class ConsoleSession(Session):
     """
 
     def __init__(self, appname):
+        self._console = None
         Session.__init__(self, appname)
         # prompt color
         self._pscolor = 'reset'
         # showing prompt?
         self._prompting = False
+        # our command completer for Python code
+        self._completer = NicosCompleter(self.namespace,
+                                         self.local_namespace).complete
 
     def _initLogging(self, prefix=None):
         Session._initLogging(self, prefix)
@@ -186,10 +190,15 @@ class ConsoleSession(Session):
         Session.setMode(self, mode)
         self.resetPrompt()
 
+    def setSPMode(self, on):
+        Session.setSPMode(self, on)
+        self.resetPrompt()
+
     def resetPrompt(self):
         base = self._mode != 'master' and self._mode + ' ' or ''
         expsetups = '+'.join(self.explicit_setups)
-        sys.ps1 = base + '(%s) >>> ' % expsetups
+        sys.ps1 = base + '(%s) %s ' % (expsetups,
+                                       '-->' if self._spmode else '>>>')
         sys.ps2 = base + ' %s  ... ' % (' ' * len(expsetups))
         self._pscolor = dict(
             slave  = 'brown',
@@ -203,10 +212,21 @@ class ConsoleSession(Session):
         banner = ('NICOS console ready (version %s).\nTry help() for a '
                   'list of commands, or help(command) for help on a command.'
                   % nicos_version)
-        console = NicosInteractiveConsole(self,
-                                          self.namespace, self.local_namespace)
-        console.interact(banner)
+        self._console = NicosInteractiveConsole(self, self.namespace,
+                                               self.local_namespace)
+        self._console.interact(banner)
         sys.stdout.write(colorcode('reset'))
+
+    def completefn(self, word, index):
+        if not self._spmode:
+            return self._completer(word, index)
+        if index == 0:
+            line = readline.get_line_buffer()
+            self._matches = self._spmhandler.complete(line, word)
+        try:
+            return self._matches[index] + ' '
+        except IndexError:
+            return None
 
     def breakpoint(self, level):
         if session._stoplevel >= level:
