@@ -93,7 +93,10 @@ class GracePlotter(object):
             for i in range(len(yvalues)):
                 self._ydata[i].append(yvalues[i])
                 if dataset.yvalueinfo[i].errors == 'sqrt':
-                    self._dydata[i].append(sqrt(yvalues[i]))
+                    try:
+                        self._dydata[i].append(sqrt(yvalues[i]))
+                    except ValueError:
+                        self._dydata[i].append(0)
                 else:
                     self._dydata[i].append(0)
 
