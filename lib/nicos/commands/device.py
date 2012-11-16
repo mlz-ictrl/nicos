@@ -270,7 +270,8 @@ def set(dev, parameter, value):
     prevalue = getattr(dev, parameter)
     setattr(dev, parameter, value)
     if not dev.parameters[parameter].chatty:  # if yes, we already got a message
-        dev.log.info('%s set to %r (was %r)' % (parameter, value, prevalue))
+        dev.log.info('%s set to %r (was %r)' %
+                     (parameter, getattr(dev, parameter), prevalue))
 
 @usercommand
 def get(dev, parameter):
