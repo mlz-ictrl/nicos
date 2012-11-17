@@ -13,9 +13,12 @@ modules = ['nicos.commands.taco']
 devices = dict(
     Sample   = device('devices.tas.TASSample'),
 
-    Exp      = device('devices.experiment.Experiment',
+    Exp      = device('frm2.experiment.Experiment',
                       dataroot = 'data',
-                      sample = 'Sample',
+                      sendmail = True,
+                      managerights = True,
+                      serviceexp = '0',
+                      sample = 'Sample'
                      ),
 
     filesink = device('devices.datasinks.AsciiDatafileSink'),

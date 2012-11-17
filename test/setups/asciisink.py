@@ -18,20 +18,19 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Tobias Weber <tobias.weber@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""NICOS MIRA Experiment."""
+name = 'test system setup that writes data files'
 
-__version__ = "$Revision$"
+sysconfig = dict(
+    datasinks = ['testsink', 'asciisink'],
+)
 
-from nicos.core import Override
-from nicos.frm2.experiment import Experiment
+includes = ['axis']
 
 
-class MiraExperiment(Experiment):
-
-    parameter_overrides = {
-        'templatedir':   Override(default='template'),
-    }
+devices = dict(
+    asciisink = device('devices.datasinks.AsciiDatafileSink'),
+)

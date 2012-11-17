@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -29,18 +30,23 @@ from __future__ import with_statement
 __version__ = "$Revision$"
 
 import os
+import re
 import time
+import shutil
+import zipfile
 from os import path
 from uuid import uuid1
 
 from nicos import session
-from nicos.core import listof, nonemptylistof, control_path_relative, \
-     usermethod, Device, Measurable, Readable, Param, Dataset
+from nicos.core import listof, nonemptylistof, oneof, control_path_relative, \
+     none_or, mailaddress, usermethod, Device, Measurable, Readable, Param, \
+     Dataset, NicosError
 from nicos.core.scan import DevStatistics
-from nicos.devices.datasinks import NeedsDatapath
-from nicos.utils import ensureDirectory
+from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
+     enableDirectory
 from nicos.utils.loggers import ELogHandler
-from nicos.utils.proposaldb import queryProposal
+from nicos.commands.basic import run
+from nicos.devices.datasinks import NeedsDatapath
 
 
 class Sample(Device):
@@ -90,38 +96,58 @@ class Experiment(Device):
     """
 
     parameters = {
-        'title':     Param('Experiment title', type=str, settable=True,
-                           category='experiment'),
-        'proposal':  Param('Current proposal number or proposal string',
-                           type=str, settable=True, category='experiment'),
-        'users':     Param('User names and emails for the proposal',
-                           type=str, settable=True, category='experiment'),
+        'title':        Param('Experiment title', type=str, settable=True,
+                              category='experiment'),
+        'proposal':     Param('Current proposal number or proposal string',
+                              type=str, settable=True, category='experiment'),
+        'proptype':     Param('Current proposal type', settable=True,
+                              type=oneof('service', 'user', 'other')),
+        'propprefix':   Param('Prefix of the proposal if is a number', type=str,
+                              settable=True, default=''),
+        'users':        Param('User names and emails for the proposal',
+                              type=str, settable=True, category='experiment'),
         'localcontact': Param('Local contact for current experiment',
                               type=str, settable=True, category='experiment'),
-        'remark':    Param('Current remark about experiment configuration',
-                           type=str, settable=True, category='experiment'),
-        'dataroot':  Param('Root data path under which all proposal specific '
-                           'paths are created', type=control_path_relative,
-                           default='.', mandatory=True),
-        'proposaldir':   Param('Directory for proposal specific files',
-                           settable=True, type=str),
-        'scriptdir': Param('Standard script directory',
-                           settable=True, type=str),
-        'datapath':  Param('List of paths where data files should be stored',
-                           type=nonemptylistof(str), settable=True),
-        'detlist':   Param('List of default detector device names',
-                           type=listof(str), settable=True),
-        'envlist':   Param('List of default environment device names to read '
-                           'at every scan point', type=listof(str),
-                           settable=True),
-        'elog':      Param('True if the electronig logbook should be enabled',
-                           type=bool, default=True),
-        'propdb':    Param('user@host:dbname credentials for proposal DB',
-                           type=str, default='', userparam=False),
-        'scripts':   Param('Currently executed scripts',
-                           type=listof(str), settable=True),
-        'remember':  Param('List of messages to remember for next experiment '
-                           'start', type=listof(str), settable=True),
+        'remark':       Param('Current remark about experiment configuration',
+                              type=str, settable=True, category='experiment'),
+        'dataroot':     Param('Root data path under which all proposal specific'
+                              ' paths are created', type=control_path_relative,
+                              default='.', mandatory=True),
+        'proposaldir':  Param('Directory for proposal specific files',
+                              settable=True, type=str),
+        'scriptdir':    Param('Standard script directory',
+                              settable=True, type=str),
+        'datapath':     Param('List of paths where data files should be stored',
+                              type=nonemptylistof(str), settable=True),
+        'detlist':      Param('List of default detector device names',
+                              type=listof(str), settable=True),
+        'envlist':      Param('List of default environment device names to read'
+                              ' at every scan point', type=listof(str),
+                              settable=True),
+        'elog':         Param('True if the electronig logbook should be '
+                              'enabled', type=bool, default=True),
+        'scripts':      Param('Currently executed scripts',
+                              type=listof(str), settable=True),
+        'remember':     Param('List of messages to remember for next experiment'
+                              ' start', type=listof(str), settable=True),
+        'templatedir':  Param('Name of the directory with script templates '
+                              '(relative to dataroot)', type=str, default=''),
+        'managerights': Param('Whether to manage access rights on proposal '
+                              'directories on proposal change', type=bool,
+                              settable=True),
+        'zipdata':      Param('Whether to zip up experiment data after '
+                              'experiment finishes', type=bool, default=True),
+        'sendmail':     Param('Whether to send proposal data via email after '
+                              'experiment finishes', type=bool, default=False),
+        'mailserver':   Param('Mail server name', type=str, settable=True),
+        'mailsender':   Param('Mail sender address', type=none_or(mailaddress),
+                              settable=True),
+        'mailtemplate': Param('Mail template file name (in templatedir)',
+                              type=str, default='mailtext.txt'),
+        'serviceexp':   Param('Name of proposal to switch to after user '
+                              'experiment', type=str),
+        'servicescript': Param('Script to run for service time', type=str,
+                               default='', settable=True),
     }
 
     attached_devices = {
@@ -143,17 +169,32 @@ class Experiment(Device):
     @usermethod
     def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
         """Called by `.NewExperiment`."""
-        # Individual instruments should override this to change datapath
-        # according to instrument policy, and maybe call _fillProposal
-        # to get info from the proposal database
+        # determine real proposal number some instruments assign a prefix to
+        # numeric proposals
         if isinstance(proposal, (int, long)):
-            proposal = str(proposal)
-        self.proposal = proposal
-        self.title = title or ''
-        self.localcontact = localcontact or ''
-        # reset everything else to defaults
+            proposal = '%s%d' % (self.propprefix, proposal)
+        self.log.debug('new proposal real name is %s' % proposal)
+        # check proposal type (can raise)
+        proptype = self._getProposalType(proposal)
+        self.log.debug('new proposal type is %s' % proptype)
+
+        symlink = self._getProposalSymlink()
+
+        # remove access rights to old proposal if wanted
+        if self.managerights and self.proptype == 'user':
+            try:
+                disableDirectory(self.proposaldir)
+            except Exception:
+                self.log.warning('could not remove permissions for old '
+                                 'experiment directory', exc=1)
+            else:
+                self.log.debug('disabled directory %s' % self.proposaldir)
+        # remove old symlink to current experiment
+        if symlink and path.islink(symlink):
+            os.unlink(symlink)
+
+        # reset all experiment dependent parameters and values to defaults
         self.remark = ''
-        self.users = str(user or '')
         self.sample.reset()
         self.envlist = []
         #self.detlist = []
@@ -165,52 +206,157 @@ class Experiment(Device):
         for notifier in session.notifiers:
             notifier.reset()
         self._last_datasets = []
+
+        # set new experiment properties given by caller
+        self.proposal = proposal
+        self.proptype = proptype
+        # allow instruments to override (e.g. from proposal DB)
+        if title:
+            kwds['title'] = title
+        if user:
+            kwds['user'] = user
+        if localcontact:
+            kwds['localcontact'] = localcontact
+        kwds = self._newPropertiesHook(proposal, kwds)
+        self.title = kwds.get('title', '')
+        self.users = kwds.get('user', '')
+        self.localcontact = kwds.get('localcontact', '')
+        self.sample.samplename = kwds.get('sample', '')
+
+        # create new data path and expand templates
+        new_proposaldir = self._getProposalDir(proposal)
+        ensureDirectory(new_proposaldir)
+        if self.managerights:
+            enableDirectory(new_proposaldir)
+            self.log.debug('enabled directory %s' % new_proposaldir)
+        if symlink:
+            self.log.debug('setting symlink %s to %s' %
+                           (symlink, path.abspath(new_proposaldir)))
+            os.symlink(path.abspath(new_proposaldir), symlink)
+        self.proposaldir = new_proposaldir
+        self.log.info('experiment directory set to %s' % new_proposaldir)
+
+        new_scriptdir = path.join(self.proposaldir, 'scripts')
+        ensureDirectory(new_scriptdir)
+        self.scriptdir = new_scriptdir
+        self.log.info('script directory set to %s' % new_scriptdir)
+
+        new_datapath = self._getDatapath(proposal)
+        for entry in new_datapath:
+            ensureDirectory(entry)
+        self.datapath = new_datapath
+        self.log.info('data directory set to %s' % new_datapath[0])
+
+        # notify logbook
         session.elog_event('newexperiment', (proposal, title))
         session.elog_event('setup', list(session.explicit_setups))
+
+        # expand templates
+        if proptype != 'service':
+            if self.templatedir:
+                kwds['proposal'] = self.proposal
+                self._handleTemplates(proposal, kwds)
+            self.log.info('New experiment %s started' % proposal)
+        else:
+            if self.servicescript:
+                run(self.servicescript)
+            else:
+                self.log.debug('not running service script, none configured')
+            self.log.info('Maintenance time started')
+
+        self._afterNewHook()
+
+    def _getProposalType(self, proposal):
+        if self.serviceexp and proposal == self.serviceexp:
+            return 'service'
+        if self.propprefix:
+            if proposal.startswith(self.propprefix):
+                return 'user'
+            return 'service'
+        try:
+            if int(proposal) == 0:
+                return 'service'
+            return 'user'
+        except ValueError:
+            return 'service'
+
+    def _getProposalDir(self, proposal):
+        return path.join(self.dataroot, time.strftime('%Y'), proposal)
+
+    def _getProposalSymlink(self):
+        return path.join(self.dataroot, 'current')
+
+    def _getDatapath(self, proposal):
+        return [path.join(self.dataroot, time.strftime('%Y'), proposal, 'data')]
+
+    def _newPropertiesHook(self, proposal, kwds):
+        return kwds
+
+    def _afterNewHook(self):
+        pass
+
+    def _handleTemplates(self, proposal, kwargs):
+        tmpldir = path.join(self.dataroot, self.templatedir)
+        filelist = os.listdir(tmpldir)
+        try:
+            # and sort it (start_....py should be first!)
+            filelist.remove('start_{{proposal}}.py.template')
+            filelist.insert(0, 'start_{{proposal}}.py.template')
+        except Exception:
+            pass # file not in templates, no need to sort towards the end
+        # second: loop through all the files
+        for fn in filelist:
+            # translate '.template' files
+            if not fn.endswith('.template'):
+                if path.isfile(path.join(self.scriptdir, fn)):
+                    self.log.info('file %s already exists, not overwriting' %
+                                  fn)
+                    continue
+                shutil.copyfile(path.join(tmpldir, fn),
+                                path.join(self.scriptdir, fn))
+                self.log.debug('ignoring file %s' % fn)
+                continue
+            try:
+                newfn = fn[:-9] # strip ".template" from the name
+                # now also translate templates in the filename
+                newfn, _, _ = expandTemplate(newfn, kwargs)
+                self.log.debug('%s -> %s' % (fn, newfn))
+                # now read and translate template if file does not already exist
+                if path.isfile(path.join(self.scriptdir, newfn)):
+                    self.log.info('file %s already exists, not overwriting' %
+                                  newfn)
+                    continue
+                with open(path.join(tmpldir, fn)) as fp:
+                    content = fp.read()
+                newcontent, defaulted, missing = expandTemplate(content, kwargs)
+                if missing:
+                    self.log.info('missing keyword argument(s):\n')
+                    self.log.info('%12s (%s) %-s\n' %
+                                  ('keyword', 'default', 'description'))
+                    for entry in missing:
+                        self.log.info('%12s (%s)\t%-s\n' %
+                            (entry['key'], entry['default'], entry['description']))
+                    raise NicosError('some keywords are missing')
+                if defaulted:
+                    self.log.info('the following keyword argument(s) were taken'
+                                  ' from defaults:')
+                    self.log.info('%12s (%s) %-s' %
+                                  ('keyword', 'default', 'description'))
+                    for entry in defaulted:
+                        self.log.info('%12s (%s)\t%-s' %
+                            (entry['key'], entry['default'], entry['description']))
+                # ok, both filename and filecontent are ok and translated ->
+                # save (if not already existing)
+                with open(path.join(self.scriptdir, newfn), 'w') as fp:
+                    fp.write(newcontent)
+            except Exception:
+                self.log.warning('could not translate template file %s' % fn,
+                                 exc=1)
 
     def _setMode(self, mode):
         if self.elog:
             self._eloghandler.disabled = mode != 'master'
         Device._setMode(self, mode)
-
-    def _fillProposal(self, proposal):
-        """Fill proposal info from proposal database."""
-        if not self.propdb:
-            return
-        try:
-            info = queryProposal(self.propdb, proposal)
-        except Exception:
-            self.log.warning('unable to query proposal info', exc=1)
-            return
-        what = []
-        kwds = {}
-        if info.get('title') and self.title == '':
-            self.title = info['title']
-            what.append('title')
-            kwds['title'] = info['title']
-        if info.get('substance'):
-            self.sample.samplename = info['substance']
-            what.append('sample name')
-            kwds['sample'] = info['substance']
-        if info.get('user'):
-            email = info.get('user_email', '')
-            self.addUser(info['user'], email, info.get('affiliation'))
-            what.append('user')
-        if info.get('co_proposer'):
-            proplist = []
-            for coproposer in info['co_proposer'].splitlines():
-                coproposer = coproposer.strip()
-                if coproposer:
-                    proplist.append(coproposer)
-            if proplist:
-                self.users = self.users + ', ' + ', '.join(proplist)
-                what.append('co-proposers')
-        if self.users:
-            kwds['users'] = self.users
-        if what:
-            self.log.info('Filled in %s from proposal database' %
-                           ', '.join(what))
-        return kwds
 
     @usermethod
     def addUser(self, name, email=None, affiliation=None):
@@ -227,13 +373,171 @@ class Experiment(Device):
             self.users = self.users + ', ' + user
         self.log.info('User "%s" added' % user)
 
+    def _zip(self):
+        """Zip all files in the current experiment folder into a .zip file."""
+        self.log.info('zipping experiment data, please wait...')
+        try:
+            zipname = self.proposaldir.rstrip('/') + '.zip'
+            zf = zipfile.ZipFile(zipname, 'w', zipfile.ZIP_DEFLATED, True)
+            nfiles = 0
+            try:
+                for root, dirs, files in os.walk(self.proposaldir):
+                    xroot = root[len(self.proposaldir):].strip('/') + '/'
+                    for fn in files:
+                        zf.write(path.join(root, fn), xroot + fn)
+                        nfiles += 1
+                        if nfiles % 500 == 0:
+                            self.log.info('%5d files processed' % nfiles)
+            finally:
+                zf.close()
+        except Exception:
+            self.log.warning('could not zip up experiment data', exc=1)
+            return None
+        else:
+            self.log.info('done: stored as ' + zipname)
+            return zipname
+
+    def _mail(self, receivers, zipname):
+        import smtplib
+        from email.mime.application import MIMEApplication
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+
+        # check parameters
+        if not self.mailserver:
+            raise NicosError('%s.mailserver parameter is not set' % self)
+        if not self.mailsender:
+            raise NicosError('%s.mailsender parameter is not set' % self)
+        if receivers.lower() not in ['none', 'stats'] and '@' not in receivers:
+            raise NicosError('need full email address (\'@\' missing!)')
+
+        # get start of proposal from cache history
+        hist, d = [], 7
+        while not hist and d < 60:
+            hist = self.history('proposal', -d*24)
+            d += 7
+        if hist:
+            from_time = hist[-1][0]
+        to_time = time.time()
+        from_date = time.strftime('%a, %d. %b %Y', time.localtime(from_time))
+        to_date = time.strftime('%a, %d. %b %Y', time.localtime(to_time))
+
+        # check number of (scan) data files
+        numscans = 0
+        firstscan = 99999999
+        lastscan = 0
+        scanfilepattern = re.compile(r'%s_(\d{8})\.dat$' % self.proposal)
+        for fn in os.listdir(self.datapath[0]):
+            m = scanfilepattern.match(fn)
+            if m:
+                firstscan = min(firstscan, int(m.group(1)))
+                lastscan = max(lastscan, int(m.group(1)))
+                numscans += 1
+
+        # read and translate mailbody template
+        try:
+            with open(path.join(self.dataroot, self.templatedir,
+                                self.mailtemplate)) as fp:
+                textfiletext = fp.read()
+        except IOError:
+            self.log.warning('reading mail template %s failed' %
+                             self.mailtemplate, exc=1)
+            textfiletext = 'See data in attachment.'
+        textfiletext, _, _ = expandTemplate(textfiletext, {
+            'proposal':  self.proposal,
+            'from_date': from_date,
+            'to_date':   to_date,
+            'firstscan': '%08d' % firstscan,
+            'lastscan':  '%08d' % lastscan,
+            'numscans':  str(numscans),
+            'title':     self.title,
+            'localcontact': self.localcontact,
+        })
+
+        if receivers.lower() == 'stats':
+            for line in textfiletext.splitlines():
+                self.log.info(line)
+            return
+
+        # now we would send the file, so prepare everything; construct msg
+        # according to
+        # http://docs.python.org/library/email-examples.html#email-examples
+        receiverlist = receivers.replace(',', ' ').split()
+        receivers = ', '.join(receiverlist)
+        msg = MIMEMultipart()
+        instname = session.instrument and session.instrument.instrument or '?'
+        msg['Subject'] = 'Your recent experiment %s on %s from %s to %s' % \
+            (self.proposal, instname, from_date, to_date)
+        msg['From'] = self.mailsender
+        msg['To'] = receivers
+        msg.attach(MIMEText(textfiletext))
+
+        # now attach the zipfile
+        with open(zipname, 'rb') as fp:
+            filedata = fp.read()
+
+        attachment = MIMEApplication(filedata, 'x-zip')
+        attachment['Content-Disposition'] = 'ATTACHMENT; filename="%s"' % \
+            path.basename(zipname)
+        msg.attach(attachment)
+
+        # now comes the final part: send the mail
+        mailer = smtplib.SMTP(self.mailserver)
+        if self.loglevel == 'debug':
+            mailer.set_debuglevel(1)
+        self.log.info('Sending data files via eMail to %s' % receivers)
+        mailer.sendmail(self.mailsender, receiverlist + [self.mailsender],
+                        msg.as_string())
+        mailer.quit()
+
+        # "hide" compressed file by moving it into the proposal directory
+        self.log.info('moving compressed file to ' + self.proposaldir)
+        try:
+            os.rename(zipname,
+                      path.join(self.proposaldir, path.basename(zipname)))
+        except Exception:
+            self.log.warning('moving compressed file into proposal dir failed',
+                             exc=1)
+            # at least withdraw the access rights
+            os.chmod(zipname, 0)
+
     @usermethod
-    def finish(self, *args, **kwargs):
+    def finish(self, *args, **kwds):
         """Called by `.FinishExperiment`."""
+        # zip up the experiment data if wanted
+        if self.proptype == 'user':
+            zipname = None
+            if self.zipdata or self.sendmail:
+                zipname = self._zip()
+            if self.sendmail and zipname:
+                receivers = None
+                if args:
+                    receivers = args[0]
+                receivers = kwds.get('receivers', receivers)
+                try:
+                    if receivers:
+                        self._mail(receivers, zipname)
+                except Exception:
+                    self.log.warning('could not send the data via email',
+                                     exc=1)
+
+        self._afterFinishHook()
+
+        # switch to service experiment (will hide old data if configured)
+        if self.serviceexp:
+            self.new(self.serviceexp)
+        else:
+            self.log.debug('no service experiment configured, cannot switch')
+
+        # have to remember things?
         if self.remember:
             self.log.warning('Please remember:')
             for message in self.remember:
                 self.log.info(message)
+            self.remember = []
+
+    def _afterFinishHook(self):
+        pass
 
     def doWriteRemark(self, remark):
         if remark:

@@ -44,11 +44,14 @@ devices = dict(
     # test that both nicos.(...) and (...) work
     Exp      = device('nicos.devices.experiment.Experiment',
                       sample = 'sample',
-                      loglevel = 'info',
-                      dataroot = '../root/data',
-                      scriptdir = '.',
                       elog = False,
-                      lowlevel = False,
+                      dataroot = 'test/root/data',
+                      propprefix = 'p',
+                      templatedir = '../../script_templates',
+                      zipdata = True,
+                      managerights = False,  # set to True for a single test
+                      serviceexp = 'service',
+                      lowlevel = False
                      ),
 
     t_phi    = device('devices.generic.VirtualMotor',

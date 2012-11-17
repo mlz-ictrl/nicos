@@ -54,7 +54,7 @@ class CHandler(Handler):
 
 
 def test_sinks():
-    session.experiment.new(0)
+    session.experiment.new(1234)
     session.experiment.datapath = [path.join(session.config.control_path,
                                              'testdata')]
     m = session.getDevice('motor2')
@@ -78,7 +78,7 @@ def test_sinks():
     assert contents == ['1']
 
 
-    fname = path.join(session.config.control_path, 'testdata', '0_00000001.dat')
+    fname = path.join(session.config.control_path, 'testdata', 'p1234_00000001.dat')
     assert path.isfile(fname)
     contents = readFile(fname)
     assert contents[0].startswith('### NICOS data file')

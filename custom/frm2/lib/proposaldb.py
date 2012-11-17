@@ -40,7 +40,7 @@ from nicos.core import ConfigurationError, InvalidValueError
 
 
 class ProposalDB(object):
-    def __init__(self,credentials):
+    def __init__(self, credentials):
         try:
             self.user, hostdb = credentials.split('@')
             self.host, self.db = hostdb.split(':')

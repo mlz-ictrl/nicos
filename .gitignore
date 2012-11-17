@@ -13,9 +13,8 @@ data/*.py
 data/*.dat
 data/filecounter
 data/cache/*
-data/ccd/*
-data/logbook/*
-data/cascade/*
+data/201?/*
+data/current
 
 doc/build/
 doc/source/auto
