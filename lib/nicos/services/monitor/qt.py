@@ -389,7 +389,7 @@ class Monitor(BaseMonitor):
         lbl.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         lbl.setFont(timefont)
         warningslayout.addWidget(lbl)
-        self._warnlabel = QLabel('', self._warnpanel)
+        self._warnlabel = SMLabel('', self._warnpanel)
         self._warnlabel.setFont(blockfont)
         warningslayout.addWidget(self._warnlabel)
         warningslayout.addStretch()
