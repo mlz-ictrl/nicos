@@ -144,8 +144,12 @@ class Plot(object):
             for i, (d, c) in enumerate(zip(self.data, self.curves)):
                 # add a point "current value" at "right now" to avoid curves
                 # not updating if the value doesn't change
-                self.updatevalues(i, currenttime(), d[2][-1])
-                c.set_data(d[1], d[2])
+                try:
+                    self.updatevalues(i, currenttime(), d[2][-1])
+                    c.set_data(d[1], d[2])
+                except IndexError:
+                    # no data (yet)
+                    pass
         ax = self.figure.gca()
         ax.relim()
         ax.autoscale_view()
