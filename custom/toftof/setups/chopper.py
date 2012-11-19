@@ -38,10 +38,10 @@ devices = dict(
                           pollinterval = 10,
                           maxage = 12),
 
-    chdelaybus   = device('toftof.toni.ModBus',
+    chdelaybus   = device('devices.vendor.toni.ModBus',
                           tacodevice = 'toftof/rs232/ifchdelay',
                           lowlevel = True),
-    chdelay      = device('toftof.toni.DelayBox',
+    chdelay      = device('devices.vendor.toni.DelayBox',
                           bus = 'chdelaybus',
                           addr = 0xF1,
                           unit = '', # ???

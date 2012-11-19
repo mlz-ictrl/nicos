@@ -39,7 +39,7 @@ from nicos.core import Measurable, Param, Value, Override, NicosError, \
      intrange, listof, status
 from nicos.devices.abstract import ImageStorage
 
-from nicos.toftof.toni import DelayBox
+from nicos.devices.vendor.toni import DelayBox
 from nicos.toftof.chopper import Controller
 from nicos.toftof.tofcounter import TofCounter
 from nicos.toftof import calculations as calc

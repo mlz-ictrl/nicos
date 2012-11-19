@@ -29,7 +29,7 @@ __version__ = "$Revision$"
 from nicos.core import status, intrange, Moveable, HasLimits, Param, Override, \
      NicosError, CommunicationError
 
-from nicos.toftof.toni import ModBus
+from nicos.devices.vendor.toni import ModBus
 
 
 class IsegHV(HasLimits, Moveable):

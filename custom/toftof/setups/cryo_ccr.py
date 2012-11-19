@@ -1,10 +1,12 @@
 description = 'FRM-II CCR box with LakeShore LS336 controller'
 includes = ['system']
 
+includes = ['alias_T']
+
 nethost = 'ccr17.toftof.frm2'
 
 devices = dict(
-    cryo   = device('devices.taco.temperature.TemperatureController',
+    cryo   = device('devices.taco.TemperatureController',
                     tacodevice = '//%s/ccr/ls336/control2' % (nethost, ),
                     userlimits = (0, 600),
                     abslimits = (0, 600),
@@ -20,7 +22,7 @@ devices = dict(
                     sensor_c = None,
                     sensor_d = None),
 
-    cryo_tube = device('devices.taco.temperature.TemperatureController',
+    cryo_tube = device('devices.taco.TemperatureController',
                     tacodevice = '//%s/ccr/ls336/control1' % (nethost, ),
                     userlimits = (0, 400),
                     abslimits = (0, 400),
@@ -88,8 +90,7 @@ devices = dict(
 )
 
 startupcode = """
-T = cryo
-Ts = cryo_d
-# Ts = cryo_b
-SetEnvironment(Ts, T)
+T.alias = cryo
+Ts.alias = cryo_d
+AddEnvironment(T, Ts)
 """

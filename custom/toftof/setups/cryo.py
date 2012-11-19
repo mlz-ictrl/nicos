@@ -1,9 +1,13 @@
 description = 'FRM-II cryo box with two LakeShore controllers'
 includes = ['system']
 
+includes = ['alias_T']
+
+nethost = 'toftofsrv'
+
 devices = dict(
-    cryo   = device('devices.taco.temperature.TemperatureController',
-                    tacodevice = '//toftofsrv/toftof/ls2/control',
+    cryo   = device('devices.taco.TemperatureController',
+                    tacodevice = '//%s/toftof/ls2/control' % (nethost,),
                     userlimits = (0, 600),
                     abslimits = (0, 600),
                     p = 50,
@@ -18,8 +22,8 @@ devices = dict(
                     sensor_c = None,
                     sensor_d = None),
 
-    cryo_tube = device('devices.taco.temperature.TemperatureController',
-                    tacodevice = '//toftofsrv/toftof/ls1/control',
+    cryo_tube = device('devices.taco.TemperatureController',
+                    tacodevice = '//%s/toftof/ls1/control' % (nethost,),
                     userlimits = (0, 600),
                     abslimits = (0, 600),
                     p = 50,
@@ -35,40 +39,40 @@ devices = dict(
                     sensor_d = None),
 
     cryo_a = device('devices.taco.TemperatureSensor',
-                    tacodevice = '//toftofsrv/toftof/ls2/sensora',
+                    tacodevice = '//%s/toftof/ls2/sensora' % (nethost,),
                     unit = 'K',
                     fmtstr = '%g'),
 
     cryo_b = device('devices.taco.TemperatureSensor',
-                    tacodevice = '//toftofsrv/toftof/ls2/sensorb',
+                    tacodevice = '//%s/toftof/ls2/sensorb' % (nethost,),
                     unit = 'K',
                     fmtstr = '%g'),
 
     cryo_c = device('devices.taco.TemperatureSensor',
-                    tacodevice = '//toftofsrv/toftof/ls1/sensora',
+                    tacodevice = '//%s/toftof/ls1/sensora' % (nethost,),
                     unit = 'K',
                     fmtstr = '%g'),
 
     cryo_d = device('devices.taco.TemperatureSensor',
-                    tacodevice = '//toftofsrv/toftof/ls1/sensorb',
+                    tacodevice = '//%s/toftof/ls1/sensorb' % (nethost,),
                     unit = 'K',
                     fmtstr = '%g'),
 
     cryo_machine = device('devices.taco.DigitalOutput',
-                    tacodevice = '//toftofsrv/toftof/ccr/compressor'),
+                    tacodevice = '//%s/toftof/ccr/compressor' % (nethost,)),
 
     cryo_g = device('devices.taco.DigitalOutput',
-                    tacodevice = '//toftofsrv/toftof/ccr/gas'),
+                    tacodevice = '//%s/toftof/ccr/gas' % (nethost,)),
 
     cryo_v = device('devices.taco.DigitalOutput',
-                    tacodevice = '//toftofsrv/toftof/ccr/vacuum'),
+                    tacodevice = '//%s/toftof/ccr/vacuum' % (nethost,)),
 
     cryo_p = device('devices.taco.AnalogInput',
-                    tacodevice = '//toftofsrv/toftof/ccr/p2'),
+                    tacodevice = '//%s/toftof/ccr/p2' % (nethost,)),
 )
 
 startupcode = """
-T = cryo
-Ts = cryo_b
-SetEnvironment(Ts, T)
+T.alias = cryo
+Ts.alias = cryo_b
+AddEnvironment(T, Ts)
 """

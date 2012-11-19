@@ -1,9 +1,11 @@
 description = 'reactor power readout'
 includes = ['system']
 
+nethost = 'tacodb.taco.frm2'
+
 devices = dict(
-    ReactorPower = device('devices.taco.io.AnalogInput',
-                          tacodevice = '//tacodb.taco.frm2/frm2/reactor/power',
+    ReactorPower = device('devices.taco.AnalogInput',
+                          tacodevice = '//%s/frm2/reactor/power' % (nethost, ),
                           # tacodevice = '//toftofsrv/toftof/reactor/power',
                           fmtstr = '%5.1f',
                           pollinterval = 60,

@@ -1,6 +1,8 @@
 description = 'FRM-II high temperature furnace'
 includes = ['system']
 
+includes = ['alias_T']
+
 nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(
@@ -14,7 +16,7 @@ devices = dict(
 )
 
 startupcode = """
-Ts = oven
-T = oven
-SetEnvironment(Ts, T)
+Ts.alias = oven
+T.alias = oven
+AddEnvironment(Ts, T)
 """

@@ -1,20 +1,20 @@
 description = 'sample slit'
 includes = ['system']
 
-nethost= '//toftofsrv.toftof.frm2/'
+nethost= 'toftofsrv.toftof.frm2'
 
 devices = dict(
     SampleSlitMotVB = device('devices.taco.motor.Motor',
-                             tacodevice = nethost + 'toftof/huber/ssbm',
+                             tacodevice = '//%s/toftof/huber/ssbm' % (nethost,),
                              fmtstr = "%7.3f"),
     SampleSlitMotVT = device('devices.taco.motor.Motor',
-                             tacodevice = nethost + 'toftof/huber/sstm',
+                             tacodevice = '//%s/toftof/huber/sstm' % (nethost,),
                              fmtstr = "%7.3f"),
     SampleSlitMotHL = device('devices.taco.motor.Motor',
-                             tacodevice = nethost + 'toftof/huber/sslm',
+                             tacodevice = '//%s/toftof/huber/sslm' % (nethost,),
                              fmtstr = "%7.3f"),
     SampleSlitMotHR = device('devices.taco.motor.Motor',
-                             tacodevice = nethost + 'toftof/huber/ssrm',
+                             tacodevice = '//%s/toftof/huber/ssrm' % (nethost,),
                              fmtstr = "%7.3f"),
     slit = device('devices.generic.Slit',
                   bottom = 'SampleSlitMotVB',

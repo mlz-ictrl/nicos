@@ -1,10 +1,10 @@
 includes = ['system']
 
-nethost = '//toftofsrv.toftof.frm2/'
+nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(
-    P   = device('devices.taco.io.AnalogInput',
-                   tacodevice = nethost + 'toftof/pressure/value',
+    P   = device('devices.taco.AnalogInput',
+                   tacodevice = '//%s/toftof/pressure/value' % (nethost,),
 		   unit = 'bar',
                    pollinterval = 120,
 		),
