@@ -3,23 +3,44 @@
 import sys
 import traceback
 
-def check_setupfile(name):
+SETUP_GROUPS = set([
+    'basic', 'optional', 'lowlevel', 'simulated', 'special'
+])
+
+devs_seen = {}
+
+def check_setupfile(filename):
+    namespace = {'device': lambda c, **kw: (c, kw)}
     try:
-        execfile(name, {'device': lambda c, **kw: (c, kw)})
-        print '%s ... ok' % (name, )
-        return True
+        execfile(filename, namespace)
     except SyntaxError, e:
         print '%s ... not ok' % (e.filename, )
         print 'SyntaxError: %s' % (e.msg, )
         print ' line %d : %s' % (e.lineno, e.text, )
         return False
     except Exception, e:
-        print '%s ... not ok' % (name, )
+        print '%s ... not ok' % (filename, )
         formatted_lines = traceback.format_exc().splitlines()
         print formatted_lines[-3]
         print formatted_lines[-1]
         print formatted_lines[-2]
         return False
+    print '%s ... syntax ok' % (filename, )
+    group = namespace.get('group', 'optional')
+    if group not in SETUP_GROUPS:
+        print ' warning: invalid group %r' % group
+    description = namespace.get('description', None)
+    if description is None and group in ('basic', 'optional'):
+        print ' warning: missing user-friendly description'
+    if group != 'special':
+        devs = namespace.get('devices', {})
+        for devname in devs:
+            if devname in devs_seen:
+                print ' warning: device name %s duplicate: also in %s' % \
+                    (devname, devs_seen[devname])
+            else:
+                devs_seen[devname] = filename
+    return True
 
 ret = True
 for i in sys.argv[1:]:
