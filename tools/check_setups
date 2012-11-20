@@ -3,9 +3,7 @@
 import sys
 import traceback
 
-def check_setupfile(name = None):
-    if name is None :
-        return true
+def check_setupfile(name):
     try:
         execfile(name, {'device': lambda c, **kw: (c, kw)})
         print '%s ... ok' % (name, )
@@ -21,10 +19,10 @@ def check_setupfile(name = None):
         print formatted_lines[-3]
         print formatted_lines[-1]
         print formatted_lines[-2]
-        return False 
+        return False
 
 ret = True
-for i in sys.argv[1:] :
+for i in sys.argv[1:]:
     ret = ret and check_setupfile(i)
 
 sys.exit(not ret)
