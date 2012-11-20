@@ -1,4 +1,5 @@
 description = 'setup for the electronic logbook'
+
 group = 'special'
 
 sysconfig = dict(
@@ -8,5 +9,6 @@ sysconfig = dict(
 devices = dict(
     Logbook = device('services.elog.Logbook',
                      prefix = 'logbook/',
-                     cache = 'cpci1.toftof.frm2:14869'),
+                     cache = 'cpci1.toftof.frm2:14869',
+                    ),
 )

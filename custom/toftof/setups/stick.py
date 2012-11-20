@@ -1,5 +1,7 @@
 description = 'Newport sample stick rotator'
 
+group = 'optional'
+
 includes = ['system']
 
 nethost = 'newport01.toftof.frm2'

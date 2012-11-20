@@ -1,7 +1,8 @@
 description = 'FRM-II high temperature furnace'
-includes = ['system']
 
-includes = ['alias_T']
+group = 'optional'
+
+includes = ['system', 'alias_T']
 
 nethost = 'toftofsrv.toftof.frm2'
 
@@ -12,7 +13,8 @@ devices = dict(
                   abslimits = (0, 2000),
                   rampRate = 0.1,
                   unit = 'C',
-                  fmtstr = '%g'),
+                  fmtstr = '%.3f',
+                 ),
 )
 
 startupcode = """

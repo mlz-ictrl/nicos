@@ -1,5 +1,7 @@
 description = 'complete measurement'
 
+group = 'basic'
+
 includes = [
     'detector',
     'chopper',
@@ -17,7 +19,8 @@ devices = dict(
                timechannels = 4096,
                chopper = 'ch',
                chdelay = 'chdelay',
-               counter = 'det'),
+               counter = 'det',
+              ),
 )
 
 startupcode = """

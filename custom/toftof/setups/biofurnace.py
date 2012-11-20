@@ -1,4 +1,7 @@
 description = 'Julabo bio furnace'
+
+group = 'optional'
+
 includes = ['system']
 
 devices = dict(
@@ -8,7 +11,8 @@ devices = dict(
                  userlimits = (-40, 160),
                  abslimits = (-50, 200),
                  unit = 'degC',
-                 fmtstr = '%g'),
+                 fmtstr = '%g',
+                ),
 )
 
 startupcode = """

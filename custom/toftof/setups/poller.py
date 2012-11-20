@@ -1,4 +1,5 @@
 description = 'setup for the poller'
+
 group = 'special'
 
 sysconfig = dict(

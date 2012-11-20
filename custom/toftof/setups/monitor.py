@@ -1,4 +1,5 @@
 description = 'setup for the status monitor'
+
 group = 'special'
 
 _expcolumn = [
