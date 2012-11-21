@@ -502,6 +502,7 @@ class Device(object):
         self._infoparams.sort()
 
         # subscribe to parameter value updates, if a doUpdate method exists
+        self._subscriptions = []
         if self._cache:
             for param in self.parameters:
                 umethod = getattr(self, 'doUpdate' + param.title(), None)
@@ -509,6 +510,7 @@ class Device(object):
                     def updateparam(key, value, time, umethod=umethod):
                         umethod(value)
                     self._cache.addCallback(self, param, updateparam)
+                    self._subscriptions.append(param)
 
         if self._cache:
             self._cache.put('_lastconfig_', self.name, self._config)
@@ -660,6 +662,13 @@ class Device(object):
         if self._mode == 'simulation':
             # do not execute shutdown actions when simulating
             return
+
+        # remove subscriptions to parameter value updates
+        if self._cache:
+            for param in self._subscriptions:
+                self._cache.removeCallback(self, param)
+
+        self.log.debug('shutting down device')
         if hasattr(self, 'doShutdown'):
             self.doShutdown()
 
