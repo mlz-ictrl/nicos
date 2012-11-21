@@ -137,9 +137,10 @@ main-install:
 	@if [ "$(FRM2)" = 1 ]; then \
 		echo "============================================================="; \
 		echo "Installing FRM II specific setups (overwriting existing files!)..."; \
+		mkdir $(ROOTDIR)/setups/frm2; \
 		for ifile in custom/frm2/setups/* ; do \
-			echo $${ifile} '->' $(ROOTDIR)/setups; \
-			cp -p $(VOPT) $${ifile} $(ROOTDIR)/setups; \
+			echo $${ifile} '->' $(ROOTDIR)/setups/frm2; \
+			cp -p $(VOPT) $${ifile} $(ROOTDIR)/setups/frm2; \
 		done; \
 	fi
 	@echo "============================================================="

@@ -313,42 +313,60 @@ class Session(object):
         entry in nicos.conf, or by "control_path"/setups.
         """
         self._setup_info.clear()
-        for filename in os.listdir(self._setup_path):
-            if not filename.endswith('.py'):
-                continue
-            modname = filename[:-3]
-            try:
-                modfile = imp.find_module(modname, [self._setup_path])
-                code = modfile[0].read()
-                modfile[0].close()
-            except (ImportError, IOError), err:
-                self.log.exception('Could not find or read setup '
-                                   'module %r: %s' % (modname, err))
-                self._setup_info[modname] = None
-                continue
-            # device() is a helper function to make configuration prettier
-            ns = {'device': lambda cls, **params: (cls, params)}
-            try:
-                exec code in ns
-            except Exception, err:
-                self.log.exception('An error occurred while reading '
-                                   'setup %s: %s' % (modname, err))
-                continue
-            info = {
-                'description': ns.get('description', modname),
-                'group': ns.get('group', 'optional'),
-                'sysconfig': ns.get('sysconfig', {}),
-                'includes': ns.get('includes', []),
-                'excludes': ns.get('excludes', []),
-                'modules': ns.get('modules', []),
-                'devices': ns.get('devices', {}),
-                'startupcode': ns.get('startupcode', ''),
-                'extended': ns.get('extended', {}),
-            }
-            if info['group'] not in SETUP_GROUPS:
-                self.log.warning('Setup %s has an invalid group (valid groups '
-                    'are: %s)' % (modname, ', '.join(SETUP_GROUPS)))
-            self._setup_info[modname] = info
+        for root, dirs, files in os.walk(self._setup_path, topdown=False):
+            for filename in files:
+                if not filename.endswith('.py'):
+                    continue
+                modname = filename[:-3]
+                try:
+                    modfile = imp.find_module(modname, [root])
+                    code = modfile[0].read()
+                    modfile[0].close()
+                except (ImportError, IOError), err:
+                    self.log.exception('Could not find or read setup '
+                                       'module %r: %s' % (modname, err))
+                    self._setup_info[modname] = None
+                    continue
+                # device() is a helper function to make configuration prettier
+                ns = {'device': lambda cls, **params: (cls, params)}
+                try:
+                    exec code in ns
+                except Exception, err:
+                    self.log.exception('An error occurred while reading '
+                                       'setup %s: %s' % (modname, err))
+                    continue
+                info = {
+                    'description': ns.get('description', modname),
+                    'group': ns.get('group', 'optional'),
+                    'sysconfig': ns.get('sysconfig', {}),
+                    'includes': ns.get('includes', []),
+                    'excludes': ns.get('excludes', []),
+                    'modules': ns.get('modules', []),
+                    'devices': ns.get('devices', {}),
+                    'startupcode': ns.get('startupcode', ''),
+                    'extended': ns.get('extended', {}),
+                }
+                if info['group'] not in SETUP_GROUPS:
+                    self.log.warning('Setup %s has an invalid group (valid groups '
+                        'are: %s)' % (modname, ', '.join(SETUP_GROUPS)))
+                    info['group'] = 'optional'
+                if modname in self._setup_info:
+                    # setup already exists; override/extend with new values
+                    oldinfo = self._setup_info[modname]
+                    oldinfo['description'] = ns.get('description',
+                                                    oldinfo['description'])
+                    oldinfo['group'] = ns.get('group', oldinfo['group'])
+                    oldinfo['sysconfig'].update(info['sysconfig'])
+                    oldinfo['includes'].extend(info['includes'])
+                    oldinfo['excludes'].extend(info['excludes'])
+                    oldinfo['modules'].extend(info['modules'])
+                    oldinfo['devices'].update(info['devices'])
+                    oldinfo['startupcode'] += '\n' + info['startupcode']
+                    oldinfo['extended'].update(info['extended'])
+                    self.log.debug('%r setup partially merged with version '
+                                   'from parent directory' % modname)
+                else:
+                    self._setup_info[modname] = info
         # check if all includes exist
         for name, info in self._setup_info.iteritems():
             if info is None:
