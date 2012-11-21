@@ -26,20 +26,20 @@
 
 __version__ = "$Revision$"
 
-import os
-
+import subprocess
 
 def plotDataset(dataset, fn):
-    gp = os.popen('gnuplot', 'w')
-    gp.write('set terminal svg size 600,400 dashed\n')
-    gp.write('set xlabel "%s (%s)"\n' % (dataset.xnames[dataset.xindex],
+    gpProcess = subprocess.Popen('gnuplot', shell=True, stdin=subprocess.PIPE, stdout=None)
+    gpStdin = gpProcess.stdin
+    gpStdin.write('set terminal svg size 600,400 dashed\n')
+    gpStdin.write('set xlabel "%s (%s)"\n' % (dataset.xnames[dataset.xindex],
                                          dataset.xunits[dataset.xindex]))
-    gp.write('set title "Scan %s - %s"\n' %
+    gpStdin.write('set title "Scan %s - %s"\n' %
              (dataset.sinkinfo.get('number', ''), dataset.scaninfo))
-    gp.write('set grid lt 3 lc 8\n')
-    gp.write('set style increment user\n')
+    gpStdin.write('set grid lt 3 lc 8\n')
+    gpStdin.write('set style increment user\n')
     for ls, pt in enumerate([7, 5, 9, 11, 13, 2, 1, 3]):
-        gp.write('set style line %d lt 1 lc %d pt %d\n' % (ls+1, ls+1, pt))
+        gpStdin.write('set style line %d lt 1 lc %d pt %d\n' % (ls+1, ls+1, pt))
 
     data = []
     for xv, yv in zip(dataset.xresults, dataset.yresults):
@@ -68,20 +68,21 @@ def plotDataset(dataset, fn):
         yunits.add(info.unit)
 
     if len(ylabels) == 1:
-        gp.write('set ylabel "%s"\n' % ylabels[0])
-        gp.write('set key off\n')
+        gpStdin.write('set ylabel "%s"\n' % ylabels[0])
+        gpStdin.write('set key off\n')
     else:
         if len(yunits) == 1:
-            gp.write('set ylabel "%s"\n' % yunits.pop())
-        gp.write('set key outside below\n')
+            gpStdin.write('set ylabel "%s"\n' % yunits.pop())
+        gpStdin.write('set key outside below\n')
 
-    gp.write('set output "%s-lin.svg"\n' % fn)
-    gp.write('plot %s\n' % ', '.join(plotterms))
+    gpStdin.write('set output "%s-lin.svg"\n' % fn)
+    gpStdin.write('plot %s\n' % ', '.join(plotterms))
     for i in range(len(plotterms)):
-        gp.write(data)
+        gpStdin.write(data)
 
-    gp.write('set output "%s-log.svg"\n' % fn)
-    gp.write('set logscale y\n')
-    gp.write('plot %s\n' % ', '.join(plotterms))
+    gpStdin.write('set output "%s-log.svg"\n' % fn)
+    gpStdin.write('set logscale y\n')
+    gpStdin.write('plot %s\n' % ', '.join(plotterms))
     for i in range(len(plotterms)):
-        gp.write(data)
+        gpStdin.write(data)
+    gpProcess.communicate('exit')
