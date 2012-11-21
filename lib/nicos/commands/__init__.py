@@ -80,7 +80,7 @@ def usercommandWrapper(func):
                            % func.__name__)
                 help(func)
             else:
-                printexception()
+                raise
         except UsageError:
             # for usage errors, print the error and the help for the command
             printexception()
