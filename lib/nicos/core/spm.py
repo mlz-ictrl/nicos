@@ -379,6 +379,8 @@ class SPMHandler(object):
                 except NoParse, err:
                     return self.error('invalid argument at %s, expected %s' %
                                       (srepr(err.token), err.expected), compiler)
+            else:
+                val = bare(val)
             cmdopts[opt] = val
         # now nothing should be left
         return compiler(command.__name__ + '(*%s, **%s)' % (cmdargs, cmdopts))
