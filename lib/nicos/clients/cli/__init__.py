@@ -814,7 +814,7 @@ class NicosCmdClient(NicosClient):
             if self.connected:
                 self.disconnect()
             return 0   # i.e. exit with success
-        elif cmd in ('h', 'help'):
+        elif cmd in ('h', 'help', '?'):
             self.help(arg)
         elif cmd == 'log':
             if arg:
