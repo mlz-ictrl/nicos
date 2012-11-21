@@ -34,11 +34,15 @@ from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printinfo, printwarning
 
 
-def _count(detlist, preset):
+def _count(detlist, preset, result):
     """Low-level counting function.
 
     The loop delay is configurable in the instrument object, and defaults to
     0.025 seconds.
+
+    The result is stored in the given argument, which must be an empty list.
+    This is so that a result can be returned even when a stop exception is
+    propagated upwards.
     """
     # put detectors in a set and discard them when completed
     detset = set(detlist)
@@ -52,15 +56,10 @@ def _count(detlist, preset):
         while True:
             i += 1
             for det in list(detset):
-                try:
-                    det.duringMeasureHook(i)
-                    # XXX implement pause logic
-                    if det.isCompleted():
-                        detset.discard(det)
-                except:  # really ALL exceptions
-                    for det in detset:
-                        det.stop()
-                    raise
+                det.duringMeasureHook(i)
+                # XXX implement pause logic
+                if det.isCompleted():
+                    detset.discard(det)
             if not detset:
                 # all detectors finished measuring
                 break
@@ -70,9 +69,14 @@ def _count(detlist, preset):
                 det.save()
             except Exception:
                 det.log.exception('error saving measurement data')
+    except:  # really ALL exceptions
+        for det in detset:
+            det.stop()
+        result.extend(sum((det.read() for det in detlist), []))
+        raise
     finally:
         session.endActionScope()
-    return sum((det.read() for det in detlist), [])
+    result.extend(sum((det.read() for det in detlist), []))
 
 
 @usercommand
@@ -119,7 +123,9 @@ def count(*detlist, **preset):
     if names:
         printwarning('these preset keys were not recognized by any of the '
                      'detectors: %s' % ', '.join(names))
-    return _count(detectors, preset)
+    result = []
+    _count(detectors, preset, result)
+    return result
 
 
 @usercommand

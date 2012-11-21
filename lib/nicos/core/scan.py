@@ -288,16 +288,17 @@ class Scan(object):
                             continue
                     started = currenttime()
                     actualpos = self.readPosition()
-                    if self._multistep:
+                    try:
                         result = []
-                        for i in range(self._mscount):
-                            self.moveDevices(self._mswhere[i])
-                            result.extend(_count(self._detlist, self._preset))
-                    else:
-                        result = _count(self._detlist, self._preset)
-                    finished = currenttime()
-                    actualpos += self.readEnvironment(started, finished)
-                    self.addPoint(actualpos, result)
+                        if self._multistep:
+                            for i in range(self._mscount):
+                                self.moveDevices(self._mswhere[i])
+                                _count(self._detlist, self._preset, result)
+                        else:
+                            _count(self._detlist, self._preset, result)
+                    finally:
+                        actualpos += self.readEnvironment(started, currenttime())
+                        self.addPoint(actualpos, result)
                 except SkipPoint:
                     pass
                 finally:
@@ -422,23 +423,25 @@ class ManualScan(Scan):
         preset = preset or self._preset
         self._curpoint += 1
         self.preparePoint(self._curpoint, [])
+        result = actualpos = []
+        started = currenttime()
         try:
-            started = currenttime()
             actualpos = self.readPosition()
-            if self._multistep:
-                result = []
-                for i in range(self._mscount):
-                    self.moveDevices(self._mswhere[i])
-                    result.extend(_count(self._detlist, preset))
-            else:
-                result = _count(self._detlist, preset)
-            actualpos += self.readEnvironment(started, currenttime())
-            self.addPoint(actualpos, result)
-            return result
+            try:
+                if self._multistep:
+                    for i in range(self._mscount):
+                        self.moveDevices(self._mswhere[i])
+                        _count(self._detlist, preset, result)
+                else:
+                    _count(self._detlist, preset, result)
+            finally:
+                actualpos += self.readEnvironment(started, currenttime())
+                self.addPoint(actualpos, result)
         except SkipPoint:
             pass
         finally:
             self.finishPoint()
+        return result
 
 
 class QScan(Scan):
