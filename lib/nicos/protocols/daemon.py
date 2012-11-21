@@ -102,4 +102,6 @@ DAEMON_EVENTS = {
     'clientexec': True,
     # the remote-debugging status changed
     'debugging': True,
+    # a plug-and-play/sample-environment event occurred
+    'plugplay': True,
 }

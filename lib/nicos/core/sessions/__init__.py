@@ -536,6 +536,8 @@ class Session(object):
         if sysconfig.get('cache') and self._mode != 'simulation':
             self.cache = self.cache_class('Cache', cache=sysconfig['cache'],
                                           prefix='nicos/', lowlevel=True)
+            # plug-and-play sample environment devices
+            self.cache.addPrefixCallback('se/', self._pnpHandler)
 
         # validate and attach sysconfig devices
         sysconfig_items = [
@@ -921,6 +923,22 @@ class Session(object):
             return
         for notifier in self.notifiers:
             notifier.send(subject, body, what, short, important)
+
+    # -- Special cache handlers ------------------------------------------------
+
+    def _pnpHandler(self, key, value, time):
+        if self._mode != 'master':
+            return
+        host = key.split('/')[1].split('.')[0]
+        if (host in self._setup_info and
+            self._setup_info[host]['group'] == 'optional' and
+            host not in self.loaded_setups):
+            self.pnpEvent('added', host)
+
+    def pnpEvent(self, event, data):
+        if event == 'added':
+            self.log.info('new sample environment detected: load setup %r '
+                          'to activate' % data)
 
     # -- Logging ---------------------------------------------------------------
 
