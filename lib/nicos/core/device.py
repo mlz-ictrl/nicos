@@ -585,6 +585,38 @@ class Device(object):
             # and rely on saved _params and values
             self._cache = None
 
+    def history(self, name='value', fromtime=None, totime=None):
+        """Return a history of the parameter *name* (can also be ``'value'`` or
+        ``'status'``).
+
+        *fromtime* and *totime* can be used to limit the time window.  They can
+        be:
+
+        * positive numbers: interpreted as UNIX timestamps
+        * negative numbers: interpreted as hours back from now
+        * strings: in one of the formats 'HH:MM', 'HH:MM:SS',
+          'YYYY-MM-DD', 'YYYY-MM-DD HH:MM' or 'YYYY-MM-DD HH:MM:SS'
+
+        Default is to query the values of the last hour.
+        """
+        if not self._cache:
+            # no cache is configured for this setup
+            return []
+        else:
+            if fromtime is None:
+                fromtime = -1
+            if isinstance(fromtime, str):
+                fromtime = parseDateString(fromtime)
+            elif fromtime < 0:
+                fromtime = currenttime() + fromtime * 3600
+            if totime is None:
+                totime = currenttime()
+            elif isinstance(totime, str):
+                totime = parseDateString(totime, enddate=True)
+            elif totime < 0:
+                totime = currenttime() + totime * 3600
+            return self._cache.history(self, name, fromtime, totime)
+
     def info(self):
         """Return "device information" as an iterable of tuples ``(category,
         name, value)``.
@@ -945,38 +977,6 @@ class Readable(Device):
         if unit and self.unit:
             return ret + ' ' + self.unit
         return ret
-
-    def history(self, name='value', fromtime=None, totime=None):
-        """Return a history of the parameter *name* (can also be ``'value'`` or
-        ``'status'``).
-
-        *fromtime* and *totime* can be used to limit the time window.  They can
-        be:
-
-        * positive numbers: interpreted as UNIX timestamps
-        * negative numbers: interpreted as hours back from now
-        * strings: in one of the formats 'HH:MM', 'HH:MM:SS',
-          'YYYY-MM-DD', 'YYYY-MM-DD HH:MM' or 'YYYY-MM-DD HH:MM:SS'
-
-        Default is to query the values of the last hour.
-        """
-        if not self._cache:
-            # no cache is configured for this setup
-            return []
-        else:
-            if fromtime is None:
-                fromtime = -1
-            if isinstance(fromtime, str):
-                fromtime = parseDateString(fromtime)
-            elif fromtime < 0:
-                fromtime = currenttime() + fromtime * 3600
-            if totime is None:
-                totime = currenttime()
-            elif isinstance(totime, str):
-                totime = parseDateString(totime, enddate=True)
-            elif totime < 0:
-                totime = currenttime() + totime * 3600
-            return self._cache.history(self, name, fromtime, totime)
 
     def info(self):
         """Automatically add device main value and status (if not OK)."""

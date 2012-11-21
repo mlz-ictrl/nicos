@@ -127,6 +127,8 @@ possible with the device:
 
    .. automethod:: version
 
+   .. automethod:: history
+
    .. method:: getPar(name)
                setPar(name, value)
 
@@ -270,8 +272,6 @@ possible with the device:
 
       The default implementation of :meth:`Device.info` for Readables adds the
       device main value and status.
-
-   .. automethod:: history
 
    .. rubric:: Parameters
 
