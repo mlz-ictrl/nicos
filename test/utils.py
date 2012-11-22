@@ -147,6 +147,16 @@ class TestSession(Session):
         self.log.addHandler(self.testhandler)
         self._master_handler = None
 
+    def runsource(self, source, filename='<input>', symbol='single'):
+        """Mostly copied from code.InteractiveInterpreter, but added the
+        logging call before runcode().
+        """
+        code = self.commandHandler(source,
+            lambda src: compile(src, filename, symbol))
+        if code is None:
+            return
+        exec code in self.namespace, self.local_namespace
+
 TestSession.config.user = None
 TestSession.config.group = None
 TestSession.config.control_path = rootdir
