@@ -500,12 +500,13 @@ class EditorPanel(Panel):
 
     def validateScript(self):
         script = str(self.currentEditor.text().toUtf8()) + '\n'
-        try:
-            compile(script, 'script', 'exec')
-        except SyntaxError, err:
-            self.showError('Syntax error in script: %s' % err)
-            self.currentEditor.setCursorPosition(err.lineno - 1, err.offset)
-            return
+        # XXX: this does not apply to .txt (SPM) scripts
+        #try:
+        #    compile(script, 'script', 'exec')
+        #except SyntaxError, err:
+        #    self.showError('Syntax error in script: %s' % err)
+        #    self.currentEditor.setCursorPosition(err.lineno - 1, err.offset)
+        #    return
         return script
 
     @qtsig('')

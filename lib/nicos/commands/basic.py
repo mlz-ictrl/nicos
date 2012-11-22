@@ -633,10 +633,7 @@ def _RunScript(filename, statdevices, debug=False):
     with fp:
         code = unicode(fp.read(), 'utf-8')
         compiler = lambda src: compile(src + '\n', fn, 'exec', CO_DIVISION)
-        if fn.endswith('.txt') or (session._spmode and not fn.endswith('.py')):
-            compiled = session._spmhandler.handle_script(code, fn, compiler)
-        else:
-            compiled = compiler(code)
+        compiled = session.scriptHandler(code, fn, compiler)
         with _ScriptScope(path.basename(fn), code):
             try:
                 exec compiled in session.namespace, session.local_namespace

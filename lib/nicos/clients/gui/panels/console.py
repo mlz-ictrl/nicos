@@ -209,14 +209,15 @@ class ConsolePanel(Panel):
         if not script:
             return
         sscript = script.strip()
-        if not (sscript.startswith(('#', '?', '.', ':')) or sscript.endswith('?')):
-            try:
-                compile(script+'\n', 'script', 'single')
-            except SyntaxError, err:
-                QMessageBox.information(
-                    self, 'Command', 'Syntax error in command: %s' % err.msg)
-                self.commandInput.setCursorPosition(err.offset)
-                return
+        # XXX: this does not apply in SPM mode
+        # if not (sscript.startswith(('#', '?', '.', ':')) or sscript.endswith('?')):
+        #     try:
+        #         compile(script+'\n', 'script', 'single')
+        #     except SyntaxError, err:
+        #         QMessageBox.information(
+        #             self, 'Command', 'Syntax error in command: %s' % err.msg)
+        #         self.commandInput.setCursorPosition(err.offset)
+        #         return
         action = 'queue'
         if self.current_status != 'idle':
             qwindow = dialogFromUi(self, 'question.ui', 'panels')

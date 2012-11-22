@@ -258,6 +258,10 @@ class Session(object):
         """Switch simple parameter mode on or off."""
         self._spmode = on
 
+    @property
+    def spMode(self):
+        return self._spmode
+
     def simulationSync(self):
         """Synchronize device values and parameters from current cached values.
         """
@@ -735,6 +739,12 @@ class Session(object):
             if command.startswith(':'):
                 return compiler('Simulate(%r)' % command[1:].rstrip())
             raise
+
+    def scriptHandler(self, script, filename, compiler):
+        """This method should be called to process/handle a script."""
+        if filename.endswith('.txt') or (self._spmode and not filename.endswith('.py')):
+            return self._spmhandler.handle_script(script, filename, compiler)
+        return compiler(script)
 
     def showHelp(self, obj=None):
         """Show help for the given object.

@@ -92,21 +92,21 @@ class ScriptRequest(Request):
     """
 
     def __init__(self, text, name=None, user=None, quiet=False,
-                 settrace=None, handler=None):
+                 settrace=None, handler=None, format=None):
         Request.__init__(self, user)
         self._run = Event()
         self._run.set()
 
         self.name = name
         self.quiet = quiet
+        self.format = format
         # if not None, this is a set_trace function that's called first thing
         # by the controller, to immediately enter remote debugging
         self.settrace = settrace
         # a weakref to the handler of origin for this request
         self.handler = weakref.ref(handler) if handler else None
-        # replace bare except clauses in the code with "except Exception"
-        # so that ControlStop is not caught
-        self.text = fixup_script(text)
+        # script text (SPM or Python commands)
+        self.text = text
         self.curblock = -1
 
     def serialize(self):
@@ -127,14 +127,23 @@ class ScriptRequest(Request):
                                            '<script>', 'single', CO_DIVISION)
             self.code = [session.commandHandler(self.text, compiler)]
             self.blocks = None
-        elif sys.version_info < (2, 6) or not splitblocks:
+            return
+        pycode = self.text
+        # check for SPM scripts
+        if self.format != 'py':
+            pycode = session.scriptHandler(self.text,
+                                           self.name or '', lambda c: c)
+        # replace bare except clauses in the code with "except Exception"
+        # so that ControlStop is not caught
+        pycode = fixup_script(pycode)
+        if sys.version_info < (2, 6) or not splitblocks:
             # Python < 2.6, no splitting possible
-            self.code = [compile('# coding: utf-8\n' + self.text + '\n',
+            self.code = [compile('# coding: utf-8\n' + pycode + '\n',
                                  '<script>', 'exec', CO_DIVISION)]
             self.blocks = None
         else:
             # long script, and can compile AST: split into blocks
-            self.code, self.blocks = self._splitblocks(self.text)
+            self.code, self.blocks = self._splitblocks(pycode)
 
     def execute(self, controller):
         """Execute the script in the given namespace, using "controller"
@@ -529,7 +538,7 @@ class ExecutionController(Controller):
                                             self.simmode)
             # and put it in the queue as the first request
             request = ScriptRequest(setup_code, 'setting up NICOS',
-                                    system_user, quiet=True)
+                                    system_user, quiet=True, format='py')
             self.new_request(request, notify=False)
 
             while 1:
