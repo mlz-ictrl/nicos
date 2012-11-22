@@ -26,7 +26,7 @@
 
 from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
      tacodev, tangodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
-     none_or, limits
+     none_or, limits, mailaddress
 from nicos.core.errors import ProgrammingError
 
 from test.utils import raises
@@ -55,6 +55,9 @@ def test_param_converters():
     assert raises(ValueError, dictof(int, str), {'x': 'y'})
 
     assert tacodev('test/custom/device') == 'test/custom/device'
+    assert tacodev('test/custom/device1') == 'test/custom/device1'
+    assert tacodev('test1/custom1/device1') == 'test1/custom1/device1'
+    assert tacodev('1/2/3') == '1/2/3'
     assert tacodev() == ''
     assert raises(ValueError, tacodev, '/taco23/test/custom/device')
     assert raises(ValueError, tacodev, 'test/device')
@@ -107,3 +110,12 @@ def test_param_converters():
     assert raises(TypeError, limits, 1, 1)
     assert raises(ValueError, limits, (10, -10))
     assert raises(ValueError, limits, ('a', 'b'))
+
+    assert mailaddress('my.address@domain.my') == 'my.address@domain.my'
+    assert mailaddress('my_address@domain.my') == 'my_address@domain.my'
+    assert mailaddress('myaddress@domain.my') == 'myaddress@domain.my'
+    assert mailaddress('myaddress@my.domain.my') == 'myaddress@my.domain.my'
+    assert mailaddress('myaddress@my.domain123.my') == 'myaddress@my.domain123.my'
+    assert raises(ValueError, mailaddress, '@my.domain')
+    assert raises(ValueError, mailaddress, 'my@domain')
+    assert raises(ValueError, mailaddress, 'my@domain.123')

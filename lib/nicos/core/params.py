@@ -417,6 +417,17 @@ def tangodev(val=None):
         raise ValueError('%r is not a valid Tango device name' % val)
     return val
 
+mailaddress_re = re.compile(r'[\w\.]+@([\w+]+\.)+([a-zA-Z]+)+', re.I)
+
+def mailaddress(val=None):
+    """a valid mail address"""
+    if val is None:
+       return ''
+    val = str(val)
+    if  not mailaddress_re.match(val):
+       raise ValueError('%r is not a valid email address' % val)
+    return val
+
 def control_path_relative(val=''):
     return os.path.join(session.config.control_path, str(val))
 
