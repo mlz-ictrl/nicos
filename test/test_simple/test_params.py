@@ -27,6 +27,7 @@
 from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
      tacodev, tangodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
      none_or, limits
+from nicos.core.errors import ProgrammingError
 
 from test.utils import raises
 
@@ -46,6 +47,7 @@ def test_param_converters():
     assert raises(ValueError, tupleof(int, str), ('a', 'b'))
     assert raises(ValueError, tupleof(int, str), ('a',))
     assert raises(ValueError, tupleof(int, str), 'x')
+    assert raises(ProgrammingError, tupleof,)
 
     assert dictof(int, str)({1: 0, 2: 1}) == {1: '0', 2: '1'}
     assert dictof(int, str)() == {}
