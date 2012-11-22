@@ -721,7 +721,7 @@ class Session(object):
         if command.startswith('#'):
             return compiler('LogEntry(%r)' % command[1:].strip())
         if self._spmode:
-            return self._spmhandler.handle(command, compiler)
+            return self._spmhandler.handle_line(command, compiler)
         try:
             return compiler(command)
         except SyntaxError:
@@ -730,7 +730,7 @@ class Session(object):
                 return compiler('help(%s)' % command.strip('?'))
             # shortcut for calling commands/devices without parens
             if command.startswith('.'):
-                return self._spmhandler.handle(command[1:], compiler)
+                return self._spmhandler.handle_line(command[1:], compiler)
             # shortcut for simulation mode
             if command.startswith(':'):
                 return compiler('Simulate(%r)' % command[1:].rstrip())

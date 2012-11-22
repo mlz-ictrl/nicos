@@ -537,9 +537,20 @@ def UserInfo(info):
 
 def _scriptfilename(filename):
     fn = path.normpath(path.join(session.experiment.scriptdir, filename))
-    if not fn.endswith('.py'):
-        fn += '.py'
-    return fn
+    # does the file exist?
+    if path.endswith(('.py', '.txt')) and path.isfile(fn):
+        return fn
+    if path.isfile(fn + '.py'):
+        return fn + '.py'
+    if path.isfile(fn + '.txt'):
+        return fn + '.txt'
+    # file does not exist; does it already have an extension?
+    if fn.endswith(('.py', '.txt')):
+        return fn
+    # add an extension; the default depends on the current mode
+    if session._spmode:
+        return fn + '.txt'
+    return fn + '.py'
 
 
 @usercommand
@@ -611,7 +622,11 @@ def _RunScript(filename, statdevices, debug=False):
         raise NicosError('cannot open script %r: %s' % (filename, e))
     with fp:
         code = unicode(fp.read(), 'utf-8')
-        compiled = compile(code + '\n', fn, 'exec', CO_DIVISION)
+        compiler = lambda src: compile(src + '\n', fn, 'exec', CO_DIVISION)
+        if fn.endswith('.txt') or (session._spmode and not fn.endswith('.py')):
+            compiled = session._spmhandler.handle_script(code, fn, compiler)
+        else:
+            compiled = compiler(code)
         with _ScriptScope(path.basename(fn), code):
             try:
                 exec compiled in session.namespace, session.local_namespace
@@ -676,7 +691,7 @@ def sim(what, *devices, **kwargs):
 
     >>> sim('testscript', T)
 
-    will simulate the 'test.py' user script and print out minimum/maximum/
+    will simulate the 'testscript.py' user script and print out minimum/maximum/
     last value of T during the run.
 
     Example with running code directly:
@@ -685,7 +700,7 @@ def sim(what, *devices, **kwargs):
     """
     debug = bool(kwargs.get('debug', False))
     fn = _scriptfilename(what)
-    if not path.isfile(fn) and not what.endswith('.py'):
+    if not path.isfile(fn) and not what.endswith(('.py', '.txt')):
         try:
             compile(what + '\n', 'exec', 'exec')
         except Exception:

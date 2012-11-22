@@ -240,7 +240,20 @@ class SPMHandler(object):
                     return options[optname].complete(word, self.session, args)
                 return []
 
-    def handle(self, command, compiler):
+    def handle_script(self, code, fn, compiler):
+        lines = []
+        for lineno, command in enumerate(code.splitlines()):
+            try:
+                lines.append(self.handle_line(command, lambda c: c))
+            except SPMError, err:
+                err.args = ('in %s, line %d: ' % (fn, lineno + 1) + err.args[0],)
+                raise
+        return compiler('\n'.join(lines))
+
+    def handle_line(self, command, compiler):
+        if command.startswith('#'):
+            # Comments (only in script files)
+            return compiler('pass')
         if command.startswith('!'):
             # Python escape
             return compiler(command[1:].strip())
@@ -249,8 +262,8 @@ class SPMHandler(object):
             return compiler('help(%s)' % command.strip('?'))
         if command.startswith(':'):
             # Simulation escape
-            return self.handle(command[1:],
-                               lambda c: compiler('Simulate(%r)' % c))
+            return self.handle_line(command[1:],
+                                    lambda c: compiler('Simulate(%r)' % c))
         try:
             tokens = self.tokenize(command)
         except NoParse, err:
