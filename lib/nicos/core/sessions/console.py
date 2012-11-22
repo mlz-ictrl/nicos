@@ -97,7 +97,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         try:
             code = self.session.commandHandler(source,
                        lambda src: self.compile(src, filename, symbol))
-        except (OverflowError, SyntaxError, ValueError):
+        except Exception:
             self.log.exception()
             return False
 

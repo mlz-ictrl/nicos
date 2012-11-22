@@ -45,7 +45,7 @@ from nicos.core.spm import SPMHandler
 from nicos.core.data import DataSink
 from nicos.core.device import Device
 from nicos.core.errors import NicosError, UsageError, ModeError, \
-     ConfigurationError, AccessError, CacheError
+     ConfigurationError, AccessError, CacheError, SPMError
 from nicos.devices.notifiers import Notifier
 from nicos.utils import formatDocstring
 from nicos.utils.loggers import initLoggers, NicosLogger, \
@@ -721,10 +721,7 @@ class Session(object):
         if command.startswith('#'):
             return compiler('LogEntry(%r)' % command[1:].strip())
         if self._spmode:
-            try:
-                return self._spmhandler.handle(command, compiler)
-            except Exception:
-                self.log.error('Error during SPM command handler', exc=1)
+            return self._spmhandler.handle(command, compiler)
         try:
             return compiler(command)
         except SyntaxError:

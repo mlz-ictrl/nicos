@@ -44,7 +44,7 @@ __version__ = "$Revision$"
 import re
 from itertools import chain, cycle, islice
 
-from nicos.core import Device
+from nicos.core import Device, SPMError
 
 
 id_re = re.compile('[a-zA-Z_][a-zA-Z0-9_]*$')
@@ -180,9 +180,7 @@ class SPMHandler(object):
         self.session = session
 
     def error(self, msg, compiler):
-        # XXX should be able to raise here
-        self.session.log.error(msg)
-        return compiler('pass')
+        raise SPMError(msg)
 
     def complete(self, command, word):
         def select(candidates, word):

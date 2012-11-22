@@ -162,3 +162,7 @@ class CacheLockError(NicosError):
 class CacheError(NicosError):
     """Exception raised on cache connection errors."""
     category = 'Cannot connect to cache server'
+
+class SPMError(NicosError):
+    """Exception raised when invalid SPM syntax is entered."""
+    category = 'Cannot process input'
