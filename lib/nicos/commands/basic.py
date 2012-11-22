@@ -92,10 +92,13 @@ def ListCommands():
     """
     printinfo('Available commands:')
     items = []
-    for obj in session.getExportedObjects():
+    for name, obj in session.getExportedObjects():
         if hasattr(obj, 'is_usercommand'):
             real_func = getattr(obj, 'real_func', obj)
             if real_func.is_hidden:
+                continue
+            if real_func.__name__ != name:
+                # it's an alias, don't show it again
                 continue
             if hasattr(real_func, 'help_arglist'):
                 argspec = '(%s)' % real_func.help_arglist

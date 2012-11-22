@@ -108,13 +108,16 @@ class HelpGenerator(object):
                '<a href="#devices">Devices</a></p>']
         ret.append('<p>Welcome to the NICOS interactive help!</p>')
         cmds = []
-        for obj in session.getExportedObjects():
+        for name, obj in session.getExportedObjects():
             if not hasattr(obj, 'is_usercommand'):
                 continue
             real_func = getattr(obj, 'real_func', obj)
             if real_func.__name__.startswith('_'):
                 continue
             if real_func.is_hidden:
+                continue
+            if real_func.__name__ != name:
+                # it's an alias, don't show it again
                 continue
             if hasattr(real_func, 'help_arglist'):
                 argspec = '(%s)' % real_func.help_arglist

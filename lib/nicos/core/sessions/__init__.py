@@ -676,7 +676,7 @@ class Session(object):
         """Return an iterable of all objects exported to the NICOS namespace."""
         for name in self._exported_names:
             if name in self.namespace:
-                yield self.namespace[name]
+                yield name, self.namespace[name]
 
     def handleInitialSetup(self, setup, simulate):
         """Determine which setup to load, and try to become master.
