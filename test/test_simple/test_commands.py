@@ -27,11 +27,13 @@
 from __future__ import with_statement
 
 from nicos import session
-from nicos.core import UsageError, LimitError, ModeError
+from nicos.core import UsageError, LimitError
 
 from nicos.commands.measure import count
-from nicos.commands.device import move, maw
-from nicos.commands.scan import scan
+from nicos.commands.device import move, maw, drive, switch, wait, read, \
+     status, stop, reset, set, get, getall, setall, fix, release, adjust, \
+     version, history, limits, resetlimits, ListParams, ListMethods, \
+     ListDevices
 from nicos.commands.basic import help, dir #pylint: disable=W0622
 from nicos.commands.basic import ListCommands, sleep, \
      NewSetup, AddSetup, RemoveSetup, ListSetups, \
@@ -119,24 +121,100 @@ def test_basic_commands():
 
 def test_device_commands():
     motor = session.getDevice('motor')
+    coder = session.getDevice('coder')
 
-    session.setMode('slave')
-    assert raises(ModeError, scan, motor, [0, 1, 2, 10])
-
-    session.setMode('master')
-    scan(motor, [0, 1, 2, 10])
-
-    assert raises(UsageError, count, motor)
-    count()
-
-    assert raises(LimitError, move, motor, max(motor.abslimits)+1)
-
+    # check move()
     positions = (min(motor.abslimits), 0, max(motor.abslimits))
     for pos in positions:
         move(motor, pos)
         motor.wait()
         assert motor.curvalue == pos
 
+    assert raises(LimitError, move, motor, max(motor.abslimits)+1)
+
+    assert raises(UsageError, move)
+    assert raises(UsageError, move, motor, 1, motor)
+
+    # check maw()
     for pos in positions:
         maw(motor, pos)
         assert motor.curvalue == pos
+
+    # check drive() and switch() aliases
+    drive(motor, 0)
+    assert motor.curvalue == 0
+    switch(motor, 1)
+    assert motor.curvalue == 1
+
+    # check wait()
+    move(motor, 10)
+    wait(motor, 0.1)
+    wait()
+
+    # check read()
+    read()
+
+    # check status()
+    status()
+
+    # check stop()
+    stop()
+    stop(motor)
+
+    # check reset()
+    reset(motor)
+
+    # check set() and get()
+    set(motor, 'speed', 10)
+    assert motor.speed == 10
+    get(motor, 'speed')
+
+    # check getall() and setall()
+    getall('speed')
+    setall('speed', 0)
+    assert motor.speed == 0
+
+    # check fix() and release()
+    move(motor, 0)
+    fix(motor)
+    move(motor, 10)
+    release(motor)
+    assert motor.curvalue == 0
+
+    # check adjust()
+    move(motor, 1)
+    adjust(motor, 0)
+    assert motor() == 0
+    assert motor.offset == 1
+    adjust(motor, 0, 1)
+    assert motor() == 1
+    assert motor.offset == 0
+
+    # check version()
+    version(motor)
+
+    # check history()
+    history(motor, 'value')
+    history(motor, -24)
+    history(motor, 24)
+    history(motor, 'value', -24)
+    for timespec in ['1 week', '30 minutes', '2012-01-01',
+                     '2012-01-01 14:00', '14:00']:
+        history(motor, 'value', timespec)
+
+    # check limits()
+    limits(motor, coder)
+
+    # check resetlimits()
+    motor.userlimits = (1, 1)
+    resetlimits(motor, coder)
+    assert motor.userlimits == motor.abslimits
+
+    # check ListParams(), ListMethods(), ListDevices()
+    ListParams(motor)
+    ListMethods(motor)
+    ListDevices()
+
+    # check count()
+    assert raises(UsageError, count, motor)
+    count()

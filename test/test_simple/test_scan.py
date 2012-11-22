@@ -25,7 +25,8 @@
 """NICOS tests for nicos.commands.scan and nicos.core.scan modules."""
 
 from nicos import session
-from nicos.core import UsageError, PositionError, CommunicationError, NicosError
+from nicos.core import UsageError, PositionError, CommunicationError, \
+     NicosError, ModeError
 from nicos.core.scan import ContinuousScan
 
 from nicos.commands.measure import count
@@ -50,6 +51,11 @@ def test_scan():
     ctr = session.getDevice('ctr1')
     mm = session.getDevice('manual')
     mm.move(0)
+
+    # check that scans are impossible in slave mode
+    session.setMode('slave')
+    assert raises(ModeError, scan, m, [0, 1, 2, 10])
+    session.setMode('master')
 
     session.experiment.setDetectors([session.getDevice('det')])
 
