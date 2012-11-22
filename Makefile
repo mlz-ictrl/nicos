@@ -31,6 +31,20 @@ inplace:
 	cp build/lib*/nicos/services/daemon/*.so lib/nicos/services/daemon
 	-make custom-inplace
 
+livewidget-gui:
+	cd src/livewidget/python && python configure.py && make
+
+livewidget-inplace: livewidget-gui
+	-cp $(VOPT) src/livewidget/python/livewidget.so lib/nicos/clients/gui
+
+livewidget-install:
+
+livewidget-install-gui: livewidget-gui
+	cp $(VOPT) src/livewidget/python/livewidget.so $(ROOTDIR)/lib/nicos/clients/gui
+
+livewidget-clean:
+	cd src/livewidget && make clean
+
 T = test
 
 test:
