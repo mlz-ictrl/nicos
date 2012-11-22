@@ -28,16 +28,16 @@ def check_setupfile(filename):
     print '%s ... syntax ok' % (filename, )
     group = namespace.get('group', 'optional')
     if group not in SETUP_GROUPS:
-        print ' warning: invalid group %r' % group
+        print '%s warning: invalid group %r' % (filename, group)
     description = namespace.get('description', None)
     if description is None and group in ('basic', 'optional'):
-        print ' warning: missing user-friendly description'
+        print '%s warning: missing user-friendly description' % (filename, )
     if group != 'special':
         devs = namespace.get('devices', {})
         for devname in devs:
             if devname in devs_seen:
-                print ' warning: device name %s duplicate: also in %s' % \
-                    (devname, devs_seen[devname])
+                print '%s warning: device name %s duplicate: also in %s' % \
+                    (filename, devname, devs_seen[devname])
             else:
                 devs_seen[devname] = filename
     return True
