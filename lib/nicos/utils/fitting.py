@@ -50,7 +50,7 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, **kw):
     if p0 is None or isscalar(p0):
         # determine number of parameters by inspecting the function
         import inspect
-        args, varargs, varkw, defaults = inspect.getargspec(f)
+        args, _varargs, _varkw, _defaults = inspect.getargspec(f)
         if len(args) < 2:
             msg = "Unable to determine number of fit parameters."
             raise ValueError(msg)

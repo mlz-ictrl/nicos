@@ -50,6 +50,7 @@ class NicosNamespace(dict):
     """
 
     def __init__(self):
+        dict.__init__(self)
         self.__forbidden = set()
 
     def addForbidden(self, name):
@@ -91,10 +92,13 @@ class SimClock(object):
         self.time += sec
 
 
-class NicosCompleter(rlcompleter.Completer):
+class NicosCompleter(object):
     """
-    This is a Completer subclass that doesn't show private attributes when
-    completing attribute access.
+    This is a custom version of rlcompleter.Completer that doesn't show private
+    attributes when completing attribute access.
+
+    There is not enough shared code left with the rlcompleter version to warrant
+    inheriting from that class.
     """
 
     attr_hidden = set(['attached_devices', 'parameters', 'hardware_access',
@@ -123,12 +127,28 @@ class NicosCompleter(rlcompleter.Completer):
     def __init__(self, namespace1, namespace2):
         self.namespace = namespace1
         self.namespace2 = namespace2
-        self.use_main_ns = False
+        self.matches = []
 
     def _callable_postfix(self, val, word):
         if callable(val) and not isinstance(val, Device):
             word += '('
         return word
+
+    def complete(self, text, state):
+        """Return the next possible completion for 'text'.
+
+        This is called successively with state == 0, 1, 2, ... until it
+        returns None.  The completion should begin with 'text'.
+        """
+        if state == 0:
+            if '.' in text:
+                self.matches = self.attr_matches(text)
+            else:
+                self.matches = self.global_matches(text)
+        try:
+            return self.matches[state]
+        except IndexError:
+            return None
 
     def attr_matches(self, text):
         """Compute matches when text contains a dot.
@@ -262,9 +282,9 @@ def makeSessionId():
     timestamp = int(time.time())
     return '%s@%s-%s' % (pid, hostname, timestamp)
 
-def sessionInfo(id):
+def sessionInfo(sid):
     """Return a string with information gathered from the session id."""
-    pid, rest = id.split('@')
+    pid, rest = sid.split('@')
     host, timestamp = rest.rsplit('-', 1)
     return 'PID %s on host %s, started on %s' % (
         pid, host, time.asctime(time.localtime(int(timestamp))))

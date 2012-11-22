@@ -319,7 +319,7 @@ class IPCModBusTacoSerial(TacoDevice, IPCModBusRS232):
         response = ''
         self.log.debug('sending %r' % request)
         self._dev.write(request)
-        for i in range(self.commtries):
+        for _i in range(self.commtries):
             sleep(self.roundtime)
             try:
                 data = self._dev.read()

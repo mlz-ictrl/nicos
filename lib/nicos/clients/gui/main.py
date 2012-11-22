@@ -283,7 +283,7 @@ class MainWindow(QMainWindow, DlgUtils):
                           QVariant([sp.saveState() for sp in self.splitters]))
         auxstate = []
         for wtype, windows in self.windows.iteritems():
-            for win in windows:
+            for _win in windows:
                 auxstate.append(wtype)
         settings.setValue('auxwindows', QVariant(auxstate))
         settings.setValue('autoconnect', QVariant(self.client.connected))
@@ -551,7 +551,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
 def main(argv):
     # Import the compiled resource file to register resources
-    import nicos.clients.gui.gui_rc
+    import nicos.clients.gui.gui_rc #pylint: disable=W0612
 
     app = QApplication(argv)
     app.setOrganizationName('nicos')

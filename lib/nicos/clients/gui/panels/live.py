@@ -155,7 +155,7 @@ class LiveDataPanel(Panel):
     #                 self.add_to_flist(path.join(caspath, fn), 'tof', False)
 
     def on_client_liveparams(self, params):
-        tag, fname, dtype, nx, ny, nz, runtime = params
+        _tag, _fname, dtype, nx, ny, nz, runtime = params
         self._runtime = runtime
         if dtype not in DATATYPES:
             self._format = None

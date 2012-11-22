@@ -29,9 +29,7 @@ __version__ = "$Revision$"
 import os
 import subprocess
 
-from nicos import session
-from nicos.core import Measurable, Moveable, Readable, UsageError, NicosError
-from nicos.commands import usercommand, hiddenusercommand, helparglist
+from nicos.commands import usercommand
 from nicos.commands.output import printinfo
 from nicos.utils import printTable
 
@@ -145,16 +143,16 @@ def TacoStatus(server=''):
                 errmsg = 'Server not started'
             status = '*** ' + errmsg
         else:
-            types = client.deviceTypes()
-            if tuple(types) in typemap:
-                type = types[typemap[tuple(types)]]
+            dtypes = client.deviceTypes()
+            if tuple(dtypes) in typemap:
+                dtype = dtypes[typemap[tuple(dtypes)]]
             else:
-                type = types and types[-1] or '???'
-            disp = typedisplay.get(type, type)
+                dtype = dtypes and dtypes[-1] or '???'
+            disp = typedisplay.get(dtype, dtype)
             if not disp:
-                disp = '/'.join(types)
+                disp = '/'.join(dtypes)
 
-            checker = locals().get('check_' + type, None)
+            checker = locals().get('check_' + dtype, None)
             if checker:
                 ok = checker(dev, client, state)
                 if isinstance(ok, str):

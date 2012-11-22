@@ -104,7 +104,7 @@ class ConsolePanel(Panel):
     def completeInput(self, startstring):
         try:
             return self.client.ask('complete', str(startstring))
-        except:
+        except Exception:
             return []
 
     def on_client_connected(self):

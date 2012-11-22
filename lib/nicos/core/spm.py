@@ -77,6 +77,7 @@ class bare(str):
 
 class NoParse(Exception):
     def __init__(self, expected, token):
+        Exception.__init__(self, expected, token)
         self.token = token
         self.expected = expected
 

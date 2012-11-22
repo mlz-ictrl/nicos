@@ -33,8 +33,7 @@ from numpy import arccos, arcsin, arctan2, cos, sin, pi, sqrt, \
      array, identity, zeros, cross, dot, sign
 from numpy.linalg import inv, norm
 
-from nicos.core import Device, Param, ComputationError, ConfigurationError, \
-     vec3, anytype
+from nicos.core import Device, Param, ComputationError, vec3, anytype
 from nicos.devices.experiment import Sample
 from nicos.devices.tas.spacegroups import get_spacegroup
 

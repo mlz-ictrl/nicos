@@ -270,10 +270,10 @@ class ScanTool(QDialog):
                 cmdname = 'scan'
 
             params = [devname]
-            for (pn, ctl, fn) in (('start', self.scanStart, tofloat),
-                                  ('step', self.scanStep, tofloat),
-                                  ('numsteps', self.scanNumsteps, toint),
-                                  ('preset', self.scanPreset, tofloat)):
+            for (_pn, ctl, fn) in (('start', self.scanStart, tofloat),
+                                   ('step', self.scanStep, tofloat),
+                                   ('numsteps', self.scanNumsteps, toint),
+                                   ('preset', self.scanPreset, tofloat)):
                 val = fn(ctl.text())
                 params.append(str(val))
 

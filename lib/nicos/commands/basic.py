@@ -40,7 +40,7 @@ from os import path
 from nicos import session
 from nicos.core import Device, AutoDevice, Readable, ModeError, NicosError, \
      UsageError
-from nicos.core.spm import spmsyntax, AnyDev, Bare, Bool, Num, Multi
+from nicos.core.spm import spmsyntax, AnyDev, Bool, Num, Multi
 from nicos.utils import formatDuration, printTable
 from nicos.devices.notifiers import Mailer, SMSer
 from nicos.commands import usercommand, hiddenusercommand, helparglist
@@ -230,8 +230,8 @@ def RemoveSetup(*setupnames):
     NewSetup(*current)
 
 @usercommand
-@spmsyntax(all=Bool)
-def ListSetups(all=False):
+@spmsyntax(listall=Bool)
+def ListSetups(listall=False):
     """Print a list of setups.
 
     Example:
@@ -247,7 +247,7 @@ def ListSetups(all=False):
     for name, info in session.getSetupInfo().iteritems():
         if info['group'] == 'special':
             continue
-        if info['group'] in ('simulated', 'lowlevel') and not all:
+        if info['group'] in ('simulated', 'lowlevel') and not listall:
             continue
         items.append((name, name in session.loaded_setups and 'yes' or '',
                       info['description'],
@@ -260,7 +260,7 @@ def _Restart():
     """Restart the NICOS process.  Use with caution."""
     import atexit, signal
     @atexit.register
-    def restart_nicos():
+    def restart_nicos():  #pylint: disable=W0612
         os.execv(sys.executable, [sys.executable] + sys.argv)
     os.kill(os.getpid(), signal.SIGTERM)
 

@@ -356,12 +356,12 @@ class SweepScan(Scan):
 
     def shortDesc(self):
         if not self._sweepdevices:
-            type = 'Time scan'
+            stype = 'Time scan'
         else:
-            type = 'Sweep %s' % ','.join(map(str, self._sweepdevices))
+            stype = 'Sweep %s' % ','.join(map(str, self._sweepdevices))
         if 'number' in self.dataset.sinkinfo:
-            return '%s #%s' % (type, self.dataset.sinkinfo['number'])
-        return type
+            return '%s #%s' % (stype, self.dataset.sinkinfo['number'])
+        return stype
 
     def readEnvironment(self, started, finished):
         ret = Scan.readEnvironment(self, started, finished)

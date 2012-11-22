@@ -87,10 +87,10 @@ class HelpGenerator(object):
         self._specialtopics.update(self.helper.symbols)
         self._specialtopics.update(self.helper.keywords)
 
-    def gen_heading(self, title, id=''):
-        if id:
-            id = ' id="%s"' % escape(id)
-        return '<h3%s>%s</h3>' % (id, escape(title))
+    def gen_heading(self, title, id_=''):
+        if id_:
+            id_ = ' id="%s"' % escape(id_)
+        return '<h3%s>%s</h3>' % (id_, escape(title))
 
     def gen_markup(self, markup):
         if publish_parts is None:

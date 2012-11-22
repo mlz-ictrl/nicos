@@ -196,7 +196,7 @@ class NewViewDialog(QDialog, DlgUtils):
 
     def setIntervalFromSimple(self, text):
         try:
-            itime, interval = parseTimeSpec(str(text))
+            _itime, interval = parseTimeSpec(str(text))
         except Exception:
             pass
         else:
@@ -686,7 +686,7 @@ class ViewPlot(NicosPlot):
     def linear_fit_callback(self, args):
         title = 'linear fit'
         beta, x, y = fit_linear(*args)
-        x1, x2 = min(x), max(x)
+        _x1, x2 = min(x), max(x)
         labelx = x2
         labely = beta[0]*x2 + beta[1]
         interesting = [('Slope', beta[0])]

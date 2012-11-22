@@ -60,7 +60,7 @@ test-coverage:
 	@$(PYTHON) `which nosetests` $(T) -d --with-coverage --cover-package=nicos --cover-html $(O)
 
 lint:
-	-pylint --rcfile=./pylintrc lib/nicos/
+	-PYTHONPATH=lib pylint --rcfile=./pylintrc lib/nicos/
 
 jenkinslintall: CUSTOMPYFILES = $(shell find custom/ -name \*.py)
 jenkinslintall:

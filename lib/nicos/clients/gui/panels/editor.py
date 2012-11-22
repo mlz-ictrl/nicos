@@ -30,7 +30,7 @@ __version__ = "$Revision$"
 
 import sys
 import time
-import subprocess
+#import subprocess
 from os import path
 from logging import WARNING
 
@@ -268,8 +268,9 @@ class EditorPanel(Panel):
             toolclass = importString(tconfig[1])
         except ImportError:
             raise
-            # or it's a system command
-            subprocess.Popen(tconfig[1], shell=True)
+            # or it's a system command (disabled at the moment, not sure if it
+            # is still useful)
+            #subprocess.Popen(tconfig[1], shell=True)
         else:
             dialog = toolclass(self, **tconfig[2])
             self.connect(dialog, SIGNAL('addCode'), self.currentEditor.append)
@@ -572,6 +573,7 @@ class EditorPanel(Panel):
     def on_fileSystemWatcher_fileChanged(self, filename):
         if self.saving:
             return
+        editor = watcher = None
         for editor, watcher in self.watchers.iteritems():
             if watcher is self.sender():
                 break

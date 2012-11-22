@@ -45,7 +45,7 @@ class HistoryLineEdit(QLineEdit):
         QLineEdit.__init__(self, parent)
         self.history = history or []
         self.scrollWidget = None
-        self.completion_callback = None
+        self.completion_callback = lambda text: []
         self._start_text = ''
         self._current = -1
         self._completer = QCompleter([], self)
@@ -53,8 +53,7 @@ class HistoryLineEdit(QLineEdit):
 
     def event(self, event):
         # need to reimplement the general event handler to enable catching Tab
-        if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Tab and \
-            self.completion_callback:
+        if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Tab:
             matches = self.completion_callback(self.text())
             if len(matches) == 1:
                 self.setText(matches[0])

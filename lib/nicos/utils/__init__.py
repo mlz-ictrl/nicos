@@ -259,7 +259,7 @@ def terminalSize():
     """Try to find the terminal size as (cols, rows)."""
     import struct, fcntl, termios
     try:
-        h, w, hp, wp = struct.unpack('HHHH',
+        h, w, _hp, _wp = struct.unpack('HHHH',
             fcntl.ioctl(0, termios.TIOCGWINSZ,
                         struct.pack('HHHH', 0, 0, 0, 0)))
     except IOError:
@@ -558,12 +558,12 @@ def which(cmd, mode=os.F_OK | os.X_OK, path=None):
         files = [cmd]
 
     seen = set()
-    for dir in path:
-        dir = os.path.normcase(dir)
-        if not dir in seen:
-            seen.add(dir)
+    for dir_ in path:
+        dir_ = os.path.normcase(dir_)
+        if not dir_ in seen:
+            seen.add(dir_)
             for thefile in files:
-                name = os.path.join(dir, thefile)
+                name = os.path.join(dir_, thefile)
                 if _access_check(name, mode):
                     return name
     return None

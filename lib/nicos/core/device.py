@@ -32,8 +32,8 @@ from time import time as currenttime, sleep
 
 from nicos import session
 from nicos.core import status
-from nicos.core.params import Param, Override, Value, tupleof, floatrange, \
-     oneof, anytype, none_or, limits
+from nicos.core.params import Param, Override, Value, floatrange, oneof, \
+     anytype, none_or, limits
 from nicos.core.errors import NicosError, ConfigurationError, \
      ProgrammingError, UsageError, LimitError, ModeError, \
      CommunicationError, CacheLockError, InvalidValueError, AccessError

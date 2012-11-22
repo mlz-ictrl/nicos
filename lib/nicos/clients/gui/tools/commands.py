@@ -50,7 +50,7 @@ class CommandsTool(QDialog):
             btn = QPushButton(text, self)
             self.buttonLayout.addWidget(btn, i % collen, i // collen)
             self.connect(btn, SIGNAL('clicked()'),
-                         lambda cmd=cmd: self.execute(cmd))
+                         lambda btncmd=cmd: self.execute(btncmd))
 
     def execute(self, cmd):
         self.outputBox.setPlainText('[%s] Executing %s...\n' %

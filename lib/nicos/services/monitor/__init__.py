@@ -120,7 +120,7 @@ class Monitor(BaseCacheClient):
     def setBothColors(self, label, fore, back):
         raise NotImplementedError
 
-    def updatePlot(self, field):
+    def updatePlot(self, field, time, value):
         raise NotImplementedError
 
     def start(self, options):

@@ -195,7 +195,7 @@ class ScriptStatusPanel(Panel):
             self.on_client_request(req)
 
     def on_client_status(self, data):
-        status, line = data
+        _status, line = data
         if line != self.current_line:
             self.setCurrentLine(line)
 

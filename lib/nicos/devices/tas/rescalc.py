@@ -441,10 +441,12 @@ class resmat(object):
         C[2,4] = C[0,0]
         C[2,5] = C[0,0]
         C[1,2] = 1/(2*sin(thetam))    # thetam = scattering angle of monochromator
-        C[1,3] = -C[1,2]              # thetam = -arcsin(Tm/2ki))epsilonm; Tm(Ta) = 2Pi/dm(da) mono and ana scattering vectors
+        C[1,3] = -C[1,2]              # thetam = -arcsin(Tm/2ki))epsilonm;
+                                      # Tm(Ta) = 2Pi/dm(da) mono and ana scattering vectors
         C[3,6] = 1/(2*sin(thetaa))    # thetaa = scattering angle of analyzer
         C[3,7] = -C[3,6]              # thetaa = -arcsin(Ta/2kf))epsilona
-                                      # epsilonm/a = 1 if sample scattering direction opposite do mono/ana scattering dir, -1 otherwise
+                                      # epsilonm/a = 1 if sample scattering
+                                      # direction opposite do mono/ana scattering dir, -1 otherwise
         A = matrix(zeros((6,8)))
         A[0,0] = ki/(tan(thetam)*2)
         A[0,1] = -A[0,0]
@@ -600,7 +602,8 @@ class resmat(object):
 
         Rm = ki**3/tan(thetam)
         Ra = kf**3/tan(thetaa)
-        R0 = Rm*Ra*(2*pi)**4/(64*pi**2*sin(thetam)*sin(thetaa))*sqrt(det(F)/det((D*(S+T.transpose()*F*T)**(-1)*D.transpose())**(-1)+G)) #Popovici
+        R0 = Rm*Ra*(2*pi)**4/(64*pi**2*sin(thetam)*sin(thetaa))* \
+            sqrt(det(F)/det((D*(S+T.transpose()*F*T)**(-1)*D.transpose())**(-1)+G)) #Popovici
         # Werner and Pynn correction
         # for mosaic spread of crystal.
         R0 = abs(R0/(etas*sqrt(1/etas**2+q0**2*N[1,1])))
@@ -843,7 +846,7 @@ Resolution Info:
         bragg[0] = 2.3548/sqrt(M[0,0])
         bragg[1] = 2.3548/sqrt(M[1,1])
         bragg[2] = 2.3548/sqrt(M[2,2])
-        [r, bragg[3]] = self.calcPhonon(1, matrix([0, 0, 0, 1]))
+        _r, bragg[3] = self.calcPhonon(1, matrix([0, 0, 0, 1]))
         bragg[4] = 2.3548/sqrt(M[3,3])
         return abs(bragg)
 
@@ -867,13 +870,13 @@ Resolution Info:
 
     def showCFG(self):
         """Displays spectrometer configuration."""
-        str =  '\nSpectrometer Configuration:\n'
-        str += '--------------------------\n\n'
-        str += 'NR' + ('Value   :  ').rjust(16) + 'Explanation\n'
-        str += '===============================\n'
+        msg =  '\nSpectrometer Configuration:\n'
+        msg += '--------------------------\n\n'
+        msg += 'NR' + ('Value   :  ').rjust(16) + 'Explanation\n'
+        msg += '===============================\n'
         for i in range(len(self.cfg)):
-            str += '%2i' % i + ('%1.3f   :  ' % self.cfg[i]).rjust(16) + '%s\n' % self.cfgnames[i]
-        print str
+            msg += '%2i' % i + ('%1.3f   :  ' % self.cfg[i]).rjust(16) + '%s\n' % self.cfgnames[i]
+        print msg
 
     def resellipse(self):
         """Returns the projections of the resolution ellipse of a triple axis."""
@@ -893,7 +896,7 @@ Resolution Info:
         # y, whereas the slice added later is just a cut through the ellipsoid in
         # the xy-plane)
         R0 = self.R0
-        R0P, MP = GaussInt(2, R0, B)
+        _R0P, MP = GaussInt(2, R0, B)
         #print R0P, MP
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
         xy_x, xy_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)

@@ -313,7 +313,7 @@ class Session(object):
         entry in nicos.conf, or by "control_path"/setups.
         """
         self._setup_info.clear()
-        for root, dirs, files in os.walk(self._setup_path, topdown=False):
+        for root, _, files in os.walk(self._setup_path, topdown=False):
             for filename in files:
                 if not filename.endswith('.py'):
                     continue

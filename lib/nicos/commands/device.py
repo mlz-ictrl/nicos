@@ -268,7 +268,7 @@ def reset(*devlist):
 
 @usercommand
 @spmsyntax(AnyDev, String, Bare)
-def set(dev, parameter, value):
+def set(dev, parameter, value):  #pylint: disable=W0622
     """Set a the parameter of the device to a new value.
 
     The following commands are equivalent:
@@ -335,7 +335,7 @@ def setall(param, value):
 
     set the offset for all devices to zero.
     """
-    for name, dev in session.devices.iteritems():
+    for dev in session.devices.itervalues():
         if param not in dev.parameters:
             continue
         prevalue = getattr(dev, param)

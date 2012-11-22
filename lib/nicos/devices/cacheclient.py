@@ -428,7 +428,7 @@ class CacheClient(BaseCacheClient):
         value, time = entry
         if mintime and time < mintime:
             try:
-                time, ttl, value = self.get_explicit(dev, key, default)
+                time, _ttl, value = self.get_explicit(dev, key, default)
             except CacheError:
                 return default
             if value is not default and time < mintime:

@@ -405,7 +405,7 @@ class Axis(BaseAxis):
             sleep(self.loopdelay)
             # poll accurate current values and status of child devices so that
             # we can use read() and status() subsequently
-            st, pos = self.poll()
+            _status, pos = self.poll()
             mstatus, mstatusinfo = self._adevs['motor'].status()
             if mstatus != status.BUSY:
                 # motor stopped; check why

@@ -261,7 +261,7 @@ class NicosCmdClient(NicosClient):
         state = self.ask('getstatus')
         if state is None:
             return
-        status, script, output, watch, setups, reqqueue = state[:6]
+        status, script, output, _watch, setups, reqqueue = state[:6]
         if not self.quiet_connect:
             self.put_client(
                 'Connected to %s:%s as %s. '
@@ -390,16 +390,16 @@ class NicosCmdClient(NicosClient):
                                    levels[levelno] + ': ' + msg[3].rstrip())
         self.put(msg[5] + newtext)
 
-    def signal(self, type, data=None, exc=None):
+    def signal(self, name, data=None, exc=None):
         """Handles any kind of signal/event sent by the daemon."""
         try:
             # try to order the elifs by frequency
-            if type == 'message':
+            if name == 'message':
                 if self.in_editing:
                     self.message_queue.append(data)
                 else:
                     self.put_message(data)
-            elif type == 'status':
+            elif name == 'status':
                 status, line = data
                 if status == STATUS_IDLE or status == STATUS_IDLEEXC:
                     new_status = 'idle'
@@ -412,11 +412,11 @@ class NicosCmdClient(NicosClient):
                     self.set_status(new_status)
                 if line != self.current_line:
                     self.current_line = line
-            elif type == 'cache':
+            elif name == 'cache':
                 if data[1].endswith('/scriptdir'):
                     self.scriptdir = self.eval(
                         'session.experiment.scriptdir', '.')
-            elif type == 'processing':
+            elif name == 'processing':
                 script = data.get('script')
                 if script is None:
                     return
@@ -426,11 +426,11 @@ class NicosCmdClient(NicosClient):
                     self.current_script = script
                 self.pending_requests.pop(data['reqno'], None)
                 self.set_status(self.status)
-            elif type == 'request':
+            elif name == 'request':
                 if 'script' in data:
                     self.pending_requests[data['reqno']] = data
                 self.set_status(self.status)
-            elif type == 'blocked':
+            elif name == 'blocked':
                 removed = filter(None,
                     (self.pending_requests.pop(reqno, None) for reqno in data))
                 if removed:
@@ -438,29 +438,29 @@ class NicosCmdClient(NicosClient):
                                     'queue.' % len(removed))
                     self.show_pending()
                 self.set_status(self.status)
-            elif type == 'dataset':
+            elif name == 'dataset':
                 self.last_dataset = data
                 if self.grace_on:
                     self.grace.beginDataset(data)
-            elif type == 'datapoint':
+            elif name == 'datapoint':
                 if self.last_dataset:
                     self.last_dataset.xresults.append(data[0])
                     self.last_dataset.yresults.append(data[1])
                     if self.grace_on:
                         self.grace.addPoint(self.last_dataset, *data)
-            elif type == 'connected':
+            elif name == 'connected':
                 self.initial_update()
-            elif type == 'disconnected':
+            elif name == 'disconnected':
                 self.put_client('Disconnected from server.')
                 self.current_mode = 'master'
                 self.debug_mode = False
                 self.pending_requests.clear()
                 self.set_status('disconnected')
-            elif type == 'clientexec':
+            elif name == 'clientexec':
                 self.clientexec(data)
-            elif type == 'showhelp':
+            elif name == 'showhelp':
                 self.showhelp(data[1])
-            elif type == 'simresult':
+            elif name == 'simresult':
                 if self.simulating:
                     timing, devinfo = data
                     self.put_client('Simulated minimum runtime: %s '
@@ -471,13 +471,13 @@ class NicosCmdClient(NicosClient):
                         self.put('#   %-*s: %10s  <->  %-10s' %
                                  (dnwidth, devname, dmin, dmax))
                 self.simulating = False
-            elif type == 'mode':
+            elif name == 'mode':
                 self.current_mode = data
                 self.set_status(self.status)
-            elif type == 'debugging':
+            elif name == 'debugging':
                 self.debug_mode = data
                 readline_finish_callback(False)
-            elif type in ('error', 'failed', 'broken'):
+            elif name in ('error', 'failed', 'broken'):
                 self.put_error(data)
             # and we ignore all other signals
         except Exception, e:

@@ -64,12 +64,12 @@ class NicosInteractiveConsole(code.InteractiveConsole):
     NICOS logger and will therefore appear in the logfiles.
     """
 
-    def __init__(self, session, globals, locals):
+    def __init__(self, session, global_ns, local_ns):
         self.session = session
         self.log = session.log
-        code.InteractiveConsole.__init__(self, globals)
-        self.globals = globals
-        self.locals = locals
+        code.InteractiveConsole.__init__(self, global_ns)
+        self.globals = global_ns
+        self.locals = local_ns
         for line in DEFAULT_BINDINGS.splitlines():
             readline.parse_and_bind(line)
         readline.set_completer(session.completefn)
@@ -105,7 +105,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
             return True
 
         self.log.log(INPUT, '>>> ' + source)
-        self.runcode(code, source)
+        self.my_runcode(code, source)
 
         return False
 
@@ -122,9 +122,9 @@ class NicosInteractiveConsole(code.InteractiveConsole):
             self.session._prompting = False
         return inp
 
-    def runcode(self, codeobj, source=None):
-        """Mostly copied from code.InteractiveInterpreter, but added the
-        logging call for exceptions.
+    def my_runcode(self, codeobj, source=None):
+        """Mostly copied from code.InteractiveInterpreter, but added better
+        exception handling.
         """
         # record starting time to decide whether to send notification
         start_time = time.time()
