@@ -538,7 +538,7 @@ def UserInfo(info):
 def _scriptfilename(filename):
     fn = path.normpath(path.join(session.experiment.scriptdir, filename))
     # does the file exist?
-    if path.endswith(('.py', '.txt')) and path.isfile(fn):
+    if fn.endswith(('.py', '.txt')) and path.isfile(fn):
         return fn
     if path.isfile(fn + '.py'):
         return fn + '.py'
