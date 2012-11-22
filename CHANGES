@@ -8,6 +8,10 @@ Changelog for NICOS 2
     commas.  Control structures are not supported.  It is toggled with
     the "SetSPM" command.
 
+  - Setup files can now also placed in subdirectories of the setup path.
+    Entries in parent directories override entries in subdirectories
+    when two files have the same name.
+
   - Restructured the "nicos" Python package layout.  Custom libraries
     will have to be adapted.
 
