@@ -34,7 +34,7 @@ from nicos import session
 from nicos.utils import printTable, parseDateString
 from nicos.core import Device, Moveable, Measurable, Readable, HasOffset, \
      HasLimits, UsageError, formatStatus
-from nicos.core.spm import spmsyntax, AnyDev, Dev, Bare, String, Multi
+from nicos.core.spm import spmsyntax, AnyDev, Dev, Bare, String, DevParam, Multi
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.basic import sleep
 from nicos.commands.output import printinfo
@@ -267,7 +267,7 @@ def reset(*devlist):
         dev.log.info('reset done, status is now %s' % formatStatus(status))
 
 @usercommand
-@spmsyntax(AnyDev, String, Bare)
+@spmsyntax(AnyDev, DevParam, Bare)
 def set(dev, parameter, value):  #pylint: disable=W0622
     """Set a the parameter of the device to a new value.
 
@@ -285,7 +285,7 @@ def set(dev, parameter, value):  #pylint: disable=W0622
                      (parameter, getattr(dev, parameter), prevalue))
 
 @usercommand
-@spmsyntax(AnyDev, String)
+@spmsyntax(AnyDev, DevParam)
 def get(dev, parameter):
     """Return the value of a parameter of the device.
 

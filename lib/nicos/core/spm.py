@@ -91,6 +91,7 @@ class Token(object):
     def complete(self, text, session, argsofar):
         return []
 
+
 class String(Token):
     desc = 'string'
 
@@ -98,7 +99,9 @@ class String(Token):
         if string1_re.match(arg) or string2_re.match(arg):
             return bare(arg)
         return arg
+
 String = String()
+
 
 class Bare(Token):
     desc = 'value'
@@ -109,7 +112,9 @@ class Bare(Token):
                 arg not in session.local_namespace:
                 return arg
         return bare('(' + arg + ')')
+
 Bare = Bare()
+
 
 class Num(Token):
     desc = 'number'
@@ -119,7 +124,9 @@ class Num(Token):
             return float(arg)
         except ValueError:
             raise NoParse('number', arg)
+
 Num = Num()
+
 
 class Int(Token):
     desc = 'integer'
@@ -129,23 +136,30 @@ class Int(Token):
             return int(arg)
         except ValueError:
             raise NoParse('integer', arg)
+
 Int = Int()
 
-class Bool(Token):
-    desc = 'boolean'
+
+class Oneof(Token):
+    def __init__(self, *choices):
+        self.choices = choices
+
+    @property
+    def desc(self):
+        return 'one of ' + ', '.join(self.choices)
 
     def handle(self, arg, session):
-        if arg.lower() == 'true':
-            return True
-        elif arg.lower() == 'false':
-            return False
-        raise NoParse('boolean', arg)
+        if arg.lower() not in self.choices:
+            raise NoParse(self.desc, arg)
+        return arg.lower()
 
     def complete(self, text, session, argsofar):
-        return [v for v in ('true', 'false') if v.startswith(text)]
-Bool = Bool()
+        return [c for c in self.choices if c.startswith(text)]
 
-class Dev(object):
+Bool = Oneof('true', 'false')
+
+
+class Dev(Token):
     desc = 'device name'
 
     def __init__(self, devtype=Device):
@@ -168,6 +182,64 @@ class Dev(object):
                 and isinstance(session.devices[dev], self.devtype)]
 
 AnyDev = Dev()
+
+
+class DevParam(Token):
+    desc = 'parameter name'
+
+    def handle(self, arg, session):
+        return arg
+
+    def complete(self, text, session, argsofar):
+        try:
+            dev = session.getDevice(argsofar[-2])
+            return [p for p in dev.parameters if p.startswith(text)]
+        except Exception, err:
+            return []
+
+DevParam = DevParam()
+
+
+class SetupName(Token):
+    desc = 'setup name'
+
+    def __init__(self, what):
+        self.what = what
+
+    def handle(self, arg, session):
+        if arg not in session._setup_info:
+            raise NoParse('setup name', arg)
+        return arg
+
+    def complete(self, text, session, argsofar):
+        all_setups = [name for (name, info) in session._setup_info.iteritems()
+                      if info['group'] in ('basic', 'optional', '')]
+        if self.what == 'all':
+            candidates = all_setups
+        elif self.what == 'unloaded':
+            candidates = [setup for setup in all_setups
+                          if setup not in session.explicit_setups]
+        elif self.what == 'loaded':
+            candidates = session.explicit_setups
+        return [c for c in candidates if c.startswith(text)]
+
+
+class DeviceName(Token):
+    desc = 'device name'
+
+    def handle(self, arg, session):
+        if arg not in session.configured_devices:
+            raise NoParse('device name', arg)
+        return arg
+
+    def complete(self, text, session, argsofar):
+        return [c for c in session.configured_devices
+                if c.startswith(text) and
+                c not in session.devices and not
+                session.configured_devices[c][1].get('lowlevel')]
+
+DeviceName = DeviceName()
+
 
 class Multi(object):
     def __init__(self, *types):

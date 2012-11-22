@@ -40,7 +40,9 @@ from os import path
 from nicos import session
 from nicos.core import Device, AutoDevice, Readable, ModeError, NicosError, \
      UsageError
-from nicos.core.spm import spmsyntax, AnyDev, Bool, Num, Multi
+from nicos.core.spm import spmsyntax, AnyDev, Bool, Num, Multi, Oneof, \
+     String, SetupName, DeviceName
+from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.utils import formatDuration, printTable
 from nicos.devices.notifiers import Mailer, SMSer
 from nicos.commands import usercommand, hiddenusercommand, helparglist
@@ -150,6 +152,7 @@ def sleep(secs):
 
 @usercommand
 @helparglist('[setup, ...]')
+@spmsyntax(Multi(SetupName('all')))
 def NewSetup(*setupnames):
     """Load the given setups instead of the current one.
 
@@ -188,6 +191,7 @@ def NewSetup(*setupnames):
 
 @usercommand
 @helparglist('setup, ...')
+@spmsyntax(Multi(SetupName('unloaded')))
 def AddSetup(*setupnames):
     """Load the given setups additional to the current one.
 
@@ -211,6 +215,7 @@ def AddSetup(*setupnames):
 
 @usercommand
 @helparglist('setup, ...')
+@spmsyntax(Multi(SetupName('loaded')))
 def RemoveSetup(*setupnames):
     """Remove the given setups from the currently loaded ones.
 
@@ -278,6 +283,7 @@ def Keep(name, obj):
 
 @usercommand
 @helparglist('devname, ...')
+@spmsyntax(Multi(DeviceName))
 def CreateDevice(*devnames):
     """Create all given devices.
 
@@ -294,6 +300,7 @@ def CreateDevice(*devnames):
 
 @usercommand
 @helparglist('devname, ...')
+@spmsyntax(Multi(AnyDev))
 def DestroyDevice(*devnames):
     """Destroy all given devices.
 
@@ -388,6 +395,7 @@ def NewSample(name, **parameters):
         setattr(session.experiment.sample, param, value)
 
 @usercommand
+@spmsyntax(String)
 def Remark(remark):
     """Change the data file remark about instrument configuration.
 
@@ -406,6 +414,7 @@ def Remark(remark):
     session.experiment.remark = remark
 
 @usercommand
+@spmsyntax(String)
 def Remember(what):
     """Add a message to remember at the next experiment change.
 
@@ -422,6 +431,7 @@ def Remember(what):
     session.experiment.remember += [rtime + what]
 
 @usercommand
+@spmsyntax(Oneof(*EXECUTIONMODES))
 def SetMode(mode):
     """Set the execution mode.
 
