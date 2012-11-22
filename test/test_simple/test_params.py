@@ -56,7 +56,7 @@ def test_param_converters():
     assert tacodev() == ''
     assert raises(ValueError, tacodev, '/taco23/test/custom/device')
     assert raises(ValueError, tacodev, 'test/device')
-	
+
     assert tangodev('tango://host:123/test/custom/device') == 'tango://host:123/test/custom/device'
     assert tangodev() == ''
     assert raises(ValueError, tangodev, 'test/custom/device')
