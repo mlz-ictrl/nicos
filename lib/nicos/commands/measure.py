@@ -79,6 +79,10 @@ def _count(detlist, preset, result):
     result.extend(sum((det.read() for det in detlist), []))
 
 
+class CountResult(list):
+    __display__ = None
+
+
 @usercommand
 @helparglist('[detectors], [presets]')
 def count(*detlist, **preset):
@@ -125,7 +129,14 @@ def count(*detlist, **preset):
                      'detectors: %s' % ', '.join(names))
     result = []
     _count(detectors, preset, result)
-    return result
+    i = 0
+    msg = []
+    for det in detectors:
+        for v in det.valueInfo():
+            msg.append('%s = %s' % (v.name, result[i]))
+            i += 1
+    printinfo('count: ' + ', '.join(msg))
+    return CountResult(result)
 
 
 @usercommand

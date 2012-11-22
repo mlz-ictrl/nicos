@@ -47,7 +47,7 @@ class WebSession(Session):
         sys.displayhook = self._displayhook
 
     def _displayhook(self, value):
-        if value is not None:
+        if value is not None and getattr(value, '__display__', True):
             self.log.log(OUTPUT, repr(value))
 
     @classmethod
