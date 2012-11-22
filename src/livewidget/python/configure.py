@@ -78,4 +78,8 @@ elif dist == 'Ubuntu':
     makefile.extra_libs = ["qwt-qt4"]
 else:
     print "WARNING: Don't know where to find Qwt headers and libraries for your distribution"
+    # still try to build with useable defaults
+    makefile.extra_include_dirs = ["/usr/include/qwt"]
+    makefile.extra_libs = ["qwt"]
+
 makefile.generate()
