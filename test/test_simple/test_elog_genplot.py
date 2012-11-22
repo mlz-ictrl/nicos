@@ -24,11 +24,14 @@
 
 """NICOS tests for nicos.commands.scan and nicos.core.scan modules."""
 
+from os import path
+
 from nicos import session
 
 from nicos.commands.scan import scan
 from nicos.services.elog import genplot
 
+from test.utils import rootdir
 
 
 def setup_module():
@@ -50,6 +53,6 @@ def test_scan():
         # plain scan, with some extras: infostring, firstmove
         scan(m, 0, 1, 5, 0., 'test scan', manual=1)
         dataset = session.experiment._last_datasets[-1]
-        genplot.plotDataset(dataset,'testplt')
+        genplot.plotDataset(dataset, path.join(rootdir, 'testplt'))
     finally:
         session.experiment.detlist = []
