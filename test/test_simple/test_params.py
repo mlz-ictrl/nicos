@@ -72,11 +72,13 @@ def test_param_converters():
     assert intrange(1, 3)() == 1
     assert raises(ValueError, intrange(0, 10), 15)
     assert raises(ValueError, intrange(0, 10), 'x')
+    assert raises(ValueError, intrange(2, 1), 1)
 
     assert floatrange(0, 10)(5) == 5.0
     assert floatrange(1, 3)() == 1.0
     assert raises(ValueError, floatrange(0, 10), 15.)
     assert raises(ValueError, floatrange(0, 10), 'x')
+    assert raises(ValueError, floatrange(2, 1), 1)
 
     assert oneof(0, 1)(1) == 1
     assert oneof(2, 3)() == 2
