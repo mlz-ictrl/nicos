@@ -31,5 +31,6 @@ sysconfig = dict(
 )
 
 devices = dict(
-    testsink = device('test.utils.TestSink'),
+    testsink = device('test.utils.TestSink',
+                     ),
 )

@@ -27,19 +27,16 @@ name = 'test_alias setup'
 includes = ['system', 'slit']
 
 devices = dict(
-    v1 = device(
-        'nicos.devices.generic.VirtualMotor',
-        abslimits = (0, 5),
-        unit = 'mm',
-        speed = 1.5
-    ),
-    aliasDev = device(
-        'nicos.devices.generic.DeviceAlias',
-        alias = '',
-        devclass = 'nicos.devices.generic.VirtualMotor',
-    ),
-    aliasDev2 = device(
-        'nicos.devices.generic.DeviceAlias',
-        alias = 'slit',
-    )
+    v1 = device('nicos.devices.generic.VirtualMotor',
+                abslimits = (0, 5),
+                unit = 'mm',
+                speed = 1.5
+               ),
+    aliasDev = device('nicos.devices.generic.DeviceAlias',
+                      alias = '',
+                      devclass = 'nicos.devices.generic.VirtualMotor',
+                     ),
+    aliasDev2 = device('nicos.devices.generic.DeviceAlias',
+                       alias = 'slit',
+                      ),
 )

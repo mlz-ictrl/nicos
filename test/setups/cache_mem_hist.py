@@ -28,9 +28,11 @@ devices = dict(
     Server = device('services.cache.server.CacheServer',
                     server = 'localhost:14877',
                     db = 'DB3',
-                    loglevel='debug'),
+                    loglevel='debug',
+                   ),
 
     DB3 = device('services.cache.server.MemoryCacheDatabaseWithHistory',
-                maxentries = 50,
-                loglevel = 'debug'),
+                 maxentries = 50,
+                 loglevel = 'debug',
+                ),
 )

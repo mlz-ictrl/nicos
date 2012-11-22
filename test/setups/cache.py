@@ -28,9 +28,11 @@ devices = dict(
     Server = device('services.cache.server.CacheServer',
                     server = 'localhost:14877',
                     db = 'DB',
-                    loglevel='debug'),
+                    loglevel='debug',
+                   ),
 
     DB = device('services.cache.server.FlatfileCacheDatabase',
                 storepath = 'cache',
-                loglevel = 'debug'),
+                loglevel = 'debug',
+               ),
 )

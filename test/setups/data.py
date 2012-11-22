@@ -31,13 +31,10 @@ sysconfig = dict(
 )
 
 devices = dict(
-    asciisink = device(
-        'nicos.devices.datasinks.AsciiDatafileSink',
-    ),
-    consolesink = device(
-        'nicos.devices.datasinks.ConsoleSink',
-    ),
-    daemonsink = device(
-        'nicos.devices.datasinks.DaemonSink',
-    )
+    asciisink = device('nicos.devices.datasinks.AsciiDatafileSink',
+                      ),
+    consolesink = device('nicos.devices.datasinks.ConsoleSink',
+                        ),
+    daemonsink = device('nicos.devices.datasinks.DaemonSink',
+                       )
 )

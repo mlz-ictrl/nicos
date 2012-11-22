@@ -34,5 +34,6 @@ devices = dict(
                     passwd = [('guest', '', 0),
                               ('user', hashlib.sha1('user').hexdigest(), 10),
                               ('admin', hashlib.sha1('admin').hexdigest(), 20)],
-                    loglevel = 'debug'),
+                    loglevel = 'debug',
+                   ),
 )
