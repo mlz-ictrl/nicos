@@ -66,6 +66,7 @@ def test_manual_switch():
 
 def test_manual_switch_2():
     assert raises(ConfigurationError, session.getDevice, 'm2')
+    assert raises(ConfigurationError, session.getDevice, 'm3')
 
 def test_switcher():
     sw = session.getDevice('sw')

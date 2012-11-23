@@ -26,7 +26,7 @@
 
 __version__ = "$Revision$"
 
-from nicos.core import status, nonemptylistof, anytype, Moveable, Param, Override, \
+from nicos.core import status, statelist, anytype, Moveable, Param, Override, \
      HasLimits, PositionError
 
 
@@ -69,7 +69,7 @@ class ManualSwitch(Moveable):
 
     parameters = {
         'states': Param('List of allowed states',
-                        type=nonemptylistof(anytype), mandatory=True),
+                        type=statelist(anytype), mandatory=True),
     }
 
     parameter_overrides = {

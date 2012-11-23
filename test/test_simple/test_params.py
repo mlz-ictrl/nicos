@@ -26,7 +26,7 @@
 
 from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
      tacodev, tangodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
-     none_or, limits, mailaddress, Param, Value
+     none_or, limits, mailaddress, statelist, Param, Value
 from nicos.core.errors import ProgrammingError
 
 from test.utils import raises
@@ -131,6 +131,13 @@ def test_param_converters():
     assert text == 'Parameter: my parameter\n\n    * Type: float\n    * ' \
                    'Default value: ``0.0``\n    * Not settable at runtime\n' \
                    '    * Prefer value from cache: True'
+
+    assert statelist(str)(['on', 'off']) == ['on', 'off']
+    assert statelist(int)([1, 2, 3]) == [1, 2, 3]
+    assert statelist(int)() == [0]
+    assert raises(ValueError, statelist(str), ['on'])
+    assert raises(ValueError, statelist(str), [])
+    assert raises(ValueError, statelist(str), (1, 2))
 
 def test_value_class():
     assert raises(ProgrammingError, Value, 'my value', type='mytype')
