@@ -114,7 +114,7 @@ def test_param_converters():
     assert mailaddress('my.address@domain.my') == 'my.address@domain.my'
     assert mailaddress('my_address@domain.my') == 'my_address@domain.my'
     assert mailaddress('myaddress@domain.my') == 'myaddress@domain.my'
-    assert mailaddress('myaddress@my.domain.my') == 'myaddress@my.domain.my'
+    assert mailaddress('myaddress+local@my.domain.my') == 'myaddress+local@my.domain.my'
     assert mailaddress('myaddress@my.domain123.my') == 'myaddress@my.domain123.my'
     assert raises(ValueError, mailaddress, '@my.domain')
     assert raises(ValueError, mailaddress, 'my@domain')
