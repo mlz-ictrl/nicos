@@ -417,15 +417,25 @@ def tangodev(val=None):
         raise ValueError('%r is not a valid Tango device name' % val)
     return val
 
-mailaddress_re = re.compile(r'[\w.+-]+@([\w+-]+\.)+([a-zA-Z]+)+', re.I)
+
+# see http://stackoverflow.com/questions/3217682/checking-validity-of-email-in-django-python
+# for source
+
+mailaddress_re = re.compile(
+    r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*"  # dot-atom
+    r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-011\013\014\016-\177])*"' # quoted-string
+    r')@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+([A-Z]{2,99}|XN[A-Z0-9-]+)\.?$', re.IGNORECASE)  # domain
 
 def mailaddress(val=None):
     """a valid mail address"""
     if val is None:
-       return ''
-    val = str(val)
+        return ''
+    val = unicode(val)
+    parts = val.split(u'@')
+    parts[-1] = parts[-1].encode('idna')
+    val = u'@'.join(parts)
     if not mailaddress_re.match(val):
-       raise ValueError('%r is not a valid email address' % val)
+        raise ValueError('%r is not a valid email address' % val)
     return val
 
 def control_path_relative(val=''):
