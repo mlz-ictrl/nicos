@@ -39,7 +39,7 @@ try:
 except ImportError:
     xmpp = None
 
-from nicos.core import listof, usermethod, Device, Param
+from nicos.core import listof, mailaddress, usermethod, Device, Param
 
 EMAIL_CHARSET = 'utf-8'
 NS_XHTML = 'http://www.w3.org/1999/xhtml'
@@ -124,10 +124,10 @@ class Mailer(Notifier):
     """
 
     parameters = {
-        'sender':    Param('Mail sender address', type=str, mandatory=True),
-        'receivers': Param('Mail receiver addresses', type=listof(str),
+        'sender':    Param('Mail sender address', type=mailaddress, mandatory=True),
+        'receivers': Param('Mail receiver addresses', type=listof(mailaddress),
                            settable=True),
-        'copies':    Param('Mail copy addresses', type=listof(str),
+        'copies':    Param('Mail copy addresses', type=listof(mailaddress),
                            settable=True),
         'subject':   Param('Subject prefix', type=str, default='NICOS'),
     }
