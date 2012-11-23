@@ -38,7 +38,7 @@ from nicos.core.device import Device, AutoDevice, Readable, Moveable, \
 from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \
      listof, nonemptylistof, tupleof, dictof, tacodev, tangodev, anytype, \
      vec3, intrange, floatrange, oneof, oneofdict, none_or, \
-     control_path_relative
+     control_path_relative, mailaddress
 from nicos.core.data import Dataset, DataSink, NeedsDatapath
 from nicos.core.utils import multiStatus, waitForStatus, formatStatus, \
      GUEST, USER, ADMIN, ACCESS_LEVELS
