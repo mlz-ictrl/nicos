@@ -26,7 +26,7 @@
 
 from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
      tacodev, tangodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
-     none_or, limits, mailaddress
+     none_or, limits, mailaddress, Param, Value
 from nicos.core.errors import ProgrammingError
 
 from test.utils import raises
@@ -111,6 +111,7 @@ def test_param_converters():
     assert raises(ValueError, limits, (10, -10))
     assert raises(ValueError, limits, ('a', 'b'))
 
+    assert mailaddress() == ''
     assert mailaddress('my.address@domain.my') == 'my.address@domain.my'
     assert mailaddress('my_address@domain.my') == 'my_address@domain.my'
     assert mailaddress('myaddress@domain.my') == 'myaddress@domain.my'
@@ -119,3 +120,13 @@ def test_param_converters():
     assert raises(ValueError, mailaddress, '@my.domain')
     assert raises(ValueError, mailaddress, 'my@domain')
     assert raises(ValueError, mailaddress, 'my@domain.123')
+
+    assert str(Param('my parameter')) == '<Param info>'
+    text = Param('my parameter', prefercache=True).formatDoc()
+    assert text == 'Parameter: my parameter\n\n    * Type: float\n    * ' \
+                   'Default value: ``0.0``\n    * Not settable at runtime\n' \
+                   '    * Prefer value from cache: True'
+
+def test_value_class():
+    assert raises(ProgrammingError, Value, 'my value', type='mytype')
+    assert raises(ProgrammingError, Value, 'my value', errors='double')
