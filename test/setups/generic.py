@@ -43,6 +43,9 @@ devices = dict(
     m1 = device('nicos.devices.generic.ManualSwitch',
                 states = ['up', 'down']
                ),
+    m2 = device('nicos.devices.generic.ManualSwitch',
+                states = [],
+               ),
     sw = device('nicos.devices.generic.Switcher',
                 moveable = 'v3',
                 states = ['left', 'right', 'outside'],

@@ -26,7 +26,7 @@
 
 __version__ = "$Revision$"
 
-from nicos.core import status, listof, anytype, Moveable, Param, Override, \
+from nicos.core import status, nonemptylistof, anytype, Moveable, Param, Override, \
      HasLimits, PositionError
 
 
@@ -69,7 +69,7 @@ class ManualSwitch(Moveable):
 
     parameters = {
         'states': Param('List of allowed states',
-                        type=listof(anytype), mandatory=True),
+                        type=nonemptylistof(anytype), mandatory=True),
     }
 
     parameter_overrides = {
@@ -79,11 +79,10 @@ class ManualSwitch(Moveable):
     hardware_access = False
 
     def doReadTarget(self):
-        if self.states:
-            return self.states[0]
+        return self.states[0]
 
     def doIsAllowed(self, target):
-        if self.states and target not in self.states:
+        if target not in self.states:
             positions = ', '.join(repr(pos) for pos in self.states)
             return False, \
                 '%r is an invalid position for this device; ' \

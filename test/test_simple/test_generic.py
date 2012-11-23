@@ -64,6 +64,9 @@ def test_manual_switch():
     assert m.read() == 'down'
     assert m.status()[0] == status.OK
 
+def test_manual_switch_2():
+    assert raises(ConfigurationError, session.getDevice, 'm2')
+
 def test_switcher():
     sw = session.getDevice('sw')
     v3 = session.getDevice('v3')
