@@ -185,3 +185,6 @@ class DataSink(Device):
 
     def endDataset(self, dataset):
         """End the current dataset."""
+
+    def addFitCurve(self, dataset, title, xvalues, yvalues):
+        """Add a fit curve to the dataset after it is finished."""

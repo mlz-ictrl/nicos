@@ -121,6 +121,9 @@ class DaemonSink(DataSink):
     def addPoint(self, dataset, xvalues, yvalues):
         session.emitfunc('datapoint', (xvalues, yvalues))
 
+    def addFitCurve(self, dataset, title, xvalues, yvalues):
+        session.emitfunc('datacurve', (title, xvalues, yvalues))
+
 
 class GraceSink(DataSink):
     """A DataSink that plots datasets in the Grace plotting program.
@@ -154,6 +157,10 @@ class GraceSink(DataSink):
     def addPoint(self, dataset, xvalues, yvalues):
         if not self._plotter.addPoint(dataset, xvalues, yvalues):
             self.log.warning('could not add point to Grace')
+
+    def addFitCurve(self, dataset, title, xvalues, yvalues):
+        if not self._plotter.addFitCurve(dataset, title, xvalues, yvalues):
+            self.log.warning('could not add curve to Grace')
 
     @usermethod
     def history(self, dev, key='value', fromtime=None, totime=None):

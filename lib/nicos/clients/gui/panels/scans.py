@@ -115,6 +115,8 @@ class ScansPanel(Panel):
                      self.on_data_datasetAdded)
         self.connect(self.data, SIGNAL('pointsAdded'),
                      self.on_data_pointsAdded)
+        self.connect(self.data, SIGNAL('curveAdded'),
+                     self.on_data_curveAdded)
 
         self.updateList()
 
@@ -276,6 +278,12 @@ class ScansPanel(Panel):
     def on_data_pointsAdded(self, dataset):
         if dataset.uid in self.setplots:
             self.setplots[dataset.uid].pointsAdded()
+
+    def on_data_curveAdded(self, dataset):
+        if dataset.uid in self.setplots:
+            self.setplots[dataset.uid].addCurve(len(dataset.curves)-1,
+                                                dataset.curves[-1])
+            self.setplots[dataset.uid].replot()
 
     @qtsig('')
     def on_actionClosePlot_triggered(self):

@@ -88,6 +88,8 @@ DAEMON_EVENTS = {
     'dataset': True,
     # a new point was added to a dataset
     'datapoint': True,
+    # a new fit curve was added to a dataset
+    'datacurve': True,
     # new parameters for the data sent with the "livedata" event
     'liveparams': True,
     # live detector data to display

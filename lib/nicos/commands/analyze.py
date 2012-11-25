@@ -32,6 +32,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core import NicosError, UsageError
+from nicos.utils import printTable
 from nicos.utils.fitting import Fit
 from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import cscan
@@ -106,7 +107,7 @@ def _getData(columns):
     else:
         dys = np.array([1] * len(ys))
 
-    return xs, ys, dys
+    return xs, ys, dys, dataset
 
 
 COLHELP = """
@@ -128,7 +129,7 @@ COLHELP = """
 @helparglist('[[xcol, ]ycol]')
 def center_of_mass(*columns):
     """Calculate the center of mass x-coordinate of the last scan."""
-    xs, ys, _ = _getData(columns)
+    xs, ys, _, _ = _getData(columns)
     cm = (xs*ys).sum() / float(ys.sum())
     return float(cm)
 
@@ -149,7 +150,7 @@ def fwhm(*columns):
     * ymax - maximum y-value
     * ymin - minimum y-value
     """
-    xs, ys, _ = _getData(columns)
+    xs, ys, _, _ = _getData(columns)
 
     ymin = ys.min()
     ymax = ys.max()
@@ -203,8 +204,12 @@ def root_mean_square(col=None):
     The data column to use can be given by an argument (by name or number); the
     default is the first Y column of type "counter".
     """
-    _, ys, _ = _getData(col and (0, col) or ())
+    _, ys, _, _ = _getData(col and (0, col) or ())
     return sqrt((ys**2).sum() / len(ys))
+
+
+class FitResult(tuple):
+    __display__ = False
 
 
 @usercommand
@@ -218,14 +223,23 @@ def poly(n, *columns):
 
     where both *coefficients* and *coeff_errors* are tuples of *n+1* elements.
     """
-    xs, ys, dys = _getData(columns)
+    xs, ys, dys, ds = _getData(columns)
     def model(x, *v):
         return sum(v[i]*x**i for i in range(n+1))
     fit = Fit(model, ['a%d' % i for i in range(n+1)], [1] * (n+1))
     res = fit.run('poly', xs, ys, dys)
     if res._failed:
-        return None, None
-    return tuple(res._pars[1]), tuple(res._pars[2])
+        printinfo('Fit failed.')
+        return FitResult((None, None))
+    for sink in ds.sinks:
+        xf = np.linspace(xs[0], xs[-1], 200)
+        sink.addFitCurve(ds, 'poly(%d)' % n, xf, model(xf, *res._pars[1]))
+    descrs = ['a_%d' % i for i in range(n+1)]
+    vals = []
+    for par, err, descr in zip(res._pars[1], res._pars[2], descrs):
+        vals.append((descr, '%.5g' % par, '+/- %.5g' % err))
+    printTable(('parameter', 'value', 'error'), vals, printinfo)
+    return FitResult((tuple(res._pars[1]), tuple(res._pars[2])))
 
 poly.__doc__ += COLHELP.replace('func(', 'poly(2, ')
 
@@ -247,7 +261,7 @@ def gauss(*columns):
     * sigma - FWHM
     * background
     """
-    xs, ys, dys = _getData(columns)
+    xs, ys, dys, ds = _getData(columns)
     c = 2 * np.sqrt(2 * np.log(2))
     def model(x, x0, A, sigma, back):
         return A * np.exp(-0.5 * (x - x0)**2 / (sigma / c)**2) + back
@@ -256,7 +270,15 @@ def gauss(*columns):
     res = fit.run('gauss', xs, ys, dys)
     if res._failed:
         return None, None
-    return tuple(res._pars[1]), tuple(res._pars[2])
+    for sink in ds.sinks:
+        xf = np.linspace(xs[0], xs[-1], 200)
+        sink.addFitCurve(ds, 'gauss', xf, model(xf, *res._pars[1]))
+    descrs = ['center', 'amplitude', 'FWHM', 'background']
+    vals = []
+    for par, err, descr in zip(res._pars[1], res._pars[2], descrs):
+        vals.append((descr, '%.4f' % par, '%.4f' % err))
+    printTable(('parameter', 'value', 'error'), vals, printinfo)
+    return FitResult((tuple(res._pars[1]), tuple(res._pars[2])))
 
 gauss.__doc__ += COLHELP.replace('func(', 'gauss(')
 
@@ -340,7 +362,7 @@ def findpeaks(*columns, **kwds):
     # parabola model
     def model(x, b, s, c):
         return b + s*(x-c)**2
-    xs, ys, dys = _getData(columns)
+    xs, ys, dys, _ = _getData(columns)
     np = kwds.get('npoints', 2)
     peaks = []
     # peak has to be different from background

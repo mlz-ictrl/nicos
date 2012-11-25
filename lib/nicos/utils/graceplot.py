@@ -131,3 +131,13 @@ class GracePlotter(object):
             except Exception:
                 self._grpl = None
                 return False
+
+    def addFitCurve(self, dataset, title, xvalues, yvalues):
+        if self._grpl is None:
+            return
+        l = GracePlot.Line(type=GracePlot.lines.solid, linewidth=2)
+        d = GracePlot.Data(x=xvalues, y=yvalues, line=l, legend=title)
+        self._pl.clear()
+        self._pl.plot(self._pl.datasets + [d])
+        self._pl.legend()
+        return True

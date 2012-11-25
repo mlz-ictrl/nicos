@@ -85,6 +85,7 @@ class DataHandler(QObject):
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
         self.connect(self.client, SIGNAL('dataset'), self.on_client_dataset)
         self.connect(self.client, SIGNAL('datapoint'), self.on_client_datapoint)
+        self.connect(self.client, SIGNAL('datacurve'), self.on_client_datacurve)
 
     def on_client_connected(self):
         # retrieve datasets and put them into the scans window
@@ -136,6 +137,17 @@ class DataHandler(QObject):
         self.emit(SIGNAL('pointsAdded'), self.currentset)
         for depset in self.dependent:
             self.emit(SIGNAL('pointsAdded'), depset)
+
+    def on_client_datacurve(self, (title, xvalues, yvalues)):
+        if not self.currentset:
+            raise DataError('No current set, trying to add a curve')
+        newc = Curve()
+        newc.description = title
+        newc.datax = xvalues
+        newc.datay = yvalues
+        newc.function = True
+        self.currentset.curves.append(newc)
+        self.emit(SIGNAL('curveAdded'), self.currentset)
 
     def _init_curves(self, dataset):
         curves = []

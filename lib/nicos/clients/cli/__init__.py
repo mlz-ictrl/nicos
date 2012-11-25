@@ -448,6 +448,9 @@ class NicosCmdClient(NicosClient):
                     self.last_dataset.yresults.append(data[1])
                     if self.grace_on:
                         self.grace.addPoint(self.last_dataset, *data)
+            elif name == 'datacurve':
+                if self.last_dataset and self.grace_on:
+                    self.grace.addFitCurve(self.last_dataset, *data)
             elif name == 'connected':
                 self.initial_update()
             elif name == 'disconnected':
