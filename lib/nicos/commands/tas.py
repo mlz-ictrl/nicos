@@ -648,9 +648,14 @@ def checkalign(hkl, step, numsteps, *args, **kwargs):
 
     >>> checkalign((1, 1, 0), 0.05, 20)
     >>> checkalign((1, 1, 0), 0.05, 20, ycol='ctr2')
+
+    You can also give a keyword argument "accuracy", which defines how much
+    the old and new value have to differ in order to make an adjustment.  It
+    defaults to 1/10 of the fitted FWHM.
     """
     tas = session.instrument
     ycol = kwargs.pop('ycol', -1)
+    accuracy = kwargs.pop('accuracy', None)
     target = tuple(hkl) + (0,)
     tas.maw(target)
     psi = tas._adevs['psi']
@@ -669,8 +674,11 @@ def checkalign(hkl, step, numsteps, *args, **kwargs):
         diff = center - params[0] # NOTE: this is the other way around compared
                                   # to checkoffset
         printinfo('center of Gaussian fit at %s' % psi.format(params[0], True))
-        if abs(diff) < 0.05:
-            printinfo('alignment ok within 0.05 degrees, not changing psi0')
+        if accuracy is None:
+            accuracy = params[2] * 0.1
+        if abs(diff) < accuracy:
+            printinfo('alignment ok within %.3f degrees, not changing psi0'
+                      % accuracy)
             return
         sample = tas._adevs['cell']
         printwarning('adjusting %s.psi0 by %s' % (sample,
