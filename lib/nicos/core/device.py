@@ -1167,7 +1167,8 @@ class Moveable(Readable):
         lastval = None
         try:
             if hasattr(self, 'doWait'):
-                session.beginActionScope('Waiting: %s' % self)
+                session.beginActionScope('Waiting: %s -> %s' %
+                                         (self, self.format(self.target)))
                 try:
                     lastval = self.doWait()
                 finally:
