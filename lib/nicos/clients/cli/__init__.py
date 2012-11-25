@@ -533,8 +533,11 @@ class NicosCmdClient(NicosClient):
             self.conndata['passwd'] = passwd
         self.instrument = self.conndata['host'].split('.')[0]
         # disable sending events with potentially large data we don't handle
-        self.connect(self.conndata,
-                     eventmask=('liveparams', 'livedata', 'watch'))
+        try:
+            self.connect(self.conndata,
+                         eventmask=('liveparams', 'livedata', 'watch'))
+        except RuntimeError, err:
+            self.put_error('Cannot connect: %s.' % err)
 
     def help(self, arg):
         """Implements the "/help" command."""
