@@ -763,7 +763,7 @@ class NicosCmdClient(NicosClient):
                 return
             fpath = path.join(self.scriptdir, arg)
             # detect whether we have a filename or potential Python code
-            if path.isfile(fpath) or fpath.endswith('.py'):
+            if path.isfile(fpath) or fpath.endswith(('.py', '.txt')):
                 try:
                     code = open(fpath).read()
                 except Exception, e:
@@ -868,11 +868,11 @@ class NicosCmdClient(NicosClient):
         # omit the part already on the line, but not what readline considers the
         # current "word"
         omit = len(initpath) - len(word)
-        # complete directories and .py script files
+        # complete directories and .py/.txt script files
         for f in glob.glob(initpath + '*'):
             if path.isdir(f):
                 candidates.append(f[omit:] + '/')
-            elif path.isfile(f) and f.endswith('.py'):
+            elif path.isfile(f) and f.endswith(('.py', '.txt')):
                 candidates.append(f[omit:])
         return candidates
 
