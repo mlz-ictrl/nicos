@@ -39,6 +39,10 @@ Examples::
     scan sth 10.4 0.4 25 t 2
 """
 
+# XXX SPM todos:
+# * figure out how to convert code examples in docstrings
+# * add a way to make commands unavailable (e.g. manualscan)
+
 __version__ = "$Revision$"
 
 import re
