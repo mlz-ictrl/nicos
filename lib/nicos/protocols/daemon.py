@@ -68,20 +68,36 @@ STATUS_STOPPING = 2   # stop exception raised, waiting for propagation
 # key: event name
 # value: whether the event data is serialized
 DAEMON_EVENTS = {
+    # a new message arrived
     'message': True,
+    # a new request arrived
     'request': True,
+    # a request is now being processed
     'processing': True,
+    # one or more requests have been blocked from execution
     'blocked': True,
+    # the execution status changed
     'status': True,
+    # the watched variables changed
     'watch': True,
+    # the mode changed
     'mode': True,
+    # a new cache value has arrived
     'cache': True,
+    # a new dataset was created
     'dataset': True,
+    # a new point was added to a dataset
     'datapoint': True,
+    # new parameters for the data sent with the "livedata" event
     'liveparams': True,
+    # live detector data to display
     'livedata': False,
+    # a simulation finished with the given result
     'simresult': True,
+    # request to display given help page
     'showhelp': True,
+    # request to execute something on the client side
     'clientexec': True,
+    # the remote-debugging status changed
     'debugging': True,
 }
