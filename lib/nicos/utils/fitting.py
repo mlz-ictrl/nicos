@@ -141,9 +141,9 @@ class Fit(object):
         xn, yn, dyn = array(xn), array(yn), array(dyn)
         try:
             popt, pcov = curve_fit(self.model, xn, yn, self.parstart, dyn)
-        except RuntimeError:
+            parerrors = sqrt(diagonal(pcov))
+        except (RuntimeError, ValueError):
             return self.result(name, None, xn, yn, dyn, None, None)
-        parerrors = sqrt(diagonal(pcov))
         return self.result(name, 'ODR', xn, yn, dyn, popt, parerrors)
 
     def result(self, name, method, x, y, dy, parvalues, parerrors):
