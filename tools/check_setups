@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
+import os
 import sys
 import traceback
+from os import path
 
 SETUP_GROUPS = set([
     'basic', 'optional', 'lowlevel', 'simulated', 'special'
@@ -43,7 +45,13 @@ def check_setupfile(filename):
     return True
 
 ret = True
-for i in sys.argv[1:]:
-    ret = ret and check_setupfile(i)
+for p in sys.argv[1:]:
+    if path.isdir(p):
+        for root, _dirs, files in os.walk(p):
+            for f in files:
+                if f.endswith('.py'):
+                    ret &= check_setupfile(path.join(root, f))
+    elif path.isfile(p):
+        ret &= check_setupfile(p)
 
 sys.exit(not ret)

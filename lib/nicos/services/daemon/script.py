@@ -300,6 +300,7 @@ class ExecutionController(Controller):
         Controller.__init__(self, break_only_in_filename='<script>')
         self.set_observer(self._observer)
 
+    # this code is executed as the first thing when the daemon starts
     setup_code = ('from nicos import session\n'
                   'try:\n'
                   '    session.handleInitialSetup(%r, %s)\n'
