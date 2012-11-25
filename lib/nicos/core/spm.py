@@ -156,7 +156,19 @@ class Oneof(Token):
     def complete(self, text, session, argsofar):
         return [c for c in self.choices if c.startswith(text)]
 
-Bool = Oneof('true', 'false')
+
+class Bool(Token):
+    desc = 'boolean'
+
+    def handle(self, arg, session):
+        if arg.lower() not in ['true', 'false']:
+            raise NoParse('true or false', arg)
+        return bare(arg.capitalize())
+
+    def complete(self, text, session, argsofar):
+        return [c for c in ['true', 'false'] if c.startswith(text)]
+
+Bool = Bool()
 
 
 class Dev(Token):
