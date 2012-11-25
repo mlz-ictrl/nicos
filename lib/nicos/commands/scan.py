@@ -188,7 +188,7 @@ def timescan(numsteps, *args, **kwargs):
 
 @usercommand
 @helparglist('dev, start, end, numsteps, ...')
-@spmsyntax(Dev(Moveable), Bare, Bare, Bare)
+@spmsyntax(Dev(Moveable), Bare, Bare)
 def sweep(dev, start, end, *args, **kwargs):
     """Do a sweep of *dev* from *start* to *end*, repeating the count as often
     as possible in between.
