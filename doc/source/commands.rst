@@ -81,7 +81,7 @@ Miscellaneous commands
 .. autofunction:: ClearCache
 .. autofunction:: UserInfo
 .. autofunction:: SaveSimulationSetup
-.. autofunction:: SetSPM
+.. autofunction:: SetSimpleMode
 
 Device commands
 ---------------

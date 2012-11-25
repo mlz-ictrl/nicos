@@ -471,10 +471,10 @@ def SetMode(mode):
 
 @usercommand
 @spmsyntax(Bool)
-def SetSPM(enable):
+def SetSimpleMode(enable):
     """Enable or disable Simple Parameter Mode.  Example:
 
-    >>> SetSPM(1)
+    >>> SetSimpleMode(True)
     """
     session.setSPMode(enable)
 
