@@ -495,6 +495,12 @@ class ExecutionController(Controller):
         else:
             sys.settrace(None)
 
+    def complete_line(self, prefix, line):
+        if not session._spmode:
+            return self.completer.get_matches(prefix, line)
+        spmatches = session._spmhandler.complete(line, prefix)
+        return [m + ' ' for m in spmatches]
+
     def add_estop_function(self, func, args):
         if not callable(func):
             raise TypeError('emergency stop function must be a callable')
