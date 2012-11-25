@@ -45,7 +45,7 @@ from nicos.core.spm import SPMHandler
 from nicos.core.data import DataSink
 from nicos.core.device import Device
 from nicos.core.errors import NicosError, UsageError, ModeError, \
-     ConfigurationError, AccessError, CacheError, SPMError
+     ConfigurationError, AccessError, CacheError
 from nicos.devices.notifiers import Notifier
 from nicos.utils import formatDocstring
 from nicos.utils.loggers import initLoggers, NicosLogger, \
