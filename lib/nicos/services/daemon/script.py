@@ -148,10 +148,6 @@ class ScriptRequest(Request):
     def execute(self, controller):
         """Execute the script in the given namespace, using "controller"
         to execute individual blocks."""
-        # notify client of new script
-        controller.eventfunc('processing', self.serialize())
-        # notify clients of "input"
-        session.log.log(INPUT, format_script(self))
         # this is to allow the traceback module to report the script's
         # source code correctly
         update_linecache('<script>', self.text)
@@ -562,13 +558,15 @@ class ExecutionController(Controller):
                 elif not isinstance(request, ScriptRequest):
                     self.log.error('unknown request: %s' % request)
                     continue
+                # notify clients that we're processing this request now
+                self.eventfunc('processing', request.serialize())
+                # notify clients of "input"
+                session.log.log(INPUT, format_script(request))
                 # parse the script and split it into blocks
                 try:
                     self.current_script = request
                     self.current_script.parse()
                 except Exception:
-                    # remove from script queue
-                    self.eventfunc('blocked', [self.current_script.reqno])
                     session.logUnhandledException(cut_frames=1)
                     continue
                 # record starting time to decide whether to send notification
