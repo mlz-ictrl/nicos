@@ -256,10 +256,21 @@ class TAS(Instrument, Moveable):
 
         Must be overridden for instruments with collimation support.
         """
+        def to_coll(v):
+            if v == 'open':
+                return 6000
+            return int(v)
         try:
-            a1, a2, a3, a4, b1, b2, b3, b4 = map(int, self.collimation.split())
+            a1, a2, a3, a4, b1, b2, b3, b4 = map(to_coll, self.collimation.split())
         except Exception:
-            return [6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000]
+            try:
+                a1, a2, a3, a4 = map(to_coll, self.collimation.split())
+            except Exception:
+                self.log.warning('collimation parameter should be set to '
+                                 '"a1 a2 a3 a4 b1 b2 b3 b4", assuming open')
+                return [6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000]
+            else:
+                return [a1, a2, a3, a4, 6000, 6000, 6000, 6000]
         else:
             return [a1, a2, a3, a4, b1, b2, b3, b4]
 

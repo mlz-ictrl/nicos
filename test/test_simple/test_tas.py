@@ -25,7 +25,7 @@
 from nicos import session
 from nicos.core import UsageError, LimitError, ConfigurationError
 from nicos.commands.tas import qscan, qcscan, Q, calpos, pos, rp, \
-     acc_bragg, ho_spurions, alu, copper
+     acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args
 
 from test.utils import raises, assertAlmostEqual, ErrorLogged
 
@@ -185,3 +185,20 @@ def test_helper_commands():
     ho_spurions()
     alu(phi=50)
     copper(phi=50)
+
+def test_resolution():
+    tas = session.getDevice('Tas')
+    tas.collimation = '20 30 40 50'
+    cell = tas._adevs['cell']
+    cfg, par = _resmat_args((1,1,0,0), {})
+    assert len(cfg) == 30
+    assert par['qx'] == 1
+    assert par['en'] == 0
+    assert par['as'] == cell.lattice[0]
+    assert par['alpha1'] == 20
+    assert par['alpha4'] == 50
+    assert par['beta1'] == 6000
+
+    rescal()
+    rescal(1, 1, 0)
+    rescal(1, 1, 0, 1)
