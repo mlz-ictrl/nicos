@@ -1027,6 +1027,25 @@ class MainWindow : public QMainWindow
 			}
 		}
 
+		void SaveFileAsDat()
+		{
+			if(!m_cascadewidget.IsPadLoaded() && !m_cascadewidget.IsTofLoaded())
+				return;
+			
+			QString strFile = QFileDialog::getSaveFileName(this,
+								"Save as DAT File", "",
+								"DAT Files (*.dat *.DAT);;All Files (*)");
+			// PAD
+			if(m_cascadewidget.IsPadLoaded())
+			{
+				m_cascadewidget.GetPad()->SaveAsDat(strFile.toAscii().data());
+			}
+			if(m_cascadewidget.IsTofLoaded())
+			{
+				m_cascadewidget.GetTof()->SaveAsDat(strFile.toAscii().data());
+			}
+		}		
+
 		void WriteXML(void)
 		{
 			if(!m_cascadewidget.IsTofLoaded() && !m_cascadewidget.IsPadLoaded())
@@ -1381,6 +1400,10 @@ class MainWindow : public QMainWindow
 						QIcon::fromTheme("document-save-as"),
 						"&Save File...",
 						this);
+			QAction *actionSaveDatFile = new QAction(
+						QIcon::fromTheme("document-save-as"),
+						"&Save File as DAT...",
+						this);			
 			QAction *actionWriteXML = new QAction(
 						QIcon::fromTheme("document-save-as"),
 						"Write &XML...",
@@ -1530,6 +1553,7 @@ class MainWindow : public QMainWindow
 			menuFile->addAction(actionBrowseFiles);
 			menuFile->addSeparator();
 			menuFile->addAction(actionSaveFile);
+			menuFile->addAction(actionSaveDatFile);
 			menuFile->addAction(actionWriteXML);
 			menuFile->addSeparator();
 			menuFile->addAction(actionPrint);
@@ -1794,6 +1818,8 @@ class MainWindow : public QMainWindow
 			connect(actionLoadPadTxt, SIGNAL(triggered()), this, SLOT(LoadPadTxt()));
 			connect(actionLoadTof, SIGNAL(triggered()), this, SLOT(LoadTof()));
 			connect(actionSaveFile, SIGNAL(triggered()), this, SLOT(SaveFile()));
+			connect(actionSaveDatFile, SIGNAL(triggered()),
+					this, SLOT(SaveFileAsDat()));
 			connect(actionWriteXML, SIGNAL(triggered()),
 					this, SLOT(WriteXML()));
 			connect(actionPrint, SIGNAL(triggered()),
