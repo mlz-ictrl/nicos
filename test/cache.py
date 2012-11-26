@@ -26,9 +26,18 @@
 
 __version__ = "$Revision$"
 
+import os
+import sys
 import logging
 from os import path
-import sys
+
+try:
+    import coverage
+except ImportError:
+    pass
+else:
+    os.environ['COVERAGE_PROCESS_START'] = '.coveragerc'
+    coverage.process_startup()
 
 from nicos.utils import loggers
 from nicos.core.sessions.simple import NoninteractiveSession

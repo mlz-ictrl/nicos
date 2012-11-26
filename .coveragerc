@@ -1,0 +1,3 @@
+[run]
+source = lib/nicos
+parallel = true

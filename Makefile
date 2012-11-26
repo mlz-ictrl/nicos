@@ -57,7 +57,9 @@ testall:
 
 test-coverage:
 	@NOSE=`which nosetests`; if [ -z "$$NOSE" ]; then echo "nose is required to run the test suite"; exit 1; fi
-	@$(PYTHON) `which nosetests` $(T) -d --with-coverage --cover-package=nicos --cover-html $(O)
+	@$(PYTHON) `which nosetests` $(T) -d --with-coverage --cover-package=nicos $(O)
+	@`which coverage || which python-coverage` combine
+	@`which coverage || which python-coverage` html -d cover
 
 lint:
 	-PYTHONPATH=lib pylint --rcfile=./pylintrc lib/nicos/

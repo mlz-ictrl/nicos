@@ -26,12 +26,21 @@
 
 __version__ = "$Revision$"
 
+import os
 import logging
 from os import path
 
+try:
+    import coverage
+except ImportError:
+    pass
+else:
+    os.environ['COVERAGE_PROCESS_START'] = '.coveragerc'
+    coverage.process_startup()
+
 from nicos.utils import loggers
 from nicos.services.daemon.session import DaemonSession
-import os
+
 
 class TestDaemonSession(DaemonSession):
 
