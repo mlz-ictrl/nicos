@@ -32,6 +32,8 @@ from nicos.core.scan import ContinuousScan
 from nicos.commands.measure import count
 from nicos.commands.scan import scan, cscan, timescan, twodscan, contscan, \
      manualscan
+from nicos.commands.analyze import checkoffset
+from nicos.commands.tas import checkalign
 
 from test.utils import raises
 
@@ -236,6 +238,15 @@ def test_manualscan():
     assert dataset.scaninfo.startswith('manscan')
     assert dataset.xresults == [[0., 0.], [1., 1.], [2., 2.]]
     assert dataset.ynames == ['ctr1_manual_0', 'ctr1_manual_1']
+
+def test_specialscans():
+    m = session.getDevice('motor')
+    ctr = session.getDevice('ctr1')
+    checkoffset(m, 10, 0.05, 2, ctr)
+    tas = session.getDevice('Tas')
+    tas.scanmode = 'CKI'
+    tas.scanconstant = 1.55
+    checkalign((1, 0, 0), 0.05, 2, ctr)
 
 def test_twodscan():
     m = session.getDevice('motor')
