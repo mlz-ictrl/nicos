@@ -128,13 +128,19 @@ devices = dict(
                       scanmode = 'CKF',
                      ),
 
+    t_alpha  = device('devices.generic.VirtualMotor',
+                      curvalue = 0,
+                      unit = 'deg',
+                      abslimits = (-360, 360),
+                     ),
+
     Tas      = device('devices.tas.TAS',
                       cell = 'sample',
                       mono = 't_mono',
                       phi = 't_phi',
                       psi = 't_psi',
                       ana = 't_ana',
-                      alpha = None,
+                      alpha = 't_alpha',
                       instrument = 'Tas',
                      ),
 )
