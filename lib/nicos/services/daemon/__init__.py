@@ -130,7 +130,7 @@ class Server(TCPServer):
                                         name='event_sender %d' % handler.ident)
         event_thread.setDaemon(True)
         event_thread.start()
-        del self.pending_clients[host, clid]
+        self.pending_clients.pop((host, clid), None)
         # don't call the usual handler
         return None
 
