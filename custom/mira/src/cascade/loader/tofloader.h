@@ -307,6 +307,7 @@ class TofImage : public Countable
 		bool IsOk() const;
 
 		bool SaveAsDat(const char* pcDat, int iSelFoil=-1) const;
+		bool SaveTcs(const char* pcDat) const;
 
 		bool AreaPhaseCorrect();
 };

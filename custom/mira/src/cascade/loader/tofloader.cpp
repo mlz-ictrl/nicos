@@ -282,6 +282,8 @@ unsigned int* TofImage::GetRawData(void) const
 
 int TofImage::LoadMem(const char *strBuf, unsigned int istrBufLen)
 {
+	m_cascconf.Clear();
+
 	const unsigned int *puiBuf = (unsigned int *)strBuf;
 	unsigned int uiBufLen = istrBufLen / 4;
 
@@ -322,6 +324,8 @@ int TofImage::LoadMem(const char *strBuf, unsigned int istrBufLen)
 
 int TofImage::LoadFile(const char *pcFileName)
 {
+	m_cascconf.Clear();
+
 	if(m_bExternalMem)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_WARN);
@@ -717,14 +721,14 @@ bool TofImage::AreaPhaseCorrect()
 				{
 					if(pTcShifted[iTc] < 0)
 					{
-						/*
+/*
 						logger.SetCurLogLevel(LOGLEVEL_WARN);
 						logger << "Loader: Shift in foil " << iFoil
 									<< ", timechannel " << iTc
 									<< ", pixel " << iX << ", " << iY
 									<< " is incorrect (possibly due to bad statistics).\n";
-						*/
-						pTcShifted[iTc] = 0.;
+*/
+						pTcShifted[iTc] = 0;
 					}
 
 					pTof->SetData(iFoil, iTc, iX, iY, (unsigned int)pTcShifted[iTc]);
@@ -806,6 +810,8 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY)
 	const double dNumTc = double(iNumTc);
 	const int iNumFoils = GetTofConfig().GetFoilCount();
 
+	const bool bDumpData = GlobalConfig::GetDumpFiles();
+
 	TmpGraph graph(&GetTofConfig());
 	GetTofConfig().CheckTofArguments(&iStartX, &iEndX, &iStartY, &iEndY);
 
@@ -877,10 +883,30 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY)
 		// sum all foils
 		for(int iTc=0; iTc<iNumTc; ++iTc)
 			pDataSum[iTc] += pDataFoilShifted[iTc];
+
+
+		if(bDumpData)
+		{
+			std::ostringstream sstrFile0;
+			sstrFile0 << "foil_" << iFoil << "_unshifted.dat";
+			save_dat<double>(sstrFile0.str().c_str(), pDataFoil,
+							iNumTc, true);
+
+			std::ostringstream sstrFile1;
+			sstrFile1 << "foil_" << iFoil << "_shifted.dat";
+			save_dat<double>(sstrFile1.str().c_str(), pDataFoilShifted,
+							iNumTc, true);
+		}
 	}
 
 	for(int iTc=0; iTc<iNumTc; ++iTc)
 		puiData[iTc] = (unsigned int)(pDataSum[iTc]);
+
+	if(bDumpData)
+	{
+		save_dat<double>("total.dat", pDataFoil,
+						iNumTc, true);
+	}
 
 	return graph;
 }
@@ -1434,6 +1460,38 @@ bool TofImage::SaveAsDat(const char* pcDat, int iSelFoil) const
 
 		if(bOnlyOneFoil)
 			break;
+	}
+
+	return true;
+}
+
+
+bool TofImage::SaveTcs(const char* pcDat) const
+{
+	const unsigned int iNumFoils = GetTofConfig().GetFoilCount();
+
+	for(unsigned int iFoil=0; iFoil<iNumFoils; ++iFoil)
+	{
+		std::ostringstream sstrFile;
+		sstrFile << "foil_" << iFoil << "_" << pcDat << ".dat";
+
+		std::ofstream ofstr(sstrFile.str().c_str());
+		if(!ofstr.is_open())
+			continue;
+
+		ofstr << "# tc\tcount\terr\n";
+
+		TmpGraph graph = this->GetGraph(iFoil);
+
+		for(int iTc=0; iTc<graph.GetWidth(); ++iTc)
+		{
+			unsigned int uiCnt = graph.GetData(iTc);
+			double dErr = sqrt(double(uiCnt));
+
+			ofstr << iTc << "\t" << uiCnt << "\t" << dErr << "\n";
+		}
+
+		ofstr.close();
 	}
 
 	return true;

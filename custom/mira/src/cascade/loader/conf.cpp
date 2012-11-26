@@ -31,6 +31,11 @@ CascConf::CascConf()
 CascConf::~CascConf()
 {}
 
+void CascConf::Clear()
+{
+	m_map.clear();
+}
+
 bool CascConf::Load(std::istream& istr)
 {
 	while(!istr.eof())

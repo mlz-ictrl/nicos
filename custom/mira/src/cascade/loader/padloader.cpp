@@ -159,6 +159,8 @@ int PadImage::GetIntMax() const { return m_iMax; }
 
 int PadImage::LoadMem(const char *strBuf, unsigned int strBufLen)
 {
+	m_cascconf.Clear();
+
 	const unsigned int *puiBuf = (unsigned int *)strBuf;
 	unsigned int uiBufLen = strBufLen / 4;
 
@@ -234,6 +236,8 @@ int PadImage::SaveFile(const char *pcFileName)
 
 int PadImage::LoadFile(const char *pcFileName)
 {
+	m_cascconf.Clear();
+
 	if(m_bExternalMem)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_WARN);

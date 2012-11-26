@@ -43,6 +43,8 @@ class CascConf
 		CascConf();
 		virtual ~CascConf();
 
+		void Clear();
+
 		bool Load(std::istream& istr);
 		bool Load(const void* pv);
 		bool Load(FILE* pf, unsigned int uiSize);

@@ -264,25 +264,23 @@ bool Fourier::phase_correction_0(double dNumOsc, const double* pDatIn,
 	if(!fft(pDatIn, m_pBufImgIn, m_pBufRealOut, m_pBufImgOut))
 		return false;
 
-	for(unsigned int i=1; i<iSize; ++i)
+	for(unsigned int i=1; i<iSize/2; ++i)
 	{
 		std::complex<double> c(m_pBufRealOut[i], m_pBufImgOut[i]);
-		if(i<iSize/2)
-		{
-			c *= 2.;
+		c *= 2.;
 
-			// 2pi corresponds to the full range
-			// if we see dNumOsc oscillations, 2pi corresponds to dNumOsc full ranges!
-			c = ::phase_correction_0<double>(c, dPhase*double(i)/dNumOsc);
-		}
-		else
-		{
-			// not needed in real input data
-			c = std::complex<double>(0., 0.);
-		}
+		// 2pi corresponds to the full range
+		// if we see dNumOsc oscillations, 2pi corresponds to dNumOsc full ranges!
+		c = ::phase_correction_0<double>(c, dPhase*double(i)/dNumOsc);
 
 		m_pBufRealOut[i] = c.real();
 		m_pBufImgOut[i] = c.imag();
+	}
+
+	for(unsigned int i=iSize/2; i<iSize; ++i)
+	{
+		m_pBufRealOut[i] = 0.;
+		m_pBufImgOut[i] = 0.;
 	}
 
 	if(!ifft(m_pBufRealOut, m_pBufImgOut, pDataOut, m_pBufImgIn))

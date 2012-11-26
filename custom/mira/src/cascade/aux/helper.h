@@ -148,7 +148,9 @@ double randmp1();
 
 
 template<typename T> void save_dat(const char* pcFile,
-									const T* pDataOut, unsigned int iSize)
+									const T* pDataOut,
+									unsigned int iSize,
+									bool bErrs=false)
 {
 	static unsigned int uiCnt = 0;
 	std::ostringstream ostr;
@@ -165,7 +167,9 @@ template<typename T> void save_dat(const char* pcFile,
 
 	for(unsigned int i=0; i<iSize; ++i)
 	{
-		ofstr << i << "\t" << pDataOut[i] << "\n";
+		ofstr << i << "\t" << pDataOut[i];
+		if(bErrs) ofstr << "\t" << sqrt(pDataOut[i]);
+		ofstr << "\n";
 	}
 
 	ofstr.close();
