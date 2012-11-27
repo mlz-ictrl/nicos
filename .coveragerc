@@ -1,3 +1,10 @@
 [run]
 source = lib/nicos
+omit =
+	lib/nicos/clients/gui/*
+	lib/nicos/devices/tango/*
+	lib/nicos/services/monitor/qt.py
+	lib/nicos/services/monitor/gtk.py
+	lib/nicos/services/monitor/fl.py
+	lib/nicos/services/monitor/tk.py
 parallel = true
