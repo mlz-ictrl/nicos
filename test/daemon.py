@@ -27,6 +27,7 @@
 __version__ = "$Revision$"
 
 import os
+import sys
 import logging
 from os import path
 
@@ -35,7 +36,8 @@ try:
 except ImportError:
     pass
 else:
-    os.environ['COVERAGE_PROCESS_START'] = '.coveragerc'
+    # Note: This will only fire up coverage if the COVERAGE_PROCESS_START env
+    # variable is set
     coverage.process_startup()
 
 from nicos.utils import loggers

@@ -57,7 +57,7 @@ testall:
 
 test-coverage:
 	@NOSE=`which nosetests`; if [ -z "$$NOSE" ]; then echo "nose is required to run the test suite"; exit 1; fi
-	@$(PYTHON) `which nosetests` $(T) -d --with-coverage --cover-package=nicos $(O)
+	@-COVERAGE_PROCESS_START=.coveragerc $(PYTHON) `which nosetests` $(T) -d --with-coverage --cover-package=nicos $(O)
 	@`which coverage || which python-coverage` combine
 	@`which coverage || which python-coverage` html -d cover
 
