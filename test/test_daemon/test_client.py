@@ -22,8 +22,11 @@
 #
 # *****************************************************************************
 
+import time
+
 from nicos import nicos_version
 from nicos.clients.base import NicosClient
+from nicos.protocols.daemon import STATUS_IDLE
 
 from test.utils import raises
 
@@ -31,9 +34,17 @@ from test.utils import raises
 class TestClient(NicosClient):
     def __init__(self):
         self._signals = []
+        self._estatus = STATUS_IDLE
+        self._disconnecting = False
         NicosClient.__init__(self)
 
     def signal(self, name, data=None, exc=None):
+        if name == 'error':
+            raise AssertionError('client error: %s (%s)' % (data, exc))
+        if name == 'disconnected' and not self._disconnecting:
+            raise AssertionError('client disconnected')
+        if name == 'status':
+            self._estatus = data[0]
         self._signals.append((name, data, exc))
 
 client = None
@@ -46,11 +57,47 @@ def setup_module():
                     'login': 'user',
                     'passwd': 'user',
                     'display': ''})
-    print client._signals
-    assert client._signals == [('connected', None, None)]
+    assert ('connected', None, None) in client._signals
 
 def teardown_module():
-    client.disconnect()
+    if client.connected:
+        client._disconnecting = True
+        client.disconnect()
 
 def test_simple():
+    # getversion
     assert client.ask('getversion') == nicos_version
+
+    # wait until initial setup is done
+    while True:
+        time.sleep(0.05)
+        st = client.ask('getstatus')
+        if st[0][0] == STATUS_IDLE:
+            break
+
+    # eval/exec
+    if client.ask('eval', 'session._spmode'):
+        client.tell('exec', 'SetSimpleMode false')
+    client.tell('exec', 'SetSimpleMode(True)')
+    client.tell('exec', 'NewSetup daemonmain')
+
+    # queue
+    client.tell('queue', '', 'printinfo 1')
+    time.sleep(0.05)
+
+    # getstatus
+    status = client.ask('getstatus')
+    assert status[0] == (STATUS_IDLE, -1)   # execution status
+    assert status[1] == 'printinfo 1'       # current script
+    assert status[2][-1][3] == '1\n'        # messages
+    assert status[3] == {}                  # no watch expressions
+    assert status[4] == ['daemonmain']      # explicit setups
+    assert status[5] == []                  # no requests queued
+
+    # queue/unqueue/emergency
+    client.tell('queue', '', 'sleep 1')
+    client.tell('queue', '', 'printinfo 2')
+    status = client.ask('getstatus')
+    assert status[5][-1]['script'] == 'printinfo 2'
+    assert status[5][-1]['user'] == 'user'
+    client.tell('unqueue', str(status[5][-1]['reqno']))

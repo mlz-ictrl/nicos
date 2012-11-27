@@ -298,7 +298,7 @@ class ConnectionHandler(BaseRequestHandler):
 
         Same as queue(), but will reject the command if a script is running.
         """
-        self.queue(name, code)
+        self.queue((name, code))
 
     @command(needcontrol=True)
     def queue(self, name, code):
