@@ -31,7 +31,7 @@ from nicos.core.scan import ContinuousScan
 
 from nicos.commands.measure import count
 from nicos.commands.scan import scan, cscan, timescan, twodscan, contscan, \
-     manualscan
+     manualscan, sweep, appendscan
 from nicos.commands.analyze import checkoffset
 from nicos.commands.tas import checkalign
 
@@ -188,7 +188,7 @@ def test_cscan():
     dataset = session.experiment._last_datasets[-1]
     assert dataset.xresults == [[-2.], [-1.], [0.], [1.], [2.]]
 
-def test_timescan():
+def test_sweeps():
     m = session.getDevice('motor')
     m.move(1)
     timescan(5, m)
@@ -196,6 +196,10 @@ def test_timescan():
     assert len(dataset.xresults) == 5
     assert dataset.xresults[0][0] < 1
     assert dataset.xresults[0][1] == 1.0
+
+    sweep(m, 1, 5)
+    dataset = session.experiment._last_datasets[-1]
+    assert dataset.xresults[-1][0] == 5
 
 def test_contscan():
     m = session.getDevice('motor')
@@ -243,10 +247,22 @@ def test_specialscans():
     m = session.getDevice('motor')
     ctr = session.getDevice('ctr1')
     checkoffset(m, 10, 0.05, 2, ctr)
+
     tas = session.getDevice('Tas')
     tas.scanmode = 'CKI'
     tas.scanconstant = 1.55
     checkalign((1, 0, 0), 0.05, 2, ctr)
+
+    dataset = session.experiment._last_datasets[-1]
+    uid = dataset.uid
+
+    appendscan(5)
+    dataset = session.experiment._last_datasets[-1]
+    assert dataset.sinkinfo['continuation'] == str(uid)
+    uid2 = dataset.uid
+    appendscan(-5)
+    dataset = session.experiment._last_datasets[-1]
+    assert dataset.sinkinfo['continuation'] == '%s,%s' % (uid2, uid)
 
 def test_twodscan():
     m = session.getDevice('motor')
