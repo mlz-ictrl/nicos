@@ -95,9 +95,15 @@ def test_simple():
     assert status[5] == []                  # no requests queued
 
     # queue/unqueue/emergency
-    client.tell('queue', '', 'sleep 1')
+    client.tell('queue', '', 'sleep 0.1')
     client.tell('queue', '', 'printinfo 2')
     status = client.ask('getstatus')
     assert status[5][-1]['script'] == 'printinfo 2'
     assert status[5][-1]['user'] == 'user'
     client.tell('unqueue', str(status[5][-1]['reqno']))
+
+    # wait until command is done
+    while True:
+        time.sleep(0.05)
+        if client._estatus == STATUS_IDLE:
+            break
