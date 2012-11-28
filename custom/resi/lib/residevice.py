@@ -98,7 +98,7 @@ class ResiDevice(Moveable):
         return self._hardware.Goto(*kw, **args)
 
     def doStart(self,*kw, **args):
-        self._hardware.Goto(*kw, **args)
+        self._hardware.Center(*kw, **args)
 
     def doInfo(self):
         info = list()
