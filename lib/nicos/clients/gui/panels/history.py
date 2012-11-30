@@ -755,7 +755,11 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
 class StandaloneHistoryApp(CacheClient):
 
     def doInit(self, mode):
+        import nicos.clients.gui.gui_rc #pylint: disable=W0612
+
         self._qtapp = QApplication(sys.argv)
+        self._qtapp.setOrganizationName('nicos')
+        self._qtapp.setApplicationName('history')
         self._window = StandaloneHistoryWindow(self)
         CacheClient.doInit(self, mode)
 
