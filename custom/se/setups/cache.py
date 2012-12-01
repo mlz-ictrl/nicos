@@ -8,6 +8,6 @@ devices = dict(
 
     Server = device('services.cache.server.CacheServer',
                     db = 'DB',
-                    server = 'tasgroup2.taco.frm2',
+                    server = 'localhost',
                     loglevel = 'info'),
 )

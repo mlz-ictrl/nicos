@@ -2,7 +2,7 @@ description = 'setup for the poller'
 group = 'special'
 
 sysconfig = dict(
-    cache = 'cpci1.toftof.frm2'
+    cache = 'localhost'
 )
 
 devices = dict(

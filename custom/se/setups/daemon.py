@@ -5,7 +5,7 @@ import hashlib
 
 devices = dict(
     Daemon = device('services.daemon.NicosDaemon',
-                    server = 'tasgroup2.taco.frm2',
+                    server = 'localhost',
                     authmethod = 'list',
                     passwd = [('guest', '', 0),
                               ('user', hashlib.sha1('user').hexdigest(), 1),

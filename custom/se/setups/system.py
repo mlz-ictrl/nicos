@@ -1,7 +1,7 @@
 description = 'NICOS system setup'
 
 sysconfig = dict(
-    cache = 'tasgroup2.taco.frm2',
+    cache = 'localhost',
     instrument = 'SE',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
@@ -15,7 +15,9 @@ devices = dict(
     Sample   = device('devices.experiment.Sample'),
 
     Exp      = device('devices.experiment.Experiment',
-                      dataroot = '/users/data',
+                      localcontact = 'Harald Schneider <ha.schneider@fz-juelich.de>,' \
+                                     ' Juergen Peters <juergen.peters@frm2.tum.de>',
+                      dataroot = '/data',
                       sample = 'Sample',
                       elog = False),
 
@@ -27,7 +29,7 @@ devices = dict(
     daemonsink = device('devices.datasinks.DaemonSink'),
 
     emailer  = device('devices.notifiers.Mailer',
-                      sender = 'nicos@tasgroup2.taco.frm2',
+                      sender = 'se-trouble@frm2.tum.de',
                       copies = [],
                       subject = 'SE'),
 
@@ -36,6 +38,6 @@ devices = dict(
 
     Space    = device('devices.generic.FreeSpace',
                       description = 'The free space on the data storage', 
-                      path = '/',
+                      path = '/data',
                       minfree = 5),
 )
