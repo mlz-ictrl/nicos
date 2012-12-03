@@ -15,7 +15,11 @@ devices = dict(
                       instrument = 'VTAS',
                       responsible = 'R. Esponsible <responsible@frm2.tum.de>',
                       energytransferunit = 'meV',
+                      scanconstant = 1.5,
+                      scanmode = 'CKF',
+                      scatteringsense = (1, -1, 1),
                       axiscoupling = False,
+                      collimation = '60 30 30 60',
                       cell = 'Sample',
                       phi = 'phi',
                       psi = 'psi',
@@ -25,7 +29,7 @@ devices = dict(
 
     phi      = device('devices.generic.VirtualMotor',
                       abslimits = (-180, 180),
-                      initval = 0,
+                      curvalue = -38.942,
                       unit = 'deg'),
 
     alpha    = device('devices.generic.VirtualMotor',
@@ -34,7 +38,7 @@ devices = dict(
 
     psi      = device('devices.generic.VirtualMotor',
                       abslimits = (0, 360),
-                      initval = 0,
+                      curvalue = 70.529,
                       unit = 'deg'),
 
     mono     = device('devices.tas.Monochromator',
@@ -48,19 +52,19 @@ devices = dict(
 
     mth      = device('devices.generic.VirtualMotor',
                       unit = 'deg',
-                      abslimits = (-180, 180),
+                      abslimits = (0, 90),
                       precision = 0.05,
-                      initval = 45),
+                      curvalue = 38.628),
 
     mtt      = device('devices.generic.VirtualMotor',
                       unit = 'deg',
-                      abslimits = (-180, 180),
+                      abslimits = (0, 180),
                       precision = 0.05,
-                      initval = 90),
+                      curvalue = 77.256),
 
     ana      = device('devices.tas.Monochromator',
                       unit = 'A-1',
-                      dvalue = 3.325,
+                      dvalue = 3.355,
                       theta = 'ath',
                       twotheta = 'att',
                       focush = None,
@@ -69,15 +73,15 @@ devices = dict(
 
     ath      = device('devices.generic.VirtualMotor',
                       unit = 'deg',
-                      abslimits = (-180, 180),
+                      abslimits = (-90, 90),
                       precision = 0.05,
-                      initval = 35),
+                      curvalue = 38.628),
 
     att      = device('devices.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       precision = 0.05,
-                      initval = 70),
+                      curvalue = 77.256),
 
     ki       = device('devices.tas.Wavevector',
                       unit = 'A-1',
