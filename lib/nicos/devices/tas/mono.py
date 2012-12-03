@@ -307,3 +307,11 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         except (ArithmeticError, ValueError), err:
             raise ComputationError(self, 'cannot convert %s A to %s: %s' %
                                    (value, self.unit, err))
+
+    def _calcurvature(self, L1, L2, k, vertical=True):
+        """Calculate optimum curvature (1/radius) for given lengths and
+        monochromator rotation angle (given by wavevector in A-1).
+        """
+        theta = thetaangle(self.dvalue, self.order, 2*pi/k)
+        exp = vertical and -1 or +1
+        return 0.5*(1./L1 + 1./L2)*sin(radians(abs(theta)))**exp

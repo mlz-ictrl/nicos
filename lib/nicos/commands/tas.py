@@ -465,6 +465,8 @@ def powderrays(dlist, ki=None, phi=None):
 def _resmat_args(args, kwds):
     instr = session.instrument
     cell = instr._adevs['cell']
+    mono = instr._adevs['mono']
+    ana = instr._adevs['ana']
 
     if not args:
         pos = instr.read(0)
@@ -488,6 +490,23 @@ def _resmat_args(args, kwds):
         mode = instr.scanmode
 
     cfg = instr._getResolutionParameters()
+
+    ny = pos[3] if instr.energytransferunit == 'THz' else pos[3] / THZ2MEV
+
+    if mode == 'CKI':
+        ki = const
+        kf = cell.cal_kf(ny, ki)
+    else:
+        kf = const
+        ki = cell.cal_ki1(ny, kf)
+    if cfg[23] == 0 and mono.focmode in ('horizontal', 'double'):
+        cfg[23] = mono._calcurvature(cfg[19], cfg[20], ki)
+    if cfg[24] == 0 and mono.focmode in ('vertical', 'double'):
+        cfg[24] = mono._calcurvature(cfg[19], cfg[20], ki, vertical=True)
+    if cfg[25] == 0 and ana.focmode in ('horizontal', 'double'):
+        cfg[25] = ana._calcurvature(cfg[21], cfg[22], ki)
+    if cfg[26] == 0 and ana.focmode in ('vertical', 'double'):
+        cfg[26] = ana._calcurvature(cfg[21], cfg[22], ki, vertical=True)
 
     collimation = instr._getCollimation()
     par = {
@@ -524,7 +543,7 @@ def _resmat_args(args, kwds):
         'qx': pos[0],
         'qy': pos[1],
         'qz': pos[2],
-        'en': pos[3] if instr.energytransferunit == 'meV' else pos[3] * THZ2MEV,
+        'en': ny * THZ2MEV,
     }
 
     return cfg, par
