@@ -15,7 +15,8 @@ devices = dict(
 
     Exp      = device('devices.experiment.Experiment',
                       dataroot = 'data',
-                      sample = 'Sample'),
+                      sample = 'Sample',
+                     ),
 
     filesink = device('devices.datasinks.AsciiDatafileSink'),
 
@@ -27,5 +28,6 @@ devices = dict(
 
     Space    = device('devices.generic.FreeSpace',
                       path = None,
-                      minfree = 5),
+                      minfree = 5,
+                     ),
 )

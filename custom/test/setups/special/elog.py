@@ -7,5 +7,6 @@ group = 'special'
 devices = dict(
     Logbook = device('services.elog.Logbook',
                      prefix = 'logbook/',
-                     cache = 'localhost:14869'),
+                     cache = 'localhost:14869',
+                    ),
 )
