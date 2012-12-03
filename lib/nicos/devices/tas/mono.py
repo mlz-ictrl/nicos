@@ -33,8 +33,8 @@ from time import time
 from nicos.core import Moveable, HasLimits, HasPrecision, Param, Override, \
      listof, oneof, ComputationError, LimitError, multiStatus
 
-
-THZ2MEV = 4.136
+THZ2MEV = 4.1356675
+ANG2MEV = 81.804165
 
 
 def wavelength(dvalue, order, theta):
@@ -258,9 +258,9 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         if self.unit == 'A-1':
             return 2*pi/lam**2 * dlambda
         elif self.unit == 'meV':
-            return 2*81.804 / lam**3 * dlambda
+            return 2*ANG2MEV / lam**3 * dlambda
         elif self.unit == 'THz':
-            return 2*81.804 / THZ2MEV / lam**3 * dlambda
+            return 2*ANG2MEV / THZ2MEV / lam**3 * dlambda
         return dlambda
 
     def doWriteFocmode(self, value):
@@ -287,9 +287,9 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
             elif self.unit == 'A':
                 return value
             elif self.unit == 'meV':
-                return 81.804 / value**2
+                return ANG2MEV / value**2
             elif self.unit == 'THz':
-                return 81.804 / THZ2MEV / value**2
+                return ANG2MEV / THZ2MEV / value**2
         except (ArithmeticError, ValueError), err:
             raise ComputationError(self, 'cannot convert %s A to %s: %s' %
                                    (value, self.unit, err))
@@ -301,9 +301,9 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
             elif self.unit == 'A':
                 return value
             elif self.unit == 'meV':
-                return sqrt(81.804 / value)
+                return sqrt(ANG2MEV / value)
             elif self.unit == 'THz':
-                return sqrt(81.804 / THZ2MEV / value)
+                return sqrt(ANG2MEV / THZ2MEV / value)
         except (ArithmeticError, ValueError), err:
             raise ComputationError(self, 'cannot convert %s A to %s: %s' %
                                    (value, self.unit, err))

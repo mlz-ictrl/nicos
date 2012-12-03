@@ -30,14 +30,13 @@ __version__ = "$Revision$"
 from nicos.core import Moveable, Param, Override, AutoDevice, Value, \
      ConfigurationError, ComputationError, tupleof, multiStatus
 from nicos.devices.tas.cell import Cell
-from nicos.devices.tas.mono import Monochromator
+from nicos.devices.tas.mono import Monochromator, THZ2MEV, ANG2MEV
 from nicos.devices.instrument import Instrument
 
 
 SCANMODES = ['CKI', 'CKF', 'CPHI', 'CPSI', 'DIFF']
 
 ENERGYTRANSFERUNITS = ['meV', 'THz']
-THZ2MEV = 4.1356675
 
 
 class TAS(Instrument, Moveable):
