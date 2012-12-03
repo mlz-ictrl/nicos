@@ -28,9 +28,9 @@
 __version__ = "$Revision$"
 
 from nicos.core import Moveable, Param, Override, AutoDevice, Value, \
-     ConfigurationError, ComputationError, tupleof, multiStatus
+     ConfigurationError, ComputationError, oneof, tupleof, multiStatus
 from nicos.devices.tas.cell import Cell
-from nicos.devices.tas.mono import Monochromator, THZ2MEV, ANG2MEV
+from nicos.devices.tas.mono import Monochromator, THZ2MEV
 from nicos.devices.instrument import Instrument
 
 
@@ -57,8 +57,8 @@ class TAS(Instrument, Moveable):
 
     parameters = {
         'scanmode':     Param('Operation mode: one of ' + ', '.join(SCANMODES),
-                              type=str, default='CKI', settable=True,
-                              category='instrument'),
+                              type=oneof(*SCANMODES), default='CKI',
+                              settable=True, category='instrument'),
         'scanconstant': Param('Constant of the operation mode', type=float,
                               default=0, settable=True, category='instrument'),
         'axiscoupling': Param('Whether the sample th/tt axes are coupled',
@@ -173,6 +173,9 @@ class TAS(Instrument, Moveable):
     def doUpdateScanmode(self, val):
         if val not in SCANMODES:
             raise ConfigurationError('invalid scanmode: %r' % val)
+
+    def doReadUnit(self):
+        return 'rlu rlu rlu %s' % self.energytransferunit
 
     def doWriteEnergytransferunit(self, val):
         if val not in ENERGYTRANSFERUNITS:
@@ -350,7 +353,8 @@ class Wavevector(Moveable):
     """
 
     parameters = {
-        'scanmode': Param('Scanmode to set', type=str, mandatory=True),
+        'scanmode': Param('Scanmode to set', type=oneof(*SCANMODES),
+                          mandatory=True),
     }
 
     parameter_overrides = {
@@ -364,21 +368,78 @@ class Wavevector(Moveable):
 
     hardware_access = False
 
-    def doInit(self, mode):
-        self._value = None
-
     def doRead(self, maxage=0):
-        if self._value is None:
-            self._value = self._adevs['base']._readInvAng(maxage)
-        return self._value
+        return self._adevs['base']._readInvAng(maxage)
 
     def doStart(self, pos):
         # first drive there, to determine if it is within limits
         self._adevs['base']._startInvAng(pos)
-        self._adevs['tas'].scanmode = self.scanmode
-        self._adevs['tas'].scanconstant = pos
-        self._value = pos
+        tas = self._adevs['tas']
+        msg = False
+        if tas.scanmode != self.scanmode:
+            tas.scanmode = self.scanmode
+            msg = True
+        if tas.scanconstant != pos:
+            self._adevs['tas'].scanconstant = pos
+            msg = True
+        if msg:
+            tas.log.info('scan mode is now %s at %s' %
+                         (self.scanmode, self.format(pos, unit=True)))
 
     def info(self):
         # Do not add "ki" or "kf" pseudo-devices to scan files
         return []
+
+
+class Energy(Moveable):
+    """
+    Device for adjusting initial/final energy of the TAS and also setting
+    the scanmode.
+    """
+
+    parameters = {
+        'scanmode': Param('Scanmode to set', type=oneof(*SCANMODES),
+                          mandatory=True),
+    }
+
+    parameter_overrides = {
+        'maxage':   Override(default=0),
+        'unit':     Override(volatile=True),
+    }
+
+    attached_devices = {
+        'base': (Moveable, 'Device to move (mono or ana)'),
+        'tas':  (TAS, 'The spectrometer for setting scanmode'),
+    }
+
+    hardware_access = False
+
+    def doRead(self, maxage=0):
+        mono = self._adevs['base']
+        lam = mono._tolambda(mono.read(maxage))
+        return mono._fromlambda(lam, self._adevs['tas'].energytransferunit)
+
+    def doStart(self, pos_e):
+        # first drive there, to determine if it is within limits
+        tas = self._adevs['tas']
+        mono = self._adevs['base']
+        lam = mono._tolambda(pos_e, tas.energytransferunit)
+        pos = mono._fromlambda(lam, 'A-1')
+        self._adevs['base']._startInvAng(pos)
+        msg = False
+        if tas.scanmode != self.scanmode:
+            tas.scanmode = self.scanmode
+            msg = True
+        if tas.scanconstant != pos:
+            self._adevs['tas'].scanconstant = pos
+            msg = True
+        if msg:
+            tas.log.info('scan mode is now %s at %s' %
+                         (self.scanmode, self.format(pos_e, unit=True)))
+
+    def info(self):
+        # Do not add "Ei" or  "Ef" pseudo-devices to scan files
+        return []
+
+    def doReadUnit(self):
+        return self._adevs['tas'].energytransferunit

@@ -107,6 +107,20 @@ devices = dict(
                       abslimits = (0, 10),
                      ),
 
+    Ei       = device('devices.tas.Energy',
+                      unit = 'meV',
+                      base = 'mono',
+                      tas = 'tas',
+                      scanmode = 'CKI',
+                      abslimits = (0, 200)),
+
+    Ef       = device('devices.tas.Energy',
+                      unit = 'meV',
+                      base = 'ana',
+                      tas = 'tas',
+                      scanmode = 'CKF',
+                      abslimits = (0, 200)),
+
     ssl      = device('devices.generic.VirtualMotor',
                       abslimits = (-20, 40),
                       lowlevel = True,

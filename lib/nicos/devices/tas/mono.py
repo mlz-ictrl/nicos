@@ -280,33 +280,37 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         if self._cache:
             self._cache.invalidate(self, 'value')
 
-    def _fromlambda(self, value):
+    def _fromlambda(self, value, unit=None):
+        if unit is None:
+            unit = self.unit
         try:
-            if self.unit == 'A-1':
+            if unit == 'A-1':
                 return 2.0 * pi / value
-            elif self.unit == 'A':
+            elif unit == 'A':
                 return value
-            elif self.unit == 'meV':
+            elif unit == 'meV':
                 return ANG2MEV / value**2
-            elif self.unit == 'THz':
+            elif unit == 'THz':
                 return ANG2MEV / THZ2MEV / value**2
         except (ArithmeticError, ValueError), err:
             raise ComputationError(self, 'cannot convert %s A to %s: %s' %
-                                   (value, self.unit, err))
+                                   (value, unit, err))
 
-    def _tolambda(self, value):
+    def _tolambda(self, value, unit=None):
+        if unit is None:
+            unit = self.unit
         try:
-            if self.unit == 'A-1':
+            if unit == 'A-1':
                 return 2.0 * pi / value
-            elif self.unit == 'A':
+            elif unit == 'A':
                 return value
-            elif self.unit == 'meV':
+            elif unit == 'meV':
                 return sqrt(ANG2MEV / value)
-            elif self.unit == 'THz':
+            elif unit == 'THz':
                 return sqrt(ANG2MEV / THZ2MEV / value)
         except (ArithmeticError, ValueError), err:
             raise ComputationError(self, 'cannot convert %s A to %s: %s' %
-                                   (value, self.unit, err))
+                                   (value, unit, err))
 
     def _calcurvature(self, L1, L2, k, vertical=True):
         """Calculate optimum curvature (1/radius) for given lengths and
