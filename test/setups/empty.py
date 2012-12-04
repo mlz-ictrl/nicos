@@ -18,23 +18,8 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Tobias Weber <tobias.weber@frm2.tum.de>
 #
 # *****************************************************************************
 
-name = 'test_data setup'
-
-includes = ['stdsystem', 'scanning']
-
-sysconfig = dict(
-    datasinks = ['testsink', 'asciisink', 'consolesink', 'daemonsink']
-)
-
-devices = dict(
-    asciisink = device('nicos.devices.datasinks.AsciiDatafileSink',
-                      ),
-    consolesink = device('nicos.devices.datasinks.ConsoleSink',
-                        ),
-    daemonsink = device('nicos.devices.datasinks.DaemonSink',
-                       )
-)
+name = 'empty setup'

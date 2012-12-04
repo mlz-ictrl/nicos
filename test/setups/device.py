@@ -24,7 +24,7 @@
 
 name = 'test_device setup'
 
-includes = ['system']
+includes = ['stdsystem']
 
 devices = dict(
     dev1 = device('test.test_simple.test_device.Dev1',

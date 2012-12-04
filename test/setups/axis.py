@@ -24,7 +24,7 @@
 
 name = 'test_axis setup'
 
-includes = ['system']
+includes = ['stdsystem']
 
 devices = dict(
     motor = device('nicos.devices.generic.VirtualMotor',

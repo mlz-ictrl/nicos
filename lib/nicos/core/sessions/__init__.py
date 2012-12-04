@@ -53,7 +53,7 @@ from nicos.utils.loggers import initLoggers, NicosLogger, \
 from nicos.devices.instrument import Instrument
 from nicos.devices.cacheclient import CacheClient, CacheLockError, SyncCacheClient
 from nicos.core.sessions.utils import makeSessionId, sessionInfo, \
-     NicosNamespace, SimClock, EXECUTIONMODES
+     NicosNamespace, SimClock, AttributeRaiser, EXECUTIONMODES
 
 
 SETUP_GROUPS = set([
@@ -151,9 +151,22 @@ class Session(object):
         self.setSPMode(self.config.simple_mode)
 
         # sysconfig devices
+        self._def_sysconfig = {
+            'cache':      None,
+            'instrument': AttributeRaiser(
+                ConfigurationError,
+                'You have not configured an instrument device in your sysconfig'
+                ' dictionary; this action cannot be completed.'),
+            'experiment': AttributeRaiser(
+                ConfigurationError,
+                'You have not configured an experiment device in your sysconfig'
+                ' dictionary; this action cannot be completed.'),
+            'datasinks':  [],
+            'notifiers':  [],
+        }
         self.cache = None
-        self.instrument = None
-        self.experiment = None
+        self.instrument = self._def_sysconfig['instrument']
+        self.experiment = self._def_sysconfig['experiment']
         self.datasinks = []
         self.notifiers = []
 
@@ -401,7 +414,7 @@ class Session(object):
         return getattr(mod, member)
 
     def loadSetup(self, setupnames, allow_special=False, raise_failed=False,
-                  autocreate_devices=None):
+                  autocreate_devices=None, autoload_system=True):
         """Load one or more setup modules given in *setupnames* and set up
         devices accordingly.
 
@@ -504,7 +517,11 @@ class Session(object):
             load_module(modname)
 
         sysconfig, devlist, startupcode = {}, {}, []
-        for setupname in setupnames:
+        load_setupnames = setupnames[:]
+        if autoload_system and 'system' in self._setup_info and \
+           'system' not in self.loaded_setups:
+           load_setupnames.insert(0, 'system')
+        for setupname in load_setupnames:
             self.log.info('loading setup %r (%s)' %
                 (setupname, self._setup_info[setupname]['description']))
             ret = inner_load(setupname)
@@ -548,7 +565,7 @@ class Session(object):
                 setattr(self, key, devs)
             else:
                 if value is None:
-                    dev = None
+                    dev = self._def_sysconfig[key]
                 elif not isinstance(value, str):
                     raise ConfigurationError('sysconfig %s entry must be '
                                              'a device name' % key)
@@ -629,8 +646,8 @@ class Session(object):
         if self.cache:
             self.cache.shutdown()
         self.cache = None
-        self.instrument = None
-        self.experiment = None
+        self.instrument = self._def_sysconfig['instrument']
+        self.experiment = self._def_sysconfig['experiment']
         self.datasinks = []
         self.notifiers = []
         self.loaded_setups = set()

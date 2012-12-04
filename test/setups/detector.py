@@ -24,7 +24,7 @@
 
 name = 'test detector setup'
 
-includes = ['system']
+includes = ['stdsystem']
 
 devices = dict(
     timer    = device('devices.generic.VirtualTimer',

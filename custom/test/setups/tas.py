@@ -1,8 +1,6 @@
 description = 'test triple-axis setup'
 group = 'basic'
 
-includes = ['system']
-
 modules = ['nicos.commands.tas']
 
 sysconfig = dict(

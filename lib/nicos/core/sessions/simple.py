@@ -75,7 +75,7 @@ class NoninteractiveSession(Session):
     @classmethod
     def _get_maindev(cls, appname, maindevname, setupname):
         session.loadSetup(setupname or appname, allow_special=True,
-                          raise_failed=True)
+                          raise_failed=True, autoload_system=False)
         return session.getDevice(maindevname or appname.capitalize())
 
     @classmethod

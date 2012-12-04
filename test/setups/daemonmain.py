@@ -24,7 +24,7 @@
 
 name = 'nicos setup for the daemon test'
 
-# This is basically the same as "system.py" but without a cache configured
+# This is basically the same as "stdsystem.py" but without a cache configured
 
 sysconfig = dict(
     cache = None,

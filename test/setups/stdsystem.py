@@ -23,6 +23,8 @@
 # *****************************************************************************
 
 name = 'test system setup'
+# This setup is called "stdsystem" so that it is not loaded automatically
+# on every loadSetup.
 
 sysconfig = dict(
     cache = 'localhost:14877',

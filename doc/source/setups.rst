@@ -16,6 +16,8 @@ A specific set of devices (and commands, which supports the notion of
 specialized commands) is collected in a "setup file", a Python module in the
 subdirectory ``setups`` of the site-specific NICOS root directory.
 
+A setup named ``system``, if it exists, is always loaded by NICOS.
+
 A setup file can consist of the following entries, all of which are optional:
 
 ``description``

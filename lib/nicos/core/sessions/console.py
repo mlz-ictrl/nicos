@@ -182,8 +182,8 @@ class ConsoleSession(Session):
         if value is not None and getattr(value, '__display__', True):
             self.log.log(OUTPUT, repr(value))
 
-    def loadSetup(self, setupnames, allow_special=False, raise_failed=False, autocreate_devices=None):
-        Session.loadSetup(self, setupnames, allow_special, raise_failed, autocreate_devices)
+    def loadSetup(self, *args, **kwds):
+        Session.loadSetup(self, *args, **kwds)
         self.resetPrompt()
 
     def setMode(self, mode):

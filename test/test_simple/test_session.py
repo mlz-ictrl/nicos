@@ -22,19 +22,27 @@
 #
 # *****************************************************************************
 
-name = 'test_data setup'
+"""NICOS axis test suite."""
 
-includes = ['stdsystem', 'scanning']
+__version__ = "$Revision$"
 
-sysconfig = dict(
-    datasinks = ['testsink', 'asciisink', 'consolesink', 'daemonsink']
-)
+from nicos import session
+from nicos.core import ConfigurationError
 
-devices = dict(
-    asciisink = device('nicos.devices.datasinks.AsciiDatafileSink',
-                      ),
-    consolesink = device('nicos.devices.datasinks.ConsoleSink',
-                        ),
-    daemonsink = device('nicos.devices.datasinks.DaemonSink',
-                       )
-)
+from test.utils import raises
+
+
+def setup_module():
+    session.loadSetup('empty')
+    session.setMode('master')
+
+def teardown_module():
+    session.unloadSetup()
+
+
+def test_raisers():
+    assert raises(ConfigurationError,
+                  getattr, session.experiment, 'envlist')
+    assert raises(ConfigurationError,
+                  setattr, session.experiment, 'envlist', [])
+    assert raises(ConfigurationError, getattr, session.instrument, 'instrument')

@@ -24,7 +24,7 @@
 
 name = 'test slit'
 
-includes = ['system']
+includes = ['stdsystem']
 
 devices = dict(
 

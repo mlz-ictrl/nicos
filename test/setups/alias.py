@@ -24,7 +24,7 @@
 
 name = 'test_alias setup'
 
-includes = ['system', 'slit']
+includes = ['stdsystem', 'slit']
 
 devices = dict(
     v1 = device('nicos.devices.generic.VirtualMotor',

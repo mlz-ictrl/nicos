@@ -366,3 +366,23 @@ def guessCorrectCommand(source, attribute=False):
             session.log.info('Did you mean: %s' % ', '.join(suggestions))
     except Exception:
         pass
+
+
+class AttributeRaiser(object):
+    """Class that raises an exception on attribute access."""
+
+    def __init__(self, excls, exmsg):
+        self.__dict__['excls'] = excls
+        self.__dict__['exmsg'] = exmsg
+
+    def __getattr__(self, key):
+        raise self.excls(self.exmsg)
+
+    def __setattr__(self, key, value):
+        raise self.excls(self.exmsg)
+
+    def __delattr__(self, key):
+        raise self.excls(self.exmsg)
+
+    def __nonzero__(self):
+        return False
