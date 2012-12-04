@@ -471,10 +471,10 @@ def history(dev, key='value', fromtime=None, totime=None):
     printTable(('timestamp', 'value'), entries, printinfo)
 
 @usercommand
-@helparglist('dev, ...')
+@helparglist('[dev, ...]')
 @spmsyntax(Multi(Dev(HasLimits)))
 def limits(*devlist):
-    """Print the limits of the device(s).
+    """Print the limits of the device(s), or all devices if none are given.
 
     These are the absolute limits (``dev.abslimits``) and user limits
     (``dev.userlimits``).  The absolute limits cannot be set by the user and
@@ -484,6 +484,9 @@ def limits(*devlist):
 
     >>> limits(phi)    # shows the absolute and user limits of phi
     """
+    if not devlist:
+        devlist = [session.devices[dev] for dev in session.explicit_devices
+                   if isinstance(session.devices[dev], HasLimits)]
     for dev in devlist:
         try:
             dev = session.getDevice(dev, HasLimits)
@@ -492,22 +495,22 @@ def limits(*devlist):
             continue
         dev.log.info('limits for this device:')
         if isinstance(dev, HasOffset):
-            printinfo('    absolute limits (physical): %8s --- %8s %s' %
+            printinfo('       absolute limits (physical): %8s --- %8s %s' %
                       (dev.format(dev.absmin), dev.format(dev.absmax),
                        dev.unit))
-            printinfo('user limits (including offset): %8s --- %8s %s' %
+            printinfo('   user limits (including offset): %8s --- %8s %s' %
                       (dev.format(dev.usermin), dev.format(dev.usermax),
                        dev.unit))
             printinfo('                current offset: %8s %s' %
                       (dev.format(dev.offset), dev.unit))
-            printinfo('     => user limits (physical): %8s --- %8s %s' %
+            printinfo('        => user limits (physical): %8s --- %8s %s' %
                       (dev.format(dev.usermin + dev.offset),
                        dev.format(dev.usermax + dev.offset), dev.unit))
         else:
-            printinfo('absolute limits: %8s --- %8s %s' %
+            printinfo('   absolute limits: %8s --- %8s %s' %
                       (dev.format(dev.absmin), dev.format(dev.absmax),
                        dev.unit))
-            printinfo('    user limits: %8s --- %8s %s' %
+            printinfo('       user limits: %8s --- %8s %s' %
                       (dev.format(dev.usermin), dev.format(dev.usermax),
                        dev.unit))
 
