@@ -368,7 +368,7 @@ def info(*devlist):
             continue
         printinfo(catinfo)
         printinfo('=' * len(catinfo))
-        printTable(None, bycategory[catname], printinfo, minlen=8)
+        printTable(None, sorted(bycategory[catname]), printinfo, minlen=8)
         printinfo()
 
 @usercommand
