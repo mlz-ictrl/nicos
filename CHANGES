@@ -3,6 +3,8 @@ Changelog for NICOS 2
 
 **Release 2.2.0**
 
+  - Added the "info()" command.
+
   - Added a new input mode called "simple parameter mode".  In this mode,
     commands and arguments can be entered without parentheses and
     commas.  Control structures are not supported.  It is toggled with
