@@ -649,7 +649,7 @@ class Cell(Device, CellBase):
         #                          '-2 parallel -y.',
         #                          type=int, default=1, settable=True),
         'spacegroup': Param('Space group of the sample', settable=True,
-                            type=anytype),
+                            type=anytype, category='sample'),
     }
 
     def doUpdateLattice(self, val):
@@ -695,7 +695,8 @@ class TASSample(Sample, Cell):
     """
 
     parameters = {
-        'mosaic': Param('Sample mosaic', settable=True, default=0.5, unit='deg'),
+        'mosaic': Param('Sample mosaic', settable=True, default=0.5,
+                        unit='deg', category='sample'),
     }
 
     def reset(self):

@@ -96,6 +96,7 @@ Device commands
 .. autofunction:: maw
 .. autofunction:: stop
 .. autofunction:: reset
+.. autofunction:: info
 
 .. autofunction:: limits
 .. autofunction:: resetlimits

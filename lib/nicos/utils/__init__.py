@@ -135,18 +135,19 @@ def formatDocstring(s, indentation=''):
     return lines
 
 
-def printTable(headers, items, printfunc):
+def printTable(headers, items, printfunc, minlen=0):
     """Print tabular information nicely formatted."""
     if not headers and not items:
         return
     ncolumns = len(headers or items[0])
-    rowlens = [0] * ncolumns
-    for row in [headers] + items:
+    rowlens = [minlen] * ncolumns
+    for row in [headers or []] + items:
         for i, item in enumerate(row):
             rowlens[i] = max(rowlens[i], len(item))
     fmtstr = ('%%-%ds  ' * ncolumns) % tuple(rowlens)
-    printfunc(fmtstr % tuple(headers))
-    printfunc(fmtstr % tuple('=' * l for l in rowlens))
+    if headers:
+        printfunc(fmtstr % tuple(headers))
+        printfunc(fmtstr % tuple('=' * l for l in rowlens))
     for row in items:
         printfunc(fmtstr % tuple(row))
 

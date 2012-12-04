@@ -33,7 +33,7 @@ import __builtin__
 from nicos import session
 from nicos.utils import printTable, parseDateString
 from nicos.core import Device, Moveable, Measurable, Readable, HasOffset, \
-     HasLimits, UsageError, formatStatus
+     HasLimits, UsageError, formatStatus, INFO_CATEGORIES
 from nicos.core.spm import spmsyntax, AnyDev, Dev, Bare, String, DevParam, Multi
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.basic import sleep
@@ -341,6 +341,35 @@ def setall(param, value):
         prevalue = getattr(dev, param)
         setattr(dev, param, value)
         dev.log.info('%s set to %r (was %r)' % (param, value, prevalue))
+
+@usercommand
+@helparglist('[dev, ...]')
+@spmsyntax(Multi(AnyDev))
+def info(*devlist):
+    """Print general information of the given device or all devices.
+
+    Information is the device value, status and any other parameters that are
+    marked as "interesting" by giving them a category.
+
+    Examples:
+
+    >>> info()           # show all information
+    >>> info(Sample)     # show information relevant to the Sample object
+    """
+    if not devlist:
+        devlist = [dev for dev in session.devices.itervalues()
+                   if not dev.lowlevel]
+    bycategory = {}
+    for dev in devlist:
+        for category, key, value in dev.info():
+            bycategory.setdefault(category, []).append((str(dev), key, value))
+    for catname, catinfo in INFO_CATEGORIES:
+        if catname not in bycategory:
+            continue
+        printinfo(catinfo)
+        printinfo('=' * len(catinfo))
+        printTable(None, bycategory[catname], printinfo, minlen=8)
+        printinfo()
 
 @usercommand
 @helparglist('dev[, reason]')

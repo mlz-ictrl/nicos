@@ -32,7 +32,7 @@ from nicos.core import UsageError, LimitError
 from nicos.commands.measure import count
 from nicos.commands.device import move, maw, drive, switch, wait, read, \
      status, stop, reset, set, get, getall, setall, fix, release, adjust, \
-     version, history, limits, resetlimits, ListParams, ListMethods, \
+     version, history, info, limits, resetlimits, ListParams, ListMethods, \
      ListDevices
 from nicos.commands.basic import help, dir #pylint: disable=W0622
 from nicos.commands.basic import ListCommands, sleep, \
@@ -169,6 +169,9 @@ def test_device_commands():
     assert motor.speed == 10
     get(motor, 'speed')
 
+    # check info()
+    info()
+
     # check getall() and setall()
     getall('speed')
     setall('speed', 0)
@@ -204,6 +207,7 @@ def test_device_commands():
 
     # check limits()
     limits(motor, coder)
+    limits()
 
     # check resetlimits()
     motor.userlimits = (1, 1)
