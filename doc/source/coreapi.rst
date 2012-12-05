@@ -99,6 +99,21 @@ etc.), but also do more validation of the parameter.
 
    Converter that only accepts 3-vectors (i.e. lists or tuples) of floats.
 
+.. function:: limits
+
+   Converter that only accepts a list or tuple of two values, where the second
+   value must be greater than the first value.  The first value will be used as
+   a lower limit and the second as an upper limit.  Example::
+
+       Param(..., type=limits)
+
+.. function:: mailaddress
+
+   Converter that accepts only valid email addresses, but without a check for
+   the existence of the mailaddress itself.  Example::
+
+       Param(..., type=mailaddress)
+
 .. function:: intrange(from, to)
 
    Create a converter that accepts only integers in the ``range(from, to)``
@@ -156,6 +171,14 @@ etc.), but also do more validation of the parameter.
    corresponding value.  Example::
 
        Param(..., type=oneofdict({'up': 1, 'down': 0}))
+
+.. function:: statelist(element_converter)
+
+   Create a converter that accepts a list of 2 or more values which will be used
+   as allowed states of a device.  Examples::
+
+       Param(..., type=statelist(int))
+       Param(..., type=statelist(str))
 
 
 Status values
