@@ -251,7 +251,7 @@ def test_specialscans():
     tas = session.getDevice('Tas')
     tas.scanmode = 'CKI'
     tas.scanconstant = 1.55
-    checkalign((1, 0, 0), 0.05, 2, ctr)
+    checkalign((1, 0, 0), 0.05, 2, ctr, accuracy=0.1)
 
     dataset = session.experiment._last_datasets[-1]
     uid = dataset.uid
