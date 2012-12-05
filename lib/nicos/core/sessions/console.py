@@ -115,8 +115,14 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         try:
             inp = raw_input(prompt)
         except KeyboardInterrupt:
-            self.session.immediateStop()
-            return ''
+            if prompt == sys.ps1:
+                # do not stop immediately on continuation lines; here the user
+                # usually just wants to abort the input
+                print
+                self.session.immediateStop()
+                return ''
+            else:
+                raise
         finally:
             sys.stdout.write(colorcode('reset'))
             self.session._prompting = False
@@ -244,7 +250,6 @@ class ConsoleSession(Session):
             return
         if self._prompting:
             # shown while at prompt: always stop directly
-            self.log.info('== Keyboard interrupt (Ctrl-C) ==')
             signal.default_int_handler(signum, frame)
         self._in_sigint = True
         try:
