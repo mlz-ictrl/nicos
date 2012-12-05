@@ -32,6 +32,7 @@ from time import time as currenttime, sleep
 
 from nicos import session
 from nicos.core import status
+from nicos.core.utils import formatStatus
 from nicos.core.params import Param, Override, Value, floatrange, oneof, \
      anytype, none_or, limits
 from nicos.core.errors import NicosError, ConfigurationError, \
@@ -1002,7 +1003,7 @@ class Readable(Device):
             yield ('status', 'status', 'Error: %s' % err)
         else:
             if st[0] not in (status.OK, status.UNKNOWN):
-                yield ('status', 'status', '%s: %s' % st)
+                yield ('status', 'status', formatStatus(st))
         for item in Device.info(self):
             yield item
 

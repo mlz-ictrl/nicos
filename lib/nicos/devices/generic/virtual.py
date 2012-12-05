@@ -252,8 +252,9 @@ class VirtualTemperature(VirtualMotor):
 
     parameters = {
         'tolerance': Param('Tolerance for wait()', default=1, settable=True,
-                           unit='main'),
-        'setpoint':  Param('Last setpoint', settable=True, unit='main'),
+                           unit='main', category='general'),
+        'setpoint':  Param('Last setpoint', settable=True, unit='main',
+                           category='general'),
     }
 
     parameter_overrides = {

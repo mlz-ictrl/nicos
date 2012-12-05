@@ -362,7 +362,8 @@ def info(*devlist):
     bycategory = {}
     for dev in devlist:
         for category, key, value in dev.info():
-            bycategory.setdefault(category, []).append((str(dev), key, value))
+            bycategory.setdefault(category, []).append(
+                (str(dev), key + ':', value))
     for catname, catinfo in INFO_CATEGORIES:
         if catname not in bycategory:
             continue
