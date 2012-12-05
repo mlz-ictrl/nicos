@@ -171,6 +171,8 @@ def test_tas_commands():
         pos(*args)
         assertPos(tas(), [0.5, 0.5, 0.5, 0])
 
+    assert session.testhandler.warns(calpos, 0.7, 0.7, 0.7, 0)
+    calpos(0.5, 0.5, 0.5, 0)
     assert raises(ErrorLogged, calpos, 1, 0, 0, 1)
     pos()  # still goes to last successful calpos()
     assertPos(tas(), [0.5, 0.5, 0.5, 0])

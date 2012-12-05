@@ -55,7 +55,7 @@ devices = dict(
                      ),
 
     t_phi    = device('devices.generic.VirtualMotor',
-                      abslimits = (-180, 180),
+                      abslimits = (-120, 120),
                       initval = 0,
                       speed = 0,
                       jitter = 0.01,

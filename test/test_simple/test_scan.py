@@ -130,6 +130,8 @@ def test_scan_usageerrors():
     assert raises(UsageError, scan, m, 0, 1, 1, motor=[1,2], motor2=[3,4,5])
     # unsupported scan argument
     assert raises(UsageError, scan, m, 0, 1, 1, {})
+    # invalid preset
+    assert session.testhandler.warns(scan, m, 0, 1, 1, preset=5)
 
 def test_scan_errorhandling():
     t = session.getDevice('tdev')

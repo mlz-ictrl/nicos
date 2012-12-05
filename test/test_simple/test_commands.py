@@ -197,6 +197,7 @@ def test_device_commands():
     version(motor)
 
     # check history()
+    history(motor)
     history(motor, 'value')
     history(motor, -24)
     history(motor, 24)
