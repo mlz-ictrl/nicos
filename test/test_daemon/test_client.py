@@ -76,7 +76,7 @@ def test_simple():
             break
 
     # eval/exec
-    if client.ask('eval', 'session._spmode'):
+    if client.eval('session._spmode'):
         client.tell('exec', 'SetSimpleMode false')
     client.tell('exec', 'SetSimpleMode(True)')
     client.tell('exec', 'NewSetup daemonmain')
