@@ -126,8 +126,9 @@ def count(*detlist, **preset):
     for det in detectors:
         names.difference_update(det.presetInfo())
     if names:
-        printwarning('these preset keys were not recognized by any of the '
-                     'detectors: %s' % ', '.join(names))
+        printwarning('these preset keys were not recognized by any of '
+                     'the detectors: %s -- detectors are %s' %
+                     (', '.join(names), ', '.join(map(str, detectors))))
     result = []
     _count(detectors, preset, result)
     i = 0
@@ -161,8 +162,10 @@ def preset(**preset):
     printinfo('new preset: ' +
               ', '.join('%s=%s' % item for item in preset.iteritems()))
     if names:
-        printwarning('these preset keys were not recognized by any of the '
-                     'detectors: %s' % ', '.join(names))
+        printwarning('these preset keys were not recognized by any of '
+                     'the detectors: %s -- detectors are %s' %
+                     (', '.join(names),
+                      ', '.join(map(str, session.experiment.detectors))))
 
 
 @usercommand

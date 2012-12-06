@@ -68,7 +68,8 @@ class Scan(object):
                 names.difference_update(det.presetInfo())
             if names:
                 printwarning('these preset keys were not recognized by any of '
-                             'the detectors: %s' % ', '.join(names))
+                             'the detectors: %s -- detectors are %s' %
+                             (', '.join(names), ', '.join(map(str, detlist))))
         if envlist == []:
             # special value [] to suppress all envlist devices
             allenvlist = []
