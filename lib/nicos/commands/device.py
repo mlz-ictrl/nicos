@@ -132,7 +132,11 @@ def wait(*devlist):
             continue
         dev = session.getDevice(dev, (Moveable, Measurable))
         dev.log.info('waiting for device')
-        value = dev.wait()
+        try:
+            value = dev.wait()
+        except Exception:
+            dev.log.exception('error waiting for device')
+            continue
         if value:
             dev.log.info('at %20s %s' % (dev.format(value), dev.unit))
 
