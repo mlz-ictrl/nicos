@@ -336,6 +336,8 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
     # search temperature
     if 'sT' in colnames:
         tcol = colnames.index('sT')
+    elif 'Ts' in colnames:
+        tcol = colnames.index('Ts')
     elif 'K' in colunits:
         tcol = colunits.index('K')
     else:
