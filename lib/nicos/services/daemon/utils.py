@@ -36,6 +36,7 @@ import linecache
 import traceback
 from threading import Thread
 
+from nicos.utils.loggers import ACTION
 from nicos.protocols.daemon import serialize, unserialize
 
 
@@ -136,7 +137,11 @@ class DaemonLogHandler(logging.Handler):
         msg = [getattr(record, e) for e in entries]
         if not hasattr(record, 'nonl'):
             msg[3] += '\n'
-        self.daemon._messages.append(msg)
+        if record.levelno != ACTION:
+            # do not cache ACTIONs, they do not contribute to useful output if
+            # received after the fact (this should also lower memory consumption
+            # of the daemon a bit)
+            self.daemon._messages.append(msg)
         self.daemon.emit_event('message', msg)
 
 
