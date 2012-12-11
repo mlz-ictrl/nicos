@@ -247,6 +247,20 @@ class VirtualCounter(FRMCounterChannel):
         return 'counts'
 
 
+class VirtualTasCounter(VirtualCounter):
+    attached_devices = {
+        'tas': (Readable, 'TAS device to read'),
+    }
+
+    def doRead(self, maxage=0):
+        from nicos.devices.tas.rescalc import resmat, calc_MC, demosqw
+        from nicos.commands.tas import _resmat_args
+        taspos = self._adevs['tas'].read(0)
+        mat = resmat(*_resmat_args(taspos, {}))
+        bg = random.randint(0, self.countrate)
+        return int(calc_MC([taspos], [bg, 1], demosqw, mat, 1000)[0])
+
+
 class VirtualTemperature(VirtualMotor):
     """A virtual temperature regulation device."""
 

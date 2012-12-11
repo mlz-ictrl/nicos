@@ -33,8 +33,9 @@ Marc Janoschek.
 
 from numpy import pi, radians, degrees, sin, cos, tan, arcsin, arccos, \
      arctan2, abs, sqrt, real, matrix, diag, cross, dot, array, arange, \
-     zeros, concatenate, reshape, delete
+     zeros, concatenate, reshape, delete, exp
 from numpy.linalg import inv, det, eig, norm
+from numpy.random import randn
 
 
 class unitcell(object):
@@ -306,8 +307,7 @@ class resmat(object):
     def calc_popovici(self):
         """Performs the actual calculation."""
         # reset errors before new calculation
-        self.ERROR = 0
-        self.ERRORMESSAGE = ''
+        self.ERROR = None
 
         #----- recalculate q0
         #-----input a, b, c; alpha, beta, gamma; qx, qy, qz
@@ -1011,3 +1011,83 @@ def ellipse_coords(a, b, phi):
     y = x*s+y*c+y0
     x = th
     return x, y
+
+
+def calc_MC(x, fit_par, sqw, resmat, NMC):
+    """Calculates intensity of point in reciprocal space (qh,qk,ql,en) at takes
+    into account the spectrometer resolution calculated by resolution class
+    resmat (which uses the Popovici algorithm to do so).
+    """
+    intensity = zeros(len(x))
+    j = 0
+    for QE in x:
+        resmat.calcResEllipsoid(*QE)
+
+        if resmat.ERROR:
+            print 'Scattering triangle will not close for point: ' \
+                'qh = %1.3f qk = %1.3f ql = %1.3f en = %1.3f' % tuple(QE)
+            print 'Attention: Intensity is therefore equal to zero at this point!'
+            continue
+        sigma = resmat.calcSigma()
+        xp = matrix(zeros((4, NMC)))
+        xp[0,:] = sigma[0]*randn(NMC)
+        xp[1,:] = sigma[1]*randn(NMC)
+        xp[2,:] = sigma[2]*randn(NMC)
+        xp[3,:] = sigma[3]*randn(NMC)
+        XMC = reshape(resmat.b_mat[0:16], (4, 4)).transpose() * xp
+
+        qh = XMC[0,:] + resmat.par['qx']
+        qk = XMC[1,:] + resmat.par['qy']
+        ql = XMC[2,:] + resmat.par['qz']
+        w  = XMC[3,:] + resmat.par['en']
+
+        s = zeros(NMC)
+        for i in range(NMC):
+            # QE is provided to sqw function in case center of resolution
+            # is needed for further calculations
+            s[i] = sqw(qh[0,i], qk[0,i], ql[0,i], w[0,i], fit_par[1:], QE, sigma)
+        s = sum(s)/NMC
+        intensity[j] = resmat.R0_corrected * s + fit_par[0]
+        j += 1
+
+    return intensity
+
+
+def demosqw(qh, qk, ql, en, par, QE, sigma):
+    """Simplest possible simulation of nuclear Bragg peak intensity plus
+    1-branch isotropic phonon dispersion to see something "realistic" in the
+    demo's virtual detector.
+
+    par[0] is a scaling factor.
+    """
+    # get small q
+    qqh = divmod(qh, 1)[1]
+    if qqh > 0.5:
+        qqh -= 1
+    qqk = divmod(qk, 1)[1]
+    if qqk > 0.5:
+        qqk -= 1
+    qql = divmod(ql, 1)[1]
+    if qql > 0.5:
+        qql -= 1
+    qch = divmod(QE[0], 1)[1]
+    if qch > 0.5:
+        qch -= 1
+    qck = divmod(QE[1], 1)[1]
+    if qck > 0.5:
+        qck -= 1
+    qcl = divmod(QE[2], 1)[1]
+    if qcl > 0.5:
+        qcl -= 1
+    # Bragg intensity (will not work with MC integration, use center points and
+    # width given by resolution calculation, but we take the MC energy to get
+    # some randomness)
+    Ibr = 10000 * exp(-(qch**2/sigma[0]**2 + qck**2/sigma[1]**2 +
+                        qcl**2/sigma[2]**2 + en**2/sigma[3]**2))
+    # Phonon intensity (assume isotropic dispersion with Lorentz lineshape)
+    q = sqrt(qqh**2 + qqk**2 + qql**2)
+    omega = 10 * sin(q * pi)
+    gamma = 0.05
+    Iph = 10 / max(abs(en), 0.1) * gamma * (
+        1 / ((en - omega)**2 + gamma**2) + 1 / ((en + omega)**2 + gamma**2))
+    return 1e6 * par[0] * (Ibr + Iph)
