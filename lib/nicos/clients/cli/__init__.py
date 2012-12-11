@@ -567,9 +567,13 @@ class NicosCmdClient(NicosClient):
         if not os.getenv('EDITOR'):
             os.putenv('EDITOR', 'vi')
         self.in_editing = True
+        cwd = os.getcwd()
+        if path.isdir(self.scriptdir):
+            os.chdir(self.scriptdir)
         try:
             ret = os.system('$EDITOR "' + fpath + '"')
         finally:
+            os.chdir(cwd)
             self.in_editing = False
             for msg in self.message_queue:
                 self.put_message(msg)
