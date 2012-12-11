@@ -367,7 +367,6 @@ class NicosCmdClient(NicosClient):
             namefmt = ''
         else:
             namefmt = '%-10s: ' % msg[0]
-        timefmt = strftime('[%Y-%m-%d %H:%M:%S]', localtime(msg[1]))
         levelno = msg[2]
         if levelno == ACTION:
             action = namefmt + msg[3].rstrip()
@@ -376,17 +375,21 @@ class NicosCmdClient(NicosClient):
             return
         else:
             if levelno <= DEBUG:
-                newtext = colorize('darkgray', namefmt + msg[3].rstrip())
+                timefmt = strftime('[%H:%M:%S] ', localtime(msg[1]))
+                newtext = colorize('lightgray', timefmt) + colorize('darkgray', namefmt + msg[3].rstrip())
             if levelno <= OUTPUT:
-                newtext = namefmt + msg[3].rstrip()
+                timefmt = strftime('[%H:%M:%S] ', localtime(msg[1]))
+                newtext = colorize('lightgray', timefmt) + namefmt + msg[3].rstrip()
             elif levelno == INPUT:
                 newtext = colorize('darkgreen', msg[3].rstrip())
                 #return
             elif levelno <= WARNING:
-                newtext = colorize('purple', timefmt + ' ' + namefmt +
+                timefmt = strftime('[%Y-%m-%d %H:%M:%S] ', localtime(msg[1]))
+                newtext = colorize('purple', timefmt + namefmt +
                                    levels[levelno] + ': ' + msg[3].rstrip())
             else:
-                newtext = colorize('red', timefmt + ' ' + namefmt +
+                timefmt = strftime('[%Y-%m-%d %H:%M:%S] ', localtime(msg[1]))
+                newtext = colorize('red', timefmt + namefmt +
                                    levels[levelno] + ': ' + msg[3].rstrip())
         self.put(msg[5] + newtext)
 
