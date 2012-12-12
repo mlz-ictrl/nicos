@@ -111,7 +111,6 @@ class ConsolePanel(Panel):
 
     def on_client_connected(self):
         self.outView._currentuser = self.client.login
-        self.on_client_mode(self.client.eval('session.mode', ''))
 
     def on_client_mode(self, mode):
         if mode == 'slave':
@@ -124,7 +123,8 @@ class ConsolePanel(Panel):
             self.label.setText('>>')
 
     def on_client_initstatus(self, state):
-        messages = state[2]
+        self.on_client_mode(state[2])
+        messages = self.client.ask('getmessages', '10000')
         self.outView.clear()
         total = len(messages) // 2500 + 1
         for _, batch in enumerateWithProgress(chunks(messages, 2500),

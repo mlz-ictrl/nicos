@@ -261,13 +261,14 @@ class NicosCmdClient(NicosClient):
         state = self.ask('getstatus')
         if state is None:
             return
-        status, script, output, _watch, setups, reqqueue = state[:6]
+        status, script, mode, _watch, setups, reqqueue = state[:6]
         if not self.quiet_connect:
             self.put_client(
                 'Connected to %s:%s as %s. '
                 'Replaying output (enter "/log" to see more)...' %
                 (self.host, self.port, self.conndata['login']))
-            for msg in output[-self.tsize[1]:]:
+            output = self.ask('getmessages', str(self.tsize[1] - 3))
+            for msg in output:
                 self.put_message(msg)
             if not self.tip_shown:
                 self.put_client('Loaded setups: %s. Enter "/help" for help '
@@ -282,10 +283,10 @@ class NicosCmdClient(NicosClient):
                             (self.host, self.port, self.conndata['login']))
         self.signal('processing', {'script': script, 'reqno': 0})
         self.signal('status', status)
+        self.current_mode = mode
         self.scriptdir = self.eval('session.experiment.scriptdir', '.')
         self.instrument = self.eval('session.instrument.instrument',
                                     self.instrument)
-        self.current_mode = self.eval('session.mode', 'master')
         for req in reqqueue:
             self.pending_requests[req['reqno']] = req
         self.set_status(self.status)
@@ -831,17 +832,17 @@ class NicosCmdClient(NicosClient):
             self.help(arg)
         elif cmd == 'log':
             if arg:
-                n = -int(arg)
+                n = str(int(arg))  # make sure it's an integer
             else:
-                n = None  # as a slice index, this means "unlimited"
+                n = '*'  # as a slice index, this means "unlimited"
             # this can take a while to transfer, but we don't want to cache
             # messages in this client just for this command
-            state = self.ask('getstatus')
-            if state is None:
+            messages = self.ask('getmessages', n)
+            if messages is None:
                 return
             self.put_client('Printing %s previous messages.' %
-                            (-n if n else 'all'))
-            for msg in state[2][n:]:
+                            (n if n != '*' else 'all'))
+            for msg in messages:
                 self.put_message(msg)
             self.put_client('End of messages.')
         elif cmd in ('w', 'where'):

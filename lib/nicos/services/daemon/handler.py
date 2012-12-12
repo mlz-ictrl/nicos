@@ -466,11 +466,19 @@ class ConnectionHandler(BaseRequestHandler):
         self.write(STX, serialize(
                 ((self.controller.status, self.controller.lineno),
                  current_script and current_script.text or '',
-                 self.daemon._messages,
+                 session.mode,
                  self.controller.eval_watch_expressions(),
                  session.explicit_setups,
                  request_queue,
                  )))
+
+    @command()
+    def getmessages(self, n):
+        """Return the last *n* messages (or all, if n is "*")."""
+        if n == '*':
+            self.write(STX, serialize(self.daemon._messages))
+        else:
+            self.write(STX, serialize(self.daemon._messages[-int(n):]))
 
     @command()
     def getscript(self):
