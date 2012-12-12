@@ -98,7 +98,7 @@ devices = {
                                            tacodevice = '//%s/ccr/plc/fbvacuum' % (nethost, )
                                          ),
 
-    '%s_vaccum_switch' % (nethost,) : device('devices.vendor.frm2.CCRSwitch',
+    '%s_vacuum_switch' % (nethost,) : device('devices.vendor.frm2.CCRSwitch',
                                              description = 'Vacuum valve switch',
                                              write = '%s_vacuum_set' % (nethost,),
                                              feedback = '%s_vacuum_read' % (nethost,),
