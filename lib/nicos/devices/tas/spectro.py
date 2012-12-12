@@ -386,10 +386,6 @@ class Wavevector(Moveable):
             tas.log.info('scan mode is now %s at %s' %
                          (self.scanmode, self.format(pos, unit=True)))
 
-    def info(self):
-        # Do not add "ki" or "kf" pseudo-devices to scan files
-        return []
-
 
 class Energy(Moveable):
     """
@@ -436,10 +432,6 @@ class Energy(Moveable):
         if msg:
             tas.log.info('scan mode is now %s at %s' %
                          (self.scanmode, self.format(pos_e, unit=True)))
-
-    def info(self):
-        # Do not add "Ei" or  "Ef" pseudo-devices to scan files
-        return []
 
     def doReadUnit(self):
         return self._adevs['tas'].energytransferunit
