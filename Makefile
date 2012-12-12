@@ -5,7 +5,7 @@
 SHELL=/bin/bash
 
 RCC = pyrcc4
-PYTHON = /usr/bin/python
+PYTHON = /usr/bin/env python
 
 all:
 	$(PYTHON) setup.py build -e "/usr/bin/env python"
@@ -142,6 +142,13 @@ main-install:
 	@echo "Installing custom modules..."
 	mkdir -p $(VOPT) $(ROOTDIR)/lib/nicos/$(INSTRUMENT)
 	cp -pr $(VOPT) $(INSTRDIR)/lib/* $(ROOTDIR)/lib/nicos/$(INSTRUMENT)
+	@echo "============================================================="
+	@if [ "$(FRM2)" = 1 ]; then \
+		echo "============================================================="; \
+		echo "Installing FRM II specific module ..."; \
+		mkdir -p $(VOPT) $(ROOTDIR)/lib/nicos/frm2; \
+		cp -pr $(VOPT) custom/frm2/lib/* $(ROOTDIR)/lib/nicos/frm2; \
+	fi
 	@echo "============================================================="
 	@echo "Installing setups (not overwriting existing files)..."
 	@for ifile in $(INSTRDIR)/setups/* ; do \
