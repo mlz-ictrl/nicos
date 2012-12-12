@@ -194,7 +194,7 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>&gt;&gt;&gt; </string>
+         <string>&gt;&gt;</string>
         </property>
         <property name="buddy">
          <cstring>commandInput</cstring>

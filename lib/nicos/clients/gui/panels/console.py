@@ -67,6 +67,7 @@ class ConsolePanel(Panel):
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
         self.connect(client, SIGNAL('message'), self.on_client_message)
         self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
+        self.connect(client, SIGNAL('mode'), self.on_client_mode)
 
     def loadSettings(self, settings):
         self.hasinput = not settings.value('noinput').toBool()
@@ -91,6 +92,7 @@ class ConsolePanel(Panel):
         for widget in (self.outView, self.commandInput):
             widget.setFont(font)
             setBackgroundColor(widget, back)
+        self.label.setFont(font)
 
     def updateStatus(self, status, exception=False):
         self.current_status = status
@@ -109,6 +111,17 @@ class ConsolePanel(Panel):
 
     def on_client_connected(self):
         self.outView._currentuser = self.client.login
+        self.on_client_mode(self.client.eval('session.mode', ''))
+
+    def on_client_mode(self, mode):
+        if mode == 'slave':
+            self.label.setText('slave >>')
+        elif mode == 'simulation':
+            self.label.setText('SIM >>')
+        elif mode == 'maintenance':
+            self.label.setText('maint >>')
+        else:
+            self.label.setText('>>')
 
     def on_client_initstatus(self, state):
         messages = state[2]
