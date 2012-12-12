@@ -74,7 +74,7 @@ class DeviceAlias(Device):
                           'instance of', type=str, default='nicos.core.Device'),
     }
 
-    _ownattrs = ['_obj', '_mode', 'alias']
+    _ownattrs = ['_obj', '_mode', '_cache', 'alias']
     _initialized = False
 
     def doUpdateAlias(self, devname):
