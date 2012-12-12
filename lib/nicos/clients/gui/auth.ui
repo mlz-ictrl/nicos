@@ -161,7 +161,7 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap resource="../../../resources/nicos-gui.qrc">:/nicos-logo.png</pixmap>
+      <pixmap resource="../../../../resources/nicos-gui.qrc">:/nicos-logo.png</pixmap>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -194,6 +194,7 @@
   <tabstop>serverAddr</tabstop>
  </tabstops>
  <resources>
+  <include location="../../../../resources/nicos-gui.qrc"/>
   <include location="../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections>
