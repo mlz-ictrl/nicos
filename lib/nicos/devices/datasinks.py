@@ -457,10 +457,12 @@ class AsciiDatafileSink(DatafileSink):
         # to be written later (after info)
         if self.semicolon:
             self._colnames = dataset.xnames + [';'] + dataset.ynames
-            self._colunits = dataset.xunits + [';'] + dataset.yunits
+            # make sure there are no empty units
+            self._colunits = [u or '-' for u in
+                              dataset.xunits + [';'] + dataset.yunits]
         else:
             self._colnames = dataset.xnames + dataset.ynames
-            self._colunits = dataset.xunits + dataset.yunits
+            self._colunits = [u or '-' for u in dataset.xunits + dataset.yunits]
 
     def addInfo(self, dataset, category, valuelist):
         self._file.write('%s %s\n' % (self._commentc*3, category))
