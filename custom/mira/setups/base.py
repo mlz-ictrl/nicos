@@ -56,6 +56,10 @@ devices = dict(
                        pollinterval = 10,
                        maxage = 30,
                        tacodevice = 'mira/io/cooling'),
+    #CoolTemp  = device('devices.taco.AnalogInput',
+    #                   tacodevice = 'mira/i7000/coolingtemp',
+    #                   pollinterval = 10,
+    #                   maxage = 30),
 
     # LeckToni  = device('mira.toni.ModBus',
     #                    tacodevice = 'mira/rs232/lecktoni',

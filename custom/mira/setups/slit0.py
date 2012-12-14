@@ -1,5 +1,5 @@
 description = 'IPC slit after mono shielding'
-group = ''
+group = 'lowlevel'
 
 devices = dict(
     ss0bus    = device('devices.vendor.ipc.IPCModBusTCP',
