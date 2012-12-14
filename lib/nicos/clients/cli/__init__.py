@@ -378,7 +378,7 @@ class NicosCmdClient(NicosClient):
             if levelno <= DEBUG:
                 timefmt = strftime('[%H:%M:%S] ', localtime(msg[1]))
                 newtext = colorize('lightgray', timefmt) + colorize('darkgray', namefmt + msg[3].rstrip())
-            if levelno <= OUTPUT:
+            elif levelno <= OUTPUT:
                 timefmt = strftime('[%H:%M:%S] ', localtime(msg[1]))
                 newtext = colorize('lightgray', timefmt) + namefmt + msg[3].rstrip()
             elif levelno == INPUT:
