@@ -29,3 +29,4 @@ __version__ = "$Revision$"
 from nicos.devices.tas.cell import Cell, TASSample
 from nicos.devices.tas.mono import Monochromator
 from nicos.devices.tas.spectro import TAS, TASIndex, Wavevector, Energy
+from nicos.devices.tas.ecradle import EulerianCradle

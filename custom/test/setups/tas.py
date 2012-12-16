@@ -154,6 +154,21 @@ devices = dict(
     vdet     = device('devices.tas.virtual.VirtualTasDetector',
                       tas = 'tas',
                       background = 1,
+
+    ec       = device('devices.tas.EulerianCradle',
+                      cell = 'Sample',
+                      tas = 'tas',
+                      chi = 'echi',
+                      omega = 'ephi'),
+    echi     = device('devices.generic.VirtualMotor',
+                      abslimits = (-180, 180),
+                      curvalue = 0,
+                      unit = 'deg',
+                     ),
+    ephi     = device('devices.generic.VirtualMotor',
+                      abslimits = (-180, 180),
+                      curvalue = 0,
+                      unit = 'deg',
                      ),
 )
 
