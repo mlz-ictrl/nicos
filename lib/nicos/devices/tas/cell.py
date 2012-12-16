@@ -597,38 +597,6 @@ class CellBase(object):
 
     hkl2angle = cal_angles
 
-    def _test(self):
-        def TQscan(Qh, Qk, Ql, ny, dQh, dQk, dQl, dny, numsteps, SM, SC, sense):
-            Qhkl = array([Qh, Qk, Ql], float)
-            dQhkl = array([dQh, dQk, dQl], float)
-            print '  ' + ('%-9s' * 14) % (
-                'h', 'k', 'l', 'ny', 'ki', 'kf', 'phi', 'psi', 'alpha',
-                'hcalc', 'kcalc', 'lcalc', 'nycalc', 'dval')
-            for _ in range(numsteps):
-                Qhkl += dQhkl
-                ny += dny
-                angles = self.cal_angles(Qhkl, ny, SM, SC, sense, False)
-                hklr = self.angle2hkl(angles[:4], False)
-                nyr = self.cal_ny(angles[0], angles[1])
-                dval = self.cal_dvalue_real(Qhkl)
-                print ('%7.3f  ' * 14) % (tuple(Qhkl) + (ny,) + tuple(angles) +
-                                          tuple(hklr) + (nyr, dval))
-
-        self.lattice = [3.8184, 3.8184, 3.8184]
-        self.angles = [90, 90, 90]
-        self.orient1 = [1, 1, 0]
-        self.orient2 = [-1, 1, 0]
-        self.psi0 = -0.0
-        sense = 1
-        print '## CKI'
-        TQscan(1,   1, 0, 1,  0.005, 0.005, 0, 0,   21, 'CKI',  2.662, sense)
-        print '## CKF'
-        TQscan(1,   1, 0, 1,  0.005, 0.005, 0, 0,   21, 'CKF',  2.662, sense)
-        print '## CPHI'
-        TQscan(1.5, 1, 0, 5,  0,     0,     0, 0.1, 21, 'CPHI', 30,    sense)
-        print '## CPSI'
-        TQscan(1.5, 1, 0, 5,  0,     0,     0, 0.1, 21, 'CPSI', 300,   sense)
-
 
 class Cell(Device, CellBase):
     """Cell object representing sample geometry."""
