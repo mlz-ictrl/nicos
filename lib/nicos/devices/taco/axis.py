@@ -254,12 +254,14 @@ class HoveringAxis(Axis):
             waitForStatus(self, 0.2)
         finally:
             sleep(self.stopdelay)
-            self._adevs['switch'].move(self.switchvalues[0])
-            self._poll_thread = None
+            try:
+                self._adevs['switch'].move(self.switchvalues[0])
+            finally:
+                self._poll_thread = None
 
     def doWait(self):
-        if self._poll_thread:
-            self._poll_thread.join()
+        while self._poll_thread:
+            sleep(0.2)
 
     def doStatus(self, maxage=0):
         state = self._taco_guard(self._dev.deviceState)
