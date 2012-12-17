@@ -34,3 +34,8 @@ devices = dict(
                       minfree = 5,
                      ),
 )
+
+startupcode = '''
+if not Exp.proposal:
+    NewExperiment(0)
+'''
