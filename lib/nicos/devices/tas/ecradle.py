@@ -32,7 +32,7 @@ from numpy import array, cross, dot, cos, sin, sqrt, arctan2, zeros, identity
 from numpy.linalg import inv, norm
 
 from nicos.core import Moveable, Param, Override, NicosError, vec3, tupleof, \
-    ComputationError
+    ComputationError, usermethod, multiStatus
 from nicos.devices.tas.cell import Cell, D2R
 
 
@@ -98,6 +98,30 @@ class EulerianCradle(Moveable):
         wantpsi = self._adevs['cell'].cal_angles(r1, 0, 'CKF', 2, sense,
             self._adevs['tas'].axiscoupling, self._adevs['tas'].psi360)[3]
         self._adevs['cell'].psi0 += wantpsi - psi
+
+    def doStatus(self, maxage=0):
+        return multiStatus(((name, self._adevs[name])
+                            for name in ['chi', 'omega']), maxage)
+
+    @usermethod
+    def calc_plane(self, r1, r2=None):
+        if r2 is None:
+            r1, r2 = r1
+        for val in self.reflex1, self.reflex2, self.angles1, self.angles2:
+            if all(v == 0 for v in val):
+                raise NicosError(self,
+                    'Please first set the Eulerian cradle orientation '
+                    'with the reflex1/2 and angles1/2 parameters')
+        sense = self._adevs['tas'].scatteringsense[1]
+        self._omat = self.calc_or(sense)
+        ang = self.euler_angles(r1, r2, 2, 2, sense,
+                                self._adevs['chi'].userlimits,
+                                self._adevs['omega'].userlimits)
+        self.log.info('found scattering plane')
+        self.log.info('%s: %20s' % (self._adevs['chi'],
+                         self._adevs['chi'].format(ang[1], unit=True)))
+        self.log.info('%s: %20s' % (self._adevs['omega'],
+                         self._adevs['omega'].format(ang[2], unit=True)))
 
     def euler_angles(self, target_q, another, ki, kf, sense,
                      chilimits=[-180, 180], omlimits=[-180, 180]):
@@ -413,7 +437,7 @@ class EulerianCradle(Moveable):
             return self.calc_rotmat(r0, alfa)
         return [r0[0], r0[1], r0[2], alfa]  # Eckold's notation
 
-    def calc_or(self, sense):
+    def calc_or(self, sense=None):
         """Given:
         two reflections hkl1,hkl2 in Miller indices
         two sets of angles psi, chi, om, phi  as ang1 and ang2
@@ -422,6 +446,8 @@ class EulerianCradle(Moveable):
         needs the scattering sense of the sample axe
         needs the sample's smat matrix
         """
+        if sense is None:
+            sense = self._adevs['tas'].scatteringsense[1]
         hkl1 = self.reflex1
         hkl2 = self.reflex2
         ang1 = self.angles1
