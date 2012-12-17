@@ -154,6 +154,7 @@ devices = dict(
     vdet     = device('devices.tas.virtual.VirtualTasDetector',
                       tas = 'tas',
                       background = 1,
+                     ),
 
     ec       = device('devices.tas.EulerianCradle',
                       cell = 'Sample',
