@@ -253,7 +253,7 @@ def Q(*args, **kwds): # pylint: disable=E0102
 
 @usercommand
 @helparglist('h, k, l, E[, SC]')
-def calpos(*args):
+def calpos(*args, **kwds):
     """Calculate instrument position for a given (Q, E) position.
 
     Can be called with 3 to 5 arguments:
@@ -266,6 +266,10 @@ def calpos(*args):
 
     >>> calpos(Q(1, 0, 0, -4))         # Q-E vector
     >>> calpos(Q(1, 0, 0, -4), 2.662)  # Q-E vector and scanconstant
+
+    Constant ki or kf can be given as keywords:
+
+    >>> calpos(1, 0, 0, 4, kf=1.5)
     """
     instr = session.instrument
     if not isinstance(instr, TAS):
@@ -284,7 +288,16 @@ def calpos(*args):
         pos = args
     else:
         raise UsageError('calpos() takes at least one argument')
-    return instr._calpos(pos)
+    sm = None
+    if 'ki' in kwds:
+        pos = list(pos)
+        pos[4] = kwds['ki']
+        sm = 'CKI'
+    if 'kf' in kwds:
+        pos = list(pos)
+        pos[4] = kwds['kf']
+        sm = 'CKF'
+    return instr._calpos(pos, scanmode=sm)
 
 
 @usercommand

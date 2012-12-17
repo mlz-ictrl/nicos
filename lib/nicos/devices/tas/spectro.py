@@ -211,12 +211,14 @@ class TAS(Instrument, Moveable):
                 ny *= THZ2MEV
         return [hkl[0], hkl[1], hkl[2], ny]
 
-    def _calpos(self, pos, printout=True):
+    def _calpos(self, pos, printout=True, scanmode=None):
         qh, qk, ql, ny, sc = pos
         ny = self._thz(ny)
+        if scanmode is None:
+            scanmode = self.scanmode
         try:
             angles = self._adevs['cell'].cal_angles(
-                [qh, qk, ql], ny, self.scanmode, sc,
+                [qh, qk, ql], ny, scanmode, sc,
                 self.scatteringsense[1], self.axiscoupling, self.psi360)
         except ComputationError, err:
             self.log.error('cannot calculate position: %s' % err)
