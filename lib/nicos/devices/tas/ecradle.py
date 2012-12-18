@@ -89,6 +89,10 @@ class EulerianCradle(Moveable):
                                 self._adevs['omega'].userlimits)
         psi, chi, om, phi = ang
         self.log.debug('euler angles: %s' % ang)
+        self.log.info('moving %s to %12s, %s to %12s' % (self._adevs['chi'],
+                         self._adevs['chi'].format(chi, unit=True),
+                         self._adevs['omega'],
+                         self._adevs['omega'].format(om, unit=True)))
         self._adevs['chi'].move(chi)
         self._adevs['omega'].move(om)
         self._adevs['chi'].wait()
@@ -331,7 +335,7 @@ class EulerianCradle(Moveable):
                 return array([ec_p, ec_cc, ec_om, phi])
 
         raise ComputationError('could not find a Eulerian cradle position for '
-                               'q = %s' % target_q)
+                               'q = %s' % (target_q,))
 
     def calc_rotmat(self, a_vector, an_angle):
         """Calculates the 3x3 matrix for a rotation with angle around
@@ -437,6 +441,7 @@ class EulerianCradle(Moveable):
             return self.calc_rotmat(r0, alfa)
         return [r0[0], r0[1], r0[2], alfa]  # Eckold's notation
 
+    @usermethod
     def calc_or(self, sense=None):
         """Given:
         two reflections hkl1,hkl2 in Miller indices
