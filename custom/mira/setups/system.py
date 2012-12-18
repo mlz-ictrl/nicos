@@ -21,6 +21,9 @@ devices = dict(
     Exp      = device('mira.experiment.MiraExperiment',
                       sample = 'Sample',
                       dataroot = '/data',
+                      serviceexp = '0',
+                      sendmail = True,
+                      mailsender = 'rgeorgii@frm2.tum.de',
                       propdb = 'useroffice@tacodb.taco.frm2:useroffice'),
 
     Sample   = device('devices.experiment.Sample'),

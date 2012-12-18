@@ -14,7 +14,7 @@ devices = dict(
                       bus = 'MonoIPC',
                       addr = 68,
                       zerosteps = 9059075,
-                      slope = 4096,
+                      slope = -4096,
                       circular = -360,
                       unit = 'deg'),
     mo_ephi  = device('devices.vendor.ipc.Motor',
@@ -22,7 +22,7 @@ devices = dict(
                       bus = 'MonoIPC',
                       addr = 58,
                       zerosteps = 500000,
-                      slope = -200.0,
+                      slope = 200.0,
                       abslimits = (-180.0, 180.0),
                       unit = 'deg'),
     ephi     = device('devices.generic.Axis',
@@ -55,4 +55,10 @@ devices = dict(
                       precision = 0.01,
                       offset = -189.99926762282576),
 
+    ec       = device('devices.tas.EulerianCradle',
+                      tas = 'mira',
+                      chi = 'echi',
+                      omega = 'ephi',
+                      cell = 'Sample'),
 )
+
