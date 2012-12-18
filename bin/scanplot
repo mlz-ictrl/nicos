@@ -219,12 +219,21 @@ def try_float(x):
     except ValueError:
         return 0
 
-def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False, xcolhint=None):
+def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
+                    normalize=False, mcorr=False, xcolhint=None):
     """Read NICOS data file."""
-    try:
-        f = open(filename, 'r')
-    except IOError:
-        f = open('/data/exp/current/data/' + filename, 'r')
+    for fpath in [filename,
+                  '/data/exp/current/data/' + filename,
+                  '/data/exp/%s/data/%s' % (fileprefix, filename),
+                  '/data/current/data/' + filename,
+                  '/data/2012/%s/data/%s' % (fileprefix, filename)]:
+        try:
+            f = open(fpath, 'r')
+            break
+        except IOError, e:
+            continue
+    else:
+        raise Exception('could not find file %s to plot' % filename)
 
     line = f.readline()
     createtime = line.strip()[-19:]
@@ -303,7 +312,8 @@ def getdatafromfile(filename, xcol=None, ycol=None, normalize=False, mcorr=False
         # most total counts
         candidates = []
         for i, col in enumerate(colnames[ystart:]):
-            if col.startswith('det') or col.startswith('ctr'):
+            if col.startswith('det') or col.startswith('ctr') or \
+                    col.startswith('psd'):
                 total = sum(values[j][i] for j in range(len(values)))
                 candidates.append((total, i))
         candidates.sort()
@@ -489,7 +499,7 @@ pl = GracePlot.GracePlot().write
 
 # now plot all files:
 filecount = 0
-lastfilenumber = 0
+lastfilenumber = ''
 xcolhint = None
 for filenumber in filelist:
     if filenumber.startswith('-'):
@@ -498,7 +508,8 @@ for filenumber in filelist:
     for newycol in newycols:
         filename = fileprefix + '_' + filenumber.zfill(8) + '.dat'
         try:
-            thedata = getdatafromfile(filename, newxcol, newycol, normflag,
+            thedata = getdatafromfile(filename, fileprefix, newxcol, newycol,
+                                      normflag,
                                       monitorcorrection, xcolhint)
         except Exception, err:
             print 'Could not read data file %r: %s' % (filename, err)
