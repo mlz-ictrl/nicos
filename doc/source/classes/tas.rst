@@ -19,3 +19,7 @@ file.
 .. module:: nicos.devices.tas.cell
 
 .. autoclass:: TASSample()
+
+.. module:: nicos.devices.tas.ecradle
+
+.. autoclass:: EulerianCradle()

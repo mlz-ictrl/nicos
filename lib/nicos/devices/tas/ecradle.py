@@ -40,9 +40,17 @@ class EulerianCradle(Moveable):
     """
     First (simple) integration of the Eulerian cradle calculations into NICOS.
 
-    This device is moved to a scattering plane, given by two vectors.  It then
-    sets the sample's orientation reflections and psi0 so that the TAS device
-    can move in the usual psi-phi scattering plane.
+    This device is moved to a scattering plane, given by two vectors, by moving
+    the chi and omega circles of the cradle.  It then sets the sample's
+    orientation reflections and psi0 so that the TAS device can move in the
+    usual psi-phi scattering plane.
+
+    Angle naming:
+
+    - rotation of the cradle: psi (IT: omega)
+    - big circle of the cradle: chi
+    - small circle of the cradle: omega (IT: phi)
+    - scattering angle: phi (International Tables: two-theta)
     """
 
     attached_devices = {

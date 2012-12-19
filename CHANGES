@@ -3,6 +3,8 @@ Changelog for NICOS 2
 
 **Release 2.2.0**
 
+  - Added Eulerian cradle implementation for TAS.
+
   - Added the "info()" command.
 
   - Added a new input mode called "simple parameter mode".  In this mode,
