@@ -89,7 +89,7 @@ def test_simple():
     status = client.ask('getstatus')
     assert status[0] == (STATUS_IDLE, -1)   # execution status
     assert status[1] == 'printinfo 1'       # current script
-    assert status[2][-1][3] == '1\n'        # messages
+    assert status[2] == 'master'            # current mode
     assert status[3] == {}                  # no watch expressions
     assert status[4] == ['daemonmain']      # explicit setups
     assert status[5] == []                  # no requests queued

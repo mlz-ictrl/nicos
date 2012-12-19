@@ -66,14 +66,16 @@ def test_scan():
         # plain scan, with some extras: infostring, firstmove
         scan(m, 0, 1, 5, 0., 'test scan', manual=1)
         dataset = session.experiment._last_datasets[-1]
-        assert dataset.xnames == ['motor']
-        assert dataset.xunits == ['mm']
-        assert dataset.xresults == [[float(i)] for i in range(5)]
+        assert dataset.xnames == ['motor', 'manual:avg', 'manual:min', 'manual:max']
+        assert dataset.xunits == ['mm'] * 4
+        assert dataset.xresults == [[float(i), 1, 1, 1] for i in range(5)]
         assert dataset.ynames == ['timer', 'mon1', 'ctr1', 'ctr2']
         assert dataset.yunits == ['s', 'cts', 'cts', 'cts']
         assert dataset.scaninfo.startswith('test scan')
         assert len(dataset.yresults) == 5
         assert mm.read() == 1
+
+        session.experiment.setEnvironment([])
 
         # scan with second basic syntax
         scan(m, [0, 4, 5], 0.)
