@@ -106,7 +106,8 @@ class Slit(Moveable):
 
     def doShutdown(self):
         for name in ['centerx', 'centery', 'width', 'height']:
-            self.__dict__[name].shutdown()
+            if name in self.__dict__:
+                self.__dict__[name].shutdown()
 
     def _getPositions(self, target):
         if self.opmode == '4blades':

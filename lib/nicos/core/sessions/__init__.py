@@ -848,7 +848,7 @@ class Session(object):
         created devices".
         """
         if self._failed_devices and devname in self._failed_devices:
-            raise NicosError('device already failed to create')
+            raise NicosError('creation already failed once; not retrying')
         if devname not in self.configured_devices:
             found_in = []
             for sname, info in self._setup_info.iteritems():

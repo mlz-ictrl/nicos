@@ -376,6 +376,9 @@ class Device(object):
            current execution mode.  This means that if one of these methods does
            hardware access, it must be done only if ``mode != 'simulation'``.
         """
+        self._cache = None
+        self._subscriptions = []
+
         # validate and create attached devices
         for aname, entry in sorted(self.attached_devices.iteritems()):
             if not isinstance(entry, tuple) or len(entry) != 2:
@@ -495,7 +498,6 @@ class Device(object):
         self._infoparams.sort()
 
         # subscribe to parameter value updates, if a doUpdate method exists
-        self._subscriptions = []
         if self._cache:
             for param in self.parameters:
                 umethod = getattr(self, 'doUpdate' + param.title(), None)
@@ -1242,7 +1244,7 @@ class HasLimits(Moveable):
 
     parameters = {
         'userlimits': Param('User defined limits of device value', unit='main',
-                            type=limits, settable=True),
+                            type=limits, settable=True, chatty=True),
         'abslimits':  Param('Absolute limits of device value', unit='main',
                             type=limits, mandatory=True),
     }

@@ -99,7 +99,8 @@ class TAS(Instrument, Moveable):
 
     def doShutdown(self):
         for name in ['h', 'k', 'l', 'E']:
-            self.__dict__[name].shutdown()
+            if name in self.__dict__:
+                self.__dict__[name].shutdown()
 
     def _thz(self, ny):
         if self.energytransferunit == 'meV':
