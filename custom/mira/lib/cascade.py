@@ -241,6 +241,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                 for _, key, value in device.info():
                     fp.write('%s_%s : %s\n' % (device, key, value))
             fp.write('# end instrument status\n')
+        self.log.debug('writing data file to %s' % self.lastfilename)
         self._writeFile(buf, writer=writer)
         # also write as XML file
         if self.mode == 'image' and self.writexml:
@@ -289,6 +290,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
     def _writeXml(self, buf):
         xml_fn = path.join(self._datapath,
                            'mira_cas_%05d.xml' % self.lastfilenumber)
+        self.log.debug('writing XML file to %s' % xml_fn)
         tmp = cascadeclient.TmpImage()
         self._padimg.LoadMem(buf, 128*128*4)  # XXX size
         tmp.ConvertPAD(self._padimg)
