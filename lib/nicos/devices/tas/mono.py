@@ -99,7 +99,8 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
     }
 
     parameter_overrides = {
-        'unit':  Override(default='A-1', type=oneof('A-1', 'A', 'meV', 'THz')),
+        'unit':  Override(default='A-1', type=oneof('A-1', 'A', 'meV', 'THz'),
+                          chatty=True),
         'precision': Override(volatile=True, settable=False),
         'fmtstr': Override(default='%.3f'),
     }
@@ -279,6 +280,21 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
     def doWriteUnit(self, value):
         if self._cache:
             self._cache.invalidate(self, 'value')
+
+    def doUpdateUnit(self, value):
+        if 'unit' not in self._params:
+            # this is the initial update
+            return
+        new_absmin = self._fromlambda(self._tolambda(self.abslimits[0]), value)
+        new_absmax = self._fromlambda(self._tolambda(self.abslimits[1]), value)
+        if new_absmin > new_absmax:
+            new_absmin, new_absmax = new_absmax, new_absmin
+        self._setROParam('abslimits', (new_absmin, new_absmax))
+        new_umin = self._fromlambda(self._tolambda(self.userlimits[0]), value)
+        new_umax = self._fromlambda(self._tolambda(self.userlimits[1]), value)
+        if new_umin > new_umax:
+            new_umin, new_umax = new_umax, new_umin
+        self.userlimits = (new_umin, new_umax)
 
     def _fromlambda(self, value, unit=None):
         if unit is None:
