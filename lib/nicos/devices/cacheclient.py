@@ -97,6 +97,9 @@ class BaseCacheClient(Device):
     def doShutdown(self):
         self._stoprequest = True
         self._worker.join()
+        # make sure the interface is still usable but has no values to return
+        self._db.clear()
+        self._startup_done.set()
 
     def _connect(self):
         self._do_callbacks = False
