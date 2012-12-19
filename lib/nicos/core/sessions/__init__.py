@@ -898,14 +898,6 @@ class Session(object):
         self.log.info('shutting down device %r...' % devname)
         dev = self.devices[devname]
         dev.shutdown()
-        for adev in dev._adevs.values():
-            if isinstance(adev, list):
-                for real_adev in adev:
-                    real_adev._sdevs.discard(dev.name)
-            else:
-                adev._sdevs.discard(dev.name)
-        del self.devices[devname]
-        self.explicit_devices.discard(devname)
         if devname in self.namespace:
             self.unexport(devname)
 

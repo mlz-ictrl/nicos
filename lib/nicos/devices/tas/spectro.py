@@ -97,6 +97,10 @@ class TAS(Instrument, Moveable):
                                       tas=self)
         self._last_calpos = None
 
+    def doShutdown(self):
+        for name in ['h', 'k', 'l', 'E']:
+            self.__dict__[name].shutdown()
+
     def _thz(self, ny):
         if self.energytransferunit == 'meV':
             return ny / THZ2MEV

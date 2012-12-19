@@ -300,15 +300,7 @@ class Device(object):
             # initialize device
             self.init()
         except:  # here, really *all* exceptions are intended
-            # if initialization fails, remove from device registry
-            session.devices.pop(name, None)
-            # and remove from adevs' sdevs
-            for adev in self._adevs.values():
-                if isinstance(adev, list):
-                    for real_adev in adev:
-                        real_adev._sdevs.discard(self.name)
-                elif adev is not None:
-                    adev._sdevs.discard(self.name)
+            self.shutdown()
             raise
 
     def __setattr__(self, name, value):
@@ -660,18 +652,27 @@ class Device(object):
            This method is called, if present, but not in simulation mode.  It
            should perform cleanup, for example closing connections to hardware.
         """
-        if self._mode == 'simulation':
-            # do not execute shutdown actions when simulating
-            return
-
-        # remove subscriptions to parameter value updates
-        if self._cache:
-            for param in self._subscriptions:
-                self._cache.removeCallback(self, param)
-
         self.log.debug('shutting down device')
-        if hasattr(self, 'doShutdown'):
-            self.doShutdown()
+        if self._mode != 'simulation':
+            # do not execute shutdown actions when simulating
+
+            # remove subscriptions to parameter value updates
+            if self._cache:
+                for param in self._subscriptions:
+                    self._cache.removeCallback(self, param)
+
+            # execute custom shutdown actions
+            if hasattr(self, 'doShutdown'):
+                self.doShutdown()
+
+        for adev in self._adevs.values():
+            if isinstance(adev, list):
+                for real_adev in adev:
+                    real_adev._sdevs.discard(self.name)
+            elif adev is not None:
+                adev._sdevs.discard(self.name)
+        session.devices.pop(self.name, None)
+        session.explicit_devices.discard(self.name)
 
     @usermethod
     def version(self):
