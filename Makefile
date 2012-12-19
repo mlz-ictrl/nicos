@@ -8,12 +8,12 @@ RCC = pyrcc4
 PYTHON = /usr/bin/env python
 
 all:
-	$(PYTHON) setup.py build -e "/usr/bin/env python"
+	$(PYTHON) setup.py $(QOPT) build -e "/usr/bin/env python"
 	$(PYTHON) etc/set_version.py build/lib*
 	-make custom-all
 
 gui: lib/nicos/clients/gui/gui_rc.py
-	$(PYTHON) setup.py build -e "/usr/bin/env python"
+	$(PYTHON) setup.py $(QOPT) build -e "/usr/bin/env python"
 	$(PYTHON) etc/set_version.py build/lib*
 	-make custom-gui
 
@@ -27,7 +27,7 @@ clean:
 
 inplace:
 	rm -rf build
-	$(PYTHON) setup.py build_ext
+	$(PYTHON) setup.py $(QOPT) build_ext
 	cp build/lib*/nicos/services/daemon/*.so lib/nicos/services/daemon
 	-make custom-inplace
 
@@ -115,6 +115,8 @@ PYVERSION  = $(shell $(PYTHON) -c 'import sys; print sys.version[0:3]')
 
 ifeq "$(V)" "1"
   VOPT = -v
+else
+  QOPT = -q
 endif
 
 install: all main-install custom-install
@@ -139,37 +141,33 @@ main-install:
 	if [ -f $(INSTRDIR)/gui/defconfig.py ]; then \
 	  cp -p $(INSTRDIR)/gui/defconfig.py "$(ROOTDIR)/lib/nicos/clients/gui"; fi
 	@echo "============================================================="
-	@echo "Installing custom modules..."
-	mkdir -p $(VOPT) $(ROOTDIR)/lib/nicos/$(INSTRUMENT)
-	cp -pr $(VOPT) $(INSTRDIR)/lib/* $(ROOTDIR)/lib/nicos/$(INSTRUMENT)
+	@echo "Installing instrument specific modules..."
+	@for custdir in custom/*; do \
+		if [ -d $${custdir}/lib ]; then \
+			mkdir -p $(VOPT) $(ROOTDIR)/lib/nicos/$${custdir#*/}; \
+			cp -pr $(VOPT) $${custdir}/lib/* $(ROOTDIR)/lib/nicos/$${custdir#*/}; \
+		fi; \
+	done
 	@echo "============================================================="
 	@if [ "$(FRM2)" = 1 ]; then \
 		echo "============================================================="; \
-		echo "Installing FRM II specific module ..."; \
+		echo "Installing FRM II specific modules..."; \
 		mkdir -p $(VOPT) $(ROOTDIR)/lib/nicos/frm2; \
 		cp -pr $(VOPT) custom/frm2/lib/* $(ROOTDIR)/lib/nicos/frm2; \
+		echo "============================================================="; \
 	fi
-	@echo "============================================================="
 	@echo "Installing setups (not overwriting existing files)..."
-	@for ifile in $(INSTRDIR)/setups/* ; do \
-		if [ ! -f $(ROOTDIR)/setups/`basename $${ifile}` ]; then \
-			echo $${ifile} '->' $(ROOTDIR)/setups; \
-			cp -p $(VOPT) $${ifile} $(ROOTDIR)/setups; \
-		fi \
-	done
+	cp -pri $(VOPT) $(INSTRDIR)/setups/* $(ROOTDIR)/setups < /dev/null 2> /dev/null
 	@if [ "$(FRM2)" = 1 ]; then \
 		echo "============================================================="; \
 		echo "Installing FRM II specific setups (overwriting existing files!)..."; \
-		mkdir $(ROOTDIR)/setups/frm2; \
-		for ifile in custom/frm2/setups/* ; do \
-			echo $${ifile} '->' $(ROOTDIR)/setups/frm2; \
-			cp -p $(VOPT) $${ifile} $(ROOTDIR)/setups/frm2; \
-		done; \
+		mkdir $(VOPT) $(ROOTDIR)/setups/frm2; \
+		cp -pr $(VOPT) custom/frm2/setups/* $(ROOTDIR)/setups/frm2; \
 	fi
 	@echo "============================================================="
 	@echo "Everything is now installed to $(ROOTDIR)."
-	@echo "Trying to create system-wide symbolic links..."
 	@echo "============================================================="
+	@echo "Trying to create system-wide symbolic links..."
 	-ln -sf $(VOPT) -t /etc/init.d $(ROOTDIR)/etc/nicos-system
 	-ln -sf $(VOPT) -t /usr/bin $(ROOTDIR)/bin/*
 	@echo "============================================================="
