@@ -89,22 +89,22 @@ class VirtualMotor(Motor, HasOffset):
     def doSetPosition(self, pos):
         self.curvalue = pos + self.offset
 
-    def _step(self, start, end, elapsed):
+    def _step(self, start, end, elapsed, speed):
         delta = end - start
         sign = +1 if delta > 0 else -1
-        value = start + sign * self.speed * elapsed
-        vdelta = value - start
-        if abs(vdelta) > abs(delta):
+        value = start + sign * speed * elapsed
+        if (sign == 1 and value >= end) or (sign == -1 and value <= end):
             return end
         return value
 
     def __moving(self, pos):
+        speed = self.speed
         try:
             self._stop = False
             start = self.curvalue
             started = time.time()
             while 1:
-                value = self._step(start, pos, time.time() - started)
+                value = self._step(start, pos, time.time() - started, speed)
                 if self._stop:
                     self.log.debug('thread stopped')
                     return
@@ -272,10 +272,10 @@ class VirtualTemperature(VirtualMotor):
                 break
             time.sleep(0.1)
 
-    def _step(self, start, end, elapsed):
+    def _step(self, start, end, elapsed, speed):
         # calculate an exponential approximation to the setpoint with a time
         # constant given by self.speed
-        gamma = self.speed/10
+        gamma = speed / 10.
         cval = end + (start - end) * exp(-gamma*elapsed)
         if abs(cval - end) < self.jitter:
             return end
