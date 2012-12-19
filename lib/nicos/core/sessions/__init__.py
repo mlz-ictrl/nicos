@@ -362,6 +362,7 @@ class Session(object):
                     'devices': ns.get('devices', {}),
                     'startupcode': ns.get('startupcode', ''),
                     'extended': ns.get('extended', {}),
+                    'filename': path.join(root, filename),
                 }
                 if info['group'] not in SETUP_GROUPS:
                     self.log.warning('Setup %s has an invalid group (valid groups '
@@ -380,6 +381,7 @@ class Session(object):
                     oldinfo['devices'].update(info['devices'])
                     oldinfo['startupcode'] += '\n' + info['startupcode']
                     oldinfo['extended'].update(info['extended'])
+                    oldinfo['filename'] = path.join(root, filename)
                     self.log.debug('%r setup partially merged with version '
                                    'from parent directory' % modname)
                 else:
