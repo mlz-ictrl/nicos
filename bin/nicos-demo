@@ -3,7 +3,7 @@ if [ ! "x$1" = "x-c" ]; then
 	echo 'Building...'
 	make inplace > /dev/null
 fi
-echo 'Starting NICOS test system, please wait...'
+echo 'Starting NICOS demo system, please wait...'
 bin/nicos-cache >/dev/null &
 CACHEPID=$!
 echo -n '...'
