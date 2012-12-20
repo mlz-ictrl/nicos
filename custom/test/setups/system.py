@@ -17,6 +17,7 @@ devices = dict(
                       dataroot = 'data',
                       sendmail = True,
                       managerights = True,
+                      cycle = '0',
                       serviceexp = '0',
                       sample = 'Sample'
                      ),
@@ -37,5 +38,6 @@ devices = dict(
 
 startupcode = '''
 if not Exp.proposal:
+    SetMode('master')
     NewExperiment(0)
 '''

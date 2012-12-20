@@ -15,9 +15,7 @@ devices = dict(
                       instrument = 'VTAS',
                       responsible = 'R. Esponsible <responsible@frm2.tum.de>',
                       energytransferunit = 'meV',
-                      scanconstant = 1.5,
-                      scanmode = 'CKF',
-                      scatteringsense = (1, -1, 1),
+                      scatteringsense = (-1, 1, -1),
                       axiscoupling = False,
                       collimation = '60 30 30 60',
                       cell = 'Sample',
@@ -30,7 +28,6 @@ devices = dict(
 
     phi      = device('devices.generic.VirtualMotor',
                       abslimits = (-180, 180),
-                      curvalue = -38.942,
                       unit = 'deg',
                      ),
 
@@ -41,7 +38,6 @@ devices = dict(
 
     psi      = device('devices.generic.VirtualMotor',
                       abslimits = (0, 360),
-                      curvalue = 70.529,
                       unit = 'deg',
                      ),
 
@@ -57,16 +53,14 @@ devices = dict(
 
     mth      = device('devices.generic.VirtualMotor',
                       unit = 'deg',
-                      abslimits = (0, 90),
+                      abslimits = (-90, 0),
                       precision = 0.05,
-                      curvalue = 38.628,
                      ),
 
     mtt      = device('devices.generic.VirtualMotor',
                       unit = 'deg',
-                      abslimits = (0, 180),
+                      abslimits = (-180, 0),
                       precision = 0.05,
-                      curvalue = 77.256,
                      ),
 
     ana      = device('devices.tas.Monochromator',
@@ -83,14 +77,12 @@ devices = dict(
                       unit = 'deg',
                       abslimits = (-90, 90),
                       precision = 0.05,
-                      curvalue = 38.628,
                      ),
 
     att      = device('devices.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       precision = 0.05,
-                      curvalue = 77.256,
                      ),
 
     ki       = device('devices.tas.Wavevector',
@@ -98,7 +90,7 @@ devices = dict(
                       base = 'mono',
                       tas = 'tas',
                       scanmode = 'CKI',
-                      abslimits = (0, 10),
+                      abslimits = (0.1, 10),
                      ),
 
     kf       = device('devices.tas.Wavevector',
@@ -106,7 +98,7 @@ devices = dict(
                       base = 'ana',
                       tas = 'tas',
                       scanmode = 'CKF',
-                      abslimits = (0, 10),
+                      abslimits = (0.1, 10),
                      ),
 
     Ei       = device('devices.tas.Energy',
@@ -114,14 +106,14 @@ devices = dict(
                       base = 'mono',
                       tas = 'tas',
                       scanmode = 'CKI',
-                      abslimits = (0, 200)),
+                      abslimits = (0.1, 200)),
 
     Ef       = device('devices.tas.Energy',
                       unit = 'meV',
                       base = 'ana',
                       tas = 'tas',
                       scanmode = 'CKF',
-                      abslimits = (0, 200)),
+                      abslimits = (0.1, 200)),
 
     ssl      = device('devices.generic.VirtualMotor',
                       abslimits = (-20, 40),
@@ -163,17 +155,20 @@ devices = dict(
                       omega = 'ephi'),
     echi     = device('devices.generic.VirtualMotor',
                       abslimits = (-180, 180),
-                      curvalue = 0,
                       unit = 'deg',
                      ),
     ephi     = device('devices.generic.VirtualMotor',
                       abslimits = (-180, 180),
-                      curvalue = 0,
                       unit = 'deg',
                      ),
 )
 
 startupcode = '''
+SetMode('master')
+if mth() == 0:
+    mono(1.55)
+    kf(1.55)
+    tas(1,0,0,0)
 SetDetectors(vdet)
 AddEnvironment(T)
 printinfo("============================================================")
