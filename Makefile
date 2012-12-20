@@ -94,7 +94,7 @@ endif
 ifeq "$(INSTRDIR)" ""
   INSTALL_ERR = $(error No customization found for instrument $(INSTRUMENT). \
     If this is not the correct instrument, use 'make install INSTRUMENT=instname', \
-    where instname can also be "test")
+    where instname can also be "demo")
   # dummy targets
   custom-all:
   custom-inplace:

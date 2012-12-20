@@ -1,4 +1,4 @@
-description = 'test triple-axis setup'
+description = 'virtual triple-axis spectrometer'
 group = 'basic'
 
 modules = ['nicos.commands.tas']
@@ -11,7 +11,7 @@ sysconfig = dict(
 
 devices = dict(
     tas      = device('devices.tas.TAS',
-                      description = 'test triple-axis spectrometer',
+                      description = 'virtual triple-axis spectrometer',
                       instrument = 'VTAS',
                       responsible = 'R. Esponsible <responsible@frm2.tum.de>',
                       energytransferunit = 'meV',

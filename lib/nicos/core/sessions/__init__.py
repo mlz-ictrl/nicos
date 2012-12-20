@@ -125,9 +125,9 @@ class Session(object):
         self._setup_path = path.join(self.config.control_path,
                                      self.config.setups_path)
         if not path.isdir(self._setup_path) and path.isdir(
-            path.join(self.config.control_path, 'custom/test/setups')):
+            path.join(self.config.control_path, 'custom/demo/setups')):
             self._setup_path = path.join(self.config.control_path,
-                                         'custom/test/setups')
+                                         'custom/demo/setups')
         # devices failed in the current setup process
         self._failed_devices = None
         # info about all loadable setups

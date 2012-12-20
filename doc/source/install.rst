@@ -68,7 +68,7 @@ setup that uses all the major components can be started using ::
   bin/nicos-poller &
   bin/nicos-console
 
-The console will load the test setups from ``custom/test/setups``.  The startup
+The console will load the demo setups from ``custom/demo/setups``.  The startup
 setup contains a few devices that show basic usage of the NICOS system.  Call
 ``help()`` in the console to get a list of commands, and ``listdevices()`` to
 get a list of devices that can be manipulated.  You can also call ``help(dev)``
@@ -122,7 +122,7 @@ The possible entries are:
 * Under the section ``[nicos]``:
 
   * ``setups_path`` -- path to the setup files; by default, the setups in
-    ``custom/test/setups`` will be used
+    ``custom/demo/setups`` will be used
   * ``user`` -- system user to use when becoming a daemon
   * ``group`` -- system group to use when becoming a daemon
   * ``logging_path`` -- the root path for all NICOS related log files, by
