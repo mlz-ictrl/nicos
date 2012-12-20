@@ -45,6 +45,8 @@ class VirtualTasDetector(Measurable):
 
     def doInit(self, mode):
         self._lastpreset = {'t': 1}
+        self._counting = False
+        self._lastresult = [0, 0, 0]
 
     def presetInfo(self):
         return ['t', 'mon']
@@ -60,6 +62,7 @@ class VirtualTasDetector(Measurable):
     def doStart(self, **preset):
         if preset:
             self._lastpreset = preset
+        self._counting = True
 
     def doStop(self):
         pass
@@ -70,6 +73,9 @@ class VirtualTasDetector(Measurable):
     def doRead(self, maxage=0):
         from nicos.devices.tas.rescalc import resmat, calc_MC, demosqw
         from nicos.commands.tas import _resmat_args
+
+        if not self._counting:
+            return self._lastresult
         taspos = self._adevs['tas'].read(0)
         mat = resmat(*_resmat_args(taspos, {}))
         # monitor rate (assume constant flux distribution from source)
@@ -88,4 +94,6 @@ class VirtualTasDetector(Measurable):
         bg = random.poisson(int(self.background * time / 60))
         counts = int(calc_MC([taspos], [bg, time], demosqw, mat,
                              self.mcpoints)[0])
-        return [time, moni, counts]
+        self._counting = False
+        self._lastresult = [time, moni, counts]
+        return self._lastresult
