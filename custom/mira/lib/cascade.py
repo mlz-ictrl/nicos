@@ -60,8 +60,8 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                           type=oneof('tof', 'image'), settable=True),
         'slave':    Param('Slave mode: start together with master device',
                           type=bool, settable=True),
-        'preselection': Param('Current preselection', unit='s',
-                              settable=True, type=float),
+        'preselection': Param('Current preselection (if not in slave mode)',
+                              unit='s', settable=True, type=float),
         'lastcounts': Param('Counts of the last measurement',
                             type=listof(int), settable=True),
         'lastcontrast': Param('Contrast of the last measurement',
@@ -70,6 +70,8 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                             type=int, settable=True),
         'fitfoil':    Param('Foil for contrast fitting', type=int, default=0,
                             settable=True),
+        'writexml':   Param('Whether to save files in XML format', type=bool,
+                            settable=True, default=True),
     }
 
     parameter_overrides = {
@@ -245,9 +247,10 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                 for _, key, value in device.info():
                     fp.write('%s_%s : %s\n' % (device, key, value))
             fp.write('# end instrument status\n')
+        self.log.debug('writing data file to %s' % self.lastfilename)
         self._writeFile(buf, writer=writer)
         # also write as XML file
-        if self.mode == 'image':
+        if self.mode == 'image' and self.writexml:
             try:
                 self._writeXml(buf)
             except Exception:
@@ -293,6 +296,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
     def _writeXml(self, buf):
         xml_fn = path.join(self._datapath,
                            'mira_cas_%05d.xml' % self.lastfilenumber)
+        self.log.debug('writing XML file to %s' % xml_fn)
         tmp = cascadeclient.TmpImage()
         self._padimg.LoadMem(buf, 128*128*4)  # XXX size
         tmp.ConvertPAD(self._padimg)
