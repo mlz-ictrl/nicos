@@ -14,7 +14,7 @@ devices = dict(
                       speed = 0.25,
                       switch = 'air_mono_sample_ana',
                       switchvalues = (0, 1),
-                      fmtstr = '%.2f'),
+                      fmtstr = '%.3f'),
 
     m2th     = device('devices.taco.Axis',
                       description = 'monochromator theta',
