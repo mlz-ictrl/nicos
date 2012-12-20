@@ -146,7 +146,7 @@ class EulerianCradle(Moveable):
         Eckolds notation.
         """
         omat = self._omat
-        Bmat = self._adevs['cell']._matrix
+        Bmat = self._Bmat
 
         # calculate phi from q, ki, kf
         self.log.debug("Bmat = %s" % Bmat)
@@ -469,6 +469,7 @@ class EulerianCradle(Moveable):
         self.log.debug('re-setting orientation reflections of cell')
         cell.orient1 = [1, 0, 0]
         cell.orient2 = [0, 1, 0]
+        self._Bmat = cell._matrix
         #print 'd1 (psi=%f chi =%f om = %f\n' %(ang1[0],ang1[1],ang1[2]), \
         #      self.calc_euler(ang1[0],ang1[1],ang1[2])
         #print 'd2 (psi=%f chi =%f om = %f\n' %(ang2[0],ang2[1],ang2[2]), \
@@ -480,8 +481,8 @@ class EulerianCradle(Moveable):
         ec_q1 = [cos((90-ang1[3]/2)*D2R), -sense*sin((90-ang1[3]/2)*D2R), 0]
         ec_q2 = [cos((90-ang2[3]/2)*D2R), -sense*sin((90-ang2[3]/2)*D2R), 0]
         self.log.debug('ec_q1 = %s, ec_q2 = %s' % (ec_q1, ec_q2))
-        ec_h1 = dot(cell._matrix, hkl1)
-        ec_h2 = dot(cell._matrix, hkl2)
+        ec_h1 = dot(self._Bmat, hkl1)
+        ec_h2 = dot(self._Bmat, hkl2)
         self.log.debug('ec_h1 = %s, ec_h2 = %s' % (ec_h1, ec_h2))
         ec_r1 = dot(d1_inv, ec_q1)
         ec_r2 = dot(d2_inv, ec_q2)
