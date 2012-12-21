@@ -84,7 +84,8 @@ class HelpGenerator(object):
         self.lock = threading.Lock()
         self.helper = pydoc.Helper(input=self.strin, output=self.strout)
         self._specialtopics = set(self.helper.topics)
-        self._specialtopics.update(self.helper.symbols)
+        if hasattr(self.helper, 'symbols'):
+            self._specialtopics.update(self.helper.symbols)
         self._specialtopics.update(self.helper.keywords)
 
     def gen_heading(self, title, id_=''):
