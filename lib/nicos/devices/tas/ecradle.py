@@ -197,8 +197,8 @@ class EulerianCradle(Moveable):
             if ec_b[2] >= 0:
                 ec_xlchi = 1.0
             else:
-               ec_xlchi = -1.0
-               ec_chi = 180
+                ec_xlchi = -1.0
+                ec_chi = 180
             # this is direct what stands in calec
             ec_copom = ec_xlchi*ec_q1[1]*ec_r[1] + ec_q1[0]*ec_r[0]
             ec_sipom = ec_xlchi*ec_q1[1]*ec_r[0] - ec_q1[0]*ec_r[1]
