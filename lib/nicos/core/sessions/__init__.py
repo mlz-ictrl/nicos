@@ -164,11 +164,7 @@ class Session(object):
             'datasinks':  [],
             'notifiers':  [],
         }
-        self.cache = None
-        self.instrument = self._def_sysconfig['instrument']
-        self.experiment = self._def_sysconfig['experiment']
-        self.datasinks = []
-        self.notifiers = []
+        self.__dict__.update(self._def_sysconfig)
 
         # set up logging interface
         self._initLogging()
@@ -416,7 +412,8 @@ class Session(object):
         return getattr(mod, member)
 
     def loadSetup(self, setupnames, allow_special=False, raise_failed=False,
-                  autocreate_devices=None, autoload_system=True):
+                  autocreate_devices=None, autoload_system=True,
+                  allow_startupcode=True):
         """Load one or more setup modules given in *setupnames* and set up
         devices accordingly.
 
@@ -598,12 +595,13 @@ class Session(object):
                     failed_devs.append(devname)
 
         # execute the startup code
-        for code in startupcode:
-            if code:
-                try:
-                    exec code in self.namespace
-                except Exception:
-                    self.log.exception('error running startup code, ignoring')
+        if allow_startupcode:
+            for code in startupcode:
+                if code:
+                    try:
+                        exec code in self.namespace
+                    except Exception:
+                        self.log.exception('error running startup code, ignoring')
 
         if failed_devs:
             self.log.error('the following devices could not be created:')
