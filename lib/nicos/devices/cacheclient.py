@@ -80,6 +80,7 @@ class BaseCacheClient(Device):
         self._disconnect_warnings = 0
         # maps newprefix -> oldprefix without self._prefix prepended
         self._inv_rewrites = {}
+        self._prefixcallbacks = {}
 
         self._stoprequest = False
         self._queue = Queue.Queue()
@@ -153,6 +154,8 @@ class BaseCacheClient(Device):
 
         # send request for all updates
         self._socket.sendall('@%s%s\n' % (self._prefix, OP_SUBSCRIBE))
+        for prefix in self._prefixcallbacks:
+            self._socket.sendall('@%s%s\n' % (prefix, OP_SUBSCRIBE))
 
         self._process_data(data)
 
@@ -380,7 +383,17 @@ class CacheClient(BaseCacheClient):
         self.put('session', 'master', '')
 
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
-        if op not in (OP_TELL, OP_TELLOLD) or not key.startswith(self._prefix):
+        if op not in (OP_TELL, OP_TELLOLD):
+            return
+        if not key.startswith(self._prefix):
+            for cb in self._prefixcallbacks:
+                if key.startswith(cb):
+                    value = cache_load(value) if value is not None else value
+                    time = time and float(time)
+                    try:
+                        self._prefixcallbacks[cb](key, value, time)
+                    except Exception:
+                        self.log.warning('error in cache callback', exc=1)
             return
         key = key[len(self._prefix):]
         time = time and float(time)
@@ -412,6 +425,15 @@ class CacheClient(BaseCacheClient):
     def removeCallback(self, dev, key):
         """Remove a callback for the given device/subkey, if present."""
         self._callbacks.pop(('%s/%s' % (dev, key)).lower(), None)
+
+    def addPrefixCallback(self, prefix, function):
+        """Add a "prefix" callback, which is called for every key and value
+        that does not match the prefix parameter of the client, but matches
+        the prefix given to this function.
+        """
+        self._prefixcallbacks[prefix] = function
+        if self._socket:
+            self._socket.sendall('@%s%s\n' % (prefix, OP_SUBSCRIBE))
 
     def get(self, dev, key, default=None, mintime=None):
         """Get a value from the local cache for the given device and subkey.
