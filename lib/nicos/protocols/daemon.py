@@ -100,6 +100,8 @@ DAEMON_EVENTS = {
     'showhelp': True,
     # request to execute something on the client side
     'clientexec': True,
+    # a watchdog notification has arrived
+    'watchdog': True,
     # the remote-debugging status changed
     'debugging': True,
     # a plug-and-play/sample-environment event occurred

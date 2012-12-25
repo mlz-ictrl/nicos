@@ -541,8 +541,10 @@ class Session(object):
         if sysconfig.get('cache') and self._mode != 'simulation':
             self.cache = self.cache_class('Cache', cache=sysconfig['cache'],
                                           prefix='nicos/', lowlevel=True)
-            # plug-and-play sample environment devices
+            # be notified about plug-and-play sample environment devices
             self.cache.addPrefixCallback('se/', self._pnpHandler)
+            # be notified about watchdog events
+            self.cache.addPrefixCallback('watchdog/', self._watchdogHandler)
 
         # validate and attach sysconfig devices
         sysconfig_items = [
@@ -951,6 +953,18 @@ class Session(object):
             self.log.info('new sample environment detected: %s'
                           % (description or ''))
             self.log.info('load setup %r to activate' % setupname)
+
+    def _watchdogHandler(self, key, value, time):
+        """Handle a watchdog event."""
+        # value[0] is a timestamp, value[1] a string
+        if key.endswith(('/warning', '/action')):
+            self.watchdogEvent(key.rsplit('/')[-1], value[0], value[1])
+
+    def watchdogEvent(self, event, time, data):
+        if event == 'warning':
+            self.log.warning('WATCHDOG ALERT: %s' % data)
+        elif event == 'action':
+            self.log.warning('Executing watchdog action: %s' % data)
 
     # -- Logging ---------------------------------------------------------------
 

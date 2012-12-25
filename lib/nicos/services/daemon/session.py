@@ -184,3 +184,7 @@ class DaemonSession(NoninteractiveSession):
 
     def pnpEvent(self, event, *data):
         self.emitfunc('plugplay', (event,) + data)
+
+    def watchdogEvent(self, event, time, data):
+        """Handle a watchdog event."""
+        self.emitfunc('watchdog', (event, time, data))
