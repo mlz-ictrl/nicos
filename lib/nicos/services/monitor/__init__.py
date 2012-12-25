@@ -38,8 +38,7 @@ from time import sleep, strftime, time as currenttime
 from nicos import session
 from nicos.core import listof, Param, Override
 from nicos.core.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
-from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_load
-from nicos.devices.notifiers import Notifier
+from nicos.protocols.cache import OP_TELL, OP_TELLOLD, OP_SUBSCRIBE, cache_load
 from nicos.devices.cacheclient import BaseCacheClient
 
 
@@ -62,7 +61,6 @@ class Monitor(BaseCacheClient):
                            default='Status'),
         'layout':    Param('Status monitor layout', type=listof(list),
                            mandatory=True),
-        'warnings':  Param('List of warning conditions', type=listof(list)),
         'font':      Param('Font name for the window', type=str,
                            default='Luxi Sans'),
         'valuefont': Param('Font name for the value displays', type=str),
@@ -78,11 +76,6 @@ class Monitor(BaseCacheClient):
 
     parameter_overrides = {
         'prefix':    Override(mandatory=False, default='nicos/'),
-    }
-
-    attached_devices = {
-        'notifiers': ([Notifier], 'A list of notifiers used for warning '
-                      'messages'),
     }
 
     # methods to be implemented in concrete implementations
@@ -157,12 +150,8 @@ class Monitor(BaseCacheClient):
         self._setups = set()
         # master active?
         self._masteractive = False
-        # maps warning keys
-        self._warnmap = {}
-        # current warnings
-        self._currwarnings = []
-        # keys that have warnings, with info about time it occurred first
-        self._haswarnings = {}
+        # currently shown warnings
+        self._currwarnings = ''
         # time when warnings were last shown/hidden?
         self._warningswitchtime = 0
 
@@ -170,15 +159,6 @@ class Monitor(BaseCacheClient):
         checker = threading.Thread(target=self._checker, name='refresh checker')
         checker.setDaemon(True)
         checker.start()
-
-        for warning in self.warnings:
-            try:
-                key, cond, desc, setup = warning
-            except ValueError:
-                key, cond, desc = warning
-                setup = None
-            self._warnmap[self._prefix + key] = \
-                {'condition': cond, 'description': desc, 'setup': setup}
 
         self.initLayout()
         self.initColors()
@@ -293,6 +273,11 @@ class Monitor(BaseCacheClient):
             if field['formatkey']:
                 _ref('formatkey', prefix + field['formatkey'])
 
+    def _connect_action(self):
+        BaseCacheClient._connect_action(self)
+        # also subscribe to all watchdog events
+        self._socket.sendall('@watchdog/%s\n' % OP_SUBSCRIBE)
+
     # called between connection attempts
     def _wait_retry(self):
         self.setLabelText(self._timelabel,
@@ -380,6 +365,10 @@ class Monitor(BaseCacheClient):
         except ValueError:
             pass
 
+        if key == 'watchdog/warnings':
+            self._process_warnings(value)
+            return
+
         #self.log.debug('processing %s' % [time, ttl, key, op, value])
 
         if key == self._prefix + 'session/master':
@@ -393,17 +382,6 @@ class Monitor(BaseCacheClient):
                            % ', '.join(self._setups))
 
         expired = value is None or op == OP_TELLOLD
-
-        if key in self._warnmap and not expired:
-            info = self._warnmap[key]
-            try:
-                condvalue = eval('__v__ ' + info['condition'],
-                                 {'__v__': value})
-            except Exception:
-                self.log.warning('error evaluating %r warning condition'
-                                  % key, exc=1)
-            else:
-                self._process_warnings(key, info, condvalue)
 
         # now check if we need to update something
         fields = self._keymap.get(key, [])
@@ -468,27 +446,12 @@ class Monitor(BaseCacheClient):
                 self.setLabelUnitText(field['namelabel'], field['name'],
                                       field['unit'], field['fixed'])
 
-    def _process_warnings(self, key, info, value):
-        if info['setup']:
-            value &= info['setup'] in self._setups
-        if not value:
-            if key not in self._haswarnings:
-                return
-            self._currwarnings.remove(self._haswarnings.pop(key))
-        elif value:
-            if key in self._haswarnings:
-                return
-            warning_desc = strftime('%Y-%m-%d %H:%M') + ' -- ' + \
-                           info['description']
-            self._currwarnings.append((key, warning_desc))
-            self._haswarnings[key] = (key, warning_desc)
-            for notifier in self._adevs['notifiers']:
-                notifier.send('New warning from ' + self.title,
-                              warning_desc)
-        if self._currwarnings:
+    def _process_warnings(self, warnings):
+        #self.log.debug('new warnings: %s' % warnings)
+        self._currwarnings = warnings
+        if warnings:
             self.setBothColors(self._timelabel, self._black, self._red)
-            self.setLabelText(self._warnlabel,
-                              '\n'.join(w[1] for w in self._currwarnings))
+            self.setLabelText(self._warnlabel, self._currwarnings)
         else:
             self.setBothColors(self._timelabel, self._gray, self._bgcolor)
             self.switchWarnPanel(off=True)
