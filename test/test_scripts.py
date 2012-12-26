@@ -65,7 +65,7 @@ class ScriptSessionTest(ScriptSession):
 
 def run_script_session(setup, code):
     session = ScriptSessionTest('TestScriptSession')
-    session.handleInitialSetup(setup, False)
+    session.handleInitialSetup(setup)
     exec code in session.namespace
     session.shutdown()
 

@@ -34,32 +34,6 @@ from nicos.utils import daemonize, setuser, writePidfile, removePidfile
 from nicos.core.sessions import Session
 
 
-class ScriptSession(Session):
-    """
-    Subclass of Session that allows for batch execution of scripts.
-    """
-
-    @classmethod
-    def run(cls, setup, code):
-        session.__class__ = cls
-
-        try:
-            session.__init__('script')
-        except Exception, err:
-            try:
-                session.log.exception('Fatal error while initializing')
-            finally:
-                print >> sys.stderr, 'Fatal error while initializing:', err
-            return 1
-
-        # Load the initial setup and handle becoming master.
-        session.handleInitialSetup(setup, False)
-
-        # Execute the script code and shut down.
-        exec code in session.namespace
-        session.shutdown()
-
-
 class NoninteractiveSession(Session):
     """
     Subclass of Session that configures the logging system for simple
@@ -128,3 +102,29 @@ class SingleDeviceSession(NoninteractiveSession):
     @classmethod
     def _get_maindev(cls, appname, maindevcls, setup):
         return maindevcls(appname, **setup)
+
+
+class ScriptSession(Session):
+    """
+    Subclass of Session that allows for batch execution of scripts.
+    """
+
+    @classmethod
+    def run(cls, setup, code, mode='slave', appname='script'):
+        session.__class__ = cls
+
+        try:
+            session.__init__(appname)
+        except Exception, err:
+            try:
+                session.log.exception('Fatal error while initializing')
+            finally:
+                print >> sys.stderr, 'Fatal error while initializing:', err
+            return 1
+
+        # Load the initial setup and handle becoming master.
+        session.handleInitialSetup(setup, mode)
+
+        # Execute the script code and shut down.
+        exec code in session.namespace
+        session.shutdown()

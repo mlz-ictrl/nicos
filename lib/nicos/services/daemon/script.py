@@ -275,7 +275,8 @@ class ExecutionController(Controller):
         self.log = log             # daemon logger object
         self.eventfunc = eventfunc # event emitting callback
         self.setup = startupsetup  # first setup on start
-        self.simmode = simmode     # start in simulation mode?
+        self.simmode = simmode and 'simulation' or 'slave'
+                                   # start in simulation mode?
         self.queue = Queue()       # user scripts get put here
         self.current_script = None # currently executed script
         self.namespace = session.namespace
@@ -303,11 +304,11 @@ class ExecutionController(Controller):
     # this code is executed as the first thing when the daemon starts
     setup_code = ('from nicos import session\n'
                   'try:\n'
-                  '    session.handleInitialSetup(%r, %s)\n'
+                  '    session.handleInitialSetup(%r, %r)\n'
                   'except:\n'
                   '    session.log.warning("Error loading previous setups, '
                   'loading startup setup", exc=1)\n'
-                  '    session.handleInitialSetup("startup", %s)\n'
+                  '    session.handleInitialSetup("startup", %r)\n'
                   'del session\n')
 
     def _observer(self, status, lineno):

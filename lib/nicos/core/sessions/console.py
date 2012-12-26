@@ -320,7 +320,7 @@ class ConsoleSession(Session):
         session._in_sigint = False
 
         # Load the initial setup and handle becoming master.
-        session.handleInitialSetup(setup, simulate)
+        session.handleInitialSetup(setup, simulate and 'simulation' or 'slave')
 
         # Fire up an interactive console.
         try:

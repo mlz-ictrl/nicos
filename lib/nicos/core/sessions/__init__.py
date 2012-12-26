@@ -699,22 +699,24 @@ class Session(object):
             if name in self.namespace:
                 yield name, self.namespace[name]
 
-    def handleInitialSetup(self, setup, simulate):
+    def handleInitialSetup(self, setup, mode='slave'):
         """Determine which setup to load, and try to become master.
 
         Called by sessions during startup.
         """
         # If simulation mode is wanted, we need to set that before loading any
         # initial setup.
-        if simulate:
+        if mode == 'simulation':
             self._mode = 'simulation'
 
         # Create the initial instrument setup.
         self.loadSetup(setup)
 
-        if simulate:
+        if mode == 'simulation':
             self.log.info('starting in simulation mode')
-        elif self.mode == 'slave':
+        elif mode == 'maintenance':
+            self.setMode('maintenance')
+        elif mode == 'slave':
             # Try to become master if the setup didn't already switch modes.
             try:
                 self.setMode('master')

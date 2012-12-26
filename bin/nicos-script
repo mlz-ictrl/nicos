@@ -7,14 +7,28 @@ while path.islink(thisfile):
     thisfile = path.join(path.dirname(thisfile), os.readlink(thisfile))
 sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/../lib'))
 
-if len(sys.argv) == 2:
-    setup, script = 'startup', sys.argv[1]
-elif len(sys.argv) == 3:
-    setup, script = sys.argv[1:3]
+import optparse
+
+parser = optparse.OptionParser()
+parser.add_option('-M', '--maintenance', dest='mode', const='maintenance',
+                  action='store_const', default='slave',
+                  help='start in maintenance mode')
+parser.add_option('-A', '--appname', dest='appname', default='script',
+                  help='application name (base name for log files)')
+opts, args = parser.parse_args()
+
+if len(args) == 1:
+    setup, script = 'startup', args[0]
+elif len(args) >= 2:
+    setup, script = args[:2]
 else:
     raise SystemExit('Usage: nicos-script [setupname] filename')
 
-script_text = open(script, 'U').read()
+setup = setup.split(',')
+if path.isfile(script):
+    script_text = open(script, 'U').read()
+else:
+    script_text = script
 
 from nicos.core.sessions.simple import ScriptSession
-ScriptSession.run(setup, script_text)
+ScriptSession.run(setup, script_text, mode=opts.mode, appname=opts.appname)
