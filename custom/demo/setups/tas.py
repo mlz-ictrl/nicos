@@ -161,6 +161,26 @@ devices = dict(
                       abslimits = (-180, 180),
                       unit = 'deg',
                      ),
+
+    mfh_mot = device('nicos.panda.rot_axis.VirtualRotAxisMotor',
+                      abslimits = (-360, 360),
+                      unit = 'deg',
+                      speed = 20,
+                      jitter = 0.1,
+                      lowlevel = True,
+                     ),
+    mfh         = device('nicos.panda.rot_axis.RotAxis',
+                      abslimits = (-360, 360),
+                      unit = 'deg',
+                      refpos = 220,
+                      refspeed = 1,
+                      autoref = -10,
+                      wraparound = 360,
+                      precision = 0.1,
+                      motor = 'mfh_mot',
+                      coder = 'mfh_mot',
+                      obs = [],
+                     ),
 )
 
 startupcode = '''
