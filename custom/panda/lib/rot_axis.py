@@ -67,7 +67,6 @@ class RotAxis(Axis):
         if self.autoref and self._moves > abs( self.autoref ) and not self._referencing:
             self.log.info( 'self.autoref limit reached => referencing NOW' )
             self.reference( target )    # WARNING: This takes a while !
-            self._moves = 0     # not checking the success of referencing is intentional!
         return Axis.doStart( self, target )
 
     @usermethod
@@ -181,6 +180,7 @@ class RotAxis(Axis):
             if gotopos is None:
                 self.wait()
                 self.poll()
+            self._moves = 0
         finally:
             self._referencing = False
             m.speed = oldspeed
