@@ -12,7 +12,7 @@ devices = dict(
     #~ bus = device('devices.vendor.ipc.IPCModBusTCP',
                  #~ #loglevel = 'debug',
                  #~ loglevel = 'info',
-		 #~ roundtime = 0.05,
+                 #~ roundtime = 0.05,
                  #~ host = '172.25.15.51'),
         # using serial cable
     #bus = device('devices.vendor.ipc.IPCModBusSerial',
@@ -47,11 +47,12 @@ devices = dict(
 )
 
 for i in range(1,9):
-    devices['s%d' % i] = device('devices.vendor.ipc.Motor', bus='bus2', addr=0x50+i, slope=1., unit='steps', abslimits=(0, 999999),fmtstr='%d')
+    devices['s%d' % i] = device('devices.vendor.ipc.Motor', bus='bus2', addr=0x50+i, slope=1., unit='steps', 
+                                                        abslimits=(0, 999999),fmtstr='%d')
     devices['p%d' % i] = device('devices.vendor.ipc.Coder', bus='bus2', addr=0x60+i, slope=1., unit='steps')
     devices['c%d' % i] = device('devices.vendor.ipc.Coder', bus='bus2', addr=0x70+i, slope=1., unit='steps')
 
-#devices['a2'] = device('axis.Axis', motor='s2', coder='c2', precision=
+#devices['a2'] = device('devices.generic.Axis', motor='s2', coder='c2', precision=
 
 #startupcode='''
 #SetMode('maintenance')  # automagically switch to maintenance (master) modus

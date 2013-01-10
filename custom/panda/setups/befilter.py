@@ -2,7 +2,7 @@
 
 description = 'Beryllium filter'
 
-includes = ['system']
+includes = ['ana'] # should include anablocks
  
 devices = dict(
    
@@ -16,5 +16,6 @@ devices = dict(
             addr = 0,
             warnlevel=80,
             unit='K',
+            description = 'Temperature of the Be-Filter or 1513.4K if not used',
     ),
 )

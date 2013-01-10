@@ -3,7 +3,7 @@
 name = 'Sampletable complete'
 
 includes = ['system']
- 
+
  # sth,stt,sgx,sgy,stx,sty,stz,--
 
 devices = dict(
@@ -11,8 +11,9 @@ devices = dict(
             tacodevice='//pandasrv/panda/moxa/port2',
             loglevel='info',
             timeout=0.5,
+            lowlevel=True,
     ),
-    
+
     # STT is first device and has 1 stepper, 0 poti, 1 coder
     stt_step = device('devices.vendor.ipc.Motor',
             bus = 'bus2',
@@ -23,8 +24,8 @@ devices = dict(
             zerosteps = 500000,
             confbyte = 8,
             speed = 100,
-            accel = 150,
-            microstep = 16,
+            accel = 17,
+            microstep = 2,
             startdelay = 0.2,
             stopdelay = 0.1,
             ramptype = 1,
@@ -45,12 +46,13 @@ devices = dict(
             motor = 'stt_step',
             coder = 'stt_enc',
             obs = [],
-            precision = 0.02,
-            offset = 0.1423,
+            precision = 0.025,
+            #offset = -0.925,
+            offset = -1.045,
     ),
-    
+
     # STH is second device and has 1 stepper, 0 poti, 1 coder
-    sth_step = device('devices.vendor.ipc.Motor',
+    sth_st_step = device('devices.vendor.ipc.Motor',
             bus = 'bus2',
             addr = 0x52,
             slope = 2000,
@@ -66,7 +68,7 @@ devices = dict(
             lowlevel = True,
             #~ current = 2.0,
     ),
-    sth_enc = device('devices.vendor.ipc.Coder',
+    sth_st_enc = device('devices.vendor.ipc.Coder',
             bus = 'bus2',
             addr = 0x72,
             slope = -2**20/360.0,
@@ -76,13 +78,14 @@ devices = dict(
             circular = 360, # map values to -180..0..180 degree
             lowlevel = True,
     ),
-    sth = device('devices.generic.Axis',
-            motor = 'sth_step',
-            coder = 'sth_enc',
+    sth_st = device('devices.generic.Axis',
+            motor = 'sth_st_step',
+            coder = 'sth_st_enc',
             obs = [],
             precision = 0.02,
+            description = 'sth mounted on sampletable',
     ),
-    
+
     # SGX is third device and has 1 stepper, 0 poti, 1 coder
     sgx_step = device('devices.vendor.ipc.Motor',
             bus = 'bus2',
@@ -104,7 +107,8 @@ devices = dict(
             bus = 'bus2',
             addr = 0x73,
             slope = -2**13/1.0,
-            zerosteps = 33538047 + 16384,
+            #zerosteps = 33513471,
+            zerosteps = 33554431,
             confbyte = 121,
             unit = 'deg',
             circular = -4096,    # 12 bit (4096) for turns, times 2 deg per turn divided by 2 (+/-)
@@ -117,7 +121,7 @@ devices = dict(
             precision = 0.05,
             #~ rotary = True,
     ),
-    
+
     # SGY is fourth device and has 1 stepper, 0 poti, 1 coder
     sgy_step = device('devices.vendor.ipc.Motor',
             bus = 'bus2',
@@ -139,6 +143,7 @@ devices = dict(
             bus = 'bus2',
             addr = 0x74,
             slope = 2**13/1.0,
+            #zerosteps = 33562602,
             zerosteps = 33554410,
             confbyte = 121,
             unit = 'deg',
@@ -152,8 +157,8 @@ devices = dict(
             precision = 0.05,
             #~ rotary = True,
     ),
-    
-    
+
+
     # STX is fith device and has 1 stepper, 1 poti, 0 coder
     stx_step = device('devices.vendor.ipc.Motor',
             bus = 'bus2',
@@ -184,7 +189,7 @@ devices = dict(
             precision = 0.05,
             fmtstr='%.1f',
     ),
-    
+
     # STY is sixth device and has 1 stepper, 1 poti, 0 coder
     sty_step = device('devices.vendor.ipc.Motor',
             bus = 'bus2',
@@ -215,7 +220,7 @@ devices = dict(
             precision = 0.05,
             fmtstr='%.1f',
     ),
-    
+
     # STZ is seventh device and has 1 stepper, 0 poti, 0 coder
     stz_step = device('devices.vendor.ipc.Motor',
             bus = 'bus2',
@@ -225,7 +230,7 @@ devices = dict(
             abslimits = (-20,20),
             zerosteps = 500000,
             speed = 50,
-            accel = 8,
+            accel = 24,
             microstep = 2,
             lowlevel = True,
             #~ divider = 4,
@@ -239,7 +244,11 @@ devices = dict(
             precision = 0.1,
             fmtstr = '%.3f',
     ),
-    
+
     # eigth device is not used yet......
-    
+
 )
+
+startupcode = '''
+sth.alias='sth_st'
+'''

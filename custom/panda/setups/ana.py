@@ -3,7 +3,7 @@
 description = 'Analyser'
 
 includes = ['system', 'befilter']
- 
+
  # ath,att,agx,--,--,aty,--, afh
 
 devices = dict(
@@ -11,8 +11,9 @@ devices = dict(
             tacodevice='//pandasrv/panda/moxa/port1',
             loglevel='info',
             timeout=0.5,
+            lowlevel=True,
     ),
-    
+
     # ATT is first device and has 1 stepper, 0 poti, 1 coder
     att_step = device('devices.vendor.ipc.Motor',
             bus = 'bus1',
@@ -47,7 +48,7 @@ devices = dict(
     ),
     anablocks = device('panda.ana.AnaBlocks',
             beckhoff = 'anablocks_beckhoff',
-            powertime = 10,
+            powertime = 20,
             lowlevel = True,
     ),
     att = device('panda.ana.ATT_Axis',
@@ -61,7 +62,7 @@ devices = dict(
             precision = 0.05,
             jitter = 0.5,
             maxtries = 10,
-            offset = 0.4934,
+            offset = 0.54568,
     ),
     #~ att = device('devices.generic.Axis',
             #~ motor = 'att_step',
@@ -71,7 +72,7 @@ devices = dict(
             #~ jitter=1,
             #~ maxtries=50
     #~ ),
-    
+
     # ath is second device and has 1 stepper, 0 poti, 1 coder
     ath_step = device('devices.vendor.ipc.Motor',
             bus = 'bus1',
@@ -105,10 +106,10 @@ devices = dict(
             obs = [],
             precision = 0.03,
             maxtry = 50,
-            offset = -2.297,
+            offset = -2.209,
             #~ rotary = True,
     ),
-    
+
     # agx is third device and has 1 stepper, 0 poti, 1 coder
     agx_step = device('devices.vendor.ipc.Motor',
             bus = 'bus1',
@@ -117,7 +118,7 @@ devices = dict(
             unit = 'deg',
             abslimits = (-5,5),
             zerosteps = 500000,
-            speed = 50,
+            speed =100,
             accel = 8,
             microstep = 16,
             startdelay = 0,
@@ -143,11 +144,11 @@ devices = dict(
             precision = 0.01,
             #~ rotary = True,
     ),
-    
+
     # fourth device is unused
-    
+
     # fith device is unused
-    
+
     # aty is sixth device and has 1 stepper, 0 poti, 1 coder
     aty_step = device('devices.vendor.ipc.Motor',
             bus = 'bus1',
@@ -156,7 +157,7 @@ devices = dict(
             unit = 'mm',
             abslimits = (-10,10),
             zerosteps = 500000,
-            speed = 50,
+            speed = 100,
             accel = 8,
             microstep = 16,
             lowlevel = True,
@@ -180,21 +181,21 @@ devices = dict(
             precision = 0.05,
             fmtstr='%.1f',
     ),
-    
-    # seventh device is unused
-    
-    # afh is eigth device and has 1 stepper, 0 poti, 0 coder
+
+    # eigth device is unused
+
+    # afh is seventh device and has 1 stepper, 0 poti, 0 coder
     afh_step = device('devices.vendor.ipc.Motor',
             bus = 'bus1',
-            addr = 0x58,
-            slope = 400/360.0,
+            addr = 0x57,
+            slope = 8*400/360.0,
             unit = 'deg',
             #~ abslimits = (-5,340),
             abslimits = (-400,400),
             zerosteps = 500000,
-            speed = 100,
+            speed = 20,
             accel = 15,
-            microstep = 2,
+            microstep = 2*8,
             startdelay = 0,
             stopdelay = 0,
             ramptype = 1,
@@ -217,7 +218,7 @@ devices = dict(
             #~ precision = 1,
             #~ fmtstr='%.1f',
     #~ ),
-  
+
     #~ afh = device('devices.generic.Axis',
     afh = device('panda.rot_axis.RotAxis',
             motor = 'afh_step',
@@ -225,6 +226,7 @@ devices = dict(
             obs = [],
             precision = 1,
             fmtstr='%.1f',
+            autoref=None, # disable autoref since there is no refswitch
     ),
-  
+
 )

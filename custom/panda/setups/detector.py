@@ -1,12 +1,12 @@
 #  -*- coding: utf-8 -*-
 
-description='detectors'
+description = 'detectors'
 
-group='internal'
+group = 'basic' # is included by panda.py
 
-includes=[]
+includes = []
 
-modules=[]
+modules = []
 
 devices = dict(
     timer    = device('devices.taco.FRMTimerChannel',

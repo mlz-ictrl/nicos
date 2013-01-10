@@ -2,7 +2,7 @@
 
 description = 'system setup for PANDA'
 
-includes=['detector']
+includes = ['detector']
 
 sysconfig = dict(
     cache = 'pandasrv',
@@ -29,4 +29,4 @@ devices = dict(
     liveplot = device('devices.datasinks.GraceSink'),
 )
 
-startupcode='Exp.detectors.append(det)'
+startupcode = 'Exp.detectors.append(det)'
