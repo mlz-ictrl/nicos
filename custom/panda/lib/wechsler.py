@@ -48,8 +48,8 @@ class Beckhoff(Device):
     """ Qick and Dirty implementation of a communication class with Beckhoff device over ModbusTCP"""
     parameters = {
         'host': Param('Hostname or IP-Adress of Beckhoff device',
-                          type=str, default='wechsler.panda.frm2', settable=True),
-        'addr': Param('ModBus unit address', type=int, default=0, settable=True),
+                          type = str, default = 'wechsler.panda.frm2', settable = True),
+        'addr': Param('ModBus unit address', type = int, default = 0, settable = True),
     }
     def doInit(self, mode):
         c = self.communicator()
@@ -148,8 +148,8 @@ class Beckhoff(Device):
         raise Exception ('Returned function should be 2 but is 0x%02x!'%FOE)
 
     def ReadWordOutput( self, addr ):
-        if addr<0x800:
-            addr=addr|0x800 # beckhoff special....
+        if addr < 0x800:
+            addr = addr | 0x800 # beckhoff special....
         request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, self.addr, 3, addr, 1 ) # can read more than 1 word !
         response = self.communicate( request )
         FOE, _, status = unpack('>BBH', response )
@@ -172,8 +172,8 @@ class Beckhoff(Device):
         raise Exception ('Returned function should be 5 but is 0x%02x!'%FOE)
 
     def WriteWordOutput( self, addr, value ):
-        if addr<0x800:
-            addr=addr|0x800 # beckhoff special....
+        if addr < 0x800:
+            addr  =addr | 0x800 # beckhoff special....
         assert( 0x0000 <= value <= 0xffff ) # value is exactly 16 bits unsigned!
         request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, self.addr, 6, addr, value ) # can write exactly 1 word !
         response = self.communicate( request )
@@ -208,8 +208,8 @@ class Beckhoff(Device):
         return [ (data[i/8 + 2] >> (i&7)) & 0x01 for i in range(num) ]
 
     def ReadWordsOutput( self, addr, num ):
-        if addr<0x800:
-            addr=addr|0x800 # beckhoff special....
+        if addr < 0x800:
+            addr = addr | 0x800 # beckhoff special....
         if num > 125: raise ValueError('%d Words are too much for ReadWordsOutput!'%num)
         request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, self.addr, 3, addr, num ) # can read more than 1 word !
         response = self.communicate( request )
@@ -241,14 +241,13 @@ class Beckhoff(Device):
         request = pack('>HHHBBHHB%dB'%m, random.getrandbits(16), 0, 7+m, self.addr, 15, addr, len(values), m, *data )
         response = self.communicate( request )
         #~ print dp(request), ' -> ', dp(response)
-        FOE, addr, status = unpack('>BHH', response )
-        if FOE == 15: return
+        FOE, addr, _status = unpack('>BHH', response )
+        if FOE == 15: return addr
         raise Exception ('Returned function should be 15 but is 0x%02x!'%FOE)
-        return addr
 
     def WriteWordsOutput( self, addr, values ):
-        if addr<0x800:
-            addr=addr|0x800 # beckhoff special....
+        if addr < 0x800:
+            addr = addr | 0x800 # beckhoff special....
         values = tuple([int(v) for v in values])
         m = len(values)
         request = pack('>HHHBBH%dH'%m, random.getrandbits(16), 0, 4+2*m, self.addr, 16, addr, *values )
@@ -265,14 +264,14 @@ class Beckhoff(Device):
     #''' Beckhoff registers consist of a pair of two adresse: at baseaddr is the index+r/Wflag, at baseaddr+1 is the data
     #To write you have to add 0x800 to the addr'''
     def ReadReg( self, baseaddr, reg ):
-        old=self.ReadWordOutput( baseaddr )
+        old = self.ReadWordOutput( baseaddr )
         self.WriteWordOutput( baseaddr, 0x80+(reg & 0x3f) )
         r = self.ReadWordInput( baseaddr+1 )
         self.WriteWordOutput( baseaddr, old )
         return r
 
     def WriteReg( self, baseaddr, reg, value):
-        old=self.ReadWordOutput( baseaddr )
+        old = self.ReadWordOutput( baseaddr )
         self.WriteWordOutput(baseaddr+0, 0x80+(reg & 0x3f))   # read Reg
         self.WriteWordOutput(baseaddr+1, value)               # put value
         self.WriteWordOutput(baseaddr+0, 0xc0+(reg & 0x3f))   # write Reg
@@ -748,7 +747,7 @@ class MonoWechsler( Device ):
             self.Magazin_Bremse( True )                      # aktiviere Bremse
             self.bhd.WriteWordOutput( 0x806, 0 ) # loesche Enable-Bit Kanal2
         else:
-            if speed<0: speed = speed + 65536   # hack around signed/unsigned stuff...
+            if speed < 0: speed = speed + 65536   # hack around signed/unsigned stuff...
             self.bhd.WriteWordOutput( 0x807, speed )
             self.bhd.WriteWordOutput( 0x806, 0x20 ) # setze Enable-Bit und fahre los
             self.Magazin_Bremse( False )      # Handbremse loesen nicht vergessen!
@@ -811,16 +810,17 @@ class MonoWechsler( Device ):
         if self.Lift_untere_Ablage() or self.Lift_obere_Ablage() or self.Lift_Absetzposition() :
             raise HWError('Lift in falscher Position! (Schalter klemmt?)')
 
-        # Ok, now prepare PANDA
-        maw(mth,88.67)
-        maw(mtt,-36.11)
-        maw(mgx, 0)
-        maw(mtx, -6)
-        maw(mty, 5)
-        try:  #not all monos have foci
-            maw(mfh,0); mfh.power = 0  # go to known good value and switch off
-            maw(mfv,0); mfv.power = 0
-        except Exception: pass
+        #~ # Ok, now prepare PANDA
+        #~ maw(mth,88.67)  #XXX
+        #~ maw(mtt,-36.11) #XXX
+        #~ maw(mgx, 0)            #XXX
+        #~ maw(mtx, -6)            #XXX
+        #~ maw(mty, 5)             #XXX
+        #~ try:  #not all monos have foci
+            #~ maw(mfh,0); mfh.power = 0  # go to known good value and switch off
+            #~ maw(mfv,0); mfv.power = 0
+        #~ except Exception: pass
+
         # now switch on the enable signal from Motorrahmen to bhd
         #XXX TODO !
         sleep(0.1)
@@ -833,11 +833,11 @@ class MonoWechsler( Device ):
 
     def FinishChange( self ):
         self.InhibitRelay( False )  # allow Motors to move again
-        try:
-            mfh.power = 1
-            mfv.power = 1
-        except Exception:
-            pass
+        #~ try:
+            #~ mfh.power = 1       #XXX
+            #~ mfv.power = 1       #XXX
+        #~ except Exception:
+            #~ pass
 
     # robust higher level functions
     def MagazinSelect( self, pos ): # faehrt angeforderte Magazinposition an den Lift (pos in self.positions)
@@ -877,35 +877,31 @@ class MonoWechsler( Device ):
     # helper to avoid code duplication
     def open_Liftgreifer( self ):
         self.Lift_Druckluft( True )
-        for i in range(50):
-            if self.Liftgreifer_offen(): break
+        for _ in range(50):
+            if self.Liftgreifer_offen(): return
             sleep(0.1)
-        if not( self.Liftgreifer_offen() ):
-            raise HWError( self, 'Liftgreifer did not open within 5s!')
+        raise HWError( self, 'Liftgreifer did not open within 5s!')
 
     def close_Liftgreifer( self ):
         self.Lift_Druckluft( False )    # Liftgreifer schliessen
-        for i in range(50):
-            if self.Liftgreifer_geschlossen(): break
+        for _ in range(50):
+            if self.Liftgreifer_geschlossen(): return
             sleep(0.1)
-        if not( self.Liftgreifer_geschlossen() ):
-            raise HWError( self, 'Liftgreifer did not close within 5s!')
+        raise HWError( self, 'Liftgreifer did not close within 5s!')
 
     def open_MagazinKlammer( self ):
         self.Magazin_Druckluft( True ) #oeffne Magazinklammer
-        for i in range(50):
-            if self.Magazin_Klammer_offen(): break
+        for _ in range(50):
+            if self.Magazin_Klammer_offen(): return
             sleep(0.1)
-        if not( self.Magazin_Klammer_offen() ):
-            raise HWError( self, 'MagazinKlammer did not open within 5s!')
+        raise HWError( self, 'MagazinKlammer did not open within 5s!')
 
     def close_MagazinKlammer( self ):
         self.Magazin_Druckluft( False )    # MagazinKlammer schliessen
-        for i in range(50):
-            if self.Magazin_Klammer_geschlossen(): break
+        for _ in range(50):
+            if self.Magazin_Klammer_geschlossen(): return
             sleep(0.1)
-        if not( self.Magazin_Klammer_geschlossen() ):
-            raise HWError( self, 'MagazinKlammer did not close within 5s!')
+        raise HWError( self, 'MagazinKlammer did not close within 5s!')
 
     def open_MonoKupplung( self ):
         self.Mono_Druckluft( True )
@@ -953,28 +949,28 @@ class MonoWechsler( Device ):
         if not( self.Magazin_Klammer_geschlossen() ):
             raise HWError( self, 'MagazinKlammer should NOT be open here!')
         self.open_Liftgreifer()
-        self.LiftSelect( 2 )
+        self.LiftSelect( 2 )    # almost at top
         self.close_Liftgreifer()
-        self.LiftSelect( 3 )
+        self.LiftSelect( 3 )    # top
         self.open_MagazinKlammer()
         self.LiftSelect( 1 ) # Parkposition
         self.close_MagazinKlammer()
-        self.CheckMagazinSlotEmpty( liftslot )   # Magazin should contain a mono
+        self.CheckMagazinSlotEmpty( liftslot )   # Magazin should not contain a mono
 
     def Transfer_Mono_Lift2Magazin( self ):
         liftslot = self.MagazinID()
         if not( liftslot in self.positions ):
             raise HWError( self, 'Unknown Magazin-position above Lift, abort!')
         self.CheckMagazinSlotEmpty( liftslot )
-        for i in range(3):
+        for _ in range(3):
             self.open_MagazinKlammer()
             self.close_MagazinKlammer()
         self.open_MagazinKlammer()
-        for i in range( 3 ):
+        for _ in range( 3 ):
             self.LiftSelect( 3 )
             self.close_MagazinKlammer()
             self.LiftSelect( 2 )
-        # maybe we should check herer that the mono is indeed in the magazin, or it might drop!!!
+        # XXX maybe we should check here that the mono is indeed in the magazin, or it might drop!!!
         self.CheckMagazinSlotUsed( liftslot )
         self.open_Liftgreifer()
         self.LiftSelect( 1 )
@@ -1104,7 +1100,7 @@ class MonoWechsler( Device ):
         if self.Lift_Absetzposition() or self.Lift_Parkposition() or self.Lift_untere_Ablage() or self.Lift_obere_Ablage():
             return
         # no luck, scan lift upwards!
-        # THIS IS DANGEROUS IF THE LIFT EVER HAPPEN TO GO BELOW THE LOWEST SWITCH !!!
+        # THIS IS DANGEROUS IF THE LIFT EVER HAPPEN TO GO ABOVE THE HIGHEST SWITCH !!!
         self.Fahre( self.FahreLiftMotor, lambda: self.Lift_Absetzposition() or self.Lift_Parkposition() or
                                                                         self.Lift_untere_Ablage() or self.Lift_obere_Ablage(),
                                                                         5000, 600)  # this might take a while....

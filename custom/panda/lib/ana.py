@@ -26,16 +26,12 @@
 
 __version__ = "$Revision$"
 
-from nicos import status
-from nicos.core import Param, tacodev, usermethod, Moveable
+from nicos.core import Param, usermethod, Moveable, status
 from nicos.devices.generic.axis import Axis
 
-from IO import DigitalOutput
+from nicos.panda.wechsler import Beckhoff
 
-from wechsler import Beckhoff
-
-
-class AnaBlocks( Moveable ):
+class AnaBlocks(Moveable):
     attached_devices = {
         'beckhoff': (Beckhoff,'X'),
     }
@@ -49,24 +45,23 @@ class AnaBlocks( Moveable ):
         return self._adevs['beckhoff']
 
     def doInit(self, mode):
-        self._timer=None
+        self._timer = None
         # disable beckhoff watchdog
         self.bhd.WriteWordOutput(0x1120,0)
-        # XXX TODO: init KL3202 channel 0 to 0..1.2KOhm or to read PT1000
-
+        
         #~ self.bhd.WriteReg( 4, 31, 0x1235)   # enable user regs
         #~ assert( self.bhd.ReadReg( 4, 31 ) == 0x1235 ) # make sure it has worked, or bail out early!
 
         #~ self.bhd.WriteReg( 4, 32, self.bhd.ReadReg( 4, 32 ) | 4 ) # disable watchdog
 
     # define a input helper
-    def input2(self, which ):
+    def input2(self, which):
         try:
             return ''.join( [ str(i) for i in self.bhd.ReadBitsOutput( which, 2) ] )
-        except:
+        except Exception:
             return ''.join( [ str(i) for i in self.bhd.ReadBitsOutput( which, 2) ] )
 
-    def output2( self, where, what ):
+    def output2(self, where, what):
         if what in ['00', 0]:
             self.bhd.WriteBitsOutput( where, [0,0])     # both coils off
         elif what in ['10', 1]:
@@ -76,31 +71,31 @@ class AnaBlocks( Moveable ):
         elif what in ['11', 3]:
             self.bhd.WriteBitsOutput( where, [1,1])     # both coils energized, AVOID THIS!
 
-    def myread( self ):
-        return ''.join([ '1' if self.bhd.ReadBitOutput( i ) else '0' for i in range(34,-2,-2) ])
+    def myread(self):
+        return ''.join([ '1' if self.bhd.ReadBitOutput( i ) else '0' for i in range(34, -2, -2) ])
 
-    def doRead( self, maxage=0 ):
+    def doRead(self, maxage=0):
         return int(eval( '0b'+self.myread() ))
 
-    def doStatus( self, maxage=0 ):
-        r=''
-        for i in range(0,36,2):
-            j= self.bhd.ReadBitOutput(i)+2*self.bhd.ReadBitOutput(i+1)
-            r= ['_','1','0','X' ][j] + r
+    def doStatus(self, maxage=0):
+        r = ''
+        for i in range(0, 36, 2):
+            j = self.bhd.ReadBitOutput(i)+2*self.bhd.ReadBitOutput(i+1)
+            r = ['_','1','0','X' ][j] + r
         return status.OK, 'idle: ' + r
 
-    def doStart( self, pattern ):
+    def doStart(self, pattern):
         if self._timer:
             try:
                 self._timer.cancel()
-            except:
+            except Exception:
                 pass
             try:
                 self._timer.join(0.1)
-            except:
+            except Exception:
                 pass
-            self._timer=None
-        old=self.doRead()
+            self._timer = None
+        old = self.doRead()
         for i in range(18):
             # try to be clever: only activate/deactivate bits which differ from current status....
             if (pattern >> i) & 1  and (old >> i) & 1:
@@ -111,15 +106,15 @@ class AnaBlocks( Moveable ):
             else:
                 self.log.debug('block %d is going down'%(i+1))
                 self.output2( 2*i, '10' )
-        if self.powertime>=1:
+        if self.powertime >= 1:
             import threading
-            self._timer=threading.Timer( self.powertime, self.powersaver )
+            self._timer = threading.Timer(self.powertime, self.powersaver)
             self._timer.start()  # switch off down's after powertime seconds
 
-    def powersaver( self ):
-        for i in range(0,36,2):
+    def powersaver(self):
+        for i in range(0, 36, 2):
             #~ self.log.debug('Checking block %d'%(i/2+1))
-            if self.input2(i)=='01':
+            if self.input2(i) == '01':
                 self.log.debug('Save Power in AnaBlock %d'%(i/2+1))
                 self.output2(i,0)
         #~ self.log.debug('Saved power')
@@ -150,7 +145,7 @@ class ATT_Axis(Axis):
 
     def _move_blocks(self, pos):
         # calculate new block positions
-        code=0
+        code = 0
         uwl = pos + self.windowsize/2.0
         lwl = pos - self.windowsize/2.0
         for j in range(18):
@@ -160,20 +155,20 @@ class ATT_Axis(Axis):
             if ubl >= lwl:  # block is not left to window
                 if lbl <= uwl:  # block is not right to window
                     blockup = 1
-            code+= blockup<< j
-        self._adevs['anablocks'].start( code )
+            code += blockup<< j
+        self._adevs['anablocks'].start(code)
 
     @usermethod
     def allblocksdown(self):
-        self._adevs['anablocks'].start( 0 )
+        self._adevs['anablocks'].start(0)
 
     @usermethod
     def doorblocksup(self):
-        self._adevs['anablocks'].start( 63 | self._adevs['anablocks'].target )
+        self._adevs['anablocks'].start(63 | self._adevs['anablocks'].target)
 
     @usermethod
     def doorblocksdown(self):
-        self._move_blocks( self.target )
+        self._move_blocks(self.target)
 
     @usermethod
     def allblocksup(self):
@@ -181,7 +176,7 @@ class ATT_Axis(Axis):
 
     @usermethod
     def printstatusinfo(self):
-        blocks = bin( self._adevs['anablocks'].read() )[2:]
+        blocks = bin(self._adevs['anablocks'].read())[2:]
         # fill up to 18 chars
         blocks = '0' * (18 - len(blocks)) + blocks
         self.log.info('blocks up: %s' % blocks)

@@ -30,9 +30,6 @@ from time import sleep
 
 from IO import StringIO
 
-from nicos.devices.taco.core import TacoDevice
-
-
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
      usermethod, Device, Param, CommunicationError, TimeoutError
 from nicos.utils import lazy_property
@@ -261,7 +258,7 @@ class MCC2Motor(NicosMotor):
     def doStart(self, pos):
         ''' go to a absolute stepperpostition'''
         pos = int(pos * self.slope * self.microstep) # use microsteps as well ???
-        _temp = self.comm('XE%d' % pos)
+        self.comm('XE%d' % pos)
 
     def doStop(self):
         ''' send the stop command '''
@@ -273,7 +270,7 @@ class MCC2Motor(NicosMotor):
     def doSetPosition(self, newpos):
         ''' set current position to given value'''
         d = int(newpos * self.slope * self.microstep)
-        _temp = self.comm('XP20S%d XP21S%d XP19S%d' % (d, d, d)) # set all counters
+        self.comm('XP20S%d XP21S%d XP19S%d' % (d, d, d)) # set all counters
 
     def doStatus(self, maxage=0): #XXX
         sui = self.comm('SUI')[ ['X', 'Y', 'Z', 'W'].index(self.channel) ]
