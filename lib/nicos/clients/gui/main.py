@@ -34,7 +34,7 @@ import cPickle as pickle
 
 from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
      QLabel, QSystemTrayIcon, QStyle, QPixmap, QMenu, QIcon, QAction, \
-     QFontDialog, QColorDialog, QDialogButtonBox
+     QFontDialog, QColorDialog, QDialogButtonBox, QWidget, QFrame, QVBoxLayout
 from PyQt4.QtCore import Qt, QObject, QTimer, QSize, QVariant, QStringList, \
      SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
@@ -106,6 +106,7 @@ class MainWindow(QMainWindow, DlgUtils):
         self.connect(self.client, SIGNAL('showhelp'), self.on_client_showhelp)
         self.connect(self.client, SIGNAL('clientexec'), self.on_client_clientexec)
         self.connect(self.client, SIGNAL('plugplay'), self.on_client_plugplay)
+        self.connect(self.client, SIGNAL('watchdog'), self.on_client_watchdog)
 
         # data handling setup
         self.data = DataHandler(self.client)
@@ -200,6 +201,8 @@ class MainWindow(QMainWindow, DlgUtils):
 
         # help window
         self.helpWindow = None
+        # watchdog window
+        self.watchdogWindow = None
 
         # create initial state
         self.setStatus('disconnected')
@@ -475,6 +478,37 @@ class MainWindow(QMainWindow, DlgUtils):
             window.connect(window.buttonBox,
                            SIGNAL('clicked(QAbstractButton*)'), react)
             window.show()
+
+    def on_client_watchdog(self, data):
+        if self.watchdogWindow is None:
+            dlg = self.watchdogWindow = dialogFromUi(self, 'watchdog.ui')
+            dlg.frame = QFrame(dlg)
+            dlg.scrollArea.setWidget(dlg.frame)
+            dlg.frame.setLayout(QVBoxLayout())
+            dlg.frame.layout().setContentsMargins(0, 0, 10, 0)
+            dlg.frame.layout().addStretch()
+            def btn(button):
+                if dlg.buttonBox.buttonRole(button) == QDialogButtonBox.ResetRole:
+                    for w in dlg.frame.children():
+                        if isinstance(w, QWidget):
+                            w.hide()
+                else:
+                    dlg.close()
+            dlg.connect(dlg.buttonBox, SIGNAL('clicked(QAbstractButton*)'), btn)
+        else:
+            dlg = self.watchdogWindow
+        w = QWidget(dlg.frame)
+        loadUi(w, 'watchdog_item.ui')
+        dlg.frame.layout().insertWidget(dlg.frame.layout().count()-1, w)
+        if data[0] == 'warning':
+            w.datelabel.setText('Watchdog alert - %s' %
+                time.strftime('%Y-%m-%d %H:%S', time.localtime(data[1])))
+            w.messagelabel.setText(data[2])
+        elif data[0] == 'action':
+            w.datelabel.setText('Watchdog action - %s' %
+                time.strftime('%Y-%m-%d %H:%S', time.localtime(data[1])))
+            w.messagelabel.setText('Executing action:\n' + data[2])
+        dlg.show()
 
     def on_client_cache(self, (time, key, op, value)):
         if key == 'session/mastersetupexplicit':
