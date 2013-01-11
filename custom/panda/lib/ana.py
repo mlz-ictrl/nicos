@@ -48,7 +48,7 @@ class AnaBlocks(Moveable):
         self._timer = None
         # disable beckhoff watchdog
         self.bhd.WriteWordOutput(0x1120,0)
-        
+
         #~ self.bhd.WriteReg( 4, 31, 0x1235)   # enable user regs
         #~ assert( self.bhd.ReadReg( 4, 31 ) == 0x1235 ) # make sure it has worked, or bail out early!
 

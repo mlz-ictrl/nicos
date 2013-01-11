@@ -7,7 +7,7 @@ includes = ['system']
 #sysconfig = {'cache': None} # disables Cache completely
 
 devices = dict(
-        # using Moxa NE4110A Ethernet-2-Serial converter Box
+    # using Moxa NE4110A Ethernet-2-Serial converter Box
     #~ #bus = device('panda.ne4110a.IPCModBusTCP',
     #~ bus = device('devices.vendor.ipc.IPCModBusTCP',
                  #~ #loglevel = 'debug',
@@ -20,37 +20,57 @@ devices = dict(
     #~ #           host = '/dev/ttyS0'),
     # 1st Try with TACO RS485 on New Moxa
     bus1 = device('devices.vendor.ipc.IPCModBusTaco',
-            tacodevice='//pandasrv/panda/moxa/port1',
-            loglevel='info',
-            timeout=0.5, ),
+                  tacodevice='//pandasrv/panda/moxa/port1',
+                  loglevel='info',
+                  timeout=0.5,
+                 ),
             
     bus2 = device('devices.vendor.ipc.IPCModBusTaco',
-            tacodevice='//pandasrv/panda/moxa/port2',
-            loglevel='info',
-            timeout=0.5, ),
+                  tacodevice='//pandasrv/panda/moxa/port2',
+                  loglevel='info',
+                  timeout=0.5,
+                 ),
             
     bus3 = device('devices.vendor.ipc.IPCModBusTaco',
-            tacodevice='//pandasrv/panda/moxa/port3',
-            loglevel='info',
-            timeout=0.5, ),
+                  tacodevice='//pandasrv/panda/moxa/port3',
+                  loglevel='info',
+                  timeout=0.5,
+                 ),
             
     bus4 = device('devices.vendor.ipc.IPCModBusTaco',
-            tacodevice='//pandasrv/panda/moxa/port4',
-            loglevel='info',
-            timeout=0.5, ),
+                  tacodevice='//pandasrv/panda/moxa/port4',
+                  loglevel='info',
+                  timeout=0.5,
+                 ),
             
     bus5 = device('devices.vendor.ipc.IPCModBusTaco',
-            tacodevice='//pandasrv/panda/moxa/port5',
-            loglevel='info',
-            timeout=0.5, ),
-            
+                  tacodevice='//pandasrv/panda/moxa/port5',
+                  loglevel='info',
+                  timeout=0.5,
+                 ),
 )
 
 for i in range(1,9):
-    devices['s%d' % i] = device('devices.vendor.ipc.Motor', bus='bus2', addr=0x50+i, slope=1., unit='steps', 
-                                                        abslimits=(0, 999999),fmtstr='%d')
-    devices['p%d' % i] = device('devices.vendor.ipc.Coder', bus='bus2', addr=0x60+i, slope=1., unit='steps')
-    devices['c%d' % i] = device('devices.vendor.ipc.Coder', bus='bus2', addr=0x70+i, slope=1., unit='steps')
+    devices['s%d' % i] = device('devices.vendor.ipc.Motor',
+                                bus='bus2',
+                                addr=0x50 + i,
+                                slope=1.,
+                                unit='steps',
+                                abslimits=(0, 999999),
+                                fmtstr='%d',
+                               )
+    devices['p%d' % i] = device('devices.vendor.ipc.Coder',
+                                bus='bus2',
+                                addr=0x60+i,
+                                slope=1.,
+                                unit='steps',
+                               )
+    devices['c%d' % i] = device('devices.vendor.ipc.Coder',
+                                bus='bus2',
+                                addr=0x70 + i,
+                                slope=1.,
+                                unit='steps',
+                               )
 
 #devices['a2'] = device('devices.generic.Axis', motor='s2', coder='c2', precision=
 
