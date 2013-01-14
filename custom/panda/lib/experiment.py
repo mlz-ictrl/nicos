@@ -47,7 +47,7 @@ class PandaExperiment(Experiment):
     def _getProposalDir(self, proposal):
         return path.join(self.dataroot, 'exp', proposal)
 
-    def _getProposalSymlink(self, proposal):
+    def _getProposalSymlink(self):
         return path.join(self.dataroot, 'exp', 'current')
 
     def _getDatapath(self, proposal):

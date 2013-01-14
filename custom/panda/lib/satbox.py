@@ -46,17 +46,8 @@ class SatBox(Moveable):
         #~ inx = self._adevs['bus'].ReadBitsInput(0x1000, 10)
         #~ self.log.debug('position: %s' % inx)
         #~ width = 0
-        #~ for i in range(len(self._widths)):
-            #~ if not inx[i*2]:
-                #~ if inx[i*2+1]:
-                    #~ width += self._widths[i]
-                #~ else:
-                    #~ self.log.warning('%d mm blade in inconsistent state' % self._widths[i])
-        #~ return width
-
     def doStatus(self, maxage=0):
         return status.OK, ''
-        #~ # currently the input bits dont work, since the magnetic field of the monoburg switches them all on
         #~ in1 = self._adevs['bus'].ReadBitsInput(0x1000, 8)
         #~ in2 = self._adevs['bus'].ReadBitsInput(0x1008, 2)
         #~ inx = in1 + in2
