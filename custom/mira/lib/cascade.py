@@ -28,12 +28,12 @@ __version__ = "$Revision$"
 
 from os import path
 from math import pi
-from time import sleep
+from time import sleep, time as currenttime
 
 from nicos import session
 from nicos.devices.tas import Monochromator
 from nicos.core import status, tupleof, listof, oneof, Param, Override, Value, \
-     CommunicationError, Readable, INFO_CATEGORIES
+     CommunicationError, TimeoutError, NicosError, Readable, INFO_CATEGORIES
 from nicos.mira import cascadeclient
 from nicos.devices.abstract import ImageStorage, AsyncDetector
 from nicos.devices.taco.detector import FRMDetector
@@ -86,6 +86,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
 
     def doInit(self, mode):
         self._last_preset = self.preselection
+        self._started = 0
         AsyncDetector.doInit(self, mode)
 
         # self._tres is set by doUpdateMode
@@ -219,8 +220,16 @@ class CascadeDetector(AsyncDetector, ImageStorage):
             self._raise_reply('could not start measurement', reply)
         if self.slave:
             self._adevs['master'].start(**preset)
+        self._started = currenttime()
 
     def _measurementComplete(self):
+        if currenttime() - self._started > self._last_preset + 10:
+            try:
+                self.doStop()
+            except NicosError:
+                pass
+            raise TimeoutError(self, 'measurement not finished within '
+                               'selected preset time')
         status = self._client.communicate('CMD_status_cdr')
         if status == '':
             raise CommunicationError(self, 'no response from server')

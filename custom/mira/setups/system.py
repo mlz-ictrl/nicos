@@ -11,7 +11,7 @@ sysconfig = dict(
 
 devices = dict(
     email    = device('devices.notifiers.Mailer',
-                      sender = 'nicos@mira1',
+                      sender = 'rgeorgii@frm2.tum.de',
                       copies = ['rgeorgii@frm2.tum.de'],
                       subject = 'MIRA'),
 
