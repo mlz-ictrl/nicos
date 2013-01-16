@@ -145,6 +145,7 @@ def test_qscan():
     qscan((0, 0, 0), (0, 0, 0), 10, 2.5, t_kf=2.662, manual=1,
           h=1, k=1, l=1, e=0, dH=0, dk=0, dl=0, dE=.1)
     qcscan((1, 0, 0), Q(0, 0, 0, 0.1), 5, manual=[1, 2])
+    qscan((1, 0, 0), Q(0, 0, 0, 0), 1)
 
     assert raises(UsageError, qscan, 1, 1, 1)
     assert raises(UsageError, qscan, (1, 0, 0, 0, 0), (0, 0, 0), 10)
