@@ -300,7 +300,11 @@ class Device(object):
             # initialize device
             self.init()
         except:  # here, really *all* exceptions are intended
-            self.shutdown()
+            try:
+                self.shutdown()
+            except Exception:
+                self.log.warning('could not shutdown after creation failed',
+                                 exc=1)
             raise
 
     def __setattr__(self, name, value):
