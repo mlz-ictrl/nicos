@@ -31,8 +31,8 @@ from time import sleep, time
 
 from IO import StringIO
 
-from nicos.core import status, intrange, oneof, Device, Moveable, \
-     Param, HasLimits, NicosError, CommunicationError
+from nicos.core import status, intrange, oneof, Moveable, \
+     Param, HasLimits
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -98,7 +98,7 @@ class Julabo(TacoDevice, HasLimits, Moveable):
     def doStop(self):
         # stop ramp/step immediately
         if self.thermostat_type == "JulaboF32HD":
-            self._write("out_sp_00 %s" % read())
+            self._write("out_sp_00 %s" % self.doRead())
 
     def doStatus(self, maxage=0):
         if abs(self.read() - self.setpoint) > self.tolerance:

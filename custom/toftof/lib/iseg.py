@@ -154,5 +154,6 @@ class IsegHV(HasLimits, Moveable):
     def doWriteRamp(self, ramp):
         resp = self._comm('V%d=%03d' % (self.channel, ramp))
         # XXX check resp
-        self._comm('A%d=01' % self.channel)
-        self.log.info('ramp set to %d V/s and stored in EEPROM' % ramp)
+        if resp:
+            self._comm('A%d=01' % self.channel)
+            self.log.info('ramp set to %d V/s and stored in EEPROM' % ramp)

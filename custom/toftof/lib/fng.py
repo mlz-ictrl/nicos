@@ -26,12 +26,9 @@
 
 __version__ = "$Revision$"
 
-from time import sleep
-
 from nicos.common import Slit
 
-from nicos.core import oneof, Moveable, HasPrecision, Param, Value, Override, \
-     AutoDevice, InvalidValueError
+from nicos.core import oneof, HasPrecision, Override
 
 
 class FocussingNeutronGuide(Slit):
