@@ -1,6 +1,6 @@
 .PHONY: all gui install clean inplace test lint jenkinslintall jenkinslint changelint \
 	check test-coverage install main-install install-gui main-install-gui release \
-	xfixsmb help custom-all custom-inplace custom-install custom-clean
+	xfixsmb help custom-all custom-inplace custom-install custom-clean custom-gui
 
 SHELL=/bin/bash
 
@@ -100,6 +100,7 @@ ifeq "$(INSTRDIR)" ""
   custom-inplace:
   custom-install:
   custom-clean:
+  custom-gui:
 else
   include $(INSTRDIR)/make.conf
   # check that the include provided all necessary variables
