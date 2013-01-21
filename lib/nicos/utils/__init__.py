@@ -701,8 +701,8 @@ def updateFileCounter(counterpath, value):
 # determine days of an interval between two timestamps
 
 def allDays(fromtime, totime):
-    tmfr = int(fromtime)
+    tmfr = int(mktime(localtime(fromtime)[:3] + (0,0,0,0,0,-1)))
     tmto = int(min(currenttime(), totime))
-    for tmday in xrange(tmfr, tmto+1, 86400):
+    for tmday in xrange(tmfr, tmto, 86400):
         lt = localtime(tmday)
         yield str(lt[0]), '%02d-%02d' % lt[1:3]
