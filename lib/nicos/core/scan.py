@@ -346,6 +346,8 @@ class SweepScan(Scan):
             if start is not None:
                 firstmoves.append((dev, start))
             self._sweeptargets.append((dev, end))
+        # sweep scans support a special "delay" preset
+        self._delay = preset.pop('delay', 0)
         Scan.__init__(self, [], steps, firstmoves, multistep,
                       detlist, envlist, preset, scaninfo, scantype)
         if not devices:
@@ -381,6 +383,10 @@ class SweepScan(Scan):
                 self.moveDevices(self._sweeptargets, wait=False)
             except SkipPoint:
                 raise StopScan
+        elif self._delay:
+            # wait between points, but only from the second point on
+            session.action('Delay')
+            sleep(self._delay)
         Scan.preparePoint(self, num, xvalues)
         if session.mode == 'simulation':
             self._sim_start = session.clock.time
