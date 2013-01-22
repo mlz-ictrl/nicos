@@ -261,6 +261,9 @@ class Session(object):
             if cache:
                 cache.doShutdown()
                 self.cache = None
+            # reset certain global state
+            self._manualscan = None
+            self._currentscan = None
         self.log.info('switched to %s mode' % mode)
 
     def setSPMode(self, on):
