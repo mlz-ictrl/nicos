@@ -1375,7 +1375,7 @@ class HasOffset(object):
 
     parameters = {
         'offset':  Param('Offset of device zero to hardware zero', unit='main',
-                         settable=True, category='offsets'),
+                         settable=True, category='offsets', chatty=True),
     }
 
     def doWriteOffset(self, value):
