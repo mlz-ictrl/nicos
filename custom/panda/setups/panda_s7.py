@@ -25,6 +25,7 @@ devices = dict(
                                     lowlevel = True,
                                     ),
     mtt = device('devices.generic.Axis',
+                                    description = 'PANDA\'s main Axis, TwoTheta of Monochromator',
                                     unit = 'deg',
                                     abslimits = (-132, -20),
                                     coder = 's7coder',
@@ -33,6 +34,8 @@ devices = dict(
                                     precision = 0.01,
                                     #offset = 0.06,
                                     offset = 0.1,
+                                    dragerror = -1.,	# do not check drag errors as this is done in SPS
+                                    jitter = 0.5,	# work around a bug in S7
                                     ),
 )
 

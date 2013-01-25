@@ -127,12 +127,17 @@ class S7Motor(NicosMotor):
 
     def doStop(self):
         """Stop the motor movement."""
-        self.log.debug('stopping...')
+        self.log.debug('stopping at '+self.fmtstr%self.doRead(0))
         bus = self._adevs['bus']
+        bus.write(self.read() * self.sign, 'float', 8)  # Istwert als Sollwert schreiben
         bus.write(1, 'bit', 0, 3)      # Stopbit setzen
         sleep(1)  # abwarten bis er steht
-        bus.write(self.read()*self.sign, 'float', 8)  # Istwert als Sollwert schreiben
+        bus.write(self.read() * self.sign, 'float', 8)  # Istwert als Sollwert schreiben
+        sleep(0.5)
         bus.write(0, 'bit', 0, 3)            # hebe stopbit auf
+        sleep(0.5)
+        bus.write(self.read() * self.sign, 'float', 8)  # Istwert als Sollwert schreiben
+        sleep(0.5)
         bus.write(1, 'bit', 0, 2)            # Start Sollwertfahrt (Sollwert=Istwert....)
         sleep(0.5)
         bus.write(0, 'bit', 0, 2)            # Startbit Sollwertfahrt aufheben
@@ -160,37 +165,37 @@ class S7Motor(NicosMotor):
         #define a little helper
         def f(value, nonzero, zero):
             return nonzero if value else zero
-        b20 = bus.read('byte', 20); self.log.info('Byte 20 = ' + bin(b20))
-        self.log.info('Steuerspannung: \t%s'                %f(b20 & 0x01, 'an', m('aus')))
-        self.log.info('Not-Aus: \t%s'                       %f(b20 & 0x02, m('gedrueckt'), 'Ok'))
-        self.log.info('Fernbedienung: \t%s'                 %f(b20 & 0x04, 'an', 'aus'))
-        self.log.info('Wartungsmodus: \t%s'                 %f(b20 & 0x08, m('an'), 'aus'))
+        b20 = bus.read('byte', 20); self.log.info('### Byte 20 = ' + bin(b20))
+        self.log.info('Steuerspannung: \t\t%s'                %f(b20 & 0x01, 'an', m('aus')))
+        self.log.info('Not-Aus: \t\t%s'                       %f(b20 & 0x02, m('gedrueckt'), 'Ok'))
+        self.log.info('Fernbedienung: \t\t%s'                 %f(b20 & 0x04, 'an', 'aus'))
+        self.log.info('Wartungsmodus: \t\t%s'                 %f(b20 & 0x08, m('an'), 'aus'))
         self.log.info('Vor-Ortbedienung: \t%s'              %f(b20 & 0x10, 'an', 'aus'))
-        self.log.info('Sammelfehler: \t%s'                  %f(b20 & 0x20, m('an'), 'aus'))
+        self.log.info('Sammelfehler: \t\t%s'                  %f(b20 & 0x20, m('an'), 'aus'))
         self.log.info('MTT (Ebene) dreht \t%s'              %f(b20 & 0x40, m('!'), 'nicht.'))
         self.log.info('Motor ausgeschwenkt:\t%s'            %f(b20 & 0x80, 'Ja', 'Nein'))
 
-        b21 = bus.read('byte', 21); self.log.info('Byte 21 = ' + bin(b21))
+        b21 = bus.read('byte', 21); self.log.info('### Byte 21 = ' + bin(b21))
         self.log.info('Mobilblockarm dreht \t%s'            %f(b21 & 0x01, m('!'), 'nicht.'))
-        self.log.info('     Magnet: \t%s'                   %f(b21 & 0x02, 'an', 'aus'))
-        self.log.info('     Klinke cw: \t%s'                %f(b21 & 0x04, 'an', 'aus'))
+        self.log.info('     Magnet: \t\t%s'                   %f(b21 & 0x02, 'an', 'aus'))
+        self.log.info('     Klinke cw: \t\t%s'                %f(b21 & 0x04, 'an', 'aus'))
         self.log.info('     Klinke ccw: \t%s'               %f(b21 & 0x08, 'an', 'aus'))
         self.log.info('     Endschalter cw: \t%s'           %f(b21 & 0x10, 'an', 'aus'))
         self.log.info('     Endschalter ccw: \t%s'          %f(b21 & 0x20, 'an', 'aus'))
         self.log.info('     Notendschalter cw: \t%s'        %f(b21 & 0x40, m('an'), 'aus'))
-        self.log.info('     Notendschalter ccw: \t%s'       %f(b21 & 0x80, m('an'), 'aus'))
+        self.log.info('     Notendschalter ccw:\t%s'       %f(b21 & 0x80, m('an'), 'aus'))
 
-        b22 = bus.read('byte', 22); self.log.info('Byte 22 = ' + bin(b22))
-        self.log.info('        Referenz: \t%s'              %f(b22 & 0x01, 'an', 'aus'))
-        self.log.info('        0deg: \t%s'                  %f(b22 & 0x02, 'Ja', 'Nein'))
+        b22 = bus.read('byte', 22); self.log.info('### Byte 22 = ' + bin(b22))
+        self.log.info('        Referenz: \t\t%s'              %f(b22 & 0x01, 'an', 'aus'))
+        self.log.info('        0deg: \t\t\t%s'                  %f(b22 & 0x02, 'Ja', 'Nein'))
         self.log.info('    Endschalter Klinke cw: \t%s'     %f(b22 & 0x04, 'an', 'aus'))
         self.log.info('    Endschalter Klinke ccw: \t%s'    %f(b22 & 0x08, 'an', 'aus'))
-        self.log.info('        Arm faehrt: \t%s'            %f(b22 & 0x10, 'Ja', 'Nein'))
-        self.log.info('Strahlenleck cw: \t%s'               %f(b22 & 0x20, m('Ja'), 'Nein'))
-        self.log.info('Max MB-Wechsel cw: \t%s'             %f(b22 & 0x40, m('Ja'), 'Nein'))
-        self.log.info('Min MB-Wechsel cw: \t%s'             %f(b22 & 0x80, m('Ja'), 'Nein'))
+        self.log.info('        Arm faehrt: \t\t%s'            %f(b22 & 0x10, 'Ja', 'Nein'))
+        self.log.info('Strahlenleck cw: \t\t%s'               %f(b22 & 0x20, m('Ja'), 'Nein'))
+        self.log.info('Max MB-Wechsel cw: \t\t%s'             %f(b22 & 0x40, m('Ja'), 'Nein'))
+        self.log.info('Min MB-Wechsel cw: \t\t%s'             %f(b22 & 0x80, m('Ja'), 'Nein'))
 
-        b23 = bus.read('byte', 23); self.log.info('Byte 23 = ' + bin(b23))
+        b23 = bus.read('byte', 23); self.log.info('### Byte 23 = ' + bin(b23))
         self.log.info('MB vor Fenster cw:               %s' %f(b23 & 0x01, m('Ja'), 'Nein'))
         self.log.info('MB vor Fenster ccw:              %s' %f(b23 & 0x02, m('Ja'), 'Nein'))
         self.log.info('Max MB-Wechsel cw:               %s' %f(b23 & 0x04, 'Ja', 'Nein'))
@@ -200,7 +205,7 @@ class S7Motor(NicosMotor):
         self.log.info('Freigabe extern überbrückt:      %s' %f(b23 & 0x40, 'Ja', 'Nein'))
         self.log.info('Freigabe extern:                 %s' %f(b23 & 0x80, 'Ja', 'Nein'))
 
-        b24 = bus.read('byte', 24); self.log.info('Byte 24 = ' + bin(b24))
+        b24 = bus.read('byte', 24); self.log.info('### Byte 24 = ' + bin(b24))
         self.log.info('Endschalter MB-Ebene cw:         %s' %f(b24 & 0x01, 'Ja', 'Nein'))
         self.log.info('NotEndschalter MB-Ebene cw:      %s' %f(b24 & 0x02, m('Ja'), 'Nein'))
         self.log.info('Endschalter MB-Ebene ccw:        %s' %f(b24 & 0x04, 'Ja', 'Nein'))
@@ -209,6 +214,14 @@ class S7Motor(NicosMotor):
         self.log.info('NC Fehler:                       %s' %f(b24 & 0x20, m('Ja'), 'Nein'))
         self.log.info('Sollwert erreicht:               %s' %f(b24 & 0x40, 'Ja', 'Nein'))
         self.log.info('reserviert, offiziell ungenutzt: %s' %f(b24 & 0x80, m('1'), '0'))
+
+        nc_err = bus.read('byte', 19) + 256 * bus.read('byte', 18)
+        nc_err_flag = bus.read('bit', 24, 5)
+        sps_err = bus.read('byte', 27) + 256 * bus.read('byte', 26)
+        if nc_err_flag:
+            self.log.info(m('NC-Error:')+ ' '+hex(nc_err))
+        if sps_err!=0:
+            self.log.info(m('SPS-Error:')+' '+hex(sps_err))
 
     def doStatus(self, maxage=0):
         s = self._doStatus()
@@ -220,23 +233,57 @@ class S7Motor(NicosMotor):
                 self._timeout_time = None
         return s
 
+    def _ack( self ):
+        ''' acks a sps/Nc error '''
+        self.log.info('Acknowledging SPS-ERROR')
+        bus = self._adevs['bus']
+        bus.write(1, 'bit', 0, 3)      # Stopbit setzen
+        bus.write(1, 'bit', 2, 2)      # set ACK-Bit
+        sleep(0.5)
+        bus.write(0, 'bit', 2, 2)      # clear ACK-Bit
+        sleep(5)
+        bus.write(0, 'bit', 0, 3)      # hebe stopbit auf
+        while self.doStatus()[0] != status.OK:
+            sleep(1)
+            self.doStop()
+        self.log.info('Status is now:' + self.doStatus()[1])
+
     def _doStatus(self):
         """Asks hardware and figures out status."""
         bus = self._adevs['bus']
         # first get all needed statusbytes
+        nc_err = bus.read('byte', 19) + 256 * bus.read('byte', 18)
+        nc_err_flag = bus.read('bit', 24, 5)
         b20 = bus.read('byte', 20)
         b21 = bus.read('byte', 21)
         b22 = bus.read('byte', 22)
         b23 = bus.read('byte', 23)
         b24 = bus.read('byte', 24)
+        sps_err = bus.read('byte', 27) + 256 * bus.read('byte', 26)
+
         # pruefe Wartungsmodus
         if b20 & 0x08 == 0x08:
             wm = True
         else:
             wm = False
 
+        if nc_err_flag:
+            self.log.debug('NC_ERR_FLAG SET, NC_ERR:'+hex(nc_err))
+        if sps_err!=0:
+            self.log.debug('SPS_ERR:'+hex(sps_err))
+
         self.log.debug('Statusbytes=0x%02x:%02x:%02x:%02x:%02x, Wartungsmodus ' %
                        (b20,b21,b22,b23,b24) + ('an' if wm else 'aus'))
+
+        # XXX HACK !!!  better repair hardware !!!
+        if (nc_err != 0) or (nc_err_flag != 0) or (sps_err != 0):
+            self.log.warning('SPS-ERROR: '+hex(sps_err)+ ', NC-ERROR: '+hex(nc_err)+', NC_ERR_FLAG: %d'%nc_err_flag)
+            if sps_err in [ 0x1]:     # only 'allow' certain values to be ok for autoreset
+                return status.OK,'NC-Problem, MTT not moving anymore -> retry next round of positioning...'
+            else:       # other values give real errors....
+                return status.ERROR,'NC-ERROR, check with mtt._printstatusinfo() !'
+            #~ return status.ERROR,'NC-ERROR, check with mtt._printstatusinfo() !'
+
 
         if b20 & 0x40:
             self.log.debug('MTT actively moving')
@@ -307,6 +354,7 @@ class S7Motor(NicosMotor):
         return self.sign*bus.read('float', 4)
 
     def doSetPosition(self, *args):
+        self._ack()     # hack to automagically acknowledge sps-errors in positioning threads...
         pass
 
     def doTime(self, pos1, pos2):
