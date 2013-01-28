@@ -36,7 +36,7 @@ from Queue import Queue
 from SocketServer import BaseRequestHandler
 
 from nicos import session, nicos_version
-from nicos.core import ADMIN
+from nicos.core import ADMIN, ConfigurationError
 from nicos.services.daemon.user import AuthenticationError
 from nicos.services.daemon.utils import LoggerWrapper
 from nicos.services.daemon.script import EmergencyStopRequest, ScriptRequest, \
@@ -549,14 +549,15 @@ class ConnectionHandler(BaseRequestHandler):
         if index == '*':
             try:
                 self.write(STX, serialize(session.experiment._last_datasets))
-            except AttributeError:  # session.experiment may be None
+            # session.experiment may be None or a stub
+            except (AttributeError, ConfigurationError):
                 self.write(STX, serialize(None))
         else:
             index = int(index)
             try:
                 dataset = session.experiment._last_datasets[index]
                 self.write(STX, serialize(dataset))
-            except (IndexError, AttributeError):
+            except (IndexError, AttributeError, ConfigurationError):
                 self.write(STX, serialize(None))
 
     # -- Miscellaneous commands ------------------------------------------------
