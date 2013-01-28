@@ -223,7 +223,7 @@ class Session(object):
                                     sessionInfo(err.locked_by))
                 else:
                     cache._ismaster = True
-                if self.loaded_setups != set(['startup']):
+                if self.loaded_setups - set(['system', 'startup']):
                     cache.put(self, 'mastersetup', list(self.loaded_setups))
                     cache.put(self, 'mastersetupexplicit',
                               list(self.explicit_setups))
