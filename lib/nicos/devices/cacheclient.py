@@ -251,6 +251,7 @@ class BaseCacheClient(Device):
                         data = ''
                         break
                     data += newdata
+
         if self._socket:
             # send rest of data
             tosend = ''
@@ -356,6 +357,7 @@ class CacheClient(BaseCacheClient):
         self._worker.start()
 
     def doShutdown(self):
+        BaseCacheClient.doShutdown(self)
         # make sure the interface is still usable but has no values to return
         self._db.clear()
         self._startup_done.set()
