@@ -53,6 +53,7 @@ class DataProxy(object):
 
 class Curve(object):
     description = ''
+    source = ''  # source dataset if curves from different sets are combined
     yaxis = 1
     yindex = -1
     dyindex = -1
@@ -64,6 +65,12 @@ class Curve(object):
     def __init__(self):
         self.datax, self.datay, self.datady, self.datatime, self.datamon = \
                     [], [], [], [], []
+
+    @property
+    def full_description(self):
+        if self.source:
+            return '%s [%s]' % (self.description, self.source)
+        return self.description
 
     def copy(self):
         return copy.copy(self)
@@ -157,7 +164,10 @@ class DataHandler(QObject):
             if info.type in ('info', 'error'):
                 continue
             curve = Curve()
-            curve.description = '%s (%s)' % (name, info.unit)
+            if info.unit != 'cts':
+                curve.description = '%s (%s)' % (name, info.unit)
+            else:
+                curve.description = name
             curve.yindex = i
             if info.type == 'other':
                 curve.yaxis = 2

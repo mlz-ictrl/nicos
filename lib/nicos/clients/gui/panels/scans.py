@@ -454,8 +454,8 @@ class ScansPanel(Panel):
             for dataset in sets:
                 for curve in dataset.curves:
                     newcurve = curve.copy()
-                    newcurve.description = (newcurve.description or '') + \
-                        ' (%s)' % dataset.name
+                    if not newcurve.source:
+                        newcurve.source = dataset.name
                     newset.curves.append(newcurve)
             self.data.add_existing_dataset(newset, [dataset.uid for dataset in sets])
             return
@@ -489,6 +489,7 @@ class ScansPanel(Panel):
                 newset.curves.append(newcurve)
             self.data.add_existing_dataset(newset, [dataset.uid for dataset in sets])
             return
+
         if op == ADD:
             sep = ' + '
         elif op == SUBTRACT:
@@ -506,7 +507,7 @@ class ScansPanel(Panel):
         #newset.xunits = firstset.xunits
         for curves in zip(*(dataset.curves for dataset in sets)):
             newcurve = curves[0].deepcopy()
-            # CRUDE: don't care about the x values, operate by index
+            # CRUDE HACK: don't care about the x values, operate by index
             for curve in curves[1:]:
                 for i in range(len(newcurve.datay)):
                     try:
@@ -575,7 +576,8 @@ class DataSetPlot(NicosPlot):
 
     def addCurve(self, i, curve, replot=False):
         pen = QPen(self.curvecolor[i % self.numcolors])
-        plotcurve = ErrorBarPlotCurve(title=curve.description, curvePen=pen,
+        plotcurve = ErrorBarPlotCurve(title=curve.full_description,
+                                      curvePen=pen,
                                       errorPen=QPen(Qt.darkGray, 0),
                                       errorCap=8, errorOnTop=False)
         if not curve.function:
@@ -636,7 +638,8 @@ class DataSetPlot(NicosPlot):
                 dlg.list.item(i).setCheckState(Qt.Checked)
         dlg.connect(dlg.selectall, SIGNAL('clicked()'), checkAll)
         for i in visible_curves:
-            li = QListWidgetItem(self.dataset.curves[i].description, dlg.list)
+            li = QListWidgetItem(self.dataset.curves[i].full_description,
+                                 dlg.list)
             if len(visible_curves) == 1:
                 li.setCheckState(Qt.Checked)
                 dlg.operation.setFocus()
@@ -671,7 +674,8 @@ class DataSetPlot(NicosPlot):
             dlg.setWindowTitle('Select curve to fit')
             dlg.label.setText('Select a curve:')
             for i in visible_curves:
-                QListWidgetItem(self.dataset.curves[i].description, dlg.list)
+                QListWidgetItem(self.dataset.curves[i].full_description,
+                                dlg.list)
             dlg.list.setCurrentRow(0)
             if dlg.exec_() != QDialog.Accepted:
                 return
