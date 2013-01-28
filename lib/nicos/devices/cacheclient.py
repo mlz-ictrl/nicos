@@ -433,9 +433,10 @@ class CacheClient(BaseCacheClient):
         that does not match the prefix parameter of the client, but matches
         the prefix given to this function.
         """
+        if prefix not in self._prefixcallbacks:
+            if self._socket:
+                self._socket.sendall('@%s%s\n' % (prefix, OP_SUBSCRIBE))
         self._prefixcallbacks[prefix] = function
-        if self._socket:
-            self._socket.sendall('@%s%s\n' % (prefix, OP_SUBSCRIBE))
 
     def get(self, dev, key, default=None, mintime=None):
         """Get a value from the local cache for the given device and subkey.
