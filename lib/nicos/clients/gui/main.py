@@ -34,7 +34,7 @@ import cPickle as pickle
 
 from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
      QLabel, QSystemTrayIcon, QStyle, QPixmap, QMenu, QIcon, QAction, \
-     QFontDialog, QColorDialog
+     QFontDialog, QColorDialog, QDialogButtonBox
 from PyQt4.QtCore import Qt, QObject, QTimer, QSize, QVariant, QStringList, \
      SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
@@ -105,6 +105,7 @@ class MainWindow(QMainWindow, DlgUtils):
         self.connect(self.client, SIGNAL('status'), self.on_client_status)
         self.connect(self.client, SIGNAL('showhelp'), self.on_client_showhelp)
         self.connect(self.client, SIGNAL('clientexec'), self.on_client_clientexec)
+        self.connect(self.client, SIGNAL('plugplay'), self.on_client_plugplay)
 
         # data handling setup
         self.data = DataHandler(self.client)
@@ -456,6 +457,24 @@ class MainWindow(QMainWindow, DlgUtils):
             func(*data[1:])
         except Exception, err:
             print 'Error during clientexec:', err
+
+    def on_client_plugplay(self, data):
+        if data[0] == 'added':
+            window = dialogFromUi(self, 'plugplay.ui')
+            window.titlestring.setText('New sample environment detected')
+            window.message.setText(
+                'The sample environment %r has been detected.  '
+                'Click Apply to load the corresponding setup.'
+                % data[1])
+            def react(btn):
+                if btn is window.buttonBox.button(QDialogButtonBox.Ignore):
+                    window.reject()
+                else:
+                    self.client.tell('queue', '', 'AddSetup(%r)' % data[1])
+                    window.accept()
+            window.connect(window.buttonBox,
+                           SIGNAL('clicked(QAbstractButton*)'), react)
+            window.show()
 
     def on_client_cache(self, (time, key, op, value)):
         if key == 'session/mastersetupexplicit':
