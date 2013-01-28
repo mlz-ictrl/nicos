@@ -147,8 +147,9 @@ class ScansPanel(Panel):
             self.actionAttachElog, self.actionCombine, self.actionClosePlot,
             self.actionDeletePlot, self.actionLogScale, self.actionNormalized,
             self.actionShowAllCurves,
-            self.actionUnzoom, self.actionLegend, self.actionFitPeak,
-            self.actionFitPeakPV, self.actionFitPeakPVII, self.actionFitArby,
+            self.actionUnzoom, self.actionLegend, self.actionModifyData,
+            self.actionFitPeak, self.actionFitPeakPV, self.actionFitPeakPVII,
+            self.actionFitArby,
             ]:
             action.setEnabled(on)
 
@@ -170,7 +171,9 @@ class ScansPanel(Panel):
         menu1.addAction(self.actionShowAllCurves)
         menu1.addAction(self.actionLegend)
         menu1.addSeparator()
-        menu2 = QMenu('&Data fitting', self)
+        menu2 = QMenu('Data &manipulation', self)
+        menu2.addAction(self.actionModifyData)
+        menu2.addSeparator()
         menu2.addAction(self.actionFitPeak)
         menu2.addAction(self.actionFitPeakPV)
         menu2.addAction(self.actionFitPeakPVII)
@@ -374,6 +377,10 @@ class ScansPanel(Panel):
     @qtsig('bool')
     def on_actionLegend_toggled(self, on):
         self.currentPlot.setLegend(on)
+
+    @qtsig('')
+    def on_actionModifyData_triggered(self):
+        self.currentPlot.modifyData()
 
     @qtsig('')
     def on_actionFitPeak_triggered(self):
@@ -618,6 +625,43 @@ class DataSetPlot(NicosPlot):
             self.zoomer.setZoomBase(True)
         else:
             self.replot()
+
+    def modifyData(self):
+        visible_curves = [i for (i, _) in enumerate(self.dataset.curves)
+                          if self.plotcurves[i].isVisible()]
+        # get input from the user: which curves should be modified how
+        dlg = dialogFromUi(self, 'modify.ui', 'panels')
+        def checkAll():
+            for i in range(dlg.list.count()):
+                dlg.list.item(i).setCheckState(Qt.Checked)
+        dlg.connect(dlg.selectall, SIGNAL('clicked()'), checkAll)
+        for i in visible_curves:
+            li = QListWidgetItem(self.dataset.curves[i].description, dlg.list)
+            if len(visible_curves) == 1:
+                li.setCheckState(Qt.Checked)
+                dlg.operation.setFocus()
+            else:
+                li.setCheckState(Qt.Unchecked)
+        if dlg.exec_() != QDialog.Accepted:
+            return
+        # evaluate selection
+        op = str(dlg.operation.text())
+        curves = []
+        for i in range(dlg.list.count()):
+            li = dlg.list.item(i)
+            if li.checkState() == Qt.Checked:
+                curves.append(i)
+        # make changes to Qwt curve objects only (so that "reset" will discard
+        # them again)
+        for i in curves:
+            curve = self.plotcurves[visible_curves[i]]
+            if isinstance(curve, ErrorBarPlotCurve):
+                new_y = [eval(op, {'x': v}) for v in curve._y]
+                curve.setData(curve._x, new_y, curve._dx, curve._dy)
+            else:
+                curve.setData(curve.xData(),
+                              [eval(op, {'x': v}) for v in curve.yData()])
+        self.replot()
 
     def selectCurve(self):
         visible_curves = [i for (i, _) in enumerate(self.dataset.curves)

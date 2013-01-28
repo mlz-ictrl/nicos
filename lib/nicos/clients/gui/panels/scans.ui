@@ -255,6 +255,11 @@
     <string>Show time/monitor</string>
    </property>
   </action>
+  <action name="actionModifyData">
+   <property name="text">
+    <string>Modify data</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../../resources/nicos-gui.qrc"/>
