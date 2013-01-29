@@ -443,6 +443,7 @@ class ScansPanel(Panel):
         if op == TOGETHER:
             newset = Dataset()
             newset.name = combineattr(sets, 'name', sep=', ')
+            newset.invisible = False
             newset.curves = []
             newset.scaninfo = 'combined set'
             newset.started = time.localtime()
@@ -474,6 +475,7 @@ class ScansPanel(Panel):
         if op == COMBINE:
             newset = Dataset()
             newset.name = combineattr(sets, 'name', sep=', ')
+            newset.invisible = False
             newset.curves = []
             newset.scaninfo = 'combined set'
             newset.started = time.localtime()
@@ -498,6 +500,7 @@ class ScansPanel(Panel):
             sep = ' / '
         newset = Dataset()
         newset.name = combineattr(sets, 'name', sep=sep)
+        newset.invisible = False
         newset.scaninfo = 'combined set'
         newset.curves = []
         newset.started = time.localtime()
