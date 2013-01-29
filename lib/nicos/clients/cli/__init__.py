@@ -484,6 +484,10 @@ class NicosCmdClient(NicosClient):
             elif name == 'debugging':
                 self.debug_mode = data
                 readline_finish_callback(False)
+            elif name == 'plugplay':
+                if data[0] == 'added':
+                    self.put_client('new sample environment detected: load '
+                                    'setup %r to activate' % data[1])
             elif name in ('error', 'failed', 'broken'):
                 self.put_error(data)
             # and we ignore all other signals
