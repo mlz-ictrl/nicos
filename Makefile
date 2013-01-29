@@ -56,10 +56,11 @@ testall:
 	@$(PYTHON) `which nosetests` $(T) -d $(O)
 
 test-coverage:
-	@NOSE=`which nosetests`; if [ -z "$$NOSE" ]; then echo "nose is required to run the test suite"; exit 1; fi
-	@-COVERAGE_PROCESS_START=.coveragerc $(PYTHON) `which nosetests` $(T) -d --with-coverage --cover-package=nicos $(O)
-	@`which coverage || which python-coverage` combine
-	@`which coverage || which python-coverage` html -d cover
+	@NOSE=`which nosetests`; if [ -z "$$NOSE" ]; then echo "nose is required to run the test suite"; exit 0; fi
+	@COVERAGE_PROCESS_START=.coveragerc $(PYTHON) `which nosetests` $(T) -d --with-coverage --cover-package=nicos $(O);export RESULT=$$?;\
+	`which coverage || which python-coverage` combine; \
+	`which coverage || which python-coverage` html -d cover; \
+	echo "nosetest: $$RESULT"; if [ $$(($$RESULT)) -gt 0 ];then exit 1; fi 
 
 lint:
 	-PYTHONPATH=lib pylint --rcfile=./pylintrc lib/nicos/
