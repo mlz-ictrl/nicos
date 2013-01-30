@@ -434,8 +434,7 @@ class CacheClient(BaseCacheClient):
         the prefix given to this function.
         """
         if prefix not in self._prefixcallbacks:
-            if self._socket:
-                self._socket.sendall('@%s%s\n' % (prefix, OP_SUBSCRIBE))
+            self._queue.put('@%s%s\n' % (prefix, OP_SUBSCRIBE))
         self._prefixcallbacks[prefix] = function
 
     def get(self, dev, key, default=None, mintime=None):
