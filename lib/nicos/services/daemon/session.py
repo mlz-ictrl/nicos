@@ -182,5 +182,5 @@ class DaemonSession(NoninteractiveSession):
         self.emitfunc_private('clientexec', ('%s.%s' %
             (func.__module__, func.__name__),) + args)
 
-    def pnpEvent(self, event, data):
-        self.emitfunc('plugplay', (event, data))
+    def pnpEvent(self, event, *data):
+        self.emitfunc('plugplay', (event,) + data)

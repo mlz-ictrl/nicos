@@ -463,9 +463,9 @@ class MainWindow(QMainWindow, DlgUtils):
             window = dialogFromUi(self, 'plugplay.ui')
             window.titlestring.setText('New sample environment detected')
             window.message.setText(
-                'The sample environment %r has been detected.  '
-                'Click Apply to load the corresponding setup.'
-                % data[1])
+                'A new sample environment %shas been detected.  '
+                'Click Apply to load the corresponding setup (%s).'
+                % (data[2] and '(%s) ' % data[2] or '', data[1]))
             def react(btn):
                 if btn is window.buttonBox.button(QDialogButtonBox.Ignore):
                     window.reject()

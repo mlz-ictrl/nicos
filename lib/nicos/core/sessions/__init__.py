@@ -149,6 +149,8 @@ class Session(object):
         self._spmode = False
         self._spmhandler = SPMHandler(self)
         self.setSPMode(self.config.simple_mode)
+        # plug&play info cache
+        self._pnp_cache = {'descriptions': {}}
 
         # sysconfig devices
         self._def_sysconfig = {
@@ -932,16 +934,23 @@ class Session(object):
     def _pnpHandler(self, key, value, time):
         if self._mode != 'master':
             return
-        host = key.split('/')[1].split('.')[0]
-        if (host in self._setup_info and
-            self._setup_info[host]['group'] == 'optional' and
-            host not in self.loaded_setups):
-            self.pnpEvent('added', host)
+        parts = key.split('/')
+        if key.endswith('/description'):
+            self._pnp_cache['descriptions'][parts[1]] = value
+            return
+        elif key.endswith('/nicos/setupname'):
+            setupname = value
+            if (setupname in self._setup_info and
+                self._setup_info[setupname]['group'] == 'optional' and
+                setupname not in self.loaded_setups):
+                description = self._pnp_cache['descriptions'].get(parts[1])
+                self.pnpEvent('added', setupname, description)
 
-    def pnpEvent(self, event, data):
+    def pnpEvent(self, event, setupname, description):
         if event == 'added':
-            self.log.info('new sample environment detected: load setup %r '
-                          'to activate' % data)
+            self.log.info('new sample environment detected: %s'
+                          % (description or ''))
+            self.log.info('load setup %r to activate' % setupname)
 
     # -- Logging ---------------------------------------------------------------
 
