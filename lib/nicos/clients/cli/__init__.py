@@ -131,6 +131,8 @@ class NicosCmdClient(NicosClient):
         self.stop_pending = False
         # whether we are in debugging mode
         self.debug_mode = False
+        # whether we are in spy mode (entering commands disabled)
+        self.spy_mode = False
         # detected text-mode browser for help display
         self.browser = None
         # used for determining how much history to print by default
@@ -724,6 +726,9 @@ class NicosCmdClient(NicosClient):
         """Called when a "/foo" command is entered at the prompt."""
         # try to order elif cases by frequency
         if cmd == 'cmd':
+            if self.spy_mode:
+                self.put_error('Spy mode active: command ignored.')
+                return
             # this is not usually entered as "/cmd foo", but only "foo"
             if self.status in ('running', 'interrupted'):
                 reply = self.ask_question('A script is already running, '
@@ -872,6 +877,12 @@ class NicosCmdClient(NicosClient):
             self.tell('debug', arg)
         elif cmd == 'eval':
             self.put('-> %r' % (self.eval(arg),))
+        elif cmd == 'spy':
+            if not self.spy_mode:
+                self.put_client('Spy mode on: command execution disabled.')
+            else:
+                self.put_client('Spy mode off.')
+            self.spy_mode = not self.spy_mode
         else:
             self.put_error('Unknown command %r.' % cmd)
 
@@ -952,7 +963,7 @@ class NicosCmdClient(NicosClient):
                     cmd = self.readline(self.prompt)
                 except KeyboardInterrupt:
                     # offer the user a choice of ways of stopping
-                    if self.status == 'running':
+                    if self.status == 'running' and not self.spy_mode:
                         self.stop_query('Keyboard interrupt')
                     continue
                 except EOFError:
