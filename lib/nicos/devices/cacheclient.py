@@ -141,8 +141,8 @@ class BaseCacheClient(Device):
 
     def _connect_action(self):
         # send request for all keys and updates....
-        # HACK: send a single request for a nonexisting key afterwards to
-        # determine the end of data
+        # (send a single request for a nonexisting key afterwards to
+        # determine the end of data)
         self._socket.sendall('@%s%s\n###%s\n' %
                              (self._prefix, OP_WILDCARD, OP_ASK))
 
@@ -234,8 +234,14 @@ class BaseCacheClient(Device):
                     # write data
                     try:
                         self._socket.sendall(tosend)
-                    except socket.error:
+                    except Exception:
+                        self._disconnect('disconnect: send failed')
+                        # report data as processed, but then re-queue it to send
+                        # after reconnect
+                        for _ in range(itemcount):
+                            self._queue.task_done()
                         data = ''
+                        self._queue.put(tosend)
                         break
                     for _ in range(itemcount):
                         self._queue.task_done()
@@ -262,7 +268,10 @@ class BaseCacheClient(Device):
                     itemcount += 1
             except Queue.Empty:
                 pass
-            self._socket.sendall(tosend)
+            try:
+                self._socket.sendall(tosend)
+            except Exception:
+                pass  # we'll disconnect below anyways
             for _ in range(itemcount):
                 self._queue.task_done()
 
@@ -309,7 +318,6 @@ class BaseCacheClient(Device):
                     yield m
                 return
             raise
-
 
         lmatch = line_pattern.match
         mmatch = msg_pattern.match
