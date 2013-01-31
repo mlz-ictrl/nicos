@@ -421,7 +421,7 @@ class CacheWorker(object):
     def update(self, key, op, value, time, ttl):
         """Check if we need to send the update given."""
         if not self.connection:
-            return False
+            return
         # make sure line has at least a default timestamp
         for mykey in self.ts_updates_on:
             # do a substring match on key
@@ -434,13 +434,13 @@ class CacheWorker(object):
                 else:
                     msg = '%s@%s%s%s\n' % (time, key, op, value)
                 self.send_queue.put(msg)
+                return  # send at most one update
         # same for requested updates without timestamp
         for mykey in self.updates_on:
             if mykey in key:
                 #self.log.debug('sending update of %s to %s' % (key, value))
                 self.send_queue.put(key + op + value + '\n')
-        # no update neccessary, signal success
-        return True
+                return  # send at most one update
 
 
 class CacheUDPWorker(CacheWorker):
