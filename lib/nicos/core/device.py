@@ -26,6 +26,7 @@
 
 __version__ = "$Revision$"
 
+import sys
 import types
 import inspect
 from time import time as currenttime, sleep
@@ -300,12 +301,13 @@ class Device(object):
             # initialize device
             self.init()
         except:  # here, really *all* exceptions are intended
+            v = sys.exc_info()[1]
             try:
                 self.shutdown()
             except Exception:
                 self.log.warning('could not shutdown after creation failed',
                                  exc=1)
-            raise
+            raise v
 
     def __setattr__(self, name, value):
         # disallow modification of public attributes that are not parameters
