@@ -344,7 +344,10 @@ class Session(object):
                     self._setup_info[modname] = None
                     continue
                 # device() is a helper function to make configuration prettier
-                ns = {'device': lambda cls, **params: (cls, params)}
+                ns = {
+                    'device': lambda cls, **params: (cls, params),
+                    'setupname': modname,
+                }
                 try:
                     exec code in ns
                 except Exception, err:
