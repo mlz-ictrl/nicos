@@ -240,13 +240,17 @@ class HoveringAxis(Axis):
             raise NicosError(self, 'axis is already moving')
         if abs(target - self.read()) < self.precision:
             return
-        self._adevs['switch'].move(self.switchvalues[1])
-        sleep(self.startdelay)
-        Axis.doStart(self, target)
         self._poll_thread = threading.Thread(target=self._pollthread,
                                              name='%s polling thread' % self)
         self._poll_thread.setDaemon(True)
-        self._poll_thread.start()
+        self._adevs['switch'].move(self.switchvalues[1])
+        try:
+            sleep(self.startdelay)
+            Axis.doStart(self, target)
+        finally:
+            # if an interrupt arrives while starting, we still want to switch
+            # off the air when the motor is idle
+            self._poll_thread.start()
 
     def _pollthread(self):
         sleep(0.1)
