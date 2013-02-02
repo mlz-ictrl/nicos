@@ -26,9 +26,7 @@
 
 __version__ = "$Revision$"
 
-import time
-
-from nicos.core import status, Readable
+from nicos.core import status, Readable, Override
 from nicos.devices.taco.detector import FRMDetector
 
 
@@ -37,16 +35,22 @@ class Forecast(Readable):
         'det': (FRMDetector, 'The detector to forecast values.'),
     }
 
+    parameter_overrides = {
+        'unit':  Override(default='', mandatory=False),
+    }
+
     def doRead(self, maxage=0):
-        percent_complete = 0
+        # read all values of all counters and store them by device
+        counter_values = dict((c, c.read(maxage)[0])
+                              for c in self._adevs['det']._counters)
+        # go through the master channels and determine the one
+        # closest to the preselection
+        fraction_complete = 0
         for m in self._adevs['det']._masters:
-            v = m.read(maxage)[0]
             p = m.preselection
-            percent_complete = max(percent_complete, v / p)
-        res = []
-        for c in self._adevs['det']._counters:
-            res.append(c.read(maxage)[0]/percent_complete)
-        return res
+            fraction_complete = max(fraction_complete, counter_values[m] / p)
+        # scale all counter values by that fraction
+        return [v / fraction_complete for v in counter_values.itervalues()]
 
     def doStatus(self, maxage=0):
         return status.OK, ''
