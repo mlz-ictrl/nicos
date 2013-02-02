@@ -271,6 +271,8 @@ class BaseCacheClient(Device):
             try:
                 self._socket.sendall(tosend)
             except Exception:
+                self.log.debug('exception while sending last batch of updates',
+                               exc=1)
                 pass  # we'll disconnect below anyways
             for _ in range(itemcount):
                 self._queue.task_done()
