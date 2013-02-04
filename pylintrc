@@ -16,6 +16,7 @@ ignore = .git
 
 # fails currently
 ignore = fl.py
+ignore = GracePlot.py
 
 # Pickle collected data for later comparisons.
 persistent=yes
