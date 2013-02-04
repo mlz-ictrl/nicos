@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+#pylint: disable-all
 # Creole parser/HTML converter, from http://devel.sheep.art.pl/creole/.
 # Copyright 2007 by Radomir Dopieralski. Licensed under the BSD license.
 

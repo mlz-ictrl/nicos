@@ -1,3 +1,4 @@
+#pylint: disable-all
 """
 GracePlot.py -- A high-level Python interface to the Grace plotting package
 
