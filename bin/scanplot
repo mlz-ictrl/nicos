@@ -190,8 +190,9 @@ def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, ff=gauss):
         grpl('g0.s1%1d type xy' % cnum)
         grpl('s1%1d line type 1' % cnum)
         grpl('s1%1d line color %1d' % (cnum, colornum))
+        # XXX fix wrong area calculation
         outstring = "Ctr: %6.4f, Amp.: %6.3f, FWHM: %6.4f, Area %6.3f" % \
-            (ps[0], ps[1], ps[2], ps[1] / sqrt(2*pi) / (ps[2]/2.3548))	# XXX fix wrong Area calculation
+            (ps[0], ps[1], ps[2], ps[1] / sqrt(2*pi) / (ps[2]/2.3548))
         grpl('g0.s1%1d legend "%s"' % (cnum, outstring))
         fxs = linspace(xs[0], xs[-1], 101)
         for x, y in zip(fxs, ff(fxs, *ps)):
@@ -290,7 +291,7 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
                 xcol = xcolhint
             else:
                 diffs = []
-                for i in range(min(4,len(values))):
+                for i in range(min(4, len(values))):
                     diffs.append(abs(values[0][i] - values[1][i]))
                 xcol = diffs.index(max(diffs))
         else:
@@ -324,7 +325,7 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
             ycol = colnames[ystart:].index(ycol) + ystart
         except ValueError:
             try:
-                ycol = colnames.index(ycol)     # allow using of not-intented ycols
+                ycol = colnames.index(ycol)    # allow using non-intended ycols
             except ValueError:
                 raise ValueError('Y column %r not found' % ycol)
     else:
@@ -363,6 +364,8 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
         bcol = colnames.index('B')
     elif 'T' in colunits:
         bcol = colunits.index('T')
+    elif 'I' in colnames:  # driving field in terms of current
+        bcol = colnames.index('I')
     else:
         bcol = -1
 
@@ -390,14 +393,16 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
         xaxisname = colnames[xcol]
     try:
         if normalize:
-            yaxisname = '%s (%s/1e5 %s)' % (colnames[ycol], colunits[ycol], monname)
+            yaxisname = '%s (%s/1e5 %s)' % (colnames[ycol], colunits[ycol],
+                                            monname)
         else:
             yaxisname = '%s (%s)' % (colnames[ycol], colunits[ycol])
     except IndexError:
         yaxisname = colnames[ycol]
 
-    if tasopmode.upper() in ['CKI','CKF']:
-        legend = '%s %s %4.2f A\S\+-1\N' % (filename[-10:-4], tasopmode, scanconst)
+    if tasopmode.upper() in ('CKI', 'CKF'):
+        legend = r'%s %s %4.2f A\S\+-1\N' % (filename[-10:-4], tasopmode,
+                                             scanconst)
     else:
         legend = '%s %s %4.2f' % (filename[-10:-4], tasopmode, scanconst)
 
@@ -420,21 +425,30 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
 
     if tcol > -1:
         temperature = sum(v[tcol] for v in values) / len(values)
-        if temperature > 100:  legend += ' T= %3.0f K' % temperature
-        elif temperature > 10: legend += ' T= %4.1f K' % temperature
-        elif temperature > 2:  legend += ' T= %5.2f K' % temperature
-        elif temperature > 1:  legend += ' T= %6.3f K' % temperature
-        else: legend += ' T= %3.0f mK' % (temperature * 1000)
+        if temperature > 100:
+            legend += ' T=%3.0f K' % temperature
+        elif temperature > 10:
+            legend += ' T=%4.1f K' % temperature
+        elif temperature > 2:
+            legend += ' T=%5.2f K' % temperature
+        elif temperature > 1:
+            legend += ' T=%6.3f K' % temperature
+        else:
+            legend += ' T=%3.0f mK' % (temperature * 1000)
 
     if bcol > -1:
         field = sum(v[bcol] for v in values) / len(values)
-        if abs(field) >= 10:  legend += ' B=%5.2f T' % field
-        else: legend += ' B=%6.3f T' % field
+        if abs(field) >= 10:
+            legend += ' B=%5.2f %s' % (field, colunits[bcol])
+        else:
+            legend += ' B=%6.3f %s' % (field, colunits[bcol])
 
     if pcol > -1:
         pressure = sum(v[pcol] for v in values) / len(values)
-        if abs(pressure) >= 10:  legend += ' p=%5.2f %s' % (pressure, colnames[pcol])
-        else: legend += ' p=%6.3f %s' % (field, colnames[pcol])
+        if abs(pressure) >= 10:
+            legend += ' p=%5.2f %s' % (pressure, colunits[pcol])
+        else:
+            legend += ' p=%6.3f %s' % (pressure, colunits[pcol])
 
     xs = array(xs)
     ys = array(ys)
@@ -445,31 +459,38 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
 # start normal code here
 if 'help' in sys.argv:
     print 'usage: scanplot prefix filenumber,filenumber,... option... fitfunction'
-    print 'Available options: - fit: trys to fit a fitfunction (default gauss) to each datafile'
-    print '================== - log: plots data on a logarithmic scale'
-    print '                   - sum: adds TWO datfiles together and plot the result'
-    print '                   - diff: plot the difference of TWO datafiles'
-    print '                   - norm: normalizes all datapoints to a monitor of 1e5'
-    print '                   - mcorr: performs monitor correction (for higher harmonics)'
-    print '                   - merge: combines all given datafiles and treat the result as one'
-    print '                   - xcol=<number_or_name>: overides automatic detection of xcolumn'
-    print '                   - ycol=<number_or_name[,another_number_or_name ...]>:'
-    print '                     overides automatic detection of ycolumn, plots several columns'
-    print '                   - xmin=<number>: ovverides automatic detection of xmin'
-    print '                   - xmax, ymin, ymax work in the same way'
-    print '                   - xlim=<min,max> sets both limits, ylim works analog'
-    print '                   - cascade=<number>: cascades plots by a given y-value'
-    print '                   - help: displays this screen'
-    print "Available Fitfunctions: - 'g','gauss': a gaussian parameterized with FWHM instead of SIGMA"
-    print "======================= - 'l','lorenz': a lorentzian parameterized with FWHM instead of SIGMA"
-    print "                        - 'gwl': a lorentzian and a gaussian at the same position"
-    print "                        - 'gg','gaussgauss': two gaussian with the same width"
+    print '''\
+Available options:
+==================
+ - fit: tries to fit a fitfunction (default gauss) to each datafile
+ - log: plots data on a logarithmic scale
+ - sum: adds TWO datfiles together and plot the result
+ - diff: plot the difference of TWO datafiles
+ - norm: normalizes all datapoints to a monitor of 1e5
+ - mcorr: performs monitor correction (for higher harmonics)
+ - merge: combines all given datafiles and treats the result as one
+ - xcol=<number_or_name>: overides automatic detection of xcolumn
+ - ycol=<number_or_name[,another_number_or_name ...]>:
+   overrides automatic detection of ycolumn, plots several columns
+ - xmin=<number>: overrides automatic detection of xmin
+ - xmax, ymin, ymax work in the same way
+ - xlim=<min,max>: sets both limits, ylim works analog
+ - cascade=<number>: cascades plots by a given y-value
+ - help: displays this screen
+
+Available fitfunctions:
+=======================
+ - g, gauss: a gaussian parameterized with FWHM instead of SIGMA
+ - l, lorentz: a lorentzian parameterized with FWHM instead of SIGMA
+ - gwl: a lorentzian and a gaussian at the same position
+ - gg, gaussgauss: two gaussian with the same width
+'''
     sys.exit(1)
 
 numargs = len(sys.argv)
 if numargs < 3:
     print 'usage: scanplot prefix filenumber,filenumber,... option... fitfunction'
-    print 'Hint: try scanplot help'
+    print 'Hint: try "scanplot help"'
     sys.exit(1)
 
 fileprefix = sys.argv[1]
