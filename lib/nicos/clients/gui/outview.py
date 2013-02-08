@@ -27,7 +27,7 @@
 __version__ = "$Revision$"
 
 import re
-import time
+from time import strftime, localtime
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 
 from PyQt4.QtGui import QTextCharFormat, QBrush, QColor, QFont, QTextBrowser, \
@@ -68,8 +68,11 @@ update_re = re.compile(r'UPDATE \[([^ ]+) .*?\] -{20} ?(.*?)\n')
 
 # time formatter
 
+def format_time_full(timeval):
+    return strftime(' [%Y-%m-%d %H:%M:%S] ', localtime(timeval))
+
 def format_time(timeval):
-    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timeval))
+    return strftime('[%H:%M:%S] ', localtime(timeval))
 
 
 class OutputView(QTextBrowser):
@@ -91,7 +94,7 @@ class OutputView(QTextBrowser):
         bar = self.verticalScrollBar()
         bar.setValue(bar.maximum())
 
-    def formatMessage(self, message):
+    def formatMessage(self, message, actions=True):
         # message is a sequence:
         # (logger, time, levelno, message, exc_text, prefix)
         fmt = None
@@ -102,14 +105,13 @@ class OutputView(QTextBrowser):
             name = '%-10s: ' % message[0]
         name = message[5] + name
         if levelno == ACTION:
-            if self._actionlabel:
+            if actions and self._actionlabel:
                 action = message[3].strip()
                 if action:
                     self._actionlabel.setText('Status: ' + action)
                     self._actionlabel.show()
                 else:
                     self._actionlabel.hide()
-                return '', None
             return '', None
         elif levelno <= DEBUG:
             text = name + message[3]
@@ -153,8 +155,8 @@ class OutputView(QTextBrowser):
             text = levels[levelno] + ': ' + name + message[3]
             fmt = magenta
         else:
-            text = '%s [%s] %s%s' % (levels[levelno], format_time(message[1]),
-                                    name, message[3])
+            text = levels[levelno] + format_time_full(message[1]) + \
+                name + message[3]
             fmt = redbold
         if message[4]:
             # don't show traceback info by default, but on click
@@ -174,8 +176,10 @@ class OutputView(QTextBrowser):
         prevval = bar.value()
 
         text, fmt = self.formatMessage(message)
-        self.addText(text, fmt)
-        self._messages.append(message)
+        if text:  # not for ACTIONs
+            self.addText(format_time(message[1]), grey)
+            self.addText(text, fmt)
+            self._messages.append(message)
 
         # only scroll to bottom if we were there already
         if prevval >= prevmax - 5:
@@ -185,22 +189,14 @@ class OutputView(QTextBrowser):
         textcursor = self.textCursor()
         textcursor.movePosition(QTextCursor.End)
         formatter = self.formatMessage
-        # insert text with the same format in one batch; this can save
-        # quite a lot of time with text mainly in one format (info)
-        lastfmt = None
-        lasttext = ''
         for message in messages:
-            text, fmt = formatter(message)
-            if fmt is lastfmt:
-                lasttext += text
-            else:
-                textcursor.setCharFormat(lastfmt or std)
-                textcursor.insertText(lasttext)
-                lastfmt = fmt
-                lasttext = text
-            self._messages.append(message)
-        textcursor.setCharFormat(lastfmt or std)
-        textcursor.insertText(lasttext)
+            text, fmt = formatter(message, actions=False)
+            if text:
+                textcursor.setCharFormat(grey)
+                textcursor.insertText(format_time(message[1]))
+                textcursor.setCharFormat(fmt or std)
+                textcursor.insertText(text)
+                self._messages.append(message)
 
     def getOutputString(self):
         return self.toPlainText()
