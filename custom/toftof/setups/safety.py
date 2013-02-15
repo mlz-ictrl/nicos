@@ -2,12 +2,13 @@ description = 'safety system and shutter'
 
 group = 'lowlevel'
 
-includes = ['system']
+includes = []
 
 nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(
     saf      = device('toftof.safety.SafetyInputs',
+                      description = 'State of the safety control',
                       i7053_1 = 'i7053_1',
                       i7053_2 = 'i7053_2',
                       i7053_3 = 'i7053_3',
@@ -37,6 +38,7 @@ devices = dict(
                       lowlevel = True,
                      ),
     shutter  = device('toftof.safety.Shutter',
+                      description = 'Instrument shutter',
                       open = 'shopen',
                       close = 'shclose',
                       status = 'shstatus',

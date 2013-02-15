@@ -2,7 +2,7 @@ description = 'chopper vacuum readout'
 
 group = 'lowlevel'
 
-includes = ['system']
+includes = []
 
 nethost = 'toftofsrv.toftof.frm2'
 
@@ -17,6 +17,7 @@ devices = dict(
 #                   addr = 0xF0,
 #                   channel = 0,
     vac0   = device('devices.taco.io.AnalogInput',
+                    description = 'Vacuum sensor in chopper vessel 1',
                     tacodevice = '//%s/toftof/vacuum/sens1' % (nethost, ),
                     pollinterval = 10,
                     maxage = 12,
@@ -27,6 +28,7 @@ devices = dict(
 #                   addr = 0xF0,
 #                   channel = 1,
     vac1   = device('devices.taco.io.AnalogInput',
+                    description = 'Vacuum sensor in chopper vessel 2',
                     tacodevice = '//%s/toftof/vacuum/sens2' % (nethost, ),
                     pollinterval = 10,
                     maxage = 12,
@@ -36,6 +38,7 @@ devices = dict(
 #                   addr = 0xF0,
 #                   channel = 2,
     vac2   = device('devices.taco.io.AnalogInput',
+                    description = 'Vacuum sensor in chopper vessel 3',
                     tacodevice = '//%s/toftof/vacuum/sens3' % (nethost, ),
                     pollinterval = 10,
                     maxage = 12,
@@ -45,6 +48,7 @@ devices = dict(
 #                   addr = 0xF0,
 #                   channel = 3,
     vac3   = device('devices.taco.io.AnalogInput',
+                    description = 'Vacuum sensor in chopper vessel 4',
                     tacodevice = '//%s/toftof/vacuum/sens4' % (nethost, ),
                     pollinterval = 10,
                     maxage = 12,

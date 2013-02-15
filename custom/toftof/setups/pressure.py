@@ -2,7 +2,7 @@ description = 'Setup for the pressure cell'
 
 group = 'optional'
 
-includes = ['system']
+includes = []
 
 nethost = 'toftofsrv.toftof.frm2'
 

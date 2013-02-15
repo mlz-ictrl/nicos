@@ -2,7 +2,7 @@ description = 'low and high voltage power supplies for detector'
 
 group = 'lowlevel'
 
-includes = ['system']
+includes = []
 
 nethost = 'toftofsrv.toftof.frm2'
 
@@ -12,6 +12,7 @@ devices = dict(
                    lowlevel = True,
                   ),
     lv0   = device('devices.vendor.toni.LVPower',
+                   description = 'LV power supply 1',
                    requires = {'level': 'admin'},
                    bus = 'lvbus',
                    addr = 0xF1,
@@ -19,6 +20,7 @@ devices = dict(
                    maxage = 12,
                   ),
     lv1   = device('devices.vendor.toni.LVPower',
+                   description = 'LV power supply 2',
                    requires = {'level': 'admin'},
                    bus = 'lvbus',
                    addr = 0xF2,
@@ -26,6 +28,7 @@ devices = dict(
                    maxage = 12,
                   ),
     lv2   = device('devices.vendor.toni.LVPower',
+                   description = 'LV power supply 3',
                    requires = {'level': 'admin'},
                    bus = 'lvbus',
                    addr = 0xF3,
@@ -33,6 +36,7 @@ devices = dict(
                    maxage = 12,
                   ),
     lv3   = device('devices.vendor.toni.LVPower',
+                   description = 'LV power supply 4',
                    requires = {'level': 'admin'},
                    bus = 'lvbus',
                    addr = 0xF4,
@@ -40,6 +44,7 @@ devices = dict(
                    maxage = 12,
                   ),
     lv4   = device('devices.vendor.toni.LVPower',
+                   description = 'LV power supply 5',
                    requires = {'level': 'admin'},
                    bus = 'lvbus',
                    addr = 0xF5,
@@ -47,6 +52,7 @@ devices = dict(
                    maxage = 12,
                   ),
     lv5   = device('devices.vendor.toni.LVPower',
+                   description = 'LV power supply 6',
                    requires = {'level': 'admin'},
                    bus = 'lvbus',
                    addr = 0xF6,
@@ -54,6 +60,7 @@ devices = dict(
                    maxage = 12,
                   ),
     lv6   = device('devices.vendor.toni.LVPower',
+                   description = 'LV power supply 7',
                    requires = {'level': 'admin'},
                    bus = 'lvbus',
                    addr = 0xF7,
@@ -61,6 +68,7 @@ devices = dict(
                    maxage = 12,
                   ),
     lv7   = device('devices.vendor.toni.LVPower',
+                   description = 'LV power supply 8',
                    requires = {'level': 'admin'},
                    bus = 'lvbus',
                    addr = 0xF8,
@@ -68,23 +76,17 @@ devices = dict(
                    maxage = 12,
                   ),
     hv0   = device('devices.taco.VoltageSupply',
+                   description = 'ISEG HV power supply 1',
                    requires = {'level': 'admin'},
                    tacodevice = '//%s/toftof/iseg1/voltage' % (nethost,),
                    abslimits = (0, 1600),
                    ramp = 120,
                   ),
     hv1   = device('devices.taco.VoltageSupply',
+                   description = 'ISEG HV power supply 2',
                    requires = {'level': 'admin'},
                    tacodevice = '//%s/toftof/iseg2/voltage' % (nethost,),
                    abslimits = (0, 1600),
                    ramp = 120,
                   ),
-#   hvbus = device('devices.vendor.toni.ModBus',
-#                   tacodevice = '//%s/toftof/rs232/ifpowersupply' % (nethost,),
-#                   lowlevel = True),
-#   hv2   = device('toftof.iseg.IsegHV',
-#                   bus = 'hvbus',
-#                   toniaddr = 0xF0,
-#                   tonichannel = 2,
-#                   channel = 1),
 )

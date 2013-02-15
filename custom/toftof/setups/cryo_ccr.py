@@ -2,9 +2,9 @@ description = 'FRM-II CCR box with LakeShore LS336 controller'
 
 group = 'optional'
 
-includes = ['system', 'alias_T']
+includes = ['alias_T']
 
-nethost = 'ccr17.toftof.frm2'
+nethost = 'ccr17'
 
 devices = dict(
     cryo   = device('devices.taco.TemperatureController',

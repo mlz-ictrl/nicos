@@ -15,6 +15,7 @@ includes = [
 
 devices = dict(
     m = device('toftof.measurement.TofTofMeasurement',
+               description = 'Measurement object',
                detinfofile = '/users/data/detinfo.dat',
                filecounter = '/users/data/counter',
                timechannels = 4096,

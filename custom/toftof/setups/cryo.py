@@ -2,7 +2,7 @@ description = 'FRM-II cryo box with two LakeShore controllers'
 
 group = 'optional'
 
-includes = ['system', 'alias_T']
+includes = ['alias_T']
 
 nethost = 'toftofsrv.toftof.frm2'
 
