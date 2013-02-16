@@ -31,8 +31,10 @@ __version__ = "$Revision$"
 from IO import StringIO
 
 from nicos.core import Moveable, HasLimits, Param, Override, waitForStatus, \
-     floatrange, status, oneof, Device, CommunicationError, InvalidValueError
+     floatrange, status, oneof, CommunicationError, InvalidValueError, \
+     ConfigurationError, multiStatus
 from nicos.devices.taco.core import TacoDevice
+
 
 class OxfordMercury(HasLimits, TacoDevice, Moveable):
     """Class for the readout of a Mcc2-coder"""
@@ -100,7 +102,7 @@ class OxfordMercury(HasLimits, TacoDevice, Moveable):
         waitForStatus(self, 0.5)
 
     def doStop(self):
-        t = self._write('DEV:GRPZ:PSU:ACTN:HOLD')
+        self._write('DEV:GRPZ:PSU:ACTN:HOLD')
 
     def doReadRamp(self):
         if self.unit == 'A':
@@ -122,3 +124,77 @@ class OxfordMercury(HasLimits, TacoDevice, Moveable):
 #       if self._cache:
 #           self._cache.invalidate(self, 'value')
 
+
+
+class MercuryAsymmetricalMagnet(HasLimits, Moveable):
+
+    attached_devices = {
+        'ps1':   (OxfordMercury, 'First power supply (more current)'),
+        'ps2':   (OxfordMercury, 'Second power supply (less current)'),
+    }
+
+    # see Magnet handbook table 9.4.1.4
+    # mapping asymmetry to (max field, first coil, second coil at max field)
+    _scales = {
+        70: (2.5, 137.05, 24.19),
+        53: (3.0, 147.93, 45.44),
+        39: (3.5, 156.73, 68.79),
+        25: (4.0, 161.26, 96.76),
+        11: (4.5, 160.79, 129.27),
+    }
+
+    parameters = {
+        'asymmetry': Param('Degree of asymmetry', unit='percent',
+                           type=oneof(11, 25, 39, 53, 70), default=70,
+                           settable=True),
+    }
+
+    parameter_overrides = {
+        'unit':    Override(default='T', mandatory=False),
+    }
+
+    def doInit(self, mode):
+        if self._adevs['ps1'].unit != 'A' or \
+            self._adevs['ps2'].unit != 'A':
+            raise ConfigurationError(self, 'power supplies should have Ampere '
+                                     'unit for asymmetrical mode')
+
+    def doIsAllowed(self, value):
+        maxfield, maxcurr1, maxcurr2 = self._scales[self.asymmetry]
+        if abs(value) > maxfield:
+            return False, 'desired value exceeds maximum field allowed ' \
+                'for this asymmetry (%d%%)' % self.asymmetry
+        scale = value / maxfield
+        ok, why = self._adevs['ps1'].isAllowed(scale * maxcurr1)
+        if not ok:
+            return ok, why
+        return self._adevs['ps2'].isAllowed(scale * maxcurr2)
+
+    def doStart(self, value):
+        maxfield, maxcurr1, maxcurr2 = self._scales[self.asymmetry]
+        scale = value / maxfield
+        self._adevs['ps1'].start(scale * maxcurr1)
+        self._adevs['ps2'].start(scale * maxcurr2)
+
+    def doWait(self):
+        self._adevs['ps1'].wait()
+        self._adevs['ps2'].wait()
+
+    def doRead(self, maxage=0):
+        maxfield, maxcurr1, maxcurr2 = self._scales[self.asymmetry]
+        return self._adevs['ps1'].read(maxage) / maxcurr1 * maxfield
+
+    def doStatus(self, maxage=0):
+        return multiStatus([self._adevs['ps1'], self._adevs['ps2']], maxage)
+
+    def doStop(self):
+        # try to stop both supplies even if first stop() raises
+        try:
+            self._adevs['ps1'].stop()
+        finally:
+            self._adevs['ps2'].stop()
+
+    def doWriteAsymmetry(self, value):
+        if abs(self.read(0)) > 0.01:
+            raise ConfigurationError(self, 'cannot change asymmetry while the '
+                                     'magnet is powered up')
