@@ -128,6 +128,8 @@ class OxfordMercury(HasLimits, TacoDevice, Moveable):
 
 class MercuryAsymmetricalMagnet(HasLimits, Moveable):
 
+    hardware_access = False
+
     attached_devices = {
         'ps1':   (OxfordMercury, 'First power supply (more current)'),
         'ps2':   (OxfordMercury, 'Second power supply (less current)'),
@@ -141,11 +143,12 @@ class MercuryAsymmetricalMagnet(HasLimits, Moveable):
         39: (3.5, 156.73, 68.79),
         25: (4.0, 161.26, 96.76),
         11: (4.5, 160.79, 129.27),
+        0:  (5.0, 160.90, 0),
     }
 
     parameters = {
         'asymmetry': Param('Degree of asymmetry', unit='percent',
-                           type=oneof(11, 25, 39, 53, 70), default=70,
+                           type=oneof(0, 11, 25, 39, 53, 70), default=70,
                            settable=True),
     }
 
@@ -185,7 +188,7 @@ class MercuryAsymmetricalMagnet(HasLimits, Moveable):
         return self._adevs['ps1'].read(maxage) / maxcurr1 * maxfield
 
     def doStatus(self, maxage=0):
-        return multiStatus([self._adevs['ps1'], self._adevs['ps2']], maxage)
+        return multiStatus([('ps1', self._adevs['ps1']), ('ps2', self._adevs['ps2'])], maxage)
 
     def doStop(self):
         # try to stop both supplies even if first stop() raises
