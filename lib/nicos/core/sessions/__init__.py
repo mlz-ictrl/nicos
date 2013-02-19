@@ -183,7 +183,7 @@ class Session(object):
         # add some useful mathematical functions
         for name in [
             'pi', 'sqrt', 'sin', 'cos', 'tan', 'arcsin', 'arccos', 'arctan',
-            'exp', 'log', 'radians', 'degrees', 'ceil', 'floor', 'sqrt']:
+            'exp', 'log', 'radians', 'degrees', 'ceil', 'floor']:
             self.namespace[name] = getattr(numpy, name)
         # remove interactive Python interpreter stuff
         for name in ['credits', 'copyright', 'license', 'exit', 'quit']:
