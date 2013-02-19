@@ -91,7 +91,8 @@ class ELogPanel(Panel, DlgUtils):
             self.preview.setHtml(
                 '<style>body { font-family: sans-serif; }</style>'
                 '<p><b>The logbook HTML file does not seem to exist.</b></p>'
-                '<p>Please check that the file is created at %s and click '
+                '<p>Please check that the file is created and accessible on '
+                '<b>your local computer</b> at %s.  Then click '
                 '"refresh" above.' % escape(path.normpath(logfile)))
 
     def on_page_unsupportedContent(self, reply):
