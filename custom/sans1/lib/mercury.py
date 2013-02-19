@@ -62,6 +62,8 @@ class OxfordMercury(HasLimits, TacoDevice, Moveable):
 
     def doStart(self, value):
         self.doStop()
+        # XXX should switch on Heater switch here, but it is not clear
+        # from the handbook how!
         if self.unit == 'A':
             self._write('DEV:GRPZ:PSU:SIG:CSET:%f' % float(value))
         else:
