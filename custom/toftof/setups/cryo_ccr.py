@@ -1,7 +1,6 @@
 description = 'FRM-II CCR box with LakeShore LS336 controller'
-includes = ['system']
 
-includes = ['alias_T']
+includes = ['system', 'alias_T']
 
 nethost = 'ccr17.toftof.frm2'
 
@@ -69,7 +68,7 @@ devices = dict(
                     lowlevel = True,
                     tacodevice = '//%s/ccr/plc/fbgas' % (nethost, )),
 
-    cryo_g = device('toftof.ccr.DigitalOutput',
+    cryo_g = device('devices.vendor.frm2.CCRSwitch',
                     write = 'cryo_gs',
                     feedback = 'cryo_gr',),
 
@@ -81,7 +80,7 @@ devices = dict(
                     lowlevel = True,
                     tacodevice = '//%s/ccr/plc/fbvacuum' % (nethost, )),
 
-    cryo_v = device('toftof.ccr.DigitalOutput',
+    cryo_v = device('devices.vendor.frm2.CCRSwitch',
                     write = 'cryo_vs',
                     feedback = 'cryo_vr',), 
 
