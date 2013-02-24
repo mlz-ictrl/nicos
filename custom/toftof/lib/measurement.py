@@ -220,7 +220,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         head.append('ExperimentTitle: %s\n' % session.experiment.sample.samplename)
         head.append('ProposalTitle: %s\n' % session.experiment.title)
         head.append('ProposalNr: %s\n' % session.experiment.proposal)
-        #head.append('ExperimentTeam: %s\n' % ', '.join(session.experiment.users))
+#        head.append('ExperimentTeam: %s\n' % ', '.join(session.experiment.users))
         head.append('ExperimentTeam: %s\n' % session.experiment.users)
         head.append('LocalContact: %s\n' % session.experiment.localcontact)
         head.append('StartDate: %s\n' % strftime('%d.%m.%Y'))
@@ -310,7 +310,8 @@ class TofTofMeasurement(Measurable, ImageStorage):
                 self.log.debug('opened logfile %d for device %s' % (i, dev))
             except Exception:
                 self.log.warning('could not open device logfile for %s' % dev, exc=1)
-                self._devicelogs.pop(dev.name.lower(), None)
+                if isinstance(dev, Device):
+                    self._devicelogs.pop(dev.name.lower(), None)
             i += 1
 
     def _logCallback(self, key, value, time):
