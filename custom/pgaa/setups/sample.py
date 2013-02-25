@@ -26,27 +26,27 @@ description = 'sample table devices'
 
 # includes = ['system']
 
-nethost= '//pgaasrv.pgaa.frm2/'
+nethost= 'pgaasrv.pgaa.frm2'
 
 devices = dict(
     e1    = device('devices.taco.Coder',
-                   tacodevice = nethost + 'pgaa/phytronixe/e1',
+                   tacodevice = '//%s/pgaa/phytronixe/e1' % (nethost,),
                    fmtstr = '%7.3f',
                   ),
     ellip = device('devices.taco.DigitalInput',
-                   tacodevice = nethost + 'pgaa/phytronixe/ellip',
+                   tacodevice = '//%s/pgaa/phytronixe/ellip' % (nethost,),
                   ),
     ftube = device('devices.taco.DigitalInput',
-                   tacodevice = nethost + 'pgaa/phytronixe/ftube',
+                   tacodevice = '//%s/pgaa/phytronixe/ftube' % (nethost,),
                   ),
     press1 = device('devices.taco.DigitalInput',
-                    tacodevice = nethost + 'pgaa/phytronixe/press1',
+                    tacodevice = '//%s/pgaa/phytronixe/press1' % (nethost,),
                    ),
     press2 = device('devices.taco.DigitalInput',
-                    tacodevice = nethost + 'pgaa/phytronixe/press2',
+                    tacodevice = '//%s/pgaa/phytronixe/press2' % (nethost,),
                    ),
     sample  = device('devices.taco.motor.Motor',
-                     tacodevice = nethost + 'pgaa/phytronixe/sample',
+                     tacodevice = '//%s/pgaa/phytronixe/sample' % (nethost,),
                      fmtstr = '%7.3f',
                      abslimits = (-5, 356),
                     ),

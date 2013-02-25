@@ -24,17 +24,18 @@
 
 description = 'Vacuum sensors of sample chamber'
 
-group = 'vacuum'
+# group = 'vacuum'
+group = 'basic'
 
 # includes = ['system']
 includes = []
 
-nethost= '//pgaasrv.pgaa.frm2/'
+nethost= 'pgaasrv.pgaa.frm2'
 
 devices = dict(
     sample_p1 = device('devices.taco.AnalogInput',
                        description = 'vacuum sensor in sample chamber',
-                       tacodevice = nethost + 'pgaa/sample/vacuum',
+                       tacodevice = '//%s/pgaa/sample/vacuum' % (nethost,),
                        fmtstr = '%9.2E',
                        pollinterval = 15,
                        maxage = 60,
