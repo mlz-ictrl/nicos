@@ -199,7 +199,7 @@ class NicosCmdClient(NicosClient):
             # add to history, but only if requested and not the same as the
             # previous history entry
             if add_history and readline.get_history_item(
-                readline.get_current_history_length() - 1) != readline_result:
+                readline.get_current_history_length()) != readline_result:
                 librl.add_history(readline_result)
         elif readline_result is None:
             raise EOFError
