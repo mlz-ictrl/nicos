@@ -3,9 +3,9 @@ description = 'Huber rotation tables'
 group = 'optional'
 
 devices = dict(
-    tbl1    = device('devices.taco.Motor',
+    tbl2    = device('devices.taco.Motor',
                        lowlevel = False,
-                       tacodevice = 'mira/rot/tbl1',
+                       tacodevice = 'mira/rot/tbl2',
                        abslimits = (-360, 360),
                        resetcall = 'deviceReset'),
 )

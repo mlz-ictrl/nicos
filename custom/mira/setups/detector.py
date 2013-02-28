@@ -32,6 +32,12 @@ devices = dict(
                       maxage = 2,
                       pollinterval = 0.5),
 
+    det_fore = device('mira.forecast.Forecast',
+                      pollinterval = 0.5,
+                      maxage = 2,
+                      unit = '',
+                      det = 'det'),
+
     DetHV     = device('mira.iseg.IsegHV',
                        tacodevice = 'mira/network/rs12_2',
                        channel = 1,

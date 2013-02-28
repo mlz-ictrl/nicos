@@ -38,6 +38,20 @@ devices = dict(
                     tas = 'mira',
                     scanmode = 'CKF',
                     abslimits = (0, 10)),
+
+    Ei     = device('devices.tas.Energy',
+                    unit = 'meV',
+                    base = 'mono',
+                    tas = 'mira',
+                    scanmode = 'CKI',
+                    abslimits = (0, 10)),
+
+    Ef     = device('devices.tas.Energy',
+                    unit = 'meV',
+                    base = 'ana',
+                    tas = 'mira',
+                    scanmode = 'CKF',
+                    abslimits = (0, 10)),
 )
 
 startupcode = '''
