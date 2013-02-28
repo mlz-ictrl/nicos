@@ -34,7 +34,7 @@ from nicos.devices.taco.io import DigitalOutput, NamedDigitalOutput
 
 class BeckhoffDigitalOutput(DigitalOutput):
     """
-    Device object for a Varian Mini-Task (AG81 type) pump.
+    Device object for a digital output device via a Beckhoff modbus interface.
     """
     taco_class = Modbus
 
@@ -77,8 +77,6 @@ class BeckhoffNamedDigitalOutput(NamedDigitalOutput):
     parameters = {
         'startoffset': Param('Starting offset of digital output values',
                              type=int, mandatory=True),
-#        'bitwidth': Param('Number of bits to switch', type=int,
-#                          mandatory=True),
     }
 
     def doInit(self, mode):
