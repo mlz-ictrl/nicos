@@ -28,10 +28,12 @@
 __version__ = "$Revision$"
 
 from time import time as currenttime, sleep
+from collections import deque
 
 from nicos.core import status, Readable, Moveable, HasLimits, Param, \
      CommunicationError, TimeoutError, CacheError
 
+CACHE_NOSTATUS_STRING = 'no status found in cache'
 
 class CacheReader(Readable):
     """A readable device that gets values exclusively via cache.
@@ -62,7 +64,7 @@ class CacheReader(Readable):
                                  'no cache found')
 
     def doStatus(self, maxage=0):
-        return status.UNKNOWN, 'no status found in cache'
+        return status.UNKNOWN, CACHE_NOSTATUS_STRING
 
 
 class CacheWriter(HasLimits, Moveable):
@@ -81,7 +83,7 @@ class CacheWriter(HasLimits, Moveable):
         'setkey':    Param('Subkey to use to set the device value',
                            type=str, default='setpoint'),
         'window':    Param('Time window for checking stabilization (zero for '
-                           'no stabilization check)', unit='s', default=0.0,
+                           'no stabilization check)', unit='s', default=60.0,
                            settable=True, category='general'),
         'tolerance': Param('Size of the stabilization window', unit='main',
                            default=1.0, settable=True, category='general'),
@@ -105,26 +107,50 @@ class CacheWriter(HasLimits, Moveable):
                                  'no cache found')
 
     def doStatus(self, maxage=0):
-        return status.OK, 'no status found in cache'
+        return status.OK, CACHE_NOSTATUS_STRING
 
     def doStart(self, pos):
         self._cache.put(self, self.setkey, pos)
-        self._goal = pos
 
     def doWait(self):
         if self.window == 0:
-            return
-        values = []
-        # number of points to check; five points minimum
+            return self.read(0)
+        timesout = currenttime() + self.timeout
         histlen = max(int(self.window / self.loopdelay), 5)
-        waited = 0
-        while len(values) < 5 or \
-              max(values) > (self._goal + self.tolerance*0.5) or \
-              min(values) < (self._goal - self.tolerance*0.5):
-            sleep(self.loopdelay)
-            waited += self.loopdelay
-            values = [self.read()] + values[:histlen]
-            self.log.debug('waiting: %s s, values are %s' % (waited, values))
-            if waited >= self.timeout:
-                raise TimeoutError(self, 'timeout waiting for stabilization')
-        return values[0]
+        values = deque(maxlen=histlen)
+
+        mystat = self.status(0)
+
+        # is it worth to put his in an extra thread to derive a 'stable' status and give this back in doStatus???
+        while True:
+            if mystat[0] != status.BUSY and mystat[1] != CACHE_NOSTATUS_STRING:
+                break # we got a thrustworthy state of not beeing idle....
+
+            values.append(self.read(0))
+            self.log.debug('Values are %r'%list(values))
+
+            if len(values) == histlen:  # enough values ?
+                if max(values) - min(values) <= self.tolerance:     # we are 'kind of' stable
+                    if type(self.target) not in [float, int, long]: # stable, but no target to compare with -> OK
+                        self.log.debug('Stable but no target given')
+                        break
+                    elif ( max(values) <= self.target + self.tolerance*0.5 and
+                            self.target - self.tolerance*0.5 <= min(values) ):
+                        self.log.debug('Value considered stable')
+                        break
+                    self.log.debug('Value is stable but not within [target-tolerance/2, target+tolerance/2]')
+
+            self.log.debug('Still busy, %ds of %ds left, status is %r'%(
+                    timesout-currenttime(),
+                    self.timeout,
+                    mystat[1]
+                    ))
+
+            if currenttime() > timesout:
+                raise TimeoutError(self, 'timeout waiting for Status!')
+
+            sleep( self.loopdelay )
+            mystat = self.status(0)
+
+        return self.read(0)
+
