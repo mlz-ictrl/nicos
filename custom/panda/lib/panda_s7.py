@@ -30,7 +30,7 @@ from time import sleep, time as currenttime
 
 from nicos.core import status, intrange, oneof, anytype, Device, Param, \
      Readable, Moveable, NicosError, ProgrammingError, TimeoutError, \
-     formatStatus
+     formatStatus, Override, floatrange, usermethod, MoveError
 from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.generic.axis import Axis
@@ -243,9 +243,9 @@ class S7Motor(NicosMotor):
         bus.write(0, 'bit', 2, 2)      # clear ACK-Bit
         sleep(5)
         bus.write(0, 'bit', 0, 3)      # hebe stopbit auf
-        while self.doStatus()[0] != status.OK:
-            sleep(1)
+        while self.doStatus()[0] == status.BUSY:
             self.doStop()
+            sleep(1)
         self.log.info('Status is now:' + self.doStatus()[1])
 
     def _doStatus(self):
@@ -351,6 +351,8 @@ class S7Motor(NicosMotor):
         bus = self._adevs['bus']
         self.log.debug('read: '+ self.fmtstr % (self.sign*bus.read('float', 4))
                        + ' %s' % self.unit)
+        self.log.debug('MBarm at: '+ self.fmtstr % bus.read('float', 12)
+                       + ' %s' % self.unit)
         return self.sign*bus.read('float', 4)
 
     def doSetPosition(self, *args):
@@ -363,107 +365,465 @@ class S7Motor(NicosMotor):
             # 12 seconds per mobilblock which come ever 11 degree plus one extra
 
 
-class Panda_mtt(Axis):
+
+from nicos.abstract import Axis as BaseAxis
+import threading
+from nicos.core import status, HasOffset, Override, ConfigurationError, \
+     NicosError, PositionError, MoveError, waitForStatus, floatrange, \
+     Param, usermethod
+from time import sleep
+
+class Panda_mtt(BaseAxis):
     """
     Class for the control of the S7-Motor moving mtt.
     """
-    parameters = {
-        'sign':        Param('Sign of moving direction Value',
-                             type=oneof(-1.0, 1.0), default=-1.0),
-        'precision' :  Param('Precision of the device value', type=float,
-                             unit='main', settable=False, category='precisions', default=0.001),
-        'fmtstr':      Param('Format string for the device value', type=str,
-                             default='%.3f', settable=False),
-        'air_on':      Param('Value to send to air_enable device to switch on the air',
-                             type=anytype, default='on'),
-        'air_off':     Param('Value to send to air_enable device to switch off the air',
-                             type=anytype, default='off'),
-        'air_is_on' :  Param('Value from air_sensor indicating air is really on',
-                             type=anytype, default='off'),
-        'startdelay':  Param('Delay after switching air on', type=float,
-                             mandatory=True, unit='s'),
-        'stopdelay':   Param('Delay before switching air off', type=float,
-                             mandatory=True, unit='s'),
-        'air_timeout': Param('Timeout for switching air on or off', type=float,
-                             mandatory=False, unit='s', default=5),
-        'roundtime':   Param('Delay between each checks', type=float, mandatory=False,
-                             unit='s', default=0.1),
-    }
+    _pos_down = [ -32.35 - 10.99 * i for i in range(9) ]
+    _pos_up = [ -30.84 - 10.99 * i for i in range(9-1,-1,-1) ]
 
     attached_devices = {
-        # 'coder': Readable,
-        # 'motor': Moveable,
-        'air_enable': (Moveable, 'Switch to enable air'),
-        'air_sensor': (Readable, 'Air sensor device'),
+        'motor': (NicosMotor, 'Axis motor device'),
+        'coder': (NicosCoder, 'Main axis encoder device'),
+        'obs':   ([NicosCoder], 'Auxiliary encoders used to verify position, '
+                  'can be empty'),
     }
 
-    def _AirIsOn(self):
-        return self._adevs['air_sensor'].doRead() == self.air_is_on
+    parameter_overrides = {
+        'precision': Override(mandatory=True),
+        # these are not mandatory for the axis: the motor should have them
+        # defined anyway, and by default they are correct for the axis as well
+        'abslimits': Override(mandatory=False),
+    }
+
+    parameters = {
+        'speed':       Param('Motor speed', unit='main/s', volatile=True,
+                             settable=True),
+        'jitter':      Param('Amount of position jitter allowed', unit='main',
+                             type=floatrange(0.0, 10.0), settable=True),
+        'obsreadings': Param('Number of observer readings to average over '
+                             'when determining current position', type=int,
+                             default=100, settable=True),
+    }
+
+    def doInit(self, mode):
+        # Check that motor and unit have the same unit
+        if self._adevs['coder'].unit != self._adevs['motor'].unit:
+            raise ConfigurationError(self, 'different units for motor and coder'
+                                     ' (%s vs %s)' % (self._adevs['motor'].unit,
+                                                      self._adevs['coder'].unit))
+        # Check that all observers have the same unit as the motor
+        for ob in self._adevs['obs']:
+            if self._adevs['motor'].unit != ob.unit:
+                raise ConfigurationError(self, 'different units for motor '
+                                         'and observer %s' % ob)
+
+        self._hascoder = self._adevs['motor'] != self._adevs['coder']
+        self._errorstate = None
+        self._posthread = None
+        self._stoprequest = 0
+
+    @property
+    def motor(self):
+        return self._adevs['motor']
+
+    @property
+    def coder(self):
+        return self._adevs['coder']
+
+    def doReadUnit(self):
+        return self._adevs['motor'].unit
+
+    def doReadAbslimits(self):
+        # check axis limits against motor absolute limits (the motor should not
+        # have user limits defined)
+        if 'abslimits' in self._config:
+            amin, amax = self._config['abslimits']
+            mmin, mmax = self._adevs['motor'].abslimits
+            if amin < mmin:
+                raise ConfigurationError(self, 'absmin (%s) below the motor '
+                                         'absmin (%s)' % (amin, mmin))
+            if amax > mmax:
+                raise ConfigurationError(self, 'absmax (%s) above the motor '
+                                         'absmax (%s)' % (amax, mmax))
+        else:
+            mmin, mmax = self._adevs['motor'].abslimits
+            amin, amax = mmin, mmax
+        return amin, amax
+
+    def doIsAllowed(self, target):
+        # do limit check here already instead of in the thread
+        ok, why = self._adevs['motor'].isAllowed(target + self.offset)
+        if not ok:
+            return ok, 'motor cannot move there: ' + why
+        return True, ''
+
+    def doStart(self, target):
+        """Starts the movement of the axis to target."""
+        if self._checkTargetPosition(self.read(0), target, error=False):
+            self.log.debug('not moving, already at %.4f within precision' % target)
+            return
+
+        if self.status(0)[0] == status.BUSY:
+            self.log.debug('need to stop axis first')
+            self.stop()
+            waitForStatus(self, errorstates=())
+            #raise NicosError(self, 'axis is moving now, please issue a stop '
+            #                 'command and try it again')
+
+        if self._posthread:
+            self._posthread.join()
+            self._posthread = None
+
+        self._target = target
+        self._stoprequest = 0
+        self._errorstate = None
+        if not self._posthread:
+            self._posthread = threading.Thread(None, self.__positioningThread,
+                                               'Positioning thread')
+            self._posthread.start()
+
+    def doStatus(self, maxage=0):
+        """Returns the status of the motor controller."""
+        if self._posthread and self._posthread.isAlive():
+            return (status.BUSY, 'moving')
+        elif self._errorstate:
+            return (status.ERROR, str(self._errorstate))
+        else:
+            return self._adevs['motor'].status(maxage)
+
+    def doRead(self, maxage=0):
+        """Returns the current position from coder controller."""
+        return self._adevs['coder'].read(maxage) - self.offset
+
+    def doPoll(self, i):
+        if self._hascoder:
+            devs = [self._adevs['coder'], self._adevs['motor']] + self._adevs['obs']
+        else:
+            devs = [self._adevs['motor']] + self._adevs['obs']
+        for dev in devs:
+            dev.poll()
+        return self.doStatus(None), self.doRead(None)
+
+    def _getReading(self):
+        """Find a good value from the observers, taking into account that they
+        usually have lower resolution, so we have to average of a few readings
+        to get a (more) precise value.
+        """
+        # if coder != motor -> use coder (its more precise!)
+        # if no observers, rely on coder (even if its == motor)
+        if self._hascoder or not self._adevs['obs']:
+            # read the coder
+            return self._adevs['coder'].read(0)
+        obs = self._adevs['obs']
+        rounds = self.obsreadings
+        pos = sum(o.doRead() for _ in range(rounds) for o in obs)
+        return pos / float(rounds * len(obs))
+
+    def doReset(self):
+        """Resets the motor/coder controller."""
+        self._adevs['motor'].reset()
+        if self._hascoder:
+            self._adevs['coder'].reset()
+        for obs in self._adevs['obs']:
+            obs.reset()
+        if self.status(0)[0] != status.BUSY:
+            self._errorstate = None
+        self._adevs['motor'].setPosition(self._getReading())
+        if not self._hascoder:
+            self.log.info('reset done; use %s.reference() to do a reference '
+                          'drive' % self)
+
+    @usermethod
+    def reference(self, force=False):
+        """Do a reference drive, if the motor supports it."""
+        if self.fixed:
+            self.log.error('device fixed, not referencing: %s' % self.fixed)
+            return
+        if self._hascoder and not force:
+            self.log.warning('this is an encoded axis; use '
+                             '%s.reference(True) to force reference drive'
+                             % self)
+        motor = self._adevs['motor']
+        if hasattr(motor, 'reference'):
+            motor.reference()
+        else:
+            self.log.error('motor %s does not have a reference routine' % motor)
+
+    def doStop(self):
+        """Stops the movement of the motor."""
+        self._stoprequest = 1
+
+    def doWait(self):
+        """Waits until the movement of the motor has stopped and
+        the target position has been reached.
+        """
+        # XXX add a timeout?
+        waitForStatus(self, 2 * self.loopdelay, errorstates=())
+        if self._errorstate:
+            errorstate = self._errorstate
+            self._errorstate = None
+            raise errorstate
+
+    def doWriteSpeed(self, value):
+        self._adevs['motor'].speed = value
+
+    def doReadSpeed(self):
+        return self._adevs['motor'].speed
+
+    def doWriteOffset(self, value):
+        """Called on adjust(), overridden to forbid adjusting while moving."""
+        if self.status(0)[0] == status.BUSY:
+            raise NicosError(self, 'axis is moving now, please issue a stop '
+                             'command and try it again')
+        if self._errorstate:
+            raise self._errorstate
+        HasOffset.doWriteOffset(self, value)
 
     def _preMoveAction(self):
-        """ This method will be called before the motor will be moved.
-        We wait the minimum time, switch on the air and check that it is there"""
-        for d in [self._adevs['motor'],self._adevs['coder']]:
-            d.poll()
-        sleep(self.startdelay)
-        self.log.debug('switching air to ON')
-        self._adevs['air_enable'].move(self.air_on)   # switch air on
-        timewaited = 0
-        while timewaited <= self.air_timeout:
-            if self._AirIsOn():
-                self.log.debug('Air is ON')
-                self._timeouttime = currenttime()+self.doTime(self.read(), self.target) # set timeout time
-                return
-            self.log.debug('waiting for air')
-            sleep(self.roundtime)
-            timewaited += self.roundtime
-        raise Exception('air did not come up') #-> Error, don't attempt to move!
+        """This method will be called before the motor will be moved.
+        It should be overwritten in derived classes for special actions.
+
+        To abort the move, raise an exception from this method.
+        """
 
     def _postMoveAction(self):
-        """ This method will be called after the axis reached the position or
+        """This method will be called after the axis reached the position or
         will be stopped.
-        we wait the minimum time, switch off the air and check that it's gone"""
-        sleep(self.stopdelay)
-        self.log.debug('switching air to OFF')
-        self._adevs['air_enable'].move(self.air_off)  # switch air off
-        timewaited = 0
-        for d in [self._adevs['motor'],self._adevs['coder']]:
-            d.poll()
-        while timewaited <= self.air_timeout:
-            if not(self._AirIsOn()):
-                self.log.debug('Air is OFF')
-                return
-            self.log.debug('waiting for air')
-            sleep(self.roundtime)
-            timewaited += self.roundtime
-        self.log.warning('Air did not switch off properly!')
-        return True             # XXX Air didn't stop -> Is this really an Error? Or merely a Warning?
+        It should be overwritten in derived classes for special actions.
+
+        To signal an error, raise an exception from this method.
+        """
+
+    def _duringMoveAction(self, position):
+        """This method will be called during every cycle in positioning thread.
+        It should be used to do some special actions like changing shielding
+        blocks, checking for air pressure etc.  It should be overwritten in
+        derived classes.
+
+        To abort the move, raise an exception from this method.
+        """
+
+    def _checkDragerror(self):
+        """Check if a "drag error" occurred, i.e. the values of motor and
+        coder deviate too much.  This indicates that the movement is blocked.
+
+        This method sets the error state and returns False if a drag error
+        occurs, and returns True otherwise.
+        """
+        diff = abs(self._adevs['motor'].read() - self._adevs['coder'].read())
+        self.log.debug('motor/coder diff: %s' % diff)
+        maxdiff = self.dragerror
+        if maxdiff <= 0:
+            return True
+        if diff > maxdiff:
+            self._errorstate = MoveError(
+                self, 'drag error (primary coder): difference %.4g, maximum %.4g' %
+                (diff, maxdiff))
+            return False
+        for obs in self._adevs['obs']:
+            diff = abs(self._adevs['motor'].read() - obs.read())
+            if diff > maxdiff:
+                self._errorstate = PositionError(
+                    self, 'drag error (%s): difference %.4g, maximum %.4g' %
+                    (obs.name, diff, maxdiff))
+                return False
+        return True
+
+    def _checkMoveToTarget(self, target, pos):
+        """Check that the axis actually moves towards the target position.
+
+        This method sets the error state and returns False if a drag error
+        occurs, and returns True otherwise.
+        """
+        delta_last = self._lastdiff
+        delta_curr = abs(pos - target)
+        self.log.debug('position delta: %s, was %s' % (delta_curr, delta_last))
+        # at the end of the move, the motor can slightly overshoot during
+        # movement we also allow for small jitter, since airpads usually wiggle
+        # a little resulting in non monotonic movement!
+        ok = (delta_last >= (delta_curr - self.jitter)) or \
+            delta_curr < self.precision
+        # since we allow to move away a little, we want to remember the smallest
+        # distance so far so that we can detect a slow crawl away from the
+        # target which we would otherwise miss
+        self._lastdiff = min(delta_last, delta_curr)
+        if not ok:
+            self._errorstate = MoveError(self,
+                'not moving to target: last delta %.4g, current delta %.4g'
+                % (delta_last, delta_curr))
+            return False
+        return True
+
+    def _checkTargetPosition(self, target, pos, error=True):
+        """Check if the axis is at the target position.
+
+        This method returns False if not arrived at target, or True otherwise.
+        """
+        diff = abs(pos - target)
+        prec = self.precision
+        if (prec > 0 and diff >= prec) or (prec == 0 and diff):
+            if error:
+                self._errorstate = MoveError(self,
+                    'precision error: difference %.4g, precision %.4g' %
+                    (diff, self.precision))
+            return False
+        maxdiff = self.dragerror
+        for obs in self._adevs['obs']:
+            diff = abs(target - obs.read())
+            if maxdiff > 0 and diff > maxdiff:
+                if error:
+                    self._errorstate = PositionError(self,
+                        'precision error (%s): difference %.4g, maximum %.4g' %
+                        (obs, diff, maxdiff))
+                return False
+        return True
+
+    def _setErrorState(self, cls, text):
+        self._errorstate = cls(self, text)
+        self.log.error(text)
+        return False
+
+    def __positioning(self, target, precise=True):
+        self.log.debug('start positioning, target is %s' % target)
+        moving = False
+        offset = self.offset
+        tries = self.maxtries
+        self._lastdiff = abs(target - self.read(0))
+        self._adevs['motor'].start(target + offset)
+        moving = True
+        stoptries = 0
+
+        while moving:
+            if self._stoprequest == 1:
+                self.log.debug('stopping motor')
+                self._adevs['motor'].stop()
+                self._stoprequest = 2
+                stoptries = 10
+                continue
+            sleep(self.loopdelay)
+            # poll accurate current values and status of child devices so that
+            # we can use read() and status() subsequently
+            st, pos = self.poll()
+            mstatus, mstatusinfo = self._adevs['motor'].status()
+            if mstatus != status.BUSY:
+                # motor stopped; check why
+                if self._stoprequest == 2:
+                    self.log.debug('stop requested, leaving positioning')
+                    # manual stop
+                    moving = False
+                elif not precise and not self._errorstate:
+                    self.log.debug('motor stopped and precise positioning '
+                                   'not requested')
+                    moving = False
+                elif self._checkTargetPosition(target, pos):
+                    self.log.debug('target reached, leaving positioning')
+                    # target reached
+                    moving = False
+                elif mstatus == status.ERROR:
+                    self.log.debug('motor in error status (%s), trying reset' %
+                                   mstatusinfo)
+                    # motor in error state -> try resetting
+                    newstatus = self._adevs['motor'].reset()
+                    # if that failed, stop immediately
+                    if newstatus[0] == status.ERROR:
+                        moving = False
+                        self._setErrorState(MoveError,
+                            'motor in error state: %s' % newstatus[1])
+                elif tries > 0:
+                    if tries == 1:
+                        self.log.warning('last try: %s' % self._errorstate)
+                    else:
+                        self.log.debug('target not reached, retrying: %s' %
+                                       self._errorstate)
+                    self._errorstate = None
+                    # target not reached, get the current position, set the
+                    # motor to this position and restart it. _getReading is the
+                    # 'real' value, may ask the coder again (so could slow
+                    # down!)
+                    self._adevs['motor'].setPosition(self._getReading())
+                    self._adevs['motor'].start(target + self.offset)
+                    tries -= 1
+                else:
+                    moving = False
+                    self._setErrorState(MoveError,
+                        'target not reached after %d tries: %s' %
+                        (self.maxtries, self._errorstate))
+            elif not self._checkMoveToTarget(target, pos):
+                self.log.debug('stopping motor because not moving to target')
+                self._adevs['motor'].stop()
+                # should now go into next try
+            elif not self._checkDragerror():
+                self.log.debug('stopping motor due to drag error')
+                self._adevs['motor'].stop()
+                # should now go into next try
+            elif self._stoprequest == 0:
+                try:
+                    self._duringMoveAction(pos)
+                except Exception, err:
+                    self._setErrorState(MoveError,
+                                        'error in during-move action: %s' % err)
+                    self._stoprequest = 1
+            elif self._stoprequest == 2:
+                # motor should stop, but does not want to?
+                stoptries -= 1
+                if stoptries < 0:
+                    self._setErrorState(MoveError,
+                        'motor did not stop after stop request, aborting')
+                    moving = False
+
+    def __positioningThread(self):
+        ''' try to work around a buggy SPS.
+        Idea is to go close to the block exchange position, then to the block exchange position (triggering the blockexchange but not moving mtt.motor) and so on
+        Idea is partially based on the backlash correction code, which it replace for this axis'''
+        try:
+            self._preMoveAction()
+        except Exception, err:
+            self._setErrorState(MoveError, 'error in pre-move action: %s' % err)
+            return
+        target = self._target
+        self._errorstate = None
+        positions = []
+
+        # check if we need to insert block-changing positions.
+        curpos = self.motor.read(0)
+        for v in self._pos_down:
+            if curpos >= v-self.offset >= target:
+                self.log.debug('Blockchange at '+self.fmtstr%v)
+                positions.append((v-self.offset+0.1,True)) # go close to block exchange pos
+                positions.append((v-self.offset+0.01,True))       # go to block exchange pos and exchange blocks
+                positions.append((v-self.offset-0.01,True)) # go close to block exchange pos
+                positions.append((v-self.offset-0.1,True))       # go to block exchange pos and exchange blocks
+        for v in self._pos_up:
+            if curpos <= v-self.offset <= target:
+                self.log.debug('Blockchange at '+self.fmtstr%v)
+                positions.append((v-self.offset-0.1,True)) # go close to block exchange pos
+                positions.append((v-self.offset-0.01,True))       # go to block exchange pos and exchange blocks
+                positions.append((v-self.offset+0.01,True)) # go close to block exchange pos
+                positions.append((v-self.offset+0.1,True))       # go to block exchange pos and exchange blocks
+
+        positions.append( (target, True) )      # last step: go to target
+        self.log.debug('Target positions are: '+', '.join([ self.fmtstr%p[0] for p in positions ]))
+
+        for (pos, precise) in positions:
+            try:
+                self.log.debug('go to '+self.fmtstr%pos)
+                self.__positioning(pos, precise)
+            except Exception, err:
+                self._setErrorState(MoveError,
+                                    'error in positioning: %s' % err)
+            if self._stoprequest == 2 or self._errorstate:
+                break
+        try:
+            self._postMoveAction()
+        except Exception, err:
+            self._setErrorState(MoveError,
+                                'error in post-move action: %s' % err)
 
     def doTime(self, here, there):
+        ''' convinience function to help estimate timings'''
         t = (abs(here - there)/0.14  # 7 seconds per degree continous moving
-            + 12*(int(abs(here - there) / 11) + 2.5)      # 12 seconds per monoblockchange + reserve
-            + self.stopdelay + self.startdelay + 2*self.air_timeout) # don't forget those!!!
+            + 12*(int(abs(here - there) / 11) + 2.5) )      # 12 seconds per monoblockchange + reserve
         # 2009/08/24 EF for small movements, an additional 0.5 monoblock time might be required
         # for the arm to move to the right position
         self.log.debug('calculated Move-Timeout is %d seconds' % t)
         return t
 
-    def _duringMoveAction(self, position):
-        """ This method will be called during every cycle in positioning thread
-        Continously check the air_state during movement
-        If Air fails, abort!
-        """
-        self.log.debug('checking status')
-        self.poll()
-        if not self._AirIsOn():
-            raise Exception('air went out') # if Air goes out, abort!
-        self.log.debug('checking timeout: %d > %d ?' % (self._timeouttime,currenttime()))
-        if self._timeouttime < currenttime():
-            raise TimeoutError(self, 'Timeout reached!')
-        return
-
-    def doReset(self):
-        ''' for Convinience, switch off Air upon reset'''
-        Axis.doReset(self)
-        if self.doStatus()[0] == status.OK:
-            self._adevs['air_enable'].move(self.air_off)  # switch air off, if (and only if) Idle

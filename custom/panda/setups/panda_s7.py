@@ -24,7 +24,8 @@ devices = dict(
                                     abslimits = (-132, -20),
                                     lowlevel = True,
                                     ),
-    mtt = device('devices.generic.Axis',
+    #~ mtt = device('devices.generic.Axis',
+    mtt = device('panda.panda_s7.Panda_mtt',
                                     description = 'PANDA\'s main Axis, TwoTheta of Monochromator',
                                     unit = 'deg',
                                     abslimits = (-132, -20),
@@ -32,8 +33,7 @@ devices = dict(
                                     motor = 's7motor',
                                     obs = ['mtt_enc'],
                                     precision = 0.01,
-                                    #offset = 0.06,
-                                    offset = 0.1,
+                                    offset = 0.6,
                                     dragerror = -1.,	# do not check drag errors as this is done in SPS
                                     jitter = 0.5,	# work around a bug in S7
                                     ),
