@@ -524,6 +524,14 @@ class ContinuousScan(Scan):
     def run(self):
         device = self._devices[0]
         detlist = self._detlist
+        ok, why = device.isAllowed(self._startpos)
+        if not ok:
+            raise LimitError('Cannot move to start value for %s: %s' %
+                             (device, why))
+        ok, why = device.isAllowed(self._endpos)
+        if not ok:
+            raise LimitError('Cannot move to end value for %s: %s' %
+                             (device, why))
         try:
             self.prepareScan([self._startpos])
         except (StopScan, SkipPoint):
