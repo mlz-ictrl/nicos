@@ -50,15 +50,16 @@ class SetupPanel(Panel, DlgUtils):
         self.basicSetup.clear()
         self.optSetups.clear()
         keep = QListWidgetItem('<keep current>', self.basicSetup)
-        for name, info in sorted(self._setupinfo.items()):
-            if info['group'] == 'basic':
-                QListWidgetItem(name, self.basicSetup)
-            elif info['group'] == 'optional':
-                item = QListWidgetItem(name, self.optSetups)
-                item.setFlags(Qt.ItemIsUserCheckable |
-                              Qt.ItemIsSelectable |
-                              Qt.ItemIsEnabled)
-                item.setCheckState(Qt.Unchecked)
+        if self._setupinfo is not None:
+            for name, info in sorted(self._setupinfo.items()):
+                if info['group'] == 'basic':
+                    QListWidgetItem(name, self.basicSetup)
+                elif info['group'] == 'optional':
+                    item = QListWidgetItem(name, self.optSetups)
+                    item.setFlags(Qt.ItemIsUserCheckable |
+                                  Qt.ItemIsSelectable |
+                                  Qt.ItemIsEnabled)
+                    item.setCheckState(Qt.Unchecked)
         self.basicSetup.setCurrentItem(keep)
 
     def on_basicSetup_itemClicked(self, item):

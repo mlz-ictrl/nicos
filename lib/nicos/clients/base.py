@@ -303,7 +303,7 @@ class NicosClient(object):
         try:
             return ast.literal_eval(result)
         except (Exception, KeyboardInterrupt), err:
-            print '!!! error evaluating eval() result', err
+            print '!!! error evaluating eval() result %r:' % result, err
             return default
 
     def read(self):
