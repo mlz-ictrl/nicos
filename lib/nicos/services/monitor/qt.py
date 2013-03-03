@@ -163,7 +163,10 @@ if QwtPlot:
                 self.mincurve.setData([xx[0], xx[-1]], [self.minv, self.minv])
             if self.maxcurve:
                 self.maxcurve.setData([xx[0], xx[-1]], [self.maxv, self.maxv])
-            self.replot()
+            if self.zoomer.zoomRect() == self.zoomer.zoomBase():
+                self.zoomer.setZoomBase(True)
+            else:
+                self.replot()
             self.ctimers[curve].start(5000)
 
 
