@@ -252,7 +252,11 @@ class TimeScaleDraw(QwtScaleDraw):
 class TimeScaleEngine(QwtLinearScaleEngine):
     def divideScale(self, x1, x2, maxmaj, maxmin, stepsize=0.):
         interval = QwtDoubleInterval(x1, x2).normalized()
-        ticks = self._buildTimeTicks(x1, x2)
+        try:
+            ticks = self._buildTimeTicks(x1, x2)
+        except Exception:
+            print '!!! could not build ticking for', x1, 'and', x2
+            ticks = [], [], [x1, x2]
         #print ticks
         scalediv = QwtScaleDiv(interval, *ticks)
         if x1 > x2:
