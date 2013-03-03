@@ -47,13 +47,27 @@ _tasblock = Block(
 _tempblock = Block(
     'Temperature',
     [BlockRow(Field(dev='T'), Field(key='t/setpoint', name='Setpoint')),
-     BlockRow(Field(dev='T', plot='T', interval=300, width=50),
-              Field(key='t/setpoint', name='SetP', plot='T', interval=300))],
+#     BlockRow(Field(dev='T', plot='T', interval=300, width=50),
+#              Field(key='t/setpoint', name='SetP', plot='T', interval=300))
+    ],
     'temperature')
 
 _rightcolumn = Column(_axisblock, _detectorblock)
 
-_leftcolumn = Column(_tasblock, _tempblock)
+_leftcolumn = Column(_tasblock)#, _tempblock)
+
+_sansblock = Block(
+    'SANS',
+    [BlockRow(
+        Field(dev='guide', name='Guide', widget='nicos.sans1.monitorwidgets.BeamOption',
+              width=10, height=4),
+        Field(dev='coll', name='Collimation', widget='nicos.sans1.monitorwidgets.BeamOption',
+              width=10, height=4),
+        Field(dev='tube', name='Tube', widget='nicos.sans1.monitorwidgets.Tube', width=30, height=10)),
+    ],
+    'sans')
+
+_sanscolumn = Column(_sansblock)
 
 
 devices = dict(
@@ -63,7 +77,8 @@ devices = dict(
                      cache = 'localhost:14869',
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
-                     padding = 5,
-                     layout = [Row(_expcolumn), Row(_rightcolumn, _leftcolumn)],
+                     padding = 0,
+                     layout = [Row(_expcolumn), Row(_rightcolumn, _leftcolumn),
+                               Row(_sanscolumn)],
                      notifiers = [])
 )
