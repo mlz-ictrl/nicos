@@ -80,7 +80,7 @@ def test_switcher():
     sw.maw('right')
     assert v3.read() == 3
 
-    assert sw.status() == v3.status()
+    assert sw.status()[0] == v3.status()[0]
 
     assert raises(NicosError, sw.start, '#####')
     assert raises(LimitError, sw.start, 'outside')
@@ -89,6 +89,7 @@ def test_switcher():
     assert sw.read(0) == 'left'
     v3.maw(1.2)
     assert raises(PositionError, sw.read, 0)
+    assert sw.status(0)[0] == status.NOTREACHED
 
     assert raises(ConfigurationError, session.getDevice, 'broken_sw')
 
@@ -100,7 +101,7 @@ def test_switcher():
     v3.maw(3)
     assert rsw.read(0) == 'right'
 
-    assert rsw.status() == v3.status()
+    assert rsw.status()[0] == v3.status()[0]
 
 def test_paramdev():
     v1 = session.getDevice('v1')

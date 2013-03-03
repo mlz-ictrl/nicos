@@ -27,7 +27,7 @@
 __version__ = "$Revision$"
 
 from nicos.core import anytype, statelist, ConfigurationError, PositionError, \
-     NicosError, Moveable, Readable, Param, Override
+     NicosError, Moveable, Readable, Param, Override, status
 
 
 class Switcher(Moveable):
@@ -99,7 +99,18 @@ class Switcher(Moveable):
                             self._adevs['moveable'])
 
     def doStatus(self, maxage=0):
-        return self._adevs['moveable'].status(maxage)
+        # if the underlying device is moving or in error state,
+        # reflect its status
+        move_status = self._adevs['moveable'].status(maxage)
+        if move_status[0] != status.OK:
+            return move_status
+        # otherwise, we have to check if we are at a known position,
+        # and otherwise return an error status
+        try:
+            self.read(maxage)
+        except PositionError, e:
+            return status.NOTREACHED, str(e)
+        return status.OK, ''
 
 
 class ReadonlySwitcher(Readable):
