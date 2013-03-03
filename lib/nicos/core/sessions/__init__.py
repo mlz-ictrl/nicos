@@ -746,7 +746,12 @@ class Session(object):
             self.log.info('loading previously used master setups: ' +
                           ', '.join(setups))
             self.unloadSetup()
-            self.loadSetup(setups)
+            try:
+                self.loadSetup(setups)
+            except NicosError:
+                self.log.warning('could not load previous setups, falling '
+                                 'back to startup setup')
+                self.loadSetup(setup)
 
     def commandHandler(self, command, compiler):
         """This method is called when the user executes a simple command.  It
